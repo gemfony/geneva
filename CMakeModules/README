@@ -1,7 +1,12 @@
-This folder contains CMake modules needed for building Geneva or used alongside of it. 
-At current, it holds 
-- the CMake 2.8 version of FindBoost.cmake, as some older versions seemed to be broken.
-- a module for finding the Geneva library in the file system
-- a set of functions that try to identify the host system
+This folder contains CMake modules needed for building Geneva or used alongside
+of it. Currently it holds:
+
+- the CMake 3.0 version of FindBoost.cmake, as some older versions seemed to be broken,
+- a module for finding the Geneva library in the file system,
+- a module used to try to identify the host system and compiler details,
+- a module used to clean up the CMake build folder,
+- a module containing shared functionality for the Geneva "full tree" build,
+  and for independent builds of the examples or test programs.
+
 
 See the files for licensing information.

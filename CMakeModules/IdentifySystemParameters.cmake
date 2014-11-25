@@ -30,6 +30,7 @@
 # http://www.gemfony.eu .
 #
 ###############################################################################
+
 # Include guard
 IF(NOT IDENTIFY_SYSTEM_PARAMETERS_INCLUDED)
 SET(IDENTIFY_SYSTEM_PARAMETERS_INCLUDED TRUE)
@@ -85,27 +86,27 @@ MACRO (
 	#--------------------------------------------------------------------------
 	IF(GENEVA_BUILD_TYPE)
 		IF(${GENEVA_BUILD_TYPE} STREQUAL "Debug")
-			MESSAGE ("Setting the build type to Debug")
+			SET(MSG "Setting the build type to Debug")
 			SET(CMAKE_BUILD_TYPE "Debug")
 		ELSEIF(${GENEVA_BUILD_TYPE} STREQUAL "Release")
-			MESSAGE ("Setting the build type to Release")
+			SET(MSG "Setting the build type to Release")
 			SET(CMAKE_BUILD_TYPE "Release")
 		ELSEIF(${GENEVA_BUILD_TYPE} STREQUAL "Sanitize")
-			MESSAGE ("Setting the build type to Sanitize")
-			MESSAGE ("This will default to Debug on systems that do not support this setting")
+			SET(MSG "Setting the build type to Sanitize\n"
+				"This will default to Debug on systems that do not support this setting")
 			SET(CMAKE_BUILD_TYPE "Debug")
 		ELSE()
-			MESSAGE (FATAL_ERROR "Unknown compilation mode GENEVA_BUILD_TYPE=${GENEVA_BUILD_TYPE}")
+			MESSAGE (FATAL_ERROR "Unknown compilation mode GENEVA_BUILD_TYPE=${GENEVA_BUILD_TYPE}!")
 		ENDIF()
-	ELSEIF(CMAKE_BUILD_TYPE) # CMAKE_BUILD_TYPE is set and not empty
-		MESSAGE ("Using build type of CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
+	ELSEIF(CMAKE_BUILD_TYPE) # GENEVA_BUILD_TYPE is unset, but CMAKE_BUILD_TYPE is set and not empty
+		SET(MSG "Using build type CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
 		SET(GENEVA_BUILD_TYPE "${CMAKE_BUILD_TYPE}")
-	ELSE()
-		MESSAGE ("Setting the build type to default value Debug")
+	ELSE() # Both variables are unset
+		SET(MSG "Setting the build type to default value Debug")
 		SET(CMAKE_BUILD_TYPE "Debug")
 		SET(GENEVA_BUILD_TYPE "Debug")
 	ENDIF()
-	MESSAGE ("")
+	MESSAGE ("\n${MSG}\n")
 	#--------------------------------------------------------------------------
 
 ENDMACRO()
@@ -131,34 +132,8 @@ FUNCTION (
 	ELSEIF (${GENEVA_CXX_STANDARD_STRING_IN} MATCHES "cxx98")
 		SET(${GENEVA_CXX_STANDARD_ID_OUT} "0" PARENT_SCOPE)
 	ELSE()
-		MESSAGE(FATAL_ERROR "Error: Requested C++ standard ${GENEVA_CXX_STANDARD_STRING_IN} is not supported")
-	ENDIF()
-	#--------------------------------------------------------------------------
-
-ENDFUNCTION()
-
-###############################################################################
-# Assigns a standard string to an id
-#
-# 0 means cxx98
-# 1 means cxx11
-# 2 means cxx14
-#
-FUNCTION (
-	GET_STANDARD_STRING
-	GENEVA_CXX_STANDARD_ID_IN
-	GENEVA_CXX_STANDARD_STRING_OUT
-)
-
-	#--------------------------------------------------------------------------
-	IF("${GENEVA_CXX_STANDARD_ID_IN}" MATCHES "2")
-	SET(${GENEVA_CXX_STANDARD_STRING_OUT}  "cxx14" PARENT_SCOPE)
-	ELSEIF("${GENEVA_CXX_STANDARD_ID_IN}" MATCHES "1")
-	SET(${GENEVA_CXX_STANDARD_STRING_OUT}  "cxx11" PARENT_SCOPE)
-	ELSEIF("${GENEVA_CXX_STANDARD_ID_IN}" MATCHES "0")
-	SET(${GENEVA_CXX_STANDARD_STRING_OUT}  "cxx98" PARENT_SCOPE)
-	ELSE()
-		MESSAGE(FATAL_ERROR "Error: Requested C++ standard ${GENEVA_CXX_STANDARD_ID_IN} is not supported")
+		MESSAGE(FATAL_ERROR "Requested C++ standard GENEVA_CXX_STD=${GENEVA_CXX_STANDARD_STRING_IN}"
+			" is not supported!")
 	ENDIF()
 	#--------------------------------------------------------------------------
 
@@ -402,7 +377,8 @@ FUNCTION (
 		)
 
 		IF("${GENEVA_CXX_DESIRED_STANDARD_SUPPORTED}" STREQUAL "unsupported")
-			MESSAGE(FATAL_ERROR  "Error: Requested C++ standard is ${GENEVA_CXX_DESIRED_STANDARD_IN} while maximum supported standard is ${GENEVA_MAX_CXX_STANDARD_IN}")
+			MESSAGE(FATAL_ERROR "Requested C++ standard is ${GENEVA_CXX_DESIRED_STANDARD_IN}"
+				" while maximum supported standard is ${GENEVA_MAX_CXX_STANDARD_IN}!")
 		ENDIF()
 
 		SET(${GENEVA_ACTUAL_CXX_STANDARD_OUT} "${GENEVA_CXX_DESIRED_STANDARD_IN}" PARENT_SCOPE)
@@ -473,7 +449,7 @@ FUNCTION (
 				"${GENEVA_COMPILER_FLAGS} -O3 -DNDEBUG"
 			)
 		ELSE()
-			MESSAGE(FATAL_ERROR "Build mode ${GENEVA_BUILD_MODE_IN} is not supported")
+			MESSAGE(FATAL_ERROR "Build mode ${GENEVA_BUILD_MODE_IN} is not supported!")
 		ENDIF()
 
 	#*****************************************************************
@@ -546,7 +522,7 @@ FUNCTION (
 				"${GENEVA_COMPILER_FLAGS} -O3 -DNDEBUG"
 			)
 		ELSE()
-			MESSAGE(FATAL_ERROR "Build mode ${GENEVA_BUILD_MODE_IN} is not supported")
+			MESSAGE(FATAL_ERROR "Build mode ${GENEVA_BUILD_MODE_IN} is not supported!")
 		ENDIF()
 
 		# Switch on Googles thread-sanitizer if this is a supported platform and the feature was requested.
@@ -636,7 +612,7 @@ FUNCTION (
 			MESSAGE("######################################################################################")
 			MESSAGE("# Compiler ${GENEVA_COMPILER_NAME_IN} is not supported on MacOSX. Use Clang instead. #")
 			MESSAGE("######################################################################################")
-			MESSAGE(FATAL_ERROR)
+			MESSAGE(FATAL_ERROR "Unsupported platform!")
 		ENDIF()
 
 		# Only MacOS X >= 10.9 Mavericks is supported
@@ -644,7 +620,7 @@ FUNCTION (
 			MESSAGE("####################################################")
 			MESSAGE("# Geneva only supports MacOS X >= 10.9 / Mavericks #")
 			MESSAGE("####################################################")
-			MESSAGE(FATAL_ERROR)
+			MESSAGE(FATAL_ERROR "Unsupported platform!")
 		ENDIF()
 
 		# Static linking on MacOSX is not currently supported
@@ -652,7 +628,7 @@ FUNCTION (
 			MESSAGE("##################################################################")
 			MESSAGE("# Static linking is not currently supported by Geneva on MacOS X #")
 			MESSAGE("##################################################################")
-			MESSAGE(FATAL_ERROR)
+			MESSAGE(FATAL_ERROR "Unsupported platform!")
 		ENDIF()
 
 		# Only C++98 is supported at the time being on MacOS X
@@ -660,7 +636,7 @@ FUNCTION (
 			MESSAGE("#########################################")
 			MESSAGE("# Geneva only supports C++98 on MacOS X #")
 			MESSAGE("#########################################")
-			MESSAGE(FATAL_ERROR)
+			MESSAGE(FATAL_ERROR "Unsupported platform!")
 		ENDIF()
 
 	ELSEIF("${GENEVA_OS_NAME_IN}" STREQUAL "Linux")
@@ -673,17 +649,17 @@ FUNCTION (
 		MESSAGE("######################################################")
 		MESSAGE("# Windows is currently supported only through Cygwin #")
 		MESSAGE("######################################################")
-		MESSAGE(FATAL_ERROR)
+		MESSAGE(FATAL_ERROR "Unsupported platform!")
 	ELSEIF("${GENEVA_OS_NAME_IN}" STREQUAL "unsupported")
 		MESSAGE("#####################################")
 		MESSAGE("# Operating system is not supported #")
 		MESSAGE("#####################################")
-		MESSAGE(FATAL_ERROR)
+		MESSAGE(FATAL_ERROR "Unsupported platform!")
 	ELSE()
 		MESSAGE("#########################################")
 		MESSAGE("# ${GENEVA_OS_NAME_IN} is not supported #")
 		MESSAGE("#########################################")
-		MESSAGE(FATAL_ERROR)
+		MESSAGE(FATAL_ERROR "Unsupported platform!")
 	ENDIF()
 	#--------------------------------------------------------------------------
 
@@ -695,5 +671,5 @@ ENDFUNCTION()
 ENDIF(NOT IDENTIFY_SYSTEM_PARAMETERS_INCLUDED)
 
 ###############################################################################
-# done
+# Done
 

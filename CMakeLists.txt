@@ -35,11 +35,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 PROJECT (geneva-library-collection)
 
 ################################################################################
-# Make sure we first check our local modules directory
-#
-SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
-
-################################################################################
 # We create some examples and test programs as part of the build process.
 # This variable allows their build-scripts to detect that they are being
 # called from within the master build-script. This prevents redundant searches
@@ -48,10 +43,15 @@ SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
 
 SET(GENEVA_FULL_TREE_BUILD TRUE)
 
-###############################################################################
-# Includes
+################################################################################
+# Make sure we first check our local modules directory
 
-INCLUDE(IdentifySystemParameters)
+SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
+
+###############################################################################
+# Include the shared functionality module for any Geneva build
+
+INCLUDE(CommonGenevaBuild)
 
 ###############################################################################
 # Set the library/package version
@@ -62,224 +62,18 @@ SET(VERSION_PATCH "0")
 
 SET(GENEVA_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
-SET(GENEVA_MIN_BOOST_VERSION 1.48)
-
 ################################################################################
-#
-# Set some default values for user-settings. Generally, these should be provided
-# through a custom genevaConfig.gcfg, in conjunction with the prepareBuild.sh script.
-
-IF( NOT DEFINED GENEVA_BUILD_TYPE )
-	SET( GENEVA_BUILD_TYPE "Release" )
-ENDIF()
-
-IF( NOT DEFINED GENEVA_BUILD_TESTS )
-	SET( GENEVA_BUILD_TESTS FALSE )
-ENDIF()
-
-IF( NOT DEFINED GENEVA_CXX_STD )
-	SET( GENEVA_CXX_STD "cxx98" )
-ENDIF()
-
-IF( NOT DEFINED GENEVA_STATIC )
-	SET( GENEVA_STATIC 0 )
-ENDIF()
-
-IF( NOT DEFINED GENEVA_WITH_MPI )
-	SET( GENEVA_WITH_MPI 0 )
-ENDIF()
-
-IF( NOT DEFINED CMAKE_VERBOSE_MAKEFILE )
-	SET( CMAKE_VERBOSE_MAKEFILE 0 )
-ENDIF()
+# Set some default values for user-settings (see the CommonGenevaBuild module
+# for additional default values). Generally, these should be provided through
+# a custom genevaConfig.gcfg, in conjunction with the prepareBuild.sh script.
 
 IF( NOT DEFINED CMAKE_INSTALL_PREFIX )
 	SET( CMAKE_INSTALL_PREFIX "/opt/geneva-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}" )
 ENDIF()
 
-# Nice formatting
-MESSAGE ("")
-
-################################################################################
-# Validate the build type chosen by the user (Release or Debug). This macro
-# also sets CMAKE_BUILD_TYPE accordingly.
-
-VALIDATE_BUILD_TYPE()
-
-################################################################################
-# Set the build mode static or dynamic
-
-IF ( GENEVA_STATIC ) 
-	SET (BUILD_SHARED_LIBS OFF)
-ELSE() # dynamic libraries
-	SET (BUILD_SHARED_LIBS ON)
-ENDIF()
-
-################################################################################
-# Identify the operating system
-
-FIND_HOST_OS (
-	GENEVA_OS_NAME 
-	GENEVA_OS_VERSION
-)
-
-################################################################################
-# Identify the compiler
-
-FIND_HOST_COMPILER (
-	GENEVA_COMPILER_NAME
-	GENEVA_COMPILER_VERSION
-	GENEVA_MAX_CXX_STANDARD
-)
-
-SET(MSG_COMPILER ${GENEVA_COMPILER_NAME})
-
-################################################################################
-# Determine the C++ standard to be used, depending on the desired standard
-# and the maximum standard allowed by the chosen compiler. This function
-# will raise an error if the desired standard is higher than the maximum
-# supported standard. It will also resolve the "auto" setting of the standard
-# by setting it to the maximum supported standard.
-
-GET_ACTUAL_CXX_STANDARD (
-	${GENEVA_CXX_STD}
-	${GENEVA_MAX_CXX_STANDARD}
-	GENEVA_ACTUAL_CXX_STANDARD
-)
-
-SET (MSG_CXXSTANDARDMODE "Using ${GENEVA_COMPILER_NAME} compiler with ${GENEVA_ACTUAL_CXX_STANDARD} standard")
-
-###############################################################################
-# Identify unsupported setups as early as possible
-
-FLAG_UNSUPPORTED_SETUPS(
-	GENEVA_OS_NAME 
-	GENEVA_OS_VERSION
-	GENEVA_COMPILER_NAME
-	GENEVA_COMPILER_VERSION
-	GENEVA_ACTUAL_CXX_STANDARD
-	GENEVA_STATIC
-)
-
-################################################################################
-# Set up compiler flags and add them to the compiler definitions
-
-GET_COMPILER_FLAGS (
-	${GENEVA_OS_NAME}
-	${GENEVA_OS_VERSION}
-	${GENEVA_COMPILER_NAME}
-	${GENEVA_COMPILER_VERSION}
-	${GENEVA_ACTUAL_CXX_STANDARD}
-	${GENEVA_BUILD_TYPE}
-	GENEVA_COMPILER_FLAGS_OUT
-)
-
-ADD_DEFINITIONS("${GENEVA_COMPILER_FLAGS_OUT}")
-
-################################################################################
-# Set other necessary build flags
-
-GET_BUILD_FLAGS (
-	${GENEVA_OS_NAME}
-	${GENEVA_OS_VERSION}
-	${GENEVA_COMPILER_NAME}
-	${GENEVA_COMPILER_VERSION}
-	${GENEVA_ACTUAL_CXX_STANDARD}
-	${GENEVA_BUILD_TYPE}
-	PLATFORM_NEEDS_LIBRARY_LINKING
-)
-################################################################################
-# Boost-specific code
-
-SET (Boost_USE_MULTITHREAD ON)
-SET (Boost_ADDITIONAL_VERSIONS "1.57" "1.57.0" "1.58" "1.58.0")
-
-IF ( GENEVA_STATIC ) 
-	SET (Boost_USE_STATIC_LIBS ON)
-ELSE() # dynamic libraries
-	SET (Boost_USE_STATIC_LIBS OFF)
-ENDIF()
-
-# These are the libraries required for any Geneva build
-SET (
-	GENEVA_BOOST_LIBS
-	date_time
-	filesystem
-	program_options
-	regex
-	serialization
-	system
-	thread	
-)
-
-# Only build tests if requested by the user
-IF( GENEVA_BUILD_TESTS )
-	ADD_DEFINITIONS ("-DGEM_TESTING")
-	SET (
-		GENEVA_BOOST_LIBS
-		${GENEVA_BOOST_LIBS}
-		test_exec_monitor
-	)
-ENDIF()
-
-# Add Boost MPI-Support if requested by the user
-IF( GENEVA_WITH_MPI )
-	SET (
-		GENEVA_BOOST_LIBS
-		${GENEVA_BOOST_LIBS}
-		mpi
-	)
-ENDIF()
-
-# Search for the required libraries
-FIND_PACKAGE( 
-	Boost 
-	${GENEVA_MIN_BOOST_VERSION} REQUIRED 
-	COMPONENTS ${GENEVA_BOOST_LIBS}
-)
-
-################################################################################
-# Add additional libraries and flags, further error checks
-
-# The MPI mode is currently only supported under Linux and BSD
-IF( GENEVA_WITH_MPI )
-	IF( UNIX AND NOT "${GENEVA_OS_NAME}" MATCHES "MacOSX" )
-		# Search for MPI libraries and headers
-		FIND_PACKAGE(MPI)
-
-		IF( NOT MPI_CXX_FOUND )
-			MESSAGE (FATAL_ERROR "You have requested MPI support, but no suitable MPI libraries were found. We cannot continue.")
-		ENDIF()
-	ELSE()
-		MESSAGE (FATAL_ERROR "The MPI-mode is currently only supported under Linux and BSD")
-	ENDIF()
-ENDIF()
-
-IF(UNIX)
-	#---------------------------------------------------------------------------
-	IF("${GENEVA_OS_NAME}" MATCHES "MacOSX")
-		IF( GENEVA_STATIC )	
-			SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++")
-		ELSE() # Dynamic libraries
-			SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -lpthread -stdlib=libstdc++")
-			SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++")
-		ENDIF()
-	ENDIF()
-	
-	#---------------------------------------------------------------------------
-	IF( GENEVA_STATIC )	
-		LINK_LIBRARIES (dl z pthread)
-	ELSE() # Dynamic linking
-		LINK_LIBRARIES (pthread)
-	ENDIF()
-	#---------------------------------------------------------------------------
-ELSEIF(WIN32)
-	# Nothing yet
-ENDIF()
-
 ################################################################################
 # Include directories, libraries
-#
+
 INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/include
 	${Boost_INCLUDE_DIRS}
@@ -298,52 +92,6 @@ ADD_CUSTOM_TARGET( "hap"                DEPENDS ${HAP_LIBNAME}               COM
 ADD_CUSTOM_TARGET( "courtier"           DEPENDS ${COURTIER_LIBNAME}          COMMENT "Building only the Courtier library." )
 ADD_CUSTOM_TARGET( "geneva"             DEPENDS ${GENEVA_LIBNAME}            COMMENT "Building only the Geneva library." )
 ADD_CUSTOM_TARGET( "geneva-individuals" DEPENDS ${GENEVA_INDIVIDUAL_LIBNAME} COMMENT "Building only the Geneva-Individuals library." )
-
-################################################################################
-# On a Unix-system, run a "make clean" and remove temporaries, so the configuration 
-# process may start fresh. The make command will not be available on windows.
-#
-IF(UNIX)
-	ADD_CUSTOM_TARGET(
-		"clean-cmake" 
-		COMMAND ${CMAKE_BUILD_TOOL} clean 2>&1 > /dev/null
-		COMMAND ${CMAKE_COMMAND} -DOLD_CMAKE=${OLD_CMAKE} -P ${PROJECT_SOURCE_DIR}/CMakeModules/CleanCmakeTemporaries.cmake
-	)
-ENDIF()
-
-################################################################################
-# Print a summary of the build settings before going to the subfolders
-
-MESSAGE ("\n========================================")
-MESSAGE ("Building:")
-IF( GENEVA_STATIC )
-	MESSAGE ("\tstatic libraries")
-ELSE()
-	MESSAGE ("\tshared libraries")
-ENDIF()
-IF( GENEVA_BUILD_TESTS )
-	MESSAGE ("\tand test code")
-ELSE()
-	MESSAGE ("\tbut no tests")
-ENDIF()
-MESSAGE ("\tin ${CMAKE_BUILD_TYPE} mode")
-
-IF("${GENEVA_BUILD_TYPE}" STREQUAL "Sanitize")
-	MESSAGE ("\twith -fsanitize=thread (if available)")
-ENDIF() 
-
-MESSAGE ("\tusing ${MSG_COMPILER} compiler settings")
-MESSAGE ("\twith Boost include file location ${Boost_INCLUDE_DIRS}")
-MESSAGE ("\twith Boost library location ${Boost_LIBRARY_DIRS}")
-MESSAGE ("\twith install prefix ${CMAKE_INSTALL_PREFIX}")
-IF( CMAKE_VERBOSE_MAKEFILE )
-	MESSAGE ("\tand verbose CMake output")
-ELSE()
-	MESSAGE ("\tand sparse CMake output")
-ENDIF()
-MESSAGE ("\t${MSG_CXXSTANDARDMODE}")
-MESSAGE ("\tBuilding for operating system ${GENEVA_OS_NAME}")
-MESSAGE ("========================================\n")
 
 ################################################################################
 # Add sub-directories
@@ -369,6 +117,7 @@ ENDIF()
 
 ################################################################################
 # Additional information files to be copied
+
 SET ( INFORMATIONFILES
 	AUTHORS
 	CHANGES
