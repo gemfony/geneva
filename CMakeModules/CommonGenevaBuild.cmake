@@ -30,6 +30,13 @@
 #
 ################################################################################
 
+#
+# This module is needed to setup the Geneva build system, and may also be used
+# to compile independent Geneva applications.
+#
+
+################################################################################
+
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8 FATAL_ERROR)
 
 # Include guard
