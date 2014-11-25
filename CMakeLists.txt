@@ -380,12 +380,7 @@ SET ( INFORMATIONFILES
 	README.documentation
 )
 
-INSTALL ( FILES ${INFORMATIONFILES} DESTINATION .
-	PERMISSIONS
-	OWNER_READ OWNER_WRITE
-	GROUP_READ
-	WORLD_READ
-)
+INSTALL ( FILES ${INFORMATIONFILES} DESTINATION . )
 
 ################################################################################
 # Code for the creation of reference documentation for Geneva

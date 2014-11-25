@@ -77,13 +77,7 @@ INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION examples/${PROJECT_NAME}
 	WORLD_READ WORLD_EXECUTE
 )
 
-INSTALL ( FILES ${CONFIGFILE} DESTINATION examples/${PROJECT_NAME}/config
-	PERMISSIONS
-	OWNER_READ OWNER_WRITE
-	GROUP_READ
-	WORLD_READ
-)
+INSTALL ( FILES ${CONFIGFILE} DESTINATION examples/${PROJECT_NAME}/config )
 
 ################################################################################
-# done
-
+# Done

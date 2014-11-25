@@ -5,9 +5,4 @@ SET ( UTILITYFILES
 	GStandard_test.hpp
 )
 
-INSTALL ( FILES ${UTILITYFILES} DESTINATION tests/geneva/UnitTests/UtilityHeaders
-	PERMISSIONS
-	OWNER_READ OWNER_WRITE
-	GROUP_READ
-	WORLD_READ
-)
+INSTALL ( FILES ${UTILITYFILES} DESTINATION tests/geneva/UnitTests/UtilityHeaders )
