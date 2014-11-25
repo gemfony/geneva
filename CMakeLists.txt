@@ -43,6 +43,9 @@ PROJECT (geneva-library-collection)
 
 SET(GENEVA_FULL_TREE_BUILD TRUE)
 
+# Set a flag to avoid repeated messages in the sub-folders
+SET ( GENEVA_INFO_MSG TRUE )
+
 ################################################################################
 # Make sure we first check our local modules directory
 
@@ -68,7 +71,7 @@ SET(GENEVA_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 # a custom genevaConfig.gcfg, in conjunction with the prepareBuild.sh script.
 
 IF( NOT DEFINED CMAKE_INSTALL_PREFIX )
-	SET( CMAKE_INSTALL_PREFIX "/opt/geneva-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}" )
+	SET( CMAKE_INSTALL_PREFIX "/opt/geneva-${GENEVA_VERSION}" )
 ENDIF()
 
 ################################################################################
@@ -95,9 +98,6 @@ ADD_CUSTOM_TARGET( "geneva-individuals" DEPENDS ${GENEVA_INDIVIDUAL_LIBNAME} COM
 
 ################################################################################
 # Add sub-directories
-
-# Set a flag to avoid repeated messages in the sub-folders
-SET ( GENEVA_INFO_MSG TRUE )
 
 # Accessory files just get copied
 ADD_SUBDIRECTORY (CMakeModules)
@@ -148,10 +148,11 @@ IF( DOXYGEN_FOUND )
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 		COMMENT "Creation of reference documentation for Geneva with 'make doc'" VERBATIM
 	)
-	MESSAGE("-- Reference documentation for Geneva may now be created with 'make doc'")
+	SET(MSG "Reference documentation for Geneva may now be created with 'make doc'")
 ELSE()
-	MESSAGE("Doxygen not found. No support for the creation of reference documentation")
+	SET(MSG "Doxygen not found. No support for the creation of reference documentation")
 ENDIF()
+MESSAGE("\n${MSG}\n")
 
 ################################################################################
 # Code for package generation with CPack. This is experimental and the packages 
