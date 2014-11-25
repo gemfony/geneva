@@ -4,9 +4,9 @@ of it. Currently it holds:
 - the CMake 3.0 version of FindBoost.cmake, as some older versions seemed to be broken,
 - a module for finding the Geneva library in the file system,
 - a module used to try to identify the host system and compiler details,
-- a module used to clean up the CMake build folder,
-- a module containing shared functionality for the Geneva "full tree" build,
-  and for independent builds of the examples or test programs.
+- a module containing shared functionality which can be used for the Geneva
+  "full tree" build, or for independent builds of the examples and test programs,
+- a module used to clean up the CMake build folder.
 
 
 See the files for licensing information.
