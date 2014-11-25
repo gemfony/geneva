@@ -60,6 +60,8 @@ SET(VERSION_MAJOR "1")
 SET(VERSION_MINOR "4")
 SET(VERSION_PATCH "0")
 
+SET(GENEVA_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
+
 SET(GENEVA_MIN_BOOST_VERSION 1.48)
 
 ################################################################################
