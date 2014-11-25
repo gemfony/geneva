@@ -278,7 +278,7 @@ ELSEIF(WIN32)
 ENDIF()
 
 ################################################################################
-# Include- and link-directories, libraries
+# Include directories, libraries
 #
 INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/include
@@ -292,6 +292,13 @@ SET ( COURTIER_LIBNAME          "gemfony-courtier" )
 SET ( GENEVA_LIBNAME            "gemfony-geneva" )
 SET ( GENEVA_INDIVIDUAL_LIBNAME "gemfony-geneva-individuals")
 
+# Custom targets for building single libraries only
+ADD_CUSTOM_TARGET( "common"             DEPENDS ${COMMON_LIBNAME}            COMMENT "Building only the Common library." )
+ADD_CUSTOM_TARGET( "hap"                DEPENDS ${HAP_LIBNAME}               COMMENT "Building only the Hap library." )
+ADD_CUSTOM_TARGET( "courtier"           DEPENDS ${COURTIER_LIBNAME}          COMMENT "Building only the Courtier library." )
+ADD_CUSTOM_TARGET( "geneva"             DEPENDS ${GENEVA_LIBNAME}            COMMENT "Building only the Geneva library." )
+ADD_CUSTOM_TARGET( "geneva-individuals" DEPENDS ${GENEVA_INDIVIDUAL_LIBNAME} COMMENT "Building only the Geneva-Individuals library." )
+
 ################################################################################
 # On a Unix-system, run a "make clean" and remove temporaries, so the configuration 
 # process may start fresh. The make command will not be available on windows.
@@ -303,15 +310,6 @@ IF(UNIX)
 		COMMAND ${CMAKE_COMMAND} -DOLD_CMAKE=${OLD_CMAKE} -P ${PROJECT_SOURCE_DIR}/CMakeModules/CleanCmakeTemporaries.cmake
 	)
 ENDIF()
-
-################################################################################
-# Custom targets for building single libraries only
-#
-ADD_CUSTOM_TARGET( "common"                   DEPENDS ${COMMON_LIBNAME}              COMMENT "Building only the Common library." )
-ADD_CUSTOM_TARGET( "hap"                      DEPENDS ${HAP_LIBNAME}                 COMMENT "Building only the Hap library." )
-ADD_CUSTOM_TARGET( "courtier"                 DEPENDS ${COURTIER_LIBNAME}            COMMENT "Building only the Courtier library." )
-ADD_CUSTOM_TARGET( "geneva"                   DEPENDS ${GENEVA_LIBNAME}              COMMENT "Building only the Geneva library." )
-ADD_CUSTOM_TARGET( "geneva-individuals"       DEPENDS ${GENEVA_INDIVIDUAL_LIBNAME}   COMMENT "Building only the Geneva-Individuals library." )
 
 ################################################################################
 # Print a summary of the build settings before going to the subfolders
@@ -353,20 +351,24 @@ MESSAGE ("========================================\n")
 # Set a flag to avoid repeated messages in the sub-folders
 SET ( GENEVA_INFO_MSG TRUE )
 
+# Accessory files just get copied
 ADD_SUBDIRECTORY (CMakeModules)
-ADD_SUBDIRECTORY (src)
-ADD_SUBDIRECTORY (examples)
-ADD_SUBDIRECTORY (include)
 ADD_SUBDIRECTORY (licenses)
 ADD_SUBDIRECTORY (scripts)
 
+# The main code gets compiled here
+ADD_SUBDIRECTORY (include)
+ADD_SUBDIRECTORY (src)
+
+# Examples and tests are compiled at the end
+ADD_SUBDIRECTORY (examples)
 IF( GENEVA_BUILD_TESTS )
 	INCLUDE(CTest)
 	ADD_SUBDIRECTORY (tests)
 ENDIF()
 
 ################################################################################
-# Specify files to be copied
+# Additional information files to be copied
 SET ( INFORMATIONFILES
 	AUTHORS
 	CHANGES
