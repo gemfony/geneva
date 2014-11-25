@@ -44,9 +44,9 @@ SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
 # This variable allows their build-scripts to detect that they are being
 # called from within the master build-script. This prevents redundant searches
 # and checks, while still allowing examples to be built independently of the
-# main Geneva source tree. 
+# main Geneva source tree.
 
-SET(GENEVA_DEPENDENT_BUILD TRUE)
+SET(GENEVA_FULL_TREE_BUILD TRUE)
 
 ###############################################################################
 # Includes

@@ -8,10 +8,10 @@ SET (${EXECUTABLENAME}_SRCS
 )
 
 SET (CONFIGURATIONFILES
-    config/GDelayIndividual.json
-    config/GDelayIndividual-reference.json
-    config/GEvolutionaryAlgorithm.json
-    config/Go2.json
+	config/GDelayIndividual.json
+	config/GDelayIndividual-reference.json
+	config/GEvolutionaryAlgorithm.json
+	config/Go2.json
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
