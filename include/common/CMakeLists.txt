@@ -8,16 +8,16 @@ SET ( VERSION_PREFIX "0" )
 
 IF ( NOT VERSION_MAJOR MATCHES "^[0-9]$" )
 	MESSAGE ( AUTHOR_WARNING "Wrong major version number! (${VERSION_MAJOR})" )
-ENDIF ( NOT VERSION_MAJOR MATCHES "^[0-9]$" )
+ENDIF ()
 
 IF ( NOT VERSION_MINOR MATCHES "^[0-9]$" )
 	MESSAGE ( AUTHOR_WARNING "Wrong minor version number! (${VERSION_MINOR})" )
-ENDIF ( NOT VERSION_MINOR MATCHES "^[0-9]$" )
+ENDIF ()
 
 # Allow additional suffixes like "rc1" in the patch number
 IF ( NOT VERSION_PATCH MATCHES "^[0-9]" )
 	MESSAGE ( AUTHOR_WARNING "Wrong patch version number! (${VERSION_PATCH})" )
-ENDIF ( NOT VERSION_PATCH MATCHES "^[0-9]" )
+ENDIF ()
 
 # Keep the first character only (a number)
 STRING ( SUBSTRING ${VERSION_PATCH} 0 1 VERSION_PATCH_SHORT )
