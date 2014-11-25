@@ -10,6 +10,7 @@ SET ( SAMPLEINDIVIDUALINCLUDES
 )
 
 SET ( SAMPLEINDIVIDUALCONFIGS
+	# No config files at the moment
 )
 
 # Copy the config files to the build tree for easier testing
