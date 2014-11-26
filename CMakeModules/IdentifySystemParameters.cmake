@@ -286,6 +286,7 @@ FUNCTION (
 	ELSE()
 		SET(${GENEVA_MAX_CXX_STANDARD_OUT} "unknown" PARENT_SCOPE)
 	ENDIF()
+	MESSAGE ("")
 
 	#--------------------------------------------------------------------------
 	# Set the external compiler version
