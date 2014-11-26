@@ -1,96 +1,19 @@
-PROJECT (GOptimizationBenchmark)
-
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-# Make sure we first check our local modules directory
-SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
+IF (NOT GENEVA_FULL_TREE_BUILD)
 
-# Check Geneva dirs
-IF(NOT DEFINED GENEVA_ROOT)
-	SET(GENEVA_ROOT "/opt/geneva")
-ENDIF()
+	PROJECT(GOptimizationBenchmark)
 
-IF(NOT DEFINED GENEVA_INCLUDE_DIR)
-	SET(GENEVA_INCLUDE_DIR "${GENEVA_ROOT}/include")
-ENDIF()
+	# For building the tests independently, we still assume that the
+	# current source folder is still part of the Geneva tree structure,
+	# i.e., the 'CMakeModules' folder can be found going up... This avoids
+	# having to copy the same content over and over again in the tests.
+	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../../../../CMakeModules")
 
-SET (LINK_FLAGS "${LINK_FLAGS} -lpthread")
-SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lpthread")
+	MESSAGE("\nPerforming an independent build of ${PROJECT_NAME}")
+	INCLUDE(CommonGenevaBuild)
 
-IF ( NOT GENEVA_FULL_TREE_BUILD )
-
-	SET (Boost_USE_STATIC_LIBS OFF)
-	SET (Boost_USE_MULTITHREADED ON)
-
-	# If the build type CMAKE_BUILD_TYPE is not set already (ie, by the top
-	# level build configuration or by the user), use GENEVA_BUILD_TYPE
-	# to set it. Otherwise set 'Debug' as default.
-	IF(NOT CMAKE_BUILD_TYPE)
-		IF(DEFINED GENEVA_BUILD_TYPE)
-			IF(GENEVA_BUILD_TYPE STREQUAL "Debug")
-				MESSAGE ("Setting the build type to Debug")
-				SET(CMAKE_BUILD_TYPE Debug)
-			ELSEIF(GENEVA_BUILD_TYPE STREQUAL "Release")
-				MESSAGE ("Setting the build type to Release")
-				SET(CMAKE_BUILD_TYPE Release)
-			ELSE()
-				MESSAGE (FATAL_ERROR "Unknown compilation mode " ${GENEVA_BUILD_TYPE})
-			ENDIF()
-		ELSE()
-			MESSAGE ("Setting the build type to default value Debug")
-			SET(CMAKE_BUILD_TYPE Debug)
-		ENDIF()
-	ENDIF()
-
-	# At least Boost 1.48 must be installed
-	FIND_PACKAGE( Boost 1.48 REQUIRED COMPONENTS
-		date_time
-		filesystem
-		program_options
-		serialization
-		system
-		thread
-		test_exec_monitor
-	)
-
-	# Check whether we want to activate the test code and build tests
-	IF ( GENEVA_BUILD_TESTS )
-		ADD_DEFINITIONS ("-DGEM_TESTING")
-		FIND_PACKAGE( Boost 1.48 REQUIRED COMPONENTS
-			test_exec_monitor
-		)
-	ENDIF()
-
-	# Print a summary of the build settings
-	MESSAGE ("\n========================================")
-	MESSAGE ("Building:")
-	IF( GENEVA_BUILD_TESTS )
-		MESSAGE ("\twith test code")
-	ELSE()
-		MESSAGE ("\twithout tests")
-	ENDIF()
-	MESSAGE ("\tin ${CMAKE_BUILD_TYPE} mode")
-#	MESSAGE ("\tusing ${MSG_COMPILER} compiler settings")
-	MESSAGE ("\twith Boost include file location ${Boost_INCLUDE_DIRS}")
-	MESSAGE ("\twith Boost library location ${Boost_LIBRARY_DIRS}")
-	MESSAGE ("\twith install prefix ${CMAKE_INSTALL_PREFIX}")
-	IF( CMAKE_VERBOSE_MAKEFILE )
-		MESSAGE ("\tand verbose CMake output")
-	ELSE()
-		MESSAGE ("\tand sparse CMake output")
-	ENDIF()
-	MESSAGE ("========================================\n")
-ENDIF()
-
-INCLUDE_DIRECTORIES (
-	${PROJECT_SOURCE_DIR}
-	${PROJECT_SOURCE_DIR}/../SampleIndividuals
-	${GENEVA_ROOT}/include
-)
-
-LINK_DIRECTORIES (
-	${GENEVA_ROOT}/lib
-)
+ENDIF ()
 
 SET ( EXECUTABLENAME GOptimizationBenchmark )
 
@@ -103,11 +26,7 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 )
 
 TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
-	${GENEVA_INDIVIDUAL_LIBNAME}
-	${GENEVA_LIBNAME}
-	${COURTIER_LIBNAME}
-	${HAP_LIBNAME}
-	${COMMON_LIBNAME}
+	${GENEVA_LIBRARIES}
 	${Boost_LIBRARIES}
 )
 

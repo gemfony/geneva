@@ -222,6 +222,16 @@ SET ( COURTIER_LIBNAME          "gemfony-courtier" )
 SET ( GENEVA_LIBNAME            "gemfony-geneva" )
 SET ( GENEVA_INDIVIDUAL_LIBNAME "gemfony-geneva-individuals")
 
+SET (
+	GENEVA_LIBNAMES
+	${COMMON_LIBNAME}
+	${HAP_LIBNAME}
+	${COURTIER_LIBNAME}
+	${GENEVA_LIBNAME}
+	${GENEVA_INDIVIDUAL_LIBNAME}
+)
+SET ( GENEVA_LIBRARIES ${GENEVA_LIBNAMES} )
+
 ################################################################################
 # The MPI mode is currently only supported under Linux and BSD
 
@@ -246,19 +256,23 @@ ENDIF()
 IF(UNIX)
 	#---------------------------------------------------------------------------
 	IF("${GENEVA_OS_NAME}" MATCHES "MacOSX")
-		IF( GENEVA_STATIC )	
-			SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++")
-		ELSE() # Dynamic libraries
-			SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -lpthread -stdlib=libstdc++")
-			SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++")
+		SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++")
+		IF( NOT GENEVA_STATIC )
+			SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -stdlib=libstdc++")
 		ENDIF()
 	ENDIF()
 
 	#---------------------------------------------------------------------------
+	FIND_LIBRARY( PTHREAD_LIBRARY NAMES pthread
+		DOC "The threading library needed by Geneva"
+	)
 	IF( GENEVA_STATIC )
-		LINK_LIBRARIES (dl z pthread)
-	ELSE() # Dynamic linking
-		LINK_LIBRARIES (pthread)
+		FIND_LIBRARY( DL_LIBRARY NAMES dl
+			DOC "The dl library needed for statically linking Geneva"
+		)
+		FIND_LIBRARY( Z_LIBRARY NAMES z
+			DOC "The z library needed for statically linking Geneva"
+		)
 	ENDIF()
 	#---------------------------------------------------------------------------
 ELSEIF(WIN32)
@@ -277,6 +291,42 @@ IF(UNIX)
 		COMMAND ${CMAKE_COMMAND} -DOLD_CMAKE=${OLD_CMAKE} -P ${PROJECT_SOURCE_DIR}/CMakeModules/CleanCmakeTemporaries.cmake
 	)
 ENDIF()
+
+################################################################################
+# Search for Geneva if this is an out-of-tree build of some Geneva application
+
+IF (NOT GENEVA_FULL_TREE_BUILD)
+
+	# Check Geneva dirs
+	IF(NOT DEFINED GENEVA_ROOT)
+		SET(GENEVA_ROOT "/opt/geneva")
+		MESSAGE("WARNING: Setting a default value for GENEVA_ROOT=${GENEVA_ROOT},"
+			" please set that variable if the Geneva files can't be found!\n")
+	ENDIF()
+
+	# This should go into the FindGeneva module
+	IF(NOT DEFINED GENEVA_INCLUDE_DIR)
+		SET(GENEVA_INCLUDE_DIR "${GENEVA_ROOT}/include")
+	ENDIF()
+	IF(NOT DEFINED GENEVA_LIBRARY_DIR)
+		SET(GENEVA_LIBRARY_DIR "${GENEVA_ROOT}/lib")
+	ENDIF()
+
+	INCLUDE_DIRECTORIES (
+		${GENEVA_INCLUDE_DIR}
+	)
+
+	# This should go into the FindGeneva module
+	UNSET (GENEVA_LIBRARIES)
+	FOREACH ( lib IN LISTS GENEVA_LIBNAMES )
+		FIND_LIBRARY( GENEVA_LIB_${lib} NAMES ${lib}
+			PATHS ${GENEVA_LIBRARY_DIR}
+			DOC "The full paths of the Geneva library ${lib}"
+		)
+		SET (GENEVA_LIBRARIES ${GENEVA_LIBRARIES} ${GENEVA_LIB_${lib}})
+	ENDFOREACH ()
+
+ENDIF ()
 
 ################################################################################
 # Print a summary of the build settings before continuing with the main script
