@@ -101,26 +101,14 @@ SET ( ${EXECUTABLENAME}_SRCS
 	GOptimizationBenchmark
 )
 
-SET ( CONFIGFILE
-	config/GEvolutionaryAlgorithm.json
-	config/GFunctionIndividual.json
-	config/Go2.json
-	config/GOptimizationBenchmark.json
-)
-
 ADD_EXECUTABLE(${EXECUTABLENAME}
 	${${EXECUTABLENAME}_SRCS}
 )
 
-# Copy the config files to the build tree for easier testing
-FOREACH ( file IN LISTS CONFIGFILE )
-	CONFIGURE_FILE ( ${file} ${file} COPYONLY )
-ENDFOREACH ()
-
-SET ( COMMON_LIBNAME "gemfony-common" )
-SET ( HAP_LIBNAME "gemfony-hap" )
-SET ( COURTIER_LIBNAME "gemfony-courtier" )
-SET ( GENEVA_LIBNAME "gemfony-geneva" )
+SET ( COMMON_LIBNAME            "gemfony-common" )
+SET ( HAP_LIBNAME               "gemfony-hap" )
+SET ( COURTIER_LIBNAME          "gemfony-courtier" )
+SET ( GENEVA_LIBNAME            "gemfony-geneva" )
 SET ( GENEVA_INDIVIDUAL_LIBNAME "gemfony-geneva-individuals")
 
 TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
@@ -132,14 +120,8 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 	${Boost_LIBRARIES}
 )
 
-IF( GENEVA_BUILD_TESTS )
-#	ADD_SUBDIRECTORY (Tests)
-ENDIF()
-
 ADD_SUBDIRECTORY (config)
 
 ADD_TEST(${EXECUTABLENAME} ${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLENAME})
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION examples/${PROJECT_NAME} )
-
-INSTALL ( FILES ${CONFIGFILE} DESTINATION examples/${PROJECT_NAME} )
