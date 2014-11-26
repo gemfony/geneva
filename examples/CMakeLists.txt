@@ -1,16 +1,14 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-# Define the Geneva root in case we compile the associated programs together with the main library
-SET( GENEVA_ROOT "${PROJECT_SOURCE_DIR}" )
-
-ADD_SUBDIRECTORY (
-	common
+ADD_CUSTOM_TARGET( "examples"
+	DEPENDS examples_common
+		examples_hap
+		examples_courtier
+		examples_geneva
+	COMMENT "Building all the Geneva examples."
 )
 
-ADD_SUBDIRECTORY (
-	geneva
-)
-
-ADD_SUBDIRECTORY (
-	hap
-)
+ADD_SUBDIRECTORY( common )
+ADD_SUBDIRECTORY( hap )
+ADD_SUBDIRECTORY( courtier )
+ADD_SUBDIRECTORY( geneva )
