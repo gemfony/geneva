@@ -14,54 +14,54 @@ IF(NOT DEFINED GENEVA_INCLUDE_DIR)
 	SET(GENEVA_INCLUDE_DIR "${GENEVA_ROOT}/include")
 ENDIF()
 
-SET (Boost_USE_STATIC_LIBS OFF)
 SET (LINK_FLAGS "${LINK_FLAGS} -lpthread")
 SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lpthread")
 
-SET (Boost_USE_MULTITHREADED ON)
+IF ( NOT GENEVA_FULL_TREE_BUILD )
 
-# If the build type CMAKE_BUILD_TYPE is not set already (ie, by the top
-# level build configuration or by the user), use GENEVA_BUILD_TYPE
-# to set it. Otherwise set 'Debug' as default.
-IF(NOT CMAKE_BUILD_TYPE)
-	IF(DEFINED GENEVA_BUILD_TYPE)
-		IF(GENEVA_BUILD_TYPE STREQUAL "Debug")
-			MESSAGE ("Setting the build type to Debug")
-			SET(CMAKE_BUILD_TYPE Debug)
-		ELSEIF(GENEVA_BUILD_TYPE STREQUAL "Release")
-			MESSAGE ("Setting the build type to Release")
-			SET(CMAKE_BUILD_TYPE Release)
+	SET (Boost_USE_STATIC_LIBS OFF)
+	SET (Boost_USE_MULTITHREADED ON)
+
+	# If the build type CMAKE_BUILD_TYPE is not set already (ie, by the top
+	# level build configuration or by the user), use GENEVA_BUILD_TYPE
+	# to set it. Otherwise set 'Debug' as default.
+	IF(NOT CMAKE_BUILD_TYPE)
+		IF(DEFINED GENEVA_BUILD_TYPE)
+			IF(GENEVA_BUILD_TYPE STREQUAL "Debug")
+				MESSAGE ("Setting the build type to Debug")
+				SET(CMAKE_BUILD_TYPE Debug)
+			ELSEIF(GENEVA_BUILD_TYPE STREQUAL "Release")
+				MESSAGE ("Setting the build type to Release")
+				SET(CMAKE_BUILD_TYPE Release)
+			ELSE()
+				MESSAGE (FATAL_ERROR "Unknown compilation mode " ${GENEVA_BUILD_TYPE})
+			ENDIF()
 		ELSE()
-			MESSAGE (FATAL_ERROR "Unknown compilation mode " ${GENEVA_BUILD_TYPE})
+			MESSAGE ("Setting the build type to default value Debug")
+			SET(CMAKE_BUILD_TYPE Debug)
 		ENDIF()
-	ELSE()
-		MESSAGE ("Setting the build type to default value Debug")
-		SET(CMAKE_BUILD_TYPE Debug)
 	ENDIF()
-ENDIF()
 
-# At least Boost 1.48 must be installed
-FIND_PACKAGE( Boost 1.48 REQUIRED COMPONENTS
-	date_time
-	filesystem
-	program_options
-	serialization
-	system
-	thread
-)
-
-# Check whether we want to activate the test code and build tests, if not done yet
-IF ( NOT GENEVA_INFO_MSG AND GENEVA_BUILD_TESTS )
-	ADD_DEFINITIONS ("-DGEM_TESTING")
+	# At least Boost 1.48 must be installed
 	FIND_PACKAGE( Boost 1.48 REQUIRED COMPONENTS
+		date_time
+		filesystem
+		program_options
+		serialization
+		system
+		thread
 		test_exec_monitor
 	)
-ENDIF()
 
-# Print a summary of the build settings if it was not printed already
-IF ( NOT GENEVA_INFO_MSG )
-	# Print info messages only once
-	SET ( GENEVA_INFO_MSG TRUE )
+	# Check whether we want to activate the test code and build tests
+	IF ( GENEVA_BUILD_TESTS )
+		ADD_DEFINITIONS ("-DGEM_TESTING")
+		FIND_PACKAGE( Boost 1.48 REQUIRED COMPONENTS
+			test_exec_monitor
+		)
+	ENDIF()
+
+	# Print a summary of the build settings
 	MESSAGE ("\n========================================")
 	MESSAGE ("Building:")
 	IF( GENEVA_BUILD_TESTS )
@@ -86,12 +86,10 @@ INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}
 	${PROJECT_SOURCE_DIR}/../SampleIndividuals
 	${GENEVA_ROOT}/include
-#	${Boost_INCLUDE_DIRS}
 )
 
 LINK_DIRECTORIES (
 	${GENEVA_ROOT}/lib
-	${Boost_LIBRARY_DIRS}
 )
 
 SET ( EXECUTABLENAME GHapUsagePatterns )

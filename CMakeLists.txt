@@ -43,9 +43,6 @@ PROJECT (geneva-library-collection)
 
 SET(GENEVA_FULL_TREE_BUILD TRUE)
 
-# Set a flag to avoid repeated messages in the sub-folders
-SET ( GENEVA_INFO_MSG TRUE )
-
 ################################################################################
 # Make sure we first check our local modules directory
 
