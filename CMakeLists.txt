@@ -32,7 +32,7 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-PROJECT (geneva-library-collection)
+PROJECT (Geneva_Library_Collection)
 
 ################################################################################
 # We create some examples and test programs as part of the build process.
@@ -142,7 +142,7 @@ IF( DOXYGEN_FOUND )
 ELSE()
 	SET(MSG "Doxygen not found. No support for the creation of reference documentation")
 ENDIF()
-MESSAGE("\n${MSG}\n")
+MESSAGE("${MSG}\n")
 
 ################################################################################
 # Code for package generation with CPack. This is experimental and the packages 

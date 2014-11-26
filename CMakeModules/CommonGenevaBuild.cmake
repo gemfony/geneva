@@ -170,7 +170,7 @@ ELSE () # dynamic libraries
 	SET (Boost_USE_STATIC_LIBS OFF)
 ENDIF ()
 
-# This is the minimum Boost version Geneva compiles with
+# The minimum Boost version required for building Geneva and Geneva applications
 SET (GENEVA_MIN_BOOST_VERSION 1.48)
 
 # These are the libraries required for any Geneva build
@@ -211,6 +211,7 @@ FIND_PACKAGE(
 	${GENEVA_MIN_BOOST_VERSION} REQUIRED 
 	COMPONENTS ${GENEVA_BOOST_LIBS}
 )
+MESSAGE("")
 
 ################################################################################
 # The names of the Geneva libraries
@@ -252,9 +253,9 @@ IF(UNIX)
 			SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++")
 		ENDIF()
 	ENDIF()
-	
+
 	#---------------------------------------------------------------------------
-	IF( GENEVA_STATIC )	
+	IF( GENEVA_STATIC )
 		LINK_LIBRARIES (dl z pthread)
 	ELSE() # Dynamic linking
 		LINK_LIBRARIES (pthread)
@@ -280,7 +281,7 @@ ENDIF()
 ################################################################################
 # Print a summary of the build settings before continuing with the main script
 
-MESSAGE ("\n========================================")
+MESSAGE ("========================================")
 MESSAGE ("")
 MESSAGE ("Building:")
 IF (GENEVA_STATIC)
