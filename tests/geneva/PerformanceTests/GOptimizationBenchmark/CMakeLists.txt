@@ -102,12 +102,6 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 	${${EXECUTABLENAME}_SRCS}
 )
 
-SET ( COMMON_LIBNAME            "gemfony-common" )
-SET ( HAP_LIBNAME               "gemfony-hap" )
-SET ( COURTIER_LIBNAME          "gemfony-courtier" )
-SET ( GENEVA_LIBNAME            "gemfony-geneva" )
-SET ( GENEVA_INDIVIDUAL_LIBNAME "gemfony-geneva-individuals")
-
 TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 	${GENEVA_INDIVIDUAL_LIBNAME}
 	${GENEVA_LIBNAME}

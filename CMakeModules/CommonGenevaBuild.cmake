@@ -213,6 +213,15 @@ FIND_PACKAGE(
 )
 
 ################################################################################
+# The names of the Geneva libraries
+
+SET ( COMMON_LIBNAME            "gemfony-common" )
+SET ( HAP_LIBNAME               "gemfony-hap" )
+SET ( COURTIER_LIBNAME          "gemfony-courtier" )
+SET ( GENEVA_LIBNAME            "gemfony-geneva" )
+SET ( GENEVA_INDIVIDUAL_LIBNAME "gemfony-geneva-individuals")
+
+################################################################################
 # The MPI mode is currently only supported under Linux and BSD
 
 IF( GENEVA_WITH_MPI )

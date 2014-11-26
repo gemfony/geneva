@@ -79,13 +79,6 @@ INCLUDE_DIRECTORIES (
 	${Boost_INCLUDE_DIRS}
 )
 
-# The names of the libraries that will be built
-SET ( COMMON_LIBNAME            "gemfony-common" )
-SET ( HAP_LIBNAME               "gemfony-hap" )
-SET ( COURTIER_LIBNAME          "gemfony-courtier" )
-SET ( GENEVA_LIBNAME            "gemfony-geneva" )
-SET ( GENEVA_INDIVIDUAL_LIBNAME "gemfony-geneva-individuals")
-
 # Custom targets for building single libraries only
 ADD_CUSTOM_TARGET( "common"             DEPENDS ${COMMON_LIBNAME}            COMMENT "Building only the Common library." )
 ADD_CUSTOM_TARGET( "hap"                DEPENDS ${HAP_LIBNAME}               COMMENT "Building only the Hap library." )
@@ -101,7 +94,7 @@ ADD_SUBDIRECTORY (CMakeModules)
 ADD_SUBDIRECTORY (licenses)
 ADD_SUBDIRECTORY (scripts)
 
-# The main code gets compiled here
+# The main code lays here, and the compilation takes place in 'src'
 ADD_SUBDIRECTORY (include)
 ADD_SUBDIRECTORY (src)
 
