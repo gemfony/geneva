@@ -1,3 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-# nothing
+SET ( CONFIGFILES
+	evaluator.py
+)
+
+INSTALL ( FILES ${CONFIGFILES} DESTINATION examples/${PROJECT_NAME}/scripts )

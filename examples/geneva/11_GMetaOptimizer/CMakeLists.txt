@@ -29,10 +29,22 @@
 # http://www.gemfony.eu .
 #
 ################################################################################
-
-PROJECT (GMetaOptimizer)
-
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+
+IF (NOT GENEVA_FULL_TREE_BUILD)
+
+	PROJECT(GMetaOptimizer)
+
+	# For building the examples independently, we still assume that the
+	# 'CMakeModules' folder can be found at the same place as the current
+	# source folder... This avoids having to copy the same content over
+	# and over again in all the examples.
+	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../CMakeModules")
+
+	MESSAGE("\nPerforming an independent build of ${PROJECT_NAME}")
+	INCLUDE(CommonGenevaBuild)
+
+ENDIF ()
 
 SET ( EXECUTABLENAME GMetaOptimizer )
 
@@ -40,37 +52,15 @@ SET ( ${EXECUTABLENAME}_SRCS
 	GMetaOptimizer
 )
 
-SET ( CONFIGFILE
-	config/GEvolutionaryAlgorithm.json
-	config/GFunctionIndividual.json
-	config/GMetaOptimizerIndividual.json
-	config/Go2.json
-	config/GSubEvolutionaryAlgorithm.json
-)
-
 ADD_EXECUTABLE(${EXECUTABLENAME}
 	${${EXECUTABLENAME}_SRCS}
 )
 
-# Copy the config files to the build tree for easier testing
-FOREACH ( file IN LISTS CONFIGFILE )
-	CONFIGURE_FILE ( ${file} ${file} COPYONLY )
-ENDFOREACH ()
-
 TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
-	${GENEVA_INDIVIDUAL_LIBNAME}
-	${GENEVA_LIBNAME}
-	${COURTIER_LIBNAME}
-	${HAP_LIBNAME}
-	${COMMON_LIBNAME}
+	${GENEVA_LIBRARIES}
 	${Boost_LIBRARIES}
 )
 
 ADD_SUBDIRECTORY (config)
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION examples/${PROJECT_NAME} )
-
-INSTALL ( FILES ${CONFIGFILE} DESTINATION examples/${PROJECT_NAME}/config )
-
-################################################################################
-# Done
