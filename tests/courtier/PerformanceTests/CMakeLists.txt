@@ -1,11 +1,10 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-ADD_CUSTOM_TARGET ( "courtier-tests-performance" )
-
-ADD_DEPENDENCIES ( "courtier-tests-performance"
-	# Add all the available tests targets (EXECUTABLENAMEs) here
-	GBrokerSelfCommunication
-	GBufferPortTTest
+ADD_CUSTOM_TARGET( "tests-courtier-performance"
+	# Add all the available test targets (EXECUTABLENAMEs) here
+	DEPENDS GBrokerSelfCommunication
+		GBufferPortTTest
+	COMMENT "Building the performance tests for the Courtier library."
 )
 
 ADD_SUBDIRECTORY ( GBrokerSelfCommunication )

@@ -1,14 +1,10 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-ADD_CUSTOM_TARGET ( "common-tests"
-	COMMENT "Building the tests for the Common library"
-)
-
-ADD_DEPENDENCIES ( "common-tests"
-	${COMMON_LIBNAME}
-	#"courtier-tests-unit"
-	"common-tests-manual"
-	"common-tests-performance"
+ADD_CUSTOM_TARGET( "tests-common"
+	DEPENDS #"tests-common-unit"
+		"tests-common-manual"
+		"tests-common-performance"
+	COMMENT "Building all the tests for the Common library."
 )
 
 #ADD_SUBDIRECTORY ( UnitTests )

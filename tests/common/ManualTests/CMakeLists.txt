@@ -1,15 +1,14 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-ADD_CUSTOM_TARGET ( "common-tests-manual" )
-
-ADD_DEPENDENCIES ( "common-tests-manual"
-	# Add all the available tests targets (EXECUTABLENAMEs) here
-	GCanvasTest
-	GFormulaParserTest
-	GHelperFunctionsTest
-	GLoggerTest
-	GPlotDesignerTest
-	GThreadPoolTest
+ADD_CUSTOM_TARGET( "tests-common-manual"
+	# Add all the available test targets (EXECUTABLENAMEs) here
+	DEPENDS GCanvasTest
+		GFormulaParserTest
+		GHelperFunctionsTest
+		GLoggerTest
+		GPlotDesignerTest
+		GThreadPoolTest
+	COMMENT "Building the manual tests for the Common library."
 )
 
 ADD_SUBDIRECTORY ( GCanvasTest )

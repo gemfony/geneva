@@ -1,17 +1,16 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-ADD_CUSTOM_TARGET ( "geneva-tests-manual" )
-
-ADD_DEPENDENCIES ( "geneva-tests-manual"
-	# Add all the available tests targets (EXECUTABLENAMEs) here
-	GBooleanProbabilityTest
-	GConstrainedFPTTest
-	GConstrainedIntTTest
-	GDoubleBiGaussAdaptorTest
-	GDoubleGaussAdaptorTest
-	GParameterPropertyParserTest
-	GRandomWalk
-	GSigmaSigmaAdaptionTest
+ADD_CUSTOM_TARGET( "tests-geneva-manual"
+	# Add all the available test targets (EXECUTABLENAMEs) here
+	DEPENDS GBooleanProbabilityTest
+		GConstrainedFPTTest
+		GConstrainedIntTTest
+		GDoubleBiGaussAdaptorTest
+		GDoubleGaussAdaptorTest
+		GParameterPropertyParserTest
+		GRandomWalk
+		GSigmaSigmaAdaptionTest
+	COMMENT "Building the manual tests for the Optimization library."
 )
 
 ADD_SUBDIRECTORY ( GBooleanProbabilityTest )

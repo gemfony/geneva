@@ -1,13 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-ADD_CUSTOM_TARGET ( "courtier-tests"
-	COMMENT "Building the Courtier tests."
-)
-
-ADD_DEPENDENCIES ( "courtier-tests"
-	${COURTIER_LIBNAME}
-	#"courtier-tests-unit"
-	"courtier-tests-performance"
+ADD_CUSTOM_TARGET( "tests-courtier"
+	DEPENDS #"tests-courtier-unit"
+		"tests-courtier-performance"
+	COMMENT "Building all the tests for the Courtier library."
 )
 
 #ADD_SUBDIRECTORY ( UnitTests )

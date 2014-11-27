@@ -1,10 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-ADD_CUSTOM_TARGET ( "geneva-tests-unit" )
-
-ADD_DEPENDENCIES ( "geneva-tests-unit"
-	# Add all the available tests targets (EXECUTABLENAMEs) here
-	GenevaStandardTests
+ADD_CUSTOM_TARGET( "tests-geneva-unit"
+	# Add all the available test targets (EXECUTABLENAMEs) here
+	DEPENDS GenevaStandardTests
+	COMMENT "Building the unit tests for the Optimization library."
 )
 
 SET ( EXECUTABLENAME GenevaStandardTests )

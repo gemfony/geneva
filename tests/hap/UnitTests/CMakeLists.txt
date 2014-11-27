@@ -1,10 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-ADD_CUSTOM_TARGET ( "hap-tests-unit" )
-
-ADD_DEPENDENCIES ( "hap-tests-unit"
-	# Add all the available tests targets (EXECUTABLENAMEs) here
-	GRandomTest
+ADD_CUSTOM_TARGET( "tests-hap-unit"
+	# Add all the available test targets (EXECUTABLENAMEs) here
+	DEPENDS GRandomTest
+	COMMENT "Building the unit tests for the Hap library."
 )
 
 SET ( EXECUTABLENAME GRandomTest )

@@ -1,6 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-ADD_CUSTOM_TARGET( "examples_geneva"
+ADD_CUSTOM_TARGET( "examples-geneva"
 	# Add all the available example's targets here
 	DEPENDS 01_GSimpleOptimizer 
 		02_GParaboloid2D 
@@ -16,7 +16,7 @@ ADD_CUSTOM_TARGET( "examples_geneva"
 		12_GExternalEvaluator
 		13_GPluggableOptimizationMonitors
 		14_GDependentConstraints
-	COMMENT "Building the Geneva examples for the optimization library."
+	COMMENT "Building all the examples for the Optimization library."
 )
 
 ADD_SUBDIRECTORY( 01_GSimpleOptimizer )
