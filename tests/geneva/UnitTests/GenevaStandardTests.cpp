@@ -77,7 +77,7 @@ using namespace boost::unit_test;
 #include "geneva-individuals/GTestIndividual3.hpp"
 #include "geneva-individuals/GFunctionIndividual.hpp"
 
-#include "GStandard_test.hpp"
+#include "geneva/tests/GStandard_test.hpp"
 
 using namespace Gem::Geneva;
 
