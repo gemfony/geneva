@@ -684,7 +684,8 @@ GNeuralNetworkIndividual::GNeuralNetworkIndividual(
    const double& min, const double& max
    , const double& sigma, const double& sigmaSigma
    , const double& minSigma, const double& maxSigma
-   , const double& adProb
+   , const double& adProb, const double& adaptAdProb
+   , const double& minAdProb, const double& maxAdProb
 )
    : tF_(GNN_DEF_TRANSFER)
    , nD_(GNNTrainingDataStore)
@@ -693,7 +694,8 @@ GNeuralNetworkIndividual::GNeuralNetworkIndividual(
       min, max
       , sigma, sigmaSigma
       , minSigma, maxSigma
-      , adProb
+      , adProb, adaptAdProb
+      , minAdProb, maxAdProb
    );
 }
 
@@ -811,7 +813,8 @@ void GNeuralNetworkIndividual::init(
    const double& min, const double& max
    , const double& sigma, const double& sigmaSigma
    , const double& minSigma, const double& maxSigma
-   , const double& adProb
+   , const double& adProb, const double& adaptAdProb
+   , const double& minAdProb, const double& maxAdProb
 ) {
    // Make sure the individual is empty
    this->clear();
@@ -859,6 +862,8 @@ void GNeuralNetworkIndividual::init(
             // Set up an adaptor
             boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));
             gdga->setAdaptionProbability(adProb);
+            gdga->setAdaptAdProb(adaptAdProb);
+            gdga->setAdProbRange(minAdProb, maxAdProb);
 
             // Register it with the GDoubleObject object
             gd_ptr->addAdaptor(gdga);
@@ -1434,6 +1439,9 @@ double GNeuralNetworkIndividual::transfer(const double& value) const {
 GNeuralNetworkIndividualFactory::GNeuralNetworkIndividualFactory(const std::string& configFile)
    : Gem::Common::GFactoryT<GParameterSet>(configFile)
    , adProb_(GNN_DEF_ADPROB)
+   , adaptAdProb_(GNN_DEF_ADAPTADPROB)
+   , minAdProb_(GNN_DEF_MINADPROB)
+   , maxAdProb_(GNN_DEF_MAXADPROB)
    , sigma_(GNN_DEF_SIGMA)
    , sigmaSigma_(GNN_DEF_SIGMASIGMA)
    , minSigma_(GNN_DEF_MINSIGMA)
@@ -1501,6 +1509,36 @@ void GNeuralNetworkIndividualFactory::describeLocalOptions_(Gem::Common::GParser
       "adProb"
       , adProb_
       , GNN_DEF_ADPROB
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
+   comment = "";
+   comment += "Determines the rate of adaption of adProb. Set to 0, if you do not need this feature;";
+   gpb.registerFileParameter<double>(
+      "adaptAdProb"
+      , adaptAdProb_
+      , GNN_DEF_ADAPTADPROB
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
+   comment = "";
+   comment += "The lower allowed boundary for adProb-variation;";
+   gpb.registerFileParameter<double>(
+      "minAdProb_"
+      , minAdProb_
+      , GNN_DEF_MINADPROB
+      , Gem::Common::VAR_IS_ESSENTIAL
+      , comment
+   );
+
+   comment = "";
+   comment += "The upper allowed boundary for adProb-variation;";
+   gpb.registerFileParameter<double>(
+      "maxAdProb_"
+      , maxAdProb_
+      , GNN_DEF_MAXADPROB
       , Gem::Common::VAR_IS_ESSENTIAL
       , comment
    );
@@ -1598,7 +1636,8 @@ void GNeuralNetworkIndividualFactory::postProcess_(boost::shared_ptr<GParameterS
       minVar_, maxVar_
       , sigma_, sigmaSigma_
       , minSigma_, maxSigma_
-      , adProb_
+      , adProb_, adaptAdProb_
+      , minAdProb_, maxAdProb_
    );
 
    // Set the transfer function

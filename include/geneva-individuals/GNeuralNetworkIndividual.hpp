@@ -333,13 +333,16 @@ typedef Gem::Common::GSingletonT<Gem::Geneva::networkData> GDatStore;
 /******************************************************************************/
 // A number of default settings for the factory
 const std::string      GNN_DEF_DATAFILE="./Datasets/hyper_cube.dat";
-const double           GNN_DEF_ADPROB = 1.;
-const double           GNN_DEF_SIGMA = 0.025;
-const double           GNN_DEF_SIGMASIGMA = 0.2;
-const double           GNN_DEF_MINSIGMA = 0.001;
-const double           GNN_DEF_MAXSIGMA = 1;
-const double           GNN_DEF_MINVAR = -1.;
-const double           GNN_DEF_MAXVAR = 1.;
+const double           GNN_DEF_ADPROB = 0.05;
+const double           GNN_DEF_ADAPTADPROB = 0.1;
+const double           GNN_DEF_MINADPROB = 0.05;
+const double           GNN_DEF_MAXADPROB = 1.;
+const double           GNN_DEF_SIGMA = 0.1;
+const double           GNN_DEF_SIGMASIGMA = 0.8;
+const double           GNN_DEF_MINSIGMA = 0.01;
+const double           GNN_DEF_MAXSIGMA = 0.2;
+const double           GNN_DEF_MINVAR = -10.;
+const double           GNN_DEF_MAXVAR = 10.;
 const transferFunction GNN_DEF_TRANSFER = SIGMOID;
 
 /******************************************************************************/
@@ -385,10 +388,11 @@ public:
    GNeuralNetworkIndividual();
 	/** @brief A constructor which initializes the individual with a suitable set of network layers */
 	GNeuralNetworkIndividual(
-      const double& min, const double& max
-      , const double& sigma, const double& sigmaSigma
-      , const double& minSigma, const double& maxSigma
-      , const double& adProb
+      const double& /* min */, const double& /* max */
+      , const double& /* sigma */, const double& /* sigmaSigma */
+      , const double& /* minSigma */, const double& /* maxSigma */
+      , const double& /* adProb */ , const double& /* adaptAdProb */
+      , const double& /* minAdProb */, const double& /* maxAdProb */
 	);
 	/** @brief A standard copy constructor */
 	GNeuralNetworkIndividual(const GNeuralNetworkIndividual& cp);
@@ -415,10 +419,11 @@ public:
 
 	/** @brief Initialization according to user-specifications */
    void init(
-      const double& min, const double& max
-      , const double& sigma, const double& sigmaSigma
-      , const double& minSigma, const double& maxSigma
-      , const double& adProb
+      const double& /* min */, const double& /* max */
+      , const double& /* sigma */, const double& /* sigmaSigma */
+      , const double& /* minSigma */, const double& /* maxSigma */
+      , const double& /* adProb */ , const double& /* adaptAdProb */
+      , const double& /* minAdProb */, const double& /* maxAdProb */
    );
 
    /** @brief Sets the type of the transfer function */
@@ -984,12 +989,16 @@ private:
    GNeuralNetworkIndividualFactory();
 
    double adProb_;
+   double adaptAdProb_;
+   double minAdProb_;
+   double maxAdProb_;
    double sigma_;
    double sigmaSigma_;
    double minSigma_;
    double maxSigma_;
    double minVar_;
    double maxVar_;
+
    transferFunction tF_;
 };
 
