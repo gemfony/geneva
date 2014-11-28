@@ -222,13 +222,15 @@ SET ( COURTIER_LIBNAME          "gemfony-courtier" )
 SET ( GENEVA_LIBNAME            "gemfony-geneva" )
 SET ( GENEVA_INDIVIDUAL_LIBNAME "gemfony-geneva-individuals")
 
+# The order of the entries is important, as it translates to the linking
+# order in TARGET_LINK_LIBRARIES() later...
 SET (
 	GENEVA_LIBNAMES
-	${COMMON_LIBNAME}
-	${HAP_LIBNAME}
-	${COURTIER_LIBNAME}
-	${GENEVA_LIBNAME}
 	${GENEVA_INDIVIDUAL_LIBNAME}
+	${GENEVA_LIBNAME}
+	${COURTIER_LIBNAME}
+	${HAP_LIBNAME}
+	${COMMON_LIBNAME}
 )
 SET ( GENEVA_LIBRARIES ${GENEVA_LIBNAMES} )
 
