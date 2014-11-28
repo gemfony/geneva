@@ -987,7 +987,7 @@ void GNeuralNetworkIndividual::writeVisualizationFile(const std::string& visFile
          << std::endl
          << "using namespace Gem::NeuralNetwork;" << std::endl
          << std::endl
-         << "main(){" << std::endl
+         << "int main(int argc, char** argv){" << std::endl
          << "  boost::lagged_fibonacci607 lf(123);" << std::endl
          << std::endl
          << "  double x=0., y=0., result=0;" << std::endl
