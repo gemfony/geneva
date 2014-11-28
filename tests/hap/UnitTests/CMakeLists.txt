@@ -1,10 +1,50 @@
+################################################################################
+#
+# Copyright (C) Gemfony scientific UG (haftungsbeschraenkt)
+#
+# See the AUTHORS file in the top-level directory for a list of authors.
+#
+# Contact: contact [at] gemfony (dot) eu
+#
+# This file is part of the Geneva library collection.
+#
+# Geneva was developed with kind support from Karlsruhe Institute of
+# Technology (KIT) and Steinbuch Centre for Computing (SCC). Further
+# information about KIT and SCC can be found at http://www.kit.edu/english
+# and http://scc.kit.edu .
+#
+# Geneva is free software: you can redistribute and/or modify it under
+# the terms of version 3 of the GNU Affero General Public License
+# as published by the Free Software Foundation.
+#
+# Geneva is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with the Geneva library. If not, see <http://www.gnu.org/licenses/>.
+#
+# For further information on Gemfony scientific and Geneva, visit
+# http://www.gemfony.eu .
+#
+################################################################################
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-ADD_CUSTOM_TARGET( "tests-hap-unit"
-	# Add all the available test targets (EXECUTABLENAMEs) here
-	DEPENDS GRandomTest
-	COMMENT "Building the unit tests for the Hap library."
-)
+IF (NOT GENEVA_FULL_TREE_BUILD)
+
+	PROJECT(GRandomTest)
+
+	# For building the tests independently, we still assume that the
+	# current source folder is still part of the Geneva tree structure,
+	# i.e., the 'CMakeModules' folder can be found going up... This avoids
+	# having to copy the same content over and over again in the tests.
+	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../../../CMakeModules")
+
+	MESSAGE("\nPerforming an independent build of ${PROJECT_NAME}")
+	INCLUDE(CommonGenevaBuild)
+
+ENDIF ()
 
 SET ( EXECUTABLENAME GRandomTest )
 
@@ -12,25 +52,28 @@ SET ( ${EXECUTABLENAME}_SRCS
 	GRandomTest
 )
 
-ADD_SUBDIRECTORY ( GRandomTestHeaders )
-
-ADD_EXECUTABLE ( ${EXECUTABLENAME}
+ADD_EXECUTABLE(${EXECUTABLENAME}
 	${${EXECUTABLENAME}_SRCS}
 )
 
-INCLUDE_DIRECTORIES ( AFTER
-	${PROJECT_SOURCE_DIR}/include
-	${PROJECT_SOURCE_DIR}/tests/hap/UnitTests/GRandomTestHeaders
-)
-
-TARGET_LINK_LIBRARIES ( ${EXECUTABLENAME}
-	${HAP_LIBNAME}
-#	${COURTIER_LIBNAME}
-#	${GENEVA_LIBNAME}
-	${COMMON_LIBNAME}
+TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
+	${GENEVA_LIBRARIES}
 	${Boost_LIBRARIES}
 )
 
-ADD_TEST(${EXECUTABLENAME} ${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLENAME})
+#ADD_SUBDIRECTORY (config)
+
+ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION tests/hap/UnitTests )
+
+
+#
+# Take care of other particularities of this test
+#
+
+ADD_CUSTOM_TARGET( "tests-hap-unit"
+	# Add all the available test targets (EXECUTABLENAMEs) here
+	DEPENDS GRandomTest
+	COMMENT "Building the unit tests for the Hap library."
+)

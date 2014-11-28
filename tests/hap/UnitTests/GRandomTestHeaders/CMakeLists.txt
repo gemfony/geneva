@@ -1,4 +1,0 @@
-SET ( ${EXECUTABLENAME}_HEADERS
-	GRandom_test.hpp
-	PARENT_SCOPE
-)

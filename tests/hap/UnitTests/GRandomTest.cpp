@@ -41,7 +41,7 @@ using namespace boost::unit_test;
 #include <boost/shared_ptr.hpp>
 
 // This file holds the actual random tests
-#include "GRandom_test.hpp"
+#include "GRandomTestHeaders/GRandom_test.hpp"
 
 // Test program entry point
 test_suite* init_unit_test_suite(int argc, char** argv) {
