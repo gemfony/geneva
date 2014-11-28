@@ -200,8 +200,10 @@ class networkData
    void load(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
-      ar & make_nvp("GStdSimpleVectorInterfaceT_size_t",
-            boost::serialization::base_object<GStdSimpleVectorInterfaceT<std::size_t> >(*this));
+      ar
+      & make_nvp("GStdSimpleVectorInterfaceT_size_t",
+            boost::serialization::base_object<GStdSimpleVectorInterfaceT<std::size_t> >(*this))
+      & BOOST_SERIALIZATION_NVP(initRange_);
 
       // Make sure the data vector is empty
       if(data_) {
@@ -226,6 +228,7 @@ class networkData
       ar
       & make_nvp("GStdSimpleVectorInterfaceT_size_t",
             boost::serialization::base_object<GStdSimpleVectorInterfaceT<std::size_t> >(*this))
+      & BOOST_SERIALIZATION_NVP(initRange_)
       & BOOST_SERIALIZATION_NVP(arraySize_)
       & boost::serialization::make_array(data_, arraySize_);
    }
@@ -280,6 +283,16 @@ public:
 	/** @brief Saves this data set in ROOT format for visual inspection */
 	void toROOT(const std::string&, const double&, const double&);
 
+	/** @brief Allows to check whether an initialization range has been set */
+	bool initRangeSet() const;
+	/** @brief Allows to set the initialization range */
+	void setInitRange(const std::vector<boost::tuple<double, double> >& initRange);
+	/** @brief Allows to retrieve the initialization range */
+	std::vector<boost::tuple<double, double> > getInitRange() const;
+
+	/** @brief Allows to retrieve a string that describes the network geometry */
+	std::string getNetworkGeometryString() const;
+
 	/** @brief Creates a deep clone of this object */
 	boost::shared_ptr<networkData> clone() const;
 
@@ -298,6 +311,10 @@ private:
    std::size_t arraySize_;
    /** @brief Holds the individual data items */
 	boost::shared_ptr<trainingSet> *data_;
+
+	/** @brief Holds the initialization range in each direction */
+	std::vector<boost::tuple<double, double> > initRange_;
+
 	/** @brief Locks access to the clone function */
    mutable boost::mutex m_; ///< Lock get/set operations
 };
@@ -516,6 +533,12 @@ public:
 			nD->addTrainingSet(tS, datCounter);
 		}
 
+		// Make the initialization range known to nD_
+		std::vector<boost::tuple<double, double> > initRange;
+		initRange.push_back(boost::tuple<double, double>(-edgelength,edgelength)); // x
+      initRange.push_back(boost::tuple<double, double>(-edgelength,edgelength)); // y
+		nD->setInitRange(initRange);
+
 		return nD;
 	}
 
@@ -607,6 +630,12 @@ public:
 					double phi = gr_l.uniform_real<double>(2*M_PI);
 					tS->Input[0] = local_radius*sin(phi); // x
 					tS->Input[1] = local_radius*cos(phi); // y
+
+			      // Make the initialization range known to nD_ . We only do this for 2D-data
+			      std::vector<boost::tuple<double, double> > initRange;
+			      initRange.push_back(boost::tuple<double, double>(-local_radius,local_radius)); // x
+			      initRange.push_back(boost::tuple<double, double>(-local_radius,local_radius)); // y
+			      nD->setInitRange(initRange);
 				}
 				break;
 
@@ -760,6 +789,12 @@ public:
 			nD->addTrainingSet(tS, dataCounter);
 		}
 
+      // Make the initialization range known to nD_
+      std::vector<boost::tuple<double, double> > initRange;
+      initRange.push_back(boost::tuple<double, double>(0,1)); // x
+      initRange.push_back(boost::tuple<double, double>(0,1)); // y
+      nD->setInitRange(initRange);
+
 		return nD;
 	}
 
@@ -845,6 +880,12 @@ public:
 
 			nD->addTrainingSet(tS, dataCounter);
 		}
+
+      // Make the initialization range known to nD_
+      std::vector<boost::tuple<double, double> > initRange;
+      initRange.push_back(boost::tuple<double, double>(-6,6)); // x
+      initRange.push_back(boost::tuple<double, double>(-6,6)); // y
+      nD->setInitRange(initRange);
 
 		return nD;
 	}
