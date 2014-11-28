@@ -1,8 +1,8 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 ADD_CUSTOM_TARGET( "examples-hap"
-	# Add all the available example's targets here
-	DEPENDS 05_GHapUsagePatterns
+	# Add all the available example's targets (EXECUTABLENAMEs) here
+	DEPENDS GHapUsagePatterns
 	COMMENT "Building all the examples for the Hap library."
 )
 

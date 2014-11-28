@@ -1,21 +1,21 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 ADD_CUSTOM_TARGET( "examples-geneva"
-	# Add all the available example's targets here
-	DEPENDS 01_GSimpleOptimizer 
-		02_GParaboloid2D 
-		03_GParameterObjectUsagePatterns 
-		04_GMultiCriterionParabola 
-		06_GDirectEA 
-		06_GDirectSwarm 
-		07_GFunctionMinimizer 
-		08_GMultiPopulation 
-		09_GNeuralNetwork
-		10_GStarter
-		11_GMetaOptimizer
-		12_GExternalEvaluator
-		13_GPluggableOptimizationMonitors
-		14_GDependentConstraints
+	# Add all the available example's targets (EXECUTABLENAMEs) here
+	DEPENDS GSimpleOptimizer 
+		GParaboloid2D 
+		GParameterObjectUsagePatterns 
+		GMultiCriterionParabola 
+		GDirectEA 
+		GDirectSwarm 
+		GFunctionMinimizer 
+		GMultiPopulation 
+		GNeuralNetwork
+		GStarter
+		GMetaOptimizer
+		GExternalEvaluator
+		GPluggableOptimizationMonitors
+		GDependentConstraints
 	COMMENT "Building all the examples for the Optimization library."
 )
 
