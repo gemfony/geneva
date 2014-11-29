@@ -106,14 +106,19 @@ FIND_HOST_COMPILER (
 )
 
 ################################################################################
-# Determine the C++ standard to be used, depending on the desired standard
-# and the maximum standard allowed by the chosen compiler. This function
-# will raise an error if the desired standard is higher than the maximum
-# supported standard. It will also resolve the "auto" setting of the standard
+# Determine the C++ standard to be used, depending on the desired standard,
+# the minimum required standard and the maximum standard allowed by the
+# chosen compiler. This function will raise an error if the desired standard
+# is lower than the minimum required, or higher than the maximum supported
+# standard. It will also resolve the "auto" setting of the standard
 # by setting it to the maximum supported standard.
+
+# Geneva requires currently the C++98 Standard
+SET (GENEVA_MIN_CXX_STANDARD "cxx98")
 
 GET_ACTUAL_CXX_STANDARD (
 	${GENEVA_CXX_STD}
+	${GENEVA_MIN_CXX_STANDARD}
 	${GENEVA_MAX_CXX_STANDARD}
 	GENEVA_ACTUAL_CXX_STANDARD
 )
