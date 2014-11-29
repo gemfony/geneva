@@ -140,11 +140,13 @@ FUNCTION (
 ENDFUNCTION()
 
 ###############################################################################
-# Checks if a desired c++ standard string matches the maximum supported version
+# Checks if a desired c++ standard string matches the minimum required and
+# the maximum supported version
 #
 FUNCTION (
 	CHECK_DESIRED_CXX_STANDARD
 	GENEVA_CXX_DESIRED_STANDARD_IN
+	GENEVA_CXX_MIN_REQUIRED_STANDARD_IN
 	GENEVA_CXX_MAX_SUPPORTED_STANDARD_IN
 	GENEVA_CXX_DESIRED_STANDARD_SUPPORTED_OUT
 )
@@ -152,11 +154,23 @@ FUNCTION (
 	#--------------------------------------------------------------------------
 	# Transform the two strings into numeric ids
 	GET_STANDARD_ID(${GENEVA_CXX_DESIRED_STANDARD_IN} GENEVA_CXX_DESIRED_STANDARD_NUMERIC)
+	GET_STANDARD_ID(${GENEVA_CXX_MIN_REQUIRED_STANDARD_IN} GENEVA_CXX_MIN_REQUIRED_STANDARD_NUMERIC)
 	GET_STANDARD_ID(${GENEVA_CXX_MAX_SUPPORTED_STANDARD_IN} GENEVA_CXX_MAX_SUPPORTED_STANDARD_NUMERIC)
 
-	# Compare the two numbers. The desired max supported id may
-	# not be smaller than the desired id
-	IF(${GENEVA_CXX_MAX_SUPPORTED_STANDARD_NUMERIC} LESS ${GENEVA_CXX_DESIRED_STANDARD_NUMERIC})
+	# Check that the compiler maximum supported standard is at least equal
+	# to the minimum standard required by Geneva
+	IF(${GENEVA_CXX_MAX_SUPPORTED_STANDARD_NUMERIC} LESS ${GENEVA_CXX_MIN_REQUIRED_STANDARD_NUMERIC})
+		MESSAGE(FATAL_ERROR "The maximum C++ standard supported by your"
+			" compiler (${GENEVA_CXX_MAX_SUPPORTED_STANDARD_NUMERIC})"
+			" is lower than the minimum standard required to compile"
+			" Geneva (${GENEVA_MIN_CXX_STANDARD_IN})!")
+	ENDIF()
+
+	# Compare the three numbers. The desired standard may not be lower
+	# than the minimum required, nor higher than the maximum supported value.
+	IF((${GENEVA_CXX_DESIRED_STANDARD_NUMERIC} LESS ${GENEVA_CXX_MIN_REQUIRED_STANDARD_NUMERIC})
+	   OR
+	   (${GENEVA_CXX_MAX_SUPPORTED_STANDARD_NUMERIC} LESS ${GENEVA_CXX_DESIRED_STANDARD_NUMERIC}))
 		SET(${GENEVA_CXX_DESIRED_STANDARD_SUPPORTED_OUT} "unsupported" PARENT_SCOPE)
 	ELSE()
 		SET(${GENEVA_CXX_DESIRED_STANDARD_SUPPORTED_OUT} "supported" PARENT_SCOPE)
@@ -175,6 +189,11 @@ FUNCTION (
 )
 
 	#--------------------------------------------------------------------------
+	#
+	# Note: CMAKE_SYSTEM_VERSION is the output of 'uname -r', and
+	#       CMAKE_SYSTEM_NAME is the output of 'uname -s' on systems that
+	#       support it, at least in cmake 3.x
+	#
 	IF(APPLE)
 		EXEC_PROGRAM(uname ARGS -r  OUTPUT_VARIABLE DARWIN_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 		SET(${GENEVA_OS_NAME_OUT} "MacOSX" PARENT_SCOPE)
@@ -204,8 +223,7 @@ ENDFUNCTION()
 
 ###############################################################################
 # Identifies the compiler, version and the maximum fully supported C++ standard.
-# GENEVA_COMPILER_NAME_OUT will be one of Clang, GNU, Intel or MSVC
-# GENEVA_COMPILER_VERSION_OUT will only be filled for CMake versions >= 2.8.10
+# GENEVA_COMPILER_NAME_OUT will be one of Clang, GNU, Intel or MSVC.
 #
 FUNCTION (
 	FIND_HOST_COMPILER
@@ -223,14 +241,14 @@ FUNCTION (
 	SET(GENEVA_COMPILER_VERSION_LOCAL "")
 	IF (${CMAKE_VERSION} VERSION_LESS 2.8.10)
 		IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "${GNU_DEF_IDENTIFIER}")
-			EXEC_PROGRAM(${CMAKE_CXX_COMPILER_ID} ARGS -dumpversion OUTPUT_VARIABLE GXX_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+			EXEC_PROGRAM(${CMAKE_CXX_COMPILER} ARGS -dumpversion OUTPUT_VARIABLE GXX_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 			SET(GENEVA_COMPILER_VERSION_LOCAL "${GXX_VERSION}")
 		ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "${CLANG_DEF_IDENTIFIER}")
-			EXEC_PROGRAM(${CMAKE_CXX_COMPILER_ID} ARGS --version OUTPUT_VARIABLE CLANG_VERSION)
+			EXEC_PROGRAM(${CMAKE_CXX_COMPILER} ARGS --version OUTPUT_VARIABLE CLANG_VERSION)
 			STRING(REGEX REPLACE ".*based on LLVM ([0-9]+\\.[0-9]+).*" "\\1" CLANG_VERSION ${CLANG_VERSION})
 			SET(GENEVA_COMPILER_VERSION_LOCAL "${CLANG_VERSION}")
 		ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "${INTEL_DEF_IDENTIFIER}")
-			EXEC_PROGRAM(${CMAKE_CXX_COMPILER_ID} ARGS -dumpversion OUTPUT_VARIABLE INTEL_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+			EXEC_PROGRAM(${CMAKE_CXX_COMPILER} ARGS -dumpversion OUTPUT_VARIABLE INTEL_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 			SET(GENEVA_COMPILER_VERSION_LOCAL "${INTEL_VERSION}")
 		ELSE()
 			SET(GENEVA_COMPILER_VERSION_LOCAL "unsupported")
@@ -350,8 +368,8 @@ FUNCTION (
 ENDFUNCTION()
 
 ################################################################################
-# Determines the actual standard to be used, depending on the desired standard
-# and the maximum available standard
+# Determines the actual standard to be used, depending on the desired, the
+# minimum required, and the maximum available standards
 #
 # The following cases exist:
 # - The maximum supported standard is < the desired standard --> raise an error
@@ -361,6 +379,7 @@ ENDFUNCTION()
 FUNCTION (
 	GET_ACTUAL_CXX_STANDARD
 	GENEVA_CXX_DESIRED_STANDARD_IN
+	GENEVA_MIN_CXX_STANDARD_IN
 	GENEVA_MAX_CXX_STANDARD_IN
 	GENEVA_ACTUAL_CXX_STANDARD_OUT
 )
@@ -373,13 +392,15 @@ FUNCTION (
 		# Check that the desired C++ standard is indeed supported
 		CHECK_DESIRED_CXX_STANDARD (
 			${GENEVA_CXX_DESIRED_STANDARD_IN}
+			${GENEVA_MIN_CXX_STANDARD_IN}
 			${GENEVA_MAX_CXX_STANDARD_IN}
 			GENEVA_CXX_DESIRED_STANDARD_SUPPORTED
 		)
 
 		IF("${GENEVA_CXX_DESIRED_STANDARD_SUPPORTED}" STREQUAL "unsupported")
-			MESSAGE(FATAL_ERROR "Requested C++ standard is ${GENEVA_CXX_DESIRED_STANDARD_IN}"
-				" while maximum supported standard is ${GENEVA_MAX_CXX_STANDARD_IN}!")
+			MESSAGE(FATAL_ERROR "The requested C++ standard (${GENEVA_CXX_DESIRED_STANDARD_IN})"
+				" is incompatible with the minimum required (${GENEVA_MIN_CXX_STANDARD_IN}),"
+				" or the maximum supported standards (${GENEVA_MAX_CXX_STANDARD_IN})!")
 		ENDIF()
 
 		SET(${GENEVA_ACTUAL_CXX_STANDARD_OUT} "${GENEVA_CXX_DESIRED_STANDARD_IN}" PARENT_SCOPE)
@@ -587,6 +608,7 @@ FUNCTION (
 	ELSEIF(WIN32)
 		SET(${PLATFORM_NEEDS_LIBRARY_LINKING_OUT} TRUE PARENT_SCOPE)
 	ELSE()
+		# Linux and other Unices do not need library linking
 		SET(${PLATFORM_NEEDS_LIBRARY_LINKING_OUT} FALSE PARENT_SCOPE)
 	ENDIF()
 	#-------------------------------------------------------------------------
