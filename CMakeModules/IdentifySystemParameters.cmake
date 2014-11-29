@@ -175,6 +175,11 @@ FUNCTION (
 )
 
 	#--------------------------------------------------------------------------
+	#
+	# Note: CMAKE_SYSTEM_VERSION is the output of 'uname -r', and
+	#       CMAKE_SYSTEM_NAME is the output of 'uname -s' on systems that
+	#       support it, at least in cmake 3.x
+	#
 	IF(APPLE)
 		EXEC_PROGRAM(uname ARGS -r  OUTPUT_VARIABLE DARWIN_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 		SET(${GENEVA_OS_NAME_OUT} "MacOSX" PARENT_SCOPE)
@@ -204,8 +209,7 @@ ENDFUNCTION()
 
 ###############################################################################
 # Identifies the compiler, version and the maximum fully supported C++ standard.
-# GENEVA_COMPILER_NAME_OUT will be one of Clang, GNU, Intel or MSVC
-# GENEVA_COMPILER_VERSION_OUT will only be filled for CMake versions >= 2.8.10
+# GENEVA_COMPILER_NAME_OUT will be one of Clang, GNU, Intel or MSVC.
 #
 FUNCTION (
 	FIND_HOST_COMPILER
@@ -587,6 +591,7 @@ FUNCTION (
 	ELSEIF(WIN32)
 		SET(${PLATFORM_NEEDS_LIBRARY_LINKING_OUT} TRUE PARENT_SCOPE)
 	ELSE()
+		# Linux and other Unices do not need library linking
 		SET(${PLATFORM_NEEDS_LIBRARY_LINKING_OUT} FALSE PARENT_SCOPE)
 	ENDIF()
 	#-------------------------------------------------------------------------
