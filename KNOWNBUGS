@@ -5,9 +5,8 @@ Add new bugs here ...
 
 --
 
-If you run into an error message "looser throw specifier for Ôvirtual boost::exception_ptr::~exception_ptr()Õ" 
-with Boost 1.41, make sure to add a line "~exception_ptr() throw() { }" to the file 
-"$BOOST_HOME/include/boost/exception_ptr.hpp", around line 93 . This happens e.g. with gcc 4.4.7 on
-CentOS 6.3 .
+Boost versions 1.56 and 1.57 seem to have an issue which breaks Geneva compilation:
+this issue has still not been investigated (nor solved)... Please use the recommended
+Boost version 1.55 at the moment.
 
 --

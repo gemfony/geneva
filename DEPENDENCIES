@@ -4,8 +4,6 @@
 #
 ###############################################################################
 
-- A current FindGeneva.cmake must be made available to all examples
-- The GENEVA_MIN_BOOST_VERSION variable needs to be updated in all instances
-  of FindGeneva.cmake and in the main CMakeLists.txt file
-
-  
+- The folder <GENEVA_ROOT>/CMakeModules/ must be kept up to date in all
+  <GENEVA_ROOT>/example/ subfolders (i.e., <GENEVA_ROOT>/CMakeModules/
+  and <GENEVA_ROOT>/examples/*/CMakeModules/ must be identical).
