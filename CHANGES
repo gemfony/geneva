@@ -1,35 +1,5 @@
 //------------------------------------------------------------------------------------------------------
-* Development version 1.5, to be released as version 2.0 when ready
-
-The main changes for this release include:
-
-****************************** BREAKING CHANGES ********************************
-
- - Geneva requires now a C++11 Standard compatible compiler
-
-********************************************************************************
-
-Wishlist:
- - A scripting interface to optimization algorithms, so that new
-   algorithms can be more easily implemented and tested even by
-   people not familiar with all of Geneva.
- - A "Python-Individual", so that optimization algorithms may be
-   specified in Python.
- - Additional optimization algorithms (particularly Simplex and
-   Conjugate Gradient).
- - MS Windows port.
- - Variable length parents in evolutionary algorithms to better support
-   pareto optimization.
- - Make the build-system log whether the libraries were built with or
-   without test- and mpi-support, so independent builds may configure
-   themselves automatically.
- - Automatic recreation and distribution of relevant configuration files.
- - Make value ranges of parameter objects always closed, even for fp.
- - Rework of the test infrastructure.
- - Full integration of -fsanitize=X.
-
-//------------------------------------------------------------------------------------------------------
-* Version 1.4.1, "XXXX" - December X, 2014
+* Development version 1.5, to be released as version 1.6 when ready
 
 The main changes for this release include:
 
@@ -53,6 +23,25 @@ The main changes for this release include:
    applications as well as any of the Geneva examples or tests out of
    the main tree. This module is also used for the normal Geneva build.
    The "IndependentBuild" CMake module was removed.
+
+Wishlist:
+ - A scripting interface to optimization algorithms, so that new
+   algorithms can be more easily implemented and tested even by
+   people not familiar with all of Geneva.
+ - A "Python-Individual", so that optimization algorithms may be
+   specified in Python.
+ - Additional optimization algorithms (particularly Simplex and
+   Conjugate Gradient).
+ - MS Windows port.
+ - Variable length parents in evolutionary algorithms to better support
+   pareto optimization.
+ - Make the build-system log whether the libraries were built with or
+   without test- and mpi-support, so independent builds may configure
+   themselves automatically.
+ - Automatic recreation and distribution of relevant configuration files.
+ - Make value ranges of parameter objects always closed, even for fp.
+ - Rework of the test infrastructure.
+ - Full integration of -fsanitize=X.
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.4, "Aosta" - August 8, 2014
