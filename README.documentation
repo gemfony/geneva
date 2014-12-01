@@ -11,6 +11,3 @@ be built "out-of-source", i.e. in its own build-directory.
 Creating up-to-date reference documentation requires that the LaTeX
 typesetting system is installed and accessible on your system. Likewise,
 a full doxygen installation is required, including tools.
-
-
-
