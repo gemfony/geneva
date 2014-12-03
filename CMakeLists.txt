@@ -86,7 +86,7 @@ ADD_CUSTOM_TARGET( "courtier"           DEPENDS ${COURTIER_LIBNAME}          COM
 ADD_CUSTOM_TARGET( "geneva"             DEPENDS ${GENEVA_LIBNAME}            COMMENT "Building only the Geneva library." )
 ADD_CUSTOM_TARGET( "geneva-individuals" DEPENDS ${GENEVA_INDIVIDUAL_LIBNAME} COMMENT "Building only the Geneva-Individuals library." )
 
-# Custom target for building all the libraries
+# Custom target for building all the libraries but no examples nor tests
 ADD_CUSTOM_TARGET( "core"               DEPENDS ${GENEVA_LIBNAMES}           COMMENT "Building all the Geneva libraries.")
 
 ################################################################################
@@ -117,7 +117,6 @@ SET ( INFORMATIONFILES
 	COPYING
 	CREDITS
 	FAQ
-	GENEVAROOT
 	INSTALL
 	KNOWNBUGS
 	RATEYOUREXPERIENCE
