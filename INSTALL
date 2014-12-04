@@ -3,11 +3,24 @@ Target systems
 
 The main development work of the Geneva library collection is currently done
 on Ubuntu and Debian. It is likely that Geneva compiles on most other Linux
-and Unix systems using the GNU Compiler Collection. 
+and Unix systems using the GNU Compiler Collection. The main branch of Geneva
+development in Launchpad is built and tested nightly under
+	Ubuntu 14.04,
+	Ubuntu 12.04,
+	CentOS 7,
+	CentOS 6, and
+	FreeBSD 9
+using different Boost versions ranging from 1.48 to 1.55, using GCC versions
+4.4 to 4.8 or CLang versions 3.0 to 3.4, and different compiler settings. See
+Gemfony's autobuild system for more details:
+	http://build.gemfony.eu/index.php?project=Geneva
 
-We have recently managed to compile Geneva on MacOS 10.9 using the Clang compiler, 
-which comes with the development suite. Note that support for MacOS is experimental 
-at best. We have also successfully built Geneva with Clang on BSD.
+We have also recently managed to compile Geneva on MacOS 10.9 using the Clang
+compiler, which comes with the development suite. Note that support for MacOS
+is experimental at best.
+
+Geneva has also been tested to compile and work under Windows in the Cygwin
+environment.
 
 The authors would very much appreciate your feedback through the Geneva Development 
 Forum http://www.gemfony.eu/index.php?forums .
@@ -18,45 +31,43 @@ the Downloads section of our web page.
 In case you encounter any bugs or issues please let us know through the Geneva
 bugtracker: https://bugs.launchpad.net/geneva
 
+
 Prerequisites
 =============
 
-The build system uses CMake in version 2.8. At the moment CMake 3.0 is still
-untested, but you may want to give it a try.
+The build system uses CMake in version 2.8 or later. CMake 3.0 is recommended.
 
 You will also need the Boost libraries (see http://www.boost.org) in version
-1.48 or newer. See either the Appendix "Installing Boost in Debian/Ubuntu" or
-the Appendix "Compiling Boost" below for more details. We currently recommend
-Boost 1.55 .
+1.48 or newer. Relying on the libraries provided by your system is the recommended
+way to install Boost. Alternatively, you may want to compile and install a custom
+Boost from source, see the Appendix "Compiling Boost" below for more details.
+We currently recommend Boost version 1.55 .
 
 Please do make sure that Boost has been compiled with the same C++ standard
-mode that you wish to use for Geneva (in particular, do not mix libraries compiled 
-in C++11 and C++98 mode.
+mode that you wish to use for Geneva (in particular, do not mix libraries
+compiled in C++11 and C++98 mode).
 
 If you wish to build from the source code available from our version control 
 tree you will also need the Bazaar version control tools. This is not needed 
 if you only intend to build the official releases from the provided "tar balls".
 
 
-Installation prerequisites in Debian/Ubuntu
+Installation prerequisites on Debian/Ubuntu
 -------------------------------------------
 
 The following commands should be enough to install the required prerequisites
-in any modern Debian/Ubuntu release:
+in any reasonably modern Debian/Ubuntu release (Debian 6, Ubuntu 10.10 or later):
 
 sudo apt-get install --no-install-recommends cmake bzr g++
+
 sudo apt-get install --no-install-recommends libboost-dev libboost-date-time-dev \
         libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev \
         libboost-serialization-dev libboost-system-dev libboost-test-dev \
         libboost-thread-dev
 
-See the section "Installing Boost in Debian/Ubuntu" below, though. Alternatively,
-you may want to install a custom Boost version from its source tree, available
-from http://www.boost.org.
-
 
 Installation prerequisites on MacOS X (tested only 10.9)
----------------------------------------------------------
+--------------------------------------------------------
 
 You should first install the Xcode environment from the App store. This
 will give you a working C++ compiler. You should also install Mac versions
@@ -95,6 +106,24 @@ This will enforce the usage of libstdc++ and the 98 C++ standard.
 
 Through the increased verbosity (through -d+2) you can check that the correct arguments are
 passed to the compiler.
+
+
+Installation prerequisites on Cygwin
+------------------------------------
+
+Installing the following packages should be enough to compile Geneva
+under CygWin:
+
+        gcc-core
+        gcc-g++
+        make
+        cmake
+        libboost-devel
+        libboost_*1.55  (at least you need: date_time,filesystem,
+                         program_options,regex,serialization,system,thread)
+
+Then build Geneva as in any Unix system, see "Building and installing
+Geneva" below.
 
 
 Building and installing Geneva
@@ -200,6 +229,14 @@ Currently we simply set the DYLD_LIBRARY_PATH to the Geneva and Boost
 library directories. Please do let us know about more convenient ways
 of permanently setting library paths.
 
+c) On Cygwin
+------------
+
+On Cygwin, like in Windows itself, you only need to add the DLLs to your
+path to allow the system to use them:
+
+export PATH="/where/the/library/goes/lib:$PATH"
+
 
 Recommended Software
 ====================
@@ -211,37 +248,6 @@ recommended to install ROOT in your system, as also some of the examples
 emit information in the ROOT format (they are essentially writing ROOT
 programs). Note, though, that ROOT is not required to perform
 optimization with the Geneva library collection.
-
-
-Appendix: Installing Boost in Debian/Ubuntu
-===========================================
-
-***
-NOTE: If you install a custom version of Boost, one of the more common errors
-sources are header files taken from one version of Boost, while the libraries
-are taken from another source. Check for this first if you run into 
-compilation problems with Geneva. Using the libraries provided by your system
-is thus the recommended way.
-***
-
-Both Debian 6.0 "Squeeze" and Ubuntu 10.10 "Maverick Meerkat" or
-newer have the required Boost packages to be able to compile and run Geneva:
-
-	libboost-dev
-	libboost-date-time-dev
-	libboost-filesystem-dev
-	libboost-program-options-dev
-	libboost-regex-dev
-	libboost-serialization-dev
-	libboost-system-dev
-	libboost-test-dev
-	libboost-thread-dev
-
-You can install them all at once with the command:
-
-sudo apt-get install libboost-dev libboost-date-time-dev libboost-filesystem-dev \
-	libboost-program-options-dev libboost-regex-dev libboost-serialization-dev \
-	libboost-system-dev libboost-test-dev libboost-thread-dev
 
 
 Appendix: Compiling Boost on Linux
