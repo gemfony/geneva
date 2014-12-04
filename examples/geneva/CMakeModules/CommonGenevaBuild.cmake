@@ -56,7 +56,7 @@ IF( NOT DEFINED GENEVA_BUILD_TESTS )
 ENDIF()
 
 IF( NOT DEFINED GENEVA_CXX_STD )
-	SET( GENEVA_CXX_STD "cxx98" )
+	SET( GENEVA_CXX_STD "auto" )
 ENDIF()
 
 IF( NOT DEFINED GENEVA_STATIC )
@@ -237,7 +237,6 @@ SET (
 	${HAP_LIBNAME}
 	${COMMON_LIBNAME}
 )
-SET ( GENEVA_LIBRARIES ${GENEVA_LIBNAMES} )
 
 ################################################################################
 # The MPI mode is currently only supported under Linux and BSD
@@ -304,34 +303,34 @@ ENDIF()
 
 IF (NOT GENEVA_FULL_TREE_BUILD)
 
-	# Check Geneva dirs
-	IF(NOT DEFINED GENEVA_ROOT)
-		SET(GENEVA_ROOT "/opt/geneva")
-		MESSAGE("WARNING: Setting a default value for GENEVA_ROOT=${GENEVA_ROOT},"
-			" please set that variable if the Geneva files can't be found!\n")
-	ENDIF()
+	# This command sets the variables
+	#   GENEVA_INCLUDE_DIR, GENEVA_LIBRARY_DIR, GENEVA_LIBRARIES, etc.
+	MESSAGE("Searching for Geneva...\n")
+	FIND_PACKAGE (Geneva REQUIRED)
+	MESSAGE("")
 
-	# This should go into the FindGeneva module
-	IF(NOT DEFINED GENEVA_INCLUDE_DIR)
-		SET(GENEVA_INCLUDE_DIR "${GENEVA_ROOT}/include")
-	ENDIF()
-	IF(NOT DEFINED GENEVA_LIBRARY_DIR)
-		SET(GENEVA_LIBRARY_DIR "${GENEVA_ROOT}/lib")
-	ENDIF()
+	IF (NOT GENEVA_FOUND)
+		MESSAGE (FATAL_ERROR "Geneva not found, can't continue!")
+	ENDIF ()
+
+	IF (GENEVA_TESTING AND NOT GENEVA_BUILD_TESTS)
+		# If Geneva was built with testing, the application could be built
+		# without, but we would still need to add Boost's test_exec_monitor
+		# library for avoiding linking errors... that case is unsupported for now.
+		MESSAGE (FATAL_ERROR "Geneva was built with testing support,"
+			             " building a Geneva application without testing"
+			             " is not suported. Please set GENEVA_BUILD_TESTS=TRUE .")
+	ELSEIF (GENEVA_BUILD_TESTS AND NOT GENEVA_TESTING)
+		# This case doesn't really make sense...
+		MESSAGE (FATAL_ERROR "Geneva was built without testing support,"
+			             " cannot build a Geneva application with testing."
+			             " Please set GENEVA_BUILD_TESTS=FALSE .")
+			
+	ENDIF ()
 
 	INCLUDE_DIRECTORIES (
 		${GENEVA_INCLUDE_DIR}
 	)
-
-	# This should go into the FindGeneva module
-	UNSET (GENEVA_LIBRARIES)
-	FOREACH ( lib IN LISTS GENEVA_LIBNAMES )
-		FIND_LIBRARY( GENEVA_LIB_${lib} NAMES ${lib}
-			PATHS ${GENEVA_LIBRARY_DIR}
-			DOC "The full paths of the Geneva library ${lib}"
-		)
-		SET (GENEVA_LIBRARIES ${GENEVA_LIBRARIES} ${GENEVA_LIB_${lib}})
-	ENDFOREACH ()
 
 ENDIF ()
 
@@ -341,15 +340,20 @@ ENDIF ()
 MESSAGE ("========================================")
 MESSAGE ("")
 MESSAGE ("Building:")
-IF (GENEVA_STATIC)
-	MESSAGE ("\tstatic libraries")
+IF (GENEVA_FULL_TREE_BUILD)
+	MESSAGE ("\tthe Geneva library collection")
 ELSE ()
-	MESSAGE ("\tshared libraries")
+	MESSAGE ("\ta Geneva application")
+ENDIF ()
+IF (GENEVA_STATIC)
+	MESSAGE ("\tstatically linked")
+ELSE ()
+	MESSAGE ("\tdynamically linked")
 ENDIF ()
 IF (GENEVA_BUILD_TESTS)
-	MESSAGE ("\tand test code")
+	MESSAGE ("\tincluding testing code")
 ELSE ()
-	MESSAGE ("\tbut no tests")
+	MESSAGE ("\twithout testing code")
 ENDIF ()
 MESSAGE ("\tin ${CMAKE_BUILD_TYPE} mode")
 IF ("${GENEVA_BUILD_TYPE}" STREQUAL "Sanitize")
@@ -358,15 +362,19 @@ ENDIF ()
 
 MESSAGE ("\twith Boost include location:\t ${Boost_INCLUDE_DIRS}")
 MESSAGE ("\twith Boost library location:\t ${Boost_LIBRARY_DIRS}")
-MESSAGE ("\tto install into prefix:\t\t ${CMAKE_INSTALL_PREFIX}")
-MESSAGE ("\tusing ${GENEVA_COMPILER_NAME} compiler v${GENEVA_COMPILER_VERSION}"
-	 " with ${GENEVA_ACTUAL_CXX_STANDARD} standard")
+IF (NOT GENEVA_FULL_TREE_BUILD)
+	MESSAGE ("\twith Geneva include location:\t ${GENEVA_INCLUDE_DIR}")
+	MESSAGE ("\twith Geneva library location:\t ${GENEVA_LIBRARY_DIR}")
+ENDIF ()
+MESSAGE ("\tusing ${GENEVA_COMPILER_NAME} compiler v${GENEVA_COMPILER_VERSION}")
+MESSAGE ("\tenforcing ${GENEVA_ACTUAL_CXX_STANDARD} standard")
 IF( CMAKE_VERBOSE_MAKEFILE )
 	MESSAGE ("\tproducing verbose CMake output")
 ELSE()
 	MESSAGE ("\tproducing sparse CMake output")
 ENDIF()
 MESSAGE ("\tfor operating system ${GENEVA_OS_NAME}")
+MESSAGE ("\tto install into prefix:\t\t ${CMAKE_INSTALL_PREFIX}")
 MESSAGE ("")
 MESSAGE ("========================================\n")
 
