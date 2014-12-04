@@ -72,7 +72,6 @@
 // Boost headers go here
 #include <boost/config/warning_disable.hpp>
 #include <boost/spirit/include/qi.hpp>
-#include <boost/phoenix.hpp>
 #include <boost/variant/recursive_variant.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
@@ -420,13 +419,11 @@ public:
       , raw_formula_(formula)
       , stack_(4096)
       , stack_ptr_(stack_.begin())
+      , error_handler(error_handler_())
       , printCode_(false)
    {
       boost::spirit::qi::char_type char_;
       boost::spirit::qi::string_type string_;
-      boost::spirit::qi::_2_type _2;
-      boost::spirit::qi::_3_type _3;
-      boost::spirit::qi::_4_type _4;
 
       using boost::spirit::qi::on_error;
       using boost::spirit::qi::fail;
@@ -498,20 +495,9 @@ public:
             (factor_rule_)
       );
 
-      // Error handling
-      using namespace boost::spirit::ascii;
-      using boost::phoenix::construct;
-      using boost::phoenix::bind;
-
       on_error<fail> (
           expression_rule_
-          , std::cout
-              << boost::phoenix::val("Error! Expecting: ")
-              << _4
-              << boost::phoenix::val(", got: \"")
-              << construct<std::string>(_3, _2)
-              << boost::phoenix::val("\"")
-              << std::endl
+          , error_handler(_4, _3, _2)
       );
    }
 
@@ -910,6 +896,30 @@ private:
       std::cout << std::endl;
    }
 
+   /*****************************************************************************/
+   /**
+    * The error handler
+    */
+   struct error_handler_{
+      template <typename, typename, typename>
+      struct result { typedef void type; };
+
+      void operator()(
+            boost::spirit::qi::info const& what
+            , std::string::const_iterator err_pos
+            , std::string::const_iterator last
+      ) const {
+         std::cout
+         << "Error! Expecting "
+         << what                         // what failed?
+         << " here: \""
+         << std::string(err_pos, last)   // iterators to error-pos, end
+         << "\""
+         << std::endl
+         ;
+      }
+   };
+
    /***************************************************************************/
    // Local data and empty functions
 
@@ -932,6 +942,8 @@ private:
    mutable std::vector<codeEntry> code_; ///< Holds the "compiled" code
 
    mutable typename std::vector<fp_type>::iterator stack_ptr_;
+
+   boost::phoenix::function<error_handler_> const error_handler;
 
    bool printCode_; ///< When set, the code will be printed prior to the evaluation
 };
