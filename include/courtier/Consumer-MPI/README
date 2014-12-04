@@ -1,4 +1,0 @@
-This directory contains a consumer and client infrastructure that allows to 
-use Geneva in an MPI environment. The code is built as a separate library, so users
-of the courtier library are not forced to build all of Geneva with MPI, if they do 
-not need it.
