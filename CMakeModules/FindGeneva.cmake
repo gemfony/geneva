@@ -44,7 +44,7 @@
 #
 # This module defines the following variables as result of the search:
 #
-# GENEVA_INCLUDE_DIR          - The directory below which Geneva includes may be found
+# GENEVA_INCLUDE_DIR          - The directory below which the Geneva includes may be found
 # GENEVA_LIBRARY_DIR          - The directory below which the Geneva libraries may be found
 #
 # GENEVA_COMMON_LIBRARY       - Points to the library with common functionality needed by all parts of Geneva
@@ -57,6 +57,7 @@
 # GENEVA_LIBS                 - A list containing the names (not the paths!) of all the libraries found
 #
 # GENEVA_VERSION              - The Geneva version found by this module
+# GENEVA_TESTING              - TRUE if the Geneva libraries found were built with testing support
 #
 # GENEVA_FOUND                - TRUE if all of the required Geneva components were found
 #
@@ -72,7 +73,8 @@ INCLUDE(FindPackageHandleStandardArgs)
 ###############################################################################
 # Analyze first the recieved variables
 
-# Also check the environment variables if the CMake variables are not set
+# If the CMake variables are not set, we check and use the corresponding
+# environment variables
 IF ((NOT GENEVA_ROOT) AND ENV{GENEVA_ROOT})
 	SET (GENEVA_ROOT $ENV{GENEVA_ROOT})
 ENDIF ()
@@ -86,12 +88,22 @@ ENDIF ()
 # The more specific variables take precedence over the more generic ones
 IF (GENEVA_ROOT)
 	IF (NOT GENEVA_INCLUDEDIR)
-		SET (GENEVA_INCLUDEDIR ${GENEVA_ROOT}/include)
+		SET (GENEVA_INCLUDEDIR "${GENEVA_ROOT}/include")
 	ENDIF ()
 	IF (NOT GENEVA_LIBRARYDIR)
-		SET (GENEVA_LIBRARYDIR ${GENEVA_ROOT}/lib)
+		SET (GENEVA_LIBRARYDIR "${GENEVA_ROOT}/lib")
 	ENDIF ()
 ENDIF ()
+
+###############################################################################
+# Check if some default locations are available to be used as backup
+# alternatives in case the hint variables are empty
+
+FILE (GLOB _INSTALL_DIRS "/opt/geneva*")
+FOREACH ( dir IN LISTS _INSTALL_DIRS )
+	SET (_INSTALL_DIRS_INCL ${_INSTALL_DIRS_INCL} "${dir}/include")
+	SET (_INSTALL_DIRS_LIB ${_INSTALL_DIRS_LIB} "${dir}/lib")
+ENDFOREACH ()
 
 ###############################################################################
 # Find the include directories. We search for a single include
@@ -102,19 +114,24 @@ SET (GENEVA_COMMON_HEADER_PATH "common/GGlobalDefines.hpp" )
 
 # Enforce a search order, making sure we first search in the given
 # location, and only if not found we search the normal system paths
+IF (GENEVA_INCLUDEDIR)
+	FIND_PATH (
+		GENEVA_INCLUDE_DIR
+		NAMES ${GENEVA_COMMON_HEADER_PATH}
+		PATHS ${GENEVA_INCLUDEDIR} NO_DEFAULT_PATH
+	)
+ENDIF ()
 FIND_PATH (
 	GENEVA_INCLUDE_DIR
 	NAMES ${GENEVA_COMMON_HEADER_PATH}
-	PATHS ${GENEVA_INCLUDEDIR} NO_DEFAULT_PATH
-)
-FIND_PATH (
-	GENEVA_INCLUDE_DIR
-	NAMES ${GENEVA_COMMON_HEADER_PATH}
+	PATHS ${_INSTALL_DIRS_INCL}
 )
 
 # Check that the path was indeed found
 IF (NOT GENEVA_INCLUDE_DIR)
-	MESSAGE (STATUS "The Geneva include directory was not found!")
+	SET (GENEVA_ERROR_REASON "Unable to find the Geneva header files. You may"
+	     " need to set GENEVA_INCLUDEDIR to the directory containing Geneva's"
+	     " headers or GENEVA_ROOT to the location of Geneva.\n")
 ENDIF ()
 
 ###############################################################################
@@ -138,34 +155,56 @@ FOREACH ( name IN LISTS NAMES )
 
 	# Enforce a search order, making sure we first search in the given
 	# location, and only if not found we search the normal system paths
+	IF (GENEVA_LIBRARYDIR)
+		FIND_LIBRARY (
+			GENEVA_${ucname}_LIBRARY 
+			NAMES "gemfony-${name}"
+			PATHS ${GENEVA_LIBRARYDIR} NO_DEFAULT_PATH
+		)
+	ENDIF ()
 	FIND_LIBRARY (
 		GENEVA_${ucname}_LIBRARY 
 		NAMES "gemfony-${name}"
-		PATHS ${GENEVA_LIBRARYDIR} NO_DEFAULT_PATH
-	)
-	FIND_LIBRARY (
-		GENEVA_${ucname}_LIBRARY 
-		NAMES "gemfony-${name}"
+		PATHS ${_INSTALL_DIRS_LIB}
 	)
 
 	IF (GENEVA_${ucname}_LIBRARY)
 		SET (GENEVA_LIBRARIES ${GENEVA_LIBRARIES} ${GENEVA_${ucname}_LIBRARY})
-		SET (GENEVA_LIBS ${GENEVA_LIBS} ${name})
+		SET (GENEVA_LIBS ${GENEVA_LIBS} "gemfony-${name}")
 	ENDIF ()
 ENDFOREACH ()
 UNSET (NAMES)
 
-SET (GENEVA_OPTIMIZATION_LIBRARY ${GENEVA_GENEVA_LIBRARY})
-SET (GENEVA_INDIVIDUAL_LIBRARY ${GENEVA_GENEVA-INDIVIDUALS_LIBRARY})
-
-GET_FILENAME_COMPONENT (
-	GENEVA_LIBRARY_DIR 
-	${GENEVA_COMMON_LIBRARY} 
-	PATH
-)
+# We rather use more readable variable names for the optimization libraries...
+IF (GENEVA_GENEVA_LIBRARY)
+	SET (GENEVA_OPTIMIZATION_LIBRARY ${GENEVA_GENEVA_LIBRARY})
+ELSE ()
+	SET (GENEVA_OPTIMIZATION_LIBRARY "GENEVA_OPTIMIZATION_LIBRARY-NOTFOUND")
+ENDIF ()
+IF (GENEVA_GENEVA-INDIVIDUALS_LIBRARY)
+	SET (GENEVA_INDIVIDUAL_LIBRARY ${GENEVA_GENEVA-INDIVIDUALS_LIBRARY})
+ELSE ()
+	SET (GENEVA_INDIVIDUAL_LIBRARY "GENEVA_INDIVIDUAL_LIBRARY-NOTFOUND")
+ENDIF ()
 
 ###############################################################################
 # Check that all files and directories were properly found
+
+IF (NOT GENEVA_LIBS)
+	SET (GENEVA_LIBRARIES "GENEVA_LIBRARIES-NOTFOUND")
+	SET (GENEVA_LIBS "GENEVA_LIBS-NOTFOUND")
+	SET (GENEVA_LIBRARY_DIR "GENEVA_LIBRARY_DIR-NOTFOUND")
+	SET (GENEVA_ERROR_REASON "${GENEVA_ERROR_REASON}"
+	     "No Geneva libraries were found. You may need to set GENEVA_LIBRARYDIR"
+	     " to the directory containing Geneva libraries or GENEVA_ROOT to the"
+	     " location of Geneva.\n")
+ELSE ()
+	GET_FILENAME_COMPONENT (
+		GENEVA_LIBRARY_DIR 
+		${GENEVA_COMMON_LIBRARY} 
+		PATH
+	)
+ENDIF ()
 
 # This function sets the <PKG>_FOUND variable if all the given variables
 # contain valid values. To declare Geneva as "FOUND" we need at least the
@@ -182,7 +221,6 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS (
 # Check that the versions found are consistent
 
 IF (GENEVA_INCLUDE_DIR)
-
 	# Read the Geneva version string, which is of the form '#define GENEVA_VERSION 0150'
 	SET ( _VER_PRE "#define GENEVA_VERSION" )
 	FILE (
@@ -196,6 +234,7 @@ IF (GENEVA_INCLUDE_DIR)
 	)
 	STRING ( REPLACE "${_VER_PRE} " "" _RAW_VERSION_2 ${_RAW_VERSION} )
 	STRING ( STRIP ${_RAW_VERSION_2} _RAW_VERSION_3 )
+
 	IF ( ${_RAW_VERSION_3} MATCHES "^[0-9][0-9][0-9][0-9]([a-z][a-z0-9]*)?$")
 		STRING ( REGEX REPLACE "^([0-9][0-9])([0-9])([0-9].*$)" "\\1.\\2.\\3"
 			GENEVA_VERSION ${_RAW_VERSION_3}
@@ -205,13 +244,48 @@ IF (GENEVA_INCLUDE_DIR)
 			GENEVA_VERSION ${GENEVA_VERSION}
 		)
 	ELSE ()
-		MESSAGE (FATAL_ERROR "Could not determine the Geneva version!")
+		SET (GENEVA_ERROR_REASON "${GENEVA_ERROR_REASON}"
+		     "Could not determine the Geneva version!")
 	ENDIF ()
-	MESSAGE(STATUS "Found Geneva includes version ${GENEVA_VERSION}")
-
 ENDIF ()
 
-MESSAGE(STATUS "Found Geneva libraries: ${GENEVA_LIBS}")
+###############################################################################
+# Determine if Geneva was built with testing support
+
+SET (GENEVA_TEST_HEADER_PATH "geneva/tests/*.hpp" )
+
+SET (GENEVA_TESTING "FALSE")
+IF (GENEVA_INCLUDE_DIR)
+	FILE (GLOB _TESTING_HEADERS "${GENEVA_INCLUDE_DIR}/${GENEVA_TEST_HEADER_PATH}")
+	IF (_TESTING_HEADERS)
+		SET (GENEVA_TESTING "TRUE")
+	ENDIF ()
+ENDIF ()
+
+###############################################################################
+# Report the results
+
+IF (GENEVA_FOUND)
+	IF (GENEVA_VERSION)
+		MESSAGE(STATUS "Geneva version: ${GENEVA_VERSION}")
+	ENDIF ()
+	IF (GENEVA_TESTING)
+		MESSAGE(STATUS "  with testing support")
+	ELSE ()
+		MESSAGE(STATUS "  without testing support")
+	ENDIF ()
+
+	IF (GENEVA_LIBS)
+		MESSAGE(STATUS "Found the following Geneva libraries:")
+		FOREACH ( name IN LISTS GENEVA_LIBS )
+			MESSAGE(STATUS "  ${name}")
+		ENDFOREACH ()
+	ENDIF ()
+ENDIF ()
+
+IF (GENEVA_ERROR_REASON)
+	MESSAGE (SEND_ERROR ${GENEVA_ERROR_REASON})
+ENDIF ()
 
 ###############################################################################
 # Done
