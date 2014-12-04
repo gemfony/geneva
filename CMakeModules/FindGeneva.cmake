@@ -96,6 +96,16 @@ IF (GENEVA_ROOT)
 ENDIF ()
 
 ###############################################################################
+# Check if some default locations are available to be used as backup
+# alternatives in case the hint variables are empty
+
+FILE (GLOB _INSTALL_DIRS "/opt/geneva*")
+FOREACH ( dir IN LISTS _INSTALL_DIRS )
+	SET (_INSTALL_DIRS_INCL ${_INSTALL_DIRS_INCL} "${dir}/include")
+	SET (_INSTALL_DIRS_LIB ${_INSTALL_DIRS_LIB} "${dir}/lib")
+ENDFOREACH ()
+
+###############################################################################
 # Find the include directories. We search for a single include
 # directory only and assume that the others can be found at the
 # same level 
@@ -114,6 +124,7 @@ ENDIF ()
 FIND_PATH (
 	GENEVA_INCLUDE_DIR
 	NAMES ${GENEVA_COMMON_HEADER_PATH}
+	PATHS ${_INSTALL_DIRS_INCL}
 )
 
 # Check that the path was indeed found
@@ -154,11 +165,12 @@ FOREACH ( name IN LISTS NAMES )
 	FIND_LIBRARY (
 		GENEVA_${ucname}_LIBRARY 
 		NAMES "gemfony-${name}"
+		PATHS ${_INSTALL_DIRS_LIB}
 	)
 
 	IF (GENEVA_${ucname}_LIBRARY)
 		SET (GENEVA_LIBRARIES ${GENEVA_LIBRARIES} ${GENEVA_${ucname}_LIBRARY})
-		SET (GENEVA_LIBS ${GENEVA_LIBS} ${name})
+		SET (GENEVA_LIBS ${GENEVA_LIBS} "gemfony-${name}")
 	ENDIF ()
 ENDFOREACH ()
 UNSET (NAMES)
