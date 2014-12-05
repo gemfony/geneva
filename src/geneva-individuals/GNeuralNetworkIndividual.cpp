@@ -506,65 +506,77 @@ void networkData::toROOT(
 		return;
 	}
 
+	std::size_t entries1 = 0, entries2 = 0;
 	std::ofstream of(outputFile.c_str());
 
-	of << "{" << std::endl
-	   << "  std::vector<double> x1_vec, y1_vec, x2_vec, y2_vec;" << std::endl
-	   << "  TH2F *h2_one = new TH2F(\"h2_one\",\"h2_one\",100," << min << ", " << max << ", 100, " << min << ", " << max << ");" << std::endl
-	   << "  TH2F *h2_two = new TH2F(\"h2_two\",\"h2_two\",100," << min << ", " << max << ", 100, " << min << ", " << max << ");" << std::endl
-	   << std::endl
-	   << "  // Filling the data sets" << std::endl;
+   of
+   << "{" << std::endl
+   << "  gROOT->Reset();" << std::endl
+   << "  gStyle->SetCanvasColor(0);" << std::endl
+   << "  gStyle->SetStatBorderSize(1);" << std::endl
+   << "  gStyle->SetOptStat(0);" << std::endl
+   << std::endl
+   << "  TCanvas *cc = new TCanvas(\"cc\", \"cc\",0,0,1024,1024);" << std::endl
+   << std::endl
+   << "  TPaveLabel* canvasTitle = new TPaveLabel(0.1,0.95,0.9,0.99, \"Original training data\");" << std::endl
+   << "  canvasTitle->Draw();" << std::endl
+   << std::endl
+   << "  TPad* graphPad = new TPad(\"Graphs\", \"Graphs\", 0.01, 0.01, 0.99, 0.94);" << std::endl
+   << "  graphPad->Draw();" << std::endl
+   << "  graphPad->Divide(1,1);" << std::endl
+   << std::endl
+   << "  double xarr1[" << arraySize_ << "], yarr1[" << arraySize_ << "], xarr2[" << arraySize_ << "], yarr2[" << arraySize_  << "];" << std::endl
+   << std::endl
+   << "  // Filling the data sets" << std::endl;
 
-	for(std::size_t i=0; i<arraySize_; i++) {
-		if(data_[i]->Output[0] < 0.5) {
-			of << "  x1_vec.push_back(" << data_[i]->Input[0] << ");" << std::endl
-			   << "  y1_vec.push_back(" << data_[i]->Input[1] << ");" << std::endl
-			   << "  h2_one->Fill(" << data_[i]->Input[0] << ", " << data_[i]->Input[1] << ");" << std::endl;
-		}
-		else {
-			of << "  x2_vec.push_back(" << data_[i]->Input[0] << ");" << std::endl
-			   << "  y2_vec.push_back(" << data_[i]->Input[1] << ");" << std::endl
-			   << "  h2_two->Fill(" << data_[i]->Input[0] << ", " << data_[i]->Input[1] << ");" << std::endl;
-		}
-	}
+   for(std::size_t i=0; i<arraySize_; i++) {
+      if(data_[i]->Output[0] < 0.5) {
+         of
+         << "  xarr1[" << entries1 << "] = " << data_[i]->Input[0] << ";" << std::endl
+         << "  yarr1[" << entries1 << "] = " << data_[i]->Input[1] << ";" << std::endl;
+         entries1++;
+      }
+      else {
+         of
+         << "  xarr2[" << entries2 << "] = " << data_[i]->Input[0] << ";" << std::endl
+         << "  yarr2[" << entries2 << "] = " << data_[i]->Input[1] << ";" << std::endl;
+         entries2++;
+      }
+   }
 
-	of << std::endl
-	   << "  // Transfer into arrays suitable for printing with a TGraph" << std::endl
-	   << "  std::size_t n1Entries = x1_vec.size();" << std::endl
-	   << "  std::size_t n2Entries = x2_vec.size();" << std::endl
-	   << std::endl
-	   << "  double x1[n1Entries], y1[n1Entries], x2[n2Entries], y2[n2Entries];" << std::endl
-	   << std::endl
-	   << "  for(std::size_t i=0; i<n1Entries; i++) {" << std::endl
-	   << "    x1[i] = x1_vec[i];" << std::endl
-	   << "    y1[i] = y1_vec[i];" << std::endl
-	   << "  }" << std::endl
-	   << std::endl
-	   << "  for(std::size_t i=0; i<n2Entries; i++) {" << std::endl
-	   << "    x2[i] = x2_vec[i];" << std::endl
-	   << "    y2[i] = y2_vec[i];" << std::endl
-	   << "  }" << std::endl
-	   << std::endl
-	   << "  // Creation of suitable TGraph objects" << std::endl
-	   << "  TGraph *gr1 = new TGraph(n1Entries, x1, y1);" << std::endl
-	   << "  TGraph *gr2 = new TGraph(n2Entries, x2, y2);" << std::endl
-	   << std::endl
-	   << "  gr1->SetMarkerColor(17);" << std::endl
-	   << "  gr2->SetMarkerColor(12);" << std::endl
-	   << std::endl
-	   << "  gr1->SetMarkerStyle(21);" << std::endl
-	   << "  gr2->SetMarkerStyle(21);" << std::endl
-	   << std::endl
-	   << "  gr1->SetMarkerSize(0.3);" << std::endl
-	   << "  gr2->SetMarkerSize(0.35);" << std::endl
-	   << std::endl
-	   << "  gr2->GetXaxis()->SetRangeUser(" << min << ", " << max << ");" << std::endl
-	   << "  gr2->GetYaxis()->SetRangeUser(" << min << ", " << max << ");" << std::endl
-	   << std::endl
-	   << "  // Do the drawing" << std::endl
-	   << "  gr2->Draw(\"AP\");" << std::endl
-	   << "  gr1->Draw(\"P,same\");" << std::endl
-	   << "}" << std::endl;
+   of
+   << std::endl
+   << "  // Setting remaining entries to 0" << std::endl
+   << "  for(std::size_t i=" << entries1 << "; i<" << arraySize_ << "; i++) {" << std::endl
+   << "    xarr1[i] = 0.;" << std::endl
+   << "    yarr1[i] = 0.;" << std::endl
+   << "  }" << std::endl
+   << "  for(std::size_t i=" << entries2<< "; i<" << arraySize_ << "; i++) {" << std::endl
+   << "    xarr2[i] = 0.;" << std::endl
+   << "    yarr2[i] = 0.;" << std::endl
+   << "  }" << std::endl
+   << std::endl
+   << "  // Creation of suitable TGraph objects" << std::endl
+   << "  TGraph *gr1 = new TGraph(" << entries1 << ", xarr1, yarr1);" << std::endl
+   << "  TGraph *gr2 = new TGraph(" << entries2 << ", xarr2, yarr2);" << std::endl
+   << std::endl
+   << "  gr1->SetMarkerColor(17);" << std::endl
+   << "  gr2->SetMarkerColor(14);" << std::endl
+   << std::endl
+   << "  gr1->SetMarkerStyle(21);" << std::endl
+   << "  gr2->SetMarkerStyle(21);" << std::endl
+   << std::endl
+   << "  gr1->SetMarkerSize(0.35);" << std::endl
+   << "  gr2->SetMarkerSize(0.35);" << std::endl
+   << std::endl
+   << "  gr2->GetXaxis()->SetLimits(" << min << ", " << max << ");" << std::endl
+   << "  gr2->GetYaxis()->SetRangeUser(" << min << ", " << max << ");" << std::endl
+   << std::endl
+   << "  // Do the drawing" << std::endl
+   << "  graphPad->cd(1);" << std::endl
+   << "  gr2->Draw(\"AP\");" << std::endl
+   << "  gr1->Draw(\"P,same\");" << std::endl
+   << "}" << std::endl;
 
 	of.close();
 }
@@ -1223,66 +1235,47 @@ void GNeuralNetworkIndividual::writeVisualizationFile(const std::string& visFile
       << "   << std::endl" << std::endl
       << "   << \"  inside01->GetHistogram()->SetTitle(\\\"Network outputs in the ranges [0:0.1], ... ,[0.9:1.0]\\\");\" << std::endl" << std::endl
       << "   << \"  inside01->SetMarkerStyle(21);\" << std::endl" << std::endl
-      << "   << \"  inside01->SetMarkerSize(0.5);\" << std::endl" << std::endl
-      << "   << \"  inside01->SetMarkerColor(2);\" << std::endl" << std::endl
-      << "   << \"  inside01->GetXaxis()->SetRangeUser(" << x_low << ", " << x_high << ");\" << std::endl" << std::endl
+      << "   << \"  inside01->SetMarkerSize(0.35);\" << std::endl" << std::endl
+      << "   << \"  inside01->SetMarkerColor(17);\" << std::endl" << std::endl
+      << "   << \"  inside01->GetXaxis()->SetLimits(" << x_low << ", " << x_high << ");\" << std::endl" << std::endl
       << "   << \"  inside01->GetYaxis()->SetRangeUser(" << y_low << ", " << y_high << ");\" << std::endl" << std::endl
       << "   << std::endl" << std::endl
       << "   << \"  inside02->SetMarkerStyle(21);\" << std::endl" << std::endl
-      << "   << \"  inside02->SetMarkerSize(0.5);\" << std::endl" << std::endl
-      << "   << \"  inside02->SetMarkerColor(4);\" << std::endl" << std::endl
-      << "   << \"  inside02->GetXaxis()->SetRangeUser(" << x_low << ", " << x_high << ");\" << std::endl" << std::endl
-      << "   << \"  inside02->GetYaxis()->SetRangeUser(" << y_low << ", " << y_high << ");\" << std::endl" << std::endl
+      << "   << \"  inside02->SetMarkerSize(0.35);\" << std::endl" << std::endl
+      << "   << \"  inside02->SetMarkerColor(14);\" << std::endl" << std::endl
       << "   << std::endl" << std::endl
       << "   << \"  inside03->SetMarkerStyle(21);\" << std::endl" << std::endl
-      << "   << \"  inside03->SetMarkerSize(0.5);\" << std::endl" << std::endl
-      << "   << \"  inside03->SetMarkerColor(2);\" << std::endl" << std::endl
-      << "   << \"  inside03->GetXaxis()->SetRangeUser(" << x_low << ", " << x_high << ");\" << std::endl" << std::endl
-      << "   << \"  inside03->GetYaxis()->SetRangeUser(" << y_low << ", " << y_high << ");\" << std::endl" << std::endl
+      << "   << \"  inside03->SetMarkerSize(0.35);\" << std::endl" << std::endl
+      << "   << \"  inside03->SetMarkerColor(17);\" << std::endl" << std::endl
       << "   << std::endl" << std::endl
       << "   << \"  inside04->SetMarkerStyle(21);\" << std::endl" << std::endl
-      << "   << \"  inside04->SetMarkerSize(0.5);\" << std::endl" << std::endl
-      << "   << \"  inside04->SetMarkerColor(4);\" << std::endl" << std::endl
-      << "   << \"  inside04->GetXaxis()->SetRangeUser(" << x_low << ", " << x_high << ");\" << std::endl" << std::endl
-      << "   << \"  inside04->GetYaxis()->SetRangeUser(" << y_low << ", " << y_high << ");\" << std::endl" << std::endl
+      << "   << \"  inside04->SetMarkerSize(0.35);\" << std::endl" << std::endl
+      << "   << \"  inside04->SetMarkerColor(14);\" << std::endl" << std::endl
       << "   << std::endl" << std::endl
       << "   << \"  inside05->SetMarkerStyle(21);\" << std::endl" << std::endl
-      << "   << \"  inside05->SetMarkerSize(0.5);\" << std::endl" << std::endl
-      << "   << \"  inside05->SetMarkerColor(2);\" << std::endl" << std::endl
-      << "   << \"  inside05->GetXaxis()->SetRangeUser(" << x_low << ", " << x_high << ");\" << std::endl" << std::endl
-      << "   << \"  inside05->GetYaxis()->SetRangeUser(" << y_low << ", " << y_high << ");\" << std::endl" << std::endl
+      << "   << \"  inside05->SetMarkerSize(0.35);\" << std::endl" << std::endl
+      << "   << \"  inside05->SetMarkerColor(17);\" << std::endl" << std::endl
       << "   << std::endl" << std::endl
       << "   << \"  inside06->SetMarkerStyle(21);\" << std::endl" << std::endl
-      << "   << \"  inside06->SetMarkerSize(0.5);\" << std::endl" << std::endl
-      << "   << \"  inside06->SetMarkerColor(4);\" << std::endl" << std::endl
-      << "   << \"  inside06->GetXaxis()->SetRangeUser(" << x_low << ", " << x_high << ");\" << std::endl" << std::endl
-      << "   << \"  inside06->GetYaxis()->SetRangeUser(" << y_low << ", " << y_high << ");\" << std::endl" << std::endl
+      << "   << \"  inside06->SetMarkerSize(0.35);\" << std::endl" << std::endl
+      << "   << \"  inside06->SetMarkerColor(14);\" << std::endl" << std::endl
       << "   << std::endl" << std::endl
       << "   << \"  inside07->SetMarkerStyle(21);\" << std::endl" << std::endl
-      << "   << \"  inside07->SetMarkerSize(0.5);\" << std::endl" << std::endl
-      << "   << \"  inside07->SetMarkerColor(2);\" << std::endl" << std::endl
-      << "   << \"  inside07->GetXaxis()->SetRangeUser(" << x_low << ", " << x_high << ");\" << std::endl" << std::endl
-      << "   << \"  inside07->GetYaxis()->SetRangeUser(" << y_low << ", " << y_high << ");\" << std::endl" << std::endl
+      << "   << \"  inside07->SetMarkerSize(0.35);\" << std::endl" << std::endl
+      << "   << \"  inside07->SetMarkerColor(17);\" << std::endl" << std::endl
       << "   << std::endl" << std::endl
       << "   << \"  inside08->SetMarkerStyle(21);\" << std::endl" << std::endl
-      << "   << \"  inside08->SetMarkerSize(0.5);\" << std::endl" << std::endl
-      << "   << \"  inside08->SetMarkerColor(4);\" << std::endl" << std::endl
-      << "   << \"  inside08->GetXaxis()->SetRangeUser(" << x_low << ", " << x_high << ");\" << std::endl" << std::endl
-      << "   << \"  inside08->GetYaxis()->SetRangeUser(" << y_low << ", " << y_high << ");\" << std::endl" << std::endl
+      << "   << \"  inside08->SetMarkerSize(0.35);\" << std::endl" << std::endl
+      << "   << \"  inside08->SetMarkerColor(14);\" << std::endl" << std::endl
       << "   << std::endl" << std::endl
       << "   << \"  inside09->SetMarkerStyle(21);\" << std::endl" << std::endl
-      << "   << \"  inside09->SetMarkerSize(0.5);\" << std::endl" << std::endl
-      << "   << \"  inside09->SetMarkerColor(2);\" << std::endl" << std::endl
-      << "   << \"  inside09->GetXaxis()->SetRangeUser(" << x_low << ", " << x_high << ");\" << std::endl" << std::endl
-      << "   << \"  inside09->GetYaxis()->SetRangeUser(" << y_low << ", " << y_high << ");\" << std::endl" << std::endl
+      << "   << \"  inside09->SetMarkerSize(0.35);\" << std::endl" << std::endl
+      << "   << \"  inside09->SetMarkerColor(17);\" << std::endl" << std::endl
       << "   << std::endl" << std::endl
       << "   << \"  inside10->SetMarkerStyle(21);\" << std::endl" << std::endl
-      << "   << \"  inside10->SetMarkerSize(0.5);\" << std::endl" << std::endl
-      << "   << \"  inside10->SetMarkerColor(4);\" << std::endl" << std::endl
-      << "   << \"  inside10->GetXaxis()->SetRangeUser(" << x_low << ", " << x_high << ");\" << std::endl" << std::endl
-      << "   << \"  inside10->GetYaxis()->SetRangeUser(" << y_low << ", " << y_high << ");\" << std::endl" << std::endl
+      << "   << \"  inside10->SetMarkerSize(0.35);\" << std::endl" << std::endl
+      << "   << \"  inside10->SetMarkerColor(14);\" << std::endl" << std::endl
       << "   << std::endl" << std::endl
-
       << " << \"  inside01->Draw(\\\"AP\\\");\" << std::endl" << std::endl
       << " << \"  inside02->Draw(\\\"P\\\");\"  << std::endl" << std::endl
       << " << \"  inside03->Draw(\\\"P\\\");\"  << std::endl" << std::endl

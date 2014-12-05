@@ -104,7 +104,11 @@ int main(int argc, char **argv) {
       boost::property_tree::ptree ptr;
       gfi_test->toPropertyTree(ptr);
 
+#if BOOST_VERSION > 105500
+      boost::property_tree::xml_writer_settings<std::string> settings('\t', 1);
+#else
       boost::property_tree::xml_writer_settings<char> settings('\t', 1);
+#endif /* BOOST_VERSION */
       boost::property_tree::write_xml("result.xml", ptr, std::locale(), settings);
 
       // Now run this program and see the file "result.xml" for the output

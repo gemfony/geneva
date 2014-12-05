@@ -237,7 +237,11 @@ void GExternalEvaluatorIndividual::archive() const {
    std::string parameterfileName = parameterFileBaseName_ + extension;
 
    // Save the parameters to a file for the external evaluation
-   pt::xml_writer_settings<char> settings(char('\t'), 1);
+#if BOOST_VERSION > 105500
+      boost::property_tree::xml_writer_settings<std::string> settings('\t', 1);
+#else
+      boost::property_tree::xml_writer_settings<char> settings('\t', 1);
+#endif /* BOOST_VERSION */
    pt::write_xml(parameterfileName, ptr_out, std::locale(), settings);
 
    // Create full command string for the external evaluation
@@ -303,8 +307,11 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
    std::string resultFileName = std::string("result") + extension;
 
    // Save the parameters to a file for the external evaluation
-   pt::xml_writer_settings<char> settings('\t', 1);
-
+#if BOOST_VERSION > 105500
+      boost::property_tree::xml_writer_settings<std::string> settings('\t', 1);
+#else
+      boost::property_tree::xml_writer_settings<char> settings('\t', 1);
+#endif /* BOOST_VERSION */
    pt::write_xml(parameterfileName, ptr_out, std::locale(), settings);
 
    // Create full command string for the external evaluation
