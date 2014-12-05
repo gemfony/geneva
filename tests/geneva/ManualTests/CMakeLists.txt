@@ -4,7 +4,7 @@ ADD_CUSTOM_TARGET( "tests-geneva-manual"
 	# Add all the available test targets (EXECUTABLENAMEs) here
 	DEPENDS GBooleanProbabilityTest
 		GConstrainedFPTTest
-		GConstrainedIntTTest
+		GConstrainedIntegerTTest
 		GDoubleBiGaussAdaptorTest
 		GDoubleGaussAdaptorTest
 		GParameterPropertyParserTest

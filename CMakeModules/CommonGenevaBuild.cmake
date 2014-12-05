@@ -238,6 +238,11 @@ SET (
 	${COMMON_LIBNAME}
 )
 
+# This variable contains the library names. In case of an independent build,
+# it is overwritten later by FindGeneva, with the list of full library paths.
+# The function TARGET_LINK_LIBRARIES() can use either variant. 
+SET ( GENEVA_LIBRARIES ${GENEVA_LIBNAMES} )
+
 ################################################################################
 # The MPI mode is currently only supported under Linux and BSD
 
