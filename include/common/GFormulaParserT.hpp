@@ -424,6 +424,9 @@ public:
    {
       boost::spirit::qi::char_type char_;
       boost::spirit::qi::string_type string_;
+      boost::spirit::qi::_2_type _2;
+      boost::spirit::qi::_3_type _3;
+      boost::spirit::qi::_4_type _4;
 
       using boost::spirit::qi::on_error;
       using boost::spirit::qi::fail;
@@ -495,10 +498,8 @@ public:
             (factor_rule_)
       );
 
-      on_error<fail> (
-          expression_rule_
-          , error_handler(_4, _3, _2)
-      );
+      // Error handling
+      // on_error<fail>(expression_rule_, error_handler(_4, _3, _2));
    }
 
    /***************************************************************************/
