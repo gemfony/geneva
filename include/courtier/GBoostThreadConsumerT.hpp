@@ -273,7 +273,7 @@ public:
     */
    static void setup(
       const std::string& configFile
-      , std::vector<boost::shared_ptr<Gem::Courtier::GBoostThreadConsumerT<processable_type>::GWorker> > workers
+      , std::vector<boost::shared_ptr<typename Gem::Courtier::GBoostThreadConsumerT<processable_type>::GWorker> > workers
    ) {
       boost::shared_ptr<GBoostThreadConsumerT<processable_type> > consumer_ptr(new GBoostThreadConsumerT<processable_type>());
       consumer_ptr->registerWorkerTemplates(workers);
@@ -288,7 +288,7 @@ public:
     */
    static void setup(
       const std::string& configFile
-      , boost::shared_ptr<Gem::Courtier::GBoostThreadConsumerT<processable_type>::GWorker> worker_ptr
+      , boost::shared_ptr<typename Gem::Courtier::GBoostThreadConsumerT<processable_type>::GWorker> worker_ptr
    ) {
       boost::shared_ptr<GBoostThreadConsumerT<processable_type> > consumer_ptr(new GBoostThreadConsumerT<processable_type>());
       consumer_ptr->registerWorkerTemplate(worker_ptr);

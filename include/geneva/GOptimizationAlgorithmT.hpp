@@ -560,7 +560,7 @@ public:
 	 *
 	 * @param om_ptr A shared pointer to a specific optimization monitor
 	 */
-	void registerOptimizationMonitor(boost::shared_ptr<GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> om_ptr) {
+	void registerOptimizationMonitor(boost::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> om_ptr) {
 #ifdef DEBUG
 		if(!om_ptr) {
 		   glogger
