@@ -257,7 +257,8 @@ void GMultiThreadedEA::runFitnessCalculation() {
 
 #ifdef DEBUG
    // There should be no situation in which a "clean" child is submitted
-   // through this function
+   // through this function. There MAY be situations, where in the first iteration
+	// parents are clean, e.g. when they were extracted from another optimization.
    for(std::size_t i=this->getNParents(); i<this->size(); i++) {
       if(!this->at(i)->isDirty()) {
          glogger

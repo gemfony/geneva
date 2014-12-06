@@ -251,11 +251,12 @@ void GSerialEA::runFitnessCalculation()
 
 #ifdef DEBUG
    // There should be no situation in which a "clean" child is submitted
-   // through this function
+   // through this function. There MAY be situations, where in the first iteration
+   // parents are clean, e.g. when they were extracted from another optimization.
    for(std::size_t i=this->getNParents(); i<this->size(); i++) {
       if(!this->at(i)->isDirty()) {
          glogger
-         << "In GSerialEA::runFitnessCalculation(): Error!" << std::endl
+         << "In GSerialThreadedEA::runFitnessCalculation(): Error!" << std::endl
          << "Tried to evaluate children in range " << boost::get<0>(range) << " - " << boost::get<1>(range) << std::endl
          << "but found \"clean\" individual in position " << i << std::endl
          << GEXCEPTION;

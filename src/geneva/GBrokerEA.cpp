@@ -272,9 +272,11 @@ void GBrokerEA::runFitnessCalculation() {
 	// to be worked on
 	boost::tuple<std::size_t, std::size_t> range = getEvaluationRange();
 
+
 #ifdef DEBUG
    // There should be no situation in which a "clean" child is submitted
-   // through this function
+   // through this function. There MAY be situations, where in the first iteration
+   // parents are clean, e.g. when they were extracted from another optimization.
    for(std::size_t i=this->getNParents(); i<this->size(); i++) {
       if(!this->at(i)->isDirty()) {
          glogger

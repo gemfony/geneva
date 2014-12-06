@@ -465,13 +465,15 @@ void GBaseSA::selectBest()
 
 /******************************************************************************/
 /**
- * Retrieves the evaluation range in a given iteration. The start point will be
- * different, depending on the iteration. The end-point is not meant
+ * Retrieves the evaluation range in a given iteration and sorting scheme. Depending on the
+ * iteration and sorting scheme, the start point will be different. The end-point is not meant
  * to be inclusive.
  *
  * @return The range inside which evaluation should take place
  */
 boost::tuple<std::size_t,std::size_t> GBaseSA::getEvaluationRange() const {
+   // We evaluate all individuals in the first iteration This happens so pluggable
+   // optimization monitors do not need to distinguish between algorithms
    return boost::tuple<std::size_t, std::size_t>(
          inFirstIteration()?0:getNParents()
          ,  data.size()

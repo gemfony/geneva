@@ -255,13 +255,15 @@ void GMultiThreadedSA::runFitnessCalculation() {
    std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
 
 #ifdef DEBUG
-   // There should be no situation in which a "clean" individual is submitted
-   // through this function
-   for(std::size_t i=boost::get<0>(range); i<boost::get<1>(range); i++) {
+   // There should be no situation in which a "clean" child is submitted
+   // through this function. There MAY be situations, where in the first iteration
+   // parents are clean, e.g. when they were extracted from another optimization.
+   for(std::size_t i=this->getNParents(); i<this->size(); i++) {
       if(!this->at(i)->isDirty()) {
          glogger
          << "In GMultiThreadedSA::runFitnessCalculation(): Error!" << std::endl
-         << "Tried to evaluate \"clean\" children." << std::endl
+         << "Tried to evaluate children in range " << boost::get<0>(range) << " - " << boost::get<1>(range) << std::endl
+         << "but found \"clean\" individual in position " << i << std::endl
          << GEXCEPTION;
       }
    }
