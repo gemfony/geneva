@@ -43,6 +43,7 @@ The main changes for this release include:
 
  - Removed GExternalSetterIndividual in favour of a more versatile
    enforceFitnessUpdate().
+ - Fixed Bug #1399716 in Launchpad --> Calling go & "ea" & "sa" crashed.
  - Added support for MS Windows using the Cygwin environment.
  - Restructured the build system, creating a new shared CMake module
    "CommonGenevaBuild" which may be used to build independent Geneva
