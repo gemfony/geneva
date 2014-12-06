@@ -70,22 +70,31 @@
 #include <cmath>
 
 // Boost headers go here
+
 #include <boost/config/warning_disable.hpp>
-#include <boost/spirit/include/qi.hpp>
-#include <boost/variant/recursive_variant.hpp>
-#include <boost/variant/apply_visitor.hpp>
-#include <boost/fusion/include/adapt_struct.hpp>
-#include <boost/spirit/include/phoenix_function.hpp>
+#include <boost/spirit/include/qi_operator.hpp>
+#include <boost/spirit/include/qi_char.hpp>
+#include <boost/spirit/include/qi_string.hpp>
+#include <boost/spirit/include/qi_numeric.hpp>
+#include <boost/spirit/include/qi_auxiliary.hpp>
+#include <boost/spirit/include/qi_nonterminal.hpp>
+#include <boost/spirit/include/qi_action.hpp>
+#include <boost/spirit/include/phoenix_core.hpp>
+#include <boost/spirit/include/phoenix_operator.hpp>
+#include <boost/spirit/include/phoenix_object.hpp>
+#include <boost/spirit/include/phoenix_bind.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/foreach.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/optional.hpp>
-#include <boost/function.hpp>
 #include <boost/xpressive/xpressive.hpp>
 #include <boost/variant.hpp>
 #include <boost/function.hpp>
 #include <boost/utility.hpp>
+#include <boost/variant/recursive_variant.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/fusion/include/adapt_struct.hpp>
 
 #ifndef GFORMULAPARSERT_HPP_
 #define GFORMULAPARSERT_HPP_
@@ -419,7 +428,6 @@ public:
       , raw_formula_(formula)
       , stack_(4096)
       , stack_ptr_(stack_.begin())
-      , error_handler(error_handler_())
       , printCode_(false)
    {
       boost::spirit::qi::char_type char_;
@@ -499,7 +507,32 @@ public:
       );
 
       // Error handling
-      // on_error<fail>(expression_rule_, error_handler(_4, _3, _2));
+      {
+         namespace qi = boost::spirit::qi;
+         namespace ascii = boost::spirit::ascii;
+         namespace phoenix = boost::phoenix;
+
+         using qi::eps;
+         using qi::lit;
+         using qi::_val;
+         using qi::_2;
+         using qi::_3;
+         using qi::_4;
+         using ascii::char_;
+         using qi::on_error;
+         using qi::fail;
+         using phoenix::construct;
+         using phoenix::val;
+
+         on_error<fail>
+         (
+             // start
+           expression_rule_
+           , phoenix::ref(std::cout)
+              << "Error! Was expecting " << qi::_4
+              << " here: '" << phoenix::construct<std::string>(qi::_3, qi::_2) << "'\n"
+         );
+      }
    }
 
    /***************************************************************************/
@@ -897,30 +930,6 @@ private:
       std::cout << std::endl;
    }
 
-   /*****************************************************************************/
-   /**
-    * The error handler
-    */
-   struct error_handler_{
-      template <typename, typename, typename>
-      struct result { typedef void type; };
-
-      void operator()(
-            boost::spirit::qi::info const& what
-            , std::string::const_iterator err_pos
-            , std::string::const_iterator last
-      ) const {
-         std::cout
-         << "Error! Expecting "
-         << what                         // what failed?
-         << " here: \""
-         << std::string(err_pos, last)   // iterators to error-pos, end
-         << "\""
-         << std::endl
-         ;
-      }
-   };
-
    /***************************************************************************/
    // Local data and empty functions
 
@@ -943,8 +952,6 @@ private:
    mutable std::vector<codeEntry> code_; ///< Holds the "compiled" code
 
    mutable typename std::vector<fp_type>::iterator stack_ptr_;
-
-   boost::phoenix::function<error_handler_> const error_handler;
 
    bool printCode_; ///< When set, the code will be printed prior to the evaluation
 };
