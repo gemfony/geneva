@@ -1,17 +1,11 @@
 //------------------------------------------------------------------------------------------------------
-* Development version 1.5, to be released as version 2.0 when ready
+* Development version 1.5, to be released as version 1.6 when ready
 
 The main changes for this release include:
 
-****************************** BREAKING CHANGES ********************************
-
- - Geneva requires now a C++11 Standard compatible compiler.
-
-********************************************************************************
+ - 
 
 Wishlist:
- - Remove the restriction to be C++98 compliant, raising the minimum
-   required standard to C++11.
  - A scripting interface to optimization algorithms, so that new
    algorithms can be more easily implemented and tested even by
    people not familiar with all of Geneva.
@@ -31,7 +25,7 @@ Wishlist:
  - Full integration of -fsanitize=X.
 
 //------------------------------------------------------------------------------------------------------
-* Version 1.4.1, "XXXX" - December X, 2014
+* Version 1.4.1, "Fénis" - December XX, 2014
 
 The main changes for this release include:
 
