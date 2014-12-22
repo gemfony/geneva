@@ -1203,7 +1203,7 @@ void GBaseSwarm::pruneVelocity(std::vector<double>& velVec) {
  */
 boost::tuple<double, double> GBaseSwarm::findBests() {
 	std::size_t bestLocalId = 0;
-	boost::tuple<double, double> bestLocalFitness = boost::make_tuple(this->getWorstCase(), this->getWorstCase());
+	boost::tuple<double, double> bestLocalFitness     = boost::make_tuple(this->getWorstCase(), this->getWorstCase());
 	boost::tuple<double, double> bestIterationFitness = boost::make_tuple(this->getWorstCase(), this->getWorstCase());
 
    GBaseSwarm::iterator it;
@@ -1236,13 +1236,13 @@ boost::tuple<double, double> GBaseSwarm::findBests() {
 	for(std::size_t n=0; n<nNeighborhoods_; n++) {
 		// identify the first and last id of the individuals in the current neighborhood
 		std::size_t firstCounter = getFirstNIPos(n);
-		std::size_t lastCounter = getLastNIPos(n);
+		std::size_t lastCounter  = getLastNIPos(n);
 
 		// Only partially sort the arrays
       std::sort(
          this->begin() + firstCounter
          , this->begin() + lastCounter
-         , boost::bind(&GParameterSet::transformedFitness, _1) < boost::bind(&GParameterSet::transformedFitness, _2)
+         , boost::bind(&GParameterSet::minOnly_fitness, _1) < boost::bind(&GParameterSet::minOnly_fitness, _2)
       );
 
 		// Check whether the best individual of the neighborhood is better than

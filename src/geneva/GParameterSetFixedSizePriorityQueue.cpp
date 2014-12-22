@@ -56,6 +56,18 @@ GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(const s
 
 /******************************************************************************/
 /**
+ * Initialization with the maximum size and the information, whether higher or
+ * lower evaluations are considered better
+ */
+GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(
+   const std::size_t& maxSize
+   , const bool& higherIsBetter
+)
+   : Gem::Common::GFixedSizePriorityQueueT<GParameterSet>(maxSize, higherIsBetter)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
  * The copy constructor
  */
 GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(
@@ -139,7 +151,7 @@ std::string GParameterSetFixedSizePriorityQueue::getCleanStatus() const {
 double GParameterSetFixedSizePriorityQueue::evaluation(
    const boost::shared_ptr<GParameterSet>& item
 ) const {
-   return item->transformedFitness();
+   return item->minOnly_fitness();
 }
 
 /******************************************************************************/

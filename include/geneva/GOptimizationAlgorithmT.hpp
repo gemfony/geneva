@@ -131,7 +131,7 @@ public:
 		, maxStallIteration_(DEFAULTMAXSTALLIT)
 		, reportIteration_(DEFAULTREPORTITER)
 		, nRecordBestIndividuals_(DEFNRECORDBESTINDIVIDUALS)
-		, bestIndividuals_(DEFNRECORDBESTINDIVIDUALS)
+		, bestIndividuals_(DEFNRECORDBESTINDIVIDUALS, Gem::Common::LOWERISBETTER)
 		, defaultPopulationSize_(DEFAULTPOPULATIONSIZE)
 		, bestKnownPrimaryFitness_(boost::tuple<double,double>(0.,0.)) // will be set appropriately in the optimize() function
 		, bestCurrentPrimaryFitness_(boost::tuple<double,double>(0.,0.)) // will be set appropriately in the optimize() function
@@ -453,7 +453,7 @@ public:
 
 		// We want to know if no better values were found for a longer period of time
 		double worstCase = this->getWorstCase();
-		bestKnownPrimaryFitness_    = boost::make_tuple(worstCase, worstCase);
+		bestKnownPrimaryFitness_   = boost::make_tuple(worstCase, worstCase);
 		bestCurrentPrimaryFitness_ = boost::make_tuple(worstCase, worstCase);
 
 		stallCounter_ = 0;
@@ -1634,7 +1634,7 @@ private:
 				std::cerr
 				<< "Terminating optimization run because" << std::endl
 				<< "quality threshold " << qualityThreshold_ << " has been reached." << std::endl
-				<< "Best quality found was " << boost::get<G_RAW_FITNESS>(bestKnownPrimaryFitness_) << std::endl
+				<< "Best untransformed quality found was " << boost::get<G_RAW_FITNESS>(bestKnownPrimaryFitness_) << std::endl
 				<< "with termination in iteration " << iteration_ << std::endl;
 			}
 

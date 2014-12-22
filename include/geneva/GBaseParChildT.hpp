@@ -1060,7 +1060,7 @@ protected:
             GOptimizationAlgorithmT<ind_type>::data.begin()
             , GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_
             , GOptimizationAlgorithmT<ind_type>::data.end()
-            , boost::bind(&ind_type::transformedFitness, _1) < boost::bind(&ind_type::transformedFitness, _2)
+            , boost::bind(&ind_type::minOnly_fitness, _1) < boost::bind(&ind_type::minOnly_fitness, _2)
       );
    }
 
@@ -1090,7 +1090,7 @@ protected:
             GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_
             , GOptimizationAlgorithmT<ind_type>::data.begin() + 2*nParents_
             , GOptimizationAlgorithmT<ind_type>::data.end()
-            , boost::bind(&ind_type::transformedFitness, _1) < boost::bind(&ind_type::transformedFitness, _2)
+            , boost::bind(&ind_type::minOnly_fitness, _1) < boost::bind(&ind_type::minOnly_fitness, _2)
       );
 
       std::swap_ranges(GOptimizationAlgorithmT<ind_type>::data.begin(),GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_,GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_);
@@ -1129,15 +1129,15 @@ protected:
             GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_
             , GOptimizationAlgorithmT<ind_type>::data.begin() + 2*nParents_
             , GOptimizationAlgorithmT<ind_type>::data.end()
-            , boost::bind(&ind_type::transformedFitness, _1) < boost::bind(&ind_type::transformedFitness, _2)
+            , boost::bind(&ind_type::minOnly_fitness, _1) < boost::bind(&ind_type::minOnly_fitness, _2)
          );
 
          // Retrieve the best child's and the last generation's best parent's fitness
-         double bestTranformedChildFitness = (*(GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_))->transformedFitness();
-         double bestTranformedParentFitness = (*(GOptimizationAlgorithmT<ind_type>::data.begin()))->transformedFitness();
+         double bestTranformedChildFitness_MinOnly  = (*(GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_))->minOnly_fitness();
+         double bestTranformedParentFitness_MinOnly = (*(GOptimizationAlgorithmT<ind_type>::data.begin()))->minOnly_fitness();
 
          // Leave the best parent in place, if no better child was found
-         if(this->isBetter(bestTranformedChildFitness, bestTranformedParentFitness)) { // A better child was found. Overwrite all parents
+         if(bestTranformedChildFitness_MinOnly < bestTranformedParentFitness_MinOnly) { // A better child was found. Overwrite all parents
             std::swap_ranges(
                GOptimizationAlgorithmT<ind_type>::data.begin()
                ,GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_

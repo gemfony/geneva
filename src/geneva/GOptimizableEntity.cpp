@@ -386,7 +386,7 @@ double GOptimizableEntity::fitness(const std::size_t& id) const {
  * Returns the transformed result of the fitness function with id 0
  */
 double GOptimizableEntity::transformedFitness() const {
-   return fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
+   return this->transformedFitness(0);
 }
 
 /******************************************************************************/
@@ -395,6 +395,34 @@ double GOptimizableEntity::transformedFitness() const {
  */
 double GOptimizableEntity::transformedFitness(const std::size_t& id) const {
    return fitness(id, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
+}
+
+/******************************************************************************/
+/**
+ * Returns a fitness targetted at optimization algorithms, taking into account maximization and minimization
+ */
+double GOptimizableEntity::minOnly_fitness() const {
+   return this->minOnly_fitness(0);
+}
+
+/******************************************************************************/
+/**
+ * Returns a fitness targetted at optimization algorithms, taking into account maximization and minimization
+ */
+double GOptimizableEntity::minOnly_fitness(const std::size_t& id) const {
+   double f = fitness(id, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
+
+   if(true == this->getMaxMode()) { // Negation will transform maximization problems into minimization problems
+      if(boost::numeric::bounds<double>::highest()==f) {
+         return boost::numeric::bounds<double>::lowest();
+      } else if (boost::numeric::bounds<double>::lowest()==f) {
+         return boost::numeric::bounds<double>::highest();
+      } else {
+         return -f;
+      }
+   } else {
+      return f;
+   }
 }
 
 /******************************************************************************/
@@ -515,11 +543,7 @@ double GOptimizableEntity::fitness(
 	}
 
 	// Return the desired result -- there should be no situation where the dirtyFlag is still set
-	if(/* useTransformedFitness && */ true == this->getMaxMode()) { // TODO: Why the "useTransformedFitness && ...) ???
-	   return -getCachedFitness(id, useTransformedFitness); // This negation will transform maximization problems into minimization problems
-	} else {
-	   return getCachedFitness(id, useTransformedFitness);
-	}
+	return getCachedFitness(id, useTransformedFitness);
 }
 
 /* ----------------------------------------------------------------------------------
@@ -557,11 +581,7 @@ double GOptimizableEntity::fitness(
 #endif /* DEBUG */
 
    // Return the desired result -- there should be no situation where the dirtyFlag is still set
-   if(useTransformedFitness && true == this->getMaxMode()) {
-      return -getCachedFitness(id, useTransformedFitness); // This negation will transform maximization problems into minimization problems
-   } else {
-      return getCachedFitness(id, useTransformedFitness);
-   }
+   return getCachedFitness(id, useTransformedFitness);
 }
 
 /******************************************************************************/

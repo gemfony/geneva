@@ -74,6 +74,11 @@ public:
    /** @brief Returns the transformed result of the fitness function with id 0 */
    virtual double transformedFitness(const std::size_t&) const BASE = 0;
 
+   /** @brief Returns a fitness targetted at optimization algorithms, taking into account maximization and minimization */
+   virtual double minOnly_fitness() const BASE = 0;
+   /** @brief Returns a fitness targetted at optimization algorithms, taking into account maximization and minimization */
+   virtual double minOnly_fitness(const std::size_t&) const BASE = 0;
+
    /** @brief Calculate or returns the result of a fitness function with a given id */
    virtual double fitness(const std::size_t&, bool, bool) BASE = 0;
    /** @brief Calculate or returns the result of a fitness function with a given id */

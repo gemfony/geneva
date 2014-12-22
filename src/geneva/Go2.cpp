@@ -773,7 +773,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
    std::sort(
       this->begin()
       , this->end()
-      , boost::bind(&GParameterSet::transformedFitness, _1) < boost::bind(&GParameterSet::transformedFitness, _2)
+      , boost::bind(&GParameterSet::minOnly_fitness, _1) < boost::bind(&GParameterSet::minOnly_fitness, _2)
    );
 
 	sorted_ = true;

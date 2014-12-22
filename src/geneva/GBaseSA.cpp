@@ -254,12 +254,12 @@ void GBaseSA::sortSAMode() {
    std::partial_sort(
       data.begin() + nParents_
       , data.begin() + 2*nParents_, data.end()
-      , boost::bind(&GParameterSet::transformedFitness, _1) < boost::bind(&GParameterSet::transformedFitness, _2)
+      , boost::bind(&GParameterSet::minOnly_fitness, _1) < boost::bind(&GParameterSet::minOnly_fitness, _2)
    );
 
    // Check for each parent whether it should be replaced by the corresponding child
    for(std::size_t np=0; np<nParents_; np++) {
-      double pPass = saProb(this->at(np)->transformedFitness(), this->at(nParents_+np)->transformedFitness());
+      double pPass = saProb(this->at(np)->minOnly_fitness(), this->at(nParents_+np)->minOnly_fitness());
       if(pPass >= 1.) {
          this->at(np)->load(this->at(nParents_+np));
       } else {
@@ -274,7 +274,7 @@ void GBaseSA::sortSAMode() {
    std::sort(
       data.begin()
       , data.begin() + nParents_
-      , boost::bind(&GParameterSet::transformedFitness, _1) < boost::bind(&GParameterSet::transformedFitness, _2)
+      , boost::bind(&GParameterSet::minOnly_fitness, _1) < boost::bind(&GParameterSet::minOnly_fitness, _2)
    );
 
    // Make sure the temperature gets updated

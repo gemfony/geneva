@@ -654,7 +654,7 @@ public:
                if(GBasePluggableOMT<ind_type>::useRawEvaluation_) {
                   primaryFitness = (*it)->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
                } else {
-                  primaryFitness = (*it)->transformedFitness();
+                  primaryFitness = (*it)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
                }
 
                if(!monitorValidOnly_ || (*it)->isValid()) {

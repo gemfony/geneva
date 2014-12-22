@@ -32,7 +32,6 @@
  * http://www.gemfony.eu .
  */
 
-
 // Standard headers go here
 #include <string>
 #include <istream>
@@ -58,6 +57,14 @@
 
 namespace Gem {
 namespace Common {
+
+/******************************************************************************/
+/**
+ * Indicates whether higher or lower values are considered better. Needed e.g. 
+ * in conjunction with the sorting in priority queues.
+ */
+const bool HIGHERISBETTER = true;
+const bool LOWERISBETTER  = false;
 
 /******************************************************************************/
 /**

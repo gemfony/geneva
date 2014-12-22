@@ -118,7 +118,7 @@ public:
 
    /***************************************************************************/
    /**
-    * The standard constructor
+    * Initialization with the maximum number of entries
     *
     * @param maxSize The maximum size of the queue
     */
@@ -126,6 +126,23 @@ public:
       : maxSize_(maxSize)
       , higherIsBetter_(false)
    { /* nothing */ }
+
+
+   /***************************************************************************/
+   /**
+    * Initialization with the maximum number of entries and the information,
+    * whether higher or lower evaluations are better.
+    *
+    * @param maxSize The maximum size of the queue
+    */
+   GFixedSizePriorityQueueT(
+      const std::size_t& maxSize
+      , const bool& higherIsBetter
+   )
+      : maxSize_(maxSize)
+      , higherIsBetter_(higherIsBetter)
+   { /* nothing */ }
+
 
    /***************************************************************************/
    /**
@@ -327,7 +344,8 @@ public:
       );
 
       // Remove surplus work items, if the queue has reached the corresponding size
-      // This will only have an effect if maxSize_ is != 0
+      // As the worst items are not at the end of the queue, they will be removed, if
+      // they are beyond the allowed size. This will only have an effect if maxSize_ is != 0 .
       if(maxSize_ && data_.size() > maxSize_) {
          data_.resize(maxSize_);
       }

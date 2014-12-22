@@ -96,6 +96,8 @@ public:
    GParameterSetFixedSizePriorityQueue();
    /** @brief Initialization with the maximum size */
    explicit GParameterSetFixedSizePriorityQueue(const std::size_t&);
+   /** @brief Initialization with the maximum size and the information, whether higher or lower evaluations are considered better */
+   GParameterSetFixedSizePriorityQueue(const std::size_t&, const bool&);
    /** @brief The copy constructor */
    GParameterSetFixedSizePriorityQueue(const GParameterSetFixedSizePriorityQueue&);
    /** @brief The destructor */

@@ -427,14 +427,14 @@ boost::tuple<double, double> GBaseGD::cycleLogic() {
    // Perform post-evaluation updates (mostly of individuals)
    postEvaluationWork();
 
-   boost::tuple<double,double> bestFitness = boost::make_tuple(this->getWorstCase(), this->getWorstCase());
+   boost::tuple<double,double> bestFitness      = boost::make_tuple(this->getWorstCase(), this->getWorstCase());
    boost::tuple<double,double> fitnessCandidate = boost::make_tuple(this->getWorstCase(), this->getWorstCase());
 
    // Retrieve information about the best fitness found and disallow re-evaluation
 	GBaseGD::iterator it;
 	for(it=this->begin(); it!=this->begin() + this->getNStartingPoints(); ++it) {
-	   boost::get<G_RAW_FITNESS>(fitnessCandidate) = (*it)->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
-	   boost::get<G_TRANSFORMED_FITNESS>(fitnessCandidate) = (*it)->transformedFitness();
+	   boost::get<G_RAW_FITNESS>(fitnessCandidate)         = (*it)->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
+	   boost::get<G_TRANSFORMED_FITNESS>(fitnessCandidate) = (*it)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
 
 	   if(this->isBetter(boost::get<G_TRANSFORMED_FITNESS>(fitnessCandidate), boost::get<G_TRANSFORMED_FITNESS>(bestFitness))) {
 	      bestFitness = fitnessCandidate;
@@ -483,7 +483,11 @@ void GBaseGD::updateChildParameters() {
 
 /**********************************************************************************************************/
 /**
- * Performs a step of the parent individuals
+ * Performs a step of the parent individuals.
+ * TODO: Use long double here where it makes sense
+ * TODO: first calculate stepSize_/finiteStep_ in long double
+ * TODO: keep going in the same direction as long as there is an improvement ? But this may prevent parallelization
+ * TODO: Make stepSize_ and finiteStep_ relative to a parameters allowed or expected value range
  */
 void GBaseGD::updateParentIndividuals() {
 	for(std::size_t i=0; i<nStartingPoints_; i++) {
@@ -502,23 +506,18 @@ void GBaseGD::updateParentIndividuals() {
 #endif /* DEBUG */
 
 		// Retrieve the fitness of the individual again
-		double parentFitness = this->at(i)->transformedFitness();
+		double parentFitness = this->at(i)->minOnly_fitness();
 
 		// Calculate the adaption of each parameter
-		double gradient = 0.;
+		// double gradient = 0.;
 		for(std::size_t j=0; j<nFPParmsFirst_; j++) {
 			// Calculate the position of the child
 			std::size_t childPos = nStartingPoints_ + i*nFPParmsFirst_ + j;
 
 			// Calculate the step to be performed in a given direction
-			gradient = (1./finiteStep_) * (this->at(childPos)->transformedFitness() - parentFitness);
-
-			if(this->getMaxMode()) {
-				parmVec[j] += stepSize_*gradient;
-			}
-			else { // Minimization
-				parmVec[j] -= stepSize_*gradient;
-			}
+			// gradient = (1./finiteStep_) * (this->at(childPos)->minOnly_fitness() - parentFitness);
+			// parmVec[j] -= stepSize_*gradient;
+			parmVec[j] -= (stepSize_/finiteStep_) * (this->at(childPos)->minOnly_fitness() - parentFitness);
 		}
 
 		// Load the parameter vector back into the parent

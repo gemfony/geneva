@@ -213,6 +213,7 @@
         "comment": "4: Rastrigin",
         "comment": "5: Schwefel",
         "comment": "6: Salomon",
+        "comment": "7: Negative Parabola",
         "comment": "[GFunctionIndividual]",
         "default": "0",
         "value": "1"

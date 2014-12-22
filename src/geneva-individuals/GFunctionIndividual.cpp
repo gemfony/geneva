@@ -780,6 +780,7 @@ void GFunctionIndividual::addConfigurationOptions (
    comment += "4: Rastrigin;";
    comment += "5: Schwefel;";
    comment += "6: Salomon;";
+   comment += "7: Negative Parabola;";
    if(showOrigin) comment += "[GFunctionIndividual];";
    gpb.registerFileParameter<solverFunction>(
       "demoFunction" // The name of the variable
@@ -974,6 +975,28 @@ double GFunctionIndividual::fitnessCalculation() {
 	break;
 
 	//-----------------------------------------------------------
+	// A "negative" parabola, used for maximization tests
+	case NEGPARABOLA:
+   {
+      for(std::size_t i=0; i<parameterSize; i++) {
+         result += GSQUARED(parVec[i]);
+      }
+      result *= -1.;
+   }
+	break;
+
+   //-----------------------------------------------------------
+
+   default:
+   {
+      glogger
+      << "In GFunctionIndividual::fitnessCalculation(): Error!" << std::endl
+      << "Got invalid function type" << std::endl
+      << GEXCEPTION;
+   }
+   break;
+
+   //-----------------------------------------------------------
 	};
 
 	// Let the audience know

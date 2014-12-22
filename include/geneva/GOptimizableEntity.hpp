@@ -166,6 +166,11 @@ public:
    /** @brief Returns the transformed result of a fitness function with a given id */
    virtual double transformedFitness(const std::size_t&) const OVERRIDE;
 
+   /** @brief Returns a fitness targetted at optimization algorithms, taking into account maximization and minimization */
+   virtual double minOnly_fitness() const OVERRIDE;
+   /** @brief Returns a fitness targetted at optimization algorithms, taking into account maximization and minimization */
+   virtual double minOnly_fitness(const std::size_t&) const OVERRIDE;
+
    /** @brief Returns all raw fitness results in a std::vector */
    virtual std::vector<double> fitnessVec() const OVERRIDE;
    /** @brief Returns all raw or transformed results in a std::vector */

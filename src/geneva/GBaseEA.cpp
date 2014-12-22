@@ -587,7 +587,8 @@ void GBaseEA::sortMuPlusNuParetoMode() {
 	// as subsequent iterations will only take into account parents for the reproduction step.
 	// If fewer individuals are on the pareto front than there are parents, then we want the
 	// remaining parent positions to be filled up with the non-pareto-front individuals with
-	// the best fitness(0), i.e. with the best "master" fitness.
+	// the best minOnly_fitness(0), i.e. with the best "master" fitness (transformed to take into
+	// account minimization and maximization).
 	if(nIndividualsOnParetoFront > getNParents()) {
 		// randomly shuffle pareto-front individuals to avoid a bias
 		std::random_shuffle(this->begin(), this->begin()+nIndividualsOnParetoFront);
@@ -597,7 +598,7 @@ void GBaseEA::sortMuPlusNuParetoMode() {
          data.begin() + nIndividualsOnParetoFront
          , data.begin() + nParents_
          , data.end()
-         , boost::bind(&GParameterSet::transformedFitness, _1) < boost::bind(&GParameterSet::transformedFitness, _2));
+         , boost::bind(&GParameterSet::minOnly_fitness, _1) < boost::bind(&GParameterSet::minOnly_fitness, _2));
 	}
 
 	// Finally, we sort the parents only according to their master fitness. This is meant
@@ -606,7 +607,7 @@ void GBaseEA::sortMuPlusNuParetoMode() {
    std::sort(
       data.begin()
       , data.begin() + nParents_
-      , boost::bind(&GParameterSet::transformedFitness, _1) < boost::bind(&GParameterSet::transformedFitness, _2));
+      , boost::bind(&GParameterSet::minOnly_fitness, _1) < boost::bind(&GParameterSet::minOnly_fitness, _2));
 }
 
 /******************************************************************************/
@@ -675,7 +676,8 @@ void GBaseEA::sortMuCommaNuParetoMode() {
 	// as subsequent iterations will only take into account parents for the reproduction step.
 	// If fewer individuals are on the pareto front than there are parents, then we want the
 	// remaining parent positions to be filled up with the non-pareto-front individuals with
-	// the best fitness(0), i.e. with the best "master" fitness. Note that, unlike MUCOMMANU_SINGLEEVAL
+	// the best minOnly_fitness(0), i.e. with the best "master" fitness, transformed to take into account
+	// minimization and maximization. Note that, unlike MUCOMMANU_SINGLEEVAL
 	// this implies the possibility that former parents are "elected" as new parents again. This
 	// might be changed in subsequent versions of Geneva (TODO).
 	if(nIndividualsOnParetoFront > getNParents()) {
@@ -687,7 +689,7 @@ void GBaseEA::sortMuCommaNuParetoMode() {
          data.begin() + nIndividualsOnParetoFront
          , data.begin() + nParents_
          , data.end()
-         , boost::bind(&GParameterSet::transformedFitness, _1) < boost::bind(&GParameterSet::transformedFitness, _2)
+         , boost::bind(&GParameterSet::minOnly_fitness, _1) < boost::bind(&GParameterSet::minOnly_fitness, _2)
 	   );
 	}
 
@@ -697,7 +699,7 @@ void GBaseEA::sortMuCommaNuParetoMode() {
 	std::sort(
       data.begin()
       , data.begin() + nParents_
-      , boost::bind(&GParameterSet::transformedFitness, _1) < boost::bind(&GParameterSet::transformedFitness, _2)
+      , boost::bind(&GParameterSet::minOnly_fitness, _1) < boost::bind(&GParameterSet::minOnly_fitness, _2)
 	);
 }
 

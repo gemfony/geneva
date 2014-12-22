@@ -82,6 +82,7 @@ enum solverFunction {
    , RASTRIGIN=4
    , SCHWEFEL=5
    , SALOMON=6
+   , NEGPARABOLA=7
 };
 
 const solverFunction MAXDEMOFUNCTION=SALOMON;
@@ -254,6 +255,17 @@ public:
 		case SALOMON:
 			result="Salomon";
 			break;
+		case NEGPARABOLA:
+		   result="Negative parabola";
+		   break;
+		default:
+         {
+            glogger
+            << "In GFunctionIndividual::getStringRepresentation(): Error!" << std::endl
+            << "Got invalid function type" << std::endl
+            << GEXCEPTION;
+         }
+         break;
 		}
 
 		return result;
@@ -293,6 +305,17 @@ public:
 		case SALOMON:
 			result="-cos(2.*pi*sqrt(x^2 + y^2)) + 0.1*sqrt(x^2 + y^2) + 1.";
 			break;
+		case NEGPARABOLA:
+		   result="-(x^2 + y^2)";
+		   break;
+      default:
+         {
+            glogger
+            << "In GFunctionIndividual::get2DROOTFunction(): Error!" << std::endl
+            << "Got invalid function type" << std::endl
+            << GEXCEPTION;
+         }
+         break;
 		}
 
 		return result;
@@ -333,6 +356,17 @@ public:
 		case SALOMON:
 			result.push_back(0.);
 			break;
+		case NEGPARABOLA:
+		   result.push_back(0.);
+		   break;
+      default:
+         {
+            glogger
+            << "In GFunctionIndividual::getXMin(): Error!" << std::endl
+            << "Got invalid function type" << std::endl
+            << GEXCEPTION;
+         }
+         break;
 		}
 
 		return result;
@@ -371,6 +405,17 @@ public:
 		case SALOMON:
 			result.push_back(0.);
 			break;
+      case NEGPARABOLA:
+         result.push_back(0.);
+         break;
+      default:
+         {
+            glogger
+            << "In GFunctionIndividual::getYMin(): Error!" << std::endl
+            << "Got invalid function type" << std::endl
+            << GEXCEPTION;
+         }
+         break;
 		}
 
 		return result;
