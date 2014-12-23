@@ -34,7 +34,7 @@
         "comment": "The maximum allowed number of iterations",
         "comment": "[GOptimizationAlgorithmT<ind_type>]",
         "default": "1000",
-        "value": "100"
+        "value": "1000"
     },
     "maxStallIteration":
     {
@@ -127,15 +127,15 @@
     {
         "comment": "The size of the adjustment in the difference quotient",
         "comment": "[GBaseGD]",
-        "default": "0.01",
-        "value": "0.01"
+        "default": "0.001",
+        "value": "0.001"
     },
     "stepSize":
     {
         "comment": "The size of each step into the",
         "comment": "direction of steepest descent.",
         "comment": "[GBaseGD]",
-        "default": "0.1",
-        "value": "0.1"
+        "default": "0.01",
+        "value": "0.01"
     }
 }

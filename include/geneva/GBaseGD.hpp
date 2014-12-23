@@ -65,8 +65,8 @@ namespace Geneva {
  * The default number of simultaneous starting points for the gradient descent
  */
 const std::size_t DEFAULTGDSTARTINGPOINTS=1;
-const double DEFAULTFINITESTEP=0.01;
-const double DEFAULTSTEPSIZE=0.1;
+const double DEFAULTFINITESTEP=0.001;
+const double DEFAULTSTEPSIZE=0.01;
 
 /******************************************************************************/
 /**
