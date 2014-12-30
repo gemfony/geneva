@@ -1405,7 +1405,18 @@ public:
 
 		singleParm_ptr->registerCallBackFunction(callBack);
 
-		// Store for later usage
+#ifdef DEBUG
+      // Check whether the option already exists
+      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
+      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName))) != file_parameter_proxies_.end()) {
+         glogger
+         << "In GParserBuilder::registerFileParameter(singleParm_ptr): Error!" << std::endl
+         << "Parameter " << optionName << " has already been registered" << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+      // Add to the proxy store
 		file_parameter_proxies_.push_back(singleParm_ptr);
 	}
 
@@ -1442,7 +1453,18 @@ public:
 
 		combParm_ptr->registerCallBackFunction(callBack);
 
-		// Store one and two for later usage
+#ifdef DEBUG
+      // Check whether the option already exists
+      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
+      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName1))) != file_parameter_proxies_.end()) {
+         glogger
+         << "In GParserBuilder::registerFileParameter(combParm_ptr): Error!" << std::endl
+         << "Parameter " << optionName1 << " has already been registered" << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+      // Add to the proxy store
 		file_parameter_proxies_.push_back(combParm_ptr);
 	}
 
@@ -1474,7 +1496,18 @@ public:
 				)
 			);
 
-		// Store for later usage
+#ifdef DEBUG
+      // Check whether the option already exists
+      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
+      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName))) != file_parameter_proxies_.end()) {
+         glogger
+         << "In GParserBuilder::registerFileParameter(refParm_ptr): Error!" << std::endl
+         << "Parameter " << optionName << " has already been registered" << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+      // Add to the proxy store
 		file_parameter_proxies_.push_back(refParm_ptr);
 	}
 
@@ -1502,8 +1535,19 @@ public:
 
 		vecParm_ptr->registerCallBackFunction(callBack);
 
-		// Store for later usage
-		file_parameter_proxies_.push_back(vecParm_ptr);
+#ifdef DEBUG
+      // Check whether the option already exists
+      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
+      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName))) != file_parameter_proxies_.end()) {
+         glogger
+         << "In GParserBuilder::registerFileParameter(vecParm_ptr): Error!" << std::endl
+         << "Parameter " << optionName << " has already been registered" << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+      // Add to the proxy store
+      file_parameter_proxies_.push_back(vecParm_ptr);
 	}
 
 	/***************************************************************************/
@@ -1528,8 +1572,19 @@ public:
 				)
 			);
 
-		// Store for later usage
-		file_parameter_proxies_.push_back(vecRefParm_ptr);
+#ifdef DEBUG
+      // Check whether the option already exists
+      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
+      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName))) != file_parameter_proxies_.end()) {
+         glogger
+         << "In GParserBuilder::registerFileParameter(vecRefParm_ptr): Error!" << std::endl
+         << "Parameter " << optionName << " has already been registered" << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+      // Add to the proxy store
+      file_parameter_proxies_.push_back(vecRefParm_ptr);
 	}
 
 	/***************************************************************************/
@@ -1558,8 +1613,19 @@ public:
 		// Register the call back function
 		arrayParm_ptr->registerCallBackFunction(callBack);
 
-		// Store for later usage
-		file_parameter_proxies_.push_back(arrayParm_ptr);
+#ifdef DEBUG
+      // Check whether the option already exists
+      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
+      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName))) != file_parameter_proxies_.end()) {
+         glogger
+         << "In GParserBuilder::registerFileParameter(arrayParm_ptr): Error!" << std::endl
+         << "Parameter " << optionName << " has already been registered" << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+      // Add to the proxy store
+      file_parameter_proxies_.push_back(arrayParm_ptr);
 	}
 
 	/***************************************************************************/
@@ -1585,8 +1651,19 @@ public:
 				)
 			);
 
-		// Store for later usage
-		file_parameter_proxies_.push_back(arrayRefParm_ptr);
+#ifdef DEBUG
+		// Check whether the option already exists
+		std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
+      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName))) != file_parameter_proxies_.end()) {
+         glogger
+         << "In GParserBuilder::registerFileParameter(arrayRefParm_ptr): Error!" << std::endl
+         << "Parameter " << optionName << " has already been registered" << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+      // Add to the proxy store
+      file_parameter_proxies_.push_back(arrayRefParm_ptr);
 	}
 
 	/***************************************************************************/
@@ -1618,12 +1695,74 @@ public:
             )
          );
 
-      // Store for later usage
+
+#ifdef DEBUG
+      // Check whether the option already exists
+      std::vector<boost::shared_ptr<GCLParsableI> >::iterator it;
+      if((it=std::find_if(cl_parameter_proxies_.begin(), cl_parameter_proxies_.end(), findCLProxyByName(optionName))) != cl_parameter_proxies_.end()) {
+         glogger
+         << "In GParserBuilder::registerCLParameter(refParm_ptr): Error!" << std::endl
+         << "Parameter " << optionName << " has already been registered" << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+      // Add to the proxy store
       cl_parameter_proxies_.push_back(refParm_ptr);
    }
 
 
 private:
+   /***************************************************************************/
+   /**
+    * Allows to search for file parameter proxies with a given name
+    */
+   struct findFileProxyByName {
+      explicit findFileProxyByName(const std::string& proxyName)
+         : proxyName_(proxyName)
+      { /* nothing */ }
+
+
+      bool operator()(boost::shared_ptr<GFileParsableI> candidate_ptr) const {
+         if(candidate_ptr->GParsableI::optionName(0) == proxyName_) {
+            return true;
+         } else {
+            return false;
+         }
+      }
+
+   private:
+      // Intentionally private and undefined
+      findFileProxyByName();
+      // The name of the proxy
+      std::string proxyName_;
+   };
+
+   /***************************************************************************/
+   /**
+    * Allows to search for command line parameter proxies with a given name
+    */
+   struct findCLProxyByName {
+      explicit findCLProxyByName(const std::string& proxyName)
+         : proxyName_(proxyName)
+      { /* nothing */ }
+
+
+      bool operator()(boost::shared_ptr<GCLParsableI> candidate_ptr) const {
+         if(candidate_ptr->GParsableI::optionName(0) == proxyName_) {
+            return true;
+         } else {
+            return false;
+         }
+      }
+
+   private:
+      // Intentionally private and undefined
+      findCLProxyByName();
+      // The name of the proxy
+      std::string proxyName_;
+   };
+
 	/***************************************************************************/
 
 	std::vector<boost::shared_ptr<GFileParsableI> > file_parameter_proxies_; ///< Holds file parameter proxies
