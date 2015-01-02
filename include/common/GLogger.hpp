@@ -489,13 +489,14 @@ typedef Gem::Common::GSingletonT<Gem::Common::GLogger<Gem::Common::GLogStreamer>
 /******************************************************************************/
 // Some related defines
 
-#define GEXCEPTION   Gem::Common::GManipulator(std::string("in file ") + boost::lexical_cast<std::string>(__FILE__) + std::string(" near line ") + boost::lexical_cast<std::string>(__LINE__), Gem::Common::EXCEPTION)
-#define GTERMINATION Gem::Common::GManipulator(std::string("in file ") + boost::lexical_cast<std::string>(__FILE__) + std::string(" near line ") + boost::lexical_cast<std::string>(__LINE__), Gem::Common::TERMINATION)
-#define GWARNING     Gem::Common::GManipulator(std::string("in file ") + boost::lexical_cast<std::string>(__FILE__) + std::string(" near line ") + boost::lexical_cast<std::string>(__LINE__), Gem::Common::WARNING)
-#define GLOGGING     Gem::Common::GManipulator(Gem::Common::LOGGING)
-#define GFILE        Gem::Common::GManipulator(Gem::Common::FILE)
-#define GSTDOUT      Gem::Common::GManipulator(Gem::Common::STDOUT)
-#define GSTDERR      Gem::Common::GManipulator(std::string("in file ") + boost::lexical_cast<std::string>(__FILE__) + std::string(" near line ") + boost::lexical_cast<std::string>(__LINE__), Gem::Common::STDERR)
+#define LOCATIONSTRING std::string("in file ") + boost::lexical_cast<std::string>(__FILE__) + std::string(" near line ") + boost::lexical_cast<std::string>(__LINE__)
+#define GEXCEPTION   Gem::Common::GManipulator( LOCATIONSTRING, Gem::Common::EXCEPTION)
+#define GTERMINATION Gem::Common::GManipulator( LOCATIONSTRING, Gem::Common::TERMINATION)
+#define GWARNING     Gem::Common::GManipulator( LOCATIONSTRING, Gem::Common::WARNING)
+#define GLOGGING     Gem::Common::GManipulator( Gem::Common::LOGGING)
+#define GFILE        Gem::Common::GManipulator( Gem::Common::FILE)
+#define GSTDOUT      Gem::Common::GManipulator( Gem::Common::STDOUT)
+#define GSTDERR      Gem::Common::GManipulator( LOCATIONSTRING, Gem::Common::STDERR)
 
 /******************************************************************************/
 
