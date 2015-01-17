@@ -166,12 +166,11 @@ SET(CPACK_AUX_PACKAGE_DESCRIPTION
  Geneva does not want to be the fastest library of evolutionary algorithms on 
  single-processor machines, but is instead targeted at large scale problems, 
  where the evaluation of a single candidate solution will typically take longer 
- than a few seconds. Geneva was developed with kind support from Karlsruhe Institute
- of technology."
+ than a few seconds."
 )
 
 SET(CPACK_PACKAGE_VENDOR "Gemfony scientific")
-SET(CPACK_PACKAGE_CONTACT "Gemfony scientific <contact@gemfony.eu>")
+SET(CPACK_PACKAGE_CONTACT "Gemfony scientific <contact (AT) gemfony (DOT) eu>")
 SET(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
 SET(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
 SET(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
@@ -180,7 +179,7 @@ SET(CPACK_PACKAGING_INSTALL_PREFIX "/opt/geneva")
 # DEB specific variables. Indentation is important in the description!
 SET(
 	CPACK_DEBIAN_PACKAGE_DESCRIPTION 
-	"${CPACK_PACKAGE_DESCRIPTION_SUMMARY} ${CPACK_AUX_PACKAGE_DESCRIPTION}"
+	"${CPACK_PACKAGE_DESCRIPTION_SUMMARY}\n ${CPACK_AUX_PACKAGE_DESCRIPTION}"
 )
 SET(CPACK_DEBIAN_PACKAGE_SECTION "Science")
 SET(CPACK_DEBIAN_PACKAGE_PRIORITY "Extra")
