@@ -61,7 +61,7 @@ parameters are specified. There is a whole family of parameter objects.
 ----------------------
 
 
-Please check each directory's README for further information. Also the main source 
+Please check each directory's README for further information. The main source
 code file (named similar to the directory it is in) might also prove useful.
 
 Many of the examples are also described in detail in the Geneva manual, see
