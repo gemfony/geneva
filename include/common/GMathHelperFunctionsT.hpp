@@ -179,6 +179,8 @@ const bool GFPLOWERCLOSED = false;
 const bool GFPLOWEROPEN = true;
 const bool GFPUPPERCLOSED = false;
 const bool GFPUPPEROPEN = true;
+const bool GFWARNONLY = true;
+const bool GFNOWARNING = false;
 
 template <typename fp_type>
 fp_type checkValueRange(
@@ -188,6 +190,7 @@ fp_type checkValueRange(
    , bool lowerOpen = false
    , bool upperOpen = false
    , bool warnOnly = false
+   , std::string varName = std::string()
    , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 ) {
    bool result = true;
@@ -206,14 +209,15 @@ fp_type checkValueRange(
 
    if(false==result) {
       if(warnOnly) {
-         std::cerr << "Warning:" << std::endl
-               << "In checkValueRange<fp_type>(): Error!" << std::endl
-               << "Value " << val << " outside of recommended range " << std::endl
-               << min << (lowerOpen?" (open) - ":" (closed) - ") << max << (upperOpen?" (open)":" (closed)") << std::endl;
+         glogger
+         << "In checkValueRange<fp_type>(): Error!" << std::endl
+         << "Value " << val << (varName.empty()?"":(" of variable " + varName)) << " outside of recommended range " << std::endl
+         << min << (lowerOpen?" (open) - ":" (closed) - ") << max << (upperOpen?" (open)":" (closed)") << std::endl
+         << GWARNING;
       } else {
          glogger
          << "In checkValueRange<fp_type>(): Error!" << std::endl
-         << "Value " << val << " outside of allowed range " << std::endl
+         << "Value " << val << (varName.empty()?"":(" of variable " + varName)) << " outside of allowed range " << std::endl
          << min << (lowerOpen?" (open) - ":" (closed) - ") << max << (upperOpen?" (open)":" (closed)") << std::endl
          << GEXCEPTION;
       }

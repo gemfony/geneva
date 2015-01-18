@@ -319,43 +319,37 @@ void GDelayIndividualFactory::describeLocalOptions_(
       "nVariables"
       , nVariables_
       , nVariables_
-      , "The number of variables to act on"
-	);
+	) << "The number of variables to act on";
 
 	gpb.registerFileParameter(
       "delays"
       , delays_
       , default_delays
-      , "A list of delays through which main() should cycle. Format: seconds:milliseconds"
-   );
+   ) << "A list of delays through which main() should cycle. Format: seconds:milliseconds";
 
 	gpb.registerFileParameter(
       "resultFile"
 	   , resultFile_
 	   , resultFile_
-	   , "The name of a file to which results should be stored"
-	);
+	) << "The name of a file to which results should be stored";
 
 	gpb.registerFileParameter(
       "shortResultFile"
       , shortResultFile_
       , shortResultFile_
-      , "The name of a file to which short results should be stored"
-   );
+   ) << "The name of a file to which short results should be stored";
 
 	gpb.registerFileParameter(
       "nMeasurements"
       , nMeasurements_
       , nMeasurements_
-      , "The number of measurements for each delay"
-	);
+	) << "The number of measurements for each delay";
 
    gpb.registerFileParameter(
       "interMeasurementDelay"
       , interMeasurementDelay_
       , interMeasurementDelay_
-      , "The amount of seconds to wait between two measurements"
-   );
+   ) << "The amount of seconds to wait between two measurements";
 }
 
 /******************************************************************************/

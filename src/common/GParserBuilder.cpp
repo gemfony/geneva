@@ -47,6 +47,24 @@ boost::mutex Gem::Common::GParserBuilder::configFileParser_mutex_;
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * The standard constructor of the comment level
+ */
+commentLevel::commentLevel(const std::size_t cl)
+   : commentLevel_(cl)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Retrieves the current comment level
+ */
+std::size_t commentLevel::getCommentLevel() const {
+   return commentLevel_;
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * A constructor for individual items
  */
 GParsableI::GParsableI(
@@ -55,6 +73,7 @@ GParsableI::GParsableI(
 )
 	: optionName_(GParsableI::makeVector(optionNameVar))
 	, comment_(GParsableI::makeVector(commentVar))
+   , cl_(0)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -67,6 +86,7 @@ GParsableI::GParsableI(
 )
 	: optionName_(optionNameVec)
 	, comment_(commentVec)
+   , cl_(0)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -106,6 +126,115 @@ std::string GParsableI::comment(std::size_t pos) const {
 	}
 
 	return comment_.at(pos);
+}
+
+/******************************************************************************/
+/**
+ * Checks whether comments have indeed been registered
+ */
+bool GParsableI::hasComments() const {
+   return !comment_.empty();
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the number of comments available
+ */
+std::size_t GParsableI::numberOfComments() const {
+   return comment_.size();
+}
+
+/******************************************************************************/
+/**
+ * Needed for ostringstream
+ */
+GParsableI& GParsableI::operator<< (std::ostream& ( *val )(std::ostream&)){
+   std::ostringstream oss;
+   oss << val;
+   comment_.at(cl_) += oss.str();
+   return *this;
+}
+
+/******************************************************************************/
+/**
+ * Needed for ostringstream
+ */
+GParsableI& GParsableI::operator<< (std::ios& ( *val )(std::ios&)){
+   std::ostringstream oss;
+   oss << val;
+   comment_.at(cl_) += oss.str();
+   return *this;
+}
+
+/******************************************************************************/
+/**
+ *  Needed for ostringstream
+ */
+GParsableI& GParsableI::operator<< (std::ios_base& ( *val )(std::ios_base&)){
+   std::ostringstream oss;
+   oss << val;
+   comment_.at(cl_) += oss.str();
+   return *this;
+}
+
+/******************************************************************************/
+/**
+ * Allows to indicate the current comment level
+ */
+GParsableI& GParsableI::operator<< (const commentLevel& cl) {
+#ifdef DEBUG
+   if(comment_.empty()) {
+      glogger
+       << "In GParsableI::operator<< (const commentLevel& cl): Error!" << std::endl
+       << "No comments in vector" << std::endl
+       << GEXCEPTION;
+   }
+
+   if(comment_.size() <= cl.getCommentLevel()) {
+      glogger
+      << "In GParsableI::operator<< (const commentLevel& cl): Error!" << std::endl
+      << "Invalid comment level " << cl.getCommentLevel() << " requested, where the maximum is " << comment_.size() - 1 << std::endl
+      << GEXCEPTION;
+   }
+#endif /* DEBUG */
+
+   cl_ = cl.getCommentLevel();
+   return *this;
+}
+
+/******************************************************************************/
+/**
+ * Splits a comment into sub-tokens. The comment will be split in case of newlines
+ * and semicolons.
+ */
+std::vector<std::string> GParsableI::splitComment(const std::string& comment) const {
+   std::vector<std::string> results;
+
+   // Needed for the separation of comment strings
+   typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+   boost::char_separator<char> semicolon_sep(";");
+
+   if(comment != "" && comment != "empty") {
+      // First split the comment according to newlines
+      std::vector<std::string> nlComments;
+      std::istringstream buffer(comment);
+      std::string line;
+
+      while (std::getline(buffer, line)) {
+          nlComments.push_back(line);
+      }
+
+      // Break the sub-comments into individual lines after each semicolon
+      std::vector<std::string>::iterator it;
+      for(it=nlComments.begin(); it!=nlComments.end(); ++it) {
+         tokenizer commentTokenizer(*it, semicolon_sep);
+         for(tokenizer::iterator c=commentTokenizer.begin(); c!=commentTokenizer.end(); ++c) {
+            results.push_back(*c);
+         }
+      }
+   }
+
+   return results;
 }
 
 /******************************************************************************/

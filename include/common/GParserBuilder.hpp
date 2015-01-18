@@ -256,6 +256,25 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * A manipulator object that allows to identify the id of the comment to be
+ * added
+ */
+class commentLevel {
+public:
+   /** @brief The standard constructor */
+   explicit commentLevel(const std::size_t);
+
+   /** @brief Retrieves the current commentLevel */
+   std::size_t getCommentLevel() const;
+private:
+   commentLevel(); ///< The default constructor -- intentionally private and undefined
+   std::size_t commentLevel_; ///< The id of the comment inside of GParsableI
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * This class specifies the interface of parsable parameters, to
  * which a call-back function has been assigned. It also stores some
  * information common to all parameter types.
@@ -283,6 +302,10 @@ public:
 	std::string optionName(std::size_t = 0) const;
 	/** @brief Retrieves the comment that was assigned to this variable at a given position */
 	std::string comment(std::size_t = 0) const;
+	/** @brief Checks whether comments have indeed been registered */
+   bool hasComments() const;
+   /** @brief Retrieves the number of comments available */
+   std::size_t numberOfComments() const;
 
    /***************************************************************************/
    /**
@@ -307,6 +330,34 @@ public:
       return result;
    }
 
+   /***************************************************************************/
+   /**
+    * This function will forward all arguments to a newly created ostringstream
+    * and will then be added to the current comment_ entry.
+    */
+   template <typename T>
+   GParsableI& operator<<(const T& t) {
+      std::ostringstream oss;
+      oss << t;
+      comment_.at(cl_) += oss.str();
+      return *this;
+   }
+
+   /***************************************************************************/
+   /** @brief Needed for std::ostringstream */
+   GParsableI& operator<< (std::ostream& ( *val )(std::ostream&));
+   /** @brief Needed for std::ostringstream */
+   GParsableI& operator<< (std::ios& ( *val )(std::ios&));
+   /** @brief Needed for std::ostringstream */
+   GParsableI& operator<< (std::ios_base& ( *val )(std::ios_base&));
+   /** @brief Allows to indicate the current comment level */
+   GParsableI& operator<< (const commentLevel&);
+
+protected:
+   /***************************************************************************/
+   /** @brief Splits a comment into sub-tokens */
+   std::vector<std::string> splitComment(const std::string&) const;
+
 private:
 	/***************************************************************************/
 	/** @brief The default constructor. Intentionally private and undefined */
@@ -314,6 +365,8 @@ private:
 
 	std::vector<std::string> optionName_; ///< The name of this parameter
 	std::vector<std::string> comment_; ///< A comment assigned to this parameter
+
+	std::size_t cl_; ///< The id of the current comment inside of the comment_ vector
 };
 
 /******************************************************************************/
@@ -441,6 +494,24 @@ public:
 		, def_val_(defVal)
 	{ /* nothing */ }
 
+   /***************************************************************************/
+   /**
+    * Initializes the parameter and sets values in the parent class, except
+    * for comments.
+    */
+   explicit GFileSingleParsableParameterT(
+      const std::string& optionNameVar
+      , const parameter_type& defVal
+   )
+      : GFileParsableI(
+         optionNameVar
+         , std::string("")
+         , Gem::Common::VAR_IS_ESSENTIAL
+        )
+      , par_(defVal)
+      , def_val_(defVal)
+   { /* nothing */ }
+
 	/***************************************************************************/
 	/**
 	 * The destructor
@@ -499,18 +570,24 @@ protected:
 	 * @param pt The object to which data should be saved
 	 */
 	virtual void save(boost::property_tree::ptree& pt) const {
-		// Needed for the separation of comment strings
-		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-		boost::char_separator<char> semicolon_sep(";");
-		std::string comment = this->comment(0);
+	   // Check that we have the right number of comments
+	   if(this->hasComments()) {
+	      if(this->numberOfComments() != 1) {
+	         glogger
+	         << "In GFileSingleParsableParameterT<>::save(): Error!" << std::endl
+	         << "Expected 0 or 1 comment but got " << this->numberOfComments() << std::endl
+	         << GEXCEPTION;
+	      }
 
-		if(comment != "") { // Only output useful comments
-			// Break the comment into individual lines after each semicolon
-			tokenizer commentTokenizer(comment, semicolon_sep);
-			for(tokenizer::iterator c=commentTokenizer.begin(); c!=commentTokenizer.end(); ++c) {
-				pt.add((optionName(0) + ".comment").c_str(), (*c).c_str());
-			}
-		}
+	      // Retrieve a list of sub-comments
+         std::vector<std::string> comments = splitComment(this->comment(0));
+         std::vector<std::string>::iterator c;
+         if(!comments.empty()) {
+            for(c=comments.begin(); c!=comments.end(); ++c) {
+               pt.add((optionName(0) + ".comment").c_str(), (*c).c_str());
+            }
+         }
+	   }
 
 		pt.put((optionName(0) + ".default").c_str(), def_val_);
 		pt.put((optionName(0) + ".value").c_str(), par_);
@@ -567,6 +644,29 @@ public:
 		, combined_label_(combined_label)
 	{ /* nothing */ }
 
+   /***************************************************************************/
+   /**
+    * Initializes the parameters, except for comments
+    */
+   GFileCombinedParsableParameterT(
+      const std::string& optionNameVar0
+      , const par_type0& defVal0
+      , const std::string& optionNameVar1
+      , const par_type1& defVal1
+      , const std::string& combined_label
+   )
+      : GFileParsableI(
+         GFileParsableI::makeVector(optionNameVar0, optionNameVar1)
+         , GFileParsableI::makeVector(std::string(""), std::string(""))
+         , Gem::Common::VAR_IS_ESSENTIAL
+        )
+      , par0_(defVal0)
+      , par1_(defVal1)
+      , def_val0_(defVal0)
+      , def_val1_(defVal1)
+      , combined_label_(combined_label)
+   { /* nothing */ }
+
 	/***************************************************************************/
 	/**
 	 * The destructor
@@ -581,7 +681,7 @@ public:
 	virtual void executeCallBackFunction() {
 		if(!callBack_) {
 		   glogger
-		   << "In GCombinedParsableParameter::executeCallBackFunction(): Error" << std::endl
+		   << "In GFileCombinedParsableParameterT::executeCallBackFunction(): Error" << std::endl
          << "Tried to execute call-back function without a stored function" << std::endl
          << GEXCEPTION;
 		}
@@ -599,7 +699,7 @@ public:
 	void registerCallBackFunction(boost::function<void(par_type0, par_type1)> callBack) {
 		if(!callBack) {
 		   glogger
-		   << "In GCombinedParsableParameter::registerCallBackFunction(): Error" << std::endl
+		   << "In GFileCombinedParsableParameterT::registerCallBackFunction(): Error" << std::endl
          << "Tried to register an empty call-back function" << std::endl
          << GEXCEPTION;
 		}
@@ -626,31 +726,38 @@ protected:
 	 * @param pt The object to which data should be saved
 	 */
 	virtual void save(boost::property_tree::ptree& pt) const {
-		// Needed for the separation of comment strings
-		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-		boost::char_separator<char> semicolon_sep(";");
-		std::string comment0 = this->comment(0);
-		std::string comment1 = this->comment(1);
+      // Check that we have the right number of comments
+	   if(this->hasComments()) {
+	      if(this->numberOfComments() != 2) {
+	         glogger
+	         << "In GFileCombinedParsableParameterT<>::save(): Error!" << std::endl
+	         << "Expected 0 or 2 comments but got " << this->numberOfComments() << std::endl
+	         << GEXCEPTION;
+	      }
 
-		if(comment0 != "") { // Only output useful comments
-			// Break the comment into individual lines after each semicolon
-			tokenizer commentTokenizer(comment0, semicolon_sep);
-			for(tokenizer::iterator c=commentTokenizer.begin(); c!=commentTokenizer.end(); ++c) {
-				pt.add((combined_label_ + "." + optionName(0) + ".comment").c_str(), (*c).c_str());
-			}
-		}
-		pt.put((combined_label_ + "." + optionName(0) + ".default").c_str(), def_val0_);
-		pt.put((combined_label_ + "." + optionName(0) + ".value").c_str(), par0_);
+	      // Retrieve a list of sub-comments
+	      std::vector<std::string> comments0 = splitComment(this->comment(0));
+	      std::vector<std::string>::iterator c;
+	      if(!comments0.empty()) {
+	         for(c=comments0.begin(); c!=comments0.end(); ++c) {
+	            pt.add((combined_label_ + "." + optionName(0) + ".comment").c_str(), (*c).c_str());
+	         }
+	      }
+	   }
+      pt.put((combined_label_ + "." + optionName(0) + ".default").c_str(), def_val0_);
+      pt.put((combined_label_ + "." + optionName(0) + ".value").c_str(), par0_);
 
-		if(comment1 != "") { // Only output useful comments
-			// Break the comment into individual lines after each semicolon
-			tokenizer commentTokenizer(comment1, semicolon_sep);
-			for(tokenizer::iterator c=commentTokenizer.begin(); c!=commentTokenizer.end(); ++c) {
-				pt.add((combined_label_ + "." + optionName(1) + ".comment").c_str(), (*c).c_str());
-			}
-		}
-		pt.put((combined_label_ + "." + optionName(1) + ".default").c_str(), def_val1_);
-		pt.put((combined_label_ + "." + optionName(1) + ".value").c_str(), par1_);
+      if(this->hasComments()) {
+         std::vector<std::string> comments1 = splitComment(this->comment(1));
+         std::vector<std::string>::iterator c;
+         if(!comments1.empty()) {
+            for(c=comments1.begin(); c!=comments1.end(); ++c) {
+               pt.add((combined_label_ + "." + optionName(1) + ".comment").c_str(), (*c).c_str());
+            }
+         }
+      }
+      pt.put((combined_label_ + "." + optionName(1) + ".default").c_str(), def_val1_);
+      pt.put((combined_label_ + "." + optionName(1) + ".value").c_str(), par1_);
 	}
 
 private:
@@ -704,6 +811,23 @@ public:
 		, par_() // empty
 	{ /* nothing */ }
 
+   /***************************************************************************/
+   /**
+    * Initializes the parameters, except for comments
+    */
+   GFileVectorParsableParameterT(
+      const std::string& optionNameVar
+      , const std::vector<parameter_type>& def_val
+   )
+      : GFileParsableI(
+         GFileParsableI::makeVector(optionNameVar)
+         , GFileParsableI::makeVector(std::string(""))
+         , Gem::Common::VAR_IS_ESSENTIAL
+        )
+       , def_val_(def_val)
+      , par_() // empty
+   { /* nothing */ }
+
 	/***************************************************************************/
 	/**
 	 * The destructor
@@ -718,7 +842,7 @@ public:
 	virtual void executeCallBackFunction() {
 		if(!callBack_) {
 		   glogger
-		   << "In GVectorParsableParameter::executeCallBackFunction(): Error" << std::endl
+		   << "In GFileVectorParsableParameterT::executeCallBackFunction(): Error" << std::endl
          << "Tried to execute call-back function without a stored function" << std::endl
          << GEXCEPTION;
 		}
@@ -736,7 +860,7 @@ public:
 	void registerCallBackFunction(boost::function<void(std::vector<parameter_type>)> callBack) {
 		if(!callBack) {
 		   glogger
-		   << "In GVectorParsableParameter::registerCallBackFunction(): Error" << std::endl
+		   << "In GFileVectorParsableParameterT::registerCallBackFunction(): Error" << std::endl
          << "Tried to register an empty call-back function" << std::endl
          << GEXCEPTION;
 		}
@@ -772,10 +896,24 @@ protected:
 	 * @param pt The object to which data should be saved
 	 */
 	virtual void save(boost::property_tree::ptree& pt) const {
-		// Needed for the separation of comment strings
-		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-		boost::char_separator<char> semicolon_sep(";");
-		std::string comment = this->comment(0);
+	   // Check that we have the right number of comments
+	   if(this->hasComments()) {
+	      if(this->numberOfComments() != 1) {
+	         glogger
+	         << "In GFileVectorParsableParameterT<>::save(): Error!" << std::endl
+	         << "Expected 0 or 1 comment but got " << this->numberOfComments() << std::endl
+	         << GEXCEPTION;
+	      }
+
+	      // Retrieve a list of sub-comments
+	      std::vector<std::string> comments = splitComment(this->comment(0));
+	      std::vector<std::string>::iterator c;
+	      if(!comments.empty()) {
+	         for(c=comments.begin(); c!=comments.end(); ++c) {
+	            pt.add((optionName(0) + ".comment").c_str(), (*c).c_str());
+	         }
+	      }
+	   }
 
 		// Do some error checking
 		if(def_val_.empty()) {
@@ -783,15 +921,6 @@ protected:
 		   << "In GVectorParsableParameter::save(): Error!" << std::endl
          << "You need to provide at least one default value" << std::endl
          << GEXCEPTION;
-		}
-
-		// Add the comments
-		if(comment != "") { // Only output useful comments
-			// Break the comment into individual lines after each semicolon
-			tokenizer commentTokenizer(comment, semicolon_sep);
-			for(tokenizer::iterator c=commentTokenizer.begin(); c!=commentTokenizer.end(); ++c) {
-				pt.add((optionName(0) + ".comment").c_str(), (*c).c_str());
-			}
 		}
 
 		// Add the value and default items
@@ -848,6 +977,26 @@ public:
 		, par_()
 	{ /* nothing */ }
 
+   /***************************************************************************/
+   /**
+    * Initializes the parameters, except for comments
+    */
+   GFileVectorReferenceParsableParameterT(
+      std::vector<parameter_type>& stored_reference
+      , const std::string& optionNameVar
+      , const std::vector<parameter_type>& def_val
+   )
+      : GFileParsableI(
+         GFileParsableI::makeVector(optionNameVar)
+         , GFileParsableI::makeVector(std::string(""))
+         , Gem::Common::VAR_IS_ESSENTIAL
+        )
+       , stored_reference_(stored_reference)
+      , def_val_(def_val)
+      , par_()
+   { /* nothing */ }
+
+
 	/***************************************************************************/
 	/**
 	 * The destructor
@@ -890,26 +1039,31 @@ protected:
 	 * @param pt The object to which data should be saved
 	 */
 	virtual void save(boost::property_tree::ptree& pt) const {
-		// Needed for the separation of comment strings
-		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-		boost::char_separator<char> semicolon_sep(";");
-		std::string comment = this->comment(0);
+      // Check that we have the right number of comments
+      if(this->hasComments()) {
+         if(this->numberOfComments() != 1) {
+            glogger
+            << "In GFileVectorReferenceParsableParameterT<>::save(): Error!" << std::endl
+            << "Expected 0 or 1 comment but got " << this->numberOfComments() << std::endl
+            << GEXCEPTION;
+         }
+
+         // Retrieve a list of sub-comments
+         std::vector<std::string> comments = splitComment(this->comment(0));
+         std::vector<std::string>::iterator c;
+         if(!comments.empty()) {
+            for(c=comments.begin(); c!=comments.end(); ++c) {
+               pt.add((optionName(0) + ".comment").c_str(), (*c).c_str());
+            }
+         }
+      }
 
 		// Do some error checking
 		if(def_val_.empty()) {
 		   glogger
-		   << "In GVectorReferenceParsableParameter::save(): Error!" << std::endl
+		   << "In GFileVectorReferenceParsableParameterT::save(): Error!" << std::endl
          << "You need to provide at least one default value" << std::endl
          << GEXCEPTION;
-		}
-
-		// Add the comments
-		if(comment != "") { // Only output useful comments
-			// Break the comment into individual lines after each semicolon
-			tokenizer commentTokenizer(comment, semicolon_sep);
-			for(tokenizer::iterator c=commentTokenizer.begin(); c!=commentTokenizer.end(); ++c) {
-				pt.add((optionName(0) + ".comment").c_str(), (*c).c_str());
-			}
 		}
 
 		// Add the value and default items
@@ -962,6 +1116,23 @@ public:
 		, par_(def_val) // Same size as def_val
 	{ /* nothing */ }
 
+   /***************************************************************************/
+   /**
+    * Initializes the parameters, except for comments
+    */
+   GFileArrayParsableParameterT(
+      const std::string& optionNameVar
+      , const boost::array<parameter_type,N>& def_val
+   )
+      : GFileParsableI(
+         GFileParsableI::makeVector(optionNameVar)
+         , GFileParsableI::makeVector(std::string(""))
+         , Gem::Common::VAR_IS_ESSENTIAL
+        )
+       , def_val_(def_val)
+      , par_(def_val) // Same size as def_val
+   { /* nothing */ }
+
 	/***************************************************************************/
 	/**
 	 * The destructor
@@ -976,7 +1147,7 @@ public:
 	virtual void executeCallBackFunction() {
 		if(!callBack_) {
 		   glogger
-		   << "In GArrayParsableParameter::executeCallBackFunction(): Error" << std::endl
+		   << "In GFileArrayParsableParameterT::executeCallBackFunction(): Error" << std::endl
          << "Tried to execute call-back function without a stored function" << std::endl
          << GEXCEPTION;
 		}
@@ -994,7 +1165,7 @@ public:
 	void registerCallBackFunction(boost::function<void(boost::array<parameter_type,N>)> callBack) {
 		if(!callBack) {
 		   glogger
-		   << "In GArrayParsableParameter::registerCallBackFunction(): Error" << std::endl
+		   << "In GFileArrayParsableParameterT::registerCallBackFunction(): Error" << std::endl
          << "Tried to register an empty call-back function" << std::endl
          << GEXCEPTION;
 		}
@@ -1025,26 +1196,31 @@ protected:
 	 * @param pt The object to which data should be saved
 	 */
 	virtual void save(boost::property_tree::ptree& pt) const {
-		// Needed for the separation of comment strings
-		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-		boost::char_separator<char> semicolon_sep(";");
-		std::string comment = this->comment(0);
+      // Check that we have the right number of comments
+      if(this->hasComments()) {
+         if(this->numberOfComments() != 1) {
+            glogger
+            << "In GFileArrayParsableParameterT<>::save(): Error!" << std::endl
+            << "Expected 0 or 1 comment but got " << this->numberOfComments() << std::endl
+            << GEXCEPTION;
+         }
+
+         // Retrieve a list of sub-comments
+         std::vector<std::string> comments = splitComment(this->comment(0));
+         std::vector<std::string>::iterator c;
+         if(!comments.empty()) {
+            for(c=comments.begin(); c!=comments.end(); ++c) {
+               pt.add((optionName(0) + ".comment").c_str(), (*c).c_str());
+            }
+         }
+      }
 
 		// Do some error checking
 		if(def_val_.empty()) {
 		   glogger
-		   << "In GArrayParsableParameter::save(): Error!" << std::endl
+		   << "In GFileArrayParsableParameterT::save(): Error!" << std::endl
          << "You need to provide at least one default value" << std::endl
          << GEXCEPTION;
-		}
-
-		// Add the comments
-		if(comment != "") { // Only output useful comments
-			// Break the comment into individual lines after each semicolon
-			tokenizer commentTokenizer(comment, semicolon_sep);
-			for(tokenizer::iterator c=commentTokenizer.begin(); c!=commentTokenizer.end(); ++c) {
-				pt.add((optionName(0) + ".comment").c_str(), (*c).c_str());
-			}
 		}
 
 		// Add the value and default items
@@ -1099,6 +1275,25 @@ public:
 		, par_(def_val)
 	{ /* nothing */ }
 
+   /***************************************************************************/
+   /**
+    * Initializes the parameters, except for comments
+    */
+   GFileArrayReferenceParsableParameterT(
+      boost::array<parameter_type,N>& stored_reference
+      , const std::string& optionNameVar
+      , const boost::array<parameter_type,N>& def_val
+   )
+      : GFileParsableI(
+         GFileParsableI::makeVector(optionNameVar)
+         , GFileParsableI::makeVector(std::string(""))
+         , Gem::Common::VAR_IS_ESSENTIAL
+        )
+       , stored_reference_(stored_reference)
+      , def_val_(def_val)
+      , par_(def_val)
+   { /* nothing */ }
+
 	/***************************************************************************/
 	/**
 	 * The destructor
@@ -1137,26 +1332,31 @@ protected:
 	 * @param pt The object to which data should be saved
 	 */
 	virtual void save(boost::property_tree::ptree& pt) const {
-		// Needed for the separation of comment strings
-		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-		boost::char_separator<char> semicolon_sep(";");
-		std::string comment = this->comment(0);
+      // Check that we have the right number of comments
+      if(this->hasComments()) {
+         if(this->numberOfComments() != 1) {
+            glogger
+            << "In GFileArrayReferenceParsableParameterT<>::save(): Error!" << std::endl
+            << "Expected 0 or 1 comment but got " << this->numberOfComments() << std::endl
+            << GEXCEPTION;
+         }
+
+         // Retrieve a list of sub-comments
+         std::vector<std::string> comments = splitComment(this->comment(0));
+         std::vector<std::string>::iterator c;
+         if(!comments.empty()) {
+            for(c=comments.begin(); c!=comments.end(); ++c) {
+               pt.add((optionName(0) + ".comment").c_str(), (*c).c_str());
+            }
+         }
+      }
 
 		// Do some error checking
 		if(def_val_.empty()) {
 		   glogger
-		   << "In GArrayReferenceParsableParameter::save(): Error!" << std::endl
+		   << "In GFileArrayReferenceParsableParameterT::save(): Error!" << std::endl
          << "You need to provide at least one default value" << std::endl
          << GEXCEPTION;
-		}
-
-		// Add the comments
-		if(comment != "") { // Only output useful comments
-			// Break the comment into individual lines after each semicolon
-			tokenizer commentTokenizer(comment, semicolon_sep);
-			for(tokenizer::iterator c=commentTokenizer.begin(); c!=commentTokenizer.end(); ++c) {
-				pt.add((optionName(0) + ".comment").c_str(), (*c).c_str());
-			}
 		}
 
 		// Add the value and default items
@@ -1214,6 +1414,28 @@ public:
 		, def_val_(defVal)
 	{ /* nothing */ }
 
+   /***************************************************************************/
+   /**
+    * A constructor that initializes the internal variables, except for comments.
+    *
+    * @param storedReference A reference to a variable in which parsed values should be stored
+    * @param defVal The default value of this variable
+    */
+   GFileReferenceParsableParameterT(
+      parameter_type& storedReference
+      , const std::string& optionNameVar
+      , parameter_type defVal
+   )
+      : GFileParsableI(
+         GFileParsableI::makeVector(optionNameVar)
+         , GFileParsableI::makeVector(std::string(""))
+         , Gem::Common::VAR_IS_ESSENTIAL
+        )
+      , storedReference_(storedReference)
+      , par_(defVal)
+      , def_val_(defVal)
+   { /* nothing */ }
+
 	/***************************************************************************/
 	/**
 	 * Assigns the stored parameter to the reference
@@ -1240,18 +1462,24 @@ protected:
 	 * @param pt The object to which data should be saved
 	 */
 	virtual void save(boost::property_tree::ptree& pt) const {
-		// Needed for the separation of comment strings
-		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-		boost::char_separator<char> semicolon_sep(";");
-		std::string comment = this->comment(0);
+      // Check that we have the right number of comments
+      if(this->hasComments()) {
+         if(this->numberOfComments() != 1) {
+            glogger
+            << "In GFileReferenceParsableParameterT<>::save(): Error!" << std::endl
+            << "Expected 0 or 1 comment but got " << this->numberOfComments() << std::endl
+            << GEXCEPTION;
+         }
 
-		if(comment != "") { // Only output useful comments
-			// Break the comment into individual lines after each semicolon
-			tokenizer commentTokenizer(comment, semicolon_sep);
-			for(tokenizer::iterator c=commentTokenizer.begin(); c!=commentTokenizer.end(); ++c) {
-				pt.add((optionName(0) + ".comment").c_str(), (*c).c_str());
-			}
-		}
+         // Retrieve a list of sub-comments
+         std::vector<std::string> comments = splitComment(this->comment(0));
+         std::vector<std::string>::iterator c;
+         if(!comments.empty()) {
+            for(c=comments.begin(); c!=comments.end(); ++c) {
+               pt.add((optionName(0) + ".comment").c_str(), (*c).c_str());
+            }
+         }
+      }
 
 		pt.put((optionName(0) + ".default").c_str(), def_val_);
 		pt.put((optionName(0) + ".value").c_str(), par_);
@@ -1298,6 +1526,30 @@ public:
       : GCLParsableI(
          GCLParsableI::makeVector(optionNameVar)
          , GCLParsableI::makeVector(commentVar)
+        )
+      , storedReference_(storedReference)
+      , def_val_(defVal)
+      , implicitAllowed_(implicitAllowed)
+      , impl_val_(implVal)
+   { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * A constructor that initializes the internal variiables, except for comments
+    *
+    * @param storedReference A reference to a variable in which parsed values should be stored
+    * @param defVal The default value of this variable
+    */
+   GCLReferenceParsableParameterT(
+      parameter_type& storedReference
+      , std::string optionNameVar
+      , parameter_type defVal
+      , bool implicitAllowed
+      , parameter_type implVal
+   )
+      : GCLParsableI(
+         GCLParsableI::makeVector(optionNameVar)
+         , GCLParsableI::makeVector(std::string(""))
         )
       , storedReference_(storedReference)
       , def_val_(defVal)
@@ -1391,8 +1643,8 @@ public:
 		std::string optionName
 		, parameter_type def_val
 		, boost::function<void(parameter_type)> callBack
-		, bool isEssential = true
-		, std::string comment = ""
+		, bool isEssential
+		, std::string comment
 	) {
 		boost::shared_ptr<GFileSingleParsableParameterT<parameter_type> >
 			singleParm_ptr(new GFileSingleParsableParameterT<parameter_type>(
@@ -1420,6 +1672,44 @@ public:
 		file_parameter_proxies_.push_back(singleParm_ptr);
 	}
 
+   /***************************************************************************/
+   /**
+    * Adds a single parameter of configurable type to the collection. When
+    * this parameter has been read using parseConfigFile, a call-back
+    * function is executed. Same as above, but without comments. You can
+    * stream information to this function call.
+    */
+   template <typename parameter_type>
+   GParsableI& registerFileParameter(
+      std::string optionName
+      , parameter_type def_val
+      , boost::function<void(parameter_type)> callBack
+   ) {
+      boost::shared_ptr<GFileSingleParsableParameterT<parameter_type> >
+         singleParm_ptr(new GFileSingleParsableParameterT<parameter_type>(
+               optionName
+               , def_val
+            )
+         );
+
+      singleParm_ptr->registerCallBackFunction(callBack);
+
+#ifdef DEBUG
+      // Check whether the option already exists
+      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
+      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName))) != file_parameter_proxies_.end()) {
+         glogger
+         << "In GParserBuilder::registerFileParameter(singleParm_ptr): Error!" << std::endl
+         << "Parameter " << optionName << " has already been registered" << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+      // Add to the proxy store
+      file_parameter_proxies_.push_back(singleParm_ptr);
+      return *singleParm_ptr;
+   }
+
 	/***************************************************************************/
 	/**
 	 * Adds two parameters of configurable types to the collection. When
@@ -1434,9 +1724,9 @@ public:
 		, par_type2 def_val2
 		, boost::function<void(par_type1, par_type2)> callBack
 		, std::string combined_label
-		, bool isEssential = true
-		, std::string comment1 = ""
-		, std::string comment2 = ""
+		, bool isEssential
+		, std::string comment1
+		, std::string comment2
 	) {
 		boost::shared_ptr<GFileCombinedParsableParameterT<par_type1, par_type2> >
 			combParm_ptr(new GFileCombinedParsableParameterT<par_type1, par_type2>(
@@ -1468,6 +1758,50 @@ public:
 		file_parameter_proxies_.push_back(combParm_ptr);
 	}
 
+   /***************************************************************************/
+   /**
+    * Adds two parameters of configurable types to the collection. When
+    * these parameters have been read using parseConfigFile, a call-back
+    * function will be executed. Same as above, but without comments. You
+    * can stream information to this function call.
+    */
+   template <typename par_type1, typename par_type2>
+   GParsableI& registerFileParameter(
+      std::string optionName1
+      , std::string optionName2
+      , par_type1 def_val1
+      , par_type2 def_val2
+      , boost::function<void(par_type1, par_type2)> callBack
+      , std::string combined_label
+   ) {
+      boost::shared_ptr<GFileCombinedParsableParameterT<par_type1, par_type2> >
+         combParm_ptr(new GFileCombinedParsableParameterT<par_type1, par_type2>(
+               optionName1
+               , def_val1
+               , optionName2
+               , def_val2
+               , combined_label
+            )
+         );
+
+      combParm_ptr->registerCallBackFunction(callBack);
+
+#ifdef DEBUG
+      // Check whether the option already exists
+      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
+      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName1))) != file_parameter_proxies_.end()) {
+         glogger
+         << "In GParserBuilder::registerFileParameter(combParm_ptr): Error!" << std::endl
+         << "Parameter " << optionName1 << " has already been registered" << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+      // Add to the proxy store
+      file_parameter_proxies_.push_back(combParm_ptr);
+      return *combParm_ptr;
+   }
+
 	/***************************************************************************/
 	/**
 	 * Adds a parameter with a configurable type to the collection.
@@ -1483,8 +1817,8 @@ public:
 		std::string optionName
 		, parameter_type& parameter
 		, parameter_type def_val
-		, bool isEssential = true
-		, std::string comment = ""
+		, bool isEssential
+		, std::string comment
 	) {
 		boost::shared_ptr<GFileReferenceParsableParameterT<parameter_type> >
 			refParm_ptr(new GFileReferenceParsableParameterT<parameter_type>(
@@ -1511,6 +1845,46 @@ public:
 		file_parameter_proxies_.push_back(refParm_ptr);
 	}
 
+   /***************************************************************************/
+   /**
+    * Adds a parameter with a configurable type to the collection. Same as above,
+    * but without comments. Instead you can stream information to this function.
+    *
+    * @param optionName The name of the option
+    * @param parameter The parameter into which the value will be written
+    * @param def_val A default value to be used if the corresponding parameter was not found in the configuration file
+    * @param isEssential A boolean which indicates whether this is an essential or a secondary parameter
+    */
+   template <typename parameter_type>
+   GParsableI& registerFileParameter(
+      std::string optionName
+      , parameter_type& parameter
+      , parameter_type def_val
+   ) {
+      boost::shared_ptr<GFileReferenceParsableParameterT<parameter_type> >
+         refParm_ptr(new GFileReferenceParsableParameterT<parameter_type>(
+               parameter
+               , optionName
+               , def_val
+            )
+         );
+
+#ifdef DEBUG
+      // Check whether the option already exists
+      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
+      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName))) != file_parameter_proxies_.end()) {
+         glogger
+         << "In GParserBuilder::registerFileParameter(refParm_ptr): Error!" << std::endl
+         << "Parameter " << optionName << " has already been registered" << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+      // Add to the proxy store
+      file_parameter_proxies_.push_back(refParm_ptr);
+      return *refParm_ptr;
+   }
+
 	/***************************************************************************/
 	/**
 	 * Adds a vector of configurable type to the collection, using a
@@ -1521,8 +1895,8 @@ public:
 		const std::string& optionName
 		, const std::vector<parameter_type>& def_val
 		, boost::function<void(std::vector<parameter_type>)> callBack
-		, const bool& isEssential = true
-		, const std::string& comment = ""
+		, const bool& isEssential
+		, const std::string& comment
 	) {
 		boost::shared_ptr<GFileVectorParsableParameterT<parameter_type> >
 			vecParm_ptr(new GFileVectorParsableParameterT<parameter_type> (
@@ -1550,6 +1924,43 @@ public:
       file_parameter_proxies_.push_back(vecParm_ptr);
 	}
 
+   /***************************************************************************/
+   /**
+    * Adds a vector of configurable type to the collection, using a
+    * call-back function. Same as above, but without comments. Instead you
+    * can stream information to this function.
+    */
+   template <typename parameter_type>
+   GParsableI& registerFileParameter(
+      const std::string& optionName
+      , const std::vector<parameter_type>& def_val
+      , boost::function<void(std::vector<parameter_type>)> callBack
+   ) {
+      boost::shared_ptr<GFileVectorParsableParameterT<parameter_type> >
+         vecParm_ptr(new GFileVectorParsableParameterT<parameter_type> (
+               optionName
+               , def_val
+            )
+         );
+
+      vecParm_ptr->registerCallBackFunction(callBack);
+
+#ifdef DEBUG
+      // Check whether the option already exists
+      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
+      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName))) != file_parameter_proxies_.end()) {
+         glogger
+         << "In GParserBuilder::registerFileParameter(vecParm_ptr): Error!" << std::endl
+         << "Parameter " << optionName << " has already been registered" << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+      // Add to the proxy store
+      file_parameter_proxies_.push_back(vecParm_ptr);
+      return *vecParm_ptr;
+   }
+
 	/***************************************************************************/
 	/**
 	 * Adds a reference to a vector of configurable type to the collection
@@ -1559,8 +1970,8 @@ public:
 		const std::string& optionName
 		, std::vector<parameter_type>& stored_reference
 		, const std::vector<parameter_type>& def_val
-		, const bool& isEssential = true
-		, const std::string& comment = ""
+		, const bool& isEssential
+		, const std::string& comment
 	) {
 		boost::shared_ptr<GFileVectorReferenceParsableParameterT<parameter_type> >
 			vecRefParm_ptr(new GFileVectorReferenceParsableParameterT<parameter_type> (
@@ -1587,6 +1998,42 @@ public:
       file_parameter_proxies_.push_back(vecRefParm_ptr);
 	}
 
+   /***************************************************************************/
+   /**
+    * Adds a reference to a vector of configurable type to the collection. Same
+    * as above, but without comments. Instead you can stream information to this
+    * function.
+    */
+   template <typename parameter_type>
+   GParsableI& registerFileParameter(
+      const std::string& optionName
+      , std::vector<parameter_type>& stored_reference
+      , const std::vector<parameter_type>& def_val
+   ) {
+      boost::shared_ptr<GFileVectorReferenceParsableParameterT<parameter_type> >
+         vecRefParm_ptr(new GFileVectorReferenceParsableParameterT<parameter_type> (
+               stored_reference
+               , optionName
+               , def_val
+            )
+         );
+
+#ifdef DEBUG
+      // Check whether the option already exists
+      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
+      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName))) != file_parameter_proxies_.end()) {
+         glogger
+         << "In GParserBuilder::registerFileParameter(vecRefParm_ptr): Error!" << std::endl
+         << "Parameter " << optionName << " has already been registered" << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+      // Add to the proxy store
+      file_parameter_proxies_.push_back(vecRefParm_ptr);
+      return *vecRefParm_ptr;
+   }
+
 	/***************************************************************************/
 	/**
 	 * Adds an array of configurable type but fixed size to the collection.
@@ -1598,8 +2045,8 @@ public:
 		const std::string& optionName
 		, const boost::array<parameter_type,N>& def_val
 		, boost::function<void(boost::array<parameter_type,N>)> callBack
-		, const bool& isEssential = true
-		, const std::string& comment = ""
+		, const bool& isEssential
+		, const std::string& comment
 	) {
 		boost::shared_ptr<GFileArrayParsableParameterT<parameter_type,N> >
 			arrayParm_ptr(new GFileArrayParsableParameterT<parameter_type,N> (
@@ -1628,6 +2075,45 @@ public:
       file_parameter_proxies_.push_back(arrayParm_ptr);
 	}
 
+   /***************************************************************************/
+   /**
+    * Adds an array of configurable type but fixed size to the collection.
+    * This allows to make sure that a given amount of configuration options
+    * must be available. Same as above, but without comments. Instead, you
+    * can stream information to this function.
+    */
+   template <typename parameter_type, std::size_t N>
+   GParsableI& registerFileParameter(
+      const std::string& optionName
+      , const boost::array<parameter_type,N>& def_val
+      , boost::function<void(boost::array<parameter_type,N>)> callBack
+   ) {
+      boost::shared_ptr<GFileArrayParsableParameterT<parameter_type,N> >
+         arrayParm_ptr(new GFileArrayParsableParameterT<parameter_type,N> (
+               optionName
+               , def_val
+            )
+         );
+
+      // Register the call back function
+      arrayParm_ptr->registerCallBackFunction(callBack);
+
+#ifdef DEBUG
+      // Check whether the option already exists
+      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
+      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName))) != file_parameter_proxies_.end()) {
+         glogger
+         << "In GParserBuilder::registerFileParameter(arrayParm_ptr): Error!" << std::endl
+         << "Parameter " << optionName << " has already been registered" << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+      // Add to the proxy store
+      file_parameter_proxies_.push_back(arrayParm_ptr);
+      return *arrayParm_ptr;
+   }
+
 	/***************************************************************************/
 	/**
 	 * Adds a reference to an array of configurable type but fixed size
@@ -1638,8 +2124,8 @@ public:
 		const std::string& optionName
 		, boost::array<parameter_type,N>& stored_reference
 		, const boost::array<parameter_type,N>& def_val
-		, const bool& isEssential = true
-		, const std::string& comment = ""
+		, const bool& isEssential
+		, const std::string& comment
 	) {
 		boost::shared_ptr<GFileArrayReferenceParsableParameterT<parameter_type,N> >
 			arrayRefParm_ptr(new GFileArrayReferenceParsableParameterT<parameter_type,N> (
@@ -1665,6 +2151,42 @@ public:
       // Add to the proxy store
       file_parameter_proxies_.push_back(arrayRefParm_ptr);
 	}
+
+   /***************************************************************************/
+   /**
+    * Adds a reference to an array of configurable type but fixed size
+    * to the file parameter collection. Same as above, but without comments.
+    * Instead you can stream information to this function.
+    */
+   template <typename parameter_type, std::size_t N>
+   GParsableI& registerFileParameter(
+      const std::string& optionName
+      , boost::array<parameter_type,N>& stored_reference
+      , const boost::array<parameter_type,N>& def_val
+   ) {
+      boost::shared_ptr<GFileArrayReferenceParsableParameterT<parameter_type,N> >
+         arrayRefParm_ptr(new GFileArrayReferenceParsableParameterT<parameter_type,N> (
+               stored_reference
+               , optionName
+               , def_val
+            )
+         );
+
+#ifdef DEBUG
+      // Check whether the option already exists
+      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
+      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName))) != file_parameter_proxies_.end()) {
+         glogger
+         << "In GParserBuilder::registerFileParameter(arrayRefParm_ptr): Error!" << std::endl
+         << "Parameter " << optionName << " has already been registered" << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+      // Add to the proxy store
+      file_parameter_proxies_.push_back(arrayRefParm_ptr);
+      return *arrayRefParm_ptr;
+   }
 
 	/***************************************************************************/
    /**
@@ -1710,7 +2232,6 @@ public:
       // Add to the proxy store
       cl_parameter_proxies_.push_back(refParm_ptr);
    }
-
 
 private:
    /***************************************************************************/
