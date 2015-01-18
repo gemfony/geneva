@@ -295,13 +295,13 @@ ENDIF()
 # temporaries, so the configuration process may start fresh. The make
 # command will not be available on windows.
 
-IF(UNIX)
+IF (UNIX AND NOT TARGET "clean-cmake")
 	ADD_CUSTOM_TARGET(
 		"clean-cmake"
 		COMMAND ${CMAKE_BUILD_TOOL} clean 2>&1 > /dev/null
 		COMMAND ${CMAKE_COMMAND} -DOLD_CMAKE=${OLD_CMAKE} -P ${PROJECT_SOURCE_DIR}/CMakeModules/CleanCmakeTemporaries.cmake
 	)
-ENDIF()
+ENDIF ()
 
 ################################################################################
 # Search for Geneva if this is an out-of-tree build of some Geneva application
