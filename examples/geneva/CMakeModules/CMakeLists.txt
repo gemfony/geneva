@@ -1,7 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 SET ( CMAKEFILES
+	README
 	COPYING-CMAKE-SCRIPTS
+	CommonGenevaBuild.cmake
 	FindBoost.cmake
 	FindGeneva.cmake
 	# Other macro files
@@ -10,4 +12,4 @@ SET ( CMAKEFILES
 	IndependentBuild.cmake
 )
 
-INSTALL ( FILES ${CMAKEFILES} DESTINATION CMakeModules )
+INSTALL ( FILES ${CMAKEFILES} DESTINATION ${INSTALL_PREFIX_DATA}/CMakeModules )
