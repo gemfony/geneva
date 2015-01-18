@@ -1,6 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 SET ( GENEVACONFFILES
+	README
 	genevaConfig.gcfg
 	sampleHostFile.hcfg
 )
