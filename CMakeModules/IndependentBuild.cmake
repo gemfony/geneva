@@ -37,9 +37,7 @@
 # independent Geneva applications.
 #
 
-MACRO (
-	SETUP_BUILD_SYSTEM
-)
+MACRO (SETUP_BUILD_SYSTEM)
 
 	INCLUDE(CommonGenevaBuild)
 
