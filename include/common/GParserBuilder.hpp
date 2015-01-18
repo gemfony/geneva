@@ -1517,8 +1517,8 @@ public:
     */
    GCLReferenceParsableParameterT(
       parameter_type& storedReference
-      , std::string optionNameVar
-      , std::string commentVar
+      , const std::string& optionNameVar
+      , const std::string& commentVar
       , parameter_type defVal
       , bool implicitAllowed
       , parameter_type implVal
@@ -1542,7 +1542,7 @@ public:
     */
    GCLReferenceParsableParameterT(
       parameter_type& storedReference
-      , std::string optionNameVar
+      , const std::string& optionNameVar
       , parameter_type defVal
       , bool implicitAllowed
       , parameter_type implVal
@@ -1640,7 +1640,7 @@ public:
 	 */
 	template <typename parameter_type>
 	void registerFileParameter(
-		std::string optionName
+		const std::string& optionName
 		, parameter_type def_val
 		, boost::function<void(parameter_type)> callBack
 		, bool isEssential
@@ -1681,7 +1681,7 @@ public:
     */
    template <typename parameter_type>
    GParsableI& registerFileParameter(
-      std::string optionName
+      const std::string& optionName
       , parameter_type def_val
       , boost::function<void(parameter_type)> callBack
    ) {
@@ -1718,15 +1718,15 @@ public:
 	 */
 	template <typename par_type1, typename par_type2>
 	void registerFileParameter(
-		std::string optionName1
-		, std::string optionName2
+		const std::string& optionName1
+		, const std::string& optionName2
 		, par_type1 def_val1
 		, par_type2 def_val2
 		, boost::function<void(par_type1, par_type2)> callBack
-		, std::string combined_label
+		, const std::string& combined_label
 		, bool isEssential
-		, std::string comment1
-		, std::string comment2
+		, const std::string& comment1
+		, const std::string& comment2
 	) {
 		boost::shared_ptr<GFileCombinedParsableParameterT<par_type1, par_type2> >
 			combParm_ptr(new GFileCombinedParsableParameterT<par_type1, par_type2>(
@@ -1767,12 +1767,12 @@ public:
     */
    template <typename par_type1, typename par_type2>
    GParsableI& registerFileParameter(
-      std::string optionName1
-      , std::string optionName2
+      const std::string& optionName1
+      , const std::string& optionName2
       , par_type1 def_val1
       , par_type2 def_val2
       , boost::function<void(par_type1, par_type2)> callBack
-      , std::string combined_label
+      , const std::string& combined_label
    ) {
       boost::shared_ptr<GFileCombinedParsableParameterT<par_type1, par_type2> >
          combParm_ptr(new GFileCombinedParsableParameterT<par_type1, par_type2>(
@@ -1814,11 +1814,11 @@ public:
 	 */
 	template <typename parameter_type>
 	void registerFileParameter(
-		std::string optionName
+		const std::string& optionName
 		, parameter_type& parameter
 		, parameter_type def_val
 		, bool isEssential
-		, std::string comment
+		, const std::string& comment
 	) {
 		boost::shared_ptr<GFileReferenceParsableParameterT<parameter_type> >
 			refParm_ptr(new GFileReferenceParsableParameterT<parameter_type>(
@@ -1857,7 +1857,7 @@ public:
     */
    template <typename parameter_type>
    GParsableI& registerFileParameter(
-      std::string optionName
+      const std::string& optionName
       , parameter_type& parameter
       , parameter_type def_val
    ) {
@@ -2199,10 +2199,10 @@ public:
     */
    template <typename parameter_type>
    void registerCLParameter(
-      std::string optionName
+      const std::string& optionName
       , parameter_type& parameter
       , parameter_type def_val
-      , std::string comment = ""
+      , const std::string& comment
       , bool implicitAllowed=GCL_IMPLICIT_NOT_ALLOWED
       , parameter_type impl_val = Gem::Common::GDefaultValueT<parameter_type>()
    ) {
@@ -2231,6 +2231,50 @@ public:
 
       // Add to the proxy store
       cl_parameter_proxies_.push_back(refParm_ptr);
+   }
+
+   /***************************************************************************/
+   /**
+    * Adds a reference to a configurable type to the command line parameters.
+    * Same as above, but without comments. Allows to stream comments to the function call.
+    *
+    * @param optionName The name of the option
+    * @param parameter The parameter into which the value will be written
+    * @param def_val A default value to be used if the corresponding parameter was not found in the configuration file
+    */
+   template <typename parameter_type>
+   GParsableI& registerCLParameter(
+      const std::string& optionName
+      , parameter_type& parameter
+      , parameter_type def_val
+      , bool implicitAllowed=GCL_IMPLICIT_NOT_ALLOWED
+      , parameter_type impl_val = Gem::Common::GDefaultValueT<parameter_type>()
+   ) {
+      boost::shared_ptr<GCLReferenceParsableParameterT<parameter_type> >
+         refParm_ptr(new GCLReferenceParsableParameterT<parameter_type>(
+               parameter
+               , optionName
+               , def_val
+               , implicitAllowed
+               , impl_val
+            )
+         );
+
+
+#ifdef DEBUG
+      // Check whether the option already exists
+      std::vector<boost::shared_ptr<GCLParsableI> >::iterator it;
+      if((it=std::find_if(cl_parameter_proxies_.begin(), cl_parameter_proxies_.end(), findCLProxyByName(optionName))) != cl_parameter_proxies_.end()) {
+         glogger
+         << "In GParserBuilder::registerCLParameter(refParm_ptr): Error!" << std::endl
+         << "Parameter " << optionName << " has already been registered" << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+      // Add to the proxy store
+      cl_parameter_proxies_.push_back(refParm_ptr);
+      return *refParm_ptr;
    }
 
 private:

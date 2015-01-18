@@ -46,12 +46,6 @@
 
 using namespace Gem::Common;
 
-void usage() {
-	std::cout << "Usage: GConfigFileCreation <mode>" << std::endl
-			  << "where mode = 0 (file creation) / 1 (file parsing)" << std::endl;
-	std::terminate();
-}
-
 // Call-back function for a single parameter
 int someGlobalInt;
 const int SOMEGLOBALINTDEFAULT = 1;
@@ -105,16 +99,16 @@ int main(int argc, char **argv) {
 	gpb.registerCLParameter<int>(
 	      "creationSwitcher,c"
 	      , creationSwitcher
-	      , 0
+	      , int(0)
 	      , "Allows to switch between configuration file creation (0) and file parsing (1)"
 	);
 
+	// Information may be streamed!
    gpb.registerCLParameter<bool>(
          "useOperator,o"
          , useOperator
          , false
-         , "Allows to enforce usage of gpb.registerFileParameter() << comment"
-   );
+   ) << "Allows to enforce usage of gpb.registerFileParameter() << comment";
 
 	gpb.registerCLParameter<std::string>(
 	      "fileName,f"
@@ -125,8 +119,7 @@ int main(int argc, char **argv) {
 
 	// Parse the command line and leave if the help flag was given
 	if(Gem::Common::GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, true /*verbose*/)) {
-	   usage();
-	   exit(0);
+	   return 0;
 	}
 
 	//----------------------------------------------------------------
