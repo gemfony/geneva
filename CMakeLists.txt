@@ -44,6 +44,23 @@ PROJECT (Geneva_Library_Collection)
 SET(GENEVA_FULL_TREE_BUILD TRUE)
 
 ################################################################################
+# Different subcomponents of the Geneva binary tree can be installed in
+# customized locations, by setting the "INSTALL_PREFIX_*" variables:
+#   INSTALL_PREFIX_INCLUDES -> installation folder for the header files
+#   INSTALL_PREFIX_LIBS     -> installation folder for the libraries
+#   INSTALL_PREFIX_DATA     -> installation folder for other the other files
+#                              like readmes, examples, and tests
+# If none of these variables is set, the whole Geneva binary tree is installed
+# (as expected) in "CMAKE_INSTALL_PREFIX". The default value for this last
+# valiable is set here, and further handled in the 'CommonGenevaBuild' module.
+# Generally, this should be provided through a custom genevaConfig.gcfg, in
+# conjunction with the prepareBuild.sh script.
+
+IF( NOT CMAKE_INSTALL_PREFIX )
+	SET( INSTALL_PREFIX_ROOT "/opt/geneva-${GENEVA_VERSION}" )
+ENDIF()
+
+################################################################################
 # Make sure we first check our local modules directory
 
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
@@ -61,15 +78,6 @@ SET(VERSION_MINOR "5")
 SET(VERSION_PATCH "0")
 
 SET(GENEVA_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
-
-################################################################################
-# Set some default values for user-settings (see the CommonGenevaBuild module
-# for additional default values). Generally, these should be provided through
-# a custom genevaConfig.gcfg, in conjunction with the prepareBuild.sh script.
-
-IF( NOT DEFINED CMAKE_INSTALL_PREFIX )
-	SET( CMAKE_INSTALL_PREFIX "/opt/geneva-${GENEVA_VERSION}" )
-ENDIF()
 
 ################################################################################
 # Include directories, libraries
@@ -121,11 +129,11 @@ SET ( INFORMATIONFILES
 	KNOWNBUGS
 	RATEYOUREXPERIENCE
 	README
-	README.eclipse
 	README.documentation
+	README.eclipse
 )
 
-INSTALL ( FILES ${INFORMATIONFILES} DESTINATION . )
+INSTALL ( FILES ${INFORMATIONFILES} DESTINATION ${INSTALL_PREFIX_DATA} )
 
 ################################################################################
 # Code for the creation of reference documentation for Geneva

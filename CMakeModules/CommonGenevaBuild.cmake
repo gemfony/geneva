@@ -340,6 +340,55 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 ENDIF ()
 
 ################################################################################
+# Set the installation locations
+
+IF (GENEVA_FULL_TREE_BUILD)
+
+	IF (INSTALL_PREFIX_INCLUDES AND INSTALL_PREFIX_LIBS AND INSTALL_PREFIX_DATA)
+		# All are set, we ignore CMAKE_INSTALL_PREFIX and install
+		# each kind of files in its own location
+		SET( INFO_INSTALL_PREFIX "\n\t\t(libs)\t\t${INSTALL_PREFIX_LIBS} \
+		                          \n\t\t(headers)\t${INSTALL_PREFIX_INCLUDES} \
+		                          \n\t\t(other files)\t${INSTALL_PREFIX_DATA}" )
+	ELSEIF (NOT INSTALL_PREFIX_INCLUDES AND NOT INSTALL_PREFIX_LIBS AND NOT INSTALL_PREFIX_DATA)
+		# All unset, Geneva is installed as a standalone tree in CMAKE_INSTALL_PREFIX
+		IF (NOT INSTALL_PREFIX_ROOT)
+			IF (CMAKE_INSTALL_PREFIX)
+				SET( INSTALL_PREFIX_ROOT ${CMAKE_INSTALL_PREFIX} )
+			ELSE ()
+				# If no value was set, use relative paths
+				SET( INSTALL_PREFIX_ROOT "." )
+			ENDIF ()
+		ENDIF ()
+
+		SET( INSTALL_PREFIX_INCLUDES "${INSTALL_PREFIX_ROOT}/include" )
+		SET( INSTALL_PREFIX_LIBS     "${INSTALL_PREFIX_ROOT}/lib" )
+		SET( INSTALL_PREFIX_DATA     "${INSTALL_PREFIX_ROOT}" )
+		SET( INFO_INSTALL_PREFIX     "${INSTALL_PREFIX_ROOT}" )
+	ELSE ()
+		# Inconsistent settings
+		MESSAGE (FATAL_ERROR "Please set either all three or none of the"
+			             " installation prefix values INSTALL_PREFIX_INCLUDES,"
+			             " INSTALL_PREFIX_LIBS, and INSTALL_PREFIX_DATA .")
+	ENDIF ()
+
+ELSE ()
+
+	# This is an out-of-tree build of some Geneva application, only the
+	# INSTALL_PREFIX_DATA or CMAKE_INSTALL_PREFIX are needed
+	IF (NOT INSTALL_PREFIX_DATA)
+		IF (CMAKE_INSTALL_PREFIX)
+			SET( INSTALL_PREFIX_DATA "${CMAKE_INSTALL_PREFIX}" )
+		ELSE ()
+			# If no value was set, use relative paths
+			SET( INSTALL_PREFIX_DATA "." )
+		ENDIF ()
+	ENDIF ()
+	SET( INFO_INSTALL_PREFIX "${INSTALL_PREFIX_DATA}" )
+
+ENDIF ()
+
+################################################################################
 # Print a summary of the build settings before continuing with the main script
 
 MESSAGE ("========================================")
@@ -379,7 +428,7 @@ ELSE()
 	MESSAGE ("\tproducing sparse CMake output")
 ENDIF()
 MESSAGE ("\tfor operating system ${GENEVA_OS_NAME}")
-MESSAGE ("\tto install into prefix:\t\t ${CMAKE_INSTALL_PREFIX}")
+MESSAGE ("\tto install into prefix:\t\t ${INFO_INSTALL_PREFIX}")
 MESSAGE ("")
 MESSAGE ("========================================\n")
 
