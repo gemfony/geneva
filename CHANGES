@@ -103,6 +103,10 @@ The main changes for this release include:
   do a "make clean-all" if a Makefile is found in the build-directory.
 - The build-system was restructured and improved to simplify adding new
   platforms and to make it more modular.
+- The build-system now allows for libraries, headers and other files
+  to be installed in independent locations: you may define the variables
+  INSTALL_PREFIX_LIBS, INSTALL_PREFIX_INCLUDES, and INSTALL_PREFIX_DATA
+  when running cmake for that.
 - Added a target "make doc" to create reference documentation for the
   entire Geneva source tree.
 
