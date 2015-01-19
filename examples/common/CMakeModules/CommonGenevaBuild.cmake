@@ -347,9 +347,7 @@ IF (GENEVA_FULL_TREE_BUILD)
 	IF (INSTALL_PREFIX_INCLUDES AND INSTALL_PREFIX_LIBS AND INSTALL_PREFIX_DATA)
 		# All are set, we ignore CMAKE_INSTALL_PREFIX and install
 		# each kind of files in its own location
-		SET( INFO_INSTALL_PREFIX "\n\t\t(libs)\t\t${INSTALL_PREFIX_LIBS} \
-		                          \n\t\t(headers)\t${INSTALL_PREFIX_INCLUDES} \
-		                          \n\t\t(other files)\t${INSTALL_PREFIX_DATA}" )
+		SET( INFO_INSTALL_PREFIX "\n\t\t(libs)\t\t${INSTALL_PREFIX_LIBS}\n\t\t(headers)\t${INSTALL_PREFIX_INCLUDES}\n\t\t(other files)\t${INSTALL_PREFIX_DATA}" )
 	ELSEIF (NOT INSTALL_PREFIX_INCLUDES AND NOT INSTALL_PREFIX_LIBS AND NOT INSTALL_PREFIX_DATA)
 		# All unset, Geneva is installed as a standalone tree in CMAKE_INSTALL_PREFIX
 		IF (NOT INSTALL_PREFIX_ROOT)
