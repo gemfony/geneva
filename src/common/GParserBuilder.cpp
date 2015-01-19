@@ -603,15 +603,13 @@ bool GParserBuilder::parseCommandLine(int argc, char **argv, bool verbose) {
             std::cout << std::endl;
          }
       }
-   }
-   catch(const po::error& e) {
+   } catch(const po::error& e) {
       std::cerr
       << "In GParserBuilder::parseCommandLine(int argc, char **argv):" << std::endl
       << "Error parsing the command line:" << std::endl
       << e.what() << std::endl;
       exit(1);
-   }
-   catch(...) {
+   } catch(...) {
       std::cerr
       << "In GParserBuilder::parseCommandLine(int argc, char **argv):" << std::endl
       << "Unknown error while parsing the command line" << std::endl;
