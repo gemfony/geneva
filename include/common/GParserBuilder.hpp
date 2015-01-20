@@ -1876,76 +1876,50 @@ public:
 	 * function is executed.
 	 */
 	template <typename parameter_type>
-	void registerFileParameter(
+	GParsableI& registerFileParameter(
 		const std::string& optionName
 		, parameter_type def_val
 		, boost::function<void(parameter_type)> callBack
-		, bool isEssential
-		, std::string comment
+      , const bool& isEssential = Gem::Common::VAR_IS_ESSENTIAL
+      , const std::string& comment = std::string()
 	) {
-		boost::shared_ptr<GFileSingleParsableParameterT<parameter_type> >
-			singleParm_ptr(new GFileSingleParsableParameterT<parameter_type>(
-					optionName
-					, comment
-					, isEssential
-					, def_val
-				)
-			);
+#ifdef DEBUG
+      // Check whether the option already exists
+      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
+      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName))) != file_parameter_proxies_.end()) {
+         glogger
+         << "In GParserBuilder::registerFileParameter(singleParm_ptr): Error!" << std::endl
+         << "Parameter " << optionName << " has already been registered" << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+      boost::shared_ptr<GFileSingleParsableParameterT<parameter_type> > singleParm_ptr;
+
+      if(comment.empty() || comment == "") {
+         singleParm_ptr = boost::shared_ptr<GFileSingleParsableParameterT<parameter_type> > (
+               new GFileSingleParsableParameterT<parameter_type>(
+                     optionName
+                     , def_val
+               )
+         );
+      } else {
+         singleParm_ptr = boost::shared_ptr<GFileSingleParsableParameterT<parameter_type> > (
+               new GFileSingleParsableParameterT<parameter_type>(
+                     optionName
+                     , comment
+                     , isEssential
+                     , def_val
+               )
+         );
+      }
 
 		singleParm_ptr->registerCallBackFunction(callBack);
 
-#ifdef DEBUG
-      // Check whether the option already exists
-      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
-      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName))) != file_parameter_proxies_.end()) {
-         glogger
-         << "In GParserBuilder::registerFileParameter(singleParm_ptr): Error!" << std::endl
-         << "Parameter " << optionName << " has already been registered" << std::endl
-         << GEXCEPTION;
-      }
-#endif /* DEBUG */
-
       // Add to the proxy store
 		file_parameter_proxies_.push_back(singleParm_ptr);
+		return *singleParm_ptr;
 	}
-
-   /***************************************************************************/
-   /**
-    * Adds a single parameter of configurable type to the collection. When
-    * this parameter has been read using parseConfigFile, a call-back
-    * function is executed. Same as above, but without comments. You can
-    * stream information to this function call.
-    */
-   template <typename parameter_type>
-   GParsableI& registerFileParameter(
-      const std::string& optionName
-      , parameter_type def_val
-      , boost::function<void(parameter_type)> callBack
-   ) {
-      boost::shared_ptr<GFileSingleParsableParameterT<parameter_type> >
-         singleParm_ptr(new GFileSingleParsableParameterT<parameter_type>(
-               optionName
-               , def_val
-            )
-         );
-
-      singleParm_ptr->registerCallBackFunction(callBack);
-
-#ifdef DEBUG
-      // Check whether the option already exists
-      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
-      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName))) != file_parameter_proxies_.end()) {
-         glogger
-         << "In GParserBuilder::registerFileParameter(singleParm_ptr): Error!" << std::endl
-         << "Parameter " << optionName << " has already been registered" << std::endl
-         << GEXCEPTION;
-      }
-#endif /* DEBUG */
-
-      // Add to the proxy store
-      file_parameter_proxies_.push_back(singleParm_ptr);
-      return *singleParm_ptr;
-   }
 
    /***************************************************************************/
    /**
@@ -1958,62 +1932,13 @@ public:
     * @param comment A comment to be associated with the parameter in configuration files
     */
    template <typename parameter_type>
-   void registerFileParameter(
-      const std::string& optionName
-      , parameter_type& parameter
-      , parameter_type def_val
-      , bool isEssential
-      , const std::string& comment
-   ) {
-      boost::shared_ptr<GFileReferenceParsableParameterT<parameter_type> >
-         refParm_ptr(new GFileReferenceParsableParameterT<parameter_type>(
-               parameter
-               , optionName
-               , comment
-               , isEssential
-               , def_val
-            )
-         );
-
-#ifdef DEBUG
-      // Check whether the option already exists
-      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
-      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName))) != file_parameter_proxies_.end()) {
-         glogger
-         << "In GParserBuilder::registerFileParameter(refParm_ptr): Error!" << std::endl
-         << "Parameter " << optionName << " has already been registered" << std::endl
-         << GEXCEPTION;
-      }
-#endif /* DEBUG */
-
-      // Add to the proxy store
-      file_parameter_proxies_.push_back(refParm_ptr);
-   }
-
-   /***************************************************************************/
-   /**
-    * Adds a parameter with a configurable type to the collection. Same as above,
-    * but without comments. Instead you can stream information to this function.
-    *
-    * @param optionName The name of the option
-    * @param parameter The parameter into which the value will be written
-    * @param def_val A default value to be used if the corresponding parameter was not found in the configuration file
-    * @param isEssential A boolean which indicates whether this is an essential or a secondary parameter
-    */
-   template <typename parameter_type>
    GParsableI& registerFileParameter(
       const std::string& optionName
       , parameter_type& parameter
       , parameter_type def_val
+      , const bool& isEssential = Gem::Common::VAR_IS_ESSENTIAL
+      , const std::string& comment = std::string()
    ) {
-      boost::shared_ptr<GFileReferenceParsableParameterT<parameter_type> >
-         refParm_ptr(new GFileReferenceParsableParameterT<parameter_type>(
-               parameter
-               , optionName
-               , def_val
-            )
-         );
-
 #ifdef DEBUG
       // Check whether the option already exists
       std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
@@ -2024,6 +1949,28 @@ public:
          << GEXCEPTION;
       }
 #endif /* DEBUG */
+
+      boost::shared_ptr<GFileReferenceParsableParameterT<parameter_type> > refParm_ptr;
+
+      if(comment.empty() || comment == "") {
+         refParm_ptr = boost::shared_ptr<GFileReferenceParsableParameterT<parameter_type> > (
+               new GFileReferenceParsableParameterT<parameter_type>(
+                     parameter
+                     , optionName
+                     , def_val
+               )
+         );
+      } else {
+         refParm_ptr = boost::shared_ptr<GFileReferenceParsableParameterT<parameter_type> > (
+               new GFileReferenceParsableParameterT<parameter_type>(
+                     parameter
+                     , optionName
+                     , comment
+                     , isEssential
+                     , def_val
+               )
+         );
+      }
 
       // Add to the proxy store
       file_parameter_proxies_.push_back(refParm_ptr);
@@ -2064,90 +2011,61 @@ public:
 	 * function will be executed.
 	 */
 	template <typename par_type1, typename par_type2>
-	void registerFileParameter(
+	GParsableI& registerFileParameter(
 		const std::string& optionName1
 		, const std::string& optionName2
 		, par_type1 def_val1
 		, par_type2 def_val2
 		, boost::function<void(par_type1, par_type2)> callBack
 		, const std::string& combined_label
-		, bool isEssential
-		, const std::string& comment1
-		, const std::string& comment2
+		, bool isEssential = Gem::Common::VAR_IS_ESSENTIAL
+		, const std::string& comment1 = std::string()
+		, const std::string& comment2 = std::string()
 	) {
-		boost::shared_ptr<GFileCombinedParsableParameterT<par_type1, par_type2> >
-			combParm_ptr(new GFileCombinedParsableParameterT<par_type1, par_type2>(
-					optionName1
-					, comment1
-					, def_val1
-					, optionName2
-					, comment2
-					, def_val2
-					, isEssential
-					, combined_label
-				)
-			);
+#ifdef DEBUG
+      // Check whether the option already exists
+      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
+      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName1))) != file_parameter_proxies_.end()) {
+         glogger
+         << "In GParserBuilder::registerFileParameter(combParm_ptr): Error!" << std::endl
+         << "Parameter " << optionName1 << " has already been registered" << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+      boost::shared_ptr<GFileCombinedParsableParameterT<par_type1, par_type2> > combParm_ptr;
+
+      if((comment1.empty() || comment1 =="") && (comment2.empty() || comment2 =="")) {
+         combParm_ptr = boost::shared_ptr<GFileCombinedParsableParameterT<par_type1, par_type2> > (
+               new GFileCombinedParsableParameterT<par_type1, par_type2>(
+                     optionName1
+                     , def_val1
+                     , optionName2
+                     , def_val2
+                     , combined_label
+               )
+         );
+      } else {
+         combParm_ptr = boost::shared_ptr<GFileCombinedParsableParameterT<par_type1, par_type2> > (
+               new GFileCombinedParsableParameterT<par_type1, par_type2>(
+                     optionName1
+                     , comment1
+                     , def_val1
+                     , optionName2
+                     , comment2
+                     , def_val2
+                     , isEssential
+                     , combined_label
+               )
+         );
+      }
 
 		combParm_ptr->registerCallBackFunction(callBack);
 
-#ifdef DEBUG
-      // Check whether the option already exists
-      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
-      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName1))) != file_parameter_proxies_.end()) {
-         glogger
-         << "In GParserBuilder::registerFileParameter(combParm_ptr): Error!" << std::endl
-         << "Parameter " << optionName1 << " has already been registered" << std::endl
-         << GEXCEPTION;
-      }
-#endif /* DEBUG */
-
       // Add to the proxy store
 		file_parameter_proxies_.push_back(combParm_ptr);
+		return *combParm_ptr;
 	}
-
-   /***************************************************************************/
-   /**
-    * Adds two parameters of configurable types to the collection. When
-    * these parameters have been read using parseConfigFile, a call-back
-    * function will be executed. Same as above, but without comments. You
-    * can stream information to this function call.
-    */
-   template <typename par_type1, typename par_type2>
-   GParsableI& registerFileParameter(
-      const std::string& optionName1
-      , const std::string& optionName2
-      , par_type1 def_val1
-      , par_type2 def_val2
-      , boost::function<void(par_type1, par_type2)> callBack
-      , const std::string& combined_label
-   ) {
-      boost::shared_ptr<GFileCombinedParsableParameterT<par_type1, par_type2> >
-         combParm_ptr(new GFileCombinedParsableParameterT<par_type1, par_type2>(
-               optionName1
-               , def_val1
-               , optionName2
-               , def_val2
-               , combined_label
-            )
-         );
-
-      combParm_ptr->registerCallBackFunction(callBack);
-
-#ifdef DEBUG
-      // Check whether the option already exists
-      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
-      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName1))) != file_parameter_proxies_.end()) {
-         glogger
-         << "In GParserBuilder::registerFileParameter(combParm_ptr): Error!" << std::endl
-         << "Parameter " << optionName1 << " has already been registered" << std::endl
-         << GEXCEPTION;
-      }
-#endif /* DEBUG */
-
-      // Add to the proxy store
-      file_parameter_proxies_.push_back(combParm_ptr);
-      return *combParm_ptr;
-   }
 
    /***************************************************************************/
    /**
@@ -2185,98 +2103,63 @@ public:
 	 * call-back function
 	 */
 	template <typename parameter_type>
-	void registerFileParameter(
+	GParsableI& registerFileParameter(
 		const std::string& optionName
 		, const std::vector<parameter_type>& def_val
 		, boost::function<void(std::vector<parameter_type>)> callBack
-		, const bool& isEssential
-		, const std::string& comment
+      , const bool& isEssential = Gem::Common::VAR_IS_ESSENTIAL
+      , const std::string& comment = std::string()
 	) {
-		boost::shared_ptr<GFileVectorParsableParameterT<parameter_type> >
-			vecParm_ptr(new GFileVectorParsableParameterT<parameter_type> (
-					optionName
-					, comment
-					, def_val
-					, isEssential
-				)
-			);
+#ifdef DEBUG
+      // Check whether the option already exists
+      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
+      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName))) != file_parameter_proxies_.end()) {
+         glogger
+         << "In GParserBuilder::registerFileParameter(vecParm_ptr): Error!" << std::endl
+         << "Parameter " << optionName << " has already been registered" << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+      boost::shared_ptr<GFileVectorParsableParameterT<parameter_type> > vecParm_ptr;
+
+      if(comment.empty() || comment == "") {
+         vecParm_ptr = boost::shared_ptr<GFileVectorParsableParameterT<parameter_type> >(
+               new GFileVectorParsableParameterT<parameter_type> (
+                     optionName
+                     , def_val
+               )
+         );
+      } else {
+         vecParm_ptr = boost::shared_ptr<GFileVectorParsableParameterT<parameter_type> >(
+               new GFileVectorParsableParameterT<parameter_type> (
+                     optionName
+                     , comment
+                     , def_val
+                     , isEssential
+               )
+         );
+      }
 
 		vecParm_ptr->registerCallBackFunction(callBack);
-
-#ifdef DEBUG
-      // Check whether the option already exists
-      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
-      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName))) != file_parameter_proxies_.end()) {
-         glogger
-         << "In GParserBuilder::registerFileParameter(vecParm_ptr): Error!" << std::endl
-         << "Parameter " << optionName << " has already been registered" << std::endl
-         << GEXCEPTION;
-      }
-#endif /* DEBUG */
-
-      // Add to the proxy store
-      file_parameter_proxies_.push_back(vecParm_ptr);
-	}
-
-   /***************************************************************************/
-   /**
-    * Adds a vector of configurable type to the collection, using a
-    * call-back function. Same as above, but without comments. Instead you
-    * can stream information to this function.
-    */
-   template <typename parameter_type>
-   GParsableI& registerFileParameter(
-      const std::string& optionName
-      , const std::vector<parameter_type>& def_val
-      , boost::function<void(std::vector<parameter_type>)> callBack
-   ) {
-      boost::shared_ptr<GFileVectorParsableParameterT<parameter_type> >
-         vecParm_ptr(new GFileVectorParsableParameterT<parameter_type> (
-               optionName
-               , def_val
-            )
-         );
-
-      vecParm_ptr->registerCallBackFunction(callBack);
-
-#ifdef DEBUG
-      // Check whether the option already exists
-      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
-      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName))) != file_parameter_proxies_.end()) {
-         glogger
-         << "In GParserBuilder::registerFileParameter(vecParm_ptr): Error!" << std::endl
-         << "Parameter " << optionName << " has already been registered" << std::endl
-         << GEXCEPTION;
-      }
-#endif /* DEBUG */
 
       // Add to the proxy store
       file_parameter_proxies_.push_back(vecParm_ptr);
       return *vecParm_ptr;
-   }
+	}
 
 	/***************************************************************************/
 	/**
 	 * Adds a reference to a vector of configurable type to the collection
 	 */
 	template <typename parameter_type>
-	void registerFileParameter(
+	GParsableI& registerFileParameter(
 		const std::string& optionName
 		, std::vector<parameter_type>& stored_reference
 		, const std::vector<parameter_type>& def_val
-		, const bool& isEssential
-		, const std::string& comment
+      , const bool& isEssential = Gem::Common::VAR_IS_ESSENTIAL
+      , const std::string& comment = std::string()
 	) {
-		boost::shared_ptr<GFileVectorReferenceParsableParameterT<parameter_type> >
-			vecRefParm_ptr(new GFileVectorReferenceParsableParameterT<parameter_type> (
-					stored_reference
-					, optionName
-					, comment
-					, def_val
-					, isEssential
-				)
-			);
-
 #ifdef DEBUG
       // Check whether the option already exists
       std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
@@ -2288,45 +2171,33 @@ public:
       }
 #endif /* DEBUG */
 
-      // Add to the proxy store
-      file_parameter_proxies_.push_back(vecRefParm_ptr);
-	}
 
-   /***************************************************************************/
-   /**
-    * Adds a reference to a vector of configurable type to the collection. Same
-    * as above, but without comments. Instead you can stream information to this
-    * function.
-    */
-   template <typename parameter_type>
-   GParsableI& registerFileParameter(
-      const std::string& optionName
-      , std::vector<parameter_type>& stored_reference
-      , const std::vector<parameter_type>& def_val
-   ) {
-      boost::shared_ptr<GFileVectorReferenceParsableParameterT<parameter_type> >
-         vecRefParm_ptr(new GFileVectorReferenceParsableParameterT<parameter_type> (
-               stored_reference
-               , optionName
-               , def_val
-            )
+      boost::shared_ptr<GFileVectorReferenceParsableParameterT<parameter_type> > vecRefParm_ptr;
+
+      if(comment.empty() || comment == "") {
+         vecRefParm_ptr = boost::shared_ptr<GFileVectorReferenceParsableParameterT<parameter_type> >(
+               new GFileVectorReferenceParsableParameterT<parameter_type> (
+                     stored_reference
+                     , optionName
+                     , def_val
+               )
          );
-
-#ifdef DEBUG
-      // Check whether the option already exists
-      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
-      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName))) != file_parameter_proxies_.end()) {
-         glogger
-         << "In GParserBuilder::registerFileParameter(vecRefParm_ptr): Error!" << std::endl
-         << "Parameter " << optionName << " has already been registered" << std::endl
-         << GEXCEPTION;
+      } else {
+         vecRefParm_ptr = boost::shared_ptr<GFileVectorReferenceParsableParameterT<parameter_type> >(
+               new GFileVectorReferenceParsableParameterT<parameter_type> (
+                     stored_reference
+                     , optionName
+                     , comment
+                     , def_val
+                     , isEssential
+               )
+         );
       }
-#endif /* DEBUG */
 
       // Add to the proxy store
       file_parameter_proxies_.push_back(vecRefParm_ptr);
       return *vecRefParm_ptr;
-   }
+	}
 
    /***************************************************************************/
    /**
@@ -2364,78 +2235,51 @@ public:
 	 * must be available.
 	 */
 	template <typename parameter_type, std::size_t N>
-	void registerFileParameter(
+	GParsableI& registerFileParameter(
 		const std::string& optionName
 		, const boost::array<parameter_type,N>& def_val
 		, boost::function<void(boost::array<parameter_type,N>)> callBack
-		, const bool& isEssential
-		, const std::string& comment
+      , const bool& isEssential = Gem::Common::VAR_IS_ESSENTIAL
+      , const std::string& comment = std::string()
 	) {
-		boost::shared_ptr<GFileArrayParsableParameterT<parameter_type,N> >
-			arrayParm_ptr(new GFileArrayParsableParameterT<parameter_type,N> (
-					optionName
-					, comment
-					, def_val
-					, isEssential
-				)
-			);
+#ifdef DEBUG
+      // Check whether the option already exists
+      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
+      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName))) != file_parameter_proxies_.end()) {
+         glogger
+         << "In GParserBuilder::registerFileParameter(arrayParm_ptr): Error!" << std::endl
+         << "Parameter " << optionName << " has already been registered" << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+      boost::shared_ptr<GFileArrayParsableParameterT<parameter_type,N> > arrayParm_ptr;
+
+      if(comment.empty() || comment == "") {
+         arrayParm_ptr = boost::shared_ptr<GFileArrayParsableParameterT<parameter_type,N> >(
+               new GFileArrayParsableParameterT<parameter_type,N> (
+                     optionName
+                     , def_val
+               )
+         );
+      } else {
+         arrayParm_ptr = boost::shared_ptr<GFileArrayParsableParameterT<parameter_type,N> >(
+               new GFileArrayParsableParameterT<parameter_type,N> (
+                     optionName
+                     , comment
+                     , def_val
+                     , isEssential
+               )
+         );
+      }
 
 		// Register the call back function
 		arrayParm_ptr->registerCallBackFunction(callBack);
 
-#ifdef DEBUG
-      // Check whether the option already exists
-      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
-      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName))) != file_parameter_proxies_.end()) {
-         glogger
-         << "In GParserBuilder::registerFileParameter(arrayParm_ptr): Error!" << std::endl
-         << "Parameter " << optionName << " has already been registered" << std::endl
-         << GEXCEPTION;
-      }
-#endif /* DEBUG */
-
-      // Add to the proxy store
-      file_parameter_proxies_.push_back(arrayParm_ptr);
-	}
-
-   /***************************************************************************/
-   /**
-    * Adds an array of configurable type but fixed size to the collection.
-    * This allows to make sure that a given amount of configuration options
-    * must be available. Same as above, but without comments. Instead, you
-    * can stream information to this function.
-    */
-   template <typename parameter_type, std::size_t N>
-   GParsableI& registerFileParameter(
-      const std::string& optionName
-      , const boost::array<parameter_type,N>& def_val
-      , boost::function<void(boost::array<parameter_type,N>)> callBack
-   ) {
-      boost::shared_ptr<GFileArrayParsableParameterT<parameter_type,N> >
-         arrayParm_ptr(new GFileArrayParsableParameterT<parameter_type,N> (
-               optionName
-               , def_val
-            )
-         );
-
-      // Register the call back function
-      arrayParm_ptr->registerCallBackFunction(callBack);
-
-#ifdef DEBUG
-      // Check whether the option already exists
-      std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
-      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName))) != file_parameter_proxies_.end()) {
-         glogger
-         << "In GParserBuilder::registerFileParameter(arrayParm_ptr): Error!" << std::endl
-         << "Parameter " << optionName << " has already been registered" << std::endl
-         << GEXCEPTION;
-      }
-#endif /* DEBUG */
-
       // Add to the proxy store
       file_parameter_proxies_.push_back(arrayParm_ptr);
       return *arrayParm_ptr;
-   }
+	}
 
 	/***************************************************************************/
 	/**
@@ -2443,58 +2287,13 @@ public:
 	 * to the file parameter collection
 	 */
 	template <typename parameter_type, std::size_t N>
-	void registerFileParameter(
+	GParsableI& registerFileParameter(
 		const std::string& optionName
 		, boost::array<parameter_type,N>& stored_reference
 		, const boost::array<parameter_type,N>& def_val
-		, const bool& isEssential
-		, const std::string& comment
+		, const bool& isEssential = Gem::Common::VAR_IS_ESSENTIAL
+		, const std::string& comment = std::string()
 	) {
-		boost::shared_ptr<GFileArrayReferenceParsableParameterT<parameter_type,N> >
-			arrayRefParm_ptr(new GFileArrayReferenceParsableParameterT<parameter_type,N> (
-					stored_reference
-					, optionName
-					, comment
-					, def_val
-					, isEssential
-				)
-			);
-
-#ifdef DEBUG
-		// Check whether the option already exists
-		std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
-      if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName))) != file_parameter_proxies_.end()) {
-         glogger
-         << "In GParserBuilder::registerFileParameter(arrayRefParm_ptr): Error!" << std::endl
-         << "Parameter " << optionName << " has already been registered" << std::endl
-         << GEXCEPTION;
-      }
-#endif /* DEBUG */
-
-      // Add to the proxy store
-      file_parameter_proxies_.push_back(arrayRefParm_ptr);
-	}
-
-   /***************************************************************************/
-   /**
-    * Adds a reference to an array of configurable type but fixed size
-    * to the file parameter collection. Same as above, but without comments.
-    * Instead you can stream information to this function.
-    */
-   template <typename parameter_type, std::size_t N>
-   GParsableI& registerFileParameter(
-      const std::string& optionName
-      , boost::array<parameter_type,N>& stored_reference
-      , const boost::array<parameter_type,N>& def_val
-   ) {
-      boost::shared_ptr<GFileArrayReferenceParsableParameterT<parameter_type,N> >
-         arrayRefParm_ptr(new GFileArrayReferenceParsableParameterT<parameter_type,N> (
-               stored_reference
-               , optionName
-               , def_val
-            )
-         );
-
 #ifdef DEBUG
       // Check whether the option already exists
       std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
@@ -2506,10 +2305,31 @@ public:
       }
 #endif /* DEBUG */
 
+      boost::shared_ptr<GFileArrayReferenceParsableParameterT<parameter_type,N> > arrayRefParm_ptr;
+      if(comment.empty() || comment == "") {
+         arrayRefParm_ptr = boost::shared_ptr<GFileArrayReferenceParsableParameterT<parameter_type,N> >(
+               new GFileArrayReferenceParsableParameterT<parameter_type,N> (
+                     stored_reference
+                     , optionName
+                     , def_val
+               )
+         );
+      } else {
+         arrayRefParm_ptr = boost::shared_ptr<GFileArrayReferenceParsableParameterT<parameter_type,N> >(
+            new GFileArrayReferenceParsableParameterT<parameter_type,N> (
+					stored_reference
+					, optionName
+					, comment
+					, def_val
+					, isEssential
+				)
+			);
+      }
+
       // Add to the proxy store
       file_parameter_proxies_.push_back(arrayRefParm_ptr);
       return *arrayRefParm_ptr;
-   }
+	}
 
    /***************************************************************************/
    /**
@@ -2550,69 +2370,14 @@ public:
     * @param comment A comment to be associated with the parameter in configuration files
     */
    template <typename parameter_type>
-   void registerCLParameter(
-      const std::string& optionName
-      , parameter_type& parameter
-      , parameter_type def_val
-      , const std::string& comment
-      , bool implicitAllowed=GCL_IMPLICIT_NOT_ALLOWED
-      , parameter_type impl_val = Gem::Common::GDefaultValueT<parameter_type>()
-   ) {
-      boost::shared_ptr<GCLReferenceParsableParameterT<parameter_type> >
-         refParm_ptr(new GCLReferenceParsableParameterT<parameter_type>(
-               parameter
-               , optionName
-               , comment
-               , def_val
-               , implicitAllowed
-               , impl_val
-            )
-         );
-
-
-#ifdef DEBUG
-      // Check whether the option already exists
-      std::vector<boost::shared_ptr<GCLParsableI> >::iterator it;
-      if((it=std::find_if(cl_parameter_proxies_.begin(), cl_parameter_proxies_.end(), findCLProxyByName(optionName))) != cl_parameter_proxies_.end()) {
-         glogger
-         << "In GParserBuilder::registerCLParameter(refParm_ptr): Error!" << std::endl
-         << "Parameter " << optionName << " has already been registered" << std::endl
-         << GEXCEPTION;
-      }
-#endif /* DEBUG */
-
-      // Add to the proxy store
-      cl_parameter_proxies_.push_back(refParm_ptr);
-   }
-
-   /***************************************************************************/
-   /**
-    * Adds a reference to a configurable type to the command line parameters.
-    * Same as above, but without comments. Allows to stream comments to the function call.
-    *
-    * @param optionName The name of the option
-    * @param parameter The parameter into which the value will be written
-    * @param def_val A default value to be used if the corresponding parameter was not found in the configuration file
-    */
-   template <typename parameter_type>
    GParsableI& registerCLParameter(
       const std::string& optionName
       , parameter_type& parameter
-      , parameter_type def_val
+      , const parameter_type& def_val
+      , const std::string& comment = std::string()
       , bool implicitAllowed=GCL_IMPLICIT_NOT_ALLOWED
       , parameter_type impl_val = Gem::Common::GDefaultValueT<parameter_type>()
    ) {
-      boost::shared_ptr<GCLReferenceParsableParameterT<parameter_type> >
-         refParm_ptr(new GCLReferenceParsableParameterT<parameter_type>(
-               parameter
-               , optionName
-               , def_val
-               , implicitAllowed
-               , impl_val
-            )
-         );
-
-
 #ifdef DEBUG
       // Check whether the option already exists
       std::vector<boost::shared_ptr<GCLParsableI> >::iterator it;
@@ -2623,6 +2388,31 @@ public:
          << GEXCEPTION;
       }
 #endif /* DEBUG */
+
+      boost::shared_ptr<GCLReferenceParsableParameterT<parameter_type> > refParm_ptr;
+
+      if(comment.empty() || comment == "") {
+         refParm_ptr = boost::shared_ptr<GCLReferenceParsableParameterT<parameter_type> >(
+               new GCLReferenceParsableParameterT<parameter_type>(
+                     parameter
+                     , optionName
+                     , def_val
+                     , implicitAllowed
+                     , impl_val
+               )
+         );
+      } else {
+         refParm_ptr = boost::shared_ptr<GCLReferenceParsableParameterT<parameter_type> >(
+               new GCLReferenceParsableParameterT<parameter_type>(
+                     parameter
+                     , optionName
+                     , comment
+                     , def_val
+                     , implicitAllowed
+                     , impl_val
+               )
+         );
+      }
 
       // Add to the proxy store
       cl_parameter_proxies_.push_back(refParm_ptr);
