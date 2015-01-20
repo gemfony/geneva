@@ -236,15 +236,13 @@ bool GBrokerSwarm::usesBroker() const {
  * Adds local configuration options to a GParserBuilder object
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
- * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
 void GBrokerSwarm::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
-	, const bool& showOrigin
 ) {
 	// Call our parent class'es function
-	GBaseSwarm::addConfigurationOptions(gpb, showOrigin);
-	Gem::Courtier::GBrokerConnector2T<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
+	GBaseSwarm::addConfigurationOptions(gpb);
+	Gem::Courtier::GBrokerConnector2T<GParameterSet>::addConfigurationOptions(gpb);
 
 	// no local data
 }

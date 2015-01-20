@@ -207,14 +207,12 @@ public:
 	 * Adds local configuration options to a GParserBuilder object
 	 *
 	 * @param gpb The GParserBuilder object to which configuration options should be added
-	 * @param showOrigin Makes the function indicate the origin of parameters in comments
 	 */
 	virtual void addConfigurationOptions (
 		Gem::Common::GParserBuilder& gpb
-		, const bool& showOrigin
 	) OVERRIDE {
 		// Call our parent class'es function
-		GOptimizableEntity::addConfigurationOptions(gpb, showOrigin);
+		GOptimizableEntity::addConfigurationOptions(gpb);
 
 		// No local data
 	}

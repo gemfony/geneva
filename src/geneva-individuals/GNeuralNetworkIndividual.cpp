@@ -1715,7 +1715,7 @@ boost::shared_ptr<GParameterSet> GNeuralNetworkIndividualFactory::getObject_(
    boost::shared_ptr<GNeuralNetworkIndividual> target(new GNeuralNetworkIndividual());
 
    // Make the object's local configuration options known
-   target->addConfigurationOptions(gpb, true);
+   target->addConfigurationOptions(gpb);
 
    return target;
 }

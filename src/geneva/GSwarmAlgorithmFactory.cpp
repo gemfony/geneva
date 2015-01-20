@@ -140,7 +140,7 @@ boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GSwarmAlgorithmFactor
 	}
 
 	// Make the local configuration options known
-	target->GBaseSwarm::addConfigurationOptions(gpb, true);
+	target->GBaseSwarm::addConfigurationOptions(gpb);
 
 	return target;
 }

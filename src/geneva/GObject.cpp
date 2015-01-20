@@ -379,7 +379,7 @@ void GObject::writeConfigFile(
 
 	// Recursively add configuration options to gpb,
 	// starting with the most derived class
-	addConfigurationOptions(gpb, true);
+	addConfigurationOptions(gpb);
 
 	// Write out the configuration file
 	gpb.writeConfigFile(configFile, header, true);
@@ -402,7 +402,7 @@ void GObject::readConfigFile(const std::string& configFile) {
 
 	// Recursively add configuration options to gpb,
 	// starting with the most derived class
-	addConfigurationOptions(gpb, true);
+	addConfigurationOptions(gpb);
 
 	// Read in the configuration file
 	gpb.parseConfigFile(configFile);
@@ -471,11 +471,9 @@ boost::shared_ptr<GObject> GObject::clone() const {
  * of this function that is overloaded in derived classes.
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
- * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
 void GObject::addConfigurationOptions(
 	Gem::Common::GParserBuilder& gpb
-	, const bool& showOrigin
 ) {
 	// No local data, no relevant parent classes, hence nothing to do
 }

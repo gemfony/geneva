@@ -152,7 +152,7 @@ public:
 	virtual bool assignedRNGUsed() const BASE;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&) OVERRIDE;
+	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&) OVERRIDE;
 
 	/** @brief Allows to assign a name to the role of this individual(-derivative) */
 	virtual std::string getIndividualCharacteristic() const OVERRIDE;

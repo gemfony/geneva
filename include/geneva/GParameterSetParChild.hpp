@@ -107,7 +107,6 @@ public:
    /** @brief Adds local configuration options to a GParserBuilder object */
    virtual void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
-      , const bool& showOrigin
    ) OVERRIDE;
 
    /** @brief Allows to set the likelihood for amalgamation of two units to be performed instead of "just" duplication. */

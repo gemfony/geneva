@@ -443,26 +443,22 @@ public:
     * Adds local configuration options to a GParserBuilder object
     *
     * @param gpb The GParserBuilder object to which configuration options should be added
-    * @param showOrigin Makes the function indicate the origin of parameters in comments
     */
    virtual void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
-      , const bool& showOrigin
    )  OVERRIDE {
       std::string comment;
       std::string comment1;
       std::string comment2;
 
       // Call our parent class'es function
-      GOptimizationAlgorithmT<ind_type>::addConfigurationOptions(gpb, showOrigin);
+      GOptimizationAlgorithmT<ind_type>::addConfigurationOptions(gpb);
 
       // Add local data
       comment1 = ""; // Reset the first comment string
       comment2 = ""; // Reset the second comment string
       comment1 += "The total size of the population;";
-      if(showOrigin) comment1 += " [GBaseParChildT<ind_type>]";
       comment2 += "The number of parents in the population;";
-      if(showOrigin) comment2 += " [GBaseParChildT<ind_type>]";
       gpb.registerFileParameter<std::size_t, std::size_t>(
          "size" // The name of the first variable
          , "nParents" // The name of the second variable
@@ -485,7 +481,6 @@ public:
       comment += "0: default;";
       comment += "1: random selection from available parents;";
       comment += "2: selection according to the parent's value;";
-      if(showOrigin) comment += "[GBaseParChildT<ind_type>]";
       gpb.registerFileParameter<duplicationScheme>(
          "recombinationMethod" // The name of the variable
          , DEFAULTDUPLICATIONSCHEME // The default value
@@ -501,10 +496,8 @@ public:
       comment1 = ""; // Reset the first comment string
       comment2 = ""; // Reset the second comment string
       comment1 += "Specifies the number of individuals added per iteration;";
-      if(showOrigin) comment1 += "[GBaseParChildT<ind_type>]";
       comment2 += "Specifies the maximum amount of individuals in the population;";
       comment2 += "if growth is enabled;";
-      if(showOrigin) comment += "[GBaseParChildT<ind_type>]";
       gpb.registerFileParameter<std::size_t, std::size_t>(
          "growthRate" // The name of the variable
          , "maxPopulationSize" // The name of the variable

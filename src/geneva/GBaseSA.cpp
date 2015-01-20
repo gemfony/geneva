@@ -382,20 +382,17 @@ double GBaseSA::getT() const {
  * Adds local configuration options to a GParserBuilder object
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
- * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
 void GBaseSA::addConfigurationOptions (
    Gem::Common::GParserBuilder& gpb
-   , const bool& showOrigin
 ) {
    std::string comment;
 
    // Call our parent class'es function
-   GParameterSetParChild::addConfigurationOptions(gpb, showOrigin);
+   GParameterSetParChild::addConfigurationOptions(gpb);
 
    comment = ""; // Reset the comment string
    comment += "The start temperature used in simulated annealing;";
-   if(showOrigin) comment += "[GBaseEA]";
    gpb.registerFileParameter<double>(
       "t0" // The name of the variable
       , SA_T0 // The default value
@@ -411,7 +408,6 @@ void GBaseSA::addConfigurationOptions (
    comment = ""; // Reset the comment string
    comment += "The degradation strength used in the cooling;";
    comment += "schedule in simulated annealing;";
-   if(showOrigin) comment += "[GBaseEA]";
    gpb.registerFileParameter<double>(
       "alpha" // The name of the variable
       , SA_ALPHA // The default value

@@ -283,7 +283,7 @@ boost::shared_ptr<GParameterSet> GMultiCriterionParabolaIndividualFactory::getOb
    boost::shared_ptr<GMultiCriterionParabolaIndividual> target(new GMultiCriterionParabolaIndividual());
 
    // Make the object's local configuration options known
-   target->addConfigurationOptions(gpb, true);
+   target->addConfigurationOptions(gpb);
 
    return target;
 }

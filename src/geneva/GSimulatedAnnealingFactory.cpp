@@ -140,7 +140,7 @@ boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GSimulatedAnnealingFa
    }
 
    // Make the local configuration options known (up to the level of GBaseSA)
-   target->GBaseSA::addConfigurationOptions(gpb, true);
+   target->GBaseSA::addConfigurationOptions(gpb);
 
    return target;
 }

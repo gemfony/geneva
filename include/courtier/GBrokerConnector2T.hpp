@@ -457,11 +457,9 @@ public:
     * Adds local configuration options to a GParserBuilder object
     *
     * @param gpb The GParserBuilder object to which configuration options should be added
-    * @param showOrigin Makes the function indicate the origin of parameters in comments
     */
    virtual void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
-      , const bool& showOrigin
    ) BASE {
       /* no local data. hence empty */
    }
@@ -747,14 +745,12 @@ public:
     * Adds local configuration options to a GParserBuilder object
     *
     * @param gpb The GParserBuilder object to which configuration options should be added
-    * @param showOrigin Makes the function indicate the origin of parameters in comments
     */
    virtual void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
-      , const bool& showOrigin
    ) OVERRIDE {
       // Call our parent class's function
-      GBaseExecutorT<processable_type>::addConfigurationOptions(gpb, showOrigin);
+      GBaseExecutorT<processable_type>::addConfigurationOptions(gpb);
 
       // No local data
    }
@@ -965,14 +961,12 @@ public:
     * Adds local configuration options to a GParserBuilder object
     *
     * @param gpb The GParserBuilder object to which configuration options should be added
-    * @param showOrigin Makes the function indicate the origin of parameters in comments
     */
    virtual void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
-      , const bool& showOrigin
    ) OVERRIDE {
       // Call our parent class's function
-      GBaseExecutorT<processable_type>::addConfigurationOptions(gpb, showOrigin);
+      GBaseExecutorT<processable_type>::addConfigurationOptions(gpb);
 
       // No local data
    }
@@ -1211,22 +1205,19 @@ public:
     * Adds local configuration options to a GParserBuilder object
     *
     * @param gpb The GParserBuilder object to which configuration options should be added
-    * @param showOrigin Makes the function indicate the origin of parameters in comments
     */
    virtual void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
-      , const bool& showOrigin
    ) OVERRIDE {
       std::string comment;
 
       // Call our parent class's function
-      GBaseExecutorT<processable_type>::addConfigurationOptions(gpb, showOrigin);
+      GBaseExecutorT<processable_type>::addConfigurationOptions(gpb);
 
       // Add local data
 
       comment = ""; // Reset the comment string
       comment += "A static factor to be applied to timeouts;";
-      if(showOrigin) comment += "[GBrokerConnector2T<processable_type>]";
       gpb.registerFileParameter<std::size_t>(
          "waitFactor" // The name of the variable
          , DEFAULTBROKERWAITFACTOR2 // The default value
@@ -1242,7 +1233,6 @@ public:
       comment = ""; // Reset the comment string
       comment += "The amount of resubmissions allowed if a full return of work;";
       comment += "items was expected but only a subset has returned;";
-      if(showOrigin) comment += "[GBrokerConnector2T<processable_type>]";
       gpb.registerFileParameter<std::size_t>(
          "maxResubmissions" // The name of the variable
          , DEFAULTMAXRESUBMISSIONS // The default value
@@ -1258,7 +1248,6 @@ public:
       comment = ""; // Reset the comment string
       comment += "Activates (1) or de-activates (0) logging;";
       comment += "iteration's first timeout;";
-      if(showOrigin) comment += "[GBrokerConnector2T<processable_type>]";
       gpb.registerFileParameter<bool>(
          "doLogging" // The name of the variable
          , false // The default value

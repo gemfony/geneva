@@ -184,10 +184,9 @@ public:
     */
    virtual void addConfigurationOptions(
       Gem::Common::GParserBuilder& gpb
-      , const bool& showOrigin
    ) OVERRIDE {
       // Call our parent class'es function
-      GObject::addConfigurationOptions(gpb, showOrigin);
+      GObject::addConfigurationOptions(gpb);
    }
 
    /***************************************************************************/

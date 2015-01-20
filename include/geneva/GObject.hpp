@@ -217,7 +217,7 @@ public:
 	void readConfigFile(const std::string&);
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
+	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&);
 
 	/** @brief Creates a clone of this object, storing it in a boost::shared_ptr<GObject> */
 	boost::shared_ptr<GObject> clone() const;

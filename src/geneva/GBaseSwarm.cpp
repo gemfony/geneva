@@ -611,26 +611,22 @@ void GBaseSwarm::updatePersonalBestIfBetter(
  * Adds local configuration options to a GParserBuilder object
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
- * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
 void GBaseSwarm::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
-	, const bool& showOrigin
 ) {
 	std::string comment;
 	std::string comment1;
 	std::string comment2;
 
 	// Call our parent class'es function
-	GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
+	GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions(gpb);
 
 	// Add local data
 	comment1 = "";
 	comment2 = "";
 	comment1 = "The desired number of neighborhoods in the population;";
-	if(showOrigin) comment1 += "[GBaseSwarm]";
 	comment2 = "The desired number of members in each neighborhood;";
-	if(showOrigin) comment2 += "[GBaseSwarm]";
 	gpb.registerFileParameter<std::size_t, std::size_t>(
 		"nNeighborhoods" // The name of the first variable
 		, "nNeighborhoodMembers" // The name of the second variable
@@ -650,7 +646,6 @@ void GBaseSwarm::addConfigurationOptions (
 
 	comment = ""; // Reset the comment string
 	comment += "A constant to be multiplied with the personal direction vector;";
-	if(showOrigin) comment += "[GBaseSwarm]";
 	gpb.registerFileParameter<double>(
 		"cPersonal" // The name of the variable
 		, DEFAULTCPERSONAL // The default value
@@ -665,7 +660,6 @@ void GBaseSwarm::addConfigurationOptions (
 
 	comment = ""; // Reset the comment string
 	comment += "A constant to be multiplied with the neighborhood direction vector;";
-	if(showOrigin) comment += "[GBaseSwarm]";
 	gpb.registerFileParameter<double>(
 		"cNeighborhood" // The name of the variable
 		, DEFAULTCNEIGHBORHOOD // The default value
@@ -680,7 +674,6 @@ void GBaseSwarm::addConfigurationOptions (
 
 	comment = ""; // Reset the comment string
 	comment += "A constant to be multiplied with the global direction vector;";
-	if(showOrigin) comment += "[GBaseSwarm]";
 	gpb.registerFileParameter<double>(
 		"cGlobal" // The name of the variable
 		, DEFAULTCGLOBAL // The default value
@@ -695,7 +688,6 @@ void GBaseSwarm::addConfigurationOptions (
 
 	comment = ""; // Reset the comment string
 	comment += "A constant to be multiplied with the old velocity vector;";
-	if(showOrigin) comment += "[GBaseSwarm]";
 	gpb.registerFileParameter<double>(
 		"cVelocity" // The name of the variable
 		, DEFAULTCVELOCITY // The default value
@@ -710,7 +702,6 @@ void GBaseSwarm::addConfigurationOptions (
 
 	comment = ""; // Reset the comment string
 	comment += "Sets the velocity-range percentage;";
-	if(showOrigin) comment += "[GBaseSwarm]";
 	gpb.registerFileParameter<double>(
 		"velocityRangePercentage" // The name of the variable
 		, DEFAULTVELOCITYRANGEPERCENTAGE // The default value
@@ -726,7 +717,6 @@ void GBaseSwarm::addConfigurationOptions (
 	comment = ""; // Reset the comment string
 	comment += "Specifies whether a linear (0) or classical (1);";
 	comment += "update rule should be used;";
-	if(showOrigin) comment += "[GBaseSwarm]";
 	gpb.registerFileParameter<updateRule>(
 		"updateRule" // The name of the variable
 		, DEFAULTUPDATERULE // The default value
@@ -742,7 +732,6 @@ void GBaseSwarm::addConfigurationOptions (
 	comment = ""; // Reset the comment string
 	comment += "Specifies whether neighborhoods should be filled up;";
 	comment += "randomly (true) or start with equal values (false);";
-	if(showOrigin) comment += "[GBaseSwarm]";
 	gpb.registerFileParameter<bool>(
 		"randomFillUp" // The name of the variable
 		, true // The default value
@@ -758,7 +747,6 @@ void GBaseSwarm::addConfigurationOptions (
    comment = ""; // Reset the comment string
    comment += "The number of stalls as of which the algorithm switches to repulsive mode;";
    comment += "Set this to 0 in order to disable this feature;";
-   if(showOrigin) comment += "[GBaseSwarm]";
    gpb.registerFileParameter<boost::uint32_t>(
       "repulsionThreshold" // The name of the variable
       , DEFREPULSIONTHRESHOLD // The default value

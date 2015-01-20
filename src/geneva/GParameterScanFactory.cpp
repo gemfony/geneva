@@ -179,7 +179,7 @@ boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GParameterScanFactory
    }
 
    // Make the local configuration options known
-   target->GBasePS::addConfigurationOptions(gpb, true);
+   target->GBasePS::addConfigurationOptions(gpb);
 
    return target;
 }

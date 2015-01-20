@@ -866,23 +866,20 @@ void Go2::runFitnessCalculation()
  * Adds local configuration options to a GParserBuilder object
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
- * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
 void Go2::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
-	, const bool& showOrigin
 ) {
 	using namespace Gem::Common;
 
 	std::string comment;
 
 	// Call our parent class'es function
-	GMutableSetT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
+	GMutableSetT<GParameterSet>::addConfigurationOptions(gpb);
 
    // Add local data
    comment = ""; // Reset the first comment string
    comment += "The number of threads simultaneously producing random numbers;";
-   if(showOrigin) comment += " [Go2]";
    gpb.registerFileParameter<boost::uint16_t>(
       "nProducerThreads" // The name of the first variable
       , GO2_DEF_NPRODUCERTHREADS
@@ -1211,7 +1208,7 @@ void Go2::parseConfigFile(const std::string& configFilename) {
    Gem::Common::GParserBuilder gpb;
 
    // Add local configuration options
-   this->addConfigurationOptions(gpb, true);
+   this->addConfigurationOptions(gpb);
 
    // Do the actual parsing
    if(!gpb.parseConfigFile(configFilename)) {

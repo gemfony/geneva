@@ -530,23 +530,20 @@ void GBaseGD::updateParentIndividuals() {
  * Adds local configuration options to a GParserBuilder object
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
- * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
 void GBaseGD::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
-	, const bool& showOrigin
 ) {
 	std::string comment;
 	std::string comment1;
 	std::string comment2;
 
 	// Call our parent class'es function
-	GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
+	GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions(gpb);
 
 	// Add local data
 	comment = ""; // Reset the comment string
 	comment += "The number of simultaneous gradient descents;";
-	if(showOrigin) comment += "[GBaseGD]";
 	gpb.registerFileParameter<std::size_t>(
 		"nStartingPoints" // The name of the variable
 		, DEFAULTGDSTARTINGPOINTS // The default value
@@ -561,7 +558,6 @@ void GBaseGD::addConfigurationOptions (
 
 	comment = ""; // Reset the comment string
 	comment += "The size of the adjustment in the difference quotient;";
-	if(showOrigin) comment += "[GBaseGD]";
 	gpb.registerFileParameter<double>(
 		"finiteStep" // The name of the variable
 		, DEFAULTFINITESTEP // The default value
@@ -577,7 +573,6 @@ void GBaseGD::addConfigurationOptions (
 	comment = ""; // Reset the comment string
 	comment += "The size of each step into the;";
 	comment += "direction of steepest descent.;";
-	if(showOrigin) comment += "[GBaseGD]";
 	gpb.registerFileParameter<double>(
 		"stepSize" // The name of the variable
 		, DEFAULTSTEPSIZE // The default value

@@ -214,14 +214,12 @@ void GSerialSwarm::finalize() {
  * Adds local configuration options to a GParserBuilder object
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
- * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
 void GSerialSwarm::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
-	, const bool& showOrigin
 ) {
 	// Call our parent class'es function
-	GBaseSwarm::addConfigurationOptions(gpb, showOrigin);
+	GBaseSwarm::addConfigurationOptions(gpb);
 
 	// no local data
 }

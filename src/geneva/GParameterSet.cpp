@@ -671,22 +671,19 @@ std::size_t GParameterSet::customAdaptions() {
  * Adds local configuration options to a GParserBuilder object
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
- * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
 void GParameterSet::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
-	, const bool& showOrigin
 ) {
 	std::string comment;
 
 	// Call our parent class'es function
-	GMutableSetT<Gem::Geneva::GParameterBase>::addConfigurationOptions(gpb, showOrigin);
+	GMutableSetT<Gem::Geneva::GParameterBase>::addConfigurationOptions(gpb);
 
 	// Add local data
 	comment = ""; // Reset the comment string
 	comment += "Specifies whether the individual should be maximized (1) or minimized (0);";
 	comment += "Note that minimization is the by far most common option.;";
-	if(showOrigin) comment += "[GParameterset]";
 	gpb.registerFileParameter<boost::uint32_t>(
 		"maximize" // The name of the variable
 		, false // The default value
@@ -702,7 +699,6 @@ void GParameterSet::addConfigurationOptions (
    comment = ""; // Reset the comment string
    comment += "The likelihood for two data items to be exchanged;";
    comment += "in a \"per-item\" cross-over operation;";
-   if(showOrigin) comment += "[GParameterset]";
    gpb.registerFileParameter<double>(
       "perItemCrossOverProbability" // The name of the variable
       , DEFAULTPERITEMEXCHANGELIKELIHOOD // The default value

@@ -148,7 +148,7 @@ public:
       Gem::Common::GParserBuilder gpb;
 
       // Add configuration options of this and of derived classes
-      addConfigurationOptions(gpb, true);
+      addConfigurationOptions(gpb);
 
       // Do the actual parsing. Note that this
       // will try to write out a default configuration file,
@@ -221,11 +221,9 @@ protected:
     * as it might not always be needed.
     *
     * @param gpb The GParserBuilder object, to which configuration options will be added
-    * @param showOrigin Indicates, whether the origin of a configuration option should be shown in the configuration file
     */
    virtual void addConfigurationOptions(
          Gem::Common::GParserBuilder& gpb
-         , const bool& showOrigin
    ){ /* nothing -- no local data */ }
 
 private:

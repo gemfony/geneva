@@ -151,10 +151,9 @@ boost::optional<std::string> GDoubleSumConstraint::checkRelationshipWith(
  */
 void GDoubleSumConstraint::addConfigurationOptions(
       Gem::Common::GParserBuilder& gpb
-      , const bool& showOrigin
 ) {
    // Call our parent class'es function
-   GParameterSetConstraint::addConfigurationOptions(gpb, showOrigin);
+   GParameterSetConstraint::addConfigurationOptions(gpb);
 }
 
 /******************************************************************************/
@@ -316,10 +315,9 @@ boost::optional<std::string> GDoubleSumGapConstraint::checkRelationshipWith(
  */
 void GDoubleSumGapConstraint::addConfigurationOptions(
       Gem::Common::GParserBuilder& gpb
-      , const bool& showOrigin
 ) {
    // Call our parent class'es function
-   GParameterSetConstraint::addConfigurationOptions(gpb, showOrigin);
+   GParameterSetConstraint::addConfigurationOptions(gpb);
 }
 
 /******************************************************************************/
@@ -479,10 +477,9 @@ boost::optional<std::string> GSphereConstraint::checkRelationshipWith(
  */
 void GSphereConstraint::addConfigurationOptions(
    Gem::Common::GParserBuilder& gpb
-   , const bool& showOrigin
 ) {
    // Call our parent class'es function
-   GParameterSetConstraint::addConfigurationOptions(gpb, showOrigin);
+   GParameterSetConstraint::addConfigurationOptions(gpb);
 }
 
 /******************************************************************************/
@@ -759,16 +756,14 @@ boost::optional<std::string> GFunctionIndividual::checkRelationshipWith(
  * Adds local configuration options to a GParserBuilder object
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
- * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
 void GFunctionIndividual::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
-	, const bool& showOrigin
 ) {
 	std::string comment;
 
 	// Call our parent class'es function
-	GParameterSet::addConfigurationOptions(gpb, showOrigin);
+	GParameterSet::addConfigurationOptions(gpb);
 
 	// Local data
    comment = ""; // Reset the comment string
@@ -781,7 +776,6 @@ void GFunctionIndividual::addConfigurationOptions (
    comment += "5: Schwefel;";
    comment += "6: Salomon;";
    comment += "7: Negative Parabola;";
-   if(showOrigin) comment += "[GFunctionIndividual];";
    gpb.registerFileParameter<solverFunction>(
       "demoFunction" // The name of the variable
       , GO_DEF_EVALFUNCTION // The default value
@@ -1756,7 +1750,7 @@ boost::shared_ptr<GParameterSet> GFunctionIndividualFactory::getObject_(
 	boost::shared_ptr<GFunctionIndividual> target(new GFunctionIndividual());
 
 	// Make the object's local configuration options known
-	target->addConfigurationOptions(gpb, true);
+	target->addConfigurationOptions(gpb);
 
 	return target;
 }

@@ -329,7 +329,7 @@ boost::shared_ptr<GParameterSet> GLineFitIndividualFactory::getObject_(
    boost::shared_ptr<GLineFitIndividual> target(new GLineFitIndividual(this->dataPoints_));
 
    // Make the object's local configuration options known
-   target->addConfigurationOptions(gpb, true);
+   target->addConfigurationOptions(gpb);
 
    return target;
 }

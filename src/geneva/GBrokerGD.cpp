@@ -231,17 +231,15 @@ void GBrokerGD::finalize() {
  * Adds local configuration options to a GParserBuilder object
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
- * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
 void GBrokerGD::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
-	, const bool& showOrigin
 ) {
 	std::string comment;
 
 	// Call our parent class'es function
-	GBaseGD::addConfigurationOptions(gpb, showOrigin);
-	Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::addConfigurationOptions(gpb, showOrigin);
+	GBaseGD::addConfigurationOptions(gpb);
+	Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::addConfigurationOptions(gpb);
 
 	// no local data
 }

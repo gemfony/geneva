@@ -116,24 +116,20 @@ const GFMinIndividual& GFMinIndividual::operator=(const GFMinIndividual& cp){
  * Adds local configuration options to a GParserBuilder object
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
- * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
 void GFMinIndividual::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
-	, const bool& showOrigin
 ) {
 	std::string comment;
 
 	// Call our parent class'es function
-	GParameterSet::addConfigurationOptions(gpb, showOrigin);
+	GParameterSet::addConfigurationOptions(gpb);
 
 	// Add local data
 	comment = ""; // Reset the comment string
 	comment += "Specifies which target function should be used:;";
 	comment += "0: Parabola;";
 	comment += "1: Berlich;";
-
-	if(showOrigin) comment += "[GFMinIndividual]";
 	gpb.registerFileParameter<targetFunction>(
 		"targetFunction" // The name of the variable
 		, GO_DEF_TARGETFUNCTION // The default value
@@ -347,7 +343,7 @@ boost::shared_ptr<GParameterSet> GFMinIndividualFactory::getObject_(
 	boost::shared_ptr<GFMinIndividual> target(new GFMinIndividual());
 
 	// Make the object's local configuration options known
-	target->addConfigurationOptions(gpb, true);
+	target->addConfigurationOptions(gpb);
 
 	return target;
 }

@@ -263,18 +263,16 @@ public:
     * Adds local configuration options to a GParserBuilder object
     *
     * @param gpb The GParserBuilder object to which configuration options should be added
-    * @param showOrigin Makes the function indicate the origin of parameters in comments
     */
    virtual void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
-      , const bool& showOrigin
    ) OVERRIDE {
       std::string comment;
       std::string comment1;
       std::string comment2;
 
       // Call our parent class'es function
-      GBaseParChildT<oa_type>::addConfigurationOptions(gpb, showOrigin);
+      GBaseParChildT<oa_type>::addConfigurationOptions(gpb);
 
       comment = ""; // Reset the comment string
       comment += "The sorting scheme. Options;";
@@ -283,7 +281,6 @@ public:
       comment += "2: MUCOMMANU mode with single evaluation criterion,;";
       comment += "   the best parent of the last iteration is retained;";
       comment += "   unless a better individual has been found;";
-      if(showOrigin) comment += "[GMultiPopulationEAT<ind_type>]";
       gpb.registerFileParameter<sortingModeMP>(
          "sortingMethod" // The name of the variable
          , DEFAULTSMODEMP // The default value

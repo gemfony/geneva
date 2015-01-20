@@ -300,7 +300,7 @@ boost::shared_ptr<Gem::Geneva::GParameterSet> GDelayIndividualFactory::getObject
    boost::shared_ptr<GDelayIndividual> target(new GDelayIndividual());
 
    // Make the object's local configuration options known
-   target->addConfigurationOptions(gpb, true);
+   target->addConfigurationOptions(gpb );
 
    return target;
 }

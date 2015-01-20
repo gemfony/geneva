@@ -316,27 +316,20 @@ protected:
     * a single local option -- the number of threads
     *
     * @param gpb The GParserBuilder object, to which configuration options will be added
-    * @param showOrigin Indicates, whether the origin of a configuration option should be shown in the configuration file
     */
    virtual void addConfigurationOptions(
          Gem::Common::GParserBuilder& gpb
-         , const bool& showOrigin
    ){
       std::string comment;
 
       // Call our parent class'es function
-      GBaseConsumerT<processable_type>::addConfigurationOptions(gpb, showOrigin);
+      GBaseConsumerT<processable_type>::addConfigurationOptions(gpb);
 
       // Add local data
       comment = ""; // Reset the comment string
-      if(showOrigin) {
-         comment += "[Origin] GBoostThreadConsumerT<processable_type>;";
-         comment += (std::string("with typeid(processable_type).name() = ") + typeid(processable_type).name() + ";");
-      }
       comment += "Indicates the number of threads used to process each worker.;";
       comment += "Setting threadsPerWorker to 0 will result in an attempt to;";
       comment += "automatically determine the number of hardware threads.";
-      if(showOrigin) comment += "[GBoostThreadConsumerT<>]";
       gpb.registerFileParameter<std::size_t>(
          "threadsPerWorker" // The name of the variable
          , 0 // The default value
@@ -537,7 +530,7 @@ public:
          Gem::Common::GParserBuilder gpb;
 
          // Add configuration options of this and of derived classes
-         addConfigurationOptions(gpb, true);
+         addConfigurationOptions(gpb);
 
          // Do the actual parsing. Note that this
          // will try to write out a default configuration file,
@@ -572,11 +565,9 @@ public:
        * as it might not always be needed.
        *
        * @param gpb The GParserBuilder object, to which configuration options will be added
-       * @param showOrigin Indicates, whether the origin of a configuration option should be shown in the configuration file
        */
       virtual void addConfigurationOptions(
             Gem::Common::GParserBuilder& gpb
-            , const bool& showOrigin
       ){ /* nothing -- no local data */ }
 
       /************************************************************************/

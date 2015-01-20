@@ -810,14 +810,12 @@ bool GBasePS::customHalt() const {
  * Adds local configuration options to a GParserBuilder object
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
- * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
 void GBasePS::addConfigurationOptions (
    Gem::Common::GParserBuilder& gpb
-   , const bool& showOrigin
 ) {
    // Call our parent class'es function
-   GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
+   GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions(gpb);
 
    gpb.registerFileParameter<std::size_t>(
       "size" // The name of the first variable

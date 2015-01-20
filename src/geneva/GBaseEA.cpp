@@ -241,18 +241,16 @@ boost::shared_ptr<GPersonalityTraits> GBaseEA::getPersonalityTraits() const {
  * Adds local configuration options to a GParserBuilder object
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
- * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
 void GBaseEA::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
-	, const bool& showOrigin
 ) {
 	std::string comment;
 	std::string comment1;
 	std::string comment2;
 
 	// Call our parent class'es function
-	GParameterSetParChild::addConfigurationOptions(gpb, showOrigin);
+	GParameterSetParChild::addConfigurationOptions(gpb);
 
 	comment = ""; // Reset the comment string
 	comment += "The sorting scheme. Options;";
@@ -263,7 +261,6 @@ void GBaseEA::addConfigurationOptions (
 	comment += "   unless a better individual has been found;";
 	comment += "3: MUPLUSNU mode for multiple evaluation criteria, pareto selection;";
 	comment += "4: MUCOMMANU mode for multiple evaluation criteria, pareto selection;";
-	if(showOrigin) comment += "[GBaseEA]";
 	gpb.registerFileParameter<sortingMode>(
 		"sortingMethod" // The name of the variable
 		, DEFAULTSMODE // The default value

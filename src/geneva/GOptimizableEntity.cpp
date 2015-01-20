@@ -1551,16 +1551,14 @@ bool GOptimizableEntity::isWorseThan(boost::shared_ptr<GOptimizableEntity> p) co
  * Adds local configuration options to a GParserBuilder object
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
- * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
 void GOptimizableEntity::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
-	, const bool& showOrigin
 ) {
    std::string comment;
 
 	// Call our parent class'es function
-	GObject::addConfigurationOptions(gpb, showOrigin);
+	GObject::addConfigurationOptions(gpb);
 
 	// Add local data
    comment = ""; // Reset the comment string
@@ -1569,7 +1567,6 @@ void GOptimizableEntity::addConfigurationOptions (
    comment += "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions;";
    comment += "2 (a.k.a. USESIGMOID): Assign a multiple of validityLevel_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations;";
    comment += "3 (a.k.a. USEWORSTKNOWNVALIDFORINVALID): Assign \"invalidityLevel*worstKnownValid\" to invalid individuals, using normal evaluation otherwise;";
-   if(showOrigin) comment += "[GOptimizableEntity];";
    gpb.registerFileParameter<evaluationPolicy>(
       "evalPolicy" // The name of the variable
       , Gem::Geneva::USESIMPLEEVALUATION // The default value
@@ -1586,7 +1583,6 @@ void GOptimizableEntity::addConfigurationOptions (
    comment += "When using a sigmoid function to transform the individual's fitness,;";
    comment += "this parameter influences the steepness of the function at the center of the sigmoid.;";
    comment += "The parameter must have a value > 0.;";
-   if(showOrigin) comment += "[GOptimizableEntity];";
    gpb.registerFileParameter<double>(
       "steepness" // The name of the variable
       , Gem::Geneva::FITNESSSIGMOIDSTEEPNESS // The default value
@@ -1603,7 +1599,6 @@ void GOptimizableEntity::addConfigurationOptions (
    comment += "When using a sigmoid function to transform the individual's fitness,;";
    comment += "this parameter sets the upper/lower boundary of the sigmoid.;";
    comment += "The parameter must have a value > 0.;";
-   if(showOrigin) comment += "[GOptimizableEntity];";
    gpb.registerFileParameter<double>(
       "barrier" // The name of the variable
       , Gem::Geneva::WORSTALLOWEDVALIDFITNESS // The default value
@@ -1618,7 +1613,6 @@ void GOptimizableEntity::addConfigurationOptions (
 
    comment = ""; // Reset the comment string
    comment += "The maximum number of unsuccessful adaptions in a row for one call to adapt();";
-   if(showOrigin) comment += "[GOptimizableEntity];";
    gpb.registerFileParameter<std::size_t>(
       "maxUnsuccessfulAdaptions" // The name of the variable
       , DEFMAXUNSUCCESSFULADAPTIONS // The default value
@@ -1636,7 +1630,6 @@ void GOptimizableEntity::addConfigurationOptions (
    comment += "adaption of individuals until a valid solution was found;";
    comment += "A parameter set is considered to be \"valid\" if;";
    comment += "it passes all validity checks;";
-   if(showOrigin) comment += "[GOptimizableEntity]";
    gpb.registerFileParameter<std::size_t>(
       "maxRetriesUntilValid" // The name of the variable
       , DEFMAXRETRIESUNTILVALID // The default value

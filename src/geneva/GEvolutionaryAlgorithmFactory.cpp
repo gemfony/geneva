@@ -140,7 +140,7 @@ boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GEvolutionaryAlgorith
 	}
 
 	// Make the local configuration options known (up to the level of GBaseEA)
-	target->GBaseEA::addConfigurationOptions(gpb, true);
+	target->GBaseEA::addConfigurationOptions(gpb);
 
 	return target;
 }

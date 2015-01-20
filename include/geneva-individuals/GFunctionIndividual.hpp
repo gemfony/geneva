@@ -212,7 +212,7 @@ public:
 	) const;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
+	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&);
 
 	/** @brief Allows to set the demo function */
 	void setDemoFunction(solverFunction);
@@ -720,7 +720,7 @@ public:
    ) const;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
-   virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
+   virtual void addConfigurationOptions(Gem::Common::GParserBuilder&);
 
 protected:
    virtual double check_(const GParameterSet *) const;
@@ -785,7 +785,7 @@ public:
    ) const;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
-   virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
+   virtual void addConfigurationOptions(Gem::Common::GParserBuilder&);
 
 protected:
    virtual double check_(const GParameterSet *) const;
@@ -849,7 +849,7 @@ public:
    ) const;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
-   virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&);
+   virtual void addConfigurationOptions(Gem::Common::GParserBuilder&);
 
 protected:
    virtual double check_(const GParameterSet *) const;

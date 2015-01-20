@@ -394,22 +394,19 @@ void GBrokerEA::selectBest() {
  * Adds local configuration options to a GParserBuilder object
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
- * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
 void GBrokerEA::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
-	, const bool& showOrigin
 ) {
 	std::string comment;
 
 	// Call our parent class'es function
-	GBaseEA::addConfigurationOptions(gpb, showOrigin);
-	Gem::Courtier::GBrokerConnector2T<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
+	GBaseEA::addConfigurationOptions(gpb);
+	Gem::Courtier::GBrokerConnector2T<GParameterSet>::addConfigurationOptions(gpb);
 
 	// Add local data
 	comment = ""; // Reset the comment string
 	comment += "The number of threads used to simultaneously adapt individuals;";
-	if(showOrigin) comment += "[GBrokerEA]";
 	gpb.registerFileParameter<boost::uint16_t>(
 		"nEvaluationThreads" // The name of the variable
 		, 0 // The default value

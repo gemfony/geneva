@@ -326,21 +326,18 @@ public:
     * Adds local configuration options to a GParserBuilder object
     *
     * @param gpb The GParserBuilder object to which configuration options should be added
-    * @param showOrigin Makes the function indicate the origin of parameters in comments
     */
    virtual void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
-      , const bool& showOrigin
    ) {
       std::string comment;
 
       // Call our parent class'es function
-      GParameterSet::addConfigurationOptions(gpb, showOrigin);
+      GParameterSet::addConfigurationOptions(gpb);
 
       // Add local data
       comment = ""; // Reset the comment string
       comment += "Specifies the number of optimizations performed";
-      if(showOrigin) comment += "[GMetaOptimizerIndividualT<ind_type>]";
       gpb.registerFileParameter<std::size_t>(
          "nRunsPerOptimization" // The name of the variable
          , GMETAOPT_DEF_NRUNSPEROPT // The default value
@@ -355,7 +352,6 @@ public:
 
       comment = ""; // Reset the comment string
       comment += "The fitness below which optimization should stop";
-      if(showOrigin) comment += "[GMetaOptimizerIndividualT<ind_type>]";
       gpb.registerFileParameter<double>(
          "fitnessTarget" // The name of the variable
          , GMETAOPT_DEF_FITNESSTARGET // The default value
@@ -370,7 +366,6 @@ public:
 
       comment = ""; // Reset the comment string
       comment += "The maximum number of iterations per sub-optimization";
-      if(showOrigin) comment += "[GMetaOptimizerIndividualT<ind_type>]";
       gpb.registerFileParameter<std::size_t>(
          "iterationThreshold" // The name of the variable
          , GMETAOPT_DEF_ITERATIONTHRESHOLD // The default value
@@ -387,7 +382,6 @@ public:
       comment += "The target for the meta-optimization: best fitness (0),;";
       comment += "minimum number of solver calls (1), multi-criterion with best fitness;";
       comment += "and smallest number of solver calls as target (2);";
-      if(showOrigin) comment += "[GMetaOptimizerIndividualT<ind_type>]";
       gpb.registerFileParameter<metaOptimizationTarget>(
          "metaOptimizationTarget" // The name of the variable
          , GMETAOPT_DEF_MOTARGET // The default value
@@ -402,7 +396,6 @@ public:
 
       comment = ""; // Reset the comment string
       comment += "Path and name of the configuration file used for the (sub-)evolutionary algorithm;";
-      if(showOrigin) comment += "[GMetaOptimizerIndividualT<ind_type>]";
       gpb.registerFileParameter<std::string>(
          "subEAConfig" // The name of the variable
          , GMETAOPT_DEF_SUBEACONFIG // The default value
@@ -418,7 +411,6 @@ public:
       comment = ""; // Reset the comment string
       comment += "The execution mode for the sub-optimization algorithm:;";
       comment += "serial (0/false), multithreaded (1/true);";
-      if(showOrigin) comment += "[GMetaOptimizerIndividualT<ind_type>]";
       gpb.registerFileParameter<bool>(
          "subExecMode" // The name of the variable
          , subExecMode_ // The default value
@@ -1377,7 +1369,7 @@ protected:
          target(new GMetaOptimizerIndividualT<ind_type>());
 
       // Make the object's local configuration options known
-      target->addConfigurationOptions(gpb, true);
+      target->addConfigurationOptions(gpb);
 
       return target;
    }

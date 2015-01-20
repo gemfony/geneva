@@ -927,7 +927,7 @@ boost::shared_ptr<GParameterSet> GExternalEvaluatorIndividualFactory::getObject_
    boost::shared_ptr<GExternalEvaluatorIndividual> target(new GExternalEvaluatorIndividual());
 
    // Make the object's local configuration options known
-   target->addConfigurationOptions(gpb, true);
+   target->addConfigurationOptions(gpb);
 
    return target;
 }

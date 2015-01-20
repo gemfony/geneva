@@ -118,7 +118,6 @@ public:
    /** @brief Adds local configuration options to a GParserBuilder object */
    virtual void addConfigurationOptions (
          Gem::Common::GParserBuilder& gpb
-         , const bool& showOrigin
    ) OVERRIDE;
 
    /** @brief Sets the maximum number of threads */

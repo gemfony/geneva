@@ -144,7 +144,7 @@ boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GGradientDescentFacto
 	}
 
 	// Make the local configuration options known
-	target->GBaseGD::addConfigurationOptions(gpb, true);
+	target->GBaseGD::addConfigurationOptions(gpb);
 
 	return target;
 }

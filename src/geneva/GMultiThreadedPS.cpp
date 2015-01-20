@@ -259,22 +259,19 @@ void GMultiThreadedPS::finalize() {
  * Adds local configuration options to a GParserBuilder object
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
- * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
 void GMultiThreadedPS::addConfigurationOptions (
    Gem::Common::GParserBuilder& gpb
-   , const bool& showOrigin
 ) {
    std::string comment;
 
    // Call our parent class'es function
-   GBasePS::addConfigurationOptions(gpb, showOrigin);
+   GBasePS::addConfigurationOptions(gpb);
 
    // add local data
    comment = ""; // Reset the comment string
    comment += "The number of evaluation threads;";
    comment += "0 means: determine automatically;";
-   if(showOrigin) comment += "[GMultiThreadedPS]";
    gpb.registerFileParameter<boost::uint16_t>(
       "nEvaluationThreads" // The name of the variable
       , 0 // The default value

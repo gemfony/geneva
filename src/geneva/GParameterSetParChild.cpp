@@ -145,22 +145,19 @@ boost::optional<std::string> GParameterSetParChild::checkRelationshipWith(
  * Adds local configuration options to a GParserBuilder object
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
- * @param showOrigin Makes the function indicate the origin of parameters in comments
  */
 void GParameterSetParChild::addConfigurationOptions (
    Gem::Common::GParserBuilder& gpb
-   , const bool& showOrigin
 ) {
    std::string comment;
 
    // Call our parent class'es function
-   GBaseParChildT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
+   GBaseParChildT<GParameterSet>::addConfigurationOptions(gpb);
 
 
    comment = ""; // Reset the comment string
    comment += "The likelihood for parent individuals to be \"fused\" together;";
    comment += "rather than \"just\" being created through duplication schemes;";
-   if(showOrigin) comment += "[GParameterSetParChild]";
    gpb.registerFileParameter<double>(
       "amalgamationLikelihood" // The name of the variable
       , DEFAULTAMALGAMATIONLIKELIHOOD // The default value

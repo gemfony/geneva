@@ -350,7 +350,6 @@ public:
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual void addConfigurationOptions(
 		Gem::Common::GParserBuilder&
-		, const bool&
 	) OVERRIDE;
 
 	/** @brief Allows to assign a name to the role of this individual(-derivative) */

@@ -136,10 +136,9 @@ boost::optional<std::string> GParameterSetConstraint::checkRelationshipWith(
  */
 void GParameterSetConstraint::addConfigurationOptions(
    Gem::Common::GParserBuilder& gpb
-   , const bool& showOrigin
 ) {
    // Call our parent class'es function
-   GPreEvaluationValidityCheckT<GOptimizableEntity>::addConfigurationOptions(gpb, showOrigin);
+   GPreEvaluationValidityCheckT<GOptimizableEntity>::addConfigurationOptions(gpb);
 }
 
 /******************************************************************************/
@@ -275,10 +274,9 @@ boost::optional<std::string> GParameterSetFormulaConstraint::checkRelationshipWi
  */
 void GParameterSetFormulaConstraint::addConfigurationOptions(
    Gem::Common::GParserBuilder& gpb
-   , const bool& showOrigin
 ) {
    // Call our parent class'es function
-   GParameterSetConstraint::addConfigurationOptions(gpb, showOrigin);
+   GParameterSetConstraint::addConfigurationOptions(gpb);
 }
 
 /******************************************************************************/

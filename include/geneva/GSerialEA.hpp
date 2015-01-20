@@ -102,7 +102,6 @@ public:
 
 	virtual void addConfigurationOptions (
 		Gem::Common::GParserBuilder& gpb
-		, const bool& showOrigin
 	) OVERRIDE;
 
 	/** @brief Allows to assign a name to the role of this individual(-derivative) */

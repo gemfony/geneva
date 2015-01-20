@@ -104,7 +104,7 @@ public:
    ) const OVERRIDE;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
-   virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&) OVERRIDE;
+   virtual void addConfigurationOptions(Gem::Common::GParserBuilder&) OVERRIDE;
 
 protected:
    /** @brief Checks whether a given individual is valid */
@@ -169,7 +169,7 @@ public:
    ) const OVERRIDE;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
-   virtual void addConfigurationOptions(Gem::Common::GParserBuilder&, const bool&) OVERRIDE;
+   virtual void addConfigurationOptions(Gem::Common::GParserBuilder&) OVERRIDE;
 
 protected:
    /** @brief Checks whether a given GParameterSet object is valid */
