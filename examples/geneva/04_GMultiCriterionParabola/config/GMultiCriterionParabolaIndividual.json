@@ -27,7 +27,7 @@
         "comment": "3 (a.k.a. USEWORSTKNOWNVALIDFORINVALID): Assign \"invalidityLevel*worstKnownValid\" to invalid individuals, using normal evaluation otherwise",
         "comment": "[GOptimizableEntity]",
         "default": "0",
-        "value": "0"
+        "value": "2"
     },
     "steepness": {
         "comment": "When using a sigmoid function to transform the individual's fitness,",
