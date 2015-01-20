@@ -357,7 +357,7 @@ public:
       comment += "The fitness below which optimization should stop";
       if(showOrigin) comment += "[GMetaOptimizerIndividualT<ind_type>]";
       gpb.registerFileParameter<double>(
-         "fitnessTarget_" // The name of the variable
+         "fitnessTarget" // The name of the variable
          , GMETAOPT_DEF_FITNESSTARGET // The default value
          , boost::bind(
             &GMetaOptimizerIndividualT<ind_type>::setFitnessTarget

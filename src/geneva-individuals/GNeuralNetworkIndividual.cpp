@@ -1753,7 +1753,7 @@ void GNeuralNetworkIndividualFactory::describeLocalOptions_(Gem::Common::GParser
    comment = "";
    comment += "The lower allowed boundary for adProb-variation;";
    gpb.registerFileParameter<double>(
-      "minAdProb_"
+      "minAdProb"
       , minAdProb_
       , GNN_DEF_MINADPROB
       , Gem::Common::VAR_IS_ESSENTIAL
@@ -1763,7 +1763,7 @@ void GNeuralNetworkIndividualFactory::describeLocalOptions_(Gem::Common::GParser
    comment = "";
    comment += "The upper allowed boundary for adProb-variation;";
    gpb.registerFileParameter<double>(
-      "maxAdProb_"
+      "maxAdProb"
       , maxAdProb_
       , GNN_DEF_MAXADPROB
       , Gem::Common::VAR_IS_ESSENTIAL

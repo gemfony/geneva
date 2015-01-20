@@ -16,13 +16,13 @@
         "default": "0.1",
         "value": "0.1"
     },
-    "minAdProb_":
+    "minAdProb":
     {
         "comment": "The lower allowed boundary for adProb-variation",
         "default": "0.05",
         "value": "0.05"
     },
-    "maxAdProb_":
+    "maxAdProb":
     {
         "comment": "The upper allowed boundary for adProb-variation",
         "default": "1",

@@ -1794,7 +1794,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
    comment = "";
    comment += "The lower allowed boundary for adProb-variation;";
    gpb.registerFileParameter<double>(
-      "minAdProb_"
+      "minAdProb"
       , minAdProb_.reference()
       , GFI_DEF_MINADPROB
       , Gem::Common::VAR_IS_ESSENTIAL
@@ -1804,7 +1804,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
    comment = "";
    comment += "The upper allowed boundary for adProb-variation;";
    gpb.registerFileParameter<double>(
-      "maxAdProb_"
+      "maxAdProb"
       , maxAdProb_.reference()
       , GFI_DEF_MAXADPROB
       , Gem::Common::VAR_IS_ESSENTIAL

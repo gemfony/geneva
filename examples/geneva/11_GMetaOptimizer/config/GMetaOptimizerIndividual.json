@@ -254,7 +254,7 @@
         "default": "10",
         "value": "10"
     },
-    "fitnessTarget_":
+    "fitnessTarget":
     {
         "comment": "The fitness below which optimization should stop[GMetaOptimizerIndividualT<ind_type>]",
         "default": "0.001",
