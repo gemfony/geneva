@@ -204,6 +204,32 @@ GParsableI& GParsableI::operator<< (const commentLevel& cl) {
 
 /******************************************************************************/
 /**
+ * Allows to switch to the next comment level
+ */
+GParsableI& GParsableI::operator<< (const nextComment& nC) {
+#ifdef DEBUG
+   if(comment_.empty()) {
+      glogger
+       << "In GParsableI::operator<< (const nextComment& nC): Error!" << std::endl
+       << "No comments in vector" << std::endl
+       << GEXCEPTION;
+   }
+
+   if(comment_.size() <= (cl_+1)) {
+      glogger
+      << "In GParsableI::operator<< (const nextComment& nC): Error!" << std::endl
+      << "Invalid comment level " << cl_+1 << " requested, where the maximum is " << comment_.size() - 1 << std::endl
+      << GEXCEPTION;
+   }
+#endif /* DEBUG */
+
+   // Increment the comment level
+   cl_++;
+   return *this;
+}
+
+/******************************************************************************/
+/**
  * Splits a comment into sub-tokens. The comment will be split in case of newlines
  * and semicolons.
  */

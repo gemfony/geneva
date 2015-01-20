@@ -275,6 +275,18 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * A manipulator object that increments the comment level
+ */
+class nextComment {
+public:
+   /** @brief The default constructor */
+   nextComment(){ /* nothing */ }
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * This class specifies the interface of parsable parameters, to
  * which a call-back function has been assigned. It also stores some
  * information common to all parameter types.
@@ -352,6 +364,8 @@ public:
    GParsableI& operator<< (std::ios_base& ( *val )(std::ios_base&));
    /** @brief Allows to indicate the current comment level */
    GParsableI& operator<< (const commentLevel&);
+   /** @brief Allows to switch to the next comment level */
+   GParsableI& operator<< (const nextComment&);
 
 protected:
    /***************************************************************************/

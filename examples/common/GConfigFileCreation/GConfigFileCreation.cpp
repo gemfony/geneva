@@ -163,7 +163,8 @@ int main(int argc, char **argv) {
          , "combinedLabel"
       )
       << "A comment concerning the first option"
-      << commentLevel(1) << "A comment concerning the second option;with a second line";
+      << nextComment() // commentLevel(1) would be another option
+      << "A comment concerning the second option;with a second line";
 	} else {
       gpb.registerFileParameter<int,double>(
          "iOption3"
