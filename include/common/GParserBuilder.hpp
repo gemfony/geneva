@@ -529,8 +529,8 @@ protected:
    }
 
    /***************************************************************************/
-   parameter_type par_; ///< Holds the individual parameter
    parameter_type def_val_; ///< Holds the parameter's default value
+   parameter_type par_; ///< Holds the individual parameter
 
 private:
    /***************************************************************************/
@@ -829,8 +829,10 @@ public:
          , GFileParsableI::makeVector(commentVar0, commentVar1)
          , isEssentialVar
         )
-      , par0_(def_val0), par1_(def_val1)
-      , def_val0_(def_val0), def_val1_(def_val1)
+      , par0_(def_val0)
+      , def_val0_(def_val0)
+      , par1_(def_val1)
+      , def_val1_(def_val1)
       , combined_label_(combined_label)
    { /* nothing */ }
 
