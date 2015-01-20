@@ -48,8 +48,9 @@ SET(GENEVA_FULL_TREE_BUILD TRUE)
 # customized locations, by setting the "INSTALL_PREFIX_*" variables:
 #   INSTALL_PREFIX_INCLUDES -> installation folder for the header files
 #   INSTALL_PREFIX_LIBS     -> installation folder for the libraries
-#   INSTALL_PREFIX_DATA     -> installation folder for other the other files
-#                              like readmes, examples, and tests
+#   INSTALL_PREFIX_DOCS     -> installation folder for the documentation files
+#   INSTALL_PREFIX_DATA     -> installation folder for other files like
+#                              examples, tests and other scripts
 # If none of these variables is set, the whole Geneva binary tree is installed
 # (as expected) in "CMAKE_INSTALL_PREFIX". The default value for this last
 # valiable is set here, and further handled in the 'CommonGenevaBuild' module.
@@ -133,7 +134,7 @@ SET ( INFORMATIONFILES
 	README.eclipse
 )
 
-INSTALL ( FILES ${INFORMATIONFILES} DESTINATION ${INSTALL_PREFIX_DATA} )
+INSTALL ( FILES ${INFORMATIONFILES} DESTINATION ${INSTALL_PREFIX_DOCS} )
 
 ################################################################################
 # Code for the creation of reference documentation for Geneva
