@@ -816,14 +816,9 @@ void GBasePS::addConfigurationOptions (
    Gem::Common::GParserBuilder& gpb
    , const bool& showOrigin
 ) {
-   std::string comment;
-
    // Call our parent class'es function
    GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions(gpb, showOrigin);
 
-   comment = ""; // Reset the first comment string
-   comment += "The total size of the population;";
-   if(showOrigin) comment += " [GBasePS]";
    gpb.registerFileParameter<std::size_t>(
       "size" // The name of the first variable
       , DEFAULTPOPULATIONSIZE
@@ -832,20 +827,22 @@ void GBasePS::addConfigurationOptions (
          , this
          , _1
         )
-      , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-      , comment
-   );
+   )
+   << "The total size of the population";
 
-   comment = ""; // Reset the comment string
-   comment += "Indicates whether scans of individual variables should be done randomly;";
-   comment += "(1) or on a grid (0);";
-   if(showOrigin) comment += "[GBasePS]";
    gpb.registerFileParameter<bool>(
       "scanRandomly" // The name of the variable
       , scanRandomly_
       , true // The default value
-      , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-      , comment
+   )
+   << "Indicates whether scans of individual variables should be done randomly" << std::endl
+   << "(1) or on a grid (0)";
+
+   // Override the default value of maxStallIteration, as the parent
+   // default does not make sense for us (we do not need stall iterations)
+   gpb.resetFileParameterDefaults(
+         "maxStallIteration"
+         , DEFAULTMAXPARSCANSTALLIT
    );
 }
 

@@ -291,6 +291,13 @@ const boost::uint32_t DEFAULTMAXIT = 1000;
  */
 const boost::uint32_t DEFAULTMAXSTALLIT = 20;
 
+/**
+ * The default maximum number of iterations without improvement for paramneter
+ * scans. As the algorithm has been instructed to scan an entire range, the
+ * value is set to 0 (i.e. it is disabled).
+ */
+const boost::uint32_t DEFAULTMAXPARSCANSTALLIT = 0;
+
 /******************************************************************************/
 /**
  * The default maximization mode

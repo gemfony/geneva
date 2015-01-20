@@ -472,6 +472,8 @@ template <typename parameter_type>
 struct GSingleParmT
    : public GFileParsableI
 {
+   // We want GParserBuilder to be able to call the reset function
+   friend class GParserBuilder;
 public:
    /***************************************************************************/
    /**
@@ -502,10 +504,14 @@ public:
 protected:
    /***************************************************************************/
    /**
-    * Allows derived classes to reset the default value
+    * Allows derived classes to reset the default value. The function assumes
+    * that no important data is stored in par_, as its value will be overwritten
+    * as well. The reason is that configuration files will otherwise contain
+    * the "old" par_-value.
     */
    void resetDefault(const parameter_type& def_val) {
       def_val_ = def_val;
+      par_ = def_val;
    }
 
    /***************************************************************************/
@@ -784,7 +790,12 @@ template <typename par_type0, typename par_type1>
 struct GCombinedParT
    : public GFileParsableI
 {
+   // We want GParserBuilder to be able to call the reset function
+   friend class GParserBuilder;
+
 public:
+
+
    /***************************************************************************/
    /**
     * Initializes the parameter and sets values in the parent class
@@ -819,10 +830,14 @@ public:
 protected:
    /***************************************************************************/
    /**
-    * Allows derived classes to reset the default value
+    * Allows derived classes to reset the default value. The function assumes
+    * that no important data is stored in par1_ and par_2, as their values will
+    * be overwritten as well. The reason is that configuration files will otherwise
+    * contain the "old" par_-value.
     */
    void resetDefault(const par_type0& def_val0, const par_type1& def_val1) {
       def_val0_ = def_val0; def_val1_ = def_val1;
+      par0_ = def_val0; par1_ = def_val1;
    }
 
    /***************************************************************************/
@@ -1012,6 +1027,9 @@ template <typename parameter_type>
 struct GVectorParT
    : public GFileParsableI
 {
+   // We want GParserBuilder to be able to call the reset function
+   friend class GParserBuilder;
+
 public:
    /***************************************************************************/
    /**
@@ -1042,7 +1060,7 @@ public:
 protected:
    /***************************************************************************/
    /**
-    * Allows derived classes to reset the default value
+    * Allows derived classes to reset the default value.
     */
    void resetDefault(const std::vector<parameter_type>& def_val) {
       def_val_ = def_val;
@@ -1368,6 +1386,9 @@ template <typename parameter_type, std::size_t N>
 struct GArrayParT
    : public GFileParsableI
 {
+   // We want GParserBuilder to be able to call the reset function
+   friend class GParserBuilder;
+
 public:
    /***************************************************************************/
    /**
@@ -1398,10 +1419,14 @@ public:
 protected:
    /***************************************************************************/
    /**
-    * Allows derived classes to reset the default value
+    * Allows derived classes to reset the default value. The function assumes
+    * that no important data is stored in par_, as its value will be overwritten
+    * as well. The reason is that configuration files will otherwise contain
+    * the "old" par_-value.
     */
    void resetDefault(const boost::array<parameter_type,N>& def_val) {
       def_val_ = def_val;
+      par_ = def_val;
    }
 
    /***************************************************************************/
@@ -1980,7 +2005,9 @@ public:
    /***************************************************************************/
    /**
     * Allows to reset default values. This is useful, if a derived class needs
-    * a different default value in configuration files.
+    * a different default value in configuration files. This function is meant
+    * to be called before any parsing takes place, as the par_-value will be
+    * overwritten as well.
     */
    template <typename parameter_type>
    void resetFileParameterDefaults(
@@ -2071,7 +2098,9 @@ public:
    /**
     * Allows to reset default values. This is useful, if a derived class needs
     * a different default value in configuration files. Note that we only need
-    * the first option name here, but two default values
+    * the first option name here, but two default values. This function is meant
+    * to be called before any parsing takes place, as the par_-value will be
+    * overwritten as well.
     */
 
    template <typename par_type1, typename par_type2>
@@ -2203,7 +2232,9 @@ public:
    /**
     * Allows to reset default values. This is useful, if a derived class needs
     * a different default value in configuration files. Note that we only need
-    * the first option name here, but two default values
+    * the first option name here, but two default values. This function is meant
+    * to be called before any parsing takes place, as the par_-value will be
+    * overwritten as well.
     */
 
    template <typename parameter_type>
@@ -2335,7 +2366,9 @@ public:
    /**
     * Allows to reset default values. This is useful, if a derived class needs
     * a different default value in configuration files. Note that we only need
-    * the first option name here, but two default values
+    * the first option name here, but two default values. This function is meant
+    * to be called before any parsing takes place, as the par_-value will be
+    * overwritten as well.
     */
 
    template <typename parameter_type, std::size_t N>
