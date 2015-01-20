@@ -25,7 +25,7 @@ Wishlist:
  - Full integration of -fsanitize=X.
 
 //------------------------------------------------------------------------------------------------------
-* Version 1.4.1, "Fénis" - December XX, 2014
+* Version 1.4.1, "Fénis" - February XX, 2015
 
 The main changes for this release include:
 
@@ -54,6 +54,9 @@ The main changes for this release include:
    to be installed in independent locations: you may define the variables
    INSTALL_PREFIX_LIBS, INSTALL_PREFIX_INCLUDES, INSTALL_PREFIX_DOCS,
    and INSTALL_PREFIX_DATA when running cmake for that.
+ - Introduced a more versatile syntax for configuration options in 
+   GParserBuilder. You can now say things like
+   gpb.registerFileParameter<boost::uint32_t>(...) << "my comment";
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.4, "Aosta" - August 8, 2014
