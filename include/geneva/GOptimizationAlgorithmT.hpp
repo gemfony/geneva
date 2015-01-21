@@ -1888,7 +1888,7 @@ public:
 	     * @param cp A copy of another GOptimizationMonitorT object
 	     */
 	    GOptimizationMonitorT(
-	          const GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp
+	        const typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp
 	    )
 	    	: GObject(cp)
 	    	, quiet_(cp.quiet_)
@@ -1908,7 +1908,9 @@ public:
 	     * @param cp Another GOptimizationMonitorT<ind_type> object
 	     * @return A constant reference to this object
 	     */
-	    const GOptimizationMonitorT& operator=(const GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp) {
+	    const GOptimizationMonitorT& operator=(
+         const typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp
+       ) {
 	    	GOptimizationMonitorT::load_(&cp);
 	    	return *this;
 	    }
@@ -1920,7 +1922,7 @@ public:
 	     * @param  cp A constant reference to another GOptimizationMonitorT object
 	     * @return A boolean indicating whether both objects are equal
 	     */
-	    virtual bool operator==(const GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp) const {
+	    virtual bool operator==(const typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp) const {
 	    	using namespace Gem::Common;
 	    	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 	    	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT::operator==","cp", CE_SILENT);
@@ -1933,7 +1935,7 @@ public:
 	     * @param  cp A constant reference to another GOptimizationMonitorT object
 	     * @return A boolean indicating whether both objects are inequal
 	     */
-	    virtual bool operator!=(const GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp) const {
+	    virtual bool operator!=(const typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp) const {
 	    	using namespace Gem::Common;
 	    	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 	    	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT::operator!=","cp", CE_SILENT);

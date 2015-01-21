@@ -1385,8 +1385,8 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
       const std::size_t NGDOUBLECOLL   =  10 ;
       const std::size_t NINTCOLL       =  10 ;
       const std::size_t NINTBOOLOBJ    =  10 ;
-      const boost::int32_t MININT      = -100;
-      const boost::int32_t MAXINT      =  100;
+      const boost::int32_t MINGINT      = -100;
+      const boost::int32_t MAXGINT      =  100;
       const std::size_t FPLOOPCOUNT    =   5 ;
       const double FPFIXEDVALINITMIN   =  -3.;
       const double FPFIXEDVALINITMAX   =   3.;
@@ -1419,7 +1419,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 
       // Attach a few other parameter types
       for(std::size_t i=0; i<NINTBOOLOBJ; i++) {
-         p_test_0->push_back(boost::shared_ptr<GConstrainedInt32Object>(new GConstrainedInt32Object(7, MININT, MAXINT)));
+         p_test_0->push_back(boost::shared_ptr<GConstrainedInt32Object>(new GConstrainedInt32Object(7, MINGINT, MAXGINT)));
          p_test_0->push_back(boost::shared_ptr<GBooleanObject>(new GBooleanObject(true)));
       }
 
@@ -1440,7 +1440,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 
          for(std::size_t ip=0; ip<NINTCOLL; ip++) {
             boost::shared_ptr<GConstrainedInt32Object> gci32o_ptr
-               = boost::shared_ptr<GConstrainedInt32Object>(new GConstrainedInt32Object(MININT, MAXINT));
+               = boost::shared_ptr<GConstrainedInt32Object>(new GConstrainedInt32Object(MINGINT, MAXGINT));
             gci32o_ptr->setAdaptionsInactive(); // The parameter should not be modifiable now
 
             sub_poc_ptr->push_back(gci32o_ptr);
