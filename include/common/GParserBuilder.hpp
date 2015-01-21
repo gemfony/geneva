@@ -504,8 +504,8 @@ public:
          , commentVar
          , isEssentialVar
         )
-      , par_(def_val)
       , def_val_(def_val)
+      , par_(def_val)
    { /* nothing */ }
 
    /***************************************************************************/
