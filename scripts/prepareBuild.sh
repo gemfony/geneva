@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ####################################################################
 #
 # Copyright (C) Gemfony scientific UG (haftungsbeschraenkt)
@@ -36,7 +38,6 @@
 # in the Geneva root directory for an example (genevaConfig.gcfg).
 # Note that configuration files need to end with ".gcfg" .
 ####################################################################
-#!/bin/bash
 
 ####################################################################
 # Make a note of the build-root-directory

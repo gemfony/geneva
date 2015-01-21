@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ####################################################################
 #
 # Copyright (C) Gemfony scientific UG (haftungsbeschraenkt)
@@ -40,8 +42,6 @@
 # arguments. The script will stop execution when one of the ssh calls
 # fails.
 ####################################################################
-# !/bin/bash
-#
 
 # Check that the number of command line options is at least two
 # (the name of the hosts file and the command to be executed remotely).

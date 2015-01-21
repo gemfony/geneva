@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ####################################################################
 #
 # Copyright (C) Gemfony scientific UG (haftungsbeschraenkt)
@@ -41,8 +43,6 @@
 # extension MUST be ".hcfg". The script will stop execution when one of 
 # the rsync calls fails.
 ####################################################################
-# !/bin/bash
-#	
 
 # Check that the number of command line options is at least two 
 if [ $# -lt 2 ]; then

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ####################################################################
 #
 # Copyright (C) Gemfony scientific UG (haftungsbeschraenkt)
@@ -39,7 +41,6 @@
 # you might quickly run out of local ports (max 64k). See the
 # Geneva FAQ for an advice in this situation.
 ####################################################################
-# !/bin/bash
 
 # Check the number of command line arguments (should be exactly 2)
 if [ ! $# -eq 2 ]; then
