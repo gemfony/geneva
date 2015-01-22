@@ -240,14 +240,14 @@ FUNCTION (
 	# Set the the compiler version, if available
 	SET(GENEVA_COMPILER_VERSION_LOCAL "")
 	IF (${CMAKE_VERSION} VERSION_LESS 2.8.10)
-		IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "${GNU_DEF_IDENTIFIER}")
+		IF(${CMAKE_CXX_COMPILER_ID} STREQUAL ${GNU_DEF_IDENTIFIER})
 			EXEC_PROGRAM(${CMAKE_CXX_COMPILER} ARGS -dumpversion OUTPUT_VARIABLE GXX_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 			SET(GENEVA_COMPILER_VERSION_LOCAL "${GXX_VERSION}")
-		ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "${CLANG_DEF_IDENTIFIER}")
+		ELSEIF(${CMAKE_CXX_COMPILER_ID} STREQUAL ${CLANG_DEF_IDENTIFIER})
 			EXEC_PROGRAM(${CMAKE_CXX_COMPILER} ARGS --version OUTPUT_VARIABLE CLANG_VERSION)
 			STRING(REGEX REPLACE ".*based on LLVM ([0-9]+\\.[0-9]+).*" "\\1" CLANG_VERSION ${CLANG_VERSION})
 			SET(GENEVA_COMPILER_VERSION_LOCAL "${CLANG_VERSION}")
-		ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "${INTEL_DEF_IDENTIFIER}")
+		ELSEIF(${CMAKE_CXX_COMPILER_ID} STREQUAL ${INTEL_DEF_IDENTIFIER})
 			EXEC_PROGRAM(${CMAKE_CXX_COMPILER} ARGS -dumpversion OUTPUT_VARIABLE INTEL_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 			SET(GENEVA_COMPILER_VERSION_LOCAL "${INTEL_VERSION}")
 		ELSE()
@@ -260,7 +260,7 @@ FUNCTION (
 
 	#--------------------------------------------------------------------------
 	# Find out about the maximum C++ standard that is supported
-	IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "${CLANG_DEF_IDENTIFIER}")
+	IF (${CMAKE_CXX_COMPILER_ID} STREQUAL ${CLANG_DEF_IDENTIFIER})
 		# We assume that the compiler fully supports a given standard when it
 		# accepts the corresponding flag. Note that this is not entirely conclusive.
 		# We might later have to use information about the compiler version.
@@ -279,7 +279,7 @@ FUNCTION (
 		ELSE()
 			SET(${GENEVA_MAX_CXX_STANDARD_OUT} "cxx98" PARENT_SCOPE)
 		ENDIF()
-	ELSEIF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "${GNU_DEF_IDENTIFIER}")
+	ELSEIF (${CMAKE_CXX_COMPILER_ID} STREQUAL ${GNU_DEF_IDENTIFIER})
 		CHECK_CXX_COMPILER_FLAG("${GNU_DEF_CXX11_STANDARD_FLAG}" COMPILER_SUPPORTS_CXX11)
 		CHECK_CXX_COMPILER_FLAG("${GNU_DEF_CXX14_STANDARD_FLAG}" COMPILER_SUPPORTS_CXX14)
 		IF(COMPILER_SUPPORTS_CXX14 AND NOT ${GENEVA_COMPILER_VERSION_LOCAL} VERSION_LESS ${GNU_DEF_MIN_CXX14_VERSION})
@@ -289,7 +289,7 @@ FUNCTION (
 		ELSE()
 			SET(${GENEVA_MAX_CXX_STANDARD_OUT} "cxx98" PARENT_SCOPE)
 		ENDIF()
-	ELSEIF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "${INTEL_DEF_IDENTIFIER}")
+	ELSEIF (${CMAKE_CXX_COMPILER_ID} STREQUAL ${INTEL_DEF_IDENTIFIER})
 		CHECK_CXX_COMPILER_FLAG("${INTEL_DEF_CXX11_STANDARD_FLAG}" COMPILER_SUPPORTS_CXX11)
 		CHECK_CXX_COMPILER_FLAG("${INTEL_DEF_CXX14_STANDARD_FLAG}" COMPILER_SUPPORTS_CXX14)
 		IF(COMPILER_SUPPORTS_CXX14)
@@ -299,7 +299,7 @@ FUNCTION (
 		ELSE()
 			SET(${GENEVA_MAX_CXX_STANDARD_OUT} "cxx98" PARENT_SCOPE)
 		ENDIF()
-	ELSEIF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "${MSVC_DEF_IDENTIFIER}")
+	ELSEIF (${CMAKE_CXX_COMPILER_ID} STREQUAL ${MSVC_DEF_IDENTIFIER})
 		SET(${GENEVA_MAX_CXX_STANDARD_OUT} "unknown" PARENT_SCOPE)
 	ELSE()
 		SET(${GENEVA_MAX_CXX_STANDARD_OUT} "unknown" PARENT_SCOPE)
@@ -326,36 +326,36 @@ FUNCTION (
 	#--------------------------------------------------------------------------
 	SET(${GENEVA_CXX_STANDARD_SWITCH_OUT} "cxx98" PARENT_SCOPE)
 
-	IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "${CLANG_DEF_IDENTIFIER}")
-		IF("${GENEVA_CXX_STANDARD_IN}" STREQUAL "cxx14")
+	IF (${CMAKE_CXX_COMPILER_ID} STREQUAL ${CLANG_DEF_IDENTIFIER})
+		IF(${GENEVA_CXX_STANDARD_IN} STREQUAL "cxx14")
 			SET(${GENEVA_CXX_STANDARD_SWITCH_OUT} "${CLANG_DEF_CXX14_STANDARD_FLAG}" PARENT_SCOPE)
-		ELSEIF("${GENEVA_CXX_STANDARD_IN}" STREQUAL "cxx11")
+		ELSEIF(${GENEVA_CXX_STANDARD_IN} STREQUAL "cxx11")
 			SET(${GENEVA_CXX_STANDARD_SWITCH_OUT} "${CLANG_DEF_CXX11_STANDARD_FLAG}" PARENT_SCOPE)
 		ELSE()
 			SET(${GENEVA_CXX_STANDARD_SWITCH_OUT} "${CLANG_DEF_CXX98_STANDARD_FLAG}" PARENT_SCOPE)
 		ENDIF()
-	ELSEIF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "${GNU_DEF_IDENTIFIER}")
-		IF("${GENEVA_CXX_STANDARD_IN}" STREQUAL "cxx14")
+	ELSEIF (${CMAKE_CXX_COMPILER_ID} STREQUAL ${GNU_DEF_IDENTIFIER})
+		IF(${GENEVA_CXX_STANDARD_IN} STREQUAL "cxx14")
 			SET(${GENEVA_CXX_STANDARD_SWITCH_OUT} "${GNU_DEF_CXX14_STANDARD_FLAG}" PARENT_SCOPE)
-		ELSEIF("${GENEVA_CXX_STANDARD_IN}" STREQUAL "cxx11")
+		ELSEIF(${GENEVA_CXX_STANDARD_IN} STREQUAL "cxx11")
 			SET(${GENEVA_CXX_STANDARD_SWITCH_OUT} "${GNU_DEF_CXX11_STANDARD_FLAG}" PARENT_SCOPE)
 		ELSE()
 			SET(${GENEVA_CXX_STANDARD_SWITCH_OUT} "${GNU_DEF_CXX98_STANDARD_FLAG}" PARENT_SCOPE)
 		ENDIF()
-	ELSEIF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "${INTEL_DEF_IDENTIFIER}")
-		IF("${GENEVA_CXX_STANDARD_IN}" STREQUAL "cxx14")
+	ELSEIF (${CMAKE_CXX_COMPILER_ID} STREQUAL ${INTEL_DEF_IDENTIFIER})
+		IF(${GENEVA_CXX_STANDARD_IN} STREQUAL "cxx14")
 			SET(${GENEVA_CXX_STANDARD_SWITCH_OUT} "${INTEL_DEF_CXX14_STANDARD_FLAG}" PARENT_SCOPE)
-		ELSEIF("${GENEVA_CXX_STANDARD_IN}" STREQUAL "cxx11")
+		ELSEIF(${GENEVA_CXX_STANDARD_IN} STREQUAL "cxx11")
 			SET(${GENEVA_CXX_STANDARD_SWITCH_OUT} "${INTEL_DEF_CXX11_STANDARD_FLAG}" PARENT_SCOPE)
 		ELSE()
 			SET(${GENEVA_CXX_STANDARD_SWITCH_OUT} "${INTEL_DEF_CXX98_STANDARD_FLAG}" PARENT_SCOPE)
 		ENDIF()
-	ELSEIF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "${MSVC_DEF_IDENTIFIER}")
-		IF("${GENEVA_CXX_STANDARD_IN}" STREQUAL "cxx14")
+	ELSEIF (${CMAKE_CXX_COMPILER_ID} STREQUAL ${MSVC_DEF_IDENTIFIER})
+		IF(${GENEVA_CXX_STANDARD_IN} STREQUAL "cxx14")
 			SET(${GENEVA_CXX_STANDARD_SWITCH_OUT} "${MSVC_DEF_CXX14_STANDARD_FLAG}" PARENT_SCOPE)
-		ELSEIF("${GENEVA_CXX_STANDARD_IN}" STREQUAL "cxx11")
+		ELSEIF(${GENEVA_CXX_STANDARD_IN} STREQUAL "cxx11")
 			SET(${GENEVA_CXX_STANDARD_SWITCH_OUT} "${MSVC_DEF_CXX11_STANDARD_FLAG}" PARENT_SCOPE)
-		ELSEIF("${GENEVA_CXX_STANDARD_IN}" STREQUAL "cxx98")
+		ELSEIF(${GENEVA_CXX_STANDARD_IN} STREQUAL "cxx98")
 			SET(${GENEVA_CXX_STANDARD_SWITCH_OUT} "${MSVC_DEF_CXX98_STANDARD_FLAG}" PARENT_SCOPE)
 		ELSE() # may be "unknown" for MSVC ...
 			SET(${GENEVA_CXX_STANDARD_SWITCH_OUT} "${NONE_DEF_STANDARD_FLAG}" PARENT_SCOPE)
@@ -385,7 +385,7 @@ FUNCTION (
 )
 
 	#--------------------------------------------------------------------------
-	IF("${GENEVA_CXX_DESIRED_STANDARD_IN}" STREQUAL "auto")
+	IF(${GENEVA_CXX_DESIRED_STANDARD_IN} STREQUAL "auto")
 		# Just assign the maximum supported standard
 		SET(${GENEVA_ACTUAL_CXX_STANDARD_OUT} "${GENEVA_MAX_CXX_STANDARD_IN}" PARENT_SCOPE)
 	ELSE()
@@ -397,7 +397,7 @@ FUNCTION (
 			GENEVA_CXX_DESIRED_STANDARD_SUPPORTED
 		)
 
-		IF("${GENEVA_CXX_DESIRED_STANDARD_SUPPORTED}" STREQUAL "unsupported")
+		IF(${GENEVA_CXX_DESIRED_STANDARD_SUPPORTED} STREQUAL "unsupported")
 			MESSAGE(FATAL_ERROR "The requested C++ standard (${GENEVA_CXX_DESIRED_STANDARD_IN})"
 				" is incompatible with the minimum required (${GENEVA_MIN_CXX_STANDARD_IN}),"
 				" or the maximum supported standards (${GENEVA_MAX_CXX_STANDARD_IN})!")
@@ -438,7 +438,7 @@ FUNCTION (
 	# Retrieve the correct standard switch for our compiler
 	GET_CXX_STANDARD_SWITCH (
 		${GENEVA_ACTUAL_CXX_STANDARD_IN}
-		GENEVA_CXX_STANDARD_SWITCH
+		"GENEVA_CXX_STANDARD_SWITCH"
 	)
 
 	#--------------------------------------------------------------------------
@@ -454,18 +454,18 @@ FUNCTION (
 	# be present on multiple platforms. The chosen switches are tailored for the use with geneva
 	#
 	#*****************************************************************
-	IF("${GENEVA_COMPILER_NAME_IN}" MATCHES "${INTEL_DEF_IDENTIFIER}")
+	IF(${GENEVA_COMPILER_NAME_IN} MATCHES ${INTEL_DEF_IDENTIFIER})
 		SET (
 			GENEVA_COMPILER_FLAGS
 			"${GENEVA_COMPILER_FLAGS} -Wall -Wno-unused -ansi -pthread -wd1572 -wd1418 -wd981 -wd444 -wd383"
 		)
 
-		IF("${GENEVA_BUILD_MODE_IN}" STREQUAL "Debug")
+		IF(${GENEVA_BUILD_MODE_IN} STREQUAL "Debug")
 			SET (
 				GENEVA_COMPILER_FLAGS
 				"${GENEVA_COMPILER_FLAGS} -g -DDEBUG"
 			)
-		ELSEIF("${GENEVA_BUILD_MODE_IN}" STREQUAL "Release")
+		ELSEIF(${GENEVA_BUILD_MODE_IN} STREQUAL "Release")
 			SET (
 				GENEVA_COMPILER_FLAGS
 				"${GENEVA_COMPILER_FLAGS} -O3 -DNDEBUG"
@@ -475,7 +475,7 @@ FUNCTION (
 		ENDIF()
 
 	#*****************************************************************
-	ELSEIF("${GENEVA_COMPILER_NAME_IN}" MATCHES "${CLANG_DEF_IDENTIFIER}")
+	ELSEIF(${GENEVA_COMPILER_NAME_IN} MATCHES ${CLANG_DEF_IDENTIFIER})
 		SET (
 			GENEVA_COMPILER_FLAGS
 			"${GENEVA_COMPILER_FLAGS} -Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread"
@@ -489,12 +489,12 @@ FUNCTION (
 			)
 		ENDIF()
 
-		IF("${GENEVA_BUILD_MODE_IN}" STREQUAL "Debug"  OR  "${GENEVA_BUILD_MODE_IN}" STREQUAL "Sanitize")
+		IF(${GENEVA_BUILD_MODE_IN} STREQUAL "Debug" OR ${GENEVA_BUILD_MODE_IN} STREQUAL "Sanitize")
 			SET (
 				GENEVA_COMPILER_FLAGS
 				"${GENEVA_COMPILER_FLAGS} -g -DDEBUG"
 			)
-		ELSEIF("${GENEVA_BUILD_MODE_IN}" STREQUAL "Release")
+		ELSEIF(${GENEVA_BUILD_MODE_IN} STREQUAL "Release")
 			SET (
 				GENEVA_COMPILER_FLAGS
 				"${GENEVA_COMPILER_FLAGS} -O3 -DNDEBUG"
@@ -505,14 +505,14 @@ FUNCTION (
 
 		# Switch on Googles thread-sanitizer if this is a supported platform and the feature was requested.
 		# Compare http://googletesting.blogspot.ru/2014/06/threadsanitizer-slaughtering-data-races.html
-		IF("${GENEVA_BUILD_MODE_IN}" STREQUAL "Sanitize" AND ${GENEVA_COMPILER_VERSION_IN} VERSION_GREATER 3.0)
+		IF(${GENEVA_BUILD_MODE_IN} STREQUAL "Sanitize" AND ${GENEVA_COMPILER_VERSION_IN} VERSION_GREATER 3.0)
 			SET (
 				GENEVA_COMPILER_FLAGS
 				"${GENEVA_COMPILER_FLAGS} -fsanitize=thread"
 			)
 		ENDIF()
 
-		IF("${GENEVA_OS_NAME_IN}" STREQUAL "MacOSX") # Special provisions for MacOS
+		IF(${GENEVA_OS_NAME_IN} STREQUAL "MacOSX") # Special provisions for MacOS
 			SET (
 				GENEVA_COMPILER_FLAGS
 				"${GENEVA_COMPILER_FLAGS} -stdlib=libstdc++"
@@ -527,18 +527,18 @@ FUNCTION (
 		ENDIF()
 
 	#*****************************************************************
-	ELSEIF("${GENEVA_COMPILER_NAME_IN}" MATCHES "${GNU_DEF_IDENTIFIER}")
+	ELSEIF(${GENEVA_COMPILER_NAME_IN} MATCHES ${GNU_DEF_IDENTIFIER})
 		SET (
 			GENEVA_COMPILER_FLAGS
 			"${GENEVA_COMPILER_FLAGS} -fmessage-length=0 -fno-unsafe-math-optimizations -fno-finite-math-only -Wno-unused -Wno-attributes -pthread -ftemplate-depth-1024"
 		)
 
-		IF("${GENEVA_BUILD_MODE_IN}" STREQUAL "Debug"   OR  "${GENEVA_BUILD_MODE_IN}" STREQUAL "Sanitize")
+		IF(${GENEVA_BUILD_MODE_IN} STREQUAL "Debug" OR ${GENEVA_BUILD_MODE_IN} STREQUAL "Sanitize")
 			SET (
 				GENEVA_COMPILER_FLAGS
 				"${GENEVA_COMPILER_FLAGS} -g -DDEBUG"
 			)
-		ELSEIF("${GENEVA_BUILD_MODE_IN}" STREQUAL "Release")
+		ELSEIF(${GENEVA_BUILD_MODE_IN} STREQUAL "Release")
 			SET (
 				GENEVA_COMPILER_FLAGS
 				"${GENEVA_COMPILER_FLAGS} -O3 -DNDEBUG"
@@ -549,7 +549,7 @@ FUNCTION (
 
 		# Switch on Googles thread-sanitizer if this is a supported platform and the feature was requested.
 		# Compare http://googletesting.blogspot.ru/2014/06/threadsanitizer-slaughtering-data-races.html
-		IF("${GENEVA_BUILD_MODE_IN}" STREQUAL "Sanitize" AND ${GENEVA_COMPILER_VERSION_IN} VERSION_GREATER 4.7)
+		IF(${GENEVA_BUILD_MODE_IN} STREQUAL "Sanitize" AND ${GENEVA_COMPILER_VERSION_IN} VERSION_GREATER 4.7)
 			SET (
 				GENEVA_COMPILER_FLAGS
 				"${GENEVA_COMPILER_FLAGS} -fsanitize=thread"
@@ -559,7 +559,7 @@ FUNCTION (
 		# GCC 4.8 on Cygwin does not provide the math constants (M_PI...) by
 		# default (pure ANSI standard), unless _XOPEN_SOURCE=500 is set, see
 		# http://www.gnu.org/software/libc/manual/html_node/Feature-Test-Macros.html
-		IF("${GENEVA_OS_NAME_IN}" STREQUAL "Cygwin")
+		IF(${GENEVA_OS_NAME_IN} STREQUAL "Cygwin")
 			SET (
 				GENEVA_COMPILER_FLAGS
 				"${GENEVA_COMPILER_FLAGS} -D_XOPEN_SOURCE=500"
@@ -567,7 +567,7 @@ FUNCTION (
 		ENDIF()
 
 	#*****************************************************************
-	ELSEIF("${GENEVA_COMPILER_NAME_IN}" MATCHES "${MSVC_DEF_IDENTIFIER}")
+	ELSEIF(${GENEVA_COMPILER_NAME_IN} MATCHES ${MSVC_DEF_IDENTIFIER})
 		# No special provisions yet
 
 	#*****************************************************************
@@ -629,9 +629,9 @@ FUNCTION (
 )
 
 	#--------------------------------------------------------------------------
-	IF("${GENEVA_OS_NAME_IN}" STREQUAL "MacOSX")
+	IF(${GENEVA_OS_NAME_IN} STREQUAL "MacOSX")
 		# Only clang is currently supported on MacOS
-		IF(NOT "${GENEVA_COMPILER_NAME_IN}" STREQUAL "${CLANG_DEF_IDENTIFIER}")
+		IF(NOT ${GENEVA_COMPILER_NAME_IN} STREQUAL ${CLANG_DEF_IDENTIFIER})
 			MESSAGE("######################################################################################")
 			MESSAGE("# Compiler ${GENEVA_COMPILER_NAME_IN} is not supported on MacOSX. Use Clang instead. #")
 			MESSAGE("######################################################################################")
@@ -647,7 +647,7 @@ FUNCTION (
 		ENDIF()
 
 		# Static linking on MacOSX is not currently supported
-		IF("${GENEVA_STATIC_IN}" STREQUAL "1")
+		IF(${GENEVA_STATIC_IN} STREQUAL "1")
 			MESSAGE("##################################################################")
 			MESSAGE("# Static linking is not currently supported by Geneva on MacOS X #")
 			MESSAGE("##################################################################")
@@ -655,25 +655,25 @@ FUNCTION (
 		ENDIF()
 
 		# Only C++98 is supported at the time being on MacOS X
-		IF(NOT "${GENEVA_CXX_STANDARD_IN}" STREQUAL "cxx98")
+		IF(NOT ${GENEVA_CXX_STANDARD_IN} STREQUAL "cxx98")
 			MESSAGE("#########################################")
 			MESSAGE("# Geneva only supports C++98 on MacOS X #")
 			MESSAGE("#########################################")
 			MESSAGE(FATAL_ERROR "Unsupported platform!")
 		ENDIF()
 
-	ELSEIF("${GENEVA_OS_NAME_IN}" STREQUAL "Linux")
+	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "Linux")
 		# No restrictions at the moment
-	ELSEIF("${GENEVA_OS_NAME_IN}" STREQUAL "FreeBSD")
+	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "FreeBSD")
 		# No restrictions at the moment
-	ELSEIF("${GENEVA_OS_NAME_IN}" STREQUAL "Cygwin")
+	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "Cygwin")
 		# No restrictions at the moment
-	ELSEIF("${GENEVA_OS_NAME_IN}" STREQUAL "Windows")
+	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "Windows")
 		MESSAGE("######################################################")
 		MESSAGE("# Windows is currently supported only through Cygwin #")
 		MESSAGE("######################################################")
 		MESSAGE(FATAL_ERROR "Unsupported platform!")
-	ELSEIF("${GENEVA_OS_NAME_IN}" STREQUAL "unsupported")
+	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "unsupported")
 		MESSAGE("#####################################")
 		MESSAGE("# Operating system is not supported #")
 		MESSAGE("#####################################")
