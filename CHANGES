@@ -25,12 +25,14 @@ Wishlist:
  - Full integration of -fsanitize=X.
 
 //------------------------------------------------------------------------------------------------------
-* Version 1.4.1, "Fénis" - February XX, 2015
+* Version 1.4.1, "Fénis" - January 23, 2015
 
 The main changes for this release include:
 
 ****************************** BREAKING CHANGES ********************************
 
+ - The method addConfigurationOptions() has lost the (unnecessary)
+   "showOrigin" parameter.
  - The handling of the BOOST location variables in the Geneva configuration
    file "scripts/genevaConfig.gcfg" was changed. The changes are minor, but
    you will need to adapt your current configuration. Read the configuration
@@ -38,13 +40,17 @@ The main changes for this release include:
    Boost installation is available, the "prepareBuild.sh" script will now be
    able to configure a default Geneva build without requiring any
    configuration file.
- - addConfigurationOptions has lost the (unnecessary) "showOrigin" parameter
 
 ********************************************************************************
 
  - Removed GExternalSetterIndividual in favour of a more versatile
    enforceFitnessUpdate().
  - Fixed Bug #1399716 in Launchpad --> Calling go & "ea" & "sa" crashed.
+ - Introduced a more versatile syntax for configuration options in 
+   GParserBuilder. You can now say things like:
+     gpb.registerFileParameter<boost::uint32_t>(...) << "my comment";
+ - Added an option to override default values of configuration options
+   that were set by a parent class (needed for GParserBuilder).
  - Added support for MS Windows using the Cygwin environment.
  - Restructured the build system, creating a new shared CMake module
    "CommonGenevaBuild" which may be used to build independent Geneva
@@ -52,14 +58,9 @@ The main changes for this release include:
    the main tree. This module is also used for the normal Geneva build.
    The "IndependentBuild" CMake module was removed.
  - The build-system now allows for libraries, headers and other files
-   to be installed in independent locations: you may define the variables
-   INSTALL_PREFIX_LIBS, INSTALL_PREFIX_INCLUDES, INSTALL_PREFIX_DOCS,
-   and INSTALL_PREFIX_DATA when running cmake for that.
- - Introduced a more versatile syntax for configuration options in 
-   GParserBuilder. You can now say things like
-   gpb.registerFileParameter<boost::uint32_t>(...) << "my comment";
- - Added an option to override default values of configuration options
-   that were set by a parent class (needed for/by GParserBuilder)
+   to be installed in independent locations: to that aim, you may define
+   the variables INSTALL_PREFIX_LIBS, INSTALL_PREFIX_INCLUDES,
+   INSTALL_PREFIX_DOCS, and INSTALL_PREFIX_DATA when running cmake.
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.4, "Aosta" - August 8, 2014
