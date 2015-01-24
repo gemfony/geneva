@@ -125,6 +125,7 @@ FIND_PATH (
 	GENEVA_INCLUDE_DIR
 	NAMES ${GENEVA_COMMON_HEADER_PATH}
 	PATHS ${_INSTALL_DIRS_INCL}
+	PATH_SUFFIXES "geneva-opt"
 )
 
 # Check that the path was indeed found
