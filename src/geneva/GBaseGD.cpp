@@ -606,7 +606,9 @@ void GBaseGD::addConfigurationOptions (
 			, _1
 		  )
 	)
-	<< "The size of the adjustment in the difference quotient";
+	<< "The size of the adjustment in the difference quotient," << std::endl
+	<< "specified in per mill of the allowed or expected value" << std::endl
+	<< "range of a parameter";
 
 	gpb.registerFileParameter<double>(
 		"stepSize" // The name of the variable
@@ -618,7 +620,9 @@ void GBaseGD::addConfigurationOptions (
 		  )
 	)
 	<< "The size of each step into the" << std::endl
-	<< "direction of steepest descent.";
+	<< "direction of steepest descent," << std::endl
+	<< "specified in per mill of the allowed or expected value" << std::endl
+	<< "range of a parameter";
 }
 
 /******************************************************************************/
