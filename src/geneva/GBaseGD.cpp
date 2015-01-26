@@ -53,6 +53,10 @@ GBaseGD::GBaseGD()
 	, nFPParmsFirst_(0)
 	, finiteStep_(DEFAULTFINITESTEP)
 	, stepSize_(DEFAULTSTEPSIZE)
+	, stepRatio_(DEFAULTSTEPSIZE/DEFAULTFINITESTEP) // Will be recalculated in init()
+   , dblLowerParameterBoundaries_() // Will be extracted in init()
+   , dblUpperParameterBoundaries_() // Will be extratced in init()
+   , adjustedFiniteStep_() // Will be recalculated in init()
 {
 	// Register the default optimization monitor
 	this->registerOptimizationMonitor(
@@ -80,6 +84,10 @@ GBaseGD::GBaseGD(
 	, nFPParmsFirst_(0)
 	, finiteStep_(finiteStep)
 	, stepSize_(stepSize)
+	, stepRatio_(DEFAULTSTEPSIZE/DEFAULTFINITESTEP) // Will be recalculated in init()
+   , dblLowerParameterBoundaries_() // Will be extracted in init()
+   , dblUpperParameterBoundaries_() // Will be extracted in init()
+   , adjustedFiniteStep_() // Will be recalculated in init()
 {
 	// Register the default optimization monitor
 	this->registerOptimizationMonitor(
@@ -101,6 +109,10 @@ GBaseGD::GBaseGD(const GBaseGD& cp)
 	, nFPParmsFirst_(cp.nFPParmsFirst_)
 	, finiteStep_(cp.finiteStep_)
 	, stepSize_(cp.stepSize_)
+   , stepRatio_(cp.stepRatio_) // Will be recalculated in init()
+   , dblLowerParameterBoundaries_(cp.dblLowerParameterBoundaries_) // Will be extracted in init()
+   , dblUpperParameterBoundaries_(cp.dblUpperParameterBoundaries_) // Will be extracted in init()
+   , adjustedFiniteStep_(cp.adjustedFiniteStep_) // Will be recalculated in init()
 {
 	// Copying / setting of the optimization algorithm id is done by the parent class. The same
 	// applies to the copying of the optimization monitor.
@@ -159,13 +171,14 @@ void GBaseGD::setNStartingPoints(std::size_t nStartingPoints) {
  * @param finiteStep The desired size of the adaption
  */
 void GBaseGD::setFiniteStep(double finiteStep) {
-	// Do some error checking
-	if(finiteStep <= 0.) {
-	   glogger
-	   << "In GBaseGD::setFiniteStep(const double&):" << std::endl
-      << "Got invalid finite step size: " << finiteStep << std::endl
+   // Check that finiteStep_ has an appropriate value
+   if(finiteStep_ <= 0. || finiteStep_ > 1000.) { // Specified in permille of the allowed or preferred value range
+      glogger
+      << "In GBaseGD::setFiniteStep(double): Error!" << std::endl
+      << "Invalid values of finiteStep_: " << finiteStep_ << std::endl
+      << "Must be in the range ]0.:1000.]" << std::endl
       << GEXCEPTION;
-	}
+   }
 
 	finiteStep_ = finiteStep;
 }
@@ -187,13 +200,14 @@ double GBaseGD::getFiniteStep() const {
  * @param stepSize A multiplicative factor for the adaption process
  */
 void GBaseGD::setStepSize(double stepSize) {
-	// Do some error checking
-	if(stepSize <= 0.) {
-	   glogger
-	   << "In GBaseGD::setStepSize(const double&):" << std::endl
-      << "Got invalid step size: " << stepSize << std::endl
+   // Check that stepSize_ has an appropriate value
+   if(stepSize_ <= 0. || stepSize_ > 1000.) { // Specified in permille of the allowed or preferred value range
+      glogger
+      << "In GBaseGD::setStepSize(double): Error!" << std::endl
+      << "Invalid values of stepSize_: " << stepSize_ << std::endl
+      << "Must be in the range ]0.:1000.]" << std::endl
       << GEXCEPTION;
-	}
+   }
 
 	stepSize_ = stepSize;
 }
@@ -299,6 +313,10 @@ boost::optional<std::string> GBaseGD::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "GBaseGD", nFPParmsFirst_, p_load->nFPParmsFirst_, "nFPParmsFirst_", "p_load->nFPParmsFirst_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GBaseGD", finiteStep_, p_load->finiteStep_, "finiteStep_", "p_load->finiteStep_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GBaseGD", stepSize_, p_load->stepSize_, "stepSize_", "p_load->stepSize_", e , limit));
+   // deviations.push_back(checkExpectation(withMessages, "GBaseGD", stepRatio_, p_load->stepRatio_, "stepRatio_", "p_load->stepRatio_", e , limit)); // temporary parameter
+   // deviations.push_back(checkExpectation(withMessages, "GBaseGD", dblLowerParameterBoundaries_, p_load->dblLowerParameterBoundaries_, "dblLowerParameterBoundaries_", "p_load->dblLowerParameterBoundaries_", e , limit)); // temporary parameter
+   // deviations.push_back(checkExpectation(withMessages, "GBaseGD", dblUpperParameterBoundaries_, p_load->dblUpperParameterBoundaries_, "dblUpperParameterBoundaries_", "p_load->dblUpperParameterBoundaries_", e , limit)); // temporary parameter
+   // deviations.push_back(checkExpectation(withMessages, "GBaseGD", adjustedFiniteStep_, p_load->adjustedFiniteStep_, "adjustedFiniteStep_", "p_load->adjustedFiniteStep_", e , limit)); // temporary parameter
 
 	return evaluateDiscrepancies("GBaseGD", caller, deviations, e);
 }
@@ -403,6 +421,10 @@ void GBaseGD::load_(const GObject *cp) {
 	nFPParmsFirst_ = p_load->nFPParmsFirst_;
 	finiteStep_ = p_load->finiteStep_;
 	stepSize_ = p_load->stepSize_;
+	// stepRatio_ = p_load->stepRatio_; // temporary parameter
+	// dblLowerParameterBoundaries_ = p_load->dblLowerParameterBoundaries_; // temporary parameter
+	// dblUpperParameterBoundaries_ = p_load->dblUpperParameterBoundaries_; // temporary parameter
+	// adjustedFiniteStep_ = p_load->adjustedFiniteStep_; // temporary parameter
 }
 
 /******************************************************************************/
@@ -470,7 +492,7 @@ void GBaseGD::updateChildParameters() {
 			double origParmVal = parmVec[j];
 
 			// Add the finite step to the feature vector's current parameter
-			parmVec[j] += finiteStep_;
+			parmVec[j] += adjustedFiniteStep_[j];
 
 			// Attach the feature vector to the child individual
 			this->at(childPos)->assignValueVector<double>(parmVec, ACTIVEONLY);
@@ -481,13 +503,30 @@ void GBaseGD::updateChildParameters() {
 	}
 }
 
+/*
+// Set the step ratio. We do the calculation in long double precision to preserve accuracy
+stepRatio_ = ((long double)stepSize_)/((long double)finiteStep_);
+
+// Calculate a specific finiteStep_ value for each parameter in long double precision
+try {
+   adjustedFiniteStep_.clear();
+   long double finiteStepRatio = ((long double)finiteStep_)/((long double)1000.);
+   for(std::size_t pos=0; pos<dblLowerParameterBoundaries_.size(); pos++) {
+      long double parameterRange = (long double)dblUpperParameterBoundaries_ - (long double)dblLowerParameterBoundaries_;
+      adjustedFiniteStep_.push_back(boost::numeric_cast<double>(finiteStepRatio*parameterRange));
+   }
+} catch(boost::bad_numeric_cast& e) {
+   glogger
+   << "In GBaseGD::init(): Error!" << std::endl
+   << "Bad conversion with message " << e.what() << std::endl
+   << GEXCEPTION;
+}
+*/
+
 /**********************************************************************************************************/
 /**
  * Performs a step of the parent individuals.
- * TODO: Use long double here where it makes sense
- * TODO: first calculate stepSize_/finiteStep_ in long double
- * TODO: keep going in the same direction as long as there is an improvement ? But this may prevent parallelization
- * TODO: Make stepSize_ and finiteStep_ relative to a parameters allowed or expected value range
+ * TODO: keep going in the same direction as long as there is an improvement
  */
 void GBaseGD::updateParentIndividuals() {
 	for(std::size_t i=0; i<nStartingPoints_; i++) {
@@ -514,10 +553,19 @@ void GBaseGD::updateParentIndividuals() {
 			// Calculate the position of the child
 			std::size_t childPos = nStartingPoints_ + i*nFPParmsFirst_ + j;
 
-			// Calculate the step to be performed in a given direction
-			// gradient = (1./finiteStep_) * (this->at(childPos)->minOnly_fitness() - parentFitness);
-			// parmVec[j] -= stepSize_*gradient;
-			parmVec[j] -= (stepSize_/finiteStep_) * (this->at(childPos)->minOnly_fitness() - parentFitness);
+			// Calculate the step to be performed in a given direction and
+			// adjust the parameter vector of each parent
+			try {
+			   parmVec[j] -= boost::numeric_cast<double>(
+			         stepRatio_ *
+			         ((long double)(this->at(childPos)->minOnly_fitness()) - (long double)(parentFitness))
+			   );
+			} catch(boost::bad_numeric_cast& e) {
+			   glogger
+			   << "In GBaseGD::updateParentIndividuals(): Error!" << std::endl
+			   << "Bad conversion with message " << e.what() << std::endl
+			   << GEXCEPTION;
+			}
 		}
 
 		// Load the parameter vector back into the parent
@@ -534,16 +582,10 @@ void GBaseGD::updateParentIndividuals() {
 void GBaseGD::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 ) {
-	std::string comment;
-	std::string comment1;
-	std::string comment2;
-
 	// Call our parent class'es function
 	GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions(gpb);
 
 	// Add local data
-	comment = ""; // Reset the comment string
-	comment += "The number of simultaneous gradient descents;";
 	gpb.registerFileParameter<std::size_t>(
 		"nStartingPoints" // The name of the variable
 		, DEFAULTGDSTARTINGPOINTS // The default value
@@ -552,12 +594,9 @@ void GBaseGD::addConfigurationOptions (
 			, this
 			, _1
 		  )
-		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-		, comment
-	);
+	)
+	<< "The number of simultaneous gradient descents";
 
-	comment = ""; // Reset the comment string
-	comment += "The size of the adjustment in the difference quotient;";
 	gpb.registerFileParameter<double>(
 		"finiteStep" // The name of the variable
 		, DEFAULTFINITESTEP // The default value
@@ -566,13 +605,9 @@ void GBaseGD::addConfigurationOptions (
 			, this
 			, _1
 		  )
-		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-		, comment
-	);
+	)
+	<< "The size of the adjustment in the difference quotient";
 
-	comment = ""; // Reset the comment string
-	comment += "The size of each step into the;";
-	comment += "direction of steepest descent.;";
 	gpb.registerFileParameter<double>(
 		"stepSize" // The name of the variable
 		, DEFAULTSTEPSIZE // The default value
@@ -581,9 +616,9 @@ void GBaseGD::addConfigurationOptions (
 			, this
 			, _1
 		  )
-		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-		, comment
-	);
+	)
+	<< "The size of each step into the" << std::endl
+	<< "direction of steepest descent.";
 }
 
 /******************************************************************************/
@@ -593,6 +628,56 @@ void GBaseGD::addConfigurationOptions (
 void GBaseGD::init() {
 	// To be performed before any other action
 	GOptimizationAlgorithmT<GParameterSet>::init();
+
+   // Extract the boundaries of all parameters
+   this->at(0)->boundaries(dblLowerParameterBoundaries_, dblUpperParameterBoundaries_, ACTIVEONLY);
+
+#ifdef DEBUG
+   // Size matters!
+   if(dblLowerParameterBoundaries_.size() != dblUpperParameterBoundaries_.size()) {
+      glogger
+      << "In GBaseGD::init(): Error!" << std::endl
+      << "Found invalid sizes: "
+      << dblLowerParameterBoundaries_.size() << " / " << dblUpperParameterBoundaries_.size() << std::endl
+      << GEXCEPTION;
+   }
+
+   // Check that stepSize_ has an appropriate value
+   if(stepSize_ <= 0. || stepSize_ > 1000.) { // Specified in permille of the allowed or preferred value range
+      glogger
+      << "In GBaseGD::init(): Error!" << std::endl
+      << "Invalid values of stepSize_: " << stepSize_ << std::endl
+      << "Must be in the range ]0.:1000.]" << std::endl
+      << GEXCEPTION;
+   }
+
+   // Check that finiteStep_ has an appropriate value
+   if(finiteStep_ <= 0. || finiteStep_ > 1000.) { // Specified in permille of the allowed or preferred value range
+      glogger
+      << "In GBaseGD::init(): Error!" << std::endl
+      << "Invalid values of finiteStep_: " << finiteStep_ << std::endl
+      << "Must be in the range ]0.:1000.]" << std::endl
+      << GEXCEPTION;
+   }
+#endif /* DEBUG */
+
+   // Set the step ratio. We do the calculation in long double precision to preserve accuracy
+   stepRatio_ = ((long double)stepSize_)/((long double)finiteStep_);
+
+   // Calculate a specific finiteStep_ value for each parameter in long double precision
+   try {
+      adjustedFiniteStep_.clear();
+      long double finiteStepRatio = ((long double)finiteStep_)/((long double)1000.);
+      for(std::size_t pos=0; pos<dblLowerParameterBoundaries_.size(); pos++) {
+         long double parameterRange = (long double)dblUpperParameterBoundaries_[pos] - (long double)dblLowerParameterBoundaries_[pos];
+         adjustedFiniteStep_.push_back(boost::numeric_cast<double>(finiteStepRatio*parameterRange));
+      }
+   } catch(boost::bad_numeric_cast& e) {
+      glogger
+      << "In GBaseGD::init(): Error!" << std::endl
+      << "Bad conversion with message " << e.what() << std::endl
+      << GEXCEPTION;
+   }
 
 	// Tell individuals about their position in the population
 	markIndividualPositions();

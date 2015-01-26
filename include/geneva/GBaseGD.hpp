@@ -66,7 +66,7 @@ namespace Geneva {
  */
 const std::size_t DEFAULTGDSTARTINGPOINTS=1;
 const double DEFAULTFINITESTEP=0.001;
-const double DEFAULTSTEPSIZE=0.01;
+const double DEFAULTSTEPSIZE=0.1;
 
 /******************************************************************************/
 /**
@@ -89,6 +89,10 @@ class GBaseGD
 		   & BOOST_SERIALIZATION_NVP(nFPParmsFirst_)
 		   & BOOST_SERIALIZATION_NVP(finiteStep_)
 		   & BOOST_SERIALIZATION_NVP(stepSize_);
+		   // & BOOST_SERIALIZATION_NVP(stepRatio_)  // temporary parameter
+		   // & BOOST_SERIALIZATION_NVP(dblLowerParameterBoundaries_) // temporary parameter
+		   // & BOOST_SERIALIZATION_NVP(dblUpperParameterBoundaries_) // temporary parameter
+		   // & BOOST_SERIALIZATION_NVP(adjustedFiniteStep_); // temporary parameter
 	}
 
 	///////////////////////////////////////////////////////////////////////
@@ -116,12 +120,12 @@ public:
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
-			const GObject&
-			, const Gem::Common::expectation&
-			, const double&
-			, const std::string&
-			, const std::string&
-			, const bool&
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
 	) const  OVERRIDE;
 
 	/** @brief Loads a checkpoint */
@@ -193,8 +197,15 @@ private:
 	/***************************************************************************/
 	std::size_t nStartingPoints_; ///< The number of starting positions in the parameter space
 	std::size_t nFPParmsFirst_; ///< The amount of floating point values in the first individual
+
 	double finiteStep_; ///< The size of the incremental adaption of the feature vector
 	double stepSize_; ///< A multiplicative factor for the adaption
+	long double stepRatio_; ///< The ratio of stepSize_ and finiteStep_. NOTE: long double!
+
+   std::vector<double> dblLowerParameterBoundaries_; ///< Holds lower boundaries of double parameters
+   std::vector<double> dblUpperParameterBoundaries_; ///< Holds upper boundaries of double parameters
+
+   std::vector<double> adjustedFiniteStep_; ///< A step-size normalized to each parameter range
 
 	/** @brief Lets individuals know about their position in the population */
 	void markIndividualPositions();
@@ -217,8 +228,8 @@ public:
 	 * by default in the Geneva library for evolutionary algorithms.
 	 */
 	class GGDOptimizationMonitor
-	: public GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT
-	  {
+	      : public GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT
+	        {
 	   ///////////////////////////////////////////////////////////////////////
 	   friend class boost::serialization::access;
 
@@ -234,7 +245,7 @@ public:
 	   }
 	   ///////////////////////////////////////////////////////////////////////
 
-	  public:
+     public:
 	   /** @brief The default constructor */
 	   GGDOptimizationMonitor();
 	   /** @brief The copy constructor */
@@ -251,12 +262,12 @@ public:
 
 	   /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
 	   virtual boost::optional<std::string> checkRelationshipWith(
-	         const GObject&
-	         , const Gem::Common::expectation&
-	         , const double&
-	         , const std::string&
-	         , const std::string&
-	         , const bool&
+         const GObject&
+         , const Gem::Common::expectation&
+         , const double&
+         , const std::string&
+         , const std::string&
+         , const bool&
 	   ) const OVERRIDE;
 
 	   /** @brief Set the dimension of the output canvas */
@@ -273,7 +284,7 @@ public:
 	   /** @brief Allows to retrieve the name of the result file */
 	   std::string getResultFileName() const;
 
-	  protected:
+     protected:
 	   /** @brief A function that is called once before the optimization starts */
 	   virtual void firstInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
 	   /** @brief A function that is called during each optimization cycle */
@@ -286,7 +297,7 @@ public:
 	   /** @brief Creates a deep clone of this object */
 	   virtual GObject* clone_() const OVERRIDE;
 
-	  private:
+     private:
 	   boost::uint32_t xDim_; ///< The dimension of the canvas in x-direction
 	   boost::uint32_t yDim_; ///< The dimension of the canvas in y-direction
 
@@ -294,7 +305,7 @@ public:
 
 	   boost::shared_ptr<Gem::Common::GGraph2D> fitnessGraph_; ///< Holds the fitness data until plotted
 
-	  public:
+     public:
 	   /** @brief Applies modifications to this object. This is needed for testing purposes */
 	   virtual bool modify_GUnitTests() OVERRIDE;
 	   /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
@@ -303,7 +314,7 @@ public:
 	   virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 
 	   /************************************************************************/
-	  };
+	        };
 
    /***************************************************************************/
    /////////////////////////////////////////////////////////////////////////////
