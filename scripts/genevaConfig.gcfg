@@ -68,8 +68,9 @@ CMAKE="/usr/bin/cmake"
 BUILDMODE="Release"
 
 # The C++ standard to use for building, one of 'auto' (choose automatically),
-# 'cxx98' (enforce the C++98 standard), 'cxx11' (enforce the C++11 standard)
-BUILDSTD="cxx98"
+# 'cxx98' (enforce the C++98 standard), 'cxx11' (enforce the C++11 standard),
+# or 'cxx14' (enforce the C++14 standard)
+BUILDSTD="auto"
 
 # Whether Geneva should be built with MPI support (experimental!).
 # NOTE: Boost.MPI must be installed alongside supported MPI libraries
