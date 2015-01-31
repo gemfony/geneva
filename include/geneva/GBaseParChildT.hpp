@@ -254,7 +254,7 @@ public:
     * @return The number of parents in the population
     */
    std::size_t getNParents() const {
-      return std::min(this->size(), nParents_);
+      return (std::min)(this->size(), nParents_);
    }
 
    /***************************************************************************/

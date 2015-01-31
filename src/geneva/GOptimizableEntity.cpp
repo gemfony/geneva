@@ -1353,7 +1353,7 @@ void GOptimizableEntity::postEvaluationUpdate() {
                boost::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i)) = this->getWorstCase();
             } else {
                boost::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i))
-                    = -std::max(boost::get<G_TRANSFORMED_FITNESS>(worstKnownValids_.at(i)), std::max(barrier_,1.))*validityLevel_;
+                    = -(std::max)(boost::get<G_TRANSFORMED_FITNESS>(worstKnownValids_.at(i)), (std::max)(barrier_,1.))*validityLevel_;
             }
          }
       } else {
@@ -1362,7 +1362,7 @@ void GOptimizableEntity::postEvaluationUpdate() {
                boost::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i)) = this->getWorstCase();
             } else {
                boost::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i))
-                    = std::max(boost::get<G_TRANSFORMED_FITNESS>(worstKnownValids_.at(i)), std::max(barrier_,1.))*validityLevel_;
+                    = (std::max)(boost::get<G_TRANSFORMED_FITNESS>(worstKnownValids_.at(i)), (std::max)(barrier_,1.))*validityLevel_;
             }
          }
       }

@@ -788,7 +788,7 @@ public:
 	 */
 	void crossOver(GStdPtrVectorInterfaceT<T>& cp, const std::size_t& pos) {
 		// Find out the minimum size of both vectors
-		std::size_t minSize = std::min(this->size(), cp.size());
+		std::size_t minSize = (std::min)(this->size(), cp.size());
 
 #ifdef DEBUG
 		// Do some error checking

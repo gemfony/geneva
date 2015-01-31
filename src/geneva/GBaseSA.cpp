@@ -703,7 +703,7 @@ void GBaseSA::GSAOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<G
    // (or the number of parents, if <= 3). Setting the number to 0 will result in
    // the same number of individuals being monitored as the number of parents.
    if(nMonitorInds_ == 0) {
-      nMonitorInds_ = std::min(sa->getNParents(), std::size_t(3));
+      nMonitorInds_ = (std::min)(sa->getNParents(), std::size_t(3));
    }
 
    // Set up the plotters

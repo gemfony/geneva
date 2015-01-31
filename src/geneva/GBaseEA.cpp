@@ -1019,7 +1019,7 @@ void GBaseEA::GEAOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<G
    // been set externally. We allow a maximum of 3 monitored individuals by default
    // (or the number of parents, if <= 3).
    if(nMonitorInds_ == 0) {
-      nMonitorInds_ = std::min(ea->getNParents(), std::size_t(3));
+      nMonitorInds_ = (std::min)(ea->getNParents(), std::size_t(3));
    }
 
    // Set up the plotters
