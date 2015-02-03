@@ -32,6 +32,8 @@
  * http://www.gemfony.eu .
  */
 
+// For Microsoft-compatible compilers
+#include "common/GWindowsDefines.hpp"
 
 // Standard headers go here
 
@@ -76,11 +78,6 @@
 
 #ifndef GSEEDMANAGER_HPP_
 #define GSEEDMANAGER_HPP_
-
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
 
 
 // Gemfony headers go here

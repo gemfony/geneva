@@ -31,6 +31,10 @@
  * For further information on Gemfony scientific and Geneva, visit
  * http://www.gemfony.eu .
  */
+
+// For Microsoft-compatible compilers
+#include "common/GWindowsDefines.hpp"
+
 // Standard headers go here
 
 #include <iostream>
@@ -45,15 +49,8 @@
 #ifndef GCOMMANDLINEPARSER_HPP_
 #define GCOMMANDLINEPARSER_HPP_
 
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
-
-namespace Gem
-{
-namespace Tests
-{
+namespace Gem {
+namespace Tests {
 
 // Default settings
 const std::size_t DEFAULTNENTRIES=20000;

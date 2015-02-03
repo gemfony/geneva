@@ -32,6 +32,8 @@
  * http://www.gemfony.eu .
  */
 
+// For Microsoft-compatible compilers
+#include "common/GWindowsDefines.hpp"
 
 // Standard includes go here
 #include <cstdlib>
@@ -42,12 +44,6 @@
 
 #ifndef GRANDOMDEFINES_HPP_
 #define GRANDOMDEFINES_HPP_
-
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
-
 
 namespace Gem {
 namespace Hap {

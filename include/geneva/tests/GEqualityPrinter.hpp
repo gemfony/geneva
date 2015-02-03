@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+// For Microsoft-compatible compilers
+#include "common/GWindowsDefines.hpp"
+
 // Standard header files go here
 #include <iostream>
 #include <sstream>
@@ -60,11 +63,6 @@
 // Geneva headers go here
 #include "geneva/GObject.hpp"
 #include "geneva/GStdSimpleVectorInterfaceT.hpp"
-
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
 
 /*************************************************************************************************/
 /**

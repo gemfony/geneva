@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+// For Microsoft-compatible compilers
+#include "common/GWindowsDefines.hpp"
+
 // Standard header files go here
 #include <iostream>
 #include <sstream>
@@ -63,11 +66,6 @@ using boost::unit_test_framework::test_case;
 #include "geneva/GObject.hpp"
 
 #include "GEqualityPrinter.hpp"
-
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
 
 /*************************************************************************************************/
 /**

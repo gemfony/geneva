@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+// For Microsoft-compatible compilers
+#include "common/GWindowsDefines.hpp"
+
 // Standard headers go here
 #include <vector>
 #include <iostream>
@@ -59,11 +62,6 @@
 
 #ifndef GRANDOMNUMBERCONTAINER_HPP_
 #define GRANDOMNUMBERCONTAINER_HPP_
-
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
 
 // Geneva headers go here
 #include "common/GSerializeTupleT.hpp"

@@ -32,6 +32,8 @@
  * http://www.gemfony.eu .
  */
 
+// For Microsoft-compatible compilers
+#include "common/GWindowsDefines.hpp"
 
 // Standard header files go here
 #include <iostream>
@@ -44,11 +46,6 @@
 
 #ifndef GPARABOLOIDINDIVIDUAL2D_HPP_
 #define GPARABOLOIDINDIVIDUAL2D_HPP_
-
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
-#pragma once
-#endif
 
 // Geneva header files go here
 #include <geneva/GParameterSet.hpp>

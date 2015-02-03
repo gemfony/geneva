@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+// For Microsoft-compatible compilers
+#include "common/GWindowsDefines.hpp"
+
 // Standard header files go here
 #include <iostream>
 #include <sstream>

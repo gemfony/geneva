@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+// For Microsoft-compatible compilers
+#include "common/GWindowsDefines.hpp"
+
 // Standard headers go here
 #include <string>
 #include <sstream>
@@ -44,11 +47,6 @@
 
 #ifndef GBROKERSELFCOMMUNICATIONENUMS_HPP_
 #define GBROKERSELFCOMMUNICATIONENUMS_HPP_
-
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
 
 namespace Gem {
 namespace Courtier {

@@ -32,6 +32,8 @@
  * http://www.gemfony.eu .
  */
 
+// For Microsoft-compatible compilers
+#include "common/GWindowsDefines.hpp"
 
 // Standard headers go here
 
@@ -69,12 +71,6 @@
 
 #ifndef GRANDOMBASE_HPP_
 #define GRANDOMBASE_HPP_
-
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
-
 
 // Hap headers go here
 #include "common/GMathHelperFunctions.hpp"
