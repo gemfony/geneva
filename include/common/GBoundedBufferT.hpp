@@ -21,7 +21,7 @@
  * Copyright (C) Gemfony scientific UG (haftungsbeschraenkt)
  *
  * NOTE THAT THE BOOST-LICENSE DOES NOT APPLY TO ANY OTHER FILES OF THE
- * GENEVA LIBRARY, UNLESS THIS IS EXPLICITLY STATED IN THE CORRESPONDING FILE.
+ * GENEVA LIBRARY, UNLESS THIS IS EXPLICITLY STATED IN THE CORRESPONDING FILE!
  *
  * See the AUTHORS file in the top-level directory for a list of authors.
  *
@@ -43,6 +43,8 @@
 
 /*
  * The following license applies to the code in this file:
+ *
+ * ***************************************************************************
  *
  * Boost Software License - Version 1.0 - August 17th, 2003
  *
@@ -67,12 +69,12 @@
  * FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
+ *
+ * ***************************************************************************
  */
 
 // For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
+#include "common/GWindowsDefines.hpp"
 
 // Standard headers go here
 

@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+// For Microsoft-compatible compilers
+#include "common/GWindowsDefines.hpp"
+
 // Standard header files go here
 
 // Boost header files go here
@@ -39,11 +42,6 @@
 
 #ifndef GCONSUMERSTORE_HPP_
 #define GCONSUMERSTORE_HPP_
-
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
 
 // Geneva headers go here
 #include "common/GGlobalOptionsT.hpp"

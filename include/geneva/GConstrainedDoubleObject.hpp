@@ -33,6 +33,9 @@
  */
 
 
+// For Microsoft-compatible compilers
+#include "common/GWindowsDefines.hpp"
+
 // Standard headers go here
 
 // Boost headers go here
@@ -40,19 +43,12 @@
 #ifndef GCONSTRAINEDDOUBLEOBJECT_HPP_
 #define GCONSTRAINEDDOUBLEOBJECT_HPP_
 
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
-
 // Geneva headers go here
 #include "geneva/GConstrainedFPT.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 
-namespace Gem
-{
-namespace Geneva
-{
+namespace Gem {
+namespace Geneva {
 
 /******************************************************************************/
 /**

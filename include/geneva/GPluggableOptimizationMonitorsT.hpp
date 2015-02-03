@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+// For Microsoft-compatible compilers
+#include "common/GWindowsDefines.hpp"
+
 // Standard header files go here
 #include <string>
 #include <fstream>
@@ -48,11 +51,6 @@
 
 #ifndef GPLUGGABLEOPTIMIZATIONMONITORST_HPP_
 #define GPLUGGABLEOPTIMIZATIONMONITORST_HPP_
-
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
 
 // Geneva headers go here
 #include "common/GPlotDesigner.hpp"

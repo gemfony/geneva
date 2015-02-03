@@ -32,13 +32,17 @@
  * http://www.gemfony.eu .
  */
 
+// For Microsoft-compatible compilers
+#include "common/GWindowsDefines.hpp"
 
 // Standard header files go here
 #include <algorithm>
 #include <assert.h>
 #include <cmath>
 #include <cfloat>
+#include <cstdio>
 #include <cstdlib>
+#include <csignal>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -48,7 +52,6 @@
 #include <string>
 #include <typeinfo>
 #include <vector>
-#include <csignal>
 
 // Includes check for correct Boost version(s)
 #include "common/GGlobalDefines.hpp"
@@ -118,11 +121,6 @@
 
 #ifndef GOBJECT_HPP_
 #define GOBJECT_HPP_
-
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
 
 // Geneva header files go here
 #include "common/GDefaultValueT.hpp"
@@ -284,10 +282,15 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * A handler for SIGHUP signals
+	 * A handler for SIGHUP or CTRL_BREAK_EVENT signals. This function should work
+	 * both for Windows and Unix-Systems.
 	 */
 	static void sigHupHandler(int signum) {
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+	   if(CTRL_BREAK_EVENT == signum) {
+#else
 	   if(SIGHUP == signum) {
+#endif
 	      GObject::GenevaSigHupSent = 1;
 	   }
 	}

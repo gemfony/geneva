@@ -58,6 +58,7 @@ SET ( GENEVACOMMONINCLUDES
 	GThreadWrapper.hpp
 	GTriboolSerialization.hpp
 	GUnitTestFrameworkT.hpp
+	GWindowsDefines.hpp
 )
 
 INSTALL ( FILES ${GENEVACOMMONINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/common )

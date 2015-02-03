@@ -32,19 +32,15 @@
  * http://www.gemfony.eu .
  */
 
+// For Microsoft-compatible compilers
+#include "common/GWindowsDefines.hpp"
+
 // Standard headers go here
 
 // Boost headers go here
 
 #ifndef GSAPERSONALITYTRAITS_HPP_
 #define GSAPERSONALITYTRAITS_HPP_
-
-
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
-
 
 // Geneva headers go here
 #include "geneva/GBaseParChildPersonalityTraits.hpp"
