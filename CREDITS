@@ -5,3 +5,9 @@ taken over work in the ongoing development.
 
 We'd also like to sincerely thank Dr. Sven Gabriel for his kind support 
 and for discovering numerous problems.
+
+Alexander Mueller has made many suggestions, discovered bugs and has given
+important advice for porting Geneva to Windows. 
+
+Lisa Schaetzle has helped with the improvement of the Gradient Descent 
+implementation.
