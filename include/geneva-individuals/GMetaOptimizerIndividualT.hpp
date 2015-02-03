@@ -286,8 +286,9 @@ public:
     * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
     */
-   virtual boost::optional<std::string> checkRelationshipWith(const GObject& cp,
-      const Gem::Common::expectation& e
+   virtual boost::optional<std::string> checkRelationshipWith(
+      const GObject& cp
+      , const Gem::Common::expectation& e
       , const double& limit
       , const std::string& caller
       , const std::string& y_name
