@@ -32,6 +32,11 @@
  * http://www.gemfony.eu .
  */
 
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
+
 // Standard header files go here
 
 #include <string>
@@ -57,12 +62,6 @@
 
 #ifndef GEXCEPTIONSTREAMER_HPP_
 #define GEXCEPTIONSTREAMER_HPP_
-
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
-
 
 // Geneva header files go here
 #include "common/GSingletonT.hpp"

@@ -32,6 +32,10 @@
  * http://www.gemfony.eu .
  */
 
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
 
 // Standard headers go here
 
@@ -52,11 +56,6 @@
 
 #ifndef GASIOHELPERFUNCTIONS_HPP_
 #define GASIOHELPERFUNCTIONS_HPP_
-
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"

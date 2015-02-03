@@ -32,6 +32,11 @@
  * http://www.gemfony.eu .
  */
 
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
+
 // Standard headers go here
 #include <string>
 
@@ -42,12 +47,6 @@
 
 #ifndef GDEFAULTVALUE_HPP_
 #define GDEFAULTVALUE_HPP_
-
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
-
 
 // Geneva headers go here
 

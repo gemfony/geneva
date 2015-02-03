@@ -32,6 +32,11 @@
  * http://www.gemfony.eu .
  */
 
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
+
 // Standard headers go here
 
 // Includes check for correct Boost version(s)
@@ -58,11 +63,6 @@
 
 #ifndef GSUBMISSIONCONTAINERBASE_HPP_
 #define GSUBMISSIONCONTAINERBASE_HPP_
-
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
 
 // Geneva headers go here
 #include "common/GSerializeTupleT.hpp"

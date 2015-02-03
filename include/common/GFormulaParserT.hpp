@@ -62,6 +62,11 @@
  * GENEVA LIBRARY, UNLESS THIS IS EXPLICITLY STATED IN THE CORRESPONDING FILE.
  */
 
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
+
 // Standard headers go here
 #include <iostream>
 #include <string>
@@ -98,11 +103,6 @@
 
 #ifndef GFORMULAPARSERT_HPP_
 #define GFORMULAPARSERT_HPP_
-
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"

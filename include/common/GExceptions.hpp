@@ -60,8 +60,12 @@
  * GENEVA LIBRARY, UNLESS THIS IS EXPLICITLY STATED IN THE CORRESPONDING FILE.
  */
 
-// Standard header files go here
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
 
+// Standard header files go here
 #include <string>
 #include <sstream>
 #include <exception>
@@ -70,12 +74,6 @@
 
 #ifndef GEXCEPTIONS_HPP_
 #define GEXCEPTIONS_HPP_
-
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
-
 
 // Geneva header files go here
 

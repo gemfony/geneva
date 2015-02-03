@@ -31,6 +31,11 @@
  * For further information on Gemfony scientific and Geneva, visit
  * http://www.gemfony.eu .
  */
+ 
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
 
 // Standard headers go here
 #include <string>
@@ -47,11 +52,6 @@
 
 #ifndef GCOMMONENUMS_HPP_
 #define GCOMMONENUMS_HPP_
-
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
 
 // Geneva headers go here
 

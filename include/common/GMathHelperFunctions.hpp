@@ -60,6 +60,10 @@
  * GENEVA LIBRARY, UNLESS THIS IS EXPLICITLY STATED IN THE CORRESPONDING FILE.
  */
 
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
 
 // Standard headers go here
 #include <cmath>
@@ -70,11 +74,6 @@
 
 #ifndef GMATHHELPERFUNCTIONS_HPP_
 #define GMATHHELPERFUNCTIONS_HPP_
-
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"

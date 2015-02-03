@@ -32,6 +32,11 @@
  * http://www.gemfony.eu .
  */
 
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
+
 // Standard header files go here
 #include <string>
 #include <vector>
@@ -53,11 +58,6 @@
 
 #ifndef GPLOTDESIGNER_HPP_
 #define GPLOTDESIGNER_HPP_
-
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"

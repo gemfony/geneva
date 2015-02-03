@@ -32,6 +32,11 @@
  * http://www.gemfony.eu .
  */
 
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
+
 // Standard headers go here
 #include <vector>
 #include <sstream>
@@ -63,11 +68,6 @@
 
 #ifndef GHELPERFUNCTIONST_HPP_
 #define GHELPERFUNCTIONST_HPP_
-
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
 
 // Our own headers go here
 #include "common/GHelperFunctions.hpp"

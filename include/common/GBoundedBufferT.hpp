@@ -69,6 +69,11 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
+
 // Standard headers go here
 
 #include <string>
@@ -97,12 +102,6 @@
 
 #ifndef GBOUNDEDBUFFERT_HPP_
 #define GBOUNDEDBUFFERT_HPP_
-
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
-
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
