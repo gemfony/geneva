@@ -375,14 +375,16 @@ endfunction()
 # Guesses Boost's compiler prefix used in built library names
 # Returns the guess by setting the variable pointed to by _ret
 function(_Boost_GUESS_COMPILER_PREFIX _ret)
-  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel"
-      OR "${CMAKE_CXX_COMPILER}" MATCHES "icl"
-      OR "${CMAKE_CXX_COMPILER}" MATCHES "icpc")
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Intel"
+      OR CMAKE_CXX_COMPILER MATCHES "icl"
+      OR CMAKE_CXX_COMPILER MATCHES "icpc")
     if(WIN32)
       set (_boost_COMPILER "-iw")
     else()
       set (_boost_COMPILER "-il")
     endif()
+  elseif (MSVC14)
+    set(_boost_COMPILER "-vc140")
   elseif (MSVC12)
     set(_boost_COMPILER "-vc120")
   elseif (MSVC11)
@@ -401,7 +403,7 @@ function(_Boost_GUESS_COMPILER_PREFIX _ret)
     set(_boost_COMPILER "-vc6") # yes, this is correct
   elseif (BORLAND)
     set(_boost_COMPILER "-bcb")
-  elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "SunPro")
+  elseif(CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
     set(_boost_COMPILER "-sw")
   elseif (MINGW)
     if(${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION} VERSION_LESS 1.34)
@@ -445,22 +447,6 @@ function(_Boost_GUESS_COMPILER_PREFIX _ret)
   set(${_ret} ${_boost_COMPILER} PARENT_SCOPE)
 endfunction()
 
-function(_Boost_consider_adding_pthreads _outvar)
-  # On Unix platforms (excluding cygwin) add pthreads to Boost_LIBRARIES
-  # if the user is searching for the boost-thread component.
-  if(UNIX AND NOT CYGWIN)
-    list(FIND Boost_FIND_COMPONENTS thread _using_boost_thread)
-    if(_using_boost_thread GREATER -1)
-      find_library(BOOST_THREAD_LIBRARY NAMES pthread
-                   DOC "The threading library used by boost-thread"
-      )
-      if(BOOST_THREAD_LIBRARY)
-        set(${_outvar} ${ARGN} ${BOOST_THREAD_LIBRARY} PARENT_SCOPE)
-      endif()
-    endif()
-  endif()
-endfunction()
-
 #
 # End functions/macros
 #
@@ -492,7 +478,7 @@ else()
   # The user has not requested an exact version.  Among known
   # versions, find those that are acceptable to the user request.
   set(_Boost_KNOWN_VERSIONS ${Boost_ADDITIONAL_VERSIONS}
-    "1.56.0" "1.56" "1.55.0" "1.55" "1.54.0" "1.54"
+    "1.58.0" "1.58" "1.57.0" "1.57" "1.56.0" "1.56" "1.55.0" "1.55" "1.54.0" "1.54"
     "1.53.0" "1.53" "1.52.0" "1.52" "1.51.0" "1.51"
     "1.50.0" "1.50" "1.49.0" "1.49" "1.48.0" "1.48" "1.47.0" "1.47" "1.46.1"
     "1.46.0" "1.46" "1.45.0" "1.45" "1.44.0" "1.44" "1.43.0" "1.43" "1.42.0" "1.42"
@@ -647,12 +633,12 @@ if(NOT Boost_INCLUDE_DIR)
     set(_boost_BOOSTIFIED_VERSION)
 
     # Transform 1.35 => 1_35 and 1.36.0 => 1_36_0
-    if(_boost_VER MATCHES "[0-9]+\\.[0-9]+\\.[0-9]+")
-        string(REGEX REPLACE "([0-9]+)\\.([0-9]+)\\.([0-9]+)" "\\1_\\2_\\3"
-          _boost_BOOSTIFIED_VERSION ${_boost_VER})
-    elseif(_boost_VER MATCHES "[0-9]+\\.[0-9]+")
-        string(REGEX REPLACE "([0-9]+)\\.([0-9]+)" "\\1_\\2"
-          _boost_BOOSTIFIED_VERSION ${_boost_VER})
+    if(_boost_VER MATCHES "([0-9]+)\\.([0-9]+)\\.([0-9]+)")
+        set(_boost_BOOSTIFIED_VERSION
+          "${CMAKE_MATCH_1}_${CMAKE_MATCH_2}_${CMAKE_MATCH_3}")
+    elseif(_boost_VER MATCHES "([0-9]+)\\.([0-9]+)")
+        set(_boost_BOOSTIFIED_VERSION
+          "${CMAKE_MATCH_1}_${CMAKE_MATCH_2}")
     endif()
 
     list(APPEND _boost_PATH_SUFFIXES
@@ -700,7 +686,7 @@ if(Boost_INCLUDE_DIR)
   set(_Boost_VERSION_REGEX "([0-9]+)")
   set(_Boost_LIB_VERSION_REGEX "\"([0-9_]+)\"")
   foreach(v VERSION LIB_VERSION)
-    if("${_boost_VERSION_HPP_CONTENTS}" MATCHES ".*#define BOOST_${v} ${_Boost_${v}_REGEX}.*")
+    if("${_boost_VERSION_HPP_CONTENTS}" MATCHES "#define BOOST_${v} ${_Boost_${v}_REGEX}")
       set(Boost_${v} "${CMAKE_MATCH_1}")
     endif()
   endforeach()
@@ -970,7 +956,8 @@ foreach(COMPONENT ${Boost_FIND_COMPONENTS})
 
   # Compute component-specific hints.
   set(_Boost_FIND_LIBRARY_HINTS_FOR_COMPONENT "")
-  if(${COMPONENT} STREQUAL "mpi" OR ${COMPONENT} STREQUAL "mpi_python")
+  if(${COMPONENT} STREQUAL "mpi" OR ${COMPONENT} STREQUAL "mpi_python" OR
+     ${COMPONENT} STREQUAL "graph_parallel")
     foreach(lib ${MPI_CXX_LIBRARIES} ${MPI_C_LIBRARIES})
       if(IS_ABSOLUTE "${lib}")
         get_filename_component(libdir "${lib}" PATH)
@@ -1190,9 +1177,6 @@ if(Boost_FOUND)
       list(APPEND Boost_LIBRARIES ${Boost_${UPPERCOMPONENT}_LIBRARY})
     endif()
   endforeach()
-
-  # Add pthread library on UNIX if thread component was found
-  _Boost_consider_adding_pthreads(Boost_LIBRARIES ${Boost_LIBRARIES})
 else()
   if(Boost_FIND_REQUIRED)
     message(SEND_ERROR "Unable to find the requested Boost libraries.\n${Boost_ERROR_REASON}")
