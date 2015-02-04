@@ -62,6 +62,7 @@
 
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
 
+#include <winsock2.h>
 #include <windows.h>
 
 #endif /* _MSC_VER */
