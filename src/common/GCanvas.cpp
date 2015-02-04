@@ -39,7 +39,6 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GColumn)
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas8)
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas16)
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas24)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas32)
 
 namespace Gem {
 namespace Common {
@@ -524,75 +523,6 @@ const GCanvas24& GCanvas24::operator=(const GCanvas24& cp) {
   * Convenience function for the calculation of the difference between two canvasses
   */
 float operator-(const GCanvas24& x, const GCanvas24& y) {
-   return x.diff(y);
-}
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * The default constructor
- */
-GCanvas32::GCanvas32()
-   : GCanvas<32>()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * Initialization with dimensions and colors
- */
-GCanvas32::GCanvas32(
-      boost::tuple<std::size_t, std::size_t> dim
-      , boost::tuple<float,float,float> color
-) : GCanvas<32>(dim,color)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * Initialization from data held in a string -- uses the PPM-P3 format
- */
-GCanvas32::GCanvas32(const std::string& ppmData)
-   : GCanvas<32>(ppmData)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * Copy construction
- */
-GCanvas32::GCanvas32(const GCanvas32& cp)
-  : GCanvas<32>(cp)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GCanvas32::~GCanvas32()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The assignment operator
- */
-const GCanvas32& GCanvas32::operator=(const GCanvas32& cp) {
-   GCanvas<32>::operator=(cp);
-   return *this;
-}
-
-/******************************************************************************/
-/**
- * Find out the deviation between this and another canvas
- */
-/*
-float GCanvas32::diff(const GCanvas32& cp) const {
-   return GCanvas<32>::diff(cp);
-}
-*/
-/******************************************************************************/
-/**
-  * Convenience function for the calculation of the difference between two canvasses
-  */
-float operator-(const GCanvas32& x, const GCanvas32& y) {
    return x.diff(y);
 }
 

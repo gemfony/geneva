@@ -44,6 +44,8 @@ The main changes for this release include:
    Boost installation is available, the "prepareBuild.sh" script will now be
    able to configure a default Geneva build without requiring any
    configuration file.
+ - Removed GCanvas32, as it results in a (justified) overflow warning under
+   MS Windows.
 
 ********************************************************************************
 

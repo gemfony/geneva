@@ -1073,47 +1073,6 @@ float operator-(const GCanvas24&, const GCanvas24&);
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-/**
- * Specialization of GCanvas for a color depth of 32 bits
- */
-class GCanvas32:public GCanvas<32>
-{
-   ///////////////////////////////////////////////////////////////////////
-   friend class boost::serialization::access;
-
-   template<typename Archive>
-   void serialize(Archive & ar, const unsigned int) {
-      using boost::serialization::make_nvp;
-
-      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GCanvas<32>);
-   }
-   ///////////////////////////////////////////////////////////////////////
-
-public:
-   /** @brief The default constructor */
-   GCanvas32();
-   /** @brief Initialization with dimensions and colors */
-   GCanvas32(
-         boost::tuple<std::size_t, std::size_t>
-         , boost::tuple<float,float,float>
-   );
-   /** @brief Initialization from data held in a string -- uses the PPM-P3 format */
-   GCanvas32(const std::string&);
-   /** @brief Copy construction */
-   GCanvas32(const GCanvas32&);
-   /** @brief The destructor */
-   virtual ~GCanvas32();
-
-   /** @brief The assignment operator */
-   const GCanvas32& operator=(const GCanvas32&);
-};
-
-/** @brief Convenience function for the calculation of the difference between two canvasses */
-float operator-(const GCanvas32&, const GCanvas32&);
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */
@@ -1123,6 +1082,5 @@ BOOST_CLASS_EXPORT_KEY(Gem::Common::GColumn)
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas8)
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas16)
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas24)
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas32)
 
 #endif /* GCANVAS_HPP_ */
