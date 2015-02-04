@@ -67,6 +67,8 @@ SET(INTEL_DEF_CXX14_STANDARD_FLAG "-std=c++14")
 
 # MSVC settings
 SET(MSVC_DEF_IDENTIFIER "MSVC")
+SET(MSVC_DEF_MIN_CXX11_VERSION "18.0")	# Aka MS Visual C++ 12.0, MS Visual Studio 2013, actually no full support...
+SET(MSVC_DEF_MIN_CXX14_VERSION "21.0")	# Hopeless at the moment...
 SET(MSVC_DEF_CXX98_STANDARD_FLAG "")
 SET(MSVC_DEF_CXX11_STANDARD_FLAG "")
 SET(MSVC_DEF_CXX14_STANDARD_FLAG "")
@@ -212,7 +214,8 @@ FUNCTION (
 		SET(${GENEVA_OS_VERSION_OUT} "${CYGWIN_VERSION}" PARENT_SCOPE)
 	ELSEIF(WIN32)
 		SET(${GENEVA_OS_NAME_OUT} "Windows" PARENT_SCOPE)
-		SET(${GENEVA_OS_VERSION_OUT} "unsupported" PARENT_SCOPE)
+		# No "WIN32_VERSION" variable, no way to get the Windows "marketing version"
+		SET(${GENEVA_OS_VERSION_OUT} "NT ${CMAKE_SYSTEM_VERSION}" PARENT_SCOPE)
 	ELSE()
 		SET(${GENEVA_OS_NAME_OUT} "unsupported" PARENT_SCOPE)
 		SET(${GENEVA_OS_VERSION_OUT} "unsupported" PARENT_SCOPE)
@@ -251,6 +254,8 @@ FUNCTION (
 			EXEC_PROGRAM(${CMAKE_CXX_COMPILER} ARGS -dumpversion OUTPUT_VARIABLE INTEL_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 			SET(GENEVA_COMPILER_VERSION_LOCAL "${INTEL_VERSION}")
 		ELSE()
+			# MSVC is unsupported in this case, it doesn't allow
+			# a meaningful way to query its version
 			SET(GENEVA_COMPILER_VERSION_LOCAL "unsupported")
 		ENDIF()
 	ELSE()
@@ -300,7 +305,15 @@ FUNCTION (
 			SET(${GENEVA_MAX_CXX_STANDARD_OUT} "cxx98" PARENT_SCOPE)
 		ENDIF()
 	ELSEIF (${CMAKE_CXX_COMPILER_ID} STREQUAL ${MSVC_DEF_IDENTIFIER})
-		SET(${GENEVA_MAX_CXX_STANDARD_OUT} "unknown" PARENT_SCOPE)
+		# MSVC doesn't support flags for enabling/disabling C++ standards
+		# compliance, so no way to test it...
+		IF(NOT ${GENEVA_COMPILER_VERSION_LOCAL} VERSION_LESS ${MSVC_DEF_MIN_CXX14_VERSION})
+			SET(${GENEVA_MAX_CXX_STANDARD_OUT} "cxx14" PARENT_SCOPE)
+		ELSEIF(NOT ${GENEVA_COMPILER_VERSION_LOCAL} VERSION_LESS ${MSVC_DEF_MIN_CXX11_VERSION})
+			SET(${GENEVA_MAX_CXX_STANDARD_OUT} "cxx11" PARENT_SCOPE)
+		ELSE()
+			SET(${GENEVA_MAX_CXX_STANDARD_OUT} "cxx98" PARENT_SCOPE)
+		ENDIF()
 	ELSE()
 		SET(${GENEVA_MAX_CXX_STANDARD_OUT} "unknown" PARENT_SCOPE)
 	ENDIF()
@@ -357,8 +370,6 @@ FUNCTION (
 			SET(${GENEVA_CXX_STANDARD_SWITCH_OUT} "${MSVC_DEF_CXX11_STANDARD_FLAG}" PARENT_SCOPE)
 		ELSEIF(${GENEVA_CXX_STANDARD_IN} STREQUAL "cxx98")
 			SET(${GENEVA_CXX_STANDARD_SWITCH_OUT} "${MSVC_DEF_CXX98_STANDARD_FLAG}" PARENT_SCOPE)
-		ELSE() # may be "unknown" for MSVC ...
-			SET(${GENEVA_CXX_STANDARD_SWITCH_OUT} "${NONE_DEF_STANDARD_FLAG}" PARENT_SCOPE)
 		ENDIF()
 	ELSE()
 		SET(${GENEVA_CXX_STANDARD_SWITCH_OUT} "${NONE_DEF_STANDARD_FLAG}" PARENT_SCOPE)
@@ -669,10 +680,9 @@ FUNCTION (
 	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "Cygwin")
 		# No restrictions at the moment
 	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "Windows")
-		MESSAGE("######################################################")
-		MESSAGE("# Windows is currently supported only through Cygwin #")
-		MESSAGE("######################################################")
-		MESSAGE(FATAL_ERROR "Unsupported platform!")
+		MESSAGE("#########################################################")
+		MESSAGE("# Geneva support for Windows is currently EXPERIMENTAL! #")
+		MESSAGE("#########################################################")
 	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "unsupported")
 		MESSAGE("#####################################")
 		MESSAGE("# Operating system is not supported #")
@@ -695,4 +705,3 @@ ENDIF(NOT IDENTIFY_SYSTEM_PARAMETERS_INCLUDED)
 
 ###############################################################################
 # Done
-
