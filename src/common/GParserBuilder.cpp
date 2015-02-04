@@ -370,7 +370,7 @@ GParserBuilder::GParserBuilder()
       // Convert to a std::string and remove any white space characters
       boost::trim(configFileBaseName_);
    }
-#endif
+#endif /* _MSC_VER */
 }
 
 /******************************************************************************/
