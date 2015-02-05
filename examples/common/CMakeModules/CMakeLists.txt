@@ -4,7 +4,6 @@ SET ( CMAKEFILES
 	README
 	COPYING-CMAKE-SCRIPTS
 	CommonGenevaBuild.cmake
-	FindBoost.cmake
 	FindGeneva.cmake
 	# Other macro files
 	CleanCmakeTemporaries.cmake
