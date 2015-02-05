@@ -2,12 +2,25 @@
 * Development version 1.5, to be released as version 1.6 when ready
 
 The main changes for this release include:
- - Step sizes in Genevas gradient descent implementation are now given
-   in permille of the allowed or expected value range of parameters. 
- - Steps in each direction in order to calculate the gradient are now scaled
-   according to this value range
- - Most calculations in Genevas gradient descent implementation are now
-   carried out as long double to preserve accuracy, where possible
+
+****************************** BREAKING CHANGES ********************************
+
+ - Removed GCanvas32, as it results in a (justified) overflow warning
+   under MS Windows.
+ - The FindBoost.cmake module is not provided anymore. It doesn't help
+   much as we currently require at least CMake 2.8 which comes with a
+   good enough version of the module, but it also interferes with using
+   the system-provided version which may contain some system-specific
+   fixes.
+
+********************************************************************************
+
+ - Step sizes in Geneva's gradient descent implementation are now given
+   in permille of the allowed or expected value range of the parameters. 
+   Steps in each direction used to calculate the gradient are now scaled
+   according to this value range.
+ - Most calculations in Geneva's gradient descent implementation are
+   now carried out as long double to preserve accuracy, where possible.
 
 Wishlist:
  - A scripting interface to optimization algorithms, so that new
@@ -44,8 +57,6 @@ The main changes for this release include:
    Boost installation is available, the "prepareBuild.sh" script will now be
    able to configure a default Geneva build without requiring any
    configuration file.
- - Removed GCanvas32, as it results in a (justified) overflow warning under
-   MS Windows.
 
 ********************************************************************************
 
