@@ -86,21 +86,47 @@ MACRO (
 )
 
 	#--------------------------------------------------------------------------
+	SET(GENEVA_CONFIGURATION_TYPES "Debug;Release;Sanitize")
+
+	# Set the available build types on multi-config generators
+	IF(CMAKE_CONFIGURATION_TYPES)
+		SET(CMAKE_CONFIGURATION_TYPES ${GENEVA_CONFIGURATION_TYPES})
+		SET(CMAKE_CONFIGURATION_TYPES ${CMAKE_CONFIGURATION_TYPES} CACHE
+		    STRING "The available build types" FORCE)
+	ENDIF()
+
+	# The Sanitize option falls back to Debug on unsupported platforms
+	SET(CMAKE_CXX_FLAGS_SANITIZE ${CMAKE_CXX_FLAGS_DEBUG} CACHE
+	    STRING "Flags used by the C++ compiler during sanitize builds" FORCE)
+	SET(CMAKE_C_FLAGS_SANITIZE ${CMAKE_C_FLAGS_DEBUG} CACHE
+	    STRING "Flags used by the C compiler during sanitize builds" FORCE)
+	SET(CMAKE_EXE_LINKER_FLAGS_SANITIZE ${CMAKE_EXE_LINKER_FLAGS_DEBUG} CACHE
+	    STRING "Flags used for linking binaries during sanitize builds" FORCE)
+	SET(CMAKE_SHARED_LINKER_FLAGS_SANITIZE ${CMAKE_SHARED_LINKER_FLAGS_DEBUG} CACHE
+	    STRING "Flags used by the shared libraries linker during sanitize builds" FORCE)
+	MARK_AS_ADVANCED(
+		CMAKE_CXX_FLAGS_SANITIZE
+		CMAKE_C_FLAGS_SANITIZE
+		CMAKE_EXE_LINKER_FLAGS_SANITIZE
+		CMAKE_SHARED_LINKER_FLAGS_SANITIZE
+	)
+	# Update the documentation string of CMAKE_BUILD_TYPE for GUIs
+	SET(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE
+	    STRING "Choose the build type, options are: Debug Release Sanitize" FORCE)
+
 	IF(GENEVA_BUILD_TYPE)
-		IF(${GENEVA_BUILD_TYPE} STREQUAL "Debug")
-			SET(MSG "Setting the build type to Debug")
-			SET(CMAKE_BUILD_TYPE "Debug")
-		ELSEIF(${GENEVA_BUILD_TYPE} STREQUAL "Release")
-			SET(MSG "Setting the build type to Release")
-			SET(CMAKE_BUILD_TYPE "Release")
-		ELSEIF(${GENEVA_BUILD_TYPE} STREQUAL "Sanitize")
-			SET(MSG "Setting the build type to Sanitize\n"
-				"This will default to Debug on systems that do not support this setting")
-			SET(CMAKE_BUILD_TYPE "Debug")
-		ELSE()
-			MESSAGE (FATAL_ERROR "Unknown compilation mode GENEVA_BUILD_TYPE=${GENEVA_BUILD_TYPE}!")
+		IF(NOT ";${GENEVA_CONFIGURATION_TYPES};" MATCHES ";${GENEVA_BUILD_TYPE};")
+			MESSAGE (FATAL_ERROR "Unknown build type GENEVA_BUILD_TYPE=${GENEVA_BUILD_TYPE}!")
+		ENDIF()
+		SET(MSG "Setting the build type to ${GENEVA_BUILD_TYPE}")
+		SET(CMAKE_BUILD_TYPE ${GENEVA_BUILD_TYPE})
+		IF(${GENEVA_BUILD_TYPE} STREQUAL "Sanitize")
+			SET(MSG "${MSG}\nThis will default to Debug on systems that do not support this setting")
 		ENDIF()
 	ELSEIF(CMAKE_BUILD_TYPE) # GENEVA_BUILD_TYPE is unset, but CMAKE_BUILD_TYPE is set and not empty
+		IF(NOT ";${GENEVA_CONFIGURATION_TYPES};" MATCHES ";${CMAKE_BUILD_TYPE};")
+			MESSAGE (FATAL_ERROR "Unknown build type CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}!")
+		ENDIF()
 		SET(MSG "Using build type CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
 		SET(GENEVA_BUILD_TYPE "${CMAKE_BUILD_TYPE}")
 	ELSE() # Both variables are unset
