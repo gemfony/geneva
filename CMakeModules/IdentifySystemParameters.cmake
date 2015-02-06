@@ -470,25 +470,17 @@ FUNCTION (
 )
 
 	#--------------------------------------------------------------------------
-	SET(GENEVA_COMPILER_FLAGS "")
-
 	# Retrieve the correct standard switch for our compiler
 	GET_CXX_STANDARD_SWITCH (
 		${GENEVA_ACTUAL_CXX_STANDARD_IN}
 		"GENEVA_CXX_STANDARD_SWITCH"
 	)
 
-	#--------------------------------------------------------------------------
-	# Set the compiler flags with all values that were determined above. Note
-	# that we overwrite existing settings inside of GENEVA_COMPILER_FLAGS_OUT
-	SET (
-		GENEVA_COMPILER_FLAGS
-		"${GENEVA_CXX_STANDARD_SWITCH}"
-	)
+	SET(GENEVA_COMPILER_FLAGS "${GENEVA_CXX_STANDARD_SWITCH}")
 
 	#--------------------------------------------------------------------------
-	# Determine the other compiler flags. We organize this by compiler,  as the same compiler may
-	# be present on multiple platforms. The chosen switches are tailored for the use with geneva
+	# Determine the other compiler flags. We organize this by compiler, as the same compiler may
+	# be present on multiple platforms. The chosen switches are tailored for the use with Geneva
 	#
 	#*****************************************************************
 	IF(${GENEVA_COMPILER_NAME_IN} MATCHES ${INTEL_DEF_IDENTIFIER})
@@ -608,15 +600,14 @@ FUNCTION (
 		# No special provisions yet
 
 	#*****************************************************************
-	ELSE()  # unknown compiler / default setting
+	ELSE()  # Unknown compiler / default setting
 		# No special provisions yet
 
 	ENDIF()
 	#*****************************************************************
 
 	#--------------------------------------------------------------------------
-	# Set the compiler flags with all values that were determined above. Note
-	# that we overwrite existing settings inside of GENEVA_COMPILER_FLAGS_OUT
+	# Set the compiler flags with all values that were determined above
 	SET (${GENEVA_COMPILER_FLAGS_OUT} "${GENEVA_COMPILER_FLAGS}" PARENT_SCOPE)
 
 	#--------------------------------------------------------------------------
