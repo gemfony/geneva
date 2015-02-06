@@ -7,7 +7,6 @@
 # Contact: contact [at] gemfony (dot) eu
 #
 # This file is part of the Geneva library collection.
-# Its purpose is to find the Geneva libraries and include files.
 #
 # Geneva was developed with kind support from Karlsruhe Institute of
 # Technology (KIT) and Steinbuch Centre for Computing (SCC). Further
@@ -90,9 +89,22 @@ MACRO (
 
 	# Set the available build types on multi-config generators
 	IF(CMAKE_CONFIGURATION_TYPES)
-		SET(CMAKE_CONFIGURATION_TYPES ${GENEVA_CONFIGURATION_TYPES})
-		SET(CMAKE_CONFIGURATION_TYPES ${CMAKE_CONFIGURATION_TYPES} CACHE
-		    STRING "The available build types" FORCE)
+		# Due to issue http://www.cmake.org/Bug/view.php?id=5811,
+		# the new variable is not used in the first run, only if it is
+		# already in the cache... so we force a rerun
+		IF (NOT "${CMAKE_CONFIGURATION_TYPES}" STREQUAL "${GENEVA_CONFIGURATION_TYPES}")
+			SET(CMAKE_CONFIGURATION_TYPES ${GENEVA_CONFIGURATION_TYPES})
+			SET(CMAKE_CONFIGURATION_TYPES ${CMAKE_CONFIGURATION_TYPES} CACHE
+			    STRING "The available build types" FORCE)
+
+			MESSAGE("\n\n")
+			MESSAGE("#############################################################\n")
+			MESSAGE("   The configuration type values changed, to generate")
+			MESSAGE("   the right IDE project files CMake must be run again!\n")
+			MESSAGE("   Please re-run the same command once more...\n")
+			MESSAGE("#############################################################\n\n")
+			MESSAGE(FATAL_ERROR "\nThis is not an error, but a request to re-run this command!\n")
+		ENDIF()
 	ENDIF()
 
 	# The Sanitize option falls back to Debug on unsupported platforms
@@ -692,6 +704,7 @@ FUNCTION (
 		MESSAGE("#########################################################")
 		MESSAGE("# Geneva support for Windows is currently EXPERIMENTAL! #")
 		MESSAGE("#########################################################")
+		MESSAGE("\n")
 	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "unsupported")
 		MESSAGE("#####################################")
 		MESSAGE("# Operating system is not supported #")
