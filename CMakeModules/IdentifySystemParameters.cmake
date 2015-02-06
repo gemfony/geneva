@@ -682,14 +682,6 @@ FUNCTION (
 			MESSAGE(FATAL_ERROR "Unsupported platform!")
 		ENDIF()
 
-		# Only C++98 is supported at the time being on MacOS X
-		IF(NOT ${GENEVA_CXX_STANDARD_IN} STREQUAL "cxx98")
-			MESSAGE("#########################################")
-			MESSAGE("# Geneva only supports C++98 on MacOS X #")
-			MESSAGE("#########################################")
-			MESSAGE(FATAL_ERROR "Unsupported platform!")
-		ENDIF()
-
 	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "Linux")
 		# No restrictions at the moment
 	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "FreeBSD")
