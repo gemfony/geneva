@@ -171,8 +171,12 @@ SET (Boost_ADDITIONAL_VERSIONS "1.57" "1.57.0" "1.58" "1.58.0")
 
 IF ( GENEVA_STATIC ) 
 	SET (Boost_USE_STATIC_LIBS ON)
-ELSE () # dynamic libraries
+ELSE () # Dynamic libraries
 	SET (Boost_USE_STATIC_LIBS OFF)
+	IF(WIN32)
+		# Disable auto-linking
+		ADD_DEFINITIONS("-DBOOST_ALL_DYN_LINK")
+	ENDIF()
 ENDIF ()
 
 # The minimum Boost version required for building Geneva and Geneva applications
@@ -189,6 +193,14 @@ SET (
 	system
 	thread	
 )
+IF(WIN32)
+	# Boost::thread requires Boost::chrono, required for linking in Windows
+	SET (
+		GENEVA_BOOST_LIBS
+		${GENEVA_BOOST_LIBS}
+		chrono
+	)
+ENDIF()
 
 # Build tests if requested by the user
 IF( GENEVA_BUILD_TESTS )
@@ -217,6 +229,11 @@ FIND_PACKAGE(
 	COMPONENTS ${GENEVA_BOOST_LIBS}
 )
 MESSAGE("")
+
+# Add compile-time diagnostic information about Boost's automatic linking
+IF(WIN32)
+	ADD_DEFINITIONS(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
+ENDIF()
 
 ################################################################################
 # The names of the Geneva libraries
