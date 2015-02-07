@@ -526,7 +526,7 @@ protected:
          << "Got " << oldWorkItems.size() << " older work items" << std::endl
          << GWARNING;
       } else { // Calculate average return times of work items
-         lastAverage_ = iterationDuration/nReturned;
+         lastAverage_ = iterationDuration/boost::numeric_cast<int>(nReturned);
       }
 
       // Sort old work items so they can be readily used by the caller
