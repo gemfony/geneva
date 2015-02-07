@@ -683,7 +683,7 @@ boost::shared_ptr<parSet> GBasePS::getParameterSet(std::size_t& mode) {
       }
 
       singleInt32Par item((*i_it)->getCurrentItem(), boost::get<0>(var), boost::get<1>(var), boost::get<2>(var));
-      (result->bParVec).push_back(item);
+      (result->iParVec).push_back(item);
    }
    // 3) For float objects
    std::vector<boost::shared_ptr<fScanPar> >::iterator f_it;
