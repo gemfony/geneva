@@ -68,7 +68,8 @@ public:
 	/***********************************************************************************/
 	// The default constructor
 	GRandom_test():
-		nTests(100000)
+		nTests_(100000)
+      , nSeeds_(100000)
 	{ /* empty */ }
 
 	/***********************************************************************************/
@@ -79,7 +80,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check seeding
-			// Check that we can set and retrieve the current seed. This needs to be the first test
+			// Check that we can set and retrieve the current seed.
 			const boost::uint32_t startSeed = 41;
 			bool seedSetSuccess;
 			BOOST_CHECK_NO_THROW(seedSetSuccess = GRANDOMFACTORY->setStartSeed(startSeed));
@@ -110,7 +111,7 @@ public:
 			// Initialize with 0
 			for(std::size_t i=0; i<21; i++) randomHist.at(i) = 0;
 
-			for(std::size_t i=0; i<nTests; i++) {
+			for(std::size_t i=0; i<nTests_; i++) {
 				boost::int32_t randVal;
 
 				// Produce a single random number
@@ -143,7 +144,7 @@ public:
 			// Initialize with 0
 			for(std::size_t i=0; i<21; i++) randomHist.at(i) = 0;
 
-			for(std::size_t i=0; i<nTests; i++) {
+			for(std::size_t i=0; i<nTests_; i++) {
 				boost::int32_t randVal;
 
 				// Produce a single random number
@@ -175,7 +176,7 @@ public:
 			// Initialize with 0
 			for(std::size_t i=0; i<11; i++) randomHist.at(i) = 0;
 
-			for(std::size_t i=0; i<nTests; i++) {
+			for(std::size_t i=0; i<nTests_; i++) {
 				boost::int32_t randVal;
 
 				// Produce a single random number
@@ -207,7 +208,7 @@ public:
 			// Initialize with 0
 			for(std::size_t i=0; i<11; i++) randomHist.at(i) = 0;
 
-			for(std::size_t i=0; i<nTests; i++) {
+			for(std::size_t i=0; i<nTests_; i++) {
 				boost::int32_t randVal;
 
 				// Produce a single random number
@@ -236,7 +237,7 @@ public:
 			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>());
 
 			volatile boost::int32_t randVal;
-			for(std::size_t i=0; i<nTests; i++) {
+			for(std::size_t i=0; i<nTests_; i++) {
 				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_int(-std::numeric_limits<boost::int32_t>::max(), std::numeric_limits<boost::int32_t>::max()));
 			}
 		}
@@ -251,7 +252,7 @@ public:
 			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY>());
 
 			volatile boost::int32_t randVal;
-			for(std::size_t i=0; i<nTests; i++) {
+			for(std::size_t i=0; i<nTests_; i++) {
 				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_int(-std::numeric_limits<boost::int32_t>::max(), std::numeric_limits<boost::int32_t>::max()));
 			}
 		}
@@ -265,7 +266,7 @@ public:
 			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>());
 
 			volatile boost::int32_t randVal;
-			for(std::size_t i=0; i<nTests; i++) {
+			for(std::size_t i=0; i<nTests_; i++) {
 				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_int(std::numeric_limits<boost::int32_t>::max()));
 			}
 		}
@@ -279,7 +280,7 @@ public:
 			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY>());
 
 			volatile boost::int32_t randVal;
-			for(std::size_t i=0; i<nTests; i++) {
+			for(std::size_t i=0; i<nTests_; i++) {
 				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_int(std::numeric_limits<boost::int32_t>::max()));
 			}
 		}
@@ -298,7 +299,7 @@ public:
 			// Initialize with 0
 			for(std::size_t i=0; i<21; i++) randomHist.at(i) = 0;
 
-			for(std::size_t i=0; i<nTests; i++) {
+			for(std::size_t i=0; i<nTests_; i++) {
 				boost::int32_t randVal;
 
 				// Produce a single random number
@@ -331,7 +332,7 @@ public:
 			// Initialize with 0
 			for(std::size_t i=0; i<21; i++) randomHist.at(i) = 0;
 
-			for(std::size_t i=0; i<nTests; i++) {
+			for(std::size_t i=0; i<nTests_; i++) {
 				boost::int32_t randVal;
 
 				// Produce a single random number
@@ -363,7 +364,7 @@ public:
 			// Initialize with 0
 			for(std::size_t i=0; i<11; i++) randomHist.at(i) = 0;
 
-			for(std::size_t i=0; i<nTests; i++) {
+			for(std::size_t i=0; i<nTests_; i++) {
 				boost::int32_t randVal;
 
 				// Produce a single random number
@@ -395,7 +396,7 @@ public:
 			// Initialize with 0
 			for(std::size_t i=0; i<11; i++) randomHist.at(i) = 0;
 
-			for(std::size_t i=0; i<nTests; i++) {
+			for(std::size_t i=0; i<nTests_; i++) {
 				boost::int32_t randVal;
 
 				// Produce a single random number
@@ -425,7 +426,8 @@ public:
 
 	/***********************************************************************************/
 private:
-	const std::size_t nTests;
+	const std::size_t nTests_;
+	const std::size_t nSeeds_;
 };
 
 /********************************************************************************************/

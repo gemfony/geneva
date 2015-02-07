@@ -75,7 +75,8 @@ GRandomBase::result_type GRandomBase::operator()() {
 /**
  * Returns the minimum value returned by evenRandom(). This
  * makes it possible to use GRandomBase as a generator for Boost's random
- * distributions.
+ * distributions. The parantheses prevent Windows min-Macro from being
+ * substituted. Using BOOST_PREVENT_MACRO_SUBSTITUTION would be another possiblity.
  *
  * @return The minimum value returned by evenRandom()
  */
@@ -87,7 +88,8 @@ GRandomBase::result_type (GRandomBase::min)() const {
 /**
  * Returns the maximum value returned by evenRandom(). This
  * makes it possible to use GRandomBase as a generator for Boost's random
- * distributions.
+ * distributions. The parantheses prevent Windows min-Macro from being
+ * substituted. Using BOOST_PREVENT_MACRO_SUBSTITUTION would be another possiblity.
  *
  * @return The maximum value returned by evenRandom()
  */

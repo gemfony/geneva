@@ -53,7 +53,7 @@
 
 #include <boost/cstdint.hpp>
 #include <boost/random.hpp>
-#include <boost/nondet_random.hpp>
+#include <boost/random/random_device.hpp>
 #include <boost/date_time.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
@@ -107,7 +107,7 @@ public:
 	/** @brief The default constructor. */
 	GSeedManager();
 	/** @brief Initialization with a start seed */
-	GSeedManager(const initial_seed_type& startSeed, const std::size_t& seedQueueSize = DEFAULTSEEDQUEUESIZE);
+	explicit GSeedManager(const initial_seed_type& startSeed, const std::size_t& seedQueueSize = DEFAULTSEEDQUEUESIZE);
 	/** @brief The destructor */
 	~GSeedManager();
 
@@ -128,99 +128,18 @@ public:
 
 private:
 	/***************************************************************************/
-	/**
-	 * Wrapper function that attempts to create a start seed using different methods
-	 *
-	 * TODO: Add a method that allows to retrieve a good start seed on Windows systems
-	 *
-	 * @return A start seed for the random seed sequence
-	 */
-	static initial_seed_type createStartSeed() {
-		initial_seed_type startSeed = 0;
-
-		startSeed = GSeedManager::createStartSeedDevURandom();
-		if(0 == startSeed) {
-			std::cerr
-			<< "Warning: Using /dev/urandom to retrieve global seed failed." << std::endl
-			<< "Using the current time instead: ";
-			startSeed = GSeedManager::createStartSeedCurrentTime();
-	 	}
-
-		return startSeed;
-	}
-
-	/***************************************************************************/
-	/**
-	 * A private member function that allows to set the global
-	 * seed once, using a random number taken from /dev/urandom. As enough entropy
-	 * needs to be available and reads from /dev/random will block (on Linux) if this
-	 * is not the case, this function should be called only rarely and is meant for
-	 * the initialization of the random seed sequence only.
-	 *
-	 * @return A random number obtained from /dev/urandom
-	 */
-	static initial_seed_type createStartSeedDevURandom() {
-		// Check if /dev/urandom exists (this might not be a Linux system after all)
-		if(!boost::filesystem::exists("/dev/urandom")) return 0;
-
-		// Open the device
-		std::ifstream devurandom("/dev/urandom");
-		if(!devurandom) return 0;
-
-		// Read in the data
-		initial_seed_type startSeed;
-		devurandom.read(reinterpret_cast<char*>(&startSeed), sizeof(initial_seed_type));
-
-		// Clean up
-		devurandom.close();
-
-		return startSeed;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to derive a seed from the current time. Note that, although we try to
-	 * add randomness, this might not give good results if many seeds are requested by
-	 * different entities in short succession. It should be sufficient for a one-time
-	 * retrieval of a seed for the seed random sequence, though. Remote components of
-	 * an application needing unique seeds should retrieve them out of the random
-	 * sequence instead of this function.
-	 */
-	static initial_seed_type createStartSeedCurrentTime() {
-		using namespace boost::posix_time;
-		using namespace boost::gregorian;
-
-		// There might be strange systems where this is not the case
-		BOOST_STATIC_ASSERT(sizeof(long) >= sizeof(initial_seed_type));
-
-		// Retrieve the time passed since January 1, 1970 in microseconds
-		long currentMS = (microsec_clock::local_time() - ptime(date(1970, Jan, 1))).total_microseconds();
-
-		// Attach the char pointer to the beginning of the long value
-		char *currentMSStart = reinterpret_cast<char*>(&currentMS);
-
-		// Attach the seed to this point
-		initial_seed_type *seed_ptr = reinterpret_cast<initial_seed_type *>(currentMSStart);
-
-		// Let the audience know
-		return *seed_ptr;
-	}
-
-	/***************************************************************************/
 	/** @brief Manages the production of seeds */
 	void seedProducer();
 
 	/***************************************************************************/
 	// Variables and data structures
 
-	/** @brief Holds a predefined number of unique seeds */
-	Gem::Common::GBoundedBufferT<seed_type> seedQueue_;
+   boost::random::random_device nondet_rng; ///< Source of non-deterministic random numbers
 
-	/** @brief Stores the initial start seed */
-	initial_seed_type startSeed_;
+	Gem::Common::GBoundedBufferT<seed_type> seedQueue_; ///< Holds a predefined number of unique seeds
 
-	/** @brief Holds the producer thread */
-	thread_ptr seedThread_;
+	initial_seed_type startSeed_; ///< Stores the initial start seed
+	thread_ptr seedThread_; ///< Holds the producer thread
 };
 
 /******************************************************************************/

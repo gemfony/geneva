@@ -39,12 +39,21 @@ namespace Hap {
 
 /******************************************************************************/
 /**
- * The default constructor.
+ * The default constructor
  */
 GSeedManager::GSeedManager()
 	: seedQueue_(DEFAULTSEEDQUEUESIZE)
-	, startSeed_(GSeedManager::createStartSeed())
+	, startSeed_(boost::numeric_cast<initial_seed_type>(this->nondet_rng()))
 {
+   // Check whether enough entropy is available. Warn, if this is not the case
+   if(0. == nondet_rng.entropy()) {
+      glogger
+      << "In GSeedManager::GSeedManager(): Error!" << std::endl
+      << "Source of non-deterministic random numbers" << std::endl
+      << "has entropy 0." << std::endl
+      << GWARNING;
+   }
+
 	// Start the seed thread.
 	seedThread_ = thread_ptr(new boost::thread(boost::bind(&GSeedManager::seedProducer, this)));
 }
@@ -61,8 +70,17 @@ GSeedManager::GSeedManager()
  */
 GSeedManager::GSeedManager(const initial_seed_type& startSeed, const std::size_t& seedQueueSize)
 	: seedQueue_(seedQueueSize)
-	, startSeed_(startSeed>0?startSeed:GSeedManager::createStartSeed())
+	, startSeed_(startSeed>0?startSeed:boost::numeric_cast<initial_seed_type>(this->nondet_rng()))
 {
+   // Check whether enough entropy is available. Warn, if this is not the case
+   if(0. == nondet_rng.entropy()) {
+      glogger
+      << "In GSeedManager::GSeedManager(const initial_seed_type&, const std::size_t&): Error!" << std::endl
+      << "Source of non-deterministic random numbers" << std::endl
+      << "has entropy 0." << std::endl
+      << GWARNING;
+   }
+
 	// Cross-check the provided size of the seed queue
 	if(seedQueueSize == 0) {
 		std::cerr
