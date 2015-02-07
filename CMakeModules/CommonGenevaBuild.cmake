@@ -171,7 +171,7 @@ SET (Boost_ADDITIONAL_VERSIONS "1.57" "1.57.0" "1.58" "1.58.0")
 
 IF ( GENEVA_STATIC ) 
 	SET (Boost_USE_STATIC_LIBS ON)
-ELSE () # dynamic libraries
+ELSE () # Dynamic libraries
 	SET (Boost_USE_STATIC_LIBS OFF)
 ENDIF ()
 
@@ -217,6 +217,11 @@ FIND_PACKAGE(
 	COMPONENTS ${GENEVA_BOOST_LIBS}
 )
 MESSAGE("")
+
+# Add compile-time diagnostic information about Boost's automatic linking
+IF(WIN32)
+	ADD_DEFINITIONS(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
+ENDIF()
 
 ################################################################################
 # The names of the Geneva libraries
