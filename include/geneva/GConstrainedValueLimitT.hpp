@@ -60,7 +60,8 @@ namespace Geneva {
 /******************************************************************************/
 /**
  * This struct defines limits used for constrained parameter types in the
- * optimization process.
+ * optimization process. It has been introduced, as we want limits smaller
+ * than the allowed maximum value for floating point types.
  */
 template <typename T>
 struct GConstrainedValueLimitT
