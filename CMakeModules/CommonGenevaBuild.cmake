@@ -194,11 +194,12 @@ SET (
 	thread	
 )
 IF(WIN32)
-	# Boost::thread requires Boost::chrono, required for linking in Windows
+	# Boost.Thread requires Boost.Chrono, required for linking in Windows
 	SET (
 		GENEVA_BOOST_LIBS
 		${GENEVA_BOOST_LIBS}
 		chrono
+		random
 	)
 ENDIF()
 
