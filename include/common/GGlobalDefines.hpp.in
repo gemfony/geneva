@@ -75,7 +75,7 @@
 // Check for C++11 and enable some macros, if possible. 
 // We only support this for gcc, clang and Intel compilers
 #define BASE
-#if (defined(__GNUC__) || defined(__clang__) || defined(__ICC)) && __cplusplus == 201103L 
+#if (defined(__GNUC__) || defined(__clang__) || defined(__ICC) || defined(_MSC_VER)) && __cplusplus == 201103L 
 #define OVERRIDE override
 #define FINAL final
 #else
