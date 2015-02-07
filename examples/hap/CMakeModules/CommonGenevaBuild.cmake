@@ -188,6 +188,7 @@ SET (
 	date_time
 	filesystem
 	program_options
+	random
 	regex
 	serialization
 	system
@@ -199,7 +200,6 @@ IF(WIN32)
 		GENEVA_BOOST_LIBS
 		${GENEVA_BOOST_LIBS}
 		chrono
-		random
 	)
 ENDIF()
 
