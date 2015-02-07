@@ -233,8 +233,8 @@ public:
 	 * This function produces uniform random numbers locally.
 	 */
 	virtual double dbl_random01() {
-		boost::rand48::result_type enumerator  = linCongr_() - linCongr_.min();
-		boost::rand48::result_type denominator = linCongr_.max() - linCongr_.min();
+		boost::rand48::result_type enumerator  = linCongr_() - (linCongr_.min)();
+		boost::rand48::result_type denominator = (linCongr_.max)() - (linCongr_.min)();
 
 		enumerator>0?enumerator-=1:enumerator=0;
 
