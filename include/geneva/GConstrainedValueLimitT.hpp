@@ -82,11 +82,11 @@ template <>
 struct GConstrainedValueLimitT<double>
 {
 	static double highest() {
-		return MAXCONSTRAINEDDOUBLE;
+		return GMAXCONSTRAINEDDOUBLE;
 	}
 
    static double lowest() {
-      return -MAXCONSTRAINEDDOUBLE;
+      return -GMAXCONSTRAINEDDOUBLE;
    }
 };
 
@@ -98,11 +98,11 @@ template <>
 struct GConstrainedValueLimitT<float>
 {
 	static float highest() {
-		return MAXCONSTRAINEDFLOAT;
+		return GMAXCONSTRAINEDFLOAT;
 	}
 
    static float lowest() {
-      return -MAXCONSTRAINEDFLOAT;
+      return -GMAXCONSTRAINEDFLOAT;
    }
 };
 
@@ -114,11 +114,11 @@ template <>
 struct GConstrainedValueLimitT<boost::int32_t>
 {
 	static boost::int32_t highest() {
-		return MAXCONSTRAINEDINT32;
+		return GMAXCONSTRAINEDINT32;
 	}
 
    static boost::int32_t lowest() {
-      return -MAXCONSTRAINEDINT32;
+      return -GMAXCONSTRAINEDINT32;
    }
 };
 
