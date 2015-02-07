@@ -57,10 +57,11 @@ namespace Geneva {
 /******************************************************************************/
 /**
  * The GBooleanAdaptor represents an adaptor used for the adaption of
- * bool values by flipping its value. See the documentation of GAdaptorT<T> for
+ * boolean values by flipping its value. See the documentation of GAdaptorT<T> for
  * further information on adaptors in the Geneva context. Most functionality
  * (with the notable exception of the actual adaption logic) is currently
- * implemented in the GIntFlipAdaptorT class.
+ * implemented in the GIntFlipAdaptorT class. Most of the logic is implemented
+ * in the base classes, in particular customAdaptions();
  */
 class GBooleanAdaptor
 	:public GIntFlipAdaptorT<bool>
