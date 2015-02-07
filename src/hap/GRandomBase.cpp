@@ -79,7 +79,7 @@ GRandomBase::result_type GRandomBase::operator()() {
  *
  * @return The minimum value returned by evenRandom()
  */
-GRandomBase::result_type GRandomBase::min() const {
+GRandomBase::result_type (GRandomBase::min)() const {
 	return min_value;
 }
 
@@ -91,7 +91,7 @@ GRandomBase::result_type GRandomBase::min() const {
  *
  * @return The maximum value returned by evenRandom()
  */
-GRandomBase::result_type GRandomBase::max() const {
+GRandomBase::result_type (GRandomBase::max)() const {
 	return max_value;
 }
 

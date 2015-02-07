@@ -66,6 +66,31 @@
 namespace Gem {
 namespace Common {
 
+
+/******************************************************************************/
+/**
+ * This base class implements the interface for expaction checks
+ */
+class GBaseExpectionCheck {
+public:
+   /** @brief The default constructor */
+   GBaseExpectionCheck();
+   /** @brief The destructor */
+   virtual ~GBaseExpectionCheck();
+
+   /** @brief Check for equality / similarity */
+   virtual boost::optional<std::string> expectationViolation(
+      const GBaseExpectionCheck& /* other object */
+      , const Gem::Common::expectation& /* the expectation for this object */
+      , const double& /* the limit */
+      , const bool& /* with messages ? */
+   ) = 0;
+
+private:
+   std::string className_; ///< The name of the class in which the parameter is defined
+   std::string parName_; ///< The name of the parameter stored in this class
+};
+
 /******************************************************************************/
 /**
  * This function checks whether two "basic" types meet a given expectation. It assumes that x and y
