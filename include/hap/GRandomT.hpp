@@ -218,7 +218,7 @@ public:
 	 */
 	GRandomT()
 		: Gem::Hap::GRandomBase()
-		, linCongr_(boost::numeric_cast<boost::uint64_t>(GRANDOMFACTORY->getSeed()))
+		, linCongr_(boost::numeric_cast<boost::random::rand48::result_type>(GRANDOMFACTORY->getSeed()))
 	{ /* nothing */ }
 
 	/***************************************************************************/
