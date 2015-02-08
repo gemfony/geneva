@@ -48,6 +48,7 @@ SET ( OPTIMIZATIONSOURCES
 	GMultiThreadedPS
 	GMultiThreadedSA
 	GMultiThreadedSwarm
+	GNumFlipAdaptorT
 	GNumT
 	GNumCollectionT
 	Go2

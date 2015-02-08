@@ -1561,9 +1561,9 @@ private:
          }
 
          currentElapsed = boost::posix_time::microsec_clock::local_time() - GBaseExecutorT<processable_type>::iterationStartTime_;
-         maxTimeout = currentElapsed*((GBaseExecutorT<processable_type>::expectedNumber_ - 1)*waitFactor_);
+         maxTimeout = currentElapsed*(boost::numeric_cast<int>((GBaseExecutorT<processable_type>::expectedNumber_ - std::size_t(1))*waitFactor_));
       } else { // O.k., so we are dealing with an iteration > 0
-         maxTimeout = GBaseExecutorT<processable_type>::lastAverage_*(GBaseExecutorT<processable_type>::expectedNumber_*waitFactor_);
+         maxTimeout = GBaseExecutorT<processable_type>::lastAverage_*boost::numeric_cast<int>((GBaseExecutorT<processable_type>::expectedNumber_*waitFactor_));
       }
 
       while(true) { // Loop until a timeout is reached or all current items have returned

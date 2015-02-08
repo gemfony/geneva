@@ -209,7 +209,7 @@ protected:
 	 */
 	virtual void customAdaptions(
       num_type& value
-      , const num_type&
+      , const num_type& range
    ) OVERRIDE {
 		bool up = this->gr->uniform_bool();
 		if(up){
@@ -288,6 +288,10 @@ public:
 
    /***************************************************************************/
 };
+
+/******************************************************************************/
+// Specialization for num_type == bool
+template <> void GNumFlipAdaptorT<bool>::customAdaptions(bool&, const bool&);
 
 /******************************************************************************/
 

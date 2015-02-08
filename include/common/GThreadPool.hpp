@@ -144,7 +144,7 @@ private:
 				errorCounter_++;
 				errorLog_.push_back(error.str());
 			}
-		} catch(boost::exception& e) {
+		} catch(boost::exception&) {
 			// Extract the error
 			std::ostringstream error;
 			error << "In GThreadWrapper::operator(): Caught boost::exception" << std::endl;

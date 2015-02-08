@@ -204,22 +204,6 @@ Gem::Geneva::adaptorId GBooleanAdaptor::getAdaptorId() const {
 
 /******************************************************************************/
 /**
- * The actual adaption logic
- *
- * @param value The parameter to be adapted
- * @param range A typical range for the parameter with type bool (unused)
- */
-void GBooleanAdaptor::customAdaptions(bool& value, const bool& range) {
-	value==true?value=false:value=true;
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
  * Applies modifications to this object. This is needed for testing purposes
  *
  * @return A boolean which indicates whether modifications were made

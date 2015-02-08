@@ -119,9 +119,6 @@ protected:
 	/** @brief Creates a deep clone of this object. */
 	virtual GObject* clone_() const OVERRIDE;
 
-	/** The actual adaption logic */
-	virtual void customAdaptions(bool&, const bool&) OVERRIDE;
-
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests() OVERRIDE;
