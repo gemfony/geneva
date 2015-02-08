@@ -83,7 +83,7 @@ typedef boost::tuple<std::size_t, std::string, std::size_t> NAMEANDIDTYPE;
  * it may only signify the latter.
  */
 template <typename par_type>
-struct parPropSpec {
+BOOST_SYMBOL_EXPORT struct parPropSpec {
    // mode: (0, ...), (VarName[0], ...) or (VarName, ...)
    // variable name
    // optional index
@@ -107,7 +107,7 @@ struct parPropSpec {
  * parameter scans, where all variables are varied randomly. Currently the only
  * data component is the number of items to be scanned.
  */
-struct simpleScanSpec {
+BOOST_SYMBOL_EXPORT struct simpleScanSpec {
    std::size_t nItems;
 };
 
@@ -120,7 +120,7 @@ struct simpleScanSpec {
  * @return A reference to the output stream
  */
 template <typename par_type>
-std::ostream& operator<<(std::ostream& o, const parPropSpec<par_type>& s) {
+BOOST_SYMBOL_EXPORT std::ostream& operator<<(std::ostream& o, const parPropSpec<par_type>& s) {
    if(0 == boost::get<0>(s.var)) {
       o
       << "index       = " << boost::get<2>(s.var) << std::endl;
@@ -210,6 +210,7 @@ namespace Geneva {
  * (including ranges and steps). Note that this class is meant for setup purposes
  * only and thus cannot be serialized (nor can it be copied).
  */
+BOOST_SYMBOL_EXPORT
 class GParameterPropertyParser: boost::noncopyable // Make sure this class cannot be copied
 {
 public:
@@ -301,10 +302,10 @@ template <> boost::tuple<std::vector<parPropSpec<bool> >::const_iterator, std::v
 namespace boost {
 namespace spirit {
 
-void swap(Gem::Geneva::parPropSpec<double>&, Gem::Geneva::parPropSpec<double>&);
-void swap(Gem::Geneva::parPropSpec<float>&, Gem::Geneva::parPropSpec<float>&);
-void swap(Gem::Geneva::parPropSpec<boost::int32_t>&, Gem::Geneva::parPropSpec<boost::int32_t>&);
-void swap(Gem::Geneva::parPropSpec<bool>&, Gem::Geneva::parPropSpec<bool>&);
+BOOST_SYMBOL_EXPORT void swap(Gem::Geneva::parPropSpec<double>&, Gem::Geneva::parPropSpec<double>&);
+BOOST_SYMBOL_EXPORT void swap(Gem::Geneva::parPropSpec<float>&, Gem::Geneva::parPropSpec<float>&);
+BOOST_SYMBOL_EXPORT void swap(Gem::Geneva::parPropSpec<boost::int32_t>&, Gem::Geneva::parPropSpec<boost::int32_t>&);
+BOOST_SYMBOL_EXPORT void swap(Gem::Geneva::parPropSpec<bool>&, Gem::Geneva::parPropSpec<bool>&);
 
 
 } /* namespace spirit */

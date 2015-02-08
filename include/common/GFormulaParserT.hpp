@@ -120,6 +120,7 @@ namespace Common {
  * An exception to be thrown in case of mathematical errors,
  * such as division by 0
  */
+BOOST_SYMBOL_EXPORT
 class math_logic_error : public gemfony_error_condition {
 public:
    /** @brief The standard constructor */
@@ -138,6 +139,7 @@ private:
 /**
  * An exception indicating a division by 0
  */
+BOOST_SYMBOL_EXPORT
 class division_by_0 : public math_logic_error {
 public:
    /** @brief The default constructor */
@@ -153,7 +155,7 @@ public:
  * An exception indicating a range outside [-1:1] in acos
  */
 template <typename fp_type>
-class acos_invalid_range : public math_logic_error {
+BOOST_SYMBOL_EXPORT class acos_invalid_range : public math_logic_error {
 public:
    /** @brief The standard constructor */
    acos_invalid_range(const fp_type& val) throw()
@@ -175,7 +177,7 @@ private:
  * An exception indicating a range outside [-1:1] in acos
  */
 template <typename fp_type>
-class asin_invalid_range : public math_logic_error {
+BOOST_SYMBOL_EXPORT class asin_invalid_range : public math_logic_error {
 public:
    /** @brief The standard constructor */
    asin_invalid_range(const fp_type& val) throw()
@@ -196,8 +198,9 @@ private:
 /**
  * An exception indicating a value <= 0
  */
+
 template <typename fp_type>
-class log_negative_value : public math_logic_error {
+BOOST_SYMBOL_EXPORT class log_negative_value : public math_logic_error {
 public:
    /** @brief The standard constructor */
    log_negative_value(const fp_type& val) throw()
@@ -219,7 +222,7 @@ private:
  * An exception indicating a value <= 0
  */
 template <typename fp_type>
-class log10_negative_value : public math_logic_error {
+BOOST_SYMBOL_EXPORT class log10_negative_value : public math_logic_error {
 public:
    /** @brief The standard constructor */
    log10_negative_value(const fp_type& val) throw()
@@ -241,7 +244,7 @@ private:
  * An exception indicating a value <= 0
  */
 template <typename fp_type>
-class sqrt_negative_value : public math_logic_error {
+BOOST_SYMBOL_EXPORT class sqrt_negative_value : public math_logic_error {
 public:
    /** @brief The standard constructor */
    sqrt_negative_value(const fp_type& val) throw()
@@ -261,7 +264,8 @@ private:
 /******************************************************************************/
 // The Abstract Syntax Tree + access functions
 
-struct nil {};
+// Forward declarations
+struct nil;
 struct signed_;
 struct unary_function_;
 struct binary_function_;
@@ -278,33 +282,36 @@ typedef boost::variant<
 >
 operand;
 
-struct signed_ {
+BOOST_SYMBOL_EXPORT struct nil {};
+
+BOOST_SYMBOL_EXPORT struct signed_ {
    char sign;
    operand operand_;
 };
 
-struct operation {
+BOOST_SYMBOL_EXPORT struct operation {
    char operator_;
    operand operand_;
 };
 
-struct unary_function_ {
+BOOST_SYMBOL_EXPORT struct unary_function_ {
    std::string fname_;
    operand operand_;
 };
 
-struct binary_function_ {
+BOOST_SYMBOL_EXPORT struct binary_function_ {
    std::string fname_;
    operand operand1_;
    operand operand2_;
 };
 
-struct ast_expression {
+BOOST_SYMBOL_EXPORT struct ast_expression {
    operand first;
    std::list<operation> rest;
 };
 
 /** @brief print function for debugging */
+BOOST_SYMBOL_EXPORT
 inline std::ostream& operator<<(std::ostream& out, nil) { out << "nil"; return out; }
 
 } /* namespace Common */
@@ -368,7 +375,7 @@ namespace Common {
  * The actual formula parser
  */
 template <typename fp_type>
-class GFormulaParserT
+BOOST_SYMBOL_EXPORT class GFormulaParserT
    : public boost::spirit::qi::grammar<std::string::const_iterator, ast_expression(), boost::spirit::ascii::space_type>
 {
    // Make sure, fp_type is a floating point value
