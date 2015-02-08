@@ -32,8 +32,8 @@
  * http://www.gemfony.eu .
  */
 
-// For Microsoft-compatible compilers
-#include "common/GWindowsDefines.hpp"
+// Global checks, defines and includes needed for all of Geneva
+#include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
 #include <vector>
@@ -44,9 +44,6 @@
 #include <cstdlib>
 #include <cmath>
 #include <typeinfo>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
 #include <boost/shared_ptr.hpp>

@@ -31,8 +31,8 @@
  * http://www.gemfony.eu .
  */
 
-// For Microsoft-compatible compilers
-#include "common/GWindowsDefines.hpp"
+// Global checks, defines and includes needed for all of Geneva
+#include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
 
