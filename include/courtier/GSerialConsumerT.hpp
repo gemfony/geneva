@@ -192,7 +192,7 @@ private:
 			std::cerr << error.str();
 			std::terminate();
 		}
-		catch(boost::exception& e){
+		catch(boost::exception&){
 			std::ostringstream error;
 		    error << "In GSerialConsumerT::processItems(): Caught boost::exception with message" << std::endl;
 		    std::cerr << error.str();
