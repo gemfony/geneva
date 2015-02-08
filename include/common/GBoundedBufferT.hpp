@@ -73,8 +73,8 @@
  * ***************************************************************************
  */
 
-// For Microsoft-compatible compilers
-#include "common/GWindowsDefines.hpp"
+// Global checks, defines and includes needed for all of Geneva
+#include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
 
@@ -85,9 +85,6 @@
 #include <list>
 #include <algorithm>
 #include <stdexcept>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
 

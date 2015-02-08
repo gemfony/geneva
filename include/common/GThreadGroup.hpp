@@ -67,15 +67,13 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-// For Microsoft-compatible compilers
-#include "common/GWindowsDefines.hpp"
+// Global checks, defines and includes needed for all of Geneva
+#include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
 #include <vector>
 
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
-
+// Boost headers go here
 #include <boost/cstdint.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>

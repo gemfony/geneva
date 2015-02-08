@@ -32,15 +32,12 @@
  * http://www.gemfony.eu .
  */
 
-// For Microsoft-compatible compilers
-#include "common/GWindowsDefines.hpp"
+// Global checks, defines and includes needed for all of Geneva
+#include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
 #include <map>
 #include <utility>
-
-// Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
 
 // Boost headers go here
 #include <boost/thread.hpp>
