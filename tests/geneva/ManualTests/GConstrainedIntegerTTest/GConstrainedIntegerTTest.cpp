@@ -62,7 +62,7 @@ using namespace Gem::Geneva;
 using namespace Gem::Common;
 using namespace boost;
 
-const boost::uint32_t NTESTS=100000;
+const boost::uint32_t NTESTS=2000;
 
 int main(int argc, char **argv){
    boost::shared_ptr<GHistogram1I> multipleFlipMutation_ptr(new GHistogram1I(50, 0.5,50.5));
