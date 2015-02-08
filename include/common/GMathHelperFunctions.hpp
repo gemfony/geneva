@@ -82,130 +82,131 @@ namespace Common {
 /******************************************************************************/
 
 /** @brief Calculates the acos value of a float value */
-float gacos(const float&);
+BOOST_SYMBOL_EXPORT float gacos(const float&);
 /** @brief Calculates the acos value of a double value */
-double gacos(const double&);
+BOOST_SYMBOL_EXPORT double gacos(const double&);
 
 /** @brief Calculates the asin value of a float value */
-float gasin(const float&);
+BOOST_SYMBOL_EXPORT float gasin(const float&);
 /** @brief Calculates the asin value of a double value */
-double gasin(const double&);
+BOOST_SYMBOL_EXPORT double gasin(const double&);
 
 /** @brief Calculates the tan value of a float value */
-float gtan(const float&);
+BOOST_SYMBOL_EXPORT float gtan(const float&);
 /** @brief Calculates the tan value of a double value */
-double gtan(const double&);
+BOOST_SYMBOL_EXPORT double gtan(const double&);
 
 /** @brief Calculates the tanh value of a float value */
-float gtanh(const float&);
+BOOST_SYMBOL_EXPORT float gtanh(const float&);
 /** @brief Calculates the tanh value of a double value */
-double gtanh(const double&);
+BOOST_SYMBOL_EXPORT double gtanh(const double&);
 
 /** @brief Calculates the atan value of a float value */
-float gatan(const float&);
+BOOST_SYMBOL_EXPORT float gatan(const float&);
 /** @brief Calculates the atan value of a double value */
-double gatan(const double&);
+BOOST_SYMBOL_EXPORT double gatan(const double&);
 
 /** @brief Calculates the sinh value of a float value */
-float gsinh(const float&);
+BOOST_SYMBOL_EXPORT float gsinh(const float&);
 /** @brief Calculates the sinh value of a double value */
-double gsinh(const double&);
+BOOST_SYMBOL_EXPORT double gsinh(const double&);
 
 /** @brief Calculates the cosh value of a float value */
-float gcosh(const float&);
+BOOST_SYMBOL_EXPORT float gcosh(const float&);
 /** @brief Calculates the cosh value of a double value */
-double gcosh(const double&);
+BOOST_SYMBOL_EXPORT double gcosh(const double&);
 
 /** @brief Calculates the ceil value of a float value */
-float gceil(const float&);
+BOOST_SYMBOL_EXPORT float gceil(const float&);
 /** @brief Calculates the ceil value of a double value */
-double gceil(const double&);
+BOOST_SYMBOL_EXPORT double gceil(const double&);
 
 /** @brief Calculates the maximum value of two float values */
-float gmax(const float&, const float&);
+BOOST_SYMBOL_EXPORT float gmax(const float&, const float&);
 /** @brief Calculates the maximum value of two double values */
-double gmax(const double&, const double&);
+BOOST_SYMBOL_EXPORT double gmax(const double&, const double&);
 
 /** @brief Calculates the minimum value of two float values */
-float gmin(const float&, const float&);
+BOOST_SYMBOL_EXPORT float gmin(const float&, const float&);
 /** @brief Calculates the minimum value of two double values */
-double gmin(const double&, const double&);
+BOOST_SYMBOL_EXPORT double gmin(const double&, const double&);
 
 /** @brief Calculates the floor value of a float value */
-float gfloor(const float&);
+BOOST_SYMBOL_EXPORT float gfloor(const float&);
 /** @brief Calculates the floor value of a double value */
-double gfloor(const double&);
+BOOST_SYMBOL_EXPORT double gfloor(const double&);
 
 /** @brief Calculates the fabs value of a float value */
-float gfabs(const float&);
+BOOST_SYMBOL_EXPORT float gfabs(const float&);
 /** @brief Calculates the fabs value of a double value */
-double gfabs(const double&);
+BOOST_SYMBOL_EXPORT double gfabs(const double&);
 
 /** @brief Calculates the abs value of an int value */
-int giabs(const int&);
+BOOST_SYMBOL_EXPORT int giabs(const int&);
 /** @brief Calculates the abs value of a long int value */
-long giabs(const long&);
+BOOST_SYMBOL_EXPORT long giabs(const long&);
 
 /** @brief Calculates the sqrt value of a float value */
-float gsqrt(const float&);
+BOOST_SYMBOL_EXPORT float gsqrt(const float&);
 /** @brief Calculates the sqrt value of a double value */
-double gsqrt(const double&);
+BOOST_SYMBOL_EXPORT double gsqrt(const double&);
 
 /** @brief Calculates the sin value of a float value */
-float gsin(const float&);
+BOOST_SYMBOL_EXPORT float gsin(const float&);
 /** @brief Calculates the sin value of a double value */
-double gsin(const double&);
+BOOST_SYMBOL_EXPORT double gsin(const double&);
 
 /** @brief Calculates the cos value of a float value */
-float gcos(const float&);
+BOOST_SYMBOL_EXPORT float gcos(const float&);
 /** @brief Calculates the cos value of a double value */
-double gcos(const double&);
+BOOST_SYMBOL_EXPORT double gcos(const double&);
 
 /** @brief Calculates the log value of a float value */
-float glog(const float&);
+BOOST_SYMBOL_EXPORT float glog(const float&);
 /** @brief Calculates the log value of a double value */
-double glog(const double&);
+BOOST_SYMBOL_EXPORT double glog(const double&);
 
 /** @brief Calculates the log10 value of a float value */
-float glog10(const float&);
+BOOST_SYMBOL_EXPORT float glog10(const float&);
 /** @brief Calculates the log10 value of a double value */
-double glog10(const double&);
+BOOST_SYMBOL_EXPORT double glog10(const double&);
 
 /** @brief Calculates the pow value of a float value */
-float gpow(const float&, const float&);
+BOOST_SYMBOL_EXPORT float gpow(const float&, const float&);
 /** @brief Calculates the pow value of a double value */
-double gpow(const double&, const double&);
+BOOST_SYMBOL_EXPORT double gpow(const double&, const double&);
 
 /** @brief Calculates the hypot value of a float value */
-float ghypot(const float&, const float&);
+BOOST_SYMBOL_EXPORT float ghypot(const float&, const float&);
 /** @brief Calculates the hypot value of a double value */
-double ghypot(const double&, const double&);
+BOOST_SYMBOL_EXPORT double ghypot(const double&, const double&);
 
 /** @brief Performs alpha blending for floats */
-float gmix(const float&, const float&, const float&);
+BOOST_SYMBOL_EXPORT float gmix(const float&, const float&, const float&);
 /** @brief Performs alpha blending for doubles */
-double gmix(const double&, const double&, const double&);
+BOOST_SYMBOL_EXPORT double gmix(const double&, const double&, const double&);
 
 /** @brief Calculates the exp value of a float value */
-float gexp(const float&);
+BOOST_SYMBOL_EXPORT float gexp(const float&);
 /** @brief Calculates the exp value of a double value */
-double gexp(const double&);
+BOOST_SYMBOL_EXPORT double gexp(const double&);
 
 /** @brief Calculates the sign value of a float value */
-float gsign(const float&);
+BOOST_SYMBOL_EXPORT float gsign(const float&);
 /** @brief Calculates the sign value of a double value */
-double gsign(const double&);
+BOOST_SYMBOL_EXPORT double gsign(const double&);
 
 /** @brief A sigmoid function with user-defined minimum / maximum values (float version) */
-float gsigmoid(const float&, const float&, const float&);
+BOOST_SYMBOL_EXPORT float gsigmoid(const float&, const float&, const float&);
 /** @brief A sigmoid function with user-defined minimum / maximum values (double version) */
-double gsigmoid(const double&, const double&, const double&);
+BOOST_SYMBOL_EXPORT double gsigmoid(const double&, const double&, const double&);
 
 /******************************************************************************/
 /**
  * Regulates access to these mathematical functions from boost::phoenix::function.
  * Targeted at unary functions.
  */
+BOOST_SYMBOL_EXPORT
 struct lazy_unary_functor_reference_arg
 {
   template <typename F, typename fp_type>
@@ -225,6 +226,7 @@ struct lazy_unary_functor_reference_arg
  * Regulates access to these mathematical functions from boost::phoenix::function.
  * Targeted at binary functions.
  */
+BOOST_SYMBOL_EXPORT
 struct lazy_binary_functor_reference_arg
 {
   template <typename F, typename fp_type1, typename fp_type2>

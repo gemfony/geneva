@@ -99,6 +99,7 @@ namespace Common {
 /**
  * A simple two-dimensional coordinate
  */
+BOOST_SYMBOL_EXPORT
 struct coord2D {
    /** @brief The default constructor */
    coord2D();
@@ -124,7 +125,9 @@ float operator*(const coord2D&, const coord2D&);
  * A struct holding the coordinates, colors and opacity of a single triangle, which is
  * defined via a surrounding circle
  */
-typedef struct triangle_circle_struct {
+typedef
+BOOST_SYMBOL_EXPORT
+struct triangle_circle_struct {
   coord2D middle;
   float radius;
   float angle1;
@@ -155,7 +158,9 @@ bool operator!=(const t_circle&, const t_circle&);
 /**
  * A struct holding triangle definitions in standard coordinates
  */
-typedef struct t_spec_c {
+typedef
+BOOST_SYMBOL_EXPORT
+struct t_spec_c {
    coord2D tr_one;
    coord2D tr_two;
    coord2D tr_three;
@@ -169,6 +174,7 @@ typedef struct t_spec_c {
 /**
  * A simple class holding the rgb values of a pixel
  */
+BOOST_SYMBOL_EXPORT
 struct GRgb {
 private:
    ///////////////////////////////////////////////////////////////////////
@@ -216,6 +222,7 @@ public:
 /**
  * A column in a canvas
  */
+BOOST_SYMBOL_EXPORT
 class GColumn {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -268,6 +275,7 @@ private:
  * A collection of pixels in a two-dimensional array
  */
 template <std::size_t COLORDEPTH=8>
+BOOST_SYMBOL_EXPORT
 class GCanvas {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -940,6 +948,7 @@ protected:
   * Convenience function for the calculation of the difference between two canvasses
   */
 template <std::size_t COLORDEPTH>
+BOOST_SYMBOL_EXPORT
 float operator-(const GCanvas<COLORDEPTH>& x, const GCanvas<COLORDEPTH>& y) {
    return x.diff(y);
 }
@@ -950,7 +959,8 @@ float operator-(const GCanvas<COLORDEPTH>& x, const GCanvas<COLORDEPTH>& y) {
 /**
  * Specialization of GCanvas for a color depth of 8 bits
  */
-class GCanvas8:public GCanvas<8>
+BOOST_SYMBOL_EXPORT
+class GCanvas8 :public GCanvas<8>
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -991,7 +1001,8 @@ float operator-(const GCanvas8&, const GCanvas8&);
 /**
  * Specialization of GCanvas for a color depth of 16 bits
  */
-class GCanvas16:public GCanvas<16>
+BOOST_SYMBOL_EXPORT
+class GCanvas16 :public GCanvas<16>
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -1032,7 +1043,8 @@ float operator-(const GCanvas16&, const GCanvas16&);
 /**
  * Specialization of GCanvas for a color depth of 24 bits
  */
-class GCanvas24:public GCanvas<24>
+BOOST_SYMBOL_EXPORT
+class GCanvas24 :public GCanvas<24>
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;

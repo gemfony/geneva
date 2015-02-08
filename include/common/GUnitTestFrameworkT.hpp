@@ -59,6 +59,7 @@
  * @return A boost::shared_ptr to a newly created T object
  */
 template <typename T>
+BOOST_SYMBOL_EXPORT
 boost::shared_ptr<T> TFactory_GUnitTests() {
    boost::shared_ptr<T> p;
 

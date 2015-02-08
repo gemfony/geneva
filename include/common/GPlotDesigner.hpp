@@ -99,6 +99,7 @@ class GPlotDesigner;
  * derive from this class. They can be added to a master canvas, which takes care
  * to plot them into sub-pads.
  */
+BOOST_SYMBOL_EXPORT
 class GBasePlotter {
 	friend class GPlotDesigner;
 
@@ -209,6 +210,7 @@ private:
  * data of a histogram type.
  */
 template <typename x_type>
+BOOST_SYMBOL_EXPORT
 class GDataCollector1T :public GBasePlotter
 {
 public:
@@ -362,6 +364,7 @@ protected:
 /**
  * A wrapper for ROOT's TH1D class (1-d double data)
  */
+BOOST_SYMBOL_EXPORT
 class GHistogram1D : public GDataCollector1T<double> {
 public:
 	/** @brief The standard constructor */
@@ -422,6 +425,7 @@ private:
 /**
  * A wrapper for ROOT's TH1I class (1-d integer data)
  */
+BOOST_SYMBOL_EXPORT
 class GHistogram1I : public GDataCollector1T<boost::int32_t> {
 public:
    /** @brief The standard constructor */
@@ -483,6 +487,7 @@ private:
  * A data collector for 2-d data of user-defined type, such as a TGraph
  */
 template <typename x_type, typename y_type>
+BOOST_SYMBOL_EXPORT
 class GDataCollector2T :public GBasePlotter
 {
 public:
@@ -706,11 +711,13 @@ protected:
 /******************************************************************************/
 /** @brief Specialization for <x_type, y_type> = <double, double> */
 template<>
+BOOST_SYMBOL_EXPORT
 boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector2T<double, double>::projectX(std::size_t, boost::tuple<double, double>) const;
 
 /** @brief Specialization for <x_type, y_type> = <double, double> */
 template<>
+BOOST_SYMBOL_EXPORT
 boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector2T<double, double>::projectY(std::size_t, boost::tuple<double, double>) const;
 
@@ -720,6 +727,7 @@ GDataCollector2T<double, double>::projectY(std::size_t, boost::tuple<double, dou
  * additionally specify an error component for both dimensions.
  */
 template <typename x_type, typename y_type>
+BOOST_SYMBOL_EXPORT
 class GDataCollector2ET :public GBasePlotter
 {
 public:
@@ -939,6 +947,7 @@ enum tddropt {
 /**
  * A wrapper for ROOT's TH2D class (2-d double data)
  */
+BOOST_SYMBOL_EXPORT
 class GHistogram2D : public GDataCollector2T<double, double> {
 public:
 	/** @brief The standard constructor */
@@ -1021,6 +1030,7 @@ private:
  * A wrapper for the ROOT TGraph class (2d data and curve-like structures). It
  * also adds the option to draw arrows between consecutive points.
  */
+BOOST_SYMBOL_EXPORT
 class GGraph2D : public GDataCollector2T<double,double> {
 public:
 	/** @brief The default constructor */
@@ -1071,6 +1081,7 @@ private:
 /**
  * A wrapper for the ROOT TGraphErrors class (2d data and curve-like structures)
  */
+BOOST_SYMBOL_EXPORT
 class GGraph2ED : public GDataCollector2ET<double,double> {
 public:
 	/** @brief The default constructor */
@@ -1116,6 +1127,7 @@ private:
  * A data collector for 3-d data of user-defined type
  */
 template <typename x_type, typename y_type, typename z_type>
+BOOST_SYMBOL_EXPORT
 class GDataCollector3T :public GBasePlotter
 {
 public:
@@ -1335,16 +1347,19 @@ protected:
 /******************************************************************************/
 /** @brief Specialization for <x_type, y_type, z_type> = <double, double, double> */
 template<>
+BOOST_SYMBOL_EXPORT
 boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector3T<double, double, double>::projectX(std::size_t, boost::tuple<double, double>) const;
 
 /** @brief Specialization for <x_type, y_type, z_type> = <double, double, double> */
 template<>
+BOOST_SYMBOL_EXPORT
 boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector3T<double, double, double>::projectY(std::size_t, boost::tuple<double, double>) const;
 
 /** @brief Specialization for <x_type, y_type, z_type> = <double, double, double> */
 template<>
+BOOST_SYMBOL_EXPORT
 boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector3T<double, double, double>::projectZ(std::size_t, boost::tuple<double, double>) const;
 
@@ -1356,6 +1371,7 @@ GDataCollector3T<double, double, double>::projectZ(std::size_t, boost::tuple<dou
  * also adds the option to draw lines between consecutive points. This class
  * only allows a single plot mode.
  */
+BOOST_SYMBOL_EXPORT
 class GGraph3D : public GDataCollector3T<double,double,double> {
 public:
    /** @brief The default constructor */
@@ -1406,6 +1422,7 @@ template <
    , typename z_type
    , typename w_type
 >
+BOOST_SYMBOL_EXPORT
 class GDataCollector4T :public GBasePlotter
 {
 public:
@@ -1657,22 +1674,22 @@ protected:
 
 /******************************************************************************/
 /** @brief Specialization for <x_type, y_type, z_type, w_type> = <double, double, double, double> */
-template<>
+template<> BOOST_SYMBOL_EXPORT
 boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector4T<double, double, double, double>::projectX(std::size_t, boost::tuple<double, double>) const;
 
 /** @brief Specialization for <x_type, y_type, z_type, w_type> = <double, double, double, double> */
-template<>
+template<> BOOST_SYMBOL_EXPORT
 boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector4T<double, double, double, double>::projectY(std::size_t, boost::tuple<double, double>) const;
 
 /** @brief Specialization for <x_type, y_type, z_type, w_type> = <double, double, double, double> */
-template<>
+template<> BOOST_SYMBOL_EXPORT
 boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector4T<double, double, double, double>::projectZ(std::size_t, boost::tuple<double, double>) const;
 
 /** @brief Specialization for <x_type, y_type, z_type, w_type> = <double, double, double, double> */
-template<>
+template<> BOOST_SYMBOL_EXPORT
 boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector4T<double, double, double, double>::projectW(std::size_t, boost::tuple<double, double>) const;
 
@@ -1684,6 +1701,7 @@ GDataCollector4T<double, double, double, double>::projectW(std::size_t, boost::t
  * data component is represented as the size of the markers. The class will by
  * default only draw a selection of items.
  */
+BOOST_SYMBOL_EXPORT
 class GGraph4D
    : public GDataCollector4T<double,double,double,double>
 {
@@ -1778,6 +1796,7 @@ private:
 /**
  * A wrapper for the ROOT TF1 1d-function plotter
  */
+BOOST_SYMBOL_EXPORT
 class GFunctionPlotter1D
 	: public GBasePlotter
 {
@@ -1830,6 +1849,7 @@ private:
 /**
  * A wrapper for the ROOT TF2 2d-function plotter
  */
+BOOST_SYMBOL_EXPORT
 class GFunctionPlotter2D
 	: public GBasePlotter
 {
@@ -1889,6 +1909,7 @@ private:
 /**
  * This class allows to add free-form root-data to the master plot
  */
+BOOST_SYMBOL_EXPORT
 class GFreeFormPlotter : public GBasePlotter
 {
 public:
@@ -1948,6 +1969,7 @@ private:
  * A class that outputs a ROOT input file (compare http://root.cern.ch), based
  * on the data providers stored in it.
  */
+BOOST_SYMBOL_EXPORT
 class GPlotDesigner
 	: boost::noncopyable
 {

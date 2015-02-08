@@ -119,6 +119,7 @@ const bool GCL_IMPLICIT_NOT_ALLOWED = false;
  * It is however possible to explicitly set the parameter.
  */
 template <typename T>
+BOOST_SYMBOL_EXPORT
 class GOneTimeRefParameterT
 {
    ///////////////////////////////////////////////////////////////////////
@@ -254,6 +255,7 @@ private:
  * A manipulator object that allows to identify the id of the comment to be
  * added
  */
+BOOST_SYMBOL_EXPORT
 class commentLevel {
 public:
    /** @brief The standard constructor */
@@ -272,6 +274,7 @@ private:
 /**
  * A manipulator object that increments the comment level
  */
+BOOST_SYMBOL_EXPORT
 class nextComment {
 public:
    /** @brief The default constructor */
@@ -286,6 +289,7 @@ public:
  * which a call-back function has been assigned. It also stores some
  * information common to all parameter types.
  */
+BOOST_SYMBOL_EXPORT
 class GParsableI
    :boost::noncopyable
 {
@@ -386,6 +390,7 @@ private:
  * which a call-back function has been assigned. Note that this class cannot
  * be copied, as the parent class is derived from boost::noncopyable.
  */
+   BOOST_SYMBOL_EXPORT
 class GFileParsableI
    : public GParsableI
 {
@@ -437,6 +442,7 @@ private:
  * that this class cannot be copied, as the parent class is derived from
  * boost::noncopyable.
  */
+   BOOST_SYMBOL_EXPORT
 class GCLParsableI
    : public GParsableI
 {
@@ -478,6 +484,7 @@ private:
  * convert to different target class. This makes user-code easier.
  */
 template <typename parameter_type>
+BOOST_SYMBOL_EXPORT
 struct GSingleParmT
    : public GFileParsableI
 {
@@ -540,6 +547,7 @@ private:
  * function has been assigned.
  */
 template <typename parameter_type>
+BOOST_SYMBOL_EXPORT
 struct GFileSingleParsableParameterT
    : public GSingleParmT<parameter_type>
 {
@@ -678,6 +686,7 @@ private:
  * the parsed value to the reference.
  */
 template <typename parameter_type>
+BOOST_SYMBOL_EXPORT
 class GFileReferenceParsableParameterT
    : public GSingleParmT<parameter_type>
 {
@@ -796,6 +805,7 @@ private:
  * convert to different target class. This makes user-code easier.
  */
 template <typename par_type0, typename par_type1>
+BOOST_SYMBOL_EXPORT
 struct GCombinedParT
    : public GFileParsableI
 {
@@ -870,6 +880,7 @@ private:
  * function has been assigned.
  */
 template <typename par_type0, typename par_type1>
+BOOST_SYMBOL_EXPORT
 struct GFileCombinedParsableParameterT
    : public GCombinedParT<par_type0, par_type1>
 {
@@ -1035,6 +1046,7 @@ private:
  * convert to different target class. This makes user-code easier.
  */
 template <typename parameter_type>
+BOOST_SYMBOL_EXPORT
 struct GVectorParT
    : public GFileParsableI
 {
@@ -1096,6 +1108,7 @@ private:
  * you plan to write out a parameter file.
  */
 template <typename parameter_type>
+BOOST_SYMBOL_EXPORT
 class GFileVectorParsableParameterT
    : public GVectorParT<parameter_type>
 {
@@ -1256,6 +1269,7 @@ private:
  * you plan to write out a parameter file.
  */
 template <typename parameter_type>
+BOOST_SYMBOL_EXPORT
 class GFileVectorReferenceParsableParameterT
    :public GVectorParT<parameter_type>
 {
@@ -1394,6 +1408,7 @@ private:
  * convert to different target class. This makes user-code easier.
  */
 template <typename parameter_type, std::size_t N>
+BOOST_SYMBOL_EXPORT
 struct GArrayParT
    : public GFileParsableI
 {
@@ -1457,6 +1472,7 @@ private:
  * This class enforces a fixed number of items in the array.
  */
 template <typename parameter_type, std::size_t N>
+BOOST_SYMBOL_EXPORT
 class GFileArrayParsableParameterT
    : public GArrayParT<parameter_type, N>
 {
@@ -1609,6 +1625,7 @@ private:
  * identical type). This class enforces a fixed number of items in the array.
  */
 template <typename parameter_type, std::size_t N>
+BOOST_SYMBOL_EXPORT
 class GFileArrayReferenceParsableParameterT
    : public GArrayParT<parameter_type, N>
 {
@@ -1739,6 +1756,7 @@ private:
  * This class wraps a reference to individual command line parameters.
  */
 template <typename parameter_type>
+BOOST_SYMBOL_EXPORT
 class GCLReferenceParsableParameterT
    : public GCLParsableI
 {
@@ -1849,6 +1867,7 @@ private:
  * class assumes that the parameter_type can be streamed using operator<< or
  * operator>>
  */
+BOOST_SYMBOL_EXPORT
 class GParserBuilder :boost::noncopyable
 {
 public:

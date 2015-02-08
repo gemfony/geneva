@@ -142,6 +142,7 @@ const std::size_t DEFAULTBUFFERSIZE = 20000;
  * stored in the buffer.
  */
 template<typename T>
+BOOST_SYMBOL_EXPORT
 class GBoundedBufferT
 	: private boost::noncopyable
 {

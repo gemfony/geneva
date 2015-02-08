@@ -62,6 +62,7 @@ namespace Common {
  * provided by Boost.ASIO . This is meant as a drop-in replacement, until a more
  * versatile thread pool becomes commonly available in Boost.
  */
+BOOST_SYMBOL_EXPORT
 class GThreadPool
 	:private boost::noncopyable // make sure the pool cannot be copied
 {

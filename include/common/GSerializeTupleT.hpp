@@ -75,11 +75,13 @@ namespace serialization {
  * @param tpl The tuple to be serialized
  */
 template<typename archive, typename T0>
+BOOST_SYMBOL_EXPORT
 void serialize(archive & ar, boost::tuple<T0> & tpl, unsigned int) {
 	using namespace boost;
 	using boost::serialization::make_nvp;
 
-	ar & make_nvp("tpl_0", boost::get<0>(tpl));
+	ar
+	& make_nvp("tpl_0", boost::get<0>(tpl));
 }
 
 /******************************************************************************/
@@ -89,12 +91,14 @@ void serialize(archive & ar, boost::tuple<T0> & tpl, unsigned int) {
  * @param tpl The tuple to be serialized
  */
 template<typename archive, typename T0, typename T1>
+BOOST_SYMBOL_EXPORT
 void serialize(archive & ar, boost::tuple<T0, T1> & tpl, unsigned int) {
 	using namespace boost;
 	using boost::serialization::make_nvp;
 
-	ar & make_nvp("tpl_0", boost::get<0>(tpl))
-	   & make_nvp("tpl_1", boost::get<1>(tpl));
+	ar
+	& make_nvp("tpl_0", boost::get<0>(tpl))
+	& make_nvp("tpl_1", boost::get<1>(tpl));
 }
 
 /******************************************************************************/
@@ -104,13 +108,15 @@ void serialize(archive & ar, boost::tuple<T0, T1> & tpl, unsigned int) {
  * @param tpl The tuple to be serialized
  */
 template<typename archive, typename T0, typename T1, typename T2>
+BOOST_SYMBOL_EXPORT
 void serialize(archive & ar, boost::tuple<T0, T1, T2> & tpl, unsigned int) {
 	using namespace boost;
 	using boost::serialization::make_nvp;
 
-	ar & make_nvp("tpl_0", boost::get<0>(tpl))
-	   & make_nvp("tpl_1", boost::get<1>(tpl))
-	   & make_nvp("tpl_2", boost::get<2>(tpl));
+	ar
+	& make_nvp("tpl_0", boost::get<0>(tpl))
+	& make_nvp("tpl_1", boost::get<1>(tpl))
+	& make_nvp("tpl_2", boost::get<2>(tpl));
 }
 
 /******************************************************************************/
@@ -120,14 +126,16 @@ void serialize(archive & ar, boost::tuple<T0, T1, T2> & tpl, unsigned int) {
  * @param tpl The tuple to be serialized
  */
 template<typename archive, typename T0, typename T1, typename T2, typename T3>
+BOOST_SYMBOL_EXPORT
 void serialize(archive & ar, boost::tuple<T0, T1, T2, T3> & tpl, unsigned int) {
 	using namespace boost;
 	using boost::serialization::make_nvp;
 
-	ar & make_nvp("tpl_0", boost::get<0>(tpl))
-	   & make_nvp("tpl_1", boost::get<1>(tpl))
-	   & make_nvp("tpl_2", boost::get<2>(tpl))
-	   & make_nvp("tpl_3", boost::get<3>(tpl));
+	ar
+	& make_nvp("tpl_0", boost::get<0>(tpl))
+	& make_nvp("tpl_1", boost::get<1>(tpl))
+	& make_nvp("tpl_2", boost::get<2>(tpl))
+	& make_nvp("tpl_3", boost::get<3>(tpl));
 }
 
 /******************************************************************************/
@@ -137,15 +145,17 @@ void serialize(archive & ar, boost::tuple<T0, T1, T2, T3> & tpl, unsigned int) {
  * @param tpl The tuple to be serialized
  */
 template<typename archive, typename T0, typename T1, typename T2, typename T3, typename T4>
+BOOST_SYMBOL_EXPORT
 void serialize(archive & ar, boost::tuple<T0, T1, T2, T3, T4> & tpl, unsigned int) {
 	using namespace boost;
 	using boost::serialization::make_nvp;
 
-	ar & make_nvp("tpl_0", boost::get<0>(tpl))
-	   & make_nvp("tpl_1", boost::get<1>(tpl))
-	   & make_nvp("tpl_2", boost::get<2>(tpl))
-	   & make_nvp("tpl_3", boost::get<3>(tpl))
-	   & make_nvp("tpl_4", boost::get<4>(tpl));
+	ar
+	& make_nvp("tpl_0", boost::get<0>(tpl))
+	& make_nvp("tpl_1", boost::get<1>(tpl))
+	& make_nvp("tpl_2", boost::get<2>(tpl))
+	& make_nvp("tpl_3", boost::get<3>(tpl))
+	& make_nvp("tpl_4", boost::get<4>(tpl));
 }
 
 /******************************************************************************/
@@ -155,16 +165,18 @@ void serialize(archive & ar, boost::tuple<T0, T1, T2, T3, T4> & tpl, unsigned in
  * @param tpl The tuple to be serialized
  */
 template<typename archive, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
+BOOST_SYMBOL_EXPORT
 void serialize(archive & ar, boost::tuple<T0, T1, T2, T3, T4, T5> & tpl, unsigned int) {
 	using namespace boost;
 	using boost::serialization::make_nvp;
 
-	ar & make_nvp("tpl_0", boost::get<0>(tpl))
-	   & make_nvp("tpl_1", boost::get<1>(tpl))
-	   & make_nvp("tpl_2", boost::get<2>(tpl))
-	   & make_nvp("tpl_3", boost::get<3>(tpl))
-	   & make_nvp("tpl_4", boost::get<4>(tpl))
-	   & make_nvp("tpl_5", boost::get<5>(tpl));
+	ar
+	& make_nvp("tpl_0", boost::get<0>(tpl))
+	& make_nvp("tpl_1", boost::get<1>(tpl))
+	& make_nvp("tpl_2", boost::get<2>(tpl))
+	& make_nvp("tpl_3", boost::get<3>(tpl))
+	& make_nvp("tpl_4", boost::get<4>(tpl))
+	& make_nvp("tpl_5", boost::get<5>(tpl));
 }
 
 /******************************************************************************/

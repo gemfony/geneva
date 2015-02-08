@@ -72,6 +72,7 @@ namespace Common {
  * thrown inside of threads to not travel beyond the thread's boundary. Hence we need to catch them
  * and emit a message. Catching of exceptions is only performed in DEBUG mode.
  */
+BOOST_SYMBOL_EXPORT
 struct GThreadWrapper {
 	/** @brief The standard constructor for this struct */
 	GThreadWrapper(boost::function<void()>);
