@@ -888,7 +888,6 @@ std::string GParameterSet::toCSV(bool withNameAndType, bool withCommas, bool use
          varNames.push_back(std::string("Fitness_") + boost::lexical_cast<std::string>(f));
          varTypes.push_back("double");
       }
-      bool isDirty;
       if(useRawFitness) {
          varValues.push_back(boost::lexical_cast<std::string>(this->fitness(f, PREVENTREEVALUATION, USERAWFITNESS)));
       } else { // Output potentially transformed fitness
