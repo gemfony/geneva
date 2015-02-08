@@ -71,7 +71,7 @@ namespace Common {
  * suited well for frequent querying.
  */
 template <typename T>
-class GGlobalOptionsT {
+class G_API GGlobalOptionsT {
 public:
    /***************************************************************************/
    /**

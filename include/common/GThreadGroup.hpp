@@ -99,8 +99,7 @@ class GThreadPool;
  * the need for a pointer to them. This class was adapted from a version by
  * Anthony Williams, as offered as part of the Boost 1.36 release
  */
-BOOST_SYMBOL_EXPORT
-class GThreadGroup
+class G_API GThreadGroup
 	 :private boost::noncopyable
 {
 	friend class GThreadPool;

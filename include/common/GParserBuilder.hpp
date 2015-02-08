@@ -119,8 +119,7 @@ const bool GCL_IMPLICIT_NOT_ALLOWED = false;
  * It is however possible to explicitly set the parameter.
  */
 template <typename T>
-BOOST_SYMBOL_EXPORT
-class GOneTimeRefParameterT
+class G_API GOneTimeRefParameterT
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -255,8 +254,7 @@ private:
  * A manipulator object that allows to identify the id of the comment to be
  * added
  */
-BOOST_SYMBOL_EXPORT
-class commentLevel {
+class G_API commentLevel {
 public:
    /** @brief The standard constructor */
    explicit commentLevel(const std::size_t);
@@ -274,8 +272,7 @@ private:
 /**
  * A manipulator object that increments the comment level
  */
-BOOST_SYMBOL_EXPORT
-class nextComment {
+class G_API nextComment {
 public:
    /** @brief The default constructor */
    nextComment(){ /* nothing */ }
@@ -289,8 +286,7 @@ public:
  * which a call-back function has been assigned. It also stores some
  * information common to all parameter types.
  */
-BOOST_SYMBOL_EXPORT
-class GParsableI
+class G_API GParsableI
    :boost::noncopyable
 {
 public:
@@ -390,8 +386,7 @@ private:
  * which a call-back function has been assigned. Note that this class cannot
  * be copied, as the parent class is derived from boost::noncopyable.
  */
-   BOOST_SYMBOL_EXPORT
-class GFileParsableI
+class G_API GFileParsableI
    : public GParsableI
 {
    // We want GParserBuilder to be able to call our private load- and save functions
@@ -442,8 +437,7 @@ private:
  * that this class cannot be copied, as the parent class is derived from
  * boost::noncopyable.
  */
-   BOOST_SYMBOL_EXPORT
-class GCLParsableI
+class G_API GCLParsableI
    : public GParsableI
 {
    // We want GParserBuilder to be able to call our private load- and save functions
@@ -484,8 +478,7 @@ private:
  * convert to different target class. This makes user-code easier.
  */
 template <typename parameter_type>
-BOOST_SYMBOL_EXPORT
-struct GSingleParmT
+struct G_API GSingleParmT
    : public GFileParsableI
 {
    // We want GParserBuilder to be able to call the reset function
@@ -547,8 +540,7 @@ private:
  * function has been assigned.
  */
 template <typename parameter_type>
-BOOST_SYMBOL_EXPORT
-struct GFileSingleParsableParameterT
+struct G_API GFileSingleParsableParameterT
    : public GSingleParmT<parameter_type>
 {
 	// We want GParserBuilder to be able to call our load- and save functions
@@ -686,8 +678,7 @@ private:
  * the parsed value to the reference.
  */
 template <typename parameter_type>
-BOOST_SYMBOL_EXPORT
-class GFileReferenceParsableParameterT
+class G_API GFileReferenceParsableParameterT
    : public GSingleParmT<parameter_type>
 {
    // We want GParserBuilder to be able to call our load- and save functions
@@ -805,8 +796,7 @@ private:
  * convert to different target class. This makes user-code easier.
  */
 template <typename par_type0, typename par_type1>
-BOOST_SYMBOL_EXPORT
-struct GCombinedParT
+struct G_API GCombinedParT
    : public GFileParsableI
 {
    // We want GParserBuilder to be able to call the reset function
@@ -880,8 +870,7 @@ private:
  * function has been assigned.
  */
 template <typename par_type0, typename par_type1>
-BOOST_SYMBOL_EXPORT
-struct GFileCombinedParsableParameterT
+struct G_API GFileCombinedParsableParameterT
    : public GCombinedParT<par_type0, par_type1>
 {
 	// We want GParserBuilder to be able to call our load- and save functions
@@ -1046,8 +1035,7 @@ private:
  * convert to different target class. This makes user-code easier.
  */
 template <typename parameter_type>
-BOOST_SYMBOL_EXPORT
-struct GVectorParT
+struct G_API GVectorParT
    : public GFileParsableI
 {
    // We want GParserBuilder to be able to call the reset function
@@ -1108,8 +1096,7 @@ private:
  * you plan to write out a parameter file.
  */
 template <typename parameter_type>
-BOOST_SYMBOL_EXPORT
-class GFileVectorParsableParameterT
+class G_API GFileVectorParsableParameterT
    : public GVectorParT<parameter_type>
 {
 	// We want GParserBuilder to be able to call our load- and save functions
@@ -1269,8 +1256,7 @@ private:
  * you plan to write out a parameter file.
  */
 template <typename parameter_type>
-BOOST_SYMBOL_EXPORT
-class GFileVectorReferenceParsableParameterT
+class G_API GFileVectorReferenceParsableParameterT
    :public GVectorParT<parameter_type>
 {
 	// We want GParserBuilder to be able to call our load- and save functions
@@ -1408,8 +1394,7 @@ private:
  * convert to different target class. This makes user-code easier.
  */
 template <typename parameter_type, std::size_t N>
-BOOST_SYMBOL_EXPORT
-struct GArrayParT
+struct G_API GArrayParT
    : public GFileParsableI
 {
    // We want GParserBuilder to be able to call the reset function
@@ -1472,8 +1457,7 @@ private:
  * This class enforces a fixed number of items in the array.
  */
 template <typename parameter_type, std::size_t N>
-BOOST_SYMBOL_EXPORT
-class GFileArrayParsableParameterT
+class G_API GFileArrayParsableParameterT
    : public GArrayParT<parameter_type, N>
 {
 	// We want GParserBuilder to be able to call our load- and save functions
@@ -1625,8 +1609,7 @@ private:
  * identical type). This class enforces a fixed number of items in the array.
  */
 template <typename parameter_type, std::size_t N>
-BOOST_SYMBOL_EXPORT
-class GFileArrayReferenceParsableParameterT
+class G_API GFileArrayReferenceParsableParameterT
    : public GArrayParT<parameter_type, N>
 {
 	// We want GParserBuilder to be able to call our load- and save functions
@@ -1756,8 +1739,7 @@ private:
  * This class wraps a reference to individual command line parameters.
  */
 template <typename parameter_type>
-BOOST_SYMBOL_EXPORT
-class GCLReferenceParsableParameterT
+class G_API GCLReferenceParsableParameterT
    : public GCLParsableI
 {
    // We want GParserBuilder to be able to call our private functions
@@ -1867,8 +1849,7 @@ private:
  * class assumes that the parameter_type can be streamed using operator<< or
  * operator>>
  */
-BOOST_SYMBOL_EXPORT
-class GParserBuilder :boost::noncopyable
+class G_API GParserBuilder :boost::noncopyable
 {
 public:
 	/** @brief The default constructor */

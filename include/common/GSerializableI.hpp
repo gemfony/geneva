@@ -54,8 +54,7 @@ namespace Common {
  * This is an interface class that specifies the operations available
  * for "serializable" classes.
  */
-BOOST_SYMBOL_EXPORT
-class GSerializableI {
+class G_API GSerializableI {
 public:
 	/** @brief The standard destructor */
 	virtual ~GSerializableI() { /* nothing */ }

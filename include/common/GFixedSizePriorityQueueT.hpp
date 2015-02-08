@@ -85,7 +85,7 @@ namespace Common {
  * which returns a boost::shared_ptr<T> as a copy of the T object.
  */
 template <typename T>
-class GFixedSizePriorityQueueT
+class G_API GFixedSizePriorityQueueT
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;

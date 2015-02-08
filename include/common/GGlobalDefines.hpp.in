@@ -53,6 +53,17 @@
 #include <boost/config.hpp>
 #include <boost/version.hpp>
 
+/** Care for symbols to be exported */
+#ifdef GEM_DYNAMIC && GEM_DYNAMIC != 0
+#ifdef G_LIBRARIES_EXPORTS
+#define G_API BOOST_SYMBOL_EXPORT
+#else
+#define G_API BOOST_SYMBOL_IMPORT
+#endif /* G_LIBRARIES_EXPORTS */
+#else
+#define G_API
+#endif /*  GENEVA_STATIC  */
+
 /** The minimum allowed version of the Boost library */
 #define MIN_BOOST_VERSION 104800
 

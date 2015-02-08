@@ -76,7 +76,7 @@ namespace Common {
  * point to objects of the GConsoleLogger or GFileLogger classes, or other log targets
  * defined by the user.
  */
-class GBaseLogTarget {
+class G_API GBaseLogTarget {
 public:
    /** @brief The default constructor */
     GBaseLogTarget(void);
@@ -95,7 +95,7 @@ public:
 /**
  * The console logger writes log messages to the console.
  */
-class GConsoleLogger :public GBaseLogTarget
+class G_API GConsoleLogger :public GBaseLogTarget
 {
 public:
    /** @brief A standard constructor */
@@ -118,7 +118,7 @@ public:
 /**
  * The file logger writes log messages to a file.
  */
-class GFileLogger :public GBaseLogTarget
+class G_API GFileLogger :public GBaseLogTarget
 {
 public:
 /** @brief A standard constructor */
@@ -152,7 +152,7 @@ private:
  * GLogger object or letting manipulators output the work.
  */
 template <class S> // "S" means "streamer"
-class GLogger
+class G_API GLogger
    :boost::noncopyable
 {
 public:
@@ -369,7 +369,7 @@ private:
  * exception chain, possibly wrapped into a macro giving it information about
  * the file and lines from which it has been called.
  */
-class GManipulator
+class G_API GManipulator
 {
 public:
    /** @brief A constructor that stores both accompanying information and the logging type */
@@ -407,7 +407,7 @@ private:
 * Hence adding information the the exception handler should be as easy as adding
 * data to a stream.
 */
-class GLogStreamer
+class G_API GLogStreamer
 {
 public:
   /** @brief The default constructor */

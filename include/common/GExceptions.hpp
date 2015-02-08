@@ -84,7 +84,9 @@ namespace Common {
 /**
  * General error class to be thrown in the case of severe errors
  */
-class gemfony_error_condition : public std::exception {
+class G_API gemfony_error_condition
+   : public std::exception
+{
 public:
    /** @brief The standard constructor */
 	gemfony_error_condition(const std::string&) throw();
@@ -103,7 +105,7 @@ private:
 
 /******************************************************************************/
 /** @brief This function allows to output a gemfony_error_condition to a stream */
-std::ostream& operator<<(std::ostream&, const Gem::Common::gemfony_error_condition&);
+G_API std::ostream& operator<<(std::ostream&, const Gem::Common::gemfony_error_condition&);
 
 /******************************************************************************/
 

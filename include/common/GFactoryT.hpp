@@ -88,7 +88,7 @@ const std::size_t GFACTORYWRITEID =std::size_t(0);
  * object individually, or in specializations of this class.
  */
 template <typename prod_type>
-class GFactoryT {
+class G_API GFactoryT {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
 

@@ -68,8 +68,7 @@ namespace Common {
 /**
  * This base class implements the interface for expaction checks
  */
-BOOST_SYMBOL_EXPORT
-class GBaseExpectionCheck {
+class G_API GBaseExpectionCheck {
 public:
    /** @brief The default constructor */
    GBaseExpectionCheck();
@@ -109,7 +108,7 @@ private:
  * @return A boost::optional<std::string> that optionally contains a description of discrepancies found from the expected outcome
  */
 template <typename basic_type>
-BOOST_SYMBOL_EXPORT
+G_API
 boost::optional<std::string> checkExpectation (
 	  const bool& withMessages
 	, const std::string& caller
@@ -166,7 +165,7 @@ boost::optional<std::string> checkExpectation (
  * @return A boost::optional<std::string> that optionally contains a description of discrepancies found from the expected outcome
  */
 template <typename fp_type>
-BOOST_SYMBOL_EXPORT
+G_API
 boost::optional<std::string> checkExpectation (
   const bool& withMessages
   , const std::string& caller
@@ -255,7 +254,7 @@ boost::optional<std::string> checkExpectation (
  * @return A boost::optional<std::string> that optionally contains a description of discrepancies found from the expected outcome
  */
 template <typename basic_type>
-BOOST_SYMBOL_EXPORT
+G_API
 boost::optional<std::string> checkExpectation (
   const bool& withMessages
   , const std::string& caller
@@ -349,7 +348,7 @@ boost::optional<std::string> checkExpectation (
  * @return A boost::optional<std::string> that optionally contains a description of discrepancies found from the expected outcome
  */
 template <typename basic_type>
-BOOST_SYMBOL_EXPORT
+G_API
 boost::optional<std::string> checkExpectation (
   const bool& withMessages
   , const std::string& caller
@@ -440,7 +439,7 @@ boost::optional<std::string> checkExpectation (
  * @return A boost::optional<std::string> that optionally contains a description of discrepancies found from the expected outcome
  */
 template <typename fp_type>
-BOOST_SYMBOL_EXPORT
+G_API
 boost::optional<std::string> checkExpectation (
   const bool& withMessages
   , const std::string& caller
@@ -571,7 +570,7 @@ boost::optional<std::string> checkExpectation (
 /**
  * @brief This function checks whether two objects of type boost::logic::tribool meet a given expectation.
  */
-BOOST_SYMBOL_EXPORT
+G_API
 boost::optional<std::string> checkExpectation (
   const bool& withMessages
   , const std::string& caller
@@ -587,7 +586,7 @@ boost::optional<std::string> checkExpectation (
 /**
  * Helps to evaluate possible discrepancies between expectations in relationship tests
  */
-BOOST_SYMBOL_EXPORT
+G_API
 boost::optional<std::string> evaluateDiscrepancies(
    const std::string&
    , const std::string&

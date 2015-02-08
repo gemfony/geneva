@@ -68,7 +68,7 @@ namespace Common {
  * @return A boost::shared_ptr to a newly created T object
  */
 template <typename T>
-BOOST_SYMBOL_EXPORT
+G_API
 boost::shared_ptr<T> TFactory_GSingletonT() {
 	return boost::shared_ptr<T>(new T());
 }
@@ -81,8 +81,7 @@ boost::shared_ptr<T> TFactory_GSingletonT() {
  * the static shared_ptr may long have vanished at that time.
  */
 template<typename T>
-BOOST_SYMBOL_EXPORT
-class GSingletonT
+class G_API GSingletonT
 	:boost::noncopyable
 {
 public:

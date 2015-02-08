@@ -73,8 +73,7 @@ typedef boost::uint32_t PORTIDTYPE;
  * TODO: Move to Boost's unique identifier ?
  */
 template<typename T>
-BOOST_SYMBOL_EXPORT
-class GBoundedBufferWithIdT
+class G_API GBoundedBufferWithIdT
 	:public Gem::Common::GBoundedBufferT<T>
 {
 public:

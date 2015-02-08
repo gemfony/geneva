@@ -142,8 +142,7 @@ const std::size_t DEFAULTBUFFERSIZE = 20000;
  * stored in the buffer.
  */
 template<typename T>
-BOOST_SYMBOL_EXPORT
-class GBoundedBufferT
+class G_API GBoundedBufferT
 	: private boost::noncopyable
 {
 public:
@@ -470,6 +469,7 @@ public:
 		return !container_.empty();
 	}
 
+	// TODO: This is dangerous: one definition rule!
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 	/***************************************************************************/
 	/**
@@ -506,7 +506,7 @@ protected:
 	 * Note that this code is only called in a safe context, hence no protection
 	 * is necessary.
 	 */
-   struct buffer_not_empty {
+   struct G_API buffer_not_empty {
    public:
       /* @brief Initializes the local container reference */
       buffer_not_empty(

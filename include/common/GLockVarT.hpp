@@ -89,7 +89,7 @@ namespace Common {
  * combo yourself.
  */
 template <typename T>
-class GLockVarT {
+class G_API GLockVarT {
    /////////////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
 
@@ -275,7 +275,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-class GLockVarBool
+class G_API GLockVarBool
    : public GLockVarT<bool>
 {
    /////////////////////////////////////////////////////////////////////////////
