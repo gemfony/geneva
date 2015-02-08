@@ -259,22 +259,22 @@ public:
 		}
 		else {
 			// The result
-			std::size_t mapping = 0;
+		   int_type mapping = int_type(0);
 
 			// Find out the size of the value range. Note that both boundaries
 			// are included, so that we need to add 1 to the difference.
-			std::size_t value_range = upperBoundary - lowerBoundary + 1;
+		   int_type value_range = upperBoundary - lowerBoundary + int_type(1);
 
 			if(val < lowerBoundary) {
 				// Find out how many full value ranges val is below the lower boundary.
 				// We use integer division here, so 13/4 would be 3.
-				std::size_t nBelowLowerBoundary = (lowerBoundary - (val + 1)) / value_range;
+			   int_type nBelowLowerBoundary = (lowerBoundary - (val + int_type(1))) / value_range;
 
 				// We are dealing with descending (nBelowLowerBoundary is even) and
 				// ascending ranges (nBelowLowerBoundary is odd), which need to be treated differently
 
             // Transfer the value into the allowed region
-            mapping = val + (value_range * (nBelowLowerBoundary + 1));
+            mapping = val + (value_range * (nBelowLowerBoundary + int_type(1)));
 				if(nBelowLowerBoundary%2 == 0) { // nBelowLowerBoundary is even
                // Revert the value to a descending sequence
                mapping = revert(mapping);
@@ -283,13 +283,13 @@ public:
 			else { // val > getUpperBoundary()
 				// Find out how many full value ranges val is above the upper boundary.
 				// We use integer division here, so 13/4 would be 3.
-				std::size_t nAboveUpperBoundary = (val - upperBoundary - 1) / value_range;
+			   int_type nAboveUpperBoundary = (val - upperBoundary - int_type(1)) / value_range;
 
 				// We are dealing with descending (nAboveUpperBoundary is even) and
 				// ascending ranges (nAboveUpperBoundary is odd), which need to be treated differently
 
 				// Transfer into the allowed region
-				mapping = val - (value_range * (nAboveUpperBoundary + 1));
+				mapping = val - (value_range * (nAboveUpperBoundary + int_type(1)));
 				if(nAboveUpperBoundary%2 == 0) { // nAboveUpperBoundary is even
 					// Revert, as we are dealing with a descending value range
 					mapping = revert(mapping);
