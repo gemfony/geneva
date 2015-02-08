@@ -297,4 +297,18 @@ template <> boost::tuple<std::vector<parPropSpec<bool> >::const_iterator, std::v
 } /* namespace Geneva */
 } /* namespace Gem */
 
+// Needed for rules to work. Follows http://boost.2283326.n4.nabble.com/hold-multi-pass-backtracking-swap-compliant-ast-td4664679.html
+namespace boost {
+namespace spirit {
+
+void swap(Gem::Geneva::parPropSpec<double>&, Gem::Geneva::parPropSpec<double>&);
+void swap(Gem::Geneva::parPropSpec<float>&, Gem::Geneva::parPropSpec<float>&);
+void swap(Gem::Geneva::parPropSpec<boost::int32_t>&, Gem::Geneva::parPropSpec<boost::int32_t>&);
+void swap(Gem::Geneva::parPropSpec<bool>&, Gem::Geneva::parPropSpec<bool>&);
+
+
+} /* namespace spirit */
+} /* namespace boost */
+
+
 #endif /* GPARAMETERPROPERTYPARSER_HPP_ */

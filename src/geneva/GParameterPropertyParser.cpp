@@ -34,6 +34,30 @@
 
 #include "geneva/GParameterPropertyParser.hpp"
 
+// Needed for rules to work. Follows http://boost.2283326.n4.nabble.com/hold-multi-pass-backtracking-swap-compliant-ast-td4664679.html
+namespace boost {
+namespace spirit {
+
+void swap(Gem::Geneva::parPropSpec<double>& a, Gem::Geneva::parPropSpec<double>& b) {
+   a.swap(b);
+}
+
+void swap(Gem::Geneva::parPropSpec<float>& a, Gem::Geneva::parPropSpec<float>& b) {
+   a.swap(b);
+}
+
+void swap(Gem::Geneva::parPropSpec<boost::int32_t>& a, Gem::Geneva::parPropSpec<boost::int32_t>& b) {
+   a.swap(b);
+}
+
+void swap(Gem::Geneva::parPropSpec<bool>& a, Gem::Geneva::parPropSpec<bool>& b) {
+   a.swap(b);
+}
+
+
+} /* namespace spirit */
+} /* namespace boost */
+
 namespace Gem {
 namespace Geneva {
 
