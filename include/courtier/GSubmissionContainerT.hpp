@@ -32,13 +32,12 @@
  * http://www.gemfony.eu .
  */
 
-// For Microsoft-compatible compilers
-#include "common/GWindowsDefines.hpp"
+// Includes check for correct Boost version(s)
+#define GUSEWINSOCK2_H_ // make sure winsock2.h is included
+#include "common/GGlobalDefines.hpp"
+#undef GUSEWINSOCK2_H_
 
 // Standard headers go here
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
 #include <boost/archive/xml_oarchive.hpp>

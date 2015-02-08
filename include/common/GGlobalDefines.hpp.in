@@ -37,16 +37,25 @@
  * the Boost version being used are done here.
  */
 
-//-----------------------------------------------------------
-// For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#pragma once
-#endif
-//-----------------------------------------------------------
-
 #ifndef GGLOBALDEFINES_HPP_
 #define GGLOBALDEFINES_HPP_
 
+//-----------------------------------------------------------
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+
+#ifdef GUSEWINSOCK2_H_
+#include <winsock2.h>
+#endif /* GUSEWINSOCK2_H_ */
+
+#ifndef GSKIPWINDOWS_H_
+#include <windows.h>
+#endif /* GSKIPWINDOWS_H_ */
+
+#endif /* _MSC_VER */
+//-----------------------------------------------------------
+
+#include <boost/config.hpp>
 #include <boost/version.hpp>
 
 /** The minimum allowed version of the Boost library */
