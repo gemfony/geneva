@@ -83,7 +83,7 @@ GParameterPropertyParser::GParameterPropertyParser(const std::string& rw)
    } catch (const Gem::Common::gemfony_error_condition& e) {
       glogger
       << "In GParameterPropertyParser::GParameterPropertyParser(const std::string& raw): Error!" << std::endl
-      <<"Caught Geneva exception with message " << std::endl
+      << "Caught Geneva exception with message " << std::endl
       << e.what() << std::endl
       << "Terminating the application" << std::endl
       << GTERMINATION;
