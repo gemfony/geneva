@@ -37,9 +37,6 @@
 
 // Standard headers go here
 
-// Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
-
 // Boost headers go here
 #include <boost/serialization/split_free.hpp>
 #include <boost/serialization/nvp.hpp>

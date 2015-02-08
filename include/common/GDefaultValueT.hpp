@@ -38,8 +38,6 @@
 // Standard headers go here
 #include <string>
 
-// Includes check for correct Boost version(s)
-
 // Boost headers go here
 
 

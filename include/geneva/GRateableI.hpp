@@ -39,9 +39,6 @@
 #include <sstream>
 #include <vector>
 
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
-
 // Boost header files go here
 
 #ifndef GRATEABLEI_HPP_

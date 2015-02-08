@@ -40,8 +40,6 @@
 #include <sstream>
 #include <vector>
 
-// Includes check for correct Boost version(s)
-
 // Boost header files go here
 
 #ifndef GCONSTRAINEDDOUBLECOLLECTION_HPP_

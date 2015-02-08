@@ -41,9 +41,6 @@
 #include <cmath>
 #include <algorithm>
 
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
-
 // Boost header files go here
 
 #include <boost/cstdint.hpp>
