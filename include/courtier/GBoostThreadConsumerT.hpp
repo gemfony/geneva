@@ -491,7 +491,7 @@ public:
             std::cerr << error.str();
             std::terminate();
          }
-         catch(boost::exception& e){
+         catch(boost::exception&){
             std::ostringstream error;
              error << "In GBoostThreadConsumerT<processable_type>::GWorker::run():" << std::endl
                    << "Caught boost::exception with message" << std::endl;

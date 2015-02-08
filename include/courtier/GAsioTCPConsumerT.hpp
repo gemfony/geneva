@@ -1539,7 +1539,7 @@ class GAsioTCPConsumerT
 
             continue;
          }
-      } catch(const Gem::Courtier::buffer_not_present& b) { // discard the item
+      } catch(const Gem::Courtier::buffer_not_present&) { // discard the item
          glogger
          << "GAsioTCPConsumerT<>::In handle_workItemComplete(): Warning!" << std::endl
          << "Discarding item as buffer port is not present" << std::endl
