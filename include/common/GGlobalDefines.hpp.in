@@ -44,13 +44,8 @@
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
 
-#ifdef GUSEWINSOCK2_H_
 #include <winsock2.h>
-#endif /* GUSEWINSOCK2_H_ */
-
-#ifndef GSKIPWINDOWS_H_
 #include <windows.h>
-#endif /* GSKIPWINDOWS_H_ */
 
 #endif /* _MSC_VER */
 //-----------------------------------------------------------

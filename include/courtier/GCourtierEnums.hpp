@@ -33,9 +33,7 @@
  */
 
 // Global checks, defines and includes needed for all of Geneva
-#define GUSEWINSOCK2_H_ // make sure winsock2.h is included
 #include "common/GGlobalDefines.hpp"
-#undef GUSEWINSOCK2_H_
 
 // Standard headers go here
 #include <string>
