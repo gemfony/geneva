@@ -675,15 +675,10 @@ std::size_t GParameterSet::customAdaptions() {
 void GParameterSet::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 ) {
-	std::string comment;
-
 	// Call our parent class'es function
 	GMutableSetT<Gem::Geneva::GParameterBase>::addConfigurationOptions(gpb);
 
 	// Add local data
-	comment = ""; // Reset the comment string
-	comment += "Specifies whether the individual should be maximized (1) or minimized (0);";
-	comment += "Note that minimization is the by far most common option.;";
 	gpb.registerFileParameter<bool>(
 		"maximize" // The name of the variable
 		, false // The default value
@@ -692,13 +687,10 @@ void GParameterSet::addConfigurationOptions (
 			, this
 			, _1
 		  )
-		, Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
-		, comment
-	);
+	)
+	<< "Specifies whether the individual should be maximized (1) or minimized (0)" << std::endl
+	<< "Note that minimization is the by far most common option.";
 
-   comment = ""; // Reset the comment string
-   comment += "The likelihood for two data items to be exchanged;";
-   comment += "in a \"per-item\" cross-over operation;";
    gpb.registerFileParameter<double>(
       "perItemCrossOverProbability" // The name of the variable
       , DEFAULTPERITEMEXCHANGELIKELIHOOD // The default value
@@ -707,9 +699,9 @@ void GParameterSet::addConfigurationOptions (
          , this
          , _1
         )
-      , Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
-      , comment
-   );
+   )
+   << "The likelihood for two data items to be exchanged" << std::endl
+   << "Note that minimization is the by far most common option.";
 }
 
 /******************************************************************************/
