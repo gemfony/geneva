@@ -673,13 +673,15 @@ public:
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
 			// Assign a valid value
-			// BOOST_CHECK_NO_THROW(p_test->setValue(testVal));
-			BOOST_CHECK_NO_THROW(p_test->setValue(testVal, 30, 50));
+			BOOST_CHECK_NO_THROW(p_test->setValue(testVal));
+
+			if(typeid(T) == typeid(bool)) {
+			   BOOST_CHECK_NO_THROW(p_test->setValue(true, false, true));
+			} else {
+			   BOOST_CHECK_NO_THROW(p_test->setValue(testVal, T(30), T(50)));
+			}
 
 			// Check with the local value() function that the value has been set
-			BOOST_CHECK(p_test->value() == testVal);
-
-			// Check with the corresponding GParameterT<T> function
 			BOOST_CHECK(p_test->value() == testVal);
 
 			// Check that getInternalValue() behaves as expected
@@ -762,7 +764,7 @@ public:
 			BOOST_CHECK_NO_THROW(*p_test = (testVal - T(1)));
 
 			// Check that is was set correctly
-			BOOST_CHECK_NO_THROW(p_test->value() == (testVal - T(1)));
+			BOOST_CHECK(p_test->value() == (testVal - T(1)));
 		}
 
 		//------------------------------------------------------------------------------
@@ -844,7 +846,9 @@ public:
 			BOOST_CHECK_NO_THROW(p_test->setValue(T(0), T(0), T(1)));
 
 			// Try to assign 2 as a value - should throw
-			BOOST_CHECK_THROW(*p_test = 2, Gem::Common::gemfony_error_condition);
+			if(typeid(T) != typeid(bool)) {
+			   BOOST_CHECK_THROW(*p_test = T(2), Gem::Common::gemfony_error_condition);
+			}
 		}
 
 		//------------------------------------------------------------------------------
