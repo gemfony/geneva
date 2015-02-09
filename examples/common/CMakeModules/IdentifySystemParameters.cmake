@@ -126,27 +126,30 @@ MACRO (
 	SET(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE
 	    STRING "Choose the build type, options are: Debug Release Sanitize" FORCE)
 
-	IF(GENEVA_BUILD_TYPE)
-		IF(NOT ";${GENEVA_CONFIGURATION_TYPES};" MATCHES ";${GENEVA_BUILD_TYPE};")
-			MESSAGE (FATAL_ERROR "Unknown build type GENEVA_BUILD_TYPE=${GENEVA_BUILD_TYPE}!")
+	# The build type is not needed on multi-config generators
+	IF(NOT CMAKE_CONFIGURATION_TYPES)
+		IF(GENEVA_BUILD_TYPE)
+			IF(NOT ";${GENEVA_CONFIGURATION_TYPES};" MATCHES ";${GENEVA_BUILD_TYPE};")
+				MESSAGE (FATAL_ERROR "Unknown build type GENEVA_BUILD_TYPE=${GENEVA_BUILD_TYPE}!")
+			ENDIF()
+			SET(MSG "Setting the build type to ${GENEVA_BUILD_TYPE}")
+			SET(CMAKE_BUILD_TYPE ${GENEVA_BUILD_TYPE})
+			IF(${GENEVA_BUILD_TYPE} STREQUAL "Sanitize")
+				SET(MSG "${MSG}\nThis will default to Debug on systems that do not support this setting")
+			ENDIF()
+		ELSEIF(CMAKE_BUILD_TYPE) # GENEVA_BUILD_TYPE is unset, but CMAKE_BUILD_TYPE is set and not empty
+			IF(NOT ";${GENEVA_CONFIGURATION_TYPES};" MATCHES ";${CMAKE_BUILD_TYPE};")
+				MESSAGE (FATAL_ERROR "Unknown build type CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}!")
+			ENDIF()
+			SET(MSG "Using build type CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
+			SET(GENEVA_BUILD_TYPE "${CMAKE_BUILD_TYPE}")
+		ELSE() # Both variables are unset
+			SET(MSG "Setting the build type to default value Debug")
+			SET(CMAKE_BUILD_TYPE "Debug")
+			SET(GENEVA_BUILD_TYPE "Debug")
 		ENDIF()
-		SET(MSG "Setting the build type to ${GENEVA_BUILD_TYPE}")
-		SET(CMAKE_BUILD_TYPE ${GENEVA_BUILD_TYPE})
-		IF(${GENEVA_BUILD_TYPE} STREQUAL "Sanitize")
-			SET(MSG "${MSG}\nThis will default to Debug on systems that do not support this setting")
-		ENDIF()
-	ELSEIF(CMAKE_BUILD_TYPE) # GENEVA_BUILD_TYPE is unset, but CMAKE_BUILD_TYPE is set and not empty
-		IF(NOT ";${GENEVA_CONFIGURATION_TYPES};" MATCHES ";${CMAKE_BUILD_TYPE};")
-			MESSAGE (FATAL_ERROR "Unknown build type CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}!")
-		ENDIF()
-		SET(MSG "Using build type CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
-		SET(GENEVA_BUILD_TYPE "${CMAKE_BUILD_TYPE}")
-	ELSE() # Both variables are unset
-		SET(MSG "Setting the build type to default value Debug")
-		SET(CMAKE_BUILD_TYPE "Debug")
-		SET(GENEVA_BUILD_TYPE "Debug")
-	ENDIF()
-	MESSAGE ("\n${MSG}\n")
+		MESSAGE ("\n${MSG}\n")
+	ENDIF () 
 	#--------------------------------------------------------------------------
 
 ENDMACRO()
@@ -686,10 +689,10 @@ FUNCTION (
 			MESSAGE(FATAL_ERROR "Unsupported platform!")
 		ENDIF()
 
-		# Static linking on MacOSX is not currently supported
-		IF(${GENEVA_STATIC_IN} STREQUAL "1")
+		# Static linking on MacOSX is currently not supported
+		IF(GENEVA_STATIC_IN)
 			MESSAGE("##################################################################")
-			MESSAGE("# Static linking is not currently supported by Geneva on MacOS X #")
+			MESSAGE("# Static linking is currently not supported by Geneva on MacOS X #")
 			MESSAGE("##################################################################")
 			MESSAGE(FATAL_ERROR "Unsupported platform!")
 		ENDIF()
@@ -701,10 +704,20 @@ FUNCTION (
 	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "Cygwin")
 		# No restrictions at the moment
 	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "Windows")
-		MESSAGE("#########################################################")
-		MESSAGE("# Geneva support for Windows is currently EXPERIMENTAL! #")
-		MESSAGE("#########################################################")
-		MESSAGE("\n")
+		# Dynamic linking on Windows is currently not supported
+		IF(GENEVA_STATIC_IN)
+			MESSAGE("\n")
+			MESSAGE("#########################################################")
+			MESSAGE("# Geneva support for Windows is currently EXPERIMENTAL! #")
+			MESSAGE("#########################################################")
+			MESSAGE("\n")
+		ELSE()
+			MESSAGE("###################################################################")
+			MESSAGE("# Dynamic linking is currently not supported by Geneva on Windows #")
+			MESSAGE("###################################################################")
+			MESSAGE(FATAL_ERROR "Unsupported platform!")
+		ENDIF()
+
 	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "unsupported")
 		MESSAGE("#####################################")
 		MESSAGE("# Operating system is not supported #")
