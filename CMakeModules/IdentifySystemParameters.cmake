@@ -715,7 +715,7 @@ FUNCTION (
 			MESSAGE("###################################################################")
 			MESSAGE("# Dynamic linking is currently not supported by Geneva on Windows #")
 			MESSAGE("###################################################################")
-			# MESSAGE(FATAL_ERROR "Unsupported platform!")
+			MESSAGE(FATAL_ERROR "Unsupported platform!")
 		ENDIF()
 
 	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "unsupported")
