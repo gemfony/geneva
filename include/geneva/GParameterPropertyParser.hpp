@@ -83,7 +83,7 @@ typedef boost::tuple<std::size_t, std::string, std::size_t> NAMEANDIDTYPE;
  * it may only signify the latter.
  */
 template <typename par_type>
-G_API struct parPropSpec {
+struct G_API parPropSpec {
    // mode: (0, ...), (VarName[0], ...) or (VarName, ...)
    // variable name
    // optional index
@@ -107,7 +107,7 @@ G_API struct parPropSpec {
  * parameter scans, where all variables are varied randomly. Currently the only
  * data component is the number of items to be scanned.
  */
-G_API struct simpleScanSpec {
+struct G_API simpleScanSpec {
    std::size_t nItems;
 };
 
@@ -210,8 +210,7 @@ namespace Geneva {
  * (including ranges and steps). Note that this class is meant for setup purposes
  * only and thus cannot be serialized (nor can it be copied).
  */
-G_API
-class GParameterPropertyParser: boost::noncopyable // Make sure this class cannot be copied
+class G_API GParameterPropertyParser: boost::noncopyable // Make sure this class cannot be copied
 {
 public:
    /** @brief The standard constructor -- assignment of the "raw" paramter property string */
