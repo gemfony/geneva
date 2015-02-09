@@ -83,15 +83,6 @@ INCLUDE(IdentifySystemParameters)
 VALIDATE_BUILD_TYPE()
 
 ################################################################################
-# Set the build mode static or dynamic
-
-IF ( GENEVA_STATIC ) 
-	SET (BUILD_SHARED_LIBS OFF)
-ELSE () # dynamic libraries
-	SET (BUILD_SHARED_LIBS ON)
-ENDIF ()
-
-################################################################################
 # Identify the operating system and the compiler
 
 FIND_HOST_OS (
@@ -164,6 +155,25 @@ GET_BUILD_FLAGS (
 )
 
 ################################################################################
+# Set the build mode static or dynamic
+
+IF ( GENEVA_STATIC ) 
+	SET (BUILD_SHARED_LIBS OFF)
+ELSE () # dynamic libraries
+	SET (BUILD_SHARED_LIBS ON)
+	# This preprocessor definition is required for knowing
+	# if API-exporting is needed in the code or not
+	ADD_DEFINITIONS("-DGEM_DYNAMIC")
+ENDIF ()
+
+################################################################################
+# Set the preprocessor definition for enabling testing code
+
+IF ( GENEVA_BUILD_TESTS )
+	ADD_DEFINITIONS("-DGEM_TESTING")
+ENDIF ()
+
+################################################################################
 # Define the required Boost environment
 
 SET (Boost_USE_MULTITHREAD ON)
@@ -194,6 +204,7 @@ SET (
 	system
 	thread	
 )
+
 IF(WIN32)
 	# Boost.Thread requires Boost.Chrono, required for linking in Windows
 	SET (
@@ -203,9 +214,7 @@ IF(WIN32)
 	)
 ENDIF()
 
-# Build tests if requested by the user
-IF( GENEVA_BUILD_TESTS )
-	ADD_DEFINITIONS ("-DGEM_TESTING")
+IF(GENEVA_BUILD_TESTS)
 	SET (
 		GENEVA_BOOST_LIBS
 		${GENEVA_BOOST_LIBS}
@@ -224,9 +233,9 @@ ENDIF()
 
 # Search for the required libraries
 MESSAGE("Searching for Boost...\n")
-FIND_PACKAGE( 
-	Boost 
-	${GENEVA_MIN_BOOST_VERSION} REQUIRED 
+FIND_PACKAGE(
+	Boost
+	${GENEVA_MIN_BOOST_VERSION} REQUIRED
 	COMPONENTS ${GENEVA_BOOST_LIBS}
 )
 MESSAGE("")
@@ -322,6 +331,13 @@ IF (UNIX AND NOT TARGET "clean-cmake")
 ENDIF ()
 
 ################################################################################
+# Enable API-exporting in case we are building the libraries
+
+IF (GENEVA_FULL_TREE_BUILD)
+	ADD_DEFINITIONS("-DGEM_LIBRARIES_EXPORTS")
+ENDIF ()
+
+################################################################################
 # Search for Geneva if this is an out-of-tree build of some Geneva application
 
 IF (NOT GENEVA_FULL_TREE_BUILD)
@@ -348,7 +364,6 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 		MESSAGE (FATAL_ERROR "Geneva was built without testing support,"
 			             " cannot build a Geneva application with testing."
 			             " Please set GENEVA_BUILD_TESTS=FALSE .")
-			
 	ENDIF ()
 
 	INCLUDE_DIRECTORIES (

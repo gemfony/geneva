@@ -55,14 +55,14 @@
 
 /** Care for symbols to be exported */
 #ifdef GEM_DYNAMIC && GEM_DYNAMIC != 0
-#ifdef G_LIBRARIES_EXPORTS
+#ifdef GEM_LIBRARIES_EXPORTS
 #define G_API BOOST_SYMBOL_EXPORT
 #else
 #define G_API BOOST_SYMBOL_IMPORT
-#endif /* G_LIBRARIES_EXPORTS */
+#endif /* GEM_LIBRARIES_EXPORTS */
 #else
 #define G_API
-#endif /*  GENEVA_STATIC  */
+#endif /* GEM_DYNAMIC */
 
 /** The minimum allowed version of the Boost library */
 #define MIN_BOOST_VERSION 104800
@@ -74,7 +74,7 @@
 /** The current version of the Geneva library */
 #define GENEVA_VERSION @GENEVA_API_VERSION@
 
-/** Funnily. on g++ std::pow(x,2) seems to be less efficient than direct multiplication */
+/** Funnily, on g++ std::pow(x,2) seems to be less efficient than direct multiplication */
 #define GSQUARED(X) (X) * (X)
 
 // Some Boost versions prevent proper termination of Geneva in conjunction with gcc. Tag these.
