@@ -167,6 +167,13 @@ ELSE () # dynamic libraries
 ENDIF ()
 
 ################################################################################
+# Enable API-exporting in case we are building the libraries
+
+IF ( GENEVA_FULL_TREE_BUILD )
+	ADD_DEFINITIONS("-DGEM_LIBRARIES_EXPORTS")
+ENDIF ()
+
+################################################################################
 # Set the preprocessor definition for enabling testing code
 
 IF ( GENEVA_BUILD_TESTS )
@@ -328,13 +335,6 @@ IF (UNIX AND NOT TARGET "clean-cmake")
 		COMMAND ${CMAKE_BUILD_TOOL} clean 2>&1 > /dev/null
 		COMMAND ${CMAKE_COMMAND} -DOLD_CMAKE=${OLD_CMAKE} -P ${PROJECT_SOURCE_DIR}/CMakeModules/CleanCmakeTemporaries.cmake
 	)
-ENDIF ()
-
-################################################################################
-# Enable API-exporting in case we are building the libraries
-
-IF (GENEVA_FULL_TREE_BUILD)
-	ADD_DEFINITIONS("-DGEM_LIBRARIES_EXPORTS")
 ENDIF ()
 
 ################################################################################
