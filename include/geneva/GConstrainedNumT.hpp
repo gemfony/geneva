@@ -658,7 +658,7 @@ public:
 
 			// GConstrainedDoubleObject assigns the float prior to the specified boundary
 			if(typeid(T) == typeid(double)) {
-				BOOST_CHECK(p_test->getUpperBoundary() ==  boost::math::template float_prior<T>(GConstrainedValueLimitT<T>::highest()));
+				BOOST_CHECK(double(p_test->getUpperBoundary()) ==  boost::math::float_prior<double>(double(GConstrainedValueLimitT<T>::highest())));
 			} else {
 				BOOST_CHECK(p_test->getUpperBoundary() ==  GConstrainedValueLimitT<T>::highest());
 			}
@@ -710,7 +710,7 @@ public:
 
 			// GConstrainedDoubleObject assigns the float prior to the specified boundary
 			if(typeid(T) == typeid(double)) {
-				BOOST_CHECK(p_test->getUpperBoundary() == boost::math::template float_prior<T>(upperBoundary));
+				BOOST_CHECK(double(p_test->getUpperBoundary()) == boost::math::float_prior<double>(double(upperBoundary)));
 			} else {
 				BOOST_CHECK(p_test->getUpperBoundary() == upperBoundary);
 			}
@@ -737,13 +737,29 @@ public:
 					<< "p_test->getLowerBoundary() = " << p_test->getLowerBoundary() << "\n"
 					<< "lowerBoundary = " << lowerBoundary << "\n"
 			);
-			BOOST_CHECK_MESSAGE(
-					p_test->getUpperBoundary() == ((typeid(T)==typeid(double) || typeid(T)==typeid(float))?boost::math::template float_prior<T>(upperBoundary):upperBoundary)
-			      // p_test->getUpperBoundary() == upperBoundary
-					,  "\n"
-					<< "p_test->getUpperBoundary() = " << p_test->getUpperBoundary() << "\n"
-					<< "upperBoundary = " << upperBoundary << "\n"
-			);
+
+         if(typeid(T) == typeid(double)) {
+            BOOST_CHECK_MESSAGE(
+                  double(p_test->getUpperBoundary()) == boost::math::float_prior<double>(double(upperBoundary))
+                  ,  "\n"
+                  << "p_test->getUpperBoundary() = " << p_test->getUpperBoundary() << "\n"
+                  << "upperBoundary = " << upperBoundary << "\n"
+            );
+         } else if(typeid(T) == typeid(float)) {
+            BOOST_CHECK_MESSAGE(
+                  float(p_test->getUpperBoundary()) == boost::math::float_prior<float>(float(upperBoundary))
+                  ,  "\n"
+                  << "p_test->getUpperBoundary() = " << p_test->getUpperBoundary() << "\n"
+                  << "upperBoundary = " << upperBoundary << "\n"
+            );
+         } else {
+            BOOST_CHECK_MESSAGE(
+                  p_test->getUpperBoundary() == upperBoundary
+                  ,  "\n"
+                  << "p_test->getUpperBoundary() = " << p_test->getUpperBoundary() << "\n"
+                  << "upperBoundary = " << upperBoundary << "\n"
+            );
+         }
 
 			// Check that the value is still the same
 			BOOST_CHECK(p_test->value() == testVal);
