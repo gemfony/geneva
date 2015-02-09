@@ -684,7 +684,7 @@ void GParameterSet::addConfigurationOptions (
 	comment = ""; // Reset the comment string
 	comment += "Specifies whether the individual should be maximized (1) or minimized (0);";
 	comment += "Note that minimization is the by far most common option.;";
-	gpb.registerFileParameter<boost::uint32_t>(
+	gpb.registerFileParameter<bool>(
 		"maximize" // The name of the variable
 		, false // The default value
 		, boost::bind(
