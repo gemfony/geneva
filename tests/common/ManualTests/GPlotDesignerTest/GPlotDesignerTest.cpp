@@ -38,6 +38,7 @@
 
 // Boost headers go here
 #include <boost/shared_ptr.hpp>
+#include <boost/math/constants/constants.hpp>
 
 // Geneva headers go here
 #include "common/GPlotDesigner.hpp"
@@ -45,8 +46,8 @@
 using namespace Gem::Common;
 
 int main(int argc, char** argv) {
-	boost::tuple<double,double> minMaxX(-M_PI,M_PI);
-	boost::tuple<double,double> minMaxY(-M_PI,M_PI);
+	boost::tuple<double,double> minMaxX(-boost::math::constants::pi<double>(),boost::math::constants::pi<double>());
+	boost::tuple<double,double> minMaxY(-boost::math::constants::pi<double>(),boost::math::constants::pi<double>());
 
 	boost::shared_ptr<GGraph2D> gsin_ptr(new GGraph2D());
 	gsin_ptr->setPlotMode(Gem::Common::SCATTER);
@@ -65,7 +66,7 @@ int main(int argc, char** argv) {
    gsin_ptr->registerSecondaryPlotter(gcos_ptr_2);
 
 	for(std::size_t i=0; i<1000; i++) {
-		double x = 2*M_PI*double(i)/1000. - M_PI;
+		double x = 2*boost::math::constants::pi<double>()*double(i)/1000. - boost::math::constants::pi<double>();
 
 		(*gsin_ptr) & boost::tuple<double, double>(x, sin(x));
 		(*gcos_ptr) & boost::tuple<double, double>(x, cos(x));

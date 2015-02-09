@@ -937,7 +937,7 @@ double GFunctionIndividual::fitnessCalculation() {
 		result = 10*double(parameterSize);
 
 		for(std::size_t i=0; i<parameterSize; i++) {
-			result += (GSQUARED(parVec[i]) - 10.*cos(2*M_PI*parVec[i]));
+			result += (GSQUARED(parVec[i]) - 10.*cos(2*boost::math::constants::pi<double>()*parVec[i]));
 		}
 	}
 	break;
@@ -964,7 +964,7 @@ double GFunctionIndividual::fitnessCalculation() {
 		}
 		sum_root=sqrt(sum_root);
 
-		result = -cos(2*M_PI*sum_root) + 0.1*sum_root + 1;
+		result = -cos(2*boost::math::constants::pi<double>()*sum_root) + 0.1*sum_root + 1;
 	}
 	break;
 

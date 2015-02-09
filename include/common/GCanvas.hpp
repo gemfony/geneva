@@ -59,6 +59,7 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/cast.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/math/constants/constants.hpp>
 #include <boost/optional.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/tuple/tuple.hpp>
@@ -796,14 +797,14 @@ public:
 #endif /* DEBUG */
 
       // and store them in the structs holding the cartesic coordinates
-      t_c.tr_one.x = t.middle.x + t.radius*gcos(t.angle1*2.0f*float(M_PI));
-      t_c.tr_one.y = t.middle.y + t.radius*gsin(t.angle1*2.0f*float(M_PI));
+      t_c.tr_one.x = t.middle.x + t.radius*gcos(t.angle1*2.0f*boost::math::constants::pi<float>());
+      t_c.tr_one.y = t.middle.y + t.radius*gsin(t.angle1*2.0f*boost::math::constants::pi<float>());
 
-      t_c.tr_two.x = t.middle.x + t.radius*gcos(t.angle2*2.0f*float(M_PI));
-      t_c.tr_two.y = t.middle.y + t.radius*gsin(t.angle2*2.0f*float(M_PI));
+      t_c.tr_two.x = t.middle.x + t.radius*gcos(t.angle2*2.0f*boost::math::constants::pi<float>());
+      t_c.tr_two.y = t.middle.y + t.radius*gsin(t.angle2*2.0f*boost::math::constants::pi<float>());
 
-      t_c.tr_three.x = t.middle.x + t.radius*gcos(t.angle3*2.0f*float(M_PI));
-      t_c.tr_three.y = t.middle.y + t.radius*gsin(t.angle3*2.0f*float(M_PI));
+      t_c.tr_three.x = t.middle.x + t.radius*gcos(t.angle3*2.0f*boost::math::constants::pi<float>());
+      t_c.tr_three.y = t.middle.y + t.radius*gsin(t.angle3*2.0f*boost::math::constants::pi<float>());
 
       t_c.r = t.r;
       t_c.g = t.g;

@@ -42,6 +42,7 @@
 #include <vector>
 
 // Boost header files go here
+#include <boost/math/constants/constants.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_io.hpp>

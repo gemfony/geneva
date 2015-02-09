@@ -50,6 +50,7 @@
 #include <boost/cstdint.hpp>
 #include <boost/random.hpp>
 #include <boost/date_time.hpp>
+#include <boost/math/constants/constants.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>

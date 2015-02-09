@@ -44,6 +44,7 @@
 
 // Boost header files go here
 #include <boost/shared_ptr.hpp>
+#include <boost/math/constants/constants.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
@@ -621,7 +622,7 @@ public:
 
 			case 2:
 				{
-					double phi = gr_l.uniform_real<double>(2*M_PI);
+					double phi = gr_l.uniform_real<double>(2*boost::math::constants::pi<double>());
 					tS->Input[0] = local_radius*sin(phi); // x
 					tS->Input[1] = local_radius*cos(phi); // y
 
@@ -641,9 +642,9 @@ public:
 					std::size_t nAngles = nDim - 1;
 					std::vector<double> angle_collection(nAngles);
 					for(std::size_t i=0; i<(nAngles-1); i++){ // Angles in range [0,Pi[
-						angle_collection[i]=gr_l.uniform_real<double>(M_PI);
+						angle_collection[i]=gr_l.uniform_real<double>(boost::math::constants::pi<double>());
 					}
-					angle_collection[nAngles-1]=gr_l.uniform_real<double>(2.*M_PI); // Range of last angle is [0, 2.*Pi[
+					angle_collection[nAngles-1]=gr_l.uniform_real<double>(2.*boost::math::constants::pi<double>()); // Range of last angle is [0, 2.*Pi[
 
 					//////////////////////////////////////////////////////////////////
 					// Now we can fill the source-vector itself
