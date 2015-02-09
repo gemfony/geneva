@@ -55,7 +55,7 @@ namespace Common {
  * through specializations.
  */
 template <typename T>
-BOOST_SYMBOL_EXPORT
+G_API
 T GDefaultValueT() {
 	return T(0);
 }
