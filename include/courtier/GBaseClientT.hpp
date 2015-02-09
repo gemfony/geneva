@@ -159,7 +159,7 @@ public:
          << e.what()
          << GEXCEPTION;
 		}
-		catch(boost::exception& e){
+		catch(boost::exception&){
 		   glogger
 		   << "In GBaseClientT<T>::run(): Caught boost::exception" << std::endl
 			<< GEXCEPTION;
