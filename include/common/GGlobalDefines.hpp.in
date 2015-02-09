@@ -54,7 +54,7 @@
 #include <boost/version.hpp>
 
 /** Care for symbols to be exported */
-#ifdef GEM_DYNAMIC && GEM_DYNAMIC != 0
+#if defined GEM_DYNAMIC && (GEM_DYNAMIC != 0)
 #ifdef GEM_LIBRARIES_EXPORTS
 #define G_API BOOST_SYMBOL_EXPORT
 #else
