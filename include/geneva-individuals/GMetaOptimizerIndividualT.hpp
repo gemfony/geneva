@@ -365,7 +365,7 @@ public:
 
       comment = ""; // Reset the comment string
       comment += "The maximum number of iterations per sub-optimization";
-      gpb.registerFileParameter<std::size_t>(
+      gpb.registerFileParameter<boost::uint32_t>(
          "iterationThreshold" // The name of the variable
          , GMETAOPT_DEF_ITERATIONTHRESHOLD // The default value
          , boost::bind(
