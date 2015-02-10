@@ -149,7 +149,7 @@ void producer(
 	Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY> gr; // A random number proxy
 
 	// Find out about the maximum random delay in microseconds
-	boost::posix_time::time_duration::tick_type maxRandomDelayMS = maxRandomDelay.total_microseconds();
+	long maxRandomDelayMS = maxRandomDelay.total_microseconds();
 
 	// Find out about the id of this producer
 	{
