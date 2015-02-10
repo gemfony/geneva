@@ -157,74 +157,6 @@ MACRO (
 ENDMACRO()
 
 ###############################################################################
-# Assigns an id to a given standard string
-#
-# 0 means cxx98
-# 1 means cxx11
-# 2 means cxx14
-#
-FUNCTION (
-	GET_STANDARD_ID
-	GENEVA_CXX_STANDARD_STRING_IN
-	GENEVA_CXX_STANDARD_ID_OUT
-)
-
-	#--------------------------------------------------------------------------
-	IF (${GENEVA_CXX_STANDARD_STRING_IN} MATCHES "cxx14")
-		SET(${GENEVA_CXX_STANDARD_ID_OUT} "2" PARENT_SCOPE)
-	ELSEIF (${GENEVA_CXX_STANDARD_STRING_IN} MATCHES "cxx11")
-		SET(${GENEVA_CXX_STANDARD_ID_OUT} "1" PARENT_SCOPE)
-	ELSEIF (${GENEVA_CXX_STANDARD_STRING_IN} MATCHES "cxx98")
-		SET(${GENEVA_CXX_STANDARD_ID_OUT} "0" PARENT_SCOPE)
-	ELSE()
-		MESSAGE(FATAL_ERROR "Requested C++ standard GENEVA_CXX_STD=${GENEVA_CXX_STANDARD_STRING_IN}"
-			" is not supported!")
-	ENDIF()
-	#--------------------------------------------------------------------------
-
-ENDFUNCTION()
-
-###############################################################################
-# Checks if a desired c++ standard string matches the minimum required and
-# the maximum supported version
-#
-FUNCTION (
-	CHECK_DESIRED_CXX_STANDARD
-	GENEVA_CXX_DESIRED_STANDARD_IN
-	GENEVA_CXX_MIN_REQUIRED_STANDARD_IN
-	GENEVA_CXX_MAX_SUPPORTED_STANDARD_IN
-	GENEVA_CXX_DESIRED_STANDARD_SUPPORTED_OUT
-)
-
-	#--------------------------------------------------------------------------
-	# Transform the two strings into numeric ids
-	GET_STANDARD_ID(${GENEVA_CXX_DESIRED_STANDARD_IN} GENEVA_CXX_DESIRED_STANDARD_NUMERIC)
-	GET_STANDARD_ID(${GENEVA_CXX_MIN_REQUIRED_STANDARD_IN} GENEVA_CXX_MIN_REQUIRED_STANDARD_NUMERIC)
-	GET_STANDARD_ID(${GENEVA_CXX_MAX_SUPPORTED_STANDARD_IN} GENEVA_CXX_MAX_SUPPORTED_STANDARD_NUMERIC)
-
-	# Check that the compiler maximum supported standard is at least equal
-	# to the minimum standard required by Geneva
-	IF(${GENEVA_CXX_MAX_SUPPORTED_STANDARD_NUMERIC} LESS ${GENEVA_CXX_MIN_REQUIRED_STANDARD_NUMERIC})
-		MESSAGE(FATAL_ERROR "The maximum C++ standard supported by your"
-			" compiler (${GENEVA_CXX_MAX_SUPPORTED_STANDARD_IN})"
-			" is older than the minimum standard required to compile"
-			" Geneva (${GENEVA_MIN_CXX_STANDARD_IN})!")
-	ENDIF()
-
-	# Compare the three numbers. The desired standard may not be lower
-	# than the minimum required, nor higher than the maximum supported value.
-	IF((${GENEVA_CXX_DESIRED_STANDARD_NUMERIC} LESS ${GENEVA_CXX_MIN_REQUIRED_STANDARD_NUMERIC})
-	   OR
-	   (${GENEVA_CXX_MAX_SUPPORTED_STANDARD_NUMERIC} LESS ${GENEVA_CXX_DESIRED_STANDARD_NUMERIC}))
-		SET(${GENEVA_CXX_DESIRED_STANDARD_SUPPORTED_OUT} "unsupported" PARENT_SCOPE)
-	ELSE()
-		SET(${GENEVA_CXX_DESIRED_STANDARD_SUPPORTED_OUT} "supported" PARENT_SCOPE)
-	ENDIF()
-	#--------------------------------------------------------------------------
-
-ENDFUNCTION()
-
-###############################################################################
 # Identifies the operating system and version of the host system
 #
 FUNCTION (
@@ -370,6 +302,116 @@ FUNCTION (
 ENDFUNCTION()
 
 ###############################################################################
+# Assigns an id to a given standard string
+#
+# 0 means cxx98
+# 1 means cxx11
+# 2 means cxx14
+#
+FUNCTION (
+	GET_STANDARD_ID
+	GENEVA_CXX_STANDARD_STRING_IN
+	GENEVA_CXX_STANDARD_ID_OUT
+)
+
+	#--------------------------------------------------------------------------
+	IF (${GENEVA_CXX_STANDARD_STRING_IN} MATCHES "cxx14")
+		SET(${GENEVA_CXX_STANDARD_ID_OUT} "2" PARENT_SCOPE)
+	ELSEIF (${GENEVA_CXX_STANDARD_STRING_IN} MATCHES "cxx11")
+		SET(${GENEVA_CXX_STANDARD_ID_OUT} "1" PARENT_SCOPE)
+	ELSEIF (${GENEVA_CXX_STANDARD_STRING_IN} MATCHES "cxx98")
+		SET(${GENEVA_CXX_STANDARD_ID_OUT} "0" PARENT_SCOPE)
+	ELSE()
+		MESSAGE(FATAL_ERROR "Requested C++ standard GENEVA_CXX_STD=${GENEVA_CXX_STANDARD_STRING_IN}"
+			" is not supported!")
+	ENDIF()
+	#--------------------------------------------------------------------------
+
+ENDFUNCTION()
+
+###############################################################################
+# Checks if a desired c++ standard string matches the minimum required and
+# the maximum supported version
+#
+FUNCTION (
+	CHECK_DESIRED_CXX_STANDARD
+	GENEVA_CXX_DESIRED_STANDARD_IN
+	GENEVA_CXX_MIN_REQUIRED_STANDARD_IN
+	GENEVA_CXX_MAX_SUPPORTED_STANDARD_IN
+	GENEVA_CXX_DESIRED_STANDARD_SUPPORTED_OUT
+)
+
+	#--------------------------------------------------------------------------
+	# Transform the two strings into numeric ids
+	GET_STANDARD_ID(${GENEVA_CXX_DESIRED_STANDARD_IN} GENEVA_CXX_DESIRED_STANDARD_NUMERIC)
+	GET_STANDARD_ID(${GENEVA_CXX_MIN_REQUIRED_STANDARD_IN} GENEVA_CXX_MIN_REQUIRED_STANDARD_NUMERIC)
+	GET_STANDARD_ID(${GENEVA_CXX_MAX_SUPPORTED_STANDARD_IN} GENEVA_CXX_MAX_SUPPORTED_STANDARD_NUMERIC)
+
+	# Check that the compiler maximum supported standard is at least equal
+	# to the minimum standard required by Geneva
+	IF(${GENEVA_CXX_MAX_SUPPORTED_STANDARD_NUMERIC} LESS ${GENEVA_CXX_MIN_REQUIRED_STANDARD_NUMERIC})
+		MESSAGE(FATAL_ERROR "The maximum C++ standard supported by your"
+			" compiler (${GENEVA_CXX_MAX_SUPPORTED_STANDARD_IN})"
+			" is older than the minimum standard required to compile"
+			" Geneva (${GENEVA_MIN_CXX_STANDARD_IN})!")
+	ENDIF()
+
+	# Compare the three numbers. The desired standard may not be lower
+	# than the minimum required, nor higher than the maximum supported value.
+	IF((${GENEVA_CXX_DESIRED_STANDARD_NUMERIC} LESS ${GENEVA_CXX_MIN_REQUIRED_STANDARD_NUMERIC})
+	   OR
+	   (${GENEVA_CXX_MAX_SUPPORTED_STANDARD_NUMERIC} LESS ${GENEVA_CXX_DESIRED_STANDARD_NUMERIC}))
+		SET(${GENEVA_CXX_DESIRED_STANDARD_SUPPORTED_OUT} "unsupported" PARENT_SCOPE)
+	ELSE()
+		SET(${GENEVA_CXX_DESIRED_STANDARD_SUPPORTED_OUT} "supported" PARENT_SCOPE)
+	ENDIF()
+	#--------------------------------------------------------------------------
+
+ENDFUNCTION()
+
+################################################################################
+# Determines the actual standard to be used, depending on the desired, the
+# minimum required, and the maximum available standards
+#
+# The following cases exist:
+# - The maximum supported standard is < the desired standard --> raise an error
+# - The maximum supported standard is >= the desired standard --> set the desired standard
+# - The auto-flag will set the compilation mode to the highest supported standard
+#
+FUNCTION (
+	GET_ACTUAL_CXX_STANDARD
+	GENEVA_CXX_DESIRED_STANDARD_IN
+	GENEVA_MIN_CXX_STANDARD_IN
+	GENEVA_MAX_CXX_STANDARD_IN
+	GENEVA_ACTUAL_CXX_STANDARD_OUT
+)
+
+	#--------------------------------------------------------------------------
+	IF(${GENEVA_CXX_DESIRED_STANDARD_IN} STREQUAL "auto")
+		# Just assign the maximum supported standard
+		SET(${GENEVA_ACTUAL_CXX_STANDARD_OUT} "${GENEVA_MAX_CXX_STANDARD_IN}" PARENT_SCOPE)
+	ELSE()
+		# Check that the desired C++ standard is indeed supported
+		CHECK_DESIRED_CXX_STANDARD (
+			${GENEVA_CXX_DESIRED_STANDARD_IN}
+			${GENEVA_MIN_CXX_STANDARD_IN}
+			${GENEVA_MAX_CXX_STANDARD_IN}
+			GENEVA_CXX_DESIRED_STANDARD_SUPPORTED
+		)
+
+		IF(${GENEVA_CXX_DESIRED_STANDARD_SUPPORTED} STREQUAL "unsupported")
+			MESSAGE(FATAL_ERROR "The requested C++ standard (${GENEVA_CXX_DESIRED_STANDARD_IN})"
+				" is incompatible with the minimum required (${GENEVA_MIN_CXX_STANDARD_IN}),"
+				" or the maximum supported standards (${GENEVA_MAX_CXX_STANDARD_IN})!")
+		ENDIF()
+
+		SET(${GENEVA_ACTUAL_CXX_STANDARD_OUT} "${GENEVA_CXX_DESIRED_STANDARD_IN}" PARENT_SCOPE)
+	ENDIF()
+	#--------------------------------------------------------------------------
+
+ENDFUNCTION()
+
+###############################################################################
 # Retrieves the correct flag for a given C++ standard, based on the compiler
 #
 FUNCTION (
@@ -415,48 +457,6 @@ FUNCTION (
 		ENDIF()
 	ELSE()
 		SET(${GENEVA_CXX_STANDARD_SWITCH_OUT} "${NONE_DEF_STANDARD_FLAG}" PARENT_SCOPE)
-	ENDIF()
-	#--------------------------------------------------------------------------
-
-ENDFUNCTION()
-
-################################################################################
-# Determines the actual standard to be used, depending on the desired, the
-# minimum required, and the maximum available standards
-#
-# The following cases exist:
-# - The maximum supported standard is < the desired standard --> raise an error
-# - The maximum supported standard is >= the desired standard --> set the desired standard
-# - The auto-flag will set the compilation mode to the highest supported standard
-#
-FUNCTION (
-	GET_ACTUAL_CXX_STANDARD
-	GENEVA_CXX_DESIRED_STANDARD_IN
-	GENEVA_MIN_CXX_STANDARD_IN
-	GENEVA_MAX_CXX_STANDARD_IN
-	GENEVA_ACTUAL_CXX_STANDARD_OUT
-)
-
-	#--------------------------------------------------------------------------
-	IF(${GENEVA_CXX_DESIRED_STANDARD_IN} STREQUAL "auto")
-		# Just assign the maximum supported standard
-		SET(${GENEVA_ACTUAL_CXX_STANDARD_OUT} "${GENEVA_MAX_CXX_STANDARD_IN}" PARENT_SCOPE)
-	ELSE()
-		# Check that the desired C++ standard is indeed supported
-		CHECK_DESIRED_CXX_STANDARD (
-			${GENEVA_CXX_DESIRED_STANDARD_IN}
-			${GENEVA_MIN_CXX_STANDARD_IN}
-			${GENEVA_MAX_CXX_STANDARD_IN}
-			GENEVA_CXX_DESIRED_STANDARD_SUPPORTED
-		)
-
-		IF(${GENEVA_CXX_DESIRED_STANDARD_SUPPORTED} STREQUAL "unsupported")
-			MESSAGE(FATAL_ERROR "The requested C++ standard (${GENEVA_CXX_DESIRED_STANDARD_IN})"
-				" is incompatible with the minimum required (${GENEVA_MIN_CXX_STANDARD_IN}),"
-				" or the maximum supported standards (${GENEVA_MAX_CXX_STANDARD_IN})!")
-		ENDIF()
-
-		SET(${GENEVA_ACTUAL_CXX_STANDARD_OUT} "${GENEVA_CXX_DESIRED_STANDARD_IN}" PARENT_SCOPE)
 	ENDIF()
 	#--------------------------------------------------------------------------
 
