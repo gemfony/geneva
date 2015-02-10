@@ -42,7 +42,7 @@ INCLUDE(CheckCXXCompilerFlag)
 ###############################################################################
 # Global variables
 
-# clang settings
+# Clang settings
 SET(CLANG_DEF_IDENTIFIER "Clang")
 SET(CLANG_DEF_MIN_CXX11_VERSION "3.2")
 SET(CLANG_DEF_MIN_CXX14_VERSION "3.4")
@@ -50,7 +50,7 @@ SET(CLANG_DEF_CXX98_STANDARD_FLAG "-std=c++98")
 SET(CLANG_DEF_CXX11_STANDARD_FLAG "-std=c++11")
 SET(CLANG_DEF_CXX14_STANDARD_FLAG "-std=c++14")
 
-# gcc settings
+# GCC settings
 SET(GNU_DEF_IDENTIFIER "GNU")
 SET(GNU_DEF_MIN_CXX11_VERSION "4.7")
 SET(GNU_DEF_MIN_CXX14_VERSION "4.9")
@@ -64,7 +64,7 @@ SET(INTEL_DEF_CXX98_STANDARD_FLAG "-std=c++98")
 SET(INTEL_DEF_CXX11_STANDARD_FLAG "-std=c++11")
 SET(INTEL_DEF_CXX14_STANDARD_FLAG "-std=c++14")
 
-# MSVC settings
+# MS Visual C settings
 SET(MSVC_DEF_IDENTIFIER "MSVC")
 SET(MSVC_DEF_MIN_CXX11_VERSION "18.0")	# Aka MS Visual C++ 12.0, MS Visual Studio 2013, actually no full support...
 SET(MSVC_DEF_MIN_CXX14_VERSION "21.0")	# Hopeless at the moment...
@@ -76,9 +76,11 @@ SET(MSVC_DEF_CXX14_STANDARD_FLAG "")
 SET(NONE_DEF_STANDARD_FLAG "")
 
 ###############################################################################
-# Set the build type according to the GENEVA_BUILD_TYPE value, if defined.
-# Otherwise use CMAKE_BUILD_TYPE if defined, or use build type 'Debug'
-# as default.
+# Set the available build types for multi-config generators, and validate
+# and set the chosen build type in single-config generators. In this last
+# case the build type is set from the value of GENEVA_BUILD_TYPE if defined,
+# otherwise the value of CMAKE_BUILD_TYPE is used if defined, or the
+# value 'Debug' is used as default otherwise.
 #
 MACRO (
 	VALIDATE_BUILD_TYPE
@@ -204,8 +206,8 @@ FUNCTION (
 	# to the minimum standard required by Geneva
 	IF(${GENEVA_CXX_MAX_SUPPORTED_STANDARD_NUMERIC} LESS ${GENEVA_CXX_MIN_REQUIRED_STANDARD_NUMERIC})
 		MESSAGE(FATAL_ERROR "The maximum C++ standard supported by your"
-			" compiler (${GENEVA_CXX_MAX_SUPPORTED_STANDARD_NUMERIC})"
-			" is lower than the minimum standard required to compile"
+			" compiler (${GENEVA_CXX_MAX_SUPPORTED_STANDARD_IN})"
+			" is older than the minimum standard required to compile"
 			" Geneva (${GENEVA_MIN_CXX_STANDARD_IN})!")
 	ENDIF()
 
