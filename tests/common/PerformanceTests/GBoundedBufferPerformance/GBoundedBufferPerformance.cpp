@@ -149,7 +149,7 @@ void producer(
 	Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY> gr; // A random number proxy
 
 	// Find out about the maximum random delay in microseconds
-	long maxRandomDelayMS = maxRandomDelay.total_microseconds();
+	boost::posix_time::time_duration::tick_type maxRandomDelayMS = maxRandomDelay.total_microseconds();
 
 	// Find out about the id of this producer
 	{
@@ -394,9 +394,9 @@ int main(int argc, char**argv) {
 	}
 
 	// Initialize the global barrier so all threads start at a predefined time
-	all_sync_ptr = boost::shared_ptr<boost::barrier>(new boost::barrier(nProducers + nConsumers));
-	producer_sync_ptr = boost::shared_ptr<boost::barrier>(new boost::barrier(nProducers));
-	consumer_sync_ptr = boost::shared_ptr<boost::barrier>(new boost::barrier(nConsumers));
+	all_sync_ptr = boost::shared_ptr<boost::barrier>(new boost::barrier(boost::numeric_cast<unsigned int>(nProducers + nConsumers)));
+	producer_sync_ptr = boost::shared_ptr<boost::barrier>(new boost::barrier(boost::numeric_cast<unsigned int>(nProducers)));
+	consumer_sync_ptr = boost::shared_ptr<boost::barrier>(new boost::barrier(boost::numeric_cast<unsigned int>(nConsumers)));
 
 	// Note the start time
 	boost::posix_time::ptime startTime = boost::posix_time::microsec_clock::local_time();
