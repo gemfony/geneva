@@ -225,7 +225,7 @@ FUNCTION (
 ENDFUNCTION()
 
 ###############################################################################
-# Tries to identify the operating system and version of the host system
+# Identifies the operating system and version of the host system
 #
 FUNCTION (
 	FIND_HOST_OS
@@ -307,6 +307,10 @@ FUNCTION (
 	ENDIF()
 
 	#--------------------------------------------------------------------------
+	# Set the external compiler version
+	SET(${GENEVA_COMPILER_VERSION_OUT} "${GENEVA_COMPILER_VERSION_LOCAL}" PARENT_SCOPE)
+
+	#--------------------------------------------------------------------------
 	# Find out about the maximum C++ standard that is supported
 	IF (${CMAKE_CXX_COMPILER_ID} STREQUAL ${CLANG_DEF_IDENTIFIER})
 		# We assume that the compiler fully supports a given standard when it
@@ -320,9 +324,9 @@ FUNCTION (
 		# may change over time.
 		CHECK_CXX_COMPILER_FLAG("${CLANG_DEF_CXX11_STANDARD_FLAG}" COMPILER_SUPPORTS_CXX11)
 		CHECK_CXX_COMPILER_FLAG("${CLANG_DEF_CXX14_STANDARD_FLAG}" COMPILER_SUPPORTS_CXX14)
-		IF(COMPILER_SUPPORTS_CXX14)
+		IF(COMPILER_SUPPORTS_CXX14 AND NOT ${GENEVA_COMPILER_VERSION_LOCAL} VERSION_LESS ${CLANG_DEF_MIN_CXX14_VERSION})
 			SET(${GENEVA_MAX_CXX_STANDARD_OUT} "cxx14" PARENT_SCOPE)
-		ELSEIF(COMPILER_SUPPORTS_CXX11)
+		ELSEIF(COMPILER_SUPPORTS_CXX11 AND NOT ${GENEVA_COMPILER_VERSION_LOCAL} VERSION_LESS ${CLANG_DEF_MIN_CXX11_VERSION})
 			SET(${GENEVA_MAX_CXX_STANDARD_OUT} "cxx11" PARENT_SCOPE)
 		ELSE()
 			SET(${GENEVA_MAX_CXX_STANDARD_OUT} "cxx98" PARENT_SCOPE)
@@ -361,11 +365,6 @@ FUNCTION (
 		SET(${GENEVA_MAX_CXX_STANDARD_OUT} "unknown" PARENT_SCOPE)
 	ENDIF()
 	MESSAGE ("")
-
-	#--------------------------------------------------------------------------
-	# Set the external compiler version
-	SET(${GENEVA_COMPILER_VERSION_OUT} "${GENEVA_COMPILER_VERSION_LOCAL}" PARENT_SCOPE)
-
 	#--------------------------------------------------------------------------
 
 ENDFUNCTION()
