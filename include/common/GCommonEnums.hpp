@@ -39,6 +39,9 @@
 #include <string>
 #include <istream>
 #include <ostream>
+#include <cstdio>
+#include <cstdlib>
+#include <csignal>
 
 // Boost headers go here
 
@@ -49,6 +52,17 @@
 #define GCOMMONENUMS_HPP_
 
 // Geneva headers go here
+
+/******************************************************************************/
+/**
+ * We need local signals, so we can act both on Windows and POSIX-OSs
+ */ 
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#define G_SIGHUP CTRL_BREAK_EVENT
+#else
+#define G_SIGHUP SIGHUP
+#endif
+/******************************************************************************/
 
 namespace Gem {
 namespace Common {

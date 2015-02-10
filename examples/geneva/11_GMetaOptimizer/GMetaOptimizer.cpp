@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
    //---------------------------------------------------------------------------
    // As we are dealing with a server, register a signal handler that allows us
    // to interrupt execution "on the run"
-   signal(SIGHUP, GObject::sigHupHandler);
+   signal(G_SIGHUP, GObject::sigHupHandler);
 
    //---------------------------------------------------------------------------
    // Create a factory for GFunctionIndividual objects and perform

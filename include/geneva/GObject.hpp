@@ -283,11 +283,7 @@ public:
 	 * both for Windows and Unix-Systems.
 	 */
 	static void sigHupHandler(int signum) {
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-	   if(CTRL_BREAK_EVENT == signum) {
-#else
-	   if(SIGHUP == signum) {
-#endif
+	   if(G_SIGHUP == signum) {
 	      GObject::GenevaSigHupSent = 1;
 	   }
 	}
