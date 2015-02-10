@@ -2420,7 +2420,7 @@ public:
       , const parameter_type& def_val
       , const std::string& comment = std::string()
       , bool implicitAllowed=GCL_IMPLICIT_NOT_ALLOWED
-      , parameter_type impl_val = Gem::Common::GDefaultValueT<parameter_type>()
+      , parameter_type impl_val = typename Gem::Common::GDefaultValueT<parameter_type>()
    ) {
 #ifdef DEBUG
       // Check whether the option already exists
