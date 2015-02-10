@@ -257,7 +257,7 @@ int main(int argc, char **argv) {
 
 	boost::array<int,ARRAYSIZE> defValArray;
 	for(std::size_t i=0; i<ARRAYSIZE; i++) { // Set the default values
-		defValArray[i] = i;
+		defValArray[i] = boost::numeric_cast<int>(i);
 	}
 
    if(useOperator) {
