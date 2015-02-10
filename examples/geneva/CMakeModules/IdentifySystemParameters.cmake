@@ -614,7 +614,7 @@ FUNCTION (
 	ELSEIF(GENEVA_COMPILER_NAME_IN MATCHES ${MSVC_DEF_IDENTIFIER})
 		SET (
 			GENEVA_COMPILER_FLAGS
-			"${GENEVA_COMPILER_FLAGS} /BIGOBJ"
+			"${GENEVA_COMPILER_FLAGS} /bigobj"
 		)
 
 	#*****************************************************************
