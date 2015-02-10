@@ -612,7 +612,10 @@ FUNCTION (
 
 	#*****************************************************************
 	ELSEIF(${GENEVA_COMPILER_NAME_IN} MATCHES ${MSVC_DEF_IDENTIFIER})
-		# No special provisions yet
+		SET (
+			GENEVA_COMPILER_FLAGS
+			"${GENEVA_COMPILER_FLAGS} /BIGOBJ"
+		)
 
 	#*****************************************************************
 	ELSE()  # Unknown compiler / default setting

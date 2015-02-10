@@ -612,7 +612,10 @@ FUNCTION (
 
 	#*****************************************************************
 	ELSEIF(${GENEVA_COMPILER_NAME_IN} MATCHES ${MSVC_DEF_IDENTIFIER})
-		# No special provisions yet
+		SET (
+			GENEVA_COMPILER_FLAGS
+			"${GENEVA_COMPILER_FLAGS} /BIGOBJ"
+		)
 
 	#*****************************************************************
 	ELSE()  # Unknown compiler / default setting
@@ -715,7 +718,7 @@ FUNCTION (
 			MESSAGE("###################################################################")
 			MESSAGE("# Dynamic linking is currently not supported by Geneva on Windows #")
 			MESSAGE("###################################################################")
-			MESSAGE(FATAL_ERROR "Unsupported platform!")
+			# MESSAGE(FATAL_ERROR "Unsupported platform!")
 		ENDIF()
 
 	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "unsupported")
