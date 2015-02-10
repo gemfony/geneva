@@ -317,7 +317,7 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//----------------------------------------------------------------------------
 
 	{ // Check construction with a number of object templates
-		boost::shared_ptr<GBooleanObject> gbo_ptr(new GBooleanObject(Gem::Common::GDefaultValueT<bool>()));
+		boost::shared_ptr<GBooleanObject> gbo_ptr(new GBooleanObject(Gem::Common::GDefaultValueT<bool>::value()));
 		GBooleanObjectCollection gboc(nTests, gbo_ptr);
 
 		BOOST_CHECK_MESSAGE(
@@ -329,10 +329,10 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 		for(std::size_t i=0; i<nTests; i++) {
 			BOOST_CHECK_MESSAGE(
-					gboc.at(i)->value() == Gem::Common::GDefaultValueT<bool>()
+					gboc.at(i)->value() == Gem::Common::GDefaultValueT<bool>::value()
 					, "\n"
 					<< "gboc.at(" << i << ")->value() = " << gboc.at(i)->value()
-					<< "Gem::Common::GDefaultValueT<bool>() = " << Gem::Common::GDefaultValueT<bool>()
+					<< "Gem::Common::GDefaultValueT<bool>::value() = " << Gem::Common::GDefaultValueT<bool>::value()
 			);
 		}
 	}

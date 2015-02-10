@@ -80,7 +80,7 @@ public:
 	/** The default constructor */
 	GParameterT()
 	   : GParameterBaseWithAdaptorsT<T>()
-	   , val_(Gem::Common::GDefaultValueT<T>())
+	   , val_(Gem::Common::GDefaultValueT<T>::value())
 	{ /* nothing */ }
 
    /***************************************************************************/
@@ -106,7 +106,7 @@ public:
       , const T& upperBoundary
    )
       : GParameterBaseWithAdaptorsT<T>(lowerBoundary, upperBoundary)
-      , val_(Gem::Common::GDefaultValueT<T>())
+      , val_(Gem::Common::GDefaultValueT<T>::value())
    { /* nothing */   }
 
    /***************************************************************************/

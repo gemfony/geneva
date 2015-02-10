@@ -439,10 +439,10 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 	{ // Test default constructor
 		GBooleanObject gbo;
 		BOOST_CHECK_MESSAGE (
-				gbo.value() == Gem::Common::GDefaultValueT<bool>()
+				gbo.value() == Gem::Common::GDefaultValueT<bool>::value()
 				, "\n"
 				<< "gbo.value() = " << gbo.value()
-				<< "DEFBOVAL = " << Gem::Common::GDefaultValueT<bool>()
+				<< "DEFBOVAL = " << Gem::Common::GDefaultValueT<bool>::value()
 		);
 	}
 

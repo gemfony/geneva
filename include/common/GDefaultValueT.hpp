@@ -55,18 +55,33 @@ namespace Common {
  * through specializations.
  */
 template <typename T>
-G_API
-T GDefaultValueT() {
-	return T(0);
-}
+struct G_API GDefaultValueT {
+   static T value() {
+      return T(0);
+   }
+};
 
 /******************************************************************************/
-/** @brief A specialization for the bool type */
-template <> bool GDefaultValueT<bool>();
+/**
+ * Specialization for T == bool
+ */
+template <>
+struct G_API GDefaultValueT<bool> {
+   static bool value() {
+      return true;
+   }
+};
 
-/** @brief A specialization for the std::string type */
-template <> std::string GDefaultValueT<std::string>();
-
+/******************************************************************************/
+/**
+ * Specialization for T == std::string
+ */
+template <>
+struct G_API GDefaultValueT<std::string> {
+   static std::string value() {
+      return std::string();
+   }
+};
 /******************************************************************************/
 
 } /* namespace Common */
