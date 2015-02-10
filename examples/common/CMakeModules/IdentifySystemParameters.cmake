@@ -633,7 +633,7 @@ FUNCTION (
 ENDFUNCTION()
 
 ###############################################################################
-# Tries to determine other build flags for this platform and compiler.
+# Determine other build flags for this platform and compiler
 #
 FUNCTION (
 	GET_BUILD_FLAGS

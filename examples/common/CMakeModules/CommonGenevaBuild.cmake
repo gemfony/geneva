@@ -247,7 +247,7 @@ FIND_PACKAGE(
 )
 MESSAGE("")
 
-# Add compile-time diagnostic information about Boost's automatic linking
+# Add compile-time debug information about Boost's linked libraries
 IF(WIN32)
 	ADD_DEFINITIONS(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
 ENDIF()
@@ -278,10 +278,10 @@ SET (
 SET ( GENEVA_LIBRARIES ${GENEVA_LIBNAMES} )
 
 ################################################################################
-# The MPI mode is currently only supported under Linux and BSD
+# Setup the MPI mode if required
 
 IF( GENEVA_WITH_MPI )
-	IF( UNIX AND NOT "${GENEVA_OS_NAME}" MATCHES "MacOSX" )
+	IF( UNIX AND NOT ${GENEVA_OS_NAME} MATCHES "MacOSX" )
 		# Search for MPI libraries and headers
 		FIND_PACKAGE(MPI)
 
@@ -299,15 +299,13 @@ ENDIF()
 # Add additional libraries and compiler flags
 
 IF(UNIX)
-	#---------------------------------------------------------------------------
-	IF("${GENEVA_OS_NAME}" MATCHES "MacOSX")
+	IF(${GENEVA_OS_NAME} MATCHES "MacOSX")
 		SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++")
 		IF( NOT GENEVA_STATIC )
 			SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -stdlib=libstdc++")
 		ENDIF()
 	ENDIF()
 
-	#---------------------------------------------------------------------------
 	FIND_LIBRARY( PTHREAD_LIBRARY NAMES pthread
 		DOC "The threading library needed by Geneva"
 	)
@@ -319,7 +317,6 @@ IF(UNIX)
 			DOC "The z library needed for statically linking Geneva"
 		)
 	ENDIF()
-	#---------------------------------------------------------------------------
 ELSEIF(WIN32)
 	# Nothing yet
 ENDIF()
@@ -366,9 +363,7 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 			             " Please set GENEVA_BUILD_TESTS=FALSE .")
 	ENDIF ()
 
-	INCLUDE_DIRECTORIES (
-		${GENEVA_INCLUDE_DIR}
-	)
+	INCLUDE_DIRECTORIES(${GENEVA_INCLUDE_DIR})
 
 ENDIF ()
 
@@ -377,7 +372,8 @@ ENDIF ()
 
 IF (GENEVA_FULL_TREE_BUILD)
 
-	IF (INSTALL_PREFIX_INCLUDES AND INSTALL_PREFIX_LIBS AND INSTALL_PREFIX_DOCS AND INSTALL_PREFIX_DATA)
+	IF (INSTALL_PREFIX_INCLUDES AND INSTALL_PREFIX_LIBS
+			AND INSTALL_PREFIX_DOCS AND INSTALL_PREFIX_DATA)
 		# All are set, we ignore CMAKE_INSTALL_PREFIX and install
 		# each kind of files in its own location
 		SET( INFO_INSTALL_PREFIX                       "\n\t\t(libs)\t\t${INSTALL_PREFIX_LIBS}" )
