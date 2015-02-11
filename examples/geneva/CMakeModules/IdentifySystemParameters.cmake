@@ -540,8 +540,8 @@ FUNCTION (
 	#*****************************************************************
 	ELSEIF(GENEVA_COMPILER_NAME_IN MATCHES ${MSVC_DEF_IDENTIFIER})
 
-		# Compiling in debug mode requires bigger object resources
-		SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj" PARENT_SCOPE)
+		# Compiling the most involved classes requires bigger object resources
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj" PARENT_SCOPE)
 
 	ENDIF()
 	#--------------------------------------------------------------------------
