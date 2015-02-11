@@ -101,7 +101,7 @@ public:
    GMultiPopulationEAT(const std::size_t& nThreads)
       : GBaseParChildT<oa_type>()
       , smodeMP_(DEFAULTSMODEMP)
-      , nThreads_(nThreads?nThreads:(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS))))
+      , nThreads_(nThreads?nThreads:(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS))))
    {
       // Note: We do not currently register a custom optimization monitor.
       // A basic monitor has already been registered inside of GOptimizationMonitorT

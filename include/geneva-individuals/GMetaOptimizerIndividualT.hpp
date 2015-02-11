@@ -651,7 +651,12 @@ public:
       gifa_ptr->setAdaptionProbability(1.);
 
       boost::shared_ptr<GConstrainedInt32Object>
-         npar_ptr(new GConstrainedInt32Object(boost::numeric_cast<boost::int32_t>(initNParents), nParents_LB, nParents_UB));
+         npar_ptr(new GConstrainedInt32Object(
+               boost::numeric_cast<boost::int32_t>(initNParents)
+               , boost::numeric_cast<boost::int32_t>(nParents_LB)
+               , boost::numeric_cast<boost::int32_t>(nParents_UB)
+            )
+      );
       npar_ptr->addAdaptor(gifa_ptr);
       npar_ptr->setParameterName("nParents");
 
@@ -673,7 +678,12 @@ public:
          )
       );
 
-      boost::shared_ptr<GConstrainedInt32Object> nch_ptr(new GConstrainedInt32Object(boost::numeric_cast<boost::int32_t>(initNChildren), nChildren_LB, nChildren_UB));
+      boost::shared_ptr<GConstrainedInt32Object> nch_ptr(new GConstrainedInt32Object(
+            boost::numeric_cast<boost::int32_t>(initNChildren)
+            , boost::numeric_cast<boost::int32_t>(nChildren_LB)
+            , boost::numeric_cast<boost::int32_t>(nChildren_UB)
+         )
+      );
       nch_ptr->addAdaptor(giga_ptr);
       nch_ptr->setParameterName("nChildren");
 

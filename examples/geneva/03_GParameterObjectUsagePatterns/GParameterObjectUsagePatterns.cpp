@@ -546,7 +546,7 @@ int main(int argc, char **argv) {
 
 		//-----------------------------------------------------
 		// Filling with data
-		for(boost::int32_t i=0.; i<100; i++) {
+		for(boost::int32_t i=0; i<100; i++) {
 			c1.push_back(i);
 		}
 

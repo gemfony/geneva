@@ -61,9 +61,7 @@ using namespace Gem::Hap;
  */
 int main(int argc, char **argv){
   std::string configFile;		  
-  bool serverMode;
   std::string ip;
-  unsigned short port;
   boost::uint16_t nEvaluationThreads;
   std::size_t populationSizeSuper;
   std::size_t nParentsSuper;
