@@ -44,6 +44,7 @@
 
 
 // Geneva headers go here
+#include "common/GTypeToStringT.hpp"
 #include "geneva/GParameterT.hpp"
 
 namespace Gem {
@@ -304,7 +305,7 @@ public:
    ) const OVERRIDE {
       ptr.put(baseName + ".name", this->getParameterName());
       ptr.put(baseName + ".type", this->name());
-      ptr.put(baseName + ".baseType", this->baseType());
+      ptr.put(baseName + ".baseType", Gem::Common::GTypeToStringT<T>::value());
       ptr.put(baseName + ".isLeaf", this->isLeaf());
       ptr.put(baseName + ".nVals", 1);
       ptr.put(baseName + ".values.value0", this->value());

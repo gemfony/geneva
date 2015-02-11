@@ -331,14 +331,6 @@ bool GParameterBase::modifiableAmMatchOrHandover(const activityMode& am) const {
 
 /***********************************************************************************/
 /**
- * Returns a human-readable name for the base type of derived objects
- */
-std::string GParameterBase::baseType() const {
-   return std::string("unknown");
-}
-
-/***********************************************************************************/
-/**
  * Lets the audience know whether this is a leaf or a branch object
  */
 bool GParameterBase::isLeaf() const {

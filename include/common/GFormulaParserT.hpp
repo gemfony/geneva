@@ -669,11 +669,9 @@ private:
     * @param vm A std::map of name-value pairs, holding place-holders to be replaced with values
     */
    std::string replacePlaceHolders(const parameter_map& vm) const {
-      using namespace boost::xpressive;
-
       std::string formula = raw_formula_;
       std::string key, value;
-      sregex re;
+      boost::xpressive::sregex re;
 
       typename parameter_map::const_iterator cit;
       for(cit=vm.begin(); cit!=vm.end(); ++cit) {
@@ -681,15 +679,15 @@ private:
 
          if(1 == (cit->second).size()) { // Try just the key
             value = boost::lexical_cast<std::string>((cit->second).at(0));
-            re = as_xpr("{{" + key + "}}");
-            formula = regex_replace(formula, re, value);
+            re = boost::xpressive::as_xpr("{{" + key + "}}");
+            formula = boost::xpressive::regex_replace(formula, re, value);
          } else if ((cit->second).size() > 1) { // Try key[0], key[1] --> you may use formulas with place holders sin({{x[2]}})
             std::size_t cnt = 0;
             typename std::vector<fp_type>::const_iterator v_cit;
             for(v_cit=(cit->second).begin(); v_cit!=(cit->second).end(); ++v_cit) {
                value = boost::lexical_cast<std::string>(*v_cit);
-               re = as_xpr("{{" + key + "[" + boost::lexical_cast<std::string>(cnt++) + "]" + "}}");
-               formula = regex_replace(formula, re, value);
+               re = boost::xpressive::as_xpr("{{" + key + "[" + boost::lexical_cast<std::string>(cnt++) + "]" + "}}");
+               formula = boost::xpressive::regex_replace(formula, re, value);
             }
          } else { // The vector is empty
             glogger

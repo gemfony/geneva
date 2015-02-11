@@ -139,8 +139,6 @@ class G_API GParameterSetFormulaConstraint: public GParameterSetConstraint
    }
    ///////////////////////////////////////////////////////////////////////
 public:
-   typedef std::map<std::string, double> parameter_map;
-
    /** @brief The default constructor */
    GParameterSetFormulaConstraint(std::string);
    /** @brief The copy constructor */

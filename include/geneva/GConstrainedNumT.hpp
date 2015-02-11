@@ -44,10 +44,11 @@
 #define GCONSTRAINEDNUMT_HPP_
 
 // Geneva headers go here
+#include "common/GExceptions.hpp"
+#include "common/GTypeToStringT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GParameterT.hpp"
 #include "geneva/GConstrainedValueLimitT.hpp"
-#include "common/GExceptions.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -552,7 +553,7 @@ public:
    ) const OVERRIDE {
       ptr.put(baseName + ".name", this->getParameterName());
       ptr.put(baseName + ".type", this->name());
-      ptr.put(baseName + ".baseType", this->baseType());
+      ptr.put(baseName + ".baseType", Gem::Common::GTypeToStringT<T>::value());
       ptr.put(baseName + ".isLeaf", this->isLeaf());
       ptr.put(baseName + ".nVals", 1);
       ptr.put(baseName + ".values.value0", this->value());

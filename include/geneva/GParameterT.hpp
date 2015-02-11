@@ -43,9 +43,10 @@
 #define GPARAMETERT_HPP_
 
 // Geneva header files go here
+#include "common/GTypeToStringT.hpp"
+#include "common/GExceptions.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GParameterBaseWithAdaptorsT.hpp"
-#include "common/GExceptions.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -293,21 +294,13 @@ public:
 	) const OVERRIDE {
       ptr.put(baseName + ".name", this->getParameterName());
       ptr.put(baseName + ".type", this->name());
-      ptr.put(baseName + ".baseType", this->baseType());
+      ptr.put(baseName + ".baseType", Gem::Common::GTypeToStringT<T>::value());
       ptr.put(baseName + ".isLeaf", this->isLeaf());
       ptr.put(baseName + ".nVals", 1);
       ptr.put(baseName + ".values.value0", this->value());
       ptr.put(baseName + ".initRandom", false); // Unused for the creation of a property tree
       ptr.put(baseName + ".adaptionsActive", this->adaptionsActive());
 	}
-
-   /***************************************************************************/
-   /**
-    * Returns a human-readable name for the base type of derived objects
-    */
-   virtual std::string baseType() const OVERRIDE {
-      return std::string("unknown");
-   }
 
    /***************************************************************************/
    /**
@@ -432,14 +425,6 @@ public:
 };
 
 /******************************************************************************/
-/** @brief Returns a human-readable name for the base type of derived objects */
-template<> std::string GParameterT<double>::baseType() const;
-/** @brief Returns a human-readable name for the base type of derived objects */
-template<> std::string GParameterT<float>::baseType() const;
-/** @brief Returns a human-readable name for the base type of derived objects */
-template<> std::string GParameterT<boost::int32_t>::baseType() const;
-/** @brief Returns a human-readable name for the base type of derived objects */
-template<> std::string GParameterT<bool>::baseType() const;
 
 } /* namespace Geneva */
 } /* namespace Gem */

@@ -207,15 +207,14 @@ protected:
 	 * @param value The bit value to be adapted
 	 * @param range A typical range for the parameter with type T (unused here)
 	 */
-	virtual void customAdaptions(
+	inline virtual void customAdaptions(
       num_type& value
       , const num_type& range
    ) OVERRIDE {
 		bool up = this->gr->uniform_bool();
 		if(up){
 			value += 1;
-		}
-		else {
+		} else {
 			value -= 1;
 		}
 	}
@@ -290,8 +289,13 @@ public:
 };
 
 /******************************************************************************/
-// Specialization for num_type == bool
-template <> void GNumFlipAdaptorT<bool>::customAdaptions(bool&, const bool&);
+/**
+ * Overload for num_type == bool . inline needed to satisfy MSVC restriction.
+ */
+template<>
+inline void GNumFlipAdaptorT<bool>::customAdaptions(bool& value, const bool& range) {
+   value==true?value=false:value=true;
+}
 
 /******************************************************************************/
 

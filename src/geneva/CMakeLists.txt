@@ -48,7 +48,6 @@ SET ( OPTIMIZATIONSOURCES
 	GMultiThreadedPS
 	GMultiThreadedSA
 	GMultiThreadedSwarm
-	GNumFlipAdaptorT
 	GNumT
 	GNumCollectionT
 	Go2
@@ -66,7 +65,6 @@ SET ( OPTIMIZATIONSOURCES
 	GParameterSetParChild
 	GParameterSetFixedSizePriorityQueue
 	GParameterSetMultiConstraint
-	GParameterT
 	GPersonalityTraits
 	GPSPersonalityTraits
 	GRateableI

@@ -39,6 +39,7 @@
 #include <string>
 
 // Boost headers go here
+#include <boost/cstdint.hpp>
 
 #ifndef INCLUDE_COMMON_GTYPETOSTRINGT_HPP_
 #define INCLUDE_COMMON_GTYPETOSTRINGT_HPP_
