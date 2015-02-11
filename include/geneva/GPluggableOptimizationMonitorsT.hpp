@@ -1440,7 +1440,7 @@ public:
             std::size_t maxNAdaptions = 0;
             for(it=nAdaptionsStore_.begin(); it!=nAdaptionsStore_.end(); ++it) {
                if(boost::get<1>(*it) > maxNAdaptions) {
-                  maxNAdaptions = boost::get<1>(*it);
+                  maxNAdaptions = boost::numeric_cast<std::size_t>(boost::get<1>(*it));
                }
             }
 
