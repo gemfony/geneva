@@ -1,5 +1,28 @@
 //------------------------------------------------------------------------------------------------------
-* Development version 1.5, to be released as version 1.6 when ready
+* Development version 1.7, to be released as version 2.0 when ready
+
+Wishlist:
+ - Drop C++98 support, and switch to rely on some features from the
+   C++11 standard. 
+ - A scripting interface to optimization algorithms, so that new
+   algorithms can be more easily implemented and tested even by
+   people not familiar with all of Geneva.
+ - A "Python-Individual", so that optimization algorithms may be
+   specified in Python.
+ - Additional optimization algorithms (particularly Simplex and
+   Conjugate Gradient).
+ - Variable length parents in evolutionary algorithms to better support
+   pareto optimization. Variable length best individuals for the same reason
+ - Make the build-system log whether the libraries were built with or
+   without test- and mpi-support, so independent builds may configure
+   themselves automatically.
+ - Automatic recreation and distribution of relevant configuration files.
+ - Make value ranges of parameter objects always closed, even for fp.
+ - Rework of the test infrastructure.
+ - Full integration of -fsanitize=X.
+
+//------------------------------------------------------------------------------------------------------
+* Version 1.6, "Ivrea" - February XX, 2015
 
 The main changes for this release include:
 
@@ -23,24 +46,6 @@ The main changes for this release include:
    now carried out as long double to preserve accuracy, where possible.
  - Added native support for MS Windows using the Visual C compiler
    (static libraries only, currently).
-
-Wishlist:
- - A scripting interface to optimization algorithms, so that new
-   algorithms can be more easily implemented and tested even by
-   people not familiar with all of Geneva.
- - A "Python-Individual", so that optimization algorithms may be
-   specified in Python.
- - Additional optimization algorithms (particularly Simplex and
-   Conjugate Gradient).
- - Variable length parents in evolutionary algorithms to better support
-   pareto optimization. Variable length best individuals for the same reason
- - Make the build-system log whether the libraries were built with or
-   without test- and mpi-support, so independent builds may configure
-   themselves automatically.
- - Automatic recreation and distribution of relevant configuration files.
- - Make value ranges of parameter objects always closed, even for fp.
- - Rework of the test infrastructure.
- - Full integration of -fsanitize=X.
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.4.1, "Fénis" - January 23, 2015
