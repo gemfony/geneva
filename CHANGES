@@ -38,14 +38,14 @@ The main changes for this release include:
 
 ********************************************************************************
 
+ - Added native, experimental support for MS Windows using the Visual C++ compiler
+   (static libraries only, currently).
  - Step sizes in Geneva's gradient descent implementation are now given
    in permille of the allowed or expected value range of the parameters. 
    Steps in each direction used to calculate the gradient are now scaled
    according to this value range.
  - Most calculations in Geneva's gradient descent implementation are
    now carried out as long double to preserve accuracy, where possible.
- - Added native support for MS Windows using the Visual C compiler
-   (static libraries only, currently).
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.4.1, "Fénis" - January 23, 2015
