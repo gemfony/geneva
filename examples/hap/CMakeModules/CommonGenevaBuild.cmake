@@ -60,15 +60,15 @@ IF( NOT DEFINED GENEVA_CXX_STD )
 ENDIF()
 
 IF( NOT DEFINED GENEVA_STATIC )
-	SET( GENEVA_STATIC 0 )
+	SET( GENEVA_STATIC FALSE )
 ENDIF()
 
 IF( NOT DEFINED GENEVA_WITH_MPI )
-	SET( GENEVA_WITH_MPI 0 )
+	SET( GENEVA_WITH_MPI FALSE )
 ENDIF()
 
 IF( NOT DEFINED CMAKE_VERBOSE_MAKEFILE )
-	SET( CMAKE_VERBOSE_MAKEFILE 0 )
+	SET( CMAKE_VERBOSE_MAKEFILE FALSE )
 ENDIF()
 
 ###############################################################################
@@ -123,23 +123,32 @@ FLAG_UNSUPPORTED_SETUPS(
 	${GENEVA_COMPILER_NAME}
 	${GENEVA_COMPILER_VERSION}
 	${GENEVA_ACTUAL_CXX_STANDARD}
+	${GENEVA_BUILD_TYPE}
 	${GENEVA_STATIC}
 )
 
 ################################################################################
-# Set up compiler flags and add them to the compiler definitions
+# Set the compiler and linker flags
 
-GET_COMPILER_FLAGS (
+SET_COMPILER_FLAGS (
 	${GENEVA_OS_NAME}
 	${GENEVA_OS_VERSION}
 	${GENEVA_COMPILER_NAME}
 	${GENEVA_COMPILER_VERSION}
 	${GENEVA_ACTUAL_CXX_STANDARD}
 	${GENEVA_BUILD_TYPE}
-	"GENEVA_COMPILER_FLAGS_OUT"
+	${GENEVA_STATIC}
 )
 
-ADD_DEFINITIONS("${GENEVA_COMPILER_FLAGS_OUT}")
+SET_LINKER_FLAGS (
+	${GENEVA_OS_NAME}
+	${GENEVA_OS_VERSION}
+	${GENEVA_COMPILER_NAME}
+	${GENEVA_COMPILER_VERSION}
+	${GENEVA_ACTUAL_CXX_STANDARD}
+	${GENEVA_BUILD_TYPE}
+	${GENEVA_STATIC}
+)
 
 ################################################################################
 # Set other necessary build flags
@@ -151,6 +160,7 @@ GET_BUILD_FLAGS (
 	${GENEVA_COMPILER_VERSION}
 	${GENEVA_ACTUAL_CXX_STANDARD}
 	${GENEVA_BUILD_TYPE}
+	${GENEVA_STATIC}
 	"PLATFORM_NEEDS_LIBRARY_LINKING"
 )
 
@@ -296,16 +306,9 @@ IF( GENEVA_WITH_MPI )
 ENDIF()
 
 ################################################################################
-# Add additional libraries and compiler flags
+# Add additional libraries if required
 
 IF(UNIX)
-	IF(${GENEVA_OS_NAME} MATCHES "MacOSX")
-		SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++")
-		IF( NOT GENEVA_STATIC )
-			SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -stdlib=libstdc++")
-		ENDIF()
-	ENDIF()
-
 	FIND_LIBRARY( PTHREAD_LIBRARY NAMES pthread
 		DOC "The threading library needed by Geneva"
 	)
@@ -317,8 +320,6 @@ IF(UNIX)
 			DOC "The z library needed for statically linking Geneva"
 		)
 	ENDIF()
-ELSEIF(WIN32)
-	# Nothing yet
 ENDIF()
 
 ################################################################################

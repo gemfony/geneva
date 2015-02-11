@@ -456,6 +456,7 @@ FUNCTION (
 			SET(${GENEVA_CXX_STANDARD_SWITCH_OUT} "${MSVC_DEF_CXX98_STANDARD_FLAG}" PARENT_SCOPE)
 		ENDIF()
 	ELSE()
+		# Unsupported compiler
 		SET(${GENEVA_CXX_STANDARD_SWITCH_OUT} "${NONE_DEF_STANDARD_FLAG}" PARENT_SCOPE)
 	ENDIF()
 	#--------------------------------------------------------------------------
@@ -463,178 +464,117 @@ FUNCTION (
 ENDFUNCTION()
 
 ################################################################################
-# Tries to determine linker and compiler flags for this platform and compiler.
-#
-# GENEVA_OS_NAME_IN  the type of the host OS
-# GENEVA_OS_VERSION_IN the version of the host OS
-# GENEVA_COMPILER_NAME_IN the name of the compiler to be used
-# GENEVA_COMPILER_VERSION_IN the version of the compiler to be used
-# GENEVA_ACTUAL_CXX_STANDARD_IN must be one of cxx98, cxx11, cxx14
-# GENEVA_BUILD_MODE_IN must be one of "Release" or "Debug"
-# GENEVA_DYNAMIC_MODE_IN must be one of "dynamic" or "static"
-# GENEVA_COMPILER_FLAGS_OUT the resulting flags
+# Sets the compiler flags for this platform and compiler
 #
 FUNCTION (
-	GET_COMPILER_FLAGS
+	SET_COMPILER_FLAGS
 	GENEVA_OS_NAME_IN
 	GENEVA_OS_VERSION_IN
 	GENEVA_COMPILER_NAME_IN
 	GENEVA_COMPILER_VERSION_IN
 	GENEVA_ACTUAL_CXX_STANDARD_IN
 	GENEVA_BUILD_MODE_IN
-	GENEVA_COMPILER_FLAGS_OUT
+	GENEVA_STATIC_FLAG_IN
 )
 
 	#--------------------------------------------------------------------------
-	# Retrieve the correct standard switch for our compiler
+	# Retrieve the C++-standard switch for our compiler
 	GET_CXX_STANDARD_SWITCH (
 		${GENEVA_ACTUAL_CXX_STANDARD_IN}
 		"GENEVA_CXX_STANDARD_SWITCH"
 	)
 
-	SET(GENEVA_COMPILER_FLAGS "${GENEVA_CXX_STANDARD_SWITCH}")
+	# We may use ADD_COMPILE_OPTIONS() with CMake 2.8.12 or newer
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GENEVA_CXX_STANDARD_SWITCH}")
 
 	#--------------------------------------------------------------------------
-	# Determine the other compiler flags. We organize this by compiler, as the same compiler may
-	# be present on multiple platforms. The chosen switches are tailored for the use with Geneva
+	# Determine the other compiler flags. We organize this by compiler, as the
+	# same compiler may be present on multiple platforms. The chosen switches
+	# are tailored for the use with Geneva.
 	#
 	#*****************************************************************
 	IF(GENEVA_COMPILER_NAME_IN MATCHES ${INTEL_DEF_IDENTIFIER})
-		SET (
-			GENEVA_COMPILER_FLAGS
-			"${GENEVA_COMPILER_FLAGS} -Wall -Wno-unused -ansi -pthread -wd1572 -wd1418 -wd981 -wd444 -wd383"
-		)
 
-		IF(${GENEVA_BUILD_MODE_IN} STREQUAL "Debug")
-			SET (
-				GENEVA_COMPILER_FLAGS
-				"${GENEVA_COMPILER_FLAGS} -g -DDEBUG"
-			)
-		ELSEIF(${GENEVA_BUILD_MODE_IN} STREQUAL "Release")
-			SET (
-				GENEVA_COMPILER_FLAGS
-				"${GENEVA_COMPILER_FLAGS} -O3 -DNDEBUG"
-			)
-		ELSE()
-			MESSAGE(FATAL_ERROR "Build mode ${GENEVA_BUILD_MODE_IN} is not supported!")
-		ENDIF()
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused -ansi -pthread -wd1572 -wd1418 -wd981 -wd444 -wd383")
 
 	#*****************************************************************
 	ELSEIF(GENEVA_COMPILER_NAME_IN MATCHES ${CLANG_DEF_IDENTIFIER})
-		SET (
-			GENEVA_COMPILER_FLAGS
-			"${GENEVA_COMPILER_FLAGS} -Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread"
-		)
+
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread")
 
 		# CLang 3.0 does not seem to support -ftemplate-depth
 		IF(${GENEVA_COMPILER_VERSION_IN} VERSION_GREATER 3.0)
-			SET (
-				GENEVA_COMPILER_FLAGS
-				"${GENEVA_COMPILER_FLAGS} -ftemplate-depth=512"
-			)
+			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=512")
 		ENDIF()
 
-		IF(${GENEVA_BUILD_MODE_IN} STREQUAL "Debug" OR ${GENEVA_BUILD_MODE_IN} STREQUAL "Sanitize")
-			SET (
-				GENEVA_COMPILER_FLAGS
-				"${GENEVA_COMPILER_FLAGS} -g -DDEBUG"
-			)
-		ELSEIF(${GENEVA_BUILD_MODE_IN} STREQUAL "Release")
-			SET (
-				GENEVA_COMPILER_FLAGS
-				"${GENEVA_COMPILER_FLAGS} -O3 -DNDEBUG"
-			)
-		ELSE()
-			MESSAGE(FATAL_ERROR "Build mode ${GENEVA_BUILD_MODE_IN} is not supported")
+		# For older Clang versions, or Clang on MacOSX we require the standard C++ library
+		IF(${GENEVA_OS_NAME_IN} STREQUAL "MacOSX"
+				OR ${GENEVA_COMPILER_VERSION_IN} VERSION_LESS 3.1)
+			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++")
 		ENDIF()
 
 		# Switch on Googles thread-sanitizer if this is a supported platform and the feature was requested.
 		# Compare http://googletesting.blogspot.ru/2014/06/threadsanitizer-slaughtering-data-races.html
-		IF(${GENEVA_BUILD_MODE_IN} STREQUAL "Sanitize" AND ${GENEVA_COMPILER_VERSION_IN} VERSION_GREATER 3.0)
-			SET (
-				GENEVA_COMPILER_FLAGS
-				"${GENEVA_COMPILER_FLAGS} -fsanitize=thread"
-			)
-		ENDIF()
-
-		IF(${GENEVA_OS_NAME_IN} STREQUAL "MacOSX") # Special provisions for MacOS
-			SET (
-				GENEVA_COMPILER_FLAGS
-				"${GENEVA_COMPILER_FLAGS} -stdlib=libstdc++"
-			)
-		ELSEIF(${GENEVA_COMPILER_VERSION_IN} VERSION_LESS 3.1)
-			SET (
-				GENEVA_COMPILER_FLAGS
-				"${GENEVA_COMPILER_FLAGS} -stdlib=libstdc++"
-			)
-		ELSE()  # Newer, non-MacOS Clang-based systems
-			# No special provisions
+		IF(${GENEVA_COMPILER_VERSION_IN} VERSION_GREATER 3.2)
+			SET(CMAKE_CXX_FLAGS_SANITIZE "${CMAKE_CXX_FLAGS_SANITIZE} -fsanitize=thread")
 		ENDIF()
 
 	#*****************************************************************
 	ELSEIF(GENEVA_COMPILER_NAME_IN MATCHES ${GNU_DEF_IDENTIFIER})
-		SET (
-			GENEVA_COMPILER_FLAGS
-			"${GENEVA_COMPILER_FLAGS} -fmessage-length=0 -fno-unsafe-math-optimizations -fno-finite-math-only -Wno-unused -Wno-attributes -pthread -ftemplate-depth-1024"
-		)
 
-		IF(${GENEVA_BUILD_MODE_IN} STREQUAL "Debug" OR ${GENEVA_BUILD_MODE_IN} STREQUAL "Sanitize")
-			SET (
-				GENEVA_COMPILER_FLAGS
-				"${GENEVA_COMPILER_FLAGS} -g -DDEBUG"
-			)
-		ELSEIF(${GENEVA_BUILD_MODE_IN} STREQUAL "Release")
-			SET (
-				GENEVA_COMPILER_FLAGS
-				"${GENEVA_COMPILER_FLAGS} -O3 -DNDEBUG"
-			)
-		ELSE()
-			MESSAGE(FATAL_ERROR "Build mode ${GENEVA_BUILD_MODE_IN} is not supported!")
-		ENDIF()
-
-		# Switch on Googles thread-sanitizer if this is a supported platform and the feature was requested.
-		# Compare http://googletesting.blogspot.ru/2014/06/threadsanitizer-slaughtering-data-races.html
-		IF(${GENEVA_BUILD_MODE_IN} STREQUAL "Sanitize" AND ${GENEVA_COMPILER_VERSION_IN} VERSION_GREATER 4.7)
-			SET (
-				GENEVA_COMPILER_FLAGS
-				"${GENEVA_COMPILER_FLAGS} -fsanitize=thread"
-			)
-		ENDIF()
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0 -fno-unsafe-math-optimizations -fno-finite-math-only -Wno-unused -Wno-attributes -pthread -ftemplate-depth-1024")
 
 		# GCC 4.8 on Cygwin does not provide the math constants (M_PI...) by
 		# default (pure ANSI standard), unless _XOPEN_SOURCE=500 is set, see
 		# http://www.gnu.org/software/libc/manual/html_node/Feature-Test-Macros.html
 		IF(${GENEVA_OS_NAME_IN} STREQUAL "Cygwin")
-			SET (
-				GENEVA_COMPILER_FLAGS
-				"${GENEVA_COMPILER_FLAGS} -D_XOPEN_SOURCE=500"
-			)
+			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_XOPEN_SOURCE=500")
+		ENDIF()
+
+		# Switch on Googles thread-sanitizer if this is a supported platform and the feature was requested.
+		# Compare http://googletesting.blogspot.ru/2014/06/threadsanitizer-slaughtering-data-races.html
+		IF(${GENEVA_COMPILER_VERSION_IN} VERSION_GREATER 4.8)
+			SET(CMAKE_CXX_FLAGS_SANITIZE "${CMAKE_CXX_FLAGS_SANITIZE} -fsanitize=thread")
 		ENDIF()
 
 	#*****************************************************************
 	ELSEIF(GENEVA_COMPILER_NAME_IN MATCHES ${MSVC_DEF_IDENTIFIER})
-		SET (
-			GENEVA_COMPILER_FLAGS
-			"${GENEVA_COMPILER_FLAGS} /bigobj"
-		)
 
-	#*****************************************************************
-	ELSE()  # Unknown compiler / default setting
-		# No special provisions yet
+		# Compiling in debug mode requires bigger object resources
+		SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj")
 
 	ENDIF()
-	#*****************************************************************
+	#--------------------------------------------------------------------------
+
+ENDFUNCTION()
+
+################################################################################
+# Sets the linker flags for this platform and compiler
+#
+FUNCTION (
+	SET_LINKER_FLAGS
+	GENEVA_OS_NAME_IN
+	GENEVA_OS_VERSION_IN
+	GENEVA_COMPILER_NAME_IN
+	GENEVA_COMPILER_VERSION_IN
+	GENEVA_ACTUAL_CXX_STANDARD_IN
+	GENEVA_BUILD_MODE_IN
+	GENEVA_STATIC_FLAG_IN
+)
 
 	#--------------------------------------------------------------------------
-	# Set the compiler flags with all values that were determined above
-	SET (${GENEVA_COMPILER_FLAGS_OUT} "${GENEVA_COMPILER_FLAGS}" PARENT_SCOPE)
-
+	IF(${GENEVA_OS_NAME_IN} MATCHES "MacOSX")
+		SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++")
+		IF( NOT GENEVA_STATIC )
+			SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -stdlib=libstdc++")
+		ENDIF()
+	ENDIF()
 	#--------------------------------------------------------------------------
 
 ENDFUNCTION()
 
 ###############################################################################
-# Determine other build flags for this platform and compiler
+# Determines other build flags for this platform and compiler
 #
 FUNCTION (
 	GET_BUILD_FLAGS
@@ -643,16 +583,17 @@ FUNCTION (
 	GENEVA_COMPILER_NAME_IN
 	GENEVA_COMPILER_VERSION_IN
 	GENEVA_CXX_STANDARD_IN
-	GENEVA_STATIC_IN
+	GENEVA_BUILD_MODE_IN
+	GENEVA_STATIC_FLAG_IN
 	PLATFORM_NEEDS_LIBRARY_LINKING_OUT
 )
 
 	#--------------------------------------------------------------------------
-	IF(APPLE)
+	IF(${GENEVA_OS_NAME_IN} MATCHES "MacOSX")
 		SET(${PLATFORM_NEEDS_LIBRARY_LINKING_OUT} TRUE PARENT_SCOPE)
-	ELSEIF(CYGWIN)
+	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "Cygwin")
 		SET(${PLATFORM_NEEDS_LIBRARY_LINKING_OUT} TRUE PARENT_SCOPE)
-	ELSEIF(WIN32)
+	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "Windows")
 		SET(${PLATFORM_NEEDS_LIBRARY_LINKING_OUT} TRUE PARENT_SCOPE)
 	ELSE()
 		# Linux and other Unices do not need library linking
@@ -672,7 +613,8 @@ FUNCTION (
 	GENEVA_COMPILER_NAME_IN
 	GENEVA_COMPILER_VERSION_IN
 	GENEVA_CXX_STANDARD_IN
-	GENEVA_STATIC_IN
+	GENEVA_BUILD_MODE_IN
+	GENEVA_STATIC_FLAG_IN
 )
 
 	#--------------------------------------------------------------------------
@@ -694,7 +636,7 @@ FUNCTION (
 		ENDIF()
 
 		# Static linking on MacOSX is currently not supported
-		IF(GENEVA_STATIC_IN)
+		IF(GENEVA_STATIC_FLAG_IN)
 			MESSAGE("##################################################################")
 			MESSAGE("# Static linking is currently not supported by Geneva on MacOS X #")
 			MESSAGE("##################################################################")
@@ -709,7 +651,7 @@ FUNCTION (
 		# No restrictions at the moment
 	ELSEIF(${GENEVA_OS_NAME_IN} STREQUAL "Windows")
 		# Dynamic linking on Windows is currently not supported
-		IF(GENEVA_STATIC_IN)
+		IF(GENEVA_STATIC_FLAG_IN)
 			MESSAGE("\n")
 			MESSAGE("#########################################################")
 			MESSAGE("# Geneva support for Windows is currently EXPERIMENTAL! #")
