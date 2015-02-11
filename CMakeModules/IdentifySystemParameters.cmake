@@ -485,7 +485,7 @@ FUNCTION (
 	)
 
 	# We may use ADD_COMPILE_OPTIONS() with CMake 2.8.12 or newer
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GENEVA_CXX_STANDARD_SWITCH}")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GENEVA_CXX_STANDARD_SWITCH}" PARENT_SCOPE)
 
 	#--------------------------------------------------------------------------
 	# Determine the other compiler flags. We organize this by compiler, as the
@@ -495,53 +495,53 @@ FUNCTION (
 	#*****************************************************************
 	IF(GENEVA_COMPILER_NAME_IN MATCHES ${INTEL_DEF_IDENTIFIER})
 
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused -ansi -pthread -wd1572 -wd1418 -wd981 -wd444 -wd383")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused -ansi -pthread -wd1572 -wd1418 -wd981 -wd444 -wd383" PARENT_SCOPE)
 
 	#*****************************************************************
 	ELSEIF(GENEVA_COMPILER_NAME_IN MATCHES ${CLANG_DEF_IDENTIFIER})
 
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread" PARENT_SCOPE)
 
 		# CLang 3.0 does not seem to support -ftemplate-depth
 		IF(${GENEVA_COMPILER_VERSION_IN} VERSION_GREATER 3.0)
-			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=512")
+			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=512" PARENT_SCOPE)
 		ENDIF()
 
 		# For older Clang versions, or Clang on MacOSX we require the standard C++ library
 		IF(${GENEVA_OS_NAME_IN} STREQUAL "MacOSX"
 				OR ${GENEVA_COMPILER_VERSION_IN} VERSION_LESS 3.1)
-			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++")
+			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++" PARENT_SCOPE)
 		ENDIF()
 
 		# Switch on Googles thread-sanitizer if this is a supported platform and the feature was requested.
 		# Compare http://googletesting.blogspot.ru/2014/06/threadsanitizer-slaughtering-data-races.html
 		IF(${GENEVA_COMPILER_VERSION_IN} VERSION_GREATER 3.2)
-			SET(CMAKE_CXX_FLAGS_SANITIZE "${CMAKE_CXX_FLAGS_SANITIZE} -fsanitize=thread")
+			SET(CMAKE_CXX_FLAGS_SANITIZE "${CMAKE_CXX_FLAGS_SANITIZE} -fsanitize=thread" PARENT_SCOPE)
 		ENDIF()
 
 	#*****************************************************************
 	ELSEIF(GENEVA_COMPILER_NAME_IN MATCHES ${GNU_DEF_IDENTIFIER})
 
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0 -fno-unsafe-math-optimizations -fno-finite-math-only -Wno-unused -Wno-attributes -pthread -ftemplate-depth-1024")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0 -fno-unsafe-math-optimizations -fno-finite-math-only -Wno-unused -Wno-attributes -pthread -ftemplate-depth-1024" PARENT_SCOPE)
 
 		# GCC 4.8 on Cygwin does not provide the math constants (M_PI...) by
 		# default (pure ANSI standard), unless _XOPEN_SOURCE=500 is set, see
 		# http://www.gnu.org/software/libc/manual/html_node/Feature-Test-Macros.html
 		IF(${GENEVA_OS_NAME_IN} STREQUAL "Cygwin")
-			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_XOPEN_SOURCE=500")
+			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_XOPEN_SOURCE=500" PARENT_SCOPE)
 		ENDIF()
 
 		# Switch on Googles thread-sanitizer if this is a supported platform and the feature was requested.
 		# Compare http://googletesting.blogspot.ru/2014/06/threadsanitizer-slaughtering-data-races.html
 		IF(${GENEVA_COMPILER_VERSION_IN} VERSION_GREATER 4.8)
-			SET(CMAKE_CXX_FLAGS_SANITIZE "${CMAKE_CXX_FLAGS_SANITIZE} -fsanitize=thread")
+			SET(CMAKE_CXX_FLAGS_SANITIZE "${CMAKE_CXX_FLAGS_SANITIZE} -fsanitize=thread" PARENT_SCOPE)
 		ENDIF()
 
 	#*****************************************************************
 	ELSEIF(GENEVA_COMPILER_NAME_IN MATCHES ${MSVC_DEF_IDENTIFIER})
 
 		# Compiling in debug mode requires bigger object resources
-		SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj")
+		SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj" PARENT_SCOPE)
 
 	ENDIF()
 	#--------------------------------------------------------------------------
@@ -564,9 +564,9 @@ FUNCTION (
 
 	#--------------------------------------------------------------------------
 	IF(${GENEVA_OS_NAME_IN} MATCHES "MacOSX")
-		SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++")
+		SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++" PARENT_SCOPE)
 		IF( NOT GENEVA_STATIC )
-			SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -stdlib=libstdc++")
+			SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -stdlib=libstdc++" PARENT_SCOPE)
 		ENDIF()
 	ENDIF()
 	#--------------------------------------------------------------------------
