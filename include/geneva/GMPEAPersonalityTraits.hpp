@@ -57,7 +57,7 @@ namespace Geneva {
  * algorithm needs its own personality type, though, we provide this default
  * implementation.
  */
-class GMPEAPersonalityTraits
+class G_API GMPEAPersonalityTraits
    : public GBaseParChildPersonalityTraits
 {
    ///////////////////////////////////////////////////////////////////////

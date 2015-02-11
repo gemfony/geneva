@@ -60,7 +60,7 @@ namespace Geneva {
  * A multi-threaded swarm based on GBaseSwarm. This version uses the
  * Boost.Threads library and a thread-pool library from http://threadpool.sf.net .
  */
-class GMultiThreadedSwarm
+class G_API GMultiThreadedSwarm
 	: public GBaseSwarm
 {
 	///////////////////////////////////////////////////////////////////////

@@ -80,7 +80,7 @@ namespace Tests {
  * of writing, it was included in order to be able to set the individual's personality without
  * weakening data protection.
  */
-class GTestIndividual1 :public Gem::Geneva::GParameterSet
+class G_API GTestIndividual1 :public Gem::Geneva::GParameterSet
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;

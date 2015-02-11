@@ -54,7 +54,7 @@ namespace Geneva {
 /**
  * This adaptor increases or decreases a value by 1
  */
-class GInt32FlipAdaptor
+class G_API GInt32FlipAdaptor
 	:public GIntFlipAdaptorT<boost::int32_t>
 {
 	///////////////////////////////////////////////////////////////////////

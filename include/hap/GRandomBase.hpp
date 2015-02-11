@@ -87,7 +87,7 @@ namespace Hap {
  * from "raw" random numbers, which can be obtained in derived classes using
  * various different ways.
  */
-class GRandomBase
+class G_API GRandomBase
 	: private boost::noncopyable
 {
 public:

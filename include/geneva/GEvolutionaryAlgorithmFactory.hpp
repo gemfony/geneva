@@ -66,7 +66,7 @@ namespace Geneva {
 /**
  * This class is a specialization of the GFactoryT<> class for evolutionary algorithms.
  */
-class GEvolutionaryAlgorithmFactory
+class G_API GEvolutionaryAlgorithmFactory
 	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >
 {
 public:

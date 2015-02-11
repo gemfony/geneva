@@ -67,7 +67,7 @@ const boost::uint32_t CMD_DEFAULTADAPTIONTHRESHOLD=1;
 
 namespace po = boost::program_options;
 
-bool parseCommandLine(int argc, char **argv,
+G_API bool parseCommandLine(int argc, char **argv,
 		double& sigma,
 		double& sigmaSigma,
 		double& minSigma,

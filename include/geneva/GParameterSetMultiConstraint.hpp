@@ -62,7 +62,7 @@ namespace Geneva {
  * class is to "translate" GOptimizableEntity-based constraints into constraints
  * based on GParameterSets
  */
-class GParameterSetConstraint: public GPreEvaluationValidityCheckT<GOptimizableEntity>
+class G_API GParameterSetConstraint: public GPreEvaluationValidityCheckT<GOptimizableEntity>
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -125,7 +125,7 @@ protected:
  * value represented by the formula as the "check"-value. Note that this class
  * currently only deals with double values.
  */
-class GParameterSetFormulaConstraint: public GParameterSetConstraint
+class G_API GParameterSetFormulaConstraint: public GParameterSetConstraint
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;

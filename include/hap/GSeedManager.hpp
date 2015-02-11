@@ -97,7 +97,7 @@ namespace Hap {
  * A start seed for the seeding sequence is either taken from a non deterministic
  * generator, or can be provided by the user.
  */
-class GSeedManager:
+class G_API GSeedManager:
 	private boost::noncopyable // prevents this class from being copied
 {
 public:

@@ -92,13 +92,13 @@ namespace Gem
 
     namespace po = boost::program_options;
 
-    bool parseCommandLine(
+    G_API bool parseCommandLine(
     		int argc, char **argv
 		  , std::string& configFile
 		  , boost::uint16_t& parallelizationMode
 	);
 
-    bool parseConfigFile(
+    G_API bool parseConfigFile(
     		const std::string& configFile
     	  , boost::uint16_t& nProducerThreads
 		  , boost::uint16_t& nEvaluationThreads

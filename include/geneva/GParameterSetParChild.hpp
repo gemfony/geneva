@@ -60,7 +60,7 @@ namespace Geneva {
  * cross-over. Almost all of Geneva's EA-algorithms will use this class as their
  * base class (except those that deal with multi-populations).
  */
-class GParameterSetParChild
+class G_API GParameterSetParChild
    :public GBaseParChildT<GParameterSet>
 {
    ///////////////////////////////////////////////////////////////////////

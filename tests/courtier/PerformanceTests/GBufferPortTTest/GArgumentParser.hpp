@@ -65,7 +65,7 @@ const std::size_t DEFAULTMAXGETTIMEOUTS = 100;
 
 /********************************************************************************************/
 
-bool parseCommandLine(
+G_API bool parseCommandLine(
 	int
   , char **
   , boost::uint32_t& nProductionCycles

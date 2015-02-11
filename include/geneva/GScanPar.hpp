@@ -72,7 +72,7 @@ class g_end_of_par : public std::exception { /* nothing */ };
  * in concrete specializations. This generic function is just a trap.
  */
 template <typename T>
-std::vector<T> fillWithData(
+G_API std::vector<T> fillWithData(
    std::size_t /*nSteps*/
    , T /* lower */
    , T /* upper */
@@ -88,7 +88,7 @@ std::vector<T> fillWithData(
 
 /** @bool Returns a set of boolean data items */
 template <>
-std::vector<bool> fillWithData<bool>(
+G_API std::vector<bool> fillWithData<bool>(
    std::size_t /* nSteps */
    , bool      /* lower */
    , bool      /* upper */
@@ -96,7 +96,7 @@ std::vector<bool> fillWithData<bool>(
 
 /** @brief Returns a set of boost::int32_t data items */
 template <>
-std::vector<boost::int32_t> fillWithData<boost::int32_t>(
+G_API std::vector<boost::int32_t> fillWithData<boost::int32_t>(
    std::size_t      /* nSteps */
    , boost::int32_t /* lower */
    , boost::int32_t /* upper */
@@ -104,7 +104,7 @@ std::vector<boost::int32_t> fillWithData<boost::int32_t>(
 
 /** @brief Returns a set of float data items */
 template <>
-std::vector<float> fillWithData<float>(
+G_API std::vector<float> fillWithData<float>(
    std::size_t /* nSteps */
    , float     /* lower */
    , float     /* upper */
@@ -112,7 +112,7 @@ std::vector<float> fillWithData<float>(
 
 /** @brief Returns a set of double data items */
 template <>
-std::vector<double> fillWithData<double>(
+G_API std::vector<double> fillWithData<double>(
    std::size_t /* nSteps */
    , double    /* lower */
    , double    /* upper */
@@ -124,7 +124,7 @@ std::vector<double> fillWithData<double>(
 /**
  * An interface class for parameter scan objects
  */
-class scanParInterface {
+class G_API scanParInterface {
 public:
    virtual ~scanParInterface(){ /* nothing */ }
 
@@ -143,7 +143,7 @@ public:
  * Basic parameter functionality
  */
 template <typename T>
-class baseScanParT
+class G_API baseScanParT
    : public GStdSimpleVectorInterfaceT<T>
    , public scanParInterface
 {
@@ -349,7 +349,7 @@ template <> double baseScanParT<double>::getRandomItem() const;
 /**
  * This class holds boolean parameters
  */
-class bScanPar
+class G_API bScanPar
    :public baseScanParT<bool>
 {
    ///////////////////////////////////////////////////////////////////////
@@ -389,7 +389,7 @@ private:
 /**
  * A derivative of baseScanParT for boost::int32_t values
  */
-class int32ScanPar
+class G_API int32ScanPar
    :public baseScanParT<boost::int32_t>
 {
    ///////////////////////////////////////////////////////////////////////
@@ -429,7 +429,7 @@ private:
 /**
  * A derivative of fpScanParT for double values
  */
-class dScanPar
+class G_API dScanPar
    :public baseScanParT<double>
 {
    ///////////////////////////////////////////////////////////////////////
@@ -470,7 +470,7 @@ private:
 /**
  * A derivative of fpScanParT for float values
  */
-class fScanPar
+class G_API fScanPar
    :public baseScanParT<float>
 {
    ///////////////////////////////////////////////////////////////////////

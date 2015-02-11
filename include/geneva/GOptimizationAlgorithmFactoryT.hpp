@@ -72,7 +72,7 @@ const boost::uint16_t FACT_DEF_NEVALUATIONTHREADS=0;
  * This class is a specialization of the GFactoryT<> class for optimization algorithms.
  */
 template <typename optalg_type>
-class GOptimizationAlgorithmFactoryT
+class G_API GOptimizationAlgorithmFactoryT
 	: public Gem::Common::GFactoryT<optalg_type>
 {
 public:

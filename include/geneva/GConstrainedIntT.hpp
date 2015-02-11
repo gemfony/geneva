@@ -62,7 +62,7 @@ namespace Geneva {
  * Signed integers as types are enforced using Boost's concept checks.
  */
 template <typename int_type>
-class GConstrainedIntT
+class G_API GConstrainedIntT
 	:public GConstrainedNumT<int_type>
 {
 	///////////////////////////////////////////////////////////////////////

@@ -56,7 +56,7 @@ namespace Geneva {
  * This individual searches for the minimum of a 2-dimensional parabola.
  * It is part of an introductory example, used in the Geneva manual.
  */
-class GParaboloidIndividual2D :public GParameterSet
+class G_API GParaboloidIndividual2D :public GParameterSet
 {
 public:
 	/** @brief The default constructor */

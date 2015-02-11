@@ -57,7 +57,7 @@ namespace Geneva {
  * use the GDoubleCollection class or individual GConstrainedDoubleObject objects
  * instead.
  */
-class GDoubleObject
+class G_API GDoubleObject
 	:public GNumFPT<double>
 {
 	///////////////////////////////////////////////////////////////////////

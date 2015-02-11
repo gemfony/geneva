@@ -62,7 +62,7 @@ namespace Geneva {
  * in boost::shared_ptr objects.
  */
 template<typename T>
-class GParameterTCollectionT
+class G_API GParameterTCollectionT
 	: public GParameterBase
 	, public GStdPtrVectorInterfaceT<T>
 {

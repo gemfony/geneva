@@ -55,7 +55,7 @@ namespace Geneva {
  * This class adds variables and functions to GPersonalityTraits that are specific
  * to swarm optimization.
  */
-class GSwarmPersonalityTraits :public GPersonalityTraits
+class G_API GSwarmPersonalityTraits :public GPersonalityTraits
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;

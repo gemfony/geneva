@@ -66,7 +66,7 @@ namespace Hap {
  * implementation can be found in the (partial) specializations of this class.
  */
 template <Gem::Hap::RANDFLAVOURS s = Gem::Hap::RANDOMPROXY>
-class GRandomT
+class G_API GRandomT
 	: public Gem::Hap::GRandomBase
 {
 public:
@@ -91,7 +91,7 @@ protected:
  * objects or use copy constructors.
  */
 template <>
-class GRandomT<Gem::Hap::RANDOMPROXY>
+class G_API GRandomT<Gem::Hap::RANDOMPROXY>
 	: public Gem::Hap::GRandomBase
 {
 public:
@@ -204,7 +204,7 @@ typedef GRandomT<Gem::Hap::RANDOMPROXY> GRandom;
  * case the default constructor is used.
  */
 template <>
-class GRandomT<Gem::Hap::RANDOMLOCAL>
+class G_API GRandomT<Gem::Hap::RANDOMLOCAL>
 	: public Gem::Hap::GRandomBase
 {
 public:

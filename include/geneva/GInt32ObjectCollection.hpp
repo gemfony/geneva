@@ -55,7 +55,7 @@ namespace Geneva {
  * A collection of GInt32Object objects, ready for use in a
  * GParameterSet derivative.
  */
-class GInt32ObjectCollection
+class G_API GInt32ObjectCollection
 	:public GParameterTCollectionT<GInt32Object>
 {
 	///////////////////////////////////////////////////////////////////////

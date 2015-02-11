@@ -55,7 +55,7 @@ namespace Geneva {
  * This class adds variables and functions to GPersonalityTraits that are specific
  * to gradient descents.
  */
-class GGDPersonalityTraits :public GPersonalityTraits
+class G_API GGDPersonalityTraits :public GPersonalityTraits
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;

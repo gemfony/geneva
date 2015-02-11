@@ -59,7 +59,7 @@ namespace Geneva {
  * uses the Boost.Threads library and a thread-pool library from
  * http://threadpool.sf.net .
  */
-class GMultiThreadedEA
+class G_API GMultiThreadedEA
 	: public GBaseEA
 {
 	///////////////////////////////////////////////////////////////////////

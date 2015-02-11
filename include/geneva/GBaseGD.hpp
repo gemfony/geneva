@@ -70,7 +70,7 @@ const double DEFAULTSTEPSIZE=0.1;
  * The GBaseGD class implements a steepest descent algorithm. It is possible
  * to search for optima starting from several positions simultaneously.
  */
-class GBaseGD
+class G_API GBaseGD
 	:public GOptimizationAlgorithmT<GParameterSet>
 {
 	///////////////////////////////////////////////////////////////////////

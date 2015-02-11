@@ -63,7 +63,7 @@ namespace Geneva {
 /**
  * This class is a specialization of the GFactoryT<> class for gradient descents.
  */
-class GGradientDescentFactory
+class G_API GGradientDescentFactory
 	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >
 {
 public:

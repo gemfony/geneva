@@ -64,7 +64,7 @@ class GOptimizableEntity;
  * to the evaluation.
  */
 template <typename ind_type>
-class GPreEvaluationValidityCheckT : public GObject
+class G_API GPreEvaluationValidityCheckT : public GObject
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;

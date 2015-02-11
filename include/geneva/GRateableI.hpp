@@ -53,7 +53,7 @@ namespace Geneva {
 /**
  * A simple interface class for objects that can be evaluated.
  */
-class GRateableI {
+class G_API GRateableI {
 public:
 	/** @brief The destructor */
 	virtual ~GRateableI();

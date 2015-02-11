@@ -62,7 +62,7 @@ const std::size_t NPAR_MC = 3;
  * This individual implements several, possibly conflicting evaluation
  * criteria, each implemented as a parabola with its own minimum
  */
-class GMultiCriterionParabolaIndividual :public GParameterSet
+class G_API GMultiCriterionParabolaIndividual :public GParameterSet
 {
    friend class GMultiCriterionParabolaIndividualFactory;
 

@@ -78,17 +78,15 @@
 #include "common/GMathHelperFunctions.hpp"
 #include "common/GMathHelperFunctionsT.hpp"
 
-namespace Gem
-{
-namespace Tests
-{
+namespace Gem {
+namespace Tests {
 
 /******************************************************************************/
 /**
  * This individual tests different access methods for parameter objects inside
  * of the individual.
  */
-class GTestIndividual3 :public Gem::Geneva::GParameterSet
+class G_API GTestIndividual3 :public Gem::Geneva::GParameterSet
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;

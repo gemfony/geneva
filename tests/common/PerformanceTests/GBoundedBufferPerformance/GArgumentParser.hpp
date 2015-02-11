@@ -65,7 +65,7 @@ const bool DEFAULTSTARTATONCE = true;
 
 /********************************************************************************************/
 
-bool parseCommandLine(
+G_API bool parseCommandLine(
 		int argc
 	  , char **argv
 	  , std::string& resultFile

@@ -53,7 +53,7 @@ namespace Geneva {
 /**
  * A collection of double objects without boundaries
  */
-class GDoubleCollection
+class G_API GDoubleCollection
 	:public GFPNumCollectionT<double>
 {
 	///////////////////////////////////////////////////////////////////////

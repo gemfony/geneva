@@ -58,7 +58,7 @@ namespace Geneva {
  * The type used needs to be specified as a template parameter.
  */
 template<typename num_type, typename fp_type>
-class GNumGaussAdaptorT
+class G_API GNumGaussAdaptorT
       :public GAdaptorT<num_type>
 {
 	///////////////////////////////////////////////////////////////////////

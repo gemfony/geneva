@@ -79,7 +79,7 @@ namespace Geneva {
  * This individual takes a vector of 2D double-tuples and calculates the
  * root-square deviation from the line defined by its two parameters
  */
-class GLineFitIndividual
+class G_API GLineFitIndividual
    :public Gem::Geneva::GParameterSet
 {
 	///////////////////////////////////////////////////////////////////////

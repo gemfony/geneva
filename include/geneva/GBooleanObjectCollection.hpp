@@ -56,7 +56,7 @@ namespace Geneva {
  * A collection of GBooleanObject objects, ready for use in a
  * GParameterSet derivative.
  */
-class GBooleanObjectCollection
+class G_API GBooleanObjectCollection
 	:public GParameterTCollectionT<GBooleanObject>
 {
 	///////////////////////////////////////////////////////////////////////

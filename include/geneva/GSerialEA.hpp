@@ -56,7 +56,7 @@ namespace Geneva {
 /**
  * This class adds a simple, serial adaptChildren() call to the GBaseEA class.
  */
-class GSerialEA
+class G_API GSerialEA
 	: public GBaseEA
 {
 	///////////////////////////////////////////////////////////////////////

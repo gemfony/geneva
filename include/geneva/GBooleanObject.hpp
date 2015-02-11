@@ -56,7 +56,7 @@ namespace Geneva {
  * and indeed for most applications this is not the recommended solution -
  * use the GBooleanCollection instead.
  */
-class GBooleanObject
+class G_API GBooleanObject
 	:public GParameterT<bool>
 {
 	///////////////////////////////////////////////////////////////////////

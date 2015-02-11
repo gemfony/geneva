@@ -77,7 +77,7 @@ const sortingMode DEFAULTSMODE = MUCOMMANU_SINGLEEVAL;
  * main infrastructure for evolutionary algorithms (except those that deal with
  * multi-populations).
  */
-class GBaseEA
+class G_API GBaseEA
    :public GParameterSetParChild
 {
    ///////////////////////////////////////////////////////////////////////

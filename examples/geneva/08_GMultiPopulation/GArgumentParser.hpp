@@ -85,7 +85,7 @@ const duplicationScheme DEFAULTRSCHEMESUB=VALUEDUPLICATIONSCHEME;
 /**
  * Parses the command line
  */
-bool parseCommandLine(
+G_API bool parseCommandLine(
      int argc, char** argv
      , boost::uint16_t& nEvaluationThreads
      , std::size_t& populationSizeSuper

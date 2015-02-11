@@ -53,7 +53,7 @@ namespace Geneva {
  * This class adds variables and functions to GPersonalityTraits that are specific
  * to populations comprising parents and children
  */
-class GBaseParChildPersonalityTraits
+class G_API GBaseParChildPersonalityTraits
    :public GPersonalityTraits
 {
    ///////////////////////////////////////////////////////////////////////

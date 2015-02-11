@@ -76,7 +76,7 @@ namespace Geneva {
  * be copied.
  */
 template <typename ind_type>
-class GBasePluggableOMT
+class G_API GBasePluggableOMT
 {
 public:
    /***************************************************************************/
@@ -141,7 +141,7 @@ protected:
  * in sequnce.
  */
 template <typename ind_type>
-class GCollectiveMonitorT
+class G_API GCollectiveMonitorT
 : public GBasePluggableOMT<ind_type>
 {
 public:
@@ -225,7 +225,7 @@ private:
  * supports floating point types only. double and float values may not be mixed.
  */
 template <typename ind_type, typename fp_type>
-class GProgressPlotterT : public GBasePluggableOMT<ind_type>
+class G_API GProgressPlotterT : public GBasePluggableOMT<ind_type>
 {
    // Make sure this class can only be instantiated if fp_type really is a floating point type
    BOOST_MPL_ASSERT((boost::is_floating_point<fp_type>));
@@ -788,7 +788,7 @@ private:
  * GParameterSet class itself.
  */
 template <typename ind_type>
-class GAllSolutionFileLoggerT : public GBasePluggableOMT<ind_type>
+class G_API GAllSolutionFileLoggerT : public GBasePluggableOMT<ind_type>
 {
    // Make sure this class can only be instantiated if ind_type is a derivative of GParameterSet
    BOOST_MPL_ASSERT((boost::is_base_of<GParameterSet, ind_type>));
@@ -1053,7 +1053,7 @@ private:
  * eval0_0, eval0_1, ... ,eval0_n, ..., evalm_0, evalm_1, ... ,evalm_n
  */
 template <typename ind_type>
-class GIterationResultsFileLoggerT : public GBasePluggableOMT<ind_type>
+class G_API GIterationResultsFileLoggerT : public GBasePluggableOMT<ind_type>
 {
    // Make sure this class can only be instantiated if ind_type is a derivative of GParameterSet
    BOOST_MPL_ASSERT((boost::is_base_of<GParameterSet, ind_type>));
@@ -1220,7 +1220,7 @@ private:
  * number of adaptions made is a good measure for the adaption probability.
  */
 template <typename ind_type>
-class GNAdpationsLoggerT : public GBasePluggableOMT<ind_type>
+class G_API GNAdpationsLoggerT : public GBasePluggableOMT<ind_type>
 {
    // Make sure this class can only be instantiated if ind_type is a derivative of GParameterSet
    BOOST_MPL_ASSERT((boost::is_base_of<GParameterSet, ind_type>));
@@ -1515,7 +1515,7 @@ private:
  * are limited to numeric entities, that may be converted to double
  */
 template <typename ind_type, typename num_type>
-class GAdaptorPropertyLoggerT : public GBasePluggableOMT<ind_type>
+class G_API GAdaptorPropertyLoggerT : public GBasePluggableOMT<ind_type>
 {
    // Make sure this class can only be instantiated if ind_type is a derivative of GParameterSet
    BOOST_MPL_ASSERT((boost::is_base_of<GParameterSet, ind_type>));

@@ -67,7 +67,7 @@ namespace Geneva {
  * @param to The target smart pointer
  */
 template <typename T>
-void copyGenevaSmartPointer (
+G_API void copyGenevaSmartPointer (
 	const boost::shared_ptr<T>& from
 	, boost::shared_ptr<T>& to
 	, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, T> >::type* dummy = 0
@@ -93,7 +93,7 @@ void copyGenevaSmartPointer (
  * @param to The vector used as the target of the copying
  */
 template <typename T>
-void copyGenevaSmartPointerVector(
+G_API void copyGenevaSmartPointerVector(
 		const std::vector<boost::shared_ptr<T> >& from
 		, std::vector<boost::shared_ptr<T> >& to
 		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, T> >::type* dummy = 0
@@ -141,7 +141,7 @@ void copyGenevaSmartPointerVector(
  * @return The default adaptor for a given base type
  */
 template <typename T>
-boost::shared_ptr<GAdaptorT<T> > getDefaultAdaptor() {
+G_API boost::shared_ptr<GAdaptorT<T> > getDefaultAdaptor() {
    glogger
    << "In getDefaultAdaptor():" << std::endl
    << "Function called with invalid type." << std::endl

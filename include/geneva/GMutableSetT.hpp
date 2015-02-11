@@ -62,7 +62,7 @@ namespace Geneva {
  * that template arguments have the GObject and the GMutableI interfaces.
  */
 template <typename T>
-class GMutableSetT:
+class G_API GMutableSetT:
 	public GOptimizableEntity,
 	public GStdPtrVectorInterfaceT<T>
 {

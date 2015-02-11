@@ -61,7 +61,7 @@ namespace Geneva {
  * A collection of GParameterBase objects, ready for use in a
  * GParameterSet derivative.
  */
-class GParameterObjectCollection
+class G_API GParameterObjectCollection
 	:public GParameterTCollectionT<GParameterBase>
 {
 	///////////////////////////////////////////////////////////////////////

@@ -62,7 +62,7 @@ namespace Geneva {
 /**
  * This class is a specialization of the GFactoryT<> class for evolutionary algorithms.
  */
-class GSimulatedAnnealingFactory
+class G_API GSimulatedAnnealingFactory
    : public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >
 {
 public:

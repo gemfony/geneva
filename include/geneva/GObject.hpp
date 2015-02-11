@@ -150,7 +150,7 @@ namespace Geneva {
  * and  GObject::clone_() member functions must be re-implemented for each derived class. Further common
  * functionality of many Geneva classes will be implemented here over time.
  */
-class GObject
+class G_API GObject
 	:public Gem::Common::GSerializableI
 {
     ///////////////////////////////////////////////////////////////////////

@@ -54,7 +54,7 @@ namespace Geneva {
 /**
  * Compares two data points for their x location
  */
-struct xPointCompare
+struct G_API xPointCompare
 {
    bool operator()(
       const boost::tuple<double,double>& a
@@ -64,7 +64,7 @@ struct xPointCompare
 
 /******************************************************************************/
 /** @brief This function fits a line to a set of x-y coordinates */
-boost::tuple<double, double> gLineFit(const std::vector<boost::tuple<double, double> >&);
+G_API boost::tuple<double, double> gLineFit(const std::vector<boost::tuple<double, double> >&);
 
 /******************************************************************************/
 

@@ -62,7 +62,7 @@ namespace Geneva {
  * being adapted.
  */
 template <typename int_type>
-class GIntGaussAdaptorT
+class G_API GIntGaussAdaptorT
 	:public GNumGaussAdaptorT<int_type, double>
 {
 	///////////////////////////////////////////////////////////////////////

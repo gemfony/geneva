@@ -59,7 +59,7 @@ namespace Geneva {
  * is experimental. Your mileage may vary.
  */
 template<typename fp_type>
-class GFPBiGaussAdaptorT :public GNumBiGaussAdaptorT<fp_type, fp_type>
+class G_API GFPBiGaussAdaptorT :public GNumBiGaussAdaptorT<fp_type, fp_type>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;

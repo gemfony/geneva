@@ -63,7 +63,7 @@ namespace Geneva {
  * implemented in the GIntFlipAdaptorT class. Most of the logic is implemented
  * in the base classes, in particular customAdaptions();
  */
-class GBooleanAdaptor
+class G_API GBooleanAdaptor
 	:public GIntFlipAdaptorT<bool>
 {
 	///////////////////////////////////////////////////////////////////////

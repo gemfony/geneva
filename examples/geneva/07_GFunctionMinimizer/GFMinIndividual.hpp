@@ -72,10 +72,10 @@ enum targetFunction {
 
 // Make sure targetFunction can be streamed
 /** @brief Puts a Gem::Geneva::targetFunction into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::Geneva::targetFunction&);
+G_API std::ostream& operator<<(std::ostream&, const Gem::Geneva::targetFunction&);
 
 /** @brief Reads a Gem::Geneva::targetFunction from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::Geneva::targetFunction&);
+G_API std::istream& operator>>(std::istream&, Gem::Geneva::targetFunction&);
 
 /******************************************************************************/
 // A number of default settings for the factory
@@ -94,7 +94,7 @@ const targetFunction GO_DEF_TARGETFUNCTION = boost::numeric_cast<targetFunction>
  * This individual searches for a minimum of a number of predefined functions, each capable
  * of processing their input in multiple dimensions.
  */
-class GFMinIndividual
+class G_API GFMinIndividual
 	: public GParameterSet
 {
 	/////////////////////////////////////////////////////////////////////////////

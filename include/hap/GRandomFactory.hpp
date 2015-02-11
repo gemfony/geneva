@@ -111,7 +111,7 @@ namespace Hap {
  * the "quality" of random numbers is of less concern in evolutionary algorithms, as the
  * geometry of the quality surface adds to the randomness.
  */
-class GRandomFactory {
+class G_API GRandomFactory {
 	typedef boost::lagged_fibonacci19937 lagged_fibonacci;
 
 public:

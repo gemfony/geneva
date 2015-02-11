@@ -60,7 +60,7 @@ namespace Geneva {
  * 1 might be a good choice. Similarly, the minSigma parameter should be set
  * accordingly, so sigma cannot get too small when being adapted.
  */
-class GInt32GaussAdaptor
+class G_API GInt32GaussAdaptor
 	:public GIntGaussAdaptorT<boost::int32_t>
 {
 	///////////////////////////////////////////////////////////////////////

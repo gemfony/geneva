@@ -62,7 +62,7 @@ const double DEFAULTUPPERINITBOUNDARYCOLLECTION=1.;
  * by GParameterCollectionT, this class becomes rather simple.
  */
 template <typename T>
-class GNumCollectionT
+class G_API GNumCollectionT
 	: public GParameterCollectionT<T>
 {
 	///////////////////////////////////////////////////////////////////////

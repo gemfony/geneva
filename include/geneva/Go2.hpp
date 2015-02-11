@@ -123,7 +123,7 @@ typedef Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet> GOABase
  * While it is derived from GOptimizableI, it is not currently meant to be used as an
  * individual. Hence the ability to serialize the class has been removed.
  */
-class Go2
+class G_API Go2
 	: public GMutableSetT<GParameterSet>
 	, public GOptimizableI
 {

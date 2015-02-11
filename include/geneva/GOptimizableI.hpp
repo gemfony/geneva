@@ -56,7 +56,7 @@ namespace Geneva {
  * This class specifies the interface that needs to be implemented by optimization
  * algorithms.
  */
-class GOptimizableI {
+class G_API GOptimizableI {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 

@@ -96,7 +96,7 @@ namespace Geneva {
 /**
  * A single data set holding the training data of a single training iteration
  */
-struct trainingSet
+struct G_API trainingSet
 {
 	/////////////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -185,7 +185,7 @@ private:
  * the first attached number being the input layer and the last one the output layer. In-between
  * numbers are hidden layers.
  */
-class networkData
+class G_API networkData
 	:public GStdSimpleVectorInterfaceT<std::size_t>
 {
    /////////////////////////////////////////////////////////////////////////////
@@ -324,13 +324,13 @@ enum transferFunction {SIGMOID=0, RBF=1};
 
 /******************************************************************************/
 /** @brief  Reads a Gem::Geneva::trainingDataType item from a stream */
-std::istream& operator>>(std::istream& i, Gem::Geneva::trainingDataType& tdt);
+G_API std::istream& operator>>(std::istream& i, Gem::Geneva::trainingDataType& tdt);
 /** @brief Puts a Gem::Geneva::trainingDataType item into a stream */
-std::ostream& operator<<(std::ostream& o, const Gem::Geneva::trainingDataType& tdt);
+G_API std::ostream& operator<<(std::ostream& o, const Gem::Geneva::trainingDataType& tdt);
 /** @brief Reads a Gem::Geneva::transferFunction item from a stream. */
-std::istream& operator>>(std::istream& i, Gem::Geneva::transferFunction& tF);
+G_API std::istream& operator>>(std::istream& i, Gem::Geneva::transferFunction& tF);
 /** @brief Puts a Gem::Geneva::transferFunction item into a stream. */
-std::ostream& operator<<(std::ostream& o, const Gem::Geneva::transferFunction& tF);
+G_API std::ostream& operator<<(std::ostream& o, const Gem::Geneva::transferFunction& tF);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -364,7 +364,7 @@ const transferFunction GNN_DEF_TRANSFER = SIGMOID;
  * With this individual you can use Genevas optimization algorithms instead of the
  * standard back-propagation algorithm to train feed-forward neural networks.
  */
-class GNeuralNetworkIndividual
+class G_API GNeuralNetworkIndividual
 	:public GParameterSet
 {
 	/////////////////////////////////////////////////////////////////////////////
@@ -998,7 +998,7 @@ private:
 /**
  * A factory for GNeuralNetworkIndividual objects
  */
-class GNeuralNetworkIndividualFactory
+class G_API GNeuralNetworkIndividualFactory
    : public Gem::Common::GFactoryT<GParameterSet>
 {
 public:

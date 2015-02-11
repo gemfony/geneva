@@ -64,7 +64,7 @@ namespace Geneva {
  * GParameterSet collections.
  */
 template <typename T>
-class GParameterBaseWithAdaptorsT:	public GParameterBase
+class G_API GParameterBaseWithAdaptorsT:	public GParameterBase
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;

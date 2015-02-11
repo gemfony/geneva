@@ -67,7 +67,7 @@ namespace Geneva {
  * algorithms, such as a general call to "optimize()".
  */
 template <typename ind_type>
-class GOptimizationAlgorithmT
+class G_API GOptimizationAlgorithmT
 	: public GMutableSetT<ind_type>
 	, public GOptimizableI
 {

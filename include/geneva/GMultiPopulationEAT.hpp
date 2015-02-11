@@ -71,7 +71,7 @@ const sortingModeMP DEFAULTSMODEMP=MUCOMMANU_SINGLEEVAL_MP;
  * be serialized and hence does not contain any serialization code.
  */
 template <typename oa_type>
-class GMultiPopulationEAT
+class G_API GMultiPopulationEAT
    :public GBaseParChildT<oa_type>
 {
    BOOST_MPL_ASSERT((boost::is_base_of<Gem::Geneva::GOptimizableI , oa_type>));

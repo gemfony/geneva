@@ -62,7 +62,7 @@ namespace Geneva {
 /**
  * A consumer used for network communication, using GParameterSet-derivatives
  */
-class GIndividualTCPConsumer
+class G_API GIndividualTCPConsumer
    : public Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GParameterSet>
 {
 public:

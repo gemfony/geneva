@@ -55,7 +55,7 @@ namespace Geneva {
 /**
  * This is a simple interface class for mutable objects.
  */
-class GMutableI {
+class G_API GMutableI {
 public:
 	/** @brief The standard destructor */
 	virtual ~GMutableI(){ /* nothing */ }

@@ -65,7 +65,7 @@ namespace Geneva {
  * Serialization in a network context only happens below the level of this population,
  * it is itself usually not shipped over a network connection.
  */
-class GBrokerEA
+class G_API GBrokerEA
    : public GBaseEA
    , public Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>
 {

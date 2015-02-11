@@ -58,7 +58,7 @@ namespace Geneva {
  * as implemented by this library. It is now implemented through a generic
  * base class that can also be used to adapt other numeric types.
  */
-class GDoubleGaussAdaptor
+class G_API GDoubleGaussAdaptor
 	:public GFPGaussAdaptorT<double>
 {
 	///////////////////////////////////////////////////////////////////////

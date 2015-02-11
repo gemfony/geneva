@@ -77,7 +77,7 @@ const boost::uint16_t DEFAULTYDIMPROGRESS=1024;
  * two-dimensional parameter sets. It will in any case produce plots for the achieved
  * fitness as a function of the current iteration.
  */
-class progressMonitor
+class G_API progressMonitor
 	: public GBaseSwarm::GSwarmOptimizationMonitor
 {
 	///////////////////////////////////////////////////////////////////////

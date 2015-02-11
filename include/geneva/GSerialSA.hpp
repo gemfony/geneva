@@ -56,7 +56,7 @@ namespace Geneva {
 /**
  * This class adds a simple, serial adaptChildren() call to the GBaseSA class.
  */
-class GSerialSA
+class G_API GSerialSA
    : public GBaseSA
 {
    ///////////////////////////////////////////////////////////////////////

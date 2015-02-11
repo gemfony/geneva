@@ -81,7 +81,7 @@ struct parSet {
 
 /******************************************************************************/
 /** @brief A simple output operator for parSet object, mostly meant for debugging */
-std::ostream& operator<<(std::ostream& os, const parSet& pS);
+G_API std::ostream& operator<<(std::ostream& os, const parSet& pS);
 
 /******************************************************************************/
 /** @brief The default number of "best" individuals to be kept during the algorithm run */
@@ -110,7 +110,7 @@ const std::size_t DEFAULTNMONITORINDS = 10;
  * by those parameters intended to be modified). The optimization monitor associated
  * with this class will simply store all parameters and results in an XML file.
  */
-class GBasePS
+class G_API GBasePS
    :public GOptimizationAlgorithmT<GParameterSet>
 {
    ///////////////////////////////////////////////////////////////////////

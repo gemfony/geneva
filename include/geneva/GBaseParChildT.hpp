@@ -77,7 +77,7 @@ namespace Geneva {
  * optimization starts.
  */
 template <typename ind_type>
-class GBaseParChildT
+class G_API GBaseParChildT
    : public GOptimizationAlgorithmT<ind_type>
 {
    /////////////////////////////////////////////////////////////////////////////

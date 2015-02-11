@@ -66,7 +66,7 @@ class GSAOptimizationMonitor;
  * This is a specialization of the GParameterSetParChild class. The class adds
  * an infrastructure for simulated annealing (Geneva-style, i.e. with larger populations).
  */
-class GBaseSA
+class G_API GBaseSA
    :public GParameterSetParChild
 {
    ///////////////////////////////////////////////////////////////////////

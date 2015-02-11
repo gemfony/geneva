@@ -76,7 +76,7 @@ const bool DEFAULTUSEDIRECTBROKERCONNECTIONAP = false;
 
 /********************************************************************************************/
 
-bool parseCommandLine(
+G_API bool parseCommandLine(
 		int
 	  , char **
 	  , std::string& configFile
@@ -91,7 +91,7 @@ bool parseCommandLine(
 
 /********************************************************************************************/
 
-bool parseConfigFile(
+G_API bool parseConfigFile(
 		const std::string&
 	  , boost::uint32_t&
 	  , boost::uint32_t&

@@ -56,7 +56,7 @@ namespace Geneva {
  * while applying adaptions to a continuous range. This is done by means of a
  * mapping from an internal representation to an externally visible value.
  */
-class GConstrainedDoubleObject
+class G_API GConstrainedDoubleObject
   : public GConstrainedFPT<double>
 {
 	///////////////////////////////////////////////////////////////////////

@@ -60,7 +60,7 @@ namespace Geneva {
  * type needs to be specified as a template parameter.
  */
 template<typename num_type>
-class GNumFlipAdaptorT
+class G_API GNumFlipAdaptorT
 	:public GAdaptorT<num_type>
 {
 	///////////////////////////////////////////////////////////////////////

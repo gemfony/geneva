@@ -82,7 +82,7 @@ namespace Geneva {
  * like simple types.
  */
 template <typename T>
-class GStdSimpleVectorInterfaceT
+class G_API GStdSimpleVectorInterfaceT
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;

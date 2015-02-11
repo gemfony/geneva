@@ -59,7 +59,7 @@ namespace Geneva {
  * class is a double.
  */
 template <typename fp_type>
-class GFPNumCollectionT
+class G_API GFPNumCollectionT
 	: public GNumCollectionT<fp_type>
 {
 	///////////////////////////////////////////////////////////////////////

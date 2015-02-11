@@ -80,7 +80,7 @@ class GSerialSwarm;
  * class also contains a framework for lazy evaluation, so not all evaluations take
  * place at the same time.
  */
-class GOptimizableEntity
+class G_API GOptimizableEntity
 	: public GMutableI
 	, public GRateableI
 	, public GObject

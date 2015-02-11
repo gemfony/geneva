@@ -61,7 +61,7 @@ namespace Geneva {
 /**
  * A serial gradient descent
  */
-class GSerialGD
+class G_API GSerialGD
 	:public GBaseGD
 {
 	///////////////////////////////////////////////////////////////////////

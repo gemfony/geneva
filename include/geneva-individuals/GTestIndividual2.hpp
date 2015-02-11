@@ -93,7 +93,7 @@ const std::size_t NPERFOBJECTTYPES = 5;
  * of writing, it was included in order to be able to set the individual's personality without
  * weakening data protection.
  */
-class GTestIndividual2 :public Gem::Geneva::GParameterSet
+class G_API GTestIndividual2 :public Gem::Geneva::GParameterSet
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;

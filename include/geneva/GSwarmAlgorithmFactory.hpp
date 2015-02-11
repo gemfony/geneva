@@ -63,7 +63,7 @@ namespace Geneva {
  * This class is a specialization of the GOptimizationAlgorithmFactoryT<> class
  * for swarm algorithms.
  */
-class GSwarmAlgorithmFactory
+class G_API GSwarmAlgorithmFactory
 	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >
 {
 public:

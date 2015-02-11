@@ -80,7 +80,7 @@ namespace Geneva {
  * This class implements a collection of GParameterBase objects. It
  * will form the basis of many user-defined individuals.
  */
-class GParameterSet
+class G_API GParameterSet
 	: public GMutableSetT<Gem::Geneva::GParameterBase>
    , public Gem::Courtier::GSubmissionContainerT<GParameterSet>
 {

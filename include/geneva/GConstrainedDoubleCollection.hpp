@@ -59,7 +59,7 @@ namespace Geneva {
  * functions. Using the subscript operator or at() function, or the
  * native iterator, will give you the "raw" data only.
  */
-class GConstrainedDoubleCollection
+class G_API GConstrainedDoubleCollection
 	: public GConstrainedFPNumCollectionT<double>
 {
 	///////////////////////////////////////////////////////////////////////

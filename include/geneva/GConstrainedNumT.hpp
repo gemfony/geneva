@@ -62,7 +62,7 @@ namespace Geneva {
  * are inclusive or exclusive.
  */
 template <typename T>
-class GConstrainedNumT
+class G_API GConstrainedNumT
 	:public GParameterT<T>
 {
 	///////////////////////////////////////////////////////////////////////

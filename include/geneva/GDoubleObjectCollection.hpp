@@ -55,7 +55,7 @@ namespace Geneva {
  * A collection of GDoubleObject objects, ready for use in a
  * GParameterSet derivative.
  */
-class GDoubleObjectCollection
+class G_API GDoubleObjectCollection
 	:public GParameterTCollectionT<GDoubleObject>
 {
 	///////////////////////////////////////////////////////////////////////

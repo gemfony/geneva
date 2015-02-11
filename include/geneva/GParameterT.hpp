@@ -56,7 +56,7 @@ namespace Geneva {
  * boolean, ...).
  */
 template <typename T>
-class GParameterT
+class G_API GParameterT
 	:public GParameterBaseWithAdaptorsT<T>
 {
 	///////////////////////////////////////////////////////////////////////

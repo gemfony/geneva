@@ -64,7 +64,7 @@ namespace Geneva {
  * Plus, having a separate integer class adds some consistency to Geneva, as other values
  * (most notably doubles) have their own class as well (GConstrainedDoubleObject, GDoubleObject).
  */
-class GInt32Object
+class G_API GInt32Object
 	:public GNumIntT<boost::int32_t>
 {
 	///////////////////////////////////////////////////////////////////////

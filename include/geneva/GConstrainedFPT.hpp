@@ -63,7 +63,7 @@ namespace Geneva {
  * to benefit from the adaption capabilities.
  */
 template <typename fp_type>
-class GConstrainedFPT
+class G_API GConstrainedFPT
 	:public GConstrainedNumT<fp_type>
 {
 	///////////////////////////////////////////////////////////////////////

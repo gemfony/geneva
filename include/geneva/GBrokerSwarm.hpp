@@ -57,7 +57,7 @@ namespace Geneva {
  * This class implements a swarm algorithm with the ability to delegate certain
  * tasks to remote clients, using Geneva's broker infrastructure.
  */
-class GBrokerSwarm
+class G_API GBrokerSwarm
   : public GBaseSwarm
   , public Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>
 {

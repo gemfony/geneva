@@ -64,7 +64,7 @@ namespace Geneva {
 /**
  * A multi-threaded version of the GBaseGD class
  */
-class GMultiThreadedGD
+class G_API GMultiThreadedGD
 	:public GBaseGD
 {
 	///////////////////////////////////////////////////////////////////////

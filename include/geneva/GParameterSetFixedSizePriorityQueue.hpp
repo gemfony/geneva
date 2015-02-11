@@ -71,7 +71,7 @@ namespace Geneva {
  * based on the maximization/minimization property and the current fitness of
  * the objects.
  */
-class GParameterSetFixedSizePriorityQueue
+class G_API GParameterSetFixedSizePriorityQueue
    : public Gem::Common::GFixedSizePriorityQueueT<GParameterSet>
 {
    ///////////////////////////////////////////////////////////////////////

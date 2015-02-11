@@ -62,7 +62,7 @@ namespace Geneva {
  * allows to deal with booleans instead of "standard" integer types.
  */
 template<typename int_type>
-class GIntFlipAdaptorT
+class G_API GIntFlipAdaptorT
 	:public GNumFlipAdaptorT<int_type>
 {
 	///////////////////////////////////////////////////////////////////////

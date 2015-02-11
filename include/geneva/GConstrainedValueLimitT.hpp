@@ -61,7 +61,7 @@ namespace Geneva {
  * than the allowed maximum value for floating point types.
  */
 template <typename T>
-struct GConstrainedValueLimitT
+struct G_API GConstrainedValueLimitT
 {
    static T highest() {
       return boost::numeric::bounds<T>::highest();
@@ -77,7 +77,7 @@ struct GConstrainedValueLimitT
  * Specialization of GConstrainedValueLimitT for double values.
  */
 template <>
-struct GConstrainedValueLimitT<double>
+struct G_API GConstrainedValueLimitT<double>
 {
 	static double highest() {
 		return GMAXCONSTRAINEDDOUBLE;
@@ -93,7 +93,7 @@ struct GConstrainedValueLimitT<double>
  * Specialization of GConstrainedValueLimitT for float values.
  */
 template <>
-struct GConstrainedValueLimitT<float>
+struct G_API GConstrainedValueLimitT<float>
 {
 	static float highest() {
 		return GMAXCONSTRAINEDFLOAT;
@@ -109,7 +109,7 @@ struct GConstrainedValueLimitT<float>
  * Specialization of GConstrainedValueLimitT for boost::int32_t values.
  */
 template <>
-struct GConstrainedValueLimitT<boost::int32_t>
+struct G_API GConstrainedValueLimitT<boost::int32_t>
 {
 	static boost::int32_t highest() {
 		return GMAXCONSTRAINEDINT32;
@@ -125,7 +125,7 @@ struct GConstrainedValueLimitT<boost::int32_t>
  * Specialization of GConstrainedValueLimitT for bool values.
  */
 template <>
-struct GConstrainedValueLimitT<bool>
+struct G_API GConstrainedValueLimitT<bool>
 {
    static bool highest() {
       return true;

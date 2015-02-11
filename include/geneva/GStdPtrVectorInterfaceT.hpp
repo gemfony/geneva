@@ -96,7 +96,7 @@ namespace Geneva {
  * the current one.
  */
 template <typename T>
-class GStdPtrVectorInterfaceT
+class G_API GStdPtrVectorInterfaceT
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;

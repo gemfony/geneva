@@ -59,7 +59,7 @@ const double DEFAULTUPPERINITBOUNDARYSINGLE=1.;
  * by GParameterT, this class becomes rather simple.
  */
 template <typename T>
-class GNumT
+class G_API GNumT
 	: public GParameterT<T>
 {
 	///////////////////////////////////////////////////////////////////////

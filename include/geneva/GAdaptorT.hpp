@@ -87,7 +87,7 @@ namespace Geneva {
  * the other Geneva classes.
  */
 template <typename T>
-class GAdaptorT
+class G_API GAdaptorT
 	: public GObject
 {
 	///////////////////////////////////////////////////////////////////////

@@ -60,7 +60,7 @@ namespace Geneva {
  * is experimental. Your mileage may vary.
  */
 template<typename num_type, typename fp_type>
-class GNumBiGaussAdaptorT :public GAdaptorT<num_type>
+class G_API GNumBiGaussAdaptorT :public GAdaptorT<num_type>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;

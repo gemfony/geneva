@@ -59,7 +59,7 @@ namespace Geneva {
  * base class that can also be used to adapt other numeric types.
  */
 template<typename fp_type>
-class GFPGaussAdaptorT
+class G_API GFPGaussAdaptorT
 	:public GNumGaussAdaptorT<fp_type, fp_type>
 {
 	///////////////////////////////////////////////////////////////////////

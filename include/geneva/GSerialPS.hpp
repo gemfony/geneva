@@ -61,7 +61,7 @@ namespace Geneva {
 /**
  * A serial gradient descent
  */
-class GSerialPS :public GBasePS
+class G_API GSerialPS :public GBasePS
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;

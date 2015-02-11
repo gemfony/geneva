@@ -56,7 +56,7 @@ namespace Geneva {
 /**
  * A serial swarm, no multithreading is used directly by this class
  */
-class GSerialSwarm
+class G_API GSerialSwarm
 	: public GBaseSwarm
 {
 	///////////////////////////////////////////////////////////////////////
@@ -90,11 +90,11 @@ public:
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
-			const GObject&
-			, const Gem::Common::expectation&
-			, const double&, const std::string&
-			, const std::string&
-			, const bool&
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&, const std::string&
+      , const std::string&
+      , const bool&
 	) const OVERRIDE;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */

@@ -65,9 +65,9 @@ enum RANDFLAVOURS {
 /******************************************************************************/
 
 /** @brief Puts a Gem::Hap::RANDFLAVOURS into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::Hap::RANDFLAVOURS&);
+G_API std::ostream& operator<<(std::ostream&, const Gem::Hap::RANDFLAVOURS&);
 /** @brief Reads a Gem::Hap::RANDFLAVOURS item from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::Hap::RANDFLAVOURS&);
+G_API std::istream& operator>>(std::istream&, Gem::Hap::RANDFLAVOURS&);
 
 /******************************************************************************/
 

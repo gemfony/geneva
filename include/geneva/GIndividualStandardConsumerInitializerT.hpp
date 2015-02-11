@@ -65,7 +65,7 @@ namespace Geneva {
  * to a global store
  */
 template <typename pl_type, typename c_type> // pl_type stands for "payload type"; c_type stands for consumer type
-class GIndividualStandardConsumerInitializerT {
+class G_API GIndividualStandardConsumerInitializerT {
    // Make sure pl_type is a derivative of Gem::Geneva::GParameterSet
    BOOST_MPL_ASSERT((boost::is_base_of<Gem::Geneva::GParameterSet , pl_type>));
 

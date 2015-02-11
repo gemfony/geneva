@@ -67,7 +67,7 @@ namespace Geneva {
  * native iterator, will give you the "raw" data only.
  */
 template <typename num_type>
-class GConstrainedNumCollectionT
+class G_API GConstrainedNumCollectionT
 	: public GParameterCollectionT<num_type>
 {
 	///////////////////////////////////////////////////////////////////////

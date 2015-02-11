@@ -62,7 +62,7 @@ namespace Geneva {
  *
  * Note: It is required that derived classes make sure that a useful operator=() is available!
  */
-class GParameterBase
+class G_API GParameterBase
 	: public GObject
 	, public GMutableI
 {

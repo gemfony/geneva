@@ -59,7 +59,7 @@ namespace Geneva {
  * personality. Note that this class is purely virtual. It can only be used in
  * conjunction with a derived personality.
  */
-class GPersonalityTraits :public GObject
+class G_API GPersonalityTraits :public GObject
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;

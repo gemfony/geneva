@@ -89,7 +89,7 @@ const bool DEFAULTFOLLOWPROGRESS=false;
 /**
  * Parses the command line
  */
-bool parseCommandLine(
+G_API bool parseCommandLine(
    int argc, char **argv
    , boost::uint16_t& parallelizationMode
    , bool& serverMode

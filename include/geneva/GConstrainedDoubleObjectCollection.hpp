@@ -56,7 +56,7 @@ namespace Geneva {
  * A collection of GConstrainedDoubleObject objects, ready for use in a
  * GParameterSet derivative.
  */
-class GConstrainedDoubleObjectCollection
+class G_API GConstrainedDoubleObjectCollection
 	:public GParameterTCollectionT<GConstrainedDoubleObject>
 {
 	///////////////////////////////////////////////////////////////////////

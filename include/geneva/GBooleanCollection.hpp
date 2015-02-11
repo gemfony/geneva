@@ -59,7 +59,7 @@ namespace Geneva {
  * is applied to all bits. If you want individual flip probabilities for
  * all bits, use GBool objects instead.
  */
-class GBooleanCollection :public GParameterCollectionT<bool>
+class G_API GBooleanCollection :public GParameterCollectionT<bool>
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;

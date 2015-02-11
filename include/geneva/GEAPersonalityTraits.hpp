@@ -54,7 +54,7 @@ namespace Geneva {
  * This class adds variables and functions to GPersonalityTraits that are specific
  * to evolutionary algorithms.
  */
-class GEAPersonalityTraits
+class G_API GEAPersonalityTraits
    : public GBaseParChildPersonalityTraits
 {
 	///////////////////////////////////////////////////////////////////////

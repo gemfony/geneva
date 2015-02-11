@@ -58,7 +58,7 @@ namespace Geneva {
  * adaptor characteristics for different values. This cannot be done with a GIntCollectionT.
  */
 template <typename int_type>
-class GNumIntT
+class G_API GNumIntT
 	:public GNumT<int_type>
 {
 	///////////////////////////////////////////////////////////////////////

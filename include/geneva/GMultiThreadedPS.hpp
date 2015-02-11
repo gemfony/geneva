@@ -64,7 +64,7 @@ namespace Geneva {
 /**
  * A multi-threaded version of the GBasePS class
  */
-class GMultiThreadedPS
+class G_API GMultiThreadedPS
    :public GBasePS
 {
    ///////////////////////////////////////////////////////////////////////

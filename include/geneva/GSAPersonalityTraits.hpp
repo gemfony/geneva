@@ -57,7 +57,7 @@ namespace Geneva {
  * class is the same as for evolutionary algorithms, as in Geneva Simulated Annealing
  * uses the same framework.
  */
-class GSAPersonalityTraits
+class G_API GSAPersonalityTraits
    : public GBaseParChildPersonalityTraits
 {
    ///////////////////////////////////////////////////////////////////////

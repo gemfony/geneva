@@ -54,7 +54,7 @@ namespace Geneva {
 /**
  * A collection of boost::int32_t objects without boundaries
  */
-class GInt32Collection
+class G_API GInt32Collection
 	:public GIntNumCollectionT<boost::int32_t>
 {
 	///////////////////////////////////////////////////////////////////////

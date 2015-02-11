@@ -55,7 +55,7 @@ namespace Geneva {
  * A collection of integer objects without boundaries
  */
 template <typename int_type>
-class GIntNumCollectionT
+class G_API GIntNumCollectionT
 	:public GNumCollectionT<int_type>
 {
 	///////////////////////////////////////////////////////////////////////

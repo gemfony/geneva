@@ -63,7 +63,7 @@ const std::size_t P_YDIM=1400;
  * the best individuals. This monitor is thus targeted at a specific type of individual. Note that
  * the class uses ROOT scripts for the output of its results.
  */
-class GSigmaMonitor
+class G_API GSigmaMonitor
    :public GBaseEA::GEAOptimizationMonitor
 {
    ///////////////////////////////////////////////////////////////////////

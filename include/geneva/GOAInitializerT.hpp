@@ -66,7 +66,7 @@ namespace Geneva {
  * the global algorithm store
  */
 template <typename oaf_type>
-class GOAInitializerT {
+class G_API GOAInitializerT {
    // Make sure oaf_type has the expected type
    BOOST_MPL_ASSERT((boost::is_base_of<GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> > , oaf_type>));
 

@@ -55,7 +55,7 @@ namespace Geneva {
  * A collection of GConstrainedInt32Object objects, ready for use in a
  * GParameterSet derivative.
  */
-class GConstrainedInt32ObjectCollection
+class G_API GConstrainedInt32ObjectCollection
 	:public GParameterTCollectionT<GConstrainedInt32Object>
 {
 	///////////////////////////////////////////////////////////////////////

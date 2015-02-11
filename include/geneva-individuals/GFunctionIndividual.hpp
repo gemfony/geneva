@@ -89,10 +89,10 @@ const solverFunction MAXDEMOFUNCTION=SALOMON;
 
 // Make sure solverFunction can be streamed
 /** @brief Puts a Gem::Geneva::solverFunction into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::Geneva::solverFunction&);
+G_API std::ostream& operator<<(std::ostream&, const Gem::Geneva::solverFunction&);
 
 /** @brief Reads a Gem::Geneva::solverFunction from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::Geneva::solverFunction&);
+G_API std::istream& operator>>(std::istream&, Gem::Geneva::solverFunction&);
 
 /**
  * This enum describes different parameter types that may be used to fill the object with data
@@ -107,10 +107,10 @@ enum parameterType {
 
 // Make sure parameterType can be streamed
 /** @brief Puts a Gem::Geneva::parameterType into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::Geneva::parameterType&);
+G_API std::ostream& operator<<(std::ostream&, const Gem::Geneva::parameterType&);
 
 /** @brief Reads a Gem::Geneva::parameterType from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::Geneva::parameterType&);
+G_API std::istream& operator>>(std::istream&, Gem::Geneva::parameterType&);
 
 /**
  * This enum describes several ways of initializing the data collections
@@ -122,10 +122,10 @@ enum initMode {
 
 // Make sure initMode can be streamed
 /** @brief Puts a Gem::Geneva::initMode into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::Geneva::initMode&);
+G_API std::ostream& operator<<(std::ostream&, const Gem::Geneva::initMode&);
 
 /** @brief Reads a Gem::Geneva::initMode from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::Geneva::initMode&);
+G_API std::istream& operator>>(std::istream&, Gem::Geneva::initMode&);
 
 /******************************************************************************/
 // A number of default settings for the factory
@@ -165,7 +165,7 @@ class GFunctionIndividualFactory;
  * This individual searches for a minimum of a number of predefined functions, each capable
  * of processing their input in multiple dimensions.
  */
-class GFunctionIndividual
+class G_API GFunctionIndividual
 	: public GParameterSet
 {
 	///////////////////////////////////////////////////////////////////////
@@ -450,7 +450,7 @@ std::ostream& operator<<(std::ostream&, boost::shared_ptr<Gem::Geneva::GFunction
 /**
  * A factory for GFunctionIndividual objects
  */
-class GFunctionIndividualFactory
+class G_API GFunctionIndividualFactory
 	: public Gem::Common::GFactoryT<GParameterSet>
 {
    ///////////////////////////////////////////////////////////////////////
@@ -676,7 +676,7 @@ private:
  * a given constraint. Here, the sum of all double variables needs to be smaller
  * than a given constant.
  */
-class GDoubleSumConstraint : public GParameterSetConstraint
+class G_API GDoubleSumConstraint : public GParameterSetConstraint
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -740,7 +740,7 @@ private:
  * A constraint checker trying to enforce a condition x+y+z=C (note the equal
  * sign!) for double variables
  */
-class GDoubleSumGapConstraint : public GParameterSetConstraint
+class G_API GDoubleSumGapConstraint : public GParameterSetConstraint
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -806,7 +806,7 @@ private:
  * A simple constraint checker searching for valid solutions that fulfill
  * a given constraint. Here, valid solutions lie in a sphere around 0
  */
-class GSphereConstraint : public GParameterSetConstraint
+class G_API GSphereConstraint : public GParameterSetConstraint
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;

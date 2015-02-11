@@ -55,7 +55,7 @@ namespace Geneva {
  * to GNumT
  */
 template <typename fp_type>
-class GNumFPT
+class G_API GNumFPT
 	: public GNumT<fp_type>
 {
 	///////////////////////////////////////////////////////////////////////

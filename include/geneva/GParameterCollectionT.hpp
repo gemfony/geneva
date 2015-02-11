@@ -56,7 +56,7 @@ namespace Geneva {
  * long, bool, ...).
  */
 template<typename T>
-class GParameterCollectionT
+class G_API GParameterCollectionT
 	:public GParameterBaseWithAdaptorsT<T>,
 	 public GStdSimpleVectorInterfaceT<T>
 {

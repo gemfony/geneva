@@ -127,7 +127,7 @@ const std::string GEEI_DEF_STARTMODE = "random";
  * The xml parameter file is created using boost::property_tree and its write_xml utility.
  * Hence the external program needs to understand this format.
  */
-class GExternalEvaluatorIndividual :public GParameterSet
+class G_API GExternalEvaluatorIndividual :public GParameterSet
  {
 	///////////////////////////////////////////////////////////////////////
 
@@ -220,7 +220,7 @@ class GExternalEvaluatorIndividual :public GParameterSet
 /**
  * A factory for GExternalEvaluatorIndividual objects
  */
-class GExternalEvaluatorIndividualFactory
+class G_API GExternalEvaluatorIndividualFactory
    : public Gem::Common::GFactoryT<GParameterSet>
 {
 public:

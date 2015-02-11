@@ -80,10 +80,10 @@ enum metaOptimizationTarget {
 // Input and output of metaOptimizationTarget, so we can serialize this data
 
 /** @brief Puts a Gem::Geneva::metaOptimizationTarget into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::Geneva::metaOptimizationTarget&);
+G_API std::ostream& operator<<(std::ostream&, const Gem::Geneva::metaOptimizationTarget&);
 
 /** @brief Reads a Gem::Geneva::metaOptimizationTarget from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::Geneva::metaOptimizationTarget&);
+G_API std::istream& operator>>(std::istream&, Gem::Geneva::metaOptimizationTarget&);
 
 /******************************************************************************/
 // A number of default settings for the factory and individual
@@ -170,7 +170,7 @@ const std::size_t MOT_NVAR = 12;
  * factory class.
  */
 template <typename ind_type = Gem::Geneva::GFunctionIndividual>
-class GMetaOptimizerIndividualT : public GParameterSet
+class G_API GMetaOptimizerIndividualT : public GParameterSet
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -1265,7 +1265,7 @@ public:
  * boost::lexical_cast
  */
 template <typename ind_type>
-std::ostream& operator<<(
+G_API std::ostream& operator<<(
    std::ostream& stream
    , const GMetaOptimizerIndividualT<ind_type>& gsi
 ) {
@@ -1280,7 +1280,7 @@ std::ostream& operator<<(
  * A factory for GMetaOptimizerIndividualT<ind_type> objects
  */
 template <typename ind_type>
-class GMetaOptimizerIndividualFactoryT
+class G_API GMetaOptimizerIndividualFactoryT
    : public Gem::Common::GFactoryT<GParameterSet>
 {
 public:
