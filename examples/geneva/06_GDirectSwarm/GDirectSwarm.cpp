@@ -80,13 +80,9 @@ int main(int argc, char **argv){
    boost::uint32_t maxConnectionAttempts;
    boost::uint16_t nProducerThreads;
    boost::uint16_t nEvaluationThreads;
-   std::size_t populationSize;
-   std::size_t nParents;
    boost::uint32_t maxIterations;
    long maxMinutes;
    boost::uint32_t reportIteration;
-   duplicationScheme rScheme;
-   sortingMode smode;
    Gem::Common::serializationMode serMode;
    boost::uint16_t xDim;
    boost::uint16_t yDim;
