@@ -73,6 +73,9 @@ class G_API GNumFlipAdaptorT
 	}
 	///////////////////////////////////////////////////////////////////////
 
+   // Make sure this class can only be instantiated with num_type as an arithmetic type
+   BOOST_MPL_ASSERT((boost::is_arithmetic<num_type>));
+
 public:
 	/***************************************************************************/
 	/**

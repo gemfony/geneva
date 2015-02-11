@@ -174,7 +174,10 @@ public:
    }
 
    /***************************************************************************/
-   /** @brief Allows derived classes to randomly initialize parameter members */
+   /**
+    * Allows to randomly initialize parameter members. No local data, hence no
+    * action taken.
+    */
    virtual void randomInit() OVERRIDE
    { /* nothing - no local data */ }
 

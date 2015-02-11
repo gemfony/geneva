@@ -46,7 +46,6 @@
 #include "common/GExceptions.hpp"
 #include "GAdaptorT.hpp"
 #include "GConstrainedDoubleObject.hpp"
-#include "GIntFlipAdaptorT.hpp"
 #include "GObject.hpp"
 #include "GObjectExpectationChecksT.hpp"
 #include "GOptimizationEnums.hpp"
@@ -57,14 +56,13 @@ namespace Geneva {
 /******************************************************************************/
 /**
  * The GBooleanAdaptor represents an adaptor used for the adaption of
- * boolean values by flipping its value. See the documentation of GAdaptorT<T> for
+ * boolean variables by flipping their values. See the documentation of GAdaptorT<T> for
  * further information on adaptors in the Geneva context. Most functionality
  * (with the notable exception of the actual adaption logic) is currently
- * implemented in the GIntFlipAdaptorT class. Most of the logic is implemented
- * in the base classes, in particular customAdaptions();
+ * implemented in the GAdaptorT class.
  */
 class G_API GBooleanAdaptor
-	:public GIntFlipAdaptorT<bool>
+	:public GAdaptorT<bool>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -73,8 +71,9 @@ class G_API GBooleanAdaptor
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GIntFlipAdaptorT_bool",
-	        boost::serialization::base_object<GIntFlipAdaptorT<bool> >(*this));
+	  ar
+	  & make_nvp("GAdaptorT_bool",
+	        boost::serialization::base_object<GAdaptorT<bool> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -112,6 +111,8 @@ public:
 
    /** @brief Emits a name for this class / object */
    virtual std::string name() const OVERRIDE;
+   /** @brief Random initialization of the adaptor */
+   void randomInit() OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another GObject */

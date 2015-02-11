@@ -43,7 +43,7 @@ namespace Geneva {
  * The default constructor
  */
 GBooleanAdaptor::GBooleanAdaptor()
-	: GIntFlipAdaptorT<bool>(DEFAULTBITADPROB)
+	: GAdaptorT<bool>(DEFAULTBITADPROB)
 { /* nothing */ }
 
 // Tested in this class
@@ -55,7 +55,7 @@ GBooleanAdaptor::GBooleanAdaptor()
  * @param cp A copy of another GBooleanAdaptor object
  */
 GBooleanAdaptor::GBooleanAdaptor(const GBooleanAdaptor& cp)
-	: GIntFlipAdaptorT<bool>(cp)
+	: GAdaptorT<bool>(cp)
 { /* nothing */ }
 
 // Tested in this class
@@ -67,7 +67,7 @@ GBooleanAdaptor::GBooleanAdaptor(const GBooleanAdaptor& cp)
  * @param adProb The adaption probability
  */
 GBooleanAdaptor::GBooleanAdaptor(const double& adProb)
-	: GIntFlipAdaptorT<bool>(adProb)
+	: GAdaptorT<bool>(adProb)
 { /* nothing */ }
 
 // Tested in this class
@@ -108,7 +108,7 @@ GObject* GBooleanAdaptor::clone_() const {
 void GBooleanAdaptor::customAdaptions(
    bool& value
    , const bool& range
-) OVERRIDE {
+) {
    value==true?value=false:value=true;
 }
 
@@ -167,7 +167,7 @@ boost::optional<std::string> GBooleanAdaptor::checkRelationshipWith(const GObjec
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GIntFlipAdaptorT<bool>::checkRelationshipWith(cp, e, limit, "GBooleanAdaptor", y_name, withMessages));
+	deviations.push_back(GAdaptorT<bool>::checkRelationshipWith(cp, e, limit, "GBooleanAdaptor", y_name, withMessages));
 
 	// no local data ...
 
@@ -182,6 +182,13 @@ std::string GBooleanAdaptor::name() const {
    return std::string("GBooleanAdaptor");
 }
 
+/***********************************************************************************//**
+ * Allows to randomly initialize parameter members. No local data, hence no
+ * action taken.
+ */
+void GBooleanAdaptor::randomInit()
+{ /* nothing - no local data */ }
+
 /******************************************************************************/
 /**
  * Loads the data of another GObject
@@ -193,7 +200,7 @@ void GBooleanAdaptor::load_(const GObject* cp){
 	GObject::selfAssignmentCheck<GBooleanAdaptor>(cp);
 
 	// Load our parent class'es data ...
-	GIntFlipAdaptorT<bool>::load_(cp);
+	GAdaptorT<bool>::load_(cp);
 
 	// ... no local data
 }
@@ -227,7 +234,7 @@ bool GBooleanAdaptor::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GIntFlipAdaptorT<bool>::modify_GUnitTests()) result = true;
+	if(GAdaptorT<bool>::modify_GUnitTests()) result = true;
 
 	return result;
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
@@ -246,7 +253,7 @@ void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GIntFlipAdaptorT<bool>::specificTestsNoFailureExpected_GUnitTests();
+	GAdaptorT<bool>::specificTestsNoFailureExpected_GUnitTests();
 
 	// --------------------------------------------------------------------------
 
@@ -317,7 +324,7 @@ void GBooleanAdaptor::specificTestsFailuresExpected_GUnitTests() {
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GIntFlipAdaptorT<bool>::specificTestsFailuresExpected_GUnitTests();
+	GAdaptorT<bool>::specificTestsFailuresExpected_GUnitTests();
 
 	// no local data - nothing to test
 
