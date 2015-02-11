@@ -77,7 +77,7 @@ const boost::uint16_t DEFAULTTHREADSPERWORKER = 1;
  * The class makes use of the template arguments' process() function.
  */
 template <class processable_type>
-class GBoostThreadConsumerT
+class G_API GBoostThreadConsumerT
 	:public Gem::Courtier::GBaseConsumerT<processable_type>
 {
 private:

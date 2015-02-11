@@ -68,7 +68,7 @@ namespace Courtier {
  * single population.
  */
 template<typename T>
-class GBufferPortT
+class G_API GBufferPortT
 	:private boost::noncopyable
 {
 public:

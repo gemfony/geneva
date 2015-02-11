@@ -81,7 +81,7 @@ namespace Courtier {
  * when the consumer is supposed to shut down.
  */
 template <typename pl_type> // pl stands for "pay load"
-class GBaseConsumerT
+class G_API GBaseConsumerT
 	:private boost::noncopyable
 {
 public:

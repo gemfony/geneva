@@ -141,10 +141,10 @@ typedef ID_TYPE_2 POSITIONTYPE;
 /******************************************************************************/
 
 /** @brief Puts a Gem::Courtier::submissionReturnMode into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::Courtier::submissionReturnMode&);
+G_API std::ostream& operator<<(std::ostream&, const Gem::Courtier::submissionReturnMode&);
 
 /** @brief Reads a Gem::Courtier::submissionReturnMode item from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::Courtier::submissionReturnMode&);
+G_API std::istream& operator>>(std::istream&, Gem::Courtier::submissionReturnMode&);
 
 /******************************************************************************/
 

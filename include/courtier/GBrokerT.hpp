@@ -80,7 +80,7 @@ namespace Courtier {
 
 /******************************************************************************/
 /** @brief Class to be thrown as a message in the case of a time-out in GBuffer */
-class buffer_not_present: public std::exception {};
+class G_API buffer_not_present: public std::exception {};
 
 /******************************************************************************/
 
@@ -94,7 +94,7 @@ const Gem::Common::PORTIDTYPE MAXPORTID = boost::numeric::bounds<Gem::Common::PO
  * This class acts as the main interface between producers and consumers.
  */
 template<typename carrier_type>
-class GBrokerT
+class G_API GBrokerT
 	:private boost::noncopyable
 {
 	typedef typename boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<boost::shared_ptr<carrier_type> > > GBoundedBufferWithIdT_Ptr;

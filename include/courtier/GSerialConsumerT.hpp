@@ -58,7 +58,7 @@ namespace Courtier {
  * of different implementations of the algorithms for each mode.
  */
 template <class processable_type>
-class GSerialConsumerT
+class G_API GSerialConsumerT
 	:public Gem::Courtier::GBaseConsumerT<processable_type>
 {
 public:

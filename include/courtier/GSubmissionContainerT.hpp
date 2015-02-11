@@ -73,7 +73,7 @@ namespace Courtier {
  * derived classes to be serializable and to trigger serialization of this class.
  */
 template <typename submission_type>
-class GSubmissionContainerT {
+class G_API GSubmissionContainerT {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 

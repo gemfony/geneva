@@ -80,7 +80,7 @@ namespace Courtier {
  * This class assumes that the template parameter implements the "process()" call.
  */
 template <typename processable_type>
-class GBaseClientT
+class G_API GBaseClientT
 	:private boost::noncopyable
 {
 public:

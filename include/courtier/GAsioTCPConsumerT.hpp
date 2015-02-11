@@ -121,7 +121,7 @@ template <typename processable_type> class GAsioTCPConsumerT;
  * from a non-copyable base class.
  */
 template <typename processable_type>
-class GAsioTCPClientT
+class G_API GAsioTCPClientT
    : public Gem::Courtier::GBaseClientT<processable_type>
 {
 public:
@@ -585,7 +585,7 @@ private:
  * header files.
  */
 template <typename processable_type>
-class GAsioServerSessionT
+class G_API GAsioServerSessionT
    : public  boost::enable_shared_from_this<GAsioServerSessionT<processable_type> >
    , private boost::noncopyable
  {
@@ -1134,7 +1134,7 @@ class GAsioServerSessionT
  * for each client request.
  */
 template <typename processable_type>
-class GAsioTCPConsumerT
+class G_API GAsioTCPConsumerT
    :public Gem::Courtier::GBaseConsumerT<processable_type> // note: GBaseConsumerT<> is non-copyable
  {
     friend class GAsioServerSessionT<processable_type>;

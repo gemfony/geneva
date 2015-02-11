@@ -92,7 +92,7 @@ namespace Courtier {
  * execution. The serial mode is meant for debugging purposes only.
  */
 template <typename processable_type>
-class GBaseExecutorT
+class G_API GBaseExecutorT
 {
    // Make sure processable_type is derived from the submission container
    BOOST_MPL_ASSERT((boost::is_base_of<GSubmissionContainerT<processable_type>, processable_type>));
@@ -588,7 +588,7 @@ private:
  * purposes
  */
 template <typename processable_type>
-class GSerialExecutorT
+class G_API GSerialExecutorT
    : public GBaseExecutorT<processable_type>
 {
    ///////////////////////////////////////////////////////////////////////
@@ -792,7 +792,7 @@ protected:
  * This class executes a collection of work items in multiple threads
  */
 template <typename processable_type>
-class GMTExecutorT
+class G_API GMTExecutorT
    : public GBaseExecutorT<processable_type>
 {
    ///////////////////////////////////////////////////////////////////////
@@ -1011,7 +1011,7 @@ private:
  * This class executes a collection of work items in multiple threads
  */
 template <typename processable_type>
-class GBrokerConnector2T
+class G_API GBrokerConnector2T
    : public GBaseExecutorT<processable_type>
 {
    ///////////////////////////////////////////////////////////////////////
