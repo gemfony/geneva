@@ -1,5 +1,5 @@
 /**
- * @file GParameterCollectionT.cpp
+ * @file GTypeToStringT.hpp
  */
 
 /*
@@ -32,49 +32,92 @@
  * http://www.gemfony.eu .
  */
 
-#include "geneva/GParameterCollectionT.hpp"
+// Global checks, defines and includes needed for all of Geneva
+#include "common/GGlobalDefines.hpp"
+
+// Standard headers go here
+#include <string>
+
+// Boost headers go here
+
+#ifndef INCLUDE_COMMON_GTYPETOSTRINGT_HPP_
+#define INCLUDE_COMMON_GTYPETOSTRINGT_HPP_
+
+// Geneva headers go here
 
 namespace Gem {
-namespace Geneva {
+namespace Common {
 
 /******************************************************************************/
 /**
- * Returns a human-readable name for the base type of derived objects
+ * This class allows to specify a string for a given type. Useful e.g. for
+ * debugging output.
  */
-template<>
-std::string GParameterCollectionT<double>::baseType() const {
-   return std::string("double");
-}
+template <typename T>
+struct G_API GTypeToStringT {
+   static std::string value() {
+      return std::string("unknown");
+   }
+};
 
 /******************************************************************************/
 /**
- * Returns a human-readable name for the base type of derived objects
+ * Specialization for T == double
  */
-template<>
-std::string GParameterCollectionT<float>::baseType() const {
-   return std::string("float");
-}
+template <>
+struct G_API GTypeToStringT<double> {
+   static std::string value() {
+      return std::string("double");
+   }
+};
 
 /******************************************************************************/
 /**
- * Returns a human-readable name for the base type of derived objects
+ * Specialization for T == float
  */
-template<>
-std::string GParameterCollectionT<boost::int32_t>::baseType() const {
-   return std::string("int32_t");
-}
+template <>
+struct G_API GTypeToStringT<float> {
+   static std::string value() {
+      return std::string("float");
+   }
+};
 
 /******************************************************************************/
 /**
- * Returns a human-readable name for the base type of derived objects
+ * Specialization for T == boost::int32_t
  */
-template<>
-std::string GParameterCollectionT<bool>::baseType() const {
-   return std::string("bool");
-}
+template <>
+struct G_API GTypeToStringT<boost::int32_t> {
+   static std::string value() {
+      return std::string("int32_t");
+   }
+};
+
+/******************************************************************************/
+/**
+ * Specialization for T == bool
+ */
+template <>
+struct G_API GTypeToStringT<bool> {
+   static std::string value() {
+      return std::string("bool");
+   }
+};
+
+/******************************************************************************/
+/**
+ * Specialization for T == string
+ */
+template <>
+struct G_API GTypeToStringT<std::string> {
+   static std::string value() {
+      return std::string("string");
+   }
+};
 
 /******************************************************************************/
 
-} /* namespace Geneva */
+} /* namespace Common */
 } /* namespace Gem */
 
+#endif /* INCLUDE_COMMON_GTYPETOSTRINGT_HPP_ */

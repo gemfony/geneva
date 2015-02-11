@@ -51,7 +51,7 @@ namespace Common {
 
 /******************************************************************************/
 /**
- * This function allows to specify default values for specific types
+ * This class allows to specify default values for specific types
  * through specializations.
  */
 template <typename T>
