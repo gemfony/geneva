@@ -21,6 +21,8 @@ The main changes for this release include:
    according to this value range.
  - Most calculations in Geneva's gradient descent implementation are
    now carried out as long double to preserve accuracy, where possible.
+ - Added native support for MS Windows using the Visual C compiler
+   (static libraries only, currently).
 
 Wishlist:
  - A scripting interface to optimization algorithms, so that new
@@ -30,7 +32,6 @@ Wishlist:
    specified in Python.
  - Additional optimization algorithms (particularly Simplex and
    Conjugate Gradient).
- - MS Windows port.
  - Variable length parents in evolutionary algorithms to better support
    pareto optimization. Variable length best individuals for the same reason
  - Make the build-system log whether the libraries were built with or
