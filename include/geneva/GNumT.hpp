@@ -76,6 +76,9 @@ class G_API GNumT
 	}
 	///////////////////////////////////////////////////////////////////////
 
+   // Make sure this class can only be instantiated with T as an arithmetic type
+   BOOST_MPL_ASSERT((boost::is_arithmetic<T>));
+
 public:
 	/** @brief Specifies the type of parameters stored in this collection */
 	typedef T collection_type;
@@ -452,8 +455,6 @@ public:
 };
 
 /******************************************************************************/
-// Specialization for T==bool
-template<> bool GNumT<bool>::range() const;
 
 } /* namespace Geneva */
 } /* namespace Gem */

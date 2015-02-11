@@ -22,7 +22,6 @@ SET ( OPTIMIZATIONSOURCES
 	GConstrainedInt32Object
 	GConstrainedInt32ObjectCollection
 	GConstrainedNumCollectionT
-	GConstrainedNumT
 	GDoubleBiGaussAdaptor
 	GDoubleCollection
 	GDoubleGaussAdaptor
@@ -48,8 +47,6 @@ SET ( OPTIMIZATIONSOURCES
 	GMultiThreadedPS
 	GMultiThreadedSA
 	GMultiThreadedSwarm
-	GNumT
-	GNumCollectionT
 	Go2
 	GObject
 	GOptimizableEntity

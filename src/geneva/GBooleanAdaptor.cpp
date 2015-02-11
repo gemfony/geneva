@@ -103,6 +103,17 @@ GObject* GBooleanAdaptor::clone_() const {
 
 /******************************************************************************/
 /**
+ * Flip the value up or down by 1, depending on a random number
+ */
+void GBooleanAdaptor::customAdaptions(
+   bool& value
+   , const bool& range
+) OVERRIDE {
+   value==true?value=false:value=true;
+}
+
+/******************************************************************************/
+/**
  * Checks for equality with another GBooleanAdaptor object
  *
  * @param  cp A constant reference to another GBooleanAdaptor object

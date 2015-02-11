@@ -81,6 +81,9 @@ class G_API GConstrainedNumT
 	}
 	///////////////////////////////////////////////////////////////////////
 
+   // Make sure this class can only be instantiated with T as an arithmetic type
+   BOOST_MPL_ASSERT((boost::is_arithmetic<T>));
+
 public:
 	/***************************************************************************/
 	/**
@@ -880,8 +883,6 @@ public:
 };
 
 /******************************************************************************/
-// Specialization for T==bool
-template<> bool GConstrainedNumT<bool>::range() const;
 
 } /* namespace Geneva */
 } /* namespace Gem */

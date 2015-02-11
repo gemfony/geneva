@@ -199,10 +199,7 @@ protected:
 
 	/***************************************************************************/
 	/**
-	 * We want to flip the value only in a given percentage of cases. Thus
-	 * we calculate a probability between 0 and 1 and compare it with the desired
-	 * adaption probability. Please note that evenRandom returns a value in the
-	 * range of [0,1[, so we make a tiny error here.
+	 * Flip the value up or down by 1, depending on a random number.
 	 *
 	 * @param value The bit value to be adapted
 	 * @param range A typical range for the parameter with type T (unused here)
@@ -287,15 +284,6 @@ public:
 
    /***************************************************************************/
 };
-
-/******************************************************************************/
-/**
- * Overload for num_type == bool . inline needed to satisfy MSVC restriction.
- */
-template<>
-inline void GNumFlipAdaptorT<bool>::customAdaptions(bool& value, const bool& range) {
-   value==true?value=false:value=true;
-}
 
 /******************************************************************************/
 

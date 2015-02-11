@@ -118,6 +118,8 @@ protected:
 	virtual void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object. */
 	virtual GObject* clone_() const OVERRIDE;
+   /** @brief Flip the value up or down by 1, depending on a random number */
+   virtual void customAdaptions(bool&, const bool&) OVERRIDE;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
