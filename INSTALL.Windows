@@ -1,0 +1,129 @@
+Geneva Installation on Windows
+==============================
+
+Geneva has been tested to compile and work on Windows 7 using the
+MS Visual C++ 12.0 compiler from the "Visual Studio Express 2013 for Desktop"
+developer environment. Your mileage may vary with other Windows/compiler
+version combinations.
+
+The authors would very much appreciate your feedback through the Geneva
+Development Forum http://www.gemfony.eu/index.php?forums .
+
+In case you encounter any bugs or issues please let us know through the Geneva
+bugtracker: https://bugs.launchpad.net/geneva .
+
+For further information, please also have a look at our user-manual, available
+from the Downloads section of our web page.
+
+
+Installation prerequisites on Windows
+-------------------------------------
+
+To compile Geneva you need the (freely available) Visual Studio IDE, CMake,
+and Boost. Note that you need at least 12 GB free disk space for the whole,
+plus additional space for compilation work.
+
+- Visit
+    http://www.visualstudio.com/en-us/products/visual-studio-express-vs.aspx
+  and download the MS Visual Studio "Express 2013 for Windows Desktop" version.
+  Then run the downloaded installer, it will download many GB's of data and
+  finally install the relevant component: MS Visual C++ 12.0 at the moment.
+
+- Visit
+    http://www.cmake.org/download/
+  and download the CMake Win32 binary installer (version 3.1 currently).
+  Run the downloaded installer to install CMake, allowing it to set the CMake
+  path system-wide for all users.
+
+- Visit
+    http://www.boost.org/users/download/
+  then go to the "Prebuilt windows binaries" link, and download the latest
+  Boost Windows package corresponding to the right compiler version, e.g.
+  MSVC12 in our case (see above), which would imply the installer file
+  "boost_1_57_0-msvc-12.0-64.exe" at the moment.
+
+
+Building and installing Geneva
+==============================
+
+- Download the latest Geneva version and extract it in some location. Let's
+  assume you do that in "D:\SOFT", so you will end up with the Geneva sources
+  location "D:\SOFT\GENEVA-V1.6" for instance.
+
+- Create a build folder somewhare, let's say "D:\SOFT\GENEVA-BUILD".
+
+- To configure and build the project, you have two options:
+    o Using the command line tools
+    o Using the CMake GUI and the Visual Studio IDE
+
+
+- In the first case just run a command like:
+
+    cd "D:\SOFT\GENEVA-BUILD"
+    cmake -G "Visual Studio 12 2013 Win64" ^
+	-DCMAKE_VERBOSE_MAKEFILE=ON ^
+	-DBOOST_ROOT="C:\Program Files (x86)\boost_1_57_0" ^
+	-DBOOST_LIBRARYDIR="C:\Program Files (x86)\boost_1_57_0\lib64-msvc-12.0" ^
+	-DCMAKE_INSTALL_PREFIX="D:\SOFT\GENEVA-BIN" ^
+	"D:\SOFT\GENEVA-V1.6"
+
+  Take care of adapting the BOOST paths above according to your installation!
+  If everything ran fine, you must now see the output shown below (see 'CMake
+  output') and you may now build and install the project with:
+
+    cmake --build . --config "Release"
+    cmake --build . --config "Release" --target install
+
+
+- In the second case, run the "CMake (cmake-gui)" entry in the start menu and
+  select the source code location ("Browse Source...")
+    "D:\SOFT\GENEVA-V1.6"
+  and the build location ("Browse Build...")
+    "D:\SOFT\GENEVA-BUILD"
+  Also define the following variables, using the "+ Add Entry" button:
+    CMAKE_INSTALL_PREFIX	<WHERE_YOU_WANT_TO_INSTALL_GENEVA>
+    BOOST_ROOT			<WHERE_YOU_INSTALLED_BOOST>
+    BOOST_LIBRARYDIR		<WHERE_YOU_INSTALLED_BOOST>\lib64-msvc-12.0
+  Note that you might need to adapt the LIBRARYDIR path according to the
+  current MSVC compiler version, check that you find the Boost "boost_*.dll"
+  files inside!
+  Then click "Configure" and select the right generator, in our case
+    Visual Studio 12 2013 Win64
+  and leave "Use default native compilers" enabled.
+  If everything ran fine, you must now see the output shown below (see 'CMake
+  output') and you may now click "Generate".
+
+- Run MS Visual Studio Express 2013, select "Open Project...", and enter the
+  file "D:\SOFT\GENEVA-BUILD\ALL_BUILD.vcxproj". Select the "ALL_BUILD" target
+  in the "Solution Explorer" pane and build it wit F7 / "Build Solution".
+
+
+CMake output
+------------
+
+Configuring with CMake should show you some output, finishing with something
+similar to:
+
+(...)
+========================================
+
+Building:
+        the Geneva library collection
+        statically linked
+        including testing code
+        with Boost include location:     C:/Program Files (x86)/Boost_1_57
+        with Boost library location:     C:/Program Files (x86)/Boost_1_57/lib64-msvc-12.0
+        using compiler:                  MSVC v18.0.31101.0
+        enforcing standard:              cxx11
+        producing verbose CMake output
+        for operating system:            Windows
+        to install into prefix:          D:/SOFT/GENEVA-BUILD
+
+========================================
+
+-- Could NOT find Doxygen (missing:  DOXYGEN_EXECUTABLE)
+Doxygen not found. No support for the creation of reference documentation
+
+-- Configuring done
+-- Generating done
+-- Build files have been written to: D:/SOFT/GENEVA-BUILD

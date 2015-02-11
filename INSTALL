@@ -19,17 +19,18 @@ We have also recently managed to compile Geneva on MacOS 10.9 using the Clang
 compiler, which comes with the development suite. Note that support for MacOS
 is experimental at best.
 
-Geneva has also been tested to compile and work under Windows in the Cygwin
-environment.
+Geneva has also been tested to compile and work under Windows both using the
+MS Visual C++ 12.0 ("Visual Studio Express 2013 for Desktop") compiler and the
+Cygwin environment.
 
-The authors would very much appreciate your feedback through the Geneva Development 
-Forum http://www.gemfony.eu/index.php?forums .
-
-For further information, please also have a look at our user-manual, available from
-the Downloads section of our web page.
+The authors would very much appreciate your feedback through the Geneva
+Development Forum http://www.gemfony.eu/index.php?forums .
 
 In case you encounter any bugs or issues please let us know through the Geneva
 bugtracker: https://bugs.launchpad.net/geneva
+
+For further information, please also have a look at our user-manual, available
+from the Downloads section of our web page.
 
 
 Prerequisites
@@ -104,8 +105,8 @@ This will enforce the usage of libstdc++ and the 98 C++ standard.
 
 ./b2 -j4 -d+2 toolset=clang-98 define=BOOST_SYSTEM_NO_DEPRECATED variant=release threading=multi address-model=64 stage install
 
-Through the increased verbosity (through -d+2) you can check that the correct arguments are
-passed to the compiler.
+Through the increased verbosity (through -d+2) you can check that the correct
+arguments are passed to the compiler.
 
 
 Installation prerequisites on Cygwin
@@ -125,11 +126,18 @@ under CygWin:
 Then build Geneva as in any Unix system, see "Building and installing
 Geneva" below.
 
+Installation prerequisites on Windows
+-------------------------------------
+
+See the documentation file INSTALL.Windows in this same folder.
+
 
 Building and installing Geneva
 ==============================
 
-To build the Geneva library use one of the two procedures enumerated below.
+To build the Geneva library on Unix-based systems use one of the two
+procedures enumerated below. See the documentation file INSTALL.Windows
+in this same folder for compilation instructions on a Windows system.
 
 
 a) The easy (but more restricted) way
