@@ -236,6 +236,7 @@ IF(GENEVA_BUILD_TESTS)
 		GENEVA_BOOST_LIBS
 		${GENEVA_BOOST_LIBS}
 		test_exec_monitor
+		unit_test_framework
 	)
 ENDIF()
 
