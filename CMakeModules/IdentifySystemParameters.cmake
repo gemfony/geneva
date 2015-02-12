@@ -541,7 +541,7 @@ FUNCTION (
 	ELSEIF(GENEVA_COMPILER_NAME_IN MATCHES ${MSVC_DEF_IDENTIFIER})
 
 		# Compiling the most involved classes requires bigger object resources
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP2 /bigobj" PARENT_SCOPE)
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj" PARENT_SCOPE)
 
 	ENDIF()
 	#--------------------------------------------------------------------------
