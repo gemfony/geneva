@@ -575,7 +575,7 @@ private:
 	 * the root analysis framework (see http://root.cern.ch)
 	 */
 	void emitPutAndGetTimes() {
-      long totalMicroseconds = boost::numeric_cast<long>(((endTime_ - startTime_).total_microseconds());
+      long totalMicroseconds = boost::numeric_cast<long>((endTime_ - startTime_).total_microseconds());
 
       // Create the plot objects
 		boost::shared_ptr<GHistogram1D> gets_ptr(new GHistogram1D(1000, 0, totalMicroseconds));
