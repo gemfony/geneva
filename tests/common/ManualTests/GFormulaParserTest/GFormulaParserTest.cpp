@@ -39,9 +39,6 @@
 #include <iostream>
 #include <map>
 
-// Geneva headers go here
-#include "common/GFormulaParserT.hpp"
-
 // Boost headers go here
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
@@ -49,6 +46,8 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/assign/list_inserter.hpp>
 
+// Geneva headers go here
+#include "common/GFormulaParserT.hpp"
 
 using namespace boost::assign;
 using namespace Gem::Common;
@@ -70,7 +69,7 @@ using namespace std;
    BOOST_CHECK_THROW(f(), EXCEPTION );\
 }\
 
-int test_main(int argc, char** argv) {
+int test_main(int argc, char** const argv) {
    {  // Test replacement of variables and constants (1)
       std::map<std::string, std::vector<double> > parameterValues;
 
