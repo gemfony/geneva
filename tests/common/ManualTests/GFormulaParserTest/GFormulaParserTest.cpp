@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+// Global checks, defines and includes needed for all of Geneva
+#include "common/GGlobalDefines.hpp"
+
 // Standard headers go here
 #include <iostream>
 #include <map>
@@ -40,8 +43,7 @@
 #include "common/GFormulaParserT.hpp"
 
 // Boost headers go here
-// #include <boost/test/minimal.hpp>
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/assign/list_of.hpp>
