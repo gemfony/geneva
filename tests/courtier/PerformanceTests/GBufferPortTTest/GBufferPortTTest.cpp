@@ -106,8 +106,8 @@ void producer(
 	boost::uint32_t cycleCounter = 0;
 
 	// Find out about the number of microseconds in timeouts
-	long putTimeoutMS = putTimeout.total_microseconds();
-	long getTimeoutMS = getTimeout.total_microseconds();
+	long putTimeoutMS = boost::numeric_cast<long>(putTimeout.total_microseconds());
+	long getTimeoutMS = boost::numeric_cast<long>(getTimeout.total_microseconds());
 
 	sync_ptr->wait(); // Do not start before all threads have reached this wait()
 
@@ -196,8 +196,8 @@ void processor (
 	boost::uint32_t cycleCounter = 0;
 
 	// Find out about the number of microseconds in timeouts
-	long putTimeoutMS = putTimeout.total_microseconds();
-	long getTimeoutMS = getTimeout.total_microseconds();
+	long putTimeoutMS = boost::numeric_cast<long>(putTimeout.total_microseconds());
+	long getTimeoutMS = boost::numeric_cast<long>(getTimeout.total_microseconds());
 
 	sync_ptr->wait(); // Do not start before all threads have reached this wait()
 
@@ -287,8 +287,8 @@ int main(int argc, char **argv) {
 					producer
 					, nProductionCycles
 					, nContainerEntries
-					, boost::posix_time::microseconds(putTimeoutMS)
-					, boost::posix_time::microseconds(getTimeoutMS)
+					, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(putTimeoutMS))
+					, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(getTimeoutMS))
 					, maxPutTimeouts
 					, maxGetTimeouts
 			)
@@ -299,8 +299,8 @@ int main(int argc, char **argv) {
 					processor
 					, nProductionCycles
 					, nContainerEntries
-					, boost::posix_time::microseconds(putTimeoutMS)
-					, boost::posix_time::microseconds(getTimeoutMS)
+					, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(putTimeoutMS))
+					, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(getTimeoutMS))
 					, maxPutTimeouts
 					, maxGetTimeouts
 			)

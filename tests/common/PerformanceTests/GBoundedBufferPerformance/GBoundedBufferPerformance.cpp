@@ -149,7 +149,7 @@ void producer(
 	Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY> gr; // A random number proxy
 
 	// Find out about the maximum random delay in microseconds
-	long maxRandomDelayMS = maxRandomDelay.total_microseconds();
+	long maxRandomDelayMS = boost::numeric_cast<long>(maxRandomDelay.total_microseconds());
 
 	// Find out about the id of this producer
 	{
@@ -186,7 +186,9 @@ void producer(
 				buffer.push_front(boost::shared_ptr<double>(new double(var)));
 				boost::this_thread::sleep(
 					boost::posix_time::microseconds(
-						gr.uniform_int(long(0), maxRandomDelayMS)
+					      boost::numeric_cast<boost::posix_time::time_duration::tick_type>(
+					       gr.uniform_int(long(0), maxRandomDelayMS)
+						)
 					)
 				);
 			}
@@ -201,7 +203,9 @@ void producer(
 				}
 				boost::this_thread::sleep(
 					boost::posix_time::microseconds(
-						gr.uniform_int(long(0), maxRandomDelayMS)
+					      boost::numeric_cast<boost::posix_time::time_duration::tick_type>(
+					        gr.uniform_int(long(0), maxRandomDelayMS)
+						)
 					)
 				);
 			}
@@ -247,7 +251,7 @@ void consumer(
 	bool maxTimeoutsReached = false;
 
 	// Find out about the maximum random delay in microseconds
-	long maxRandomDelayMS = maxRandomDelay.total_microseconds();
+	long maxRandomDelayMS = boost::numeric_cast<long>(maxRandomDelay.total_microseconds());
 
 	// Find out about the timeout in microseconds
 	long timeoutMS = timeout.total_microseconds();
@@ -306,7 +310,9 @@ void consumer(
 			}
 			boost::this_thread::sleep(
 				boost::posix_time::microseconds(
-					gr.uniform_int(long(0), maxRandomDelayMS)
+				      boost::numeric_cast<boost::posix_time::time_duration::tick_type>(
+				       gr.uniform_int(long(0), maxRandomDelayMS)
+					)
 				)
 			);
 
@@ -406,22 +412,22 @@ int main(int argc, char**argv) {
 		boost::bind(
 			producer
 			, nItems
-			, boost::posix_time::microseconds(timeoutMS)
-			, boost::posix_time::microseconds(maxRandomDelayMS)
+			, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(timeoutMS))
+			, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(maxRandomDelayMS))
 		    , startAtOnce
 		)
 		, nProducers
 	);
 
 	if(!startAtOnce && startDelayMS > 0) {
-		boost::this_thread::sleep(boost::posix_time::microseconds(startDelayMS));
+		boost::this_thread::sleep(boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(startDelayMS)));
 	}
 
 	consumer_gtg.create_threads(
 		boost::bind(
 			consumer
-			, boost::posix_time::microseconds(timeoutMS)
-			, boost::posix_time::microseconds(maxRandomDelayMS)
+			, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(timeoutMS))
+			, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(maxRandomDelayMS))
 		    , startAtOnce
 		)
 		, nConsumers);

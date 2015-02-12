@@ -101,7 +101,7 @@ void connectorProducer(
 		for(std::size_t i=0; i<nContainerObjects; i++) {
 			data.push_back(boost::shared_ptr<WORKLOAD>(new WORKLOAD(nContainerEntries)));
 		}
-      nSentItems += data.size();
+      nSentItems += boost::numeric_cast<boost::uint32_t>(data.size());
 
       bool complete = brokerConnector.workOn(
          data
@@ -110,8 +110,8 @@ void connectorProducer(
          , true // Remove unprocessed items
       );
 
-      nReceivedItemsNew += data.size();
-      nReceivedItemsOld += oldWorkItems.size();
+      nReceivedItemsNew += boost::numeric_cast<boost::uint32_t>(data.size());
+      nReceivedItemsOld += boost::numeric_cast<boost::uint32_t>(oldWorkItems.size());
 
       std::cout << "Cycle " << cycleCounter << " completed in producer " << id << std::endl << std::flush;
 	}
