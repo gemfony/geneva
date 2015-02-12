@@ -54,7 +54,6 @@ SET ( OPTIMIZATIONSOURCES
 	GOptimizationAlgorithmT
 	GOptimizationEnums
 	GParameterBase
-	GParameterBaseWithAdaptorsT
 	GParameterObjectCollection
 	GParameterPropertyParser
 	GParameterScanFactory

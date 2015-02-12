@@ -669,8 +669,47 @@ public:
 	/***************************************************************************/
 };
 
-// Declaration of specializations for specific types
-template<> std::size_t GParameterBaseWithAdaptorsT<bool>::applyAdaptor(std::vector<bool>&, const bool&);
+/******************************************************************************/
+/////////////////////////// Specializations for T == bool //////////////////////
+/******************************************************************************/
+/**
+ * This function applies the first adaptor of the adaptor sequence to a collection of values.
+ * Note that the parameter of this function will get changed. This is a specialization of a
+ * generic template function which is needed due to the peculiarities of a std::vector<bool>
+ * (which doesn't return a bool but an object).
+ *
+ * @param collection A vector of values that shall be adapted
+ * @return The number of adaptions that were carried out
+ */
+template<>
+inline std::size_t GParameterBaseWithAdaptorsT<bool>::applyAdaptor(
+   std::vector<bool>& collection
+   , const bool& range
+) {
+#ifdef DEBUG
+      if(!adaptor_) {
+         glogger
+         << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(std::vector<bool>& collection):" << std::endl
+         << "Error: No adaptor was found." << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+   std::size_t nAdapted = 0;
+
+   std::vector<bool>::iterator it;
+   for (it = collection.begin(); it != collection.end(); ++it) {
+      bool value = *it;
+      if(1 == adaptor_->adapt(value, range)) {
+         *it = value;
+         nAdapted += 1;
+      }
+   }
+
+   return nAdapted;
+}
+
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

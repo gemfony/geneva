@@ -2211,10 +2211,72 @@ public:
 };
 
 /******************************************************************************/
-// Specialization of some functions for GParameterSet
-template <> void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::init();
-template <> void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::finalize();
-template <> void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::addIterationBests(GParameterSetFixedSizePriorityQueue&);
+/**
+ * Allows to perform initialization work before the optimization cycle starts. This
+ * function will usually be overloaded by derived functions, which should however,
+ * as one of their first actions, call this function. It is not recommended  to perform
+ * any "real" optimization work here, such as evaluation of individuals. Use the
+ * optimizationInit() function instead.
+ */
+template <>
+inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::init(){
+   // Tell all GParmaterSet-derivative in this collection to update their random number
+   // generators with the one contained in GMutableSetT. Note: This will only have an effect
+   // on GParameterSet objects, as this is an overload for GParameterSet objects only
+   GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::iterator it;
+   for(it=this->begin(); it!=this->end(); ++it) {
+      (*it)->updateRNGs();
+   }
+}
+
+/******************************************************************************/
+/**
+ * Adds the individuals of this iteration to a priority queue. The
+ * queue will be sorted by the first evaluation criterion of the individuals
+ * and may either have a limited or unlimited size, depending on user-
+ * settings
+ */
+template <>
+inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::addIterationBests(
+   GParameterSetFixedSizePriorityQueue& bestIndividuals
+) BASE {
+   const bool CLONE = true;
+   const bool DONOTREPLACE = false;
+
+#ifdef DEBUG
+   if(this->empty()) {
+      glogger
+      << "In GBaseParChildT<GParameterSet>::addIterationBests() :" << std::endl
+      << "Tried to retrieve the best individuals even though the population is empty." << std::endl
+      << GEXCEPTION;
+   }
+#endif /* DEBUG */
+
+   // We simply add all individuals to the queue -- only the best ones will actually be added (and cloned)
+   // Unless we have asked for the queue to have an unlimited size, the queue will be resized as required
+   // by its maximum allowed size.
+   bestIndividuals.add(this->data, CLONE, DONOTREPLACE);
+}
+
+/******************************************************************************/
+/**
+ * Allows to perform any remaining work after the optimization cycle has finished.
+ * This function will usually be overloaded by derived functions, which should however
+ * call this function as one of their last actions. It is not recommended  to perform
+ * any "real" optimization work here, such as evaluation of individuals. Use the
+ * optimizationFinalize() function instead.
+ */
+template <>
+inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::finalize() {
+   // Tell all individuals in this collection to tell all GParameterBase derivatives
+   // to again use their local generators.
+   GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::iterator it;
+   for(it=this->begin(); it!=this->end(); ++it) {
+      (*it)->restoreRNGs();
+   }
+}
+
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
