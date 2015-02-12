@@ -68,6 +68,10 @@ Building and installing Geneva
 	"D:\SOFT\GENEVA-V1.6"
 
   Take care of adapting the BOOST paths above according to your installation!
+  You will need to rerun the CMake configuration command a second time, due to
+  an issue with CMake modifying the build-types list which is set initially to
+  a default value.
+
   If everything ran fine, you must now see the output shown below (see 'CMake
   output') and you may now build and install the project with:
 
@@ -87,9 +91,13 @@ Building and installing Geneva
   Note that you might need to adapt the LIBRARYDIR path according to the
   current MSVC compiler version, check that you find the Boost "boost_*.dll"
   files inside!
+
   Then click "Configure" and select the right generator, in our case
     Visual Studio 12 2013 Win64
-  and leave "Use default native compilers" enabled.
+  and leave "Use default native compilers" enabled. You will need to rerun
+  the "Configure" step a second time, due to an issue with CMake modifying
+  the build-types list which is set initially to a default value.
+
   If everything ran fine, you must now see the output shown below (see 'CMake
   output') and you may now click "Generate".
 
