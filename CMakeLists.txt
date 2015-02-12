@@ -85,7 +85,6 @@ SET(GENEVA_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/include
-	${Boost_INCLUDE_DIRS}
 )
 
 # Custom targets for building single libraries only

@@ -258,6 +258,8 @@ FIND_PACKAGE(
 )
 MESSAGE("")
 
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+
 # Add compile-time debug information about Boost's linked libraries
 IF(WIN32 AND CMAKE_VERBOSE_MAKEFILE)
 	ADD_DEFINITIONS(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
