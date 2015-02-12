@@ -281,7 +281,7 @@ public:
 
 			volatile boost::int32_t randVal;
 			for(std::size_t i=0; i<nTests_; i++) {
-				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_int((std::numeric_limits<boost::int32_t>::max())));
+				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_int((std::numeric_limits<boost::int32_t>::max)()));
 			}
 		}
 
