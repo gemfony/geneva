@@ -36,6 +36,9 @@
 #include <iostream>
 #include <map>
 
+// Geneva headers go here
+#include "common/GFormulaParserT.hpp"
+
 // Boost headers go here
 // #include <boost/test/minimal.hpp>
 #include <boost/test/included/unit_test.hpp>
@@ -44,8 +47,6 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/assign/list_inserter.hpp>
 
-// Geneva headers go here
-#include "common/GFormulaParserT.hpp"
 
 using namespace boost::assign;
 using namespace Gem::Common;
