@@ -92,21 +92,38 @@ std::string loadTextDataFromFile(const boost::filesystem::path& p) {
 /**
  * Execute an external command, reacting to possible errors.
  *
- * @param command The command to be executed
+ * @param command The command to be executed (possibly including errors)
+ * @param arguments The list of arguments to be added to the command
  * @return The error code
  */
-int runExternalCommand(const std::string& command) {
+int runExternalCommand(
+   const boost::filesystem::path& command
+   , const std::vector<std::string>& arguments
+) {
+   // Convert slashes to backslashes on Windows
+   boost::filesystem::path p_command = command;
+   std::string localCommand = (p_command.make_preferred()).string();
+
+   // Add command line arguments
+   std::vector<std::string>::const_iterator cit;
+   for(cit=arguments.begin(); cit!=arguments.end(); ++cit) {
+      localCommand += (std::string(" ") + *cit);
+   }
+
+   // MOstly for external debugging
 #ifdef GEM_COMMON_PRINT_COMMANDLINE
-		std::cout << "Executing external command \"" << commandLine << "\" ...";
+      std::cout << "Executing external command \"" << localCommand << "\" ...";
 #endif /* GEM_COMMON_PRINT_COMMANDLINE */
 
-	int errorCode = system(command.c_str());
+   // Run the actual command. T
+   int errorCode = system(localCommand.c_str());
 
 #ifdef GEM_COMMON_PRINT_COMMANDLINE
-		std::cout << "... done." << std::endl;
+      std::cout << "... done." << std::endl;
 #endif /* GEM_COMMON_PRINT_COMMANDLINE */
 
-	return errorCode;
+   // The error code will be returned as the function valiue
+   return errorCode;
 }
 
 /******************************************************************************/

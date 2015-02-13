@@ -244,16 +244,16 @@ void GExternalEvaluatorIndividual::archive() const {
 #endif /* BOOST_VERSION */
    pt::write_xml(parameterfileName, ptr_out, std::locale(), settings);
 
-   // Create full command string for the external evaluation
-   std::string command;
+   // Collect command line parameters
+   std::vector<std::string> arguments;
    if(customOptions_ != "empty" && !customOptions_.empty()) {
-      command = programName_ + " " + customOptions_ + " --evaluate=\"" +  parameterfileName + "\" --archive";
-   } else {
-      command = programName_ + " --evaluate=\"" +  parameterfileName + "\" --archive";
+      arguments.push_back(customOptions_);
    }
+   arguments.push_back(std::string("--evaluate=") + parameterfileName);
+   arguments.push_back("--archive");
 
    // Perform the external evaluation
-   Gem::Common::runExternalCommand(command);
+   Gem::Common::runExternalCommand(boost::filesystem::path(programName_), arguments);
 
    // Clean up (remove) the parameter file
    bf::remove(parameterfileName);
@@ -314,17 +314,16 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
 #endif /* BOOST_VERSION */
    pt::write_xml(parameterfileName, ptr_out, std::locale(), settings);
 
-   // Create full command string for the external evaluation
-   std::string command;
-
+   // Collect command line parameters
+   std::vector<std::string> arguments;
    if(customOptions_ != "empty" && !customOptions_.empty()) {
-      command = programName_ + " " + customOptions_ + " --evaluate=\"" +  parameterfileName + "\" --result=\"" + resultFileName + "\"";
-   } else {
-      command = programName_ + " --evaluate=\"" +  parameterfileName + "\" --result=\"" + resultFileName + "\"";
+      arguments.push_back(customOptions_);
    }
+   arguments.push_back(std::string("--evaluate=") + parameterfileName);
+   arguments.push_back(std::string("--result") + resultFileName);
 
    // Perform the external evaluation
-   Gem::Common::runExternalCommand(command);
+   Gem::Common::runExternalCommand(boost::filesystem::path(programName_), arguments);
 
    // Check that the result file exists
    if(!bf::exists(resultFileName)) {
@@ -445,15 +444,15 @@ GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory()
       << GEXCEPTION;
    }
 
-   std::string programCommand;
-   if(customOptions_.value() == "empty" || customOptions_.value().empty()) {
-      programCommand = programName_.value();
-   } else {
-      programCommand = programName_.value() + " " + customOptions_.value();
+   // Collect command line parameters
+   std::vector<std::string> arguments;
+   if(customOptions_.value() != "empty" && !customOptions_.value().empty()) {
+      arguments.push_back(customOptions_.value());
    }
+   arguments.push_back(std::string("--finalize="));
 
-   // Ask the external evaluation program to perform any initial work
-   Gem::Common::runExternalCommand(programCommand + " --finalize");
+   // Perform the external evaluation
+   Gem::Common::runExternalCommand(boost::filesystem::path(programName_), arguments);
 }
 
 /******************************************************************************/
@@ -1168,18 +1167,28 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
    // Make sure the property tree is empty
    ptr_.clear();
 
-   std::string programCommand;
-   if(customOptions_.value() == "empty" || customOptions_.value().empty()) {
-      programCommand = programName_.value();
-   } else {
-      programCommand = programName_.value() + " " + customOptions_.value();
-   }
-
+   //---------------------------------------------------------------------------------------
    // Ask the external evaluation program to perform any initial work
-   Gem::Common::runExternalCommand(programCommand + " --init");
+   std::vector<std::string> arguments; // Collect command line parameters
+   if(customOptions_.value() != "empty" && !customOptions_.value().empty()) {
+      arguments.push_back(customOptions_.value());
+   }
+   arguments.push_back(std::string("--init"));
+   // Perform the external initialization
+   Gem::Common::runExternalCommand(boost::filesystem::path(programName_), arguments);
 
+   //---------------------------------------------------------------------------------------
    // Query the external evaluator for setup information for our individuals
-   Gem::Common::runExternalCommand(programCommand + " --initvalues=" + initValues_.value() + " --setup=\"./setup.xml\"");
+   arguments.clear();
+   if(customOptions_.value() != "empty" && !customOptions_.value().empty()) {
+      arguments.push_back(customOptions_.value());
+   }
+   arguments.push_back(std::string("--initvalues=") + initValues_.value());
+   arguments.push_back(std::string("--setup=\"./setup.xml\""));
+   // Perform the external initialization
+   Gem::Common::runExternalCommand(boost::filesystem::path(programName_), arguments);
+
+   //---------------------------------------------------------------------------------------
 
    // Parse the setup file
    pt::read_xml("./setup.xml", ptr_);

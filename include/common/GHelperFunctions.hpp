@@ -81,7 +81,10 @@ std::string loadTextDataFromFile(const boost::filesystem::path&);
 /******************************************************************************/
 /** @brief This function executes an external command on the operating system */
 G_API
-int runExternalCommand(const std::string&);
+int runExternalCommand(
+   const boost::filesystem::path&
+   , const std::vector<std::string>&
+);
 
 /******************************************************************************/
 /** @brief Returns a string for a given serialization mode */
