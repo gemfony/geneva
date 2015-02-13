@@ -432,7 +432,7 @@ void GBaseSwarm::saveCheckpoint() const {
 	std::string outputFile = getCheckpointDirectory() + boost::lexical_cast<std::string>(getIteration()) + "_"
 		+ boost::lexical_cast<std::string>(newValue) + "_" + getCheckpointBaseName();
 
-	this->toFile(outputFile, getCheckpointSerializationMode());
+	this->toFile(boost::filesystem::path(outputFile), getCheckpointSerializationMode());
 }
 
 /******************************************************************************/
@@ -442,7 +442,7 @@ void GBaseSwarm::saveCheckpoint() const {
  * @param cpFile The name of the file the checkpoint should be loaded from
  */
 void GBaseSwarm::loadCheckpoint(const std::string& cpFile) {
-	this->fromFile(cpFile, getCheckpointSerializationMode());
+	this->fromFile(boost::filesystem::path(cpFile), getCheckpointSerializationMode());
 }
 
 /******************************************************************************/

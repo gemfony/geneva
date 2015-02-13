@@ -302,20 +302,30 @@ void GObject::fromString(
  * @param serMod The desired serialization mode
  */
 void GObject::toFile(
-   const std::string& fileName
+     const boost::filesystem::path& p
    , const Gem::Common::serializationMode& serMod
 ) const {
-   std::ofstream ofstr(fileName.c_str());
+   boost::filesystem::ofstream ofstr(p);
 
    if(!ofstr) {
       glogger
       << "In GObject::toFile():" << std::endl
-      << "Problems connecting to file " << fileName << std::endl
+      << "Problems connecting to file " << p.string() << std::endl
       << GEXCEPTION;
    }
 
    toStream(ofstr, serMod);
    ofstr.close();
+
+#ifdef DEBUG
+   if(!bf::exists(bf::path(p))) {
+      glogger
+      << "In GObject::toFile():" << std::endl
+      << "Data was written to " << p.string() << std::endl
+      << "but file does not seem to exist." << std::endl
+      << GEXCEPTION;
+   }
+#endif
 }
 
 /* ----------------------------------------------------------------------------------
@@ -332,24 +342,24 @@ void GObject::toFile(
  * @param serMod The desired serialization mode
  */
 void GObject::fromFile(
-   const std::string& fileName
+     const boost::filesystem::path& p
    , const Gem::Common::serializationMode& serMod
 ) {
    // Check that the file exists
-   if(!bf::exists(bf::path(fileName))) {
+   if(!bf::exists(bf::path(p))) {
       glogger
       << "In GObject::fromFile(): Error!" << std::endl
-      << "Requested input file " << fileName << std::endl
+      << "Requested input file " << p.string() << std::endl
       << "does not exist." << std::endl
       << GEXCEPTION;
    }
 
-	std::ifstream ifstr(fileName.c_str());
+   boost::filesystem::ifstream ifstr(p);
 
 	if(!ifstr) {
 	   glogger
 	   << "In GObject::fromFile():" << std::endl
-	   << "Problem connecting to file " << fileName << std::endl
+	   << "Problem connecting to file " << p.string() << std::endl
 	   << GEXCEPTION;
 	}
 
@@ -596,24 +606,24 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 		boost::shared_ptr<GObject> p_test = this->clone();
 
 		{ // Text mode
-			BOOST_CHECK_NO_THROW(p_test->toFile("123test.txt", Gem::Common::SERIALIZATIONMODE_TEXT));
-			BOOST_CHECK_NO_THROW(p_test->fromFile("123test.txt", Gem::Common::SERIALIZATIONMODE_TEXT));
+			BOOST_CHECK_NO_THROW(p_test->toFile(path("123test.txt"), Gem::Common::SERIALIZATIONMODE_TEXT));
+			BOOST_CHECK_NO_THROW(p_test->fromFile(path("123test.txt"), Gem::Common::SERIALIZATIONMODE_TEXT));
 
 			// Get rid of the file
 			remove(path("./123test.txt"));
 		}
 
 		{ // XML mode
-			BOOST_CHECK_NO_THROW(p_test->toFile("123test.xml", Gem::Common::SERIALIZATIONMODE_XML));
-			BOOST_CHECK_NO_THROW(p_test->fromFile("123test.xml", Gem::Common::SERIALIZATIONMODE_XML));
+			BOOST_CHECK_NO_THROW(p_test->toFile(path("123test.xml"), Gem::Common::SERIALIZATIONMODE_XML));
+			BOOST_CHECK_NO_THROW(p_test->fromFile(path("123test.xml"), Gem::Common::SERIALIZATIONMODE_XML));
 
 			// Get rid of the file
 			remove(path("./123test.xml"));
 		}
 
 		{ // Binary mode
-			BOOST_CHECK_NO_THROW(p_test->toFile("123test.bin", Gem::Common::SERIALIZATIONMODE_BINARY));
-			BOOST_CHECK_NO_THROW(p_test->fromFile("123test.bin", Gem::Common::SERIALIZATIONMODE_BINARY));
+			BOOST_CHECK_NO_THROW(p_test->toFile(path("123test.bin"), Gem::Common::SERIALIZATIONMODE_BINARY));
+			BOOST_CHECK_NO_THROW(p_test->fromFile(path("123test.bin"), Gem::Common::SERIALIZATIONMODE_BINARY));
 
 			// Get rid of the file
 			remove(path("./123test.bin"));

@@ -46,6 +46,7 @@ The main changes for this release include:
    according to this value range.
  - Most calculations in Geneva's gradient descent implementation are
    now carried out as long double to preserve accuracy, where possible.
+ - Moved all filesystem io to the boost::filesystem library
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.4.1, "Fénis" - January 23, 2015

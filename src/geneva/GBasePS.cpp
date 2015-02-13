@@ -1053,7 +1053,7 @@ void GBasePS::adjustPopulation() {
  * @param cpFile The name of the file the checkpoint should be loaded from
  */
 void GBasePS::loadCheckpoint(const std::string& cpFile) {
-   this->fromFile(cpFile, getCheckpointSerializationMode());
+   this->fromFile(boost::filesystem::path(cpFile), getCheckpointSerializationMode());
 }
 
 /******************************************************************************/
@@ -1067,7 +1067,7 @@ void GBasePS::saveCheckpoint() const {
    std::string outputFile = getCheckpointDirectory() + boost::lexical_cast<std::string>(this->getIteration()) + "_"
       + boost::lexical_cast<std::string>(newValue) + "_" + getCheckpointBaseName();
 
-   this->toFile(outputFile, getCheckpointSerializationMode());
+   this->toFile(boost::filesystem::path(outputFile), getCheckpointSerializationMode());
 }
 
 /******************************************************************************/

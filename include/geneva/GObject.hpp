@@ -62,6 +62,7 @@
 #include <boost/date_time/gregorian/greg_serialize.hpp>
 #include <boost/date_time/posix_time/time_serialize.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 #include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/limits.hpp>
@@ -196,9 +197,9 @@ public:
 	virtual void fromString(const std::string&, const Gem::Common::serializationMode&) OVERRIDE;
 
 	/** @brief Writes a serial representation of this object to a file */
-	void toFile(const std::string&, const Gem::Common::serializationMode&) const;
+	void toFile(const boost::filesystem::path&, const Gem::Common::serializationMode&) const;
 	/** @brief Loads a serial representation of this object from file */
-	void fromFile(const std::string&, const Gem::Common::serializationMode&);
+	void fromFile(const boost::filesystem::path&, const Gem::Common::serializationMode&);
 
 	/** @brief Returns an XML description of the derivative it is called for */
 	std::string report() const;
