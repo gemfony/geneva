@@ -42,6 +42,8 @@
 // Boost header files go here
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include <boost/thread/thread.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 // Geneva header files go here
 #include <common/GMathHelperFunctionsT.hpp>
@@ -108,7 +110,7 @@ void startReferenceMeasurement(
       }
 
       // Wait for late arrivals
-      sleep(interMeasurementDelay);
+      boost::this_thread::sleep(boost::posix_time::seconds(interMeasurementDelay));
 
       // Increment the iteration counter
       iter++;
@@ -188,7 +190,7 @@ void startParallelMeasurement(
       delaySummary.clear();
 
       // Wait for late arrivals
-      sleep(interMeasurementDelay);
+      boost::this_thread::sleep(boost::posix_time::seconds(interMeasurementDelay));
 
       // Increment the iteration counter
       iter++;
