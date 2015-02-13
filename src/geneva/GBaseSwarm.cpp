@@ -615,18 +615,10 @@ void GBaseSwarm::updatePersonalBestIfBetter(
 void GBaseSwarm::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 ) {
-	std::string comment;
-	std::string comment1;
-	std::string comment2;
-
 	// Call our parent class'es function
 	GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions(gpb);
 
 	// Add local data
-	comment1 = "";
-	comment2 = "";
-	comment1 = "The desired number of neighborhoods in the population;";
-	comment2 = "The desired number of members in each neighborhood;";
 	gpb.registerFileParameter<std::size_t, std::size_t>(
 		"nNeighborhoods" // The name of the first variable
 		, "nNeighborhoodMembers" // The name of the second variable
@@ -639,13 +631,10 @@ void GBaseSwarm::addConfigurationOptions (
 			, _2
 		  )
 	    , "swarmSize"
-		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-		, comment1
-		, comment2
-	);
+	)
+	<< "The desired number of neighborhoods in the population" << Gem::Common::nextComment()
+	<< "The desired number of members in each neighborhood";
 
-	comment = ""; // Reset the comment string
-	comment += "A constant to be multiplied with the personal direction vector;";
 	gpb.registerFileParameter<double>(
 		"cPersonal" // The name of the variable
 		, DEFAULTCPERSONAL // The default value
@@ -654,12 +643,9 @@ void GBaseSwarm::addConfigurationOptions (
 			, this
 			, _1
 		  )
-		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-		, comment
-	);
+	)
+	<< "A constant to be multiplied with the personal direction vector";
 
-	comment = ""; // Reset the comment string
-	comment += "A constant to be multiplied with the neighborhood direction vector;";
 	gpb.registerFileParameter<double>(
 		"cNeighborhood" // The name of the variable
 		, DEFAULTCNEIGHBORHOOD // The default value
@@ -668,12 +654,9 @@ void GBaseSwarm::addConfigurationOptions (
 			, this
 			, _1
 		  )
-		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-		, comment
-	);
+	)
+	<< "A constant to be multiplied with the neighborhood direction vector";
 
-	comment = ""; // Reset the comment string
-	comment += "A constant to be multiplied with the global direction vector;";
 	gpb.registerFileParameter<double>(
 		"cGlobal" // The name of the variable
 		, DEFAULTCGLOBAL // The default value
@@ -682,12 +665,9 @@ void GBaseSwarm::addConfigurationOptions (
 			, this
 			, _1
 		  )
-		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-		, comment
-	);
+	)
+	<< "A constant to be multiplied with the global direction vector";
 
-	comment = ""; // Reset the comment string
-	comment += "A constant to be multiplied with the old velocity vector;";
 	gpb.registerFileParameter<double>(
 		"cVelocity" // The name of the variable
 		, DEFAULTCVELOCITY // The default value
@@ -696,12 +676,9 @@ void GBaseSwarm::addConfigurationOptions (
 			, this
 			, _1
 		  )
-		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-		, comment
-	);
+	)
+	<< "A constant to be multiplied with the old velocity vector";
 
-	comment = ""; // Reset the comment string
-	comment += "Sets the velocity-range percentage;";
 	gpb.registerFileParameter<double>(
 		"velocityRangePercentage" // The name of the variable
 		, DEFAULTVELOCITYRANGEPERCENTAGE // The default value
@@ -710,13 +687,9 @@ void GBaseSwarm::addConfigurationOptions (
 			, this
 			, _1
 		  )
-		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-		, comment
-	);
+	)
+	<< "Sets the velocity-range percentage";
 
-	comment = ""; // Reset the comment string
-	comment += "Specifies whether a linear (0) or classical (1);";
-	comment += "update rule should be used;";
 	gpb.registerFileParameter<updateRule>(
 		"updateRule" // The name of the variable
 		, DEFAULTUPDATERULE // The default value
@@ -725,13 +698,10 @@ void GBaseSwarm::addConfigurationOptions (
 			, this
 			, _1
 		  )
-		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-		, comment
-	);
+	)
+	<< "Specifies whether a linear (0) or classical (1)" << std::endl
+	<< "update rule should be used";
 
-	comment = ""; // Reset the comment string
-	comment += "Specifies whether neighborhoods should be filled up;";
-	comment += "randomly (true) or start with equal values (false);";
 	gpb.registerFileParameter<bool>(
 		"randomFillUp" // The name of the variable
 		, true // The default value
@@ -740,13 +710,10 @@ void GBaseSwarm::addConfigurationOptions (
 			, this
 			, _1
 		  )
-		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-		, comment
-	);
+	)
+	<< "Specifies whether neighborhoods should be filled up" << std::endl
+	<< "randomly (true) or start with equal values (false)";
 
-   comment = ""; // Reset the comment string
-   comment += "The number of stalls as of which the algorithm switches to repulsive mode;";
-   comment += "Set this to 0 in order to disable this feature;";
    gpb.registerFileParameter<boost::uint32_t>(
       "repulsionThreshold" // The name of the variable
       , DEFREPULSIONTHRESHOLD // The default value
@@ -755,9 +722,9 @@ void GBaseSwarm::addConfigurationOptions (
          , this
          , _1
         )
-      , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-      , comment
-   );
+   )
+   << "The number of stalls as of which the algorithm switches to repulsive mode" << std::endl
+   << "Set this to 0 in order to disable this feature";
 }
 
 /******************************************************************************/

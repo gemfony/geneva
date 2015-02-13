@@ -245,22 +245,9 @@ boost::shared_ptr<GPersonalityTraits> GBaseEA::getPersonalityTraits() const {
 void GBaseEA::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 ) {
-	std::string comment;
-	std::string comment1;
-	std::string comment2;
-
 	// Call our parent class'es function
 	GParameterSetParChild::addConfigurationOptions(gpb);
 
-	comment = ""; // Reset the comment string
-	comment += "The sorting scheme. Options;";
-	comment += "0: MUPLUSNU mode with a single evaluation criterion;";
-	comment += "1: MUCOMMANU mode with a single evaluation criterion;";
-	comment += "2: MUCOMMANU mode with single evaluation criterion,;";
-	comment += "   the best parent of the last iteration is retained;";
-	comment += "   unless a better individual has been found;";
-	comment += "3: MUPLUSNU mode for multiple evaluation criteria, pareto selection;";
-	comment += "4: MUCOMMANU mode for multiple evaluation criteria, pareto selection;";
 	gpb.registerFileParameter<sortingMode>(
 		"sortingMethod" // The name of the variable
 		, DEFAULTSMODE // The default value
@@ -269,9 +256,15 @@ void GBaseEA::addConfigurationOptions (
 			, this
 			, _1
 		  )
-		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-		, comment
-	);
+	)
+	<< "The sorting scheme. Options" << std::endl
+	<< "0: MUPLUSNU mode with a single evaluation criterion" << std::endl
+	<< "1: MUCOMMANU mode with a single evaluation criterion" << std::endl
+	<< "2: MUCOMMANU mode with single evaluation criterion," << std::endl
+	<< "   the best parent of the last iteration is retained" << std::endl
+	<< "   unless a better individual has been found" << std::endl
+	<< "3: MUPLUSNU mode for multiple evaluation criteria, pareto selection" << std::endl
+	<< "4: MUCOMMANU mode for multiple evaluation criteria, pareto selection";
 }
 
 /******************************************************************************/

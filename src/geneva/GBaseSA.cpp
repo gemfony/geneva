@@ -386,13 +386,9 @@ double GBaseSA::getT() const {
 void GBaseSA::addConfigurationOptions (
    Gem::Common::GParserBuilder& gpb
 ) {
-   std::string comment;
-
    // Call our parent class'es function
    GParameterSetParChild::addConfigurationOptions(gpb);
 
-   comment = ""; // Reset the comment string
-   comment += "The start temperature used in simulated annealing;";
    gpb.registerFileParameter<double>(
       "t0" // The name of the variable
       , SA_T0 // The default value
@@ -401,13 +397,9 @@ void GBaseSA::addConfigurationOptions (
          , this
          , _1
         )
-      , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-      , comment
-   );
+   )
+   << "The start temperature used in simulated annealing";
 
-   comment = ""; // Reset the comment string
-   comment += "The degradation strength used in the cooling;";
-   comment += "schedule in simulated annealing;";
    gpb.registerFileParameter<double>(
       "alpha" // The name of the variable
       , SA_ALPHA // The default value
@@ -416,9 +408,9 @@ void GBaseSA::addConfigurationOptions (
          , this
          , _1
       )
-      , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-      , comment
-   );
+   )
+   << "The degradation strength used in the cooling" << std::endl
+   << "schedule in simulated annealing;";
 }
 
 /******************************************************************************/
