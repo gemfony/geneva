@@ -1052,8 +1052,8 @@ void GBasePS::adjustPopulation() {
  *
  * @param cpFile The name of the file the checkpoint should be loaded from
  */
-void GBasePS::loadCheckpoint(const std::string& cpFile) {
-   this->fromFile(boost::filesystem::path(cpFile), getCheckpointSerializationMode());
+void GBasePS::loadCheckpoint(const boost::filesystem::path& cpFile) {
+   this->fromFile(cpFile, getCheckpointSerializationMode());
 }
 
 /******************************************************************************/
@@ -1353,7 +1353,7 @@ void GBasePS::GPSOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<G
    GBasePS * const ps = static_cast<GBasePS * const>(goa);
 
    // Open the result file in append mode
-   std::ofstream result(csvResultFile_.c_str(), std::ofstream::app);
+   bf::ofstream result(csvResultFile_, std::ofstream::app);
 
    GBasePS::iterator it;
    std::size_t pos=0;

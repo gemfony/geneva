@@ -48,6 +48,8 @@
 #include <fstream>
 
 // Boost header files
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 
 // Geneva header files
 #include "hap/GRandomT.hpp"
@@ -178,7 +180,7 @@ int main(int argc, char **argv){
 		break;
 	};
 
-	std::ofstream ofs("randomResult.C");
+	boost::filesystem::ofstream ofs("randomResult.C");
 	if(!ofs) {
 		std::cerr << "Error: Could not write file" << std::endl;
 		return 1;

@@ -47,6 +47,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/array.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/utility.hpp>
 #include <boost/program_options.hpp>
@@ -1861,7 +1862,7 @@ public:
 	/** @brief Tries to parse a given configuration file for a set of options */
 	bool parseConfigFile(const std::string&);
 	/** @brief Writes out a configuration file */
-	void writeConfigFile(const std::string& = "", const std::string& = "", bool = true) const;
+	void writeConfigFile(const std::string& = std::string(), const std::string& = "", bool = true) const;
 	/** @brief Provides information on the number of file configuration options stored in this class */
 	std::size_t numberOfFileOptions() const;
 

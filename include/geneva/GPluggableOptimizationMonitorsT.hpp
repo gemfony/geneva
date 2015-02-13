@@ -44,9 +44,9 @@
 #include <boost/mpl/assert.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/filesystem.hpp>
-#include "boost/filesystem/path.hpp"
-#include "boost/filesystem/operations.hpp"
-#include "boost/filesystem/convenience.hpp"
+#include <boost/filesystem/fstream.hpp>
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/convenience.hpp>
 #include <boost/date_time.hpp>
 
 #ifndef GPLUGGABLEOPTIMIZATIONMONITORST_HPP_
@@ -1005,7 +1005,7 @@ public:
       case Gem::Geneva::INFOPROCESSING:
       {
          // Open the external file
-         std::ofstream data(fileName_.c_str(), std::ofstream::app);
+         boost::filesystem::ofstream data(fileName_, std::ofstream::app);
 
          // Loop over all individuals of the algorithm.
          for(std::size_t pos=0; pos<goa->size(); pos++) {
@@ -1176,7 +1176,7 @@ public:
       case Gem::Geneva::INFOPROCESSING:
       {
          // Open the external file
-         std::ofstream data(fileName_.c_str(), std::ofstream::app);
+         boost::filesystem::ofstream data(fileName_.c_str(), std::ofstream::app);
          std::vector<double> fitnessVec;
 
          // Loop over all individuals of the algorithm.

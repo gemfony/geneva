@@ -335,23 +335,23 @@ std::string GBaseGD::name() const {
  *
  * @param cpFile The name of the file the checkpoint should be loaded from
  */
-void GBaseGD::loadCheckpoint(const std::string& cpFile) {
+void GBaseGD::loadCheckpoint(const boost::filesystem::path& cpFile) {
 	// Create a vector to hold the best individuals
 	std::vector<boost::shared_ptr<Gem::Geneva::GParameterSet> > bestIndividuals;
 
 	// Check that the file indeed exists
 	if(!boost::filesystem::exists(cpFile)) {
 	   glogger
-	   << "In GBaseGD::loadCheckpoint(const std::string&)" << std::endl
-      << "Got invalid checkpoint file name " << cpFile << std::endl
+	   << "In GBaseGD::loadCheckpoint(const const bf::path&)" << std::endl
+      << "Got invalid checkpoint file name " << cpFile.string() << std::endl
       << GEXCEPTION;
 	}
 
 	// Create the input stream and check that it is in good order
-	std::ifstream checkpointStream(cpFile.c_str());
+	boost::filesystem::ifstream checkpointStream(cpFile);
 	if(!checkpointStream) {
 	   glogger
-	   << "In GBaseGD::loadCheckpoint(const std::string&)" << std::endl
+	   << "In GBaseGD::loadCheckpoint(const const bf::path&)" << std::endl
       << "Error: Could not open input file" << std::endl
       << GEXCEPTION;
 	}
@@ -805,7 +805,7 @@ void GBaseGD::saveCheckpoint() const {
 			getCheckpointBaseName();
 
 	// Create the output stream and check that it is in good order
-	std::ofstream checkpointStream(outputFile.c_str());
+	bf::ofstream checkpointStream(outputFile);
 	if(!checkpointStream) {
 	   glogger
 	   << "In GBaseGD::saveCheckpoint()" << std::endl

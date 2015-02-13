@@ -40,6 +40,8 @@
 
 // Boost header files go here
 #include <boost/cstdint.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 
 #ifndef GOPTIMIZATIONALGORITHMT_HPP_
 #define GOPTIMIZATIONALGORITHMT_HPP_
@@ -201,7 +203,7 @@ public:
 
 	/***************************************************************************/
 	/** @brief Loads the state of the class from disc. */
-	virtual void loadCheckpoint(const std::string&) = 0;
+	virtual void loadCheckpoint(const boost::filesystem::path&) = 0;
 
 	/***************************************************************************/
 	/**

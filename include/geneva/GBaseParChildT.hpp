@@ -36,6 +36,8 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 
 // Boost headers go here
 #include <boost/tuple/tuple.hpp>
@@ -333,23 +335,23 @@ public:
     * but only the best individuals of a former optimization run, as these contain the
     * "real" information.
     */
-   virtual void loadCheckpoint(const std::string& cpFile) OVERRIDE {
+   virtual void loadCheckpoint(const boost::filesystem::path& cpFile) OVERRIDE {
       // Create a vector to hold the best individuals
       std::vector<boost::shared_ptr<ind_type> > bestIndividuals;
 
       // Check that the file indeed exists
       if(!boost::filesystem::exists(cpFile)) {
          glogger
-         << "In GBaseParChildT<ind_type>::loadCheckpoint(const std::string&)" << std::endl
-         << "Got invalid checkpoint file name " << cpFile << std::endl
+         << "In GBaseParChildT<ind_type>::loadCheckpoint(const bf::path&)" << std::endl
+         << "Got invalid checkpoint file name " << cpFile.string() << std::endl
          << GEXCEPTION;
       }
 
       // Create the input stream and check that it is in good order
-      std::ifstream checkpointStream(cpFile.c_str());
+      boost::filesystem::ifstream checkpointStream(cpFile);
       if(!checkpointStream) {
          glogger
-         << "In GBaseParChildT<ind_type>::loadCheckpoint(const std::string&)" << std::endl
+         << "In GBaseParChildT<ind_type>::loadCheckpoint(const bf::path&)" << std::endl
          << "Error: Could not open input file" << std::endl
          << GEXCEPTION;
       }
@@ -919,7 +921,7 @@ protected:
          + boost::lexical_cast<std::string>(newValue) + "_" + GOptimizationAlgorithmT<ind_type>::getCheckpointBaseName();
 
       // Create the output stream and check that it is in good order
-      std::ofstream checkpointStream(outputFile.c_str());
+      boost::filesystem::ofstream checkpointStream(outputFile);
       if(!checkpointStream) {
          glogger
          << "In GBaseParChildT<ind_type>::saveCheckpoint()" << std::endl

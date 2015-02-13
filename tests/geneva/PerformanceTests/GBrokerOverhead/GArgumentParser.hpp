@@ -46,6 +46,7 @@
 // Boost headers go here
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 
 #ifndef GARGUMENTPARSER_HPP_
 #define GARGUMENTPARSER_HPP_

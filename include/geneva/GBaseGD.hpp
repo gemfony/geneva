@@ -126,7 +126,7 @@ public:
 	) const  OVERRIDE;
 
 	/** @brief Loads a checkpoint */
-	virtual void loadCheckpoint(const std::string&) OVERRIDE;
+	virtual void loadCheckpoint(const boost::filesystem::path&) OVERRIDE;
 
 	/** @brief Returns information about the type of optimization algorithm */
 	virtual std::string getOptimizationAlgorithm() const OVERRIDE;

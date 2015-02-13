@@ -43,6 +43,8 @@
 #include <sstream>
 
 // Boost headers go here
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 #include <boost/utility.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_io.hpp>
@@ -1970,9 +1972,9 @@ public:
 	);
 
 	/* @brief Emits the overall plot */
-	std::string plot(const std::string& = "empty") const;
+	std::string plot(const boost::filesystem::path& = boost::filesystem::path("empty")) const;
 	/** @brief Writes the plot to a file */
-	void writeToFile(const std::string&);
+	void writeToFile(const boost::filesystem::path&);
 
 	/** @brief Allows to add a new plotter object */
 	void registerPlotter(boost::shared_ptr<GBasePlotter>);

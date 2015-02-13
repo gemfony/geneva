@@ -50,6 +50,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 
 // Boost header files go here
 #include <boost/thread.hpp>
@@ -101,7 +103,7 @@ int main(int argc, char **argv){
 	Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY> gr;
 	GConstrainedDoubleObject gbd_distortion(-1.,1.);
 
-	std::ofstream distortion("distortion.C");
+	boost::filesystem::ofstream distortion("distortion.C");
 
 	distortion << "{" << std::endl
 	           << "  gROOT->SetStyle(\"Plain\");" << std::endl

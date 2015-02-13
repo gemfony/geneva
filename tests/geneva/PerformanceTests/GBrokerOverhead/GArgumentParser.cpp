@@ -192,8 +192,8 @@ namespace Gem
 	  ;
 
 	po::variables_map vm;
-	std::ifstream ifs(configFile.c_str());
-	if(!ifs.good()) {
+	boost::filesystem::ifstream ifs(configFile);
+	if(!ifs) {
 	  std::cerr << "Error accessing configuration file " << configFile;
 	  return false;
 	}

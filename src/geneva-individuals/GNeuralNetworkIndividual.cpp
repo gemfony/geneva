@@ -364,9 +364,9 @@ boost::optional<std::string> networkData::checkRelationshipWith(
  * @param fileName The name of the file that data should be saved to
  */
 void networkData::saveToDisk(const std::string& networkDataFile) const {
-	std::ofstream trDat(networkDataFile.c_str());
+	bf::ofstream trDat(networkDataFile);
 
-	if(!trDat.good()){
+	if(!trDat){
 	   glogger
 	   << "In networkData::saveToDisk(const std::string&) : Error!" << std::endl
       << "Data file " << networkDataFile << " could not be opened for writing." << std::endl
@@ -392,9 +392,9 @@ void networkData::saveToDisk(const std::string& networkDataFile) const {
 void networkData::loadFromDisk(const std::string& networkDataFile) {
 	networkData *nD;
 
-	std::ifstream trDat(networkDataFile.c_str());
+	boost::filesystem::ifstream trDat(networkDataFile.c_str());
 
-	if(!trDat.good()){
+	if(!trDat){
 		std::ostringstream error;
 		error << "In networkData::loadFromDisk(const std::string&):" << std::endl
 			  << "Data file " << networkDataFile << " could not be opened for reading." << std::endl;
@@ -507,7 +507,7 @@ void networkData::toROOT(
 	}
 
 	std::size_t entries1 = 0, entries2 = 0;
-	std::ofstream of(outputFile.c_str());
+	bf::ofstream of(outputFile);
 
    of
    << "{" << std::endl
@@ -969,7 +969,7 @@ void GNeuralNetworkIndividual::writeVisualizationFile(const std::string& visFile
       << GEXCEPTION;
    }
 
-   std::ofstream visProgram(visFile.c_str());
+   bf::ofstream visProgram(visFile);
    if(!visProgram) {
       glogger
       << "In GNeuralNetworkIndividual::writeVisualizationFile(const std::string&) :" << std::endl
@@ -1325,7 +1325,7 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string& headerFile
       << GEXCEPTION;
    }
 
-   std::ofstream header(headerFile.c_str());
+   bf::ofstream header(headerFile);
    if(!header) {
       glogger
       << "In GNeuralNetworkIndividual::writeTrainedNetwork(const std::string&) :" << std::endl

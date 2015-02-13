@@ -125,7 +125,7 @@ GFileLogger::~GFileLogger()
  * variable fname_. The file is reopened in append mode for every log message.
  */
 void GFileLogger::log(const std::string& msg) const {
-   std::ofstream ofstr(fname_.c_str(), std::ios_base::app);
+   boost::filesystem::ofstream ofstr(boost::filesystem::path(fname_), std::ios_base::app);
    if(ofstr){
       ofstr << msg;
       ofstr.close();
@@ -149,7 +149,7 @@ void GFileLogger::logWithSource(
       const std::string& msg
       , const std::string& extension
 ) const {
-   std::ofstream ofstr((fname_ + "_" + extension). c_str(), std::ios_base::app);
+   boost::filesystem::ofstream ofstr(boost::filesystem::path(fname_ + "_" + extension), std::ios_base::app);
    if(ofstr){
       if(first_) {
          ofstr

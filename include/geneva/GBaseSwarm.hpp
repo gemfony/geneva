@@ -139,7 +139,7 @@ public:
 	virtual std::string getOptimizationAlgorithm() const OVERRIDE;
 
 	/** @brief Loads a checkpoint from disk */
-	virtual void loadCheckpoint(const std::string&) OVERRIDE;
+	virtual void loadCheckpoint(const boost::filesystem::path&) OVERRIDE;
 
 	/** @brief Allows to set a static multiplier for personal distances */
 	void setCPersonal(double);

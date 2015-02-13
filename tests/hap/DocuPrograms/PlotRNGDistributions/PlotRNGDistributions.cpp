@@ -52,6 +52,8 @@
 #include <boost/cstdint.hpp>
 #include <boost/cast.hpp>
 #include <boost/random.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 
 // Geneva header files
 #include "hap/GRandomT.hpp"
@@ -135,7 +137,7 @@ int main(int argc, char **argv){
 	// Create a random number proxy
 	gr_ptr = boost::shared_ptr<GRandomT<RANDOMPROXY> >(new GRandomT<RANDOMPROXY>());
 
-	std::ofstream ofs("rootPlotRNGDistributions.C");
+	boost::filesystem::ofstream ofs("rootPlotRNGDistributions.C");
 	if(!ofs) {
 		std::cerr << "Error: Could not write file" << std::endl;
 		return 1;

@@ -75,7 +75,6 @@ void startReferenceMeasurement(
 
    //---------------------------------------------------------------------
    // Loop until no valid individuals can be retrieved anymore
-   std::ofstream shortResult;
    boost::uint32_t interMeasurementDelay = 1;
    boost::uint32_t nMeasurementsPerIteration = 5;
    std::size_t iter = 0;
@@ -144,7 +143,6 @@ void startParallelMeasurement(
 
    //---------------------------------------------------------------------
    // Loop until no valid individuals can be retrieved anymore
-   std::ofstream shortResult;
    boost::uint32_t interMeasurementDelay = 1;
    boost::uint32_t nMeasurementsPerIteration = 5;
    std::size_t iter = 0;

@@ -3107,8 +3107,8 @@ GPlotDesigner::GPlotDesigner(
  *
  * @param fileName The name of the file to which the data can be written
  */
-void GPlotDesigner::writeToFile(const std::string& fileName) {
-	std::ofstream result(fileName.c_str());
+void GPlotDesigner::writeToFile(const boost::filesystem::path& fileName) {
+	boost::filesystem::ofstream result(fileName);
 	result << plot(fileName);
 	result.close();
 }
@@ -3117,11 +3117,10 @@ void GPlotDesigner::writeToFile(const std::string& fileName) {
 /*
  * Emits the overall plot
  */
-std::string GPlotDesigner::plot(const std::string& plotName) const {
+std::string GPlotDesigner::plot(const boost::filesystem::path& plotName) const {
 	std::ostringstream result;
 	std::size_t maxPlots = c_x_div_*c_y_div_;
 
-#ifdef DEBUG
 	if(plotters_.size() > maxPlots) {
 	   glogger
 	   << "In GPlotDesigner::plot() (Canvas label = \"" << this->getCanvasLabel() << "\":" << std::endl
@@ -3129,7 +3128,6 @@ std::string GPlotDesigner::plot(const std::string& plotName) const {
 	   << "Some of the plots will be ignored" << std::endl
 	   << GWARNING;
 	}
-#endif /* DEBUG*/
 
 	result
 		<< "{" << std::endl
@@ -3185,8 +3183,8 @@ std::string GPlotDesigner::plot(const std::string& plotName) const {
 	<< "  cc->cd();" << std::endl;
 
 	// Check if we are supposed to output a png file
-	if(addPrintCommand_ && plotName != "empty" && !plotName.empty()) {
-	   std::string plotName_local = plotName; // Make sure there are no white spaces
+	if(addPrintCommand_ && plotName.string() != "empty" && !(plotName.string()).empty()) {
+	   std::string plotName_local = plotName.string(); // Make sure there are no white spaces
 	   boost::trim(plotName_local);
 	   result
 	   << std::endl

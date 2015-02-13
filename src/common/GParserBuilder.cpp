@@ -455,15 +455,18 @@ bool GParserBuilder::parseConfigFile(const std::string& configFile) {
 
 		result = true;
 	} catch(const gemfony_error_condition& e) {
-		std::cerr << "Caught gemfony_error_condition when parsing configuration file " << configFile_withBase << ":" << std::endl
-				  << e.what() << std::endl;
+		std::
+		cerr << "Caught gemfony_error_condition when parsing configuration file " << configFile_withBase << ":" << std::endl
+		<< e.what() << std::endl;
 		result=false;
 	} catch(const std::exception& e) {
-		std::cerr << "Caught std::exception when parsing configuration file " << configFile_withBase << ":" << std::endl
-				  << e.what() << std::endl;
+		std::cerr
+		<< "Caught std::exception when parsing configuration file " << configFile_withBase << ":" << std::endl
+		<< e.what() << std::endl;
 		result=false;
 	} catch(...) {
-		std::cerr << "Unknown error while parsing the configuration file " << configFile_withBase << std::endl;
+		std::cerr
+		<< "Unknown error while parsing the configuration file " << configFile_withBase << std::endl;
 		result=false;
 	}
 
@@ -480,14 +483,11 @@ bool GParserBuilder::parseConfigFile(const std::string& configFile) {
  * @param writeAll A boolean parameter that indicates whether all or only essential parameters should be written
  */
 void GParserBuilder::writeConfigFile(
-   const std::string& configFile
-   , const std::string& header
-   , bool writeAll
+      const std::string& configFile
+      , const std::string& header
+      , bool writeAll
 ) const {
-   using namespace boost::property_tree;
    using namespace boost::filesystem;
-
-   namespace bf = boost::filesystem;
 
    // Add a base name, if possible and required
    std::string configFile_withBase = configFile;
@@ -498,93 +498,93 @@ void GParserBuilder::writeConfigFile(
       configFile_withBase = configFileBaseName_ + configFile_withBase;
    }
 
-	// Needed for the separation of comment strings
-	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-	boost::char_separator<char> semicolon_sep(";");
+   // Needed for the separation of comment strings
+   typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+   boost::char_separator<char> semicolon_sep(";");
 
-	// Do some error checking
-	{
-		// Is configFile a directory ?
-		if(is_directory(configFile_withBase)) {
-			glogger
-			<< "In GParserBuilder::writeConfigFile(): Error!" << std::endl
+   // Do some error checking
+   {
+      // Is configFile a directory ?
+      if(is_directory(configFile_withBase)) {
+         glogger
+         << "In GParserBuilder::writeConfigFile(): Error!" << std::endl
          << configFile_withBase << " is a directory." << std::endl
          << GEXCEPTION;
-		}
+      }
 
-		// We do not allow to overwrite existing files
-		if(exists(configFile_withBase) && is_regular_file(configFile_withBase)) {
-		   glogger
-		   << "In GParserBuilder::writeConfigFile(): Error!" << std::endl
+      // We do not allow to overwrite existing files
+      if(exists(configFile_withBase) && is_regular_file(configFile_withBase)) {
+         glogger
+         << "In GParserBuilder::writeConfigFile(): Error!" << std::endl
          << "You have specified an existing file (" << configFile_withBase << ")." << std::endl
          << GEXCEPTION;
-		}
+      }
 
-		// Check that the target path exists and is a directory
-		if(!exists(bf::path(configFile_withBase).remove_filename()) || !is_directory(bf::path(configFile_withBase).remove_filename())) {
-		   glogger
-		   << "In GParserBuilder::writeConfigFile(): Error!" << std::endl
-         << "The target path " << bf::path(configFile_withBase).remove_filename() << " does not exist or is no directory." << std::endl
+      // Check that the target path exists and is a directory
+      if(!exists(path(configFile_withBase).remove_filename()) || !is_directory(path(configFile_withBase).remove_filename())) {
+         glogger
+         << "In GParserBuilder::writeConfigFile(): Error!" << std::endl
+         << "The target path " << path(configFile_withBase).remove_filename() << " does not exist or is no directory." << std::endl
          << GEXCEPTION;
-		}
+      }
 
-		// Check that the configuration file has the required extension
-		if(!bf::path(configFile_withBase).has_extension() || bf::path(configFile_withBase).extension() != ".json") {
-		   glogger
-		   << "In GParserBuilder::writeConfigFile(): Error!" << std::endl
+      // Check that the configuration file has the required extension
+      if(!path(configFile_withBase).has_extension() || path(configFile_withBase).extension() != ".json") {
+         glogger
+         << "In GParserBuilder::writeConfigFile(): Error!" << std::endl
          << configFile_withBase << " does not have the required extension \".json\"" << std::endl
          << GEXCEPTION;
-		}
-	}
+      }
+   }
 
-	// Open the required configuration file
-	std::ofstream ofs(configFile_withBase.c_str());
-	if (!ofs.good()) {
-		glogger
-		<< "In GParserBuilder::writeConfigFile(): Error writing the configuration file " << configFile_withBase << std::endl
-		<< GEXCEPTION;
-	}
+   // Open the required configuration file
+   boost::filesystem::ofstream ofs(configFile_withBase);
+   if (!ofs) {
+      glogger
+      << "In GParserBuilder::writeConfigFile(): Error writing the configuration file " << configFile_withBase << std::endl
+      << GEXCEPTION;
+   }
 
-	// Do some error checking
-	if(file_parameter_proxies_.size() == 0) {
-		glogger
-		<< "In GParserBuilder::writeConfigFile(): No variables found!" << std::endl
-		<< GEXCEPTION;
-	}
+   // Do some error checking
+   if(file_parameter_proxies_.size() == 0) {
+      glogger
+      << "In GParserBuilder::writeConfigFile(): No variables found!" << std::endl
+      << GEXCEPTION;
+   }
 
-	// Output the header
-	ofs << "//-----------------------------------------------------------------" << std::endl;
-	if(header != "") {
-		// Break the header into individual tokens
-		tokenizer headerTokenizer(header, semicolon_sep);
-		for(tokenizer::iterator h=headerTokenizer.begin(); h!=headerTokenizer.end(); ++h) {
-			ofs << "// " << *h << std::endl;
-		}
-	}
-	ofs
-	<< "// File creation date: " << boost::posix_time::second_clock::local_time() << std::endl
-	<< "//-----------------------------------------------------------------" << std::endl
-	<< std::endl;
+   // Output the header
+   ofs << "//-----------------------------------------------------------------" << std::endl;
+   if(header != "") {
+      // Break the header into individual tokens
+      tokenizer headerTokenizer(header, semicolon_sep);
+      for(tokenizer::iterator h=headerTokenizer.begin(); h!=headerTokenizer.end(); ++h) {
+         ofs << "// " << *h << std::endl;
+      }
+   }
+   ofs
+   << "// File creation date: " << boost::posix_time::second_clock::local_time() << std::endl
+   << "//-----------------------------------------------------------------" << std::endl
+   << std::endl;
 
-	// Create a property tree object;
-	ptree pt;
+   // Create a property tree object;
+   boost::property_tree::ptree ptr;
 
-	// Output variables and values
-	std::vector<boost::shared_ptr<GFileParsableI> >::const_iterator cit;
-	for(cit=file_parameter_proxies_.begin(); cit!=file_parameter_proxies_.end(); ++cit) {
-		// Only write out the parameter(s) if they are either essential or it
-		// has been requested to write out all parameters regardless
-		if(!writeAll && !(*cit)->isEssential()) continue;
+   // Output variables and values
+   std::vector<boost::shared_ptr<GFileParsableI> >::const_iterator cit;
+   for(cit=file_parameter_proxies_.begin(); cit!=file_parameter_proxies_.end(); ++cit) {
+      // Only write out the parameter(s) if they are either essential or it
+      // has been requested to write out all parameters regardless
+      if(!writeAll && !(*cit)->isEssential()) continue;
 
-		// Output the actual data of this parameter object to the property tree
-		(*cit)->save(pt);
-	}
+      // Output the actual data of this parameter object to the property tree
+      (*cit)->save(ptr);
+   }
 
-	// Write the configuration data to disk
-	write_json(ofs, pt);
+   // Write the configuration data to disk
+   boost::property_tree::write_json(ofs, ptr);
 
-	// Close the file handle
-	ofs.close();
+   // Close the file handle
+   ofs.close();
 }
 
 /******************************************************************************/
