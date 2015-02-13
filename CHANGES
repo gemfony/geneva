@@ -30,6 +30,8 @@ The main changes for this release include:
 
  - Removed GCanvas32, as it results in a (justified) overflow warning
    under MS Windows.
+ - Geneva now explicitely requires the Boost::random and the
+   Boost::unit_test_framework components of Boost.
  - The FindBoost.cmake module is not provided anymore. It doesn't help
    much as we currently require at least CMake 2.8 which comes with a
    good enough version of the module, but it also interferes with using
@@ -46,7 +48,7 @@ The main changes for this release include:
    according to this value range.
  - Most calculations in Geneva's gradient descent implementation are
    now carried out as long double to preserve accuracy, where possible.
- - Moved all filesystem io to the boost::filesystem library
+ - Moved all filesystem io to the Boost::filesystem library.
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.4.1, "Fénis" - January 23, 2015
