@@ -57,8 +57,6 @@
 #include <boost/fusion/include/tuple.hpp>
 #include <boost/fusion/include/boost_tuple.hpp>
 
-namespace bf=boost::filesystem;
-
 #ifndef GHELPERFUNCTIONS_HPP_
 #define GHELPERFUNCTIONS_HPP_
 
@@ -78,7 +76,7 @@ unsigned int getNHardwareThreads(const unsigned int& defaultNThreads = Gem::Comm
 /******************************************************************************/
 /** @brief This function loads textual (ASCII) data from an external file */
 G_API
-std::string loadTextDataFromFile(const bf::path&);
+std::string loadTextDataFromFile(const boost::filesystem::path&);
 
 /******************************************************************************/
 /** @brief This function executes an external command on the operating system */

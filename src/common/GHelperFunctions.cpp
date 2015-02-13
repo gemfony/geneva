@@ -70,9 +70,9 @@ unsigned int getNHardwareThreads(const unsigned int& defaultNThreads) {
  * @param p The name of the file to be loaded
  * @return The data contained in the file
  */
-std::string loadTextDataFromFile(const bf::path& p) {
+std::string loadTextDataFromFile(const boost::filesystem::path& p) {
    // Check that the file exists
-   if(!bf::exists(p)) {
+   if(!boost::filesystem::exists(p)) {
       glogger
       << "In loadTextDataFromFile(): Error!" << std::endl
       << "Tried to load data from file " << p.string() << std::endl
@@ -80,7 +80,7 @@ std::string loadTextDataFromFile(const bf::path& p) {
       << GEXCEPTION;
    }
 
-   bf::ifstream sourceFileStream(p);
+   boost::filesystem::ifstream sourceFileStream(p);
    std::string sourceFile (
             std::istreambuf_iterator<char>(sourceFileStream)
             , (std::istreambuf_iterator<char>())

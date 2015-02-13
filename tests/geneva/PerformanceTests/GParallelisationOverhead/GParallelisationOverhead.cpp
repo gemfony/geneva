@@ -38,7 +38,6 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-#include <unistd.h>
 
 // Boost header files go here
 #include <boost/bind.hpp>
