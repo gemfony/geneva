@@ -67,20 +67,20 @@ unsigned int getNHardwareThreads(const unsigned int& defaultNThreads) {
  * (at least in theory -- this is untested). There is no check whether the data loaded represents
  * a text.
  *
- * @param fileName The name of the file to be loaded
+ * @param p The name of the file to be loaded
  * @return The data contained in the file
  */
-std::string loadTextDataFromFile(const std::string& fileName) {
+std::string loadTextDataFromFile(const bf::path& p) {
    // Check that the file exists
-   if(!bf::exists(bf::path(fileName))) {
+   if(!bf::exists(p)) {
       glogger
       << "In loadTextDataFromFile(): Error!" << std::endl
-      << "Tried to load data from file " << fileName << std::endl
+      << "Tried to load data from file " << p.string() << std::endl
       << "Which does not exist" << std::endl
       << GEXCEPTION;
    }
 
-   std::ifstream sourceFileStream(fileName.c_str());
+   bf::ifstream sourceFileStream(p);
    std::string sourceFile (
             std::istreambuf_iterator<char>(sourceFileStream)
             , (std::istreambuf_iterator<char>())

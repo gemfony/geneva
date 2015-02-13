@@ -58,6 +58,8 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/cast.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/optional.hpp>
@@ -92,6 +94,9 @@
 #include "common/GHelperFunctions.hpp"
 #include "common/GMathHelperFunctions.hpp"
 #include "common/GMathHelperFunctionsT.hpp"
+
+// aliases for ease of use
+namespace bf = boost::filesystem;
 
 namespace Gem {
 namespace Common {
@@ -692,11 +697,11 @@ public:
    /**
     * Loads the data held in a file in PPM-P3 format
     *
-    * @param fileName The name of a file holding an image in PPM-P3 format
+    * @param p The name of a file holding an image in PPM-P3 format
     */
-   void loadFromFile(const std::string& fileName) {
+   void loadFromFile(const bf::path& p) {
       // Read in the entire file
-      std::string imageData = Gem::Common::loadTextDataFromFile(fileName);
+      std::string imageData = Gem::Common::loadTextDataFromFile(p);
 
       // Hand the string over to loadFromPPM() -- it will do the rest
 #ifdef DEBUG
@@ -715,13 +720,13 @@ public:
    /**
     * Saves the canvas to a file
     */
-   void toFile(const std::string& fileName) {
-      std::ofstream result(fileName.c_str());
+   void toFile(const bf::path& p) {
+      bf::ofstream result(p);
 
       if(!result) {
          glogger
          << "In GCanvas<>::toFile(): Error!" << std::endl
-         << "Could not open output file " << fileName << std::endl
+         << "Could not open output file " << p.string() << std::endl
          << GEXCEPTION;
       }
 

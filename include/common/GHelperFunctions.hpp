@@ -50,6 +50,7 @@
 #include <boost/thread.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/spirit/include/qi.hpp>
@@ -77,7 +78,7 @@ unsigned int getNHardwareThreads(const unsigned int& defaultNThreads = Gem::Comm
 /******************************************************************************/
 /** @brief This function loads textual (ASCII) data from an external file */
 G_API
-std::string loadTextDataFromFile(const std::string&);
+std::string loadTextDataFromFile(const bf::path&);
 
 /******************************************************************************/
 /** @brief This function executes an external command on the operating system */

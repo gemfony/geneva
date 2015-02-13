@@ -197,9 +197,9 @@ public:
 	virtual void fromString(const std::string&, const Gem::Common::serializationMode&) OVERRIDE;
 
 	/** @brief Writes a serial representation of this object to a file */
-	void toFile(const boost::filesystem::path&, const Gem::Common::serializationMode&) const;
+	void toFile(const bf::path&, const Gem::Common::serializationMode&) const;
 	/** @brief Loads a serial representation of this object from file */
-	void fromFile(const boost::filesystem::path&, const Gem::Common::serializationMode&);
+	void fromFile(const bf::path&, const Gem::Common::serializationMode&);
 
 	/** @brief Returns an XML description of the derivative it is called for */
 	std::string report() const;

@@ -43,7 +43,7 @@ int main(int argc, char**argv) {
    GCanvas<8> gc, gc2;
 
    // Check loading of the data from file
-   gc.loadFromFile("./pictures/ml.ppm");
+   gc.loadFromFile(bf::path("./pictures/ml.ppm"));
    gc2 = gc;
 
    // Check that there is no difference between both
@@ -74,7 +74,7 @@ int main(int argc, char**argv) {
    }
 
    // Finally save the picture to disk
-   gc.toFile("./pictures/result.ppm");
+   gc.toFile(bf::path("./pictures/result.ppm"));
 
    return 0;
 }

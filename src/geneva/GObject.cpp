@@ -298,14 +298,14 @@ void GObject::fromString(
 /**
  * Writes a serial representation of this object to a file. Can be used for check-pointing.
  *
- * @param fileName The name of the file the object should be saved to.
+ * @param p The name of the file the object should be saved to.
  * @param serMod The desired serialization mode
  */
 void GObject::toFile(
-     const boost::filesystem::path& p
+     const bf::path& p
    , const Gem::Common::serializationMode& serMod
 ) const {
-   boost::filesystem::ofstream ofstr(p);
+   bf::ofstream ofstr(p);
 
    if(!ofstr) {
       glogger
@@ -338,11 +338,11 @@ void GObject::toFile(
 /**
  * Loads a serial representation of this object from file. Can be used for check-pointing.
  *
- * @param fileName The name of the file the object should be loaded from
+ * @param p The name of the file the object should be loaded from
  * @param serMod The desired serialization mode
  */
 void GObject::fromFile(
-     const boost::filesystem::path& p
+     const bf::path& p
    , const Gem::Common::serializationMode& serMod
 ) {
    // Check that the file exists
@@ -354,7 +354,7 @@ void GObject::fromFile(
       << GEXCEPTION;
    }
 
-   boost::filesystem::ifstream ifstr(p);
+   bf::ifstream ifstr(p);
 
 	if(!ifstr) {
 	   glogger
@@ -601,32 +601,30 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check (de-)serialization from/to a file in three different modes
-		using namespace boost::filesystem;
-
 		boost::shared_ptr<GObject> p_test = this->clone();
 
 		{ // Text mode
-			BOOST_CHECK_NO_THROW(p_test->toFile(path("123test.txt"), Gem::Common::SERIALIZATIONMODE_TEXT));
-			BOOST_CHECK_NO_THROW(p_test->fromFile(path("123test.txt"), Gem::Common::SERIALIZATIONMODE_TEXT));
+			BOOST_CHECK_NO_THROW(p_test->toFile(bf::path("123test.txt"), Gem::Common::SERIALIZATIONMODE_TEXT));
+			BOOST_CHECK_NO_THROW(p_test->fromFile(bf::path("123test.txt"), Gem::Common::SERIALIZATIONMODE_TEXT));
 
 			// Get rid of the file
-			remove(path("./123test.txt"));
+			remove(bf::path("./123test.txt"));
 		}
 
 		{ // XML mode
-			BOOST_CHECK_NO_THROW(p_test->toFile(path("123test.xml"), Gem::Common::SERIALIZATIONMODE_XML));
-			BOOST_CHECK_NO_THROW(p_test->fromFile(path("123test.xml"), Gem::Common::SERIALIZATIONMODE_XML));
+			BOOST_CHECK_NO_THROW(p_test->toFile(bf::path("123test.xml"), Gem::Common::SERIALIZATIONMODE_XML));
+			BOOST_CHECK_NO_THROW(p_test->fromFile(bf::path("123test.xml"), Gem::Common::SERIALIZATIONMODE_XML));
 
 			// Get rid of the file
-			remove(path("./123test.xml"));
+			remove(bf::path("./123test.xml"));
 		}
 
 		{ // Binary mode
-			BOOST_CHECK_NO_THROW(p_test->toFile(path("123test.bin"), Gem::Common::SERIALIZATIONMODE_BINARY));
-			BOOST_CHECK_NO_THROW(p_test->fromFile(path("123test.bin"), Gem::Common::SERIALIZATIONMODE_BINARY));
+			BOOST_CHECK_NO_THROW(p_test->toFile(bf::path("123test.bin"), Gem::Common::SERIALIZATIONMODE_BINARY));
+			BOOST_CHECK_NO_THROW(p_test->fromFile(bf::path("123test.bin"), Gem::Common::SERIALIZATIONMODE_BINARY));
 
 			// Get rid of the file
-			remove(path("./123test.bin"));
+			remove(bf::path("./123test.bin"));
 		}
 	}
 
