@@ -452,7 +452,7 @@ GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory()
    arguments.push_back(std::string("--finalize="));
 
    // Perform the external evaluation
-   Gem::Common::runExternalCommand(boost::filesystem::path(programName_), arguments);
+   Gem::Common::runExternalCommand(boost::filesystem::path(programName_.value()), arguments);
 }
 
 /******************************************************************************/
@@ -1175,7 +1175,7 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
    }
    arguments.push_back(std::string("--init"));
    // Perform the external initialization
-   Gem::Common::runExternalCommand(boost::filesystem::path(programName_), arguments);
+   Gem::Common::runExternalCommand(boost::filesystem::path(programName_.value()), arguments);
 
    //---------------------------------------------------------------------------------------
    // Query the external evaluator for setup information for our individuals
@@ -1186,7 +1186,7 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
    arguments.push_back(std::string("--initvalues=") + initValues_.value());
    arguments.push_back(std::string("--setup=\"./setup.xml\""));
    // Perform the external initialization
-   Gem::Common::runExternalCommand(boost::filesystem::path(programName_), arguments);
+   Gem::Common::runExternalCommand(boost::filesystem::path(programName_.value()), arguments);
 
    //---------------------------------------------------------------------------------------
 
