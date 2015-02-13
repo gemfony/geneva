@@ -58,9 +58,7 @@
 int main(int argc, char **argv){
   std::string configFile;
   boost::uint16_t parallelizationMode;
-  bool serverMode;
   std::string ip;
-  unsigned short port;
   boost::uint16_t nProducerThreads;
   boost::uint16_t nEvaluationThreads;
   std::size_t populationSize;
