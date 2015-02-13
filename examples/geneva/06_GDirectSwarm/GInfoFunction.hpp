@@ -43,6 +43,7 @@
 
 // Boost header files go here
 #include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/cstdint.hpp>
 
@@ -437,7 +438,7 @@ protected:
 			}
 
 			// Open a file stream
-			std::ofstream ofs((outputPath_ + outputFileName).c_str());
+			boost::filesystem::ofstream ofs(boost::filesystem::path(outputPath_ + outputFileName));
 			if(!ofs) {
 				std::ostringstream error;
 				error << "In progressMonitor::swarmCycleInformation(): Error!" << std::endl
