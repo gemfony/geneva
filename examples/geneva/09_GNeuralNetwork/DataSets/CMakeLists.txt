@@ -12,8 +12,6 @@ SET ( DATAFILES
 )
 
 # Copy the config files to the build tree for easier testing
-FOREACH ( file IN LISTS DATAFILES )
-	CONFIGURE_FILE ( ${file} ${file} COPYONLY )
-ENDFOREACH ()
+FILE ( COPY ${DATAFILES} DESTINATION . )
 
 INSTALL ( FILES ${DATAFILES} DESTINATION ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME}/DataSets )

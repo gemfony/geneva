@@ -7,8 +7,6 @@ SET ( CONFIGFILES
 )
 
 # Copy the config files to the build tree for easier testing
-FOREACH ( file IN LISTS CONFIGFILES )
-	CONFIGURE_FILE ( ${file} ${file} COPYONLY )
-ENDFOREACH ()
+FILE ( COPY ${CONFIGFILES} DESTINATION . )
 
 INSTALL ( FILES ${CONFIGFILES} DESTINATION ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME}/config )

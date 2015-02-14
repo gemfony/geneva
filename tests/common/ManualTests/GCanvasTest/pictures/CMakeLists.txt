@@ -5,8 +5,6 @@ SET ( PICFILES
 )
 
 # Copy the config files to the build tree for easier testing
-FOREACH ( file IN LISTS PICFILES )
-	CONFIGURE_FILE ( ${file} ${file} COPYONLY )
-ENDFOREACH ()
+FILE ( COPY ${PICFILES} DESTINATION . )
 
 INSTALL ( FILES ${PICFILES} DESTINATION ${INSTALL_PREFIX_DATA}/tests/common/ManualTests/${EXECUTABLENAME}/pictures )
