@@ -126,7 +126,7 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Sets a new option once or returns an error, if the option already exists
+	 * Sets a new option once or returns false, if the option already exists
 	 *
 	 * @param key The name of the option
     * @param value The value of the option

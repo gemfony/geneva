@@ -77,14 +77,8 @@ public:
       boost::shared_ptr<GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> > > p(new oaf_type());
       std::string mnemonic = p->getMnemonic();
 
-      // We require that the algorithm has a default
-      // constructor and the static "nickname" data member
-      if(!GOAFactoryStore->setOnce(mnemonic, p)) { // Algorithm factory already exists in the store
-         glogger
-         << "In GOAInitializerT<op_type>::GOAInitializerT(): Error!" << std::endl
-         << "Identifier " << mnemonic << " already exists in store." << std::endl
-         << GTERMINATION;
-      }
+      // Add the factory to the store, if it hasn't been stored there yet
+      GOAFactoryStore->setOnce(mnemonic, p);
    }
    /** @brief An empty destructor */
    virtual inline ~GOAInitializerT() { /* nothing */ }
