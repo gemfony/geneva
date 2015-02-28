@@ -84,7 +84,7 @@ public:
 /**
  * A consumer used for multi-threaded processing, using GParameterSet-derivatives
  */
-class GIndividualThreadConsumer
+class G_API GIndividualThreadConsumer
    : public Gem::Courtier::GBoostThreadConsumerT<Gem::Geneva::GParameterSet>
 {
 public:
@@ -101,7 +101,7 @@ public:
  * A consumer used for serial execution (mostly needed for debugging purposes).
  * Its payload are GParameterSet-derivatives.
  */
-class GIndividualSerialConsumer
+class G_API GIndividualSerialConsumer
    : public Gem::Courtier::GSerialConsumerT<Gem::Geneva::GParameterSet>
 {
 public:

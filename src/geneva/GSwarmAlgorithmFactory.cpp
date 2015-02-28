@@ -42,10 +42,6 @@ namespace Geneva {
 const std::string GSwarmAlgorithmFactory::nickname = "swarm";
 
 /******************************************************************************/
-/** This will register the factory in the global factory store */
-GOAInitializerT<GSwarmAlgorithmFactory> GSwarmStoreRegistrant;
-
-/******************************************************************************/
 /**
  * The default constructor
  */

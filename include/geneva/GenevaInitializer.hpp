@@ -1,5 +1,5 @@
 /**
- * @file GIndividualStandardConsumerInitializerT.hpp
+ * @file Geneva.hpp
  */
 
 /*
@@ -36,23 +36,23 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
-#include <iostream>
+#include <exception>
 
 // Boost header files go here
 #include <boost/shared_ptr.hpp>
-#include <boost/type_traits.hpp>
-#include <boost/mpl/assert.hpp>
 
-
-#ifndef GINDIVIDUALSTANDARDCONSUMERINITIALIZERT_HPP_
-#define GINDIVIDUALSTANDARDCONSUMERINITIALIZERT_HPP_
+#ifndef INCLUDE_GENEVA_GENEVA_HPP_
+#define INCLUDE_GENEVA_GENEVA_HPP_
 
 // Geneva headers go here
-#include "common/GLogger.hpp"
-#include "common/GGlobalOptionsT.hpp"
-#include "courtier/GBaseConsumerT.hpp"
+#include "hap/GRandomFactory.hpp"
+#include "courtier/GBrokerT.hpp"
 #include "geneva/GParameterSet.hpp"
+#include "geneva/GOAFactoryStore.hpp"
 #include "geneva/GConsumerStore.hpp"
+#include "geneva/GOAInitializerT.hpp"
+#include "geneva/GIndividualStandardConsumerInitializerT.hpp"
+
 
 namespace Gem {
 namespace Geneva {
@@ -61,23 +61,37 @@ namespace Geneva {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This base class takes care of adding GParameterSet-based consumer objects
- * to a global store
+ * This class performs some necessary initialization work. When
+ * using the Go2-class, it will be called for the user. When using optimization
+ * algorithms directly, the user needs to manually instantiate this class and
+ * register any desired optimization algorithm(-factory).
  */
-template <typename c_type> // c_type stands for consumer type
-class G_API GIndividualStandardConsumerInitializerT {
+class GenevaInitializer {
 public:
-   /** @brief The initializing constructor */
-   GIndividualStandardConsumerInitializerT() {
-      // Create a smart pointer holding the consumer
-      boost::shared_ptr<Gem::Courtier::GBaseConsumerT<Gem::Geneva::GParameterSet> > p(new c_type());
-      std::string mnemonic = p->getMnemonic();
+   /** @brief The default constructor */
+   GenevaInitializer();
 
-      // Register the consumer with the store, if it hasn't happened yet
-      GConsumerStore->setOnce(mnemonic, p);
+   /***************************************************************************/
+   /**
+    * Allows to register optimization algorithm factories
+    */
+   template <typename oaf_type>
+   void registerOAF() {
+      // This will register the factory in the global factory store
+      GOAInitializerT<oaf_type> GOAFStoreRegistrant;
    }
-   /** @brief An empty destructor */
-   virtual ~GIndividualStandardConsumerInitializerT() { /* nothing */ }
+
+   /***************************************************************************/
+   /**
+    * Allows to register consumers
+    */
+   template <typename c_type>
+   void registerConsumer() {
+      // This will register the consumer with the global store
+      GIndividualStandardConsumerInitializerT<c_type> GConsumerStoreRegistrant;
+   }
+
+   /***************************************************************************/
 };
 
 /******************************************************************************/
@@ -87,4 +101,4 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GINDIVIDUALSTANDARDCONSUMERINITIALIZERT_HPP_ */
+#endif /* INCLUDE_GENEVA_GENEVA_HPP_ */

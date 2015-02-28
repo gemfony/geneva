@@ -73,6 +73,19 @@ Go2::Go2()
 	, sorted_(false)
 	, iterationsConsumed_(0)
 {
+   //--------------------------------------------
+   // Initialize Geneva as well as the known optimization algorithms and consumers
+
+   gi_.registerOAF<GEvolutionaryAlgorithmFactory>();
+   gi_.registerOAF<GSwarmAlgorithmFactory>();
+   gi_.registerOAF<GGradientDescentFactory>();
+   gi_.registerOAF<GSimulatedAnnealingFactory>();
+   gi_.registerOAF<GParameterScanFactory>();
+
+   gi_.registerConsumer<GIndividualTCPConsumer>();
+   gi_.registerConsumer<GIndividualThreadConsumer>();
+   gi_.registerConsumer<GIndividualSerialConsumer>();
+
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
@@ -104,6 +117,19 @@ Go2::Go2(
 	, sorted_(false)
 	, iterationsConsumed_(0)
 {
+   //--------------------------------------------
+   // Initialize Geneva as well as the known optimization algorithms
+
+   gi_.registerOAF<GEvolutionaryAlgorithmFactory>();
+   gi_.registerOAF<GSwarmAlgorithmFactory>();
+   gi_.registerOAF<GGradientDescentFactory>();
+   gi_.registerOAF<GSimulatedAnnealingFactory>();
+   gi_.registerOAF<GParameterScanFactory>();
+
+   gi_.registerConsumer<GIndividualTCPConsumer>();
+   gi_.registerConsumer<GIndividualThreadConsumer>();
+   gi_.registerConsumer<GIndividualSerialConsumer>();
+
 	//--------------------------------------------
 	// Load initial configuration options from the command line
 	parseCommandLine(argc, argv, od);
@@ -132,6 +158,19 @@ Go2::Go2(const std::string& configFilename)
    , iterationsConsumed_(0)
    , default_algorithm_str_(DEFAULTOPTALG)
 {
+   //--------------------------------------------
+   // Initialize Geneva as well as the known optimization algorithms
+
+   gi_.registerOAF<GEvolutionaryAlgorithmFactory>();
+   gi_.registerOAF<GSwarmAlgorithmFactory>();
+   gi_.registerOAF<GGradientDescentFactory>();
+   gi_.registerOAF<GSimulatedAnnealingFactory>();
+   gi_.registerOAF<GParameterScanFactory>();
+
+   gi_.registerConsumer<GIndividualTCPConsumer>();
+   gi_.registerConsumer<GIndividualThreadConsumer>();
+   gi_.registerConsumer<GIndividualSerialConsumer>();
+
    //--------------------------------------------
    // Parse configuration file options
    this->parseConfigFile(configFilename);
@@ -170,6 +209,19 @@ Go2::Go2(
 	, default_algorithm_str_(DEFAULTOPTALG)
 {
    //--------------------------------------------
+   // Initialize Geneva as well as the known optimization algorithms
+
+   gi_.registerOAF<GEvolutionaryAlgorithmFactory>();
+   gi_.registerOAF<GSwarmAlgorithmFactory>();
+   gi_.registerOAF<GGradientDescentFactory>();
+   gi_.registerOAF<GSimulatedAnnealingFactory>();
+   gi_.registerOAF<GParameterScanFactory>();
+
+   gi_.registerConsumer<GIndividualTCPConsumer>();
+   gi_.registerConsumer<GIndividualThreadConsumer>();
+   gi_.registerConsumer<GIndividualSerialConsumer>();
+
+   //--------------------------------------------
    // Parse configuration file options
    this->parseConfigFile(configFilename);
 
@@ -199,6 +251,20 @@ Go2::Go2(const Go2& cp)
 	, iterationsConsumed_(0)
 	, default_algorithm_str_(DEFAULTOPTALG)
 {
+   //--------------------------------------------
+   // Initialize Geneva as well as the known optimization algorithms
+
+   gi_.registerOAF<GEvolutionaryAlgorithmFactory>();
+   gi_.registerOAF<GSwarmAlgorithmFactory>();
+   gi_.registerOAF<GGradientDescentFactory>();
+   gi_.registerOAF<GSimulatedAnnealingFactory>();
+   gi_.registerOAF<GParameterScanFactory>();
+
+   gi_.registerConsumer<GIndividualTCPConsumer>();
+   gi_.registerConsumer<GIndividualThreadConsumer>();
+   gi_.registerConsumer<GIndividualSerialConsumer>();
+
+   //--------------------------------------------
 	// Copy the algorithms vectors over
    copyGenevaSmartPointerVector(cp.cl_algorithms_, cl_algorithms_);
 	copyGenevaSmartPointerVector(cp.algorithms_, algorithms_);
@@ -1218,38 +1284,6 @@ void Go2::parseConfigFile(const std::string& configFilename) {
       << GTERMINATION;
    }
 }
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * The default constructor
- */
-GenevaInitializer::GenevaInitializer()
-   : grf_(GRANDOMFACTORY)
-   , gbr_(GBROKER(Gem::Geneva::GParameterSet))
-{
-   grf_->init();
-   gbr_->init();
-}
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GenevaInitializer::~GenevaInitializer() {
-   gbr_->finalize();
-   grf_->finalize();
-
-#ifdef GEM_INT_FORCE_TERMINATION // Defined in GGlobalDefines.hpp.in
-   std::set_terminate(Go2::GTerminateImproperBoostTermination);
-   std::terminate();
-#endif /* GEM_INT_FORCE_TERMINATION */
-}
-
-/******************************************************************************/
-// Create an instance of this class
-GenevaInitializer gi;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

@@ -54,6 +54,7 @@
 #include "courtier/GAsioHelperFunctions.hpp"
 #include "courtier/GAsioTCPConsumerT.hpp"
 #include "courtier/GBoostThreadConsumerT.hpp"
+#include "courtier/GSerialConsumerT.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
 #include "geneva/GOptimizableEntity.hpp"
@@ -68,25 +69,7 @@
 #include "geneva/GIndividualStandardConsumers.hpp"
 #include "geneva/GIndividualStandardConsumerInitializerT.hpp"
 #include "geneva/GConsumerStore.hpp"
-
-#include "geneva/GBaseEA.hpp"
-#include "geneva/GBasePS.hpp"
-#include "geneva/GBaseSwarm.hpp"
-#include "geneva/GBrokerEA.hpp"
-#include "geneva/GBrokerGD.hpp"
-#include "geneva/GBrokerPS.hpp"
-#include "geneva/GBrokerSA.hpp"
-#include "geneva/GBrokerSwarm.hpp"
-#include "geneva/GSerialEA.hpp"
-#include "geneva/GSerialGD.hpp"
-#include "geneva/GSerialPS.hpp"
-#include "geneva/GSerialSA.hpp"
-#include "geneva/GSerialSwarm.hpp"
-#include "geneva/GMultiThreadedEA.hpp"
-#include "geneva/GMultiThreadedGD.hpp"
-#include "geneva/GMultiThreadedPS.hpp"
-#include "geneva/GMultiThreadedSA.hpp"
-#include "geneva/GMultiThreadedSwarm.hpp"
+#include "geneva/GenevaInitializer.hpp"
 #include "geneva/GEvolutionaryAlgorithmFactory.hpp"
 #include "geneva/GGradientDescentFactory.hpp"
 #include "geneva/GParameterScanFactory.hpp"
@@ -313,25 +296,12 @@ protected:
 	virtual void runFitnessCalculation() OVERRIDE;
 
 private:
-   /***************************************************************************/
-   /**
-    * A termination handler
-    */
-   static void GTerminateImproperBoostTermination() {
-      std::cout
-      << "***********************************************************" << std::endl
-      << "* Note that there seems to be a bug in some Boost         *" << std::endl
-      << "* versions that prevents proper termination of Geneva.    *" << std::endl
-      << "* If you see this message it means that you are using     *" << std::endl
-      << "* one of the affected releases, so we have to force       *" << std::endl
-      << "* termination. Since this happens when all work has       *" << std::endl
-      << "* already been done, this will very likely have no effect *" << std::endl
-      << "* on your results. So you can safely ignore this message. *" << std::endl
-      << "***********************************************************" << std::endl;
-   }
-
    /** @brief Sets the number of random number production threads */
    void setNProducerThreads(const boost::uint16_t&);
+
+   /***************************************************************************/
+   // Initialization code for the Geneva library
+   GenevaInitializer gi_;
 
 	/***************************************************************************/
 	// These parameters can enter the object through the constructor
@@ -363,27 +333,6 @@ private:
 	boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr_;
 	// A user-defined call-back for information retrieval
 	boost::function<void(const infoMode&, GOptimizationAlgorithmT<GParameterSet> * const)> pluggableInfoFunction_;
-};
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * This class performs some necessary initialization and finalization work, so
- * the user does not need to do this manually in main()
- */
-class GenevaInitializer {
-public:
-	/** @brief The default constructor */
-   inline GenevaInitializer();
-   /** @brief The destructor */
-   inline ~GenevaInitializer();
-
-private:
-   // Local copies of the factory and broker pointers. Needed so we are
-   // sure the corresponding objects still exist when the destructor is called.
-   boost::shared_ptr<Gem::Hap::GRandomFactory> grf_;
-   boost::shared_ptr<Gem::Courtier::GBrokerT<GParameterSet> > gbr_;
 };
 
 /******************************************************************************/

@@ -42,10 +42,6 @@ namespace Geneva {
 const std::string GEvolutionaryAlgorithmFactory::nickname = "ea";
 
 /******************************************************************************/
-/** This will register the factory in the global factory store */
-GOAInitializerT<GEvolutionaryAlgorithmFactory> GEVAStoreRegistrant;
-
-/******************************************************************************/
 /**
  * The default constructor
  */

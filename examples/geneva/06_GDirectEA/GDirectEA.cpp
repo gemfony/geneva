@@ -52,8 +52,12 @@
 #include <boost/cstdint.hpp>
 
 // Geneva header files go here
-#include <geneva/Go2.hpp>
-#include <common/GParserBuilder.hpp>
+#include "courtier/GAsioTCPConsumerT.hpp"
+#include "courtier/GBoostThreadConsumerT.hpp"
+#include "courtier/GSerialConsumerT.hpp"
+#include "common/GParserBuilder.hpp"
+#include "geneva/GenevaInitializer.hpp"
+#include "geneva/GEvolutionaryAlgorithmFactory.hpp"
 
 // A function needed to parse the command line
 #include "GArgumentParser.hpp"
@@ -94,6 +98,10 @@ int main(int argc, char **argv){
   boost::uint16_t yDim;
   bool followProgress;
   bool addLocalConsumer;
+
+  /****************************************************************************/
+  // Initialization of Geneva
+  GenevaInitializer gi;
 
   /****************************************************************************/
   // Retrieve all necessary configuration data from the command line

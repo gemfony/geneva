@@ -22,21 +22,28 @@ Wishlist:
  - Full integration of -fsanitize=X.
 
 //------------------------------------------------------------------------------------------------------
-* Version 1.6, "Ivrea" - February XX, 2015
+* Version 1.6, "Ivrea" - March XX, 2015
 
 The main changes for this release include:
 
 ****************************** BREAKING CHANGES ********************************
 
  - Removed GCanvas32, as it results in a (justified) overflow warning
-   under MS Windows.
- - Geneva now explicitely requires the Boost::random and the
-   Boost::unit_test_framework components of Boost.
- - The FindBoost.cmake module is not provided anymore. It doesn't help
-   much as we currently require at least CMake 2.8 which comes with a
-   good enough version of the module, but it also interferes with using
-   the system-provided version which may contain some system-specific
-   fixes.
+   under MS Windows. As only an external (so far unreleased) individual
+   uses this code, there should be no effect on user-code
+ - Geneva now explicitely requires the oost::random and the
+   boost::unit_test_framework components of Boost to be linked into an application.
+   This will happen automatically when using Geneva's standard CMakeLists.txt files.
+ - The FindBoost.cmake module is not shipped with Geneva anymore. It was'nt needed
+   anymore, as we currently require at least CMake 2.8 which comes with a
+   good enough version of the module. As it might interfere with using
+   the system-provided version (which may contain some system-specific
+   fixes) we removed the local copy.
+ - If you register a signal handler, use G_SIGHUP instead of SIGHUP to get portable code
+ - When optimization algorithms are instantiated directly rather than through
+   the Go2-class, it is now necessary to explicity initialize Geneva using
+   the GenevaInitializer class. See 06_GDirectEA for an example of how this is
+   done. With this change, static Geneva libraries may now be built where needed.
 
 ********************************************************************************
 

@@ -51,7 +51,12 @@
 #include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
-#include "geneva/Go2.hpp"
+#include "courtier/GAsioTCPConsumerT.hpp"
+#include "courtier/GBoostThreadConsumerT.hpp"
+#include "courtier/GSerialConsumerT.hpp"
+#include "common/GParserBuilder.hpp"
+#include "geneva/GenevaInitializer.hpp"
+#include "geneva/GSwarmAlgorithmFactory.hpp"
 
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"
@@ -96,6 +101,10 @@ int main(int argc, char **argv){
    double cVelocity;
    updateRule ur;
 	bool allRandomInit;
+
+	/****************************************************************************/
+	// Initialization of Geneva
+	GenevaInitializer gi;
 
    /****************************************************************************/
    // Retrieve all necessary configuration data from the command line

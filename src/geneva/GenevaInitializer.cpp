@@ -1,5 +1,5 @@
 /**
- * @file GIndividualStandardConsumerInitializerT.hpp
+ * @file GenevaInitializer.cpp
  */
 
 /*
@@ -32,27 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-// Global checks, defines and includes needed for all of Geneva
-#include "common/GGlobalDefines.hpp"
-
-// Standard header files go here
-#include <iostream>
-
-// Boost header files go here
-#include <boost/shared_ptr.hpp>
-#include <boost/type_traits.hpp>
-#include <boost/mpl/assert.hpp>
-
-
-#ifndef GINDIVIDUALSTANDARDCONSUMERINITIALIZERT_HPP_
-#define GINDIVIDUALSTANDARDCONSUMERINITIALIZERT_HPP_
-
-// Geneva headers go here
-#include "common/GLogger.hpp"
-#include "common/GGlobalOptionsT.hpp"
-#include "courtier/GBaseConsumerT.hpp"
-#include "geneva/GParameterSet.hpp"
-#include "geneva/GConsumerStore.hpp"
+#include "geneva/GenevaInitializer.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -61,24 +41,12 @@ namespace Geneva {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This base class takes care of adding GParameterSet-based consumer objects
- * to a global store
+ * The default constructor
  */
-template <typename c_type> // c_type stands for consumer type
-class G_API GIndividualStandardConsumerInitializerT {
-public:
-   /** @brief The initializing constructor */
-   GIndividualStandardConsumerInitializerT() {
-      // Create a smart pointer holding the consumer
-      boost::shared_ptr<Gem::Courtier::GBaseConsumerT<Gem::Geneva::GParameterSet> > p(new c_type());
-      std::string mnemonic = p->getMnemonic();
-
-      // Register the consumer with the store, if it hasn't happened yet
-      GConsumerStore->setOnce(mnemonic, p);
-   }
-   /** @brief An empty destructor */
-   virtual ~GIndividualStandardConsumerInitializerT() { /* nothing */ }
-};
+GenevaInitializer::GenevaInitializer() {
+   GRANDOMFACTORY->init();
+   GBROKER(Gem::Geneva::GParameterSet)->init();
+}
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -87,4 +55,5 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GINDIVIDUALSTANDARDCONSUMERINITIALIZERT_HPP_ */
+
+

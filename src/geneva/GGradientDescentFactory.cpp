@@ -42,10 +42,6 @@ namespace Geneva {
 const std::string GGradientDescentFactory::nickname = "gd";
 
 /******************************************************************************/
-/** This will register the factory in the global factory store */
-GOAInitializerT<GGradientDescentFactory> GGDStoreRegistrant;
-
-/******************************************************************************/
 /**
  * The default constructor
  */

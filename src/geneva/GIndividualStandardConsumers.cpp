@@ -37,15 +37,6 @@
 namespace Gem {
 namespace Geneva {
 
-
-/******************************************************************************/
-/**
- * This will register the consumers in the global consumer store
- */
-GIndividualStandardConsumerInitializerT<Gem::Geneva::GParameterSet, GIndividualTCPConsumer> GTCPCStoreRegistrant;
-GIndividualStandardConsumerInitializerT<Gem::Geneva::GParameterSet, GIndividualThreadConsumer> GBTCStoreRegistrant;
-GIndividualStandardConsumerInitializerT<Gem::Geneva::GParameterSet, GIndividualSerialConsumer> GSCStoreRegistrant;
-
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
@@ -61,9 +52,9 @@ GIndividualTCPConsumer::GIndividualTCPConsumer()
  * A constructor that takes a number of vital arguments
  */
 GIndividualTCPConsumer::GIndividualTCPConsumer (
-      const unsigned short& port
-      , const std::size_t& listenerThreads
-      , const Gem::Common::serializationMode& sm
+   const unsigned short& port
+   , const std::size_t& listenerThreads
+   , const Gem::Common::serializationMode& sm
 )
    : Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GParameterSet>(port, listenerThreads, sm)
 { /* nothing */ }

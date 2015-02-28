@@ -42,10 +42,6 @@ namespace Geneva {
 const std::string GSimulatedAnnealingFactory::nickname = "sa";
 
 /******************************************************************************/
-/** This will register the factory in the global factory store */
-GOAInitializerT<GSimulatedAnnealingFactory> GSAStoreRegistrant;
-
-/******************************************************************************/
 /**
  * The default constructor
  */

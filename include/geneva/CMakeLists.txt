@@ -37,6 +37,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GDoubleObjectCollection.hpp
 	GEAPersonalityTraits.hpp
 	GenevaHelperFunctionsT.hpp
+	GenevaInitializer.hpp
 	GEvolutionaryAlgorithmFactory.hpp
 	GFPBiGaussAdaptorT.hpp
 	GFPGaussAdaptorT.hpp
