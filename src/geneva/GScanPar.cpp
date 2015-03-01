@@ -83,9 +83,9 @@ std::vector<boost::int32_t> fillWithData<boost::int32_t>(
  */
 template <>
 std::vector<float> fillWithData<float>(
-      std::size_t nSteps
-      , float     lower
-      , float     upper
+   std::size_t nSteps
+   , float     lower
+   , float     upper
 ) {
    std::vector<float> result;
 
@@ -93,7 +93,7 @@ std::vector<float> fillWithData<float>(
    if(nSteps<2) {
       glogger
       << "In std::vector<float> fillWithData<float>(): Error!" << std::endl
-      << "Number of reqsted steps is too low: " << nSteps << std::endl
+      << "Number of requested steps is too low: " << nSteps << std::endl
       << GEXCEPTION;
    }
 
@@ -110,9 +110,9 @@ std::vector<float> fillWithData<float>(
  */
 template <>
 std::vector<double> fillWithData<double>(
-      std::size_t nSteps
-      , double    lower
-      , double    upper
+   std::size_t nSteps
+   , double    lower
+   , double    upper
 ) {
    std::vector<double> result;
 
@@ -129,40 +129,6 @@ std::vector<double> fillWithData<double>(
    }
 
    return result;
-}
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * Retrieval of a random value for type bool
- */
-template <> bool baseScanParT<bool>::getRandomItem() const {
-   return gr_.uniform_bool();
-}
-
-/******************************************************************************/
-/**
- * Retrieval of a random value for type boost::int32_t
- */
-template <> boost::int32_t baseScanParT<boost::int32_t>::getRandomItem() const {
-   return gr_.uniform_int<boost::int32_t>(lower_, upper_+1);
-}
-
-/******************************************************************************/
-/**
- * Retrieval of a random value for type float
- */
-template <> float baseScanParT<float>::getRandomItem() const {
-   return gr_.uniform_real<float>(lower_, upper_);
-}
-
-/******************************************************************************/
-/**
- * Retrieval of a random value for type double
- */
-template <> double baseScanParT<double>::getRandomItem() const {
-   return gr_.uniform_real<double>(lower_, upper_);
 }
 
 /******************************************************************************/

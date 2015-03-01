@@ -681,7 +681,7 @@ public:
  * @param collection A vector of values that shall be adapted
  * @return The number of adaptions that were carried out
  */
-template<>
+template <>
 inline std::size_t GParameterBaseWithAdaptorsT<bool>::applyAdaptor(
    std::vector<bool>& collection
    , const bool& range

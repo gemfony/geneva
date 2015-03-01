@@ -337,11 +337,42 @@ protected:
 };
 
 /******************************************************************************/
-// Specializations for supported types
-template <> bool baseScanParT<bool>::getRandomItem() const;
-template <> boost::int32_t baseScanParT<boost::int32_t>::getRandomItem() const;
-template <> float baseScanParT<float>::getRandomItem() const;
-template <> double baseScanParT<double>::getRandomItem() const;
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * Retrieval of a random value for type bool
+ */
+template <>
+inline bool baseScanParT<bool>::getRandomItem() const {
+   return gr_.uniform_bool();
+}
+
+/******************************************************************************/
+/**
+ * Retrieval of a random value for type boost::int32_t
+ */
+template <>
+inline boost::int32_t baseScanParT<boost::int32_t>::getRandomItem() const {
+   return gr_.uniform_int<boost::int32_t>(lower_, upper_+1);
+}
+
+/******************************************************************************/
+/**
+ * Retrieval of a random value for type float
+ */
+template <>
+inline float baseScanParT<float>::getRandomItem() const {
+   return gr_.uniform_real<float>(lower_, upper_);
+}
+
+/******************************************************************************/
+/**
+ * Retrieval of a random value for type double
+ */
+template <>
+inline double baseScanParT<double>::getRandomItem() const {
+   return gr_.uniform_real<double>(lower_, upper_);
+}
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
