@@ -286,11 +286,130 @@ private:
 };
 
 /******************************************************************************/
-// Overloads of the getIterators() function for supported types
-template <> boost::tuple<std::vector<parPropSpec<double> >::const_iterator, std::vector<parPropSpec<double> >::const_iterator> GParameterPropertyParser::getIterators<double>() const;
-template <> boost::tuple<std::vector<parPropSpec<float> >::const_iterator, std::vector<parPropSpec<float> >::const_iterator> GParameterPropertyParser::getIterators<float>() const;
-template <> boost::tuple<std::vector<parPropSpec<boost::int32_t> >::const_iterator, std::vector<parPropSpec<boost::int32_t> >::const_iterator> GParameterPropertyParser::getIterators<boost::int32_t>() const;
-template <> boost::tuple<std::vector<parPropSpec<bool> >::const_iterator, std::vector<parPropSpec<bool> >::const_iterator> GParameterPropertyParser::getIterators<bool>() const;
+/**
+ * This function returns a set of const_iterators that allow to retrieve
+ * the information from the parsers. Note that these iterators may go out
+ * of scope, if a new parameter description is supplied to this class.
+ *
+ * The first tuple-entry allows you to access all parameter entries. When the
+ * function is called, it is set to the start of the vector. The second tuple
+ * entry is set to the vector end.
+ *
+ * The function will throw if parsing hasn't happened yet.
+ *
+ * This is the overload for double parameters.
+ */
+template <>
+inline boost::tuple<std::vector<parPropSpec<double> >::const_iterator, std::vector<parPropSpec<double> >::const_iterator>
+GParameterPropertyParser::getIterators<double>() const {
+   // Make sure parsing has happened.
+   if(!parsed_) {
+      glogger
+      << "In GParameterPropertyParser::getIterators<double>(): Error!" << std::endl
+      << "Tried to retrieve iterators when parsing hasn't happened yet" << std::endl
+      << GEXCEPTION;
+   }
+
+
+   std::vector<parPropSpec<double> >::const_iterator runner_it = dSpecVec.begin();
+   std::vector<parPropSpec<double> >::const_iterator end_it    = dSpecVec.end();
+
+   return boost::tuple<std::vector<parPropSpec<double> >::const_iterator, std::vector<parPropSpec<double> >::const_iterator>(runner_it, end_it);
+}
+
+/******************************************************************************/
+/**
+ * This function returns a set of const_iterators that allow to retrieve
+ * the information from the parsers. Note that these iterators may go out
+ * of scope, if a new parameter description is supplied to this class.
+ *
+ * The first tuple-entry allows you to access all parameter entries. When the
+ * function is called, it is set to the start of the vector. The second tuple
+ * entry is set to the vector end.
+ *
+ * The function will throw if parsing hasn't happened yet.
+ *
+ * This is the overload for float parameters.
+ */
+template <>
+inline boost::tuple<std::vector<parPropSpec<float> >::const_iterator, std::vector<parPropSpec<float> >::const_iterator>
+GParameterPropertyParser::getIterators<float>() const {
+   // Make sure parsing has happened.
+   if(!parsed_) {
+      glogger
+      << "In GParameterPropertyParser::getIterators<float>(): Error!" << std::endl
+      << "Tried to retrieve iterators when parsing hasn't happened yet" << std::endl
+      << GEXCEPTION;
+   }
+
+
+   std::vector<parPropSpec<float> >::const_iterator runner_it = fSpecVec.begin();
+   std::vector<parPropSpec<float> >::const_iterator end_it    = fSpecVec.end();
+
+   return boost::tuple<std::vector<parPropSpec<float> >::const_iterator, std::vector<parPropSpec<float> >::const_iterator>(runner_it, end_it);
+}
+
+/******************************************************************************/
+/**
+ * This function returns a set of const_iterators that allow to retrieve
+ * the information from the parsers. Note that these iterators may go out
+ * of scope, if a new parameter description is supplied to this class.
+ *
+ * The first tuple-entry allows you to access all parameter entries. When the
+ * function is called, it is set to the start of the vector. The second tuple
+ * entry is set to the vector end.
+ *
+ * The function will throw if parsing hasn't happened yet.
+ *
+ * This is the overload for boost::int32_t parameters.
+ */
+template <>
+inline boost::tuple<std::vector<parPropSpec<boost::int32_t> >::const_iterator, std::vector<parPropSpec<boost::int32_t> >::const_iterator>
+GParameterPropertyParser::getIterators<boost::int32_t>() const {
+   // Make sure parsing has happened.
+   if(!parsed_) {
+      glogger
+      << "In GParameterPropertyParser::getIterators<boost::int32_t>(): Error!" << std::endl
+      << "Tried to retrieve iterators when parsing hasn't happened yet" << std::endl
+      << GEXCEPTION;
+   }
+
+   std::vector<parPropSpec<boost::int32_t> >::const_iterator runner_it = iSpecVec.begin();
+   std::vector<parPropSpec<boost::int32_t> >::const_iterator end_it    = iSpecVec.end();
+
+   return boost::tuple<std::vector<parPropSpec<boost::int32_t> >::const_iterator, std::vector<parPropSpec<boost::int32_t> >::const_iterator>(runner_it, end_it);
+}
+
+/******************************************************************************/
+/**
+ * This function returns a set of const_iterators that allow to retrieve
+ * the information from the parsers. Note that these iterators may go out
+ * of scope, if a new parameter description is supplied to this class.
+ *
+ * The first tuple-entry allows you to access all parameter entries. When the
+ * function is called, it is set to the start of the vector. The second tuple
+ * entry is set to the vector end.
+ *
+ * The function will throw if parsing hasn't happened yet.
+ *
+ * This is the overload for bool parameters.
+ */
+template <>
+inline boost::tuple<std::vector<parPropSpec<bool> >::const_iterator, std::vector<parPropSpec<bool> >::const_iterator>
+GParameterPropertyParser::getIterators<bool>() const {
+   // Make sure parsing has happened.
+   if(!parsed_) {
+      glogger
+      << "In GParameterPropertyParser::getIterators<bool>(): Error!" << std::endl
+      << "Tried to retrieve iterators when parsing hasn't happened yet" << std::endl
+      << GEXCEPTION;
+   }
+
+   std::vector<parPropSpec<bool> >::const_iterator runner_it = bSpecVec.begin();
+   std::vector<parPropSpec<bool> >::const_iterator end_it    = bSpecVec.end();
+
+   return boost::tuple<std::vector<parPropSpec<bool> >::const_iterator, std::vector<parPropSpec<bool> >::const_iterator>(runner_it, end_it);
+}
 
 /******************************************************************************/
 

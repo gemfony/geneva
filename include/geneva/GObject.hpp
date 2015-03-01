@@ -418,10 +418,22 @@ public:
 };
 
 /******************************************************************************/
-/** @brief A specialization for cases where no conversion is supposed to take place */
-template <> boost::shared_ptr<GObject> GObject::clone<GObject>(
-		boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, GObject> >::type*
-) const;
+/**
+ * A specialization of the general clone for cases where no conversion takes place at all
+ *
+ * @return A boost::shared_ptr<GObject> to a clone of the derived object
+ */
+template <>
+inline boost::shared_ptr<GObject> GObject::clone<GObject> (
+      boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, GObject> >::type* dummy
+) const {
+   return boost::shared_ptr<GObject>(clone_());
+}
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /******************************************************************************/
 

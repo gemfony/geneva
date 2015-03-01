@@ -1063,17 +1063,32 @@ template <> boost::shared_ptr<Gem::Geneva::networkData> TFactory_GSingletonT();
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-// Needed for testing purposes
+// For testing purposes
 
 #ifdef GEM_TESTING
 
 /**
- * @brief As the Gem::Geneva::GNeuralNetworkIndividual has a meaningless default
- * constructor, we need to provide a specialization of the factory function that creates
- * GNeuralNetworkIndividual objects
+ * As the Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> has a private default constructor, we need to provide a
+ * specialization of the factory function that creates GStartProjectIndividual objects
  */
 template <>
-boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual> TFactory_GUnitTests<Gem::Geneva::GNeuralNetworkIndividual>();
+inline boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual>
+TFactory_GUnitTests<Gem::Geneva::GNeuralNetworkIndividual>() {
+   return boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual>(
+         new Gem::Geneva::GNeuralNetworkIndividual(
+               Gem::Geneva::GNN_DEF_MINVAR
+               , Gem::Geneva::GNN_DEF_MAXVAR
+               , Gem::Geneva::GNN_DEF_SIGMA
+               , Gem::Geneva::GNN_DEF_SIGMASIGMA
+               , Gem::Geneva::GNN_DEF_MINSIGMA
+               , Gem::Geneva::GNN_DEF_MAXSIGMA
+               , Gem::Geneva::GNN_DEF_ADPROB
+               , Gem::Geneva::GNN_DEF_ADAPTADPROB
+               , Gem::Geneva::GNN_DEF_MINADPROB
+               , Gem::Geneva::GNN_DEF_MAXADPROB
+         )
+   );
+}
 
 #endif /* GEM_TESTING */
 
