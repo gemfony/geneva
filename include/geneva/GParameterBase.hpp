@@ -563,65 +563,858 @@ public:
 /**
  * Specializations of some template functions
  */
-template <>	void GParameterBase::streamline<float>(std::vector<float>&, const activityMode&) const;
-template <>	void GParameterBase::streamline<double>(std::vector<double>&, const activityMode&) const;
-template <>	void GParameterBase::streamline<boost::int32_t>(std::vector<boost::int32_t>&, const activityMode&) const;
-template <>	void GParameterBase::streamline<bool>(std::vector<bool>&, const activityMode&) const;
 
-template <> void GParameterBase::streamline<float>(std::map<std::string, std::vector<float> >&, const activityMode&) const;
-template <> void GParameterBase::streamline<double>(std::map<std::string, std::vector<double> >&, const activityMode&) const;
-template <> void GParameterBase::streamline<boost::int32_t>(std::map<std::string, std::vector<boost::int32_t> >&, const activityMode&) const;
-template <> void GParameterBase::streamline<bool>(std::map<std::string, std::vector<bool> >&, const activityMode&) const;
+/******************************************************************************/
+/**
+ * Allows to add all parameters of type float to the vector.
+ *
+ * @oaram parVec The vector to which the items should be added
+ */
+template <>
+inline void GParameterBase::streamline<float>(
+   std::vector<float>& parVec
+   , const activityMode& am
+) const {
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->floatStreamline(parVec, am);
+   }
+}
 
-template <>	void GParameterBase::boundaries<float>(std::vector<float>&, std::vector<float>&, const activityMode&) const;
-template <>	void GParameterBase::boundaries<double>(std::vector<double>&, std::vector<double>&, const activityMode&) const;
-template <>	void GParameterBase::boundaries<boost::int32_t>(std::vector<boost::int32_t>&, std::vector<boost::int32_t>&, const activityMode&) const;
-template <>	void GParameterBase::boundaries<bool>(std::vector<bool>&, std::vector<bool>&, const activityMode&) const;
+/******************************************************************************/
+/**
+ * Allows to add all parameters of type double to the vector.
+ *
+ * @oaram parVec The vector to which the items should be added
+ */
+template <>
+inline void GParameterBase::streamline<double>(
+   std::vector<double>& parVec
+   , const activityMode& am
+) const {
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->doubleStreamline(parVec, am);
+   }
+}
 
-template <>	std::size_t GParameterBase::countParameters<float>(const activityMode& am) const;
-template <>	std::size_t GParameterBase::countParameters<double>(const activityMode& am) const;
-template <>	std::size_t GParameterBase::countParameters<boost::int32_t>(const activityMode& am) const;
-template <>	std::size_t GParameterBase::countParameters<bool>(const activityMode& am) const;
+/******************************************************************************/
+/**
+ * Allows to add all parameters of type boost::int32_t to the vector.
+ *
+ * @oaram parVec The vector to which the items should be added
+ */
+template <>
+inline void GParameterBase::streamline<boost::int32_t>(
+   std::vector<boost::int32_t>& parVec
+   , const activityMode& am
+) const {
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->int32Streamline(parVec, am);
+   }
+}
 
-template <>	void GParameterBase::assignValueVector<float>(const std::vector<float>&, std::size_t&, const activityMode&);
-template <>	void GParameterBase::assignValueVector<double>(const std::vector<double>&, std::size_t&, const activityMode&);
-template <>	void GParameterBase::assignValueVector<boost::int32_t>(const std::vector<boost::int32_t>&, std::size_t&, const activityMode&);
-template <>	void GParameterBase::assignValueVector<bool>(const std::vector<bool>&, std::size_t&, const activityMode&);
+/******************************************************************************/
+/**
+ * Allows to add all parameters of type bool to the vector.
+ *
+ * @oaram parVec The vector to which the items should be added
+ */
+template <>
+inline void GParameterBase::streamline<bool>(
+   std::vector<bool>& parVec
+   , const activityMode& am
+) const {
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->booleanStreamline(parVec, am);
+   }
+}
 
-template <> void GParameterBase::assignValueVectors<float>(const std::map<std::string, std::vector<float> >&, const activityMode&);
-template <> void GParameterBase::assignValueVectors<double>(const std::map<std::string, std::vector<double> >&, const activityMode&);
-template <> void GParameterBase::assignValueVectors<boost::int32_t>(const std::map<std::string, std::vector<boost::int32_t> >&, const activityMode&);
-template <> void GParameterBase::assignValueVectors<bool>(const std::map<std::string, std::vector<bool> >&, const activityMode&);
+/******************************************************************************/
+/**
+ * Allows to add all parameters of type float to the map.
+ *
+ * @oaram parVec The map to which the items should be added
+ */
+template <>
+inline void GParameterBase::streamline<float>(
+   std::map<std::string, std::vector<float> >& parVec
+   , const activityMode& am
+) const {
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->floatStreamline(parVec, am);
+   }
+}
 
-template <> void GParameterBase::multiplyByRandom<float>(const float& min, const float& max, const activityMode& am);
-template <> void GParameterBase::multiplyByRandom<double>(const double& min, const double& max, const activityMode& am);
-template <> void GParameterBase::multiplyByRandom<boost::int32_t>(const boost::int32_t& min, const boost::int32_t& max, const activityMode& am);
-template <> void GParameterBase::multiplyByRandom<bool>(const bool& min, const bool& max, const activityMode& am);
+/******************************************************************************/
+/**
+ * Allows to add all parameters of type double to the map.
+ *
+ * @oaram parVec The vector to which the items should be added
+ */
+template <>
+inline void GParameterBase::streamline<double>(
+   std::map<std::string, std::vector<double> >& parVec
+   , const activityMode& am
+) const {
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->doubleStreamline(parVec, am);
+   }
+}
 
-template <> void GParameterBase::multiplyByRandom<float>(const activityMode& am);
-template <> void GParameterBase::multiplyByRandom<double>(const activityMode& am);
-template <> void GParameterBase::multiplyByRandom<boost::int32_t>(const activityMode& am);
-template <> void GParameterBase::multiplyByRandom<bool>(const activityMode& am);
+/******************************************************************************/
+/**
+ * Allows to add all parameters of type boost::int32_t to the map.
+ *
+ * @oaram parVec The vector to which the items should be added
+ */
+template <>
+inline void GParameterBase::streamline<boost::int32_t>(
+   std::map<std::string, std::vector<boost::int32_t> >& parVec
+   , const activityMode& am
+) const {
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->int32Streamline(parVec, am);
+   }
+}
 
-template <> void GParameterBase::multiplyBy<float>(const float& val, const activityMode& am);
-template <> void GParameterBase::multiplyBy<double>(const double& val, const activityMode& am);
-template <> void GParameterBase::multiplyBy<boost::int32_t>(const boost::int32_t& val, const activityMode& am);
-template <> void GParameterBase::multiplyBy<bool>(const bool& val, const activityMode& am);
+/******************************************************************************/
+/**
+ * Allows to add all parameters of type bool to the map.
+ *
+ * @oaram parVec The vector to which the items should be added
+ */
+template <>
+inline void GParameterBase::streamline<bool>(
+   std::map<std::string, std::vector<bool> >& parVec
+   , const activityMode& am
+) const {
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->booleanStreamline(parVec, am);
+   }
+}
 
-template <> void GParameterBase::fixedValueInit<float>(const float& val, const activityMode& am);
-template <> void GParameterBase::fixedValueInit<double>(const double& val, const activityMode& am);
-template <> void GParameterBase::fixedValueInit<boost::int32_t>(const boost::int32_t& val, const activityMode& am);
-template <> void GParameterBase::fixedValueInit<bool>(const bool& val, const activityMode& am);
 
-template <> void GParameterBase::add<float>(boost::shared_ptr<GParameterBase> p, const activityMode& am);
-template <> void GParameterBase::add<double>(boost::shared_ptr<GParameterBase> p, const activityMode& am);
-template <> void GParameterBase::add<boost::int32_t>(boost::shared_ptr<GParameterBase> p, const activityMode& am);
-template <> void GParameterBase::add<bool>(boost::shared_ptr<GParameterBase> p, const activityMode& am);
+/******************************************************************************/
+/**
+ * Allows to retrieve the values of lower and upper boundaries of type float
+ *
+ * @param lBndVec A vector of lower double parameter boundaries
+ * @param uBndVec A vector of upper double parameter boundaries
+ */
+template <>
+inline void GParameterBase::boundaries<float>(
+   std::vector<float>& lBndVec
+   , std::vector<float>& uBndVec
+   , const activityMode& am
+) const {
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->floatBoundaries(lBndVec, uBndVec, am);
+   }
+}
 
-template <> void GParameterBase::subtract<float>(boost::shared_ptr<GParameterBase> p, const activityMode& am);
-template <> void GParameterBase::subtract<double>(boost::shared_ptr<GParameterBase> p, const activityMode& am);
-template <> void GParameterBase::subtract<boost::int32_t>(boost::shared_ptr<GParameterBase> p, const activityMode& am);
-template <> void GParameterBase::subtract<bool>(boost::shared_ptr<GParameterBase> p, const activityMode& am);
+/******************************************************************************/
+/**
+ * Allows to retrieve the values of lower and upper boundaries of type double
+ *
+ * @param lBndVec A vector of lower double parameter boundaries
+ * @param uBndVec A vector of upper double parameter boundaries
+ */
+template <>
+inline void GParameterBase::boundaries<double>(
+   std::vector<double>& lBndVec
+   , std::vector<double>& uBndVec
+   , const activityMode& am
+) const {
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->doubleBoundaries(lBndVec, uBndVec, am);
+   }
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the values of lower and upper boundaries of type boost::int32_t
+ *
+ * @param lBndVec A vector of lower boost::int32_t parameter boundaries
+ * @param uBndVec A vector of upper boost::int32_t parameter boundaries
+ */
+template <>
+inline void GParameterBase::boundaries<boost::int32_t>(
+   std::vector<boost::int32_t>& lBndVec
+   , std::vector<boost::int32_t>& uBndVec
+   , const activityMode& am
+) const {
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->int32Boundaries(lBndVec, uBndVec, am);
+   }
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the values of lower and upper boundaries of type bool
+ *
+ * @param lBndVec A vector of lower bool parameter boundaries
+ * @param uBndVec A vector of upper bool parameter boundaries
+ */
+template <>
+inline void GParameterBase::boundaries<bool>(
+   std::vector<bool>& lBndVec
+   , std::vector<bool>& uBndVec
+   , const activityMode& am
+) const {
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->booleanBoundaries(lBndVec, uBndVec, am);
+   }
+}
+
+/******************************************************************************/
+/**
+ * Allows to count parameters of type float.
+ *
+ * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
+ * @return The number of parameters of type float
+ */
+template <>
+inline std::size_t GParameterBase::countParameters<float>(
+   const activityMode& am
+) const {
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      return this->countFloatParameters(am);
+   } else {
+      return 0;
+   }
+}
+
+/******************************************************************************/
+/**
+ * Allows to count parameters of type double.
+ *
+ * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
+ * @return The number of parameters of type double
+ */
+template <>
+inline std::size_t GParameterBase::countParameters<double>(
+   const activityMode& am
+) const {
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      return this->countDoubleParameters(am);
+   } else {
+      return 0;
+   }
+}
+
+/******************************************************************************/
+/**
+ * Allows to count parameters of type boost::int32_t.
+ *
+ * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
+ * @return The number of parameters of type boost::int32_t
+ */
+template <>
+inline std::size_t GParameterBase::countParameters<boost::int32_t>(
+   const activityMode& am
+) const {
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      return this->countInt32Parameters(am);
+   } else {
+      return 0;
+   }
+}
+
+/******************************************************************************/
+/**
+ * Allows to count parameters of type bool.
+ *
+ * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
+ * @return The number of parameters of type bool
+ */
+template <>
+inline std::size_t GParameterBase::countParameters<bool>(
+   const activityMode& am
+) const {
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      return this->countBoolParameters(am);
+   } else {
+      return 0;
+   }
+}
+
+/******************************************************************************/
+/**
+ * Allows to assign the parameters inside of a vector the corresponding parameter objects.
+ *
+ * @param parVec The vector with the parameters to be assigned to the object
+ * @param pos The position from which parameters will be taken (will be updated by the call)
+ */
+template <>
+inline void GParameterBase::assignValueVector<float>(
+   const std::vector<float>& parVec
+   , std::size_t& pos
+   , const activityMode& am
+) {
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->assignFloatValueVector(parVec, pos, am);
+   }
+}
+
+/******************************************************************************/
+/**
+ * Allows to assign the parameters inside of a vector the corresponding parameter objects.
+ *
+ * @param parVec The vector with the parameters to be assigned to the object
+ * @param pos The position from which parameters will be taken (will be updated by the call)
+ */
+template <>
+inline void GParameterBase::assignValueVector<double>(
+   const std::vector<double>& parVec
+   , std::size_t& pos
+   , const activityMode& am
+) {
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->assignDoubleValueVector(parVec, pos, am);
+   }
+}
+
+/******************************************************************************/
+/**
+ * Allows to assign the parameters inside of a vector the corresponding parameter objects.
+ *
+ * @param parVec The vector with the parameters to be assigned to the object
+ * @param pos The position from which parameters will be taken (will be updated by the call)
+ */
+template <>
+inline void GParameterBase::assignValueVector<boost::int32_t>(
+   const std::vector<boost::int32_t>& parVec
+   , std::size_t& pos
+   , const activityMode& am
+) {
+   this->assignInt32ValueVector(parVec, pos, am);
+}
+
+/******************************************************************************/
+/**
+ * Allows to assign the parameters inside of a vector the corresponding parameter objects.
+ *
+ * @param parVec The vector with the parameters to be assigned to the object
+ * @param pos The position from which parameters will be taken (will be updated by the call)
+ */
+template <>
+inline void GParameterBase::assignValueVector<bool>(
+   const std::vector<bool>& parVec
+   , std::size_t& pos
+   , const activityMode& am
+) {
+   this->assignBooleanValueVector(parVec, pos, am);
+}
+
+/******************************************************************************/
+/**
+ * Allows to assign the parameters inside of a map to the corresponding parameter objects.
+ *
+ * @param parMap The vector with the parameters to be assigned to the object
+ */
+template <>
+inline void GParameterBase::assignValueVectors<float>(
+   const std::map<std::string
+   , std::vector<float> >& parMap
+   , const activityMode& am
+) {
+   if(
+      this->modifiableAmMatchOrHandover(am)
+   ) {
+      this->assignFloatValueVectors(parMap, am);
+   }
+}
+
+/******************************************************************************/
+/**
+ * Allows to assign the parameters inside of a map to the corresponding parameter objects.
+ *
+ * @param parMap The vector with the parameters to be assigned to the object
+ */
+template <>
+inline void GParameterBase::assignValueVectors<double>(
+   const std::map<std::string
+   , std::vector<double> >& parMap
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->assignDoubleValueVectors(parMap, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Allows to assign the parameters inside of a map to the corresponding parameter objects.
+ *
+ * @param parMap The vector with the parameters to be assigned to the object
+ */
+template <>
+inline void GParameterBase::assignValueVectors<boost::int32_t>(
+   const std::map<std::string, std::vector<boost::int32_t> >& parMap
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->assignInt32ValueVectors(parMap, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Allows to assign the parameters inside of a map to the corresponding parameter objects.
+ *
+ * @param parMap The vector with the parameters to be assigned to the object
+ */
+template <>
+inline void GParameterBase::assignValueVectors<bool>(
+   const std::map<std::string, std::vector<bool> >& parMap
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->assignBooleanValueVectors(parMap, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in a given range
+ */
+template <>
+inline void GParameterBase::multiplyByRandom<float>(
+   const float& min
+   , const float& max
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->floatMultiplyByRandom(min, max, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in a given range
+ */
+template <>
+inline void GParameterBase::multiplyByRandom<double>(
+   const double& min
+   , const double& max
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->doubleMultiplyByRandom(min, max, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in a given range
+ */
+template <>
+inline void GParameterBase::multiplyByRandom<boost::int32_t>(
+   const boost::int32_t& min
+   , const boost::int32_t& max
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->int32MultiplyByRandom(min, max, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in a given range. This specialization for
+ * boolean values has been added for completeness and error-detection. It will throw
+ * when called.
+ */
+template <>
+inline void GParameterBase::multiplyByRandom<bool>(
+   const bool& min
+   , const bool& max
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      // NOTE: This will throw
+      this->booleanMultiplyByRandom(min, max, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in the range [0,1[
+ */
+template <>
+inline void GParameterBase::multiplyByRandom<float>(
+   const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->floatMultiplyByRandom(am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in the range [0,1[
+ */
+template <>
+inline void GParameterBase::multiplyByRandom<double>(
+   const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->doubleMultiplyByRandom(am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in the range [0,1[
+ */
+template <>
+inline void GParameterBase::multiplyByRandom<boost::int32_t>(
+   const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->int32MultiplyByRandom(am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in the range [0,1[. This specialization for
+ * boolean values has been added for completeness and error-detection. It will throw
+ * when called.
+ */
+template <>
+inline void GParameterBase::multiplyByRandom<bool>(
+   const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      // NOTE: This will throw
+      this->booleanMultiplyByRandom(am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a constant value
+ */
+template <>
+inline void GParameterBase::multiplyBy<float>(
+   const float& val
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->floatMultiplyBy(val, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a constant value
+ */
+template <>
+inline void GParameterBase::multiplyBy<double>(
+   const double& val
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->doubleMultiplyBy(val, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a constant value
+ */
+template <>
+inline void GParameterBase::multiplyBy<boost::int32_t>(
+   const boost::int32_t& val
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->int32MultiplyBy(val, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a constant value. This specialization for
+ * boolean values has been added for completeness and error-detection.
+ * It will throw when called.
+ */
+template <>
+inline void GParameterBase::multiplyBy<bool>(
+   const bool& val
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      // NOTE: This will throw
+      this->booleanMultiplyBy(val, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Initialization with a constant value
+ */
+template <>
+inline void GParameterBase::fixedValueInit<float>(
+   const float& val
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->floatFixedValueInit(val, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Initialization with a constant value
+ */
+template <>
+inline void GParameterBase::fixedValueInit<double>(
+   const double& val
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->doubleFixedValueInit(val, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Initialization with a constant value
+ */
+template <>
+inline void GParameterBase::fixedValueInit<boost::int32_t>(
+   const boost::int32_t& val
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->int32FixedValueInit(val, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Initialization with a constant value
+ */
+template <>
+inline void GParameterBase::fixedValueInit<bool>(
+   const bool& val
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->booleanFixedValueInit(val, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Adds the "same-type" parameters of another GParameterBase object to this one
+ */
+template <>
+inline void GParameterBase::add<float>(
+   boost::shared_ptr<GParameterBase> p
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->floatAdd(p, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Adds the "same-type" parameters of another GParameterBase object to this one
+ */
+template <>
+inline void GParameterBase::add<double>(
+   boost::shared_ptr<GParameterBase> p
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->doubleAdd(p, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Adds the "same-type" parameters of another GParameterBase object to this one
+ */
+template <>
+inline void GParameterBase::add<boost::int32_t>(
+   boost::shared_ptr<GParameterBase> p
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->int32Add(p, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Adds the "same-type" parameters of another GParameterBase object to this one.
+ * This specialization for boolean values has been added for completeness and error-detection.
+ * It will throw when called.
+ */
+template <>
+inline void GParameterBase::add<bool>(
+   boost::shared_ptr<GParameterBase> p
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      // Note: This call will throw!
+      this->booleanAdd(p, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Subtracts the "same-type" parameters of another GParameterBase object from this one
+ */
+template <>
+inline void GParameterBase::subtract<float>(
+   boost::shared_ptr<GParameterBase> p
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->floatSubtract(p, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Subtracts the "same-type" parameters of another GParameterBase object from this one
+ */
+template <>
+inline void GParameterBase::subtract<double>(
+   boost::shared_ptr<GParameterBase> p
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->doubleSubtract(p, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Subtracts the "same-type" parameters of another GParameterBase object from this one
+ */
+template <>
+inline void GParameterBase::subtract<boost::int32_t>(
+   boost::shared_ptr<GParameterBase> p
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      this->int32Subtract(p, am);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Subtracts the "same-type" parameters of another GParameterBase object from this one.
+ * This specialization for boolean values has been added for completeness and error-detection.
+ * It will throw when called.
+ */
+template <>
+inline void GParameterBase::subtract<bool>(
+   boost::shared_ptr<GParameterBase> p
+   , const activityMode& am
+) {
+   if(
+       this->modifiableAmMatchOrHandover(am)
+    ) {
+      // NOTE: This call will throw
+      this->booleanSubtract(p, am);
+    }
+}
+
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

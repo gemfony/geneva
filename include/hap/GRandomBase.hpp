@@ -434,12 +434,77 @@ private:
 /******************************************************************************/
 // Specializations of a number of local functions
 
-/** @brief  Produces gaussian-distributed float random numbers with sigma 1 and mean 0 */
-template<> float GRandomBase::normal_distribution<float>();
-/** @brief Produces gaussian-distributed double random numbers with sigma 1 and mean 0 */
-template<> double GRandomBase::normal_distribution<double>();
-/** @brief Avoid the cast for native double type */
-template <> double GRandomBase::uniform_01<double>(boost::enable_if<boost::is_floating_point<double> >::type*);
+/******************************************************************************/
+/**
+ * Produces gaussian-distributed float random numbers with sigma 1 and mean 0
+ *
+ * @return float random numbers with a gaussian distribution
+ */
+template<>
+inline float GRandomBase::normal_distribution<float>() {
+   using namespace Gem::Common;
+
+   if(fltGaussCacheAvailable_) {
+      fltGaussCacheAvailable_ = false;
+      return fltGaussCache_;
+   }
+   else {
+#ifdef GEM_HAP_USE_BOXMULLER
+      float rnr1 = uniform_01<float>();
+      float rnr2 = uniform_01<float>();
+      dblGaussCache_ = gsqrt(GFabs(-2.f * glog(1.f - rnr1))) * gcos(2.f * boost::math::constants::pi<float>()  * rnr2);
+      dblGaussCacheAvailable_ = true;
+      return gsqrt(GFabs(-2.f * glog(1.f - rnr1))) * gsin(2.f * boost::math::constants::pi<float>()   * rnr2);
+#else // GEM_HAP_USE_BOXMULLERPOLAR, see here: http://de.wikipedia.org/wiki/Normalverteilung#Polar-Methode ; faster than GEM_HAP_USE_BOXMULLER
+      float q, u1, u2;
+      do {
+         u1 = 2.f* uniform_01<float>() - 1.f;
+         u2 = 2.f* uniform_01<float>() - 1.f;
+         q = u1*u1 + u2*u2;
+      } while (q > 1.f);
+      q = gsqrt((-2.f*glog(q))/q);
+      fltGaussCache_ = u2 * q;
+      fltGaussCacheAvailable_ = true;
+      return u1 * q;
+#endif
+   }
+}
+
+/******************************************************************************/
+/**
+ * Produces gaussian-distributed double random numbers with sigma 1 and mean 0
+ *
+ * @return double random numbers with a gaussian distribution
+ */
+template<>
+inline double GRandomBase::normal_distribution<double>() {
+   using namespace Gem::Common;
+
+   if(dblGaussCacheAvailable_) {
+      dblGaussCacheAvailable_ = false;
+      return dblGaussCache_;
+   }
+   else {
+#ifdef GEM_HAP_USE_BOXMULLER
+      double rnr1 = uniform_01<double>();
+      double rnr2 = uniform_01<double>();
+      dblGaussCache_ = gsqrt(GFabs(-2. * glog(1. - rnr1))) * gcos(2. * boost::math::constants::pi<double>() * rnr2);
+      dblGaussCacheAvailable_ = true;
+      return gsqrt(GFabs(-2. * glog(1. - rnr1))) * gsin(2. * boost::math::constants::pi<double>()  * rnr2);
+#else // GEM_HAP_USE_BOXMULLERPOLAR, see here: http://de.wikipedia.org/wiki/Normalverteilung#Polar-Methode ; faster than GEM_HAP_USE_BOXMULLER
+      double q, u1, u2;
+      do {
+         u1 = 2.* uniform_01<double>() - 1.;
+         u2 = 2.* uniform_01<double>() - 1.;
+         q = u1*u1 + u2*u2;
+      } while (q > 1.0);
+      q = gsqrt((-2.*glog(q))/q);
+      dblGaussCache_ = u2 * q;
+      dblGaussCacheAvailable_ = true;
+      return u1 * q;
+#endif
+   }
+}
 
 /******************************************************************************/
 

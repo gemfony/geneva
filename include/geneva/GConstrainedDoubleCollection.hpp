@@ -168,14 +168,27 @@ public:
 } /* namespace Gem */
 
 #ifdef GEM_TESTING
-// Tests of this class (and parent classes)
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-/** @brief We need to provide a specialization of the factory function that creates objects of this type. */
-template <> boost::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection>
-TFactory_GUnitTests<Gem::Geneva::GConstrainedDoubleCollection>();
+/**
+ * As Gem::Geneva::GConstrainedDoubleCollection has a private default constructor, we need to provide a
+ * specialization of the factory function that creates objects of this type.
+ */
+template <>
+inline boost::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection> TFactory_GUnitTests<Gem::Geneva::GConstrainedDoubleCollection>() {
+   const std::size_t NPARAMETERS = 100;
+   double LOWERBOUNDARY = -10.;
+   double UPPERBOUNDARY =  10.;
+   boost::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection> p;
+   BOOST_CHECK_NO_THROW(
+         p= boost::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection>(
+               new Gem::Geneva::GConstrainedDoubleCollection(NPARAMETERS, LOWERBOUNDARY, UPPERBOUNDARY)
+         )
+   );
+   return p;
+}
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

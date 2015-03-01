@@ -516,9 +516,15 @@ public:
 };
 
 /******************************************************************************/
+/**
+ * Returns a "comparative range". Specialization for T==bool;
+ */
+template<>
+inline bool GConstrainedNumCollectionT<bool>::range() const {
+   return true;
+}
 
-// Specialization for T==bool
-template<> bool GConstrainedNumCollectionT<bool>::range() const;
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

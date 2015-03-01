@@ -21,7 +21,6 @@ SET ( OPTIMIZATIONSOURCES
 	GConstrainedDoubleObjectCollection
 	GConstrainedInt32Object
 	GConstrainedInt32ObjectCollection
-	GConstrainedNumCollectionT
 	GDoubleBiGaussAdaptor
 	GDoubleCollection
 	GDoubleGaussAdaptor

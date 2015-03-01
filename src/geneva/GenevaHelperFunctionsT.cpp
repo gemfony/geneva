@@ -40,6 +40,7 @@
 namespace Gem {
 namespace Geneva {
 
+// Specializations for double, boost::int32_t and bool
 /******************************************************************************/
 /**
  * A factory function that returns the default adaptor for the base type "double"
@@ -48,7 +49,7 @@ namespace Geneva {
  */
 template <>
 boost::shared_ptr<GAdaptorT<double> > getDefaultAdaptor<double>() {
-	return boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor());
+   return boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor());
 }
 
 /******************************************************************************/
@@ -59,7 +60,7 @@ boost::shared_ptr<GAdaptorT<double> > getDefaultAdaptor<double>() {
  */
 template <>
 boost::shared_ptr<GAdaptorT<boost::int32_t> > getDefaultAdaptor<boost::int32_t>() {
-	return boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor());
+   return boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor());
 }
 
 /******************************************************************************/
@@ -70,7 +71,7 @@ boost::shared_ptr<GAdaptorT<boost::int32_t> > getDefaultAdaptor<boost::int32_t>(
  */
 template <>
 boost::shared_ptr<GAdaptorT<bool> > getDefaultAdaptor<bool>() {
-	return boost::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor());
+   return boost::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor());
 }
 
 /******************************************************************************/

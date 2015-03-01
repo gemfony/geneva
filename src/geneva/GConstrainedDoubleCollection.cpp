@@ -542,31 +542,3 @@ void GConstrainedDoubleCollection::specificTestsFailuresExpected_GUnitTests() {
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#ifdef GEM_TESTING
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * As Gem::Geneva::GConstrainedDoubleCollection has a private default constructor, we need to provide a
- * specialization of the factory function that creates objects of this type.
- */
-template <>
-boost::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection> TFactory_GUnitTests<Gem::Geneva::GConstrainedDoubleCollection>() {
-	const std::size_t NPARAMETERS = 100;
-	double LOWERBOUNDARY = -10.;
-	double UPPERBOUNDARY =  10.;
-	boost::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection> p;
-	BOOST_CHECK_NO_THROW(
-			p= boost::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection>(
-					new Gem::Geneva::GConstrainedDoubleCollection(NPARAMETERS, LOWERBOUNDARY, UPPERBOUNDARY)
-			)
-	);
-	return p;
-}
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-
-#endif /* GEM_TESTING */
