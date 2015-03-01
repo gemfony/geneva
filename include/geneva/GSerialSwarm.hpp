@@ -140,13 +140,26 @@ public:
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-/** @brief We need to provide a specialization of the factory function that creates objects of this type. */
-template <> boost::shared_ptr<Gem::Geneva::GSerialSwarm> TFactory_GUnitTests<Gem::Geneva::GSerialSwarm>();
+/**
+ * As Gem::Geneva::GSerialSwarm has a protected default constructor, we need to provide a
+ * specialization of the factory function that creates objects of this type.
+ */
+template <>
+inline boost::shared_ptr<Gem::Geneva::GSerialSwarm> TFactory_GUnitTests<Gem::Geneva::GSerialSwarm>() {
+   using namespace Gem::Tests;
+   const std::size_t NNEIGHBORHOODS=2;
+   const std::size_t NNEIGHBORHOODMEMBERS=3;
+   boost::shared_ptr<Gem::Geneva::GSerialSwarm> p;
+   BOOST_CHECK_NO_THROW(p= boost::shared_ptr<Gem::Geneva::GSerialSwarm>(new Gem::Geneva::GSerialSwarm(NNEIGHBORHOODS, NNEIGHBORHOODMEMBERS)));
+   for(std::size_t i=0; i<NNEIGHBORHOODS*NNEIGHBORHOODMEMBERS; i++) {
+      p->push_back(boost::shared_ptr<GTestIndividual1>(new GTestIndividual1()));
+   }
+   return p;
+}
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-
 #endif /* GEM_TESTING */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSerialSwarm)

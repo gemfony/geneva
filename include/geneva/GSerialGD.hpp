@@ -141,19 +141,26 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 #ifdef GEM_TESTING
-// Tests of this class (and parent classes)
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/** @brief We need to provide a specialization of the factory function that creates objects of this type. */
-template <> boost::shared_ptr<Gem::Geneva::GSerialGD> TFactory_GUnitTests<Gem::Geneva::GSerialGD>();
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-
+/**
+ * A factory function that emits a GSerialGD object
+ */
+template <>
+inline boost::shared_ptr<Gem::Geneva::GSerialGD> TFactory_GUnitTests<Gem::Geneva::GSerialGD>() {
+   using namespace Gem::Tests;
+   boost::shared_ptr<Gem::Geneva::GSerialGD> p;
+   BOOST_CHECK_NO_THROW(p= boost::shared_ptr<Gem::Geneva::GSerialGD>(new Gem::Geneva::GSerialGD()));
+   p->push_back(boost::shared_ptr<GTestIndividual1>(new GTestIndividual1()));
+   return p;
+}
 #endif /* GEM_TESTING */
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSerialGD)
 

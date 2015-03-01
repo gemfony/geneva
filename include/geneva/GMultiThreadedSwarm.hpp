@@ -155,8 +155,16 @@ public:
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-/** @brief We need to provide a specialization of the factory function that creates objects of this type. */
-template <> boost::shared_ptr<Gem::Geneva::GMultiThreadedSwarm> TFactory_GUnitTests<Gem::Geneva::GMultiThreadedSwarm>();
+/**
+ * As Gem::Geneva::GMultiThreadedSwarm has a protected default constructor, we need to provide a
+ * specialization of the factory function that creates objects of this type.
+ */
+template <>
+inline boost::shared_ptr<Gem::Geneva::GMultiThreadedSwarm> TFactory_GUnitTests<Gem::Geneva::GMultiThreadedSwarm>() {
+   boost::shared_ptr<Gem::Geneva::GMultiThreadedSwarm> p;
+   BOOST_CHECK_NO_THROW(p= boost::shared_ptr<Gem::Geneva::GMultiThreadedSwarm>(new Gem::Geneva::GMultiThreadedSwarm(5,10)));
+   return p;
+}
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

@@ -168,17 +168,28 @@ public:
 } /* namespace Gem */
 
 #ifdef GEM_TESTING
+
 // Tests of this class (and parent classes)
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-/** @brief We need to provide a specialization of the factory function that creates objects of this type. */
-template <> boost::shared_ptr<Gem::Geneva::GBrokerGD> TFactory_GUnitTests<Gem::Geneva::GBrokerGD>();
+/**
+ * As Gem::Geneva::GBrokerGD has a protected default constructor, we need to provide a
+ * specialization of the factory function that creates objects of this type.
+ */
+template <>
+inline boost::shared_ptr<Gem::Geneva::GBrokerGD> TFactory_GUnitTests<Gem::Geneva::GBrokerGD>() {
+   boost::shared_ptr<Gem::Geneva::GBrokerGD> p;
+   BOOST_CHECK_NO_THROW(p= boost::shared_ptr<Gem::Geneva::GBrokerGD>(new Gem::Geneva::GBrokerGD()));
+   return p;
+}
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
+
 #endif /* GEM_TESTING */
+
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBrokerGD)
 

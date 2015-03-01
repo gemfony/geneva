@@ -397,24 +397,3 @@ void GMultiThreadedGD::specificTestsFailuresExpected_GUnitTests() {
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#ifdef GEM_TESTING
-// Tests of this class (and parent classes)
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * As Gem::Geneva::GMultiThreadedGD has a protected default constructor, we need to provide a
- * specialization of the factory function that creates objects of this type.
- */
-template <>
-boost::shared_ptr<Gem::Geneva::GMultiThreadedGD> TFactory_GUnitTests<Gem::Geneva::GMultiThreadedGD>() {
-	boost::shared_ptr<Gem::Geneva::GMultiThreadedGD> p;
-	BOOST_CHECK_NO_THROW(p= boost::shared_ptr<Gem::Geneva::GMultiThreadedGD>(new Gem::Geneva::GMultiThreadedGD()));
-	return p;
-}
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-
-#endif /* GEM_TESTING */
