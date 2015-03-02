@@ -774,7 +774,7 @@ int main(int argc, char **argv) {
 		double adProb=0.05; // A 5% probability that adaption actually takes place
 		GDoubleGaussAdaptor a3(0.05); // Construction with adaption probability
 
-		double sigma=0.2, sigmaSigma=0.8, minSigma=0., maxSigma=2.;
+		double sigma=0.2, sigmaSigma=0.1, minSigma=0., maxSigma=1.;
 		GDoubleGaussAdaptor a4(sigma, sigmaSigma, minSigma, maxSigma); //Construction with specific mutation parameters
 
 		GDoubleGaussAdaptor a5(sigma, sigmaSigma, minSigma, maxSigma, adProb); //Construction with specific mutation parameters
@@ -924,7 +924,7 @@ int main(int argc, char **argv) {
 		double adProb=0.05; // A 5% probability that adaption actually takes place
 		GInt32GaussAdaptor a3(0.05); // Construction with adaption probability
 
-		double sigma=10., sigmaSigma=0.8, minSigma=0., maxSigma=20.;
+		double sigma=0.2, sigmaSigma=0.1, minSigma=0., maxSigma=1.;
 		GInt32GaussAdaptor a4(sigma, sigmaSigma, minSigma, maxSigma); //Construction with specific mutation parameters
 
 		GInt32GaussAdaptor a5(sigma, sigmaSigma, minSigma, maxSigma, adProb); //Construction with specific mutation parameters
