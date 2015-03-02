@@ -351,8 +351,7 @@ GParserBuilder::GParserBuilder()
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
    char* jsonBaseName_ch = 0;
    size_t sz = 0;
-   if (0 == _dupenv_s(&jsonBaseName_ch, &sz, "GENEVA_CONFIG_BASENAME"))
-   {
+   if (0 == _dupenv_s(&jsonBaseName_ch, &sz, "GENEVA_CONFIG_BASENAME") && NULL != jsonBaseName_ch) {
       // Only convert to a string if the environment variable exists
       configFileBaseName_ = std::string(jsonBaseName_ch);
       // Convert to a std::string and remove any white space characters
