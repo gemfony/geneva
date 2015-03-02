@@ -247,7 +247,7 @@ int main(int argc, char **argv) {
 		// Filling with objects
 		for(std::size_t i=0; i<10; i++) {
 			// Create a smart pointer wrapping a GDoubleObject
-			boost::shared_ptr<GConstrainedDoubleObject> p(new GConstrainedDoubleObject());
+			boost::shared_ptr<GConstrainedDoubleObject> p(new GConstrainedDoubleObject(-10., 10.));
 			// Configure GConstrainedDoubleObject as required. E.g., add adaptors
 			// ...
 			// Add to the collection
@@ -500,7 +500,7 @@ int main(int argc, char **argv) {
 		// Filling with objects
 		for(std::size_t i=0; i<10; i++) {
 			// Create a smart pointer wrapping a GConstrainedInt32Object
-			boost::shared_ptr<GConstrainedInt32Object> p(new GConstrainedInt32Object());
+			boost::shared_ptr<GConstrainedInt32Object> p(new GConstrainedInt32Object(-10, 10));
 			// Configure GConstrainedInt32Object as required. E.g., add adaptors
 			// ...
 			// Add to the collection
