@@ -290,7 +290,8 @@ public:
 	}
 
 	// Needed to allow interruption of the optimization run without loss of data
-	static std::sig_atomic_t GenevaSigHupSent;  // Initialized in GObject.cpp
+	// Npte that "volatile" is needed in order for the signal handler to work
+	static volatile std::sig_atomic_t GenevaSigHupSent;  // Initialized in GObject.cpp
 
 protected:
 	/***************************************************************************/

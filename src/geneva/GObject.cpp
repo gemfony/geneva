@@ -40,7 +40,7 @@ namespace Geneva {
 
 /******************************************************************************/
 // Needed to allow catching of a SIGHUP
-std::sig_atomic_t GObject::GenevaSigHupSent = 0;
+volatile std::sig_atomic_t GObject::GenevaSigHupSent = 0;
 
 /******************************************************************************/
 /**
