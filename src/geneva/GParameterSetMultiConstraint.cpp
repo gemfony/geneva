@@ -292,6 +292,7 @@ double GParameterSetFormulaConstraint::check_(
    const GParameterSet * p
 ) const {
    std::map<std::string, std::vector<double> > parameterValues;
+
    p->streamline(parameterValues); // Extract the parameter values including names
    Gem::Common::GFormulaParserT<double> f(rawFormula_); // Create the parser
 

@@ -280,32 +280,44 @@ typedef boost::variant<
 >
 operand;
 
-struct G_API nil {};
+struct G_API nil {
+   void swap(nil&);
+};
 
 struct G_API signed_ {
    char sign;
    operand operand_;
+
+   void swap(signed_&);
 };
 
 struct G_API operation {
    char operator_;
    operand operand_;
+
+   void swap(operation&);
 };
 
 struct G_API unary_function_ {
    std::string fname_;
    operand operand_;
+
+   void swap(unary_function_&);
 };
 
 struct G_API binary_function_ {
    std::string fname_;
    operand operand1_;
    operand operand2_;
+
+   void swap(binary_function_&);
 };
 
 struct G_API ast_expression {
    operand first;
    std::list<operation> rest;
+
+   void swap(ast_expression&);
 };
 
 /** @brief print function for debugging */
@@ -352,7 +364,7 @@ namespace Common {
 /******************************************************************************/
 /**
  * This class allows to parse and evaluate simple mathematical formulas of the
- * "type (sin(3.)*sqrt(5.) - (2*pi))^2". Formulas may optionally contain place
+ * type "(sin(3.)*sqrt(5.) - (2*pi))^2". Formulas may optionally contain place
  * holders for variables, e.g. "(sin({{var1}})*sqrt({{var2}}) - ({{var3}}*pi))^2".
  * Formulas are provided in string form to the constructor. The evaluate()
  * function will then replace the place-holders with the corresponding entries of
@@ -958,5 +970,19 @@ private:
 
 } /* namespace Common */
 } /* namespace Gem */
+
+// Needed for rules to work. Follows http://boost.2283326.n4.nabble.com/hold-multi-pass-backtracking-swap-compliant-ast-td4664679.html
+namespace boost {
+namespace spirit {
+
+G_API void swap(Gem::Common::nil&, Gem::Common::nil&);
+G_API void swap(Gem::Common::signed_&, Gem::Common::signed_&);
+G_API void swap(Gem::Common::operation&, Gem::Common::operation&);
+G_API void swap(Gem::Common::unary_function_&, Gem::Common::unary_function_&);
+G_API void swap(Gem::Common::binary_function_&, Gem::Common::binary_function_&);
+G_API void swap(Gem::Common::ast_expression&, Gem::Common::ast_expression&);
+
+} /* namespace spirit */
+} /* namespace boost */
 
 #endif /* GFORMULAPARSERT_HPP_ */
