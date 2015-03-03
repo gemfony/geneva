@@ -153,7 +153,7 @@ public:
 	virtual G_API std::string getPlotterName() const = 0;
 
 	/** @brief Retrieve a clone of this object */
-	virtual G_API boost::sheared_ptr<GBasePlotter> clone() const = 0;
+	virtual G_API boost::shared_ptr<GBasePlotter> clone() const = 0;
 
 protected:
    /***************************************************************************/
