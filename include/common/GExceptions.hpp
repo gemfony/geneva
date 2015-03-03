@@ -84,17 +84,17 @@ namespace Common {
 /**
  * General error class to be thrown in the case of severe errors
  */
-class G_API gemfony_error_condition
+class gemfony_error_condition
    : public std::exception
 {
 public:
    /** @brief The standard constructor */
-	gemfony_error_condition(const std::string&) throw();
+   G_API gemfony_error_condition(const std::string&) throw();
 	/** @brief The destructor */
-	virtual ~gemfony_error_condition()  throw();
+	virtual G_API ~gemfony_error_condition()  throw();
 
 	/** @brief Emits information when thrown */
-	virtual const char* what() const throw();
+	virtual G_API const char* what() const throw();
 
 private:
 	/** @brief The default constructor: Intentionally private and undefined */
@@ -141,7 +141,7 @@ G_API std::ostream& operator<<(std::ostream&, const Gem::Common::gemfony_error_c
 
 /******************************************************************************/
 /** @brief Raise an exception if a given define wasn't set */
-void condnotset(const std::string&, const std::string&);
+G_API void condnotset(const std::string&, const std::string&);
 
 /******************************************************************************/
 

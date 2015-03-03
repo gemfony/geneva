@@ -73,7 +73,7 @@ typedef boost::uint32_t PORTIDTYPE;
  * TODO: Move to Boost's unique identifier ?
  */
 template<typename T>
-class G_API GBoundedBufferWithIdT
+class GBoundedBufferWithIdT
 	:public Gem::Common::GBoundedBufferT<T>
 {
 public:
@@ -81,7 +81,7 @@ public:
 	/**
 	 * The default constructor.
 	 */
-	GBoundedBufferWithIdT()
+   G_API GBoundedBufferWithIdT()
 		: Gem::Common::GBoundedBufferT<T>()
 		, id_(0)
 		, idSet_(false)
@@ -94,7 +94,7 @@ public:
 	 *
 	 * @param capacity The desired size of the buffer
 	 */
-	explicit GBoundedBufferWithIdT(const std::size_t& capacity)
+	explicit G_API GBoundedBufferWithIdT(const std::size_t& capacity)
 		: Gem::Common::GBoundedBufferT<T>(capacity)
 		, id_(0)
 		, idSet_(false)
@@ -104,7 +104,7 @@ public:
 	/**
 	 * A standard destructor.
 	 */
-	virtual ~GBoundedBufferWithIdT()
+	virtual G_API ~GBoundedBufferWithIdT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -113,7 +113,7 @@ public:
 	 *
 	 * @return The value of the id_ variable
 	 */
-	PORTIDTYPE getId() const {
+	G_API PORTIDTYPE getId() const {
 		return id_;
 	}
 
@@ -124,7 +124,7 @@ public:
 	 *
 	 * @param id The desired value of the id_ variable
 	 */
-	void setId(const PORTIDTYPE& id) {
+	G_API void setId(const PORTIDTYPE& id) {
 		if(!idSet_){
 			id_ = id;
 			idSet_ = true;

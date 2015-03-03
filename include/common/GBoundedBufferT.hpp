@@ -142,7 +142,7 @@ const std::size_t DEFAULTBUFFERSIZE = 20000;
  * stored in the buffer.
  */
 template<typename T>
-class G_API GBoundedBufferT
+class GBoundedBufferT
 	: private boost::noncopyable
 {
 public:
@@ -155,7 +155,7 @@ public:
 	/**
 	 * The default constructor. Sets up a buffer of size DEFAULTBUFFERSIZE.
 	 */
-	GBoundedBufferT()
+	G_API GBoundedBufferT()
 		: capacity_(DEFAULTBUFFERSIZE)
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		, name_("no name")
@@ -173,7 +173,7 @@ public:
 	 *
 	 * @param capacity The desired size of the buffer
 	 */
-	explicit GBoundedBufferT(const std::size_t& capacity)
+	explicit G_API GBoundedBufferT(const std::size_t& capacity)
 		: capacity_(capacity?capacity:1)
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		, name_("no name")
@@ -192,7 +192,7 @@ public:
 	 * means termination of the program. No logging takes place, as we want
 	 * this class to be independent of the Geneva framework
 	 */
-	virtual ~GBoundedBufferT()
+	virtual G_API ~GBoundedBufferT()
 	{
 		// Any error here is deadly ...
 		try {
@@ -227,8 +227,7 @@ public:
 	 *
 	 * @param item An item to be added to the front of the buffer
 	 */
-	void push_front(value_type item)
-	{
+	G_API void push_front(value_type item) {
 		boost::mutex::scoped_lock lock(mutex_);
 		// Note that this overload of wait() internally runs a loop on its predicate to
 		// deal with spurious wakeups
@@ -254,8 +253,7 @@ public:
 	 * @param item An item to be added to the front of the buffer
 	 * @param timeout duration until a timeout occurs
 	 */
-	void push_front(value_type item, const boost::posix_time::time_duration& timeout)
-	{
+	G_API void push_front(value_type item, const boost::posix_time::time_duration& timeout) {
 		boost::mutex::scoped_lock lock(mutex_);
 		if(!not_full_.timed_wait(lock,timeout,buffer_not_full(container_, capacity_))) {
 			throw Gem::Common::condition_time_out();
@@ -282,8 +280,7 @@ public:
 	 * @param timeout duration until a timeout occurs
 	 * @return A boolean indicating whether an item has been successfully submitted
 	 */
-	bool push_front_bool(value_type item, const boost::posix_time::time_duration& timeout)
-	{
+	G_API bool push_front_bool(value_type item, const boost::posix_time::time_duration& timeout) {
 		boost::mutex::scoped_lock lock(mutex_);
 		if(!not_full_.timed_wait(lock, timeout, buffer_not_full(container_, capacity_))) {
 			return false;
@@ -309,8 +306,7 @@ public:
 	 *
 	 * @param item Reference to a single item that was removed from the end of the buffer
 	 */
-	void pop_back(value_type& item)
-	{
+	G_API void pop_back(value_type& item) {
 		boost::mutex::scoped_lock lock(mutex_);
 		not_empty_.wait(lock, buffer_not_empty(container_));
 
@@ -344,8 +340,7 @@ public:
 	 * @param item Reference to a single item that was removed from the end of the buffer
 	 * @param timeout duration until a timeout occurs
 	 */
-	void pop_back(value_type& item, const boost::posix_time::time_duration& timeout)
-	{
+	G_API void pop_back(value_type& item, const boost::posix_time::time_duration& timeout) {
 		boost::mutex::scoped_lock lock(mutex_);
 		if(!not_empty_.timed_wait(lock,timeout,buffer_not_empty(container_))) {
 			throw Gem::Common::condition_time_out();
@@ -383,8 +378,7 @@ public:
 	 * @param timeout duration until a timeout occurs
 	 * @return A boolean indicating whether an item has been successfully retrieved
 	 */
-	bool pop_back_bool(value_type& item, const boost::posix_time::time_duration& timeout)
-	{
+	G_API bool pop_back_bool(value_type& item, const boost::posix_time::time_duration& timeout) {
 		boost::mutex::scoped_lock lock(mutex_);
 		if(!not_empty_.timed_wait(lock,timeout,buffer_not_empty(container_))) {
 			return false;
@@ -420,8 +414,7 @@ public:
 	 *
 	 * @return The maximum allowed capacity
 	 */
-	std::size_t getCapacity() const
-	{
+	G_API std::size_t getCapacity() const {
 		return capacity_;
 	}
 
@@ -433,8 +426,7 @@ public:
 	 *
 	 * @return The currently remaining space in the buffer
 	 */
-	std::size_t remainingSpace()
-	{
+	G_API std::size_t remainingSpace() {
 		boost::mutex::scoped_lock lock(mutex_);
 		return capacity_ - container_.size();
 	}
@@ -448,8 +440,7 @@ public:
 	 *
 	 * @return The current size of the buffer
 	 */
-	std::size_t size()
-	{
+	G_API std::size_t size() {
 		boost::mutex::scoped_lock lock(mutex_);
 		return container_.size();
 	}
@@ -463,8 +454,7 @@ public:
 	 *
 	 * @return True if the buffer is not empty
 	 */
-	bool isNotEmpty()
-	{
+	G_API bool isNotEmpty() {
 		boost::mutex::scoped_lock lock(mutex_);
 		return !container_.empty();
 	}
@@ -477,7 +467,7 @@ public:
 	 *
 	 * @param name The name to be assigned to this object
 	 */
-	void setName(const std::string& name) {
+	G_API void setName(const std::string& name) {
 		name_ = name;
 	}
 
@@ -487,7 +477,7 @@ public:
 	 *
 	 * @return The assigned name of this object
 	 */
-	std::string getName() const {
+	G_API std::string getName() const {
 		return name_;
 	}
 

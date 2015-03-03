@@ -101,59 +101,59 @@ class GPlotDesigner;
  * derive from this class. They can be added to a master canvas, which takes care
  * to plot them into sub-pads.
  */
-class G_API GBasePlotter {
+class GBasePlotter {
 	friend class GPlotDesigner;
 
 public:
 	/** @brief The default constructor */
-	GBasePlotter();
+	G_API GBasePlotter();
 	/** @brief A copy constructor */
-	GBasePlotter(const GBasePlotter&);
+	G_API GBasePlotter(const GBasePlotter&);
 	/** @brief The destructor */
-	virtual ~GBasePlotter();
+	virtual G_API ~GBasePlotter();
 
 	/** @brief The assignment operator */
-	void operator=(const GBasePlotter&);
+	G_API void operator=(const GBasePlotter&);
 
 	/** @brief Allows to set the drawing arguments for this plot */
-	void setDrawingArguments(std::string);
+	G_API void setDrawingArguments(std::string);
 
 	/** @brief Sets the label for the x-axis */
-	void setXAxisLabel(std::string);
+	G_API void setXAxisLabel(std::string);
 	/** @brief Retrieve the x-axis label */
-	std::string xAxisLabel() const;
+	G_API std::string xAxisLabel() const;
 	/** @brief Sets the label for the y-axis */
-	void setYAxisLabel(std::string);
+	G_API void setYAxisLabel(std::string);
 	/** @brief Retrieve the y-axis label */
-	std::string yAxisLabel() const;
+	G_API std::string yAxisLabel() const;
 	/** @brief Sets the label for the z-axis */
-	void setZAxisLabel(std::string);
+	G_API void setZAxisLabel(std::string);
 	/** @brief Retrieve the z-axis label */
-	std::string zAxisLabel() const;
+	G_API std::string zAxisLabel() const;
 
 	/** @brief Allows to assign a label to the entire plot */
-	void setPlotLabel(std::string);
+	G_API void setPlotLabel(std::string);
 	/** @brief Allows to retrieve the plot label */
-	std::string plotLabel() const;
+	G_API std::string plotLabel() const;
 
 	/** @brief Allows to assign a marker to data structures */
-	void setDataStructureMarker(std::string);
+	G_API void setDataStructureMarker(std::string);
 	/** @brief Allows to retrieve the data structure marker */
-	std::string dsMarker() const;
+	G_API std::string dsMarker() const;
 
 	/** @brief Allows to add secondary plots to be added to the same sub-canvas */
-	void registerSecondaryPlotter(boost::shared_ptr<GBasePlotter>);
+	G_API void registerSecondaryPlotter(boost::shared_ptr<GBasePlotter>);
 
    /** @brief Allows to retrieve the id of this object */
-   std::size_t id() const;
+	G_API std::size_t id() const;
    /** @brief Sets the id of the object */
-   void setId(const std::size_t&);
+	G_API void setId(const std::size_t&);
 
 	/** @brief Retrieves a unique name for this plotter */
-	virtual std::string getPlotterName() const = 0;
+	virtual G_API std::string getPlotterName() const = 0;
 
 	/** @brief Retrieve a clone of this object */
-	virtual boost::shared_ptr<GBasePlotter> clone() const = 0;
+	virtual G_API boost::shared_ptr<GBasePlotter> clone() const = 0;
 
 protected:
    /***************************************************************************/
@@ -163,7 +163,7 @@ protected:
    virtual std::string headerData(bool, std::size_t) const = 0;
    /** @brief Retrieves the actual data sets */
    virtual std::string bodyData(bool, std::size_t) const = 0;
-   /** @brief Retrieves specific draw commands for this plot */
+   /** @brief retrieves specific draw commands for this plot */
    virtual std::string footerData(bool, std::size_t) const = 0;
 
    /** @brief Retrieve the current drawing arguments */
@@ -211,14 +211,14 @@ private:
  * data of a histogram type.
  */
 template <typename x_type>
-class G_API GDataCollector1T :public GBasePlotter
+class GDataCollector1T :public GBasePlotter
 {
 public:
    /***************************************************************************/
 	/**
 	 * The default constructor
 	 */
-	GDataCollector1T()
+   G_API GDataCollector1T()
 		: GBasePlotter()
 		, data_()
 	{ /* nothing */ }
@@ -229,7 +229,7 @@ public:
 	 *
 	 * @param cp A copy of another GDataCollector1T<x_type> object
 	 */
-	GDataCollector1T(const GDataCollector1T<x_type>& cp)
+   G_API GDataCollector1T(const GDataCollector1T<x_type>& cp)
 		: GBasePlotter(cp)
 		, data_(cp.data_)
 	{ /* nothing */ }
@@ -238,7 +238,7 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual ~GDataCollector1T() {
+	virtual G_API ~GDataCollector1T() {
 		data_.clear();
 	}
 
@@ -246,7 +246,7 @@ public:
 	/**
 	 * The assignment operator
 	 */
-	void operator=(const GDataCollector1T<x_type>& cp) {
+	G_API void operator=(const GDataCollector1T<x_type>& cp) {
 		// Assign our parent class'es data
 		GBasePlotter::operator=(cp);
 
@@ -262,7 +262,7 @@ public:
     * "*object_ptr & data" possible.
     */
    template <typename data_type>
-   void add(const data_type& item) {
+   G_API void add(const data_type& item) {
       *this & item;
    }
 
@@ -274,7 +274,7 @@ public:
 	 * @param x_undet The data item to be added to the collection
 	 */
 	template <typename x_type_undet>
-	void operator&(const x_type_undet& x_undet) {
+	G_API void operator&(const x_type_undet& x_undet) {
 		using boost::numeric::bad_numeric_cast;
 
 		x_type x = x_type(0);
@@ -302,7 +302,7 @@ public:
 	 *
 	 * @param x The data item to be added to the collection
 	 */
-	void operator&(const x_type& x) {
+	G_API void operator&(const x_type& x) {
 		// Add the data item to our collection
 		data_.push_back(x);
 	}
@@ -315,7 +315,7 @@ public:
 	 * @param x_vec_undet A collection of data items of undetermined type, to be added to the collection
 	 */
 	template <typename x_type_undet>
-	void operator&(const std::vector<x_type_undet>& x_vec_undet) {
+	G_API void operator&(const std::vector<x_type_undet>& x_vec_undet) {
 		using boost::numeric::bad_numeric_cast;
 
 		x_type x = x_type(0);
@@ -346,7 +346,7 @@ public:
 	 *
 	 * @param x_vec A vector of data items to be added to the data_ vector
 	 */
-	void operator&(const std::vector<x_type>& x_vec) {
+	G_API void operator&(const std::vector<x_type>& x_vec) {
 		typename std::vector<x_type>::const_iterator cit;
 		for(cit=x_vec.begin(); cit!=x_vec.end(); ++cit) {
 			// Add the data item to our collection
@@ -364,41 +364,41 @@ protected:
 /**
  * A wrapper for ROOT's TH1D class (1-d double data)
  */
-class G_API GHistogram1D : public GDataCollector1T<double> {
+class GHistogram1D : public GDataCollector1T<double> {
 public:
 	/** @brief The standard constructor */
-	GHistogram1D(
+   G_API GHistogram1D(
 		const std::size_t&
 		, const double&
 		, const double&
 	);
 	/** @brief Initialization with a range in the form of a tuple */
-	GHistogram1D(
+   G_API GHistogram1D(
 		const std::size_t&
 		, const boost::tuple<double,double>&
 	);
 	/** @brief A copy constructor */
-	GHistogram1D(const GHistogram1D&);
+   G_API GHistogram1D(const GHistogram1D&);
 
 	/** @brief The destructor */
-	~GHistogram1D();
+   virtual G_API ~GHistogram1D();
 
 	/** @brief The assignment operator */
-	const GHistogram1D &operator=(const GHistogram1D&);
+   G_API const GHistogram1D &operator=(const GHistogram1D&);
 
 	/** @brief Retrieve the number of bins in x-direction */
-	std::size_t getNBinsX() const;
+   G_API std::size_t getNBinsX() const;
 
 	/** @brief Retrieve the lower boundary of the plot */
-	double getMinX() const;
+   G_API double getMinX() const;
 	/** @brief Retrieve the upper boundary of the plot */
-	double getMaxX() const;
+   G_API double getMaxX() const;
 
    /** @brief Retrieves a unique name for this plotter */
-   virtual std::string getPlotterName() const;
+   virtual G_API std::string getPlotterName() const;
 
    /** @brief Retrieve a clone of this object */
-   virtual boost::shared_ptr<GBasePlotter> clone() const;
+   virtual G_API boost::shared_ptr<GBasePlotter> clone() const;
 
 protected:
    /** @brief Retrieve specific header settings for this plot */
@@ -424,41 +424,41 @@ private:
 /**
  * A wrapper for ROOT's TH1I class (1-d integer data)
  */
-class G_API GHistogram1I : public GDataCollector1T<boost::int32_t> {
+class GHistogram1I : public GDataCollector1T<boost::int32_t> {
 public:
    /** @brief The standard constructor */
-   GHistogram1I(
+   G_API GHistogram1I(
       const std::size_t&
       , const double&
       , const double&
    );
    /** @brief Initialization with a range in the form of a tuple */
-   GHistogram1I(
+   G_API GHistogram1I(
       const std::size_t&
       , const boost::tuple<double,double>&
    );
    /** @brief A copy constructor */
-   GHistogram1I(const GHistogram1I&);
+   G_API GHistogram1I(const GHistogram1I&);
 
    /** @brief The destructor */
-   ~GHistogram1I();
+   G_API ~GHistogram1I();
 
    /** @brief The assignment operator */
-   const GHistogram1I &operator=(const GHistogram1I&);
+   G_API const GHistogram1I &operator=(const GHistogram1I&);
 
    /** @brief Retrieve the number of bins in x-direction */
-   std::size_t getNBinsX() const;
+   G_API std::size_t getNBinsX() const;
 
    /** @brief Retrieve the lower boundary of the plot */
-   double getMinX() const;
+   G_API double getMinX() const;
    /** @brief Retrieve the upper boundary of the plot */
-   double getMaxX() const;
+   G_API double getMaxX() const;
 
    /** @brief Retrieves a unique name for this plotter */
-   virtual std::string getPlotterName() const;
+   virtual G_API std::string getPlotterName() const;
 
    /** @brief Retrieve a clone of this object */
-   virtual boost::shared_ptr<GBasePlotter> clone() const;
+   virtual G_API boost::shared_ptr<GBasePlotter> clone() const;
 
 protected:
    /** @brief Retrieve specific header settings for this plot */
@@ -485,14 +485,14 @@ private:
  * A data collector for 2-d data of user-defined type, such as a TGraph
  */
 template <typename x_type, typename y_type>
-class G_API GDataCollector2T :public GBasePlotter
+class GDataCollector2T :public GBasePlotter
 {
 public:
    /***************************************************************************/
 	/**
 	 * The default constructor
 	 */
-	GDataCollector2T()
+   G_API GDataCollector2T()
 		: GBasePlotter()
 		, data_()
 	{ /* nothing */ }
@@ -503,7 +503,7 @@ public:
 	 *
 	 * @param cp A copy of another GDataCollector1T<x_type> object
 	 */
-	GDataCollector2T(const GDataCollector2T<x_type, y_type>& cp)
+   G_API GDataCollector2T(const GDataCollector2T<x_type, y_type>& cp)
 		: GBasePlotter(cp)
 		, data_(cp.data_)
 	{ /* nothing */ }
@@ -512,7 +512,7 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual ~GDataCollector2T() {
+	virtual G_API ~GDataCollector2T() {
 		data_.clear();
 	}
 
@@ -520,7 +520,7 @@ public:
 	/**
 	 * The assignment operator
 	 */
-	void operator=(const GDataCollector2T<x_type, y_type>& cp) {
+	G_API void operator=(const GDataCollector2T<x_type, y_type>& cp) {
 		// Assign our parent class'es data
 		GBasePlotter::operator=(cp);
 
@@ -534,9 +534,9 @@ public:
 	 * trap to catch calls with un-implemented types. Use the corresponding specializations,
 	 * if available.
 	 */
-	boost::shared_ptr<GDataCollector1T<x_type> > projectX(
-			std::size_t
-			, boost::tuple<x_type, x_type>
+	G_API boost::shared_ptr<GDataCollector1T<x_type> > projectX(
+      std::size_t
+      , boost::tuple<x_type, x_type>
 	) const {
 	   glogger
 	   << "In GDataCollector2T<>::projectX(range, nBins): Error!" << std::endl
@@ -553,9 +553,9 @@ public:
 	 * trap to catch calls with un-implemented types. Use the corresponding specializations,
 	 * if available.
 	 */
-	boost::shared_ptr<GDataCollector1T<y_type> > projectY(
-			std::size_t
-			, boost::tuple<y_type, y_type>
+	G_API boost::shared_ptr<GDataCollector1T<y_type> > projectY(
+      std::size_t
+      , boost::tuple<y_type, y_type>
 	) const {
 	   glogger
 	   << "In GDataCollector2T<>::projectY(range, nBins): Error!" << std::endl
@@ -574,7 +574,7 @@ public:
     * *object_ptr & data possible.
     */
    template <typename data_type>
-   void add(const data_type& item) {
+   G_API void add(const data_type& item) {
       *this & item;
    }
 
@@ -586,7 +586,7 @@ public:
 	 * @param point_undet The data item to be added to the collection
 	 */
 	template <typename x_type_undet, typename y_type_undet>
-	void operator&(const boost::tuple<x_type_undet,y_type_undet>& point_undet) {
+	G_API void operator&(const boost::tuple<x_type_undet,y_type_undet>& point_undet) {
 		using boost::numeric::bad_numeric_cast;
 
 		x_type x = x_type(0);
@@ -616,7 +616,7 @@ public:
 	 *
 	 * @param point The data item to be added to the collection
 	 */
-	void operator&(const boost::tuple<x_type,y_type>& point) {
+	G_API void operator&(const boost::tuple<x_type,y_type>& point) {
 		// Add the data item to the collection
 		data_.push_back(point);
 	}
@@ -630,7 +630,7 @@ public:
 	 * @param point_vec_undet The collection of data items to be added to the collection
 	 */
 	template <typename x_type_undet, typename y_type_undet>
-	void operator&(const std::vector<boost::tuple<x_type_undet,y_type_undet> >& point_vec_undet) {
+	G_API void operator&(const std::vector<boost::tuple<x_type_undet,y_type_undet> >& point_vec_undet) {
 		using boost::numeric::bad_numeric_cast;
 
 		x_type x = x_type(0);
@@ -664,7 +664,7 @@ public:
 	 *
 	 * @param point_vec The collection of data items to be added to the collection
 	 */
-	void operator&(const std::vector<boost::tuple<x_type,y_type> >& point_vec) {
+	G_API void operator&(const std::vector<boost::tuple<x_type,y_type> >& point_vec) {
 		typename std::vector<boost::tuple<x_type,y_type> >::const_iterator cit;
 		for(cit=point_vec.begin(); cit!=point_vec.end(); ++cit) {
 			// Add the data item to the collection
@@ -716,7 +716,7 @@ protected:
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-boost::shared_ptr<GDataCollector1T<double> >
+G_API boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector2T<double, double>::projectX(std::size_t nBinsX, boost::tuple<double, double> rangeX) const {
    boost::tuple<double, double> myRangeX;
    if(rangeX == boost::tuple<double, double>()) {
@@ -754,7 +754,7 @@ GDataCollector2T<double, double>::projectX(std::size_t nBinsX, boost::tuple<doub
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-boost::shared_ptr<GDataCollector1T<double> >
+G_API boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector2T<double, double>::projectY(std::size_t nBinsY, boost::tuple<double, double> rangeY) const {
    boost::tuple<double, double> myRangeY;
    if(rangeY == boost::tuple<double, double>()) {
@@ -786,14 +786,14 @@ GDataCollector2T<double, double>::projectY(std::size_t nBinsY, boost::tuple<doub
  * additionally specify an error component for both dimensions.
  */
 template <typename x_type, typename y_type>
-class G_API GDataCollector2ET :public GBasePlotter
+class GDataCollector2ET :public GBasePlotter
 {
 public:
    /***************************************************************************/
 	/**
 	 * The default constructor
 	 */
-	GDataCollector2ET()
+   G_API GDataCollector2ET()
 		: GBasePlotter()
 		, data_()
 	{ /* nothing */ }
@@ -804,7 +804,7 @@ public:
 	 *
 	 * @param cp A copy of another GDataCollector1T<x_type> object
 	 */
-	GDataCollector2ET(const GDataCollector2ET<x_type, y_type>& cp)
+   G_API GDataCollector2ET(const GDataCollector2ET<x_type, y_type>& cp)
 		: GBasePlotter(cp)
 		, data_(cp.data_)
 	{ /* nothing */ }
@@ -813,7 +813,7 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual ~GDataCollector2ET() {
+	virtual G_API ~GDataCollector2ET() {
 		data_.clear();
 	}
 
@@ -821,7 +821,7 @@ public:
 	/**
 	 * The assignment operator
 	 */
-	void operator=(const GDataCollector2ET<x_type, y_type>& cp) {
+	G_API void operator=(const GDataCollector2ET<x_type, y_type>& cp) {
 		// Assign our parent class'es data
 		GBasePlotter::operator=(cp);
 
@@ -837,7 +837,7 @@ public:
 	 * @param point_undet The data item to be added to the collection
 	 */
 	template <typename x_type_undet, typename y_type_undet>
-	void operator&(const boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>& point_undet) {
+	G_API void operator&(const boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>& point_undet) {
 		using boost::numeric::bad_numeric_cast;
 
 		x_type x  = x_type(0);
@@ -871,7 +871,7 @@ public:
 	 *
 	 * @param point The data item to be added to the collection
 	 */
-	void operator&(const boost::tuple<x_type,x_type,y_type,y_type>& point) {
+	G_API void operator&(const boost::tuple<x_type,x_type,y_type,y_type>& point) {
 		// Add the data item to the collection
 		data_.push_back(point);
 	}
@@ -885,7 +885,7 @@ public:
 	 * @param point_vec_undet The collection of data items to be added to the collection
 	 */
 	template <typename x_type_undet, typename y_type_undet>
-	void operator&(const std::vector<boost::tuple<x_type_undet,x_type_undet,y_type_undet,y_type_undet> >& point_vec_undet) {
+	G_API void operator&(const std::vector<boost::tuple<x_type_undet,x_type_undet,y_type_undet,y_type_undet> >& point_vec_undet) {
 		using boost::numeric::bad_numeric_cast;
 
 		x_type x  = x_type(0);
@@ -923,7 +923,7 @@ public:
 	 *
 	 * @param point_vec The collection of data items to be added to the collection
 	 */
-	void operator&(const std::vector<boost::tuple<x_type,x_type,y_type,y_type> >& point_vec) {
+	G_API void operator&(const std::vector<boost::tuple<x_type,x_type,y_type,y_type> >& point_vec) {
 		typename std::vector<boost::tuple<x_type,x_type,y_type,y_type> >::const_iterator cit;
 		for(cit=point_vec.begin(); cit!=point_vec.end(); ++cit) {
 			// Add the data item to the collection
@@ -939,7 +939,7 @@ public:
     * "*object_ptr & data" possible.
     */
    template <typename data_type>
-   void add(const data_type& item) {
+   G_API void add(const data_type& item) {
       *this & item;
    }
 
@@ -980,7 +980,7 @@ protected:
 /**
  * An enum for 2D-drawing options
  */
-enum tddropt {
+G_API enum tddropt {
 	TDEMPTY = 0
 	, SURFONE = 1
 	, SURFTWOZ = 2
@@ -1005,11 +1005,11 @@ enum tddropt {
 /**
  * A wrapper for ROOT's TH2D class (2-d double data)
  */
-class G_API GHistogram2D
+class GHistogram2D
    : public GDataCollector2T<double, double> {
 public:
 	/** @brief The standard constructor */
-	GHistogram2D(
+   G_API GHistogram2D(
 		const std::size_t&
 		, const std::size_t&
 		, const double&
@@ -1018,45 +1018,45 @@ public:
 		, const double&
 	);
 	/** @brief Initialization with ranges */
-	GHistogram2D(
+   G_API GHistogram2D(
 		const std::size_t&
 		, const std::size_t&
 		, const boost::tuple<double,double>&
 		, const boost::tuple<double,double>&
 	);
 	/** @brief A copy constructor */
-	GHistogram2D(const GHistogram2D&);
+   G_API GHistogram2D(const GHistogram2D&);
 
 	/** @brief The destructor */
-	~GHistogram2D();
+	virtual G_API ~GHistogram2D();
 
 	/** @brief The assignment operator */
-	const GHistogram2D &operator=(const GHistogram2D&);
+	G_API const GHistogram2D &operator=(const GHistogram2D&);
 
 	/** @brief Retrieve the number of bins in x-direction */
-	std::size_t getNBinsX() const;
+	G_API std::size_t getNBinsX() const;
 	/** @brief Retrieve the number of bins in y-direction */
-	std::size_t getNBinsY() const;
+	G_API std::size_t getNBinsY() const;
 
 	/** @brief Retrieve the lower boundary of the plot in x-direction */
-	double getMinX() const;
+	G_API double getMinX() const;
 	/** @brief Retrieve the upper boundary of the plot in x-direction */
-	double getMaxX() const;
+	G_API double getMaxX() const;
 	/** @brief Retrieve the lower boundary of the plot in y-direction */
-	double getMinY() const;
+	G_API double getMinY() const;
 	/** @brief Retrieve the upper boundary of the plot in y-direction */
-	double getMaxY() const;
+	G_API double getMaxY() const;
 
    /** @brief Retrieves a unique name for this plotter */
-   virtual std::string getPlotterName() const;
+	G_API virtual std::string getPlotterName() const;
 
 	/** @brief Allows to specify 2d-drawing options */
-	void set2DOpt(tddropt);
+	G_API void set2DOpt(tddropt);
 	/** @brief Allows to retrieve 2d-drawing options */
-	tddropt get2DOpt() const;
+	G_API tddropt get2DOpt() const;
 
    /** @brief Retrieve a clone of this object */
-   virtual boost::shared_ptr<GBasePlotter> clone() const;
+   virtual G_API boost::shared_ptr<GBasePlotter> clone() const;
 
 protected:
    /** @brief Retrieve specific header settings for this plot */
@@ -1088,36 +1088,36 @@ private:
  * A wrapper for the ROOT TGraph class (2d data and curve-like structures). It
  * also adds the option to draw arrows between consecutive points.
  */
-class G_API GGraph2D
+class GGraph2D
    : public GDataCollector2T<double,double> {
 public:
 	/** @brief The default constructor */
-	GGraph2D();
+   G_API GGraph2D();
 
 	/** @brief A copy constructor */
-	GGraph2D(const GGraph2D&);
+   G_API GGraph2D(const GGraph2D&);
 
 	/** @brief The destructor */
-	~GGraph2D();
+   virtual G_API ~GGraph2D();
 
 	/** @brief The assignment operator */
-	const GGraph2D &operator=(const GGraph2D&);
+   G_API const GGraph2D &operator=(const GGraph2D&);
 
 	/** @brief Adds arrows to the plots between consecutive points */
-	void setDrawArrows(bool=true);
+   G_API void setDrawArrows(bool=true);
 	/** @brief Retrieves the value of the drawArrows_ variable */
-	bool getDrawArrows() const;
+   G_API bool getDrawArrows() const;
 
 	/** @brief Determines whether a scatter plot or a curve is created */
-	void setPlotMode(graphPlotMode);
+   G_API void setPlotMode(graphPlotMode);
 	/** @brief Allows to retrieve the current plotting mode */
-	graphPlotMode getPlotMode() const;
+   G_API graphPlotMode getPlotMode() const;
 
    /** @brief Retrieves a unique name for this plotter */
-   virtual std::string getPlotterName() const;
+   virtual G_API std::string getPlotterName() const;
 
    /** @brief Retrieve a clone of this object */
-   virtual boost::shared_ptr<GBasePlotter> clone() const;
+   virtual G_API boost::shared_ptr<GBasePlotter> clone() const;
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
@@ -1139,31 +1139,31 @@ private:
 /**
  * A wrapper for the ROOT TGraphErrors class (2d data and curve-like structures)
  */
-class G_API GGraph2ED
+class GGraph2ED
    : public GDataCollector2ET<double,double> {
 public:
 	/** @brief The default constructor */
-	GGraph2ED();
+   G_API GGraph2ED();
 
 	/** @brief A copy constructor */
-	GGraph2ED(const GGraph2ED&);
+   G_API GGraph2ED(const GGraph2ED&);
 
 	/** @brief The destructor */
-	~GGraph2ED();
+   virtual G_API ~GGraph2ED();
 
 	/** @brief The assignment operator */
-	const GGraph2ED &operator=(const GGraph2ED&);
+   G_API const GGraph2ED &operator=(const GGraph2ED&);
 
 	/** @brief Determines whether a scatter plot or a curve is created */
-	void setPlotMode(graphPlotMode);
+   G_API void setPlotMode(graphPlotMode);
 	/** @brief Allows to retrieve the current plotting mode */
-	graphPlotMode getPlotMode() const;
+   G_API graphPlotMode getPlotMode() const;
 
    /** @brief Retrieves a unique name for this plotter */
-   virtual std::string getPlotterName() const;
+   G_API virtual std::string getPlotterName() const;
 
    /** @brief Retrieve a clone of this object */
-   virtual boost::shared_ptr<GBasePlotter> clone() const;
+   G_API virtual boost::shared_ptr<GBasePlotter> clone() const;
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
@@ -1185,7 +1185,7 @@ private:
  * A data collector for 3-d data of user-defined type
  */
 template <typename x_type, typename y_type, typename z_type>
-class G_API GDataCollector3T
+class GDataCollector3T
    :public GBasePlotter
 {
 public:
@@ -1193,7 +1193,7 @@ public:
    /**
     * The default constructor
     */
-   GDataCollector3T()
+   G_API GDataCollector3T()
       : GBasePlotter()
       , data_()
    { /* nothing */ }
@@ -1204,7 +1204,7 @@ public:
     *
     * @param cp A copy of another GDataCollector3T object
     */
-   GDataCollector3T(const GDataCollector3T<x_type, y_type, z_type>& cp)
+   G_API GDataCollector3T(const GDataCollector3T<x_type, y_type, z_type>& cp)
       : GBasePlotter(cp)
       , data_(cp.data_)
    { /* nothing */ }
@@ -1213,7 +1213,7 @@ public:
    /**
     * The destructor
     */
-   virtual ~GDataCollector3T() {
+   virtual G_API ~GDataCollector3T() {
       data_.clear();
    }
 
@@ -1221,7 +1221,7 @@ public:
    /**
     * The assignment operator
     */
-   void operator=(const GDataCollector3T<x_type, y_type, z_type>& cp) {
+   G_API void operator=(const GDataCollector3T<x_type, y_type, z_type>& cp) {
       // Assign our parent class'es data
       GBasePlotter::operator=(cp);
 
@@ -1235,9 +1235,9 @@ public:
     * trap to catch calls with un-implemented types. Use the corresponding specializations,
     * if available.
     */
-   boost::shared_ptr<GDataCollector1T<x_type> > projectX(
-         std::size_t
-         , boost::tuple<x_type, x_type>
+   G_API boost::shared_ptr<GDataCollector1T<x_type> > projectX(
+      std::size_t
+      , boost::tuple<x_type, x_type>
    ) const {
       glogger
       << "In GDataCollector3T<>::projectX(range, nBins): Error!" << std::endl
@@ -1254,9 +1254,9 @@ public:
     * trap to catch calls with un-implemented types. Use the corresponding specializations,
     * if available.
     */
-   boost::shared_ptr<GDataCollector1T<y_type> > projectY(
-         std::size_t
-         , boost::tuple<y_type, y_type>
+   G_API boost::shared_ptr<GDataCollector1T<y_type> > projectY(
+      std::size_t
+      , boost::tuple<y_type, y_type>
    ) const {
       glogger
       << "In GDataCollector3T<>::projectY(range, nBins): Error!" << std::endl
@@ -1273,9 +1273,9 @@ public:
     * trap to catch calls with un-implemented types. Use the corresponding specializations,
     * if available.
     */
-   boost::shared_ptr<GDataCollector1T<z_type> > projectZ(
-         std::size_t
-         , boost::tuple<z_type, z_type>
+   G_API boost::shared_ptr<GDataCollector1T<z_type> > projectZ(
+      std::size_t
+      , boost::tuple<z_type, z_type>
    ) const {
       glogger
       << "In GDataCollector3T<>::projectZ(range, nBins): Error!" << std::endl
@@ -1294,7 +1294,7 @@ public:
     * *object_ptr & data possible.
     */
    template <typename data_type>
-   void add(const data_type& item) {
+   G_API void add(const data_type& item) {
       *this & item;
    }
 
@@ -1306,7 +1306,7 @@ public:
     * @param point_undet The data item to be added to the collection
     */
    template <typename x_type_undet, typename y_type_undet, typename z_type_undet>
-   void operator&(const boost::tuple<x_type_undet,y_type_undet,z_type_undet>& point_undet) {
+   G_API void operator&(const boost::tuple<x_type_undet,y_type_undet,z_type_undet>& point_undet) {
       using boost::numeric::bad_numeric_cast;
 
       x_type x = x_type(0);
@@ -1338,7 +1338,7 @@ public:
     *
     * @param point The data item to be added to the collection
     */
-   void operator&(const boost::tuple<x_type,y_type,z_type>& point) {
+   G_API void operator&(const boost::tuple<x_type,y_type,z_type>& point) {
       // Add the data item to the collection
       data_.push_back(point);
    }
@@ -1352,7 +1352,7 @@ public:
     * @param point_vec_undet The collection of data items to be added to the collection
     */
    template <typename x_type_undet, typename y_type_undet, typename z_type_undet>
-   void operator&(const std::vector<boost::tuple<x_type_undet,y_type_undet,z_type_undet> >& point_vec_undet) {
+   G_API void operator&(const std::vector<boost::tuple<x_type_undet,y_type_undet,z_type_undet> >& point_vec_undet) {
       using boost::numeric::bad_numeric_cast;
 
       x_type x = x_type(0);
@@ -1388,7 +1388,7 @@ public:
     *
     * @param point_vec The collection of data items to be added to the collection
     */
-   void operator&(const std::vector<boost::tuple<x_type,y_type,z_type> >& point_vec) {
+   G_API void operator&(const std::vector<boost::tuple<x_type,y_type,z_type> >& point_vec) {
       typename std::vector<boost::tuple<x_type,y_type,z_type> >::const_iterator cit;
       for(cit=point_vec.begin(); cit!=point_vec.end(); ++cit) {
          // Add the data item to the collection
@@ -1414,7 +1414,7 @@ protected:
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-boost::shared_ptr<GDataCollector1T<double> >
+G_API boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector3T<double, double,double>::projectX(std::size_t nBinsX, boost::tuple<double, double> rangeX) const {
    boost::tuple<double, double> myRangeX;
    if(rangeX == boost::tuple<double, double>()) {
@@ -1451,7 +1451,7 @@ GDataCollector3T<double, double,double>::projectX(std::size_t nBinsX, boost::tup
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-boost::shared_ptr<GDataCollector1T<double> >
+G_API boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector3T<double, double, double>::projectY(std::size_t nBinsY, boost::tuple<double, double> rangeY) const {
    boost::tuple<double, double> myRangeY;
    if(rangeY == boost::tuple<double, double>()) {
@@ -1488,7 +1488,7 @@ GDataCollector3T<double, double, double>::projectY(std::size_t nBinsY, boost::tu
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-boost::shared_ptr<GDataCollector1T<double> >
+G_API boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector3T<double, double, double>::projectZ(std::size_t nBinsZ, boost::tuple<double, double> rangeZ) const {
    boost::tuple<double, double> myRangeZ;
    if(rangeZ == boost::tuple<double, double>()) {
@@ -1522,30 +1522,30 @@ GDataCollector3T<double, double, double>::projectZ(std::size_t nBinsZ, boost::tu
  * also adds the option to draw lines between consecutive points. This class
  * only allows a single plot mode.
  */
-class G_API GGraph3D : public GDataCollector3T<double,double,double> {
+class GGraph3D : public GDataCollector3T<double,double,double> {
 public:
    /** @brief The default constructor */
-   GGraph3D();
+   G_API GGraph3D();
 
    /** @brief A copy constructor */
-   GGraph3D(const GGraph3D&);
+   G_API GGraph3D(const GGraph3D&);
 
    /** @brief The destructor */
-   ~GGraph3D();
+   virtual G_API ~GGraph3D();
 
    /** @brief The assignment operator */
-   const GGraph3D &operator=(const GGraph3D&);
+   G_API const GGraph3D &operator=(const GGraph3D&);
 
    /** @brief Adds lines to the plots between consecutive points */
-   void setDrawLines(bool=true);
+   G_API void setDrawLines(bool=true);
    /** @brief Retrieves the value of the drawLines_ variable */
-   bool getDrawLines() const;
+   G_API bool getDrawLines() const;
 
    /** @brief Retrieves a unique name for this plotter */
-   virtual std::string getPlotterName() const;
+   virtual G_API std::string getPlotterName() const;
 
    /** @brief Retrieve a clone of this object */
-   virtual boost::shared_ptr<GBasePlotter> clone() const;
+   virtual G_API boost::shared_ptr<GBasePlotter> clone() const;
 
 protected:
    /** @brief Retrieve specific header settings for this plot */
@@ -1572,7 +1572,7 @@ template <
    , typename z_type
    , typename w_type
 >
-class G_API GDataCollector4T
+class GDataCollector4T
    :public GBasePlotter
 {
 public:
@@ -1580,7 +1580,7 @@ public:
    /**
     * The default constructor
     */
-   GDataCollector4T()
+   G_API GDataCollector4T()
       : GBasePlotter()
       , data_()
    { /* nothing */ }
@@ -1591,7 +1591,7 @@ public:
     *
     * @param cp A copy of another GDataCollector4T object
     */
-   GDataCollector4T(const GDataCollector4T<x_type, y_type, z_type, w_type>& cp)
+   G_API GDataCollector4T(const GDataCollector4T<x_type, y_type, z_type, w_type>& cp)
       : GBasePlotter(cp)
       , data_(cp.data_)
    { /* nothing */ }
@@ -1600,7 +1600,7 @@ public:
    /**
     * The destructor
     */
-   virtual ~GDataCollector4T() {
+   virtual G_API ~GDataCollector4T() {
       data_.clear();
    }
 
@@ -1608,7 +1608,7 @@ public:
    /**
     * The assignment operator
     */
-   void operator=(const GDataCollector4T<x_type, y_type, z_type, w_type>& cp) {
+   G_API void operator=(const GDataCollector4T<x_type, y_type, z_type, w_type>& cp) {
       // Assign our parent class'es data
       GBasePlotter::operator=(cp);
 
@@ -1622,9 +1622,9 @@ public:
     * trap to catch calls with un-implemented types. Use the corresponding specializations,
     * if available.
     */
-   boost::shared_ptr<GDataCollector1T<x_type> > projectX(
-         std::size_t
-         , boost::tuple<x_type, x_type>
+   G_API boost::shared_ptr<GDataCollector1T<x_type> > projectX(
+      std::size_t
+      , boost::tuple<x_type, x_type>
    ) const {
       glogger
       << "In GDataCollector4T<>::projectX(range, nBins): Error!" << std::endl
@@ -1641,9 +1641,9 @@ public:
     * trap to catch calls with un-implemented types. Use the corresponding specializations,
     * if available.
     */
-   boost::shared_ptr<GDataCollector1T<y_type> > projectY(
-         std::size_t
-         , boost::tuple<y_type, y_type>
+   G_API boost::shared_ptr<GDataCollector1T<y_type> > projectY(
+      std::size_t
+      , boost::tuple<y_type, y_type>
    ) const {
       glogger
       << "In GDataCollector4T<>::projectY(range, nBins): Error!" << std::endl
@@ -1660,9 +1660,9 @@ public:
     * trap to catch calls with un-implemented types. Use the corresponding specializations,
     * if available.
     */
-   boost::shared_ptr<GDataCollector1T<z_type> > projectZ(
-         std::size_t
-         , boost::tuple<z_type, z_type>
+   G_API boost::shared_ptr<GDataCollector1T<z_type> > projectZ(
+      std::size_t
+      , boost::tuple<z_type, z_type>
    ) const {
       glogger
       << "In GDataCollector4T<>::projectZ(range, nBins): Error!" << std::endl
@@ -1679,9 +1679,9 @@ public:
     * trap to catch calls with un-implemented types. Use the corresponding specializations,
     * if available.
     */
-   boost::shared_ptr<GDataCollector1T<w_type> > projectW(
-         std::size_t
-         , boost::tuple<w_type, w_type>
+   G_API boost::shared_ptr<GDataCollector1T<w_type> > projectW(
+      std::size_t
+      , boost::tuple<w_type, w_type>
    ) const {
       glogger
       << "In GDataCollector4T<>::projectZ(range, nBins): Error!" << std::endl
@@ -1700,7 +1700,7 @@ public:
     * *object_ptr & data possible.
     */
    template <typename data_type>
-   void add(const data_type& item) {
+   G_API void add(const data_type& item) {
       *this & item;
    }
 
@@ -1717,7 +1717,7 @@ public:
       , typename z_type_undet
       , typename w_type_undet
    >
-   void operator&(const boost::tuple<x_type_undet,y_type_undet,z_type_undet, w_type_undet>& point_undet) {
+   G_API void operator&(const boost::tuple<x_type_undet,y_type_undet,z_type_undet, w_type_undet>& point_undet) {
       using boost::numeric::bad_numeric_cast;
 
       x_type x = x_type(0);
@@ -1751,7 +1751,7 @@ public:
     *
     * @param point The data item to be added to the collection
     */
-   void operator&(const boost::tuple<x_type,y_type,z_type,w_type>& point) {
+   G_API void operator&(const boost::tuple<x_type,y_type,z_type,w_type>& point) {
       // Add the data item to the collection
       data_.push_back(point);
    }
@@ -1770,7 +1770,7 @@ public:
       , typename z_type_undet
       , typename w_type_undet
    >
-   void operator&(const std::vector<boost::tuple<x_type_undet,y_type_undet,z_type_undet, w_type_undet> >& point_vec_undet) {
+   G_API void operator&(const std::vector<boost::tuple<x_type_undet,y_type_undet,z_type_undet, w_type_undet> >& point_vec_undet) {
       using boost::numeric::bad_numeric_cast;
 
       x_type x = x_type(0);
@@ -1808,7 +1808,7 @@ public:
     *
     * @param point_vec The collection of data items to be added to the collection
     */
-   void operator&(const std::vector<boost::tuple<x_type,y_type,z_type,w_type> >& point_vec) {
+   G_API void operator&(const std::vector<boost::tuple<x_type,y_type,z_type,w_type> >& point_vec) {
       typename std::vector<boost::tuple<x_type,y_type,z_type,w_type> >::const_iterator cit;
       for(cit=point_vec.begin(); cit!=point_vec.end(); ++cit) {
          // Add the data item to the collection
@@ -1833,7 +1833,7 @@ protected:
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-boost::shared_ptr<GDataCollector1T<double> >
+G_API boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector4T<double, double,double, double>::projectX(std::size_t nBinsX, boost::tuple<double, double> rangeX) const {
    boost::tuple<double, double> myRangeX;
    if(rangeX == boost::tuple<double, double>()) {
@@ -1870,7 +1870,7 @@ GDataCollector4T<double, double,double, double>::projectX(std::size_t nBinsX, bo
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-boost::shared_ptr<GDataCollector1T<double> >
+G_API boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector4T<double, double, double, double>::projectY(std::size_t nBinsY, boost::tuple<double, double> rangeY) const {
    boost::tuple<double, double> myRangeY;
    if(rangeY == boost::tuple<double, double>()) {
@@ -1907,7 +1907,7 @@ GDataCollector4T<double, double, double, double>::projectY(std::size_t nBinsY, b
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-boost::shared_ptr<GDataCollector1T<double> >
+G_API boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector4T<double, double, double, double>::projectZ(std::size_t nBinsZ, boost::tuple<double, double> rangeZ) const {
    boost::tuple<double, double> myRangeZ;
    if(rangeZ == boost::tuple<double, double>()) {
@@ -1945,7 +1945,7 @@ GDataCollector4T<double, double, double, double>::projectZ(std::size_t nBinsZ, b
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-boost::shared_ptr<GDataCollector1T<double> >
+G_API boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector4T<double, double, double, double>::projectW(std::size_t nBinsW, boost::tuple<double, double> rangeW) const {
    boost::tuple<double, double> myRangeW;
    if(rangeW == boost::tuple<double, double>()) {
@@ -1980,54 +1980,54 @@ GDataCollector4T<double, double, double, double>::projectW(std::size_t nBinsW, b
  * data component is represented as the size of the markers. The class will by
  * default only draw a selection of items.
  */
-class G_API GGraph4D
+class GGraph4D
    : public GDataCollector4T<double,double,double,double>
 {
 public:
    /** @brief The default constructor */
-   GGraph4D();
+   G_API GGraph4D();
 
    /** @brief A copy constructor */
-   GGraph4D(const GGraph4D&);
+   G_API GGraph4D(const GGraph4D&);
 
    /** @brief The destructor */
-   ~GGraph4D();
+   virtual G_API ~GGraph4D();
 
    /** @brief The assignment operator */
-   const GGraph4D& operator=(const GGraph4D&);
+   G_API const GGraph4D& operator=(const GGraph4D&);
 
    /** @brief Allows to set the minimum marker size */
-   void setMinMarkerSize(const double&);
+   G_API void setMinMarkerSize(const double&);
    /** @brief Allows to set the maximum marker size */
-   void setMaxMarkerSize(const double&);
+   G_API void setMaxMarkerSize(const double&);
 
    /** @brief Allows to retrieve the minimum marker size */
-   double getMinMarkerSize() const;
+   G_API double getMinMarkerSize() const;
    /** @brief Allows to retrieve the maximum marker size */
-   double getMaxMarkerSize() const;
+   G_API double getMaxMarkerSize() const;
 
    /** @brief Allows to specify whether small w yield large markers */
-   void setSmallWLargeMarker(const bool&);
+   G_API void setSmallWLargeMarker(const bool&);
    /** @brief Allows to check whether small w yield large markers */
-   bool getSmallWLargeMarker() const;
+   G_API bool getSmallWLargeMarker() const;
 
    /** @brief Retrieves a unique name for this plotter */
-   virtual std::string getPlotterName() const;
+   G_API virtual std::string getPlotterName() const;
 
    /** @brief Allows to set the number of solutions the class should show */
-   void setNBest(const std::size_t&);
+   G_API void setNBest(const std::size_t&);
    /** @brief Allows to retrieve the number of solutions the class should show */
-   std::size_t getNBest() const;
+   G_API std::size_t getNBest() const;
 
    /** @brief Retrieve a clone of this object */
-   virtual boost::shared_ptr<GBasePlotter> clone() const;
+   virtual G_API boost::shared_ptr<GBasePlotter> clone() const;
 
    /***************************************************************************/
    /**
     * A comparator allowing to sort the tuples in ascending order, using
     * the fourth component.
     */
-   static bool comp4Asc (
+   static G_API bool comp4Asc (
             boost::tuple<double,double,double,double> a
             , boost::tuple<double,double,double,double> b
    ) {
@@ -2039,7 +2039,7 @@ public:
     * A comparator allowing to sort the tuples in descending order, using
     * the fourth component.
     */
-   static bool comp4Desc (
+   static G_API bool comp4Desc (
             boost::tuple<double,double,double,double> a
             , boost::tuple<double,double,double,double> b
    ) {
@@ -2074,33 +2074,33 @@ private:
 /**
  * A wrapper for the ROOT TF1 1d-function plotter
  */
-class G_API GFunctionPlotter1D
+class GFunctionPlotter1D
 	: public GBasePlotter
 {
 public:
 	/** @brief The standard constructor */
-	GFunctionPlotter1D(
-			const std::string&
-			, const boost::tuple<double,double>&
+   G_API GFunctionPlotter1D(
+      const std::string&
+      , const boost::tuple<double,double>&
 	);
 
 	/** @brief A copy constructor */
-	GFunctionPlotter1D(const GFunctionPlotter1D&);
+   G_API GFunctionPlotter1D(const GFunctionPlotter1D&);
 
 	/** @brief The destructor */
-	~GFunctionPlotter1D();
+	virtual G_API ~GFunctionPlotter1D();
 
 	/** @brief The assignment operator */
-	const GFunctionPlotter1D &operator=(const GFunctionPlotter1D&);
+	G_API const GFunctionPlotter1D &operator=(const GFunctionPlotter1D&);
 
 	/** @brief Allows to set the number of sampling points in x-direction */
-	void setNSamplesX(std::size_t);
+	G_API void setNSamplesX(std::size_t);
 
    /** @brief Retrieves a unique name for this plotter */
-   virtual std::string getPlotterName() const;
+   virtual G_API std::string getPlotterName() const;
 
    /** @brief Retrieve a clone of this object */
-   virtual boost::shared_ptr<GBasePlotter> clone() const;
+   virtual G_API boost::shared_ptr<GBasePlotter> clone() const;
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
@@ -2126,36 +2126,36 @@ private:
 /**
  * A wrapper for the ROOT TF2 2d-function plotter
  */
-class G_API GFunctionPlotter2D
+class GFunctionPlotter2D
 	: public GBasePlotter
 {
 public:
 	/** @brief The standard constructor */
-	GFunctionPlotter2D(
-			const std::string&
-			, const boost::tuple<double,double>&
-			, const boost::tuple<double,double>&
+   G_API GFunctionPlotter2D(
+      const std::string&
+      , const boost::tuple<double,double>&
+      , const boost::tuple<double,double>&
 	);
 
 	/** @brief A copy constructor */
-	GFunctionPlotter2D(const GFunctionPlotter2D&);
+   G_API GFunctionPlotter2D(const GFunctionPlotter2D&);
 
 	/** @brief The destructor */
-	~GFunctionPlotter2D();
+	virtual G_API ~GFunctionPlotter2D();
 
 	/** @brief The assignment operator */
-	const GFunctionPlotter2D &operator=(const GFunctionPlotter2D&);
+	G_API const GFunctionPlotter2D &operator=(const GFunctionPlotter2D&);
 
 	/** @brief Allows to set the number of sampling points in x-direction */
-	void setNSamplesX(std::size_t);
+	G_API void setNSamplesX(std::size_t);
 	/** @brief Allows to set the number of sampling points in y-direction */
-	void setNSamplesY(std::size_t);
+	G_API void setNSamplesY(std::size_t);
 
    /** @brief Retrieves a unique name for this plotter */
-   virtual std::string getPlotterName() const;
+	G_API virtual std::string getPlotterName() const;
 
    /** @brief Retrieve a clone of this object */
-   virtual boost::shared_ptr<GBasePlotter> clone() const;
+	G_API virtual boost::shared_ptr<GBasePlotter> clone() const;
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
@@ -2185,38 +2185,38 @@ private:
 /**
  * This class allows to add free-form root-data to the master plot
  */
-class G_API GFreeFormPlotter : public GBasePlotter
+class GFreeFormPlotter : public GBasePlotter
 {
 public:
 	/** @brief The default constructor */
-	GFreeFormPlotter();
+   G_API GFreeFormPlotter();
 	/** @brief A copy constructor */
-	GFreeFormPlotter(const GFreeFormPlotter&);
+   G_API GFreeFormPlotter(const GFreeFormPlotter&);
 	/** @brief The destructor */
-	virtual ~GFreeFormPlotter();
+	virtual G_API ~GFreeFormPlotter();
 
 	/** @brief The assignment operator */
-	const GFreeFormPlotter& operator=(const GFreeFormPlotter&);
+	G_API const GFreeFormPlotter& operator=(const GFreeFormPlotter&);
 
    /** @brief Retrieves a unique name for this plotter */
-   virtual std::string getPlotterName() const;
+   virtual G_API std::string getPlotterName() const;
 
 	/** @brief Adds a string with header data */
-	void setHeaderData(const std::string&);
+   G_API void setHeaderData(const std::string&);
    /** @brief Adds a string with body data */
-	void setBodyData(const std::string&);
+   G_API void setBodyData(const std::string&);
    /** @brief Adds a string with footer data */
-	void setFooterData(const std::string&);
+   G_API void setFooterData(const std::string&);
 
 	/** @brief Registers a function that returns the desired header data */
-	void registerHeaderFunction(boost::function<std::string(bool, std::size_t)>);
+   G_API void registerHeaderFunction(boost::function<std::string(bool, std::size_t)>);
    /** @brief Registers a function that returns the desired body data */
    void registerBodyFunction(boost::function<std::string(bool, std::size_t)>);
    /** @brief Registers a function that returns the desired footer data */
    void registerFooterFunction(boost::function<std::string(bool, std::size_t)>);
 
    /** @brief Retrieve a clone of this object */
-   virtual boost::shared_ptr<GBasePlotter> clone() const;
+   virtual G_API boost::shared_ptr<GBasePlotter> clone() const;
 
 protected:
    /** @brief Retrieve specific header settings for this plot */
@@ -2244,44 +2244,44 @@ private:
  * A class that outputs a ROOT input file (compare http://root.cern.ch), based
  * on the data providers stored in it.
  */
-class G_API GPlotDesigner
+class GPlotDesigner
 	: boost::noncopyable
 {
 public:
 	/** @brief The standard constructor */
-	GPlotDesigner(
-			const std::string&
-			, const std::size_t&
-			, const std::size_t&
+   G_API GPlotDesigner(
+      const std::string&
+      , const std::size_t&
+      , const std::size_t&
 	);
 
 	/* @brief Emits the overall plot */
-	std::string plot(const boost::filesystem::path& = boost::filesystem::path("empty")) const;
+   G_API std::string plot(const boost::filesystem::path& = boost::filesystem::path("empty")) const;
 	/** @brief Writes the plot to a file */
-	void writeToFile(const boost::filesystem::path&);
+   G_API void writeToFile(const boost::filesystem::path&);
 
 	/** @brief Allows to add a new plotter object */
-	void registerPlotter(boost::shared_ptr<GBasePlotter>);
+   G_API void registerPlotter(boost::shared_ptr<GBasePlotter>);
 
 	/** @brief Set the dimensions of the output canvas */
-	void setCanvasDimensions(const boost::uint32_t&, const boost::uint32_t&);
+   G_API void setCanvasDimensions(const boost::uint32_t&, const boost::uint32_t&);
    /** @brief Set the dimensions of the output canvas */
-   void setCanvasDimensions(const boost::tuple<boost::uint32_t, boost::uint32_t>&);
+   G_API void setCanvasDimensions(const boost::tuple<boost::uint32_t, boost::uint32_t>&);
 	/** @brief Allows to retrieve the canvas dimensions */
-	boost::tuple<boost::uint32_t, boost::uint32_t> getCanvasDimensions() const;
+   G_API boost::tuple<boost::uint32_t, boost::uint32_t> getCanvasDimensions() const;
 
 	/** @brief Allows to set the canvas label */
-	void setCanvasLabel(const std::string&);
+   G_API void setCanvasLabel(const std::string&);
 	/** @brief Allows to retrieve the canvas label */
-	std::string getCanvasLabel() const;
+   G_API std::string getCanvasLabel() const;
 
    /** @brief Allows to add a "Print" command to the end of the script so that picture files are created */
-   void setAddPrintCommand(bool);
+   G_API void setAddPrintCommand(bool);
    /** @brief Allows to retrieve the current value of the addPrintCommand_ variable */
-   bool getAddPrintCommand() const;
+   G_API bool getAddPrintCommand() const;
 
 	/** @brief Resets the plotters */
-	void resetPlotters();
+   G_API void resetPlotters();
 
 private:
 	/** @brief The default constructor -- intentionally private and undefined */

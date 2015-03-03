@@ -68,15 +68,15 @@ namespace Common {
 /**
  * This base class implements the interface for expaction checks
  */
-class G_API GBaseExpectionCheck {
+class GBaseExpectionCheck {
 public:
    /** @brief The default constructor */
-   GBaseExpectionCheck();
+   G_API GBaseExpectionCheck();
    /** @brief The destructor */
-   virtual ~GBaseExpectionCheck();
+   virtual G_API ~GBaseExpectionCheck();
 
    /** @brief Check for equality / similarity */
-   virtual boost::optional<std::string> expectationViolation(
+   virtual G_API boost::optional<std::string> expectationViolation(
       const GBaseExpectionCheck& /* other object */
       , const Gem::Common::expectation& /* the expectation for this object */
       , const double& /* the limit */
