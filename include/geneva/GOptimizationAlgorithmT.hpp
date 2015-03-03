@@ -436,6 +436,11 @@ public:
 		// Let the algorithm know that the optimization process hasn't been halted yet
 		halted_ = false; // general halt criterion
 
+		// Store any *clean* individuals that have been added to this algorithm
+		// in the priority queue. This happens so that best individuals from a
+		// previous "chained" optimization run aren't lost.
+		addCleanStoredBests(bestIndividuals_);
+
 		// Resize the population to the desired size and do some error checks.
 		// This function will also check that individuals have indeed been registered
 		adjustPopulation();
@@ -1074,6 +1079,21 @@ public:
    virtual void addIterationBests(GParameterSetFixedSizePriorityQueue& bestIndividuals) BASE {
       glogger
       << "In GOptimizationAlgorithmT<ind_type>::addIterationBests(): Error!" << std::endl
+      << "This function should not have been called" << std::endl
+      << GEXCEPTION;
+   }
+
+   /***************************************************************************/
+   /**
+    * If individuals have been stored in this population, they are added to the
+    * priority queue. This happens before the optimization cycle starts, so that
+    * best individuals from a previous "chained" optimization run aren't lost.
+    * Only those individuals are stored in the priority queue that do not have the
+    * "dirty flag" set.
+    */
+   virtual void addCleanStoredBests(GParameterSetFixedSizePriorityQueue& bestIndividuals) BASE {
+      glogger
+      << "In GOptimizationAlgorithmT<ind_type>::addCleanStoredBests(): Error!" << std::endl
       << "This function should not have been called" << std::endl
       << GEXCEPTION;
    }
@@ -2258,6 +2278,31 @@ inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::addIterationBes
    // Unless we have asked for the queue to have an unlimited size, the queue will be resized as required
    // by its maximum allowed size.
    bestIndividuals.add(this->data, CLONE, DONOTREPLACE);
+}
+
+/******************************************************************************/
+/**
+ * If individuals have been stored in this population, they are added to the
+ * priority queue. This happens before the optimization cycle starts, so that
+ * best individuals from a previous "chained" optimization run aren't lost.
+ * Only those individuals are stored in the priority queue that do not have the
+ * "dirty flag" set.
+ */
+template <>
+inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::addCleanStoredBests(
+   GParameterSetFixedSizePriorityQueue& bestIndividuals
+) BASE {
+   const bool CLONE = true;
+
+   // We simply add all *clean* individuals to the queue -- only the best ones will actually be added
+   // (and cloned) Unless we have asked for the queue to have an unlimited size, the queue will be
+   // resized as required by its maximum allowed size.
+   GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::iterator it;
+   for(it=this->begin(); it!=this->end(); ++it) {
+      if((*it)->isClean()) {
+         bestIndividuals.add(*it, CLONE);
+      }
+   }
 }
 
 /******************************************************************************/

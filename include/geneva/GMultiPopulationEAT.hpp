@@ -203,8 +203,8 @@ public:
       deviations.push_back(GBaseParChildT<oa_type>::checkRelationshipWith(cp, e, limit, "GMultiPopulationEAT<oa_type>", y_name, withMessages));
 
       // ... and then our local data
-      deviations.push_back(checkExpectation(withMessages, "GMultiPopulationEAT<ind_type>", smodeMP_, p_load->smodeMP_, "smodeMP_", "p_load->smodeMP_", e , limit));
-      deviations.push_back(checkExpectation(withMessages, "GMultiPopulationEAT<ind_type>", nThreads_, p_load->nThreads_, "nThreads_", "p_load->nThreads_", e , limit));
+      deviations.push_back(checkExpectation(withMessages, "GMultiPopulationEAT<oa_type>", smodeMP_ , p_load->smodeMP_, "smodeMP_", "p_load->smodeMP_", e , limit));
+      deviations.push_back(checkExpectation(withMessages, "GMultiPopulationEAT<oa_type>", nThreads_, p_load->nThreads_, "nThreads_", "p_load->nThreads_", e , limit));
 
       return evaluateDiscrepancies("GMultiPopulationEAT<oa_type>", caller, deviations, e);
    }
@@ -237,7 +237,7 @@ public:
    /***************************************************************************/
    /**
     * Retrieves information about the current sorting scheme (see
-    * GMultiPopulationEAT<ind_type>::setSortingScheme() for further information).
+    * GMultiPopulationEAT<oa_type>::setSortingScheme() for further information).
     *
     * @return The current sorting scheme
     */
@@ -335,6 +335,27 @@ public:
       this->at(0)->addIterationBests(bestIndividuals);
    }
 
+   /***************************************************************************/
+   /**
+    * If individuals have been stored in this population, they are added to the
+    * priority queue. This happens before the optimization cycle starts, so that
+    * best individuals from a previous "chained" optimization run aren't lost.
+    * Only those individuals are stored in the priority queue that do not have the
+    * "dirty flag" set.
+    */
+   void addCleanStoredBests(
+      GParameterSetFixedSizePriorityQueue& bestIndividuals
+   ) OVERRIDE {
+      const bool CLONE = true;
+
+      typename oa_type::iterator it;
+      for(it=this->at(0)->begin(); it!=this->at(0)->end(); ++it) {
+         if((*it)->isClean()) {
+            bestIndividuals.add(*it, CLONE);
+         }
+      }
+   }
+
 protected:
    /***************************************************************************/
    /**
@@ -349,7 +370,7 @@ protected:
       GBaseParChildT<oa_type>::load_(cp);
 
       // ... and then our own data
-      smodeMP_ = p_load->smodeMP_;
+      smodeMP_  = p_load->smodeMP_;
       nThreads_ = p_load->nThreads_;
    }
 
