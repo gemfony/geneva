@@ -99,8 +99,8 @@ class GThreadPool;
  * the need for a pointer to them. This class was adapted from a version by
  * Anthony Williams, as offered as part of the Boost 1.36 release
  */
-class G_API GThreadGroup
-	 :private boost::noncopyable
+class GThreadGroup
+    :private boost::noncopyable
 {
 	friend class GThreadPool;
 
@@ -109,28 +109,28 @@ class G_API GThreadGroup
 
 public:
 	/** @brief The destructor */
-	~GThreadGroup();
+	G_API ~GThreadGroup();
 
 	/** @brief Adds an already created thread to the group */
-	void add_thread(thread_ptr);
+	G_API void add_thread(thread_ptr);
 
 	/** @brief Remove a thread from the group. Does nothing if the thread is empty. */
-	void remove_thread(thread_ptr);
+	G_API void remove_thread(thread_ptr);
 
 	/** @brief Requests all threads to join */
-	void join_all();
+	G_API void join_all();
 
 	/** @brief Sends all threads the interrupt signal */
-	void interrupt_all();
+	G_API void interrupt_all();
 
 	/** @brief Interrupts, joins and finally removes the last thread in the group. */
-	void remove_last();
+	G_API void remove_last();
 
 	/** @brief Interrupts, joins and finally removes the last nThreads threads in the group */
-	void remove_last(const std::size_t&);
+	G_API void remove_last(const std::size_t&);
 
 	/** @brief Returns the size of the current thread group */
-	std::size_t size() const;
+	G_API std::size_t size() const;
 
 	/***************************************************************************/
 	/**
@@ -140,7 +140,7 @@ public:
 	 * @return A pointer to the newly created thread
 	 */
 	template<typename F>
-	boost::shared_ptr<boost::thread> create_thread(F f) {
+	G_API boost::shared_ptr<boost::thread> create_thread(F f) {
 		boost::lock_guard<boost::mutex> guard(m_);
 		thread_ptr new_thread(new boost::thread(f));
 		threads_.push_back(new_thread);
@@ -157,7 +157,7 @@ public:
 	 * @return A pointer to the newly created thread
 	 */
 	template<typename F>
-	void create_threads(F f, const std::size_t& nThreads)	{
+	G_API void create_threads(F f, const std::size_t& nThreads)	{
 		for(std::size_t i=0; i<nThreads; i++) create_thread(f);
 	}
 

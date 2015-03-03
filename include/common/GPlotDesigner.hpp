@@ -153,28 +153,28 @@ public:
 	virtual G_API std::string getPlotterName() const = 0;
 
 	/** @brief Retrieve a clone of this object */
-	virtual G_API boost::shared_ptr<GBasePlotter> clone() const = 0;
+	virtual G_API boost::sheared_ptr<GBasePlotter> clone() const = 0;
 
 protected:
    /***************************************************************************/
 	// Functions to be specified in derived classes
 
    /** @brief Retrieve specific header settings for this plot */
-   virtual std::string headerData(bool, std::size_t) const = 0;
+   virtual G_API std::string headerData(bool, std::size_t) const = 0;
    /** @brief Retrieves the actual data sets */
-   virtual std::string bodyData(bool, std::size_t) const = 0;
+   virtual G_API std::string bodyData(bool, std::size_t) const = 0;
    /** @brief retrieves specific draw commands for this plot */
-   virtual std::string footerData(bool, std::size_t) const = 0;
+   virtual G_API std::string footerData(bool, std::size_t) const = 0;
 
    /** @brief Retrieve the current drawing arguments */
-   virtual std::string drawingArguments(bool) const = 0;
+   virtual G_API std::string drawingArguments(bool) const = 0;
 
    /***************************************************************************/
 	/** @brief Check that a given plotter is compatible with us */
-	virtual bool isCompatible(boost::shared_ptr<GBasePlotter>) const;
+	virtual G_API bool isCompatible(boost::shared_ptr<GBasePlotter>) const;
 
 	/** @brief calculate a suffix from id and parent ids */
-	std::string suffix(bool, std::size_t) const;
+	G_API std::string suffix(bool, std::size_t) const;
 
    /***************************************************************************/
 

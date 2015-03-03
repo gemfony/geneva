@@ -62,31 +62,31 @@ namespace Common {
  * provided by Boost.ASIO . This is meant as a drop-in replacement, until a more
  * versatile thread pool becomes commonly available in Boost.
  */
-class G_API GThreadPool
+class GThreadPool
 	:private boost::noncopyable // make sure the pool cannot be copied
 {
 public:
 	/** @brief Initialization with the "native" number of threads for this architecture */
-	GThreadPool();
+   G_API GThreadPool();
 	/** @brief Initialization with a number of threads */
-	GThreadPool(const std::size_t&);
+   G_API GThreadPool(const std::size_t&);
 	/** @brief The destructor */
-	~GThreadPool();
+   G_API ~GThreadPool();
 
    /** @brief Sets the number of threads currently used */
-   void setNThreads(std::size_t);
+   G_API void setNThreads(std::size_t);
    /** @brief Retrieves the current number of threads being used in the pool */
-   std::size_t getNThreads() const;
+   G_API std::size_t getNThreads() const;
 
 	/** @brief Blocks until all submitted jobs have been cleared from the pool */
-	bool wait();
+   G_API bool wait();
 
 	/** @brief Allows to check whether any errors have occurred */
-	bool hasErrors() const;
+   G_API bool hasErrors() const;
 	/** @brief Retrieves the errors */
-	void getErrors(std::vector<std::string>&);
+   G_API void getErrors(std::vector<std::string>&);
 	/** @brief Clears the error logs */
-	void clearErrors();
+   G_API void clearErrors();
 
 	/***************************************************************************/
 	/**
@@ -95,7 +95,7 @@ public:
 	 * @param f The function to be executed by the threads in the pool
 	 */
 	template <typename F>
-	void async_schedule(F f) {
+	G_API void async_schedule(F f) {
 		io_service_.post(
 			boost::bind(&GThreadPool::taskWrapper<F>, this, f)
 		);
