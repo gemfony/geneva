@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------
 // This configuration file was automatically created by GParserBuilder
-// File creation date: 2014-Mar-03 20:36:53
+// File creation date: 2015-Mar-03 00:00:11
 //-----------------------------------------------------------------
 
 {
@@ -139,7 +139,7 @@
         "comment": "(1) GConstrainedDoubleCollection",
         "comment": "(2) GDoubleObjectCollection",
         "comment": " (3) GConstrainedDoubleObjectCollection",
-        "comment": " (4) GConstrainedDoubleObject",
+        "comment": " (4) GConstrainedDoubleObjects on the root level",
         "default": "4",
         "value": "4"
     },
@@ -148,7 +148,7 @@
         "comment": "Indicates how the parameters are initialized",
         "comment": "(0) randomly",
         "comment": "(1) with a value on the perimeter of the allowed or recommended value range",
-        "default": "0",
+        "default": "1",
         "value": "1"
     },
     "evalPolicy":
@@ -158,7 +158,6 @@
         "comment": "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions",
         "comment": "2 (a.k.a. USESIGMOID): Assign a multiple of validityLevel_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations",
         "comment": "3 (a.k.a. USEWORSTKNOWNVALIDFORINVALID): Assign \"invalidityLevel*worstKnownValid\" to invalid individuals, using normal evaluation otherwise",
-        "comment": "[GOptimizableEntity]",
         "default": "0",
         "value": "0"
     },
@@ -167,7 +166,6 @@
         "comment": "When using a sigmoid function to transform the individual's fitness,",
         "comment": "this parameter influences the steepness of the function at the center of the sigmoid.",
         "comment": "The parameter must have a value > 0.",
-        "comment": "[GOptimizableEntity]",
         "default": "1000",
         "value": "1000"
     },
@@ -176,15 +174,28 @@
         "comment": "When using a sigmoid function to transform the individual's fitness,",
         "comment": "this parameter sets the upper\/lower boundary of the sigmoid.",
         "comment": "The parameter must have a value > 0.",
-        "comment": "[GOptimizableEntity]",
         "default": "10000",
         "value": "10000"
+    },
+    "maxUnsuccessfulAdaptions":
+    {
+        "comment": "The maximum number of unsuccessful adaptions in a row for one call to adapt()",
+        "default": "1000",
+        "value": "1000"
+    },
+    "maxRetriesUntilValid":
+    {
+        "comment": "The maximum allowed number of retries during the",
+        "comment": "adaption of individuals until a valid solution was found",
+        "comment": "A parameter set is considered to be \"valid\" if",
+        "comment": "it passes all validity checks",
+        "default": "10",
+        "value": "10"
     },
     "maximize":
     {
         "comment": "Specifies whether the individual should be maximized (1) or minimized (0)",
         "comment": "Note that minimization is the by far most common option.",
-        "comment": "[GParameterset]",
         "default": "0",
         "value": "0"
     },
@@ -192,7 +203,6 @@
     {
         "comment": "The likelihood for two data items to be exchanged",
         "comment": "in a \"per-item\" cross-over operation",
-        "comment": "[GParameterset]",
         "default": "0.5",
         "value": "0.5"
     },
@@ -207,7 +217,6 @@
         "comment": "5: Schwefel",
         "comment": "6: Salomon",
         "comment": "7: Negative Parabola",
-        "comment": "[GFunctionIndividual]",
         "default": "0",
         "value": "0"
     }

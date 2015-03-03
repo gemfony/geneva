@@ -2,13 +2,13 @@
 // This is a not so complicated header
 // with a second line
 // and a third line as well
-// File creation date: 2013-Aug-27 12:33:52
+// File creation date: 2015-Mar-03 00:00:05
 //-----------------------------------------------------------------
 
 {
     "iOption2":
     {
-        "comment": "This is a comment for call-back option",
+        "comment": "This is a comment for a call-back option",
         "default": "1",
         "value": "1"
     },

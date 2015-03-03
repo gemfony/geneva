@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------
 // This configuration file was automatically created by GParserBuilder
-// File creation date: 2013-Mar-10 17:43:49
+// File creation date: 2015-Mar-03 00:00:14
 //-----------------------------------------------------------------
 
 {
@@ -50,7 +50,7 @@
     "sigma2":
     {
         "comment": "The sigma of the right peak of a double gaussian (if any)",
-        "default": "0.5",
+        "default": "0.025",
         "value": "0.025"
     },
     "sigmaSigma2":
@@ -98,8 +98,14 @@
     "programName":
     {
         "comment": "The name of the external evaluation program",
-        "default": ".\/evaluator",
-        "value": "./scripts/evaluator.py"
+        "default": ".\/scripts\/evaluator.py",
+        "value": ".\/scripts\/evaluator.py"
+    },
+    "customOptions":
+    {
+        "comment": "Any custom options you wish to pass to the external evaluator",
+        "default": "empty",
+        "value": "empty"
     },
     "parameterFile":
     {
@@ -108,12 +114,66 @@
         "default": "parameterFile",
         "value": "parameterFile"
     },
+    "initValues":
+    {
+        "comment": "Indicates, whether individuals should be initialized randomly (random),",
+        "comment": "with the lower (min) or upper (max) boundary of their value ranges",
+        "default": "random",
+        "value": "random"
+    },
+    "evalPolicy":
+    {
+        "comment": "Specifies which strategy should be used to calculate the evaluation:",
+        "comment": "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid solutions",
+        "comment": "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions",
+        "comment": "2 (a.k.a. USESIGMOID): Assign a multiple of validityLevel_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations",
+        "comment": "3 (a.k.a. USEWORSTKNOWNVALIDFORINVALID): Assign \"invalidityLevel*worstKnownValid\" to invalid individuals, using normal evaluation otherwise",
+        "default": "0",
+        "value": "0"
+    },
+    "steepness":
+    {
+        "comment": "When using a sigmoid function to transform the individual's fitness,",
+        "comment": "this parameter influences the steepness of the function at the center of the sigmoid.",
+        "comment": "The parameter must have a value > 0.",
+        "default": "1000",
+        "value": "1000"
+    },
+    "barrier":
+    {
+        "comment": "When using a sigmoid function to transform the individual's fitness,",
+        "comment": "this parameter sets the upper\/lower boundary of the sigmoid.",
+        "comment": "The parameter must have a value > 0.",
+        "default": "10000",
+        "value": "10000"
+    },
+    "maxUnsuccessfulAdaptions":
+    {
+        "comment": "The maximum number of unsuccessful adaptions in a row for one call to adapt()",
+        "default": "1000",
+        "value": "1000"
+    },
+    "maxRetriesUntilValid":
+    {
+        "comment": "The maximum allowed number of retries during the",
+        "comment": "adaption of individuals until a valid solution was found",
+        "comment": "A parameter set is considered to be \"valid\" if",
+        "comment": "it passes all validity checks",
+        "default": "10",
+        "value": "10"
+    },
     "maximize":
     {
         "comment": "Specifies whether the individual should be maximized (1) or minimized (0)",
         "comment": "Note that minimization is the by far most common option.",
-        "comment": "[GParameterset]",
         "default": "0",
         "value": "0"
+    },
+    "perItemCrossOverProbability":
+    {
+        "comment": "The likelihood for two data items to be exchanged",
+        "comment": "in a \"per-item\" cross-over operation",
+        "default": "0.5",
+        "value": "0.5"
     }
 }

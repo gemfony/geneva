@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------
 // This configuration file was automatically created by GParserBuilder
-// File creation date: 2014-Mar-16 15:30:47
+// File creation date: 2015-Mar-03 00:00:26
 //-----------------------------------------------------------------
 
 {
@@ -203,7 +203,6 @@
         "comment": "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions",
         "comment": "2 (a.k.a. USESIGMOID): Assign a multiple of validityLevel_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations",
         "comment": "3 (a.k.a. USEWORSTKNOWNVALIDFORINVALID): Assign \"invalidityLevel*worstKnownValid\" to invalid individuals, using normal evaluation otherwise",
-        "comment": "[GOptimizableEntity]",
         "default": "0",
         "value": "0"
     },
@@ -212,7 +211,6 @@
         "comment": "When using a sigmoid function to transform the individual's fitness,",
         "comment": "this parameter influences the steepness of the function at the center of the sigmoid.",
         "comment": "The parameter must have a value > 0.",
-        "comment": "[GOptimizableEntity]",
         "default": "1000",
         "value": "1000"
     },
@@ -221,22 +219,28 @@
         "comment": "When using a sigmoid function to transform the individual's fitness,",
         "comment": "this parameter sets the upper\/lower boundary of the sigmoid.",
         "comment": "The parameter must have a value > 0.",
-        "comment": "[GOptimizableEntity]",
         "default": "10000",
         "value": "10000"
     },
     "maxUnsuccessfulAdaptions":
     {
         "comment": "The maximum number of unsuccessful adaptions in a row for one call to adapt()",
-        "comment": "[GOptimizableEntity]",
         "default": "1000",
         "value": "1000"
+    },
+    "maxRetriesUntilValid":
+    {
+        "comment": "The maximum allowed number of retries during the",
+        "comment": "adaption of individuals until a valid solution was found",
+        "comment": "A parameter set is considered to be \"valid\" if",
+        "comment": "it passes all validity checks",
+        "default": "10",
+        "value": "10"
     },
     "maximize":
     {
         "comment": "Specifies whether the individual should be maximized (1) or minimized (0)",
         "comment": "Note that minimization is the by far most common option.",
-        "comment": "[GParameterset]",
         "default": "0",
         "value": "0"
     },
@@ -244,25 +248,24 @@
     {
         "comment": "The likelihood for two data items to be exchanged",
         "comment": "in a \"per-item\" cross-over operation",
-        "comment": "[GParameterset]",
         "default": "0.5",
         "value": "0.5"
     },
     "nRunsPerOptimization":
     {
-        "comment": "Specifies the number of optimizations performed[GMetaOptimizerIndividualT<ind_type>]",
+        "comment": "Specifies the number of optimizations performed",
         "default": "10",
         "value": "10"
     },
     "fitnessTarget":
     {
-        "comment": "The fitness below which optimization should stop[GMetaOptimizerIndividualT<ind_type>]",
+        "comment": "The fitness below which optimization should stop",
         "default": "0.001",
         "value": "0.001"
     },
     "iterationThreshold":
     {
-        "comment": "The maximum number of iterations per sub-optimization[GMetaOptimizerIndividualT<ind_type>]",
+        "comment": "The maximum number of iterations per sub-optimization",
         "default": "10000",
         "value": "10000"
     },
@@ -271,21 +274,12 @@
         "comment": "The target for the meta-optimization: best fitness (0),",
         "comment": "minimum number of solver calls (1), multi-criterion with best fitness",
         "comment": "and smallest number of solver calls as target (2)",
-        "comment": "[GMetaOptimizerIndividualT<ind_type>]",
         "default": "0",
         "value": "0"
-    },
-    "individualConfig":
-    {
-        "comment": "Path and name of the configuration file used for (sub-)individuals",
-        "comment": "[GMetaOptimizerIndividualT<ind_type>]",
-        "default": ".\/config\/GFunctionIndividual.json",
-        "value": ".\/config\/GFunctionIndividual.json"
     },
     "subEAConfig":
     {
         "comment": "Path and name of the configuration file used for the (sub-)evolutionary algorithm",
-        "comment": "[GMetaOptimizerIndividualT<ind_type>]",
         "default": ".\/config\/GSubEvolutionaryAlgorithm.json",
         "value": ".\/config\/GSubEvolutionaryAlgorithm.json"
     },
@@ -293,7 +287,6 @@
     {
         "comment": "The execution mode for the sub-optimization algorithm:",
         "comment": "serial (0\/false), multithreaded (1\/true)",
-        "comment": "[GMetaOptimizerIndividualT<ind_type>]",
         "default": "true",
         "value": "true"
     }
