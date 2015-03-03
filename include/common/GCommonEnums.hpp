@@ -58,7 +58,7 @@
  * We need local signals, so we can act both on Windows and POSIX-OSs
  */ 
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-#define G_SIGHUP CTRL_BREAK_EVENT
+#define G_SIGHUP CTRL_CLOSE_EVENT
 #else
 #define G_SIGHUP SIGHUP
 #endif
