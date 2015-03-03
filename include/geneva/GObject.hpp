@@ -280,7 +280,7 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * A handler for SIGHUP or CTRL_BREAK_EVENT signals. This function should work
+	 * A handler for SIGHUP or CTRL_CLOSE_EVENT signals. This function should work
 	 * both for Windows and Unix-Systems.
 	 */
 	static void sigHupHandler(int signum) {

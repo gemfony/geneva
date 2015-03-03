@@ -1652,10 +1652,10 @@ private:
 
    /***************************************************************************/
 	/**
-	 * This function returns true if a SIGHUP / CTRL_BREAK_EVENT signal was sent (provided the user
+	 * This function returns true if a SIGHUP / CTRL_CLOSE_EVENT signal was sent (provided the user
 	 * has registered the GObject::sigHupHandler signal handler
 	 *
-	 * @return A boolean indicating whether the program was interrupted with a SIGHUP signal
+	 * @return A boolean indicating whether the program was interrupted with a SIGHUP or CTRL_CLOSE_EVENT signal
 	 */
 	bool sigHupHalt() const {
 	   if(1==GObject::GenevaSigHupSent) {
