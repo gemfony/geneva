@@ -96,13 +96,13 @@ namespace Geneva {
 /**
  * A single data set holding the training data of a single training iteration
  */
-struct G_API trainingSet
+struct trainingSet
 {
 	/////////////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
    template<typename Archive>
-   void load(Archive & ar, const unsigned int) {
+   G_API void load(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
       ar
@@ -120,7 +120,7 @@ struct G_API trainingSet
    }
 
    template<typename Archive>
-   void save(Archive & ar, const unsigned int) const {
+   G_API void save(Archive & ar, const unsigned int) const {
       using boost::serialization::make_nvp;
 
       ar
@@ -136,22 +136,22 @@ struct G_API trainingSet
 	/////////////////////////////////////////////////////////////////////////////
 
 	/** @brief The constructor */
-	trainingSet(const std::size_t&, const std::size_t&);
+   G_API trainingSet(const std::size_t&, const std::size_t&);
    /** @brief A copy constructor */
-   trainingSet(const trainingSet&);
+   G_API trainingSet(const trainingSet&);
 	/** @brief The destructor */
-	virtual ~trainingSet();
+	virtual G_API ~trainingSet();
 
 	/** @brief Assigns another trainingSet's data to this object */
-	const trainingSet& operator=(const trainingSet&);
+	G_API const trainingSet& operator=(const trainingSet&);
 	/** @brief Checks for equality with another trainingSet object */
 
-	bool operator==(const trainingSet&) const;
+	G_API bool operator==(const trainingSet&) const;
 	/** @brief Checks for inequality with another trainingSet object */
-	bool operator!=(const trainingSet&) const;
+	G_API bool operator!=(const trainingSet&) const;
 
 	/** @brief Checks whether a given expectation is fulfilled. */
-	boost::optional<std::string> checkRelationshipWith(
+	G_API boost::optional<std::string> checkRelationshipWith(
       const trainingSet&
       , const Gem::Common::expectation&
       , const double&
@@ -185,14 +185,14 @@ private:
  * the first attached number being the input layer and the last one the output layer. In-between
  * numbers are hidden layers.
  */
-class G_API networkData
+class networkData
 	:public GStdSimpleVectorInterfaceT<std::size_t>
 {
    /////////////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
 
    template<typename Archive>
-   void load(Archive & ar, const unsigned int) {
+   G_API void load(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
       ar
@@ -217,7 +217,7 @@ class G_API networkData
    }
 
    template<typename Archive>
-   void save(Archive & ar, const unsigned int) const {
+   G_API void save(Archive & ar, const unsigned int) const {
       using boost::serialization::make_nvp;
 
       ar
@@ -235,24 +235,24 @@ class G_API networkData
 public:
    /***************************************************************************/
    /** @brief Initialization with the amount of entries */
-   explicit networkData(const std::size_t&);
+   explicit G_API networkData(const std::size_t&);
 	/** @brief Initialization with data from file */
-	explicit networkData(const std::string&);
+	explicit G_API networkData(const std::string&);
 	/** @brief The copy constructor */
-	networkData(const networkData&);
+	G_API networkData(const networkData&);
 	/** @brief A standard destructor. */
-	virtual ~networkData();
+	virtual G_API ~networkData();
 
 	/** @brief Copies the data of another networkData object */
-	const networkData& operator=(const networkData&);
+	G_API const networkData& operator=(const networkData&);
 
 	/** @brief Checks for equality with another networkData object */
-	bool operator==(const networkData&) const;
+	G_API bool operator==(const networkData&) const;
 	/** @brief Checks for inequality with another networkData object */
-	bool operator!=(const networkData&) const;
+	G_API bool operator!=(const networkData&) const;
 
 	/** @brief Checks whether a given expectation is fulfilled. */
-	boost::optional<std::string> checkRelationshipWith(const networkData&,
+	G_API boost::optional<std::string> checkRelationshipWith(const networkData&,
       const Gem::Common::expectation&,
       const double&,
       const std::string&,
@@ -261,40 +261,40 @@ public:
    ) const;
 
 	/** @brief Saves the data of this struct to disc */
-	void saveToDisk(const std::string&) const;
+	G_API void saveToDisk(const std::string&) const;
 	/** @brief Loads training data from the disc */
-	void loadFromDisk(const std::string&);
+	G_API void loadFromDisk(const std::string&);
 
 	/** @brief Adds a new training set to the collection, Requires for the network architecture to be defined already */
-	void addTrainingSet(boost::shared_ptr<trainingSet>, const std::size_t&);
+	G_API void addTrainingSet(boost::shared_ptr<trainingSet>, const std::size_t&);
 	/** @brief Retrieves  training set at a given position */
-	boost::optional<boost::shared_ptr<trainingSet> > getTrainingSet(const std::size_t&) const;
+	G_API boost::optional<boost::shared_ptr<trainingSet> > getTrainingSet(const std::size_t&) const;
 
 	/** @brief Retrieves the number of input nodes of this network */
-	std::size_t getNInputNodes() const;
+	G_API std::size_t getNInputNodes() const;
 	/** @brief Retrieves the number of output nodes of this network */
-	std::size_t getNOutputNodes() const;
+	G_API std::size_t getNOutputNodes() const;
 
 	/** @brief Saves this data set in ROOT format for visual inspection */
-	void toROOT(const std::string&, const double&, const double&);
+	G_API void toROOT(const std::string&, const double&, const double&);
 
 	/** @brief Allows to check whether an initialization range has been set */
-	bool initRangeSet() const;
+	G_API bool initRangeSet() const;
 	/** @brief Allows to set the initialization range */
-	void setInitRange(const std::vector<boost::tuple<double, double> >& initRange);
+	G_API void setInitRange(const std::vector<boost::tuple<double, double> >& initRange);
 	/** @brief Allows to retrieve the initialization range */
-	std::vector<boost::tuple<double, double> > getInitRange() const;
+	G_API std::vector<boost::tuple<double, double> > getInitRange() const;
 
 	/** @brief Allows to retrieve a string that describes the network geometry */
-	std::string getNetworkGeometryString() const;
+	G_API std::string getNetworkGeometryString() const;
 
 	/** @brief Creates a deep clone of this object */
-	boost::shared_ptr<networkData> clone() const;
+	G_API boost::shared_ptr<networkData> clone() const;
 
 protected:
    /***************************************************************************/
 	/** @brief This function is purely virtual in our parent class*/
-	virtual void dummyFunction() { /* nothing */ };
+	virtual G_API void dummyFunction() { /* nothing */ };
 
 private:
    /***************************************************************************/
@@ -364,7 +364,7 @@ const transferFunction GNN_DEF_TRANSFER = SIGMOID;
  * With this individual you can use Genevas optimization algorithms instead of the
  * standard back-propagation algorithm to train feed-forward neural networks.
  */
-class G_API GNeuralNetworkIndividual
+class GNeuralNetworkIndividual
 	:public GParameterSet
 {
 	/////////////////////////////////////////////////////////////////////////////
@@ -372,7 +372,7 @@ class G_API GNeuralNetworkIndividual
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void load(Archive & ar, const unsigned int) {
+	G_API void load(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
 		ar
@@ -383,7 +383,7 @@ class G_API GNeuralNetworkIndividual
 	}
 
 	template<typename Archive>
-	void save(Archive & ar, const unsigned int) const {
+	G_API void save(Archive & ar, const unsigned int) const {
 		using boost::serialization::make_nvp;
 
 		ar
@@ -397,9 +397,9 @@ class G_API GNeuralNetworkIndividual
 public:
    /***************************************************************************/
 	/** @brief The default constructor */
-   GNeuralNetworkIndividual();
+	G_API GNeuralNetworkIndividual();
 	/** @brief A constructor which initializes the individual with a suitable set of network layers */
-	GNeuralNetworkIndividual(
+	G_API GNeuralNetworkIndividual(
       const double& /* min */, const double& /* max */
       , const double& /* sigma */, const double& /* sigmaSigma */
       , const double& /* minSigma */, const double& /* maxSigma */
@@ -407,20 +407,20 @@ public:
       , const double& /* minAdProb */, const double& /* maxAdProb */
 	);
 	/** @brief A standard copy constructor */
-	GNeuralNetworkIndividual(const GNeuralNetworkIndividual& cp);
+	G_API GNeuralNetworkIndividual(const GNeuralNetworkIndividual& cp);
 	/** @brief The standard destructor */
-	virtual ~GNeuralNetworkIndividual();
+	virtual G_API ~GNeuralNetworkIndividual();
 
 	/** @brief A standard assignment operator */
-	const GNeuralNetworkIndividual& operator=(const GNeuralNetworkIndividual& cp);
+	G_API const GNeuralNetworkIndividual& operator=(const GNeuralNetworkIndividual& cp);
 
 	/** @brief Checks for equality with another GNeuralNetworkIndividual object */
-	bool operator==(const GNeuralNetworkIndividual& cp) const;
+	G_API bool operator==(const GNeuralNetworkIndividual& cp) const;
 	/** @brief Checks for inequality with another GNeuralNetworkIndividual object */
-	bool operator!=(const GNeuralNetworkIndividual& cp) const;
+	G_API bool operator!=(const GNeuralNetworkIndividual& cp) const;
 
 	/** @brief Checks whether a given expectation for the relationship is fulfilled */
-	boost::optional<std::string> checkRelationshipWith(
+	G_API boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -430,7 +430,7 @@ public:
 	) const;
 
 	/** @brief Initialization according to user-specifications */
-   void init(
+	G_API void init(
       const double& /* min */, const double& /* max */
       , const double& /* sigma */, const double& /* sigmaSigma */
       , const double& /* minSigma */, const double& /* maxSigma */
@@ -439,9 +439,9 @@ public:
    );
 
    /** @brief Sets the type of the transfer function */
-   void setTransferFunction(transferFunction tF);
+	G_API void setTransferFunction(transferFunction tF);
    /** @brief Retrieves the type of the transfer function */
-   transferFunction getTransferFunction() const;
+	G_API transferFunction getTransferFunction() const;
 
 	/***************************************************************************/
 	/**
@@ -456,7 +456,7 @@ public:
 	 * @param edgelength The desired edge length of the cube
 	 * @return A copy of the networkData struct that has been created, wrapped in a shared_ptr
 	 */
-	static boost::shared_ptr<networkData> createHyperCubeNetworkData (
+	static G_API boost::shared_ptr<networkData> createHyperCubeNetworkData (
 			const std::vector<std::size_t>& architecture
 		  , const std::size_t& nDataSets
 		  , const double& edgelength
@@ -550,7 +550,7 @@ public:
 	 * @param radius The desired radius of the sphere
 	 * @return A copy of the networkData struct that has been created, wrapped in a shared_ptr
 	 */
-	static boost::shared_ptr<networkData> createHyperSphereNetworkData (
+	static G_API boost::shared_ptr<networkData> createHyperSphereNetworkData (
 			const std::vector<std::size_t>& architecture
 		  , const std::size_t& nDataSets
 		  , const double& radius
@@ -692,7 +692,7 @@ public:
 	 * @param nDataSets The number of training sets to create
 	 * @return A copy of the networkData struct that has been created, wrapped in a shared_ptr
 	 */
-	static boost::shared_ptr<networkData> createAxisCentricNetworkData (
+	static G_API boost::shared_ptr<networkData> createAxisCentricNetworkData (
 			const std::vector<std::size_t>& architecture
 		  , const std::size_t& nDataSets
 	) {
@@ -802,7 +802,7 @@ public:
 	 * @param nDataSets The number of training sets to create
 	 * @return A copy of the networkData struct that has been created, wrapped in a shared_ptr
 	 */
-	static boost::shared_ptr<networkData> createSinNetworkData (
+	static G_API boost::shared_ptr<networkData> createSinNetworkData (
 			const std::vector<std::size_t>& architecture
 		  , const std::size_t& nDataSets
 	) {
@@ -894,11 +894,11 @@ public:
 	 * @param architecture_string The desired architecture of the network in std::string format
 	 * @param nDataSets The number of data sets to be produced
 	 */
-	static void createNetworkData(
-	      const Gem::Geneva::trainingDataType& t
-	     , const std::string& outputFile
-	     , const std::string& architecture_string
-	     , const std::size_t& nDataSets
+	static G_API void createNetworkData(
+      const Gem::Geneva::trainingDataType& t
+     , const std::string& outputFile
+     , const std::string& architecture_string
+     , const std::size_t& nDataSets
 	) {
 	   // Split the architecture_string as needed. I
 	   std::vector<std::size_t> architecture = Gem::Common::splitStringT<std::size_t>(architecture_string, "-");
@@ -967,19 +967,19 @@ public:
 
    /***************************************************************************/
 	/** @brief Creates a program used  for the visualization of optimization results */
-	void writeVisualizationFile(const std::string& visFile);
+	G_API void writeVisualizationFile(const std::string& visFile);
 	/** @brief Creates a C++ output file for the trained network */
-	void writeTrainedNetwork(const std::string& headerFile);
+	G_API void writeTrainedNetwork(const std::string& headerFile);
 
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GNeuralNetworkIndividual */
-	virtual void load_(const GObject* cp);
+	virtual G_API void load_(const GObject* cp);
 	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone_() const;
+	virtual G_API GObject* clone_() const;
 
 	/** @brief The actual fitness calculation */
-	virtual double fitnessCalculation() OVERRIDE;
+	virtual G_API double fitnessCalculation() OVERRIDE;
 
 private:
 	/***************************************************************************/
@@ -998,27 +998,27 @@ private:
 /**
  * A factory for GNeuralNetworkIndividual objects
  */
-class G_API GNeuralNetworkIndividualFactory
+class GNeuralNetworkIndividualFactory
    : public Gem::Common::GFactoryT<GParameterSet>
 {
 public:
    /** @brief The standard constructor */
-   GNeuralNetworkIndividualFactory(const std::string&);
+   G_API GNeuralNetworkIndividualFactory(const std::string&);
    /** @brief The destructor */
-   virtual ~GNeuralNetworkIndividualFactory();
+   virtual G_API ~GNeuralNetworkIndividualFactory();
 
    /** @brief Sets the type of the transfer function */
-   void setTransferFunction(transferFunction tF);
+   G_API void setTransferFunction(transferFunction tF);
    /** @brief Retrieves the type of the transfer function */
-   transferFunction getTransferFunction() const;
+   G_API transferFunction getTransferFunction() const;
 
 protected:
    /** @brief Creates individuals of this type */
-   virtual boost::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
+   G_API virtual boost::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
    /** @brief Allows to describe local configuration options in derived classes */
-   virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
+   G_API virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
    /** @brief Allows to act on the configuration options received from the configuration file */
-   virtual void postProcess_(boost::shared_ptr<GParameterSet>&);
+   G_API virtual void postProcess_(boost::shared_ptr<GParameterSet>&);
 
 private:
    /** @brief The default constructor. Intentionally private and undefined */
@@ -1072,7 +1072,7 @@ template <> boost::shared_ptr<Gem::Geneva::networkData> TFactory_GSingletonT();
  * specialization of the factory function that creates GStartProjectIndividual objects
  */
 template <>
-inline boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual>
+inline G_API boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual>
 TFactory_GUnitTests<Gem::Geneva::GNeuralNetworkIndividual>() {
    return boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual>(
          new Gem::Geneva::GNeuralNetworkIndividual(

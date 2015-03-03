@@ -127,14 +127,14 @@ const std::string GEEI_DEF_STARTMODE = "random";
  * The xml parameter file is created using boost::property_tree and its write_xml utility.
  * Hence the external program needs to understand this format.
  */
-class G_API GExternalEvaluatorIndividual :public GParameterSet
+class GExternalEvaluatorIndividual :public GParameterSet
  {
 	///////////////////////////////////////////////////////////////////////
 
    friend class boost::serialization::access;
 
 	template<class Archive>
-	void serialize(Archive & ar, const unsigned int) {
+	G_API void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
 		ar
@@ -149,22 +149,22 @@ class G_API GExternalEvaluatorIndividual :public GParameterSet
 
  public:
    /** @brief The default constructor */
-   GExternalEvaluatorIndividual();
+	G_API GExternalEvaluatorIndividual();
 	/** @brief A standard copy constructor */
-	GExternalEvaluatorIndividual(const GExternalEvaluatorIndividual&);
+	G_API GExternalEvaluatorIndividual(const GExternalEvaluatorIndividual&);
 	/** @brief The standard destructor */
-	~GExternalEvaluatorIndividual();
+	virtual G_API ~GExternalEvaluatorIndividual();
 
 	/** @brief A standard assignment operator */
-	const GExternalEvaluatorIndividual& operator=(const GExternalEvaluatorIndividual&);
+	G_API const GExternalEvaluatorIndividual& operator=(const GExternalEvaluatorIndividual&);
 
 	/** @brief Checks for equality with another GExternalEvaluatorIndividual object */
-	bool operator==(const GExternalEvaluatorIndividual&) const;
+	G_API bool operator==(const GExternalEvaluatorIndividual&) const;
 	/** @brief Checks for inequality with another GExternalEvaluatorIndividual object */
-	bool operator!=(const GExternalEvaluatorIndividual&) const;
+	G_API bool operator!=(const GExternalEvaluatorIndividual&) const;
 
 	/** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
-	boost::optional<std::string> checkRelationshipWith(
+	G_API boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -174,36 +174,36 @@ class G_API GExternalEvaluatorIndividual :public GParameterSet
    ) const;
 
    /** @brief Sets the name of the external evaluation program */
-   void setProgramName(const std::string&);
+	G_API void setProgramName(const std::string&);
    /** @brief Retrieves the name of the external evaluation program */
-   std::string getProgramName() const;
+	G_API std::string getProgramName() const;
 
    /** @brief Sets any custom options that need to be passed to the external evaluation program */
-   void setCustomOptions(const std::string&);
+	G_API void setCustomOptions(const std::string&);
    /** @brief Retrieves any custom options that need to be passed to the external evaluation program */
-   std::string getCustomOptions() const;
+	G_API std::string getCustomOptions() const;
 
 	/** @brief Sets the base name of the data exchange file */
-	void setExchangeFileName(const std::string&);
+	G_API void setExchangeFileName(const std::string&);
 	/** @brief Retrieves the current value of the parameterFileBaseName_ variable */
-	std::string getExchangeFileName() const;
+	G_API std::string getExchangeFileName() const;
 
 	/** @brief Sets the number of results to be expected from the external evaluation program */
-	void setNExpectedResults(const std::size_t&);
+	G_API void setNExpectedResults(const std::size_t&);
 	/** @brief Retrieves the number of results to be expected from the external evaluation program */
-	std::size_t getNExpectedResults() const;
+	G_API std::size_t getNExpectedResults() const;
 
 	/** @brief Triggers archiving of the evaluation results */
-	void archive() const;
+	G_API void archive() const;
 
  protected:
 	/** @brief Loads the data of another GExternalEvaluatorIndividual */
-	virtual void load_(const GObject*);
+	virtual G_API void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone_() const;
+	virtual G_API GObject* clone_() const;
 
 	/** @brief The actual fitness calculation takes place here */
-	virtual double fitnessCalculation() OVERRIDE;
+	virtual G_API double fitnessCalculation() OVERRIDE;
 
  private:
 	/***************************************************************************/
@@ -220,119 +220,119 @@ class G_API GExternalEvaluatorIndividual :public GParameterSet
 /**
  * A factory for GExternalEvaluatorIndividual objects
  */
-class G_API GExternalEvaluatorIndividualFactory
+class GExternalEvaluatorIndividualFactory
    : public Gem::Common::GFactoryT<GParameterSet>
 {
 public:
    /** @brief The standard constructor */
-   GExternalEvaluatorIndividualFactory(const std::string&);
+   G_API GExternalEvaluatorIndividualFactory(const std::string&);
    /** @brief The destructor */
-   virtual ~GExternalEvaluatorIndividualFactory();
+   virtual G_API ~GExternalEvaluatorIndividualFactory();
 
    /**************************************************************************/
    // Getters and setters
 
    /** @brief Allows to retrieve the adaptionThreshold_ variable */
-   boost::uint32_t getAdaptionThreshold() const;
+   G_API boost::uint32_t getAdaptionThreshold() const;
    /** @brief Set the value of the adaptionThreshold_ variable */
-   void setAdaptionThreshold(boost::uint32_t adaptionThreshold);
+   G_API void setAdaptionThreshold(boost::uint32_t adaptionThreshold);
 
    /** @brief Allows to retrieve the adProb_ variable */
-   double getAdProb() const;
+   G_API double getAdProb() const;
    /** @brief Set the value of the adProb_ variable */
-   void setAdProb(double adProb);
+   G_API void setAdProb(double adProb);
 
    /** @brief Allows to retrieve the useBiGaussian_ variable */
-   bool getUseBiGaussian() const;
+   G_API bool getUseBiGaussian() const;
    /** @brief Set the value of the useBiGaussian_ variable */
-   void setUseBiGaussian(bool useBiGaussian);
+   G_API void setUseBiGaussian(bool useBiGaussian);
 
    /** @brief Allows to retrieve the delta_ variable */
-   double getDelta() const;
+   G_API double getDelta() const;
    /** @brief Set the value of the delta_ variable */
-   void setDelta(double delta);
+   G_API void setDelta(double delta);
    /** @brief Allows to retrieve the minDelta_ variable */
-   double getMinDelta() const;
+   G_API double getMinDelta() const;
    /** @brief Allows to retrieve the maxDelta_ variable */
-   double getMaxDelta() const;
+   G_API double getMaxDelta() const;
    /** @brief Allows to retrieve the allowed value range of delta */
-   boost::tuple<double, double> getDeltaRange() const;
+   G_API boost::tuple<double, double> getDeltaRange() const;
    /** @brief Allows to set the allowed value range of delta */
-   void setDeltaRange(boost::tuple<double, double>);
+   G_API void setDeltaRange(boost::tuple<double, double>);
 
    /** @brief Allows to retrieve the minSigma1_ variable */
-   double getMinSigma1() const;
+   G_API double getMinSigma1() const;
    /** @brief Allows to retrieve the maxSigma1_ variable */
-   double getMaxSigma1() const;
+   G_API double getMaxSigma1() const;
    /** @brief Allows to retrieve the allowed value range of sigma1_ */
-   boost::tuple<double, double> getSigma1Range() const;
+   G_API boost::tuple<double, double> getSigma1Range() const;
    /** @brief Allows to set the allowed value range of sigma1_ */
-   void setSigma1Range(boost::tuple<double, double>);
+   G_API void setSigma1Range(boost::tuple<double, double>);
 
    /** @brief Allows to retrieve the minSigma2_ variable */
-   double getMinSigma2() const;
+   G_API double getMinSigma2() const;
    /** @brief Allows to retrieve the maxSigma2_ variable */
-   double getMaxSigma2() const;
+   G_API double getMaxSigma2() const;
    /** @brief Allows to retrieve the allowed value range of sigma2_ */
-   boost::tuple<double, double> getSigma2Range() const;
+   G_API boost::tuple<double, double> getSigma2Range() const;
    /** @brief Allows to set the allowed value range of sigma2_ */
-   void setSigma2Range(boost::tuple<double, double>);
+   G_API void setSigma2Range(boost::tuple<double, double>);
 
    /** @brief Allows to retrieve the sigma1_ variable */
-   double getSigma1() const;
+   G_API double getSigma1() const;
    /** @brief Set the value of the sigma1_ variable */
-   void setSigma1(double sigma1);
+   G_API void setSigma1(double sigma1);
 
    /** @brief Allows to retrieve the sigma2_ variable */
-   double getSigma2() const;
+   G_API double getSigma2() const;
    /** @brief Set the value of the sigma2_ variable */
-   void setSigma2(double sigma2);
+   G_API void setSigma2(double sigma2);
 
    /** @brief Allows to retrieve the sigmaDelta_ variable */
-   double getSigmaDelta() const;
+   G_API double getSigmaDelta() const;
    /** @brief Set the value of the sigmaDelta_ variable */
-   void setSigmaDelta(double sigmaDelta);
+   G_API void setSigmaDelta(double sigmaDelta);
 
    /** @brief Allows to retrieve the sigmaSigma1_ variable */
-   double getSigmaSigma1() const;
+   G_API double getSigmaSigma1() const;
    /** @brief Set the value of the sigmaSigma1_ variable */
-   void setSigmaSigma1(double sigmaSigma1);
+   G_API void setSigmaSigma1(double sigmaSigma1);
 
    /** @brief Allows to retrieve the sigmaSigma2_ variable */
-   double getSigmaSigma2() const;
+   G_API double getSigmaSigma2() const;
    /** @brief Set the value of the sigmaSigma2_ variable */
-   void setSigmaSigma2(double sigmaSigma2);
+   G_API void setSigmaSigma2(double sigmaSigma2);
 
    /** @brief Allows to set the name and path of the external program */
-   void setProgramName(std::string);
+   G_API void setProgramName(std::string);
    /** @brief Allows to retrieve the name of the external program */
-   std::string getProgramName() const;
+   G_API std::string getProgramName() const;
 
    /** @brief Sets any custom options that need to be passed to the external evaluation program */
-   void setCustomOptions(const std::string);
+   G_API void setCustomOptions(const std::string);
    /** @brief Retrieves any custom options that need to be passed to the external evaluation program */
-   std::string getCustomOptions() const;
+   G_API std::string getCustomOptions() const;
 
    /** @brief Allows to set the base name of the parameter file */
-   void setParameterFileBaseName(std::string);
+   G_API void setParameterFileBaseName(std::string);
    /** @brief Allows to retrieve the base name of the parameter file */
-   std::string getParameterFileBaseName() const;
+   G_API std::string getParameterFileBaseName() const;
 
    /** @brief Indicates the initialization mode */
-   void setInitValues(std::string);
+   G_API void setInitValues(std::string);
    /** @brief Allows to retrieve the initialization mode */
-   std::string getInitValues() const;
+   G_API std::string getInitValues() const;
 
    // End of public getters and setters
    /**************************************************************************/
 
 protected:
    /** @brief Creates individuals of this type */
-   virtual boost::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
+   virtual G_API boost::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
    /** @brief Allows to describe local configuration options in derived classes */
-   virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
+   virtual G_API void describeLocalOptions_(Gem::Common::GParserBuilder&);
    /** @brief Allows to act on the configuration options received from the configuration file */
-   virtual void postProcess_(boost::shared_ptr<GParameterSet>&);
+   virtual G_API void postProcess_(boost::shared_ptr<GParameterSet>&);
 
 private:
    /** @brief Sets up the boost property object holding information about the individual structure */
