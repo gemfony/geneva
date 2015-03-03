@@ -97,31 +97,31 @@ namespace Hap {
  * A start seed for the seeding sequence is either taken from a non deterministic
  * generator, or can be provided by the user.
  */
-class G_API GSeedManager:
+class GSeedManager:
 	private boost::noncopyable // prevents this class from being copied
 {
 public:
 	/** @brief The default constructor. */
-	GSeedManager();
+   G_API GSeedManager();
 	/** @brief Initialization with a start seed */
 	explicit GSeedManager(const initial_seed_type& startSeed, const std::size_t& seedQueueSize = DEFAULTSEEDQUEUESIZE);
 	/** @brief The destructor */
-	~GSeedManager();
+	G_API ~GSeedManager();
 
 	/** @brief Allows different objects to retrieve seeds concurrently */
-	seed_type getSeed();
+	G_API seed_type getSeed();
 
 	/** @brief Allows different objects to retrieve seeds concurrently, observing a time-out. */
-	seed_type getSeed(const boost::posix_time::time_duration&);
+	G_API seed_type getSeed(const boost::posix_time::time_duration&);
 
 	/** @brief Checks whether the global seeding has already started */
-	bool checkSeedingIsInitialized() const;
+	G_API bool checkSeedingIsInitialized() const;
 
 	/** @brief Retrieves the value of the initial start seed */
-	initial_seed_type getStartSeed() const;
+	G_API initial_seed_type getStartSeed() const;
 
 	/** @brief Retrieves the maximum size of the seed queue */
-	std::size_t getQueueSize() const;
+	G_API std::size_t getQueueSize() const;
 
 private:
 	/***************************************************************************/

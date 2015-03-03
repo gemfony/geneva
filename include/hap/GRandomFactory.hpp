@@ -111,43 +111,43 @@ namespace Hap {
  * the "quality" of random numbers is of less concern in evolutionary algorithms, as the
  * geometry of the quality surface adds to the randomness.
  */
-class G_API GRandomFactory {
+class GRandomFactory {
 	typedef boost::lagged_fibonacci19937 lagged_fibonacci;
 
 public:
 	/** @brief The default constructor */
-	GRandomFactory();
+	G_API GRandomFactory();
 	/** @brief The destructor */
-	~GRandomFactory();
+	G_API ~GRandomFactory();
 
 	/** @brief Initialization code for the GRandomFactory */
-	void init();
+	G_API void init();
 	/** @brief Finalization code for the GRandomFactory */
-	void finalize();
+	G_API void finalize();
 
 	/** @brief Sets the number of producer threads for this factory. */
-	void setNProducerThreads(const boost::uint16_t&);
+	G_API void setNProducerThreads(const boost::uint16_t&);
 	/** @brief Delivers a new [0,1[ random number container with the current standard size to clients */
-	boost::shared_array<double> new01Container();
+	G_API boost::shared_array<double> new01Container();
 
 	/** @brief Allows to retrieve the size of the array */
-	std::size_t getCurrentArraySize() const;
+	G_API std::size_t getCurrentArraySize() const;
 
 	/** @brief Allows to retrieve the size of the buffer */
-	std::size_t getBufferSize() const;
+	G_API std::size_t getBufferSize() const;
 
 	/** @brief Setting of an initial seed for random number generators */
-	bool setStartSeed(const initial_seed_type&);
+	G_API bool setStartSeed(const initial_seed_type&);
 	/** @brief Retrieval of the start-value of the global seed */
-	initial_seed_type getStartSeed() const;
+	G_API initial_seed_type getStartSeed() const;
 	/** @brief Checks whether seeding has already started*/
-	bool checkSeedingIsInitialized() const;
+	G_API bool checkSeedingIsInitialized() const;
 
 	/** @brief Retrieval of a new seed for external or internal random number generators */
-	seed_type getSeed();
+	G_API seed_type getSeed();
 
 	/** @brief Allows to retrieve the size of the seeding queue */
-	std::size_t getSeedingQueueSize() const;
+	G_API std::size_t getSeedingQueueSize() const;
 
 private:
 	/***************************************************************************/
