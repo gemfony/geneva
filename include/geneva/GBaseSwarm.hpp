@@ -70,7 +70,7 @@ namespace Geneva {
  *
  * TODO: Mark checkpoints so the serialization mode can be determined automatically (e.g. using file extension ??)
  */
-class G_API GBaseSwarm
+class GBaseSwarm
 	:public GOptimizationAlgorithmT<GParameterSet>
 {
 	///////////////////////////////////////////////////////////////////////

@@ -107,23 +107,23 @@ namespace Common {
  */
 struct coord2D {
    /** @brief The default constructor */
-   G_API coord2D();
+   coord2D();
    /** @brief Construction with positions */
-   G_API coord2D(const float&, const float&);
+   coord2D(const float&, const float&);
    /** @brief Copy construction */
-   G_API coord2D(const coord2D&);
+   coord2D(const coord2D&);
 
    /** @brief An assignment operator */
-   G_API const coord2D& operator=(const coord2D&);
+   const coord2D& operator=(const coord2D&);
 
    float x;
    float y;
 };
 
 /** @brief Convenience function for calculating the difference between two coordinate vectors */
-G_API coord2D operator-(const coord2D&, const coord2D&);
+coord2D operator-(const coord2D&, const coord2D&);
 /** @brief Convenience function for calculating the dot product of two coordinate vectors */
-G_API float operator*(const coord2D&, const coord2D&);
+float operator*(const coord2D&, const coord2D&);
 
 /******************************************************************************/
 /**
@@ -131,7 +131,7 @@ G_API float operator*(const coord2D&, const coord2D&);
  * defined via a surrounding circle
  */
 typedef
-struct G_API triangle_circle_struct {
+struct triangle_circle_struct {
   coord2D middle;
   float radius;
   float angle1;
@@ -163,7 +163,7 @@ G_API bool operator!=(const t_circle&, const t_circle&);
  * A struct holding triangle definitions in standard coordinates
  */
 typedef
-struct G_API t_spec_c {
+struct t_spec_c {
    coord2D tr_one;
    coord2D tr_two;
    coord2D tr_three;
@@ -213,9 +213,9 @@ public:
    /** @brief Explicit reset of colors, using a boost::tuple */
    G_API void setColor(boost::tuple<float, float, float>);
 
-   G_API float r; ///< red
-   G_API float g; ///< green
-   G_API float b; ///< blue
+   float r; ///< red
+   float g; ///< green
+   float b; ///< blue
 };
 
 /******************************************************************************/
