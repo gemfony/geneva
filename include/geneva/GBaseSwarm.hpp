@@ -77,7 +77,7 @@ class G_API GBaseSwarm
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int) {
+	G_API void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
 		ar
@@ -103,27 +103,27 @@ class G_API GBaseSwarm
 
 public:
    /** @brief An easy identifier for the class */
-   static const std::string nickname; // Initialized in the .cpp definition file
+   static G_API const std::string nickname; // Initialized in the .cpp definition file
 
 	/** @brief The default constructor */
-	GBaseSwarm();
+   G_API GBaseSwarm();
 	/** @brief Initialization with neighborhood sizes and amount of individuals in each neighborhood */
-	GBaseSwarm(const std::size_t&, const std::size_t&);
+   G_API GBaseSwarm(const std::size_t&, const std::size_t&);
 	/** @brief A standard copy constructor */
-	GBaseSwarm(const GBaseSwarm&);
+   G_API GBaseSwarm(const GBaseSwarm&);
 	/** @brief The destructor */
-	virtual ~GBaseSwarm();
+	virtual G_API ~GBaseSwarm();
 
 	/** @brief A standard assignment operator */
-	const GBaseSwarm& operator=(const GBaseSwarm&);
+	G_API const GBaseSwarm& operator=(const GBaseSwarm&);
 
 	/** @brief Checks for equality with another GBaseSwarm object */
-	bool operator==(const GBaseSwarm&) const;
+	G_API bool operator==(const GBaseSwarm&) const;
 	/** @brief Checks for inequality with another GBaseSwarm object */
-	bool operator!=(const GBaseSwarm&) const;
+	G_API bool operator!=(const GBaseSwarm&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(
+	virtual G_API boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -133,68 +133,68 @@ public:
 	) const OVERRIDE;
 
 	/** @brief Sets the number of neighborhoods and the number of members in them */
-	void setSwarmSizes(std::size_t, std::size_t);
+	G_API void setSwarmSizes(std::size_t, std::size_t);
 
 	/** @brief Returns information about the type of optimization algorithm */
-	virtual std::string getOptimizationAlgorithm() const OVERRIDE;
+	virtual G_API std::string getOptimizationAlgorithm() const OVERRIDE;
 
 	/** @brief Loads a checkpoint from disk */
-	virtual void loadCheckpoint(const boost::filesystem::path&) OVERRIDE;
+	virtual G_API void loadCheckpoint(const boost::filesystem::path&) OVERRIDE;
 
 	/** @brief Allows to set a static multiplier for personal distances */
-	void setCPersonal(double);
+	G_API void setCPersonal(double);
 	/** @brief Allows to retrieve the static multiplier for personal distances */
-	double getCPersonal() const;
+	G_API double getCPersonal() const;
 
 	/** @brief Allows to set a static multiplier for neighborhood distances */
-	void setCNeighborhood(double);
+	G_API void setCNeighborhood(double);
 	/** @brief Allows to retrieve the static multiplier for neighborhood distances */
-	double getCNeighborhood() const;
+	G_API double getCNeighborhood() const;
 
 	/** @brief Allows to set a static multiplier for global distances */
-	void setCGlobal(double);
+	G_API void setCGlobal(double);
 	/** @brief Allows to retrieve the static multiplier for global distances */
-	double getCGlobal() const;
+	G_API double getCGlobal() const;
 
 	/** @brief Allows to set a static multiplier for velocities */
-	void setCVelocity(double);
+	G_API void setCVelocity(double);
 	/** @brief Allows to retrieve the static multiplier for velocities */
-	double getCVelocity() const;
+	G_API double getCVelocity() const;
 
 	/** @brief Allows to set the velocity range percentage */
-	void setVelocityRangePercentage(double);
+	G_API void setVelocityRangePercentage(double);
 	/** @brief Allows to retrieve the velocity range percentage */
-	double getVelocityRangePercentage() const;
+	G_API double getVelocityRangePercentage() const;
 
 	/** @brief Retrieves the number of neighborhoods */
-	std::size_t getNNeighborhoods() const;
+	G_API std::size_t getNNeighborhoods() const;
 	/** @brief Retrieves the default number of individuals in each neighborhood */
-	std::size_t getDefaultNNeighborhoodMembers() const;
+	G_API std::size_t getDefaultNNeighborhoodMembers() const;
 	/** @brief Retrieves the current number of individuals in a given neighborhood */
-	std::size_t getCurrentNNeighborhoodMembers(const std::size_t&) const;
+	G_API std::size_t getCurrentNNeighborhoodMembers(const std::size_t&) const;
 
 	/** @brief Allows to specify the update rule to be used by the swarm */
-	void setUpdateRule(updateRule);
+	G_API void setUpdateRule(updateRule);
 	/** @brief Allows to retrieve the update rule currently used by the swarm */
-	updateRule getUpdateRule() const;
+	G_API updateRule getUpdateRule() const;
 
 	/** @brief Allows to specify the number of stalls as of which the algorithm switches to repulsive mode */
-	void setRepulsionThreshold(boost::uint32_t&);
+	G_API void setRepulsionThreshold(boost::uint32_t&);
 	/** @brief Allows to retrieve the number of stalls as of which the algorithm switches to repulsive mode */
-	boost::uint32_t getRepulsionThreshold() const;
+	G_API boost::uint32_t getRepulsionThreshold() const;
 
 	/** @brief All individuals automatically added to a neighborhood will have equal value */
-	void setNeighborhoodsEqualFillUp();
+	G_API void setNeighborhoodsEqualFillUp();
 	/** @brief All individuals automatically added to a neighborhood will have a random value */
-	void setNeighborhoodsRandomFillUp(bool = true);
+	G_API void setNeighborhoodsRandomFillUp(bool = true);
 	/** @brief Allows to check whether neighborhoods are filled up with random individuals */
-	bool neighborhoodsFilledUpRandomly() const;
+	G_API bool neighborhoodsFilledUpRandomly() const;
 
 	/** @brief Retrieves the number of processable items for the current iteration */
-	virtual std::size_t getNProcessableItems() const OVERRIDE;
+	virtual G_API std::size_t getNProcessableItems() const OVERRIDE;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions (
+	virtual G_API void addConfigurationOptions (
 		Gem::Common::GParserBuilder& gpb
 	) OVERRIDE;
 
@@ -208,7 +208,7 @@ public:
 	 * @return A converted shared_ptr to the best individual of a given neighborhood
 	 */
 	template <typename parameterset_type>
-	boost::shared_ptr<parameterset_type> getBestNeighborhoodIndividual(
+	G_API boost::shared_ptr<parameterset_type> getBestNeighborhoodIndividual(
       std::size_t neighborhood
      , typename boost::enable_if<boost::is_base_of<GParameterSet, parameterset_type> >::type* dummy = 0
 	){
@@ -230,44 +230,44 @@ public:
 	}
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const OVERRIDE;
+   virtual G_API std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another population */
-	virtual void load_(const GObject *) OVERRIDE;
+	virtual G_API void load_(const GObject *) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
-	virtual GObject *clone_() const = 0;
+	virtual G_API GObject *clone_() const = 0;
 
 	/** @brief Does some preparatory work before the optimization starts */
-	virtual void init() OVERRIDE;
+	virtual G_API void init() OVERRIDE;
 	/** @brief Does any necessary finalization work */
-	virtual void finalize() OVERRIDE;
+	virtual G_API void finalize() OVERRIDE;
 
    /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-   virtual boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const OVERRIDE;
+   virtual G_API boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const OVERRIDE;
 
 	/** @brief The actual business logic to be performed during each iteration; Returns the best achieved fitness */
-	virtual boost::tuple<double, double> cycleLogic() OVERRIDE;
+	virtual G_API boost::tuple<double, double> cycleLogic() OVERRIDE;
    /** @brief Fixes an incomplete population */
-   virtual void adjustNeighborhoods() BASE;
+   virtual G_API void adjustNeighborhoods() BASE;
 
 	/** @brief Saves the state of the class to disc. */
-	virtual void saveCheckpoint() const OVERRIDE;
+	virtual G_API void saveCheckpoint() const OVERRIDE;
 
 	/** @brief Updates the best individuals found */
-	virtual boost::tuple<double, double> findBests();
+	virtual G_API boost::tuple<double, double> findBests();
 	/** @brief Resizes the population to the desired level and does some error checks */
-	virtual void adjustPopulation() OVERRIDE;
+	virtual G_API void adjustPopulation() OVERRIDE;
 
 	/** @brief Helper function that returns the id of the first individual of a neighborhood */
-	std::size_t getFirstNIPos(const std::size_t&) const;
+	G_API std::size_t getFirstNIPos(const std::size_t&) const;
 	/** @brief Helper function that returns the id of the first individual of a neighborhood, using a vector of neighborhood sizes */
-	std::size_t getFirstNIPosVec(const std::size_t&, const std::vector<std::size_t>&) const;
+	G_API std::size_t getFirstNIPosVec(const std::size_t&, const std::vector<std::size_t>&) const;
 	/** @brief Helper function that returns the id of the last individual of a neighborhood */
-	std::size_t getLastNIPos(const std::size_t&) const;
+	G_API std::size_t getLastNIPos(const std::size_t&) const;
 
 	/** @brief Triggers an update of an individual's positions */
-	void updateIndividualPositions(
+	G_API void updateIndividualPositions(
      const std::size_t&
      , boost::shared_ptr<GParameterSet>
      , boost::shared_ptr<GParameterSet>
@@ -277,12 +277,12 @@ protected:
 	);
 
 	/** @brief Triggers an update of all individual's positions */
-	virtual void updatePositions();
+	virtual G_API void updatePositions();
 
 	/** @brief Updates the fitness of all individuals */
-	virtual void runFitnessCalculation() = 0;
+	virtual G_API void runFitnessCalculation() = 0;
    /** @brief Adjusts the velocity vector so that its values don't exceed the allowed value range */
-   void pruneVelocity(std::vector<double>&);
+	G_API void pruneVelocity(std::vector<double>&);
 
 	std::size_t nNeighborhoods_; ///< The number of neighborhoods in the population
 	std::size_t defaultNNeighborhoodMembers_; ///< The desired number of individuals belonging to each neighborhood
@@ -309,12 +309,12 @@ protected:
 	double velocityRangePercentage_; ///< Indicates the percentage of a value range used for the initialization of the velocity
 
 	/** Updates the personal best of an individual */
-	void updatePersonalBest(boost::shared_ptr<GParameterSet>);
+	G_API void updatePersonalBest(boost::shared_ptr<GParameterSet>);
 	/** Updates the personal best of an individual, if a better solution was found */
-	void updatePersonalBestIfBetter(boost::shared_ptr<GParameterSet>);
+	G_API void updatePersonalBestIfBetter(boost::shared_ptr<GParameterSet>);
 
 	/** @brief Returns the name of this optimization algorithm */
-	virtual std::string getAlgorithmName() const OVERRIDE;
+	virtual G_API std::string getAlgorithmName() const OVERRIDE;
 
 private:
 	/***************************************************************************/
@@ -327,11 +327,11 @@ private:
 public:
 	/***************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests() OVERRIDE;
+	virtual G_API bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 
 public:
 	/***************************************************************************/
@@ -348,7 +348,7 @@ public:
 	    friend class boost::serialization::access;
 
 	    template<typename Archive>
-	    void serialize(Archive & ar, const unsigned int){
+	    G_API void serialize(Archive & ar, const unsigned int){
 	      using boost::serialization::make_nvp;
 
 	      ar
@@ -361,21 +361,21 @@ public:
 
 	public:
 	    /** @brief The default constructor */
-	    GSwarmOptimizationMonitor();
+	    G_API GSwarmOptimizationMonitor();
 	    /** @brief The copy constructor */
-	    GSwarmOptimizationMonitor(const GSwarmOptimizationMonitor&);
+	    G_API GSwarmOptimizationMonitor(const GSwarmOptimizationMonitor&);
 	    /** @brief The destructor */
-	    virtual ~GSwarmOptimizationMonitor();
+	    virtual G_API ~GSwarmOptimizationMonitor();
 
 	    /** @brief A standard assignment operator */
-	    const GSwarmOptimizationMonitor& operator=(const GSwarmOptimizationMonitor&);
+	    G_API const GSwarmOptimizationMonitor& operator=(const GSwarmOptimizationMonitor&);
 	    /** @brief Checks for equality with another GParameter Base object */
-	    virtual bool operator==(const GSwarmOptimizationMonitor&) const;
+	    virtual G_API bool operator==(const GSwarmOptimizationMonitor&) const;
 	    /** @brief Checks for inequality with another GSwarmOptimizationMonitor object */
-	    virtual bool operator!=(const GSwarmOptimizationMonitor&) const;
+	    virtual G_API bool operator!=(const GSwarmOptimizationMonitor&) const;
 
 	    /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
-	    virtual boost::optional<std::string> checkRelationshipWith(
+	    virtual G_API boost::optional<std::string> checkRelationshipWith(
          const GObject&
          , const Gem::Common::expectation&
          , const double&
@@ -385,29 +385,29 @@ public:
 	    ) const OVERRIDE;
 
 	    /** @brief Set the dimension of the output canvas */
-	    void setDims(const boost::uint16_t&, const boost::uint16_t&);
+	    G_API void setDims(const boost::uint16_t&, const boost::uint16_t&);
 	    /** @brief Retrieve the x-dimension of the output canvas */
-	    boost::uint16_t getXDim() const;
+	    G_API boost::uint16_t getXDim() const;
 	    /** @brief Retrieve the y-dimension of the output canvas */
-	    boost::uint16_t getYDim() const;
+	    G_API boost::uint16_t getYDim() const;
 
 	    /** @brief Allows to set the name of the result file */
-	    void setResultFileName(const std::string&);
+	    G_API void setResultFileName(const std::string&);
 	    /** @brief Allows to retrieve the name of the result file */
-	    std::string getResultFileName() const;
+	    G_API std::string getResultFileName() const;
 
 	protected:
 	    /** @brief A function that is called once before the optimization starts */
-	    virtual void firstInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
+	    virtual G_API void firstInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
 	    /** @brief A function that is called during each optimization cycle */
-	    virtual void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
+	    virtual G_API void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
 	    /** @brief A function that is called once at the end of the optimization cycle */
-	    virtual void lastInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
+	    virtual G_API void lastInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
 
 	    /** @brief Loads the data of another object */
-	    virtual void load_(const GObject*) OVERRIDE;
+	    virtual G_API void load_(const GObject*) OVERRIDE;
 	    /** @brief Creates a deep clone of this object */
-		virtual GObject* clone_() const OVERRIDE;
+		virtual G_API GObject* clone_() const OVERRIDE;
 
 	private:
 		boost::uint16_t xDim_; ///< The dimension of the canvas in x-direction
@@ -419,11 +419,11 @@ public:
 
 	public:
 		/** @brief Applies modifications to this object. This is needed for testing purposes */
-		virtual bool modify_GUnitTests() OVERRIDE;
+		virtual G_API bool modify_GUnitTests() OVERRIDE;
 		/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-		virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+		virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 		/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-		virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+		virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 
 		/************************************************************************/
 	};

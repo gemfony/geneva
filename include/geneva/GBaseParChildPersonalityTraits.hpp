@@ -53,80 +53,81 @@ namespace Geneva {
  * This class adds variables and functions to GPersonalityTraits that are specific
  * to populations comprising parents and children
  */
-class G_API GBaseParChildPersonalityTraits
+class GBaseParChildPersonalityTraits
    :public GPersonalityTraits
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
 
    template<typename Archive>
-   void serialize(Archive & ar, const unsigned int){
+   G_API void serialize(Archive & ar, const unsigned int){
      using boost::serialization::make_nvp;
-     ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
-        & BOOST_SERIALIZATION_NVP(parentCounter_)
-        & BOOST_SERIALIZATION_NVP(popPos_)
-        & BOOST_SERIALIZATION_NVP(parentId_);
+     ar
+     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
+     & BOOST_SERIALIZATION_NVP(parentCounter_)
+     & BOOST_SERIALIZATION_NVP(popPos_)
+     & BOOST_SERIALIZATION_NVP(parentId_);
    }
    ///////////////////////////////////////////////////////////////////////
 
 public:
    /** @brief The default constructor */
-   GBaseParChildPersonalityTraits();
+   G_API GBaseParChildPersonalityTraits();
    /** @brief The copy contructor */
-   GBaseParChildPersonalityTraits(const GBaseParChildPersonalityTraits&);
+   G_API GBaseParChildPersonalityTraits(const GBaseParChildPersonalityTraits&);
    /** @brief The standard destructor */
-   virtual ~GBaseParChildPersonalityTraits();
+   virtual G_API ~GBaseParChildPersonalityTraits();
 
    /** @brief A standard assignment operator */
-   const GBaseParChildPersonalityTraits& operator=(const GBaseParChildPersonalityTraits&);
+   G_API const GBaseParChildPersonalityTraits& operator=(const GBaseParChildPersonalityTraits&);
 
    /** @brief Checks for equality with another GBaseParChildPersonalityTraits object */
-   bool operator==(const GBaseParChildPersonalityTraits&) const;
+   G_API bool operator==(const GBaseParChildPersonalityTraits&) const;
    /** @brief Checks for inequality with another GBaseParChildPersonalityTraits object */
-   bool operator!=(const GBaseParChildPersonalityTraits&) const;
+   G_API bool operator!=(const GBaseParChildPersonalityTraits&) const;
 
    /** @brief Checks whether this object fulfills a given expectation in relation to another object */
-   virtual boost::optional<std::string> checkRelationshipWith(
-         const GObject&
-         , const Gem::Common::expectation&
-         , const double&
-         , const std::string&
-         , const std::string&
-         , const bool&
+   virtual G_API boost::optional<std::string> checkRelationshipWith(
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
    ) const OVERRIDE;
 
    /** @brief Marks an individual as a parent*/
-   bool setIsParent();
+   G_API bool setIsParent();
    /** @brief Marks an individual as a child */
-   bool setIsChild();
+   G_API bool setIsChild();
 
    /** @brief Checks whether this is a parent individual */
-   bool isParent() const;
+   G_API bool isParent() const;
    /** @brief Retrieves the current value of the parentCounter_ variable */
-   boost::uint32_t getParentCounter() const;
+   G_API boost::uint32_t getParentCounter() const;
 
    /** @brief Sets the position of the individual in the population */
-   void setPopulationPosition(const std::size_t&);
+   G_API void setPopulationPosition(const std::size_t&);
    /** @brief Retrieves the position of the individual in the population */
-   std::size_t getPopulationPosition(void) const;
+   G_API std::size_t getPopulationPosition(void) const;
 
    /** @brief Stores the parent's id with this object */
-   void setParentId(const std::size_t&);
+   G_API void setParentId(const std::size_t&);
    /** @brief Retrieves the parent id's value */
-   std::size_t getParentId() const;
+   G_API std::size_t getParentId() const;
    /** @brief Checks whether a parent id has been set */
-   bool parentIdSet() const;
+   G_API bool parentIdSet() const;
    /** @brief Marks the parent id as unset */
-   void unsetParentId();
+   G_API void unsetParentId();
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const OVERRIDE;
+   virtual G_API std::string name() const OVERRIDE;
 
 protected:
    /** @brief Loads the data of another GBaseParChildPersonalityTraits object */
-   virtual void load_(const GObject*) OVERRIDE;
+   virtual G_API void load_(const GObject*) OVERRIDE;
    /** @brief Creates a deep clone of this object */
-   virtual GObject* clone_() const OVERRIDE;
+   virtual G_API GObject* clone_() const OVERRIDE;
 
 private:
    /** @brief Allows populations to record how often an individual has been reelected as parent (0 if it is a child) */
@@ -138,11 +139,11 @@ private:
 
 public:
    /** @brief Applies modifications to this object. This is needed for testing purposes */
-   virtual bool modify_GUnitTests() OVERRIDE;
+   virtual G_API bool modify_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-   virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+   virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-   virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+   virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

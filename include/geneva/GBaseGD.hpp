@@ -70,53 +70,50 @@ const double DEFAULTSTEPSIZE=0.1;
  * The GBaseGD class implements a steepest descent algorithm. It is possible
  * to search for optima starting from several positions simultaneously.
  */
-class G_API GBaseGD
+class GBaseGD
 	:public GOptimizationAlgorithmT<GParameterSet>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int) {
+	G_API void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("GOptimizationAlgorithmT_GParameterSet",
+		ar
+		& make_nvp("GOptimizationAlgorithmT_GParameterSet",
 		      boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet> >(*this))
-		   & BOOST_SERIALIZATION_NVP(nStartingPoints_)
-		   & BOOST_SERIALIZATION_NVP(nFPParmsFirst_)
-		   & BOOST_SERIALIZATION_NVP(finiteStep_)
-		   & BOOST_SERIALIZATION_NVP(stepSize_);
-		   // & BOOST_SERIALIZATION_NVP(stepRatio_)  // temporary parameter
-		   // & BOOST_SERIALIZATION_NVP(dblLowerParameterBoundaries_) // temporary parameter
-		   // & BOOST_SERIALIZATION_NVP(dblUpperParameterBoundaries_) // temporary parameter
-		   // & BOOST_SERIALIZATION_NVP(adjustedFiniteStep_); // temporary parameter
+		& BOOST_SERIALIZATION_NVP(nStartingPoints_)
+		& BOOST_SERIALIZATION_NVP(nFPParmsFirst_)
+		& BOOST_SERIALIZATION_NVP(finiteStep_)
+		& BOOST_SERIALIZATION_NVP(stepSize_);
 	}
 
 	///////////////////////////////////////////////////////////////////////
 
 public:
    /** @brief An easy identifier for the class */
-   static const std::string nickname; // Initialized in the .cpp definition file
+   static G_API const std::string nickname; // Initialized in the .cpp definition file
 
 	/** @brief The default constructor */
-	GBaseGD();
+   G_API GBaseGD();
 	/** @brief Initialization with the number of starting points and the size of the finite step */
-	GBaseGD(const std::size_t&, const double&, const double&);
+   G_API GBaseGD(const std::size_t&, const double&, const double&);
 	/** @brief A standard copy constructor */
-	GBaseGD(const GBaseGD&);
+   G_API GBaseGD(const GBaseGD&);
 	/** @brief The destructor */
-	virtual ~GBaseGD();
+	virtual G_API ~GBaseGD();
 
 	/** @brief A standard assignment operator */
-	const GBaseGD& operator=(const GBaseGD&);
+	G_API const GBaseGD& operator=(const GBaseGD&);
 
 	/** @brief Checks for equality with another GBaseGD object */
-	bool operator==(const GBaseGD&) const;
+	G_API bool operator==(const GBaseGD&) const;
 	/** @brief Checks for inequality with another GBaseGD object */
-	bool operator!=(const GBaseGD&) const;
+	G_API bool operator!=(const GBaseGD&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(
+	virtual G_API boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -126,69 +123,69 @@ public:
 	) const  OVERRIDE;
 
 	/** @brief Loads a checkpoint */
-	virtual void loadCheckpoint(const boost::filesystem::path&) OVERRIDE;
+	virtual G_API void loadCheckpoint(const boost::filesystem::path&) OVERRIDE;
 
 	/** @brief Returns information about the type of optimization algorithm */
-	virtual std::string getOptimizationAlgorithm() const OVERRIDE;
+	virtual G_API std::string getOptimizationAlgorithm() const OVERRIDE;
 
 	/** @brief Retrieves the number of starting points of the algorithm */
-	std::size_t getNStartingPoints() const;
+	G_API std::size_t getNStartingPoints() const;
 	/** @brief Allows to set the number of starting points for the gradient descent */
-	void setNStartingPoints(std::size_t);
+	G_API void setNStartingPoints(std::size_t);
 
 	/** @brief Set the size of the finite step of the adaption process */
-	void setFiniteStep(double);
+	G_API void setFiniteStep(double);
 	/** @brief Retrieve the size of the finite step of the adaption process */
-	double getFiniteStep() const;
+	G_API double getFiniteStep() const;
 
 	/** @brief Sets a multiplier for the adaption process */
-	void setStepSize(double);
+	G_API void setStepSize(double);
 	/** @brief Retrieves the current step size */
-	double getStepSize() const;
+	G_API double getStepSize() const;
 
    /** @brief Retrieves the number of processable items for the current iteration */
-   virtual std::size_t getNProcessableItems() const OVERRIDE;
+   virtual G_API std::size_t getNProcessableItems() const OVERRIDE;
 
 	/** @brief Returns the name of this optimization algorithm */
-	virtual std::string getAlgorithmName() const OVERRIDE;
+	virtual G_API std::string getAlgorithmName() const OVERRIDE;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions (
+	virtual G_API void addConfigurationOptions (
 		Gem::Common::GParserBuilder& gpb
 	) OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const OVERRIDE;
+   virtual G_API std::string name() const OVERRIDE;
 
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another population */
-	virtual void load_(const GObject *) OVERRIDE;
+	virtual G_API void load_(const GObject *) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
-	virtual GObject *clone_() const = 0;
+	virtual G_API GObject *clone_() const = 0;
 
 	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
-	virtual boost::tuple<double, double> cycleLogic() OVERRIDE;
+	virtual G_API boost::tuple<double, double> cycleLogic() OVERRIDE;
 	/** @brief Does some preparatory work before the optimization starts */
-	virtual void init() OVERRIDE;
+	virtual G_API void init() OVERRIDE;
 	/** @brief Does any necessary finalization work */
-	virtual void finalize() OVERRIDE;
+	virtual G_API void finalize() OVERRIDE;
 
    /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-   virtual boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const OVERRIDE;
+   virtual G_API boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const OVERRIDE;
 
 	/** @brief Resizes the population to the desired level and does some error checks */
-	virtual void adjustPopulation() OVERRIDE;
+	virtual G_API void adjustPopulation() OVERRIDE;
 
 	/** @brief Saves the state of the class to disc. */
-	virtual void saveCheckpoint() const OVERRIDE;
+	virtual G_API void saveCheckpoint() const OVERRIDE;
 
 	/** @brief Triggers fitness calculation of a number of individuals */
-	virtual void runFitnessCalculation() = 0;
+	virtual G_API void runFitnessCalculation() = 0;
 	/** @brief Updates the individual parameters of children */
-	virtual void updateChildParameters();
+	virtual G_API void updateChildParameters();
 	/** @brief Performs a step of the parent individuals */
-	virtual void updateParentIndividuals();
+	virtual G_API void updateParentIndividuals();
 
 private:
 	/***************************************************************************/
@@ -210,11 +207,11 @@ private:
 public
    /***************************************************************************/:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests() OVERRIDE;
+	virtual G_API bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 
 public:
 	/***************************************************************************/
@@ -231,7 +228,7 @@ public:
 	   friend class boost::serialization::access;
 
 	   template<typename Archive>
-	   void serialize(Archive & ar, const unsigned int){
+	   G_API void serialize(Archive & ar, const unsigned int){
 	      using boost::serialization::make_nvp;
 
 	      ar
@@ -244,21 +241,21 @@ public:
 
      public:
 	   /** @brief The default constructor */
-	   GGDOptimizationMonitor();
+	   G_API GGDOptimizationMonitor();
 	   /** @brief The copy constructor */
-	   GGDOptimizationMonitor(const GGDOptimizationMonitor&);
+	   G_API GGDOptimizationMonitor(const GGDOptimizationMonitor&);
 	   /** @brief The destructor */
-	   virtual ~GGDOptimizationMonitor();
+	   virtual G_API ~GGDOptimizationMonitor();
 
 	   /** @brief A standard assignment operator */
-	   const GGDOptimizationMonitor& operator=(const GGDOptimizationMonitor&);
+	   G_API const GGDOptimizationMonitor& operator=(const GGDOptimizationMonitor&);
 	   /** @brief Checks for equality with another GParameter Base object */
-	   virtual bool operator==(const GGDOptimizationMonitor&) const;
+	   virtual G_API bool operator==(const GGDOptimizationMonitor&) const;
 	   /** @brief Checks for inequality with another GGDOptimizationMonitor object */
-	   virtual bool operator!=(const GGDOptimizationMonitor&) const;
+	   virtual G_API bool operator!=(const GGDOptimizationMonitor&) const;
 
 	   /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
-	   virtual boost::optional<std::string> checkRelationshipWith(
+	   virtual G_API boost::optional<std::string> checkRelationshipWith(
          const GObject&
          , const Gem::Common::expectation&
          , const double&
@@ -268,31 +265,31 @@ public:
 	   ) const OVERRIDE;
 
 	   /** @brief Set the dimension of the output canvas */
-	   void setDims(const boost::uint32_t&, const boost::uint32_t&);
+	   G_API void setDims(const boost::uint32_t&, const boost::uint32_t&);
 	   /** @brief Retrieve the dimensions as a tuple */
-	   boost::tuple<boost::uint32_t, boost::uint32_t> getDims() const;
+	   G_API boost::tuple<boost::uint32_t, boost::uint32_t> getDims() const;
 	   /** @brief Retrieve the x-dimension of the output canvas */
-	   boost::uint32_t getXDim() const;
+	   G_API boost::uint32_t getXDim() const;
 	   /** @brief Retrieve the y-dimension of the output canvas */
-	   boost::uint32_t getYDim() const;
+	   G_API boost::uint32_t getYDim() const;
 
 	   /** @brief Allows to set the name of the result file */
-	   void setResultFileName(const std::string&);
+	   G_API void setResultFileName(const std::string&);
 	   /** @brief Allows to retrieve the name of the result file */
-	   std::string getResultFileName() const;
+	   G_API std::string getResultFileName() const;
 
      protected:
 	   /** @brief A function that is called once before the optimization starts */
-	   virtual void firstInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
+	   virtual G_API void firstInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
 	   /** @brief A function that is called during each optimization cycle */
-	   virtual void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
+	   virtual G_API void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
 	   /** @brief A function that is called once at the end of the optimization cycle */
-	   virtual void lastInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
+	   virtual G_API void lastInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
 
 	   /** @brief Loads the data of another object */
-	   virtual void load_(const GObject*) OVERRIDE;
+	   virtual G_API void load_(const GObject*) OVERRIDE;
 	   /** @brief Creates a deep clone of this object */
-	   virtual GObject* clone_() const OVERRIDE;
+	   virtual G_API GObject* clone_() const OVERRIDE;
 
      private:
 	   boost::uint32_t xDim_; ///< The dimension of the canvas in x-direction
@@ -304,14 +301,14 @@ public:
 
      public:
 	   /** @brief Applies modifications to this object. This is needed for testing purposes */
-	   virtual bool modify_GUnitTests() OVERRIDE;
+	   virtual G_API bool modify_GUnitTests() OVERRIDE;
 	   /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	   virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	   virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	   /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	   virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	   virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 
 	   /************************************************************************/
-	        };
+   };
 
    /***************************************************************************/
    /////////////////////////////////////////////////////////////////////////////

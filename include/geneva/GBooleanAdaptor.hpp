@@ -61,14 +61,14 @@ namespace Geneva {
  * (with the notable exception of the actual adaption logic) is currently
  * implemented in the GAdaptorT class.
  */
-class G_API GBooleanAdaptor
+class GBooleanAdaptor
 	:public GAdaptorT<bool>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int){
+	G_API void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
 	  ar
@@ -79,25 +79,25 @@ class G_API GBooleanAdaptor
 
 public:
 	/** @brief The default constructor */
-	GBooleanAdaptor();
+	G_API GBooleanAdaptor();
 	/** @brief The copy constructor */
-	GBooleanAdaptor(const GBooleanAdaptor&);
+	G_API GBooleanAdaptor(const GBooleanAdaptor&);
 	/** @brief Initialization with a adaption probability */
-	explicit GBooleanAdaptor(const double&);
+	explicit G_API GBooleanAdaptor(const double&);
 
 	/** @brief The destructor */
-	virtual ~GBooleanAdaptor();
+	virtual G_API ~GBooleanAdaptor();
 
 	/** @brief A standard assignment operator */
-	const GBooleanAdaptor& operator=(const GBooleanAdaptor&);
+	G_API const GBooleanAdaptor& operator=(const GBooleanAdaptor&);
 
 	/** @brief Checks for equality with another GBooleanAdaptor object */
-	bool operator==(const GBooleanAdaptor&) const;
+	G_API bool operator==(const GBooleanAdaptor&) const;
 	/** @brief Checks for inequality with another GBooleanAdaptor object */
-	bool operator!=(const GBooleanAdaptor&) const;
+	G_API bool operator!=(const GBooleanAdaptor&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(
+	virtual G_API boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -107,28 +107,28 @@ public:
 	) const OVERRIDE;
 
 	/** @brief Retrieves the id of this adaptor */
-	virtual Gem::Geneva::adaptorId getAdaptorId() const OVERRIDE;
+	virtual G_API Gem::Geneva::adaptorId getAdaptorId() const OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const OVERRIDE;
+   virtual G_API std::string name() const OVERRIDE;
    /** @brief Random initialization of the adaptor */
-   void randomInit() OVERRIDE;
+   G_API void randomInit() OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another GObject */
-	virtual void load_(const GObject*) OVERRIDE;
+	virtual G_API void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object. */
-	virtual GObject* clone_() const OVERRIDE;
+	virtual G_API GObject* clone_() const OVERRIDE;
    /** @brief Flip the value up or down by 1, depending on a random number */
-   virtual void customAdaptions(bool&, const bool&) OVERRIDE;
+   virtual G_API void customAdaptions(bool&, const bool&) OVERRIDE;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests() OVERRIDE;
+	virtual G_API bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

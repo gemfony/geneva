@@ -65,7 +65,7 @@ namespace Geneva {
  * Serialization in a network context only happens below the level of this population,
  * it is itself usually not shipped over a network connection.
  */
-class G_API GBrokerEA
+class GBrokerEA
    : public GBaseEA
    , public Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>
 {
@@ -73,7 +73,7 @@ class G_API GBrokerEA
    friend class boost::serialization::access;
 
    template<typename Archive>
-   void serialize(Archive & ar, const unsigned int){
+   G_API void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
 
       ar
@@ -85,66 +85,66 @@ class G_API GBrokerEA
 
 public:
    /** @brief The standard constructor */
-   GBrokerEA();
+   G_API GBrokerEA();
    /** @brief A standard copy constructor */
-   GBrokerEA(const GBrokerEA&);
+   G_API GBrokerEA(const GBrokerEA&);
    /** @brief The standard destructor */
-   virtual ~GBrokerEA();
+   virtual G_API ~GBrokerEA();
 
    /** @brief A standard assignment operator */
-   const GBrokerEA& operator=(const GBrokerEA&);
+   G_API const GBrokerEA& operator=(const GBrokerEA&);
 
    /** @brief Checks for equality with another GBrokerEA object */
-   bool operator==(const GBrokerEA&) const;
+   G_API bool operator==(const GBrokerEA&) const;
    /** @brief Checks for inequality with another GBrokerEA object */
-   bool operator!=(const GBrokerEA&) const;
+   G_API bool operator!=(const GBrokerEA&) const;
 
    /** @brief Checks whether this object fulfills a given expectation in relation to another object */
-   virtual boost::optional<std::string> checkRelationshipWith(
-         const GObject&
-         , const Gem::Common::expectation&
-         , const double&
-         , const std::string&
-         , const std::string&
-         , const bool&
+   virtual G_API boost::optional<std::string> checkRelationshipWith(
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
    ) const OVERRIDE;
 
    /** @brief Checks whether a given algorithm type likes to communicate via the broker */
-   virtual bool usesBroker() const OVERRIDE;
+   virtual G_API bool usesBroker() const OVERRIDE;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
-   virtual void addConfigurationOptions (
-         Gem::Common::GParserBuilder& gpb
+   virtual G_API void addConfigurationOptions (
+      Gem::Common::GParserBuilder& gpb
    ) OVERRIDE;
 
    /** @brief Sets the maximum number of threads */
-   void setNThreads(boost::uint16_t);
+   G_API void setNThreads(boost::uint16_t);
    /** @brief Retrieves the maximum number of threads */
-   uint16_t getNThreads() const ;
+   G_API boost::uint16_t getNThreads() const ;
 
    /** @brief Allows to assign a name to the role of this individual(-derivative) */
-   virtual std::string getIndividualCharacteristic() const OVERRIDE;
+   virtual G_API std::string getIndividualCharacteristic() const OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const OVERRIDE;
+   virtual G_API std::string name() const OVERRIDE;
 
 protected:
    /** @brief Loads the data of another GTransfer Population */
-   virtual void load_(const GObject *) OVERRIDE;
+   virtual G_API void load_(const GObject *) OVERRIDE;
    /** @brief Creates a deep copy of this object */
-   virtual GObject *clone_() const OVERRIDE;
+   virtual G_API GObject *clone_() const OVERRIDE;
 
    /** @brief Adapt children in a serial manner */
-   virtual void adaptChildren() OVERRIDE;
+   virtual G_API void adaptChildren() OVERRIDE;
    /** @brief Calculates the fitness of all required individuals */
-   virtual void runFitnessCalculation() OVERRIDE;
+   virtual G_API void runFitnessCalculation() OVERRIDE;
    /** @brief Selects new parents */
-   virtual void selectBest() OVERRIDE;
+   virtual G_API void selectBest() OVERRIDE;
 
    /** @brief Performs any necessary initialization work before the start of the optimization cycle */
-   virtual void init() OVERRIDE;
+   virtual G_API void init() OVERRIDE;
    /** @brief Performs any necessary finalization work after the end of the optimization cycle */
-   virtual void finalize() OVERRIDE;
+   virtual G_API void finalize() OVERRIDE;
 
 private:
    /***************************************************************************/
@@ -220,11 +220,11 @@ private:
 
 public:
    /** @brief Applies modifications to this object. This is needed for testing purposes */
-   virtual bool modify_GUnitTests() OVERRIDE;
+   virtual G_API bool modify_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-   virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+   virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-   virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+   virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

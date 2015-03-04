@@ -62,7 +62,7 @@ namespace Geneva {
 /**
  * A networked version of the GBaseGD class
  */
-class G_API GBrokerGD
+class GBrokerGD
 	: public GBaseGD
 	, public Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>
 {
@@ -70,36 +70,37 @@ class G_API GBrokerGD
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int) {
+	G_API void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseGD)
-		   & make_nvp("GBrokerConnector2T_GParameterSet",
-		         boost::serialization::base_object<Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet> >(*this));
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseGD)
+		& make_nvp("GBrokerConnector2T_GParameterSet",
+		      boost::serialization::base_object<Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet> >(*this));
 	}
 
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor */
-	GBrokerGD();
+	G_API GBrokerGD();
 	/** @brief Initialization with the number of starting points and the size of the finite step */
-	GBrokerGD(const std::size_t&, const double&, const double&);
+	G_API GBrokerGD(const std::size_t&, const double&, const double&);
 	/** @brief A standard copy constructor */
-	GBrokerGD(const GBrokerGD&);
+	G_API GBrokerGD(const GBrokerGD&);
 	/** @brief The destructor */
-	virtual ~GBrokerGD();
+	virtual G_API ~GBrokerGD();
 
 	/** @brief A standard assignment operator */
-	const GBrokerGD& operator=(const GBrokerGD&);
+	G_API const GBrokerGD& operator=(const GBrokerGD&);
 
 	/** @brief Checks for equality with another GBrokerGD object */
-	bool operator==(const GBrokerGD&) const;
+	G_API bool operator==(const GBrokerGD&) const;
 	/** @brief Checks for inequality with another GBrokerGD object */
-	bool operator!=(const GBrokerGD&) const;
+	G_API bool operator!=(const GBrokerGD&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(
+	virtual G_API boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -109,32 +110,32 @@ public:
 	) const OVERRIDE;
 
 	/** @brief Checks whether a given algorithm type likes to communicate via the broker */
-	virtual bool usesBroker() const OVERRIDE;
+	virtual G_API bool usesBroker() const OVERRIDE;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions (
+	virtual G_API void addConfigurationOptions (
 		Gem::Common::GParserBuilder& gpb
 	) OVERRIDE;
 
 	/** @brief Allows to assign a name to the role of this individual(-derivative) */
-	virtual std::string getIndividualCharacteristic() const OVERRIDE;
+	virtual G_API std::string getIndividualCharacteristic() const OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const OVERRIDE;
+   virtual G_API std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another population */
-	virtual void load_(const GObject *) OVERRIDE;
+	virtual G_API void load_(const GObject *) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
-	virtual GObject *clone_() const OVERRIDE;
+	virtual G_API GObject *clone_() const OVERRIDE;
 
 	/** @brief Performs necessary initialization work */
-	virtual void init() OVERRIDE;
+	virtual G_API void init() OVERRIDE;
 	/** @brief Does any necessary finalization work */
-	virtual void finalize() OVERRIDE;
+	virtual G_API void finalize() OVERRIDE;
 
 	/** @brief Triggers fitness calculation of a number of individuals */
-	virtual void runFitnessCalculation() OVERRIDE;
+	virtual G_API void runFitnessCalculation() OVERRIDE;
 
 private:
 	/***************************************************************************/
@@ -155,11 +156,11 @@ private:
 public:
 	/***************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests() OVERRIDE;
+	virtual G_API bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

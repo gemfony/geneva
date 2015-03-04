@@ -79,14 +79,14 @@ namespace Geneva {
  * optimization starts.
  */
 template <typename ind_type>
-class G_API GBaseParChildT
+class GBaseParChildT
    : public GOptimizationAlgorithmT<ind_type>
 {
    /////////////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
 
    template<typename Archive>
-   void serialize(Archive & ar, const unsigned int) {
+   G_API void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
       ar
@@ -111,7 +111,7 @@ public:
     * vital parameters, such as the population size or the parent individuals by hand
     * or do so through the configuration file.
     */
-   GBaseParChildT()
+   G_API GBaseParChildT()
       : Gem::Geneva::GOptimizationAlgorithmT<ind_type>()
       , nParents_(0)
       , recombinationMethod_(DEFAULTDUPLICATIONSCHEME)
@@ -131,7 +131,7 @@ public:
     *
     * @param cp Another GBaseParChildT<ind_type> object
     */
-   GBaseParChildT(const GBaseParChildT<ind_type>& cp)
+   G_API GBaseParChildT(const GBaseParChildT<ind_type>& cp)
       : GOptimizationAlgorithmT<ind_type>(cp)
       , nParents_(cp.nParents_)
       , recombinationMethod_(cp.recombinationMethod_)
@@ -146,7 +146,7 @@ public:
    /**
     * The standard destructor. All work is done in the parent class.
     */
-   virtual ~GBaseParChildT()
+   virtual G_API ~GBaseParChildT()
    { /* nothing */ }
 
    /***************************************************************************/
@@ -156,7 +156,7 @@ public:
     * @param cp Another GBaseParChildT<ind_type> object
     * @return A constant reference to this object
     */
-   const GBaseParChildT<ind_type>& operator=(const GBaseParChildT<ind_type>& cp) {
+   G_API const GBaseParChildT<ind_type>& operator=(const GBaseParChildT<ind_type>& cp) {
       GBaseParChildT<ind_type>::load_(&cp);
       return *this;
    }
@@ -168,7 +168,7 @@ public:
     * @param  cp A constant reference to another GBaseParChildT<ind_type> object
     * @return A boolean indicating whether both objects are equal
     */
-   bool operator==(const GBaseParChildT<ind_type>& cp) const {
+   G_API bool operator==(const GBaseParChildT<ind_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
       return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBaseParChildT<ind_type>::operator==","cp", CE_SILENT);
@@ -181,7 +181,7 @@ public:
     * @param  cp A constant reference to another GBaseParChildT<ind_type> object
     * @return A boolean indicating whether both objects are inequal
     */
-   bool operator!=(const GBaseParChildT<ind_type>& cp) const {
+   G_API bool operator!=(const GBaseParChildT<ind_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
       return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBaseParChildT<ind_type>::operator!=","cp", CE_SILENT);
@@ -200,7 +200,7 @@ public:
     * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
     */
-   virtual boost::optional<std::string> checkRelationshipWith(
+   virtual G_API boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -239,7 +239,7 @@ public:
     * @param popSize The desired size of the population
     * @param nParents The desired number of parents
     */
-   void setPopulationSizes(std::size_t popSize, std::size_t nParents) {
+   G_API void setPopulationSizes(std::size_t popSize, std::size_t nParents) {
       GOptimizationAlgorithmT<ind_type>::setDefaultPopulationSize(popSize);
       nParents_ = nParents;
    }
@@ -253,7 +253,7 @@ public:
     *
     * @return The number of parents in the population
     */
-   std::size_t getNParents() const {
+   G_API std::size_t getNParents() const {
       return (std::min)(this->size(), nParents_);
    }
 
@@ -264,7 +264,7 @@ public:
     *
     * @return The number of children in the population
     */
-   std::size_t getNChildren() const {
+   G_API std::size_t getNChildren() const {
       if(this->size() <= nParents_) {
          // This will happen, when only the default population size has been set,
          // but no individuals have been added yet
@@ -283,7 +283,7 @@ public:
     *
     * @return The defaultNChildren_ parameter
     */
-   std::size_t getDefaultNChildren() const {
+   G_API std::size_t getDefaultNChildren() const {
       return defaultNChildren_;
    }
 
@@ -293,7 +293,7 @@ public:
     *
     * @return The number of processible items in the current iteration
     */
-   std::size_t getNProcessableItems() const {
+   G_API std::size_t getNProcessableItems() const {
       boost::tuple<std::size_t,std::size_t> range = this->getEvaluationRange();
 
 #ifdef DEBUG
@@ -315,7 +315,7 @@ public:
     *
     * @param recombinationMethod The desired recombination method
     */
-   void setRecombinationMethod(duplicationScheme recombinationMethod) {
+   G_API void setRecombinationMethod(duplicationScheme recombinationMethod) {
       recombinationMethod_ = recombinationMethod;
    }
 
@@ -325,7 +325,7 @@ public:
     *
     * @return The value of the recombinationMethod_ variable
     */
-   duplicationScheme getRecombinationMethod() const {
+   G_API duplicationScheme getRecombinationMethod() const {
       return recombinationMethod_;
    }
 
@@ -335,7 +335,7 @@ public:
     * but only the best individuals of a former optimization run, as these contain the
     * "real" information.
     */
-   virtual void loadCheckpoint(const boost::filesystem::path& cpFile) OVERRIDE {
+   virtual G_API void loadCheckpoint(const boost::filesystem::path& cpFile) OVERRIDE {
       // Create a vector to hold the best individuals
       std::vector<boost::shared_ptr<ind_type> > bestIndividuals;
 
@@ -410,7 +410,7 @@ public:
     * @param growthRate The amount of individuals to be added in each iteration
     * @param maxPopulationSize The maximum allowed size of the population
     */
-   void setPopulationGrowth(
+   G_API void setPopulationGrowth(
       std::size_t growthRate
       , std::size_t maxPopulationSize
    ) {
@@ -424,7 +424,7 @@ public:
     *
     * @return The growth rate of the population per iteration
     */
-   std::size_t getGrowthRate() const {
+   G_API std::size_t getGrowthRate() const {
       return growthRate_;
    }
 
@@ -434,7 +434,7 @@ public:
     *
     * @return The maximum population size allowed, when growth is enabled
     */
-   std::size_t getMaxPopulationSize() const {
+   G_API std::size_t getMaxPopulationSize() const {
       return maxPopulationSize_;
    }
 
@@ -444,7 +444,7 @@ public:
     *
     * @param gpb The GParserBuilder object to which configuration options should be added
     */
-   virtual void addConfigurationOptions (
+   virtual G_API void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
    )  OVERRIDE {
       std::string comment;
@@ -526,9 +526,9 @@ public:
     * @return A converted shared_ptr to the parent
     */
    template <typename parent_type>
-   boost::shared_ptr<parent_type> getParentIndividual(
-         std::size_t parentId
-         , typename boost::enable_if<boost::is_base_of<GOptimizableEntity, parent_type> >::type* dummy = 0
+   G_API boost::shared_ptr<parent_type> getParentIndividual(
+      std::size_t parentId
+      , typename boost::enable_if<boost::is_base_of<GOptimizableEntity, parent_type> >::type* dummy = 0
    ){
 #ifdef DEBUG
       // Check that the parent id is in a valid range
@@ -549,32 +549,32 @@ public:
 
    /***************************************************************************/
    /** @brief Returns the name of this optimization algorithm */
-   virtual std::string getAlgorithmName() const = 0;
+   virtual G_API std::string getAlgorithmName() const = 0;
    /** @brief Returns information about the type of optimization algorithm */
-   virtual std::string getOptimizationAlgorithm() const = 0;
+   virtual G_API std::string getOptimizationAlgorithm() const = 0;
 
    /***************************************************************************/
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const OVERRIDE {
+   virtual G_API std::string name() const OVERRIDE {
       return std::string("GBaseParChildT");
    }
 
 protected:
    /***************************************************************************/
    /** @brief Creates a deep clone of this object */
-   virtual GObject *clone_() const = 0;
+   virtual G_API GObject *clone_() const = 0;
    /** @brief Adapts all children of this population */
-   virtual void adaptChildren() = 0;
+   virtual G_API void adaptChildren() = 0;
    /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
-   virtual void runFitnessCalculation() = 0;
+   virtual G_API void runFitnessCalculation() = 0;
    /** @brief Choose new parents, based on the selection scheme set by the user */
-   virtual void selectBest() = 0;
+   virtual G_API void selectBest() = 0;
    /** @brief Retrieves the evaluation range in a given iteration and sorting scheme */
-   virtual boost::tuple<std::size_t,std::size_t> getEvaluationRange() const = 0; // Depends on selection scheme
+   virtual G_API boost::tuple<std::size_t,std::size_t> getEvaluationRange() const = 0; // Depends on selection scheme
    /** @brief Some error checks related to population sizes */
-   virtual void populationSanityChecks() const = 0; // TODO: Take code from old init() function
+   virtual G_API void populationSanityChecks() const = 0; // TODO: Take code from old init() function
 
    /***************************************************************************/
    /**
@@ -582,7 +582,7 @@ protected:
     *
     * @param cp A pointer to another GBaseParChildT<ind_type> object, camouflaged as a GObject
     */
-   virtual void load_(const GObject * cp) OVERRIDE {
+   virtual G_API void load_(const GObject * cp) OVERRIDE {
       const GBaseParChildT<ind_type> *p_load = GObject::gobject_conversion<GBaseParChildT<ind_type> >(cp);
 
       // First load the parent class'es data ...
@@ -602,7 +602,7 @@ protected:
     * recombination scheme. Note that this function may be overloaded in derived classes,
     * to e.g. add features such as cross-over.
     */
-   virtual void doRecombine() {
+   virtual G_API void doRecombine() {
       std::size_t i;
       std::vector<double> threshold(nParents_);
       double thresholdSum=0.;
@@ -673,7 +673,7 @@ protected:
     * present. If individuals can get lost in your setting, you must add mechanisms
     * to "repair" the population.
     */
-   virtual void recombine() {
+   virtual G_API void recombine() {
 #ifdef DEBUG
       // We require at this stage that at least the default number of
       // children is present. If individuals can get lost in your setting,
@@ -703,7 +703,7 @@ protected:
     *
     * @return The range inside which adaption should take place
     */
-   boost::tuple<std::size_t,std::size_t> getAdaptionRange() const {
+   G_API boost::tuple<std::size_t,std::size_t> getAdaptionRange() const {
       return boost::tuple<std::size_t, std::size_t>(nParents_, this->size());
    }
 
@@ -711,7 +711,7 @@ protected:
    /**
     * This helper function marks parents as parents and children as children.
     */
-   void markParents() {
+   G_API void markParents() {
       typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
       for(it=GOptimizationAlgorithmT<ind_type>::data.begin(); it!=GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_; ++it){
          (*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsParent();
@@ -722,7 +722,7 @@ protected:
    /**
     * This helper function marks children as children
     */
-   void markChildren() {
+   G_API void markChildren() {
       typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
       for(it=GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_; it!=GOptimizationAlgorithmT<ind_type>::data.end(); ++it){
          (*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsChild();
@@ -734,7 +734,7 @@ protected:
     * This helper function lets all individuals know about their position in the
     * population.
     */
-   void markIndividualPositions() {
+   G_API void markIndividualPositions() {
       std::size_t pos = 0;
       typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
       for(it=GOptimizationAlgorithmT<ind_type>::data.begin(); it!=GOptimizationAlgorithmT<ind_type>::data.end(); ++it) {
@@ -749,7 +749,7 @@ protected:
     *
     * @return The value of the best individual found
     */
-   virtual boost::tuple<double, double> cycleLogic() OVERRIDE {
+   virtual G_API boost::tuple<double, double> cycleLogic() OVERRIDE {
       // If this is not the first iteration, check whether we need to increase the population
       if(GOptimizationAlgorithmT<ind_type>::afterFirstIteration()) {
          performScheduledPopulationGrowth();
@@ -791,7 +791,7 @@ protected:
     * tagging. It is called from within GOptimizationAlgorithmT<ind_type>::optimize(), before the
     * actual optimization cycle starts.
     */
-   virtual void init() OVERRIDE {
+   virtual G_API void init() OVERRIDE {
       // To be performed before any other action
       GOptimizationAlgorithmT<ind_type>::init();
 
@@ -813,7 +813,7 @@ protected:
    /**
     * Does any necessary finalization work
     */
-   virtual void finalize() OVERRIDE {
+   virtual G_API void finalize() OVERRIDE {
       // Last action
       GOptimizationAlgorithmT<ind_type>::finalize();
    }
@@ -826,7 +826,7 @@ protected:
     * been added will not be replaced. This function is called once before the optimization
     * cycle from within GOptimizationAlgorithmT<ind_type>::optimize()
     */
-   virtual void adjustPopulation() OVERRIDE {
+   virtual G_API void adjustPopulation() OVERRIDE {
       // Has the population size been set at all ?
       if(GOptimizationAlgorithmT<ind_type>::getDefaultPopulationSize() == 0) {
          glogger
@@ -877,7 +877,7 @@ protected:
     * Increases the population size if requested by the user. This will happen until the population size exceeds
     * a predefined value, set with setPopulationGrowth() .
     */
-   void performScheduledPopulationGrowth() {
+   G_API void performScheduledPopulationGrowth() {
       if(
             growthRate_ != 0
             && (this->getDefaultPopulationSize() + growthRate_ <= maxPopulationSize_)
@@ -899,7 +899,7 @@ protected:
     * copying of the individual's data takes place here, as we are dealing with
     * boost::shared_ptr objects.
     */
-   virtual void saveCheckpoint() const OVERRIDE {
+   virtual G_API void saveCheckpoint() const OVERRIDE {
       // Copy the nParents best individuals to a vector
       std::vector<boost::shared_ptr<ind_type> > bestIndividuals;
       typename GBaseParChildT<ind_type>::const_iterator it;
@@ -966,7 +966,7 @@ protected:
     *
     * @param pos The position of the individual for which a new value should be chosen
     */
-   void randomRecombine(boost::shared_ptr<ind_type>& child) {
+   G_API void randomRecombine(boost::shared_ptr<ind_type>& child) {
       std::size_t parent_pos;
 
       if(nParents_==1) {
@@ -999,7 +999,7 @@ protected:
     * @param pos The child individual for which a parent should be chosen
     * @param threshold A std::vector<double> holding the recombination likelihoods for each parent
     */
-   void valueRecombine(
+   G_API void valueRecombine(
       boost::shared_ptr<ind_type>& p
       , const std::vector<double>& threshold
    ) {
@@ -1033,7 +1033,7 @@ protected:
     * are sorted -- only the nParents best individuals are identified. The quality of the population can only
     * increase, but the optimization will stall more easily in MUPLUSNU_SINGLEEVAL mode.
     */
-   void sortMuPlusNuMode() {
+   G_API void sortMuPlusNuMode() {
 #ifdef DEBUG
       // Check that we do not accidently trigger value calculation
       typename GBaseParChildT<ind_type>::iterator it;
@@ -1063,7 +1063,7 @@ protected:
     * of the population may decrease occasionally from generation to generation, but the
     * optimization is less likely to stall.
     */
-   void sortMuCommaNuMode() {
+   G_API void sortMuCommaNuMode() {
 #ifdef DEBUG
       // Check that we do not accidently trigger value calculation
       typename GBaseParChildT<ind_type>::iterator it;
@@ -1080,10 +1080,10 @@ protected:
 
       // Only sort the children
       std::partial_sort(
-            GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_
-            , GOptimizationAlgorithmT<ind_type>::data.begin() + 2*nParents_
-            , GOptimizationAlgorithmT<ind_type>::data.end()
-            , boost::bind(&ind_type::minOnly_fitness, _1) < boost::bind(&ind_type::minOnly_fitness, _2)
+         GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_
+         , GOptimizationAlgorithmT<ind_type>::data.begin() + 2*nParents_
+         , GOptimizationAlgorithmT<ind_type>::data.end()
+         , boost::bind(&ind_type::minOnly_fitness, _1) < boost::bind(&ind_type::minOnly_fitness, _2)
       );
 
       std::swap_ranges(GOptimizationAlgorithmT<ind_type>::data.begin(),GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_,GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_);
@@ -1099,7 +1099,7 @@ protected:
     * mode, if only one parent is available, or if this is the first generation (so we
     * do not accidentally trigger value calculation).
     */
-   void sortMunu1pretainMode() {
+   G_API void sortMunu1pretainMode() {
 #ifdef DEBUG
       // Check that we do not accidently trigger value calculation
       typename GBaseParChildT<ind_type>::iterator it;
@@ -1160,7 +1160,7 @@ public:
     *
     * @return A boolean which indicates whether modifications were made
     */
-   virtual bool modify_GUnitTests() OVERRIDE {
+   virtual G_API bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 
       bool result = false;
@@ -1180,7 +1180,7 @@ public:
    /**
     * Performs self tests that are expected to succeed. This is needed for testing purposes
     */
-   virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+   virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
       // Call the parent class'es function
       GOptimizationAlgorithmT<ind_type>::specificTestsNoFailureExpected_GUnitTests();
@@ -1194,7 +1194,7 @@ public:
    /**
     * Performs self tests that are expected to fail. This is needed for testing purposes
     */
-   virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+   virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
       // Call the parent class'es function
       GOptimizationAlgorithmT<ind_type>::specificTestsFailuresExpected_GUnitTests();

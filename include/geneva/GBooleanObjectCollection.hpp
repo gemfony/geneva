@@ -56,69 +56,70 @@ namespace Geneva {
  * A collection of GBooleanObject objects, ready for use in a
  * GParameterSet derivative.
  */
-class G_API GBooleanObjectCollection
+class GBooleanObjectCollection
 	:public GParameterTCollectionT<GBooleanObject>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int){
+	G_API void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GParameterTCollectionT_gbo",
+	  ar
+	  & make_nvp("GParameterTCollectionT_gbo",
 			  boost::serialization::base_object<GParameterTCollectionT<GBooleanObject> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor */
-	GBooleanObjectCollection();
+	G_API GBooleanObjectCollection();
 	/** @brief Initialization with a number of GBooleanObject objects */
-	GBooleanObjectCollection(const std::size_t&, boost::shared_ptr<GBooleanObject>);
+	G_API GBooleanObjectCollection(const std::size_t&, boost::shared_ptr<GBooleanObject>);
 	/** @brief Initialization with a number of GBoolean objects with a given probability for the value "true" */
-	GBooleanObjectCollection(const std::size_t&, const double&);
+	G_API GBooleanObjectCollection(const std::size_t&, const double&);
 	/** @brief The copy constructor */
-	GBooleanObjectCollection(const GBooleanObjectCollection&);
+	G_API GBooleanObjectCollection(const GBooleanObjectCollection&);
 	/** @brief The destructor */
-	virtual ~GBooleanObjectCollection();
+	virtual G_API ~GBooleanObjectCollection();
 
 	/** @brief A standard assignment operator */
-	const GBooleanObjectCollection& operator=(const GBooleanObjectCollection&);
+	G_API const GBooleanObjectCollection& operator=(const GBooleanObjectCollection&);
 
 	/** @brief Checks for equality with another GBooleanObjectCollection object */
-	bool operator==(const GBooleanObjectCollection&) const;
+	G_API bool operator==(const GBooleanObjectCollection&) const;
 	/** @brief Checks for inequality with another GBooleanObjectCollection object */
-	bool operator!=(const GBooleanObjectCollection&) const;
+	G_API bool operator!=(const GBooleanObjectCollection&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(
-			const GObject&
-			, const Gem::Common::expectation&
-			, const double&
-			, const std::string&
-			, const std::string&
-			, const bool&
+	virtual G_API boost::optional<std::string> checkRelationshipWith(
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
 	) const OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const OVERRIDE;
+   virtual G_API std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another GObject */
-	virtual void load_(const GObject*) OVERRIDE;
+	virtual G_API void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object. */
-	virtual GObject* clone_() const OVERRIDE;
+	virtual G_API GObject* clone_() const OVERRIDE;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests() OVERRIDE;
+	virtual G_API bool modify_GUnitTests() OVERRIDE;
 	/** @brief Fills the collection with GBooleanObject objects */
-	void fillWithObjects(const std::size_t&);
+	G_API void fillWithObjects(const std::size_t&);
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/
