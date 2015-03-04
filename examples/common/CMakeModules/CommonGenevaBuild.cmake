@@ -167,7 +167,7 @@ GET_BUILD_FLAGS (
 ################################################################################
 # Set the build mode static or dynamic
 
-IF ( GENEVA_STATIC ) 
+IF ( GENEVA_STATIC )
 	SET (BUILD_SHARED_LIBS OFF)
 ELSE () # dynamic libraries
 	SET (BUILD_SHARED_LIBS ON)
@@ -196,7 +196,7 @@ ENDIF ()
 SET (Boost_USE_MULTITHREAD ON)
 SET (Boost_ADDITIONAL_VERSIONS "1.57" "1.57.0" "1.58" "1.58.0")
 
-IF ( GENEVA_STATIC ) 
+IF ( GENEVA_STATIC )
 	SET (Boost_USE_STATIC_LIBS ON)
 ELSE () # Dynamic libraries
 	SET (Boost_USE_STATIC_LIBS OFF)
@@ -219,7 +219,7 @@ SET (
 	regex
 	serialization
 	system
-	thread	
+	thread
 )
 
 IF(WIN32)
@@ -287,7 +287,7 @@ SET (
 
 # This variable contains the library names. In case of an independent build,
 # it is overwritten later by FindGeneva, with the list of full library paths.
-# The function TARGET_LINK_LIBRARIES() can use either variant. 
+# The function TARGET_LINK_LIBRARIES() can use either variant.
 SET ( GENEVA_LIBRARIES ${GENEVA_LIBNAMES} )
 
 ################################################################################
@@ -448,10 +448,10 @@ ENDIF ()
 # Don't print the useless build type on multi-config generators
 IF(NOT CMAKE_CONFIGURATION_TYPES)
 	MESSAGE ("\tin ${CMAKE_BUILD_TYPE} mode")
-ENDIF () 
+ENDIF ()
 IF ("${GENEVA_BUILD_TYPE}" STREQUAL "Sanitize")
 	MESSAGE ("\twith -fsanitize=thread (if available)")
-ENDIF () 
+ENDIF ()
 
 MESSAGE ("\twith Boost include location:\t ${Boost_INCLUDE_DIRS}")
 MESSAGE ("\twith Boost library location:\t ${Boost_LIBRARY_DIRS}")

@@ -151,7 +151,7 @@ MACRO (
 			SET(GENEVA_BUILD_TYPE "Debug")
 		ENDIF()
 		MESSAGE ("\n${MSG}\n")
-	ENDIF () 
+	ENDIF ()
 	#--------------------------------------------------------------------------
 
 ENDMACRO()

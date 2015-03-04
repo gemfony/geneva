@@ -1,7 +1,7 @@
 This directory contains CMake macros taken directly from the CMake distribution.
 Currently you will find here only the FindBoost.cmake macro, taken from CMake 3.0 .
 
-Please note the following copyright notice, taken from the file Copyright.txt in 
+Please note the following copyright notice, taken from the file Copyright.txt in
 the CMake source distribution:
 
 ************************************************************************************

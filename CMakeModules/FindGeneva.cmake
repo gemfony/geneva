@@ -108,7 +108,7 @@ ENDFOREACH ()
 ###############################################################################
 # Find the include directories. We search for a single include
 # directory only and assume that the others can be found at the
-# same level 
+# same level
 
 SET (GENEVA_COMMON_HEADER_PATH "common/GGlobalDefines.hpp" )
 
@@ -158,13 +158,13 @@ FOREACH ( name IN LISTS NAMES )
 	# location, and only if not found we search the normal system paths
 	IF (GENEVA_LIBRARYDIR)
 		FIND_LIBRARY (
-			GENEVA_${ucname}_LIBRARY 
+			GENEVA_${ucname}_LIBRARY
 			NAMES "gemfony-${name}"
 			PATHS ${GENEVA_LIBRARYDIR} NO_DEFAULT_PATH
 		)
 	ENDIF ()
 	FIND_LIBRARY (
-		GENEVA_${ucname}_LIBRARY 
+		GENEVA_${ucname}_LIBRARY
 		NAMES "gemfony-${name}"
 		PATHS ${_INSTALL_DIRS_LIB}
 	)
@@ -201,8 +201,8 @@ IF (NOT GENEVA_LIBS)
 	     " location of Geneva.\n")
 ELSE ()
 	GET_FILENAME_COMPONENT (
-		GENEVA_LIBRARY_DIR 
-		${GENEVA_COMMON_LIBRARY} 
+		GENEVA_LIBRARY_DIR
+		${GENEVA_COMMON_LIBRARY}
 		PATH
 	)
 ENDIF ()
@@ -215,7 +215,7 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS (
 	DEFAULT_MSG
 	GENEVA_INCLUDE_DIR
 	GENEVA_LIBRARY_DIR
-	GENEVA_COMMON_LIBRARY 
+	GENEVA_COMMON_LIBRARY
 )
 
 ###############################################################################
