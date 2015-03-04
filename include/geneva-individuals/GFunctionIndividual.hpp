@@ -74,7 +74,7 @@ namespace Geneva {
 /**
  * This enum denotes the possible demo function types
  */
-enum solverFunction {
+enum G_API solverFunction {
    PARABOLA=0
    , NOISYPARABOLA=1
    , ROSENBROCK=2
@@ -97,7 +97,7 @@ G_API std::istream& operator>>(std::istream&, Gem::Geneva::solverFunction&);
 /**
  * This enum describes different parameter types that may be used to fill the object with data
  */
-enum parameterType {
+enum G_API parameterType {
 	USEGDOUBLECOLLECTION = 0
 	, USEGCONSTRAINEDOUBLECOLLECTION = 1
 	, USEGDOUBLEOBJECTCOLLECTION = 2
@@ -115,7 +115,7 @@ G_API std::istream& operator>>(std::istream&, Gem::Geneva::parameterType&);
 /**
  * This enum describes several ways of initializing the data collections
  */
-enum initMode {
+enum G_API initMode {
 	INITRANDOM = 0 // random values for all variables
 	, INITPERIMETER = 1 // Uses a parameter set on the perimeter of the allowed or common value range
 };

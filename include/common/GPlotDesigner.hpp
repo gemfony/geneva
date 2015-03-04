@@ -72,7 +72,7 @@ namespace Common {
 /**
  * Determines whether a scatter plot or a curve should be recorded
  */
-enum graphPlotMode {
+enum G_API graphPlotMode {
 	SCATTER = 0
 	, CURVE = 1
 };

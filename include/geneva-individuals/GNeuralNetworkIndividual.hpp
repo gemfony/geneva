@@ -318,9 +318,9 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /** @brief This enum is used to specify the type of training data that should be generated */
-enum trainingDataType {TDTNONE=0, HYPERCUBE=1, HYPERSPHERE=2, AXISCENTRIC=3, SINUS=4};
+enum G_API trainingDataType {TDTNONE=0, HYPERCUBE=1, HYPERSPHERE=2, AXISCENTRIC=3, SINUS=4};
 /** @brief Allows to specify whether we want to use a sigmoidal transfer function or a radial basis function */
-enum transferFunction {SIGMOID=0, RBF=1};
+enum G_API transferFunction {SIGMOID=0, RBF=1};
 
 /******************************************************************************/
 /** @brief  Reads a Gem::Geneva::trainingDataType item from a stream */
