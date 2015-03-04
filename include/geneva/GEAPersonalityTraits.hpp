@@ -54,61 +54,62 @@ namespace Geneva {
  * This class adds variables and functions to GPersonalityTraits that are specific
  * to evolutionary algorithms.
  */
-class G_API GEAPersonalityTraits
+class GEAPersonalityTraits
    : public GBaseParChildPersonalityTraits
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int){
+	G_API void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
-	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseParChildPersonalityTraits)
-	     & BOOST_SERIALIZATION_NVP(isOnParetoFront_);
+	  ar
+	  & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseParChildPersonalityTraits)
+	  & BOOST_SERIALIZATION_NVP(isOnParetoFront_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor */
-	GEAPersonalityTraits();
+	G_API GEAPersonalityTraits();
 	/** @brief The copy contructor */
-	GEAPersonalityTraits(const GEAPersonalityTraits&);
+	G_API GEAPersonalityTraits(const GEAPersonalityTraits&);
 	/** @brief The standard destructor */
-	virtual ~GEAPersonalityTraits();
+	virtual G_API ~GEAPersonalityTraits();
 
 	/** @brief A standard assignment operator */
-	const GEAPersonalityTraits& operator=(const GEAPersonalityTraits&);
+	G_API const GEAPersonalityTraits& operator=(const GEAPersonalityTraits&);
 
 	/** @brief Checks for equality with another GEAPersonalityTraits object */
-	bool operator==(const GEAPersonalityTraits&) const;
+	G_API bool operator==(const GEAPersonalityTraits&) const;
 	/** @brief Checks for inequality with another GEAPersonalityTraits object */
-	bool operator!=(const GEAPersonalityTraits&) const;
+	G_API bool operator!=(const GEAPersonalityTraits&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(
-	      const GObject&
-	      , const Gem::Common::expectation&
-	      , const double&
-	      , const std::string&
-	      , const std::string&
-	      , const bool&
+	virtual G_API boost::optional<std::string> checkRelationshipWith(
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
 	) const OVERRIDE;
 
 	/** @brief Allows to check whether this individual lies on the pareto front (only yields useful results after pareto-sorting in EA) */
-	bool isOnParetoFront() const;
+	G_API bool isOnParetoFront() const;
 	/** @brief Allows to reset the pareto tag to "true" */
-	void resetParetoTag();
+	G_API void resetParetoTag();
 	/** @brief Allows to specify that this individual does not lie on the pareto front of the current iteration */
-	void setIsNotOnParetoFront();
+	G_API void setIsNotOnParetoFront();
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const OVERRIDE;
+   virtual G_API std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another GEAPersonalityTraits object */
-	virtual void load_(const GObject*) OVERRIDE;
+	virtual G_API void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone_() const OVERRIDE;
+	virtual G_API GObject* clone_() const OVERRIDE;
 
 private:
 	/** @brief Determines whether the individual lies on the pareto front */
@@ -116,11 +117,11 @@ private:
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests() OVERRIDE;
+	virtual G_API bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

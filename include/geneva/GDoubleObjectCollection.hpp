@@ -55,67 +55,68 @@ namespace Geneva {
  * A collection of GDoubleObject objects, ready for use in a
  * GParameterSet derivative.
  */
-class G_API GDoubleObjectCollection
+class GDoubleObjectCollection
 	:public GParameterTCollectionT<GDoubleObject>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int){
+	G_API void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GParameterTCollectionT_gbd",
-			  boost::serialization::base_object<GParameterTCollectionT<GDoubleObject> >(*this));
+	  ar
+	  & make_nvp("GParameterTCollectionT_gbd",
+	        boost::serialization::base_object<GParameterTCollectionT<GDoubleObject> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor */
-	GDoubleObjectCollection();
+	G_API GDoubleObjectCollection();
 	/** @brief Initialization with a number of GDoubleObject objects */
-	GDoubleObjectCollection(const std::size_t&, boost::shared_ptr<GDoubleObject>);
+	G_API GDoubleObjectCollection(const std::size_t&, boost::shared_ptr<GDoubleObject>);
 	/** @brief The copy constructor */
-	GDoubleObjectCollection(const GDoubleObjectCollection&);
+	G_API GDoubleObjectCollection(const GDoubleObjectCollection&);
 	/** @brief The destructor */
-	virtual ~GDoubleObjectCollection();
+	virtual G_API ~GDoubleObjectCollection();
 
 	/** @brief A standard assignment operator */
-	const GDoubleObjectCollection& operator=(const GDoubleObjectCollection&);
+	G_API const GDoubleObjectCollection& operator=(const GDoubleObjectCollection&);
 
 	/** @brief Checks for equality with another GDoubleObjectCollection object */
-	bool operator==(const GDoubleObjectCollection&) const;
+	G_API bool operator==(const GDoubleObjectCollection&) const;
 	/** @brief Checks for inequality with another GDoubleObjectCollection object */
-	bool operator!=(const GDoubleObjectCollection&) const;
+	G_API bool operator!=(const GDoubleObjectCollection&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(
-			const GObject&
-			, const Gem::Common::expectation&
-			, const double&
-			, const std::string&
-			, const std::string&
-			, const bool&
+	virtual G_API boost::optional<std::string> checkRelationshipWith(
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
 	) const OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const OVERRIDE;
+   virtual G_API std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another GObject */
-	virtual void load_(const GObject*) OVERRIDE;
+	virtual G_API void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object. */
-	virtual GObject* clone_() const OVERRIDE;
+	virtual G_API GObject* clone_() const OVERRIDE;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests() OVERRIDE;
+	virtual G_API bool modify_GUnitTests() OVERRIDE;
 	/** @brief Fills the collection with GDoubleObject objects */
-	void fillWithObjects(const std::size_t&);
+	G_API void fillWithObjects(const std::size_t&);
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

@@ -66,41 +66,41 @@ namespace Geneva {
 /**
  * This class is a specialization of the GFactoryT<> class for evolutionary algorithms.
  */
-class G_API GEvolutionaryAlgorithmFactory
+class GEvolutionaryAlgorithmFactory
 	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >
 {
 public:
    /** @brief An easy identifier for the class */
-   static const std::string nickname; // Initialized in the .cpp definition file
+   static G_API const std::string nickname; // Initialized in the .cpp definition file
 
 	/** @brief The default constructor */
-   GEvolutionaryAlgorithmFactory();
+   G_API GEvolutionaryAlgorithmFactory();
    /** @brief Initialization with the name of the config file and the default parallelization mode */
-   explicit GEvolutionaryAlgorithmFactory(const std::string&);
+   explicit G_API GEvolutionaryAlgorithmFactory(const std::string&);
 	/** @brief The standard constructor */
-	GEvolutionaryAlgorithmFactory(
+   G_API GEvolutionaryAlgorithmFactory(
 	      const std::string&
 	      , const execMode&
 	);
 	/** @brief Adds a content creator in addition to the standard values */
-   GEvolutionaryAlgorithmFactory(
+   G_API GEvolutionaryAlgorithmFactory(
          const std::string&
          , const execMode&
          , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
    );
 	/** @brief The destructor */
-	virtual ~GEvolutionaryAlgorithmFactory();
+	virtual G_API ~GEvolutionaryAlgorithmFactory();
 
    /** @brief Gives access to the mnemonics / nickname describing an algorithm */
-   virtual std::string getMnemonic() const OVERRIDE;
+   virtual G_API std::string getMnemonic() const OVERRIDE;
    /** @brief Gives access to a clear-text description of the algorithm */
-   virtual std::string getAlgorithmName() const OVERRIDE;
+   virtual G_API std::string getAlgorithmName() const OVERRIDE;
 
 protected:
 	/** @brief Creates individuals of this type */
-	virtual boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > getObject_(Gem::Common::GParserBuilder&, const std::size_t&) OVERRIDE;
+	virtual G_API boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > getObject_(Gem::Common::GParserBuilder&, const std::size_t&) OVERRIDE;
 	/** @brief Allows to act on the configuration options received from the configuration file */
-	virtual void postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >&) OVERRIDE;
+	virtual G_API void postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >&) OVERRIDE;
 };
 
 /******************************************************************************/

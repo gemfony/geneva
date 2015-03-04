@@ -55,38 +55,39 @@ namespace Geneva {
  * This class adds variables and functions to GPersonalityTraits that are specific
  * to gradient descents.
  */
-class G_API GGDPersonalityTraits :public GPersonalityTraits
+class GGDPersonalityTraits :public GPersonalityTraits
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int){
+	G_API void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
-	     & BOOST_SERIALIZATION_NVP(popPos_);
+	  ar
+	  & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
+	  & BOOST_SERIALIZATION_NVP(popPos_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor */
-	GGDPersonalityTraits();
+	G_API GGDPersonalityTraits();
 	/** @brief The copy contructor */
-	GGDPersonalityTraits(const GGDPersonalityTraits&);
+	G_API GGDPersonalityTraits(const GGDPersonalityTraits&);
 	/** @brief The standard destructor */
-	virtual ~GGDPersonalityTraits();
+	virtual G_API ~GGDPersonalityTraits();
 
 	/** @brief A standard assignment operator */
-	const GGDPersonalityTraits& operator=(const GGDPersonalityTraits&);
+	G_API const GGDPersonalityTraits& operator=(const GGDPersonalityTraits&);
 
 	/** @brief Checks for equality with another GGDPersonalityTraits object */
-	bool operator==(const GGDPersonalityTraits&) const;
+	G_API bool operator==(const GGDPersonalityTraits&) const;
 	/** @brief Checks for inequality with another GGDPersonalityTraits object */
-	bool operator!=(const GGDPersonalityTraits&) const;
+	G_API bool operator!=(const GGDPersonalityTraits&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(
+	virtual G_API boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -96,18 +97,18 @@ public:
 	) const OVERRIDE;
 
 	/** @brief Sets the position of the individual in the population */
-	void setPopulationPosition(const std::size_t&) ;
+	G_API void setPopulationPosition(const std::size_t&) ;
 	/** @brief Retrieves the position of the individual in the population */
-	std::size_t getPopulationPosition(void) const ;
+	G_API std::size_t getPopulationPosition(void) const ;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const OVERRIDE;
+   virtual G_API std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another GGDPersonalityTraits object */
-	virtual void load_(const GObject*) OVERRIDE;
+	virtual G_API void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone_() const OVERRIDE;
+	virtual G_API GObject* clone_() const OVERRIDE;
 
 private:
 	/** @brief Stores the current position in the population */
@@ -115,11 +116,11 @@ private:
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests() OVERRIDE;
+	virtual G_API bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

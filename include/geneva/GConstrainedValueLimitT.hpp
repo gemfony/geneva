@@ -61,13 +61,13 @@ namespace Geneva {
  * than the allowed maximum value for floating point types.
  */
 template <typename T>
-struct G_API GConstrainedValueLimitT
+struct GConstrainedValueLimitT
 {
-   static T highest() {
+   static G_API T highest() {
       return boost::numeric::bounds<T>::highest();
    }
 
-	static T lowest() {
+	static G_API T lowest() {
 	   return boost::numeric::bounds<T>::lowest();
 	}
 };
@@ -77,13 +77,13 @@ struct G_API GConstrainedValueLimitT
  * Specialization of GConstrainedValueLimitT for double values.
  */
 template <>
-struct G_API GConstrainedValueLimitT<double>
+struct GConstrainedValueLimitT<double>
 {
-	static double highest() {
+	static G_API double highest() {
 		return GMAXCONSTRAINEDDOUBLE;
 	}
 
-   static double lowest() {
+   static G_API double lowest() {
       return -GMAXCONSTRAINEDDOUBLE;
    }
 };
@@ -93,13 +93,13 @@ struct G_API GConstrainedValueLimitT<double>
  * Specialization of GConstrainedValueLimitT for float values.
  */
 template <>
-struct G_API GConstrainedValueLimitT<float>
+struct GConstrainedValueLimitT<float>
 {
-	static float highest() {
+	static G_API float highest() {
 		return GMAXCONSTRAINEDFLOAT;
 	}
 
-   static float lowest() {
+   static G_API float lowest() {
       return -GMAXCONSTRAINEDFLOAT;
    }
 };
@@ -109,13 +109,13 @@ struct G_API GConstrainedValueLimitT<float>
  * Specialization of GConstrainedValueLimitT for boost::int32_t values.
  */
 template <>
-struct G_API GConstrainedValueLimitT<boost::int32_t>
+struct GConstrainedValueLimitT<boost::int32_t>
 {
-	static boost::int32_t highest() {
+	static G_API boost::int32_t highest() {
 		return GMAXCONSTRAINEDINT32;
 	}
 
-   static boost::int32_t lowest() {
+   static G_API boost::int32_t lowest() {
       return -GMAXCONSTRAINEDINT32;
    }
 };
@@ -125,13 +125,13 @@ struct G_API GConstrainedValueLimitT<boost::int32_t>
  * Specialization of GConstrainedValueLimitT for bool values.
  */
 template <>
-struct G_API GConstrainedValueLimitT<bool>
+struct GConstrainedValueLimitT<bool>
 {
-   static bool highest() {
+   static G_API bool highest() {
       return true;
    }
 
-   static bool lowest() {
+   static G_API bool lowest() {
       return false;
    }
 };

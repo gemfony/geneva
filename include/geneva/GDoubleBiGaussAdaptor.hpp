@@ -57,40 +57,41 @@ namespace Geneva {
  * as implemented by this library. It is now implemented through a generic
  * base class that can also be used to adapt other numeric types.
  */
-class G_API GDoubleBiGaussAdaptor
+class GDoubleBiGaussAdaptor
 	:public GFPBiGaussAdaptorT<double>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int){
+	G_API void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GFPBiGaussAdaptorT_double", boost::serialization::base_object<GFPBiGaussAdaptorT<double> >(*this));
+	  ar
+	  & make_nvp("GFPBiGaussAdaptorT_double", boost::serialization::base_object<GFPBiGaussAdaptorT<double> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor */
-	GDoubleBiGaussAdaptor();
+	G_API GDoubleBiGaussAdaptor();
 	/** @brief The copy constructor */
-	GDoubleBiGaussAdaptor(const GDoubleBiGaussAdaptor&);
+	G_API GDoubleBiGaussAdaptor(const GDoubleBiGaussAdaptor&);
 	/** @brief Initialization with a adaption probability */
-	explicit GDoubleBiGaussAdaptor(const double&);
+	explicit G_API GDoubleBiGaussAdaptor(const double&);
 	/** @brief The destructor */
-	virtual ~GDoubleBiGaussAdaptor();
+	virtual G_API ~GDoubleBiGaussAdaptor();
 
 	/** @brief A standard assignment operator */
-	const GDoubleBiGaussAdaptor& operator=(const GDoubleBiGaussAdaptor&);
+	G_API const GDoubleBiGaussAdaptor& operator=(const GDoubleBiGaussAdaptor&);
 
 	/** @brief Checks for equality with another GDoubleBiGaussAdaptor object */
-	bool operator==(const GDoubleBiGaussAdaptor&) const;
+	G_API bool operator==(const GDoubleBiGaussAdaptor&) const;
 	/** @brief Checks for inequality with another GDoubleBiGaussAdaptor object */
-	bool operator!=(const GDoubleBiGaussAdaptor&) const;
+	G_API bool operator!=(const GDoubleBiGaussAdaptor&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(
+	virtual G_API boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -100,24 +101,24 @@ public:
 	) const OVERRIDE;
 
 	/** @brief Retrieves the id of this adaptor */
-	virtual Gem::Geneva::adaptorId getAdaptorId() const OVERRIDE;
+	virtual G_API Gem::Geneva::adaptorId getAdaptorId() const OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const OVERRIDE;
+   virtual G_API std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another GObject */
-	virtual void load_(const GObject*) OVERRIDE;
+	virtual G_API void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object. */
-	virtual GObject* clone_() const OVERRIDE;
+	virtual G_API GObject* clone_() const OVERRIDE;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests() OVERRIDE;
+	virtual G_API bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	virtual  G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

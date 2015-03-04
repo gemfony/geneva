@@ -29,7 +29,7 @@
  * along with the Geneva library. If not, see <http://www.gnu.org/licenses/>.
  *
  * For further information on Gemfony scientific and Geneva, visit
- * http://www.gemfony.eu .
+ * http://www.gemfony.eu.
  */
 
 // Global checks, defines and includes needed for all of Geneva

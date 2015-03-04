@@ -60,36 +60,37 @@ namespace Geneva {
  * 1 might be a good choice. Similarly, the minSigma parameter should be set
  * accordingly, so sigma cannot get too small when being adapted.
  */
-class G_API GInt32GaussAdaptor
+class GInt32GaussAdaptor
 	:public GIntGaussAdaptorT<boost::int32_t>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int){
+	G_API void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GIntGaussAdaptorT_int32", boost::serialization::base_object<GIntGaussAdaptorT<boost::int32_t> >(*this));
+	  ar
+	  & make_nvp("GIntGaussAdaptorT_int32", boost::serialization::base_object<GIntGaussAdaptorT<boost::int32_t> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor */
-	GInt32GaussAdaptor();
+	G_API GInt32GaussAdaptor();
 	/** @brief The copy constructor */
-	GInt32GaussAdaptor(const GInt32GaussAdaptor&);
+	G_API GInt32GaussAdaptor(const GInt32GaussAdaptor&);
 	/** @brief Initialization with a adaption probability */
-	explicit GInt32GaussAdaptor(const double&);
+	explicit G_API GInt32GaussAdaptor(const double&);
 	/** @brief Initialization with a number of values belonging to the width of the gaussian */
-	GInt32GaussAdaptor(
+	G_API GInt32GaussAdaptor(
       const double&
       , const double&
       , const double&
       , const double&
 	);
 	/** @brief Initialization with a number of values belonging to the width of the gaussian and the adaption probability */
-	GInt32GaussAdaptor(
+	G_API GInt32GaussAdaptor(
       const double&
       , const double&
       , const double&
@@ -97,18 +98,18 @@ public:
       , const double&
 	);
 	/** @brief The destructor */
-	virtual ~GInt32GaussAdaptor();
+	virtual G_API ~GInt32GaussAdaptor();
 
 	/** @brief A standard assignment operator */
-	const GInt32GaussAdaptor& operator=(const GInt32GaussAdaptor&);
+	G_API const GInt32GaussAdaptor& operator=(const GInt32GaussAdaptor&);
 
 	/** @brief Checks for equality with another GInt32GaussAdaptor object */
-	bool operator==(const GInt32GaussAdaptor&) const;
+	G_API bool operator==(const GInt32GaussAdaptor&) const;
 	/** @brief Checks for inequality with another GInt32GaussAdaptor object */
-	bool operator!=(const GInt32GaussAdaptor&) const;
+	G_API bool operator!=(const GInt32GaussAdaptor&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(
+	virtual G_API boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -118,24 +119,24 @@ public:
 	) const OVERRIDE;
 
 	/** @brief Retrieves the id of this adaptor */
-	virtual Gem::Geneva::adaptorId getAdaptorId() const OVERRIDE;
+	virtual G_API Gem::Geneva::adaptorId getAdaptorId() const OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const OVERRIDE;
+   virtual G_API std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another GObject */
-	virtual void load_(const GObject*) OVERRIDE;
+	virtual G_API void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object. */
-	virtual GObject* clone_() const OVERRIDE;
+	virtual G_API GObject* clone_() const OVERRIDE;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests() OVERRIDE;
+	virtual G_API bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

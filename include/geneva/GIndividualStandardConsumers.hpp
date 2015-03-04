@@ -62,20 +62,20 @@ namespace Geneva {
 /**
  * A consumer used for network communication, using GParameterSet-derivatives
  */
-class G_API GIndividualTCPConsumer
+class GIndividualTCPConsumer
    : public Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GParameterSet>
 {
 public:
    /** @brief The default constructor */
-   GIndividualTCPConsumer();
+   G_API GIndividualTCPConsumer();
    /** @brief A constructor that takes a number of vital arguments */
-   GIndividualTCPConsumer(
-         const unsigned short&
-         , const std::size_t& = 0
-         , const Gem::Common::serializationMode& = Gem::Common::SERIALIZATIONMODE_BINARY
+   G_API GIndividualTCPConsumer(
+      const unsigned short&
+      , const std::size_t& = 0
+      , const Gem::Common::serializationMode& = Gem::Common::SERIALIZATIONMODE_BINARY
    );
    /** @brief The destructor */
-   virtual ~GIndividualTCPConsumer();
+   virtual G_API ~GIndividualTCPConsumer();
 };
 
 /******************************************************************************/
@@ -84,14 +84,14 @@ public:
 /**
  * A consumer used for multi-threaded processing, using GParameterSet-derivatives
  */
-class G_API GIndividualThreadConsumer
+class GIndividualThreadConsumer
    : public Gem::Courtier::GBoostThreadConsumerT<Gem::Geneva::GParameterSet>
 {
 public:
    /** @brief The default constructor */
-   GIndividualThreadConsumer();
+   G_API GIndividualThreadConsumer();
    /** @brief The desstructor */
-   virtual ~GIndividualThreadConsumer();
+   virtual G_API ~GIndividualThreadConsumer();
 };
 
 /******************************************************************************/
@@ -101,14 +101,14 @@ public:
  * A consumer used for serial execution (mostly needed for debugging purposes).
  * Its payload are GParameterSet-derivatives.
  */
-class G_API GIndividualSerialConsumer
+class GIndividualSerialConsumer
    : public Gem::Courtier::GSerialConsumerT<Gem::Geneva::GParameterSet>
 {
 public:
    /** @brief The default constructor */
-   GIndividualSerialConsumer();
+   G_API GIndividualSerialConsumer();
    /** @brief The desstructor */
-   virtual ~GIndividualSerialConsumer();
+   virtual G_API ~GIndividualSerialConsumer();
 };
 
 /******************************************************************************/

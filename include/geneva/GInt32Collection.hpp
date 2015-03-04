@@ -54,51 +54,52 @@ namespace Geneva {
 /**
  * A collection of boost::int32_t objects without boundaries
  */
-class G_API GInt32Collection
+class GInt32Collection
 	:public GIntNumCollectionT<boost::int32_t>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int){
+	G_API void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GIntNumCollectionT_int32", boost::serialization::base_object<GIntNumCollectionT<boost::int32_t> >(*this));
+	  ar
+	  & make_nvp("GIntNumCollectionT_int32", boost::serialization::base_object<GIntNumCollectionT<boost::int32_t> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor */
-	GInt32Collection();
+	G_API GInt32Collection();
 	/** @brief Initialization with a number of random values in a given range */
-	GInt32Collection(
+	G_API GInt32Collection(
       const std::size_t&
       , const boost::int32_t&
       , const boost::int32_t&
 	);
 	/** @brief Initialization with a number of predefined values and the initialization range */
-	GInt32Collection(
+	G_API GInt32Collection(
       const std::size_t&
       , const boost::int32_t&
       , const boost::int32_t&
       , const boost::int32_t&
 	);
 	/** @brief The copy constructor */
-	GInt32Collection(const GInt32Collection&);
+	G_API GInt32Collection(const GInt32Collection&);
 	/** @brief The destructor */
-	virtual ~GInt32Collection();
+	virtual G_API ~GInt32Collection();
 
 	/** @brief A standard assignment operator */
-	const GInt32Collection& operator=(const GInt32Collection&);
+	G_API const GInt32Collection& operator=(const GInt32Collection&);
 
 	/** @brief Checks for equality with another GInt32Collection object */
-	bool operator==(const GInt32Collection&) const;
+	G_API bool operator==(const GInt32Collection&) const;
 	/** @brief Checks for inequality with another GInt32Collection object */
-	bool operator!=(const GInt32Collection&) const;
+	G_API bool operator!=(const GInt32Collection&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(
+	virtual G_API boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -108,34 +109,34 @@ public:
 	) const OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const OVERRIDE;
+   virtual G_API std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another GObject */
-	virtual void load_(const GObject* cp) OVERRIDE;
+	virtual G_API void load_(const GObject* cp) OVERRIDE;
 	/** @brief Creates a deep clone of this object. */
-	virtual GObject* clone_() const OVERRIDE;
+	virtual G_API GObject* clone_() const OVERRIDE;
 
    /** @brief Attach our local values to the vector. */
-   virtual void int32Streamline(std::vector<boost::int32_t>&, const activityMode& am) const OVERRIDE;
+   virtual G_API void int32Streamline(std::vector<boost::int32_t>&, const activityMode& am) const OVERRIDE;
    /** @brief Attach boundaries of type boost::int32_t to the vectors */
-   virtual void int32Boundaries(std::vector<boost::int32_t>&, std::vector<boost::int32_t>&, const activityMode& am) const OVERRIDE;
+   virtual G_API void int32Boundaries(std::vector<boost::int32_t>&, std::vector<boost::int32_t>&, const activityMode& am) const OVERRIDE;
    /** @brief Tell the audience that we own a number of boost::int32_t values */
-   virtual std::size_t countInt32Parameters(const activityMode& am) const OVERRIDE;
+   virtual G_API std::size_t countInt32Parameters(const activityMode& am) const OVERRIDE;
    /** @brief Assigns part of a value vector to the parameter */
-   virtual void assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&, const activityMode& am) OVERRIDE;
+   virtual G_API void assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&, const activityMode& am) OVERRIDE;
    /** @brief Attach our local values to the vector. */
-   virtual void int32Streamline(std::map<std::string, std::vector<boost::int32_t> >&, const activityMode& am) const OVERRIDE;
+   virtual G_API void int32Streamline(std::map<std::string, std::vector<boost::int32_t> >&, const activityMode& am) const OVERRIDE;
    /** @brief Assigns part of a value vector to the parameter */
-   virtual void assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t> >&, const activityMode& am) OVERRIDE;
+   virtual G_API void assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t> >&, const activityMode& am) OVERRIDE;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests() OVERRIDE;
+	virtual G_API bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

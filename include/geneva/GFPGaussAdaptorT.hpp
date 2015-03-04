@@ -59,17 +59,18 @@ namespace Geneva {
  * base class that can also be used to adapt other numeric types.
  */
 template<typename fp_type>
-class G_API GFPGaussAdaptorT
+class GFPGaussAdaptorT
 	:public GNumGaussAdaptorT<fp_type, fp_type>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int){
+	G_API void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GNumGaussAdaptorT_fp_type", boost::serialization::base_object<GNumGaussAdaptorT<fp_type, fp_type> >(*this));
+	  ar
+	  & make_nvp("GNumGaussAdaptorT_fp_type", boost::serialization::base_object<GNumGaussAdaptorT<fp_type, fp_type> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -81,7 +82,7 @@ public:
 	/**
 	 * The default constructor
 	 */
-	GFPGaussAdaptorT()
+	G_API GFPGaussAdaptorT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -90,7 +91,7 @@ public:
 	 *
 	 * @param cp A copy of another GFPGaussAdaptorT object
 	 */
-	GFPGaussAdaptorT(const GFPGaussAdaptorT<fp_type>& cp)
+	G_API GFPGaussAdaptorT(const GFPGaussAdaptorT<fp_type>& cp)
 		: GNumGaussAdaptorT<fp_type, fp_type>(cp)
 	{ /* nothing */ }
 
@@ -100,7 +101,7 @@ public:
 	 *
 	 * @param adProb The adaption probability
 	 */
-	explicit GFPGaussAdaptorT(const double& adProb)
+	explicit G_API GFPGaussAdaptorT(const double& adProb)
 		: GNumGaussAdaptorT<fp_type, fp_type>(adProb)
 	{ /* nothing */ }
 
@@ -114,7 +115,7 @@ public:
 	 * @param minSigma The minimal value allowed for sigma_
 	 * @param maxSigma The maximal value allowed for sigma_
 	 */
-	GFPGaussAdaptorT(
+	G_API GFPGaussAdaptorT(
 		const fp_type& sigma
 		, const fp_type& sigmaSigma
 		, const fp_type& minSigma
@@ -134,7 +135,7 @@ public:
 	 * @param maxSigma The maximal value allowed for sigma_
 	 * @param adProb The adaption probability
 	 */
-	GFPGaussAdaptorT(
+	G_API GFPGaussAdaptorT(
 		const fp_type& sigma
 		, const fp_type& sigmaSigma
 		, const fp_type& minSigma
@@ -148,7 +149,7 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual ~GFPGaussAdaptorT()
+	virtual G_API ~GFPGaussAdaptorT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -164,7 +165,7 @@ public:
  	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	virtual boost::optional<std::string> checkRelationshipWith(
+	virtual G_API boost::optional<std::string> checkRelationshipWith(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
@@ -190,13 +191,13 @@ public:
 
 	/***************************************************************************/
 	/** @brief Retrieves the id of this adaptor */
-	virtual Gem::Geneva::adaptorId getAdaptorId() const = 0;
+	virtual G_API Gem::Geneva::adaptorId getAdaptorId() const = 0;
 
    /***************************************************************************/
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const OVERRIDE {
+   virtual G_API std::string name() const OVERRIDE {
       return std::string("GFPGaussAdaptorT");
    }
 
@@ -207,7 +208,7 @@ protected:
 	 *
 	 * @param cp A copy of another GFPGaussAdaptorT<fp_type> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject* cp) OVERRIDE {
+	virtual G_API void load_(const GObject* cp) OVERRIDE {
 	    // Check that we are not accidently assigning this object to itself
 	    GObject::selfAssignmentCheck<GFPGaussAdaptorT<fp_type> >(cp);
 
@@ -219,7 +220,7 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Creates a deep clone of this object. */
-	virtual GObject* clone_() const = 0;
+	virtual G_API GObject* clone_() const = 0;
 
 	/***************************************************************************/
 	/**
@@ -228,7 +229,7 @@ protected:
 	 * @param value The value that is going to be adapted in situ
 	 * @param range A typical range for the parameter with type num_type
 	 */
-	virtual void customAdaptions(
+	virtual G_API void customAdaptions(
       fp_type& value
       , const fp_type& range
    ) OVERRIDE {
@@ -248,7 +249,7 @@ public:
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 */
-	virtual bool modify_GUnitTests() OVERRIDE {
+	virtual G_API bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -271,7 +272,7 @@ public:
 	 * Performs self tests that are expected to succeed. This is needed for
 	 * testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -288,7 +289,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;

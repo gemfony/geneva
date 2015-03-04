@@ -63,14 +63,14 @@ namespace Geneva {
  * are inclusive or exclusive.
  */
 template <typename T>
-class G_API GConstrainedNumT
+class GConstrainedNumT
 	:public GParameterT<T>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int) {
+	G_API void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
 		// Save data
@@ -89,7 +89,7 @@ public:
 	/**
 	 * The default constructor
 	 */
-	GConstrainedNumT()
+   G_API GConstrainedNumT()
 		: GParameterT<T>(GConstrainedValueLimitT<T>::lowest())
 		, lowerBoundary_(GConstrainedValueLimitT<T>::lowest())
 		, upperBoundary_(GConstrainedValueLimitT<T>::highest())
@@ -103,7 +103,7 @@ public:
 	 *
 	 * @param val The desired external value of this object
 	 */
-	explicit GConstrainedNumT(const T& val)
+	explicit G_API GConstrainedNumT(const T& val)
 		: GParameterT<T>(val)
 		, lowerBoundary_(GConstrainedValueLimitT<T>::lowest())
 		, upperBoundary_(GConstrainedValueLimitT<T>::highest())
@@ -116,7 +116,7 @@ public:
 	 * @param lowerBoundary The lower boundary of the value range
 	 * @param upperBoundary The upper boundary of the value range
 	 */
-	GConstrainedNumT(const T& lowerBoundary, const T& upperBoundary)
+	G_API GConstrainedNumT(const T& lowerBoundary, const T& upperBoundary)
 		: GParameterT<T>(lowerBoundary)
 		, lowerBoundary_(lowerBoundary)
 		, upperBoundary_(upperBoundary)
@@ -150,7 +150,7 @@ public:
 	 * @param lowerBoundary The lower boundary of the value range
 	 * @param upperBoundary The upper boundary of the value range
 	 */
-	GConstrainedNumT(const T& val, const T& lowerBoundary, const T& upperBoundary)
+	G_API GConstrainedNumT(const T& val, const T& lowerBoundary, const T& upperBoundary)
 		: GParameterT<T>(val)
 		, lowerBoundary_(lowerBoundary)
 		, upperBoundary_(upperBoundary)
@@ -194,7 +194,7 @@ public:
 	 *
 	 * @param cp Another GConstrainedNumT<T> object
 	 */
-	GConstrainedNumT(const GConstrainedNumT<T>& cp)
+	G_API GConstrainedNumT(const GConstrainedNumT<T>& cp)
 		: GParameterT<T>(cp)
 		, lowerBoundary_(cp.lowerBoundary_)
 		, upperBoundary_(cp.upperBoundary_)
@@ -204,7 +204,7 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	virtual ~GConstrainedNumT()
+	virtual G_API ~GConstrainedNumT()
 	{ /* nothing */	}
 
 	/***************************************************************************/
@@ -214,7 +214,7 @@ public:
 	 * @param cp A constant reference to another GConstrainedNumT<T> object
 	 * @return A constant reference to this object
 	 */
-	const GConstrainedNumT<T>& operator=(const GConstrainedNumT<T>& cp) {
+	G_API const GConstrainedNumT<T>& operator=(const GConstrainedNumT<T>& cp) {
 		GConstrainedNumT<T>::load_(&cp);
 		return *this;
 	}
@@ -227,7 +227,7 @@ public:
 	 * @param The desired new external value
 	 * @return The new external value of this object
 	 */
-	virtual T operator=(const T& val) {
+	virtual G_API T operator=(const T& val) {
 		GConstrainedNumT<T>::setValue(val);
 		return val;
 	}
@@ -239,7 +239,7 @@ public:
      * @param cp A constant reference to another GConstrainedNumT<T> object
      * @return A boolean indicating whether both objects are equal
      */
-	bool operator==(const GConstrainedNumT<T>& cp) const {
+	G_API bool operator==(const GConstrainedNumT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedNumT<T>::operator==","cp", CE_SILENT);
@@ -252,7 +252,7 @@ public:
      * @param cp A constant reference to another GConstrainedNumT<T> object
      * @return A boolean indicating whether both objects are inequal
      */
-	bool operator!=(const GConstrainedNumT<T>& cp) const {
+	G_API bool operator!=(const GConstrainedNumT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, as no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedNumT<T>::operator!=","cp", CE_SILENT);
@@ -271,7 +271,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	virtual boost::optional<std::string> checkRelationshipWith(
+	virtual G_API boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -303,7 +303,7 @@ public:
      *
      * @return The value of the lower boundary
      */
-	T getLowerBoundary() const {
+	G_API T getLowerBoundary() const {
     	return lowerBoundary_;
 	}
 
@@ -318,7 +318,7 @@ public:
      *
      * @return The value of the upper boundary
      */
-	T getUpperBoundary() const {
+	G_API T getUpperBoundary() const {
     	return upperBoundary_;
 	}
 
@@ -331,7 +331,7 @@ public:
 	/**
 	 * Resets the boundaries to the maximum allowed value.
 	 */
-	void resetBoundaries() {
+	G_API void resetBoundaries() {
 		this->setBoundaries(GConstrainedValueLimitT<T>::lowest(), GConstrainedValueLimitT<T>::highest());
 	}
 
@@ -352,7 +352,7 @@ public:
 	 * @param lowerBoundary The new lower boundary for this object
 	 * @param upperBoundary The new upper boundary for this object
 	 */
-	virtual void setBoundaries(const T& lowerBoundary, const T& upperBoundary) {
+	virtual G_API void setBoundaries(const T& lowerBoundary, const T& upperBoundary) {
 		const T currentValue = this->value(); // Store the externally visible value
 
 		// Check that the boundaries make sense
@@ -409,7 +409,7 @@ public:
 	 *
 	 * @param val The new T value stored in this class
 	 */
-	virtual void setValue(const T& val) OVERRIDE {
+	virtual G_API void setValue(const T& val) OVERRIDE {
 		// Do some error checking
 		if(val < lowerBoundary_ || val > upperBoundary_) {
 		   glogger
@@ -439,7 +439,7 @@ public:
 	 * @param lowerBoundary The lower boundary of the value range
 	 * @param upperBoundary The upper boundary of the value range
 	 */
-	virtual void setValue(
+	virtual G_API void setValue(
       const T& val
       , const T& lowerBoundary
       , const T& upperBoundary
@@ -503,7 +503,7 @@ public:
 	 *
 	 * @return The transformed value of val_
 	 */
-	virtual T value() const  OVERRIDE {
+	virtual G_API T value() const  OVERRIDE {
 		T mapping = this->transfer(GParameterT<T>::value());
 
 		// Reset internal value -- possible because it is declared mutable in
@@ -526,7 +526,7 @@ public:
 	 * Retrieves GParameterT<T>'s internal value. Added here for compatibility
 	 * reasons.
 	 */
-	T getInternalValue() const {
+	G_API T getInternalValue() const {
 		return GParameterT<T>::value();
 	}
 
@@ -540,7 +540,7 @@ public:
 	 * The transfer function needed to calculate the externally visible
 	 * value. Declared public so we can do tests of the value transformation.
 	 */
-	virtual T transfer(const T&) const = 0;
+	virtual G_API T transfer(const T&) const = 0;
 
 
    /***************************************************************************/
@@ -550,7 +550,7 @@ public:
     * @param ptr The boost::property_tree object the data should be saved to
     * @param baseName The name assigned to the object
     */
-   virtual void toPropertyTree(
+   virtual G_API void toPropertyTree(
       pt::ptree& ptr
       , const std::string& baseName
    ) const OVERRIDE {
@@ -570,7 +570,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const OVERRIDE {
+   virtual G_API std::string name() const OVERRIDE {
       return std::string("GConstrainedNumT");
    }
 
@@ -581,7 +581,7 @@ protected:
 	 *
 	 * @param cp Another GConstrainedNumT<T> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject *cp) OVERRIDE {
+	virtual G_API void load_(const GObject *cp) OVERRIDE {
 		// Convert GObject pointer to local format
 		const GConstrainedNumT<T> *p_load	= GObject::gobject_conversion<GConstrainedNumT<T> >(cp);
 
@@ -598,15 +598,15 @@ protected:
     * Returns a "comparative range". This is e.g. used to make Gauss-adaption
     * independent of a parameters value range
     */
-   virtual T range() const {
+   virtual G_API T range() const {
       return upperBoundary_ - lowerBoundary_;
    }
 
 	/***************************************************************************/
 	/** @brief Create a deep copy of this object. */
-	virtual GObject *clone_() const = 0;
+	virtual G_API GObject *clone_() const = 0;
 	/** @brief Randomly initializes the parameter (within its limits) */
-	virtual void randomInit_(const activityMode&) = 0;
+	virtual G_API void randomInit_(const activityMode&) = 0;
 
 private:
 	/***************************************************************************/
@@ -621,7 +621,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() OVERRIDE {
+	virtual G_API bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
       bool result = false;
 
@@ -640,7 +640,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Some general settings
 		const T testVal = T(42);
@@ -798,7 +798,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterT<T>::specificTestsFailuresExpected_GUnitTests();

@@ -65,10 +65,10 @@ namespace Geneva {
  * to a global store
  */
 template <typename c_type> // c_type stands for consumer type
-class G_API GIndividualStandardConsumerInitializerT {
+class GIndividualStandardConsumerInitializerT {
 public:
    /** @brief The initializing constructor */
-   GIndividualStandardConsumerInitializerT() {
+   G_API GIndividualStandardConsumerInitializerT() {
       // Create a smart pointer holding the consumer
       boost::shared_ptr<Gem::Courtier::GBaseConsumerT<Gem::Geneva::GParameterSet> > p(new c_type());
       std::string mnemonic = p->getMnemonic();
@@ -77,7 +77,7 @@ public:
       GConsumerStore->setOnce(mnemonic, p);
    }
    /** @brief An empty destructor */
-   virtual ~GIndividualStandardConsumerInitializerT() { /* nothing */ }
+   virtual G_API ~GIndividualStandardConsumerInitializerT() { /* nothing */ }
 };
 
 /******************************************************************************/

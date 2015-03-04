@@ -54,14 +54,14 @@ namespace Geneva {
  * while applying adaptions to a continuous range. This is done by means of a
  * mapping from an internal representation to an externally visible value.
  */
-class G_API GConstrainedInt32Object
+class GConstrainedInt32Object
   : public GConstrainedIntT<boost::int32_t>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int){
+	G_API void serialize(Archive & ar, const unsigned int){
 		using boost::serialization::make_nvp;
 
 		ar & make_nvp("GConstrainedIntT_int32",
@@ -71,38 +71,38 @@ class G_API GConstrainedInt32Object
 
 public:
 	/** @brief The default constructor */
-	GConstrainedInt32Object();
+	G_API GConstrainedInt32Object();
 	/** @brief Initialization with boundaries only */
-	GConstrainedInt32Object(
+	G_API GConstrainedInt32Object(
 	      const boost::int32_t&
 	      , const boost::int32_t&
 	);
 	/** @brief Initialization with value and boundaries */
-	GConstrainedInt32Object(
-	      const boost::int32_t&
-	      , const boost::int32_t&
-	      , const boost::int32_t&
+	G_API GConstrainedInt32Object(
+      const boost::int32_t&
+      , const boost::int32_t&
+      , const boost::int32_t&
 	);
 	/** @brief The copy constructor */
-	GConstrainedInt32Object(const GConstrainedInt32Object&);
+	G_API GConstrainedInt32Object(const GConstrainedInt32Object&);
 	/** @brief Initialization by contained value */
-	explicit GConstrainedInt32Object(const boost::int32_t&);
+	explicit G_API GConstrainedInt32Object(const boost::int32_t&);
 	/** @brief The destructor */
-	virtual ~GConstrainedInt32Object();
+	virtual G_API ~GConstrainedInt32Object();
 
 	/** @brief An assignment operator for the contained value type */
-	virtual boost::int32_t operator=(const boost::int32_t&);
+	virtual G_API boost::int32_t operator=(const boost::int32_t&);
 
 	/** @brief A standard assignment operator */
-	const GConstrainedInt32Object& operator=(const GConstrainedInt32Object&);
+	G_API const GConstrainedInt32Object& operator=(const GConstrainedInt32Object&);
 
 	/** @brief Checks for equality with another GConstrainedInt32Object object */
-	bool operator==(const GConstrainedInt32Object&) const;
+	G_API bool operator==(const GConstrainedInt32Object&) const;
 	/** @brief Checks for inequality with another GConstrainedInt32Object object */
-	bool operator!=(const GConstrainedInt32Object&) const;
+	G_API bool operator!=(const GConstrainedInt32Object&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(
+	virtual G_API boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -113,37 +113,37 @@ public:
 
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const OVERRIDE;
+   virtual G_API std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another GObject */
-	virtual void load_(const GObject*) OVERRIDE;
+	virtual G_API void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object. */
-	virtual GObject* clone_() const OVERRIDE;
+	virtual G_API GObject* clone_() const OVERRIDE;
 
 	/** @brief Triggers random initialization of the parameter object */
-	virtual void randomInit_(const activityMode&) OVERRIDE;
+	virtual G_API void randomInit_(const activityMode&) OVERRIDE;
 
    /** @brief Attach our local value to the vector. */
-   virtual void int32Streamline(std::vector<boost::int32_t>&, const activityMode& am) const OVERRIDE;
+   virtual G_API void int32Streamline(std::vector<boost::int32_t>&, const activityMode& am) const OVERRIDE;
    /** @brief Attach boundaries of type boost::int32_t to the vectors */
-   virtual void int32Boundaries(std::vector<boost::int32_t>&, std::vector<boost::int32_t>&, const activityMode& am) const OVERRIDE;
+   virtual G_API void int32Boundaries(std::vector<boost::int32_t>&, std::vector<boost::int32_t>&, const activityMode& am) const OVERRIDE;
    /** @brief Tell the audience that we own a boost::int32_t value */
-   virtual std::size_t countInt32Parameters(const activityMode& am) const OVERRIDE;
+   virtual G_API std::size_t countInt32Parameters(const activityMode& am) const OVERRIDE;
    /** @brief Assigns part of a value vector to the parameter */
-   virtual void assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&, const activityMode& am) OVERRIDE;
+   virtual G_API void assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&, const activityMode& am) OVERRIDE;
    /** @brief Attach our local value to the vector. */
-   virtual void int32Streamline(std::map<std::string, std::vector<boost::int32_t> >&, const activityMode& am) const OVERRIDE;
+   virtual G_API void int32Streamline(std::map<std::string, std::vector<boost::int32_t> >&, const activityMode& am) const OVERRIDE;
    /** @brief Assigns part of a value vector to the parameter */
-   virtual void assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t> >&, const activityMode& am) OVERRIDE;
+   virtual G_API void assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t> >&, const activityMode& am) OVERRIDE;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests() OVERRIDE;
+	virtual G_API bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/
