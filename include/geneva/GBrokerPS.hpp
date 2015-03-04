@@ -62,7 +62,7 @@ namespace Geneva {
 /**
  * A networked version of the GBasePS class
  */
-class G_API GBrokerPS
+class GBrokerPS
    : public GBasePS
    , public Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>
 {
