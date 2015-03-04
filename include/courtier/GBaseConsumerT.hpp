@@ -81,7 +81,7 @@ namespace Courtier {
  * when the consumer is supposed to shut down.
  */
 template <typename pl_type> // pl stands for "pay load"
-class G_API GBaseConsumerT
+class GBaseConsumerT
 	:private boost::noncopyable
 {
 public:
@@ -91,7 +91,7 @@ public:
    /**
     * The default constructor
     */
-   GBaseConsumerT()
+	G_API GBaseConsumerT()
       : stop_(false)
    { /* nothing */ }
 
@@ -99,14 +99,14 @@ public:
    /**
     * The standard destructor
     */
-	virtual ~GBaseConsumerT()
+	virtual G_API ~GBaseConsumerT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * Stop execution
 	 */
-	virtual void shutdown() {
+	virtual G_API void shutdown() {
 	   boost::unique_lock<boost::shared_mutex> lock(stopMutex_);
 	   stop_=true;
 	   lock.unlock();
@@ -116,7 +116,7 @@ public:
 	/**
 	 * Check whether the stop flag has been set
 	 */
-	bool stopped() const {
+	bool G_API stopped() const {
 	   boost::shared_lock<boost::shared_mutex> lock(stopMutex_);
 	   return stop_;
 	}
@@ -126,7 +126,7 @@ public:
 	 * Returns an indication whether full return can be expected from the consumer.
 	 * By default we assume that a full return is not possible.
 	 */
-	virtual bool capableOfFullReturn() const {
+	virtual G_API bool capableOfFullReturn() const {
 	   return false;
 	}
 
@@ -136,7 +136,7 @@ public:
 	 *
 	 * @param configFile The name of a configuration file
 	 */
-   void parseConfigFile(const std::string& configFile) {
+	G_API void parseConfigFile(const std::string& configFile) {
       // Create a parser builder object -- local options will be added to it
       Gem::Common::GParserBuilder gpb;
 
@@ -157,7 +157,7 @@ public:
     *
     * @return A boolean indicating whether this consumer needs a client to operate
     */
-   virtual bool needsClient() const {
+   virtual G_API bool needsClient() const {
       return false;
    }
 
@@ -167,7 +167,7 @@ public:
     * it returns an empty smart pointer, so that consumers without the need for
     * clients do not need to re-implement this function.
     */
-   virtual boost::shared_ptr<GBaseClientT<pl_type> > getClient() const {
+   virtual G_API boost::shared_ptr<GBaseClientT<pl_type> > getClient() const {
       return boost::shared_ptr<GBaseClientT<pl_type> >();
    }
 
@@ -180,7 +180,7 @@ public:
     * @param visible Command line options that should always be visible
     * @param hidden Command line options that should only be visible upon request
     */
-   virtual void addCLOptions(
+   virtual G_API void addCLOptions(
       boost::program_options::options_description& visible
       , boost::program_options::options_description& hidden
    ) BASE { /* nothing */ }
@@ -191,19 +191,19 @@ public:
     * By default we do nothing so that derived classes do not need to re-implement this
     * function.
     */
-   virtual void actOnCLOptions(const boost::program_options::variables_map& vm)
+   virtual G_API void actOnCLOptions(const boost::program_options::variables_map& vm)
    { /* nothing */ }
 
    /***************************************************************************/
    // Some abstract functions
 
    /** @brief A unique identifier for a given consumer */
-   virtual std::string getConsumerName() const = 0;
+   virtual G_API std::string getConsumerName() const = 0;
    /** @brief Returns a short identifier for this consumer */
-   virtual std::string getMnemonic() const = 0;
+   virtual G_API std::string getMnemonic() const = 0;
 
    /** @brief The actual business logic */
-   virtual void async_startProcessing() = 0;
+   virtual G_API void async_startProcessing() = 0;
 
 protected:
    /***************************************************************************/
@@ -215,7 +215,7 @@ protected:
     *
     * @param gpb The GParserBuilder object, to which configuration options will be added
     */
-   virtual void addConfigurationOptions(
+   virtual G_API void addConfigurationOptions(
          Gem::Common::GParserBuilder& gpb
    ){ /* nothing -- no local data */ }
 

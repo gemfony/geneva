@@ -54,16 +54,16 @@ namespace Common {
  * This is an interface class that specifies the operations available
  * for "serializable" classes.
  */
-class G_API GSerializableI {
+class GSerializableI {
 public:
 	/** @brief The standard destructor */
-	virtual ~GSerializableI() { /* nothing */ }
+	virtual G_API ~GSerializableI() { /* nothing */ }
 
 	/** @brief Create a text representation from this class */
-	virtual std::string toString(const serializationMode&) const = 0;
+	virtual G_API std::string toString(const serializationMode&) const = 0;
 
 	/** @brief Initialize this class from a text representation */
-	virtual void fromString(const std::string&, const serializationMode&) = 0;
+	virtual G_API void fromString(const std::string&, const serializationMode&) = 0;
 };
 
 /******************************************************************************/

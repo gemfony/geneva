@@ -201,47 +201,6 @@ G_API float gsigmoid(const float&, const float&, const float&);
 /** @brief A sigmoid function with user-defined minimum / maximum values (double version) */
 G_API double gsigmoid(const double&, const double&, const double&);
 
-/******************************************************************************/
-/**
- * Regulates access to these mathematical functions from boost::phoenix::function.
- * Targeted at unary functions.
- */
-struct G_API lazy_unary_functor_reference_arg
-{
-  template <typename F, typename fp_type>
-  struct result { typedef fp_type type; };
-
-  template <typename F, typename fp_type>
-  fp_type operator()(
-     F f
-     , const fp_type& var1
-  ) const {
-     return f(var1);
-  }
-};
-
-/******************************************************************************/
-/**
- * Regulates access to these mathematical functions from boost::phoenix::function.
- * Targeted at binary functions.
- */
-struct G_API lazy_binary_functor_reference_arg
-{
-  template <typename F, typename fp_type1, typename fp_type2>
-  struct result { typedef fp_type1 type; };
-
-  template <typename F, typename fp_type1, typename fp_type2>
-  fp_type1 operator()(
-     F f
-     , const fp_type1& var1
-     , const fp_type2& var2
-  ) const {
-     return f(var1, var2);
-  }
-};
-
-/******************************************************************************/
-
 } /* namespace Common */
 } /* namespace Gem */
 

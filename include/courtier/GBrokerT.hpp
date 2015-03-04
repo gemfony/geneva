@@ -94,7 +94,7 @@ const Gem::Common::PORTIDTYPE MAXPORTID = boost::numeric::bounds<Gem::Common::PO
  * This class acts as the main interface between producers and consumers.
  */
 template<typename carrier_type>
-class G_API GBrokerT
+class GBrokerT
 	:private boost::noncopyable
 {
 	typedef typename boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<boost::shared_ptr<carrier_type> > > GBoundedBufferWithIdT_Ptr;
@@ -106,7 +106,7 @@ public:
 	/**
 	 * The default constructor.
 	 */
-	GBrokerT()
+	G_API GBrokerT()
 		: finalized_(false)
 		, lastId_(0)
 		, currentGetPosition_(RawBuffers_.begin())
@@ -118,7 +118,7 @@ public:
 	 * The standard destructor. Notifies all consumers that they should stop, then waits
 	 * for their threads to terminate.
 	 */
-	virtual ~GBrokerT()
+	virtual G_API ~GBrokerT()
 	{
 		// Make sure the finalization code is executed
 		// (if this hasn't happened already). Calling
@@ -131,13 +131,13 @@ public:
 	 * Initializes the broker. This function does nothing. Its only purpose is to control
 	 * initialization of the factory in the singleton.
 	 */
-	void init() { /* nothing */ }
+	G_API void init() { /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * Shuts the broker down, together with all consumers.
 	 */
-	void finalize() {
+	G_API void finalize() {
 		// Only allow one finalization action to be carried out
 		if(finalized_) return;
 
@@ -184,7 +184,7 @@ public:
 	 *
 	 * @param gbp A shared pointer to a new GBufferPortT object
 	 */
-	void enrol(boost::shared_ptr<GBufferPortT<boost::shared_ptr<carrier_type> > > gbp) {
+	G_API void enrol(boost::shared_ptr<GBufferPortT<boost::shared_ptr<carrier_type> > > gbp) {
 		// Lock the access to our internal data
 		boost::mutex::scoped_lock rawBuffersPresentLock(RawBuffersPresentMutex_);
 		boost::mutex::scoped_lock processedBuffersPresentLock(ProcessedBuffersPresentMutex_);
@@ -257,7 +257,7 @@ public:
 	 *
 	 * @param gc A pointer to a GBaseConsumerT<carrier_type> object
 	 */
-	void enrol(boost::shared_ptr<GBaseConsumerT<carrier_type> > gc) {
+	G_API void enrol(boost::shared_ptr<GBaseConsumerT<carrier_type> > gc) {
 		boost::mutex::scoped_lock consumerEnrolmentLock(consumerEnrolmentMutex_);
 
 		// Do nothing if a consumer of this type has already been registered
@@ -281,7 +281,7 @@ public:
 	 * @param p Holds the retrieved "raw" item
 	 * @return A key that uniquely identifies the origin of p
 	 */
-	Gem::Common::PORTIDTYPE get(boost::shared_ptr<carrier_type> & p) {
+	G_API Gem::Common::PORTIDTYPE get(boost::shared_ptr<carrier_type> & p) {
 	   typename BufferPtrList::iterator currentGetPosition;
 
 		// Locks access to our internal data until we have a copy of a buffer.
@@ -323,7 +323,7 @@ public:
 	 * @param timeout Time after which the function should time out
 	 * @return A key that uniquely identifies the origin of p
 	 */
-	Gem::Common::PORTIDTYPE get(
+	G_API Gem::Common::PORTIDTYPE get(
       boost::shared_ptr<carrier_type> & p
       , boost::posix_time::time_duration timeout
    ) {
@@ -369,7 +369,7 @@ public:
 	 * @param timeout Time after which the function should time out
 	 * @return A boolean that indicates whether the item retrieval was successful
 	 */
-	bool get(
+	G_API bool get(
       Gem::Common::PORTIDTYPE& id
       , boost::shared_ptr<carrier_type> & p
       , boost::posix_time::time_duration timeout
@@ -412,7 +412,7 @@ public:
 	 * @param id A key that uniquely identifies the origin of p
 	 * @param p Holds the "raw" item to be submitted to the processed queue
 	 */
-	void put(
+	G_API void put(
       Gem::Common::PORTIDTYPE id
       , boost::shared_ptr<carrier_type> p
 	) {
@@ -454,7 +454,7 @@ public:
 	 * @param timeout Time after which the function should time out
 	 * @param A boolean indicating whether the item could be added to the queue in time
 	 */
-	bool put(
+	G_API bool put(
       Gem::Common::PORTIDTYPE id
       , boost::shared_ptr<carrier_type> p
       , boost::posix_time::time_duration timeout
@@ -501,7 +501,7 @@ public:
 	 *
 	 * @return A boolean indicating whether any consumers are registered
 	 */
-	bool hasConsumers() const {
+	G_API bool hasConsumers() const {
 		return consumerCollection_.size()>0?true:false;
 	}
 
@@ -511,7 +511,7 @@ public:
 	 * are capable of full return. If so, it returns true. If at least one is 
 	 * found that is not capable of full return, it returns false.
 	 */
-    bool capableOfFullReturn() const {
+	G_API bool capableOfFullReturn() const {
 #ifdef DEBUG
 	   if(!hasConsumers()) {
 	      glogger

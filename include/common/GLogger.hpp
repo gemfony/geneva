@@ -77,17 +77,17 @@ namespace Common {
  * point to objects of the GConsoleLogger or GFileLogger classes, or other log targets
  * defined by the user.
  */
-class G_API GBaseLogTarget {
+class GBaseLogTarget {
 public:
    /** @brief The default constructor */
-    GBaseLogTarget(void);
+   G_API GBaseLogTarget(void);
     /** @brief The standard destructor */
-    virtual ~GBaseLogTarget();
+    virtual G_API ~GBaseLogTarget();
 
     /** @brief The logging interface */
-    virtual void log(const std::string&) const = 0;
+    virtual G_API void log(const std::string&) const = 0;
     /** @brief Adds an extension to the output */
-    virtual void logWithSource(const std::string&, const std::string&) const = 0;
+    virtual G_API void logWithSource(const std::string&, const std::string&) const = 0;
 };
 
 /******************************************************************************/
@@ -96,18 +96,18 @@ public:
 /**
  * The console logger writes log messages to the console.
  */
-class G_API GConsoleLogger :public GBaseLogTarget
+class GConsoleLogger :public GBaseLogTarget
 {
 public:
    /** @brief A standard constructor */
-   GConsoleLogger(void);
+   G_API GConsoleLogger(void);
    /** @brief The standard destructor */
-   virtual ~GConsoleLogger();
+   virtual G_API ~GConsoleLogger();
 
    /** @brief Implements the logging to the console */
-   virtual void log(const std::string&) const;
+   virtual G_API void log(const std::string&) const;
    /** @brief Adds a specifier to the output */
-   virtual void logWithSource(
+   virtual G_API void logWithSource(
          const std::string&
          , const std::string&
    ) const;

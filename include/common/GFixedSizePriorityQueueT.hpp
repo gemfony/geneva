@@ -85,13 +85,13 @@ namespace Common {
  * which returns a boost::shared_ptr<T> as a copy of the T object.
  */
 template <typename T>
-class G_API GFixedSizePriorityQueueT
+class GFixedSizePriorityQueueT
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
 
    template<typename Archive>
-   void serialize(Archive & ar, const unsigned int){
+   G_API void serialize(Archive & ar, const unsigned int){
      using boost::serialization::make_nvp;
 
      ar
@@ -106,7 +106,7 @@ public:
    /**
     * The default constructor
     */
-   GFixedSizePriorityQueueT()
+   G_API GFixedSizePriorityQueueT()
       : maxSize_(10)
       , higherIsBetter_(false)
    { /* nothing */ }
@@ -117,7 +117,7 @@ public:
     *
     * @param maxSize The maximum size of the queue
     */
-   explicit GFixedSizePriorityQueueT(const std::size_t& maxSize)
+   explicit G_API GFixedSizePriorityQueueT(const std::size_t& maxSize)
       : maxSize_(maxSize)
       , higherIsBetter_(false)
    { /* nothing */ }
@@ -130,7 +130,7 @@ public:
     *
     * @param maxSize The maximum size of the queue
     */
-   GFixedSizePriorityQueueT(
+   G_API GFixedSizePriorityQueueT(
       const std::size_t& maxSize
       , const bool& higherIsBetter
    )
@@ -143,7 +143,7 @@ public:
    /**
     * The copy constructor
     */
-   GFixedSizePriorityQueueT(const GFixedSizePriorityQueueT<T>& cp)
+   G_API GFixedSizePriorityQueueT(const GFixedSizePriorityQueueT<T>& cp)
       : maxSize_(cp.maxSize_)
       , higherIsBetter_(cp.higherIsBetter_)
    {
@@ -157,19 +157,19 @@ public:
    /**
     * The destructor
     */
-   virtual ~GFixedSizePriorityQueueT() {
+   virtual G_API ~GFixedSizePriorityQueueT() {
       data_.clear();
    }
 
    /***************************************************************************/
    /** @brief Creates a deep clone of this object */
-   virtual boost::shared_ptr<GFixedSizePriorityQueueT<T> > clone() const = 0;
+   virtual G_API boost::shared_ptr<GFixedSizePriorityQueueT<T> > clone() const = 0;
 
    /***************************************************************************/
    /**
     * Loads the data of another GFixedSizePriorityQueue<T> object
     */
-   virtual void load(const GFixedSizePriorityQueueT<T>& cp) {
+   virtual G_API void load(const GFixedSizePriorityQueueT<T>& cp) {
       // Make sure data_ is empty
       data_.clear();
 
@@ -188,7 +188,7 @@ public:
    /**
     * Copy the data of another GFixedSizePriorityQueueT<T> over
     */
-   const GFixedSizePriorityQueueT<T>& operator=(const GFixedSizePriorityQueueT<T>& cp) {
+   G_API const GFixedSizePriorityQueueT<T>& operator=(const GFixedSizePriorityQueueT<T>& cp) {
       this->load(cp);
       return *this;
    }
@@ -206,7 +206,7 @@ public:
     * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
     */
-   virtual boost::optional<std::string> checkRelationshipWith (
+   virtual G_API boost::optional<std::string> checkRelationshipWith (
       const GFixedSizePriorityQueueT<T>& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -236,7 +236,7 @@ public:
    /**
     * Gives access to the best item without copying it
     */
-   boost::shared_ptr<T> best() const {
+   G_API boost::shared_ptr<T> best() const {
       if(data_.empty()) {
          // Throw an exception
          glogger
@@ -255,7 +255,7 @@ public:
    /**
     * Gives access to the worst item without copying it
     */
-   boost::shared_ptr<T> worst() const {
+   G_API boost::shared_ptr<T> worst() const {
       if(data_.empty()) {
          // Throw an exception
          glogger
@@ -276,7 +276,7 @@ public:
     * values are considered better, "false" means that lower values are
     * considered to be better.
     */
-   void setMaxMode(bool maxMode) {
+   G_API void setMaxMode(bool maxMode) {
       higherIsBetter_ = maxMode;
    }
 
@@ -284,7 +284,7 @@ public:
    /**
     * Allows to retrieve the current value of higherIsBetter_
     */
-   bool getMaxMode() const {
+   G_API bool getMaxMode() const {
       return higherIsBetter_;
    }
 
@@ -298,7 +298,7 @@ public:
     * @param item The item to be added to the queue
     * @param do_clone If set to true, work items will be cloned. Otherwise only the smart pointer will be added
     */
-   virtual void add(
+   virtual G_API void add(
       boost::shared_ptr<T> item
       , bool do_clone = false
    ) {
@@ -357,7 +357,7 @@ public:
     * @param do_clone If set to true, work items will be cloned. Otherwise only the smart pointer will be added
     * @param replace If set to true, the queue will be emptied before adding new work items
     */
-   virtual void add(
+   virtual G_API void add(
       const std::vector<boost::shared_ptr<T> >& items
       , bool do_clone = false
       , bool replace = false
@@ -422,7 +422,7 @@ public:
    /**
     * Removes the best item from the queue and returns it
     */
-   T pop() {
+   G_API T pop() {
       if(data_.empty()) {
          // Throw an exception
          glogger
@@ -443,7 +443,7 @@ public:
    /**
     * Converts the local deque to a std::vector and returns it
     */
-   std::vector<boost::shared_ptr<T> > toVector() {
+   G_API std::vector<boost::shared_ptr<T> > toVector() {
       std::vector<boost::shared_ptr<T> > result;
 
       typename std::deque<boost::shared_ptr<T> >::iterator it;
@@ -458,7 +458,7 @@ public:
    /**
     * Returns the current size of the queue
     */
-   std::size_t size() const {
+   G_API std::size_t size() const {
       return data_.size();
    }
 
@@ -466,7 +466,7 @@ public:
    /**
     * Checks whether the data is empty
     */
-   bool empty() const {
+   G_API bool empty() const {
       return data_.empty();
    }
 
@@ -474,7 +474,7 @@ public:
    /**
     * Allows to clear the queue
     */
-   void clear() {
+   G_API void clear() {
       data_.clear();
    }
 
@@ -482,7 +482,7 @@ public:
    /**
     * Sets the maximum size of the priority queue
     */
-   void setMaxSize(std::size_t maxSize) {
+   G_API void setMaxSize(std::size_t maxSize) {
       // Make sure the current size of data_ complies with maxSize
       if(data_.size() > maxSize) {
          data_.resize(maxSize);
@@ -495,7 +495,7 @@ public:
    /**
     * Retrieves the maximum size of the priority queue
     */
-   std::size_t getMaxSize() const {
+   G_API std::size_t getMaxSize() const {
       return maxSize_;
    }
 
@@ -506,13 +506,13 @@ protected:
     */
    struct priority_comp {
    public:
-      priority_comp(
+      G_API priority_comp(
          const GFixedSizePriorityQueueT<T> *pq
       )
          :pq_(pq)
       { /* empty */ }
 
-      bool operator()(const boost::shared_ptr<T>& x, const boost::shared_ptr<T>& y) {
+      G_API bool operator()(const boost::shared_ptr<T>& x, const boost::shared_ptr<T>& y) {
          if(pq_->getMaxMode()) { // higher is better
             if(pq_->evaluation(x) > pq_->evaluation(y)) return true;
             else return false;
@@ -533,12 +533,12 @@ protected:
     */
    struct id_comp {
    public:
-      id_comp(
+      G_API id_comp(
          const GFixedSizePriorityQueueT<T> *pq
       ) :pq_(pq)
       { /* empty */ }
 
-      bool operator()(const boost::shared_ptr<T>& x, const boost::shared_ptr<T>& y) {
+      G_API bool operator()(const boost::shared_ptr<T>& x, const boost::shared_ptr<T>& y) {
          if(pq_->id(x) < pq_->id(y)) return true;
          else return false;
       }
@@ -554,12 +554,12 @@ protected:
     */
    struct id_equal {
    public:
-      id_equal(
+      G_API id_equal(
          const GFixedSizePriorityQueueT<T> *pq
       ) :pq_(pq)
       { /* empty */ }
 
-      bool operator()(const boost::shared_ptr<T>& x, const boost::shared_ptr<T>& y) {
+      G_API bool operator()(const boost::shared_ptr<T>& x, const boost::shared_ptr<T>& y) {
          if(pq_->id(x) == pq_->id(y)) return true;
          else return false;
       }
@@ -572,7 +572,7 @@ protected:
    /**
     * Checks whether value x is better than value y
     */
-   bool isBetter(boost::shared_ptr<T> new_item, boost::shared_ptr<T> old_item) const {
+   G_API bool isBetter(boost::shared_ptr<T> new_item, boost::shared_ptr<T> old_item) const {
       if(higherIsBetter_) {
          if(this->evaluation(new_item) > this->evaluation(old_item)) return true;
          else return false;
@@ -586,7 +586,7 @@ protected:
    /**
     * Checks whether value x is better than value y
     */
-   bool isBetter(boost::shared_ptr<T> new_item, const double& old_item) const {
+   G_API bool isBetter(boost::shared_ptr<T> new_item, const double& old_item) const {
       if(higherIsBetter_) {
          if(this->evaluation(new_item) > old_item) return true;
          else return false;
@@ -600,7 +600,7 @@ protected:
    /**
     * Checks whether value x is better than value y
     */
-   bool isBetter(const double& new_item, boost::shared_ptr<T> old_item) const {
+   G_API bool isBetter(const double& new_item, boost::shared_ptr<T> old_item) const {
       if(higherIsBetter_) {
          if(new_item > this->evaluation(old_item)) return true;
          else return false;
@@ -614,7 +614,7 @@ protected:
    /**
     * Checks whether value x is better than value y
     */
-   bool isBetter(const double& new_item, const double& old_item) const {
+   G_API bool isBetter(const double& new_item, const double& old_item) const {
       if(higherIsBetter_) {
          if(new_item > old_item) return true;
          else return false;
@@ -626,9 +626,9 @@ protected:
 
    /***************************************************************************/
    /** @brief Evaluates a single work item, so that it can be sorted */
-   virtual double evaluation(const boost::shared_ptr<T>&) const = 0;
+   virtual G_API double evaluation(const boost::shared_ptr<T>&) const = 0;
    /** @brief Returns a unique id for a work item */
-   virtual std::string id(const boost::shared_ptr<T>&) const = 0;
+   virtual G_API std::string id(const boost::shared_ptr<T>&) const = 0;
 
    std::deque<boost::shared_ptr<T> > data_; ///< Holds the actual data
 

@@ -68,8 +68,7 @@ namespace Common {
  * @return A boost::shared_ptr to a newly created T object
  */
 template <typename T>
-G_API
-boost::shared_ptr<T> TFactory_GSingletonT() {
+G_API boost::shared_ptr<T> TFactory_GSingletonT() {
 	return boost::shared_ptr<T>(new T());
 }
 
@@ -81,7 +80,7 @@ boost::shared_ptr<T> TFactory_GSingletonT() {
  * the static shared_ptr may long have vanished at that time.
  */
 template<typename T>
-class G_API GSingletonT
+class GSingletonT
 	:boost::noncopyable
 {
 public:
@@ -96,7 +95,7 @@ public:
 	 *
 	 * @param mode Determines the mode in which this function is called
 	 */
-	static boost::shared_ptr<T> Instance(const std::size_t& mode) {
+	static G_API boost::shared_ptr<T> Instance(const std::size_t& mode) {
 		static boost::shared_ptr<T> p;
 		static boost::mutex creation_mutex;
 

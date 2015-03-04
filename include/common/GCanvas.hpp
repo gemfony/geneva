@@ -105,25 +105,25 @@ namespace Common {
 /**
  * A simple two-dimensional coordinate
  */
-struct G_API coord2D {
+struct coord2D {
    /** @brief The default constructor */
-   coord2D();
+   G_API coord2D();
    /** @brief Construction with positions */
-   coord2D(const float&, const float&);
+   G_API coord2D(const float&, const float&);
    /** @brief Copy construction */
-   coord2D(const coord2D&);
+   G_API coord2D(const coord2D&);
 
    /** @brief An assignment operator */
-   const coord2D& operator=(const coord2D&);
+   G_API const coord2D& operator=(const coord2D&);
 
    float x;
    float y;
 };
 
 /** @brief Convenience function for calculating the difference between two coordinate vectors */
-coord2D operator-(const coord2D&, const coord2D&);
+G_API coord2D operator-(const coord2D&, const coord2D&);
 /** @brief Convenience function for calculating the dot product of two coordinate vectors */
-float operator*(const coord2D&, const coord2D&);
+G_API float operator*(const coord2D&, const coord2D&);
 
 /******************************************************************************/
 /**
@@ -177,13 +177,13 @@ struct G_API t_spec_c {
 /**
  * A simple class holding the rgb values of a pixel
  */
-struct G_API GRgb {
+struct GRgb {
 private:
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
 
    template<typename Archive>
-   void serialize(Archive & ar, const unsigned int) {
+   G_API void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
       ar
@@ -195,27 +195,27 @@ private:
 
 public:
    /** @brief The default constructor */
-   GRgb();
+   G_API GRgb();
    /** @brief Initialization with colors */
-   GRgb(float, float, float);
+   G_API GRgb(float, float, float);
    /** @brief Initialization with colors held in a boost::tuple */
-   GRgb(boost::tuple<float,float,float>);
+   G_API GRgb(boost::tuple<float,float,float>);
    /** @brief Copy Construction */
-   GRgb(const GRgb&);
+   G_API GRgb(const GRgb&);
    /** @brief Destructor */
-   virtual ~GRgb();
+   virtual G_API ~GRgb();
 
    /** @brief Assignment operator */
-   const GRgb& operator=(const GRgb&);
+   G_API const GRgb& operator=(const GRgb&);
 
    /** @brief Explicit reset of colors */
-   void setColor(float, float, float);
+   G_API void setColor(float, float, float);
    /** @brief Explicit reset of colors, using a boost::tuple */
-   void setColor(boost::tuple<float, float, float>);
+   G_API void setColor(boost::tuple<float, float, float>);
 
-   float r; ///< red
-   float g; ///< green
-   float b; ///< blue
+   G_API float r; ///< red
+   G_API float g; ///< green
+   G_API float b; ///< blue
 };
 
 /******************************************************************************/
@@ -264,7 +264,7 @@ public:
 
 private:
    /** @brief The default constructor -- intentionally private */
-   GColumn();
+   G_API GColumn();
 
    std::vector<GRgb> columnData_;  ///< Holds this column's pixels
 };

@@ -92,7 +92,7 @@ namespace Courtier {
  * execution. The serial mode is meant for debugging purposes only.
  */
 template <typename processable_type>
-class G_API GBaseExecutorT
+class GBaseExecutorT
 {
    // Make sure processable_type is derived from the submission container
    BOOST_MPL_ASSERT((boost::is_base_of<GSubmissionContainerT<processable_type>, processable_type>));
@@ -103,7 +103,7 @@ public:
    friend class boost::serialization::access;
 
    template<typename Archive>
-   void serialize(Archive & ar, const unsigned int){
+   G_API void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
    }
 
@@ -113,7 +113,7 @@ public:
    /**
     * The default constructor
     */
-   GBaseExecutorT()
+   G_API GBaseExecutorT()
       : submission_counter_(SUBMISSIONCOUNTERTYPE(0))
       , expectedNumber_(0)
    { /* nothing */ }
@@ -126,7 +126,7 @@ public:
     *
     * @param cp A copy of another GBrokerConnector object
     */
-   GBaseExecutorT(const GBaseExecutorT<processable_type>& cp)
+   G_API GBaseExecutorT(const GBaseExecutorT<processable_type>& cp)
       : submission_counter_(SUBMISSIONCOUNTERTYPE(0))
       , expectedNumber_(0)
    { /* nothing */ }
@@ -136,7 +136,7 @@ public:
     * The standard destructor. We have no object-wide dynamically allocated data, hence
     * this function is empty.
     */
-   virtual ~GBaseExecutorT()
+   virtual G_API ~GBaseExecutorT()
    { /* nothing */ }
 
    /***************************************************************************/
@@ -146,7 +146,7 @@ public:
     * @param cp A copy of another GBaseExecutorT<processable_type> object
     * @return A constant reference to this object
     */
-   const GBaseExecutorT<processable_type>& operator=(const GBaseExecutorT<processable_type>& cp) {
+   G_API const GBaseExecutorT<processable_type>& operator=(const GBaseExecutorT<processable_type>& cp) {
       GBaseExecutorT<processable_type>::load(&cp);
       return *this;
    }
@@ -157,7 +157,7 @@ public:
     *
     * @param cp A constant pointer to another GBaseExecutorT object
     */
-   virtual void load(GBaseExecutorT<processable_type> const * const cp) BASE {
+   virtual G_API void load(GBaseExecutorT<processable_type> const * const cp) BASE {
       // nothing
    }
 
@@ -168,7 +168,7 @@ public:
     * @param  cp A constant reference to another GBaseExecutorT<processable_type> object
     * @return A boolean indicating whether both objects are equal
     */
-   bool operator==(const GBaseExecutorT<processable_type>& cp) const {
+   G_API bool operator==(const GBaseExecutorT<processable_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
       return !checkRelationshipWith_common(cp, CE_EQUALITY, 0.,"GBaseExecutorT<processable_type>::operator==","cp", CE_SILENT);
@@ -181,7 +181,7 @@ public:
     * @param  cp A constant reference to another GBaseExecutorT<processable_type> object
     * @return A boolean indicating whether both objects are inequal
     */
-   bool operator!=(const GBaseExecutorT<processable_type>& cp) const {
+   G_API bool operator!=(const GBaseExecutorT<processable_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
       return !checkRelationshipWith_common(cp, CE_INEQUALITY, 0.,"GBaseExecutorT<processable_type>::operator!=","cp", CE_SILENT);
@@ -200,7 +200,7 @@ public:
     * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
     */
-   virtual boost::optional<std::string> checkRelationshipWith_common(
+   virtual G_API boost::optional<std::string> checkRelationshipWith_common(
       const GBaseExecutorT<processable_type>& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -242,7 +242,7 @@ public:
     * @param originator Optionally holds information on the caller
     * @return A boolean indicating whether all expected items have returned
     */
-   bool workOn(
+   G_API bool workOn(
          std::vector<boost::shared_ptr<processable_type> >& workItems
          , std::vector<bool>& workItemPos
          , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
@@ -308,7 +308,7 @@ public:
     * @param originator Optionally holds information on the caller
     * @return A boolean indicating whether all expected items have returned
     */
-   bool workOn(
+   G_API bool workOn(
          std::vector<boost::shared_ptr<processable_type> >& workItems
          , const std::size_t& start
          , const std::size_t& end
@@ -403,7 +403,7 @@ public:
     * @param originator Optionally holds information on the caller
     * @return A boolean indicating whether all expected items have returned
     */
-   bool workOn(
+   G_API bool workOn(
          std::vector<boost::shared_ptr<processable_type> >& workItems
          , const boost::tuple<std::size_t, std::size_t>& range
          , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
@@ -430,7 +430,7 @@ public:
     * @param originator Optionally holds information on the caller
     * @return A boolean indicating whether all expected items have returned
     */
-   bool workOn(
+   G_API bool workOn(
          std::vector<boost::shared_ptr<processable_type> >& workItems
          , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
          , const bool& removeUnprocessed = true
@@ -453,7 +453,7 @@ public:
     *
     * @param gpb The GParserBuilder object to which configuration options should be added
     */
-   virtual void addConfigurationOptions (
+   virtual G_API void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
    ) BASE {
       /* no local data. hence empty */
@@ -463,20 +463,20 @@ public:
    /**
     * General initialization function to be called prior to the first submission
     */
-   virtual void init() BASE { /* nothing */ }
+   virtual G_API void init() BASE { /* nothing */ }
 
    /***************************************************************************/
    /**
     * General finalization function to be called after the last submission
     */
-   virtual void finalize() BASE { /* nothing */ }
+   virtual G_API void finalize() BASE { /* nothing */ }
 
 protected:
    /***************************************************************************/
    /** @brief Submits a single work item */
-   virtual void submit(boost::shared_ptr<processable_type>) = 0;
+   virtual G_API void submit(boost::shared_ptr<processable_type>) = 0;
    /** @brief Waits for work items to return */
-   virtual bool waitForReturn(
+   virtual G_API bool waitForReturn(
       std::vector<boost::shared_ptr<processable_type> >&
       , std::vector<bool>&
       , std::vector<boost::shared_ptr<processable_type> >&
@@ -488,7 +488,7 @@ protected:
     * should make sure this base function is called first when they overload
     * this function.
     */
-   virtual void iterationInit(
+   virtual G_API void iterationInit(
       std::vector<boost::shared_ptr<processable_type> >& workItems
       , std::vector<bool>& workItemPos
       , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
@@ -503,7 +503,7 @@ protected:
     * should make sure this base function is called last when they overload
     * this function.
     */
-   virtual void iterationFinalize(
+   virtual G_API void iterationFinalize(
       std::vector<boost::shared_ptr<processable_type> >& workItems
       , std::vector<bool>& workItemPos
       , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
@@ -534,7 +534,7 @@ protected:
    /**
     * Submission of all work items in the list
     */
-   void submitAllWorkItems (
+   G_API void submitAllWorkItems (
       std::vector<boost::shared_ptr<processable_type> >& workItems
       , std::vector<bool>& workItemPos
    ) {
@@ -588,7 +588,7 @@ private:
  * purposes
  */
 template <typename processable_type>
-class G_API GSerialExecutorT
+class GSerialExecutorT
    : public GBaseExecutorT<processable_type>
 {
    ///////////////////////////////////////////////////////////////////////
@@ -596,7 +596,7 @@ class G_API GSerialExecutorT
    friend class boost::serialization::access;
 
    template<typename Archive>
-   void serialize(Archive & ar, const unsigned int){
+   G_API void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
 
       ar
@@ -610,7 +610,7 @@ public:
    /**
     * The default constructor
     */
-   GSerialExecutorT()
+   G_API GSerialExecutorT()
    : GBaseExecutorT<processable_type>()
    { /* nothing */ }
 
@@ -620,7 +620,7 @@ public:
     *
     * @param cp A copy of another GBrokerConnector object
     */
-   GSerialExecutorT(const GSerialExecutorT<processable_type>& cp)
+   G_API GSerialExecutorT(const GSerialExecutorT<processable_type>& cp)
    : GBaseExecutorT<processable_type>(cp)
    { /* nothing */ }
 
@@ -628,7 +628,7 @@ public:
    /**
     * The destructor
     */
-   virtual ~GSerialExecutorT()
+   virtual G_API ~GSerialExecutorT()
    { /* nothing */ }
 
    /***************************************************************************/
@@ -638,7 +638,7 @@ public:
     * @param cp A copy of another GSerialExecutorT<processable_type> object
     * @return A constant reference to this object
     */
-   const GSerialExecutorT<processable_type>& operator=(const GSerialExecutorT<processable_type>& cp) {
+   G_API const GSerialExecutorT<processable_type>& operator=(const GSerialExecutorT<processable_type>& cp) {
       GSerialExecutorT<processable_type>::load(&cp);
       return *this;
    }
@@ -649,7 +649,7 @@ public:
     *
     * @param cp A constant pointer to another GSerialExecutorT object
     */
-   virtual void load(GBaseExecutorT<processable_type> const * const cp_base) OVERRIDE {
+   virtual G_API void load(GBaseExecutorT<processable_type> const * const cp_base) OVERRIDE {
       GSerialExecutorT<processable_type> const * const cp = dynamic_cast<GSerialExecutorT<processable_type> const * const>(cp_base);
 
       if(!cp) { // NULL pointer
@@ -669,7 +669,7 @@ public:
     * @param  cp A constant reference to another GSerialExecutorT<processable_type> object
     * @return A boolean indicating whether both objects are equal
     */
-   bool operator==(const GSerialExecutorT<processable_type>& cp) const {
+   G_API bool operator==(const GSerialExecutorT<processable_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
       return !checkRelationshipWith_common(cp, CE_EQUALITY, 0.,"GSerialExecutorT<processable_type>::operator==","cp", CE_SILENT);
@@ -682,7 +682,7 @@ public:
     * @param  cp A constant reference to another GSerialExecutorT<processable_type> object
     * @return A boolean indicating whether both objects are inequal
     */
-   bool operator!=(const GSerialExecutorT<processable_type>& cp) const {
+   G_API bool operator!=(const GSerialExecutorT<processable_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
       return !checkRelationshipWith_common(cp, CE_INEQUALITY, 0.,"GSerialExecutorT<processable_type>::operator!=","cp", CE_SILENT);
@@ -703,7 +703,7 @@ public:
     */
 
 
-   virtual boost::optional<std::string> checkRelationshipWith_common(
+   virtual G_API boost::optional<std::string> checkRelationshipWith_common(
       const GBaseExecutorT<processable_type>& cp_base
       , const Gem::Common::expectation& e
       , const double& limit
@@ -741,7 +741,7 @@ public:
     *
     * @param gpb The GParserBuilder object to which configuration options should be added
     */
-   virtual void addConfigurationOptions (
+   virtual G_API void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
    ) OVERRIDE {
       // Call our parent class's function
@@ -761,7 +761,7 @@ protected:
     *
     * @param w The work item to be processed
     */
-   virtual void submit(boost::shared_ptr<processable_type> w) OVERRIDE {
+   virtual G_API void submit(boost::shared_ptr<processable_type> w) OVERRIDE {
       w->process();
    }
 
@@ -770,7 +770,7 @@ protected:
     * Waits for work items to return. Mostlty empty, as all work is done inside
     * of the submit() function.
     */
-   virtual bool waitForReturn(
+   virtual G_API bool waitForReturn(
       std::vector<boost::shared_ptr<processable_type> >& workItems
       , std::vector<bool>& workItemPos
       , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
@@ -792,7 +792,7 @@ protected:
  * This class executes a collection of work items in multiple threads
  */
 template <typename processable_type>
-class G_API GMTExecutorT
+class GMTExecutorT
    : public GBaseExecutorT<processable_type>
 {
    ///////////////////////////////////////////////////////////////////////
@@ -800,7 +800,7 @@ class G_API GMTExecutorT
    friend class boost::serialization::access;
 
    template<typename Archive>
-   void serialize(Archive & ar, const unsigned int){
+   G_API void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
 
       ar
@@ -814,8 +814,8 @@ public:
    /**
     * The default constructor
     */
-   GMTExecutorT()
-   : GBaseExecutorT<processable_type>()
+   G_API GMTExecutorT()
+      : GBaseExecutorT<processable_type>()
    , tp_()
    { /* nothing */ }
 
@@ -823,8 +823,8 @@ public:
    /**
     * Initialization with the number of threads
     */
-   GMTExecutorT(boost::uint16_t nThreads)
-   : GBaseExecutorT<processable_type>()
+   G_API GMTExecutorT(boost::uint16_t nThreads)
+      : GBaseExecutorT<processable_type>()
    , tp_(nThreads)
    { /* nothing */ }
 
@@ -834,16 +834,16 @@ public:
     *
     * @param cp A copy of another GBrokerConnector object
     */
-   GMTExecutorT(const GMTExecutorT<processable_type>& cp)
-   : GBaseExecutorT<processable_type>(cp)
-   , tp_(cp.tp_.getNThreads())
+   G_API GMTExecutorT(const GMTExecutorT<processable_type>& cp)
+      : GBaseExecutorT<processable_type>(cp)
+        , tp_(cp.tp_.getNThreads())
    { /* nothing */ }
 
    /***************************************************************************/
    /**
     * The destructor
     */
-   virtual ~GMTExecutorT()
+   virtual G_API ~GMTExecutorT()
    { /* nothing */ }
 
    /***************************************************************************/
@@ -853,7 +853,7 @@ public:
     * @param cp A copy of another GMTExecutorT<processable_type> object
     * @return A constant reference to this object
     */
-   const GMTExecutorT<processable_type>& operator=(const GMTExecutorT<processable_type>& cp) {
+   G_API const GMTExecutorT<processable_type>& operator=(const GMTExecutorT<processable_type>& cp) {
       GMTExecutorT<processable_type>::load(&cp);
       return *this;
    }
@@ -864,7 +864,7 @@ public:
     *
     * @param cp A constant pointer to another GMTExecutorT object
     */
-   virtual void load(GBaseExecutorT<processable_type> const * const cp_base) OVERRIDE {
+   virtual G_API void load(GBaseExecutorT<processable_type> const * const cp_base) OVERRIDE {
       GMTExecutorT<processable_type> const * const cp = dynamic_cast<GMTExecutorT<processable_type> const * const>(cp_base);
 
       if(!cp) { // NULL pointer
@@ -887,7 +887,7 @@ public:
     * @param  cp A constant reference to another GMTExecutorT<processable_type> object
     * @return A boolean indicating whether both objects are equal
     */
-   bool operator==(const GMTExecutorT<processable_type>& cp) const {
+   G_API bool operator==(const GMTExecutorT<processable_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
       return !checkRelationshipWith_common(cp, CE_EQUALITY, 0.,"GMTExecutorT<processable_type>::operator==","cp", CE_SILENT);
@@ -900,7 +900,7 @@ public:
     * @param  cp A constant reference to another GMTExecutorT<processable_type> object
     * @return A boolean indicating whether both objects are inequal
     */
-   bool operator!=(const GMTExecutorT<processable_type>& cp) const {
+   G_API bool operator!=(const GMTExecutorT<processable_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
       return !checkRelationshipWith_common(cp, CE_INEQUALITY, 0.,"GMTExecutorT<processable_type>::operator!=","cp", CE_SILENT);
@@ -919,7 +919,7 @@ public:
     * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
     */
-   virtual boost::optional<std::string> checkRelationshipWith_common(
+   virtual G_API boost::optional<std::string> checkRelationshipWith_common(
       const GBaseExecutorT<processable_type>& cp_base
       , const Gem::Common::expectation& e
       , const double& limit
@@ -957,7 +957,7 @@ public:
     *
     * @param gpb The GParserBuilder object to which configuration options should be added
     */
-   virtual void addConfigurationOptions (
+   virtual G_API void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
    ) OVERRIDE {
       // Call our parent class's function
@@ -974,7 +974,7 @@ protected:
     *
     * @param w The work item to be processed
     */
-   virtual void submit(boost::shared_ptr<processable_type> w) OVERRIDE {
+   virtual G_API void submit(boost::shared_ptr<processable_type> w) OVERRIDE {
       tp_.async_schedule(boost::function<bool()>(boost::bind(&processable_type::process, w)));
    }
 
@@ -982,7 +982,7 @@ protected:
    /**
     * Waits for the thread pool to run empty.
     */
-   virtual bool waitForReturn(
+   virtual G_API bool waitForReturn(
       std::vector<boost::shared_ptr<processable_type> >& workItems
       , std::vector<bool>& workItemPos
       , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
@@ -1011,7 +1011,7 @@ private:
  * This class executes a collection of work items in multiple threads
  */
 template <typename processable_type>
-class G_API GBrokerConnector2T
+class GBrokerConnector2T
    : public GBaseExecutorT<processable_type>
 {
    ///////////////////////////////////////////////////////////////////////
@@ -1019,7 +1019,7 @@ class G_API GBrokerConnector2T
    friend class boost::serialization::access;
 
    template<typename Archive>
-   void serialize(Archive & ar, const unsigned int){
+   G_API void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
 
       ar
@@ -1038,7 +1038,7 @@ public:
    /**
     * The default constructor
     */
-   GBrokerConnector2T()
+   G_API GBrokerConnector2T()
       : GBaseExecutorT<processable_type>()
       , srm_(DEFAULTSRM)
       , maxResubmissions_(DEFAULTMAXRESUBMISSIONS)
@@ -1052,7 +1052,7 @@ public:
     *
     * @param srm The submission-return mode to be used
     */
-   explicit GBrokerConnector2T(submissionReturnMode srm)
+   explicit G_API GBrokerConnector2T(submissionReturnMode srm)
       : GBaseExecutorT<processable_type>()
       , srm_(srm)
       , maxResubmissions_(DEFAULTMAXRESUBMISSIONS)
@@ -1066,7 +1066,7 @@ public:
     *
     * @param cp A copy of another GBrokerConnector object
     */
-   GBrokerConnector2T(const GBrokerConnector2T<processable_type>& cp)
+   G_API GBrokerConnector2T(const GBrokerConnector2T<processable_type>& cp)
       : GBaseExecutorT<processable_type>(cp)
       , srm_(cp.srm_)
       , maxResubmissions_(cp.maxResubmissions_)
@@ -1078,7 +1078,7 @@ public:
    /**
     * The destructor
     */
-   virtual ~GBrokerConnector2T()
+   virtual G_API ~GBrokerConnector2T()
    { /* nothing */ }
 
    /***************************************************************************/
@@ -1088,7 +1088,7 @@ public:
     * @param cp A copy of another GBrokerConnector2T<processable_type> object
     * @return A constant reference to this object
     */
-   const GBrokerConnector2T<processable_type>& operator=(const GBrokerConnector2T<processable_type>& cp) {
+   G_API const GBrokerConnector2T<processable_type>& operator=(const GBrokerConnector2T<processable_type>& cp) {
       GBrokerConnector2T<processable_type>::load(&cp);
       return *this;
    }
@@ -1099,7 +1099,7 @@ public:
     *
     * @param cp A constant pointer to another GBrokerConnector2T object
     */
-   virtual void load(GBaseExecutorT<processable_type> const * const cp_base) OVERRIDE {
+   virtual G_API void load(GBaseExecutorT<processable_type> const * const cp_base) OVERRIDE {
       GBrokerConnector2T<processable_type> const * const cp = dynamic_cast<GBrokerConnector2T<processable_type> const * const>(cp_base);
 
       if(!cp) { // NULL pointer
@@ -1125,7 +1125,7 @@ public:
     * @param  cp A constant reference to another GBrokerConnector2T<processable_type> object
     * @return A boolean indicating whether both objects are equal
     */
-   bool operator==(const GBrokerConnector2T<processable_type>& cp) const {
+   G_API bool operator==(const GBrokerConnector2T<processable_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
       return !checkRelationshipWith_common(cp, CE_EQUALITY, 0.,"GBrokerConnector2T<processable_type>::operator==","cp", CE_SILENT);
@@ -1138,7 +1138,7 @@ public:
     * @param  cp A constant reference to another GBrokerConnector2T<processable_type> object
     * @return A boolean indicating whether both objects are inequal
     */
-   bool operator!=(const GBrokerConnector2T<processable_type>& cp) const {
+   G_API bool operator!=(const GBrokerConnector2T<processable_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
       return !checkRelationshipWith_common(cp, CE_INEQUALITY, 0.,"GBrokerConnector2T<processable_type>::operator!=","cp", CE_SILENT);
@@ -1157,7 +1157,7 @@ public:
     * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
     */
-   virtual boost::optional<std::string> checkRelationshipWith_common(
+   virtual G_API boost::optional<std::string> checkRelationshipWith_common(
       const GBaseExecutorT<processable_type>& cp_base
       , const Gem::Common::expectation& e
       , const double& limit
@@ -1201,7 +1201,7 @@ public:
     *
     * @param gpb The GParserBuilder object to which configuration options should be added
     */
-   virtual void addConfigurationOptions (
+   virtual G_API void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
    ) OVERRIDE {
       std::string comment;
@@ -1262,7 +1262,7 @@ public:
     * the object will wait indefinitely for items of the current submission to return,
     * or will timeout and optionally resubmit unprocessed items.
     */
-   void setSubmissionReturnMode(submissionReturnMode srm) {
+   G_API void setSubmissionReturnMode(submissionReturnMode srm) {
       srm_ = srm;
    }
 
@@ -1270,7 +1270,7 @@ public:
    /**
     * Allows to retrieve the current submission return mode
     */
-   submissionReturnMode getSubmissionReturnMode() const {
+   G_API submissionReturnMode getSubmissionReturnMode() const {
       return srm_;
    }
 
@@ -1281,7 +1281,7 @@ public:
     *
     * @param maxResubmissions The maximum number of allowed resubmissions
     */
-   void setMaxResubmissions(std::size_t maxResubmissions) {
+   G_API void setMaxResubmissions(std::size_t maxResubmissions) {
       maxResubmissions_ = maxResubmissions;
    }
 
@@ -1291,7 +1291,7 @@ public:
     *
     * @return The maximum number of allowed resubmissions
     */
-   std::size_t getMaxResubmissions() const {
+   G_API std::size_t getMaxResubmissions() const {
      return maxResubmissions_;
    }
 
@@ -1300,7 +1300,7 @@ public:
     * Allows to set the wait factor to be applied to timeouts. Note that a wait
     * factor of 0 will be silently amended and become 1.
     */
-   void setWaitFactor(std::size_t waitFactor) {
+   G_API void setWaitFactor(std::size_t waitFactor) {
       if(0==waitFactor) waitFactor_=1;
       else waitFactor_ = waitFactor;
    }
@@ -1309,7 +1309,7 @@ public:
    /**
     * Allows to retrieve the wait factor variable
     */
-   std::size_t getWaitFactor() const {
+   G_API std::size_t getWaitFactor() const {
       return waitFactor_;
    }
 
@@ -1321,7 +1321,7 @@ public:
     *
     * @param dl A boolean whether logging of arrival times of items should be done
     */
-   void doLogging(bool dl = true) {
+   G_API void doLogging(bool dl = true) {
       doLogging_ = dl;
    }
 
@@ -1331,7 +1331,7 @@ public:
     *
     * @return A boolean indicating whether logging of arrival times has been activated
     */
-   bool loggingActivated() const {
+   G_API bool loggingActivated() const {
       return doLogging_;
    }
 
@@ -1341,7 +1341,7 @@ public:
     *
     * @return The logging results in the form of a ROOT histogram
     */
-   std::string getLoggingResults() const {
+   G_API std::string getLoggingResults() const {
       if(!doLogging_ || logData_.empty() || iterationStartTimes_.empty()) {
          glogger
          << "In GBrokerConnector2T<processable_type>::getLoggingResults(): Error!" << std::endl
@@ -1359,7 +1359,7 @@ public:
    /**
     * General initialization function to be called prior to the first submission
     */
-   virtual void init() OVERRIDE {
+   virtual G_API void init() OVERRIDE {
       // To be called prior to all other initialization code
       GBaseExecutorT<processable_type>::init();
 
@@ -1377,7 +1377,7 @@ public:
    /**
     * General finalization function to be called after the last submission
     */
-   virtual void finalize() OVERRIDE {
+   virtual G_API void finalize() OVERRIDE {
       // Get rid of the buffer port
       CurrentBufferPort_.reset();
 
@@ -1390,7 +1390,7 @@ protected:
    /**
     * Allows to perform necessary setup work for an iteration
     */
-   virtual void iterationInit(
+   virtual G_API void iterationInit(
       std::vector<boost::shared_ptr<processable_type> >& workItems
       , std::vector<bool>& workItemPos
       , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
@@ -1411,7 +1411,7 @@ protected:
    /**
     * Waits for all items to return or possibly until a timeout has been reached.
     */
-   virtual bool waitForReturn(
+   virtual G_API bool waitForReturn(
       std::vector<boost::shared_ptr<processable_type> >& workItems
       , std::vector<bool>& workItemPos
       , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems

@@ -58,7 +58,7 @@ namespace Courtier {
  * of different implementations of the algorithms for each mode.
  */
 template <class processable_type>
-class G_API GSerialConsumerT
+class GSerialConsumerT
 	:public Gem::Courtier::GBaseConsumerT<processable_type>
 {
 public:
@@ -66,7 +66,7 @@ public:
 	/**
 	 * The default constructor. Nothing special here.
 	 */
-	GSerialConsumerT()
+   G_API GSerialConsumerT()
 		: Gem::Courtier::GBaseConsumerT<processable_type>()
 		, broker_(GBROKER(processable_type))
 	{ /* nothing */ }
@@ -75,7 +75,7 @@ public:
 	/**
 	 * Standard destructor
 	 */
-	virtual ~GSerialConsumerT()
+	virtual G_API  ~GSerialConsumerT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -83,7 +83,7 @@ public:
 	 * Starts a single worker thread. Termination of the thread is
 	 * triggered by a call to GBaseConsumerT<processable_type>::shutdown().
 	 */
-	void async_startProcessing() {
+	G_API  void async_startProcessing() {
 		processingThread_ = boost::thread(boost::bind(&GSerialConsumerT<processable_type>::processItems, this));
 	}
 
@@ -91,7 +91,7 @@ public:
 	/**
 	* Finalization code. Sends all threads an interrupt signal.
 	*/
-	virtual void shutdown() {
+	virtual G_API void shutdown() {
 	   // This will set the GBaseConsumerT<processable_type>::stop_ flag
 	   GBaseConsumerT<processable_type>::shutdown();
 	   // Wait for our local threads to join
@@ -104,7 +104,7 @@ public:
 	*
 	* @return A unique identifier for a given consumer
 	*/
-	virtual std::string getConsumerName() const {
+	virtual G_API std::string getConsumerName() const {
 	  return std::string("GSerialConsumerT");
 	}
 
@@ -112,7 +112,7 @@ public:
    /**
     * Returns a short identifier for this consumer
     */
-   virtual std::string getMnemonic() const {
+   virtual G_API std::string getMnemonic() const {
       return std::string("sc");
    }
 
@@ -122,7 +122,7 @@ public:
     * consumer. Since evaluation is performed aerially, we assume that this
     * is possible and return true.
     */
-   virtual bool capableOfFullReturn() const {
+   virtual G_API bool capableOfFullReturn() const {
       return true;
    }
 

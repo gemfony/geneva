@@ -84,8 +84,7 @@ namespace Common {
  * @return A string representation of gt_ptr
  */
 template <typename T>
-G_API
-std::string sharedPtrToString(boost::shared_ptr<T> gt_ptr, const Gem::Common::serializationMode& serMod){
+G_API std::string sharedPtrToString(boost::shared_ptr<T> gt_ptr, const Gem::Common::serializationMode& serMod){
 	std::ostringstream oarchive_stream;
 
 	switch(serMod){
@@ -126,8 +125,7 @@ std::string sharedPtrToString(boost::shared_ptr<T> gt_ptr, const Gem::Common::se
  * @return A shared_ptr to the restored object
  */
 template <typename T>
-G_API
-boost::shared_ptr<T> sharedPtrFromString(const std::string& gt_string, const Gem::Common::serializationMode& serMod){
+G_API boost::shared_ptr<T> sharedPtrFromString(const std::string& gt_string, const Gem::Common::serializationMode& serMod){
 	std::istringstream istr(gt_string);
 	boost::shared_ptr<T> gt_ptr;
 
