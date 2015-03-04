@@ -395,7 +395,7 @@ public:
    /**
     * Specifies the operations the parser must know about
     */
-   G_API enum byte_code {
+   enum G_API byte_code {
       op_trap   = 0,      // triggers an exception --> boost::variant<int,fp_type>() == 0
       op_neg    = 1,      // negate the top stack entry
       op_add    = 2,      // add top two stack entries

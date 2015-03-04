@@ -980,7 +980,7 @@ protected:
 /**
  * An enum for 2D-drawing options
  */
-G_API enum tddropt {
+enum G_API tddropt {
 	TDEMPTY = 0
 	, SURFONE = 1
 	, SURFTWOZ = 2
