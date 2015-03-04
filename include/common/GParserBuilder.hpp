@@ -367,7 +367,7 @@ public:
 protected:
    /***************************************************************************/
    /** @brief Splits a comment into sub-tokens */
-   std::vector<std::string> splitComment(const std::string&) const;
+   G_API std::vector<std::string> splitComment(const std::string&) const;
 
 private:
 	/***************************************************************************/
