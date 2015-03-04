@@ -62,56 +62,56 @@ namespace Geneva {
 /**
  * This class is a specialization of the GFactoryT<> class for gradient descents.
  */
-class G_API GParameterScanFactory
+class GParameterScanFactory
    : public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >
 {
 public:
    /** @brief An easy identifier for the class */
-   static const std::string nickname; // Initialized in the .cpp definition file
+   static G_API const std::string nickname; // Initialized in the .cpp definition file
 
    /** @brief The default constructor */
-   GParameterScanFactory();
+   G_API GParameterScanFactory();
    /** @brief Initialization with the name of the config file and the default parallelization mode */
-   explicit GParameterScanFactory(const std::string&);
+   explicit G_API GParameterScanFactory(const std::string&);
    /** @brief The standard constructor */
-   GParameterScanFactory(
-         const std::string&
-         , const execMode&
+   G_API GParameterScanFactory(
+      const std::string&
+      , const execMode&
    );
    /** @brief A constructor that also adds a content creation function */
-   GParameterScanFactory(
+   G_API GParameterScanFactory(
       const std::string&
       , const execMode&
       , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
    );
    /** @brief The destructor */
-   virtual ~GParameterScanFactory();
+   virtual G_API ~GParameterScanFactory();
 
    /** @brief Adds local command line options to boost::program_options::options_description objects */
-   virtual void addCLOptions(
+   virtual G_API void addCLOptions(
       boost::program_options::options_description&
       , boost::program_options::options_description&
    ) OVERRIDE;
 
    /** @brief Gives access to the mnemonics / nickname describing an algorithm */
-   virtual std::string getMnemonic() const OVERRIDE;
+   virtual G_API std::string getMnemonic() const OVERRIDE;
    /** @brief Gives access to a clear-text description of the algorithm */
-   virtual std::string getAlgorithmName() const OVERRIDE;
+   virtual G_API std::string getAlgorithmName() const OVERRIDE;
 
    /** @brief Allows to specify the parameter settings manually for variables to be scanned */
-   void setParameterSpecs(std::string parStr);
+   G_API void setParameterSpecs(std::string parStr);
    /** @brief Allows to retrieve the parameter settings for variables to be scanned */
-   std::string getParameterSpecs() const;
+   G_API std::string getParameterSpecs() const;
    /** @brief Allows to reset the parameter specs */
-   void resetParameterSpecs();
+   G_API void resetParameterSpecs();
 
 protected:
    /** @brief Creates individuals of this type */
-   virtual boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > getObject_(Gem::Common::GParserBuilder&, const std::size_t&) OVERRIDE;
+   virtual G_API boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > getObject_(Gem::Common::GParserBuilder&, const std::size_t&) OVERRIDE;
    /** @brief Allows to describe local configuration options in derived classes */
-   virtual void describeLocalOptions_(Gem::Common::GParserBuilder&) OVERRIDE;
+   virtual G_API void describeLocalOptions_(Gem::Common::GParserBuilder&) OVERRIDE;
    /** @brief Allows to act on the configuration options received from the configuration file */
-   virtual void postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >&) OVERRIDE;
+   virtual G_API void postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >&) OVERRIDE;
 
 private:
    std::string parameterSpec_;   ///< Holds information on the variables to be optimized -- set through the configuration file

@@ -58,14 +58,14 @@ namespace Geneva {
  * adaptor characteristics for different values. This cannot be done with a GIntCollectionT.
  */
 template <typename int_type>
-class G_API GNumIntT
+class GNumIntT
 	:public GNumT<int_type>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int){
+	G_API void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
 	  ar & make_nvp("GNumT", boost::serialization::base_object<GNumT<int_type> >(*this));
@@ -83,7 +83,7 @@ public:
 	/**
 	 * The default constructor
 	 */
-	GNumIntT()
+	G_API GNumIntT()
 		: GNumT<int_type> ()
 	{ /* nothing */ }
 
@@ -93,7 +93,7 @@ public:
 	 *
 	 * @param cp A constant reference to another GNumIntT<int_type> object
 	 */
-	GNumIntT(const GNumIntT<int_type>& cp)
+	G_API GNumIntT(const GNumIntT<int_type>& cp)
 		: GNumT<int_type> (cp)
 	{ /* nothing */ }
 
@@ -103,7 +103,7 @@ public:
 	 *
 	 * @param val The value used for the initialization
 	 */
-	explicit GNumIntT(const int_type& val)
+	explicit G_API GNumIntT(const int_type& val)
 		: GNumT<int_type>(val)
 	{ /* nothing */ }
 
@@ -116,7 +116,7 @@ public:
 	 * @param min The lower boundary for random entries
 	 * @param max The upper boundary for random entries
 	 */
-	GNumIntT(
+	G_API GNumIntT(
       const int_type& min
       , const int_type& max
 	)
@@ -134,7 +134,7 @@ public:
 	 * @param min The lower boundary for random entries
 	 * @param max The upper boundary for random entries
 	 */
-	GNumIntT(
+	G_API GNumIntT(
       const int_type& val
       , const int_type& min
       , const int_type& max
@@ -148,7 +148,7 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual ~GNumIntT()
+	virtual G_API ~GNumIntT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -158,7 +158,7 @@ public:
 	 * @param val The value to be assigned to this object
 	 * @return The value that was assigned to this object
 	 */
-	virtual int_type operator=(const int_type& val) {
+	virtual G_API int_type operator=(const int_type& val) {
 		return GNumT<int_type>::operator=(val);
 	}
 
@@ -169,7 +169,7 @@ public:
 	 * @param cp A copy of another GNumIntT<int_type> object
 	 * @return A constant reference to this object
 	 */
-	const GNumIntT<int_type> & operator=(const GNumIntT<int_type>& cp){
+	G_API const GNumIntT<int_type> & operator=(const GNumIntT<int_type>& cp){
 		GNumIntT<int_type>::load_(&cp);
 		return *this;
 	}
@@ -181,7 +181,7 @@ public:
 	 * @param  cp A constant reference to another GNumIntT<int_type> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	bool operator==(const GNumIntT<int_type>& cp) const {
+	G_API bool operator==(const GNumIntT<int_type>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GNumIntT<int_type>::operator==","cp", CE_SILENT);
@@ -194,7 +194,7 @@ public:
 	 * @param  cp A constant reference to another GNumIntT<int_type> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	bool operator!=(const GNumIntT<int_type>& cp) const {
+	G_API bool operator!=(const GNumIntT<int_type>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNumIntT<int_type>::operator!=","cp", CE_SILENT);
@@ -213,7 +213,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(
+	G_API boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -241,7 +241,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const OVERRIDE {
+   virtual G_API std::string name() const OVERRIDE {
       return std::string("GNumIntT");
    }
 
@@ -255,7 +255,7 @@ protected:
 	 *
 	 * @param cp A copy of another GNumIntT<int_type> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject *cp) OVERRIDE {
+	virtual G_API void load_(const GObject *cp) OVERRIDE {
 		// Convert cp into local format
 		const GNumIntT<int_type> *p_load = GObject::gobject_conversion<GNumIntT<int_type> >(cp);
 
@@ -267,13 +267,13 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Creates a deep clone of this object. Needs to be redefined in derived classes */
-	virtual GObject* clone_() const = 0;
+	virtual G_API GObject* clone_() const = 0;
 
 	/***************************************************************************/
 	/**
 	 * Triggers random initialization of the parameter collection
 	 */
-	virtual void randomInit_(const activityMode&) OVERRIDE {
+	virtual G_API void randomInit_(const activityMode&) OVERRIDE {
 		int_type lowerBoundary = GNumT<int_type>::getLowerInitBoundary();
 		int_type upperBoundary = GNumT<int_type>::getUpperInitBoundary();
 
@@ -291,7 +291,7 @@ public:
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 */
-	virtual bool modify_GUnitTests() OVERRIDE {
+	virtual G_API bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -310,7 +310,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// A few settings
 		const std::size_t nTests = 10000;
@@ -408,7 +408,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GNumT<int_type>::specificTestsFailuresExpected_GUnitTests();

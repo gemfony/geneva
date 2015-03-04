@@ -62,7 +62,7 @@ namespace Geneva {
  * that template arguments have the GObject and the GMutableI interfaces.
  */
 template <typename T>
-class G_API GMutableSetT:
+class GMutableSetT:
 	public GOptimizableEntity,
 	public GStdPtrVectorInterfaceT<T>
 {
@@ -70,11 +70,12 @@ class G_API GMutableSetT:
     friend class boost::serialization::access;
 
     template<typename Archive>
-    void serialize(Archive & ar, const unsigned int){
+    G_API void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
 
-      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GOptimizableEntity)
-         & make_nvp("GStdPtrVectorInterfaceT_T", boost::serialization::base_object<GStdPtrVectorInterfaceT<T> >(*this));
+      ar
+      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GOptimizableEntity)
+      & make_nvp("GStdPtrVectorInterfaceT_T", boost::serialization::base_object<GStdPtrVectorInterfaceT<T> >(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -83,7 +84,7 @@ public:
 	/**
 	 * The default constructor. No local data, hence nothing to do.
 	 */
-	GMutableSetT()
+    G_API GMutableSetT()
 		: GOptimizableEntity()
 		, GStdPtrVectorInterfaceT<T>()
 	{ /* nothing */	}
@@ -94,7 +95,7 @@ public:
     *
     * @param nFitnessCriteria The number of fitness criteria used by this object
     */
-   GMutableSetT(const std::size_t& nFitnessCriteria)
+    G_API GMutableSetT(const std::size_t& nFitnessCriteria)
       : GOptimizableEntity(nFitnessCriteria)
       , GStdPtrVectorInterfaceT<T>()
    { /* nothing */   }
@@ -106,7 +107,7 @@ public:
 	 *
 	 * @param cp A copy of another GMutableSetT<T> object
 	 */
-	GMutableSetT(const GMutableSetT<T>& cp)
+    G_API GMutableSetT(const GMutableSetT<T>& cp)
 		: GOptimizableEntity(cp)
 		, GStdPtrVectorInterfaceT<T>(cp)
 	{ /* nothing */ }
@@ -116,7 +117,7 @@ public:
 	 * The destructor. As we use smart pointers, we do not need to take care of the
 	 * data in the vector ourselves.
 	 */
-	virtual ~GMutableSetT()
+	virtual G_API ~GMutableSetT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -126,7 +127,7 @@ public:
 	 * @param  cp A constant reference to another GMutableSetT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	bool operator==(const GMutableSetT<T>& cp) const {
+	G_API bool operator==(const GMutableSetT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GMutableSetT<T>::operator==","cp", CE_SILENT);
@@ -139,7 +140,7 @@ public:
 	 * @param  cp A constant reference to another GMutableSetT<T> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	bool operator!=(const GMutableSetT<T>& cp) const {
+	G_API bool operator!=(const GMutableSetT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GMutableSetT<T>::operator!=","cp", CE_SILENT);
@@ -158,7 +159,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(
+	G_API boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -188,7 +189,7 @@ public:
 	 * Swap another object's vector with ours. We need to set the dirty flag of both
 	 * individuals in this case.
 	 */
-	inline void swap(GMutableSetT<T>& cp) {
+	inline G_API void swap(GMutableSetT<T>& cp) {
 		GStdPtrVectorInterfaceT<T>::swap(cp.data);
 		GOptimizableEntity::setDirtyFlag();
 		cp.setDirtyFlag();
@@ -205,7 +206,7 @@ public:
 	 *
 	 * @param gpb The GParserBuilder object to which configuration options should be added
 	 */
-	virtual void addConfigurationOptions (
+	virtual G_API void addConfigurationOptions (
 		Gem::Common::GParserBuilder& gpb
 	) OVERRIDE {
 		// Call our parent class'es function
@@ -218,7 +219,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const OVERRIDE {
+   virtual G_API std::string name() const OVERRIDE {
       return std::string("GMutableSetT");
    }
 
@@ -240,7 +241,7 @@ protected:
 	 *
 	 * @param cp A copy of another GMutableSetT object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject* cp) OVERRIDE {
+	virtual G_API void load_(const GObject* cp) OVERRIDE {
 		// Convert cp into local format
 	  const GMutableSetT<T> *p_load = this->template gobject_conversion<GMutableSetT<T> >(cp);
 
@@ -255,7 +256,7 @@ protected:
 	 * Make the vector wrapper purely virtual allows the compiler to perform
 	 * further optimizations.
 	 */
-	virtual void dummyFunction() OVERRIDE { /* nothing */ }
+	virtual G_API void dummyFunction() OVERRIDE { /* nothing */ }
 
 public:
 	/***************************************************************************/
@@ -264,7 +265,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() OVERRIDE {
+	virtual G_API bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -293,7 +294,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -313,7 +314,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;

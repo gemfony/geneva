@@ -56,7 +56,7 @@ namespace Geneva {
 /**
  * A serial swarm, no multithreading is used directly by this class
  */
-class G_API GSerialSwarm
+class GSerialSwarm
 	: public GBaseSwarm
 {
 	///////////////////////////////////////////////////////////////////////
@@ -66,30 +66,31 @@ class G_API GSerialSwarm
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseSwarm);
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseSwarm);
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor. Intentionally empty, as it is only needed for de-serialization purposes */
-	GSerialSwarm();
+	G_API GSerialSwarm();
 	/** @brief The default constructor */
-	GSerialSwarm(const std::size_t&, const std::size_t&);
+	G_API GSerialSwarm(const std::size_t&, const std::size_t&);
 	/** @brief A standard copy constructor */
-	GSerialSwarm(const GSerialSwarm&);
+	G_API GSerialSwarm(const GSerialSwarm&);
 	/** @brief The destructor */
-	virtual ~GSerialSwarm();
+	virtual G_API ~GSerialSwarm();
 
 	/** @brief A standard assignment operator */
-	const GSerialSwarm& operator=(const GSerialSwarm&);
+	G_API const GSerialSwarm& operator=(const GSerialSwarm&);
 
 	/** @brief Checks for equality with another GSerialSwarm object */
-	bool operator==(const GSerialSwarm&) const;
+	G_API bool operator==(const GSerialSwarm&) const;
 	/** @brief Checks for inequality with another GSerialSwarm object */
-	bool operator!=(const GSerialSwarm&) const;
+	G_API bool operator!=(const GSerialSwarm&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(
+	virtual G_API boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&, const std::string&
@@ -98,38 +99,38 @@ public:
 	) const OVERRIDE;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions (
+	virtual G_API void addConfigurationOptions (
 		Gem::Common::GParserBuilder& gpb
 	) OVERRIDE;
 
 	/** @brief Allows to assign a name to the role of this individual(-derivative) */
-	virtual std::string getIndividualCharacteristic() const OVERRIDE;
+	virtual G_API std::string getIndividualCharacteristic() const OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const OVERRIDE;
+   virtual G_API std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another population */
-	virtual void load_(const GObject *) OVERRIDE;
+	virtual G_API void load_(const GObject *) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
-	virtual GObject *clone_() const OVERRIDE;
+	virtual G_API GObject *clone_() const OVERRIDE;
 
 	/** @brief Does some preparatory work before the optimization starts */
-	virtual void init() OVERRIDE;
+	virtual G_API void init() OVERRIDE;
 	/** @brief Does any necessary finalization work */
-	virtual void finalize() OVERRIDE;
+	virtual G_API void finalize() OVERRIDE;
 
 	/** @brief Updates the fitness of all individuals */
-	virtual void runFitnessCalculation() OVERRIDE;
+	virtual G_API void runFitnessCalculation() OVERRIDE;
 
 public:
 	/***************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests() OVERRIDE;
+	virtual G_API bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 } /* namespace Geneva */
@@ -145,7 +146,7 @@ public:
  * specialization of the factory function that creates objects of this type.
  */
 template <>
-inline boost::shared_ptr<Gem::Geneva::GSerialSwarm> TFactory_GUnitTests<Gem::Geneva::GSerialSwarm>() {
+inline G_API boost::shared_ptr<Gem::Geneva::GSerialSwarm> TFactory_GUnitTests<Gem::Geneva::GSerialSwarm>() {
    using namespace Gem::Tests;
    const std::size_t NNEIGHBORHOODS=2;
    const std::size_t NNEIGHBORHOODMEMBERS=3;

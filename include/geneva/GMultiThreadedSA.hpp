@@ -60,78 +60,79 @@ namespace Geneva {
  * uses the Boost.Threads library and a thread-pool library from
  * http://threadpool.sf.net .
  */
-class G_API GMultiThreadedSA
+class GMultiThreadedSA
    : public GBaseSA
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
 
    template<typename Archive>
-   void serialize(Archive & ar, const unsigned int) {
+   G_API void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
-      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseSA)
-         & BOOST_SERIALIZATION_NVP(nThreads_);
+      ar
+      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseSA)
+      & BOOST_SERIALIZATION_NVP(nThreads_);
    }
    ///////////////////////////////////////////////////////////////////////
 
 public:
    /** @brief The default constructor */
-   GMultiThreadedSA();
+   G_API GMultiThreadedSA();
    /** @brief A standard copy constructor */
-   GMultiThreadedSA(const GMultiThreadedSA&);
+   G_API GMultiThreadedSA(const GMultiThreadedSA&);
    /** @brief The standard destructor */
-   virtual ~GMultiThreadedSA();
+   virtual G_API ~GMultiThreadedSA();
 
    /** @brief Assignment operator */
-   const GMultiThreadedSA& operator=(const GMultiThreadedSA&);
+   G_API const GMultiThreadedSA& operator=(const GMultiThreadedSA&);
 
    /** @brief Checks for equality with another GMultiThreadedSA object */
-   bool operator==(const GMultiThreadedSA&) const;
+   G_API bool operator==(const GMultiThreadedSA&) const;
    /** @brief Checks for inequality with another GMultiThreadedSA object */
-   bool operator!=(const GMultiThreadedSA&) const;
+   G_API bool operator!=(const GMultiThreadedSA&) const;
 
    /** @brief Checks whether this object fulfills a given expectation in relation to another object */
-   virtual boost::optional<std::string> checkRelationshipWith(
-         const GObject&
-         , const Gem::Common::expectation&
-         , const double&
-         , const std::string&
-         , const std::string&
-         , const bool&
+   virtual G_API boost::optional<std::string> checkRelationshipWith(
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
    ) const OVERRIDE;
 
    /** @brief Sets the maximum number of threads */
-   void setNThreads(boost::uint16_t);
+   G_API void setNThreads(boost::uint16_t);
    /** @brief Retrieves the maximum number of threads */
-   uint16_t getNThreads() const ;
+   G_API boost::uint16_t getNThreads() const ;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
-   virtual void addConfigurationOptions (
+   virtual G_API void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
    ) OVERRIDE;
 
    /** @brief Allows to assign a name to the role of this individual(-derivative) */
-   virtual std::string getIndividualCharacteristic() const OVERRIDE;
+   virtual G_API std::string getIndividualCharacteristic() const OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const OVERRIDE;
+   virtual G_API std::string name() const OVERRIDE;
 
 protected:
    /** @brief Loads data from another object */
-   virtual void load_(const GObject *) OVERRIDE;
+   virtual G_API void load_(const GObject *) OVERRIDE;
    /** @brief Creates a deep clone of this object */
-   virtual GObject *clone_() const OVERRIDE;
+   virtual G_API GObject *clone_() const OVERRIDE;
 
    /** @brief Necessary initialization work before the start of the optimization */
-   virtual void init() OVERRIDE;
+   virtual G_API void init() OVERRIDE;
    /** @brief Necessary clean-up work after the optimization has finished */
-   virtual void finalize() OVERRIDE;
+   virtual G_API void finalize() OVERRIDE;
 
    /** @brief Adapt children in a serial manner */
-   virtual void adaptChildren() OVERRIDE;
+   virtual G_API void adaptChildren() OVERRIDE;
    /** @brief Evaluates all children (and possibly parents) of this population */
-   virtual void runFitnessCalculation() OVERRIDE;
+   virtual G_API void runFitnessCalculation() OVERRIDE;
 
 private:
    boost::uint16_t nThreads_; ///< The number of threads
@@ -139,11 +140,11 @@ private:
 
 public:
    /** @brief Applies modifications to this object. This is needed for testing purposes */
-   virtual bool modify_GUnitTests() OVERRIDE;
+   virtual G_API bool modify_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-   virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+   virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-   virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+   virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

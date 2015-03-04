@@ -83,7 +83,7 @@ typedef boost::tuple<std::size_t, std::string, std::size_t> NAMEANDIDTYPE;
  * it may only signify the latter.
  */
 template <typename par_type>
-struct G_API parPropSpec {
+struct parPropSpec {
    // mode: (0, ...), (VarName[0], ...) or (VarName, ...)
    // variable name
    // optional index
@@ -93,7 +93,7 @@ struct G_API parPropSpec {
    std::size_t nSteps;   ///< The number of steps from the lower boundary to the upper boundary (or possibly the number of random values from this parameter range, depending on the scan mode and parameter type)
 
    // Swap with another parPropSpec
-   void swap(parPropSpec<par_type>& b) {
+   G_API void swap(parPropSpec<par_type>& b) {
       NAMEANDIDTYPE var_c = b.var; b.var = this->var; this->var = var_c;
       par_type lowerBoundary_c = b.lowerBoundary;  b.lowerBoundary = this->lowerBoundary; this->lowerBoundary = lowerBoundary_c;
       par_type upperBoundary_c = b.upperBoundary;  b.upperBoundary = this->upperBoundary; this->upperBoundary = upperBoundary_c;
@@ -210,25 +210,25 @@ namespace Geneva {
  * (including ranges and steps). Note that this class is meant for setup purposes
  * only and thus cannot be serialized (nor can it be copied).
  */
-class G_API GParameterPropertyParser: boost::noncopyable // Make sure this class cannot be copied
+class GParameterPropertyParser: boost::noncopyable // Make sure this class cannot be copied
 {
 public:
    /** @brief The standard constructor -- assignment of the "raw" paramter property string */
-   GParameterPropertyParser(const std::string&);
+   G_API GParameterPropertyParser(const std::string&);
 
    /** @brief Retrieves the raw parameter description */
-   std::string getRawParameterDescription() const;
+   G_API std::string getRawParameterDescription() const;
    /** @brief Allows to check whether parsing has already taken place */
-   bool isParsed() const;
+   G_API bool isParsed() const;
 
    /** @brief Allows to reset the internal structures and to parse a new parameter string */
-   void setNewParameterDescription(std::string);
+   G_API void setNewParameterDescription(std::string);
 
    /** @brief Initiates parsing of the raw string */
-   void parse();
+   G_API void parse();
 
    /** @brief Retrieve the number of "simple scan" items */
-   std::size_t getNSimpleScanItems() const;
+   G_API std::size_t getNSimpleScanItems() const;
 
    /***************************************************************************/
    /**
@@ -246,7 +246,7 @@ public:
     * supported types instead.
     */
    template <typename par_type>
-   boost::tuple<typename std::vector<parPropSpec<par_type> >::const_iterator, typename std::vector<parPropSpec<par_type> >::const_iterator> getIterators() const {
+   G_API boost::tuple<typename std::vector<parPropSpec<par_type> >::const_iterator, typename std::vector<parPropSpec<par_type> >::const_iterator> getIterators() const {
       boost::tuple<typename std::vector<parPropSpec<par_type> >::const_iterator, typename std::vector<parPropSpec<par_type> >::const_iterator> result;
 
       glogger
@@ -300,7 +300,7 @@ private:
  * This is the overload for double parameters.
  */
 template <>
-inline boost::tuple<std::vector<parPropSpec<double> >::const_iterator, std::vector<parPropSpec<double> >::const_iterator>
+inline G_API boost::tuple<std::vector<parPropSpec<double> >::const_iterator, std::vector<parPropSpec<double> >::const_iterator>
 GParameterPropertyParser::getIterators<double>() const {
    // Make sure parsing has happened.
    if(!parsed_) {
@@ -332,7 +332,7 @@ GParameterPropertyParser::getIterators<double>() const {
  * This is the overload for float parameters.
  */
 template <>
-inline boost::tuple<std::vector<parPropSpec<float> >::const_iterator, std::vector<parPropSpec<float> >::const_iterator>
+inline G_API boost::tuple<std::vector<parPropSpec<float> >::const_iterator, std::vector<parPropSpec<float> >::const_iterator>
 GParameterPropertyParser::getIterators<float>() const {
    // Make sure parsing has happened.
    if(!parsed_) {
@@ -364,7 +364,7 @@ GParameterPropertyParser::getIterators<float>() const {
  * This is the overload for boost::int32_t parameters.
  */
 template <>
-inline boost::tuple<std::vector<parPropSpec<boost::int32_t> >::const_iterator, std::vector<parPropSpec<boost::int32_t> >::const_iterator>
+inline G_API boost::tuple<std::vector<parPropSpec<boost::int32_t> >::const_iterator, std::vector<parPropSpec<boost::int32_t> >::const_iterator>
 GParameterPropertyParser::getIterators<boost::int32_t>() const {
    // Make sure parsing has happened.
    if(!parsed_) {
@@ -395,7 +395,7 @@ GParameterPropertyParser::getIterators<boost::int32_t>() const {
  * This is the overload for bool parameters.
  */
 template <>
-inline boost::tuple<std::vector<parPropSpec<bool> >::const_iterator, std::vector<parPropSpec<bool> >::const_iterator>
+inline G_API boost::tuple<std::vector<parPropSpec<bool> >::const_iterator, std::vector<parPropSpec<bool> >::const_iterator>
 GParameterPropertyParser::getIterators<bool>() const {
    // Make sure parsing has happened.
    if(!parsed_) {

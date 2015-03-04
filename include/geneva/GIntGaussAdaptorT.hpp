@@ -62,17 +62,18 @@ namespace Geneva {
  * being adapted.
  */
 template <typename int_type>
-class G_API GIntGaussAdaptorT
+class GIntGaussAdaptorT
 	:public GNumGaussAdaptorT<int_type, double>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int){
+	G_API void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GNumGaussAdaptorT_int", boost::serialization::base_object<GNumGaussAdaptorT<int_type, double> >(*this));
+	  ar
+	  & make_nvp("GNumGaussAdaptorT_int", boost::serialization::base_object<GNumGaussAdaptorT<int_type, double> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -81,7 +82,7 @@ public:
 	/**
 	 * The default constructor
 	 */
-	GIntGaussAdaptorT()
+	G_API GIntGaussAdaptorT()
 		: GNumGaussAdaptorT<int_type, double>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA)
     { /* nothing */ }
 
@@ -91,7 +92,7 @@ public:
 	 *
 	 * @param cp A copy of another GIntGaussAdaptorT<int_type> object
 	 */
-	GIntGaussAdaptorT(const GIntGaussAdaptorT<int_type>& cp)
+	G_API GIntGaussAdaptorT(const GIntGaussAdaptorT<int_type>& cp)
 		: GNumGaussAdaptorT<int_type, double>(cp)
     { /* nothing */ }
 
@@ -103,7 +104,7 @@ public:
 	 *
 	 * @param adProb The adaption probability
 	 */
-	explicit GIntGaussAdaptorT(const double& adProb)
+	explicit G_API GIntGaussAdaptorT(const double& adProb)
 		: GNumGaussAdaptorT<int_type, double>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, adProb)
     { /* nothing */ }
 
@@ -116,7 +117,7 @@ public:
 	 * @param minSigma The minimal value allowed for sigma_
 	 * @param maxSigma The maximal value allowed for sigma_
 	 */
-	GIntGaussAdaptorT(
+	G_API GIntGaussAdaptorT(
 		const double& sigma
 		, const double& sigmaSigma
 		, const double& minSigma
@@ -136,7 +137,7 @@ public:
 	 * @param maxSigma The maximal value allowed for sigma_
 	 * @param adProb The adaption probability
 	 */
-	GIntGaussAdaptorT(
+	G_API GIntGaussAdaptorT(
 		const double& sigma
 		, const double& sigmaSigma
 		, const double& minSigma
@@ -150,7 +151,7 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual ~GIntGaussAdaptorT()
+	virtual G_API ~GIntGaussAdaptorT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -166,7 +167,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	virtual boost::optional<std::string> checkRelationshipWith(
+	virtual G_API boost::optional<std::string> checkRelationshipWith(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
@@ -192,13 +193,13 @@ public:
 
 	/***************************************************************************/
 	/** @brief Retrieves the id of this adaptor */
-	virtual Gem::Geneva::adaptorId getAdaptorId() const = 0;
+	virtual G_API Gem::Geneva::adaptorId getAdaptorId() const = 0;
 
    /***************************************************************************/
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const OVERRIDE {
+   virtual G_API std::string name() const OVERRIDE {
       return std::string("GIntGaussAdaptorT");
    }
 
@@ -209,7 +210,7 @@ protected:
 	 *
 	 * @param cp A copy of another GIntGaussAdaptorT<int_type> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject* cp) OVERRIDE {
+	virtual G_API void load_(const GObject* cp) OVERRIDE {
 	    // Check that we are not accidently assigning this object to itself
 	    GObject::selfAssignmentCheck<GIntGaussAdaptorT<int_type> >(cp);
 
@@ -221,7 +222,7 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Creates a deep clone of this object. */
-	virtual GObject* clone_() const = 0;
+	virtual G_API GObject* clone_() const = 0;
 
 	/***************************************************************************/
 	/**
@@ -230,7 +231,7 @@ protected:
 	 * @param value The value that is going to be adapted in situ
 	 * @param range A typical range for the parameter with type num_type
 	 */
-	virtual void customAdaptions(
+	virtual G_API void customAdaptions(
       int_type& value
       , const int_type& range
    ) OVERRIDE {
@@ -258,7 +259,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() OVERRIDE {
+	virtual G_API bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -277,7 +278,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent class'es function
 		GNumGaussAdaptorT<int_type, double>::specificTestsNoFailureExpected_GUnitTests();
@@ -295,7 +296,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent class'es function
 		GNumGaussAdaptorT<int_type, double>::specificTestsFailuresExpected_GUnitTests();

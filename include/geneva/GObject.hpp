@@ -151,14 +151,14 @@ namespace Geneva {
  * and  GObject::clone_() member functions must be re-implemented for each derived class. Further common
  * functionality of many Geneva classes will be implemented here over time.
  */
-class G_API GObject
+class GObject
 	:public Gem::Common::GSerializableI
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template<typename Archive>
-    void serialize(Archive &, const unsigned int)  {
+    G_API void serialize(Archive &, const unsigned int)  {
       using boost::serialization::make_nvp;
 
       // No local data
@@ -167,17 +167,17 @@ class G_API GObject
 
 public:
 	/** @brief The default constructor */
-	GObject() ;
+   G_API GObject() ;
 	/** @brief The copy constructor */
-	GObject(const GObject& cp) ;
+   G_API GObject(const GObject& cp) ;
 	/** @brief The destructor */
-	virtual ~GObject();
+	virtual G_API ~GObject();
 
 	/** @brief The assignment operator */
-	const GObject& operator=(const GObject&);
+	G_API const GObject& operator=(const GObject&);
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(
+	virtual G_API boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -187,36 +187,36 @@ public:
 	) const;
 
 	/** @brief Convert class to a serial representation that is then written to a stream */
-	void toStream(std::ostream&, const Gem::Common::serializationMode&) const;
+	G_API void toStream(std::ostream&, const Gem::Common::serializationMode&) const;
 	/** @brief Load class from a stream */
-	void fromStream(std::istream&, const Gem::Common::serializationMode&);
+	G_API void fromStream(std::istream&, const Gem::Common::serializationMode&);
 
 	/** @brief Convert class to a serial representation, using a user-specified serialization mode */
-	virtual std::string toString(const Gem::Common::serializationMode&) const OVERRIDE;
+	virtual G_API std::string toString(const Gem::Common::serializationMode&) const OVERRIDE;
 	/** @brief Convert class to a serial representation, using a specific serialization mode */
-	virtual void fromString(const std::string&, const Gem::Common::serializationMode&) OVERRIDE;
+	virtual G_API void fromString(const std::string&, const Gem::Common::serializationMode&) OVERRIDE;
 
 	/** @brief Writes a serial representation of this object to a file */
-	void toFile(const bf::path&, const Gem::Common::serializationMode&) const;
+	G_API void toFile(const bf::path&, const Gem::Common::serializationMode&) const;
 	/** @brief Loads a serial representation of this object from file */
-	void fromFile(const bf::path&, const Gem::Common::serializationMode&);
+	G_API void fromFile(const bf::path&, const Gem::Common::serializationMode&);
 
 	/** @brief Returns an XML description of the derivative it is called for */
-	std::string report() const;
+	G_API std::string report() const;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const;
+   virtual G_API std::string name() const;
 
 	/** @brief Writes a configuration file to disk */
-	void writeConfigFile(const std::string&, const std::string&);
+   G_API void writeConfigFile(const std::string&, const std::string&);
 	/** @brief Reads a configuration file from disk */
-	void readConfigFile(const std::string&);
+   G_API void readConfigFile(const std::string&);
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&);
+	virtual G_API void addConfigurationOptions(Gem::Common::GParserBuilder&);
 
 	/** @brief Creates a clone of this object, storing it in a boost::shared_ptr<GObject> */
-	boost::shared_ptr<GObject> clone() const;
+	G_API boost::shared_ptr<GObject> clone() const;
 
    /***************************************************************************/
    /**
@@ -227,7 +227,7 @@ public:
     * @return A converted clone of this object, wrapped into a boost::shared_ptr
     */
    template <typename clone_type>
-   boost::shared_ptr<clone_type> clone(
+   G_API boost::shared_ptr<clone_type> clone(
       typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, clone_type> >::type* dummy = 0
    ) const {
       return Gem::Common::convertSmartPointer<GObject, clone_type>(boost::shared_ptr<GObject>(this->clone_()));
@@ -246,7 +246,7 @@ public:
 	 * @param cp A copy of another GObject-derivative, wrapped into a boost::shared_ptr<>
 	 */
 	template <typename load_type>
-	inline void load(
+	inline G_API void load(
       const boost::shared_ptr<load_type>& cp
       , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) {
@@ -266,7 +266,7 @@ public:
 	 * @param cp A copy of another GObject-derivative, wrapped into a boost::shared_ptr<>
 	 */
 	template <typename load_type>
-	inline void load(
+	inline G_API void load(
       const load_type& cp
       , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) {
@@ -283,7 +283,7 @@ public:
 	 * A handler for SIGHUP or CTRL_CLOSE_EVENT signals. This function should work
 	 * both for Windows and Unix-Systems.
 	 */
-	static void sigHupHandler(int signum) {
+	static G_API void sigHupHandler(int signum) {
 	   if(G_SIGHUP == signum) {
 	      GObject::GenevaSigHupSent = 1;
 	   }
@@ -291,14 +291,14 @@ public:
 
 	// Needed to allow interruption of the optimization run without loss of data
 	// Npte that "volatile" is needed in order for the signal handler to work
-	static volatile std::sig_atomic_t GenevaSigHupSent;  // Initialized in GObject.cpp
+	static volatile G_API std::sig_atomic_t GenevaSigHupSent;  // Initialized in GObject.cpp
 
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GObject */
-	virtual void load_(const GObject*);
+	virtual G_API void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone_() const = 0;
+	virtual G_API GObject* clone_() const = 0;
 
 	/***************************************************************************/
 	/**
@@ -306,7 +306,7 @@ protected:
 	 * that this template will only be accessible to the compiler if GObject is a base type of load_type.
 	 */
 	template <typename load_type>
-	inline void selfAssignmentCheck (
+	inline G_API void selfAssignmentCheck (
 			const GObject *load_ptr
 		  , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) const {
@@ -334,7 +334,7 @@ protected:
 	 * only be accessible to the compiler if GObject is a base type of load_type.
 	 */
 	template <typename load_type>
-	inline const load_type* gobject_conversion (
+	inline G_API const load_type* gobject_conversion (
      const GObject *load_ptr
      , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) const {
@@ -374,7 +374,7 @@ protected:
 	 * @return A boost::shared_ptr holding the converted object
 	 */
 	template <typename load_type>
-	inline boost::shared_ptr<load_type> gobject_conversion (
+	inline G_API boost::shared_ptr<load_type> gobject_conversion (
      boost::shared_ptr<GObject> load_ptr
      , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) const {
@@ -404,18 +404,18 @@ protected:
 
 private:
 	/** @brief Checks for equality with another GObject object. Intentionally left undefined, as this class is abstract */
-	bool operator==(const GObject&) const;
+	G_API bool operator==(const GObject&) const;
 	/** @brief Checks inequality with another GObject object. Intentionally left undefined, as this class is abstract */
-	bool operator!=(const GObject&) const;
+	G_API bool operator!=(const GObject&) const;
 
 public:
 	/***************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests();
+	virtual G_API bool modify_GUnitTests();
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests();
+	virtual G_API void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests();
+	virtual G_API void specificTestsFailuresExpected_GUnitTests();
 };
 
 /******************************************************************************/
@@ -425,8 +425,8 @@ public:
  * @return A boost::shared_ptr<GObject> to a clone of the derived object
  */
 template <>
-inline boost::shared_ptr<GObject> GObject::clone<GObject> (
-      boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, GObject> >::type* dummy
+inline G_API boost::shared_ptr<GObject> GObject::clone<GObject> (
+   boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, GObject> >::type* dummy
 ) const {
    return boost::shared_ptr<GObject>(clone_());
 }

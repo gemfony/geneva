@@ -54,9 +54,9 @@ namespace Geneva {
 /**
  * Compares two data points for their x location
  */
-struct G_API xPointCompare
+struct xPointCompare
 {
-   bool operator()(
+   G_API bool operator()(
       const boost::tuple<double,double>& a
       , const boost::tuple<double,double>& b
    );

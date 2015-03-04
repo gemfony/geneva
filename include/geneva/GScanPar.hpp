@@ -124,16 +124,16 @@ G_API std::vector<double> fillWithData<double>(
 /**
  * An interface class for parameter scan objects
  */
-class G_API scanParInterface {
+class scanParInterface {
 public:
-   virtual ~scanParInterface(){ /* nothing */ }
+   virtual G_API ~scanParInterface(){ /* nothing */ }
 
-   virtual NAMEANDIDTYPE getVarAddress() const = 0;
-   virtual bool goToNextItem() = 0;
-   virtual bool isAtTerminalPosition() const = 0;
-   virtual bool isAtFirstPosition() const = 0;
-   virtual void resetPosition() = 0;
-   virtual std::string getTypeDescriptor() const = 0;
+   virtual G_API NAMEANDIDTYPE getVarAddress() const = 0;
+   virtual G_API bool goToNextItem() = 0;
+   virtual G_API bool isAtTerminalPosition() const = 0;
+   virtual G_API bool isAtFirstPosition() const = 0;
+   virtual G_API void resetPosition() = 0;
+   virtual G_API std::string getTypeDescriptor() const = 0;
 };
 
 /******************************************************************************/
@@ -143,7 +143,7 @@ public:
  * Basic parameter functionality
  */
 template <typename T>
-class G_API baseScanParT
+class baseScanParT
    : public GStdSimpleVectorInterfaceT<T>
    , public scanParInterface
 {
@@ -151,7 +151,7 @@ class G_API baseScanParT
    friend class boost::serialization::access;
 
    template<typename Archive>
-   void serialize(Archive & ar, const unsigned int) {
+   G_API void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
       ar
@@ -172,7 +172,7 @@ public:
    /**
     * The standard constructor
     */
-   baseScanParT(
+   G_API baseScanParT(
       parPropSpec<T> pps
       , bool randomScan
       , std::string t // typeDescription_
@@ -196,7 +196,7 @@ public:
    /**
     * The copy constructor
     */
-   baseScanParT(const baseScanParT<T>& cp)
+   G_API baseScanParT(const baseScanParT<T>& cp)
       : GStdSimpleVectorInterfaceT<T>(cp)
       , var_(cp.var_)
       , step_(cp.step_)
@@ -211,14 +211,14 @@ public:
    /**
     * The destructor
     */
-   virtual ~baseScanParT()
+   virtual G_API ~baseScanParT()
    { /* nothing */ }
 
    /***************************************************************************/
    /**
     * Retrieve the address of this object
     */
-   virtual NAMEANDIDTYPE getVarAddress() const OVERRIDE {
+   virtual G_API NAMEANDIDTYPE getVarAddress() const OVERRIDE {
       return var_;
    }
 
@@ -226,7 +226,7 @@ public:
    /**
     * Retrieves the current item position
     */
-   std::size_t getCurrentItemPos() const {
+   G_API std::size_t getCurrentItemPos() const {
       return step_;
    }
 
@@ -234,7 +234,7 @@ public:
    /**
     * Retrieve the current item
     */
-   T getCurrentItem() const {
+   G_API T getCurrentItem() const {
       if(randomScan_) {
          return getRandomItem();
       } else {
@@ -248,7 +248,7 @@ public:
     *
     * @return A boolean indicating whether a warp has taken place
     */
-   virtual bool goToNextItem() BASE {
+   virtual G_API bool goToNextItem() BASE {
       if(++step_ >= nSteps_) {
          step_ = 0;
          return true;
@@ -260,7 +260,7 @@ public:
    /**
     * Checks whether step_ points to the last item in the array
     */
-   virtual bool isAtTerminalPosition() const BASE {
+   virtual G_API bool isAtTerminalPosition() const BASE {
       if(step_ >= nSteps_) return true;
       else return false;
    }
@@ -269,7 +269,7 @@ public:
    /**
     * Checks whether step_ points to the first item in the array
     */
-   virtual bool isAtFirstPosition() const BASE {
+   virtual G_API bool isAtFirstPosition() const BASE {
       if(0 == step_) return true;
       else return false;
    }
@@ -278,7 +278,7 @@ public:
    /**
     * Resets the current position
     */
-   virtual void resetPosition() BASE {
+   virtual G_API void resetPosition() BASE {
       step_ = 0;
    }
 
@@ -286,7 +286,7 @@ public:
    /**
     * Retrieve the type descriptor
     */
-   virtual std::string getTypeDescriptor() const BASE {
+   virtual G_API std::string getTypeDescriptor() const BASE {
       return typeDescription_;
    }
 
@@ -306,7 +306,7 @@ protected:
 
    /***************************************************************************/
    /** @brief The default constructor -- only needed for de-serialization, hence protected */
-   baseScanParT()
+   G_API baseScanParT()
    : var_(NAMEANDIDTYPE(0, "empty", 0))
    , step_(0)
    , nSteps_(2)
@@ -318,13 +318,13 @@ protected:
 
    /***************************************************************************/
    /** @brief Needs to be re-implemented for derivatives of GStdSimpleVectorInterfaceT<> */
-   virtual void dummyFunction(){};
+   virtual G_API void dummyFunction(){};
 
    /***************************************************************************/
    /**
     * Retrieves a random item. To be re-implemented for each supported type
     */
-   T getRandomItem() const {
+   G_API T getRandomItem() const {
       // A trap. This function needs to be re-implemented for each supported type
       glogger
       << "In baseScanParT::getRandomItem(): Error!" << std::endl
@@ -343,7 +343,7 @@ protected:
  * Retrieval of a random value for type bool
  */
 template <>
-inline bool baseScanParT<bool>::getRandomItem() const {
+inline G_API bool baseScanParT<bool>::getRandomItem() const {
    return gr_.uniform_bool();
 }
 
@@ -352,7 +352,7 @@ inline bool baseScanParT<bool>::getRandomItem() const {
  * Retrieval of a random value for type boost::int32_t
  */
 template <>
-inline boost::int32_t baseScanParT<boost::int32_t>::getRandomItem() const {
+inline G_API boost::int32_t baseScanParT<boost::int32_t>::getRandomItem() const {
    return gr_.uniform_int<boost::int32_t>(lower_, upper_+1);
 }
 
@@ -361,7 +361,7 @@ inline boost::int32_t baseScanParT<boost::int32_t>::getRandomItem() const {
  * Retrieval of a random value for type float
  */
 template <>
-inline float baseScanParT<float>::getRandomItem() const {
+inline G_API float baseScanParT<float>::getRandomItem() const {
    return gr_.uniform_real<float>(lower_, upper_);
 }
 
@@ -370,7 +370,7 @@ inline float baseScanParT<float>::getRandomItem() const {
  * Retrieval of a random value for type double
  */
 template <>
-inline double baseScanParT<double>::getRandomItem() const {
+inline G_API double baseScanParT<double>::getRandomItem() const {
    return gr_.uniform_real<double>(lower_, upper_);
 }
 
@@ -380,38 +380,39 @@ inline double baseScanParT<double>::getRandomItem() const {
 /**
  * This class holds boolean parameters
  */
-class G_API bScanPar
+class bScanPar
    :public baseScanParT<bool>
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
 
    template<typename Archive>
-   void serialize(Archive & ar, const unsigned int) {
+   G_API void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
-      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<bool>);
+      ar
+      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<bool>);
    }
 
    ///////////////////////////////////////////////////////////////////////
 
 public:
   /** @brief Construction from local variables */
-  bScanPar(
+  G_API bScanPar(
      parPropSpec<bool>
      , bool
   );
   /** @brief Copy constructor */
-  bScanPar(const bScanPar&);
+  G_API bScanPar(const bScanPar&);
   /** @brief The destructor */
-  virtual ~bScanPar();
+  virtual G_API ~bScanPar();
 
   /** @brief Cloning of this object */
-  boost::shared_ptr<bScanPar> clone() const;
+  G_API boost::shared_ptr<bScanPar> clone() const;
 
 private:
   /** @brief The default constructor -- only needed for de-serialization, hence private */
-  bScanPar();
+  G_API bScanPar();
 };
 
 /******************************************************************************/
@@ -420,38 +421,39 @@ private:
 /**
  * A derivative of baseScanParT for boost::int32_t values
  */
-class G_API int32ScanPar
+class int32ScanPar
    :public baseScanParT<boost::int32_t>
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
 
    template<typename Archive>
-   void serialize(Archive & ar, const unsigned int) {
+   G_API void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
-      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<boost::int32_t>);
+      ar
+      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<boost::int32_t>);
    }
 
    ///////////////////////////////////////////////////////////////////////
 
 public:
    /** @brief The standard destructor */
-   int32ScanPar(
+   G_API int32ScanPar(
       parPropSpec<boost::int32_t>
       , bool
    );
    /** @brief Copy constructor */
-   int32ScanPar(const int32ScanPar&);
+   G_API int32ScanPar(const int32ScanPar&);
    /** @brief The destructor */
-   virtual ~int32ScanPar();
+   virtual G_API ~int32ScanPar();
 
    /** @brief Cloning of this object */
-   boost::shared_ptr<int32ScanPar> clone() const;
+   G_API boost::shared_ptr<int32ScanPar> clone() const;
 
 private:
    /** @brief The default constructor -- only needed for de-serialization, hence private */
-   int32ScanPar();
+   G_API int32ScanPar();
 };
 
 /******************************************************************************/
@@ -460,38 +462,39 @@ private:
 /**
  * A derivative of fpScanParT for double values
  */
-class G_API dScanPar
+class dScanPar
    :public baseScanParT<double>
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
 
    template<typename Archive>
-   void serialize(Archive & ar, const unsigned int) {
+   G_API void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
-      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<double>);
+      ar
+      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<double>);
    }
 
    ///////////////////////////////////////////////////////////////////////
 
 public:
    /** @brief The standard destructor */
-   dScanPar(
+   G_API dScanPar(
       parPropSpec<double>
       , bool
    );
    /** @brief The copy constructor */
-   dScanPar(const dScanPar&);
+   G_API dScanPar(const dScanPar&);
    /** @brief The destructor */
-   virtual ~dScanPar();
+   virtual G_API ~dScanPar();
 
    /** @brief Cloning of this object */
-   boost::shared_ptr<dScanPar> clone() const;
+   G_API boost::shared_ptr<dScanPar> clone() const;
 
 private:
    /** @brief The default constructor -- only needed for de-serialization, hence private */
-   dScanPar();
+   G_API dScanPar();
 };
 
 
@@ -501,38 +504,39 @@ private:
 /**
  * A derivative of fpScanParT for float values
  */
-class G_API fScanPar
+class fScanPar
    :public baseScanParT<float>
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
 
    template<typename Archive>
-   void serialize(Archive & ar, const unsigned int) {
+   G_API void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
-      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<float>);
+      ar
+      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<float>);
    }
 
    ///////////////////////////////////////////////////////////////////////
 
 public:
    /** @brief The standard destructor */
-   fScanPar(
+   G_API fScanPar(
       parPropSpec<float>
       , bool
    );
    /** @brief The copy constructor */
-   fScanPar(const fScanPar&);
+   G_API fScanPar(const fScanPar&);
    /** @brief The destructor */
-   virtual ~fScanPar();
+   virtual G_API ~fScanPar();
 
    /** @brief Cloning of this object */
-   boost::shared_ptr<fScanPar> clone() const;
+   G_API boost::shared_ptr<fScanPar> clone() const;
 
 private:
    /** @brief The default constructor -- only needed for de-serialization, hence private */
-   fScanPar();
+   G_API fScanPar();
 };
 
 /******************************************************************************/

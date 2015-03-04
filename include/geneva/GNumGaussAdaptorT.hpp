@@ -58,14 +58,14 @@ namespace Geneva {
  * The type used needs to be specified as a template parameter.
  */
 template<typename num_type, typename fp_type>
-class G_API GNumGaussAdaptorT
+class GNumGaussAdaptorT
       :public GAdaptorT<num_type>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int) {
+	G_API void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
 		ar
@@ -86,7 +86,7 @@ public:
 	/**
 	 * The standard constructor.
 	 */
-	GNumGaussAdaptorT()
+	G_API GNumGaussAdaptorT()
 		: GAdaptorT<num_type> ()
 		, sigma_(fp_type(DEFAULTSIGMA))
 		, sigma_reset_(sigma_)
@@ -101,7 +101,7 @@ public:
 	 *
 	 * @param probability The likelihood for a adaption actually taking place
 	 */
-	GNumGaussAdaptorT(const double& probability)
+	G_API GNumGaussAdaptorT(const double& probability)
 		: GAdaptorT<num_type> (probability)
 		, sigma_(fp_type(DEFAULTSIGMA))
       , sigma_reset_(sigma_)
@@ -119,7 +119,7 @@ public:
 	 * @param minSigma The minimal value allowed for sigma_
 	 * @param maxSigma The maximal value allowed for sigma_
 	 */
-	GNumGaussAdaptorT (
+	G_API GNumGaussAdaptorT (
       const fp_type& sigma
       , const fp_type& sigmaSigma
       , const fp_type& minSigma
@@ -150,7 +150,7 @@ public:
 	 * @param maxSigma The maximal value allowed for sigma_
 	 * @param probability The likelihood for a adaption actually taking place
 	 */
-	GNumGaussAdaptorT (
+	G_API GNumGaussAdaptorT (
       const fp_type& sigma
       , const fp_type& sigmaSigma
       , const fp_type& minSigma
@@ -179,7 +179,7 @@ public:
 	 *
 	 * @param cp Another GNumGaussAdaptorT object
 	 */
-	GNumGaussAdaptorT(const GNumGaussAdaptorT<num_type, fp_type>& cp)
+	G_API GNumGaussAdaptorT(const GNumGaussAdaptorT<num_type, fp_type>& cp)
 		: GAdaptorT<num_type> (cp)
 		, sigma_(cp.sigma_)
 		, sigma_reset_(cp.sigma_reset_)
@@ -193,7 +193,7 @@ public:
 	 * The standard destructor. Empty, as we have no local, dynamically
 	 * allocated data.
 	 */
-	virtual ~GNumGaussAdaptorT()
+	virtual G_API ~GNumGaussAdaptorT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -209,7 +209,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(
+	G_API boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -248,7 +248,7 @@ public:
 	 *
 	 * @param sigma The new value of the sigma_ parameter
 	 */
-	void setSigma(const fp_type& sigma)
+	G_API void setSigma(const fp_type& sigma)
 	{
 		// Sigma must be in the allowed value range.
 		if(!Gem::Common::checkRangeCompliance<fp_type>(sigma, minSigma_, maxSigma_))
@@ -271,7 +271,7 @@ public:
 	 *
 	 * @return The current value of sigma_reset_
 	 */
-	fp_type getResetSigma() const  {
+	G_API fp_type getResetSigma() const  {
 		return sigma_reset_;
 	}
 
@@ -282,7 +282,7 @@ public:
     *
     * @param sigma_reset The new value of the sigma_ parameter
     */
-   void setResetSigma(const fp_type& sigma_reset)
+	G_API void setResetSigma(const fp_type& sigma_reset)
    {
       // Sigma must be in the allowed value range.
       if(!Gem::Common::checkRangeCompliance<fp_type>(sigma_reset, minSigma_, maxSigma_))
@@ -305,7 +305,7 @@ public:
     *
     * @return The current value of sigma_
     */
-   fp_type getSigma() const  {
+	G_API fp_type getSigma() const  {
       return sigma_;
    }
 
@@ -321,7 +321,7 @@ public:
 	 * @param minSigma The minimum allowed value of sigma_
 	 * @param maxSigma The maximum allowed value of sigma_
 	 */
-	void setSigmaRange(
+	G_API void setSigmaRange(
       const fp_type& minSigma
       , const fp_type& maxSigma
    ){
@@ -355,7 +355,7 @@ public:
 	 *
 	 * @return The allowed value range for sigma
 	 */
-	boost::tuple<fp_type,fp_type> getSigmaRange() const  {
+	G_API boost::tuple<fp_type,fp_type> getSigmaRange() const  {
 		return boost::make_tuple<fp_type, fp_type>(minSigma_, maxSigma_);
 	}
 
@@ -373,7 +373,7 @@ public:
 	 *
 	 * @param sigmaSigma The new value of the sigmaSigma_ parameter
 	 */
-	void setSigmaAdaptionRate(const fp_type& sigmaSigma)
+	G_API void setSigmaAdaptionRate(const fp_type& sigmaSigma)
 	{
 		sigmaSigma_ = sigmaSigma;
 	}
@@ -390,7 +390,7 @@ public:
 	 *
 	 * @return The value of the sigmaSigma_ parameter
 	 */
-	fp_type getSigmaAdaptionRate() const  {
+	G_API fp_type getSigmaAdaptionRate() const  {
 		return sigmaSigma_;
 	}
 
@@ -409,7 +409,7 @@ public:
 	 * @param minSigma The minimal value allowed for sigma_
 	 * @param minSigma The maximum value allowed for sigma_
 	 */
-	void setAll(
+	G_API void setAll(
       const fp_type& sigma
       , const fp_type& sigmaSigma
       , const fp_type& minSigma
@@ -431,7 +431,7 @@ public:
 	 *
 	 * @return The diagnostic message
 	 */
-	virtual std::string printDiagnostics() const OVERRIDE {
+	virtual G_API std::string printDiagnostics() const OVERRIDE {
 		std::ostringstream diag;
 		boost::tuple<fp_type,fp_type> sigmaRange = getSigmaRange();
 
@@ -450,13 +450,13 @@ public:
 	/***************************************************************************/
 	/**
 	 * @brief Retrieves the id of the adaptor. */
-	virtual Gem::Geneva::adaptorId getAdaptorId() const = 0;
+	virtual G_API Gem::Geneva::adaptorId getAdaptorId() const = 0;
 
    /***************************************************************************/
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const  OVERRIDE {
+   virtual G_API std::string name() const  OVERRIDE {
       return std::string("GNumGaussAdaptorT");
    }
 
@@ -469,7 +469,7 @@ public:
     * @param range A typical value range for type T
     * @return A boolean indicating whether updates were performed
     */
-   virtual bool updateOnStall(
+   virtual G_API bool updateOnStall(
       const std::size_t& nStalls
       , const num_type& range
    ) OVERRIDE {
@@ -493,7 +493,7 @@ protected:
 	 *
 	 * @param A copy of another GNumGaussAdaptorT<num_type, fp_type>, camouflaged as a GObject
 	 */
-	void load_(const GObject *cp) OVERRIDE {
+	void G_API load_(const GObject *cp) OVERRIDE {
 		// Convert GObject pointer to local format
 		const GNumGaussAdaptorT<num_type, fp_type> *p_load = GObject::gobject_conversion<GNumGaussAdaptorT<num_type, fp_type> >(cp);
 
@@ -515,7 +515,7 @@ protected:
 	 *
 	 * @return A deep copy of this object
 	 */
-	virtual GObject *clone_() const = 0;
+	virtual G_API GObject *clone_() const = 0;
 
 	/***************************************************************************/
 	/**
@@ -524,7 +524,7 @@ protected:
 	 *
 	 * @param range A typical range for the parameter with type num_type (unused here)
 	 */
-	virtual void customAdaptAdaption(const num_type&) OVERRIDE {
+	virtual G_API void customAdaptAdaption(const num_type&) OVERRIDE {
 	    using namespace Gem::Common;
 
 	    // The following random distribution slightly favours values < 1. Selection pressure
@@ -542,13 +542,13 @@ protected:
 	 *
 	 * @param value The value that is going to be adapted in situ
 	 */
-	virtual void customAdaptions(num_type&, const num_type&) = 0;
+	virtual G_API void customAdaptions(num_type&, const num_type&) = 0;
 
    /***************************************************************************/
    /**
     * Allows to randomly initialize parameter members
     */
-   virtual void randomInit() OVERRIDE {
+   virtual G_API void randomInit() OVERRIDE {
       using namespace Gem::Hap;
       sigma_ = this->gr->template uniform_real<fp_type>(minSigma_, maxSigma_);
    }
@@ -558,7 +558,7 @@ protected:
     * Adds a given property value to the vector or returns false, if the property
     * was not found.
     */
-   virtual bool customQueryProperty (
+   virtual G_API bool customQueryProperty (
       const std::string& property
       , std::vector<boost::any>& data
    ) const OVERRIDE {
@@ -586,7 +586,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() OVERRIDE {
+	virtual G_API bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -612,7 +612,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -768,7 +768,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;

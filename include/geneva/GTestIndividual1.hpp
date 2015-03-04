@@ -80,65 +80,66 @@ namespace Tests {
  * of writing, it was included in order to be able to set the individual's personality without
  * weakening data protection.
  */
-class G_API GTestIndividual1 :public Gem::Geneva::GParameterSet
+class GTestIndividual1 :public Gem::Geneva::GParameterSet
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int) {
+	G_API void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor */
-	GTestIndividual1();
+	G_API GTestIndividual1();
 	/** @brief The copy constructor */
-	GTestIndividual1(const GTestIndividual1&);
+	G_API GTestIndividual1(const GTestIndividual1&);
 	/** @brief The standard destructor */
-	virtual ~GTestIndividual1();
+	virtual G_API ~GTestIndividual1();
 
 	/** @brief A standard assignment operator */
-	const GTestIndividual1& operator=(const GTestIndividual1&);
+	G_API const GTestIndividual1& operator=(const GTestIndividual1&);
 
 	/** @brief Checks for equality with another GTestIndividual1 object */
-	bool operator==(const GTestIndividual1& cp) const;
+	G_API bool operator==(const GTestIndividual1& cp) const;
 	/** @brief Checks for inequality with another GTestIndividual1 object */
-	bool operator!=(const GTestIndividual1& cp) const;
+	G_API bool operator!=(const GTestIndividual1& cp) const;
 
 	/** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
-	virtual boost::optional<std::string> checkRelationshipWith(
-      const GObject&,
-      const Gem::Common::expectation&,
-      const double&,
-      const std::string&,
-      const std::string&,
-      const bool&
+	virtual G_API boost::optional<std::string> checkRelationshipWith(
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
 	) const;
 
 protected:
 	/** @brief Loads the data of another GTestIndividual1 */
-	virtual void load_(const GObject*);
+	virtual G_API void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone_() const;
+	virtual G_API GObject* clone_() const;
 
 	/** @brief The actual fitness calculation takes place here. */
-	virtual double fitnessCalculation() OVERRIDE;
+	virtual G_API double fitnessCalculation() OVERRIDE;
 public:
 	// Note: The following functions are, in the context of GTestIndividual1,
 	// designed to mainly test parent classes
 
 	/** @brief Applies modifications to this object. */
-	virtual bool modify_GUnitTests();
+	virtual G_API bool modify_GUnitTests();
 	/** @brief Adds a number of GDoubleObject objects to the individual */
-	void addGDoubleObjects(const std::size_t&);
+	void G_API addGDoubleObjects(const std::size_t&);
 	/** @brief Performs self tests that are expected to succeed. */
-	virtual void specificTestsNoFailureExpected_GUnitTests();
+	virtual G_API void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. */
-	virtual void specificTestsFailuresExpected_GUnitTests();
+	virtual G_API void specificTestsFailuresExpected_GUnitTests();
 };
 
 /******************************************************************************/

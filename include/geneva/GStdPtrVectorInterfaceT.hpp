@@ -96,16 +96,17 @@ namespace Geneva {
  * the current one.
  */
 template <typename T>
-class G_API GStdPtrVectorInterfaceT
+class GStdPtrVectorInterfaceT
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template<typename Archive>
-    void serialize(Archive & ar, const unsigned int){
+    G_API void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
 
-      ar & BOOST_SERIALIZATION_NVP(data);
+      ar
+      & BOOST_SERIALIZATION_NVP(data);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -114,7 +115,7 @@ public:
 	/**
 	 * The default constructor
 	 */
-	GStdPtrVectorInterfaceT() { /* nothing */ }
+    G_API GStdPtrVectorInterfaceT() { /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -123,7 +124,7 @@ public:
 	 *
 	 * @param cp A constant reference to another GStdPtrVectorInterfaceT object
 	 */
-	GStdPtrVectorInterfaceT(const GStdPtrVectorInterfaceT<T>& cp) {
+    G_API GStdPtrVectorInterfaceT(const GStdPtrVectorInterfaceT<T>& cp) {
 		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
 		for(cp_it=cp.data.begin(); cp_it!=cp.data.end(); ++cp_it) {
 			data.push_back((*cp_it)->GObject::template clone<T>());
@@ -135,7 +136,7 @@ public:
 	 * The destructor. Destruction of the objects will be taken care of
 	 * by boost::shared_ptr<T>.
 	 */
-	virtual ~GStdPtrVectorInterfaceT() {
+	virtual G_API ~GStdPtrVectorInterfaceT() {
 		data.clear();
 	}
 
@@ -146,7 +147,7 @@ public:
 	 * @param cp A copy of another GStdPtrVectorInterfaceT<T> object
 	 * @return The argument of this function
 	 */
-	const GStdPtrVectorInterfaceT<T>& operator=(const GStdPtrVectorInterfaceT<T>& cp) {
+	G_API const GStdPtrVectorInterfaceT<T>& operator=(const GStdPtrVectorInterfaceT<T>& cp) {
 		this->operator=(cp.data);
 		return cp;
 	}
@@ -159,7 +160,7 @@ public:
 	 * @param cp A constant reference to another std::vector<boost::shared_ptr<T> >
 	 * @return The argument of this function
 	 */
-	const std::vector<boost::shared_ptr<T> >& operator=(const std::vector<boost::shared_ptr<T> >& cp) {
+	G_API const std::vector<boost::shared_ptr<T> >& operator=(const std::vector<boost::shared_ptr<T> >& cp) {
 		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
 		typename std::vector<boost::shared_ptr<T> >::iterator it;
 
@@ -208,13 +209,13 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(
-			const std::vector<boost::shared_ptr<T> >& cp_data
-		  , const Gem::Common::expectation& e
-		  , const double& limit
-        , const std::string& caller
-		  , const std::string& y_name
-		  , const bool& withMessages
+	G_API boost::optional<std::string> checkRelationshipWith(
+     const std::vector<boost::shared_ptr<T> >& cp_data
+     , const Gem::Common::expectation& e
+     , const double& limit
+     , const std::string& caller
+     , const std::string& y_name
+     , const bool& withMessages
 	) const	{
 	    using namespace Gem::Common;
 
@@ -245,7 +246,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(
+	G_API boost::optional<std::string> checkRelationshipWith(
 			const GStdPtrVectorInterfaceT<T>& cp
 		  , const Gem::Common::expectation& e
 		  , const double& limit
@@ -285,12 +286,12 @@ public:
 
 	/***************************************************************************/
 	// Non modifying access
-	size_type size() const { return data.size(); } // not tested -- trivial mapping
-	bool empty() const { return data.empty(); } // not tested -- trivial mapping
-	size_type max_size() const { return data.max_size(); } // not tested -- trivial mapping
+	G_API size_type size() const { return data.size(); } // not tested -- trivial mapping
+	G_API bool empty() const { return data.empty(); } // not tested -- trivial mapping
+	G_API size_type max_size() const { return data.max_size(); } // not tested -- trivial mapping
 
-	size_type capacity() const { return data.capacity(); } // not tested -- trivial mapping
-	void reserve(size_type amount) { data.reserve(amount); } // not tested -- trivial mapping
+	G_API size_type capacity() const { return data.capacity(); } // not tested -- trivial mapping
+	G_API void reserve(size_type amount) { data.reserve(amount); } // not tested -- trivial mapping
 
 	/***************************************************************************/
 	/**
@@ -301,7 +302,7 @@ public:
 	 * @param item The item to be counted in the collection
 	 */
 	template <typename item_type>
-	size_type count(const boost::shared_ptr<item_type>& item) const {
+	G_API size_type count(const boost::shared_ptr<item_type>& item) const {
 		if(!item) { // Check that item actually contains something useful
 		   glogger
 		   << "In GParameterTCollectionT<T>::count(item):"
@@ -330,7 +331,7 @@ public:
 	 * and we do not want to compare the pointers themselves.
 	 */
 	template <typename item_type>
-	const_iterator find(const boost::shared_ptr<item_type>& item) const {
+	G_API const_iterator find(const boost::shared_ptr<item_type>& item) const {
 		if(!item) { // Check that item actually contains something useful
 		   glogger
 		   << "In GParameterTCollectionT<T>::find(item):"
@@ -357,7 +358,7 @@ public:
 	 * Clones an object at a given position and convert it to a given target type
 	 */
 	template <typename target_type>
-	boost::shared_ptr<target_type> clone_at(std::size_t pos) const {
+	G_API boost::shared_ptr<target_type> clone_at(std::size_t pos) const {
 		return (data.at(pos))->GObject::template clone<target_type>();
 	}
 
@@ -365,33 +366,33 @@ public:
 	// Modifying functions
 
 	// Exchange of two data sets
-	void swap(std::vector<boost::shared_ptr<T> >& cont) { data.swap(cont); } // not tested -- trivial mapping
+	G_API void swap(std::vector<boost::shared_ptr<T> >& cont) { data.swap(cont); } // not tested -- trivial mapping
 
 	// Access to elements (unchecked / checked)
-	reference operator[](std::size_t pos) { return data[pos]; } // not tested -- trivial mapping
-	const_reference operator[](std::size_t pos) const { return data[pos]; } // not tested -- trivial mapping
+	G_API reference operator[](std::size_t pos) { return data[pos]; } // not tested -- trivial mapping
+	G_API const_reference operator[](std::size_t pos) const { return data[pos]; } // not tested -- trivial mapping
 
-	reference at(std::size_t pos) { return data.at(pos); } // not tested -- trivial mapping
-	const_reference at(std::size_t pos) const { return data.at(pos); } // not tested -- trivial mapping
+	G_API reference at(std::size_t pos) { return data.at(pos); } // not tested -- trivial mapping
+	G_API const_reference at(std::size_t pos) const { return data.at(pos); } // not tested -- trivial mapping
 
-	reference front() { return data.front(); } // not tested -- trivial mapping
-	const_reference front() const { return data.front(); } // not tested -- trivial mapping
+	G_API reference front() { return data.front(); } // not tested -- trivial mapping
+	G_API const_reference front() const { return data.front(); } // not tested -- trivial mapping
 
-	reference back() { return data.back(); } // not tested -- trivial mapping
-	const_reference back() const { return data.back(); } // not tested -- trivial mapping
+	G_API reference back() { return data.back(); } // not tested -- trivial mapping
+	G_API const_reference back() const { return data.back(); } // not tested -- trivial mapping
 
 	// Iterators
-	iterator begin() { return data.begin(); } // not tested -- trivial mapping
-	const_iterator begin() const { return data.begin(); } // not tested -- trivial mapping
+	G_API iterator begin() { return data.begin(); } // not tested -- trivial mapping
+	G_API const_iterator begin() const { return data.begin(); } // not tested -- trivial mapping
 
-	iterator end() { return data.end(); } // not tested -- trivial mapping
-	const_iterator end() const { return data.end(); } // not tested -- trivial mapping
+	G_API iterator end() { return data.end(); } // not tested -- trivial mapping
+	G_API const_iterator end() const { return data.end(); } // not tested -- trivial mapping
 
-	reverse_iterator rbegin() { return data.rbegin(); } // not tested -- trivial mapping
-	const_reverse_iterator rbegin() const { return data.rbegin(); } // not tested -- trivial mapping
+	G_API reverse_iterator rbegin() { return data.rbegin(); } // not tested -- trivial mapping
+	G_API const_reverse_iterator rbegin() const { return data.rbegin(); } // not tested -- trivial mapping
 
-	reverse_iterator rend() { return data.rend(); } // not tested -- trivial mapping
-	const_reverse_iterator rend() const { return data.rend(); } // not tested -- trivial mapping
+	G_API reverse_iterator rend() { return data.rend(); } // not tested -- trivial mapping
+	G_API const_reverse_iterator rend() const { return data.rend(); } // not tested -- trivial mapping
 
 	/***************************************************************************/
 	// Insertion and removal
@@ -404,7 +405,7 @@ public:
 	 * @param pos The position where the item should be inserted
 	 * @param item_ptr The item to be inserted into the collection
 	 */
-	iterator insert(iterator pos, boost::shared_ptr<T> item_ptr) {
+	G_API iterator insert(iterator pos, boost::shared_ptr<T> item_ptr) {
 		return this->insert_noclone(pos, item_ptr);
 	}
 
@@ -422,7 +423,7 @@ public:
 	 * @param pos The position where the item should be inserted
 	 * @param item_ptr The item to be inserted into the collection
 	 */
-	iterator insert_noclone(iterator pos, boost::shared_ptr<T> item_ptr) {
+	G_API iterator insert_noclone(iterator pos, boost::shared_ptr<T> item_ptr) {
 		if(!item_ptr) { // Check that item actually contains something useful
 		   glogger
 		   << "In GParameterTCollectionT<T>::insert_noclone(pos, item_ptr):"
@@ -448,7 +449,7 @@ public:
 	 * @param pos The position where the item should be inserted
 	 * @param item_ptr The item to be inserted into the collection
 	 */
-	iterator insert_clone(iterator pos, boost::shared_ptr<T> item_ptr) {
+	G_API iterator insert_clone(iterator pos, boost::shared_ptr<T> item_ptr) {
 		if(!item_ptr) { // Check that item actually contains something useful
 		   glogger
 		   << "In GParameterTCollectionT<T>::insert_clone(pos, item_ptr):"
@@ -474,7 +475,7 @@ public:
 	 * @param amount The amount of items to be inserted
 	 * @param item_ptr The item to be inserted into the collection
 	 */
-	void insert(iterator pos, size_type amount, boost::shared_ptr<T> item_ptr) {
+	G_API void insert(iterator pos, size_type amount, boost::shared_ptr<T> item_ptr) {
 		this->insert_clone(pos, amount, item_ptr);
 	}
 
@@ -491,7 +492,7 @@ public:
 	 * @param amount The amount of items to be inserted
 	 * @param item_ptr The item to be inserted into the collection
 	 */
-	void insert_clone(iterator pos, size_type amount, boost::shared_ptr<T> item_ptr) {
+	G_API void insert_clone(iterator pos, size_type amount, boost::shared_ptr<T> item_ptr) {
 		if(!item_ptr) { // Check that item actually contains something useful
 		   glogger
 		   << "In GParameterTCollectionT<T>::insert_clone(pos, amount, item):" << std::endl
@@ -522,7 +523,7 @@ public:
 	 * @param amount The amount of items to be inserted
 	 * @param item_ptr The item to be inserted into the collection
 	 */
-	void insert_noclone(iterator pos, size_type amount, boost::shared_ptr<T> item_ptr) {
+	G_API void insert_noclone(iterator pos, size_type amount, boost::shared_ptr<T> item_ptr) {
 		if(!item_ptr) { // Check that item actually contains something useful
 		   glogger
 		   << "In GParameterTCollectionT<T>::insert_noclone(pos, amount, item):" << std::endl
@@ -553,7 +554,7 @@ public:
 	 *
 	 * @param item_ptr The item to be appended to the collection
 	 */
-	void push_back(boost::shared_ptr<T> item_ptr){
+	G_API void push_back(boost::shared_ptr<T> item_ptr){
 		this->push_back_noclone(item_ptr);
 	}
 
@@ -570,7 +571,7 @@ public:
 	 *
 	 * @param item_ptr The item to be appended to the collection
 	 */
-	void push_back_noclone(boost::shared_ptr<T> item_ptr){
+	G_API void push_back_noclone(boost::shared_ptr<T> item_ptr){
 		if(!item_ptr) { // Check that item actually contains something useful
 		   glogger
 		   << "In GParameterTCollectionT<T>::push_back(item):" << std::endl
@@ -595,7 +596,7 @@ public:
 	 *
 	 * @param item_ptr The item to be appended to the collection
 	 */
-	void push_back_clone(boost::shared_ptr<T> item_ptr){
+	G_API void push_back_clone(boost::shared_ptr<T> item_ptr){
 		if(!item_ptr) { // Check that item actually contains something useful
 		   glogger
 		   << "In GStdPtrVectorInterface<T>::push_back_clone(item):" << std::endl
@@ -614,17 +615,17 @@ public:
 
 	/***************************************************************************/
 	// Removal at a given position or in a range
-	iterator erase(iterator pos) { return data.erase(pos); }  // not tested -- trivial mapping
-	iterator erase(iterator from, iterator to) { return data.erase(from,to); }  // not tested -- trivial mapping
+	G_API iterator erase(iterator pos) { return data.erase(pos); }  // not tested -- trivial mapping
+	G_API iterator erase(iterator from, iterator to) { return data.erase(from,to); }  // not tested -- trivial mapping
 
 	// Removing an element from the end of the vector
-	void pop_back(){ data.pop_back(); }  // not tested -- trivial mapping
+	G_API void pop_back(){ data.pop_back(); }  // not tested -- trivial mapping
 
 	/***************************************************************************/
 	/**
 	 * Resizing the vector. This function will clone the first item in the collection, if available.
 	 */
-	void resize(size_type amount) {
+	G_API void resize(size_type amount) {
 		if(this->empty() && amount != 0) {
 		   glogger
 		   << "In GStdPtrVectorInterface<T>::resize(size_type):" << std::endl
@@ -651,7 +652,7 @@ public:
 	 * @param amount The new desired size of the vector
 	 * @param item An item that should be used for initialization of new items, if any
 	 */
-	void resize(size_type amount, boost::shared_ptr<T> item_ptr) {
+	G_API void resize(size_type amount, boost::shared_ptr<T> item_ptr) {
 		resize_clone(amount, item_ptr);
 	}
 
@@ -671,7 +672,7 @@ public:
 	 * @param amount The new desired size of the vector
 	 * @param item An item that should be used for initialization of new items, if any
 	 */
-	void resize_noclone(size_type amount, boost::shared_ptr<T> item_ptr) {
+	G_API void resize_noclone(size_type amount, boost::shared_ptr<T> item_ptr) {
 		std::size_t dataSize = data.size();
 
 		if(amount < dataSize)
@@ -710,7 +711,7 @@ public:
 	 * @param amount The new desired size of the vector
 	 * @param item An item that should be used for initialization of new items, if any
 	 */
-	void resize_clone(size_type amount, boost::shared_ptr<T> item_ptr) {
+	G_API void resize_clone(size_type amount, boost::shared_ptr<T> item_ptr) {
 		std::size_t dataSize = data.size();
 
 		if(amount < dataSize)
@@ -742,7 +743,7 @@ public:
 	 * where we want to first resize the collection to a given size and then assign
 	 * data items to each position.
 	 */
-	void resize_empty(size_type amount) {
+	G_API void resize_empty(size_type amount) {
 	   std::size_t dataSize = data.size();
 	   if(amount < dataSize) {
 	      data.resize(amount);
@@ -755,7 +756,7 @@ public:
 
 	/***************************************************************************/
 	/** @brief Clearing the data vector */
-	void clear() { data.clear(); } // Not tested -- trivial mapping
+	G_API void clear() { data.clear(); } // Not tested -- trivial mapping
 
 	/***************************************************************************/
 	/**
@@ -764,7 +765,7 @@ public:
 	 *
 	 * @param cp A reference to a vector that will hold a copy of our local data vector
 	 */
-	void getDataCopy(std::vector<boost::shared_ptr<T> >& cp) const {
+	G_API void getDataCopy(std::vector<boost::shared_ptr<T> >& cp) const {
 		cp.clear();
 		typename std::vector<boost::shared_ptr<T> >::const_iterator it;
 		for(it=data.begin(); it!= data.end(); ++it) {
@@ -780,7 +781,7 @@ public:
 	 * @param cp A copy of another GStdPtrVectorInterfaceT<T> object
 	 * @param pos The position as of which the cross-over should be performed
 	 */
-	void crossOver(GStdPtrVectorInterfaceT<T>& cp, const std::size_t& pos) {
+	G_API void crossOver(GStdPtrVectorInterfaceT<T>& cp, const std::size_t& pos) {
 		// Find out the minimum size of both vectors
 		std::size_t minSize = (std::min)(this->size(), cp.size());
 
@@ -830,7 +831,7 @@ public:
 	 * @param target A vector to which pointers with the derived type are attached
 	 */
 	template <typename derivedType>
-	void attachViewTo(std::vector<boost::shared_ptr<derivedType> >& target) {
+	G_API void attachViewTo(std::vector<boost::shared_ptr<derivedType> >& target) {
 		typename std::vector<boost::shared_ptr<T> >::iterator it;
 		for(it = data.begin(); it!=data.end(); ++it) {
 			boost::shared_ptr<derivedType> p = boost::dynamic_pointer_cast<derivedType>(*it);
@@ -859,7 +860,7 @@ public:
 		 *
 		 * @param end The end of the iteration sequence
 		 */
-		conversion_iterator(typename std::vector<boost::shared_ptr<T> >::iterator const& end)
+	   G_API conversion_iterator(typename std::vector<boost::shared_ptr<T> >::iterator const& end)
 			:end_(end)
 		 { /* nothing */ }
 
@@ -869,7 +870,7 @@ public:
 		 *
 		 * @param current The value to assign to this iterator
 		 */
-		void operator=(typename std::vector<boost::shared_ptr<T> >::iterator const& current) {
+	   G_API void operator=(typename std::vector<boost::shared_ptr<T> >::iterator const& current) {
 			current_ = current;
 			// Skip to first "good" entry
 			while(current_ != end_ && !(p=boost::dynamic_pointer_cast<derivedType>(*current_))) {
@@ -884,7 +885,7 @@ public:
 		 * @param other The iterator to check for inequality
 		 * @return A boolean indicating whether this iterator's value is inequal with the other iterator
 		 */
-		bool operator!=(typename std::vector<boost::shared_ptr<T> >::iterator const& other) const {
+	   G_API bool operator!=(typename std::vector<boost::shared_ptr<T> >::iterator const& other) const {
 			return current_ != other;
 		}
 
@@ -897,7 +898,7 @@ public:
 		 *
 		 * @param end The new end of the sequence
 		 */
-		void resetEndPosition(typename std::vector<boost::shared_ptr<T> >::iterator const& end) {
+	   G_API void resetEndPosition(typename std::vector<boost::shared_ptr<T> >::iterator const& end) {
 			end_ = end;
 		}
 
@@ -910,7 +911,7 @@ public:
 		 * The default constructor. Intentionally left undefined and private, so it cannot be
 		 * instantiated.
 		 */
-		conversion_iterator();
+		G_API conversion_iterator();
 
 		/************************************************************************/
 		/**
@@ -918,7 +919,7 @@ public:
 		 *
 		 * @return A boost::shared_ptr holding the derived object
 		 */
-		boost::shared_ptr<derivedType> dereference() const {
+		G_API boost::shared_ptr<derivedType> dereference() const {
 #ifdef DEBUG
 			if(current_ == end_) {
 			   glogger
@@ -947,7 +948,7 @@ public:
 		 * @param other The item that should be checked for equality
 		 * @return A boolean indicating whether equality was found
 		 */
-		bool equal(typename std::vector<boost::shared_ptr<T> >::iterator const& other) const {
+		G_API bool equal(typename std::vector<boost::shared_ptr<T> >::iterator const& other) const {
 			return current_ == other;
 		}
 
@@ -956,7 +957,7 @@ public:
 		 * This function increments the iterator position, possibly skipping items, should they
 		 * not meet the derivation pattern.
 		 */
-		void increment() {
+		G_API void increment() {
 			while (current_ != end_) {
 				++current_;
 				if(current_!=end_ && (p = boost::dynamic_pointer_cast<derivedType>(*current_))) break;
@@ -974,7 +975,7 @@ protected:
 	std::vector<boost::shared_ptr<T> > data;
 
 	/** @brief Intentionally make this object purely virtual, for performance reasons */
-	virtual void dummyFunction() = 0;
+	virtual G_API void dummyFunction() = 0;
 
 	/***************************************************************************/
 	/**
@@ -984,7 +985,7 @@ protected:
 	struct vi_equal_to {
 		typedef bool result_type;
 
-		bool operator() (const boost::shared_ptr<item_type>& item, const boost::shared_ptr<T>& cont_item)  const{
+		G_API bool operator() (const boost::shared_ptr<item_type>& item, const boost::shared_ptr<T>& cont_item)  const{
 			bool result = false;
 #ifdef DEBUG
 			try {
@@ -1010,7 +1011,7 @@ protected:
 	struct same_equal_to {
 		typedef bool result_type;
 
-		bool operator() (const boost::shared_ptr<T>& item, const boost::shared_ptr<T>& cont_item)  const{
+		G_API bool operator() (const boost::shared_ptr<T>& item, const boost::shared_ptr<T>& cont_item)  const{
 			return (*item == *cont_item);
 		}
 	};
@@ -1018,22 +1019,22 @@ protected:
 private:
 	/***************************************************************************/
 	/** @brief Intentionally left undefined */
-	bool operator==(const GStdPtrVectorInterfaceT<T>&) const;
+	G_API bool operator==(const GStdPtrVectorInterfaceT<T>&) const;
 	/** @brief Intentionally left undefined */
-	bool operator!=(const GStdPtrVectorInterfaceT<T>&) const;
+	G_API bool operator!=(const GStdPtrVectorInterfaceT<T>&) const;
 	/** @brief Intentionally left undefined */
-	bool operator==(const std::vector<boost::shared_ptr<T> >&) const;
+	G_API bool operator==(const std::vector<boost::shared_ptr<T> >&) const;
 	/** @brief Intentionally left undefined */
-	bool operator!=(const std::vector<boost::shared_ptr<T> >&) const;
+	G_API bool operator!=(const std::vector<boost::shared_ptr<T> >&) const;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	// Note to self: changes to GStdPtrVectorInterface should be minimal and not involve objects pointed to
-	virtual bool modify_GUnitTests() BASE { /* nothing here yet */ return false; }
+	G_API virtual bool modify_GUnitTests() BASE { /* nothing here yet */ return false; }
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests() BASE { /* nothing here yet */ }
+	G_API virtual void specificTestsNoFailureExpected_GUnitTests() BASE { /* nothing here yet */ }
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests() BASE { /* nothing here yet */ }
+	G_API virtual void specificTestsFailuresExpected_GUnitTests() BASE { /* nothing here yet */ }
 };
 
 /******************************************************************************/

@@ -56,12 +56,12 @@ namespace Geneva {
  * This class specifies the interface that needs to be implemented by optimization
  * algorithms.
  */
-class G_API GOptimizableI {
+class GOptimizableI {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive &, const unsigned int){
+	G_API void serialize(Archive &, const unsigned int){
 	  using boost::serialization::make_nvp;
 	  /* nothing */
 	}
@@ -69,18 +69,18 @@ class G_API GOptimizableI {
 
 public:
 	/** @brief The default constructor */
-	GOptimizableI();
+	G_API GOptimizableI();
 	/** @brief The destructor */
-	virtual ~GOptimizableI();
+	virtual G_API ~GOptimizableI();
 
 	/** @brief Perform the actual optimization cycle, starting to count iterations at a given offset */
-	virtual void optimize(const boost::uint32_t& offset) = 0;
+	virtual G_API void optimize(const boost::uint32_t& offset) = 0;
 
 	/** @brief A simple wrapper function that forces the class to start with offset 0 */
-	virtual void optimize() BASE;
+	virtual G_API void optimize() BASE;
 
 	/** @brief Retrieves the current iteration of this object */
-	virtual boost::uint32_t getIteration() const = 0;
+	virtual G_API boost::uint32_t getIteration() const = 0;
 
 	/***************************************************************************/
 	/**
@@ -90,7 +90,7 @@ public:
 	 * @return The best individual found during the optimization process, converted to the desired type
 	 */
 	template <typename individual_type>
-	boost::shared_ptr<individual_type> optimize() {
+	G_API boost::shared_ptr<individual_type> optimize() {
 		this->optimize(0);
 		return this->getBestIndividual<individual_type>();
 	}
@@ -105,7 +105,7 @@ public:
 	 * @return The best individual found during the optimization process, converted to the desired type
 	 */
 	template <typename individual_type>
-	boost::shared_ptr<individual_type> optimize(
+	G_API boost::shared_ptr<individual_type> optimize(
 			const boost::uint32_t& offset
 	) {
 		this->optimize(offset);
@@ -121,7 +121,7 @@ public:
 	 * @return A copy of the best individual found in the optimization run
 	 */
 	template <typename individual_type>
-	boost::shared_ptr<individual_type> getBestIndividual (
+	G_API boost::shared_ptr<individual_type> getBestIndividual (
 		typename boost::enable_if<boost::is_base_of<GParameterSet, individual_type> >::type* dummy = 0
 	) {
 		return customGetBestIndividual()->clone<individual_type>();
@@ -136,7 +136,7 @@ public:
 	 * @return A list of copies of the best individuals found in the optimization run
 	 */
 	template <typename individual_type>
-	std::vector<boost::shared_ptr<individual_type> > getBestIndividuals(
+	G_API std::vector<boost::shared_ptr<individual_type> > getBestIndividuals(
 		typename boost::enable_if<boost::is_base_of<GParameterSet, individual_type> >::type* dummy = 0
 	) {
 		std::vector<boost::shared_ptr<individual_type> > bestIndividuals;
@@ -162,22 +162,22 @@ public:
 	/***************************************************************************/
 
 	/** @brief Returns information about the type of optimization algorithm. */
-	virtual std::string getOptimizationAlgorithm() const BASE;
+	virtual G_API std::string getOptimizationAlgorithm() const BASE;
 
 	/** @brief Returns a name assigned to this algorithm */
-	virtual std::string getAlgorithmName() const = 0;
+	virtual G_API std::string getAlgorithmName() const = 0;
 	/** @brief Checks whether a given algorithm type likes to communicate via the broker */
-	virtual bool usesBroker() const BASE;
+	virtual G_API bool usesBroker() const BASE;
 
 protected:
 	/***************************************************************************/
 	/** @brief Retrieves the best individual found */
-	virtual boost::shared_ptr<GParameterSet> customGetBestIndividual() BASE = 0;
+	virtual G_API boost::shared_ptr<GParameterSet> customGetBestIndividual() BASE = 0;
 	/** @brief Retrieves a list of the best individuals found */
-	virtual std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() BASE = 0;
+	virtual G_API std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() BASE = 0;
    /***************************************************************************/
    /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
-   virtual void runFitnessCalculation() BASE = 0;
+   virtual G_API void runFitnessCalculation() BASE = 0;
 
    /***************************************************************************/
 };

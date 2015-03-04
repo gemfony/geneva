@@ -60,14 +60,14 @@ namespace Geneva {
  * cross-over. Almost all of Geneva's EA-algorithms will use this class as their
  * base class (except those that deal with multi-populations).
  */
-class G_API GParameterSetParChild
+class GParameterSetParChild
    :public GBaseParChildT<GParameterSet>
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
 
    template<typename Archive>
-   void serialize(Archive & ar, const unsigned int) {
+   G_API void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
       ar
@@ -78,22 +78,22 @@ class G_API GParameterSetParChild
 
 public:
    /** @brief The default constructor */
-   GParameterSetParChild();
+   G_API GParameterSetParChild();
    /** @brief A standard copy constructor */
-   GParameterSetParChild(const GParameterSetParChild&);
+   G_API GParameterSetParChild(const GParameterSetParChild&);
    /** @brief The destructor */
-   virtual ~GParameterSetParChild();
+   virtual G_API ~GParameterSetParChild();
 
    /** @brief A standard assignment operator */
-   const GParameterSetParChild& operator=(const GParameterSetParChild&);
+   G_API const GParameterSetParChild& operator=(const GParameterSetParChild&);
 
    /** @brief Checks for equality with another GParameterSetParChild object */
-   bool operator==(const GParameterSetParChild&) const;
+   G_API bool operator==(const GParameterSetParChild&) const;
    /** @brief Checks for inequality with another GParameterSetParChild object */
-   bool operator!=(const GParameterSetParChild&) const;
+   G_API bool operator!=(const GParameterSetParChild&) const;
 
    /** @brief Checks whether this object fulfills a given expectation in relation to another object */
-   virtual boost::optional<std::string> checkRelationshipWith(
+   virtual G_API boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -103,40 +103,40 @@ public:
    ) const OVERRIDE;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
-   virtual void addConfigurationOptions (
+   virtual G_API void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
    ) OVERRIDE;
 
    /** @brief Allows to set the likelihood for amalgamation of two units to be performed instead of "just" duplication. */
-   void setAmalgamationLikelihood(double);
+   G_API void setAmalgamationLikelihood(double);
    /** @brief Allows to retrieve the likelihood for amalgamation of two units to be performed instead of "just" duplication. */
-   double getAmalgamationLikelihood() const;
+   G_API double getAmalgamationLikelihood() const;
 
 protected:
    /***************************************************************************/
    /** @brief Performs recombination, taking into account possible amalgamation actions */
-   virtual void doRecombine();
+   virtual G_API void doRecombine();
    /** @brief Marks the number of stalled optimization attempts in all individuals and gives them an opportunity to update their internal structures. */
-   virtual void actOnStalls() OVERRIDE;
+   virtual G_API void actOnStalls() OVERRIDE;
 
    /** @brief Does some preparatory work before the optimization starts */
-   virtual void init() OVERRIDE;
+   virtual G_API void init() OVERRIDE;
    /** @brief Does any necessary finalization work */
-   virtual void finalize() OVERRIDE;
+   virtual G_API void finalize() OVERRIDE;
 
    /** @brief Loads the data of another population */
-   virtual void load_(const GObject *) OVERRIDE;
+   virtual G_API void load_(const GObject *) OVERRIDE;
 
    double amalgamationLikelihood_; ///< Likelihood for children to be created by cross-over rather than "just" duplication (note that they may nevertheless be mutated)
 
 public:
    /***************************************************************************/
    /** @brief Applies modifications to this object. This is needed for testing purposes */
-   virtual bool modify_GUnitTests() OVERRIDE;
+   virtual G_API bool modify_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-   virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+   virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-   virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+   virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 } /* namespace Geneva */

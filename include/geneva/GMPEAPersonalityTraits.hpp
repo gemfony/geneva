@@ -57,63 +57,64 @@ namespace Geneva {
  * algorithm needs its own personality type, though, we provide this default
  * implementation.
  */
-class G_API GMPEAPersonalityTraits
+class GMPEAPersonalityTraits
    : public GBaseParChildPersonalityTraits
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
 
    template<typename Archive>
-   void serialize(Archive & ar, const unsigned int){
+   G_API void serialize(Archive & ar, const unsigned int){
      using boost::serialization::make_nvp;
-     ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseParChildPersonalityTraits);
+     ar
+     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseParChildPersonalityTraits);
    }
    ///////////////////////////////////////////////////////////////////////
 
 public:
    /** @brief The default constructor */
-   GMPEAPersonalityTraits();
+   G_API GMPEAPersonalityTraits();
    /** @brief The copy contructor */
-   GMPEAPersonalityTraits(const GMPEAPersonalityTraits&);
+   G_API GMPEAPersonalityTraits(const GMPEAPersonalityTraits&);
    /** @brief The standard destructor */
-   virtual ~GMPEAPersonalityTraits();
+   virtual G_API ~GMPEAPersonalityTraits();
 
    /** @brief A standard assignment operator */
-   const GMPEAPersonalityTraits& operator=(const GMPEAPersonalityTraits&);
+   G_API const GMPEAPersonalityTraits& operator=(const GMPEAPersonalityTraits&);
 
    /** @brief Checks for equality with another GMPEAPersonalityTraits object */
-   bool operator==(const GMPEAPersonalityTraits&) const;
+   G_API bool operator==(const GMPEAPersonalityTraits&) const;
    /** @brief Checks for inequality with another GMPEAPersonalityTraits object */
-   bool operator!=(const GMPEAPersonalityTraits&) const;
+   G_API bool operator!=(const GMPEAPersonalityTraits&) const;
 
    /** @brief Checks whether this object fulfills a given expectation in relation to another object */
-   virtual boost::optional<std::string> checkRelationshipWith(
-         const GObject&
-         , const Gem::Common::expectation&
-         , const double&
-         , const std::string&
-         , const std::string&
-         , const bool&
+   virtual G_API boost::optional<std::string> checkRelationshipWith(
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
    ) const OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const OVERRIDE;
+   virtual G_API std::string name() const OVERRIDE;
 
 protected:
    /** @brief Loads the data of another GMPEAPersonalityTraits object */
-   virtual void load_(const GObject*) OVERRIDE;
+   virtual G_API void load_(const GObject*) OVERRIDE;
    /** @brief Creates a deep clone of this object */
-   virtual GObject* clone_() const OVERRIDE;
+   virtual G_API GObject* clone_() const OVERRIDE;
 
 private:
 
 public:
    /** @brief Applies modifications to this object. This is needed for testing purposes */
-   virtual bool modify_GUnitTests() OVERRIDE;
+   virtual G_API bool modify_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-   virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+   virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-   virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+   virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

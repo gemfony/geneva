@@ -62,7 +62,7 @@ namespace Geneva {
  * in boost::shared_ptr objects.
  */
 template<typename T>
-class G_API GParameterTCollectionT
+class GParameterTCollectionT
 	: public GParameterBase
 	, public GStdPtrVectorInterfaceT<T>
 {
@@ -70,7 +70,7 @@ class G_API GParameterTCollectionT
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int) {
+	G_API void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
 		// Save the data
@@ -94,7 +94,7 @@ public:
 	/**
 	 * The default constructor
 	 */
-	GParameterTCollectionT()
+	G_API GParameterTCollectionT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -104,9 +104,9 @@ public:
 	 * @param nCp The amount of copies of the GParameterBase derivative to be stored in this object
 	 * @param tmpl_ptr The object that serves as the template of all others
 	 */
-	GParameterTCollectionT(
-	      const std::size_t& nCp
-	      , boost::shared_ptr<T> tmpl_ptr
+	G_API GParameterTCollectionT(
+      const std::size_t& nCp
+      , boost::shared_ptr<T> tmpl_ptr
 	) {
 		for(std::size_t i=0; i<nCp; i++) {
 			this->push_back(tmpl_ptr->template clone<T>());
@@ -119,7 +119,7 @@ public:
 	 *
 	 * @param cp A copy of another GParameterTCollectionT<T> object
 	 */
-	GParameterTCollectionT(const GParameterTCollectionT<T>& cp)
+	G_API GParameterTCollectionT(const GParameterTCollectionT<T>& cp)
 		: GParameterBase(cp)
 		, GStdPtrVectorInterfaceT<T>(cp)
 	{ /* nothing */ }
@@ -128,7 +128,7 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	virtual ~GParameterTCollectionT()
+	virtual G_API ~GParameterTCollectionT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -138,7 +138,7 @@ public:
 	 * @param cp A copy of another GParameterTCollectionT<T> object
 	 * @return A constant reference to this object
 	 */
-	const GParameterTCollectionT<T>& operator=(const GParameterTCollectionT<T>& cp)
+	G_API const GParameterTCollectionT<T>& operator=(const GParameterTCollectionT<T>& cp)
 	{
 		GParameterTCollectionT<T>::load_(&cp);
 		return *this;
@@ -151,7 +151,7 @@ public:
 	 * @param  cp A constant reference to another GParameterTCollectionT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	bool operator==(const GParameterTCollectionT<T>& cp) const {
+	G_API bool operator==(const GParameterTCollectionT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterTCollectionT<T>::operator==","cp", CE_SILENT);
@@ -164,7 +164,7 @@ public:
 	 * @param  cp A constant reference to another GParameterTCollectionT<T> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	bool operator!=(const GParameterTCollectionT<T>& cp) const {
+	G_API bool operator!=(const GParameterTCollectionT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterTCollectionT<T>::operator==","cp", CE_SILENT);
@@ -183,7 +183,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(
+	G_API boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -216,7 +216,7 @@ public:
 	 *
 	 * @return The number of adaptions that were carried out
 	 */
-	virtual std::size_t adaptImpl() OVERRIDE {
+	virtual G_API std::size_t adaptImpl() OVERRIDE {
 	   std::size_t nAdapted = 0;
 
 		typename GParameterTCollectionT<T>::iterator it;
@@ -241,7 +241,7 @@ public:
 	 *
 	 * @return A boolean indicating whether this GParameterBase-derivative is an individual parameter
 	 */
-	virtual bool isIndividualParameter() const OVERRIDE {
+	virtual G_API bool isIndividualParameter() const OVERRIDE {
 		return false;
 	}
 
@@ -252,7 +252,7 @@ public:
 	 *
 	 * @param gr_cp A reference to another object's GRandomBase object derivative
 	 */
-	virtual void assignGRandomPointer(Gem::Hap::GRandomBase *gr_cp) OVERRIDE {
+	virtual G_API void assignGRandomPointer(Gem::Hap::GRandomBase *gr_cp) OVERRIDE {
 		// Do some error checking
 		if(!gr_cp) {
 		   glogger
@@ -282,7 +282,7 @@ public:
 	 * Re-connects the local random number generator to gr and distributes the call
 	 * to all objects contained in this collection class.
 	 */
-	virtual void resetGRandomPointer() OVERRIDE {
+	virtual G_API void resetGRandomPointer() OVERRIDE {
 		// Reset all objects stored in this collection
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
@@ -306,7 +306,7 @@ public:
 	 *
 	 * @bool A boolean indicating whether solely the local random number generator is used
 	 */
-	virtual bool usesLocalRNG() const OVERRIDE {
+	virtual G_API bool usesLocalRNG() const OVERRIDE {
 		bool result = true;
 
 		// Check all components of this class
@@ -332,7 +332,7 @@ public:
 	 *
 	 * @return A boolean indicating whether an assigned random number generator is used
 	 */
-	virtual bool assignedRNGUsed() const OVERRIDE {
+	virtual G_API bool assignedRNGUsed() const OVERRIDE {
 		bool result = true;
 
 		// Check all components of this class
@@ -356,7 +356,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const OVERRIDE {
+   virtual G_API std::string name() const OVERRIDE {
       return std::string("GParameterTCollectionT");
    }
 
@@ -364,7 +364,7 @@ public:
    /**
     * Triggers updates when the optimization process has stalled
     */
-   virtual bool updateAdaptorsOnStall(const std::size_t& nStalls) OVERRIDE {
+   virtual G_API bool updateAdaptorsOnStall(const std::size_t& nStalls) OVERRIDE {
       bool updatePerformed = false;
 
       typename GParameterTCollectionT<T>::iterator it;
@@ -384,7 +384,7 @@ public:
     * @param ptr The boost::property_tree object the data should be saved to
     * @param id The id assigned to this object
     */
-   virtual void toPropertyTree (
+   virtual G_API void toPropertyTree (
       pt::ptree& ptr
       , const std::string& baseName
    ) const OVERRIDE {
@@ -421,7 +421,7 @@ public:
     * @param property The property for which information is sought
     * @param data A vector, to which the properties should be added
     */
-   virtual void queryAdaptor(
+   virtual G_API void queryAdaptor(
       const std::string& adaptorName
       , const std::string& property
       , std::vector<boost::any>& data
@@ -439,7 +439,7 @@ protected:
 	 *
 	 * @param cp A copy of another GParameterTCollectionT<T> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject* cp) OVERRIDE {
+	virtual G_API void load_(const GObject* cp) OVERRIDE {
 		// Convert cp into local format
 		const GParameterTCollectionT<T> *p_load = GObject::gobject_conversion<GParameterTCollectionT<T> >(cp);
 
@@ -453,7 +453,7 @@ protected:
 	 * Creates a deep clone of this object. Declared purely virtual, as this class is not
 	 * intended to be used directly.
 	 */
-	virtual GObject* clone_() const = 0;
+	virtual G_API GObject* clone_() const = 0;
 
 	/***************************************************************************/
 	/**
@@ -461,13 +461,13 @@ protected:
 	 * Making the vector wrapper purely virtual allows the compiler to perform
 	 * further optimizations.
 	 */
-	virtual void dummyFunction() OVERRIDE { /* nothing */ }
+	virtual G_API void dummyFunction() OVERRIDE { /* nothing */ }
 
    /***************************************************************************/
    /**
     * This function distributes the random initialization to other objects
     */
-   virtual void randomInit_(const activityMode& am) OVERRIDE {
+   virtual G_API void randomInit_(const activityMode& am) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          // Note that we do not call the randomInit_() function. First of all, we
@@ -484,7 +484,7 @@ protected:
     *
     * @param parVec The vector to which the float parameters will be attached
     */
-   virtual void floatStreamline(
+   virtual G_API void floatStreamline(
       std::vector<float>& parVec
       , const activityMode& am
    ) const OVERRIDE {
@@ -506,7 +506,7 @@ protected:
     *
     * @param parVec The vector to which the double parameters will be attached
     */
-   virtual void doubleStreamline(
+   virtual G_API void doubleStreamline(
       std::vector<double>& parVec
       , const activityMode& am
    ) const OVERRIDE {
@@ -528,7 +528,7 @@ protected:
     *
     * @param parVec The vector to which the boost::int32_t parameters will be attached
     */
-   virtual void int32Streamline(
+   virtual G_API void int32Streamline(
       std::vector<boost::int32_t>& parVec
       , const activityMode& am
    ) const OVERRIDE {
@@ -550,7 +550,7 @@ protected:
     *
     * @param parVec The vector to which the boolean parameters will be attached
     */
-   virtual void booleanStreamline(
+   virtual G_API void booleanStreamline(
       std::vector<bool>& parVec
       , const activityMode& am
    ) const OVERRIDE {
@@ -572,7 +572,7 @@ protected:
     *
     * @param parVec The map to which the float parameters will be attached
     */
-   virtual void floatStreamline(
+   virtual G_API void floatStreamline(
       std::map<std::string, std::vector<float> >& parVec
       , const activityMode& am
    ) const OVERRIDE {
@@ -594,7 +594,7 @@ protected:
     *
     * @param parVec The map to which the double parameters will be attached
     */
-   virtual void doubleStreamline(
+   virtual G_API void doubleStreamline(
       std::map<std::string, std::vector<double> >& parVec
       , const activityMode& am
    ) const OVERRIDE {
@@ -616,7 +616,7 @@ protected:
     *
     * @param parVec The map to which the boost::int32_t parameters will be attached
     */
-   virtual void int32Streamline(
+   virtual G_API void int32Streamline(
       std::map<std::string, std::vector<boost::int32_t> >& parVec
       , const activityMode& am
    ) const OVERRIDE {
@@ -638,7 +638,7 @@ protected:
     *
     * @param parVec The map to which the boolean parameters will be attached
     */
-   virtual void booleanStreamline(
+   virtual G_API void booleanStreamline(
       std::map<std::string, std::vector<bool> >& parVec
       , const activityMode& am
    ) const OVERRIDE {
@@ -660,7 +660,7 @@ protected:
     * @param lBndVec A vector of lower float parameter boundaries
     * @param uBndVec A vector of upper float parameter boundaries
     */
-   virtual void floatBoundaries(
+   virtual G_API void floatBoundaries(
       std::vector<float>& lBndVec
       , std::vector<float>& uBndVec
       , const activityMode& am
@@ -678,7 +678,7 @@ protected:
     * @param lBndVec A vector of lower double parameter boundaries
     * @param uBndVec A vector of upper double parameter boundaries
     */
-   virtual void doubleBoundaries(
+   virtual G_API void doubleBoundaries(
       std::vector<double>& lBndVec
       , std::vector<double>& uBndVec
       , const activityMode& am
@@ -696,7 +696,7 @@ protected:
     * @param lBndVec A vector of lower boost::int32_t parameter boundaries
     * @param uBndVec A vector of upper boost::int32_t parameter boundaries
     */
-   virtual void int32Boundaries(
+   virtual G_API void int32Boundaries(
       std::vector<boost::int32_t>& lBndVec
       , std::vector<boost::int32_t>& uBndVec
       , const activityMode& am
@@ -717,7 +717,7 @@ protected:
     * @param lBndVec A vector of lower bool parameter boundaries
     * @param uBndVec A vector of upper bool parameter boundaries
     */
-   virtual void booleanBoundaries(
+   virtual G_API void booleanBoundaries(
       std::vector<bool>& lBndVec
       , std::vector<bool>& uBndVec
       , const activityMode& am
@@ -736,7 +736,7 @@ protected:
     * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
     * @return The number of float parameters in this collection
     */
-   virtual std::size_t countFloatParameters(
+   virtual G_API std::size_t countFloatParameters(
       const activityMode& am
    ) const OVERRIDE {
       std::size_t result = 0;
@@ -757,7 +757,7 @@ protected:
     * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
     * @return The number of double parameters in this collection
     */
-   virtual std::size_t countDoubleParameters(
+   virtual G_API std::size_t countDoubleParameters(
       const activityMode& am
    ) const OVERRIDE {
       std::size_t result = 0;
@@ -778,7 +778,7 @@ protected:
     * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
     * @return The number of boost::int32_t parameters in this collection
     */
-   virtual std::size_t countInt32Parameters(
+   virtual G_API std::size_t countInt32Parameters(
       const activityMode& am
    ) const OVERRIDE {
       std::size_t result = 0;
@@ -799,7 +799,7 @@ protected:
     * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
     * @return The number of bool parameters in this collection
     */
-   virtual std::size_t countBoolParameters(
+   virtual G_API std::size_t countBoolParameters(
       const activityMode& am
    ) const OVERRIDE {
       std::size_t result = 0;
@@ -816,7 +816,7 @@ protected:
    /**
     * Assigns part of a value vector to the parameter
     */
-   virtual void assignFloatValueVector(
+   virtual G_API void assignFloatValueVector(
       const std::vector<float>& parVec
       , std::size_t& pos
       , const activityMode& am
@@ -836,7 +836,7 @@ protected:
    /**
     * Assigns part of a value vector to the parameter
     */
-   virtual void assignDoubleValueVector(
+   virtual G_API void assignDoubleValueVector(
       const std::vector<double>& parVec
       , std::size_t& pos
       , const activityMode& am
@@ -856,7 +856,7 @@ protected:
    /**
     * Assigns part of a value vector to the parameter
     */
-   virtual void assignInt32ValueVector(
+   virtual G_API void assignInt32ValueVector(
       const std::vector<boost::int32_t>& parVec
       , std::size_t& pos
       , const activityMode& am
@@ -876,7 +876,7 @@ protected:
    /**
     * Assigns part of a value vector to the parameter
     */
-   virtual void assignBooleanValueVector(
+   virtual G_API void assignBooleanValueVector(
       const std::vector<bool>& parVec
       , std::size_t& pos
       , const activityMode& am
@@ -896,7 +896,7 @@ protected:
    /**
     * Assigns part of a value vector to the parameter
     */
-   virtual void assignFloatValueVectors(
+   virtual G_API void assignFloatValueVectors(
       const std::map<std::string, std::vector<float> >& parMap
       , const activityMode& am
    ) OVERRIDE {
@@ -915,7 +915,7 @@ protected:
    /**
     * Assigns part of a value vector to the parameter
     */
-   virtual void assignDoubleValueVectors(
+   virtual G_API void assignDoubleValueVectors(
       const std::map<std::string, std::vector<double> >& parMap
       , const activityMode& am
    ) OVERRIDE {
@@ -934,7 +934,7 @@ protected:
    /**
     * Assigns part of a value vector to the parameter
     */
-   virtual void assignInt32ValueVectors(
+   virtual G_API void assignInt32ValueVectors(
       const std::map<std::string
       , std::vector<boost::int32_t> >& parMap
       , const activityMode& am
@@ -954,7 +954,7 @@ protected:
    /**
     * Assigns part of a value vector to the parameter
     */
-   virtual void assignBooleanValueVectors(
+   virtual G_API void assignBooleanValueVectors(
       const std::map<std::string
       , std::vector<bool> >& parMap
       , const activityMode& am
@@ -974,7 +974,7 @@ protected:
    /**
     * Multiplication with a random value in a given range
     */
-   virtual void floatMultiplyByRandom(
+   virtual G_API void floatMultiplyByRandom(
       const float& min
       , const float& max
       , const activityMode& am
@@ -989,7 +989,7 @@ protected:
    /**
     * Multiplication with a random value in a given range
     */
-   virtual void doubleMultiplyByRandom(
+   virtual G_API void doubleMultiplyByRandom(
       const double& min
       , const double& max
       , const activityMode& am
@@ -1004,7 +1004,7 @@ protected:
    /**
     * Multiplication with a random value in a given range
     */
-   virtual void int32MultiplyByRandom(
+   virtual G_API void int32MultiplyByRandom(
       const boost::int32_t& min
       , const boost::int32_t& max
       , const activityMode& am
@@ -1019,7 +1019,7 @@ protected:
    /**
     * Multiplication with a random value in the range [0,1[
     */
-   virtual void floatMultiplyByRandom(const activityMode& am) OVERRIDE {
+   virtual G_API void floatMultiplyByRandom(const activityMode& am) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->template multiplyByRandom<float>(am);
@@ -1030,7 +1030,7 @@ protected:
    /**
     * Multiplication with a random value in the range [0,1[
     */
-   virtual void doubleMultiplyByRandom(const activityMode& am) OVERRIDE {
+   virtual G_API void doubleMultiplyByRandom(const activityMode& am) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->template multiplyByRandom<double>(am);
@@ -1041,7 +1041,7 @@ protected:
    /**
     * Multiplication with a random value in the range [0,1[
     */
-   virtual void int32MultiplyByRandom(const activityMode& am) OVERRIDE {
+   virtual G_API void int32MultiplyByRandom(const activityMode& am) OVERRIDE {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->template multiplyByRandom<boost::int32_t>(am);
@@ -1052,7 +1052,7 @@ protected:
    /**
     * Multiplication with a constant value
     */
-   virtual void floatMultiplyBy(
+   virtual G_API void floatMultiplyBy(
       const float& value
       , const activityMode& am
    ) OVERRIDE {
@@ -1066,7 +1066,7 @@ protected:
    /**
     * Multiplication with a constant value
     */
-   virtual void doubleMultiplyBy(
+   virtual G_API void doubleMultiplyBy(
       const double& value
       , const activityMode& am
    ) OVERRIDE {
@@ -1080,7 +1080,7 @@ protected:
    /**
     * Multiplication with a constant value
     */
-   virtual void int32MultiplyBy(
+   virtual G_API void int32MultiplyBy(
       const boost::int32_t& value
       , const activityMode& am
    ) OVERRIDE {
@@ -1094,7 +1094,7 @@ protected:
    /**
     * Initialization with a constant value
     */
-   virtual void floatFixedValueInit(
+   virtual G_API void floatFixedValueInit(
       const float& value
       , const activityMode& am
    ) OVERRIDE {
@@ -1108,7 +1108,7 @@ protected:
    /**
     * Initialization with a constant value
     */
-   virtual void doubleFixedValueInit(
+   virtual G_API void doubleFixedValueInit(
       const double& value
       , const activityMode& am
    ) OVERRIDE {
@@ -1122,7 +1122,7 @@ protected:
    /**
     * Initialization with a constant value
     */
-   virtual void int32FixedValueInit(
+   virtual G_API void int32FixedValueInit(
       const boost::int32_t& value
       , const activityMode& am
    ) OVERRIDE {
@@ -1136,7 +1136,7 @@ protected:
    /**
     * Initialization with a constant value
     */
-   virtual void booleanFixedValueInit(
+   virtual G_API void booleanFixedValueInit(
       const bool& value
       , const activityMode& am
    ) OVERRIDE {
@@ -1150,7 +1150,7 @@ protected:
    /**
     * Adds the "same-type" parameters of another GParameterBase object to this one
     */
-   virtual void floatAdd(
+   virtual G_API void floatAdd(
       boost::shared_ptr<GParameterBase> p_base
       , const activityMode& am
    ) OVERRIDE {
@@ -1177,7 +1177,7 @@ protected:
    /**
     * Adds the "same-type" parameters of another GParameterBase object to this one
     */
-   virtual void doubleAdd(
+   virtual G_API void doubleAdd(
       boost::shared_ptr<GParameterBase> p_base
       , const activityMode& am
    ) OVERRIDE {
@@ -1204,7 +1204,7 @@ protected:
    /**
     * Adds the "same-type" parameters of another GParameterBase object to this one
     */
-   virtual void int32Add(
+   virtual G_API void int32Add(
       boost::shared_ptr<GParameterBase> p_base
       , const activityMode& am
    ) OVERRIDE {
@@ -1231,7 +1231,7 @@ protected:
    /**
     * Subtracts the "same-type" parameters of another GParameterBase object from this one
     */
-   virtual void floatSubtract(
+   virtual G_API void floatSubtract(
       boost::shared_ptr<GParameterBase> p_base
       , const activityMode& am
    ) OVERRIDE {
@@ -1258,7 +1258,7 @@ protected:
    /**
     * Subtracts the "same-type" parameters of another GParameterBase object from this one
     */
-   virtual void doubleSubtract(
+   virtual G_API void doubleSubtract(
       boost::shared_ptr<GParameterBase> p_base
       , const activityMode& am
    ) OVERRIDE {
@@ -1285,7 +1285,7 @@ protected:
    /**
     * Subtracts the "same-type" parameters of another GParameterBase object from this one
     */
-   virtual void int32Subtract(
+   virtual G_API void int32Subtract(
       boost::shared_ptr<GParameterBase> p_base
       , const activityMode& am
    ) OVERRIDE {
@@ -1315,7 +1315,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() OVERRIDE {
+	virtual G_API bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -1335,7 +1335,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterBase::specificTestsNoFailureExpected_GUnitTests();
@@ -1377,7 +1377,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterBase::specificTestsFailuresExpected_GUnitTests();

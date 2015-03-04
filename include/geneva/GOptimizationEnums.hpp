@@ -73,7 +73,7 @@ const std::size_t DEFMAXRETRIESUNTILVALID=10;
 
 /******************************************************************************/
 // Indicates whether only active, inactive or all parameters should be extracted
-enum activityMode {
+enum G_API activityMode {
    ACTIVEONLY = 0 // Extract only active parameters
    , ALLPARAMETERS = 1 // Extract all parameters
    , INACTIVEONLY = 2 // Only extract inactive parameters
@@ -346,7 +346,7 @@ const double DEFAULTQUALITYTHRESHOLD=0.;
 /**
  * Selection of policy for validity-check combiner
  */
-enum validityCheckCombinerPolicy {
+enum G_API validityCheckCombinerPolicy {
    MULTIPLYINVALID = 0   // Multiplies all invalid checks (i.e. return values > 1) or returns 0, if all checks are valid
    , ADDINVALID = 1      // Adds all invalid checks or returns 0, if all checks are valid
 };
@@ -355,7 +355,7 @@ enum validityCheckCombinerPolicy {
 /**
  * Selection of policy for evaluation
  */
-enum evaluationPolicy {
+enum G_API evaluationPolicy {
    USESIMPLEEVALUATION = 0            // Run evaluation function even for invalid parameter sets
    , USEWORSTCASEFORINVALID = 1       // Assign the worst possible value to invalid individuals, evaluate valid solutions as usual
    , USESIGMOID = 2                   // Assign a multiple of validityLevel_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations
@@ -369,7 +369,7 @@ enum evaluationPolicy {
 /**
  * Specification of different parallelization modes
  */
-enum execMode {
+enum G_API execMode {
 	EXECMODE_SERIAL = 0
 	, EXECMODE_MULTITHREADED = 1
 	, EXECMODE_BROKERAGE = 2
@@ -379,7 +379,7 @@ enum execMode {
 /**
  * The default parallelization mode of optimization algorithms
  */
-const execMode DEFAULTEXECMODE = EXECMODE_MULTITHREADED;
+const G_API execMode DEFAULTEXECMODE = EXECMODE_MULTITHREADED;
 
 /******************************************************************************/
 /**
@@ -388,7 +388,7 @@ const execMode DEFAULTEXECMODE = EXECMODE_MULTITHREADED;
  * - RANDOMDUPLICATIONSCHEME chooses the parents to be replicated randomly from all parents
  * - VALUEDUPLICATIONSCHEME prefers parents with a higher fitness
  */
-enum duplicationScheme {
+enum G_API duplicationScheme {
 	  DEFAULTDUPLICATIONSCHEME = 0
 	, RANDOMDUPLICATIONSCHEME = 1
 	, VALUEDUPLICATIONSCHEME = 2
@@ -399,7 +399,7 @@ enum duplicationScheme {
 /**
  * The info function can be called in these three modes
  */
-enum infoMode {
+enum G_API infoMode {
 	  INFOINIT = 0
 	, INFOPROCESSING = 1
 	, INFOEND = 2
@@ -410,7 +410,7 @@ enum infoMode {
 /**
  * Ids that are assigned to adaptors and which should (by convention!) be unique for these
  */
-enum adaptorId {
+enum G_API adaptorId {
 	GDOUBLEBIGAUSSADAPTOR = 0
 	, GDOUBLEGAUSSADAPTOR = 1
 	, GFLOATGAUSSADAPTOR = 2
@@ -428,7 +428,7 @@ enum adaptorId {
  * MUNU1PRETAIN_SINGLEEVAL means that the best parent of the last generation will also become a new parent
  * (unless a better child was found). All other parents are selected from children only.
  */
-enum sortingMode {
+enum G_API sortingMode {
 	  MUPLUSNU_SINGLEEVAL = 0
 	, MUCOMMANU_SINGLEEVAL = 1
 	, MUNU1PRETAIN_SINGLEEVAL = 2
@@ -441,7 +441,7 @@ enum sortingMode {
 /**
  * The selection mode in MPEA populations.
  */
-enum sortingModeMP {
+enum G_API sortingModeMP {
      MUPLUSNU_SINGLEEVAL_MP = 0
    , MUCOMMANU_SINGLEEVAL_MP = 1
    , MUNU1PRETAIN_SINGLEEVAL_MP = 2

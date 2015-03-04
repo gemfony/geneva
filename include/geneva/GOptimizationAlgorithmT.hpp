@@ -69,7 +69,7 @@ namespace Geneva {
  * algorithms, such as a general call to "optimize()".
  */
 template <typename ind_type>
-class G_API GOptimizationAlgorithmT
+class GOptimizationAlgorithmT
 	: public GMutableSetT<ind_type>
 	, public GOptimizableI
 {
@@ -85,7 +85,7 @@ private:
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int){
+	G_API void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
 	  ar
@@ -122,7 +122,7 @@ public:
 	/**
 	 * The default constructor
 	 */
-	GOptimizationAlgorithmT()
+	G_API GOptimizationAlgorithmT()
 		: GMutableSetT<ind_type>()
 		, iteration_(0)
 		, offset_(DEFAULTOFFSET)
@@ -155,7 +155,7 @@ public:
 	 *
 	 * @param cp A constant reference to another GOptimizationAlgorithmT object
 	 */
-	GOptimizationAlgorithmT(const GOptimizationAlgorithmT<ind_type>& cp)
+	G_API GOptimizationAlgorithmT(const GOptimizationAlgorithmT<ind_type>& cp)
 		: GMutableSetT<ind_type>(cp)
 		, iteration_(cp.iteration_)
 		, offset_(DEFAULTOFFSET)
@@ -186,7 +186,7 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual ~GOptimizationAlgorithmT()
+	virtual G_API ~GOptimizationAlgorithmT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -195,7 +195,7 @@ public:
 	 *
 	 * @param better A boolean which indicates whether a better result was found
 	 */
-	void checkpoint(const bool& better) const {
+	G_API void checkpoint(const bool& better) const {
 		// Save checkpoints if required by the user
 		if(cpInterval_ < 0 && better) saveCheckpoint();
 		else if(cpInterval_ && iteration_%cpInterval_ == 0) saveCheckpoint();
@@ -203,7 +203,7 @@ public:
 
 	/***************************************************************************/
 	/** @brief Loads the state of the class from disc. */
-	virtual void loadCheckpoint(const boost::filesystem::path&) = 0;
+	virtual G_API void loadCheckpoint(const boost::filesystem::path&) = 0;
 
 	/***************************************************************************/
 	/**
@@ -212,7 +212,7 @@ public:
 	 *
 	 * @return A boolean indicating whether the optimization process has been halted
 	 */
-	bool halted() const {
+	G_API bool halted() const {
 		return halted_;
 	}
 
@@ -224,7 +224,7 @@ public:
 	 *
 	 * @param cpInterval The number of generations after which a checkpoint should be written
 	 */
-	void setCheckpointInterval(boost::int32_t cpInterval) {
+	G_API void setCheckpointInterval(boost::int32_t cpInterval) {
 		cpInterval_ = cpInterval;
 	}
 
@@ -234,7 +234,7 @@ public:
 	 *
 	 * @return The number of generations after which a checkpoint should be written
 	 */
-	boost::uint32_t getCheckpointInterval() const {
+	G_API boost::uint32_t getCheckpointInterval() const {
 		return cpInterval_;
 	}
 
@@ -246,7 +246,7 @@ public:
 	 * @param cpDirectory The directory where checkpoint files should be stored
 	 * @param cpBaseName The base name used for the checkpoint files
 	 */
-	void setCheckpointBaseName(std::string cpDirectory, std::string cpBaseName) {
+	G_API void setCheckpointBaseName(std::string cpDirectory, std::string cpBaseName) {
 		// Do some basic checks
 		if(cpBaseName == "empty" || cpBaseName.empty()) {
 		   glogger
@@ -295,7 +295,7 @@ public:
 	 *
 	 * @return The base name used for checkpoint files
 	 */
-	std::string getCheckpointBaseName() const {
+	G_API std::string getCheckpointBaseName() const {
 		return cpBaseName_;
 	}
 
@@ -305,7 +305,7 @@ public:
 	 *
 	 * @return The base name used for checkpoint files
 	 */
-	std::string getCheckpointDirectory() const {
+	G_API std::string getCheckpointDirectory() const {
 		return cpDirectory_;
 	}
 
@@ -315,7 +315,7 @@ public:
 	 *
 	 * @param cpSerMode The desired new checkpointing serialization mode
 	 */
-	void setCheckpointSerializationMode(Gem::Common::serializationMode cpSerMode) {
+	G_API void setCheckpointSerializationMode(Gem::Common::serializationMode cpSerMode) {
 		cpSerMode_ = cpSerMode;
 	}
 
@@ -325,7 +325,7 @@ public:
 	 *
 	 * @return The current checkpointing serialization mode
 	 */
-	Gem::Common::serializationMode getCheckpointSerializationMode() const {
+	G_API Gem::Common::serializationMode getCheckpointSerializationMode() const {
 		return cpSerMode_;
 	}
 
@@ -336,7 +336,7 @@ public:
 	 * @param  cp A constant reference to another GOptimizationAlgorithmT object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	bool operator==(const GOptimizationAlgorithmT<ind_type>& cp) const {
+	G_API bool operator==(const GOptimizationAlgorithmT<ind_type>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GOptimizationAlgorithm<ind_type>::operator==","cp", CE_SILENT);
@@ -349,7 +349,7 @@ public:
 	 * @param  cp A constant reference to another GOptimizationAlgorithmT object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	bool operator!=(const GOptimizationAlgorithmT<ind_type>& cp) const {
+	G_API bool operator!=(const GOptimizationAlgorithmT<ind_type>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GOptimizationAlgorithmT<ind_type>::operator!=","cp", CE_SILENT);
@@ -368,7 +368,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	virtual boost::optional<std::string> checkRelationshipWith(
+	virtual G_API boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -426,7 +426,7 @@ public:
 	 *
 	 * @param offset Specifies the iteration number to start with (e.g. useful when starting from a checkpoint file)
 	 */
-	virtual void optimize(const boost::uint32_t& offset) OVERRIDE {
+	virtual G_API void optimize(const boost::uint32_t& offset) OVERRIDE {
 		// Reset the generation counter
 		iteration_ = offset;
 
@@ -519,7 +519,7 @@ public:
 	/**
 	 * A little convenience function that helps to avoid having to specify explicit scopes
 	 */
-	virtual void optimize() OVERRIDE {
+	virtual G_API void optimize() OVERRIDE {
 		GOptimizableI::optimize();
 	}
 
@@ -531,7 +531,7 @@ public:
 	 *
 	 * @param im The information mode (INFOINIT, INFOPROCESSING or INFOEND)
 	 */
-	virtual void doInfo(const infoMode& im) BASE {
+	virtual G_API void doInfo(const infoMode& im) BASE {
 #ifdef DEBUG
 		if(!optimizationMonitor_ptr_) {
 		   glogger
@@ -551,7 +551,7 @@ public:
     *
     * @return A boolean indicating whether a better solution was found
     */
-   bool progress() const {
+	G_API bool progress() const {
       return (0==stallCounter_);
    }
 
@@ -564,7 +564,7 @@ public:
 	 *
 	 * @param om_ptr A shared pointer to a specific optimization monitor
 	 */
-	void registerOptimizationMonitor(boost::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> om_ptr) {
+	G_API void registerOptimizationMonitor(boost::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> om_ptr) {
 #ifdef DEBUG
 		if(!om_ptr) {
 		   glogger
@@ -583,7 +583,7 @@ public:
 	 *
 	 * @return The default population size
 	 */
-	std::size_t getDefaultPopulationSize() const {
+	G_API std::size_t getDefaultPopulationSize() const {
 		return defaultPopulationSize_;
 	}
 
@@ -593,7 +593,7 @@ public:
 	 *
 	 * @return The current population size
 	 */
-	std::size_t getPopulationSize() const {
+	G_API std::size_t getPopulationSize() const {
 		return this->size();
 	}
 
@@ -604,7 +604,7 @@ public:
 	 *
 	 * @param maxIteration The number of iterations after which the optimization should terminate
 	 */
-	void setMaxIteration(boost::uint32_t maxIteration) {
+	G_API void setMaxIteration(boost::uint32_t maxIteration) {
 		maxIteration_ = maxIteration;
 	}
 
@@ -615,7 +615,7 @@ public:
 	 *
 	 * @return The number of iterations after which the optimization should terminate
 	 */
-	boost::uint32_t getMaxIteration() const {
+	G_API boost::uint32_t getMaxIteration() const {
 		return maxIteration_;
 	}
 
@@ -626,7 +626,7 @@ public:
 	 *
 	 * @param The maximum number of allowed generations
 	 */
-	void setMaxStallIteration(boost::uint32_t maxStallIteration) {
+	G_API void setMaxStallIteration(boost::uint32_t maxStallIteration) {
 		maxStallIteration_ = maxStallIteration;
 	}
 
@@ -637,7 +637,7 @@ public:
 	 *
 	 * @return The maximum number of generations
 	 */
-	boost::uint32_t getMaxStallIteration() const {
+	G_API boost::uint32_t getMaxStallIteration() const {
 		return maxStallIteration_;
 	}
 
@@ -647,7 +647,7 @@ public:
 	 *
 	 * @param maxDuration The maximum allowed processing time
 	 */
-	void setMaxTime(boost::posix_time::time_duration maxDuration) {
+	G_API void setMaxTime(boost::posix_time::time_duration maxDuration) {
 		using namespace boost::posix_time;
 
 		// Only allow "real" values
@@ -667,7 +667,7 @@ public:
 	 *
 	 * @return The maximum allowed processing time
 	 */
-	boost::posix_time::time_duration getMaxTime() const {
+	G_API boost::posix_time::time_duration getMaxTime() const {
 		return maxDuration_;
 	}
 
@@ -678,7 +678,7 @@ public:
 	 *  @param qualityThreshold A threshold beyond which optimization should stop
 	 *  @param hasQualityThreshold Allows to (de-)activate the quality threshold
 	 */
-	void setQualityThreshold(double qualityThreshold, bool hasQualityThreshold = true) {
+	G_API void setQualityThreshold(double qualityThreshold, bool hasQualityThreshold = true) {
 		qualityThreshold_ = qualityThreshold;
 		hasQualityThreshold_=hasQualityThreshold;
 	}
@@ -691,7 +691,7 @@ public:
 	 * @param hasQualityThreshold A boolean indicating whether a quality threshold has been set
 	 * @return The current value of the quality threshold
 	 */
-	double getQualityThreshold(bool& hasQualityThreshold) const {
+	G_API double getQualityThreshold(bool& hasQualityThreshold) const {
 		hasQualityThreshold = hasQualityThreshold_;
 		return qualityThreshold_;
 	}
@@ -700,7 +700,7 @@ public:
 	/**
 	 * Removes the quality threshold
 	 */
-	void resetQualityThreshold() {
+	G_API void resetQualityThreshold() {
 		hasQualityThreshold_ = false;
 	}
 
@@ -710,7 +710,7 @@ public:
 	 *
 	 * @return A boolean indicating whether a quality threshold has been set
 	 */
-	bool hasQualityThreshold() const {
+	G_API bool hasQualityThreshold() const {
 		return hasQualityThreshold_;
 	}
 
@@ -720,7 +720,7 @@ public:
 	 *
 	 * @return The current iteration of the optimization run
 	 */
-	boost::uint32_t getIteration() const {
+	G_API boost::uint32_t getIteration() const {
 		return iteration_;
 	}
 
@@ -731,7 +731,7 @@ public:
 	 *
 	 * @return The current iteration offset
 	 */
-	boost::uint32_t getStartIteration() const {
+	G_API boost::uint32_t getStartIteration() const {
 		return offset_;
 	}
 
@@ -742,7 +742,7 @@ public:
 	 *
 	 * @param iter The number of iterations after which information should be emitted
 	 */
-	void setReportIteration(boost::uint32_t iter) {
+	G_API void setReportIteration(boost::uint32_t iter) {
 		reportIteration_ = iter;
 	}
 
@@ -753,7 +753,7 @@ public:
 	 *
 	 * @return The number of iterations after which information is emitted
 	 */
-	boost::uint32_t getReportIteration() const {
+	G_API boost::uint32_t getReportIteration() const {
 		return reportIteration_;
 	}
 
@@ -763,7 +763,7 @@ public:
 	 *
 	 * @return The current number of failed optimization attempts
 	 */
-	boost::uint32_t getStallCounter() const {
+	G_API boost::uint32_t getStallCounter() const {
 		return stallCounter_;
 	}
 
@@ -772,7 +772,7 @@ public:
 	 * Allows to set the number of iterations without improvement, after which
 	 * individuals are asked to update their internal data structures
 	 */
-	void setStallCounterThreshold(boost::uint32_t stallCounterThreshold) {
+	G_API void setStallCounterThreshold(boost::uint32_t stallCounterThreshold) {
 	   stallCounterThreshold_ = stallCounterThreshold;
 	}
 
@@ -781,7 +781,7 @@ public:
 	 * Allows to retrieve the number of iterations without improvement, after which
 	 * individuals are asked to update their internal data structures
 	 */
-	boost::uint32_t getStallCounterThreshold() const {
+	G_API boost::uint32_t getStallCounterThreshold() const {
 	   return stallCounterThreshold_;
 	}
 
@@ -791,7 +791,7 @@ public:
 	 *
 	 * @return The best raw and transformed fitness found so far
 	 */
-	boost::tuple<double, double> getBestKnownPrimaryFitness() const {
+	G_API boost::tuple<double, double> getBestKnownPrimaryFitness() const {
 	   return (bestIndividuals_.best())->getFitnessTuple();
 
 	   // return bestKnownPrimaryFitness_;
@@ -803,7 +803,7 @@ public:
 	 *
 	 * @return The best raw and transformed fitness found in the current iteration
 	 */
-	boost::tuple<double, double> getBestCurrentPrimaryFitness() const {
+	G_API boost::tuple<double, double> getBestCurrentPrimaryFitness() const {
 		return bestCurrentPrimaryFitness_;
 	}
 
@@ -813,7 +813,7 @@ public:
 	 *
 	 * @param etr A boolean which specifies whether reasons for the termination of the optimization run should be emitted
 	 */
-	void setEmitTerminationReason(bool emitTerminatioReason = true) {
+	G_API void setEmitTerminationReason(bool emitTerminatioReason = true) {
 		emitTerminationReason_ = emitTerminatioReason;
 	}
 
@@ -823,7 +823,7 @@ public:
 	 *
 	 * @return A boolean which specifies whether reasons for the termination of the optimization run will be emitted
 	 */
-	bool getEmitTerminationReason() const {
+	G_API bool getEmitTerminationReason() const {
 		return emitTerminationReason_;
 	}
 
@@ -841,7 +841,7 @@ public:
 	 * @return A converted version of the GOptimizableEntity object, as required by the user
 	 */
 	template <typename target_type>
-	boost::shared_ptr<target_type> individual_cast(
+	G_API boost::shared_ptr<target_type> individual_cast(
 			 const std::size_t& pos
 		   , typename boost::enable_if<boost::is_base_of<GOptimizableEntity, target_type> >::type* dummy = 0
 	) {
@@ -868,7 +868,7 @@ public:
 	 * are unaffected. It might be useful to implement actions here as well, though, in order
 	 * to make better use of Multi-Populations in Evolutionary Algorithms.
 	 */
-	virtual void randomInit(const activityMode&) OVERRIDE { /* nothing */ }
+	virtual G_API void randomInit(const activityMode&) OVERRIDE { /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -878,7 +878,7 @@ public:
 	 *
 	 * @return The number of processable items in the current iteration
 	 */
-	virtual std::size_t getNProcessableItems() const {
+	virtual G_API std::size_t getNProcessableItems() const {
 		return this->size();
 	}
 
@@ -888,7 +888,7 @@ public:
 	 *
 	 * @return A boost::shared_ptr to the current optimization monitor
 	 */
-	boost::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> getOptimizationMonitor() {
+	G_API boost::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> getOptimizationMonitor() {
 		return this->optimizationMonitor_ptr_;
 	}
 
@@ -898,7 +898,7 @@ public:
 	 *
 	 * @param gpb The GParserBuilder object to which configuration options should be added
 	 */
-	virtual void addConfigurationOptions (
+	virtual G_API void addConfigurationOptions (
 		Gem::Common::GParserBuilder& gpb
 	) OVERRIDE {
 		// Call our parent class'es function
@@ -1053,7 +1053,7 @@ public:
 	 * GBrokerEA class which should prevent objects of its type from being stored as an individual in its population.
 	 * All other objects do not need to re-implement this function (unless they rely on the name for some reason).
 	 */
-	virtual std::string getIndividualCharacteristic() const OVERRIDE {
+	virtual G_API std::string getIndividualCharacteristic() const OVERRIDE {
 		return std::string("GENEVA_OPTIMIZATIONALGORITHM");
 	}
 
@@ -1061,7 +1061,7 @@ public:
 	/**
 	 * Retrieves a parameter of a given type at the specified position
 	 */
-   virtual boost::any getVarVal(
+   virtual G_API boost::any getVarVal(
       const std::string& descr
       , const boost::tuple<std::size_t, std::string, std::size_t>& target
    ) OVERRIDE {
@@ -1076,7 +1076,7 @@ public:
     * a trap -- the real action happens in overloads of this function, of which
     * the one for GParameterSet-derivatives is likely the most important.
     */
-   virtual void addIterationBests(GParameterSetFixedSizePriorityQueue& bestIndividuals) BASE {
+   virtual G_API void addIterationBests(GParameterSetFixedSizePriorityQueue& bestIndividuals) BASE {
       glogger
       << "In GOptimizationAlgorithmT<ind_type>::addIterationBests(): Error!" << std::endl
       << "This function should not have been called" << std::endl
@@ -1091,7 +1091,7 @@ public:
     * Only those individuals are stored in the priority queue that do not have the
     * "dirty flag" set.
     */
-   virtual void addCleanStoredBests(GParameterSetFixedSizePriorityQueue& bestIndividuals) BASE {
+   virtual G_API void addCleanStoredBests(GParameterSetFixedSizePriorityQueue& bestIndividuals) BASE {
       glogger
       << "In GOptimizationAlgorithmT<ind_type>::addCleanStoredBests(): Error!" << std::endl
       << "This function should not have been called" << std::endl
@@ -1101,7 +1101,7 @@ public:
    /***************************************************************************/
 
    /** @brief Emits a name for this class / object; this can be a long name with spaces */
-   virtual std::string name() const = 0;
+   virtual G_API std::string name() const = 0;
 
    /***************************************************************************/
    /**
@@ -1114,7 +1114,7 @@ public:
     * @param oldValue The old value
     * @return true if newValue is better than oldValue, otherwise false.
     */
-   virtual bool isBetter(double newValue, const double& oldValue) const OVERRIDE {
+   virtual G_API bool isBetter(double newValue, const double& oldValue) const OVERRIDE {
 #ifdef DEBUG
       if(this->empty()) {
          glogger
@@ -1138,7 +1138,7 @@ public:
     * @param oldValue The old value
     * @return true of newValue is worse than oldValue, otherwise false.
     */
-   virtual bool isWorse(double newValue, const double& oldValue) const OVERRIDE {
+   virtual G_API bool isWorse(double newValue, const double& oldValue) const OVERRIDE {
 #ifdef DEBUG
       if(this->empty()) {
          glogger
@@ -1156,7 +1156,7 @@ public:
     * Retrieves the worst possible evaluation result, depending on whether we are
     * in maximization or minimization mode
     */
-   virtual double getWorstCase() const OVERRIDE {
+   virtual G_API double getWorstCase() const OVERRIDE {
 #ifdef DEBUG
       if(this->empty()) {
          glogger
@@ -1174,7 +1174,7 @@ public:
     * Retrieves the best possible evaluation result, depending on whether we are
     * in maximization or minimization mode
     */
-   virtual double getBestCase() const OVERRIDE {
+   virtual G_API double getBestCase() const OVERRIDE {
 #ifdef DEBUG
       if(this->empty()) {
          glogger
@@ -1194,7 +1194,7 @@ public:
     *
     * @return A boolean indicating whether we are inside of the first iteration
     */
-   bool inFirstIteration() const {
+   G_API bool inFirstIteration() const {
       return iteration_ == offset_;
    }
 
@@ -1204,7 +1204,7 @@ public:
     *
     * @return A boolean indicating whether we are after the first iteration
     */
-   bool afterFirstIteration() const {
+   G_API bool afterFirstIteration() const {
       return iteration_ > offset_;
    }
 
@@ -1215,7 +1215,7 @@ protected:
 	 *
 	 * @param cp Another GOptimizationAlgorithm object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject* cp) OVERRIDE {
+	virtual G_API void load_(const GObject* cp) OVERRIDE {
 		const GOptimizationAlgorithmT<ind_type> *p_load = GObject::gobject_conversion<GOptimizationAlgorithmT<ind_type> >(cp);
 
 		// Load the parent class'es data
@@ -1249,14 +1249,14 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone_() const = 0;
+	virtual G_API GObject* clone_() const = 0;
 
    /***************************************************************************/
    /**
     * Retrieves the best individual found up to now (which is the best individual
     * in the priority queue).
     */
-   virtual boost::shared_ptr<GParameterSet> customGetBestIndividual() OVERRIDE {
+   virtual G_API boost::shared_ptr<GParameterSet> customGetBestIndividual() OVERRIDE {
 #ifdef DEBUG
       boost::shared_ptr<GParameterSet> p = bestIndividuals_.best();
       if(p) return p;
@@ -1279,7 +1279,7 @@ protected:
     * Retrieves a list of the best individuals found (equal to the content of
     * the priority queue)
     */
-   virtual std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() OVERRIDE {
+   virtual G_API std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() OVERRIDE {
       return bestIndividuals_.toVector();
    }
 
@@ -1287,7 +1287,7 @@ protected:
 	/**
 	 * Allows to set the personality type of the individuals
 	 */
-	virtual void setIndividualPersonalities() {
+	virtual G_API void setIndividualPersonalities() {
       typename GOptimizationAlgorithmT<ind_type>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->setPersonality(this->getPersonalityTraits());
@@ -1298,18 +1298,18 @@ protected:
 	/**
 	 * Resets the individual's personality types
 	 */
-	void resetIndividualPersonalities() {
+	G_API void resetIndividualPersonalities() {
 		typename GOptimizationAlgorithmT<ind_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) (*it)->resetPersonality();
 	}
 
 	/***************************************************************************/
 	/** @brief Saves the state of the class to disc */
-	virtual void saveCheckpoint() const = 0;
+	virtual G_API void saveCheckpoint() const = 0;
 
 	/***************************************************************************/
 	/** @brief The actual business logic to be performed during each iteration */
-	virtual boost::tuple<double, double> cycleLogic() BASE = 0;
+	virtual G_API boost::tuple<double, double> cycleLogic() BASE = 0;
 
 	/***************************************************************************/
 	/**
@@ -1317,7 +1317,7 @@ protected:
 	 *
 	 * @param popSize The desired size of the population
 	 */
-	virtual void setDefaultPopulationSize(const std::size_t& defPopSize) BASE {
+	virtual G_API void setDefaultPopulationSize(const std::size_t& defPopSize) BASE {
 		defaultPopulationSize_ = defPopSize;
 	}
 
@@ -1327,7 +1327,7 @@ protected:
 	 *
 	 * @param nRecordBestIndividuals The number of "best" individuals to be recorded in each iteration
 	 */
-	void setNRecordBestIndividuals(std::size_t nRecordBestIndividuals) {
+	G_API void setNRecordBestIndividuals(std::size_t nRecordBestIndividuals) {
 	   if(0 == nRecordBestIndividuals) {
 	      glogger
 	      << "In GOptimizationAlgorithmT<>::setNRecordBestIndividuals(): Error!" << std::endl
@@ -1345,7 +1345,7 @@ protected:
 	 *
 	 * @return The number of best individuals to be recorded in each iteration
 	 */
-	std::size_t getNRecordBestIndividuals() const {
+	G_API std::size_t getNRecordBestIndividuals() const {
 	   return nRecordBestIndividuals_;
 	}
 
@@ -1357,7 +1357,7 @@ protected:
 	 *
 	 * @return boolean indicating that a stop condition was reached
 	 */
-	virtual bool customHalt() const BASE {
+	virtual G_API bool customHalt() const BASE {
 		/* nothing - specify your own criteria in derived classes. Make sure
 		 * to emit a suitable message if execution was halted due to a
 		 * custom criterion */
@@ -1374,7 +1374,7 @@ protected:
 	 * @param The id of an evaluation criterion (will be ignored by this function)
 	 * @return The fitness of the best individual in the population
 	 */
-	virtual double fitnessCalculation() OVERRIDE {
+	virtual G_API double fitnessCalculation() OVERRIDE {
 	   // Make sure the population is optimized
 	   GOptimizableI::optimize();
 
@@ -1388,7 +1388,7 @@ protected:
 	/**
 	 * Allows derived classes to reset the stall counter.
 	 */
-	void resetStallCounter() {
+	G_API void resetStallCounter() {
 		stallCounter_ = 0;
 	}
 
@@ -1398,7 +1398,7 @@ protected:
 	 * function will usually be overloaded by derived functions, which should however,
 	 * as one of their first actions, call this function.
 	 */
-	virtual void init() BASE
+	virtual G_API void init() BASE
    { /* nothing */ }
 
 	/***************************************************************************/
@@ -1407,23 +1407,23 @@ protected:
 	 * This function will usually be overloaded by derived functions, which should however
 	 * call this function as one of their last actions.
 	 */
-	virtual void finalize() BASE
+	virtual G_API void finalize() BASE
    { /* nothing */ }
 
    /***************************************************************************/
    /** @brief Retrieve a personality trait object belong to this algorithm */
-   virtual boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const = 0;
+   virtual G_API boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const = 0;
 
 	/***************************************************************************/
 	/** @brief Resizes the population to the desired level and does some error checks */
-	virtual void adjustPopulation() = 0;
+	virtual G_API void adjustPopulation() = 0;
 
 	/***************************************************************************/
 	/**
 	 * Lets individuals know about the current iteration of the optimization
 	 * cycle.
 	 */
-	virtual void markIteration() BASE {
+	virtual G_API void markIteration() BASE {
       typename GOptimizationAlgorithmT<ind_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->setAssignedIteration(iteration_);
@@ -1437,7 +1437,7 @@ protected:
     * in the vector signifies the untransformed (but possible == MIN/MAX_DOUBLE)
     * evaluation, the second value the potentially transformed value.
     */
-   void updateWorstKnownValid() {
+	G_API void updateWorstKnownValid() {
       typename GOptimizationAlgorithmT<ind_type>::iterator it;
       std::size_t nFitnessCriteria = (*(this->begin()))->getNumberOfFitnessCriteria();
 
@@ -1482,7 +1482,7 @@ protected:
    /**
     * Let the individuals know about the worst known valid solution so far
     */
-   void markWorstKnownValid() {
+	G_API void markWorstKnownValid() {
       this->updateWorstKnownValid();
       typename GOptimizationAlgorithmT<ind_type>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
@@ -1495,7 +1495,7 @@ protected:
     * Triggers an update of the individual's evaluation (e.g. in order to
     * act on the information regarding best or worst evaluations found
     */
-   void triggerEvaluationUpdate() {
+	G_API void triggerEvaluationUpdate() {
       typename GOptimizationAlgorithmT<ind_type>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->postEvaluationUpdate();
@@ -1509,7 +1509,7 @@ protected:
     * GOptimizationAlgorithmT directly, but only from derived classes. This happens
     * to prevent an additional split of the cycleLogic function.
     */
-   void postEvaluationWork() {
+	G_API void postEvaluationWork() {
       // Find the worst known valid solution in the current iteration and
       // propagate the knowledge to all individuals
       this->markWorstKnownValid();
@@ -1524,7 +1524,7 @@ protected:
    /**
     * Let individuals know the number of stalls encountered so far
     */
-   void markNStalls() {
+	G_API void markNStalls() {
       typename GOptimizationAlgorithmT<ind_type>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->setNStalls(stallCounter_);
@@ -1538,12 +1538,12 @@ protected:
     * of individuals. A typical usage scenario would be the update of the adaptor
     * settings in evolutionary algorithms.
     */
-   virtual void actOnStalls() BASE
+   virtual G_API void actOnStalls() BASE
    { /* nothing */ }
 
    /***************************************************************************/
    /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
-   virtual void runFitnessCalculation() = 0;
+   virtual G_API void runFitnessCalculation() = 0;
 
 private:
    /***************************************************************************/
@@ -1826,7 +1826,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() OVERRIDE {
+	virtual G_API bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -1845,7 +1845,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent class'es function
 		GMutableSetT<ind_type>::specificTestsNoFailureExpected_GUnitTests();
@@ -1859,7 +1859,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent class'es function
 		GMutableSetT<ind_type>::specificTestsFailuresExpected_GUnitTests();
@@ -1886,7 +1886,7 @@ public:
 	    friend class boost::serialization::access;
 
 	    template<typename Archive>
-	    void serialize(Archive & ar, const unsigned int){
+	    G_API void serialize(Archive & ar, const unsigned int){
 	      using boost::serialization::make_nvp;
 
 	      ar
@@ -1900,7 +1900,7 @@ public:
 	    /**
 	     * The default constructor
 	     */
-	    GOptimizationMonitorT()
+	    G_API GOptimizationMonitorT()
 	    	: GObject()
 	    	, quiet_(false)
 	    { /* nothing */ }
@@ -1911,7 +1911,7 @@ public:
 	     *
 	     * @param cp A copy of another GOptimizationMonitorT object
 	     */
-	    GOptimizationMonitorT(
+	    G_API GOptimizationMonitorT(
 	        const typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp
 	    )
 	    	: GObject(cp)
@@ -1922,7 +1922,7 @@ public:
 	    /**
 	     * The destructor
 	     */
-	    virtual ~GOptimizationMonitorT()
+	    virtual G_API ~GOptimizationMonitorT()
 	    { /* nothing */ }
 
 	    /************************************************************************/
@@ -1932,7 +1932,7 @@ public:
 	     * @param cp Another GOptimizationMonitorT<ind_type> object
 	     * @return A constant reference to this object
 	     */
-	    const GOptimizationMonitorT& operator=(
+	    G_API const GOptimizationMonitorT& operator=(
          const typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp
        ) {
 	    	GOptimizationMonitorT::load_(&cp);
@@ -1946,7 +1946,7 @@ public:
 	     * @param  cp A constant reference to another GOptimizationMonitorT object
 	     * @return A boolean indicating whether both objects are equal
 	     */
-	    virtual bool operator==(const typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp) const {
+	    virtual G_API bool operator==(const typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp) const {
 	    	using namespace Gem::Common;
 	    	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 	    	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT::operator==","cp", CE_SILENT);
@@ -1959,7 +1959,7 @@ public:
 	     * @param  cp A constant reference to another GOptimizationMonitorT object
 	     * @return A boolean indicating whether both objects are inequal
 	     */
-	    virtual bool operator!=(const typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp) const {
+	    virtual G_API bool operator!=(const typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp) const {
 	    	using namespace Gem::Common;
 	    	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 	    	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT::operator!=","cp", CE_SILENT);
@@ -1978,7 +1978,7 @@ public:
 	     * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	     */
-	    virtual boost::optional<std::string> checkRelationshipWith(
+	    virtual G_API boost::optional<std::string> checkRelationshipWith(
          const GObject& cp
          , const Gem::Common::expectation& e
          , const double& limit
@@ -2013,7 +2013,7 @@ public:
 	     * @param im The mode in which the information function is called
 	     * @param goa A pointer to the current optimization algorithm for which information should be emitted
 	     */
-	    void informationFunction(
+	    G_API void informationFunction(
 	          const infoMode& im
 	          , GOptimizationAlgorithmT<ind_type> * const goa
 	    ) {
@@ -2069,7 +2069,7 @@ public:
 	    /**
 	     * Prevents any information from being emitted by this object
 	     */
-	    void preventInformationEmission() {
+	    G_API void preventInformationEmission() {
 	    	quiet_ = true;
 	    }
 
@@ -2077,7 +2077,7 @@ public:
 	    /**
 	     * Allows this object to emit information
 	     */
-	    void allowInformationEmission() {
+	    G_API void allowInformationEmission() {
 	    	quiet_ = false;
 	    }
 
@@ -2087,7 +2087,7 @@ public:
 	     *
 	     * @return A boolean which indicates whether information emission is prevented
 	     */
-	    bool informationEmissionPrevented() const {
+	    G_API bool informationEmissionPrevented() const {
 	    	return quiet_;
 	    }
 
@@ -2095,7 +2095,7 @@ public:
 	    /**
 	     * Allows to register a pluggable optimization monitor
 	     */
-	    void registerPluggableOM(boost::function<void(const infoMode&, GOptimizationAlgorithmT<ind_type> * const)> pluggableInfoFunction) {
+	    G_API void registerPluggableOM(boost::function<void(const infoMode&, GOptimizationAlgorithmT<ind_type> * const)> pluggableInfoFunction) {
 	       if(pluggableInfoFunction) {
 	          pluggableInfoFunction_ = pluggableInfoFunction;
 	       } else {
@@ -2109,7 +2109,7 @@ public:
 	    /**
 	     * Allows to reset the local pluggable optimization monitor
 	     */
-	    void resetPluggableOM() {
+	    G_API void resetPluggableOM() {
 	       pluggableInfoFunction_.reset();
 	    }
 
@@ -2120,7 +2120,7 @@ public:
 	     *
 	     * @param goa A pointer to the current optimization algorithm for which information should be emitted
 	     */
-	    virtual void firstInformation(GOptimizationAlgorithmT<ind_type> * const goa) BASE
+	    virtual G_API void firstInformation(GOptimizationAlgorithmT<ind_type> * const goa) BASE
 	    { /* nothing */ }
 
 	    /************************************************************************/
@@ -2131,7 +2131,7 @@ public:
 	     *
 	     * @param goa A pointer to the current optimization algorithm for which information should be emitted
 	     */
-	    virtual void cycleInformation(GOptimizationAlgorithmT<ind_type> * const goa) BASE
+	    virtual G_API void cycleInformation(GOptimizationAlgorithmT<ind_type> * const goa) BASE
 	    { /* nothing */ }
 
 	    /************************************************************************/
@@ -2140,7 +2140,7 @@ public:
 	     *
 	     * @param goa A pointer to the current optimization algorithm for which information should be emitted
 	     */
-	    virtual void lastInformation(GOptimizationAlgorithmT<ind_type> * const goa) BASE
+	    virtual G_API void lastInformation(GOptimizationAlgorithmT<ind_type> * const goa) BASE
 	    { /* nothing */ }
 
 	    /************************************************************************/
@@ -2149,7 +2149,7 @@ public:
 	     *
 	     * cp A pointer to another GOptimizationMonitorT object, camouflaged as a GObject
 	     */
-	    virtual void load_(const GObject* cp) OVERRIDE {
+	    virtual G_API void load_(const GObject* cp) OVERRIDE {
 	    	const GOptimizationMonitorT *p_load = GObject::gobject_conversion<GOptimizationMonitorT>(cp);
 
 	    	// Load the parent classes' data ...
@@ -2167,7 +2167,7 @@ public:
 	    /**
 	     * Creates a deep clone of this object
 	     */
-		virtual GObject* clone_() const OVERRIDE {
+		virtual G_API GObject* clone_() const OVERRIDE {
 			return new typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT(*this);
 		}
 
@@ -2182,7 +2182,7 @@ public:
 		/**
 		 * Applies modifications to this object. This is needed for testing purposes
 		 */
-		virtual bool modify_GUnitTests() OVERRIDE {
+		virtual G_API bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 	      bool result = false;
 
@@ -2201,7 +2201,7 @@ public:
 		/**
 		 * Performs self tests that are expected to succeed. This is needed for testing purposes
 		 */
-		virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+		virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 			// Call the parent class'es function
 			GObject::specificTestsNoFailureExpected_GUnitTests();
@@ -2215,7 +2215,7 @@ public:
 		/**
 		 * Performs self tests that are expected to fail. This is needed for testing purposes
 		 */
-		virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+		virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 			// Call the parent class'es function
 			GObject::specificTestsFailuresExpected_GUnitTests();
@@ -2241,7 +2241,7 @@ public:
  * optimizationInit() function instead.
  */
 template <>
-inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::init(){
+inline G_API void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::init(){
    // Tell all GParmaterSet-derivative in this collection to update their random number
    // generators with the one contained in GMutableSetT. Note: This will only have an effect
    // on GParameterSet objects, as this is an overload for GParameterSet objects only
@@ -2259,7 +2259,7 @@ inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::init(){
  * settings
  */
 template <>
-inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::addIterationBests(
+inline G_API void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::addIterationBests(
    GParameterSetFixedSizePriorityQueue& bestIndividuals
 ) BASE {
    const bool CLONE = true;
@@ -2289,9 +2289,9 @@ inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::addIterationBes
  * "dirty flag" set.
  */
 template <>
-inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::addCleanStoredBests(
+inline G_API void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::addCleanStoredBests(
    GParameterSetFixedSizePriorityQueue& bestIndividuals
-) BASE {
+) {
    const bool CLONE = true;
 
    // We simply add all *clean* individuals to the queue -- only the best ones will actually be added
@@ -2314,7 +2314,7 @@ inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::addCleanStoredB
  * optimizationFinalize() function instead.
  */
 template <>
-inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::finalize() {
+inline G_API void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::finalize() {
    // Tell all individuals in this collection to tell all GParameterBase derivatives
    // to again use their local generators.
    GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::iterator it;

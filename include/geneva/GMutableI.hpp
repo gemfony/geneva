@@ -55,13 +55,13 @@ namespace Geneva {
 /**
  * This is a simple interface class for mutable objects.
  */
-class G_API GMutableI {
+class GMutableI {
 public:
 	/** @brief The standard destructor */
-	virtual ~GMutableI(){ /* nothing */ }
+	virtual G_API ~GMutableI(){ /* nothing */ }
 
 	/** @brief Allows derivatives to be adapted */
-	virtual std::size_t adapt() BASE = 0;
+	virtual G_API std::size_t adapt() BASE = 0;
 };
 
 } /* namespace Geneva */

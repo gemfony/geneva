@@ -64,13 +64,13 @@ class GOptimizableEntity;
  * to the evaluation.
  */
 template <typename ind_type>
-class G_API GPreEvaluationValidityCheckT : public GObject
+class GPreEvaluationValidityCheckT : public GObject
 {
    ///////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
 
    template<typename Archive>
-   void serialize(Archive & ar, const unsigned int){
+   G_API void serialize(Archive & ar, const unsigned int){
      using boost::serialization::make_nvp;
      ar
      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
@@ -86,7 +86,7 @@ public:
    /**
     * The default constructor
     */
-   GPreEvaluationValidityCheckT()
+   G_API GPreEvaluationValidityCheckT()
       : allowNegative_(false)
    { /* nothing */ }
 
@@ -94,7 +94,7 @@ public:
    /**
     * The copy constructor
     */
-   GPreEvaluationValidityCheckT(const GPreEvaluationValidityCheckT<ind_type>& cp)
+   G_API GPreEvaluationValidityCheckT(const GPreEvaluationValidityCheckT<ind_type>& cp)
       : GObject(cp)
       , allowNegative_(cp.allowNegative_)
    { /* nothing */ }
@@ -103,14 +103,14 @@ public:
    /**
     * The destructor
     */
-   virtual ~GPreEvaluationValidityCheckT()
+   virtual G_API ~GPreEvaluationValidityCheckT()
    { /* nothing */ }
 
    /***************************************************************************/
    /**
     * A standard assignment operator
     */
-   const GPreEvaluationValidityCheckT<ind_type>& operator=(const GPreEvaluationValidityCheckT<ind_type>& cp)  {
+   G_API const GPreEvaluationValidityCheckT<ind_type>& operator=(const GPreEvaluationValidityCheckT<ind_type>& cp)  {
       GPreEvaluationValidityCheckT<ind_type>::load_(&cp);
       return *this;
    }
@@ -119,7 +119,7 @@ public:
    /**
     * Checks for equality with another GIndividualConstraint object
     */
-   bool operator==(const GPreEvaluationValidityCheckT<ind_type>& cp) const {
+   G_API bool operator==(const GPreEvaluationValidityCheckT<ind_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
       return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GPreEvaluationValidityCheckT<ind_type>::operator==","cp", CE_SILENT);
@@ -129,7 +129,7 @@ public:
    /**
     * Checks for inequality with another GIndividualConstraint object
     */
-   bool operator!=(const GPreEvaluationValidityCheckT<ind_type>& cp) const {
+   G_API bool operator!=(const GPreEvaluationValidityCheckT<ind_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
       return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GPreEvaluationValidityCheckT<ind_type>::operator!=","cp", CE_SILENT);
@@ -147,7 +147,7 @@ public:
     * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
     */
-   virtual boost::optional<std::string> checkRelationshipWith(
+   virtual G_API boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -179,7 +179,7 @@ public:
     *
     * TODO: Check whether it makes sense to provide custom configuration files -- if so, add allowNegative_ here
     */
-   virtual void addConfigurationOptions(
+   virtual G_API void addConfigurationOptions(
       Gem::Common::GParserBuilder& gpb
    ) OVERRIDE {
       // Call our parent class'es function
@@ -198,7 +198,7 @@ public:
     * allowNegative is set to false, am invalidity is calculated, and the return-
     * value will be > 1.
     */
-   double check(
+   double G_API check(
       const ind_type *cp
    ) const {
       double result = check_(cp);
@@ -240,7 +240,7 @@ public:
     * @param validityLevel Will be filled with the validity level of this individual
     * @return A boolean indicating whether a constraint is valid
     */
-   bool isValid(const ind_type *cp, double &validityLevel) const {
+   bool G_API isValid(const ind_type *cp, double &validityLevel) const {
       // Set the external validity level
       validityLevel = this->check(cp);
 
@@ -263,7 +263,7 @@ public:
     * @param validityLevel Will be filled with the validity level of this individual
     * @return A boolean indicating whether a constraint is invalid
     */
-   bool isInvalid(const ind_type *cp, double &validityLevel) const {
+   bool G_API isInvalid(const ind_type *cp, double &validityLevel) const {
       return !this->isValid(cp, validityLevel);
    }
 
@@ -271,7 +271,7 @@ public:
    /**
     * Allows to specify whether negative values are considered to be valid
     */
-   bool getAllowNegative() const {
+   bool G_API getAllowNegative() const {
       return allowNegative_;
    }
 
@@ -279,7 +279,7 @@ public:
    /**
     * Allows to specify whether negative values are considered to be valid
     */
-   void setAllowNegative(bool allowNegative) {
+   void G_API setAllowNegative(bool allowNegative) {
       allowNegative_ = allowNegative;
    }
 
@@ -291,13 +291,13 @@ protected:
     * that this is a valid solution. This function must be overloaded in
     * derived classes.
     */
-   virtual double check_(const ind_type *) const = 0;
+   virtual double G_API check_(const ind_type *) const = 0;
 
    /***************************************************************************/
    /**
     * Loads the data of another GPreEvaluationValidityCheckT<ind_type>
     */
-   virtual void load_(const GObject* cp) OVERRIDE {
+   virtual G_API void load_(const GObject* cp) OVERRIDE {
       // Check that we are indeed dealing with an object of the same type and that we are not
       // accidently trying to compare this object with itself.
       const GPreEvaluationValidityCheckT<ind_type> *p_load = GObject::gobject_conversion<GPreEvaluationValidityCheckT<ind_type> >(cp);
@@ -311,7 +311,7 @@ protected:
 
    /***************************************************************************/
    /** @brief Creates a deep clone of this object */
-   virtual GObject* clone_() const = 0;
+   virtual G_API GObject* clone_() const = 0;
 
    /***************************************************************************/
 
@@ -332,7 +332,7 @@ class GValidityCheckContainerT : public GPreEvaluationValidityCheckT<ind_type>
    friend class boost::serialization::access;
 
    template<typename Archive>
-   void serialize(Archive & ar, const unsigned int){
+   G_API void serialize(Archive & ar, const unsigned int){
      using boost::serialization::make_nvp;
      ar
      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPreEvaluationValidityCheckT<ind_type>);
@@ -344,14 +344,14 @@ public:
    /**
     * The default constructor
     */
-   GValidityCheckContainerT()
+   G_API GValidityCheckContainerT()
    { /* nothing */ }
 
    /***************************************************************************/
    /**
     * Initialization from a vector of validity checks
     */
-   GValidityCheckContainerT(const std::vector<boost::shared_ptr<GPreEvaluationValidityCheckT<ind_type> > >& validityChecks)
+   G_API GValidityCheckContainerT(const std::vector<boost::shared_ptr<GPreEvaluationValidityCheckT<ind_type> > >& validityChecks)
    {
       copyGenevaSmartPointerVector(validityChecks, validityChecks_);
    }
@@ -360,7 +360,7 @@ public:
    /**
     * The copy constructor
     */
-   GValidityCheckContainerT(const GValidityCheckContainerT<ind_type>& cp)
+   G_API GValidityCheckContainerT(const GValidityCheckContainerT<ind_type>& cp)
       : GPreEvaluationValidityCheckT<ind_type>(cp)
    {
       copyGenevaSmartPointerVector(cp.validityChecks_, validityChecks_);
@@ -370,14 +370,14 @@ public:
    /**
     * The destructor
     */
-   virtual ~GValidityCheckContainerT()
+   virtual G_API ~GValidityCheckContainerT()
    { /* nothing */ }
 
    /***************************************************************************/
    /**
     * A standard assignment operator
     */
-   const GValidityCheckContainerT<ind_type>& operator=(const GValidityCheckContainerT<ind_type>& cp)  {
+   G_API const GValidityCheckContainerT<ind_type>& operator=(const GValidityCheckContainerT<ind_type>& cp)  {
       GValidityCheckContainerT<ind_type>::load_(&cp);
       return *this;
    }
@@ -386,7 +386,7 @@ public:
    /**
     * Checks for equality with another GValidityCheckContainerT object
     */
-   bool operator==(const GValidityCheckContainerT<ind_type>& cp) const {
+   G_API bool operator==(const GValidityCheckContainerT<ind_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
       return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GValidityCheckContainerT<ind_type>::operator==","cp", CE_SILENT);
@@ -396,7 +396,7 @@ public:
    /**
     * Checks for inequality with another GValidityCheckContainerT object
     */
-   bool operator!=(const GValidityCheckContainerT<ind_type>& cp) const {
+   G_API bool operator!=(const GValidityCheckContainerT<ind_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
       return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GValidityCheckContainerT<ind_type>::operator!=","cp", CE_SILENT);
@@ -414,7 +414,7 @@ public:
     * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
     */
-   virtual boost::optional<std::string> checkRelationshipWith(
+   virtual G_API boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -445,7 +445,7 @@ public:
     * Adds a validity check to this object. Note that we clone the check so
     * that it can be used multiple times.
     */
-   void addCheck(boost::shared_ptr<GPreEvaluationValidityCheckT<ind_type> > vc_ptr) {
+   G_API void addCheck(boost::shared_ptr<GPreEvaluationValidityCheckT<ind_type> > vc_ptr) {
       if(!vc_ptr) {
          glogger
          << "In GValidityCheckContainerT<>::addCheck(): Error!" << std::endl
@@ -459,17 +459,17 @@ public:
 protected:
    /***************************************************************************/
    /** @brief Checks whether a given parameter set is valid. To be specified in derived classes */
-   virtual double check_(const ind_type *) const = 0;
+   virtual G_API double check_(const ind_type *) const = 0;
 
    /***************************************************************************/
    /** @brief Creates a deep clone of this object */
-   virtual GObject* clone_() const = 0;
+   virtual G_API GObject* clone_() const = 0;
 
    /***************************************************************************/
    /**
     * Loads the data of another GPreEvaluationValidityCheckT<ind_type>
     */
-   virtual void load_(const GObject* cp) OVERRIDE {
+   virtual G_API void load_(const GObject* cp) OVERRIDE {
       // Check that we are indeed dealing with an object of the same type and that we are not
       // accidently trying to compare this object with itself.
       const GValidityCheckContainerT<ind_type> *p_load = GObject::gobject_conversion<GValidityCheckContainerT<ind_type> >(cp);
@@ -501,7 +501,7 @@ class GCheckCombinerT
    friend class boost::serialization::access;
 
    template<typename Archive>
-   void serialize(Archive & ar, const unsigned int){
+   G_API void serialize(Archive & ar, const unsigned int){
      using boost::serialization::make_nvp;
      ar
      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPreEvaluationValidityCheckT<ind_type>)
@@ -514,7 +514,7 @@ public:
    /**
     * The default constructor
     */
-   GCheckCombinerT()
+   G_API GCheckCombinerT()
       : combinerPolicy_(Gem::Geneva::MULTIPLYINVALID)
    { /* nothing */ }
 
@@ -522,7 +522,7 @@ public:
    /**
     * Initialization from a vector of validity checks
     */
-   GCheckCombinerT(
+   G_API GCheckCombinerT(
       const std::vector<boost::shared_ptr<GPreEvaluationValidityCheckT<ind_type> > >& validityChecks
    )
       : GValidityCheckContainerT<ind_type>(validityChecks)
@@ -533,7 +533,7 @@ public:
    /**
     * The copy constructor
     */
-   GCheckCombinerT(const GCheckCombinerT<ind_type>& cp)
+   G_API GCheckCombinerT(const GCheckCombinerT<ind_type>& cp)
       : GValidityCheckContainerT<ind_type>(cp)
       , combinerPolicy_(cp.combinerPolicy_)
    { /* nothing */ }
@@ -542,14 +542,14 @@ public:
    /**
     * The destructor
     */
-   virtual ~GCheckCombinerT()
+   virtual G_API ~GCheckCombinerT()
    { /* nothing */ }
 
    /***************************************************************************/
    /**
     * A standard assignment operator
     */
-   const GCheckCombinerT<ind_type>& operator=(const GCheckCombinerT<ind_type>& cp)  {
+   G_API const GCheckCombinerT<ind_type>& operator=(const GCheckCombinerT<ind_type>& cp)  {
       GCheckCombinerT<ind_type>::load_(&cp);
       return *this;
    }
@@ -558,7 +558,7 @@ public:
    /**
     * Checks for equality with another GCheckCombinerT object
     */
-   bool operator==(const GCheckCombinerT<ind_type>& cp) const {
+   G_API bool operator==(const GCheckCombinerT<ind_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
       return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GCheckCombinerT<ind_type>::operator==","cp", CE_SILENT);
@@ -568,7 +568,7 @@ public:
    /**
     * Checks for inequality with another GCheckCombinerT object
     */
-   bool operator!=(const GCheckCombinerT<ind_type>& cp) const {
+   G_API bool operator!=(const GCheckCombinerT<ind_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
       return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GCheckCombinerT<ind_type>::operator!=","cp", CE_SILENT);
@@ -586,7 +586,7 @@ public:
     * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
     */
-   virtual boost::optional<std::string> checkRelationshipWith(
+   virtual G_API boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -616,7 +616,7 @@ public:
    /**
     * Allows to set the combiner policy
     */
-   void setCombinerPolicy(validityCheckCombinerPolicy combinerPolicy) {
+   G_API void setCombinerPolicy(validityCheckCombinerPolicy combinerPolicy) {
       combinerPolicy_ = combinerPolicy;
    }
 
@@ -624,7 +624,7 @@ public:
    /**
     * Allows to retrieve the combiner policy
     */
-   validityCheckCombinerPolicy getCombinerPolicy() const {
+   G_API validityCheckCombinerPolicy getCombinerPolicy() const {
       return combinerPolicy_;
    }
 
@@ -635,7 +635,7 @@ protected:
     * DO have to take care here of a situation where the invalidity equals
     * MIN- or MAX_DOUBLE.
     */
-   virtual double check_(const ind_type *cp) const {
+   virtual G_API double check_(const ind_type *cp) const {
       // First identify invalid checks
       std::vector<double> invalidChecks;
       double validityLevel;
@@ -721,7 +721,7 @@ protected:
    /**
     * Creates a deep clone of this object
     */
-   virtual GObject* clone_() const {
+   virtual G_API GObject* clone_() const {
       return new GCheckCombinerT<ind_type>(*this);
    }
 
@@ -729,7 +729,7 @@ protected:
    /**
     * Loads the data of another GPreEvaluationValidityCheckT<ind_type>
     */
-   virtual void load_(const GObject* cp) OVERRIDE {
+   virtual G_API void load_(const GObject* cp) OVERRIDE {
       // Check that we are indeed dealing with an object of the same type and that we are not
       // accidently trying to compare this object with itself.
       const GCheckCombinerT<ind_type> *p_load = GObject::gobject_conversion<GCheckCombinerT<ind_type> >(cp);

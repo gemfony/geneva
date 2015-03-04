@@ -72,7 +72,7 @@ const boost::uint16_t FACT_DEF_NEVALUATIONTHREADS=0;
  * This class is a specialization of the GFactoryT<> class for optimization algorithms.
  */
 template <typename optalg_type>
-class G_API GOptimizationAlgorithmFactoryT
+class GOptimizationAlgorithmFactoryT
 	: public Gem::Common::GFactoryT<optalg_type>
 {
 public:
@@ -84,7 +84,7 @@ public:
 	/**
 	 * The standard constructor
 	 */
-   explicit GOptimizationAlgorithmFactoryT (
+   explicit G_API GOptimizationAlgorithmFactoryT (
          const std::string& configFile
    )
       : Gem::Common::GFactoryT<optalg_type>(configFile)
@@ -103,7 +103,7 @@ public:
 	/**
 	 * Initialization with configuration file and parallelization mode
 	 */
-	GOptimizationAlgorithmFactoryT (
+   G_API GOptimizationAlgorithmFactoryT (
 	      const std::string& configFile
 	      , const execMode& pm
 	)
@@ -122,7 +122,7 @@ public:
 	/**
 	 * A constructor which also adds a content creation function
 	 */
-	GOptimizationAlgorithmFactoryT (
+   G_API GOptimizationAlgorithmFactoryT (
 	      const std::string& configFile
 	      , const execMode& pm
 	      , boost::shared_ptr<Gem::Common::GFactoryT<typename optalg_type::individual_type> > contentCreatorPtr
@@ -142,7 +142,7 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual ~GOptimizationAlgorithmFactoryT()
+	virtual G_API ~GOptimizationAlgorithmFactoryT()
 	{ /* nothing */ }
 
    /***************************************************************************/
@@ -158,7 +158,7 @@ public:
     * @param visible Command line options that should always be visible
     * @param hidden Command line options that should only be visible upon request
     */
-   virtual void addCLOptions(
+   virtual G_API void addCLOptions(
       boost::program_options::options_description& visible
       , boost::program_options::options_description& hidden
    ) BASE {
@@ -187,7 +187,7 @@ public:
     *
     * @return An object of the desired algorithm type
     */
-   virtual boost::shared_ptr<optalg_type> get() OVERRIDE {
+   virtual G_API boost::shared_ptr<optalg_type> get() OVERRIDE {
       // Retrieve a work item using the methods implemented in our parent class
       boost::shared_ptr<optalg_type> p_alg = Gem::Common::GFactoryT<optalg_type>::get();
 
@@ -229,7 +229,7 @@ public:
     * @param pm A user-defined parallelization mode
     * @return An object of the desired algorithm type
     */
-   virtual boost::shared_ptr<optalg_type> get(execMode pm) BASE {
+   virtual G_API boost::shared_ptr<optalg_type> get(execMode pm) BASE {
       // Store the previous value
       execMode previous_pm = pm_;
       // Set the parallelization mode
@@ -251,7 +251,7 @@ public:
     * @return A converted copy of the desired production type
     */
    template <typename target_type>
-   boost::shared_ptr<target_type> get() {
+   G_API boost::shared_ptr<target_type> get() {
       return Gem::Common::convertSmartPointer<optalg_type, target_type>(this->get());
    }
 
@@ -265,7 +265,7 @@ public:
     * @return A converted copy of the desired production type
     */
    template <typename target_type>
-   boost::shared_ptr<target_type> get(execMode pm) {
+   G_API boost::shared_ptr<target_type> get(execMode pm) {
       execMode previous_pm = pm_;
       // Set the parallelization mode
       pm_ = pm;
@@ -283,7 +283,7 @@ public:
     * Allows to set the wait factor to be applied to timeouts. Note that a wait
     * factor of 0 will be silently amended and become 1.
     */
-   void setWaitFactor(std::size_t waitFactor) {
+   G_API void setWaitFactor(std::size_t waitFactor) {
       if(0==waitFactor) waitFactor_=1;
       else waitFactor_ = waitFactor;
    }
@@ -292,7 +292,7 @@ public:
    /**
     * Allows to retrieve the wait factor variable
     */
-   std::size_t getWaitFactor() const {
+   G_API std::size_t getWaitFactor() const {
       return waitFactor_;
    }
 
@@ -300,8 +300,8 @@ public:
    /**
     * Allows to register a content creator
     */
-   void registerContentCreator(
-         boost::shared_ptr<Gem::Common::GFactoryT<typename optalg_type::individual_type> > cc_ptr
+   G_API void registerContentCreator(
+      boost::shared_ptr<Gem::Common::GFactoryT<typename optalg_type::individual_type> > cc_ptr
    ) {
       if(!cc_ptr) {
          glogger
@@ -317,7 +317,7 @@ public:
    /**
     * Allows to register a pluggable optimization monitor
     */
-   void registerPluggableOM(boost::function<void(const infoMode&, GOptimizationAlgorithmT<typename optalg_type::individual_type> * const)> pluggableInfoFunction) {
+   G_API void registerPluggableOM(boost::function<void(const infoMode&, GOptimizationAlgorithmT<typename optalg_type::individual_type> * const)> pluggableInfoFunction) {
       if(pluggableInfoFunction) {
          pluggableInfoFunction_ = pluggableInfoFunction;
       } else {
@@ -331,7 +331,7 @@ public:
    /**
     * Allows to reset the local pluggable optimization monitor
     */
-   void resetPluggableOM() {
+   G_API void resetPluggableOM() {
       pluggableInfoFunction_= boost::function<void(const infoMode&, GOptimizationAlgorithmT<typename optalg_type::individual_type> * const)>();
    }
 
@@ -339,19 +339,19 @@ public:
    /**
     * Gives access to the mnemonics / nickname describing an algorithm
     */
-   virtual std::string getMnemonic() const = 0;
+   virtual G_API std::string getMnemonic() const = 0;
 
    /***************************************************************************/
    /**
     * Gives access to a clear-text description of an algorithm
     */
-   virtual std::string getAlgorithmName() const = 0;
+   virtual G_API std::string getAlgorithmName() const = 0;
 
    /***************************************************************************/
    /**
     * Allows to manually set the maximum number of iterations as is usually specified on the command line
     */
-   void setMaxIterationCL(boost::uint32_t maxIterationCL) {
+   G_API void setMaxIterationCL(boost::uint32_t maxIterationCL) {
       maxIterationCL_ = boost::numeric_cast<boost::int32_t>(maxIterationCL);
    }
 
@@ -359,7 +359,7 @@ public:
    /**
     * Allows to check whether the maximum number of iterations was set on the command line or using the manual function
     */
-   bool maxIterationsCLSet() const {
+   G_API bool maxIterationsCLSet() const {
       if(maxIterationCL_ >=0) return true;
       else return false;
    }
@@ -368,7 +368,7 @@ public:
    /**
     * Allows to retrieve the maximum number of iterations as set on the command line
     */
-   boost::uint32_t getMaxIterationCL() const {
+   G_API boost::uint32_t getMaxIterationCL() const {
       if(maxIterationCL_ >= 0) {
          return boost::numeric_cast<boost::uint32_t>(maxIterationCL_);
       }
@@ -387,7 +387,7 @@ public:
    /**
     * Allows to manually set the maximum number of stall iterations as is usually specified on the command line
     */
-   void setMaxStallIterationCL(boost::uint32_t maxStallIterationCL) {
+   G_API void setMaxStallIterationCL(boost::uint32_t maxStallIterationCL) {
       maxStallIterationCL_ = boost::numeric_cast<boost::int32_t>(maxStallIterationCL);
    }
 
@@ -395,7 +395,7 @@ public:
    /**
     * Allows to check whether the maximum number of stall iterations was set on the command line or using the manual function
     */
-   bool maxStallIterationsCLSet() const {
+   G_API bool maxStallIterationsCLSet() const {
       if(maxStallIterationCL_ >=0) return true;
       else return false;
    }
@@ -404,7 +404,7 @@ public:
    /**
     * Allows to retrieve the maximum number of stall iterations as set on the command line
     */
-   boost::uint32_t getMaxStallIterationCL() const {
+   G_API boost::uint32_t getMaxStallIterationCL() const {
       if(maxStallIterationCL_ >= 0) {
          return boost::numeric_cast<boost::uint32_t>(maxStallIterationCL_);
       }
@@ -423,7 +423,7 @@ public:
    /**
     * Allows to manually set the maximum number of seconds for a run as is usually specified on the command line
     */
-   void setMaxSecondsCL(boost::uint32_t maxSecondsCL) {
+   G_API void setMaxSecondsCL(boost::uint32_t maxSecondsCL) {
       maxSecondsCL_ = boost::numeric_cast<boost::int32_t>(maxSecondsCL);
    }
 
@@ -431,7 +431,7 @@ public:
    /**
     * Allows to check whether the maximum number of seconds was set on the command line or using the manual function
     */
-   bool maxSecondsCLSet() const {
+   G_API bool maxSecondsCLSet() const {
       if(maxSecondsCL_ >=0) return true;
       else return false;
    }
@@ -440,7 +440,7 @@ public:
    /**
     * Allows to retrieve the maximum number of seconds as set on the command line
     */
-   boost::posix_time::time_duration getMaxTimeCL() const {
+   G_API boost::posix_time::time_duration getMaxTimeCL() const {
       if(maxSecondsCL_ >= 0) {
          boost::posix_time::time_duration maxDuration = boost::posix_time::seconds(boost::numeric_cast<long>(maxSecondsCL_));
          return maxDuration;
@@ -463,7 +463,7 @@ protected:
 	 *
 	 * @param gpb A reference to the parser-builder
 	 */
-	virtual void describeLocalOptions_(
+	virtual G_API void describeLocalOptions_(
 		Gem::Common::GParserBuilder& gpb
 	) OVERRIDE {
 		using namespace Gem::Courtier;
@@ -507,7 +507,7 @@ protected:
    /**
     * Allows to act on the configuration options received from the configuration file or from the command line
     */
-   virtual void postProcess_(boost::shared_ptr<optalg_type>& p) BASE {
+   virtual G_API void postProcess_(boost::shared_ptr<optalg_type>& p) BASE {
       // Set local options
 
       // The maximum allowed number of iterations

@@ -62,16 +62,17 @@ namespace Geneva {
  * allows to deal with booleans instead of "standard" integer types.
  */
 template<typename int_type>
-class G_API GIntFlipAdaptorT
+class GIntFlipAdaptorT
 	:public GNumFlipAdaptorT<int_type>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int) {
+	G_API void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
-		ar & make_nvp("GNumFlipAdaptorT", boost::serialization::base_object<GNumFlipAdaptorT<int_type> >(*this));
+		ar
+		& make_nvp("GNumFlipAdaptorT", boost::serialization::base_object<GNumFlipAdaptorT<int_type> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -80,7 +81,7 @@ public:
 	/**
 	 * The standard constructor.
 	 */
-	GIntFlipAdaptorT()
+	G_API GIntFlipAdaptorT()
 		: GNumFlipAdaptorT<int_type> ()
 	{ /* nothing */	}
 
@@ -91,7 +92,7 @@ public:
 	 *
 	 * @param prob The probability for a flip
 	 */
-	explicit GIntFlipAdaptorT(const double& prob)
+	explicit G_API GIntFlipAdaptorT(const double& prob)
 		: GNumFlipAdaptorT<int_type>(prob)
 	{ /* nothing */ }
 
@@ -101,7 +102,7 @@ public:
 	 *
 	 * @param cp Another GIntFlipAdaptorT object
 	 */
-	GIntFlipAdaptorT(const GIntFlipAdaptorT<int_type>& cp)
+	G_API GIntFlipAdaptorT(const GIntFlipAdaptorT<int_type>& cp)
 		: GNumFlipAdaptorT<int_type>(cp)
 	{ /* nothing */	}
 
@@ -110,7 +111,7 @@ public:
 	 * The standard destructor. Empty, as we have no local, dynamically
 	 * allocated data.
 	 */
-	virtual ~GIntFlipAdaptorT()
+	virtual G_API ~GIntFlipAdaptorT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -126,7 +127,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(
+	G_API boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -157,7 +158,7 @@ public:
 	 *
 	 * @return The id of the adaptor
 	 */
-	virtual Gem::Geneva::adaptorId getAdaptorId() const = 0;
+	virtual G_API Gem::Geneva::adaptorId getAdaptorId() const = 0;
 
 	/* ----------------------------------------------------------------------------------
 	 * Tested in GInt32FlipAdaptor::specificTestsNoFailuresExpected_GUnitTests()
@@ -169,7 +170,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const OVERRIDE {
+   virtual G_API std::string name() const OVERRIDE {
       return std::string("GIntFlipAdaptorT");
    }
 
@@ -178,7 +179,7 @@ public:
     * Allows to randomly initialize parameter members. No local data, hence no
     * action taken.
     */
-   virtual void randomInit() OVERRIDE
+   virtual G_API void randomInit() OVERRIDE
    { /* nothing - no local data */ }
 
 protected:
@@ -188,7 +189,7 @@ protected:
 	 *
 	 * @param A copy of another GIntFlipAdaptorT, camouflaged as a GObject
 	 */
-	void load_(const GObject *cp) OVERRIDE	{
+   G_API void load_(const GObject *cp) OVERRIDE	{
 		// Check that this object is not accidently assigned to itself
 		GObject::selfAssignmentCheck<GIntFlipAdaptorT<int_type> >(cp);
 
@@ -205,7 +206,7 @@ protected:
 	 *
 	 * @return A deep copy of this object
 	 */
-	virtual GObject *clone_() const = 0;
+	virtual G_API GObject *clone_() const = 0;
 
 public:
 	/***************************************************************************/
@@ -214,7 +215,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() OVERRIDE {
+	virtual G_API bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
       using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -238,7 +239,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -254,7 +255,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;

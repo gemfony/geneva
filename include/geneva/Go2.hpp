@@ -92,7 +92,7 @@ const std::string GO2_DEF_NOCONSUMER="none";
 
 /******************************************************************************/
 /** @brief Set a number of parameters of the random number factory */
-void setRNFParameters(const boost::uint16_t&);
+G_API void setRNFParameters(const boost::uint16_t&);
 
 /******************************************************************************/
 /** Syntactic sugar -- make the code easier to read */
@@ -106,24 +106,24 @@ typedef Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet> GOABase
  * While it is derived from GOptimizableI, it is not currently meant to be used as an
  * individual. Hence the ability to serialize the class has been removed.
  */
-class G_API Go2
+class Go2
 	: public GMutableSetT<GParameterSet>
 	, public GOptimizableI
 {
 public:
 	/** @brief The default constructor */
-	Go2();
+   G_API Go2();
 	/** @brief A constructor that first parses the command line for relevant parameters */
-	Go2(
+   G_API Go2(
       int
       , char **
       , const std::vector<boost::shared_ptr<boost::program_options::option_description> >&
            = std::vector<boost::shared_ptr<boost::program_options::option_description> >()
 	);
    /** @brief A constructor that allows to specify a default config file name */
-   Go2(const std::string&);
+   G_API Go2(const std::string&);
 	/** @brief A constructor that first parses the command line for relevant parameters and allows to specify a default config file name */
-	Go2(
+   G_API Go2(
       int
       , char **
       , const std::string&
@@ -131,21 +131,21 @@ public:
            = std::vector<boost::shared_ptr<boost::program_options::option_description> >()
 	);
 	/** @brief A copy constructor */
-	Go2(const Go2&);
+   G_API Go2(const Go2&);
 
 	/** @brief The destructor */
-	virtual ~Go2();
+	virtual G_API ~Go2();
 
 	/** @brief Standard assignment operator */
-	const Go2& operator=(const Go2&);
+	G_API const Go2& operator=(const Go2&);
 
 	/** @brief Checks for equality with another Go2 object */
-	bool operator==(const Go2&) const;
+	G_API bool operator==(const Go2&) const;
 	/** @brief Checks for inequality with another Go2 object */
 	bool operator!=(const Go2&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(
+	virtual G_API boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -155,78 +155,78 @@ public:
 	) const OVERRIDE;
 
 	/** @brief Triggers execution of the client loop */
-	int clientRun();
+	G_API int clientRun();
 
 	/** @brief Checks whether this object is running in client mode */
-	bool clientMode() const;
+	G_API bool clientMode() const;
 
 	/** @brief Sets the desired parallelization mode */
-	void setParallelizationMode(const execMode&);
+	G_API void setParallelizationMode(const execMode&);
 	/** @brief Retrieves the current parallelization mode */
-	execMode getParallelizationMode() const;
+	G_API execMode getParallelizationMode() const;
 
 	/* @brief Specifies whether only the best individuals of a population should be copied */
-	void setCopyBestIndividualsOnly(const bool&);
+	G_API void setCopyBestIndividualsOnly(const bool&);
 	/** @brief Checks whether only the best individuals are copied */
-	bool onlyBestIndividualsAreCopied() const;
+	G_API bool onlyBestIndividualsAreCopied() const;
 
 	/** @brief Allows to randomly initialize parameter members. Unused in this wrapper object */
-	virtual void randomInit(const activityMode&) OVERRIDE;
+	virtual G_API void randomInit(const activityMode&) OVERRIDE;
 	/** @brief Triggers fitness calculation (i.e. optimization) for this object */
-	virtual double fitnessCalculation() OVERRIDE;
+	virtual G_API double fitnessCalculation() OVERRIDE;
 
 	/** @brief Allows to add an optimization algorithm to the chain */
-	void addAlgorithm(boost::shared_ptr<GOABase>);
+	G_API void addAlgorithm(boost::shared_ptr<GOABase>);
 	/** @brief Makes it easier to add algorithms */
-	Go2& operator&(boost::shared_ptr<GOABase>);
+	G_API Go2& operator&(boost::shared_ptr<GOABase>);
 	/** @brief Allows to add an optimization algorithm through its mnemonic */
-   void addAlgorithm(const std::string&);
+	G_API void addAlgorithm(const std::string&);
    /** @brief Makes it easier to add algorithms */
-   Go2& operator&(const std::string&);
+	G_API Go2& operator&(const std::string&);
 
    /** @brief Retrieves the currently registered number of algorithms */
-   std::size_t getNAlgorithms() const;
+	G_API std::size_t getNAlgorithms() const;
    /** @brief Retrieves the currently registered number of command line algorithms */
-   std::size_t getNCLAlgorithms() const;
+	G_API std::size_t getNCLAlgorithms() const;
 
    /** @brief Allows to register a content creator */
-   void registerContentCreator(
+	G_API void registerContentCreator(
          boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
    );
 	/** @brief Perform the actual optimization cycle */
-	virtual void optimize(const boost::uint32_t& = 0) OVERRIDE;
+	virtual G_API void optimize(const boost::uint32_t& = 0) OVERRIDE;
 
 	/***************************************************************************/
 	// The following is a trivial list of getters and setters
-	void setClientMode(bool);
-	bool getClientMode() const;
+	G_API void setClientMode(bool);
+	G_API bool getClientMode() const;
 
-	boost::uint16_t getNProducerThreads() const;
+	G_API boost::uint16_t getNProducerThreads() const;
 
-	void setOffset(const boost::uint32_t&);
-	boost::uint32_t getIterationOffset() const;
+	G_API void setOffset(const boost::uint32_t&);
+	G_API boost::uint32_t getIterationOffset() const;
 
 	/** @brief Retrieval of the current iteration */
-	virtual uint32_t getIteration() const OVERRIDE;
+	virtual G_API uint32_t getIteration() const OVERRIDE;
 
 	/** @brief Returns the name of this optimization algorithm */
-	virtual std::string getAlgorithmName() const OVERRIDE;
+	virtual G_API std::string getAlgorithmName() const OVERRIDE;
 
 	/** @brief Loads some configuration data from arguments passed on the command line (or another char ** that is presented to it) */
-	void parseCommandLine(
+	G_API void parseCommandLine(
       int
       , char **
       , const std::vector<boost::shared_ptr<boost::program_options::option_description> >&
         = std::vector<boost::shared_ptr<boost::program_options::option_description> >()
    );
 	/** @brief Loads some configuration data from a configuration file */
-	void parseConfigFile(const std::string&);
+	G_API void parseConfigFile(const std::string&);
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&) OVERRIDE;
+	virtual G_API void addConfigurationOptions(Gem::Common::GParserBuilder&) OVERRIDE;
 
 	/** @brief Allows to assign a name to the role of this individual(-derivative) */
-	virtual std::string getIndividualCharacteristic() const OVERRIDE;
+	virtual G_API std::string getIndividualCharacteristic() const OVERRIDE;
 
 	/***************************************************************************/
 	/**
@@ -237,7 +237,7 @@ public:
 	 * @return The best individual found during the optimization process, converted to the desired type
 	 */
 	template <typename individual_type>
-	boost::shared_ptr<individual_type> optimize() {
+	G_API boost::shared_ptr<individual_type> optimize() {
 		return GOptimizableI::optimize<individual_type>();
 	}
 
@@ -252,52 +252,52 @@ public:
 	 * @return The best individual found during the optimization process, converted to the desired type
 	 */
 	template <typename individual_type>
-	boost::shared_ptr<individual_type> optimize(
-			const boost::uint32_t& offset
+	G_API boost::shared_ptr<individual_type> optimize(
+      const boost::uint32_t& offset
 	) {
 		return GOptimizableI::optimize<individual_type>(offset);
 	}
 
    /***************************************************************************/
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const;
+   virtual G_API std::string name() const;
 
    /** @brief Allows to register a default algorithm. */
-   void registerDefaultAlgorithm(boost::shared_ptr<GOABase>);
+   G_API void registerDefaultAlgorithm(boost::shared_ptr<GOABase>);
    /** @brief Allows to register a default algorithm. */
-   void registerDefaultAlgorithm(const std::string& default_algorithm);
+   G_API void registerDefaultAlgorithm(const std::string& default_algorithm);
 
    /** @brief Retrieves a parameter of a given type at the specified position */
-   virtual boost::any getVarVal(
+   virtual G_API boost::any getVarVal(
       const std::string&
       , const boost::tuple<std::size_t, std::string, std::size_t>& target
    ) OVERRIDE;
 
    /** @brief Allows to register a pluggable optimization monitor */
-   void registerPluggableOM (
+   G_API void registerPluggableOM (
          boost::function<void(const infoMode&, GOptimizationAlgorithmT<GParameterSet> * const)> pluggableInfoFunction
    );
    /** @brief Allows to reset the local pluggable optimization monitor */
-   void resetPluggableOM();
+   G_API void resetPluggableOM();
 
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another Go2 object */
-	virtual void load_(const GObject *) OVERRIDE;
+	virtual G_API void load_(const GObject *) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
-	virtual GObject *clone_() const OVERRIDE;
+	virtual G_API GObject *clone_() const OVERRIDE;
 
 	/** @brief Retrieves the best individual found */
-	virtual boost::shared_ptr<GParameterSet> customGetBestIndividual() OVERRIDE;
+	virtual G_API boost::shared_ptr<GParameterSet> customGetBestIndividual() OVERRIDE;
 	/** @brief Retrieves a list of the best individuals found */
-	virtual std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() OVERRIDE;
+	virtual G_API std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() OVERRIDE;
 
 	/** @brief Satisfies a requirement of GOptimizableI */
-	virtual void runFitnessCalculation() OVERRIDE;
+	virtual G_API void runFitnessCalculation() OVERRIDE;
 
 private:
    /** @brief Sets the number of random number production threads */
-   void setNProducerThreads(const boost::uint16_t&);
+	G_API void setNProducerThreads(const boost::uint16_t&);
 
    /***************************************************************************/
    // Initialization code for the Geneva library

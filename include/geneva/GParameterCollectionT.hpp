@@ -57,7 +57,7 @@ namespace Geneva {
  * long, bool, ...).
  */
 template<typename T>
-class G_API GParameterCollectionT
+class GParameterCollectionT
 	:public GParameterBaseWithAdaptorsT<T>,
 	 public GStdSimpleVectorInterfaceT<T>
 {
@@ -65,7 +65,7 @@ class G_API GParameterCollectionT
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int) {
+	G_API void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar
 		& make_nvp("GParameterBaseWithAdaptorsT_T", boost::serialization::base_object<GParameterBaseWithAdaptorsT<T> >(*this))
@@ -81,7 +81,7 @@ public:
 	/**
 	 * The default constructor
 	 */
-	GParameterCollectionT()
+	G_API GParameterCollectionT()
 		: GParameterBaseWithAdaptorsT<T> ()
 		, GStdSimpleVectorInterfaceT<T>()
 	{ /* nothing */ }
@@ -93,7 +93,7 @@ public:
 	 * @param nval The number of values
 	 * @param val  The value to be assigned to each position
 	 */
-	GParameterCollectionT(
+	G_API GParameterCollectionT(
       const std::size_t& nval
       , const T& val
    )
@@ -107,7 +107,7 @@ public:
 	 *
 	 * @param cp A copy of another GParameterCollectionT<T> object
 	 */
-	GParameterCollectionT(const GParameterCollectionT<T>& cp)
+	G_API GParameterCollectionT(const GParameterCollectionT<T>& cp)
 		: GParameterBaseWithAdaptorsT<T> (cp)
 		, GStdSimpleVectorInterfaceT<T>(cp)
 	{  /* nothing */ }
@@ -116,7 +116,7 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	virtual ~GParameterCollectionT()
+	virtual G_API ~GParameterCollectionT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -126,7 +126,7 @@ public:
 	 * @param cp A copy of another GParameterCollectionT object
 	 * @return A constant reference to this object
 	 */
-	const GParameterCollectionT<T>& operator=(const GParameterCollectionT<T>& cp)
+	G_API const GParameterCollectionT<T>& operator=(const GParameterCollectionT<T>& cp)
 	{
 		GParameterCollectionT<T>::load_(cp);
 		return *this;
@@ -139,7 +139,7 @@ public:
 	 * @param  cp A constant reference to another GParameterCollectionT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	bool operator==(const GParameterCollectionT<T>& cp) const {
+	G_API bool operator==(const GParameterCollectionT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 		return !GParameterCollectionT<T>::checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterCollectionT<T>::operator==","cp", CE_SILENT);
@@ -152,7 +152,7 @@ public:
 	 * @param  cp A constant reference to another GParameterCollectionT<T> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	bool operator!=(const GParameterCollectionT<T>& cp) const {
+	G_API bool operator!=(const GParameterCollectionT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 		return !GParameterCollectionT<T>::checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterCollectionT<T>::operator==","cp", CE_SILENT);
@@ -171,7 +171,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	virtual boost::optional<std::string> checkRelationshipWith(
+	virtual G_API boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -210,7 +210,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(
+	G_API boost::optional<std::string> checkRelationshipWith(
       const std::vector<T>& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -236,7 +236,7 @@ public:
 	 *
 	 * @return The number of adaptions that were carried out
 	 */
-	virtual std::size_t adaptImpl() OVERRIDE {
+	virtual G_API std::size_t adaptImpl() OVERRIDE {
 	   return GParameterBaseWithAdaptorsT<T>::applyAdaptor(
          GStdSimpleVectorInterfaceT<T>::data
          , this->range()
@@ -257,7 +257,7 @@ public:
 	 *
 	 * @return A boolean indicating whether this GParameterBase-derivative is an individual parameter
 	 */
-	virtual bool isIndividualParameter() const OVERRIDE {
+	virtual G_API bool isIndividualParameter() const OVERRIDE {
 		return false;
 	}
 
@@ -265,7 +265,7 @@ public:
 	/**
 	 * Swap another object's vector with ours
 	 */
-	inline void swap(GParameterCollectionT<T>& cp) {
+	inline G_API void swap(GParameterCollectionT<T>& cp) {
 		GStdSimpleVectorInterfaceT<T>::swap(cp.data);
 	}
 
@@ -281,7 +281,7 @@ public:
 	 * @param pos The position for which the value needs to be returned
 	 * @return The value of val_
 	 */
-	virtual T value(const std::size_t& pos) {
+	virtual G_API T value(const std::size_t& pos) {
 		return this->at(pos);
 	}
 
@@ -294,7 +294,7 @@ public:
 	 * @param pos The position at which the value shout be stored
 	 * @param val The new T value stored in this class
 	 */
-	virtual void setValue(const std::size_t& pos, const T& val)  {
+	virtual G_API void setValue(const std::size_t& pos, const T& val)  {
 		this->at(pos) = val;
 
 #ifdef DEBUG
@@ -309,7 +309,7 @@ public:
 	 * @param ptr The boost::property_tree object the data should be saved to
 	 * @param id The id assigned to this object
 	 */
-	virtual void toPropertyTree(
+	virtual G_API void toPropertyTree(
 	      pt::ptree& ptr
 	      , const std::string& baseName
 	) const OVERRIDE {
@@ -343,7 +343,7 @@ public:
    /**
     * Lets the audience know whether this is a leaf or a branch object
     */
-   virtual bool isLeaf() const OVERRIDE {
+   virtual G_API bool isLeaf() const OVERRIDE {
       return true;
    }
 
@@ -351,7 +351,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const OVERRIDE {
+   virtual G_API std::string name() const OVERRIDE {
       return std::string("GParameterCollectionT");
    }
 
@@ -362,7 +362,7 @@ protected:
 	 *
 	 * @param cp A copy of another GParameterCollectionT<T> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject* cp) OVERRIDE {
+	virtual G_API void load_(const GObject* cp) OVERRIDE {
 		// Convert cp into local format and check for self-assignment
 		const GParameterCollectionT<T> *p_load = GObject::gobject_conversion<GParameterCollectionT<T> >(cp);
 
@@ -375,7 +375,7 @@ protected:
 	/**
 	 * Creates a deep clone of this object. Purely virtual, so this class cannot be instantiated.
 	 */
-	virtual GObject* clone_() const = 0;
+	virtual G_API GObject* clone_() const = 0;
 
 	/***************************************************************************/
 	/**
@@ -383,7 +383,7 @@ protected:
 	 * Making the vector wrapper purely virtual allows the compiler to perform
 	 * further optimizations.
 	 */
-	virtual void dummyFunction() OVERRIDE { /* nothing */ }
+	virtual G_API void dummyFunction() OVERRIDE { /* nothing */ }
 
 public:
 	/***************************************************************************/
@@ -392,7 +392,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() OVERRIDE {
+	virtual G_API bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -412,7 +412,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 	   // Call the parent classes' functions
 		GParameterBaseWithAdaptorsT<T>::specificTestsNoFailureExpected_GUnitTests();
@@ -427,7 +427,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterBaseWithAdaptorsT<T>::specificTestsFailuresExpected_GUnitTests();

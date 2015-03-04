@@ -80,7 +80,7 @@ class GSerialSwarm;
  * class also contains a framework for lazy evaluation, so not all evaluations take
  * place at the same time.
  */
-class G_API GOptimizableEntity
+class GOptimizableEntity
 	: public GMutableI
 	, public GRateableI
 	, public GObject
@@ -92,7 +92,7 @@ class G_API GOptimizableEntity
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int){
+	G_API void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
 	  ar
@@ -121,21 +121,21 @@ class G_API GOptimizableEntity
 
 public:
 	/** @brief The default constructor */
-	GOptimizableEntity();
+	G_API GOptimizableEntity();
 	/** @brief The copy constructor */
-	GOptimizableEntity(const GOptimizableEntity&);
+	G_API GOptimizableEntity(const GOptimizableEntity&);
 	/** @brief Initialization with the number of fitness criteria */
-	GOptimizableEntity(const std::size_t&);
+	G_API GOptimizableEntity(const std::size_t&);
 	/** @brief The destructor */
-	virtual ~GOptimizableEntity();
+	virtual G_API ~GOptimizableEntity();
 
 	/** @brief Checks for equality with another GOptimizableEntity object */
-	bool operator==(const GOptimizableEntity&) const;
+	G_API bool operator==(const GOptimizableEntity&) const;
 	/** @brief Checks for inequality with another GOptimizableEntity object */
-	bool operator!=(const GOptimizableEntity&) const;
+	G_API bool operator!=(const GOptimizableEntity&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(
+	virtual G_API boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -145,121 +145,121 @@ public:
 	) const OVERRIDE;
 
 	/** @brief The adaption interface */
-	virtual std::size_t adapt() OVERRIDE;
+	virtual G_API std::size_t adapt() OVERRIDE;
 
    /** @brief Returns the raw result of the fitness function with id 0 */
-   virtual double fitness() const OVERRIDE;
+   virtual G_API double fitness() const OVERRIDE;
    /** @brief Returns the raw result of a fitness function with a given id */
-   virtual double fitness(const std::size_t&) const OVERRIDE;
+   virtual G_API double fitness(const std::size_t&) const OVERRIDE;
 
    /** @brief Calculate or returns the result of a fitness function with a given id */
-   virtual double fitness(const std::size_t&, bool, bool) OVERRIDE;
+   virtual G_API double fitness(const std::size_t&, bool, bool) OVERRIDE;
    /** @brief Calculate or returns the result of a fitness function with a given id */
-   virtual double fitness(const std::size_t&, bool, bool) const OVERRIDE;
+   virtual G_API double fitness(const std::size_t&, bool, bool) const OVERRIDE;
 
    /** @brief Returns the transformed result of the fitness function with id 0 */
-   virtual double transformedFitness() const OVERRIDE;
+   virtual G_API double transformedFitness() const OVERRIDE;
    /** @brief Returns the transformed result of a fitness function with a given id */
-   virtual double transformedFitness(const std::size_t&) const OVERRIDE;
+   virtual G_API double transformedFitness(const std::size_t&) const OVERRIDE;
 
    /** @brief Returns a fitness targetted at optimization algorithms, taking into account maximization and minimization */
-   virtual double minOnly_fitness() const OVERRIDE;
+   virtual G_API double minOnly_fitness() const OVERRIDE;
    /** @brief Returns a fitness targetted at optimization algorithms, taking into account maximization and minimization */
-   virtual double minOnly_fitness(const std::size_t&) const OVERRIDE;
+   virtual G_API double minOnly_fitness(const std::size_t&) const OVERRIDE;
 
    /** @brief Returns all raw fitness results in a std::vector */
-   virtual std::vector<double> fitnessVec() const OVERRIDE;
+   virtual G_API std::vector<double> fitnessVec() const OVERRIDE;
    /** @brief Returns all raw or transformed results in a std::vector */
-   virtual std::vector<double> fitnessVec(bool) const OVERRIDE;
+   virtual G_API std::vector<double> fitnessVec(bool) const OVERRIDE;
    /** @brief Returns all transformed fitness results in a std::vector */
-   virtual std::vector<double> transformedFitnessVec() const OVERRIDE;
+   virtual G_API std::vector<double> transformedFitnessVec() const OVERRIDE;
 
    /** @brief A wrapper for the non-const fitness function, so we can bind to it */
-   double nonConstFitness(const std::size_t&, bool, bool);
+   G_API double nonConstFitness(const std::size_t&, bool, bool);
    /** @brief A wrapper for the const fitness function, so we can bind to it */
-   double constFitness(const std::size_t&, bool, bool) const;
+   G_API double constFitness(const std::size_t&, bool, bool) const;
 
 	/** @brief Adapts and evaluates the individual in one go */
-	virtual void adaptAndEvaluate();
+	virtual G_API void adaptAndEvaluate();
 
    /** @brief Retrieve the current (not necessarily up-to-date) fitness */
-	double getCachedFitness(const std::size_t& = 0, const bool& = USETRANSFORMEDFITNESS) const;
+	G_API double getCachedFitness(const std::size_t& = 0, const bool& = USETRANSFORMEDFITNESS) const;
 
 	/** @brief Enforce fitness (re-)calculation */
-	void enforceFitnessUpdate(boost::function<std::vector<double>()> =  boost::function<std::vector<double>()>());
+	G_API void enforceFitnessUpdate(boost::function<std::vector<double>()> =  boost::function<std::vector<double>()>());
 
 	/** @brief Registers a new, secondary result value of the custom fitness calculation */
-	void registerSecondaryResult(const std::size_t&, const double&);
+	G_API void registerSecondaryResult(const std::size_t&, const double&);
 	/** @brief Determines the overall number of fitness criteria present for this individual */
-	std::size_t getNumberOfFitnessCriteria() const;
+	G_API std::size_t getNumberOfFitnessCriteria() const;
 	/** @brief Allows to reset the number of fitness criteria */
-	void setNumberOfFitnessCriteria(std::size_t);
+	G_API void setNumberOfFitnessCriteria(std::size_t);
 	/** @brief Determines whether more than one fitness criterion is present for this individual */
-	bool hasMultipleFitnessCriteria() const;
+	G_API bool hasMultipleFitnessCriteria() const;
 
 	/** @brief Checks the worst fitness and updates it when needed */
-	void challengeWorstValidFitness(boost::tuple<double, double>&, const std::size_t&);
+	G_API void challengeWorstValidFitness(boost::tuple<double, double>&, const std::size_t&);
    /** @brief Retrieve the fitness tuple at a given evaluation position */
-   boost::tuple<double,double> getFitnessTuple(const boost::uint32_t& = 0) const;
+	G_API boost::tuple<double,double> getFitnessTuple(const boost::uint32_t& = 0) const;
 
    /** @brief Check whether this individual is "clean", i.e neither "dirty" nor has a delayed evaluation */
-   bool isClean() const;
+	G_API bool isClean() const;
 	/** @brief Check whether the dirty flag is set */
-	bool isDirty() const ;
+	G_API bool isDirty() const ;
    /** @brief Sets the dirtyFlag_ */
-   void setDirtyFlag();
+	G_API void setDirtyFlag();
    /** @brief Checks whether evaluation was delayed */
-   bool evaluationDelayed() const;
+	G_API bool evaluationDelayed() const;
 
 	/** @brief Allows to retrieve the maximize_ parameter */
-	bool getMaxMode() const;
+	G_API bool getMaxMode() const;
 
 	/** @brief Retrieves the worst possible evaluation result, depending on whether we are in maximization or minimization mode */
-	virtual double getWorstCase() const BASE;
+	virtual G_API double getWorstCase() const BASE;
    /** @brief Retrieves the best possible evaluation result, depending on whether we are in maximization or minimization mode */
-   virtual double getBestCase() const BASE;
+   virtual G_API double getBestCase() const BASE;
 
 	/** @brief Retrieves the steepness_ variable (used for the sigmoid transformation) */
-	double getSteepness() const;
+   G_API double getSteepness() const;
 	/** @brief Sets the steepness variable (used for the sigmoid transformation) */
-	void setSteepness(double);
+   G_API void setSteepness(double);
 
 	/** @brief Retrieves the barrier_ variable (used for the sigmoid transformation) */
-	double getBarrier() const;
+   G_API double getBarrier() const;
 	/** @brief Sets the barrier variable (used for the sigmoid transformation) */
-	void setBarrier(double);
+   G_API void setBarrier(double);
 
 	/** @brief Sets the maximum number of calls to customAdaptions() that may pass without actual modifications */
-	void setMaxUnsuccessfulAdaptions(std::size_t);
+   G_API void setMaxUnsuccessfulAdaptions(std::size_t);
 	/** @brief Retrieves the maximum number of calls to customAdaptions that may pass without actual modifications */
-	std::size_t getMaxUnsuccessfulAdaptions() const;
+   G_API std::size_t getMaxUnsuccessfulAdaptions() const;
 
    /** @brief Set maximum number of retries until a valid individual was found  */
-   void setMaxRetriesUntilValid(std::size_t maxRetriesUntilValid);
+   G_API void setMaxRetriesUntilValid(std::size_t maxRetriesUntilValid);
    /** Retrieves the maximum number of retries until a valid individual was found. */
-   std::size_t getMaxRetriesUntilValid() const;
+   G_API std::size_t getMaxRetriesUntilValid() const;
 
 	/** @brief Retrieves the number of adaptions performed during the last call to adapt() */
-	std::size_t getNAdaptions() const;
+   G_API std::size_t getNAdaptions() const;
 
 	/** @brief Allows to set the current iteration of the parent optimization algorithm. */
-	void setAssignedIteration(const boost::uint32_t&);
+   G_API void setAssignedIteration(const boost::uint32_t&);
 	/** @brief Gives access to the parent optimization algorithm's iteration */
-	boost::uint32_t getAssignedIteration() const;
+   G_API boost::uint32_t getAssignedIteration() const;
 
 	/** @brief Allows to specify the number of optimization cycles without improvement of the primary fitness criterion */
-	void setNStalls(const boost::uint32_t&);
+   G_API void setNStalls(const boost::uint32_t&);
 	/** @brief Allows to retrieve the number of optimization cycles without improvement of the primary fitness criterion */
-	boost::uint32_t getNStalls() const;
+   G_API boost::uint32_t getNStalls() const;
 
 	/** @brief Retrieves an identifier for the current personality of this object */
-	std::string getPersonality() const;
+   G_API std::string getPersonality() const;
 
 	/** @brief Allows to randomly initialize parameter members */
-	virtual void randomInit(const activityMode&) BASE = 0;
+	virtual G_API void randomInit(const activityMode&) BASE = 0;
 
 	/** @brief Retrieves a parameter of a given type at the specified position */
-	virtual boost::any getVarVal(
+	virtual G_API boost::any getVarVal(
       const std::string&
       , const boost::tuple<std::size_t, std::string, std::size_t>& target
    ) = 0;
@@ -270,7 +270,7 @@ public:
     * function is a trap. Use one of the overloads for supported types.
     */
    template <typename val_type>
-   val_type getVarVal(
+   G_API  val_type getVarVal(
       const boost::tuple<std::size_t, std::string, std::size_t>& target
    ) {
       val_type result = val_type(0);
@@ -306,7 +306,7 @@ public:
 	 * @return A boost::shared_ptr converted to the desired target type
 	 */
 	template <typename personality_type>
-	boost::shared_ptr<personality_type> getPersonalityTraits(
+	G_API boost::shared_ptr<personality_type> getPersonalityTraits(
 			typename boost::enable_if<boost::is_base_of<GPersonalityTraits, personality_type> >::type* dummy = 0
 	) {
 #ifdef DEBUG
@@ -334,108 +334,108 @@ public:
 
 	/***************************************************************************/
 	/** @brief This function returns the current personality traits base pointer */
-	boost::shared_ptr<GPersonalityTraits> getPersonalityTraits();
+	G_API boost::shared_ptr<GPersonalityTraits> getPersonalityTraits();
 
 	/** @brief Sets the current personality of this individual */
-	void setPersonality(
+	G_API void setPersonality(
 	      boost::shared_ptr<GPersonalityTraits>
 	);
 	/** @brief Resets the current personality to PERSONALITY_NONE */
-	void resetPersonality();
+	G_API void resetPersonality();
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions(
+	virtual G_API void addConfigurationOptions(
 		Gem::Common::GParserBuilder&
 	) OVERRIDE;
 
 	/** @brief Allows to assign a name to the role of this individual(-derivative) */
-	virtual std::string getIndividualCharacteristic() const = 0;
+	virtual G_API std::string getIndividualCharacteristic() const = 0;
 
    /** @brief Emits a name for this class / object */
-   virtual std::string name() const OVERRIDE;
+   virtual G_API std::string name() const OVERRIDE;
 
    /** @brief Check how valid a given solution is */
-   double getValidityLevel() const;
+   G_API double getValidityLevel() const;
    /** @brief Checks whether all constraints were fulfilled */
-   bool constraintsFulfilled() const;
+   G_API bool constraintsFulfilled() const;
    /** @brief Allows to register a constraint with this individual */
-   void registerConstraint(boost::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity> >);
+   G_API void registerConstraint(boost::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity> >);
 
    /** @brief Allows to set the policy to use in case this individual represents an invalid solution */
-   void setEvaluationPolicy(evaluationPolicy evalPolicy);
+   G_API void setEvaluationPolicy(evaluationPolicy evalPolicy);
    /** @brief Allows to retrieve the current policy in case this individual represents an invalid solution */
-   evaluationPolicy getEvaluationPolicy() const;
+   G_API evaluationPolicy getEvaluationPolicy() const;
 
    /** @brief Checks whether this is a valid solution; meant to be called for "clean" individuals only */
-   bool isValid() const;
+   G_API bool isValid() const;
    /** @brief Checks whether this solution is invalid */
-   bool isInValid() const;
+   G_API bool isInValid() const;
 
    /** @brief Allows an optimization algorithm to set the worst known valid evaluation up to the current iteration */
-   void setWorstKnownValid(const std::vector<boost::tuple<double, double> >&);
+   G_API void setWorstKnownValid(const std::vector<boost::tuple<double, double> >&);
    /** @brief Allows to retrieve the worst known valid evaluation up to the current iteration, as set by an external optimization algorithm */
-   boost::tuple<double, double> getWorstKnownValid(const boost::uint32_t&) const;
+   G_API boost::tuple<double, double> getWorstKnownValid(const boost::uint32_t&) const;
    /** @brief Allows to retrieve all worst known valid evaluations up to the current iteration, as set by an external optimization algorithm */
-   std::vector<boost::tuple<double, double> > getWorstKnownValids() const;
+   G_API std::vector<boost::tuple<double, double> > getWorstKnownValids() const;
    /** @brief Fills the worstKnownValid-vector with best values */
-   void populateWorstKnownValid();
+   G_API void populateWorstKnownValid();
 
    /** @brief Triggers an update of the internal evaluation, if necessary */
-   void postEvaluationUpdate();
+   G_API void postEvaluationUpdate();
 
    /** @brief Allows to set the globally best known primary fitness */
-   void setBestKnownPrimaryFitness(const boost::tuple<double, double>&);
+   G_API void setBestKnownPrimaryFitness(const boost::tuple<double, double>&);
    /** @brief Retrieves the value of the globally best known primary fitness */
-   boost::tuple<double, double> getBestKnownPrimaryFitness() const;
+   G_API boost::tuple<double, double> getBestKnownPrimaryFitness() const;
 
    /** @brief Retrieve the id assigned to the current evaluation */
-   std::string getCurrentEvaluationID() const;
+   G_API std::string getCurrentEvaluationID() const;
 
    /** @brief Checks whether a new solution is worse then an older solution, depending on the maxMode */
-   virtual bool isWorse(double, const double&) const BASE;
+   virtual G_API bool isWorse(double, const double&) const BASE;
    /** @brief Checks whether a new solution is better then an older solution, depending on the maxMode */
-   virtual bool isBetter(double, const double&) const BASE;
+   virtual G_API bool isBetter(double, const double&) const BASE;
 
    /** @brief Checks whether this object is better than the argument, depending on the maxMode */
-   bool isBetterThan(boost::shared_ptr<GOptimizableEntity>) const;
+   G_API bool isBetterThan(boost::shared_ptr<GOptimizableEntity>) const;
    /** @brief Checks whether this object is worse than the argument, depending on the maxMode */
-   bool isWorseThan(boost::shared_ptr<GOptimizableEntity>) const;
+   G_API bool isWorseThan(boost::shared_ptr<GOptimizableEntity>) const;
 
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GOptimizableEntity */
-	virtual void load_(const GObject*) OVERRIDE;
+	virtual G_API void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone_() const = 0;
+	virtual G_API GObject* clone_() const = 0;
 
 	/** @brief The fitness calculation for the main quality criterion takes place here */
-	virtual double fitnessCalculation() BASE = 0;
+	virtual G_API double fitnessCalculation() BASE = 0;
 	/** @brief Sets the fitness to a given set of values and clears the dirty flag */
-	void setFitness_(const std::vector<double>&);
+	G_API void setFitness_(const std::vector<double>&);
 
 	/** @brief The actual adaption operations */
-	virtual std::size_t customAdaptions() BASE;
+	virtual G_API std::size_t customAdaptions() BASE;
 	/** @brief Specify whether we want to work in maximization (true) or minimization (false) mode */
-	void setMaxMode_(const bool&);
+	G_API void setMaxMode_(const bool&);
 	/** @brief Sets the dirtyFlag_ to any desired value */
-	boost::logic::tribool setDirtyFlag(const boost::logic::tribool&) ;
+	G_API boost::logic::tribool setDirtyFlag(const boost::logic::tribool&) ;
 
 	/** @brief Combines secondary evaluation results by adding the individual results */
-	double sumCombiner() const;
+	G_API double sumCombiner() const;
 	/** @brief Combines secondary evaluation results by adding the absolute values of individual results */
-	double fabsSumCombiner() const;
+	G_API double fabsSumCombiner() const;
 	/** @brief Combines secondary evaluation results by calculating the square root of the squared sum */
-	double squaredSumCombiner() const;
+	G_API double squaredSumCombiner() const;
 	/** @brief Combines secondary evaluation results by calculation the square root of the weighed squared sum */
-	double weighedSquaredSumCombiner(const std::vector<double>&) const;
+	G_API double weighedSquaredSumCombiner(const std::vector<double>&) const;
 
 	/** @brief Allows users to mark this solution as invalid in derived classes (usually from within the evaluation function) */
-	void markAsInvalid();
+	G_API void markAsInvalid();
 	/** @brief Allows to check whether this solution was marked as invalid */
-	bool markedAsInvalidByUser() const;
+	G_API bool markedAsInvalidByUser() const;
 
    /** @brief Checks whether this solution has been rated to be valid; meant to be called by internal functions only */
-   bool parameterSetFulfillsConstraints(double&) const;
+	G_API bool parameterSetFulfillsConstraints(double&) const;
 
 	/***************************************************************************/
 	/**
@@ -443,7 +443,7 @@ protected:
 	 * depending on our maximization mode
 	 */
 	template <std::size_t pos>
-	bool isWorse(
+	G_API bool isWorse(
       boost::tuple<double, double> newValue
       , boost::tuple<double, double> oldValue
    ) const {
@@ -462,7 +462,7 @@ protected:
     * depending on our maximization mode
     */
    template <std::size_t pos>
-   bool isBetter(
+   G_API bool isBetter(
       boost::tuple<double, double> newValue
       , boost::tuple<double, double> oldValue
    ) const {
@@ -526,11 +526,11 @@ private:
 public:
    /***************************************************************************/
    /** @brief Applies modifications to this object. This is needed for testing purposes */
-   virtual bool modify_GUnitTests() OVERRIDE;
+   virtual G_API bool modify_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-   virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+   virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-   virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+   virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

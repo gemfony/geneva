@@ -53,37 +53,37 @@ namespace Geneva {
 /**
  * A simple interface class for objects that can be evaluated.
  */
-class G_API GRateableI {
+class GRateableI {
 public:
 	/** @brief The destructor */
-	virtual ~GRateableI();
+	virtual G_API ~GRateableI();
 
    /** @brief Retrieve a value for this class, using a fixed fitness function */
-   virtual double fitness() const BASE = 0;
+   virtual G_API double fitness() const BASE = 0;
    /** @brief Retrieve a value for this class, using a fitness function with a given id */
-   virtual double fitness(const std::size_t&) const BASE = 0;
+   virtual G_API double fitness(const std::size_t&) const BASE = 0;
 
    /** @brief Returns the transformed result of the fitness function with id 0 */
-   virtual double transformedFitness() const BASE = 0;
+   virtual G_API double transformedFitness() const BASE = 0;
    /** @brief Returns the transformed result of the fitness function with id 0 */
-   virtual double transformedFitness(const std::size_t&) const BASE = 0;
+   virtual G_API double transformedFitness(const std::size_t&) const BASE = 0;
 
    /** @brief Returns a fitness targetted at optimization algorithms, taking into account maximization and minimization */
-   virtual double minOnly_fitness() const BASE = 0;
+   virtual G_API double minOnly_fitness() const BASE = 0;
    /** @brief Returns a fitness targetted at optimization algorithms, taking into account maximization and minimization */
-   virtual double minOnly_fitness(const std::size_t&) const BASE = 0;
+   virtual G_API double minOnly_fitness(const std::size_t&) const BASE = 0;
 
    /** @brief Calculate or returns the result of a fitness function with a given id */
-   virtual double fitness(const std::size_t&, bool, bool) BASE = 0;
+   virtual G_API double fitness(const std::size_t&, bool, bool) BASE = 0;
    /** @brief Calculate or returns the result of a fitness function with a given id */
-   virtual double fitness(const std::size_t&, bool, bool) const BASE = 0;
+   virtual G_API double fitness(const std::size_t&, bool, bool) const BASE = 0;
 
    /** @brief Returns all raw fitness results in a std::vector */
-   virtual std::vector<double> fitnessVec() const BASE = 0;
+   virtual G_API std::vector<double> fitnessVec() const BASE = 0;
    /** @brief Returns all raw or transformed results in a std::vector */
-   virtual std::vector<double> fitnessVec(bool) const BASE = 0;
+   virtual G_API std::vector<double> fitnessVec(bool) const BASE = 0;
    /** @brief Returns all transformed fitness results in a std::vector */
-   virtual std::vector<double> transformedFitnessVec() const BASE = 0;
+   virtual G_API std::vector<double> transformedFitnessVec() const BASE = 0;
 };
 
 /******************************************************************************/

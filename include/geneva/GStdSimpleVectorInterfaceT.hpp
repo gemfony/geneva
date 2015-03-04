@@ -82,16 +82,17 @@ namespace Geneva {
  * like simple types.
  */
 template <typename T>
-class G_API GStdSimpleVectorInterfaceT
+class GStdSimpleVectorInterfaceT
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template<typename Archive>
-    void serialize(Archive & ar, const unsigned int){
+    G_API void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
 
-      ar & BOOST_SERIALIZATION_NVP(data);
+      ar
+      & BOOST_SERIALIZATION_NVP(data);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -100,7 +101,7 @@ public:
 	/**
 	 * The default constructor
 	 */
-	GStdSimpleVectorInterfaceT() { /* nothing */ }
+    G_API GStdSimpleVectorInterfaceT() { /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -109,7 +110,7 @@ public:
 	 * @param nval The number of items to be added to the collection
 	 * @param val  The value to be assigned to each position
 	 */
-	GStdSimpleVectorInterfaceT(const std::size_t& nval, const T& val)
+    G_API GStdSimpleVectorInterfaceT(const std::size_t& nval, const T& val)
 		: data(nval, val)
 	{ /* nothing */ }
 
@@ -119,7 +120,7 @@ public:
 	 *
 	 * @param cp A constant reference to another GStdSimpleVectorInterfaceT object
 	 */
-	GStdSimpleVectorInterfaceT(const GStdSimpleVectorInterfaceT<T>& cp)
+    G_API GStdSimpleVectorInterfaceT(const GStdSimpleVectorInterfaceT<T>& cp)
 		: data(cp.data)
 	{ /* nothing */ }
 
@@ -127,13 +128,13 @@ public:
 	/**
 	 * The destructor.
 	 */
-	virtual ~GStdSimpleVectorInterfaceT() { data.clear();	}
+	virtual G_API ~GStdSimpleVectorInterfaceT() { data.clear();	}
 
    /***************************************************************************/
 	/**
 	 * Assginment operator
 	 */
-	const GStdSimpleVectorInterfaceT& operator=(const GStdSimpleVectorInterfaceT<T>& cp) {
+	G_API const GStdSimpleVectorInterfaceT& operator=(const GStdSimpleVectorInterfaceT<T>& cp) {
 		this->operator=(cp.data);
 		return cp;
 	}
@@ -151,7 +152,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	virtual boost::optional<std::string> checkRelationshipWith_base(
+	virtual G_API boost::optional<std::string> checkRelationshipWith_base(
       const std::vector<T>& cp_data
       , const Gem::Common::expectation& e
       , const double& limit
@@ -188,7 +189,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	virtual boost::optional<std::string> checkRelationshipWith_base(
+	virtual G_API boost::optional<std::string> checkRelationshipWith_base(
       const GStdSimpleVectorInterfaceT<T>& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -228,12 +229,12 @@ public:
 
    /***************************************************************************/
 	// Non modifying access
-	size_type size() const { return data.size(); } // Used/tested in GDoubleCollection::fillWithData()
-	bool empty() const { return data.empty(); } // Used/tested in GDoubleCollection::fillWithData()
-	size_type max_size() const { return data.max_size(); } // Used/tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+	G_API size_type size() const { return data.size(); } // Used/tested in GDoubleCollection::fillWithData()
+	G_API bool empty() const { return data.empty(); } // Used/tested in GDoubleCollection::fillWithData()
+	G_API size_type max_size() const { return data.max_size(); } // Used/tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
-	size_type capacity() const { return data.capacity(); } // Used/tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
-	void reserve(size_type amount) { data.reserve(amount); } // Used/tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+	G_API size_type capacity() const { return data.capacity(); } // Used/tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+	G_API void reserve(size_type amount) { data.reserve(amount); } // Used/tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
    /***************************************************************************/
 	/**
@@ -242,7 +243,7 @@ public:
 	 * @param item The item to be counted in the collection
 	 * @return The number of items found
 	 */
-	size_type count(const T& item) const { return std::count(data.begin(), data.end(), item); }
+	G_API size_type count(const T& item) const { return std::count(data.begin(), data.end(), item); }
 
 	/* ----------------------------------------------------------------------------
 	 * Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
@@ -255,7 +256,7 @@ public:
 	 * re-implemented here, as we are dealing with a collection of smart pointers
 	 * and we do not want to compare the pointers themselves.
 	 */
-	const_iterator find(const T& item) const {
+	G_API const_iterator find(const T& item) const {
 		return std::find(data.begin(), data.end(), item);
 	}
 
@@ -267,33 +268,33 @@ public:
    /***************************************************************************/
 
 	// Modifying functions
-	void swap(std::vector<T>& cont) { std::swap(data, cont); } // untested (likely irrelevant)
+	G_API void swap(std::vector<T>& cont) { std::swap(data, cont); } // untested (likely irrelevant)
 
 	// Access to elements (unchecked / checked)
-	reference operator[](std::size_t pos) { return data[pos]; } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
-	const_reference operator[](std::size_t pos) const { return data[pos]; }
+	G_API reference operator[](std::size_t pos) { return data[pos]; } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+	G_API const_reference operator[](std::size_t pos) const { return data[pos]; }
 
-	reference at(std::size_t pos) { return data.at(pos); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
-	const_reference at(std::size_t pos) const { return data.at(pos); }
+	G_API reference at(std::size_t pos) { return data.at(pos); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+	G_API const_reference at(std::size_t pos) const { return data.at(pos); }
 
-	reference front() { return data.front(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
-	const_reference front() const { return data.front(); }
+	G_API reference front() { return data.front(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+	G_API const_reference front() const { return data.front(); }
 
-	reference back() { return data.back(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
-	const_reference back() const { return data.back(); }
+	G_API reference back() { return data.back(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+	G_API const_reference back() const { return data.back(); }
 
 	// Iterators
-	iterator begin() { return data.begin(); }
-	const_iterator begin() const { return data.begin(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+	G_API iterator begin() { return data.begin(); }
+	G_API const_iterator begin() const { return data.begin(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
-	iterator end() { return data.end(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
-	const_iterator end() const { return data.end(); }
+	G_API iterator end() { return data.end(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+	G_API const_iterator end() const { return data.end(); }
 
-	reverse_iterator rbegin() { return data.rbegin(); } // untested (likely irrelevant)
-	const_reverse_iterator rbegin() const { return data.rbegin(); }
+	G_API reverse_iterator rbegin() { return data.rbegin(); } // untested (likely irrelevant)
+	G_API const_reverse_iterator rbegin() const { return data.rbegin(); }
 
-	reverse_iterator rend() { return data.rend(); } // untested (likely irrelevant)
-	const_reverse_iterator rend() const { return data.rend(); }
+	G_API reverse_iterator rend() { return data.rend(); } // untested (likely irrelevant)
+	G_API const_reverse_iterator rend() const { return data.rend(); }
 
    /***************************************************************************/
 	// Insertion and removal
@@ -302,7 +303,7 @@ public:
 	 * Inserts a given item at position pos. Checks whether the item actually points
 	 * somewhere.
 	 */
-	iterator insert(iterator pos, const T& item) { return data.insert(pos, item); }
+	G_API iterator insert(iterator pos, const T& item) { return data.insert(pos, item); }
 
 	/* ----------------------------------------------------------------------------
 	 * Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
@@ -313,7 +314,7 @@ public:
 	/**
 	 * Inserts a given amount of items after position pos.
 	 */
-	void insert(iterator pos, size_type amount, const T& item) { data.insert(pos,amount,item); }
+	G_API void insert(iterator pos, size_type amount, const T& item) { data.insert(pos,amount,item); }
 
 	/* ----------------------------------------------------------------------------
 	 * Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
@@ -322,16 +323,16 @@ public:
 
    /***************************************************************************/
 	// Adding simple items to the  back of the vector
-	void push_back(const T& item){ data.push_back(item); } // Used/tested in GDoubleCollection::fillWithData()
+	G_API void push_back(const T& item){ data.push_back(item); } // Used/tested in GDoubleCollection::fillWithData()
 
    /***************************************************************************/
 
 	// Removal at a given position or in a range
-	iterator erase(iterator pos) { return data.erase(pos); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
-	iterator erase(iterator from, iterator to) { return data.erase(from, to); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+	G_API iterator erase(iterator pos) { return data.erase(pos); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+	G_API iterator erase(iterator from, iterator to) { return data.erase(from, to); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
 	// Removing an element from the end of the vector
-	void pop_back(){ data.pop_back(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+	G_API void pop_back(){ data.pop_back(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
    /***************************************************************************/
 	/**
@@ -342,7 +343,7 @@ public:
 	 * @param amount The new desired size of the vector
 	 * @param item An item that should be used for initialization of new items, if any
 	 */
-	void resize(size_type amount, const T& item) { data.resize(amount, item);} // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+	G_API void resize(size_type amount, const T& item) { data.resize(amount, item);} // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
 	/***************************************************************************/
 	/**
@@ -350,11 +351,11 @@ public:
 	 * T will be default-constructed. For numeric values this will usually mean
 	 * T(0).
 	 */
-	void resize(size_type amount) { data.resize(amount); }
+	G_API void resize(size_type amount) { data.resize(amount); }
 
    /***************************************************************************/
 	/** @brief Clearing the data vector */
-	void clear() { data.clear(); } // Used/tested in GDoubleCollection::fillWithData()
+	G_API void clear() { data.clear(); } // Used/tested in GDoubleCollection::fillWithData()
 
    /***************************************************************************/
 	/**
@@ -363,7 +364,7 @@ public:
 	 * @param cp A constant reference to another std::vector<T>
 	 * @return The argument of this function (a std::vector<T>)
 	 */
-	const std::vector<T>& operator=(const std::vector<T>& cp) {
+	G_API const std::vector<T>& operator=(const std::vector<T>& cp) {
 		data=cp;
 		return cp;
 	}
@@ -380,7 +381,7 @@ public:
 	 *
 	 * @param cp A reference to a vector that will hold a copy of our local data vector
 	 */
-	void getDataCopy(std::vector<T>& cp) const { cp=data; 	}  // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+	G_API void getDataCopy(std::vector<T>& cp) const { cp=data; 	}  // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
    /***************************************************************************/
 	/**
@@ -390,7 +391,7 @@ public:
 	 * @param cp A copy of another GStdSimpleVectorInterfaceT<T> object
 	 * @param pos The position as of which the cross-over should be performed
 	 */
-	void crossOver(GStdSimpleVectorInterfaceT<T>& cp, const std::size_t& pos) {
+	G_API void crossOver(GStdSimpleVectorInterfaceT<T>& cp, const std::size_t& pos) {
 		// Find out the minimum size of both vectors
 		std::size_t minSize = (std::min)(this->size(), cp.size());
 
@@ -436,26 +437,26 @@ protected:
 	std::vector<T> data;
 
 	/** @brief Intentionally make this object purely virtual, for performance reasons */
-	virtual void dummyFunction() = 0;
+	virtual G_API void dummyFunction() = 0;
 
 private:
 	/** @brief Checks for equality with another GStdSimpleVectorInterfaceT<T> object. Intentionally left undefined */
-	bool operator==(const GStdSimpleVectorInterfaceT<T>& cp) const;
+	G_API bool operator==(const GStdSimpleVectorInterfaceT<T>& cp) const;
 	/** @brief Checks inequality with another GStdSimpleVectorInterfaceT<T> object. Intentionally left undefined */
-	bool operator!=(const GStdSimpleVectorInterfaceT<T>& cp) const;
+	G_API bool operator!=(const GStdSimpleVectorInterfaceT<T>& cp) const;
 	/** @brief Checks for equality with a std::vector<T> object. Intentionally left undefined */
-	bool operator==(const std::vector<T>& cp_data) const;
+	G_API bool operator==(const std::vector<T>& cp_data) const;
 	/** @brief Checks for inequality with a std::vector<T> object. Intentionally left undefined */
-	bool operator!=(const std::vector<T>& cp_data) const;
+	G_API bool operator!=(const std::vector<T>& cp_data) const;
 
 public:
    /***************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests() BASE { /* nothing here yet */ return false; }
+	virtual G_API bool modify_GUnitTests() BASE { /* nothing here yet */ return false; }
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests() BASE { /* nothing here yet */ }
+	virtual G_API void specificTestsNoFailureExpected_GUnitTests() BASE { /* nothing here yet */ }
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests() BASE { /* nothing here yet */  }
+	virtual G_API void specificTestsFailuresExpected_GUnitTests() BASE { /* nothing here yet */  }
    /***************************************************************************/
 };
 

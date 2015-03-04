@@ -66,13 +66,13 @@ namespace Geneva {
  * the global algorithm store
  */
 template <typename oaf_type>
-class G_API GOAInitializerT {
+class GOAInitializerT {
    // Make sure oaf_type has the expected type
    BOOST_MPL_ASSERT((boost::is_base_of<GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> > , oaf_type>));
 
 public:
    /** @brief The initializing constructor */
-   inline GOAInitializerT() {
+   inline G_API GOAInitializerT() {
       // Create a smart pointer holding the algorithm
       boost::shared_ptr<GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> > > p(new oaf_type());
       std::string mnemonic = p->getMnemonic();
@@ -81,7 +81,7 @@ public:
       GOAFactoryStore->setOnce(mnemonic, p);
    }
    /** @brief An empty destructor */
-   virtual inline ~GOAInitializerT() { /* nothing */ }
+   virtual inline G_API ~GOAInitializerT() { /* nothing */ }
 };
 
 /******************************************************************************/
