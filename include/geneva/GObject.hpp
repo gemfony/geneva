@@ -280,6 +280,14 @@ public:
 
 	/***************************************************************************/
 	/**
+	 * Checks whether a SIGHUP or CTRL_CLOSE_EVENT signal has been sent
+	 */
+	static G_API bool G_SIGHUP_SENT() {
+	   return (1==GObject::GenevaSigHupSent);
+	}
+
+	/***************************************************************************/
+	/**
 	 * A handler for SIGHUP or CTRL_CLOSE_EVENT signals. This function should work
 	 * both for Windows and Unix-Systems.
 	 */
@@ -288,10 +296,6 @@ public:
 	      GObject::GenevaSigHupSent = 1;
 	   }
 	}
-
-	// Needed to allow interruption of the optimization run without loss of data
-	// Npte that "volatile" is needed in order for the signal handler to work
-	static volatile G_API std::sig_atomic_t GenevaSigHupSent;  // Initialized in GObject.cpp
 
 protected:
 	/***************************************************************************/
@@ -404,9 +408,13 @@ protected:
 
 private:
 	/** @brief Checks for equality with another GObject object. Intentionally left undefined, as this class is abstract */
-	G_API bool operator==(const GObject&) const;
+	bool operator==(const GObject&) const;
 	/** @brief Checks inequality with another GObject object. Intentionally left undefined, as this class is abstract */
-	G_API bool operator!=(const GObject&) const;
+	bool operator!=(const GObject&) const;
+
+	// Needed to allow interruption of the optimization run without loss of data
+	// Npte that "volatile" is needed in order for the signal handler to work
+	static volatile G_API std::sig_atomic_t GenevaSigHupSent;  // Initialized in GObject.cpp
 
 public:
 	/***************************************************************************/

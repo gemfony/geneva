@@ -40,7 +40,7 @@ namespace Geneva {
 
 /******************************************************************************/
 // Needed to allow catching of a SIGHUP or CTRL_CLOSE_EVENT event
-volatile std::sig_atomic_t GObject::GenevaSigHupSent = 0;
+volatile G_API std::sig_atomic_t GObject::GenevaSigHupSent = 0;
 
 /******************************************************************************/
 /**

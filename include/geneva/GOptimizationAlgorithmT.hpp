@@ -1658,10 +1658,10 @@ private:
 	 * @return A boolean indicating whether the program was interrupted with a SIGHUP or CTRL_CLOSE_EVENT signal
 	 */
 	bool sigHupHalt() const {
-	   if(1==GObject::GenevaSigHupSent) {
+	   if(GObject::G_SIGHUP_SENT()) {
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
 	      std::cout
-	      << "Terminating optimization run because a CTRL_BREAK_EVENT signal has been received" << std::endl;
+	      << "Terminating optimization run because a CTRL_CLOSE_EVENT signal has been received" << std::endl;
 #else
 	      std::cout
 	      << "Terminating optimization run because a SIGHUP signal has been received" << std::endl;
