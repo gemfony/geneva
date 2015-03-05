@@ -67,26 +67,26 @@ class GThreadPool
 {
 public:
 	/** @brief Initialization with the "native" number of threads for this architecture */
-   G_API GThreadPool();
+   G_API_COMMON GThreadPool();
 	/** @brief Initialization with a number of threads */
-   G_API GThreadPool(const std::size_t&);
+   G_API_COMMON GThreadPool(const std::size_t&);
 	/** @brief The destructor */
-   G_API ~GThreadPool();
+   G_API_COMMON ~GThreadPool();
 
    /** @brief Sets the number of threads currently used */
-   G_API void setNThreads(std::size_t);
+   G_API_COMMON void setNThreads(std::size_t);
    /** @brief Retrieves the current number of threads being used in the pool */
-   G_API std::size_t getNThreads() const;
+   G_API_COMMON std::size_t getNThreads() const;
 
 	/** @brief Blocks until all submitted jobs have been cleared from the pool */
-   G_API bool wait();
+   G_API_COMMON bool wait();
 
 	/** @brief Allows to check whether any errors have occurred */
-   G_API bool hasErrors() const;
+   G_API_COMMON bool hasErrors() const;
 	/** @brief Retrieves the errors */
-   G_API void getErrors(std::vector<std::string>&);
+   G_API_COMMON void getErrors(std::vector<std::string>&);
 	/** @brief Clears the error logs */
-   G_API void clearErrors();
+   G_API_COMMON void clearErrors();
 
 	/***************************************************************************/
 	/**
@@ -95,7 +95,7 @@ public:
 	 * @param f The function to be executed by the threads in the pool
 	 */
 	template <typename F>
-	G_API void async_schedule(F f) {
+	G_API_COMMON void async_schedule(F f) {
 		io_service_.post(
 			boost::bind(&GThreadPool::taskWrapper<F>, this, f)
 		);

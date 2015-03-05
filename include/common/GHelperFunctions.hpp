@@ -70,17 +70,17 @@ namespace Common {
 
 /******************************************************************************/
 /** @brief This function tries to determine a suitable number of threads for the current architecture */
-G_API
+G_API_COMMON
 unsigned int getNHardwareThreads(const unsigned int& defaultNThreads = Gem::Common::DEFAULTNHARDWARETHREADS);
 
 /******************************************************************************/
 /** @brief This function loads textual (ASCII) data from an external file */
-G_API
+G_API_COMMON
 std::string loadTextDataFromFile(const boost::filesystem::path&);
 
 /******************************************************************************/
 /** @brief This function executes an external command on the operating system */
-G_API
+G_API_COMMON
 int runExternalCommand(
    const boost::filesystem::path&
    , const std::vector<std::string>&
@@ -88,27 +88,27 @@ int runExternalCommand(
 
 /******************************************************************************/
 /** @brief Returns a string for a given serialization mode */
-G_API
+G_API_COMMON
 std::string serializationModeToString(const serializationMode&);
 
 /******************************************************************************/
 /** @brief Splits a string into a vector of strings, according to a seperator character */
-G_API
+G_API_COMMON
 std::vector<std::string> splitString(const std::string&, const char*);
 
 /******************************************************************************/
 /** @brief Splits a string into a vector of boost::uint16_t values, if possible */
-G_API
+G_API_COMMON
 std::vector<unsigned int> stringToUIntVec(const std::string&);
 
 /******************************************************************************/
 /** @brief Splits a string into a vector of double values, if possible */
-G_API
+G_API_COMMON
 std::vector<double> stringToDoubleVec(const std::string&);
 
 /******************************************************************************/
 /** @brief Splits a string into a vector of unsigned int-tuples, if possible */
-G_API
+G_API_COMMON
 std::vector<boost::tuple<unsigned int, unsigned int> > stringToUIntTupleVec(const std::string&);
 
 /******************************************************************************/

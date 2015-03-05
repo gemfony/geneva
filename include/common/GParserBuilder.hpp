@@ -126,7 +126,7 @@ class GOneTimeRefParameterT
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API void serialize(Archive & ar, const unsigned int)  {
+   G_API_COMMON void serialize(Archive & ar, const unsigned int)  {
      using boost::serialization::make_nvp;
 
      ar
@@ -141,7 +141,7 @@ public:
    /**
     * The standard constructor
     */
-   explicit G_API GOneTimeRefParameterT(const T& def = T(NULL))
+   explicit G_API_COMMON GOneTimeRefParameterT(const T& def = T(NULL))
       : parm_(def)
       , parmDummy_(def)
       , parmSet_(false)
@@ -151,7 +151,7 @@ public:
    /**
     * The copy constructor
     */
-   G_API GOneTimeRefParameterT(const GOneTimeRefParameterT<T>& cp)
+   G_API_COMMON GOneTimeRefParameterT(const GOneTimeRefParameterT<T>& cp)
       : parm_(cp.parm_)
       , parmDummy_(cp.parmDummy_)
       , parmSet_(cp.parmSet_)
@@ -161,7 +161,7 @@ public:
    /**
     * Assignment of another object of this type
     */
-   G_API GOneTimeRefParameterT<T>& operator=(const GOneTimeRefParameterT<T>& cp) {
+   G_API_COMMON GOneTimeRefParameterT<T>& operator=(const GOneTimeRefParameterT<T>& cp) {
       parm_ = cp.parm_;
       parmDummy_ = cp.parmDummy_;
       parmSet_ = cp.parmSet_;
@@ -174,7 +174,7 @@ public:
     * Returns a reference to the parameter, if it hasn't been set. Otherwise
     * it will return a reference to the dummy parameter.
     */
-   G_API T& reference() {
+   G_API_COMMON T& reference() {
       if(parmSet_) {
          return parmDummy_;
       } else {
@@ -187,7 +187,7 @@ public:
    /**
     * Allows to check whether a parameter has already been set
     */
-   G_API bool parmSet() const {
+   G_API_COMMON bool parmSet() const {
       return parmSet_;
    }
 
@@ -195,7 +195,7 @@ public:
    /**
     * Explicit reset of the "dirty" flag
     */
-   G_API void reset() {
+   G_API_COMMON void reset() {
       parmSet_ = false;
    }
 
@@ -203,7 +203,7 @@ public:
    /**
     * Returns the parameter value
     */
-   G_API T value() const {
+   G_API_COMMON T value() const {
       return parm_;
    }
 
@@ -211,7 +211,7 @@ public:
    /**
     * Allows to explicitly set the value of the parameter
     */
-   G_API void setValue(const T& parm) {
+   G_API_COMMON void setValue(const T& parm) {
       parm_ = parm;
       parmSet_ = true;
    }
@@ -220,7 +220,7 @@ public:
    /**
     * Explicit assignment of a T value
     */
-   G_API void operator=(const T& parm) {
+   G_API_COMMON void operator=(const T& parm) {
       this->setValue(parm);
    }
 
@@ -228,7 +228,7 @@ public:
    /**
     * Automatic conversion
     */
-   G_API operator T() {
+   G_API_COMMON operator T() {
       return parm_;
    }
 
@@ -236,7 +236,7 @@ public:
    /**
     * Automatic conversion for constant callers
     */
-   G_API operator T() const {
+   G_API_COMMON operator T() const {
       return parm_;
    }
 
@@ -258,10 +258,10 @@ private:
 class commentLevel {
 public:
    /** @brief The standard constructor */
-   explicit G_API commentLevel(const std::size_t);
+   explicit G_API_COMMON commentLevel(const std::size_t);
 
    /** @brief Retrieves the current commentLevel */
-   G_API std::size_t getCommentLevel() const;
+   G_API_COMMON std::size_t getCommentLevel() const;
 
 private:
    commentLevel(); ///< The default constructor -- intentionally private and undefined
@@ -277,7 +277,7 @@ private:
 class nextComment {
 public:
    /** @brief The default constructor */
-   G_API nextComment(){ /* nothing */ }
+   G_API_COMMON nextComment(){ /* nothing */ }
 };
 
 /******************************************************************************/
@@ -293,35 +293,35 @@ class GParsableI
 {
 public:
 	/** @brief A constructor for individual items */
-   G_API GParsableI(
+   G_API_COMMON GParsableI(
 		const std::string&
 		, const std::string&
 	);
 
 	/** @brief A constructor for vectors */
-   G_API GParsableI(
+   G_API_COMMON GParsableI(
 		const std::vector<std::string>&
 		, const std::vector<std::string>&
 	);
 
 	/** @brief The destructor */
-	virtual G_API ~GParsableI();
+	virtual G_API_COMMON ~GParsableI();
 
 	/** @brief Retrieves the option name at a given position */
-	G_API std::string optionName(std::size_t = 0) const;
+	G_API_COMMON std::string optionName(std::size_t = 0) const;
 	/** @brief Retrieves the comment that was assigned to this variable at a given position */
-	G_API std::string comment(std::size_t = 0) const;
+	G_API_COMMON std::string comment(std::size_t = 0) const;
 	/** @brief Checks whether comments have indeed been registered */
-	G_API bool hasComments() const;
+	G_API_COMMON bool hasComments() const;
    /** @brief Retrieves the number of comments available */
-	G_API std::size_t numberOfComments() const;
+	G_API_COMMON std::size_t numberOfComments() const;
 
    /***************************************************************************/
    /**
     * Create a std::vector<T> from a single element
     */
    template <typename T>
-   static G_API std::vector<T> makeVector(const T& item) {
+   static G_API_COMMON std::vector<T> makeVector(const T& item) {
       std::vector<T> result;
       result.push_back(item);
       return result;
@@ -332,7 +332,7 @@ public:
     * Create a std::vector<T> from two elements
     */
    template <typename T>
-   static G_API std::vector<T> makeVector(const T& item1, const T& item2) {
+   static G_API_COMMON std::vector<T> makeVector(const T& item1, const T& item2) {
       std::vector<T> result;
       result.push_back(item1);
       result.push_back(item2);
@@ -345,7 +345,7 @@ public:
     * and will then be added to the current comment_ entry.
     */
    template <typename T>
-   G_API GParsableI& operator<<(const T& t) {
+   G_API_COMMON GParsableI& operator<<(const T& t) {
       std::ostringstream oss;
       oss << t;
       comment_.at(cl_) += oss.str();
@@ -354,20 +354,20 @@ public:
 
    /***************************************************************************/
    /** @brief Needed for std::ostringstream */
-   G_API GParsableI& operator<< (std::ostream& ( *val )(std::ostream&));
+   G_API_COMMON GParsableI& operator<< (std::ostream& ( *val )(std::ostream&));
    /** @brief Needed for std::ostringstream */
-   G_API GParsableI& operator<< (std::ios& ( *val )(std::ios&));
+   G_API_COMMON GParsableI& operator<< (std::ios& ( *val )(std::ios&));
    /** @brief Needed for std::ostringstream */
-   G_API GParsableI& operator<< (std::ios_base& ( *val )(std::ios_base&));
+   G_API_COMMON GParsableI& operator<< (std::ios_base& ( *val )(std::ios_base&));
    /** @brief Allows to indicate the current comment level */
-   G_API GParsableI& operator<< (const commentLevel&);
+   G_API_COMMON GParsableI& operator<< (const commentLevel&);
    /** @brief Allows to switch to the next comment level */
-   G_API GParsableI& operator<< (const nextComment&);
+   G_API_COMMON GParsableI& operator<< (const nextComment&);
 
 protected:
    /***************************************************************************/
    /** @brief Splits a comment into sub-tokens */
-   G_API std::vector<std::string> splitComment(const std::string&) const;
+   G_API_COMMON std::vector<std::string> splitComment(const std::string&) const;
 
 private:
 	/***************************************************************************/
@@ -396,25 +396,25 @@ class GFileParsableI
 
 public:
    /** @brief A constructor for individual items */
-   G_API GFileParsableI(
+   G_API_COMMON GFileParsableI(
       const std::string&
       , const std::string&
       , const bool&
    );
    /** @brief A constructor for vectors */
-   G_API GFileParsableI(
+   G_API_COMMON GFileParsableI(
       const std::vector<std::string>&
       , const std::vector<std::string>&
       , const bool&
    );
    /** @brief The destructor */
-   virtual G_API ~GFileParsableI();
+   virtual G_API_COMMON ~GFileParsableI();
 
    /** @brief Executes a stored call-back function */
-   virtual G_API void executeCallBackFunction() = 0;
+   virtual G_API_COMMON void executeCallBackFunction() = 0;
 
    /** @brief Checks whether this is an essential variable at a given position */
-   G_API bool isEssential() const;
+   G_API_COMMON bool isEssential() const;
 
 protected:
    /***************************************************************************/
@@ -447,17 +447,17 @@ class GCLParsableI
 
 public:
    /** @brief A constructor for individual items */
-   G_API GCLParsableI(
+   G_API_COMMON GCLParsableI(
       const std::string&
       , const std::string&
    );
    /** @brief A constructor for vectors */
-   G_API GCLParsableI(
+   G_API_COMMON GCLParsableI(
       const std::vector<std::string>&
       , const std::vector<std::string>&
    );
    /** @brief The destructor */
-   virtual G_API ~GCLParsableI();
+   virtual G_API_COMMON ~GCLParsableI();
 
 protected:
    /** @brief Saves data to a property tree object */
@@ -490,7 +490,7 @@ public:
    /**
     * Initializes the parameter and sets values in the parent class
     */
-   G_API GSingleParmT(
+   G_API_COMMON GSingleParmT(
       const std::string& optionNameVar
       , const std::string& commentVar
       , const bool& isEssentialVar
@@ -509,7 +509,7 @@ public:
    /**
     * The destructor
     */
-   virtual G_API ~GSingleParmT()
+   virtual G_API_COMMON ~GSingleParmT()
    { /* nothing */ }
 
 protected:
@@ -553,7 +553,7 @@ public:
 	/**
 	 * Initializes the parameter and sets values in the parent class
 	 */
-	G_API GFileSingleParsableParameterT(
+	G_API_COMMON GFileSingleParsableParameterT(
 		const std::string& optionNameVar
 		, const std::string& commentVar
 		, const bool& isEssentialVar
@@ -572,7 +572,7 @@ public:
     * Initializes the parameter and sets values in the parent class, except
     * for comments.
     */
-	G_API GFileSingleParsableParameterT(
+	G_API_COMMON GFileSingleParsableParameterT(
       const std::string& optionNameVar
       , const parameter_type& def_val
    )
@@ -588,14 +588,14 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual G_API ~GFileSingleParsableParameterT()
+	virtual G_API_COMMON ~GFileSingleParsableParameterT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * Executes a stored call-back function
 	 */
-	virtual G_API void executeCallBackFunction() {
+	virtual G_API_COMMON void executeCallBackFunction() {
 		if(!callBack_) {
 		   glogger
 		   << "In GSingleParsableParameter::executeCallBackFunction(): Error" << std::endl
@@ -613,7 +613,7 @@ public:
 	 *
 	 * @param callBack The function to be executed
 	 */
-	G_API void registerCallBackFunction(boost::function<void(parameter_type)> callBack) {
+	G_API_COMMON void registerCallBackFunction(boost::function<void(parameter_type)> callBack) {
 		if(!callBack) {
 		   glogger
 		   << "In GSingleParsableParameter::registerCallBackFunction(): Error" << std::endl
@@ -691,7 +691,7 @@ public:
    /**
     * Initializes the parameter and sets values in the parent class
     */
-   G_API GFileReferenceParsableParameterT(
+   G_API_COMMON GFileReferenceParsableParameterT(
       parameter_type& storedReference
       , const std::string& optionNameVar
       , const std::string& commentVar
@@ -712,7 +712,7 @@ public:
     * Initializes the parameter and sets values in the parent class, except
     * for comments.
     */
-   G_API GFileReferenceParsableParameterT(
+   G_API_COMMON GFileReferenceParsableParameterT(
       parameter_type& storedReference
       , const std::string& optionNameVar
       , const parameter_type& def_val
@@ -730,14 +730,14 @@ public:
    /**
     * The destructor
     */
-   virtual G_API ~GFileReferenceParsableParameterT()
+   virtual G_API_COMMON ~GFileReferenceParsableParameterT()
    { /* nothing */ }
 
    /***************************************************************************/
    /**
     * Assigns the stored parameter to the reference
     */
-   virtual G_API void executeCallBackFunction() {
+   virtual G_API_COMMON void executeCallBackFunction() {
       storedReference_ = GSingleParmT<parameter_type>::par_;
    }
 
@@ -811,7 +811,7 @@ public:
    /**
     * Initializes the parameter and sets values in the parent class
     */
-   G_API GCombinedParT(
+   G_API_COMMON GCombinedParT(
       const std::string& optionNameVar0
       , const std::string& commentVar0
       , const par_type0& def_val0
@@ -837,7 +837,7 @@ public:
    /**
     * The destructor
     */
-   virtual G_API ~GCombinedParT()
+   virtual G_API_COMMON ~GCombinedParT()
    { /* nothing */ }
 
 protected:
@@ -883,7 +883,7 @@ public:
 	/**
 	 * Initializes the parameters
 	 */
-	G_API GFileCombinedParsableParameterT(
+	G_API_COMMON GFileCombinedParsableParameterT(
 		const std::string& optionNameVar0
 		, const std::string& commentVar0
 		, const par_type0& defVal0
@@ -909,7 +909,7 @@ public:
    /**
     * Initializes the parameters
     */
-	G_API GFileCombinedParsableParameterT(
+	G_API_COMMON GFileCombinedParsableParameterT(
       const std::string& optionNameVar0
       , const par_type0& defVal0
       , const std::string& optionNameVar1
@@ -932,14 +932,14 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual G_API ~GFileCombinedParsableParameterT()
+	virtual G_API_COMMON ~GFileCombinedParsableParameterT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * Executes a stored call-back function
 	 */
-	virtual G_API void executeCallBackFunction() {
+	virtual G_API_COMMON void executeCallBackFunction() {
 		if(!callBack_) {
 		   glogger
 		   << "In GFileCombinedParsableParameterT::executeCallBackFunction(): Error" << std::endl
@@ -957,7 +957,7 @@ public:
 	 *
 	 * @param callBack The function to be executed
 	 */
-	G_API void registerCallBackFunction(boost::function<void(par_type0, par_type1)> callBack) {
+	G_API_COMMON void registerCallBackFunction(boost::function<void(par_type0, par_type1)> callBack) {
 		if(!callBack) {
 		   glogger
 		   << "In GFileCombinedParsableParameterT::registerCallBackFunction(): Error" << std::endl
@@ -1048,7 +1048,7 @@ public:
    /**
     * Initializes the parameter and sets values in the parent class
     */
-   G_API GVectorParT(
+   G_API_COMMON GVectorParT(
          const std::string& optionNameVar
          , const std::string& commentVar
          , const std::vector<parameter_type>& def_val
@@ -1067,7 +1067,7 @@ public:
    /**
     * The destructor
     */
-   virtual G_API ~GVectorParT()
+   virtual G_API_COMMON ~GVectorParT()
    { /* nothing */ }
 
 protected:
@@ -1109,7 +1109,7 @@ public:
 	/**
 	 * Initializes the parameters
 	 */
-	G_API GFileVectorParsableParameterT(
+	G_API_COMMON GFileVectorParsableParameterT(
 		const std::string& optionNameVar
 		, const std::string& commentVar
 		, const std::vector<parameter_type>& def_val
@@ -1127,7 +1127,7 @@ public:
    /**
     * Initializes the parameters, except for comments
     */
-	G_API GFileVectorParsableParameterT(
+	G_API_COMMON GFileVectorParsableParameterT(
       const std::string& optionNameVar
       , const std::vector<parameter_type>& def_val
    )
@@ -1143,14 +1143,14 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual G_API ~GFileVectorParsableParameterT()
+	virtual G_API_COMMON ~GFileVectorParsableParameterT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * Executes a stored call-back function
 	 */
-	virtual G_API void executeCallBackFunction() {
+	virtual G_API_COMMON void executeCallBackFunction() {
 		if(!callBack_) {
 		   glogger
 		   << "In GFileVectorParsableParameterT::executeCallBackFunction(): Error" << std::endl
@@ -1168,7 +1168,7 @@ public:
 	 *
 	 * @param callBack The function to be executed
 	 */
-	G_API void registerCallBackFunction(boost::function<void(std::vector<parameter_type>)> callBack) {
+	G_API_COMMON void registerCallBackFunction(boost::function<void(std::vector<parameter_type>)> callBack) {
 		if(!callBack) {
 		   glogger
 		   << "In GFileVectorParsableParameterT::registerCallBackFunction(): Error" << std::endl
@@ -1269,7 +1269,7 @@ public:
 	/**
 	 * Initializes the parameters
 	 */
-	G_API GFileVectorReferenceParsableParameterT(
+	G_API_COMMON GFileVectorReferenceParsableParameterT(
 		std::vector<parameter_type>& stored_reference
 		, const std::string& optionNameVar
 		, const std::string& commentVar
@@ -1289,7 +1289,7 @@ public:
    /**
     * Initializes the parameters, except for comments
     */
-	G_API GFileVectorReferenceParsableParameterT(
+	G_API_COMMON GFileVectorReferenceParsableParameterT(
       std::vector<parameter_type>& stored_reference
       , const std::string& optionNameVar
       , const std::vector<parameter_type>& def_val
@@ -1308,14 +1308,14 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual G_API ~GFileVectorReferenceParsableParameterT()
+	virtual G_API_COMMON ~GFileVectorReferenceParsableParameterT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * Assigns the parsed parameters to the reference vector
 	 */
-	virtual G_API void executeCallBackFunction() {
+	virtual G_API_COMMON void executeCallBackFunction() {
 		stored_reference_ = GVectorParT<parameter_type>::par_;
 	}
 
@@ -1407,7 +1407,7 @@ public:
    /**
     * Initializes the parameter and sets values in the parent class
     */
-   G_API GArrayParT(
+   G_API_COMMON GArrayParT(
       const std::string& optionNameVar
       , const std::string& commentVar
       , const boost::array<parameter_type,N>& def_val
@@ -1426,7 +1426,7 @@ public:
    /**
     * The destructor
     */
-   virtual G_API ~GArrayParT()
+   virtual G_API_COMMON ~GArrayParT()
    { /* nothing */ }
 
 protected:
@@ -1470,7 +1470,7 @@ public:
 	/**
 	 * Initializes the parameters
 	 */
-	G_API GFileArrayParsableParameterT(
+	G_API_COMMON GFileArrayParsableParameterT(
 		const std::string& optionNameVar
 		, const std::string& commentVar
 		, const boost::array<parameter_type,N>& def_val
@@ -1488,7 +1488,7 @@ public:
    /**
     * Initializes the parameters, except for comments
     */
-	G_API GFileArrayParsableParameterT(
+	G_API_COMMON GFileArrayParsableParameterT(
       const std::string& optionNameVar
       , const boost::array<parameter_type,N>& def_val
    )
@@ -1504,14 +1504,14 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual G_API ~GFileArrayParsableParameterT()
+	virtual G_API_COMMON ~GFileArrayParsableParameterT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * Executes a stored call-back function
 	 */
-	virtual G_API void executeCallBackFunction() {
+	virtual G_API_COMMON void executeCallBackFunction() {
 		if(!callBack_) {
 		   glogger
 		   << "In GFileArrayParsableParameterT::executeCallBackFunction(): Error" << std::endl
@@ -1529,7 +1529,7 @@ public:
 	 *
 	 * @param callBack The function to be executed
 	 */
-	G_API void registerCallBackFunction(boost::function<void(boost::array<parameter_type,N>)> callBack) {
+	G_API_COMMON void registerCallBackFunction(boost::function<void(boost::array<parameter_type,N>)> callBack) {
 		if(!callBack) {
 		   glogger
 		   << "In GFileArrayParsableParameterT::registerCallBackFunction(): Error" << std::endl
@@ -1622,7 +1622,7 @@ public:
 	/**
 	 * Initializes the parameters
 	 */
-	G_API GFileArrayReferenceParsableParameterT(
+	G_API_COMMON GFileArrayReferenceParsableParameterT(
 		boost::array<parameter_type,N>& stored_reference
 		, const std::string& optionNameVar
 		, const std::string& commentVar
@@ -1642,7 +1642,7 @@ public:
    /**
     * Initializes the parameters, except for comments
     */
-	G_API GFileArrayReferenceParsableParameterT(
+	G_API_COMMON GFileArrayReferenceParsableParameterT(
       boost::array<parameter_type,N>& stored_reference
       , const std::string& optionNameVar
       , const boost::array<parameter_type,N>& def_val
@@ -1660,14 +1660,14 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual G_API ~GFileArrayReferenceParsableParameterT()
+	virtual G_API_COMMON ~GFileArrayReferenceParsableParameterT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * Assigns the parsed parameters to the reference vector
 	 */
-	virtual G_API void executeCallBackFunction() {
+	virtual G_API_COMMON void executeCallBackFunction() {
 		stored_reference_ = GArrayParT<parameter_type, N>::par_;
 	}
 
@@ -1755,7 +1755,7 @@ public:
     * @param storedReference A reference to a variable in which parsed values should be stored
     * @param defVal The default value of this variable
     */
-   G_API GCLReferenceParsableParameterT(
+   G_API_COMMON GCLReferenceParsableParameterT(
       parameter_type& storedReference
       , const std::string& optionNameVar
       , const std::string& commentVar
@@ -1780,7 +1780,7 @@ public:
     * @param storedReference A reference to a variable in which parsed values should be stored
     * @param defVal The default value of this variable
     */
-   G_API GCLReferenceParsableParameterT(
+   G_API_COMMON GCLReferenceParsableParameterT(
       parameter_type& storedReference
       , const std::string& optionNameVar
       , parameter_type defVal
@@ -1855,22 +1855,22 @@ class GParserBuilder :boost::noncopyable
 {
 public:
 	/** @brief The default constructor */
-   G_API GParserBuilder();
+   G_API_COMMON GParserBuilder();
 
 	/** @brief The destructor */
-	virtual G_API ~GParserBuilder();
+	virtual G_API_COMMON ~GParserBuilder();
 
 	/** @brief Tries to parse a given configuration file for a set of options */
-	G_API bool parseConfigFile(const std::string&);
+	G_API_COMMON bool parseConfigFile(const std::string&);
 	/** @brief Writes out a configuration file */
-	G_API void writeConfigFile(const std::string& = std::string(), const std::string& = "", bool = true) const;
+	G_API_COMMON void writeConfigFile(const std::string& = std::string(), const std::string& = "", bool = true) const;
 	/** @brief Provides information on the number of file configuration options stored in this class */
-	G_API std::size_t numberOfFileOptions() const;
+	G_API_COMMON std::size_t numberOfFileOptions() const;
 
 	/** @brief Parses the commandline for options */
-	G_API bool parseCommandLine(int, char **,bool=false);
+	G_API_COMMON bool parseCommandLine(int, char **,bool=false);
    /** @brief Provides information on the number of command line configuration options stored in this class */
-	G_API std::size_t numberOfCLOptions() const;
+	G_API_COMMON std::size_t numberOfCLOptions() const;
 
    /***************************************************************************/
    /**
@@ -1879,7 +1879,7 @@ public:
     * objects.
     */
    template <typename fileParsableDerivative>
-   G_API boost::shared_ptr<fileParsableDerivative> file_at(const std::string& optionName) {
+   G_API_COMMON boost::shared_ptr<fileParsableDerivative> file_at(const std::string& optionName) {
       // Check whether the option already exists. If not, complain
       std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
       if((it=std::find_if(file_parameter_proxies_.begin(), file_parameter_proxies_.end(), findFileProxyByName(optionName))) == file_parameter_proxies_.end()) {
@@ -1896,7 +1896,7 @@ public:
     * objects.
     */
    template <typename clParsableDerivative>
-   G_API boost::shared_ptr<clParsableDerivative> cl_at(const std::string& optionName) {
+   G_API_COMMON boost::shared_ptr<clParsableDerivative> cl_at(const std::string& optionName) {
       // Check whether the option already exists. If not, complain
       std::vector<boost::shared_ptr<GCLParsableI> >::iterator it;
       if((it=std::find_if(cl_parameter_proxies_.begin(), cl_parameter_proxies_.end(), findCLProxyByName(optionName))) == cl_parameter_proxies_.end()) {
@@ -1914,7 +1914,7 @@ public:
 	 * function is executed.
 	 */
 	template <typename parameter_type>
-	G_API GParsableI& registerFileParameter(
+	G_API_COMMON GParsableI& registerFileParameter(
 		const std::string& optionName
 		, parameter_type def_val
 		, boost::function<void(parameter_type)> callBack
@@ -1970,7 +1970,7 @@ public:
     * @param comment A comment to be associated with the parameter in configuration files
     */
    template <typename parameter_type>
-   G_API GParsableI& registerFileParameter(
+   G_API_COMMON GParsableI& registerFileParameter(
       const std::string& optionName
       , parameter_type& parameter
       , parameter_type def_val
@@ -2023,7 +2023,7 @@ public:
     * overwritten as well.
     */
    template <typename parameter_type>
-   G_API void resetFileParameterDefaults(
+   G_API_COMMON void resetFileParameterDefaults(
          const std::string& optionName
          , parameter_type def_val
    ) {
@@ -2051,7 +2051,7 @@ public:
 	 * function will be executed.
 	 */
 	template <typename par_type1, typename par_type2>
-	G_API GParsableI& registerFileParameter(
+	G_API_COMMON GParsableI& registerFileParameter(
 		const std::string& optionName1
 		, const std::string& optionName2
 		, par_type1 def_val1
@@ -2117,7 +2117,7 @@ public:
     */
 
    template <typename par_type1, typename par_type2>
-   G_API void resetFileParameterDefaults(
+   G_API_COMMON void resetFileParameterDefaults(
       const std::string& optionName1
       , par_type1 def_val1
       , par_type2 def_val2
@@ -2145,7 +2145,7 @@ public:
 	 * call-back function
 	 */
 	template <typename parameter_type>
-	G_API GParsableI& registerFileParameter(
+	G_API_COMMON GParsableI& registerFileParameter(
 		const std::string& optionName
 		, const std::vector<parameter_type>& def_val
 		, boost::function<void(std::vector<parameter_type>)> callBack
@@ -2195,7 +2195,7 @@ public:
 	 * Adds a reference to a vector of configurable type to the collection
 	 */
 	template <typename parameter_type>
-	G_API GParsableI& registerFileParameter(
+	G_API_COMMON GParsableI& registerFileParameter(
 		const std::string& optionName
 		, std::vector<parameter_type>& stored_reference
 		, const std::vector<parameter_type>& def_val
@@ -2250,7 +2250,7 @@ public:
     * overwritten as well.
     */
    template <typename parameter_type>
-   G_API void resetFileParameterDefaults(
+   G_API_COMMON void resetFileParameterDefaults(
       const std::string& optionName
       , const std::vector<parameter_type>& def_val
    ) {
@@ -2278,7 +2278,7 @@ public:
 	 * must be available.
 	 */
 	template <typename parameter_type, std::size_t N>
-	G_API GParsableI& registerFileParameter(
+	G_API_COMMON GParsableI& registerFileParameter(
 		const std::string& optionName
 		, const boost::array<parameter_type,N>& def_val
 		, boost::function<void(boost::array<parameter_type,N>)> callBack
@@ -2330,7 +2330,7 @@ public:
 	 * to the file parameter collection
 	 */
 	template <typename parameter_type, std::size_t N>
-	G_API GParsableI& registerFileParameter(
+	G_API_COMMON GParsableI& registerFileParameter(
 		const std::string& optionName
 		, boost::array<parameter_type,N>& stored_reference
 		, const boost::array<parameter_type,N>& def_val
@@ -2384,7 +2384,7 @@ public:
     */
 
    template <typename parameter_type, std::size_t N>
-   G_API void resetFileParameterDefaults(
+   G_API_COMMON void resetFileParameterDefaults(
       const std::string& optionName
       , const boost::array<parameter_type,N>& def_val
    ) {
@@ -2415,7 +2415,7 @@ public:
     * @param comment A comment to be associated with the parameter in configuration files
     */
    template <typename parameter_type>
-   G_API GParsableI& registerCLParameter(
+   G_API_COMMON GParsableI& registerCLParameter(
       const std::string& optionName
       , parameter_type& parameter
       , const parameter_type& def_val

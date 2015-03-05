@@ -79,7 +79,7 @@ const bool GERRORONLY = false;
  * @param upper The upper boundary of the allowed value range
  */
 template <typename fp_type>
-G_API void enforceRangeConstraint(
+G_API_COMMON void enforceRangeConstraint(
    fp_type& val
    , const fp_type& lower
    , const fp_type& upper
@@ -110,7 +110,7 @@ G_API void enforceRangeConstraint(
  * @param upper The upper boundary of the allowed value range
  */
 template <typename fp_type>
-G_API bool checkRangeCompliance(
+G_API_COMMON bool checkRangeCompliance(
    const fp_type& val
    , const fp_type& lower
    , const fp_type& upper
@@ -138,7 +138,7 @@ G_API bool checkRangeCompliance(
  * on whether maximal or minimal values are considered to be better
  */
 template <typename fp_type>
-G_API fp_type getWorstCase(
+G_API_COMMON fp_type getWorstCase(
    bool maxMode
    , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 ) {
@@ -151,7 +151,7 @@ G_API fp_type getWorstCase(
  * on whether maximal or minimal values are considered to be better
  */
 template <typename fp_type>
-G_API fp_type getBestCase(
+G_API_COMMON fp_type getBestCase(
    bool maxMode
    , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 ) {
@@ -178,7 +178,7 @@ const bool GFWARNONLY = true;
 const bool GFNOWARNING = false;
 
 template <typename fp_type>
-G_API fp_type checkValueRange(
+G_API_COMMON fp_type checkValueRange(
    fp_type val
    , fp_type min
    , fp_type max
@@ -239,7 +239,7 @@ const bool GINTUPPERCLOSED = false;
 const bool GINTUPPEROPEN = true;
 
 template <typename int_type>
-G_API int_type checkValueRange(
+G_API_COMMON int_type checkValueRange(
    int_type val
    , int_type min
    , int_type max
@@ -289,7 +289,7 @@ G_API int_type checkValueRange(
  * @return A boost::tuple holding the extreme values
  */
 template <typename x_type_undet>
-G_API boost::tuple<x_type_undet, x_type_undet> getMinMax(const std::vector<x_type_undet>& extDat) {
+G_API_COMMON boost::tuple<x_type_undet, x_type_undet> getMinMax(const std::vector<x_type_undet>& extDat) {
    // Do some error checking
    if(extDat.size() < (std::size_t)2) {
       glogger
@@ -318,7 +318,7 @@ G_API boost::tuple<x_type_undet, x_type_undet> getMinMax(const std::vector<x_typ
  * @return A boost::tuple holding the extreme values
  */
 template <typename x_type_undet, typename y_type_undet>
-G_API boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>
+G_API_COMMON boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>
 getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet> >& extDat) {
    // Do some error checking
    if(extDat.size() < (std::size_t)2) {
@@ -351,7 +351,7 @@ getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet> >& extDat) 
  * @return A boost::tuple holding the extreme values
  */
 template <typename x_type_undet, typename y_type_undet, typename z_type_undet>
-G_API boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet, z_type_undet>
+G_API_COMMON boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet, z_type_undet>
 getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_undet> >& extDat) {
    // Do some error checking
    if(extDat.size() < (std::size_t)2) {
@@ -387,7 +387,7 @@ getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_unde
  * @return A boost::tuple holding the extreme values
  */
 template <typename x_type_undet, typename y_type_undet, typename z_type_undet, typename w_type_undet>
-G_API boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet, z_type_undet, w_type_undet, w_type_undet>
+G_API_COMMON boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet, z_type_undet, w_type_undet, w_type_undet>
 getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_undet, w_type_undet> >& extDat) {
    // Do some error checking
    if(extDat.size() < (std::size_t)2) {
@@ -424,7 +424,7 @@ getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_unde
  * @return The mean value of parVec
  */
 template <typename T>
-G_API T GMean(
+G_API_COMMON T GMean(
    const std::vector<T>& parVec
    , typename boost::enable_if<boost::is_floating_point<T> >::type* dummy = 0
 ) {
@@ -456,7 +456,7 @@ G_API T GMean(
  * @return A boost::tuple holding the mean value and the standard deviation of the values stored in parVec
  */
 template <typename T>
-G_API boost::tuple<T,T> GStandardDeviation(
+G_API_COMMON boost::tuple<T,T> GStandardDeviation(
    const std::vector<T>& parVec
    , typename boost::enable_if<boost::is_floating_point<T> >::type* dummy = 0
 ) {
@@ -498,7 +498,7 @@ G_API boost::tuple<T,T> GStandardDeviation(
  * @param result A std::vector holdung tuples with the mean and sigma values for each row
  */
 template <typename T>
-G_API void GVecStandardDeviation(
+G_API_COMMON void GVecStandardDeviation(
    const std::vector<std::vector<T> > & parVec
    , std::vector<boost::tuple<T,T> > & result
    , typename boost::enable_if<boost::is_floating_point<T> >::type* dummy = 0
@@ -562,7 +562,7 @@ G_API void GVecStandardDeviation(
  * Calculation of pow for small positive integers using template metaprogramming
  */
 template<std::size_t B, std::size_t E>
-struct G_API PowSmallPosInt
+struct G_API_COMMON PowSmallPosInt
 {
     enum {
        result = B*PowSmallPosInt<B,E-1>::result
@@ -570,7 +570,7 @@ struct G_API PowSmallPosInt
 };
 
 template<std::size_t B>
-struct G_API PowSmallPosInt<B,2>
+struct G_API_COMMON PowSmallPosInt<B,2>
 {
     enum {
        result = B*B
@@ -578,7 +578,7 @@ struct G_API PowSmallPosInt<B,2>
 };
 
 template<std::size_t B>
-struct G_API PowSmallPosInt<B,1>
+struct G_API_COMMON PowSmallPosInt<B,1>
 {
     enum {
        result = B
@@ -586,7 +586,7 @@ struct G_API PowSmallPosInt<B,1>
 };
 
 template<std::size_t B>
-struct G_API PowSmallPosInt<B,0>
+struct G_API_COMMON PowSmallPosInt<B,0>
 {
     enum {
        result = 1
@@ -603,7 +603,7 @@ struct G_API PowSmallPosInt<B,0>
  * @param b The vector whose elements will be subtracted from the elements of a
  */
 template <typename T>
-G_API void subtractVec (
+G_API_COMMON void subtractVec (
       std::vector<T>& a
       , const std::vector<T>& b
 ) {
@@ -636,7 +636,7 @@ G_API void subtractVec (
  * @param b The vector whose elements will be added to the elements of a
  */
 template <typename T>
-G_API void addVec (
+G_API_COMMON void addVec (
       std::vector<T>& a
       , const std::vector<T>& b
 ) {
@@ -668,7 +668,7 @@ G_API void addVec (
  * @param c The constant which will be multiplied with each position of a
  */
 template <typename T>
-G_API void multVecConst (
+G_API_COMMON void multVecConst (
       std::vector<T>& a
       , const T& c
 ) {
@@ -689,7 +689,7 @@ G_API void multVecConst (
  * @param c The constant which will be assigned each position of a
  */
 template <typename T>
-G_API void assignVecConst (
+G_API_COMMON void assignVecConst (
       std::vector<T>& a
       , const T& c
 ) {
@@ -706,7 +706,7 @@ G_API void assignVecConst (
  * Summs up the x- and y-components individually of a vector of 2d-tuples
  */
 template <typename fp_type>
-G_API boost::tuple<fp_type, fp_type> sumTupleVec(
+G_API_COMMON boost::tuple<fp_type, fp_type> sumTupleVec(
    const std::vector<boost::tuple<fp_type, fp_type> >& dataPoints
    , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 ) {
@@ -726,7 +726,7 @@ G_API boost::tuple<fp_type, fp_type> sumTupleVec(
  * Summs up the squares of x- and y-components individually of a vector of 2d-tuples
  */
 template <typename fp_type>
-G_API boost::tuple<fp_type, fp_type> squareSumTupleVec(
+G_API_COMMON boost::tuple<fp_type, fp_type> squareSumTupleVec(
    const std::vector<boost::tuple<fp_type, fp_type> >& dataPoints
    , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 ) {
@@ -746,7 +746,7 @@ G_API boost::tuple<fp_type, fp_type> squareSumTupleVec(
  * Summs up the product of x- and y-components of a vector of 2d-tuples
  */
 template <typename fp_type>
-G_API fp_type productSumTupleVec(
+G_API_COMMON fp_type productSumTupleVec(
    const std::vector<boost::tuple<fp_type, fp_type> >& dataPoints
    , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 ) {
@@ -771,7 +771,7 @@ G_API fp_type productSumTupleVec(
  * @return The square deviation of the data points from the line
  */
 template <typename fp_type>
-G_API fp_type squareDeviation(
+G_API_COMMON fp_type squareDeviation(
    const std::vector<boost::tuple<fp_type, fp_type> >& dataPoints
    , const fp_type& a
    , const fp_type& b
@@ -795,7 +795,7 @@ G_API fp_type squareDeviation(
  * @return Regression parameters for a line defined by the input data points
  */
 template <typename fp_type>
-G_API boost::tuple<fp_type, fp_type, fp_type, fp_type> getRegressionParameters(
+G_API_COMMON boost::tuple<fp_type, fp_type, fp_type, fp_type> getRegressionParameters(
    const std::vector<boost::tuple<fp_type, fp_type> >& dataPoints
    , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 ) {
@@ -838,7 +838,7 @@ G_API boost::tuple<fp_type, fp_type, fp_type, fp_type> getRegressionParameters(
  * s and p have the same structure
  */
 template <typename fp_type>
-G_API boost::tuple<fp_type, fp_type, fp_type, fp_type> getRatioError(
+G_API_COMMON boost::tuple<fp_type, fp_type, fp_type, fp_type> getRatioError(
    const boost::tuple<fp_type, fp_type, fp_type, fp_type>& s
    , const boost::tuple<fp_type, fp_type, fp_type, fp_type>& p
    , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
@@ -882,7 +882,7 @@ G_API boost::tuple<fp_type, fp_type, fp_type, fp_type> getRatioError(
  * of s/p together with their errors.
  */
 template <typename fp_type>
-G_API std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type> > getRatioErrors(
+G_API_COMMON std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type> > getRatioErrors(
    const std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type> >& sn
    , const std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type> >& pn
    , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0

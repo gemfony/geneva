@@ -57,13 +57,13 @@ namespace Common {
 class GSerializableI {
 public:
 	/** @brief The standard destructor */
-	virtual G_API ~GSerializableI() { /* nothing */ }
+	virtual G_API_COMMON ~GSerializableI() { /* nothing */ }
 
 	/** @brief Create a text representation from this class */
-	virtual G_API std::string toString(const serializationMode&) const = 0;
+	virtual G_API_COMMON std::string toString(const serializationMode&) const = 0;
 
 	/** @brief Initialize this class from a text representation */
-	virtual G_API void fromString(const std::string&, const serializationMode&) = 0;
+	virtual G_API_COMMON void fromString(const std::string&, const serializationMode&) = 0;
 };
 
 /******************************************************************************/

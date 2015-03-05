@@ -71,12 +71,12 @@ namespace Common {
 class GBaseExpectionCheck {
 public:
    /** @brief The default constructor */
-   G_API GBaseExpectionCheck();
+   G_API_COMMON GBaseExpectionCheck();
    /** @brief The destructor */
-   virtual G_API ~GBaseExpectionCheck();
+   virtual G_API_COMMON ~GBaseExpectionCheck();
 
    /** @brief Check for equality / similarity */
-   virtual G_API boost::optional<std::string> expectationViolation(
+   virtual G_API_COMMON boost::optional<std::string> expectationViolation(
       const GBaseExpectionCheck& /* other object */
       , const Gem::Common::expectation& /* the expectation for this object */
       , const double& /* the limit */
@@ -108,7 +108,7 @@ private:
  * @return A boost::optional<std::string> that optionally contains a description of discrepancies found from the expected outcome
  */
 template <typename basic_type>
-G_API
+G_API_COMMON
 boost::optional<std::string> checkExpectation (
 	  const bool& withMessages
 	, const std::string& caller
@@ -165,7 +165,7 @@ boost::optional<std::string> checkExpectation (
  * @return A boost::optional<std::string> that optionally contains a description of discrepancies found from the expected outcome
  */
 template <typename fp_type>
-G_API
+G_API_COMMON
 boost::optional<std::string> checkExpectation (
   const bool& withMessages
   , const std::string& caller
@@ -254,7 +254,7 @@ boost::optional<std::string> checkExpectation (
  * @return A boost::optional<std::string> that optionally contains a description of discrepancies found from the expected outcome
  */
 template <typename basic_type>
-G_API
+G_API_COMMON
 boost::optional<std::string> checkExpectation (
   const bool& withMessages
   , const std::string& caller
@@ -348,7 +348,7 @@ boost::optional<std::string> checkExpectation (
  * @return A boost::optional<std::string> that optionally contains a description of discrepancies found from the expected outcome
  */
 template <typename basic_type>
-G_API
+G_API_COMMON
 boost::optional<std::string> checkExpectation (
   const bool& withMessages
   , const std::string& caller
@@ -439,7 +439,7 @@ boost::optional<std::string> checkExpectation (
  * @return A boost::optional<std::string> that optionally contains a description of discrepancies found from the expected outcome
  */
 template <typename fp_type>
-G_API
+G_API_COMMON
 boost::optional<std::string> checkExpectation (
   const bool& withMessages
   , const std::string& caller
@@ -570,7 +570,7 @@ boost::optional<std::string> checkExpectation (
 /**
  * @brief This function checks whether two objects of type boost::logic::tribool meet a given expectation.
  */
-G_API
+G_API_COMMON
 boost::optional<std::string> checkExpectation (
   const bool& withMessages
   , const std::string& caller
@@ -586,7 +586,7 @@ boost::optional<std::string> checkExpectation (
 /**
  * Helps to evaluate possible discrepancies between expectations in relationship tests
  */
-G_API
+G_API_COMMON
 boost::optional<std::string> evaluateDiscrepancies(
    const std::string&
    , const std::string&

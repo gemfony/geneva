@@ -79,7 +79,7 @@ const bool LOWERISBETTER  = false;
 /**
  * Different log and exception types
  */
-enum G_API logType {
+enum G_API_COMMON logType {
    EXCEPTION = 0
    , TERMINATION = 1
    , WARNING = 2
@@ -91,9 +91,9 @@ enum G_API logType {
 
 /******************************************************************************/
 /** @brief Puts a Gem::Common::logType into a stream. Needed also for boost::lexical_cast<> */
-G_API std::ostream& operator<<(std::ostream&, const Gem::Common::logType&);
+G_API_COMMON std::ostream& operator<<(std::ostream&, const Gem::Common::logType&);
 /** @brief Reads a Gem::Common::logType from a stream. Needed also for boost::lexical_cast<> */
-G_API std::istream& operator>>(std::istream&, Gem::Common::logType&);
+G_API_COMMON std::istream& operator>>(std::istream&, Gem::Common::logType&);
 
 /******************************************************************************/
 /**
@@ -112,7 +112,7 @@ const bool VAR_IS_SECONDARY = false;
 /**
  * Needed for the serialization of boost::logic::tribool
  */
-enum G_API triboolStates {
+enum G_API_COMMON triboolStates {
 	  TBS_FALSE
 	, TBS_INDETERMINATE
 	, TBS_TRUE
@@ -120,15 +120,15 @@ enum G_API triboolStates {
 
 /******************************************************************************/
 /** @brief Puts a Gem::Common::triboolStates into a stream. Needed also for boost::lexical_cast<> */
-G_API  std::ostream& operator<<(std::ostream&, const Gem::Common::triboolStates&);
+G_API_COMMON  std::ostream& operator<<(std::ostream&, const Gem::Common::triboolStates&);
 /** @brief Reads a Gem::Common::triboolStates from a stream. Needed also for boost::lexical_cast<> */
-G_API std::istream& operator>>(std::istream&, Gem::Common::triboolStates&);
+G_API_COMMON std::istream& operator>>(std::istream&, Gem::Common::triboolStates&);
 
 /******************************************************************************/
 /**
  * The serialization modes that are currently allowed
  */
-enum G_API serializationMode {
+enum G_API_COMMON serializationMode {
 	  SERIALIZATIONMODE_TEXT = 0
 	, SERIALIZATIONMODE_XML = 1
 	, SERIALIZATIONMODE_BINARY = 2
@@ -137,9 +137,9 @@ enum G_API serializationMode {
 /******************************************************************************/
 
 /** @brief Puts a Gem::Common::serializationMode into a stream. Needed also for boost::lexical_cast<> */
-G_API std::ostream& operator<<(std::ostream&, const Gem::Common::serializationMode&);
+G_API_COMMON std::ostream& operator<<(std::ostream&, const Gem::Common::serializationMode&);
 /** @brief Reads a Gem::Common::serializationMode item from a stream. Needed also for boost::lexical_cast<> */
-G_API std::istream& operator>>(std::istream&, Gem::Common::serializationMode&);
+G_API_COMMON std::istream& operator>>(std::istream&, Gem::Common::serializationMode&);
 
 /******************************************************************************/
 /**
@@ -152,7 +152,7 @@ const bool CE_WITH_MESSAGES = true;
 /**
  * Needed to express expectations in testing framework. CE stands for "Check expectation".
  */
-enum G_API expectation {
+enum G_API_COMMON expectation {
 	  CE_EQUALITY // bitwise equality of all checked components
 	, CE_INEQUALITY // at least one checked component differs
 	, CE_FP_SIMILARITY // equality for non-floating point components, similarity for floating point
@@ -161,9 +161,9 @@ enum G_API expectation {
 /******************************************************************************/
 
 /** @brief Puts a Gem::Common::expectation into a stream. Needed also for boost::lexical_cast<> */
-G_API std::ostream& operator<<(std::ostream&, const Gem::Common::expectation&);
+G_API_COMMON std::ostream& operator<<(std::ostream&, const Gem::Common::expectation&);
 /** @brief Reads a Gem::Common::expectation item from a stream. Needed also for boost::lexical_cast<> */
-G_API std::istream& operator>>(std::istream&, Gem::Common::expectation&);
+G_API_COMMON std::istream& operator>>(std::istream&, Gem::Common::expectation&);
 
 /******************************************************************************/
 /**

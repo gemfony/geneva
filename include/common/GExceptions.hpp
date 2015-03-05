@@ -89,12 +89,12 @@ class gemfony_error_condition
 {
 public:
    /** @brief The standard constructor */
-   G_API gemfony_error_condition(const std::string&) throw();
+   G_API_COMMON gemfony_error_condition(const std::string&) throw();
 	/** @brief The destructor */
-	virtual G_API ~gemfony_error_condition()  throw();
+	virtual G_API_COMMON ~gemfony_error_condition()  throw();
 
 	/** @brief Emits information when thrown */
-	virtual G_API const char* what() const throw();
+	virtual G_API_COMMON const char* what() const throw();
 
 private:
 	/** @brief The default constructor: Intentionally private and undefined */
@@ -105,7 +105,7 @@ private:
 
 /******************************************************************************/
 /** @brief This function allows to output a gemfony_error_condition to a stream */
-G_API std::ostream& operator<<(std::ostream&, const Gem::Common::gemfony_error_condition&);
+G_API_COMMON std::ostream& operator<<(std::ostream&, const Gem::Common::gemfony_error_condition&);
 
 /******************************************************************************/
 
@@ -141,7 +141,7 @@ G_API std::ostream& operator<<(std::ostream&, const Gem::Common::gemfony_error_c
 
 /******************************************************************************/
 /** @brief Raise an exception if a given define wasn't set */
-G_API void condnotset(const std::string&, const std::string&);
+G_API_COMMON void condnotset(const std::string&, const std::string&);
 
 /******************************************************************************/
 

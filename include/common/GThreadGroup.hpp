@@ -109,28 +109,28 @@ class GThreadGroup
 
 public:
 	/** @brief The destructor */
-	G_API ~GThreadGroup();
+	G_API_COMMON ~GThreadGroup();
 
 	/** @brief Adds an already created thread to the group */
-	G_API void add_thread(thread_ptr);
+	G_API_COMMON void add_thread(thread_ptr);
 
 	/** @brief Remove a thread from the group. Does nothing if the thread is empty. */
-	G_API void remove_thread(thread_ptr);
+	G_API_COMMON void remove_thread(thread_ptr);
 
 	/** @brief Requests all threads to join */
-	G_API void join_all();
+	G_API_COMMON void join_all();
 
 	/** @brief Sends all threads the interrupt signal */
-	G_API void interrupt_all();
+	G_API_COMMON void interrupt_all();
 
 	/** @brief Interrupts, joins and finally removes the last thread in the group. */
-	G_API void remove_last();
+	G_API_COMMON void remove_last();
 
 	/** @brief Interrupts, joins and finally removes the last nThreads threads in the group */
-	G_API void remove_last(const std::size_t&);
+	G_API_COMMON void remove_last(const std::size_t&);
 
 	/** @brief Returns the size of the current thread group */
-	G_API std::size_t size() const;
+	G_API_COMMON std::size_t size() const;
 
 	/***************************************************************************/
 	/**
@@ -140,7 +140,7 @@ public:
 	 * @return A pointer to the newly created thread
 	 */
 	template<typename F>
-	G_API boost::shared_ptr<boost::thread> create_thread(F f) {
+	G_API_COMMON boost::shared_ptr<boost::thread> create_thread(F f) {
 		boost::lock_guard<boost::mutex> guard(m_);
 		thread_ptr new_thread(new boost::thread(f));
 		threads_.push_back(new_thread);
@@ -157,7 +157,7 @@ public:
 	 * @return A pointer to the newly created thread
 	 */
 	template<typename F>
-	G_API void create_threads(F f, const std::size_t& nThreads)	{
+	G_API_COMMON void create_threads(F f, const std::size_t& nThreads)	{
 		for(std::size_t i=0; i<nThreads; i++) create_thread(f);
 	}
 

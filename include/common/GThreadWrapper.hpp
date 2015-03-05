@@ -74,9 +74,9 @@ namespace Common {
  */
 struct GThreadWrapper {
 	/** @brief The standard constructor for this struct */
-   G_API GThreadWrapper(boost::function<void()>);
+   G_API_COMMON GThreadWrapper(boost::function<void()>);
 	/** @brief This is the main function that will be executed by the thread */
-   G_API void operator()();
+   G_API_COMMON void operator()();
 
 private:
 	GThreadWrapper(); ///< Intentionally empty and undefined

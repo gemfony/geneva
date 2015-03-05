@@ -123,9 +123,9 @@ namespace Common {
 class math_logic_error : public gemfony_error_condition {
 public:
    /** @brief The standard constructor */
-   G_API math_logic_error(const std::string&) throw();
+   G_API_COMMON math_logic_error(const std::string&) throw();
    /** @brief The destructor */
-   virtual G_API ~math_logic_error() throw();
+   virtual G_API_COMMON ~math_logic_error() throw();
 
 private:
    /** @brief The default constructor: Intentionally private and undefined */
@@ -141,9 +141,9 @@ private:
 class division_by_0 : public math_logic_error {
 public:
    /** @brief The default constructor */
-   G_API division_by_0() throw();
+   G_API_COMMON division_by_0() throw();
    /** @brief The destructor */
-   virtual G_API ~division_by_0() throw();
+   virtual G_API_COMMON ~division_by_0() throw();
 };
 
 /******************************************************************************/
@@ -156,11 +156,11 @@ template <typename fp_type>
 class acos_invalid_range : public math_logic_error {
 public:
    /** @brief The standard constructor */
-   G_API acos_invalid_range(const fp_type& val) throw()
+   G_API_COMMON acos_invalid_range(const fp_type& val) throw()
       : math_logic_error(std::string("acos: Value ") + boost::lexical_cast<std::string>(val) + std::string(" out of valid range [-1:1] in GFormulaParserT"))
    { /* nothing */ }
    /** @brief The destructor */
-   virtual G_API ~acos_invalid_range() throw()
+   virtual G_API_COMMON ~acos_invalid_range() throw()
    { /* nothing */ }
 
 private:
@@ -178,11 +178,11 @@ template <typename fp_type>
 class asin_invalid_range : public math_logic_error {
 public:
    /** @brief The standard constructor */
-   G_API asin_invalid_range(const fp_type& val) throw()
+   G_API_COMMON asin_invalid_range(const fp_type& val) throw()
       : math_logic_error(std::string("asin: Value ") + boost::lexical_cast<std::string>(val) + std::string(" out of valid range [-1:1] in GFormulaParserT"))
    { /* nothing */ }
    /** @brief The destructor */
-   virtual G_API ~asin_invalid_range() throw()
+   virtual G_API_COMMON ~asin_invalid_range() throw()
    { /* nothing */ }
 
 private:
@@ -201,11 +201,11 @@ template <typename fp_type>
 class log_negative_value : public math_logic_error {
 public:
    /** @brief The standard constructor */
-   G_API log_negative_value(const fp_type& val) throw()
+   G_API_COMMON log_negative_value(const fp_type& val) throw()
       : math_logic_error(std::string("log: Value ") + boost::lexical_cast<std::string>(val) + std::string(" <= 0 in GFormulaParserT"))
    { /* nothing */ }
    /** @brief The destructor */
-   virtual G_API ~log_negative_value() throw()
+   virtual G_API_COMMON ~log_negative_value() throw()
    { /* nothing */ }
 
 private:
@@ -223,11 +223,11 @@ template <typename fp_type>
 class log10_negative_value : public math_logic_error {
 public:
    /** @brief The standard constructor */
-   G_API log10_negative_value(const fp_type& val) throw()
+   G_API_COMMON log10_negative_value(const fp_type& val) throw()
       : math_logic_error(std::string("log10: Value ") + boost::lexical_cast<std::string>(val) + std::string(" <= 0  in GFormulaParserT"))
    { /* nothing */ }
    /** @brief The destructor */
-   virtual G_API ~log10_negative_value() throw()
+   virtual G_API_COMMON ~log10_negative_value() throw()
    { /* nothing */ }
 
 private:
@@ -245,11 +245,11 @@ template <typename fp_type>
 class sqrt_negative_value : public math_logic_error {
 public:
    /** @brief The standard constructor */
-   G_API sqrt_negative_value(const fp_type& val) throw()
+   G_API_COMMON sqrt_negative_value(const fp_type& val) throw()
          : math_logic_error(std::string("sqrt: Value ") + boost::lexical_cast<std::string>(val) + std::string(" < 0  in GFormulaParserT"))
    { /* nothing */ }
    /** @brief The destructor */
-   virtual G_API ~sqrt_negative_value() throw()
+   virtual G_API_COMMON ~sqrt_negative_value() throw()
    { /* nothing */ }
 
 private:
@@ -395,7 +395,7 @@ public:
    /**
     * Specifies the operations the parser must know about
     */
-   enum G_API byte_code {
+   enum G_API_COMMON byte_code {
       op_trap   = 0,      // triggers an exception --> boost::variant<int,fp_type>() == 0
       op_neg    = 1,      // negate the top stack entry
       op_add    = 2,      // add top two stack entries
@@ -434,7 +434,7 @@ public:
    /**
     * The standard constructor
     */
-   explicit G_API GFormulaParserT(
+   explicit G_API_COMMON GFormulaParserT(
       const std::string& formula
       , const constants_map& user_constants = constants_map()
    )
@@ -550,7 +550,7 @@ public:
    /**
     * When set to true, the code-vector will be printed prior to the evaluation
     */
-   G_API void setPrintCode(bool printCode) {
+   G_API_COMMON void setPrintCode(bool printCode) {
       printCode_ = printCode;
    }
 
@@ -561,7 +561,7 @@ public:
     * @param placeHolders A list of place-holders for variable values
     * @return A string containing the processed formula
     */
-   G_API std::string getFormula(const parameter_map& vm) const {
+   G_API_COMMON std::string getFormula(const parameter_map& vm) const {
       return this->replacePlaceHolders(vm);
    }
 
@@ -569,7 +569,7 @@ public:
    /**
     * Evaluates a formula after replacing place holders with values
     */
-   G_API fp_type evaluate(const parameter_map& vm = parameter_map()) const {
+   G_API_COMMON fp_type evaluate(const parameter_map& vm = parameter_map()) const {
       // Clear local data structures
       code_.clear();
       stack_ptr_ = stack_.begin();
@@ -603,19 +603,19 @@ public:
    /**
     * Ease of access to the evaluate function
     */
-   G_API fp_type operator()(const parameter_map& vm = parameter_map()) const {
+   G_API_COMMON fp_type operator()(const parameter_map& vm = parameter_map()) const {
       return this->evaluate(vm);
    }
 
    /*****************************************************************************/
    // Code for the compilation of the AST
-   G_API void operator()(nil) const { BOOST_ASSERT(0); }
-   G_API void operator()(const fp_type& fp_val) const {
+   G_API_COMMON void operator()(nil) const { BOOST_ASSERT(0); }
+   G_API_COMMON void operator()(const fp_type& fp_val) const {
       code_.push_back(codeEntry(op_fp));
       code_.push_back(codeEntry(fp_val));
    }
 
-   G_API void operator()(const operation& x) const {
+   G_API_COMMON void operator()(const operation& x) const {
       boost::apply_visitor(*this, x.operand_);
 
       if(x.operator_ == '+') code_.push_back(codeEntry(op_add));
@@ -625,7 +625,7 @@ public:
       else BOOST_ASSERT(0);
    }
 
-   G_API void operator()(const unary_function_& f) const {
+   G_API_COMMON void operator()(const unary_function_& f) const {
       boost::apply_visitor(*this, f.operand_);
 
       if(f.fname_ == "acos") code_.push_back(codeEntry(op_acos)); // Value out of valid range [-1,1] throws Gem::Common::acos_invalid_range
@@ -647,7 +647,7 @@ public:
       else BOOST_ASSERT(0);
    }
 
-   G_API void operator()(const binary_function_& f) const {
+   G_API_COMMON void operator()(const binary_function_& f) const {
       boost::apply_visitor(*this, f.operand1_);
       boost::apply_visitor(*this, f.operand2_);
 
@@ -658,14 +658,14 @@ public:
       else BOOST_ASSERT(0);
    }
 
-   G_API void operator()(const signed_& x) const {
+   G_API_COMMON void operator()(const signed_& x) const {
       boost::apply_visitor(*this, x.operand_);
       if(x.sign == '-') code_.push_back(codeEntry(op_neg));
       else if(x.sign == '+'){ /* nothing */ }
       else BOOST_ASSERT(0);
    }
 
-   G_API void operator()(const ast_expression& x) const {
+   G_API_COMMON void operator()(const ast_expression& x) const {
       boost::apply_visitor(*this, x.first);
       BOOST_FOREACH(const operation& oper, x.rest) {
          (*this)(oper);
@@ -974,12 +974,12 @@ private:
 namespace boost {
 namespace spirit {
 
-G_API void swap(Gem::Common::nil&, Gem::Common::nil&);
-G_API void swap(Gem::Common::signed_&, Gem::Common::signed_&);
-G_API void swap(Gem::Common::operation&, Gem::Common::operation&);
-G_API void swap(Gem::Common::unary_function_&, Gem::Common::unary_function_&);
-G_API void swap(Gem::Common::binary_function_&, Gem::Common::binary_function_&);
-G_API void swap(Gem::Common::ast_expression&, Gem::Common::ast_expression&);
+G_API_COMMON void swap(Gem::Common::nil&, Gem::Common::nil&);
+G_API_COMMON void swap(Gem::Common::signed_&, Gem::Common::signed_&);
+G_API_COMMON void swap(Gem::Common::operation&, Gem::Common::operation&);
+G_API_COMMON void swap(Gem::Common::unary_function_&, Gem::Common::unary_function_&);
+G_API_COMMON void swap(Gem::Common::binary_function_&, Gem::Common::binary_function_&);
+G_API_COMMON void swap(Gem::Common::ast_expression&, Gem::Common::ast_expression&);
 
 } /* namespace spirit */
 } /* namespace boost */

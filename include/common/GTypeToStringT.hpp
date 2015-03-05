@@ -55,7 +55,7 @@ namespace Common {
  * debugging output.
  */
 template <typename T>
-struct G_API GTypeToStringT {
+struct G_API_COMMON GTypeToStringT {
    static std::string value() {
       return std::string("unknown");
    }
@@ -66,7 +66,7 @@ struct G_API GTypeToStringT {
  * Specialization for T == double
  */
 template <>
-struct G_API GTypeToStringT<double> {
+struct G_API_COMMON GTypeToStringT<double> {
    static std::string value() {
       return std::string("double");
    }
@@ -77,7 +77,7 @@ struct G_API GTypeToStringT<double> {
  * Specialization for T == float
  */
 template <>
-struct G_API GTypeToStringT<float> {
+struct G_API_COMMON GTypeToStringT<float> {
    static std::string value() {
       return std::string("float");
    }
@@ -88,7 +88,7 @@ struct G_API GTypeToStringT<float> {
  * Specialization for T == boost::int32_t
  */
 template <>
-struct G_API GTypeToStringT<boost::int32_t> {
+struct G_API_COMMON GTypeToStringT<boost::int32_t> {
    static std::string value() {
       return std::string("int32_t");
    }
@@ -99,7 +99,7 @@ struct G_API GTypeToStringT<boost::int32_t> {
  * Specialization for T == bool
  */
 template <>
-struct G_API GTypeToStringT<bool> {
+struct G_API_COMMON GTypeToStringT<bool> {
    static std::string value() {
       return std::string("bool");
    }
@@ -110,7 +110,7 @@ struct G_API GTypeToStringT<bool> {
  * Specialization for T == string
  */
 template <>
-struct G_API GTypeToStringT<std::string> {
+struct G_API_COMMON GTypeToStringT<std::string> {
    static std::string value() {
       return std::string("string");
    }

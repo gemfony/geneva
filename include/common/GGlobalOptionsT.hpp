@@ -77,7 +77,7 @@ public:
    /**
     * The default constructor
     */
-   G_API GGlobalOptionsT()
+   G_API_COMMON GGlobalOptionsT()
       : kvp_()
       , pos(kvp_.begin())
    { /* nothing */ }
@@ -91,7 +91,7 @@ public:
 	 * @param value The value that should be retrieved
 	 * @return A boolean indicating whether retrieval of the option was successful
 	 */
-   G_API bool get(const std::string& key, T& value) {
+   G_API_COMMON bool get(const std::string& key, T& value) {
 	   boost::lock_guard<boost::mutex> guard(m_);
 
 		if(kvp_.find(key) != kvp_.end()) {
@@ -107,7 +107,7 @@ public:
 	 * Retrieves an option from the map, returning it as the function result.
 	 * Note that this function does not check for availability of the option.
 	 */
-   G_API T get(const std::string& key) {
+   G_API_COMMON T get(const std::string& key) {
       boost::lock_guard<boost::mutex> guard(m_);
 		return kvp_[key];
 	}
@@ -119,7 +119,7 @@ public:
 	 * @param key The name of the option
 	 * @param value The value of the option
 	 */
-   G_API void set(const std::string& key, T value) {
+   G_API_COMMON void set(const std::string& key, T value) {
       boost::lock_guard<boost::mutex> guard(m_);
 		kvp_[key] = value;
 	}
@@ -132,7 +132,7 @@ public:
     * @param value The value of the option
 	 * @return A boolean indicating whether creation of the new option was successful
 	 */
-   G_API bool setOnce(const std::string& key, T value) {
+   G_API_COMMON bool setOnce(const std::string& key, T value) {
 	   boost::lock_guard<boost::mutex> guard(m_);
 	   if(kvp_.find(key) != kvp_.end()) {
 	      return false;
@@ -148,7 +148,7 @@ public:
 	 * @param key The name of the option that should be removed
 	 * @return A boolean indicating whether the option was indeed available
 	 */
-   G_API bool remove(const std::string& key) {
+   G_API_COMMON bool remove(const std::string& key) {
       boost::lock_guard<boost::mutex> guard(m_);
 		typename std::map<std::string, T>::iterator it = kvp_.end();
 		if(it == kvp_.end()) {
@@ -166,7 +166,7 @@ public:
 	 * @param key The name of the option that should be checked for existence
 	 * @return A boolean that indicates whether a given option is available
 	 */
-   G_API bool exists(const std::string& key) const {
+   G_API_COMMON bool exists(const std::string& key) const {
       boost::lock_guard<boost::mutex> guard(m_);
 		if(kvp_.find(key) != kvp_.end()) return true;
 		else return false;
@@ -176,7 +176,7 @@ public:
 	/**
 	 * Allows to find out the number of registered options
 	 */
-   G_API std::size_t size() const {
+   G_API_COMMON std::size_t size() const {
       boost::lock_guard<boost::mutex> guard(m_);
 	   return kvp_.size();
 	}
@@ -185,7 +185,7 @@ public:
 	/**
 	 * Allows to check whether any options are present
 	 */
-   G_API bool empty() const {
+   G_API_COMMON bool empty() const {
 	   boost::lock_guard<boost::mutex> guard(m_);
       return kvp_.empty();
 	}
@@ -194,7 +194,7 @@ public:
 	/**
 	 * Retrieves a full list of all keys
 	 */
-   G_API std::string getKeyDescription() const {
+   G_API_COMMON std::string getKeyDescription() const {
       boost::lock_guard<boost::mutex> guard(m_);
 	   std::string result;
 	   typename std::map<std::string, T>::const_iterator cit;
@@ -212,7 +212,7 @@ public:
 	/**
 	 * Retrieves a vector of all keys
 	 */
-   G_API void getKeyVector(std::vector<std::string>& keys) const {
+   G_API_COMMON void getKeyVector(std::vector<std::string>& keys) const {
 	   keys.clear(); // Make sure the vector is empty
 	   boost::lock_guard<boost::mutex> guard(m_);
 	   typename std::map<std::string, T>::const_iterator cit;
@@ -225,7 +225,7 @@ public:
 	/**
 	 * Retrieves a vector of all content items
 	 */
-   G_API void getContentVector(std::vector<T> content) const {
+   G_API_COMMON void getContentVector(std::vector<T> content) const {
       boost::lock_guard<boost::mutex> guard(m_);
       content.clear();
       typename std::map<std::string, T>::const_iterator cit;
@@ -238,7 +238,7 @@ public:
    /**
     * Positions an internal iterator at the beginning of the map
     */
-   G_API void rewind() {
+   G_API_COMMON void rewind() {
       boost::lock_guard<boost::mutex> guard(m_);
       pos = kvp_.begin();
    }
@@ -247,7 +247,7 @@ public:
 	/**
 	 * Switches to the next position or returns false, if this is not possible
 	 */
-   G_API bool goToNextPosition() {
+   G_API_COMMON bool goToNextPosition() {
 	   boost::lock_guard<boost::mutex> guard(m_);
 	   if(++pos != kvp_.end()) {
 	      return true;
@@ -260,7 +260,7 @@ public:
 	/**
 	 * Retrieves the item at the current position
 	 */
-   G_API T getCurrentItem() {
+   G_API_COMMON T getCurrentItem() {
 	   boost::lock_guard<boost::mutex> guard(m_);
 	   return pos->second;
 	}
@@ -271,7 +271,7 @@ public:
 	 * or returns false, if the end of the map has been reached. Note that it
 	 * is up to you to rewind the position iterator using the rewind function.
 	 */
-   G_API bool getNextItem(T& item) {
+   G_API_COMMON bool getNextItem(T& item) {
 	   boost::lock_guard<boost::mutex> guard(m_);
 	   if(++pos != kvp_.end()) {
 	      item = pos->second;

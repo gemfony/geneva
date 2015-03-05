@@ -59,7 +59,7 @@
  * @return A boost::shared_ptr to a newly created T object
  */
 template <typename T>
-G_API boost::shared_ptr<T> TFactory_GUnitTests() {
+G_API_COMMON boost::shared_ptr<T> TFactory_GUnitTests() {
    boost::shared_ptr<T> p;
 
    try {

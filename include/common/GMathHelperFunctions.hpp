@@ -82,124 +82,124 @@ namespace Common {
 /******************************************************************************/
 
 /** @brief Calculates the acos value of a float value */
-G_API float gacos(const float&);
+G_API_COMMON float gacos(const float&);
 /** @brief Calculates the acos value of a double value */
-G_API double gacos(const double&);
+G_API_COMMON double gacos(const double&);
 
 /** @brief Calculates the asin value of a float value */
-G_API float gasin(const float&);
+G_API_COMMON float gasin(const float&);
 /** @brief Calculates the asin value of a double value */
-G_API double gasin(const double&);
+G_API_COMMON double gasin(const double&);
 
 /** @brief Calculates the tan value of a float value */
-G_API float gtan(const float&);
+G_API_COMMON float gtan(const float&);
 /** @brief Calculates the tan value of a double value */
-G_API double gtan(const double&);
+G_API_COMMON double gtan(const double&);
 
 /** @brief Calculates the tanh value of a float value */
-G_API float gtanh(const float&);
+G_API_COMMON float gtanh(const float&);
 /** @brief Calculates the tanh value of a double value */
-G_API double gtanh(const double&);
+G_API_COMMON double gtanh(const double&);
 
 /** @brief Calculates the atan value of a float value */
-G_API float gatan(const float&);
+G_API_COMMON float gatan(const float&);
 /** @brief Calculates the atan value of a double value */
-G_API double gatan(const double&);
+G_API_COMMON double gatan(const double&);
 
 /** @brief Calculates the sinh value of a float value */
-G_API float gsinh(const float&);
+G_API_COMMON float gsinh(const float&);
 /** @brief Calculates the sinh value of a double value */
-G_API double gsinh(const double&);
+G_API_COMMON double gsinh(const double&);
 
 /** @brief Calculates the cosh value of a float value */
-G_API float gcosh(const float&);
+G_API_COMMON float gcosh(const float&);
 /** @brief Calculates the cosh value of a double value */
-G_API double gcosh(const double&);
+G_API_COMMON double gcosh(const double&);
 
 /** @brief Calculates the ceil value of a float value */
-G_API float gceil(const float&);
+G_API_COMMON float gceil(const float&);
 /** @brief Calculates the ceil value of a double value */
-G_API double gceil(const double&);
+G_API_COMMON double gceil(const double&);
 
 /** @brief Calculates the maximum value of two float values */
-G_API float gmax(const float&, const float&);
+G_API_COMMON float gmax(const float&, const float&);
 /** @brief Calculates the maximum value of two double values */
-G_API double gmax(const double&, const double&);
+G_API_COMMON double gmax(const double&, const double&);
 
 /** @brief Calculates the minimum value of two float values */
-G_API float gmin(const float&, const float&);
+G_API_COMMON float gmin(const float&, const float&);
 /** @brief Calculates the minimum value of two double values */
-G_API double gmin(const double&, const double&);
+G_API_COMMON double gmin(const double&, const double&);
 
 /** @brief Calculates the floor value of a float value */
-G_API float gfloor(const float&);
+G_API_COMMON float gfloor(const float&);
 /** @brief Calculates the floor value of a double value */
-G_API double gfloor(const double&);
+G_API_COMMON double gfloor(const double&);
 
 /** @brief Calculates the fabs value of a float value */
-G_API float gfabs(const float&);
+G_API_COMMON float gfabs(const float&);
 /** @brief Calculates the fabs value of a double value */
-G_API double gfabs(const double&);
+G_API_COMMON double gfabs(const double&);
 
 /** @brief Calculates the abs value of an int value */
-G_API int giabs(const int&);
+G_API_COMMON int giabs(const int&);
 /** @brief Calculates the abs value of a long int value */
-G_API long giabs(const long&);
+G_API_COMMON long giabs(const long&);
 
 /** @brief Calculates the sqrt value of a float value */
-G_API float gsqrt(const float&);
+G_API_COMMON float gsqrt(const float&);
 /** @brief Calculates the sqrt value of a double value */
-G_API double gsqrt(const double&);
+G_API_COMMON double gsqrt(const double&);
 
 /** @brief Calculates the sin value of a float value */
-G_API float gsin(const float&);
+G_API_COMMON float gsin(const float&);
 /** @brief Calculates the sin value of a double value */
-G_API double gsin(const double&);
+G_API_COMMON double gsin(const double&);
 
 /** @brief Calculates the cos value of a float value */
-G_API float gcos(const float&);
+G_API_COMMON float gcos(const float&);
 /** @brief Calculates the cos value of a double value */
-G_API double gcos(const double&);
+G_API_COMMON double gcos(const double&);
 
 /** @brief Calculates the log value of a float value */
-G_API float glog(const float&);
+G_API_COMMON float glog(const float&);
 /** @brief Calculates the log value of a double value */
-G_API double glog(const double&);
+G_API_COMMON double glog(const double&);
 
 /** @brief Calculates the log10 value of a float value */
-G_API float glog10(const float&);
+G_API_COMMON float glog10(const float&);
 /** @brief Calculates the log10 value of a double value */
-G_API double glog10(const double&);
+G_API_COMMON double glog10(const double&);
 
 /** @brief Calculates the pow value of a float value */
-G_API float gpow(const float&, const float&);
+G_API_COMMON float gpow(const float&, const float&);
 /** @brief Calculates the pow value of a double value */
-G_API double gpow(const double&, const double&);
+G_API_COMMON double gpow(const double&, const double&);
 
 /** @brief Calculates the hypot value of a float value */
-G_API float ghypot(const float&, const float&);
+G_API_COMMON float ghypot(const float&, const float&);
 /** @brief Calculates the hypot value of a double value */
-G_API double ghypot(const double&, const double&);
+G_API_COMMON double ghypot(const double&, const double&);
 
 /** @brief Performs alpha blending for floats */
-G_API float gmix(const float&, const float&, const float&);
+G_API_COMMON float gmix(const float&, const float&, const float&);
 /** @brief Performs alpha blending for doubles */
-G_API double gmix(const double&, const double&, const double&);
+G_API_COMMON double gmix(const double&, const double&, const double&);
 
 /** @brief Calculates the exp value of a float value */
-G_API float gexp(const float&);
+G_API_COMMON float gexp(const float&);
 /** @brief Calculates the exp value of a double value */
-G_API double gexp(const double&);
+G_API_COMMON double gexp(const double&);
 
 /** @brief Calculates the sign value of a float value */
-G_API float gsign(const float&);
+G_API_COMMON float gsign(const float&);
 /** @brief Calculates the sign value of a double value */
-G_API double gsign(const double&);
+G_API_COMMON double gsign(const double&);
 
 /** @brief A sigmoid function with user-defined minimum / maximum values (float version) */
-G_API float gsigmoid(const float&, const float&, const float&);
+G_API_COMMON float gsigmoid(const float&, const float&, const float&);
 /** @brief A sigmoid function with user-defined minimum / maximum values (double version) */
-G_API double gsigmoid(const double&, const double&, const double&);
+G_API_COMMON double gsigmoid(const double&, const double&, const double&);
 
 } /* namespace Common */
 } /* namespace Gem */
