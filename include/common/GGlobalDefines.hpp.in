@@ -65,6 +65,19 @@
 #include <boost/config.hpp>
 #include <boost/version.hpp>
 
+/** The current version of the Geneva library */
+#define GENEVA_VERSION @GENEVA_API_VERSION@
+
+/** The minimum allowed version of the Boost library */
+#define MIN_BOOST_VERSION 104800
+
+#if BOOST_VERSION < MIN_BOOST_VERSION
+#error "Error: Boost should at least have version 1.48 !"
+#endif /* BOOST_VERSION */
+
+/** Make sure we use boost filesystem v3 */
+#define BOOST_FILESYSTEM_VERSION 3
+
 /** Care for symbols to be exported */
 #if defined GEM_DYNAMIC && (GEM_DYNAMIC != 0)
 #ifdef GEM_LIBRARIES_EXPORTS
@@ -76,26 +89,8 @@
 #define G_API
 #endif /* GEM_DYNAMIC */
 
-/** The minimum allowed version of the Boost library */
-#define MIN_BOOST_VERSION 104800
-
-#if BOOST_VERSION < MIN_BOOST_VERSION
-#error "Error: Boost should at least have version 1.48 !"
-#endif /* BOOST_VERSION */
-
-/** The current version of the Geneva library */
-#define GENEVA_VERSION @GENEVA_API_VERSION@
-
-/** Funnily, on g++ std::pow(x,2) seems to be less efficient than direct multiplication */
-#define GSQUARED(X) (X) * (X)
-
-// Make sure we use boost filesystem v3 where available
-#if BOOST_VERSION >= 104400
-#define BOOST_FILESYSTEM_VERSION 3
-#endif /* BOOST_VERSION >= 104400 */
-
 // Check for C++11 and enable some macros, if possible. 
-// We only support this for gcc, clang and Intel compilers
+// We only support this for Gcc, Clang and Intel compilers.
 #define BASE
 #if (defined(__GNUC__) || defined(__clang__) || defined(__ICC) || defined(_MSC_VER)) && __cplusplus == 201103L 
 #define OVERRIDE override
@@ -104,5 +99,8 @@
 #define OVERRIDE
 #define FINAL
 #endif
+
+/** Funnily, on g++ std::pow(x,2) seems to be less efficient than direct multiplication */
+#define GSQUARED(X) (X) * (X)
 
 #endif /* GGLOBALDEFINES_HPP_ */
