@@ -78,16 +78,49 @@
 /** Make sure we use boost filesystem v3 */
 #define BOOST_FILESYSTEM_VERSION 3
 
-/** Care for symbols to be exported */
+//-----------------------------------------------------------
+// Care for symbols to be exported. We cover here all the
+// libraries to avoid extra headers.
 #if defined GEM_DYNAMIC && (GEM_DYNAMIC != 0)
-#ifdef GEM_LIBRARIES_EXPORTS
-#define G_API BOOST_SYMBOL_EXPORT
+
+#ifdef GEM_COMMON_EXPORTS
+#define G_API_COMMON BOOST_SYMBOL_EXPORT
 #else
-#define G_API BOOST_SYMBOL_IMPORT
-#endif /* GEM_LIBRARIES_EXPORTS */
+#define G_API_COMMON BOOST_SYMBOL_IMPORT
+#endif /* GEM_COMMON_EXPORTS */
+
+#ifdef GEM_HAP_EXPORTS
+#define G_API_HAP BOOST_SYMBOL_EXPORT
 #else
-#define G_API
+#define G_API_HAP BOOST_SYMBOL_IMPORT
+#endif /* GEM_HAP_EXPORTS */
+
+#ifdef GEM_COURTIER_EXPORTS
+#define G_API_COURTIER BOOST_SYMBOL_EXPORT
+#else
+#define G_API_COURTIER BOOST_SYMBOL_IMPORT
+#endif /* GEM_COURTIER_EXPORTS */
+
+#ifdef GEM_GENEVA_EXPORTS
+#define G_API_GENEVA BOOST_SYMBOL_EXPORT
+#else
+#define G_API_GENEVA BOOST_SYMBOL_IMPORT
+#endif /* GEM_GENEVA_EXPORTS */
+
+#ifdef GEM_INDIVIDUALS_EXPORTS
+#define G_API_INDIVIDUALS BOOST_SYMBOL_EXPORT
+#else
+#define G_API_INDIVIDUALS BOOST_SYMBOL_IMPORT
+#endif /* GEM_INDIVIDUALS_EXPORTS */
+
+#else /* GEM_DYNAMIC undefined */
+#define G_API_COMMON
+#define G_API_HAP
+#define G_API_COURTIER
+#define G_API_GENEVA
+#define G_API_INDIVIDUALS
 #endif /* GEM_DYNAMIC */
+//-----------------------------------------------------------
 
 // Check for C++11 and enable some macros, if possible. 
 // We only support this for Gcc, Clang and Intel compilers.

@@ -177,13 +177,6 @@ ELSE () # dynamic libraries
 ENDIF ()
 
 ################################################################################
-# Enable API-exporting in case we are building the libraries
-
-IF ( GENEVA_FULL_TREE_BUILD )
-	ADD_DEFINITIONS("-DGEM_LIBRARIES_EXPORTS")
-ENDIF ()
-
-################################################################################
 # Set the preprocessor definition for enabling testing code
 
 IF ( GENEVA_BUILD_TESTS )
