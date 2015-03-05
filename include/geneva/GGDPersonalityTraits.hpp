@@ -61,7 +61,7 @@ class GGDPersonalityTraits :public GPersonalityTraits
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API void serialize(Archive & ar, const unsigned int){
+	G_API_GENEVA void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
 	  ar
@@ -72,22 +72,22 @@ class GGDPersonalityTraits :public GPersonalityTraits
 
 public:
 	/** @brief The default constructor */
-	G_API GGDPersonalityTraits();
+	G_API_GENEVA GGDPersonalityTraits();
 	/** @brief The copy contructor */
-	G_API GGDPersonalityTraits(const GGDPersonalityTraits&);
+	G_API_GENEVA GGDPersonalityTraits(const GGDPersonalityTraits&);
 	/** @brief The standard destructor */
-	virtual G_API ~GGDPersonalityTraits();
+	virtual G_API_GENEVA ~GGDPersonalityTraits();
 
 	/** @brief A standard assignment operator */
-	G_API const GGDPersonalityTraits& operator=(const GGDPersonalityTraits&);
+	G_API_GENEVA const GGDPersonalityTraits& operator=(const GGDPersonalityTraits&);
 
 	/** @brief Checks for equality with another GGDPersonalityTraits object */
-	G_API bool operator==(const GGDPersonalityTraits&) const;
+	G_API_GENEVA bool operator==(const GGDPersonalityTraits&) const;
 	/** @brief Checks for inequality with another GGDPersonalityTraits object */
-	G_API bool operator!=(const GGDPersonalityTraits&) const;
+	G_API_GENEVA bool operator!=(const GGDPersonalityTraits&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual G_API boost::optional<std::string> checkRelationshipWith(
+	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -97,18 +97,18 @@ public:
 	) const OVERRIDE;
 
 	/** @brief Sets the position of the individual in the population */
-	G_API void setPopulationPosition(const std::size_t&) ;
+	G_API_GENEVA void setPopulationPosition(const std::size_t&) ;
 	/** @brief Retrieves the position of the individual in the population */
-	G_API std::size_t getPopulationPosition(void) const ;
+	G_API_GENEVA std::size_t getPopulationPosition(void) const ;
 
    /** @brief Emits a name for this class / object */
-   virtual G_API std::string name() const OVERRIDE;
+   virtual G_API_GENEVA std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another GGDPersonalityTraits object */
-	virtual G_API void load_(const GObject*) OVERRIDE;
+	virtual G_API_GENEVA void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
-	virtual G_API GObject* clone_() const OVERRIDE;
+	virtual G_API_GENEVA GObject* clone_() const OVERRIDE;
 
 private:
 	/** @brief Stores the current position in the population */
@@ -116,11 +116,11 @@ private:
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual G_API bool modify_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

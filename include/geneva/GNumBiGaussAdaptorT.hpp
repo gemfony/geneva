@@ -66,7 +66,7 @@ class GNumBiGaussAdaptorT :public GAdaptorT<num_type>
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API void serialize(Archive & ar, const unsigned int) {
+	G_API_GENEVA void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
 		// Save all necessary data
@@ -93,7 +93,7 @@ public:
 	/**
 	 * The standard constructor.
 	 */
-	G_API GNumBiGaussAdaptorT()
+	G_API_GENEVA GNumBiGaussAdaptorT()
 		: GAdaptorT<num_type> ()
 		, useSymmetricSigmas_(true)
 		, sigma1_(DEFAULTSIGMA)
@@ -116,7 +116,7 @@ public:
 	 *
 	 * @param probability The likelihood for a adaption actually taking place
 	 */
-	G_API GNumBiGaussAdaptorT(const double& probability)
+	G_API_GENEVA GNumBiGaussAdaptorT(const double& probability)
 		: GAdaptorT<num_type> (probability)
 		, useSymmetricSigmas_(true)
 		, sigma1_(DEFAULTSIGMA)
@@ -140,7 +140,7 @@ public:
 	 *
 	 * @param cp Another GNumBiGaussAdaptorT object
 	 */
-	G_API GNumBiGaussAdaptorT(const GNumBiGaussAdaptorT<num_type, fp_type>& cp)
+	G_API_GENEVA GNumBiGaussAdaptorT(const GNumBiGaussAdaptorT<num_type, fp_type>& cp)
 		: GAdaptorT<num_type> (cp)
 		, useSymmetricSigmas_(true)
 		, sigma1_(cp.sigma1_)
@@ -162,7 +162,7 @@ public:
 	 * The standard destructor. Empty, as we have no local, dynamically
 	 * allocated data.
 	 */
-	virtual G_API ~GNumBiGaussAdaptorT()
+	virtual G_API_GENEVA ~GNumBiGaussAdaptorT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -178,7 +178,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	G_API boost::optional<std::string> checkRelationshipWith(
+	G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -222,7 +222,7 @@ public:
 	 *
 	 * @param useSymmetricSigmas A boolean which determines whether the two sigmas of the double-gaussian should be identical
 	 */
-	G_API void setUseSymmetricSigmas(const bool& useSymmetricSigmas) {
+	G_API_GENEVA void setUseSymmetricSigmas(const bool& useSymmetricSigmas) {
 		useSymmetricSigmas_ = useSymmetricSigmas;
 	}
 
@@ -232,7 +232,7 @@ public:
 	 *
 	 * @return The value of the "useSymmetricSigmas_" variable
 	 */
-	G_API bool getUseSymmetricSigmas() const {
+	G_API_GENEVA bool getUseSymmetricSigmas() const {
 		return useSymmetricSigmas_;
 	}
 
@@ -245,7 +245,7 @@ public:
 	 *
 	 * @param sigma1 The new value of the sigma_ parameter
 	 */
-	G_API void setSigma1(const fp_type& sigma1) {
+	G_API_GENEVA void setSigma1(const fp_type& sigma1) {
 		// Sigma1 must be in the allowed value range
 		if(sigma1 < minSigma1_ || sigma1 > maxSigma1_ || sigma1 < fp_type(0)) {
 		   glogger
@@ -266,7 +266,7 @@ public:
 	 *
 	 * @return The current value of sigma1_
 	 */
-	G_API fp_type getSigma1() const  {
+	G_API_GENEVA fp_type getSigma1() const  {
 		return sigma1_;
 	}
 
@@ -282,7 +282,7 @@ public:
 	 * @param minSigma1 The minimum allowed value of sigma1_
 	 * @param maxSigma1 The maximum allowed value of sigma1_
 	 */
-	G_API void setSigma1Range(
+	G_API_GENEVA void setSigma1Range(
       const fp_type& minSigma1
       , const fp_type& maxSigma1
    ){
@@ -314,7 +314,7 @@ public:
 	 *
 	 * @return The allowed value range for sigma1
 	 */
-	G_API boost::tuple<fp_type,fp_type> getSigma1Range() const  {
+	G_API_GENEVA boost::tuple<fp_type,fp_type> getSigma1Range() const  {
 		return boost::make_tuple<fp_type,fp_type>(minSigma1_, maxSigma1_);
 	}
 
@@ -329,7 +329,7 @@ public:
 	 *
 	 * @param sigmaSigma1 The new value of the sigmaSigma1_ parameter
 	 */
-	G_API void setSigma1AdaptionRate(const fp_type& sigmaSigma1)
+	G_API_GENEVA void setSigma1AdaptionRate(const fp_type& sigmaSigma1)
 	{
 		sigmaSigma1_ = sigmaSigma1;
 	}
@@ -340,7 +340,7 @@ public:
 	 *
 	 * @return The value of the sigmaSigma1_ parameter
 	 */
-	G_API fp_type getSigma1AdaptionRate() const  {
+	G_API_GENEVA fp_type getSigma1AdaptionRate() const  {
 		return sigmaSigma1_;
 	}
 
@@ -354,7 +354,7 @@ public:
 	 * @param minSigma1 The minimal value allowed for sigma1_
 	 * @param minSigma1 The maximum value allowed for sigma1_
 	 */
-	G_API void setAllSigma1(
+	G_API_GENEVA void setAllSigma1(
       const fp_type& sigma1
       , const fp_type& sigmaSigma1
       , const fp_type& minSigma1
@@ -374,7 +374,7 @@ public:
 	 *
 	 * @param sigma2 The new value of the sigma_ parameter
 	 */
-	G_API void setSigma2(const fp_type& sigma2)
+	G_API_GENEVA void setSigma2(const fp_type& sigma2)
 	{
       // Sigma2 must be in the allowed value range
 	   if(sigma2 < minSigma2_ || sigma2 > maxSigma2_ || sigma2 < fp_type(0)) {
@@ -396,7 +396,7 @@ public:
 	 *
 	 * @return The current value of sigma2_
 	 */
-	G_API fp_type getSigma2() const  {
+	G_API_GENEVA fp_type getSigma2() const  {
 		return sigma2_;
 	}
 
@@ -412,7 +412,7 @@ public:
 	 * @param minSigma2 The minimum allowed value of sigma2_
 	 * @param maxSigma2 The maximum allowed value of sigma2_
 	 */
-	G_API void setSigma2Range(const fp_type& minSigma2, const fp_type& maxSigma2){
+	G_API_GENEVA void setSigma2Range(const fp_type& minSigma2, const fp_type& maxSigma2){
 	   using namespace Gem::Common;
 
       if(minSigma2 < fp_type(0.) || minSigma2 > maxSigma2 || maxSigma2 < boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)) {
@@ -442,7 +442,7 @@ public:
 	 *
 	 * @return The allowed value range for sigma2
 	 */
-	G_API boost::tuple<fp_type,fp_type> getSigma2Range() const  {
+	G_API_GENEVA boost::tuple<fp_type,fp_type> getSigma2Range() const  {
 		return boost::make_tuple<fp_type,fp_type>(minSigma2_, maxSigma2_);
 	}
 
@@ -455,7 +455,7 @@ public:
 	 *
 	 * @param sigmaSigma2 The new value of the sigmaSigma2_ parameter
 	 */
-	G_API void setSigma2AdaptionRate(const fp_type& sigmaSigma2)
+	G_API_GENEVA void setSigma2AdaptionRate(const fp_type& sigmaSigma2)
 	{
 		sigmaSigma2_ = sigmaSigma2;
 	}
@@ -466,7 +466,7 @@ public:
 	 *
 	 * @return The value of the sigmaSigma2_ parameter
 	 */
-	G_API fp_type getSigma2AdaptionRate() const  {
+	G_API_GENEVA fp_type getSigma2AdaptionRate() const  {
 		return sigmaSigma2_;
 	}
 
@@ -480,7 +480,7 @@ public:
 	 * @param minSigma2 The minimal value allowed for sigma2_
 	 * @param minSigma2 The maximum value allowed for sigma2_
 	 */
-	G_API void setAllSigma2(
+	G_API_GENEVA void setAllSigma2(
       const fp_type& sigma2
       , const fp_type& sigmaSigma2
       , const fp_type& minSigma2
@@ -498,7 +498,7 @@ public:
 	 *
 	 * @param delta The new value of the sigma_ parameter
 	 */
-	G_API void setDelta(const fp_type& delta)	{
+	G_API_GENEVA void setDelta(const fp_type& delta)	{
 		// Delta must be in the allowed value range
 		if(delta < minDelta_ || delta > maxDelta_ || delta_ < fp_type(0))	{
 		   glogger
@@ -519,7 +519,7 @@ public:
 	 *
 	 * @return The current value of delta_
 	 */
-	G_API fp_type getDelta() const  {
+	G_API_GENEVA fp_type getDelta() const  {
 		return delta_;
 	}
 
@@ -534,7 +534,7 @@ public:
 	 * @param minDelta The minimum allowed value of delta_
 	 * @param maxDelta The maximum allowed value of delta_
 	 */
-	G_API void setDeltaRange(
+	G_API_GENEVA void setDeltaRange(
       const fp_type& minDelta
       , const fp_type& maxDelta
    ){
@@ -566,7 +566,7 @@ public:
 	 *
 	 * @return The allowed value range for delta
 	 */
-	G_API boost::tuple<fp_type,fp_type> getDeltaRange() const  {
+	G_API_GENEVA boost::tuple<fp_type,fp_type> getDeltaRange() const  {
 		return boost::make_tuple<fp_type,fp_type>(minDelta_, maxDelta_);
 	}
 
@@ -579,7 +579,7 @@ public:
 	 *
 	 * @param sigmaDelta The new value of the sigmaDelta_ parameter
 	 */
-	G_API void setDeltaAdaptionRate(const fp_type& sigmaDelta)
+	G_API_GENEVA void setDeltaAdaptionRate(const fp_type& sigmaDelta)
 	{
 		sigmaDelta_ = sigmaDelta;
 	}
@@ -590,7 +590,7 @@ public:
 	 *
 	 * @return The value of the sigmaDelta_ parameter
 	 */
-	G_API fp_type getDeltaAdaptionRate() const  {
+	G_API_GENEVA fp_type getDeltaAdaptionRate() const  {
 		return sigmaDelta_;
 	}
 
@@ -604,7 +604,7 @@ public:
 	 * @param minDelta The minimal value allowed for delta_
 	 * @param minDelta The maximum value allowed for delta_
 	 */
-	G_API void setAllDelta(
+	G_API_GENEVA void setAllDelta(
       const fp_type& delta
       , const fp_type& sigmaDelta
       , const fp_type& minDelta
@@ -617,13 +617,13 @@ public:
 
 	/***********************************************************************************/
 	/** @brief Retrieves the id of the adaptor */
-	virtual G_API Gem::Geneva::adaptorId getAdaptorId() const = 0;
+	virtual G_API_GENEVA Gem::Geneva::adaptorId getAdaptorId() const = 0;
 
    /***************************************************************************/
    /**
     * Emits a name for this class / object
     */
-   virtual G_API std::string name() const OVERRIDE {
+   virtual G_API_GENEVA std::string name() const OVERRIDE {
       return std::string("GNumBiGaussAdaptorT");
    }
 
@@ -631,7 +631,7 @@ public:
    /**
     * Allows to randomly initialize parameter members
     */
-   virtual G_API void randomInit() OVERRIDE {
+   virtual G_API_GENEVA void randomInit() OVERRIDE {
       using namespace Gem::Hap;
       sigma1_ = this->gr->template uniform_real<fp_type>(minSigma1_, maxSigma1_);
       sigma2_ = this->gr->template uniform_real<fp_type>(minSigma2_, maxSigma2_);
@@ -663,7 +663,7 @@ protected:
 	 *
 	 * @param A copy of another GNumBiGaussAdaptorT, camouflaged as a GObject
 	 */
-	G_API void load_(const GObject *cp) OVERRIDE	{
+	G_API_GENEVA void load_(const GObject *cp) OVERRIDE	{
 		// Convert GObject pointer to local format
 		const GNumBiGaussAdaptorT<num_type, fp_type> *p_load = GObject::gobject_conversion<GNumBiGaussAdaptorT<num_type, fp_type> >(cp);
 
@@ -691,7 +691,7 @@ protected:
     * Adds a given property value to the vector or returns false, if the property
     * was not found.
     */
-   virtual G_API bool customQueryProperty (
+   virtual G_API_GENEVA bool customQueryProperty (
       const std::string& property
       , std::vector<boost::any>& data
    ) const OVERRIDE {
@@ -710,7 +710,7 @@ protected:
 
 	/***************************************************************************/
 	/** @brief This function creates a deep copy of this object */
-	virtual G_API GObject *clone_() const = 0;
+	virtual G_API_GENEVA GObject *clone_() const = 0;
 
 	/***************************************************************************/
 	/**
@@ -719,7 +719,7 @@ protected:
 	 *
 	 * @param range A typical range for the parameter with type num_type (unused here)
 	 */
-	virtual G_API void customAdaptAdaption(const num_type&) OVERRIDE {
+	virtual G_API_GENEVA void customAdaptAdaption(const num_type&) OVERRIDE {
       using namespace Gem::Common;
 
       // The following random distribution slightly favours values < 1. Selection pressure
@@ -742,7 +742,7 @@ protected:
 	 * @param value The value that is going to be adapted in situ
 	 * @param range A typical range for the parameter with type num_type (unused here)
 	 */
-	virtual G_API void customAdaptions(num_type&, const num_type&) = 0;
+	virtual G_API_GENEVA void customAdaptions(num_type&, const num_type&) = 0;
 
 public:
 	/***************************************************************************/
@@ -751,7 +751,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual G_API bool modify_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -777,7 +777,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -794,7 +794,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;

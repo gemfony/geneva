@@ -90,7 +90,7 @@ class GParameterSet
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API void serialize(Archive & ar, const unsigned int){
+	G_API_GENEVA void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 	  ar
 	  & make_nvp("GMutableSetT_GParameterBase", boost::serialization::base_object<GMutableSetT<Gem::Geneva::GParameterBase> >(*this))
@@ -101,24 +101,24 @@ class GParameterSet
 
 public:
 	/** @brief The default constructor */
-	G_API GParameterSet();
+	G_API_GENEVA GParameterSet();
    /** @brief Initialization with the number of fitness criteria */
-	G_API GParameterSet(const std::size_t&);
+	G_API_GENEVA GParameterSet(const std::size_t&);
 	/** @brief The copy constructor */
-	G_API GParameterSet(const GParameterSet&);
+	G_API_GENEVA GParameterSet(const GParameterSet&);
 	/** @brief The destructor */
-	virtual G_API ~GParameterSet();
+	virtual G_API_GENEVA ~GParameterSet();
 
 	/** @brief Standard assignment operator */
-	G_API const GParameterSet& operator=(const GParameterSet&);
+	G_API_GENEVA const GParameterSet& operator=(const GParameterSet&);
 
 	/** @brief Checks for equality with another GParameterSet object */
-	G_API bool operator==(const GParameterSet&) const;
+	G_API_GENEVA bool operator==(const GParameterSet&) const;
 	/** @brief Checks for inequality with another GParameterSet object */
-	G_API bool operator!=(const GParameterSet&) const;
+	G_API_GENEVA bool operator!=(const GParameterSet&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual G_API boost::optional<std::string> checkRelationshipWith(
+	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -128,70 +128,70 @@ public:
 	) const OVERRIDE;
 
 	/** @brief Allows to randomly initialize parameter members */
-	virtual G_API void randomInit(const activityMode&) OVERRIDE;
+	virtual G_API_GENEVA void randomInit(const activityMode&) OVERRIDE;
 
 	/** @brief Specify whether we want to work in maximization (true) or minimization (false) mode */
-	G_API void setMaxMode(const bool&);
+	G_API_GENEVA void setMaxMode(const bool&);
 
 	/** @brief Emits a GParameterSet object that only has the GParameterBase objects attached to it */
-	G_API boost::shared_ptr<GParameterSet> parameter_clone() const;
+	G_API_GENEVA boost::shared_ptr<GParameterSet> parameter_clone() const;
 
    /** @brief Do the required processing for this object */
-   virtual G_API bool process() OVERRIDE;
+   virtual G_API_GENEVA bool process() OVERRIDE;
 
 	/** @brief Updates the random number generators contained in this object's GParameterBase-derivatives */
-	virtual G_API void updateRNGs() BASE;
+	virtual G_API_GENEVA void updateRNGs() BASE;
 	/** @brief Restores the local random number generators contained in this object's GParameterBase-derivatives */
-	virtual G_API void restoreRNGs() BASE;
+	virtual G_API_GENEVA void restoreRNGs() BASE;
 	/** @brief Checks whether all GParameterBase derivatives use local random number generators */
-	virtual G_API bool localRNGsUsed() const BASE;
+	virtual G_API_GENEVA bool localRNGsUsed() const BASE;
 	/** @brief Checks whether all GParameterBase derivatives use the assigned random number generator */
-	virtual G_API bool assignedRNGUsed() const BASE;
+	virtual G_API_GENEVA bool assignedRNGUsed() const BASE;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual G_API void addConfigurationOptions(Gem::Common::GParserBuilder&) OVERRIDE;
+	virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) OVERRIDE;
 
 	/** @brief Allows to assign a name to the role of this individual(-derivative) */
-	virtual G_API std::string getIndividualCharacteristic() const OVERRIDE;
+	virtual G_API_GENEVA std::string getIndividualCharacteristic() const OVERRIDE;
 
 	/** @brief Provides access to all data stored in the individual in a user defined selection */
-	virtual G_API void custom_streamline(std::vector<boost::any>&) BASE;
+	virtual G_API_GENEVA void custom_streamline(std::vector<boost::any>&) BASE;
 
 	/** @brief Transformation of the individual's parameter objects into a boost::property_tree object */
-	G_API void toPropertyTree(pt::ptree&, const std::string& = "parameterset") const BASE;
+	G_API_GENEVA void toPropertyTree(pt::ptree&, const std::string& = "parameterset") const BASE;
 	/** @brief Transformation of the individual's parameter objects into a list of comma-separated values */
-	G_API std::string toCSV(bool=false, bool=true, bool=true, bool=true) const;
+	G_API_GENEVA std::string toCSV(bool=false, bool=true, bool=true, bool=true) const;
 
 	/** @brief Emits a name for this class / object */
-	virtual G_API std::string name() const OVERRIDE;
+	virtual G_API_GENEVA std::string name() const OVERRIDE;
 
    /** @brief Retrieves a parameter of a given type at the specified position */
-   virtual G_API boost::any getVarVal(
+   virtual G_API_GENEVA boost::any getVarVal(
       const std::string&
       , const boost::tuple<std::size_t, std::string, std::size_t>& target
    ) OVERRIDE;
 
 	/** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
-   G_API GMutableSetT<Gem::Geneva::GParameterBase>::reference at(const std::size_t& pos);
+   G_API_GENEVA GMutableSetT<Gem::Geneva::GParameterBase>::reference at(const std::size_t& pos);
 
 	/** @brief Checks whether this object is better than a given set of evaluations */
-   G_API bool isGoodEnough(const std::vector<double>&);
+   G_API_GENEVA bool isGoodEnough(const std::vector<double>&);
 
    /** @brief Perform a fusion operation between this object and another */
-   virtual G_API boost::shared_ptr<GParameterSet> amalgamate(const boost::shared_ptr<GParameterSet>) const BASE;
+   virtual G_API_GENEVA boost::shared_ptr<GParameterSet> amalgamate(const boost::shared_ptr<GParameterSet>) const BASE;
 
    /** @brief Performs a cross-over with another GParameterSet object on a "per item" basis */
-   G_API void perItemCrossOver(const GParameterSet&, const double&);
+   G_API_GENEVA void perItemCrossOver(const GParameterSet&, const double&);
 
    /** @brief Allows to set the "per item" cross-over probability */
-   G_API void setPerItemCrossOverProbability(double);
+   G_API_GENEVA void setPerItemCrossOverProbability(double);
    /** @brief Allows to retrieve the "per item" cross-over probability */
-   G_API double getPerItemCrossOverProbability() const;
+   G_API_GENEVA double getPerItemCrossOverProbability() const;
 
    /** @brief Triggers updates of adaptors contained in this object */
-   virtual G_API void updateAdaptorsOnStall(const boost::uint32_t&);
+   virtual G_API_GENEVA void updateAdaptorsOnStall(const boost::uint32_t&);
    /** @brief Retrieves information from adaptors with a given property */
-   virtual G_API void queryAdaptor(
+   virtual G_API_GENEVA void queryAdaptor(
       const std::string& adaptorName
       , const std::string& property
       , std::vector<boost::any>& data
@@ -208,7 +208,7 @@ public:
 	 * @return A converted version of the GParameterBase object, as required by the user
 	 */
 	template <typename par_type>
-	G_API const boost::shared_ptr<par_type> at(
+	G_API_GENEVA const boost::shared_ptr<par_type> at(
       const std::size_t& pos
       , typename boost::enable_if<boost::is_base_of<GParameterBase, par_type> >::type* dummy = 0
 	)  const {
@@ -226,7 +226,7 @@ public:
 	 * Allows to retrieve a list of all variable names registered with the parameter set
 	 */
    template <typename par_type>
-   G_API std::vector<std::string> getVariableNames() const {
+   G_API_GENEVA std::vector<std::string> getVariableNames() const {
       std::vector<std::string> varNames;
 	   std::map<std::string, std::vector<par_type> > pMap;
 	   this->streamline<par_type>(pMap);
@@ -242,7 +242,7 @@ public:
 	 * Retrieves an item according to a description provided by the target tuple
 	 */
 	template <typename par_type>
-	G_API boost::any getVarItem(
+	G_API_GENEVA boost::any getVarItem(
       const boost::tuple<std::size_t, std::string, std::size_t>& target
 	) {
 	   boost::any result;
@@ -292,7 +292,7 @@ public:
     * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
     */
    template <typename par_type>
-   G_API std::size_t countParameters(
+   G_API_GENEVA std::size_t countParameters(
       const activityMode& am = DEFAULTACTIVITYMODE
    ) const {
       std::size_t result = 0;
@@ -323,7 +323,7 @@ public:
 	 * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
 	 */
 	template <typename par_type>
-	G_API void streamline(
+	G_API_GENEVA void streamline(
       std::vector<par_type>& parVec
       , const activityMode& am = DEFAULTACTIVITYMODE
 	) const {
@@ -352,7 +352,7 @@ public:
     * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
     */
    template <typename par_type>
-   G_API void streamline(
+   G_API_GENEVA void streamline(
       std::map<std::string, std::vector<par_type> >& parVec
       , const activityMode& am = DEFAULTACTIVITYMODE
    ) const {
@@ -379,7 +379,7 @@ public:
 	 * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be assigned
 	 */
 	template <typename par_type>
-	G_API void assignValueVector(
+	G_API_GENEVA void assignValueVector(
       const std::vector<par_type>& parVec
       , const activityMode& am = DEFAULTACTIVITYMODE
    ) {
@@ -414,7 +414,7 @@ public:
     * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be assigned
     */
    template <typename par_type>
-   G_API void assignValueVectors(
+   G_API_GENEVA void assignValueVectors(
       const std::map<std::string, std::vector<par_type> >& parMap
       , const activityMode& am = DEFAULTACTIVITYMODE
    ) {
@@ -440,7 +440,7 @@ public:
     * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
     */
    template <typename par_type>
-   G_API void boundaries(
+   G_API_GENEVA void boundaries(
       std::vector<par_type>& lBndVec
       , std::vector<par_type>& uBndVec
       , const activityMode& am = DEFAULTACTIVITYMODE
@@ -466,7 +466,7 @@ public:
     * Multiplication with a random value in a given range
     */
    template <typename par_type>
-   G_API void multiplyByRandom(
+   G_API_GENEVA void multiplyByRandom(
       const par_type& min
       , const par_type& max
       , const activityMode& am
@@ -483,7 +483,7 @@ public:
     * Multiplication with a random value in the range [0, 1[
     */
    template <typename par_type>
-   G_API void multiplyByRandom(
+   G_API_GENEVA void multiplyByRandom(
       const activityMode& am
    ) {
       // Loop over all GParameterBase objects.
@@ -498,7 +498,7 @@ public:
     * Multiplication with a constant value
     */
    template <typename par_type>
-   G_API void multiplyBy(
+   G_API_GENEVA void multiplyBy(
       const par_type& val
       , const activityMode& am
    ) {
@@ -514,7 +514,7 @@ public:
     * Initializes all parameters of a given type with a constant value
     */
    template <typename par_type>
-   G_API void fixedValueInit(
+   G_API_GENEVA void fixedValueInit(
       const par_type& val
       , const activityMode& am
    ) {
@@ -530,7 +530,7 @@ public:
     * Adds the parameters of another GParameterSet object to this one
     */
    template <typename par_type>
-   G_API void add(
+   G_API_GENEVA void add(
       boost::shared_ptr<GParameterSet> p
       , const activityMode& am
    ) {
@@ -550,7 +550,7 @@ public:
     * Subtracts the parameters of another GParameterSet object from this one
     */
    template <typename par_type>
-   G_API void subtract(
+   G_API_GENEVA void subtract(
       boost::shared_ptr<GParameterSet> p
       , const activityMode& am
    ) {
@@ -568,28 +568,28 @@ public:
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GObject */
-   G_API virtual void load_(const GObject*) OVERRIDE;
+   G_API_GENEVA virtual void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
-   G_API virtual GObject* clone_() const OVERRIDE;
+   G_API_GENEVA virtual GObject* clone_() const OVERRIDE;
 
 	/** @brief The actual fitness calculation takes place here */
-	virtual G_API double fitnessCalculation() OVERRIDE ;
+	virtual G_API_GENEVA double fitnessCalculation() OVERRIDE ;
 	/* @brief The actual adaption operations. */
-	virtual G_API std::size_t customAdaptions() OVERRIDE ;
+	virtual G_API_GENEVA std::size_t customAdaptions() OVERRIDE ;
 
 private:
-	explicit G_API GParameterSet(const float&); ///< Intentionally private and undefined
+	explicit G_API_GENEVA GParameterSet(const float&); ///< Intentionally private and undefined
 
 	double perItemCrossOverProbability_; ///< A likelihood for "per item" cross-over operations to be performed
 
 public:
 	/***************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual G_API bool modify_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 	/***************************************************************************/
 };
 

@@ -67,36 +67,36 @@ class GSimulatedAnnealingFactory
 {
 public:
    /** @brief An easy identifier for the class */
-   static G_API const std::string nickname; // Initialized in the .cpp definition file
+   static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
 
    /** @brief The default constructor */
-   G_API GSimulatedAnnealingFactory();
+   G_API_GENEVA GSimulatedAnnealingFactory();
    /** @brief Initialization with the name of the config file and the default parallelization mode */
-   explicit G_API GSimulatedAnnealingFactory(const std::string&);
+   explicit G_API_GENEVA GSimulatedAnnealingFactory(const std::string&);
    /** @brief The standard constructor */
-   G_API GSimulatedAnnealingFactory(
+   G_API_GENEVA GSimulatedAnnealingFactory(
       const std::string&
       , const execMode&
    );
    /** @brief Adds a content creator in addition to the standard values */
-   G_API GSimulatedAnnealingFactory(
+   G_API_GENEVA GSimulatedAnnealingFactory(
       const std::string&
       , const execMode&
       , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
    );
    /** @brief The destructor */
-   virtual G_API ~GSimulatedAnnealingFactory();
+   virtual G_API_GENEVA ~GSimulatedAnnealingFactory();
 
    /** @brief Gives access to the mnemonics / nickname describing an algorithm */
-   virtual G_API std::string getMnemonic() const OVERRIDE;
+   virtual G_API_GENEVA std::string getMnemonic() const OVERRIDE;
    /** @brief Gives access to a clear-text description of the algorithm */
-   virtual G_API std::string getAlgorithmName() const OVERRIDE;
+   virtual G_API_GENEVA std::string getAlgorithmName() const OVERRIDE;
 
 protected:
    /** @brief Creates individuals of this type */
-   virtual G_API boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > getObject_(Gem::Common::GParserBuilder&, const std::size_t&) OVERRIDE;
+   virtual G_API_GENEVA boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > getObject_(Gem::Common::GParserBuilder&, const std::size_t&) OVERRIDE;
    /** @brief Allows to act on the configuration options received from the configuration file */
-   virtual G_API void postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >&) OVERRIDE;
+   virtual G_API_GENEVA void postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >&) OVERRIDE;
 };
 
 /******************************************************************************/

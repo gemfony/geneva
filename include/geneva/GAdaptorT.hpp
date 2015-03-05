@@ -94,7 +94,7 @@ class GAdaptorT
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API void serialize(Archive & ar, const unsigned int) {
+	G_API_GENEVA void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar
 		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
@@ -121,7 +121,7 @@ public:
 	/**
 	 * The default constructor.
 	 */
-	G_API GAdaptorT()
+	G_API_GENEVA GAdaptorT()
 		: GObject()
 		, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>())
 		, gr(gr_local)
@@ -155,7 +155,7 @@ public:
 	 *
 	 * @param adProb The likelihood for a an adaption to be actually carried out
 	 */
-	G_API GAdaptorT(const double& adProb)
+	G_API_GENEVA GAdaptorT(const double& adProb)
 		: GObject()
 		, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>())
 		, gr(gr_local)
@@ -189,7 +189,7 @@ public:
 	 *
 	 * @param cp A copy of another GAdaptorT<T>
 	 */
-	G_API GAdaptorT(const GAdaptorT<T>& cp)
+	G_API_GENEVA GAdaptorT(const GAdaptorT<T>& cp)
 		: GObject(cp)
 		, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>()) // We do *not* copy the other object's generator
 		, gr(gr_local)
@@ -212,7 +212,7 @@ public:
 	 * The standard destructor. Gets rid of the local random number generator, unless
 	 * an external generator has been assigned.
 	 */
-	virtual G_API ~GAdaptorT() {
+	virtual G_API_GENEVA ~GAdaptorT() {
 		if(gr_local) delete gr_local;
 	}
 
@@ -222,7 +222,7 @@ public:
 	 *
 	 * @param cp A copy of another GAdaptorT<T> object
 	 */
-	G_API const GAdaptorT<T>& operator=(const GAdaptorT<T>& cp) {
+	G_API_GENEVA const GAdaptorT<T>& operator=(const GAdaptorT<T>& cp) {
 		GAdaptorT<T>::load_(&cp);
 		return *this;
 	}
@@ -234,7 +234,7 @@ public:
 	 * @param  cp A constant reference to another GAdaptorT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	G_API bool operator==(const GAdaptorT<T>& cp) const {
+	G_API_GENEVA bool operator==(const GAdaptorT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GAdaptorT<T>::operator==","cp", CE_SILENT);
@@ -247,7 +247,7 @@ public:
 	 * @param  cp A constant reference to another GAdaptorT<T> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	G_API bool operator!=(const GAdaptorT<T>& cp) const {
+	G_API_GENEVA bool operator!=(const GAdaptorT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GAdaptorT<T>::operator!=","cp", CE_SILENT);
@@ -266,7 +266,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	virtual G_API boost::optional<std::string> checkRelationshipWith(
+	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -306,7 +306,7 @@ public:
 	 *
 	 * @return The id of the adaptor
 	 */
-	virtual G_API Gem::Geneva::adaptorId getAdaptorId() const = 0;
+	virtual G_API_GENEVA Gem::Geneva::adaptorId getAdaptorId() const = 0;
 
 	/* ----------------------------------------------------------------------------------
 	 * Tested in GBooleanAdaptor
@@ -323,7 +323,7 @@ public:
 	 *
 	 * @param adProb The new value of the probability of adaptions taking place
 	 */
-	G_API void setAdaptionProbability(const double& adProb) {
+	G_API_GENEVA void setAdaptionProbability(const double& adProb) {
 		// Check the supplied probability value
 		if(adProb < 0. || adProb > 1.) {
 			glogger
@@ -357,7 +357,7 @@ public:
 	 *
 	 * @return The current value of the adaption probability
 	 */
-	G_API double getAdaptionProbability() const {
+	G_API_GENEVA double getAdaptionProbability() const {
 		return adProb_;
 	}
 
@@ -374,7 +374,7 @@ public:
     *
     * @param adProb_reset The new value of the "reset" probability
     */
-	G_API void setResetAdaptionProbability(const double& adProb_reset) {
+	G_API_GENEVA void setResetAdaptionProbability(const double& adProb_reset) {
       // Check the supplied probability value
       if(!Gem::Common::checkRangeCompliance<double>(adProb_reset, minAdProb_, maxAdProb_)) {
          glogger
@@ -393,7 +393,7 @@ public:
     *
     * @return The current value of the "reset" adaption probability
     */
-	G_API double getResetAdaptionProbability() const {
+	G_API_GENEVA double getResetAdaptionProbability() const {
       return adProb_reset_;
    }
 
@@ -403,7 +403,7 @@ public:
 	 *
 	 * @param probability The new value of the probability of adaptions of adaption parameters
 	 */
-	G_API void setAdaptAdaptionProbability(const double& probability) {
+	G_API_GENEVA void setAdaptAdaptionProbability(const double& probability) {
 		// Check the supplied probability value
 		if(!Gem::Common::checkRangeCompliance<double>(probability, 0., 1.)) {
 			glogger
@@ -427,7 +427,7 @@ public:
 	 *
 	 * @return The current value of the adaptAdaptionProbability_ variable
 	 */
-	G_API double getAdaptAdaptionProbability() const {
+	G_API_GENEVA double getAdaptAdaptionProbability() const {
 		return adaptAdaptionProbability_;
 	}
 
@@ -441,7 +441,7 @@ public:
 	 * Allows to specify an adaption factor for adProb_ (or 0, if you do not
 	 * want this feature)
 	 */
-	G_API void setAdaptAdProb(double adaptAdProb) {
+	G_API_GENEVA void setAdaptAdProb(double adaptAdProb) {
 #ifdef DEBUG
 	   if(adaptAdProb < 0.) {
 	      glogger
@@ -458,7 +458,7 @@ public:
 	/**
 	 * Allows to retrieve the rate of evolutionary adaption of adProb_
 	 */
-	G_API double getAdaptAdProb() const {
+	G_API_GENEVA double getAdaptAdProb() const {
 	   return adaptAdProb_;
 	}
 
@@ -468,7 +468,7 @@ public:
 	 *
 	 * @return The value of the adaptionCounter_ variable
 	 */
-	virtual G_API boost::uint32_t getAdaptionCounter() const  {
+	virtual G_API_GENEVA boost::uint32_t getAdaptionCounter() const  {
 		return adaptionCounter_;
 	}
 
@@ -500,7 +500,7 @@ public:
 	 *
 	 * @return The value of the adaptionThreshold_ variable
 	 */
-	G_API boost::uint32_t getAdaptionThreshold() const  {
+	G_API_GENEVA boost::uint32_t getAdaptionThreshold() const  {
 		return adaptionThreshold_;
 	}
 
@@ -518,7 +518,7 @@ public:
 	 *
 	 * @param adaptionMode The desired mode (always/never/with a given probability)
 	 */
-	G_API virtual void setAdaptionMode(boost::logic::tribool adaptionMode) {
+	G_API_GENEVA virtual void setAdaptionMode(boost::logic::tribool adaptionMode) {
 		adaptionMode_ = adaptionMode;
 	}
 
@@ -534,7 +534,7 @@ public:
 	 *
 	 * @return The current value of the adaptionMode_ variable
 	 */
-	G_API boost::logic::tribool getAdaptionMode() const {
+	G_API_GENEVA boost::logic::tribool getAdaptionMode() const {
 		return adaptionMode_;
 	}
 
@@ -549,7 +549,7 @@ public:
 	 * NOTE that this function will silently adapt the values of adProb_ and
 	 * adProb_reset_, if they fall outside of the new range.
 	 */
-	G_API void setAdProbRange(double minAdProb, double maxAdProb) {
+	G_API_GENEVA void setAdProbRange(double minAdProb, double maxAdProb) {
 #ifdef DEBUG
 	   if(minAdProb < 0.) {
 	      glogger
@@ -586,7 +586,7 @@ public:
 	/**
 	 * Allows to retrieve the allowed range for adProb_ variation
 	 */
-	G_API boost::tuple<double,double> getAdProbRange() const {
+	G_API_GENEVA boost::tuple<double,double> getAdProbRange() const {
 	   return boost::tuple<double,double>(minAdProb_, maxAdProb_);
 	}
 
@@ -599,7 +599,7 @@ public:
 	 * @param range A typical value range for type T
 	 * @return The number of adaptions that were carried out
 	 */
-	G_API std::size_t adapt(
+	G_API_GENEVA std::size_t adapt(
       T& val
       , const T& range
    ) {
@@ -661,7 +661,7 @@ public:
     * @param range A typical value range for type T
     * @return The number of adaptions that were carried out
     */
-	G_API std::size_t adapt(
+	G_API_GENEVA std::size_t adapt(
       std::vector<T>& valVec
       , const T& range
    ) {
@@ -714,7 +714,7 @@ public:
 	 * @param range A typical value range for type T
 	 * @return A boolean indicating whether updates were performed
 	 */
-	virtual G_API bool updateOnStall(
+	virtual G_API_GENEVA bool updateOnStall(
       const std::size_t& nStalls
       , const T& range
    ) BASE {
@@ -742,7 +742,7 @@ public:
 	 *
 	 * @param gr_cp A reference to another object's GRandomBase object derivative
 	 */
-	virtual G_API void assignGRandomPointer(Gem::Hap::GRandomBase *gr_cp) {
+	virtual G_API_GENEVA void assignGRandomPointer(Gem::Hap::GRandomBase *gr_cp) {
 #ifdef DEBUG
 		if(!gr_cp) {
 		   glogger
@@ -764,7 +764,7 @@ public:
 	/**
 	 * Re-connects the local random number generator to gr.
 	 */
-	virtual G_API void resetGRandomPointer() {
+	virtual G_API_GENEVA void resetGRandomPointer() {
 		if(gr_local) gr = gr_local;
 		else {
 			glogger
@@ -786,7 +786,7 @@ public:
 	 *
 	 * @bool A boolean indicating whether the local random number generator is used
 	 */
-	virtual G_API bool usesLocalRNG() const {
+	virtual G_API_GENEVA bool usesLocalRNG() const {
 		return gr == gr_local;
 	}
 
@@ -801,7 +801,7 @@ public:
 	 *
 	 * @return A boolean indicating whether an assigned random number generator is used
 	 */
-	virtual G_API bool assignedRNGUsed() const {
+	virtual G_API_GENEVA bool assignedRNGUsed() const {
 		return gr != gr_local;
 	}
 
@@ -811,7 +811,7 @@ public:
 	 *
 	 * @return A diagnostic message
 	 */
-	virtual G_API std::string printDiagnostics() const {
+	virtual G_API_GENEVA std::string printDiagnostics() const {
 		return std::string();
 	}
 
@@ -819,7 +819,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual G_API std::string name() const OVERRIDE {
+   virtual G_API_GENEVA std::string name() const OVERRIDE {
       return std::string("GAdaptorT");
    }
 
@@ -837,7 +837,7 @@ public:
     * @param property The property for which information is sought
     * @param data A vector, to which the properties should be added
     */
-   G_API void queryPropertyFrom(
+   G_API_GENEVA void queryPropertyFrom(
       const std::string& adaptorName
       , const std::string& property
       , std::vector<boost::any>& data
@@ -862,7 +862,7 @@ public:
 
    /***************************************************************************/
    /** @brief Allows derived classes to randomly initialize parameter members */
-   virtual G_API void randomInit() BASE = 0;
+   virtual G_API_GENEVA void randomInit() BASE = 0;
 
 protected:
 	/***************************************************************************/
@@ -885,7 +885,7 @@ protected:
 	 *
 	 * @param gb A pointer to another GAdaptorT<T>, camouflaged as a GObject
 	 */
-	virtual G_API void load_(const GObject *cp) OVERRIDE {
+	virtual G_API_GENEVA void load_(const GObject *cp) OVERRIDE {
 		// Convert cp into local format
 		const GAdaptorT<T> *p_load = gobject_conversion<GAdaptorT<T> >(cp);
 
@@ -911,7 +911,7 @@ protected:
     *
     *  @param range A typical range for the parameter with type T
     */
-	G_API void adaptAdaption(const T& range) {
+	G_API_GENEVA void adaptAdaption(const T& range) {
       // The adaption parameters are modified every adaptionThreshold_ number of adaptions.
       if(adaptionThreshold_ > 0) {
          if(++adaptionCounter_ >= adaptionThreshold_){
@@ -933,7 +933,7 @@ protected:
     * by derived classes wishing to emit information. If there is no re-implementation,
     * this function will simply return false.
     */
-   virtual G_API bool customQueryProperty (
+   virtual G_API_GENEVA bool customQueryProperty (
       const std::string& property
       , std::vector<boost::any>& data
    ) const {
@@ -948,15 +948,15 @@ protected:
     *
     *  @param range A typical range for the parameter with type T
     */
-   virtual G_API void customAdaptAdaption(const T&) { /* nothing */ }
+   virtual G_API_GENEVA void customAdaptAdaption(const T&) { /* nothing */ }
 
 	/***************************************************************************/
 
 	/** @brief Adaption of values as specified by the user */
-	virtual G_API void customAdaptions(T&, const T&) BASE = 0;
+	virtual G_API_GENEVA void customAdaptions(T&, const T&) BASE = 0;
 
    /** @brief Creates a deep copy of this object */
-   virtual G_API GObject *clone_(void) const = 0;
+   virtual G_API_GENEVA GObject *clone_(void) const = 0;
 
 private:
 	/***************************************************************************/
@@ -978,7 +978,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual G_API bool modify_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -1010,7 +1010,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -1404,7 +1404,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes.
 	 */
-	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;

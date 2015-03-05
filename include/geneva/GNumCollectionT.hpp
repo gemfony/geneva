@@ -70,7 +70,7 @@ class GNumCollectionT
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API void serialize(Archive & ar, const unsigned int) {
+	G_API_GENEVA void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar
 		& make_nvp("GParameterCollectionT",	boost::serialization::base_object<GParameterCollectionT<T> >(*this))
@@ -90,7 +90,7 @@ public:
 	/**
 	 * The default constructor.
 	 */
-	G_API GNumCollectionT()
+	G_API_GENEVA GNumCollectionT()
 		: GParameterCollectionT<T> ()
 		, lowerInitBoundary_(T(DEFAULTLOWERINITBOUNDARYCOLLECTION))
 		, upperInitBoundary_(T(DEFAULTUPPERINITBOUNDARYCOLLECTION))
@@ -106,7 +106,7 @@ public:
 	 * @param min The lower boundary for random entries
 	 * @param max The upper boundary for random entries
 	 */
-	G_API GNumCollectionT(
+	G_API_GENEVA GNumCollectionT(
       const std::size_t& nval
       , const T& min
       , const T& max
@@ -129,7 +129,7 @@ public:
 	 * @param min The lower boundary for random entries
 	 * @param max The upper boundary for random entries
 	 */
-	G_API GNumCollectionT(
+	G_API_GENEVA GNumCollectionT(
       const std::size_t& nval
       , const T& val
       , const T& min
@@ -145,7 +145,7 @@ public:
 	/**
 	 * The standard copy constructor
 	 */
-	G_API GNumCollectionT(const GNumCollectionT<T>& cp)
+	G_API_GENEVA GNumCollectionT(const GNumCollectionT<T>& cp)
 		: GParameterCollectionT<T> (cp)
 		, lowerInitBoundary_(cp.lowerInitBoundary_)
 		, upperInitBoundary_(cp.upperInitBoundary_)
@@ -155,7 +155,7 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	virtual G_API ~GNumCollectionT()
+	virtual G_API_GENEVA ~GNumCollectionT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -165,7 +165,7 @@ public:
 	 * @param cp A copy of another GDoubleCollection object
 	 * @return A constant reference to this object
 	 */
-	G_API const GNumCollectionT& operator=(const GNumCollectionT<T>& cp){
+	G_API_GENEVA const GNumCollectionT& operator=(const GNumCollectionT<T>& cp){
 		GNumCollectionT<T>::load_(&cp);
 		return *this;
 	}
@@ -177,7 +177,7 @@ public:
 	 * @param  cp A constant reference to another GNumCollectionT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	G_API bool operator==(const GNumCollectionT<T>& cp) const {
+	G_API_GENEVA bool operator==(const GNumCollectionT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GNumCollectionT<T>::operator==","cp", CE_SILENT);
@@ -190,7 +190,7 @@ public:
 	 * @param  cp A constant reference to another GNumCollectionT<T> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	G_API bool operator!=(const GNumCollectionT<T>& cp) const {
+	G_API_GENEVA bool operator!=(const GNumCollectionT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNumCollectionT<T>::operator!=","cp", CE_SILENT);
@@ -209,7 +209,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	G_API boost::optional<std::string> checkRelationshipWith(
+	G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -242,7 +242,7 @@ public:
 	 * @param lowerInitBoundary The lower boundary for random initialization
 	 * @param upperInitBoundary The upper boundary for random initialization
 	 */
-	G_API void setInitBoundaries(
+	G_API_GENEVA void setInitBoundaries(
 			const T& lowerInitBoundary
 			, const T& upperInitBoundary
 			, typename boost::enable_if<boost::is_arithmetic<T> >::type* dummy = 0
@@ -274,7 +274,7 @@ public:
 	 *
 	 * @return The value of the lower initialization boundary
 	 */
-	G_API T getLowerInitBoundary() const {
+	G_API_GENEVA T getLowerInitBoundary() const {
 		return lowerInitBoundary_;
 	}
 
@@ -290,7 +290,7 @@ public:
 	 *
 	 * @return The value of the upper initialization boundary
 	 */
-	G_API T getUpperInitBoundary() const {
+	G_API_GENEVA T getUpperInitBoundary() const {
 		return upperInitBoundary_;
 	}
 
@@ -304,7 +304,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual G_API std::string name() const OVERRIDE {
+   virtual G_API_GENEVA std::string name() const OVERRIDE {
       return std::string("GNumCollectionT");
    }
 
@@ -315,7 +315,7 @@ public:
     * @param ptr The boost::property_tree object the data should be saved to
     * @param id The id assigned to this object
     */
-   virtual G_API void toPropertyTree(
+   virtual G_API_GENEVA void toPropertyTree(
          pt::ptree& ptr
          , const std::string& baseName
    ) const OVERRIDE {
@@ -357,7 +357,7 @@ protected:
 	 *
 	 * @param cp A copy of another GNumCollectionT<T> object, camouflaged as a GObject
 	 */
-	virtual G_API void load_(const GObject *cp) OVERRIDE {
+	virtual G_API_GENEVA void load_(const GObject *cp) OVERRIDE {
 		// Convert cp into local format
 		const GNumCollectionT<T> *p_load = GObject::gobject_conversion<GNumCollectionT<T> >(cp);
 
@@ -374,7 +374,7 @@ protected:
     * Returns a "comparative range". This is e.g. used to make Gauss-adaption
     * independent of a parameters value range
     */
-   virtual G_API T range() const {
+   virtual G_API_GENEVA T range() const {
       return upperInitBoundary_ - lowerInitBoundary_;
    }
 
@@ -385,11 +385,11 @@ protected:
 	 *
 	 * @return A pointer to a deep clone of this object
 	 */
-	virtual G_API GObject *clone_() const = 0;
+	virtual G_API_GENEVA GObject *clone_() const = 0;
 
 	/***************************************************************************/
 	/** @brief Triggers random initialization of the parameter collection */
-	virtual G_API void randomInit_(const activityMode&) = 0;
+	virtual G_API_GENEVA void randomInit_(const activityMode&) = 0;
 
 private:
 	/***************************************************************************/
@@ -403,7 +403,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual G_API bool modify_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -422,7 +422,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterCollectionT<T>::specificTestsNoFailureExpected_GUnitTests();
@@ -455,7 +455,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterCollectionT<T>::specificTestsFailuresExpected_GUnitTests();

@@ -75,7 +75,7 @@ class GConstrainedNumCollectionT
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API void serialize(Archive & ar, const unsigned int) {
+	G_API_GENEVA void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar
 		& make_nvp("GParameterCollectionT",	boost::serialization::base_object<GParameterCollectionT<num_type> >(*this))
@@ -96,7 +96,7 @@ public:
 	 * @param lowerBoundary The lower boundary of the value range
 	 * @param upperBoundary The upper boundary of the value range
 	 */
-	G_API GConstrainedNumCollectionT(
+	G_API_GENEVA GConstrainedNumCollectionT(
       const std::size_t size
       , const num_type& lowerBoundary
       , const num_type& upperBoundary
@@ -135,7 +135,7 @@ public:
 	 * @param lowerBoundary The lower boundary of the value range
 	 * @param upperBoundary The upper boundary of the value range
 	 */
-	G_API GConstrainedNumCollectionT(
+	G_API_GENEVA GConstrainedNumCollectionT(
 			const std::size_t size
 			, const num_type& val
 			, const num_type& lowerBoundary
@@ -180,7 +180,7 @@ public:
 	 * The standard copy constructor. We assume that the boundaries have
 	 * "legal" values. Thus we do not make any error checks here.
 	 */
-	G_API GConstrainedNumCollectionT(const GConstrainedNumCollectionT<num_type>& cp)
+	G_API_GENEVA GConstrainedNumCollectionT(const GConstrainedNumCollectionT<num_type>& cp)
 		: GParameterCollectionT<num_type> (cp)
 		, lowerBoundary_(cp.lowerBoundary_)
 		, upperBoundary_(cp.upperBoundary_)
@@ -190,7 +190,7 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	virtual G_API ~GConstrainedNumCollectionT()
+	virtual G_API_GENEVA ~GConstrainedNumCollectionT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -206,7 +206,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	virtual G_API boost::optional<std::string> checkRelationshipWith (
+	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith (
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -238,7 +238,7 @@ public:
      *
      * @return The value of the lower boundary
      */
-	G_API num_type getLowerBoundary() const {
+	G_API_GENEVA num_type getLowerBoundary() const {
     	return lowerBoundary_;
 	}
 
@@ -248,7 +248,7 @@ public:
      *
      * @return The value of the upper boundary
      */
-	G_API num_type getUpperBoundary() const {
+	G_API_GENEVA num_type getUpperBoundary() const {
     	return upperBoundary_;
 	}
 
@@ -256,7 +256,7 @@ public:
 	/**
 	 * Resets the boundaries to the maximum allowed value.
 	 */
-	G_API void resetBoundaries() {
+	G_API_GENEVA void resetBoundaries() {
 		this->setBoundaries(GConstrainedValueLimitT<num_type>::lowest(), GConstrainedValueLimitT<num_type>::highest());
 	}
 
@@ -272,7 +272,7 @@ public:
 	 * @param lower The new lower boundary for this object
 	 * @param upper The new upper boundary for this object
 	 */
-	virtual G_API void setBoundaries(const num_type& lower, const num_type& upper) {
+	virtual G_API_GENEVA void setBoundaries(const num_type& lower, const num_type& upper) {
 		std::vector<num_type> currentValues;
 		for(std::size_t pos=0; pos<this->size(); pos++) {
 			currentValues.push_back(GParameterCollectionT<num_type>::value(pos));
@@ -317,7 +317,7 @@ public:
 	 * @param pos The position of the parameter to be set
 	 * @param val The new num_type value stored in this class
 	 */
-	virtual G_API void setValue(const std::size_t& pos, const num_type& val)  {
+	virtual G_API_GENEVA void setValue(const std::size_t& pos, const num_type& val)  {
 		// Do some error checking
 		if(val < lowerBoundary_ || val > upperBoundary_) {
 		   glogger
@@ -342,7 +342,7 @@ public:
 	 * @param pos The position for which the transformed value needs to be returned
 	 * @return The transformed value of val_
 	 */
-	virtual G_API num_type value(const std::size_t& pos) OVERRIDE {
+	virtual G_API_GENEVA num_type value(const std::size_t& pos) OVERRIDE {
 		num_type mapping = transfer(GParameterCollectionT<num_type>::value(pos));
 
 		// Reset internal value
@@ -363,7 +363,7 @@ public:
     * @param ptr The boost::property_tree object the data should be saved to
     * @param id The id assigned to this object
     */
-   virtual G_API void toPropertyTree(
+   virtual G_API_GENEVA void toPropertyTree(
       pt::ptree& ptr
       , const std::string& baseName
    ) const OVERRIDE {
@@ -399,7 +399,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual G_API std::string name() const OVERRIDE {
+   virtual G_API_GENEVA std::string name() const OVERRIDE {
       return std::string("GConstrainedNumCollectionT");
    }
 
@@ -413,7 +413,7 @@ protected:
 	 *
 	 * @param cp A copy of another GConstrainedNumCollectionT<num_type> object, camouflaged as a GObject
 	 */
-	virtual G_API void load_(const GObject *cp) OVERRIDE {
+	virtual G_API_GENEVA void load_(const GObject *cp) OVERRIDE {
 		// Convert cp into local format
 		const GConstrainedNumCollectionT<num_type> *p_load = GObject::gobject_conversion<GConstrainedNumCollectionT<num_type> >(cp);
 
@@ -430,7 +430,7 @@ protected:
     * Returns a "comparative range". This is e.g. used to make Gauss-adaption
     * independent of a parameters value range
     */
-   virtual G_API num_type range() const {
+   virtual G_API_GENEVA num_type range() const {
       return upperBoundary_ - lowerBoundary_;
    }
 
@@ -441,11 +441,11 @@ protected:
 	 *
 	 * @return A pointer to a deep clone of this object
 	 */
-	virtual G_API GObject *clone_() const = 0;
+	virtual G_API_GENEVA GObject *clone_() const = 0;
 
 	/***************************************************************************/
 	/** @brief Triggers random initialization of the parameter collection */
-	virtual G_API void randomInit_(const activityMode&) = 0;
+	virtual G_API_GENEVA void randomInit_(const activityMode&) = 0;
 
 	/***************************************************************************/
 	/**
@@ -453,7 +453,7 @@ protected:
 	 * for de-serialization and as the basis for derived class'es default
 	 * constructors
 	 */
-	G_API GConstrainedNumCollectionT()
+	G_API_GENEVA GConstrainedNumCollectionT()
 		: GParameterCollectionT<num_type> ()
 		, lowerBoundary_(num_type(0))
 		, upperBoundary_(num_type(1))
@@ -471,7 +471,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual G_API bool modify_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
       bool result = false;
 
@@ -490,7 +490,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterCollectionT<num_type>::specificTestsNoFailureExpected_GUnitTests();
@@ -503,7 +503,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterCollectionT<num_type>::specificTestsFailuresExpected_GUnitTests();
@@ -520,7 +520,7 @@ public:
  * Returns a "comparative range". Specialization for T==bool;
  */
 template<>
-inline G_API bool GConstrainedNumCollectionT<bool>::range() const {
+inline G_API_GENEVA bool GConstrainedNumCollectionT<bool>::range() const {
    return true;
 }
 

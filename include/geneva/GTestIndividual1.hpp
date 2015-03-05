@@ -86,7 +86,7 @@ class GTestIndividual1 :public Gem::Geneva::GParameterSet
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API void serialize(Archive & ar, const unsigned int) {
+	G_API_GENEVA void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
 		ar
@@ -96,22 +96,22 @@ class GTestIndividual1 :public Gem::Geneva::GParameterSet
 
 public:
 	/** @brief The default constructor */
-	G_API GTestIndividual1();
+	G_API_GENEVA GTestIndividual1();
 	/** @brief The copy constructor */
-	G_API GTestIndividual1(const GTestIndividual1&);
+	G_API_GENEVA GTestIndividual1(const GTestIndividual1&);
 	/** @brief The standard destructor */
-	virtual G_API ~GTestIndividual1();
+	virtual G_API_GENEVA ~GTestIndividual1();
 
 	/** @brief A standard assignment operator */
-	G_API const GTestIndividual1& operator=(const GTestIndividual1&);
+	G_API_GENEVA const GTestIndividual1& operator=(const GTestIndividual1&);
 
 	/** @brief Checks for equality with another GTestIndividual1 object */
-	G_API bool operator==(const GTestIndividual1& cp) const;
+	G_API_GENEVA bool operator==(const GTestIndividual1& cp) const;
 	/** @brief Checks for inequality with another GTestIndividual1 object */
-	G_API bool operator!=(const GTestIndividual1& cp) const;
+	G_API_GENEVA bool operator!=(const GTestIndividual1& cp) const;
 
 	/** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
-	virtual G_API boost::optional<std::string> checkRelationshipWith(
+	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -122,24 +122,24 @@ public:
 
 protected:
 	/** @brief Loads the data of another GTestIndividual1 */
-	virtual G_API void load_(const GObject*);
+	virtual G_API_GENEVA void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
-	virtual G_API GObject* clone_() const;
+	virtual G_API_GENEVA GObject* clone_() const;
 
 	/** @brief The actual fitness calculation takes place here. */
-	virtual G_API double fitnessCalculation() OVERRIDE;
+	virtual G_API_GENEVA double fitnessCalculation() OVERRIDE;
 public:
 	// Note: The following functions are, in the context of GTestIndividual1,
 	// designed to mainly test parent classes
 
 	/** @brief Applies modifications to this object. */
-	virtual G_API bool modify_GUnitTests();
+	virtual G_API_GENEVA bool modify_GUnitTests();
 	/** @brief Adds a number of GDoubleObject objects to the individual */
-	void G_API addGDoubleObjects(const std::size_t&);
+	void G_API_GENEVA addGDoubleObjects(const std::size_t&);
 	/** @brief Performs self tests that are expected to succeed. */
-	virtual G_API void specificTestsNoFailureExpected_GUnitTests();
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. */
-	virtual G_API void specificTestsFailuresExpected_GUnitTests();
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests();
 };
 
 /******************************************************************************/

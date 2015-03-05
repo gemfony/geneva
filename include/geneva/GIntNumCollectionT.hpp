@@ -62,7 +62,7 @@ class GIntNumCollectionT
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API void serialize(Archive & ar, const unsigned int){
+	G_API_GENEVA void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
 	  ar
@@ -81,7 +81,7 @@ public:
 	/**
 	 * The default constructor
 	 */
-	G_API GIntNumCollectionT()
+	G_API_GENEVA GIntNumCollectionT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -92,7 +92,7 @@ public:
 	 * @param min The minimum random value
 	 * @param max The maximum random value
 	 */
-	G_API GIntNumCollectionT(
+	G_API_GENEVA GIntNumCollectionT(
       const std::size_t& nval
       , const int_type& min
       , const int_type& max
@@ -117,7 +117,7 @@ public:
 	 * @param min The minimum random value
 	 * @param max The maximum random value
 	 */
-	G_API GIntNumCollectionT(
+	G_API_GENEVA GIntNumCollectionT(
       const std::size_t& nval
       , const int_type& val
       , const int_type& min
@@ -132,7 +132,7 @@ public:
 	 *
 	 * @param cp A copy of another GIntNumCollectionT<int_type> object
 	 */
-	G_API GIntNumCollectionT(const GIntNumCollectionT<int_type>& cp)
+	G_API_GENEVA GIntNumCollectionT(const GIntNumCollectionT<int_type>& cp)
 		: GNumCollectionT<int_type>(cp)
 	{ /* nothing */ }
 
@@ -140,7 +140,7 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual G_API ~GIntNumCollectionT()
+	virtual G_API_GENEVA ~GIntNumCollectionT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -150,7 +150,7 @@ public:
 	 * @param cp A copy of another GIntNumCollectionT<int_type> object
 	 * @return A constant reference to this object
 	 */
-	G_API const GIntNumCollectionT<int_type>& operator=(const GIntNumCollectionT<int_type>& cp){
+	G_API_GENEVA const GIntNumCollectionT<int_type>& operator=(const GIntNumCollectionT<int_type>& cp){
 		GIntNumCollectionT<int_type>::load_(&cp);
 		return *this;
 	}
@@ -162,7 +162,7 @@ public:
 	 * @param  cp A constant reference to another GIntNumCollectionT<int_type> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	G_API bool operator==(const GIntNumCollectionT<int_type>& cp) const {
+	G_API_GENEVA bool operator==(const GIntNumCollectionT<int_type>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GIntNumCollectionT<int_type>::operator==","cp", CE_SILENT);
@@ -175,7 +175,7 @@ public:
 	 * @param  cp A constant reference to another GIntNumCollectionT<int_type> object
 	 * @return A boolean indicating whether both objects are in-equal
 	 */
-	G_API bool operator!=(const GIntNumCollectionT<int_type>& cp) const {
+	G_API_GENEVA bool operator!=(const GIntNumCollectionT<int_type>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of in-equality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GIntNumCollectionT<int_type>::operator!=","cp", CE_SILENT);
@@ -194,7 +194,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	G_API boost::optional<std::string> checkRelationshipWith(
+	G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -222,7 +222,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual G_API std::string name() const OVERRIDE {
+   virtual G_API_GENEVA std::string name() const OVERRIDE {
       return std::string("GIntNumCollectionT");
    }
 
@@ -233,7 +233,7 @@ protected:
 	 *
 	 * @param cp A copy of another GIntNumCollectionT<int_type>  object, camouflaged as a GObject
 	 */
-   G_API void load_(const GObject* cp) OVERRIDE {
+   G_API_GENEVA void load_(const GObject* cp) OVERRIDE {
 	    // Check that we are not accidently assigning this object to itself
 	    GObject::selfAssignmentCheck<GIntNumCollectionT<int_type> >(cp);
 
@@ -245,7 +245,7 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Creates a deep clone of this object. Pureley virtual, needs to be defined by derived classes */
-	virtual G_API GObject* clone_() const = 0;
+	virtual G_API_GENEVA GObject* clone_() const = 0;
 
 	/***************************************************************************/
 	/**
@@ -253,7 +253,7 @@ protected:
 	 * function assumes that the collection has been completely set up. Data
 	 * that is added later will remain unaffected.
 	 */
-	G_API void randomInit_(const activityMode&) OVERRIDE {
+	G_API_GENEVA void randomInit_(const activityMode&) OVERRIDE {
 		int_type lowerBoundary = GNumCollectionT<int_type>::getLowerInitBoundary();
 		int_type upperBoundary = GNumCollectionT<int_type>::getUpperInitBoundary();
 
@@ -273,7 +273,7 @@ public:
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 */
-	virtual G_API bool modify_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -292,7 +292,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// A few general settings
 		const std::size_t nItems = 100;
@@ -399,7 +399,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent class'es function
 		GNumCollectionT<int_type>::specificTestsFailuresExpected_GUnitTests();

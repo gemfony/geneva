@@ -70,7 +70,7 @@ class GBrokerPS
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API void serialize(Archive & ar, const unsigned int) {
+   G_API_GENEVA void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
       ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePS)
@@ -82,22 +82,22 @@ class GBrokerPS
 
 public:
    /** @brief The default constructor */
-   G_API GBrokerPS();
+   G_API_GENEVA GBrokerPS();
    /** @brief A standard copy constructor */
-   G_API GBrokerPS(const GBrokerPS&);
+   G_API_GENEVA GBrokerPS(const GBrokerPS&);
    /** @brief The destructor */
-   virtual G_API ~GBrokerPS();
+   virtual G_API_GENEVA ~GBrokerPS();
 
    /** @brief A standard assignment operator */
-   G_API const GBrokerPS& operator=(const GBrokerPS&);
+   G_API_GENEVA const GBrokerPS& operator=(const GBrokerPS&);
 
    /** @brief Checks for equality with another GBrokerPS object */
-   G_API bool operator==(const GBrokerPS&) const;
+   G_API_GENEVA bool operator==(const GBrokerPS&) const;
    /** @brief Checks for inequality with another GBrokerPS object */
-   G_API bool operator!=(const GBrokerPS&) const;
+   G_API_GENEVA bool operator!=(const GBrokerPS&) const;
 
    /** @brief Checks whether this object fulfills a given expectation in relation to another object */
-   virtual G_API boost::optional<std::string> checkRelationshipWith(
+   virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -107,29 +107,29 @@ public:
    ) const OVERRIDE;
 
    /** @brief Checks whether a given algorithm type likes to communicate via the broker */
-   virtual G_API bool usesBroker() const OVERRIDE;
+   virtual G_API_GENEVA bool usesBroker() const OVERRIDE;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
-   virtual G_API void addConfigurationOptions (
+   virtual G_API_GENEVA void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
    ) OVERRIDE;
 
    /** @brief Allows to assign a name to the role of this individual(-derivative) */
-   virtual G_API std::string getIndividualCharacteristic() const OVERRIDE;
+   virtual G_API_GENEVA std::string getIndividualCharacteristic() const OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual G_API std::string name() const OVERRIDE;
+   virtual G_API_GENEVA std::string name() const OVERRIDE;
 
 protected:
    /** @brief Loads the data of another population */
-   virtual G_API void load_(const GObject *) OVERRIDE;
+   virtual G_API_GENEVA void load_(const GObject *) OVERRIDE;
    /** @brief Creates a deep clone of this object */
-   virtual G_API GObject *clone_() const OVERRIDE;
+   virtual G_API_GENEVA GObject *clone_() const OVERRIDE;
 
    /** @brief Performs necessary initialization work */
-   virtual G_API void init();
+   virtual G_API_GENEVA void init();
    /** @brief Does any necessary finalization work */
-   virtual G_API void finalize();
+   virtual G_API_GENEVA void finalize();
 
    /** @brief Triggers fitness calculation of a number of individuals */
    virtual void runFitnessCalculation() OVERRIDE;
@@ -140,11 +140,11 @@ private:
 public:
    /***************************************************************************/
    /** @brief Applies modifications to this object. This is needed for testing purposes */
-   virtual G_API bool modify_GUnitTests() OVERRIDE;
+   virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-   virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+   virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-   virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+   virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

@@ -70,7 +70,7 @@ class GConstrainedFPT
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API void serialize(Archive & ar, const unsigned int) {
+	G_API_GENEVA void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
 		// Save data
@@ -87,7 +87,7 @@ public:
 	/**
 	 * The default constructor.
 	 */
-	G_API GConstrainedFPT()
+	G_API_GENEVA GConstrainedFPT()
 		: GConstrainedNumT<fp_type>()
     { /* nothing */ }
 
@@ -98,7 +98,7 @@ public:
 	 *
 	 * @param val The desired external value of this object
 	 */
-	explicit G_API GConstrainedFPT (const fp_type& val)
+	explicit G_API_GENEVA GConstrainedFPT (const fp_type& val)
 		: GConstrainedNumT<fp_type>(val)
 	{ /* nothing */ }
 
@@ -109,7 +109,7 @@ public:
 	 * @param lowerBoundary The lower boundary of the value range
 	 * @param upperBoundary The upper boundary of the value range
 	 */
-	G_API GConstrainedFPT (const fp_type& lowerBoundary , const fp_type& upperBoundary)
+	G_API_GENEVA GConstrainedFPT (const fp_type& lowerBoundary , const fp_type& upperBoundary)
 		: GConstrainedNumT<fp_type>(lowerBoundary, boost::math::float_prior<fp_type>(upperBoundary))
 	{
 		GParameterT<fp_type>::setValue(
@@ -133,7 +133,7 @@ public:
 	 * @param lowerBoundary The lower boundary of the value range
 	 * @param upperBoundary The upper boundary of the value range
 	 */
-	G_API GConstrainedFPT (
+	G_API_GENEVA GConstrainedFPT (
       const fp_type& val
      , const fp_type& lowerBoundary
      , const fp_type& upperBoundary
@@ -154,7 +154,7 @@ public:
 	 *
 	 * @param cp Another GConstrainedNumT<fp_type> object
 	 */
-	G_API GConstrainedFPT (const GConstrainedFPT<fp_type>& cp)
+	G_API_GENEVA GConstrainedFPT (const GConstrainedFPT<fp_type>& cp)
 		: GConstrainedNumT<fp_type>(cp)
 	{ /* nothing */ }
 
@@ -162,7 +162,7 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	virtual G_API ~GConstrainedFPT()
+	virtual G_API_GENEVA ~GConstrainedFPT()
 	{ /* nothing */	}
 
 	/***************************************************************************/
@@ -172,7 +172,7 @@ public:
 	 * @param cp A constant reference to another GConstrainedFPT<fp_type> object
 	 * @return A constant reference to this object
 	 */
-	G_API const GConstrainedFPT<fp_type>& operator= (const GConstrainedFPT<fp_type>& cp) {
+	G_API_GENEVA const GConstrainedFPT<fp_type>& operator= (const GConstrainedFPT<fp_type>& cp) {
 		GConstrainedFPT<fp_type>::load_(&cp);
 		return *this;
 	}
@@ -184,7 +184,7 @@ public:
      * @param cp A constant reference to another GConstrainedFPT<fp_type> object
      * @return A boolean indicating whether both objects are equal
      */
-	G_API bool operator==(const GConstrainedFPT<fp_type>& cp) const {
+	G_API_GENEVA bool operator==(const GConstrainedFPT<fp_type>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedFPT<fp_type>::operator==","cp", CE_SILENT);
@@ -197,7 +197,7 @@ public:
      * @param cp A constant reference to another GConstrainedFPT<fp_type> object
      * @return A boolean indicating whether both objects are inequal
      */
-	G_API bool operator!= (const GConstrainedFPT<fp_type>& cp) const {
+	G_API_GENEVA bool operator!= (const GConstrainedFPT<fp_type>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, as no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedFPT<fp_type>::operator!=","cp", CE_SILENT);
@@ -216,7 +216,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	virtual G_API boost::optional<std::string> checkRelationshipWith (
+	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith (
      const GObject& cp
      , const Gem::Common::expectation& e
      , const double& limit
@@ -247,7 +247,7 @@ public:
 	 * @param The desired new external value
 	 * @return The new external value of this object
 	 */
-	virtual G_API fp_type operator=(const fp_type& val) {
+	virtual G_API_GENEVA fp_type operator=(const fp_type& val) {
       fp_type tmpVal = val;
       if(val==boost::math::float_next<fp_type>(this->getUpperBoundary())) {
          tmpVal = boost::math::float_prior<fp_type>(val);
@@ -271,7 +271,7 @@ public:
 	 *
 	 * @param val The new fp_type value stored in this class
 	 */
-	virtual G_API void setValue(const fp_type& val) OVERRIDE {
+	virtual G_API_GENEVA void setValue(const fp_type& val) OVERRIDE {
 	   fp_type tmpVal = val;
 	   if(val==boost::math::float_next<fp_type>(this->getUpperBoundary())) {
 	      tmpVal = boost::math::float_prior<fp_type>(val);
@@ -297,7 +297,7 @@ public:
 	 * @param lowerBoundary The lower boundary of the value range
 	 * @param upperBoundary The upper boundary of the value range
 	 */
-	virtual G_API void setValue(
+	virtual G_API_GENEVA void setValue(
       const fp_type& val
       , const fp_type& lowerBoundary
       , const fp_type& upperBoundary
@@ -329,7 +329,7 @@ public:
 	 * @param lower The new lower boundary for this object
 	 * @param upper The new upper boundary for this object
 	 */
-	virtual G_API void setBoundaries(const fp_type& lowerBoundary, const fp_type& upperBoundary) OVERRIDE {
+	virtual G_API_GENEVA void setBoundaries(const fp_type& lowerBoundary, const fp_type& upperBoundary) OVERRIDE {
 		// Set the actual boundaries
 		GConstrainedNumT<fp_type>::setBoundaries(lowerBoundary, boost::math::float_prior<fp_type>(upperBoundary));
 	}
@@ -341,7 +341,7 @@ public:
 	 * @param val The value to which the transformation should be applied
 	 * @return The transformed value
 	 */
-	virtual G_API fp_type transfer(const fp_type& val) const  OVERRIDE {
+	virtual G_API_GENEVA fp_type transfer(const fp_type& val) const  OVERRIDE {
 		fp_type lowerBoundary = GConstrainedNumT<fp_type>::getLowerBoundary();
 		fp_type upperBoundary = GConstrainedNumT<fp_type>::getUpperBoundary();
 
@@ -384,7 +384,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual G_API std::string name() const OVERRIDE {
+   virtual G_API_GENEVA std::string name() const OVERRIDE {
       return std::string("GConstrainedFPT");
    }
 
@@ -395,7 +395,7 @@ protected:
 	 *
 	 * @param cp Another GConstrainedFPT<fp_type> object, camouflaged as a GObject
 	 */
-	virtual G_API void load_(const GObject *cp) OVERRIDE {
+	virtual G_API_GENEVA void load_(const GObject *cp) OVERRIDE {
 		// Convert GObject pointer to local format
 		const GConstrainedFPT<fp_type> *p_load = GObject::gobject_conversion<GConstrainedFPT<fp_type> >(cp);
 
@@ -407,13 +407,13 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Create a deep copy of this object */
-	virtual G_API GObject *clone_() const = 0;
+	virtual G_API_GENEVA GObject *clone_() const = 0;
 
 	/***************************************************************************/
 	/**
 	 * Randomly initializes the parameter (within its limits)
 	 */
-	virtual G_API void randomInit_(const activityMode&) OVERRIDE {
+	virtual G_API_GENEVA void randomInit_(const activityMode&) OVERRIDE {
 		this->setValue(
 				this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(
 						GConstrainedNumT<fp_type>::getLowerBoundary(), GConstrainedNumT<fp_type>::getUpperBoundary()
@@ -433,7 +433,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual G_API bool modify_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -452,7 +452,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Some general settings
 		const std::size_t nTests = 10000;
@@ -868,7 +868,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Some general settings
 		const fp_type testVal = fp_type(42);

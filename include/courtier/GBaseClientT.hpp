@@ -88,7 +88,7 @@ public:
 	/**
 	 * The default constructor.
 	 */
-   G_API GBaseClientT()
+   G_API_COURTIER GBaseClientT()
 		: startTime_(boost::posix_time::microsec_clock::local_time())
 		, maxDuration_(boost::posix_time::microsec(0))
 		, processed_(0)
@@ -106,7 +106,7 @@ public:
 	 *
 	 * @param additionalDataTemplate The model of the item to be processed
 	 */
-   G_API GBaseClientT(boost::shared_ptr<processable_type> additionalDataTemplate)
+   G_API_COURTIER GBaseClientT(boost::shared_ptr<processable_type> additionalDataTemplate)
 		: startTime_(boost::posix_time::microsec_clock::local_time())
 		, maxDuration_(boost::posix_time::microsec(0))
 		, processed_(0)
@@ -121,7 +121,7 @@ public:
 	/**
 	 * A standard destructor. We have no local, dynamically allocated data, hence it is empty.
 	 */
-	virtual G_API ~GBaseClientT()
+	virtual G_API_COURTIER ~GBaseClientT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -131,7 +131,7 @@ public:
 	 * number of processing steps has been reached. All network connectivity is done
 	 * in process().
 	 */
-	G_API void run(){
+	G_API_COURTIER void run(){
 		try{
 			if(this->init()) {
 				while(
@@ -185,7 +185,7 @@ public:
 	 *
 	 * @param processMax Desired value for the processMax_ variable
 	 */
-	G_API void setProcessMax(const boost::uint32_t& processMax){
+	G_API_COURTIER void setProcessMax(const boost::uint32_t& processMax){
 		processMax_ = processMax;
 	}
 
@@ -196,7 +196,7 @@ public:
 	 *
 	 * @return The value of the processMax_ variable
 	 */
-	G_API boost::uint32_t getProcessMax() const{
+	G_API_COURTIER boost::uint32_t getProcessMax() const{
 		return processMax_;
 	}
 
@@ -206,7 +206,7 @@ public:
 	 *
 	 * @param maxDuration The maximum allowed processing time
 	 */
-	G_API void setMaxTime(const boost::posix_time::time_duration& maxDuration) {
+	G_API_COURTIER void setMaxTime(const boost::posix_time::time_duration& maxDuration) {
 		using namespace boost::posix_time;
 
 		// Only allow "real" values
@@ -226,7 +226,7 @@ public:
 	 *
 	 * @return The maximum allowed processing time
 	 */
-	G_API boost::posix_time::time_duration getMaxTime() {
+	G_API_COURTIER boost::posix_time::time_duration getMaxTime() {
 		return maxDuration_;
 	}
 
@@ -237,7 +237,7 @@ public:
 	 *
 	 * @param returnRegardless Specifies whether results should be returned to the server regardless of their success
 	 */
-	G_API void setReturnRegardless(const bool& returnRegardless) {
+	G_API_COURTIER void setReturnRegardless(const bool& returnRegardless) {
 		returnRegardless_ = returnRegardless;
 	}
 
@@ -248,7 +248,7 @@ public:
     *
     * @return Whether results should be returned to the server regardless of their success
 	 */
-	G_API bool getReturnRegardless() const {
+	G_API_COURTIER bool getReturnRegardless() const {
 	   return returnRegardless_;
 	}
 
@@ -259,7 +259,7 @@ protected:
 	 * In order to allow derived classes to concentrate on network issues, all
 	 * unpacking, the calculation, and packing is done in the GBaseClientT class
 	 */
-	G_API bool process(){
+	G_API_COURTIER bool process(){
 		 // Store the current serialization mode
 		Gem::Common::serializationMode serMode;
 
@@ -327,27 +327,27 @@ protected:
 	/***************************************************************************/
 
 	/** @brief Performs initialization work */
-	virtual G_API bool init() { return true; }
+	virtual G_API_COURTIER bool init() { return true; }
 
 	/***************************************************************************/
 
 	/** @brief Perform necessary finalization activities */
-	virtual G_API bool finally() { return true; }
+	virtual G_API_COURTIER bool finally() { return true; }
 
 	/***************************************************************************/
 
 	/** @brief Retrieve work items from the server. To be defined by derived classes. */
-	virtual G_API bool retrieve(std::string&, std::string&, std::string&) = 0;
+	virtual G_API_COURTIER bool retrieve(std::string&, std::string&, std::string&) = 0;
 
 	/***************************************************************************/
 
 	/** @brief Submit processed items to the server. To be defined by derived classes. */
-	virtual G_API bool submit(const std::string&, const std::string&) = 0;
+	virtual G_API_COURTIER bool submit(const std::string&, const std::string&) = 0;
 
 	/***************************************************************************/
 
 	/** @brief Custom halt condition for processing */
-	virtual G_API bool customHalt(){ return false; }
+	virtual G_API_COURTIER bool customHalt(){ return false; }
 
 private:
 	/***************************************************************************/

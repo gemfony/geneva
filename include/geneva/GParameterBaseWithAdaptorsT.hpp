@@ -70,7 +70,7 @@ class GParameterBaseWithAdaptorsT:	public GParameterBase
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API void serialize(Archive & ar, const unsigned int) {
+	G_API_GENEVA void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
 		ar
@@ -85,7 +85,7 @@ public:
 	 * The default constructor. adaptor_ will be initialized with the default adaptor for this
 	 * type
 	 */
-	G_API GParameterBaseWithAdaptorsT()
+	G_API_GENEVA GParameterBaseWithAdaptorsT()
 		: GParameterBase()
 		, adaptor_(getDefaultAdaptor<T>())
 	{ /* nothing */	}
@@ -96,7 +96,7 @@ public:
 	 *
 	 * @param cp A copy of another GParameterBaseWithAdaptorsT object
 	 */
-	G_API GParameterBaseWithAdaptorsT(const GParameterBaseWithAdaptorsT<T>& cp)
+	G_API_GENEVA GParameterBaseWithAdaptorsT(const GParameterBaseWithAdaptorsT<T>& cp)
 		: GParameterBase(cp)
 		, adaptor_((cp.adaptor_)->GObject::template clone<GAdaptorT<T> >())
 	{ /* nothing */ }
@@ -105,7 +105,7 @@ public:
 	/**
 	 * The destructor. All cleanup work is done by boost::shared_ptr.
 	 */
-	virtual G_API ~GParameterBaseWithAdaptorsT()
+	virtual G_API_GENEVA ~GParameterBaseWithAdaptorsT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -115,7 +115,7 @@ public:
 	 * @param  cp A constant reference to another GParameterBaseWithAdaptorsT object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	G_API bool operator==(const GParameterBaseWithAdaptorsT<T>& cp) const {
+	G_API_GENEVA bool operator==(const GParameterBaseWithAdaptorsT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterBaseWithAdaptorsT<T>::operator==","cp", CE_SILENT);
@@ -128,7 +128,7 @@ public:
 	 * @param  cp A constant reference to another GParameterBaseWithAdaptorsT object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	G_API bool operator!=(const GParameterBaseWithAdaptorsT<T>& cp) const {
+	G_API_GENEVA bool operator!=(const GParameterBaseWithAdaptorsT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterBaseWithAdaptorsT<T>::operator!=","cp", CE_SILENT);
@@ -147,7 +147,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	G_API boost::optional<std::string> checkRelationshipWith(
+	G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -179,7 +179,7 @@ public:
 	 *
 	 * @param gat_ptr A boost::shared_ptr to an adaptor
 	 */
-	G_API void addAdaptor(boost::shared_ptr<GAdaptorT<T> > gat_ptr) {
+	G_API_GENEVA void addAdaptor(boost::shared_ptr<GAdaptorT<T> > gat_ptr) {
 		// Check that we have indeed been given an adaptor
 		if(!gat_ptr){
 		   glogger
@@ -222,7 +222,7 @@ public:
 	 *
 	 * @return A boost::shared_ptr to the adaptor
 	 */
-	G_API boost::shared_ptr<GAdaptorT<T> > getAdaptor() const {
+	G_API_GENEVA boost::shared_ptr<GAdaptorT<T> > getAdaptor() const {
 #ifdef DEBUG
 		if(!adaptor_) {
 		   glogger
@@ -254,7 +254,7 @@ public:
 	 * @return The desired adaptor instance, using its "natural" type
 	 */
 	template <typename adaptor_type>
-	G_API boost::shared_ptr<adaptor_type> getAdaptor(
+	G_API_GENEVA boost::shared_ptr<adaptor_type> getAdaptor(
       typename boost::enable_if<boost::is_base_of<GAdaptorT<T>, adaptor_type> >::type* dummy = 0
 	) const {
 #ifdef DEBUG
@@ -285,7 +285,7 @@ public:
 	/**
 	 * This function resets the local adaptor_ pointer.
 	 */
-	G_API void resetAdaptor() {
+	G_API_GENEVA void resetAdaptor() {
 		adaptor_ = getDefaultAdaptor<T>();
 	}
 
@@ -300,7 +300,7 @@ public:
 	 *
 	 * @return A boolean indicating whether adaptors are present
 	 */
-	G_API bool hasAdaptor() const {
+	G_API_GENEVA bool hasAdaptor() const {
 		if(adaptor_) return true;
 		return false;
 	}
@@ -317,7 +317,7 @@ public:
 	 *
 	 * @param gr_cp A reference to another object's GRandomBaseT object derivative
 	 */
-	virtual G_API void assignGRandomPointer(Gem::Hap::GRandomBase *gr_cp) {
+	virtual G_API_GENEVA void assignGRandomPointer(Gem::Hap::GRandomBase *gr_cp) {
 		if(adaptor_) adaptor_->assignGRandomPointer(gr_cp);
 		GParameterBase::assignGRandomPointer(gr_cp);
 	}
@@ -331,7 +331,7 @@ public:
 	/**
 	 * Re-connects the local random number generator to gr and tells the adaptor to do the same.
 	 */
-	virtual G_API void resetGRandomPointer() {
+	virtual G_API_GENEVA void resetGRandomPointer() {
 		if(adaptor_) adaptor_->resetGRandomPointer();
 		GParameterBase::resetGRandomPointer();
 	}
@@ -349,7 +349,7 @@ public:
 	 *
 	 * @bool A boolean indicating whether solely the local random number generator is used
 	 */
-	virtual G_API bool usesLocalRNG() const {
+	virtual G_API_GENEVA bool usesLocalRNG() const {
 		bool result=true;
 
 		if(adaptor_ && !adaptor_->usesLocalRNG()) result=false;
@@ -371,7 +371,7 @@ public:
 	 *
 	 * @bool A boolean indicating whether solely the foreign random number generator is used
 	 */
-	virtual G_API bool assignedRNGUsed() const {
+	virtual G_API_GENEVA bool assignedRNGUsed() const {
 		bool result=true;
 
 		if(adaptor_ && !adaptor_->assignedRNGUsed()) result=false;
@@ -389,7 +389,7 @@ public:
 	/**
 	 * Emits a name for this class / object
 	 */
-	virtual G_API std::string name() const OVERRIDE {
+	virtual G_API_GENEVA std::string name() const OVERRIDE {
 	   return std::string("GParameterBaseWithAdaptorsT");
 	}
 
@@ -400,7 +400,7 @@ public:
 	 * @param nStalls The number of consecutive stalls up to this point
 	 * @return A boolean indicating whether updates were performed
 	 */
-	virtual G_API bool updateAdaptorsOnStall(const std::size_t& nStalls) OVERRIDE {
+	virtual G_API_GENEVA bool updateAdaptorsOnStall(const std::size_t& nStalls) OVERRIDE {
 #ifdef DEBUG
       if (!adaptor_) {
          glogger
@@ -422,7 +422,7 @@ public:
     * @param property The property for which information is sought
     * @param data A vector, to which the properties should be added
     */
-   virtual G_API void queryAdaptor(
+   virtual G_API_GENEVA void queryAdaptor(
       const std::string& adaptorName
       , const std::string& property
       , std::vector<boost::any>& data
@@ -450,7 +450,7 @@ protected:
 	 *
 	 * @param cp A copy of another GParameterBaseWithAdaptorsT, camouflaged as a GObject
 	 */
-	virtual G_API void load_(const GObject* cp) OVERRIDE {
+	virtual G_API_GENEVA void load_(const GObject* cp) OVERRIDE {
 		// Convert cp into local format
 		const GParameterBaseWithAdaptorsT<T> *p_load = this->gobject_conversion<GParameterBaseWithAdaptorsT<T> >(cp);
 
@@ -477,9 +477,9 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Creates a deep clone of this object. Purely virtual, as we do not want this class to be instantiated directly */
-	virtual G_API GObject* clone_() const = 0;
+	virtual G_API_GENEVA GObject* clone_() const = 0;
    /** @brief Returns a "comparative range"; this is e.g. used to make Gauss-adaption independent of a parameters value range */
-   virtual G_API T range() const = 0;
+   virtual G_API_GENEVA T range() const = 0;
 
 	/***************************************************************************/
 	/**
@@ -490,7 +490,7 @@ protected:
 	 * @param range A typical value range of underlying parameter types
 	 * @return The number of adaptions that were carried out
 	 */
-   G_API std::size_t applyAdaptor(
+   G_API_GENEVA std::size_t applyAdaptor(
       T &value
       , const T& range
    ) {
@@ -523,7 +523,7 @@ protected:
 	 * @param range A typical value range of underlying parameter types
 	 * @return The number of adaptions that were carried out
 	 */
-   G_API std::size_t applyAdaptor(
+   G_API_GENEVA std::size_t applyAdaptor(
       std::vector<T> &collection
       , const T& range
    ) {
@@ -561,7 +561,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual G_API bool modify_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -580,7 +580,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterBase::specificTestsNoFailureExpected_GUnitTests();
@@ -656,7 +656,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterBase::specificTestsFailuresExpected_GUnitTests();
@@ -682,7 +682,7 @@ public:
  * @return The number of adaptions that were carried out
  */
 template <>
-inline G_API std::size_t GParameterBaseWithAdaptorsT<bool>::applyAdaptor(
+inline G_API_GENEVA std::size_t GParameterBaseWithAdaptorsT<bool>::applyAdaptor(
    std::vector<bool>& collection
    , const bool& range
 ) {

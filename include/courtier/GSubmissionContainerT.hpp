@@ -78,7 +78,7 @@ class GSubmissionContainerT {
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API void serialize(Archive & ar, const unsigned int){
+	G_API_COURTIER void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
 	  ar & BOOST_SERIALIZATION_NVP(id_);
@@ -90,7 +90,7 @@ public:
 	/**
 	 * The default constructor
 	 */
-	G_API GSubmissionContainerT()
+	G_API_COURTIER GSubmissionContainerT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -99,7 +99,7 @@ public:
 	 *
 	 * @param cp A copy of another GSubmissionContainer object
 	 */
-	G_API GSubmissionContainerT(
+	G_API_COURTIER GSubmissionContainerT(
 	      const GSubmissionContainerT<submission_type>& cp
 	) : id_(cp.id_)
 	{ /* nothing */ }
@@ -109,12 +109,12 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual G_API ~GSubmissionContainerT()
+	virtual G_API_COURTIER ~GSubmissionContainerT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
 	/** @brief Allows derived classes to specify the tasks to be performed for this object */
-	virtual G_API bool process() = 0;
+	virtual G_API_COURTIER bool process() = 0;
 
 	/***************************************************************************/
 	/**
@@ -127,7 +127,7 @@ public:
 	 *
 	 * @param cD_ptr A pointer to the object whose data should be loaded
 	 */
-	virtual G_API void loadConstantData(boost::shared_ptr<submission_type>)
+	virtual G_API_COURTIER void loadConstantData(boost::shared_ptr<submission_type>)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -136,7 +136,7 @@ public:
 	 *
 	 * @param id An id that allows the broker connector to identify this object
 	 */
-	G_API void setCourtierId(const boost::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2>& id) {
+	G_API_COURTIER void setCourtierId(const boost::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2>& id) {
 		id_ = id;
 	}
 
@@ -146,7 +146,7 @@ public:
 	 *
 	 * @return An id that allows the broker connector to identify this object
 	 */
-	G_API boost::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> getCourtierId() const {
+	G_API_COURTIER boost::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> getCourtierId() const {
 		return id_;
 	}
 

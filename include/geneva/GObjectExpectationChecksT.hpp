@@ -89,7 +89,7 @@ namespace Common {
  */
 
 template <typename geneva_type>
-G_API boost::optional<std::string> checkExpectation (
+G_API_GENEVA boost::optional<std::string> checkExpectation (
 		const bool& withMessages
 	  , const std::string& caller
 	  , const boost::shared_ptr<geneva_type>& x
@@ -207,7 +207,7 @@ G_API boost::optional<std::string> checkExpectation (
  */
 
 template <typename geneva_type>
-G_API boost::optional<std::string> checkExpectation (
+G_API_GENEVA boost::optional<std::string> checkExpectation (
   const bool& withMessages
   , const std::string& caller
   , const std::vector<boost::shared_ptr<geneva_type> >& x
@@ -336,7 +336,7 @@ G_API boost::optional<std::string> checkExpectation (
  */
 
 template <typename geneva_type>
-G_API boost::optional<std::string> checkExpectation (
+G_API_GENEVA boost::optional<std::string> checkExpectation (
   const bool& withMessages
   , const std::string& caller
   , const std::deque<boost::shared_ptr<geneva_type> >& x

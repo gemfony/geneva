@@ -65,7 +65,7 @@ class GDoubleGaussAdaptor
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API void serialize(Archive & ar, const unsigned int){
+	G_API_GENEVA void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
 	  ar
@@ -75,20 +75,20 @@ class GDoubleGaussAdaptor
 
 public:
 	/** @brief The default constructor */
-	G_API GDoubleGaussAdaptor();
+	G_API_GENEVA GDoubleGaussAdaptor();
 	/** @brief The copy constructor */
-	G_API GDoubleGaussAdaptor(const GDoubleGaussAdaptor&);
+	G_API_GENEVA GDoubleGaussAdaptor(const GDoubleGaussAdaptor&);
 	/** @brief Initialization with a adaption probability */
-	explicit G_API GDoubleGaussAdaptor(const double&);
+	explicit G_API_GENEVA GDoubleGaussAdaptor(const double&);
 	/** @brief Initialization with a number of values belonging to the width of the gaussian */
-	G_API GDoubleGaussAdaptor(
+	G_API_GENEVA GDoubleGaussAdaptor(
       const double&
       , const double&
       , const double&
       , const double&
 	);
 	/** @brief Initialization with a number of values belonging to the width of the gaussian and the adaption probability */
-	G_API GDoubleGaussAdaptor(
+	G_API_GENEVA GDoubleGaussAdaptor(
       const double&
       , const double&
       , const double&
@@ -96,18 +96,18 @@ public:
       , const double&
 	);
 	/** @brief The destructor */
-	virtual G_API ~GDoubleGaussAdaptor();
+	virtual G_API_GENEVA ~GDoubleGaussAdaptor();
 
 	/** @brief A standard assignment operator */
-	G_API const GDoubleGaussAdaptor& operator=(const GDoubleGaussAdaptor&);
+	G_API_GENEVA const GDoubleGaussAdaptor& operator=(const GDoubleGaussAdaptor&);
 
 	/** @brief Checks for equality with another GDoubleGaussAdaptor object */
-	G_API bool operator==(const GDoubleGaussAdaptor&) const;
+	G_API_GENEVA bool operator==(const GDoubleGaussAdaptor&) const;
 	/** @brief Checks for inequality with another GDoubleGaussAdaptor object */
-	G_API bool operator!=(const GDoubleGaussAdaptor&) const;
+	G_API_GENEVA bool operator!=(const GDoubleGaussAdaptor&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual G_API boost::optional<std::string> checkRelationshipWith(
+	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -117,24 +117,24 @@ public:
 	) const OVERRIDE;
 
 	/** @brief Retrieves the id of this adaptor */
-	virtual G_API Gem::Geneva::adaptorId getAdaptorId() const OVERRIDE;
+	virtual G_API_GENEVA Gem::Geneva::adaptorId getAdaptorId() const OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual G_API std::string name() const OVERRIDE;
+   virtual G_API_GENEVA std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another GObject */
-	virtual G_API void load_(const GObject*) OVERRIDE;
+	virtual G_API_GENEVA void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object. */
-	virtual G_API GObject* clone_() const OVERRIDE;
+	virtual G_API_GENEVA GObject* clone_() const OVERRIDE;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual G_API bool modify_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

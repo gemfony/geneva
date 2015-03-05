@@ -62,7 +62,7 @@ class GDoubleObjectCollection
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API void serialize(Archive & ar, const unsigned int){
+	G_API_GENEVA void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
 	  ar
@@ -73,24 +73,24 @@ class GDoubleObjectCollection
 
 public:
 	/** @brief The default constructor */
-	G_API GDoubleObjectCollection();
+	G_API_GENEVA GDoubleObjectCollection();
 	/** @brief Initialization with a number of GDoubleObject objects */
-	G_API GDoubleObjectCollection(const std::size_t&, boost::shared_ptr<GDoubleObject>);
+	G_API_GENEVA GDoubleObjectCollection(const std::size_t&, boost::shared_ptr<GDoubleObject>);
 	/** @brief The copy constructor */
-	G_API GDoubleObjectCollection(const GDoubleObjectCollection&);
+	G_API_GENEVA GDoubleObjectCollection(const GDoubleObjectCollection&);
 	/** @brief The destructor */
-	virtual G_API ~GDoubleObjectCollection();
+	virtual G_API_GENEVA ~GDoubleObjectCollection();
 
 	/** @brief A standard assignment operator */
-	G_API const GDoubleObjectCollection& operator=(const GDoubleObjectCollection&);
+	G_API_GENEVA const GDoubleObjectCollection& operator=(const GDoubleObjectCollection&);
 
 	/** @brief Checks for equality with another GDoubleObjectCollection object */
-	G_API bool operator==(const GDoubleObjectCollection&) const;
+	G_API_GENEVA bool operator==(const GDoubleObjectCollection&) const;
 	/** @brief Checks for inequality with another GDoubleObjectCollection object */
-	G_API bool operator!=(const GDoubleObjectCollection&) const;
+	G_API_GENEVA bool operator!=(const GDoubleObjectCollection&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual G_API boost::optional<std::string> checkRelationshipWith(
+	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -100,23 +100,23 @@ public:
 	) const OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual G_API std::string name() const OVERRIDE;
+   virtual G_API_GENEVA std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another GObject */
-	virtual G_API void load_(const GObject*) OVERRIDE;
+	virtual G_API_GENEVA void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object. */
-	virtual G_API GObject* clone_() const OVERRIDE;
+	virtual G_API_GENEVA GObject* clone_() const OVERRIDE;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual G_API bool modify_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE;
 	/** @brief Fills the collection with GDoubleObject objects */
-	G_API void fillWithObjects(const std::size_t&);
+	G_API_GENEVA void fillWithObjects(const std::size_t&);
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

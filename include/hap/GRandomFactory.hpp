@@ -116,38 +116,38 @@ class GRandomFactory {
 
 public:
 	/** @brief The default constructor */
-	G_API GRandomFactory();
+	G_API_HAP GRandomFactory();
 	/** @brief The destructor */
-	G_API ~GRandomFactory();
+	G_API_HAP ~GRandomFactory();
 
 	/** @brief Initialization code for the GRandomFactory */
-	G_API void init();
+	G_API_HAP void init();
 	/** @brief Finalization code for the GRandomFactory */
-	G_API void finalize();
+	G_API_HAP void finalize();
 
 	/** @brief Sets the number of producer threads for this factory. */
-	G_API void setNProducerThreads(const boost::uint16_t&);
+	G_API_HAP void setNProducerThreads(const boost::uint16_t&);
 	/** @brief Delivers a new [0,1[ random number container with the current standard size to clients */
-	G_API boost::shared_array<double> new01Container();
+	G_API_HAP boost::shared_array<double> new01Container();
 
 	/** @brief Allows to retrieve the size of the array */
-	G_API std::size_t getCurrentArraySize() const;
+	G_API_HAP std::size_t getCurrentArraySize() const;
 
 	/** @brief Allows to retrieve the size of the buffer */
-	G_API std::size_t getBufferSize() const;
+	G_API_HAP std::size_t getBufferSize() const;
 
 	/** @brief Setting of an initial seed for random number generators */
-	G_API bool setStartSeed(const initial_seed_type&);
+	G_API_HAP bool setStartSeed(const initial_seed_type&);
 	/** @brief Retrieval of the start-value of the global seed */
-	G_API initial_seed_type getStartSeed() const;
+	G_API_HAP initial_seed_type getStartSeed() const;
 	/** @brief Checks whether seeding has already started*/
-	G_API bool checkSeedingIsInitialized() const;
+	G_API_HAP bool checkSeedingIsInitialized() const;
 
 	/** @brief Retrieval of a new seed for external or internal random number generators */
-	G_API seed_type getSeed();
+	G_API_HAP seed_type getSeed();
 
 	/** @brief Allows to retrieve the size of the seeding queue */
-	G_API std::size_t getSeedingQueueSize() const;
+	G_API_HAP std::size_t getSeedingQueueSize() const;
 
 private:
 	/***************************************************************************/

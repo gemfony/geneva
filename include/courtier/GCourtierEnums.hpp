@@ -119,7 +119,7 @@ const std::string DEFAULTDURATION = EMPTYDURATION;
 /**
  * Needed by the broker connector
  */
-enum G_API submissionReturnMode {
+enum G_API_COURTIER submissionReturnMode {
 	INCOMPLETERETURN = 0
 	, RESUBMISSIONAFTERTIMEOUT = 1
 	, EXPECTFULLRETURN = 2
@@ -141,10 +141,10 @@ typedef ID_TYPE_2 POSITIONTYPE;
 /******************************************************************************/
 
 /** @brief Puts a Gem::Courtier::submissionReturnMode into a stream. Needed also for boost::lexical_cast<> */
-G_API std::ostream& operator<<(std::ostream&, const Gem::Courtier::submissionReturnMode&);
+G_API_COURTIER std::ostream& operator<<(std::ostream&, const Gem::Courtier::submissionReturnMode&);
 
 /** @brief Reads a Gem::Courtier::submissionReturnMode item from a stream. Needed also for boost::lexical_cast<> */
-G_API std::istream& operator>>(std::istream&, Gem::Courtier::submissionReturnMode&);
+G_API_COURTIER std::istream& operator>>(std::istream&, Gem::Courtier::submissionReturnMode&);
 
 /******************************************************************************/
 

@@ -67,51 +67,51 @@ class GParameterScanFactory
 {
 public:
    /** @brief An easy identifier for the class */
-   static G_API const std::string nickname; // Initialized in the .cpp definition file
+   static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
 
    /** @brief The default constructor */
-   G_API GParameterScanFactory();
+   G_API_GENEVA GParameterScanFactory();
    /** @brief Initialization with the name of the config file and the default parallelization mode */
-   explicit G_API GParameterScanFactory(const std::string&);
+   explicit G_API_GENEVA GParameterScanFactory(const std::string&);
    /** @brief The standard constructor */
-   G_API GParameterScanFactory(
+   G_API_GENEVA GParameterScanFactory(
       const std::string&
       , const execMode&
    );
    /** @brief A constructor that also adds a content creation function */
-   G_API GParameterScanFactory(
+   G_API_GENEVA GParameterScanFactory(
       const std::string&
       , const execMode&
       , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
    );
    /** @brief The destructor */
-   virtual G_API ~GParameterScanFactory();
+   virtual G_API_GENEVA ~GParameterScanFactory();
 
    /** @brief Adds local command line options to boost::program_options::options_description objects */
-   virtual G_API void addCLOptions(
+   virtual G_API_GENEVA void addCLOptions(
       boost::program_options::options_description&
       , boost::program_options::options_description&
    ) OVERRIDE;
 
    /** @brief Gives access to the mnemonics / nickname describing an algorithm */
-   virtual G_API std::string getMnemonic() const OVERRIDE;
+   virtual G_API_GENEVA std::string getMnemonic() const OVERRIDE;
    /** @brief Gives access to a clear-text description of the algorithm */
-   virtual G_API std::string getAlgorithmName() const OVERRIDE;
+   virtual G_API_GENEVA std::string getAlgorithmName() const OVERRIDE;
 
    /** @brief Allows to specify the parameter settings manually for variables to be scanned */
-   G_API void setParameterSpecs(std::string parStr);
+   G_API_GENEVA void setParameterSpecs(std::string parStr);
    /** @brief Allows to retrieve the parameter settings for variables to be scanned */
-   G_API std::string getParameterSpecs() const;
+   G_API_GENEVA std::string getParameterSpecs() const;
    /** @brief Allows to reset the parameter specs */
-   G_API void resetParameterSpecs();
+   G_API_GENEVA void resetParameterSpecs();
 
 protected:
    /** @brief Creates individuals of this type */
-   virtual G_API boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > getObject_(Gem::Common::GParserBuilder&, const std::size_t&) OVERRIDE;
+   virtual G_API_GENEVA boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > getObject_(Gem::Common::GParserBuilder&, const std::size_t&) OVERRIDE;
    /** @brief Allows to describe local configuration options in derived classes */
-   virtual G_API void describeLocalOptions_(Gem::Common::GParserBuilder&) OVERRIDE;
+   virtual G_API_GENEVA void describeLocalOptions_(Gem::Common::GParserBuilder&) OVERRIDE;
    /** @brief Allows to act on the configuration options received from the configuration file */
-   virtual G_API void postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >&) OVERRIDE;
+   virtual G_API_GENEVA void postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >&) OVERRIDE;
 
 private:
    std::string parameterSpec_;   ///< Holds information on the variables to be optimized -- set through the configuration file

@@ -74,7 +74,7 @@ class GConstrainedFPNumCollectionT
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API void serialize(Archive & ar, const unsigned int) {
+	G_API_GENEVA void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar
 		& make_nvp("GConstrainedNumCollectionT",
@@ -98,7 +98,7 @@ public:
 	 * @param lowerBoundary The lower boundary for data members
 	 * @param upperBoundary The upper boundary for data members
 	 */
-	G_API GConstrainedFPNumCollectionT (
+	G_API_GENEVA GConstrainedFPNumCollectionT (
       const std::size_t& size
       , const fp_type& lowerBoundary
       , const fp_type& upperBoundary
@@ -125,7 +125,7 @@ public:
 	 * @param lowerBoundary The lower boundary for data members
 	 * @param upperBoundary The upper boundary for data members
 	 */
-	G_API GConstrainedFPNumCollectionT (
+	G_API_GENEVA GConstrainedFPNumCollectionT (
       const std::size_t& size
       , const fp_type& val
       , const fp_type& lowerBoundary
@@ -143,7 +143,7 @@ public:
 	/**
 	 * The standard copy constructor
 	 */
-	G_API GConstrainedFPNumCollectionT(const GConstrainedFPNumCollectionT<fp_type>& cp)
+	G_API_GENEVA GConstrainedFPNumCollectionT(const GConstrainedFPNumCollectionT<fp_type>& cp)
 		: GConstrainedNumCollectionT<fp_type> (cp)
 	{ /* nothing */ }
 
@@ -151,7 +151,7 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	virtual G_API ~GConstrainedFPNumCollectionT()
+	virtual G_API_GENEVA ~GConstrainedFPNumCollectionT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -167,7 +167,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	virtual G_API boost::optional<std::string> checkRelationshipWith(
+	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -198,7 +198,7 @@ public:
 	 * @param val The value to which the transformation should be applied
 	 * @return The transformed value
 	 */
-	virtual G_API fp_type transfer(const fp_type& val) const OVERRIDE {
+	virtual G_API_GENEVA fp_type transfer(const fp_type& val) const OVERRIDE {
 		fp_type lowerBoundary = GConstrainedNumCollectionT<fp_type>::getLowerBoundary();
 		fp_type upperBoundary = GConstrainedNumCollectionT<fp_type>::getUpperBoundary();
 
@@ -237,7 +237,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual G_API std::string name() const OVERRIDE {
+   virtual G_API_GENEVA std::string name() const OVERRIDE {
       return std::string("GConstrainedFPNumCollectionT");
    }
 
@@ -251,7 +251,7 @@ protected:
 	 *
 	 * @param cp A copy of another GConstrainedFPNumCollectionT<fp_type> object, camouflaged as a GObject
 	 */
-	virtual G_API void load_(const GObject *cp) OVERRIDE {
+	virtual G_API_GENEVA void load_(const GObject *cp) OVERRIDE {
 		// Convert cp into local format
 		const GConstrainedFPNumCollectionT<fp_type> *p_load = GObject::gobject_conversion<GConstrainedFPNumCollectionT<fp_type> >(cp);
 
@@ -263,13 +263,13 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Creates a deep copy of this object */
-	virtual G_API GObject *clone_() const = 0;
+	virtual G_API_GENEVA GObject *clone_() const = 0;
 
 	/***************************************************************************/
 	/**
 	 * Triggers random initialization of the parameter collection
 	 */
-	virtual G_API void randomInit_(const activityMode&) OVERRIDE {
+	virtual G_API_GENEVA void randomInit_(const activityMode&) OVERRIDE {
 		for(std::size_t pos=0; pos<this->size(); pos++) {
 			this->setValue(
 				pos
@@ -287,7 +287,7 @@ protected:
 	 * needed for de-serialization and as the basis for derived class'es
 	 * default constructors.
 	 */
-	G_API GConstrainedFPNumCollectionT()
+	G_API_GENEVA GConstrainedFPNumCollectionT()
 		: GConstrainedNumCollectionT<fp_type> ()
 	{ /* nothing */ }
 
@@ -316,7 +316,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GConstrainedNumCollectionT<fp_type>::specificTestsNoFailureExpected_GUnitTests();
@@ -329,7 +329,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GConstrainedNumCollectionT<fp_type>::specificTestsFailuresExpected_GUnitTests();

@@ -58,10 +58,10 @@ namespace Geneva {
 class GMutableI {
 public:
 	/** @brief The standard destructor */
-	virtual G_API ~GMutableI(){ /* nothing */ }
+	virtual G_API_GENEVA ~GMutableI(){ /* nothing */ }
 
 	/** @brief Allows derivatives to be adapted */
-	virtual G_API std::size_t adapt() BASE = 0;
+	virtual G_API_GENEVA std::size_t adapt() BASE = 0;
 };
 
 } /* namespace Geneva */

@@ -73,7 +73,7 @@ const std::size_t DEFMAXRETRIESUNTILVALID=10;
 
 /******************************************************************************/
 // Indicates whether only active, inactive or all parameters should be extracted
-enum G_API activityMode {
+enum G_API_GENEVA activityMode {
    ACTIVEONLY = 0 // Extract only active parameters
    , ALLPARAMETERS = 1 // Extract all parameters
    , INACTIVEONLY = 2 // Only extract inactive parameters
@@ -346,7 +346,7 @@ const double DEFAULTQUALITYTHRESHOLD=0.;
 /**
  * Selection of policy for validity-check combiner
  */
-enum G_API validityCheckCombinerPolicy {
+enum G_API_GENEVA validityCheckCombinerPolicy {
    MULTIPLYINVALID = 0   // Multiplies all invalid checks (i.e. return values > 1) or returns 0, if all checks are valid
    , ADDINVALID = 1      // Adds all invalid checks or returns 0, if all checks are valid
 };
@@ -355,7 +355,7 @@ enum G_API validityCheckCombinerPolicy {
 /**
  * Selection of policy for evaluation
  */
-enum G_API evaluationPolicy {
+enum G_API_GENEVA evaluationPolicy {
    USESIMPLEEVALUATION = 0            // Run evaluation function even for invalid parameter sets
    , USEWORSTCASEFORINVALID = 1       // Assign the worst possible value to invalid individuals, evaluate valid solutions as usual
    , USESIGMOID = 2                   // Assign a multiple of validityLevel_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations
@@ -369,7 +369,7 @@ enum G_API evaluationPolicy {
 /**
  * Specification of different parallelization modes
  */
-enum G_API execMode {
+enum G_API_GENEVA execMode {
 	EXECMODE_SERIAL = 0
 	, EXECMODE_MULTITHREADED = 1
 	, EXECMODE_BROKERAGE = 2
@@ -379,7 +379,7 @@ enum G_API execMode {
 /**
  * The default parallelization mode of optimization algorithms
  */
-const G_API execMode DEFAULTEXECMODE = EXECMODE_MULTITHREADED;
+const G_API_GENEVA execMode DEFAULTEXECMODE = EXECMODE_MULTITHREADED;
 
 /******************************************************************************/
 /**
@@ -388,7 +388,7 @@ const G_API execMode DEFAULTEXECMODE = EXECMODE_MULTITHREADED;
  * - RANDOMDUPLICATIONSCHEME chooses the parents to be replicated randomly from all parents
  * - VALUEDUPLICATIONSCHEME prefers parents with a higher fitness
  */
-enum G_API duplicationScheme {
+enum G_API_GENEVA duplicationScheme {
 	  DEFAULTDUPLICATIONSCHEME = 0
 	, RANDOMDUPLICATIONSCHEME = 1
 	, VALUEDUPLICATIONSCHEME = 2
@@ -399,7 +399,7 @@ enum G_API duplicationScheme {
 /**
  * The info function can be called in these three modes
  */
-enum G_API infoMode {
+enum G_API_GENEVA infoMode {
 	  INFOINIT = 0
 	, INFOPROCESSING = 1
 	, INFOEND = 2
@@ -410,7 +410,7 @@ enum G_API infoMode {
 /**
  * Ids that are assigned to adaptors and which should (by convention!) be unique for these
  */
-enum G_API adaptorId {
+enum G_API_GENEVA adaptorId {
 	GDOUBLEBIGAUSSADAPTOR = 0
 	, GDOUBLEGAUSSADAPTOR = 1
 	, GFLOATGAUSSADAPTOR = 2
@@ -428,7 +428,7 @@ enum G_API adaptorId {
  * MUNU1PRETAIN_SINGLEEVAL means that the best parent of the last generation will also become a new parent
  * (unless a better child was found). All other parents are selected from children only.
  */
-enum G_API sortingMode {
+enum G_API_GENEVA sortingMode {
 	  MUPLUSNU_SINGLEEVAL = 0
 	, MUCOMMANU_SINGLEEVAL = 1
 	, MUNU1PRETAIN_SINGLEEVAL = 2
@@ -441,7 +441,7 @@ enum G_API sortingMode {
 /**
  * The selection mode in MPEA populations.
  */
-enum G_API sortingModeMP {
+enum G_API_GENEVA sortingModeMP {
      MUPLUSNU_SINGLEEVAL_MP = 0
    , MUCOMMANU_SINGLEEVAL_MP = 1
    , MUNU1PRETAIN_SINGLEEVAL_MP = 2
@@ -516,64 +516,64 @@ const updateRule DEFAULTUPDATERULE = SWARM_UPDATERULE_CLASSIC; ///< The default 
 /******************************************************************************/
 
 /** @brief Puts a Gem::Geneva::activityMode into a stream. Needed also for boost::lexical_cast<> */
-G_API std::ostream& operator<<(std::ostream&, const Gem::Geneva::activityMode&);
+G_API_GENEVA std::ostream& operator<<(std::ostream&, const Gem::Geneva::activityMode&);
 
 /** @brief Reads a Gem::Geneva::activityMode item from a stream. Needed also for boost::lexical_cast<> */
-G_API std::istream& operator>>(std::istream&, Gem::Geneva::activityMode&);
+G_API_GENEVA std::istream& operator>>(std::istream&, Gem::Geneva::activityMode&);
 
 /** @brief Puts a Gem::Geneva::evaluationPolicy into a stream. Needed also for boost::lexical_cast<> */
-G_API std::ostream& operator<<(std::ostream&, const Gem::Geneva::evaluationPolicy&);
+G_API_GENEVA std::ostream& operator<<(std::ostream&, const Gem::Geneva::evaluationPolicy&);
 
 /** @brief Reads a Gem::Geneva::evaluationPolicy item from a stream. Needed also for boost::lexical_cast<> */
-G_API std::istream& operator>>(std::istream&, Gem::Geneva::evaluationPolicy&);
+G_API_GENEVA std::istream& operator>>(std::istream&, Gem::Geneva::evaluationPolicy&);
 
 /** @brief Puts a Gem::Geneva::validityCheckCombinerPolicy into a stream. Needed also for boost::lexical_cast<> */
-G_API std::ostream& operator<<(std::ostream&, const Gem::Geneva::validityCheckCombinerPolicy&);
+G_API_GENEVA std::ostream& operator<<(std::ostream&, const Gem::Geneva::validityCheckCombinerPolicy&);
 
 /** @brief Reads a Gem::Geneva::validityCheckCombinerPolicy item from a stream. Needed also for boost::lexical_cast<> */
-G_API std::istream& operator>>(std::istream&, Gem::Geneva::validityCheckCombinerPolicy&);
+G_API_GENEVA std::istream& operator>>(std::istream&, Gem::Geneva::validityCheckCombinerPolicy&);
 
 /** @brief Puts a Gem::Geneva::execMode into a stream. Needed also for boost::lexical_cast<> */
-G_API std::ostream& operator<<(std::ostream&, const Gem::Geneva::execMode&);
+G_API_GENEVA std::ostream& operator<<(std::ostream&, const Gem::Geneva::execMode&);
 
 /** @brief Reads a Gem::Geneva::execMode item from a stream. Needed also for boost::lexical_cast<> */
-G_API std::istream& operator>>(std::istream&, Gem::Geneva::execMode&);
+G_API_GENEVA std::istream& operator>>(std::istream&, Gem::Geneva::execMode&);
 
 /** @brief Puts a Gem::Geneva::duplicationScheme into a stream. Needed also for boost::lexical_cast<> */
-G_API std::ostream& operator<<(std::ostream&, const Gem::Geneva::duplicationScheme&);
+G_API_GENEVA std::ostream& operator<<(std::ostream&, const Gem::Geneva::duplicationScheme&);
 
 /** @brief Reads a Gem::Geneva::duplicationScheme item from a stream. Needed also for boost::lexical_cast<> */
-G_API std::istream& operator>>(std::istream&, Gem::Geneva::duplicationScheme&);
+G_API_GENEVA std::istream& operator>>(std::istream&, Gem::Geneva::duplicationScheme&);
 
 /** @brief Puts a Gem::Geneva::infoMode into a stream. Needed also for boost::lexical_cast<> */
-G_API std::ostream& operator<<(std::ostream&, const Gem::Geneva::infoMode&);
+G_API_GENEVA std::ostream& operator<<(std::ostream&, const Gem::Geneva::infoMode&);
 
 /** @brief Reads a Gem::Geneva::infoMode item from a stream. Needed also for boost::lexical_cast<> */
-G_API std::istream& operator>>(std::istream&, Gem::Geneva::infoMode&);
+G_API_GENEVA std::istream& operator>>(std::istream&, Gem::Geneva::infoMode&);
 
 /** @brief Puts a Gem::Geneva::adaptorId into a stream. Needed also for boost::lexical_cast<> */
-G_API std::ostream& operator<<(std::ostream&, const Gem::Geneva::adaptorId&);
+G_API_GENEVA std::ostream& operator<<(std::ostream&, const Gem::Geneva::adaptorId&);
 
 /** @brief Reads a Gem::Geneva::adaptorId item from a stream. Needed also for boost::lexical_cast<> */
-G_API std::istream& operator>>(std::istream&, Gem::Geneva::adaptorId&);
+G_API_GENEVA std::istream& operator>>(std::istream&, Gem::Geneva::adaptorId&);
 
 /** @brief Puts a Gem::Geneva::sortingMode into a stream. Needed also for boost::lexical_cast<> */
-G_API std::ostream& operator<<(std::ostream&, const Gem::Geneva::sortingMode&);
+G_API_GENEVA std::ostream& operator<<(std::ostream&, const Gem::Geneva::sortingMode&);
 
 /** @brief Reads a Gem::Geneva::sortingMode from a stream. Needed also for boost::lexical_cast<> */
-G_API std::istream& operator>>(std::istream&, Gem::Geneva::sortingMode&);
+G_API_GENEVA std::istream& operator>>(std::istream&, Gem::Geneva::sortingMode&);
 
 /** @brief Puts a Gem::Geneva::sortingModeMP into a stream. Needed also for boost::lexical_cast<> */
-G_API std::ostream& operator<<(std::ostream&, const Gem::Geneva::sortingModeMP&);
+G_API_GENEVA std::ostream& operator<<(std::ostream&, const Gem::Geneva::sortingModeMP&);
 
 /** @brief Reads a Gem::Geneva::sortingModeMP from a stream. Needed also for boost::lexical_cast<> */
-G_API std::istream& operator>>(std::istream&, Gem::Geneva::sortingModeMP&);
+G_API_GENEVA std::istream& operator>>(std::istream&, Gem::Geneva::sortingModeMP&);
 
 /** @brief Puts a Gem::Geneva::updateRule into a stream. Needed also for boost::lexical_cast<> */
-G_API std::ostream& operator<<(std::ostream&, const Gem::Geneva::updateRule&);
+G_API_GENEVA std::ostream& operator<<(std::ostream&, const Gem::Geneva::updateRule&);
 
 /** @brief Reads a Gem::Geneva::updateRule from a stream. Needed also for boost::lexical_cast<> */
-G_API std::istream& operator>>(std::istream&, Gem::Geneva::updateRule&);
+G_API_GENEVA std::istream& operator>>(std::istream&, Gem::Geneva::updateRule&);
 
 /******************************************************************************/
 

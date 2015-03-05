@@ -97,16 +97,16 @@ public:
 
 	/***************************************************************************/
 	/** @brief The standard constructor */
-	G_API GRandomBase();
+	G_API_HAP GRandomBase();
 	/** @brief A standard destructor */
-	virtual G_API ~GRandomBase();
+	virtual G_API_HAP ~GRandomBase();
 
 	/** @brief Retrieves an uniform_01 item */
-	G_API result_type operator()();
+	G_API_HAP result_type operator()();
 	/** @brief Returns the minimum value returned by evenRandom() */
-	G_API result_type (min)() const;
+	G_API_HAP result_type (min)() const;
 	/** @brief Returns the maximum value returned by evenRandom() */
-	G_API result_type (max)() const;
+	G_API_HAP result_type (max)() const;
 
 	/***************************************************************************/
 	/**
@@ -116,21 +116,21 @@ public:
 	 *
 	 * @return The precision of the values returned by GRandomBase::operator()
 	 */
-	static G_API std::size_t precision() {
+	static G_API_HAP std::size_t precision() {
 		return std::numeric_limits<GRandomBase::result_type>::digits;
 	}
 
 	/***************************************************************************/
 
 	/** @brief This function returns true with a probability "probability", otherwise false */
-	G_API bool weighted_bool(const double&);
+	G_API_HAP bool weighted_bool(const double&);
 	/** @brief This function produces boolean values with a 50% likelihood each for true and false */
-	G_API bool uniform_bool();
+	G_API_HAP bool uniform_bool();
 
 	/***************************************************************************/
 	/** @brief Uniformly distributed random numbers in the range [0,1[ */
 	template <typename fp_type>
-	G_API fp_type uniform_01(
+	G_API_HAP fp_type uniform_01(
 			typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 	) {
 		return static_cast<fp_type>(dbl_random01());
@@ -144,7 +144,7 @@ public:
 	 * @return Random numbers evenly distributed in the range [0,maxVal[
 	 */
 	template <typename fp_type>
-	G_API fp_type uniform_real(
+	G_API_HAP fp_type uniform_real(
 		  const fp_type& maxVal
 		, typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 	) {
@@ -164,7 +164,7 @@ public:
 	 * @return Random numbers evenly distributed in the range [minVal,maxVal[
 	 */
 	template <typename fp_type>
-	G_API fp_type uniform_real(
+	G_API_HAP fp_type uniform_real(
 			const fp_type& minVal
 		  , const fp_type& maxVal
 		  , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
@@ -209,7 +209,7 @@ public:
 	 * @return floating point random numbers with a gaussian distribution
 	 */
 	template<typename fp_type>
-	G_API fp_type normal_distribution() {
+	G_API_HAP fp_type normal_distribution() {
 	   glogger
 	   << "In GRandomBase::normal_distribution<fp_type>(): Error!" << std::endl
       << "function called with incorrect type" << std::endl
@@ -225,7 +225,7 @@ public:
 	 * @return floating point random numbers with a gaussian distribution
 	 */
 	template <typename fp_type>
-	G_API fp_type normal_distribution(
+	G_API_HAP fp_type normal_distribution(
 			const fp_type& sigma
 		  , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 	) {
@@ -242,7 +242,7 @@ public:
 	 * @return floating point random numbers with a gaussian distribution
 	 */
 	template <typename fp_type>
-	G_API fp_type normal_distribution(
+	G_API_HAP fp_type normal_distribution(
 			const fp_type& mean
 		  , const fp_type& sigma
 		  , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
@@ -265,7 +265,7 @@ public:
 	 * @return Random numbers with a bi-gaussian shape
 	 */
 	template <typename fp_type>
-	G_API fp_type bi_normal_distribution(
+	G_API_HAP fp_type bi_normal_distribution(
 			const fp_type& mean
 		  , const fp_type& sigma
 		  , const fp_type& distance
@@ -295,7 +295,7 @@ public:
 	 * @return Random numbers with a bi-gaussian shape
 	 */
 	template <typename fp_type>
-	G_API fp_type bi_normal_distribution(
+	G_API_HAP fp_type bi_normal_distribution(
 			const fp_type& mean
 		  , const fp_type& sigma1
 		  , const fp_type& sigma2
@@ -320,7 +320,7 @@ public:
 	 * @return Discrete random numbers evenly distributed in the range [minVal,maxVal]
 	 */
 	template <typename int_type>
-	G_API int_type uniform_int (
+	G_API_HAP int_type uniform_int (
 			  const int_type& minVal
 			, const int_type& maxVal
 			, typename boost::enable_if<boost::is_integral<int_type> >::type* dummy = 0
@@ -348,7 +348,7 @@ public:
 	 * @return Discrete random numbers evenly distributed in the range [0,maxVal]
 	 */
 	template <typename int_type>
-	G_API int_type uniform_int (
+	G_API_HAP int_type uniform_int (
 			  const int_type& maxVal
 			, typename boost::enable_if<boost::is_integral<int_type> >::type* dummy = 0
 	) {
@@ -366,7 +366,7 @@ public:
 	 * @return Discrete random numbers evenly distributed in the range [minVal,maxVal]
 	 */
 	template <typename int_type>
-	G_API int_type uniform_smallint (
+	G_API_HAP int_type uniform_smallint (
 			  const int_type& minVal
 			, const int_type& maxVal
 			, typename boost::enable_if<boost::is_integral<int_type> >::type* dummy = 0
@@ -396,7 +396,7 @@ public:
 	 * @return Discrete random numbers evenly distributed in the range [0,maxVal]
 	 */
 	template <typename int_type>
-	G_API int_type uniform_smallint (
+	G_API_HAP int_type uniform_smallint (
 			  const int_type& maxVal
 			, typename boost::enable_if<boost::is_integral<int_type> >::type* dummy = 0
 	) {
@@ -410,7 +410,7 @@ public:
 protected:
 	/***************************************************************************/
 	/** @brief Uniformly distributed double random numbers in the range [0,1[ */
-	virtual G_API double dbl_random01() = 0;
+	virtual G_API_HAP double dbl_random01() = 0;
 
 public:
 	/***************************************************************************/
@@ -441,7 +441,7 @@ private:
  * @return float random numbers with a gaussian distribution
  */
 template<>
-inline G_API float GRandomBase::normal_distribution<float>() {
+inline G_API_HAP float GRandomBase::normal_distribution<float>() {
    using namespace Gem::Common;
 
    if(fltGaussCacheAvailable_) {
@@ -477,7 +477,7 @@ inline G_API float GRandomBase::normal_distribution<float>() {
  * @return double random numbers with a gaussian distribution
  */
 template<>
-inline G_API double GRandomBase::normal_distribution<double>() {
+inline G_API_HAP double GRandomBase::normal_distribution<double>() {
    using namespace Gem::Common;
 
    if(dblGaussCacheAvailable_) {

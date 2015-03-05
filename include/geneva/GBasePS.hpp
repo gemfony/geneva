@@ -81,7 +81,7 @@ struct parSet {
 
 /******************************************************************************/
 /** @brief A simple output operator for parSet object, mostly meant for debugging */
-G_API std::ostream& operator<<(std::ostream& os, const parSet& pS);
+G_API_GENEVA std::ostream& operator<<(std::ostream& os, const parSet& pS);
 
 /******************************************************************************/
 /** @brief The default number of "best" individuals to be kept during the algorithm run */
@@ -117,7 +117,7 @@ class GBasePS
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API void serialize(Archive & ar, const unsigned int) {
+   G_API_GENEVA void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
       ar
@@ -136,25 +136,25 @@ class GBasePS
 
 public:
    /** @brief An easy identifier for the class */
-   static G_API const std::string nickname; // Initialized in the .cpp definition file
+   static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
 
    /** @brief The default constructor */
-   G_API GBasePS();
+   G_API_GENEVA GBasePS();
    /** @brief A standard copy constructor */
-   G_API GBasePS(const GBasePS&);
+   G_API_GENEVA GBasePS(const GBasePS&);
    /** @brief The destructor */
-   virtual G_API ~GBasePS();
+   virtual G_API_GENEVA ~GBasePS();
 
    /** @brief A standard assignment operator */
-   G_API const GBasePS& operator=(const GBasePS&);
+   G_API_GENEVA const GBasePS& operator=(const GBasePS&);
 
    /** @brief Checks for equality with another GBasePS object */
-   G_API bool operator==(const GBasePS&) const;
+   G_API_GENEVA bool operator==(const GBasePS&) const;
    /** @brief Checks for inequality with another GBasePS object */
-   G_API bool operator!=(const GBasePS&) const;
+   G_API_GENEVA bool operator!=(const GBasePS&) const;
 
    /** @brief Checks whether this object fulfills a given expectation in relation to another object */
-   virtual G_API boost::optional<std::string> checkRelationshipWith(
+   virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -164,73 +164,73 @@ public:
    ) const OVERRIDE;
 
    /** @brief Loads a checkpoint */
-   virtual G_API void loadCheckpoint(const boost::filesystem::path&) OVERRIDE;
+   virtual G_API_GENEVA void loadCheckpoint(const boost::filesystem::path&) OVERRIDE;
 
    /** @brief Returns information about the type of optimization algorithm */
-   virtual G_API std::string getOptimizationAlgorithm() const OVERRIDE;
+   virtual G_API_GENEVA std::string getOptimizationAlgorithm() const OVERRIDE;
 
    /** @brief Retrieves the number of processable items for the current iteration */
-   virtual G_API std::size_t getNProcessableItems() const OVERRIDE;
+   virtual G_API_GENEVA std::size_t getNProcessableItems() const OVERRIDE;
 
    /** @brief Returns the name of this optimization algorithm */
-   virtual G_API std::string getAlgorithmName() const OVERRIDE;
+   virtual G_API_GENEVA std::string getAlgorithmName() const OVERRIDE;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
-   virtual G_API void addConfigurationOptions (
+   virtual G_API_GENEVA void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
    ) OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual G_API std::string name() const OVERRIDE;
+   virtual G_API_GENEVA std::string name() const OVERRIDE;
 
    /** @brief Allows to set the number of "best" individuals to be monitored over the course of the algorithm run */
-   G_API void setNMonitorInds(std::size_t);
+   G_API_GENEVA void setNMonitorInds(std::size_t);
    /** @brief Allows to retrieve  the number of "best" individuals to be monitored over the course of the algorithm run */
-   G_API std::size_t getNMonitorInds() const;
+   G_API_GENEVA std::size_t getNMonitorInds() const;
 
    /** @brief Fills vectors with parameter specifications */
-   G_API void setParameterSpecs(std::string);
+   G_API_GENEVA void setParameterSpecs(std::string);
 
    /** @brief Puts the class in "simple scan" mode */
-   G_API void setNSimpleScans(std::size_t);
+   G_API_GENEVA void setNSimpleScans(std::size_t);
    /** @brief Retrieves the number of simple scans (or 0, if disabled) */
-   G_API std::size_t getNSimpleScans() const;
+   G_API_GENEVA std::size_t getNSimpleScans() const;
    /** @brief Retrieves the number of scans performed so far */
-   G_API std::size_t getNScansPerformed() const;
+   G_API_GENEVA std::size_t getNScansPerformed() const;
 
    /** @brief Allows to specify whether the parameter space should be scanned randomly or on a grid */
-   G_API void setScanRandomly(bool);
+   G_API_GENEVA void setScanRandomly(bool);
    /** @brief Allows to check whether the parameter space should be scanned randomly or on a grid */
-   G_API bool getScanRandomly() const;
+   G_API_GENEVA bool getScanRandomly() const;
 
 protected:
    /***************************************************************************/
    /** @brief Loads the data of another population */
-   virtual G_API void load_(const GObject *) OVERRIDE;
+   virtual G_API_GENEVA void load_(const GObject *) OVERRIDE;
    /** @brief Creates a deep clone of this object */
-   virtual G_API GObject *clone_() const = 0;
+   virtual G_API_GENEVA GObject *clone_() const = 0;
 
    /** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
-   virtual G_API boost::tuple<double, double> cycleLogic() OVERRIDE;
+   virtual G_API_GENEVA boost::tuple<double, double> cycleLogic() OVERRIDE;
    /** @brief Does some preparatory work before the optimization starts */
-   virtual G_API void init() OVERRIDE;
+   virtual G_API_GENEVA void init() OVERRIDE;
    /** @brief Does any necessary finalization work */
-   virtual G_API void finalize() OVERRIDE;
+   virtual G_API_GENEVA void finalize() OVERRIDE;
 
    /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-   virtual G_API boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const OVERRIDE;
+   virtual G_API_GENEVA boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const OVERRIDE;
 
    /** @brief Resizes the population to the desired level and does some error checks */
-   virtual G_API void adjustPopulation() OVERRIDE;
+   virtual G_API_GENEVA void adjustPopulation() OVERRIDE;
 
    /** @brief Saves the state of the class to disc. */
-   virtual G_API void saveCheckpoint() const OVERRIDE;
+   virtual G_API_GENEVA void saveCheckpoint() const OVERRIDE;
 
    /** @brief Triggers fitness calculation of a number of individuals */
-   virtual G_API void runFitnessCalculation() = 0;
+   virtual G_API_GENEVA void runFitnessCalculation() = 0;
 
    /** @brief A custom halt criterion for the optimization, allowing to stop the loop when no items are left to be scanned */
-   virtual G_API bool customHalt() const OVERRIDE;
+   virtual G_API_GENEVA bool customHalt() const OVERRIDE;
 
 private:
    /***************************************************************************/
@@ -316,11 +316,11 @@ private:
 public:
    /***************************************************************************/
    /** @brief Applies modifications to this object. This is needed for testing purposes */
-   virtual G_API bool modify_GUnitTests() OVERRIDE;
+   virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-   virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+   virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-   virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+   virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 
 public:
    /***************************************************************************/
@@ -337,7 +337,7 @@ public:
       friend class boost::serialization::access;
 
       template<typename Archive>
-      G_API void serialize(Archive & ar, const unsigned int){
+      G_API_GENEVA void serialize(Archive & ar, const unsigned int){
          using boost::serialization::make_nvp;
 
          ar
@@ -348,21 +348,21 @@ public:
 
      public:
       /** @brief The default constructor */
-      G_API GPSOptimizationMonitor();
+      G_API_GENEVA GPSOptimizationMonitor();
       /** @brief The copy constructor */
-      G_API GPSOptimizationMonitor(const GPSOptimizationMonitor&);
+      G_API_GENEVA GPSOptimizationMonitor(const GPSOptimizationMonitor&);
       /** @brief The destructor */
-      virtual G_API ~GPSOptimizationMonitor();
+      virtual G_API_GENEVA ~GPSOptimizationMonitor();
 
       /** @brief A standard assignment operator */
-      G_API const GPSOptimizationMonitor& operator=(const GPSOptimizationMonitor&);
+      G_API_GENEVA const GPSOptimizationMonitor& operator=(const GPSOptimizationMonitor&);
       /** @brief Checks for equality with another GParameter Base object */
-      virtual G_API bool operator==(const GPSOptimizationMonitor&) const;
+      virtual G_API_GENEVA bool operator==(const GPSOptimizationMonitor&) const;
       /** @brief Checks for inequality with another GPSOptimizationMonitor object */
-      virtual G_API bool operator!=(const GPSOptimizationMonitor&) const;
+      virtual G_API_GENEVA bool operator!=(const GPSOptimizationMonitor&) const;
 
       /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
-      virtual G_API boost::optional<std::string> checkRelationshipWith(
+      virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
          const GObject&
          , const Gem::Common::expectation&
          , const double&
@@ -372,42 +372,42 @@ public:
       ) const OVERRIDE;
 
       /** @brief Allows to set the name of the result file */
-      G_API void setCSVResultFileName(const std::string&);
+      G_API_GENEVA void setCSVResultFileName(const std::string&);
       /** @brief Allows to retrieve the name of the result file */
-      G_API std::string getCSVResultFileName() const;
+      G_API_GENEVA std::string getCSVResultFileName() const;
       /** @brief Allows to specify whether explanations should be printe
        * d for parameter- and fitness values. */
-      G_API void setPrintWithNameAndType(bool);
+      G_API_GENEVA void setPrintWithNameAndType(bool);
       /** @brief Allows to check whether explanations should be printed for parameter- and fitness values */
-      G_API bool getPrintWithNameAndType() const;
+      G_API_GENEVA bool getPrintWithNameAndType() const;
 
       /** @brief Allows to specify whether commas should be printed in-between values */
-      G_API void setPrintWithCommas(bool);
+      G_API_GENEVA void setPrintWithCommas(bool);
       /** @brief Allows to check whether commas should be printed in-between values */
-      G_API bool getPrintWithCommas() const;
+      G_API_GENEVA bool getPrintWithCommas() const;
 
       /** @brief Allows to specify whether the true (instead of the transformed) fitness should be shown */
-      G_API void setUseTrueFitness(bool);
+      G_API_GENEVA void setUseTrueFitness(bool);
       /** @brief Allows to retrieve whether the true (instead of the transformed) fitness should be shown */
-      G_API bool getUseTrueFitness() const;
+      G_API_GENEVA bool getUseTrueFitness() const;
 
       /** @brief Allows to specify whether the validity of a solution should be shown */
-      G_API void setShowValidity(bool);
+      G_API_GENEVA void setShowValidity(bool);
       /** @brief Allows to check whether the validity of a solution will be shown */
-      G_API bool getShowValidity() const;
+      G_API_GENEVA bool getShowValidity() const;
 
      protected:
       /** @brief A function that is called once before the optimization starts */
-      virtual G_API void firstInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
+      virtual G_API_GENEVA void firstInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
       /** @brief A function that is called during each optimization cycle */
-      virtual G_API void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
+      virtual G_API_GENEVA void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
       /** @brief A function that is called once at the end of the optimization cycle */
-      virtual G_API void lastInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
+      virtual G_API_GENEVA void lastInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
 
       /** @brief Loads the data of another object */
-      virtual G_API void load_(const GObject*) OVERRIDE;
+      virtual G_API_GENEVA void load_(const GObject*) OVERRIDE;
       /** @brief Creates a deep clone of this object */
-      virtual G_API GObject* clone_() const OVERRIDE;
+      virtual G_API_GENEVA GObject* clone_() const OVERRIDE;
 
      private:
       std::string csvResultFile_; ///< The name of the file to which data is emitted
@@ -418,11 +418,11 @@ public:
 
      public:
       /** @brief Applies modifications to this object. This is needed for testing purposes */
-      virtual G_API bool modify_GUnitTests() OVERRIDE;
+      virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE;
       /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-      virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+      virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
       /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-      virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+      virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 
       /************************************************************************/
    };

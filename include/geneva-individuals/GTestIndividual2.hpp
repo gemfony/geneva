@@ -75,7 +75,7 @@ namespace Tests {
 /**
  * The types of objects to be tested in this class
  */
-enum G_API PERFOBJECTTYPE {
+enum G_API_INDIVIDUALS PERFOBJECTTYPE {
 	PERFGDOUBLEOBJECT=0
 	, PERFGCONSTRDOUBLEOBJECT=1
 	, PERFGCONSTRAINEDDOUBLEOBJECTCOLLECTION=2
@@ -99,7 +99,7 @@ class GTestIndividual2 :public Gem::Geneva::GParameterSet
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API void serialize(Archive & ar, const unsigned int) {
+	G_API_INDIVIDUALS void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
 		ar
@@ -109,22 +109,22 @@ class GTestIndividual2 :public Gem::Geneva::GParameterSet
 
 public:
 	/** @brief The default constructor */
-	G_API GTestIndividual2(const std::size_t&, const PERFOBJECTTYPE&);
+	G_API_INDIVIDUALS GTestIndividual2(const std::size_t&, const PERFOBJECTTYPE&);
 	/** @brief The copy constructor */
-	G_API GTestIndividual2(const GTestIndividual2&);
+	G_API_INDIVIDUALS GTestIndividual2(const GTestIndividual2&);
 	/** @brief The standard destructor */
-	virtual G_API ~GTestIndividual2();
+	virtual G_API_INDIVIDUALS ~GTestIndividual2();
 
 	/** @brief A standard assignment operator */
-	G_API const GTestIndividual2& operator=(const GTestIndividual2&);
+	G_API_INDIVIDUALS const GTestIndividual2& operator=(const GTestIndividual2&);
 
 	/** @brief Checks for equality with another GTestIndividual2 object */
-	G_API bool operator==(const GTestIndividual2& cp) const;
+	G_API_INDIVIDUALS bool operator==(const GTestIndividual2& cp) const;
 	/** @brief Checks for inequality with another GTestIndividual2 object */
-	G_API bool operator!=(const GTestIndividual2& cp) const;
+	G_API_INDIVIDUALS bool operator!=(const GTestIndividual2& cp) const;
 
 	/** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
-	virtual G_API boost::optional<std::string> checkRelationshipWith(
+	virtual G_API_INDIVIDUALS boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -135,12 +135,12 @@ public:
 
 protected:
 	/** @brief Loads the data of another GTestIndividual2 */
-	virtual G_API void load_(const GObject*);
+	virtual G_API_INDIVIDUALS void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
-	virtual G_API GObject* clone_() const;
+	virtual G_API_INDIVIDUALS GObject* clone_() const;
 
 	/** @brief The actual fitness calculation takes place here. */
-	virtual G_API double fitnessCalculation() OVERRIDE;
+	virtual G_API_INDIVIDUALS double fitnessCalculation() OVERRIDE;
 
 private:
 	/** @brief The default constructor -- protected, as it is only needed for (de-)serialization purposes */
@@ -148,11 +148,11 @@ private:
 
 public:
 	/** @brief Applies modifications to this object. */
-	virtual G_API bool modify_GUnitTests();
+	virtual G_API_INDIVIDUALS bool modify_GUnitTests();
 	/** @brief Performs self tests that are expected to succeed. */
-	virtual G_API void specificTestsNoFailureExpected_GUnitTests();
+	virtual G_API_INDIVIDUALS void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. */
-	virtual G_API void specificTestsFailuresExpected_GUnitTests();
+	virtual G_API_INDIVIDUALS void specificTestsFailuresExpected_GUnitTests();
 };
 
 /******************************************************************************/

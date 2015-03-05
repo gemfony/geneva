@@ -74,7 +74,7 @@ class GBrokerSA
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API void serialize(Archive & ar, const unsigned int){
+   G_API_GENEVA void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
 
       ar
@@ -86,22 +86,22 @@ class GBrokerSA
 
 public:
    /** @brief The standard constructor */
-   G_API GBrokerSA();
+   G_API_GENEVA GBrokerSA();
    /** @brief A standard copy constructor */
-   G_API GBrokerSA(const GBrokerSA&);
+   G_API_GENEVA GBrokerSA(const GBrokerSA&);
    /** @brief The standard destructor */
-   virtual G_API ~GBrokerSA();
+   virtual G_API_GENEVA ~GBrokerSA();
 
    /** @brief A standard assignment operator */
-   G_API const GBrokerSA& operator=(const GBrokerSA&);
+   G_API_GENEVA const GBrokerSA& operator=(const GBrokerSA&);
 
    /** @brief Checks for equality with another GBrokerSA object */
-   G_API bool operator==(const GBrokerSA&) const;
+   G_API_GENEVA bool operator==(const GBrokerSA&) const;
    /** @brief Checks for inequality with another GBrokerSA object */
-   G_API bool operator!=(const GBrokerSA&) const;
+   G_API_GENEVA bool operator!=(const GBrokerSA&) const;
 
    /** @brief Checks whether this object fulfills a given expectation in relation to another object */
-   virtual G_API boost::optional<std::string> checkRelationshipWith(
+   virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -111,41 +111,41 @@ public:
    ) const OVERRIDE;
 
    /** @brief Checks whether a given algorithm type likes to communicate via the broker */
-   virtual G_API bool usesBroker() const OVERRIDE;
+   virtual G_API_GENEVA bool usesBroker() const OVERRIDE;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
-   virtual G_API void addConfigurationOptions (
+   virtual G_API_GENEVA void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
    ) OVERRIDE;
 
    /** @brief Sets the maximum number of threads */
-   G_API void setNThreads(boost::uint16_t);
+   G_API_GENEVA void setNThreads(boost::uint16_t);
    /** @brief Retrieves the maximum number of threads */
-   G_API boost::uint16_t getNThreads() const ;
+   G_API_GENEVA boost::uint16_t getNThreads() const ;
 
    /** @brief Allows to assign a name to the role of this individual(-derivative) */
-   virtual G_API std::string getIndividualCharacteristic() const OVERRIDE;
+   virtual G_API_GENEVA std::string getIndividualCharacteristic() const OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual G_API std::string name() const OVERRIDE;
+   virtual G_API_GENEVA std::string name() const OVERRIDE;
 
 protected:
    /** @brief Loads the data of another GTransfer Population */
-   virtual G_API void load_(const GObject *) OVERRIDE;
+   virtual G_API_GENEVA void load_(const GObject *) OVERRIDE;
    /** @brief Creates a deep copy of this object */
-   virtual G_API GObject *clone_() const OVERRIDE;
+   virtual G_API_GENEVA GObject *clone_() const OVERRIDE;
 
    /** @brief Adapt children in a serial manner */
-   virtual G_API void adaptChildren() OVERRIDE;
+   virtual G_API_GENEVA void adaptChildren() OVERRIDE;
    /** @brief Evaluates all children (and possibly parents) of this population */
-   virtual G_API void runFitnessCalculation() OVERRIDE;
+   virtual G_API_GENEVA void runFitnessCalculation() OVERRIDE;
    /** @brief Selects new parents */
-   virtual G_API void selectBest() OVERRIDE;
+   virtual G_API_GENEVA void selectBest() OVERRIDE;
 
    /** @brief Performs any necessary initialization work before the start of the optimization cycle */
-   virtual G_API void init() OVERRIDE;
+   virtual G_API_GENEVA void init() OVERRIDE;
    /** @brief Performs any necessary finalization work after the end of the optimization cycle */
-   virtual G_API void finalize() OVERRIDE;
+   virtual G_API_GENEVA void finalize() OVERRIDE;
 
 private:
    /***************************************************************************/
@@ -205,11 +205,11 @@ private:
 
 public:
    /** @brief Applies modifications to this object. This is needed for testing purposes */
-   virtual G_API bool modify_GUnitTests() OVERRIDE;
+   virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-   virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+   virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-   virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+   virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

@@ -86,7 +86,7 @@ public:
 	/**
 	 * The default constructor
 	 */
-	G_API GConstrainedIntT()
+	G_API_GENEVA GConstrainedIntT()
 		: GConstrainedNumT<int_type>()
     { /* nothing */ }
 
@@ -97,7 +97,7 @@ public:
 	 *
 	 * @param val The desired external value of this object
 	 */
-	explicit G_API GConstrainedIntT(const int_type& val)
+	explicit G_API_GENEVA GConstrainedIntT(const int_type& val)
 		: GConstrainedNumT<int_type>(val)
 	{ /* nothing */	}
 
@@ -108,7 +108,7 @@ public:
 	 * @param lowerBoundary The lower boundary of the value range
 	 * @param upperBoundary The upper boundary of the value range
 	 */
-	G_API GConstrainedIntT(
+	G_API_GENEVA GConstrainedIntT(
 		 const int_type& lowerBoundary
 		 , const int_type& upperBoundary
 	)
@@ -125,7 +125,7 @@ public:
 	 * @param lowerBoundary The lower boundary of the value range
 	 * @param upperBoundary The upper boundary of the value range
 	 */
-	G_API GConstrainedIntT(
+	G_API_GENEVA GConstrainedIntT(
       const int_type& val
       , const int_type& lowerBoundary
       , const int_type& upperBoundary
@@ -140,7 +140,7 @@ public:
 	 *
 	 * @param cp Another GConstrainedNumT<int_type> object
 	 */
-	G_API GConstrainedIntT(const GConstrainedIntT<int_type>& cp)
+	G_API_GENEVA GConstrainedIntT(const GConstrainedIntT<int_type>& cp)
 		: GConstrainedNumT<int_type>(cp)
 	{ /* nothing */ }
 
@@ -148,7 +148,7 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	virtual G_API ~GConstrainedIntT()
+	virtual G_API_GENEVA ~GConstrainedIntT()
 	{ /* nothing */	}
 
 	/***************************************************************************/
@@ -158,7 +158,7 @@ public:
 	 * @param cp A constant reference to another GConstrainedIntT<int_type> object
 	 * @return A constant reference to this object
 	 */
-	G_API const GConstrainedIntT<int_type>& operator=(const GConstrainedIntT<int_type>& cp) {
+	G_API_GENEVA const GConstrainedIntT<int_type>& operator=(const GConstrainedIntT<int_type>& cp) {
 		GConstrainedIntT<int_type>::load_(&cp);
 		return *this;
 	}
@@ -171,7 +171,7 @@ public:
 	 * @param The desired new external value
 	 * @return The new external value of this object
 	 */
-	virtual G_API int_type operator=(const int_type& val) {
+	virtual G_API_GENEVA int_type operator=(const int_type& val) {
 		return GConstrainedNumT<int_type>::operator=(val);
 	}
 
@@ -187,7 +187,7 @@ public:
      * @param cp A constant reference to another GConstrainedIntT<int_type> object
      * @return A boolean indicating whether both objects are equal
      */
-	G_API bool operator==(const GConstrainedIntT<int_type>& cp) const {
+	G_API_GENEVA bool operator==(const GConstrainedIntT<int_type>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedIntT<int_type>::operator==","cp", CE_SILENT);
@@ -200,7 +200,7 @@ public:
      * @param cp A constant reference to another GConstrainedIntT<int_type> object
      * @return A boolean indicating whether both objects are inequal
      */
-	G_API bool operator!=(const GConstrainedIntT<int_type>& cp) const {
+	G_API_GENEVA bool operator!=(const GConstrainedIntT<int_type>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, as no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedIntT<int_type>::operator!=","cp", CE_SILENT);
@@ -219,7 +219,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	virtual G_API boost::optional<std::string> checkRelationshipWith (
+	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith (
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -250,7 +250,7 @@ public:
 	 * @param val The value to which the transformation should be applied
 	 * @return The transformed value
 	 */
-	virtual G_API int_type transfer(const int_type& val) const OVERRIDE {
+	virtual G_API_GENEVA int_type transfer(const int_type& val) const OVERRIDE {
 		// Find out the size of the confined area
 	   int_type lowerBoundary = GConstrainedNumT<int_type>::getLowerBoundary();
 	   int_type upperBoundary = GConstrainedNumT<int_type>::getUpperBoundary();
@@ -310,7 +310,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual G_API std::string name() const OVERRIDE {
+   virtual G_API_GENEVA std::string name() const OVERRIDE {
       return std::string("GConstrainedIntT");
    }
 
@@ -321,7 +321,7 @@ protected:
 	 *
 	 * @param cp Another GConstrainedIntT<int_type> object, camouflaged as a GObject
 	 */
-	virtual G_API void load_(const GObject *cp) OVERRIDE {
+	virtual G_API_GENEVA void load_(const GObject *cp) OVERRIDE {
 		// Convert GObject pointer to local format
 		const GConstrainedIntT<int_type> *p_load = GObject::gobject_conversion<GConstrainedIntT<int_type> >(cp);
 
@@ -333,13 +333,13 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Create a deep copy of this object */
-	virtual G_API GObject *clone_() const = 0;
+	virtual G_API_GENEVA GObject *clone_() const = 0;
 
 	/***************************************************************************/
 	/**
 	 * Randomly initializes the parameter (within its limits)
 	 */
-	virtual G_API void randomInit_(const activityMode&) OVERRIDE {
+	virtual G_API_GENEVA void randomInit_(const activityMode&) OVERRIDE {
 		this->setValue(
          this->GParameterBase::gr->uniform_int(
             GConstrainedNumT<int_type>::getLowerBoundary()
@@ -375,7 +375,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual G_API bool modify_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
       bool result = false;
 
@@ -394,7 +394,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Some general settings
 		const int_type minLower = -50; // NOTE: This will fail if int_type is unsigned; GConstrainedIntT has been designed for signed types only
@@ -590,7 +590,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GConstrainedNumT<int_type>::specificTestsFailuresExpected_GUnitTests();

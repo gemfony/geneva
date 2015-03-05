@@ -67,7 +67,7 @@ class GNumT
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API void serialize(Archive & ar, const unsigned int) {
+	G_API_GENEVA void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar
 		& make_nvp("GParameterT",	boost::serialization::base_object<GParameterT<T> >(*this))
@@ -87,7 +87,7 @@ public:
 	/**
 	 * The default constructor.
 	 */
-	G_API GNumT()
+	G_API_GENEVA GNumT()
 		: GParameterT<T> ()
 		, lowerInitBoundary_(T(DEFAULTLOWERINITBOUNDARYSINGLE))
 		, upperInitBoundary_(T(DEFAULTUPPERINITBOUNDARYSINGLE))
@@ -99,7 +99,7 @@ public:
 	 *
 	 * @param val The value used for the initialization
 	 */
-	explicit G_API GNumT(const T& val)
+	explicit G_API_GENEVA GNumT(const T& val)
 		: GParameterT<T>(val)
 		, lowerInitBoundary_(T(DEFAULTLOWERINITBOUNDARYSINGLE))
 		, upperInitBoundary_(T(DEFAULTUPPERINITBOUNDARYSINGLE))
@@ -113,7 +113,7 @@ public:
 	 * @param min The lower boundary for random entries
 	 * @param max The upper boundary for random entries
 	 */
-	G_API GNumT(const T& min, const T& max)
+	G_API_GENEVA GNumT(const T& min, const T& max)
 		: GParameterT<T> (min)
 		, lowerInitBoundary_(min)
 		, upperInitBoundary_(max)
@@ -123,7 +123,7 @@ public:
 	/**
 	 * The standard copy constructor
 	 */
-	G_API GNumT(const GNumT<T>& cp)
+	G_API_GENEVA GNumT(const GNumT<T>& cp)
 		: GParameterT<T> (cp)
 		, lowerInitBoundary_(cp.lowerInitBoundary_)
 		, upperInitBoundary_(cp.upperInitBoundary_)
@@ -133,7 +133,7 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	virtual G_API ~GNumT()
+	virtual G_API_GENEVA ~GNumT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -143,7 +143,7 @@ public:
 	 * @param cp A copy of another GNumT<T> object
 	 * @return A constant reference to this object
 	 */
-	G_API const GNumT<T>& operator=(const GNumT<T>& cp){
+	G_API_GENEVA const GNumT<T>& operator=(const GNumT<T>& cp){
 		GNumT<T>::load_(&cp);
 		return *this;
 	}
@@ -152,7 +152,7 @@ public:
 	/**
 	 * An assignment operator for the contained value type
 	 */
-	virtual G_API T operator=(const T& val) {
+	virtual G_API_GENEVA T operator=(const T& val) {
 		return GParameterT<T>::operator=(val);
 	}
 
@@ -163,7 +163,7 @@ public:
 	 * @param  cp A constant reference to another GNumT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	G_API bool operator==(const GNumT<T>& cp) const {
+	G_API_GENEVA bool operator==(const GNumT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GNumT<T>::operator==","cp", CE_SILENT);
@@ -176,7 +176,7 @@ public:
 	 * @param  cp A constant reference to another GNumT<T> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	G_API bool operator!=(const GNumT<T>& cp) const {
+	G_API_GENEVA bool operator!=(const GNumT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNumT<T>::operator!=","cp", CE_SILENT);
@@ -195,7 +195,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	virtual G_API boost::optional<std::string> checkRelationshipWith(
+	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -228,7 +228,7 @@ public:
 	 * @param lowerInitBoundary The lower boundary for random initialization
 	 * @param upperInitBoundary The upper boundary for random initialization
 	 */
-	G_API void setInitBoundaries(const T& lowerInitBoundary, const T& upperInitBoundary) {
+	G_API_GENEVA void setInitBoundaries(const T& lowerInitBoundary, const T& upperInitBoundary) {
 		// Do some error checking
 		if(lowerInitBoundary >= upperInitBoundary) {
 		   glogger
@@ -255,7 +255,7 @@ public:
 	 *
 	 * @return The value of the lower initialization boundary
 	 */
-	G_API T getLowerInitBoundary() const {
+	G_API_GENEVA T getLowerInitBoundary() const {
 		return lowerInitBoundary_;
 	}
 
@@ -270,7 +270,7 @@ public:
 	 *
 	 * @return The value of the upper initialization boundary
 	 */
-	G_API T getUpperInitBoundary() const {
+	G_API_GENEVA T getUpperInitBoundary() const {
 		return upperInitBoundary_;
 	}
 
@@ -283,7 +283,7 @@ public:
    /**
     * Lets the audience know whether this is a leaf or a branch object
     */
-   virtual G_API bool isLeaf() const OVERRIDE {
+   virtual G_API_GENEVA bool isLeaf() const OVERRIDE {
       return true;
    }
 
@@ -291,7 +291,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual G_API std::string name() const OVERRIDE {
+   virtual G_API_GENEVA std::string name() const OVERRIDE {
       return std::string("GNumT");
    }
 
@@ -302,7 +302,7 @@ public:
     * @param ptr The boost::property_tree object the data should be saved to
     * @param baseName The name assigned to the object
     */
-   virtual G_API void toPropertyTree (
+   virtual G_API_GENEVA void toPropertyTree (
       pt::ptree& ptr
       , const std::string& baseName
    ) const OVERRIDE {
@@ -328,7 +328,7 @@ protected:
 	 *
 	 * @param cp A copy of another GNumT<T> object, camouflaged as a GObject
 	 */
-	virtual G_API void load_(const GObject *cp) OVERRIDE {
+	virtual G_API_GENEVA void load_(const GObject *cp) OVERRIDE {
 		// Convert cp into local format
 		const GNumT<T> *p_load = GObject::gobject_conversion<GNumT<T> >(cp);
 
@@ -345,7 +345,7 @@ protected:
     * Returns a "comparative range". This is e.g. used to make Gauss-adaption
     * independent of a parameters value range
     */
-   virtual G_API T range() const OVERRIDE {
+   virtual G_API_GENEVA T range() const OVERRIDE {
       return upperInitBoundary_ - lowerInitBoundary_;
    }
 
@@ -356,11 +356,11 @@ protected:
 	 *
 	 * @return A pointer to a deep clone of this object
 	 */
-	virtual G_API GObject *clone_() const = 0;
+	virtual G_API_GENEVA GObject *clone_() const = 0;
 
 	/***************************************************************************/
 	/** @brief Triggers random initialization of the parameter */
-	virtual G_API void randomInit_(const activityMode&) = 0;
+	virtual G_API_GENEVA void randomInit_(const activityMode&) = 0;
 
 private:
 	/***************************************************************************/
@@ -375,7 +375,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual G_API bool modify_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -394,7 +394,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterT<T>::specificTestsNoFailureExpected_GUnitTests();
@@ -427,7 +427,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterT<T>::specificTestsFailuresExpected_GUnitTests();

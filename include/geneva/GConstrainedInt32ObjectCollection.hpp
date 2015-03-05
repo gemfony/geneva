@@ -62,7 +62,7 @@ class GConstrainedInt32ObjectCollection
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API void serialize(Archive & ar, const unsigned int){
+	G_API_GENEVA void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
 	  ar
@@ -73,24 +73,24 @@ class GConstrainedInt32ObjectCollection
 
 public:
 	/** @brief The default constructor */
-	G_API GConstrainedInt32ObjectCollection();
+	G_API_GENEVA GConstrainedInt32ObjectCollection();
 	/** @brief Initialization with a number of GConstrainedInt32Object objects */
-	G_API GConstrainedInt32ObjectCollection(const std::size_t&, boost::shared_ptr<GConstrainedInt32Object>);
+	G_API_GENEVA GConstrainedInt32ObjectCollection(const std::size_t&, boost::shared_ptr<GConstrainedInt32Object>);
 	/** @brief The copy constructor */
-	G_API GConstrainedInt32ObjectCollection(const GConstrainedInt32ObjectCollection&);
+	G_API_GENEVA GConstrainedInt32ObjectCollection(const GConstrainedInt32ObjectCollection&);
 	/** @brief The destructor */
-	virtual G_API ~GConstrainedInt32ObjectCollection();
+	virtual G_API_GENEVA ~GConstrainedInt32ObjectCollection();
 
 	/** @brief A standard assignment operator */
-	G_API const GConstrainedInt32ObjectCollection& operator=(const GConstrainedInt32ObjectCollection&);
+	G_API_GENEVA const GConstrainedInt32ObjectCollection& operator=(const GConstrainedInt32ObjectCollection&);
 
 	/** @brief Checks for equality with another GConstrainedInt32ObjectCollection object */
-	G_API bool operator==(const GConstrainedInt32ObjectCollection&) const;
+	G_API_GENEVA bool operator==(const GConstrainedInt32ObjectCollection&) const;
 	/** @brief Checks for inequality with another GConstrainedInt32ObjectCollection object */
-	G_API bool operator!=(const GConstrainedInt32ObjectCollection&) const;
+	G_API_GENEVA bool operator!=(const GConstrainedInt32ObjectCollection&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual G_API boost::optional<std::string> checkRelationshipWith(
+	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
 	      const GObject&
 	      , const Gem::Common::expectation&
 	      , const double&
@@ -100,23 +100,23 @@ public:
 	) const OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual G_API std::string name() const OVERRIDE;
+   virtual G_API_GENEVA std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another GObject */
-	virtual G_API void load_(const GObject*) OVERRIDE;
+	virtual G_API_GENEVA void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object. */
-	virtual G_API GObject* clone_() const OVERRIDE;
+	virtual G_API_GENEVA GObject* clone_() const OVERRIDE;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual G_API bool modify_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE;
 	/** @brief Fills the collection with GConstrainedInt32Object objects */
-	G_API void fillWithObjects(const std::size_t&);
+	G_API_GENEVA void fillWithObjects(const std::size_t&);
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

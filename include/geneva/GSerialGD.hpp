@@ -68,7 +68,7 @@ class GSerialGD
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API void serialize(Archive & ar, const unsigned int) {
+	G_API_GENEVA void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
 		ar
@@ -79,24 +79,24 @@ class GSerialGD
 
 public:
 	/** @brief The default constructor */
-	G_API GSerialGD();
+	G_API_GENEVA GSerialGD();
 	/** @brief Initialization with the number of starting points and the size of the finite step */
-	G_API GSerialGD(const std::size_t&, const double&, const double&);
+	G_API_GENEVA GSerialGD(const std::size_t&, const double&, const double&);
 	/** @brief A standard copy constructor */
-	G_API GSerialGD(const GSerialGD&);
+	G_API_GENEVA GSerialGD(const GSerialGD&);
 	/** @brief The destructor */
-	virtual G_API ~GSerialGD();
+	virtual G_API_GENEVA ~GSerialGD();
 
 	/** @brief A standard assignment operator */
-	G_API const GSerialGD& operator=(const GSerialGD&);
+	G_API_GENEVA const GSerialGD& operator=(const GSerialGD&);
 
 	/** @brief Checks for equality with another GSerialGD object */
-	G_API bool operator==(const GSerialGD&) const;
+	G_API_GENEVA bool operator==(const GSerialGD&) const;
 	/** @brief Checks for inequality with another GSerialGD object */
-	G_API bool operator!=(const GSerialGD&) const;
+	G_API_GENEVA bool operator!=(const GSerialGD&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual G_API boost::optional<std::string> checkRelationshipWith(
+	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -106,37 +106,37 @@ public:
 	) const OVERRIDE;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual G_API void addConfigurationOptions (
+	virtual G_API_GENEVA void addConfigurationOptions (
 		Gem::Common::GParserBuilder& gpb
 	) OVERRIDE;
 
 	/** @brief Allows to assign a name to the role of this individual(-derivative) */
-	virtual G_API std::string getIndividualCharacteristic() const OVERRIDE;
+	virtual G_API_GENEVA std::string getIndividualCharacteristic() const OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual G_API std::string name() const OVERRIDE;
+   virtual G_API_GENEVA std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another population */
-	virtual G_API void load_(const GObject *) OVERRIDE;
+	virtual G_API_GENEVA void load_(const GObject *) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
-	virtual G_API GObject *clone_() const OVERRIDE;
+	virtual G_API_GENEVA GObject *clone_() const OVERRIDE;
 
-	virtual G_API void init() OVERRIDE;
+	virtual G_API_GENEVA void init() OVERRIDE;
 	/** @brief Does any necessary finalization work */
-	virtual G_API void finalize() OVERRIDE;
+	virtual G_API_GENEVA void finalize() OVERRIDE;
 
 	/** @brief Triggers fitness calculation of a number of individuals */
-	virtual G_API void runFitnessCalculation() OVERRIDE;
+	virtual G_API_GENEVA void runFitnessCalculation() OVERRIDE;
 
 public:
 	/***************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual G_API bool modify_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 } /* namespace Geneva */
@@ -150,7 +150,7 @@ public:
  * A factory function that emits a GSerialGD object
  */
 template <>
-inline G_API boost::shared_ptr<Gem::Geneva::GSerialGD> TFactory_GUnitTests<Gem::Geneva::GSerialGD>() {
+inline G_API_GENEVA boost::shared_ptr<Gem::Geneva::GSerialGD> TFactory_GUnitTests<Gem::Geneva::GSerialGD>() {
    using namespace Gem::Tests;
    boost::shared_ptr<Gem::Geneva::GSerialGD> p;
    BOOST_CHECK_NO_THROW(p= boost::shared_ptr<Gem::Geneva::GSerialGD>(new Gem::Geneva::GSerialGD()));

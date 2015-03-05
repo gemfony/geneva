@@ -72,7 +72,7 @@ class GOAInitializerT {
 
 public:
    /** @brief The initializing constructor */
-   inline G_API GOAInitializerT() {
+   inline G_API_GENEVA GOAInitializerT() {
       // Create a smart pointer holding the algorithm
       boost::shared_ptr<GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> > > p(new oaf_type());
       std::string mnemonic = p->getMnemonic();
@@ -81,7 +81,7 @@ public:
       GOAFactoryStore->setOnce(mnemonic, p);
    }
    /** @brief An empty destructor */
-   virtual inline G_API ~GOAInitializerT() { /* nothing */ }
+   virtual inline G_API_GENEVA ~GOAInitializerT() { /* nothing */ }
 };
 
 /******************************************************************************/

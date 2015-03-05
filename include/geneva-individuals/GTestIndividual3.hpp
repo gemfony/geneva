@@ -92,7 +92,7 @@ class GTestIndividual3 :public Gem::Geneva::GParameterSet
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API void serialize(Archive & ar, const unsigned int) {
+	G_API_INDIVIDUALS void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
@@ -101,22 +101,22 @@ class GTestIndividual3 :public Gem::Geneva::GParameterSet
 
 public:
 	/** @brief The default constructor */
-	G_API GTestIndividual3();
+	G_API_INDIVIDUALS GTestIndividual3();
 	/** @brief The copy constructor */
-	G_API GTestIndividual3(const GTestIndividual3&);
+	G_API_INDIVIDUALS GTestIndividual3(const GTestIndividual3&);
 	/** @brief The destructor */
-	virtual G_API ~GTestIndividual3();
+	virtual G_API_INDIVIDUALS ~GTestIndividual3();
 
 	/** @brief A standard assignment operator */
-	G_API const GTestIndividual3& operator=(const GTestIndividual3&);
+	G_API_INDIVIDUALS const GTestIndividual3& operator=(const GTestIndividual3&);
 
 	/** @brief Checks for equality with another GTestIndividual3 object */
-	G_API bool operator==(const GTestIndividual3& cp) const;
+	G_API_INDIVIDUALS bool operator==(const GTestIndividual3& cp) const;
 	/** @brief Checks for inequality with another GTestIndividual3 object */
-	G_API bool operator!=(const GTestIndividual3& cp) const;
+	G_API_INDIVIDUALS bool operator!=(const GTestIndividual3& cp) const;
 
 	/** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
-	G_API virtual boost::optional<std::string> checkRelationshipWith(
+	G_API_INDIVIDUALS virtual boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -126,24 +126,24 @@ public:
 	) const;
 
    /** @brief Get all data members of this class as a plain array */
-	G_API boost::shared_array<float> getPlainData() const;
+	G_API_INDIVIDUALS boost::shared_array<float> getPlainData() const;
 
 protected:
 	/** @brief Loads the data of another GTestIndividual3 */
-	virtual G_API void load_(const GObject*);
+	virtual G_API_INDIVIDUALS void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
-	virtual G_API GObject* clone_() const;
+	virtual G_API_INDIVIDUALS GObject* clone_() const;
 
 	/** @brief The actual fitness calculation takes place here. */
-	virtual G_API double fitnessCalculation() OVERRIDE;
+	virtual G_API_INDIVIDUALS double fitnessCalculation() OVERRIDE;
 
 public:
 	/** @brief Applies modifications to this object. */
-	virtual G_API bool modify_GUnitTests();
+	virtual G_API_INDIVIDUALS bool modify_GUnitTests();
 	/** @brief Performs self tests that are expected to succeed. */
-	virtual G_API void specificTestsNoFailureExpected_GUnitTests();
+	virtual G_API_INDIVIDUALS void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. */
-	virtual G_API void specificTestsFailuresExpected_GUnitTests();
+	virtual G_API_INDIVIDUALS void specificTestsFailuresExpected_GUnitTests();
 };
 
 /******************************************************************************/

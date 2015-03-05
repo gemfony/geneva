@@ -71,13 +71,13 @@ class GRandomT
 {
 public:
 	/** @brief The default constructor */
-   G_API GRandomT();
+   G_API_HAP GRandomT();
 	/** @brief The destructor */
-	virtual G_API ~GRandomT();
+	virtual G_API_HAP ~GRandomT();
 
 protected:
 	 /** @brief Uniformly distributed double random numbers in the range [0,1[ */
-	virtual G_API double dbl_random01();
+	virtual G_API_HAP double dbl_random01();
 };
 
 /******************************************************************************/
@@ -99,7 +99,7 @@ public:
 	/**
 	 * The standard constructor
 	 */
-   G_API GRandomT()
+   G_API_HAP GRandomT()
 		: Gem::Hap::GRandomBase()
 		, current01_(1) // position 0 holds the array size
 		, grf_(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
@@ -112,7 +112,7 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	virtual G_API ~GRandomT()
+	virtual G_API_HAP ~GRandomT()
 	{
 		p01_.reset();
 		grf_.reset();
@@ -128,7 +128,7 @@ protected:
 	 * caller it appears as if random numbers are created locally. This function
 	 * assumes that a valid container is already available.
 	 */
-	virtual G_API double dbl_random01() {
+	virtual G_API_HAP double dbl_random01() {
 		if (current01_ >= DEFAULTARRAYSIZE) {
 		   getNewP01();
 		}
@@ -212,7 +212,7 @@ public:
 	/**
 	 * The standard constructor
 	 */
-   G_API GRandomT()
+   G_API_HAP GRandomT()
 		: Gem::Hap::GRandomBase()
 		, linCongr_(boost::numeric_cast<boost::random::rand48::result_type>(GRANDOMFACTORY->getSeed()))
 	{ /* nothing */ }
@@ -221,7 +221,7 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	virtual G_API ~GRandomT()
+	virtual G_API_HAP ~GRandomT()
 	{ /* nothing */ }
 
 protected:
@@ -229,7 +229,7 @@ protected:
 	/**
 	 * This function produces uniform random numbers locally.
 	 */
-	virtual G_API double dbl_random01() {
+	virtual G_API_HAP double dbl_random01() {
 		boost::rand48::result_type enumerator  = linCongr_() - (linCongr_.min)();
 		boost::rand48::result_type denominator = (linCongr_.max)() - (linCongr_.min)();
 

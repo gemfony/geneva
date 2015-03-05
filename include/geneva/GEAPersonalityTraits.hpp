@@ -61,7 +61,7 @@ class GEAPersonalityTraits
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API void serialize(Archive & ar, const unsigned int){
+	G_API_GENEVA void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 	  ar
 	  & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseParChildPersonalityTraits)
@@ -71,22 +71,22 @@ class GEAPersonalityTraits
 
 public:
 	/** @brief The default constructor */
-	G_API GEAPersonalityTraits();
+	G_API_GENEVA GEAPersonalityTraits();
 	/** @brief The copy contructor */
-	G_API GEAPersonalityTraits(const GEAPersonalityTraits&);
+	G_API_GENEVA GEAPersonalityTraits(const GEAPersonalityTraits&);
 	/** @brief The standard destructor */
-	virtual G_API ~GEAPersonalityTraits();
+	virtual G_API_GENEVA ~GEAPersonalityTraits();
 
 	/** @brief A standard assignment operator */
-	G_API const GEAPersonalityTraits& operator=(const GEAPersonalityTraits&);
+	G_API_GENEVA const GEAPersonalityTraits& operator=(const GEAPersonalityTraits&);
 
 	/** @brief Checks for equality with another GEAPersonalityTraits object */
-	G_API bool operator==(const GEAPersonalityTraits&) const;
+	G_API_GENEVA bool operator==(const GEAPersonalityTraits&) const;
 	/** @brief Checks for inequality with another GEAPersonalityTraits object */
-	G_API bool operator!=(const GEAPersonalityTraits&) const;
+	G_API_GENEVA bool operator!=(const GEAPersonalityTraits&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual G_API boost::optional<std::string> checkRelationshipWith(
+	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -96,20 +96,20 @@ public:
 	) const OVERRIDE;
 
 	/** @brief Allows to check whether this individual lies on the pareto front (only yields useful results after pareto-sorting in EA) */
-	G_API bool isOnParetoFront() const;
+	G_API_GENEVA bool isOnParetoFront() const;
 	/** @brief Allows to reset the pareto tag to "true" */
-	G_API void resetParetoTag();
+	G_API_GENEVA void resetParetoTag();
 	/** @brief Allows to specify that this individual does not lie on the pareto front of the current iteration */
-	G_API void setIsNotOnParetoFront();
+	G_API_GENEVA void setIsNotOnParetoFront();
 
    /** @brief Emits a name for this class / object */
-   virtual G_API std::string name() const OVERRIDE;
+   virtual G_API_GENEVA std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another GEAPersonalityTraits object */
-	virtual G_API void load_(const GObject*) OVERRIDE;
+	virtual G_API_GENEVA void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
-	virtual G_API GObject* clone_() const OVERRIDE;
+	virtual G_API_GENEVA GObject* clone_() const OVERRIDE;
 
 private:
 	/** @brief Determines whether the individual lies on the pareto front */
@@ -117,11 +117,11 @@ private:
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual G_API bool modify_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

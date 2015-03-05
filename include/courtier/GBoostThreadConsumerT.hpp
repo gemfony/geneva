@@ -92,7 +92,7 @@ public:
 	/**
 	 * The default constructor.
 	 */
-   G_API GBoostThreadConsumerT()
+   G_API_COURTIER GBoostThreadConsumerT()
 		: Gem::Courtier::GBaseConsumerT<processable_type>()
 		, threadsPerWorker_(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER)))
 		, broker_ptr_(GBROKER(processable_type))
@@ -104,7 +104,7 @@ public:
 	* Standard destructor. Nothing - our threads receive the stop
 	* signal from the broker and shouldn't exist at this point anymore.
 	*/
-	virtual G_API ~GBoostThreadConsumerT()
+	virtual G_API_COURTIER ~GBoostThreadConsumerT()
 	{ /* nothing */ }
 
    /***************************************************************************/
@@ -116,7 +116,7 @@ public:
 	*
 	* @param tpw The maximum number of allowed threads
 	*/
-	G_API void setNThreadsPerWorker(const std::size_t& tpw) {
+	G_API_COURTIER void setNThreadsPerWorker(const std::size_t& tpw) {
 		if(tpw == 0) {
 			threadsPerWorker_ = boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER));
 		}
@@ -131,7 +131,7 @@ public:
 	*
 	* @return The maximum number of allowed threads
 	*/
-	G_API std::size_t getNThreadsPerWorker(void) const  {
+	G_API_COURTIER std::size_t getNThreadsPerWorker(void) const  {
 		return threadsPerWorker_;
 	}
 
@@ -140,7 +140,7 @@ public:
 	* Finalization code. Sends all threads an interrupt signal.
 	* process() then waits for them to join.
 	*/
-	G_API void shutdown() {
+	G_API_COURTIER void shutdown() {
 	   // Initiate the shutdown procedure
 	   GBaseConsumerT<processable_type>::shutdown();
 
@@ -155,7 +155,7 @@ public:
 	*
 	* @return A unique identifier for a given consumer
 	*/
-	virtual G_API std::string getConsumerName() const {
+	virtual G_API_COURTIER std::string getConsumerName() const {
 	  return std::string("GBoostThreadConsumerT");
 	}
 
@@ -163,7 +163,7 @@ public:
    /**
     * Returns a short identifier for this consumer
     */
-   virtual G_API std::string getMnemonic() const {
+   virtual G_API_COURTIER std::string getMnemonic() const {
       return std::string("btc");
    }
 
@@ -173,7 +173,7 @@ public:
     * consumer. Since evaluation is performed in threads, we assume that this
     * is possible and return true.
     */
-   virtual G_API bool capableOfFullReturn() const {
+   virtual G_API_COURTIER bool capableOfFullReturn() const {
       return true;
    }
 
@@ -181,7 +181,7 @@ public:
 	/**
 	 * Retrieves the number of workers registered with this class
 	 */
-   G_API std::size_t getNWorkers() const {
+   G_API_COURTIER std::size_t getNWorkers() const {
 	   return workerTemplates_.size();
 	}
 
@@ -190,7 +190,7 @@ public:
    * Starts the worker threads. This function will not block.
    * Termination of the threads is triggered by a call to GBaseConsumerT<processable_type>::shutdown().
    */
-   virtual G_API void async_startProcessing() {
+   virtual G_API_COURTIER void async_startProcessing() {
 #ifdef DEBUG
       if(workerTemplates_.empty()) { // Is the template vector empty ?
          glogger
@@ -216,7 +216,7 @@ public:
     * existing worker templates will be deleted. The class will not take ownership
     * of the worker templates.
     */
-   G_API void registerWorkerTemplates(const std::vector<boost::shared_ptr<GWorker> >& workerTemplates) {
+   G_API_COURTIER void registerWorkerTemplates(const std::vector<boost::shared_ptr<GWorker> >& workerTemplates) {
 #ifdef DEBUG
       if(workerTemplates_.empty()) { // Is the template vector empty ?
          glogger
@@ -247,7 +247,7 @@ public:
     * existing worker templates will be deleted. The class will not take ownership
     * of the worker template.
     */
-   G_API void registerWorkerTemplate(boost::shared_ptr<GWorker> workerTemplate) {
+   G_API_COURTIER void registerWorkerTemplate(boost::shared_ptr<GWorker> workerTemplate) {
 #ifdef DEBUG
       if(!workerTemplate) { // Does the template point somewhere ?
          glogger
@@ -266,7 +266,7 @@ public:
     * Sets up a consumer and registers it with the broker. This function accepts
     * a set of workers as argument.
     */
-   static G_API void setup(
+   static G_API_COURTIER void setup(
       const std::string& configFile
       , std::vector<boost::shared_ptr<typename Gem::Courtier::GBoostThreadConsumerT<processable_type>::GWorker> > workers
    ) {
@@ -281,7 +281,7 @@ public:
     * Sets up a consumer and registers it with the broker. This function accepts
     * a worker as argument.
     */
-   static G_API void setup(
+   static G_API_COURTIER void setup(
       const std::string& configFile
       , boost::shared_ptr<typename Gem::Courtier::GBoostThreadConsumerT<processable_type>::GWorker> worker_ptr
    ) {
@@ -296,7 +296,7 @@ public:
     * Sets up a consumer and registers it with the broker. This function uses
     * the default worker.
     */
-   static G_API void setup(
+   static G_API_COURTIER void setup(
       const std::string& configFile
    ) {
       boost::shared_ptr<GBoostThreadConsumerT<processable_type> > consumer_ptr(new GBoostThreadConsumerT<processable_type>());
@@ -312,7 +312,7 @@ protected:
     *
     * @param gpb The GParserBuilder object, to which configuration options will be added
     */
-   virtual G_API void addConfigurationOptions(
+   virtual G_API_COURTIER void addConfigurationOptions(
          Gem::Common::GParserBuilder& gpb
    ){
       std::string comment;
@@ -345,7 +345,7 @@ protected:
     * @param visible Command line options that should always be visible
     * @param hidden Command line options that should only be visible upon request
     */
-   virtual G_API void addCLOptions(
+   virtual G_API_COURTIER void addCLOptions(
          boost::program_options::options_description& visible
          , boost::program_options::options_description& hidden
    ) {
@@ -360,7 +360,7 @@ protected:
    /**
     * Takes a boost::program_options::variables_map object and checks for supplied options.
     */
-   virtual G_API void actOnCLOptions(const boost::program_options::variables_map& vm)
+   virtual G_API_COURTIER void actOnCLOptions(const boost::program_options::variables_map& vm)
    { /* nothing */ }
 
 private:
@@ -391,7 +391,7 @@ public:
       /**
        * The default constructor
        */
-      G_API GWorker()
+      G_API_COURTIER GWorker()
          : thread_id_(0)
          , outer_(NULL)
          , parsed_(false)
@@ -404,7 +404,7 @@ public:
        * The copy constructor. We do not copy the thread id, as it is set by
        * async_startprocessing().
        */
-      G_API GWorker(
+      G_API_COURTIER GWorker(
             const GWorker& cp
             , const std::size_t& thread_id
             , const GBoostThreadConsumerT<processable_type> *c_ptr
@@ -420,14 +420,14 @@ public:
       /**
        * The destructor
        */
-      virtual G_API ~GWorker()
+      virtual G_API_COURTIER ~GWorker()
       { /* nothing */ }
 
       /************************************************************************/
       /**
        * The main entry point for the execution
        */
-      G_API void run() {
+      G_API_COURTIER void run() {
          try{
             runLoopHasCommenced_=false;
 
@@ -508,7 +508,7 @@ public:
       /**
        * Retrieve this class'es id
        */
-      G_API std::size_t getThreadId() const {
+      G_API_COURTIER std::size_t getThreadId() const {
          return thread_id_;
       }
 
@@ -518,7 +518,7 @@ public:
        *
        * @param configFile The name of a configuration file
        */
-      G_API void parseConfigFile(const std::string& configFile) {
+      G_API_COURTIER void parseConfigFile(const std::string& configFile) {
          if(parsed_) return;
 
          // Create a parser builder object -- local options will be added to it
@@ -542,14 +542,14 @@ public:
        *
        * @param p A pointer to a processable item meant to allow item-based setup
        */
-      virtual G_API void processInit(boost::shared_ptr<processable_type> p)
+      virtual G_API_COURTIER void processInit(boost::shared_ptr<processable_type> p)
       { /* nothing */ }
 
       /************************************************************************/
       /**
        * Finalization code for processing. Can be specified in derived classes.
        */
-      virtual G_API void processFinalize()
+      virtual G_API_COURTIER void processFinalize()
       { /* nothing */ }
 
       /************************************************************************/
@@ -561,7 +561,7 @@ public:
        *
        * @param gpb The GParserBuilder object, to which configuration options will be added
        */
-      virtual G_API void addConfigurationOptions(
+      virtual G_API_COURTIER void addConfigurationOptions(
             Gem::Common::GParserBuilder& gpb
       ){ /* nothing -- no local data */ }
 
@@ -581,12 +581,12 @@ public:
       // Some purely virtual functions
 
       /** @brief Creation of deep clones of this object('s derivatives) */
-      virtual G_API boost::shared_ptr<GWorker> clone(
+      virtual G_API_COURTIER boost::shared_ptr<GWorker> clone(
             const std::size_t&
             , const GBoostThreadConsumerT<processable_type> *
       ) const = 0;
       /** @brief Actual per-item work is done here -- Implement this in derived classes */
-      virtual G_API void process(boost::shared_ptr<processable_type> p) = 0;
+      virtual G_API_COURTIER void process(boost::shared_ptr<processable_type> p) = 0;
    };
 
    /***************************************************************************/
@@ -602,7 +602,7 @@ public:
       /**
        * The default constructor
        */
-      G_API GDefaultWorker() : GWorker()
+      G_API_COURTIER GDefaultWorker() : GWorker()
       { /* nothing */ }
 
    protected:
@@ -610,7 +610,7 @@ public:
       /**
        * The copy constructor.
        */
-      G_API GDefaultWorker(
+      G_API_COURTIER GDefaultWorker(
             const GDefaultWorker& cp
             , const std::size_t& thread_id
             , const GBoostThreadConsumerT<processable_type> *outer
@@ -622,14 +622,14 @@ public:
       /**
        * The destructor
        */
-      virtual G_API ~GDefaultWorker()
+      virtual G_API_COURTIER ~GDefaultWorker()
       { /* nothing */ }
 
       /************************************************************************/
       /**
        * Create a deep clone of this object, camouflaged as a GWorker
        */
-      virtual G_API boost::shared_ptr<GWorker> clone(
+      virtual G_API_COURTIER boost::shared_ptr<GWorker> clone(
             const std::size_t& thread_id
             , const GBoostThreadConsumerT<processable_type> *outer
       ) const {
@@ -650,7 +650,7 @@ public:
        * Actual per-item work is done here. Overload this function if you want
        * to do something different here.
        */
-      virtual G_API void process(boost::shared_ptr<processable_type> p) {
+      virtual G_API_COURTIER void process(boost::shared_ptr<processable_type> p) {
          // Do the actual work
    #ifdef DEBUG
          if(p) p->process();

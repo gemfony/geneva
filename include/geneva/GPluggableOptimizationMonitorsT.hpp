@@ -83,7 +83,7 @@ public:
    /**
     * The default constructpr
     */
-   G_API GBasePluggableOMT()
+   G_API_GENEVA GBasePluggableOMT()
       : useRawEvaluation_(false)
    { /* nothing */ }
 
@@ -91,7 +91,7 @@ public:
    /**
     * The copy constructor
     */
-   G_API GBasePluggableOMT(const GBasePluggableOMT<ind_type>& cp)
+   G_API_GENEVA GBasePluggableOMT(const GBasePluggableOMT<ind_type>& cp)
       : useRawEvaluation_(cp.useRawEvaluation_)
    { /* nothing */ }
 
@@ -99,7 +99,7 @@ public:
    /**
     * The Destructor
     */
-   virtual G_API ~GBasePluggableOMT()
+   virtual G_API_GENEVA ~GBasePluggableOMT()
    { /* nothing */ }
 
    /***************************************************************************/
@@ -107,7 +107,7 @@ public:
     * Overload this function in derived classes, specifying actions for
     * initialization, the optimization cycles and finalization.
     */
-   virtual G_API void informationFunction(
+   virtual G_API_GENEVA void informationFunction(
       const infoMode& im
       , GOptimizationAlgorithmT<ind_type> * const goa
    ) BASE = 0;
@@ -116,7 +116,7 @@ public:
    /**
     * Allows to set the useRawEvaluation_ variable
     */
-   G_API void setUseRawEvaluation(bool useRaw) {
+   G_API_GENEVA void setUseRawEvaluation(bool useRaw) {
       useRawEvaluation_ = useRaw;
    }
 
@@ -124,7 +124,7 @@ public:
    /**
     * Allows to retrieve the value of the useRawEvaluation_ variable
     */
-   G_API bool getUseRawEvaluation() const {
+   G_API_GENEVA bool getUseRawEvaluation() const {
       return useRawEvaluation_;
    }
 
@@ -149,14 +149,14 @@ public:
    /**
     * The default constructor
     */
-   G_API GCollectiveMonitorT()
+   G_API_GENEVA GCollectiveMonitorT()
    { /* nothing */ }
 
    /***************************************************************************/
    /**
     * The copy constructor
     */
-   G_API GCollectiveMonitorT(const GCollectiveMonitorT<ind_type>& cp)
+   G_API_GENEVA GCollectiveMonitorT(const GCollectiveMonitorT<ind_type>& cp)
    : GBasePluggableOMT<ind_type>(cp)
    { /* nothing */ }
 
@@ -164,14 +164,14 @@ public:
    /**
     * The destructor
     */
-   virtual G_API ~GCollectiveMonitorT()
+   virtual G_API_GENEVA ~GCollectiveMonitorT()
    { /* nothing */ }
 
    /***************************************************************************/
    /**
     * Aggregates the work of all registered pluggable monitors
     */
-   virtual G_API void informationFunction(
+   virtual G_API_GENEVA void informationFunction(
       const infoMode& im
       , GOptimizationAlgorithmT<ind_type> * const goa
    ) OVERRIDE {
@@ -185,7 +185,7 @@ public:
    /**
     * Allows to register a new pluggable monitor
     */
-   G_API void registerPluggableOM(boost::shared_ptr<GBasePluggableOMT<ind_type> > om_ptr) {
+   G_API_GENEVA void registerPluggableOM(boost::shared_ptr<GBasePluggableOMT<ind_type> > om_ptr) {
       if(om_ptr) {
          pluggable_monitors_.push_back(om_ptr);
       } else {
@@ -200,7 +200,7 @@ public:
    /**
     * Checks if adaptors have been registered in the collective monitor
     */
-   G_API bool hasOptimizationMonitors() const {
+   G_API_GENEVA bool hasOptimizationMonitors() const {
       return !pluggable_monitors_.empty();
    }
 
@@ -208,7 +208,7 @@ public:
    /**
     * Allows to clear all registered monitors
     */
-   G_API void reset() {
+   G_API_GENEVA void reset() {
       pluggable_monitors_.clear();
    }
 
@@ -235,7 +235,7 @@ public:
    /**
     * The default constructor
     */
-   G_API GProgressPlotterT()
+   G_API_GENEVA GProgressPlotterT()
       : gpd_oa_("Progress information", 1, 1)
       , fileName_("progressScan.C")
       , canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1024,768))
@@ -250,7 +250,7 @@ public:
     * Construction with the information whether only the best individuals
     * should be monitored and whether only valid items should be recorded.
     */
-   G_API GProgressPlotterT(bool monitorBestOnly, bool monitorValidOnly)
+   G_API_GENEVA GProgressPlotterT(bool monitorBestOnly, bool monitorValidOnly)
       : gpd_oa_("Progress information", 1, 1)
       , fileName_("progressScan.C")
       , canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1024,768))
@@ -264,7 +264,7 @@ public:
    /**
     * The copy constructor
     */
-   G_API GProgressPlotterT(const GProgressPlotterT<ind_type, fp_type>& cp)
+   G_API_GENEVA GProgressPlotterT(const GProgressPlotterT<ind_type, fp_type>& cp)
       : GBasePluggableOMT<ind_type>(cp)
       , gpd_oa_("Progress information", 1, 1) // Not copied
       , fileName_(cp.fileName_)
@@ -279,7 +279,7 @@ public:
    /**
     * The destuctor
     */
-   virtual G_API ~GProgressPlotterT()
+   virtual G_API_GENEVA ~GProgressPlotterT()
    { /* nothing */ }
 
    /**************************************************************************/
@@ -288,7 +288,7 @@ public:
     * boolean and integer variables specified in the argument will simply
     * be ignored.
     */
-   G_API void setProfileSpec(std::string parStr) {
+   G_API_GENEVA void setProfileSpec(std::string parStr) {
       // Check that the parameter string isn't empty
       if(parStr.empty()) {
          glogger
@@ -325,7 +325,7 @@ public:
    /**
     * Allows to specify whether only the best individuals should be monitored.
     */
-   G_API void setMonitorBestOnly(bool monitorBestOnly = true) {
+   G_API_GENEVA void setMonitorBestOnly(bool monitorBestOnly = true) {
       monitorBestOnly_ = monitorBestOnly;
    }
 
@@ -333,7 +333,7 @@ public:
    /**
     * Allows to check whether only the best individuals should be monitored.
     */
-   G_API bool getMonitorBestOnly() const {
+   G_API_GENEVA bool getMonitorBestOnly() const {
       return monitorBestOnly_;
    }
 
@@ -341,7 +341,7 @@ public:
    /**
     * Allows to specify whether only valid individuals should be monitored.
     */
-   G_API void setMonitorValidOnly(bool monitorValidOnly = true) {
+   G_API_GENEVA void setMonitorValidOnly(bool monitorValidOnly = true) {
       monitorValidOnly_ = monitorValidOnly;
    }
 
@@ -349,7 +349,7 @@ public:
    /**
     * Allows to check whether only valid individuals should be monitored.
     */
-   G_API bool getMonitorValidOnly() const {
+   G_API_GENEVA bool getMonitorValidOnly() const {
       return monitorValidOnly_;
    }
 
@@ -357,7 +357,7 @@ public:
    /**
     * Allows to spefify whether scan boundaries should be observed
     */
-   G_API void setObserveBoundaries(bool observeBoundaries) {
+   G_API_GENEVA void setObserveBoundaries(bool observeBoundaries) {
       observeBoundaries_ = observeBoundaries;
    }
 
@@ -365,7 +365,7 @@ public:
    /**
     * Allows to check whether boundaries should be observed
     */
-   G_API bool getObserveBoundaries() const {
+   G_API_GENEVA bool getObserveBoundaries() const {
       return observeBoundaries_;
    }
 
@@ -373,7 +373,7 @@ public:
    /**
     * Allows to check whether parameters should be profiled
     */
-   G_API bool parameterProfileCreationRequested() const {
+   G_API_GENEVA bool parameterProfileCreationRequested() const {
       return !fp_profVarVec_.empty();
    }
 
@@ -381,7 +381,7 @@ public:
    /**
     * Retrieves the number of variables that will be profiled
     */
-   G_API std::size_t nProfileVars() const {
+   G_API_GENEVA std::size_t nProfileVars() const {
       return fp_profVarVec_.size();
    }
 
@@ -397,7 +397,7 @@ public:
    /**
     * Allows to set the canvas dimensions using separate x and y values
     */
-   G_API void setCanvasDimensions(boost::uint32_t x, boost::uint32_t y) {
+   G_API_GENEVA void setCanvasDimensions(boost::uint32_t x, boost::uint32_t y) {
       canvasDimensions_ = boost::tuple<boost::uint32_t,boost::uint32_t>(x,y);
    }
 
@@ -405,7 +405,7 @@ public:
    /**
     * Gives access to the canvas dimensions
     */
-   G_API boost::tuple<boost::uint32_t,boost::uint32_t> getCanvasDimensions() const {
+   G_API_GENEVA boost::tuple<boost::uint32_t,boost::uint32_t> getCanvasDimensions() const {
       return canvasDimensions_;
    }
 
@@ -413,7 +413,7 @@ public:
    /**
     * Allows to add a "Print" command to the end of the script so that picture files are created
     */
-   G_API void setAddPrintCommand(bool addPrintCommand) {
+   G_API_GENEVA void setAddPrintCommand(bool addPrintCommand) {
       addPrintCommand_ = addPrintCommand;
    }
 
@@ -421,7 +421,7 @@ public:
    /**
     * Allows to retrieve the current value of the addPrintCommand_ variable
     */
-   G_API bool getAddPrintCommand() const {
+   G_API_GENEVA bool getAddPrintCommand() const {
       return addPrintCommand_;
    }
 
@@ -429,7 +429,7 @@ public:
    /**
     * Allows to set the filename
     */
-   G_API void setFileName(std::string fileName) {
+   G_API_GENEVA void setFileName(std::string fileName) {
       fileName_ = fileName;
    }
 
@@ -437,7 +437,7 @@ public:
    /**
     * Retrieves the current filename to which information will be emitted
     */
-   G_API std::string getFileName() const {
+   G_API_GENEVA std::string getFileName() const {
       return fileName_;
    }
 
@@ -445,7 +445,7 @@ public:
    /**
     * Allows to set the canvas label
     */
-   G_API void setCanvasLabel(const std::string& canvasLabel) {
+   G_API_GENEVA void setCanvasLabel(const std::string& canvasLabel) {
       gpd_oa_.setCanvasLabel(canvasLabel);
    }
 
@@ -453,7 +453,7 @@ public:
    /**
     * Allows to retrieve the canvas label
     */
-   G_API std::string getCanvasLabel() const {
+   G_API_GENEVA std::string getCanvasLabel() const {
       return gpd_oa_.getCanvasLabel();
    }
 
@@ -461,7 +461,7 @@ public:
    /**
     * Determines a suitable label for a given parPropSpec value
     */
-   G_API std::string getLabel(const parPropSpec<fp_type>& s) const {
+   G_API_GENEVA std::string getLabel(const parPropSpec<fp_type>& s) const {
       std::string result;
 
       std::size_t var_mode = boost::get<0>(s.var);
@@ -511,7 +511,7 @@ public:
     * Allows to emit information in different stages of the information cycle
     * (initialization, during each cycle and during finalization)
     */
-   virtual G_API void informationFunction(
+   virtual G_API_GENEVA void informationFunction(
       const infoMode& im
       , GOptimizationAlgorithmT<ind_type> * const goa
    ) OVERRIDE {
@@ -798,7 +798,7 @@ public:
    /**
     * The default constructor
     */
-   G_API GAllSolutionFileLoggerT()
+   G_API_GENEVA GAllSolutionFileLoggerT()
       : fileName_("CompleteSolutionLog.txt")
       , boundariesActive_(false)
       , withNameAndType_(false)
@@ -811,7 +811,7 @@ public:
    /**
     * Initialization with a file name
     */
-   G_API GAllSolutionFileLoggerT(const std::string& fileName)
+   G_API_GENEVA GAllSolutionFileLoggerT(const std::string& fileName)
       : fileName_(fileName)
       , boundariesActive_(false)
       , withNameAndType_(false)
@@ -824,7 +824,7 @@ public:
    /**
     * Initialization with a file name and boundaries
     */
-   G_API GAllSolutionFileLoggerT(
+   G_API_GENEVA GAllSolutionFileLoggerT(
       const std::string& fileName
       , const std::vector<double>& boundaries
    )
@@ -841,7 +841,7 @@ public:
    /**
     * The copy constructor
     */
-   G_API GAllSolutionFileLoggerT(const GAllSolutionFileLoggerT<ind_type>& cp)
+   G_API_GENEVA GAllSolutionFileLoggerT(const GAllSolutionFileLoggerT<ind_type>& cp)
       : fileName_(cp.fileName_)
       , boundaries_(cp.boundaries_)
       , boundariesActive_(cp.boundariesActive_)
@@ -855,14 +855,14 @@ public:
    /**
     * The destructor
     */
-   virtual G_API ~GAllSolutionFileLoggerT()
+   virtual G_API_GENEVA ~GAllSolutionFileLoggerT()
    { /* nothing */ }
 
    /***************************************************************************/
    /**
     * Sets the file name
     */
-   G_API void setFileName(std::string fileName) {
+   G_API_GENEVA void setFileName(std::string fileName) {
       fileName_ = fileName;
    }
 
@@ -870,7 +870,7 @@ public:
    /**
     * Retrieves the current file name
     */
-   G_API std::string getFileName() const {
+   G_API_GENEVA std::string getFileName() const {
       return fileName_;
    }
 
@@ -878,7 +878,7 @@ public:
    /**
     * Sets the boundaries
     */
-   G_API void setBoundaries(std::vector<double> boundaries) {
+   G_API_GENEVA void setBoundaries(std::vector<double> boundaries) {
       boundaries_ = boundaries;
       boundariesActive_ = true;
    }
@@ -887,7 +887,7 @@ public:
    /**
     * Allows to retrieve the boundaries
     */
-   G_API std::vector<double> getBoundaries() const {
+   G_API_GENEVA std::vector<double> getBoundaries() const {
       return boundaries_;
    }
 
@@ -895,7 +895,7 @@ public:
    /**
     * Allows to check whether boundaries are active
     */
-   G_API bool boundariesActive() const {
+   G_API_GENEVA bool boundariesActive() const {
       return boundariesActive_;
    }
 
@@ -903,7 +903,7 @@ public:
    /**
     * Allows to inactivate boundaries
     */
-   G_API void setBoundariesInactive() {
+   G_API_GENEVA void setBoundariesInactive() {
       boundariesActive_ = false;
    }
 
@@ -912,7 +912,7 @@ public:
     * Allows to specify whether explanations should be printed for parameter-
     * and fitness values.
     */
-   G_API void setPrintWithNameAndType(bool withNameAndType) {
+   G_API_GENEVA void setPrintWithNameAndType(bool withNameAndType) {
       withNameAndType_ = withNameAndType;
    }
 
@@ -921,7 +921,7 @@ public:
     * Allows to check whether explanations should be printed for parameter-
     * and fitness values
     */
-   G_API bool getPrintWithNameAndType() const {
+   G_API_GENEVA bool getPrintWithNameAndType() const {
       return withNameAndType_;
    }
 
@@ -929,7 +929,7 @@ public:
    /**
     * Allows to specify whether commas should be printed in-between values
     */
-   G_API void setPrintWithCommas(bool withCommas) {
+   G_API_GENEVA void setPrintWithCommas(bool withCommas) {
       withCommas_ = withCommas;
    }
 
@@ -937,7 +937,7 @@ public:
    /**
     * Allows to check whether commas should be printed in-between values
     */
-   G_API bool getPrintWithCommas() const {
+   G_API_GENEVA bool getPrintWithCommas() const {
       return withCommas_;
    }
 
@@ -945,7 +945,7 @@ public:
    /**
     * Allows to specify whether the true (instead of the transformed) fitness should be shown
     */
-   G_API void setUseTrueFitness(bool useRawFitness) {
+   G_API_GENEVA void setUseTrueFitness(bool useRawFitness) {
       useRawFitness_ = useRawFitness;
    }
 
@@ -953,7 +953,7 @@ public:
    /**
     * Allows to retrieve whether the true (instead of the transformed) fitness should be shown
     */
-   G_API bool getUseTrueFitness() const {
+   G_API_GENEVA bool getUseTrueFitness() const {
       return useRawFitness_;
    }
 
@@ -961,7 +961,7 @@ public:
    /**
     * Allows to specify whether the validity of a solution should be shown
     */
-   G_API void setShowValidity(bool showValidity) {
+   G_API_GENEVA void setShowValidity(bool showValidity) {
       showValidity_ = showValidity;
    }
 
@@ -969,7 +969,7 @@ public:
    /**
     * Allows to check whether the validity of a solution will be shown
     */
-   G_API bool getShowValidity() const {
+   G_API_GENEVA bool getShowValidity() const {
       return showValidity_;
    }
 
@@ -978,7 +978,7 @@ public:
     * Allows to emit information in different stages of the information cycle
     * (initialization, during each cycle and during finalization)
     */
-   virtual G_API void informationFunction(
+   virtual G_API_GENEVA void informationFunction(
       const infoMode& im
       , GOptimizationAlgorithmT<ind_type> * const goa
    ) OVERRIDE {
@@ -1063,7 +1063,7 @@ public:
    /**
     * The default constructor
     */
-   G_API GIterationResultsFileLoggerT()
+   G_API_GENEVA GIterationResultsFileLoggerT()
       : fileName_("CompleteSolutionLog.txt")
       , withCommas_(false)
       , useRawFitness_(true)
@@ -1073,7 +1073,7 @@ public:
    /**
     * Initialization with a file name
     */
-   G_API GIterationResultsFileLoggerT(const std::string& fileName)
+   G_API_GENEVA GIterationResultsFileLoggerT(const std::string& fileName)
       : fileName_(fileName)
       , withCommas_(false)
       , useRawFitness_(true)
@@ -1083,7 +1083,7 @@ public:
    /**
     * The copy constructor
     */
-   G_API GIterationResultsFileLoggerT(const GIterationResultsFileLoggerT<ind_type>& cp)
+   G_API_GENEVA GIterationResultsFileLoggerT(const GIterationResultsFileLoggerT<ind_type>& cp)
       : fileName_(cp.fileName_)
       , withCommas_(cp.withCommas_)
       , useRawFitness_(cp.useRawFitness_)
@@ -1093,14 +1093,14 @@ public:
    /**
     * The destructor
     */
-   virtual G_API ~GIterationResultsFileLoggerT()
+   virtual G_API_GENEVA ~GIterationResultsFileLoggerT()
    { /* nothing */ }
 
    /***************************************************************************/
    /**
     * Sets the file name
     */
-   G_API void setFileName(std::string fileName) {
+   G_API_GENEVA void setFileName(std::string fileName) {
       fileName_ = fileName;
    }
 
@@ -1108,7 +1108,7 @@ public:
    /**
     * Retrieves the current file name
     */
-   G_API std::string getFileName() const {
+   G_API_GENEVA std::string getFileName() const {
       return fileName_;
    }
 
@@ -1116,7 +1116,7 @@ public:
    /**
     * Allows to specify whether commas should be printed in-between values
     */
-   G_API void setPrintWithCommas(bool withCommas) {
+   G_API_GENEVA void setPrintWithCommas(bool withCommas) {
       withCommas_ = withCommas;
    }
 
@@ -1124,7 +1124,7 @@ public:
    /**
     * Allows to check whether commas should be printed in-between values
     */
-   G_API bool getPrintWithCommas() const {
+   G_API_GENEVA bool getPrintWithCommas() const {
       return withCommas_;
    }
 
@@ -1132,7 +1132,7 @@ public:
    /**
     * Allows to specify whether the true (instead of the transformed) fitness should be shown
     */
-   G_API void setUseTrueFitness(bool useRawFitness) {
+   G_API_GENEVA void setUseTrueFitness(bool useRawFitness) {
       useRawFitness_ = useRawFitness;
    }
 
@@ -1140,7 +1140,7 @@ public:
    /**
     * Allows to retrieve whether the true (instead of the transformed) fitness should be shown
     */
-   G_API bool getUseTrueFitness() const {
+   G_API_GENEVA bool getUseTrueFitness() const {
       return useRawFitness_;
    }
 
@@ -1149,7 +1149,7 @@ public:
     * Allows to emit information in different stages of the information cycle
     * (initialization, during each cycle and during finalization)
     */
-   virtual G_API void informationFunction(
+   virtual G_API_GENEVA void informationFunction(
       const infoMode& im
       , GOptimizationAlgorithmT<ind_type> * const goa
    ) OVERRIDE {
@@ -1230,7 +1230,7 @@ public:
    /**
     * The default constructor
     */
-   G_API GNAdpationsLoggerT()
+   G_API_GENEVA GNAdpationsLoggerT()
       : fileName_("NAdaptions.C")
       , canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1200,1600))
       , gpd_oa_("Number of adaptions per iteration", 1, 2)
@@ -1245,7 +1245,7 @@ public:
    /**
     * Initialization with a file name
     */
-   explicit G_API GNAdpationsLoggerT(const std::string& fileName)
+   explicit G_API_GENEVA GNAdpationsLoggerT(const std::string& fileName)
       : fileName_(fileName)
       , canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1200,1600))
       , gpd_oa_("Number of adaptions per iteration", 1, 2)
@@ -1260,7 +1260,7 @@ public:
    /**
     * The copy constructor
     */
-   G_API GNAdpationsLoggerT(const GNAdpationsLoggerT<ind_type>& cp)
+   G_API_GENEVA GNAdpationsLoggerT(const GNAdpationsLoggerT<ind_type>& cp)
       : fileName_(cp.fileName_)
       , canvasDimensions_(cp.canvasDimensions_)
       , gpd_oa_("Number of adaptions per iteration", 1, 2) // Not copied
@@ -1275,14 +1275,14 @@ public:
    /**
     * The destructor
     */
-   virtual G_API ~GNAdpationsLoggerT()
+   virtual G_API_GENEVA ~GNAdpationsLoggerT()
    { /* nothing */ }
 
    /***************************************************************************/
    /**
     * Sets the file name
     */
-   G_API void setFileName(std::string fileName) {
+   G_API_GENEVA void setFileName(std::string fileName) {
       fileName_ = fileName;
    }
 
@@ -1290,7 +1290,7 @@ public:
    /**
     * Retrieves the current file name
     */
-   G_API std::string getFileName() const {
+   G_API_GENEVA std::string getFileName() const {
       return fileName_;
    }
 
@@ -1298,7 +1298,7 @@ public:
    /**
     * Allows to specify whether only the best individuals should be monitored.
     */
-   G_API void setMonitorBestOnly(bool monitorBestOnly = true) {
+   G_API_GENEVA void setMonitorBestOnly(bool monitorBestOnly = true) {
       monitorBestOnly_ = monitorBestOnly;
    }
 
@@ -1306,7 +1306,7 @@ public:
    /**
     * Allows to check whether only the best individuals should be monitored.
     */
-   G_API bool getMonitorBestOnly() const {
+   G_API_GENEVA bool getMonitorBestOnly() const {
       return monitorBestOnly_;
    }
 
@@ -1314,7 +1314,7 @@ public:
    /**
     * Allows to set the canvas dimensions
     */
-   G_API void setCanvasDimensions(boost::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions) {
+   G_API_GENEVA void setCanvasDimensions(boost::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions) {
       canvasDimensions_ = canvasDimensions;
    }
 
@@ -1322,7 +1322,7 @@ public:
    /**
     * Allows to set the canvas dimensions using separate x and y values
     */
-   G_API void setCanvasDimensions(boost::uint32_t x, boost::uint32_t y) {
+   G_API_GENEVA void setCanvasDimensions(boost::uint32_t x, boost::uint32_t y) {
       canvasDimensions_ = boost::tuple<boost::uint32_t,boost::uint32_t>(x,y);
    }
 
@@ -1330,7 +1330,7 @@ public:
    /**
     * Gives access to the canvas dimensions
     */
-   G_API boost::tuple<boost::uint32_t,boost::uint32_t> getCanvasDimensions() const {
+   G_API_GENEVA boost::tuple<boost::uint32_t,boost::uint32_t> getCanvasDimensions() const {
       return canvasDimensions_;
    }
 
@@ -1338,7 +1338,7 @@ public:
    /**
     * Allows to add a "Print" command to the end of the script so that picture files are created
     */
-   G_API void setAddPrintCommand(bool addPrintCommand) {
+   G_API_GENEVA void setAddPrintCommand(bool addPrintCommand) {
       addPrintCommand_ = addPrintCommand;
    }
 
@@ -1346,7 +1346,7 @@ public:
    /**
     * Allows to retrieve the current value of the addPrintCommand_ variable
     */
-   G_API bool getAddPrintCommand() const {
+   G_API_GENEVA bool getAddPrintCommand() const {
       return addPrintCommand_;
    }
 
@@ -1355,7 +1355,7 @@ public:
     * Allows to emit information in different stages of the information cycle
     * (initialization, during each cycle and during finalization)
     */
-   virtual G_API void informationFunction(
+   virtual G_API_GENEVA void informationFunction(
       const infoMode& im
       , GOptimizationAlgorithmT<ind_type> * const goa
    ) OVERRIDE {
@@ -1527,7 +1527,7 @@ public:
    /**
     * The default constructor
     */
-   G_API GAdaptorPropertyLoggerT()
+   G_API_GENEVA GAdaptorPropertyLoggerT()
       : fileName_("NAdaptions.C")
       , adaptorName_("GDoubleGaussAdaptor")
       , property_("sigma")
@@ -1544,7 +1544,7 @@ public:
    /**
     * Initialization with a file name
     */
-   G_API GAdaptorPropertyLoggerT(
+   G_API_GENEVA GAdaptorPropertyLoggerT(
       const std::string& fileName
       , const std::string& adaptorName
       , const std::string& property
@@ -1565,7 +1565,7 @@ public:
    /**
     * The copy constructor
     */
-   G_API GAdaptorPropertyLoggerT(const GAdaptorPropertyLoggerT<ind_type, num_type>& cp)
+   G_API_GENEVA GAdaptorPropertyLoggerT(const GAdaptorPropertyLoggerT<ind_type, num_type>& cp)
       : fileName_(cp.fileName_)
       , adaptorName_(cp.adaptorName_)
       , property_(cp.property_)
@@ -1582,14 +1582,14 @@ public:
    /**
     * The destructor
     */
-   virtual G_API ~GAdaptorPropertyLoggerT()
+   virtual G_API_GENEVA ~GAdaptorPropertyLoggerT()
    { /* nothing */ }
 
    /***************************************************************************/
    /**
     * Sets the file name
     */
-   G_API void setFileName(std::string fileName) {
+   G_API_GENEVA void setFileName(std::string fileName) {
       fileName_ = fileName;
    }
 
@@ -1597,7 +1597,7 @@ public:
    /**
     * Retrieves the current file name
     */
-   G_API std::string getFileName() const {
+   G_API_GENEVA std::string getFileName() const {
       return fileName_;
    }
 
@@ -1605,7 +1605,7 @@ public:
    /**
     * Sets the name of the adaptor
     */
-   G_API void setAdaptorName(std::string adaptorName) {
+   G_API_GENEVA void setAdaptorName(std::string adaptorName) {
       adaptorName_ = adaptorName;
    }
 
@@ -1613,7 +1613,7 @@ public:
    /**
     * Retrieves the name of the adaptor
     */
-   G_API std::string getAdaptorName() const {
+   G_API_GENEVA std::string getAdaptorName() const {
       return adaptorName_;
    }
 
@@ -1621,7 +1621,7 @@ public:
    /**
     * Sets the name of the property
     */
-   G_API void setPropertyName(std::string property) {
+   G_API_GENEVA void setPropertyName(std::string property) {
       property_ = property;
    }
 
@@ -1629,7 +1629,7 @@ public:
    /**
     * Retrieves the name of the property
     */
-   G_API std::string getPropertyName() const {
+   G_API_GENEVA std::string getPropertyName() const {
       return property_;
    }
 
@@ -1637,7 +1637,7 @@ public:
    /**
     * Allows to specify whether only the best individuals should be monitored.
     */
-   G_API void setMonitorBestOnly(bool monitorBestOnly = true) {
+   G_API_GENEVA void setMonitorBestOnly(bool monitorBestOnly = true) {
       monitorBestOnly_ = monitorBestOnly;
    }
 
@@ -1645,7 +1645,7 @@ public:
    /**
     * Allows to check whether only the best individuals should be monitored.
     */
-   G_API bool getMonitorBestOnly() const {
+   G_API_GENEVA bool getMonitorBestOnly() const {
       return monitorBestOnly_;
    }
 
@@ -1653,7 +1653,7 @@ public:
    /**
     * Allows to set the canvas dimensions
     */
-   G_API void setCanvasDimensions(boost::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions) {
+   G_API_GENEVA void setCanvasDimensions(boost::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions) {
       canvasDimensions_ = canvasDimensions;
    }
 
@@ -1661,7 +1661,7 @@ public:
    /**
     * Allows to set the canvas dimensions using separate x and y values
     */
-   G_API void setCanvasDimensions(boost::uint32_t x, boost::uint32_t y) {
+   G_API_GENEVA void setCanvasDimensions(boost::uint32_t x, boost::uint32_t y) {
       canvasDimensions_ = boost::tuple<boost::uint32_t,boost::uint32_t>(x,y);
    }
 
@@ -1669,7 +1669,7 @@ public:
    /**
     * Gives access to the canvas dimensions
     */
-   G_API boost::tuple<boost::uint32_t,boost::uint32_t> getCanvasDimensions() const {
+   G_API_GENEVA boost::tuple<boost::uint32_t,boost::uint32_t> getCanvasDimensions() const {
       return canvasDimensions_;
    }
 
@@ -1677,7 +1677,7 @@ public:
    /**
     * Allows to add a "Print" command to the end of the script so that picture files are created
     */
-   G_API void setAddPrintCommand(bool addPrintCommand) {
+   G_API_GENEVA void setAddPrintCommand(bool addPrintCommand) {
       addPrintCommand_ = addPrintCommand;
    }
 
@@ -1685,7 +1685,7 @@ public:
    /**
     * Allows to retrieve the current value of the addPrintCommand_ variable
     */
-   G_API bool getAddPrintCommand() const {
+   G_API_GENEVA bool getAddPrintCommand() const {
       return addPrintCommand_;
    }
 
@@ -1694,7 +1694,7 @@ public:
     * Allows to emit information in different stages of the information cycle
     * (initialization, during each cycle and during finalization)
     */
-   virtual G_API void informationFunction(
+   virtual G_API_GENEVA void informationFunction(
       const infoMode& im
       , GOptimizationAlgorithmT<ind_type> * const goa
    ) OVERRIDE {

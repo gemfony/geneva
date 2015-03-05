@@ -74,7 +74,7 @@ namespace Geneva {
 /**
  * This enum denotes the possible demo function types
  */
-enum G_API solverFunction {
+enum G_API_INDIVIDUALS solverFunction {
    PARABOLA=0
    , NOISYPARABOLA=1
    , ROSENBROCK=2
@@ -89,15 +89,15 @@ const solverFunction MAXDEMOFUNCTION=SALOMON;
 
 // Make sure solverFunction can be streamed
 /** @brief Puts a Gem::Geneva::solverFunction into a stream. Needed also for boost::lexical_cast<> */
-G_API std::ostream& operator<<(std::ostream&, const Gem::Geneva::solverFunction&);
+G_API_INDIVIDUALS std::ostream& operator<<(std::ostream&, const Gem::Geneva::solverFunction&);
 
 /** @brief Reads a Gem::Geneva::solverFunction from a stream. Needed also for boost::lexical_cast<> */
-G_API std::istream& operator>>(std::istream&, Gem::Geneva::solverFunction&);
+G_API_INDIVIDUALS std::istream& operator>>(std::istream&, Gem::Geneva::solverFunction&);
 
 /**
  * This enum describes different parameter types that may be used to fill the object with data
  */
-enum G_API parameterType {
+enum G_API_INDIVIDUALS parameterType {
 	USEGDOUBLECOLLECTION = 0
 	, USEGCONSTRAINEDOUBLECOLLECTION = 1
 	, USEGDOUBLEOBJECTCOLLECTION = 2
@@ -107,25 +107,25 @@ enum G_API parameterType {
 
 // Make sure parameterType can be streamed
 /** @brief Puts a Gem::Geneva::parameterType into a stream. Needed also for boost::lexical_cast<> */
-G_API std::ostream& operator<<(std::ostream&, const Gem::Geneva::parameterType&);
+G_API_INDIVIDUALS std::ostream& operator<<(std::ostream&, const Gem::Geneva::parameterType&);
 
 /** @brief Reads a Gem::Geneva::parameterType from a stream. Needed also for boost::lexical_cast<> */
-G_API std::istream& operator>>(std::istream&, Gem::Geneva::parameterType&);
+G_API_INDIVIDUALS std::istream& operator>>(std::istream&, Gem::Geneva::parameterType&);
 
 /**
  * This enum describes several ways of initializing the data collections
  */
-enum G_API initMode {
+enum G_API_INDIVIDUALS initMode {
 	INITRANDOM = 0 // random values for all variables
 	, INITPERIMETER = 1 // Uses a parameter set on the perimeter of the allowed or common value range
 };
 
 // Make sure initMode can be streamed
 /** @brief Puts a Gem::Geneva::initMode into a stream. Needed also for boost::lexical_cast<> */
-G_API std::ostream& operator<<(std::ostream&, const Gem::Geneva::initMode&);
+G_API_INDIVIDUALS std::ostream& operator<<(std::ostream&, const Gem::Geneva::initMode&);
 
 /** @brief Reads a Gem::Geneva::initMode from a stream. Needed also for boost::lexical_cast<> */
-G_API std::istream& operator>>(std::istream&, Gem::Geneva::initMode&);
+G_API_INDIVIDUALS std::istream& operator>>(std::istream&, Gem::Geneva::initMode&);
 
 /******************************************************************************/
 // A number of default settings for the factory
@@ -172,7 +172,7 @@ class GFunctionIndividual
 	friend class boost::serialization::access;
 
 	template<class Archive>
-	G_API void serialize(Archive & ar, const unsigned int) {
+	G_API_INDIVIDUALS void serialize(Archive & ar, const unsigned int) {
 		ar
 		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
 		& BOOST_SERIALIZATION_NVP(demoFunction_);
@@ -184,24 +184,24 @@ public:
 	typedef GFunctionIndividualFactory FACTORYTYPE;
 
 	/** @brief The default constructor */
-	G_API GFunctionIndividual();
+	G_API_INDIVIDUALS GFunctionIndividual();
 	/** @brief Initialization with the desired demo function */
-	G_API GFunctionIndividual(const solverFunction&);
+	G_API_INDIVIDUALS GFunctionIndividual(const solverFunction&);
 	/** @brief A standard copy constructor */
-	G_API GFunctionIndividual(const GFunctionIndividual&);
+	G_API_INDIVIDUALS GFunctionIndividual(const GFunctionIndividual&);
 	/** @brief The standard destructor */
-	virtual G_API ~GFunctionIndividual();
+	virtual G_API_INDIVIDUALS ~GFunctionIndividual();
 
 	/** @brief A standard assignment operator */
-	G_API const GFunctionIndividual& operator=(const GFunctionIndividual&);
+	G_API_INDIVIDUALS const GFunctionIndividual& operator=(const GFunctionIndividual&);
 
 	/** @brief Checks for equality with another GFunctionIndividual object */
-	G_API bool operator==(const GFunctionIndividual&) const;
+	G_API_INDIVIDUALS bool operator==(const GFunctionIndividual&) const;
 	/** @brief Checks for inequality with another GFunctionIndividual object */
-	G_API bool operator!=(const GFunctionIndividual& cp) const;
+	G_API_INDIVIDUALS bool operator!=(const GFunctionIndividual& cp) const;
 
 	/** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled. */
-	virtual G_API boost::optional<std::string> checkRelationshipWith(
+	virtual G_API_INDIVIDUALS boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -211,15 +211,15 @@ public:
 	) const;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual G_API void addConfigurationOptions(Gem::Common::GParserBuilder&);
+	virtual G_API_INDIVIDUALS void addConfigurationOptions(Gem::Common::GParserBuilder&);
 
 	/** @brief Allows to set the demo function */
-	G_API void setDemoFunction(solverFunction);
+	G_API_INDIVIDUALS void setDemoFunction(solverFunction);
 	/** @brief Allows to retrieve the current demo function */
-	G_API solverFunction getDemoFunction() const;
+	G_API_INDIVIDUALS solverFunction getDemoFunction() const;
 
 	/** @brief Allows to cross check the parameter size */
-	G_API std::size_t getParameterSize() const;
+	G_API_INDIVIDUALS std::size_t getParameterSize() const;
 
 	/***************************************************************************/
 	/**
@@ -229,7 +229,7 @@ public:
 	 * @param df The id of the desired function individual
 	 * @return A string representing the name of the current function
 	 */
-	static G_API std::string getStringRepresentation(const solverFunction& df) {
+	static G_API_INDIVIDUALS std::string getStringRepresentation(const solverFunction& df) {
 		std::string result;
 
 		// Set up a single function individual, depending on the expected function type
@@ -279,7 +279,7 @@ public:
 	 * @param df The id of the desired function individual
 	 * @return A string suitable for plotting a 2D version of this function with the ROOT analysis framework
 	 */
-	static G_API std::string get2DROOTFunction(const solverFunction& df) {
+	static G_API_INDIVIDUALS std::string get2DROOTFunction(const solverFunction& df) {
 		std::string result;
 
 		// Set up a single function individual, depending on the expected function type
@@ -328,7 +328,7 @@ public:
 	 * @param df The id of the desired function individual
 	 * @return The x-coordinate(s) of the global optimium in 2D
 	 */
-	static G_API std::vector<double> getXMin(const solverFunction& df) {
+	static G_API_INDIVIDUALS std::vector<double> getXMin(const solverFunction& df) {
 		std::vector<double> result;
 
 		// Set up a single function individual, depending on the expected function type
@@ -379,7 +379,7 @@ public:
 	 * @param df The id of the desired function individual
 	 * @return The y-coordinate(s) of the global optimium in 2D
 	 */
-	static G_API std::vector<double> getYMin(const solverFunction& df) {
+	static G_API_INDIVIDUALS std::vector<double> getYMin(const solverFunction& df) {
 		std::vector<double> result;
 
 		// Set up a single function individual, depending on the expected function type
@@ -424,12 +424,12 @@ public:
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GFunctionIndividual */
-	virtual G_API void load_(const GObject*) FINAL;
+	virtual G_API_INDIVIDUALS void load_(const GObject*) FINAL;
 	/** @brief Creates a deep clone of this object */
-	virtual G_API GObject* clone_() const;
+	virtual G_API_INDIVIDUALS GObject* clone_() const;
 
 	/** @brief The actual value calculation takes place here */
-	virtual G_API double fitnessCalculation() OVERRIDE;
+	virtual G_API_INDIVIDUALS double fitnessCalculation() OVERRIDE;
 
 	/***************************************************************************/
 
@@ -441,8 +441,8 @@ private:
 /**
  * Provide an easy way to print the individual's content
  */
-G_API std::ostream& operator<<(std::ostream&, const Gem::Geneva::GFunctionIndividual&);
-G_API std::ostream& operator<<(std::ostream&, boost::shared_ptr<Gem::Geneva::GFunctionIndividual>);
+G_API_INDIVIDUALS std::ostream& operator<<(std::ostream&, const Gem::Geneva::GFunctionIndividual&);
+G_API_INDIVIDUALS std::ostream& operator<<(std::ostream&, boost::shared_ptr<Gem::Geneva::GFunctionIndividual>);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -457,7 +457,7 @@ class GFunctionIndividualFactory
    friend class boost::serialization::access;
 
    template<class Archive>
-   G_API void serialize(Archive & ar, const unsigned int) {
+   G_API_INDIVIDUALS void serialize(Archive & ar, const unsigned int) {
       ar
       & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Common::GFactoryT<GParameterSet>)
       & BOOST_SERIALIZATION_NVP(adProb_)
@@ -489,135 +489,135 @@ class GFunctionIndividualFactory
 
 public:
 	/** @brief The standard constructor */
-   G_API GFunctionIndividualFactory(const std::string&);
+   G_API_INDIVIDUALS GFunctionIndividualFactory(const std::string&);
 	/** @brief The copy constructor */
-   G_API GFunctionIndividualFactory(const GFunctionIndividualFactory&);
+   G_API_INDIVIDUALS GFunctionIndividualFactory(const GFunctionIndividualFactory&);
 	/** @brief The destructor */
-	virtual G_API ~GFunctionIndividualFactory();
+	virtual G_API_INDIVIDUALS ~GFunctionIndividualFactory();
 
 	/**************************************************************************/
 	// Getters and setters
 
 	/** @brief Allows to retrieve the adaptionThreshold_ variable */
-	G_API boost::uint32_t getAdaptionThreshold() const;
+	G_API_INDIVIDUALS boost::uint32_t getAdaptionThreshold() const;
    /** @brief Set the value of the adaptionThreshold_ variable */
-	G_API void setAdaptionThreshold(boost::uint32_t adaptionThreshold);
+	G_API_INDIVIDUALS void setAdaptionThreshold(boost::uint32_t adaptionThreshold);
 
    /** @brief Allows to retrieve the adProb_ variable */
-	G_API double getAdProb() const;
+	G_API_INDIVIDUALS double getAdProb() const;
    /** @brief Set the value of the adProb_ variable */
-	G_API void setAdProb(double adProb);
+	G_API_INDIVIDUALS void setAdProb(double adProb);
 
    /** @brief Allows to retrieve the iM_ variable */
-	G_API initMode getIM() const;
+	G_API_INDIVIDUALS initMode getIM() const;
    /** @brief Set the value of the iM_ variable */
-	G_API void setIM(initMode im);
+	G_API_INDIVIDUALS void setIM(initMode im);
 
    /** @brief Allows to retrieve the parDim_ variable */
-	G_API std::size_t getParDim() const;
+	G_API_INDIVIDUALS std::size_t getParDim() const;
    /** @brief (Re-)Set the dimension of the function */
-	G_API void setParDim(std::size_t);
+	G_API_INDIVIDUALS void setParDim(std::size_t);
 
    /** @brief Allows to retrieve the pT_ variable */
-	G_API parameterType getPT() const;
+	G_API_INDIVIDUALS parameterType getPT() const;
    /** @brief Set the value of the pT_ variable */
-	G_API void setPT(parameterType pt);
+	G_API_INDIVIDUALS void setPT(parameterType pt);
 
    /** @brief Allows to retrieve the useBiGaussian_ variable */
-	G_API bool getUseBiGaussian() const;
+	G_API_INDIVIDUALS bool getUseBiGaussian() const;
    /** @brief Set the value of the useBiGaussian_ variable */
-	G_API void setUseBiGaussian(bool useBiGaussian);
+	G_API_INDIVIDUALS void setUseBiGaussian(bool useBiGaussian);
 
    /** @brief Allows to retrieve the minVar_ variable */
-	G_API double getMinVar() const;
+	G_API_INDIVIDUALS double getMinVar() const;
    /** @brief Allows to retrieve the maxVar_ variable */
-	G_API double getMaxVar() const;
+	G_API_INDIVIDUALS double getMaxVar() const;
    /** @brief Extract the minimum and maximum boundaries of the variables */
-	G_API boost::tuple<double,double> getVarBoundaries() const;
+	G_API_INDIVIDUALS boost::tuple<double,double> getVarBoundaries() const;
    /** @brief Set the minimum and maximum boundaries of the variables */
-	G_API void setVarBoundaries(boost::tuple<double,double>);
+	G_API_INDIVIDUALS void setVarBoundaries(boost::tuple<double,double>);
 
    /** @brief Allows to retrieve the delta_ variable */
-	G_API double getDelta() const;
+	G_API_INDIVIDUALS double getDelta() const;
    /** @brief Set the value of the delta_ variable */
-	G_API void setDelta(double delta);
+	G_API_INDIVIDUALS void setDelta(double delta);
    /** @brief Allows to retrieve the minDelta_ variable */
-	G_API double getMinDelta() const;
+	G_API_INDIVIDUALS double getMinDelta() const;
    /** @brief Allows to retrieve the maxDelta_ variable */
-	G_API double getMaxDelta() const;
+	G_API_INDIVIDUALS double getMaxDelta() const;
    /** @brief Allows to retrieve the allowed value range of delta */
-	G_API boost::tuple<double, double> getDeltaRange() const;
+	G_API_INDIVIDUALS boost::tuple<double, double> getDeltaRange() const;
    /** @brief Allows to set the allowed value range of delta */
-	G_API void setDeltaRange(boost::tuple<double, double>);
+	G_API_INDIVIDUALS void setDeltaRange(boost::tuple<double, double>);
 
    /** @brief Allows to retrieve the minSigma1_ variable */
-	G_API double getMinSigma1() const;
+	G_API_INDIVIDUALS double getMinSigma1() const;
    /** @brief Allows to retrieve the maxSigma1_ variable */
-	G_API double getMaxSigma1() const;
+	G_API_INDIVIDUALS double getMaxSigma1() const;
    /** @brief Allows to retrieve the allowed value range of sigma1_ */
-	G_API boost::tuple<double, double> getSigma1Range() const;
+	G_API_INDIVIDUALS boost::tuple<double, double> getSigma1Range() const;
    /** @brief Allows to set the allowed value range of sigma1_ */
-	G_API void setSigma1Range(boost::tuple<double, double>);
+	G_API_INDIVIDUALS void setSigma1Range(boost::tuple<double, double>);
 
    /** @brief Allows to retrieve the minSigma2_ variable */
-	G_API double getMinSigma2() const;
+	G_API_INDIVIDUALS double getMinSigma2() const;
    /** @brief Allows to retrieve the maxSigma2_ variable */
-	G_API double getMaxSigma2() const;
+	G_API_INDIVIDUALS double getMaxSigma2() const;
    /** @brief Allows to retrieve the allowed value range of sigma2_ */
-	G_API boost::tuple<double, double> getSigma2Range() const;
+	G_API_INDIVIDUALS boost::tuple<double, double> getSigma2Range() const;
    /** @brief Allows to set the allowed value range of sigma2_ */
-	G_API void setSigma2Range(boost::tuple<double, double>);
+	G_API_INDIVIDUALS void setSigma2Range(boost::tuple<double, double>);
 
    /** @brief Allows to retrieve the sigma1_ variable */
-	G_API double getSigma1() const;
+	G_API_INDIVIDUALS double getSigma1() const;
    /** @brief Set the value of the sigma1_ variable */
-	G_API void setSigma1(double sigma1);
+	G_API_INDIVIDUALS void setSigma1(double sigma1);
 
    /** @brief Allows to retrieve the sigma2_ variable */
-	G_API double getSigma2() const;
+	G_API_INDIVIDUALS double getSigma2() const;
    /** @brief Set the value of the sigma2_ variable */
-	G_API void setSigma2(double sigma2);
+	G_API_INDIVIDUALS void setSigma2(double sigma2);
 
    /** @brief Allows to retrieve the sigmaDelta_ variable */
-	G_API double getSigmaDelta() const;
+	G_API_INDIVIDUALS double getSigmaDelta() const;
    /** @brief Set the value of the sigmaDelta_ variable */
-	G_API void setSigmaDelta(double sigmaDelta);
+	G_API_INDIVIDUALS void setSigmaDelta(double sigmaDelta);
 
    /** @brief Allows to retrieve the sigmaSigma1_ variable */
-	G_API double getSigmaSigma1() const;
+	G_API_INDIVIDUALS double getSigmaSigma1() const;
    /** @brief Set the value of the sigmaSigma1_ variable */
-	G_API void setSigmaSigma1(double sigmaSigma1);
+	G_API_INDIVIDUALS void setSigmaSigma1(double sigmaSigma1);
 
    /** @brief Allows to retrieve the sigmaSigma2_ variable */
-	G_API double getSigmaSigma2() const;
+	G_API_INDIVIDUALS double getSigmaSigma2() const;
    /** @brief Set the value of the sigmaSigma2_ variable */
-	G_API void setSigmaSigma2(double sigmaSigma2);
+	G_API_INDIVIDUALS void setSigmaSigma2(double sigmaSigma2);
 
    /** @brief Allows to retrieve the rate of evolutionary adaption of adProb_ */
-	G_API double getAdaptAdProb() const;
+	G_API_INDIVIDUALS double getAdaptAdProb() const;
    /** @brief Allows to specify an adaption factor for adProb_ (or 0, if you do not want this feature) */
-	G_API void setAdaptAdProb(double adaptAdProb);
+	G_API_INDIVIDUALS void setAdaptAdProb(double adaptAdProb);
 
    /** @brief Allows to retrieve the allowed range for adProb_ variation */
-	G_API boost::tuple<double,double> getAdProbRange() const;
+	G_API_INDIVIDUALS boost::tuple<double,double> getAdProbRange() const;
    /** @brief Allows to set the allowed range for adaption probability variation */
-	G_API void setAdProbRange(double minAdProb, double maxAdProb);
+	G_API_INDIVIDUALS void setAdProbRange(double minAdProb, double maxAdProb);
 
    // End of public getters and setters
    /***************************************************************************/
 
    /** @brief Loads the data of another GFunctionIndividualFactory object */
-	G_API virtual void load(boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >);
+	G_API_INDIVIDUALS virtual void load(boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >);
    /** @brief Creates a deep clone of this object */
-	G_API virtual boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > clone() const;
+	G_API_INDIVIDUALS virtual boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > clone() const;
 
 protected:
 	/** @brief Creates individuals of this type */
-	G_API virtual boost::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
+	G_API_INDIVIDUALS virtual boost::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
 	/** @brief Allows to describe local configuration options in derived classes */
-	G_API virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
+	G_API_INDIVIDUALS virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
 	/** @brief Allows to act on the configuration options received from the configuration file */
-	G_API virtual void postProcess_(boost::shared_ptr<GParameterSet>&);
+	G_API_INDIVIDUALS virtual void postProcess_(boost::shared_ptr<GParameterSet>&);
 
 private:
    /** @brief Set the value of the minVar_ variable */
@@ -682,7 +682,7 @@ class GDoubleSumConstraint : public GParameterSetConstraint
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API void serialize(Archive & ar, const unsigned int){
+   G_API_INDIVIDUALS void serialize(Archive & ar, const unsigned int){
      using boost::serialization::make_nvp;
      ar
      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetConstraint)
@@ -692,24 +692,24 @@ class GDoubleSumConstraint : public GParameterSetConstraint
 public:
 
    /** @brief The default constructor */
-   G_API GDoubleSumConstraint();
+   G_API_INDIVIDUALS GDoubleSumConstraint();
    /** @brief Initialization with the constant */
-   G_API GDoubleSumConstraint(const double&);
+   G_API_INDIVIDUALS GDoubleSumConstraint(const double&);
    /** @brief The copy constructor */
-   G_API GDoubleSumConstraint(const GDoubleSumConstraint&);
+   G_API_INDIVIDUALS GDoubleSumConstraint(const GDoubleSumConstraint&);
    /** @brief The destructor */
-   virtual G_API ~GDoubleSumConstraint();
+   virtual G_API_INDIVIDUALS ~GDoubleSumConstraint();
 
    /** @brief A standard assignment operator */
-   G_API const GDoubleSumConstraint& operator=(const GDoubleSumConstraint&);
+   G_API_INDIVIDUALS const GDoubleSumConstraint& operator=(const GDoubleSumConstraint&);
 
    /** @brief Checks for equality with another GIndividualConstraint object */
-   G_API bool operator==(const GDoubleSumConstraint&) const;
+   G_API_INDIVIDUALS bool operator==(const GDoubleSumConstraint&) const;
    /** @brief Checks for inequality with another GIndividualConstraint object */
-   G_API bool operator!=(const GDoubleSumConstraint&) const;
+   G_API_INDIVIDUALS bool operator!=(const GDoubleSumConstraint&) const;
 
    /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
-   virtual G_API boost::optional<std::string> checkRelationshipWith(
+   virtual G_API_INDIVIDUALS boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -719,15 +719,15 @@ public:
    ) const;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
-   virtual G_API void addConfigurationOptions(Gem::Common::GParserBuilder&);
+   virtual G_API_INDIVIDUALS void addConfigurationOptions(Gem::Common::GParserBuilder&);
 
 protected:
-   virtual G_API double check_(const GParameterSet *) const;
+   virtual G_API_INDIVIDUALS double check_(const GParameterSet *) const;
 
    /** @brief Loads the data of another GParameterSetMultiConstraint */
-   virtual G_API void load_(const GObject*);
+   virtual G_API_INDIVIDUALS void load_(const GObject*);
    /** @brief Creates a deep clone of this object */
-   virtual G_API GObject* clone_() const;
+   virtual G_API_INDIVIDUALS GObject* clone_() const;
 
 private:
    double C_; ///< The constant that should not be exceeded by the sum of parameters
@@ -746,7 +746,7 @@ class GDoubleSumGapConstraint : public GParameterSetConstraint
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API void serialize(Archive & ar, const unsigned int){
+   G_API_INDIVIDUALS void serialize(Archive & ar, const unsigned int){
      using boost::serialization::make_nvp;
      ar
      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetConstraint)
@@ -757,24 +757,24 @@ class GDoubleSumGapConstraint : public GParameterSetConstraint
 public:
 
    /** @brief The default constructor */
-   G_API GDoubleSumGapConstraint();
+   G_API_INDIVIDUALS GDoubleSumGapConstraint();
    /** @brief Initialization with the constant */
-   G_API GDoubleSumGapConstraint(const double&, const double&);
+   G_API_INDIVIDUALS GDoubleSumGapConstraint(const double&, const double&);
    /** @brief The copy constructor */
-   G_API GDoubleSumGapConstraint(const GDoubleSumGapConstraint&);
+   G_API_INDIVIDUALS GDoubleSumGapConstraint(const GDoubleSumGapConstraint&);
    /** @brief The destructor */
-   virtual G_API ~GDoubleSumGapConstraint();
+   virtual G_API_INDIVIDUALS ~GDoubleSumGapConstraint();
 
    /** @brief A standard assignment operator */
-   G_API const GDoubleSumGapConstraint& operator=(const GDoubleSumGapConstraint&);
+   G_API_INDIVIDUALS const GDoubleSumGapConstraint& operator=(const GDoubleSumGapConstraint&);
 
    /** @brief Checks for equality with another GIndividualConstraint object */
-   G_API bool operator==(const GDoubleSumGapConstraint&) const;
+   G_API_INDIVIDUALS bool operator==(const GDoubleSumGapConstraint&) const;
    /** @brief Checks for inequality with another GIndividualConstraint object */
-   G_API bool operator!=(const GDoubleSumGapConstraint&) const;
+   G_API_INDIVIDUALS bool operator!=(const GDoubleSumGapConstraint&) const;
 
    /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
-   virtual G_API boost::optional<std::string> checkRelationshipWith(
+   virtual G_API_INDIVIDUALS boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -784,15 +784,15 @@ public:
    ) const;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
-   virtual G_API void addConfigurationOptions(Gem::Common::GParserBuilder&);
+   virtual G_API_INDIVIDUALS void addConfigurationOptions(Gem::Common::GParserBuilder&);
 
 protected:
-   virtual G_API double check_(const GParameterSet *) const;
+   virtual G_API_INDIVIDUALS double check_(const GParameterSet *) const;
 
    /** @brief Loads the data of another GParameterSetMultiConstraint */
-   virtual G_API void load_(const GObject*);
+   virtual G_API_INDIVIDUALS void load_(const GObject*);
    /** @brief Creates a deep clone of this object */
-   virtual G_API GObject* clone_() const;
+   virtual G_API_INDIVIDUALS GObject* clone_() const;
 
 private:
    double C_; ///< The constant that should not be exceeded by the sum of parameters
@@ -812,7 +812,7 @@ class GSphereConstraint : public GParameterSetConstraint
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API void serialize(Archive & ar, const unsigned int){
+   G_API_INDIVIDUALS void serialize(Archive & ar, const unsigned int){
      using boost::serialization::make_nvp;
      ar
      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetConstraint);
@@ -821,24 +821,24 @@ class GSphereConstraint : public GParameterSetConstraint
 public:
 
    /** @brief The default constructor */
-   G_API GSphereConstraint();
+   G_API_INDIVIDUALS GSphereConstraint();
    /** @brief Initialization with the diameter */
-   G_API GSphereConstraint(const double&);
+   G_API_INDIVIDUALS GSphereConstraint(const double&);
    /** @brief The copy constructor */
-   G_API GSphereConstraint(const GSphereConstraint&);
+   G_API_INDIVIDUALS GSphereConstraint(const GSphereConstraint&);
    /** @brief The destructor */
-   virtual G_API ~GSphereConstraint();
+   virtual G_API_INDIVIDUALS ~GSphereConstraint();
 
    /** @brief A standard assignment operator */
-   G_API const GSphereConstraint& operator=(const GSphereConstraint&);
+   G_API_INDIVIDUALS const GSphereConstraint& operator=(const GSphereConstraint&);
 
    /** @brief Checks for equality with another GSphereConstraint object */
-   G_API bool operator==(const GSphereConstraint&) const;
+   G_API_INDIVIDUALS bool operator==(const GSphereConstraint&) const;
    /** @brief Checks for inequality with another GSphereConstraint object */
-   G_API bool operator!=(const GSphereConstraint&) const;
+   G_API_INDIVIDUALS bool operator!=(const GSphereConstraint&) const;
 
    /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
-   virtual G_API boost::optional<std::string> checkRelationshipWith(
+   virtual G_API_INDIVIDUALS boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -848,15 +848,15 @@ public:
    ) const;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
-   virtual G_API void addConfigurationOptions(Gem::Common::GParserBuilder&);
+   virtual G_API_INDIVIDUALS void addConfigurationOptions(Gem::Common::GParserBuilder&);
 
 protected:
-   virtual G_API double check_(const GParameterSet *) const;
+   virtual G_API_INDIVIDUALS double check_(const GParameterSet *) const;
 
    /** @brief Loads the data of another GParameterSetMultiConstraint */
-   virtual G_API void load_(const GObject*);
+   virtual G_API_INDIVIDUALS void load_(const GObject*);
    /** @brief Creates a deep clone of this object */
-   virtual G_API GObject* clone_() const;
+   virtual G_API_INDIVIDUALS GObject* clone_() const;
 
 private:
    /** @brief The diameter of the sphere */

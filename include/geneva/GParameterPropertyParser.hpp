@@ -93,7 +93,7 @@ struct parPropSpec {
    std::size_t nSteps;   ///< The number of steps from the lower boundary to the upper boundary (or possibly the number of random values from this parameter range, depending on the scan mode and parameter type)
 
    // Swap with another parPropSpec
-   G_API void swap(parPropSpec<par_type>& b) {
+   G_API_GENEVA void swap(parPropSpec<par_type>& b) {
       NAMEANDIDTYPE var_c = b.var; b.var = this->var; this->var = var_c;
       par_type lowerBoundary_c = b.lowerBoundary;  b.lowerBoundary = this->lowerBoundary; this->lowerBoundary = lowerBoundary_c;
       par_type upperBoundary_c = b.upperBoundary;  b.upperBoundary = this->upperBoundary; this->upperBoundary = upperBoundary_c;
@@ -107,7 +107,7 @@ struct parPropSpec {
  * parameter scans, where all variables are varied randomly. Currently the only
  * data component is the number of items to be scanned.
  */
-struct G_API simpleScanSpec {
+struct G_API_GENEVA simpleScanSpec {
    std::size_t nItems;
 };
 
@@ -120,7 +120,7 @@ struct G_API simpleScanSpec {
  * @return A reference to the output stream
  */
 template <typename par_type>
-G_API std::ostream& operator<<(std::ostream& o, const parPropSpec<par_type>& s) {
+G_API_GENEVA std::ostream& operator<<(std::ostream& o, const parPropSpec<par_type>& s) {
    if(0 == boost::get<0>(s.var)) {
       o
       << "index       = " << boost::get<2>(s.var) << std::endl;
@@ -214,21 +214,21 @@ class GParameterPropertyParser: boost::noncopyable // Make sure this class canno
 {
 public:
    /** @brief The standard constructor -- assignment of the "raw" paramter property string */
-   G_API GParameterPropertyParser(const std::string&);
+   G_API_GENEVA GParameterPropertyParser(const std::string&);
 
    /** @brief Retrieves the raw parameter description */
-   G_API std::string getRawParameterDescription() const;
+   G_API_GENEVA std::string getRawParameterDescription() const;
    /** @brief Allows to check whether parsing has already taken place */
-   G_API bool isParsed() const;
+   G_API_GENEVA bool isParsed() const;
 
    /** @brief Allows to reset the internal structures and to parse a new parameter string */
-   G_API void setNewParameterDescription(std::string);
+   G_API_GENEVA void setNewParameterDescription(std::string);
 
    /** @brief Initiates parsing of the raw string */
-   G_API void parse();
+   G_API_GENEVA void parse();
 
    /** @brief Retrieve the number of "simple scan" items */
-   G_API std::size_t getNSimpleScanItems() const;
+   G_API_GENEVA std::size_t getNSimpleScanItems() const;
 
    /***************************************************************************/
    /**
@@ -246,7 +246,7 @@ public:
     * supported types instead.
     */
    template <typename par_type>
-   G_API boost::tuple<typename std::vector<parPropSpec<par_type> >::const_iterator, typename std::vector<parPropSpec<par_type> >::const_iterator> getIterators() const {
+   G_API_GENEVA boost::tuple<typename std::vector<parPropSpec<par_type> >::const_iterator, typename std::vector<parPropSpec<par_type> >::const_iterator> getIterators() const {
       boost::tuple<typename std::vector<parPropSpec<par_type> >::const_iterator, typename std::vector<parPropSpec<par_type> >::const_iterator> result;
 
       glogger
@@ -300,7 +300,7 @@ private:
  * This is the overload for double parameters.
  */
 template <>
-inline G_API boost::tuple<std::vector<parPropSpec<double> >::const_iterator, std::vector<parPropSpec<double> >::const_iterator>
+inline G_API_GENEVA boost::tuple<std::vector<parPropSpec<double> >::const_iterator, std::vector<parPropSpec<double> >::const_iterator>
 GParameterPropertyParser::getIterators<double>() const {
    // Make sure parsing has happened.
    if(!parsed_) {
@@ -332,7 +332,7 @@ GParameterPropertyParser::getIterators<double>() const {
  * This is the overload for float parameters.
  */
 template <>
-inline G_API boost::tuple<std::vector<parPropSpec<float> >::const_iterator, std::vector<parPropSpec<float> >::const_iterator>
+inline G_API_GENEVA boost::tuple<std::vector<parPropSpec<float> >::const_iterator, std::vector<parPropSpec<float> >::const_iterator>
 GParameterPropertyParser::getIterators<float>() const {
    // Make sure parsing has happened.
    if(!parsed_) {
@@ -364,7 +364,7 @@ GParameterPropertyParser::getIterators<float>() const {
  * This is the overload for boost::int32_t parameters.
  */
 template <>
-inline G_API boost::tuple<std::vector<parPropSpec<boost::int32_t> >::const_iterator, std::vector<parPropSpec<boost::int32_t> >::const_iterator>
+inline G_API_GENEVA boost::tuple<std::vector<parPropSpec<boost::int32_t> >::const_iterator, std::vector<parPropSpec<boost::int32_t> >::const_iterator>
 GParameterPropertyParser::getIterators<boost::int32_t>() const {
    // Make sure parsing has happened.
    if(!parsed_) {
@@ -395,7 +395,7 @@ GParameterPropertyParser::getIterators<boost::int32_t>() const {
  * This is the overload for bool parameters.
  */
 template <>
-inline G_API boost::tuple<std::vector<parPropSpec<bool> >::const_iterator, std::vector<parPropSpec<bool> >::const_iterator>
+inline G_API_GENEVA boost::tuple<std::vector<parPropSpec<bool> >::const_iterator, std::vector<parPropSpec<bool> >::const_iterator>
 GParameterPropertyParser::getIterators<bool>() const {
    // Make sure parsing has happened.
    if(!parsed_) {
@@ -420,10 +420,10 @@ GParameterPropertyParser::getIterators<bool>() const {
 namespace boost {
 namespace spirit {
 
-G_API void swap(Gem::Geneva::parPropSpec<double>&, Gem::Geneva::parPropSpec<double>&);
-G_API void swap(Gem::Geneva::parPropSpec<float>&, Gem::Geneva::parPropSpec<float>&);
-G_API void swap(Gem::Geneva::parPropSpec<boost::int32_t>&, Gem::Geneva::parPropSpec<boost::int32_t>&);
-G_API void swap(Gem::Geneva::parPropSpec<bool>&, Gem::Geneva::parPropSpec<bool>&);
+G_API_GENEVA void swap(Gem::Geneva::parPropSpec<double>&, Gem::Geneva::parPropSpec<double>&);
+G_API_GENEVA void swap(Gem::Geneva::parPropSpec<float>&, Gem::Geneva::parPropSpec<float>&);
+G_API_GENEVA void swap(Gem::Geneva::parPropSpec<boost::int32_t>&, Gem::Geneva::parPropSpec<boost::int32_t>&);
+G_API_GENEVA void swap(Gem::Geneva::parPropSpec<bool>&, Gem::Geneva::parPropSpec<bool>&);
 
 
 } /* namespace spirit */

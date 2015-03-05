@@ -65,7 +65,7 @@ class GFPBiGaussAdaptorT :public GNumBiGaussAdaptorT<fp_type, fp_type>
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API void serialize(Archive & ar, const unsigned int) {
+	G_API_GENEVA void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
 		// Save all necessary data
@@ -82,7 +82,7 @@ public:
 	/**
 	 * The standard constructor.
 	 */
-	G_API GFPBiGaussAdaptorT()
+	G_API_GENEVA GFPBiGaussAdaptorT()
 		: GNumBiGaussAdaptorT<fp_type, fp_type> ()
 	{ /* nothing */ }
 
@@ -92,7 +92,7 @@ public:
 	 *
 	 * @param probability The likelihood for a adaption actually taking place
 	 */
-	G_API GFPBiGaussAdaptorT(const double& probability)
+	G_API_GENEVA GFPBiGaussAdaptorT(const double& probability)
 		: GNumBiGaussAdaptorT<fp_type, fp_type> (probability)
 	{ /* nothing */ }
 
@@ -103,7 +103,7 @@ public:
 	 *
 	 * @param cp Another GFPBiGaussAdaptorT object
 	 */
-	G_API GFPBiGaussAdaptorT(const GFPBiGaussAdaptorT<fp_type>& cp)
+	G_API_GENEVA GFPBiGaussAdaptorT(const GFPBiGaussAdaptorT<fp_type>& cp)
 		: GNumBiGaussAdaptorT<fp_type, fp_type> (cp)
 	{ /* nothing */	}
 
@@ -112,7 +112,7 @@ public:
 	 * The standard destructor. Empty, as we have no local, dynamically
 	 * allocated data.
 	 */
-	virtual G_API ~GFPBiGaussAdaptorT()
+	virtual G_API_GENEVA ~GFPBiGaussAdaptorT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -128,7 +128,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	virtual G_API boost::optional<std::string> checkRelationshipWith(
+	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -155,13 +155,13 @@ public:
 
 	/***********************************************************************************/
 	/** @brief Retrieves the id of the adaptor */
-	virtual G_API Gem::Geneva::adaptorId getAdaptorId() const = 0;
+	virtual G_API_GENEVA Gem::Geneva::adaptorId getAdaptorId() const = 0;
 
    /***************************************************************************/
    /**
     * Emits a name for this class / object
     */
-   virtual G_API std::string name() const OVERRIDE {
+   virtual G_API_GENEVA std::string name() const OVERRIDE {
       return std::string("GFPBiGaussAdaptorT");
    }
 
@@ -173,7 +173,7 @@ protected:
 	 *
 	 * @param A copy of another GFPBiGaussAdaptorT, camouflaged as a GObject
 	 */
-	void G_API load_(const GObject *cp) OVERRIDE	{
+	void G_API_GENEVA load_(const GObject *cp) OVERRIDE	{
 		// Convert GObject pointer to local format
 		const GFPBiGaussAdaptorT<fp_type> *p_load = GObject::gobject_conversion<GFPBiGaussAdaptorT<fp_type> >(cp);
 
@@ -185,7 +185,7 @@ protected:
 
 	/***************************************************************************/
 	/** @brief This function creates a deep copy of this object */
-	virtual G_API GObject *clone_() const = 0;
+	virtual G_API_GENEVA GObject *clone_() const = 0;
 
 	/***************************************************************************/
 	/**
@@ -194,7 +194,7 @@ protected:
 	 * @param value The value that is going to be adapted in situ
 	 * @param range A typical range for the parameter with type num_type
 	 */
-	virtual G_API void customAdaptions(
+	virtual G_API_GENEVA void customAdaptions(
       fp_type& value
       , const fp_type& range
    ) OVERRIDE {
@@ -227,7 +227,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual G_API bool modify_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 
 		using boost::unit_test_framework::test_suite;
@@ -250,7 +250,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 
 		using boost::unit_test_framework::test_suite;
@@ -268,7 +268,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 
 		using boost::unit_test_framework::test_suite;

@@ -65,7 +65,7 @@ class GPersonalityTraits :public GObject
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API void serialize(Archive & ar, const unsigned int){
+	G_API_GENEVA void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
 	  ar
@@ -75,19 +75,19 @@ class GPersonalityTraits :public GObject
 
 public:
 	/** @brief The default constructor */
-	G_API GPersonalityTraits();
+	G_API_GENEVA GPersonalityTraits();
 	/** @brief The copy constructor */
-	G_API GPersonalityTraits(const GPersonalityTraits&);
+	G_API_GENEVA GPersonalityTraits(const GPersonalityTraits&);
 	/** @brief The standard destructor */
-	virtual G_API ~GPersonalityTraits();
+	virtual G_API_GENEVA ~GPersonalityTraits();
 
 	/** @brief Checks for equality with another GPersonalityTraits object */
-	G_API bool operator==(const GPersonalityTraits&) const;
+	G_API_GENEVA bool operator==(const GPersonalityTraits&) const;
 	/** @brief Checks for inequality with another GPersonalityTraits object */
-	G_API bool operator!=(const GPersonalityTraits&) const;
+	G_API_GENEVA bool operator!=(const GPersonalityTraits&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual G_API boost::optional<std::string> checkRelationshipWith(
+	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -97,21 +97,21 @@ public:
 	) const OVERRIDE;
 
    /** @brief Emits a name for this class / object */
-   virtual G_API std::string name() const OVERRIDE;
+   virtual G_API_GENEVA std::string name() const OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another GPersonalityTraits object */
-	virtual G_API void load_(const GObject*) OVERRIDE;
+	virtual G_API_GENEVA void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object */
-	virtual G_API GObject* clone_() const = 0;
+	virtual G_API_GENEVA GObject* clone_() const = 0;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual G_API bool modify_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

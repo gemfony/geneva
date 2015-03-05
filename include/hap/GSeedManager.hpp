@@ -102,26 +102,26 @@ class GSeedManager:
 {
 public:
 	/** @brief The default constructor. */
-   G_API GSeedManager();
+   G_API_HAP GSeedManager();
 	/** @brief Initialization with a start seed */
 	explicit GSeedManager(const initial_seed_type& startSeed, const std::size_t& seedQueueSize = DEFAULTSEEDQUEUESIZE);
 	/** @brief The destructor */
-	G_API ~GSeedManager();
+	G_API_HAP ~GSeedManager();
 
 	/** @brief Allows different objects to retrieve seeds concurrently */
-	G_API seed_type getSeed();
+	G_API_HAP seed_type getSeed();
 
 	/** @brief Allows different objects to retrieve seeds concurrently, observing a time-out. */
-	G_API seed_type getSeed(const boost::posix_time::time_duration&);
+	G_API_HAP seed_type getSeed(const boost::posix_time::time_duration&);
 
 	/** @brief Checks whether the global seeding has already started */
-	G_API bool checkSeedingIsInitialized() const;
+	G_API_HAP bool checkSeedingIsInitialized() const;
 
 	/** @brief Retrieves the value of the initial start seed */
-	G_API initial_seed_type getStartSeed() const;
+	G_API_HAP initial_seed_type getStartSeed() const;
 
 	/** @brief Retrieves the maximum size of the seed queue */
-	G_API std::size_t getQueueSize() const;
+	G_API_HAP std::size_t getQueueSize() const;
 
 private:
 	/***************************************************************************/

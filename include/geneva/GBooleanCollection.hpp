@@ -65,7 +65,7 @@ class GBooleanCollection :public GParameterCollectionT<bool>
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API void serialize(Archive & ar, const unsigned int){
+   G_API_GENEVA void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
 
       ar & make_nvp("GParameterCollectionT_bool",
@@ -75,29 +75,29 @@ class GBooleanCollection :public GParameterCollectionT<bool>
 
 public:
    /** @brief The default constructor */
-   G_API GBooleanCollection();
+   G_API_GENEVA GBooleanCollection();
    /** @brief Random initialization with a given number of values */
-   explicit G_API GBooleanCollection(const std::size_t&);
+   explicit G_API_GENEVA GBooleanCollection(const std::size_t&);
    /** @brief Initialization with a given number of items of defined value */
-   G_API GBooleanCollection(const std::size_t&, const bool&);
+   G_API_GENEVA GBooleanCollection(const std::size_t&, const bool&);
    /** @brief Random initialization with a given number of values of
     * a certain probability structure */
-   G_API GBooleanCollection(const std::size_t&, const double&);
+   G_API_GENEVA GBooleanCollection(const std::size_t&, const double&);
    /** @brief A standard copy constructor */
-   G_API GBooleanCollection(const GBooleanCollection&);
+   G_API_GENEVA GBooleanCollection(const GBooleanCollection&);
    /** @brief The standard destructor */
-   virtual G_API ~GBooleanCollection();
+   virtual G_API_GENEVA ~GBooleanCollection();
 
    /** @brief A standard assignment operator */
-   G_API const GBooleanCollection& operator=(const GBooleanCollection&);
+   G_API_GENEVA const GBooleanCollection& operator=(const GBooleanCollection&);
 
    /** @brief Checks for equality with another GBooleanCollection object */
-   G_API bool operator==(const GBooleanCollection&) const;
+   G_API_GENEVA bool operator==(const GBooleanCollection&) const;
    /** @brief Checks for inequality with another GBooleanCollection object */
-   G_API bool operator!=(const GBooleanCollection&) const;
+   G_API_GENEVA bool operator!=(const GBooleanCollection&) const;
 
    /** @brief Checks whether this object fulfills a given expectation in relation to another object */
-   virtual G_API boost::optional<std::string> checkRelationshipWith(
+   virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject&
       , const Gem::Common::expectation&
       , const double&
@@ -107,47 +107,47 @@ public:
    ) const OVERRIDE;
 
    /** @brief Random initialization */
-   virtual G_API void randomInit(const activityMode&) OVERRIDE;
+   virtual G_API_GENEVA void randomInit(const activityMode&) OVERRIDE;
    /** @brief Random initialization with a given probability structure */
-   G_API void randomInit(const double&, const activityMode&);
+   G_API_GENEVA void randomInit(const double&, const activityMode&);
 
    /** @brief Emits a name for this class / object */
-   virtual G_API std::string name() const OVERRIDE;
+   virtual G_API_GENEVA std::string name() const OVERRIDE;
 
 protected:
    /** @brief Loads the data of another GBooleanCollection class */
-   virtual G_API void load_(const GObject *) OVERRIDE;
+   virtual G_API_GENEVA void load_(const GObject *) OVERRIDE;
    /** @brief Creates a deep copy of this object */
-   virtual G_API GObject *clone_() const OVERRIDE;
+   virtual G_API_GENEVA GObject *clone_() const OVERRIDE;
 
    /** @brief Triggers random initialization of the parameter collection */
-   virtual G_API void randomInit_(const activityMode&) OVERRIDE;
+   virtual G_API_GENEVA void randomInit_(const activityMode&) OVERRIDE;
    /** @brief Triggers random initialization of the parameter collection, with a given likelihood structure */
-   G_API void randomInit_(const double&, const activityMode&);
+   G_API_GENEVA void randomInit_(const double&, const activityMode&);
 
    /** @brief Returns a "comparative range" for this type */
-   virtual G_API bool range() const OVERRIDE;
+   virtual G_API_GENEVA bool range() const OVERRIDE;
 
    /** @brief Tell the audience that we own a number of boolean values */
-   virtual G_API std::size_t countBoolParameters(const activityMode& am) const OVERRIDE;
+   virtual G_API_GENEVA std::size_t countBoolParameters(const activityMode& am) const OVERRIDE;
    /** @brief Attach boundaries of type bool to the vectors */
-   virtual G_API void booleanBoundaries(std::vector<bool>&, std::vector<bool>&, const activityMode& am) const OVERRIDE;
+   virtual G_API_GENEVA void booleanBoundaries(std::vector<bool>&, std::vector<bool>&, const activityMode& am) const OVERRIDE;
    /** @brief Attach our local values to the vector. */
-   virtual G_API void booleanStreamline(std::vector<bool>&, const activityMode& am) const OVERRIDE;
+   virtual G_API_GENEVA void booleanStreamline(std::vector<bool>&, const activityMode& am) const OVERRIDE;
    /** @brief Attach our local values to the map */
-   virtual G_API void booleanStreamline(std::map<std::string, std::vector<bool> >&, const activityMode& am) const OVERRIDE;
+   virtual G_API_GENEVA void booleanStreamline(std::map<std::string, std::vector<bool> >&, const activityMode& am) const OVERRIDE;
    /** @brief Assigns part of a value vector to the parameter */
-   virtual G_API void assignBooleanValueVector(const std::vector<bool>&, std::size_t&, const activityMode& am) OVERRIDE;
+   virtual G_API_GENEVA void assignBooleanValueVector(const std::vector<bool>&, std::size_t&, const activityMode& am) OVERRIDE;
    /** @brief Assigns part of a value map to the parameter */
-   virtual G_API void assignBooleanValueVectors(const std::map<std::string, std::vector<bool> >&, const activityMode& am) OVERRIDE;
+   virtual G_API_GENEVA void assignBooleanValueVectors(const std::map<std::string, std::vector<bool> >&, const activityMode& am) OVERRIDE;
 
 public:
    /** @brief Applies modifications to this object. This is needed for testing purposes */
-   virtual G_API bool modify_GUnitTests() OVERRIDE;
+   virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-   virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+   virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-   virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+   virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/

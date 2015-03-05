@@ -67,15 +67,15 @@ class GIndividualTCPConsumer
 {
 public:
    /** @brief The default constructor */
-   G_API GIndividualTCPConsumer();
+   G_API_GENEVA GIndividualTCPConsumer();
    /** @brief A constructor that takes a number of vital arguments */
-   G_API GIndividualTCPConsumer(
+   G_API_GENEVA GIndividualTCPConsumer(
       const unsigned short&
       , const std::size_t& = 0
       , const Gem::Common::serializationMode& = Gem::Common::SERIALIZATIONMODE_BINARY
    );
    /** @brief The destructor */
-   virtual G_API ~GIndividualTCPConsumer();
+   virtual G_API_GENEVA ~GIndividualTCPConsumer();
 };
 
 /******************************************************************************/
@@ -89,9 +89,9 @@ class GIndividualThreadConsumer
 {
 public:
    /** @brief The default constructor */
-   G_API GIndividualThreadConsumer();
+   G_API_GENEVA GIndividualThreadConsumer();
    /** @brief The desstructor */
-   virtual G_API ~GIndividualThreadConsumer();
+   virtual G_API_GENEVA ~GIndividualThreadConsumer();
 };
 
 /******************************************************************************/
@@ -106,9 +106,9 @@ class GIndividualSerialConsumer
 {
 public:
    /** @brief The default constructor */
-   G_API GIndividualSerialConsumer();
+   G_API_GENEVA GIndividualSerialConsumer();
    /** @brief The desstructor */
-   virtual G_API ~GIndividualSerialConsumer();
+   virtual G_API_GENEVA ~GIndividualSerialConsumer();
 };
 
 /******************************************************************************/

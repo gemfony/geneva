@@ -68,7 +68,7 @@ class GParameterObjectCollection
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API void serialize(Archive & ar, const unsigned int){
+	G_API_GENEVA void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
 	  ar & make_nvp("GParameterTCollectionT_gbd",
@@ -78,24 +78,24 @@ class GParameterObjectCollection
 
 public:
 	/** @brief The default constructor */
-	G_API GParameterObjectCollection();
+	G_API_GENEVA GParameterObjectCollection();
 	/** @brief Initialization with a number of GParameterBase objects */
-	G_API GParameterObjectCollection(const std::size_t&, boost::shared_ptr<GParameterBase>);
+	G_API_GENEVA GParameterObjectCollection(const std::size_t&, boost::shared_ptr<GParameterBase>);
 	/** @brief The copy constructor */
-	G_API GParameterObjectCollection(const GParameterObjectCollection&);
+	G_API_GENEVA GParameterObjectCollection(const GParameterObjectCollection&);
 	/** @brief The destructor */
-	virtual G_API ~GParameterObjectCollection();
+	virtual G_API_GENEVA ~GParameterObjectCollection();
 
 	/** @brief A standard assignment operator */
-	G_API const GParameterObjectCollection& operator=(const GParameterObjectCollection&);
+	G_API_GENEVA const GParameterObjectCollection& operator=(const GParameterObjectCollection&);
 
 	/** @brief Checks for equality with another GParameterObjectCollection object */
-	G_API bool operator==(const GParameterObjectCollection&) const;
+	G_API_GENEVA bool operator==(const GParameterObjectCollection&) const;
 	/** @brief Checks for inequality with another GParameterObjectCollection object */
-	G_API bool operator!=(const GParameterObjectCollection&) const;
+	G_API_GENEVA bool operator!=(const GParameterObjectCollection&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual G_API boost::optional<std::string> checkRelationshipWith(
+	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
 	      const GObject&
 	      , const Gem::Common::expectation&
 	      , const double&
@@ -105,10 +105,10 @@ public:
 	 ) const OVERRIDE;
 
 	/** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
-	G_API boost::shared_ptr<Gem::Geneva::GParameterBase> at(const std::size_t& pos);
+	G_API_GENEVA boost::shared_ptr<Gem::Geneva::GParameterBase> at(const std::size_t& pos);
 
    /** @brief Emits a name for this class / object */
-   virtual G_API std::string name() const OVERRIDE;
+   virtual G_API_GENEVA std::string name() const OVERRIDE;
 
 	/***************************************************************************/
 	/**
@@ -121,7 +121,7 @@ public:
 	 * @return A converted version of the GParameterBase object, as required by the user
 	 */
 	template <typename parameter_type>
-	G_API const boost::shared_ptr<parameter_type> at(
+	G_API_GENEVA const boost::shared_ptr<parameter_type> at(
 			  const std::size_t& pos
 			, typename boost::enable_if<boost::is_base_of<GParameterBase, parameter_type> >::type* dummy = 0
 	)  const {
@@ -144,19 +144,19 @@ public:
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GObject */
-	virtual G_API void load_(const GObject*) OVERRIDE;
+	virtual G_API_GENEVA void load_(const GObject*) OVERRIDE;
 	/** @brief Creates a deep clone of this object. */
-	virtual G_API GObject* clone_() const OVERRIDE;
+	virtual G_API_GENEVA GObject* clone_() const OVERRIDE;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual G_API bool modify_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE;
 	/** @brief Fills the collection with GParameterBase objects */
-	G_API void fillWithObjects();
+	G_API_GENEVA void fillWithObjects();
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual G_API void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual G_API void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
 };
 
 /******************************************************************************/
