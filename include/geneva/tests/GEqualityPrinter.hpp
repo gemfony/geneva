@@ -68,7 +68,7 @@
 /**
  * This is a simple convenience class to facilitate comparisons in Geneva's test framework.
  */
-class G_API GEqualityPrinter
+class G_API_GENEVA GEqualityPrinter
 	: boost::noncopyable
 {
 public:
