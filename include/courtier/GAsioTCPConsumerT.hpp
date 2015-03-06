@@ -132,7 +132,7 @@ public:
     * @param server Identifies the server
     * @param port Identifies the port on the server
     */
-   G_API_COURTIER GAsioTCPClientT(const std::string& server, const std::string& port)
+   GAsioTCPClientT(const std::string& server, const std::string& port)
       : GBaseClientT<processable_type>()
       , maxStalls_(GASIOTCPCONSUMERMAXSTALLS)
       , maxConnectionAttempts_(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS)
@@ -156,7 +156,7 @@ public:
     * @param server Identifies the server
     * @param port Identifies the port on the server
     */
-   G_API_COURTIER GAsioTCPClientT(
+   GAsioTCPClientT(
          const std::string& server
          , const std::string& port
          , boost::shared_ptr<processable_type> additionalDataTemplate
@@ -180,7 +180,7 @@ public:
    /**
     * The standard destructor.
     */
-   virtual G_API_COURTIER ~GAsioTCPClientT() {
+   virtual ~GAsioTCPClientT() {
       delete [] tmpBuffer_;
 
       glogger
@@ -196,7 +196,7 @@ public:
     *
     * @param maxStalls The maximum number of stalled connection attempts
     */
-   G_API_COURTIER void setMaxStalls(const boost::uint32_t& maxStalls)  {
+   void setMaxStalls(const boost::uint32_t& maxStalls)  {
       maxStalls_ = maxStalls;
    }
 
@@ -206,7 +206,7 @@ public:
     *
     * @return The value of the maxStalls_ variable
     */
-   G_API_COURTIER boost::uint32_t getMaxStalls() const  {
+   boost::uint32_t getMaxStalls() const  {
       return maxStalls_;
    }
 
@@ -216,7 +216,7 @@ public:
     *
     * @param maxConnectionAttempts The maximum number of allowed failed connection attempts
     */
-   G_API_COURTIER void setMaxConnectionAttempts(const boost::uint32_t& maxConnectionAttempts)  {
+   void setMaxConnectionAttempts(const boost::uint32_t& maxConnectionAttempts)  {
       maxConnectionAttempts_ = maxConnectionAttempts;
    }
 
@@ -226,7 +226,7 @@ public:
     *
     * @return The value of the maxConnectionAttempts_ variable
     */
-   G_API_COURTIER boost::uint32_t getMaxConnectionAttempts() const  {
+   boost::uint32_t getMaxConnectionAttempts() const  {
       return maxConnectionAttempts_;
    }
 
@@ -247,7 +247,7 @@ protected:
     * of the type "idle(5000)", where the number specifies the amount of
     * milliseconds the client should wait before reconnecting.
     */
-   G_API_COURTIER bool parseIdleCommand(boost::uint32_t& idleTime, const std::string& idleCommand) {
+   bool parseIdleCommand(boost::uint32_t& idleTime, const std::string& idleCommand) {
       using boost::spirit::ascii::space;
       using boost::spirit::qi::phrase_parse;
       using boost::spirit::qi::uint_;
@@ -288,7 +288,7 @@ protected:
     * @param item Holds the string representation of the work item, if successful
     * @return true if operation should be continued, otherwise false
     */
-   G_API_COURTIER bool retrieve(
+   bool retrieve(
       std::string& item
       , std::string& serMode, std::string& portId
    ) {
@@ -428,7 +428,7 @@ protected:
     * @param portid The port id of the individual to be submitted
     * @return true if operation was successful, otherwise false
     */
-   G_API_COURTIER bool submit(const std::string& item, const std::string& portid) {
+   bool submit(const std::string& item, const std::string& portid) {
       // Let's assemble an appropriate buffer
       std::vector<boost::asio::const_buffer> buffers;
       std::string result = assembleQueryString("result", Gem::Courtier::COMMANDLENGTH); // The command
@@ -598,7 +598,7 @@ class GAsioServerSessionT
     *
     * @param io_service A reference to the server's io_service
     */
-   G_API_COURTIER GAsioServerSessionT(
+   GAsioServerSessionT(
          boost::asio::io_service& io_service
          , const Gem::Common::serializationMode& serMod
          , GAsioTCPConsumerT<processable_type> *master
@@ -621,14 +621,14 @@ class GAsioServerSessionT
    /**
     * A standard destructor. Shuts down and closes the socket. Note: Non-virtual.
     */
-   G_API_COURTIER ~GAsioServerSessionT()
+   ~GAsioServerSessionT()
    { /* nothing */ }
 
    /***************************************************************************/
    /**
     * This function processes an individual request from a client.
     */
-   G_API_COURTIER void async_processRequest() {
+   void async_processRequest() {
       try {
          // Initiate the first read session. Every transmission starts with a command
          boost::asio::async_read(
@@ -666,7 +666,7 @@ class GAsioServerSessionT
     *
     * @return The socket used by this object
     */
-   G_API_COURTIER boost::asio::ip::tcp::socket& getSocket(){
+   boost::asio::ip::tcp::socket& getSocket(){
       return socket_;
    }
 
@@ -675,7 +675,7 @@ class GAsioServerSessionT
    /**
     * Initiates all required action upon receiving a command
     */
-   G_API_COURTIER void async_handle_read_command(const boost::system::error_code& error) {
+   void async_handle_read_command(const boost::system::error_code& error) {
       if(error) {
          glogger
          << "In GAsioServerSessionT<processable_type>::async_handle_read_command():!" << std::endl
@@ -719,7 +719,7 @@ class GAsioServerSessionT
     * simply initiates a chain of asynchronous commands, dealing in sequence
     * with the port id, the data size header and the actual data body
     */
-   G_API_COURTIER void async_retrieveFromRemote() {
+   void async_retrieveFromRemote() {
       try {
          // Initiate the next read session. Note that the requested data is returned
          // in its entirety, not in chunks. async_async_handle_read_portid is only called
@@ -757,7 +757,7 @@ class GAsioServerSessionT
    /**
     * A routine to be called when all data of the port id has been read
     */
-   G_API_COURTIER void async_handle_read_portid(const boost::system::error_code& error) {
+   void async_handle_read_portid(const boost::system::error_code& error) {
       if(error) {
          glogger
          << "In GAsioServerSessionT<processable_type>::async_handle_read_portid():" << std::endl
@@ -813,7 +813,7 @@ class GAsioServerSessionT
    /**
     * A routine to be called when all data of the data size header has been read
     */
-   G_API_COURTIER void async_handle_read_datasize(const boost::system::error_code& error) {
+   void async_handle_read_datasize(const boost::system::error_code& error) {
       if(error) {
          glogger
          << "In GAsioServerSessionT<processable_type>::async_handle_read_datasize(): Warning!" << std::endl
@@ -872,7 +872,7 @@ class GAsioServerSessionT
     * A routine to be called whenever data snippets from the body section have
     * been read
     */
-   G_API_COURTIER void async_handle_read_body(
+   void async_handle_read_body(
          const boost::system::error_code& error
          , std::size_t bytes_transferred
    ) {
@@ -945,7 +945,7 @@ class GAsioServerSessionT
     *
     * @param item An item to be written to the socket
     */
-   G_API_COURTIER void async_submitToRemote(){
+   void async_submitToRemote(){
       // Retrieve an item from the broker and submit it to the client.
       boost::shared_ptr<processable_type> p;
       Gem::Common::PORTIDTYPE portId;
@@ -1043,7 +1043,7 @@ class GAsioServerSessionT
     *
     * @param command A command to be written to a socket
     */
-   G_API_COURTIER void async_sendSingleCommand(const std::string& command){
+   void async_sendSingleCommand(const std::string& command){
       // Format the command ...
       std::string outbound_command = assembleQueryString(command, Gem::Courtier::COMMANDLENGTH);
       // ... and tell the client
@@ -1081,7 +1081,7 @@ class GAsioServerSessionT
    /**
     * A routine to be called when all data has been written
     */
-   G_API_COURTIER void handle_write(const boost::system::error_code& error)
+   void handle_write(const boost::system::error_code& error)
    {
       if(error) {
          glogger
@@ -1144,7 +1144,7 @@ class GAsioTCPConsumerT
    /**
     * The default constructor
     */
-    G_API_COURTIER GAsioTCPConsumerT()
+    GAsioTCPConsumerT()
       : listenerThreads_(Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
       , acceptor_(io_service_)
       , serializationMode_(Gem::Common::SERIALIZATIONMODE_BINARY)
@@ -1165,7 +1165,7 @@ class GAsioTCPConsumerT
     * @param listenerThreads The number of threads used to wait for incoming connections
     * @param sm The desired serialization mode
     */
-    G_API_COURTIER GAsioTCPConsumerT(
+    GAsioTCPConsumerT(
          const unsigned short& port
          , const std::size_t& listenerThreads = 0
          , const Gem::Common::serializationMode& sm = Gem::Common::SERIALIZATIONMODE_BINARY
@@ -1186,14 +1186,14 @@ class GAsioTCPConsumerT
    /**
     * A standard destructor
     */
-   virtual G_API_COURTIER ~GAsioTCPConsumerT()
+   virtual ~GAsioTCPConsumerT()
    { /* nothing */ }
 
    /***************************************************************************/
    /**
     * Allows to set the server name or ip
     */
-   G_API_COURTIER void setServer(std::string server) {
+   void setServer(std::string server) {
       server_ = server;
    }
 
@@ -1201,7 +1201,7 @@ class GAsioTCPConsumerT
    /**
     * Allows to retrieve the server name or ip
     */
-   G_API_COURTIER std::string getServer() const {
+   std::string getServer() const {
       return server_;
    }
 
@@ -1209,7 +1209,7 @@ class GAsioTCPConsumerT
    /**
     * Allows to set the port the server listens on
     */
-   G_API_COURTIER void setPort(unsigned short port) {
+   void setPort(unsigned short port) {
       port_ = port;
    }
 
@@ -1217,7 +1217,7 @@ class GAsioTCPConsumerT
    /**
     * Allows to retrieve the port the server listens on
     */
-   G_API_COURTIER unsigned short getPort() const {
+   unsigned short getPort() const {
       return port_;
    }
 
@@ -1225,7 +1225,7 @@ class GAsioTCPConsumerT
    /**
     * Allows to set the number of listener threads
     */
-   G_API_COURTIER void setNListenerThreads(std::size_t listenerThreads) {
+   void setNListenerThreads(std::size_t listenerThreads) {
       listenerThreads_ = listenerThreads;
    }
 
@@ -1233,7 +1233,7 @@ class GAsioTCPConsumerT
    /**
     * Allows to retrieve the number of listener threads
     */
-   G_API_COURTIER std::size_t getNListenerThreads() const {
+   std::size_t getNListenerThreads() const {
       return listenerThreads_;
    }
 
@@ -1244,7 +1244,7 @@ class GAsioTCPConsumerT
     *
     * @param returnRegardless Specifies whether results should be returned to the server regardless of their success
     */
-   G_API_COURTIER void setReturnRegardless(const bool& returnRegardless) {
+   void setReturnRegardless(const bool& returnRegardless) {
       returnRegardless_ = returnRegardless;
    }
 
@@ -1255,7 +1255,7 @@ class GAsioTCPConsumerT
     *
     * @return Whether results should be returned to the server regardless of their success
     */
-   G_API_COURTIER bool getReturnRegardless() const {
+   bool getReturnRegardless() const {
       return returnRegardless_;
    }
 
@@ -1263,7 +1263,7 @@ class GAsioTCPConsumerT
    /**
     * Allows to set the serialization mode
     */
-   G_API_COURTIER void setSerializationMode(Gem::Common::serializationMode sm) {
+   void setSerializationMode(Gem::Common::serializationMode sm) {
       serializationMode_ = sm;
    }
 
@@ -1273,7 +1273,7 @@ class GAsioTCPConsumerT
     *
     * @return The current serialization mode
     */
-   G_API_COURTIER Gem::Common::serializationMode getSerializationMode() const  {
+   Gem::Common::serializationMode getSerializationMode() const  {
       return serializationMode_;
    }
 
@@ -1283,7 +1283,7 @@ class GAsioTCPConsumerT
     *
     * @param maxStalls The maximum number of stalled connection attempts
     */
-   G_API_COURTIER void setMaxStalls(const boost::uint32_t& maxStalls)  {
+   void setMaxStalls(const boost::uint32_t& maxStalls)  {
       maxStalls_ = maxStalls;
    }
 
@@ -1293,7 +1293,7 @@ class GAsioTCPConsumerT
     *
     * @return The value of the maxStalls_ variable
     */
-   G_API_COURTIER boost::uint32_t getMaxStalls() const  {
+   boost::uint32_t getMaxStalls() const  {
       return maxStalls_;
    }
 
@@ -1303,7 +1303,7 @@ class GAsioTCPConsumerT
     *
     * @param maxConnectionAttempts The maximum number of allowed failed connection attempts
     */
-   G_API_COURTIER void setMaxConnectionAttempts(const boost::uint32_t& maxConnectionAttempts)  {
+   void setMaxConnectionAttempts(const boost::uint32_t& maxConnectionAttempts)  {
       maxConnectionAttempts_ = maxConnectionAttempts;
    }
 
@@ -1313,7 +1313,7 @@ class GAsioTCPConsumerT
     *
     * @return The value of the maxConnectionAttempts_ variable
     */
-   G_API_COURTIER boost::uint32_t getMaxConnectionAttempts() const  {
+   boost::uint32_t getMaxConnectionAttempts() const  {
       return maxConnectionAttempts_;
    }
 
@@ -1323,7 +1323,7 @@ class GAsioTCPConsumerT
     *
     * @return A boolean indicating whether this consumer needs a client to operate
     */
-   G_API_COURTIER virtual bool needsClient() const {
+   virtual bool needsClient() const {
       return true;
    }
 
@@ -1331,7 +1331,7 @@ class GAsioTCPConsumerT
    /**
     * Emits a client suitable for processing the data emitted by this consumer
     */
-   virtual G_API_COURTIER boost::shared_ptr<GBaseClientT<processable_type> > getClient() const {
+   virtual boost::shared_ptr<GBaseClientT<processable_type> > getClient() const {
       boost::shared_ptr<GAsioTCPClientT<processable_type> > p (
             new GAsioTCPClientT<processable_type>(server_, boost::lexical_cast<std::string>(port_))
       );
@@ -1347,7 +1347,7 @@ class GAsioTCPConsumerT
    /**
     * Starts the actual processing loops
     */
-   G_API_COURTIER void async_startProcessing() {
+   void async_startProcessing() {
       // Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).
       boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port_);
       acceptor_.open(endpoint.protocol());
@@ -1403,7 +1403,7 @@ class GAsioTCPConsumerT
    /**
     * Make sure the consumer and the server sessions shut down gracefully
     */
-   G_API_COURTIER void shutdown() {
+   void shutdown() {
       // Set the stop criterion
       GBaseConsumerT<processable_type>::shutdown();
 
@@ -1419,7 +1419,7 @@ class GAsioTCPConsumerT
     *
     * @return A unique identifier for a given consumer
     */
-   virtual G_API_COURTIER std::string getConsumerName() const {
+   virtual std::string getConsumerName() const {
       return std::string("GAsioTCPConsumerT");
    }
 
@@ -1427,7 +1427,7 @@ class GAsioTCPConsumerT
    /**
     * Returns a short identifier for this consumer
     */
-   virtual G_API_COURTIER std::string getMnemonic() const {
+   virtual std::string getMnemonic() const {
       return std::string("tcpc");
    }
 
@@ -1437,7 +1437,7 @@ class GAsioTCPConsumerT
     * consumer. Since evaluation is performed remotely, we assume that this
     * is not the case.
     */
-   virtual G_API_COURTIER bool capableOfFullReturn() const {
+   virtual bool capableOfFullReturn() const {
       return false;
    }
 
@@ -1448,7 +1448,7 @@ class GAsioTCPConsumerT
     * @param visible Command line options that should always be visible
     * @param hidden Command line options that should only be visible upon request
     */
-   virtual G_API_COURTIER void addCLOptions(
+   virtual void addCLOptions(
       boost::program_options::options_description& visible
       , boost::program_options::options_description& hidden
    ) {
@@ -1471,7 +1471,7 @@ class GAsioTCPConsumerT
    /**
     * Takes a boost::program_options::variables_map object and checks for supplied options.
     */
-   virtual G_API_COURTIER void actOnCLOptions(const boost::program_options::variables_map& vm)
+   virtual void actOnCLOptions(const boost::program_options::variables_map& vm)
    { /* nothing */ }
 
  private:
