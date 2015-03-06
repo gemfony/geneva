@@ -140,7 +140,7 @@ public:
 	 * @return A pointer to the newly created thread
 	 */
 	template<typename F>
-	G_API_COMMON boost::shared_ptr<boost::thread> create_thread(F f) {
+	boost::shared_ptr<boost::thread> create_thread(F f) {
 		boost::lock_guard<boost::mutex> guard(m_);
 		thread_ptr new_thread(new boost::thread(f));
 		threads_.push_back(new_thread);
@@ -157,7 +157,7 @@ public:
 	 * @return A pointer to the newly created thread
 	 */
 	template<typename F>
-	G_API_COMMON void create_threads(F f, const std::size_t& nThreads)	{
+	void create_threads(F f, const std::size_t& nThreads)	{
 		for(std::size_t i=0; i<nThreads; i++) create_thread(f);
 	}
 

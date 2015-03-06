@@ -262,7 +262,7 @@ public:
     * "*object_ptr & data" possible.
     */
    template <typename data_type>
-   G_API_COMMON void add(const data_type& item) {
+   void add(const data_type& item) {
       *this & item;
    }
 
@@ -274,7 +274,7 @@ public:
 	 * @param x_undet The data item to be added to the collection
 	 */
 	template <typename x_type_undet>
-	G_API_COMMON void operator&(const x_type_undet& x_undet) {
+	void operator&(const x_type_undet& x_undet) {
 		using boost::numeric::bad_numeric_cast;
 
 		x_type x = x_type(0);
@@ -315,7 +315,7 @@ public:
 	 * @param x_vec_undet A collection of data items of undetermined type, to be added to the collection
 	 */
 	template <typename x_type_undet>
-	G_API_COMMON void operator&(const std::vector<x_type_undet>& x_vec_undet) {
+	void operator&(const std::vector<x_type_undet>& x_vec_undet) {
 		using boost::numeric::bad_numeric_cast;
 
 		x_type x = x_type(0);
@@ -574,7 +574,7 @@ public:
     * *object_ptr & data possible.
     */
    template <typename data_type>
-   G_API_COMMON void add(const data_type& item) {
+   void add(const data_type& item) {
       *this & item;
    }
 
@@ -586,7 +586,7 @@ public:
 	 * @param point_undet The data item to be added to the collection
 	 */
 	template <typename x_type_undet, typename y_type_undet>
-	G_API_COMMON void operator&(const boost::tuple<x_type_undet,y_type_undet>& point_undet) {
+	void operator&(const boost::tuple<x_type_undet,y_type_undet>& point_undet) {
 		using boost::numeric::bad_numeric_cast;
 
 		x_type x = x_type(0);
@@ -630,7 +630,7 @@ public:
 	 * @param point_vec_undet The collection of data items to be added to the collection
 	 */
 	template <typename x_type_undet, typename y_type_undet>
-	G_API_COMMON void operator&(const std::vector<boost::tuple<x_type_undet,y_type_undet> >& point_vec_undet) {
+	void operator&(const std::vector<boost::tuple<x_type_undet,y_type_undet> >& point_vec_undet) {
 		using boost::numeric::bad_numeric_cast;
 
 		x_type x = x_type(0);
@@ -837,7 +837,7 @@ public:
 	 * @param point_undet The data item to be added to the collection
 	 */
 	template <typename x_type_undet, typename y_type_undet>
-	G_API_COMMON void operator&(const boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>& point_undet) {
+	void operator&(const boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>& point_undet) {
 		using boost::numeric::bad_numeric_cast;
 
 		x_type x  = x_type(0);
@@ -885,7 +885,7 @@ public:
 	 * @param point_vec_undet The collection of data items to be added to the collection
 	 */
 	template <typename x_type_undet, typename y_type_undet>
-	G_API_COMMON void operator&(const std::vector<boost::tuple<x_type_undet,x_type_undet,y_type_undet,y_type_undet> >& point_vec_undet) {
+	void operator&(const std::vector<boost::tuple<x_type_undet,x_type_undet,y_type_undet,y_type_undet> >& point_vec_undet) {
 		using boost::numeric::bad_numeric_cast;
 
 		x_type x  = x_type(0);
@@ -939,7 +939,7 @@ public:
     * "*object_ptr & data" possible.
     */
    template <typename data_type>
-   G_API_COMMON void add(const data_type& item) {
+   void add(const data_type& item) {
       *this & item;
    }
 
@@ -962,7 +962,7 @@ public:
    /**
     * Sorts the data according to its x-component
     */
-   void sortX() {
+   G_API_COMMON void sortX() {
       std::sort(
          data_.begin()
          , data_.end()
@@ -1294,7 +1294,7 @@ public:
     * *object_ptr & data possible.
     */
    template <typename data_type>
-   G_API_COMMON void add(const data_type& item) {
+   void add(const data_type& item) {
       *this & item;
    }
 
@@ -1306,7 +1306,7 @@ public:
     * @param point_undet The data item to be added to the collection
     */
    template <typename x_type_undet, typename y_type_undet, typename z_type_undet>
-   G_API_COMMON void operator&(const boost::tuple<x_type_undet,y_type_undet,z_type_undet>& point_undet) {
+   void operator&(const boost::tuple<x_type_undet,y_type_undet,z_type_undet>& point_undet) {
       using boost::numeric::bad_numeric_cast;
 
       x_type x = x_type(0);
@@ -1352,7 +1352,7 @@ public:
     * @param point_vec_undet The collection of data items to be added to the collection
     */
    template <typename x_type_undet, typename y_type_undet, typename z_type_undet>
-   G_API_COMMON void operator&(const std::vector<boost::tuple<x_type_undet,y_type_undet,z_type_undet> >& point_vec_undet) {
+   void operator&(const std::vector<boost::tuple<x_type_undet,y_type_undet,z_type_undet> >& point_vec_undet) {
       using boost::numeric::bad_numeric_cast;
 
       x_type x = x_type(0);
@@ -1700,7 +1700,7 @@ public:
     * *object_ptr & data possible.
     */
    template <typename data_type>
-   G_API_COMMON void add(const data_type& item) {
+   void add(const data_type& item) {
       *this & item;
    }
 
@@ -1717,7 +1717,7 @@ public:
       , typename z_type_undet
       , typename w_type_undet
    >
-   G_API_COMMON void operator&(const boost::tuple<x_type_undet,y_type_undet,z_type_undet, w_type_undet>& point_undet) {
+   void operator&(const boost::tuple<x_type_undet,y_type_undet,z_type_undet, w_type_undet>& point_undet) {
       using boost::numeric::bad_numeric_cast;
 
       x_type x = x_type(0);
@@ -1770,7 +1770,7 @@ public:
       , typename z_type_undet
       , typename w_type_undet
    >
-   G_API_COMMON void operator&(const std::vector<boost::tuple<x_type_undet,y_type_undet,z_type_undet, w_type_undet> >& point_vec_undet) {
+   void operator&(const std::vector<boost::tuple<x_type_undet,y_type_undet,z_type_undet, w_type_undet> >& point_vec_undet) {
       using boost::numeric::bad_numeric_cast;
 
       x_type x = x_type(0);

@@ -177,7 +177,7 @@ public:
    * will not survive beyond the end of the stream-chain.
    */
   template <typename T>
-  G_API_COMMON S operator<<(const T& t) {
+  S operator<<(const T& t) {
     S s;
     s << t;
     return s;
@@ -451,7 +451,7 @@ public:
    * Output of all standard values and types with a predefined operator<< .
    */
   template <typename T>
-  G_API_COMMON GLogStreamer& operator<<(const T& val) {
+  GLogStreamer& operator<<(const T& val) {
     oss_ << val;
     return *this;
   }
