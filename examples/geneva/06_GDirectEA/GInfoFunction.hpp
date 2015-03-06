@@ -79,7 +79,7 @@ const boost::uint16_t DEFAULTYDIMPROGRESS=1024;
  * two-dimensional parameter sets. It will in any case produce plots for the achieved
  * fitness as a function of the current iteration.
  */
-class G_API progressMonitor
+class progressMonitor
 	: public GBaseEA::GEAOptimizationMonitor
 {
 	///////////////////////////////////////////////////////////////////////

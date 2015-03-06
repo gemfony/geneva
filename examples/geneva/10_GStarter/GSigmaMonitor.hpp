@@ -64,7 +64,7 @@ const std::size_t P_YDIM=1400;
  * the class uses ROOT scripts for the output of its results. It will also record the quality of
  * the best solutions found.
  */
-class G_API GSigmaMonitor
+class GSigmaMonitor
 	:public GBaseEA::GEAOptimizationMonitor
 {
 public:
