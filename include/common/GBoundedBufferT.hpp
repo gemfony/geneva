@@ -521,7 +521,7 @@ protected:
     * Note that this code is only called in a safe context, hence no protection
     * is necessary.
     */
-   struct buffer_not_full {
+   struct G_API_COMMON buffer_not_full {
    public:
       /* @brief Initializes the local container reference and the maximum capacity */
       buffer_not_full(
@@ -564,7 +564,7 @@ private:
 	 * Writes out put- and get times. You can evaluate the results using
 	 * the root analysis framework (see http://root.cern.ch)
 	 */
-	void emitPutAndGetTimes() {
+	G_API_COMMON void emitPutAndGetTimes() {
       long totalMicroseconds = boost::numeric_cast<long>((endTime_ - startTime_).total_microseconds());
 
       // Create the plot objects
