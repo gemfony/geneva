@@ -108,7 +108,7 @@ private:
  * @return A boost::optional<std::string> that optionally contains a description of discrepancies found from the expected outcome
  */
 template <typename basic_type>
-G_API_COMMON
+
 boost::optional<std::string> checkExpectation (
 	  const bool& withMessages
 	, const std::string& caller
@@ -165,7 +165,7 @@ boost::optional<std::string> checkExpectation (
  * @return A boost::optional<std::string> that optionally contains a description of discrepancies found from the expected outcome
  */
 template <typename fp_type>
-G_API_COMMON
+
 boost::optional<std::string> checkExpectation (
   const bool& withMessages
   , const std::string& caller
@@ -254,7 +254,7 @@ boost::optional<std::string> checkExpectation (
  * @return A boost::optional<std::string> that optionally contains a description of discrepancies found from the expected outcome
  */
 template <typename basic_type>
-G_API_COMMON
+
 boost::optional<std::string> checkExpectation (
   const bool& withMessages
   , const std::string& caller
@@ -348,7 +348,7 @@ boost::optional<std::string> checkExpectation (
  * @return A boost::optional<std::string> that optionally contains a description of discrepancies found from the expected outcome
  */
 template <typename basic_type>
-G_API_COMMON
+
 boost::optional<std::string> checkExpectation (
   const bool& withMessages
   , const std::string& caller
@@ -439,7 +439,7 @@ boost::optional<std::string> checkExpectation (
  * @return A boost::optional<std::string> that optionally contains a description of discrepancies found from the expected outcome
  */
 template <typename fp_type>
-G_API_COMMON
+
 boost::optional<std::string> checkExpectation (
   const bool& withMessages
   , const std::string& caller

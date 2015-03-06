@@ -108,7 +108,7 @@ public:
    /**
     * Initialization with a given value. The default value will be set to "var"
     */
-   G_API_COMMON GLockVarT(const T& var)
+   GLockVarT(const T& var)
       : var_(var)
       , default_(var)
       , locked_(true) // locked by default
@@ -118,7 +118,7 @@ public:
    /**
     * Copy construction
     */
-   G_API_COMMON GLockVarT(const GLockVarT<T>& cp)
+   GLockVarT(const GLockVarT<T>& cp)
       : var_(cp.var_)
       , default_(cp.default_)
       , locked_(true) // locked by default, even if "foreign" object isn't locked
@@ -128,7 +128,7 @@ public:
    /**
     * The destructor
     */
-   virtual G_API_COMMON ~GLockVarT()
+   virtual ~GLockVarT()
    { /* nothing */ }
 
    /***************************************************************************/
@@ -136,7 +136,7 @@ public:
     * Assignment of another object. This function will throw if the object is
     * locked. The default value will remain untouched.
     */
-   G_API_COMMON const GLockVarT<T>& operator=(const GLockVarT<T>& cp) {
+   const GLockVarT<T>& operator=(const GLockVarT<T>& cp) {
       if(locked_) {
          glogger
          << "In GLockVarT<T>& operator=(GLockVarT<T>& cp): Error!" << std::endl
@@ -154,7 +154,7 @@ public:
    /**
     * Assignment of a given instance of T (not wrapped into a GLockVarT<T> object
     */
-   G_API_COMMON const T& operator=(const T& var) {
+   const T& operator=(const T& var) {
       if(locked_) {
          glogger
          << "In GLockVarT<T>& operator=(GLockVarT<T>& cp): Error!" << std::endl
@@ -172,7 +172,7 @@ public:
     * that a call to this function will not change the "locked" state of this
     * object.
     */
-   G_API_COMMON void setValue(const T& var) {
+   void setValue(const T& var) {
       var_ = var;
    }
 
@@ -180,7 +180,7 @@ public:
    /**
     * Value retrieval
     */
-   G_API_COMMON const T& value() const {
+   const T& value() const {
       return var_;
    }
 
@@ -188,7 +188,7 @@ public:
    /**
     * Value retrieval
     */
-   G_API_COMMON const T& operator()() const {
+   const T& operator()() const {
       return this->value();
    }
 
@@ -196,7 +196,7 @@ public:
    /**
     * Automatic conversion to target type, e.g. for calculations
     */
-   G_API_COMMON operator T() const {
+   operator T() const {
       return var_;
    }
 
@@ -204,7 +204,7 @@ public:
    /**
     * Locking
     */
-   G_API_COMMON void lock() {
+   void lock() {
       locked_ = true;
    }
 
@@ -212,7 +212,7 @@ public:
    /**
     * Locking with a specific value
     */
-   G_API_COMMON void lockWithValue(const T& var) {
+   void lockWithValue(const T& var) {
       locked_ = true;
       var_ = var;
    }
@@ -221,7 +221,7 @@ public:
    /**
     * Unlocking
     */
-   G_API_COMMON void unlock() {
+   void unlock() {
       locked_ = false;
    }
 
@@ -229,7 +229,7 @@ public:
    /**
     * Unlocking with a specific value
     */
-   G_API_COMMON void unlockWithValue(const T& var) {
+   void unlockWithValue(const T& var) {
       locked_ = false;
       var_ = var;
    }
@@ -238,7 +238,7 @@ public:
    /**
     * Check if the object is locked
     */
-   G_API_COMMON bool isLocked() const {
+   bool isLocked() const {
       return locked_;
    }
 
@@ -246,7 +246,7 @@ public:
    /**
     * Returns the object to a locked state with its default value
     */
-   G_API_COMMON void reset() {
+   void reset() {
       locked_ = true;
       var_ = default_;
    }
@@ -257,7 +257,7 @@ protected:
     * The default constructor. The default value will be set to 0. This constructor
     * is only needed for (de-)serialization.
     */
-   G_API_COMMON GLockVarT()
+   GLockVarT()
       : var_(T(0))
       , default_(T(0))
       , locked_(true) // locked by default
@@ -292,15 +292,15 @@ class GLockVarBool
 
 public:
    /** @brief The standard constructor */
-   G_API_COMMON GLockVarBool(const bool&);
+   GLockVarBool(const bool&);
    /** @brief The copy constructor */
-   G_API_COMMON GLockVarBool(const GLockVarBool&);
+   GLockVarBool(const GLockVarBool&);
    /** @brief The destructor */
-   G_API_COMMON ~GLockVarBool();
+   ~GLockVarBool();
 
 protected:
    /** @brief The default constructor -- intentionally protected */
-   G_API_COMMON GLockVarBool();
+   GLockVarBool();
 };
 
 /******************************************************************************/

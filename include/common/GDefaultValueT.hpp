@@ -55,7 +55,7 @@ namespace Common {
  * through specializations.
  */
 template <typename T>
-struct G_API_COMMON GDefaultValueT {
+struct GDefaultValueT {
    static T value() {
       return T(0);
    }
@@ -66,7 +66,7 @@ struct G_API_COMMON GDefaultValueT {
  * Specialization for T == bool
  */
 template <>
-struct G_API_COMMON GDefaultValueT<bool> {
+struct GDefaultValueT<bool> {
    static bool value() {
       return true;
    }
@@ -77,7 +77,7 @@ struct G_API_COMMON GDefaultValueT<bool> {
  * Specialization for T == std::string
  */
 template <>
-struct G_API_COMMON GDefaultValueT<std::string> {
+struct GDefaultValueT<std::string> {
    static std::string value() {
       return std::string();
    }

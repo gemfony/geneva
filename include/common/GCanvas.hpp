@@ -183,7 +183,7 @@ private:
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API_COMMON void serialize(Archive & ar, const unsigned int) {
+   void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
       ar
@@ -229,7 +229,7 @@ class GColumn {
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API_COMMON void serialize(Archive & ar, const unsigned int) {
+   void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
       ar & BOOST_SERIALIZATION_NVP(columnData_);
@@ -281,7 +281,7 @@ class GCanvas {
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API_COMMON void serialize(Archive & ar, const unsigned int) {
+   void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
       ar
@@ -296,7 +296,7 @@ public:
    /**
     * The default constructor -- will result in an empty canvas
     */
-   G_API_COMMON GCanvas()
+   GCanvas()
       : xDim_(0)
       , yDim_(0)
       , canvasData_()
@@ -309,7 +309,7 @@ public:
     * Initialization with dimensions and background colors. The default
     * background color is black.
     */
-   G_API_COMMON GCanvas(
+   GCanvas(
        boost::tuple<std::size_t, std::size_t> dim
        , boost::tuple<float,float,float> color
    )
@@ -328,7 +328,7 @@ public:
     *
     * @param ppmString A string holding a picture description in PPM-P3 format
     */
-   G_API_COMMON GCanvas(const std::string& ppmString)
+   GCanvas(const std::string& ppmString)
       : xDim_(0)
       , yDim_(0)
       , canvasData_()
@@ -342,7 +342,7 @@ public:
    /**
     * Copy construction
     */
-   G_API_COMMON GCanvas(const GCanvas<COLORDEPTH>& cp)
+   GCanvas(const GCanvas<COLORDEPTH>& cp)
       : xDim_(cp.xDim_)
       , yDim_(cp.yDim_)
       , canvasData_(cp.canvasData_)
@@ -354,7 +354,7 @@ public:
    /**
     * The destructor
     */
-   virtual G_API_COMMON ~GCanvas() {
+   virtual ~GCanvas() {
       xDim_ = 0;
       yDim_ = 0;
       canvasData_.clear();
@@ -366,7 +366,7 @@ public:
     *
     * @param cp A copy of another GCanvas object
     */
-   G_API_COMMON const GCanvas<COLORDEPTH>& operator=(const GCanvas<COLORDEPTH>& cp) {
+   const GCanvas<COLORDEPTH>& operator=(const GCanvas<COLORDEPTH>& cp) {
       canvasData_ = cp.canvasData_;
       xDim_ = cp.xDim_;
       yDim_ = cp.yDim_;
@@ -378,7 +378,7 @@ public:
    /**
     * Get information about the canvas dimensions
     */
-   G_API_COMMON boost::tuple<std::size_t,std::size_t> dimensions() const {
+   boost::tuple<std::size_t,std::size_t> dimensions() const {
       return boost::tuple<std::size_t,std::size_t>(xDim_,yDim_);
    }
 
@@ -388,7 +388,7 @@ public:
     *
     * @return The value of the xDim_ parameter
     */
-   G_API_COMMON std::size_t getXDim() const {
+   std::size_t getXDim() const {
       return xDim_;
    }
 
@@ -398,7 +398,7 @@ public:
     *
     * @return The value of the yDim_ parameter
     */
-   G_API_COMMON std::size_t getYDim() const {
+   std::size_t getYDim() const {
       return yDim_;
    }
 
@@ -408,7 +408,7 @@ public:
     *
     * @return The total number of pixels in the canvas
     */
-   G_API_COMMON std::size_t getNPixels() const {
+   std::size_t getNPixels() const {
       return xDim_*yDim_;
    }
 
@@ -418,7 +418,7 @@ public:
     *
     * @return The chosen color depth
     */
-   G_API_COMMON std::size_t getColorDepth() const {
+   std::size_t getColorDepth() const {
       return COLORDEPTH;
    }
 
@@ -428,7 +428,7 @@ public:
     *
     * @return The number of representable colors
     */
-   G_API_COMMON std::size_t getNColors() const {
+   std::size_t getNColors() const {
       return NCOLORS;
    }
 
@@ -438,7 +438,7 @@ public:
     *
     * @return The maximum allowed color value
     */
-   G_API_COMMON std::size_t getMaxColor() const {
+   std::size_t getMaxColor() const {
       return MAXCOLOR;
    }
 
@@ -446,7 +446,7 @@ public:
    /**
     * Unchecked access
     */
-   G_API_COMMON GColumn& operator[](const std::size_t& pos) {
+   GColumn& operator[](const std::size_t& pos) {
       return canvasData_[pos];
    }
 
@@ -454,7 +454,7 @@ public:
    /**
     * Checked access
     */
-   G_API_COMMON GColumn& at(const std::size_t& pos) {
+   GColumn& at(const std::size_t& pos) {
       return canvasData_.at(pos);
    }
 
@@ -462,7 +462,7 @@ public:
    /**
     * Unchecked access
     */
-   G_API_COMMON const GColumn& operator[](const std::size_t& pos) const {
+   const GColumn& operator[](const std::size_t& pos) const {
       return canvasData_[pos];
    }
 
@@ -470,7 +470,7 @@ public:
    /**
     * Checked access
     */
-   G_API_COMMON const GColumn& at(const std::size_t& pos) const {
+   const GColumn& at(const std::size_t& pos) const {
       return canvasData_.at(pos);
    }
 
@@ -478,7 +478,7 @@ public:
    /**
     * Find out the deviation between this and another canvas
     */
-   virtual G_API_COMMON float diff(const GCanvas<COLORDEPTH>& cp) const {
+   virtual float diff(const GCanvas<COLORDEPTH>& cp) const {
       using namespace Gem::Common;
 
       if(cp.dimensions() != this->dimensions()) {
@@ -506,7 +506,7 @@ public:
    /**
     * Converts the canvas to an image in PPM-P3 format
     */
-   G_API_COMMON std::string toPPM() const {
+   std::string toPPM() const {
       std::ostringstream result;
 
       result
@@ -533,7 +533,7 @@ public:
     *
     * @param ppmString A string holding an image in PPM-P3 format
     */
-   G_API_COMMON void loadFromPPM(const std::string& ppmString) {
+   void loadFromPPM(const std::string& ppmString) {
       using namespace std;
 
       // Some status flags
@@ -699,7 +699,7 @@ public:
     *
     * @param p The name of a file holding an image in PPM-P3 format
     */
-   G_API_COMMON void loadFromFile(const bf::path& p) {
+   void loadFromFile(const bf::path& p) {
       // Read in the entire file
       std::string imageData = Gem::Common::loadTextDataFromFile(p);
 
@@ -720,7 +720,7 @@ public:
    /**
     * Saves the canvas to a file
     */
-   G_API_COMMON void toFile(const bf::path& p) {
+   void toFile(const bf::path& p) {
       bf::ofstream result(p);
 
       if(!result) {
@@ -738,7 +738,7 @@ public:
    /**
     * Removes all data from the canvas
     */
-   G_API_COMMON void clear() {
+   void clear() {
       canvasData_.clear();
 
       xDim_ = std::size_t(0);
@@ -751,7 +751,7 @@ public:
     *
     * @param
     */
-   G_API_COMMON void reset(
+   void reset(
       boost::tuple<std::size_t, std::size_t> dimension
       , const float& red
       , const float& green
@@ -771,7 +771,7 @@ public:
    /**
     * Resets the canvas to a given color and dimension
     */
-   G_API_COMMON void reset(
+   void reset(
       boost::tuple<std::size_t, std::size_t> dimension
       , boost::tuple<float,float,float> color
    ) {
@@ -787,7 +787,7 @@ public:
    /**
     * Adds a triangle to the canvas, using Gemfony's "circular" definition
     */
-   G_API_COMMON void addTriangle(const t_circle& t) {
+   void addTriangle(const t_circle& t) {
       t_cart t_c;
 
 #ifdef DEBUG
@@ -824,7 +824,7 @@ public:
     * Adds a complete set of triangles to the canvas, using Gemfony's
     * "circular" definition
     */
-   G_API_COMMON void addTriangles(boost::shared_array<t_circle> ts, std::size_t nTriangles) {
+   void addTriangles(boost::shared_array<t_circle> ts, std::size_t nTriangles) {
       for(std::size_t i=0; i<nTriangles; i++) {
          this->addTriangle(ts[i]);
       }
@@ -834,7 +834,7 @@ public:
    /**
     * Adds a triangle to the canvas, using a struct holding cartesic coordinates
     */
-   G_API_COMMON void addTriangle(const t_cart& t) {
+   void addTriangle(const t_cart& t) {
       using namespace Gem::Common;
 
       float xDim_inv = 1.f/float(xDim_);
@@ -910,7 +910,7 @@ public:
    /**
     * Calculates the average colors over all pixels
     */
-   G_API_COMMON boost::tuple<float,float,float> getAverageColors() const {
+   boost::tuple<float,float,float> getAverageColors() const {
       float averageRed   = 0.f;
       float averageGreen = 0.f;
       float averageBlue  = 0.f;
@@ -965,7 +965,7 @@ class GCanvas8 :public GCanvas<8>
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API_COMMON void serialize(Archive & ar, const unsigned int) {
+   void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
       ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GCanvas<8>);
@@ -1006,7 +1006,7 @@ class GCanvas16 :public GCanvas<16>
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API_COMMON void serialize(Archive & ar, const unsigned int) {
+   void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
       ar
@@ -1048,7 +1048,7 @@ class GCanvas24 :public GCanvas<24>
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API_COMMON void serialize(Archive & ar, const unsigned int) {
+   void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
       ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GCanvas<24>);

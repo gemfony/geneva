@@ -159,7 +159,7 @@ class GLogger
 public:
   /***************************************************************************/
   /** @brief The default constructor - needed for the singleton */
-  G_API_COMMON GLogger(void)
+  GLogger(void)
      : defaultLogger_(new GConsoleLogger())
   { /* nothing */ }
 
@@ -167,7 +167,7 @@ public:
   /**
    * The destructor
    */
-  virtual G_API_COMMON ~GLogger()
+  virtual ~GLogger()
   { /* nothing */ }
 
   /***************************************************************************/
@@ -190,7 +190,7 @@ public:
    * a corresponding text will be emitted. When writing to a file, the
    * modifier will be appended with an underscore to the filename.
    */
-  G_API_COMMON S operator()(const std::string& extension) {
+  S operator()(const std::string& extension) {
      S s(extension);
      return s;
   }
@@ -200,7 +200,7 @@ public:
    * This function instructs the logger architecture to emit data to the file
    * specified by the boost::path object
    */
-  G_API_COMMON S operator()(boost::filesystem::path p) {
+  S operator()(boost::filesystem::path p) {
      S s(p);
      return s;
   }
@@ -209,7 +209,7 @@ public:
   /**
    * Allows to set the default log target
    */
-  G_API_COMMON void setDefaultLogTarget(boost::shared_ptr<GBaseLogTarget> gblt) {
+  void setDefaultLogTarget(boost::shared_ptr<GBaseLogTarget> gblt) {
      if(gblt) {
         defaultLogger_ = gblt;
      } else {
@@ -224,7 +224,7 @@ public:
   /**
    * Adds a log target, such as console or file
    */
-  G_API_COMMON void addLogTarget(boost::shared_ptr<GBaseLogTarget> gblt) {
+  void addLogTarget(boost::shared_ptr<GBaseLogTarget> gblt) {
      if(gblt) {
         logVector_.push_back(gblt);
      } else {
@@ -239,7 +239,7 @@ public:
   /**
    * Checks whether any log targets are present
    */
-  G_API_COMMON bool hasLogTargets(void) const {
+  bool hasLogTargets(void) const {
      return !logVector_.empty();
   }
 
@@ -247,7 +247,7 @@ public:
   /**
    * Clears local log-targets
    */
-  G_API_COMMON void resetLogTargets() {
+  void resetLogTargets() {
      logVector_.clear();
   }
 
@@ -257,7 +257,7 @@ public:
    * function is thread-safe and thus may be called from different threads.
    * Note that this function throws if no logging targets have been registered.
    */
-  G_API_COMMON void log(const std::string& message) const {
+  void log(const std::string& message) const {
      // Make sure only one entity outputs data
      boost::mutex::scoped_lock lk(logger_mutex_);
 
@@ -285,7 +285,7 @@ public:
    * function is thread-safe and thus may be called from different threads.
    * Note that this function throws if no logging targets have been registered.
    */
-  G_API_COMMON void logWithSource(const std::string& message, const std::string& extension) const {
+  void logWithSource(const std::string& message, const std::string& extension) const {
      // Make sure only one entity outputs data
      boost::mutex::scoped_lock lk(logger_mutex_);
 
@@ -312,7 +312,7 @@ public:
    * Throws an exception from a global position. This prevents exceptions thrown
    * from within threads from getting lost.
    */
-  G_API_COMMON void throwException(const std::string& error) {
+  void throwException(const std::string& error) {
      // Make sure only one entity outputs data
      boost::mutex::scoped_lock lk(logger_mutex_);
 
@@ -323,7 +323,7 @@ public:
   /**
    * Initiates the termination sequence
    */
-  G_API_COMMON void terminateApplication(const std::string& error) {
+  void terminateApplication(const std::string& error) {
      // Make sure only one entity outputs data
      boost::mutex::scoped_lock lk(logger_mutex_);
 
@@ -335,7 +335,7 @@ public:
   /**
    * Output to stdout
    */
-  G_API_COMMON void toStdOut(const std::string& message) {
+  void toStdOut(const std::string& message) {
      // Make sure only one entity outputs data
      boost::mutex::scoped_lock lk(logger_mutex_);
 
@@ -346,7 +346,7 @@ public:
   /**
    * Output to stderr
    */
-  G_API_COMMON void toStdErr(const std::string& message) {
+  void toStdErr(const std::string& message) {
      // Make sure only one entity outputs data
      boost::mutex::scoped_lock lk(logger_mutex_);
 

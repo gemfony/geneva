@@ -395,7 +395,7 @@ public:
    /**
     * Specifies the operations the parser must know about
     */
-   enum G_API_COMMON byte_code {
+   enum byte_code {
       op_trap   = 0,      // triggers an exception --> boost::variant<int,fp_type>() == 0
       op_neg    = 1,      // negate the top stack entry
       op_add    = 2,      // add top two stack entries
@@ -434,7 +434,7 @@ public:
    /**
     * The standard constructor
     */
-   explicit G_API_COMMON GFormulaParserT(
+   explicit GFormulaParserT(
       const std::string& formula
       , const constants_map& user_constants = constants_map()
    )
@@ -550,7 +550,7 @@ public:
    /**
     * When set to true, the code-vector will be printed prior to the evaluation
     */
-   G_API_COMMON void setPrintCode(bool printCode) {
+   void setPrintCode(bool printCode) {
       printCode_ = printCode;
    }
 
@@ -561,7 +561,7 @@ public:
     * @param placeHolders A list of place-holders for variable values
     * @return A string containing the processed formula
     */
-   G_API_COMMON std::string getFormula(const parameter_map& vm) const {
+   std::string getFormula(const parameter_map& vm) const {
       return this->replacePlaceHolders(vm);
    }
 
@@ -569,7 +569,7 @@ public:
    /**
     * Evaluates a formula after replacing place holders with values
     */
-   G_API_COMMON fp_type evaluate(const parameter_map& vm = parameter_map()) const {
+   fp_type evaluate(const parameter_map& vm = parameter_map()) const {
       // Clear local data structures
       code_.clear();
       stack_ptr_ = stack_.begin();
@@ -603,19 +603,19 @@ public:
    /**
     * Ease of access to the evaluate function
     */
-   G_API_COMMON fp_type operator()(const parameter_map& vm = parameter_map()) const {
+   fp_type operator()(const parameter_map& vm = parameter_map()) const {
       return this->evaluate(vm);
    }
 
    /*****************************************************************************/
    // Code for the compilation of the AST
-   G_API_COMMON void operator()(nil) const { BOOST_ASSERT(0); }
-   G_API_COMMON void operator()(const fp_type& fp_val) const {
+   void operator()(nil) const { BOOST_ASSERT(0); }
+   void operator()(const fp_type& fp_val) const {
       code_.push_back(codeEntry(op_fp));
       code_.push_back(codeEntry(fp_val));
    }
 
-   G_API_COMMON void operator()(const operation& x) const {
+   void operator()(const operation& x) const {
       boost::apply_visitor(*this, x.operand_);
 
       if(x.operator_ == '+') code_.push_back(codeEntry(op_add));
@@ -625,7 +625,7 @@ public:
       else BOOST_ASSERT(0);
    }
 
-   G_API_COMMON void operator()(const unary_function_& f) const {
+   void operator()(const unary_function_& f) const {
       boost::apply_visitor(*this, f.operand_);
 
       if(f.fname_ == "acos") code_.push_back(codeEntry(op_acos)); // Value out of valid range [-1,1] throws Gem::Common::acos_invalid_range
@@ -647,7 +647,7 @@ public:
       else BOOST_ASSERT(0);
    }
 
-   G_API_COMMON void operator()(const binary_function_& f) const {
+   void operator()(const binary_function_& f) const {
       boost::apply_visitor(*this, f.operand1_);
       boost::apply_visitor(*this, f.operand2_);
 
@@ -658,14 +658,14 @@ public:
       else BOOST_ASSERT(0);
    }
 
-   G_API_COMMON void operator()(const signed_& x) const {
+   void operator()(const signed_& x) const {
       boost::apply_visitor(*this, x.operand_);
       if(x.sign == '-') code_.push_back(codeEntry(op_neg));
       else if(x.sign == '+'){ /* nothing */ }
       else BOOST_ASSERT(0);
    }
 
-   G_API_COMMON void operator()(const ast_expression& x) const {
+   void operator()(const ast_expression& x) const {
       boost::apply_visitor(*this, x.first);
       BOOST_FOREACH(const operation& oper, x.rest) {
          (*this)(oper);

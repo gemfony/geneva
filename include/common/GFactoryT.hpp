@@ -93,7 +93,7 @@ class GFactoryT {
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API_COMMON void serialize(Archive & ar, const unsigned int)  {
+   void serialize(Archive & ar, const unsigned int)  {
      using boost::serialization::make_nvp;
 
      ar
@@ -110,7 +110,7 @@ public:
 	 *
 	 * @param configFile The name of a configuration file holding information about objects of type T
 	 */
-   G_API_COMMON GFactoryT(const std::string& configFile)
+   GFactoryT(const std::string& configFile)
 		: configFile_(configFile)
 		, id_(GFACTTORYFIRSTID)
 		, initialized_(false)
@@ -120,7 +120,7 @@ public:
 	/**
 	 * The copy constructor
 	 */
-   G_API_COMMON GFactoryT(const GFactoryT<prod_type>& cp)
+   GFactoryT(const GFactoryT<prod_type>& cp)
 	   : configFile_(cp.configFile_)
 	   , id_(cp.id_)
 	   , initialized_(cp.initialized_)
@@ -130,7 +130,7 @@ public:
 	/**
 	 * The destructor.
 	 */
-	virtual G_API_COMMON ~GFactoryT()
+	virtual ~GFactoryT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -139,7 +139,7 @@ public:
 	 *
 	 * @return An individual of the desired type
 	 */
-	G_API_COMMON boost::shared_ptr<prod_type> operator()() {
+	boost::shared_ptr<prod_type> operator()() {
 	   return this->get();
 	}
 
@@ -147,7 +147,7 @@ public:
 	/**
 	 * Allows the creation of objects of the desired type.
 	 */
-	virtual G_API_COMMON boost::shared_ptr<prod_type> get() {
+	virtual boost::shared_ptr<prod_type> get() {
       // Make sure the initialization code has been executed.
       // This function will do nothing when called more than once
       this->globalInit();
@@ -191,7 +191,7 @@ public:
 	 *
 	 * @return The name of the config-file
 	 */
-	G_API_COMMON std::string getConfigFile() const {
+	std::string getConfigFile() const {
 	   return configFile_;
 	}
 
@@ -200,7 +200,7 @@ public:
 	 * Sets a new name for the configuration file. Will only have an effect for
 	 * the next individual
 	 */
-	G_API_COMMON void setConfigFile(std::string configFile) {
+	void setConfigFile(std::string configFile) {
 	   configFile_ = configFile;
 	}
 
@@ -210,7 +210,7 @@ public:
 	 * if possible.
 	 */
 	template <typename tT> // "tT" stands for "target type"
-	G_API_COMMON boost::shared_ptr<tT> get() {
+	boost::shared_ptr<tT> get() {
 	   boost::shared_ptr<prod_type> p = this->get();
 	   if(p){
 	      return Gem::Common::convertSmartPointer<prod_type, tT>(p);
@@ -226,7 +226,7 @@ public:
 	 * @param configFile The name of the configuration file to be written
 	 * @param header A header to be prepended to the configuration file
 	 */
-	G_API_COMMON void writeConfigFile(const std::string& header) {
+	void writeConfigFile(const std::string& header) {
 		// Make sure the initialization code has been executed.
 		// This function will do nothing when called more than once
 		this->globalInit();
@@ -261,7 +261,7 @@ public:
 	/**
 	 * Loads the data of another GFactoryT<> object
 	 */
-	virtual G_API_COMMON void load(boost::shared_ptr<GFactoryT<prod_type> > cp) {
+	virtual void load(boost::shared_ptr<GFactoryT<prod_type> > cp) {
 	   configFile_ = cp->configFile_;
 	   id_ = cp->id_;
 	   initialized_ = cp->initialized_;
@@ -273,7 +273,7 @@ public:
 	 * wishing to use this functionality need to overload this function.
 	 * Others don't have to due to this "pseudo-implementation".
 	 */
-	virtual G_API_COMMON boost::shared_ptr<GFactoryT<prod_type> > clone() const {
+	virtual boost::shared_ptr<GFactoryT<prod_type> > clone() const {
 	   glogger
 	   << "In GFactoryT<prod_type>::clone(): Error!" << std::endl
 	   << "Function was called when it shouldn't be." << std::endl
@@ -287,19 +287,19 @@ public:
 protected:
 	/***************************************************************************/
 	/** @brief Performs necessary initialization work */
-	virtual G_API_COMMON void init_() {}
+	virtual void init_() {}
 	/** @brief Allows to describe local configuration options in derived classes */
-	virtual G_API_COMMON void describeLocalOptions_(Gem::Common::GParserBuilder& gpb) {};
+	virtual void describeLocalOptions_(Gem::Common::GParserBuilder& gpb) {};
 	/** @brief Creates individuals of the desired type */
-	virtual G_API_COMMON boost::shared_ptr<prod_type> getObject_(Gem::Common::GParserBuilder&, const std::size_t&) = 0;
+	virtual boost::shared_ptr<prod_type> getObject_(Gem::Common::GParserBuilder&, const std::size_t&) = 0;
 	/** @brief Allows to act on the configuration options received from the configuration file */
-	virtual G_API_COMMON void postProcess_(boost::shared_ptr<prod_type>&) = 0;
+	virtual void postProcess_(boost::shared_ptr<prod_type>&) = 0;
 
    /***************************************************************************/
 	/**
 	 * Retrieve the current value of the id_ variable
 	 */
-	G_API_COMMON std::size_t getId() const {
+	std::size_t getId() const {
 	   return id_;
 	}
 

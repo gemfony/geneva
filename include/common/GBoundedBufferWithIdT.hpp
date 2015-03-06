@@ -81,7 +81,7 @@ public:
 	/**
 	 * The default constructor.
 	 */
-   G_API_COMMON GBoundedBufferWithIdT()
+   GBoundedBufferWithIdT()
 		: Gem::Common::GBoundedBufferT<T>()
 		, id_(0)
 		, idSet_(false)
@@ -94,7 +94,7 @@ public:
 	 *
 	 * @param capacity The desired size of the buffer
 	 */
-	explicit G_API_COMMON GBoundedBufferWithIdT(const std::size_t& capacity)
+	explicit GBoundedBufferWithIdT(const std::size_t& capacity)
 		: Gem::Common::GBoundedBufferT<T>(capacity)
 		, id_(0)
 		, idSet_(false)
@@ -104,7 +104,7 @@ public:
 	/**
 	 * A standard destructor.
 	 */
-	virtual G_API_COMMON ~GBoundedBufferWithIdT()
+	virtual ~GBoundedBufferWithIdT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -113,7 +113,7 @@ public:
 	 *
 	 * @return The value of the id_ variable
 	 */
-	G_API_COMMON PORTIDTYPE getId() const {
+	PORTIDTYPE getId() const {
 		return id_;
 	}
 
@@ -124,7 +124,7 @@ public:
 	 *
 	 * @param id The desired value of the id_ variable
 	 */
-	G_API_COMMON void setId(const PORTIDTYPE& id) {
+	void setId(const PORTIDTYPE& id) {
 		if(!idSet_){
 			id_ = id;
 			idSet_ = true;

@@ -95,7 +95,7 @@ public:
 	 * @param f The function to be executed by the threads in the pool
 	 */
 	template <typename F>
-	G_API_COMMON void async_schedule(F f) {
+	void async_schedule(F f) {
 		io_service_.post(
 			boost::bind(&GThreadPool::taskWrapper<F>, this, f)
 		);

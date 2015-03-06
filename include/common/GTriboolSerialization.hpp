@@ -61,7 +61,7 @@ namespace serialization {
  * Saves a tribool variable to an archive
  */
 template <class Archive>
-G_API_COMMON void save(Archive& ar,
+void save(Archive& ar,
           const boost::logic::tribool& val,
           unsigned int)
 {
@@ -79,7 +79,7 @@ G_API_COMMON void save(Archive& ar,
  * Loads a tribool variable from an archive
  */
 template <class Archive>
-G_API_COMMON void load(Archive& ar,
+void load(Archive& ar,
           boost::logic::tribool& val,
           unsigned int)
 {

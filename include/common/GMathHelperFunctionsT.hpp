@@ -562,7 +562,7 @@ void GVecStandardDeviation(
  * Calculation of pow for small positive integers using template metaprogramming
  */
 template<std::size_t B, std::size_t E>
-struct G_API_COMMON PowSmallPosInt
+struct PowSmallPosInt
 {
     enum {
        result = B*PowSmallPosInt<B,E-1>::result
@@ -570,7 +570,7 @@ struct G_API_COMMON PowSmallPosInt
 };
 
 template<std::size_t B>
-struct G_API_COMMON PowSmallPosInt<B,2>
+struct PowSmallPosInt<B,2>
 {
     enum {
        result = B*B
@@ -578,7 +578,7 @@ struct G_API_COMMON PowSmallPosInt<B,2>
 };
 
 template<std::size_t B>
-struct G_API_COMMON PowSmallPosInt<B,1>
+struct PowSmallPosInt<B,1>
 {
     enum {
        result = B
@@ -586,7 +586,7 @@ struct G_API_COMMON PowSmallPosInt<B,1>
 };
 
 template<std::size_t B>
-struct G_API_COMMON PowSmallPosInt<B,0>
+struct PowSmallPosInt<B,0>
 {
     enum {
        result = 1

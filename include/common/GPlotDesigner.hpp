@@ -218,7 +218,7 @@ public:
 	/**
 	 * The default constructor
 	 */
-   G_API_COMMON GDataCollector1T()
+   GDataCollector1T()
 		: GBasePlotter()
 		, data_()
 	{ /* nothing */ }
@@ -229,7 +229,7 @@ public:
 	 *
 	 * @param cp A copy of another GDataCollector1T<x_type> object
 	 */
-   G_API_COMMON GDataCollector1T(const GDataCollector1T<x_type>& cp)
+   GDataCollector1T(const GDataCollector1T<x_type>& cp)
 		: GBasePlotter(cp)
 		, data_(cp.data_)
 	{ /* nothing */ }
@@ -238,7 +238,7 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual G_API_COMMON ~GDataCollector1T() {
+	virtual ~GDataCollector1T() {
 		data_.clear();
 	}
 
@@ -246,7 +246,7 @@ public:
 	/**
 	 * The assignment operator
 	 */
-	G_API_COMMON void operator=(const GDataCollector1T<x_type>& cp) {
+	void operator=(const GDataCollector1T<x_type>& cp) {
 		// Assign our parent class'es data
 		GBasePlotter::operator=(cp);
 
@@ -302,7 +302,7 @@ public:
 	 *
 	 * @param x The data item to be added to the collection
 	 */
-	G_API_COMMON void operator&(const x_type& x) {
+	void operator&(const x_type& x) {
 		// Add the data item to our collection
 		data_.push_back(x);
 	}
@@ -346,7 +346,7 @@ public:
 	 *
 	 * @param x_vec A vector of data items to be added to the data_ vector
 	 */
-	G_API_COMMON void operator&(const std::vector<x_type>& x_vec) {
+	void operator&(const std::vector<x_type>& x_vec) {
 		typename std::vector<x_type>::const_iterator cit;
 		for(cit=x_vec.begin(); cit!=x_vec.end(); ++cit) {
 			// Add the data item to our collection
@@ -492,7 +492,7 @@ public:
 	/**
 	 * The default constructor
 	 */
-   G_API_COMMON GDataCollector2T()
+   GDataCollector2T()
 		: GBasePlotter()
 		, data_()
 	{ /* nothing */ }
@@ -503,7 +503,7 @@ public:
 	 *
 	 * @param cp A copy of another GDataCollector1T<x_type> object
 	 */
-   G_API_COMMON GDataCollector2T(const GDataCollector2T<x_type, y_type>& cp)
+   GDataCollector2T(const GDataCollector2T<x_type, y_type>& cp)
 		: GBasePlotter(cp)
 		, data_(cp.data_)
 	{ /* nothing */ }
@@ -512,7 +512,7 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual G_API_COMMON ~GDataCollector2T() {
+	virtual ~GDataCollector2T() {
 		data_.clear();
 	}
 
@@ -520,7 +520,7 @@ public:
 	/**
 	 * The assignment operator
 	 */
-	G_API_COMMON void operator=(const GDataCollector2T<x_type, y_type>& cp) {
+	void operator=(const GDataCollector2T<x_type, y_type>& cp) {
 		// Assign our parent class'es data
 		GBasePlotter::operator=(cp);
 
@@ -534,7 +534,7 @@ public:
 	 * trap to catch calls with un-implemented types. Use the corresponding specializations,
 	 * if available.
 	 */
-	G_API_COMMON boost::shared_ptr<GDataCollector1T<x_type> > projectX(
+	boost::shared_ptr<GDataCollector1T<x_type> > projectX(
       std::size_t
       , boost::tuple<x_type, x_type>
 	) const {
@@ -553,7 +553,7 @@ public:
 	 * trap to catch calls with un-implemented types. Use the corresponding specializations,
 	 * if available.
 	 */
-	G_API_COMMON boost::shared_ptr<GDataCollector1T<y_type> > projectY(
+	boost::shared_ptr<GDataCollector1T<y_type> > projectY(
       std::size_t
       , boost::tuple<y_type, y_type>
 	) const {
@@ -616,7 +616,7 @@ public:
 	 *
 	 * @param point The data item to be added to the collection
 	 */
-	G_API_COMMON void operator&(const boost::tuple<x_type,y_type>& point) {
+	void operator&(const boost::tuple<x_type,y_type>& point) {
 		// Add the data item to the collection
 		data_.push_back(point);
 	}
@@ -664,7 +664,7 @@ public:
 	 *
 	 * @param point_vec The collection of data items to be added to the collection
 	 */
-	G_API_COMMON void operator&(const std::vector<boost::tuple<x_type,y_type> >& point_vec) {
+	void operator&(const std::vector<boost::tuple<x_type,y_type> >& point_vec) {
 		typename std::vector<boost::tuple<x_type,y_type> >::const_iterator cit;
 		for(cit=point_vec.begin(); cit!=point_vec.end(); ++cit) {
 			// Add the data item to the collection
@@ -716,7 +716,7 @@ protected:
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-G_API_COMMON boost::shared_ptr<GDataCollector1T<double> >
+boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector2T<double, double>::projectX(std::size_t nBinsX, boost::tuple<double, double> rangeX) const {
    boost::tuple<double, double> myRangeX;
    if(rangeX == boost::tuple<double, double>()) {
@@ -754,7 +754,7 @@ GDataCollector2T<double, double>::projectX(std::size_t nBinsX, boost::tuple<doub
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-G_API_COMMON boost::shared_ptr<GDataCollector1T<double> >
+boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector2T<double, double>::projectY(std::size_t nBinsY, boost::tuple<double, double> rangeY) const {
    boost::tuple<double, double> myRangeY;
    if(rangeY == boost::tuple<double, double>()) {
@@ -793,7 +793,7 @@ public:
 	/**
 	 * The default constructor
 	 */
-   G_API_COMMON GDataCollector2ET()
+   GDataCollector2ET()
 		: GBasePlotter()
 		, data_()
 	{ /* nothing */ }
@@ -804,7 +804,7 @@ public:
 	 *
 	 * @param cp A copy of another GDataCollector1T<x_type> object
 	 */
-   G_API_COMMON GDataCollector2ET(const GDataCollector2ET<x_type, y_type>& cp)
+   GDataCollector2ET(const GDataCollector2ET<x_type, y_type>& cp)
 		: GBasePlotter(cp)
 		, data_(cp.data_)
 	{ /* nothing */ }
@@ -813,7 +813,7 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual G_API_COMMON ~GDataCollector2ET() {
+	virtual ~GDataCollector2ET() {
 		data_.clear();
 	}
 
@@ -821,7 +821,7 @@ public:
 	/**
 	 * The assignment operator
 	 */
-	G_API_COMMON void operator=(const GDataCollector2ET<x_type, y_type>& cp) {
+	void operator=(const GDataCollector2ET<x_type, y_type>& cp) {
 		// Assign our parent class'es data
 		GBasePlotter::operator=(cp);
 
@@ -871,7 +871,7 @@ public:
 	 *
 	 * @param point The data item to be added to the collection
 	 */
-	G_API_COMMON void operator&(const boost::tuple<x_type,x_type,y_type,y_type>& point) {
+	void operator&(const boost::tuple<x_type,x_type,y_type,y_type>& point) {
 		// Add the data item to the collection
 		data_.push_back(point);
 	}
@@ -923,7 +923,7 @@ public:
 	 *
 	 * @param point_vec The collection of data items to be added to the collection
 	 */
-	G_API_COMMON void operator&(const std::vector<boost::tuple<x_type,x_type,y_type,y_type> >& point_vec) {
+	void operator&(const std::vector<boost::tuple<x_type,x_type,y_type,y_type> >& point_vec) {
 		typename std::vector<boost::tuple<x_type,x_type,y_type,y_type> >::const_iterator cit;
 		for(cit=point_vec.begin(); cit!=point_vec.end(); ++cit) {
 			// Add the data item to the collection
@@ -962,7 +962,7 @@ public:
    /**
     * Sorts the data according to its x-component
     */
-   G_API_COMMON void sortX() {
+   void sortX() {
       std::sort(
          data_.begin()
          , data_.end()
@@ -1193,7 +1193,7 @@ public:
    /**
     * The default constructor
     */
-   G_API_COMMON GDataCollector3T()
+   GDataCollector3T()
       : GBasePlotter()
       , data_()
    { /* nothing */ }
@@ -1204,7 +1204,7 @@ public:
     *
     * @param cp A copy of another GDataCollector3T object
     */
-   G_API_COMMON GDataCollector3T(const GDataCollector3T<x_type, y_type, z_type>& cp)
+   GDataCollector3T(const GDataCollector3T<x_type, y_type, z_type>& cp)
       : GBasePlotter(cp)
       , data_(cp.data_)
    { /* nothing */ }
@@ -1213,7 +1213,7 @@ public:
    /**
     * The destructor
     */
-   virtual G_API_COMMON ~GDataCollector3T() {
+   virtual ~GDataCollector3T() {
       data_.clear();
    }
 
@@ -1221,7 +1221,7 @@ public:
    /**
     * The assignment operator
     */
-   G_API_COMMON void operator=(const GDataCollector3T<x_type, y_type, z_type>& cp) {
+   void operator=(const GDataCollector3T<x_type, y_type, z_type>& cp) {
       // Assign our parent class'es data
       GBasePlotter::operator=(cp);
 
@@ -1235,7 +1235,7 @@ public:
     * trap to catch calls with un-implemented types. Use the corresponding specializations,
     * if available.
     */
-   G_API_COMMON boost::shared_ptr<GDataCollector1T<x_type> > projectX(
+   boost::shared_ptr<GDataCollector1T<x_type> > projectX(
       std::size_t
       , boost::tuple<x_type, x_type>
    ) const {
@@ -1254,7 +1254,7 @@ public:
     * trap to catch calls with un-implemented types. Use the corresponding specializations,
     * if available.
     */
-   G_API_COMMON boost::shared_ptr<GDataCollector1T<y_type> > projectY(
+   boost::shared_ptr<GDataCollector1T<y_type> > projectY(
       std::size_t
       , boost::tuple<y_type, y_type>
    ) const {
@@ -1273,7 +1273,7 @@ public:
     * trap to catch calls with un-implemented types. Use the corresponding specializations,
     * if available.
     */
-   G_API_COMMON boost::shared_ptr<GDataCollector1T<z_type> > projectZ(
+   boost::shared_ptr<GDataCollector1T<z_type> > projectZ(
       std::size_t
       , boost::tuple<z_type, z_type>
    ) const {
@@ -1338,7 +1338,7 @@ public:
     *
     * @param point The data item to be added to the collection
     */
-   G_API_COMMON void operator&(const boost::tuple<x_type,y_type,z_type>& point) {
+   void operator&(const boost::tuple<x_type,y_type,z_type>& point) {
       // Add the data item to the collection
       data_.push_back(point);
    }
@@ -1388,7 +1388,7 @@ public:
     *
     * @param point_vec The collection of data items to be added to the collection
     */
-   G_API_COMMON void operator&(const std::vector<boost::tuple<x_type,y_type,z_type> >& point_vec) {
+   void operator&(const std::vector<boost::tuple<x_type,y_type,z_type> >& point_vec) {
       typename std::vector<boost::tuple<x_type,y_type,z_type> >::const_iterator cit;
       for(cit=point_vec.begin(); cit!=point_vec.end(); ++cit) {
          // Add the data item to the collection
@@ -1414,7 +1414,7 @@ protected:
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-G_API_COMMON boost::shared_ptr<GDataCollector1T<double> >
+boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector3T<double, double,double>::projectX(std::size_t nBinsX, boost::tuple<double, double> rangeX) const {
    boost::tuple<double, double> myRangeX;
    if(rangeX == boost::tuple<double, double>()) {
@@ -1451,7 +1451,7 @@ GDataCollector3T<double, double,double>::projectX(std::size_t nBinsX, boost::tup
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-G_API_COMMON boost::shared_ptr<GDataCollector1T<double> >
+boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector3T<double, double, double>::projectY(std::size_t nBinsY, boost::tuple<double, double> rangeY) const {
    boost::tuple<double, double> myRangeY;
    if(rangeY == boost::tuple<double, double>()) {
@@ -1488,7 +1488,7 @@ GDataCollector3T<double, double, double>::projectY(std::size_t nBinsY, boost::tu
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-G_API_COMMON boost::shared_ptr<GDataCollector1T<double> >
+boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector3T<double, double, double>::projectZ(std::size_t nBinsZ, boost::tuple<double, double> rangeZ) const {
    boost::tuple<double, double> myRangeZ;
    if(rangeZ == boost::tuple<double, double>()) {
@@ -1580,7 +1580,7 @@ public:
    /**
     * The default constructor
     */
-   G_API_COMMON GDataCollector4T()
+   GDataCollector4T()
       : GBasePlotter()
       , data_()
    { /* nothing */ }
@@ -1591,7 +1591,7 @@ public:
     *
     * @param cp A copy of another GDataCollector4T object
     */
-   G_API_COMMON GDataCollector4T(const GDataCollector4T<x_type, y_type, z_type, w_type>& cp)
+   GDataCollector4T(const GDataCollector4T<x_type, y_type, z_type, w_type>& cp)
       : GBasePlotter(cp)
       , data_(cp.data_)
    { /* nothing */ }
@@ -1600,7 +1600,7 @@ public:
    /**
     * The destructor
     */
-   virtual G_API_COMMON ~GDataCollector4T() {
+   virtual ~GDataCollector4T() {
       data_.clear();
    }
 
@@ -1608,7 +1608,7 @@ public:
    /**
     * The assignment operator
     */
-   G_API_COMMON void operator=(const GDataCollector4T<x_type, y_type, z_type, w_type>& cp) {
+   void operator=(const GDataCollector4T<x_type, y_type, z_type, w_type>& cp) {
       // Assign our parent class'es data
       GBasePlotter::operator=(cp);
 
@@ -1622,7 +1622,7 @@ public:
     * trap to catch calls with un-implemented types. Use the corresponding specializations,
     * if available.
     */
-   G_API_COMMON boost::shared_ptr<GDataCollector1T<x_type> > projectX(
+   boost::shared_ptr<GDataCollector1T<x_type> > projectX(
       std::size_t
       , boost::tuple<x_type, x_type>
    ) const {
@@ -1641,7 +1641,7 @@ public:
     * trap to catch calls with un-implemented types. Use the corresponding specializations,
     * if available.
     */
-   G_API_COMMON boost::shared_ptr<GDataCollector1T<y_type> > projectY(
+   boost::shared_ptr<GDataCollector1T<y_type> > projectY(
       std::size_t
       , boost::tuple<y_type, y_type>
    ) const {
@@ -1660,7 +1660,7 @@ public:
     * trap to catch calls with un-implemented types. Use the corresponding specializations,
     * if available.
     */
-   G_API_COMMON boost::shared_ptr<GDataCollector1T<z_type> > projectZ(
+   boost::shared_ptr<GDataCollector1T<z_type> > projectZ(
       std::size_t
       , boost::tuple<z_type, z_type>
    ) const {
@@ -1679,7 +1679,7 @@ public:
     * trap to catch calls with un-implemented types. Use the corresponding specializations,
     * if available.
     */
-   G_API_COMMON boost::shared_ptr<GDataCollector1T<w_type> > projectW(
+   boost::shared_ptr<GDataCollector1T<w_type> > projectW(
       std::size_t
       , boost::tuple<w_type, w_type>
    ) const {
@@ -1751,7 +1751,7 @@ public:
     *
     * @param point The data item to be added to the collection
     */
-   G_API_COMMON void operator&(const boost::tuple<x_type,y_type,z_type,w_type>& point) {
+   void operator&(const boost::tuple<x_type,y_type,z_type,w_type>& point) {
       // Add the data item to the collection
       data_.push_back(point);
    }
@@ -1808,7 +1808,7 @@ public:
     *
     * @param point_vec The collection of data items to be added to the collection
     */
-   G_API_COMMON void operator&(const std::vector<boost::tuple<x_type,y_type,z_type,w_type> >& point_vec) {
+   void operator&(const std::vector<boost::tuple<x_type,y_type,z_type,w_type> >& point_vec) {
       typename std::vector<boost::tuple<x_type,y_type,z_type,w_type> >::const_iterator cit;
       for(cit=point_vec.begin(); cit!=point_vec.end(); ++cit) {
          // Add the data item to the collection
@@ -1833,7 +1833,7 @@ protected:
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-G_API_COMMON boost::shared_ptr<GDataCollector1T<double> >
+boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector4T<double, double,double, double>::projectX(std::size_t nBinsX, boost::tuple<double, double> rangeX) const {
    boost::tuple<double, double> myRangeX;
    if(rangeX == boost::tuple<double, double>()) {
@@ -1870,7 +1870,7 @@ GDataCollector4T<double, double,double, double>::projectX(std::size_t nBinsX, bo
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-G_API_COMMON boost::shared_ptr<GDataCollector1T<double> >
+boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector4T<double, double, double, double>::projectY(std::size_t nBinsY, boost::tuple<double, double> rangeY) const {
    boost::tuple<double, double> myRangeY;
    if(rangeY == boost::tuple<double, double>()) {
@@ -1907,7 +1907,7 @@ GDataCollector4T<double, double, double, double>::projectY(std::size_t nBinsY, b
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-G_API_COMMON boost::shared_ptr<GDataCollector1T<double> >
+boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector4T<double, double, double, double>::projectZ(std::size_t nBinsZ, boost::tuple<double, double> rangeZ) const {
    boost::tuple<double, double> myRangeZ;
    if(rangeZ == boost::tuple<double, double>()) {
@@ -1945,7 +1945,7 @@ GDataCollector4T<double, double, double, double>::projectZ(std::size_t nBinsZ, b
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-G_API_COMMON boost::shared_ptr<GDataCollector1T<double> >
+boost::shared_ptr<GDataCollector1T<double> >
 GDataCollector4T<double, double, double, double>::projectW(std::size_t nBinsW, boost::tuple<double, double> rangeW) const {
    boost::tuple<double, double> myRangeW;
    if(rangeW == boost::tuple<double, double>()) {

@@ -84,7 +84,7 @@ namespace Common {
  * @return A string representation of gt_ptr
  */
 template <typename T>
-G_API_COMMON std::string sharedPtrToString(boost::shared_ptr<T> gt_ptr, const Gem::Common::serializationMode& serMod){
+std::string sharedPtrToString(boost::shared_ptr<T> gt_ptr, const Gem::Common::serializationMode& serMod){
 	std::ostringstream oarchive_stream;
 
 	switch(serMod){
@@ -125,35 +125,35 @@ G_API_COMMON std::string sharedPtrToString(boost::shared_ptr<T> gt_ptr, const Ge
  * @return A shared_ptr to the restored object
  */
 template <typename T>
-G_API_COMMON boost::shared_ptr<T> sharedPtrFromString(const std::string& gt_string, const Gem::Common::serializationMode& serMod){
+boost::shared_ptr<T> sharedPtrFromString(const std::string& gt_string, const Gem::Common::serializationMode& serMod){
 	std::istringstream istr(gt_string);
 	boost::shared_ptr<T> gt_ptr;
 
 	try {
-	switch(serMod){
-	case Gem::Common::SERIALIZATIONMODE_TEXT:
-		{
-			boost::archive::text_iarchive ia(istr);
-			ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
-		} // note: explicit scope here is essential so the ia-destructor gets called
+      switch(serMod){
+      case Gem::Common::SERIALIZATIONMODE_TEXT:
+         {
+            boost::archive::text_iarchive ia(istr);
+            ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
+         } // note: explicit scope here is essential so the ia-destructor gets called
 
-		break;
+         break;
 
-	case Gem::Common::SERIALIZATIONMODE_XML:
-		{
-			boost::archive::xml_iarchive ia(istr);
-			ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
-		}
+      case Gem::Common::SERIALIZATIONMODE_XML:
+         {
+            boost::archive::xml_iarchive ia(istr);
+            ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
+         }
 
-		break;
+         break;
 
-	case Gem::Common::SERIALIZATIONMODE_BINARY:
-		{
-			boost::archive::binary_iarchive ia(istr);
-			ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
-		}
-		break;
-	}
+      case Gem::Common::SERIALIZATIONMODE_BINARY:
+         {
+            boost::archive::binary_iarchive ia(istr);
+            ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
+         }
+         break;
+      }
 	} catch (boost::archive::archive_exception& e) {
 	   glogger
 	   << "In sharedPtrFromString(): Error!" << std::endl
