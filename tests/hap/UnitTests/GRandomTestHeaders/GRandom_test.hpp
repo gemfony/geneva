@@ -63,7 +63,7 @@ using boost::unit_test_framework::test_case;
 
 /********************************************************************************************/
 // The actual unit tests for this class
-class G_API GRandom_test {
+class GRandom_test {
 public:
 	/***********************************************************************************/
 	// The default constructor
@@ -434,7 +434,7 @@ private:
 // This test suite checks as much as possible of the functionality provided
 // by the GRandom class. Please also have a look at the histograms created
 // in the "manual" test section.
-class G_API GHapSuite: public test_suite
+class GHapSuite: public test_suite
 {
 public:
 	GHapSuite() :test_suite("GHapSuite") {

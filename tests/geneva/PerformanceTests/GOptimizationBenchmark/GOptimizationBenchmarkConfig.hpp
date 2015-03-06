@@ -58,7 +58,7 @@ const std::size_t DEFNOPTBENCHTESTS=10;
 /**
  * A class that parses configuration options for the GOptimizationBenchmark test
  */
-class G_API GOptimizationBenchmarkConfig {
+class GOptimizationBenchmarkConfig {
 public:
 	/*****************************************************************************/
 	/**

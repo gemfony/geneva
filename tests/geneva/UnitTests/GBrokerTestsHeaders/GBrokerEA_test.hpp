@@ -62,7 +62,7 @@ using boost::unit_test_framework::test_case;
 
 /********************************************************************************************/
 // The actual unit tests for this class
-class G_API GBrokerEA_test {
+class GBrokerEA_test {
 public:
 	/***********************************************************************************/
 	// Test features that are expected to work
@@ -84,7 +84,7 @@ private:
 /********************************************************************************************/
 // This test suite checks as much as possible of the functionality provided
 // by the GBrokerEA class.
-class G_API GBrokerEASuite: public test_suite
+class GBrokerEASuite: public test_suite
 {
 public:
 	GBrokerEASuite() :test_suite("GBrokerEASuite") {

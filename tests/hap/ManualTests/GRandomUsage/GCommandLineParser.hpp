@@ -60,7 +60,7 @@ const boost::uint16_t DEFAULTRNRPRODUCTIONMODE=0;
 
 namespace po = boost::program_options;
 
-G_API bool parseCommandLine(int argc, char **argv,
+bool parseCommandLine(int argc, char **argv,
 					  std::size_t& nEntries,
 					  boost::uint16_t& nProducerThreads,
 					  boost::uint16_t& rnrProductionMode,

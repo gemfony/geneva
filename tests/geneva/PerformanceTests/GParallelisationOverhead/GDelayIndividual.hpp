@@ -72,7 +72,7 @@ namespace Tests {
  * (which is always the same). Its purpose is to measure the overhead of the parallelization, compared
  * to the serial execution.
  */
-class G_API GDelayIndividual: public Gem::Geneva::GParameterSet
+class GDelayIndividual: public Gem::Geneva::GParameterSet
 {
    /////////////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -140,7 +140,7 @@ private:
 /**
  * A factory for GFMinIndividual objects
  */
-class G_API GDelayIndividualFactory
+class GDelayIndividualFactory
    : public Gem::Common::GFactoryT<Gem::Geneva::GParameterSet>
 {
 public:

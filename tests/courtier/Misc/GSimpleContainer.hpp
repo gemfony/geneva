@@ -73,7 +73,7 @@ namespace Tests {
 /**
  * This class implements the simplest-possible container object, used for tests of the courtier lib.
  */
-class G_API GSimpleContainer
+class GSimpleContainer
 	:public Gem::Courtier::GSubmissionContainerT<GSimpleContainer>
 {
 	///////////////////////////////////////////////////////////////////////

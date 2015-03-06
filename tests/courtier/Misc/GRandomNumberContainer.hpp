@@ -73,7 +73,7 @@ namespace Tests {
 /**
  * This class implements a container of random objects, used for tests of the courtier lib.
  */
-class G_API GRandomNumberContainer
+class GRandomNumberContainer
 	:public Gem::Courtier::GSubmissionContainerT<GRandomNumberContainer>
 {
 	///////////////////////////////////////////////////////////////////////

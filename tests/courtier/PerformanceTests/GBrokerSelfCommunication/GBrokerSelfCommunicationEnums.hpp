@@ -68,10 +68,10 @@ enum GBSCModes {
 const GBSCModes MAXGBSCMODES = THREAEDANDNETWORKING;
 
 /** @brief Puts a Gem::Courtier::Tests::GBSCModes into a stream. Needed also for boost::lexical_cast<> */
-G_API std::ostream& operator<<(std::ostream&, const Gem::Courtier::Tests::GBSCModes&);
+std::ostream& operator<<(std::ostream&, const Gem::Courtier::Tests::GBSCModes&);
 
 /** @brief Reads a Gem::Courtier::Tests::GBSCModes item from a stream. Needed also for boost::lexical_cast<> */
-G_API std::istream& operator>>(std::istream&, Gem::Courtier::Tests::GBSCModes&);
+std::istream& operator>>(std::istream&, Gem::Courtier::Tests::GBSCModes&);
 
 } /* namespace Tests */
 } /* namespace Courtier */
