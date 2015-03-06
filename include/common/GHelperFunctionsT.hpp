@@ -81,7 +81,7 @@ namespace Common {
  * @param vec The vector to be printed
  * @return A string-representation of the vector
  */
-template <typename vecType> G_API_COMMON
+template <typename vecType>
 std::string vecToString(const std::vector<vecType>& vec) {
    std::ostringstream result;
    typename std::vector<vecType>::const_iterator cit;
@@ -99,7 +99,7 @@ std::string vecToString(const std::vector<vecType>& vec) {
  * @param from The source smart pointer
  * @param to The target smart pointer
  */
-template <typename T> G_API_COMMON
+template <typename T>
 void copySmartPointer (
 	const boost::shared_ptr<T>& from
 	, boost::shared_ptr<T>& to
@@ -128,7 +128,7 @@ void copySmartPointer (
  * @param from The vector used as the source of the copying
  * @param to The vector used as the target of the copying
  */
-template <typename T> G_API_COMMON
+template <typename T>
 void copySmartPointerVector(
    const std::vector<boost::shared_ptr<T> >& from
    , std::vector<boost::shared_ptr<T> >& to
@@ -176,7 +176,7 @@ void copySmartPointerVector(
  * this operation, T::operator= makes sense. The function may modify all of its
  * "to"-arguments
  */
-template <typename T> G_API_COMMON
+template <typename T>
 void copyArrays (
    T const * const from
    , T *& to
@@ -249,7 +249,7 @@ void copyArrays (
  * @param size_from The number of entries in the first array
  * @param size_to The number of entries in the second array before and after copying (will be modified)
  */
-template <typename T> G_API_COMMON
+template <typename T>
 void copySmartPointerArrays(
    boost::shared_ptr<T> const * const from
    , boost::shared_ptr<T> *& to
@@ -304,7 +304,7 @@ void copySmartPointerArrays(
  * This function converts a smart pointer to a target type, throwing an exception
  * if the conversion cannot be done.
  */
-template <typename source_type, typename target_type> G_API_COMMON
+template <typename source_type, typename target_type>
 boost::shared_ptr<target_type> convertSmartPointer(boost::shared_ptr<source_type> p_raw) {
 #ifdef DEBUG
       // Check that we have indeed been given an item and that the pointer isn't empty
@@ -340,7 +340,7 @@ boost::shared_ptr<target_type> convertSmartPointer(boost::shared_ptr<source_type
  * This function converts a simple pointer to a target type, throwing an exception
  * if the conversion cannot be done.
  */
-template <typename source_type, typename target_type> G_API_COMMON
+template <typename source_type, typename target_type>
 target_type *convertSimplePointer(source_type *p_raw) {
 #ifdef DEBUG
       // Check that we have indeed been given an item and that the pointer isn't empty
@@ -376,7 +376,7 @@ target_type *convertSimplePointer(source_type *p_raw) {
  * This function converts a simple pointer to a target type, throwing an exception
  * if the conversion cannot be done.
  */
-template <typename source_type, typename target_type> G_API_COMMON
+template <typename source_type, typename target_type>
 const target_type *convertSimplePointer(const source_type *p_raw) {
 #ifdef DEBUG
       // Check that we have indeed been given an item and that the pointer isn't empty
@@ -413,7 +413,7 @@ const target_type *convertSimplePointer(const source_type *p_raw) {
  * The only precondition is that the target type is known to boost::lexical_cast, which can
  * be achieved simply by providing related operator<< and operator>> .
  */
-template <typename split_type> G_API_COMMON
+template <typename split_type>
 std::vector<split_type> splitStringT(const std::string& raw, const char* sep) {
    std::vector<std::string> fragments = Gem::Common::splitString(raw, sep);
    std::vector<split_type> result;
@@ -431,7 +431,7 @@ std::vector<split_type> splitStringT(const std::string& raw, const char* sep) {
  * be achieved simply by providing related operator<< and operator>> . A possible usage is a
  * split of a string "0/0 0/1 1/0" into tuples of integers.
  */
-template <typename split_type1, typename split_type2> G_API_COMMON
+template <typename split_type1, typename split_type2>
 std::vector<boost::tuple<split_type1, split_type2> > splitStringT(
       const std::string& raw
       , const char* sep1
@@ -476,7 +476,7 @@ std::vector<boost::tuple<split_type1, split_type2> > splitStringT(
  * Retrieves an item from a std::map and throws, if the corresponding key
  * isn't found
  */
-template <typename item_type> G_API_COMMON
+template <typename item_type>
 item_type& getMapItem(std::map<std::string, item_type>& m, const std::string& key) {
    if(m.empty()) {
       glogger
@@ -504,7 +504,7 @@ item_type& getMapItem(std::map<std::string, item_type>& m, const std::string& ke
  * Retrieves an item from a std::map and throws, if the corresponding key
  * isn't found
  */
-template <typename item_type> G_API_COMMON
+template <typename item_type>
 const item_type& getMapItem(const std::map<std::string, item_type>& m, const std::string& key) {
    if(m.empty()) {
       glogger

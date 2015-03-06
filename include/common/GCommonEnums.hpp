@@ -33,7 +33,7 @@
  */
  
 // Global checks, defines and includes needed for all of Geneva
-#include "common/GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp" 
 
 // Standard headers go here
 #include <string>
