@@ -176,7 +176,7 @@ class GMetaOptimizerIndividualT : public GParameterSet
    friend class boost::serialization::access;
 
    template<class Archive>
-   G_API_INDIVIDUALS void serialize(Archive & ar, const unsigned int) {
+   void serialize(Archive & ar, const unsigned int) {
       ar
       & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
       & BOOST_SERIALIZATION_NVP(nRunsPerOptimization_)
@@ -195,7 +195,7 @@ public:
    /**
     * The default constructor.
     */
-   G_API_INDIVIDUALS GMetaOptimizerIndividualT()
+   GMetaOptimizerIndividualT()
       : GParameterSet()
       , nRunsPerOptimization_(GMETAOPT_DEF_NRUNSPEROPT)
       , fitnessTarget_(GMETAOPT_DEF_FITNESSTARGET)
@@ -212,7 +212,7 @@ public:
     *
     * @param cp A copy of another GFunctionIndidivual
     */
-   G_API_INDIVIDUALS GMetaOptimizerIndividualT(const GMetaOptimizerIndividualT<ind_type>& cp)
+   GMetaOptimizerIndividualT(const GMetaOptimizerIndividualT<ind_type>& cp)
       : GParameterSet(cp)
       , nRunsPerOptimization_(cp.nRunsPerOptimization_)
       , fitnessTarget_(cp.fitnessTarget_)
@@ -227,7 +227,7 @@ public:
    /**
     * The standard destructor
     */
-   virtual G_API_INDIVIDUALS ~GMetaOptimizerIndividualT()
+   virtual ~GMetaOptimizerIndividualT()
    { /* nothing */   }
 
    /***************************************************************************/
@@ -236,7 +236,7 @@ public:
     *
     * @param cp A copy of another GMetaOptimizerIndividualT<ind_type>
     */
-   G_API_INDIVIDUALS const GMetaOptimizerIndividualT<ind_type>& operator=(
+   const GMetaOptimizerIndividualT<ind_type>& operator=(
       const GMetaOptimizerIndividualT<ind_type>& cp
    ){
       GMetaOptimizerIndividualT<ind_type>::load_(&cp);
@@ -250,7 +250,7 @@ public:
     * @param  cp A constant reference to another GMetaOptimizerIndividualT<ind_type> object
     * @return A boolean indicating whether both objects are equal
     */
-   G_API_INDIVIDUALS bool operator==(
+   bool operator==(
       const GMetaOptimizerIndividualT<ind_type>& cp
    ) const {
       using namespace Gem::Common;
@@ -265,7 +265,7 @@ public:
     * @param  cp A constant reference to another GMetaOptimizerIndividualT<ind_type> object
     * @return A boolean indicating whether both objects are in-equal
     */
-   G_API_INDIVIDUALS bool operator!=(
+   bool operator!=(
       const GMetaOptimizerIndividualT<ind_type>& cp
    ) const {
       using namespace Gem::Common;
@@ -286,7 +286,7 @@ public:
     * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
     */
-   virtual G_API_INDIVIDUALS boost::optional<std::string> checkRelationshipWith(
+   virtual boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -326,7 +326,7 @@ public:
     *
     * @param gpb The GParserBuilder object to which configuration options should be added
     */
-   virtual G_API_INDIVIDUALS void addConfigurationOptions (
+   virtual void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
    ) {
       std::string comment;
@@ -428,7 +428,7 @@ public:
     * Allows to specify the execution mode to be chosen for our (sub-) optimization
     * algorithm: 0/false for serial, 1/true for multithreaded.
     */
-   G_API_INDIVIDUALS void setSubExecMode(bool subExecM) {
+   void setSubExecMode(bool subExecM) {
       subExecMode_ = subExecM;
    }
 
@@ -437,7 +437,7 @@ public:
     * Allows to retrieve the execution mode to be chosen for our (sub-) optimization
     * algorithm: 0/false for serial, 1/true for multithreaded.
     */
-   G_API_INDIVIDUALS bool getSubExecMode() const {
+   bool getSubExecMode() const {
       return subExecMode_;
    }
 
@@ -446,7 +446,7 @@ public:
     * Allows to specify the path and name of a configuration file passed to
     * the (sub-)evolutionary algorithm
     */
-   G_API_INDIVIDUALS void setSubEAConfig(std::string subEA_config) {
+   void setSubEAConfig(std::string subEA_config) {
       subEA_config_ = subEA_config;
    }
 
@@ -455,7 +455,7 @@ public:
     * Allows to retrieve the path and name of a configuration file passed to
     * the (sub-)evolutionary algorithm
     */
-   G_API_INDIVIDUALS std::string getSubEAConfig() const {
+   std::string getSubEAConfig() const {
       return subEA_config_;
    }
 
@@ -463,7 +463,7 @@ public:
    /**
     * Allows to specify how many optimizations should be performed for each (sub-)optimization
     */
-   G_API_INDIVIDUALS void setNRunsPerOptimization(std::size_t nRunsPerOptimization) {
+   void setNRunsPerOptimization(std::size_t nRunsPerOptimization) {
    #ifdef DEBUG
       if(0==nRunsPerOptimization) {
          glogger
@@ -480,7 +480,7 @@ public:
    /**
     * Allows to retrieve the number of optimizations to be performed for each (sub-)optimization
     */
-   G_API_INDIVIDUALS std::size_t getNRunsPerOptimization() const {
+   std::size_t getNRunsPerOptimization() const {
       return nRunsPerOptimization_;
    }
 
@@ -488,7 +488,7 @@ public:
    /**
     * Allows to set the fitness target for each optimization
     */
-   G_API_INDIVIDUALS void setFitnessTarget(double fitnessTarget) {
+   void setFitnessTarget(double fitnessTarget) {
       fitnessTarget_ = fitnessTarget;
    }
 
@@ -496,7 +496,7 @@ public:
    /**
     * Retrieves the fitness target for each optimization
     */
-   G_API_INDIVIDUALS double getFitnessTarget() const {
+   double getFitnessTarget() const {
       return fitnessTarget_;
    }
 
@@ -504,7 +504,7 @@ public:
    /**
     * Allows to set the iteration threshold
     */
-   G_API_INDIVIDUALS void setIterationThreshold(boost::uint32_t iterationThreshold) {
+   void setIterationThreshold(boost::uint32_t iterationThreshold) {
       iterationThreshold_ = iterationThreshold;
    }
 
@@ -512,7 +512,7 @@ public:
    /**
     * Allows to retrieve the iteration threshold
     */
-   G_API_INDIVIDUALS boost::uint32_t getIterationThreshold() const {
+   boost::uint32_t getIterationThreshold() const {
       return iterationThreshold_;
    }
 
@@ -520,7 +520,7 @@ public:
    /**
     * Allows to set the desired target of the meta-optimization
     */
-   G_API_INDIVIDUALS void setMetaOptimizationTarget(metaOptimizationTarget moTarget) {
+   void setMetaOptimizationTarget(metaOptimizationTarget moTarget) {
       moTarget_ = moTarget;
 
       // multi-criterion optimization. We need to set the number of fitness criteria
@@ -533,7 +533,7 @@ public:
    /**
     * Allows to retrieve the current target of the meta-optimization
     */
-   G_API_INDIVIDUALS metaOptimizationTarget getMetaOptimizationTarget() const {
+   metaOptimizationTarget getMetaOptimizationTarget() const {
       return moTarget_;
    }
 
@@ -541,7 +541,7 @@ public:
    /**
     * Retrieves the current number of parents. Needed for the optimization monitor.
     */
-   G_API_INDIVIDUALS std::size_t getNParents() const {
+   std::size_t getNParents() const {
       boost::shared_ptr<GConstrainedInt32Object>  npar_ptr = this->at<GConstrainedInt32Object>(MOT_NPARENTS);
       return npar_ptr->value();
    }
@@ -550,7 +550,7 @@ public:
    /**
     * Retrieves the current number of children. Needed for the optimization monitor.
     */
-   G_API_INDIVIDUALS std::size_t getNChildren() const {
+   std::size_t getNChildren() const {
       boost::shared_ptr<GConstrainedInt32Object>  nch_ptr = this->at<GConstrainedInt32Object>(MOT_NCHILDREN);
       return nch_ptr->value();
    }
@@ -559,7 +559,7 @@ public:
    /**
     * Retrieves the adaption probability. Needed for the optimization monitor.
     */
-   G_API_INDIVIDUALS double getAdProb() const {
+   double getAdProb() const {
       boost::shared_ptr<GConstrainedDoubleObject> minAdProb_ptr             = this->at<GConstrainedDoubleObject>(MOT_MINADPROB);
       boost::shared_ptr<GConstrainedDoubleObject> adProbRange_ptr           = this->at<GConstrainedDoubleObject>(MOT_ADPROBRANGE);
       boost::shared_ptr<GConstrainedDoubleObject> adProbStartPercentage_ptr = this->at<GConstrainedDoubleObject>(MOT_ADPROBSTARTPERCENTAGE);
@@ -571,7 +571,7 @@ public:
    /**
     * Retrieves the lower sigma boundary. Needed for the optimization monitor.
     */
-   G_API_INDIVIDUALS double getMinSigma() const {
+   double getMinSigma() const {
       boost::shared_ptr<GConstrainedDoubleObject> minsigma_ptr
          = this->at<GConstrainedDoubleObject>(MOT_MINSIGMA);
       return minsigma_ptr->value();
@@ -581,7 +581,7 @@ public:
    /**
     * Retrieves the sigma range. Needed for the optimization monitor.
     */
-   G_API_INDIVIDUALS double getSigmaRange() const {
+   double getSigmaRange() const {
       boost::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr
          = this->at<GConstrainedDoubleObject>(MOT_SIGMARANGE);
       return sigmarange_ptr->value();
@@ -591,7 +591,7 @@ public:
    /**
     * Retrieves the sigma-sigma parameter. Needed for the optimization monitor.
     */
-   G_API_INDIVIDUALS double getSigmaSigma() const {
+   double getSigmaSigma() const {
       boost::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr
          = this->at<GConstrainedDoubleObject>(MOT_SIGMASIGMA);
       return sigmasigma_ptr->value();
@@ -602,7 +602,7 @@ public:
     * This function is used to unify the setup from within the constructor
     * and factory.
     */
-   static G_API_INDIVIDUALS void addContent(
+   static void addContent(
       boost::shared_ptr<GMetaOptimizerIndividualT<ind_type> > p
       , const std::size_t& initNParents
       , const std::size_t& nParents_LB
@@ -857,7 +857,7 @@ public:
    /**
     * Emit information about this individual
     */
-   G_API_INDIVIDUALS std::string print(bool withFitness = true) const {
+   std::string print(bool withFitness = true) const {
       std::ostringstream result;
 
       // Retrieve the parameters
@@ -917,7 +917,7 @@ public:
     * Registers a factory class with this object. This function clones the factory,
     * so the individual can be sure to have a unique factory.
     */
-   G_API_INDIVIDUALS void registerIndividualFactory(boost::shared_ptr<typename ind_type::FACTORYTYPE> factory) {
+   void registerIndividualFactory(boost::shared_ptr<typename ind_type::FACTORYTYPE> factory) {
       if(!factory) {
          glogger
          << "In GMetaOptimizerIndividualT<T>::registerIndividualFactory(): Error!" << std::endl
@@ -936,7 +936,7 @@ protected:
     *
     * @param cp A copy of another GMetaOptimizerIndividualT<ind_type>, camouflaged as a GObject
     */
-   virtual G_API_INDIVIDUALS void load_(const GObject* cp){
+   virtual void load_(const GObject* cp){
       // Check that we are indeed dealing with an object of the same type and that we are not
       // accidently trying to compare this object with itself.
       const GMetaOptimizerIndividualT<ind_type> *p_load
@@ -962,7 +962,7 @@ protected:
     *
     * @return A deep clone of this object, camouflaged as a GObject
     */
-   virtual G_API_INDIVIDUALS GObject* clone_() const {
+   virtual GObject* clone_() const {
       return new GMetaOptimizerIndividualT<ind_type>(*this);
    }
 
@@ -973,7 +973,7 @@ protected:
     * @param The id of the target function (ignored here)
     * @return The value of this object, as calculated with the evaluation function
     */
-   virtual G_API_INDIVIDUALS double fitnessCalculation() {
+   virtual double fitnessCalculation() {
       bool first_maxMode = true;
       bool maxMode = false;
 
@@ -1145,7 +1145,7 @@ protected:
    /**
     * Retrieves a clear-text description of the optimization target
     */
-   G_API_INDIVIDUALS std::string getClearTextMOT(const metaOptimizationTarget& mot) const {
+   std::string getClearTextMOT(const metaOptimizationTarget& mot) const {
       switch(mot) {
          case BESTFITNESS:
          return std::string("\"best fitness\"");
@@ -1184,7 +1184,7 @@ public:
     *
     * @return A boolean indicating whether
     */
-   virtual G_API_INDIVIDUALS bool modify_GUnitTests() {
+   virtual bool modify_GUnitTests() {
    #ifdef GEM_TESTING
       using boost::unit_test_framework::test_suite;
       using boost::unit_test_framework::test_case;
@@ -1213,7 +1213,7 @@ public:
    /**
     * Performs self tests that are expected to succeed.
     */
-   virtual G_API_INDIVIDUALS void specificTestsNoFailureExpected_GUnitTests() {
+   virtual void specificTestsNoFailureExpected_GUnitTests() {
    #ifdef GEM_TESTING
       using namespace Gem::Geneva;
 
@@ -1238,7 +1238,7 @@ public:
    /**
     * Performs self tests that are expected to fail.
     */
-   virtual G_API_INDIVIDUALS void specificTestsFailuresExpected_GUnitTests() {
+   virtual void specificTestsFailuresExpected_GUnitTests() {
    #ifdef GEM_TESTING
       using namespace Gem::Geneva;
 
@@ -1275,7 +1275,7 @@ public:
  * boost::lexical_cast
  */
 template <typename ind_type>
-G_API_INDIVIDUALS std::ostream& operator<<(
+std::ostream& operator<<(
    std::ostream& stream
    , const GMetaOptimizerIndividualT<ind_type>& gsi
 ) {
@@ -1301,7 +1301,7 @@ public:
     *
     * @param configFile The name of the configuration file
     */
-   G_API_INDIVIDUALS GMetaOptimizerIndividualFactoryT(const std::string& configFile)
+   GMetaOptimizerIndividualFactoryT(const std::string& configFile)
       : Gem::Common::GFactoryT<GParameterSet>(configFile)
       , initNParents_(GMETAOPT_DEF_INITNPARENTS)
       , nParents_LB_(GMETAOPT_DEF_NPARENTS_LB)
@@ -1342,7 +1342,7 @@ public:
    /**
     * The destructor
     */
-   virtual G_API_INDIVIDUALS ~GMetaOptimizerIndividualFactoryT()
+   virtual ~GMetaOptimizerIndividualFactoryT()
    { /* nothing */ }
 
    /***************************************************************************/
@@ -1350,7 +1350,7 @@ public:
     * Registers a factory class with this object. This function clones the factory,
     * so the individual can be sure to have a unique factory.
     */
-   G_API_INDIVIDUALS void registerIndividualFactory(boost::shared_ptr<typename ind_type::FACTORYTYPE> factory) {
+   void registerIndividualFactory(boost::shared_ptr<typename ind_type::FACTORYTYPE> factory) {
       if(!factory) {
          glogger
          << "In GMetaOptimizerIndividualFactoryT<T>::registerIndividualFactory(): Error!" << std::endl
@@ -1369,7 +1369,7 @@ protected:
     *
     * @return Items of the desired type
     */
-   virtual G_API_INDIVIDUALS boost::shared_ptr<GParameterSet> getObject_(
+   virtual boost::shared_ptr<GParameterSet> getObject_(
       Gem::Common::GParserBuilder& gpb
       , const std::size_t& id
    ) {
@@ -1387,7 +1387,7 @@ protected:
    /**
     * Allows to describe local configuration options for gradient descents
     */
-   virtual G_API_INDIVIDUALS void describeLocalOptions_(Gem::Common::GParserBuilder& gpb) {
+   virtual void describeLocalOptions_(Gem::Common::GParserBuilder& gpb) {
       // Describe our own options
       using namespace Gem::Courtier;
 
@@ -1727,7 +1727,7 @@ protected:
     *
     * @param p A smart-pointer to be acted on during post-processing
     */
-   virtual G_API_INDIVIDUALS void postProcess_(
+   virtual void postProcess_(
       boost::shared_ptr<GParameterSet>& p_base
    ) {
       // Convert the base pointer to our local type

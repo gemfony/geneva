@@ -172,7 +172,7 @@ class GFunctionIndividual
 	friend class boost::serialization::access;
 
 	template<class Archive>
-	G_API_INDIVIDUALS void serialize(Archive & ar, const unsigned int) {
+	void serialize(Archive & ar, const unsigned int) {
 		ar
 		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
 		& BOOST_SERIALIZATION_NVP(demoFunction_);
@@ -457,7 +457,7 @@ class GFunctionIndividualFactory
    friend class boost::serialization::access;
 
    template<class Archive>
-   G_API_INDIVIDUALS void serialize(Archive & ar, const unsigned int) {
+   void serialize(Archive & ar, const unsigned int) {
       ar
       & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Common::GFactoryT<GParameterSet>)
       & BOOST_SERIALIZATION_NVP(adProb_)
@@ -682,7 +682,7 @@ class GDoubleSumConstraint : public GParameterSetConstraint
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API_INDIVIDUALS void serialize(Archive & ar, const unsigned int){
+   void serialize(Archive & ar, const unsigned int){
      using boost::serialization::make_nvp;
      ar
      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetConstraint)
@@ -746,7 +746,7 @@ class GDoubleSumGapConstraint : public GParameterSetConstraint
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API_INDIVIDUALS void serialize(Archive & ar, const unsigned int){
+   void serialize(Archive & ar, const unsigned int){
      using boost::serialization::make_nvp;
      ar
      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetConstraint)
@@ -812,7 +812,7 @@ class GSphereConstraint : public GParameterSetConstraint
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API_INDIVIDUALS void serialize(Archive & ar, const unsigned int){
+   void serialize(Archive & ar, const unsigned int){
      using boost::serialization::make_nvp;
      ar
      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetConstraint);

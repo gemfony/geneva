@@ -1072,7 +1072,7 @@ template <> boost::shared_ptr<Gem::Geneva::networkData> TFactory_GSingletonT();
  * specialization of the factory function that creates GStartProjectIndividual objects
  */
 template <>
-inline G_API_INDIVIDUALS boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual>
+inline boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual>
 TFactory_GUnitTests<Gem::Geneva::GNeuralNetworkIndividual>() {
    return boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual>(
          new Gem::Geneva::GNeuralNetworkIndividual(
