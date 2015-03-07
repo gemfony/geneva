@@ -379,7 +379,7 @@ enum G_API_GENEVA execMode {
 /**
  * The default parallelization mode of optimization algorithms
  */
-const G_API_GENEVA execMode DEFAULTEXECMODE = EXECMODE_MULTITHREADED;
+const execMode DEFAULTEXECMODE = EXECMODE_MULTITHREADED;
 
 /******************************************************************************/
 /**
