@@ -102,7 +102,7 @@ struct trainingSet
 	friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API_INDIVIDUALS void load(Archive & ar, const unsigned int) {
+   void load(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
       ar
@@ -120,7 +120,7 @@ struct trainingSet
    }
 
    template<typename Archive>
-   G_API_INDIVIDUALS void save(Archive & ar, const unsigned int) const {
+   void save(Archive & ar, const unsigned int) const {
       using boost::serialization::make_nvp;
 
       ar
@@ -192,7 +192,7 @@ class networkData
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API_INDIVIDUALS void load(Archive & ar, const unsigned int) {
+   void load(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
       ar
@@ -217,7 +217,7 @@ class networkData
    }
 
    template<typename Archive>
-   G_API_INDIVIDUALS void save(Archive & ar, const unsigned int) const {
+   void save(Archive & ar, const unsigned int) const {
       using boost::serialization::make_nvp;
 
       ar
@@ -372,7 +372,7 @@ class GNeuralNetworkIndividual
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API_INDIVIDUALS void load(Archive & ar, const unsigned int) {
+	void load(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
 		ar
@@ -383,7 +383,7 @@ class GNeuralNetworkIndividual
 	}
 
 	template<typename Archive>
-	G_API_INDIVIDUALS void save(Archive & ar, const unsigned int) const {
+	void save(Archive & ar, const unsigned int) const {
 		using boost::serialization::make_nvp;
 
 		ar

@@ -2027,7 +2027,7 @@ public:
     * A comparator allowing to sort the tuples in ascending order, using
     * the fourth component.
     */
-   static G_API_COMMON bool comp4Asc (
+   static bool comp4Asc (
             boost::tuple<double,double,double,double> a
             , boost::tuple<double,double,double,double> b
    ) {
@@ -2039,7 +2039,7 @@ public:
     * A comparator allowing to sort the tuples in descending order, using
     * the fourth component.
     */
-   static G_API_COMMON bool comp4Desc (
+   static bool comp4Desc (
             boost::tuple<double,double,double,double> a
             , boost::tuple<double,double,double,double> b
    ) {

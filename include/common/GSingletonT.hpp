@@ -95,7 +95,7 @@ public:
 	 *
 	 * @param mode Determines the mode in which this function is called
 	 */
-	static G_API_COMMON boost::shared_ptr<T> Instance(const std::size_t& mode) {
+	static boost::shared_ptr<T> Instance(const std::size_t& mode) {
 		static boost::shared_ptr<T> p;
 		static boost::mutex creation_mutex;
 
