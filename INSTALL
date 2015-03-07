@@ -67,18 +67,18 @@ sudo apt-get install --no-install-recommends libboost-dev libboost-date-time-dev
         libboost-thread-dev
 
 
-Installation prerequisites on MacOS X (tested only 10.9)
---------------------------------------------------------
+Installation prerequisites on MacOS X (tested only on 10.10)
+------------------------------------------------------------
 
 You should first install the Xcode environment from the App store. This
 will give you a working C++ compiler. You should also install Mac versions
 of CMake and bzr.
 
-We recommend that you compile a custom boost version. With Boost 1.55,
+We recommend that you compile a custom boost version. With Boost 1.57,
 unpack the archive, then run the following commands inside of the main
 directory of the boost source tree:
 
-./bootstrap.sh --prefix=/opt/boost155/
+./bootstrap.sh --prefix=/opt/boost157/
 sudo ./b2 -j 4 install
 
 This assumes a system with 4 cores. The directories can of course be adapted.
@@ -96,7 +96,7 @@ are unsure about creating a system-wide configuration file):
 
 using clang : 98
     : "/usr/bin/clang++"
-    : <cxxflags>"-std=c++98 -stdlib=libstdc++" <linkflags>"-stdlib=libstdc++ -macosx_version_min=10.8"
+    : <cxxflags>"-std=c++98 -stdlib=libstdc++" <linkflags>"-stdlib=libstdc++ -macosx_version_min=10.10"
     ;
     
 This will enforce the usage of libstdc++ and the 98 C++ standard.

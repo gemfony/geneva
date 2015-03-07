@@ -82,9 +82,9 @@ namespace Courtier {
 /** @brief Class to be thrown as a message in the case of a time-out in GBuffer */
 class buffer_not_present: public std::exception {
 public:
-   buffer_not_present(void){}
-   buffer_not_present(const buffer_not_present&){}
-   ~buffer_not_present(){}
+   buffer_not_present(void) throw() {}
+   buffer_not_present(const buffer_not_present&) throw() {}
+   ~buffer_not_present() throw() {}
 };
 
 /******************************************************************************/

@@ -207,12 +207,12 @@ SET (
 	GENEVA_BOOST_LIBS
 	date_time
 	filesystem
-	program_options
 	random
 	regex
 	serialization
 	system
-	thread
+	thread	
+    program_options
 )
 
 IF(WIN32)
