@@ -71,7 +71,7 @@ class GMultiThreadedGD
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API_GENEVA void serialize(Archive & ar, const unsigned int) {
+	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
 		ar
@@ -165,7 +165,7 @@ public:
  * specialization of the factory function that creates objects of this type.
  */
 template <>
-inline G_API_GENEVA boost::shared_ptr<Gem::Geneva::GMultiThreadedGD> TFactory_GUnitTests<Gem::Geneva::GMultiThreadedGD>() {
+inline boost::shared_ptr<Gem::Geneva::GMultiThreadedGD> TFactory_GUnitTests<Gem::Geneva::GMultiThreadedGD>() {
    boost::shared_ptr<Gem::Geneva::GMultiThreadedGD> p;
    BOOST_CHECK_NO_THROW(p= boost::shared_ptr<Gem::Geneva::GMultiThreadedGD>(new Gem::Geneva::GMultiThreadedGD()));
    return p;

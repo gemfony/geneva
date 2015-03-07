@@ -70,7 +70,7 @@ class GParameterBase
     friend class boost::serialization::access;
 
     template<typename Archive>
-    G_API_GENEVA void serialize(Archive & ar, const unsigned int){
+    void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
 
       ar
@@ -150,7 +150,7 @@ public:
     * @return The number of parameters of a given Type
     */
    template <typename par_type>
-   G_API_GENEVA std::size_t countParameters(
+   std::size_t countParameters(
       const activityMode& am
    ) const {
       glogger
@@ -172,7 +172,7 @@ public:
     * @oaram uBndVec The vector with upper boundaries of parameters
     */
    template <typename par_type>
-   G_API_GENEVA void boundaries(
+   void boundaries(
       std::vector<par_type>& lBndVec
       , std::vector<par_type>& uBndVec
       , const activityMode& am
@@ -192,7 +192,7 @@ public:
 	 * @oaram parVec The vector to which the items should be added
 	 */
 	template <typename par_type>
-	G_API_GENEVA void streamline(
+	void streamline(
       std::vector<par_type>& parVec
       , const activityMode& am
    ) const {
@@ -211,7 +211,7 @@ public:
     * @oaram parVec The vector to which the items should be added
     */
    template <typename par_type>
-   G_API_GENEVA void streamline(
+   void streamline(
       std::map<std::string, std::vector<par_type> >& parVec
       , const activityMode& am
    ) const {
@@ -231,7 +231,7 @@ public:
 	 * @param pos The position from which parameters will be taken (will be updated by the call)
 	 */
 	template <typename par_type>
-	G_API_GENEVA void assignValueVector(
+	void assignValueVector(
       const std::vector<par_type>& parVec
       , std::size_t& pos
       , const activityMode& am
@@ -249,7 +249,7 @@ public:
     * @param parMao The map with the parameters to be assigned to the object
     */
    template <typename par_type>
-   G_API_GENEVA void assignValueVectors(
+   void assignValueVectors(
       const std::map<std::string, std::vector<par_type> >& parMap
       , const activityMode& am
    ) {
@@ -264,7 +264,7 @@ public:
     * Multiplication with a random value in a given range
     */
    template <typename par_type>
-   G_API_GENEVA void multiplyByRandom(
+   void multiplyByRandom(
       const par_type& min
       , const par_type& max
       , const activityMode& am
@@ -280,7 +280,7 @@ public:
     * Multiplication with a random value in the range [0, 1[
     */
    template <typename par_type>
-   G_API_GENEVA void multiplyByRandom(
+   void multiplyByRandom(
       const activityMode& am
    ) {
       glogger
@@ -309,7 +309,7 @@ public:
     * Initializes all parameters of a given type with a constant value
     */
    template <typename par_type>
-   G_API_GENEVA void fixedValueInit(
+   void fixedValueInit(
       const par_type& val
       , const activityMode& am
    ) {
@@ -324,7 +324,7 @@ public:
     * Adds the parameters of another GParameterSet object to this one
     */
    template <typename par_type>
-   G_API_GENEVA void add(
+   void add(
       boost::shared_ptr<GParameterBase> p
       , const activityMode& am
    ) {
@@ -339,7 +339,7 @@ public:
     * Subtracts the parameters of another GParameterSet object from this one
     */
    template <typename par_type>
-   G_API_GENEVA void subtract(
+   void subtract(
       boost::shared_ptr<GParameterBase> p
       , const activityMode& am
    ) {
@@ -395,7 +395,7 @@ public:
 	 * @return A boost::shared_ptr holding the converted object
 	 */
 	template <typename load_type>
-	G_API_GENEVA boost::shared_ptr<load_type> parameterbase_cast (
+	boost::shared_ptr<load_type> parameterbase_cast (
 			boost::shared_ptr<GParameterBase> load_ptr
 		  , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GParameterBase, load_type> >::type* dummy = 0
 	) const {
@@ -571,7 +571,7 @@ public:
  * @oaram parVec The vector to which the items should be added
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::streamline<float>(
+inline void GParameterBase::streamline<float>(
    std::vector<float>& parVec
    , const activityMode& am
 ) const {
@@ -589,7 +589,7 @@ inline G_API_GENEVA  void GParameterBase::streamline<float>(
  * @oaram parVec The vector to which the items should be added
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::streamline<double>(
+inline void GParameterBase::streamline<double>(
    std::vector<double>& parVec
    , const activityMode& am
 ) const {
@@ -607,7 +607,7 @@ inline G_API_GENEVA  void GParameterBase::streamline<double>(
  * @oaram parVec The vector to which the items should be added
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::streamline<boost::int32_t>(
+inline void GParameterBase::streamline<boost::int32_t>(
    std::vector<boost::int32_t>& parVec
    , const activityMode& am
 ) const {
@@ -625,7 +625,7 @@ inline G_API_GENEVA  void GParameterBase::streamline<boost::int32_t>(
  * @oaram parVec The vector to which the items should be added
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::streamline<bool>(
+inline void GParameterBase::streamline<bool>(
    std::vector<bool>& parVec
    , const activityMode& am
 ) const {
@@ -643,7 +643,7 @@ inline G_API_GENEVA  void GParameterBase::streamline<bool>(
  * @oaram parVec The map to which the items should be added
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::streamline<float>(
+inline void GParameterBase::streamline<float>(
    std::map<std::string, std::vector<float> >& parVec
    , const activityMode& am
 ) const {
@@ -661,7 +661,7 @@ inline G_API_GENEVA  void GParameterBase::streamline<float>(
  * @oaram parVec The vector to which the items should be added
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::streamline<double>(
+inline void GParameterBase::streamline<double>(
    std::map<std::string, std::vector<double> >& parVec
    , const activityMode& am
 ) const {
@@ -679,7 +679,7 @@ inline G_API_GENEVA  void GParameterBase::streamline<double>(
  * @oaram parVec The vector to which the items should be added
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::streamline<boost::int32_t>(
+inline void GParameterBase::streamline<boost::int32_t>(
    std::map<std::string, std::vector<boost::int32_t> >& parVec
    , const activityMode& am
 ) const {
@@ -697,7 +697,7 @@ inline G_API_GENEVA  void GParameterBase::streamline<boost::int32_t>(
  * @oaram parVec The vector to which the items should be added
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::streamline<bool>(
+inline void GParameterBase::streamline<bool>(
    std::map<std::string, std::vector<bool> >& parVec
    , const activityMode& am
 ) const {
@@ -717,7 +717,7 @@ inline G_API_GENEVA  void GParameterBase::streamline<bool>(
  * @param uBndVec A vector of upper double parameter boundaries
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::boundaries<float>(
+inline void GParameterBase::boundaries<float>(
    std::vector<float>& lBndVec
    , std::vector<float>& uBndVec
    , const activityMode& am
@@ -737,7 +737,7 @@ inline G_API_GENEVA  void GParameterBase::boundaries<float>(
  * @param uBndVec A vector of upper double parameter boundaries
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::boundaries<double>(
+inline void GParameterBase::boundaries<double>(
    std::vector<double>& lBndVec
    , std::vector<double>& uBndVec
    , const activityMode& am
@@ -757,7 +757,7 @@ inline G_API_GENEVA  void GParameterBase::boundaries<double>(
  * @param uBndVec A vector of upper boost::int32_t parameter boundaries
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::boundaries<boost::int32_t>(
+inline void GParameterBase::boundaries<boost::int32_t>(
    std::vector<boost::int32_t>& lBndVec
    , std::vector<boost::int32_t>& uBndVec
    , const activityMode& am
@@ -777,7 +777,7 @@ inline G_API_GENEVA  void GParameterBase::boundaries<boost::int32_t>(
  * @param uBndVec A vector of upper bool parameter boundaries
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::boundaries<bool>(
+inline void GParameterBase::boundaries<bool>(
    std::vector<bool>& lBndVec
    , std::vector<bool>& uBndVec
    , const activityMode& am
@@ -797,7 +797,7 @@ inline G_API_GENEVA  void GParameterBase::boundaries<bool>(
  * @return The number of parameters of type float
  */
 template <>
-inline G_API_GENEVA  std::size_t GParameterBase::countParameters<float>(
+inline std::size_t GParameterBase::countParameters<float>(
    const activityMode& am
 ) const {
    if(
@@ -817,7 +817,7 @@ inline G_API_GENEVA  std::size_t GParameterBase::countParameters<float>(
  * @return The number of parameters of type double
  */
 template <>
-inline G_API_GENEVA  std::size_t GParameterBase::countParameters<double>(
+inline std::size_t GParameterBase::countParameters<double>(
    const activityMode& am
 ) const {
    if(
@@ -837,7 +837,7 @@ inline G_API_GENEVA  std::size_t GParameterBase::countParameters<double>(
  * @return The number of parameters of type boost::int32_t
  */
 template <>
-inline G_API_GENEVA  std::size_t GParameterBase::countParameters<boost::int32_t>(
+inline std::size_t GParameterBase::countParameters<boost::int32_t>(
    const activityMode& am
 ) const {
    if(
@@ -857,7 +857,7 @@ inline G_API_GENEVA  std::size_t GParameterBase::countParameters<boost::int32_t>
  * @return The number of parameters of type bool
  */
 template <>
-inline G_API_GENEVA  std::size_t GParameterBase::countParameters<bool>(
+inline std::size_t GParameterBase::countParameters<bool>(
    const activityMode& am
 ) const {
    if(
@@ -877,7 +877,7 @@ inline G_API_GENEVA  std::size_t GParameterBase::countParameters<bool>(
  * @param pos The position from which parameters will be taken (will be updated by the call)
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::assignValueVector<float>(
+inline void GParameterBase::assignValueVector<float>(
    const std::vector<float>& parVec
    , std::size_t& pos
    , const activityMode& am
@@ -897,7 +897,7 @@ inline G_API_GENEVA  void GParameterBase::assignValueVector<float>(
  * @param pos The position from which parameters will be taken (will be updated by the call)
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::assignValueVector<double>(
+inline void GParameterBase::assignValueVector<double>(
    const std::vector<double>& parVec
    , std::size_t& pos
    , const activityMode& am
@@ -917,7 +917,7 @@ inline G_API_GENEVA  void GParameterBase::assignValueVector<double>(
  * @param pos The position from which parameters will be taken (will be updated by the call)
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::assignValueVector<boost::int32_t>(
+inline void GParameterBase::assignValueVector<boost::int32_t>(
    const std::vector<boost::int32_t>& parVec
    , std::size_t& pos
    , const activityMode& am
@@ -933,7 +933,7 @@ inline G_API_GENEVA  void GParameterBase::assignValueVector<boost::int32_t>(
  * @param pos The position from which parameters will be taken (will be updated by the call)
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::assignValueVector<bool>(
+inline void GParameterBase::assignValueVector<bool>(
    const std::vector<bool>& parVec
    , std::size_t& pos
    , const activityMode& am
@@ -948,7 +948,7 @@ inline G_API_GENEVA  void GParameterBase::assignValueVector<bool>(
  * @param parMap The vector with the parameters to be assigned to the object
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::assignValueVectors<float>(
+inline void GParameterBase::assignValueVectors<float>(
    const std::map<std::string
    , std::vector<float> >& parMap
    , const activityMode& am
@@ -967,7 +967,7 @@ inline G_API_GENEVA  void GParameterBase::assignValueVectors<float>(
  * @param parMap The vector with the parameters to be assigned to the object
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::assignValueVectors<double>(
+inline  void GParameterBase::assignValueVectors<double>(
    const std::map<std::string
    , std::vector<double> >& parMap
    , const activityMode& am
@@ -986,7 +986,7 @@ inline G_API_GENEVA  void GParameterBase::assignValueVectors<double>(
  * @param parMap The vector with the parameters to be assigned to the object
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::assignValueVectors<boost::int32_t>(
+inline  void GParameterBase::assignValueVectors<boost::int32_t>(
    const std::map<std::string, std::vector<boost::int32_t> >& parMap
    , const activityMode& am
 ) {
@@ -1004,7 +1004,7 @@ inline G_API_GENEVA  void GParameterBase::assignValueVectors<boost::int32_t>(
  * @param parMap The vector with the parameters to be assigned to the object
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::assignValueVectors<bool>(
+inline  void GParameterBase::assignValueVectors<bool>(
    const std::map<std::string, std::vector<bool> >& parMap
    , const activityMode& am
 ) {
@@ -1020,7 +1020,7 @@ inline G_API_GENEVA  void GParameterBase::assignValueVectors<bool>(
  * Multiplication with a random value in a given range
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::multiplyByRandom<float>(
+inline  void GParameterBase::multiplyByRandom<float>(
    const float& min
    , const float& max
    , const activityMode& am
@@ -1037,7 +1037,7 @@ inline G_API_GENEVA  void GParameterBase::multiplyByRandom<float>(
  * Multiplication with a random value in a given range
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::multiplyByRandom<double>(
+inline  void GParameterBase::multiplyByRandom<double>(
    const double& min
    , const double& max
    , const activityMode& am
@@ -1054,7 +1054,7 @@ inline G_API_GENEVA  void GParameterBase::multiplyByRandom<double>(
  * Multiplication with a random value in a given range
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::multiplyByRandom<boost::int32_t>(
+inline  void GParameterBase::multiplyByRandom<boost::int32_t>(
    const boost::int32_t& min
    , const boost::int32_t& max
    , const activityMode& am
@@ -1073,7 +1073,7 @@ inline G_API_GENEVA  void GParameterBase::multiplyByRandom<boost::int32_t>(
  * when called.
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::multiplyByRandom<bool>(
+inline  void GParameterBase::multiplyByRandom<bool>(
    const bool& min
    , const bool& max
    , const activityMode& am
@@ -1091,7 +1091,7 @@ inline G_API_GENEVA  void GParameterBase::multiplyByRandom<bool>(
  * Multiplication with a random value in the range [0,1[
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::multiplyByRandom<float>(
+inline  void GParameterBase::multiplyByRandom<float>(
    const activityMode& am
 ) {
    if(
@@ -1106,7 +1106,7 @@ inline G_API_GENEVA  void GParameterBase::multiplyByRandom<float>(
  * Multiplication with a random value in the range [0,1[
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::multiplyByRandom<double>(
+inline  void GParameterBase::multiplyByRandom<double>(
    const activityMode& am
 ) {
    if(
@@ -1121,7 +1121,7 @@ inline G_API_GENEVA  void GParameterBase::multiplyByRandom<double>(
  * Multiplication with a random value in the range [0,1[
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::multiplyByRandom<boost::int32_t>(
+inline  void GParameterBase::multiplyByRandom<boost::int32_t>(
    const activityMode& am
 ) {
    if(
@@ -1138,7 +1138,7 @@ inline G_API_GENEVA  void GParameterBase::multiplyByRandom<boost::int32_t>(
  * when called.
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::multiplyByRandom<bool>(
+inline  void GParameterBase::multiplyByRandom<bool>(
    const activityMode& am
 ) {
    if(
@@ -1154,7 +1154,7 @@ inline G_API_GENEVA  void GParameterBase::multiplyByRandom<bool>(
  * Multiplication with a constant value
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::multiplyBy<float>(
+inline  void GParameterBase::multiplyBy<float>(
    const float& val
    , const activityMode& am
 ) {
@@ -1170,7 +1170,7 @@ inline G_API_GENEVA  void GParameterBase::multiplyBy<float>(
  * Multiplication with a constant value
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::multiplyBy<double>(
+inline  void GParameterBase::multiplyBy<double>(
    const double& val
    , const activityMode& am
 ) {
@@ -1186,7 +1186,7 @@ inline G_API_GENEVA  void GParameterBase::multiplyBy<double>(
  * Multiplication with a constant value
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::multiplyBy<boost::int32_t>(
+inline  void GParameterBase::multiplyBy<boost::int32_t>(
    const boost::int32_t& val
    , const activityMode& am
 ) {
@@ -1204,7 +1204,7 @@ inline G_API_GENEVA  void GParameterBase::multiplyBy<boost::int32_t>(
  * It will throw when called.
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::multiplyBy<bool>(
+inline  void GParameterBase::multiplyBy<bool>(
    const bool& val
    , const activityMode& am
 ) {
@@ -1221,7 +1221,7 @@ inline G_API_GENEVA  void GParameterBase::multiplyBy<bool>(
  * Initialization with a constant value
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::fixedValueInit<float>(
+inline  void GParameterBase::fixedValueInit<float>(
    const float& val
    , const activityMode& am
 ) {
@@ -1237,7 +1237,7 @@ inline G_API_GENEVA  void GParameterBase::fixedValueInit<float>(
  * Initialization with a constant value
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::fixedValueInit<double>(
+inline  void GParameterBase::fixedValueInit<double>(
    const double& val
    , const activityMode& am
 ) {
@@ -1253,7 +1253,7 @@ inline G_API_GENEVA  void GParameterBase::fixedValueInit<double>(
  * Initialization with a constant value
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::fixedValueInit<boost::int32_t>(
+inline  void GParameterBase::fixedValueInit<boost::int32_t>(
    const boost::int32_t& val
    , const activityMode& am
 ) {
@@ -1269,7 +1269,7 @@ inline G_API_GENEVA  void GParameterBase::fixedValueInit<boost::int32_t>(
  * Initialization with a constant value
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::fixedValueInit<bool>(
+inline  void GParameterBase::fixedValueInit<bool>(
    const bool& val
    , const activityMode& am
 ) {
@@ -1285,7 +1285,7 @@ inline G_API_GENEVA  void GParameterBase::fixedValueInit<bool>(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::add<float>(
+inline  void GParameterBase::add<float>(
    boost::shared_ptr<GParameterBase> p
    , const activityMode& am
 ) {
@@ -1301,7 +1301,7 @@ inline G_API_GENEVA  void GParameterBase::add<float>(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::add<double>(
+inline  void GParameterBase::add<double>(
    boost::shared_ptr<GParameterBase> p
    , const activityMode& am
 ) {
@@ -1317,7 +1317,7 @@ inline G_API_GENEVA  void GParameterBase::add<double>(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::add<boost::int32_t>(
+inline  void GParameterBase::add<boost::int32_t>(
    boost::shared_ptr<GParameterBase> p
    , const activityMode& am
 ) {
@@ -1335,7 +1335,7 @@ inline G_API_GENEVA  void GParameterBase::add<boost::int32_t>(
  * It will throw when called.
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::add<bool>(
+inline  void GParameterBase::add<bool>(
    boost::shared_ptr<GParameterBase> p
    , const activityMode& am
 ) {
@@ -1352,7 +1352,7 @@ inline G_API_GENEVA  void GParameterBase::add<bool>(
  * Subtracts the "same-type" parameters of another GParameterBase object from this one
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::subtract<float>(
+inline  void GParameterBase::subtract<float>(
    boost::shared_ptr<GParameterBase> p
    , const activityMode& am
 ) {
@@ -1368,7 +1368,7 @@ inline G_API_GENEVA  void GParameterBase::subtract<float>(
  * Subtracts the "same-type" parameters of another GParameterBase object from this one
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::subtract<double>(
+inline  void GParameterBase::subtract<double>(
    boost::shared_ptr<GParameterBase> p
    , const activityMode& am
 ) {
@@ -1384,7 +1384,7 @@ inline G_API_GENEVA  void GParameterBase::subtract<double>(
  * Subtracts the "same-type" parameters of another GParameterBase object from this one
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::subtract<boost::int32_t>(
+inline  void GParameterBase::subtract<boost::int32_t>(
    boost::shared_ptr<GParameterBase> p
    , const activityMode& am
 ) {
@@ -1402,7 +1402,7 @@ inline G_API_GENEVA  void GParameterBase::subtract<boost::int32_t>(
  * It will throw when called.
  */
 template <>
-inline G_API_GENEVA  void GParameterBase::subtract<bool>(
+inline  void GParameterBase::subtract<bool>(
    boost::shared_ptr<GParameterBase> p
    , const activityMode& am
 ) {

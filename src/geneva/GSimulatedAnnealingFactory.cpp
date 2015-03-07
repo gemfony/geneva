@@ -39,7 +39,7 @@ namespace Geneva {
 
 /******************************************************************************/
 /** A short identifier suitable for storage in a std::map */
-const std::string GSimulatedAnnealingFactory::nickname = "sa";
+G_API_GENEVA const std::string GSimulatedAnnealingFactory::nickname = "sa";
 
 /******************************************************************************/
 /**

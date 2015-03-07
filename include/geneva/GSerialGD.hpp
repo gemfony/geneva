@@ -68,7 +68,7 @@ class GSerialGD
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API_GENEVA void serialize(Archive & ar, const unsigned int) {
+	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
 		ar
@@ -150,7 +150,7 @@ public:
  * A factory function that emits a GSerialGD object
  */
 template <>
-inline G_API_GENEVA boost::shared_ptr<Gem::Geneva::GSerialGD> TFactory_GUnitTests<Gem::Geneva::GSerialGD>() {
+inline boost::shared_ptr<Gem::Geneva::GSerialGD> TFactory_GUnitTests<Gem::Geneva::GSerialGD>() {
    using namespace Gem::Tests;
    boost::shared_ptr<Gem::Geneva::GSerialGD> p;
    BOOST_CHECK_NO_THROW(p= boost::shared_ptr<Gem::Geneva::GSerialGD>(new Gem::Geneva::GSerialGD()));

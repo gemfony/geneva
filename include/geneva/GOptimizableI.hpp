@@ -61,7 +61,7 @@ class GOptimizableI {
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API_GENEVA void serialize(Archive &, const unsigned int){
+	void serialize(Archive &, const unsigned int){
 	  using boost::serialization::make_nvp;
 	  /* nothing */
 	}
@@ -90,7 +90,7 @@ public:
 	 * @return The best individual found during the optimization process, converted to the desired type
 	 */
 	template <typename individual_type>
-	G_API_GENEVA boost::shared_ptr<individual_type> optimize() {
+	boost::shared_ptr<individual_type> optimize() {
 		this->optimize(0);
 		return this->getBestIndividual<individual_type>();
 	}
@@ -105,7 +105,7 @@ public:
 	 * @return The best individual found during the optimization process, converted to the desired type
 	 */
 	template <typename individual_type>
-	G_API_GENEVA boost::shared_ptr<individual_type> optimize(
+	boost::shared_ptr<individual_type> optimize(
 			const boost::uint32_t& offset
 	) {
 		this->optimize(offset);
@@ -121,7 +121,7 @@ public:
 	 * @return A copy of the best individual found in the optimization run
 	 */
 	template <typename individual_type>
-	G_API_GENEVA boost::shared_ptr<individual_type> getBestIndividual (
+	boost::shared_ptr<individual_type> getBestIndividual (
 		typename boost::enable_if<boost::is_base_of<GParameterSet, individual_type> >::type* dummy = 0
 	) {
 		return customGetBestIndividual()->clone<individual_type>();
@@ -136,7 +136,7 @@ public:
 	 * @return A list of copies of the best individuals found in the optimization run
 	 */
 	template <typename individual_type>
-	G_API_GENEVA std::vector<boost::shared_ptr<individual_type> > getBestIndividuals(
+	std::vector<boost::shared_ptr<individual_type> > getBestIndividuals(
 		typename boost::enable_if<boost::is_base_of<GParameterSet, individual_type> >::type* dummy = 0
 	) {
 		std::vector<boost::shared_ptr<individual_type> > bestIndividuals;

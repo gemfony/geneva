@@ -79,7 +79,7 @@ public:
 
    /***************************************************************************/
 	/** The default constructor */
-	G_API_GENEVA GParameterT()
+	GParameterT()
 	   : GParameterBaseWithAdaptorsT<T>()
 	   , val_(Gem::Common::GDefaultValueT<T>::value())
 	{ /* nothing */ }
@@ -90,7 +90,7 @@ public:
 	 *
 	 * @param val The new value of val_
 	 */
-	G_API_GENEVA GParameterT(const T& val)
+	GParameterT(const T& val)
 	   : GParameterBaseWithAdaptorsT<T>()
 	   , val_(val)
 	{ /* nothing */   }
@@ -102,7 +102,7 @@ public:
     * @param lowerBoundary Lower boundary of value- or initialization range
     * @param upperBoundary Upper boundary of value- or initialization range
 	 */
-	G_API_GENEVA GParameterT(
+	GParameterT(
       const T& lowerBoundary
       , const T& upperBoundary
    )
@@ -116,7 +116,7 @@ public:
     *
     * @param cp A copy of another GParameterT<T> object
     */
-	G_API_GENEVA GParameterT(const GParameterT<T>& cp)
+	GParameterT(const GParameterT<T>& cp)
       : GParameterBaseWithAdaptorsT<T>(cp)
       , val_(cp.val_)
    { /* nothing */   }
@@ -125,7 +125,7 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual G_API_GENEVA ~GParameterT()
+	virtual ~GParameterT()
 	{ /* nothing */ }
 
 
@@ -136,7 +136,7 @@ public:
 	 * @param cp A copy of another GParameterT object
 	 * @return A constant reference to this object
 	 */
-	G_API_GENEVA const GParameterT<T>& operator=(const GParameterT<T>& cp) {
+	const GParameterT<T>& operator=(const GParameterT<T>& cp) {
 		GParameterT<T>::load(&cp);
 		return *this;
 	}
@@ -149,7 +149,7 @@ public:
 	 * @param val The new value for val_
 	 * @return The new value of val_
 	 */
-	virtual G_API_GENEVA T operator=(const T& val) {
+	virtual T operator=(const T& val) {
 		setValue(val);
 		return val_;
 	}
@@ -162,7 +162,7 @@ public:
 	 *
 	 * @param val The new T value stored in this class
 	 */
-	virtual G_API_GENEVA void setValue(const T& val) BASE {
+	virtual void setValue(const T& val) BASE {
 		val_ = val;
 	}
 
@@ -175,7 +175,7 @@ public:
 	/**
 	 * Automatic conversion to the target type
 	 */
-	G_API_GENEVA operator T() const {
+	operator T() const {
 		return this->value();
 	}
 
@@ -190,7 +190,7 @@ public:
 	 *
 	 * @return The value of val_
 	 */
-	virtual G_API_GENEVA T value() const BASE {
+	virtual T value() const BASE {
 		return val_;
 	}
 
@@ -206,7 +206,7 @@ public:
 	 * @param  cp A constant reference to another GParameterT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	G_API_GENEVA bool operator==(const GParameterT<T>& cp) const {
+	bool operator==(const GParameterT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterT<T>::operator==","cp", CE_SILENT);
@@ -219,7 +219,7 @@ public:
 	 * @param  cp A constant reference to another GParameterT<T> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	G_API_GENEVA bool operator!=(const GParameterT<T>& cp) const {
+	bool operator!=(const GParameterT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterT<T>::operator!=","cp", CE_SILENT);
@@ -238,7 +238,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
+	boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -269,7 +269,7 @@ public:
 	 *
 	 * @return The number of adaptions that were performed
 	 */
-	virtual G_API_GENEVA std::size_t adaptImpl() OVERRIDE {
+	virtual std::size_t adaptImpl() OVERRIDE {
 		return GParameterBaseWithAdaptorsT<T>::applyAdaptor(
          val_
          , this->range()
@@ -288,7 +288,7 @@ public:
 	 * @param ptr The boost::property_tree object the data should be saved to
 	 * @param baseName The name assigned to the object
 	 */
-	virtual G_API_GENEVA void toPropertyTree (
+	virtual void toPropertyTree (
       pt::ptree& ptr
       , const std::string& baseName
 	) const OVERRIDE {
@@ -306,7 +306,7 @@ public:
    /**
     * Lets the audience know whether this is a leaf or a branch object
     */
-   virtual G_API_GENEVA bool isLeaf() const OVERRIDE {
+   virtual bool isLeaf() const OVERRIDE {
       return true;
    }
 
@@ -314,7 +314,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual G_API_GENEVA std::string name() const OVERRIDE {
+   virtual std::string name() const OVERRIDE {
       return std::string("GParameterT");
    }
 
@@ -328,7 +328,7 @@ protected:
 	 *
 	 * @param val The new T value stored in this class
 	 */
-   G_API_GENEVA void setValue_(const T& val) const {
+   void setValue_(const T& val) const {
 		val_ = val;
 	}
 
@@ -343,7 +343,7 @@ protected:
 	 *
 	 * @param cp A copy of another GParameterT<T> object, camouflaged as a GObject
 	 */
-	virtual G_API_GENEVA void load_(const GObject* cp) OVERRIDE {
+	virtual void load_(const GObject* cp) OVERRIDE {
 		// Convert cp into local format
 		const GParameterT<T> *p_load = GObject::gobject_conversion<GParameterT<T> >(cp);
 
@@ -356,9 +356,9 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GObject* clone_() const = 0;
+	virtual GObject* clone_() const = 0;
 	/** @brief Triggers random initialization of the parameter(-collection) */
-	virtual G_API_GENEVA void randomInit_(const activityMode&) = 0;
+	virtual void randomInit_(const activityMode&) = 0;
 
 	/***************************************************************************/
 	/**
@@ -377,7 +377,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE {
+	virtual bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
       bool result = false;
 
@@ -396,7 +396,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterBaseWithAdaptorsT<T>::specificTestsNoFailureExpected_GUnitTests();
@@ -412,7 +412,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterBaseWithAdaptorsT<T>::specificTestsFailuresExpected_GUnitTests();

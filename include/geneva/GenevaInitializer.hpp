@@ -69,14 +69,14 @@ namespace Geneva {
 class GenevaInitializer {
 public:
    /** @brief The default constructor */
-   GenevaInitializer();
+   G_API_GENEVA GenevaInitializer();
 
    /***************************************************************************/
    /**
     * Allows to register optimization algorithm factories
     */
    template <typename oaf_type>
-   G_API_GENEVA void registerOAF() {
+   void registerOAF() {
       // This will register the factory in the global factory store
       GOAInitializerT<oaf_type> GOAFStoreRegistrant;
    }
@@ -86,7 +86,7 @@ public:
     * Allows to register consumers
     */
    template <typename c_type>
-   G_API_GENEVA void registerConsumer() {
+   void registerConsumer() {
       // This will register the consumer with the global store
       GIndividualStandardConsumerInitializerT<c_type> GConsumerStoreRegistrant;
    }

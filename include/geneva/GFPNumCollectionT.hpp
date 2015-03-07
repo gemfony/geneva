@@ -66,7 +66,7 @@ class GFPNumCollectionT
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API_GENEVA void serialize(Archive & ar, const unsigned int) {
+	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar
 		& make_nvp("GNumCollectionT_fpType", boost::serialization::base_object<GNumCollectionT<fp_type> >(*this));
@@ -81,7 +81,7 @@ public:
 	/**
 	 * The default constructor.
 	 */
-	G_API_GENEVA GFPNumCollectionT()
+	GFPNumCollectionT()
 		: GNumCollectionT<fp_type> ()
 	{ /* nothing */ }
 
@@ -93,7 +93,7 @@ public:
 	 * @param min The minimum random value
 	 * @param max The maximum random value
 	 */
-	G_API_GENEVA GFPNumCollectionT(
+	GFPNumCollectionT(
       const std::size_t& nval
       , const fp_type& min
       , const fp_type& max
@@ -117,7 +117,7 @@ public:
 	 * @param nval The number of variables to be stored in the collection
 	 * @param val  The value to be used for their initialization
 	 */
-	G_API_GENEVA GFPNumCollectionT(
+	GFPNumCollectionT(
 		const std::size_t& nval
 		, const fp_type& val
 		, const fp_type& min
@@ -130,7 +130,7 @@ public:
 	/**
 	 * The standard copy constructor
 	 */
-	G_API_GENEVA GFPNumCollectionT(const GFPNumCollectionT<fp_type>& cp)
+	GFPNumCollectionT(const GFPNumCollectionT<fp_type>& cp)
 		: GNumCollectionT<fp_type> (cp)
 	{ /* nothing */ }
 
@@ -138,7 +138,7 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	virtual G_API_GENEVA ~GFPNumCollectionT()
+	virtual ~GFPNumCollectionT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -148,7 +148,7 @@ public:
 	 * @param cp A copy of another GDoubleCollection object
 	 * @return A constant reference to this object
 	 */
-	G_API_GENEVA const GFPNumCollectionT& operator=(const GFPNumCollectionT<fp_type>& cp){
+	const GFPNumCollectionT& operator=(const GFPNumCollectionT<fp_type>& cp){
 		GFPNumCollectionT<fp_type>::load_(&cp);
 		return *this;
 	}
@@ -160,7 +160,7 @@ public:
 	 * @param  cp A constant reference to another GFPNumCollectionT<fp_type> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	G_API_GENEVA bool operator==(const GFPNumCollectionT<fp_type>& cp) const {
+	bool operator==(const GFPNumCollectionT<fp_type>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GFPNumCollectionT<fp_type>::operator==","cp", CE_SILENT);
@@ -173,7 +173,7 @@ public:
 	 * @param  cp A constant reference to another GFPNumCollectionT<fp_type> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	G_API_GENEVA bool operator!=(const GFPNumCollectionT<fp_type>& cp) const {
+	bool operator!=(const GFPNumCollectionT<fp_type>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GFPNumCollectionT<fp_type>::operator!=","cp", CE_SILENT);
@@ -192,7 +192,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
+	virtual boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -220,7 +220,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual G_API_GENEVA std::string name() const OVERRIDE {
+   virtual std::string name() const OVERRIDE {
       return std::string("GFPNumCollectionT");
    }
 
@@ -234,7 +234,7 @@ protected:
 	 *
 	 * @param cp A copy of another GFPNumCollectionT<fp_type> object, camouflaged as a GObject
 	 */
-	virtual G_API_GENEVA void load_(const GObject *cp) OVERRIDE {
+	virtual void load_(const GObject *cp) OVERRIDE {
 		// Convert cp into local format
 		const GFPNumCollectionT<fp_type> *p_load = GObject::gobject_conversion<GFPNumCollectionT<fp_type> >(cp);
 
@@ -251,7 +251,7 @@ protected:
 	 *
 	 * @return A pointer to a deep clone of this object
 	 */
-	virtual G_API_GENEVA GObject *clone_() const = 0;
+	virtual GObject *clone_() const = 0;
 
 	/***************************************************************************/
 	/**
@@ -259,7 +259,7 @@ protected:
 	 * that this function assumes that the collection has been completely
 	 * set up. Data that is added later will remain unaffected.
 	 */
-	virtual G_API_GENEVA void randomInit_(const activityMode& am) OVERRIDE {
+	virtual void randomInit_(const activityMode& am) OVERRIDE {
 		fp_type lowerBoundary = GNumCollectionT<fp_type>::getLowerInitBoundary();
 		fp_type upperBoundary = GNumCollectionT<fp_type>::getUpperInitBoundary();
 
@@ -282,7 +282,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE {
+	virtual bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
       bool result = false;
 
@@ -301,7 +301,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GNumCollectionT<fp_type>::specificTestsNoFailureExpected_GUnitTests();
@@ -544,7 +544,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// A few settings
 		const std::size_t nItems = 100;

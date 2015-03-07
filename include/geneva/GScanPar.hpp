@@ -72,7 +72,7 @@ class g_end_of_par : public std::exception { /* nothing */ };
  * in concrete specializations. This generic function is just a trap.
  */
 template <typename T>
-G_API_GENEVA std::vector<T> fillWithData(
+std::vector<T> fillWithData(
    std::size_t /*nSteps*/
    , T /* lower */
    , T /* upper */
@@ -86,36 +86,28 @@ G_API_GENEVA std::vector<T> fillWithData(
    return std::vector<T>();
 }
 
-/** @bool Returns a set of boolean data items */
-template <>
-G_API_GENEVA std::vector<bool> fillWithData<bool>(
-   std::size_t /* nSteps */
-   , bool      /* lower */
-   , bool      /* upper */
+template <> G_API_GENEVA std::vector<bool> fillWithData<bool>(
+   std::size_t nSteps
+   , bool      lower
+   , bool      upper
 );
 
-/** @brief Returns a set of boost::int32_t data items */
-template <>
-G_API_GENEVA std::vector<boost::int32_t> fillWithData<boost::int32_t>(
-   std::size_t      /* nSteps */
-   , boost::int32_t /* lower */
-   , boost::int32_t /* upper */
+template <> G_API_GENEVA std::vector<boost::int32_t> fillWithData<boost::int32_t>(
+   std::size_t      nSteps // will only be used for random entries
+   , boost::int32_t lower
+   , boost::int32_t upper // inclusive
 );
 
-/** @brief Returns a set of float data items */
-template <>
-G_API_GENEVA std::vector<float> fillWithData<float>(
-   std::size_t /* nSteps */
-   , float     /* lower */
-   , float     /* upper */
+template <> G_API_GENEVA std::vector<float> fillWithData<float>(
+   std::size_t nSteps
+   , float     lower
+   , float     upper
 );
 
-/** @brief Returns a set of double data items */
-template <>
-G_API_GENEVA std::vector<double> fillWithData<double>(
-   std::size_t /* nSteps */
-   , double    /* lower */
-   , double    /* upper */
+template <> G_API_GENEVA std::vector<double> fillWithData<double>(
+   std::size_t nSteps
+   , double    lower
+   , double    upper
 );
 
 /******************************************************************************/
@@ -151,7 +143,7 @@ class baseScanParT
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API_GENEVA void serialize(Archive & ar, const unsigned int) {
+   void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
       ar
@@ -172,7 +164,7 @@ public:
    /**
     * The standard constructor
     */
-   G_API_GENEVA baseScanParT(
+   baseScanParT(
       parPropSpec<T> pps
       , bool randomScan
       , std::string t // typeDescription_
@@ -196,7 +188,7 @@ public:
    /**
     * The copy constructor
     */
-   G_API_GENEVA baseScanParT(const baseScanParT<T>& cp)
+   baseScanParT(const baseScanParT<T>& cp)
       : GStdSimpleVectorInterfaceT<T>(cp)
       , var_(cp.var_)
       , step_(cp.step_)
@@ -211,14 +203,14 @@ public:
    /**
     * The destructor
     */
-   virtual G_API_GENEVA ~baseScanParT()
+   virtual ~baseScanParT()
    { /* nothing */ }
 
    /***************************************************************************/
    /**
     * Retrieve the address of this object
     */
-   virtual G_API_GENEVA NAMEANDIDTYPE getVarAddress() const OVERRIDE {
+   virtual NAMEANDIDTYPE getVarAddress() const OVERRIDE {
       return var_;
    }
 
@@ -226,7 +218,7 @@ public:
    /**
     * Retrieves the current item position
     */
-   G_API_GENEVA std::size_t getCurrentItemPos() const {
+   std::size_t getCurrentItemPos() const {
       return step_;
    }
 
@@ -234,7 +226,7 @@ public:
    /**
     * Retrieve the current item
     */
-   G_API_GENEVA T getCurrentItem() const {
+   T getCurrentItem() const {
       if(randomScan_) {
          return getRandomItem();
       } else {
@@ -248,7 +240,7 @@ public:
     *
     * @return A boolean indicating whether a warp has taken place
     */
-   virtual G_API_GENEVA bool goToNextItem() BASE {
+   virtual bool goToNextItem() BASE {
       if(++step_ >= nSteps_) {
          step_ = 0;
          return true;
@@ -260,7 +252,7 @@ public:
    /**
     * Checks whether step_ points to the last item in the array
     */
-   virtual G_API_GENEVA bool isAtTerminalPosition() const BASE {
+   virtual bool isAtTerminalPosition() const BASE {
       if(step_ >= nSteps_) return true;
       else return false;
    }
@@ -269,7 +261,7 @@ public:
    /**
     * Checks whether step_ points to the first item in the array
     */
-   virtual G_API_GENEVA bool isAtFirstPosition() const BASE {
+   virtual bool isAtFirstPosition() const BASE {
       if(0 == step_) return true;
       else return false;
    }
@@ -278,7 +270,7 @@ public:
    /**
     * Resets the current position
     */
-   virtual G_API_GENEVA void resetPosition() BASE {
+   virtual void resetPosition() BASE {
       step_ = 0;
    }
 
@@ -286,7 +278,7 @@ public:
    /**
     * Retrieve the type descriptor
     */
-   virtual G_API_GENEVA std::string getTypeDescriptor() const BASE {
+   virtual std::string getTypeDescriptor() const BASE {
       return typeDescription_;
    }
 
@@ -306,7 +298,7 @@ protected:
 
    /***************************************************************************/
    /** @brief The default constructor -- only needed for de-serialization, hence protected */
-   G_API_GENEVA baseScanParT()
+   baseScanParT()
    : var_(NAMEANDIDTYPE(0, "empty", 0))
    , step_(0)
    , nSteps_(2)
@@ -318,13 +310,13 @@ protected:
 
    /***************************************************************************/
    /** @brief Needs to be re-implemented for derivatives of GStdSimpleVectorInterfaceT<> */
-   virtual G_API_GENEVA void dummyFunction(){};
+   virtual void dummyFunction(){};
 
    /***************************************************************************/
    /**
     * Retrieves a random item. To be re-implemented for each supported type
     */
-   G_API_GENEVA T getRandomItem() const {
+   T getRandomItem() const {
       // A trap. This function needs to be re-implemented for each supported type
       glogger
       << "In baseScanParT::getRandomItem(): Error!" << std::endl
@@ -343,7 +335,7 @@ protected:
  * Retrieval of a random value for type bool
  */
 template <>
-inline G_API_GENEVA bool baseScanParT<bool>::getRandomItem() const {
+inline bool baseScanParT<bool>::getRandomItem() const {
    return gr_.uniform_bool();
 }
 
@@ -352,7 +344,7 @@ inline G_API_GENEVA bool baseScanParT<bool>::getRandomItem() const {
  * Retrieval of a random value for type boost::int32_t
  */
 template <>
-inline G_API_GENEVA boost::int32_t baseScanParT<boost::int32_t>::getRandomItem() const {
+inline boost::int32_t baseScanParT<boost::int32_t>::getRandomItem() const {
    return gr_.uniform_int<boost::int32_t>(lower_, upper_+1);
 }
 
@@ -361,7 +353,7 @@ inline G_API_GENEVA boost::int32_t baseScanParT<boost::int32_t>::getRandomItem()
  * Retrieval of a random value for type float
  */
 template <>
-inline G_API_GENEVA float baseScanParT<float>::getRandomItem() const {
+inline float baseScanParT<float>::getRandomItem() const {
    return gr_.uniform_real<float>(lower_, upper_);
 }
 
@@ -370,7 +362,7 @@ inline G_API_GENEVA float baseScanParT<float>::getRandomItem() const {
  * Retrieval of a random value for type double
  */
 template <>
-inline G_API_GENEVA double baseScanParT<double>::getRandomItem() const {
+inline double baseScanParT<double>::getRandomItem() const {
    return gr_.uniform_real<double>(lower_, upper_);
 }
 
@@ -387,7 +379,7 @@ class bScanPar
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API_GENEVA void serialize(Archive & ar, const unsigned int) {
+   void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
       ar
@@ -428,7 +420,7 @@ class int32ScanPar
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API_GENEVA void serialize(Archive & ar, const unsigned int) {
+   void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
       ar
@@ -469,7 +461,7 @@ class dScanPar
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API_GENEVA void serialize(Archive & ar, const unsigned int) {
+   void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
       ar
@@ -511,7 +503,7 @@ class fScanPar
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API_GENEVA void serialize(Archive & ar, const unsigned int) {
+   void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
       ar

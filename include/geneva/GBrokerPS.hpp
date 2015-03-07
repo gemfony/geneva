@@ -70,12 +70,13 @@ class GBrokerPS
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API_GENEVA void serialize(Archive & ar, const unsigned int) {
+   void serialize(Archive & ar, const unsigned int) {
       using boost::serialization::make_nvp;
 
-      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePS)
-         & make_nvp("GBrokerConnector2T_GParameterSet",
-               boost::serialization::base_object<Gem::Courtier::GBrokerConnector2T<GParameterSet> >(*this));
+      ar
+      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePS)
+      & make_nvp("GBrokerConnector2T_GParameterSet",
+            boost::serialization::base_object<Gem::Courtier::GBrokerConnector2T<GParameterSet> >(*this));
    }
 
    ///////////////////////////////////////////////////////////////////////

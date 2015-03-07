@@ -68,7 +68,7 @@ class GParameterObjectCollection
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API_GENEVA void serialize(Archive & ar, const unsigned int){
+	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
 	  ar & make_nvp("GParameterTCollectionT_gbd",
@@ -121,7 +121,7 @@ public:
 	 * @return A converted version of the GParameterBase object, as required by the user
 	 */
 	template <typename parameter_type>
-	G_API_GENEVA const boost::shared_ptr<parameter_type> at(
+	const boost::shared_ptr<parameter_type> at(
 			  const std::size_t& pos
 			, typename boost::enable_if<boost::is_base_of<GParameterBase, parameter_type> >::type* dummy = 0
 	)  const {

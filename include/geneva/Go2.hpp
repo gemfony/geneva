@@ -237,7 +237,7 @@ public:
 	 * @return The best individual found during the optimization process, converted to the desired type
 	 */
 	template <typename individual_type>
-	G_API_GENEVA boost::shared_ptr<individual_type> optimize() {
+	boost::shared_ptr<individual_type> optimize() {
 		return GOptimizableI::optimize<individual_type>();
 	}
 
@@ -252,7 +252,7 @@ public:
 	 * @return The best individual found during the optimization process, converted to the desired type
 	 */
 	template <typename individual_type>
-	G_API_GENEVA boost::shared_ptr<individual_type> optimize(
+	boost::shared_ptr<individual_type> optimize(
       const boost::uint32_t& offset
 	) {
 		return GOptimizableI::optimize<individual_type>(offset);

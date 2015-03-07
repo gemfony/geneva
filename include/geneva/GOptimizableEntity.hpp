@@ -92,7 +92,7 @@ class GOptimizableEntity
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API_GENEVA void serialize(Archive & ar, const unsigned int){
+	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
 	  ar
@@ -270,7 +270,7 @@ public:
     * function is a trap. Use one of the overloads for supported types.
     */
    template <typename val_type>
-   G_API_GENEVA  val_type getVarVal(
+   val_type getVarVal(
       const boost::tuple<std::size_t, std::string, std::size_t>& target
    ) {
       val_type result = val_type(0);
@@ -306,7 +306,7 @@ public:
 	 * @return A boost::shared_ptr converted to the desired target type
 	 */
 	template <typename personality_type>
-	G_API_GENEVA boost::shared_ptr<personality_type> getPersonalityTraits(
+	boost::shared_ptr<personality_type> getPersonalityTraits(
 			typename boost::enable_if<boost::is_base_of<GPersonalityTraits, personality_type> >::type* dummy = 0
 	) {
 #ifdef DEBUG
@@ -443,7 +443,7 @@ protected:
 	 * depending on our maximization mode
 	 */
 	template <std::size_t pos>
-	G_API_GENEVA bool isWorse(
+	bool isWorse(
       boost::tuple<double, double> newValue
       , boost::tuple<double, double> oldValue
    ) const {
@@ -462,7 +462,7 @@ protected:
     * depending on our maximization mode
     */
    template <std::size_t pos>
-   G_API_GENEVA bool isBetter(
+   bool isBetter(
       boost::tuple<double, double> newValue
       , boost::tuple<double, double> oldValue
    ) const {

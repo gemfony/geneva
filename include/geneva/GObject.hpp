@@ -158,7 +158,7 @@ class GObject
     friend class boost::serialization::access;
 
     template<typename Archive>
-    G_API_GENEVA void serialize(Archive &, const unsigned int)  {
+    void serialize(Archive &, const unsigned int)  {
       using boost::serialization::make_nvp;
 
       // No local data
@@ -227,7 +227,7 @@ public:
     * @return A converted clone of this object, wrapped into a boost::shared_ptr
     */
    template <typename clone_type>
-   G_API_GENEVA boost::shared_ptr<clone_type> clone(
+   boost::shared_ptr<clone_type> clone(
       typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, clone_type> >::type* dummy = 0
    ) const {
       return Gem::Common::convertSmartPointer<GObject, clone_type>(boost::shared_ptr<GObject>(this->clone_()));
@@ -246,7 +246,7 @@ public:
 	 * @param cp A copy of another GObject-derivative, wrapped into a boost::shared_ptr<>
 	 */
 	template <typename load_type>
-	inline G_API_GENEVA void load(
+	inline void load(
       const boost::shared_ptr<load_type>& cp
       , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) {
@@ -266,7 +266,7 @@ public:
 	 * @param cp A copy of another GObject-derivative, wrapped into a boost::shared_ptr<>
 	 */
 	template <typename load_type>
-	inline G_API_GENEVA void load(
+	inline void load(
       const load_type& cp
       , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) {
@@ -310,7 +310,7 @@ protected:
 	 * that this template will only be accessible to the compiler if GObject is a base type of load_type.
 	 */
 	template <typename load_type>
-	inline G_API_GENEVA void selfAssignmentCheck (
+	inline void selfAssignmentCheck (
 			const GObject *load_ptr
 		  , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) const {
@@ -338,7 +338,7 @@ protected:
 	 * only be accessible to the compiler if GObject is a base type of load_type.
 	 */
 	template <typename load_type>
-	inline G_API_GENEVA const load_type* gobject_conversion (
+	inline const load_type* gobject_conversion (
      const GObject *load_ptr
      , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) const {
@@ -378,7 +378,7 @@ protected:
 	 * @return A boost::shared_ptr holding the converted object
 	 */
 	template <typename load_type>
-	inline G_API_GENEVA boost::shared_ptr<load_type> gobject_conversion (
+	inline boost::shared_ptr<load_type> gobject_conversion (
      boost::shared_ptr<GObject> load_ptr
      , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) const {
@@ -433,7 +433,7 @@ public:
  * @return A boost::shared_ptr<GObject> to a clone of the derived object
  */
 template <>
-inline G_API_GENEVA boost::shared_ptr<GObject> GObject::clone<GObject> (
+inline boost::shared_ptr<GObject> GObject::clone<GObject> (
    boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, GObject> >::type* dummy
 ) const {
    return boost::shared_ptr<GObject>(clone_());

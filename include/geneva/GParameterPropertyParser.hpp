@@ -93,7 +93,7 @@ struct parPropSpec {
    std::size_t nSteps;   ///< The number of steps from the lower boundary to the upper boundary (or possibly the number of random values from this parameter range, depending on the scan mode and parameter type)
 
    // Swap with another parPropSpec
-   G_API_GENEVA void swap(parPropSpec<par_type>& b) {
+   void swap(parPropSpec<par_type>& b) {
       NAMEANDIDTYPE var_c = b.var; b.var = this->var; this->var = var_c;
       par_type lowerBoundary_c = b.lowerBoundary;  b.lowerBoundary = this->lowerBoundary; this->lowerBoundary = lowerBoundary_c;
       par_type upperBoundary_c = b.upperBoundary;  b.upperBoundary = this->upperBoundary; this->upperBoundary = upperBoundary_c;
@@ -120,7 +120,7 @@ struct G_API_GENEVA simpleScanSpec {
  * @return A reference to the output stream
  */
 template <typename par_type>
-G_API_GENEVA std::ostream& operator<<(std::ostream& o, const parPropSpec<par_type>& s) {
+std::ostream& operator<<(std::ostream& o, const parPropSpec<par_type>& s) {
    if(0 == boost::get<0>(s.var)) {
       o
       << "index       = " << boost::get<2>(s.var) << std::endl;
@@ -246,7 +246,7 @@ public:
     * supported types instead.
     */
    template <typename par_type>
-   G_API_GENEVA boost::tuple<typename std::vector<parPropSpec<par_type> >::const_iterator, typename std::vector<parPropSpec<par_type> >::const_iterator> getIterators() const {
+   boost::tuple<typename std::vector<parPropSpec<par_type> >::const_iterator, typename std::vector<parPropSpec<par_type> >::const_iterator> getIterators() const {
       boost::tuple<typename std::vector<parPropSpec<par_type> >::const_iterator, typename std::vector<parPropSpec<par_type> >::const_iterator> result;
 
       glogger
@@ -300,7 +300,7 @@ private:
  * This is the overload for double parameters.
  */
 template <>
-inline G_API_GENEVA boost::tuple<std::vector<parPropSpec<double> >::const_iterator, std::vector<parPropSpec<double> >::const_iterator>
+inline boost::tuple<std::vector<parPropSpec<double> >::const_iterator, std::vector<parPropSpec<double> >::const_iterator>
 GParameterPropertyParser::getIterators<double>() const {
    // Make sure parsing has happened.
    if(!parsed_) {
@@ -332,7 +332,7 @@ GParameterPropertyParser::getIterators<double>() const {
  * This is the overload for float parameters.
  */
 template <>
-inline G_API_GENEVA boost::tuple<std::vector<parPropSpec<float> >::const_iterator, std::vector<parPropSpec<float> >::const_iterator>
+inline boost::tuple<std::vector<parPropSpec<float> >::const_iterator, std::vector<parPropSpec<float> >::const_iterator>
 GParameterPropertyParser::getIterators<float>() const {
    // Make sure parsing has happened.
    if(!parsed_) {
@@ -364,7 +364,7 @@ GParameterPropertyParser::getIterators<float>() const {
  * This is the overload for boost::int32_t parameters.
  */
 template <>
-inline G_API_GENEVA boost::tuple<std::vector<parPropSpec<boost::int32_t> >::const_iterator, std::vector<parPropSpec<boost::int32_t> >::const_iterator>
+inline boost::tuple<std::vector<parPropSpec<boost::int32_t> >::const_iterator, std::vector<parPropSpec<boost::int32_t> >::const_iterator>
 GParameterPropertyParser::getIterators<boost::int32_t>() const {
    // Make sure parsing has happened.
    if(!parsed_) {
@@ -395,7 +395,7 @@ GParameterPropertyParser::getIterators<boost::int32_t>() const {
  * This is the overload for bool parameters.
  */
 template <>
-inline G_API_GENEVA boost::tuple<std::vector<parPropSpec<bool> >::const_iterator, std::vector<parPropSpec<bool> >::const_iterator>
+inline boost::tuple<std::vector<parPropSpec<bool> >::const_iterator, std::vector<parPropSpec<bool> >::const_iterator>
 GParameterPropertyParser::getIterators<bool>() const {
    // Make sure parsing has happened.
    if(!parsed_) {

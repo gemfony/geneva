@@ -66,7 +66,7 @@ class GConstrainedDoubleCollection
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API_GENEVA void serialize(Archive & ar, const unsigned int) {
+	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar
 		& make_nvp("GConstrainedFPNumCollectionT",
@@ -178,7 +178,7 @@ public:
  * specialization of the factory function that creates objects of this type.
  */
 template <>
-inline G_API_GENEVA boost::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection> TFactory_GUnitTests<Gem::Geneva::GConstrainedDoubleCollection>() {
+inline boost::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection> TFactory_GUnitTests<Gem::Geneva::GConstrainedDoubleCollection>() {
    const std::size_t NPARAMETERS = 100;
    double LOWERBOUNDARY = -10.;
    double UPPERBOUNDARY =  10.;

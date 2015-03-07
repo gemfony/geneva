@@ -77,7 +77,7 @@ class GBaseSwarm
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API_GENEVA void serialize(Archive & ar, const unsigned int) {
+	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
 		ar
@@ -208,7 +208,7 @@ public:
 	 * @return A converted shared_ptr to the best individual of a given neighborhood
 	 */
 	template <typename parameterset_type>
-	G_API_GENEVA boost::shared_ptr<parameterset_type> getBestNeighborhoodIndividual(
+	boost::shared_ptr<parameterset_type> getBestNeighborhoodIndividual(
       std::size_t neighborhood
      , typename boost::enable_if<boost::is_base_of<GParameterSet, parameterset_type> >::type* dummy = 0
 	){
@@ -348,7 +348,7 @@ public:
 	    friend class boost::serialization::access;
 
 	    template<typename Archive>
-	    G_API_GENEVA void serialize(Archive & ar, const unsigned int){
+	    void serialize(Archive & ar, const unsigned int){
 	      using boost::serialization::make_nvp;
 
 	      ar

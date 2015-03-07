@@ -40,7 +40,7 @@ namespace Geneva {
 
 /******************************************************************************/
 /** A short identifier suitable for storage in a std::map */
-const std::string GBaseSwarm::nickname = "swarm";
+G_API_GENEVA const std::string GBaseSwarm::nickname = "swarm";
 
 /******************************************************************************/
 /**

@@ -82,7 +82,7 @@ public:
    /**
     * The default constructor.
     */
-   G_API_GENEVA GMultiPopulationEAT()
+   GMultiPopulationEAT()
       : GBaseParChildT<oa_type>()
       , smodeMP_(DEFAULTSMODEMP)
       , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
@@ -98,7 +98,7 @@ public:
    /**
     * Initialization with the number of threads
     */
-   G_API_GENEVA GMultiPopulationEAT(const uint16_t& nThreads)
+   GMultiPopulationEAT(const uint16_t& nThreads)
       : GBaseParChildT<oa_type>()
       , smodeMP_(DEFAULTSMODEMP)
       , nThreads_(nThreads?nThreads:(boost::numeric_cast<uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS))))
@@ -116,7 +116,7 @@ public:
     *
     * @param cp Another GMultiPopulationEAT object
     */
-   G_API_GENEVA GMultiPopulationEAT(const GMultiPopulationEAT& cp)
+   GMultiPopulationEAT(const GMultiPopulationEAT& cp)
       : GBaseParChildT<oa_type>(cp)
       , smodeMP_(cp.smodeMP_)
       , nThreads_(cp.nThreads_)
@@ -129,7 +129,7 @@ public:
    /**
     * The standard destructor. All work is done in the parent class.
     */
-   virtual G_API_GENEVA ~GMultiPopulationEAT()
+   virtual ~GMultiPopulationEAT()
    { /* nothing */ }
 
    /***************************************************************************/
@@ -139,7 +139,7 @@ public:
     * @param cp Another GMultiPopulationEAT object
     * @return A constant reference to this object
     */
-   G_API_GENEVA const GMultiPopulationEAT<oa_type>& operator=(const GMultiPopulationEAT<oa_type>& cp) {
+   const GMultiPopulationEAT<oa_type>& operator=(const GMultiPopulationEAT<oa_type>& cp) {
       GMultiPopulationEAT<oa_type>::load_(&cp);
       return *this;
    }
@@ -151,7 +151,7 @@ public:
     * @param  cp A constant reference to another GMultiPopulationEAT object
     * @return A boolean indicating whether both objects are equal
     */
-   G_API_GENEVA bool operator==(const GMultiPopulationEAT<oa_type>& cp) const {
+   bool operator==(const GMultiPopulationEAT<oa_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
       return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GMultiPopulationEAT<oa_type>::operator==","cp", CE_SILENT);
@@ -164,7 +164,7 @@ public:
     * @param  cp A constant reference to another GMultiPopulationEAT object
     * @return A boolean indicating whether both objects are inequal
     */
-   G_API_GENEVA bool operator!=(const GMultiPopulationEAT<oa_type>& cp) const {
+   bool operator!=(const GMultiPopulationEAT<oa_type>& cp) const {
       using namespace Gem::Common;
       // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
       return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GMultiPopulationEAT<oa_type>::operator!=","cp", CE_SILENT);
@@ -183,7 +183,7 @@ public:
     * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
     */
-   virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
+   virtual boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -216,7 +216,7 @@ public:
     *
     * @return The type of optimization algorithm
     */
-   virtual G_API_GENEVA std::string getOptimizationAlgorithm() const  OVERRIDE {
+   virtual std::string getOptimizationAlgorithm() const  OVERRIDE {
       return "PERSONALITY_MPEA";
    }
 
@@ -230,7 +230,7 @@ public:
     *
     * @param smode The desired sorting scheme
     */
-   virtual G_API_GENEVA void setSortingScheme(sortingModeMP smode) {
+   virtual void setSortingScheme(sortingModeMP smode) {
       smodeMP_=smode;
    }
 
@@ -241,7 +241,7 @@ public:
     *
     * @return The current sorting scheme
     */
-   G_API_GENEVA sortingModeMP getSortingScheme() const {
+   sortingModeMP getSortingScheme() const {
       return smodeMP_;
    }
 
@@ -251,7 +251,7 @@ public:
     *
     * @return The name assigned to this optimization algorithm
     */
-   virtual G_API_GENEVA std::string getAlgorithmName() const OVERRIDE {
+   virtual std::string getAlgorithmName() const OVERRIDE {
       return std::string("Multi-Population Evolutionary Algorithm");
    }
 
@@ -261,7 +261,7 @@ public:
     *
     * @param gpb The GParserBuilder object to which configuration options should be added
     */
-   virtual G_API_GENEVA void addConfigurationOptions (
+   virtual void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
    ) OVERRIDE {
       std::string comment;
@@ -297,7 +297,7 @@ public:
     *
     * @return The maximum number of allowed threads
     */
-   G_API_GENEVA boost::uint16_t getNThreads() const  {
+   boost::uint16_t getNThreads() const  {
       return nThreads_;
    }
 
@@ -305,7 +305,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual G_API_GENEVA std::string name() const OVERRIDE {
+   virtual std::string name() const OVERRIDE {
       return std::string("GMultiPopulationEAT<oa_type>");
    }
 
@@ -316,7 +316,7 @@ public:
     * and may either have a limited or unlimited size, depending on user-
     * settings
     */
-   G_API_GENEVA void addIterationBests(
+   void addIterationBests(
       GParameterSetFixedSizePriorityQueue& bestIndividuals
    ) OVERRIDE {
       const bool CLONE = true;
@@ -343,7 +343,7 @@ public:
     * Only those individuals are stored in the priority queue that do not have the
     * "dirty flag" set.
     */
-   G_API_GENEVA void addCleanStoredBests(
+   void addCleanStoredBests(
       GParameterSetFixedSizePriorityQueue& bestIndividuals
    ) OVERRIDE {
       const bool CLONE = true;
@@ -363,7 +363,7 @@ protected:
     *
     * @param cp A pointer to another GMultiPopulationEAT object, camouflaged as a GObject
     */
-   virtual G_API_GENEVA void load_(const GObject * cp) OVERRIDE {
+   virtual void load_(const GObject * cp) OVERRIDE {
       const GMultiPopulationEAT<oa_type> *p_load = GObject::gobject_conversion<GMultiPopulationEAT<oa_type> >(cp);
 
       // First load the parent class'es data ...
@@ -380,7 +380,7 @@ protected:
     *
     * @return A deep clone of this object
     */
-   virtual G_API_GENEVA GObject *clone_() const OVERRIDE {
+   virtual GObject *clone_() const OVERRIDE {
       return new GMultiPopulationEAT<oa_type>(*this);
    }
 
@@ -393,7 +393,7 @@ protected:
     *
     * @return The best individual found
     */
-   virtual G_API_GENEVA boost::shared_ptr<GParameterSet> customGetBestIndividual() OVERRIDE {
+   virtual boost::shared_ptr<GParameterSet> customGetBestIndividual() OVERRIDE {
 #ifdef DEBUG
          if(this->empty()) {
             glogger
@@ -412,7 +412,7 @@ protected:
     *
     * @return A list of the best individuals found
     */
-   virtual G_API_GENEVA std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() OVERRIDE {
+   virtual std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() OVERRIDE {
       // Some error checking
       if(this->empty()) {
          glogger
@@ -429,7 +429,7 @@ protected:
    /**
     * Some error checks related to population sizes
     */
-   virtual G_API_GENEVA void populationSanityChecks() const OVERRIDE {
+   virtual void populationSanityChecks() const OVERRIDE {
       std::size_t nP      = GBaseParChildT<oa_type>::getNParents();
       std::size_t popSize = GBaseParChildT<oa_type>::getPopulationSize();
 
@@ -481,7 +481,7 @@ protected:
    /**
     * Adapt all children in parallel. Evaluation is done in a separate function (runFitnessCalculation).
     */
-   virtual G_API_GENEVA void adaptChildren() OVERRIDE {
+   virtual void adaptChildren() OVERRIDE {
       boost::tuple<std::size_t,std::size_t> range = this->getAdaptionRange();
       typename std::vector<boost::shared_ptr<oa_type> >::iterator it;
 
@@ -506,7 +506,7 @@ protected:
    /**
     * Evaluate all children (and possibly parents, depending on the iteration and sorting mode) in parallel
     */
-   virtual G_API_GENEVA void runFitnessCalculation() OVERRIDE {
+   virtual void runFitnessCalculation() OVERRIDE {
       boost::tuple<std::size_t,std::size_t> range = this->getEvaluationRange();
       typename std::vector<boost::shared_ptr<oa_type> >::iterator it;
 
@@ -546,7 +546,7 @@ protected:
    /**
     * Choose new parents, based on the selection scheme set by the user.
     */
-   virtual G_API_GENEVA void selectBest() OVERRIDE {
+   virtual void selectBest() OVERRIDE {
    #ifdef DEBUG
       // We require at this stage that at least the default number of
       // children is present. If individuals can get lost in your setting,
@@ -611,7 +611,7 @@ protected:
     *
     * @return The range inside which evaluation should take place
     */
-   virtual G_API_GENEVA boost::tuple<std::size_t,std::size_t> getEvaluationRange() const OVERRIDE {
+   virtual boost::tuple<std::size_t,std::size_t> getEvaluationRange() const OVERRIDE {
       return boost::tuple<std::size_t, std::size_t>(
             this->inFirstIteration()?0:GMultiPopulationEAT<oa_type>::getNParents()
             ,  this->data.size()
@@ -624,7 +624,7 @@ protected:
     * tagging. It is called from within GOptimizationAlgorithmT<T>::optimize(), before the
     * actual optimization cycle starts.
     */
-   virtual G_API_GENEVA void init() OVERRIDE {
+   virtual void init() OVERRIDE {
       // To be performed before any other action
       GBaseParChildT<oa_type>::init();
 
@@ -637,7 +637,7 @@ protected:
    /**
     * Does any necessary finalization work
     */
-   virtual G_API_GENEVA void finalize() OVERRIDE {
+   virtual void finalize() OVERRIDE {
       // Check whether there were any errors during thread execution
       if(tp_ptr_->hasErrors()) {
          std::vector<std::string> errors;
@@ -670,7 +670,7 @@ protected:
    /**
     * Retrieve a GPersonalityTraits object belonging to this algorithm
     */
-   virtual G_API_GENEVA boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const  OVERRIDE {
+   virtual boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const  OVERRIDE {
       return boost::shared_ptr<GMPEAPersonalityTraits>(new GMPEAPersonalityTraits());
    }
 
@@ -690,7 +690,7 @@ public:
     *
     * @return A boolean which indicates whether modifications were made
     */
-   virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE {
+   virtual bool modify_GUnitTests() OVERRIDE {
    #ifdef GEM_TESTING
 
       bool result = false;
@@ -710,7 +710,7 @@ public:
    /**
     * Performs self tests that are expected to succeed. This is needed for testing purposes
     */
-   virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+   virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
       // Call the parent class'es function
       GBaseParChildT<oa_type>::specificTestsNoFailureExpected_GUnitTests();
@@ -727,7 +727,7 @@ public:
    /**
     * Performs self tests that are expected to fail. This is needed for testing purposes
     */
-   virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+   virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
       // Call the parent class'es function
       GBaseParChildT<oa_type>::specificTestsFailuresExpected_GUnitTests();

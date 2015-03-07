@@ -90,7 +90,7 @@ class GParameterSet
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API_GENEVA void serialize(Archive & ar, const unsigned int){
+	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 	  ar
 	  & make_nvp("GMutableSetT_GParameterBase", boost::serialization::base_object<GMutableSetT<Gem::Geneva::GParameterBase> >(*this))
@@ -208,7 +208,7 @@ public:
 	 * @return A converted version of the GParameterBase object, as required by the user
 	 */
 	template <typename par_type>
-	G_API_GENEVA const boost::shared_ptr<par_type> at(
+	const boost::shared_ptr<par_type> at(
       const std::size_t& pos
       , typename boost::enable_if<boost::is_base_of<GParameterBase, par_type> >::type* dummy = 0
 	)  const {
@@ -226,7 +226,7 @@ public:
 	 * Allows to retrieve a list of all variable names registered with the parameter set
 	 */
    template <typename par_type>
-   G_API_GENEVA std::vector<std::string> getVariableNames() const {
+   std::vector<std::string> getVariableNames() const {
       std::vector<std::string> varNames;
 	   std::map<std::string, std::vector<par_type> > pMap;
 	   this->streamline<par_type>(pMap);
@@ -242,7 +242,7 @@ public:
 	 * Retrieves an item according to a description provided by the target tuple
 	 */
 	template <typename par_type>
-	G_API_GENEVA boost::any getVarItem(
+	boost::any getVarItem(
       const boost::tuple<std::size_t, std::string, std::size_t>& target
 	) {
 	   boost::any result;
@@ -292,7 +292,7 @@ public:
     * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
     */
    template <typename par_type>
-   G_API_GENEVA std::size_t countParameters(
+   std::size_t countParameters(
       const activityMode& am = DEFAULTACTIVITYMODE
    ) const {
       std::size_t result = 0;
@@ -323,7 +323,7 @@ public:
 	 * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
 	 */
 	template <typename par_type>
-	G_API_GENEVA void streamline(
+	void streamline(
       std::vector<par_type>& parVec
       , const activityMode& am = DEFAULTACTIVITYMODE
 	) const {
@@ -352,7 +352,7 @@ public:
     * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
     */
    template <typename par_type>
-   G_API_GENEVA void streamline(
+   void streamline(
       std::map<std::string, std::vector<par_type> >& parVec
       , const activityMode& am = DEFAULTACTIVITYMODE
    ) const {
@@ -379,7 +379,7 @@ public:
 	 * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be assigned
 	 */
 	template <typename par_type>
-	G_API_GENEVA void assignValueVector(
+	void assignValueVector(
       const std::vector<par_type>& parVec
       , const activityMode& am = DEFAULTACTIVITYMODE
    ) {
@@ -414,7 +414,7 @@ public:
     * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be assigned
     */
    template <typename par_type>
-   G_API_GENEVA void assignValueVectors(
+   void assignValueVectors(
       const std::map<std::string, std::vector<par_type> >& parMap
       , const activityMode& am = DEFAULTACTIVITYMODE
    ) {
@@ -440,7 +440,7 @@ public:
     * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
     */
    template <typename par_type>
-   G_API_GENEVA void boundaries(
+   void boundaries(
       std::vector<par_type>& lBndVec
       , std::vector<par_type>& uBndVec
       , const activityMode& am = DEFAULTACTIVITYMODE
@@ -466,7 +466,7 @@ public:
     * Multiplication with a random value in a given range
     */
    template <typename par_type>
-   G_API_GENEVA void multiplyByRandom(
+   void multiplyByRandom(
       const par_type& min
       , const par_type& max
       , const activityMode& am
@@ -483,7 +483,7 @@ public:
     * Multiplication with a random value in the range [0, 1[
     */
    template <typename par_type>
-   G_API_GENEVA void multiplyByRandom(
+   void multiplyByRandom(
       const activityMode& am
    ) {
       // Loop over all GParameterBase objects.
@@ -498,7 +498,7 @@ public:
     * Multiplication with a constant value
     */
    template <typename par_type>
-   G_API_GENEVA void multiplyBy(
+   void multiplyBy(
       const par_type& val
       , const activityMode& am
    ) {
@@ -514,7 +514,7 @@ public:
     * Initializes all parameters of a given type with a constant value
     */
    template <typename par_type>
-   G_API_GENEVA void fixedValueInit(
+   void fixedValueInit(
       const par_type& val
       , const activityMode& am
    ) {
@@ -530,7 +530,7 @@ public:
     * Adds the parameters of another GParameterSet object to this one
     */
    template <typename par_type>
-   G_API_GENEVA void add(
+   void add(
       boost::shared_ptr<GParameterSet> p
       , const activityMode& am
    ) {
@@ -550,7 +550,7 @@ public:
     * Subtracts the parameters of another GParameterSet object from this one
     */
    template <typename par_type>
-   G_API_GENEVA void subtract(
+   void subtract(
       boost::shared_ptr<GParameterSet> p
       , const activityMode& am
    ) {

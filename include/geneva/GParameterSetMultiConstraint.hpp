@@ -68,7 +68,7 @@ class GParameterSetConstraint: public GPreEvaluationValidityCheckT<GOptimizableE
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API_GENEVA void serialize(Archive & ar, const unsigned int){
+   void serialize(Archive & ar, const unsigned int){
      using boost::serialization::make_nvp;
      ar
      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPreEvaluationValidityCheckT<GOptimizableEntity>);
@@ -131,7 +131,7 @@ class GParameterSetFormulaConstraint: public GParameterSetConstraint
    friend class boost::serialization::access;
 
    template<typename Archive>
-   G_API_GENEVA void serialize(Archive & ar, const unsigned int){
+   void serialize(Archive & ar, const unsigned int){
      using boost::serialization::make_nvp;
      ar
      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetConstraint)

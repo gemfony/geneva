@@ -78,3 +78,5 @@ boost::shared_ptr<GAdaptorT<bool> > getDefaultAdaptor<bool>() {
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+

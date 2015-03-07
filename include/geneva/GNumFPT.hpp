@@ -62,7 +62,7 @@ class GNumFPT
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	G_API_GENEVA void serialize(Archive & ar, const unsigned int) {
+	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar & make_nvp("GNumT",	boost::serialization::base_object<GNumT<fp_type> >(*this));
 	}
@@ -79,7 +79,7 @@ public:
 	/**
 	 * The default constructor.
 	 */
-	G_API_GENEVA GNumFPT()
+	GNumFPT()
 		: GNumT<fp_type> ()
 	{ /* nothing */ }
 
@@ -89,7 +89,7 @@ public:
 	 *
 	 * @param val The value used for the initialization
 	 */
-	explicit G_API_GENEVA GNumFPT(const fp_type& val)
+	explicit GNumFPT(const fp_type& val)
 		: GNumT<fp_type>(val)
 	{ /* nothing */ }
 
@@ -102,7 +102,7 @@ public:
 	 * @param min The lower boundary for random entries
 	 * @param max The upper boundary for random entries
 	 */
-	G_API_GENEVA GNumFPT (
+	GNumFPT (
 		const fp_type& min
 		, const fp_type& max
 	)
@@ -123,7 +123,7 @@ public:
 	 * @param min The lower boundary for random entries
 	 * @param max The upper boundary for random entries
 	 */
-	G_API_GENEVA GNumFPT (
+	GNumFPT (
 		const fp_type& val
 		, const fp_type& min
 		, const fp_type& max
@@ -139,7 +139,7 @@ public:
 	 *
 	 * @param cp A constant reference to another GNumFPT<fp_type> object
 	 */
-	G_API_GENEVA GNumFPT(const GNumFPT<fp_type>& cp)
+	GNumFPT(const GNumFPT<fp_type>& cp)
 		: GNumT<fp_type> (cp)
 	{ /* nothing */ }
 
@@ -147,7 +147,7 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	virtual G_API_GENEVA ~GNumFPT()
+	virtual ~GNumFPT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -157,7 +157,7 @@ public:
 	 * @param cp A copy of another GNumFPT<fp_type> object
 	 * @return A constant reference to this object
 	 */
-	G_API_GENEVA const GNumFPT<fp_type> & operator=(const GNumFPT<fp_type>& cp){
+	const GNumFPT<fp_type> & operator=(const GNumFPT<fp_type>& cp){
 		GNumFPT<fp_type>::load_(&cp);
 		return *this;
 	}
@@ -169,7 +169,7 @@ public:
 	 * @param val The value to be assigned to this object
 	 * @return The value that was assigned to this object
 	 */
-	virtual G_API_GENEVA fp_type operator=(const fp_type& val) {
+	virtual fp_type operator=(const fp_type& val) {
 		return GNumT<fp_type>::operator=(val);
 	}
 
@@ -180,7 +180,7 @@ public:
 	 * @param  cp A constant reference to another GNumFPT<fp_type> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	G_API_GENEVA bool operator==(const GNumFPT<fp_type>& cp) const {
+	bool operator==(const GNumFPT<fp_type>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GNumFPT<fp_type>::operator==","cp", CE_SILENT);
@@ -193,7 +193,7 @@ public:
 	 * @param  cp A constant reference to another GNumFPT<fp_type> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	G_API_GENEVA bool operator!=(const GNumFPT<fp_type>& cp) const {
+	bool operator!=(const GNumFPT<fp_type>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNumFPT<fp_type>::operator!=","cp", CE_SILENT);
@@ -212,7 +212,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
+	boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
@@ -240,7 +240,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual G_API_GENEVA std::string name() const OVERRIDE {
+   virtual std::string name() const OVERRIDE {
       return std::string("GNumFPT");
    }
 
@@ -254,7 +254,7 @@ protected:
 	 *
 	 * @param cp A copy of another GNumFPT<fp_type> object, camouflaged as a GObject
 	 */
-	virtual G_API_GENEVA void load_(const GObject *cp) OVERRIDE {
+	virtual void load_(const GObject *cp) OVERRIDE {
 		// Convert cp into local format
 		const GNumFPT<fp_type> *p_load = GObject::gobject_conversion<GNumFPT<fp_type> >(cp);
 
@@ -271,13 +271,13 @@ protected:
 	 *
 	 * @return A pointer to a deep clone of this object
 	 */
-	virtual G_API_GENEVA GObject *clone_() const = 0;
+	virtual GObject *clone_() const = 0;
 
 	/***************************************************************************/
 	/**
 	 * Triggers random initialization of the parameter
 	 */
-	virtual G_API_GENEVA void randomInit_(const activityMode&) OVERRIDE {
+	virtual void randomInit_(const activityMode&) OVERRIDE {
 		fp_type lowerBoundary = GNumT<fp_type>::getLowerInitBoundary();
 		fp_type upperBoundary = GNumT<fp_type>::getUpperInitBoundary();
 		GParameterT<fp_type>::setValue(
@@ -298,7 +298,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE {
+	virtual bool modify_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -317,7 +317,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// A few settings
 		const std::size_t nTests = 100;
@@ -527,7 +527,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GNumT<fp_type>::specificTestsFailuresExpected_GUnitTests();
