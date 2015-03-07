@@ -156,11 +156,11 @@ template <typename fp_type>
 class acos_invalid_range : public math_logic_error {
 public:
    /** @brief The standard constructor */
-   G_API_COMMON acos_invalid_range(const fp_type& val) throw()
+   acos_invalid_range(const fp_type& val) throw()
       : math_logic_error(std::string("acos: Value ") + boost::lexical_cast<std::string>(val) + std::string(" out of valid range [-1:1] in GFormulaParserT"))
    { /* nothing */ }
    /** @brief The destructor */
-   virtual G_API_COMMON ~acos_invalid_range() throw()
+   virtual ~acos_invalid_range() throw()
    { /* nothing */ }
 
 private:
@@ -178,11 +178,11 @@ template <typename fp_type>
 class asin_invalid_range : public math_logic_error {
 public:
    /** @brief The standard constructor */
-   G_API_COMMON asin_invalid_range(const fp_type& val) throw()
+   asin_invalid_range(const fp_type& val) throw()
       : math_logic_error(std::string("asin: Value ") + boost::lexical_cast<std::string>(val) + std::string(" out of valid range [-1:1] in GFormulaParserT"))
    { /* nothing */ }
    /** @brief The destructor */
-   virtual G_API_COMMON ~asin_invalid_range() throw()
+   virtual ~asin_invalid_range() throw()
    { /* nothing */ }
 
 private:
@@ -201,11 +201,11 @@ template <typename fp_type>
 class log_negative_value : public math_logic_error {
 public:
    /** @brief The standard constructor */
-   G_API_COMMON log_negative_value(const fp_type& val) throw()
+   log_negative_value(const fp_type& val) throw()
       : math_logic_error(std::string("log: Value ") + boost::lexical_cast<std::string>(val) + std::string(" <= 0 in GFormulaParserT"))
    { /* nothing */ }
    /** @brief The destructor */
-   virtual G_API_COMMON ~log_negative_value() throw()
+   virtual ~log_negative_value() throw()
    { /* nothing */ }
 
 private:
@@ -223,11 +223,11 @@ template <typename fp_type>
 class log10_negative_value : public math_logic_error {
 public:
    /** @brief The standard constructor */
-   G_API_COMMON log10_negative_value(const fp_type& val) throw()
+   log10_negative_value(const fp_type& val) throw()
       : math_logic_error(std::string("log10: Value ") + boost::lexical_cast<std::string>(val) + std::string(" <= 0  in GFormulaParserT"))
    { /* nothing */ }
    /** @brief The destructor */
-   virtual G_API_COMMON ~log10_negative_value() throw()
+   virtual ~log10_negative_value() throw()
    { /* nothing */ }
 
 private:
@@ -245,11 +245,11 @@ template <typename fp_type>
 class sqrt_negative_value : public math_logic_error {
 public:
    /** @brief The standard constructor */
-   G_API_COMMON sqrt_negative_value(const fp_type& val) throw()
+   sqrt_negative_value(const fp_type& val) throw()
          : math_logic_error(std::string("sqrt: Value ") + boost::lexical_cast<std::string>(val) + std::string(" < 0  in GFormulaParserT"))
    { /* nothing */ }
    /** @brief The destructor */
-   virtual G_API_COMMON ~sqrt_negative_value() throw()
+   virtual ~sqrt_negative_value() throw()
    { /* nothing */ }
 
 private:
