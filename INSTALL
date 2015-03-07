@@ -67,7 +67,7 @@ sudo apt-get install --no-install-recommends libboost-dev libboost-date-time-dev
         libboost-thread-dev
 
 
-Installation prerequisites on MacOS X (tested only on 10.10)
+Installation prerequisites on MacOS X (tested only on 10.8)
 ------------------------------------------------------------
 
 You should first install the Xcode environment from the App store. This
@@ -96,7 +96,7 @@ are unsure about creating a system-wide configuration file):
 
 using clang : 98
     : "/usr/bin/clang++"
-    : <cxxflags>"-std=c++98 -stdlib=libstdc++" <linkflags>"-stdlib=libstdc++ -macosx_version_min=10.10"
+    : <cxxflags>"-std=c++98 -stdlib=libstdc++" <linkflags>"-stdlib=libstdc++ -macosx_version_min=10.8"
     ;
     
 This will enforce the usage of libstdc++ and the 98 C++ standard.
@@ -108,6 +108,7 @@ This will enforce the usage of libstdc++ and the 98 C++ standard.
 Through the increased verbosity (through -d+2) you can check that the correct
 arguments are passed to the compiler.
 
+NOTE that Geneva does not currently seem to compile with MacOS 10.10 (Yosemite) .
 
 Installation prerequisites on Cygwin
 ------------------------------------
