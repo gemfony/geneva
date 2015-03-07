@@ -484,8 +484,10 @@ FUNCTION (
 		"GENEVA_CXX_STANDARD_SWITCH"
 	)
 
-	# We may use ADD_COMPILE_OPTIONS() with CMake 2.8.12 or newer
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GENEVA_CXX_STANDARD_SWITCH}" PARENT_SCOPE)
+	# We may use ADD_COMPILE_OPTIONS() with CMake 2.8.12 or newer.
+	# We cannot redefine CMAKE_CXX_FLAGS in PARENT_SCOPE more than
+	# once, so we use a local variable.
+	SET(FLAGS_LOCAL "${CMAKE_CXX_FLAGS} ${GENEVA_CXX_STANDARD_SWITCH}")
 
 	#--------------------------------------------------------------------------
 	# Determine the other compiler flags. We organize this by compiler, as the
@@ -495,22 +497,22 @@ FUNCTION (
 	#*****************************************************************
 	IF(GENEVA_COMPILER_NAME_IN MATCHES ${INTEL_DEF_IDENTIFIER})
 
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused -ansi -pthread -wd1572 -wd1418 -wd981 -wd444 -wd383" PARENT_SCOPE)
+		SET(FLAGS_LOCAL "${FLAGS_LOCAL} -Wall -Wno-unused -ansi -pthread -wd1572 -wd1418 -wd981 -wd444 -wd383")
 
 	#*****************************************************************
 	ELSEIF(GENEVA_COMPILER_NAME_IN MATCHES ${CLANG_DEF_IDENTIFIER})
 
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread" PARENT_SCOPE)
+		SET(FLAGS_LOCAL "${FLAGS_LOCAL} -Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -ansi -pthread")
 
 		# CLang 3.0 does not seem to support -ftemplate-depth
 		IF(${GENEVA_COMPILER_VERSION_IN} VERSION_GREATER 3.0)
-			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=512" PARENT_SCOPE)
+			SET(FLAGS_LOCAL "${FLAGS_LOCAL} -ftemplate-depth=512")
 		ENDIF()
 
 		# For older Clang versions, or Clang on MacOSX we require the standard C++ library
 		IF(${GENEVA_OS_NAME_IN} STREQUAL "MacOSX"
 				OR ${GENEVA_COMPILER_VERSION_IN} VERSION_LESS 3.1)
-			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++" PARENT_SCOPE)
+			SET(FLAGS_LOCAL "${FLAGS_LOCAL} -stdlib=libstdc++")
 		ENDIF()
 
 		# Switch on Googles thread-sanitizer if this is a supported platform and the feature was requested.
@@ -522,13 +524,13 @@ FUNCTION (
 	#*****************************************************************
 	ELSEIF(GENEVA_COMPILER_NAME_IN MATCHES ${GNU_DEF_IDENTIFIER})
 
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0 -fno-unsafe-math-optimizations -fno-finite-math-only -Wno-unused -Wno-attributes -pthread -ftemplate-depth-1024" PARENT_SCOPE)
+		SET(FLAGS_LOCAL "${FLAGS_LOCAL} -fmessage-length=0 -fno-unsafe-math-optimizations -fno-finite-math-only -Wno-unused -Wno-attributes -pthread -ftemplate-depth-1024")
 
 		# GCC 4.8 on Cygwin does not provide the math constants (M_PI...) by
 		# default (pure ANSI standard), unless _XOPEN_SOURCE=500 is set, see
 		# http://www.gnu.org/software/libc/manual/html_node/Feature-Test-Macros.html
 		IF(${GENEVA_OS_NAME_IN} STREQUAL "Cygwin")
-			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_XOPEN_SOURCE=500" PARENT_SCOPE)
+			SET(FLAGS_LOCAL "${FLAGS_LOCAL} -D_XOPEN_SOURCE=500")
 		ENDIF()
 
 		# Switch on Googles thread-sanitizer if this is a supported platform and the feature was requested.
@@ -541,9 +543,13 @@ FUNCTION (
 	ELSEIF(GENEVA_COMPILER_NAME_IN MATCHES ${MSVC_DEF_IDENTIFIER})
 
 		# Compiling the most involved classes requires bigger object resources
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj" PARENT_SCOPE)
+		SET(FLAGS_LOCAL "${FLAGS_LOCAL} /bigobj")
 
 	ENDIF()
+	#--------------------------------------------------------------------------
+	# We cannot redefine CMAKE_CXX_FLAGS in PARENT_SCOPE more than once
+	SET(CMAKE_CXX_FLAGS "${FLAGS_LOCAL}" PARENT_SCOPE)
+
 	#--------------------------------------------------------------------------
 
 ENDFUNCTION()

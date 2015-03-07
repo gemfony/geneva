@@ -211,8 +211,8 @@ SET (
 	regex
 	serialization
 	system
-	thread	
-    program_options
+	thread
+	program_options
 )
 
 IF(WIN32)
