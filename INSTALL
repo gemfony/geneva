@@ -67,11 +67,11 @@ sudo apt-get install --no-install-recommends libboost-dev libboost-date-time-dev
         libboost-thread-dev
 
 
-Installation prerequisites on MacOS X (tested only on 10.8)
+Installation prerequisites on MacOS X (tested only on 10.10)
 ------------------------------------------------------------
 
 You should first install the Xcode environment from the App store. This
-will give you a working C++ compiler. You should also install Mac versions
+will give you a working, Clang-based C++ compiler. You should also install Mac versions
 of CMake and bzr.
 
 We recommend that you compile a custom boost version. With Boost 1.57,
@@ -84,19 +84,19 @@ sudo ./b2 -j 4 install
 This assumes a system with 4 cores. The directories can of course be adapted.
 
 MacOS contains two incompatible std C++ libs: libstdc++ and libc++ . With MacOS 10.9,
-libc++ has become the default. In order to compile Geneva with Mavericks (a.k.a. 10.9)
+libc++ has become the default. In order to compile Geneva with Yosemite (a.k.a. 10.10)
 you need to make sure that libstdc++ is being used both in Boost and in Geneva. All
 necessary modifications have been made in the Geneva build files so that the code 
 (hopefully) compiles cleanly with libstdc++ . For Boost, however, you need to do some
 manual work:
 
 - Create a file /etc/site-config.jam with the following content (or add the lines to
-an existing file, you could also use user-config.jam in your home-directory, if your
-are unsure about creating a system-wide configuration file):
+an existing file, you could also use user-config.jam in your home-directory, if you do
+not want or may not create a system-wide configuration file):
 
 using clang : 98
     : "/usr/bin/clang++"
-    : <cxxflags>"-std=c++98 -stdlib=libstdc++" <linkflags>"-stdlib=libstdc++ -macosx_version_min=10.8"
+    : <cxxflags>"-std=c++98 -stdlib=libstdc++" <linkflags>"-stdlib=libstdc++"
     ;
     
 This will enforce the usage of libstdc++ and the 98 C++ standard.
@@ -108,7 +108,8 @@ This will enforce the usage of libstdc++ and the 98 C++ standard.
 Through the increased verbosity (through -d+2) you can check that the correct
 arguments are passed to the compiler.
 
-NOTE that Geneva does not currently seem to compile with MacOS 10.10 (Yosemite) .
+On Yosemite we currently use static Boost libs due to trouble with the link order. Combining
+this with dynamic Geneva libs is fine, however.
 
 Installation prerequisites on Cygwin
 ------------------------------------
