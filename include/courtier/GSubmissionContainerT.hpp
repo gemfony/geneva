@@ -114,7 +114,7 @@ public:
 
 	/***************************************************************************/
 	/** @brief Allows derived classes to specify the tasks to be performed for this object */
-	virtual bool process() = 0;
+	virtual G_API_COURTIER bool process() = 0;
 
 	/***************************************************************************/
 	/**
