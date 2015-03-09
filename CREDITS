@@ -1,14 +1,13 @@
-Dr. Ruediger Berlich is the main author of the library, which has 
-been developed with kind support from Helmholtz society and from 
-Steinbuch Centre for Computing at Karlsruhe Institute of Technology (as
-well as other departments). Dr. Ariel Garcia has increasingly taken 
-over work in the ongoing development.
+The Geneva library has been developed with kind support from the
+Helmholtz Society and from the Steinbuch Centre for Computing at
+the Karlsruhe Institute of Technology (as well as other departments).
 
-We'd also like to sincerely thank Dr. Sven Gabriel for his kind support 
-and for discovering numerous problems.
+We'd also like to sincerely thank Dr. Sven Gabriel for his kind
+support and for discovering numerous problems.
 
-Alexander Mueller has made many suggestions, discovered bugs and has given
-important advice for porting Geneva to Windows. 
+Alexander Mueller (Friedrich-Alexander-Universität Erlangen-Nürnberg)
+has made many suggestions, discovered bugs and has given important advice
+for porting Geneva to Windows. 
 
 Lisa Schaetzle has helped with the improvement of the Gradient Descent 
 implementation.
