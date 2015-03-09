@@ -692,6 +692,7 @@ private:
             value = boost::lexical_cast<std::string>((cit->second).at(0));
             re = boost::xpressive::as_xpr("{{" + key + "}}");
             formula = boost::xpressive::regex_replace(formula, re, value);
+
          } else if ((cit->second).size() > 1) { // Try key[0], key[1] --> you may use formulas with place holders sin({{x[2]}})
             std::size_t cnt = 0;
             typename std::vector<fp_type>::const_iterator v_cit;
