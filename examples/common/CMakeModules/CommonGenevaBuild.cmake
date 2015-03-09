@@ -196,6 +196,16 @@ ELSE () # Dynamic libraries
 	IF(WIN32)
 		# Disable auto-linking
 		ADD_DEFINITIONS("-DBOOST_ALL_DYN_LINK")
+
+		# Boost::test_exec_monitor cannot be built as shared libraries,
+		# which leads to problems with FindBoost under Windows when trying
+		# to build the other libraries as dynamic. That case is unsupported.
+		IF (GENEVA_BUILD_TESTS)
+			MESSAGE (FATAL_ERROR "Building shared libraries with testing"
+				 " code under Windows is currently not suported."
+				 " Please set GENEVA_STATIC=TRUE or GENEVA_BUILD_TESTS=FALSE.")
+		ENDIF ()
+
 	ENDIF()
 ENDIF ()
 
