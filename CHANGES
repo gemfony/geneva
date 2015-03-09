@@ -11,11 +11,8 @@ Wishlist:
    specified in Python.
  - Additional optimization algorithms (particularly Simplex and
    Conjugate Gradient).
- - Variable length parents in evolutionary algorithms to better support
-   pareto optimization. Variable length best individuals for the same reason
- - Make the build-system log whether the libraries were built with or
-   without test- and mpi-support, so independent builds may configure
-   themselves automatically.
+ - Variable length parents and best individuals in evolutionary algorithms
+   to better support pareto optimization.
  - Automatic recreation and distribution of relevant configuration files.
  - Make value ranges of parameter objects always closed, even for fp.
  - Rework of the test infrastructure.
@@ -28,34 +25,38 @@ The main changes for this release include:
 
 ****************************** BREAKING CHANGES ********************************
 
- - Removed GCanvas32, as it results in a (justified) overflow warning
-   under MS Windows. As only an external (so far unreleased) individual
-   uses this code, there should be no effect on user-code
- - Geneva now explicitely requires the oost::random and the
-   boost::unit_test_framework components of Boost to be linked into an application.
-   This will happen automatically when using Geneva's standard CMakeLists.txt files.
- - The FindBoost.cmake module is not shipped with Geneva anymore. It was'nt needed
-   anymore, as we currently require at least CMake 2.8 which comes with a
-   good enough version of the module. As it might interfere with using
-   the system-provided version (which may contain some system-specific
-   fixes) we removed the local copy.
- - If you register a signal handler, use G_SIGHUP instead of SIGHUP to get portable code
- - When optimization algorithms are instantiated directly rather than through
-   the Go2-class, it is now necessary to explicity initialize Geneva using
-   the GenevaInitializer class. See 06_GDirectEA for an example of how this is
-   done. With this change, static Geneva libraries may now be built where needed.
+ - Geneva now explicitely requires the Boost::unit_test_framework and the
+   Boost::random components of Boost, as these are required at link time.
+   You will need to install these additional components if your Boost
+   installation is not a complete one, for instance in the case of a
+   system-provided Boost in some Linux distributions.
+ - The FindBoost.cmake module is not shipped with Geneva anymore, as it may
+   interfere with using the system-provided version which often contains
+   some system-specific fixes. Furthermore, it was actually not needed
+   anymore, as we currently require at least CMake 2.8 which comes with
+   a good enough version of that module.
+ - When optimization algorithms are instantiated directly rather than
+   through the Go2-class, it is now necessary to explicity initialize Geneva
+   using the GenevaInitializer class. See 06_GDirectEA for an example of how
+   this is done. With this change, static Geneva libraries may now be built
+   where needed.
+ - If you register a signal handler, please use now G_SIGHUP instead of
+   SIGHUP to get portable code.
+ - Removed the (currently unused) GCanvas32 class, as it results in a
+   (justified) overflow warning under MS Windows.
 
 ********************************************************************************
 
  - Added native, experimental support for MS Windows using the
-   Visual C++ compiler (static libraries only, currently).
- - Step sizes in Geneva's gradient descent implementation are now given
-   in permille of the allowed or expected value range of the parameters. 
-   Steps in each direction used to calculate the gradient are now scaled
-   according to this value range.
- - Most calculations in Geneva's gradient descent implementation are
-   now carried out as long double to preserve accuracy, where possible.
- - Moved all filesystem io to the Boost::filesystem library.
+   Visual C++ compiler, allowing both static and dynamic libraries.
+ - Step sizes in Geneva's gradient descent implementation are now given in
+   permille of the allowed or expected value range of the parameters. Steps
+   in each direction used to calculate the gradient are now scaled according
+   to this value range.
+ - Calculations in Geneva's gradient descent implementation are now carried
+   out as long double to preserve accuracy, where possible.
+ - Moved all filesystem I/O to the Boost::filesystem library.
+ - Fixed Launchpad bug #1427577 --> "best past" of EA not transfered to SA.
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.4.1, "Fénis" - January 23, 2015
