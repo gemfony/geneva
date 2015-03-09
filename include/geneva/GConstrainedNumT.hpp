@@ -603,10 +603,8 @@ protected:
    }
 
 	/***************************************************************************/
-	/** @brief Create a deep copy of this object. */
-	virtual GObject *clone_() const = 0;
-	/** @brief Randomly initializes the parameter (within its limits) */
-	virtual void randomInit_(const activityMode&) = 0;
+   // virtual GObject *clone_() const = 0;
+	// virtual void randomInit_(const activityMode&) = 0;
 
 private:
 	/***************************************************************************/
