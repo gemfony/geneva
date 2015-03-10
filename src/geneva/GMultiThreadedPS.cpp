@@ -238,7 +238,7 @@ void GMultiThreadedPS::finalize() {
          oss << *it << std::endl;
       }
 
-      oss << "" << std::endl // This is a hack. Currently glogger does not accept a std::endl directly next to it TODO
+      oss << std::endl
       << "========================================================================" << std::endl;
 
       glogger // We cannot currently interrupt glogger input, all input must be transferred in one go

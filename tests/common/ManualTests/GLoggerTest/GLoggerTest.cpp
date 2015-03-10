@@ -52,6 +52,9 @@ int main(int argc, char** argv) {
    glogger.addLogTarget(gcl_ptr);
    glogger.addLogTarget(gfl_ptr);
 
+   // Emission of a leading std::endl
+   glogger << std::endl << "This comment starts in the next line!" << std::endl << GLOGGING;
+
    // Normal output to all logging targets
    glogger << "Some information " << 1 << " " << 2 << std::endl << GLOGGING;
 

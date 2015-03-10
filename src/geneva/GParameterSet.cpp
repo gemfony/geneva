@@ -1469,7 +1469,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
          boost::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
 
          // Count the number of parameters and compare with the expected number
-         BOOST_CHECK(p_test->countParameters<double>(ACTIVEONLY) == NDOUBLEACTIVE);  // TODO
+         BOOST_CHECK(p_test->countParameters<double>(ACTIVEONLY) == NDOUBLEACTIVE);
          BOOST_CHECK(p_test->countParameters<double>(INACTIVEONLY) == NDOUBLEINACTIVE);
          BOOST_CHECK(p_test->countParameters<double>(ALLPARAMETERS) == NDOUBLEALL);
          BOOST_CHECK(p_test->countParameters<boost::int32_t>(ACTIVEONLY) == NINTACTIVE);

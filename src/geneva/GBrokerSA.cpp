@@ -235,7 +235,7 @@ void GBrokerSA::finalize() {
          glogger << *it << std::endl;
       }
 
-      glogger << "" << std::endl // This is a hack. Currently glogger does not accept a std::endl directly next to it TODO
+      glogger << std::endl
       << "========================================================================" << std::endl
       << GEXCEPTION;
    }

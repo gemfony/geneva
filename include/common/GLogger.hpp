@@ -183,6 +183,36 @@ public:
     return s;
   }
 
+  /******************************************************************************/
+  /**
+   * Needed for ostringstream
+   */
+  S operator<< (std::ostream& ( *val )(std::ostream&)){
+     S s;
+     s << val;
+     return s;
+  }
+
+  /******************************************************************************/
+  /**
+   * Needed for ostringstream
+   */
+  S operator<< (std::ios& ( *val )(std::ios&)){
+     S s;
+     s << val;
+     return s;
+  }
+
+  /******************************************************************************/
+  /**
+   *  Needed for ostringstream
+   */
+  S operator<< (std::ios_base& ( *val )(std::ios_base&)){
+     S s;
+     s << val;
+     return s;
+  }
+
   /***************************************************************************/
   /**
    * This function instructs the logger architecture to emit additional
