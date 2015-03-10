@@ -1352,7 +1352,7 @@ public:
          return std::string();
       }
 
-      return std::string(); // TODO
+      return std::string();
    }
 
    /***************************************************************************/
