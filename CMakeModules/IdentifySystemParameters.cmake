@@ -497,12 +497,12 @@ FUNCTION (
 	#*****************************************************************
 	IF(GENEVA_COMPILER_NAME_IN MATCHES ${INTEL_DEF_IDENTIFIER})
 
-		SET(FLAGS_LOCAL "${FLAGS_LOCAL} -Wall -wd1572 -wd1418 -wd981 -wd444 -wd383 -pthread")
+		SET(FLAGS_LOCAL "${FLAGS_LOCAL} -Wall -Wno-unused -wd1572 -wd1418 -wd981 -wd444 -wd383 -pthread")
 
 	#*****************************************************************
 	ELSEIF(GENEVA_COMPILER_NAME_IN MATCHES ${CLANG_DEF_IDENTIFIER})
 
-		SET(FLAGS_LOCAL "${FLAGS_LOCAL} -Wall -Wno-attributes -Wno-parentheses-equality -Wno-deprecated-register -pthread")
+		SET(FLAGS_LOCAL "${FLAGS_LOCAL} -Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -Wno-deprecated-register -pthread")
 
 		# CLang 3.0 does not seem to support -ftemplate-depth
 		IF(${GENEVA_COMPILER_VERSION_IN} VERSION_GREATER 3.0)
