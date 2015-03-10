@@ -12,6 +12,10 @@ for porting Geneva to Windows.
 Lisa Schaetzle has helped with the improvement of the Gradient Descent 
 implementation.
 
+Mathias Michel of Mainz University has kindly shared his experiences 
+during the deployment of Geneva in a package used for Dalitz plot 
+analysis and thus helped to mature Geneva.
+
 Dominik Rödel and Felix Zürker of Tenneco Automotive made many valuable 
 suggestions during a joint project dealing with the optimization of the 
 acoustics of exhaust systems.
