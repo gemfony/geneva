@@ -5,22 +5,22 @@ the Karlsruhe Institute of Technology (as well as other departments).
 We'd also like to sincerely thank Dr. Sven Gabriel for his kind
 support and for discovering numerous problems.
 
-Alexander Mueller (Friedrich-Alexander-Universität Erlangen-Nürnberg)
-has made many suggestions, discovered bugs and has given important advice
-for porting Geneva to Windows. 
+Alexander Müller of the Friedrich-Alexander-Universität Erlangen-
+Nürnberg has made many suggestions, discovered bugs and has given
+important advice for porting Geneva to Windows. 
 
-Lisa Schaetzle has helped with the improvement of the Gradient Descent 
+Lisa Schätzle has helped with the improvement of the Gradient Descent 
 implementation.
 
 Mathias Michel of Mainz University has kindly shared his experiences 
 during the deployment of Geneva in a package used for Dalitz plot 
 analysis and thus helped to mature Geneva.
 
-Dominik Rödel and Felix Zürker of Tenneco Automotive made many valuable 
-suggestions during a joint project dealing with the optimization of the 
-acoustics of exhaust systems.
+Dominik Rödel and Felix Zürker of Tenneco Clean Air Europe made
+many valuable suggestions during a joint project dealing with the
+optimization of the acoustics of exhaust systems.
 
-The work with Prof. Dr. Matthias Lutz and Dr. Kilian Schwarz of GSI Darmstadt 
-on scalability issues and optimization efficiency of a particular use case 
-from particle physics has helped to make Geneva a more mature and versatile 
-solution.
+The work with Prof. Dr. Matthias Lutz and Dr. Kilian Schwarz of
+GSI Darmstadt on scalability issues and optimization efficiency
+of a particular use case from particle physics has helped to make
+Geneva a more mature and versatile solution.
