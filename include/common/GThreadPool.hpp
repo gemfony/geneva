@@ -74,7 +74,7 @@ public:
    G_API_COMMON ~GThreadPool();
 
    /** @brief Sets the number of threads currently used */
-   G_API_COMMON void setNThreads(std::size_t);
+   G_API_COMMON void resize(std::size_t);
    /** @brief Retrieves the current number of threads being used in the pool */
    G_API_COMMON std::size_t getNThreads() const;
 
@@ -97,7 +97,7 @@ public:
 	template <typename F>
 	void async_schedule(F f) {
 	   // Update the task counter. NOTE: This needs to happen here
-	   // and not in taskWrapper. tasksInFlight_ helps the wait-function
+	   // and not in taskWrapper. tasksInFlight_ helps the wait()-function
 	   // to determine whether any jobs have been submitted to the Boost.ASIO
 	   // ioservice that haven't been processed yet. taskWrapper will
 	   // only start execution when it is assigned to a thread. As we

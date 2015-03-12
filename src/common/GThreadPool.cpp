@@ -87,7 +87,7 @@ GThreadPool::~GThreadPool() {
  * to the thread group if threads should be added. Otherwise it will reset the
  * pool and fill it anew.
  */
-void GThreadPool::setNThreads(std::size_t nThreads) {
+void GThreadPool::resize(std::size_t nThreads) {
    boost::shared_lock<boost::shared_mutex> lck(error_mutex_);
 
    std::size_t nThreadsLocal = nThreads?nThreads:getNHardwareThreads();

@@ -1367,7 +1367,7 @@ class GAsioTCPConsumerT
 
       // Set the number of threads in the pool
       if(listenerThreads_) {
-         gtp_.setNThreads(listenerThreads_);
+         gtp_.resize(listenerThreads_);
       }
 
       try {
