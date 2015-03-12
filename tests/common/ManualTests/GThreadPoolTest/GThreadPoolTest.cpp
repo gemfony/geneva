@@ -86,6 +86,7 @@ private:
 const std::size_t NJOBS = 100;
 const std::size_t NSUBMISSIONS = 5;
 
+// TODO: Test resizing of pool
 int main(int argc, char** argv) {
 	Gem::Common::GThreadPool gtp;
 

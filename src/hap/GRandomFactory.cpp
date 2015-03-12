@@ -141,8 +141,7 @@ bool GRandomFactory::setStartSeed(const initial_seed_type& initial_seed) {
 		if(!seedManager_ptr_) {
 			seedManager_ptr_ = boost::shared_ptr<Gem::Hap::GSeedManager>(new GSeedManager(initial_seed));
 			return true;
-		}
-		else {
+		} else {
 			return false;
 		}
 	}
@@ -345,27 +344,31 @@ void GRandomFactory::producer01(boost::uint32_t seed)  {
 	} catch (boost::thread_interrupted&) { // Not an error
 		return; // We're done
 	} catch (std::bad_alloc& e) {
-		std::cerr << "In GRandomFactory::producer01(): Error!" << std::endl
-				  << "Caught std::bad_alloc exception with message"
-				  << std::endl << e.what() << std::endl;
+		std::cerr
+		<< "In GRandomFactory::producer01(): Error!" << std::endl
+		<< "Caught std::bad_alloc exception with message"
+		<< std::endl << e.what() << std::endl;
 
 		std::terminate();
 	} catch (std::invalid_argument& e) {
-		std::cerr << "In GRandomFactory::producer01(): Error!" << std::endl
-				  << "Caught std::invalid_argument exception with message"  << std::endl
-				  << e.what() << std::endl;
+		std::cerr
+		<< "In GRandomFactory::producer01(): Error!" << std::endl
+		<< "Caught std::invalid_argument exception with message"  << std::endl
+		<< e.what() << std::endl;
 
 		std::terminate();
 	} catch (boost::thread_resource_error&) {
-		std::cerr << "In GRandomFactory::producer01(): Error!" << std::endl
-				  << "Caught boost::thread_resource_error exception which"  << std::endl
-				  << "likely indicates that a mutex could not be locked."  << std::endl;
+		std::cerr
+      << "In GRandomFactory::producer01(): Error!" << std::endl
+      << "Caught boost::thread_resource_error exception which"  << std::endl
+      << "likely indicates that a mutex could not be locked."  << std::endl;
 
 		// Terminate the process
 		std::terminate();
 	} catch (...) {
-		std::cerr << "In GRandomFactory::producer01(): Error!" << std::endl
-				  << "Caught unkown exception." << std::endl;
+		std::cerr
+		<< "In GRandomFactory::producer01(): Error!" << std::endl
+		<< "Caught unkown exception." << std::endl;
 
 		// Terminate the process
 		std::terminate();

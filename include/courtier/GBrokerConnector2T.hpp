@@ -816,7 +816,7 @@ public:
     */
    GMTExecutorT()
       : GBaseExecutorT<processable_type>()
-   , tp_()
+   , gtp_()
    { /* nothing */ }
 
    /***************************************************************************/
@@ -825,7 +825,7 @@ public:
     */
    GMTExecutorT(boost::uint16_t nThreads)
       : GBaseExecutorT<processable_type>()
-   , tp_(nThreads)
+   , gtp_(nThreads)
    { /* nothing */ }
 
    /***************************************************************************/
@@ -836,7 +836,7 @@ public:
     */
    GMTExecutorT(const GMTExecutorT<processable_type>& cp)
       : GBaseExecutorT<processable_type>(cp)
-        , tp_(cp.tp_.getNThreads())
+        , gtp_(cp.gtp_.getNThreads())
    { /* nothing */ }
 
    /***************************************************************************/
@@ -877,7 +877,7 @@ public:
       GBaseExecutorT<processable_type>::load(cp);
 
       // Adapt our local thread pool
-      tp_.setNThreads((cp->tp_).getNThreads());
+      gtp_.setNThreads((cp->gtp_).getNThreads());
    }
 
    /***************************************************************************/
@@ -975,7 +975,7 @@ protected:
     * @param w The work item to be processed
     */
    virtual void submit(boost::shared_ptr<processable_type> w) OVERRIDE {
-      tp_.async_schedule(boost::function<bool()>(boost::bind(&processable_type::process, w)));
+      gtp_.async_schedule(boost::function<bool()>(boost::bind(&processable_type::process, w)));
    }
 
    /***************************************************************************/
@@ -987,7 +987,7 @@ protected:
       , std::vector<bool>& workItemPos
       , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
    ) OVERRIDE {
-      tp_.wait();
+      gtp_.wait();
 
       // Mark all positions as "returned"
       std::vector<bool>::iterator it;
@@ -1001,7 +1001,7 @@ protected:
 private:
    /***************************************************************************/
 
-   Gem::Common::GThreadPool tp_; ///< Holds a thread pool
+   Gem::Common::GThreadPool gtp_; ///< Holds a thread pool
 };
 
 /******************************************************************************/

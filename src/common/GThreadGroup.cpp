@@ -147,6 +147,7 @@ void GThreadGroup::remove_last() {
 
 	(threads_.back())->interrupt();
 	(threads_.back())->join();
+
 	// boost::shared_ptr takes care of the deletion of the thread object
 	threads_.pop_back();
 }

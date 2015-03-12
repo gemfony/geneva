@@ -43,8 +43,7 @@ namespace Common {
  */
 GThreadPool::GThreadPool()
 	: errorCounter_(0)
-	, submittedJobs_(0)
-	, completedJobs_(0)
+	, tasksInFlight_(0)
 {
    this->setup(getNHardwareThreads());
 }
@@ -58,8 +57,7 @@ GThreadPool::GThreadPool()
  */
 GThreadPool::GThreadPool(const std::size_t& nThreads)
 	: errorCounter_(0)
-	, submittedJobs_(0)
-	, completedJobs_(0)
+	, tasksInFlight_(0)
 {
    this->setup(nThreads?nThreads:getNHardwareThreads());
 }
@@ -99,7 +97,8 @@ void GThreadPool::setNThreads(std::size_t nThreads) {
    } else if(nThreadsLocal > gtg_.size()) { // Add the missing threads
       gtg_.create_threads (
          boost::bind(
-            &boost::asio::io_service::run, &io_service_
+            &boost::asio::io_service::run
+            , &io_service_
          )
          , nThreadsLocal - gtg_.size()
       );
@@ -167,13 +166,9 @@ bool GThreadPool::wait() {
 	// Acquire the lock, then return it as long as the condition hasn't
 	// been fulfilled
 	boost::lock_guard<boost::mutex> lck(job_counter_mutex_);
-	while(submittedJobs_ > completedJobs_) { // Deal with spurious wake-ups
+	while(tasksInFlight_ > 0) { // Deal with spurious wake-ups
 		condition_.wait(job_counter_mutex_);
 	}
-
-	// Reset the counters
-	submittedJobs_ = 0;
-	completedJobs_ = 0;
 
 	return !this->hasErrors();
 }
@@ -202,7 +197,8 @@ void GThreadPool::setup(std::size_t nThreads) {
 
    gtg_.create_threads (
       boost::bind(
-         &boost::asio::io_service::run, &io_service_
+         &boost::asio::io_service::run
+         , &io_service_
       )
       , nThreads?nThreads:getNHardwareThreads()
    );

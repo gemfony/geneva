@@ -1166,9 +1166,9 @@ class GAsioTCPConsumerT
     * @param sm The desired serialization mode
     */
     GAsioTCPConsumerT(
-         const unsigned short& port
-         , const std::size_t& listenerThreads = 0
-         , const Gem::Common::serializationMode& sm = Gem::Common::SERIALIZATIONMODE_BINARY
+      const unsigned short& port
+      , const std::size_t& listenerThreads = 0
+      , const Gem::Common::serializationMode& sm = Gem::Common::SERIALIZATIONMODE_BINARY
    )
       : listenerThreads_(listenerThreads>0?listenerThreads:Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
       , acceptor_(io_service_)

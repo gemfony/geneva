@@ -96,14 +96,21 @@ public:
 	 */
 	template <typename F>
 	void async_schedule(F f) {
+	   // Update the task counter. NOTE: This needs to happen here
+	   // and not in taskWrapper. tasksInFlight_ helps the wait-function
+	   // to determine whether any jobs have been submitted to the Boost.ASIO
+	   // ioservice that haven't been processed yet. taskWrapper will
+	   // only start execution when it is assigned to a thread. As we
+	   // cannot "look" into ioservice, we need an external counter that
+	   // is incremented upon submission, not start of execution.
+      {
+         boost::unique_lock<boost::mutex> lck(job_counter_mutex_);
+         tasksInFlight_++;
+      }
+
 		io_service_.post(
 			boost::bind(&GThreadPool::taskWrapper<F>, this, f)
 		);
-
-		{ // Update the submission counter
-			boost::unique_lock<boost::mutex> lck(job_counter_mutex_);
-			submittedJobs_++;
-		}
 	}
 
 private:
@@ -122,8 +129,21 @@ private:
 		} catch(Gem::Common::gemfony_error_condition& e) {
 			// Extract the error
 			std::ostringstream error;
-			error << "In GThreadWrapper::operator(): Caught Gem::Common::gemfony_error_condition with message" << std::endl
-				  << e.what() << std::endl;
+			error
+			<< "In GThreadPool::operator(): Caught Gem::Common::gemfony_error_condition with message" << std::endl
+			<< e.what() << std::endl;
+
+			{ // Store the error for later reference
+				boost::unique_lock<boost::shared_mutex> lck(error_mutex_); // We protect against concurrent write access
+				errorCounter_++;
+				errorLog_.push_back(error.str());
+			}
+		} catch(boost::exception& e) {
+			// Extract the error
+			std::ostringstream error;
+			error
+         << "In GThreadPool::taskWrapper(): Caught boost::exception" << std::endl
+         << boost::diagnostic_information(e) << std::endl;
 
 			{ // Store the error for later reference
 				boost::unique_lock<boost::shared_mutex> lck(error_mutex_); // We protect against concurrent write access
@@ -131,29 +151,21 @@ private:
 				errorLog_.push_back(error.str());
 			}
 		} catch(std::exception& e) {
-			// Extract the error
-			std::ostringstream error;
-			error << "In GThreadWrapper::operator(): Caught std::exception with message" << std::endl
-				  << e.what() << std::endl;
+         // Extract the error
+         std::ostringstream error;
+         error
+         << "In GThreadPool::operator(): Caught std::exception with message" << std::endl
+         << e.what() << std::endl;
 
-			{ // Store the error for later reference
-				boost::unique_lock<boost::shared_mutex> lck(error_mutex_); // We protect against concurrent write access
-				errorCounter_++;
-				errorLog_.push_back(error.str());
-			}
-		} catch(boost::exception&) {
-			// Extract the error
+         { // Store the error for later reference
+            boost::unique_lock<boost::shared_mutex> lck(error_mutex_); // We protect against concurrent write access
+            errorCounter_++;
+            errorLog_.push_back(error.str());
+         }
+      } catch(...) {
 			std::ostringstream error;
-			error << "In GThreadWrapper::operator(): Caught boost::exception" << std::endl;
-
-			{ // Store the error for later reference
-				boost::unique_lock<boost::shared_mutex> lck(error_mutex_); // We protect against concurrent write access
-				errorCounter_++;
-				errorLog_.push_back(error.str());
-			}
-		} catch(...) {
-			std::ostringstream error;
-			error << "GThreadWrapper::operator(): Caught unknown exception" << std::endl;
+			error
+			<< "GThreadPool::operator(): Caught unknown exception" << std::endl;
 
 			{ // Store the error for later reference
 				boost::unique_lock<boost::shared_mutex> lck(error_mutex_); // We protect against concurrent write access
@@ -164,7 +176,7 @@ private:
 
 		{ // Update the submission counter -- we need an external means to check whether the pool has run empty
 			boost::unique_lock<boost::mutex> lck(job_counter_mutex_);
-			completedJobs_++;
+			tasksInFlight_--;
 			condition_.notify_all();
 		}
 	}
@@ -185,9 +197,8 @@ private:
 	std::vector<std::string> errorLog_; ///< Holds error descriptions emitted by the work load
 	mutable boost::shared_mutex error_mutex_; ///< Protects access to the error log and error counter
 
-	boost::uint32_t submittedJobs_;  ///< The number of jobs that have been submitted in this round
-	boost::uint32_t completedJobs_;  ///< The number of jobs that have been completed in this round
-	mutable boost::mutex job_counter_mutex_; ///< Protects access to the "completed" job counter
+	boost::uint32_t tasksInFlight_;  ///< The number of jobs that have been submitted in this round
+	mutable boost::mutex job_counter_mutex_; ///< Protects access to the "submitted" job counter
 
 	boost::condition_variable_any condition_;
 };

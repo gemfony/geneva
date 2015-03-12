@@ -148,12 +148,12 @@ bool GMultiThreadedEA::operator!=(const GMultiThreadedEA& cp) const {
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GMultiThreadedEA::checkRelationshipWith(
-      const GObject& cp
-		, const Gem::Common::expectation& e
-		, const double& limit
-		, const std::string& caller
-		, const std::string& y_name
-		, const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
     using namespace Gem::Common;
 
@@ -200,26 +200,16 @@ void GMultiThreadedEA::finalize() {
    // Check whether there were any errors during thread execution
    if(tp_ptr_->hasErrors()) {
       std::ostringstream oss;
-
-
       std::vector<std::string> errors;
       tp_ptr_->getErrors(errors);
-
-      oss
-      << "========================================================================" << std::endl
-      << "In GMultiThreadedEA::finalize(): WARNING" << std::endl
-      << "There were errors during thread execution:" << std::endl
-      << std::endl;
 
       for(std::vector<std::string>::iterator it=errors.begin(); it!=errors.end(); ++it) {
          oss << *it << std::endl;
       }
 
-      oss << std::endl
-      << "========================================================================" << std::endl;
-
-      glogger // We cannot currently interrupt glogger input, all input must be transferred in one go
-      << oss.str()
+      glogger
+      << "Warning: There were errors during thread execution in GThreadPool:" << std::endl
+      << oss.str() << std::endl
       << GWARNING;
    }
 
