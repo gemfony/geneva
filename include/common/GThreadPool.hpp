@@ -50,6 +50,7 @@
 
 
 // Geneva header files go here
+#include "common/GLogger.hpp"
 #include "common/GThreadGroup.hpp"
 #include "common/GHelperFunctions.hpp"
 
@@ -96,6 +97,11 @@ public:
 	 */
 	template <typename F>
 	void async_schedule(F f) {
+	   // We may only submit new jobs if job_lck can be acquired. This is
+	   // important so we have a means of letting the submission queue run
+	   // empty or of resetting the internal thread group.
+	   boost::unique_lock<boost::mutex> job_lck(task_submission_mutex_);
+
 	   // Update the task counter. NOTE: This needs to happen here
 	   // and not in taskWrapper. tasksInFlight_ helps the wait()-function
 	   // to determine whether any jobs have been submitted to the Boost.ASIO
@@ -104,7 +110,7 @@ public:
 	   // cannot "look" into ioservice, we need an external counter that
 	   // is incremented upon submission, not start of execution.
       {
-         boost::unique_lock<boost::mutex> lck(job_counter_mutex_);
+         boost::unique_lock<boost::mutex> cnt_lck(task_counter_mutex_);
          tasksInFlight_++;
       }
 
@@ -123,8 +129,7 @@ private:
 	 */
 	template <typename F>
 	void taskWrapper(F f) {
-		try {
-			// Execute the actual worker task
+		try { // Execute the actual worker task
 			f();
 		} catch(Gem::Common::gemfony_error_condition& e) {
 			// Extract the error
@@ -134,7 +139,7 @@ private:
 			<< e.what() << std::endl;
 
 			{ // Store the error for later reference
-				boost::unique_lock<boost::shared_mutex> lck(error_mutex_); // We protect against concurrent write access
+				boost::unique_lock<boost::shared_mutex> error_lck(error_mutex_); // We protect against concurrent write access
 				errorCounter_++;
 				errorLog_.push_back(error.str());
 			}
@@ -146,7 +151,7 @@ private:
          << boost::diagnostic_information(e) << std::endl;
 
 			{ // Store the error for later reference
-				boost::unique_lock<boost::shared_mutex> lck(error_mutex_); // We protect against concurrent write access
+				boost::unique_lock<boost::shared_mutex> error_lck(error_mutex_); // We protect against concurrent write access
 				errorCounter_++;
 				errorLog_.push_back(error.str());
 			}
@@ -158,7 +163,7 @@ private:
          << e.what() << std::endl;
 
          { // Store the error for later reference
-            boost::unique_lock<boost::shared_mutex> lck(error_mutex_); // We protect against concurrent write access
+            boost::unique_lock<boost::shared_mutex> error_lck(error_mutex_); // We protect against concurrent write access
             errorCounter_++;
             errorLog_.push_back(error.str());
          }
@@ -168,14 +173,14 @@ private:
 			<< "GThreadPool::operator(): Caught unknown exception" << std::endl;
 
 			{ // Store the error for later reference
-				boost::unique_lock<boost::shared_mutex> lck(error_mutex_); // We protect against concurrent write access
+				boost::unique_lock<boost::shared_mutex> error_lck(error_mutex_); // We protect against concurrent write access
 				errorCounter_++;
 				errorLog_.push_back(error.str());
 			}
 		}
 
 		{ // Update the submission counter -- we need an external means to check whether the pool has run empty
-			boost::unique_lock<boost::mutex> lck(job_counter_mutex_);
+			boost::unique_lock<boost::mutex> cnt_lck(task_counter_mutex_);
 			tasksInFlight_--;
 			condition_.notify_all();
 		}
@@ -183,10 +188,8 @@ private:
 
 	/***************************************************************************/
 
-   /** @brief Resets the entire thread pool */
-   void clear();
-   /** @brief Adds the desired number of work items */
-   void setup(std::size_t);
+	/** @brief Resets the entire thread pool to a given size */
+	void reset(const std::size_t&);
 
 	boost::asio::io_service io_service_; ///< Manages the concurrent thread execution
 	boost::shared_ptr<boost::asio::io_service::work> work_; ///< A place holder ensuring that the io_service doesn't stop prematurely
@@ -195,10 +198,13 @@ private:
 
 	boost::uint32_t errorCounter_; ///< The number of exceptions thrown by the pay load
 	std::vector<std::string> errorLog_; ///< Holds error descriptions emitted by the work load
-	mutable boost::shared_mutex error_mutex_; ///< Protects access to the error log and error counter
+	mutable boost::shared_mutex error_mutex_; ///< Protects access to the error log and error counter; mutable, as "hasErrors() is const
 
 	boost::uint32_t tasksInFlight_;  ///< The number of jobs that have been submitted in this round
-	mutable boost::mutex job_counter_mutex_; ///< Protects access to the "submitted" job counter
+	boost::mutex task_counter_mutex_; ///< Protects access to the "submitted" job counter
+
+	///< Allows to prevent further job submissions, particularly when waiting for the pool to clear or when resetting the pool
+	boost::mutex task_submission_mutex_;
 
 	boost::condition_variable_any condition_;
 };

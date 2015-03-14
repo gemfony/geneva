@@ -34,26 +34,43 @@
 
 #include "common/GHelperFunctions.hpp"
 
+// Controls access to the number of hardware threads. Used by "getNHardwareThreads()
+boost::shared_mutex g_hwt_read_mutex;
+
 namespace Gem {
 namespace Common {
 
 /******************************************************************************/
 /**
  * This function retrieves the number of CPU cores on the system, which is regarded as a suitable
- * default number for the amount of threads of a specific kind.
+ * default number for the amount of threads of a specific kind. The function is thread-safe. When called
+ * multiple times, it will read the number of hardware threads from a local cache.
  *
  * @param defaultNThreads The default number of threads to be returned if hardware concurrency cannot be determined
- * @return A guess at a suitable number of threads for this architecture
+ * @return A guess at a suitable number of threads for this architecture, used as a fallback
  */
+
+bool g_hwt_read = false; // global in this file
+unsigned int g_nHardwareThreads = Gem::Common::DEFAULTNHARDWARETHREADS; // global in this file
+
 unsigned int getNHardwareThreads(const unsigned int& defaultNThreads) {
-	unsigned int nHardwareThreads = boost::thread::hardware_concurrency();
-	if(nHardwareThreads > 0) {
-		return nHardwareThreads;
-	}
-	else {
+   boost::upgrade_lock< boost::shared_mutex > lck(g_hwt_read_mutex); // read-only access
+   if(false == g_hwt_read) { // upgrade to exclusive lock; double-lock pattern
+      boost::upgrade_to_unique_lock< boost::shared_mutex > unique_lck(lck);
+      if(false == g_hwt_read) {
+         g_hwt_read = true;
+         g_nHardwareThreads = boost::thread::hardware_concurrency();
+      }
+   } // exclusive access ends
+
+	if(g_nHardwareThreads > 0) {
+		return g_nHardwareThreads;
+	} else {
 #ifdef DEBUG
-		std::cout << "Could not get information regarding suitable number of threads." << std::endl
-				  << "Using the default value " << defaultNThreads << " instead." << std::endl;
+		glogger
+		<< "Could not get information regarding suitable number of threads." << std::endl
+		<< "Using the default value " << defaultNThreads << " instead." << std::endl
+		<< GWARNING;
 #endif
 
 		return defaultNThreads;
@@ -76,15 +93,15 @@ std::string loadTextDataFromFile(const boost::filesystem::path& p) {
       glogger
       << "In loadTextDataFromFile(): Error!" << std::endl
       << "Tried to load data from file " << p.string() << std::endl
-      << "Which does not exist" << std::endl
+      << "which does not exist" << std::endl
       << GEXCEPTION;
    }
 
    boost::filesystem::ifstream sourceFileStream(p);
    std::string sourceFile (
-            std::istreambuf_iterator<char>(sourceFileStream)
-            , (std::istreambuf_iterator<char>())
-            );
+      std::istreambuf_iterator<char>(sourceFileStream)
+      , (std::istreambuf_iterator<char>())
+   );
    return sourceFile;
 }
 
