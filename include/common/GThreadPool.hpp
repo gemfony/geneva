@@ -61,7 +61,9 @@ namespace Common {
 /**
  * This class implements a simple thread pool, based on the facilities already
  * provided by Boost.ASIO . This is meant as a drop-in replacement, until a more
- * versatile thread pool becomes commonly available in Boost.
+ * versatile thread pool becomes commonly available in Boost. The class is not
+ * meant to be copyable, as this concept does not make much sense for running
+ * threads.
  */
 class GThreadPool
 	:private boost::noncopyable // make sure the pool cannot be copied
@@ -70,14 +72,14 @@ public:
 	/** @brief Initialization with the "native" number of threads for this architecture */
    G_API_COMMON GThreadPool();
 	/** @brief Initialization with a number of threads */
-   G_API_COMMON GThreadPool(const std::size_t&);
+   G_API_COMMON GThreadPool(const unsigned int&);
 	/** @brief The destructor */
    G_API_COMMON ~GThreadPool();
 
    /** @brief Sets the number of threads currently used */
-   G_API_COMMON void resize(std::size_t);
+   G_API_COMMON void resize(unsigned int);
    /** @brief Retrieves the current number of threads being used in the pool */
-   G_API_COMMON std::size_t getNThreads() const;
+   G_API_COMMON unsigned int getNThreads() const;
 
 	/** @brief Blocks until all submitted jobs have been cleared from the pool */
    G_API_COMMON bool wait();
@@ -97,6 +99,47 @@ public:
 	 */
 	template <typename F>
 	void async_schedule(F f) {
+	   { // Determine whether threads have already been started
+	      boost::upgrade_lock< boost::shared_mutex > lck(threads_started_mutex_);
+	      if(false==threads_started_) { // double-lock pattern
+	         boost::upgrade_to_unique_lock< boost::shared_mutex > unique_lck(lck); // exclusive access
+	         if(false==threads_started_) { // Now we are sure that threads haven't been started yet
+#ifdef DEBUG // Some error checks
+               if(0==nThreads_) {
+                  glogger
+                  << "In GThreadPool::async_schedule(F f): Error!" << std::endl
+                  << "The number of threads is set to 0" << std::endl
+                  << GEXCEPTION;
+               }
+
+               if(gtg_.size() > 0) {
+                  glogger
+                  << "In GThreadPool::async_schedule(F f): Error!" << std::endl
+                  << "The thread group already has entries, although" << std::endl
+                  << "threads_started_ is set to false" << std::endl
+                  << GEXCEPTION;
+               }
+#endif
+
+
+	            // Store a worker (a place holder, really) in the io_service_ object
+	            work_.reset(
+	               new boost::asio::io_service::work(io_service_)
+	            );
+
+	            gtg_.create_threads (
+	               boost::bind(
+	                  &boost::asio::io_service::run
+	                  , &io_service_
+	               )
+	               , nThreads_
+	            );
+
+	            threads_started_ = true;
+	         }
+	      }
+	   }
+
 	   // We may only submit new jobs if job_lck can be acquired. This is
 	   // important so we have a means of letting the submission queue run
 	   // empty or of resetting the internal thread group.
@@ -114,6 +157,7 @@ public:
          tasksInFlight_++;
       }
 
+      // Do the actual job submission
 		io_service_.post(
 			boost::bind(&GThreadPool::taskWrapper<F>, this, f)
 		);
@@ -188,25 +232,27 @@ private:
 
 	/***************************************************************************/
 
-	/** @brief Resets the entire thread pool to a given size */
-	void reset(const std::size_t&);
-
 	boost::asio::io_service io_service_; ///< Manages the concurrent thread execution
 	boost::shared_ptr<boost::asio::io_service::work> work_; ///< A place holder ensuring that the io_service doesn't stop prematurely
 
 	GThreadGroup gtg_; ///< Holds the actual threads
 
-	boost::uint32_t errorCounter_; ///< The number of exceptions thrown by the pay load
+	volatile boost::uint32_t errorCounter_; ///< The number of exceptions thrown by the pay load
 	std::vector<std::string> errorLog_; ///< Holds error descriptions emitted by the work load
 	mutable boost::shared_mutex error_mutex_; ///< Protects access to the error log and error counter; mutable, as "hasErrors() is const
 
-	boost::uint32_t tasksInFlight_;  ///< The number of jobs that have been submitted in this round
+	volatile boost::uint32_t tasksInFlight_;  ///< The number of jobs that have been submitted in this round
 	boost::mutex task_counter_mutex_; ///< Protects access to the "submitted" job counter
 
 	///< Allows to prevent further job submissions, particularly when waiting for the pool to clear or when resetting the pool
 	boost::mutex task_submission_mutex_;
 
+	///< Protects the job counter, so we may let the pool run empty
 	boost::condition_variable_any condition_;
+
+	volatile unsigned int nThreads_; ///< The number of concurrent threads in the pool
+   volatile bool threads_started_; ///< Indicates whether threads have already been started
+   mutable boost::shared_mutex threads_started_mutex_; ///< Controls access to threads_started_
 };
 
 /******************************************************************************/

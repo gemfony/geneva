@@ -44,9 +44,8 @@ namespace Common {
 GThreadPool::GThreadPool()
 	: errorCounter_(0)
 	, tasksInFlight_(0)
-{
-   this->reset(getNHardwareThreads());
-}
+   , nThreads_(getNHardwareThreads())
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -55,21 +54,19 @@ GThreadPool::GThreadPool()
  *
  * @param nThreads The desired number of threads executing work concurrently in the pool
  */
-GThreadPool::GThreadPool(const std::size_t& nThreads)
+GThreadPool::GThreadPool(const unsigned int& nThreads)
 	: errorCounter_(0)
 	, tasksInFlight_(0)
-{
-   this->reset(nThreads?nThreads:getNHardwareThreads());
-}
+   , nThreads_(nThreads?nThreads:getNHardwareThreads())
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
 GThreadPool::~GThreadPool() {
-	work_.reset(); // reset/clear the place holder; io_service.run() will then terminate.
-	gtg_.join_all(); // wait for the threads to terminate
-   gtg_.clearThreads(); // Get rid of all thread objects
+   // Make sure the pool is empty
+   this->resize(0);
 
    if(this->hasErrors()) {
       std::ostringstream errors;
@@ -90,30 +87,72 @@ GThreadPool::~GThreadPool() {
  * to the thread group if threads should be added. Otherwise it will reset the
  * pool and fill it anew.
  */
-void GThreadPool::resize(std::size_t nThreads) {
-   std::size_t nThreadsLocal = nThreads?nThreads:getNHardwareThreads();
+void GThreadPool::resize(unsigned int nThreads) {
+   // Prevent thread starts
+   boost::shared_lock< boost::shared_mutex > lck(threads_started_mutex_);
 
-   if(gtg_.size() == nThreadsLocal) { // We already have the desired size
-      return;
-   } else if(nThreadsLocal > gtg_.size()) { // Add the missing threads
-      gtg_.create_threads (
-         boost::bind(
-            &boost::asio::io_service::run
-            , &io_service_
-         )
-         , nThreadsLocal - gtg_.size()
-      );
-   } else { // nThreadsLocal < gtg_.size(); Recreate the entire pool
-      // Add the desired number of items
-      this->reset(nThreadsLocal);
+   unsigned int nThreadsLocal = nThreads?nThreads:getNHardwareThreads();
+   if(true==threads_started_) {
+      if(gtg_.size() == nThreadsLocal) { // We already have the desired size
+         nThreads_ = nThreadsLocal;
+         return;
+      } else if(nThreadsLocal > gtg_.size()) { // Add the missing threads
+         gtg_.create_threads (
+            boost::bind(
+               &boost::asio::io_service::run
+               , &io_service_
+            )
+            , nThreadsLocal - gtg_.size()
+         );
+      } else { // nThreadsLocal < gtg_.size(); Recreate the entire pool
+         // Make sure no new jobs may be submitted
+         boost::unique_lock<boost::mutex> job_lck(task_submission_mutex_);
+
+         // First wait for the pool to run empty, so we do not loose jobs
+         boost::unique_lock<boost::mutex> cnt_lck(task_counter_mutex_);
+         while(tasksInFlight_ > 0) { // Deal with spurious wake-ups
+            condition_.wait(task_counter_mutex_);
+         }
+
+         // reset/clear the place holder; io_service.run() will then terminate.
+         work_.reset();
+
+         // If there are threads in the pool, reset them and clear the pool
+         if(gtg_.size() > 0) {
+            gtg_.join_all(); // wait for the threads to terminate
+            gtg_.clearThreads(); // Clear the thread group
+         }
+
+         // We are done if nThreads == 0
+         if(0 == nThreads) { // Note: NOT nThreadsLocal
+            return;
+         }
+
+         // Store a new worker (a place holder, really) in the io_service_ object.
+         // This will prevent new threads from stopping
+         work_.reset(
+            new boost::asio::io_service::work(io_service_)
+         );
+
+         // Create the desired number of threads
+         gtg_.create_threads (
+            boost::bind(
+               &boost::asio::io_service::run
+               , &io_service_
+            )
+            , nThreadsLocal
+         );
+      }
    }
+
+   nThreads_ = nThreadsLocal;
 }
 
 /******************************************************************************/
 /**
  * Retrieves the current number of threads being used in the pool
  */
-std::size_t GThreadPool::getNThreads() const {
+unsigned int GThreadPool::getNThreads() const {
    return gtg_.size();
 }
 
@@ -174,46 +213,6 @@ bool GThreadPool::wait() {
    }
 
 	return !this->hasErrors();
-}
-
-/******************************************************************************/
-/**
- * Resets the entire thread pool to a given size by first removing all stored
- * threads and then starting new threads.
- */
-void GThreadPool::reset(const std::size_t& nThreads) {
-   // Make sure no new jobs may be submitted
-   boost::unique_lock<boost::mutex> job_lck(task_submission_mutex_);
-
-   // First wait for the pool to run empty, so we do not loose jobs
-   boost::unique_lock<boost::mutex> cnt_lck(task_counter_mutex_);
-   while(tasksInFlight_ > 0) { // Deal with spurious wake-ups
-      condition_.wait(task_counter_mutex_);
-   }
-
-   // reset/clear the place holder; io_service.run() will then terminate.
-   work_.reset();
-
-   // If there are threads in the pool, reset them and clear the pool
-   if(gtg_.size() > 0) {
-      gtg_.join_all(); // wait for the threads to terminate
-      gtg_.clearThreads();
-   }
-
-   // Store a new worker (a place holder, really) in the io_service_ object.
-   // This will prevent new threads from stopping
-   work_.reset(
-      new boost::asio::io_service::work(io_service_)
-   );
-
-   // Create the desired number of threads
-   gtg_.create_threads (
-      boost::bind(
-         &boost::asio::io_service::run
-         , &io_service_
-      )
-      , nThreads?nThreads:getNHardwareThreads()
-   );
 }
 
 /******************************************************************************/
