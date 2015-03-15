@@ -24,7 +24,7 @@ The main changes for this release include:
 - no breaking changes yet
 ********************************************************************************
 
-Feature-changes:
+Feature- and API-additions:
 
 Important changes in the code (without API-changes):
 -  Rework of the GThreadPool class -- threads are now started upon the first 
