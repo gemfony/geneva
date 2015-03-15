@@ -87,7 +87,7 @@ public:
 	/** @brief Allows to check whether any errors have occurred */
    G_API_COMMON bool hasErrors() const;
 	/** @brief Retrieves the errors */
-   G_API_COMMON void getErrors(std::vector<std::string>&);
+   G_API_COMMON void getErrors(std::vector<std::string>&) const;
 	/** @brief Clears the error logs */
    G_API_COMMON void clearErrors();
 

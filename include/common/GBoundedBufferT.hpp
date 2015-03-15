@@ -196,7 +196,7 @@ public:
 	{
 		// Any error here is deadly ...
 		try {
-			boost::mutex::scoped_lock lock(mutex_);
+			boost::mutex::scoped_lock lock(m_);
 			container_.clear();
 		}
 		// This is a standard error raised by the lock/mutex
@@ -228,7 +228,7 @@ public:
 	 * @param item An item to be added to the front of the buffer
 	 */
 	void push_front(value_type item) {
-		boost::mutex::scoped_lock lock(mutex_);
+		boost::mutex::scoped_lock lock(m_);
 		// Note that this overload of wait() internally runs a loop on its predicate to
 		// deal with spurious wakeups
 		not_full_.wait(lock, buffer_not_full(container_, capacity_));
@@ -254,7 +254,7 @@ public:
 	 * @param timeout duration until a timeout occurs
 	 */
 	void push_front(value_type item, const boost::posix_time::time_duration& timeout) {
-		boost::mutex::scoped_lock lock(mutex_);
+		boost::mutex::scoped_lock lock(m_);
 		if(!not_full_.timed_wait(lock,timeout,buffer_not_full(container_, capacity_))) {
 			throw Gem::Common::condition_time_out();
 		}
@@ -281,7 +281,7 @@ public:
 	 * @return A boolean indicating whether an item has been successfully submitted
 	 */
 	bool push_front_bool(value_type item, const boost::posix_time::time_duration& timeout) {
-		boost::mutex::scoped_lock lock(mutex_);
+		boost::mutex::scoped_lock lock(m_);
 		if(!not_full_.timed_wait(lock, timeout, buffer_not_full(container_, capacity_))) {
 			return false;
 		}
@@ -307,7 +307,7 @@ public:
 	 * @param item Reference to a single item that was removed from the end of the buffer
 	 */
 	void pop_back(value_type& item) {
-		boost::mutex::scoped_lock lock(mutex_);
+		boost::mutex::scoped_lock lock(m_);
 		not_empty_.wait(lock, buffer_not_empty(container_));
 
 #ifdef DEBUG
@@ -341,7 +341,7 @@ public:
 	 * @param timeout duration until a timeout occurs
 	 */
 	void pop_back(value_type& item, const boost::posix_time::time_duration& timeout) {
-		boost::mutex::scoped_lock lock(mutex_);
+		boost::mutex::scoped_lock lock(m_);
 		if(!not_empty_.timed_wait(lock,timeout,buffer_not_empty(container_))) {
 			throw Gem::Common::condition_time_out();
 		}
@@ -379,7 +379,7 @@ public:
 	 * @return A boolean indicating whether an item has been successfully retrieved
 	 */
 	bool pop_back_bool(value_type& item, const boost::posix_time::time_duration& timeout) {
-		boost::mutex::scoped_lock lock(mutex_);
+		boost::mutex::scoped_lock lock(m_);
 		if(!not_empty_.timed_wait(lock,timeout,buffer_not_empty(container_))) {
 			return false;
 		}
@@ -427,7 +427,7 @@ public:
 	 * @return The currently remaining space in the buffer
 	 */
 	std::size_t remainingSpace() {
-		boost::mutex::scoped_lock lock(mutex_);
+		boost::mutex::scoped_lock lock(m_);
 		return capacity_ - container_.size();
 	}
 
@@ -441,7 +441,7 @@ public:
 	 * @return The current size of the buffer
 	 */
 	std::size_t size() {
-		boost::mutex::scoped_lock lock(mutex_);
+		boost::mutex::scoped_lock lock(m_);
 		return container_.size();
 	}
 
@@ -455,7 +455,7 @@ public:
 	 * @return True if the buffer is not empty
 	 */
 	bool isNotEmpty() {
-		boost::mutex::scoped_lock lock(mutex_);
+		boost::mutex::scoped_lock lock(m_);
 		return !container_.empty();
 	}
 
@@ -501,7 +501,8 @@ protected:
       /* @brief Initializes the local container reference */
       buffer_not_empty(
          const container_type& c
-      ) :c_(c)
+      )
+         :c_(c)
       { /* nothing */ }
 
       /** @brief Used for the actual test */
@@ -528,8 +529,8 @@ protected:
          const container_type& c
          , const std::size_t& capacity
       )
-      : c_(c)
-      , capacity_(capacity)
+         : c_(c)
+         , capacity_(capacity)
       { /* nothing */ }
 
       /** @brief Used for the actual test */
@@ -549,7 +550,7 @@ protected:
 
 	const std::size_t capacity_; ///< The maximum allowed size of the container
 	container_type container_; ///< The actual data store
-	mutable boost::mutex mutex_; ///< Used for synchronization of access to the container
+	mutable boost::mutex m_; ///< Used for synchronization of access to the container
 	boost::condition_variable not_empty_; ///< Used for synchronization of access to the container
 	boost::condition_variable not_full_; ///< Used for synchronization of access to the container
 

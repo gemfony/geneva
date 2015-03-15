@@ -178,7 +178,7 @@ bool GThreadPool::hasErrors() const {
  *
  * @param errorLog The vector to which the errors should be saved
  */
-void GThreadPool::getErrors(std::vector<std::string>& errorLog) {
+void GThreadPool::getErrors(std::vector<std::string>& errorLog) const {
    boost::shared_lock<boost::shared_mutex> error_lck(error_mutex_);
 
 	errorLog = errorLog_;
