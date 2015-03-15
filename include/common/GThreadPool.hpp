@@ -93,7 +93,12 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Submits the task to Boost.ASIO's io_service. This function will return immediately.
+	 * Submits the task to Boost.ASIO's io_service. This function will return immediately,
+	 * before the completion of the task.It consists of two distinct blocks with individual
+	 * locking which, for the purpose of multi-threading, have the same effect as two
+	 * distinct functions. I.e., the first block may be executed, then another async_schedule
+	 * call may take over. The first block starts worker threads, if needed. Except for the
+	 * first call(s), if() will never trigger. The second block does the actual job submission.
 	 *
 	 * @param f The function to be executed by the threads in the pool
 	 */
@@ -140,27 +145,29 @@ public:
 	      }
 	   }
 
-	   // We may only submit new jobs if job_lck can be acquired. This is
-	   // important so we have a means of letting the submission queue run
-	   // empty or of resetting the internal thread group.
-	   boost::unique_lock<boost::mutex> job_lck(task_submission_mutex_);
+	   { // Do the actual job submission
+         // We may only submit new jobs if job_lck can be acquired. This is
+         // important so we have a means of letting the submission queue run
+         // empty or of resetting the internal thread group.
+         boost::unique_lock<boost::mutex> job_lck(task_submission_mutex_);
 
-	   // Update the task counter. NOTE: This needs to happen here
-	   // and not in taskWrapper. tasksInFlight_ helps the wait()-function
-	   // to determine whether any jobs have been submitted to the Boost.ASIO
-	   // ioservice that haven't been processed yet. taskWrapper will
-	   // only start execution when it is assigned to a thread. As we
-	   // cannot "look" into ioservice, we need an external counter that
-	   // is incremented upon submission, not start of execution.
-      {
-         boost::unique_lock<boost::mutex> cnt_lck(task_counter_mutex_);
-         tasksInFlight_++;
-      }
+         // Update the task counter. NOTE: This needs to happen here
+         // and not in taskWrapper. tasksInFlight_ helps the wait()-function
+         // to determine whether any jobs have been submitted to the Boost.ASIO
+         // ioservice that haven't been processed yet. taskWrapper will
+         // only start execution when it is assigned to a thread. As we
+         // cannot "look" into ioservice, we need an external counter that
+         // is incremented upon submission, not start of execution.
+         {
+            boost::unique_lock<boost::mutex> cnt_lck(task_counter_mutex_);
+            tasksInFlight_++;
+         }
 
-      // Do the actual job submission
-		io_service_.post(
-			boost::bind(&GThreadPool::taskWrapper<F>, this, f)
-		);
+         // Finally submit to the io_service
+         io_service_.post(
+            boost::bind(&GThreadPool::taskWrapper<F>, this, f)
+         );
+	   }
 	}
 
 private:

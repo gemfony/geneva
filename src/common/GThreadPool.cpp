@@ -88,14 +88,13 @@ GThreadPool::~GThreadPool() {
  * pool and fill it anew.
  */
 void GThreadPool::setNThreads(unsigned int nThreads) {
-   // Prevent thread starts
+   // Prevent initial thread-starts
    boost::shared_lock< boost::shared_mutex > lck(threads_started_mutex_);
 
    unsigned int nThreadsLocal = nThreads?nThreads:getNHardwareThreads();
    if(true==threads_started_) {
       if(gtg_.size() == nThreadsLocal) { // We already have the desired size
-         nThreads_ = nThreadsLocal;
-         return;
+         /* nothing */
       } else if(nThreadsLocal > gtg_.size()) { // Add the missing threads
          gtg_.create_threads (
             boost::bind(
@@ -144,6 +143,10 @@ void GThreadPool::setNThreads(unsigned int nThreads) {
          );
       }
    }
+
+   // If no threads have ben started yet, we simply set the number of threads.
+   // Threads may only be started from async_schedule, so the initiali construction
+   // of an unused GThreadPool doesn't start a plethora of idle threads.
 
    nThreads_ = nThreadsLocal;
 }
