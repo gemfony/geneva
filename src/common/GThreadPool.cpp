@@ -66,7 +66,7 @@ GThreadPool::GThreadPool(const unsigned int& nThreads)
  */
 GThreadPool::~GThreadPool() {
    // Make sure the pool is empty
-   this->resize(0);
+   this->setNThreads(0);
 
    if(this->hasErrors()) {
       std::ostringstream errors;
@@ -87,7 +87,7 @@ GThreadPool::~GThreadPool() {
  * to the thread group if threads should be added. Otherwise it will reset the
  * pool and fill it anew.
  */
-void GThreadPool::resize(unsigned int nThreads) {
+void GThreadPool::setNThreads(unsigned int nThreads) {
    // Prevent thread starts
    boost::shared_lock< boost::shared_mutex > lck(threads_started_mutex_);
 

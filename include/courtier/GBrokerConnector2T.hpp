@@ -877,7 +877,7 @@ public:
       GBaseExecutorT<processable_type>::load(cp);
 
       // Adapt our local thread pool
-      gtp_.resize((cp->gtp_).getNThreads());
+      gtp_.setNThreads((cp->gtp_).getNThreads());
    }
 
    /***************************************************************************/

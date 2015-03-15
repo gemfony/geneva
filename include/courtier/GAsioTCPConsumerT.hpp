@@ -1367,7 +1367,7 @@ class GAsioTCPConsumerT
 
       // Set the number of threads in the pool
       if(listenerThreads_) {
-         gtp_.resize(listenerThreads_);
+         gtp_.setNThreads(listenerThreads_);
       }
 
       try {
@@ -1383,12 +1383,18 @@ class GAsioTCPConsumerT
          glogger
          << "In GAsioTCPConsumerT::async_startProcessing():" << std::endl
          << "Caught boost::system::system_error exception with messages:" << std::endl
-         << e.what() << std::endl
+         << boost::diagnostic_information(e) << std::endl
          << GEXCEPTION;
       } catch(const boost::exception &e) {
          glogger
          << "In GAsioTCPConsumerT::async_startProcessing():" << std::endl
-         << "Caught boost::exception exception with messages:" << std::endl
+         << "Caught boost::exception with messages:" << std::endl
+         << boost::diagnostic_information(e) << std::endl
+         << GEXCEPTION;
+      } catch(const std::exception& e) {
+         glogger
+         << "In GAsioTCPConsumerT::async_startProcessing():" << std::endl
+         << "Caught std::exception with messages:" << std::endl
          << boost::diagnostic_information(e) << std::endl
          << GEXCEPTION;
       } catch(...) {

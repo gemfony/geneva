@@ -77,7 +77,7 @@ public:
    G_API_COMMON ~GThreadPool();
 
    /** @brief Sets the number of threads currently used */
-   G_API_COMMON void resize(unsigned int);
+   G_API_COMMON void setNThreads(unsigned int);
    /** @brief Retrieves the current number of threads being used in the pool */
    G_API_COMMON unsigned int getNThreads() const;
 
