@@ -605,7 +605,7 @@ std::size_t GParserBuilder::numberOfFileOptions() const {
  * @param verbose If set to true, the function will emit information about the parsed parameters
  * @return A boolean indicating whether help was requested (true) or not (false)
  */
-bool GParserBuilder::parseCommandLine(int argc, char **argv, bool verbose) {
+bool GParserBuilder::parseCommandLine(int argc, char **argv, const bool& verbose) {
    namespace po = boost::program_options;
 
    bool result = GCL_NO_HELP_REQUESTED;

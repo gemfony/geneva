@@ -161,7 +161,7 @@ private:
 	void producer01(boost::uint32_t seed);
 
 	bool finalized_;
-	bool threadsHaveBeenStarted_;
+	volatile bool threadsHaveBeenStarted_;
 	boost::uint16_t n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
 	Gem::Common::GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
 

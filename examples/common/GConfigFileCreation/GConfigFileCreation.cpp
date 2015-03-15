@@ -42,7 +42,7 @@
 #include <boost/array.hpp>
 
 // Geneva header files go here
-#include <common/GParserBuilder.hpp>
+#include "common/GParserBuilder.hpp"
 
 using namespace Gem::Common;
 

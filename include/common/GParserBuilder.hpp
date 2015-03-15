@@ -1868,7 +1868,7 @@ public:
 	G_API_COMMON std::size_t numberOfFileOptions() const;
 
 	/** @brief Parses the commandline for options */
-	G_API_COMMON bool parseCommandLine(int, char **,bool=false);
+	G_API_COMMON bool parseCommandLine(int, char **, const bool& = false);
    /** @brief Provides information on the number of command line configuration options stored in this class */
 	G_API_COMMON std::size_t numberOfCLOptions() const;
 

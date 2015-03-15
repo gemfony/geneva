@@ -186,7 +186,7 @@ private:
 			// Extract the error
 			std::ostringstream error;
 			error
-			<< "In GThreadPool::operator(): Caught Gem::Common::gemfony_error_condition with message" << std::endl
+			<< "In GThreadPool::taskWrapper(F f): Caught Gem::Common::gemfony_error_condition with message" << std::endl
 			<< e.what() << std::endl;
 
 			{ // Store the error for later reference
@@ -210,7 +210,7 @@ private:
          // Extract the error
          std::ostringstream error;
          error
-         << "In GThreadPool::operator(): Caught std::exception with message" << std::endl
+         << "In GThreadPool::taskWrapper(F f): Caught std::exception with message" << std::endl
          << e.what() << std::endl;
 
          { // Store the error for later reference
@@ -221,7 +221,7 @@ private:
       } catch(...) {
 			std::ostringstream error;
 			error
-			<< "GThreadPool::operator(): Caught unknown exception" << std::endl;
+			<< "GThreadPool::taskWrapper(F f): Caught unknown exception" << std::endl;
 
 			{ // Store the error for later reference
 				boost::unique_lock<boost::shared_mutex> error_lck(error_mutex_); // We protect against concurrent write access

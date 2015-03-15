@@ -43,7 +43,10 @@
 #include <boost/function.hpp>
 
 // Geneva headers go here
+#include "common/GLogger.hpp"
 #include "common/GThreadPool.hpp"
+#include "common/GParserBuilder.hpp"
+#include "hap/GRandomT.hpp"
 
 using namespace Gem::Common;
 
@@ -57,50 +60,167 @@ public:
 	/**
 	 * The default constructor
 	 */
-	testTask()	:operatorCalled_(0)
+	testTask()
+      : counterValue_(0)
+      , operatorCalled_(0)
 	{ /* nothing */ }
-
-	/********************************************************************/
-	/**
-	 * The function to be executed in each thread
-	 */
-	void increment() {
-		operatorCalled_++;
-	}
 
 	/********************************************************************/
 	/**
 	 * Allows to check how often increment() has been called
 	 */
-	boost::uint32_t getNCalls() const {
+	boost::int32_t getCounterValue() const {
 		return operatorCalled_;
 	}
 
+   /********************************************************************/
+	/**
+	 * Retrieves the number of operator calls
+	 */
+	boost::uint32_t getOperatorCalledValue() const {
+	   return operatorCalled_;
+	}
+
+   /********************************************************************/
+	/**
+	 * Performs work on this object. This is the function to be executed
+	 * inside of the threads
+	 */
+	void process(bool simulateCrash) {
+	   if(gr.uniform_bool()) {
+	      this->increment();
+	   } else {
+	      this->decrement();
+	   }
+
+	   boost::this_thread::sleep(
+         boost::posix_time::milliseconds(
+            gr.uniform_int<long>(10, 20)
+         )
+	   );
+
+	   if(simulateCrash) {
+	      glogger
+	      << "In testTask::process(): Error!" << std::endl
+	      << "SHF-Exception (Some Horrible Failure)" << std::endl
+	      << "occurred, as requested ..." << std::endl
+	      << GEXCEPTION;
+	   }
+	}
+
 private:
+   /********************************************************************/
+   /**
+    * Increments the local counter
+    */
+   void increment() {
+      counterValue_++;
+      operatorCalled_++;
+   }
+
+   /********************************************************************/
+   /**
+    * Decrements the local counter
+    */
+   void decrement() {
+      counterValue_--;
+      operatorCalled_++;
+   }
+
 	/********************************************************************/
-	boost::uint32_t operatorCalled_; ///< This counter will be incremented whenever operator() is called
+	boost::int32_t  counterValue_; ///< The internal value to be decremented or incremented
+   boost::uint32_t operatorCalled_; ///< This counter will be incremented whenever process() is called
+
+   Gem::Hap::GRandom gr; // Instantiates a random number generator
 };
 
 /************************************************************************/
 
+const std::size_t NRESIZEEVENTS = 0;
 const std::size_t NJOBS = 100;
-const std::size_t NSUBMISSIONS = 5;
+const std::size_t NITERATIONS = 5;
 
-// TODO: Test resizing of pool
+/**
+ * This test tries to ascertain that GThreadPool works as expected. It submits
+ * a given number of jobs to the pool, waits for their execution and submits them again
+ * a user-definable number of times. The user may ask the application to resize
+ * the thread pool in random intervals and
+ */
 int main(int argc, char** argv) {
-	Gem::Common::GThreadPool gtp;
+   //----------------------------------------------------------------
+   // Local variables
+   bool simulateThreadCrash = false;
+   std::size_t nResizeEvents = NRESIZEEVENTS;
+   std::size_t nJobs = NJOBS; // The number of tasks in each iteration
+   std::size_t nIterations = NITERATIONS; // The default number of iterations
+   bool showCLOptions = false; // When set to true, will show a summary of command line options
+
+   //----------------------------------------------------------------
+   // Create the parser builder -- needed for command line parsing
+   Gem::Common::GParserBuilder gpb;
+
+   // Register some command line options
+   gpb.registerCLParameter<std::size_t>(
+         "nJobs,j"
+         , nJobs
+         , NJOBS
+   ) << "The number of testTask objects on which work is performed";
+
+   gpb.registerCLParameter<std::size_t>(
+         "nIterations,i"
+         , nIterations
+         , NITERATIONS
+   ) << "The number of testTask objects on which work is performed";
+
+   gpb.registerCLParameter<std::size_t>(
+         "nResizeEvents,r"
+         , nResizeEvents
+         , NRESIZEEVENTS
+   )
+   << "Tests random resizing of the thread pool \"nResizeEvents\" times";
+
+   gpb.registerCLParameter<bool>(
+         "simulateThreadCrash,s"
+         , simulateThreadCrash
+         , false // the default value
+         , "When set to true, simulates the crash of a single thread"
+         , true // implicit allowed (i.e. "-s" without argument)
+         , true // the implicit value
+   );
+
+   gpb.registerCLParameter<bool>(
+         "showCLOptions,o"
+         , showCLOptions
+         , false // the default value
+         , "When set to true, shows a summary of command line options"
+         , true // implicit allowed (i.e. "-o" without argument)
+         , true // the implicit value
+   );
+
+   // Parse the command line and leave if the help flag was given
+   if(Gem::Common::GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, showCLOptions)) {
+      return 0;
+   }
+
+   //----------------------------------------------------------------
+   // The actual threadpool
+   Gem::Common::GThreadPool gtp;
 
 	// Create a number of test tasks
-	std::vector<boost::shared_ptr<testTask> > tasks(NJOBS);
-	for(std::size_t i=0; i<NJOBS; i++) {
+	std::vector<boost::shared_ptr<testTask> > tasks(nJobs);
+	for(std::size_t i=0; i<nJobs; i++) {
 		tasks.at(i).reset(new testTask);
 	}
 
 	// Submit each task to the pool a number of times
-	for(std::size_t n = 0; n<NSUBMISSIONS; n++) {
+	for(std::size_t n = 0; n<nIterations; n++) {
 		// Submission number n
-		for(std::size_t i=0; i<NJOBS; i++) {
-			gtp.async_schedule(boost::function<void()>(boost::bind(&testTask::increment, tasks.at(i))));
+		for(std::size_t i=0; i<nJobs; i++) {
+		   if(i==nJobs-1 && n==nIterations-1 &&  true==simulateThreadCrash) { // sumulate a crash
+		      gtp.async_schedule(boost::function<void()>(boost::bind(&testTask::process, tasks.at(i), true)));
+		   } else { // normal operation
+		      gtp.async_schedule(boost::function<void()>(boost::bind(&testTask::process, tasks.at(i), false )));
+		   }
 		}
 
 		// Wait for all tasks to complete and check for errors
@@ -110,12 +230,12 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	// Check that each task has been called exactly NSUBMISSIONS times
-	for(std::size_t i=0; i<NJOBS; i++) {
-		if(NSUBMISSIONS != (tasks.at(i))->getNCalls()) {
+	// Check that each task has been called exactly nIterations times
+	for(std::size_t i=0; i<nJobs; i++) {
+		if(nIterations != (tasks.at(i))->getOperatorCalledValue()) {
 			std::cout
 			<< "In task " << i << ":" << std::endl
-			<< "Got wrong number of calls: " << (tasks.at(i))->getNCalls() << "." << std::endl;
+			<< "Got wrong number of calls: " << (tasks.at(i))->getOperatorCalledValue() << "." << std::endl;
 		}
 	}
 }
