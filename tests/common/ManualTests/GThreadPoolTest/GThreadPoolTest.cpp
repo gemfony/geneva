@@ -50,6 +50,14 @@
 
 using namespace Gem::Common;
 
+Gem::Common::GThreadPool gtp; ///< The global threadpool
+
+const std::size_t NRESIZEEVENTS = 0;
+const std::size_t NJOBS = 100;
+const std::size_t NITERATIONS = 5;
+const unsigned int MINTHREADS = 1;
+const unsigned int MAXTHREADS = 10;
+
 /************************************************************************/
 /**
  * A simple test task that sets a flag when the operator() has been called
@@ -86,7 +94,7 @@ public:
 	 * Performs work on this object. This is the function to be executed
 	 * inside of the threads
 	 */
-	void process(bool simulateCrash) {
+	void process(bool simulateCrash, bool resize) {
 	   if(gr.uniform_bool()) {
 	      this->increment();
 	   } else {
@@ -99,7 +107,16 @@ public:
          )
 	   );
 
-	   if(simulateCrash) {
+	   if(true==resize) {
+	      unsigned int nt = gr.uniform_int<unsigned int>(MINTHREADS,MAXTHREADS);
+	      gtp.setNThreads(nt);
+
+	      glogger
+	      << "Resized thread pool to size " << nt << std::endl
+	      << GLOGGING;
+	   }
+
+	   if(true==simulateCrash) {
 	      glogger
 	      << "In testTask::process(): Error!" << std::endl
 	      << "SHF-Exception (Some Horrible Failure)" << std::endl
@@ -135,11 +152,6 @@ private:
 };
 
 /************************************************************************/
-
-const std::size_t NRESIZEEVENTS = 0;
-const std::size_t NJOBS = 100;
-const std::size_t NITERATIONS = 5;
-
 /**
  * This test tries to ascertain that GThreadPool works as expected. It submits
  * a given number of jobs to the pool, waits for their execution and submits them again
@@ -147,6 +159,8 @@ const std::size_t NITERATIONS = 5;
  * the thread pool in random intervals and
  */
 int main(int argc, char** argv) {
+   Gem::Hap::GRandom gr; // Instantiates a random number generator
+
    //----------------------------------------------------------------
    // Local variables
    bool simulateThreadCrash = false;
@@ -203,8 +217,7 @@ int main(int argc, char** argv) {
    }
 
    //----------------------------------------------------------------
-   // The actual threadpool
-   Gem::Common::GThreadPool gtp;
+   // Start measurements
 
 	// Create a number of test tasks
 	std::vector<boost::shared_ptr<testTask> > tasks(nJobs);
@@ -213,14 +226,17 @@ int main(int argc, char** argv) {
 	}
 
 	// Submit each task to the pool a number of times
+	double resizeLikelihood=(std::min)(double(nResizeEvents)/double(nIterations*nJobs),1.);
 	for(std::size_t n = 0; n<nIterations; n++) {
 		// Submission number n
 		for(std::size_t i=0; i<nJobs; i++) {
-		   if(i==nJobs-1 && n==nIterations-1 &&  true==simulateThreadCrash) { // sumulate a crash
-		      gtp.async_schedule(boost::function<void()>(boost::bind(&testTask::process, tasks.at(i), true)));
-		   } else { // normal operation
-		      gtp.async_schedule(boost::function<void()>(boost::bind(&testTask::process, tasks.at(i), false )));
+		   bool stc = false;
+		   if(i==nJobs-1 && n==nIterations-1 &&  true==simulateThreadCrash) {
+		      stc = true;
 		   }
+
+         bool re = gr.weighted_bool(resizeLikelihood);
+         gtp.async_schedule(boost::function<void()>(boost::bind(&testTask::process, tasks.at(i), stc, re)));
 		}
 
 		// Wait for all tasks to complete and check for errors
