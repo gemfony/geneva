@@ -77,7 +77,7 @@ public:
    G_API_COMMON ~GThreadPool();
 
    /** @brief Sets the number of threads currently used */
-   G_API_COMMON void setNThreads(unsigned int);
+   G_API_COMMON bool setNThreads(unsigned int);
    /** @brief Retrieves the current number of threads being used in the pool */
    G_API_COMMON unsigned int getNThreads() const;
 
@@ -104,11 +104,16 @@ public:
 	 */
 	template <typename F>
 	void async_schedule(F f) {
-	   { // Determine whether threads have already been started
-	      boost::upgrade_lock< boost::shared_mutex > lck(threads_started_mutex_);
-	      if(false==threads_started_) { // double-lock pattern
-	         boost::upgrade_to_unique_lock< boost::shared_mutex > unique_lck(lck); // exclusive access
-	         if(false==threads_started_) { // Now we are sure that threads haven't been started yet
+      // We may only submit new jobs if job_lck can be acquired. This is
+      // important so we have a means of letting the submission queue run
+      // empty or of resetting the internal thread group.
+      boost::unique_lock<boost::mutex> job_lck(task_submission_mutex_);
+
+      { // Determine whether threads have already been started
+         boost::upgrade_lock<boost::shared_mutex> ts_lck(threads_started_mutex_);
+         if(false==threads_started_) { // double-lock pattern
+            boost::upgrade_to_unique_lock< boost::shared_mutex > unique_lck(ts_lck); // exclusive access
+            if(false==threads_started_) { // Now we are sure that threads haven't been started yet
 #ifdef DEBUG // Some error checks
                if(0==nThreads_) {
                   glogger
@@ -126,48 +131,40 @@ public:
                }
 #endif
 
+               // Store a worker (a place holder, really) in the io_service_ object
+               work_.reset(
+                  new boost::asio::io_service::work(io_service_)
+               );
 
-	            // Store a worker (a place holder, really) in the io_service_ object
-	            work_.reset(
-	               new boost::asio::io_service::work(io_service_)
-	            );
+               gtg_.create_threads (
+                  boost::bind(
+                     &boost::asio::io_service::run
+                     , &io_service_
+                  )
+                  , nThreads_
+               );
 
-	            gtg_.create_threads (
-	               boost::bind(
-	                  &boost::asio::io_service::run
-	                  , &io_service_
-	               )
-	               , nThreads_
-	            );
-
-	            threads_started_ = true;
-	         }
-	      }
-	   }
-
-	   { // Do the actual job submission
-         // We may only submit new jobs if job_lck can be acquired. This is
-         // important so we have a means of letting the submission queue run
-         // empty or of resetting the internal thread group.
-         boost::unique_lock<boost::mutex> job_lck(task_submission_mutex_);
-
-         // Update the task counter. NOTE: This needs to happen here
-         // and not in taskWrapper. tasksInFlight_ helps the wait()-function
-         // to determine whether any jobs have been submitted to the Boost.ASIO
-         // ioservice that haven't been processed yet. taskWrapper will
-         // only start execution when it is assigned to a thread. As we
-         // cannot "look" into ioservice, we need an external counter that
-         // is incremented upon submission, not start of execution.
-         {
-            boost::unique_lock<boost::mutex> cnt_lck(task_counter_mutex_);
-            tasksInFlight_++;
+               threads_started_ = true;
+            }
          }
+      }
 
-         // Finally submit to the io_service
-         io_service_.post(
-            boost::bind(&GThreadPool::taskWrapper<F>, this, f)
-         );
-	   }
+      // Update the task counter. NOTE: This needs to happen here
+      // and not in taskWrapper. tasksInFlight_ helps the wait()-function
+      // to determine whether any jobs have been submitted to the Boost.ASIO
+      // ioservice that haven't been processed yet. taskWrapper will
+      // only start execution when it is assigned to a thread. As we
+      // cannot "look" into ioservice, we need an external counter that
+      // is incremented upon submission, not start of execution.
+      {
+         boost::unique_lock<boost::mutex> cnt_lck(task_counter_mutex_);
+         tasksInFlight_++;
+      }
+
+      // Finally submit to the io_service
+      io_service_.post(
+         boost::bind(&GThreadPool::taskWrapper<F>, this, f)
+      );
 	}
 
 private:
@@ -232,6 +229,16 @@ private:
 
 		{ // Update the submission counter -- we need an external means to check whether the pool has run empty
 			boost::unique_lock<boost::mutex> cnt_lck(task_counter_mutex_);
+#ifdef DEBUG
+			if(0==tasksInFlight_) {
+            glogger
+            << "In GThreadPool::taskWrapper(F f): Error!" << std::endl
+            << "Trying to decrement a task counter that is already 0" << std::endl
+            << GWARNING;
+
+            // We do not use an exception here, as taskWrapper runs inside of a thread
+			}
+#endif /* DEBUG */
 			tasksInFlight_--;
 			condition_.notify_all();
 		}

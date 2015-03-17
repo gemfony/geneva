@@ -56,7 +56,7 @@ const std::size_t NRESIZEEVENTS = 0;
 const std::size_t NJOBS = 100;
 const std::size_t NITERATIONS = 5;
 const unsigned int MINTHREADS = 1;
-const unsigned int MAXTHREADS = 10;
+const unsigned int MAXTHREADS = 20;
 
 /************************************************************************/
 /**
@@ -94,7 +94,7 @@ public:
 	 * Performs work on this object. This is the function to be executed
 	 * inside of the threads
 	 */
-	void process(bool simulateCrash, bool resize) {
+	void process(bool simulateCrash) {
 	   if(gr.uniform_bool()) {
 	      this->increment();
 	   } else {
@@ -106,15 +106,6 @@ public:
             gr.uniform_int<long>(10, 20)
          )
 	   );
-
-	   if(true==resize) {
-	      unsigned int nt = gr.uniform_int<unsigned int>(MINTHREADS,MAXTHREADS);
-	      gtp.setNThreads(nt);
-
-	      glogger
-	      << "Resized thread pool to size " << nt << std::endl
-	      << GLOGGING;
-	   }
 
 	   if(true==simulateCrash) {
 	      glogger
@@ -226,32 +217,42 @@ int main(int argc, char** argv) {
 	}
 
 	// Submit each task to the pool a number of times
-	double resizeLikelihood=(std::min)(double(nResizeEvents)/double(nIterations*nJobs),1.);
+	double resizeLikelihood=(std::min)(double(nResizeEvents)/double(nIterations),1.);
 	for(std::size_t n = 0; n<nIterations; n++) {
 		// Submission number n
 		for(std::size_t i=0; i<nJobs; i++) {
 		   bool stc = false;
-		   if(i==nJobs-1 && n==nIterations-1 &&  true==simulateThreadCrash) {
+		   if(i==nJobs-1 && n==nIterations-1 && true==simulateThreadCrash) {
 		      stc = true;
 		   }
 
-         bool re = gr.weighted_bool(resizeLikelihood);
-         gtp.async_schedule(boost::function<void()>(boost::bind(&testTask::process, tasks.at(i), stc, re)));
+         gtp.async_schedule(boost::function<void()>(boost::bind(&testTask::process, tasks.at(i), stc)));
+		}
+
+		if(nResizeEvents > 0 && gr.weighted_bool(resizeLikelihood)) {
+		   unsigned int nt = gr.uniform_int<unsigned int>(MINTHREADS,MAXTHREADS);
+		   gtp.setNThreads(nt);
+
+		   glogger
+		   << "Resized thread pool to size " << nt << std::endl
+		   << GLOGGING;
 		}
 
 		// Wait for all tasks to complete and check for errors
 		if(!gtp.wait()) {
-			std::cout
-			<< "Errors occurred during the execution" << std::endl;
+			glogger
+			<< "Errors occurred during the execution" << std::endl
+			<< GLOGGING;
 		}
 	}
 
 	// Check that each task has been called exactly nIterations times
 	for(std::size_t i=0; i<nJobs; i++) {
 		if(nIterations != (tasks.at(i))->getOperatorCalledValue()) {
-			std::cout
+			glogger
 			<< "In task " << i << ":" << std::endl
-			<< "Got wrong number of calls: " << (tasks.at(i))->getOperatorCalledValue() << "." << std::endl;
+			<< "Got wrong number of calls: " << (tasks.at(i))->getOperatorCalledValue() << "." << std::endl
+			<< GLOGGING;
 		}
 	}
 }

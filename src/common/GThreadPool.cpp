@@ -62,11 +62,27 @@ GThreadPool::GThreadPool(const unsigned int& nThreads)
 
 /******************************************************************************/
 /**
- * The destructor
+ * The destructor. This function is not thread-safe and does assume that
+ * at the time of its call no calls to async_schedule(), setNThreads() or
+ * wait() may occur. It does allow the queue to run empty, though.
  */
 GThreadPool::~GThreadPool() {
-   // Make sure the pool is empty
-   this->setNThreads(0);
+   // Make sure no new jobs may be submitted and let the pool run empty
+   boost::unique_lock<boost::mutex> job_lck(task_submission_mutex_);
+   // Make sure no async_schedule call may move into the "start threads" section
+   boost::unique_lock< boost::shared_mutex > ts_lck(threads_started_mutex_);
+   { // Makes sure cnt_lck is released
+      // Acquire the lock, then return it as long as the condition hasn't been fulfilled
+      boost::unique_lock<boost::mutex> cnt_lck(task_counter_mutex_);
+      while(tasksInFlight_ > 0) { // Deal with spurious wake-ups
+         condition_.wait(cnt_lck);
+      }
+   }
+
+   // Clear the thread group
+   work_.reset(); // This will initiate termination of all threads
+   gtg_.join_all(); // wait for the threads to terminate
+   gtg_.clearThreads(); // Clear the thread group
 
    if(this->hasErrors()) {
       std::ostringstream errors;
@@ -83,57 +99,63 @@ GThreadPool::~GThreadPool() {
 
 /******************************************************************************/
 /**
- * Sets the number of threads currently used. The function will add workers
- * to the thread group if threads should be added. Otherwise it will reset the
- * pool and fill it anew.
+ * Sets the number of threads currently used. When no threads are running yet,
+ * the function will leave starting of threads to async_submit. Otherwise the function
+ * will let the pool run empty of jobs. It will then either reset the local thread group,
+ * so that all "old" thread objects are gone (needed when the thread pool size is decreased)
+ * or simply add new threads. Nothing is done of the desired number of threads already
+ * equals the current number of threads.
+ *
+ * @param nThreads The desired number of threads
+ * @return true if no errors have occurred during thread execution so far
  */
-void GThreadPool::setNThreads(unsigned int nThreads) {
-   // Prevent initial thread-starts
-   boost::shared_lock< boost::shared_mutex > lck(threads_started_mutex_);
-
+bool GThreadPool::setNThreads(unsigned int nThreads) {
    unsigned int nThreadsLocal = nThreads?nThreads:getNHardwareThreads();
+   if(gtg_.size() == nThreadsLocal) { // We do nothing if we already have the desired size
+      return true;
+   }
+
+   // Make sure no new jobs may be submitted
+   boost::unique_lock<boost::mutex> job_lck(task_submission_mutex_);
+
+   // Make sure no async_schedule call may move into the "start threads" section
+   boost::unique_lock< boost::shared_mutex > ts_lck(threads_started_mutex_);
+
+   { // Let the pool run empty
+      // Acquire the lock, then return it as long as the condition hasn't been fulfilled
+      boost::unique_lock<boost::mutex> cnt_lck(task_counter_mutex_);
+      while(tasksInFlight_ > 0) { // Deal with spurious wake-ups
+         condition_.wait(cnt_lck);
+      }
+   }
+
+   // At this point all potential async_schedule calls, just like the wait() function,
+   // must be waiting to acquire the task_submission_mutex_.
+
+   // If threads were already running, either add new threads or recreate the pool
    if(true==threads_started_) {
-      if(gtg_.size() == nThreadsLocal) { // We already have the desired size
-         /* nothing */
-      } else if(nThreadsLocal > gtg_.size()) { // Add the missing threads
+      if(nThreadsLocal > nThreads_) { // We simply add the required number of threads
          gtg_.create_threads (
             boost::bind(
                &boost::asio::io_service::run
                , &io_service_
             )
-            , nThreadsLocal - gtg_.size()
+            , nThreadsLocal - nThreads_
          );
-      } else { // nThreadsLocal < gtg_.size(); Recreate the entire pool
-         // Make sure no new jobs may be submitted
-         boost::unique_lock<boost::mutex> job_lck(task_submission_mutex_);
+      } else { // We need to remove threads and thus reset the entire pool
+         work_.reset(); // This will initiate termination of all threads
+         gtg_.join_all(); // wait for the threads to terminate
+         gtg_.clearThreads(); // Clear the thread group
 
-         // First wait for the pool to run empty, so we do not loose jobs
-         boost::unique_lock<boost::mutex> cnt_lck(task_counter_mutex_);
-         while(tasksInFlight_ > 0) { // Deal with spurious wake-ups
-            condition_.wait(task_counter_mutex_);
-         }
+         // Reset the io_service object, so run may be called again
+         io_service_.reset();
 
-         // reset/clear the place holder; io_service.run() will then terminate.
-         work_.reset();
-
-         // If there are threads in the pool, reset them and clear the pool
-         if(gtg_.size() > 0) {
-            gtg_.join_all(); // wait for the threads to terminate
-            gtg_.clearThreads(); // Clear the thread group
-         }
-
-         // We are done if nThreads == 0
-         if(0 == nThreads) { // Note: NOT nThreadsLocal
-            return;
-         }
-
-         // Store a new worker (a place holder, really) in the io_service_ object.
-         // This will prevent new threads from stopping
+         // Store a new worker (a place holder, really) in the io_service_ object
          work_.reset(
             new boost::asio::io_service::work(io_service_)
          );
 
-         // Create the desired number of threads
+         // Start the threads
          gtg_.create_threads (
             boost::bind(
                &boost::asio::io_service::run
@@ -144,11 +166,11 @@ void GThreadPool::setNThreads(unsigned int nThreads) {
       }
    }
 
-   // If no threads have ben started yet, we simply set the number of threads.
-   // Threads may only be started from async_schedule, so the initiali construction
-   // of an unused GThreadPool doesn't start a plethora of idle threads.
-
+   // Finally set the new number of threads
    nThreads_ = nThreadsLocal;
+
+   // Let the audience know if there were errors during thread execution
+   return !this->hasErrors();
 }
 
 /******************************************************************************/
@@ -199,7 +221,8 @@ void GThreadPool::clearErrors() {
 
 /******************************************************************************/
 /**
- * Waits for all submitted jobs to be cleared from the pool
+ * Waits for all submitted jobs to be cleared from the pool. Note that this
+ * function may NOT be called from a task running inside of the pool.
  *
  * @return A boolean indicating whether errors have occurred
  */
@@ -211,7 +234,7 @@ bool GThreadPool::wait() {
       // Acquire the lock, then return it as long as the condition hasn't been fulfilled
       boost::unique_lock<boost::mutex> cnt_lck(task_counter_mutex_);
       while(tasksInFlight_ > 0) { // Deal with spurious wake-ups
-         condition_.wait(task_counter_mutex_);
+         condition_.wait(cnt_lck);
       }
    }
 
