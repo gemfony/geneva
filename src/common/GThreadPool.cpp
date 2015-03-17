@@ -104,7 +104,8 @@ GThreadPool::~GThreadPool() {
  * will let the pool run empty of jobs. It will then either reset the local thread group,
  * so that all "old" thread objects are gone (needed when the thread pool size is decreased)
  * or simply add new threads. Nothing is done of the desired number of threads already
- * equals the current number of threads.
+ * equals the current number of threads. Note that this function may NOT be called
+ * from a task running inside of the pool.
  *
  * @param nThreads The desired number of threads
  * @return true if no errors have occurred during thread execution so far

@@ -29,7 +29,8 @@ Feature- and API-additions:
 Important changes in the code (without API-changes):
 -  Rework of the GThreadPool class -- threads are now started upon the first 
    task submission, so default-constructed (unused) pools do not start a plethora
-   of idle threads
+   of idle threads. The pool may now be resized while threads are already
+   running.
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.6, "Ivrea" - March 10, 2015
