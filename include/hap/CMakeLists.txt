@@ -6,7 +6,6 @@ SET ( HAPINCLUDES
 	GRandomDefines.hpp
 	GRandomFactory.hpp
 	GRandomT.hpp
-	GSeedManager.hpp
 )
 
 INSTALL ( FILES ${HAPINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/hap )

@@ -54,7 +54,17 @@ GRandomFactory::GRandomFactory()
 	, threadsHaveBeenStarted_(false)
 	, n01Threads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)))
 	, g01_ (DEFAULTFACTORYBUFFERSIZE)
+   , startSeed_(boost::numeric_cast<initial_seed_type>(this->nondet_rng()))
 {
+   // Check whether enough entropy is available. Warn, if this is not the case
+   if(0. == nondet_rng.entropy()) {
+      glogger
+      << "In GSeedManager::GSeedManager(): Error!" << std::endl
+      << "Source of non-deterministic random numbers" << std::endl
+      << "has entropy 0." << std::endl
+      << GWARNING;
+   }
+
 	boost::mutex::scoped_lock lk(factory_creation_mutex_);
 	if(multiple_call_trap_ > 0) {
 	   std::cerr
@@ -125,28 +135,29 @@ std::size_t GRandomFactory::getBufferSize() const {
 
 /******************************************************************************/
 /**
- * Provides users with an interface to set the initial seed for the global seed
+ * Provides users with an interface to set the initial seed for the seed
  * generator. Note that this function will have no effect once seeding has started.
  * A boolean will be returned that indicates whether the function has had
- * an effect, i.e. whether the seed could be set. The seed manager will then be
- * started by this function. If not set by the user, the seed manager will start
- * upon first retrieval of a seed and will then try to acquire a seed automatically.
+ * an effect, i.e. whether the seed could be set. If not set by the user, the seed manager
+ * will start upon first retrieval of a seed and will then try to acquire a seed
+ * automatically.
  *
  * @param seed The desired initial value of the global seed
  * @return A boolean indicating whether the seed could be set
  */
 bool GRandomFactory::setStartSeed(const initial_seed_type& initial_seed) {
-	if(!seedManager_ptr_) { // double lock pattern
-		boost::mutex::scoped_lock lk(seedingMutex_);
-		if(!seedManager_ptr_) {
-			seedManager_ptr_ = boost::shared_ptr<Gem::Hap::GSeedManager>(new GSeedManager(initial_seed));
-			return true;
-		} else {
-			return false;
-		}
-	}
+   // Determine whether the seed-generator has already been initialized. If not, start it
+   boost::upgrade_lock<boost::shared_mutex> sm_lck(seedingMutex_);
+   if(!mt_ptr_) { // double lock pattern
+      boost::upgrade_to_unique_lock< boost::shared_mutex > unique_lck(sm_lck); // exclusive access
+      if(!mt_ptr_) {
+         mt_ptr_ = boost::shared_ptr<mersenne_twister>(new mersenne_twister(boost::numeric_cast<seed_type>(initial_seed)));
+         startSeed_ = initial_seed;
+         return true;
+      }
+   }
 
-	return false;
+   return false;
 }
 
 /******************************************************************************/
@@ -155,16 +166,9 @@ bool GRandomFactory::setStartSeed(const initial_seed_type& initial_seed) {
  *
  * @return The value of the global start seed
  */
-boost::uint32_t GRandomFactory::getStartSeed() const {
-	// Initialize the generator if necessary
-	if(!seedManager_ptr_) { // double lock pattern
-		boost::mutex::scoped_lock lk(seedingMutex_);
-		if(!seedManager_ptr_) {
-			seedManager_ptr_ = boost::shared_ptr<Gem::Hap::GSeedManager>(new GSeedManager());
-		}
-	}
-
-	return seedManager_ptr_->getStartSeed();
+initial_seed_type GRandomFactory::getStartSeed() const {
+   boost::shared_lock<boost::shared_mutex> sm_lck(seedingMutex_);
+   return startSeed_;
 }
 
 /******************************************************************************/
@@ -174,52 +178,35 @@ boost::uint32_t GRandomFactory::getStartSeed() const {
  * @return A boolean indicating whether seeding has already been initialized
  */
 bool GRandomFactory::checkSeedingIsInitialized() const {
-	// Initialize the generator if necessary
-	if(!seedManager_ptr_) { // double lock pattern
-		boost::mutex::scoped_lock lk(seedingMutex_);
-		if(!seedManager_ptr_) {
-			seedManager_ptr_ = boost::shared_ptr<Gem::Hap::GSeedManager>(new GSeedManager());
-		}
-	}
-
-	return seedManager_ptr_->checkSeedingIsInitialized();
+   boost::shared_lock<boost::shared_mutex> sm_lck(seedingMutex_);
+   if(mt_ptr_) {
+      return true;
+   }
+   return false;
 }
 
 /******************************************************************************/
 /**
  * This function returns a random number from a pseudo random number generator
- * that has been seeded from a non-deterministic source (using the facilities
- * provided by boost.random). Note that there is no guaranty (albeit a good
- * likelihood) that neighboring numbers differ. Values obtained from this source
- * are intended to be used for the seeding of further generators. For the purpose
- * at hand, it is not mandatory that all start seeds of all generators being used
- * in an application differ. Hence there is no control whether there is a certain
- * number of unique seeds in a row. This might be implemented at a later time,
- * dependent on user requests. This function also checks whether seeding has already
- * started and if not, initiates seeding.
+ * that has (usually -- depends on the system) been seeded from a non-deterministic
+ * source (unless the user has set a seed manually). The function will initialize
+ * the seeding process, if this hasn't happened yet.
  *
- * @return A seed based on the current time
+ * @return A seed taken from a local random number generator
  */
 boost::uint32_t GRandomFactory::getSeed(){
-	// Initialize the generator if necessary
-	if(!seedManager_ptr_) { // double lock pattern
-		boost::mutex::scoped_lock lk(seedingMutex_);
-		if(!seedManager_ptr_) {
-			seedManager_ptr_ = boost::shared_ptr<Gem::Hap::GSeedManager>(new GSeedManager());
-		}
-	}
+   { // Determine whether the seed-generator has already been initialized. If not, start it
+      boost::upgrade_lock<boost::shared_mutex> sm_lck(seedingMutex_);
+      if(!mt_ptr_) { // double lock pattern
+         boost::upgrade_to_unique_lock< boost::shared_mutex > unique_lck(sm_lck); // exclusive access
+         if(!mt_ptr_) {
+            mt_ptr_ = boost::shared_ptr<mersenne_twister>(new mersenne_twister(boost::numeric_cast<seed_type>(startSeed_)));
+         }
+      }
+   }
 
-	return seedManager_ptr_->getSeed();
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the size of the seeding queue
- *
- * @return The size of the seeding queue
- */
-std::size_t GRandomFactory::getSeedingQueueSize() const {
-	return seedManager_ptr_->getQueueSize();
+   boost::unique_lock<boost::shared_mutex> sm_lck(seedingMutex_);
+	return (*mt_ptr_)();
 }
 
 /******************************************************************************/
@@ -250,6 +237,7 @@ void GRandomFactory::setNProducerThreads(const boost::uint16_t& n01Threads)
 					producer_threads_01_.create_thread(boost::bind(&GRandomFactory::producer01, this, seed_));
 				}
 			} else if (n01Threads_local < n01Threads_) { // We need to remove threads
+			   // TODO: interrupt threads
 				producer_threads_01_.remove_last(n01Threads_ - n01Threads_local);
 			}
 		}

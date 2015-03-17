@@ -4,7 +4,6 @@ SET ( HAPSOURCES
 	GHapEnums
 	GRandomBase
 	GRandomFactory
-	GSeedManager
 )
 
 # BUILD_SHARED_LIBS controls the behavior of ADD_LIBRARY if STATIC/SHARED omitted

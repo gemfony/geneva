@@ -54,6 +54,8 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
+#include <boost/random.hpp>
+#include <boost/random/random_device.hpp>
 #include <boost/utility.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/shared_array.hpp>
@@ -81,7 +83,7 @@
 #include "common/GSingletonT.hpp"
 #include "common/GThreadGroup.hpp"
 #include "common/GHelperFunctions.hpp"
-#include "hap/GSeedManager.hpp"
+#include "hap/GRandomDefines.hpp"
 
 /******************************************************************************/
 
@@ -146,9 +148,6 @@ public:
 	/** @brief Retrieval of a new seed for external or internal random number generators */
 	G_API_HAP seed_type getSeed();
 
-	/** @brief Allows to retrieve the size of the seeding queue */
-	G_API_HAP std::size_t getSeedingQueueSize() const;
-
 private:
 	/***************************************************************************/
 
@@ -173,9 +172,11 @@ private:
 
 	mutable boost::mutex thread_creation_mutex_; ///< Synchronization of access to the threadsHaveBeenStarted_ variable
 	mutable boost::shared_mutex arraySizeMutex_; ///< Regulates access to the arraySize_ variable
-	mutable boost::mutex seedingMutex_; ///< Regulates start-up of the seeding process
 
-	mutable boost::shared_ptr<GSeedManager> seedManager_ptr_; ///< Manages seed creation
+	boost::random::random_device nondet_rng; ///< Source of non-deterministic random numbers
+	initial_seed_type startSeed_; ///< Stores the initial start seed
+	boost::shared_ptr<mersenne_twister> mt_ptr_;
+	mutable boost::shared_mutex seedingMutex_; ///< Regulates start-up of the seeding process
 };
 
 } /* namespace Hap */

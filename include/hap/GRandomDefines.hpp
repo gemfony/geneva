@@ -70,7 +70,7 @@ const boost::uint16_t DEFAULTSEEDQUEUEPUTWAIT = 50; ///< waiting time for seedin
 /**
  * The number of threads that simultaneously produce [0,1[ random numbers
  */
-const boost::uint16_t DEFAULT01PRODUCERTHREADS = 4;
+const boost::uint16_t DEFAULT01PRODUCERTHREADS = 2;
 
 /******************************************************************************/
 /**
