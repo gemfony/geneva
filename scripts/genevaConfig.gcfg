@@ -61,9 +61,9 @@ CMAKE="/usr/bin/cmake"
 #BOOSTLIBS="/usr/lib"
 #BOOSTINCL="/usr/include"
 
-# Build mode must be either 'Release', 'Debug' or 'Sanitize'
-# NOTE: the 'Sanitize' setting is experimental! It will default
-# to 'Debug' on unsupported platforms; see
+# Build mode must be either 'Release', 'Debug', 'RelWithDebInfo',
+# 'MinSizeRel' or 'Sanitize'. NOTE: the 'Sanitize' setting is experimental!
+# It will default to 'Debug' on unsupported platforms; see
 # http://googletesting.blogspot.ru/2014/06/threadsanitizer-slaughtering-data-races.html
 BUILDMODE="Release"
 

@@ -87,7 +87,7 @@ MACRO (
 )
 
 	#--------------------------------------------------------------------------
-	SET(GENEVA_CONFIGURATION_TYPES "Debug;Release;Sanitize")
+	SET(GENEVA_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo;MinSizeRel;Sanitize")
 
 	# Set the available build types on multi-config generators
 	IF(CMAKE_CONFIGURATION_TYPES)
@@ -105,7 +105,7 @@ MACRO (
 			MESSAGE("   the right IDE project files CMake must be run again!\n")
 			MESSAGE("   Please re-run the same command once more...\n")
 			MESSAGE("#############################################################\n\n")
-			MESSAGE(FATAL_ERROR "\nThis is not an error, but a request to re-run this command!\n")
+			MESSAGE(FATAL_ERROR "\nThis is NOT an error, but a request to re-run this command!\n")
 		ENDIF()
 	ENDIF()
 
@@ -126,7 +126,7 @@ MACRO (
 	)
 	# Update the documentation string of CMAKE_BUILD_TYPE for GUIs
 	SET(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE
-	    STRING "Choose the build type, options are: Debug Release Sanitize" FORCE)
+	    STRING "Choose the build type, options are: Debug Release RelWithDebInfo MinSizeRel Sanitize" FORCE)
 
 	# The build type is not needed on multi-config generators
 	IF(NOT CMAKE_CONFIGURATION_TYPES)
@@ -502,7 +502,7 @@ FUNCTION (
 	#*****************************************************************
 	ELSEIF(GENEVA_COMPILER_NAME_IN MATCHES ${CLANG_DEF_IDENTIFIER})
 
-		SET(FLAGS_LOCAL "${FLAGS_LOCAL} -Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -pthread")
+		SET(FLAGS_LOCAL "${FLAGS_LOCAL} -Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -Wno-deprecated-register -pthread")
 
 		# CLang 3.0 does not seem to support -ftemplate-depth
 		IF(${GENEVA_COMPILER_VERSION_IN} VERSION_GREATER 3.0)
@@ -524,7 +524,7 @@ FUNCTION (
 	#*****************************************************************
 	ELSEIF(GENEVA_COMPILER_NAME_IN MATCHES ${GNU_DEF_IDENTIFIER})
 
-		SET(FLAGS_LOCAL "${FLAGS_LOCAL} -fmessage-length=0 -fno-unsafe-math-optimizations -fno-finite-math-only -ftemplate-depth=1024 -Wno-unused -Wno-attributes -pthread")
+		SET(FLAGS_LOCAL "${FLAGS_LOCAL} -fmessage-length=0 -fno-unsafe-math-optimizations -fno-finite-math-only -ftemplate-depth=1024 -pthread")
 
 		# GCC 4.8 on Cygwin does not provide the math constants (M_PI...) by
 		# default (pure ANSI standard), unless _XOPEN_SOURCE=500 is set, see

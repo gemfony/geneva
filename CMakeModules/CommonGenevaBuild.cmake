@@ -77,8 +77,8 @@ ENDIF()
 INCLUDE(IdentifySystemParameters)
 
 ################################################################################
-# Validate the build type chosen by the user (Release or Debug). This macro
-# also sets CMAKE_BUILD_TYPE accordingly.
+# Validate the build type chosen by the user. This macro also sets
+# the variable CMAKE_BUILD_TYPE accordingly.
 
 VALIDATE_BUILD_TYPE()
 
@@ -451,9 +451,9 @@ ENDIF ()
 # Don't print the useless build type on multi-config generators
 IF(NOT CMAKE_CONFIGURATION_TYPES)
 	MESSAGE ("\tin ${CMAKE_BUILD_TYPE} mode")
-ENDIF ()
-IF ("${GENEVA_BUILD_TYPE}" STREQUAL "Sanitize")
-	MESSAGE ("\twith -fsanitize=thread (if available)")
+	IF ("${GENEVA_BUILD_TYPE}" STREQUAL "Sanitize")
+		MESSAGE ("\twith -fsanitize=thread (if available)")
+	ENDIF ()
 ENDIF ()
 
 MESSAGE ("\twith Boost include location:\t ${Boost_INCLUDE_DIRS}")

@@ -50,15 +50,15 @@ if [ $# -eq 0 ]; then
 	echo -e "file was provided. See the Geneva 'scripts' directory"
 	echo -e "for an example (genevaConfig.gcfg).\n"
 
-	CMAKE="/usr/bin/cmake"                    # Where the cmake executable is located
-	BUILDMODE="Release"                       # Release, Debug or Sanitize (experimental, will default to Debug on unsupported platforms; compare http://googletesting.blogspot.ru/2014/06/threadsanitizer-slaughtering-data-races.html)
-	BUILDSTD="cxx98"                          # "auto": choose automatically; "cxx98": enforce the C++98 standard; "cxx11": enforce the C++11 standard
-	BUILDWITHMPI="0"                          # Whether Geneva should be built with MPI support (experimental!). NOTE: Boost.MPI must be installed alongside supported MPI libraries
-	BUILDTESTCODE="0"                         # Whether to build Geneva with testing code
-	BUILDSTATIC="0"                           # Whether to build static code / libraries (experimental!)
-	VERBOSEMAKEFILE="0"                       # Whether compilation information should be emitted
-	INSTALLDIR="/opt/geneva"                  # Where the Geneva library shall go
-	CEXTRAFLAGS=""                            # Further CMake settings you might want to provide
+	CMAKE="/usr/bin/cmake"         # Where the cmake executable is located
+	BUILDMODE="Release"            # Release, Debug, RelWithDebInfo, MinSizeRel or Sanitize (experimental, will default to Debug on unsupported platforms)
+	BUILDSTD="cxx98"               # "auto": choose automatically; "cxx98": enforce the C++98 standard; "cxx11": enforce the C++11 standard
+	BUILDWITHMPI="0"               # Whether Geneva should be built with MPI support (experimental!). NOTE: Boost.MPI must be installed alongside supported MPI libraries
+	BUILDTESTCODE="0"              # Whether to build Geneva with testing code
+	BUILDSTATIC="0"                # Whether to build static code / libraries (experimental!)
+	VERBOSEMAKEFILE="0"            # Whether compilation information should be emitted
+	INSTALLDIR="/opt/geneva"       # Where the Geneva library shall go
+	CEXTRAFLAGS=""                 # Further CMake settings you might want to provide
 elif [ $# -eq 1 ]; then
 	# Check that the command file has the expected form (ends with .gcfg)
 	testfile=`basename $1 .gcfg`.gcfg
@@ -183,7 +183,9 @@ if [ -n "${BOOSTINCL}" ] && [ ! -e "${BOOSTINCL}/boost/version.hpp" ]; then
 	exit
 fi
 
-if [ ! "${BUILDMODE}" = "Release" ] && [ ! "${BUILDMODE}" = "Debug" ] && [ ! "${BUILDMODE}" = "Sanitize" ]; then
+if [ ! "${BUILDMODE}" = "Release" ] && [ ! "${BUILDMODE}" = "Debug" ] \
+		&& [ ! "${BUILDMODE}" = "RelWithDebInfo"] && [ ! "${BUILDMODE}" = "MinSizeRel"] \
+		&& [ ! "${BUILDMODE}" = "Sanitize" ]; then
 	echo -e "\nError: Invalid build mode ${BUILDMODE} provided. Leaving...\n"
 	exit
 fi
