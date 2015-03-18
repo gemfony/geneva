@@ -184,7 +184,7 @@ if [ -n "${BOOSTINCL}" ] && [ ! -e "${BOOSTINCL}/boost/version.hpp" ]; then
 fi
 
 if [ ! "${BUILDMODE}" = "Release" ] && [ ! "${BUILDMODE}" = "Debug" ] \
-		&& [ ! "${BUILDMODE}" = "RelWithDebInfo"] && [ ! "${BUILDMODE}" = "MinSizeRel"] \
+		&& [ ! "${BUILDMODE}" = "RelWithDebInfo" ] && [ ! "${BUILDMODE}" = "MinSizeRel" ] \
 		&& [ ! "${BUILDMODE}" = "Sanitize" ]; then
 	echo -e "\nError: Invalid build mode ${BUILDMODE} provided. Leaving...\n"
 	exit
