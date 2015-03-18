@@ -69,10 +69,10 @@
 #define GENEVA_VERSION @GENEVA_API_VERSION@
 
 /** The minimum allowed version of the Boost library */
-#define MIN_BOOST_VERSION 104800
+#define MIN_BOOST_VERSION @GENEVA_MIN_BOOST_API_VERSION@
 
 #if BOOST_VERSION < MIN_BOOST_VERSION
-#error "Error: Boost should at least have version 1.48 !"
+#error "Error: Boost should at least have version @GENEVA_MIN_BOOST_VERSION@ !"
 #endif /* BOOST_VERSION */
 
 /** Make sure we use boost filesystem v3 */
