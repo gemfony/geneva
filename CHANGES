@@ -22,6 +22,10 @@ The main changes for this release include:
 
 ****************************** BREAKING CHANGES ********************************
 
+ - Geneva requires now the Boost::atomic component of Boost. You will
+   need to install this additional component if your Boost installation
+   is not a complete one, for instance in the case of a system-provided
+   Boost in some Linux distributions.
  - The minimal BOOST version required for compiling Geneva is now v1.53.
 
 ********************************************************************************
@@ -29,6 +33,7 @@ The main changes for this release include:
 Feature- and API-additions:
 
 Important changes in the code (without API-changes):
+
  - Rework of the GThreadPool class -- threads are now started upon the
    first task submission, so default-constructed (unused) pools do not
    start a plethora of idle threads. The pool may now be resized while

@@ -215,6 +215,7 @@ SET (GENEVA_MIN_BOOST_VERSION 1.53)
 # These are the libraries required for any Geneva build
 SET (
 	GENEVA_BOOST_LIBS
+	atomic
 	date_time
 	filesystem
 	random

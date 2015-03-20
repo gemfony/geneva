@@ -122,8 +122,9 @@ under CygWin:
         make
         cmake
         libboost-devel
-        libboost_*1.55  (at least you need: date_time,filesystem,
-                         program_options,regex,serialization,system,thread)
+        libboost_*1.55  (at least you need: atomic, date_time,filesystem,
+                         program_options,random,regex,serialization,system,
+                         thread,test_exec_monitor,unit_test_framework)
 
 Then build Geneva as in any Unix system, see "Building and installing
 Geneva" below.
