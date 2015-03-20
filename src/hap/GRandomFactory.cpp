@@ -53,7 +53,8 @@ GRandomFactory::GRandomFactory()
 	: finalized_(false)
 	, threadsHaveBeenStarted_(false)
 	, n01Threads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)))
-	, g01_ (DEFAULTFACTORYBUFFERSIZE)
+	, p01_ (DEFAULTFACTORYBUFFERSIZE)
+   , r01_ (DEFAULTFACTORYBUFFERSIZE)
    , startSeed_(boost::numeric_cast<initial_seed_type>(this->nondet_rng()))
 {
    // Check whether enough entropy is available. Warn, if this is not the case
@@ -211,6 +212,34 @@ boost::uint32_t GRandomFactory::getSeed(){
 
 /******************************************************************************/
 /**
+ * Allows recycling of partially used packages. The first entry of the package
+ * signifies the first "unused" random number. Note that this function may
+ * delete its argument if it cannot be added to the buffer.
+ *
+ * @param r A pointer to a partially used work package
+ * @param current_pos The first position in the array that holds unused random numbers
+ */
+void GRandomFactory::returnPartiallyUsedPackage(double *r, std::size_t current_pos) {
+   // We try to add the item to the r01_ queue, until a timeout occurs.
+   // Once this is the case we delete the package, so we do not overflow
+   // with recycled packages
+   recyclingBin *rb_ptr;
+   try{
+      rb_ptr = new recyclingBin();
+
+      rb_ptr->r = r;
+      rb_ptr->current_pos = current_pos;
+
+      // std::cout << "Returning package with " << DEFAULTARRAYSIZE-current_pos << " ( " << DEFAULTARRAYSIZE << " / " << current_pos << ") remaining numbers" << std::endl;
+      r01_.push_front(rb_ptr, boost::posix_time::milliseconds(DEFAULTFACTORYGETWAIT));
+   } catch (Gem::Common::condition_time_out&) { // No luck buffer is full. Delete the recycling bin
+      delete [] rb_ptr->r;
+      delete rb_ptr;
+   }
+}
+
+/******************************************************************************/
+/**
  * Sets the number of producer threads for this factory.
  *
  * @param n01Threads
@@ -224,7 +253,7 @@ void GRandomFactory::setNProducerThreads(const boost::uint16_t& n01Threads)
 	// Threads might already be running, so we need to regulate access
 	{
 		boost::mutex::scoped_lock lk(thread_creation_mutex_);
-		if(threadsHaveBeenStarted_) {
+		if(threadsHaveBeenStarted_.load()) {
 			if (n01Threads_local > n01Threads_) { // start new 01 threads
 				for (boost::uint16_t i = n01Threads_; i < n01Threads_local; i++) {
 					producer_threads_01_.create_thread(
@@ -248,27 +277,27 @@ void GRandomFactory::setNProducerThreads(const boost::uint16_t& n01Threads)
 /******************************************************************************/
 /**
  * When objects need a new container [0,1[ of random numbers with the current
- * default size, they call this function. Mote that users are responsible for
- * deletimg the obtained array.
+ * default size, they call this function.
  *
  * @return A packet of new [0,1[ random numbers
  */
 double * GRandomFactory::new01Container() {
 	// Start the producer threads upon first access to this function
-	if(!threadsHaveBeenStarted_) {
+	if(!threadsHaveBeenStarted_.load()) {
 		boost::mutex::scoped_lock lk(thread_creation_mutex_);
-		if(!threadsHaveBeenStarted_) {
+		if(!threadsHaveBeenStarted_.load()) {
 			startProducerThreads();
 			threadsHaveBeenStarted_=true;
 		}
 	}
 
-	double* result = (double *)NULL; // empty
+	double *result = (double *)NULL; // empty
 	try {
-		g01_.pop_back(result, boost::posix_time::milliseconds(DEFAULTFACTORYGETWAIT));
+		p01_.pop_back(result, boost::posix_time::milliseconds(DEFAULTFACTORYGETWAIT));
 	} catch (Gem::Common::condition_time_out&) {
-		// nothing - our way of signaling a time out
-		// is to return an empty boost::shared_ptr
+      // nothing - our way of signaling a time out
+      // is to return an empty boost::shared_ptr
+	   result = (double *)NULL;
 	}
 
 	return result;
@@ -293,9 +322,13 @@ void GRandomFactory::startProducerThreads()  {
 /******************************************************************************/
 /**
  * The production of [0,1[ random numbers takes place here. As this function
- * is called in a thread, it may not throw under any circumstance. Exceptions
+ * is called in a thread, it may only throw using Genevas mechanisms. Exceptions
  * could otherwise go unnoticed. Hence this function has a possibly confusing
  * setup.
+ *
+ * TODO: Check occurances of DEFAULTFACTORYGETWAIT and DEFAULTFACTORYPUTWAIT for consistency
+ * TODO: Rename current_pos to pristine_pos
+ * TODO: Rewrite again with boost::array
  *
  * @param seed A seed for our local random number generator
  */
@@ -303,20 +336,47 @@ void GRandomFactory::producer01(boost::uint32_t seed)  {
 	try {
 		lagged_fibonacci lf(seed);
 
-		while (true) {
-			if(boost::this_thread::interruption_requested()) {
-			   break;
-			}
+		double *p = (double *)NULL;
+		while(!boost::this_thread::interruption_requested()) {
+		   if((double *)NULL == p) {
+		      // First we try to retrieve a "recycled" item from the r01_ buffer. If this
+		      // fails (likely because the buffer is empty), we create a new item
+	         try {
+	            recyclingBin *rb_ptr;
+	            r01_.pop_back(rb_ptr, boost::posix_time::milliseconds(DEFAULTFACTORYGETWAIT));
 
-			double *p = new double[DEFAULTARRAYSIZE];
-			for (std::size_t i = 1; i < DEFAULTARRAYSIZE; i++) {
-				p[i] = lf();
-			}
-			p[0] = boost::numeric_cast<double>(DEFAULTARRAYSIZE);
+	            // If we reach this line, we have successfully retrieved a recycled container.
+	            // First do some error-checking
+#ifdef DEBUG
+	            if(!rb_ptr) {
+	               glogger
+	               << "In RandomFactory::producer01(): Error!" << std::endl
+	               << "Got empty recycling pointer" << std::endl
+	               << GEXCEPTION;
+	            }
 
-			// Thanks to the following call, thread creation will be idle if the buffer is full
+#endif /* DEBUG */
+
+	            // We now need to freshen it up
+	            p = rb_ptr->r;
+	            for(std::size_t pos=0; pos<rb_ptr->current_pos; pos++) {
+	               p[pos]=lf();
+	            }
+
+	            // Finally get rid of the now "empty" rb_ptr
+	            if(rb_ptr) delete rb_ptr;
+	         } catch (Gem::Common::condition_time_out&) { // O.k., so we need to create a new container
+	            p = new double[DEFAULTARRAYSIZE];
+	            for (std::size_t pos = 0; pos < DEFAULTARRAYSIZE; pos++) {
+	               p[pos] = lf();
+	            }
+	         }
+		   }
+
+			// Thanks to the following call, thread creation will be mostly idle if the buffer is full
 		   try {
-	         g01_.push_front(p, boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
+	         p01_.push_front(p, boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
+	         p = (double *)NULL; // Make sure a new data item is produced in the next iteration
 		   } catch (Gem::Common::condition_time_out&) {
 		      continue; // Try again, if we didn't succeed
 		   }

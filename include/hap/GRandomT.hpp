@@ -115,7 +115,9 @@ public:
 	 */
 	virtual ~GRandomT()
 	{
-		p01_ = (double *)NULL;
+	   if(p01_){
+	      grf_->returnPartiallyUsedPackage(p01_, current01_);
+	   }
 		grf_.reset();
 	}
 
@@ -130,9 +132,13 @@ protected:
 	 * assumes that a valid container is already available.
 	 */
 	virtual double dbl_random01() {
-		if (current01_ >= DEFAULTARRAYSIZE) {
+		if(current01_ >= DEFAULTARRAYSIZE) {
+		   // Get rid of the old container ...
+	      if(p01_){
+	         grf_->returnPartiallyUsedPackage(p01_, current01_);
+	      }
+         // ... then get a new one
 		   getNewP01();
-		   delete [] p01_;
 		}
 		return p01_[current01_++];
 	}
@@ -142,6 +148,8 @@ private:
 	/**
 	 * (Re-)Initialization of p01_. Checks that a valid GRandomFactory still
 	 * exists, then retrieves a new container.
+	 *
+	 * TODO: What happens if no items are produced anymore and an interrupt signal was sent?
 	 */
 	void getNewP01() {
 		// Make sure we get rid of the old container

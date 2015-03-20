@@ -93,8 +93,7 @@ namespace Hap {
 
 /**
  * In a redesign of this class we want:
- * - Round-robin creation and retrieval
- * - Transfer of data packages as pure, private pointers
+ * - Round-robin creation and retrieval --> Whenever a package is handed out, a thread is submitted to a pool to create a new thread
  * - Recycling of unused random numbers in a packet through memcpy
  * - "Live-resizing of the thread-pool
  */
@@ -157,9 +156,20 @@ public:
 	/** @brief Retrieval of a new seed for external or internal random number generators */
 	G_API_HAP seed_type getSeed();
 
+	/** @brief Allows recycling of partially used packages */
+	G_API_HAP void returnPartiallyUsedPackage(double *, std::size_t);
+
 private:
 	/***************************************************************************/
+	/**
+	 * This struct holds random number containers designated for "recycling"
+	 */
+	struct recyclingBin {
+	   double *r;
+	   std::size_t current_pos;
+	};
 
+	/***************************************************************************/
 	GRandomFactory(const GRandomFactory&); ///< Intentionally left undefined
 	const GRandomFactory& operator=(const GRandomFactory&);  ///< Intentionally left undefined
 
@@ -169,18 +179,19 @@ private:
 	void producer01(boost::uint32_t seed);
 
 	bool finalized_;
-	volatile bool threadsHaveBeenStarted_;
+	boost::atomic<bool> threadsHaveBeenStarted_;
 	boost::uint16_t n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
 	Gem::Common::GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
 
 	/** @brief A bounded buffer holding the [0,1[ random number packages */
-	Gem::Common::GBoundedBufferT<double *> g01_; // Note: Absolutely needs to be defined after the thread group !!!
+	Gem::Common::GBoundedBufferT<double *> p01_; // Note: Absolutely needs to be defined after the thread group !!!
+   /** @brief A bounded buffer holding [0,1[ random number packages ready for recycling */
+   Gem::Common::GBoundedBufferT<recyclingBin *> r01_;
 
 	static boost::uint16_t multiple_call_trap_; ///< Trap to catch multiple instantiations of this class
 	static boost::mutex factory_creation_mutex_; ///< Synchronization of access to multiple_call_trap in constructor
 
 	mutable boost::mutex thread_creation_mutex_; ///< Synchronization of access to the threadsHaveBeenStarted_ variable
-	mutable boost::shared_mutex arraySizeMutex_; ///< Regulates access to the arraySize_ variable
 
 	boost::random::random_device nondet_rng; ///< Source of non-deterministic random numbers
 	initial_seed_type startSeed_; ///< Stores the initial start seed
