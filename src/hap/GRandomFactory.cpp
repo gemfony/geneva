@@ -46,8 +46,8 @@ boost::mutex Gem::Hap::GRandomFactory::factory_creation_mutex_;
 
 /******************************************************************************/
 /**
- * The standard constructor, which seeds the random number generator and
- * creates a predefined number of threads.
+ * The standard constructor, which seeds the random number generator and checks
+ * that this class is instantiated only once.
  */
 GRandomFactory::GRandomFactory()
 	: finalized_(false)
@@ -217,15 +217,9 @@ boost::uint32_t GRandomFactory::getSeed(){
  */
 void GRandomFactory::setNProducerThreads(const boost::uint16_t& n01Threads)
 {
-	boost::uint16_t n01Threads_local = 0;
-
 	// Make a suggestion for the number of threads, if requested
-	if (n01Threads == 0)	{
-		n01Threads_local = boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS));
-	}
-	else {
-		n01Threads_local = n01Threads;
-	}
+   boost::uint16_t n01Threads_local =
+         (n01Threads>0)?n01Threads:(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)));
 
 	// Threads might already be running, so we need to regulate access
 	{
@@ -233,12 +227,17 @@ void GRandomFactory::setNProducerThreads(const boost::uint16_t& n01Threads)
 		if(threadsHaveBeenStarted_) {
 			if (n01Threads_local > n01Threads_) { // start new 01 threads
 				for (boost::uint16_t i = n01Threads_; i < n01Threads_local; i++) {
-					boost::uint32_t seed_ =  this->getSeed();
-					producer_threads_01_.create_thread(boost::bind(&GRandomFactory::producer01, this, seed_));
+					producer_threads_01_.create_thread(
+                  boost::bind(
+                     &GRandomFactory::producer01
+                     , this
+                     , this->getSeed()
+                  )
+					);
 				}
 			} else if (n01Threads_local < n01Threads_) { // We need to remove threads
-			   // TODO: interrupt threads
-				producer_threads_01_.remove_last(n01Threads_ - n01Threads_local);
+			   // remove_last will internally call "interrupt" for these threads
+			   producer_threads_01_.remove_last(n01Threads_ - n01Threads_local);
 			}
 		}
 
@@ -249,12 +248,12 @@ void GRandomFactory::setNProducerThreads(const boost::uint16_t& n01Threads)
 /******************************************************************************/
 /**
  * When objects need a new container [0,1[ of random numbers with the current
- * default size, they call this function. Note that calling threads are responsible
- * for catching the boost::thread_interrupted exception.
+ * default size, they call this function. Mote that users are responsible for
+ * deletimg the obtained array.
  *
  * @return A packet of new [0,1[ random numbers
  */
-boost::shared_array<double> GRandomFactory::new01Container() {
+double * GRandomFactory::new01Container() {
 	// Start the producer threads upon first access to this function
 	if(!threadsHaveBeenStarted_) {
 		boost::mutex::scoped_lock lk(thread_creation_mutex_);
@@ -264,7 +263,7 @@ boost::shared_array<double> GRandomFactory::new01Container() {
 		}
 	}
 
-	boost::shared_array<double> result; // empty
+	double* result = (double *)NULL; // empty
 	try {
 		g01_.pop_back(result, boost::posix_time::milliseconds(DEFAULTFACTORYGETWAIT));
 	} catch (Gem::Common::condition_time_out&) {
@@ -281,10 +280,13 @@ boost::shared_array<double> GRandomFactory::new01Container() {
  */
 void GRandomFactory::startProducerThreads()  {
 	for (boost::uint16_t i = 0; i < n01Threads_; i++) {
-		// thread() doesn't throw, and no exceptions are listed in the documentation
-		// for the create_thread() function, so we assume it doesn't throw.
-		boost::uint32_t seed = this->getSeed();
-		producer_threads_01_.create_thread(boost::bind(&GRandomFactory::producer01, this, seed));
+		producer_threads_01_.create_thread(
+         boost::bind(
+               &GRandomFactory::producer01
+               , this
+               , this->getSeed()
+         )
+		);
 	}
 }
 
@@ -306,23 +308,13 @@ void GRandomFactory::producer01(boost::uint32_t seed)  {
 			   break;
 			}
 
-			// Will hold the newly created random numbers
-			boost::shared_array<double> p(new double[DEFAULTARRAYSIZE]);
-
-			// Faster access during the fill procedure - uses the "raw" pointer.
-			// Note that we own the only instance of this pointer at this point
-			double *p_raw = p.get();
-			for (std::size_t i = 0; i < DEFAULTARRAYSIZE; i++)
-			{
-#ifdef DEBUG
-				double value = lf();
-				assert(value>=0. && value<1.);
-				p_raw[i]=value;
-#else
-				p_raw[i] = lf();
-#endif /* DEBUG */
+			double *p = new double[DEFAULTARRAYSIZE];
+			for (std::size_t i = 1; i < DEFAULTARRAYSIZE; i++) {
+				p[i] = lf();
 			}
+			p[0] = boost::numeric_cast<double>(DEFAULTARRAYSIZE);
 
+			// Thanks to the following call, thread creation will be idle if the buffer is full
 		   try {
 	         g01_.push_front(p, boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
 		   } catch (Gem::Common::condition_time_out&) {
@@ -332,34 +324,28 @@ void GRandomFactory::producer01(boost::uint32_t seed)  {
 	} catch (boost::thread_interrupted&) { // Not an error
 		return; // We're done
 	} catch (std::bad_alloc& e) {
-		std::cerr
-		<< "In GRandomFactory::producer01(): Error!" << std::endl
+	   glogger
+	   << "In GRandomFactory::producer01(): Error!" << std::endl
 		<< "Caught std::bad_alloc exception with message"
-		<< std::endl << e.what() << std::endl;
-
-		std::terminate();
+		<< std::endl << e.what() << std::endl
+		<< GEXCEPTION;
 	} catch (std::invalid_argument& e) {
-		std::cerr
+		glogger
 		<< "In GRandomFactory::producer01(): Error!" << std::endl
 		<< "Caught std::invalid_argument exception with message"  << std::endl
-		<< e.what() << std::endl;
-
-		std::terminate();
+		<< e.what() << std::endl
+		<< GEXCEPTION;
 	} catch (boost::thread_resource_error&) {
-		std::cerr
+		glogger
       << "In GRandomFactory::producer01(): Error!" << std::endl
       << "Caught boost::thread_resource_error exception which"  << std::endl
-      << "likely indicates that a mutex could not be locked."  << std::endl;
-
-		// Terminate the process
-		std::terminate();
+      << "likely indicates that a mutex could not be locked."  << std::endl
+      << GEXCEPTION;
 	} catch (...) {
-		std::cerr
+		glogger
 		<< "In GRandomFactory::producer01(): Error!" << std::endl
-		<< "Caught unkown exception." << std::endl;
-
-		// Terminate the process
-		std::terminate();
+		<< "Caught unkown exception." << std::endl
+		<< GEXCEPTION;
 	}
 }
 

@@ -101,7 +101,8 @@ public:
 	 */
    GRandomT()
 		: Gem::Hap::GRandomBase()
-		, current01_(1) // position 0 holds the array size
+      , p01_((double *)NULL)
+		, current01_(0)
 		, grf_(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
 	{
 		// Make sure we have a first random number package available
@@ -114,7 +115,7 @@ public:
 	 */
 	virtual ~GRandomT()
 	{
-		p01_.reset();
+		p01_ = (double *)NULL;
 		grf_.reset();
 	}
 
@@ -131,8 +132,9 @@ protected:
 	virtual double dbl_random01() {
 		if (current01_ >= DEFAULTARRAYSIZE) {
 		   getNewP01();
+		   delete [] p01_;
 		}
-		return p_raw_[current01_++];
+		return p01_[current01_++];
 	}
 
 private:
@@ -143,7 +145,7 @@ private:
 	 */
 	void getNewP01() {
 		// Make sure we get rid of the old container
-		p01_.reset();
+		p01_ = (double *)NULL;
 
 #ifdef DEBUG
 		if(!grf_) {
@@ -158,7 +160,8 @@ private:
 		boost::uint32_t nRetries = 0;
 #endif /* DEBUG */
 
-		// Try until a valid container has been received
+		// Try until a valid container has been received. new01Container has
+		// a timeout of DEFAULTFACTORYGETWAIT internally.
 		while (!(p01_ = grf_->new01Container())) {
 #ifdef DEBUG
 		   nRetries++;
@@ -172,17 +175,12 @@ private:
 #endif /* DEBUG */
 
 		current01_ = 0; // Position 0 is the array size
-
-		// We should now have a valid p01_ in any case
-		p_raw_ = p01_.get();
 	}
 
 
 	/***************************************************************************/
 	/** @brief Holds the container of uniform random numbers  Size is 16 bytes on a 64 bit system */
-	boost::shared_array<double> p01_;
-	/** @brief A pointer to the content of p01_ for faster access.  Size is 8 byte on a 64 bit system */
-	double *p_raw_;
+	double *p01_;
 	/** @brief The current position in p01_.  Size is 8 byte on a 64 bit system */
 	std::size_t current01_;
 

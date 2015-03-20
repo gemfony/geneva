@@ -48,6 +48,7 @@
 
 // Boost headers go here
 
+#include <boost/atomic.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/random.hpp>
 #include <boost/date_time.hpp>
@@ -90,6 +91,14 @@
 namespace Gem {
 namespace Hap {
 
+/**
+ * In a redesign of this class we want:
+ * - Round-robin creation and retrieval
+ * - Transfer of data packages as pure, private pointers
+ * - Recycling of unused random numbers in a packet through memcpy
+ * - "Live-resizing of the thread-pool
+ */
+
 /******************************************************************************/
 /**
  * Past implementations of random numbers for the Geneva library showed a
@@ -129,8 +138,6 @@ public:
 
 	/** @brief Sets the number of producer threads for this factory. */
 	G_API_HAP void setNProducerThreads(const boost::uint16_t&);
-	/** @brief Delivers a new [0,1[ random number container with the current standard size to clients */
-	G_API_HAP boost::shared_array<double> new01Container();
 
 	/** @brief Allows to retrieve the size of the array */
 	G_API_HAP std::size_t getCurrentArraySize() const;
@@ -145,6 +152,8 @@ public:
 	/** @brief Checks whether seeding has already started*/
 	G_API_HAP bool checkSeedingIsInitialized() const;
 
+   /** @brief Delivers a new [0,1[ random number container with the current standard size to clients */
+   G_API_HAP double * new01Container();
 	/** @brief Retrieval of a new seed for external or internal random number generators */
 	G_API_HAP seed_type getSeed();
 
@@ -165,7 +174,7 @@ private:
 	Gem::Common::GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
 
 	/** @brief A bounded buffer holding the [0,1[ random number packages */
-	Gem::Common::GBoundedBufferT<boost::shared_array<double> > g01_; // Note: Absolutely needs to be defined after the thread group !!!
+	Gem::Common::GBoundedBufferT<double *> g01_; // Note: Absolutely needs to be defined after the thread group !!!
 
 	static boost::uint16_t multiple_call_trap_; ///< Trap to catch multiple instantiations of this class
 	static boost::mutex factory_creation_mutex_; ///< Synchronization of access to multiple_call_trap in constructor
