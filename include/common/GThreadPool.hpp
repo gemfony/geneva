@@ -105,50 +105,47 @@ public:
 	 */
 	template <typename F>
 	void async_schedule(F f) {
-      // We may only submit new jobs if job_lck can be acquired. This is
-      // important so we have a means of letting the submission queue run
-      // empty or of resetting the internal thread group.
-      boost::unique_lock<boost::mutex> job_lck(task_submission_mutex_);
+	   // We may only submit new jobs if job_lck can be acquired. This is
+	   // important so we have a means of letting the submission queue run
+	   // empty or of resetting the internal thread group.
+	   boost::unique_lock<boost::mutex> job_lck(task_submission_mutex_);
 
-      { // Determine whether threads have already been started
-         if(false==threads_started_.load()) { // double-check locking pattern
-            boost::unique_lock<boost::mutex> ts_lck(threads_started_mutex_); // exclusive access
-            if(false==threads_started_.load()) { // Now we are sure that threads haven't been started yet
+	   // Determine whether threads have already been started
+	   // If not, start them. Access to the threads is blocked by job_lck
+	   if(false==threads_started_.load()) {
 #ifdef DEBUG // Some error checks
-               if(0==nThreads_.load()) {
-                  glogger
-                  << "In GThreadPool::async_schedule(F f): Error!" << std::endl
-                  << "The number of threads is set to 0" << std::endl
-                  << GEXCEPTION;
-               }
+	      if(0==nThreads_.load()) {
+	         glogger
+	         << "In GThreadPool::async_schedule(F f): Error!" << std::endl
+	         << "The number of threads is set to 0" << std::endl
+	         << GEXCEPTION;
+	      }
 
-               if(gtg_.size() > 0) {
-                  glogger
-                  << "In GThreadPool::async_schedule(F f): Error!" << std::endl
-                  << "The thread group already has entries, although" << std::endl
-                  << "threads_started_ is set to false" << std::endl
-                  << GEXCEPTION;
-               }
+	      if(gtg_.size() > 0) {
+	         glogger
+	         << "In GThreadPool::async_schedule(F f): Error!" << std::endl
+	         << "The thread group already has entries, although" << std::endl
+	         << "threads_started_ is set to false" << std::endl
+	         << GEXCEPTION;
+	      }
 #endif
 
-               // Store a worker (a place holder, really) in the io_service_ object
-               work_.reset(
-                  new boost::asio::io_service::work(io_service_)
-               );
+	      // Store a worker (a place holder, really) in the io_service_ object
+	      work_.reset(
+	            new boost::asio::io_service::work(io_service_)
+	      );
 
-               gtg_.create_threads (
-                  boost::bind(
-                     &boost::asio::io_service::run
-                     , &io_service_
-                  )
-                  , nThreads_.load()
-               );
+	      gtg_.create_threads (
+	            boost::bind(
+	                  &boost::asio::io_service::run
+	                  , &io_service_
+	            )
+	      , nThreads_.load()
+	      );
 
-               threads_started_ = true;
-               std::cout << "Threads were started" << std::endl;
-            }
-         }
-      }
+	      threads_started_ = true;
+	      std::cout << "Threads were started" << std::endl;
+	   }
 
       // Update the task counter. NOTE: This needs to happen here
       // and not in taskWrapper. tasksInFlight_ helps the wait()-function
@@ -267,7 +264,6 @@ private:
 
 	boost::atomic<unsigned int> nThreads_; ///< The number of concurrent threads in the pool
    boost::atomic<bool> threads_started_; ///< Indicates whether threads have already been started
-   boost::mutex threads_started_mutex_; ///< Controls access to threads_started_
 };
 
 /******************************************************************************/
