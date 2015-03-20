@@ -641,7 +641,7 @@ protected:
       // Check whether there were any errors during thread execution
       if(tp_ptr_->hasErrors()) {
          std::vector<std::string> errors;
-         tp_ptr_->getErrors(errors);
+         errors = tp_ptr_->getErrors();
 
          glogger
          << "========================================================================" << std::endl

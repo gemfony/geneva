@@ -226,7 +226,7 @@ void GMultiThreadedPS::finalize() {
       std::ostringstream oss;
 
       std::vector<std::string> errors;
-      tp_ptr_->getErrors(errors);
+      errors = tp_ptr_->getErrors();
 
       oss
       << "========================================================================" << std::endl

@@ -44,6 +44,7 @@
 #include <boost/cstdint.hpp>
 #include <boost/thread.hpp>
 #include <boost/utility.hpp>
+#include <boost/atomic.hpp>
 
 #ifndef GTHREADPOOL_HPP_
 #define GTHREADPOOL_HPP_
@@ -77,17 +78,17 @@ public:
    G_API_COMMON ~GThreadPool();
 
    /** @brief Sets the number of threads currently used */
-   G_API_COMMON bool setNThreads(unsigned int);
+   G_API_COMMON void setNThreads(unsigned int);
    /** @brief Retrieves the current number of threads being used in the pool */
    G_API_COMMON unsigned int getNThreads() const;
 
 	/** @brief Blocks until all submitted jobs have been cleared from the pool */
-   G_API_COMMON bool wait();
+   G_API_COMMON void wait();
 
 	/** @brief Allows to check whether any errors have occurred */
    G_API_COMMON bool hasErrors() const;
 	/** @brief Retrieves the errors */
-   G_API_COMMON void getErrors(std::vector<std::string>&) const;
+   G_API_COMMON std::vector<std::string> getErrors() const;
 	/** @brief Clears the error logs */
    G_API_COMMON void clearErrors();
 
@@ -110,12 +111,11 @@ public:
       boost::unique_lock<boost::mutex> job_lck(task_submission_mutex_);
 
       { // Determine whether threads have already been started
-         boost::upgrade_lock<boost::shared_mutex> ts_lck(threads_started_mutex_);
-         if(false==threads_started_) { // double-lock pattern
-            boost::upgrade_to_unique_lock< boost::shared_mutex > unique_lck(ts_lck); // exclusive access
-            if(false==threads_started_) { // Now we are sure that threads haven't been started yet
+         if(false==threads_started_.load()) { // double-check locking pattern
+            boost::unique_lock<boost::mutex> ts_lck(threads_started_mutex_); // exclusive access
+            if(false==threads_started_.load()) { // Now we are sure that threads haven't been started yet
 #ifdef DEBUG // Some error checks
-               if(0==nThreads_) {
+               if(0==nThreads_.load()) {
                   glogger
                   << "In GThreadPool::async_schedule(F f): Error!" << std::endl
                   << "The number of threads is set to 0" << std::endl
@@ -141,10 +141,11 @@ public:
                      &boost::asio::io_service::run
                      , &io_service_
                   )
-                  , nThreads_
+                  , nThreads_.load()
                );
 
                threads_started_ = true;
+               std::cout << "Threads were started" << std::endl;
             }
          }
       }
@@ -187,7 +188,7 @@ private:
 			<< e.what() << std::endl;
 
 			{ // Store the error for later reference
-				boost::unique_lock<boost::shared_mutex> error_lck(error_mutex_); // We protect against concurrent write access
+				boost::unique_lock<boost::mutex> error_lck(error_mutex_); // We protect against concurrent write access
 				errorCounter_++;
 				errorLog_.push_back(error.str());
 			}
@@ -199,7 +200,7 @@ private:
          << boost::diagnostic_information(e) << std::endl;
 
 			{ // Store the error for later reference
-				boost::unique_lock<boost::shared_mutex> error_lck(error_mutex_); // We protect against concurrent write access
+				boost::unique_lock<boost::mutex> error_lck(error_mutex_); // We protect against concurrent write access
 				errorCounter_++;
 				errorLog_.push_back(error.str());
 			}
@@ -211,7 +212,7 @@ private:
          << e.what() << std::endl;
 
          { // Store the error for later reference
-            boost::unique_lock<boost::shared_mutex> error_lck(error_mutex_); // We protect against concurrent write access
+            boost::unique_lock<boost::mutex> error_lck(error_mutex_); // We protect against concurrent write access
             errorCounter_++;
             errorLog_.push_back(error.str());
          }
@@ -221,7 +222,7 @@ private:
 			<< "GThreadPool::taskWrapper(F f): Caught unknown exception" << std::endl;
 
 			{ // Store the error for later reference
-				boost::unique_lock<boost::shared_mutex> error_lck(error_mutex_); // We protect against concurrent write access
+				boost::unique_lock<boost::mutex> error_lck(error_mutex_); // We protect against concurrent write access
 				errorCounter_++;
 				errorLog_.push_back(error.str());
 			}
@@ -230,7 +231,7 @@ private:
 		{ // Update the submission counter -- we need an external means to check whether the pool has run empty
 			boost::unique_lock<boost::mutex> cnt_lck(task_counter_mutex_);
 #ifdef DEBUG
-			if(0==tasksInFlight_) {
+			if(0==tasksInFlight_.load()) {
             glogger
             << "In GThreadPool::taskWrapper(F f): Error!" << std::endl
             << "Trying to decrement a task counter that is already 0" << std::endl
@@ -251,11 +252,11 @@ private:
 
 	GThreadGroup gtg_; ///< Holds the actual threads
 
-	volatile boost::uint32_t errorCounter_; ///< The number of exceptions thrown by the pay load
+	boost::atomic<boost::uint32_t> errorCounter_; ///< The number of exceptions thrown by the pay load
 	std::vector<std::string> errorLog_; ///< Holds error descriptions emitted by the work load
-	mutable boost::shared_mutex error_mutex_; ///< Protects access to the error log and error counter; mutable, as "hasErrors() is const
+	mutable boost::mutex error_mutex_; ///< Protects access to the error log and error counter; mutable, as "hasErrors() is const
 
-	volatile boost::uint32_t tasksInFlight_;  ///< The number of jobs that have been submitted in this round
+	boost::atomic<boost::uint32_t> tasksInFlight_;  ///< The number of jobs that have been submitted in this round
 	boost::mutex task_counter_mutex_; ///< Protects access to the "submitted" job counter
 
 	///< Allows to prevent further job submissions, particularly when waiting for the pool to clear or when resetting the pool
@@ -264,9 +265,9 @@ private:
 	///< Protects the job counter, so we may let the pool run empty
 	boost::condition_variable_any condition_;
 
-	volatile unsigned int nThreads_; ///< The number of concurrent threads in the pool
-   volatile bool threads_started_; ///< Indicates whether threads have already been started
-   mutable boost::shared_mutex threads_started_mutex_; ///< Controls access to threads_started_
+	boost::atomic<unsigned int> nThreads_; ///< The number of concurrent threads in the pool
+   boost::atomic<bool> threads_started_; ///< Indicates whether threads have already been started
+   boost::mutex threads_started_mutex_; ///< Controls access to threads_started_
 };
 
 /******************************************************************************/

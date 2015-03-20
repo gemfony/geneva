@@ -239,7 +239,8 @@ int main(int argc, char** argv) {
 		}
 
 		// Wait for all tasks to complete and check for errors
-		if(!gtp.wait()) {
+		gtp.wait();
+		if(gtp.hasErrors()) {
 			glogger
 			<< "Errors occurred during the execution" << std::endl
 			<< GLOGGING;

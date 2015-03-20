@@ -201,7 +201,7 @@ void GMultiThreadedEA::finalize() {
    if(tp_ptr_->hasErrors()) {
       std::ostringstream oss;
       std::vector<std::string> errors;
-      tp_ptr_->getErrors(errors);
+      errors = tp_ptr_->getErrors();
 
       for(std::vector<std::string>::iterator it=errors.begin(); it!=errors.end(); ++it) {
          oss << *it << std::endl;
