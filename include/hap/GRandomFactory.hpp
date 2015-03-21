@@ -98,6 +98,74 @@ namespace Hap {
  * - "Live-resizing of the thread-pool
  */
 
+typedef boost::lagged_fibonacci19937 lagged_fibonacci;
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * This struct holds and creates random number containers to be transmitted to GRandomT
+ * via a buffer. It does minimal error checking as it is meant for internal usage only,
+ * and excessive error checking on the code might have strong performance implications.
+ * None of the functions in this class is thread-safe (in the sense of being usable
+ * concurrently from multiple threads).
+ */
+struct random_container
+   : private boost::noncopyable
+{
+public:
+   /** @brief Initialization with the number of entries in the buffer */
+   random_container(const std::size_t&, lagged_fibonacci&);
+   /** @brief The destructor -- gets rid of the random buffer r_ */
+   ~random_container();
+
+   /** @brief Returns the size of the buffer */
+   std::size_t size() const;
+   /** @brief Returns the current position */
+   std::size_t getCurrentPosition() const;
+
+   /** @brief Replaces "used" random numbers */
+   void refresh(lagged_fibonacci&);
+
+   /***************************************************************************/
+   /**
+    * Allows to check whether the buffer has run empty
+    */
+   inline bool empty() {
+      return (current_pos_ >= binSize_);
+   }
+
+   /***************************************************************************/
+   /**
+    * Returns the next double number
+    */
+   inline double next() {
+#ifdef DEBUG
+      if(empty()) {
+         glogger
+         << "In random_container::next(): Error!" << std::endl
+         << "Invalid current_pos_ / binSize_: " << current_pos_ << " / " << binSize_ << std::endl
+         << GEXCEPTION;
+      }
+#endif
+
+      return r_[current_pos_++];
+   }
+
+private:
+   /***************************************************************************/
+
+   random_container(); ///< The default constructor -- intentionally private and undefined
+   random_container(const random_container&); ///< The copy constructor -- intentionally private and undefined
+   const random_container& operator=(const random_container&); ///< intentionally private and undefined
+
+   double *r_; ///< Holds the actual random numbers
+   std::size_t current_pos_; ///< The current position in the array
+   const std::size_t binSize_;     ///< The size of the buffer
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
  * Past implementations of random numbers for the Geneva library showed a
@@ -121,9 +189,9 @@ namespace Hap {
  * the "quality" of random numbers is of less concern in evolutionary algorithms, as the
  * geometry of the quality surface adds to the randomness.
  */
-class GRandomFactory {
-	typedef boost::lagged_fibonacci19937 lagged_fibonacci;
-
+class GRandomFactory
+   : private boost::noncopyable
+{
 public:
 	/** @brief The default constructor */
 	G_API_HAP GRandomFactory();
@@ -152,41 +220,30 @@ public:
 	G_API_HAP bool checkSeedingIsInitialized() const;
 
    /** @brief Delivers a new [0,1[ random number container with the current standard size to clients */
-   G_API_HAP double * new01Container();
+   G_API_HAP boost::shared_ptr<random_container> new01Container();
 	/** @brief Retrieval of a new seed for external or internal random number generators */
 	G_API_HAP seed_type getSeed();
 
 	/** @brief Allows recycling of partially used packages */
-	G_API_HAP void returnPartiallyUsedPackage(double *, std::size_t);
+	G_API_HAP void returnUsedPackage(boost::shared_ptr<random_container>);
 
 private:
-	/***************************************************************************/
-	/**
-	 * This struct holds random number containers designated for "recycling"
-	 */
-	struct recyclingBin {
-	   double *r;
-	   std::size_t current_pos;
-	};
-
 	/***************************************************************************/
 	GRandomFactory(const GRandomFactory&); ///< Intentionally left undefined
 	const GRandomFactory& operator=(const GRandomFactory&);  ///< Intentionally left undefined
 
-	/** @brief Starts the threads needed for the production of random numbers */
-	void startProducerThreads();
 	/** @brief The production of [0,1[ random numbers takes place here */
 	void producer01(boost::uint32_t seed);
 
 	bool finalized_;
 	boost::atomic<bool> threadsHaveBeenStarted_;
-	boost::uint16_t n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
+	boost::atomic<boost::uint16_t> n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
 	Gem::Common::GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
 
 	/** @brief A bounded buffer holding the [0,1[ random number packages */
-	Gem::Common::GBoundedBufferT<double *> p01_; // Note: Absolutely needs to be defined after the thread group !!!
+	Gem::Common::GBoundedBufferT<boost::shared_ptr<random_container> > p01_; // Note: Absolutely needs to be defined after the thread group !!!
    /** @brief A bounded buffer holding [0,1[ random number packages ready for recycling */
-   Gem::Common::GBoundedBufferT<recyclingBin *> r01_;
+   Gem::Common::GBoundedBufferT<boost::shared_ptr<random_container> > r01_;
 
 	static boost::uint16_t multiple_call_trap_; ///< Trap to catch multiple instantiations of this class
 	static boost::mutex factory_creation_mutex_; ///< Synchronization of access to multiple_call_trap in constructor

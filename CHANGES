@@ -17,6 +17,9 @@ Wishlist:
  - Make value ranges of parameter objects always closed, even for fp.
  - Rework of the test infrastructure.
  - Full integration of -fsanitize=X.
+ - A simple interface to influence the process of optimization (in particular
+   checkpointing, termination and continuation of the program as well as 
+   extraction of the current best solutions as a result of user-demands. 
 
 The main changes for this release include:
 
@@ -38,6 +41,10 @@ Important changes in the code (without API-changes):
    first task submission, so default-constructed (unused) pools do not
    start a plethora of idle threads. The pool may now be resized while
    threads are already running.
+ - Rework of the GRandomFactory / GRandomT-combo. In particular, "unused"
+   random numbers are now recycled and given back to the random factory.
+   The overhead of the creation of random packages should be reduced, as
+   the corresponding objects do not usually need to be re-allocated anymore. 
 
 Recommended version of Boost: 1.57; Minimum Boost version: 1.53.
 

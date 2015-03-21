@@ -38,6 +38,83 @@ namespace Gem {
 namespace Hap {
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * Initialization with the number of entries in the buffer
+ * @param binSize The size of the random buffer
+ * @param lf A reference to an external random number generator
+ */
+random_container::random_container(
+   const std::size_t& binSize
+   , lagged_fibonacci& lf
+)
+   : current_pos_(0)
+   , binSize_(binSize)
+   , r_((double *)NULL)
+{
+   try {
+      r_ = new double[binSize_];
+      for(std::size_t pos=0; pos<binSize_; pos++) {
+         r_[pos]=lf();
+      }
+   } catch(const std::bad_alloc& e) {
+      // This will propagate the exception to the global error handler so it can be logged
+      glogger
+      << "In random_container::random_container(const std::size_t&): Error!" << std::endl
+      << "std::bad_alloc caught with message" << std::endl
+      << e.what() << std::endl
+      << GEXCEPTION;
+   } catch(...) {
+      // This will propagate the exception to the global error handler so it can be logged
+      glogger
+      << "In random_container::random_container(const std::size_t&): Error!" << std::endl
+      << "unknown exception caught" << std::endl
+      << GEXCEPTION;
+   }
+}
+
+/******************************************************************************/
+/**
+ * The destructor -- gets rid of the random buffer r
+ */
+random_container::~random_container() {
+   if(r_) {
+      delete [] r_;
+   }
+}
+
+/******************************************************************************/
+/**
+ * Returns the size of the buffer
+ */
+std::size_t random_container::size() const {
+   return binSize_;
+}
+
+/******************************************************************************/
+/**
+ * Returns the current position
+ */
+std::size_t random_container::random_container::getCurrentPosition() const {
+   return current_pos_;
+}
+
+/******************************************************************************/
+/**
+ * Replaces "used" random numbers by new numbers and resets the current_pos_
+ * pointer.
+ */
+void random_container::refresh(lagged_fibonacci& lf) {
+   for(std::size_t pos=0; pos<current_pos_; pos++) {
+      r_[pos]=lf();
+   }
+   current_pos_ = 0;
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * Initialization of static data members
  */
@@ -149,7 +226,7 @@ std::size_t GRandomFactory::getBufferSize() const {
 bool GRandomFactory::setStartSeed(const initial_seed_type& initial_seed) {
    // Determine whether the seed-generator has already been initialized. If not, start it
    boost::upgrade_lock<boost::shared_mutex> sm_lck(seedingMutex_);
-   if(!mt_ptr_) { // double lock pattern
+   if(!mt_ptr_) { // double check locking pattern
       boost::upgrade_to_unique_lock< boost::shared_mutex > unique_lck(sm_lck); // exclusive access
       if(!mt_ptr_) {
          mt_ptr_ = boost::shared_ptr<mersenne_twister>(new mersenne_twister(boost::numeric_cast<seed_type>(initial_seed)));
@@ -212,29 +289,20 @@ boost::uint32_t GRandomFactory::getSeed(){
 
 /******************************************************************************/
 /**
- * Allows recycling of partially used packages. The first entry of the package
- * signifies the first "unused" random number. Note that this function may
+ * Allows recycling of partially used packages. Note that this function may
  * delete its argument if it cannot be added to the buffer.
  *
  * @param r A pointer to a partially used work package
  * @param current_pos The first position in the array that holds unused random numbers
  */
-void GRandomFactory::returnPartiallyUsedPackage(double *r, std::size_t current_pos) {
+void GRandomFactory::returnUsedPackage(boost::shared_ptr<random_container> p) {
    // We try to add the item to the r01_ queue, until a timeout occurs.
    // Once this is the case we delete the package, so we do not overflow
    // with recycled packages
-   recyclingBin *rb_ptr;
    try{
-      rb_ptr = new recyclingBin();
-
-      rb_ptr->r = r;
-      rb_ptr->current_pos = current_pos;
-
-      // std::cout << "Returning package with " << DEFAULTARRAYSIZE-current_pos << " ( " << DEFAULTARRAYSIZE << " / " << current_pos << ") remaining numbers" << std::endl;
-      r01_.push_front(rb_ptr, boost::posix_time::milliseconds(DEFAULTFACTORYGETWAIT));
+      r01_.push_front(p, boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
    } catch (Gem::Common::condition_time_out&) { // No luck buffer is full. Delete the recycling bin
-      delete [] rb_ptr->r;
-      delete rb_ptr;
+      p.reset();
    }
 }
 
@@ -252,10 +320,10 @@ void GRandomFactory::setNProducerThreads(const boost::uint16_t& n01Threads)
 
 	// Threads might already be running, so we need to regulate access
 	{
-		boost::mutex::scoped_lock lk(thread_creation_mutex_);
+		boost::unique_lock<boost::mutex> lk(thread_creation_mutex_);
 		if(threadsHaveBeenStarted_.load()) {
-			if (n01Threads_local > n01Threads_) { // start new 01 threads
-				for (boost::uint16_t i = n01Threads_; i < n01Threads_local; i++) {
+			if (n01Threads_local > n01Threads_.load()) { // start new 01 threads
+				for (boost::uint16_t i = n01Threads_.load(); i < n01Threads_local; i++) {
 					producer_threads_01_.create_thread(
                   boost::bind(
                      &GRandomFactory::producer01
@@ -264,9 +332,9 @@ void GRandomFactory::setNProducerThreads(const boost::uint16_t& n01Threads)
                   )
 					);
 				}
-			} else if (n01Threads_local < n01Threads_) { // We need to remove threads
+			} else if (n01Threads_local < n01Threads_.load()) { // We need to remove threads
 			   // remove_last will internally call "interrupt" for these threads
-			   producer_threads_01_.remove_last(n01Threads_ - n01Threads_local);
+			   producer_threads_01_.remove_last(n01Threads_.load() - n01Threads_local);
 			}
 		}
 
@@ -281,42 +349,37 @@ void GRandomFactory::setNProducerThreads(const boost::uint16_t& n01Threads)
  *
  * @return A packet of new [0,1[ random numbers
  */
-double * GRandomFactory::new01Container() {
+boost::shared_ptr<random_container> GRandomFactory::new01Container() {
 	// Start the producer threads upon first access to this function
 	if(!threadsHaveBeenStarted_.load()) {
-		boost::mutex::scoped_lock lk(thread_creation_mutex_);
-		if(!threadsHaveBeenStarted_.load()) {
-			startProducerThreads();
+		boost::unique_lock<boost::mutex> tc_lk(thread_creation_mutex_);
+		if(!threadsHaveBeenStarted_.load()) { // double checked locking pattern
+		   //---------------------------------------------------------
+		   for (boost::uint16_t i = 0; i < n01Threads_.load(); i++) {
+		      producer_threads_01_.create_thread(
+		         boost::bind(
+		            &GRandomFactory::producer01
+		            , this
+		            , this->getSeed()
+		         )
+		      );
+		   }
+         //---------------------------------------------------------
+
 			threadsHaveBeenStarted_=true;
 		}
 	}
 
-	double *result = (double *)NULL; // empty
+	boost::shared_ptr<random_container> p; // empty
 	try {
-		p01_.pop_back(result, boost::posix_time::milliseconds(DEFAULTFACTORYGETWAIT));
+		p01_.pop_back(p, boost::posix_time::milliseconds(DEFAULTFACTORYGETWAIT));
 	} catch (Gem::Common::condition_time_out&) {
       // nothing - our way of signaling a time out
       // is to return an empty boost::shared_ptr
-	   result = (double *)NULL;
+	   p = boost::shared_ptr<random_container>();
 	}
 
-	return result;
-}
-
-/******************************************************************************/
-/**
- * This function starts the threads needed for the production of random numbers
- */
-void GRandomFactory::startProducerThreads()  {
-	for (boost::uint16_t i = 0; i < n01Threads_; i++) {
-		producer_threads_01_.create_thread(
-         boost::bind(
-               &GRandomFactory::producer01
-               , this
-               , this->getSeed()
-         )
-		);
-	}
+	return p;
 }
 
 /******************************************************************************/
@@ -326,57 +389,46 @@ void GRandomFactory::startProducerThreads()  {
  * could otherwise go unnoticed. Hence this function has a possibly confusing
  * setup.
  *
- * TODO: Check occurances of DEFAULTFACTORYGETWAIT and DEFAULTFACTORYPUTWAIT for consistency
- * TODO: Rename current_pos to pristine_pos
- * TODO: Rewrite again with boost::array
- *
  * @param seed A seed for our local random number generator
  */
 void GRandomFactory::producer01(boost::uint32_t seed)  {
 	try {
 		lagged_fibonacci lf(seed);
+		boost::shared_ptr<random_container> p;
 
-		double *p = (double *)NULL;
 		while(!boost::this_thread::interruption_requested()) {
-		   if((double *)NULL == p) {
+		   if(!p) { // buffer is still empty
 		      // First we try to retrieve a "recycled" item from the r01_ buffer. If this
-		      // fails (likely because the buffer is empty), we create a new item
-	         try {
-	            recyclingBin *rb_ptr;
-	            r01_.pop_back(rb_ptr, boost::posix_time::milliseconds(DEFAULTFACTORYGETWAIT));
+		      // fails (likely because the buffer is empty), we create a new item instead
+		      try {
+		         r01_.pop_back(p, boost::posix_time::milliseconds(DEFAULTFACTORYGETWAIT));
 
-	            // If we reach this line, we have successfully retrieved a recycled container.
-	            // First do some error-checking
+		         // If we reach this line, we have successfully retrieved a recycled container.
+		         // First do some error-checking
 #ifdef DEBUG
-	            if(!rb_ptr) {
-	               glogger
-	               << "In RandomFactory::producer01(): Error!" << std::endl
-	               << "Got empty recycling pointer" << std::endl
-	               << GEXCEPTION;
-	            }
+		         if(!p) {
+		            glogger
+		            << "In RandomFactory::producer01(): Error!" << std::endl
+		            << "Got empty recycling pointer" << std::endl
+		            << GEXCEPTION;
+		         }
 
 #endif /* DEBUG */
 
-	            // We now need to freshen it up
-	            p = rb_ptr->r;
-	            for(std::size_t pos=0; pos<rb_ptr->current_pos; pos++) {
-	               p[pos]=lf();
-	            }
+		         // Finally we replace "used" random numbers with new ones
+		         p->refresh(lf);
 
-	            // Finally get rid of the now "empty" rb_ptr
-	            if(rb_ptr) delete rb_ptr;
-	         } catch (Gem::Common::condition_time_out&) { // O.k., so we need to create a new container
-	            p = new double[DEFAULTARRAYSIZE];
-	            for (std::size_t pos = 0; pos < DEFAULTARRAYSIZE; pos++) {
-	               p[pos] = lf();
-	            }
-	         }
+		      } catch (Gem::Common::condition_time_out&) { // O.k., so we need to create a new container
+		         p = boost::shared_ptr<random_container>(new random_container(DEFAULTARRAYSIZE, lf));
+		      }
 		   }
 
-			// Thanks to the following call, thread creation will be mostly idle if the buffer is full
+		   // Thanks to the following call, thread creation will be mostly idle if the buffer is full
 		   try {
-	         p01_.push_front(p, boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
-	         p = (double *)NULL; // Make sure a new data item is produced in the next iteration
+		      // Put the bufffer in the queue
+		      p01_.push_front(p, boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
+		      // Reset the shared_ptr so the next pointer may be created
+		      p.reset();
 		   } catch (Gem::Common::condition_time_out&) {
 		      continue; // Try again, if we didn't succeed
 		   }

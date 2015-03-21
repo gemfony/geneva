@@ -101,8 +101,7 @@ public:
 	 */
    GRandomT()
 		: Gem::Hap::GRandomBase()
-      , p01_((double *)NULL)
-		, current01_(0)
+      , p01_( /* empty */ )
 		, grf_(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
 	{
 		// Make sure we have a first random number package available
@@ -116,7 +115,7 @@ public:
 	virtual ~GRandomT()
 	{
 	   if(p01_){
-	      grf_->returnPartiallyUsedPackage(p01_, current01_);
+	      grf_->returnUsedPackage(p01_);
 	   }
 		grf_.reset();
 	}
@@ -132,15 +131,13 @@ protected:
 	 * assumes that a valid container is already available.
 	 */
 	virtual double dbl_random01() {
-		if(current01_ >= DEFAULTARRAYSIZE) {
+		if(p01_->empty()) {
 		   // Get rid of the old container ...
-	      if(p01_){
-	         grf_->returnPartiallyUsedPackage(p01_, current01_);
-	      }
+		   grf_->returnUsedPackage(p01_);
          // ... then get a new one
 		   getNewP01();
 		}
-		return p01_[current01_++];
+		return p01_->next();
 	}
 
 private:
@@ -148,12 +145,10 @@ private:
 	/**
 	 * (Re-)Initialization of p01_. Checks that a valid GRandomFactory still
 	 * exists, then retrieves a new container.
-	 *
-	 * TODO: What happens if no items are produced anymore and an interrupt signal was sent?
 	 */
 	void getNewP01() {
 		// Make sure we get rid of the old container
-		p01_ = (double *)NULL;
+		p01_.reset();
 
 #ifdef DEBUG
 		if(!grf_) {
@@ -181,17 +176,12 @@ private:
 		   std::cout << "Info: Had to try " << nRetries << " times to retrieve a valid random number container." << std::endl;
 		}
 #endif /* DEBUG */
-
-		current01_ = 0; // Position 0 is the array size
 	}
 
 
 	/***************************************************************************/
-	/** @brief Holds the container of uniform random numbers  Size is 16 bytes on a 64 bit system */
-	double *p01_;
-	/** @brief The current position in p01_.  Size is 8 byte on a 64 bit system */
-	std::size_t current01_;
-
+	/** @brief Holds the container of uniform random numbers */
+	boost::shared_ptr<random_container> p01_;
 	/** @brief A local copy of the global GRandomFactory.  Size is 16 byte on a 64 bit system */
 	boost::shared_ptr<Gem::Hap::GRandomFactory> grf_;
 };
