@@ -35,6 +35,7 @@
 #include "geneva-individuals/GExternalEvaluatorIndividual.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GExternalEvaluatorIndividual)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GExternalEvaluatorIndividualFactory)
 
 namespace Gem {
 namespace Geneva {
@@ -46,10 +47,13 @@ namespace Geneva {
  * The default constructor.
  */
 GExternalEvaluatorIndividual::GExternalEvaluatorIndividual()
-: programName_(GEEI_DEF_PROGNAME)
-, customOptions_(GEEI_DEF_CUSTOMOPTIONS)
-, parameterFileBaseName_(GEEI_DEF_PARFILEBASENAME)
-, nResults_(GEEI_DEF_NRESULTS)
+   : GParameterSet()
+   , programName_(GEEI_DEF_PROGNAME)
+   , customOptions_(GEEI_DEF_CUSTOMOPTIONS)
+   , parameterFileBaseName_(GEEI_DEF_PARFILEBASENAME)
+   , nResults_(GEEI_DEF_NRESULTS)
+   , runID_(GEEI_DEF_RUNID)
+   , removeExecTemporaries_(GEEI_DEF_REMOVETEMPORARIES)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -57,11 +61,13 @@ GExternalEvaluatorIndividual::GExternalEvaluatorIndividual()
  * A standard copy constructor.
  */
 GExternalEvaluatorIndividual::GExternalEvaluatorIndividual(const GExternalEvaluatorIndividual& cp)
-: GParameterSet(cp) // copies all local collections
-, programName_(cp.programName_)
-, customOptions_(cp.customOptions_)
-, parameterFileBaseName_(cp.parameterFileBaseName_)
-, nResults_(cp.nResults_)
+   : GParameterSet(cp) // copies all local collections
+   , programName_(cp.programName_)
+   , customOptions_(cp.customOptions_)
+   , parameterFileBaseName_(cp.parameterFileBaseName_)
+   , nResults_(cp.nResults_)
+   , runID_(cp.runID_)
+   , removeExecTemporaries_(cp.removeExecTemporaries_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -69,7 +75,7 @@ GExternalEvaluatorIndividual::GExternalEvaluatorIndividual(const GExternalEvalua
  * The standard destructor
  */
 GExternalEvaluatorIndividual::~GExternalEvaluatorIndividual()
-{ /* nothing */   }
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -143,6 +149,8 @@ boost::optional<std::string> GExternalEvaluatorIndividual::checkRelationshipWith
    deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", customOptions_, p_load->customOptions_, "customOptions_", "p_load->customOptions_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", parameterFileBaseName_, p_load->parameterFileBaseName_, "parameterFileBaseName_", "p_load->parameterFileBaseName_", e , limit));
    deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", nResults_, p_load->nResults_, "nResults_", "p_load->nResults_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", runID_, p_load->runID_, "runID_", "p_load->runID_", e , limit));
+   deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", removeExecTemporaries_, p_load->removeExecTemporaries_, "removeExecTemporaries_", "p_load->removeExecTemporaries_", e , limit));
 
    return evaluateDiscrepancies("GExternalEvaluatorIndividual", caller, deviations, e);
 }
@@ -188,12 +196,12 @@ std::string GExternalEvaluatorIndividual::getCustomOptions() const {
  *
  * @param parameterFile The desired new base name of the exchange file
  */
-void GExternalEvaluatorIndividual::setExchangeFileName(const std::string& parameterFile) {
+void GExternalEvaluatorIndividual::setExchangeBaseName(const std::string& parameterFile) {
    if(parameterFile.empty() || parameterFile == "empty") {
-      std::ostringstream error;
-      error << "In GExternalEvaluatorIndividual::setExchangeFileName(): Error!" << std::endl
-            << "Invalid file name \"" << parameterFile << "\"" << std::endl;
-      throw Gem::Common::gemfony_error_condition(error.str());
+      glogger
+      << "In GExternalEvaluatorIndividual::setExchangeBaseName(): Error!" << std::endl
+      << "Invalid file name \"" << parameterFile << "\"" << std::endl
+      << GEXCEPTION;
    }
 
    parameterFileBaseName_ = parameterFile;
@@ -205,7 +213,7 @@ void GExternalEvaluatorIndividual::setExchangeFileName(const std::string& parame
  *
  * @return The current base name of the exchange file
  */
-std::string GExternalEvaluatorIndividual::getExchangeFileName() const {
+std::string GExternalEvaluatorIndividual::getExchangeBaseName() const {
    return parameterFileBaseName_;
 }
 
@@ -214,6 +222,13 @@ std::string GExternalEvaluatorIndividual::getExchangeFileName() const {
  * Sets the number of results to be expected from the external evaluation program
  */
 void GExternalEvaluatorIndividual::setNExpectedResults(const std::size_t& nResults) {
+   if(0 == nResults) {
+      glogger
+      << "In GExternalEvaluatorIndividual::setNExpectedResults(): Error!" << std::endl
+      << "Got invalid number of expected results: " << nResults << std::endl
+      << GEXCEPTION;
+   }
+
    nResults_ = nResults;
 }
 
@@ -223,40 +238,6 @@ void GExternalEvaluatorIndividual::setNExpectedResults(const std::size_t& nResul
  */
 std::size_t GExternalEvaluatorIndividual::getNExpectedResults() const {
    return nResults_;
-}
-
-/******************************************************************************/
-/** @brief Triggers archiving of the evaluation results */
-void GExternalEvaluatorIndividual::archive() const {
-   // Transform this object into a boost property tree
-   pt::ptree ptr_out;
-   this->toPropertyTree(ptr_out);
-
-   // Create a suitable extension and exchange file names for this object
-   std::string extension = std::string("-") + boost::lexical_cast<std::string>(this->getAssignedIteration()) + "-" + boost::lexical_cast<std::string>(this) + ".xml";
-   std::string parameterfileName = parameterFileBaseName_ + extension;
-
-   // Save the parameters to a file for the external evaluation
-#if BOOST_VERSION > 105500
-      boost::property_tree::xml_writer_settings<std::string> settings('\t', 1);
-#else
-      boost::property_tree::xml_writer_settings<char> settings('\t', 1);
-#endif /* BOOST_VERSION */
-   pt::write_xml(parameterfileName, ptr_out, std::locale(), settings);
-
-   // Collect command line parameters
-   std::vector<std::string> arguments;
-   if(customOptions_ != "empty" && !customOptions_.empty()) {
-      arguments.push_back(customOptions_);
-   }
-   arguments.push_back(std::string("--evaluate=") + parameterfileName);
-   arguments.push_back("--archive");
-
-   // Perform the external evaluation
-   Gem::Common::runExternalCommand(boost::filesystem::path(programName_), arguments);
-
-   // Clean up (remove) the parameter file
-   bf::remove(parameterfileName);
 }
 
 /******************************************************************************/
@@ -277,6 +258,8 @@ void GExternalEvaluatorIndividual::load_(const GObject* cp){
    customOptions_ = p_load->customOptions_;
    parameterFileBaseName_ = p_load->parameterFileBaseName_;
    nResults_ = p_load->nResults_;
+   runID_ = p_load->runID_;
+   removeExecTemporaries_ = p_load->removeExecTemporaries_;
 }
 
 /******************************************************************************/
@@ -298,89 +281,206 @@ GObject* GExternalEvaluatorIndividual::clone_() const{
  */
 double GExternalEvaluatorIndividual::fitnessCalculation() {
    // Transform this object into a boost property tree
-   pt::ptree ptr_out;
-   this->toPropertyTree(ptr_out);
+   boost::property_tree::ptree ptr_out;
+
+   std::string batch="batch";
+
+   // Output the header data
+   ptr_out.put(batch + ".dataType", std::string("run_parameters"));
+   ptr_out.put(batch + ".runID", this->getRunId());
+   ptr_out.put(batch + ".nIndividuals", std::size_t(1));
+
+   std::string basename = batch + ".individuals.individual0";
+   this->toPropertyTree(ptr_out, basename);
 
    // Create a suitable extension and exchange file names for this object
-   std::string extension = std::string("-") + boost::lexical_cast<std::string>(this->getAssignedIteration()) + "-" + boost::lexical_cast<std::string>(this) + ".xml";
-   std::string parameterfileName = parameterFileBaseName_ + extension;
-   std::string resultFileName = std::string("result") + extension;
+   std::string extension = std::string("-") + boost::lexical_cast<std::string>(this->getAssignedIteration()) + "-" + boost::lexical_cast<std::string>(this);
+   std::string parameterfileName = parameterFileBaseName_ + extension + ".xml";
+   std::string resultFileName = std::string("result") + extension + ".xml";
+   std::string commandOutputFileName = std::string("commandOutput") + extension + ".txt";
 
    // Save the parameters to a file for the external evaluation
 #if BOOST_VERSION > 105500
-      boost::property_tree::xml_writer_settings<std::string> settings('\t', 1);
+   boost::property_tree::xml_writer_settings<std::string> settings('\t', 1);
 #else
-      boost::property_tree::xml_writer_settings<char> settings('\t', 1);
+   boost::property_tree::xml_writer_settings<char> settings('\t', 1);
 #endif /* BOOST_VERSION */
-   pt::write_xml(parameterfileName, ptr_out, std::locale(), settings);
+   boost::property_tree::write_xml(parameterfileName, ptr_out, std::locale(), settings);
 
-   // Collect command line parameters
+   // Collect all command-line arguments
    std::vector<std::string> arguments;
    if(customOptions_ != "empty" && !customOptions_.empty()) {
       arguments.push_back(customOptions_);
    }
-   arguments.push_back(std::string("--evaluate=") + parameterfileName);
-   arguments.push_back(std::string("--result") + resultFileName);
+   arguments.push_back(std::string("--evaluate"));
+   arguments.push_back(std::string("--input=\"") + parameterfileName + "\"");
+   arguments.push_back(std::string("--output=\"") + resultFileName + "\"");
 
    // Perform the external evaluation
-   Gem::Common::runExternalCommand(boost::filesystem::path(programName_), arguments);
-
-   // Check that the result file exists
-   if(!bf::exists(resultFileName)) {
-      glogger
-      << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
-      << "Result file " << resultFileName << " does not seem to exist." << std::endl
-      << GEXCEPTION;
-   }
-
-   // Parse the results
-   pt::ptree ptr_in; // A property tree object;
-   pt::read_xml(resultFileName, ptr_in);
-
-   // Check that the number of results provided by the result file
-   // matches the number of expected results
-   std::size_t externalNResults = ptr_in.get<std::size_t>("results.nresult");
-   if(externalNResults != nResults_) {
-      glogger
-      << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
-      << "Result file provides nResults = " << externalNResults << std::endl
-      << " while we expected " << nResults_ << std::endl
-      << GEXCEPTION;
-   }
-
-   // Check whether the results represent useful values
    double main_result = 0.;
-   bool isUseful = ptr_in.get<bool>("results.isUseful");
-   if(!isUseful) { // Assign worst-case values to all result
+   std::string command;
+   int errorCode = Gem::Common::runExternalCommand(
+      boost::filesystem::path(programName_)
+      , arguments
+      , boost::filesystem::path(commandOutputFileName)
+      , command
+   );
+
+   if(errorCode) { // Something went wrong
+      glogger
+      << "In GExternalEvaluatorIndividual::fitnessCalculation():" << std::endl
+      << "Execution of external command failed." << std::endl
+      << "Command: " << command << std::endl
+      << "Error code: " << errorCode << std::endl
+      << "Program output:" << std::endl
+      << Gem::Common::loadTextDataFromFile(commandOutputFileName) << std::endl
+      << GWARNING;
+
+      // O.k., so the external application crashed or returned an error.
+      // All we can do here is to return the worst case. As long as crashes
+      // do not happen too often, this will have but little influence on
+      // the optimization.
       main_result = this->getWorstCase();
       for(std::size_t res=1; res<nResults_; res++) {
          this->registerSecondaryResult(res, this->getWorstCase());
       }
-   } else { // Extract and store all result values
-      // Get the results node
-      pt::ptree resultsNode = ptr_in.get_child("results");
 
-      double currentResult = 0.;
-      std::size_t resultCounter = 0;
-      std::string resultString;
-      pt::ptree::const_iterator cit;
-      for (std::size_t res=0; res<nResults_; res++) {
-         resultString = std::string("result") + boost::lexical_cast<std::string>(res);
+      // Make sure the individual can be recognized as invalid by Geneva
+      this->markAsInvalid();
+   } else { // Everything is o.k., lets retrieve the evaluation
+      // Check that the result file exists
+      if(!bf::exists(resultFileName)) {
+         glogger
+         << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
+         << "Result file " << resultFileName << " does not seem to exist." << std::endl
+         << GEXCEPTION;
+      }
 
-         currentResult = resultsNode.get<double>(resultString);
+      // Parse the results
+      boost::property_tree::ptree ptr_in; // A property tree object;
+      try {
+         pt::read_xml(resultFileName, ptr_in);
+      } catch (const boost::property_tree::xml_parser::xml_parser_error& e) {
+         glogger
+         << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error  " << std::endl
+         << "Caught boost::property_tree::xml_parser::xml_parser_error" << std::endl
+         << "for file " << e.filename() << " (line " << e.line() << ")" << std::endl
+         << GEXCEPTION;
+      } catch (const std::exception& e) {
+         glogger
+         << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error reading " << resultFileName << std::endl
+         << "(No boost error information available)" << std::endl
+         << GEXCEPTION;
+      }
 
-         if(res == 0) main_result = currentResult;
-         else registerSecondaryResult(res, currentResult);
+      // Check that only a single result was returned
+      std::size_t nExternalIndividuals = ptr_in.get<std::size_t>(batch + ".nIndividuals");
+      if(1 != nExternalIndividuals) {
+         glogger
+         << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
+         << "Number of result individuals != 1: " << nExternalIndividuals << std::endl
+         << GEXCEPTION;
+      }
+
+      // Check that the number of results provided by the result file matches the number of expected results
+      std::size_t externalNResults = ptr_in.get<std::size_t>("batch.individuals.individual0.nResults");
+      if(externalNResults != nResults_) {
+         glogger
+         << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
+         << "Result file provides nResults = " << externalNResults << std::endl
+         << "while we expected " << nResults_ << std::endl
+         << GEXCEPTION;
+      }
+
+      // Check that the evaluation id matches our local id
+      std::string externalEvaluationID = ptr_in.get<std::string>("batch.individuals.individual0.id");
+      if(externalEvaluationID != this->getCurrentEvaluationID()) {
+         glogger
+         << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
+         << "Local evaluation id " << this->getCurrentEvaluationID() << " does not match external id " << externalEvaluationID << std::endl
+         << GEXCEPTION;
+      }
+
+      // Check whether the results represent useful values
+      bool isValid = ptr_in.get<bool>("batch.individuals.individual0.isValid");
+      if(!isValid) { // Assign worst-case values to all result
+         main_result = this->getWorstCase();
+         for(std::size_t res=1; res<nResults_; res++) {
+            this->registerSecondaryResult(res, this->getWorstCase());
+         }
+
+         // Make sure the individual can be recognized as invalid by Geneva
+         this->markAsInvalid();
+      } else { // Extract and store all result values
+         // Get the results node
+         pt::ptree resultsNode = ptr_in.get_child("batch.individuals.individual0.results");
+
+         double currentResult = 0.;
+         std::string resultString;
+         for (std::size_t res=0; res<nResults_; res++) {
+            resultString = std::string("rawResult") + boost::lexical_cast<std::string>(res);
+
+            currentResult = resultsNode.get<double>(resultString);
+
+            if(res == 0) {
+               main_result = currentResult;
+            }
+            else {
+               this->registerSecondaryResult(res, currentResult);
+            }
+         }
       }
    }
 
-   // Clean up (remove) parameter and result files
-   bf::remove(parameterfileName);
-   bf::remove(resultFileName);
+   // Clean up (remove) parameter-, result- and command-output files, if requested by the user
+   if(removeExecTemporaries_) {
+      bf::remove(parameterfileName);
+      bf::remove(resultFileName);
+      bf::remove(commandOutputFileName);
+   }
 
    // Return the master result (first result returned)
-
    return main_result;
+}
+
+/******************************************************************************/
+/**
+ * Allows to assign a run-id to this individual
+ */
+void GExternalEvaluatorIndividual::setRunId(std::string runID) {
+   if(runID.empty() || "empty" == runID) {
+      glogger
+      << "In GExternalEvaluatorIndividual::setRunId(): Error!" << std::endl
+      << "Attempt to set an invalid run id: \"" << runID << "\"" << std::endl
+      << GEXCEPTION;
+   }
+
+   runID_ = runID;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the run-id assigned to this individual
+ */
+std::string GExternalEvaluatorIndividual::getRunId() const {
+   return runID_;
+}
+
+/******************************************************************************/
+/**
+ * Allows to specify whether temporary files should be removed. This is mostly
+ * needed for debugging purposes.
+ */
+void GExternalEvaluatorIndividual::setRemoveExecTemporaries(bool removeExecTemporaries) {
+   removeExecTemporaries_ = removeExecTemporaries;
+}
+
+/******************************************************************************/
+/**
+ * Allows to check whether temporaries should be removed
+ */
+bool GExternalEvaluatorIndividual::getRemoveExecTemporaries() const {
+   return removeExecTemporaries_;
 }
 
 /******************************************************************************/
@@ -399,6 +499,9 @@ GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(
 )
    : Gem::Common::GFactoryT<GParameterSet>(configFile)
    , adProb_(GEEI_DEF_ADPROB)
+   , adaptAdProb_(GEEI_DEF_ADAPTADPROB)
+   , minAdProb_(GEEI_DEF_MINADPROB)
+   , maxAdProb_(GEEI_DEF_MAXADPROB)
    , adaptionThreshold_(GEEI_DEF_ADAPTIONTHRESHOLD)
    , useBiGaussian_(GEEI_DEF_USEBIGAUSSIAN)
    , sigma1_(GEEI_DEF_SIGMA1)
@@ -417,6 +520,74 @@ GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(
    , customOptions_(GEEI_DEF_CUSTOMOPTIONS)
    , parameterFileBaseName_(GEEI_DEF_PARFILEBASENAME)
    , initValues_(GEEI_DEF_STARTMODE)
+   , removeExecTemporaries_(GEEI_DEF_REMOVETEMPORARIES)
+   , externalEvaluatorQueried_(false)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The copy constructor
+ */
+GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(
+   const GExternalEvaluatorIndividualFactory& cp
+)
+   : Gem::Common::GFactoryT<GParameterSet>(cp)
+   , adProb_(cp.adProb_)
+   , adaptAdProb_(cp.adaptAdProb_)
+   , minAdProb_(cp.minAdProb_)
+   , maxAdProb_(cp.maxAdProb_)
+   , adaptionThreshold_(cp.adaptionThreshold_)
+   , useBiGaussian_(cp.useBiGaussian_)
+   , sigma1_(cp.sigma1_)
+   , sigmaSigma1_(cp.sigmaSigma1_)
+   , minSigma1_(cp.minSigma1_)
+   , maxSigma1_(cp.maxSigma1_)
+   , sigma2_(cp.sigma2_)
+   , sigmaSigma2_(cp.sigmaSigma2_)
+   , minSigma2_(cp.minSigma2_)
+   , maxSigma2_(cp.maxSigma2_)
+   , delta_(cp.delta_)
+   , sigmaDelta_(cp.sigmaDelta_)
+   , minDelta_(cp.minDelta_)
+   , maxDelta_(cp.maxDelta_)
+   , programName_(cp.programName_)
+   , customOptions_(cp.customOptions_)
+   , parameterFileBaseName_(cp.parameterFileBaseName_)
+   , initValues_(cp.initValues_)
+   , removeExecTemporaries_(cp.removeExecTemporaries_)
+   , externalEvaluatorQueried_(cp.externalEvaluatorQueried_)
+   , ptr_(cp.ptr_)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The default constructor. Only needed for (de-)serialization purposes, hence empty.
+ */
+GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory()
+   : Gem::Common::GFactoryT<GParameterSet>("empty")
+   , adProb_(GEEI_DEF_ADPROB)
+   , adaptAdProb_(GEEI_DEF_ADAPTADPROB)
+   , minAdProb_(GEEI_DEF_MINADPROB)
+   , maxAdProb_(GEEI_DEF_MAXADPROB)
+   , adaptionThreshold_(GEEI_DEF_ADAPTIONTHRESHOLD)
+   , useBiGaussian_(GEEI_DEF_USEBIGAUSSIAN)
+   , sigma1_(GEEI_DEF_SIGMA1)
+   , sigmaSigma1_(GEEI_DEF_SIGMASIGMA1)
+   , minSigma1_(GEEI_DEF_MINSIGMA1)
+   , maxSigma1_(GEEI_DEF_MAXSIGMA1)
+   , sigma2_(GEEI_DEF_SIGMA2)
+   , sigmaSigma2_(GEEI_DEF_SIGMASIGMA2)
+   , minSigma2_(GEEI_DEF_MINSIGMA2)
+   , maxSigma2_(GEEI_DEF_MAXSIGMA2)
+   , delta_(GEEI_DEF_DELTA)
+   , sigmaDelta_(GEEI_DEF_SIGMADELTA)
+   , minDelta_(GEEI_DEF_MINDELTA)
+   , maxDelta_(GEEI_DEF_MAXDELTA)
+   , programName_(GEEI_DEF_PROGNAME)
+   , customOptions_(GEEI_DEF_CUSTOMOPTIONS)
+   , parameterFileBaseName_(GEEI_DEF_PARFILEBASENAME)
+   , initValues_(GEEI_DEF_STARTMODE)
+   , removeExecTemporaries_(GEEI_DEF_REMOVETEMPORARIES)
    , externalEvaluatorQueried_(false)
 { /* nothing */ }
 
@@ -426,8 +597,7 @@ GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(
  * --finalize switch, does anything making optimization impossible, the factory
  * should not be destroyed before the end of the optimization run.
  */
-GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory()
-{
+GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory() {
    // Check that the file name isn't empty
    if(programName_.value().empty()) {
       glogger
@@ -441,18 +611,82 @@ GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory()
       glogger
       << "In GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory(): Error!" << std::endl
       << "External program " << programName_.value() << " does not seem to exist" << std::endl
-      << GEXCEPTION;
+      << GTERMINATION;
    }
 
-   // Collect command line parameters
+   // Collect all command-line arguments
    std::vector<std::string> arguments;
    if(customOptions_.value() != "empty" && !customOptions_.value().empty()) {
       arguments.push_back(customOptions_.value());
    }
-   arguments.push_back(std::string("--finalize="));
+   arguments.push_back(std::string("--finalize"));
 
-   // Perform the external evaluation
-   Gem::Common::runExternalCommand(boost::filesystem::path(programName_.value()), arguments);
+   // Ask the external evaluation program to perform any final work
+   std::string command;
+   int errorCode = Gem::Common::runExternalCommand(
+      boost::filesystem::path(programName_.value())
+      , arguments
+      , boost::filesystem::path()
+      , command
+   );
+
+   // Let the audience know
+   if(errorCode) {
+      glogger
+      << "In GExternalEvaluatorIndividual::~GExternalEvaluatorIndividualFactory(): Error" << std::endl
+      << "Execution of external command failed." << std::endl
+      << "Command: " << command << std::endl
+      << "Error code: " << errorCode << std::endl
+      << GTERMINATION;
+   }
+}
+
+/******************************************************************************/
+/**
+ * Loads the data of another GFunctionIndividualFactory object
+ */
+void GExternalEvaluatorIndividualFactory::load(boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > cp_raw_ptr) {
+   // Load our parent class'es data
+   Gem::Common::GFactoryT<GParameterSet>::load(cp_raw_ptr);
+
+   // Convert the base pointer
+   boost::shared_ptr<GExternalEvaluatorIndividualFactory> cp_ptr
+      = Gem::Common::convertSmartPointer<Gem::Common::GFactoryT<GParameterSet>, GExternalEvaluatorIndividualFactory>(cp_raw_ptr);
+
+   // And then our own
+   adProb_ = cp_ptr->adProb_;
+   adaptAdProb_ = cp_ptr->adaptAdProb_;
+   minAdProb_ = cp_ptr->minAdProb_;
+   maxAdProb_ = cp_ptr->maxAdProb_;
+   adaptionThreshold_ = cp_ptr->adaptionThreshold_;
+   useBiGaussian_ = cp_ptr->useBiGaussian_;
+   sigma1_ = cp_ptr->sigma1_;
+   sigmaSigma1_ = cp_ptr->sigmaSigma1_;
+   minSigma1_ = cp_ptr->minSigma1_;
+   maxSigma1_ = cp_ptr->maxSigma1_;
+   sigma2_ = cp_ptr->sigma2_;
+   sigmaSigma2_ = cp_ptr->sigmaSigma2_;
+   minSigma2_ = cp_ptr->minSigma2_;
+   maxSigma2_ = cp_ptr->maxSigma2_;
+   delta_ = cp_ptr->delta_;
+   sigmaDelta_ = cp_ptr->sigmaDelta_;
+   minDelta_ = cp_ptr->minDelta_;
+   maxDelta_ = cp_ptr->maxDelta_;
+   programName_ = cp_ptr->programName_;
+   customOptions_ = cp_ptr->customOptions_;
+   parameterFileBaseName_ = cp_ptr->parameterFileBaseName_;
+   initValues_ = cp_ptr->initValues_;
+   removeExecTemporaries_ = cp_ptr->removeExecTemporaries_;
+   externalEvaluatorQueried_ = cp_ptr->externalEvaluatorQueried_;
+   ptr_ = cp_ptr->ptr_;
+}
+
+/******************************************************************************/
+/**
+ * Creates a deep clone of this object
+ */
+boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > GExternalEvaluatorIndividualFactory::clone() const {
+   return boost::shared_ptr<GExternalEvaluatorIndividualFactory>(new GExternalEvaluatorIndividualFactory(*this));
 }
 
 /******************************************************************************/
@@ -491,6 +725,72 @@ void GExternalEvaluatorIndividualFactory::setAdProb(double adProb)
 {
    adProb_ = adProb;
 }
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the rate of evolutionary adaption of adProb_
+ */
+double GExternalEvaluatorIndividualFactory::getAdaptAdProb() const {
+   return adaptAdProb_;
+}
+
+/******************************************************************************/
+/**
+ * Allows to specify an adaption factor for adProb_ (or 0, if you do not want this feature)
+ */
+void GExternalEvaluatorIndividualFactory::setAdaptAdProb(double adaptAdProb) {
+#ifdef DEBUG
+      if(adaptAdProb < 0.) {
+         glogger
+         << "In GExternalEvaluatorIndividualFactory::setAdaptAdProb(): Error!" << std::endl
+         << "Invalid value for adaptAdProb given: " << adaptAdProb << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+   adaptAdProb_ = adaptAdProb;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the allowed range for adProb_ variation
+ */
+boost::tuple<double,double> GExternalEvaluatorIndividualFactory::getAdProbRange() const {
+   return boost::tuple<double, double>(minAdProb_.value(), maxAdProb_.value());
+}
+
+/******************************************************************************/
+/**
+ * Allows to set the allowed range for adaption probability variation
+ */
+void GExternalEvaluatorIndividualFactory::setAdProbRange(double minAdProb, double maxAdProb) {
+#ifdef DEBUG
+      if(minAdProb < 0.) {
+         glogger
+         << "In GExternalEvaluatorIndividualFactory::setAdProbRange(): Error!" << std::endl
+         << "minAdProb < 0: " << minAdProb << std::endl
+         << GEXCEPTION;
+      }
+
+      if(minAdProb > maxAdProb) {
+         glogger
+         << "In GExternalEvaluatorIndividualFactory::setAdProbRange(): Error!" << std::endl
+         << "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb << std::endl
+         << GEXCEPTION;
+      }
+
+      if(maxAdProb > 1.) {
+         glogger
+         << "In GExternalEvaluatorIndividualFactory::setAdProbRange(): Error!" << std::endl
+         << "maxAdProb > 1: " << maxAdProb << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+   minAdProb_ = minAdProb;
+   maxAdProb_ = maxAdProb;
+}
+
 
 /******************************************************************************/
 /**
@@ -818,7 +1118,10 @@ void GExternalEvaluatorIndividualFactory::setUseBiGaussian(bool useBiGaussian) {
 
 /******************************************************************************/
 /**
- * Allows to set the name and path of the external program
+ * Allows to set the name and path of the external program. Note that this will have a
+ * lasting effect even if the external configuration file is parsed repeatedly,
+ * as we use a "one-time-reference" parameter. Using the "setValue" option woll in
+ * contrast reset the internal value of that object.
  */
 void GExternalEvaluatorIndividualFactory::setProgramName(std::string programName) {
    // Check that the file name isn't empty
@@ -837,7 +1140,7 @@ void GExternalEvaluatorIndividualFactory::setProgramName(std::string programName
       << GEXCEPTION;
    }
 
-   programName_ = programName;
+   programName_.setValue(programName);
 }
 
 /******************************************************************************/
@@ -850,10 +1153,13 @@ std::string GExternalEvaluatorIndividualFactory::getProgramName() const {
 
 /******************************************************************************/
 /**
- * Sets the name of the external evaluation program
+ * Sets the name of the external evaluation program. Note that this will have a
+ * lasting effect even if the external configuration file is parsed repeatedly,
+ * as we use a "one-time-reference" parameter. Using the "setValue" option woll in
+ * contrast reset the internal value of that object.
  */
 void GExternalEvaluatorIndividualFactory::setCustomOptions(std::string customOptions) {
-   customOptions_ = customOptions;
+   customOptions_.setValue(customOptions);
 }
 
 /******************************************************************************/
@@ -893,15 +1199,15 @@ std::string GExternalEvaluatorIndividualFactory::getParameterFileBaseName() cons
  * Indicates the initialization mode
  */
 void GExternalEvaluatorIndividualFactory::setInitValues(std::string initValues) {
-   if(initValues != "random" && initValues != "min" && initValues != "max") {
+   if(initValues != "random" && initValues != "min" && initValues != "max" && initValues != "predef") {
       glogger
       << "In GExternalEvaluatorIndividualFactory::setInitValues(): Error!" << std::endl
       << "Invalid argument: " << initValues << std::endl
-      << "Expected \"random\", \"min\" or \"max\"." << std::endl
+      << "Expected \"random\", \"min\", \"max\" or \"predef\"." << std::endl
       << GEXCEPTION;
    }
 
-   initValues_ = initValues;
+   initValues_.setValue(initValues);
 }
 
 /******************************************************************************/
@@ -910,6 +1216,104 @@ void GExternalEvaluatorIndividualFactory::setInitValues(std::string initValues) 
  */
 std::string GExternalEvaluatorIndividualFactory::getInitValues() const {
    return initValues_;
+}
+
+/******************************************************************************/
+/**
+ * Allows to specify whether temporary files should be removed
+ */
+void GExternalEvaluatorIndividualFactory::setRemoveExecTemporaries(bool removeExecTemporaries) {
+   removeExecTemporaries_.setValue(removeExecTemporaries);
+}
+
+/******************************************************************************/
+/**
+ * Allows to check whether temporaries should be removed
+ */
+bool GExternalEvaluatorIndividualFactory::getRemoveExecTemporaries() const {
+   return removeExecTemporaries_;
+}
+
+/******************************************************************************/
+/**
+ * Submit work items to the external executable for archiving
+ */
+void GExternalEvaluatorIndividualFactory::archive(
+   const std::vector<boost::shared_ptr<GExternalEvaluatorIndividual> >& arch
+) const {
+   // Check that there are individuals contained in the archive
+   if(arch.empty()) return; // Do nothing
+
+   // Transform the objects into a batch of boost property tree
+   boost::property_tree::ptree ptr_out;
+   std::string batch="batch";
+
+   // Output the header data
+   ptr_out.put(batch + ".dataType", std::string("archive_data"));
+   ptr_out.put(batch + ".runID", arch.front()->getRunId());
+   ptr_out.put(batch + ".nIndividuals", arch.size());
+
+   // Output the individuals in turn
+   std::vector<boost::shared_ptr<GExternalEvaluatorIndividual> >::const_iterator cit;
+   std::size_t pos = 0;
+   std::string basename;
+   for(cit=arch.begin(); cit!=arch.end(); ++cit) {
+      basename = batch + ".individuals.individual" + boost::lexical_cast<std::string>(pos++);
+      (*cit)->toPropertyTree(ptr_out, basename);
+      std::cout << "Current evaluation id = " << (*cit)->getCurrentEvaluationID() << std::endl;
+   }
+
+   // Create a suitable extension and exchange file names for this object
+   const boost::posix_time::ptime currentTime = boost::posix_time::second_clock::local_time();
+   boost::gregorian::date d = currentTime.date();
+   std::string extension = std::string("-")
+      + boost::lexical_cast<std::string>(d.year()) + "-"
+      + boost::lexical_cast<std::string>(d.month()) + "-"
+      + boost::lexical_cast<std::string>(d.day()) + "-"
+      + boost::lexical_cast<std::string>(currentTime.time_of_day().hours()) + "-"
+      + boost::lexical_cast<std::string>(currentTime.time_of_day().minutes()) + "-"
+      + boost::lexical_cast<std::string>(currentTime.time_of_day().seconds()) + "-"
+      + boost::lexical_cast<std::string>(boost::uuids::random_generator()()) + ".xml";
+   std::string parameterfileName = parameterFileBaseName_.value() + extension;
+
+   // Save the parameters to a file for the external evaluation
+#if BOOST_VERSION > 105500
+      boost::property_tree::xml_writer_settings<std::string> settings('\t', 1);
+#else
+      boost::property_tree::xml_writer_settings<char> settings('\t', 1);
+#endif /* BOOST_VERSION */
+   boost::property_tree::write_xml(parameterfileName, ptr_out, std::locale(), settings);
+
+
+   // Collect all command-line arguments
+   std::vector<std::string> arguments;
+   if(customOptions_.value() != "empty" && !customOptions_.value().empty()) {
+      arguments.push_back(customOptions_.value());
+   }
+   arguments.push_back(std::string("--archive"));
+   arguments.push_back(std::string("--input=\"" +  parameterfileName + "\""));
+
+   // Ask the external evaluation program to perform any final work
+   std::string command;
+   int errorCode = Gem::Common::runExternalCommand(
+      boost::filesystem::path(programName_.value())
+      , arguments
+      , boost::filesystem::path()
+      , command
+   );
+
+   // Let the audience know
+   if(errorCode) {
+      glogger
+      << "In GExternalEvaluatorIndividualFactory::archive(): Error" << std::endl
+      << "Execution of external command failed." << std::endl
+      << "Command: " << command << std::endl
+      << "Error code: " << errorCode << std::endl
+      << GEXCEPTION;
+   }
+
+   // Clean up (remove) the parameter file. This will only be done if no error occurred
+   bf::remove(parameterfileName);
 }
 
 /******************************************************************************/
@@ -939,202 +1343,174 @@ void GExternalEvaluatorIndividualFactory::describeLocalOptions_(Gem::Common::GPa
    // Describe our own options
    using namespace Gem::Courtier;
 
-   std::string comment;
+   // Allow our parent class to describe its options
+   Gem::Common::GFactoryT<GParameterSet>::describeLocalOptions_(gpb);
 
-   comment = "";
-   comment += "The probability for random adaption of values in evolutionary algorithms;";
+   // Then add our local options
    gpb.registerFileParameter<double>(
       "adProb"
       , adProb_.reference()
       , GEEI_DEF_ADPROB
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
+   )
+   << "The probability for random adaption of values in evolutionary algorithms";
 
-   comment = "";
-   comment += "The number of calls to an adaptor after which adaption takes place;";
+   gpb.registerFileParameter<double>(
+      "adaptAdProb"
+      , adaptAdProb_.reference()
+      , GEEI_DEF_ADAPTADPROB
+   )
+   << "Determines the rate of adaption of adProb. Set to 0, if you do not need this feature";
+
+   gpb.registerFileParameter<double>(
+      "minAdProb"
+      , minAdProb_.reference()
+      , GEEI_DEF_MINADPROB
+   )
+   << "The lower allowed boundary for adProb-variation";
+
+   gpb.registerFileParameter<double>(
+      "maxAdProb"
+      , maxAdProb_.reference()
+      , GEEI_DEF_MAXADPROB
+   )
+   << "The upper allowed boundary for adProb-variation";
+
+
    gpb.registerFileParameter<boost::uint32_t>(
       "adaptionThreshold"
       , adaptionThreshold_.reference()
       , GEEI_DEF_ADAPTIONTHRESHOLD
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
+   )
+   << "The number of calls to an adaptor after which adaption takes place";
 
-   comment = "";
-   comment += "Whether to use a double gaussion for the adaption of parmeters in ES;";
    gpb.registerFileParameter<bool>(
       "useBiGaussian"
       , useBiGaussian_.reference()
       , GEEI_DEF_USEBIGAUSSIAN
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
+   )
+   << "Whether to use a double gaussion for the adaption of parmeters in ES";
 
-   comment = "";
-   comment += "The sigma for gauss-adaption in ES;(or the sigma of the left peak of a double gaussian);";
    gpb.registerFileParameter<double>(
       "sigma1"
       , sigma1_.reference()
       , GEEI_DEF_SIGMA1
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
+   )
+   << "The sigma for gauss-adaption in ES" << std::endl
+   << "(or the sigma of the left peak of a double gaussian)";
 
-   comment = "";
-   comment += "Influences the self-adaption of gauss-mutation in ES;";
    gpb.registerFileParameter<double>(
       "sigmaSigma1"
       , sigmaSigma1_.reference()
       , GEEI_DEF_SIGMASIGMA1
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
+   )
+   << "Influences the self-adaption of gauss-mutation in ES";
 
-   comment = "";
-   comment += "The minimum value of sigma1;";
    gpb.registerFileParameter<double>(
       "minSigma1"
       , minSigma1_.reference()
       , GEEI_DEF_MINSIGMA1
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
+   )
+   << "The minimum value of sigma1";
 
-   comment = "";
-   comment += "The maximum value of sigma1;";
    gpb.registerFileParameter<double>(
       "maxSigma1"
       , maxSigma1_.reference()
       , GEEI_DEF_MAXSIGMA1
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
+   )
+   << "The maximum value of sigma1";
 
-   comment = "";
-   comment += "The sigma of the right peak of a double gaussian (if any);";
    gpb.registerFileParameter<double>(
       "sigma2"
       , sigma2_.reference()
       , GEEI_DEF_SIGMA2
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
+   )
+   << "The sigma of the right peak of a double gaussian (if any)";
 
-   comment = "";
-   comment += "Influences the self-adaption of gauss-mutation in ES;";
    gpb.registerFileParameter<double>(
       "sigmaSigma2"
       , sigmaSigma2_.reference()
       , GEEI_DEF_SIGMASIGMA2
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
+   )
+   << "Influences the self-adaption of gauss-mutation in ES";
 
-   comment = "";
-   comment += "The minimum value of sigma2;";
    gpb.registerFileParameter<double>(
       "minSigma2"
       , minSigma2_.reference()
       , GEEI_DEF_MINSIGMA2
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
+   )
+   << "The minimum value of sigma2";
 
-   comment = "";
-   comment += "The maximum value of sigma2;";
    gpb.registerFileParameter<double>(
       "maxSigma2"
       , maxSigma2_.reference()
       , GEEI_DEF_MAXSIGMA2
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
+   )
+   << "The maximum value of sigma2";
 
-   comment = "";
-   comment += "The start distance between both peaks used for bi-gaussian mutations in ES;";
    gpb.registerFileParameter<double>(
       "delta"
       , delta_.reference()
       , GEEI_DEF_DELTA
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
+   )
+   << "The start distance between both peaks used for bi-gaussian mutations in ES";
 
-   comment = "";
-   comment += "The width of the gaussian used for mutations of the delta parameter;";
    gpb.registerFileParameter<double>(
       "sigmaDelta"
       , sigmaDelta_.reference()
       , GEEI_DEF_SIGMADELTA
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
+   )
+   << "The width of the gaussian used for mutations of the delta parameter";
 
-   comment = "";
-   comment += "The minimum allowed value of delta;";
    gpb.registerFileParameter<double>(
       "minDelta"
       , minDelta_.reference()
       , GEEI_DEF_MINDELTA
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
+   )
+   << "The minimum allowed value of delta";
 
-   comment = "";
-   comment += "The maximum allowed value of delta;";
    gpb.registerFileParameter<double>(
       "maxDelta"
       , maxDelta_.reference()
       , GEEI_DEF_MAXDELTA
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
+   )
+   << "The maximum allowed value of delta";
 
-   comment = "";
-   comment += "The name of the external evaluation program";
    gpb.registerFileParameter<std::string>(
       "programName"
-      , programName_.reference()
+      , programName_.reference() // Upon repeated filling this option will do nothing
       , GEEI_DEF_PROGNAME
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
+   )
+   << "The name of the external evaluation program";
 
-   comment = "";
-   comment += "Any custom options you wish to pass to the external evaluator";
    gpb.registerFileParameter<std::string>(
       "customOptions"
       , customOptions_.reference()
       , GEEI_DEF_CUSTOMOPTIONS
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
+   )
+   << "Any custom options you wish to pass to the external evaluator";
 
-   comment = "";
-   comment += "The base name assigned to parameter files;";
-   comment += "in addition to data identifying this specific evaluation;";
    gpb.registerFileParameter<std::string>(
       "parameterFile"
       , parameterFileBaseName_.reference()
       , GEEI_DEF_PARFILEBASENAME
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
+   )
+   << "The base name assigned to parameter files" << std::endl
+   << "in addition to data identifying this specific evaluation";
 
-   comment = "";
-   comment += "Indicates, whether individuals should be initialized randomly (random),;";
-   comment += "with the lower (min) or upper (max) boundary of their value ranges;";
    gpb.registerFileParameter<std::string>(
       "initValues"
       , initValues_.reference()
       , GEEI_DEF_STARTMODE
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
+   )
+   << "Indicates, whether individuals should be initialized randomly (random)," << std::endl
+   << "with the lower (min) or upper (max) boundary of their value ranges";
 
-   // Allow our parent class to describe its options
-   Gem::Common::GFactoryT<GParameterSet>::describeLocalOptions_(gpb);
+   gpb.registerFileParameter<bool>(
+      "removeExecTemporaries"
+      , removeExecTemporaries_.reference()
+      , GEEI_DEF_REMOVETEMPORARIES
+   )
+   << "Indicates, whether files created during external execution should be removed";
 }
 
 /******************************************************************************/
@@ -1167,34 +1543,70 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
    // Make sure the property tree is empty
    ptr_.clear();
 
-   //---------------------------------------------------------------------------------------
-   // Ask the external evaluation program to perform any initial work
-   std::vector<std::string> arguments; // Collect command line parameters
-   if(customOptions_.value() != "empty" && !customOptions_.value().empty()) {
-      arguments.push_back(customOptions_.value());
+   { // First we give the external program the opportunity to perform an initial work
+      // Collect all command-line arguments
+      std::vector<std::string> arguments;
+      if(customOptions_.value() != "empty" && !customOptions_.value().empty()) {
+         arguments.push_back(customOptions_.value());
+      }
+      arguments.push_back(std::string("--init"));
+
+      // Ask the external evaluation program to perform any initial work
+      std::string command;
+      int errorCode = Gem::Common::runExternalCommand(
+         boost::filesystem::path(programName_.value())
+         , arguments
+         , boost::filesystem::path()
+         , command
+      );
+
+      if(errorCode) {
+         glogger
+         << "In GExternalEvaluatorIndividual::setUpPropertyTree(//1//): Error" << std::endl
+         << "Execution of external command failed." << std::endl
+         << "Command: " << command << std::endl
+         << "Error code: " << errorCode << std::endl
+         << GEXCEPTION;
+      }
    }
-   arguments.push_back(std::string("--init"));
-   // Perform the external initialization
-   Gem::Common::runExternalCommand(boost::filesystem::path(programName_.value()), arguments);
 
-   //---------------------------------------------------------------------------------------
-   // Query the external evaluator for setup information for our individuals
-   arguments.clear();
-   if(customOptions_.value() != "empty" && !customOptions_.value().empty()) {
-      arguments.push_back(customOptions_.value());
+   { // Now we ask the external program for setup-iformation
+      // Collect all command-line arguments
+      std::vector<std::string> arguments;
+      if(customOptions_.value() != "empty" && !customOptions_.value().empty()) {
+         arguments.push_back(customOptions_.value());
+      }
+
+      // "/" will be converted to "\" in runExternalCommand, if necessary
+      std::string setupFileName = std::string("./setup-") + boost::lexical_cast<std::string>(this) + std::string(".xml");
+      arguments.push_back("--setup");
+      arguments.push_back("--output=\"" + setupFileName + "\"");
+      arguments.push_back("--initvalues=\"" + initValues_.value() + "\"");
+
+      // Ask the external evaluation program tfor setup information
+      std::string command;
+      int errorCode = Gem::Common::runExternalCommand(
+         boost::filesystem::path(programName_.value())
+         , arguments
+         , boost::filesystem::path()
+         , command
+      );
+
+      if(errorCode) {
+         glogger
+         << "In GExternalEvaluatorIndividual::setUpPropertyTree(//2//): Error" << std::endl
+         << "Execution of external command failed." << std::endl
+         << "Command: " << command << std::endl
+         << "Error code: " << errorCode << std::endl
+         << GEXCEPTION;
+      }
+
+      // Parse the setup file
+      pt::read_xml(setupFileName, ptr_);
+
+      // Clean up
+      bf::remove(boost::filesystem::path(setupFileName));
    }
-   arguments.push_back(std::string("--initvalues=") + initValues_.value());
-   arguments.push_back(std::string("--setup=\"./setup.xml\""));
-   // Perform the external initialization
-   Gem::Common::runExternalCommand(boost::filesystem::path(programName_.value()), arguments);
-
-   //---------------------------------------------------------------------------------------
-
-   // Parse the setup file
-   pt::read_xml("./setup.xml", ptr_);
-
-   // Clean up
-   bf::remove("./setup.xml");
 }
 
 /******************************************************************************/
@@ -1244,64 +1656,165 @@ void GExternalEvaluatorIndividualFactory::postProcess_(boost::shared_ptr<GParame
       gat_ptr = gdga_ptr;
    }
 
-   // Extract the number of variables
-   std::size_t nvar = ptr_.get<std::size_t>("parameterset.nvar");
+   // Store parameters pertaining to the adaption probability in the adaptor
+   gat_ptr->setAdaptAdProb(adaptAdProb_);
+   gat_ptr->setAdProbRange(minAdProb_, maxAdProb_);
 
-   // Extract the number of results to be expected from the external evaluation function
-   std::size_t nResultsExpected = ptr_.get<std::size_t>("parameterset.nResultsExpected");
-
-   // Get the parameter set node
-   ptree parSetNode = ptr_.get_child("parameterset");
-
-   // Loop over all children of the property tree
-   // Note that for now we only query GConstrainedDoubleObject objects
-   std::size_t varCounter = 0;
-   std::string varString = "var0";
-   ptree::const_iterator cit;
-   for (cit = parSetNode.begin(); cit != parSetNode.end(); ++cit) {
-      if(varString == cit->first) { // O.k., we found a var string
-         // Just treat GConstrainedDoubleObject objects for now
-         if((cit->second).get<std::string>("type") == "GConstrainedDoubleObject") {
-            // Extract the boundaries and initial values
-            std::string pName = (cit->second).get<std::string>("name");
-            double minVar     = (cit->second).get<double>("lowerBoundary");
-            double maxVar     = (cit->second).get<double>("upperBoundary");
-            double initValue  = (cit->second).get<double>("value0");
-
-            // Create an initial (empty) pointer to a GConstrainedDoubleObject
-            boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr;
-
-            // Act on the information, depending on whether random initialization has been requested
-            if(0 == (cit->second).count("initRandom") || false==(cit->second).get<bool>("initRandom")) {
-               // Extract the initial value
-               double initValue = (cit->second).get<double>("value0");
-               // Create the parameter object
-               gcdo_ptr = boost::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(initValue, minVar, maxVar));
-            } else { // Random initialization has been requested
-               // Create the parameter object
-               gcdo_ptr = boost::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(minVar, maxVar));
-            }
-            gcdo_ptr->setParameterName(pName);
-
-            // Add the adaptor to the parameter object
-            gcdo_ptr->addAdaptor(gat_ptr);
-
-            // Add the object to the individual
-            p->push_back(gcdo_ptr);
-         }
-
-         if(++varCounter >= nvar) break; // Terminate the loop if we have identified all expected parameter objects
-         else {
-            varString = std::string("var") + boost::lexical_cast<std::string>(varCounter); // Create a new var string
-         }
+   try{
+      // Extract the number of individuals
+      std::size_t nIndividuals = ptr_.get<std::size_t>("batch.nIndividuals");
+      if(1 != nIndividuals) {
+         glogger
+         << "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << std::endl
+         << "Received invalid number of setup-individuals: " << nIndividuals << std::endl
+         << GEXCEPTION;
       }
-   }
 
-   // Add the program name and base name for parameter transfers to the object
-   p->setExchangeFileName(parameterFileBaseName_);
-   p->setProgramName(programName_);
-   p->setCustomOptions(customOptions_);
-   p->setNExpectedResults(nResultsExpected);
+      // Get the run-id
+      std::string runID = ptr_.get<std::string>("batch.runID");
+
+      // Extract the number of variables for the first individual
+      std::size_t nVar = ptr_.get<std::size_t>("batch.individuals.individual0.nVars");
+
+      // Extract the number of results to be expected from the external evaluation function for the first individual
+      std::size_t nResultsExpected = ptr_.get<std::size_t>("batch.individuals.individual0.nResults");
+
+      // Extract the number of boundaries to be expected for the first individual
+      std::size_t nBounds = ptr_.get<std::size_t>("batch.individuals.individual0.nBounds");
+
+      // Get an iterator over a property tree
+      ptree::const_iterator cit;
+
+      // If variables have been specified, extract them
+      boost::optional< ptree& > varSetNode_opt = ptr_.get_child_optional("batch.individuals.individual0.vars");
+      if(varSetNode_opt) {
+         // Loop over all children of the variables tree
+         // Note that for now we only query GConstrainedDoubleObject objects
+         std::size_t varCounter = 0;
+         std::string varString = "var0";
+         for (cit = (*varSetNode_opt).begin(); cit != (*varSetNode_opt).end(); ++cit) {
+            if(varString == cit->first) { // O.k., we found a varX string
+               // Just treat GConstrainedDoubleObject objects for now
+               if("GConstrainedDoubleObject" == (cit->second).get<std::string>("type")) {
+                  // Extract the boundaries and initial values
+                  std::string pName = (cit->second).get<std::string>("name");
+                  double minVar     = (cit->second).get<double>("lowerBoundary");
+                  double maxVar     = (cit->second).get<double>("upperBoundary");
+                  double initValue  = (cit->second).get<double>("values.value0");
+
+                  // Create an initial (empty) pointer to a GConstrainedDoubleObject
+                  boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr;
+
+                  // Act on the information, depending on whether random initialization has been requested
+                  if(minVar == maxVar) { // We take this as a sign that the parameter should not be modified
+                     // Create the parameter object
+                     gcdo_ptr = boost::shared_ptr<GConstrainedDoubleObject>(
+                           new GConstrainedDoubleObject(
+                                 initValue
+                                 , initValue
+                                 , Gem::Common::gmax(1.0001*initValue, initValue + 0.0001)
+                           )
+                     );
+                     // Disable mutations
+                     gcdo_ptr->setAdaptionsInactive();
+                  } else if(0 == (cit->second).count("initRandom") || false==(cit->second).get<bool>("initRandom")) {
+                     // Create the parameter object
+                     gcdo_ptr = boost::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(initValue, minVar, maxVar));
+                  } else { // Random initialization has been requested
+                     // Create the parameter object
+                     gcdo_ptr = boost::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(minVar, maxVar));
+                  }
+                  gcdo_ptr->setParameterName(pName);
+
+                  // Add the adaptor to the parameter object
+                  gcdo_ptr->addAdaptor(gat_ptr);
+
+                  // Add the object to the individual
+                  p->push_back(gcdo_ptr);
+               } else {
+                  glogger
+                  << "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << std::endl
+                  << (cit->second).get<std::string>("type") << " provided as type name." << std::endl
+                  << "Currently only GConstrainedDoubleObject is supported." << std::endl
+                  << GEXCEPTION;
+               }
+
+               if(++varCounter >= nVar) {
+                  break; // Terminate the loop if we have identified all expected parameter objects
+               }
+               else {
+                  varString = std::string("var") + boost::lexical_cast<std::string>(varCounter); // Create a new var string
+               }
+            }
+         }
+      } else {
+         glogger
+         << "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << std::endl
+         << "No variables were specified" << std::endl
+         << GEXCEPTION;
+      }
+
+      // If boundaries have been specified, add the required boundary objects to the individual.
+      boost::optional< ptree& > boundsNode_opt = ptr_.get_child_optional("batch.individuals.individual0.bounds");
+      if(boundsNode_opt) {
+         // Create a check combiner -- it will hold the boundary conditions we find here
+         boost::shared_ptr<GCheckCombinerT<GOptimizableEntity> > combiner_ptr(new GCheckCombinerT<GOptimizableEntity>());
+
+         // Loop over all children of the bounds tree
+         // Note that for now we only query GConstrainedDoubleObject objects
+         std::size_t boundsCounter = 0;
+         std::string boundString = "bound0";
+         for(cit=(*boundsNode_opt).begin(); cit!=(*boundsNode_opt).end(); ++cit) {
+            if(cit->first == boundString) {
+               std::string expression = (cit->second).get<std::string>("expression");
+               bool allowNegative = (cit->second).get<bool>("allowNegative");
+
+               // The actual "function-constraint"
+               boost::shared_ptr<GParameterSetFormulaConstraint> formula_constraint(new GParameterSetFormulaConstraint(expression));
+
+               formula_constraint->setAllowNegative(allowNegative);
+
+               // Add the constraint to the check-combiner
+               combiner_ptr->addCheck(formula_constraint);
+
+               if(++boundsCounter >= nBounds) {
+                  break; // Terminate the loop if we have identified all expected boundaries
+               } else {
+                  boundString = std::string("bound") + boost::lexical_cast<std::string>(boundsCounter);
+               }
+            }
+         }
+
+#ifdef DEBUG
+         glogger
+         << "Found " << boundsCounter << " bounds" << std::endl
+         << GLOGGING;
+#endif /* DEBUG */
+
+         // Add the check combiner to the individual
+         p->registerConstraint(combiner_ptr);
+      } // It isn't an error if no boundaries were specified
+
+      // Add the program name and base name for parameter transfers to the object
+      p->setExchangeBaseName(parameterFileBaseName_);
+      p->setProgramName(programName_);
+      p->setCustomOptions(customOptions_);
+      p->setNExpectedResults(nResultsExpected);
+      p->setRemoveExecTemporaries(removeExecTemporaries_);
+      p->setRunId(runID);
+   } catch(const pt::ptree_bad_path& e) {
+      glogger
+      << "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << std::endl
+      << "Caught ptree_bad_path exception with message " << std::endl
+      << e.what() << std::endl
+      << GEXCEPTION;
+   } catch(const Gem::Common::gemfony_error_condition& gec) {
+      throw gec; // Re-throw
+   } catch(...) {
+      glogger
+      << "In GExternalEvaluatorIndividualFactory::postProcess_(): Caught unknown exception!" << std::endl
+      << GEXCEPTION;
+   }
 }
 
 /******************************************************************************/
