@@ -260,10 +260,10 @@ def main(argv):
     group.add_argument("--archive", help="Archive the results",
                        action="store_true")
 
-    parser.add_argument("--data", help="Read the input data from the given file"
-                        " (default: 'data.xml')",
-                        metavar='IN_FILE', default="data.xml")
-    parser.add_argument("--result", help="Write the results to the given file"
+    parser.add_argument("--input", help="Read the input data from the given file"
+                        " (default: 'input.xml')",
+                        metavar='IN_FILE', default="input.xml")
+    parser.add_argument("--output", help="Write the results to the given file"
                         " (default: 'output.xml')",
                         metavar='OUT_FILE', default="output.xml")
 
@@ -283,11 +283,11 @@ def main(argv):
     elif args.finalize:
         finalize()
     elif args.setup:
-        setup(args.result, initial_values)
+        setup(args.output, initial_values)
     elif args.evaluate:
-        evaluate(args.data, args.result)
+        evaluate(args.input, args.output)
     elif args.archive:
-        archive(args.data)
+        archive(args.input)
     else:
         sys.exit("ERROR: inconsistent options! why are we here?")
 
