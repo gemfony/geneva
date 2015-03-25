@@ -130,9 +130,9 @@ class GExternalEvaluatorIndividualFactory;
  * arguments with obvious meanings
  *
  * --init
- * --setup --initValues=[min/max/random] --result="setupFile.xml"
- * --evaluate --data="data2.xml"         --result="resultFile.xml"
- * --archive  --data="data3.xml"
+ * --setup --initValues=[min/max/random] --output="setupFile.xml"
+ * --evaluate --input="paramsFile.xml"   --output="resultFile.xml"
+ * --archive  --input="archiveFile.xml"
  * --finalize
  *
  * The xml parameter files are created using boost::property_tree and its write_xml
