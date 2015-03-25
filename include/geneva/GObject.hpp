@@ -82,6 +82,7 @@
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_io.hpp>
 #include <boost/type_traits.hpp>
+#include <boost/type_traits/is_abstract.hpp>
 #include <boost/utility.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/variant.hpp>
@@ -146,7 +147,7 @@ namespace Geneva {
  * GObject is the parent class for the majority of Geneva optimization classes. Essentially, GObject
  * defines a number of interface functions and access patterns commonly needed throughout derived classes.
  * As one example, (de-)serialization is simplified by some of the functions in this class, as is the
- * task of conversion to the derived types. Handly of optimization-related classes often happens through
+ * task of conversion to the derived types. Handling of optimization-related classes sometimes happens through
  * a boost::shared_ptr<GObject>, hence this class has a very central role. The GObject::load_(const GObject *)
  * and  GObject::clone_() member functions must be re-implemented for each derived class. Further common
  * functionality of many Geneva classes will be implemented here over time.
@@ -172,9 +173,6 @@ public:
    G_API_GENEVA GObject(const GObject& cp) ;
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GObject();
-
-	/** @brief The assignment operator */
-	G_API_GENEVA const GObject& operator=(const GObject&);
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
@@ -448,6 +446,9 @@ inline boost::shared_ptr<GObject> GObject::clone<GObject> (
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+// Ascertain that this type is abstract, so we may safely remove operator== and !=
+BOOST_MPL_ASSERT((boost::is_abstract<Gem::Geneva::GObject>));
 
 /******************************************************************************/
 /**

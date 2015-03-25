@@ -69,18 +69,6 @@ GObject::~GObject()
 
 /******************************************************************************/
 /**
- * A standard assignment operator
- *
- * @param cp A copy of another GObject(-derivative)
- * @return A constant reference to this object
- */
-const GObject& GObject::operator=(const GObject& cp){
-	load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
  *
