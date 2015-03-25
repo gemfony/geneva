@@ -64,10 +64,21 @@ int main(int argc, char **argv) {
    // Add a content creator so Go2 can generate its own individuals, if necessary
    go.registerContentCreator(geei_ptr);
 
+   // Add a default optimization algorithm to the Go2 object
+   go.registerDefaultAlgorithm("ea");
+
 	// Perform the actual optimization
 	boost::shared_ptr<GExternalEvaluatorIndividual> p = go.optimize<GExternalEvaluatorIndividual>();
 
-	// Here you can do something with the best individual ("p") found
-	// Note that the "archive" call is specific to the GExternalEvaluatorIndividual
-	p->archive();
+   // Extract the best individuals found
+   std::vector<boost::shared_ptr<GExternalEvaluatorIndividual> > bestInds
+      = go.getBestIndividuals<GExternalEvaluatorIndividual>();
+
+   // Note that the "archive" call is specific to the GTaoExternalEvaluatorIndividual
+   geei_ptr->archive(bestInds);
+
+   // The GTaoExternalEvaluatorIndividualFactory will, upon its deletion at the end
+   // of this function, call the external evaluator with the --finalize switch
+
+   //---------------------------------------------------------------------------
 }

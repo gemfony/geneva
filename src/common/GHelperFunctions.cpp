@@ -111,15 +111,19 @@ std::string loadTextDataFromFile(const boost::filesystem::path& p) {
  *
  * @param command The command to be executed (possibly including errors)
  * @param arguments The list of arguments to be added to the command
+ * @param commandOutputFileName The name of a file to which information should be piped
+ * @param fullCommand Allows the caller to find out about the full command
  * @return The error code
  */
 int runExternalCommand(
-   const boost::filesystem::path& command
+   const boost::filesystem::path& program
    , const std::vector<std::string>& arguments
+   , const boost::filesystem::path& commandOutputFileName
+   , std::string& fullCommand
 ) {
    // Convert slashes to backslashes on Windows
-   boost::filesystem::path p_command = command;
-   std::string localCommand = (p_command.make_preferred()).string();
+   boost::filesystem::path p_program = program;
+   std::string localCommand = (p_program.make_preferred()).string();
 
    // Add command line arguments
    std::vector<std::string>::const_iterator cit;
@@ -127,16 +131,24 @@ int runExternalCommand(
       localCommand += (std::string(" ") + *cit);
    }
 
+   // If requested by the user, we want to send the command to an external file
+   if(boost::filesystem::path() != commandOutputFileName) {
+      boost::filesystem::path p_commandOutputFileName = commandOutputFileName;
+      std::string localcommandOutputFileName = (p_commandOutputFileName.make_preferred()).string();
+
+      localCommand = std::string("(") + localCommand + std::string(") > ") + localcommandOutputFileName + std::string(" 2>&1");
+   }
+
    // MOstly for external debugging
 #ifdef GEM_COMMON_PRINT_COMMANDLINE
-      std::cout << "Executing external command \"" << localCommand << "\" ...";
+   std::cout << "Executing external command \"" << localCommand << "\" ...";
 #endif /* GEM_COMMON_PRINT_COMMANDLINE */
 
    // Run the actual command. T
    int errorCode = system(localCommand.c_str());
 
 #ifdef GEM_COMMON_PRINT_COMMANDLINE
-      std::cout << "... done." << std::endl;
+   std::cout << "... done." << std::endl;
 #endif /* GEM_COMMON_PRINT_COMMANDLINE */
 
    // The error code will be returned as the function valiue

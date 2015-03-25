@@ -84,6 +84,8 @@ G_API_COMMON
 int runExternalCommand(
    const boost::filesystem::path&
    , const std::vector<std::string>&
+   , const boost::filesystem::path&
+   , std::string&
 );
 
 /******************************************************************************/
