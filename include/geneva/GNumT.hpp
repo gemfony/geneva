@@ -136,17 +136,6 @@ public:
 	virtual ~GNumT()
 	{ /* nothing */ }
 
-	/***************************************************************************/
-	/**
-	 * The standard assignment operator.
-	 *
-	 * @param cp A copy of another GNumT<T> object
-	 * @return A constant reference to this object
-	 */
-	const GNumT<T>& operator=(const GNumT<T>& cp){
-		GNumT<T>::load_(&cp);
-		return *this;
-	}
 
 	/***************************************************************************/
 	/**
@@ -154,32 +143,6 @@ public:
 	 */
 	virtual T operator=(const T& val) {
 		return GParameterT<T>::operator=(val);
-	}
-
-	/***************************************************************************/
-	/**
-	 * Checks for equality with another GNumT<T> object
-	 *
-	 * @param  cp A constant reference to another GNumT<T> object
-	 * @return A boolean indicating whether both objects are equal
-	 */
-	bool operator==(const GNumT<T>& cp) const {
-		using namespace Gem::Common;
-		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GNumT<T>::operator==","cp", CE_SILENT);
-	}
-
-	/***************************************************************************/
-	/**
-	 * Checks for inequality with another GNumT<T> object
-	 *
-	 * @param  cp A constant reference to another GNumT<T> object
-	 * @return A boolean indicating whether both objects are inequal
-	 */
-	bool operator!=(const GNumT<T>& cp) const {
-		using namespace Gem::Common;
-		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNumT<T>::operator!=","cp", CE_SILENT);
 	}
 
 	/***************************************************************************/

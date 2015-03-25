@@ -152,18 +152,6 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * The standard assignment operator.
-	 *
-	 * @param cp A copy of another GNumFPT<fp_type> object
-	 * @return A constant reference to this object
-	 */
-	const GNumFPT<fp_type> & operator=(const GNumFPT<fp_type>& cp){
-		GNumFPT<fp_type>::load_(&cp);
-		return *this;
-	}
-
-	/***************************************************************************/
-	/**
 	 * An assignment operator for the contained value type
 	 *
 	 * @param val The value to be assigned to this object
@@ -171,32 +159,6 @@ public:
 	 */
 	virtual fp_type operator=(const fp_type& val) {
 		return GNumT<fp_type>::operator=(val);
-	}
-
-	/***************************************************************************/
-	/**
-	 * Checks for equality with another GNumFPT<fp_type> object
-	 *
-	 * @param  cp A constant reference to another GNumFPT<fp_type> object
-	 * @return A boolean indicating whether both objects are equal
-	 */
-	bool operator==(const GNumFPT<fp_type>& cp) const {
-		using namespace Gem::Common;
-		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GNumFPT<fp_type>::operator==","cp", CE_SILENT);
-	}
-
-	/***************************************************************************/
-	/**
-	 * Checks for inequality with another GNumFPT<fp_type> object
-	 *
-	 * @param  cp A constant reference to another GNumFPT<fp_type> object
-	 * @return A boolean indicating whether both objects are inequal
-	 */
-	bool operator!=(const GNumFPT<fp_type>& cp) const {
-		using namespace Gem::Common;
-		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNumFPT<fp_type>::operator!=","cp", CE_SILENT);
 	}
 
 	/***************************************************************************/

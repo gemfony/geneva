@@ -167,44 +167,6 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * A standard assignment operator for GConstrainedFPT<fp_type> objects
-	 *
-	 * @param cp A constant reference to another GConstrainedFPT<fp_type> object
-	 * @return A constant reference to this object
-	 */
-	const GConstrainedFPT<fp_type>& operator= (const GConstrainedFPT<fp_type>& cp) {
-		GConstrainedFPT<fp_type>::load_(&cp);
-		return *this;
-	}
-
-	/***************************************************************************/
-    /**
-     * Checks equality of this object with another.
-     *
-     * @param cp A constant reference to another GConstrainedFPT<fp_type> object
-     * @return A boolean indicating whether both objects are equal
-     */
-	bool operator==(const GConstrainedFPT<fp_type>& cp) const {
-		using namespace Gem::Common;
-		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedFPT<fp_type>::operator==","cp", CE_SILENT);
-	}
-
-	/***************************************************************************/
-    /**
-     * Checks inequality of this object with another.
-     *
-     * @param cp A constant reference to another GConstrainedFPT<fp_type> object
-     * @return A boolean indicating whether both objects are inequal
-     */
-	bool operator!= (const GConstrainedFPT<fp_type>& cp) const {
-		using namespace Gem::Common;
-		// Means: The expectation of inequality was fulfilled, as no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedFPT<fp_type>::operator!=","cp", CE_SILENT);
-	}
-
-	/***************************************************************************/
-	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
 	 *

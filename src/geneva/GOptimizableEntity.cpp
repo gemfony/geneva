@@ -142,32 +142,6 @@ GOptimizableEntity::~GOptimizableEntity() { /* nothing */ }
 
 /******************************************************************************/
 /**
- * Checks for equality with another GOptimizableEntity object
- *
- * @param  cp A constant reference to another GOptimizableEntity object
- * @return A boolean indicating whether both objects are equal
- */
-bool GOptimizableEntity::operator==(const GOptimizableEntity& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GOptimizableEntity::operator==","cp", CE_SILENT);
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GOptimizableEntity object
- *
- * @param  cp A constant reference to another GOptimizableEntity object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GOptimizableEntity::operator!=(const GOptimizableEntity& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GOptimizableEntity::operator!=","cp", CE_SILENT);
-}
-
-/******************************************************************************/
-/**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
  *

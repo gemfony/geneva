@@ -129,11 +129,6 @@ public:
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GOptimizableEntity();
 
-	/** @brief Checks for equality with another GOptimizableEntity object */
-	G_API_GENEVA bool operator==(const GOptimizableEntity&) const;
-	/** @brief Checks for inequality with another GOptimizableEntity object */
-	G_API_GENEVA bool operator!=(const GOptimizableEntity&) const;
-
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject&

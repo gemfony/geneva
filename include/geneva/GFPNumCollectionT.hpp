@@ -143,44 +143,6 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * The standard assignment operator.
-	 *
-	 * @param cp A copy of another GDoubleCollection object
-	 * @return A constant reference to this object
-	 */
-	const GFPNumCollectionT& operator=(const GFPNumCollectionT<fp_type>& cp){
-		GFPNumCollectionT<fp_type>::load_(&cp);
-		return *this;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Checks for equality with another GFPNumCollectionT<fp_type> object
-	 *
-	 * @param  cp A constant reference to another GFPNumCollectionT<fp_type> object
-	 * @return A boolean indicating whether both objects are equal
-	 */
-	bool operator==(const GFPNumCollectionT<fp_type>& cp) const {
-		using namespace Gem::Common;
-		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GFPNumCollectionT<fp_type>::operator==","cp", CE_SILENT);
-	}
-
-	/***************************************************************************/
-	/**
-	 * Checks for inequality with another GFPNumCollectionT<fp_type> object
-	 *
-	 * @param  cp A constant reference to another GFPNumCollectionT<fp_type> object
-	 * @return A boolean indicating whether both objects are inequal
-	 */
-	bool operator!=(const GFPNumCollectionT<fp_type>& cp) const {
-		using namespace Gem::Common;
-		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GFPNumCollectionT<fp_type>::operator!=","cp", CE_SILENT);
-	}
-
-	/***************************************************************************/
-	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
 	 *
