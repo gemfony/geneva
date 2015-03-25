@@ -93,18 +93,6 @@ GBaseSA::~GBaseSA()
 
 /******************************************************************************/
 /**
- * The standard assignment operator.
- *
- * @param cp Another GBaseSA object
- * @return A constant reference to this object
- */
-const GBaseSA& GBaseSA::operator=(const GBaseSA& cp) {
-   GBaseSA::load_(&cp);
-   return *this;
-}
-
-/******************************************************************************/
-/**
  * Loads the data of another GBaseSA object, camouflaged as a GObject.
  *
  * @param cp A pointer to another GBaseSA object, camouflaged as a GObject
@@ -120,32 +108,6 @@ void GBaseSA::load_(const GObject * cp)
    t0_ = p_load->t0_;
    t_ = p_load->t_;
    alpha_ = p_load->alpha_;
-}
-
-/******************************************************************************/
-/**
- * Checks for equality with another GBaseSA object
- *
- * @param  cp A constant reference to another GBaseSA object
- * @return A boolean indicating whether both objects are equal
- */
-bool GBaseSA::operator==(const GBaseSA& cp) const {
-   using namespace Gem::Common;
-   // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBaseSA::operator==","cp", CE_SILENT);
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GBaseSA object
- *
- * @param  cp A constant reference to another GBaseSA object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GBaseSA::operator!=(const GBaseSA& cp) const {
-   using namespace Gem::Common;
-   // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBaseSA::operator!=","cp", CE_SILENT);
 }
 
 /******************************************************************************/

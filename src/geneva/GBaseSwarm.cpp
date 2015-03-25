@@ -183,19 +183,6 @@ std::string GBaseSwarm::getOptimizationAlgorithm() const {
 	return "PERSONALITY_SWARM";
 }
 
-
-/******************************************************************************/
-/**
- * The standard assignment operator.
- *
- * @param cp Another GBaseSwarm object
- * @return A constant reference to this object
- */
-const GBaseSwarm& GBaseSwarm::operator=(const GBaseSwarm& cp) {
-	GBaseSwarm::load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Loads the data of another GBaseSwarm object, camouflaged as a GObject.
@@ -281,32 +268,6 @@ void GBaseSwarm::load_(const GObject *cp)
 		global_best_.reset(); // empty the smart pointer
 	}
 	// else {} // We do not need to do anything if both iterations are 0 as there is no global best at all
-}
-
-/******************************************************************************/
-/**
- * Checks for equality with another GBaseSwarm object
- *
- * @param  cp A constant reference to another GBaseSwarm object
- * @return A boolean indicating whether both objects are equal
- */
-bool GBaseSwarm::operator==(const GBaseSwarm& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBaseSwarm::operator==","cp", CE_SILENT);
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GBaseSwarm object
- *
- * @param  cp A constant reference to another GBaseSwarm object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GBaseSwarm::operator!=(const GBaseSwarm& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBaseSwarm::operator!=","cp", CE_SILENT);
 }
 
 /******************************************************************************/

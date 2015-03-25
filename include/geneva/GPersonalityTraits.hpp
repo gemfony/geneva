@@ -81,11 +81,6 @@ public:
 	/** @brief The standard destructor */
 	virtual G_API_GENEVA ~GPersonalityTraits();
 
-	/** @brief Checks for equality with another GPersonalityTraits object */
-	G_API_GENEVA bool operator==(const GPersonalityTraits&) const;
-	/** @brief Checks for inequality with another GPersonalityTraits object */
-	G_API_GENEVA bool operator!=(const GPersonalityTraits&) const;
-
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject&

@@ -104,14 +104,6 @@ public:
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GBaseGD();
 
-	/** @brief A standard assignment operator */
-	G_API_GENEVA const GBaseGD& operator=(const GBaseGD&);
-
-	/** @brief Checks for equality with another GBaseGD object */
-	G_API_GENEVA bool operator==(const GBaseGD&) const;
-	/** @brief Checks for inequality with another GBaseGD object */
-	G_API_GENEVA bool operator!=(const GBaseGD&) const;
-
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject&

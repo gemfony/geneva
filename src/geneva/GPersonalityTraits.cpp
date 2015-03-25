@@ -64,32 +64,6 @@ GPersonalityTraits::~GPersonalityTraits()
 
 /******************************************************************************/
 /**
- * Checks for equality with another GPersonalityTraits object
- *
- * @param  cp A constant reference to another GPersonalityTraits object
- * @return A boolean indicating whether both objects are equal
- */
-bool GPersonalityTraits::operator==(const GPersonalityTraits& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GPersonalityTraits::operator==","cp", CE_SILENT);
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GPersonalityTraits object
- *
- * @param  cp A constant reference to another GPersonalityTraits object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GPersonalityTraits::operator!=(const GPersonalityTraits& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GPersonalityTraits::operator!=","cp", CE_SILENT);
-}
-
-/******************************************************************************/
-/**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
  *
