@@ -144,6 +144,9 @@ int runExternalCommand(
    std::cout << "Executing external command \"" << localCommand << "\" ...";
 #endif /* GEM_COMMON_PRINT_COMMANDLINE */
 
+   // Assign the full command (mostly needed for external error-evaluation)
+   fullCommand = localCommand;
+
    // Run the actual command. T
    int errorCode = system(localCommand.c_str());
 
