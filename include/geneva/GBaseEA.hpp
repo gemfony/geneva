@@ -104,14 +104,6 @@ public:
    /** @brief The destructor */
    virtual G_API_GENEVA ~GBaseEA();
 
-   /** @brief A standard assignment operator */
-   G_API_GENEVA const GBaseEA& operator=(const GBaseEA&);
-
-   /** @brief Checks for equality with another GBaseEA object */
-   G_API_GENEVA bool operator==(const GBaseEA&) const;
-   /** @brief Checks for inequality with another GBaseEA object */
-   G_API_GENEVA bool operator!=(const GBaseEA&) const;
-
    /** @brief Checks whether this object fulfills a given expectation in relation to another object */
    virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject&

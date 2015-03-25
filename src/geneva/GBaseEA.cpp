@@ -89,18 +89,6 @@ GBaseEA::~GBaseEA()
 
 /******************************************************************************/
 /**
- * The standard assignment operator.
- *
- * @param cp Another GBaseEA object
- * @return A constant reference to this object
- */
-const GBaseEA& GBaseEA::operator=(const GBaseEA& cp) {
-	GBaseEA::load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Loads the data of another GBaseEA object, camouflaged as a GObject.
  *
  * @param cp A pointer to another GBaseEA object, camouflaged as a GObject
@@ -114,32 +102,6 @@ void GBaseEA::load_(const GObject * cp)
 
 	// ... and then our own data
 	smode_ = p_load->smode_;
-}
-
-/******************************************************************************/
-/**
- * Checks for equality with another GBaseEA object
- *
- * @param  cp A constant reference to another GBaseEA object
- * @return A boolean indicating whether both objects are equal
- */
-bool GBaseEA::operator==(const GBaseEA& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBaseEA::operator==","cp", CE_SILENT);
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GBaseEA object
- *
- * @param  cp A constant reference to another GBaseEA object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GBaseEA::operator!=(const GBaseEA& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBaseEA::operator!=","cp", CE_SILENT);
 }
 
 /******************************************************************************/

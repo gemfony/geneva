@@ -447,9 +447,6 @@ inline boost::shared_ptr<GObject> GObject::clone<GObject> (
 } /* namespace Geneva */
 } /* namespace Gem */
 
-// Ascertain that this type is abstract, so we may safely remove operator== and !=
-BOOST_MPL_ASSERT((boost::is_abstract<Gem::Geneva::GObject>));
-
 /******************************************************************************/
 /**
  * @brief Needed for Boost.Serialization
