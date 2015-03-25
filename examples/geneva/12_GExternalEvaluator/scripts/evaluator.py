@@ -283,7 +283,6 @@ def main(argv):
     elif args.finalize:
         finalize()
     elif args.setup:
-        print(repr(args.setup))
         setup(args.result, initial_values)
     elif args.evaluate:
         evaluate(args.data, args.result)
