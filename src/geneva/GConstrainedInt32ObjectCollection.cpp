@@ -73,16 +73,15 @@ GConstrainedInt32ObjectCollection::GConstrainedInt32ObjectCollection(const GCons
 GConstrainedInt32ObjectCollection::~GConstrainedInt32ObjectCollection()
 { /* nothing */ }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A standard assignment operator.
- *
- * @param cp A copy of another GConstrainedInt32ObjectCollection object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
-const GConstrainedInt32ObjectCollection& GConstrainedInt32ObjectCollection::operator=(const GConstrainedInt32ObjectCollection& cp){
-	GConstrainedInt32ObjectCollection::load_(&cp);
-	return *this;
+const GConstrainedInt32ObjectCollection& GConstrainedInt32ObjectCollection::operator=(
+   const GConstrainedInt32ObjectCollection& cp
+) {
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

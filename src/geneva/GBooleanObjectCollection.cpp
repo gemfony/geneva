@@ -97,24 +97,23 @@ GBooleanObjectCollection::~GBooleanObjectCollection()
 
 /******************************************************************************/
 /**
- * A standard assignment operator.
- *
- * @param cp A copy of another GBooleanObjectCollection object
- * @return A constant reference to this object
- */
-const GBooleanObjectCollection& GBooleanObjectCollection::operator=(const GBooleanObjectCollection& cp){
-	GBooleanObjectCollection::load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Creates a deep clone of this object.
  *
  * @return A copy of this object, camouflaged as a GObject
  */
 GObject* GBooleanObjectCollection::clone_() const {
 	return new GBooleanObjectCollection(*this);
+}
+
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GBooleanObjectCollection& GBooleanObjectCollection::operator=(
+   const GBooleanObjectCollection& cp
+) {
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

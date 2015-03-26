@@ -90,8 +90,8 @@ public:
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GInt32Collection();
 
-	/** @brief A standard assignment operator */
-	G_API_GENEVA const GInt32Collection& operator=(const GInt32Collection&);
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GInt32Collection& operator=(const GInt32Collection&);
 
 	/** @brief Checks for equality with another GInt32Collection object */
 	G_API_GENEVA bool operator==(const GInt32Collection&) const;

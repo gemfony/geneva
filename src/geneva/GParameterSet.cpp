@@ -79,16 +79,13 @@ GParameterSet::GParameterSet(const GParameterSet& cp)
 GParameterSet::~GParameterSet()
 { /* nothing */ }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A Standard assignment operator
- *
- * @param cp A copy of another GParameterSet object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
-const GParameterSet& GParameterSet::operator=(const GParameterSet& cp){
-	GParameterSet::load_(&cp);
-	return *this;
+const GParameterSet& GParameterSet::operator=(const GParameterSet& cp) {
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/
@@ -99,9 +96,9 @@ const GParameterSet& GParameterSet::operator=(const GParameterSet& cp){
  * @return A boolean indicating whether both objects are equal
  */
 bool GParameterSet::operator==(const GParameterSet& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterSet::operator==","cp", CE_SILENT);
+   using namespace Gem::Common;
+   // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+   return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterSet::operator==","cp", CE_SILENT);
 }
 
 /******************************************************************************/
@@ -112,10 +109,11 @@ bool GParameterSet::operator==(const GParameterSet& cp) const {
  * @return A boolean indicating whether both objects are inequal
  */
 bool GParameterSet::operator!=(const GParameterSet& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterSet::operator!=","cp", CE_SILENT);
+   using namespace Gem::Common;
+   // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+   return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterSet::operator!=","cp", CE_SILENT);
 }
+
 
 /******************************************************************************/
 /**

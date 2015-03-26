@@ -64,15 +64,12 @@ GSAPersonalityTraits::GSAPersonalityTraits(const GSAPersonalityTraits& cp)
 GSAPersonalityTraits::~GSAPersonalityTraits()
 { /* nothing */ }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A standard assignment operator for GSAPersonalityTraits objects.
- *
- * @param cp Reference to another GSAPersonalityTraits object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
 const GSAPersonalityTraits& GSAPersonalityTraits::operator=(const GSAPersonalityTraits& cp) {
-   GSAPersonalityTraits::load_(&cp);
+   this->load_(&cp);
    return *this;
 }
 

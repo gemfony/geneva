@@ -99,24 +99,23 @@ GDoubleCollection::~GDoubleCollection()
 
 /******************************************************************************/
 /**
- * A standard assignment operator.
- *
- * @param cp A copy of another GDoubleCollection object
- * @return A constant reference to this object
- */
-const GDoubleCollection& GDoubleCollection::operator=(const GDoubleCollection& cp){
-	GDoubleCollection::load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Creates a deep clone of this object.
  *
  * @return A copy of this object, camouflaged as a GObject
  */
 GObject* GDoubleCollection::clone_() const {
 	return new GDoubleCollection(*this);
+}
+
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GDoubleCollection& GDoubleCollection::operator=(
+   const GDoubleCollection& cp
+) {
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

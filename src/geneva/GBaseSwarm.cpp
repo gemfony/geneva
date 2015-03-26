@@ -172,6 +172,15 @@ GBaseSwarm::GBaseSwarm(const GBaseSwarm& cp)
 GBaseSwarm::~GBaseSwarm()
 { /* nothing */ }
 
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GBaseSwarm& GBaseSwarm::operator=(const GBaseSwarm& cp) {
+   this->load_(&cp);
+   return *this;
+}
+
 /******************************************************************************/
 /**
  * Returns information about the type of optimization algorithm. This function needs
@@ -1632,16 +1641,15 @@ GBaseSwarm::GSwarmOptimizationMonitor::GSwarmOptimizationMonitor(const GBaseSwar
 GBaseSwarm::GSwarmOptimizationMonitor::~GSwarmOptimizationMonitor()
 { /* nothing */ }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A standard assignment operator.
- *
- * @param cp A copy of another GSwarmOptimizationMonitor object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
-const GBaseSwarm::GSwarmOptimizationMonitor& GBaseSwarm::GSwarmOptimizationMonitor::operator=(const GBaseSwarm::GSwarmOptimizationMonitor& cp){
-	GBaseSwarm::GSwarmOptimizationMonitor::load_(&cp);
-	return *this;
+const GBaseSwarm::GSwarmOptimizationMonitor& GBaseSwarm::GSwarmOptimizationMonitor::operator=(
+   const GBaseSwarm::GSwarmOptimizationMonitor& cp
+) {
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

@@ -79,7 +79,7 @@ public:
    /** @brief The standard destructor */
    virtual G_API_GENEVA ~GMPEAPersonalityTraits();
 
-   /** @brief A standard assignment operator */
+   /** @brief The standard assignment operator */
    G_API_GENEVA const GMPEAPersonalityTraits& operator=(const GMPEAPersonalityTraits&);
 
    /** @brief Checks for equality with another GMPEAPersonalityTraits object */

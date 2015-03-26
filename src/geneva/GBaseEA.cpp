@@ -87,6 +87,15 @@ GBaseEA::GBaseEA(const GBaseEA& cp)
 GBaseEA::~GBaseEA()
 { /* nothing */ }
 
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GBaseEA& GBaseEA::operator=(const GBaseEA& cp) {
+   this->load_(&cp);
+   return *this;
+}
+
 /******************************************************************************/
 /**
  * Loads the data of another GBaseEA object, camouflaged as a GObject.
@@ -839,17 +848,17 @@ GBaseEA::GEAOptimizationMonitor::GEAOptimizationMonitor(const GBaseEA::GEAOptimi
 GBaseEA::GEAOptimizationMonitor::~GEAOptimizationMonitor()
 { /* nothing */ }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A standard assignment operator.
- *
- * @param cp A copy of another GEAOptimizationMonitor object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
-const GBaseEA::GEAOptimizationMonitor& GBaseEA::GEAOptimizationMonitor::operator=(const GBaseEA::GEAOptimizationMonitor& cp){
-	GBaseEA::GEAOptimizationMonitor::load_(&cp);
-	return *this;
+const GBaseEA::GEAOptimizationMonitor& GBaseEA::GEAOptimizationMonitor::operator=(
+   const GBaseEA::GEAOptimizationMonitor& cp
+) {
+   this->load_(&cp);
+   return *this;
 }
+
 
 /******************************************************************************/
 /**

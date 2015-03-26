@@ -67,18 +67,6 @@ GSerialSA::~GSerialSA()
 
 /******************************************************************************/
 /**
- * A standard assignment operator for GSerialSA objects.
- *
- * @param cp Reference to another GSerialSA object
- * @return A constant reference to this object
- */
-const GSerialSA& GSerialSA::operator=(const GSerialSA& cp) {
-   GSerialSA::load_(&cp);
-   return *this;
-}
-
-/******************************************************************************/
-/**
  * Loads the data from another GSerialSA object.
  *
  * @param vp Pointer to another GSerialSA object, camouflaged as a GObject
@@ -103,6 +91,15 @@ void GSerialSA::load_(const GObject *cp) {
  */
 GObject *GSerialSA::clone_() const  {
    return new GSerialSA(*this);
+}
+
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GSerialSA& GSerialSA::operator=(const GSerialSA& cp) {
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

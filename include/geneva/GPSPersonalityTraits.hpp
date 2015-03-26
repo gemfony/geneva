@@ -77,7 +77,7 @@ public:
    /** @brief The standard destructor */
    virtual G_API_GENEVA ~GPSPersonalityTraits();
 
-   /** @brief A standard assignment operator */
+   /** @brief The standard assignment operator */
    G_API_GENEVA const GPSPersonalityTraits& operator=(const GPSPersonalityTraits&);
 
    /** @brief Checks for equality with another GPSPersonalityTraits object */

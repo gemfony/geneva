@@ -104,6 +104,17 @@ GConstrainedDoubleObject::GConstrainedDoubleObject(const double& val)
 GConstrainedDoubleObject::~GConstrainedDoubleObject()
 { /* nothing */ }
 
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GConstrainedDoubleObject& GConstrainedDoubleObject::operator=(
+   const GConstrainedDoubleObject& cp
+) {
+   this->load_(&cp);
+   return *this;
+}
+
 /******************************************************************************/
 /**
  * An assignment operator for the contained value type
@@ -113,18 +124,6 @@ GConstrainedDoubleObject::~GConstrainedDoubleObject()
  */
 double GConstrainedDoubleObject::operator=(const double& val) {
 	return GConstrainedFPT<double>::operator=(val);
-}
-
-/******************************************************************************/
-/**
- * A standard assignment operator.
- *
- * @param cp A copy of another GConstrainedDoubleObject object
- * @return A constant reference to this object
- */
-const GConstrainedDoubleObject& GConstrainedDoubleObject::operator=(const GConstrainedDoubleObject& cp){
-	GConstrainedDoubleObject::load_(&cp);
-	return *this;
 }
 
 /******************************************************************************/

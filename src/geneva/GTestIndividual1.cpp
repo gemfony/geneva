@@ -75,16 +75,13 @@ GTestIndividual1::GTestIndividual1(const GTestIndividual1& cp)
 GTestIndividual1::~GTestIndividual1()
 { /* nothing */	}
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A standard assignment operator
- *
- * @param cp A copy of another GTestIndividual1 object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
-const GTestIndividual1& GTestIndividual1::operator=(const GTestIndividual1& cp){
-	GTestIndividual1::load_(&cp);
-	return *this;
+const GTestIndividual1& GTestIndividual1::operator=(const GTestIndividual1& cp) {
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

@@ -76,16 +76,15 @@ GBrokerGD::GBrokerGD(const GBrokerGD& cp)
 GBrokerGD::~GBrokerGD()
 { /* nothing */ }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A standard assignment operator for GBrokerGD objects.
- *
- * @param cp Reference to another GBrokerGD object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
-const GBrokerGD& GBrokerGD::operator=(const GBrokerGD& cp) {
-	GBrokerGD::load_(&cp);
-	return *this;
+const GBrokerGD& GBrokerGD::operator=(
+   const GBrokerGD& cp
+) {
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

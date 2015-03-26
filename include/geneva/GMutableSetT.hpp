@@ -120,6 +120,15 @@ public:
 	virtual ~GMutableSetT()
 	{ /* nothing */ }
 
+   /***************************************************************************/
+   /**
+    * The standard assignment operator
+    */
+   const GMutableSetT<T>& operator=(const GMutableSetT<T>& cp) {
+      this->load_(&cp);
+      return *this;
+   }
+
 	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object

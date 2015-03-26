@@ -105,6 +105,17 @@ GConstrainedInt32Object::GConstrainedInt32Object(const boost::int32_t& val)
 GConstrainedInt32Object::~GConstrainedInt32Object()
 { /* nothing */ }
 
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GConstrainedInt32Object& GConstrainedInt32Object::operator=(
+   const GConstrainedInt32Object& cp
+) {
+   this->load_(&cp);
+   return *this;
+}
+
 /******************************************************************************/
 /**
  * An assignment operator for the contained value type
@@ -114,18 +125,6 @@ GConstrainedInt32Object::~GConstrainedInt32Object()
  */
 boost::int32_t GConstrainedInt32Object::operator=(const boost::int32_t& val) {
 	return GConstrainedIntT<boost::int32_t>::operator=(val);
-}
-
-/******************************************************************************/
-/**
- * A standard assignment operator.
- *
- * @param cp A copy of another GConstrainedInt32Object object
- * @return A constant reference to this object
- */
-const GConstrainedInt32Object& GConstrainedInt32Object::operator=(const GConstrainedInt32Object& cp){
-	GConstrainedInt32Object::load_(&cp);
-	return *this;
 }
 
 /******************************************************************************/

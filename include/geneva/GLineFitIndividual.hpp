@@ -103,8 +103,8 @@ public:
 	/** @brief The standard destructor */
 	virtual G_API_GENEVA ~GLineFitIndividual();
 
-	/** @brief A standard assignment operator */
-	G_API_GENEVA const GLineFitIndividual& operator=(const GLineFitIndividual&);
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GLineFitIndividual& operator=(const GLineFitIndividual&);
 
 	/** @brief Checks for equality with another GLineFitIndividual object */
 	G_API_GENEVA bool operator==(const GLineFitIndividual& cp) const;

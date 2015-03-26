@@ -81,10 +81,10 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(const double& adProb)
  * @param maxSigma The maximal value allowed for sigma_
  */
 GInt32GaussAdaptor::GInt32GaussAdaptor(
-		const double& sigma
-		, const double& sigmaSigma
-		, const double& minSigma
-		, const double& maxSigma
+   const double& sigma
+   , const double& sigmaSigma
+   , const double& minSigma
+   , const double& maxSigma
 )
 	: GIntGaussAdaptorT<boost::int32_t> (sigma, sigmaSigma, minSigma, maxSigma)
 { /* nothing */ }
@@ -101,11 +101,11 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(
  * @param adProb The adaption probability
  */
 GInt32GaussAdaptor::GInt32GaussAdaptor(
-		const double& sigma
-		, const double& sigmaSigma
-		, const double& minSigma
-		, const double& maxSigma
-		, const double& adProb
+   const double& sigma
+   , const double& sigmaSigma
+   , const double& minSigma
+   , const double& maxSigma
+   , const double& adProb
 )
 	: GIntGaussAdaptorT<boost::int32_t> (sigma, sigmaSigma, minSigma, maxSigma, adProb)
 { /* nothing */ }
@@ -119,24 +119,21 @@ GInt32GaussAdaptor::~GInt32GaussAdaptor()
 
 /******************************************************************************/
 /**
- * A standard assignment operator.
- *
- * @param cp A copy of another GInt32GaussAdaptor object
- * @return A constant reference to this object
- */
-const GInt32GaussAdaptor& GInt32GaussAdaptor::operator=(const GInt32GaussAdaptor& cp){
-	GInt32GaussAdaptor::load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Creates a deep clone of this object.
  *
  * @return A copy of this object, camouflaged as a GObject
  */
 GObject* GInt32GaussAdaptor::clone_() const {
 	return new GInt32GaussAdaptor(*this);
+}
+
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GInt32GaussAdaptor& GInt32GaussAdaptor::operator=(const GInt32GaussAdaptor& cp) {
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

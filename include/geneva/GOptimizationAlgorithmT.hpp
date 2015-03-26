@@ -189,6 +189,32 @@ public:
 	virtual ~GOptimizationAlgorithmT()
 	{ /* nothing */ }
 
+   /***************************************************************************/
+   /**
+    * Checks for equality with another GOptimizationAlgorithmT<ind_type> object
+    *
+    * @param  cp A constant reference to another GOptimizationAlgorithmT<ind_type> object
+    * @return A boolean indicating whether both objects are equal
+    */
+   bool operator==(const GOptimizationAlgorithmT<ind_type>& cp) const {
+      using namespace Gem::Common;
+      // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GOptimizationAlgorithmT<ind_type>::operator==","cp", CE_SILENT);
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks for inequality with another GOptimizationAlgorithmT<ind_type> object
+    *
+    * @param  cp A constant reference to another GOptimizationAlgorithmT<ind_type> object
+    * @return A boolean indicating whether both objects are inequal
+    */
+   bool operator!=(const GOptimizationAlgorithmT<ind_type>& cp) const {
+      using namespace Gem::Common;
+      // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GOptimizationAlgorithmT<ind_type>::operator==","cp", CE_SILENT);
+   }
+
 	/***************************************************************************/
 	/**
 	 * Performs the necessary administratory work of doing check-pointing
@@ -1898,20 +1924,6 @@ public:
 	     */
 	    virtual ~GOptimizationMonitorT()
 	    { /* nothing */ }
-
-	    /************************************************************************/
-	    /**
-	     * The standard assignment operator.
-	     *
-	     * @param cp Another GOptimizationMonitorT<ind_type> object
-	     * @return A constant reference to this object
-	     */
-	    const GOptimizationMonitorT& operator=(
-         const typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp
-       ) {
-	    	GOptimizationMonitorT::load_(&cp);
-	    	return *this;
-	    }
 
 	    /************************************************************************/
 	    /**

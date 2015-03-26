@@ -63,7 +63,9 @@ GConstrainedDoubleObjectCollection::GConstrainedDoubleObjectCollection(
  *
  * @param cp A copy of another GConstrainedDoubleObjectCollection object
  */
-GConstrainedDoubleObjectCollection::GConstrainedDoubleObjectCollection(const GConstrainedDoubleObjectCollection& cp)
+GConstrainedDoubleObjectCollection::GConstrainedDoubleObjectCollection(
+   const GConstrainedDoubleObjectCollection& cp
+)
 	: GParameterTCollectionT<GConstrainedDoubleObject>(cp)
 { /* nothing */ }
 
@@ -76,24 +78,23 @@ GConstrainedDoubleObjectCollection::~GConstrainedDoubleObjectCollection()
 
 /******************************************************************************/
 /**
- * A standard assignment operator.
- *
- * @param cp A copy of another GConstrainedDoubleObjectCollection object
- * @return A constant reference to this object
- */
-const GConstrainedDoubleObjectCollection& GConstrainedDoubleObjectCollection::operator=(const GConstrainedDoubleObjectCollection& cp){
-	GConstrainedDoubleObjectCollection::load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Creates a deep clone of this object.
  *
  * @return A copy of this object, camouflaged as a GObject
  */
 GObject* GConstrainedDoubleObjectCollection::clone_() const {
 	return new GConstrainedDoubleObjectCollection(*this);
+}
+
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GConstrainedDoubleObjectCollection& GConstrainedDoubleObjectCollection::operator=(
+   const GConstrainedDoubleObjectCollection& cp
+) {
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

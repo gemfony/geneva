@@ -70,18 +70,6 @@ GMultiThreadedSA::~GMultiThreadedSA()
 
 /******************************************************************************/
 /**
- * A standard assignment operator for GMultiThreadedSA objects.
- *
- * @param cp Reference to another GMultiThreadedSA object
- * @return A constant reference to this object
- */
-const GMultiThreadedSA& GMultiThreadedSA::operator=(const GMultiThreadedSA& cp) {
-   GMultiThreadedSA::load_(&cp);
-   return *this;
-}
-
-/******************************************************************************/
-/**
  * Loads the data from another GMultiThreadedSA object.
  *
  * @param vp Pointer to another GMultiThreadedSA object, camouflaged as a GObject
@@ -105,6 +93,15 @@ void GMultiThreadedSA::load_(const GObject *cp) {
  */
 GObject *GMultiThreadedSA::clone_() const  {
    return new GMultiThreadedSA(*this);
+}
+
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GMultiThreadedSA& GMultiThreadedSA::operator=(const GMultiThreadedSA& cp) {
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

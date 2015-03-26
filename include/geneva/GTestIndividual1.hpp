@@ -102,8 +102,8 @@ public:
 	/** @brief The standard destructor */
 	virtual G_API_GENEVA ~GTestIndividual1();
 
-	/** @brief A standard assignment operator */
-	G_API_GENEVA const GTestIndividual1& operator=(const GTestIndividual1&);
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GTestIndividual1& operator=(const GTestIndividual1&);
 
 	/** @brief Checks for equality with another GTestIndividual1 object */
 	G_API_GENEVA bool operator==(const GTestIndividual1& cp) const;

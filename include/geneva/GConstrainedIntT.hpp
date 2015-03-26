@@ -151,6 +151,15 @@ public:
 	virtual ~GConstrainedIntT()
 	{ /* nothing */	}
 
+   /***************************************************************************/
+   /**
+    * The standard assignment operator
+    */
+   const GConstrainedIntT<int_type>& operator=(const GConstrainedIntT<int_type>& cp) {
+      this->load_(&cp);
+      return *this;
+   }
+
 	/***************************************************************************/
 	/**
 	 * A standard assignment operator for int_type values. Note that this function
@@ -167,6 +176,33 @@ public:
 	 * Tested with and without boundaries in GConstrainedIntT<int_type>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
+
+   /***************************************************************************/
+   /**
+    * Checks for equality with another GConstrainedNumT<int_type> object
+    *
+    * @param  cp A constant reference to another GConstrainedNumT<int_type> object
+    * @return A boolean indicating whether both objects are equal
+    */
+   bool operator==(const GConstrainedNumT<int_type>& cp) const {
+      using namespace Gem::Common;
+      // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedNumT<int_type>::operator==","cp", CE_SILENT);
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks for inequality with another GConstrainedNumT<int_type> object
+    *
+    * @param  cp A constant reference to another GConstrainedNumT<int_type> object
+    * @return A boolean indicating whether both objects are inequal
+    */
+   bool operator!=(const GConstrainedNumT<int_type>& cp) const {
+      using namespace Gem::Common;
+      // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedNumT<int_type>::operator==","cp", CE_SILENT);
+   }
+
 
 	/***************************************************************************/
 	/**

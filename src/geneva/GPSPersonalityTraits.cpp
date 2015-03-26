@@ -65,15 +65,12 @@ GPSPersonalityTraits::GPSPersonalityTraits(const GPSPersonalityTraits& cp)
 GPSPersonalityTraits::~GPSPersonalityTraits()
 { /* nothing */ }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A standard assignment operator for GPSPersonalityTraits objects.
- *
- * @param cp Reference to another GPSPersonalityTraits object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
 const GPSPersonalityTraits& GPSPersonalityTraits::operator=(const GPSPersonalityTraits& cp) {
-   GPSPersonalityTraits::load_(&cp);
+   this->load_(&cp);
    return *this;
 }
 

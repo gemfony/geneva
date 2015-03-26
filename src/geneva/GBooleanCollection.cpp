@@ -112,14 +112,14 @@ GBooleanCollection::GBooleanCollection(const std::size_t& nval, const double& pr
 GBooleanCollection::~GBooleanCollection()
 { /* nothing */ }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A standard assignment operator for  GBooleanCollection objects.
- *
- * @param cp A copy of another GBooleanCollection object
+ * The standard assignment operator
  */
-const GBooleanCollection& GBooleanCollection::operator=(const GBooleanCollection& cp){
-   GBooleanCollection::load_(&cp);
+const GBooleanCollection& GBooleanCollection::operator=(
+   const GBooleanCollection& cp
+) {
+   this->load_(&cp);
    return *this;
 }
 

@@ -108,31 +108,40 @@ public:
 	virtual ~GParameterBaseWithAdaptorsT()
 	{ /* nothing */ }
 
-	/***************************************************************************/
-	/**
-	 * Checks for equality with another GParameterBaseWithAdaptorsT<T> object
-	 *
-	 * @param  cp A constant reference to another GParameterBaseWithAdaptorsT object
-	 * @return A boolean indicating whether both objects are equal
-	 */
-	bool operator==(const GParameterBaseWithAdaptorsT<T>& cp) const {
-		using namespace Gem::Common;
-		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterBaseWithAdaptorsT<T>::operator==","cp", CE_SILENT);
-	}
+   /***************************************************************************/
+   /**
+    * The standard assignment operator
+    */
+   const GParameterBaseWithAdaptorsT<T>& operator=(const GParameterBaseWithAdaptorsT<T>& cp) {
+      this->load_(&cp);
+      return *this;
+   }
 
-	/***************************************************************************/
-	/**
-	 * Checks for inequality with another GParameterBaseWithAdaptorsT<T> object
-	 *
-	 * @param  cp A constant reference to another GParameterBaseWithAdaptorsT object
-	 * @return A boolean indicating whether both objects are inequal
-	 */
-	bool operator!=(const GParameterBaseWithAdaptorsT<T>& cp) const {
-		using namespace Gem::Common;
-		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterBaseWithAdaptorsT<T>::operator!=","cp", CE_SILENT);
-	}
+   /***************************************************************************/
+   /**
+    * Checks for equality with another GParameterBaseWithAdaptorsT<T> object
+    *
+    * @param  cp A constant reference to another GParameterBaseWithAdaptorsT<T> object
+    * @return A boolean indicating whether both objects are equal
+    */
+   bool operator==(const GParameterBaseWithAdaptorsT<T>& cp) const {
+      using namespace Gem::Common;
+      // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterBaseWithAdaptorsT<T>::operator==","cp", CE_SILENT);
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks for inequality with another GParameterBaseWithAdaptorsT<T> object
+    *
+    * @param  cp A constant reference to another GParameterBaseWithAdaptorsT<T> object
+    * @return A boolean indicating whether both objects are inequal
+    */
+   bool operator!=(const GParameterBaseWithAdaptorsT<T>& cp) const {
+      using namespace Gem::Common;
+      // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterBaseWithAdaptorsT<T>::operator==","cp", CE_SILENT);
+   }
 
 	/***************************************************************************/
 	/**

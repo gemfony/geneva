@@ -86,16 +86,13 @@ GLineFitIndividual::GLineFitIndividual(const GLineFitIndividual& cp)
 GLineFitIndividual::~GLineFitIndividual()
 { /* nothing */	}
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A standard assignment operator
- *
- * @param cp A copy of another GLineFitIndividual object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
-const GLineFitIndividual& GLineFitIndividual::operator=(const GLineFitIndividual& cp){
-	GLineFitIndividual::load_(&cp);
-	return *this;
+const GLineFitIndividual& GLineFitIndividual::operator=(const GLineFitIndividual& cp) {
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

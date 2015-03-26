@@ -62,6 +62,15 @@ GPersonalityTraits::GPersonalityTraits(const GPersonalityTraits& cp)
 GPersonalityTraits::~GPersonalityTraits()
 { /* nothing */ }
 
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GPersonalityTraits& GPersonalityTraits::operator=(const GPersonalityTraits& cp) {
+   this->load_(&cp);
+   return *this;
+}
+
 /******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object

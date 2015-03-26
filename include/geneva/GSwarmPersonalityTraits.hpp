@@ -81,8 +81,8 @@ public:
 	/** @brief The standard destructor */
 	virtual G_API_GENEVA ~GSwarmPersonalityTraits();
 
-	/** @brief A standard assignment operator */
-	G_API_GENEVA const GSwarmPersonalityTraits& operator=(const GSwarmPersonalityTraits&);
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GSwarmPersonalityTraits& operator=(const GSwarmPersonalityTraits&);
 
 	/** @brief Checks for equality with another GSwarmPersonalityTraits object */
 	G_API_GENEVA bool operator==(const GSwarmPersonalityTraits&) const;

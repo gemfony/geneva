@@ -74,16 +74,13 @@ GSerialGD::GSerialGD(const GSerialGD& cp)
 GSerialGD::~GSerialGD()
 { /* nothing */ }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A standard assignment operator for GSerialGD objects.
- *
- * @param cp Reference to another GSerialGD object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
 const GSerialGD& GSerialGD::operator=(const GSerialGD& cp) {
-	GSerialGD::load_(&cp);
-	return *this;
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

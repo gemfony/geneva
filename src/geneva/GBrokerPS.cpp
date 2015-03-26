@@ -64,15 +64,14 @@ GBrokerPS::GBrokerPS(const GBrokerPS& cp)
 GBrokerPS::~GBrokerPS()
 { /* nothing */ }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A standard assignment operator for GBrokerPS objects.
- *
- * @param cp Reference to another GBrokerPS object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
-const GBrokerPS& GBrokerPS::operator=(const GBrokerPS& cp) {
-   GBrokerPS::load_(&cp);
+const GBrokerPS& GBrokerPS::operator=(
+   const GBrokerPS& cp
+) {
+   this->load_(&cp);
    return *this;
 }
 

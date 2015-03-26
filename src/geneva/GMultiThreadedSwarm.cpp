@@ -81,18 +81,6 @@ GMultiThreadedSwarm::~GMultiThreadedSwarm()
 
 /******************************************************************************/
 /**
- * A standard assignment operator for GMultiThreadedSwarm objects.
- *
- * @param cp Reference to another GMultiThreadedSwarm object
- * @return A constant reference to this object
- */
-const GMultiThreadedSwarm& GMultiThreadedSwarm::operator=(const GMultiThreadedSwarm& cp) {
-	GMultiThreadedSwarm::load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Loads the data from another GMultiThreadedSwarm object.
  *
  * @param vp Pointer to another GMultiThreadedSwarm object, camouflaged as a GObject
@@ -106,6 +94,15 @@ void GMultiThreadedSwarm::load_(const GObject *cp) {
 
 	// ... and then our own
 	nThreads_ = p_load->nThreads_;
+}
+
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GMultiThreadedSwarm& GMultiThreadedSwarm::operator=(const GMultiThreadedSwarm& cp) {
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

@@ -70,15 +70,14 @@ GBaseParChildPersonalityTraits::GBaseParChildPersonalityTraits(const GBaseParChi
 GBaseParChildPersonalityTraits::~GBaseParChildPersonalityTraits()
 { /* nothing */ }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A standard assignment operator for GBaseParChildPersonalityTraits objects.
- *
- * @param cp Reference to another GBaseParChildPersonalityTraits object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
-const GBaseParChildPersonalityTraits& GBaseParChildPersonalityTraits::operator=(const GBaseParChildPersonalityTraits& cp) {
-   GBaseParChildPersonalityTraits::load_(&cp);
+const GBaseParChildPersonalityTraits& GBaseParChildPersonalityTraits::operator=(
+   const GBaseParChildPersonalityTraits& cp
+) {
+   this->load_(&cp);
    return *this;
 }
 

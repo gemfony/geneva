@@ -64,15 +64,12 @@ GMPEAPersonalityTraits::GMPEAPersonalityTraits(const GMPEAPersonalityTraits& cp)
 GMPEAPersonalityTraits::~GMPEAPersonalityTraits()
 { /* nothing */ }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A standard assignment operator for GMPEAPersonalityTraits objects.
- *
- * @param cp Reference to another GMPEAPersonalityTraits object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
 const GMPEAPersonalityTraits& GMPEAPersonalityTraits::operator=(const GMPEAPersonalityTraits& cp) {
-   GMPEAPersonalityTraits::load_(&cp);
+   this->load_(&cp);
    return *this;
 }
 

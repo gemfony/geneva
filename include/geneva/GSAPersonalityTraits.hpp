@@ -78,7 +78,7 @@ public:
    /** @brief The standard destructor */
    virtual G_API_GENEVA ~GSAPersonalityTraits();
 
-   /** @brief A standard assignment operator */
+   /** @brief The standard assignment operator */
    G_API_GENEVA const GSAPersonalityTraits& operator=(const GSAPersonalityTraits&);
 
    /** @brief Checks for equality with another GSAPersonalityTraits object */

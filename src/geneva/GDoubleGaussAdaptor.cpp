@@ -112,16 +112,15 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor(
 GDoubleGaussAdaptor::~GDoubleGaussAdaptor()
 { /* nothing */ }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A standard assignment operator.
- *
- * @param cp A copy of another GDoubleGaussAdaptor object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
-const GDoubleGaussAdaptor& GDoubleGaussAdaptor::operator=(const GDoubleGaussAdaptor& cp){
-	GDoubleGaussAdaptor::load_(&cp);
-	return *this;
+const GDoubleGaussAdaptor& GDoubleGaussAdaptor::operator=(
+   const GDoubleGaussAdaptor& cp
+) {
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

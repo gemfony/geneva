@@ -81,6 +81,9 @@ public:
 	/** @brief The standard destructor */
 	virtual G_API_GENEVA ~GPersonalityTraits();
 
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GPersonalityTraits& operator=(const GPersonalityTraits&);
+
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject&

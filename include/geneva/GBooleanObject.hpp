@@ -85,9 +85,8 @@ public:
 
 	/** @brief An assignment operator */
 	virtual G_API_GENEVA bool operator=(const bool&);
-
-	/** @brief A standard assignment operator */
-	G_API_GENEVA const GBooleanObject& operator=(const GBooleanObject&);
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GBooleanObject& operator=(const GBooleanObject&);
 
 	/** @brief Checks for equality with another GBooleanObject object */
 	G_API_GENEVA bool operator==(const GBooleanObject&) const;

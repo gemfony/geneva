@@ -114,6 +114,9 @@ public:
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GBaseSwarm();
 
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GBaseSwarm& operator=(const GBaseSwarm&);
+
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject&
@@ -359,8 +362,10 @@ public:
 	    /** @brief The destructor */
 	    virtual G_API_GENEVA ~GSwarmOptimizationMonitor();
 
-	    /** @brief A standard assignment operator */
-	    G_API_GENEVA const GSwarmOptimizationMonitor& operator=(const GSwarmOptimizationMonitor&);
+	    G_API_GENEVA const GBaseSwarm::GSwarmOptimizationMonitor& operator=(
+	          const GBaseSwarm::GSwarmOptimizationMonitor&
+	    );
+
 	    /** @brief Checks for equality with another GParameter Base object */
 	    virtual G_API_GENEVA bool operator==(const GSwarmOptimizationMonitor&) const;
 	    /** @brief Checks for inequality with another GSwarmOptimizationMonitor object */

@@ -82,8 +82,8 @@ public:
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GDoubleBiGaussAdaptor();
 
-	/** @brief A standard assignment operator */
-	G_API_GENEVA const GDoubleBiGaussAdaptor& operator=(const GDoubleBiGaussAdaptor&);
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GDoubleBiGaussAdaptor& operator=(const GDoubleBiGaussAdaptor&);
 
 	/** @brief Checks for equality with another GDoubleBiGaussAdaptor object */
 	G_API_GENEVA bool operator==(const GDoubleBiGaussAdaptor&) const;

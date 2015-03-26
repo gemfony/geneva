@@ -87,8 +87,8 @@ public:
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GSerialGD();
 
-	/** @brief A standard assignment operator */
-	G_API_GENEVA const GSerialGD& operator=(const GSerialGD&);
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GSerialGD& operator=(const GSerialGD&);
 
 	/** @brief Checks for equality with another GSerialGD object */
 	G_API_GENEVA bool operator==(const GSerialGD&) const;

@@ -76,26 +76,21 @@ GParameterObjectCollection::~GParameterObjectCollection()
 
 /******************************************************************************/
 /**
- * A standard assignment operator.
- *
- * @param cp A copy of another GParameterObjectCollection object
- * @return A constant reference to this object
- */
-const GParameterObjectCollection& GParameterObjectCollection::operator=(
-      const GParameterObjectCollection& cp
-){
-	GParameterObjectCollection::load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Creates a deep clone of this object.
  *
  * @return A copy of this object, camouflaged as a GObject
  */
 GObject* GParameterObjectCollection::clone_() const {
 	return new GParameterObjectCollection(*this);
+}
+
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GParameterObjectCollection& GParameterObjectCollection::operator=(const GParameterObjectCollection& cp) {
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

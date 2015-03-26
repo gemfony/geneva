@@ -125,6 +125,15 @@ GBaseGD::GBaseGD(const GBaseGD& cp)
 GBaseGD::~GBaseGD()
 { /* nothing */ }
 
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GBaseGD& GBaseGD::operator=(const GBaseGD& cp) {
+   this->load_(&cp);
+   return *this;
+}
+
 /******************************************************************************/
 /**
  * Returns information about the type of optimization algorithm. This function needs
@@ -895,16 +904,16 @@ GBaseGD::GGDOptimizationMonitor::GGDOptimizationMonitor(const GBaseGD::GGDOptimi
 GBaseGD::GGDOptimizationMonitor::~GGDOptimizationMonitor()
 { /* nothing */ }
 
-/******************************************************************************/
+
+/***************************************************************************/
 /**
- * A standard assignment operator.
- *
- * @param cp A copy of another GGDOptimizationMonitor object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
-const GBaseGD::GGDOptimizationMonitor& GBaseGD::GGDOptimizationMonitor::operator=(const GBaseGD::GGDOptimizationMonitor& cp){
-	GBaseGD::GGDOptimizationMonitor::load_(&cp);
-	return *this;
+const GBaseGD::GGDOptimizationMonitor& GBaseGD::GGDOptimizationMonitor::operator=(
+   const GBaseGD::GGDOptimizationMonitor& cp
+) {
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

@@ -76,6 +76,15 @@ GParameterBase::~GParameterBase()
 	if(gr_local) delete gr_local;
 }
 
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GParameterBase& GParameterBase::operator=(const GParameterBase& cp) {
+   this->load_(&cp);
+   return *this;
+}
+
 /******************************************************************************/
 /**
  * Loads the data of another GObject

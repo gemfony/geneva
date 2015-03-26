@@ -184,6 +184,9 @@ public:
       , const bool&
 	) const;
 
+	/** @brief Allows derived classes to assign other class'es values */
+	G_API_GENEVA const GObject& operator=(const GObject&);
+
 	/** @brief Convert class to a serial representation that is then written to a stream */
 	G_API_GENEVA void toStream(std::ostream&, const Gem::Common::serializationMode&) const;
 	/** @brief Load class from a stream */

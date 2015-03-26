@@ -75,24 +75,23 @@ GDoubleBiGaussAdaptor::~GDoubleBiGaussAdaptor()
 
 /******************************************************************************/
 /**
- * A standard assignment operator.
- *
- * @param cp A copy of another GDoubleBiGaussAdaptor object
- * @return A constant reference to this object
- */
-const GDoubleBiGaussAdaptor& GDoubleBiGaussAdaptor::operator=(const GDoubleBiGaussAdaptor& cp){
-	GDoubleBiGaussAdaptor::load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Creates a deep clone of this object.
  *
  * @return A copy of this object, camouflaged as a GObject
  */
 GObject* GDoubleBiGaussAdaptor::clone_() const {
 	return new GDoubleBiGaussAdaptor(*this);
+}
+
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GDoubleBiGaussAdaptor& GDoubleBiGaussAdaptor::operator=(
+   const GDoubleBiGaussAdaptor& cp
+) {
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

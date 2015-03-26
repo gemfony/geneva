@@ -65,16 +65,13 @@ GSerialEA::GSerialEA(const GSerialEA& cp)
 GSerialEA::~GSerialEA()
 { /* nothing */ }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A standard assignment operator for GSerialEA objects.
- *
- * @param cp Reference to another GSerialEA object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
 const GSerialEA& GSerialEA::operator=(const GSerialEA& cp) {
-	GSerialEA::load_(&cp);
-	return *this;
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

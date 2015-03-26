@@ -84,7 +84,7 @@ public:
    /** @brief The destructor */
    virtual G_API_GENEVA ~GParameterSetParChild();
 
-   /** @brief A standard assignment operator */
+   /** @brief The standard assignment operator */
    G_API_GENEVA const GParameterSetParChild& operator=(const GParameterSetParChild&);
 
    /** @brief Checks for equality with another GParameterSetParChild object */

@@ -64,15 +64,12 @@ GParameterSetParChild::GParameterSetParChild(const GParameterSetParChild& cp)
 GParameterSetParChild::~GParameterSetParChild()
 { /* nothing */ }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * The standard assignment operator.
- *
- * @param cp Another GParameterSetParChild object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
 const GParameterSetParChild& GParameterSetParChild::operator=(const GParameterSetParChild& cp) {
-   GParameterSetParChild::load_(&cp);
+   this->load_(&cp);
    return *this;
 }
 

@@ -86,8 +86,8 @@ public:
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GMultiThreadedSwarm();
 
-	/** @brief A standard assignment operator */
-	G_API_GENEVA const GMultiThreadedSwarm& operator=(const GMultiThreadedSwarm&);
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GMultiThreadedSwarm& operator=(const GMultiThreadedSwarm&);
 
 	/** @brief Checks for equality with another GMultiThreadedSwarm object */
 	G_API_GENEVA bool operator==(const GMultiThreadedSwarm&) const;

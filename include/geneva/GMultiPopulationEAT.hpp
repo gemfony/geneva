@@ -116,7 +116,7 @@ public:
     *
     * @param cp Another GMultiPopulationEAT object
     */
-   GMultiPopulationEAT(const GMultiPopulationEAT& cp)
+   GMultiPopulationEAT(const GMultiPopulationEAT<oa_type>& cp)
       : GBaseParChildT<oa_type>(cp)
       , smodeMP_(cp.smodeMP_)
       , nThreads_(cp.nThreads_)
@@ -134,13 +134,10 @@ public:
 
    /***************************************************************************/
    /**
-    * The standard assignment operator.
-    *
-    * @param cp Another GMultiPopulationEAT object
-    * @return A constant reference to this object
+    * The standard assignment operator
     */
-   const GMultiPopulationEAT<oa_type>& operator=(const GMultiPopulationEAT<oa_type>& cp) {
-      GMultiPopulationEAT<oa_type>::load_(&cp);
+   const GCheckCombinerT<ind_type>& operator=(const GCheckCombinerT<ind_type>& cp) {
+      this->load_(&cp);
       return *this;
    }
 

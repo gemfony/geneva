@@ -69,16 +69,13 @@ GMultiThreadedEA::GMultiThreadedEA(const GMultiThreadedEA& cp)
 GMultiThreadedEA::~GMultiThreadedEA()
 { /* nothing */ }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A standard assignment operator for GMultiThreadedEA objects.
- *
- * @param cp Reference to another GMultiThreadedEA object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
 const GMultiThreadedEA& GMultiThreadedEA::operator=(const GMultiThreadedEA& cp) {
-	GMultiThreadedEA::load_(&cp);
-	return *this;
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

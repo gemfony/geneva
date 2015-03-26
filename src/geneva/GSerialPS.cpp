@@ -60,15 +60,12 @@ GSerialPS::GSerialPS(const GSerialPS& cp) : GBasePS(cp)
 GSerialPS::~GSerialPS()
 { /* nothing */ }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A standard assignment operator for GSerialPS objects.
- *
- * @param cp Reference to another GSerialPS object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
 const GSerialPS& GSerialPS::operator=(const GSerialPS& cp) {
-   GSerialPS::load_(&cp);
+   this->load_(&cp);
    return *this;
 }
 

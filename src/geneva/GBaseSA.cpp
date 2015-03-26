@@ -91,6 +91,15 @@ GBaseSA::GBaseSA(const GBaseSA& cp)
 GBaseSA::~GBaseSA()
 { /* nothing */ }
 
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GBaseSA& GBaseSA::operator=(const GBaseSA& cp) {
+   this->load_(&cp);
+   return *this;
+}
+
 /******************************************************************************/
 /**
  * Loads the data of another GBaseSA object, camouflaged as a GObject.
@@ -520,15 +529,14 @@ GBaseSA::GSAOptimizationMonitor::GSAOptimizationMonitor(const GBaseSA::GSAOptimi
 GBaseSA::GSAOptimizationMonitor::~GSAOptimizationMonitor()
 { /* nothing */ }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A standard assignment operator.
- *
- * @param cp A copy of another GSAOptimizationMonitor object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
-const GBaseSA::GSAOptimizationMonitor& GBaseSA::GSAOptimizationMonitor::operator=(const GBaseSA::GSAOptimizationMonitor& cp){
-   GBaseSA::GSAOptimizationMonitor::load_(&cp);
+const GBaseSA::GSAOptimizationMonitor& GBaseSA::GSAOptimizationMonitor::operator=(
+   const GBaseSA::GSAOptimizationMonitor& cp
+) {
+   this->load_(&cp);
    return *this;
 }
 

@@ -89,7 +89,7 @@ public:
    /** @brief The destructor */
    virtual G_API_GENEVA ~GBrokerPS();
 
-   /** @brief A standard assignment operator */
+   /** @brief The standard assignment operator */
    G_API_GENEVA const GBrokerPS& operator=(const GBrokerPS&);
 
    /** @brief Checks for equality with another GBrokerPS object */

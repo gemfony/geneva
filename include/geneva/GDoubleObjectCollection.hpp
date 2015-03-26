@@ -81,8 +81,8 @@ public:
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GDoubleObjectCollection();
 
-	/** @brief A standard assignment operator */
-	G_API_GENEVA const GDoubleObjectCollection& operator=(const GDoubleObjectCollection&);
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GDoubleObjectCollection& operator=(const GDoubleObjectCollection&);
 
 	/** @brief Checks for equality with another GDoubleObjectCollection object */
 	G_API_GENEVA bool operator==(const GDoubleObjectCollection&) const;

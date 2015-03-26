@@ -78,8 +78,8 @@ public:
 	/** @brief The standard destructor */
 	virtual G_API_GENEVA ~GGDPersonalityTraits();
 
-	/** @brief A standard assignment operator */
-	G_API_GENEVA const GGDPersonalityTraits& operator=(const GGDPersonalityTraits&);
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GGDPersonalityTraits& operator=(const GGDPersonalityTraits&);
 
 	/** @brief Checks for equality with another GGDPersonalityTraits object */
 	G_API_GENEVA bool operator==(const GGDPersonalityTraits&) const;

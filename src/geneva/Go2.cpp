@@ -289,16 +289,13 @@ Go2::~Go2() {
 	cl_algorithms_.clear(); // Get rid of algorithms registered on the command line
 }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A standard assignment operator
- *
- * @param cp A copy of another Go2 object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
 const Go2& Go2::operator=(const Go2& cp) {
-	Go2::load_(&cp);
-	return *this;
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

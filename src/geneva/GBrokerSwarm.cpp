@@ -84,16 +84,15 @@ GBrokerSwarm::GBrokerSwarm(const GBrokerSwarm& cp)
 GBrokerSwarm::~GBrokerSwarm()
 { /* nothing */}
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A standard assignment operator for GBrokerSwarm objects,
- *
- * @param cp A copy of another GBrokerSwarm object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
-const GBrokerSwarm& GBrokerSwarm::operator=(const GBrokerSwarm& cp) {
-	GBrokerSwarm::load_(&cp);
-	return *this;
+const GBrokerSwarm& GBrokerSwarm::operator=(
+   const GBrokerSwarm& cp
+) {
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

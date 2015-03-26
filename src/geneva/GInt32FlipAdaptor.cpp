@@ -77,24 +77,21 @@ GInt32FlipAdaptor::~GInt32FlipAdaptor()
 
 /******************************************************************************/
 /**
- * A standard assignment operator.
- *
- * @param cp A copy of another GInt32FlipAdaptor object
- * @return A constant reference to this object
- */
-const GInt32FlipAdaptor& GInt32FlipAdaptor::operator=(const GInt32FlipAdaptor& cp){
-	GInt32FlipAdaptor::load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Creates a deep clone of this object.
  *
  * @return A copy of this object, camouflaged as a GObject
  */
 GObject* GInt32FlipAdaptor::clone_() const {
 	return new GInt32FlipAdaptor(*this);
+}
+
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GInt32FlipAdaptor& GInt32FlipAdaptor::operator=(const GInt32FlipAdaptor& cp) {
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

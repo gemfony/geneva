@@ -79,8 +79,8 @@ public:
 	/** @brief The standard destructor */
 	virtual G_API_GENEVA ~GSerialEA();
 
-	/** @brief Assignment operator */
-	G_API_GENEVA const GSerialEA& operator=(const GSerialEA&);
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GSerialEA& operator=(const GSerialEA&);
 
 	/** @brief Checks for equality with another GSerialEA object */
 	G_API_GENEVA bool operator==(const GSerialEA&) const;

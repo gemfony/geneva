@@ -140,6 +140,15 @@ GOptimizableEntity::GOptimizableEntity(const GOptimizableEntity& cp)
  */
 GOptimizableEntity::~GOptimizableEntity() { /* nothing */ }
 
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GOptimizableEntity& GOptimizableEntity::operator=(const GOptimizableEntity& cp) {
+   this->load_(&cp);
+   return *this;
+}
+
 /******************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object

@@ -143,6 +143,41 @@ public:
 	virtual ~GIntNumCollectionT()
 	{ /* nothing */ }
 
+   /***************************************************************************/
+   /**
+    * The standard assignment operator
+    */
+   const GIntNumCollectionT<int_type>& operator=(const GIntNumCollectionT<int_type>& cp) {
+      this->load_(&cp);
+      return *this;
+   }
+
+   /***************************************************************************/
+	/**
+	 * Checks for equality with another GIntNumCollectionT<int_type> object
+	 *
+	 * @param  cp A constant reference to another GIntNumCollectionT<int_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GIntNumCollectionT<int_type>& cp) const {
+	   using namespace Gem::Common;
+	   // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+	   return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GIntNumCollectionT<int_type>::operator==","cp", CE_SILENT);
+	}
+
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GIntNumCollectionT<int_type> object
+	 *
+	 * @param  cp A constant reference to another GIntNumCollectionT<int_type> object
+	 * @return A boolean indicating whether both objects are in-equal
+	 */
+	bool operator!=(const GIntNumCollectionT<int_type>& cp) const {
+	   using namespace Gem::Common;
+	   // Means: The expectation of in-equality was fulfilled, if no error text was emitted (which converts to "true")
+	   return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GIntNumCollectionT<int_type>::operator!=","cp", CE_SILENT);
+	}
+
 	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object

@@ -71,18 +71,6 @@ GBrokerSA::~GBrokerSA()
 
 /******************************************************************************/
 /**
- * A standard assignment operator for GBrokerSA objects,
- *
- * @param cp A copy of another GBrokerSA object
- * @return A constant reference to this object
- */
-const GBrokerSA& GBrokerSA::operator=(const GBrokerSA& cp) {
-   GBrokerSA::load_(&cp);
-   return *this;
-}
-
-/******************************************************************************/
-/**
  * Loads the data of another GBrokerSA object, camouflaged as a
  * pointer to a GObject
  *
@@ -107,6 +95,17 @@ void GBrokerSA::load_(const GObject * cp) {
  */
 GObject *GBrokerSA::clone_() const {
    return new GBrokerSA(*this);
+}
+
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GBrokerSA& GBrokerSA::operator=(
+   const GBrokerSA& cp
+) {
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

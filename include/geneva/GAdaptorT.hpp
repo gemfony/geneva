@@ -202,10 +202,7 @@ public:
 		, adaptionMode_(cp.adaptionMode_)
 		, adaptAdaptionProbability_(cp.adaptAdaptionProbability_)
 	   , adProb_reset_(cp.adProb_reset_)
-	{
-	   // We do not check the value of adProb_ here, as it is assumed that this happened during
-	   // the construction of cp
-	}
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -215,6 +212,41 @@ public:
 	virtual ~GAdaptorT() {
 		if(gr_local) delete gr_local;
 	}
+
+	/***************************************************************************/
+	/**
+	 * The standard assignment operator
+	 */
+	const GAdaptorT<T>& operator=(const GAdaptorT<T>& cp) {
+	   this->load_(&cp);
+	   return *this;
+	}
+
+   /***************************************************************************/
+   /**
+    * Checks for equality with another GAdaptorT<T> object
+    *
+    * @param  cp A constant reference to another GAdaptorT<T> object
+    * @return A boolean indicating whether both objects are equal
+    */
+   bool operator==(const GAdaptorT<T>& cp) const {
+      using namespace Gem::Common;
+      // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GAdaptorT<T>::operator==","cp", CE_SILENT);
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks for inequality with another GAdaptorT<T> object
+    *
+    * @param  cp A constant reference to another GAdaptorT<T> object
+    * @return A boolean indicating whether both objects are inequal
+    */
+   bool operator!=(const GAdaptorT<T>& cp) const {
+      using namespace Gem::Common;
+      // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GAdaptorT<T>::operator==","cp", CE_SILENT);
+   }
 
 	/***************************************************************************/
 	/**

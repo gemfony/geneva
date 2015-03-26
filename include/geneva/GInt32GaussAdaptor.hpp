@@ -100,8 +100,8 @@ public:
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GInt32GaussAdaptor();
 
-	/** @brief A standard assignment operator */
-	G_API_GENEVA const GInt32GaussAdaptor& operator=(const GInt32GaussAdaptor&);
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GInt32GaussAdaptor& operator=(const GInt32GaussAdaptor&);
 
 	/** @brief Checks for equality with another GInt32GaussAdaptor object */
 	G_API_GENEVA bool operator==(const GInt32GaussAdaptor&) const;

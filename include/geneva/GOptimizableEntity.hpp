@@ -129,6 +129,9 @@ public:
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GOptimizableEntity();
 
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GOptimizableEntity& operator=(const GOptimizableEntity&);
+
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject&

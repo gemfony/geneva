@@ -145,6 +145,9 @@ public:
    /** @brief The destructor */
    virtual G_API_GENEVA ~GBasePS();
 
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GBasePS& operator=(const GBasePS&);
+
    /** @brief Checks whether this object fulfills a given expectation in relation to another object */
    virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject&
@@ -346,8 +349,10 @@ public:
       /** @brief The destructor */
       virtual G_API_GENEVA ~GPSOptimizationMonitor();
 
-      /** @brief A standard assignment operator */
-      G_API_GENEVA const GPSOptimizationMonitor& operator=(const GPSOptimizationMonitor&);
+      G_API_GENEVA const GBasePS::GPSOptimizationMonitor& operator=(
+         const GBasePS::GPSOptimizationMonitor&
+      );
+
       /** @brief Checks for equality with another GParameter Base object */
       virtual G_API_GENEVA bool operator==(const GPSOptimizationMonitor&) const;
       /** @brief Checks for inequality with another GPSOptimizationMonitor object */

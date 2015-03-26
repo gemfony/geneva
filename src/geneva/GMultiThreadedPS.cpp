@@ -65,15 +65,12 @@ GMultiThreadedPS::GMultiThreadedPS(const GMultiThreadedPS& cp)
 GMultiThreadedPS::~GMultiThreadedPS()
 { /* nothing */ }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A standard assignment operator for GMultiThreadedPS objects.
- *
- * @param cp Reference to another GMultiThreadedPS object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
 const GMultiThreadedPS& GMultiThreadedPS::operator=(const GMultiThreadedPS& cp) {
-   GMultiThreadedPS::load_(&cp);
+   this->load_(&cp);
    return *this;
 }
 

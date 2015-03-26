@@ -76,18 +76,6 @@ GSerialSwarm::~GSerialSwarm()
 
 /******************************************************************************/
 /**
- * A standard assignment operator for GSerialSwarm objects.
- *
- * @param cp Reference to another GSerialSwarm object
- * @return A constant reference to this object
- */
-const GSerialSwarm& GSerialSwarm::operator=(const GSerialSwarm& cp) {
-	GSerialSwarm::load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Loads the data from another GSerialSwarm object.
  *
  * @param vp Pointer to another GSerialSwarm object, camouflaged as a GObject
@@ -102,6 +90,15 @@ void GSerialSwarm::load_(const GObject *cp) {
 	GBaseSwarm::load_(cp);
 
 	// no local data
+}
+
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GSerialSwarm& GSerialSwarm::operator=(const GSerialSwarm& cp) {
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

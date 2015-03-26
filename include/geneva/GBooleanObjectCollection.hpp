@@ -84,8 +84,8 @@ public:
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GBooleanObjectCollection();
 
-	/** @brief A standard assignment operator */
-	G_API_GENEVA const GBooleanObjectCollection& operator=(const GBooleanObjectCollection&);
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GBooleanObjectCollection& operator=(const GBooleanObjectCollection&);
 
 	/** @brief Checks for equality with another GBooleanObjectCollection object */
 	G_API_GENEVA bool operator==(const GBooleanObjectCollection&) const;

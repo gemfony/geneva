@@ -84,7 +84,7 @@ public:
    /** @brief The standard destructor */
    virtual G_API_GENEVA ~GMultiThreadedSA();
 
-   /** @brief Assignment operator */
+   /** @brief The standard assignment operator */
    G_API_GENEVA const GMultiThreadedSA& operator=(const GMultiThreadedSA&);
 
    /** @brief Checks for equality with another GMultiThreadedSA object */

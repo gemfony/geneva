@@ -104,6 +104,15 @@ GInt32Object::GInt32Object(
 GInt32Object::~GInt32Object()
 { /* nothing */ }
 
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GInt32Object& GInt32Object::operator=(const GInt32Object& cp) {
+   this->load_(&cp);
+   return *this;
+}
+
 /******************************************************************************/
 /**
  * An assignment operator
@@ -113,18 +122,6 @@ GInt32Object::~GInt32Object()
  */
 boost::int32_t GInt32Object::operator=(const boost::int32_t& val) {
 	return GNumIntT<boost::int32_t>::operator=(val);
-}
-
-/******************************************************************************/
-/**
- * A standard assignment operator.
- *
- * @param cp A copy of another GInt32Object object
- * @return A constant reference to this object
- */
-const GInt32Object& GInt32Object::operator=(const GInt32Object& cp){
-	GInt32Object::load_(&cp);
-	return *this;
 }
 
 /******************************************************************************/

@@ -81,18 +81,6 @@ GBooleanAdaptor::~GBooleanAdaptor()
 
 /******************************************************************************/
 /**
- * A standard assignment operator.
- *
- * @param cp A copy of another GBooleanAdaptor object
- * @return A constant reference to this object
- */
-const GBooleanAdaptor& GBooleanAdaptor::operator=(const GBooleanAdaptor& cp){
-	GBooleanAdaptor::load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Creates a deep clone of this object.
  *
  * @return A copy of this object, camouflaged as a GObject
@@ -110,6 +98,17 @@ void GBooleanAdaptor::customAdaptions(
    , const bool& range
 ) {
    value==true?value=false:value=true;
+}
+
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GBooleanAdaptor& GBooleanAdaptor::operator=(
+   const GBooleanAdaptor& cp
+) {
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

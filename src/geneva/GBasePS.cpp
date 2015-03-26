@@ -175,6 +175,15 @@ GBasePS::GBasePS(const GBasePS& cp)
 GBasePS::~GBasePS()
 { /* nothing */ }
 
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GBasePS& GBasePS::operator=(const GBasePS& cp) {
+   this->load_(&cp);
+   return *this;
+}
+
 /******************************************************************************/
 /**
  * Returns information about the type of optimization algorithm. This function needs
@@ -1115,17 +1124,17 @@ GBasePS::GPSOptimizationMonitor::GPSOptimizationMonitor(const GBasePS::GPSOptimi
 GBasePS::GPSOptimizationMonitor::~GPSOptimizationMonitor()
 { /* nothing */ }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A standard assignment operator.
- *
- * @param cp A copy of another GPSOptimizationMonitor object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
-const GBasePS::GPSOptimizationMonitor& GBasePS::GPSOptimizationMonitor::operator=(const GBasePS::GPSOptimizationMonitor& cp){
-   GBasePS::GPSOptimizationMonitor::load_(&cp);
+const GBasePS::GPSOptimizationMonitor& GBasePS::GPSOptimizationMonitor::operator=(
+   const GBasePS::GPSOptimizationMonitor& cp
+) {
+   this->load_(&cp);
    return *this;
 }
+
 
 /******************************************************************************/
 /**

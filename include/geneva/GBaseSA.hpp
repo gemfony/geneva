@@ -95,6 +95,9 @@ public:
    /** @brief The destructor */
    virtual G_API_GENEVA ~GBaseSA();
 
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GBaseSA& operator=(const GBaseSA&);
+
    /** @brief Checks whether this object fulfills a given expectation in relation to another object */
    virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject&
@@ -214,8 +217,10 @@ public:
       /** @brief The destructor */
       virtual G_API_GENEVA ~GSAOptimizationMonitor();
 
-      /** @brief A standard assignment operator */
-      G_API_GENEVA const GSAOptimizationMonitor& operator=(const GSAOptimizationMonitor&);
+      G_API_GENEVA const GBaseSA::GSAOptimizationMonitor& operator=(
+         const GBaseSA::GSAOptimizationMonitor&
+      );
+
       /** @brief Checks for equality with another GParameter Base object */
       virtual G_API_GENEVA bool operator==(const GSAOptimizationMonitor&) const;
       /** @brief Checks for inequality with another GSAOptimizationMonitor object */

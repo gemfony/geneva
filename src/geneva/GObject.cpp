@@ -431,6 +431,15 @@ void GObject::load_(const GObject *cp) {
 
 /******************************************************************************/
 /**
+ * Allows derived classes to assign other class'es values
+ */
+const GObject& GObject::operator=(const GObject& cp) {
+   this->load_(&cp);
+   return *this;
+}
+
+/******************************************************************************/
+/**
  * Creates a deep clone of this object, storing it in a boost::shared_ptr<GObject>
  *
  * @return A boost::shared_ptr<GObject> to a clone of the derived object

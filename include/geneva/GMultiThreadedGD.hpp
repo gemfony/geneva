@@ -91,8 +91,8 @@ public:
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GMultiThreadedGD();
 
-	/** @brief A standard assignment operator */
-	G_API_GENEVA const GMultiThreadedGD& operator=(const GMultiThreadedGD&);
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GMultiThreadedGD& operator=(const GMultiThreadedGD&);
 
 	/** @brief Checks for equality with another GMultiThreadedGD object */
 	G_API_GENEVA bool operator==(const GMultiThreadedGD&) const;

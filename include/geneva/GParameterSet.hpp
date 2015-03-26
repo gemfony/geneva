@@ -109,13 +109,13 @@ public:
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GParameterSet();
 
-	/** @brief Standard assignment operator */
-	G_API_GENEVA const GParameterSet& operator=(const GParameterSet&);
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GParameterSet& operator=(const GParameterSet&);
 
-	/** @brief Checks for equality with another GParameterSet object */
-	G_API_GENEVA bool operator==(const GParameterSet&) const;
-	/** @brief Checks for inequality with another GParameterSet object */
-	G_API_GENEVA bool operator!=(const GParameterSet&) const;
+   /** @brief Checks for equality with another Go2 object */
+   G_API_GENEVA bool operator==(const GParameterSet&) const;
+   /** @brief Checks for inequality with another Go2 object */
+   G_API_GENEVA bool operator!=(const GParameterSet&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(

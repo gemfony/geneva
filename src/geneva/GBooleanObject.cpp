@@ -92,6 +92,17 @@ GBooleanObject::GBooleanObject(const double& probability) {
 GBooleanObject::~GBooleanObject()
 { /* nothing */ }
 
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GBooleanObject& GBooleanObject::operator=(
+   const GBooleanObject& cp
+) {
+   this->load_(&cp);
+   return *this;
+}
+
 /******************************************************************************/
 /**
  * An assignment operator
@@ -101,18 +112,6 @@ GBooleanObject::~GBooleanObject()
  */
 bool GBooleanObject::operator=(const bool& val) {
 	return GParameterT<bool>::operator=(val);
-}
-
-/******************************************************************************/
-/**
- * A standard assignment operator.
- *
- * @param cp A copy of another GBooleanObject object
- * @return A constant reference to this object
- */
-const GBooleanObject& GBooleanObject::operator=(const GBooleanObject& cp){
-	GBooleanObject::load_(&cp);
-	return *this;
 }
 
 /******************************************************************************/

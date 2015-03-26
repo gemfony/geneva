@@ -90,11 +90,11 @@ public:
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GConstrainedInt32Object();
 
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GConstrainedInt32Object& operator=(const GConstrainedInt32Object&);
+
 	/** @brief An assignment operator for the contained value type */
 	virtual G_API_GENEVA boost::int32_t operator=(const boost::int32_t&);
-
-	/** @brief A standard assignment operator */
-	G_API_GENEVA const GConstrainedInt32Object& operator=(const GConstrainedInt32Object&);
 
 	/** @brief Checks for equality with another GConstrainedInt32Object object */
 	G_API_GENEVA bool operator==(const GConstrainedInt32Object&) const;

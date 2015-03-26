@@ -83,8 +83,8 @@ public:
 	/** @brief The standard destructor */
 	virtual G_API_GENEVA ~GMultiThreadedEA();
 
-	/** @brief Assignment operator */
-	G_API_GENEVA const GMultiThreadedEA& operator=(const GMultiThreadedEA&);
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GMultiThreadedEA& operator=(const GMultiThreadedEA&);
 
 	/** @brief Checks for equality with another GMultiThreadedEA object */
 	G_API_GENEVA bool operator==(const GMultiThreadedEA&) const;

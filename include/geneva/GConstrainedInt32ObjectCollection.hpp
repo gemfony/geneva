@@ -81,8 +81,8 @@ public:
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GConstrainedInt32ObjectCollection();
 
-	/** @brief A standard assignment operator */
-	G_API_GENEVA const GConstrainedInt32ObjectCollection& operator=(const GConstrainedInt32ObjectCollection&);
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GConstrainedInt32ObjectCollection& operator=(const GConstrainedInt32ObjectCollection&);
 
 	/** @brief Checks for equality with another GConstrainedInt32ObjectCollection object */
 	G_API_GENEVA bool operator==(const GConstrainedInt32ObjectCollection&) const;

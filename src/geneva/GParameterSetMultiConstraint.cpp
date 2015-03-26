@@ -63,13 +63,12 @@ GParameterSetConstraint::GParameterSetConstraint(const GParameterSetConstraint& 
 GParameterSetConstraint::~GParameterSetConstraint()
 { /* nothing */ }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A standard assignment operator
+ * The standard assignment operator
  */
-const GParameterSetConstraint& GParameterSetConstraint::operator=(const GParameterSetConstraint& cp)
-{
-   GPreEvaluationValidityCheckT<GOptimizableEntity>::load_(&cp);
+const GParameterSetConstraint& GParameterSetConstraint::operator=(const GParameterSetConstraint& cp) {
+   this->load_(&cp);
    return *this;
 }
 
@@ -199,16 +198,6 @@ GParameterSetFormulaConstraint::GParameterSetFormulaConstraint(const GParameterS
  */
 GParameterSetFormulaConstraint::~GParameterSetFormulaConstraint()
 { /* nothing */ }
-
-/******************************************************************************/
-/**
- * A standard assignment operator
- */
-const GParameterSetFormulaConstraint& GParameterSetFormulaConstraint::operator=(const GParameterSetFormulaConstraint& cp)
-{
-   GPreEvaluationValidityCheckT<GOptimizableEntity>::load_(&cp);
-   return *this;
-}
 
 /******************************************************************************/
 /**

@@ -89,7 +89,7 @@ public:
    /** @brief The destructor */
    virtual G_API_GENEVA ~GMultiThreadedPS();
 
-   /** @brief A standard assignment operator */
+   /** @brief The standard assignment operator */
    G_API_GENEVA const GMultiThreadedPS& operator=(const GMultiThreadedPS&);
 
    /** @brief Checks for equality with another GMultiThreadedPS object */

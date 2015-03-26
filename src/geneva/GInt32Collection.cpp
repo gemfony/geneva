@@ -99,24 +99,21 @@ GInt32Collection::~GInt32Collection()
 
 /******************************************************************************/
 /**
- * A standard assignment operator.
- *
- * @param cp A copy of another GInt32Collection object
- * @return A constant reference to this object
- */
-const GInt32Collection& GInt32Collection::operator=(const GInt32Collection& cp){
-	GInt32Collection::load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Creates a deep clone of this object.
  *
  * @return A copy of this object, camouflaged as a GObject
  */
 GObject* GInt32Collection::clone_() const {
 	return new GInt32Collection(*this);
+}
+
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GInt32Collection& GInt32Collection::operator=(const GInt32Collection& cp) {
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

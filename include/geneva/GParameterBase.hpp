@@ -88,6 +88,9 @@ public:
 	/** @brief The standard destructor */
 	virtual G_API_GENEVA ~GParameterBase();
 
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GParameterBase& operator=(const GParameterBase&);
+
 	/** @brief The adaption interface */
 	virtual G_API_GENEVA std::size_t adapt() OVERRIDE;
 	/** @brief The actual adaption logic */

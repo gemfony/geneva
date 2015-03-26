@@ -72,18 +72,6 @@ GBrokerEA::~GBrokerEA()
 
 /******************************************************************************/
 /**
- * A standard assignment operator for GBrokerEA objects,
- *
- * @param cp A copy of another GBrokerEA object
- * @return A constant reference to this object
- */
-const GBrokerEA& GBrokerEA::operator=(const GBrokerEA& cp) {
-	GBrokerEA::load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Loads the data of another GBrokerEA object, camouflaged as a
  * pointer to a GObject
  *
@@ -108,6 +96,17 @@ void GBrokerEA::load_(const GObject * cp) {
  */
 GObject *GBrokerEA::clone_() const {
 	return new GBrokerEA(*this);
+}
+
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GBrokerEA& GBrokerEA::operator=(
+   const GBrokerEA& cp
+) {
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

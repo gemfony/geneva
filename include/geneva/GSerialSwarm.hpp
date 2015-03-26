@@ -81,8 +81,8 @@ public:
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GSerialSwarm();
 
-	/** @brief A standard assignment operator */
-	G_API_GENEVA const GSerialSwarm& operator=(const GSerialSwarm&);
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GSerialSwarm& operator=(const GSerialSwarm&);
 
 	/** @brief Checks for equality with another GSerialSwarm object */
 	G_API_GENEVA bool operator==(const GSerialSwarm&) const;

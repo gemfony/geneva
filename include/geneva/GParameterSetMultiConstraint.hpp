@@ -83,7 +83,7 @@ public:
    /** @brief The destructor */
    virtual G_API_GENEVA ~GParameterSetConstraint();
 
-   /** @brief A standard assignment operator */
+   /** @brief The standard assignment operator */
    G_API_GENEVA const GParameterSetConstraint& operator=(const GParameterSetConstraint&);
 
    /** @brief Checks for equality with another GIndividualConstraint object */

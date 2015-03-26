@@ -102,16 +102,15 @@ GConstrainedDoubleCollection::GConstrainedDoubleCollection(const GConstrainedDou
 GConstrainedDoubleCollection::~GConstrainedDoubleCollection()
 { /* nothing */ }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * The standard assignment operator.
- *
- * @param cp A copy of another GConstrainedDoubleCollection object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
-const GConstrainedDoubleCollection& GConstrainedDoubleCollection::operator=(const GConstrainedDoubleCollection& cp){
-	GConstrainedDoubleCollection::load_(&cp);
-	return *this;
+const GConstrainedDoubleCollection& GConstrainedDoubleCollection::operator=(
+   const GConstrainedDoubleCollection& cp
+) {
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

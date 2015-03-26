@@ -102,6 +102,17 @@ GDoubleObject::GDoubleObject(
 GDoubleObject::~GDoubleObject()
 { /* nothing */ }
 
+/***************************************************************************/
+/**
+ * The standard assignment operator
+ */
+const GDoubleObject& GDoubleObject::operator=(
+   const GDoubleObject& cp
+) {
+   this->load_(&cp);
+   return *this;
+}
+
 /******************************************************************************/
 /**
  * An assignment operator
@@ -111,18 +122,6 @@ GDoubleObject::~GDoubleObject()
  */
 double GDoubleObject::operator=(const double& val) {
 	return GNumFPT<double>::operator=(val);
-}
-
-/******************************************************************************/
-/**
- * A standard assignment operator.
- *
- * @param cp A copy of another GDoubleObject object
- * @return A constant reference to this object
- */
-const GDoubleObject& GDoubleObject::operator=(const GDoubleObject& cp){
-	GDoubleObject::load_(&cp);
-	return *this;
 }
 
 /******************************************************************************/

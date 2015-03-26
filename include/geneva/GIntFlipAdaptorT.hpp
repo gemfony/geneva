@@ -114,6 +114,41 @@ public:
 	virtual ~GIntFlipAdaptorT()
 	{ /* nothing */ }
 
+   /***************************************************************************/
+   /**
+    * The standard assignment operator
+    */
+   const GIntFlipAdaptorT<int_type>& operator=(const GIntFlipAdaptorT<int_type>& cp) {
+      this->load_(&cp);
+      return *this;
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks for equality with another GIntFlipAdaptorT<int_type> object
+    *
+    * @param  cp A constant reference to another GIntFlipAdaptorT<int_type> object
+    * @return A boolean indicating whether both objects are equal
+    */
+   bool operator==(const GIntFlipAdaptorT<int_type>& cp) const {
+      using namespace Gem::Common;
+      // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GIntFlipAdaptorT<int_type>::operator==","cp", CE_SILENT);
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks for inequality with another GIntFlipAdaptorT<int_type> object
+    *
+    * @param  cp A constant reference to another GIntFlipAdaptorT<int_type> object
+    * @return A boolean indicating whether both objects are inequal
+    */
+   bool operator!=(const GIntFlipAdaptorT<int_type>& cp) const {
+      using namespace Gem::Common;
+      // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GIntFlipAdaptorT<int_type>::operator==","cp", CE_SILENT);
+   }
+
 	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object

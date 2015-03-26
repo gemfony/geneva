@@ -66,16 +66,13 @@ GEAPersonalityTraits::GEAPersonalityTraits(const GEAPersonalityTraits& cp)
 GEAPersonalityTraits::~GEAPersonalityTraits()
 { /* nothing */ }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A standard assignment operator for GEAPersonalityTraits objects.
- *
- * @param cp Reference to another GEAPersonalityTraits object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
 const GEAPersonalityTraits& GEAPersonalityTraits::operator=(const GEAPersonalityTraits& cp) {
-	GEAPersonalityTraits::load_(&cp);
-	return *this;
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

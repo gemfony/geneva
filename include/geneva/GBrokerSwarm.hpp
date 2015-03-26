@@ -84,8 +84,8 @@ public:
 	/** @brief The standard destructor */
 	virtual G_API_GENEVA ~GBrokerSwarm();
 
-	/** @brief A standard assignment operator */
-	G_API_GENEVA const GBrokerSwarm& operator=(const GBrokerSwarm&);
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GBrokerSwarm& operator=(const GBrokerSwarm&);
 
 	/** @brief Checks for equality with another GBrokerSwarm object */
 	G_API_GENEVA bool operator==(const GBrokerSwarm&) const;

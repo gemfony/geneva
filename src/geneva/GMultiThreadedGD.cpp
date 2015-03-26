@@ -78,16 +78,13 @@ GMultiThreadedGD::GMultiThreadedGD(const GMultiThreadedGD& cp)
 GMultiThreadedGD::~GMultiThreadedGD()
 { /* nothing */ }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * A standard assignment operator for GMultiThreadedGD objects.
- *
- * @param cp Reference to another GMultiThreadedGD object
- * @return A constant reference to this object
+ * The standard assignment operator
  */
 const GMultiThreadedGD& GMultiThreadedGD::operator=(const GMultiThreadedGD& cp) {
-	GMultiThreadedGD::load_(&cp);
-	return *this;
+   this->load_(&cp);
+   return *this;
 }
 
 /******************************************************************************/

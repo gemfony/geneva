@@ -151,6 +151,15 @@ public:
 	virtual ~GNumIntT()
 	{ /* nothing */ }
 
+   /***************************************************************************/
+   /**
+    * The standard assignment operator
+    */
+   const GNumIntT<int_type>& operator=(const GNumIntT<int_type>& cp) {
+      this->load_(&cp);
+      return *this;
+   }
+
 	/***************************************************************************/
 	/**
 	 * An assignment operator for the contained value type
@@ -161,6 +170,32 @@ public:
 	virtual int_type operator=(const int_type& val) {
 		return GNumT<int_type>::operator=(val);
 	}
+
+   /***************************************************************************/
+   /**
+    * Checks for equality with another GNumIntT<int_type> object
+    *
+    * @param  cp A constant reference to another GNumIntT<int_type> object
+    * @return A boolean indicating whether both objects are equal
+    */
+   bool operator==(const GNumIntT<int_type>& cp) const {
+      using namespace Gem::Common;
+      // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GNumIntT<int_type>::operator==","cp", CE_SILENT);
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks for inequality with another GNumIntT<int_type> object
+    *
+    * @param  cp A constant reference to another GNumIntT<int_type> object
+    * @return A boolean indicating whether both objects are inequal
+    */
+   bool operator!=(const GNumIntT<int_type>& cp) const {
+      using namespace Gem::Common;
+      // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNumIntT<int_type>::operator==","cp", CE_SILENT);
+   }
 
 	/***************************************************************************/
 	/**

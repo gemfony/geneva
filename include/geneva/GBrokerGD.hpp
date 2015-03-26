@@ -91,8 +91,8 @@ public:
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GBrokerGD();
 
-	/** @brief A standard assignment operator */
-	G_API_GENEVA const GBrokerGD& operator=(const GBrokerGD&);
+   /** @brief The standard assignment operator */
+   G_API_GENEVA const GBrokerGD& operator=(const GBrokerGD&);
 
 	/** @brief Checks for equality with another GBrokerGD object */
 	G_API_GENEVA bool operator==(const GBrokerGD&) const;

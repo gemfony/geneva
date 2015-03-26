@@ -79,7 +79,7 @@ public:
    /** @brief The standard destructor */
    virtual G_API_GENEVA ~GSerialSA();
 
-   /** @brief Assignment operator */
+   /** @brief The standard assignment operator */
    G_API_GENEVA const GSerialSA& operator=(const GSerialSA&);
 
    /** @brief Checks for equality with another GSerialSA object */
