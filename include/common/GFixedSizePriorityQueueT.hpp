@@ -67,8 +67,8 @@
 // Geneva headers go here
 #include "common/GHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
+#include <common/GExpectationChecksT.hpp>
 #include "common/GLogger.hpp"
-#include "common/GPODExpectationChecksT.hpp"
 #include "common/GMathHelperFunctionsT.hpp"
 
 namespace Gem {

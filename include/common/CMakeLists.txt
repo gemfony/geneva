@@ -40,6 +40,7 @@ SET ( GENEVACOMMONINCLUDES
 	GCommonEnums.hpp
 	GDefaultValueT.hpp
 	GExceptions.hpp
+	GExpectationChecksT.hpp
 	GFactoryT.hpp
 	GFixedSizePriorityQueueT.hpp
 	GFormulaParserT.hpp
@@ -53,7 +54,6 @@ SET ( GENEVACOMMONINCLUDES
 	GMathHelperFunctionsT.hpp
 	GParserBuilder.hpp
 	GPlotDesigner.hpp
-	GPODExpectationChecksT.hpp
 	GSerializableI.hpp
 	GSerializationHelperFunctionsT.hpp
 	GSerializeTupleT.hpp

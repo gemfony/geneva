@@ -71,7 +71,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
-#include "common/GPODExpectationChecksT.hpp"
+#include <common/GExpectationChecksT.hpp>
 #include "common/GMathHelperFunctionsT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GThreadPool.hpp"

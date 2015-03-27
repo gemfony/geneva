@@ -70,7 +70,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctionsT.hpp"
 #include "common/GLogger.hpp"
-#include "common/GPODExpectationChecksT.hpp"
+#include <common/GExpectationChecksT.hpp>
 
 namespace Gem {
 namespace Geneva {

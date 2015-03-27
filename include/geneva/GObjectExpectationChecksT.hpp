@@ -59,7 +59,7 @@
 #define GOBJECTEXPECTATIONCHECKST_HPP_
 
 // Geneva headers go here
-#include "common/GPODExpectationChecksT.hpp"
+#include <common/GExpectationChecksT.hpp>
 #include "geneva/GObject.hpp"
 
 namespace Gem {

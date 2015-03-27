@@ -1,5 +1,5 @@
 /**
- * @file GPODExpectationChecksT.cpp
+ * @file GExpectationChecksT.cpp
  */
 
 /*
@@ -32,7 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#include "common/GPODExpectationChecksT.hpp"
+#include <common/GExpectationChecksT.hpp>
 
 namespace Gem {
 namespace Common {
@@ -52,16 +52,15 @@ namespace Common {
  * @return A boost::optional<std::string> that optionally contains a description of discrepancies found from the expected outcome
  */
 boost::optional<std::string> checkExpectation (
-        const bool& withMessages
-	  , const std::string& caller
-	  , const boost::logic::tribool& x
-	  , const boost::logic::tribool& y
-	  , const std::string& x_name
-	  , const std::string& y_name
-	  , const Gem::Common::expectation& e
-	  , const double& limit
-)
-{
+  const bool& withMessages
+  , const std::string& caller
+  , const boost::logic::tribool& x
+  , const boost::logic::tribool& y
+  , const std::string& x_name
+  , const std::string& y_name
+  , const Gem::Common::expectation& e
+  , const double& limit
+) {
 	bool expectationMet = false;
 	std::ostringstream message;
 

@@ -4,6 +4,7 @@ SET ( COMMONSOURCES
 	GCanvas
 	GCommonEnums
 	GExceptions
+	GExpectationChecksT
 	GFormulaParserT
 	GHelperFunctions
 	GLockVarT
@@ -11,7 +12,6 @@ SET ( COMMONSOURCES
 	GMathHelperFunctions
 	GParserBuilder
 	GPlotDesigner
-	GPODExpectationChecksT
 	GThreadGroup
 	GThreadPool
 	GThreadWrapper

@@ -1,5 +1,5 @@
 /**
- * @file GPODExpectationChecksT.hpp
+ * @file GExpectationChecksT.hpp
  */
 
 /*
