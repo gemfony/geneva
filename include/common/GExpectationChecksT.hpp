@@ -63,6 +63,20 @@
 namespace Gem {
 namespace Common {
 
+/*
+template <typename T>
+void compare(
+   const T& a
+   , const T& b
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const bool& withMessages
+) {
+   if(expectationViolation(a, b, e , limit, withMessages)) {
+      throw;
+   }
+}
+*/
 
 /******************************************************************************/
 /**

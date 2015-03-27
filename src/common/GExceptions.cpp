@@ -82,6 +82,14 @@ gemfony_error_condition::~gemfony_error_condition()  throw()
 
 /******************************************************************************/
 /**
+ * Allows to add further information to the exception
+ */
+void gemfony_error_condition::add(const std::string& newMessage) throw() {
+   description_ += newMessage;
+}
+
+/******************************************************************************/
+/**
  * Emits information when thrown
  */
 const char* gemfony_error_condition::what() const throw() {
