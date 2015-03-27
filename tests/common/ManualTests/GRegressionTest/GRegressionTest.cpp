@@ -42,7 +42,8 @@
 // Geneva headers go here
 #include "common/GPlotDesigner.hpp"
 #include "common/GMathHelperFunctionsT.hpp"
-#include "geneva/GLineFit.hpp"
+
+#include "GLineFit.hpp"
 
 using namespace Gem::Common;
 using namespace Gem::Geneva;

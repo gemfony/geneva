@@ -32,7 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#include "geneva/GLineFit.hpp"
+#include "GLineFit.hpp"
 
 namespace Gem {
 namespace Geneva {

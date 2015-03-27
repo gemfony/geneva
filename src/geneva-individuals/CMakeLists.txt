@@ -3,6 +3,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 SET ( SAMPLEINDIVIDUALSOURCES
 	GExternalEvaluatorIndividual
 	GFunctionIndividual
+	GLineFitIndividual
 	GMetaOptimizerIndividualT
 	GNeuralNetworkIndividual
 	GTestIndividual2

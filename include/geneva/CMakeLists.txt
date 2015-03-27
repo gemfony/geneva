@@ -55,8 +55,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GIntFlipAdaptorT.hpp
 	GIntGaussAdaptorT.hpp
 	GIntNumCollectionT.hpp
-	GLineFit.hpp
-	GLineFitIndividual.hpp
 	GMPEAPersonalityTraits.hpp
 	GMultiConstraintT.hpp
 	GMultiPopulationEAT.hpp

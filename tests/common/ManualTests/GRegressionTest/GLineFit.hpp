@@ -45,7 +45,7 @@
 
 // Geneva headers go here
 #include "geneva/GMultiThreadedEA.hpp"
-#include "geneva/GLineFitIndividual.hpp"
+#include "geneva-individuals/GLineFitIndividual.hpp"
 
 namespace Gem {
 namespace Geneva {
