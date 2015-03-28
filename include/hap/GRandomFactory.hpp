@@ -159,9 +159,10 @@ private:
    random_container(const random_container&); ///< The copy constructor -- intentionally private and undefined
    const random_container& operator=(const random_container&); ///< intentionally private and undefined
 
-   double *r_; ///< Holds the actual random numbers
    std::size_t current_pos_; ///< The current position in the array
    const std::size_t binSize_;     ///< The size of the buffer
+
+   double *r_; ///< Holds the actual random numbers
 };
 
 /******************************************************************************/
