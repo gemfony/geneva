@@ -58,16 +58,18 @@ std::vector<double> producer2_vec;
  * Test of GRandom-access through thread-specific pointer
  */
 void produceNumbers(int id) {
-   for(std::size_t i=0; i<NPROD; i++) {
-      switch(id) {
-         case 1:
-         producer1_vec.push_back(Gem::Common::tss_ptr<GRandomT<Gem::Hap::RANDOMPROXY> >()->uniform_01<double>());
-         break;
-
-         case 2:
-         producer2_vec.push_back(Gem::Common::tss_ptr<GRandomT<Gem::Hap::RANDOMPROXY> >()->uniform_01<double>());
-         break;
+   switch(id) {
+      case 1:
+      for(std::size_t i=0; i<NPROD; i++) {
+         producer1_vec.push_back(Gem::Common::tss_ptr<GRandom>()->uniform_01<double>());
       }
+      break;
+
+      case 2:
+      for(std::size_t i=0; i<NPROD; i++) {
+         producer2_vec.push_back(Gem::Common::tss_ptr<GRandom>()->uniform_01<double>());
+      }
+      break;
    }
 }
 
