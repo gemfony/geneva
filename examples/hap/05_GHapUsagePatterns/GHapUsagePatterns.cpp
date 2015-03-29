@@ -36,15 +36,45 @@
 #include <iostream>
 
 // Boost header files go here
+#include <boost/thread/thread.hpp>
+#include <boost/bind.hpp>
 
 // Geneva header files go here
 #include "hap/GRandomT.hpp"
+#include "common/GTSSAccessT.hpp"
 
 const int NPROD = 1000;
 
 // All GRandom-related code is in the namespace Gem::Hap
 using namespace Gem::Hap;
 
+/***********************************************************************************/
+// Containers for the two producer threads
+std::vector<double> producer1_vec;
+std::vector<double> producer2_vec;
+
+/***********************************************************************************/
+/**
+ * Test of GRandom-access through thread-specific pointer
+ */
+void produceNumbers(int id) {
+   for(std::size_t i=0; i<NPROD; i++) {
+      switch(id) {
+         case 1:
+         producer1_vec.push_back(Gem::Common::tss_ptr<GRandomT<Gem::Hap::RANDOMPROXY> >()->uniform_01<double>());
+         break;
+
+         case 2:
+         producer2_vec.push_back(Gem::Common::tss_ptr<GRandomT<Gem::Hap::RANDOMPROXY> >()->uniform_01<double>());
+         break;
+      }
+   }
+}
+
+/***********************************************************************************/
+/**
+ * The main function
+ */
 int main(int argc, char **argv) {
 	// Instantiate a random number generator
 	// NOTE: You could use GRandomT<RANDOMPROXY> instead
@@ -165,6 +195,15 @@ int main(int argc, char **argv) {
 			boost::int32_t int_rand_si_max = gr.uniform_smallint(max);
 		}
 	}
+
+	// Try thread specific storage access to GRandomT
+	boost::thread t1(boost::bind(produceNumbers, 1));
+	boost::thread t2(boost::bind(produceNumbers, 2));
+	t1.join();
+	t2.join();
+
+	std::cout << "producer1_vec.size() = " << producer1_vec.size() << std::endl;
+	std::cout << "producer2_vec.size() = " << producer2_vec.size() << std::endl;
 
 	return 0;
 }

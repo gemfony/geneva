@@ -62,6 +62,7 @@ SET ( GENEVACOMMONINCLUDES
 	GThreadPool.hpp
 	GThreadWrapper.hpp
 	GTriboolSerialization.hpp
+	GTSSAccessT.hpp
 	GTypeToStringT.hpp
 	GUnitTestFrameworkT.hpp
 )
