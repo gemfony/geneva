@@ -270,11 +270,14 @@ protected:
       int_type& value
       , const int_type& range
    ) OVERRIDE {
+	   using namespace Gem::Common;
+	   using namespace Gem::Hap;
+
 	   // Calculate a suitable addition to the current parameter value
-		int_type addition = static_cast<int_type>(static_cast<double>(range) * this->gr->normal_distribution(this->getSigma()));
+		int_type addition = static_cast<int_type>(static_cast<double>(range) * tss_ptr<GRandom>()->normal_distribution(this->getSigma()));
 
 		if(addition == 0) { // Enforce a minimal change of 1.
-			addition = this->gr->uniform_bool()?1:-1;
+			addition = tss_ptr<GRandom>()->uniform_bool()?1:-1;
 		}
 
       // adapt the value in situ. Note that this changes

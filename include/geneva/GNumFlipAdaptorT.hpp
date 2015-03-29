@@ -247,8 +247,10 @@ protected:
       num_type& value
       , const num_type& range
    ) OVERRIDE {
-		bool up = this->gr->uniform_bool();
-		if(up){
+      using namespace Gem::Common;
+      using namespace Gem::Hap;
+
+		if(tss_ptr<GRandom>()->uniform_bool()){
 			value += 1;
 		} else {
 			value -= 1;

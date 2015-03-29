@@ -198,11 +198,14 @@ protected:
       fp_type& value
       , const fp_type& range
    ) OVERRIDE {
+	   using namespace Gem::Common;
+	   using namespace Gem::Hap;
+
 		if(GNumBiGaussAdaptorT<fp_type, fp_type>::useSymmetricSigmas_) { // Should we use the same sigma for both gaussians ?
 			// adapt the value in situ. Note that this changes
 			// the argument of this function
 			value
-			+= range * this->gr->bi_normal_distribution(
+			+= range * tss_ptr<GRandom>()->bi_normal_distribution(
             fp_type(0.)
             , GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_
             , GNumBiGaussAdaptorT<fp_type, fp_type>::delta_
@@ -211,7 +214,7 @@ protected:
 			// adapt the value in situ. Note that this changes
 			// the argument of this function
 			value
-			+= range * this->gr->bi_normal_distribution(
+			+= range * tss_ptr<GRandom>()->bi_normal_distribution(
             fp_type(0.)
             , GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_
             , GNumBiGaussAdaptorT<fp_type, fp_type>::sigma2_

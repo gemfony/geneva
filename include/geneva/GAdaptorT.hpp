@@ -44,6 +44,7 @@
 
 // Geneva headers go here
 
+#include "common/GTSSAccessT.hpp"
 #include "common/GTriboolSerialization.hpp"
 #include "hap/GRandomT.hpp"
 #include "geneva/GObject.hpp"
@@ -123,8 +124,6 @@ public:
 	 */
 	GAdaptorT()
 		: GObject()
-		, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>())
-		, gr(gr_local)
 		, adaptionCounter_(0)
 		, adaptionThreshold_(DEFAULTADAPTIONTHRESHOLD)
 		, adProb_(DEFAULTADPROB)
@@ -157,8 +156,6 @@ public:
 	 */
 	GAdaptorT(const double& adProb)
 		: GObject()
-		, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>())
-		, gr(gr_local)
 		, adaptionCounter_(0)
 		, adaptionThreshold_(DEFAULTADAPTIONTHRESHOLD)
 		, adProb_(adProb)
@@ -191,8 +188,6 @@ public:
 	 */
 	GAdaptorT(const GAdaptorT<T>& cp)
 		: GObject(cp)
-		, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>()) // We do *not* copy the other object's generator
-		, gr(gr_local)
 		, adaptionCounter_(cp.adaptionCounter_)
 		, adaptionThreshold_(cp.adaptionThreshold_)
 		, adProb_(cp.adProb_)
@@ -209,9 +204,7 @@ public:
 	 * The standard destructor. Gets rid of the local random number generator, unless
 	 * an external generator has been assigned.
 	 */
-	virtual ~GAdaptorT() {
-		if(gr_local) delete gr_local;
-	}
+	virtual ~GAdaptorT() { /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -599,17 +592,18 @@ public:
       , const T& range
    ) {
 	   using namespace Gem::Common;
+	   using namespace Gem::Hap;
 
 	   bool adapted = false;
 
 	   // Update the adaption probability, if requested by the user
 	   if(adaptAdProb_ > 0) {
-	      adProb_ *= gexp(this->gr->normal_distribution(adaptAdProb_));
+	      adProb_ *= gexp(tss_ptr<GRandom>()->normal_distribution(adaptAdProb_));
 	      Gem::Common::enforceRangeConstraint<double>(adProb_, minAdProb_, maxAdProb_);
 	   }
 
 		if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case is indeterminate (means: "depends")
-			if(gr->uniform_01<double>() <= adProb_) { // Should we perform adaption
+			if(tss_ptr<GRandom>()->uniform_01<double>() <= adProb_) { // Should we perform adaption
 			   adaptAdaption(range);
 				customAdaptions(val, range);
 				adapted = true;
@@ -661,6 +655,7 @@ public:
       , const T& range
    ) {
       using namespace Gem::Common;
+      using namespace Gem::Hap;
 
       std::size_t nAdapted = 0;
 
@@ -668,13 +663,13 @@ public:
 
       // Update the adaption probability, if requested by the user
       if(adaptAdProb_ > 0) {
-         adProb_ *= gexp(this->gr->normal_distribution(adaptAdProb_));
+         adProb_ *= gexp(tss_ptr<GRandom>()->normal_distribution(adaptAdProb_));
          Gem::Common::enforceRangeConstraint<double>(adProb_, minAdProb_, maxAdProb_);
       }
 
       if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case is indeterminate (means: "depends")
          for (it = valVec.begin(); it != valVec.end(); ++it) {
-            if(gr->uniform_01<double>() <= adProb_) { // Should we perform adaption ?
+            if(tss_ptr<GRandom>()->uniform_01<double>() <= adProb_) { // Should we perform adaption ?
                adaptAdaption(range);
                customAdaptions(*it, range);
 
@@ -729,75 +724,6 @@ public:
 	      adProb_ = adProb_reset_;
 	      return true;
 	   }
-	}
-
-	/***************************************************************************/
-	/**
-	 * Assign a random number generator from another object.
-	 *
-	 * @param gr_cp A reference to another object's GRandomBase object derivative
-	 */
-	virtual void assignGRandomPointer(Gem::Hap::GRandomBase *gr_cp) {
-#ifdef DEBUG
-		if(!gr_cp) {
-		   glogger
-		   << "In GAdaptorT<T>::assignGRandomPointer() :" << std::endl
-		   << "Tried to assign NULL pointer" << GEXCEPTION;
-		}
-#endif
-
-		gr = gr_cp;
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * - Assigning a random number generator is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
-	 * - Assigning a NULL pointer is tested in GAdaptorT<T>::specificTestsFailuresExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Re-connects the local random number generator to gr.
-	 */
-	virtual void resetGRandomPointer() {
-		if(gr_local) gr = gr_local;
-		else {
-			glogger
-			<< "In GAdaptorT<T>::resetGRandomPointer() :" << std::endl
-			<< "Tried to assign NULL pointer" << GEXCEPTION;
-		}
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * - Resetting random number generator is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
-	 * - throw is untested
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Checks whether the local random number generator is used. This is simply done
-	 * by comparing the two pointers.
-	 *
-	 * @bool A boolean indicating whether the local random number generator is used
-	 */
-	virtual bool usesLocalRNG() const {
-		return gr == gr_local;
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Used in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Checks whether an assigned random number generator is used
-	 *
-	 * @return A boolean indicating whether an assigned random number generator is used
-	 */
-	virtual bool assignedRNGUsed() const {
-		return gr != gr_local;
 	}
 
 	/***************************************************************************/
@@ -861,15 +787,6 @@ public:
 
 protected:
 	/***************************************************************************/
-    /**
-     * A random number generator. This reference and the associated pointer is either
-     * connected to a local random number generator assigned in the constructor, or
-     * to a "factory" generator located in the surrounding GParameterSet object.
-     */
-	Gem::Hap::GRandomBase *gr_local;
-	Gem::Hap::GRandomBase *gr;
-
-	/***************************************************************************/
 	/**
 	 * Loads the contents of another GAdaptorT<T>. The function
 	 * is similar to a copy constructor (but with a pointer as
@@ -907,6 +824,9 @@ protected:
     *  @param range A typical range for the parameter with type T
     */
 	void adaptAdaption(const T& range) {
+	   using namespace Gem::Common;
+	   using namespace Gem::Hap;
+
       // The adaption parameters are modified every adaptionThreshold_ number of adaptions.
       if(adaptionThreshold_ > 0) {
          if(++adaptionCounter_ >= adaptionThreshold_){
@@ -914,7 +834,7 @@ protected:
             customAdaptAdaption(range);
          }
       } else if(adaptAdaptionProbability_) { // Do the same with probability settings
-         if(gr->uniform_01<double>() <= adaptAdaptionProbability_) {
+         if(tss_ptr<GRandom>()->uniform_01<double>() <= adaptAdaptionProbability_) {
             customAdaptAdaption(range);
          }
       }
@@ -1291,82 +1211,6 @@ public:
 
 		//------------------------------------------------------------------------------
 
-		{ // Check adding and resetting of random number generators
-			boost::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
-
-			// Always adapt
-			p_test->setAdaptionMode(true);
-
-			// A cloned adaptor should have a local random number generator, as it is default-constructed
-			BOOST_CHECK(p_test->usesLocalRNG());
-
-			// Some values that will be adapted
-			T testVal = T(0);
-			T oldTestVal = T(0);
-
-			// Check that we have adaption powers when using a local random number generator
-			for(std::size_t i=0; i<1000; i++) {
-				p_test->adapt(testVal, T(1));
-				BOOST_CHECK_MESSAGE(
-						testVal != oldTestVal
-						,  "(1)\n"
-						<< "testVal = " << testVal << "\n"
-						<< "oldTestVal = " << oldTestVal << "\n"
-						<< "iteration = " << i << "\n"
-				);
-				oldTestVal = testVal;
-			}
-
-			// Assign a factory generator
-			Gem::Hap::GRandomBase *gr_test = new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY>();
-
-			BOOST_CHECK_NO_THROW(p_test->assignGRandomPointer(gr_test));
-
-			// Has the generator been assigned ?
-			BOOST_CHECK(!p_test->usesLocalRNG());
-
-			// Check that we have adaption powers when using the new random number generator
-			testVal = T(0);
-			oldTestVal = T(0);
-			for(std::size_t i=0; i<1000; i++) {
-				BOOST_CHECK_NO_THROW(p_test->adapt(testVal, T(1)));
-				BOOST_CHECK_MESSAGE(
-						testVal != oldTestVal
-						,  "(2)\n"
-						<< "testVal = " << testVal << "\n"
-						<< "oldTestVal = " << oldTestVal << "\n"
-						<< "iteration = " << i << "\n"
-				);
-				oldTestVal = testVal;
-			}
-
-			// Make sure we use the local generator again
-			BOOST_CHECK_NO_THROW(p_test->resetGRandomPointer());
-
-			// Get rid of the test generator
-			delete gr_test;
-
-			// We should now be using a local random number generator again
-			BOOST_CHECK(p_test->usesLocalRNG());
-
-			// Check that we have adaption powers when using the local random number generator again
-			testVal = T(0);
-			oldTestVal = T(0);
-			for(std::size_t i=0; i<1000; i++) {
-				p_test->adapt(testVal, T(1));
-				BOOST_CHECK_MESSAGE(
-               testVal != oldTestVal
-               ,  "(3)\n"
-               << "testVal = " << testVal << "\n"
-               << "oldTestVal = " << oldTestVal << "\n"
-               << "iteration = " << i << "\n"
-				);
-				oldTestVal = testVal;
-			}
-		}
-
-		//------------------------------------------------------------------------------
-
 		{ // Test that customAdaptions() in derived classes changes a test value on every call
 			boost::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
 
@@ -1468,22 +1312,6 @@ public:
 			);
 		}
 #endif /* DEBUG */
-
-		//------------------------------------------------------------------------------
-
-
-		{ // Check that resetting the random number generator throws if gr_local is NULL
-			boost::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
-
-			p_test->gr_local = NULL;
-
-			// Resetting the pointer should throw, if gr_local is NULL (which it technically
-			// should never be able to become
-			BOOST_CHECK_THROW(
-					p_test->resetGRandomPointer();
-					, Gem::Common::gemfony_error_condition
-			);
-		}
 
 		//------------------------------------------------------------------------------
 

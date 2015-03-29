@@ -268,10 +268,13 @@ protected:
       fp_type& value
       , const fp_type& range
    ) OVERRIDE {
+	   using namespace Gem::Common;
+	   using namespace Gem::Hap;
+
 		// adapt the value in situ. Note that this changes
 		// the argument of this function
 		value
-		+= range * this->gr->normal_distribution(GNumGaussAdaptorT<fp_type, fp_type>::sigma_);
+		+= range * tss_ptr<GRandom>()->normal_distribution(GNumGaussAdaptorT<fp_type, fp_type>::sigma_);
 	}
 
 	/* ----------------------------------------------------------------------------------

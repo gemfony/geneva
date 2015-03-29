@@ -61,13 +61,13 @@ void produceNumbers(int id) {
    switch(id) {
       case 1:
       for(std::size_t i=0; i<NPROD; i++) {
-         producer1_vec.push_back(Gem::Common::tss_ptr<GRandom>()->uniform_01<double>());
+         producer1_vec.push_back(Gem::Common::tss_ptr<Gem::Hap::GRandom>()->uniform_01<double>());
       }
       break;
 
       case 2:
       for(std::size_t i=0; i<NPROD; i++) {
-         producer2_vec.push_back(Gem::Common::tss_ptr<GRandom>()->uniform_01<double>());
+         producer2_vec.push_back(Gem::Common::tss_ptr<Gem::Hap::GRandom>()->uniform_01<double>());
       }
       break;
    }

@@ -156,30 +156,30 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(
+   boost::optional<std::string> checkRelationshipWith(
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
       , const std::string& caller
       , const std::string& y_name
       , const bool& withMessages
-	) const OVERRIDE {
-	    using namespace Gem::Common;
+   ) const OVERRIDE {
+      using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GParamterBase reference
-		const GParameterBaseWithAdaptorsT<T>  *p_load = GObject::gobject_conversion<GParameterBaseWithAdaptorsT<T> >(&cp);
+      // Check that we are indeed dealing with a GParamterBase reference
+      const GParameterBaseWithAdaptorsT<T>  *p_load = GObject::gobject_conversion<GParameterBaseWithAdaptorsT<T> >(&cp);
 
-		// Will hold possible deviations from the expectation, including explanations
-	    std::vector<boost::optional<std::string> > deviations;
+      // Will hold possible deviations from the expectation, including explanations
+      std::vector<boost::optional<std::string> > deviations;
 
-		// Check our parent class'es data ...
-		deviations.push_back(GParameterBase::checkRelationshipWith(cp, e, limit, "GParameterBaseWithAdaptorsT<T>", y_name, withMessages));
+      // Check our parent class'es data ...
+      deviations.push_back(GParameterBase::checkRelationshipWith(cp, e, limit, "GParameterBaseWithAdaptorsT<T>", y_name, withMessages));
 
-		// ... and then our local data
-		deviations.push_back(checkExpectation(withMessages, "GParameterBaseWithAdaptorsT<T>", adaptor_, p_load->adaptor_, "adaptor_", "p_load->adaptor_", e , limit));
+      // ... and then our local data
+      deviations.push_back(checkExpectation(withMessages, "GParameterBaseWithAdaptorsT<T>", adaptor_, p_load->adaptor_, "adaptor_", "p_load->adaptor_", e , limit));
 
-		return evaluateDiscrepancies("GParameterBaseWithAdaptorsT<T>", caller, deviations, e);
-	}
+      return evaluateDiscrepancies("GParameterBaseWithAdaptorsT<T>", caller, deviations, e);
+   }
 
 	/***************************************************************************/
 	/**
@@ -212,9 +212,6 @@ public:
          << "Found no local adaptor. This should not happen!" << std::endl
          << GEXCEPTION;
 		}
-
-		// Make our local random number generator known to the adaptor
-		adaptor_->assignGRandomPointer(GParameterBase::gr);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -327,7 +324,6 @@ public:
 	 * @param gr_cp A reference to another object's GRandomBaseT object derivative
 	 */
 	virtual void assignGRandomPointer(Gem::Hap::GRandomBase *gr_cp) {
-		if(adaptor_) adaptor_->assignGRandomPointer(gr_cp);
 		GParameterBase::assignGRandomPointer(gr_cp);
 	}
 
@@ -341,7 +337,6 @@ public:
 	 * Re-connects the local random number generator to gr and tells the adaptor to do the same.
 	 */
 	virtual void resetGRandomPointer() {
-		if(adaptor_) adaptor_->resetGRandomPointer();
 		GParameterBase::resetGRandomPointer();
 	}
 
@@ -361,7 +356,6 @@ public:
 	virtual bool usesLocalRNG() const {
 		bool result=true;
 
-		if(adaptor_ && !adaptor_->usesLocalRNG()) result=false;
 		if(!GParameterBase::usesLocalRNG()) result=false;
 
 		return result;
@@ -383,7 +377,6 @@ public:
 	virtual bool assignedRNGUsed() const {
 		bool result=true;
 
-		if(adaptor_ && !adaptor_->assignedRNGUsed()) result=false;
 		if(!GParameterBase::assignedRNGUsed()) result=false;
 
 		return result;
@@ -606,7 +599,6 @@ public:
 			BOOST_CHECK(p_test->usesLocalRNG() == true);
 			// Also check the parent class and the adaptor individually
 			BOOST_CHECK(p_test->GParameterBase::usesLocalRNG() == true);
-			BOOST_CHECK(p_test->adaptor_ && p_test->adaptor_->usesLocalRNG() == true);
 
 			// Create and assign a "foreign" generator
 			Gem::Hap::GRandomBase *gr_test = new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY>();
@@ -616,7 +608,6 @@ public:
 			BOOST_CHECK(p_test->assignedRNGUsed() == true);
 			// Also check the parent class and the adaptor individually
 			BOOST_CHECK(p_test->GParameterBase::usesLocalRNG() == false);
-			BOOST_CHECK(p_test->adaptor_ && p_test->adaptor_->usesLocalRNG() == false);
 
 			// Clean up p_test before we remove the random number generator
 			p_test.reset();
