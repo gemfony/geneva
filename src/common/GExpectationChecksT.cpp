@@ -38,6 +38,25 @@ namespace Gem {
 namespace Common {
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * The standard constructor
+ */
+g_expectation_violation::g_expectation_violation(const std::string& description) throw()
+      : gemfony_error_condition(description)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The destructor
+ */
+g_expectation_violation::~g_expectation_violation() throw()
+{ /* nothing */ }
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * This function checks whether two objects of type boost::logic::tribool meet a given expectation.
  *

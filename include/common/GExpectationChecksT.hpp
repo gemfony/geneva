@@ -58,10 +58,37 @@
 #define GPODEXPECTATIONCHECKST_HPP_
 
 // Gemfony headers go here
-#include "GCommonEnums.hpp"
+#include "common/GCommonEnums.hpp"
+#include "common/GExceptions.hpp"
 
 namespace Gem {
 namespace Common {
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * An exception to be thrown in case of an expectation violation.
+ */
+class g_expectation_violation
+   : public gemfony_error_condition
+{
+public:
+   /** @brief The standard constructor */
+   G_API_COMMON g_expectation_violation(const std::string&) throw();
+   /** @brief The destructor */
+   virtual G_API_COMMON ~g_expectation_violation() throw();
+private:
+   /** @brief The default constructor: Intentionally private and undefined */
+   g_expectation_violation();
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * The core function for comparisions of parameters (objects or POD)
+ */
 
 /*
 template <typename T>
@@ -70,14 +97,16 @@ void compare(
    , const T& b
    , const Gem::Common::expectation& e
    , const double& limit
-   , const bool& withMessages
 ) {
-   if(expectationViolation(a, b, e , limit, withMessages)) {
-      throw;
+   if(expectationViolation(a, b, e , limit)) {
+      std::ostringstream error;
+      throw g_expectation_violation(error);
    }
 }
 */
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
  * This base class implements the interface for expaction checks
@@ -609,11 +638,15 @@ boost::optional<std::string> evaluateDiscrepancies(
 );
 
 /******************************************************************************/
-/*
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * This define facilitates calls to the checkExpectation() function
  */
 #define EXPECTATIONCHECK(x) deviations.push_back(checkExpectation( withMessages , caller , x , p_load->x , #x , "p_load->"#x , e, limit ))
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
 } /* namespace Common */
