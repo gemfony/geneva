@@ -298,7 +298,7 @@ double gfloor(const double& x) {
 
 /******************************************************************************/
 /**
- * Calculates the fabs value of a float value
+ * Calculates the fabsf value of a float value
  *
  * @param x The value for which fabs should be calculated
  * @return The fabs value of x
@@ -316,6 +316,21 @@ float gfabs(const float& x) {
  */
 double gfabs(const double& x) {
 	return fabs(x);
+}
+
+/******************************************************************************/
+/**
+ * Calculates the fabsl value of a long double value
+ *
+ * @param x The value for which fabs should be calculated
+ * @return The fabs value of x
+ */
+double gfabs(const long double& x) {
+#ifdef __CYGWIN__
+   return fabs(boost::numeric_cast<double>(x));
+#else
+   return fabsl(x);
+#endif
 }
 
 /******************************************************************************/

@@ -140,6 +140,8 @@ G_API_COMMON double gfloor(const double&);
 G_API_COMMON float gfabs(const float&);
 /** @brief Calculates the fabs value of a double value */
 G_API_COMMON double gfabs(const double&);
+/** @brief Calculates the fabs value of a double value */
+G_API_COMMON double gfabs(const long double&);
 
 /** @brief Calculates the abs value of an int value */
 G_API_COMMON int giabs(const int&);

@@ -300,10 +300,10 @@ public:
 	   const GObject& cp
 	   , const Gem::Common::expectation& e
 	   , const double& limit
-	) {
+	) OVERRIDE {
 	   using namespace Gem::Common;
 
-      // Check that we are indeed dealing with a GParamterBase reference
+      // Check that we are indeed dealing with a GAdaptorT reference
       const GAdaptorT<T>  *p_load = gobject_conversion<GAdaptorT<T> >(&cp);
 
       try {

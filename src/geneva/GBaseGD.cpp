@@ -287,12 +287,51 @@ boost::optional<std::string> GBaseGD::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "GBaseGD", nFPParmsFirst_, p_load->nFPParmsFirst_, "nFPParmsFirst_", "p_load->nFPParmsFirst_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GBaseGD", finiteStep_, p_load->finiteStep_, "finiteStep_", "p_load->finiteStep_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GBaseGD", stepSize_, p_load->stepSize_, "stepSize_", "p_load->stepSize_", e , limit));
-   // deviations.push_back(checkExpectation(withMessages, "GBaseGD", stepRatio_, p_load->stepRatio_, "stepRatio_", "p_load->stepRatio_", e , limit)); // temporary parameter
-   // deviations.push_back(checkExpectation(withMessages, "GBaseGD", dblLowerParameterBoundaries_, p_load->dblLowerParameterBoundaries_, "dblLowerParameterBoundaries_", "p_load->dblLowerParameterBoundaries_", e , limit)); // temporary parameter
-   // deviations.push_back(checkExpectation(withMessages, "GBaseGD", dblUpperParameterBoundaries_, p_load->dblUpperParameterBoundaries_, "dblUpperParameterBoundaries_", "p_load->dblUpperParameterBoundaries_", e , limit)); // temporary parameter
-   // deviations.push_back(checkExpectation(withMessages, "GBaseGD", adjustedFiniteStep_, p_load->adjustedFiniteStep_, "adjustedFiniteStep_", "p_load->adjustedFiniteStep_", e , limit)); // temporary parameter
+   deviations.push_back(checkExpectation(withMessages, "GBaseGD", stepRatio_, p_load->stepRatio_, "stepRatio_", "p_load->stepRatio_", e , limit)); // temporary parameter
+   deviations.push_back(checkExpectation(withMessages, "GBaseGD", dblLowerParameterBoundaries_, p_load->dblLowerParameterBoundaries_, "dblLowerParameterBoundaries_", "p_load->dblLowerParameterBoundaries_", e , limit)); // temporary parameter
+   deviations.push_back(checkExpectation(withMessages, "GBaseGD", dblUpperParameterBoundaries_, p_load->dblUpperParameterBoundaries_, "dblUpperParameterBoundaries_", "p_load->dblUpperParameterBoundaries_", e , limit)); // temporary parameter
+   deviations.push_back(checkExpectation(withMessages, "GBaseGD", adjustedFiniteStep_, p_load->adjustedFiniteStep_, "adjustedFiniteStep_", "p_load->adjustedFiniteStep_", e , limit)); // temporary parameter
 
 	return evaluateDiscrepancies("GBaseGD", caller, deviations, e);
+}
+
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GObject object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void GBaseGD::compare(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+) {
+   using namespace Gem::Common;
+
+   // Check that we are indeed dealing with a GBaseEA reference
+   const GBaseGD *p_load = GObject::gobject_conversion<GBaseGD>(&cp);
+
+   try {
+      // Check our parent class'es data ...
+      GOptimizationAlgorithmT<GParameterSet>::compare(cp, e, limit);
+
+      // ... and then our local data
+      COMPARE(nStartingPoints_, p_load->nStartingPoints_, e, limit);
+      COMPARE(nFPParmsFirst_, p_load->nFPParmsFirst_, e, limit);
+      COMPARE(finiteStep_, p_load->finiteStep_, e, limit);
+      COMPARE(stepSize_, p_load->stepSize_, e, limit);
+      COMPARE(stepRatio_, p_load->stepRatio_, e, limit);
+      COMPARE(dblLowerParameterBoundaries_, p_load->dblLowerParameterBoundaries_, e, limit);
+      COMPARE(dblUpperParameterBoundaries_, p_load->dblUpperParameterBoundaries_, e, limit);
+      COMPARE(adjustedFiniteStep_, p_load->adjustedFiniteStep_, e, limit);
+
+   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+      g.add("g_expectation_violation caught by GBaseGD");
+      throw g;
+   }
 }
 
 /******************************************************************************/
