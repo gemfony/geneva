@@ -110,6 +110,30 @@ boost::optional<std::string> GObject::checkRelationshipWith(
 
 /******************************************************************************/
 /**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GObject object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void GObject::compare(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+) {
+   using namespace Gem::Common;
+
+   // Check that cp isn't the same object as this one
+   this->selfAssignmentCheck<GObject>(&cp);
+
+   // No parent classes to check...
+
+   // ... and no local data
+}
+
+/******************************************************************************/
+/**
  * Returns an XML description of the derivative it is called for
  *
  * @return An XML description of the GObject-derivative the function is called for

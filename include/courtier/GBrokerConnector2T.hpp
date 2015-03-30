@@ -720,7 +720,7 @@ public:
          std::vector<boost::optional<std::string> > deviations;
 
          // Check our parent classes data
-         deviations.push_back(GBaseExecutorT<processable_type>::checkRelationShipWith(cp, e, limit, "GSerialExecutorT<processable_type>", y_name, withMessages));
+         deviations.push_back(GBaseExecutorT<processable_type>::checkRelationshipWith_common(cp, e, limit, "GSerialExecutorT<processable_type>", y_name, withMessages));
 
          return evaluateDiscrepancies("GSerialExecutorT<processable_type>", caller, deviations, e);
       } catch(const std::bad_cast& exp) {

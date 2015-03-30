@@ -289,6 +289,46 @@ public:
 
 	/***************************************************************************/
 	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+	   const GObject& cp
+	   , const Gem::Common::expectation& e
+	   , const double& limit
+	) {
+	   using namespace Gem::Common;
+
+      // Check that we are indeed dealing with a GParamterBase reference
+      const GAdaptorT<T>  *p_load = gobject_conversion<GAdaptorT<T> >(&cp);
+
+      try {
+         // Check our parent class'es data ...
+         GObject::compare(cp, e, limit);
+
+         // ... and then our local data
+         COMPARE(adaptionCounter_, p_load->adaptionCounter_, e, limit);
+         COMPARE(adaptionThreshold_, p_load->adaptionThreshold_, e, limit);
+         COMPARE(adProb_, p_load->adProb_, e, limit);
+         COMPARE(adaptAdProb_, p_load->adaptAdProb_, e, limit);
+         COMPARE(minAdProb_, p_load->minAdProb_, e, limit);
+         COMPARE(maxAdProb_, p_load->maxAdProb_, e, limit);
+         COMPARE(adaptionMode_, p_load->adaptionMode_, e, limit);
+         COMPARE(adaptAdaptionProbability_, p_load->adaptAdaptionProbability_, e, limit);
+         COMPARE(adProb_reset_, p_load->adProb_reset_, e, limit);
+
+      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+         g.add("g_expectation_violation caught by GAdaptorT<T>");
+         throw g;
+      }
+	}
+
+	/***************************************************************************/
+	/**
 	 * Retrieves the id of the adaptor. Purely virtual, must be implemented by the
 	 * actual adaptors.
 	 *

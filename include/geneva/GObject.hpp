@@ -184,7 +184,14 @@ public:
       , const std::string&
       , const std::string&
       , const bool&
-	) const;
+	) const BASE;
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare(
+      const GObject& // the other object
+      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
+      , const double& // the limit for allowed deviations of floating point types
+	);
 
 	/** @brief Allows derived classes to assign other class'es values */
 	G_API_GENEVA const GObject& operator=(const GObject&);

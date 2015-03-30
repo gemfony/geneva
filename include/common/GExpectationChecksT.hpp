@@ -176,7 +176,7 @@ void compare(
    , const std::string& x_name
    , const std::string& y_name
    , const Gem::Common::expectation& e
-   , const double& limit = pow(10,-6)
+   , const double& limit = std::pow(10,-6)
    , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 ) {
    bool expectationMet = false;
@@ -333,7 +333,7 @@ void compare(
    , const std::string& x_name
    , const std::string& y_name
    , const Gem::Common::expectation& e
-   , const double& limit = pow(10,-6)
+   , const double& limit = std::pow(10,-6)
    , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 ) {
    bool expectationMet = false;
@@ -425,6 +425,14 @@ void compare(
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * This define facilitates calls to the checkExpectation() function
+ */
+#define COMPARE(x,y,e,l) Gem::Common::compare(x,y,std::string(#x),std::string(#y),e,l)
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * This function checks whether two "basic" types meet a given expectation. It assumes that x and y
  * understand the == and != operators. If x and y do not fulfill this requirement, you need to provide
  * a specialization of this function. A check for similarity is treated the same as a check for equality.
@@ -507,7 +515,7 @@ boost::optional<std::string> checkExpectation (
   , const std::string& x_name
   , const std::string& y_name
   , const Gem::Common::expectation& e
-  , const double& limit = pow(10,-10)
+  , const double& limit = std::pow(10,-10)
   , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 )
 {
@@ -780,7 +788,7 @@ boost::optional<std::string> checkExpectation (
   , const std::string& x_name
   , const std::string& y_name
   , const Gem::Common::expectation& e
-  , const double& limit = pow(10,-10)
+  , const double& limit = std::pow(10,-10)
   , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 )
 {
