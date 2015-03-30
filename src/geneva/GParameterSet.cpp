@@ -528,103 +528,11 @@ boost::shared_ptr<GParameterSet> GParameterSet::parameter_clone() const {
  * @return A boolean which indicates whether processing was done
  */
 bool GParameterSet::process(){
-   // Make sure GParameterBase objects are updated with our local random number generator
-   this->updateRNGs();
-
    this->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
-
-   // Restore the local random number generators in the individuals
-   this->restoreRNGs();
 
    // Let the audience know that we were successful
    return true;
 }
-
-/******************************************************************************/
-/**
- * Updates the random number generators contained in this object's GParameterBase-derivatives
- */
-void GParameterSet::updateRNGs() {
-	GParameterSet::iterator it;
-	for(it=this->begin(); it!=this->end(); ++it) {
-#ifdef DEBUG
-	   if(!(*it)) { // Does it point somewhere ?
-	      glogger
-	      << "In GParameterSet::updateRNGs(): Error!" << std::endl
-	      << "Found empty parameter object in position " << std::distance(this->begin(), it) << std::endl
-	      << GEXCEPTION;
-	   }
-#endif
-		(*it)->assignGRandomPointer(&(GMutableSetT<Gem::Geneva::GParameterBase>::gr));
-	}
-}
-
-/* ----------------------------------------------------------------------------------
- * - Assigning a random number generator is tested in GParameterSet::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Restores the local random number generators contained in this object's GParameterBase-derivatives
- */
-void GParameterSet::restoreRNGs() {
-	GParameterSet::iterator it;
-	for(it=this->begin(); it!=this->end(); ++it) {
-		(*it)->resetGRandomPointer();
-	}
-}
-
-/* ----------------------------------------------------------------------------------
- * - Restoring the random number generators is tested in GParameterSet::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Checks whether all GParameterBase derivatives use local random number generators. The function will return
- * false if at least one object is found in this collection that does not use a local RNG.
- *
- * @return A boolean which indicates whether all objects in this collection use local random number generators
- */
-bool GParameterSet::localRNGsUsed() const {
-	bool result = true;
-
-	GParameterSet::const_iterator it;
-	for(it=this->begin(); it!=this->end(); ++it) {
-		if(!(*it)->usesLocalRNG()) result = false;
-	}
-
-	return result;
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GParameterSet::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Checks whether all GParameterBase derivatives use the assigned random number generator. The function will return
- * false if at least one object is found in this collection that uses a local RNG.
- *
- * @return A boolean which indicates whether all objects in this collection use the assigned random number generator
- */
-bool GParameterSet::assignedRNGUsed() const {
-	bool result = true;
-
-	GParameterSet::const_iterator it;
-	for(it=this->begin(); it!=this->end(); ++it) {
-		if((*it)->usesLocalRNG()) result = false;
-	}
-
-	return result;
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GParameterSet::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
 
 /******************************************************************************/
 /**
@@ -992,21 +900,6 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 		// Attach a few other parameter types
 		p_test_0->push_back(boost::shared_ptr<GConstrainedInt32Object>(new GConstrainedInt32Object(7, -10, 10)));
 		p_test_0->push_back(boost::shared_ptr<GBooleanObject>(new GBooleanObject(true)));
-
-		//-----------------------------------------------------------------
-
-		{ // Test setting and resetting of the random number generator
-			// Create a GParameterSet object as a clone of p_test_0 for further usage
-			boost::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
-
-			// Distribute our own random number generator
-			BOOST_CHECK_NO_THROW(p_test->updateRNGs());
-			BOOST_CHECK(p_test->assignedRNGUsed() == true);
-
-			// Restore the original generators in all objects in the container
-			BOOST_CHECK_NO_THROW(p_test->restoreRNGs());
-			BOOST_CHECK(p_test->localRNGsUsed() == true);
-		}
 
 		//-----------------------------------------------------------------
 
@@ -1462,7 +1355,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 
       //-----------------------------------------------------------------
 
-      { // Test setting and resetting of the random number generator
+      { // Test counting of parameters
          // Create a GParameterSet object as a clone of p_test_0 for further usage
          boost::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
 

@@ -80,7 +80,10 @@ GBooleanObject::GBooleanObject(const bool& val)
  * @param prob The probability for the value "true"
  */
 GBooleanObject::GBooleanObject(const double& probability) {
-	this->setValue(gr->weighted_bool(probability));
+   using namespace Gem::Common;
+   using namespace Gem::Hap;
+
+	this->setValue(GObject::gr_ptr()->weighted_bool(probability));
 }
 
 // Tested in this file
@@ -187,7 +190,10 @@ void GBooleanObject::randomInit(const double& probability, const activityMode& a
  * Triggers random initialization of the parameter object
  */
 void GBooleanObject::randomInit_(const activityMode&) {
-	this->setValue(gr->uniform_bool());
+   using namespace Gem::Common;
+   using namespace Gem::Hap;
+
+	this->setValue(GObject::gr_ptr()->uniform_bool());
 }
 
 /* ----------------------------------------------------------------------------------
@@ -202,7 +208,10 @@ void GBooleanObject::randomInit_(const activityMode&) {
  * GBooleanObject::randomInit(const double& probability) function.
  */
 void GBooleanObject::randomInit_(const double& probability, const activityMode& am) {
-   this->setValue(gr->weighted_bool(probability));
+   using namespace Gem::Common;
+   using namespace Gem::Hap;
+
+   this->setValue(GObject::gr_ptr()->weighted_bool(probability));
 }
 
 /* ----------------------------------------------------------------------------------

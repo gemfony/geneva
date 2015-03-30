@@ -44,8 +44,6 @@ namespace Geneva {
 GParameterBase::GParameterBase()
 	: GObject()
 	, GMutableI()
-	, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>())
-	, gr(gr_local)
 	, adaptionsActive_(true)
 	, randomInitializationBlocked_(false)
 	, parameterName_(boost::lexical_cast<std::string>(boost::uuids::random_generator()()))
@@ -60,8 +58,6 @@ GParameterBase::GParameterBase()
 GParameterBase::GParameterBase(const GParameterBase& cp)
 	: GObject(cp)
 	, GMutableI(cp)
-	, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>()) // We do *not* copy cp's random number generator!
-	, gr(gr_local)
 	, adaptionsActive_(cp.adaptionsActive_)
 	, randomInitializationBlocked_(cp.randomInitializationBlocked_)
 	, parameterName_(cp.parameterName_)
@@ -72,9 +68,7 @@ GParameterBase::GParameterBase(const GParameterBase& cp)
  * The standard destructor. No local data, hence nothing to do.
  */
 GParameterBase::~GParameterBase()
-{
-	if(gr_local) delete gr_local;
-}
+{ /* nothing */ }
 
 /***************************************************************************/
 /**
@@ -344,76 +338,6 @@ bool GParameterBase::modifiableAmMatchOrHandover(const activityMode& am) const {
  */
 bool GParameterBase::isLeaf() const {
    return false;
-}
-
-/***********************************************************************************/
-/**
- * Assign a random number generator from another object.
- *
- * @param gr_cp A reference to another object's GRandomBase object derivative
- */
-void GParameterBase::assignGRandomPointer(Gem::Hap::GRandomBase *gr_cp) {
-		if(!gr_cp) {
-		   glogger
-		   << "In GParameterBase::assignGRandomPointer() :" << std::endl
-         << "Tried to assign NULL pointer" << std::endl
-         << GEXCEPTION;
-		}
-
-	gr = gr_cp;
-}
-
-/* -----------------------------------------------------------------------------
- * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
- * -----------------------------------------------------------------------------
- */
-
-/***********************************************************************************/
-/**
- * Re-connects the local random number generator to gr. Derived collection classes
- * may distribute this call to their sub-objects.
- */
-void GParameterBase::resetGRandomPointer() {
-	if(gr_local) gr = gr_local;
-	else {
-	   glogger
-	   << "In GParameterBase::resetGRandomPointer() :" << std::endl
-      << "Tried to assign NULL pointer" << std::endl
-      << GEXCEPTION;
-	}
-
-	gr = gr_local;
-}
-
-/* -----------------------------------------------------------------------------
- * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
- * -----------------------------------------------------------------------------
- */
-
-/***********************************************************************************/
-/**
- * Checks whether the local random number generator is used. This is simply done
- * by comparing the two pointers.
- *
- * @bool A boolean indicating whether the local random number generator is used
- */
-bool GParameterBase::usesLocalRNG() const {
-	return gr == gr_local;
-}
-
-/* -----------------------------------------------------------------------------
- * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
- * -----------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Checks whether the assigned random number generator is used throughout
- *
- * @return A boolean indicating whether the assigned random number generator is used
- */
-bool GParameterBase::assignedRNGUsed() const {
-	return gr != gr_local;
 }
 
 /******************************************************************************/
@@ -1296,7 +1220,7 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 
 	//---------------------------------------------------------------------
 
-	{ // Check adding and resetting of random number generators, adapt() and (de-)activation of adaptions
+	{ // Check adapt() and (de-)activation of adaptions
 		// Create two local clones
 		boost::shared_ptr<GParameterBase> p_test1 = this->clone<GParameterBase>();
 		boost::shared_ptr<GParameterBase> p_test2 = this->clone<GParameterBase>();
@@ -1309,53 +1233,7 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test1->adaptionsActive() == true);
 		BOOST_CHECK(p_test2->adaptionsActive() == true);
 
-		// A cloned adaptor should have a local random number generator, as it is default-constructed
-		BOOST_CHECK(p_test1->usesLocalRNG() == true);
-		BOOST_CHECK(p_test2->usesLocalRNG() == true);
-
-
-		// Check that we have adaption powers when using a local random number generator
-		if(p_test1->hasAdaptor()) {
-			for(std::size_t i=0; i<100; i++) {
-				BOOST_CHECK_NO_THROW(p_test1->adapt());
-				BOOST_CHECK(*p_test1 != *p_test2);
-				BOOST_CHECK_NO_THROW(p_test1->load(p_test2));
-				BOOST_CHECK(*p_test1 == *p_test2);
-			}
-		}
-
-		// Assign a factory generator
-		Gem::Hap::GRandomBase *gr_test = new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY>();
-
-		BOOST_CHECK_NO_THROW(p_test1->assignGRandomPointer(gr_test));
-		BOOST_CHECK_NO_THROW(p_test2->assignGRandomPointer(gr_test));
-
-		// Has the generator been assigned ?
-		BOOST_CHECK(p_test1->usesLocalRNG() == false);
-		BOOST_CHECK(p_test2->usesLocalRNG() == false);
-
-		// Check that we have adaption powers when using the new random number generator
-		if(p_test1->hasAdaptor()) {
-			for(std::size_t i=0; i<100; i++) {
-				BOOST_CHECK_NO_THROW(p_test1->adapt());
-				BOOST_CHECK(*p_test1 != *p_test2);
-				BOOST_CHECK_NO_THROW(p_test1->load(p_test2));
-				BOOST_CHECK(*p_test1 == *p_test2);
-			}
-		}
-
-		// Make sure we use the local generator again
-		BOOST_CHECK_NO_THROW(p_test1->resetGRandomPointer());
-		BOOST_CHECK_NO_THROW(p_test2->resetGRandomPointer());
-
-		// Get rid of the test generator
-		delete gr_test;
-
-		// We should now be using a local random number generator again
-		BOOST_CHECK(p_test1->usesLocalRNG() == true);
-		BOOST_CHECK(p_test2->usesLocalRNG() == true);
-
-		// Check that we have adaption powers when using the local random number generator again
+		// Check that we have adaption powers when using the random number generator
 		if(p_test1->hasAdaptor()) {
 			for(std::size_t i=0; i<100; i++) {
 				BOOST_CHECK_NO_THROW(p_test1->adapt());
@@ -1368,6 +1246,10 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 		// De-activate adaptions in both objects
 		BOOST_CHECK_NO_THROW(p_test1->setAdaptionsInactive());
 		BOOST_CHECK_NO_THROW(p_test2->setAdaptionsInactive());
+
+      // Check that adaptions are indeed inactive in both objects
+      BOOST_CHECK(p_test1->adaptionsActive() == false);
+      BOOST_CHECK(p_test2->adaptionsActive() == false);
 
 		// Check that adaptions do not occur anymore in p_test1
 		if(p_test1->hasAdaptor()) {
@@ -1396,30 +1278,8 @@ void GParameterBase::specificTestsFailuresExpected_GUnitTests() {
 
 	//---------------------------------------------------------------------------
 
-	{ // Check that assigning a NULL pointer for the random number generator throws
-		boost::shared_ptr<GParameterBase> p_test = this->clone<GParameterBase>();
+	{ // Some test
 
-		// Assigning a NULL pointer should throw
-		BOOST_CHECK_THROW(
-				p_test->assignGRandomPointer(NULL);
-				, Gem::Common::gemfony_error_condition
-		);
-	}
-
-	//---------------------------------------------------------------------------
-
-
-	{ // Check that resetting the random number generator throws if gr_local is NULL
-		boost::shared_ptr<GParameterBase> p_test = this->clone<GParameterBase>();
-
-		p_test->gr_local = NULL;
-
-		// Resetting the pointer should throw, if gr_local is NULL (which it technically
-		// should never be able to become
-		BOOST_CHECK_THROW(
-				p_test->resetGRandomPointer();
-				, Gem::Common::gemfony_error_condition
-		);
 	}
 
 	//---------------------------------------------------------------------------

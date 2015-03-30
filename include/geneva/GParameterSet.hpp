@@ -139,15 +139,6 @@ public:
    /** @brief Do the required processing for this object */
    virtual G_API_GENEVA bool process() OVERRIDE;
 
-	/** @brief Updates the random number generators contained in this object's GParameterBase-derivatives */
-	virtual G_API_GENEVA void updateRNGs() BASE;
-	/** @brief Restores the local random number generators contained in this object's GParameterBase-derivatives */
-	virtual G_API_GENEVA void restoreRNGs() BASE;
-	/** @brief Checks whether all GParameterBase derivatives use local random number generators */
-	virtual G_API_GENEVA bool localRNGsUsed() const BASE;
-	/** @brief Checks whether all GParameterBase derivatives use the assigned random number generator */
-	virtual G_API_GENEVA bool assignedRNGUsed() const BASE;
-
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) OVERRIDE;
 

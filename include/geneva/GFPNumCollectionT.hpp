@@ -103,7 +103,7 @@ public:
 		// Assign random values to each position
 		typename GFPNumCollectionT<fp_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			*it = this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(min,max);
+			*it = this->GObject::gr_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(min,max);
 		}
 	}
 
@@ -262,7 +262,7 @@ protected:
 
 		typename GFPNumCollectionT<fp_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)=this->GParameterBase::gr->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerBoundary, upperBoundary);
+			(*it)=this->GObject::gr_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerBoundary, upperBoundary);
 		}
 	}
 

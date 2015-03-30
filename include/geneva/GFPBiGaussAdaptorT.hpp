@@ -205,7 +205,7 @@ protected:
 			// adapt the value in situ. Note that this changes
 			// the argument of this function
 			value
-			+= range * tss_ptr<GRandom>()->bi_normal_distribution(
+			+= range * GObject::gr_ptr()->bi_normal_distribution(
             fp_type(0.)
             , GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_
             , GNumBiGaussAdaptorT<fp_type, fp_type>::delta_
@@ -214,7 +214,7 @@ protected:
 			// adapt the value in situ. Note that this changes
 			// the argument of this function
 			value
-			+= range * tss_ptr<GRandom>()->bi_normal_distribution(
+			+= range * GObject::gr_ptr()->bi_normal_distribution(
             fp_type(0.)
             , GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_
             , GNumBiGaussAdaptorT<fp_type, fp_type>::sigma2_

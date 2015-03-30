@@ -598,12 +598,12 @@ public:
 
 	   // Update the adaption probability, if requested by the user
 	   if(adaptAdProb_ > 0) {
-	      adProb_ *= gexp(tss_ptr<GRandom>()->normal_distribution(adaptAdProb_));
+	      adProb_ *= gexp(GObject::gr_ptr()->normal_distribution(adaptAdProb_));
 	      Gem::Common::enforceRangeConstraint<double>(adProb_, minAdProb_, maxAdProb_);
 	   }
 
 		if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case is indeterminate (means: "depends")
-			if(tss_ptr<GRandom>()->uniform_01<double>() <= adProb_) { // Should we perform adaption
+			if(GObject::gr_ptr()->GRandomBase::uniform_01<double>() <= adProb_) { // Should we perform adaption
 			   adaptAdaption(range);
 				customAdaptions(val, range);
 				adapted = true;
@@ -663,13 +663,13 @@ public:
 
       // Update the adaption probability, if requested by the user
       if(adaptAdProb_ > 0) {
-         adProb_ *= gexp(tss_ptr<GRandom>()->normal_distribution(adaptAdProb_));
+         adProb_ *= gexp(GObject::gr_ptr()->normal_distribution(adaptAdProb_));
          Gem::Common::enforceRangeConstraint<double>(adProb_, minAdProb_, maxAdProb_);
       }
 
       if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case is indeterminate (means: "depends")
          for (it = valVec.begin(); it != valVec.end(); ++it) {
-            if(tss_ptr<GRandom>()->uniform_01<double>() <= adProb_) { // Should we perform adaption ?
+            if(GObject::gr_ptr()->GRandomBase::uniform_01<double>() <= adProb_) { // Should we perform adaption ?
                adaptAdaption(range);
                customAdaptions(*it, range);
 
@@ -834,7 +834,7 @@ protected:
             customAdaptAdaption(range);
          }
       } else if(adaptAdaptionProbability_) { // Do the same with probability settings
-         if(tss_ptr<GRandom>()->uniform_01<double>() <= adaptAdaptionProbability_) {
+         if(GObject::gr_ptr()->GRandomBase::uniform_01<double>() <= adaptAdaptionProbability_) {
             customAdaptAdaption(range);
          }
       }

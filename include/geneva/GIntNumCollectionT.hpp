@@ -102,7 +102,7 @@ public:
 		// Fill the vector with random values
 		typename GIntNumCollectionT<int_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			*it = this->GParameterBase::gr->uniform_int(min,max);
+			*it = this->GObject::gr_ptr()->uniform_int(min,max);
 		}
 	}
 
@@ -256,7 +256,7 @@ protected:
 
 		typename GIntNumCollectionT<int_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)=this->GParameterBase::gr->uniform_int(lowerBoundary, upperBoundary);
+			(*it)=this->GObject::gr_ptr()->uniform_int(lowerBoundary, upperBoundary);
 		}
 	}
 

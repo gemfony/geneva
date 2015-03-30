@@ -241,113 +241,6 @@ public:
 		return false;
 	}
 
-	/***************************************************************************/
-	/**
-	 * Assigns a random number generator from another object to all objects stored in this
-	 * collection and to the object itself.
-	 *
-	 * @param gr_cp A reference to another object's GRandomBase object derivative
-	 */
-	virtual void assignGRandomPointer(Gem::Hap::GRandomBase *gr_cp) OVERRIDE {
-		// Do some error checking
-		if(!gr_cp) {
-		   glogger
-		   << "In GParameterTCollectionT<T>::assignGRandomPointer():" << std::endl
-         << "Tried to assign a NULL pointer" << std::endl
-         << GEXCEPTION;
-		}
-
-		// Assign the foreign pointer to all objects stored in this collection
-		typename GParameterTCollectionT<T>::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->assignGRandomPointer(gr_cp);
-		}
-
-		// Assign the foreign pointer to this object as well
-		GParameterBase::assignGRandomPointer(gr_cp);
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GParameterTCollectionT<T>::specificTestsNoFailureExpected_GUnitTests()
-	 * Throw tested in GParameterTCollectionT<T>::specificTestsFailuresExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Re-connects the local random number generator to gr and distributes the call
-	 * to all objects contained in this collection class.
-	 */
-	virtual void resetGRandomPointer() OVERRIDE {
-		// Reset all objects stored in this collection
-		typename GParameterTCollectionT<T>::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->resetGRandomPointer();
-		}
-
-		// Reset our parent class
-		GParameterBase::resetGRandomPointer();
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GParameterTCollectionT<T>::specificTestsNoFailureExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Checks whether solely the local random number generator is used. The function returns
-	 * false if at least one component of this class does not use a local random number
-	 * generator
-	 *
-	 * @bool A boolean indicating whether solely the local random number generator is used
-	 */
-	virtual bool usesLocalRNG() const OVERRIDE {
-		bool result = true;
-
-		// Check all components of this class
-		typename GParameterTCollectionT<T>::const_iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			if(!(*it)->usesLocalRNG()) result = false;
-		}
-
-		// Check our parent class
-		if(!GParameterBase::usesLocalRNG()) result = false;
-
-		return result;
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GParameterTCollectionT<T>::specificTestsNoFailureExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Checks whether all relevant objects use the assigned random number generator.
-	 *
-	 * @return A boolean indicating whether an assigned random number generator is used
-	 */
-	virtual bool assignedRNGUsed() const OVERRIDE {
-		bool result = true;
-
-		// Check all components of this class
-		typename GParameterTCollectionT<T>::const_iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			if(!(*it)->assignedRNGUsed()) result = false;
-		}
-
-		// Check our parent class
-		if(!GParameterBase::assignedRNGUsed()) result = false;
-
-		return result;
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GParameterTCollectionT<T>::specificTestsNoFailureExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
-
    /***************************************************************************/
    /**
     * Emits a name for this class / object
@@ -1337,31 +1230,6 @@ public:
 		GParameterBase::specificTestsNoFailureExpected_GUnitTests();
 		GStdPtrVectorInterfaceT<T>::specificTestsNoFailureExpected_GUnitTests();
 
-		//---------------------------------------------------------------------
-
-		{ // Check adding and resetting of random number generators
-			// Create two local clones
-			boost::shared_ptr<GParameterTCollectionT<T> > p_test1 = this->template clone<GParameterTCollectionT<T> >();
-
-			// Assign a factory generator
-			Gem::Hap::GRandomBase *gr_test = new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY>();
-			BOOST_CHECK_NO_THROW(p_test1->assignGRandomPointer(gr_test));
-
-			// Has the generator been assigned ?
-			BOOST_CHECK(p_test1->usesLocalRNG() == false);
-			BOOST_CHECK(p_test1->assignedRNGUsed() == true);
-
-			// Make sure we use the local generator again
-			BOOST_CHECK_NO_THROW(p_test1->resetGRandomPointer());
-
-			// Get rid of the test generator
-			delete gr_test;
-
-			// We should now be using a local random number generator again
-			BOOST_CHECK(p_test1->usesLocalRNG() == true);
-			BOOST_CHECK(p_test1->assignedRNGUsed() == false);
-		}
-
 		//------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
@@ -1381,14 +1249,8 @@ public:
 
 		//------------------------------------------------------------------------------
 
-		{ // Check that assigning a NULL pointer for the random number generator throws
-			boost::shared_ptr<GParameterTCollectionT<T> > p_test = this->template clone<GParameterTCollectionT<T> >();
+		{ // Some test
 
-			// Assigning a NULL pointer should throw
-			BOOST_CHECK_THROW(
-					p_test->assignGRandomPointer(NULL);
-					, Gem::Common::gemfony_error_condition
-			);
 		}
 
 		//------------------------------------------------------------------------------

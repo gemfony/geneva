@@ -79,6 +79,7 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/thread/xtime.hpp>
+#include <boost/thread/tss.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_io.hpp>
 #include <boost/type_traits.hpp>
@@ -130,6 +131,7 @@
 #include "common/GParserBuilder.hpp"
 #include "common/GSerializeTupleT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
+#include "hap/GRandomT.hpp"
 
 #ifdef GEM_TESTING
 #include "common/GUnitTestFrameworkT.hpp"
@@ -296,6 +298,18 @@ public:
 	   if(G_SIGHUP == signum) {
 	      GObject::GenevaSigHupSent = 1;
 	   }
+	}
+
+   /***************************************************************************/
+	/**
+	 * Central access to a random number generator through thread-local storage
+	 */
+	inline boost::thread_specific_ptr<Gem::Hap::GRandom>& gr_ptr() {
+	   static boost::thread_specific_ptr<Gem::Hap::GRandom> instance;
+	   if(!instance.get()) {
+	      instance.reset(new Gem::Hap::GRandom());
+	   }
+	   return instance;
 	}
 
 protected:

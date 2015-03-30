@@ -565,7 +565,7 @@ protected:
 
 	    // The following random distribution slightly favours values < 1. Selection pressure
 	    // will keep the values higher if needed
-	    sigma_ *= gexp(tss_ptr<GRandom>()->normal_distribution(gfabs(sigmaSigma_)));
+	    sigma_ *= gexp(GObject::gr_ptr()->normal_distribution(gfabs(sigmaSigma_)));
 
 		// make sure sigma_ doesn't get out of range
       Gem::Common::enforceRangeConstraint<fp_type>(sigma_, minSigma_, maxSigma_);
@@ -588,7 +588,7 @@ protected:
       using namespace Gem::Common;
       using namespace Gem::Hap;
 
-      sigma_ = tss_ptr<GRandom>()->template uniform_real<fp_type>(minSigma_, maxSigma_);
+      sigma_ = GObject::gr_ptr()->template uniform_real<fp_type>(minSigma_, maxSigma_);
    }
 
    /***************************************************************************/

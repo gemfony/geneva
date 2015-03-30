@@ -45,8 +45,8 @@ namespace Geneva {
  * by the parent class.
  */
 GBooleanCollection::GBooleanCollection()
-: GParameterCollectionT<bool>()
-  { /* nothing */ }
+   : GParameterCollectionT<bool>()
+{ /* nothing */ }
 
 // Tested in this class
 
@@ -57,8 +57,8 @@ GBooleanCollection::GBooleanCollection()
  * @param cp A copy of another GBooleanCollection object
  */
 GBooleanCollection::GBooleanCollection(const GBooleanCollection& cp)
-: GParameterCollectionT<bool>(cp)
-  { /* nothing */ }
+   : GParameterCollectionT<bool>(cp)
+{ /* nothing */ }
 
 // Tested in this class
 
@@ -69,10 +69,15 @@ GBooleanCollection::GBooleanCollection(const GBooleanCollection& cp)
  * @param nval The size of the collection
  */
 GBooleanCollection::GBooleanCollection(const std::size_t& nval)
-: GParameterCollectionT<bool>()
-  {
-   for(std::size_t i= 0; i<nval; i++) this->push_back(gr->uniform_bool());
-  }
+   : GParameterCollectionT<bool>()
+{
+   using namespace Gem::Common;
+   using namespace Gem::Hap;
+
+   for(std::size_t i= 0; i<nval; i++) {
+      this->push_back(GObject::gr_ptr()->uniform_bool());
+   }
+}
 
 // Tested in this class
 
@@ -84,8 +89,8 @@ GBooleanCollection::GBooleanCollection(const std::size_t& nval)
  * @param val  The value to be assigned to each position
  */
 GBooleanCollection::GBooleanCollection(const std::size_t& nval, const bool& val)
-: GParameterCollectionT<bool>(nval, val)
-  { /* nothing */ }
+   : GParameterCollectionT<bool>(nval, val)
+{ /* nothing */ }
 
 // Tested in this class
 
@@ -98,10 +103,15 @@ GBooleanCollection::GBooleanCollection(const std::size_t& nval, const bool& val)
  * @param probability The probability for true values in the collection
  */
 GBooleanCollection::GBooleanCollection(const std::size_t& nval, const double& probability)
-: GParameterCollectionT<bool>()
-  {
-   for(std::size_t i= 0; i<nval; i++) this->push_back(gr->weighted_bool(probability));
-  }
+   : GParameterCollectionT<bool>()
+{
+   using namespace Gem::Common;
+   using namespace Gem::Hap;
+
+   for(std::size_t i= 0; i<nval; i++) {
+      this->push_back(GObject::gr_ptr()->weighted_bool(probability));
+   }
+}
 
 // Tested in this class
 
@@ -154,8 +164,11 @@ void GBooleanCollection::load_(const GObject * cp){
  * that is added later will remain unaffected.
  */
 void GBooleanCollection::randomInit_(const activityMode&) {
+   using namespace Gem::Common;
+   using namespace Gem::Hap;
+
    for(std::size_t i=0; i<this->size(); i++) {
-      (*this)[i] = gr->uniform_bool();
+      (*this)[i] = GObject::gr_ptr()->uniform_bool();
    }
 }
 
@@ -166,6 +179,9 @@ void GBooleanCollection::randomInit_(const activityMode&) {
  * @param probability The probability for true values in the collection
  */
 void GBooleanCollection::randomInit_(const double& probability, const activityMode&) {
+   using namespace Gem::Common;
+   using namespace Gem::Hap;
+
    // Do some error checking
    if(probability<0. || probability>1.) {
       glogger
@@ -175,7 +191,7 @@ void GBooleanCollection::randomInit_(const double& probability, const activityMo
    }
 
    for(std::size_t i=0; i<this->size(); i++) {
-      (*this)[i] = gr->weighted_bool(probability);
+      (*this)[i] = GObject::gr_ptr()->weighted_bool(probability);
    }
 }
 

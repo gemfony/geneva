@@ -322,7 +322,7 @@ void GConstrainedDoubleObject::doubleMultiplyByRandom(
    GParameterT<double>::setValue(
       transfer(
          GParameterT<double>::value() *
-         this->GParameterBase::gr->uniform_real<double>(min, max)
+         this->GObject::gr_ptr()->uniform_real<double>(min, max)
       )
    );
 }
@@ -337,7 +337,7 @@ void GConstrainedDoubleObject::doubleMultiplyByRandom(
    GParameterT<double>::setValue(
       transfer(
          GParameterT<double>::value() *
-         this->GParameterBase::gr->uniform_01<double>()
+         this->GObject::gr_ptr()->uniform_01<double>()
       )
    );
 }

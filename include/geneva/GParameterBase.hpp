@@ -379,15 +379,6 @@ public:
    /** @brief Lets the audience know whether this is a leaf or a branch object */
    virtual G_API_GENEVA bool isLeaf() const BASE;
 
-	/** @brief Assigns a random number generator from another object. */
-	virtual G_API_GENEVA void assignGRandomPointer(Gem::Hap::GRandomBase *);
-	/** @brief Re-connects the local random number generator to gr */
-	virtual G_API_GENEVA void resetGRandomPointer();
-	/** @brief Checks whether the local random number generator is used */
-	virtual G_API_GENEVA bool usesLocalRNG() const;
-	/** @brief Checks whether the assigned random number generator is used throughout */
-	virtual G_API_GENEVA bool assignedRNGUsed() const;
-
 	/***************************************************************************/
 	/**
 	 * This function converts a GParameterBase boost::shared_ptr to the target type.  Note that this
@@ -421,15 +412,6 @@ public:
 
 
 protected:
-	/***************************************************************************/
-	/**
-     * A random number generator. This reference and the associated pointer is either
-     * connected to a local random number generator assigned in the constructor, or
-     * to a "factory" generator located in the surrounding GParameterSet object.
-     */
-	Gem::Hap::GRandomBase *gr_local;
-	Gem::Hap::GRandomBase *gr;
-
    /***************************************************************************/
    /** @brief Count the number of float parameters */
    virtual G_API_GENEVA std::size_t countFloatParameters(const activityMode& am) const BASE;

@@ -390,20 +390,6 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Check updating and restoring of RNGs
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
-
-		// Distribute our local generator to all objects
-		BOOST_CHECK_NO_THROW(p_test->updateRNGs());
-		BOOST_CHECK(p_test->localRNGsUsed() == false);
-
-		// Restore the local generators
-		BOOST_CHECK_NO_THROW(p_test->restoreRNGs());
-		BOOST_CHECK(p_test->localRNGsUsed() == true);
-	}
-
-	//------------------------------------------------------------------------------
-
 	{ // Check the effects of the process function in EA mode, using the "evaluate" call
 	   double currentFitness = 0.;
 		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();

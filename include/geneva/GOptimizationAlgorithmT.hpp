@@ -2227,15 +2227,8 @@ public:
  * optimizationInit() function instead.
  */
 template <>
-inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::init(){
-   // Tell all GParmaterSet-derivative in this collection to update their random number
-   // generators with the one contained in GMutableSetT. Note: This will only have an effect
-   // on GParameterSet objects, as this is an overload for GParameterSet objects only
-   GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::iterator it;
-   for(it=this->begin(); it!=this->end(); ++it) {
-      (*it)->updateRNGs();
-   }
-}
+inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::init()
+{ /* nothong */ }
 
 /******************************************************************************/
 /**
@@ -2300,14 +2293,8 @@ inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::addCleanStoredB
  * optimizationFinalize() function instead.
  */
 template <>
-inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::finalize() {
-   // Tell all individuals in this collection to tell all GParameterBase derivatives
-   // to again use their local generators.
-   GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::iterator it;
-   for(it=this->begin(); it!=this->end(); ++it) {
-      (*it)->restoreRNGs();
-   }
-}
+inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::finalize()
+{ /* nothing */ }
 
 /******************************************************************************/
 

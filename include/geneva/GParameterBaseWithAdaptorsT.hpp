@@ -318,77 +318,6 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Assigns a random number generator from another object to this object and any adaptor
-	 * contained herein.
-	 *
-	 * @param gr_cp A reference to another object's GRandomBaseT object derivative
-	 */
-	virtual void assignGRandomPointer(Gem::Hap::GRandomBase *gr_cp) {
-		GParameterBase::assignGRandomPointer(gr_cp);
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GParameterBaseWithAdaptorsT<T>::specificTestsNoFailureExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Re-connects the local random number generator to gr and tells the adaptor to do the same.
-	 */
-	virtual void resetGRandomPointer() {
-		GParameterBase::resetGRandomPointer();
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GParameterBaseWithAdaptorsT<T>::specificTestsNoFailureExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Checks whether the local random number generator is used in this class and in a
-	 * possible adaptor contained in this object. The result will be true only if both
-	 * this object and the adaptor (if available) contain a local random number generator.
-	 *
-	 * @bool A boolean indicating whether solely the local random number generator is used
-	 */
-	virtual bool usesLocalRNG() const {
-		bool result=true;
-
-		if(!GParameterBase::usesLocalRNG()) result=false;
-
-		return result;
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GParameterBaseWithAdaptorsT<T>::specificTestsNoFailureExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Checks whether a "foreign" random number generator is used in this class and in a
-	 * possible adaptor contained in this object. The result will be true only if both
-	 * this object and the adaptor (if available) use the foreign generator
-	 *
-	 * @bool A boolean indicating whether solely the foreign random number generator is used
-	 */
-	virtual bool assignedRNGUsed() const {
-		bool result=true;
-
-		if(!GParameterBase::assignedRNGUsed()) result=false;
-
-		return result;
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GParameterBaseWithAdaptorsT<T>::specificTestsNoFailureExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
 	 * Emits a name for this class / object
 	 */
 	virtual std::string name() const OVERRIDE {
@@ -586,35 +515,6 @@ public:
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterBase::specificTestsNoFailureExpected_GUnitTests();
-
-		//------------------------------------------------------------------------------
-
-		{ // Test assigning and resetting of random number generators in this object and any stored adaptor
-			boost::shared_ptr<GParameterBaseWithAdaptorsT<T> > p_test = this->clone<GParameterBaseWithAdaptorsT<T> >();
-
-			// Force this object and any stored adaptor to use the local generator
-			BOOST_CHECK_NO_THROW(p_test->resetGRandomPointer());
-
-			// Cross-check that the local generator is used
-			BOOST_CHECK(p_test->usesLocalRNG() == true);
-			// Also check the parent class and the adaptor individually
-			BOOST_CHECK(p_test->GParameterBase::usesLocalRNG() == true);
-
-			// Create and assign a "foreign" generator
-			Gem::Hap::GRandomBase *gr_test = new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY>();
-			BOOST_CHECK_NO_THROW(p_test->assignGRandomPointer(gr_test));
-
-			// Cross-check that the foreign generator is used
-			BOOST_CHECK(p_test->assignedRNGUsed() == true);
-			// Also check the parent class and the adaptor individually
-			BOOST_CHECK(p_test->GParameterBase::usesLocalRNG() == false);
-
-			// Clean up p_test before we remove the random number generator
-			p_test.reset();
-
-			// Get rid of the dynamically allocated memory
-			delete gr_test;
-		}
 
 		//------------------------------------------------------------------------------
 

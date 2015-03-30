@@ -318,7 +318,7 @@ void GDoubleObject::doubleMultiplyByRandom(
    , const activityMode& am
 ) {
    GParameterT<double>::setValue(
-      GParameterT<double>::value() * this->GParameterBase::gr->uniform_real<double>(min, max)
+      GParameterT<double>::value() * this->GObject::gr_ptr()->uniform_real<double>(min, max)
    );
 }
 
@@ -330,7 +330,7 @@ void GDoubleObject::doubleMultiplyByRandom(
    const activityMode& am
 ) {
    GParameterT<double>::setValue(
-      GParameterT<double>::value() * this->GParameterBase::gr->uniform_01<double>()
+      GParameterT<double>::value() * this->GObject::gr_ptr()->uniform_01<double>()
    );
 }
 
