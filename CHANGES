@@ -44,7 +44,9 @@ Important changes in the code (without API-changes):
  - Rework of the GRandomFactory / GRandomT-combo. In particular, "unused"
    random numbers are now recycled and given back to the random factory.
    The overhead of the creation of random packages should be reduced, as
-   the corresponding objects do not usually need to be re-allocated anymore. 
+   the corresponding objects do not usually need to be re-allocated anymore.
+ - Random numbers are now distributed to parameter objects and adaptors
+   via thread local storage
 
 Recommended version of Boost: 1.57; Minimum Boost version: 1.53.
 
