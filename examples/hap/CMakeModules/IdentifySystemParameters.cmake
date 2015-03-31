@@ -527,7 +527,7 @@ FUNCTION (
 		SET(FLAGS_LOCAL "${FLAGS_LOCAL} -fmessage-length=0 -fno-unsafe-math-optimizations -fno-finite-math-only -pthread")
 
 		# Gcc 4.4 or older does need a different option syntax
-		IF(${GENEVA_COMPILER_VERSION_IN} VERSION_GREATER 4.4)
+		IF(${GENEVA_COMPILER_VERSION_IN} VERSION_GREATER 4.5)
 			SET(FLAGS_LOCAL "${FLAGS_LOCAL} -ftemplate-depth=1024")
 		ELSE()
 			SET(FLAGS_LOCAL "${FLAGS_LOCAL} -ftemplate-depth-1024")
