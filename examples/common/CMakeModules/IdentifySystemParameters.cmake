@@ -524,7 +524,14 @@ FUNCTION (
 	#*****************************************************************
 	ELSEIF(GENEVA_COMPILER_NAME_IN MATCHES ${GNU_DEF_IDENTIFIER})
 
-		SET(FLAGS_LOCAL "${FLAGS_LOCAL} -fmessage-length=0 -fno-unsafe-math-optimizations -fno-finite-math-only -ftemplate-depth=1024 -pthread")
+		SET(FLAGS_LOCAL "${FLAGS_LOCAL} -fmessage-length=0 -fno-unsafe-math-optimizations -fno-finite-math-only -pthread")
+
+		# Gcc 4.4 or older does need a different option syntax
+		IF(${GENEVA_COMPILER_VERSION_IN} VERSION_GREATER 4.4)
+			SET(FLAGS_LOCAL "${FLAGS_LOCAL} -ftemplate-depth=1024")
+		ELSE()
+			SET(FLAGS_LOCAL "${FLAGS_LOCAL} -ftemplate-depth-1024")
+		ENDIF()
 
 		# GCC 4.8 on Cygwin does not provide the math constants (M_PI...) by
 		# default (pure ANSI standard), unless _XOPEN_SOURCE=500 is set, see
