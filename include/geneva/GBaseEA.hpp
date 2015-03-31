@@ -122,7 +122,7 @@ public:
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
-   ) OVERRIDE;
+   ) const OVERRIDE;
 
    /** @brief Returns information about the type of optimization algorithm */
    virtual G_API_GENEVA std::string getOptimizationAlgorithm() const OVERRIDE;

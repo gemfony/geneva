@@ -191,7 +191,7 @@ public:
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
-	);
+	) const BASE;
 
 	/** @brief Allows derived classes to assign other class'es values */
 	G_API_GENEVA const GObject& operator=(const GObject&);

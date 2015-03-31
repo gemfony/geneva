@@ -247,13 +247,13 @@ public:
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
 	boost::optional<std::string> checkRelationshipWith(
-			const GStdPtrVectorInterfaceT<T>& cp
-		  , const Gem::Common::expectation& e
-		  , const double& limit
-		  , const std::string& caller
-		  , const std::string& y_name
-		  , const bool& withMessages
-	) const	{
+     const GStdPtrVectorInterfaceT<T>& cp
+     , const Gem::Common::expectation& e
+     , const double& limit
+     , const std::string& caller
+     , const std::string& y_name
+     , const bool& withMessages
+	) const {
 	    using namespace Gem::Common;
 
 		// Will hold possible deviations from the expectation, including explanations
@@ -269,6 +269,32 @@ public:
 
 		return evaluateDiscrepancies(className, caller, deviations, e);
 	}
+
+   /***************************************************************************/
+   /**
+    * Searches for compliance with expectations with respect to another object
+    * of the same type
+    *
+    * @param cp A constant reference to another GObject object
+    * @param e The expected outcome of the comparison
+    * @param limit The maximum deviation for floating point values (important for similarity checks)
+    */
+   virtual void compare_base(
+      const GStdPtrVectorInterfaceT<T>& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+   ) const BASE {
+      using namespace Gem::Common;
+
+      try {
+         // ... and then our local data
+         COMPARE(this->data, cp.data, e, limit);
+
+      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+         g.add("g_expectation_violation caught by GStdPtrVectorInterfaceT<T>");
+         throw g;
+      }
+   }
 
 	/***************************************************************************/
 	// Typedefs

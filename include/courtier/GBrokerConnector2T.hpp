@@ -232,7 +232,7 @@ public:
       const GBaseExecutorT<processable_type>& cp_base
       , const Gem::Common::expectation& e
       , const double& limit
-   ) BASE {
+   ) const BASE {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with a GAdaptorT reference
@@ -780,7 +780,7 @@ public:
       const GBaseExecutorT<processable_type>& cp_base
       , const Gem::Common::expectation& e
       , const double& limit
-   ) OVERRIDE {
+   ) const OVERRIDE {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with a GAdaptorT reference
@@ -1032,7 +1032,7 @@ public:
       const GBaseExecutorT<processable_type>& cp_base
       , const Gem::Common::expectation& e
       , const double& limit
-   ) OVERRIDE {
+   ) const OVERRIDE {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with a GAdaptorT reference
@@ -1312,7 +1312,7 @@ public:
       const GBaseExecutorT<processable_type>& cp_base
       , const Gem::Common::expectation& e
       , const double& limit
-   ) OVERRIDE {
+   ) const OVERRIDE {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with a GAdaptorT reference

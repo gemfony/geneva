@@ -121,7 +121,7 @@ void GObject::compare(
    const GObject& cp
    , const Gem::Common::expectation& e
    , const double& limit
-) {
+) const {
    using namespace Gem::Common;
 
    // Check that cp isn't the same object as this one

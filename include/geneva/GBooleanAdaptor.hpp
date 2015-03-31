@@ -111,7 +111,7 @@ public:
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
-   ) OVERRIDE;
+   ) const OVERRIDE;
 
 	/** @brief Retrieves the id of this adaptor */
 	virtual G_API_GENEVA Gem::Geneva::adaptorId getAdaptorId() const OVERRIDE;

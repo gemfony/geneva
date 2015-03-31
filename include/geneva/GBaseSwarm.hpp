@@ -132,7 +132,7 @@ public:
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
-   ) OVERRIDE;
+   ) const OVERRIDE;
 
 	/** @brief Sets the number of neighborhoods and the number of members in them */
 	G_API_GENEVA void setSwarmSizes(std::size_t, std::size_t);

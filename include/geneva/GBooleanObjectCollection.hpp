@@ -107,7 +107,7 @@ public:
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
-   ) OVERRIDE;
+   ) const OVERRIDE;
 
    /** @brief Emits a name for this class / object */
    virtual G_API_GENEVA std::string name() const OVERRIDE;

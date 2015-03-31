@@ -187,7 +187,7 @@ void GBrokerSA::compare(
    const GObject& cp
    , const Gem::Common::expectation& e
    , const double& limit
-) {
+) const {
    using namespace Gem::Common;
 
    // Check that we are indeed dealing with a GBaseEA reference

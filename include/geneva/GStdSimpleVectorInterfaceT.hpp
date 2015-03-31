@@ -214,6 +214,32 @@ public:
 	}
 
    /***************************************************************************/
+   /**
+    * Searches for compliance with expectations with respect to another object
+    * of the same type
+    *
+    * @param cp A constant reference to another GObject object
+    * @param e The expected outcome of the comparison
+    * @param limit The maximum deviation for floating point values (important for similarity checks)
+    */
+   virtual void compare_base(
+      const GStdSimpleVectorInterfaceT<T>& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+   ) const BASE {
+      using namespace Gem::Common;
+
+      try {
+         // ... and then our local data
+         COMPARE(this->data, cp.data, e, limit);
+
+      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+         g.add("g_expectation_violation caught by GStdSimpleVectorInterfaceT<T>");
+         throw g;
+      }
+   }
+
+   /***************************************************************************/
 	// Typedefs
 	typedef typename std::vector<T>::value_type value_type;
 	typedef typename std::vector<T>::reference reference;
