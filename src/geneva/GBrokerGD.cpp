@@ -131,12 +131,12 @@ bool GBrokerGD::operator!=(const GBrokerGD& cp) const
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GBrokerGD::checkRelationshipWith(
-		const GObject& cp
-		, const Gem::Common::expectation& e
-		, const double& limit
-		, const std::string& caller
-		, const std::string& y_name
-		, const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
 	using namespace Gem::Common;
 	using namespace Gem::Courtier;
@@ -154,6 +154,38 @@ boost::optional<std::string> GBrokerGD::checkRelationshipWith(
 	// no local data
 
 	return evaluateDiscrepancies("GBrokerGD", caller, deviations, e);
+}
+
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GObject object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void GBrokerGD::compare(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+) {
+   using namespace Gem::Common;
+
+   // Check that we are indeed dealing with a GBaseEA reference
+   const GBrokerGD *p_load = GObject::gobject_conversion<GBrokerGD>(&cp);
+
+   try {
+      // Check our parent class'es data ...
+      GBaseGD::compare(cp, e, limit);
+      Gem::Courtier::GBrokerConnector2T<GParameterSet>::compare_common(*p_load, e, limit);
+
+      // ... no local data
+
+   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+      g.add("g_expectation_violation caught by GBrokerSA");
+      throw g;
+   }
 }
 
 /***********************************************************************************/

@@ -221,6 +221,40 @@ public:
 
    /***************************************************************************/
    /**
+    * Searches for compliance with expectations with respect to another object
+    * of the same type
+    *
+    * @param cp A constant reference to another GBaseExecutorT<processable_type> object
+    * @param e The expected outcome of the comparison
+    * @param limit The maximum deviation for floating point values (important for similarity checks)
+    */
+   virtual void compare_common(
+      const GBaseExecutorT<processable_type>& cp_base
+      , const Gem::Common::expectation& e
+      , const double& limit
+   ) BASE {
+      using namespace Gem::Common;
+
+      // Check that we are indeed dealing with a GAdaptorT reference
+      const GBaseExecutorT<processable_type>& cp = dynamic_cast<const GBaseExecutorT<processable_type>& >(cp_base);
+
+      try {
+         // No parent class
+         // ... and no local data
+      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+         g.add("g_expectation_violation caught by GBaseExecutorT<processable_type>");
+         throw g;
+      } catch(const std::bad_cast& exp) {
+         glogger
+         << "In GSerialExecutorT<processable_type>::checkRelationshipWith_common(): Conversion error!" << std::endl
+         << "with message: " << std::endl
+         << exp.what() << std::endl
+         << GEXCEPTION;
+      }
+   }
+
+   /***************************************************************************/
+   /**
     * Submits and retrieves a set of work items. You need to supply a vector
     * of booleans of the same length indicating which items need to be submitted.
     * "true" stands for "submit", "false" leads to the corresponding work items
@@ -701,8 +735,6 @@ public:
     * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
     */
-
-
    virtual boost::optional<std::string> checkRelationshipWith_common(
       const GBaseExecutorT<processable_type>& cp_base
       , const Gem::Common::expectation& e
@@ -733,6 +765,42 @@ public:
 
       // Make the compiler happy
       return boost::optional<std::string>();
+   }
+
+   /***************************************************************************/
+   /**
+    * Searches for compliance with expectations with respect to another object
+    * of the same type
+    *
+    * @param cp A constant reference to another GBaseExecutorT<processable_type> object
+    * @param e The expected outcome of the comparison
+    * @param limit The maximum deviation for floating point values (important for similarity checks)
+    */
+   virtual void compare_common(
+      const GBaseExecutorT<processable_type>& cp_base
+      , const Gem::Common::expectation& e
+      , const double& limit
+   ) OVERRIDE {
+      using namespace Gem::Common;
+
+      // Check that we are indeed dealing with a GAdaptorT reference
+      const GSerialExecutorT<processable_type>& cp = dynamic_cast<const GSerialExecutorT<processable_type>&>(cp_base);
+
+      try {
+         // Check our parent class
+         GBaseExecutorT<processable_type>::compare_common(cp,e,limit);
+
+         // ... no local data
+      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+         g.add("g_expectation_violation caught by GSerialExecutorT<processable_type>");
+         throw g;
+      } catch(const std::bad_cast& exp) {
+         glogger
+         << "In GSerialExecutorT<processable_type>::checkRelationshipWith_common(): Conversion error!" << std::endl
+         << "with message: " << std::endl
+         << exp.what() << std::endl
+         << GEXCEPTION;
+      }
    }
 
    /***************************************************************************/
@@ -949,6 +1017,42 @@ public:
 
       // Make the compiler happy
       return boost::optional<std::string>();
+   }
+
+   /***************************************************************************/
+   /**
+    * Searches for compliance with expectations with respect to another object
+    * of the same type
+    *
+    * @param cp A constant reference to another GBaseExecutorT<processable_type> object
+    * @param e The expected outcome of the comparison
+    * @param limit The maximum deviation for floating point values (important for similarity checks)
+    */
+   virtual void compare_common(
+      const GBaseExecutorT<processable_type>& cp_base
+      , const Gem::Common::expectation& e
+      , const double& limit
+   ) OVERRIDE {
+      using namespace Gem::Common;
+
+      // Check that we are indeed dealing with a GAdaptorT reference
+      const GMTExecutorT<processable_type>& cp = dynamic_cast<const GMTExecutorT<processable_type>&>(cp_base);
+
+      try {
+         // Check our parent class
+         GBaseExecutorT<processable_type>::compare_common(cp,e,limit);
+
+         // ... no local data
+      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+         g.add("g_expectation_violation caught by GMTExecutorT<processable_type>");
+         throw g;
+      } catch(const std::bad_cast& exp) {
+         glogger
+         << "In GMTExecutorT<processable_type>::checkRelationshipWith_common(): Conversion error!" << std::endl
+         << "with message: " << std::endl
+         << exp.what() << std::endl
+         << GEXCEPTION;
+      }
    }
 
    /***************************************************************************/
@@ -1193,6 +1297,47 @@ public:
 
       // Make the compiler happy
       return boost::optional<std::string>();
+   }
+
+   /***************************************************************************/
+   /**
+    * Searches for compliance with expectations with respect to another object
+    * of the same type
+    *
+    * @param cp A constant reference to another GBaseExecutorT<processable_type> object
+    * @param e The expected outcome of the comparison
+    * @param limit The maximum deviation for floating point values (important for similarity checks)
+    */
+   virtual void compare_common(
+      const GBaseExecutorT<processable_type>& cp_base
+      , const Gem::Common::expectation& e
+      , const double& limit
+   ) OVERRIDE {
+      using namespace Gem::Common;
+
+      // Check that we are indeed dealing with a GAdaptorT reference
+      const GBrokerConnector2T<processable_type>& cp = dynamic_cast<const GBrokerConnector2T<processable_type>&>(cp_base);
+
+      try {
+         // Check our parent class
+         GBaseExecutorT<processable_type>::compare_common(cp,e,limit);
+
+         // ... and then our local data
+         COMPARE(srm_, cp.srm_, e, limit);
+         COMPARE(maxResubmissions_, cp.maxResubmissions_, e, limit);
+         COMPARE(waitFactor_, cp.waitFactor_, e, limit);
+         COMPARE(doLogging_, cp.doLogging_, e, limit);
+
+      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+         g.add("g_expectation_violation caught by GGBrokerConnector2T<processable_type>");
+         throw g;
+      } catch(const std::bad_cast& exp) {
+         glogger
+         << "In GBrokerConnector2T<processable_type>::checkRelationshipWith_common(): Conversion error!" << std::endl
+         << "with message: " << std::endl
+         << exp.what() << std::endl
+         << GEXCEPTION;
+      }
    }
 
    /***************************************************************************/
