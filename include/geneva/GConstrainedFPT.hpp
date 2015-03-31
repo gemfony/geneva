@@ -237,6 +237,37 @@ public:
 		return evaluateDiscrepancies("GConstrainedFPT<fp_type>", caller, deviations, e);
 	}
 
+   /***************************************************************************/
+   /**
+    * Searches for compliance with expectations with respect to another object
+    * of the same type
+    *
+    * @param cp A constant reference to another GObject object
+    * @param e The expected outcome of the comparison
+    * @param limit The maximum deviation for floating point values (important for similarity checks)
+    */
+   virtual void compare(
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+   ) const OVERRIDE {
+      using namespace Gem::Common;
+
+      // Check that we are indeed dealing with a GConstrainedFPT<fp_type> reference
+      const GConstrainedFPT<fp_type>  *p_load = GObject::gobject_conversion<GConstrainedFPT<fp_type> >(&cp);
+
+      try {
+         // Check our parent class'es data ...
+         GConstrainedNumT<fp_type>::compare(cp, e, limit);
+
+         // ... no local data
+
+      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+         g.add("g_expectation_violation caught by GConstrainedFPT<fp_type>");
+         throw g;
+      }
+   }
+
 	/***************************************************************************/
 	/**
 	 * A standard assignment operator for T values.

@@ -267,6 +267,39 @@ public:
 		return evaluateDiscrepancies("GConstrainedNumCollectionT<num_type>", caller, deviations, e);
 	}
 
+   /***************************************************************************/
+   /**
+    * Searches for compliance with expectations with respect to another object
+    * of the same type
+    *
+    * @param cp A constant reference to another GObject object
+    * @param e The expected outcome of the comparison
+    * @param limit The maximum deviation for floating point values (important for similarity checks)
+    */
+   virtual void compare(
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+   ) const OVERRIDE {
+      using namespace Gem::Common;
+
+      // Check that we are indeed dealing with a GConstrainedNumCollectionT<num_type> reference
+      const GConstrainedNumCollectionT<num_type>  *p_load = GObject::gobject_conversion<GConstrainedNumCollectionT<num_type> >(&cp);
+
+      try {
+         // Check our parent class'es data ...
+         GParameterCollectionT<num_type>::compare(cp, e, limit);
+
+         // ... and then our local data
+         COMPARE(lowerBoundary_, p_load->lowerBoundary_, e, limit);
+         COMPARE(upperBoundary_, p_load->upperBoundary_, e, limit);
+
+      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+         g.add("g_expectation_violation caught by GParameterCollectionT<num_type>");
+         throw g;
+      }
+   }
+
 	/***************************************************************************/
     /**
      * Retrieves the lower boundary
