@@ -228,6 +228,42 @@ public:
 
    /***************************************************************************/
    /**
+    * Searches for compliance with expectations with respect to another object
+    * of the same type
+    *
+    * @param cp A constant reference to another GObject object
+    * @param e The expected outcome of the comparison
+    * @param limit The maximum deviation for floating point values (important for similarity checks)
+    */
+   virtual void compare(
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+   ) OVERRIDE {
+      using namespace Gem::Common;
+
+      // Check that we are indeed dealing with a GAdaptorT reference
+      const GBaseParChildT<ind_type> *p_load = GObject::gobject_conversion<GBaseParChildT<ind_type> >(&cp);
+
+      try {
+         // Check our parent class'es data ...
+         GOptimizationAlgorithmT<ind_type>::compare(cp, e, limit);
+
+         // ... and then our local data
+         COMPARE(nParents_, p_load->nParents_, e, limit);
+         COMPARE(recombinationMethod_, p_load->recombinationMethod_, e, limit);
+         COMPARE(defaultNChildren_, p_load->defaultNChildren_, e, limit);
+         COMPARE(maxPopulationSize_, p_load->maxPopulationSize_, e, limit);
+         COMPARE(growthRate_, p_load->growthRate_, e, limit);
+
+      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+         g.add("g_expectation_violation caught by GBaseParChildT<ind_type>");
+         throw g;
+      }
+   }
+
+   /***************************************************************************/
+   /**
     * Specifies the default size of the population plus the number of parents.
     * The population will be filled with additional individuals later, as required --
     * see GBaseParChildT<ind_type>::adjustPopulation() . Also, all error checking is done in

@@ -161,6 +161,40 @@ boost::optional<std::string> GBaseSA::checkRelationshipWith(
 
 /******************************************************************************/
 /**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GObject object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void GBaseSA::compare(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+) {
+   using namespace Gem::Common;
+
+   // Check that we are indeed dealing with a GBaseSA reference
+   const GBaseSA *p_load = GObject::gobject_conversion<GBaseSA>(&cp);
+
+   try {
+      // Check our parent class'es data ...
+      GParameterSetParChild::compare(cp, e, limit);
+
+      // ... and then our local data
+      COMPARE(t0_, p_load->t0_, e, limit);
+      COMPARE(t_, p_load->t_, e, limit);
+      COMPARE(alpha_, p_load->alpha_, e, limit);
+
+   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+      g.add("g_expectation_violation caught by GBaseSA");
+      throw g;
+   }
+}
+
+/******************************************************************************/
+/**
  * Emits a name for this class / object
  */
 std::string GBaseSA::name() const {

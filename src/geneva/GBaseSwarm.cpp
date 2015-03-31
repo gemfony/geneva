@@ -346,6 +346,59 @@ boost::optional<std::string> GBaseSwarm::checkRelationshipWith(
 
 /******************************************************************************/
 /**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GObject object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void GBaseSwarm::compare(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+) {
+   using namespace Gem::Common;
+
+   // Check that we are indeed dealing with a GBaseSwarm reference
+   const GBaseSwarm *p_load = GObject::gobject_conversion<GBaseSwarm>(&cp);
+
+   try {
+      // Check our parent class'es data ...
+      GOptimizationAlgorithmT<GParameterSet>::compare(cp, e, limit);
+
+      // ... and then our local data
+      COMPARE(nNeighborhoods_, p_load->nNeighborhoods_, e, limit);
+      COMPARE(defaultNNeighborhoodMembers_, p_load->defaultNNeighborhoodMembers_, e, limit);
+      COMPARE(global_best_, p_load->global_best_, e, limit);
+      COMPARE(c_personal_, p_load->c_personal_, e, limit);
+      COMPARE(c_neighborhood_, p_load->c_neighborhood_, e, limit);
+      COMPARE(c_global_, p_load->c_global_, e, limit);
+      COMPARE(c_velocity_, p_load->c_velocity_, e, limit);
+      COMPARE(updateRule_, p_load->updateRule_, e, limit);
+      COMPARE(randomFillUp_, p_load->randomFillUp_, e, limit);
+      COMPARE(repulsionThreshold_, p_load->repulsionThreshold_, e, limit);
+      COMPARE(dblLowerParameterBoundaries_, p_load->dblLowerParameterBoundaries_, e, limit);
+      COMPARE(dblUpperParameterBoundaries_, p_load->dblUpperParameterBoundaries_, e, limit);
+      COMPARE(dblVelVecMax_, p_load->dblVelVecMax_, e, limit);
+      COMPARE(velocityRangePercentage_, p_load->velocityRangePercentage_, e, limit);
+
+      // The next checks only makes sense if the number of neighborhoods are equal
+      if(nNeighborhoods_ == p_load->nNeighborhoods_) {
+         COMPARE(nNeighborhoodMembers_, p_load->nNeighborhoodMembers_, e, limit);
+         // No neighborhood bests have been assigned yet in iteration 0
+         if(afterFirstIteration()) {
+            COMPARE(neighborhood_bests_, p_load->neighborhood_bests_, e, limit);
+         }
+      }
+   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+      g.add("g_expectation_violation caught by GBaseSwarm");
+      throw g;
+   }
+}
+
+/******************************************************************************/
+/**
  * Emits a name for this class / object
  */
 std::string GBaseSwarm::name() const {

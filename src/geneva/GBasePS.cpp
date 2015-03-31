@@ -258,6 +258,43 @@ boost::optional<std::string> GBasePS::checkRelationshipWith(
    return evaluateDiscrepancies("GBasePS", caller, deviations, e);
 }
 
+
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GObject object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void GBasePS::compare(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+) {
+   using namespace Gem::Common;
+
+   // Check that we are indeed dealing with a GBasePS reference
+   const GBasePS *p_load = GObject::gobject_conversion<GBasePS>(&cp);
+
+   try {
+      // Check our parent class'es data ...
+      GOptimizationAlgorithmT<GParameterSet>::compare(cp, e, limit);
+
+      // ... and then our local data
+      COMPARE(cycleLogicHalt_, p_load->cycleLogicHalt_, e, limit);
+      COMPARE(scanRandomly_, p_load->scanRandomly_, e, limit);
+      COMPARE(nMonitorInds_, p_load->nMonitorInds_, e, limit);
+      COMPARE(simpleScanItems_, p_load->simpleScanItems_, e, limit);
+      COMPARE(scansPerformed_, p_load->scansPerformed_, e, limit);
+
+   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+      g.add("g_expectation_violation caught by GBasePS");
+      throw g;
+   }
+}
+
 /******************************************************************************/
 /**
  * Emits a name for this class / object

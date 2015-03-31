@@ -60,6 +60,73 @@ g_expectation_violation::~g_expectation_violation() throw()
 /**
  * This function checks whether two objects of type boost::logic::tribool meet a given expectation.
  *
+ * @param x The first vector to be compared
+ * @param y The second vector to be compared
+ * @param x_name The name of the first parameter
+ * @param y_name The name of the second parameter
+ * @param e The expectation both parameters need to fulfill
+ * @param limit The maximum allowed deviation of two floating point values
+ * @param dummy Boost::enable_if magic to steer overloaded resolution by the compiler
+ */
+G_API_COMMON
+void compare(
+   const boost::logic::tribool& x
+   , const boost::logic::tribool& y
+   , const std::string& x_name
+   , const std::string& y_name
+   , const Gem::Common::expectation& e
+   , const double& limit
+) {
+   bool expectationMet = false;
+   std::string expectation_str;
+
+   switch(e) {
+   case Gem::Common::CE_FP_SIMILARITY:
+   case Gem::Common::CE_EQUALITY:
+      expectation_str = "CE_FP_SIMILARITY / CE_EQUALITY";
+      if((x==true && y==true) ||
+         (x==false && y==false) ||
+         (boost::logic::indeterminate(x) && boost::logic::indeterminate(y))) {
+         expectationMet = true;
+      }
+      break;
+
+   case Gem::Common::CE_INEQUALITY:
+      expectation_str = "CE_INEQUALITY";
+      if(!(x==true && y==true) &&
+         !(x==false && y==false) &&
+         !(boost::logic::indeterminate(x) && boost::logic::indeterminate(y))) {
+         expectationMet = true;
+      }
+      break;
+
+   default:
+      {
+         glogger
+         << "In compare(/* 5 */): Got invalid expectation " << e << std::endl
+         << GEXCEPTION;
+      }
+      break;
+   };
+
+   if(!expectationMet) {
+      std::ostringstream error;
+      error
+      << "Expectation of " << expectation_str << " was violated for parameters " << std::endl
+      << "[" << std::endl
+      <<    x_name << " = " << x << std::endl
+      <<    y_name << " = " << y << std::endl
+      << "]" << std::endl;
+      throw g_expectation_violation(error.str());
+   }
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * This function checks whether two objects of type boost::logic::tribool meet a given expectation.
+ *
  * @param withMessages Specifies whether messages should be emitted in case of failed expectations
  * @param caller The name of the calling class
  * @param x The first tribool parameter to be compared

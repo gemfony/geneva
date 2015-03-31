@@ -121,12 +121,12 @@ bool GBaseParChildPersonalityTraits::operator!=(const GBaseParChildPersonalityTr
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GBaseParChildPersonalityTraits::checkRelationshipWith(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-      , const std::string& caller
-      , const std::string& y_name
-      , const bool& withMessages
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+   , const std::string& caller
+   , const std::string& y_name
+   , const bool& withMessages
 ) const {
     using namespace Gem::Common;
 
@@ -145,6 +145,40 @@ boost::optional<std::string> GBaseParChildPersonalityTraits::checkRelationshipWi
    deviations.push_back(checkExpectation(withMessages, "GBaseParChildPersonalityTraits", parentId_, p_load->parentId_, "parentId_", "p_load->parentId_", e , limit));
 
    return evaluateDiscrepancies("GBaseParChildPersonalityTraits", caller, deviations, e);
+}
+
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GObject object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void GBaseParChildPersonalityTraits::compare(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+) {
+   using namespace Gem::Common;
+
+   // Check that we are indeed dealing with a GBaseEA reference
+   const GBaseParChildPersonalityTraits *p_load = GObject::gobject_conversion<GBaseParChildPersonalityTraits>(&cp);
+
+   try {
+      // Check our parent class'es data ...
+      GObject::compare(cp, e, limit);
+
+      // ... and then our local data
+      COMPARE(parentCounter_, p_load->parentCounter_, e, limit);
+      COMPARE(popPos_, p_load->popPos_, e, limit);
+      COMPARE(parentId_, p_load->parentId_, e, limit);
+
+   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+      g.add("g_expectation_violation caught by GBaseParChildPersonalityTraits");
+      throw g;
+   }
 }
 
 /***********************************************************************************/
