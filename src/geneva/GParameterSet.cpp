@@ -606,8 +606,7 @@ void GParameterSet::addConfigurationOptions (
          , _1
         )
    )
-   << "The likelihood for two data items to be exchanged" << std::endl
-   << "Note that minimization is the by far most common option.";
+   << "The likelihood for two data items to be exchanged";
 }
 
 /******************************************************************************/
