@@ -95,6 +95,8 @@ public:
 
 	/** @brief Allows to add further information to the exception */
 	virtual G_API_COMMON void add(const std::string&) throw();
+   /** @brief Allows to add further informtion, automatically terminated through a '\n' */
+   G_API_COMMON gemfony_error_condition& operator()(const std::string&) throw();
 
 	/** @brief Emits information when thrown */
 	virtual G_API_COMMON const char* what() const throw();

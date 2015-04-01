@@ -90,6 +90,25 @@ void gemfony_error_condition::add(const std::string& newMessage) throw() {
 
 /******************************************************************************/
 /**
+ * Allows to add further informtion, automatically terminated by a '\n'.
+ * The intended use for this feature is catching and throwing exceptions in
+ * an easy way, e.g. in order to create a stack trace:
+ *
+ * try {
+ *   // some condition
+ * } catch(gemfony_error_condition& g) {
+ *    throw g()
+ * }
+ */
+gemfony_error_condition& gemfony_error_condition::operator()(
+   const std::string& s
+) throw() {
+   this->add(s + "\n");
+   return *this;
+}
+
+/******************************************************************************/
+/**
  * Emits information when thrown
  */
 const char* gemfony_error_condition::what() const throw() {

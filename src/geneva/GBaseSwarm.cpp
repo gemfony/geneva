@@ -1801,8 +1801,7 @@ void GBaseSwarm::GSwarmOptimizationMonitor::compare(
       COMPARE(resultFile_, p_load->resultFile_, e, limit);
 
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GBaseSwarm::GSwarmOptimizationMonitor");
-      throw g;
+      throw g("g_expectation_violation caught by GBaseSwarm::GSwarmOptimizationMonitor");
    }
 }
 

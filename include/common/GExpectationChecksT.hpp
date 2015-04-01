@@ -83,7 +83,7 @@ public:
    virtual G_API_COMMON ~g_expectation_violation() throw();
 
    /** @brief Allows to add further informtion, automatically terminated through a '\n' */
-   virtual G_API_COMMON g_expectation_violation& operator()(const std::string&) throw();
+   G_API_COMMON g_expectation_violation& operator()(const std::string&) throw();
 
 private:
    /** @brief The default constructor: Intentionally private and undefined */
