@@ -322,6 +322,44 @@ public:
 
    /***************************************************************************/
    /**
+    * Searches for compliance with expectations with respect to another object
+    * of the same type
+    *
+    * @param cp A constant reference to another GObject object
+    * @param e The expected outcome of the comparison
+    * @param limit The maximum deviation for floating point values (important for similarity checks)
+    */
+   virtual void compare(
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+   ) const OVERRIDE {
+      using namespace Gem::Common;
+
+      // Check that we are indeed dealing with a GAdaptorT reference
+      const GMetaOptimizerIndividualT<ind_type> *p_load
+               = gobject_conversion<GMetaOptimizerIndividualT<ind_type> >(&cp);
+
+      try {
+         // Check our parent class'es data ...
+         Gem::Geneva::GParameterSet::compare(cp, e, limit);
+
+         // ... and then our local data
+         COMPARE(nRunsPerOptimization_, p_load->nRunsPerOptimization_, e, limit);
+         COMPARE(fitnessTarget_, p_load->fitnessTarget_, e, limit);
+         COMPARE(iterationThreshold_, p_load->iterationThreshold_, e, limit);
+         COMPARE(moTarget_, p_load->moTarget_, e, limit);
+         COMPARE(subEA_config_, p_load->subEA_config_, e, limit);
+         COMPARE(subExecMode_, p_load->subExecMode_, e, limit);
+
+      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+         g.add("g_expectation_violation caught by GMetaOptimizerIndividualT<ind_type>");
+         throw g;
+      }
+   }
+
+   /***************************************************************************/
+   /**
     * Adds local configuration options to a GParserBuilder object
     *
     * @param gpb The GParserBuilder object to which configuration options should be added

@@ -160,6 +160,13 @@ struct trainingSet
       , const bool&
 	) const;
 
+   /** @brief Searches for compliance with expectations with respect to another object of the same type */
+   virtual G_API_GENEVA void compare(
+      const trainingSet& // the other object
+      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
+      , const double& // the limit for allowed deviations of floating point types
+   ) const;
+
 	/***************************************************************************/
 	// Local data
 
@@ -258,6 +265,13 @@ public:
       const std::string&,
       const std::string&,
       const bool&
+   ) const;
+
+   /** @brief Searches for compliance with expectations with respect to another object of the same type */
+   virtual G_API_GENEVA void compare(
+      const networkData& // the other object
+      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
+      , const double& // the limit for allowed deviations of floating point types
    ) const;
 
 	/** @brief Saves the data of this struct to disc */
@@ -428,6 +442,13 @@ public:
       , const std::string& y_name
       , const bool& withMessages
 	) const;
+
+   /** @brief Searches for compliance with expectations with respect to another object of the same type */
+   virtual G_API_GENEVA void compare(
+      const GObject& // the other object
+      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
+      , const double& // the limit for allowed deviations of floating point types
+   ) const OVERRIDE;
 
 	/** @brief Initialization according to user-specifications */
 	G_API_INDIVIDUALS void init(

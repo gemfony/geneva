@@ -155,6 +155,42 @@ boost::optional<std::string> GExternalEvaluatorIndividual::checkRelationshipWith
    return evaluateDiscrepancies("GExternalEvaluatorIndividual", caller, deviations, e);
 }
 
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GObject object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void GExternalEvaluatorIndividual::compare(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+) const {
+   using namespace Gem::Common;
+
+   // Check that we are indeed dealing with a GBaseEA reference
+   const GExternalEvaluatorIndividual *p_load = GObject::gobject_conversion<GExternalEvaluatorIndividual>(&cp);
+
+   try {
+      // Check our parent class'es data ...
+      GParameterSet::compare(cp, e, limit);
+
+      // ... and then our local data
+      COMPARE(programName_, p_load->programName_, e, limit);
+      COMPARE(customOptions_, p_load->customOptions_, e, limit);
+      COMPARE(parameterFileBaseName_, p_load->parameterFileBaseName_, e, limit);
+      COMPARE(nResults_, p_load->nResults_, e, limit);
+      COMPARE(runID_, p_load->runID_, e, limit);
+      COMPARE(removeExecTemporaries_, p_load->removeExecTemporaries_, e, limit);
+
+   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+      g.add("g_expectation_violation caught by GExternalEvaluatorIndividual");
+      throw g;
+   }
+}
 
 /******************************************************************************/
 /**

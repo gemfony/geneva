@@ -187,6 +187,13 @@ class GExternalEvaluatorIndividual :public GParameterSet
       , const bool&
    ) const;
 
+   /** @brief Searches for compliance with expectations with respect to another object of the same type */
+   virtual G_API_GENEVA void compare(
+      const GObject& // the other object
+      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
+      , const double& // the limit for allowed deviations of floating point types
+   ) const OVERRIDE;
+
    /** @brief Sets the name of the external evaluation program */
    void setProgramName(const std::string&);
    /** @brief Retrieves the name of the external evaluation program */

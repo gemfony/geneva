@@ -147,6 +147,38 @@ boost::optional<std::string> GDoubleSumConstraint::checkRelationshipWith(
 
 /******************************************************************************/
 /**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GObject object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void GDoubleSumConstraint::compare(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+) const {
+   using namespace Gem::Common;
+
+   // Check that we are indeed dealing with a GBaseEA reference
+   const GDoubleSumConstraint *p_load = GObject::gobject_conversion<GDoubleSumConstraint>(&cp);
+
+   try {
+      // Check our parent class'es data ...
+      GParameterSetConstraint::compare(cp, e, limit);
+
+      // ... and then our local data
+      COMPARE(C_, p_load->C_, e, limit);
+
+   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+      g.add("g_expectation_violation caught by GDoubleSumConstraint");
+      throw g;
+   }
+}
+
+/******************************************************************************/
+/**
  * Adds local configuration options to a GParserBuilder object
  */
 void GDoubleSumConstraint::addConfigurationOptions(
@@ -311,6 +343,38 @@ boost::optional<std::string> GDoubleSumGapConstraint::checkRelationshipWith(
 
 /******************************************************************************/
 /**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GObject object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void GDoubleSumGapConstraint::compare(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+) const {
+   using namespace Gem::Common;
+
+   // Check that we are indeed dealing with a GBaseEA reference
+   const GDoubleSumGapConstraint *p_load = GObject::gobject_conversion<GDoubleSumGapConstraint>(&cp);
+
+   try {
+      // Check our parent class'es data ...
+      GParameterSetConstraint::compare(cp, e, limit);
+
+      // ... and then our local data
+      COMPARE(C_, p_load->C_, e, limit);
+
+   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+      g.add("g_expectation_violation caught by GDoubleSumGapConstraint");
+      throw g;
+   }
+}
+
+/******************************************************************************/
+/**
  * Adds local configuration options to a GParserBuilder object
  */
 void GDoubleSumGapConstraint::addConfigurationOptions(
@@ -469,6 +533,38 @@ boost::optional<std::string> GSphereConstraint::checkRelationshipWith(
    deviations.push_back(checkExpectation(withMessages, "GSphereConstraint", diameter_, p_load->diameter_, "diameter_", "p_load->diameter_", e , limit));
 
    return evaluateDiscrepancies("GSphereConstraint", caller, deviations, e);
+}
+
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GObject object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void GSphereConstraint::compare(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+) const {
+   using namespace Gem::Common;
+
+   // Check that we are indeed dealing with a GBaseEA reference
+   const GSphereConstraint *p_load = GObject::gobject_conversion<GSphereConstraint>(&cp);
+
+   try {
+      // Check our parent class'es data ...
+      GParameterSetConstraint::compare(cp, e, limit);
+
+      // ... and then our local data
+      COMPARE(diameter_, p_load->diameter_, e, limit);
+
+   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+      g.add("g_expectation_violation caught by GSphereConstraint");
+      throw g;
+   }
 }
 
 /******************************************************************************/
@@ -749,6 +845,38 @@ boost::optional<std::string> GFunctionIndividual::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "GFunctionIndividual", demoFunction_, p_load->demoFunction_, "demoFunction_", "p_load->demoFunction_", e , limit));
 
 	return evaluateDiscrepancies("GFunctionIndividual", caller, deviations, e);
+}
+
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GObject object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void GFunctionIndividual::compare(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+) const {
+   using namespace Gem::Common;
+
+   // Check that we are indeed dealing with a GBaseEA reference
+   const GFunctionIndividual *p_load = GObject::gobject_conversion<GFunctionIndividual>(&cp);
+
+   try {
+      // Check our parent class'es data ...
+      GParameterSet::compare(cp, e, limit);
+
+      // ... and then our local data
+      COMPARE(demoFunction_, p_load->demoFunction_, e, limit);
+
+   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+      g.add("g_expectation_violation caught by GFunctionIndividual");
+      throw g;
+   }
 }
 
 /******************************************************************************/

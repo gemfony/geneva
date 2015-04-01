@@ -201,6 +201,38 @@ boost::optional<std::string> GTestIndividual3::checkRelationshipWith(const GObje
 
 /******************************************************************************/
 /**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GObject object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void GTestIndividual3::compare(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+) const {
+   using namespace Gem::Common;
+   using namespace Gem::Geneva;
+
+   // Check that we are indeed dealing with a GBaseEA reference
+   const GTestIndividual3 *p_load = GObject::gobject_conversion<GTestIndividual3>(&cp);
+
+   try {
+      // Check our parent class'es data ...
+      GParameterSet::compare(cp, e, limit);
+
+      // ... no local data
+
+   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+      g.add("g_expectation_violation caught by GTestIndividual3");
+      throw g;
+   }
+}
+
+/******************************************************************************/
+/**
  * Loads the data of another GTestIndividual3, camouflaged as a GObject.
  *
  * @param cp A copy of another GTestIndividual3, camouflaged as a GObject

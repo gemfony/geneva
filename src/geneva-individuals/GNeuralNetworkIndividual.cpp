@@ -203,6 +203,39 @@ boost::optional<std::string> trainingSet::checkRelationshipWith(
 	return evaluateDiscrepancies("trainingSet", caller, deviations, e);
 }
 
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GObject object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void trainingSet::compare(
+   const trainingSet& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+) const {
+   using namespace Gem::Common;
+
+   try {
+      // check our local data
+      COMPARE(nInputNodes, cp.nInputNodes, e, limit);
+      COMPARE(nOutputNodes, cp.nOutputNodes, e, limit);
+
+      for(std::size_t i=0; i<nInputNodes; i++) {
+	COMPARE(Input[i], cp.Input[i], e, limit);
+      }
+
+      for(std::size_t i=0; i<nInputNodes; i++) {
+	COMPARE(Output[i], cp.Output[i], e, limit);
+      }
+   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+      g.add("g_expectation_violation caught by GLineFitIndividual");
+      throw g;
+   }
+}
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -355,6 +388,38 @@ boost::optional<std::string> networkData::checkRelationshipWith(
    }
 
    return evaluateDiscrepancies("networkData", caller, deviations, e);
+}
+
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another networkData object object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void networkData::compare(
+   const networkData& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+) const {
+   using namespace Gem::Common;
+
+   try {
+      // Check our parent class'es data ...
+      GStdSimpleVectorInterfaceT<std::size_t>::compare_base(cp, e, limit);
+
+      // ... and then our local data
+      COMPARE(arraySize_, cp.arraySize_, e, limit);
+      for(std::size_t i=0; i<arraySize_; i++) {
+	data_[i]->compare(*(cp.data_[i]), e, limit);
+      }
+
+   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+      g.add("g_expectation_violation caught by GLineFitIndividual");
+      throw g;
+   }
 }
 
 /******************************************************************************/
@@ -844,6 +909,38 @@ boost::optional<std::string> GNeuralNetworkIndividual::checkRelationshipWith(
     deviations.push_back(checkExpectation(withMessages, "GNeuralNetworkIndividual", tF_, p_load->tF_, "tF_", "p_load->tF_", e , limit));
 
    return evaluateDiscrepancies("GNeuralNetworkIndividual", caller, deviations, e);
+}
+
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GObject object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void GNeuralNetworkIndividual::compare(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+) const {
+   using namespace Gem::Common;
+
+   // Check that we are indeed dealing with a GBaseEA reference
+   const GNeuralNetworkIndividual *p_load = GObject::gobject_conversion<GNeuralNetworkIndividual>(&cp);
+
+   try {
+      // Check our parent class'es data ...
+      GParameterSet::compare(cp, e, limit);
+
+      // ... and then our local data
+      COMPARE(tF_, p_load->tF_, e, limit);
+
+   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+      g.add("g_expectation_violation caught by GNeuralNetworkIndividual");
+      throw g;
+   }
 }
 
 /******************************************************************************/
