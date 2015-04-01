@@ -96,6 +96,13 @@ public:
       , const bool&
 	) const OVERRIDE;
 
+   /** @brief Searches for compliance with expectations with respect to another object of the same type */
+   virtual G_API_GENEVA void compare(
+      const GObject& // the other object
+      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
+      , const double& // the limit for allowed deviations of floating point types
+   ) const OVERRIDE;
+
 	/** @brief Sets the position of the individual in the population */
 	G_API_GENEVA void setPopulationPosition(const std::size_t&) ;
 	/** @brief Retrieves the position of the individual in the population */

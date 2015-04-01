@@ -375,6 +375,13 @@ public:
          , const bool&
       ) const OVERRIDE;
 
+      /** @brief Searches for compliance with expectations with respect to another object of the same type */
+      virtual G_API_GENEVA void compare(
+         const GObject& // the other object
+         , const Gem::Common::expectation& // the expectation for this object, e.g. equality
+         , const double& // the limit for allowed deviations of floating point types
+      ) const OVERRIDE;
+
       /** @brief Allows to set the name of the result file */
       G_API_GENEVA void setCSVResultFileName(const std::string&);
       /** @brief Allows to retrieve the name of the result file */

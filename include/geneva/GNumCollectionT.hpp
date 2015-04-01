@@ -232,6 +232,39 @@ public:
 		return evaluateDiscrepancies("GNumCollectionT<T>", caller, deviations, e);
 	}
 
+   /***************************************************************************/
+   /**
+    * Searches for compliance with expectations with respect to another object
+    * of the same type
+    *
+    * @param cp A constant reference to another GObject object
+    * @param e The expected outcome of the comparison
+    * @param limit The maximum deviation for floating point values (important for similarity checks)
+    */
+   virtual void compare(
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+   ) const OVERRIDE {
+      using namespace Gem::Common;
+
+      // Check that we are indeed dealing with a GAdaptorT reference
+      const GNumCollectionT<T>  *p_load = GObject::gobject_conversion<GNumCollectionT<T> >(&cp);
+
+      try {
+         // Check our parent class'es data ...
+         GParameterCollectionT<T>::compare(cp, e, limit);
+
+         // ... and then our local data
+         COMPARE(lowerInitBoundary_, p_load->lowerInitBoundary_, e, limit);
+         COMPARE(upperInitBoundary_, p_load->upperInitBoundary_, e, limit);
+
+      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+         g.add("g_expectation_violation caught by GNumCollectionT<T>");
+         throw g;
+      }
+   }
+
 	/***************************************************************************/
 	/**
 	 * Sets the initialization boundaries

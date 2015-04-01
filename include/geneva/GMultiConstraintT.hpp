@@ -175,6 +175,38 @@ public:
 
    /***************************************************************************/
    /**
+    * Searches for compliance with expectations with respect to another object
+    * of the same type
+    *
+    * @param cp A constant reference to another GObject object
+    * @param e The expected outcome of the comparison
+    * @param limit The maximum deviation for floating point values (important for similarity checks)
+    */
+   virtual void compare(
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+   ) const OVERRIDE {
+      using namespace Gem::Common;
+
+      // Check that we are indeed dealing with a GAdaptorT reference
+      const GPreEvaluationValidityCheckT<ind_type> *p_load = GObject::gobject_conversion<GPreEvaluationValidityCheckT<ind_type> >(&cp);
+
+      try {
+         // Check our parent class'es data ...
+         GObject::compare(cp, e, limit);
+
+         // ... and then our local data
+         COMPARE(allowNegative_, p_load->allowNegative_, e, limit);
+
+      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+         g.add("g_expectation_violation caught by GPreEvaluationValidityCheckT<ind_type>");
+         throw g;
+      }
+   }
+
+   /***************************************************************************/
+   /**
     * Adds local configuration options to a GParserBuilder object
     *
     * TODO: Check whether it makes sense to provide custom configuration files -- if so, add allowNegative_ here
@@ -442,6 +474,38 @@ public:
 
    /***************************************************************************/
    /**
+    * Searches for compliance with expectations with respect to another object
+    * of the same type
+    *
+    * @param cp A constant reference to another GObject object
+    * @param e The expected outcome of the comparison
+    * @param limit The maximum deviation for floating point values (important for similarity checks)
+    */
+   virtual void compare(
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+   ) const OVERRIDE {
+      using namespace Gem::Common;
+
+      // Check that we are indeed dealing with a GAdaptorT reference
+      const GValidityCheckContainerT<ind_type> *p_load = GObject::gobject_conversion<GValidityCheckContainerT<ind_type> >(&cp);
+
+      try {
+         // Check our parent class'es data ...
+         GPreEvaluationValidityCheckT<ind_type>::compare(cp, e, limit);
+
+         // ... and then our local data
+         COMPARE(validityChecks_, p_load->validityChecks_, e, limit);
+
+      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+         g.add("g_expectation_violation caught by GValidityCheckContainerT<ind_type>");
+         throw g;
+      }
+   }
+
+   /***************************************************************************/
+   /**
     * Adds a validity check to this object. Note that we clone the check so
     * that it can be used multiple times.
     */
@@ -610,6 +674,38 @@ public:
       deviations.push_back(checkExpectation(withMessages, "GCheckCombinerT<ind_type>", combinerPolicy_, p_load->combinerPolicy_, "combinerPolicy_", "p_load->combinerPolicy_", e , limit));
 
       return evaluateDiscrepancies("GCheckCombinerT<ind_type>", caller, deviations, e);
+   }
+
+   /***************************************************************************/
+   /**
+    * Searches for compliance with expectations with respect to another object
+    * of the same type
+    *
+    * @param cp A constant reference to another GObject object
+    * @param e The expected outcome of the comparison
+    * @param limit The maximum deviation for floating point values (important for similarity checks)
+    */
+   virtual void compare(
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+   ) const OVERRIDE {
+      using namespace Gem::Common;
+
+      // Check that we are indeed dealing with a GAdaptorT reference
+      const GCheckCombinerT<ind_type> *p_load = GObject::gobject_conversion<GCheckCombinerT<ind_type> >(&cp);
+
+      try {
+         // Check our parent class'es data ...
+         GValidityCheckContainerT<ind_type>::compare(cp, e, limit);
+
+         // ... and then our local data
+         COMPARE(combinerPolicy_, p_load->combinerPolicy_, e, limit);
+
+      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+         g.add("g_expectation_violation caught by GCheckCombinerT<ind_type>");
+         throw g;
+      }
    }
 
    /***************************************************************************/

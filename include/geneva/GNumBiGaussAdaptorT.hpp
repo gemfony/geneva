@@ -252,6 +252,50 @@ public:
 		return evaluateDiscrepancies("GNumBiGaussAdaptorT<num_type, fp_type>", caller, deviations, e);
 	}
 
+   /***************************************************************************/
+   /**
+    * Searches for compliance with expectations with respect to another object
+    * of the same type
+    *
+    * @param cp A constant reference to another GObject object
+    * @param e The expected outcome of the comparison
+    * @param limit The maximum deviation for floating point values (important for similarity checks)
+    */
+   virtual void compare(
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+   ) const OVERRIDE {
+      using namespace Gem::Common;
+
+      // Check that we are indeed dealing with a GAdaptorT reference
+      const GNumBiGaussAdaptorT<num_type, fp_type>  *p_load = GObject::gobject_conversion<GNumBiGaussAdaptorT<num_type, fp_type> >(&cp);
+
+      try {
+         // Check our parent class'es data ...
+         GAdaptorT<num_type>::compare(cp, e, limit);
+
+         // ... and then our local data
+         COMPARE(useSymmetricSigmas_, p_load->useSymmetricSigmas_, e, limit);
+         COMPARE(sigma1_, p_load->sigma1_, e, limit);
+         COMPARE(sigmaSigma1_, p_load->sigmaSigma1_, e, limit);
+         COMPARE(minSigma1_, p_load->minSigma1_, e, limit);
+         COMPARE(maxSigma1_, p_load->maxSigma1_, e, limit);
+         COMPARE(sigma2_, p_load->sigma2_, e, limit);
+         COMPARE(sigmaSigma2_, p_load->sigmaSigma2_, e, limit);
+         COMPARE(minSigma2_, p_load->minSigma2_, e, limit);
+         COMPARE(maxSigma2_, p_load->maxSigma2_, e, limit);
+         COMPARE(delta_, p_load->delta_, e, limit);
+         COMPARE(sigmaDelta_, p_load->sigmaDelta_, e, limit);
+         COMPARE(minDelta_, p_load->minDelta_, e, limit);
+         COMPARE(maxDelta_, p_load->maxDelta_, e, limit);
+
+      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+         g.add("g_expectation_violation caught by GNumBiGaussAdaptorT<num_type, fp_type>");
+         throw g;
+      }
+   }
+
 	/***************************************************************************/
 	/**
 	 * Determines whether the two sigmas of the double-gaussian should be identical

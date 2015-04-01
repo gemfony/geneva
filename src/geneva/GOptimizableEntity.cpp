@@ -207,6 +207,56 @@ boost::optional<std::string> GOptimizableEntity::checkRelationshipWith(
 
 /******************************************************************************/
 /**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GObject object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void GOptimizableEntity::compare(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+) const {
+   using namespace Gem::Common;
+
+   // Check that we are indeed dealing with a GBaseEA reference
+   const GOptimizableEntity *p_load = GObject::gobject_conversion<GOptimizableEntity>(&cp);
+
+   try {
+      // Check our parent class'es data ...
+      GObject::compare(cp, e, limit);
+
+      // ... and then our local data
+      COMPARE(nFitnessCriteria_, p_load->nFitnessCriteria_, e, limit);
+      COMPARE(currentFitnessVec_, p_load->currentFitnessVec_, e, limit);
+      COMPARE(worstKnownValids_, p_load->worstKnownValids_, e, limit);
+      COMPARE(markedAsInvalidByUser_, p_load->markedAsInvalidByUser_, e, limit);
+      COMPARE(bestPastPrimaryFitness_, p_load->bestPastPrimaryFitness_, e, limit);
+      COMPARE(nStalls_, p_load->nStalls_, e, limit);
+      COMPARE(dirtyFlag_, p_load->dirtyFlag_, e, limit);
+      COMPARE(maximize_, p_load->maximize_, e, limit);
+      COMPARE(assignedIteration_, p_load->assignedIteration_, e, limit);
+      COMPARE(validityLevel_, p_load->validityLevel_, e, limit);
+      COMPARE(evalPolicy_, p_load->evalPolicy_, e, limit);
+      COMPARE(pt_ptr_, p_load->pt_ptr_, e, limit);
+      COMPARE(individualConstraint_, p_load->individualConstraint_, e, limit);
+      COMPARE(steepness_, p_load->steepness_, e, limit);
+      COMPARE(barrier_, p_load->barrier_, e, limit);
+      COMPARE(maxUnsuccessfulAdaptions_, p_load->maxUnsuccessfulAdaptions_, e, limit);
+      COMPARE(maxRetriesUntilValid_, p_load->maxRetriesUntilValid_, e, limit);
+      COMPARE(nAdaptions_, p_load->nAdaptions_, e, limit);
+      COMPARE(evaluationID_, p_load->evaluationID_, e, limit);
+
+   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+      g.add("g_expectation_violation caught by GOptimizableEntity");
+      throw g;
+   }
+}
+
+/******************************************************************************/
+/**
  * Emits a name for this class / object
  */
 std::string GOptimizableEntity::name() const {

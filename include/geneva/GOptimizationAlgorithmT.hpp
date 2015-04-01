@@ -417,6 +417,60 @@ public:
 	   return evaluateDiscrepancies("GOptimizationAlgorithmT<ind_type>", caller, deviations, e);
 	}
 
+   /***************************************************************************/
+   /**
+    * Searches for compliance with expectations with respect to another object
+    * of the same type
+    *
+    * @param cp A constant reference to another GObject object
+    * @param e The expected outcome of the comparison
+    * @param limit The maximum deviation for floating point values (important for similarity checks)
+    */
+   virtual void compare(
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+   ) const OVERRIDE {
+      using namespace Gem::Common;
+
+      // Check that we are indeed dealing with a GAdaptorT reference
+      const GOptimizationAlgorithmT<ind_type> *p_load = GObject::gobject_conversion<GOptimizationAlgorithmT<ind_type> >(&cp);
+
+      try {
+         // Check our parent class'es data ...
+         GMutableSetT<ind_type>::compare(cp, e, limit);
+
+         // ... and then our local data
+         COMPARE(iteration_, p_load->iteration_, e, limit);
+         COMPARE(offset_, p_load->offset_, e, limit);
+         COMPARE(maxIteration_, p_load->maxIteration_, e, limit);
+         COMPARE(maxStallIteration_, p_load->maxStallIteration_, e, limit);
+         COMPARE(reportIteration_, p_load->reportIteration_, e, limit);
+         COMPARE(nRecordBestIndividuals_, p_load->nRecordBestIndividuals_, e, limit);
+         COMPARE(defaultPopulationSize_, p_load->defaultPopulationSize_, e, limit);
+         COMPARE(bestKnownPrimaryFitness_, p_load->bestKnownPrimaryFitness_, e, limit);
+         COMPARE(bestCurrentPrimaryFitness_, p_load->bestCurrentPrimaryFitness_, e, limit);
+         COMPARE(stallCounter_, p_load->stallCounter_, e, limit);
+         COMPARE(stallCounterThreshold_, p_load->stallCounterThreshold_, e, limit);
+         COMPARE(cpInterval_, p_load->cpInterval_, e, limit);
+         COMPARE(cpBaseName_, p_load->cpBaseName_, e, limit);
+         COMPARE(cpDirectory_, p_load->cpDirectory_, e, limit);
+         COMPARE(cpSerMode_, p_load->cpSerMode_, e, limit);
+         COMPARE(qualityThreshold_, p_load->qualityThreshold_, e, limit);
+         COMPARE(hasQualityThreshold_, p_load->hasQualityThreshold_, e, limit);
+         COMPARE(maxDuration_, p_load->maxDuration_, e, limit);
+         COMPARE(emitTerminationReason_, p_load->emitTerminationReason_, e, limit);
+         COMPARE(halted_, p_load->halted_, e, limit);
+         COMPARE(worstKnownValids_, p_load->worstKnownValids_, e, limit);
+         COMPARE(optimizationMonitor_ptr_, p_load->optimizationMonitor_ptr_, e, limit);
+
+      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+         g.add("g_expectation_violation caught by GOptimizationAlgorithmT<ind_type>");
+         throw g;
+      }
+   }
+
+
 	/***************************************************************************/
 	/**
 	 * This function encapsulates some common functionality of iteration-based
@@ -1987,6 +2041,38 @@ public:
 			EXPECTATIONCHECK(quiet_);
 
 	    	return evaluateDiscrepancies("GOptimizationMonitorT", caller, deviations, e);
+	    }
+
+	    /***************************************************************************/
+	    /**
+	     * Searches for compliance with expectations with respect to another object
+	     * of the same type
+	     *
+	     * @param cp A constant reference to another GObject object
+	     * @param e The expected outcome of the comparison
+	     * @param limit The maximum deviation for floating point values (important for similarity checks)
+	     */
+	    virtual void compare(
+	       const GObject& cp
+	       , const Gem::Common::expectation& e
+	       , const double& limit
+	    ) const OVERRIDE {
+	       using namespace Gem::Common;
+
+	       // Check that we are indeed dealing with a GAdaptorT reference
+	       const GOptimizationMonitorT *p_load = GObject::gobject_conversion<GOptimizationMonitorT>(&cp);
+
+	       try {
+	          // Check our parent class'es data ...
+	          GObject::compare(cp, e, limit);
+
+	          // ... and then our local data
+	          COMPARE(quiet_, p_load->quiet_, e, limit);
+
+	       } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+	          g.add("g_expectation_violation caught by GOptimizationMonitorT");
+	          throw g;
+	       }
 	    }
 
 	    /************************************************************************/

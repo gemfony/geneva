@@ -136,6 +136,37 @@ boost::optional<std::string> GSerialPS::checkRelationshipWith(
 
 /******************************************************************************/
 /**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GObject object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void GSerialPS::compare(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+) const {
+   using namespace Gem::Common;
+
+   // Check that we are indeed dealing with a GBaseEA reference
+   const GSerialPS *p_load = GObject::gobject_conversion<GSerialPS>(&cp);
+
+   try {
+      // Check our parent class'es data ...
+      GBasePS::compare(cp, e, limit);
+
+      // ... no local data
+
+   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+      g.add("g_expectation_violation caught by GSerialPS");
+      throw g;
+   }
+}
+
+/******************************************************************************/
+/**
  * Emits a name for this class / object
  */
 std::string GSerialPS::name() const {

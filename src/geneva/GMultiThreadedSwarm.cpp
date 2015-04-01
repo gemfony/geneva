@@ -169,6 +169,38 @@ boost::optional<std::string> GMultiThreadedSwarm::checkRelationshipWith(
 	return evaluateDiscrepancies("GMultiThreadedSwarm", caller, deviations, e);
 }
 
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GObject object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void GMultiThreadedSwarm::compare(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+) const {
+   using namespace Gem::Common;
+
+   // Check that we are indeed dealing with a GBaseEA reference
+   const GMultiThreadedSwarm *p_load = GObject::gobject_conversion<GMultiThreadedSwarm>(&cp);
+
+   try {
+      // Check our parent class'es data ...
+      GBaseSwarm::compare(cp, e, limit);
+
+      // ... and then our local data
+      COMPARE(nThreads_, p_load->nThreads_, e, limit);
+
+   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+      g.add("g_expectation_violation caught by GMultiThreadedSwarm");
+      throw g;
+   }
+}
+
 /***********************************************************************************/
 /**
  * Emits a name for this class / object

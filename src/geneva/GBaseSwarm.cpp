@@ -1773,6 +1773,41 @@ boost::optional<std::string> GBaseSwarm::GSwarmOptimizationMonitor::checkRelatio
 
 /******************************************************************************/
 /**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GObject object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void GBaseSwarm::GSwarmOptimizationMonitor::compare(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+) const {
+   using namespace Gem::Common;
+
+   // Check that we are indeed dealing with a GBaseEA reference
+   const GBaseSwarm::GSwarmOptimizationMonitor *p_load = GObject::gobject_conversion<GBaseSwarm::GSwarmOptimizationMonitor >(&cp);
+
+
+   try {
+      // Check our parent class'es data ...
+      GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::compare(cp, e, limit);
+
+      // ... and then our local data
+      COMPARE(xDim_, p_load->xDim_, e, limit);
+      COMPARE(yDim_, p_load->yDim_, e, limit);
+      COMPARE(resultFile_, p_load->resultFile_, e, limit);
+
+   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+      g.add("g_expectation_violation caught by GBaseSwarm::GSwarmOptimizationMonitor");
+      throw g;
+   }
+}
+
+/******************************************************************************/
+/**
  * Allows to specify a different name for the result file
  *
  * @param resultFile The desired name of the result file

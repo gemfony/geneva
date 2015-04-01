@@ -131,6 +131,37 @@ boost::optional<std::string> GParameterSetConstraint::checkRelationshipWith(
 
 /******************************************************************************/
 /**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GObject object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void GParameterSetConstraint::compare(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+) const {
+   using namespace Gem::Common;
+
+   // Check that we are indeed dealing with a GBaseEA reference
+   const GParameterSetConstraint *p_load = GObject::gobject_conversion<GParameterSetConstraint>(&cp);
+
+   try {
+      // Check our parent class'es data ...
+      GPreEvaluationValidityCheckT<GOptimizableEntity>::compare(cp, e, limit);
+
+      // ... no local data
+
+   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+      g.add("g_expectation_violation caught by GParameterSetConstraint");
+      throw g;
+   }
+}
+
+/******************************************************************************/
+/**
  * Adds local configuration options to a GParserBuilder object
  */
 void GParameterSetConstraint::addConfigurationOptions(
@@ -255,6 +286,38 @@ boost::optional<std::string> GParameterSetFormulaConstraint::checkRelationshipWi
    deviations.push_back(checkExpectation(withMessages, "GParameterSetFormulaConstraint", rawFormula_, p_load->rawFormula_, "rawFormula_", "p_load->rawFormula_", e , limit));
 
    return evaluateDiscrepancies("GParameterSetFormulaConstraint", caller, deviations, e);
+}
+
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GObject object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void GParameterSetFormulaConstraint::compare(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+) const {
+   using namespace Gem::Common;
+
+   // Check that we are indeed dealing with a GBaseEA reference
+   const GParameterSetFormulaConstraint *p_load = GObject::gobject_conversion<GParameterSetFormulaConstraint>(&cp);
+
+   try {
+      // Check our parent class'es data ...
+      GParameterSetConstraint::compare(cp, e, limit);
+
+      // ... and then our local data
+      COMPARE(rawFormula_, p_load->rawFormula_, e, limit);
+
+   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+      g.add("g_expectation_violation caught by GParameterSetFormulaConstraint");
+      throw g;
+   }
 }
 
 /******************************************************************************/

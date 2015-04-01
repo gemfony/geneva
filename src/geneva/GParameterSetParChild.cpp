@@ -139,6 +139,38 @@ boost::optional<std::string> GParameterSetParChild::checkRelationshipWith(
 
 /******************************************************************************/
 /**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GObject object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void GParameterSetParChild::compare(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+) const {
+   using namespace Gem::Common;
+
+   // Check that we are indeed dealing with a GBaseEA reference
+   const GParameterSetParChild *p_load = GObject::gobject_conversion<GParameterSetParChild>(&cp);
+
+   try {
+      // Check our parent class'es data ...
+      GBaseParChildT<GParameterSet>::compare(cp, e, limit);
+
+      // ... and then our local data
+      COMPARE(amalgamationLikelihood_, p_load->amalgamationLikelihood_, e, limit);
+
+   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+      g.add("g_expectation_violation caught by GParameterSetParChild");
+      throw g;
+   }
+}
+
+/******************************************************************************/
+/**
  * Adds local configuration options to a GParserBuilder object
  *
  * @param gpb The GParserBuilder object to which configuration options should be added

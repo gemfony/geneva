@@ -374,6 +374,13 @@ public:
       , const bool&
 	) const OVERRIDE;
 
+   /** @brief Searches for compliance with expectations with respect to another object of the same type */
+   virtual G_API_GENEVA void compare(
+      const GObject& // the other object
+      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
+      , const double& // the limit for allowed deviations of floating point types
+   ) const OVERRIDE;
+
    /** @brief Converts the local data to a boost::property_tree node */
    virtual G_API_GENEVA void toPropertyTree(pt::ptree&, const std::string&) const = 0;
    /** @brief Lets the audience know whether this is a leaf or a branch object */

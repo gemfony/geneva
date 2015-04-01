@@ -1243,6 +1243,43 @@ boost::optional<std::string> GBasePS::GPSOptimizationMonitor::checkRelationshipW
 
 /******************************************************************************/
 /**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GObject object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void GBasePS::GPSOptimizationMonitor::compare(
+   const GObject& cp
+   , const Gem::Common::expectation& e
+   , const double& limit
+) const {
+   using namespace Gem::Common;
+
+   // Check that we are indeed dealing with a GBaseEA reference
+   const GBasePS::GPSOptimizationMonitor *p_load = GObject::gobject_conversion<GBasePS::GPSOptimizationMonitor>(&cp);
+
+   try {
+      // Check our parent class'es data ...
+      GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::compare(cp, e, limit);
+
+      // ... and then our local data
+      COMPARE(csvResultFile_, p_load->csvResultFile_, e, limit);
+      COMPARE(withNameAndType_, p_load->withNameAndType_, e, limit);
+      COMPARE(withCommas_, p_load->withCommas_, e, limit);
+      COMPARE(useRawFitness_, p_load->useRawFitness_, e, limit);
+      COMPARE(showValidity_, p_load->showValidity_, e, limit);
+
+   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+      g.add("g_expectation_violation caught by GBasePS::GPSOptimizationMonitor");
+      throw g;
+   }
+}
+
+
+/******************************************************************************/
+/**
  * Allows to specify a different name for the result file
  *
  * @param resultFile The desired name of the result file
