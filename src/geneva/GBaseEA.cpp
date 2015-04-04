@@ -87,13 +87,47 @@ GBaseEA::GBaseEA(const GBaseEA& cp)
 GBaseEA::~GBaseEA()
 { /* nothing */ }
 
-/***************************************************************************/
+/******************************************************************************/
 /**
  * The standard assignment operator
  */
 const GBaseEA& GBaseEA::operator=(const GBaseEA& cp) {
    this->load_(&cp);
    return *this;
+}
+
+/******************************************************************************/
+/**
+ * Checks for equality with another GBaseEA object
+ *
+ * @param  cp A constant reference to another GBaseEA object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GBaseEA::operator==(const GBaseEA& cp) const {
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
+}
+
+/******************************************************************************/
+/**
+ * Checks for inequality with another GBaseEA object
+ *
+ * @param  cp A constant reference to another GBaseEA object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GBaseEA::operator!=(const GBaseEA& cp) const {
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -170,15 +204,18 @@ void GBaseEA::compare(
    const GBaseEA *p_load = GObject::gobject_conversion<GBaseEA>(&cp);
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GParameterSetParChild::compare(cp, e, limit);
+      COMPARE_PARENT(GParameterSetParChild, cp, e, limit);
 
       // ... and then our local data
       COMPARE(smode_, p_load->smode_, e, limit);
 
+      END_COMPARE;
+
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GBaseEA");
-      throw g;
+      throw g("g_expectation_violation caught by GBaseEA");
    }
 }
 
@@ -900,9 +937,13 @@ const GBaseEA::GEAOptimizationMonitor& GBaseEA::GEAOptimizationMonitor::operator
  * @return A boolean indicating whether both objects are equal
  */
 bool GBaseEA::GEAOptimizationMonitor::operator==(const GBaseEA::GEAOptimizationMonitor& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBaseEA::GEAOptimizationMonitor::operator==","cp", CE_SILENT);
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -913,9 +954,13 @@ bool GBaseEA::GEAOptimizationMonitor::operator==(const GBaseEA::GEAOptimizationM
  * @return A boolean indicating whether both objects are inequal
  */
 bool GBaseEA::GEAOptimizationMonitor::operator!=(const GBaseEA::GEAOptimizationMonitor& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBaseEA::GEAOptimizationMonitor::operator!=","cp", CE_SILENT);
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -979,8 +1024,10 @@ void GBaseEA::GEAOptimizationMonitor::compare(
    const GBaseEA::GEAOptimizationMonitor *p_load = GObject::gobject_conversion<GBaseEA::GEAOptimizationMonitor>(&cp);
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::compare(cp, e, limit);
+      COMPARE_PARENT(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT, cp, e, limit);
 
       // ... and then our local data
       COMPARE(xDim_, p_load->xDim_, e, limit);
@@ -988,9 +1035,10 @@ void GBaseEA::GEAOptimizationMonitor::compare(
       COMPARE(nMonitorInds_, p_load->nMonitorInds_, e, limit);
       COMPARE(resultFile_, p_load->resultFile_, e, limit);
 
+      END_COMPARE;
+
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GBaseEA::GEAOptimizationMonitor");
-      throw g;
+      throw g("g_expectation_violation caught by GBaseEA::GEAOptimizationMonitor");
    }
 }
 

@@ -115,6 +115,40 @@ public:
 	virtual ~GFPBiGaussAdaptorT()
 	{ /* nothing */ }
 
+   /***************************************************************************/
+   /**
+    * Checks for equality with another GFPBiGaussAdaptorT<fp_type> object
+    *
+    * @param  cp A constant reference to another GFPBiGaussAdaptorT<fp_type> object
+    * @return A boolean indicating whether both objects are equal
+    */
+   bool operator==(const GFPBiGaussAdaptorT<fp_type>& cp) const {
+      using namespace Gem::Common;
+      try {
+         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation&) {
+         return false;
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks for inequality with another GFPBiGaussAdaptorT<fp_type> object
+    *
+    * @param  cp A constant reference to another GFPBiGaussAdaptorT<fp_type> object
+    * @return A boolean indicating whether both objects are inequal
+    */
+   bool operator!=(const GFPBiGaussAdaptorT<fp_type>& cp) const {
+      using namespace Gem::Common;
+      try {
+         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation&) {
+         return false;
+      }
+   }
+
 	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
@@ -173,14 +207,19 @@ public:
       const GFPBiGaussAdaptorT<fp_type>  *p_load = GObject::gobject_conversion<GFPBiGaussAdaptorT<fp_type> >(&cp);
 
       try {
+         typedef GNumBiGaussAdaptorT<fp_type, fp_type> GNumBiGaussAdaptorT_fp_type;
+
+         BEGIN_COMPARE;
+
          // Check our parent class'es data ...
-         GNumBiGaussAdaptorT<fp_type, fp_type>::compare(cp, e, limit);
+         COMPARE_PARENT(GNumBiGaussAdaptorT_fp_type, cp, e, limit);
 
          // ... no local data
 
+         END_COMPARE;
+
       } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         g.add("g_expectation_violation caught by GFPBiGaussAdaptorT<fp_type>");
-         throw g;
+         throw g("g_expectation_violation caught by GFPBiGaussAdaptorT<fp_type>");
       }
    }
 

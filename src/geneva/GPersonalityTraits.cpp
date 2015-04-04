@@ -73,6 +73,40 @@ const GPersonalityTraits& GPersonalityTraits::operator=(const GPersonalityTraits
 
 /******************************************************************************/
 /**
+ * Checks for equality with another GPersonalityTraits object
+ *
+ * @param  cp A constant reference to another GPersonalityTraits object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GPersonalityTraits::operator==(const GPersonalityTraits& cp) const {
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
+}
+
+/******************************************************************************/
+/**
+ * Checks for inequality with another GPersonalityTraits object
+ *
+ * @param  cp A constant reference to another GPersonalityTraits object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GPersonalityTraits::operator!=(const GPersonalityTraits& cp) const {
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
+}
+
+/******************************************************************************/
+/**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
  *
@@ -127,14 +161,17 @@ void GPersonalityTraits::compare(
    const GPersonalityTraits *p_load = GObject::gobject_conversion<GPersonalityTraits>(&cp);
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GObject::compare(cp, e, limit);
+      COMPARE_PARENT(GObject, cp, e, limit);
 
       // ... no local data
 
+      END_COMPARE;
+
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GPersonalityTraits");
-      throw g;
+      throw g("g_expectation_violation caught by GPersonalityTraits");
    }
 }
 

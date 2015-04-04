@@ -230,8 +230,12 @@ public:
       using namespace Gem::Common;
 
       try {
-         // ... and then our local data
+         BEGIN_COMPARE;
+
+         // ... check our local data
          COMPARE(this->data, cp.data, e, limit);
+
+         END_COMPARE;
 
       } catch(g_expectation_violation& g) { // Create a suitable stack-trace
          g.add("g_expectation_violation caught by GStdSimpleVectorInterfaceT<T>");

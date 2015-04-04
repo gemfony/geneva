@@ -102,6 +102,40 @@ const GBaseSA& GBaseSA::operator=(const GBaseSA& cp) {
 
 /******************************************************************************/
 /**
+ * Checks for equality with another GBaseSA object
+ *
+ * @param  cp A constant reference to another GBaseSA object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GBaseSA::operator==(const GBaseSA& cp) const {
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
+}
+
+/******************************************************************************/
+/**
+ * Checks for inequality with another GBaseSA object
+ *
+ * @param  cp A constant reference to another GBaseSA object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GBaseSA::operator!=(const GBaseSA& cp) const {
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
+}
+
+/******************************************************************************/
+/**
  * Loads the data of another GBaseSA object, camouflaged as a GObject.
  *
  * @param cp A pointer to another GBaseSA object, camouflaged as a GObject
@@ -179,17 +213,20 @@ void GBaseSA::compare(
    const GBaseSA *p_load = GObject::gobject_conversion<GBaseSA>(&cp);
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GParameterSetParChild::compare(cp, e, limit);
+      COMPARE_PARENT(GParameterSetParChild, cp, e, limit);
 
       // ... and then our local data
       COMPARE(t0_, p_load->t0_, e, limit);
       COMPARE(t_, p_load->t_, e, limit);
       COMPARE(alpha_, p_load->alpha_, e, limit);
 
+      END_COMPARE;
+
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GBaseSA");
-      throw g;
+      throw g("g_expectation_violation caught by GBaseSA");
    }
 }
 
@@ -583,8 +620,12 @@ const GBaseSA::GSAOptimizationMonitor& GBaseSA::GSAOptimizationMonitor::operator
  */
 bool GBaseSA::GSAOptimizationMonitor::operator==(const GBaseSA::GSAOptimizationMonitor& cp) const {
    using namespace Gem::Common;
-   // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBaseSA::GSAOptimizationMonitor::operator==","cp", CE_SILENT);
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -596,8 +637,12 @@ bool GBaseSA::GSAOptimizationMonitor::operator==(const GBaseSA::GSAOptimizationM
  */
 bool GBaseSA::GSAOptimizationMonitor::operator!=(const GBaseSA::GSAOptimizationMonitor& cp) const {
    using namespace Gem::Common;
-   // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBaseSA::GSAOptimizationMonitor::operator!=","cp", CE_SILENT);
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -662,8 +707,10 @@ void GBaseSA::GSAOptimizationMonitor::compare(
    const GBaseSA::GSAOptimizationMonitor *p_load = GObject::gobject_conversion<GBaseSA::GSAOptimizationMonitor>(&cp);
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::compare(cp, e, limit);
+      COMPARE_PARENT(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT, cp, e, limit);
 
       // ... and then our local data
       COMPARE(xDim_, p_load->xDim_, e, limit);
@@ -671,9 +718,10 @@ void GBaseSA::GSAOptimizationMonitor::compare(
       COMPARE(nMonitorInds_, p_load->nMonitorInds_, e, limit);
       COMPARE(resultFile_, p_load->resultFile_, e, limit);
 
+      END_COMPARE;
+
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GBaseSA::GSAOptimizationMonitor");
-      throw g;
+      throw g("g_expectation_violation caught by GBaseSA::GSAOptimizationMonitor");
    }
 }
 

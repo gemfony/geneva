@@ -186,6 +186,40 @@ const GBasePS& GBasePS::operator=(const GBasePS& cp) {
 
 /******************************************************************************/
 /**
+ * Checks for equality with another GBasePS object
+ *
+ * @param  cp A constant reference to another GBasePS object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GBasePS::operator==(const GBasePS& cp) const {
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
+}
+
+/******************************************************************************/
+/**
+ * Checks for inequality with another GBasePS object
+ *
+ * @param  cp A constant reference to another GBasePS object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GBasePS::operator!=(const GBasePS& cp) const {
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
+}
+
+/******************************************************************************/
+/**
  * Returns information about the type of optimization algorithm. This function needs
  * to be overloaded by the actual algorithms to return the correct type.
  *
@@ -279,8 +313,10 @@ void GBasePS::compare(
    const GBasePS *p_load = GObject::gobject_conversion<GBasePS>(&cp);
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GOptimizationAlgorithmT<GParameterSet>::compare(cp, e, limit);
+      COMPARE_PARENT(GOptimizationAlgorithmT<GParameterSet>, cp, e, limit);
 
       // ... and then our local data
       COMPARE(cycleLogicHalt_, p_load->cycleLogicHalt_, e, limit);
@@ -289,9 +325,10 @@ void GBasePS::compare(
       COMPARE(simpleScanItems_, p_load->simpleScanItems_, e, limit);
       COMPARE(scansPerformed_, p_load->scansPerformed_, e, limit);
 
+      END_COMPARE;
+
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GBasePS");
-      throw g;
+      throw g("g_expectation_violation caught by GBasePS");
    }
 }
 
@@ -1182,8 +1219,12 @@ const GBasePS::GPSOptimizationMonitor& GBasePS::GPSOptimizationMonitor::operator
  */
 bool GBasePS::GPSOptimizationMonitor::operator==(const GBasePS::GPSOptimizationMonitor& cp) const {
    using namespace Gem::Common;
-   // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBasePS::GPSOptimizationMonitor::operator==","cp", CE_SILENT);
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -1195,8 +1236,12 @@ bool GBasePS::GPSOptimizationMonitor::operator==(const GBasePS::GPSOptimizationM
  */
 bool GBasePS::GPSOptimizationMonitor::operator!=(const GBasePS::GPSOptimizationMonitor& cp) const {
    using namespace Gem::Common;
-   // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBasePS::GPSOptimizationMonitor::operator!=","cp", CE_SILENT);
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -1261,8 +1306,10 @@ void GBasePS::GPSOptimizationMonitor::compare(
    const GBasePS::GPSOptimizationMonitor *p_load = GObject::gobject_conversion<GBasePS::GPSOptimizationMonitor>(&cp);
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::compare(cp, e, limit);
+      COMPARE_PARENT(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT, cp, e, limit);
 
       // ... and then our local data
       COMPARE(csvResultFile_, p_load->csvResultFile_, e, limit);
@@ -1271,9 +1318,9 @@ void GBasePS::GPSOptimizationMonitor::compare(
       COMPARE(useRawFitness_, p_load->useRawFitness_, e, limit);
       COMPARE(showValidity_, p_load->showValidity_, e, limit);
 
+      END_COMPARE;
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GBasePS::GPSOptimizationMonitor");
-      throw g;
+      throw g("g_expectation_violation caught by GBasePS::GPSOptimizationMonitor");
    }
 }
 

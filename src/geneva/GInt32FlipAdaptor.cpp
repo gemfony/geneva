@@ -102,9 +102,13 @@ const GInt32FlipAdaptor& GInt32FlipAdaptor::operator=(const GInt32FlipAdaptor& c
  * @return A boolean indicating whether both objects are equal
  */
 bool GInt32FlipAdaptor::operator==(const GInt32FlipAdaptor& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GInt32FlipAdaptor::operator==","cp", CE_SILENT);
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -115,9 +119,13 @@ bool GInt32FlipAdaptor::operator==(const GInt32FlipAdaptor& cp) const {
  * @return A boolean indicating whether both objects are inequal
  */
 bool GInt32FlipAdaptor::operator!=(const GInt32FlipAdaptor& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GInt32FlipAdaptor::operator!=","cp", CE_SILENT);
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -176,14 +184,17 @@ void GInt32FlipAdaptor::compare(
    const GInt32FlipAdaptor *p_load = GObject::gobject_conversion<GInt32FlipAdaptor>(&cp);
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GIntFlipAdaptorT<boost::int32_t>::compare(cp, e, limit);
+      COMPARE_PARENT(GIntFlipAdaptorT<boost::int32_t>, cp, e, limit);
 
       // ... no local data
 
+      END_COMPARE;
+
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GInt32FlipAdaptor");
-      throw g;
+      throw g("g_expectation_violation caught by GInt32FlipAdaptor");
    }
 }
 

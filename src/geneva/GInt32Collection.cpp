@@ -124,9 +124,13 @@ const GInt32Collection& GInt32Collection::operator=(const GInt32Collection& cp) 
  * @return A boolean indicating whether both objects are equal
  */
 bool GInt32Collection::operator==(const GInt32Collection& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GInt32Collection::operator==","cp", CE_SILENT);
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -137,9 +141,13 @@ bool GInt32Collection::operator==(const GInt32Collection& cp) const {
  * @return A boolean indicating whether both objects are inequal
  */
 bool GInt32Collection::operator!=(const GInt32Collection& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GInt32Collection::operator!=","cp", CE_SILENT);
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -199,14 +207,17 @@ void GInt32Collection::compare(
    const GInt32Collection *p_load = GObject::gobject_conversion<GInt32Collection>(&cp);
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GIntNumCollectionT<boost::int32_t>::compare(cp, e, limit);
+      COMPARE_PARENT(GIntNumCollectionT<boost::int32_t>, cp, e, limit);
 
       // ... no local data
 
+      END_COMPARE;
+
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GInt32Collection");
-      throw g;
+      throw g("g_expectation_violation caught by GInt32Collection");
    }
 }
 

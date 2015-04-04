@@ -40,6 +40,7 @@
 #include <ostream>
 #include <istream>
 #include <limits>
+#include <cmath>
 
 // Boost headers go here
 

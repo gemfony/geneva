@@ -85,9 +85,12 @@ const GBrokerPS& GBrokerPS::operator=(
 bool GBrokerPS::operator==(const GBrokerPS& cp) const
 {
    using namespace Gem::Common;
-   // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_EQUALITY, 0., "GBrokerPS::operator==",
-         "cp", CE_SILENT);
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -100,9 +103,12 @@ bool GBrokerPS::operator==(const GBrokerPS& cp) const
 bool GBrokerPS::operator!=(const GBrokerPS& cp) const
 {
    using namespace Gem::Common;
-   // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,
-         "GBrokerPS::operator!=", "cp", CE_SILENT);
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -164,15 +170,17 @@ void GBrokerPS::compare(
    const GBrokerPS *p_load = GObject::gobject_conversion<GBrokerPS>(&cp);
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GBasePS::compare(cp, e, limit);
-      Gem::Courtier::GBrokerConnector2T<GParameterSet>::compare_common(*p_load, e, limit);
+      COMPARE_PARENT(GBasePS, cp, e, limit);
+      COMPARE_BROKER(Gem::Courtier::GBrokerConnector2T<GParameterSet>, *p_load, e, limit);
 
       // ... no local data
 
+      END_COMPARE;
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GBrokerSA");
-      throw g;
+      throw g("g_expectation_violation caught by GBrokerSA");
    }
 }
 

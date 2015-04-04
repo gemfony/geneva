@@ -123,9 +123,13 @@ const trainingSet& trainingSet::operator=(const trainingSet& cp) {
  * @return A boolean indicating whether both objects are equal
  */
 bool trainingSet::operator==(const trainingSet& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !trainingSet::checkRelationshipWith(cp, CE_EQUALITY, 0.,"trainingSet::operator==","cp", CE_SILENT);
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -136,9 +140,13 @@ bool trainingSet::operator==(const trainingSet& cp) const {
  * @return A boolean indicating whether both objects are in-equal
  */
 bool trainingSet::operator!=(const trainingSet& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !trainingSet::checkRelationshipWith(cp, CE_INEQUALITY, 0.,"trainingSet::operator!=","cp", CE_SILENT);
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 /******************************************************************************/
 /**
@@ -220,20 +228,23 @@ void trainingSet::compare(
    using namespace Gem::Common;
 
    try {
+      BEGIN_COMPARE;
+
       // check our local data
       COMPARE(nInputNodes, cp.nInputNodes, e, limit);
       COMPARE(nOutputNodes, cp.nOutputNodes, e, limit);
 
       for(std::size_t i=0; i<nInputNodes; i++) {
-	COMPARE(Input[i], cp.Input[i], e, limit);
+         COMPARE(Input[i], cp.Input[i], e, limit);
       }
 
       for(std::size_t i=0; i<nInputNodes; i++) {
-	COMPARE(Output[i], cp.Output[i], e, limit);
+         COMPARE(Output[i], cp.Output[i], e, limit);
       }
+
+      END_COMPARE;
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GLineFitIndividual");
-      throw g;
+      throw g("g_expectation_violation caught by GLineFitIndividual");
    }
 }
 
@@ -328,9 +339,13 @@ const networkData& networkData::operator=(const networkData& cp) {
  * @return A boolean indicating whether both objects are equal
  */
 bool networkData::operator==(const networkData& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !networkData::checkRelationshipWith(cp, CE_EQUALITY, 0.,"networkData::operator==","cp", CE_SILENT);
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -341,9 +356,13 @@ bool networkData::operator==(const networkData& cp) const {
  * @return A boolean indicating whether both objects are inequal
  */
 bool networkData::operator!=(const networkData& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !networkData::checkRelationshipWith(cp, CE_INEQUALITY, 0.,"networkData::operator!=","cp", CE_SILENT);
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 /******************************************************************************/
 /**
@@ -405,20 +424,25 @@ void networkData::compare(
    , const double& limit
 ) const {
    using namespace Gem::Common;
+   using namespace Gem::Geneva;
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GStdSimpleVectorInterfaceT<std::size_t>::compare_base(cp, e, limit);
+      COMPARE_VEC(GStdSimpleVectorInterfaceT<std::size_t>, cp, e, limit);
 
       // ... and then our local data
       COMPARE(arraySize_, cp.arraySize_, e, limit);
       for(std::size_t i=0; i<arraySize_; i++) {
-	data_[i]->compare(*(cp.data_[i]), e, limit);
+         // TODO Express through COMPARE
+         data_[i]->compare(*(cp.data_[i]), e, limit);
       }
 
+      END_COMPARE;
+
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GLineFitIndividual");
-      throw g;
+      throw g("g_expectation_violation caught by GLineFitIndividual");
    }
 }
 
@@ -856,8 +880,12 @@ const GNeuralNetworkIndividual& GNeuralNetworkIndividual::operator=(
  */
 bool GNeuralNetworkIndividual::operator==(const GNeuralNetworkIndividual& cp) const {
    using namespace Gem::Common;
-   // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GNeuralNetworkIndividual::operator==","cp", CE_SILENT);
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -869,8 +897,12 @@ bool GNeuralNetworkIndividual::operator==(const GNeuralNetworkIndividual& cp) co
  */
 bool GNeuralNetworkIndividual::operator!=(const GNeuralNetworkIndividual& cp) const {
    using namespace Gem::Common;
-   // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNeuralNetworkIndividual::operator!=","cp", CE_SILENT);
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -931,15 +963,18 @@ void GNeuralNetworkIndividual::compare(
    const GNeuralNetworkIndividual *p_load = GObject::gobject_conversion<GNeuralNetworkIndividual>(&cp);
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GParameterSet::compare(cp, e, limit);
+      COMPARE_PARENT(GParameterSet, cp, e, limit);
 
       // ... and then our local data
       COMPARE(tF_, p_load->tF_, e, limit);
 
+      END_COMPARE;
+
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GNeuralNetworkIndividual");
-      throw g;
+      throw g("g_expectation_violation caught by GNeuralNetworkIndividual");
    }
 }
 

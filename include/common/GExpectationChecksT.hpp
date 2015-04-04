@@ -181,7 +181,7 @@ void compare(
    , const std::string& x_name
    , const std::string& y_name
    , const Gem::Common::expectation& e
-   , const double& limit = std::pow(10,-6)
+   , const double& limit = CE_DEF_SIMILARITY_DIFFERENCE
    , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 ) {
    bool expectationMet = false;
@@ -338,7 +338,7 @@ void compare(
    , const std::string& x_name
    , const std::string& y_name
    , const Gem::Common::expectation& e
-   , const double& limit = std::pow(10,-6)
+   , const double& limit = CE_DEF_SIMILARITY_DIFFERENCE
    , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 ) {
    bool expectationMet = false;
@@ -436,16 +436,56 @@ void compare(
    , const std::string&
    , const std::string&
    , const Gem::Common::expectation&
-   , const double& limit = std::pow(10,-6)
+   , const double& limit = CE_DEF_SIMILARITY_DIFFERENCE
 );
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This define facilitates calls to the checkExpectation() function
+ * This define facilitates calls to the compare() function
  */
-#define COMPARE(x,y,e,l) Gem::Common::compare(x,y,std::string(#x),std::string(#y),e,l)
+//#define COMPARE(x,y,e,l) Gem::Common::compare((x),(y),std::string(#x),std::string(#y),(e),(l))
+
+#define BEGIN_COMPARE \
+std::size_t g_n_tests = 0; /* The total number of checks */ \
+std::size_t g_n_violations = 0; /* The total number of expectation violations */
+
+
+#define COMPARE(x,y,e,l) \
+g_n_tests++; \
+switch(e){ \
+case Gem::Common::CE_FP_SIMILARITY: \
+case Gem::Common::CE_EQUALITY: \
+{ \
+   Gem::Common::compare((x),(y),std::string(#x),std::string(#y),(e),(l)); \
+} \
+break; \
+\
+case Gem::Common::CE_INEQUALITY: \
+{ \
+   try{ \
+      Gem::Common::compare((x),(y),std::string(#x),std::string(#y),(e),(l)); \
+   } catch(g_expectation_violation&) { \
+       g_n_violations++; \
+   } \
+} \
+break; \
+\
+default: \
+{ \
+   glogger \
+   << "Got invalid expectation " << e << std::endl \
+   << GEXCEPTION; \
+} \
+break; \
+};
+
+
+#define END_COMPARE \
+if(g_n_violations==g_n_tests) { \
+  throw(g_expectation_violation("All checks were equal despite the expectation CE_INEQUALITY !")); \
+}
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -533,7 +573,7 @@ boost::optional<std::string> checkExpectation (
   , const std::string& x_name
   , const std::string& y_name
   , const Gem::Common::expectation& e
-  , const double& limit = std::pow(10,-10)
+  , const double& limit = CE_DEF_SIMILARITY_DIFFERENCE
   , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 )
 {
@@ -806,7 +846,7 @@ boost::optional<std::string> checkExpectation (
   , const std::string& x_name
   , const std::string& y_name
   , const Gem::Common::expectation& e
-  , const double& limit = std::pow(10,-10)
+  , const double& limit = CE_DEF_SIMILARITY_DIFFERENCE
   , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 )
 {

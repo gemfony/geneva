@@ -113,9 +113,13 @@ GObject *GMultiThreadedEA::clone_() const  {
  * @return A boolean indicating whether both objects are equal
  */
 bool GMultiThreadedEA::operator==(const GMultiThreadedEA& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GMultiThreadedEA::operator==","cp", CE_SILENT);
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -126,9 +130,13 @@ bool GMultiThreadedEA::operator==(const GMultiThreadedEA& cp) const {
  * @return A boolean indicating whether both objects are inequal
  */
 bool GMultiThreadedEA::operator!=(const GMultiThreadedEA& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GMultiThreadedEA::operator!=","cp", CE_SILENT);
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -189,15 +197,18 @@ void GMultiThreadedEA::compare(
    const GMultiThreadedEA *p_load = GObject::gobject_conversion<GMultiThreadedEA>(&cp);
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GBaseEA::compare(cp, e, limit);
+      COMPARE_PARENT(GBaseEA, cp, e, limit);
 
       // ... and then our local data
       COMPARE(nThreads_, p_load->nThreads_, e, limit);
 
+      END_COMPARE;
+
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GMultiThreadedEA");
-      throw g;
+      throw g("g_expectation_violation caught by GMultiThreadedEA");
    }
 }
 

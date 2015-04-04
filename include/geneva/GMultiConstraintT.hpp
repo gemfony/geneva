@@ -44,11 +44,11 @@
 #define GMULTICONSTRAINTT_HPP_
 
 // Geneva header files go here
-#include <common/GExpectationChecksT.hpp>
 #include "common/GMathHelperFunctions.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
+#include "geneva/GObjectExpectationChecksT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -117,22 +117,36 @@ public:
 
    /***************************************************************************/
    /**
-    * Checks for equality with another GIndividualConstraint object
+    * Checks for equality with another GPreEvaluationValidityCheckT<ind_type> object
+    *
+    * @param  cp A constant reference to another GPreEvaluationValidityCheckT<ind_type> object
+    * @return A boolean indicating whether both objects are equal
     */
    bool operator==(const GPreEvaluationValidityCheckT<ind_type>& cp) const {
       using namespace Gem::Common;
-      // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GPreEvaluationValidityCheckT<ind_type>::operator==","cp", CE_SILENT);
+      try {
+         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation&) {
+         return false;
+      }
    }
 
    /***************************************************************************/
    /**
-    * Checks for inequality with another GIndividualConstraint object
+    * Checks for inequality with another GPreEvaluationValidityCheckT<ind_type> object
+    *
+    * @param  cp A constant reference to another GPreEvaluationValidityCheckT<ind_type> object
+    * @return A boolean indicating whether both objects are inequal
     */
    bool operator!=(const GPreEvaluationValidityCheckT<ind_type>& cp) const {
       using namespace Gem::Common;
-      // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GPreEvaluationValidityCheckT<ind_type>::operator!=","cp", CE_SILENT);
+      try {
+         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation&) {
+         return false;
+      }
    }
 
    /***************************************************************************/
@@ -193,15 +207,18 @@ public:
       const GPreEvaluationValidityCheckT<ind_type> *p_load = GObject::gobject_conversion<GPreEvaluationValidityCheckT<ind_type> >(&cp);
 
       try {
+         BEGIN_COMPARE;
+
          // Check our parent class'es data ...
-         GObject::compare(cp, e, limit);
+         COMPARE_PARENT(GObject, cp, e, limit);
 
          // ... and then our local data
          COMPARE(allowNegative_, p_load->allowNegative_, e, limit);
 
+         END_COMPARE;
+
       } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         g.add("g_expectation_violation caught by GPreEvaluationValidityCheckT<ind_type>");
-         throw g;
+         throw g("g_expectation_violation caught by GPreEvaluationValidityCheckT<ind_type>");
       }
    }
 
@@ -416,22 +433,36 @@ public:
 
    /***************************************************************************/
    /**
-    * Checks for equality with another GValidityCheckContainerT object
+    * Checks for equality with another GValidityCheckContainerT<ind_type> object
+    *
+    * @param  cp A constant reference to another GValidityCheckContainerT<ind_type> object
+    * @return A boolean indicating whether both objects are equal
     */
    bool operator==(const GValidityCheckContainerT<ind_type>& cp) const {
       using namespace Gem::Common;
-      // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GValidityCheckContainerT<ind_type>::operator==","cp", CE_SILENT);
+      try {
+         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation&) {
+         return false;
+      }
    }
 
    /***************************************************************************/
    /**
-    * Checks for inequality with another GValidityCheckContainerT object
+    * Checks for inequality with another GValidityCheckContainerT<ind_type> object
+    *
+    * @param  cp A constant reference to another GValidityCheckContainerT<ind_type> object
+    * @return A boolean indicating whether both objects are inequal
     */
    bool operator!=(const GValidityCheckContainerT<ind_type>& cp) const {
       using namespace Gem::Common;
-      // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GValidityCheckContainerT<ind_type>::operator!=","cp", CE_SILENT);
+      try {
+         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation&) {
+         return false;
+      }
    }
 
    /***************************************************************************/
@@ -492,15 +523,18 @@ public:
       const GValidityCheckContainerT<ind_type> *p_load = GObject::gobject_conversion<GValidityCheckContainerT<ind_type> >(&cp);
 
       try {
+         BEGIN_COMPARE;
+
          // Check our parent class'es data ...
-         GPreEvaluationValidityCheckT<ind_type>::compare(cp, e, limit);
+         COMPARE_PARENT(GPreEvaluationValidityCheckT<ind_type>, cp, e, limit);
 
          // ... and then our local data
          COMPARE(validityChecks_, p_load->validityChecks_, e, limit);
 
+         END_COMPARE;
+
       } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         g.add("g_expectation_violation caught by GValidityCheckContainerT<ind_type>");
-         throw g;
+         throw g("g_expectation_violation caught by GValidityCheckContainerT<ind_type>");
       }
    }
 
@@ -620,22 +654,36 @@ public:
 
    /***************************************************************************/
    /**
-    * Checks for equality with another GCheckCombinerT object
+    * Checks for equality with another GCheckCombinerT<ind_type> object
+    *
+    * @param  cp A constant reference to another GCheckCombinerT<ind_type> object
+    * @return A boolean indicating whether both objects are equal
     */
    bool operator==(const GCheckCombinerT<ind_type>& cp) const {
       using namespace Gem::Common;
-      // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GCheckCombinerT<ind_type>::operator==","cp", CE_SILENT);
+      try {
+         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation&) {
+         return false;
+      }
    }
 
    /***************************************************************************/
    /**
-    * Checks for inequality with another GCheckCombinerT object
+    * Checks for inequality with another GCheckCombinerT<ind_type> object
+    *
+    * @param  cp A constant reference to another GCheckCombinerT<ind_type> object
+    * @return A boolean indicating whether both objects are inequal
     */
    bool operator!=(const GCheckCombinerT<ind_type>& cp) const {
       using namespace Gem::Common;
-      // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GCheckCombinerT<ind_type>::operator!=","cp", CE_SILENT);
+      try {
+         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation&) {
+         return false;
+      }
    }
 
    /***************************************************************************/
@@ -696,15 +744,18 @@ public:
       const GCheckCombinerT<ind_type> *p_load = GObject::gobject_conversion<GCheckCombinerT<ind_type> >(&cp);
 
       try {
+         BEGIN_COMPARE;
+
          // Check our parent class'es data ...
-         GValidityCheckContainerT<ind_type>::compare(cp, e, limit);
+         COMPARE_PARENT(GValidityCheckContainerT<ind_type>, cp, e, limit);
 
          // ... and then our local data
          COMPARE(combinerPolicy_, p_load->combinerPolicy_, e, limit);
 
+         END_COMPARE;
+
       } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         g.add("g_expectation_violation caught by GCheckCombinerT<ind_type>");
-         throw g;
+         throw g("g_expectation_violation caught by GCheckCombinerT<ind_type>");
       }
    }
 

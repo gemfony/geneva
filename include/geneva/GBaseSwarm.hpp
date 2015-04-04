@@ -117,6 +117,11 @@ public:
    /** @brief The standard assignment operator */
    G_API_GENEVA const GBaseSwarm& operator=(const GBaseSwarm&);
 
+   /** @brief Checks for equality with another GBaseSwarm object */
+   virtual G_API_GENEVA bool operator==(const GBaseSwarm&) const;
+   /** @brief Checks for inequality with another GBaseSwarm object */
+   virtual G_API_GENEVA bool operator!=(const GBaseSwarm&) const;
+
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject&

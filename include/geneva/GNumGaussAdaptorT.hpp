@@ -214,8 +214,12 @@ public:
     */
    bool operator==(const GNumGaussAdaptorT<num_type, fp_type>& cp) const {
       using namespace Gem::Common;
-      // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GNumGaussAdaptorT<num_type, fp_type>::operator==","cp", CE_SILENT);
+      try {
+         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation&) {
+         return false;
+      }
    }
 
    /***************************************************************************/
@@ -227,8 +231,12 @@ public:
     */
    bool operator!=(const GNumGaussAdaptorT<num_type, fp_type>& cp) const {
       using namespace Gem::Common;
-      // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNumGaussAdaptorT<num_type, fp_type>::operator==","cp", CE_SILENT);
+      try {
+         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation&) {
+         return false;
+      }
    }
 
 	/***************************************************************************/
@@ -293,8 +301,10 @@ public:
       const GNumGaussAdaptorT<num_type, fp_type>  *p_load = GObject::gobject_conversion<GNumGaussAdaptorT<num_type, fp_type> >(&cp);
 
       try {
+         BEGIN_COMPARE;
+
          // Check our parent class'es data ...
-         GAdaptorT<num_type>::compare(cp, e, limit);
+         COMPARE_PARENT(GAdaptorT<num_type>, cp, e, limit);
 
          // ... and then our local data
          COMPARE(sigma_, p_load->sigma_, e, limit);
@@ -303,9 +313,10 @@ public:
          COMPARE(minSigma_, p_load->minSigma_, e, limit);
          COMPARE(maxSigma_, p_load->maxSigma_, e, limit);
 
+         END_COMPARE;
+
       } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         g.add("g_expectation_violation caught by GNumGaussAdaptorT<num_type, fp_type>");
-         throw g;
+         throw g("g_expectation_violation caught by GNumGaussAdaptorT<num_type, fp_type>");
       }
    }
 

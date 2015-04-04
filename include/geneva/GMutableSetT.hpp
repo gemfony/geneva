@@ -129,6 +129,40 @@ public:
       return *this;
    }
 
+   /***************************************************************************/
+   /**
+    * Checks for equality with another GMutableSetT<T> object
+    *
+    * @param  cp A constant reference to another GMutableSetT<T> object
+    * @return A boolean indicating whether both objects are equal
+    */
+   bool operator==(const GMutableSetT<T>& cp) const {
+      using namespace Gem::Common;
+      try {
+         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation&) {
+         return false;
+      }
+   }
+
+   /***************************************************************************/
+   /**
+    * Checks for inequality with another GMutableSetT<T> object
+    *
+    * @param  cp A constant reference to another GMutableSetT<T> object
+    * @return A boolean indicating whether both objects are inequal
+    */
+   bool operator!=(const GMutableSetT<T>& cp) const {
+      using namespace Gem::Common;
+      try {
+         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation&) {
+         return false;
+      }
+   }
+
 	/***************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
@@ -187,15 +221,18 @@ public:
       const GMutableSetT<T> *p_load = GObject::gobject_conversion<GMutableSetT<T> >(&cp);
 
       try {
+         BEGIN_COMPARE;
+
          // Check our parent class'es data ...
-         GOptimizableEntity::compare(cp, e, limit);
-         GStdPtrVectorInterfaceT<T>::compare_base(*p_load, e, limit);
+         COMPARE_PARENT(GOptimizableEntity, cp, e, limit);
+         COMPARE_VEC(GStdPtrVectorInterfaceT<T>, *p_load, e, limit);
 
          // ... no local data
 
+         END_COMPARE;
+
       } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         g.add("g_expectation_violation caught by GAdaptorT<T>");
-         throw g;
+         throw g("g_expectation_violation caught by GAdaptorT<T>");
       }
    }
 

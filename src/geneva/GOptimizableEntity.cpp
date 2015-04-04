@@ -151,6 +151,40 @@ const GOptimizableEntity& GOptimizableEntity::operator=(const GOptimizableEntity
 
 /******************************************************************************/
 /**
+ * Checks for equality with another GOptimizableEntity object
+ *
+ * @param  cp A constant reference to another GOptimizableEntity object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GOptimizableEntity::operator==(const GOptimizableEntity& cp) const {
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
+}
+
+/******************************************************************************/
+/**
+ * Checks for inequality with another GOptimizableEntity object
+ *
+ * @param  cp A constant reference to another GOptimizableEntity object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GOptimizableEntity::operator!=(const GOptimizableEntity& cp) const {
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
+}
+
+/******************************************************************************/
+/**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
  *
@@ -225,8 +259,10 @@ void GOptimizableEntity::compare(
    const GOptimizableEntity *p_load = GObject::gobject_conversion<GOptimizableEntity>(&cp);
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GObject::compare(cp, e, limit);
+      COMPARE_PARENT(GObject, cp, e, limit);
 
       // ... and then our local data
       COMPARE(nFitnessCriteria_, p_load->nFitnessCriteria_, e, limit);
@@ -249,9 +285,10 @@ void GOptimizableEntity::compare(
       COMPARE(nAdaptions_, p_load->nAdaptions_, e, limit);
       COMPARE(evaluationID_, p_load->evaluationID_, e, limit);
 
+      END_COMPARE;
+
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GOptimizableEntity");
-      throw g;
+      throw g("g_expectation_violation caught by GOptimizableEntity");
    }
 }
 

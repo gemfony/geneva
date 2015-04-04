@@ -129,30 +129,38 @@ public:
    }
 
    /***************************************************************************/
-   /**
-    * Checks for equality with another GParameterCollectionT<T> object
-    *
-    * @param  cp A constant reference to another GParameterCollectionT<T> object
-    * @return A boolean indicating whether both objects are equal
-    */
-   bool operator==(const GParameterCollectionT<T>& cp) const {
-      using namespace Gem::Common;
-      // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterCollectionT<T>::operator==","cp", CE_SILENT);
-   }
+    /**
+     * Checks for equality with another GParameterCollectionT<T> object
+     *
+     * @param  cp A constant reference to another GParameterCollectionT<T> object
+     * @return A boolean indicating whether both objects are equal
+     */
+    bool operator==(const GParameterCollectionT<T>& cp) const {
+       using namespace Gem::Common;
+       try {
+          this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+          return true;
+       } catch(g_expectation_violation&) {
+          return false;
+       }
+    }
 
-   /***************************************************************************/
-   /**
-    * Checks for inequality with another GParameterCollectionT<T> object
-    *
-    * @param  cp A constant reference to another GParameterCollectionT<T> object
-    * @return A boolean indicating whether both objects are inequal
-    */
-   bool operator!=(const GParameterCollectionT<T>& cp) const {
-      using namespace Gem::Common;
-      // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterCollectionT<T>::operator==","cp", CE_SILENT);
-   }
+    /***************************************************************************/
+    /**
+     * Checks for inequality with another GParameterCollectionT<T> object
+     *
+     * @param  cp A constant reference to another GParameterCollectionT<T> object
+     * @return A boolean indicating whether both objects are inequal
+     */
+    bool operator!=(const GParameterCollectionT<T>& cp) const {
+       using namespace Gem::Common;
+       try {
+          this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+          return true;
+       } catch(g_expectation_violation&) {
+          return false;
+       }
+    }
 
 	/***************************************************************************/
 	/**
@@ -212,15 +220,18 @@ public:
       const GParameterCollectionT<T>  *p_load = GObject::gobject_conversion<GParameterCollectionT<T> >(&cp);
 
       try {
+         BEGIN_COMPARE;
+
          // Check our parent class'es data ...
-         GParameterBaseWithAdaptorsT<T>::compare(cp, e, limit);
-         GStdSimpleVectorInterfaceT<T>::compare_base(*p_load, e, limit);
+         COMPARE_PARENT(GParameterBaseWithAdaptorsT<T>, cp, e, limit);
+         COMPARE_VEC(GStdSimpleVectorInterfaceT<T>, *p_load, e, limit);
 
          // ... no local data
 
+         END_COMPARE;
+
       } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         g.add("g_expectation_violation caught by GParameterCollectionT<T>");
-         throw g;
+         throw g("g_expectation_violation caught by GParameterCollectionT<T>");
       }
    }
 

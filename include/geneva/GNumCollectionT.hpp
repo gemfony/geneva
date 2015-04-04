@@ -176,8 +176,12 @@ public:
     */
    bool operator==(const GNumCollectionT<T>& cp) const {
       using namespace Gem::Common;
-      // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GNumCollectionT<T>::operator==","cp", CE_SILENT);
+      try {
+         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation&) {
+         return false;
+      }
    }
 
    /***************************************************************************/
@@ -189,8 +193,12 @@ public:
     */
    bool operator!=(const GNumCollectionT<T>& cp) const {
       using namespace Gem::Common;
-      // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNumCollectionT<T>::operator==","cp", CE_SILENT);
+      try {
+         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation&) {
+         return false;
+      }
    }
 
 	/***************************************************************************/
@@ -252,16 +260,19 @@ public:
       const GNumCollectionT<T>  *p_load = GObject::gobject_conversion<GNumCollectionT<T> >(&cp);
 
       try {
+         BEGIN_COMPARE;
+
          // Check our parent class'es data ...
-         GParameterCollectionT<T>::compare(cp, e, limit);
+         COMPARE_PARENT(GParameterCollectionT<T>, cp, e, limit);
 
          // ... and then our local data
          COMPARE(lowerInitBoundary_, p_load->lowerInitBoundary_, e, limit);
          COMPARE(upperInitBoundary_, p_load->upperInitBoundary_, e, limit);
 
+         END_COMPARE;
+
       } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         g.add("g_expectation_violation caught by GNumCollectionT<T>");
-         throw g;
+         throw g("g_expectation_violation caught by GNumCollectionT<T>");
       }
    }
 

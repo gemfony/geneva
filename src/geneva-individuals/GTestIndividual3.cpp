@@ -144,9 +144,13 @@ const GTestIndividual3& GTestIndividual3::operator=(const GTestIndividual3& cp){
  * @return A boolean indicating whether both objects are equal
  */
 bool GTestIndividual3::operator==(const GTestIndividual3& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GTestIndividual3::operator==","cp", CE_SILENT);
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -157,9 +161,13 @@ bool GTestIndividual3::operator==(const GTestIndividual3& cp) const {
  * @return A boolean indicating whether both objects are in-equal
  */
 bool GTestIndividual3::operator!=(const GTestIndividual3& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GTestIndividual3::operator!=","cp", CE_SILENT);
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -220,14 +228,17 @@ void GTestIndividual3::compare(
    const GTestIndividual3 *p_load = GObject::gobject_conversion<GTestIndividual3>(&cp);
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GParameterSet::compare(cp, e, limit);
+      COMPARE_PARENT(GParameterSet, cp, e, limit);
 
       // ... no local data
 
+      END_COMPARE;
+
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GTestIndividual3");
-      throw g;
+      throw g("g_expectation_violation caught by GTestIndividual3");
    }
 }
 

@@ -172,8 +172,12 @@ public:
     */
    bool operator==(const GIntGaussAdaptorT<int_type>& cp) const {
       using namespace Gem::Common;
-      // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GIntGaussAdaptorT<int_type>::operator==","cp", CE_SILENT);
+      try {
+         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation&) {
+         return false;
+      }
    }
 
    /***************************************************************************/
@@ -185,8 +189,12 @@ public:
     */
    bool operator!=(const GIntGaussAdaptorT<int_type>& cp) const {
       using namespace Gem::Common;
-      // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GIntGaussAdaptorT<int_type>::operator==","cp", CE_SILENT);
+      try {
+         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation&) {
+         return false;
+      }
    }
 
 	/***************************************************************************/
@@ -246,14 +254,19 @@ public:
 	   const GIntGaussAdaptorT<int_type>  *p_load = GObject::gobject_conversion<GIntGaussAdaptorT<int_type> >(&cp);
 
 	   try {
+	      typedef GNumGaussAdaptorT<int_type, double> GNumGaussAdaptorT_int_double;
+
+	      BEGIN_COMPARE;
+
 	      // Check our parent class'es data ...
-	      GNumGaussAdaptorT<int_type, double>::compare(cp, e, limit);
+	      COMPARE_PARENT(GNumGaussAdaptorT_int_double, cp, e, limit);
 
 	      // ... no local data
 
+	      END_COMPARE;
+
 	   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-	      g.add("g_expectation_violation caught by GIntGaussAdaptorT<int_type>");
-	      throw g;
+	      throw g("g_expectation_violation caught by GIntGaussAdaptorT<int_type>");
 	   }
 	}
 

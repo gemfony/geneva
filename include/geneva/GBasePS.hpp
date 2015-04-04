@@ -148,6 +148,11 @@ public:
    /** @brief The standard assignment operator */
    G_API_GENEVA const GBasePS& operator=(const GBasePS&);
 
+   /** @brief Checks for equality with another GBasePS object */
+   virtual G_API_GENEVA bool operator==(const GBasePS&) const;
+   /** @brief Checks for inequality with another GBasePS object */
+   virtual G_API_GENEVA bool operator!=(const GBasePS&) const;
+
    /** @brief Checks whether this object fulfills a given expectation in relation to another object */
    virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
       const GObject&

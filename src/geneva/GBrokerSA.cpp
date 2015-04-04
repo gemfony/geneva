@@ -117,8 +117,12 @@ const GBrokerSA& GBrokerSA::operator=(
  */
 bool GBrokerSA::operator==(const GBrokerSA& cp) const {
    using namespace Gem::Common;
-   // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBrokerSA::operator==","cp", CE_SILENT);
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -130,8 +134,12 @@ bool GBrokerSA::operator==(const GBrokerSA& cp) const {
  */
 bool GBrokerSA::operator!=(const GBrokerSA& cp) const {
    using namespace Gem::Common;
-   // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBrokerSA::operator!=","cp", CE_SILENT);
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -194,16 +202,19 @@ void GBrokerSA::compare(
    const GBrokerSA *p_load = GObject::gobject_conversion<GBrokerSA>(&cp);
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GBaseSA::compare(cp, e, limit);
-      Gem::Courtier::GBrokerConnector2T<GParameterSet>::compare_common(*p_load, e, limit);
+      COMPARE_PARENT(GBaseSA, cp, e, limit);
+      COMPARE_BROKER(Gem::Courtier::GBrokerConnector2T<GParameterSet>, *p_load, e, limit);
 
       // ... and then our local data
       COMPARE(nThreads_, p_load->nThreads_, e, limit);
 
+      END_COMPARE;
+
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GBrokerSA");
-      throw g;
+      throw g("g_expectation_violation caught by GBrokerSA");
    }
 }
 

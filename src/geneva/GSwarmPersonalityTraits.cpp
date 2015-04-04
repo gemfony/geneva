@@ -96,9 +96,13 @@ const GSwarmPersonalityTraits& GSwarmPersonalityTraits::operator=(const GSwarmPe
  * @return A boolean indicating whether both objects are equal
  */
 bool GSwarmPersonalityTraits::operator==(const GSwarmPersonalityTraits& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GSwarmPersonalityTraits::operator==","cp", CE_SILENT);
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -109,9 +113,13 @@ bool GSwarmPersonalityTraits::operator==(const GSwarmPersonalityTraits& cp) cons
  * @return A boolean indicating whether both objects are inequal
  */
 bool GSwarmPersonalityTraits::operator!=(const GSwarmPersonalityTraits& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GSwarmPersonalityTraits::operator!=","cp", CE_SILENT);
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -174,8 +182,10 @@ void GSwarmPersonalityTraits::compare(
    const GSwarmPersonalityTraits *p_load = GObject::gobject_conversion<GSwarmPersonalityTraits>(&cp);
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GPersonalityTraits::compare(cp, e, limit);
+      COMPARE_PARENT(GPersonalityTraits, cp, e, limit);
 
       // ... and then our local data
       COMPARE(neighborhood_, p_load->neighborhood_, e, limit);
@@ -183,9 +193,10 @@ void GSwarmPersonalityTraits::compare(
       COMPARE(personal_best_, p_load->personal_best_, e, limit);
       COMPARE(personal_best_quality_, p_load->personal_best_quality_, e, limit);
 
+      END_COMPARE;
+
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GSwarmPersonalityTraits");
-      throw g;
+      throw g("g_expectation_violation caught by GSwarmPersonalityTraits");
    }
 }
 

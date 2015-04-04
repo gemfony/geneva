@@ -82,8 +82,12 @@ const GParameterSetParChild& GParameterSetParChild::operator=(const GParameterSe
  */
 bool GParameterSetParChild::operator==(const GParameterSetParChild& cp) const {
    using namespace Gem::Common;
-   // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterSetParChild::operator==","cp", CE_SILENT);
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -95,8 +99,12 @@ bool GParameterSetParChild::operator==(const GParameterSetParChild& cp) const {
  */
 bool GParameterSetParChild::operator!=(const GParameterSetParChild& cp) const {
    using namespace Gem::Common;
-   // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterSetParChild::operator!=","cp", CE_SILENT);
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -157,15 +165,18 @@ void GParameterSetParChild::compare(
    const GParameterSetParChild *p_load = GObject::gobject_conversion<GParameterSetParChild>(&cp);
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GBaseParChildT<GParameterSet>::compare(cp, e, limit);
+      COMPARE_PARENT(GBaseParChildT<GParameterSet>, cp, e, limit);
 
       // ... and then our local data
       COMPARE(amalgamationLikelihood_, p_load->amalgamationLikelihood_, e, limit);
 
+      END_COMPARE;
+
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GParameterSetParChild");
-      throw g;
+      throw g("g_expectation_violation caught by GParameterSetParChild");
    }
 }
 

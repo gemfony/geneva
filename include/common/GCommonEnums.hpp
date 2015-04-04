@@ -42,6 +42,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <csignal>
+#include <cmath>
 
 // Boost headers go here
 
@@ -66,6 +67,13 @@
 
 namespace Gem {
 namespace Common {
+
+
+/******************************************************************************/
+/**
+ * The limit for similarity checks of floating point numbers
+ */
+const double CE_DEF_SIMILARITY_DIFFERENCE = pow(10., -5);
 
 /******************************************************************************/
 /**

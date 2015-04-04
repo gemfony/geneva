@@ -196,6 +196,11 @@ public:
 	/** @brief Allows derived classes to assign other class'es values */
 	G_API_GENEVA const GObject& operator=(const GObject&);
 
+   /** @brief Checks for equality with another GObject object */
+   virtual G_API_GENEVA bool operator==(const GObject&) const;
+   /** @brief Checks for inequality with another GObject object */
+   virtual G_API_GENEVA bool operator!=(const GObject&) const;
+
 	/** @brief Convert class to a serial representation that is then written to a stream */
 	G_API_GENEVA void toStream(std::ostream&, const Gem::Common::serializationMode&) const;
 	/** @brief Load class from a stream */
@@ -429,11 +434,6 @@ protected:
 	/***************************************************************************/
 
 private:
-	/** @brief Checks for equality with another GObject object. Intentionally left undefined, as this class is abstract */
-	bool operator==(const GObject&) const;
-	/** @brief Checks inequality with another GObject object. Intentionally left undefined, as this class is abstract */
-	bool operator!=(const GObject&) const;
-
 	// Needed to allow interruption of the optimization run without loss of data
 	// Npte that "volatile" is needed in order for the signal handler to work
 	static volatile G_API_GENEVA std::sig_atomic_t GenevaSigHupSent;  // Initialized in GObject.cpp
@@ -465,6 +465,68 @@ inline boost::shared_ptr<GObject> GObject::clone<GObject> (
  * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
+
+/******************************************************************************/
+// A define for the compare-infrastructure (used e.g. in operator== and in unit tests)
+#define COMPARE_PARENT(p,c,e,l) \
+g_n_tests++; \
+switch(e){ \
+case Gem::Common::CE_FP_SIMILARITY: \
+case Gem::Common::CE_EQUALITY: \
+{ \
+    p::compare((c),(e),(l));\
+} \
+break; \
+\
+case Gem::Common::CE_INEQUALITY: \
+{ \
+   try{ \
+      p::compare((c),(e),(l)); \
+   } catch(g_expectation_violation&) { \
+       g_n_violations++; \
+   } \
+} \
+break; \
+\
+default: \
+{ \
+   glogger \
+   << "Got invalid expectation " << e << std::endl \
+   << GEXCEPTION; \
+} \
+break; \
+}; \
+
+/******************************************************************************/
+// A define for the compare-infrastructure of GStdSimpleVectorInterface and GStdPtrVectorInterface
+#define COMPARE_VEC(p,c,e,l) \
+g_n_tests++; \
+switch(e){ \
+case Gem::Common::CE_FP_SIMILARITY: \
+case Gem::Common::CE_EQUALITY: \
+{ \
+    p::compare_base((c),(e),(l));\
+} \
+break; \
+\
+case Gem::Common::CE_INEQUALITY: \
+{ \
+   try{ \
+      p::compare_base((c),(e),(l)); \
+   } catch(g_expectation_violation&) { \
+       g_n_violations++; \
+   } \
+} \
+break; \
+\
+default: \
+{ \
+   glogger \
+   << "Got invalid expectation " << e << std::endl \
+   << GEXCEPTION; \
+} \
+break; \
+}; \
 
 /******************************************************************************/
 

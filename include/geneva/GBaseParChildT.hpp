@@ -167,8 +167,12 @@ public:
     */
    bool operator==(const GBaseParChildT<ind_type>& cp) const {
       using namespace Gem::Common;
-      // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBaseParChildT<ind_type>::operator==","cp", CE_SILENT);
+      try {
+         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation&) {
+         return false;
+      }
    }
 
    /***************************************************************************/
@@ -180,8 +184,12 @@ public:
     */
    bool operator!=(const GBaseParChildT<ind_type>& cp) const {
       using namespace Gem::Common;
-      // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBaseParChildT<ind_type>::operator==","cp", CE_SILENT);
+      try {
+         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation&) {
+         return false;
+      }
    }
 
    /***************************************************************************/
@@ -246,8 +254,10 @@ public:
       const GBaseParChildT<ind_type> *p_load = GObject::gobject_conversion<GBaseParChildT<ind_type> >(&cp);
 
       try {
+         BEGIN_COMPARE;
+
          // Check our parent class'es data ...
-         GOptimizationAlgorithmT<ind_type>::compare(cp, e, limit);
+         COMPARE_PARENT(GOptimizationAlgorithmT<ind_type>, cp, e, limit);
 
          // ... and then our local data
          COMPARE(nParents_, p_load->nParents_, e, limit);
@@ -256,9 +266,10 @@ public:
          COMPARE(maxPopulationSize_, p_load->maxPopulationSize_, e, limit);
          COMPARE(growthRate_, p_load->growthRate_, e, limit);
 
+         END_COMPARE;
+
       } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         g.add("g_expectation_violation caught by GBaseParChildT<ind_type>");
-         throw g;
+         throw g("g_expectation_violation caught by GBaseParChildT<ind_type>");
       }
    }
 

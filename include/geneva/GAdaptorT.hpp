@@ -224,8 +224,12 @@ public:
     */
    bool operator==(const GAdaptorT<T>& cp) const {
       using namespace Gem::Common;
-      // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GAdaptorT<T>::operator==","cp", CE_SILENT);
+      try {
+         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation&) {
+         return false;
+      }
    }
 
    /***************************************************************************/
@@ -237,8 +241,12 @@ public:
     */
    bool operator!=(const GAdaptorT<T>& cp) const {
       using namespace Gem::Common;
-      // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GAdaptorT<T>::operator==","cp", CE_SILENT);
+      try {
+         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation&) {
+         return false;
+      }
    }
 
 	/***************************************************************************/
@@ -307,8 +315,10 @@ public:
       const GAdaptorT<T>  *p_load = gobject_conversion<GAdaptorT<T> >(&cp);
 
       try {
+         BEGIN_COMPARE;
+
          // Check our parent class'es data ...
-         GObject::compare(cp, e, limit);
+         COMPARE_PARENT(GObject, cp, e, limit);
 
          // ... and then our local data
          COMPARE(adaptionCounter_, p_load->adaptionCounter_, e, limit);
@@ -321,9 +331,10 @@ public:
          COMPARE(adaptAdaptionProbability_, p_load->adaptAdaptionProbability_, e, limit);
          COMPARE(adProb_reset_, p_load->adProb_reset_, e, limit);
 
+         END_COMPARE;
+
       } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         g.add("g_expectation_violation caught by GAdaptorT<T>");
-         throw g;
+         throw g("g_expectation_violation caught by GAdaptorT<T>");
       }
 	}
 

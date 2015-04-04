@@ -189,7 +189,7 @@ public:
 	virtual ~GOptimizationAlgorithmT()
 	{ /* nothing */ }
 
-   /***************************************************************************/
+	/***************************************************************************/
    /**
     * Checks for equality with another GOptimizationAlgorithmT<ind_type> object
     *
@@ -198,8 +198,12 @@ public:
     */
    bool operator==(const GOptimizationAlgorithmT<ind_type>& cp) const {
       using namespace Gem::Common;
-      // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GOptimizationAlgorithmT<ind_type>::operator==","cp", CE_SILENT);
+      try {
+         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation&) {
+         return false;
+      }
    }
 
    /***************************************************************************/
@@ -211,8 +215,12 @@ public:
     */
    bool operator!=(const GOptimizationAlgorithmT<ind_type>& cp) const {
       using namespace Gem::Common;
-      // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-      return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GOptimizationAlgorithmT<ind_type>::operator==","cp", CE_SILENT);
+      try {
+         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation&) {
+         return false;
+      }
    }
 
 	/***************************************************************************/
@@ -437,8 +445,10 @@ public:
       const GOptimizationAlgorithmT<ind_type> *p_load = GObject::gobject_conversion<GOptimizationAlgorithmT<ind_type> >(&cp);
 
       try {
+         BEGIN_COMPARE;
+
          // Check our parent class'es data ...
-         GMutableSetT<ind_type>::compare(cp, e, limit);
+         COMPARE_PARENT(GMutableSetT<ind_type>, cp, e, limit);
 
          // ... and then our local data
          COMPARE(iteration_, p_load->iteration_, e, limit);
@@ -464,9 +474,10 @@ public:
          COMPARE(worstKnownValids_, p_load->worstKnownValids_, e, limit);
          COMPARE(optimizationMonitor_ptr_, p_load->optimizationMonitor_ptr_, e, limit);
 
+         END_COMPARE;
+
       } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         g.add("g_expectation_violation caught by GOptimizationAlgorithmT<ind_type>");
-         throw g;
+         throw g("g_expectation_violation caught by GOptimizationAlgorithmT<ind_type>");
       }
    }
 
@@ -2063,15 +2074,18 @@ public:
 	       const GOptimizationMonitorT *p_load = GObject::gobject_conversion<GOptimizationMonitorT>(&cp);
 
 	       try {
+	          BEGIN_COMPARE;
+
 	          // Check our parent class'es data ...
-	          GObject::compare(cp, e, limit);
+	          COMPARE_PARENT(GObject, cp, e, limit);
 
 	          // ... and then our local data
 	          COMPARE(quiet_, p_load->quiet_, e, limit);
 
+	          END_COMPARE;
+
 	       } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-	          g.add("g_expectation_violation caught by GOptimizationMonitorT");
-	          throw g;
+	          throw g("g_expectation_violation caught by GOptimizationMonitorT");
 	       }
 	    }
 

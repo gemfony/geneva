@@ -103,9 +103,13 @@ const GInt32ObjectCollection& GInt32ObjectCollection::operator=(const GInt32Obje
  * @return A boolean indicating whether both objects are equal
  */
 bool GInt32ObjectCollection::operator==(const GInt32ObjectCollection& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GInt32ObjectCollection::operator==","cp", CE_SILENT);
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -116,9 +120,13 @@ bool GInt32ObjectCollection::operator==(const GInt32ObjectCollection& cp) const 
  * @return A boolean indicating whether both objects are in-equal
  */
 bool GInt32ObjectCollection::operator!=(const GInt32ObjectCollection& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GInt32ObjectCollection::operator!=","cp", CE_SILENT);
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -177,14 +185,17 @@ void GInt32ObjectCollection::compare(
    const GInt32ObjectCollection *p_load = GObject::gobject_conversion<GInt32ObjectCollection>(&cp);
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GParameterTCollectionT<GInt32Object>::compare(cp, e, limit);
+      COMPARE_PARENT(GParameterTCollectionT<GInt32Object>, cp, e, limit);
 
       // ... no local data
 
+      END_COMPARE;
+
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GInt32ObjectCollection");
-      throw g;
+      throw g("g_expectation_violation caught by GInt32ObjectCollection");
    }
 }
 

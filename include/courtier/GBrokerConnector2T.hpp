@@ -84,6 +84,37 @@ namespace Gem {
 namespace Courtier {
 
 /******************************************************************************/
+// A define for the compare-infrastructure of GBrokerConnector2T
+#define COMPARE_BROKER(p,c,e,l) \
+g_n_tests++; \
+switch(e){ \
+case Gem::Common::CE_FP_SIMILARITY: \
+case Gem::Common::CE_EQUALITY: \
+{ \
+    p::compare_common((c),(e),(l));\
+} \
+break; \
+\
+case Gem::Common::CE_INEQUALITY: \
+{ \
+   try{ \
+      p::compare_common((c),(e),(l)); \
+   } catch(g_expectation_violation&) { \
+       g_n_violations++; \
+   } \
+} \
+break; \
+\
+default: \
+{ \
+   glogger \
+   << "Got invalid expectation " << e << std::endl \
+   << GEXCEPTION; \
+} \
+break; \
+}; \
+
+/******************************************************************************/
 /**
  * This class centralizes some functionality and data that is needed to perform
  * serial or parallel execution for a set of work items. Its main purpose is to
@@ -242,8 +273,7 @@ public:
          // No parent class
          // ... and no local data
       } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         g.add("g_expectation_violation caught by GBaseExecutorT<processable_type>");
-         throw g;
+         throw g("g_expectation_violation caught by GBaseExecutorT<processable_type>");
       } catch(const std::bad_cast& exp) {
          glogger
          << "In GSerialExecutorT<processable_type>::checkRelationshipWith_common(): Conversion error!" << std::endl
@@ -787,13 +817,16 @@ public:
       const GSerialExecutorT<processable_type>& cp = dynamic_cast<const GSerialExecutorT<processable_type>&>(cp_base);
 
       try {
+         BEGIN_COMPARE;
+
          // Check our parent class
-         GBaseExecutorT<processable_type>::compare_common(cp,e,limit);
+         COMPARE_BROKER(GBaseExecutorT<processable_type>, cp,e,limit);
+
+         END_COMPARE;
 
          // ... no local data
       } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         g.add("g_expectation_violation caught by GSerialExecutorT<processable_type>");
-         throw g;
+         throw g("g_expectation_violation caught by GSerialExecutorT<processable_type>");
       } catch(const std::bad_cast& exp) {
          glogger
          << "In GSerialExecutorT<processable_type>::checkRelationshipWith_common(): Conversion error!" << std::endl
@@ -1039,13 +1072,17 @@ public:
       const GMTExecutorT<processable_type>& cp = dynamic_cast<const GMTExecutorT<processable_type>&>(cp_base);
 
       try {
+         BEGIN_COMPARE;
+
          // Check our parent class
-         GBaseExecutorT<processable_type>::compare_common(cp,e,limit);
+         COMPARE_BROKER(GBaseExecutorT<processable_type>, cp,e,limit);
 
          // ... no local data
+
+         END_COMPARE;
+
       } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         g.add("g_expectation_violation caught by GMTExecutorT<processable_type>");
-         throw g;
+         throw g("g_expectation_violation caught by GMTExecutorT<processable_type>");
       } catch(const std::bad_cast& exp) {
          glogger
          << "In GMTExecutorT<processable_type>::checkRelationshipWith_common(): Conversion error!" << std::endl
@@ -1319,8 +1356,10 @@ public:
       const GBrokerConnector2T<processable_type>& cp = dynamic_cast<const GBrokerConnector2T<processable_type>&>(cp_base);
 
       try {
+         BEGIN_COMPARE;
+
          // Check our parent class
-         GBaseExecutorT<processable_type>::compare_common(cp,e,limit);
+         COMPARE_BROKER(GBaseExecutorT<processable_type>, cp,e,limit);
 
          // ... and then our local data
          COMPARE(srm_, cp.srm_, e, limit);
@@ -1328,9 +1367,10 @@ public:
          COMPARE(waitFactor_, cp.waitFactor_, e, limit);
          COMPARE(doLogging_, cp.doLogging_, e, limit);
 
+         END_COMPARE;
+
       } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         g.add("g_expectation_violation caught by GGBrokerConnector2T<processable_type>");
-         throw g;
+         throw g("g_expectation_violation caught by GGBrokerConnector2T<processable_type>");
       } catch(const std::bad_cast& exp) {
          glogger
          << "In GBrokerConnector2T<processable_type>::checkRelationshipWith_common(): Conversion error!" << std::endl

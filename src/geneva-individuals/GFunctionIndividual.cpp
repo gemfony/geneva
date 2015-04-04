@@ -93,8 +93,12 @@ const GDoubleSumConstraint& GDoubleSumConstraint::operator=(const GDoubleSumCons
  */
 bool GDoubleSumConstraint::operator==(const GDoubleSumConstraint& cp) const {
    using namespace Gem::Common;
-   // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GDoubleSumConstraint::operator==","cp", CE_SILENT);
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -103,8 +107,12 @@ bool GDoubleSumConstraint::operator==(const GDoubleSumConstraint& cp) const {
  */
 bool GDoubleSumConstraint::operator!=(const GDoubleSumConstraint& cp) const {
    using namespace Gem::Common;
-   // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GDoubleSumConstraint::operator!=","cp", CE_SILENT);
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -165,15 +173,18 @@ void GDoubleSumConstraint::compare(
    const GDoubleSumConstraint *p_load = GObject::gobject_conversion<GDoubleSumConstraint>(&cp);
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GParameterSetConstraint::compare(cp, e, limit);
+      COMPARE_PARENT(GParameterSetConstraint, cp, e, limit);
 
       // ... and then our local data
       COMPARE(C_, p_load->C_, e, limit);
 
+      END_COMPARE;
+
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GDoubleSumConstraint");
-      throw g;
+      throw g("g_expectation_violation caught by GDoubleSumConstraint");
    }
 }
 
@@ -288,8 +299,12 @@ const GDoubleSumGapConstraint& GDoubleSumGapConstraint::operator=(const GDoubleS
  */
 bool GDoubleSumGapConstraint::operator==(const GDoubleSumGapConstraint& cp) const {
    using namespace Gem::Common;
-   // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GDoubleSumGapConstraint::operator==","cp", CE_SILENT);
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -298,8 +313,13 @@ bool GDoubleSumGapConstraint::operator==(const GDoubleSumGapConstraint& cp) cons
  */
 bool GDoubleSumGapConstraint::operator!=(const GDoubleSumGapConstraint& cp) const {
    using namespace Gem::Common;
-   // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GDoubleSumGapConstraint::operator!=","cp", CE_SILENT);
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -361,15 +381,18 @@ void GDoubleSumGapConstraint::compare(
    const GDoubleSumGapConstraint *p_load = GObject::gobject_conversion<GDoubleSumGapConstraint>(&cp);
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GParameterSetConstraint::compare(cp, e, limit);
+      COMPARE_PARENT(GParameterSetConstraint, cp, e, limit);
 
       // ... and then our local data
       COMPARE(C_, p_load->C_, e, limit);
 
+      END_COMPARE;
+
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GDoubleSumGapConstraint");
-      throw g;
+      throw g("g_expectation_violation caught by GDoubleSumGapConstraint");
    }
 }
 
@@ -483,8 +506,12 @@ const GSphereConstraint& GSphereConstraint::operator=(const GSphereConstraint& c
  */
 bool GSphereConstraint::operator==(const GSphereConstraint& cp) const {
    using namespace Gem::Common;
-   // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GSphereConstraint::operator==","cp", CE_SILENT);
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -493,8 +520,12 @@ bool GSphereConstraint::operator==(const GSphereConstraint& cp) const {
  */
 bool GSphereConstraint::operator!=(const GSphereConstraint& cp) const {
    using namespace Gem::Common;
-   // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GSphereConstraint::operator!=","cp", CE_SILENT);
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -555,11 +586,15 @@ void GSphereConstraint::compare(
    const GSphereConstraint *p_load = GObject::gobject_conversion<GSphereConstraint>(&cp);
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GParameterSetConstraint::compare(cp, e, limit);
+      COMPARE_PARENT(GParameterSetConstraint, cp, e, limit);
 
       // ... and then our local data
       COMPARE(diameter_, p_load->diameter_, e, limit);
+
+      END_COMPARE;
 
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
       g.add("g_expectation_violation caught by GSphereConstraint");
@@ -790,9 +825,13 @@ const GFunctionIndividual& GFunctionIndividual::operator=(const GFunctionIndivid
  * @return A boolean indicating whether both objects are equal
  */
 bool GFunctionIndividual::operator==(const GFunctionIndividual& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GFunctionIndividual::operator==","cp", CE_SILENT);
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -803,9 +842,13 @@ bool GFunctionIndividual::operator==(const GFunctionIndividual& cp) const {
  * @return A boolean indicating whether both objects are in-equal
  */
 bool GFunctionIndividual::operator!=(const GFunctionIndividual& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GFunctionIndividual::operator!=","cp", CE_SILENT);
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -867,11 +910,15 @@ void GFunctionIndividual::compare(
    const GFunctionIndividual *p_load = GObject::gobject_conversion<GFunctionIndividual>(&cp);
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GParameterSet::compare(cp, e, limit);
+      COMPARE_PARENT(GParameterSet, cp, e, limit);
 
       // ... and then our local data
       COMPARE(demoFunction_, p_load->demoFunction_, e, limit);
+
+      END_COMPARE;
 
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
       g.add("g_expectation_violation caught by GFunctionIndividual");

@@ -94,7 +94,7 @@ void compare (
    , const std::string& x_name
    , const std::string& y_name
    , const Gem::Common::expectation& e
-   , const double& limit = pow(10,-5)
+   , const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
    , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type> >::type* dummy = 0
 ) {
    bool expectationMet = false;
@@ -207,7 +207,7 @@ void compare (
    , const std::string& x_name
    , const std::string& y_name
    , const Gem::Common::expectation& e
-   , const double& limit = pow(10,-5)
+   , const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
    , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type> >::type* dummy = 0
 ) {
    bool expectationMet = false;

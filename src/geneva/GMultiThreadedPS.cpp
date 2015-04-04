@@ -83,8 +83,12 @@ const GMultiThreadedPS& GMultiThreadedPS::operator=(const GMultiThreadedPS& cp) 
  */
 bool GMultiThreadedPS::operator==(const GMultiThreadedPS& cp) const {
    using namespace Gem::Common;
-   // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GMultiThreadedPS::operator==","cp", CE_SILENT);
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -96,8 +100,12 @@ bool GMultiThreadedPS::operator==(const GMultiThreadedPS& cp) const {
  */
 bool GMultiThreadedPS::operator!=(const GMultiThreadedPS& cp) const {
    using namespace Gem::Common;
-   // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GMultiThreadedPS::operator!=","cp", CE_SILENT);
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -158,15 +166,18 @@ void GMultiThreadedPS::compare(
    const GMultiThreadedPS *p_load = GObject::gobject_conversion<GMultiThreadedPS>(&cp);
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GBasePS::compare(cp, e, limit);
+      COMPARE_PARENT(GBasePS, cp, e, limit);
 
       // ... and then our local data
       COMPARE(nThreads_, p_load->nThreads_, e, limit);
 
+      END_COMPARE;
+
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GMultiThreadedPS");
-      throw g;
+      throw g("g_expectation_violation caught by GMultiThreadedPS");
    }
 }
 

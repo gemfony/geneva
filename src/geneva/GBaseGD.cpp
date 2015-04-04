@@ -136,6 +136,40 @@ const GBaseGD& GBaseGD::operator=(const GBaseGD& cp) {
 
 /******************************************************************************/
 /**
+ * Checks for equality with another GBaseGD object
+ *
+ * @param  cp A constant reference to another GBaseGD object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GBaseGD::operator==(const GBaseGD& cp) const {
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
+}
+
+/******************************************************************************/
+/**
+ * Checks for inequality with another GBaseGD object
+ *
+ * @param  cp A constant reference to another GBaseGD object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GBaseGD::operator!=(const GBaseGD& cp) const {
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
+}
+
+/******************************************************************************/
+/**
  * Returns information about the type of optimization algorithm. This function needs
  * to be overloaded by the actual algorithms to return the correct type.
  *
@@ -315,8 +349,10 @@ void GBaseGD::compare(
    const GBaseGD *p_load = GObject::gobject_conversion<GBaseGD>(&cp);
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GOptimizationAlgorithmT<GParameterSet>::compare(cp, e, limit);
+      COMPARE_PARENT(GOptimizationAlgorithmT<GParameterSet>, cp, e, limit);
 
       // ... and then our local data
       COMPARE(nStartingPoints_, p_load->nStartingPoints_, e, limit);
@@ -328,9 +364,9 @@ void GBaseGD::compare(
       COMPARE(dblUpperParameterBoundaries_, p_load->dblUpperParameterBoundaries_, e, limit);
       COMPARE(adjustedFiniteStep_, p_load->adjustedFiniteStep_, e, limit);
 
+      END_COMPARE;
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GBaseGD");
-      throw g;
+      throw g("g_expectation_violation caught by GBaseGD");
    }
 }
 
@@ -963,9 +999,13 @@ const GBaseGD::GGDOptimizationMonitor& GBaseGD::GGDOptimizationMonitor::operator
  * @return A boolean indicating whether both objects are equal
  */
 bool GBaseGD::GGDOptimizationMonitor::operator==(const GBaseGD::GGDOptimizationMonitor& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBaseGD::GGDOptimizationMonitor::operator==","cp", CE_SILENT);
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -976,9 +1016,13 @@ bool GBaseGD::GGDOptimizationMonitor::operator==(const GBaseGD::GGDOptimizationM
  * @return A boolean indicating whether both objects are inequal
  */
 bool GBaseGD::GGDOptimizationMonitor::operator!=(const GBaseGD::GGDOptimizationMonitor& cp) const {
-	using namespace Gem::Common;
-	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBaseGD::GGDOptimizationMonitor::operator!=","cp", CE_SILENT);
+   using namespace Gem::Common;
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -1042,13 +1086,17 @@ void GBaseGD::GGDOptimizationMonitor::compare(
    const GBaseGD::GGDOptimizationMonitor *p_load = GObject::gobject_conversion<GBaseGD::GGDOptimizationMonitor>(&cp);
 
    try {
+      BEGIN_COMPARE;
+
       // Check our parent class'es data ...
-      GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::compare(cp, e, limit);
+      COMPARE_PARENT(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT, cp, e, limit);
 
       // ... and then our local data
       COMPARE(xDim_, p_load->xDim_, e, limit);
       COMPARE(yDim_, p_load->yDim_, e, limit);
       COMPARE(resultFile_, p_load->resultFile_, e, limit);
+
+      END_COMPARE;
 
    } catch(g_expectation_violation& g) { // Create a suitable stack-trace
       g.add("g_expectation_violation caught by GBaseGD::GGDOptimizationMonitor");
