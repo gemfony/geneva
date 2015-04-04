@@ -208,57 +208,6 @@ public:
       }
    }
 
-	/***************************************************************************/
-	/**
-	 * Checks whether a given expectation for the relationship between this object and another object
-	 * is fulfilled.
-	 *
-	 * @param cp A constant reference to another object, camouflaged as a GObject
-	 * @param e The expected outcome of the comparison
-	 * @param limit The maximum deviation for floating point values (important for similarity checks)
-	 * @param caller An identifier for the calling entity
-	 * @param y_name An identifier for the object that should be compared to this one
-	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
-	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
-	 */
-	boost::optional<std::string> checkRelationshipWith(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-      , const std::string& caller
-      , const std::string& y_name
-      , const bool& withMessages
-	) const OVERRIDE {
-	    using namespace Gem::Common;
-
-		// Check that we are indeed dealing with a GParamterBase reference
-		const GNumBiGaussAdaptorT<num_type, fp_type>  *p_load = GObject::gobject_conversion<GNumBiGaussAdaptorT<num_type, fp_type> >(&cp);
-
-		// Will hold possible deviations from the expectation, including explanations
-	    std::vector<boost::optional<std::string> > deviations;
-
-		// Check our parent class'es data ...
-		deviations.push_back(GAdaptorT<num_type>::checkRelationshipWith(cp, e, limit, "GNumBiGaussAdaptorT<num_type, fp_type>", y_name, withMessages));
-
-		// ... and then our local data
-		deviations.push_back(checkExpectation(withMessages, "GNumBiGaussAdaptorT<num_type, fp_type>", useSymmetricSigmas_, p_load->useSymmetricSigmas_, "useSymmetricSigmas_", "p_load->useSymmetricSigmas_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GNumBiGaussAdaptorT<num_type, fp_type>", sigma1_, p_load->sigma1_, "sigma1_", "p_load->sigma1_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GNumBiGaussAdaptorT<num_type, fp_type>", sigmaSigma1_, p_load->sigmaSigma1_, "sigmaSigma1_", "p_load->sigmaSigma1_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GNumBiGaussAdaptorT<num_type, fp_type>", minSigma1_, p_load->minSigma1_, "minSigma1_", "p_load->minSigma1_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GNumBiGaussAdaptorT<num_type, fp_type>", maxSigma1_, p_load->maxSigma1_, "maxSigma1_", "p_load->maxSigma1_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GNumBiGaussAdaptorT<num_type, fp_type>", sigma2_, p_load->sigma2_, "sigma2_", "p_load->sigma2_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GNumBiGaussAdaptorT<num_type, fp_type>", sigmaSigma2_, p_load->sigmaSigma2_, "sigmaSigma2_", "p_load->sigmaSigma2_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GNumBiGaussAdaptorT<num_type, fp_type>", minSigma2_, p_load->minSigma2_, "minSigma2_", "p_load->minSigma2_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GNumBiGaussAdaptorT<num_type, fp_type>", maxSigma2_, p_load->maxSigma2_, "maxSigma2_", "p_load->maxSigma2_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GNumBiGaussAdaptorT<num_type, fp_type>", delta_, p_load->delta_, "delta_", "p_load->delta_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GNumBiGaussAdaptorT<num_type, fp_type>", sigmaDelta_, p_load->sigmaDelta_, "sigmaDelta_", "p_load->sigmaDelta_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GNumBiGaussAdaptorT<num_type, fp_type>", minDelta_, p_load->minDelta_, "minDelta_", "p_load->minDelta_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GNumBiGaussAdaptorT<num_type, fp_type>", maxDelta_, p_load->maxDelta_, "maxDelta_", "p_load->maxDelta_", e , limit));
-
-
-		return evaluateDiscrepancies("GNumBiGaussAdaptorT<num_type, fp_type>", caller, deviations, e);
-	}
-
    /***************************************************************************/
    /**
     * Searches for compliance with expectations with respect to another object

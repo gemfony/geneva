@@ -153,16 +153,6 @@ public:
    /** @brief Checks for inequality with another GBasePS object */
    virtual G_API_GENEVA bool operator!=(const GBasePS&) const;
 
-   /** @brief Checks whether this object fulfills a given expectation in relation to another object */
-   virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
-      const GObject&
-      , const Gem::Common::expectation&
-      , const double&
-      , const std::string&
-      , const std::string&
-      , const bool&
-   ) const OVERRIDE;
-
    /** @brief Searches for compliance with expectations with respect to another object of the same type */
    virtual G_API_GENEVA void compare(
       const GObject& // the other object
@@ -369,16 +359,6 @@ public:
       virtual G_API_GENEVA bool operator==(const GPSOptimizationMonitor&) const;
       /** @brief Checks for inequality with another GPSOptimizationMonitor object */
       virtual G_API_GENEVA bool operator!=(const GPSOptimizationMonitor&) const;
-
-      /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
-      virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
-         const GObject&
-         , const Gem::Common::expectation&
-         , const double&
-         , const std::string&
-         , const std::string&
-         , const bool&
-      ) const OVERRIDE;
 
       /** @brief Searches for compliance with expectations with respect to another object of the same type */
       virtual G_API_GENEVA void compare(

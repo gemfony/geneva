@@ -185,62 +185,6 @@ bool GOptimizableEntity::operator!=(const GOptimizableEntity& cp) const {
 
 /******************************************************************************/
 /**
- * Checks whether a given expectation for the relationship between this object and another object
- * is fulfilled.
- *
- * @param cp A constant reference to another object, camouflaged as a GObject
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
- * @param caller An identifier for the calling entity
- * @param y_name An identifier for the object that should be compared to this one
- * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
- * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
- */
-boost::optional<std::string> GOptimizableEntity::checkRelationshipWith(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
-   , const std::string& caller
-   , const std::string& y_name
-   , const bool& withMessages
-) const {
-    using namespace Gem::Common;
-
-	// Check that we are indeed dealing with a GParamterBase reference
-	const GOptimizableEntity *p_load = GObject::gobject_conversion<GOptimizableEntity>(&cp);
-
-	// Will hold possible deviations from the expectation, including explanations
-    std::vector<boost::optional<std::string> > deviations;
-
-	// Check our parent class'es data ...
-	deviations.push_back(GObject::checkRelationshipWith(cp, e, limit, "GOptimizableEntity", y_name, withMessages));
-
-	// ... and then our local data
-	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", nFitnessCriteria_, p_load->nFitnessCriteria_, "nFitnessCriteria_", "p_load->nFitnessCriteria_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", currentFitnessVec_, p_load->currentFitnessVec_, "currentFitnessVec_", "p_load->currentFitnessVec_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", worstKnownValids_, p_load->worstKnownValids_, "worstKnownValids_", "p_load->worstKnownValids_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", markedAsInvalidByUser_, p_load->markedAsInvalidByUser_, "markedAsInvalidByUser_", "p_load->markedAsInvalidByUser_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", bestPastPrimaryFitness_, p_load->bestPastPrimaryFitness_, "bestPastPrimaryFitness_", "p_load->bestPastPrimaryFitness_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", nStalls_, p_load->nStalls_, "nStalls_", "p_load->nStalls_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", dirtyFlag_, p_load->dirtyFlag_, "dirtyFlag_", "p_load->dirtyFlag_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", maximize_, p_load->maximize_, "maximize_", "p_load->maximize_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", assignedIteration_, p_load->assignedIteration_, "assignedIteration_", "p_load->assignedIteration_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", validityLevel_, p_load->validityLevel_, "validityLevel_", "p_load->validityLevel_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", evalPolicy_, p_load->evalPolicy_, "evalPolicy_", "p_load->evalPolicy_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", pt_ptr_, p_load->pt_ptr_, "pt_ptr_", "p_load->pt_ptr_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", individualConstraint_, p_load->individualConstraint_, "individualConstraint_", "p_load->individualConstraint_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", steepness_, p_load->steepness_, "steepness_", "p_load->steepness_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", barrier_, p_load->barrier_, "barrier_", "p_load->barrier_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", maxUnsuccessfulAdaptions_, p_load->maxUnsuccessfulAdaptions_, "maxUnsuccessfulAdaptions_", "p_load->maxUnsuccessfulAdaptions_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", maxRetriesUntilValid_, p_load->maxRetriesUntilValid_, "maxRetriesUntilValid_", "p_load->maxRetriesUntilValid_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", nAdaptions_, p_load->nAdaptions_, "nAdaptions_", "p_load->nAdaptions_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GOptimizableEntity", evaluationID_, p_load->evaluationID_, "evaluationID_", "p_load->evaluationID_", e , limit));
-
-   return evaluateDiscrepancies("GOptimizableEntity", caller, deviations, e);
-}
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *

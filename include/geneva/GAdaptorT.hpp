@@ -251,52 +251,6 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Checks whether a given expectation for the relationship between this object and another object
-	 * is fulfilled.
-	 *
-	 * @param cp A constant reference to another object, camouflaged as a GObject
-	 * @param e The expected outcome of the comparison
-	 * @param limit The maximum deviation for floating point values (important for similarity checks)
-	 * @param caller An identifier for the calling entity
-	 * @param y_name An identifier for the object that should be compared to this one
-	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
-	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
-	 */
-	virtual boost::optional<std::string> checkRelationshipWith(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-      , const std::string& caller
-      , const std::string& y_name
-      , const bool& withMessages
-	) const OVERRIDE {
-	   using namespace Gem::Common;
-
-		// Check that we are indeed dealing with a GParamterBase reference
-		const GAdaptorT<T>  *p_load = gobject_conversion<GAdaptorT<T> >(&cp);
-
-		// Will hold possible deviations from the expectation, including explanations
-	    std::vector<boost::optional<std::string> > deviations;
-
-		// Check our parent class'es data ...
-		deviations.push_back(GObject::checkRelationshipWith(cp, e, limit, "GAdaptorT<T>", y_name, withMessages));
-
-		// ... and then our local data
-		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adaptionCounter_, p_load->adaptionCounter_, "adaptionCounter_", "p_load->adaptionCounter_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adaptionThreshold_, p_load->adaptionThreshold_, "adaptionThreshold_", "p_load->adaptionThreshold_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adProb_, p_load->adProb_, "adProb_", "p_load->adProb_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adaptAdProb_, p_load->adaptAdProb_, "adaptAdProb_", "p_load->adaptAdProb_", e , limit));
-      deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", minAdProb_, p_load->minAdProb_, "minAdProb_", "p_load->minAdProb_", e , limit));
-      deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", maxAdProb_, p_load->maxAdProb_, "maxAdProb_", "p_load->maxAdProb_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adaptionMode_, p_load->adaptionMode_, "adaptionMode_", "p_load->adaptionMode_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adaptAdaptionProbability_, p_load->adaptAdaptionProbability_, "adaptAdaptionProbability_", "p_load->adaptAdaptionProbability_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adProb_reset_, p_load->adProb_reset_, "adProb_reset_", "p_load->adProb_reset_", e , limit));
-
-		return evaluateDiscrepancies("GAdaptorT<T>", caller, deviations, e);
-	}
-
-	/***************************************************************************/
-	/**
 	 * Searches for compliance with expectations with respect to another object
 	 * of the same type
 	 *

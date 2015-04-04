@@ -117,46 +117,6 @@ bool GBaseParChildPersonalityTraits::operator!=(const GBaseParChildPersonalityTr
 
 /******************************************************************************/
 /**
- * Checks whether a given expectation for the relationship between this object and another object
- * is fulfilled.
- *
- * @param cp A constant reference to another object, camouflaged as a GObject
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
- * @param caller An identifier for the calling entity
- * @param y_name An identifier for the object that should be compared to this one
- * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
- * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
- */
-boost::optional<std::string> GBaseParChildPersonalityTraits::checkRelationshipWith(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
-   , const std::string& caller
-   , const std::string& y_name
-   , const bool& withMessages
-) const {
-    using namespace Gem::Common;
-
-   // Check that we are indeed dealing with a GParamterBase reference
-   const GBaseParChildPersonalityTraits *p_load = GObject::gobject_conversion<GBaseParChildPersonalityTraits>(&cp);
-
-   // Will hold possible deviations from the expectation, including explanations
-    std::vector<boost::optional<std::string> > deviations;
-
-   // Check our parent class'es data ...
-   deviations.push_back(GPersonalityTraits::checkRelationshipWith(cp, e, limit, "GBaseParChildPersonalityTraits", y_name, withMessages));
-
-   // ... and then our local data
-   deviations.push_back(checkExpectation(withMessages, "GBaseParChildPersonalityTraits", parentCounter_, p_load->parentCounter_, "parentCounter_", "p_load->parentCounter_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GBaseParChildPersonalityTraits", popPos_, p_load->popPos_, "popPos_", "p_load->popPos_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GBaseParChildPersonalityTraits", parentId_, p_load->parentId_, "parentId_", "p_load->parentId_", e , limit));
-
-   return evaluateDiscrepancies("GBaseParChildPersonalityTraits", caller, deviations, e);
-}
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *

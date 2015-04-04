@@ -315,71 +315,6 @@ void GBaseSwarm::load_(const GObject *cp)
 
 /******************************************************************************/
 /**
- * Checks whether a given expectation for the relationship between this object and another object
- * is fulfilled.
- *
- * @param cp A constant reference to another object, camouflaged as a GObject
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
- * @param caller An identifier for the calling entity
- * @param y_name An identifier for the object that should be compared to this one
- * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
- * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
- */
-boost::optional<std::string> GBaseSwarm::checkRelationshipWith(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
-   , const std::string& caller
-   , const std::string& y_name
-   , const bool& withMessages
-) const {
-    using namespace Gem::Common;
-
-	// Check that we are indeed dealing with a GParamterBase reference
-	const GBaseSwarm *p_load = GObject::gobject_conversion<GBaseSwarm>(&cp);
-
-	// Will hold possible deviations from the expectation, including explanations
-    std::vector<boost::optional<std::string> > deviations;
-
-	// Check our parent class'es data ...
-	deviations.push_back(GOptimizationAlgorithmT<GParameterSet>::checkRelationshipWith(cp, e, limit, "GOptimizationAlgorithmT<GParameterSet>", y_name, withMessages));
-
-	// ... and then our local data
-	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm", nNeighborhoods_, p_load->nNeighborhoods_, "nNeighborhoods_", "p_load->nNeighborhoods_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm", defaultNNeighborhoodMembers_, p_load->defaultNNeighborhoodMembers_, "defaultNNeighborhoodMembers_", "p_load->defaultNNeighborhoodMembers_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm", global_best_, p_load->global_best_, "global_best_", "p_load->global_best_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm", c_personal_, p_load->c_personal_, "c_personal_", "p_load->c_personal_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm", c_neighborhood_, p_load->c_neighborhood_, "c_neighborhood_", "p_load->c_neighborhood_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm", c_global_, p_load->c_global_, "c_global_", "p_load->c_global_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm", c_velocity_, p_load->c_velocity_, "c_velocity_", "p_load->c_velocity_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm", updateRule_, p_load->updateRule_, "updateRule_", "p_load->updateRule_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm", randomFillUp_, p_load->randomFillUp_, "randomFillUp_", "p_load->randomFillUp_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm", repulsionThreshold_, p_load->repulsionThreshold_, "repulsionThreshold_", "p_load->repulsionThreshold_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm", dblLowerParameterBoundaries_, p_load->dblLowerParameterBoundaries_, "dblLowerParameterBoundaries_", "p_load->dblLowerParameterBoundaries_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm", dblUpperParameterBoundaries_, p_load->dblUpperParameterBoundaries_, "dblUpperParameterBoundaries_", "p_load->dblUpperParameterBoundaries_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm", dblVelVecMax_, p_load->dblVelVecMax_, "dblVelVecMax_", "p_load->dblVelVecMax_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm", velocityRangePercentage_, p_load->velocityRangePercentage_, "velocityRangePercentage_", "p_load->velocityRangePercentage_", e , limit));
-
-	// The next checks only makes sense if the number of neighborhoods are equal
-	if(nNeighborhoods_ == p_load->nNeighborhoods_) {
-		for(std::size_t i=0; i<nNeighborhoods_; i++) {
-			std::string nbh = "nNeighborhoodMembers_[" + boost::lexical_cast<std::string>(i) + "]";
-			std::string remote = "(p_load->nNeighborhoodMembers_)[" + boost::lexical_cast<std::string>(i) + "]";
-			deviations.push_back(checkExpectation(withMessages, "GBaseSwarm", nNeighborhoodMembers_[i], (p_load->nNeighborhoodMembers_)[i], nbh, remote, e , limit));
-
-			// No neighborhood bests have been assigned yet in iteration 0
-			if(afterFirstIteration()) {
-				deviations.push_back(checkExpectation(withMessages, "GBaseSwarm", neighborhood_bests_[i], p_load->neighborhood_bests_[i], nbh, remote, e , limit));
-			}
-		}
-	}
-
-	return evaluateDiscrepancies("GBaseSwarm", caller, deviations, e);
-}
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
@@ -1775,46 +1710,6 @@ bool GBaseSwarm::GSwarmOptimizationMonitor::operator!=(const GBaseSwarm::GSwarmO
    } catch(g_expectation_violation&) {
       return false;
    }
-}
-
-/******************************************************************************/
-/**
- * Checks whether a given expectation for the relationship between this object and another object
- * is fulfilled.
- *
- * @param cp A constant reference to another object, camouflaged as a GObject
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
- * @param caller An identifier for the calling entity
- * @param y_name An identifier for the object that should be compared to this one
- * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
- * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
- */
-boost::optional<std::string> GBaseSwarm::GSwarmOptimizationMonitor::checkRelationshipWith(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
-   , const std::string& caller
-   , const std::string& y_name
-   , const bool& withMessages
-) const {
-	using namespace Gem::Common;
-
-	// Check that we are indeed dealing with a GParamterBase reference
-	const GBaseSwarm::GSwarmOptimizationMonitor *p_load = GObject::gobject_conversion<GBaseSwarm::GSwarmOptimizationMonitor >(&cp);
-
-	// Will hold possible deviations from the expectation, including explanations
-	std::vector<boost::optional<std::string> > deviations;
-
-	// Check our parent class'es data ...
-	deviations.push_back(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::checkRelationshipWith(cp, e, limit, "GBaseSwarm::GSwarmOptimizationMonitor", y_name, withMessages));
-
-	// ... and then our local data
-	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm::GSwarmOptimizationMonitor", xDim_, p_load->xDim_, "xDim_", "p_load->xDim_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm::GSwarmOptimizationMonitor", yDim_, p_load->yDim_, "yDim_", "p_load->yDim_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GBaseSwarm::GSwarmOptimizationMonitor", resultFile_, p_load->resultFile_, "resultFile_", "p_load->resultFile_", e , limit));
-
-	return evaluateDiscrepancies("GBaseSwarm::GSwarmOptimizationMonitor", caller, deviations, e);
 }
 
 /******************************************************************************/

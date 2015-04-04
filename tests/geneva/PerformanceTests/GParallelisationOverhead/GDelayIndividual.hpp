@@ -104,15 +104,12 @@ public:
    /** @brief Checks for inequality with another GDelayIndividual object */
    bool operator!=(const GDelayIndividual&) const;
 
-   /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
-   virtual boost::optional<std::string> checkRelationshipWith(
-      const Gem::Geneva::GObject&
-      , const Gem::Common::expectation&
-      , const double&
-      , const std::string&
-      , const std::string&
-      , const bool&
-   ) const;
+   /** @brief Searches for compliance with expectations with respect to another object of the same type */
+   virtual G_API_GENEVA void compare(
+      const GObject& // the other object
+      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
+      , const double& // the limit for allowed deviations of floating point types
+   ) const OVERRIDE;
 
    /** @brief Sets the sleep-time to a user-defined value */
    void setSleepTime(const boost::posix_time::time_duration&);

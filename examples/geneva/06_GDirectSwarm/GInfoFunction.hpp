@@ -143,6 +143,13 @@ public:
 		, outputPath_(cp.outputPath_)
 	{ /* nothing */ }
 
+   /**********************************************************************************/
+   /**
+    * A simple destructor
+    */
+   virtual ~progressMonitor()
+   { /* nothing */ }
+
 	/**********************************************************************************/
 	/**
 	 * A standard assignment operator.
@@ -163,9 +170,13 @@ public:
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const progressMonitor& cp) const {
-		using namespace Gem::Common;
-		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"progressMonitor::operator==","cp", CE_SILENT);
+      using namespace Gem::Common;
+      try {
+         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation&) {
+         return false;
+      }
 	}
 
 	/**********************************************************************************/
@@ -176,57 +187,60 @@ public:
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const progressMonitor& cp) const {
-		using namespace Gem::Common;
-		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"progressMonitor::operator!=","cp", CE_SILENT);
+      using namespace Gem::Common;
+      try {
+         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation&) {
+         return false;
+      }
 	}
 
-	/**********************************************************************************/
-	/**
-	 * Checks whether a given expectation for the relationship between this object and another object
-	 * is fulfilled.
-	 *
-	 * @param cp A constant reference to another object, camouflaged as a GObject
-	 * @param e The expected outcome of the comparison
-	 * @param limit The maximum deviation for floating point values (important for similarity checks)
-	 * @param caller An identifier for the calling entity
-	 * @param y_name An identifier for the object that should be compared to this one
-	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
-	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
-	 */
-	boost::optional<std::string> checkRelationshipWith(
-			const GObject& cp
-			, const Gem::Common::expectation& e
-			, const double& limit
-			, const std::string& caller
-			, const std::string& y_name
-			, const bool& withMessages
-	) const {
-		using namespace Gem::Common;
+   /***************************************************************************/
+   /**
+    * Searches for compliance with expectations with respect to another object
+    * of the same type
+    *
+    * @param cp A constant reference to another GObject object
+    * @param e The expected outcome of the comparison
+    * @param limit The maximum deviation for floating point values (important for similarity checks)
+    */
+   virtual void compare(
+      const GObject& cp
+      , const Gem::Common::expectation& e
+      , const double& limit
+   ) const OVERRIDE {
+      using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GParamterBase reference
-		const progressMonitor *p_load = GObject::gobject_conversion<progressMonitor >(&cp);
+      // Check that we are indeed dealing with a GAdaptorT reference
+      const progressMonitor *p_load = GObject::gobject_conversion<progressMonitor >(&cp);
 
-		// Will hold possible deviations from the expectation, including explanations
-		std::vector<boost::optional<std::string> > deviations;
+      try {
+         BEGIN_COMPARE;
 
-		// Check our parent class'es data ...
-		deviations.push_back(GBaseSwarm::GSwarmOptimizationMonitor::checkRelationshipWith(cp, e, limit, "progressMonitor", y_name, withMessages));
+         // Check our parent class'es data ...
+         COMPARE_PARENT(GBaseSwarm::GSwarmOptimizationMonitor, cp, e, limit);
 
-		// ... and then our local data.
-		deviations.push_back(checkExpectation(withMessages, "progressMonitor", xDimProgress_, p_load->xDimProgress_, "xDimProgress_", "p_load->xDimProgress_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "progressMonitor", yDimProgress_, p_load->yDimProgress_, "yDimProgress_", "p_load->yDimProgress_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "progressMonitor", df_, p_load->df_, "df_", "p_load->df_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "progressMonitor", followProgress_, p_load->followProgress_, "followProgress_", "p_load->followProgress_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "progressMonitor", snapshotBaseName_, p_load->snapshotBaseName_, "snapshotBaseName_", "p_load->snapshotBaseName_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "progressMonitor", minX_, p_load->minX_, "minX_", "p_load->minX_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "progressMonitor", maxX_, p_load->maxX_, "maxX_", "p_load->maxX_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "progressMonitor", minY_, p_load->minY_, "minY_", "p_load->minY_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "progressMonitor", maxY_, p_load->maxY_, "maxY_", "p_load->maxY_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "progressMonitor", outputPath_, p_load->outputPath_, "outputPath_", "p_load->outputPath_", e , limit));
+         // ... and then our local data
+         COMPARE(xDimProgress_, p_load->xDimProgress_, e, limit);
+         COMPARE(yDimProgress_, p_load->yDimProgress_, e, limit);
+         COMPARE(df_, p_load->df_, e, limit);
+         COMPARE(followProgress_, p_load->followProgress_, e, limit);
+         COMPARE(snapshotBaseName_, p_load->snapshotBaseName_, e, limit);
+         COMPARE(minX_, p_load->minX_, e, limit);
+         COMPARE(maxX_, p_load->maxX_, e, limit);
+         COMPARE(minY_, p_load->minY_, e, limit);
+         COMPARE(maxY_, p_load->maxY_, e, limit);
+         COMPARE(xDimProgress_, p_load->xDimProgress_, e, limit);
+         COMPARE(yDimProgress_, p_load->yDimProgress_, e, limit);
+         COMPARE(outputPath_, p_load->outputPath_, e, limit);
 
-		return evaluateDiscrepancies("progressMonitor", caller, deviations, e);
-	}
+         END_COMPARE;
+
+      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+         throw g("g_expectation_violation caught by GAdaptorT<T>");
+      }
+   }
 
 	/*********************************************************************************************/
 	/**

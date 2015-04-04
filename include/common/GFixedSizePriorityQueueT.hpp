@@ -193,43 +193,35 @@ public:
       return *this;
    }
 
-   /***************************************************************************/
+   /******************************************************************************/
    /**
-    * Checks whether a given expectation for the relationship between this object and another object
-    * is fulfilled.
+    * Searches for compliance with expectations with respect to another object
+    * of the same type
     *
-    * @param cp A constant reference to another object of type GFixedSizePriorityQueueT<T>
+    * @param cp A constant reference to another GObject object
     * @param e The expected outcome of the comparison
     * @param limit The maximum deviation for floating point values (important for similarity checks)
-    * @param caller An identifier for the calling entity
-    * @param y_name An identifier for the object that should be compared to this one
-    * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
-    * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
     */
-   virtual boost::optional<std::string> checkRelationshipWith (
+   void compare(
       const GFixedSizePriorityQueueT<T>& cp
       , const Gem::Common::expectation& e
       , const double& limit
-      , const std::string& caller
-      , const std::string& y_name
-      , const bool& withMessages
-   ) const BASE {
-       using namespace Gem::Common;
+   ) const {
+      using namespace Gem::Common;
 
-      // Will hold possible deviations from the expectation, including explanations
-       std::vector<boost::optional<std::string> > deviations;
+      try {
+         BEGIN_COMPARE;
 
-       // Assemble a suitable caller string
-       std::string className = std::string("GFixedSizePriorityQueueT<") + typeid(T).name() + ">";
+         // Check our local data
+         COMPARE(this->data_, cp.data_, e, limit);
+         COMPARE(this->maxSize_, cp.maxSize_, e, limit);
+         COMPARE(this->higherIsBetter_, cp.higherIsBetter_, e, limit);
 
-      // No parent class to check ...
+         END_COMPARE;
 
-      // Check local data
-      deviations.push_back(checkExpectation(withMessages, className , this->data_, cp.data_, "data_", "cp.data_", e , limit));
-      deviations.push_back(checkExpectation(withMessages, className , this->maxSize_, cp.maxSize_, "maxSize_", "cp.maxSize_", e , limit));
-      deviations.push_back(checkExpectation(withMessages, className , this->higherIsBetter_, cp.higherIsBetter_, "higherIsBetter_", "cp.higherIsBetter_", e , limit));
-
-      return evaluateDiscrepancies(className, caller, deviations, e);
+      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+         throw g("g_expectation_violation caught by GBaseEA");
+      }
    }
 
    /***************************************************************************/

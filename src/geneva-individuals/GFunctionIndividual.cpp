@@ -117,44 +117,6 @@ bool GDoubleSumConstraint::operator!=(const GDoubleSumConstraint& cp) const {
 
 /******************************************************************************/
 /**
- * Checks whether a given expectation for the relationship between this object and another object is fulfilled.
- *
- * @param cp A constant reference to another object, camouflaged as a GObject
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
- * @param caller An identifier for the calling entity
- * @param y_name An identifier for the object that should be compared to this one
- * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
- * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
- */
-boost::optional<std::string> GDoubleSumConstraint::checkRelationshipWith(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
-   , const std::string& caller
-   , const std::string& y_name
-   , const bool& withMessages
-) const {
-   using namespace Gem::Common;
-
-   // Check that we are indeed dealing with an object of the same type and that we are not
-   // accidently trying to compare this object with itself.
-   const GDoubleSumConstraint *p_load = GObject::gobject_conversion<GDoubleSumConstraint>(&cp);
-
-   // Will hold possible deviations from the expectation, including explanations
-   std::vector<boost::optional<std::string> > deviations;
-
-   // Check our parent class'es data ...
-   deviations.push_back(GParameterSetConstraint::checkRelationshipWith(cp, e, limit, "GDoubleSumConstraint", y_name, withMessages));
-
-   // ... and then our local data
-   deviations.push_back(checkExpectation(withMessages, "GDoubleSumConstraint", C_, p_load->C_, "C_", "p_load->C_", e , limit));
-
-   return evaluateDiscrepancies("GDoubleSumConstraint", caller, deviations, e);
-}
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
@@ -324,45 +286,6 @@ bool GDoubleSumGapConstraint::operator!=(const GDoubleSumGapConstraint& cp) cons
 
 /******************************************************************************/
 /**
- * Checks whether a given expectation for the relationship between this object and another object is fulfilled.
- *
- * @param cp A constant reference to another object, camouflaged as a GObject
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
- * @param caller An identifier for the calling entity
- * @param y_name An identifier for the object that should be compared to this one
- * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
- * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
- */
-boost::optional<std::string> GDoubleSumGapConstraint::checkRelationshipWith(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
-   , const std::string& caller
-   , const std::string& y_name
-   , const bool& withMessages
-) const {
-   using namespace Gem::Common;
-
-   // Check that we are indeed dealing with an object of the same type and that we are not
-   // accidently trying to compare this object with itself.
-   const GDoubleSumGapConstraint *p_load = GObject::gobject_conversion<GDoubleSumGapConstraint>(&cp);
-
-   // Will hold possible deviations from the expectation, including explanations
-   std::vector<boost::optional<std::string> > deviations;
-
-   // Check our parent class'es data ...
-   deviations.push_back(GParameterSetConstraint::checkRelationshipWith(cp, e, limit, "GDoubleSumGapConstraint", y_name, withMessages));
-
-   // ... and then our local data
-   deviations.push_back(checkExpectation(withMessages, "GDoubleSumGapConstraint", C_, p_load->C_, "C_", "p_load->C_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GDoubleSumGapConstraint", gap_, p_load->gap_, "gap_", "p_load->gap_", e , limit));
-
-   return evaluateDiscrepancies("GDoubleSumGapConstraint", caller, deviations, e);
-}
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
@@ -526,44 +449,6 @@ bool GSphereConstraint::operator!=(const GSphereConstraint& cp) const {
    } catch(g_expectation_violation&) {
       return false;
    }
-}
-
-/******************************************************************************/
-/**
- * Checks whether a given expectation for the relationship between this object and another object is fulfilled.
- *
- * @param cp A constant reference to another object, camouflaged as a GObject
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
- * @param caller An identifier for the calling entity
- * @param y_name An identifier for the object that should be compared to this one
- * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
- * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
- */
-boost::optional<std::string> GSphereConstraint::checkRelationshipWith(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
-   , const std::string& caller
-   , const std::string& y_name
-   , const bool& withMessages
-) const {
-   using namespace Gem::Common;
-
-   // Check that we are indeed dealing with an object of the same type and that we are not
-   // accidently trying to compare this object with itself.
-   const GSphereConstraint *p_load = GObject::gobject_conversion<GSphereConstraint>(&cp);
-
-   // Will hold possible deviations from the expectation, including explanations
-   std::vector<boost::optional<std::string> > deviations;
-
-   // Check our parent class'es data ...
-   deviations.push_back(GParameterSetConstraint::checkRelationshipWith(cp, e, limit, "GSphereConstraint", y_name, withMessages));
-
-   // and then our local data
-   deviations.push_back(checkExpectation(withMessages, "GSphereConstraint", diameter_, p_load->diameter_, "diameter_", "p_load->diameter_", e , limit));
-
-   return evaluateDiscrepancies("GSphereConstraint", caller, deviations, e);
 }
 
 /******************************************************************************/
@@ -849,45 +734,6 @@ bool GFunctionIndividual::operator!=(const GFunctionIndividual& cp) const {
    } catch(g_expectation_violation&) {
       return false;
    }
-}
-
-/******************************************************************************/
-/**
- * Checks whether a given expectation for the relationship between this object and another object
- * is fulfilled.
- *
- * @param cp A constant reference to another object, camouflaged as a GObject
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
- * @param caller An identifier for the calling entity
- * @param y_name An identifier for the object that should be compared to this one
- * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
- * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
- */
-boost::optional<std::string> GFunctionIndividual::checkRelationshipWith(
-   const GObject& cp
-	, const Gem::Common::expectation& e
-	, const double& limit
-	, const std::string& caller
-	, const std::string& y_name
-	, const bool& withMessages
-) const {
-	using namespace Gem::Common;
-
-	// Check that we are indeed dealing with an object of the same type and that we are not
-	// accidently trying to compare this object with itself.
-	const GFunctionIndividual *p_load = gobject_conversion<GFunctionIndividual>(&cp);
-
-	// Will hold possible deviations from the expectation, including explanations
-	std::vector<boost::optional<std::string> > deviations;
-
-	// Check our parent class'es data ...
-	deviations.push_back(GParameterSet::checkRelationshipWith(cp, e, limit, "GFunctionIndividual", y_name, withMessages));
-
-	// ... and then our local data
-	deviations.push_back(checkExpectation(withMessages, "GFunctionIndividual", demoFunction_, p_load->demoFunction_, "demoFunction_", "p_load->demoFunction_", e , limit));
-
-	return evaluateDiscrepancies("GFunctionIndividual", caller, deviations, e);
 }
 
 /******************************************************************************/

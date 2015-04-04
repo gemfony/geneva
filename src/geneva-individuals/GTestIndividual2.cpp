@@ -186,43 +186,6 @@ bool GTestIndividual2::operator!=(const GTestIndividual2& cp) const {
 
 /******************************************************************************/
 /**
- * Checks whether a given expectation for the relationship between this object and another object
- * is fulfilled.
- *
- * @param cp A constant reference to another object, camouflaged as a GObject
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
- * @param caller An identifier for the calling entity
- * @param y_name An identifier for the object that should be compared to this one
- * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
- * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
- */
-boost::optional<std::string> GTestIndividual2::checkRelationshipWith(const GObject& cp,
-		const Gem::Common::expectation& e,
-		const double& limit,
-		const std::string& caller,
-		const std::string& y_name,
-		const bool& withMessages) const
-{
-	using namespace Gem::Common;
-	using namespace Gem::Geneva;
-
-	// Check that we are indeed dealing with a GParamterBase reference
-	const GTestIndividual2 *p_load = gobject_conversion<GTestIndividual2>(&cp);
-
-	// Will hold possible deviations from the expectation, including explanations
-	std::vector<boost::optional<std::string> > deviations;
-
-	// Check our parent class'es data ...
-	deviations.push_back(Gem::Geneva::GParameterSet::checkRelationshipWith(cp, e, limit, "GTestIndividual2", y_name, withMessages));
-
-	// no local data
-
-	return evaluateDiscrepancies("GTestIndividual2", caller, deviations, e);
-}
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *

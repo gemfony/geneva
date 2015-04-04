@@ -363,68 +363,6 @@ public:
 		return cpSerMode_;
 	}
 
-	/***************************************************************************/
-	/**
-	 * Checks whether a given expectation for the relationship between this object and another object
-	 * is fulfilled.
-	 *
-	 * @param cp A constant reference to another object, camouflaged as a GObject
-	 * @param e The expected outcome of the comparison
-	 * @param limit The maximum deviation for floating point values (important for similarity checks)
-	 * @param caller An identifier for the calling entity
-	 * @param y_name An identifier for the object that should be compared to this one
-	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
-	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
-	 */
-	virtual boost::optional<std::string> checkRelationshipWith(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-      , const std::string& caller
-      , const std::string& y_name
-      , const bool& withMessages
-   ) const OVERRIDE {
-	   using namespace Gem::Common;
-
-	   // Check that we are indeed dealing with a GParamterBase reference
-	   const GOptimizationAlgorithmT<ind_type> *p_load = GObject::gobject_conversion<GOptimizationAlgorithmT<ind_type> >(&cp);
-
-	   // Will hold possible deviations from the expectation, including explanations
-	   std::vector<boost::optional<std::string> > deviations;
-
-	   // Check our parent class'es data ...
-	   deviations.push_back(GMutableSetT<ind_type>::checkRelationshipWith(cp, e, limit, caller, y_name, withMessages));
-
-	   // Check our best individuals
-	   // deviations.push_back((this->bestIndividuals_).checkRelationshipWith(p_load->bestIndividuals_, e, limit, caller, y_name, withMessages));
-
-	   // ... and then our local data
-	   EXPECTATIONCHECK(iteration_);
-	   EXPECTATIONCHECK(offset_);
-	   EXPECTATIONCHECK(maxIteration_);
-	   EXPECTATIONCHECK(maxStallIteration_);
-	   EXPECTATIONCHECK(reportIteration_);
-	   EXPECTATIONCHECK(nRecordBestIndividuals_);
-	   EXPECTATIONCHECK(defaultPopulationSize_);
-	   EXPECTATIONCHECK(bestKnownPrimaryFitness_);
-	   EXPECTATIONCHECK(bestCurrentPrimaryFitness_);
-	   EXPECTATIONCHECK(stallCounter_);
-	   EXPECTATIONCHECK(stallCounterThreshold_);
-	   EXPECTATIONCHECK(cpInterval_);
-	   EXPECTATIONCHECK(cpBaseName_);
-	   EXPECTATIONCHECK(cpDirectory_);
-	   EXPECTATIONCHECK(cpSerMode_);
-	   EXPECTATIONCHECK(qualityThreshold_);
-	   EXPECTATIONCHECK(hasQualityThreshold_);
-	   EXPECTATIONCHECK(maxDuration_);
-	   EXPECTATIONCHECK(emitTerminationReason_);
-	   EXPECTATIONCHECK(halted_);
-	   EXPECTATIONCHECK(worstKnownValids_);
-	   EXPECTATIONCHECK(optimizationMonitor_ptr_);
-
-	   return evaluateDiscrepancies("GOptimizationAlgorithmT<ind_type>", caller, deviations, e);
-	}
-
    /***************************************************************************/
    /**
     * Searches for compliance with expectations with respect to another object
@@ -1998,9 +1936,13 @@ public:
 	     * @return A boolean indicating whether both objects are equal
 	     */
 	    virtual bool operator==(const typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp) const {
-	    	using namespace Gem::Common;
-	    	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	    	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT::operator==","cp", CE_SILENT);
+	       using namespace Gem::Common;
+	       try {
+	          this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+	          return true;
+	       } catch(g_expectation_violation&) {
+	          return false;
+	       }
 	    }
 
 	    /************************************************************************/
@@ -2011,47 +1953,13 @@ public:
 	     * @return A boolean indicating whether both objects are inequal
 	     */
 	    virtual bool operator!=(const typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp) const {
-	    	using namespace Gem::Common;
-	    	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	    	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT::operator!=","cp", CE_SILENT);
-	    }
-
-	    /************************************************************************/
-	    /**
-	     * Checks whether a given expectation for the relationship between this object and another object
-	     * is fulfilled.
-	     *
-	     * @param cp A constant reference to another object, camouflaged as a GObject
-	     * @param e The expected outcome of the comparison
-	     * @param limit The maximum deviation for floating point values (important for similarity checks)
-	     * @param caller An identifier for the calling entity
-	     * @param y_name An identifier for the object that should be compared to this one
-	     * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
-	     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
-	     */
-	    virtual boost::optional<std::string> checkRelationshipWith(
-         const GObject& cp
-         , const Gem::Common::expectation& e
-         , const double& limit
-         , const std::string& caller
-         , const std::string& y_name
-         , const bool& withMessages
-	    ) const OVERRIDE {
-	        using namespace Gem::Common;
-
-	    	// Check that we are indeed dealing with a GOptimizationMonitorT reference
-	    	const GOptimizationMonitorT *p_load = GObject::gobject_conversion<GOptimizationMonitorT>(&cp);
-
-	    	// Will hold possible deviations from the expectation, including explanations
-	        std::vector<boost::optional<std::string> > deviations;
-
-	    	// Check our parent class'es data ...
-	        deviations.push_back(GObject::checkRelationshipWith(cp, e, limit, caller, y_name, withMessages));
-
-	    	// ... and then our local data
-			EXPECTATIONCHECK(quiet_);
-
-	    	return evaluateDiscrepancies("GOptimizationMonitorT", caller, deviations, e);
+          using namespace Gem::Common;
+          try {
+             this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+             return true;
+          } catch(g_expectation_violation&) {
+             return false;
+          }
 	    }
 
 	    /***************************************************************************/

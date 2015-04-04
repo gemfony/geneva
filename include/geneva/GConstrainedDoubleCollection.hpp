@@ -102,16 +102,6 @@ public:
 	/** @brief Checks for inequality with another GConstrainedDoubleCollection object */
 	G_API_GENEVA bool operator!=(const GConstrainedDoubleCollection&) const;
 
-	/** @brief Checks whether a given expectation is fulfilled */
-	boost::optional<std::string> checkRelationshipWith(
-      const GObject&
-      , const Gem::Common::expectation&
-      , const double&
-      , const std::string&
-      , const std::string&
-      , const bool&
-	) const OVERRIDE;
-
    /** @brief Searches for compliance with expectations with respect to another object of the same type */
    virtual G_API_GENEVA void compare(
       const GObject& // the other object

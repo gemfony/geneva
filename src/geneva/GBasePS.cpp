@@ -251,50 +251,6 @@ std::string GBasePS::getAlgorithmName() const {
 
 /******************************************************************************/
 /**
- * Checks whether this object fulfills a given expectation in relation to another object
- *
- * @param cp A constant reference to another object, camouflaged as a GObject
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
- * @param caller An identifier for the calling entity
- * @param y_name An identifier for the object that should be compared to this one
- * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
- * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
- */
-boost::optional<std::string> GBasePS::checkRelationshipWith(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
-   , const std::string& caller
-   , const std::string& y_name
-   , const bool& withMessages
-) const {
-    using namespace Gem::Common;
-
-   // Check that we are indeed dealing with a GParamterBase reference
-   const GBasePS *p_load = GObject::gobject_conversion<GBasePS>(&cp);
-
-   // Will hold possible deviations from the expectation, including explanations
-    std::vector<boost::optional<std::string> > deviations;
-
-   // Check our parent class'es data ...
-    deviations.push_back(GOptimizationAlgorithmT<GParameterSet>::checkRelationshipWith(cp, e, limit, "GOptimizationAlgorithmT<GParameterSet>", y_name, withMessages));
-
-   // ... and then our local data
-   deviations.push_back(checkExpectation(withMessages, "GBasePS", cycleLogicHalt_, p_load->cycleLogicHalt_, "cycleLogicHalt_", "p_load->cycleLogicHalt_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GBasePS", scanRandomly_, p_load->scanRandomly_, "scanRandomly_", "p_load->scanRandomly_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GBasePS", nMonitorInds_, p_load->nMonitorInds_, "nMonitorInds_", "p_load->nMonitorInds_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GBasePS", simpleScanItems_, p_load->simpleScanItems_, "simpleScanItems_", "p_load->simpleScanItems_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GBasePS", scansPerformed_, p_load->scansPerformed_, "scansPerformed_", "p_load->scansPerformed_", e , limit));
-
-   // We do not check our temporary parameter objects yet (bVec_ etc.)
-
-   return evaluateDiscrepancies("GBasePS", caller, deviations, e);
-}
-
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
@@ -1242,48 +1198,6 @@ bool GBasePS::GPSOptimizationMonitor::operator!=(const GBasePS::GPSOptimizationM
    } catch(g_expectation_violation&) {
       return false;
    }
-}
-
-/******************************************************************************/
-/**
- * Checks whether a given expectation for the relationship between this object and another object
- * is fulfilled.
- *
- * @param cp A constant reference to another object, camouflaged as a GObject
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
- * @param caller An identifier for the calling entity
- * @param y_name An identifier for the object that should be compared to this one
- * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
- * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
- */
-boost::optional<std::string> GBasePS::GPSOptimizationMonitor::checkRelationshipWith(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
-   , const std::string& caller
-   , const std::string& y_name
-   , const bool& withMessages
-) const {
-   using namespace Gem::Common;
-
-   // Check that we are indeed dealing with a GParamterBase reference
-   const GBasePS::GPSOptimizationMonitor *p_load = GObject::gobject_conversion<GBasePS::GPSOptimizationMonitor >(&cp);
-
-   // Will hold possible deviations from the expectation, including explanations
-   std::vector<boost::optional<std::string> > deviations;
-
-   // Check our parent class'es data ...
-   deviations.push_back(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::checkRelationshipWith(cp, e, limit, "GBasePS::GPSOptimizationMonitor", y_name, withMessages));
-
-   // ... and then our local data
-   deviations.push_back(checkExpectation(withMessages, "GBasePS::GPSOptimizationMonitor", csvResultFile_, p_load->csvResultFile_, "csvResultFile_", "p_load->csvResultFile_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GBasePS::GPSOptimizationMonitor", withNameAndType_, p_load->withNameAndType_, "withNameAndType_", "p_load->withNameAndType_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GBasePS::GPSOptimizationMonitor", withCommas_, p_load->withCommas_, "withCommas_", "p_load->withCommas_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GBasePS::GPSOptimizationMonitor", useRawFitness_, p_load->useRawFitness_, "useRawFitness_", "p_load->useRawFitness_", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "GBasePS::GPSOptimizationMonitor", showValidity_, p_load->showValidity_, "showValidity_", "p_load->showValidity_", e , limit));
-
-   return evaluateDiscrepancies("GBasePS::GPSOptimizationMonitor", caller, deviations, e);
 }
 
 /******************************************************************************/

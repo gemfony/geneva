@@ -101,31 +101,22 @@ public:
 	 */
 	template <typename geneva_type>
 	bool isEqual(
-			  const geneva_type& x
-			, const geneva_type& y
-			, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type> >::type* dummy = 0
+        const geneva_type& x
+      , const geneva_type& y
+      , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type> >::type* dummy = 0
 	) const	{
-		using namespace Gem::Hap;
+	   using namespace Gem::Common;
 
-		boost::optional<std::string> o =
-				x.checkRelationshipWith(
-						y
-					  , Gem::Common::CE_EQUALITY
-					  , 0.
-					  , caller_
-					  , "y"
-					  , emitMessages_?Gem::Common::CE_WITH_MESSAGES:Gem::Common::CE_SILENT);
-
-		if(o) { // The expectation was not met
-			std::cout
-			<< "\n=========================================\n"
-			<< *o
-			<< "\n=========================================\n";
-			return false;
-		}
-		else {
-			return true;
-		}
+	   try {
+	      x.compare(y, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+	   } catch(g_expectation_violation& g) {
+	      std::cout
+	      << "\n=========================================\n"
+	      << g
+	      << "\n=========================================\n";
+         return false;
+	   }
 	}
 
 	/*********************************************************************************************/
@@ -139,31 +130,24 @@ public:
 	 */
 	template <typename geneva_simplecontainer_type>
 	bool isEqual(
-			  const geneva_simplecontainer_type& x
-			, const std::vector<typename geneva_simplecontainer_type::value_type>& y
-			, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type> >::type* dummy = 0
+        const geneva_simplecontainer_type& x
+      , const std::vector<typename geneva_simplecontainer_type::value_type>& y
+      , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type> >::type* dummy = 0
 	) const	{
-		using namespace Gem::Hap;
+	   using namespace Gem::Common;
 
-		boost::optional<std::string> o =
-				x.GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::checkRelationshipWith(
-						y
-					  , Gem::Common::CE_EQUALITY
-					  , 0.
-					  , caller_
-					  , "y"
-					  , emitMessages_?Gem::Common::CE_WITH_MESSAGES:Gem::Common::CE_SILENT);
-
-		if(o) { // The expectation was not met
-			std::cout
-			<< "\n=========================================\n"
-			<< *o
-			<< "\n=========================================\n";
-			return false;
-		}
-		else {
-			return true;
-		}
+	   try{
+	     x.GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::compare_base(
+	        y, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE
+        );
+	     return true;
+	   } catch(g_expectation_violation& g) {
+         std::cout
+         << "\n=========================================\n"
+         << g
+         << "\n=========================================\n";
+         return false;
+      }
 	}
 
 	/*********************************************************************************************/
@@ -177,31 +161,22 @@ public:
 	 */
 	template <typename geneva_type>
 	bool isInEqual(
-			  const geneva_type& x
-			, const geneva_type& y
-			, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type> >::type* dummy = 0
+        const geneva_type& x
+      , const geneva_type& y
+      , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type> >::type* dummy = 0
 	) const	{
-		using namespace Gem::Hap;
+      using namespace Gem::Common;
 
-		boost::optional<std::string> o =
-				x.checkRelationshipWith(
-						y
-					  , Gem::Common::CE_INEQUALITY
-					  , 0.
-					  , caller_
-					  , "y"
-					  , emitMessages_?Gem::Common::CE_WITH_MESSAGES:Gem::Common::CE_SILENT);
-
-		if(o) { // The expectation was not met
-			std::cout
-			<< "\n=========================================\n"
-			<< *o
-			<< "\n=========================================\n";
-			return false;
-		}
-		else {
-			return true;
-		}
+      try {
+         x.compare(y, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation& g) {
+         std::cout
+         << "\n=========================================\n"
+         << g
+         << "\n=========================================\n";
+         return false;
+      }
 	}
 
 	/*********************************************************************************************/
@@ -215,31 +190,24 @@ public:
 	 */
 	template <typename geneva_simplecontainer_type>
 	bool isInEqual(
-			  const geneva_simplecontainer_type& x
-			, const std::vector<typename geneva_simplecontainer_type::value_type>& y
-			, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type> >::type* dummy = 0
+        const geneva_simplecontainer_type& x
+      , const std::vector<typename geneva_simplecontainer_type::value_type>& y
+      , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type> >::type* dummy = 0
 	) const	{
-		using namespace Gem::Hap;
+      using namespace Gem::Common;
 
-		boost::optional<std::string> o =
-				x.GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::checkRelationshipWith(
-						y
-					  , Gem::Common::CE_INEQUALITY
-					  , 0.
-					  , caller_
-					  , "y"
-					  , emitMessages_?Gem::Common::CE_WITH_MESSAGES:Gem::Common::CE_SILENT);
-
-		if(o) { // The expectation was not met
-			std::cout
-			<< "\n=========================================\n"
-			<< *o
-			<< "\n=========================================\n";
-			return false;
-		}
-		else {
-			return true;
-		}
+      try{
+        x.GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::compare_base(
+           y, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE
+        );
+        return true;
+      } catch(g_expectation_violation& g) {
+         std::cout
+         << "\n=========================================\n"
+         << g
+         << "\n=========================================\n";
+         return false;
+      }
 	}
 
 	/*********************************************************************************************/
@@ -254,72 +222,54 @@ public:
 	 */
 	template <typename geneva_type>
 	bool isSimilar(
-			  const geneva_type& x
-			, const geneva_type& y
-			, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type> >::type* dummy = 0
+        const geneva_type& x
+      , const geneva_type& y
+      , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type> >::type* dummy = 0
 	) const	{
-		using namespace Gem::Hap;
+      using namespace Gem::Common;
 
-		boost::optional<std::string> o =
-				x.checkRelationshipWith(
-						y
-					  , Gem::Common::CE_FP_SIMILARITY
-					  , limit_
-					  , caller_
-					  , "y"
-					  , emitMessages_?Gem::Common::CE_WITH_MESSAGES:Gem::Common::CE_SILENT);
-
-		if(o) { // The expectation was not met
-			std::cout
-			<< "\n=========================================\n"
-			<< *o
-			<< "\n=========================================\n";
-			return false;
-		}
-		else {
-			return true;
-		}
+      try {
+         x.compare(y, CE_FP_SIMILARITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         return true;
+      } catch(g_expectation_violation& g) {
+         std::cout
+         << "\n=========================================\n"
+         << g
+         << "\n=========================================\n";
+         return false;
+      }
 	}
 
 	/*********************************************************************************************/
 	/**
-	 * Checks for similarity, optionally emitting a message. The compared entities must have the
-	 * Geneva interface. This is an overloaded version of isSimilar which allows to specify an
-	 * individual limit, which will be used instead of the class-wide limit.
+	 * Checks for similarity of a Geneva container type with a std::vector<T> of its base types,
+    * possibly emitting a message.
 	 *
 	 * @param x The first parameter to compare
 	 * @oaram y The second parameter to compare
 	 * @param limit A limit used to determine similarity in fp comparisons
 	 * @return A boolean indicating whether both parameters are similar
 	 */
-	template <typename geneva_type>
+	template <typename geneva_simplecontainer_type>
 	bool isSimilar(
-			  const geneva_type& x
-			, const geneva_type& y
-			, double limit
-			, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type> >::type* dummy = 0
+        const geneva_simplecontainer_type& x
+      , const std::vector<typename geneva_simplecontainer_type::value_type>& y
+      , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type> >::type* dummy = 0
 	) const	{
-		using namespace Gem::Hap;
+      using namespace Gem::Common;
 
-		boost::optional<std::string> o =
-				x.checkRelationshipWith(
-						y
-					  , Gem::Common::CE_FP_SIMILARITY
-					  , limit
-					  , caller_
-					  , "y"
-					  , emitMessages_?Gem::Common::CE_WITH_MESSAGES:Gem::Common::CE_SILENT);
-
-		if(o) { // The expectation was not met
-			std::cout
-			<< "\n=========================================\n"
-			<< *o
-			<< "\n=========================================\n";
-			return false;
-		}
-		else {
-			return true;
-		}
+      try {
+         x.GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::compare_base(
+            y, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE
+         );
+         return true;
+      } catch(g_expectation_violation& g) {
+         std::cout
+         << "\n=========================================\n"
+         << g
+         << "\n=========================================\n";
+         return false;
+      }
 	}
 
 	/*********************************************************************************************/

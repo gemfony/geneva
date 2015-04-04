@@ -148,68 +148,6 @@ bool trainingSet::operator!=(const trainingSet& cp) const {
       return false;
    }
 }
-/******************************************************************************/
-/**
- * Checks whether a given expectation for the relationship between this object and another object
- * is fulfilled.
- *
- * @param cp A constant reference to another object, camouflaged as a GObject
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
- * @param caller An identifier for the calling entity
- * @param y_name An identifier for the object that should be compared to this one
- * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
- * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
- */
-boost::optional<std::string> trainingSet::checkRelationshipWith(
-   const trainingSet& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
-   , const std::string& caller
-   , const std::string& y_name
-   , const bool& withMessages
-) const {
-    using namespace Gem::Common;
-
-	// Will hold possible deviations from the expectation, including explanations
-    std::vector<boost::optional<std::string> > deviations;
-
-	// Check local data
-   deviations.push_back(checkExpectation(withMessages, "trainingSet", nInputNodes, cp.nInputNodes, "nInputNodes", "cp.nInputNodes", e , limit));
-   deviations.push_back(checkExpectation(withMessages, "trainingSet", nOutputNodes, cp.nOutputNodes, "nOutputNodes", "cp.nOutputNodes", e , limit));
-
-   for(std::size_t i=0; i<nInputNodes; i++) {
-      deviations.push_back(
-            checkExpectation(
-                  withMessages
-                  , "trainingSet"
-                  , Input[i]
-                  , cp.Input[i]
-                  , std::string("Input")+boost::lexical_cast<std::string>(i)+"]"
-                  , std::string("cp.Input")+boost::lexical_cast<std::string>(i)+"]"
-                  , e
-                  , limit
-             )
-      );
-   }
-
-   for(std::size_t o=0; o<nOutputNodes; o++) {
-      deviations.push_back(
-            checkExpectation(
-                  withMessages
-                  , "trainingSet"
-                  , Output[o]
-                  , cp.Output[o]
-                  , std::string("Output")+boost::lexical_cast<std::string>(o)+"]"
-                  , std::string("cp.Output")+boost::lexical_cast<std::string>(o)+"]"
-                  , e
-                  , limit
-             )
-      );
-   }
-
-	return evaluateDiscrepancies("trainingSet", caller, deviations, e);
-}
 
 /******************************************************************************/
 /**
@@ -363,50 +301,6 @@ bool networkData::operator!=(const networkData& cp) const {
    } catch(g_expectation_violation&) {
       return false;
    }
-}
-/******************************************************************************/
-/**
- * Checks whether a given expectation for the relationship between this object and another object
- * is fulfilled.
- *
- * @param cp A constant reference to another object, camouflaged as a GObject
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
- * @param caller An identifier for the calling entity
- * @param y_name An identifier for the object that should be compared to this one
- * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
- * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
- */
-boost::optional<std::string> networkData::checkRelationshipWith(
-   const networkData& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
-   , const std::string& caller
-   , const std::string& y_name
-   , const bool& withMessages
-) const
-{
-   using namespace Gem::Common;
-
-   // Will hold possible deviations from the expectation, including explanations
-   std::vector<boost::optional<std::string> > deviations;
-
-   // Check the parent class'es data
-   deviations.push_back(GStdSimpleVectorInterfaceT<std::size_t>::checkRelationshipWith_base(cp, e, limit, "networkData", y_name, withMessages));
-
-   // Check vector sizes
-   if(arraySize_ != cp.arraySize_) {
-      std::ostringstream error;
-      error << "Array sizes did not match in networkData::checkRelationshipWith(): " << arraySize_ << " / " << cp.arraySize_;
-      deviations.push_back(boost::optional<std::string>(error.str()));
-   } else {
-      // Check local data
-      for(std::size_t i=0; i<arraySize_; i++) {
-         deviations.push_back(data_[i]->checkRelationshipWith(*(cp.data_[i]), e, limit, "networkData", y_name, withMessages));
-      }
-   }
-
-   return evaluateDiscrepancies("networkData", caller, deviations, e);
 }
 
 /******************************************************************************/
@@ -903,44 +797,6 @@ bool GNeuralNetworkIndividual::operator!=(const GNeuralNetworkIndividual& cp) co
    } catch(g_expectation_violation&) {
       return false;
    }
-}
-
-/******************************************************************************/
-/**
- * Checks whether a given expectation for the relationship between this object and another object
- * is fulfilled.
- *
- * @param cp A constant reference to another object, camouflaged as a GObject
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
- * @param caller An identifier for the calling entity
- * @param y_name An identifier for the object that should be compared to this one
- * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
- * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
- */
-boost::optional<std::string> GNeuralNetworkIndividual::checkRelationshipWith(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
-   , const std::string& caller
-   , const std::string& y_name
-   , const bool& withMessages
-) const {
-    using namespace Gem::Common;
-
-   // Check that we are indeed dealing with a GParamterBase reference
-   const GNeuralNetworkIndividual *p_load = GObject::gobject_conversion<GNeuralNetworkIndividual>(&cp);
-
-   // Will hold possible deviations from the expectation, including explanations
-    std::vector<boost::optional<std::string> > deviations;
-
-    // Check our parent class ....
-    deviations.push_back(GParameterSet::checkRelationshipWith(cp, e, limit, "GNeuralNetworkIndividual", y_name, withMessages));
-
-    // ... and then our local data
-    deviations.push_back(checkExpectation(withMessages, "GNeuralNetworkIndividual", tF_, p_load->tF_, "tF_", "p_load->tF_", e , limit));
-
-   return evaluateDiscrepancies("GNeuralNetworkIndividual", caller, deviations, e);
 }
 
 /******************************************************************************/

@@ -150,16 +150,6 @@ struct trainingSet
 	/** @brief Checks for inequality with another trainingSet object */
 	G_API_INDIVIDUALS bool operator!=(const trainingSet&) const;
 
-	/** @brief Checks whether a given expectation is fulfilled. */
-	G_API_INDIVIDUALS boost::optional<std::string> checkRelationshipWith(
-      const trainingSet&
-      , const Gem::Common::expectation&
-      , const double&
-      , const std::string&
-      , const std::string&
-      , const bool&
-	) const;
-
    /** @brief Searches for compliance with expectations with respect to another object of the same type */
    virtual G_API_GENEVA void compare(
       const trainingSet& // the other object
@@ -257,15 +247,6 @@ public:
 	G_API_INDIVIDUALS bool operator==(const networkData&) const;
 	/** @brief Checks for inequality with another networkData object */
 	G_API_INDIVIDUALS bool operator!=(const networkData&) const;
-
-	/** @brief Checks whether a given expectation is fulfilled. */
-	G_API_INDIVIDUALS boost::optional<std::string> checkRelationshipWith(const networkData&,
-      const Gem::Common::expectation&,
-      const double&,
-      const std::string&,
-      const std::string&,
-      const bool&
-   ) const;
 
    /** @brief Searches for compliance with expectations with respect to another object of the same type */
    virtual G_API_GENEVA void compare(
@@ -432,16 +413,6 @@ public:
 	G_API_INDIVIDUALS bool operator==(const GNeuralNetworkIndividual& cp) const;
 	/** @brief Checks for inequality with another GNeuralNetworkIndividual object */
 	G_API_INDIVIDUALS bool operator!=(const GNeuralNetworkIndividual& cp) const;
-
-	/** @brief Checks whether a given expectation for the relationship is fulfilled */
-	G_API_INDIVIDUALS boost::optional<std::string> checkRelationshipWith(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-      , const std::string& caller
-      , const std::string& y_name
-      , const bool& withMessages
-	) const;
 
    /** @brief Searches for compliance with expectations with respect to another object of the same type */
    virtual G_API_GENEVA void compare(

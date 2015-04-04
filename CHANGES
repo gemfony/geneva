@@ -25,6 +25,13 @@ The main changes for this release include:
 
 ****************************** BREAKING CHANGES ********************************
 
+ - The checkRelationshipWith-hierarchy was removed, in favour of a new
+   "compare()" API. This is used for unit tests in particular of indivuduals.
+   checkRelationshipWith() was optional in individuals, hence unless you 
+   use Genevas unit test infrastructure and you have written your own
+   checkRelationshipWith() for your individuals, the change will not affect 
+   you. Have a look at the example individuals for information on how to 
+   create a compare() function for your Individuals.
  - Geneva requires now the Boost::atomic component of Boost. You will
    need to install this additional component if your Boost installation
    is not a complete one, for instance in the case of a system-provided

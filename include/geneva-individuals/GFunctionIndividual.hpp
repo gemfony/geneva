@@ -200,16 +200,6 @@ public:
 	/** @brief Checks for inequality with another GFunctionIndividual object */
 	G_API_INDIVIDUALS bool operator!=(const GFunctionIndividual& cp) const;
 
-	/** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled. */
-	virtual G_API_INDIVIDUALS boost::optional<std::string> checkRelationshipWith(
-      const GObject&
-      , const Gem::Common::expectation&
-      , const double&
-      , const std::string&
-      , const std::string&
-      , const bool&
-	) const;
-
    /** @brief Searches for compliance with expectations with respect to another object of the same type */
    virtual G_API_GENEVA void compare(
       const GObject& // the other object
@@ -715,16 +705,6 @@ public:
    /** @brief Checks for inequality with another GIndividualConstraint object */
    G_API_INDIVIDUALS bool operator!=(const GDoubleSumConstraint&) const;
 
-   /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
-   virtual G_API_INDIVIDUALS boost::optional<std::string> checkRelationshipWith(
-      const GObject&
-      , const Gem::Common::expectation&
-      , const double&
-      , const std::string&
-      , const std::string&
-      , const bool&
-   ) const;
-
    /** @brief Searches for compliance with expectations with respect to another object of the same type */
    virtual G_API_GENEVA void compare(
       const GObject& // the other object
@@ -787,16 +767,6 @@ public:
    /** @brief Checks for inequality with another GIndividualConstraint object */
    G_API_INDIVIDUALS bool operator!=(const GDoubleSumGapConstraint&) const;
 
-   /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
-   virtual G_API_INDIVIDUALS boost::optional<std::string> checkRelationshipWith(
-      const GObject&
-      , const Gem::Common::expectation&
-      , const double&
-      , const std::string&
-      , const std::string&
-      , const bool&
-   ) const;
-
    /** @brief Searches for compliance with expectations with respect to another object of the same type */
    virtual G_API_GENEVA void compare(
       const GObject& // the other object
@@ -857,16 +827,6 @@ public:
    G_API_INDIVIDUALS bool operator==(const GSphereConstraint&) const;
    /** @brief Checks for inequality with another GSphereConstraint object */
    G_API_INDIVIDUALS bool operator!=(const GSphereConstraint&) const;
-
-   /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
-   virtual G_API_INDIVIDUALS boost::optional<std::string> checkRelationshipWith(
-      const GObject&
-      , const Gem::Common::expectation&
-      , const double&
-      , const std::string&
-      , const std::string&
-      , const bool&
-   ) const;
 
    /** @brief Searches for compliance with expectations with respect to another object of the same type */
    virtual G_API_GENEVA void compare(

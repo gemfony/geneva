@@ -177,16 +177,6 @@ class GExternalEvaluatorIndividual :public GParameterSet
 	/** @brief Checks for inequality with another GExternalEvaluatorIndividual object */
 	bool operator!=(const GExternalEvaluatorIndividual&) const;
 
-	/** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
-	boost::optional<std::string> checkRelationshipWith(
-      const GObject&
-      , const Gem::Common::expectation&
-      , const double&
-      , const std::string&
-      , const std::string&
-      , const bool&
-   ) const;
-
    /** @brief Searches for compliance with expectations with respect to another object of the same type */
    virtual G_API_GENEVA void compare(
       const GObject& // the other object

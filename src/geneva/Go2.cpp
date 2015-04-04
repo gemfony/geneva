@@ -334,54 +334,6 @@ bool Go2::operator!=(const Go2& cp) const {
 
 /******************************************************************************/
 /**
- * Checks whether a given expectation for the relationship between this object and another object
- * is fulfilled.
- *
- * @param cp A constant reference to another object, camouflaged as a GObject
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
- * @param caller An identifier for the calling entity
- * @param y_name An identifier for the object that should be compared to this one
- * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
- * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
- */
-boost::optional<std::string> Go2::checkRelationshipWith(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
-   , const std::string& caller
-   , const std::string& y_name
-   , const bool& withMessages
-) const {
-    using namespace Gem::Common;
-
-	// Check that we are indeed dealing with a GOptimizationMonitorT reference
-	const Go2 *p_load = GObject::gobject_conversion<Go2>(&cp);
-
-	// Will hold possible deviations from the expectation, including explanations
-    std::vector<boost::optional<std::string> > deviations;
-
-	// Check our parent class'es data ...
-	deviations.push_back(GMutableSetT<GParameterSet>::checkRelationshipWith(cp, e, limit, "Go2", y_name, withMessages));
-
-	// ... and then our local data
-	deviations.push_back(checkExpectation(withMessages, "Go2", clientMode_, p_load->clientMode_, "clientMode_", "p_load->clientMode_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "Go2", configFilename_, p_load->configFilename_, "configFilename_", "p_load->configFilename_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "Go2", parMode_, p_load->parMode_, "parMode_", "p_load->parMode_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "Go2", consumerName_, p_load->consumerName_, "consumerName_", "p_load->consumerName_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "Go2", nProducerThreads_, p_load->nProducerThreads_, "nProducerThreads_", "p_load->nProducerThreads_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "Go2", offset_, p_load->offset_, "offset_", "p_load->offset_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "Go2", sorted_, p_load->sorted_, "sorted_", "p_load->sorted_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "Go2", iterationsConsumed_, p_load->iterationsConsumed_, "iterationsConsumed_", "p_load->iterationsConsumed_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "Go2", default_algorithm_, p_load->default_algorithm_, "default_algorithm_", "p_load->default_algorithm_", e , limit));
-
-	// TODO: Compare algorithms; cross check whether other data has been added
-
-	return evaluateDiscrepancies("Go2", caller, deviations, e);
-}
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *

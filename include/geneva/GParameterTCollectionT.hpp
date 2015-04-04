@@ -174,44 +174,6 @@ public:
       }
    }
 
-	/***************************************************************************/
-	/**
-	 * Checks whether a given expectation for the relationship between this object and another object
-	 * is fulfilled.
-	 *
-	 * @param cp A constant reference to another object, camouflaged as a GObject
-	 * @param e The expected outcome of the comparison
-	 * @param limit The maximum deviation for floating point values (important for similarity checks)
-	 * @param caller An identifier for the calling entity
-	 * @param y_name An identifier for the object that should be compared to this one
-	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
-	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
-	 */
-	boost::optional<std::string> checkRelationshipWith(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-      , const std::string& caller
-      , const std::string& y_name
-      , const bool& withMessages
-	) const OVERRIDE {
-	    using namespace Gem::Common;
-
-		// Check that we are indeed dealing with a GParamterBase reference
-		const GParameterTCollectionT<T>  *p_load = GObject::gobject_conversion<GParameterTCollectionT<T> >(&cp);
-
-		// Will hold possible deviations from the expectation, including explanations
-	    std::vector<boost::optional<std::string> > deviations;
-
-		// Check our parent classes' data ...
-		deviations.push_back(GParameterBase::checkRelationshipWith(cp, e, limit, "GParameterTCollectionT<T>", y_name, withMessages));
-		deviations.push_back(GStdPtrVectorInterfaceT<T>::checkRelationshipWith(*p_load, e, limit, "GParameterTCollectionT<T>", y_name, withMessages));
-
-		// no local data ...
-
-		return evaluateDiscrepancies("GParameterTCollectionT<T>", caller, deviations, e);
-	}
-
    /***************************************************************************/
    /**
     * Searches for compliance with expectations with respect to another object

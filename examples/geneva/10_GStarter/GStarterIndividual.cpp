@@ -165,8 +165,12 @@ const GStarterIndividual& GStarterIndividual::operator=(const GStarterIndividual
  */
 bool GStarterIndividual::operator==(const GStarterIndividual& cp) const {
    using namespace Gem::Common;
-   // Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GStarterIndividual::operator==","cp", CE_SILENT);
+   try {
+      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
@@ -178,47 +182,47 @@ bool GStarterIndividual::operator==(const GStarterIndividual& cp) const {
  */
 bool GStarterIndividual::operator!=(const GStarterIndividual& cp) const {
    using namespace Gem::Common;
-   // Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-   return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GStarterIndividual::operator!=","cp", CE_SILENT);
+   try {
+      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+      return true;
+   } catch(g_expectation_violation&) {
+      return false;
+   }
 }
 
 /******************************************************************************/
 /**
- * Checks whether a given expectation for the relationship between this object and another object
- * is fulfilled.
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
  *
- * @param cp A constant reference to another object, camouflaged as a GObject
+ * @param cp A constant reference to another GObject object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
- * @param caller An identifier for the calling entity
- * @param y_name An identifier for the object that should be compared to this one
- * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
- * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GStarterIndividual::checkRelationshipWith(
+void GStarterIndividual::compare(
    const GObject& cp
    , const Gem::Common::expectation& e
    , const double& limit
-   , const std::string& caller
-   , const std::string& y_name
-   , const bool& withMessages
 ) const {
    using namespace Gem::Common;
-   using namespace Gem::Geneva;
 
-   // Check that we are indeed dealing with a GParamterBase reference
+   // Check that we are indeed dealing with a GBaseEA reference
    const GStarterIndividual *p_load = gobject_conversion<GStarterIndividual>(&cp);
 
-   // Will hold possible deviations from the expectation, including explanations
-   std::vector<boost::optional<std::string> > deviations;
+   try {
+      BEGIN_COMPARE;
 
-   // Check our parent class'es data ...
-   deviations.push_back(Gem::Geneva::GParameterSet::checkRelationshipWith(cp, e, limit, "GStarterIndividual", y_name, withMessages));
+      // Check our parent class'es data ...
+      COMPARE_PARENT(Gem::Geneva::GParameterSet, cp, e, limit);
 
-   // ... and then our local data
-   deviations.push_back(checkExpectation(withMessages, "GStarterIndividual", targetFunction_, p_load->targetFunction_, "targetFunction_", "p_load->targetFunction_", e , limit));
+      // ... and then our local data
+      COMPARE(targetFunction_, p_load->targetFunction_, e, limit);
 
-   return evaluateDiscrepancies("GStarterIndividual", caller, deviations, e);
+      END_COMPARE;
+
+   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
+      throw g("g_expectation_violation caught by GDoubleSumConstraint");
+   }
 }
 
 /******************************************************************************/
