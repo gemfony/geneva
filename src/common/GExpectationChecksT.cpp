@@ -40,6 +40,11 @@ namespace Common {
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
+// Identifies test counter and success counter
+const std::size_t TESTCOUNTER = 0;
+const std::size_t SUCCESSCOUNTER = 0;
+
+/******************************************************************************/
 /**
  * The standard constructor
  */
@@ -77,6 +82,120 @@ g_expectation_violation& g_expectation_violation::operator()(
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * The standard constructor -- initialization with class name and expectation
+ */
+GToken::GToken(
+   const std::string& caller
+   , const Gem::Common::expectation& e
+)
+   : testCounter_(boost::tuple<std::size_t, std::size_t>(std::size_t(0), std::size_t(0)))
+   , caller_(caller)
+   , e_(e)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Increments the test counter
+ */
+void GToken::incrTestCounter() {
+   boost::get<TESTCOUNTER>(testCounter_) += 1;
+}
+
+/******************************************************************************/
+/**
+ * Increments the counter of tests that met the expectation
+ */
+void GToken::incrSuccessCounter() {
+   boost::get<SUCCESSCOUNTER>(testCounter_) += 1;
+}
+
+/******************************************************************************/
+/**
+ * Allows to check whether the xpectation was met
+ */
+bool GToken::expectationMet() const {
+   if(boost::get<TESTCOUNTER>(testCounter_) == boost::get<SUCCESSCOUNTER>(testCounter_)) {
+      return true;
+   } else {
+      return false;
+   }
+}
+
+/******************************************************************************/
+/**
+ * Conversion to a boolean indicating whether the expectation was met
+ */
+GToken::operator bool() const {
+   return this->expectationMet();
+}
+
+/******************************************************************************/
+/**
+ * Allows to register an error message e.g. obtained from a failed check
+ */
+void GToken::registerErrorMessage(const std::string& m) {
+   if(!m.empty()) {
+      errorMessages_.push_back(m);
+   } else {
+      glogger
+      << "In GToken::registerErrorMessage(): Error" << std::endl
+      << "Tried to register empty error message" << std::endl
+      << GEXCEPTION;
+   }
+}
+
+/******************************************************************************/
+/**
+ * Conversion to a string indicating success or failure
+ */
+std::string GToken::toString() const {
+   std::string result = "Expectation of ";
+
+   switch(e_) {
+      case Gem::Common::CE_FP_SIMILARITY:
+      {
+         result += std::string("CE_FP_SIMILARITY was ");
+      }
+      break;
+
+      case Gem::Common::CE_EQUALITY:
+      {
+         result += std::string("CE_EQUALITY was ");
+      }
+      break;
+
+      case Gem::Common::CE_INEQUALITY:
+      {
+         result += std::string("CE_INEQUALITY was ");
+      }
+      break;
+
+      default:
+      {
+         glogger
+         << "In GToken::toString(): Got invalid expectation " << e_ << std::endl
+         << GEXCEPTION;
+      }
+      break;
+   }
+
+   if(this->expectationMet()) {
+      result += std::string("met in ") + caller_ + std::string("\n");
+   } else {
+      result += std::string("not met in ") + caller_ + std::string("\n");
+      std::vector<std::string>::const_iterator cit;
+      for(cit=errorMessages_.begin(); cit!=errorMessages_.end(); ++cit) {
+         result += *cit;
+      }
+   }
+
+   return result;
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * This function checks whether two objects of type boost::logic::tribool meet a given expectation.
  *
  * @param x The first vector to be compared
@@ -87,7 +206,6 @@ g_expectation_violation& g_expectation_violation::operator()(
  * @param limit The maximum allowed deviation of two floating point values
  * @param dummy Boost::enable_if magic to steer overloaded resolution by the compiler
  */
-G_API_COMMON
 void compare(
    const boost::logic::tribool& x
    , const boost::logic::tribool& y

@@ -47,6 +47,7 @@
 
 // Boost headers go here
 #include <boost/cast.hpp>
+#include <boost/noncopyable.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/logic/tribool_io.hpp>
 #include <boost/utility/enable_if.hpp>
@@ -66,6 +67,99 @@
 
 namespace Gem {
 namespace Common {
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * A token to be handed to different comparators, so they can signal the violation
+ * of expectations
+ */
+class GToken
+   : private boost::noncopyable
+{
+public:
+   /** @brief The standard constructor -- initialization with class name and expectation */
+   G_API_COMMON GToken(const std::string&, const Gem::Common::expectation&);
+
+   /** @brief Increments the test counter */
+   G_API_COMMON void incrTestCounter();
+
+   /** @brief Increments the counter of tests that met the expectation */
+   G_API_COMMON void incrSuccessCounter();
+
+   /** @brief Allows to check whether the xpectation was met */
+   G_API_COMMON bool expectationMet() const;
+   /** @brief Conversion to a boolean indicating whether the expectation was met */
+   G_API_COMMON operator bool() const;
+
+   /** @brief Allows to register an error message e.g. obtained from a failed check */
+   G_API_COMMON void registerErrorMessage(const std::string&);
+
+   /** @brief Conversion to a string indicating success or failure */
+   G_API_COMMON std::string toString() const;
+
+private:
+   /** @brief The default constructor -- intentionally private and undefined */
+   GToken();
+
+   /** @brief Counts all tests vs. tests that have met the expectation */
+   boost::tuple<std::size_t, std::size_t> testCounter_;
+   /** @brief Error messages obtained from failed checks */
+   std::vector<std::string> errorMessages_;
+
+   /** @brief The name of the calling class */
+   const std::string caller_;
+   /** @brief The expectation to be met */
+   const Gem::Common::expectation e_;
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * This struct facilitates transfer of comparable items to comparators
+ */
+template <typename T>
+struct identity {
+   identity(
+      const T& x_var
+      , const T& y_var
+      , const std::string& x_name_var
+      , const std::string& y_name_var
+   )
+      : x(x_var)
+      , y(y_var)
+      , x_name(x_name_var)
+      , y_name(y_name_var)
+   { /* nothing */ }
+
+   const T& x;
+   const T& y;
+   const std::string x_name;
+   const std::string y_name;
+};
+
+/******************************************************************************/
+/**
+ * Returns an identity object. The function is needed as automatic type
+ * deduction does not work for structs / classes
+ */
+template <typename T>
+identity<T> getIdentity(const T& x_var
+      , const T& y_var
+      , const std::string& x_name_var
+      , const std::string& y_name_var
+) {
+   return identity<T>(x_var, y_var, x_name_var, y_name_var);
+}
+
+/******************************************************************************/
+/**
+ * This macro facilitates the creation of an identity object including
+ * variable names
+ */
+#define IDENTITY(x,y) Gem::Common::getIdentity((x), (y), std::string(#x), std::string(#y))
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
