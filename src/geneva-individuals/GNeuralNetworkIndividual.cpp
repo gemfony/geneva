@@ -323,15 +323,9 @@ void networkData::compare(
    try {
       BEGIN_COMPARE;
 
-      // Check our parent class'es data ...
-      COMPARE_VEC(Gem::Common::GStdSimpleVectorInterfaceT<std::size_t>, cp, e, limit);
-
-      // ... and then our local data
+      // Check local data
       COMPARE(arraySize_, cp.arraySize_, e, limit);
-      for(std::size_t i=0; i<arraySize_; i++) {
-         // TODO Express through COMPARE
-         data_[i]->compare(*(cp.data_[i]), e, limit);
-      }
+      COMPARE(this->data, cp.data, e, limit);
 
       END_COMPARE;
 

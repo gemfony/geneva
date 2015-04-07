@@ -167,7 +167,8 @@ void GBrokerEA::compare(
 
       // Check our parent class'es data ...
       COMPARE_PARENT(GBaseEA, cp, e, limit);
-      COMPARE_BROKER(Gem::Courtier::GBrokerConnector2T<GParameterSet>, *p_load, e, limit);
+
+      // We do not compare the broker data
 
       // ... and then our local data
       COMPARE(nThreads_, p_load->nThreads_, e, limit);

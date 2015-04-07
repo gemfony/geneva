@@ -180,7 +180,8 @@ void GBrokerSwarm::compare(
 
       // Check our parent class'es data ...
       COMPARE_PARENT(GBaseSwarm, cp, e, limit);
-      COMPARE_BROKER(Gem::Courtier::GBrokerConnector2T<GParameterSet>, *p_load, e, limit);
+
+      // We do not compare the broker data
 
       // ... no local data
 

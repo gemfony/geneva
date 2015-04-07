@@ -488,37 +488,6 @@ break; \
 }; \
 
 /******************************************************************************/
-// A define for the compare-infrastructure of GStdSimpleVectorInterface and GStdPtrVectorInterface
-#define COMPARE_VEC(p,c,e,l) \
-g_n_tests++; \
-switch(e){ \
-case Gem::Common::CE_FP_SIMILARITY: \
-case Gem::Common::CE_EQUALITY: \
-{ \
-    p::compare_base((c),(e),(l));\
-} \
-break; \
-\
-case Gem::Common::CE_INEQUALITY: \
-{ \
-   try{ \
-      p::compare_base((c),(e),(l)); \
-   } catch(g_expectation_violation&) { \
-       g_n_violations++; \
-   } \
-} \
-break; \
-\
-default: \
-{ \
-   glogger \
-   << "Got invalid expectation " << e << std::endl \
-   << GEXCEPTION; \
-} \
-break; \
-}; \
-
-/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

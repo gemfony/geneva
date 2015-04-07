@@ -62,6 +62,7 @@
 
 // Geneva headers go here
 #include "common/GStdSimpleVectorInterfaceT.hpp"
+#include "common/GExpectationChecksT.hpp"
 #include "geneva/GObject.hpp"
 
 /*************************************************************************************************/
@@ -140,6 +141,7 @@ public:
 	     x.Gem::Common::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::compare_base(
 	        y, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE
         );
+
 	     return true;
 	   } catch(g_expectation_violation& g) {
          std::cout

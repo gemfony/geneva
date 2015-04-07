@@ -186,9 +186,9 @@ public:
 
          // Check our parent class'es data ...
          COMPARE_PARENT(GParameterBaseWithAdaptorsT<T>, cp, e, limit);
-         COMPARE_VEC(Gem::Common::GStdSimpleVectorInterfaceT<T>, *p_load, e, limit);
 
-         // ... no local data
+         // We access the relavant data of one of the parent classes directly for simplicity reasons
+         COMPARE(this->data, p_load->data, e, limit);
 
          END_COMPARE;
 

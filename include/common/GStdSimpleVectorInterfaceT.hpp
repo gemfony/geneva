@@ -72,6 +72,9 @@
 #include "common/GLogger.hpp"
 #include "common/GExpectationChecksT.hpp"
 
+// Forward declaration
+class GEqualityPrinter;
+
 namespace Gem {
 namespace Common {
 
@@ -95,6 +98,8 @@ class GStdSimpleVectorInterfaceT
       & BOOST_SERIALIZATION_NVP(data);
     }
     ///////////////////////////////////////////////////////////////////////
+
+    friend class GEqualityPrinter;
 
 public:
    /***************************************************************************/
