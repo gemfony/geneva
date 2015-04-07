@@ -100,7 +100,7 @@ void gemfony_error_condition::add(const std::string& newMessage) throw() {
  *    throw g()
  * }
  */
-gemfony_error_condition& gemfony_error_condition::operator()(
+gemfony_error_condition& gemfony_error_condition::operator() (
    const std::string& s
 ) throw() {
    this->add(s + "\n");
@@ -113,6 +113,14 @@ gemfony_error_condition& gemfony_error_condition::operator()(
  */
 const char* gemfony_error_condition::what() const throw() {
    return description_.c_str();
+}
+
+/******************************************************************************/
+/**
+ * Allows to check whether any information is stored in this class
+ */
+bool gemfony_error_condition::empty() const throw() {
+   return description_.empty();
 }
 
 /******************************************************************************/

@@ -131,6 +131,22 @@ GToken::operator bool() const {
 
 /******************************************************************************/
 /**
+ * Allows to retrieve the expectation token
+ */
+Gem::Common::expectation GToken::getExpectation() const {
+   return e_;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the name of the caller
+ */
+std::string GToken::getCallerName() const {
+   return caller_;
+}
+
+/******************************************************************************/
+/**
  * Allows to register an error message e.g. obtained from a failed check
  */
 void GToken::registerErrorMessage(const std::string& m) {
@@ -140,6 +156,21 @@ void GToken::registerErrorMessage(const std::string& m) {
       glogger
       << "In GToken::registerErrorMessage(): Error" << std::endl
       << "Tried to register empty error message" << std::endl
+      << GEXCEPTION;
+   }
+}
+
+/******************************************************************************/
+/**
+ * Allows to register an exception obtained from a failed check
+ */
+void GToken::registerErrorMessage(const g_expectation_violation& g) {
+   if(!g.empty()) {
+      errorMessages_.push_back(std::string(g.what()));
+   } else {
+      glogger
+      << "In GToken::registerErrorMessage(): Error" << std::endl
+      << "Tried to register empty exception" << std::endl
       << GEXCEPTION;
    }
 }

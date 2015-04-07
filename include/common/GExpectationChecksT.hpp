@@ -116,8 +116,15 @@ public:
    /** @brief Conversion to a boolean indicating whether the expectation was met */
    G_API_COMMON operator bool() const;
 
+   /** @brief Allows to retrieve the expectation token */
+   G_API_COMMON Gem::Common::expectation getExpectation() const;
+   /** @brief Allows to retrieve the name of the caller */
+   G_API_COMMON std::string getCallerName() const;
+
    /** @brief Allows to register an error message e.g. obtained from a failed check */
    G_API_COMMON void registerErrorMessage(const std::string&);
+   /** @brief Allows to register an exception obtained from a failed check */
+   G_API_COMMON void registerErrorMessage(const g_expectation_violation&);
 
    /** @brief Conversion to a string indicating success or failure */
    G_API_COMMON std::string toString() const;

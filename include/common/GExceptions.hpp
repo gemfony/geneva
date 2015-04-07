@@ -100,10 +100,12 @@ public:
 
 	/** @brief Emits information when thrown */
 	virtual G_API_COMMON const char* what() const throw();
+	/** @brief Allows to check whether any information is stored in this class */
+	G_API_COMMON bool empty() const throw();
 
 private:
 	/** @brief The default constructor: Intentionally private and undefined */
-	gemfony_error_condition();
+	gemfony_error_condition() throw();
 
 	std::string description_; ///< Holds the actual error description
 };
