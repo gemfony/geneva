@@ -72,6 +72,29 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * An exception to be thrown in case of an expectation violation.
+ */
+class g_expectation_violation
+   : public gemfony_error_condition
+{
+public:
+   /** @brief The standard constructor */
+   G_API_COMMON g_expectation_violation(const std::string&) throw();
+   /** @brief The destructor */
+   virtual G_API_COMMON ~g_expectation_violation() throw();
+
+   /** @brief Allows to add further informtion, automatically terminated through a '\n' */
+   G_API_COMMON g_expectation_violation& operator()(const std::string&) throw();
+
+private:
+   /** @brief The default constructor: Intentionally private and undefined */
+   g_expectation_violation();
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * A token to be handed to different comparators, so they can signal the violation
  * of expectations
  */
@@ -98,6 +121,9 @@ public:
 
    /** @brief Conversion to a string indicating success or failure */
    G_API_COMMON std::string toString() const;
+
+   /** @brief Evaluates the information in this object */
+   G_API_COMMON void evaluate() const;
 
 private:
    /** @brief The default constructor -- intentionally private and undefined */
@@ -160,29 +186,6 @@ identity<T> getIdentity(const T& x_var
  * variable names
  */
 #define IDENTITY(x,y) Gem::Common::getIdentity((x), (y), std::string(#x), std::string(#y))
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * An exception to be thrown in case of an expectation violation.
- */
-class g_expectation_violation
-   : public gemfony_error_condition
-{
-public:
-   /** @brief The standard constructor */
-   G_API_COMMON g_expectation_violation(const std::string&) throw();
-   /** @brief The destructor */
-   virtual G_API_COMMON ~g_expectation_violation() throw();
-
-   /** @brief Allows to add further informtion, automatically terminated through a '\n' */
-   G_API_COMMON g_expectation_violation& operator()(const std::string&) throw();
-
-private:
-   /** @brief The default constructor: Intentionally private and undefined */
-   g_expectation_violation();
-};
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
