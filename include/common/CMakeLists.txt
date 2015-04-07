@@ -64,6 +64,7 @@ SET ( GENEVACOMMONINCLUDES
 	GTriboolSerialization.hpp
 	GTSSAccessT.hpp
 	GTypeToStringT.hpp
+	GTypeTraitsT.hpp
 	GUnitTestFrameworkT.hpp
 )
 

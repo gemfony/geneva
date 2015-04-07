@@ -66,13 +66,93 @@ namespace Gem {
 namespace Common {
 
 /******************************************************************************/
-/*
- * The functions in this file help to check whether GObject-derivatives (and collections thereof)
- * meet a given set of expectations.
- */
-
-/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * This function checks whether two omplex types meet a given expectation. It is assumed that
+ * these types have the standard Geneva interface with corresponding "compare" functions.
+ *
+ * @param x The first parameter to be compared
+ * @param y The second parameter to be compared
+ * @param x_name The name of the first parameter
+ * @param y_name The name of the second parameter
+ * @param e The expectation both parameters need to fulfill
+ * @param limit The maximum allowed deviation of two floating point values
+ * @param dummy Boost::enable_if magic to steer overloaded resolution by the compiler
+ */
+template <typename geneva_type>
+void compare (
+   const geneva_type& x
+   , const geneva_type& y
+   , const std::string& x_name
+   , const std::string& y_name
+   , const Gem::Common::expectation& e
+   , const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
+   , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type> >::type* dummy = 0
+) {
+   bool expectationMet = false;
+   std::string expectation_str;
+   std::ostringstream error;
+
+   switch(e) {
+   case Gem::Common::CE_FP_SIMILARITY:
+   case Gem::Common::CE_EQUALITY:
+   {
+      expectation_str = "CE_FP_SIMILARITY / CE_EQUALITY";
+
+      // If we reach this line, then both pointers have content
+
+      { // Check whether the content differs
+         try {
+            x.compare(y,e,limit);
+         } catch(g_expectation_violation& g) {
+            error
+            << "Content of " << x_name << " and " << y_name << " differ." << std::endl
+            << "Thus the expectation of " << expectation_str << " was violated:" << std::endl
+            << g.what() << std::endl;
+            break; // Terminate the switch statement
+         }
+
+         // If we reach this line, the expectation was met
+         expectationMet = true;
+      }
+   }
+   break;
+
+   case Gem::Common::CE_INEQUALITY:
+   {
+      expectation_str = "CE_INEQUALITY";
+
+      // Check whether the content differs
+      try {
+         x.compare(y,e,limit);
+      } catch(g_expectation_violation& g) {
+         // If we catch an expectation violation for expectation "inequality",
+         // we simply break the switch statement so that expectationMet remains to be false
+         error
+         << "Content of " << x_name << " and " << y_name << " are equal/similar." << std::endl
+         << "Thus the expectation of " << expectation_str << " was violated:" << std::endl
+         << g.what() << std::endl;
+         break;
+      }
+      expectationMet = true;
+   }
+   break;
+
+   default:
+   {
+      glogger
+      << "In compare(/* 6 */): Got invalid expectation " << e << std::endl
+      << GEXCEPTION;
+   }
+   break;
+   };
+
+   if(!expectationMet) {
+      throw g_expectation_violation(error.str());
+   }
+}
+
 /******************************************************************************/
 /**
  * This function checks whether two smart pointers to complex types meet a given expectation.
@@ -173,7 +253,7 @@ void compare (
    default:
    {
       glogger
-      << "In compare(/* 6 */): Got invalid expectation " << e << std::endl
+      << "In compare(/* 7 */): Got invalid expectation " << e << std::endl
       << GEXCEPTION;
    }
    break;
@@ -318,7 +398,7 @@ void compare (
    default:
    {
       glogger
-      << "In compare(/* 7 */): Got invalid expectation " << e << std::endl
+      << "In compare(/* 8 */): Got invalid expectation " << e << std::endl
       << GEXCEPTION;
    }
    break;

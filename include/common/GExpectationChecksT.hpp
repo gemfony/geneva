@@ -52,6 +52,7 @@
 #include <boost/logic/tribool_io.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits.hpp>
+#include <boost/typeof/typeof.hpp>
 #include <boost/mpl/has_xxx.hpp>
 #include <boost/optional.hpp>
 #include <boost/lexical_cast.hpp>
@@ -64,6 +65,7 @@
 #include "common/GMathHelperFunctions.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
+#include "common/GTypeTraitsT.hpp"
 
 namespace Gem {
 namespace Common {
@@ -226,7 +228,8 @@ void compare(
    , const std::string& y_name
    , const Gem::Common::expectation& e
    , const double& limit = 0.
-   , typename boost::disable_if<boost::is_floating_point<basic_type> >::type* dummy = 0
+   , typename boost::disable_if<boost::is_floating_point<basic_type> >::type* dummy1 = 0
+   , typename boost::disable_if<Gem::Common::has_compare_member<basic_type> >::type * dummy2 = 0
 ) {
    bool expectationMet = false;
    std::string expectation_str;
@@ -335,6 +338,24 @@ void compare(
       << "]" << std::endl;
       throw g_expectation_violation(error.str());
    }
+}
+
+/******************************************************************************/
+/**
+ * Comparison and transformation. This may be used to initiate the comparision of
+ * parent classes.
+ */
+template <typename basic_type, typename target_type>
+void compare(
+   const std::vector<basic_type>& x
+   , const std::vector<basic_type>& y
+   , const std::string& x_name
+   , const std::string& y_name
+   , const Gem::Common::expectation& e
+   , const double& limit = 0.
+   , typename boost::disable_if<boost::is_floating_point<basic_type> >::type* dummy = 0
+) {
+
 }
 
 /******************************************************************************/
