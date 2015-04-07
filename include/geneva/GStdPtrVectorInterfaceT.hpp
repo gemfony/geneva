@@ -127,7 +127,7 @@ public:
     GStdPtrVectorInterfaceT(const GStdPtrVectorInterfaceT<T>& cp) {
 		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
 		for(cp_it=cp.data.begin(); cp_it!=cp.data.end(); ++cp_it) {
-			data.push_back((*cp_it)->GObject::template clone<T>());
+			data.push_back((*cp_it)->T::template clone<T>());
 		}
 	}
 
@@ -169,18 +169,18 @@ public:
 
 		if(cpSize == localSize) { // The most likely case
 			for(it=data.begin(), cp_it=cp.begin(); it!=data.end(); ++it, ++cp_it) {
-				(*it)->GObject::load(*cp_it);
+				(*it)->T::load(*cp_it);
 			}
 		}
 		else if(cpSize > localSize) {
 			// First copy the initial elements
 			for(it=data.begin(), cp_it=cp.begin(); it!=data.end(); ++it, ++cp_it) {
-				(*it)->GObject::load(*cp_it);
+				(*it)->T::load(*cp_it);
 			}
 
 			// Then attach the remaining objects from cp
 			for(cp_it=cp.begin()+localSize; cp_it != cp.end(); ++cp_it) {
-				data.push_back((*cp_it)->GObject::template clone<T>());
+				data.push_back((*cp_it)->T::template clone<T>());
 			}
 		}
 		else if(cpSize < localSize) {
@@ -189,7 +189,7 @@ public:
 
 			// Then copy the elements
 			for(it=data.begin(), cp_it=cp.begin(); it!=data.end(); ++it, ++cp_it) {
-				(*it)->GObject::load(*cp_it);
+				(*it)->T::load(*cp_it);
 			}
 		}
 
@@ -315,7 +315,7 @@ public:
 	 */
 	template <typename target_type>
 	boost::shared_ptr<target_type> clone_at(std::size_t pos) const {
-		return (data.at(pos))->GObject::template clone<target_type>();
+		return (data.at(pos))->T::template clone<target_type>();
 	}
 
 	/***************************************************************************/
@@ -413,7 +413,7 @@ public:
          << GEXCEPTION;
 		}
 
-		return data.insert(pos, item_ptr->GObject::template clone<T>());
+		return data.insert(pos, item_ptr->T::template clone<T>());
 	}
 
 	/* ------------------------------------------------------------------------------------------------
@@ -459,7 +459,7 @@ public:
 		std::size_t iterator_pos = pos - data.begin();
 		for(std::size_t i=0; i<amount; i++) {
 			 // Note that we re-calculate the iterator, as it is not clear whether it remains valid
-			data.insert(data.begin() + iterator_pos,  item_ptr->GObject::template clone<T>());
+			data.insert(data.begin() + iterator_pos,  item_ptr->T::template clone<T>());
 		}
 	}
 
@@ -491,7 +491,7 @@ public:
 		// Create (amount-1) clones
 		for(std::size_t i=0; i<amount-1; i++) {
 			 // Note that we re-calculate the iterator, as it is not clear whether it remains valid
-			data.insert(data.begin() + iterator_pos,  item_ptr->GObject::template clone<T>());
+			data.insert(data.begin() + iterator_pos,  item_ptr->T::template clone<T>());
 		}
 		// Add the argument
 		data.insert(data.begin() + iterator_pos, item_ptr);
@@ -560,7 +560,7 @@ public:
          << GEXCEPTION;
 		}
 
-		data.push_back(item_ptr->GObject::template clone<T>());
+		data.push_back(item_ptr->T::template clone<T>());
 	}
 
 	/* ------------------------------------------------------------------------------------------------
@@ -644,7 +644,7 @@ public:
 
 			// Create a (amount - dataSize -1) clones
 			for(std::size_t i=dataSize; i<amount-1; i++) {
-				data.push_back(item_ptr->GObject::template clone<T>());
+				data.push_back(item_ptr->T::template clone<T>());
 			}
 
 			// Finally add item_ptr
@@ -682,7 +682,7 @@ public:
 			}
 
 			for(std::size_t i=dataSize; i<amount; i++) {
-				data.push_back(item_ptr->GObject::template clone<T>());
+				data.push_back(item_ptr->T::template clone<T>());
 			}
 		}
 	}
@@ -725,7 +725,7 @@ public:
 		cp.clear();
 		typename std::vector<boost::shared_ptr<T> >::const_iterator it;
 		for(it=data.begin(); it!= data.end(); ++it) {
-			cp.push_back((*it)->GObject::template clone<T>());
+			cp.push_back((*it)->T::template clone<T>());
 		}
 	}
 
