@@ -48,10 +48,6 @@
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
-   std::vector<int> x, y;
-   Gem::Common::identity<std::vector<int> > w(x, y, "x_name", "y_name");
-   exit(0);
-
    Go2 go(argc, argv, "./config/Go2.json");
 
 	//---------------------------------------------------------------------------

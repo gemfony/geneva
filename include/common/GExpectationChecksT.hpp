@@ -160,23 +160,27 @@ struct identity {
       , const T& y_var
       , const std::string& x_name_var
       , const std::string& y_name_var
+      , const double& l_var
    )
       : x(x_var)
       , y(y_var)
       , x_name(x_name_var)
       , y_name(y_name_var)
+      , limit(l_var)
    { /* nothing */ }
 
    const T& x;
    const T& y;
    const std::string x_name;
    const std::string y_name;
+   const double limit;
 };
 
 /******************************************************************************/
 /**
  * Returns an identity object. The function is needed as automatic type
- * deduction does not work for structs / classes
+ * deduction does not work for structs / classes. We assume a central default
+ * value for the maximum allowed difference for "similar" floating point values.
  */
 template <typename T>
 identity<T> getIdentity(const T& x_var
@@ -184,7 +188,7 @@ identity<T> getIdentity(const T& x_var
       , const std::string& x_name_var
       , const std::string& y_name_var
 ) {
-   return identity<T>(x_var, y_var, x_name_var, y_name_var);
+   return identity<T>(x_var, y_var, x_name_var, y_name_var, Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE);
 }
 
 /******************************************************************************/
@@ -530,7 +534,6 @@ void compare(
    }
 }
 
-
 /******************************************************************************/
 /** @brief This function checks whether two objects of type boost::logic::tribool meet a given expectation. */
 G_API_COMMON
@@ -542,6 +545,33 @@ void compare(
    , const Gem::Common::expectation&
    , const double& limit = CE_DEF_SIMILARITY_DIFFERENCE
 );
+
+/******************************************************************************/
+/**
+ * This function checks whether two types fulfill a given expectation.
+ * It assumes that these types understand the == and != operators and may be streamed.
+ * If they do not fulfill this requirement, you need to provide a specialization
+ * of these functions. A check for similarity is treated the same as a check for
+ * equality. Data is transferred inside of a struct that facilitates specification of variable
+ * names through the IDENTITY macro. All further interaction happens through a "token"
+ * that allows to specify whether expectations where violated.
+ *
+ * @param data The identity struct
+ * @param token The token holding information about the number of failed tests
+ */
+template <typename T>
+void compare(
+   const identity<T>& data
+   , GToken& token
+) {
+   try {
+      token.incrTestCounter();
+      compare(data.x, data.y, data.x_name, data.y_name, token.getExpectation(), data.limit);
+      token.incrSuccessCounter();
+   } catch(const g_expectation_violation& g) {
+      token.registerErrorMessage(g);
+   }
+}
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
