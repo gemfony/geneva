@@ -71,11 +71,10 @@
 // Geneva headers go here
 #include "common/GHelperFunctionsT.hpp"
 #include "common/GLogger.hpp"
-#include "geneva/GObject.hpp"
-#include "geneva/GObjectExpectationChecksT.hpp"
+#include "common/GExpectationChecksT.hpp"
 
 namespace Gem {
-namespace Geneva {
+namespace Common {
 
 /******************************************************************************/
 /**
@@ -86,7 +85,7 @@ namespace Geneva {
  * std::vector, which has a non-virtual destructor. Note that we assume here
  * that T holds a complex type, such as a class.  T must implement
  * the interface "usual" for Geneva-GObject derivatives, in particular T must
- * implement the clone() function.
+ * implement the clone() and function.
  *
  * Some std::vector functions can not be fully implemented, as they require
  * the data in this class to be default-constructible. As this class can hold
@@ -995,7 +994,7 @@ public:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
+} /* namespace Common */
 } /* namespace Gem */
 
 /******************************************************************************/
@@ -1005,9 +1004,9 @@ public:
 namespace boost {
   namespace serialization {
     template<typename T>
-    struct is_abstract<Gem::Geneva::GStdPtrVectorInterfaceT<T> > : public boost::true_type {};
+    struct is_abstract<Gem::Common::GStdPtrVectorInterfaceT<T> > : public boost::true_type {};
     template<typename T>
-    struct is_abstract< const Gem::Geneva::GStdPtrVectorInterfaceT<T> > : public boost::true_type {};
+    struct is_abstract< const Gem::Common::GStdPtrVectorInterfaceT<T> > : public boost::true_type {};
   }
 }
 

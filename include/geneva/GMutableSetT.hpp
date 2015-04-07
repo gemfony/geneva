@@ -46,10 +46,10 @@
 #include "hap/GRandomT.hpp"
 #include "common/GHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
+#include "common/GStdPtrVectorInterfaceT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterBase.hpp"
-#include "geneva/GStdPtrVectorInterfaceT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -64,7 +64,7 @@ namespace Geneva {
 template <typename T>
 class GMutableSetT:
 	public GOptimizableEntity,
-	public GStdPtrVectorInterfaceT<T>
+	public Gem::Common::GStdPtrVectorInterfaceT<T>
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -75,7 +75,7 @@ class GMutableSetT:
 
       ar
       & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GOptimizableEntity)
-      & make_nvp("GStdPtrVectorInterfaceT_T", boost::serialization::base_object<GStdPtrVectorInterfaceT<T> >(*this));
+      & make_nvp("GStdPtrVectorInterfaceT_T", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<T> >(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -86,7 +86,7 @@ public:
 	 */
     GMutableSetT()
 		: GOptimizableEntity()
-		, GStdPtrVectorInterfaceT<T>()
+		, Gem::Common::GStdPtrVectorInterfaceT<T>()
 	{ /* nothing */	}
 
    /***************************************************************************/
@@ -97,7 +97,7 @@ public:
     */
     GMutableSetT(const std::size_t& nFitnessCriteria)
       : GOptimizableEntity(nFitnessCriteria)
-      , GStdPtrVectorInterfaceT<T>()
+      , Gem::Common::GStdPtrVectorInterfaceT<T>()
    { /* nothing */   }
 
 	/***************************************************************************/
@@ -109,7 +109,7 @@ public:
 	 */
     GMutableSetT(const GMutableSetT<T>& cp)
 		: GOptimizableEntity(cp)
-		, GStdPtrVectorInterfaceT<T>(cp)
+		, Gem::Common::GStdPtrVectorInterfaceT<T>(cp)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -187,7 +187,7 @@ public:
 
          // Check our parent class'es data ...
          COMPARE_PARENT(GOptimizableEntity, cp, e, limit);
-         COMPARE_VEC(GStdPtrVectorInterfaceT<T>, *p_load, e, limit);
+         COMPARE_VEC(Gem::Common::GStdPtrVectorInterfaceT<T>, *p_load, e, limit);
 
          // ... no local data
 
@@ -204,7 +204,7 @@ public:
 	 * individuals in this case.
 	 */
 	inline void swap(GMutableSetT<T>& cp) {
-		GStdPtrVectorInterfaceT<T>::swap(cp.data);
+	   Gem::Common::GStdPtrVectorInterfaceT<T>::swap(cp.data);
 		GOptimizableEntity::setDirtyFlag();
 		cp.setDirtyFlag();
 	}
@@ -261,7 +261,7 @@ protected:
 
 	  // No local data - load the parent class'es data
 	  GOptimizableEntity::load_(cp);
-	  GStdPtrVectorInterfaceT<T>::operator=(*p_load);
+	  Gem::Common::GStdPtrVectorInterfaceT<T>::operator=(*p_load);
 	}
 
 	/***************************************************************************/
@@ -288,7 +288,7 @@ public:
 
 		// Call the parent classes' functions
 		if(GOptimizableEntity::modify_GUnitTests()) result = true;
-		if(GStdPtrVectorInterfaceT<T>::modify_GUnitTests()) result = true;
+		if(Gem::Common::GStdPtrVectorInterfaceT<T>::modify_GUnitTests()) result = true;
 
 		// Try to change the objects contained in the collection
 		typename GMutableSetT<T>::iterator it;
@@ -315,7 +315,7 @@ public:
 
 		// Call the parent classes' functions
 		GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests();
-		GStdPtrVectorInterfaceT<T>::specificTestsNoFailureExpected_GUnitTests();
+		Gem::Common::GStdPtrVectorInterfaceT<T>::specificTestsNoFailureExpected_GUnitTests();
 
 		// no local data, nothing to test
 
@@ -335,7 +335,7 @@ public:
 
 		// Call the parent classes' functions
 		GOptimizableEntity::specificTestsFailuresExpected_GUnitTests();
-		GStdPtrVectorInterfaceT<T>::specificTestsFailuresExpected_GUnitTests();
+		Gem::Common::GStdPtrVectorInterfaceT<T>::specificTestsFailuresExpected_GUnitTests();
 
 		// no local data, nothing to test
 

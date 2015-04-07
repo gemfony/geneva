@@ -44,9 +44,9 @@
 
 // Geneva header files go here
 #include "common/GHelperFunctionsT.hpp"
+#include "common/GStdPtrVectorInterfaceT.hpp"
 #include "geneva/GParameterBase.hpp"
 #include "geneva/GParameterT.hpp"
-#include "geneva/GStdPtrVectorInterfaceT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -64,7 +64,7 @@ namespace Geneva {
 template<typename T>
 class GParameterTCollectionT
 	: public GParameterBase
-	, public GStdPtrVectorInterfaceT<T>
+	, public Gem::Common::GStdPtrVectorInterfaceT<T>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -76,7 +76,7 @@ class GParameterTCollectionT
 		// Save the data
 		ar
 		& make_nvp("GParameterBase", boost::serialization::base_object<GParameterBase>(*this))
-		& make_nvp("GStdPtrVectorInterfaceT_T", boost::serialization::base_object<GStdPtrVectorInterfaceT<T> >(*this));
+		& make_nvp("GStdPtrVectorInterfaceT_T", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<T> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -121,7 +121,7 @@ public:
 	 */
 	GParameterTCollectionT(const GParameterTCollectionT<T>& cp)
 		: GParameterBase(cp)
-		, GStdPtrVectorInterfaceT<T>(cp)
+		, Gem::Common::GStdPtrVectorInterfaceT<T>(cp)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -198,7 +198,7 @@ public:
 
          // Check our parent class'es data ...
          COMPARE_PARENT(GParameterBase, cp, e, limit);
-         COMPARE_VEC(GStdPtrVectorInterfaceT<T>, *p_load, e, limit);
+         COMPARE_VEC(Gem::Common::GStdPtrVectorInterfaceT<T>, *p_load, e, limit);
 
          // ... no local data
 
@@ -340,7 +340,7 @@ protected:
 
 		// Load our parent class'es data ...
 		GParameterBase::load_(cp);
-		GStdPtrVectorInterfaceT<T>::operator=(*p_load);
+		Gem::Common::GStdPtrVectorInterfaceT<T>::operator=(*p_load);
 	}
 
 	/***************************************************************************/
@@ -1216,7 +1216,7 @@ public:
 
 		// Call the parent classes' functions
 		if(GParameterBase::modify_GUnitTests()) result = true;
-		if(GStdPtrVectorInterfaceT<T>::modify_GUnitTests()) result = true;
+		if(Gem::Common::GStdPtrVectorInterfaceT<T>::modify_GUnitTests()) result = true;
 
 		return result;
 
@@ -1234,7 +1234,7 @@ public:
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterBase::specificTestsNoFailureExpected_GUnitTests();
-		GStdPtrVectorInterfaceT<T>::specificTestsNoFailureExpected_GUnitTests();
+		Gem::Common::GStdPtrVectorInterfaceT<T>::specificTestsNoFailureExpected_GUnitTests();
 
 		//------------------------------------------------------------------------------
 
@@ -1251,7 +1251,7 @@ public:
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterBase::specificTestsFailuresExpected_GUnitTests();
-		GStdPtrVectorInterfaceT<T>::specificTestsFailuresExpected_GUnitTests();
+		Gem::Common::GStdPtrVectorInterfaceT<T>::specificTestsFailuresExpected_GUnitTests();
 
 		//------------------------------------------------------------------------------
 
