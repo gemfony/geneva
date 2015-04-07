@@ -107,7 +107,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GSerialSA.hpp
 	GSerialSwarm.hpp
 	GSimulatedAnnealingFactory.hpp
-	GStdSimpleVectorInterfaceT.hpp
 	GStdPtrVectorInterfaceT.hpp
 	GSwarmAlgorithmFactory.hpp
 	GSwarmPersonalityTraits.hpp

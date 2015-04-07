@@ -73,7 +73,7 @@
 #include "common/GExpectationChecksT.hpp"
 
 namespace Gem {
-namespace Geneva {
+namespace Common {
 
 /******************************************************************************/
 /**
@@ -418,7 +418,7 @@ public:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
+} /* namespace Common */
 } /* namespace Gem */
 
 /******************************************************************************/
@@ -428,9 +428,9 @@ public:
 namespace boost {
   namespace serialization {
     template<typename T>
-    struct is_abstract<Gem::Geneva::GStdSimpleVectorInterfaceT<T> > : public boost::true_type {};
+    struct is_abstract<Gem::Common::GStdSimpleVectorInterfaceT<T> > : public boost::true_type {};
     template<typename T>
-    struct is_abstract< const Gem::Geneva::GStdSimpleVectorInterfaceT<T> > : public boost::true_type {};
+    struct is_abstract< const Gem::Common::GStdSimpleVectorInterfaceT<T> > : public boost::true_type {};
   }
 }
 

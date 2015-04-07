@@ -51,8 +51,8 @@
 // Geneva headers go here
 #include "hap/GRandomT.hpp"
 #include "common/GSerializeTupleT.hpp"
+#include "common/GStdSimpleVectorInterfaceT.hpp"
 #include "geneva/GObject.hpp"
-#include "geneva/GStdSimpleVectorInterfaceT.hpp"
 #include "geneva/GParameterPropertyParser.hpp"
 
 namespace Gem {
@@ -136,7 +136,7 @@ public:
  */
 template <typename T>
 class baseScanParT
-   : public GStdSimpleVectorInterfaceT<T>
+   : public Gem::Common::GStdSimpleVectorInterfaceT<T>
    , public scanParInterface
 {
    ///////////////////////////////////////////////////////////////////////
@@ -147,7 +147,7 @@ class baseScanParT
       using boost::serialization::make_nvp;
 
       ar
-      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GStdSimpleVectorInterfaceT<T>)
+      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Common::GStdSimpleVectorInterfaceT<T>)
       & BOOST_SERIALIZATION_NVP(var_)
       & BOOST_SERIALIZATION_NVP(step_)
       & BOOST_SERIALIZATION_NVP(nSteps_)
@@ -169,7 +169,7 @@ public:
       , bool randomScan
       , std::string t // typeDescription_
    )
-      : GStdSimpleVectorInterfaceT<T>()
+      : Gem::Common::GStdSimpleVectorInterfaceT<T>()
       , var_(pps.var)
       , step_(0)
       , nSteps_(pps.nSteps)
@@ -189,7 +189,7 @@ public:
     * The copy constructor
     */
    baseScanParT(const baseScanParT<T>& cp)
-      : GStdSimpleVectorInterfaceT<T>(cp)
+      : Gem::Common::GStdSimpleVectorInterfaceT<T>(cp)
       , var_(cp.var_)
       , step_(cp.step_)
       , nSteps_(cp.nSteps_)

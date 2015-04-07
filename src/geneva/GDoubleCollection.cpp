@@ -600,8 +600,8 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 			// Extract the data vectors from p_test1 and p_test3
 			std::vector<double> data1, data3;
-			BOOST_CHECK_NO_THROW(p_test1->GStdSimpleVectorInterfaceT<double>::getDataCopy(data1));
-			BOOST_CHECK_NO_THROW(p_test3->GStdSimpleVectorInterfaceT<double>::getDataCopy(data3));
+			BOOST_CHECK_NO_THROW(p_test1->Gem::Common::GStdSimpleVectorInterfaceT<double>::getDataCopy(data1));
+			BOOST_CHECK_NO_THROW(p_test3->Gem::Common::GStdSimpleVectorInterfaceT<double>::getDataCopy(data3));
 
 			// Now p_test1->data  and p_test3->data should be the same, while p_test2 differs from both
 			BOOST_CHECK(data1 == data3);
@@ -755,7 +755,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 		for(std::size_t i=0; i<nItems; i++) dataCopy.push_back(0.);
 
 		// Assign the vector to p_test1 and cross-check
-		BOOST_CHECK_NO_THROW(p_test1->GStdSimpleVectorInterfaceT<double>::operator=(dataCopy));
+		BOOST_CHECK_NO_THROW(p_test1->Gem::Common::GStdSimpleVectorInterfaceT<double>::operator=(dataCopy));
 		BOOST_CHECK(p_test1->size() == 2*nItems);
 		BOOST_CHECK(p_test1->count(0.) == 2*nItems);
 	}

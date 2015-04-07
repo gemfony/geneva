@@ -61,8 +61,8 @@
 #define GEQUALITYPRINTER_HPP_
 
 // Geneva headers go here
+#include "common/GStdSimpleVectorInterfaceT.hpp"
 #include "geneva/GObject.hpp"
-#include "geneva/GStdSimpleVectorInterfaceT.hpp"
 
 /*************************************************************************************************/
 /**
@@ -132,12 +132,12 @@ public:
 	bool isEqual(
         const geneva_simplecontainer_type& x
       , const std::vector<typename geneva_simplecontainer_type::value_type>& y
-      , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type> >::type* dummy = 0
+      , typename boost::enable_if<boost::is_base_of<Gem::Common::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type> >::type* dummy = 0
 	) const	{
 	   using namespace Gem::Common;
 
 	   try{
-	     x.GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::compare_base(
+	     x.Gem::Common::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::compare_base(
 	        y, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE
         );
 	     return true;
@@ -192,12 +192,12 @@ public:
 	bool isInEqual(
         const geneva_simplecontainer_type& x
       , const std::vector<typename geneva_simplecontainer_type::value_type>& y
-      , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type> >::type* dummy = 0
+      , typename boost::enable_if<boost::is_base_of<Gem::Common::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type> >::type* dummy = 0
 	) const	{
       using namespace Gem::Common;
 
       try{
-        x.GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::compare_base(
+        x.Gem::Common::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::compare_base(
            y, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE
         );
         return true;
@@ -254,12 +254,12 @@ public:
 	bool isSimilar(
         const geneva_simplecontainer_type& x
       , const std::vector<typename geneva_simplecontainer_type::value_type>& y
-      , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type> >::type* dummy = 0
+      , typename boost::enable_if<boost::is_base_of<Gem::Common::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type> >::type* dummy = 0
 	) const	{
       using namespace Gem::Common;
 
       try {
-         x.GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::compare_base(
+         x.Gem::Common::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::compare_base(
             y, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE
          );
          return true;

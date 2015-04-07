@@ -205,7 +205,7 @@ networkData::networkData()
  * @param arraySize The desired size of the array
  */
 networkData::networkData(const std::size_t& arraySize)
-   : GStdSimpleVectorInterfaceT<std::size_t>()
+   : Gem::Common::GStdSimpleVectorInterfaceT<std::size_t>()
    , arraySize_(arraySize)
    , data_(new boost::shared_ptr<trainingSet> [arraySize_])
 { /* nothing */ }
@@ -217,7 +217,7 @@ networkData::networkData(const std::size_t& arraySize)
  * @param networkDataFile The name of a file holding the training data
  */
 networkData::networkData(const std::string& networkDataFile)
-   : GStdSimpleVectorInterfaceT<std::size_t>()
+   : Gem::Common::GStdSimpleVectorInterfaceT<std::size_t>()
    , arraySize_(0)
    , data_((boost::shared_ptr<trainingSet> *)NULL)
 {
@@ -231,7 +231,7 @@ networkData::networkData(const std::string& networkDataFile)
  * @param cp A copy of another networkData object
  */
 networkData::networkData(const networkData& cp)
-   : GStdSimpleVectorInterfaceT<std::size_t>(cp)
+   : Gem::Common::GStdSimpleVectorInterfaceT<std::size_t>(cp)
    , arraySize_(0)
    , data_((boost::shared_ptr<trainingSet> *)NULL)
 {
@@ -265,7 +265,7 @@ networkData::~networkData()
 const networkData& networkData::operator=(const networkData& cp) {
    // Make sure the local data is copied
    Gem::Common::copySmartPointerArrays(cp.data_, data_, cp.arraySize_, arraySize_);
-	GStdSimpleVectorInterfaceT<std::size_t>::operator=(cp);
+   Gem::Common::GStdSimpleVectorInterfaceT<std::size_t>::operator=(cp);
 	return *this;
 }
 
@@ -324,7 +324,7 @@ void networkData::compare(
       BEGIN_COMPARE;
 
       // Check our parent class'es data ...
-      COMPARE_VEC(GStdSimpleVectorInterfaceT<std::size_t>, cp, e, limit);
+      COMPARE_VEC(Gem::Common::GStdSimpleVectorInterfaceT<std::size_t>, cp, e, limit);
 
       // ... and then our local data
       COMPARE(arraySize_, cp.arraySize_, e, limit);

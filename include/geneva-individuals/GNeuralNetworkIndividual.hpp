@@ -71,21 +71,21 @@
 #define GNEURALNETWORKINDIVIDUAL_HPP_
 
 // Geneva header files go here
-#include <common/GCommonEnums.hpp>
-#include <common/GExceptions.hpp>
-#include <common/GHelperFunctions.hpp>
-#include <common/GHelperFunctionsT.hpp>
-#include <common/GSingletonT.hpp>
-#include <common/GGlobalOptionsT.hpp>
-#include <common/GUnitTestFrameworkT.hpp>
-#include <common/GLogger.hpp>
-#include <common/GFactoryT.hpp>
-#include <hap/GRandomT.hpp>
-#include <geneva/GDoubleObject.hpp>
-#include <geneva/GDoubleGaussAdaptor.hpp>
-#include <geneva/GDoubleObjectCollection.hpp>
-#include <geneva/GParameterSet.hpp>
-#include <geneva/GStdSimpleVectorInterfaceT.hpp>
+#include "common/GCommonEnums.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GHelperFunctions.hpp"
+#include "common/GHelperFunctionsT.hpp"
+#include "common/GSingletonT.hpp"
+#include "common/GGlobalOptionsT.hpp"
+#include "common/GUnitTestFrameworkT.hpp"
+#include "common/GLogger.hpp"
+#include "common/GFactoryT.hpp"
+#include "common/GStdSimpleVectorInterfaceT.hpp"
+#include "hap/GRandomT.hpp"
+#include "geneva/GDoubleObject.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GDoubleObjectCollection.hpp"
+#include "geneva/GParameterSet.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -183,7 +183,7 @@ private:
  * numbers are hidden layers.
  */
 class networkData
-	:public GStdSimpleVectorInterfaceT<std::size_t>
+	:public Gem::Common::GStdSimpleVectorInterfaceT<std::size_t>
 {
    /////////////////////////////////////////////////////////////////////////////
    friend class boost::serialization::access;
@@ -194,7 +194,7 @@ class networkData
 
       ar
       & make_nvp("GStdSimpleVectorInterfaceT_size_t",
-            boost::serialization::base_object<GStdSimpleVectorInterfaceT<std::size_t> >(*this))
+            boost::serialization::base_object<Gem::Common::GStdSimpleVectorInterfaceT<std::size_t> >(*this))
       & BOOST_SERIALIZATION_NVP(initRange_);
 
       // Make sure the data vector is empty
@@ -219,7 +219,7 @@ class networkData
 
       ar
       & make_nvp("GStdSimpleVectorInterfaceT_size_t",
-            boost::serialization::base_object<GStdSimpleVectorInterfaceT<std::size_t> >(*this))
+            boost::serialization::base_object<Gem::Common::GStdSimpleVectorInterfaceT<std::size_t> >(*this))
       & BOOST_SERIALIZATION_NVP(initRange_)
       & BOOST_SERIALIZATION_NVP(arraySize_)
       & boost::serialization::make_array(data_, arraySize_);
