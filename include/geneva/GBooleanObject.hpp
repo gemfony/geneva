@@ -94,9 +94,9 @@ public:
 	G_API_GENEVA bool operator!=(const GBooleanObject&) const;
 
 	/** @brief Triggers random initialization of the parameter object */
-	virtual G_API_GENEVA void randomInit(const activityMode&) OVERRIDE;
+	virtual G_API_GENEVA bool randomInit(const activityMode&) OVERRIDE;
 	/** @brief Triggers random initialization of the parameter object, with a given likelihood structure */
-	G_API_GENEVA void randomInit(const double&, const activityMode&);
+	G_API_GENEVA bool randomInit(const double&, const activityMode&);
 
    /** @brief Searches for compliance with expectations with respect to another object of the same type */
    virtual G_API_GENEVA void compare(
@@ -115,9 +115,9 @@ protected:
 	virtual G_API_GENEVA GObject* clone_() const OVERRIDE;
 
 	/** @brief Triggers random initialization of the parameter object */
-	virtual G_API_GENEVA void randomInit_(const activityMode&) OVERRIDE;
+	virtual G_API_GENEVA bool randomInit_(const activityMode&) OVERRIDE;
 	/** @brief Triggers random initialization of the parameter object, with a given likelihood structure */
-	G_API_GENEVA void randomInit_(const double&, const activityMode&);
+	G_API_GENEVA bool randomInit_(const double&, const activityMode&);
 
 	/** @brief Returns a "comparative range" for this type */
 	virtual G_API_GENEVA bool range() const OVERRIDE;

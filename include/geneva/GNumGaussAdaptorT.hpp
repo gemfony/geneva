@@ -589,11 +589,13 @@ protected:
    /**
     * Allows to randomly initialize parameter members
     */
-   virtual void randomInit() OVERRIDE {
+   virtual bool randomInit() OVERRIDE {
       using namespace Gem::Common;
       using namespace Gem::Hap;
 
       sigma_ = GObject::gr_ptr()->template uniform_real<fp_type>(minSigma_, maxSigma_);
+
+      return true;
    }
 
    /***************************************************************************/

@@ -103,13 +103,13 @@ void GParameterBase::load_(const GObject* cp){
  * Calls the function that does the actual adaption (which is in turn implemented
  * by derived classes. Will omit adaption if the adaptionsActive_ parameter is set.
  *
- * @return A boolean which indicates whether a modification was indeed made
+ * @return The number of adaptions that were performed
  */
 std::size_t GParameterBase::adapt() {
 	if(adaptionsActive_) {
 	   return adaptImpl(); // Will determine whether a modification was made
 	} else {
-	   return false;
+	   return 0;
 	}
 }
 
@@ -365,12 +365,14 @@ bool GParameterBase::hasAdaptor() const {
  * Triggers random initialization of the parameter(-collection). This is the public
  * version of this function, which only acts if initialization has not been blocked.
  */
-void GParameterBase::randomInit(const activityMode& am) {
+bool GParameterBase::randomInit(const activityMode& am) {
 	if(
       !randomInitializationBlocked_
       && this->modifiableAmMatchOrHandover(am)
    ) {
-	   randomInit_(am);
+	   return randomInit_(am);
+	} else {
+	   return false;
 	}
 }
 
@@ -1187,9 +1189,22 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test1->randomInitializationBlocked() == false);
 		BOOST_CHECK(p_test2->randomInitializationBlocked() == false);
 
-		// Random initialization should change p_test1
-		BOOST_CHECK_NO_THROW(p_test1->randomInit(ALLPARAMETERS));
-		BOOST_CHECK(*p_test1 != *p_test2);
+		// Random initialization should change p_test1. We run the test
+		// multiple times, as random initialization particularly of
+		// boolean parameters may turn out to be the same as before
+		if(p_test1->isIndividualParameter()) {
+         bool valueChanged = false;
+         p_test2->load(p_test1);
+         for(int i=0; i<100; i++) {
+            if(p_test1->randomInit(ALLPARAMETERS)) {
+               if(*p_test1 != *p_test2) {
+                  valueChanged = true;
+                  break;
+               }
+            }
+         }
+         BOOST_CHECK(valueChanged);
+		}
 	}
 
 	//---------------------------------------------------------------------
@@ -1213,9 +1228,12 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test_2->adaptionsActive() == false);
 
 		if(p_test_1->hasAdaptor() && p_test_2->hasAdaptor()) {
-			BOOST_CHECK_NO_THROW(p_test_1->adapt()); // Should change
+		   bool adapted = false;
+			BOOST_CHECK_NO_THROW(adapted = p_test_1->adapt()); // Should change, unless we are dealing with an "empty" container type
 			BOOST_CHECK_NO_THROW(p_test->setAdaptionsActive()); // Make sure differences do not stem from this flag
-			BOOST_CHECK(*p_test_1 != *p_test);
+			if(adapted) {
+			   BOOST_CHECK(*p_test_1 != *p_test);
+			}
 
 			BOOST_CHECK_NO_THROW(p_test_2->adapt()); // Should stay unchanged
 			BOOST_CHECK_NO_THROW(p_test->setAdaptionsInactive()); // Make sure differences do not stem from this flag
@@ -1241,8 +1259,11 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 		// Check that we have adaption powers when using the random number generator
 		if(p_test1->hasAdaptor()) {
 			for(std::size_t i=0; i<100; i++) {
-				BOOST_CHECK_NO_THROW(p_test1->adapt());
-				BOOST_CHECK(*p_test1 != *p_test2);
+			   bool adapted = false;
+				BOOST_CHECK_NO_THROW(adapted = p_test1->adapt());
+				if(adapted) {
+				   BOOST_CHECK(*p_test1 != *p_test2);
+			   }
 				BOOST_CHECK_NO_THROW(p_test1->load(p_test2));
 				BOOST_CHECK(*p_test1 == *p_test2);
 			}

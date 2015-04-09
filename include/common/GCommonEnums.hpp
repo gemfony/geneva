@@ -162,8 +162,8 @@ const bool CE_WITH_MESSAGES = true;
  */
 enum G_API_COMMON expectation {
 	  CE_EQUALITY // bitwise equality of all checked components
-	, CE_INEQUALITY // at least one checked component differs
 	, CE_FP_SIMILARITY // equality for non-floating point components, similarity for floating point
+   , CE_INEQUALITY // at least one checked component differs
 };
 
 /******************************************************************************/

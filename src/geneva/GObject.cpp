@@ -89,6 +89,14 @@ void GObject::compare(
    // No parent classes to check...
 
    // ... and no local data
+
+   // We consider two GObject instances to be always equal, as they
+   // do not have any local data and this is the base class. Hence
+   // we throw an expectation violation for the expectation CE_INEQUALITY.
+   if(CE_INEQUALITY == e) {
+      throw g_expectation_violation("In GObject: instance is empty and a base class, hence the expectation of inequality is always violated.");
+   }
+
 }
 
 /******************************************************************************/

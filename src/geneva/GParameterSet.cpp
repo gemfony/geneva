@@ -353,7 +353,7 @@ double GParameterSet::fitnessCalculation() {
 /**
  * Allows to randomly initialize parameter members
  */
-void GParameterSet::randomInit(const activityMode& am) {
+bool GParameterSet::randomInit(const activityMode& am) {
 	// Trigger random initialization of all our parameter objects
 	GParameterSet::iterator it;
 	for(it=this->begin(); it!=this->end(); ++it) {
@@ -362,6 +362,8 @@ void GParameterSet::randomInit(const activityMode& am) {
 
 	// As we have modified our internal data sets, make sure the dirty flag is set
 	GOptimizableEntity::setDirtyFlag();
+
+	return true;
 }
 
 /* ----------------------------------------------------------------------------------

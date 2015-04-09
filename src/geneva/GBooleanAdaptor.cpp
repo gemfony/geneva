@@ -191,8 +191,9 @@ std::string GBooleanAdaptor::name() const {
  * Allows to randomly initialize parameter members. No local data, hence no
  * action taken.
  */
-void GBooleanAdaptor::randomInit()
-{ /* nothing - no local data */ }
+bool GBooleanAdaptor::randomInit() {
+   return false;
+}
 
 /******************************************************************************/
 /**

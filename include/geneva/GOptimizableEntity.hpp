@@ -256,7 +256,7 @@ public:
    G_API_GENEVA std::string getPersonality() const;
 
 	/** @brief Allows to randomly initialize parameter members */
-	virtual G_API_GENEVA void randomInit(const activityMode&) BASE = 0;
+	virtual G_API_GENEVA bool randomInit(const activityMode&) BASE = 0;
 
 	/** @brief Retrieves a parameter of a given type at the specified position */
 	virtual G_API_GENEVA boost::any getVarVal(

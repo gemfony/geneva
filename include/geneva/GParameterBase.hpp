@@ -120,7 +120,7 @@ public:
    G_API_GENEVA bool operator!=(const GParameterBase&) const;
 
 	/** @brief Triggers random initialization of the parameter(-collection) */
-   virtual G_API_GENEVA void randomInit(const activityMode&) BASE;
+   virtual G_API_GENEVA bool randomInit(const activityMode&) BASE;
 
 	/** @brief Allows to identify whether we are dealing with a collection or an individual parameter */
 	virtual G_API_GENEVA bool isIndividualParameter() const BASE;
@@ -525,7 +525,7 @@ protected:
 	virtual G_API_GENEVA GObject* clone_() const = 0;
 
 	/** @brief Triggers random initialization of the parameter(-collection) */
-	virtual G_API_GENEVA void randomInit_(const activityMode&) BASE = 0;
+	virtual G_API_GENEVA bool randomInit_(const activityMode&) BASE = 0;
 
 private:
 	bool adaptionsActive_; ///< Specifies whether adaptions of this object should be carried out

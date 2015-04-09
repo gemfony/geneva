@@ -109,7 +109,7 @@ public:
    /** @brief Emits a name for this class / object */
    virtual G_API_GENEVA std::string name() const OVERRIDE;
    /** @brief Random initialization of the adaptor */
-   G_API_GENEVA void randomInit() OVERRIDE;
+   G_API_GENEVA bool randomInit() OVERRIDE;
 
 protected:
 	/** @brief Loads the data of another GObject */

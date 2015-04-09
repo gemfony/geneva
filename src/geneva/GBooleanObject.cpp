@@ -166,8 +166,8 @@ bool GBooleanObject::operator!=(const GBooleanObject& cp) const {
  * Random initialization. This is a helper function, without it we'd
  * have to say things like "myGBooleanObject.GParameterBase::randomInit();".
  */
-void GBooleanObject::randomInit(const activityMode& am) {
-	  GParameterBase::randomInit(am);
+bool GBooleanObject::randomInit(const activityMode& am) {
+  return GParameterBase::randomInit(am);
 }
 
 /* ----------------------------------------------------------------------------------
@@ -179,12 +179,14 @@ void GBooleanObject::randomInit(const activityMode& am) {
 /**
  * Triggers random initialization of the parameter object, with a given likelihood structure
  */
-void GBooleanObject::randomInit(const double& probability, const activityMode& am) {
+bool GBooleanObject::randomInit(const double& probability, const activityMode& am) {
   if(
      !GParameterBase::randomInitializationBlocked()
      && this->modifiableAmMatchOrHandover(am)
   ) {
-     randomInit_(probability, am);
+     return randomInit_(probability, am);
+  } else {
+     return false;
   }
 }
 
@@ -197,11 +199,13 @@ void GBooleanObject::randomInit(const double& probability, const activityMode& a
 /**
  * Triggers random initialization of the parameter object
  */
-void GBooleanObject::randomInit_(const activityMode&) {
+bool GBooleanObject::randomInit_(const activityMode&) {
    using namespace Gem::Common;
    using namespace Gem::Hap;
 
 	this->setValue(GObject::gr_ptr()->uniform_bool());
+
+	return true;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -215,11 +219,13 @@ void GBooleanObject::randomInit_(const activityMode&) {
  * This function holds the actual initialization logic, used in the publicly accessible
  * GBooleanObject::randomInit(const double& probability) function.
  */
-void GBooleanObject::randomInit_(const double& probability, const activityMode& am) {
+bool GBooleanObject::randomInit_(const double& probability, const activityMode& am) {
    using namespace Gem::Common;
    using namespace Gem::Hap;
 
    this->setValue(GObject::gr_ptr()->weighted_bool(probability));
+
+   return true;
 }
 
 /* ----------------------------------------------------------------------------------

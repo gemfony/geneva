@@ -362,14 +362,20 @@ protected:
    /**
     * This function distributes the random initialization to other objects
     */
-   virtual void randomInit_(const activityMode& am) OVERRIDE {
+   virtual bool randomInit_(const activityMode& am) OVERRIDE {
+      bool randomized = false;
+
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          // Note that we do not call the randomInit_() function. First of all, we
          // do not have access to it. Secondly it might be that re-initialization of
          // a specific object is not desired.
-         (*it)->GParameterBase::randomInit(am);
+         if((*it)->GParameterBase::randomInit(am)) {
+            randomized = true;
+         }
       }
+
+      return randomized;
    }
 
    /***************************************************************************/

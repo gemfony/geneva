@@ -268,6 +268,26 @@ public:
       // Check that we are indeed dealing with a GAdaptorT reference
       const GAdaptorT<T>  *p_load = gobject_conversion<GAdaptorT<T> >(&cp);
 
+      /*
+      GToken token("GAdaptorT<T>", e);
+
+      // Compare our parent data ...
+      compare_base<GObject>(IDENTITY(*this, *p_load), token);
+
+      // ... and then the local data
+      compare_t(IDENTITY(adaptionCounter_, p_load->adaptionCounter_), token);
+      compare_t(IDENTITY(adaptionThreshold_, p_load->adaptionThreshold_), token);
+      compare_t(IDENTITY(adProb_, p_load->adProb_), token);
+      compare_t(IDENTITY(adaptAdProb_, p_load->adaptAdProb_), token);
+      compare_t(IDENTITY(minAdProb_, p_load->minAdProb_), token);
+      compare_t(IDENTITY(maxAdProb_, p_load->maxAdProb_), token);
+      compare_t(IDENTITY(adaptionMode_, p_load->adaptionMode_), token);
+      compare_t(IDENTITY(adaptAdaptionProbability_, p_load->adaptAdaptionProbability_), token);
+      compare_t(IDENTITY(adProb_reset_, p_load->adProb_reset_), token);
+
+      // React on deviations from the expectation
+      token.evaluate();
+      */
       try {
          BEGIN_COMPARE;
 
@@ -788,7 +808,7 @@ public:
 
    /***************************************************************************/
    /** @brief Allows derived classes to randomly initialize parameter members */
-   virtual void randomInit() BASE = 0;
+   virtual bool randomInit() BASE = 0;
 
 protected:
 	/***************************************************************************/

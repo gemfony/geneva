@@ -104,9 +104,9 @@ public:
    ) const OVERRIDE;
 
    /** @brief Random initialization */
-   virtual G_API_GENEVA void randomInit(const activityMode&) OVERRIDE;
+   virtual G_API_GENEVA bool randomInit(const activityMode&) OVERRIDE;
    /** @brief Random initialization with a given probability structure */
-   G_API_GENEVA void randomInit(const double&, const activityMode&);
+   G_API_GENEVA bool randomInit(const double&, const activityMode&);
 
    /** @brief Emits a name for this class / object */
    virtual G_API_GENEVA std::string name() const OVERRIDE;
@@ -118,9 +118,9 @@ protected:
    virtual G_API_GENEVA GObject *clone_() const OVERRIDE;
 
    /** @brief Triggers random initialization of the parameter collection */
-   virtual G_API_GENEVA void randomInit_(const activityMode&) OVERRIDE;
+   virtual G_API_GENEVA bool randomInit_(const activityMode&) OVERRIDE;
    /** @brief Triggers random initialization of the parameter collection, with a given likelihood structure */
-   G_API_GENEVA void randomInit_(const double&, const activityMode&);
+   G_API_GENEVA bool randomInit_(const double&, const activityMode&);
 
    /** @brief Returns a "comparative range" for this type */
    virtual G_API_GENEVA bool range() const OVERRIDE;

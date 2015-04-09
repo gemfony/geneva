@@ -335,8 +335,8 @@ void GConstrainedInt32Object::load_(const GObject* cp){
 /**
  * Triggers random initialization of the parameter object
  */
-void GConstrainedInt32Object::randomInit_(const activityMode& am) {
-	GConstrainedIntT<boost::int32_t>::randomInit_(am);
+bool GConstrainedInt32Object::randomInit_(const activityMode& am) {
+	return GConstrainedIntT<boost::int32_t>::randomInit_(am);
 }
 
 /* ----------------------------------------------------------------------------------

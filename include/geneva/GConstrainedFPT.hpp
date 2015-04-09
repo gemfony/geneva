@@ -415,12 +415,14 @@ protected:
 	/**
 	 * Randomly initializes the parameter (within its limits)
 	 */
-	virtual void randomInit_(const activityMode&) OVERRIDE {
+	virtual bool randomInit_(const activityMode&) OVERRIDE {
 		this->setValue(
 				this->GObject::gr_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(
 						GConstrainedNumT<fp_type>::getLowerBoundary(), GConstrainedNumT<fp_type>::getUpperBoundary()
 				)
 		);
+
+		return true;
 	}
 
 	/* ----------------------------------------------------------------------------------

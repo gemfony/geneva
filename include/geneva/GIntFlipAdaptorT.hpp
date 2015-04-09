@@ -220,8 +220,9 @@ public:
     * Allows to randomly initialize parameter members. No local data, hence no
     * action taken.
     */
-   virtual void randomInit() OVERRIDE
-   { /* nothing - no local data */ }
+   virtual bool randomInit() OVERRIDE {
+      return false;
+   }
 
 protected:
 	/***************************************************************************/

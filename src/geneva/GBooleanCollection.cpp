@@ -163,13 +163,18 @@ void GBooleanCollection::load_(const GObject * cp){
  * function assumes that the collection has been completely set up. Data
  * that is added later will remain unaffected.
  */
-void GBooleanCollection::randomInit_(const activityMode&) {
+bool GBooleanCollection::randomInit_(const activityMode&) {
+   bool randomized = false;
+
    using namespace Gem::Common;
    using namespace Gem::Hap;
 
    for(std::size_t i=0; i<this->size(); i++) {
       (*this)[i] = GObject::gr_ptr()->uniform_bool();
+      randomized = true;
    }
+
+   return randomized;
 }
 
 /******************************************************************************/
@@ -178,7 +183,7 @@ void GBooleanCollection::randomInit_(const activityMode&) {
  *
  * @param probability The probability for true values in the collection
  */
-void GBooleanCollection::randomInit_(const double& probability, const activityMode&) {
+bool GBooleanCollection::randomInit_(const double& probability, const activityMode&) {
    using namespace Gem::Common;
    using namespace Gem::Hap;
 
@@ -193,6 +198,8 @@ void GBooleanCollection::randomInit_(const double& probability, const activityMo
    for(std::size_t i=0; i<this->size(); i++) {
       (*this)[i] = GObject::gr_ptr()->weighted_bool(probability);
    }
+
+   return true;
 }
 
 /******************************************************************************/
@@ -200,8 +207,8 @@ void GBooleanCollection::randomInit_(const double& probability, const activityMo
  * Random initialization. This is a helper function, without it we'd
  * have to say things like "myGBooleanCollectionObject.GParameterBase::randomInit();".
  */
-void GBooleanCollection::randomInit(const activityMode& am) {
-   GParameterBase::randomInit(am); // This will also take into account the "blocked initialization" flag
+bool GBooleanCollection::randomInit(const activityMode& am) {
+   return GParameterBase::randomInit(am); // This will also take into account the "blocked initialization" flag
 }
 
 /******************************************************************************/
@@ -211,12 +218,14 @@ void GBooleanCollection::randomInit(const activityMode& am) {
  *
  * @param probability The probability for true values in the collection
  */
-void GBooleanCollection::randomInit(const double& probability, const activityMode& am) {
+bool GBooleanCollection::randomInit(const double& probability, const activityMode& am) {
    if(
       !GParameterBase::randomInitializationBlocked()
       && this->modifiableAmMatchOrHandover(am)
    ) {
-      randomInit_(probability, am);
+      return randomInit_(probability, am);
+   } else {
+      return false;
    }
 }
 

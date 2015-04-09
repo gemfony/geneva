@@ -69,7 +69,7 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This function checks whether two omplex types meet a given expectation. It is assumed that
+ * This function checks whether two complex types meet a given expectation. It is assumed that
  * these types have the standard Geneva interface with corresponding "compare" functions.
  *
  * @param x The first parameter to be compared
@@ -231,6 +231,9 @@ void compare (
          expectationMet = true;
          break;
       } else if(!x && !y) { // No content to check. Both smart pointers can be considered equal
+         error
+         << "Both smart pointers are empty and are thus considered equal." << std::endl
+         << "Thus the expectation of " << expectation_str << " was violated:" << std::endl;
          break; // The expectation was not met
       }
 
@@ -379,6 +382,8 @@ void compare (
          // which is assumed to have the compare() function
          try {
           (*x_it)->compare(**y_it,e,limit);
+          foundInequality = true;
+          break; // terminate the loop
          } catch(g_expectation_violation& g) {
             // Go on with the next item in the vector -- the content is equal or similar
             continue;

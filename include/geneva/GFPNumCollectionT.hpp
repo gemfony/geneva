@@ -261,14 +261,19 @@ protected:
 	 * that this function assumes that the collection has been completely
 	 * set up. Data that is added later will remain unaffected.
 	 */
-	virtual void randomInit_(const activityMode& am) OVERRIDE {
+	virtual bool randomInit_(const activityMode& am) OVERRIDE {
+	   bool randomized = false;
+
 		fp_type lowerBoundary = GNumCollectionT<fp_type>::getLowerInitBoundary();
 		fp_type upperBoundary = GNumCollectionT<fp_type>::getUpperInitBoundary();
 
 		typename GFPNumCollectionT<fp_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)=this->GObject::gr_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerBoundary, upperBoundary);
+			randomized = true;
 		}
+
+		return randomized;
 	}
 
 	/* ----------------------------------------------------------------------------------

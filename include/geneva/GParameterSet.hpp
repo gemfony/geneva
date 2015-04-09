@@ -125,7 +125,7 @@ public:
    ) const OVERRIDE;
 
 	/** @brief Allows to randomly initialize parameter members */
-	virtual G_API_GENEVA void randomInit(const activityMode&) OVERRIDE;
+	virtual G_API_GENEVA bool randomInit(const activityMode&) OVERRIDE;
 
 	/** @brief Specify whether we want to work in maximization (true) or minimization (false) mode */
 	G_API_GENEVA void setMaxMode(const bool&);

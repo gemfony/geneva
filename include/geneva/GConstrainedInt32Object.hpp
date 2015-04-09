@@ -118,7 +118,7 @@ protected:
 	virtual G_API_GENEVA GObject* clone_() const OVERRIDE;
 
 	/** @brief Triggers random initialization of the parameter object */
-	virtual G_API_GENEVA void randomInit_(const activityMode&) OVERRIDE;
+	virtual G_API_GENEVA bool randomInit_(const activityMode&) OVERRIDE;
 
    /** @brief Attach our local value to the vector. */
    virtual G_API_GENEVA void int32Streamline(std::vector<boost::int32_t>&, const activityMode& am) const OVERRIDE;

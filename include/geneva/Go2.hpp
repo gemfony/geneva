@@ -168,7 +168,7 @@ public:
 	G_API_GENEVA bool onlyBestIndividualsAreCopied() const;
 
 	/** @brief Allows to randomly initialize parameter members. Unused in this wrapper object */
-	virtual G_API_GENEVA void randomInit(const activityMode&) OVERRIDE;
+	virtual G_API_GENEVA bool randomInit(const activityMode&) OVERRIDE;
 	/** @brief Triggers fitness calculation (i.e. optimization) for this object */
 	virtual G_API_GENEVA double fitnessCalculation() OVERRIDE;
 

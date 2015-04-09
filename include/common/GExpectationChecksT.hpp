@@ -109,9 +109,13 @@ public:
 
    /** @brief Increments the test counter */
    G_API_COMMON void incrTestCounter();
-
    /** @brief Increments the counter of tests that met the expectation */
    G_API_COMMON void incrSuccessCounter();
+
+   /** @brief Allows to retrieve the current state of the success counter */
+   G_API_COMMON std::size_t getSuccessCounter() const;
+   /** @brief Allows to retrieve the current state of the test counter */
+   G_API_COMMON std::size_t getTestCounter() const;
 
    /** @brief Allows to check whether the xpectation was met */
    G_API_COMMON bool expectationMet() const;
@@ -120,6 +124,8 @@ public:
 
    /** @brief Allows to retrieve the expectation token */
    G_API_COMMON Gem::Common::expectation getExpectation() const;
+   /** @brief Allows to retrieve the expectation token as a string */
+   G_API_COMMON std::string getExpectationStr() const;
    /** @brief Allows to retrieve the name of the caller */
    G_API_COMMON std::string getCallerName() const;
 
@@ -127,6 +133,9 @@ public:
    G_API_COMMON void registerErrorMessage(const std::string&);
    /** @brief Allows to register an exception obtained from a failed check */
    G_API_COMMON void registerErrorMessage(const g_expectation_violation&);
+
+   /** @brief Allows to retrieve the currently registered error messages */
+   G_API_COMMON std::string getErrorMessages() const;
 
    /** @brief Conversion to a string indicating success or failure */
    G_API_COMMON std::string toString() const;
@@ -150,13 +159,26 @@ private:
 };
 
 /******************************************************************************/
+/**
+ * This function facilitates the output of GToken objects, mostly for debugging purposes.
+ */
+G_API_COMMON std::ostream& operator<<(std::ostream& s, const GToken& g);
+
+/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
+
+#define BASENAME(B) std::string(#B)
+
 /**
  * This struct facilitates transfer of comparable items to comparators
  */
 template <typename T>
 struct identity {
+public:
+   /**
+    * The standard constructor
+    */
    identity(
       const T& x_var
       , const T& y_var
@@ -171,12 +193,55 @@ struct identity {
       , limit(l_var)
    { /* nothing */ }
 
+   /**
+    * Conversion operator. Needed for compare_base, so we do not need
+    * to use macros for the implicit conversion
+    */
+   template <typename B>
+   operator identity<B>() const {
+      // We use an internal function for the actual conversion
+      // so we may check whether B is an actual base of T
+      return to<B>();
+   }
+
+   // The actual data
    const T& x;
    const T& y;
    const std::string x_name;
    const std::string y_name;
    const double limit;
+
+private:
+   /** @brief The default constructor -- intentionally private and undefined */
+   identity();
+
+   /** @brief Does the actual conversion, including a check that B is indeed a base of T */
+   template <typename B>
+   identity<B> to(
+      typename boost::enable_if<boost::is_base_of<B,T> >::type* dummy = 0
+   ) const {
+      const B& x_conv = dynamic_cast<const B&>(x);
+      const B& y_conv = dynamic_cast<const B&>(y);
+
+      const std::string x_name_conv = "(" + BASENAME(B) + ")" + x_name;
+      const std::string y_name_conv = "(" + BASENAME(B) + ")" + y_name;
+
+      return identity<B>(x_conv, y_conv, x_name_conv, y_name_conv, limit);
+   }
 };
+
+/******************************************************************************/
+/**
+ * Easy output of an identity object
+ */
+template <typename T>
+std::ostream& operator<<(std::ostream& s, const identity<T>& i) {
+   s
+   << "Identity:" << std::endl
+   << "x_name = " << i.x_name << std::endl
+   << "y_name = " << i.y_name << std::endl;
+   return s;
+}
 
 /******************************************************************************/
 /**
@@ -185,7 +250,8 @@ struct identity {
  * value for the maximum allowed difference for "similar" floating point values.
  */
 template <typename T>
-identity<T> getIdentity(const T& x_var
+identity<T> getIdentity(
+      const T& x_var
       , const T& y_var
       , const std::string& x_name_var
       , const std::string& y_name_var
@@ -199,6 +265,32 @@ identity<T> getIdentity(const T& x_var
  * variable names
  */
 #define IDENTITY(x,y) Gem::Common::getIdentity((x), (y), std::string(#x), std::string(#y))
+
+/******************************************************************************/
+/**
+ * Returns an identity object for base types of T
+ */
+template <typename T, typename B>
+identity<B> getBaseIdentity(
+      const T& x_var
+      , const T& y_var
+      , const std::string& x_name_var
+      , const std::string& y_name_var
+) {
+   std::cout << "Creating base identity" << std::endl;
+
+   const B& x_var_base = dynamic_cast<const B&>(x_var);
+   const B& y_var_base = dynamic_cast<const B&>(y_var);
+
+   return identity<B>(x_var_base, y_var_base, x_name_var, y_name_var, Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE);
+}
+
+/******************************************************************************/
+/**
+ * This macro helps to cast an object to its parent class before creating the identity object
+ */
+#define IDENTITY_CAST(t,x,y) \
+   Gem::Common::getBaseIdentity< BOOST_TYPEOF(x), t >((x), (y), std::string("(const " #t "&)" #x), std::string("(const " #t "&)" #y))
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -570,18 +662,12 @@ void compare(
 /******************************************************************************/
 /**
  * This function checks whether two types fulfill a given expectation.
- * It assumes that these types understand the == and != operators and may be streamed.
- * If they do not fulfill this requirement, you need to provide a specialization
- * of these functions. A check for similarity is treated the same as a check for
- * equality. Data is transferred inside of a struct that facilitates specification of variable
- * names through the IDENTITY macro. All further interaction happens through a "token"
- * that allows to specify whether expectations where violated.
  *
  * @param data The identity struct
  * @param token The token holding information about the number of failed tests
  */
 template <typename T>
-void compare(
+void compare_t(
    const identity<T>& data
    , GToken& token
 ) {
@@ -591,6 +677,46 @@ void compare(
       token.incrSuccessCounter();
    } catch(const g_expectation_violation& g) {
       token.registerErrorMessage(g);
+   } catch(const std::exception& e) {
+      glogger
+      << "Caught std::exception with message " << std::endl
+      << e.what() << std::endl
+      << GEXCEPTION;
+   } catch(...) {
+      glogger
+      << "Caught unknown exception" << std::endl
+      << GEXCEPTION;
+   }
+}
+
+/******************************************************************************/
+/**
+ * This function checks whether two base types fulfill a given expectation.
+ *
+ * @param data The identity struct
+ * @param token The token holding information about the number of failed tests
+ */
+template <typename B>
+void compare_base(
+   const identity<B>& data
+   , GToken& token
+   , typename boost::enable_if<Gem::Common::has_compare_member<B> >::type * dummy = 0
+) {
+   try {
+      token.incrTestCounter();
+      data.x.B::compare(data.y, token.getExpectation(), data.limit);
+      token.incrSuccessCounter();
+   } catch(const g_expectation_violation& g) {
+      token.registerErrorMessage(g);
+   } catch(const std::exception& e) {
+      glogger
+      << "Caught std::exception with message " << std::endl
+      << e.what() << std::endl
+      << GEXCEPTION;
+   } catch(...) {
+      glogger
+      << "Caught unknown exception" << std::endl
+      << GEXCEPTION;
    }
 }
 
@@ -621,7 +747,7 @@ case Gem::Common::CE_INEQUALITY: \
 { \
    try{ \
       Gem::Common::compare((x),(y),std::string(#x),std::string(#y),(e),(l)); \
-   } catch(g_expectation_violation&) { \
+   } catch(const g_expectation_violation&) { \
        g_n_violations++; \
    } \
 } \
@@ -639,7 +765,7 @@ break; \
 
 #define END_COMPARE \
 if(g_n_violations==g_n_tests) { \
-  throw(g_expectation_violation("All checks were equal despite the expectation CE_INEQUALITY !")); \
+  throw(g_expectation_violation("All checks were equal despite the expectation CE_INEQUALITY !\n")); \
 }
 
 /******************************************************************************/

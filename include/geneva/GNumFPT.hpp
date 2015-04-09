@@ -281,12 +281,14 @@ protected:
 	/**
 	 * Triggers random initialization of the parameter
 	 */
-	virtual void randomInit_(const activityMode&) OVERRIDE {
+	virtual bool randomInit_(const activityMode&) OVERRIDE {
 		fp_type lowerBoundary = GNumT<fp_type>::getLowerInitBoundary();
 		fp_type upperBoundary = GNumT<fp_type>::getUpperInitBoundary();
 		GParameterT<fp_type>::setValue(
          this->GObject::gr_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerBoundary, upperBoundary)
       );
+
+		return true;
 	}
 
 	/* ----------------------------------------------------------------------------------

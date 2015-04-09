@@ -337,13 +337,15 @@ protected:
 	/**
 	 * Randomly initializes the parameter (within its limits)
 	 */
-	virtual void randomInit_(const activityMode&) OVERRIDE {
+	virtual bool randomInit_(const activityMode&) OVERRIDE {
 		this->setValue(
          this->GObject::gr_ptr()->uniform_int(
             GConstrainedNumT<int_type>::getLowerBoundary()
             , GConstrainedNumT<int_type>::getUpperBoundary()
          )
       );
+
+		return true;
 	}
 
 	/* ----------------------------------------------------------------------------------

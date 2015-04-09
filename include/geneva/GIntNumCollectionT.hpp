@@ -255,14 +255,19 @@ protected:
 	 * function assumes that the collection has been completely set up. Data
 	 * that is added later will remain unaffected.
 	 */
-	void randomInit_(const activityMode&) OVERRIDE {
+	bool randomInit_(const activityMode&) OVERRIDE {
+	   bool randomized = false;
+
 		int_type lowerBoundary = GNumCollectionT<int_type>::getLowerInitBoundary();
 		int_type upperBoundary = GNumCollectionT<int_type>::getUpperInitBoundary();
 
 		typename GIntNumCollectionT<int_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)=this->GObject::gr_ptr()->uniform_int(lowerBoundary, upperBoundary);
+			randomized = true;
 		}
+
+		return randomized;
 	}
 
 	/* ----------------------------------------------------------------------------------

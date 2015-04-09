@@ -275,12 +275,14 @@ protected:
 	/**
 	 * Triggers random initialization of the parameter collection
 	 */
-	virtual void randomInit_(const activityMode&) OVERRIDE {
+	virtual bool randomInit_(const activityMode&) OVERRIDE {
 		int_type lowerBoundary = GNumT<int_type>::getLowerInitBoundary();
 		int_type upperBoundary = GNumT<int_type>::getUpperInitBoundary();
 
 		// uniform_int produces random numbers that include the upper boundary.
 		GParameterT<int_type>::setValue(this->GObject::gr_ptr()->uniform_int(lowerBoundary, upperBoundary));
+
+		return true;
 	}
 
 	/* ----------------------------------------------------------------------------------

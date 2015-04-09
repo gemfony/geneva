@@ -391,7 +391,7 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Triggers random initialization of the parameter collection */
-	virtual void randomInit_(const activityMode&) = 0;
+	virtual bool randomInit_(const activityMode&) = 0;
 
 private:
 	/***************************************************************************/

@@ -310,7 +310,7 @@ protected:
 	/**
 	 * Triggers random initialization of the parameter collection
 	 */
-	virtual void randomInit_(const activityMode&) OVERRIDE {
+	virtual bool randomInit_(const activityMode&) OVERRIDE {
 		for(std::size_t pos=0; pos<this->size(); pos++) {
 			this->setValue(
 				pos
@@ -320,6 +320,8 @@ protected:
 				)
 			);
 		}
+
+		return true;
 	}
 
 	/***************************************************************************/

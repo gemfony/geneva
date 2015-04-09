@@ -42,7 +42,7 @@ namespace Common {
 /******************************************************************************/
 // Identifies test counter and success counter
 const std::size_t TESTCOUNTER = 0;
-const std::size_t SUCCESSCOUNTER = 0;
+const std::size_t SUCCESSCOUNTER = 1;
 
 /******************************************************************************/
 /**
@@ -111,6 +111,20 @@ void GToken::incrSuccessCounter() {
 
 /******************************************************************************/
 /**
+ * Allows to retrieve the current state of the success counter
+ */
+std::size_t GToken::getSuccessCounter() const {
+   return boost::get<SUCCESSCOUNTER>(testCounter_);
+}
+
+/******************************************************************************/
+/** @brief Allows to retrieve the current state of the test counter */
+std::size_t GToken::getTestCounter() const {
+   return boost::get<TESTCOUNTER>(testCounter_);
+}
+
+/******************************************************************************/
+/**
  * Allows to check whether the expectation was met
  */
 bool GToken::expectationMet() const {
@@ -135,6 +149,34 @@ GToken::operator bool() const {
  */
 Gem::Common::expectation GToken::getExpectation() const {
    return e_;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the expectation token as a string
+ */
+std::string GToken::getExpectationStr() const {
+   switch(e_) {
+      case Gem::Common::CE_FP_SIMILARITY:
+         return std::string("CE_FP_SIMILARITY");
+      break;
+
+      case Gem::Common::CE_EQUALITY:
+         return std::string("CE_EQUALITY");
+      break;
+
+      case Gem::Common::CE_INEQUALITY:
+         return std::string("CE_INEQUALITY");
+      break;
+
+      default:
+      {
+         glogger
+         << "In GToken::getExpectationStr(): Got invalid expectation " << e_ << std::endl
+         << GEXCEPTION;
+      }
+      break;
+   }
 }
 
 /******************************************************************************/
@@ -173,6 +215,20 @@ void GToken::registerErrorMessage(const g_expectation_violation& g) {
       << "Tried to register empty exception" << std::endl
       << GEXCEPTION;
    }
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the currently registered error messages
+ */
+std::string GToken::getErrorMessages() const {
+   std::string result;
+   result = "Registered errors:\n";
+   std::vector<std::string>::const_iterator cit;
+   for(cit=errorMessages_.begin(); cit!=errorMessages_.end(); ++cit) {
+      result += *cit;
+   }
+   return result;
 }
 
 /******************************************************************************/
@@ -240,6 +296,19 @@ G_API_COMMON void GToken::evaluate() const {
    if(!this->expectationMet()) {
       throw(g_expectation_violation(this->toString()));
    }
+}
+
+/******************************************************************************/
+/**
+ * Easy output of GToken objects
+ */
+std::ostream& operator<<(std::ostream& s, const GToken& g) {
+   s
+   << "GToken for caller " << g.getCallerName() << " with expectation  " << g.getExpectationStr() << ":" << std::endl
+   << "Test counter:     " << g.getTestCounter() << std::endl
+   << "Success counter:  " << g.getSuccessCounter() << std::endl
+   << g.getErrorMessages() << std::endl;
+   return s;
 }
 
 /******************************************************************************/
