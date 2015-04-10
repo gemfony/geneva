@@ -128,11 +128,30 @@ std::size_t GToken::getTestCounter() const {
  * Allows to check whether the expectation was met
  */
 bool GToken::expectationMet() const {
-   if(boost::get<TESTCOUNTER>(testCounter_) == boost::get<SUCCESSCOUNTER>(testCounter_)) {
-      return true;
-   } else {
-      return false;
+   switch(e_) {
+      case Gem::Common::CE_FP_SIMILARITY:
+      case Gem::Common::CE_EQUALITY:
+      if(boost::get<TESTCOUNTER>(testCounter_) == boost::get<SUCCESSCOUNTER>(testCounter_)) {
+         return true;
+      }
+      break;
+
+      case Gem::Common::CE_INEQUALITY:
+      if(boost::get<SUCCESSCOUNTER>(testCounter_) > 0) {
+         return true;
+      }
+      break;
+
+      default:
+      {
+         glogger
+         << "In GToken::expectationMet(): Got invalid expectation " << e_ << std::endl
+         << GEXCEPTION;
+      }
+      break;
    }
+
+   return false;
 }
 
 /******************************************************************************/

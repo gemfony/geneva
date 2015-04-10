@@ -268,7 +268,6 @@ public:
       // Check that we are indeed dealing with a GAdaptorT reference
       const GAdaptorT<T>  *p_load = gobject_conversion<GAdaptorT<T> >(&cp);
 
-      /*
       GToken token("GAdaptorT<T>", e);
 
       // Compare our parent data ...
@@ -287,29 +286,6 @@ public:
 
       // React on deviations from the expectation
       token.evaluate();
-      */
-      try {
-         BEGIN_COMPARE;
-
-         // Check our parent class'es data ...
-         COMPARE_PARENT(GObject, cp, e, limit);
-
-         // ... and then our local data
-         COMPARE(adaptionCounter_, p_load->adaptionCounter_, e, limit);
-         COMPARE(adaptionThreshold_, p_load->adaptionThreshold_, e, limit);
-         COMPARE(adProb_, p_load->adProb_, e, limit);
-         COMPARE(adaptAdProb_, p_load->adaptAdProb_, e, limit);
-         COMPARE(minAdProb_, p_load->minAdProb_, e, limit);
-         COMPARE(maxAdProb_, p_load->maxAdProb_, e, limit);
-         COMPARE(adaptionMode_, p_load->adaptionMode_, e, limit);
-         COMPARE(adaptAdaptionProbability_, p_load->adaptAdaptionProbability_, e, limit);
-         COMPARE(adProb_reset_, p_load->adProb_reset_, e, limit);
-
-         END_COMPARE;
-
-      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         throw g("g_expectation_violation caught by GAdaptorT<T>");
-      }
 	}
 
 	/***************************************************************************/
