@@ -230,15 +230,15 @@ public:
       // Check that we are indeed dealing with a GConstrainedIntT<int_type> reference
       const GConstrainedIntT<int_type>  *p_load = GObject::gobject_conversion<GConstrainedIntT<int_type> >(&cp);
 
-      try {
-         // Check our parent class'es data ...
-         GConstrainedNumT<int_type>::compare(cp, e, limit);
+      GToken token("GConstrainedIntT<int_type>", e);
 
-         // ... no local data
+      // Compare our parent data ...
+      compare_base<GConstrainedNumT<int_type> >(IDENTITY(*this, *p_load), token);
 
-      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         throw g("g_expectation_violation caught by GConstrainedIntT<int_type>");
-      }
+      // ... no local local data
+
+      // React on deviations from the expectation
+      token.evaluate();
    }
 
 	/***************************************************************************/

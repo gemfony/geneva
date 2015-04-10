@@ -255,21 +255,17 @@ public:
       // Check that we are indeed dealing with a GConstrainedNumCollectionT<num_type> reference
       const GConstrainedNumCollectionT<num_type>  *p_load = GObject::gobject_conversion<GConstrainedNumCollectionT<num_type> >(&cp);
 
-      try {
-         BEGIN_COMPARE;
+      GToken token("GConstrainedNumCollectionT<num_type>", e);
 
-         // Check our parent class'es data ...
-         COMPARE_PARENT(GParameterCollectionT<num_type>, cp, e, limit);
+      // Compare our parent data ...
+      compare_base<GParameterCollectionT<num_type> >(IDENTITY(*this, *p_load), token);
 
-         // ... and then our local data
-         COMPARE(lowerBoundary_, p_load->lowerBoundary_, e, limit);
-         COMPARE(upperBoundary_, p_load->upperBoundary_, e, limit);
+      // ... and then the local data
+      compare_t(IDENTITY(lowerBoundary_, p_load->lowerBoundary_), token);
+      compare_t(IDENTITY(upperBoundary_, p_load->upperBoundary_), token);
 
-         END_COMPARE;
-
-      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         throw g("g_expectation_violation caught by GParameterCollectionT<num_type>");
-      }
+      // React on deviations from the expectation
+      token.evaluate();
    }
 
 	/***************************************************************************/
