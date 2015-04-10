@@ -208,27 +208,23 @@ public:
    ) const OVERRIDE {
       using namespace Gem::Common;
 
-      // Check that we are indeed dealing with a GAdaptorT reference
+      // Check that we are indeed dealing with a GBaseParChildT reference
       const GBaseParChildT<ind_type> *p_load = GObject::gobject_conversion<GBaseParChildT<ind_type> >(&cp);
 
-      try {
-         BEGIN_COMPARE;
+      GToken token("GBaseParChildT<ind_type>", e);
 
-         // Check our parent class'es data ...
-         COMPARE_PARENT(GOptimizationAlgorithmT<ind_type>, cp, e, limit);
+      // Compare our parent data ...
+      compare_base<GOptimizationAlgorithmT<ind_type> >(IDENTITY(*this, *p_load), token);
 
-         // ... and then our local data
-         COMPARE(nParents_, p_load->nParents_, e, limit);
-         COMPARE(recombinationMethod_, p_load->recombinationMethod_, e, limit);
-         COMPARE(defaultNChildren_, p_load->defaultNChildren_, e, limit);
-         COMPARE(maxPopulationSize_, p_load->maxPopulationSize_, e, limit);
-         COMPARE(growthRate_, p_load->growthRate_, e, limit);
+      // ... and then the local data
+      compare_t(IDENTITY(nParents_, p_load->nParents_), token);
+      compare_t(IDENTITY(recombinationMethod_, p_load->recombinationMethod_), token);
+      compare_t(IDENTITY(defaultNChildren_, p_load->defaultNChildren_), token);
+      compare_t(IDENTITY(maxPopulationSize_, p_load->maxPopulationSize_), token);
+      compare_t(IDENTITY(growthRate_, p_load->growthRate_), token);
 
-         END_COMPARE;
-
-      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         throw g("g_expectation_violation caught by GBaseParChildT<ind_type>");
-      }
+      // React on deviations from the expectation
+      token.evaluate();
    }
 
    /***************************************************************************/

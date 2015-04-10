@@ -218,18 +218,15 @@ public:
       // Check that we are indeed dealing with a GConstrainedFPNumCollectionT<fp_type> reference
       const GConstrainedFPNumCollectionT<fp_type>  *p_load = GObject::gobject_conversion<GConstrainedFPNumCollectionT<fp_type> >(&cp);
 
-      try {
-         BEGIN_COMPARE;
+      GToken token("GConstrainedNumCollectionT<fp_type>", e);
 
-         // Check our parent class'es data ...
-         COMPARE_PARENT(GConstrainedNumCollectionT<fp_type>, cp, e, limit);
+      // Compare our parent data ...
+      compare_base<GConstrainedNumCollectionT<fp_type> >(IDENTITY(*this, *p_load), token);
 
-         // ... no local data
+      // ... no local data
 
-         END_COMPARE;
-      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         throw g("g_expectation_violation caught by GConstrainedFPNumCollectionT<fp_type>");
-      }
+      // React on deviations from the expectation
+      token.evaluate();
    }
 
 	/****************************************************************************/
