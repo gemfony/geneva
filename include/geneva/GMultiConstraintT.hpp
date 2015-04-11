@@ -168,20 +168,16 @@ public:
       // Check that we are indeed dealing with a GAdaptorT reference
       const GPreEvaluationValidityCheckT<ind_type> *p_load = GObject::gobject_conversion<GPreEvaluationValidityCheckT<ind_type> >(&cp);
 
-      try {
-         BEGIN_COMPARE;
+      GToken token("GPreEvaluationValidityCheckT<ind_type>", e);
 
-         // Check our parent class'es data ...
-         COMPARE_PARENT(GObject, cp, e, limit);
+      // Compare our parent data ...
+      compare_base<GObject>(IDENTITY(*this, *p_load), token);
 
-         // ... and then our local data
-         COMPARE(allowNegative_, p_load->allowNegative_, e, limit);
+      // ... and then the local data
+      compare_t(IDENTITY(allowNegative_, p_load->allowNegative_), token);
 
-         END_COMPARE;
-
-      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         throw g("g_expectation_violation caught by GPreEvaluationValidityCheckT<ind_type>");
-      }
+      // React on deviations from the expectation
+      token.evaluate();
    }
 
    /***************************************************************************/
@@ -446,20 +442,16 @@ public:
       // Check that we are indeed dealing with a GAdaptorT reference
       const GValidityCheckContainerT<ind_type> *p_load = GObject::gobject_conversion<GValidityCheckContainerT<ind_type> >(&cp);
 
-      try {
-         BEGIN_COMPARE;
+      GToken token("GValidityCheckContainerT<ind_type>", e);
 
-         // Check our parent class'es data ...
-         COMPARE_PARENT(GPreEvaluationValidityCheckT<ind_type>, cp, e, limit);
+      // Compare our parent data ...
+      compare_base<GPreEvaluationValidityCheckT<ind_type> >(IDENTITY(*this, *p_load), token);
 
-         // ... and then our local data
-         COMPARE(validityChecks_, p_load->validityChecks_, e, limit);
+      // ... and then the local data
+      compare_t(IDENTITY(validityChecks_, p_load->validityChecks_), token);
 
-         END_COMPARE;
-
-      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         throw g("g_expectation_violation caught by GValidityCheckContainerT<ind_type>");
-      }
+      // React on deviations from the expectation
+      token.evaluate();
    }
 
    /***************************************************************************/
@@ -629,20 +621,16 @@ public:
       // Check that we are indeed dealing with a GAdaptorT reference
       const GCheckCombinerT<ind_type> *p_load = GObject::gobject_conversion<GCheckCombinerT<ind_type> >(&cp);
 
-      try {
-         BEGIN_COMPARE;
+      GToken token("GCheckCombinerT<ind_type", e);
 
-         // Check our parent class'es data ...
-         COMPARE_PARENT(GValidityCheckContainerT<ind_type>, cp, e, limit);
+      // Compare our parent data ...
+      compare_base<GValidityCheckContainerT<ind_type> >(IDENTITY(*this, *p_load), token);
 
-         // ... and then our local data
-         COMPARE(combinerPolicy_, p_load->combinerPolicy_, e, limit);
+      // ... and then the local data
+      compare_t(IDENTITY(combinerPolicy_, p_load->combinerPolicy_), token);
 
-         END_COMPARE;
-
-      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         throw g("g_expectation_violation caught by GCheckCombinerT<ind_type>");
-      }
+      // React on deviations from the expectation
+      token.evaluate();
    }
 
    /***************************************************************************/

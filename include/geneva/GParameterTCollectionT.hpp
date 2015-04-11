@@ -193,20 +193,16 @@ public:
       // Check that we are indeed dealing with a GAdaptorT reference
       const GParameterTCollectionT<T>  *p_load = GObject::gobject_conversion<GParameterTCollectionT<T> >(&cp);
 
-      try {
-         BEGIN_COMPARE;
+      GToken token("GParameterTCollectionT<T>", e);
 
-         // Check our parent class'es data ...
-         COMPARE_PARENT(GParameterBase, cp, e, limit);
+      // Compare our parent data ...
+      compare_base<GParameterBase>(IDENTITY(*this, *p_load), token);
 
-         // We treat GStdPtrVectorInterfaceT<T>::data as local data
-         COMPARE(this->data, p_load->data, e, limit);
+      // We treat GStdPtrVectorInterfaceT<T>::data as local data
+      compare_t(IDENTITY(this->data, p_load->data), token);
 
-         END_COMPARE;
-
-      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         throw g("g_expectation_violation caught by GParameterTCollectionT<T>");
-      }
+      // React on deviations from the expectation
+      token.evaluate();
    }
 
 

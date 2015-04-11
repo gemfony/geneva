@@ -216,21 +216,15 @@ public:
 	   // Check that we are indeed dealing with a GAdaptorT reference
 	   const GIntGaussAdaptorT<int_type>  *p_load = GObject::gobject_conversion<GIntGaussAdaptorT<int_type> >(&cp);
 
-	   try {
-	      typedef GNumGaussAdaptorT<int_type, double> GNumGaussAdaptorT_int_double;
+      GToken token("GIntGaussAdaptorT<int_type>", e);
 
-	      BEGIN_COMPARE;
+      // Compare our parent data ...
+      compare_base<GNumGaussAdaptorT<int_type, double> >(IDENTITY(*this, *p_load), token);
 
-	      // Check our parent class'es data ...
-	      COMPARE_PARENT(GNumGaussAdaptorT_int_double, cp, e, limit);
+      // // ... no local data
 
-	      // ... no local data
-
-	      END_COMPARE;
-
-	   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-	      throw g("g_expectation_violation caught by GIntGaussAdaptorT<int_type>");
-	   }
+      // React on deviations from the expectation
+      token.evaluate();
 	}
 
 	/***************************************************************************/

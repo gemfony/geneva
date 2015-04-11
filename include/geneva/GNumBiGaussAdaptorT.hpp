@@ -227,32 +227,28 @@ public:
       // Check that we are indeed dealing with a GAdaptorT reference
       const GNumBiGaussAdaptorT<num_type, fp_type>  *p_load = GObject::gobject_conversion<GNumBiGaussAdaptorT<num_type, fp_type> >(&cp);
 
-      try {
-         BEGIN_COMPARE;
+      GToken token("GNumBiGaussAdaptorT<num_type, fp_type>", e);
 
-         // Check our parent class'es data ...
-         COMPARE_PARENT(GAdaptorT<num_type>, cp, e, limit);
+      // Compare our parent data ...
+      compare_base<GAdaptorT<num_type> >(IDENTITY(*this, *p_load), token);
 
-         // ... and then our local data
-         COMPARE(useSymmetricSigmas_, p_load->useSymmetricSigmas_, e, limit);
-         COMPARE(sigma1_, p_load->sigma1_, e, limit);
-         COMPARE(sigmaSigma1_, p_load->sigmaSigma1_, e, limit);
-         COMPARE(minSigma1_, p_load->minSigma1_, e, limit);
-         COMPARE(maxSigma1_, p_load->maxSigma1_, e, limit);
-         COMPARE(sigma2_, p_load->sigma2_, e, limit);
-         COMPARE(sigmaSigma2_, p_load->sigmaSigma2_, e, limit);
-         COMPARE(minSigma2_, p_load->minSigma2_, e, limit);
-         COMPARE(maxSigma2_, p_load->maxSigma2_, e, limit);
-         COMPARE(delta_, p_load->delta_, e, limit);
-         COMPARE(sigmaDelta_, p_load->sigmaDelta_, e, limit);
-         COMPARE(minDelta_, p_load->minDelta_, e, limit);
-         COMPARE(maxDelta_, p_load->maxDelta_, e, limit);
+      // ... and then the local data
+      compare_t(IDENTITY(useSymmetricSigmas_, p_load->useSymmetricSigmas_), token);
+      compare_t(IDENTITY(sigma1_, p_load->sigma1_), token);
+      compare_t(IDENTITY(sigmaSigma1_, p_load->sigmaSigma1_), token);
+      compare_t(IDENTITY(minSigma1_, p_load->minSigma1_), token);
+      compare_t(IDENTITY(maxSigma1_, p_load->maxSigma1_), token);
+      compare_t(IDENTITY(sigma2_, p_load->sigma2_), token);
+      compare_t(IDENTITY(sigmaSigma2_, p_load->sigmaSigma2_), token);
+      compare_t(IDENTITY(minSigma2_, p_load->minSigma2_), token);
+      compare_t(IDENTITY(maxSigma2_, p_load->maxSigma2_), token);
+      compare_t(IDENTITY(delta_, p_load->delta_), token);
+      compare_t(IDENTITY(sigmaDelta_, p_load->sigmaDelta_), token);
+      compare_t(IDENTITY(minDelta_, p_load->minDelta_), token);
+      compare_t(IDENTITY(maxDelta_, p_load->maxDelta_), token);
 
-         END_COMPARE;
-
-      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         throw g("g_expectation_violation caught by GNumBiGaussAdaptorT<num_type, fp_type>");
-      }
+      // React on deviations from the expectation
+      token.evaluate();
    }
 
 	/***************************************************************************/

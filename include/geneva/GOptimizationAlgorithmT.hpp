@@ -382,41 +382,37 @@ public:
       // Check that we are indeed dealing with a GAdaptorT reference
       const GOptimizationAlgorithmT<ind_type> *p_load = GObject::gobject_conversion<GOptimizationAlgorithmT<ind_type> >(&cp);
 
-      try {
-         BEGIN_COMPARE;
+      GToken token("GOptimizationAlgorithmT<ind_type>", e);
 
-         // Check our parent class'es data ...
-         COMPARE_PARENT(GMutableSetT<ind_type>, cp, e, limit);
+      // Compare our parent data ...
+      compare_base<GMutableSetT<ind_type> >(IDENTITY(*this, *p_load), token);
 
-         // ... and then our local data
-         COMPARE(iteration_, p_load->iteration_, e, limit);
-         COMPARE(offset_, p_load->offset_, e, limit);
-         COMPARE(maxIteration_, p_load->maxIteration_, e, limit);
-         COMPARE(maxStallIteration_, p_load->maxStallIteration_, e, limit);
-         COMPARE(reportIteration_, p_load->reportIteration_, e, limit);
-         COMPARE(nRecordBestIndividuals_, p_load->nRecordBestIndividuals_, e, limit);
-         COMPARE(defaultPopulationSize_, p_load->defaultPopulationSize_, e, limit);
-         COMPARE(bestKnownPrimaryFitness_, p_load->bestKnownPrimaryFitness_, e, limit);
-         COMPARE(bestCurrentPrimaryFitness_, p_load->bestCurrentPrimaryFitness_, e, limit);
-         COMPARE(stallCounter_, p_load->stallCounter_, e, limit);
-         COMPARE(stallCounterThreshold_, p_load->stallCounterThreshold_, e, limit);
-         COMPARE(cpInterval_, p_load->cpInterval_, e, limit);
-         COMPARE(cpBaseName_, p_load->cpBaseName_, e, limit);
-         COMPARE(cpDirectory_, p_load->cpDirectory_, e, limit);
-         COMPARE(cpSerMode_, p_load->cpSerMode_, e, limit);
-         COMPARE(qualityThreshold_, p_load->qualityThreshold_, e, limit);
-         COMPARE(hasQualityThreshold_, p_load->hasQualityThreshold_, e, limit);
-         COMPARE(maxDuration_, p_load->maxDuration_, e, limit);
-         COMPARE(emitTerminationReason_, p_load->emitTerminationReason_, e, limit);
-         COMPARE(halted_, p_load->halted_, e, limit);
-         COMPARE(worstKnownValids_, p_load->worstKnownValids_, e, limit);
-         COMPARE(optimizationMonitor_ptr_, p_load->optimizationMonitor_ptr_, e, limit);
+      // ... and then the local data
+      compare_t(IDENTITY(iteration_, p_load->iteration_), token);
+      compare_t(IDENTITY(offset_, p_load->offset_), token);
+      compare_t(IDENTITY(maxIteration_, p_load->maxIteration_), token);
+      compare_t(IDENTITY(maxStallIteration_, p_load->maxStallIteration_), token);
+      compare_t(IDENTITY(reportIteration_, p_load->reportIteration_), token);
+      compare_t(IDENTITY(nRecordBestIndividuals_, p_load->nRecordBestIndividuals_), token);
+      compare_t(IDENTITY(defaultPopulationSize_, p_load->defaultPopulationSize_), token);
+      compare_t(IDENTITY(bestKnownPrimaryFitness_, p_load->bestKnownPrimaryFitness_), token);
+      compare_t(IDENTITY(bestCurrentPrimaryFitness_, p_load->bestCurrentPrimaryFitness_), token);
+      compare_t(IDENTITY(stallCounter_, p_load->stallCounter_), token);
+      compare_t(IDENTITY(stallCounterThreshold_, p_load->stallCounterThreshold_), token);
+      compare_t(IDENTITY(cpInterval_, p_load->cpInterval_), token);
+      compare_t(IDENTITY(cpBaseName_, p_load->cpBaseName_), token);
+      compare_t(IDENTITY(cpDirectory_, p_load->cpDirectory_), token);
+      compare_t(IDENTITY(cpSerMode_, p_load->cpSerMode_), token);
+      compare_t(IDENTITY(qualityThreshold_, p_load->qualityThreshold_), token);
+      compare_t(IDENTITY(hasQualityThreshold_, p_load->hasQualityThreshold_), token);
+      compare_t(IDENTITY(maxDuration_, p_load->maxDuration_), token);
+      compare_t(IDENTITY(emitTerminationReason_, p_load->emitTerminationReason_), token);
+      compare_t(IDENTITY(halted_, p_load->halted_), token);
+      compare_t(IDENTITY(worstKnownValids_, p_load->worstKnownValids_), token);
+      compare_t(IDENTITY(optimizationMonitor_ptr_, p_load->optimizationMonitor_ptr_), token);
 
-         END_COMPARE;
-
-      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         throw g("g_expectation_violation caught by GOptimizationAlgorithmT<ind_type>");
-      }
+      // React on deviations from the expectation
+      token.evaluate();
    }
 
 

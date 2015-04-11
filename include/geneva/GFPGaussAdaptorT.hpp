@@ -214,21 +214,15 @@ public:
       // Check that we are indeed dealing with a GAdaptorT reference
       const GFPGaussAdaptorT<fp_type>  *p_load = GObject::gobject_conversion<GFPGaussAdaptorT<fp_type> >(&cp);
 
-      try {
-         typedef GNumGaussAdaptorT<fp_type, fp_type> GNumGaussAdaptorT_fp_type;
+      GToken token("GFPGaussAdaptorT<fp_type>", e);
 
-         BEGIN_COMPARE;
+      // Compare our parent data ...
+      compare_base<GNumGaussAdaptorT<fp_type, fp_type> >(IDENTITY(*this, *p_load), token);
 
-         // Check our parent class'es data ...
-         COMPARE_PARENT(GNumGaussAdaptorT_fp_type, cp, e, limit);
+      // ... no local data
 
-         // ... no local data
-
-         END_COMPARE;
-
-      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         throw g("g_expectation_violation caught by GFPGaussAdaptorT<fp_type>");
-      }
+      // React on deviations from the expectation
+      token.evaluate();
    }
 
 	/***************************************************************************/

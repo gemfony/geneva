@@ -203,19 +203,15 @@ public:
       // Check that we are indeed dealing with a GAdaptorT reference
       const GFPNumCollectionT<fp_type>  *p_load = GObject::gobject_conversion<GFPNumCollectionT<fp_type> >(&cp);
 
-      try {
-         BEGIN_COMPARE;
+      GToken token("GFPNumCollectionT<fp_type>", e);
 
-         // Check our parent class'es data ...
-         COMPARE_PARENT(GNumCollectionT<fp_type>, cp, e, limit);
+      // Compare our parent data ...
+      compare_base<GNumCollectionT<fp_type> >(IDENTITY(*this, *p_load), token);
 
-         // ... no local data
+      // ... no local data
 
-         END_COMPARE;
-
-      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         throw g("g_expectation_violation caught by GFPNumCollectionT<fp_type>");
-      }
+      // React on deviations from the expectation
+      token.evaluate();
    }
 
    /***************************************************************************/

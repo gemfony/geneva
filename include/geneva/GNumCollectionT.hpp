@@ -220,21 +220,17 @@ public:
       // Check that we are indeed dealing with a GAdaptorT reference
       const GNumCollectionT<T>  *p_load = GObject::gobject_conversion<GNumCollectionT<T> >(&cp);
 
-      try {
-         BEGIN_COMPARE;
+      GToken token("GNumCollectionT<T>", e);
 
-         // Check our parent class'es data ...
-         COMPARE_PARENT(GParameterCollectionT<T>, cp, e, limit);
+      // Compare our parent data ...
+      compare_base<GParameterCollectionT<T> >(IDENTITY(*this, *p_load), token);
 
-         // ... and then our local data
-         COMPARE(lowerInitBoundary_, p_load->lowerInitBoundary_, e, limit);
-         COMPARE(upperInitBoundary_, p_load->upperInitBoundary_, e, limit);
+      // ... and then the local data
+      compare_t(IDENTITY(lowerInitBoundary_, p_load->lowerInitBoundary_), token);
+      compare_t(IDENTITY(upperInitBoundary_, p_load->upperInitBoundary_), token);
 
-         END_COMPARE;
-
-      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         throw g("g_expectation_violation caught by GNumCollectionT<T>");
-      }
+      // React on deviations from the expectation
+      token.evaluate();
    }
 
 	/***************************************************************************/

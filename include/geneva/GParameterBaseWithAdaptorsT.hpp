@@ -170,20 +170,16 @@ public:
       // Check that we are indeed dealing with a GAdaptorT reference
       const GParameterBaseWithAdaptorsT<T>  *p_load = GObject::gobject_conversion<GParameterBaseWithAdaptorsT<T> >(&cp);
 
-      try {
-         BEGIN_COMPARE;
+      GToken token("GParameterBaseWithAdaptorsT<T>", e);
 
-         // Check our parent class'es data ...
-         COMPARE_PARENT(GParameterBase, cp, e, limit);
+      // Compare our parent data ...
+      compare_base<GParameterBase>(IDENTITY(*this, *p_load), token);
 
-         // ... and then our local data
-         COMPARE(adaptor_, p_load->adaptor_, e, limit);
+      // We access the relevant data of one of the parent classes directly for simplicity reasons
+      compare_t(IDENTITY(adaptor_, p_load->adaptor_), token);
 
-         END_COMPARE;
-
-      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         throw g("g_expectation_violation caught by GParameterBaseWithAdaptorsT<T>");
-      }
+      // React on deviations from the expectation
+      token.evaluate();
    }
 
 	/***************************************************************************/

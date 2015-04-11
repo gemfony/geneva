@@ -194,21 +194,17 @@ public:
       // Check that we are indeed dealing with a GAdaptorT reference
       const GMultiPopulationEAT<oa_type> *p_load = GObject::gobject_conversion<GMultiPopulationEAT<oa_type> >(&cp);
 
-      try {
-         BEGIN_COMPARE;
+      GToken token("GMultiPopulationEAT<oa_type>", e);
 
-         // Check our parent class'es data ...
-         COMPARE_PARENT(GBaseParChildT<oa_type>, cp, e, limit);
+      // Compare our parent data ...
+      compare_base<GBaseParChildT<oa_type> >(IDENTITY(*this, *p_load), token);
 
-         // ... and then our local data
-         COMPARE(smodeMP_, p_load->smodeMP_, e, limit);
-         COMPARE(nThreads_, p_load->nThreads_, e, limit);
+      // ... and then the local data
+      compare_t(IDENTITY(smodeMP_,  p_load->smodeMP_), token);
+      compare_t(IDENTITY(nThreads_, p_load->nThreads_), token);
 
-         END_COMPARE;
-
-      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         throw g("g_expectation_violation caught by GMultiPopulationEAT<oa_type>");
-      }
+      // React on deviations from the expectation
+      token.evaluate();
    }
 
    /***************************************************************************/
