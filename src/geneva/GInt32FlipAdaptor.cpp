@@ -147,19 +147,15 @@ void GInt32FlipAdaptor::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const GInt32FlipAdaptor *p_load = GObject::gobject_conversion<GInt32FlipAdaptor>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   GToken token("GInt32FlipAdaptor", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GIntFlipAdaptorT<boost::int32_t>, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GIntFlipAdaptorT<boost::int32_t> >(IDENTITY(*this, *p_load), token);
 
-      // ... no local data
+   // ... no local data
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GInt32FlipAdaptor");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /***********************************************************************************/

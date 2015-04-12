@@ -202,38 +202,34 @@ void GOptimizableEntity::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const GOptimizableEntity *p_load = GObject::gobject_conversion<GOptimizableEntity>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   GToken token("GOptimizableEntity", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GObject, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
 
-      // ... and then our local data
-      COMPARE(nFitnessCriteria_, p_load->nFitnessCriteria_, e, limit);
-      COMPARE(currentFitnessVec_, p_load->currentFitnessVec_, e, limit);
-      COMPARE(worstKnownValids_, p_load->worstKnownValids_, e, limit);
-      COMPARE(markedAsInvalidByUser_, p_load->markedAsInvalidByUser_, e, limit);
-      COMPARE(bestPastPrimaryFitness_, p_load->bestPastPrimaryFitness_, e, limit);
-      COMPARE(nStalls_, p_load->nStalls_, e, limit);
-      COMPARE(dirtyFlag_, p_load->dirtyFlag_, e, limit);
-      COMPARE(maximize_, p_load->maximize_, e, limit);
-      COMPARE(assignedIteration_, p_load->assignedIteration_, e, limit);
-      COMPARE(validityLevel_, p_load->validityLevel_, e, limit);
-      COMPARE(evalPolicy_, p_load->evalPolicy_, e, limit);
-      COMPARE(pt_ptr_, p_load->pt_ptr_, e, limit);
-      COMPARE(individualConstraint_, p_load->individualConstraint_, e, limit);
-      COMPARE(steepness_, p_load->steepness_, e, limit);
-      COMPARE(barrier_, p_load->barrier_, e, limit);
-      COMPARE(maxUnsuccessfulAdaptions_, p_load->maxUnsuccessfulAdaptions_, e, limit);
-      COMPARE(maxRetriesUntilValid_, p_load->maxRetriesUntilValid_, e, limit);
-      COMPARE(nAdaptions_, p_load->nAdaptions_, e, limit);
-      COMPARE(evaluationID_, p_load->evaluationID_, e, limit);
+   // ... and then the local data
+   compare_t(IDENTITY(nFitnessCriteria_, p_load->nFitnessCriteria_), token);
+   compare_t(IDENTITY(currentFitnessVec_, p_load->currentFitnessVec_), token);
+   compare_t(IDENTITY(worstKnownValids_, p_load->worstKnownValids_), token);
+   compare_t(IDENTITY(markedAsInvalidByUser_, p_load->markedAsInvalidByUser_), token);
+   compare_t(IDENTITY(bestPastPrimaryFitness_, p_load->bestPastPrimaryFitness_), token);
+   compare_t(IDENTITY(nStalls_, p_load->nStalls_), token);
+   compare_t(IDENTITY(dirtyFlag_, p_load->dirtyFlag_), token);
+   compare_t(IDENTITY(maximize_, p_load->maximize_), token);
+   compare_t(IDENTITY(assignedIteration_, p_load->assignedIteration_), token);
+   compare_t(IDENTITY(validityLevel_, p_load->validityLevel_), token);
+   compare_t(IDENTITY(evalPolicy_, p_load->evalPolicy_), token);
+   compare_t(IDENTITY(pt_ptr_, p_load->pt_ptr_), token);
+   compare_t(IDENTITY(individualConstraint_, p_load->individualConstraint_), token);
+   compare_t(IDENTITY(steepness_, p_load->steepness_), token);
+   compare_t(IDENTITY(barrier_, p_load->barrier_), token);
+   compare_t(IDENTITY(maxUnsuccessfulAdaptions_, p_load->maxUnsuccessfulAdaptions_), token);
+   compare_t(IDENTITY(maxRetriesUntilValid_, p_load->maxRetriesUntilValid_), token);
+   compare_t(IDENTITY(nAdaptions_, p_load->nAdaptions_), token);
+   compare_t(IDENTITY(evaluationID_, p_load->evaluationID_), token);
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GOptimizableEntity");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /******************************************************************************/

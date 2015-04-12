@@ -141,20 +141,16 @@ void GParameterSet::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const GParameterSet *p_load = GObject::gobject_conversion<GParameterSet>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   GToken token("GParameterSet", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GMutableSetT<Gem::Geneva::GParameterBase>, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GMutableSetT<Gem::Geneva::GParameterBase> >(IDENTITY(*this, *p_load), token);
 
-      // ... and then our local data
-      COMPARE(perItemCrossOverProbability_, p_load->perItemCrossOverProbability_, e, limit);
+   // ... and then the local data
+   compare_t(IDENTITY(perItemCrossOverProbability_, p_load->perItemCrossOverProbability_), token);
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GParameterSet");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /******************************************************************************/

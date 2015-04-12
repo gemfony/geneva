@@ -57,8 +57,8 @@
 #include <boost/optional.hpp>
 #include <boost/lexical_cast.hpp>
 
-#ifndef GPODEXPECTATIONCHECKST_HPP_
-#define GPODEXPECTATIONCHECKST_HPP_
+#ifndef GEXPECTATIONCHECKST_HPP_
+#define GEXPECTATIONCHECKST_HPP_
 
 // Gemfony headers go here
 #include "common/GCommonEnums.hpp"
@@ -775,4 +775,4 @@ if(g_n_violations==g_n_tests) { \
 } /* namespace Common */
 } /* namespace Gem */
 
-#endif /* GPODEXPECTATIONCHECKST_HPP_ */
+#endif /* GEXPECTATIONCHECKST_HPP_ */

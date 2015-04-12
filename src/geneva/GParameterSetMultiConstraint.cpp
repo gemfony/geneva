@@ -119,19 +119,15 @@ void GParameterSetConstraint::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const GParameterSetConstraint *p_load = GObject::gobject_conversion<GParameterSetConstraint>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   GToken token("GParameterSetConstraint", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GPreEvaluationValidityCheckT<GOptimizableEntity>, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GPreEvaluationValidityCheckT<GOptimizableEntity> >(IDENTITY(*this, *p_load), token);
 
-      // ... no local data
+   // ... no local data
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GParameterSetConstraint");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /******************************************************************************/
@@ -251,20 +247,16 @@ void GParameterSetFormulaConstraint::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const GParameterSetFormulaConstraint *p_load = GObject::gobject_conversion<GParameterSetFormulaConstraint>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   GToken token("GParameterSetFormulaConstraint", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GParameterSetConstraint, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GParameterSetConstraint>(IDENTITY(*this, *p_load), token);
 
-      // ... and then our local data
-      COMPARE(rawFormula_, p_load->rawFormula_, e, limit);
+   // ... and then the local data
+   compare_t(IDENTITY(rawFormula_, p_load->rawFormula_), token);
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GParameterSetFormulaConstraint");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /******************************************************************************/

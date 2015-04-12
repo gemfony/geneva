@@ -161,22 +161,18 @@ void GBrokerSA::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const GBrokerSA *p_load = GObject::gobject_conversion<GBrokerSA>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   GToken token("GBrokerSA", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GBaseSA, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GBaseSA>(IDENTITY(*this, *p_load), token);
 
-      // We do not compare the broker data
+   // We do not compare the broker data
 
-      // ... and then our local data
-      COMPARE(nThreads_, p_load->nThreads_, e, limit);
+   // ... and then the local data
+   compare_t(IDENTITY(nThreads_, p_load->nThreads_), token);
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GBrokerSA");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /***********************************************************************************/

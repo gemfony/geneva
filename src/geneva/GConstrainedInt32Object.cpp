@@ -190,19 +190,15 @@ void GConstrainedInt32Object::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const GConstrainedInt32Object *p_load = GObject::gobject_conversion<GConstrainedInt32Object>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   GToken token("GConstrainedInt32Object", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GConstrainedIntT<boost::int32_t>, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GConstrainedIntT<boost::int32_t> >(IDENTITY(*this, *p_load), token);
 
-      // ... no local data
+   // .... no local data
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GConstrainedInt32Object");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 

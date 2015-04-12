@@ -189,19 +189,15 @@ void GConstrainedDoubleObject::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const GConstrainedDoubleObject *p_load = GObject::gobject_conversion<GConstrainedDoubleObject>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   GToken token("GConstrainedDoubleObject", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GConstrainedFPT<double>, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GConstrainedFPT<double> >(IDENTITY(*this, *p_load), token);
 
-      // ... no local data
+   // .... no local data
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GConstrainedDoubleObject");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /***********************************************************************************/

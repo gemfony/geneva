@@ -146,19 +146,15 @@ void GParameterObjectCollection::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const GParameterObjectCollection *p_load = GObject::gobject_conversion<GParameterObjectCollection>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   GToken token("GParameterObjectCollection", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GParameterTCollectionT<GParameterBase>, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GParameterTCollectionT<GParameterBase> >(IDENTITY(*this, *p_load), token);
 
-      // ... no local data
+   // ... no local data
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GParameterObjectCollection");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /******************************************************************************/

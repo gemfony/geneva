@@ -141,23 +141,20 @@ void GSwarmPersonalityTraits::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const GSwarmPersonalityTraits *p_load = GObject::gobject_conversion<GSwarmPersonalityTraits>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   GToken token("GSwarmPersonalityTraits", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GPersonalityTraits, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GPersonalityTraits>(IDENTITY(*this, *p_load), token);
 
-      // ... and then our local data
-      COMPARE(neighborhood_, p_load->neighborhood_, e, limit);
-      COMPARE(noPositionUpdate_, p_load->noPositionUpdate_, e, limit);
-      COMPARE(personal_best_, p_load->personal_best_, e, limit);
-      COMPARE(personal_best_quality_, p_load->personal_best_quality_, e, limit);
+   // ... and then the local data
+   compare_t(IDENTITY(neighborhood_, p_load->neighborhood_), token);
+   compare_t(IDENTITY(noPositionUpdate_, p_load->noPositionUpdate_), token);
+   compare_t(IDENTITY(personal_best_, p_load->personal_best_), token);
+   compare_t(IDENTITY(personal_best_quality_, p_load->personal_best_quality_), token);
 
-      END_COMPARE;
 
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GSwarmPersonalityTraits");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /******************************************************************************/

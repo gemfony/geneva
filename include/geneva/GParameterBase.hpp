@@ -49,7 +49,6 @@
 #include "hap/GRandomT.hpp"
 #include "geneva/GMutableI.hpp"
 #include "geneva/GObject.hpp"
-#include "geneva/GObjectExpectationChecksT.hpp"
 
 namespace Gem {
 namespace Geneva {

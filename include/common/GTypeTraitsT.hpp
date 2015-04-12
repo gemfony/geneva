@@ -63,7 +63,6 @@
 
 // Geneva headers go here
 #include "common/GExpectationChecksT.hpp"
-#include "geneva/GObject.hpp"
 
 namespace Gem {
 namespace Common {

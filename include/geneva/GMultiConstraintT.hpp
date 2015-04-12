@@ -48,7 +48,6 @@
 #include "geneva/GObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
-#include "geneva/GObjectExpectationChecksT.hpp"
 
 namespace Gem {
 namespace Geneva {

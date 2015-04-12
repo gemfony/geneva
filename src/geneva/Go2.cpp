@@ -351,28 +351,24 @@ void Go2::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const Go2 *p_load = GObject::gobject_conversion<Go2>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   GToken token("Go2", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GMutableSetT<GParameterSet>, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GMutableSetT<GParameterSet> >(IDENTITY(*this, *p_load), token);
 
-      // ... and then our local data
-      COMPARE(clientMode_, p_load->clientMode_, e, limit);
-      COMPARE(configFilename_, p_load->configFilename_, e, limit);
-      COMPARE(parMode_, p_load->parMode_, e, limit);
-      COMPARE(consumerName_, p_load->consumerName_, e, limit);
-      COMPARE(nProducerThreads_, p_load->nProducerThreads_, e, limit);
-      COMPARE(offset_, p_load->offset_, e, limit);
-      COMPARE(sorted_, p_load->sorted_, e, limit);
-      COMPARE(iterationsConsumed_, p_load->iterationsConsumed_, e, limit);
-      COMPARE(default_algorithm_, p_load->default_algorithm_, e, limit);
+   // ... and then the local data
+   compare_t(IDENTITY(clientMode_, p_load->clientMode_), token);
+   compare_t(IDENTITY(configFilename_, p_load->configFilename_), token);
+   compare_t(IDENTITY(parMode_, p_load->parMode_), token);
+   compare_t(IDENTITY(consumerName_, p_load->consumerName_), token);
+   compare_t(IDENTITY(nProducerThreads_, p_load->nProducerThreads_), token);
+   compare_t(IDENTITY(offset_, p_load->offset_), token);
+   compare_t(IDENTITY(sorted_, p_load->sorted_), token);
+   compare_t(IDENTITY(iterationsConsumed_, p_load->iterationsConsumed_), token);
+   compare_t(IDENTITY(default_algorithm_, p_load->default_algorithm_), token);
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by Go2");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /******************************************************************************/

@@ -48,7 +48,6 @@
 #include "common/GTriboolSerialization.hpp"
 #include "hap/GRandomT.hpp"
 #include "geneva/GObject.hpp"
-#include "geneva/GObjectExpectationChecksT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 
 namespace Gem {

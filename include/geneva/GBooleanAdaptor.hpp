@@ -47,7 +47,6 @@
 #include "GAdaptorT.hpp"
 #include "GConstrainedDoubleObject.hpp"
 #include "GObject.hpp"
-#include "GObjectExpectationChecksT.hpp"
 #include "GOptimizationEnums.hpp"
 
 namespace Gem {

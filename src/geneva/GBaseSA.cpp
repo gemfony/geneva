@@ -172,22 +172,18 @@ void GBaseSA::compare(
    // Check that we are indeed dealing with a GBaseSA reference
    const GBaseSA *p_load = GObject::gobject_conversion<GBaseSA>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   GToken token("GBaseSA", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GParameterSetParChild, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GParameterSetParChild>(IDENTITY(*this, *p_load), token);
 
-      // ... and then our local data
-      COMPARE(t0_, p_load->t0_, e, limit);
-      COMPARE(t_, p_load->t_, e, limit);
-      COMPARE(alpha_, p_load->alpha_, e, limit);
+   // ... and then the local data
+   compare_t(IDENTITY(t0_, p_load->t0_), token);
+   compare_t(IDENTITY(t_, p_load->t_), token);
+   compare_t(IDENTITY(alpha_, p_load->alpha_), token);
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GBaseSA");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /******************************************************************************/

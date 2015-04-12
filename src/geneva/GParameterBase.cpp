@@ -226,22 +226,18 @@ void GParameterBase::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const GParameterBase *p_load = GObject::gobject_conversion<GParameterBase>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   GToken token("GParameterBase", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GObject, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
 
-      // ... and then our local data
-      COMPARE(adaptionsActive_, p_load->adaptionsActive_, e, limit);
-      COMPARE(randomInitializationBlocked_, p_load->randomInitializationBlocked_, e, limit);
-      COMPARE(parameterName_, p_load->parameterName_, e, limit);
+   // ... and then the local data
+   compare_t(IDENTITY(adaptionsActive_, p_load->adaptionsActive_), token);
+   compare_t(IDENTITY(randomInitializationBlocked_, p_load->randomInitializationBlocked_), token);
+   compare_t(IDENTITY(parameterName_, p_load->parameterName_), token);
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GParameterBase");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /***********************************************************************************/

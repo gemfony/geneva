@@ -127,20 +127,16 @@ void GPSPersonalityTraits::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const GPSPersonalityTraits *p_load = GObject::gobject_conversion<GPSPersonalityTraits>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   GToken token("GPSPersonalityTraits", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GPersonalityTraits, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GPersonalityTraits>(IDENTITY(*this, *p_load), token);
 
-      // ... and then our local data
-      COMPARE(popPos_, p_load->popPos_, e, limit);
+   // ... and then the local data
+   compare_t(IDENTITY(popPos_, p_load->popPos_), token);
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GPSPersonalityTraits");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /***********************************************************************************/

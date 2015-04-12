@@ -134,22 +134,18 @@ void GBaseParChildPersonalityTraits::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const GBaseParChildPersonalityTraits *p_load = GObject::gobject_conversion<GBaseParChildPersonalityTraits>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   GToken token("GBaseParChildPersonalityTraits", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GObject, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
 
-      // ... and then our local data
-      COMPARE(parentCounter_, p_load->parentCounter_, e, limit);
-      COMPARE(popPos_, p_load->popPos_, e, limit);
-      COMPARE(parentId_, p_load->parentId_, e, limit);
+   // ... and then the local data
+   compare_t(IDENTITY(parentCounter_, p_load->parentCounter_), token);
+   compare_t(IDENTITY(popPos_, p_load->popPos_), token);
+   compare_t(IDENTITY(parentId_, p_load->parentId_), token);
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GBaseParChildPersonalityTraits");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /***********************************************************************************/

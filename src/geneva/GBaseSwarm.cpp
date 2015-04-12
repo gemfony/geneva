@@ -332,42 +332,38 @@ void GBaseSwarm::compare(
    // Check that we are indeed dealing with a GBaseSwarm reference
    const GBaseSwarm *p_load = GObject::gobject_conversion<GBaseSwarm>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   GToken token("GBaseSwarm", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GOptimizationAlgorithmT<GParameterSet>, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet> >(IDENTITY(*this, *p_load), token);
 
-      // ... and then our local data
-      COMPARE(nNeighborhoods_, p_load->nNeighborhoods_, e, limit);
-      COMPARE(defaultNNeighborhoodMembers_, p_load->defaultNNeighborhoodMembers_, e, limit);
-      COMPARE(global_best_, p_load->global_best_, e, limit);
-      COMPARE(c_personal_, p_load->c_personal_, e, limit);
-      COMPARE(c_neighborhood_, p_load->c_neighborhood_, e, limit);
-      COMPARE(c_global_, p_load->c_global_, e, limit);
-      COMPARE(c_velocity_, p_load->c_velocity_, e, limit);
-      COMPARE(updateRule_, p_load->updateRule_, e, limit);
-      COMPARE(randomFillUp_, p_load->randomFillUp_, e, limit);
-      COMPARE(repulsionThreshold_, p_load->repulsionThreshold_, e, limit);
-      COMPARE(dblLowerParameterBoundaries_, p_load->dblLowerParameterBoundaries_, e, limit);
-      COMPARE(dblUpperParameterBoundaries_, p_load->dblUpperParameterBoundaries_, e, limit);
-      COMPARE(dblVelVecMax_, p_load->dblVelVecMax_, e, limit);
-      COMPARE(velocityRangePercentage_, p_load->velocityRangePercentage_, e, limit);
+   // ... and then the local data
+   compare_t(IDENTITY(nNeighborhoods_, p_load->nNeighborhoods_), token);
+   compare_t(IDENTITY(defaultNNeighborhoodMembers_, p_load->defaultNNeighborhoodMembers_), token);
+   compare_t(IDENTITY(global_best_, p_load->global_best_), token);
+   compare_t(IDENTITY(c_personal_, p_load->c_personal_), token);
+   compare_t(IDENTITY(c_neighborhood_, p_load->c_neighborhood_), token);
+   compare_t(IDENTITY(c_global_, p_load->c_global_), token);
+   compare_t(IDENTITY(c_velocity_, p_load->c_velocity_), token);
+   compare_t(IDENTITY(updateRule_, p_load->updateRule_), token);
+   compare_t(IDENTITY(randomFillUp_, p_load->randomFillUp_), token);
+   compare_t(IDENTITY(repulsionThreshold_, p_load->repulsionThreshold_), token);
+   compare_t(IDENTITY(dblLowerParameterBoundaries_, p_load->dblLowerParameterBoundaries_), token);
+   compare_t(IDENTITY(dblUpperParameterBoundaries_, p_load->dblUpperParameterBoundaries_), token);
+   compare_t(IDENTITY(dblVelVecMax_, p_load->dblVelVecMax_), token);
+   compare_t(IDENTITY(velocityRangePercentage_, p_load->velocityRangePercentage_), token);
 
-      // The next checks only makes sense if the number of neighborhoods are equal
-      if(nNeighborhoods_ == p_load->nNeighborhoods_) {
-         COMPARE(nNeighborhoodMembers_, p_load->nNeighborhoodMembers_, e, limit);
-         // No neighborhood bests have been assigned yet in iteration 0
-         if(afterFirstIteration()) {
-            COMPARE(neighborhood_bests_, p_load->neighborhood_bests_, e, limit);
-         }
+   // The next checks only makes sense if the number of neighborhoods are equal
+   if(nNeighborhoods_ == p_load->nNeighborhoods_) {
+      compare_t(IDENTITY(nNeighborhoodMembers_, p_load->nNeighborhoodMembers_), token);
+      // No neighborhood bests have been assigned yet in iteration 0
+      if(afterFirstIteration()) {
+         compare_t(IDENTITY(neighborhood_bests_, p_load->neighborhood_bests_), token);
       }
-
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GBaseSwarm");
    }
+
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /******************************************************************************/

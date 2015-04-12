@@ -147,19 +147,15 @@ void GDoubleObjectCollection::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const GDoubleObjectCollection *p_load = GObject::gobject_conversion<GDoubleObjectCollection>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   GToken token("GDoubleObjectCollection", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GParameterTCollectionT<GDoubleObject>, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GParameterTCollectionT<GDoubleObject> >(IDENTITY(*this, *p_load), token);
 
-      // ... no local data
+   // ... no local data
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GDoubleObjectCollection");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /***********************************************************************************/

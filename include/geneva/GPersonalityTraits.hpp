@@ -45,7 +45,6 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "geneva/GObject.hpp"
-#include "geneva/GObjectExpectationChecksT.hpp"
 
 namespace Gem {
 namespace Geneva {

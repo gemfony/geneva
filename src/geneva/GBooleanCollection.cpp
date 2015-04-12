@@ -291,19 +291,15 @@ void GBooleanCollection::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const GBooleanCollection *p_load = GObject::gobject_conversion<GBooleanCollection>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   GToken token("GBooleanCollection", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GParameterCollectionT<bool>, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GParameterCollectionT<bool> >(IDENTITY(*this, *p_load), token);
 
-      // ... no local data
+   // ... no local data
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GBooleanCollection");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /***********************************************************************************/

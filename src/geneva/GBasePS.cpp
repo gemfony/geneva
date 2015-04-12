@@ -268,24 +268,20 @@ void GBasePS::compare(
    // Check that we are indeed dealing with a GBasePS reference
    const GBasePS *p_load = GObject::gobject_conversion<GBasePS>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   GToken token("GBasePS", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GOptimizationAlgorithmT<GParameterSet>, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet> >(IDENTITY(*this, *p_load), token);
 
-      // ... and then our local data
-      COMPARE(cycleLogicHalt_, p_load->cycleLogicHalt_, e, limit);
-      COMPARE(scanRandomly_, p_load->scanRandomly_, e, limit);
-      COMPARE(nMonitorInds_, p_load->nMonitorInds_, e, limit);
-      COMPARE(simpleScanItems_, p_load->simpleScanItems_, e, limit);
-      COMPARE(scansPerformed_, p_load->scansPerformed_, e, limit);
+   // ... and then the local data
+   compare_t(IDENTITY(cycleLogicHalt_, p_load->cycleLogicHalt_), token);
+   compare_t(IDENTITY(scanRandomly_, p_load->scanRandomly_), token);
+   compare_t(IDENTITY(nMonitorInds_, p_load->nMonitorInds_), token);
+   compare_t(IDENTITY(simpleScanItems_, p_load->simpleScanItems_), token);
+   compare_t(IDENTITY(scansPerformed_, p_load->scansPerformed_), token);
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GBasePS");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /******************************************************************************/

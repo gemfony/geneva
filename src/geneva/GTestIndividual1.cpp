@@ -138,19 +138,15 @@ void GTestIndividual1::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const GTestIndividual1 *p_load = GObject::gobject_conversion<GTestIndividual1>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   GToken token("GTestIndividual1", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GParameterSet, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GParameterSet>(IDENTITY(*this, *p_load), token);
 
-      // ... no local data
+   // ... no local data
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GTestIndividual1");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /******************************************************************************/

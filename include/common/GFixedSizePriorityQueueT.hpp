@@ -198,7 +198,7 @@ public:
     * Searches for compliance with expectations with respect to another object
     * of the same type
     *
-    * @param cp A constant reference to another GObject object
+    * @param cp A constant reference to another GFixedSizePriorityQueueT object
     * @param e The expected outcome of the comparison
     * @param limit The maximum deviation for floating point values (important for similarity checks)
     */

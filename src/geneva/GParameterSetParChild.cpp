@@ -126,20 +126,16 @@ void GParameterSetParChild::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const GParameterSetParChild *p_load = GObject::gobject_conversion<GParameterSetParChild>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   GToken token("GParameterSetParChild", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GBaseParChildT<GParameterSet>, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GBaseParChildT<GParameterSet> >(IDENTITY(*this, *p_load), token);
 
-      // ... and then our local data
-      COMPARE(amalgamationLikelihood_, p_load->amalgamationLikelihood_, e, limit);
+   // ... and then the local data
+   compare_t(IDENTITY(amalgamationLikelihood_, p_load->amalgamationLikelihood_), token);
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GParameterSetParChild");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /******************************************************************************/
