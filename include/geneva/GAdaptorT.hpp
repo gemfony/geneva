@@ -603,7 +603,7 @@ public:
 	   }
 
 		if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case is indeterminate (means: "depends")
-			if(GObject::gr_ptr()->GRandomBase::uniform_01<double>() <= adProb_) { // Should we perform adaption
+			if(GObject::gr_ptr()->GRandomBase::template uniform_01<double>() <= adProb_) { // Should we perform adaption
 			   adaptAdaption(range);
 				customAdaptions(val, range);
 				adapted = true;
@@ -669,7 +669,7 @@ public:
 
       if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case is indeterminate (means: "depends")
          for (it = valVec.begin(); it != valVec.end(); ++it) {
-            if(GObject::gr_ptr()->GRandomBase::uniform_01<double>() <= adProb_) { // Should we perform adaption ?
+            if(GObject::gr_ptr()->GRandomBase::template uniform_01<double>() <= adProb_) { // Should we perform adaption ?
                adaptAdaption(range);
                customAdaptions(*it, range);
 
@@ -834,7 +834,7 @@ protected:
             customAdaptAdaption(range);
          }
       } else if(adaptAdaptionProbability_) { // Do the same with probability settings
-         if(GObject::gr_ptr()->GRandomBase::uniform_01<double>() <= adaptAdaptionProbability_) {
+         if(GObject::gr_ptr()->GRandomBase::template uniform_01<double>() <= adaptAdaptionProbability_) {
             customAdaptAdaption(range);
          }
       }
