@@ -134,20 +134,16 @@ void GDoubleSumConstraint::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const GDoubleSumConstraint *p_load = GObject::gobject_conversion<GDoubleSumConstraint>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   Gem::Common::GToken token("GDoubleSumConstraint", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GParameterSetConstraint, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GParameterSetConstraint>(IDENTITY(*this, *p_load), token);
 
-      // ... and then our local data
-      COMPARE(C_, p_load->C_, e, limit);
+   // ... and then the local data
+   Gem::Common::compare_t(IDENTITY(C_, p_load->C_), token);
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GDoubleSumConstraint");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /******************************************************************************/
@@ -303,20 +299,16 @@ void GDoubleSumGapConstraint::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const GDoubleSumGapConstraint *p_load = GObject::gobject_conversion<GDoubleSumGapConstraint>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   Gem::Common::GToken token("GDoubleSumGapConstraint", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GParameterSetConstraint, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GParameterSetConstraint>(IDENTITY(*this, *p_load), token);
 
-      // ... and then our local data
-      COMPARE(C_, p_load->C_, e, limit);
+   // ... and then the local data
+   Gem::Common::compare_t(IDENTITY(C_, p_load->C_), token);
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GDoubleSumGapConstraint");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /******************************************************************************/
@@ -465,26 +457,19 @@ void GSphereConstraint::compare(
    , const Gem::Common::expectation& e
    , const double& limit
 ) const {
-   using namespace Gem::Common;
-
    // Check that we are indeed dealing with a GBaseEA reference
    const GSphereConstraint *p_load = GObject::gobject_conversion<GSphereConstraint>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   Gem::Common::GToken token("GSphereConstraint", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GParameterSetConstraint, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GParameterSetConstraint>(IDENTITY(*this, *p_load), token);
 
-      // ... and then our local data
-      COMPARE(diameter_, p_load->diameter_, e, limit);
+   // ... and then the local data
+   Gem::Common::compare_t(IDENTITY(diameter_, p_load->diameter_), token);
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GSphereConstraint");
-      throw g;
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /******************************************************************************/
@@ -750,26 +735,19 @@ void GFunctionIndividual::compare(
    , const Gem::Common::expectation& e
    , const double& limit
 ) const {
-   using namespace Gem::Common;
-
    // Check that we are indeed dealing with a GBaseEA reference
    const GFunctionIndividual *p_load = GObject::gobject_conversion<GFunctionIndividual>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   Gem::Common::GToken token("GFunctionIndividual", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GParameterSet, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GParameterSet>(IDENTITY(*this, *p_load), token);
 
-      // ... and then our local data
-      COMPARE(demoFunction_, p_load->demoFunction_, e, limit);
+   // ... and then the local data
+   Gem::Common::compare_t(IDENTITY(demoFunction_, p_load->demoFunction_), token);
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GFunctionIndividual");
-      throw g;
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /******************************************************************************/

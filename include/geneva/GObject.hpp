@@ -830,7 +830,7 @@ void compare (
           (*x_it)->compare(**y_it,e,limit);
           foundInequality = true;
           break; // terminate the loop
-         } catch(g_expectation_violation& g) {
+         } catch(g_expectation_violation&) {
             // Go on with the next item in the vector -- the content is equal or similar
             continue;
          }

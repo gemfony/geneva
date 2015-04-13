@@ -165,25 +165,22 @@ void trainingSet::compare(
 ) const {
    using namespace Gem::Common;
 
-   try {
-      BEGIN_COMPARE;
+   Gem::Common::GToken token("trainingSet", e);
 
-      // check our local data
-      COMPARE(nInputNodes, cp.nInputNodes, e, limit);
-      COMPARE(nOutputNodes, cp.nOutputNodes, e, limit);
+   // Compare our local data
+   Gem::Common::compare_t(IDENTITY(nInputNodes, cp.nInputNodes), token);
+   Gem::Common::compare_t(IDENTITY(nOutputNodes, cp.nOutputNodes), token);
 
-      for(std::size_t i=0; i<nInputNodes; i++) {
-         COMPARE(Input[i], cp.Input[i], e, limit);
-      }
-
-      for(std::size_t i=0; i<nInputNodes; i++) {
-         COMPARE(Output[i], cp.Output[i], e, limit);
-      }
-
-      END_COMPARE;
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GLineFitIndividual");
+   for(std::size_t i=0; i<nInputNodes; i++) {
+      Gem::Common::compare_t(IDENTITY(Input[i], cp.Input[i]), token);
    }
+
+   for(std::size_t i=0; i<nInputNodes; i++) {
+      Gem::Common::compare_t(IDENTITY(Output[i], cp.Output[i]), token);
+   }
+
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /******************************************************************************/
@@ -317,21 +314,14 @@ void networkData::compare(
    , const Gem::Common::expectation& e
    , const double& limit
 ) const {
-   using namespace Gem::Common;
-   using namespace Gem::Geneva;
+   Gem::Common::GToken token("networkData", e);
 
-   try {
-      BEGIN_COMPARE;
+   // Compare our local data
+   Gem::Common::compare_t(IDENTITY(arraySize_, cp.arraySize_), token);
+   Gem::Common::compare_t(IDENTITY(this->data, cp.data), token);
 
-      // Check local data
-      COMPARE(arraySize_, cp.arraySize_, e, limit);
-      COMPARE(this->data, cp.data, e, limit);
-
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GLineFitIndividual");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /******************************************************************************/
@@ -812,20 +802,16 @@ void GNeuralNetworkIndividual::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const GNeuralNetworkIndividual *p_load = GObject::gobject_conversion<GNeuralNetworkIndividual>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   GToken token("GNeuralNetworkIndividual", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GParameterSet, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GParameterSet>(IDENTITY(*this, *p_load), token);
 
-      // ... and then our local data
-      COMPARE(tF_, p_load->tF_, e, limit);
+   // ... and then the local data
+   compare_t(IDENTITY(tF_, p_load->tF_), token);
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GNeuralNetworkIndividual");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /******************************************************************************/

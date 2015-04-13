@@ -258,7 +258,7 @@ public:
       GToken token("GConstrainedNumCollectionT<num_type>", e);
 
       // Compare our parent data ...
-      compare_base<GParameterCollectionT<num_type> >(IDENTITY(*this, *p_load), token);
+      Gem::Common::compare_base<GParameterCollectionT<num_type> >(IDENTITY(*this, *p_load), token);
 
       // ... and then the local data
       compare_t(IDENTITY(lowerBoundary_, p_load->lowerBoundary_), token);

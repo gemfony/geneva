@@ -219,7 +219,7 @@ public:
       GToken token("GIntGaussAdaptorT<int_type>", e);
 
       // Compare our parent data ...
-      compare_base<GNumGaussAdaptorT<int_type, double> >(IDENTITY(*this, *p_load), token);
+      Gem::Common::compare_base<GNumGaussAdaptorT<int_type, double> >(IDENTITY(*this, *p_load), token);
 
       // // ... no local data
 

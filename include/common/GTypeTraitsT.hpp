@@ -67,6 +67,8 @@
 namespace Gem {
 namespace Common {
 
+#ifndef _MSC_VER
+
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
@@ -81,6 +83,7 @@ class has_compare_member
     typedef char yes;
     typedef long no;
 
+    // TODO: Replace BOOST_TYPEOF with decltype when switch to C++11 is complete
     template <typename C> static yes test( BOOST_TYPEOF(&C::compare) ) ;
     template <typename C> static no  test(...);
 
@@ -91,6 +94,8 @@ public:
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
+
+#endif /* _MSC_VER */
 
 } /* namespace Common */
 } /* namespace Gem */

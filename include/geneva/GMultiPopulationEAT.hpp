@@ -197,7 +197,7 @@ public:
       GToken token("GMultiPopulationEAT<oa_type>", e);
 
       // Compare our parent data ...
-      compare_base<GBaseParChildT<oa_type> >(IDENTITY(*this, *p_load), token);
+      Gem::Common::compare_base<GBaseParChildT<oa_type> >(IDENTITY(*this, *p_load), token);
 
       // ... and then the local data
       compare_t(IDENTITY(smodeMP_,  p_load->smodeMP_), token);

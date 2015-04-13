@@ -1215,23 +1215,20 @@ void GBasePS::GPSOptimizationMonitor::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const GBasePS::GPSOptimizationMonitor *p_load = GObject::gobject_conversion<GBasePS::GPSOptimizationMonitor>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   GToken token("GBasePS::GPSOptimizationMonitor", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(IDENTITY(*this, *p_load), token);
 
-      // ... and then our local data
-      COMPARE(csvResultFile_, p_load->csvResultFile_, e, limit);
-      COMPARE(withNameAndType_, p_load->withNameAndType_, e, limit);
-      COMPARE(withCommas_, p_load->withCommas_, e, limit);
-      COMPARE(useRawFitness_, p_load->useRawFitness_, e, limit);
-      COMPARE(showValidity_, p_load->showValidity_, e, limit);
+   // ... and then the local data
+   compare_t(IDENTITY(csvResultFile_, p_load->csvResultFile_), token);
+   compare_t(IDENTITY(withNameAndType_, p_load->withNameAndType_), token);
+   compare_t(IDENTITY(withCommas_, p_load->withCommas_), token);
+   compare_t(IDENTITY(useRawFitness_, p_load->useRawFitness_), token);
+   compare_t(IDENTITY(showValidity_, p_load->showValidity_), token);
 
-      END_COMPARE;
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GBasePS::GPSOptimizationMonitor");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 

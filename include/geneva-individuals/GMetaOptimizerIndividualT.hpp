@@ -295,31 +295,25 @@ public:
       , const Gem::Common::expectation& e
       , const double& limit
    ) const OVERRIDE {
-      using namespace Gem::Common;
-
       // Check that we are indeed dealing with a GAdaptorT reference
       const GMetaOptimizerIndividualT<ind_type> *p_load
                = gobject_conversion<GMetaOptimizerIndividualT<ind_type> >(&cp);
 
-      try {
-         BEGIN_COMPARE;
+      Gem::Common::GToken token("GMetaOptimizerIndividualT<ind_type>", e);
 
-         // Check our parent class'es data ...
-         COMPARE_PARENT(Gem::Geneva::GParameterSet, cp, e, limit);
+      // Compare our parent data ...
+      Gem::Common::compare_base<Gem::Geneva::GParameterSet>(IDENTITY(*this, *p_load), token);
 
-         // ... and then our local data
-         COMPARE(nRunsPerOptimization_, p_load->nRunsPerOptimization_, e, limit);
-         COMPARE(fitnessTarget_, p_load->fitnessTarget_, e, limit);
-         COMPARE(iterationThreshold_, p_load->iterationThreshold_, e, limit);
-         COMPARE(moTarget_, p_load->moTarget_, e, limit);
-         COMPARE(subEA_config_, p_load->subEA_config_, e, limit);
-         COMPARE(subExecMode_, p_load->subExecMode_, e, limit);
+      // ... and then the local data
+      Gem::Common::compare_t(IDENTITY(nRunsPerOptimization_, p_load->nRunsPerOptimization_), token);
+      Gem::Common::compare_t(IDENTITY(fitnessTarget_, p_load->fitnessTarget_), token);
+      Gem::Common::compare_t(IDENTITY(iterationThreshold_, p_load->iterationThreshold_), token);
+      Gem::Common::compare_t(IDENTITY(moTarget_, p_load->moTarget_), token);
+      Gem::Common::compare_t(IDENTITY(subEA_config_, p_load->subEA_config_), token);
+      Gem::Common::compare_t(IDENTITY(subExecMode_, p_load->subExecMode_), token);
 
-         END_COMPARE;
-
-      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         throw g("g_expectation_violation caught by GMetaOptimizerIndividualT<ind_type>");
-      }
+      // React on deviations from the expectation
+      token.evaluate();
    }
 
    /***************************************************************************/

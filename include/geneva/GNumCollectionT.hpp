@@ -223,7 +223,7 @@ public:
       GToken token("GNumCollectionT<T>", e);
 
       // Compare our parent data ...
-      compare_base<GParameterCollectionT<T> >(IDENTITY(*this, *p_load), token);
+      Gem::Common::compare_base<GParameterCollectionT<T> >(IDENTITY(*this, *p_load), token);
 
       // ... and then the local data
       compare_t(IDENTITY(lowerInitBoundary_, p_load->lowerInitBoundary_), token);

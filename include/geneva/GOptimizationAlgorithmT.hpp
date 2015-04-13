@@ -385,7 +385,7 @@ public:
       GToken token("GOptimizationAlgorithmT<ind_type>", e);
 
       // Compare our parent data ...
-      compare_base<GMutableSetT<ind_type> >(IDENTITY(*this, *p_load), token);
+      Gem::Common::compare_base<GMutableSetT<ind_type> >(IDENTITY(*this, *p_load), token);
 
       // ... and then the local data
       compare_t(IDENTITY(iteration_, p_load->iteration_), token);
@@ -1979,20 +1979,15 @@ public:
 	       // Check that we are indeed dealing with a GAdaptorT reference
 	       const GOptimizationMonitorT *p_load = GObject::gobject_conversion<GOptimizationMonitorT>(&cp);
 
-	       try {
-	          BEGIN_COMPARE;
+	       GToken token("GOptimizationMonitorT", e);
 
-	          // Check our parent class'es data ...
-	          COMPARE_PARENT(GObject, cp, e, limit);
+	       // Compare our parent data ...
+	       Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
 
-	          // ... and then our local data
-	          COMPARE(quiet_, p_load->quiet_, e, limit);
+	       //... no local data
 
-	          END_COMPARE;
-
-	       } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-	          throw g("g_expectation_violation caught by GOptimizationMonitorT");
-	       }
+	       // React on deviations from the expectation
+	       token.evaluate();
 	    }
 
 	    /************************************************************************/

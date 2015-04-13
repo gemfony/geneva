@@ -206,7 +206,7 @@ public:
       GToken token("GFPNumCollectionT<fp_type>", e);
 
       // Compare our parent data ...
-      compare_base<GNumCollectionT<fp_type> >(IDENTITY(*this, *p_load), token);
+      Gem::Common::compare_base<GNumCollectionT<fp_type> >(IDENTITY(*this, *p_load), token);
 
       // ... no local data
 

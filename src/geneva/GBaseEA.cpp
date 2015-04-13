@@ -941,23 +941,19 @@ void GBaseEA::GEAOptimizationMonitor::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const GBaseEA::GEAOptimizationMonitor *p_load = GObject::gobject_conversion<GBaseEA::GEAOptimizationMonitor>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   GToken token("GBaseEA::GEAOptimizationMonitor", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT >(IDENTITY(*this, *p_load), token);
 
-      // ... and then our local data
-      COMPARE(xDim_, p_load->xDim_, e, limit);
-      COMPARE(yDim_, p_load->yDim_, e, limit);
-      COMPARE(nMonitorInds_, p_load->nMonitorInds_, e, limit);
-      COMPARE(resultFile_, p_load->resultFile_, e, limit);
+   // ... and then the local data
+   compare_t(IDENTITY(xDim_, p_load->xDim_), token);
+   compare_t(IDENTITY(yDim_, p_load->yDim_), token);
+   compare_t(IDENTITY(nMonitorInds_, p_load->nMonitorInds_), token);
+   compare_t(IDENTITY(resultFile_, p_load->resultFile_), token);
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GBaseEA::GEAOptimizationMonitor");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /******************************************************************************/

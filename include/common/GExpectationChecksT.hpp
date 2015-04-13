@@ -321,7 +321,9 @@ void compare(
    , const Gem::Common::expectation& e
    , const double& limit = 0.
    , typename boost::disable_if<boost::is_floating_point<basic_type> >::type* dummy1 = 0
-   , typename boost::disable_if<Gem::Common::has_compare_member<basic_type> >::type * dummy2 = 0
+#ifndef _MSC_VER // TODO: Replace BOOST_TYPEOF with decltype in header when switch to C++11 is complete
+   , typename boost::disable_if<typename Gem::Common::has_compare_member<basic_type> >::type * dummy2 = 0
+#endif
 ) {
    bool expectationMet = false;
    std::string expectation_str;
@@ -700,7 +702,9 @@ template <typename B>
 void compare_base(
    const identity<B>& data
    , GToken& token
-   , typename boost::enable_if<Gem::Common::has_compare_member<B> >::type * dummy = 0
+#ifndef _MSC_VER // TODO: Replace BOOST_TYPEOF with decltype in header when switch to C++11 is complete
+   , typename boost::enable_if<typename Gem::Common::has_compare_member<B> >::type * dummy = 0
+#endif
 ) {
    try {
       token.incrTestCounter();
@@ -718,54 +722,6 @@ void compare_base(
       << "Caught unknown exception" << std::endl
       << GEXCEPTION;
    }
-}
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * This define facilitates calls to the compare() function
- */
-//#define COMPARE(x,y,e,l) Gem::Common::compare((x),(y),std::string(#x),std::string(#y),(e),(l))
-
-#define BEGIN_COMPARE \
-std::size_t g_n_tests = 0; /* The total number of checks */ \
-std::size_t g_n_violations = 0; /* The total number of expectation violations */
-
-
-#define COMPARE(x,y,e,l) \
-g_n_tests++; \
-switch(e){ \
-case Gem::Common::CE_FP_SIMILARITY: \
-case Gem::Common::CE_EQUALITY: \
-{ \
-   Gem::Common::compare((x),(y),std::string(#x),std::string(#y),(e),(l)); \
-} \
-break; \
-\
-case Gem::Common::CE_INEQUALITY: \
-{ \
-   try{ \
-      Gem::Common::compare((x),(y),std::string(#x),std::string(#y),(e),(l)); \
-   } catch(const g_expectation_violation&) { \
-       g_n_violations++; \
-   } \
-} \
-break; \
-\
-default: \
-{ \
-   glogger \
-   << "Got invalid expectation " << e << std::endl \
-   << GEXCEPTION; \
-} \
-break; \
-};
-
-
-#define END_COMPARE \
-if(g_n_violations==g_n_tests) { \
-  throw(g_expectation_violation("All checks were equal despite the expectation CE_INEQUALITY !\n")); \
 }
 
 /******************************************************************************/

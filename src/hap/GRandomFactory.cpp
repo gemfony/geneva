@@ -96,7 +96,7 @@ std::size_t random_container::size() const {
 /**
  * Returns the current position
  */
-std::size_t random_container::random_container::getCurrentPosition() const {
+std::size_t random_container::getCurrentPosition() const {
    return current_pos_;
 }
 

@@ -196,7 +196,7 @@ public:
       GToken token("GParameterTCollectionT<T>", e);
 
       // Compare our parent data ...
-      compare_base<GParameterBase>(IDENTITY(*this, *p_load), token);
+      Gem::Common::compare_base<GParameterBase>(IDENTITY(*this, *p_load), token);
 
       // We treat GStdPtrVectorInterfaceT<T>::data as local data
       compare_t(IDENTITY(this->data, p_load->data), token);

@@ -193,37 +193,6 @@ public:
       return *this;
    }
 
-   /******************************************************************************/
-   /**
-    * Searches for compliance with expectations with respect to another object
-    * of the same type
-    *
-    * @param cp A constant reference to another GFixedSizePriorityQueueT object
-    * @param e The expected outcome of the comparison
-    * @param limit The maximum deviation for floating point values (important for similarity checks)
-    */
-   void compare(
-      const GFixedSizePriorityQueueT<T>& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-   ) const {
-      using namespace Gem::Common;
-
-      try {
-         BEGIN_COMPARE;
-
-         // Check our local data
-         COMPARE(this->data_, cp.data_, e, limit);
-         COMPARE(this->maxSize_, cp.maxSize_, e, limit);
-         COMPARE(this->higherIsBetter_, cp.higherIsBetter_, e, limit);
-
-         END_COMPARE;
-
-      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         throw g("g_expectation_violation caught by GBaseEA");
-      }
-   }
-
    /***************************************************************************/
    /**
     * Gives access to the best item without copying it

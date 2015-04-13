@@ -221,7 +221,7 @@ public:
       GToken token("GConstrainedNumCollectionT<fp_type>", e);
 
       // Compare our parent data ...
-      compare_base<GConstrainedNumCollectionT<fp_type> >(IDENTITY(*this, *p_load), token);
+      Gem::Common::compare_base<GConstrainedNumCollectionT<fp_type> >(IDENTITY(*this, *p_load), token);
 
       // ... no local data
 

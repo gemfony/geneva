@@ -214,7 +214,7 @@ public:
       GToken token("GBaseParChildT<ind_type>", e);
 
       // Compare our parent data ...
-      compare_base<GOptimizationAlgorithmT<ind_type> >(IDENTITY(*this, *p_load), token);
+      Gem::Common::compare_base<GOptimizationAlgorithmT<ind_type> >(IDENTITY(*this, *p_load), token);
 
       // ... and then the local data
       compare_t(IDENTITY(nParents_, p_load->nParents_), token);

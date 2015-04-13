@@ -251,7 +251,7 @@ public:
       GToken token("GParameterT<T>", e);
 
       // Compare our parent data ...
-      compare_base<GParameterBaseWithAdaptorsT<T> >(IDENTITY(*this, *p_load), token);
+      Gem::Common::compare_base<GParameterBaseWithAdaptorsT<T> >(IDENTITY(*this, *p_load), token);
 
       // ... and then the local data
       compare_t(IDENTITY(val_, p_load->val_), token);

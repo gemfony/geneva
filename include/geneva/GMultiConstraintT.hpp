@@ -170,7 +170,7 @@ public:
       GToken token("GPreEvaluationValidityCheckT<ind_type>", e);
 
       // Compare our parent data ...
-      compare_base<GObject>(IDENTITY(*this, *p_load), token);
+      Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
 
       // ... and then the local data
       compare_t(IDENTITY(allowNegative_, p_load->allowNegative_), token);

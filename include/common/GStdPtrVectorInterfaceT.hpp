@@ -209,20 +209,9 @@ public:
       , const Gem::Common::expectation& e
       , const double& limit
    ) const BASE {
-      using namespace Gem::Common;
-
-      try {
-         BEGIN_COMPARE;
-
-         // ... compare local data
-         COMPARE(this->data, cp.data, e, limit);
-
-         END_COMPARE;
-
-      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         g.add("g_expectation_violation caught by GStdPtrVectorInterfaceT<T>");
-         throw g;
-      }
+      Gem::Common::GToken token("GBaseEA::GEAOptimizationMonitor", e);
+      Gem::Common::compare_t(IDENTITY(this->data, cp.data), token);
+      token.evaluate();
    }
 
 	/***************************************************************************/

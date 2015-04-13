@@ -997,23 +997,18 @@ void GBaseGD::GGDOptimizationMonitor::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const GBaseGD::GGDOptimizationMonitor *p_load = GObject::gobject_conversion<GBaseGD::GGDOptimizationMonitor>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   GToken token("GBaseGD::GGDOptimizationMonitor", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(IDENTITY(*this, *p_load), token);
 
-      // ... and then our local data
-      COMPARE(xDim_, p_load->xDim_, e, limit);
-      COMPARE(yDim_, p_load->yDim_, e, limit);
-      COMPARE(resultFile_, p_load->resultFile_, e, limit);
+   // ... and then the local data
+   compare_t(IDENTITY(xDim_, p_load->xDim_), token);
+   compare_t(IDENTITY(yDim_, p_load->yDim_), token);
+   compare_t(IDENTITY(resultFile_, p_load->resultFile_), token);
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      g.add("g_expectation_violation caught by GBaseGD::GGDOptimizationMonitor");
-      throw g;
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /******************************************************************************/

@@ -230,7 +230,7 @@ public:
       GToken token("GConstrainedFPT<fp_type>", e);
 
       // Compare our parent data ...
-      compare_base<GConstrainedNumT<fp_type> >(IDENTITY(*this, *p_load), token);
+      Gem::Common::compare_base<GConstrainedNumT<fp_type> >(IDENTITY(*this, *p_load), token);
 
       // React on deviations from the expectation
       token.evaluate();

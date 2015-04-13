@@ -179,7 +179,7 @@ public:
       GToken token("GIntFlipAdaptorT<int_type>", e);
 
       // Compare our parent data ...
-      compare_base<GNumFlipAdaptorT<int_type> >(IDENTITY(*this, *p_load), token);
+      Gem::Common::compare_base<GNumFlipAdaptorT<int_type> >(IDENTITY(*this, *p_load), token);
 
       //... no local data
 

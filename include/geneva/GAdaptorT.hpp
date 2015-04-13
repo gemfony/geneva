@@ -270,7 +270,7 @@ public:
       GToken token("GAdaptorT<T>", e);
 
       // Compare our parent data ...
-      compare_base<GObject>(IDENTITY(*this, *p_load), token);
+      Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
 
       // ... and then the local data
       compare_t(IDENTITY(adaptionCounter_, p_load->adaptionCounter_), token);

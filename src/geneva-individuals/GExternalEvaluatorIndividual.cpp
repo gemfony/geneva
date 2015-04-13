@@ -134,30 +134,24 @@ void GExternalEvaluatorIndividual::compare(
    , const Gem::Common::expectation& e
    , const double& limit
 ) const {
-   using namespace Gem::Common;
-
    // Check that we are indeed dealing with a GBaseEA reference
    const GExternalEvaluatorIndividual *p_load = GObject::gobject_conversion<GExternalEvaluatorIndividual>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   Gem::Common::GToken token("GExternalEvaluatorIndividual", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(GParameterSet, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<GParameterSet>(IDENTITY(*this, *p_load), token);
 
-      // ... and then our local data
-      COMPARE(programName_, p_load->programName_, e, limit);
-      COMPARE(customOptions_, p_load->customOptions_, e, limit);
-      COMPARE(parameterFileBaseName_, p_load->parameterFileBaseName_, e, limit);
-      COMPARE(nResults_, p_load->nResults_, e, limit);
-      COMPARE(runID_, p_load->runID_, e, limit);
-      COMPARE(removeExecTemporaries_, p_load->removeExecTemporaries_, e, limit);
+   // ... and then the local data
+   Gem::Common::compare_t(IDENTITY(programName_, p_load->programName_), token);
+   Gem::Common::compare_t(IDENTITY(customOptions_, p_load->customOptions_), token);
+   Gem::Common::compare_t(IDENTITY(parameterFileBaseName_, p_load->parameterFileBaseName_), token);
+   Gem::Common::compare_t(IDENTITY(nResults_, p_load->nResults_), token);
+   Gem::Common::compare_t(IDENTITY(runID_, p_load->runID_), token);
+   Gem::Common::compare_t(IDENTITY(removeExecTemporaries_, p_load->removeExecTemporaries_), token);
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GExternalEvaluatorIndividual");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /******************************************************************************/

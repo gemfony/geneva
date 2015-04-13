@@ -209,20 +209,16 @@ void GStarterIndividual::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const GStarterIndividual *p_load = gobject_conversion<GStarterIndividual>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   Gem::Common::GToken token("GStarterIndividual", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(Gem::Geneva::GParameterSet, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<Gem::Geneva::GParameterSet>(IDENTITY(*this, *p_load), token);
 
-      // ... and then our local data
-      COMPARE(targetFunction_, p_load->targetFunction_, e, limit);
+   // ... and then the local data
+   Gem::Common::compare_t(IDENTITY(targetFunction_, p_load->targetFunction_), token);
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GDoubleSumConstraint");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /******************************************************************************/

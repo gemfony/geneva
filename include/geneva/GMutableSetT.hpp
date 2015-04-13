@@ -182,20 +182,16 @@ public:
       // Check that we are indeed dealing with a GAdaptorT reference
       const GMutableSetT<T> *p_load = GObject::gobject_conversion<GMutableSetT<T> >(&cp);
 
-      try {
-         BEGIN_COMPARE;
+      GToken token("GMutableSetT<T>", e);
 
-         // Check our parent class'es data ...
-         COMPARE_PARENT(GOptimizableEntity, cp, e, limit);
+      // Compare our parent data ...
+      Gem::Common::compare_base<GOptimizableEntity>(IDENTITY(*this, *p_load), token);
 
-         // We treat GStdPtrVectorInterfaceT<T>::data as local data
-         COMPARE(this->data, p_load->data, e, limit);
+      // ... and then the local data
+      compare_t(IDENTITY(this->data,  p_load->data), token);
 
-         END_COMPARE;
-
-      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         throw g("g_expectation_violation caught by GAdaptorT<T>");
-      }
+      // React on deviations from the expectation
+      token.evaluate();
    }
 
 	/***************************************************************************/

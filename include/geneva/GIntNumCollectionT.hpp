@@ -208,7 +208,7 @@ public:
       GToken token("GIntNumCollectionT<int_type>", e);
 
       // Compare our parent data ...
-      compare_base<GNumCollectionT<int_type> >(IDENTITY(*this, *p_load), token);
+      Gem::Common::compare_base<GNumCollectionT<int_type> >(IDENTITY(*this, *p_load), token);
 
       // ... no local data
 

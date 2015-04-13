@@ -193,6 +193,8 @@ std::string GToken::getExpectationStr() const {
          glogger
          << "In GToken::getExpectationStr(): Got invalid expectation " << e_ << std::endl
          << GEXCEPTION;
+
+         return std::string(); // make the compiler happy
       }
       break;
    }

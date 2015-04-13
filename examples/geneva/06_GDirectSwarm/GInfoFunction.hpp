@@ -210,36 +210,30 @@ public:
       , const Gem::Common::expectation& e
       , const double& limit
    ) const OVERRIDE {
-      using namespace Gem::Common;
-
       // Check that we are indeed dealing with a GAdaptorT reference
       const progressMonitor *p_load = GObject::gobject_conversion<progressMonitor >(&cp);
 
-      try {
-         BEGIN_COMPARE;
+      Gem::Common::GToken token("progressMonitor", e);
 
-         // Check our parent class'es data ...
-         COMPARE_PARENT(GBaseSwarm::GSwarmOptimizationMonitor, cp, e, limit);
+      // Compare our parent data ...
+      Gem::Common::compare_base<GBaseSwarm::GSwarmOptimizationMonitor>(IDENTITY(*this, *p_load), token);
 
-         // ... and then our local data
-         COMPARE(xDimProgress_, p_load->xDimProgress_, e, limit);
-         COMPARE(yDimProgress_, p_load->yDimProgress_, e, limit);
-         COMPARE(df_, p_load->df_, e, limit);
-         COMPARE(followProgress_, p_load->followProgress_, e, limit);
-         COMPARE(snapshotBaseName_, p_load->snapshotBaseName_, e, limit);
-         COMPARE(minX_, p_load->minX_, e, limit);
-         COMPARE(maxX_, p_load->maxX_, e, limit);
-         COMPARE(minY_, p_load->minY_, e, limit);
-         COMPARE(maxY_, p_load->maxY_, e, limit);
-         COMPARE(xDimProgress_, p_load->xDimProgress_, e, limit);
-         COMPARE(yDimProgress_, p_load->yDimProgress_, e, limit);
-         COMPARE(outputPath_, p_load->outputPath_, e, limit);
+      // ... and then the local data
+      Gem::Common::compare_t(IDENTITY(xDimProgress_, p_load->xDimProgress_), token);
+      Gem::Common::compare_t(IDENTITY(yDimProgress_, p_load->yDimProgress_), token);
+      Gem::Common::compare_t(IDENTITY(df_, p_load->df_), token);
+      Gem::Common::compare_t(IDENTITY(followProgress_, p_load->followProgress_), token);
+      Gem::Common::compare_t(IDENTITY(snapshotBaseName_, p_load->snapshotBaseName_), token);
+      Gem::Common::compare_t(IDENTITY(minX_, p_load->minX_), token);
+      Gem::Common::compare_t(IDENTITY(maxX_, p_load->maxX_), token);
+      Gem::Common::compare_t(IDENTITY(minY_, p_load->minY_), token);
+      Gem::Common::compare_t(IDENTITY(maxY_, p_load->maxY_), token);
+      Gem::Common::compare_t(IDENTITY(xDimProgress_, p_load->xDimProgress_), token);
+      Gem::Common::compare_t(IDENTITY(yDimProgress_, p_load->yDimProgress_), token);
+      Gem::Common::compare_t(IDENTITY(outputPath_, p_load->outputPath_), token);
 
-         END_COMPARE;
-
-      } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-         throw g("g_expectation_violation caught by GAdaptorT<T>");
-      }
+      // React on deviations from the expectation
+      token.evaluate();
    }
 
 	/*********************************************************************************************/

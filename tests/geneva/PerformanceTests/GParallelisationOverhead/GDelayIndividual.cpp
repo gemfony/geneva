@@ -130,20 +130,16 @@ void GDelayIndividual::compare(
    // Check that we are indeed dealing with a GBaseEA reference
    const GDelayIndividual *p_load = Gem::Geneva::GObject::gobject_conversion<GDelayIndividual>(&cp);
 
-   try {
-      BEGIN_COMPARE;
+   Gem::Common::GToken token("GDelayIndividual", e);
 
-      // Check our parent class'es data ...
-      COMPARE_PARENT(Gem::Geneva::GParameterSet, cp, e, limit);
+   // Compare our parent data ...
+   Gem::Common::compare_base<Gem::Geneva::GParameterSet>(IDENTITY(*this, *p_load), token);
 
-      // ... and then our local data
-      COMPARE(sleepTime_, p_load->sleepTime_, e, limit);
+   // ... and then the local data
+   Gem::Common::compare_t(IDENTITY(sleepTime_, p_load->sleepTime_), token);
 
-      END_COMPARE;
-
-   } catch(g_expectation_violation& g) { // Create a suitable stack-trace
-      throw g("g_expectation_violation caught by GDoubleSumConstraint");
-   }
+   // React on deviations from the expectation
+   token.evaluate();
 }
 
 /******************************************************************************/
