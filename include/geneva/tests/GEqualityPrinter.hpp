@@ -138,7 +138,7 @@ public:
 	   using namespace Gem::Common;
 
 	   try{
-	     x.Gem::Common::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::compare_base(
+	     x.Gem::Common::template GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::compare_base(
 	        y, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE
         );
 
@@ -199,7 +199,7 @@ public:
       using namespace Gem::Common;
 
       try{
-        x.Gem::Common::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::compare_base(
+        x.Gem::Common::template GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::compare_base(
            y, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE
         );
         return true;
@@ -261,7 +261,7 @@ public:
       using namespace Gem::Common;
 
       try {
-         x.Gem::Common::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::compare_base(
+         x.Gem::Common::template GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::compare_base(
             y, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE
          );
          return true;
