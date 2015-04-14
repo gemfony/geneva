@@ -382,7 +382,7 @@ public:
    G_API_INDIVIDUALS std::string getProgramName() const;
 
    /** @brief Sets any custom options that need to be passed to the external evaluation program */
-   G_API_INDIVIDUALSvoid setCustomOptions(const std::string);
+   G_API_INDIVIDUALS void setCustomOptions(const std::string);
    /** @brief Retrieves any custom options that need to be passed to the external evaluation program */
    G_API_INDIVIDUALS std::string getCustomOptions() const;
 

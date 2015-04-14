@@ -100,8 +100,9 @@ class GStarterIndividual : public GParameterSet
 
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int) {
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
-		   & BOOST_SERIALIZATION_NVP(targetFunction_);
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
+		& BOOST_SERIALIZATION_NVP(targetFunction_);
 	}
 
 	///////////////////////////////////////////////////////////////////////
@@ -135,7 +136,7 @@ public:
    bool operator!=(const GStarterIndividual& cp) const;
 
    /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
+   virtual void compare(
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types

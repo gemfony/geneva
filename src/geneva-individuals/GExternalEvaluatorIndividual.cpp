@@ -367,7 +367,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
       } catch (const std::exception& e) {
          glogger
          << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error reading " << resultFileName << std::endl
-         << "(No boost error information available)" << std::endl
+         << "with message " << e.what() << std::endl
          << GEXCEPTION;
       }
 
