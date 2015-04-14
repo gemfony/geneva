@@ -47,15 +47,18 @@
 
 // Boost headers go here
 #include <boost/cast.hpp>
-#include <boost/noncopyable.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/logic/tribool_io.hpp>
-#include <boost/utility/enable_if.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/mpl/has_xxx.hpp>
+#include <boost/noncopyable.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <boost/tuple/tuple_comparison.hpp>
+#include <boost/tuple/tuple_io.hpp>
+#include <boost/optional.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/typeof/typeof.hpp>
-#include <boost/mpl/has_xxx.hpp>
-#include <boost/optional.hpp>
-#include <boost/lexical_cast.hpp>
+#include <boost/utility/enable_if.hpp>
 
 #ifndef GEXPECTATIONCHECKST_HPP_
 #define GEXPECTATIONCHECKST_HPP_
