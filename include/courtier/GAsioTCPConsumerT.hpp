@@ -1367,7 +1367,7 @@ class GAsioTCPConsumerT
 
       // Set the number of threads in the pool
       if(listenerThreads_) {
-         gtp_.setNThreads(listenerThreads_);
+         gtp_.setNThreads(boost::numeric_cast<unsigned int>(listenerThreads_));
       }
 
       try {
