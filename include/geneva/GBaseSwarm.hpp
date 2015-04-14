@@ -176,7 +176,7 @@ public:
 	G_API_GENEVA updateRule getUpdateRule() const;
 
 	/** @brief Allows to specify the number of stalls as of which the algorithm switches to repulsive mode */
-	G_API_GENEVA void setRepulsionThreshold(boost::uint32_t&);
+	G_API_GENEVA void setRepulsionThreshold(boost::uint32_t);
 	/** @brief Allows to retrieve the number of stalls as of which the algorithm switches to repulsive mode */
 	G_API_GENEVA boost::uint32_t getRepulsionThreshold() const;
 

@@ -87,7 +87,7 @@ public:
 	 */
 	GParameterBaseWithAdaptorsT()
 		: GParameterBase()
-		, adaptor_(getDefaultAdaptor<T>())
+		, adaptor_(Gem::Geneva::getDefaultAdaptor<T>())
 	{ /* nothing */	}
 
 	/***************************************************************************/

@@ -260,7 +260,7 @@ void GRgb::setColor(boost::tuple<float, float, float> color) {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor -- intentionally private
+ * The default constructor
  */
 GColumn::GColumn()
 { /* nothing */ }
@@ -344,6 +344,21 @@ const GRgb& GColumn::operator[](const std::size_t& pos) const {
  */
 const GRgb& GColumn::at(const std::size_t& pos) const {
    return columnData_.at(pos);
+}
+
+/******************************************************************************/
+/**
+ * Initializes the object to a specific size
+ */
+void GColumn::init(
+   const std::size_t& sz
+   , boost::tuple<float,float,float> color
+) {
+   columnData_.clear();
+   columnData_.resize(sz);
+   for(std::size_t i=0; i<sz; i++) {
+      columnData_[i].setColor(color);
+   }
 }
 
 /******************************************************************************/

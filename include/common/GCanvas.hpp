@@ -237,10 +237,12 @@ class GColumn {
    ///////////////////////////////////////////////////////////////////////
 
 public:
+   /** @brief The default constructor */
+   G_API_COMMON GColumn();
    /** @brief Initialization with dimensions and colors */
    G_API_COMMON GColumn(
-         const std::size_t&
-         , boost::tuple<float,float,float>
+      const std::size_t&
+      , boost::tuple<float,float,float>
    );
    /** @brief Copy construction */
    G_API_COMMON GColumn(const GColumn&);
@@ -262,10 +264,13 @@ public:
    /** @brief Checked access */
    G_API_COMMON const GRgb& at(const std::size_t&) const;
 
-private:
-   /** @brief The default constructor -- intentionally private */
-   G_API_COMMON GColumn();
+   /** @brief Initializes the object to a specific size */
+   void init(
+      const std::size_t&
+      , boost::tuple<float,float,float>
+   );
 
+private:
    std::vector<GRgb> columnData_;  ///< Holds this column's pixels
 };
 

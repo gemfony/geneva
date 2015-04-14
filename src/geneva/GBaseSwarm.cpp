@@ -1529,7 +1529,7 @@ updateRule GBaseSwarm::getUpdateRule() const {
  *
  * @param repulsionThreshold The threshold as of which the algorithm switches to repulsive mode
  */
-void GBaseSwarm::setRepulsionThreshold(boost::uint32_t& repulsionThreshold) {
+void GBaseSwarm::setRepulsionThreshold(boost::uint32_t repulsionThreshold) {
    repulsionThreshold_ = repulsionThreshold;
 }
 
