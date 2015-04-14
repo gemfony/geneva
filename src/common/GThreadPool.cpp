@@ -174,7 +174,7 @@ void GThreadPool::setNThreads(unsigned int nThreads) {
  * Retrieves the current "true" number of threads being used in the pool
  */
 unsigned int GThreadPool::getNThreads() const {
-   return gtg_.size();
+   return boost::numeric_cast<unsigned int>(gtg_.size());
 }
 
 /******************************************************************************/
