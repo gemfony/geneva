@@ -97,52 +97,52 @@ class GLineFitIndividual
 
 public:
 	/** @brief The default constructor */
-	G_API_GENEVA GLineFitIndividual(const std::vector<boost::tuple<double, double> >&);
+	G_API_INDIVIDUALS GLineFitIndividual(const std::vector<boost::tuple<double, double> >&);
 	/** @brief The copy constructor */
-	G_API_GENEVA GLineFitIndividual(const GLineFitIndividual&);
+	G_API_INDIVIDUALS GLineFitIndividual(const GLineFitIndividual&);
 	/** @brief The standard destructor */
-	virtual G_API_GENEVA ~GLineFitIndividual();
+	virtual G_API_INDIVIDUALS ~GLineFitIndividual();
 
    /** @brief The standard assignment operator */
-   G_API_GENEVA const GLineFitIndividual& operator=(const GLineFitIndividual&);
+   G_API_INDIVIDUALS const GLineFitIndividual& operator=(const GLineFitIndividual&);
 
 	/** @brief Checks for equality with another GLineFitIndividual object */
-	G_API_GENEVA bool operator==(const GLineFitIndividual& cp) const;
+	G_API_INDIVIDUALS bool operator==(const GLineFitIndividual& cp) const;
 	/** @brief Checks for inequality with another GLineFitIndividual object */
-	G_API_GENEVA bool operator!=(const GLineFitIndividual& cp) const;
+	G_API_INDIVIDUALS bool operator!=(const GLineFitIndividual& cp) const;
 
    /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
+   virtual G_API_INDIVIDUALS void compare(
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
    ) const OVERRIDE;
 
 	/** @brief Retrieves the tuple (a,b) of the line represented by this object */
-	G_API_GENEVA boost::tuple<double, double> getLine() const;
+	G_API_INDIVIDUALS boost::tuple<double, double> getLine() const;
 
 protected:
 	/** @brief Loads the data of another GLineFitIndividual */
-	virtual G_API_GENEVA void load_(const GObject*);
+	virtual G_API_INDIVIDUALS void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GObject* clone_() const;
+	virtual G_API_INDIVIDUALS GObject* clone_() const;
 
 	/** @brief The actual fitness calculation takes place here. */
-	virtual G_API_GENEVA double fitnessCalculation() OVERRIDE;
+	virtual G_API_INDIVIDUALS double fitnessCalculation() OVERRIDE;
 
 private:
 	/** @brief The default constructor -- private, as it is only needed for (de-)serialization purposes */
-	G_API_GENEVA GLineFitIndividual();
+	G_API_INDIVIDUALS GLineFitIndividual();
 
 	std::vector<boost::tuple<double, double> > dataPoints_; ///< Holds the data points used for the fit procedure
 
 public:
 	/** @brief Applies modifications to this object. */
-	virtual G_API_GENEVA bool modify_GUnitTests();
+	virtual G_API_INDIVIDUALS bool modify_GUnitTests();
 	/** @brief Performs self tests that are expected to succeed. */
-	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests();
+	virtual G_API_INDIVIDUALS void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. */
-	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests();
+	virtual G_API_INDIVIDUALS void specificTestsFailuresExpected_GUnitTests();
 };
 
 /******************************************************************************/
@@ -156,24 +156,24 @@ class GLineFitIndividualFactory
 {
 public:
    /** @brief The standard constructor */
-   G_API_GENEVA GLineFitIndividualFactory(
+   G_API_INDIVIDUALS GLineFitIndividualFactory(
       const std::vector<boost::tuple<double, double> >&
       , const std::string&
    );
    /** @brief The destructor */
-   virtual G_API_GENEVA ~GLineFitIndividualFactory();
+   virtual G_API_INDIVIDUALS ~GLineFitIndividualFactory();
 
 protected:
    /** @brief Creates individuals of this type */
-   virtual G_API_GENEVA boost::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
+   virtual G_API_INDIVIDUALS boost::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
    /** @brief Allows to describe local configuration options in derived classes */
-   virtual G_API_GENEVA void describeLocalOptions_(Gem::Common::GParserBuilder&);
+   virtual G_API_INDIVIDUALS void describeLocalOptions_(Gem::Common::GParserBuilder&);
    /** @brief Allows to act on the configuration options received from the configuration file */
-   virtual G_API_GENEVA void postProcess_(boost::shared_ptr<GParameterSet>&);
+   virtual G_API_INDIVIDUALS void postProcess_(boost::shared_ptr<GParameterSet>&);
 
 private:
    /** @brief The default constructor. Intentionally private and undefined */
-   G_API_GENEVA GLineFitIndividualFactory();
+   GLineFitIndividualFactory();
 
    std::vector<boost::tuple<double, double> > dataPoints_; ///< Holds data points for the fit
 };

@@ -124,7 +124,7 @@ public:
 	G_API_INDIVIDUALS bool operator!=(const GTestIndividual2& cp) const;
 
    /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
+   virtual G_API_INDIVIDUALS void compare(
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types

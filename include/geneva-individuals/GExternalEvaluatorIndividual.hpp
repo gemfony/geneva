@@ -163,70 +163,70 @@ class GExternalEvaluatorIndividual :public GParameterSet
 	typedef GExternalEvaluatorIndividualFactory FACTORYTYPE;
 
    /** @brief The default constructor */
-   GExternalEvaluatorIndividual();
+	G_API_INDIVIDUALS GExternalEvaluatorIndividual();
 	/** @brief A standard copy constructor */
-	GExternalEvaluatorIndividual(const GExternalEvaluatorIndividual&);
+	G_API_INDIVIDUALS GExternalEvaluatorIndividual(const GExternalEvaluatorIndividual&);
 	/** @brief The standard destructor */
-	virtual ~GExternalEvaluatorIndividual();
+	virtual G_API_INDIVIDUALS ~GExternalEvaluatorIndividual();
 
 	/** @brief A standard assignment operator */
-	const GExternalEvaluatorIndividual& operator=(const GExternalEvaluatorIndividual&);
+	G_API_INDIVIDUALS const GExternalEvaluatorIndividual& operator=(const GExternalEvaluatorIndividual&);
 
 	/** @brief Checks for equality with another GExternalEvaluatorIndividual object */
-	bool operator==(const GExternalEvaluatorIndividual&) const;
+	G_API_INDIVIDUALS bool operator==(const GExternalEvaluatorIndividual&) const;
 	/** @brief Checks for inequality with another GExternalEvaluatorIndividual object */
-	bool operator!=(const GExternalEvaluatorIndividual&) const;
+	G_API_INDIVIDUALS bool operator!=(const GExternalEvaluatorIndividual&) const;
 
    /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
+   virtual G_API_INDIVIDUALS void compare(
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
    ) const OVERRIDE;
 
    /** @brief Sets the name of the external evaluation program */
-   void setProgramName(const std::string&);
+   G_API_INDIVIDUALS void setProgramName(const std::string&);
    /** @brief Retrieves the name of the external evaluation program */
-   std::string getProgramName() const;
+   G_API_INDIVIDUALS std::string getProgramName() const;
 
    /** @brief Sets any custom options that need to be passed to the external evaluation program */
-   void setCustomOptions(const std::string&);
+   G_API_INDIVIDUALS void setCustomOptions(const std::string&);
    /** @brief Retrieves any custom options that need to be passed to the external evaluation program */
-   std::string getCustomOptions() const;
+   G_API_INDIVIDUALS std::string getCustomOptions() const;
 
 	/** @brief Sets the base name of the data exchange file */
-	void setExchangeBaseName(const std::string&);
+   G_API_INDIVIDUALS void setExchangeBaseName(const std::string&);
 	/** @brief Retrieves the current value of the parameterFileBaseName_ variable */
-	std::string getExchangeBaseName() const;
+   G_API_INDIVIDUALS std::string getExchangeBaseName() const;
 
 	/** @brief Sets the number of results to be expected from the external evaluation program */
-	void setNExpectedResults(const std::size_t&);
+   G_API_INDIVIDUALS void setNExpectedResults(const std::size_t&);
 	/** @brief Retrieves the number of results to be expected from the external evaluation program */
-	std::size_t getNExpectedResults() const;
+   G_API_INDIVIDUALS std::size_t getNExpectedResults() const;
 
 	/** @brief Allows to set the data type of this individual */
-	void setDataType(std::string);
+   G_API_INDIVIDUALS void setDataType(std::string);
 	/** @brief Allows to retrieve the data type of this individual */
-	std::string getDataType() const;
+   G_API_INDIVIDUALS std::string getDataType() const;
 
 	/** @brief Allows to assign a run-id to this individual */
-	void setRunId(std::string);
+   G_API_INDIVIDUALS void setRunId(std::string);
 	/** @brief Allows to retrieve the run-id assigned to this individual */
-	std::string getRunId() const;
+   G_API_INDIVIDUALS std::string getRunId() const;
 
 	/** @brief Allows to specify whether temporary files should be removed */
-	void setRemoveExecTemporaries(bool);
+   G_API_INDIVIDUALS void setRemoveExecTemporaries(bool);
 	/** @brief Allows to check whether temporaries should be removed */
-	bool getRemoveExecTemporaries() const;
+   G_API_INDIVIDUALS bool getRemoveExecTemporaries() const;
 
  protected:
 	/** @brief Loads the data of another GExternalEvaluatorIndividual */
-	virtual void load_(const GObject*);
+	virtual G_API_INDIVIDUALS void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone_() const;
+	virtual G_API_INDIVIDUALS GObject* clone_() const;
 
 	/** @brief The actual fitness calculation takes place here */
-	virtual double fitnessCalculation();
+	virtual G_API_INDIVIDUALS double fitnessCalculation();
 
  private:
 	/***************************************************************************/
@@ -286,141 +286,141 @@ class GExternalEvaluatorIndividualFactory
 
 public:
    /** @brief The standard constructor */
-   GExternalEvaluatorIndividualFactory(const std::string&);
+   G_API_INDIVIDUALS GExternalEvaluatorIndividualFactory(const std::string&);
    /** @brief The copy constructor */
-   GExternalEvaluatorIndividualFactory(const GExternalEvaluatorIndividualFactory&);
+   G_API_INDIVIDUALS GExternalEvaluatorIndividualFactory(const GExternalEvaluatorIndividualFactory&);
    /** @brief The destructor */
-   virtual ~GExternalEvaluatorIndividualFactory();
+   virtual G_API_INDIVIDUALS ~GExternalEvaluatorIndividualFactory();
 
    /**************************************************************************/
    // Getters and setters
 
    /** @brief Allows to retrieve the adaptionThreshold_ variable */
-   boost::uint32_t getAdaptionThreshold() const;
+   G_API_INDIVIDUALS boost::uint32_t getAdaptionThreshold() const;
    /** @brief Set the value of the adaptionThreshold_ variable */
-   void setAdaptionThreshold(boost::uint32_t adaptionThreshold);
+   G_API_INDIVIDUALS void setAdaptionThreshold(boost::uint32_t adaptionThreshold);
 
    /** @brief Allows to retrieve the adProb_ variable */
-   double getAdProb() const;
+   G_API_INDIVIDUALS double getAdProb() const;
    /** @brief Set the value of the adProb_ variable */
-   void setAdProb(double adProb);
+   G_API_INDIVIDUALS void setAdProb(double adProb);
 
    /** @brief Allows to retrieve the rate of evolutionary adaption of adProb_ */
-   double getAdaptAdProb() const;
+   G_API_INDIVIDUALS double getAdaptAdProb() const;
    /** @brief Allows to specify an adaption factor for adProb_ (or 0, if you do not want this feature) */
-   void setAdaptAdProb(double adaptAdProb);
+   G_API_INDIVIDUALS void setAdaptAdProb(double adaptAdProb);
 
    /** @brief Allows to retrieve the allowed range for adProb_ variation */
-   boost::tuple<double,double> getAdProbRange() const;
+   G_API_INDIVIDUALS boost::tuple<double,double> getAdProbRange() const;
    /** @brief Allows to set the allowed range for adaption probability variation */
-   void setAdProbRange(double minAdProb, double maxAdProb);
+   G_API_INDIVIDUALS void setAdProbRange(double minAdProb, double maxAdProb);
 
    /** @brief Allows to retrieve the useBiGaussian_ variable */
-   bool getUseBiGaussian() const;
+   G_API_INDIVIDUALS bool getUseBiGaussian() const;
    /** @brief Set the value of the useBiGaussian_ variable */
-   void setUseBiGaussian(bool useBiGaussian);
+   G_API_INDIVIDUALS void setUseBiGaussian(bool useBiGaussian);
 
    /** @brief Allows to retrieve the delta_ variable */
-   double getDelta() const;
+   G_API_INDIVIDUALS double getDelta() const;
    /** @brief Set the value of the delta_ variable */
-   void setDelta(double delta);
+   G_API_INDIVIDUALS void setDelta(double delta);
    /** @brief Allows to retrieve the minDelta_ variable */
-   double getMinDelta() const;
+   G_API_INDIVIDUALS double getMinDelta() const;
    /** @brief Allows to retrieve the maxDelta_ variable */
-   double getMaxDelta() const;
+   G_API_INDIVIDUALS double getMaxDelta() const;
    /** @brief Allows to retrieve the allowed value range of delta */
-   boost::tuple<double, double> getDeltaRange() const;
+   G_API_INDIVIDUALS boost::tuple<double, double> getDeltaRange() const;
    /** @brief Allows to set the allowed value range of delta */
-   void setDeltaRange(boost::tuple<double, double>);
+   G_API_INDIVIDUALS void setDeltaRange(boost::tuple<double, double>);
 
    /** @brief Allows to retrieve the minSigma1_ variable */
-   double getMinSigma1() const;
+   G_API_INDIVIDUALS double getMinSigma1() const;
    /** @brief Allows to retrieve the maxSigma1_ variable */
-   double getMaxSigma1() const;
+   G_API_INDIVIDUALS double getMaxSigma1() const;
    /** @brief Allows to retrieve the allowed value range of sigma1_ */
-   boost::tuple<double, double> getSigma1Range() const;
+   G_API_INDIVIDUALS boost::tuple<double, double> getSigma1Range() const;
    /** @brief Allows to set the allowed value range of sigma1_ */
-   void setSigma1Range(boost::tuple<double, double>);
+   G_API_INDIVIDUALS void setSigma1Range(boost::tuple<double, double>);
 
    /** @brief Allows to retrieve the minSigma2_ variable */
-   double getMinSigma2() const;
+   G_API_INDIVIDUALS double getMinSigma2() const;
    /** @brief Allows to retrieve the maxSigma2_ variable */
-   double getMaxSigma2() const;
+   G_API_INDIVIDUALS double getMaxSigma2() const;
    /** @brief Allows to retrieve the allowed value range of sigma2_ */
-   boost::tuple<double, double> getSigma2Range() const;
+   G_API_INDIVIDUALS boost::tuple<double, double> getSigma2Range() const;
    /** @brief Allows to set the allowed value range of sigma2_ */
-   void setSigma2Range(boost::tuple<double, double>);
+   G_API_INDIVIDUALS void setSigma2Range(boost::tuple<double, double>);
 
    /** @brief Allows to retrieve the sigma1_ variable */
-   double getSigma1() const;
+   G_API_INDIVIDUALS double getSigma1() const;
    /** @brief Set the value of the sigma1_ variable */
-   void setSigma1(double sigma1);
+   G_API_INDIVIDUALS void setSigma1(double sigma1);
 
    /** @brief Allows to retrieve the sigma2_ variable */
-   double getSigma2() const;
+   G_API_INDIVIDUALS double getSigma2() const;
    /** @brief Set the value of the sigma2_ variable */
-   void setSigma2(double sigma2);
+   G_API_INDIVIDUALS void setSigma2(double sigma2);
 
    /** @brief Allows to retrieve the sigmaDelta_ variable */
-   double getSigmaDelta() const;
+   G_API_INDIVIDUALS double getSigmaDelta() const;
    /** @brief Set the value of the sigmaDelta_ variable */
-   void setSigmaDelta(double sigmaDelta);
+   G_API_INDIVIDUALS void setSigmaDelta(double sigmaDelta);
 
    /** @brief Allows to retrieve the sigmaSigma1_ variable */
-   double getSigmaSigma1() const;
+   G_API_INDIVIDUALS double getSigmaSigma1() const;
    /** @brief Set the value of the sigmaSigma1_ variable */
-   void setSigmaSigma1(double sigmaSigma1);
+   G_API_INDIVIDUALS void setSigmaSigma1(double sigmaSigma1);
 
    /** @brief Allows to retrieve the sigmaSigma2_ variable */
-   double getSigmaSigma2() const;
+   G_API_INDIVIDUALS double getSigmaSigma2() const;
    /** @brief Set the value of the sigmaSigma2_ variable */
-   void setSigmaSigma2(double sigmaSigma2);
+   G_API_INDIVIDUALS void setSigmaSigma2(double sigmaSigma2);
 
    /** @brief Allows to set the name and path of the external program */
-   void setProgramName(std::string);
+   G_API_INDIVIDUALS void setProgramName(std::string);
    /** @brief Allows to retrieve the name of the external program */
-   std::string getProgramName() const;
+   G_API_INDIVIDUALS std::string getProgramName() const;
 
    /** @brief Sets any custom options that need to be passed to the external evaluation program */
-   void setCustomOptions(const std::string);
+   G_API_INDIVIDUALSvoid setCustomOptions(const std::string);
    /** @brief Retrieves any custom options that need to be passed to the external evaluation program */
-   std::string getCustomOptions() const;
+   G_API_INDIVIDUALS std::string getCustomOptions() const;
 
    /** @brief Allows to set the base name of the parameter file */
-   void setParameterFileBaseName(std::string);
+   G_API_INDIVIDUALS void setParameterFileBaseName(std::string);
    /** @brief Allows to retrieve the base name of the parameter file */
-   std::string getParameterFileBaseName() const;
+   G_API_INDIVIDUALS std::string getParameterFileBaseName() const;
 
    /** @brief Indicates the initialization mode */
-   void setInitValues(std::string);
+   G_API_INDIVIDUALS void setInitValues(std::string);
    /** @brief Allows to retrieve the initialization mode */
-   std::string getInitValues() const;
+   G_API_INDIVIDUALS std::string getInitValues() const;
 
 
    /** @brief Allows to specify whether temporary files should be removed */
-   void setRemoveExecTemporaries(bool);
+   G_API_INDIVIDUALS void setRemoveExecTemporaries(bool);
    /** @brief Allows to check whether temporaries should be removed */
-   bool getRemoveExecTemporaries() const;
+   G_API_INDIVIDUALS bool getRemoveExecTemporaries() const;
 
    // End of public getters and setters
    /**************************************************************************/
 
    /** @brief Submit work items to the external executable for archiving */
-   void archive(const std::vector<boost::shared_ptr<GExternalEvaluatorIndividual> >& arch) const;
+   G_API_INDIVIDUALS void archive(const std::vector<boost::shared_ptr<GExternalEvaluatorIndividual> >& arch) const;
 
    /** @brief Loads the data of another GFunctionIndividualFactory object */
-   virtual void load(boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >);
+   virtual G_API_INDIVIDUALS void load(boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >);
    /** @brief Creates a deep clone of this object */
-   virtual boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > clone() const;
+   virtual G_API_INDIVIDUALS boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > clone() const;
 
 
 protected:
    /** @brief Creates individuals of this type */
-   virtual boost::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
+   virtual G_API_INDIVIDUALS boost::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
    /** @brief Allows to describe local configuration options in derived classes */
-   virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
+   virtual G_API_INDIVIDUALS void describeLocalOptions_(Gem::Common::GParserBuilder&);
    /** @brief Allows to act on the configuration options received from the configuration file */
-   virtual void postProcess_(boost::shared_ptr<GParameterSet>&);
+   virtual G_API_INDIVIDUALS void postProcess_(boost::shared_ptr<GParameterSet>&);
 
 private:
    /** @brief Sets up the boost property object holding information about the individual structure */
