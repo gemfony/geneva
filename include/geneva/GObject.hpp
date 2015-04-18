@@ -187,6 +187,16 @@ public:
       , const double& // the limit for allowed deviations of floating point types
 	) const BASE;
 
+   /** @brief Checks whether this object fulfills a given expectation in relation to another object */
+   virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
+      const GObject&
+      , const Gem::Common::expectation&
+      , const double&
+      , const std::string&
+      , const std::string&
+      , const bool&
+   ) const;
+
 	/** @brief Allows derived classes to assign other class'es values */
 	G_API_GENEVA const GObject& operator=(const GObject&);
 

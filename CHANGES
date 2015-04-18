@@ -25,14 +25,7 @@ The main changes for this release include:
 
 ****************************** INTERFACE CHANGES *******************************
 
- - The checkRelationshipWith-hierarchy was removed, in favour of a new
-   "compare()" API. This is used for unit tests in particular of indivuduals.
-   checkRelationshipWith() was optional in individuals, hence unless you 
-   use Genevas unit test infrastructure and you have written your own
-   checkRelationshipWith() for your individuals, the change will not affect 
-   you. Have a look at the example individuals for information on how to 
-   create a compare() function for your Individuals.
- - Geneva requires now the Boost::atomic component of Boost. You will
+ - Geneva now requires the Boost::atomic component of Boost. You will
    need to install this additional component if your Boost installation
    is not a complete one, for instance in the case of a system-provided
    Boost in some Linux distributions.
@@ -54,7 +47,13 @@ Important changes in the code (without API-changes):
    the corresponding objects do not usually need to be re-allocated anymore.
  - Random numbers are now distributed to parameter objects and adaptors
    via thread local storage.
- - Ported to Boost 1.58
+-  The checkRelationshipWith-hierarchy was removed, in favour of a new
+   "compare()" API. This is used for unit tests in particular of indivuduals.
+   GObject still contains a checkRelationshipWith function which in turn
+   calls compare, so that the change should not affect users.
+ - Ported to Boost 1.58. Please note that Boost 1.58 seems to have a
+   serialization-related bug, so that we do NOT currently recommend 
+   to use this Boost versiom.
 
 Recommended version of Boost: 1.57; Minimum Boost version: 1.53.
 
