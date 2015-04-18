@@ -23,7 +23,7 @@ Wishlist:
 
 The main changes for this release include:
 
-****************************** BREAKING CHANGES ********************************
+****************************** INTERFACE CHANGES *******************************
 
  - The checkRelationshipWith-hierarchy was removed, in favour of a new
    "compare()" API. This is used for unit tests in particular of indivuduals.
@@ -63,7 +63,7 @@ Recommended version of Boost: 1.57; Minimum Boost version: 1.53.
 
 The main changes for this release include:
 
-****************************** BREAKING CHANGES ********************************
+****************************** INTERFACE CHANGES *******************************
 
  - Geneva now explicitely requires the Boost::unit_test_framework and the
    Boost::random components of Boost, as these are required at link time.
@@ -103,7 +103,7 @@ The main changes for this release include:
 
 The main changes for this release include:
 
-****************************** BREAKING CHANGES ********************************
+****************************** INTERFACE CHANGES *******************************
 
  - The method addConfigurationOptions() has lost the (unnecessary)
    "showOrigin" parameter.
@@ -141,7 +141,7 @@ The main changes for this release include:
 
 The main changes for this release include:
 
-****************************** BREAKING CHANGES ********************************
+****************************** INTERFACE CHANGES *******************************
 
  - Constraint objects now use a new nomenclature to flag valid and invalid
    checks. Values > 1 are considered to be "invalid" as before. Values < 0
@@ -202,7 +202,7 @@ Recommended version of Boost: 1.55; Minimum Boost version: 1.48.
 
 The main changes for this release include:
 
-****************************** BREAKING CHANGES ********************************
+****************************** INTERFACE CHANGES *******************************
 
  - Sigma values of gauss adaption are now relative to the allowed or
    preferred value range of a parameter type. Values are given as a

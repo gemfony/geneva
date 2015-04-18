@@ -41,6 +41,7 @@
 // Boost header files go here
 #include <boost/limits.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
+#include <boost/serialization/split_member.hpp>
 
 #ifndef GOPTIMIZABLEENTITY_HPP_
 #define GOPTIMIZABLEENTITY_HPP_
@@ -92,12 +93,18 @@ class GOptimizableEntity
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int){
+	void serialize(Archive & ar, const unsigned int version){
 	  using boost::serialization::make_nvp;
+
+	  // Some preparation needed if this is a load operation.
+	  // This is needed to work around a problem in Boost 1.58
+	  if(Archive::is_loading::value) {
+	     currentFitnessVec_.clear();
+	     worstKnownValids_.clear();
+	  }
 
 	  ar
 	  & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-	  & BOOST_SERIALIZATION_NVP(currentFitnessVec_)
 	  & BOOST_SERIALIZATION_NVP(nFitnessCriteria_)
 	  & BOOST_SERIALIZATION_NVP(bestPastPrimaryFitness_)
 	  & BOOST_SERIALIZATION_NVP(nStalls_)
@@ -110,13 +117,15 @@ class GOptimizableEntity
 	  & BOOST_SERIALIZATION_NVP(individualConstraint_)
 	  & BOOST_SERIALIZATION_NVP(steepness_)
 	  & BOOST_SERIALIZATION_NVP(barrier_)
-	  & BOOST_SERIALIZATION_NVP(worstKnownValids_)
 	  & BOOST_SERIALIZATION_NVP(markedAsInvalidByUser_)
 	  & BOOST_SERIALIZATION_NVP(maxUnsuccessfulAdaptions_)
 	  & BOOST_SERIALIZATION_NVP(maxRetriesUntilValid_)
 	  & BOOST_SERIALIZATION_NVP(nAdaptions_)
-	  & BOOST_SERIALIZATION_NVP(evaluationID_);
+	  & BOOST_SERIALIZATION_NVP(evaluationID_)
+	  & BOOST_SERIALIZATION_NVP(currentFitnessVec_)
+     & BOOST_SERIALIZATION_NVP(worstKnownValids_);
 	}
+
 	///////////////////////////////////////////////////////////////////////
 
 public:

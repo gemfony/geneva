@@ -297,7 +297,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		for(std::size_t i=0; i<nTests; i++) {
 			BOOST_CHECK_NO_THROW(p_test->adapt());
 			BOOST_CHECK(*p_test != *p_test_old);
-			BOOST_CHECK_NO_THROW(p_test_old->load(p_test));
+			BOOST_CHECK_NO_THROW(p_test_old->GObject::load(p_test));
 		}
 	}
 

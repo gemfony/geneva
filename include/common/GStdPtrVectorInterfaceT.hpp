@@ -49,6 +49,8 @@
 #include <boost/bind.hpp>
 #include <boost/optional.hpp>
 #include <boost/iterator/iterator_facade.hpp>
+#include <boost/mpl/assert.hpp>
+#include <boost/type_traits.hpp>
 
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
@@ -94,7 +96,7 @@ namespace Common {
  * add default-constructed T() objects, if the requested size is larger than
  * the current one.
  */
-template <typename T>
+template <typename T, typename B> // B stands for "base type"
 class GStdPtrVectorInterfaceT
 {
     ///////////////////////////////////////////////////////////////////////
@@ -104,10 +106,19 @@ class GStdPtrVectorInterfaceT
     void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
 
+      // Some preparation needed if this is a load operation.
+      // This is needed to work around a problem in Boost 1.58
+      if(Archive::is_loading::value) {
+         data.clear();
+      }
+
       ar
       & BOOST_SERIALIZATION_NVP(data);
     }
     ///////////////////////////////////////////////////////////////////////
+
+    // Make sure B is a base class of T
+    BOOST_MPL_ASSERT((boost::is_base_of<B, T>));
 
 public:
    /***************************************************************************/
@@ -123,7 +134,7 @@ public:
 	 *
 	 * @param cp A constant reference to another GStdPtrVectorInterfaceT object
 	 */
-    GStdPtrVectorInterfaceT(const GStdPtrVectorInterfaceT<T>& cp) {
+    GStdPtrVectorInterfaceT(const GStdPtrVectorInterfaceT<T, B>& cp) {
 		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
 		for(cp_it=cp.data.begin(); cp_it!=cp.data.end(); ++cp_it) {
 			data.push_back((*cp_it)->T::template clone<T>());
@@ -143,10 +154,10 @@ public:
 	/**
 	 * Assginment operator
 	 *
-	 * @param cp A copy of another GStdPtrVectorInterfaceT<T> object
+	 * @param cp A copy of another GStdPtrVectorInterfaceT<T, B> object
 	 * @return The argument of this function
 	 */
-	const GStdPtrVectorInterfaceT<T>& operator=(const GStdPtrVectorInterfaceT<T>& cp) {
+	const GStdPtrVectorInterfaceT<T, B>& operator=(const GStdPtrVectorInterfaceT<T, B>& cp) {
 		this->operator=(cp.data);
 		return cp;
 	}
@@ -168,13 +179,13 @@ public:
 
 		if(cpSize == localSize) { // The most likely case
 			for(it=data.begin(), cp_it=cp.begin(); it!=data.end(); ++it, ++cp_it) {
-				(*it)->T::load(*cp_it);
+				(*it)->B::load(*cp_it);
 			}
 		}
 		else if(cpSize > localSize) {
 			// First copy the initial elements
 			for(it=data.begin(), cp_it=cp.begin(); it!=data.end(); ++it, ++cp_it) {
-				(*it)->T::load(*cp_it);
+				(*it)->B::load(*cp_it);
 			}
 
 			// Then attach the remaining objects from cp
@@ -188,7 +199,7 @@ public:
 
 			// Then copy the elements
 			for(it=data.begin(), cp_it=cp.begin(); it!=data.end(); ++it, ++cp_it) {
-				(*it)->T::load(*cp_it);
+				(*it)->B::load(*cp_it);
 			}
 		}
 
@@ -205,7 +216,7 @@ public:
     * @param limit The maximum deviation for floating point values (important for similarity checks)
     */
    virtual void compare_base(
-      const GStdPtrVectorInterfaceT<T>& cp
+      const GStdPtrVectorInterfaceT<T, B>& cp
       , const Gem::Common::expectation& e
       , const double& limit
    ) const BASE {
@@ -722,10 +733,10 @@ public:
 	 * Performs a cross-over operation at a given position. Note: We do not require
 	 * the two vectors to be of the same size
 	 *
-	 * @param cp A copy of another GStdPtrVectorInterfaceT<T> object
+	 * @param cp A copy of another GStdPtrVectorInterfaceT<T, B> object
 	 * @param pos The position as of which the cross-over should be performed
 	 */
-	void crossOver(GStdPtrVectorInterfaceT<T>& cp, const std::size_t& pos) {
+	void crossOver(GStdPtrVectorInterfaceT<T, B>& cp, const std::size_t& pos) {
 		// Find out the minimum size of both vectors
 		std::size_t minSize = (std::min)(this->size(), cp.size());
 
@@ -963,9 +974,9 @@ protected:
 private:
 	/***************************************************************************/
 	/** @brief Intentionally left undefined */
-	bool operator==(const GStdPtrVectorInterfaceT<T>&) const;
+	bool operator==(const GStdPtrVectorInterfaceT<T, B>&) const;
 	/** @brief Intentionally left undefined */
-	bool operator!=(const GStdPtrVectorInterfaceT<T>&) const;
+	bool operator!=(const GStdPtrVectorInterfaceT<T, B>&) const;
 	/** @brief Intentionally left undefined */
 	bool operator==(const std::vector<boost::shared_ptr<T> >&) const;
 	/** @brief Intentionally left undefined */
@@ -992,10 +1003,10 @@ public:
  */
 namespace boost {
   namespace serialization {
-    template<typename T>
-    struct is_abstract<Gem::Common::GStdPtrVectorInterfaceT<T> > : public boost::true_type {};
-    template<typename T>
-    struct is_abstract< const Gem::Common::GStdPtrVectorInterfaceT<T> > : public boost::true_type {};
+    template<typename T, typename B>
+    struct is_abstract<Gem::Common::GStdPtrVectorInterfaceT<T, B> > : public boost::true_type {};
+    template<typename T, typename B>
+    struct is_abstract< const Gem::Common::GStdPtrVectorInterfaceT<T, B> > : public boost::true_type {};
   }
 }
 

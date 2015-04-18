@@ -1203,7 +1203,7 @@ boost::tuple<double, double> GBaseSwarm::findBests() {
 			      , neighborhood_bests_.at(n)->transformedFitness()
             )
 			) {
-				(neighborhood_bests_.at(n))->load(*(this->begin() + firstCounter));
+				(neighborhood_bests_.at(n))->GObject::load(*(this->begin() + firstCounter));
 			}
 		}
 	}
@@ -1222,7 +1222,7 @@ boost::tuple<double, double> GBaseSwarm::findBests() {
 		global_best_= (neighborhood_bests_.at(bestLocalId))->clone<GParameterSet>();
 	} else {
 		if(this->isBetter(boost::get<G_TRANSFORMED_FITNESS>(bestLocalFitness), global_best_->transformedFitness())) {
-			global_best_->load(neighborhood_bests_.at(bestLocalId));
+			global_best_->GObject::load(neighborhood_bests_.at(bestLocalId));
 		}
 	}
 

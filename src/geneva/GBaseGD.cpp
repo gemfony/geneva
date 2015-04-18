@@ -485,7 +485,7 @@ void GBaseGD::updateChildParameters() {
 			std::size_t childPos = nStartingPoints_ + i*nFPParmsFirst_ + j;
 
 			// Load the current "parent" into the "child"
-			this->at(childPos)->load(this->at(i));
+			this->at(childPos)->GObject::load(this->at(i));
 
 			// Update the child's position in the population
 			this->at(childPos)->getPersonalityTraits<GGDPersonalityTraits>()->setPopulationPosition(childPos);

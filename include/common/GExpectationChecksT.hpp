@@ -439,24 +439,6 @@ void compare(
 
 /******************************************************************************/
 /**
- * Comparison and transformation. This may be used to initiate the comparision of
- * parent classes.
- */
-template <typename basic_type, typename target_type>
-void compare(
-   const std::vector<basic_type>& x
-   , const std::vector<basic_type>& y
-   , const std::string& x_name
-   , const std::string& y_name
-   , const Gem::Common::expectation& e
-   , const double& limit = 0.
-   , typename boost::disable_if<boost::is_floating_point<basic_type> >::type* dummy = 0
-) {
-
-}
-
-/******************************************************************************/
-/**
  * This function checks whether two containers of "basic" types meet a given expectation. It assumes that
  * these types understand the == and != operators. If they do not fulfill this requirement, you need to provide
  * a specialization of this function. A check for similarity is treated the same as a check for equality.
@@ -519,7 +501,7 @@ void compare(
          if(x.size() != y.size()) {
             error
             << "Sizes of vectors differ:" << std::endl
-            << "x_name.size() = " << x.size() << " / " << "y_name.size() = " << y.size() << std::endl;
+            << x_name << ".size() == " << x.size() << " / " << y_name << ".size() == " << y.size() << std::endl;
          } else { // Some data member differs
             // Find out about the first entry that differs
             typename std::vector<basic_type>::const_iterator x_it, y_it;

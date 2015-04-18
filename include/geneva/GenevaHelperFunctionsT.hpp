@@ -79,7 +79,7 @@ void copyGenevaSmartPointer (
 		if(!to) {
 			to = from->GObject::template clone<T>();
 		} else {
-			to->load(from);
+			to->GObject::load(from);
 		}
 	}
 }

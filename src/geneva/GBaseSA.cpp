@@ -259,11 +259,11 @@ void GBaseSA::sortSAMode() {
    for(std::size_t np=0; np<nParents_; np++) {
       double pPass = saProb(this->at(np)->minOnly_fitness(), this->at(nParents_+np)->minOnly_fitness());
       if(pPass >= 1.) {
-         this->at(np)->load(this->at(nParents_+np));
+         this->at(np)->GObject::load(this->at(nParents_+np));
       } else {
          double challenge = gr.uniform_01<double>();
          if(challenge < pPass) {
-            this->at(np)->load(this->at(nParents_+np));
+            this->at(np)->GObject::load(this->at(nParents_+np));
          }
       }
    }
