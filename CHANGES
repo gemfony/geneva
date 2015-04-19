@@ -2,6 +2,9 @@
 * Development version 1.7, to be released as version 2.0 when ready
 
 Wishlist:
+
+Feature- and API-additions:
+
  - Drop C++98 support, and switch to rely on some features from the
    C++11 standard. 
  - A scripting interface to optimization algorithms, so that new
@@ -13,17 +16,23 @@ Wishlist:
    Conjugate Gradient).
  - Variable length parents and best individuals in evolutionary algorithms
    to better support pareto optimization.
- - Automatic recreation and distribution of relevant configuration files.
- - Make value ranges of parameter objects always closed, even for fp.
- - Rework of the test infrastructure.
- - Full integration of -fsanitize=X.
  - A simple interface to influence the process of optimization (in particular
    checkpointing, termination and continuation of the program as well as 
    extraction of the current best solutions as a result of user-demands. 
 
+API-compatible changes:
+
+ - Make value ranges of parameter objects always closed, even for fp.
+ - Automatic recreation and distribution of relevant configuration files.
+ - Full integration of -fsanitize=X.
+ - Rework of the test infrastructure.
+
+//------------------------------------------------------------------------------------------------------
+* Version 1.6.1, "Ivrea - Via Arduino" - April 20, 2015
+
 The main changes for this release include:
 
-****************************** INTERFACE CHANGES *******************************
+****************************** BREAKING CHANGES ********************************
 
  - Geneva now requires the Boost::atomic component of Boost. You will
    need to install this additional component if your Boost installation
@@ -33,11 +42,9 @@ The main changes for this release include:
 
 ********************************************************************************
 
-Feature- and API-additions:
+API-compatible changes:
 
-Important changes in the code (without API-changes):
-
- - Rework of the GThreadPool class -- threads are now started upon the
+ - Rework of the GThreadPool class: threads are now started upon the
    first task submission, so default-constructed (unused) pools do not
    start a plethora of idle threads. The pool may now be resized while
    threads are already running.
@@ -48,12 +55,12 @@ Important changes in the code (without API-changes):
  - Random numbers are now distributed to parameter objects and adaptors
    via thread local storage.
 -  The checkRelationshipWith-hierarchy was removed, in favour of a new
-   "compare()" API. This is used for unit tests in particular of indivuduals.
-   GObject still contains a checkRelationshipWith function which in turn
-   calls compare, so that the change should not affect users.
+   'compare()' API. This is used for unit tests, in particular of
+   indivuduals. GObject still contains a 'checkRelationshipWith()' function
+   which in turn calls compare, so that the change should not affect users.
  - Ported to Boost 1.58. Please note that Boost 1.58 seems to have a
-   serialization-related bug, so that we do NOT currently recommend 
-   to use this Boost versiom.
+   serialization-related bug, so that we currently do NOT recommend to
+   use this Boost version.
 
 Recommended version of Boost: 1.57; Minimum Boost version: 1.53.
 
@@ -62,7 +69,7 @@ Recommended version of Boost: 1.57; Minimum Boost version: 1.53.
 
 The main changes for this release include:
 
-****************************** INTERFACE CHANGES *******************************
+****************************** BREAKING CHANGES ********************************
 
  - Geneva now explicitely requires the Boost::unit_test_framework and the
    Boost::random components of Boost, as these are required at link time.
@@ -102,7 +109,7 @@ The main changes for this release include:
 
 The main changes for this release include:
 
-****************************** INTERFACE CHANGES *******************************
+****************************** BREAKING CHANGES ********************************
 
  - The method addConfigurationOptions() has lost the (unnecessary)
    "showOrigin" parameter.
@@ -140,7 +147,7 @@ The main changes for this release include:
 
 The main changes for this release include:
 
-****************************** INTERFACE CHANGES *******************************
+****************************** BREAKING CHANGES ********************************
 
  - Constraint objects now use a new nomenclature to flag valid and invalid
    checks. Values > 1 are considered to be "invalid" as before. Values < 0
@@ -201,7 +208,7 @@ Recommended version of Boost: 1.55; Minimum Boost version: 1.48.
 
 The main changes for this release include:
 
-****************************** INTERFACE CHANGES *******************************
+****************************** BREAKING CHANGES ********************************
 
  - Sigma values of gauss adaption are now relative to the allowed or
    preferred value range of a parameter type. Values are given as a
