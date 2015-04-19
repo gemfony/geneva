@@ -32,7 +32,7 @@ API-compatible changes:
 
 The main changes for this release include:
 
-****************************** BREAKING CHANGES ********************************
+*********************** BACKWARD INCOMPATIBLE CHANGES **************************
 
  - Geneva now requires the Boost::atomic component of Boost. You will
    need to install this additional component if your Boost installation
