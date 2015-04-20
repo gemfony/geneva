@@ -52,7 +52,7 @@ The main changes for this release include:
    the corresponding objects do not usually need to be re-allocated anymore.
  - Random numbers are now distributed to parameter objects and adaptors
    via thread local storage.
--  The checkRelationshipWith-hierarchy was removed, in favour of a new
+ - The checkRelationshipWith-hierarchy was removed, in favour of a new
    'compare()' API. This is used for unit tests, in particular of
    indivuduals. GObject still contains a 'checkRelationshipWith()' function
    which in turn calls compare, so that the change should not affect users.
