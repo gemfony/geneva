@@ -49,7 +49,7 @@ A: Yes.
 
 Q: Ummmh -- so if there are bugs, why don't you fix them ?
 A: We have done our best to check the Geneva library for all kinds of possible problems.
-   Particularly, there is a comprehensive unit test framework for the core optimization
+   Particularly, there is a comprehensive unit test framework for the core 
    libraries. So the actual number of bugs should be quite low. However, we cannot test
    Geneva under all possible circumstances. This is where, in the best tradition of Open
    Source software, we rely on YOU to report the problems you have encountered. Also note
@@ -123,11 +123,11 @@ A: The following variables are available for deeper control of some aspects of t
      GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
         Enables the generation and output of benchmarking information by
         common/GBoundedBufferT.hpp . Mostly to be used in code tests, not for general
-        consumption.
+        consumption. Do NOT use this for normal optmization.
 
      GEM_COMMON_PRINT_COMMANDLINE
         Enables the printing of the command line for debugging purposes when executing
-        external commands.
+        external commands (--> GExternalEvaluatorIndividual)
 
      GEM_HAP_USE_BOXMULLERPOLAR
         Use the polar method to produce Gaussian-distributed random numbers, which
