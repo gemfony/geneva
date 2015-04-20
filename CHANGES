@@ -32,7 +32,7 @@ API-compatible changes:
 
 The main changes for this release include:
 
-*********************** BACKWARD INCOMPATIBLE CHANGES **************************
+******************************* PLEASE NOTE ************************************
 
  - Geneva now requires the Boost::atomic component of Boost. You will
    need to install this additional component if your Boost installation
@@ -41,8 +41,6 @@ The main changes for this release include:
  - The minimal BOOST version required for compiling Geneva is now v1.53.
 
 ********************************************************************************
-
-API-compatible changes:
 
  - Rework of the GThreadPool class: threads are now started upon the
    first task submission, so default-constructed (unused) pools do not
