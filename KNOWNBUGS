@@ -5,8 +5,8 @@ Add new bugs here ...
 
 --
 
-Boost versions 1.56 and 1.57 seem to have an issue which breaks Geneva compilation:
-this issue has still not been investigated (nor solved)... Please use the recommended
-Boost version 1.55 at the moment.
+Boost version 1.58 seems to have a serialization-related bug, which was
+"worked-around" in Geneva but some consequences might remain.
+Please use the recommended Boost version 1.57 at the moment.
 
 --
