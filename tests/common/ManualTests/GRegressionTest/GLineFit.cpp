@@ -39,17 +39,6 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * Compares two data points for their x location
- */
-bool xPointCompare::operator()(
-   const boost::tuple<double,double>& a
-   , const boost::tuple<double,double>& b
-) {
-   return boost::get<0>(a) < boost::get<1>(b);
-}
-
-/******************************************************************************/
-/**
  * This function takes a vector of x-y coordinates and calculates the straight
  * line that best fits the measurements. It does so using the least-square method.
  *
@@ -80,7 +69,13 @@ boost::tuple<double, double> gLineFit(const std::vector<boost::tuple<double, dou
    ea_ptr->push_back(p);
 
    // Make sure the points vector are sorted according to their x-values
-   std::sort(points.begin(), points.end(), xPointCompare());
+   std::sort(
+      points.begin()
+      , points.end()
+      , [](const boost::tuple<double,double>& a, const boost::tuple<double,double>& b) -> bool {
+         return boost::get<0>(a) < boost::get<1>(b);
+      }
+   );
 
    // Calculate a line from the first and last points in the points-vector
    double deltaX = boost::get<0>(points.back()) - boost::get<0>(points.front());
