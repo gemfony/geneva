@@ -89,7 +89,7 @@ Go2::Go2()
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
-	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_));
+	boost::call_once(f_go2, std::bind(setRNFParameters, nProducerThreads_));
 }
 
 

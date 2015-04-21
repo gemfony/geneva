@@ -36,6 +36,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <functional>
 
 // Boost header files go here
 #include <boost/algorithm/string.hpp>
