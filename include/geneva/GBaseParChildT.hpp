@@ -1048,10 +1048,12 @@ protected:
 
       // Only partially sort the arrays
       std::partial_sort(
-            GOptimizationAlgorithmT<ind_type>::data.begin()
-            , GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_
-            , GOptimizationAlgorithmT<ind_type>::data.end()
-            , boost::bind(&ind_type::minOnly_fitness, _1) < boost::bind(&ind_type::minOnly_fitness, _2)
+         GOptimizationAlgorithmT<ind_type>::data.begin()
+         , GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_
+         , GOptimizationAlgorithmT<ind_type>::data.end()
+         , [](boost::shared_ptr<ind_type> x, boost::shared_ptr<ind_type> y) -> bool {
+            return x->minOnly_fitness() < y->minOnly_fitness();
+         }
       );
    }
 
@@ -1081,10 +1083,16 @@ protected:
          GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_
          , GOptimizationAlgorithmT<ind_type>::data.begin() + 2*nParents_
          , GOptimizationAlgorithmT<ind_type>::data.end()
-         , boost::bind(&ind_type::minOnly_fitness, _1) < boost::bind(&ind_type::minOnly_fitness, _2)
+         , [](boost::shared_ptr<ind_type> x, boost::shared_ptr<ind_type> y) -> bool {
+            return x->minOnly_fitness() < y->minOnly_fitness();
+         }
       );
 
-      std::swap_ranges(GOptimizationAlgorithmT<ind_type>::data.begin(),GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_,GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_);
+      std::swap_ranges(
+         GOptimizationAlgorithmT<ind_type>::data.begin()
+         , GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_
+         , GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_
+      );
    }
 
    /***************************************************************************/
@@ -1120,7 +1128,9 @@ protected:
             GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_
             , GOptimizationAlgorithmT<ind_type>::data.begin() + 2*nParents_
             , GOptimizationAlgorithmT<ind_type>::data.end()
-            , boost::bind(&ind_type::minOnly_fitness, _1) < boost::bind(&ind_type::minOnly_fitness, _2)
+            , [](boost::shared_ptr<ind_type> x, boost::shared_ptr<ind_type> y) -> bool {
+               return x->minOnly_fitness() < y->minOnly_fitness();
+            }
          );
 
          // Retrieve the best child's and the last generation's best parent's fitness

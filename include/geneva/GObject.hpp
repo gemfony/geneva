@@ -53,6 +53,7 @@
 #include <string>
 #include <typeinfo>
 #include <vector>
+#include <functional>
 
 
 // Boost header files go here

@@ -41,6 +41,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <functional>
 
 // Boost headers go here
 #include <boost/filesystem.hpp>

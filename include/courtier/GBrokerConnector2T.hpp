@@ -41,6 +41,7 @@
 #include <algorithm>
 #include <vector>
 #include <utility>
+#include <functional>
 
 // Boost headers go here
 #include <boost/cstdint.hpp>
