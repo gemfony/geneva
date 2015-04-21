@@ -39,6 +39,7 @@
 #include <sstream>
 #include <vector>
 #include <typeinfo>
+#include <functional>
 
 // Boost header files go here
 
@@ -46,10 +47,10 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/logic/tribool.hpp>
-#include <boost/bind.hpp>
 #include <boost/optional.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/mpl/assert.hpp>
+#include <boost/utility/enable_if.hpp>
 #include <boost/type_traits.hpp>
 
 #include <boost/archive/xml_oarchive.hpp>
@@ -257,7 +258,10 @@ public:
 	 * @param item The item to be counted in the collection
 	 */
 	template <typename item_type>
-	size_type count(const boost::shared_ptr<item_type>& item) const {
+	size_type count(
+      const boost::shared_ptr<item_type>& item
+      , typename boost::enable_if<boost::is_base_of<T, item_type> >::type* dummy = 0
+   ) const {
 		if(!item) { // Check that item actually contains something useful
 		   glogger
 		   << "In GParameterTCollectionT<T>::count(item):"
@@ -265,12 +269,26 @@ public:
 		   << GEXCEPTION;
 		}
 
-		if(typeid(item_type) == typeid(T)) {
-			return std::count_if(data.begin(), data.end(), boost::bind(same_equal_to(), item, _1));
-		}
-		else {
-			return std::count_if(data.begin(), data.end(),  boost::bind(vi_equal_to<item_type>(), item, _1));
-		}
+      return std::count_if(
+         data.begin()
+         , data.end()
+         , [item](const boost::shared_ptr<T>& cont_item) -> bool {
+            bool result = false;
+#ifdef DEBUG
+            try {
+               result = (*item == *(boost::dynamic_pointer_cast<item_type>(cont_item)));
+            }
+            catch(...) {
+               glogger
+               << "Conversion error in GStdPtrVectorInterfaceT::count()" << std::endl
+               << GEXCEPTION;
+            }
+#else
+            result = (*item == *(boost::static_pointer_cast<item_type>(cont_item)));
+#endif
+            return result;
+         }
+      );
 	}
 
 	/* -------------------------------------------------------------------------
@@ -286,7 +304,10 @@ public:
 	 * and we do not want to compare the pointers themselves.
 	 */
 	template <typename item_type>
-	const_iterator find(const boost::shared_ptr<item_type>& item) const {
+	const_iterator find(
+      const boost::shared_ptr<item_type>& item
+      , typename boost::enable_if<boost::is_base_of<T, item_type> >::type* dummy = 0
+   ) const {
 		if(!item) { // Check that item actually contains something useful
 		   glogger
 		   << "In GParameterTCollectionT<T>::find(item):"
@@ -294,12 +315,25 @@ public:
          << GEXCEPTION;
 		}
 
-		if(typeid(item_type) == typeid(T)) {
-			return std::find_if(data.begin(), data.end(), boost::bind(same_equal_to(), item, _1));
-		}
-		else {
-			return std::find_if(data.begin(), data.end(), boost::bind(vi_equal_to<item_type>(), item, _1));
-		}
+		return std::find_if(
+         data.begin()
+         , data.end()
+         , [item](const boost::shared_ptr<T>& cont_item) -> bool {
+		      bool result = false;
+#ifdef DEBUG
+            try {
+               result = (*item == *(boost::dynamic_pointer_cast<item_type>(cont_item)));
+            } catch(...) {
+               glogger
+               << "Conversion error in GStdPtrVectorInterfaceT::find()" << std::endl
+               << GEXCEPTION;
+            }
+#else
+            result = (*item == *(boost::static_pointer_cast<item_type>(cont_item)));
+#endif
+            return result;
+		   }
+		);
 	}
 
 	/* ------------------------------------------------------------------------------------------------
@@ -931,45 +965,6 @@ protected:
 
 	/** @brief Intentionally make this object purely virtual, for performance reasons */
 	virtual void dummyFunction() = 0;
-
-	/***************************************************************************/
-	/**
-	 * A small helper class that compares two items and checks for equality, depending on the current mode
-	 */
-	template <typename item_type>
-	struct vi_equal_to {
-		typedef bool result_type;
-
-		bool operator() (const boost::shared_ptr<item_type>& item, const boost::shared_ptr<T>& cont_item)  const{
-			bool result = false;
-#ifdef DEBUG
-			try {
-				result = (*item == *(boost::dynamic_pointer_cast<item_type>(cont_item)));
-			}
-			catch(...) {
-			   glogger
-			   << "Unknown error in bool vi_equal_to::operator()" << std::endl
-			   << GEXCEPTION;
-			}
-#else
-			result = (*item == *(boost::static_pointer_cast<item_type>(cont_item)));
-#endif
-			return result;
-		}
-	};
-
-	/***************************************************************************/
-	/**
-	 * A small helper class that compares two items of identical type
-	 * and checks for equality, depending on the current mode
-	 */
-	struct same_equal_to {
-		typedef bool result_type;
-
-		bool operator() (const boost::shared_ptr<T>& item, const boost::shared_ptr<T>& cont_item)  const{
-			return (*item == *cont_item);
-		}
-	};
 
 private:
 	/***************************************************************************/
