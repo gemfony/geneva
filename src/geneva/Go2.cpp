@@ -836,7 +836,9 @@ void Go2::optimize(const boost::uint32_t& offset) {
    std::sort(
       this->begin()
       , this->end()
-      , boost::bind(&GParameterSet::minOnly_fitness, _1) < boost::bind(&GParameterSet::minOnly_fitness, _2)
+      , [](boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) -> bool {
+         return x->minOnly_fitness() < y->minOnly_fitness();
+      }
    );
 
 	sorted_ = true;
