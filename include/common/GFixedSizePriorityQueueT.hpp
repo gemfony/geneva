@@ -38,6 +38,7 @@
 // Standard headers go here
 #include <deque>
 #include <algorithm>
+#include <functional>
 
 // Boost headers go here
 #include <boost/bind.hpp>
@@ -279,7 +280,9 @@ public:
       std::sort(
          data_.begin()
          , data_.end()
-         , id_comp(this)
+         , [this](const boost::shared_ptr<T>& x, const boost::shared_ptr<T>& y) -> bool {
+            return this->id(x) < this->id(y);
+         }
       );
 
       // Remove duplicate items
@@ -287,7 +290,9 @@ public:
          std::unique(
                data_.begin()
                , data_.end()
-               ,  id_equal(this)
+               , [this](const boost::shared_ptr<T>& x, const boost::shared_ptr<T>& y) -> bool {
+                  return this->id(x) == this->id(y);
+               }
          )
          , data_.end()
       );
@@ -296,7 +301,15 @@ public:
       std::sort(
          data_.begin()
          , data_.end()
-         , priority_comp(this)
+         , [this](const boost::shared_ptr<T>& x, const boost::shared_ptr<T>& y) -> bool {
+            if(this->getMaxMode()) { // higher is better
+               if(this->evaluation(x) > this->evaluation(y)) return true;
+               else return false;
+            } else {
+               if(this->evaluation(x) < this->evaluation(y)) return true;
+               else return false;
+            }
+         }
       );
 
       // Remove surplus work items, if the queue has reached the corresponding size
@@ -353,7 +366,9 @@ public:
       std::sort(
          data_.begin()
          , data_.end()
-         , id_comp(this)
+         , [this](const boost::shared_ptr<T>& x, const boost::shared_ptr<T>& y) -> bool {
+            return this->id(x) < this->id(y);
+         }
       );
 
       // Remove duplicate items
@@ -361,7 +376,9 @@ public:
          std::unique(
                data_.begin()
                , data_.end()
-               ,  id_equal(this)
+               , [this](const boost::shared_ptr<T>& x, const boost::shared_ptr<T>& y) -> bool {
+                  return this->id(x) == this->id(y);
+               }
          )
          , data_.end()
       );
@@ -369,7 +386,15 @@ public:
       std::sort(
          data_.begin()
          , data_.end()
-         , priority_comp(this)
+         , [this](const boost::shared_ptr<T>& x, const boost::shared_ptr<T>& y) -> bool {
+            if(this->getMaxMode()) { // higher is better
+               if(this->evaluation(x) > this->evaluation(y)) return true;
+               else return false;
+            } else {
+               if(this->evaluation(x) < this->evaluation(y)) return true;
+               else return false;
+            }
+         }
       );
 
       // Remove surplus work items, if the queue has reached the corresponding size
@@ -461,74 +486,6 @@ public:
    }
 
 protected:
-   /***************************************************************************/
-   /**
-    * Compares two entries with each other regarding their quality
-    */
-   struct priority_comp {
-   public:
-      priority_comp(
-         const GFixedSizePriorityQueueT<T> *pq
-      )
-         :pq_(pq)
-      { /* empty */ }
-
-      bool operator()(const boost::shared_ptr<T>& x, const boost::shared_ptr<T>& y) {
-         if(pq_->getMaxMode()) { // higher is better
-            if(pq_->evaluation(x) > pq_->evaluation(y)) return true;
-            else return false;
-         } else {
-            if(pq_->evaluation(x) < pq_->evaluation(y)) return true;
-            else return false;
-         }
-      }
-
-   private:
-      const GFixedSizePriorityQueueT<T> *pq_;
-   };
-
-   /***************************************************************************/
-   /**
-    * Compares the ids of two work items. Allows us to sort the vector of
-    * work items, so we can remove duplicates
-    */
-   struct id_comp {
-   public:
-      id_comp(
-         const GFixedSizePriorityQueueT<T> *pq
-      ) :pq_(pq)
-      { /* empty */ }
-
-      bool operator()(const boost::shared_ptr<T>& x, const boost::shared_ptr<T>& y) {
-         if(pq_->id(x) < pq_->id(y)) return true;
-         else return false;
-      }
-
-   private:
-      const GFixedSizePriorityQueueT<T> *pq_;
-   };
-
-   /***************************************************************************/
-   /**
-    * Checks if two items are identical (according to a criterion defined
-    * by derived classes.
-    */
-   struct id_equal {
-   public:
-      id_equal(
-         const GFixedSizePriorityQueueT<T> *pq
-      ) :pq_(pq)
-      { /* empty */ }
-
-      bool operator()(const boost::shared_ptr<T>& x, const boost::shared_ptr<T>& y) {
-         if(pq_->id(x) == pq_->id(y)) return true;
-         else return false;
-      }
-
-   private:
-      const GFixedSizePriorityQueueT<T> *pq_;
-   };
-
    /***************************************************************************/
    /**
     * Checks whether value x is better than value y

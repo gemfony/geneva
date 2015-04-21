@@ -32,7 +32,9 @@ The main changes for this release include:
 ------------------------------------------
 
 ******************************* PLEASE NOTE ************************************
- - Support for C++ standards prior to C++11 was dropped.
+ - Support for C++ standards prior to C++11 was dropped. This allowed the
+   following changes:
+   o std::sort is now based on lambda expressions rather than function objects
 
 ********************************************************************************
 
