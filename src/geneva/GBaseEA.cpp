@@ -587,7 +587,10 @@ void GBaseEA::sortMuPlusNuParetoMode() {
          data.begin() + nIndividualsOnParetoFront
          , data.begin() + nParents_
          , data.end()
-         , boost::bind(&GParameterSet::minOnly_fitness, _1) < boost::bind(&GParameterSet::minOnly_fitness, _2));
+         , [](boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) -> bool {
+	         return x->minOnly_fitness() < y->minOnly_fitness();
+	      }
+      );
 	}
 
 	// Finally, we sort the parents only according to their master fitness. This is meant
@@ -596,7 +599,10 @@ void GBaseEA::sortMuPlusNuParetoMode() {
    std::sort(
       data.begin()
       , data.begin() + nParents_
-      , boost::bind(&GParameterSet::minOnly_fitness, _1) < boost::bind(&GParameterSet::minOnly_fitness, _2));
+      , [](boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) -> bool {
+         return x->minOnly_fitness() < y->minOnly_fitness();
+      }
+   );
 }
 
 /******************************************************************************/
@@ -678,7 +684,9 @@ void GBaseEA::sortMuCommaNuParetoMode() {
          data.begin() + nIndividualsOnParetoFront
          , data.begin() + nParents_
          , data.end()
-         , boost::bind(&GParameterSet::minOnly_fitness, _1) < boost::bind(&GParameterSet::minOnly_fitness, _2)
+         , [](boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) -> bool {
+            return x->minOnly_fitness() < y->minOnly_fitness();
+         }
 	   );
 	}
 
@@ -688,7 +696,9 @@ void GBaseEA::sortMuCommaNuParetoMode() {
 	std::sort(
       data.begin()
       , data.begin() + nParents_
-      , boost::bind(&GParameterSet::minOnly_fitness, _1) < boost::bind(&GParameterSet::minOnly_fitness, _2)
+      , [](boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) -> bool {
+         return x->minOnly_fitness() < y->minOnly_fitness();
+      }
 	);
 }
 
