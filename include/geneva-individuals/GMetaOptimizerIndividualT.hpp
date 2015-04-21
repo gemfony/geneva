@@ -325,98 +325,54 @@ public:
    virtual void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
    ) {
-      std::string comment;
-
       // Call our parent class'es function
       GParameterSet::addConfigurationOptions(gpb);
 
       // Add local data
-      comment = ""; // Reset the comment string
-      comment += "Specifies the number of optimizations performed";
       gpb.registerFileParameter<std::size_t>(
          "nRunsPerOptimization" // The name of the variable
          , GMETAOPT_DEF_NRUNSPEROPT // The default value
-         , boost::bind(
-            &GMetaOptimizerIndividualT<ind_type>::setNRunsPerOptimization
-            , this
-            , _1
-           )
-         , Gem::Common::VAR_IS_ESSENTIAL
-         , comment
-      );
+         , [this](std::size_t nrpo){ this->setNRunsPerOptimization(nrpo); }
+      )
+      << "Specifies the number of optimizations performed";
 
-      comment = ""; // Reset the comment string
-      comment += "The fitness below which optimization should stop";
       gpb.registerFileParameter<double>(
          "fitnessTarget" // The name of the variable
          , GMETAOPT_DEF_FITNESSTARGET // The default value
-         , boost::bind(
-            &GMetaOptimizerIndividualT<ind_type>::setFitnessTarget
-            , this
-            , _1
-           )
-         , Gem::Common::VAR_IS_ESSENTIAL
-         , comment
-      );
+         , [this](double ft){ this->setFitnessTarget(ft); }
+      )
+      << "The fitness below which optimization should stop";
 
-      comment = ""; // Reset the comment string
-      comment += "The maximum number of iterations per sub-optimization";
       gpb.registerFileParameter<boost::uint32_t>(
          "iterationThreshold" // The name of the variable
          , GMETAOPT_DEF_ITERATIONTHRESHOLD // The default value
-         , boost::bind(
-            &GMetaOptimizerIndividualT<ind_type>::setIterationThreshold
-            , this
-            , _1
-           )
-         , Gem::Common::VAR_IS_ESSENTIAL
-         , comment
-      );
+         , [this](boost::uint32_t dit){ this->setIterationThreshold(dit); }
+      )
+      << "The maximum number of iterations per sub-optimization";
 
-      comment = ""; // Reset the comment string
-      comment += "The target for the meta-optimization: best fitness (0),;";
-      comment += "minimum number of solver calls (1), multi-criterion with best fitness;";
-      comment += "and smallest number of solver calls as target (2);";
       gpb.registerFileParameter<metaOptimizationTarget>(
          "metaOptimizationTarget" // The name of the variable
          , GMETAOPT_DEF_MOTARGET // The default value
-         , boost::bind(
-            &GMetaOptimizerIndividualT<ind_type>::setMetaOptimizationTarget
-            , this
-            , _1
-           )
-         , Gem::Common::VAR_IS_ESSENTIAL
-         , comment
-      );
+         , [this](metaOptimizationTarget mot){ this->setMetaOptimizationTarget(mot); }
+      )
+      << "The target for the meta-optimization: best fitness (0)," << std::endl
+      << "minimum number of solver calls (1), multi-criterion with best fitness" << std::endl
+      << "and smallest number of solver calls as target (2);";
 
-      comment = ""; // Reset the comment string
-      comment += "Path and name of the configuration file used for the (sub-)evolutionary algorithm;";
       gpb.registerFileParameter<std::string>(
          "subEAConfig" // The name of the variable
          , GMETAOPT_DEF_SUBEACONFIG // The default value
-         , boost::bind(
-            &GMetaOptimizerIndividualT<ind_type>::setSubEAConfig
-            , this
-            , _1
-           )
-         , Gem::Common::VAR_IS_ESSENTIAL
-         , comment
-      );
+         , [this](std::string seac){ this->setSubEAConfig(seac); }
+      )
+      << "Path and name of the configuration file used for the (sub-)evolutionary algorithm";
 
-      comment = ""; // Reset the comment string
-      comment += "The execution mode for the sub-optimization algorithm:;";
-      comment += "serial (0/false), multithreaded (1/true);";
       gpb.registerFileParameter<bool>(
          "subExecMode" // The name of the variable
          , subExecMode_ // The default value
-         , boost::bind(
-            &GMetaOptimizerIndividualT<ind_type>::setSubExecMode
-            , this
-            , _1
-           )
-         , Gem::Common::VAR_IS_ESSENTIAL
-         , comment
-      );
+         , [this](bool sem){ this->setSubExecMode(sem); }
+      )
+      << "The execution mode for the sub-optimization algorithm:" << std::endl
+      << "serial (0/false), multithreaded (1/true)";
    }
 
    /***************************************************************************/

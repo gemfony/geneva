@@ -909,22 +909,14 @@ public:
       gpb.registerFileParameter<boost::uint32_t>(
          "maxIteration" // The name of the variable
          , DEFAULTMAXIT // The default value
-         , boost::bind(
-            &GOptimizationAlgorithmT<ind_type>::setMaxIteration
-            , this
-            , _1
-           )
+         , [this](boost::uint32_t maxIt){ this->setMaxIteration(maxIt); }
       )
       << "The maximum allowed number of iterations";
 
       gpb.registerFileParameter<boost::uint32_t>(
          "maxStallIteration" // The name of the variable
          , DEFAULTMAXSTALLIT // The default value
-         , boost::bind(
-            &GOptimizationAlgorithmT<ind_type>::setMaxStallIteration
-            , this
-            , _1
-           )
+         , [this](boost::uint32_t maxStallIt){ this->setMaxStallIteration(maxStallIt); }
       )
       << "The maximum allowed number of iterations without improvement" << std::endl
       << "0 means: no constraint.";
@@ -932,11 +924,7 @@ public:
       gpb.registerFileParameter<boost::uint32_t>(
          "indivdualUpdateStallCounterThreshold" // The name of the variable
          , DEFAULTSTALLCOUNTERTHRESHOLD // The default value
-         , boost::bind(
-            &GOptimizationAlgorithmT<ind_type>::setStallCounterThreshold
-            , this
-            , _1
-           )
+         , [this](boost::uint32_t stallCounterThreshold){ this->setStallCounterThreshold(stallCounterThreshold); }
       )
       << "The number of iterations without improvement after which" << std::endl
       << "individuals are asked to update their internal data structures" << std::endl
@@ -945,33 +933,21 @@ public:
       gpb.registerFileParameter<boost::uint32_t>(
          "reportIteration" // The name of the variable
          , DEFAULTREPORTITER // The default value
-         , boost::bind(
-            &GOptimizationAlgorithmT<ind_type>::setReportIteration
-            , this
-            , _1
-           )
+         , [this](boost::uint32_t rI){ this->setReportIteration(rI); }
       )
       << "The number of iterations after which a report should be issued";
 
       gpb.registerFileParameter<std::size_t>(
          "nRecordBestIndividuals" // The name of the variable
          , DEFNRECORDBESTINDIVIDUALS // The default value
-         , boost::bind(
-            &GOptimizationAlgorithmT<ind_type>::setNRecordBestIndividuals
-            , this
-            , _1
-           )
+         , [this](std::size_t nRecBI){ this->setNRecordBestIndividuals(nRecBI); }
       )
       << "Indicates how many \"best\" individuals should be recorded in each iteration";
 
       gpb.registerFileParameter<boost::int32_t>(
          "cpInterval" // The name of the variable
          , DEFAULTCHECKPOINTIT // The default value
-         , boost::bind(
-            &GOptimizationAlgorithmT<ind_type>::setCheckpointInterval
-            , this
-            , _1
-           )
+         , [this](boost::int32_t cpI){ this->setCheckpointInterval(cpI); }
       )
       << "The number of iterations after which a checkpoint should be written." << std::endl
       << "-1 means: Write a checkpoint file whenever an improvement was encountered" << std::endl
@@ -982,26 +958,16 @@ public:
          , "cpBaseName" // The name of the second variable
          , DEFAULTCPDIR // Default value for the first variable
          , DEFAULTCPBASENAME // Default value for the second variable
-         , boost::bind(
-            &GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName
-            , this
-            , _1
-            , _2
-           )
+         , [this](std::string cpDir, std::string cpBN){ this->setCheckpointBaseName(cpDir, cpBN); }
           , "checkpointLocation"
       )
-      << "The directory where checkpoint files should be stored."
-      << Gem::Common::commentLevel(1) // comments for the second option follow
+      << "The directory where checkpoint files should be stored." << Gem::Common::nextComment() // comments for the second option follow
       << "The significant part of the checkpoint file name.";
 
       gpb.registerFileParameter<Gem::Common::serializationMode>(
          "cpSerMode" // The name of the variable
          , DEFAULTCPSERMODE // The default value
-         , boost::bind(
-            &GOptimizationAlgorithmT<ind_type>::setCheckpointSerializationMode
-            , this
-            , _1
-           )
+         , [this](Gem::Common::serializationMode sM){ this->setCheckpointSerializationMode(sM); }
       )
       << "Determines whether check-pointing should be done in" << std::endl
       << "text- (0), XML- (1), or binary-mode (2)";
@@ -1011,39 +977,25 @@ public:
          , "thresholdActive"
          , DEFAULTQUALITYTHRESHOLD // The default value
          , false
-         , boost::bind(
-            &GOptimizationAlgorithmT<ind_type>::setQualityThreshold
-            , this
-            , _1
-            , _2
-           )
+         , [this](double qt, bool ta){ this->setQualityThreshold(qt, ta); }
          , "qualityTermination"
       )
       << "A threshold beyond which optimization is expected to stop" << std::endl
       << "Note that in order to activate this threshold, you also need to" << std::endl
-      << "set \"hasQualityThreshold\" to 1." << std::endl
-      << Gem::Common::commentLevel(1)
+      << "set \"hasQualityThreshold\" to 1." << Gem::Common::nextComment()
       << "Activates (1) or de-activates (0) the quality threshold";
 
       gpb.registerFileParameter<boost::posix_time::time_duration>(
          "maxDuration" // The name of the variable
          , boost::posix_time::duration_from_string(DEFAULTDURATION) // The default value
-         , boost::bind(
-            &GOptimizationAlgorithmT<ind_type>::setMaxTime
-            , this
-            , _1
-           )
+         , [this](boost::posix_time::time_duration mt){ this->setMaxTime(mt); }
       )
       << "The maximum allowed time-frame for the optimization";
 
       gpb.registerFileParameter<bool>(
          "emitTerminationReason" // The name of the variable
          , DEFAULTEMITTERMINATIONREASON // The default value
-         , boost::bind(
-            &GOptimizationAlgorithmT<ind_type>::setEmitTerminationReason
-            , this
-            , _1
-           )
+         , [this](bool etr){ this->setEmitTerminationReason(etr); }
       )
       << "Triggers emission (1) or omission (0) of information about reasons for termination";
 	}
