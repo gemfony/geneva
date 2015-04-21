@@ -616,13 +616,8 @@ void GBaseSwarm::addConfigurationOptions (
 		, "nNeighborhoodMembers" // The name of the second variable
 		, DEFAULTNNEIGHBORHOODS // The default value for the first variable
 		, DEFAULTNNEIGHBORHOODMEMBERS // The default value for the second variable
-		, boost::bind(
-			&GBaseSwarm::setSwarmSizes
-			, this
-			, _1
-			, _2
-		  )
-	    , "swarmSize"
+		, [this](std::size_t nh, std::size_t nhm){ this->setSwarmSizes(nh, nhm); }
+	   , "swarmSize"
 	)
 	<< "The desired number of neighborhoods in the population" << Gem::Common::nextComment()
 	<< "The desired number of members in each neighborhood";
@@ -630,66 +625,42 @@ void GBaseSwarm::addConfigurationOptions (
 	gpb.registerFileParameter<double>(
 		"cPersonal" // The name of the variable
 		, DEFAULTCPERSONAL // The default value
-		, boost::bind(
-			&GBaseSwarm::setCPersonal
-			, this
-			, _1
-		  )
+		, [this](double cp){ this->setCPersonal(cp); }
 	)
 	<< "A constant to be multiplied with the personal direction vector";
 
 	gpb.registerFileParameter<double>(
 		"cNeighborhood" // The name of the variable
 		, DEFAULTCNEIGHBORHOOD // The default value
-		, boost::bind(
-			&GBaseSwarm::setCNeighborhood
-			, this
-			, _1
-		  )
+		, [this](double cn){ this->setCNeighborhood(cn); }
 	)
 	<< "A constant to be multiplied with the neighborhood direction vector";
 
 	gpb.registerFileParameter<double>(
 		"cGlobal" // The name of the variable
 		, DEFAULTCGLOBAL // The default value
-		, boost::bind(
-			&GBaseSwarm::setCGlobal
-			, this
-			, _1
-		  )
+		, [this](double cg){ this->setCGlobal(cg); }
 	)
 	<< "A constant to be multiplied with the global direction vector";
 
 	gpb.registerFileParameter<double>(
 		"cVelocity" // The name of the variable
 		, DEFAULTCVELOCITY // The default value
-		, boost::bind(
-			&GBaseSwarm::setCVelocity
-			, this
-			, _1
-		  )
+		, [this](double cv){ this->setCVelocity(cv); }
 	)
 	<< "A constant to be multiplied with the old velocity vector";
 
 	gpb.registerFileParameter<double>(
 		"velocityRangePercentage" // The name of the variable
 		, DEFAULTVELOCITYRANGEPERCENTAGE // The default value
-		, boost::bind(
-			&GBaseSwarm::setVelocityRangePercentage
-			, this
-			, _1
-		  )
+		, [this](double vrp){ this->setVelocityRangePercentage(vrp); }
 	)
 	<< "Sets the velocity-range percentage";
 
 	gpb.registerFileParameter<updateRule>(
 		"updateRule" // The name of the variable
 		, DEFAULTUPDATERULE // The default value
-		, boost::bind(
-			&GBaseSwarm::setUpdateRule
-			, this
-			, _1
-		  )
+		, [this](updateRule ur){ this->setUpdateRule(ur); }
 	)
 	<< "Specifies whether a linear (0) or classical (1)" << std::endl
 	<< "update rule should be used";
@@ -697,11 +668,7 @@ void GBaseSwarm::addConfigurationOptions (
 	gpb.registerFileParameter<bool>(
 		"randomFillUp" // The name of the variable
 		, true // The default value
-		, boost::bind(
-			&GBaseSwarm::setNeighborhoodsRandomFillUp
-			, this
-			, _1
-		  )
+		, [this](bool nhrf) {this->setNeighborhoodsRandomFillUp(nhrf); }
 	)
 	<< "Specifies whether neighborhoods should be filled up" << std::endl
 	<< "randomly (true) or start with equal values (false)";
@@ -709,11 +676,7 @@ void GBaseSwarm::addConfigurationOptions (
    gpb.registerFileParameter<boost::uint32_t>(
       "repulsionThreshold" // The name of the variable
       , DEFREPULSIONTHRESHOLD // The default value
-      , boost::bind(
-         &GBaseSwarm::setRepulsionThreshold
-         , this
-         , _1
-        )
+      , [this](boost::uint32_t rt){ this->setRepulsionThreshold(rt); }
    )
    << "The number of stalls as of which the algorithm switches to repulsive mode" << std::endl
    << "Set this to 0 in order to disable this feature";
@@ -942,7 +905,7 @@ void GBaseSwarm::updatePositions() {
 /******************************************************************************/
 /**
  * Update the individual's positions. Note that we use a boost::tuple as an argument,
- * so that we do not have to pass too many parameters (problematic with boost::bind).
+ * so that we do not have to pass too many parameters.
  *
  * @param neighborhood The neighborhood that has been assigned to the individual
  * @param ind The individual whose position should be updated
