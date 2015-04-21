@@ -590,11 +590,7 @@ void GParameterSet::addConfigurationOptions (
 	gpb.registerFileParameter<bool>(
 		"maximize" // The name of the variable
 		, false // The default value
-		, boost::bind(
-			&GParameterSet::setMaxMode
-			, this
-			, _1
-		  )
+		, [this](book mm){ this->setMaxMode(mm); }
 	)
 	<< "Specifies whether the individual should be maximized (1) or minimized (0)" << std::endl
 	<< "Note that minimization is the by far most common option.";
@@ -602,11 +598,7 @@ void GParameterSet::addConfigurationOptions (
    gpb.registerFileParameter<double>(
       "perItemCrossOverProbability" // The name of the variable
       , DEFAULTPERITEMEXCHANGELIKELIHOOD // The default value
-      , boost::bind(
-         &GParameterSet::setPerItemCrossOverProbability
-         , this
-         , _1
-        )
+      , [this](double piel){ this->setPerItemCrossOverProbability(piel); }
    )
    << "The likelihood for two data items to be exchanged";
 }
