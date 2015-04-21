@@ -36,6 +36,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <functional>
 
 // Boost header files go here
 #include <boost/asio/io_service.hpp>
@@ -136,11 +137,10 @@ public:
 	      );
 
 	      gtg_.create_threads (
-	            boost::bind(
-	                  &boost::asio::io_service::run
-	                  , &io_service_
-	            )
-	      , nThreads_.load()
+	         [&]() {
+	            io_service_.run();
+	         }
+	         , nThreads_.load()
 	      );
 
 	      threads_started_ = true;
