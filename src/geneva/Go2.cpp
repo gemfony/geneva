@@ -137,7 +137,7 @@ Go2::Go2(
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
-	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_));
+	boost::call_once(f_go2, std::bind(setRNFParameters, nProducerThreads_));
 }
 
 /******************************************************************************/
@@ -178,7 +178,7 @@ Go2::Go2(const std::string& configFilename)
    //--------------------------------------------
    // Random numbers are our most valuable good.
    // Initialize all necessary variables
-   boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_));
+   boost::call_once(f_go2, std::bind(setRNFParameters, nProducerThreads_));
 }
 
 /******************************************************************************/
@@ -232,7 +232,7 @@ Go2::Go2(
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
-	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_));
+	boost::call_once(f_go2, std::bind(setRNFParameters, nProducerThreads_));
 }
 
 /******************************************************************************/
@@ -272,7 +272,7 @@ Go2::Go2(const Go2& cp)
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
-	boost::call_once(f_go2, boost::bind(setRNFParameters, nProducerThreads_));
+	boost::call_once(f_go2, std::bind(setRNFParameters, nProducerThreads_));
 
    //--------------------------------------------
 	// Copy the default algorithm over, if any
@@ -937,26 +937,16 @@ void Go2::addConfigurationOptions (
 ) {
 	using namespace Gem::Common;
 
-	std::string comment;
-
 	// Call our parent class'es function
 	GMutableSetT<GParameterSet>::addConfigurationOptions(gpb);
 
    // Add local data
-   comment = ""; // Reset the first comment string
-   comment += "The number of threads simultaneously producing random numbers;";
    gpb.registerFileParameter<boost::uint16_t>(
       "nProducerThreads" // The name of the first variable
       , GO2_DEF_NPRODUCERTHREADS
-      , boost::bind(
-         &Go2::setNProducerThreads
-         , this
-         , _1
-        )
-      , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-      , comment
-   );
-
+      , [this](boost::uint16_t npt){ this->setNProducerThreads(npt); }
+   )
+   << "The number of threads simultaneously producing random numbers";
 }
 
 /******************************************************************************/
