@@ -262,31 +262,20 @@ public:
    virtual void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
    ) override {
-      std::string comment;
-      std::string comment1;
-      std::string comment2;
-
       // Call our parent class'es function
       GBaseParChildT<oa_type>::addConfigurationOptions(gpb);
 
-      comment = ""; // Reset the comment string
-      comment += "The sorting scheme. Options;";
-      comment += "0: MUPLUSNU mode with a single evaluation criterion;";
-      comment += "1: MUCOMMANU mode with a single evaluation criterion;";
-      comment += "2: MUCOMMANU mode with single evaluation criterion,;";
-      comment += "   the best parent of the last iteration is retained;";
-      comment += "   unless a better individual has been found;";
       gpb.registerFileParameter<sortingModeMP>(
          "sortingMethod" // The name of the variable
          , DEFAULTSMODEMP // The default value
-         , boost::bind(
-            &GMultiPopulationEAT<oa_type>::setSortingScheme
-            , this
-            , _1
-           )
-         , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-         , comment
-      );
+         , [this](sortingModeMP s){ this->setSortingScheme(s); }
+      )
+      << "The sorting scheme. Options" << std::endl
+      << "0: MUPLUSNU mode with a single evaluation criterion" << std::endl
+      << "1: MUCOMMANU mode with a single evaluation criterion" << std::endl
+      << "2: MUCOMMANU mode with single evaluation criterion," << std::endl
+      << "   the best parent of the last iteration is retained" << std::endl
+      << "   unless a better individual has been found";
    }
 
    /***************************************************************************/
@@ -493,7 +482,7 @@ protected:
          }
 #endif /* DEBUG */
 
-         tp_ptr_->async_schedule(boost::function<void()>(boost::bind(&oa_type::adapt, *it)));
+         tp_ptr_->async_schedule( [it]() -> void { (*it)->adapt();} );
       }
 
       // Wait for all threads in the pool to complete their work
@@ -524,15 +513,7 @@ protected:
       // Make evaluation possible and initiate the worker threads
       for(it=(this->data).begin() + boost::get<0>(range); it!=(this->data).begin() + boost::get<1>(range); ++it) {
          tp_ptr_->async_schedule(
-            boost::function<double()>(
-               boost::bind(
-                  &oa_type::nonConstFitness
-                  , *it
-                  , 0
-                  , Gem::Geneva::ALLOWREEVALUATION
-                  , Gem::Geneva::USETRANSFORMEDFITNESS
-               )
-            )
+            [it]() ->double { return (*it)->nonConstFitness(0, ALLOWREEVALUATION, USETRANSFORMEDFITNESS); }
          );
       }
 
