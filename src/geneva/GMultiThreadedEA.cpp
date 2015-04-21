@@ -228,7 +228,7 @@ void GMultiThreadedEA::adaptChildren()
 	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
 
 	for(it=data.begin()+boost::get<0>(range); it!=data.begin()+boost::get<1>(range); ++it) {
-		tp_ptr_->async_schedule(boost::function<void()>(boost::bind(&GParameterSet::adapt, *it)));
+		tp_ptr_->async_schedule([it](){(*it)->adapt();});
 	}
 
 	// Wait for all threads in the pool to complete their work

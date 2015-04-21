@@ -271,7 +271,7 @@ void GBrokerSA::adaptChildren()
    std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
 
    for(it=data.begin()+boost::get<0>(range); it!=data.begin()+boost::get<1>(range); ++it) {
-      tp_ptr_->async_schedule(boost::function<void()>(boost::bind(&GParameterSet::adapt, *it)));
+      tp_ptr_->async_schedule( [it](){(*it)->adapt();} );
    }
 
    // Wait for all threads in the pool to complete their work
@@ -337,7 +337,11 @@ void GBrokerSA::fixAfterJobSubmission() {
    );
 
    // Make it known to remaining old individuals that they are now part of a new iteration
-   std::for_each(oldWorkItems_.begin(), oldWorkItems_.end(), boost::bind(&GParameterSet::setAssignedIteration, _1, iteration));
+   std::for_each(
+      oldWorkItems_.begin()
+      , oldWorkItems_.end()
+      , [iteration](boost::shared_ptr<GParameterSet> p){ p->setAssignedIteration(iteration); }
+   );
 
    // Make sure that parents are at the beginning of the array.
    sort(data.begin(), data.end(), indParentComp());
@@ -410,26 +414,17 @@ void GBrokerSA::selectBest() {
 void GBrokerSA::addConfigurationOptions (
    Gem::Common::GParserBuilder& gpb
 ) {
-   std::string comment;
-
    // Call our parent class'es function
    GBaseSA::addConfigurationOptions(gpb);
    Gem::Courtier::GBrokerConnector2T<GParameterSet>::addConfigurationOptions(gpb);
 
    // Add local data
-   comment = ""; // Reset the comment string
-   comment += "The number of threads used to simultaneously adapt individuals;";
    gpb.registerFileParameter<boost::uint16_t>(
       "nEvaluationThreads" // The name of the variable
       , 0 // The default value
-      , boost::bind(
-         &GBrokerSA::setNThreads
-         , this
-         , _1
-        )
-      , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-      , comment
-   );
+      , [this](boost::uint16_t nt){ this->setNThreads(nt); }
+   )
+   << "The number of threads used to simultaneously adapt individuals";
 }
 
 /******************************************************************************/
