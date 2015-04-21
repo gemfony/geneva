@@ -590,7 +590,7 @@ void GParameterSet::addConfigurationOptions (
 	gpb.registerFileParameter<bool>(
 		"maximize" // The name of the variable
 		, false // The default value
-		, [this](book mm){ this->setMaxMode(mm); }
+		, [this](bool mm){ this->setMaxMode(mm); }
 	)
 	<< "Specifies whether the individual should be maximized (1) or minimized (0)" << std::endl
 	<< "Note that minimization is the by far most common option.";
