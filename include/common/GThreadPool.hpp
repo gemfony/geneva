@@ -40,8 +40,6 @@
 
 // Boost header files go here
 #include <boost/asio/io_service.hpp>
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/thread.hpp>
 #include <boost/utility.hpp>
@@ -133,7 +131,7 @@ public:
 
 	      // Store a worker (a place holder, really) in the io_service_ object
 	      work_.reset(
-	            new boost::asio::io_service::work(io_service_)
+            new boost::asio::io_service::work(io_service_)
 	      );
 
 	      gtg_.create_threads (
@@ -161,7 +159,9 @@ public:
 
       // Finally submit to the io_service
       io_service_.post(
-         boost::bind(&GThreadPool::taskWrapper<F>, this, f)
+         [f,this]() {
+            this->taskWrapper<F>(f);
+         }
       );
 	}
 

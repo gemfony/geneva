@@ -135,10 +135,9 @@ void GThreadPool::setNThreads(unsigned int nThreads) {
    if(true==threads_started_.load()) {
       if(nThreadsLocal > nThreads_.load()) { // We simply add the required number of threads
          gtg_.create_threads (
-            boost::bind(
-               &boost::asio::io_service::run
-               , &io_service_
-            )
+            [&]() {
+             io_service_.run();
+            }
             , nThreadsLocal - nThreads_.load()
          );
       } else { // We need to remove threads and thus reset the entire pool
@@ -156,10 +155,9 @@ void GThreadPool::setNThreads(unsigned int nThreads) {
 
          // Start the threads
          gtg_.create_threads (
-            boost::bind(
-               &boost::asio::io_service::run
-               , &io_service_
-            )
+            [&]() {
+             io_service_.run();
+            }
             , nThreadsLocal
          );
       }
