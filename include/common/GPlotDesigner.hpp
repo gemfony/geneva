@@ -2001,32 +2001,6 @@ public:
    /** @brief Retrieve a clone of this object */
    virtual G_API_COMMON boost::shared_ptr<GBasePlotter> clone() const;
 
-   /***************************************************************************/
-   /**
-    * A comparator allowing to sort the tuples in ascending order, using
-    * the fourth component.
-    */
-   static bool comp4Asc (
-            boost::tuple<double,double,double,double> a
-            , boost::tuple<double,double,double,double> b
-   ) {
-      return (boost::get<3>(a) < boost::get<3>(b));
-   }
-
-   /***************************************************************************/
-   /**
-    * A comparator allowing to sort the tuples in descending order, using
-    * the fourth component.
-    */
-   static bool comp4Desc (
-            boost::tuple<double,double,double,double> a
-            , boost::tuple<double,double,double,double> b
-   ) {
-      return (boost::get<3>(a) > boost::get<3>(b));
-   }
-
-   /***************************************************************************/
-
 protected:
    /** @brief Retrieve specific header settings for this plot */
    virtual std::string headerData(bool, std::size_t) const;

@@ -1233,13 +1233,23 @@ std::string GGraph4D::footerData(bool isSecondary, std::size_t pId) const {
       std::sort(
             localData.begin()
             , localData.end()
-            , &GGraph4D::comp4Asc
+            , [](
+              boost::tuple<double,double,double,double> a
+              , boost::tuple<double,double,double,double> b
+            ) -> bool {
+               return (boost::get<3>(a) < boost::get<3>(b));
+            }
        );
    } else {
       std::sort(
             localData.begin()
             , localData.end()
-            , &GGraph4D::comp4Desc
+            , [] (
+                  boost::tuple<double,double,double,double> a
+                  , boost::tuple<double,double,double,double> b
+            ) -> bool{
+               return (boost::get<3>(a) > boost::get<3>(b));
+            }
        );
    }
 
