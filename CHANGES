@@ -2,6 +2,7 @@
 * Development version 1.7, to be released as version 2.0 when ready
 
 Wishlist:
+---------
 
 Feature- and API-additions:
 
@@ -27,10 +28,19 @@ API-compatible changes:
  - Full integration of -fsanitize=X.
  - Rework of the test infrastructure.
 
+The main changes for this release include:
+------------------------------------------
+
+******************************* PLEASE NOTE ************************************
+ - Support for C++ standards prior to C++11 was dropped.
+
+********************************************************************************
+
 //------------------------------------------------------------------------------------------------------
 * Version 1.6.1, "Ivrea - Via Arduino" - April 20, 2015
 
 The main changes for this release include:
+------------------------------------------
 
 ******************************* PLEASE NOTE ************************************
 
