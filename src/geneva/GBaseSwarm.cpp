@@ -1189,7 +1189,9 @@ boost::tuple<double, double> GBaseSwarm::findBests() {
       std::sort(
          this->begin() + firstCounter
          , this->begin() + lastCounter
-         , boost::bind(&GParameterSet::minOnly_fitness, _1) < boost::bind(&GParameterSet::minOnly_fitness, _2)
+         , [](boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) -> bool {
+            return x->minOnly_fitness() < y->minOnly_fitness();
+         }
       );
 
 		// Check whether the best individual of the neighborhood is better than

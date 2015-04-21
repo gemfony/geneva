@@ -252,7 +252,9 @@ void GBaseSA::sortSAMode() {
    std::partial_sort(
       data.begin() + nParents_
       , data.begin() + 2*nParents_, data.end()
-      , boost::bind(&GParameterSet::minOnly_fitness, _1) < boost::bind(&GParameterSet::minOnly_fitness, _2)
+      , [](boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) -> bool {
+         return x->minOnly_fitness() < y->minOnly_fitness();
+      }
    );
 
    // Check for each parent whether it should be replaced by the corresponding child
@@ -272,7 +274,9 @@ void GBaseSA::sortSAMode() {
    std::sort(
       data.begin()
       , data.begin() + nParents_
-      , boost::bind(&GParameterSet::minOnly_fitness, _1) < boost::bind(&GParameterSet::minOnly_fitness, _2)
+      , [](boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) -> bool {
+         return x->minOnly_fitness() < y->minOnly_fitness();
+      }
    );
 
    // Make sure the temperature gets updated
