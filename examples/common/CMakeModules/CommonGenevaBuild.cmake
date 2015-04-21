@@ -104,8 +104,8 @@ FIND_HOST_COMPILER (
 # standard. It will also resolve the "auto" setting of the standard
 # by setting it to the maximum supported standard.
 
-# Geneva requires currently the C++98 Standard
-SET (GENEVA_MIN_CXX_STANDARD "cxx98")
+# Geneva requires at least the C++11 Standard
+SET (GENEVA_MIN_CXX_STANDARD "cxx11")
 
 GET_ACTUAL_CXX_STANDARD (
 	${GENEVA_CXX_STD}
