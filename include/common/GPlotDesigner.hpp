@@ -672,20 +672,6 @@ public:
 		}
 	}
 
-private:
-   /***************************************************************************/
-   /**
-    * A simple comparator to sort our tuple
-    */
-   struct sortTuple {
-      bool operator() (
-         const boost::tuple<x_type, y_type>& x
-         , const boost::tuple<x_type, y_type>& y
-      ) {
-         return boost::get<0>(x) < boost::get<0>(y);
-      }
-   };
-
 public:
    /***************************************************************************/
    /**
@@ -695,7 +681,9 @@ public:
       std::sort(
          data_.begin()
          , data_.end()
-         , sortTuple()
+         , [](const boost::tuple<x_type, y_type>& x, const boost::tuple<x_type, y_type>& y) ->bool {
+            return boost::get<0>(x) < boost::get<0>(y);
+         }
       );
    }
 
@@ -943,20 +931,6 @@ public:
       *this & item;
    }
 
-private:
-   /***************************************************************************/
-   /**
-    * A simple comparator to sort our tuple
-    */
-   struct sortTuple {
-      bool operator()(
-         const boost::tuple<x_type, x_type, y_type, y_type>& x
-         , const boost::tuple<x_type, x_type, y_type, y_type>& y
-      ) {
-         return boost::get<0>(x) < boost::get<0>(y);
-      }
-   };
-
 public:
    /***************************************************************************/
    /**
@@ -966,7 +940,12 @@ public:
       std::sort(
          data_.begin()
          , data_.end()
-         , sortTuple()
+         , [](
+            const boost::tuple<x_type, x_type, y_type, y_type>& x
+            , const boost::tuple<x_type, x_type, y_type, y_type>& y
+         ) -> bool {
+            return boost::get<0>(x) < boost::get<0>(y);
+         }
       );
    }
 
