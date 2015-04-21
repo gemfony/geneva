@@ -40,6 +40,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <functional>
 
 // Boost headers go here
 #include <boost/array.hpp>
@@ -599,9 +600,9 @@ class GAsioServerSessionT
     * @param io_service A reference to the server's io_service
     */
    GAsioServerSessionT(
-         boost::asio::io_service& io_service
-         , const Gem::Common::serializationMode& serMod
-         , GAsioTCPConsumerT<processable_type> *master
+      boost::asio::io_service& io_service
+      , const Gem::Common::serializationMode& serMod
+      , GAsioTCPConsumerT<processable_type> *master
    )
    : strand_(io_service)
    , socket_(io_service)
@@ -634,11 +635,13 @@ class GAsioServerSessionT
          boost::asio::async_read(
              socket_
              , boost::asio::buffer(commandBuffer_)
-             , strand_.wrap(boost::bind(
+             , strand_.wrap(
+                boost::bind(
                    &GAsioServerSessionT<processable_type>::async_handle_read_command
                    , GAsioServerSessionT<processable_type>::shared_from_this()
                    , boost::asio::placeholders::error
-             ))
+                )
+             )
          );
       } catch(const boost::system::system_error &e) {
          glogger

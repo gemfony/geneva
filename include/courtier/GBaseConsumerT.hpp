@@ -38,6 +38,7 @@
 // Standard headers go here
 #include <string>
 #include <sstream>
+#include <functional>
 
 // Boost headers go here
 

@@ -41,7 +41,6 @@
 
 #include <boost/cast.hpp>
 #include <boost/cstdint.hpp>
-#include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
@@ -204,7 +203,9 @@ public:
       for(std::size_t w=0; w<workerTemplates_.size(); w++) {
          for(std::size_t i=0; i<threadsPerWorker_; i++) {
             boost::shared_ptr<GWorker> p_worker = (workerTemplates_.at(w))->clone(i,this);
-            gtg_.create_thread(boost::bind(&GBoostThreadConsumerT<processable_type>::GWorker::run, p_worker));
+            gtg_.create_thread(
+               [p_worker](){ p_worker->run(); }
+            );
             workers_.push_back(p_worker);
          }
       }
@@ -315,27 +316,18 @@ protected:
    virtual void addConfigurationOptions(
          Gem::Common::GParserBuilder& gpb
    ){
-      std::string comment;
-
       // Call our parent class'es function
       GBaseConsumerT<processable_type>::addConfigurationOptions(gpb);
 
       // Add local data
-      comment = ""; // Reset the comment string
-      comment += "Indicates the number of threads used to process each worker.;";
-      comment += "Setting threadsPerWorker to 0 will result in an attempt to;";
-      comment += "automatically determine the number of hardware threads.";
       gpb.registerFileParameter<std::size_t>(
          "threadsPerWorker" // The name of the variable
          , 0 // The default value
-         , boost::bind(
-            &GBoostThreadConsumerT<processable_type>::setNThreadsPerWorker
-            , this
-            , _1
-           )
-         , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-         , comment
-      );
+         , [this](std::size_t nt) { this->setNThreadsPerWorker(nt); }
+      )
+      << "Indicates the number of threads used to process each worker." << std::endl
+      << "Setting threadsPerWorker to 0 will result in an attempt to" << std::endl
+      << "automatically determine the number of hardware threads.";
    }
 
    /***************************************************************************/

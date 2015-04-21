@@ -769,7 +769,12 @@ protected:
     * @param w The work item to be processed
     */
    virtual void submit(boost::shared_ptr<processable_type> w) override {
-      gtp_.async_schedule(boost::function<bool()>(boost::bind(&processable_type::process, w)));
+      // gtp_.async_schedule(boost::function<bool()>(boost::bind(&processable_type::process, w)));
+      gtp_.async_schedule(
+         [w]() -> bool {
+            return w->process();
+         }
+      );
    }
 
    /***************************************************************************/
@@ -921,56 +926,39 @@ public:
    virtual void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
    ) override {
-      std::string comment;
-
       // Call our parent class's function
       GBaseExecutorT<processable_type>::addConfigurationOptions(gpb);
 
       // Add local data
 
-      comment = ""; // Reset the comment string
-      comment += "A static factor to be applied to timeouts;";
       gpb.registerFileParameter<std::size_t>(
          "waitFactor" // The name of the variable
          , DEFAULTBROKERWAITFACTOR2 // The default value
-         , boost::bind(
-            &GBrokerConnector2T<processable_type>::setWaitFactor
-            , this
-            , _1
-           )
-         , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-         , comment
-      );
+         , [this](std::size_t w) {
+            this->setWaitFactor(w);
+         }
+      )
+      << "A static factor to be applied to timeouts";
 
-      comment = ""; // Reset the comment string
-      comment += "The amount of resubmissions allowed if a full return of work;";
-      comment += "items was expected but only a subset has returned;";
       gpb.registerFileParameter<std::size_t>(
          "maxResubmissions" // The name of the variable
          , DEFAULTMAXRESUBMISSIONS // The default value
-         , boost::bind(
-            &GBrokerConnector2T<processable_type>::setMaxResubmissions
-            , this
-            , _1
-           )
-         , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-         , comment
-      );
+         , [this](std::size_t r){
+            this->setMaxResubmissions(r);
+         }
+      )
+      << "The amount of resubmissions allowed if a full return of work" << std::endl
+      << "items was expected but only a subset has returned";
 
-      comment = ""; // Reset the comment string
-      comment += "Activates (1) or de-activates (0) logging;";
-      comment += "iteration's first timeout;";
       gpb.registerFileParameter<bool>(
          "doLogging" // The name of the variable
          , false // The default value
-         , boost::bind(
-            &GBrokerConnector2T<processable_type>::doLogging
-            , this
-            , _1
-           )
-         , Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
-         , comment
-      );
+         , [this](bool l) {
+            this->doLogging(l);
+         }
+      )
+      << "Activates (1) or de-activates (0) logging" << std::endl
+      << "iteration's first timeout";
    }
 
    /***************************************************************************/

@@ -46,6 +46,7 @@
 #include <limits>
 #include <stdexcept>
 #include <algorithm>
+#include <functional>
 
 // Boost headers go here
 
@@ -54,7 +55,6 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/utility.hpp>
 #include <boost/function.hpp>
-#include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
@@ -220,17 +220,13 @@ public:
 
 		// Find orphaned items in the two collections and remove them.
 		typename BufferPtrList::iterator it;
-		while((it=std::find_if(RawBuffers_.begin(), RawBuffers_.end(), boost::bind(&GBoundedBufferWithIdT_Ptr::unique,_1))) != RawBuffers_.end()) {
+		while((it=std::find_if(RawBuffers_.begin(), RawBuffers_.end(), [](GBoundedBufferWithIdT_Ptr p) { return p.unique(); } )) != RawBuffers_.end()) {
 		   RawBuffers_.erase(it);
-		   std::cout << "Raw buffer erased" << std::endl;
 		}
-
-		// RawBuffers_.remove_if(boost::bind(&GBoundedBufferWithIdT_Ptr::unique,_1));
 
 		for(typename BufferPtrMap::iterator it=ProcessedBuffers_.begin(); it!=ProcessedBuffers_.end();) {
 			if((it->second).unique()) { // Orphaned ? Get rid of it
 				ProcessedBuffers_.erase(it++);
-	         std::cout << "Processed buffer erased" << std::endl;
 			}
 			else ++it;
 		}
@@ -257,8 +253,7 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Adds a new consumer to this class and starts its thread. Note that boost::bind
-	 * knows how to handle a shared_ptr.
+	 * Adds a new consumer to this class and starts its thread.
 	 *
 	 * @param gc A pointer to a GBaseConsumerT<carrier_type> object
 	 */
