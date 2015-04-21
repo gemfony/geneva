@@ -445,73 +445,43 @@ public:
    virtual void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
    )  override {
-      std::string comment;
-      std::string comment1;
-      std::string comment2;
-
       // Call our parent class'es function
       GOptimizationAlgorithmT<ind_type>::addConfigurationOptions(gpb);
 
       // Add local data
-      comment1 = ""; // Reset the first comment string
-      comment2 = ""; // Reset the second comment string
-      comment1 += "The total size of the population;";
-      comment2 += "The number of parents in the population;";
+
       gpb.registerFileParameter<std::size_t, std::size_t>(
          "size" // The name of the first variable
          , "nParents" // The name of the second variable
          , DEFAULTEAPOPULATIONSIZE
          , DEFAULTEANPARENTS
-         , boost::bind(
-            &GBaseParChildT<ind_type>::setPopulationSizes
-            , this
-            , _1
-            , _2
-           )
-          , "population"
-         , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-         , comment1
-         , comment2
-      );
+         , [this](std::size_t ps, std::size_t np){ this->setPopulationSizes(ps, np); }
+         , "population"
+      )
+      << "The total size of the population " << Gem::Common::nextComment()
+      << "The number of parents in the population";
 
-      comment = ""; // Reset the comment string
-      comment += "The recombination method. Options;";
-      comment += "0: default;";
-      comment += "1: random selection from available parents;";
-      comment += "2: selection according to the parent's value;";
       gpb.registerFileParameter<duplicationScheme>(
          "recombinationMethod" // The name of the variable
          , DEFAULTDUPLICATIONSCHEME // The default value
-         , boost::bind(
-            &GBaseParChildT<ind_type>::setRecombinationMethod
-            , this
-            , _1
-           )
-         , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-         , comment
-      );
+         , [this](duplicationScheme d){ this->setRecombinationMethod(d); }
+      )
+      << "The recombination method. Options" << std::endl
+      << "0: default" << std::endl
+      << "1: random selection from available parents" << std::endl
+      << "2: selection according to the parent's value";
 
-      comment1 = ""; // Reset the first comment string
-      comment2 = ""; // Reset the second comment string
-      comment1 += "Specifies the number of individuals added per iteration;";
-      comment2 += "Specifies the maximum amount of individuals in the population;";
-      comment2 += "if growth is enabled;";
       gpb.registerFileParameter<std::size_t, std::size_t>(
          "growthRate" // The name of the variable
          , "maxPopulationSize" // The name of the variable
          , 0 // The default value of the first variable
          , 0 // The default value of the second variable
-         , boost::bind(
-            &GBaseParChildT<ind_type>::setPopulationGrowth
-            , this
-            , _1
-            , _2
-           )
+         , [this](std::size_t gr, std::size_t ms){ this->setPopulationGrowth(gr,ms); }
          , "populationGrowth"
-         , Gem::Common::VAR_IS_SECONDARY // Alternative: VAR_IS_ESSENTIAL
-         , comment1
-         , comment2
-      );
+      )
+      << "Specifies the number of individuals added per iteration" << Gem::Common::nextComment()
+      << "Specifies the maximum amount of individuals in the population" << std::endl
+      << "if growth is enabled";
    }
 
    /***************************************************************************/

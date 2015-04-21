@@ -84,7 +84,9 @@ public:
 	 * triggered by a call to GBaseConsumerT<processable_type>::shutdown().
 	 */
 	 void async_startProcessing() {
-		processingThread_ = boost::thread(boost::bind(&GSerialConsumerT<processable_type>::processItems, this));
+		processingThread_ = boost::thread(
+		   [this](){ this->processItems(); }
+		);
 	}
 
 	/***************************************************************************/
