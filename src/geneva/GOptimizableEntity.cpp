@@ -1565,92 +1565,55 @@ bool GOptimizableEntity::isWorseThan(boost::shared_ptr<GOptimizableEntity> p) co
 void GOptimizableEntity::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 ) {
-   std::string comment;
-
 	// Call our parent class'es function
 	GObject::addConfigurationOptions(gpb);
 
 	// Add local data
-   comment = ""; // Reset the comment string
-   comment += "Specifies which strategy should be used to calculate the evaluation:;";
-   comment += "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid solutions;";
-   comment += "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions;";
-   comment += "2 (a.k.a. USESIGMOID): Assign a multiple of validityLevel_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations;";
-   comment += "3 (a.k.a. USEWORSTKNOWNVALIDFORINVALID): Assign \"invalidityLevel*worstKnownValid\" to invalid individuals, using normal evaluation otherwise;";
    gpb.registerFileParameter<evaluationPolicy>(
       "evalPolicy" // The name of the variable
       , Gem::Geneva::USESIMPLEEVALUATION // The default value
-      , boost::bind(
-         &GOptimizableEntity::setEvaluationPolicy
-         , this
-         , _1
-      )
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
+      , [this](evaluationPolicy ep){ this->setEvaluationPolicy(ep); }
+   )
+   << "Specifies which strategy should be used to calculate the evaluation:" << std::endl
+   <<  "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid solutions" << std::endl
+   <<  "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions" << std::endl
+   <<  "2 (a.k.a. USESIGMOID): Assign a multiple of validityLevel_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations" << std::endl
+   <<  "3 (a.k.a. USEWORSTKNOWNVALIDFORINVALID): Assign \"invalidityLevel*worstKnownValid\" to invalid individuals, using normal evaluation otherwise";
 
-   comment = ""; // Reset the comment string
-   comment += "When using a sigmoid function to transform the individual's fitness,;";
-   comment += "this parameter influences the steepness of the function at the center of the sigmoid.;";
-   comment += "The parameter must have a value > 0.;";
    gpb.registerFileParameter<double>(
       "steepness" // The name of the variable
       , Gem::Geneva::FITNESSSIGMOIDSTEEPNESS // The default value
-      , boost::bind(
-         &GOptimizableEntity::setSteepness
-         , this
-         , _1
-      )
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
+      , [this](double ss){ this->setSteepness(ss); }
+   )
+   << "When using a sigmoid function to transform the individual's fitness," << std::endl
+   << "this parameter influences the steepness of the function at the center of the sigmoid." << std::endl
+   << "The parameter must have a value > 0.";
 
-   comment = ""; // Reset the comment string
-   comment += "When using a sigmoid function to transform the individual's fitness,;";
-   comment += "this parameter sets the upper/lower boundary of the sigmoid.;";
-   comment += "The parameter must have a value > 0.;";
    gpb.registerFileParameter<double>(
       "barrier" // The name of the variable
       , Gem::Geneva::WORSTALLOWEDVALIDFITNESS // The default value
-      , boost::bind(
-         &GOptimizableEntity::setBarrier
-         , this
-         , _1
-      )
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
+      , [this](double barrier){ this->setBarrier(barrier); }
+   )
+   << "When using a sigmoid function to transform the individual's fitness," << std::endl
+   << "this parameter sets the upper/lower boundary of the sigmoid." << std::endl
+   << "The parameter must have a value > 0.;";
 
-   comment = ""; // Reset the comment string
-   comment += "The maximum number of unsuccessful adaptions in a row for one call to adapt();";
    gpb.registerFileParameter<std::size_t>(
       "maxUnsuccessfulAdaptions" // The name of the variable
       , DEFMAXUNSUCCESSFULADAPTIONS // The default value
-      , boost::bind(
-         &GOptimizableEntity::setMaxUnsuccessfulAdaptions
-         , this
-         , _1
-      )
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
+      , [this](std::size_t mua){ this->setMaxUnsuccessfulAdaptions(mua); }
+   )
+   << "The maximum number of unsuccessful adaptions in a row for one call to adapt()";
 
-   comment = ""; // Reset the comment string
-   comment += "The maximum allowed number of retries during the;";
-   comment += "adaption of individuals until a valid solution was found;";
-   comment += "A parameter set is considered to be \"valid\" if;";
-   comment += "it passes all validity checks;";
    gpb.registerFileParameter<std::size_t>(
       "maxRetriesUntilValid" // The name of the variable
       , DEFMAXRETRIESUNTILVALID // The default value
-      , boost::bind(
-         &GOptimizableEntity::setMaxRetriesUntilValid
-         , this
-         , _1
-        )
-      , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-      , comment
-   );
+      , [this](std::size_t mruv){ this->setMaxRetriesUntilValid(mruv); }
+   )
+   << "The maximum allowed number of retries during the" << std::endl
+   << "adaption of individuals until a valid solution was found" << std::endl
+   << "A parameter set is considered to be \"valid\" if" << std::endl
+   << "it passes all validity checks;";
 
 
 
