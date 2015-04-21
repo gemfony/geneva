@@ -469,7 +469,15 @@ protected:
       }
 
       // Sort old work items so they can be readily used by the caller
-      std::sort(oldWorkItems.begin(), oldWorkItems.end(), courtierPosComp());
+      std::sort(
+         oldWorkItems.begin()
+         , oldWorkItems.end()
+         // , courtierPosComp()
+         , [](boost::shared_ptr<processable_type> x, boost::shared_ptr<processable_type> y) -> bool {
+            using namespace boost;
+            return boost::get<1>(x->getCourtierId()) < boost::get<1>(y->getCourtierId());
+         }
+      );
    }
 
    /***************************************************************************/
@@ -507,19 +515,6 @@ protected:
    std::size_t expectedNumber_; ///< The number of work items to be submitted (and expected back)
    boost::posix_time::ptime iterationStartTime_; ///< Temporary that holds the start time for the retrieval of items in a given iteration
    boost::posix_time::time_duration lastAverage_; ///< The average time needed for the last submission
-
-private:
-   /***************************************************************************/
-   /**
-    * A simple comparison operator that helps to sort individuals according to their
-    * position in the population. Smaller position numbers will end up in front.
-    */
-   struct courtierPosComp {
-      bool operator()(boost::shared_ptr<processable_type> x, boost::shared_ptr<processable_type> y) {
-         using namespace boost;
-         return boost::get<1>(x->getCourtierId()) < boost::get<1>(y->getCourtierId());
-      }
-   };
 };
 
 /******************************************************************************/
