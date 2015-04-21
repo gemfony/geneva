@@ -394,22 +394,14 @@ void GBaseSA::addConfigurationOptions (
    gpb.registerFileParameter<double>(
       "t0" // The name of the variable
       , SA_T0 // The default value
-      , boost::bind(
-         &GBaseSA::setT0
-         , this
-         , _1
-        )
+      , [this](double sat0){ this->setT0(sat0); }
    )
    << "The start temperature used in simulated annealing";
 
    gpb.registerFileParameter<double>(
       "alpha" // The name of the variable
       , SA_ALPHA // The default value
-      , boost::bind(
-         &GBaseSA::setTDegradationStrength
-         , this
-         , _1
-      )
+      , [this](double ds){ this->setTDegradationStrength(ds); }
    )
    << "The degradation strength used in the cooling" << std::endl
    << "schedule in simulated annealing;";

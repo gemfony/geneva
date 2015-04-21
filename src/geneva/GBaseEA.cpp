@@ -250,11 +250,7 @@ void GBaseEA::addConfigurationOptions (
 	gpb.registerFileParameter<sortingMode>(
 		"sortingMethod" // The name of the variable
 		, DEFAULTSMODE // The default value
-		, boost::bind(
-			&GBaseEA::setSortingScheme
-			, this
-			, _1
-		  )
+		, [this](sortingMode sm){ this->setSortingScheme(sm); }
 	)
 	<< "The sorting scheme. Options" << std::endl
 	<< "0: MUPLUSNU mode with a single evaluation criterion" << std::endl

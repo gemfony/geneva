@@ -820,18 +820,14 @@ void GBasePS::addConfigurationOptions (
    gpb.registerFileParameter<std::size_t>(
       "size" // The name of the first variable
       , DEFAULTPOPULATIONSIZE
-      , boost::bind(
-         &GBasePS::setDefaultPopulationSize
-         , this
-         , _1
-        )
+      , [this](std::size_t dps){ this->setDefaultPopulationSize(dps); }
    )
    << "The total size of the population";
 
    gpb.registerFileParameter<bool>(
       "scanRandomly" // The name of the variable
-      , scanRandomly_
       , true // The default value
+      , [this](bool sr){ this->setScanRandomly(sr); }
    )
    << "Indicates whether scans of individual variables should be done randomly" << std::endl
    << "(1) or on a grid (0)";
@@ -839,8 +835,8 @@ void GBasePS::addConfigurationOptions (
    // Override the default value of maxStallIteration, as the parent
    // default does not make sense for us (we do not need stall iterations)
    gpb.resetFileParameterDefaults(
-         "maxStallIteration"
-         , DEFAULTMAXPARSCANSTALLIT
+      "maxStallIteration"
+      , DEFAULTMAXPARSCANSTALLIT
    );
 }
 

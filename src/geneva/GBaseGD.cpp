@@ -591,22 +591,14 @@ void GBaseGD::addConfigurationOptions (
 	gpb.registerFileParameter<std::size_t>(
 		"nStartingPoints" // The name of the variable
 		, DEFAULTGDSTARTINGPOINTS // The default value
-		, boost::bind(
-			&GBaseGD::setNStartingPoints
-			, this
-			, _1
-		  )
+		, [this](std::size_t nsp){ this->setNStartingPoints(nsp); }
 	)
 	<< "The number of simultaneous gradient descents";
 
 	gpb.registerFileParameter<double>(
 		"finiteStep" // The name of the variable
 		, DEFAULTFINITESTEP // The default value
-		, boost::bind(
-			&GBaseGD::setFiniteStep
-			, this
-			, _1
-		  )
+      , [this](double fs){ this->setFiniteStep(fs); }
 	)
 	<< "The size of the adjustment in the difference quotient," << std::endl
 	<< "specified in per mill of the allowed or expected value" << std::endl
@@ -615,11 +607,7 @@ void GBaseGD::addConfigurationOptions (
 	gpb.registerFileParameter<double>(
 		"stepSize" // The name of the variable
 		, DEFAULTSTEPSIZE // The default value
-		, boost::bind(
-			&GBaseGD::setStepSize
-			, this
-			, _1
-		  )
+      , [this](double ss){ this->setStepSize(ss); }
 	)
 	<< "The size of each step into the" << std::endl
 	<< "direction of steepest descent," << std::endl
