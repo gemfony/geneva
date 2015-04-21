@@ -273,26 +273,17 @@ void GMultiThreadedGD::finalize() {
 void GMultiThreadedGD::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 ) {
-	std::string comment;
-
 	// Call our parent class'es function
 	GBaseGD::addConfigurationOptions(gpb);
 
 	// add local data
-	comment = ""; // Reset the comment string
-	comment += "The number of evaluation threads;";
-	comment += "0 means: determine automatically;";
 	gpb.registerFileParameter<boost::uint16_t>(
 		"nEvaluationThreads" // The name of the variable
 		, 0 // The default value
-		, boost::bind(
-			&GMultiThreadedGD::setNThreads
-			, this
-			, _1
-		)
-		, Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-		, comment
-	);
+		, [this](boost::uint16_t nt){ this->setNThreads(nt); }
+	)
+	<< "The number of evaluation threads" << std::endl
+	<< "0 means: determine automatically;";
 }
 
 /******************************************************************************/
@@ -325,15 +316,7 @@ void GMultiThreadedGD::runFitnessCalculation() {
 
       // Do the actual scheduling
       tp_ptr_->async_schedule(
-         boost::function<double()>(
-            boost::bind(
-               &GParameterSet::nonConstFitness
-               , *it
-               , 0
-               , Gem::Geneva::ALLOWREEVALUATION
-               , Gem::Geneva::USETRANSFORMEDFITNESS
-            )
-         )
+         [it](){(*it)->nonConstFitness(0, ALLOWREEVALUATION, USETRANSFORMEDFITNESS);}
       );
    }
 
