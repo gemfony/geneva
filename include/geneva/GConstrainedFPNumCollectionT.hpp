@@ -212,7 +212,7 @@ public:
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
-   ) const OVERRIDE {
+   ) const override {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with a GConstrainedFPNumCollectionT<fp_type> reference
@@ -236,7 +236,7 @@ public:
 	 * @param val The value to which the transformation should be applied
 	 * @return The transformed value
 	 */
-	virtual fp_type transfer(const fp_type& val) const OVERRIDE {
+	virtual fp_type transfer(const fp_type& val) const override {
 		fp_type lowerBoundary = GConstrainedNumCollectionT<fp_type>::getLowerBoundary();
 		fp_type upperBoundary = GConstrainedNumCollectionT<fp_type>::getUpperBoundary();
 
@@ -275,7 +275,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const OVERRIDE {
+   virtual std::string name() const override {
       return std::string("GConstrainedFPNumCollectionT");
    }
 
@@ -289,7 +289,7 @@ protected:
 	 *
 	 * @param cp A copy of another GConstrainedFPNumCollectionT<fp_type> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject *cp) OVERRIDE {
+	virtual void load_(const GObject *cp) override {
 		// Convert cp into local format
 		const GConstrainedFPNumCollectionT<fp_type> *p_load = GObject::gobject_conversion<GConstrainedFPNumCollectionT<fp_type> >(cp);
 
@@ -307,7 +307,7 @@ protected:
 	/**
 	 * Triggers random initialization of the parameter collection
 	 */
-	virtual bool randomInit_(const activityMode&) OVERRIDE {
+	virtual bool randomInit_(const activityMode&) override {
 		for(std::size_t pos=0; pos<this->size(); pos++) {
 			this->setValue(
 				pos
@@ -338,7 +338,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() OVERRIDE {
+	virtual bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -356,7 +356,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GConstrainedNumCollectionT<fp_type>::specificTestsNoFailureExpected_GUnitTests();
@@ -369,7 +369,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GConstrainedNumCollectionT<fp_type>::specificTestsFailuresExpected_GUnitTests();

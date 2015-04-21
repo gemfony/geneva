@@ -187,7 +187,7 @@ public:
     *
     * @return An object of the desired algorithm type
     */
-   virtual boost::shared_ptr<optalg_type> get() OVERRIDE {
+   virtual boost::shared_ptr<optalg_type> get() override {
       // Retrieve a work item using the methods implemented in our parent class
       boost::shared_ptr<optalg_type> p_alg = Gem::Common::GFactoryT<optalg_type>::get();
 
@@ -465,7 +465,7 @@ protected:
 	 */
 	virtual void describeLocalOptions_(
 		Gem::Common::GParserBuilder& gpb
-	) OVERRIDE {
+	) override {
 		using namespace Gem::Courtier;
 
 		std::string comment;

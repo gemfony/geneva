@@ -208,7 +208,7 @@ public:
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
-   ) const OVERRIDE {
+   ) const override {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with a GAdaptorT reference
@@ -233,7 +233,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const OVERRIDE {
+   virtual std::string name() const override {
       return std::string("GFPGaussAdaptorT");
    }
 
@@ -244,7 +244,7 @@ protected:
 	 *
 	 * @param cp A copy of another GFPGaussAdaptorT<fp_type> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject* cp) OVERRIDE {
+	virtual void load_(const GObject* cp) override {
 	    // Check that we are not accidently assigning this object to itself
 	    GObject::selfAssignmentCheck<GFPGaussAdaptorT<fp_type> >(cp);
 
@@ -268,7 +268,7 @@ protected:
 	virtual void customAdaptions(
       fp_type& value
       , const fp_type& range
-   ) OVERRIDE {
+   ) override {
 	   using namespace Gem::Common;
 	   using namespace Gem::Hap;
 
@@ -288,7 +288,7 @@ public:
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 */
-	virtual bool modify_GUnitTests() OVERRIDE {
+	virtual bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -311,7 +311,7 @@ public:
 	 * Performs self tests that are expected to succeed. This is needed for
 	 * testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -328,7 +328,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;

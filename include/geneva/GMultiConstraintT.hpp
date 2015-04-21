@@ -161,7 +161,7 @@ public:
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
-   ) const OVERRIDE {
+   ) const override {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with a GAdaptorT reference
@@ -187,7 +187,7 @@ public:
     */
    virtual void addConfigurationOptions(
       Gem::Common::GParserBuilder& gpb
-   ) OVERRIDE {
+   ) override {
       // Call our parent class'es function
       GObject::addConfigurationOptions(gpb);
    }
@@ -303,7 +303,7 @@ protected:
    /**
     * Loads the data of another GPreEvaluationValidityCheckT<ind_type>
     */
-   virtual void load_(const GObject* cp) OVERRIDE {
+   virtual void load_(const GObject* cp) override {
       // Check that we are indeed dealing with an object of the same type and that we are not
       // accidently trying to compare this object with itself.
       const GPreEvaluationValidityCheckT<ind_type> *p_load = GObject::gobject_conversion<GPreEvaluationValidityCheckT<ind_type> >(cp);
@@ -435,7 +435,7 @@ public:
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
-   ) const OVERRIDE {
+   ) const override {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with a GAdaptorT reference
@@ -482,7 +482,7 @@ protected:
    /**
     * Loads the data of another GPreEvaluationValidityCheckT<ind_type>
     */
-   virtual void load_(const GObject* cp) OVERRIDE {
+   virtual void load_(const GObject* cp) override {
       // Check that we are indeed dealing with an object of the same type and that we are not
       // accidently trying to compare this object with itself.
       const GValidityCheckContainerT<ind_type> *p_load = GObject::gobject_conversion<GValidityCheckContainerT<ind_type> >(cp);
@@ -614,7 +614,7 @@ public:
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
-   ) const OVERRIDE {
+   ) const override {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with a GAdaptorT reference
@@ -749,7 +749,7 @@ protected:
    /**
     * Loads the data of another GPreEvaluationValidityCheckT<ind_type>
     */
-   virtual void load_(const GObject* cp) OVERRIDE {
+   virtual void load_(const GObject* cp) override {
       // Check that we are indeed dealing with an object of the same type and that we are not
       // accidently trying to compare this object with itself.
       const GCheckCombinerT<ind_type> *p_load = GObject::gobject_conversion<GCheckCombinerT<ind_type> >(cp);

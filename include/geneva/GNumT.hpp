@@ -200,7 +200,7 @@ public:
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
-   ) const OVERRIDE {
+   ) const override {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with a GAdaptorT reference
@@ -281,7 +281,7 @@ public:
    /**
     * Lets the audience know whether this is a leaf or a branch object
     */
-   virtual bool isLeaf() const OVERRIDE {
+   virtual bool isLeaf() const override {
       return true;
    }
 
@@ -289,7 +289,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const OVERRIDE {
+   virtual std::string name() const override {
       return std::string("GNumT");
    }
 
@@ -303,7 +303,7 @@ public:
    virtual void toPropertyTree (
       pt::ptree& ptr
       , const std::string& baseName
-   ) const OVERRIDE {
+   ) const override {
       ptr.put(baseName + ".name", this->getParameterName());
       ptr.put(baseName + ".type", this->name());
       ptr.put(baseName + ".baseType", Gem::Common::GTypeToStringT<T>::value());
@@ -326,7 +326,7 @@ protected:
 	 *
 	 * @param cp A copy of another GNumT<T> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject *cp) OVERRIDE {
+	virtual void load_(const GObject *cp) override {
 		// Convert cp into local format
 		const GNumT<T> *p_load = GObject::gobject_conversion<GNumT<T> >(cp);
 
@@ -343,7 +343,7 @@ protected:
     * Returns a "comparative range". This is e.g. used to make Gauss-adaption
     * independent of a parameters value range
     */
-   virtual T range() const OVERRIDE {
+   virtual T range() const override {
       return upperInitBoundary_ - lowerInitBoundary_;
    }
 
@@ -373,7 +373,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() OVERRIDE {
+	virtual bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -392,7 +392,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterT<T>::specificTestsNoFailureExpected_GUnitTests();
@@ -425,7 +425,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterT<T>::specificTestsFailuresExpected_GUnitTests();

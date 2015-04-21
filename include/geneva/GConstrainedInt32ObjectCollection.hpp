@@ -94,26 +94,26 @@ public:
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
-   ) const OVERRIDE;
+   ) const override;
 
    /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const OVERRIDE;
+   virtual G_API_GENEVA std::string name() const override;
 
 protected:
 	/** @brief Loads the data of another GObject */
-	virtual G_API_GENEVA void load_(const GObject*) OVERRIDE;
+	virtual G_API_GENEVA void load_(const GObject*) override;
 	/** @brief Creates a deep clone of this object. */
-	virtual G_API_GENEVA GObject* clone_() const OVERRIDE;
+	virtual G_API_GENEVA GObject* clone_() const override;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA bool modify_GUnitTests() override;
 	/** @brief Fills the collection with GConstrainedInt32Object objects */
 	G_API_GENEVA void fillWithObjects(const std::size_t&);
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/

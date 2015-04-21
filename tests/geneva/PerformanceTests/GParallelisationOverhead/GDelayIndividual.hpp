@@ -109,7 +109,7 @@ public:
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
-   ) const OVERRIDE;
+   ) const override;
 
    /** @brief Sets the sleep-time to a user-defined value */
    void setSleepTime(const boost::posix_time::time_duration&);
@@ -123,9 +123,9 @@ protected:
    virtual Gem::Geneva::GObject* clone_() const;
 
    /** @brief The actual adaption operations */
-   virtual std::size_t customAdaptions() OVERRIDE;
+   virtual std::size_t customAdaptions() override;
    /** @brief The actual fitness calculation takes place here */
-   virtual double fitnessCalculation() OVERRIDE;
+   virtual double fitnessCalculation() override;
 
 private:
    boost::posix_time::time_duration sleepTime_; ///< The amount of time the evaluation function should sleep before continuing

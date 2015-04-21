@@ -221,7 +221,7 @@ public:
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
-   ) const OVERRIDE {
+   ) const override {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with a GConstrainedFPT<fp_type> reference
@@ -267,7 +267,7 @@ public:
 	 *
 	 * @param val The new fp_type value stored in this class
 	 */
-	virtual void setValue(const fp_type& val) OVERRIDE {
+	virtual void setValue(const fp_type& val) override {
 	   fp_type tmpVal = val;
 	   if(val==boost::math::float_next<fp_type>(this->getUpperBoundary())) {
 	      tmpVal = boost::math::float_prior<fp_type>(val);
@@ -297,7 +297,7 @@ public:
       const fp_type& val
       , const fp_type& lowerBoundary
       , const fp_type& upperBoundary
-   ) OVERRIDE {
+   ) override {
       fp_type tmpVal = val;
       if(val==upperBoundary) {
          tmpVal = boost::math::float_prior<fp_type>(val);
@@ -325,7 +325,7 @@ public:
 	 * @param lower The new lower boundary for this object
 	 * @param upper The new upper boundary for this object
 	 */
-	virtual void setBoundaries(const fp_type& lowerBoundary, const fp_type& upperBoundary) OVERRIDE {
+	virtual void setBoundaries(const fp_type& lowerBoundary, const fp_type& upperBoundary) override {
 		// Set the actual boundaries
 		GConstrainedNumT<fp_type>::setBoundaries(lowerBoundary, boost::math::float_prior<fp_type>(upperBoundary));
 	}
@@ -337,7 +337,7 @@ public:
 	 * @param val The value to which the transformation should be applied
 	 * @return The transformed value
 	 */
-	virtual fp_type transfer(const fp_type& val) const  OVERRIDE {
+	virtual fp_type transfer(const fp_type& val) const  override {
 		fp_type lowerBoundary = GConstrainedNumT<fp_type>::getLowerBoundary();
 		fp_type upperBoundary = GConstrainedNumT<fp_type>::getUpperBoundary();
 
@@ -380,7 +380,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const OVERRIDE {
+   virtual std::string name() const override {
       return std::string("GConstrainedFPT");
    }
 
@@ -391,7 +391,7 @@ protected:
 	 *
 	 * @param cp Another GConstrainedFPT<fp_type> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject *cp) OVERRIDE {
+	virtual void load_(const GObject *cp) override {
 		// Convert GObject pointer to local format
 		const GConstrainedFPT<fp_type> *p_load = GObject::gobject_conversion<GConstrainedFPT<fp_type> >(cp);
 
@@ -409,7 +409,7 @@ protected:
 	/**
 	 * Randomly initializes the parameter (within its limits)
 	 */
-	virtual bool randomInit_(const activityMode&) OVERRIDE {
+	virtual bool randomInit_(const activityMode&) override {
 		this->setValue(
 				this->GObject::gr_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(
 						GConstrainedNumT<fp_type>::getLowerBoundary(), GConstrainedNumT<fp_type>::getUpperBoundary()
@@ -431,7 +431,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() OVERRIDE {
+	virtual bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -450,7 +450,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		// Some general settings
 		const std::size_t nTests = 10000;
@@ -866,7 +866,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		// Some general settings
 		const fp_type testVal = fp_type(42);

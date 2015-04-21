@@ -127,16 +127,16 @@ public:
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
-   ) const OVERRIDE;
+   ) const override;
 
 	/** @brief Sets the number of neighborhoods and the number of members in them */
 	G_API_GENEVA void setSwarmSizes(std::size_t, std::size_t);
 
 	/** @brief Returns information about the type of optimization algorithm */
-	virtual G_API_GENEVA std::string getOptimizationAlgorithm() const OVERRIDE;
+	virtual G_API_GENEVA std::string getOptimizationAlgorithm() const override;
 
 	/** @brief Loads a checkpoint from disk */
-	virtual G_API_GENEVA void loadCheckpoint(const boost::filesystem::path&) OVERRIDE;
+	virtual G_API_GENEVA void loadCheckpoint(const boost::filesystem::path&) override;
 
 	/** @brief Allows to set a static multiplier for personal distances */
 	G_API_GENEVA void setCPersonal(double);
@@ -188,12 +188,12 @@ public:
 	G_API_GENEVA bool neighborhoodsFilledUpRandomly() const;
 
 	/** @brief Retrieves the number of processable items for the current iteration */
-	virtual G_API_GENEVA std::size_t getNProcessableItems() const OVERRIDE;
+	virtual G_API_GENEVA std::size_t getNProcessableItems() const override;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual G_API_GENEVA void addConfigurationOptions (
 		Gem::Common::GParserBuilder& gpb
-	) OVERRIDE;
+	) override;
 
 	/***************************************************************************/
 	/**
@@ -227,34 +227,34 @@ public:
 	}
 
    /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const OVERRIDE;
+   virtual G_API_GENEVA std::string name() const override;
 
 protected:
 	/** @brief Loads the data of another population */
-	virtual G_API_GENEVA void load_(const GObject *) OVERRIDE;
+	virtual G_API_GENEVA void load_(const GObject *) override;
 	/** @brief Creates a deep clone of this object */
 	virtual G_API_GENEVA GObject *clone_() const = 0;
 
 	/** @brief Does some preparatory work before the optimization starts */
-	virtual G_API_GENEVA void init() OVERRIDE;
+	virtual G_API_GENEVA void init() override;
 	/** @brief Does any necessary finalization work */
-	virtual G_API_GENEVA void finalize() OVERRIDE;
+	virtual G_API_GENEVA void finalize() override;
 
    /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-   virtual G_API_GENEVA boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const OVERRIDE;
+   virtual G_API_GENEVA boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
 
 	/** @brief The actual business logic to be performed during each iteration; Returns the best achieved fitness */
-	virtual G_API_GENEVA boost::tuple<double, double> cycleLogic() OVERRIDE;
+	virtual G_API_GENEVA boost::tuple<double, double> cycleLogic() override;
    /** @brief Fixes an incomplete population */
    virtual G_API_GENEVA void adjustNeighborhoods() BASE;
 
 	/** @brief Saves the state of the class to disc. */
-	virtual G_API_GENEVA void saveCheckpoint() const OVERRIDE;
+	virtual G_API_GENEVA void saveCheckpoint() const override;
 
 	/** @brief Updates the best individuals found */
 	virtual G_API_GENEVA boost::tuple<double, double> findBests();
 	/** @brief Resizes the population to the desired level and does some error checks */
-	virtual G_API_GENEVA void adjustPopulation() OVERRIDE;
+	virtual G_API_GENEVA void adjustPopulation() override;
 
 	/** @brief Helper function that returns the id of the first individual of a neighborhood */
 	G_API_GENEVA std::size_t getFirstNIPos(const std::size_t&) const;
@@ -311,7 +311,7 @@ protected:
 	G_API_GENEVA void updatePersonalBestIfBetter(boost::shared_ptr<GParameterSet>);
 
 	/** @brief Returns the name of this optimization algorithm */
-	virtual G_API_GENEVA std::string getAlgorithmName() const OVERRIDE;
+	virtual G_API_GENEVA std::string getAlgorithmName() const override;
 
 private:
 	/***************************************************************************/
@@ -324,11 +324,11 @@ private:
 public:
 	/***************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA bool modify_GUnitTests() override;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 
 public:
 	/***************************************************************************/
@@ -378,7 +378,7 @@ public:
 	       const GObject& // the other object
 	       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 	       , const double& // the limit for allowed deviations of floating point types
-	    ) const OVERRIDE;
+	    ) const override;
 
 	    /** @brief Set the dimension of the output canvas */
 	    G_API_GENEVA void setDims(const boost::uint16_t&, const boost::uint16_t&);
@@ -394,16 +394,16 @@ public:
 
 	protected:
 	    /** @brief A function that is called once before the optimization starts */
-	    virtual G_API_GENEVA void firstInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
+	    virtual G_API_GENEVA void firstInformation(GOptimizationAlgorithmT<GParameterSet> * const) override;
 	    /** @brief A function that is called during each optimization cycle */
-	    virtual G_API_GENEVA void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
+	    virtual G_API_GENEVA void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const) override;
 	    /** @brief A function that is called once at the end of the optimization cycle */
-	    virtual G_API_GENEVA void lastInformation(GOptimizationAlgorithmT<GParameterSet> * const) OVERRIDE;
+	    virtual G_API_GENEVA void lastInformation(GOptimizationAlgorithmT<GParameterSet> * const) override;
 
 	    /** @brief Loads the data of another object */
-	    virtual G_API_GENEVA void load_(const GObject*) OVERRIDE;
+	    virtual G_API_GENEVA void load_(const GObject*) override;
 	    /** @brief Creates a deep clone of this object */
-		virtual G_API_GENEVA GObject* clone_() const OVERRIDE;
+		virtual G_API_GENEVA GObject* clone_() const override;
 
 	private:
 		boost::uint16_t xDim_; ///< The dimension of the canvas in x-direction
@@ -415,11 +415,11 @@ public:
 
 	public:
 		/** @brief Applies modifications to this object. This is needed for testing purposes */
-		virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE;
+		virtual G_API_GENEVA bool modify_GUnitTests() override;
 		/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-		virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+		virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
 		/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-		virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+		virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 
 		/************************************************************************/
 	};

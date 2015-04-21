@@ -205,7 +205,7 @@ public:
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
-   ) const OVERRIDE;
+   ) const override;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual G_API_INDIVIDUALS void addConfigurationOptions(Gem::Common::GParserBuilder&);
@@ -421,12 +421,12 @@ public:
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GFunctionIndividual */
-	virtual G_API_INDIVIDUALS void load_(const GObject*) FINAL;
+	virtual G_API_INDIVIDUALS void load_(const GObject*) final;
 	/** @brief Creates a deep clone of this object */
 	virtual G_API_INDIVIDUALS GObject* clone_() const;
 
 	/** @brief The actual value calculation takes place here */
-	virtual G_API_INDIVIDUALS double fitnessCalculation() OVERRIDE;
+	virtual G_API_INDIVIDUALS double fitnessCalculation() override;
 
 	/***************************************************************************/
 
@@ -710,7 +710,7 @@ public:
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
-   ) const OVERRIDE;
+   ) const override;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
    virtual G_API_INDIVIDUALS void addConfigurationOptions(Gem::Common::GParserBuilder&);
@@ -772,7 +772,7 @@ public:
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
-   ) const OVERRIDE;
+   ) const override;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
    virtual G_API_INDIVIDUALS void addConfigurationOptions(Gem::Common::GParserBuilder&);
@@ -833,7 +833,7 @@ public:
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
-   ) const OVERRIDE;
+   ) const override;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
    virtual G_API_INDIVIDUALS void addConfigurationOptions(Gem::Common::GParserBuilder&);

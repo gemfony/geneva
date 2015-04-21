@@ -149,7 +149,7 @@ public:
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
-   ) const OVERRIDE;
+   ) const override;
 
 	/** @brief Triggers execution of the client loop */
 	G_API_GENEVA int clientRun();
@@ -168,9 +168,9 @@ public:
 	G_API_GENEVA bool onlyBestIndividualsAreCopied() const;
 
 	/** @brief Allows to randomly initialize parameter members. Unused in this wrapper object */
-	virtual G_API_GENEVA bool randomInit(const activityMode&) OVERRIDE;
+	virtual G_API_GENEVA bool randomInit(const activityMode&) override;
 	/** @brief Triggers fitness calculation (i.e. optimization) for this object */
-	virtual G_API_GENEVA double fitnessCalculation() OVERRIDE;
+	virtual G_API_GENEVA double fitnessCalculation() override;
 
 	/** @brief Allows to add an optimization algorithm to the chain */
 	G_API_GENEVA void addAlgorithm(boost::shared_ptr<GOABase>);
@@ -191,7 +191,7 @@ public:
          boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
    );
 	/** @brief Perform the actual optimization cycle */
-	virtual G_API_GENEVA void optimize(const boost::uint32_t& = 0) OVERRIDE;
+	virtual G_API_GENEVA void optimize(const boost::uint32_t& = 0) override;
 
 	/***************************************************************************/
 	// The following is a trivial list of getters and setters
@@ -204,10 +204,10 @@ public:
 	G_API_GENEVA boost::uint32_t getIterationOffset() const;
 
 	/** @brief Retrieval of the current iteration */
-	virtual G_API_GENEVA uint32_t getIteration() const OVERRIDE;
+	virtual G_API_GENEVA uint32_t getIteration() const override;
 
 	/** @brief Returns the name of this optimization algorithm */
-	virtual G_API_GENEVA std::string getAlgorithmName() const OVERRIDE;
+	virtual G_API_GENEVA std::string getAlgorithmName() const override;
 
 	/** @brief Loads some configuration data from arguments passed on the command line (or another char ** that is presented to it) */
 	G_API_GENEVA void parseCommandLine(
@@ -220,10 +220,10 @@ public:
 	G_API_GENEVA void parseConfigFile(const std::string&);
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) OVERRIDE;
+	virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) override;
 
 	/** @brief Allows to assign a name to the role of this individual(-derivative) */
-	virtual G_API_GENEVA std::string getIndividualCharacteristic() const OVERRIDE;
+	virtual G_API_GENEVA std::string getIndividualCharacteristic() const override;
 
 	/***************************************************************************/
 	/**
@@ -268,7 +268,7 @@ public:
    virtual G_API_GENEVA boost::any getVarVal(
       const std::string&
       , const boost::tuple<std::size_t, std::string, std::size_t>& target
-   ) OVERRIDE;
+   ) override;
 
    /** @brief Allows to register a pluggable optimization monitor */
    G_API_GENEVA void registerPluggableOM (
@@ -280,17 +280,17 @@ public:
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another Go2 object */
-	virtual G_API_GENEVA void load_(const GObject *) OVERRIDE;
+	virtual G_API_GENEVA void load_(const GObject *) override;
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GObject *clone_() const OVERRIDE;
+	virtual G_API_GENEVA GObject *clone_() const override;
 
 	/** @brief Retrieves the best individual found */
-	virtual G_API_GENEVA boost::shared_ptr<GParameterSet> customGetBestIndividual() OVERRIDE;
+	virtual G_API_GENEVA boost::shared_ptr<GParameterSet> customGetBestIndividual() override;
 	/** @brief Retrieves a list of the best individuals found */
-	virtual G_API_GENEVA std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() OVERRIDE;
+	virtual G_API_GENEVA std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() override;
 
 	/** @brief Satisfies a requirement of GOptimizableI */
-	virtual G_API_GENEVA void runFitnessCalculation() OVERRIDE;
+	virtual G_API_GENEVA void runFitnessCalculation() override;
 
 private:
    /** @brief Sets the number of random number production threads */

@@ -176,7 +176,7 @@ public:
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
-   ) const OVERRIDE {
+   ) const override {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with a GAdaptorT reference
@@ -218,7 +218,7 @@ public:
 	 */
 	virtual void addConfigurationOptions (
 		Gem::Common::GParserBuilder& gpb
-	) OVERRIDE {
+	) override {
 		// Call our parent class'es function
 		GOptimizableEntity::addConfigurationOptions(gpb);
 
@@ -229,7 +229,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const OVERRIDE {
+   virtual std::string name() const override {
       return std::string("GMutableSetT");
    }
 
@@ -251,7 +251,7 @@ protected:
 	 *
 	 * @param cp A copy of another GMutableSetT object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject* cp) OVERRIDE {
+	virtual void load_(const GObject* cp) override {
 		// Convert cp into local format
 	  const GMutableSetT<T> *p_load = this->template gobject_conversion<GMutableSetT<T> >(cp);
 
@@ -266,7 +266,7 @@ protected:
 	 * Make the vector wrapper purely virtual allows the compiler to perform
 	 * further optimizations.
 	 */
-	virtual void dummyFunction() OVERRIDE { /* nothing */ }
+	virtual void dummyFunction() override { /* nothing */ }
 
 public:
 	/***************************************************************************/
@@ -275,7 +275,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() OVERRIDE {
+	virtual bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -304,7 +304,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -324,7 +324,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;

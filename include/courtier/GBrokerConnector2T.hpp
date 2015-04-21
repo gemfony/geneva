@@ -587,7 +587,7 @@ public:
     *
     * @param cp A constant pointer to another GSerialExecutorT object
     */
-   virtual void load(GBaseExecutorT<processable_type> const * const cp_base) OVERRIDE {
+   virtual void load(GBaseExecutorT<processable_type> const * const cp_base) override {
       GSerialExecutorT<processable_type> const * const cp = dynamic_cast<GSerialExecutorT<processable_type> const * const>(cp_base);
 
       if(!cp) { // NULL pointer
@@ -608,7 +608,7 @@ public:
     */
    virtual void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
-   ) OVERRIDE {
+   ) override {
       // Call our parent class's function
       GBaseExecutorT<processable_type>::addConfigurationOptions(gpb);
 
@@ -626,7 +626,7 @@ protected:
     *
     * @param w The work item to be processed
     */
-   virtual void submit(boost::shared_ptr<processable_type> w) OVERRIDE {
+   virtual void submit(boost::shared_ptr<processable_type> w) override {
       w->process();
    }
 
@@ -639,7 +639,7 @@ protected:
       std::vector<boost::shared_ptr<processable_type> >& workItems
       , std::vector<bool>& workItemPos
       , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
-   ) OVERRIDE {
+   ) override {
       // Mark all positions as returned
       std::vector<bool>::iterator it;
       for(it=workItemPos.begin(); it!=workItemPos.end(); ++it) {
@@ -729,7 +729,7 @@ public:
     *
     * @param cp A constant pointer to another GMTExecutorT object
     */
-   virtual void load(GBaseExecutorT<processable_type> const * const cp_base) OVERRIDE {
+   virtual void load(GBaseExecutorT<processable_type> const * const cp_base) override {
       GMTExecutorT<processable_type> const * const cp = dynamic_cast<GMTExecutorT<processable_type> const * const>(cp_base);
 
       if(!cp) { // NULL pointer
@@ -753,7 +753,7 @@ public:
     */
    virtual void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
-   ) OVERRIDE {
+   ) override {
       // Call our parent class's function
       GBaseExecutorT<processable_type>::addConfigurationOptions(gpb);
 
@@ -768,7 +768,7 @@ protected:
     *
     * @param w The work item to be processed
     */
-   virtual void submit(boost::shared_ptr<processable_type> w) OVERRIDE {
+   virtual void submit(boost::shared_ptr<processable_type> w) override {
       gtp_.async_schedule(boost::function<bool()>(boost::bind(&processable_type::process, w)));
    }
 
@@ -780,7 +780,7 @@ protected:
       std::vector<boost::shared_ptr<processable_type> >& workItems
       , std::vector<bool>& workItemPos
       , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
-   ) OVERRIDE {
+   ) override {
       gtp_.wait();
 
       // Mark all positions as "returned"
@@ -893,7 +893,7 @@ public:
     *
     * @param cp A constant pointer to another GBrokerConnector2T object
     */
-   virtual void load(GBaseExecutorT<processable_type> const * const cp_base) OVERRIDE {
+   virtual void load(GBaseExecutorT<processable_type> const * const cp_base) override {
       GBrokerConnector2T<processable_type> const * const cp = dynamic_cast<GBrokerConnector2T<processable_type> const * const>(cp_base);
 
       if(!cp) { // NULL pointer
@@ -920,7 +920,7 @@ public:
     */
    virtual void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
-   ) OVERRIDE {
+   ) override {
       std::string comment;
 
       // Call our parent class's function
@@ -1076,7 +1076,7 @@ public:
    /**
     * General initialization function to be called prior to the first submission
     */
-   virtual void init() OVERRIDE {
+   virtual void init() override {
       // To be called prior to all other initialization code
       GBaseExecutorT<processable_type>::init();
 
@@ -1094,7 +1094,7 @@ public:
    /**
     * General finalization function to be called after the last submission
     */
-   virtual void finalize() OVERRIDE {
+   virtual void finalize() override {
       // Get rid of the buffer port
       CurrentBufferPort_.reset();
 
@@ -1111,7 +1111,7 @@ protected:
       std::vector<boost::shared_ptr<processable_type> >& workItems
       , std::vector<bool>& workItemPos
       , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
-   ) OVERRIDE {
+   ) override {
       // Make sure the parent classes iterationInit function is executed first
       // This function will also update the iteration start time
       GBaseExecutorT<processable_type>::iterationInit(workItems, workItemPos, oldWorkItems);

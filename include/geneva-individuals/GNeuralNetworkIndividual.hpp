@@ -419,7 +419,7 @@ public:
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
-   ) const OVERRIDE;
+   ) const override;
 
 	/** @brief Initialization according to user-specifications */
 	G_API_INDIVIDUALS void init(
@@ -971,7 +971,7 @@ protected:
 	virtual G_API_INDIVIDUALS GObject* clone_() const;
 
 	/** @brief The actual fitness calculation */
-	virtual G_API_INDIVIDUALS double fitnessCalculation() OVERRIDE;
+	virtual G_API_INDIVIDUALS double fitnessCalculation() override;
 
 private:
 	/***************************************************************************/

@@ -187,7 +187,7 @@ public:
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
-   ) const OVERRIDE {
+   ) const override {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with a GAdaptorT reference
@@ -214,7 +214,7 @@ public:
 	 *
 	 * @return The number of adaptions that were carried out
 	 */
-	virtual std::size_t adaptImpl() OVERRIDE {
+	virtual std::size_t adaptImpl() override {
 	   std::size_t nAdapted = 0;
 
 		typename GParameterTCollectionT<T>::iterator it;
@@ -239,7 +239,7 @@ public:
 	 *
 	 * @return A boolean indicating whether this GParameterBase-derivative is an individual parameter
 	 */
-	virtual bool isIndividualParameter() const OVERRIDE {
+	virtual bool isIndividualParameter() const override {
 		return false;
 	}
 
@@ -247,7 +247,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const OVERRIDE {
+   virtual std::string name() const override {
       return std::string("GParameterTCollectionT");
    }
 
@@ -255,7 +255,7 @@ public:
    /**
     * Triggers updates when the optimization process has stalled
     */
-   virtual bool updateAdaptorsOnStall(const std::size_t& nStalls) OVERRIDE {
+   virtual bool updateAdaptorsOnStall(const std::size_t& nStalls) override {
       bool updatePerformed = false;
 
       typename GParameterTCollectionT<T>::iterator it;
@@ -278,7 +278,7 @@ public:
    virtual void toPropertyTree (
       pt::ptree& ptr
       , const std::string& baseName
-   ) const OVERRIDE {
+   ) const override {
       // Check that the object isn't empty
       if(this->empty()) {
          glogger
@@ -316,7 +316,7 @@ public:
       const std::string& adaptorName
       , const std::string& property
       , std::vector<boost::any>& data
-   ) const OVERRIDE {
+   ) const override {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
          (*cit)->queryAdaptor(adaptorName, property, data);
@@ -330,7 +330,7 @@ protected:
 	 *
 	 * @param cp A copy of another GParameterTCollectionT<T> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject* cp) OVERRIDE {
+	virtual void load_(const GObject* cp) override {
 		// Convert cp into local format
 		const GParameterTCollectionT<T> *p_load = GObject::gobject_conversion<GParameterTCollectionT<T> >(cp);
 
@@ -352,13 +352,13 @@ protected:
 	 * Making the vector wrapper purely virtual allows the compiler to perform
 	 * further optimizations.
 	 */
-	virtual void dummyFunction() OVERRIDE { /* nothing */ }
+	virtual void dummyFunction() override { /* nothing */ }
 
    /***************************************************************************/
    /**
     * This function distributes the random initialization to other objects
     */
-   virtual bool randomInit_(const activityMode& am) OVERRIDE {
+   virtual bool randomInit_(const activityMode& am) override {
       bool randomized = false;
 
       typename GParameterTCollectionT<T>::iterator it;
@@ -384,7 +384,7 @@ protected:
    virtual void floatStreamline(
       std::vector<float>& parVec
       , const activityMode& am
-   ) const OVERRIDE {
+   ) const override {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
          (*cit)->template streamline<float>(parVec, am);
@@ -406,7 +406,7 @@ protected:
    virtual void doubleStreamline(
       std::vector<double>& parVec
       , const activityMode& am
-   ) const OVERRIDE {
+   ) const override {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
          (*cit)->template streamline<double>(parVec, am);
@@ -428,7 +428,7 @@ protected:
    virtual void int32Streamline(
       std::vector<boost::int32_t>& parVec
       , const activityMode& am
-   ) const OVERRIDE {
+   ) const override {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
          (*cit)->template streamline<boost::int32_t>(parVec, am);
@@ -450,7 +450,7 @@ protected:
    virtual void booleanStreamline(
       std::vector<bool>& parVec
       , const activityMode& am
-   ) const OVERRIDE {
+   ) const override {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
          (*cit)->template streamline<bool>(parVec, am);
@@ -472,7 +472,7 @@ protected:
    virtual void floatStreamline(
       std::map<std::string, std::vector<float> >& parVec
       , const activityMode& am
-   ) const OVERRIDE {
+   ) const override {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
          (*cit)->template streamline<float>(parVec, am);
@@ -494,7 +494,7 @@ protected:
    virtual void doubleStreamline(
       std::map<std::string, std::vector<double> >& parVec
       , const activityMode& am
-   ) const OVERRIDE {
+   ) const override {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
          (*cit)->template streamline<double>(parVec, am);
@@ -516,7 +516,7 @@ protected:
    virtual void int32Streamline(
       std::map<std::string, std::vector<boost::int32_t> >& parVec
       , const activityMode& am
-   ) const OVERRIDE {
+   ) const override {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
          (*cit)->template streamline<boost::int32_t>(parVec, am);
@@ -538,7 +538,7 @@ protected:
    virtual void booleanStreamline(
       std::map<std::string, std::vector<bool> >& parVec
       , const activityMode& am
-   ) const OVERRIDE {
+   ) const override {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
          (*cit)->template streamline<bool>(parVec, am);
@@ -561,7 +561,7 @@ protected:
       std::vector<float>& lBndVec
       , std::vector<float>& uBndVec
       , const activityMode& am
-   ) const OVERRIDE {
+   ) const override {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
          (*cit)->template boundaries<float>(lBndVec, uBndVec, am);
@@ -579,7 +579,7 @@ protected:
       std::vector<double>& lBndVec
       , std::vector<double>& uBndVec
       , const activityMode& am
-   ) const OVERRIDE {
+   ) const override {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
          (*cit)->template boundaries<double>(lBndVec, uBndVec, am);
@@ -597,7 +597,7 @@ protected:
       std::vector<boost::int32_t>& lBndVec
       , std::vector<boost::int32_t>& uBndVec
       , const activityMode& am
-   ) const OVERRIDE {
+   ) const override {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
          (*cit)->template boundaries<boost::int32_t>(lBndVec, uBndVec, am);
@@ -618,7 +618,7 @@ protected:
       std::vector<bool>& lBndVec
       , std::vector<bool>& uBndVec
       , const activityMode& am
-   ) const OVERRIDE {
+   ) const override {
       typename GParameterTCollectionT<T>::const_iterator cit;
       for(cit=this->begin(); cit!=this->end(); ++cit) {
          (*cit)->template boundaries<bool>(lBndVec, uBndVec, am);
@@ -635,7 +635,7 @@ protected:
     */
    virtual std::size_t countFloatParameters(
       const activityMode& am
-   ) const OVERRIDE {
+   ) const override {
       std::size_t result = 0;
 
       typename GParameterTCollectionT<T>::const_iterator cit;
@@ -656,7 +656,7 @@ protected:
     */
    virtual std::size_t countDoubleParameters(
       const activityMode& am
-   ) const OVERRIDE {
+   ) const override {
       std::size_t result = 0;
 
       typename GParameterTCollectionT<T>::const_iterator cit;
@@ -677,7 +677,7 @@ protected:
     */
    virtual std::size_t countInt32Parameters(
       const activityMode& am
-   ) const OVERRIDE {
+   ) const override {
       std::size_t result = 0;
 
       typename GParameterTCollectionT<T>::const_iterator cit;
@@ -698,7 +698,7 @@ protected:
     */
    virtual std::size_t countBoolParameters(
       const activityMode& am
-   ) const OVERRIDE {
+   ) const override {
       std::size_t result = 0;
 
       typename GParameterTCollectionT<T>::const_iterator cit;
@@ -717,7 +717,7 @@ protected:
       const std::vector<float>& parVec
       , std::size_t& pos
       , const activityMode& am
-   ) OVERRIDE {
+   ) override {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->template assignValueVector<float>(parVec, pos, am);
@@ -737,7 +737,7 @@ protected:
       const std::vector<double>& parVec
       , std::size_t& pos
       , const activityMode& am
-   ) OVERRIDE {
+   ) override {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->template assignValueVector<double>(parVec, pos, am);
@@ -757,7 +757,7 @@ protected:
       const std::vector<boost::int32_t>& parVec
       , std::size_t& pos
       , const activityMode& am
-   ) OVERRIDE {
+   ) override {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->template assignValueVector<boost::int32_t>(parVec, pos, am);
@@ -777,7 +777,7 @@ protected:
       const std::vector<bool>& parVec
       , std::size_t& pos
       , const activityMode& am
-   ) OVERRIDE {
+   ) override {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->template assignValueVector<bool>(parVec, pos, am);
@@ -796,7 +796,7 @@ protected:
    virtual void assignFloatValueVectors(
       const std::map<std::string, std::vector<float> >& parMap
       , const activityMode& am
-   ) OVERRIDE {
+   ) override {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->template assignValueVectors<float>(parMap, am);
@@ -815,7 +815,7 @@ protected:
    virtual void assignDoubleValueVectors(
       const std::map<std::string, std::vector<double> >& parMap
       , const activityMode& am
-   ) OVERRIDE {
+   ) override {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->template assignValueVectors<double>(parMap, am);
@@ -835,7 +835,7 @@ protected:
       const std::map<std::string
       , std::vector<boost::int32_t> >& parMap
       , const activityMode& am
-   ) OVERRIDE {
+   ) override {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->template assignValueVectors<boost::int32_t>(parMap, am);
@@ -855,7 +855,7 @@ protected:
       const std::map<std::string
       , std::vector<bool> >& parMap
       , const activityMode& am
-   ) OVERRIDE {
+   ) override {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->template assignValueVectors<bool>(parMap, am);
@@ -875,7 +875,7 @@ protected:
       const float& min
       , const float& max
       , const activityMode& am
-   ) OVERRIDE {
+   ) override {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->template multiplyByRandom<float>(min, max, am);
@@ -890,7 +890,7 @@ protected:
       const double& min
       , const double& max
       , const activityMode& am
-   ) OVERRIDE {
+   ) override {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->template multiplyByRandom<double>(min, max, am);
@@ -905,7 +905,7 @@ protected:
       const boost::int32_t& min
       , const boost::int32_t& max
       , const activityMode& am
-   ) OVERRIDE {
+   ) override {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->template multiplyByRandom<boost::int32_t>(min, max, am);
@@ -916,7 +916,7 @@ protected:
    /**
     * Multiplication with a random value in the range [0,1[
     */
-   virtual void floatMultiplyByRandom(const activityMode& am) OVERRIDE {
+   virtual void floatMultiplyByRandom(const activityMode& am) override {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->template multiplyByRandom<float>(am);
@@ -927,7 +927,7 @@ protected:
    /**
     * Multiplication with a random value in the range [0,1[
     */
-   virtual void doubleMultiplyByRandom(const activityMode& am) OVERRIDE {
+   virtual void doubleMultiplyByRandom(const activityMode& am) override {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->template multiplyByRandom<double>(am);
@@ -938,7 +938,7 @@ protected:
    /**
     * Multiplication with a random value in the range [0,1[
     */
-   virtual void int32MultiplyByRandom(const activityMode& am) OVERRIDE {
+   virtual void int32MultiplyByRandom(const activityMode& am) override {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->template multiplyByRandom<boost::int32_t>(am);
@@ -952,7 +952,7 @@ protected:
    virtual void floatMultiplyBy(
       const float& value
       , const activityMode& am
-   ) OVERRIDE {
+   ) override {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->template multiplyBy<float>(value, am);
@@ -966,7 +966,7 @@ protected:
    virtual void doubleMultiplyBy(
       const double& value
       , const activityMode& am
-   ) OVERRIDE {
+   ) override {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->template multiplyBy<double>(value, am);
@@ -980,7 +980,7 @@ protected:
    virtual void int32MultiplyBy(
       const boost::int32_t& value
       , const activityMode& am
-   ) OVERRIDE {
+   ) override {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->template multiplyBy<boost::int32_t>(value, am);
@@ -994,7 +994,7 @@ protected:
    virtual void floatFixedValueInit(
       const float& value
       , const activityMode& am
-   ) OVERRIDE {
+   ) override {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->template fixedValueInit<float>(value, am);
@@ -1008,7 +1008,7 @@ protected:
    virtual void doubleFixedValueInit(
       const double& value
       , const activityMode& am
-   ) OVERRIDE {
+   ) override {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->template fixedValueInit<double>(value, am);
@@ -1022,7 +1022,7 @@ protected:
    virtual void int32FixedValueInit(
       const boost::int32_t& value
       , const activityMode& am
-   ) OVERRIDE {
+   ) override {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->template fixedValueInit<boost::int32_t>(value, am);
@@ -1036,7 +1036,7 @@ protected:
    virtual void booleanFixedValueInit(
       const bool& value
       , const activityMode& am
-   ) OVERRIDE {
+   ) override {
       typename GParameterTCollectionT<T>::iterator it;
       for(it=this->begin(); it!=this->end(); ++it) {
          (*it)->template fixedValueInit<bool>(value, am);
@@ -1050,7 +1050,7 @@ protected:
    virtual void floatAdd(
       boost::shared_ptr<GParameterBase> p_base
       , const activityMode& am
-   ) OVERRIDE {
+   ) override {
       // We first need to convert p_base into the local type
       boost::shared_ptr<GParameterTCollectionT<T> > p
          = GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
@@ -1077,7 +1077,7 @@ protected:
    virtual void doubleAdd(
       boost::shared_ptr<GParameterBase> p_base
       , const activityMode& am
-   ) OVERRIDE {
+   ) override {
       // We first need to convert p_base into the local type
       boost::shared_ptr<GParameterTCollectionT<T> > p
          = GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
@@ -1104,7 +1104,7 @@ protected:
    virtual void int32Add(
       boost::shared_ptr<GParameterBase> p_base
       , const activityMode& am
-   ) OVERRIDE {
+   ) override {
       // We first need to convert p_base into the local type
       boost::shared_ptr<GParameterTCollectionT<T> > p
          = GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
@@ -1131,7 +1131,7 @@ protected:
    virtual void floatSubtract(
       boost::shared_ptr<GParameterBase> p_base
       , const activityMode& am
-   ) OVERRIDE {
+   ) override {
       // We first need to convert p_base into the local type
       boost::shared_ptr<GParameterTCollectionT<T> > p
          = GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
@@ -1158,7 +1158,7 @@ protected:
    virtual void doubleSubtract(
       boost::shared_ptr<GParameterBase> p_base
       , const activityMode& am
-   ) OVERRIDE {
+   ) override {
       // We first need to convert p_base into the local type
       boost::shared_ptr<GParameterTCollectionT<T> > p
          = GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
@@ -1185,7 +1185,7 @@ protected:
    virtual void int32Subtract(
       boost::shared_ptr<GParameterBase> p_base
       , const activityMode& am
-   ) OVERRIDE {
+   ) override {
       // We first need to convert p_base into the local type
       boost::shared_ptr<GParameterTCollectionT<T> > p
          = GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
@@ -1212,7 +1212,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() OVERRIDE {
+	virtual bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -1232,7 +1232,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterBase::specificTestsNoFailureExpected_GUnitTests();
@@ -1249,7 +1249,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterBase::specificTestsFailuresExpected_GUnitTests();

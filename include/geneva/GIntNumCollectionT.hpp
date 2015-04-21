@@ -199,7 +199,7 @@ public:
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
-   ) const OVERRIDE {
+   ) const override {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with a GAdaptorT reference
@@ -220,7 +220,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const OVERRIDE {
+   virtual std::string name() const override {
       return std::string("GIntNumCollectionT");
    }
 
@@ -231,7 +231,7 @@ protected:
 	 *
 	 * @param cp A copy of another GIntNumCollectionT<int_type>  object, camouflaged as a GObject
 	 */
-   void load_(const GObject* cp) OVERRIDE {
+   void load_(const GObject* cp) override {
 	    // Check that we are not accidently assigning this object to itself
 	    GObject::selfAssignmentCheck<GIntNumCollectionT<int_type> >(cp);
 
@@ -251,7 +251,7 @@ protected:
 	 * function assumes that the collection has been completely set up. Data
 	 * that is added later will remain unaffected.
 	 */
-	bool randomInit_(const activityMode&) OVERRIDE {
+	bool randomInit_(const activityMode&) override {
 	   bool randomized = false;
 
 		int_type lowerBoundary = GNumCollectionT<int_type>::getLowerInitBoundary();
@@ -276,7 +276,7 @@ public:
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 */
-	virtual bool modify_GUnitTests() OVERRIDE {
+	virtual bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -295,7 +295,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		// A few general settings
 		const std::size_t nItems = 100;
@@ -402,7 +402,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		// Call the parent class'es function
 		GNumCollectionT<int_type>::specificTestsFailuresExpected_GUnitTests();

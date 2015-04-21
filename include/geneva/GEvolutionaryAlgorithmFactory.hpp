@@ -92,15 +92,15 @@ public:
 	virtual G_API_GENEVA ~GEvolutionaryAlgorithmFactory();
 
    /** @brief Gives access to the mnemonics / nickname describing an algorithm */
-   virtual G_API_GENEVA std::string getMnemonic() const OVERRIDE;
+   virtual G_API_GENEVA std::string getMnemonic() const override;
    /** @brief Gives access to a clear-text description of the algorithm */
-   virtual G_API_GENEVA std::string getAlgorithmName() const OVERRIDE;
+   virtual G_API_GENEVA std::string getAlgorithmName() const override;
 
 protected:
 	/** @brief Creates individuals of this type */
-	virtual G_API_GENEVA boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > getObject_(Gem::Common::GParserBuilder&, const std::size_t&) OVERRIDE;
+	virtual G_API_GENEVA boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > getObject_(Gem::Common::GParserBuilder&, const std::size_t&) override;
 	/** @brief Allows to act on the configuration options received from the configuration file */
-	virtual G_API_GENEVA void postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >&) OVERRIDE;
+	virtual G_API_GENEVA void postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >&) override;
 };
 
 /******************************************************************************/

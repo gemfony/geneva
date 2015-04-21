@@ -188,7 +188,7 @@ public:
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
-   ) const OVERRIDE {
+   ) const override {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with a GAdaptorT reference
@@ -214,7 +214,7 @@ public:
     *
     * @return The type of optimization algorithm
     */
-   virtual std::string getOptimizationAlgorithm() const  OVERRIDE {
+   virtual std::string getOptimizationAlgorithm() const  override {
       return "PERSONALITY_MPEA";
    }
 
@@ -249,7 +249,7 @@ public:
     *
     * @return The name assigned to this optimization algorithm
     */
-   virtual std::string getAlgorithmName() const OVERRIDE {
+   virtual std::string getAlgorithmName() const override {
       return std::string("Multi-Population Evolutionary Algorithm");
    }
 
@@ -261,7 +261,7 @@ public:
     */
    virtual void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
-   ) OVERRIDE {
+   ) override {
       std::string comment;
       std::string comment1;
       std::string comment2;
@@ -303,7 +303,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const OVERRIDE {
+   virtual std::string name() const override {
       return std::string("GMultiPopulationEAT<oa_type>");
    }
 
@@ -316,7 +316,7 @@ public:
     */
    void addIterationBests(
       GParameterSetFixedSizePriorityQueue& bestIndividuals
-   ) OVERRIDE {
+   ) override {
       const bool CLONE = true;
       const bool DONOTREPLACE = false;
 
@@ -343,7 +343,7 @@ public:
     */
    void addCleanStoredBests(
       GParameterSetFixedSizePriorityQueue& bestIndividuals
-   ) OVERRIDE {
+   ) override {
       const bool CLONE = true;
 
       typename oa_type::iterator it;
@@ -361,7 +361,7 @@ protected:
     *
     * @param cp A pointer to another GMultiPopulationEAT object, camouflaged as a GObject
     */
-   virtual void load_(const GObject * cp) OVERRIDE {
+   virtual void load_(const GObject * cp) override {
       const GMultiPopulationEAT<oa_type> *p_load = GObject::gobject_conversion<GMultiPopulationEAT<oa_type> >(cp);
 
       // First load the parent class'es data ...
@@ -378,7 +378,7 @@ protected:
     *
     * @return A deep clone of this object
     */
-   virtual GObject *clone_() const OVERRIDE {
+   virtual GObject *clone_() const override {
       return new GMultiPopulationEAT<oa_type>(*this);
    }
 
@@ -391,7 +391,7 @@ protected:
     *
     * @return The best individual found
     */
-   virtual boost::shared_ptr<GParameterSet> customGetBestIndividual() OVERRIDE {
+   virtual boost::shared_ptr<GParameterSet> customGetBestIndividual() override {
 #ifdef DEBUG
          if(this->empty()) {
             glogger
@@ -410,7 +410,7 @@ protected:
     *
     * @return A list of the best individuals found
     */
-   virtual std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() OVERRIDE {
+   virtual std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() override {
       // Some error checking
       if(this->empty()) {
          glogger
@@ -427,7 +427,7 @@ protected:
    /**
     * Some error checks related to population sizes
     */
-   virtual void populationSanityChecks() const OVERRIDE {
+   virtual void populationSanityChecks() const override {
       std::size_t nP      = GBaseParChildT<oa_type>::getNParents();
       std::size_t popSize = GBaseParChildT<oa_type>::getPopulationSize();
 
@@ -479,7 +479,7 @@ protected:
    /**
     * Adapt all children in parallel. Evaluation is done in a separate function (runFitnessCalculation).
     */
-   virtual void adaptChildren() OVERRIDE {
+   virtual void adaptChildren() override {
       boost::tuple<std::size_t,std::size_t> range = this->getAdaptionRange();
       typename std::vector<boost::shared_ptr<oa_type> >::iterator it;
 
@@ -504,7 +504,7 @@ protected:
    /**
     * Evaluate all children (and possibly parents, depending on the iteration and sorting mode) in parallel
     */
-   virtual void runFitnessCalculation() OVERRIDE {
+   virtual void runFitnessCalculation() override {
       boost::tuple<std::size_t,std::size_t> range = this->getEvaluationRange();
       typename std::vector<boost::shared_ptr<oa_type> >::iterator it;
 
@@ -544,7 +544,7 @@ protected:
    /**
     * Choose new parents, based on the selection scheme set by the user.
     */
-   virtual void selectBest() OVERRIDE {
+   virtual void selectBest() override {
    #ifdef DEBUG
       // We require at this stage that at least the default number of
       // children is present. If individuals can get lost in your setting,
@@ -609,7 +609,7 @@ protected:
     *
     * @return The range inside which evaluation should take place
     */
-   virtual boost::tuple<std::size_t,std::size_t> getEvaluationRange() const OVERRIDE {
+   virtual boost::tuple<std::size_t,std::size_t> getEvaluationRange() const override {
       return boost::tuple<std::size_t, std::size_t>(
             this->inFirstIteration()?0:GMultiPopulationEAT<oa_type>::getNParents()
             ,  this->data.size()
@@ -622,7 +622,7 @@ protected:
     * tagging. It is called from within GOptimizationAlgorithmT<T>::optimize(), before the
     * actual optimization cycle starts.
     */
-   virtual void init() OVERRIDE {
+   virtual void init() override {
       // To be performed before any other action
       GBaseParChildT<oa_type>::init();
 
@@ -635,7 +635,7 @@ protected:
    /**
     * Does any necessary finalization work
     */
-   virtual void finalize() OVERRIDE {
+   virtual void finalize() override {
       // Check whether there were any errors during thread execution
       if(tp_ptr_->hasErrors()) {
          std::vector<std::string> errors;
@@ -668,7 +668,7 @@ protected:
    /**
     * Retrieve a GPersonalityTraits object belonging to this algorithm
     */
-   virtual boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const  OVERRIDE {
+   virtual boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const  override {
       return boost::shared_ptr<GMPEAPersonalityTraits>(new GMPEAPersonalityTraits());
    }
 
@@ -688,7 +688,7 @@ public:
     *
     * @return A boolean which indicates whether modifications were made
     */
-   virtual bool modify_GUnitTests() OVERRIDE {
+   virtual bool modify_GUnitTests() override {
    #ifdef GEM_TESTING
 
       bool result = false;
@@ -708,7 +708,7 @@ public:
    /**
     * Performs self tests that are expected to succeed. This is needed for testing purposes
     */
-   virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+   virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
       // Call the parent class'es function
       GBaseParChildT<oa_type>::specificTestsNoFailureExpected_GUnitTests();
@@ -725,7 +725,7 @@ public:
    /**
     * Performs self tests that are expected to fail. This is needed for testing purposes
     */
-   virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+   virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
       // Call the parent class'es function
       GBaseParChildT<oa_type>::specificTestsFailuresExpected_GUnitTests();

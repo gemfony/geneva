@@ -210,7 +210,7 @@ public:
    /**
     * Retrieve the address of this object
     */
-   virtual NAMEANDIDTYPE getVarAddress() const OVERRIDE {
+   virtual NAMEANDIDTYPE getVarAddress() const override {
       return var_;
    }
 

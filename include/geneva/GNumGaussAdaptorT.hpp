@@ -252,7 +252,7 @@ public:
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
-   ) const OVERRIDE {
+   ) const override {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with a GAdaptorT reference
@@ -467,7 +467,7 @@ public:
 	 *
 	 * @return The diagnostic message
 	 */
-	virtual std::string printDiagnostics() const OVERRIDE {
+	virtual std::string printDiagnostics() const override {
 		std::ostringstream diag;
 		boost::tuple<fp_type,fp_type> sigmaRange = getSigmaRange();
 
@@ -492,7 +492,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const  OVERRIDE {
+   virtual std::string name() const  override {
       return std::string("GNumGaussAdaptorT");
    }
 
@@ -508,7 +508,7 @@ public:
    virtual bool updateOnStall(
       const std::size_t& nStalls
       , const num_type& range
-   ) OVERRIDE {
+   ) override {
       // Call our parent class'es function
       GAdaptorT<num_type>::updateOnStall(nStalls, range);
 
@@ -529,7 +529,7 @@ protected:
 	 *
 	 * @param A copy of another GNumGaussAdaptorT<num_type, fp_type>, camouflaged as a GObject
 	 */
-	void load_(const GObject *cp) OVERRIDE {
+	void load_(const GObject *cp) override {
 		// Convert GObject pointer to local format
 		const GNumGaussAdaptorT<num_type, fp_type> *p_load = GObject::gobject_conversion<GNumGaussAdaptorT<num_type, fp_type> >(cp);
 
@@ -560,7 +560,7 @@ protected:
 	 *
 	 * @param range A typical range for the parameter with type num_type (unused here)
 	 */
-	virtual void customAdaptAdaption(const num_type&) OVERRIDE {
+	virtual void customAdaptAdaption(const num_type&) override {
 	    using namespace Gem::Common;
 	    using namespace Gem::Hap;
 
@@ -585,7 +585,7 @@ protected:
    /**
     * Allows to randomly initialize parameter members
     */
-   virtual bool randomInit() OVERRIDE {
+   virtual bool randomInit() override {
       using namespace Gem::Common;
       using namespace Gem::Hap;
 
@@ -602,7 +602,7 @@ protected:
    virtual bool customQueryProperty (
       const std::string& property
       , std::vector<boost::any>& data
-   ) const OVERRIDE {
+   ) const override {
       if(property == "sigma") {
          data.push_back(boost::any(sigma_));
       } else {
@@ -627,7 +627,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() OVERRIDE {
+	virtual bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -653,7 +653,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
@@ -809,7 +809,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;

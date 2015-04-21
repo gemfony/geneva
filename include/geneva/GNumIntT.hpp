@@ -218,7 +218,7 @@ public:
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
-   ) const OVERRIDE {
+   ) const override {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with a GAdaptorT reference
@@ -239,7 +239,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const OVERRIDE {
+   virtual std::string name() const override {
       return std::string("GNumIntT");
    }
 
@@ -253,7 +253,7 @@ protected:
 	 *
 	 * @param cp A copy of another GNumIntT<int_type> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject *cp) OVERRIDE {
+	virtual void load_(const GObject *cp) override {
 		// Convert cp into local format
 		const GNumIntT<int_type> *p_load = GObject::gobject_conversion<GNumIntT<int_type> >(cp);
 
@@ -271,7 +271,7 @@ protected:
 	/**
 	 * Triggers random initialization of the parameter collection
 	 */
-	virtual bool randomInit_(const activityMode&) OVERRIDE {
+	virtual bool randomInit_(const activityMode&) override {
 		int_type lowerBoundary = GNumT<int_type>::getLowerInitBoundary();
 		int_type upperBoundary = GNumT<int_type>::getUpperInitBoundary();
 
@@ -291,7 +291,7 @@ public:
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 */
-	virtual bool modify_GUnitTests() OVERRIDE {
+	virtual bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -310,7 +310,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		// A few settings
 		const std::size_t nTests = 10000;
@@ -408,7 +408,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GNumT<int_type>::specificTestsFailuresExpected_GUnitTests();

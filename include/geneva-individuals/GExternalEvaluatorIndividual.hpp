@@ -182,7 +182,7 @@ class GExternalEvaluatorIndividual :public GParameterSet
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
-   ) const OVERRIDE;
+   ) const override;
 
    /** @brief Sets the name of the external evaluation program */
    G_API_INDIVIDUALS void setProgramName(const std::string&);

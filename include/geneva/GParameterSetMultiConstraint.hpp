@@ -96,19 +96,19 @@ public:
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
-   ) const OVERRIDE;
+   ) const override;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
-   virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) OVERRIDE;
+   virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) override;
 
 protected:
    /** @brief Checks whether a given individual is valid */
-   virtual G_API_GENEVA double check_(const GOptimizableEntity *) const OVERRIDE;
+   virtual G_API_GENEVA double check_(const GOptimizableEntity *) const override;
    /** @brief Checks whether a given GParameterSet object is valid */
    virtual G_API_GENEVA double check_(const GParameterSet *) const = 0;
 
    /** @brief Loads the data of another GParameterSetConstraint */
-   virtual G_API_GENEVA void load_(const GObject*) OVERRIDE;
+   virtual G_API_GENEVA void load_(const GObject*) override;
    /** @brief Creates a deep clone of this object */
    virtual G_API_GENEVA GObject* clone_() const = 0;
 };
@@ -156,17 +156,17 @@ public:
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
-   ) const OVERRIDE;
+   ) const override;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
-   virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) OVERRIDE;
+   virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) override;
 
 protected:
    /** @brief Checks whether a given GParameterSet object is valid */
-   virtual G_API_GENEVA double check_(const GParameterSet *) const OVERRIDE;
+   virtual G_API_GENEVA double check_(const GParameterSet *) const override;
 
    /** @brief Loads the data of another GParameterSetConstraint */
-   virtual G_API_GENEVA void load_(const GObject*) OVERRIDE;
+   virtual G_API_GENEVA void load_(const GObject*) override;
    /** @brief Creates a deep clone of this object */
    virtual G_API_GENEVA GObject* clone_() const;
 

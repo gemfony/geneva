@@ -294,7 +294,7 @@ public:
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
-   ) const OVERRIDE {
+   ) const override {
       // Check that we are indeed dealing with a GAdaptorT reference
       const GMetaOptimizerIndividualT<ind_type> *p_load
                = gobject_conversion<GMetaOptimizerIndividualT<ind_type> >(&cp);

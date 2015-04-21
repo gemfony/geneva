@@ -212,9 +212,9 @@ public:
 	G_API_GENEVA void fromStream(std::istream&, const Gem::Common::serializationMode&);
 
 	/** @brief Convert class to a serial representation, using a user-specified serialization mode */
-	virtual G_API_GENEVA std::string toString(const Gem::Common::serializationMode&) const OVERRIDE;
+	virtual G_API_GENEVA std::string toString(const Gem::Common::serializationMode&) const override;
 	/** @brief Convert class to a serial representation, using a specific serialization mode */
-	virtual G_API_GENEVA void fromString(const std::string&, const Gem::Common::serializationMode&) OVERRIDE;
+	virtual G_API_GENEVA void fromString(const std::string&, const Gem::Common::serializationMode&) override;
 
 	/** @brief Writes a serial representation of this object to a file */
 	G_API_GENEVA void toFile(const bf::path&, const Gem::Common::serializationMode&) const;

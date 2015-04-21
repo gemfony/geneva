@@ -205,7 +205,7 @@ public:
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
-   ) const OVERRIDE {
+   ) const override {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with a GBaseParChildT reference
@@ -333,7 +333,7 @@ public:
     * but only the best individuals of a former optimization run, as these contain the
     * "real" information.
     */
-   virtual void loadCheckpoint(const boost::filesystem::path& cpFile) OVERRIDE {
+   virtual void loadCheckpoint(const boost::filesystem::path& cpFile) override {
       // Create a vector to hold the best individuals
       std::vector<boost::shared_ptr<ind_type> > bestIndividuals;
 
@@ -444,7 +444,7 @@ public:
     */
    virtual void addConfigurationOptions (
       Gem::Common::GParserBuilder& gpb
-   )  OVERRIDE {
+   )  override {
       std::string comment;
       std::string comment1;
       std::string comment2;
@@ -555,7 +555,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const OVERRIDE {
+   virtual std::string name() const override {
       return std::string("GBaseParChildT");
    }
 
@@ -580,7 +580,7 @@ protected:
     *
     * @param cp A pointer to another GBaseParChildT<ind_type> object, camouflaged as a GObject
     */
-   virtual void load_(const GObject * cp) OVERRIDE {
+   virtual void load_(const GObject * cp) override {
       const GBaseParChildT<ind_type> *p_load = GObject::gobject_conversion<GBaseParChildT<ind_type> >(cp);
 
       // First load the parent class'es data ...
@@ -747,7 +747,7 @@ protected:
     *
     * @return The value of the best individual found
     */
-   virtual boost::tuple<double, double> cycleLogic() OVERRIDE {
+   virtual boost::tuple<double, double> cycleLogic() override {
       // If this is not the first iteration, check whether we need to increase the population
       if(GOptimizationAlgorithmT<ind_type>::afterFirstIteration()) {
          performScheduledPopulationGrowth();
@@ -789,7 +789,7 @@ protected:
     * tagging. It is called from within GOptimizationAlgorithmT<ind_type>::optimize(), before the
     * actual optimization cycle starts.
     */
-   virtual void init() OVERRIDE {
+   virtual void init() override {
       // To be performed before any other action
       GOptimizationAlgorithmT<ind_type>::init();
 
@@ -811,7 +811,7 @@ protected:
    /**
     * Does any necessary finalization work
     */
-   virtual void finalize() OVERRIDE {
+   virtual void finalize() override {
       // Last action
       GOptimizationAlgorithmT<ind_type>::finalize();
    }
@@ -824,7 +824,7 @@ protected:
     * been added will not be replaced. This function is called once before the optimization
     * cycle from within GOptimizationAlgorithmT<ind_type>::optimize()
     */
-   virtual void adjustPopulation() OVERRIDE {
+   virtual void adjustPopulation() override {
       // Has the population size been set at all ?
       if(GOptimizationAlgorithmT<ind_type>::getDefaultPopulationSize() == 0) {
          glogger
@@ -897,7 +897,7 @@ protected:
     * copying of the individual's data takes place here, as we are dealing with
     * boost::shared_ptr objects.
     */
-   virtual void saveCheckpoint() const OVERRIDE {
+   virtual void saveCheckpoint() const override {
       // Copy the nParents best individuals to a vector
       std::vector<boost::shared_ptr<ind_type> > bestIndividuals;
       typename GBaseParChildT<ind_type>::const_iterator it;
@@ -1168,7 +1168,7 @@ public:
     *
     * @return A boolean which indicates whether modifications were made
     */
-   virtual bool modify_GUnitTests() OVERRIDE {
+   virtual bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 
       bool result = false;
@@ -1188,7 +1188,7 @@ public:
    /**
     * Performs self tests that are expected to succeed. This is needed for testing purposes
     */
-   virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+   virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
       // Call the parent class'es function
       GOptimizationAlgorithmT<ind_type>::specificTestsNoFailureExpected_GUnitTests();
@@ -1202,7 +1202,7 @@ public:
    /**
     * Performs self tests that are expected to fail. This is needed for testing purposes
     */
-   virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+   virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
       // Call the parent class'es function
       GOptimizationAlgorithmT<ind_type>::specificTestsFailuresExpected_GUnitTests();

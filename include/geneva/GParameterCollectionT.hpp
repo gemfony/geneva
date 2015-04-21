@@ -175,7 +175,7 @@ public:
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
-   ) const OVERRIDE {
+   ) const override {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with a GAdaptorT reference
@@ -201,7 +201,7 @@ public:
 	 *
 	 * @return The number of adaptions that were carried out
 	 */
-	virtual std::size_t adaptImpl() OVERRIDE {
+	virtual std::size_t adaptImpl() override {
 	   return GParameterBaseWithAdaptorsT<T>::applyAdaptor(
 	         Gem::Common::GStdSimpleVectorInterfaceT<T>::data
          , this->range()
@@ -222,7 +222,7 @@ public:
 	 *
 	 * @return A boolean indicating whether this GParameterBase-derivative is an individual parameter
 	 */
-	virtual bool isIndividualParameter() const OVERRIDE {
+	virtual bool isIndividualParameter() const override {
 		return false;
 	}
 
@@ -277,7 +277,7 @@ public:
 	virtual void toPropertyTree(
 	      pt::ptree& ptr
 	      , const std::string& baseName
-	) const OVERRIDE {
+	) const override {
 #ifdef DEBUG
 	   // Check that the object isn't empty
 	   if(this->empty()) {
@@ -308,7 +308,7 @@ public:
    /**
     * Lets the audience know whether this is a leaf or a branch object
     */
-   virtual bool isLeaf() const OVERRIDE {
+   virtual bool isLeaf() const override {
       return true;
    }
 
@@ -316,7 +316,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const OVERRIDE {
+   virtual std::string name() const override {
       return std::string("GParameterCollectionT");
    }
 
@@ -327,7 +327,7 @@ protected:
 	 *
 	 * @param cp A copy of another GParameterCollectionT<T> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject* cp) OVERRIDE {
+	virtual void load_(const GObject* cp) override {
 		// Convert cp into local format and check for self-assignment
 		const GParameterCollectionT<T> *p_load = GObject::gobject_conversion<GParameterCollectionT<T> >(cp);
 
@@ -348,7 +348,7 @@ protected:
 	 * Making the vector wrapper purely virtual allows the compiler to perform
 	 * further optimizations.
 	 */
-	virtual void dummyFunction() OVERRIDE { /* nothing */ }
+	virtual void dummyFunction() override { /* nothing */ }
 
 public:
 	/***************************************************************************/
@@ -357,7 +357,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() OVERRIDE {
+	virtual bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -377,7 +377,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 	   // Call the parent classes' functions
 		GParameterBaseWithAdaptorsT<T>::specificTestsNoFailureExpected_GUnitTests();
@@ -392,7 +392,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GParameterBaseWithAdaptorsT<T>::specificTestsFailuresExpected_GUnitTests();

@@ -122,10 +122,10 @@ public:
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
-   ) const OVERRIDE;
+   ) const override;
 
 	/** @brief Allows to randomly initialize parameter members */
-	virtual G_API_GENEVA bool randomInit(const activityMode&) OVERRIDE;
+	virtual G_API_GENEVA bool randomInit(const activityMode&) override;
 
 	/** @brief Specify whether we want to work in maximization (true) or minimization (false) mode */
 	G_API_GENEVA void setMaxMode(const bool&);
@@ -134,13 +134,13 @@ public:
 	G_API_GENEVA boost::shared_ptr<GParameterSet> parameter_clone() const;
 
    /** @brief Do the required processing for this object */
-   virtual G_API_GENEVA bool process() OVERRIDE;
+   virtual G_API_GENEVA bool process() override;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) OVERRIDE;
+	virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) override;
 
 	/** @brief Allows to assign a name to the role of this individual(-derivative) */
-	virtual G_API_GENEVA std::string getIndividualCharacteristic() const OVERRIDE;
+	virtual G_API_GENEVA std::string getIndividualCharacteristic() const override;
 
 	/** @brief Provides access to all data stored in the individual in a user defined selection */
 	virtual G_API_GENEVA void custom_streamline(std::vector<boost::any>&) BASE;
@@ -151,13 +151,13 @@ public:
 	G_API_GENEVA std::string toCSV(bool=false, bool=true, bool=true, bool=true) const;
 
 	/** @brief Emits a name for this class / object */
-	virtual G_API_GENEVA std::string name() const OVERRIDE;
+	virtual G_API_GENEVA std::string name() const override;
 
    /** @brief Retrieves a parameter of a given type at the specified position */
    virtual G_API_GENEVA boost::any getVarVal(
       const std::string&
       , const boost::tuple<std::size_t, std::string, std::size_t>& target
-   ) OVERRIDE;
+   ) override;
 
 	/** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
    G_API_GENEVA GMutableSetT<Gem::Geneva::GParameterBase>::reference at(const std::size_t& pos);
@@ -556,14 +556,14 @@ public:
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GObject */
-   G_API_GENEVA virtual void load_(const GObject*) OVERRIDE;
+   G_API_GENEVA virtual void load_(const GObject*) override;
 	/** @brief Creates a deep clone of this object */
-   G_API_GENEVA virtual GObject* clone_() const OVERRIDE;
+   G_API_GENEVA virtual GObject* clone_() const override;
 
 	/** @brief The actual fitness calculation takes place here */
-	virtual G_API_GENEVA double fitnessCalculation() OVERRIDE ;
+	virtual G_API_GENEVA double fitnessCalculation() override ;
 	/* @brief The actual adaption operations. */
-	virtual G_API_GENEVA std::size_t customAdaptions() OVERRIDE ;
+	virtual G_API_GENEVA std::size_t customAdaptions() override ;
 
 private:
 	explicit G_API_GENEVA GParameterSet(const float&); ///< Intentionally private and undefined
@@ -573,11 +573,11 @@ private:
 public:
 	/***************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA bool modify_GUnitTests() override;
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 	/***************************************************************************/
 };
 

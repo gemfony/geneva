@@ -151,37 +151,37 @@ public:
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
-   ) const OVERRIDE;
+   ) const override;
 
 	/** @brief The adaption interface */
-	virtual G_API_GENEVA std::size_t adapt() OVERRIDE;
+	virtual G_API_GENEVA std::size_t adapt() override;
 
    /** @brief Returns the raw result of the fitness function with id 0 */
-   virtual G_API_GENEVA double fitness() const OVERRIDE;
+   virtual G_API_GENEVA double fitness() const override;
    /** @brief Returns the raw result of a fitness function with a given id */
-   virtual G_API_GENEVA double fitness(const std::size_t&) const OVERRIDE;
+   virtual G_API_GENEVA double fitness(const std::size_t&) const override;
 
    /** @brief Calculate or returns the result of a fitness function with a given id */
-   virtual G_API_GENEVA double fitness(const std::size_t&, bool, bool) OVERRIDE;
+   virtual G_API_GENEVA double fitness(const std::size_t&, bool, bool) override;
    /** @brief Calculate or returns the result of a fitness function with a given id */
-   virtual G_API_GENEVA double fitness(const std::size_t&, bool, bool) const OVERRIDE;
+   virtual G_API_GENEVA double fitness(const std::size_t&, bool, bool) const override;
 
    /** @brief Returns the transformed result of the fitness function with id 0 */
-   virtual G_API_GENEVA double transformedFitness() const OVERRIDE;
+   virtual G_API_GENEVA double transformedFitness() const override;
    /** @brief Returns the transformed result of a fitness function with a given id */
-   virtual G_API_GENEVA double transformedFitness(const std::size_t&) const OVERRIDE;
+   virtual G_API_GENEVA double transformedFitness(const std::size_t&) const override;
 
    /** @brief Returns a fitness targetted at optimization algorithms, taking into account maximization and minimization */
-   virtual G_API_GENEVA double minOnly_fitness() const OVERRIDE;
+   virtual G_API_GENEVA double minOnly_fitness() const override;
    /** @brief Returns a fitness targetted at optimization algorithms, taking into account maximization and minimization */
-   virtual G_API_GENEVA double minOnly_fitness(const std::size_t&) const OVERRIDE;
+   virtual G_API_GENEVA double minOnly_fitness(const std::size_t&) const override;
 
    /** @brief Returns all raw fitness results in a std::vector */
-   virtual G_API_GENEVA std::vector<double> fitnessVec() const OVERRIDE;
+   virtual G_API_GENEVA std::vector<double> fitnessVec() const override;
    /** @brief Returns all raw or transformed results in a std::vector */
-   virtual G_API_GENEVA std::vector<double> fitnessVec(bool) const OVERRIDE;
+   virtual G_API_GENEVA std::vector<double> fitnessVec(bool) const override;
    /** @brief Returns all transformed fitness results in a std::vector */
-   virtual G_API_GENEVA std::vector<double> transformedFitnessVec() const OVERRIDE;
+   virtual G_API_GENEVA std::vector<double> transformedFitnessVec() const override;
 
    /** @brief A wrapper for the non-const fitness function, so we can bind to it */
    G_API_GENEVA double nonConstFitness(const std::size_t&, bool, bool);
@@ -355,13 +355,13 @@ public:
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual G_API_GENEVA void addConfigurationOptions(
 		Gem::Common::GParserBuilder&
-	) OVERRIDE;
+	) override;
 
 	/** @brief Allows to assign a name to the role of this individual(-derivative) */
 	virtual G_API_GENEVA std::string getIndividualCharacteristic() const = 0;
 
    /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const OVERRIDE;
+   virtual G_API_GENEVA std::string name() const override;
 
    /** @brief Check how valid a given solution is */
    G_API_GENEVA double getValidityLevel() const;
@@ -413,7 +413,7 @@ public:
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GOptimizableEntity */
-	virtual G_API_GENEVA void load_(const GObject*) OVERRIDE;
+	virtual G_API_GENEVA void load_(const GObject*) override;
 	/** @brief Creates a deep clone of this object */
 	virtual G_API_GENEVA GObject* clone_() const = 0;
 
@@ -535,11 +535,11 @@ private:
 public:
    /***************************************************************************/
    /** @brief Applies modifications to this object. This is needed for testing purposes */
-   virtual G_API_GENEVA bool modify_GUnitTests() OVERRIDE;
+   virtual G_API_GENEVA bool modify_GUnitTests() override;
    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-   virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() OVERRIDE;
+   virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-   virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() OVERRIDE;
+   virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/

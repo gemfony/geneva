@@ -140,7 +140,7 @@ public:
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
-   ) const OVERRIDE;
+   ) const override;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&);
@@ -248,7 +248,7 @@ protected:
 	virtual GObject* clone_() const;
 
 	/** @brief The actual value calculation takes place here */
-	virtual double fitnessCalculation() OVERRIDE;
+	virtual double fitnessCalculation() override;
 
 	/***************************************************************************/
 

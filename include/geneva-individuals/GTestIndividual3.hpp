@@ -120,7 +120,7 @@ public:
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
-   ) const OVERRIDE;
+   ) const override;
 
    /** @brief Get all data members of this class as a plain array */
 	G_API_INDIVIDUALS boost::shared_array<float> getPlainData() const;
@@ -132,7 +132,7 @@ protected:
 	virtual G_API_INDIVIDUALS GObject* clone_() const;
 
 	/** @brief The actual fitness calculation takes place here. */
-	virtual G_API_INDIVIDUALS double fitnessCalculation() OVERRIDE;
+	virtual G_API_INDIVIDUALS double fitnessCalculation() override;
 
 public:
 	/** @brief Applies modifications to this object. */

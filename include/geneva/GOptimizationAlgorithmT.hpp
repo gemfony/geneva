@@ -376,7 +376,7 @@ public:
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
-   ) const OVERRIDE {
+   ) const override {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with a GAdaptorT reference
@@ -425,7 +425,7 @@ public:
 	 *
 	 * @param offset Specifies the iteration number to start with (e.g. useful when starting from a checkpoint file)
 	 */
-	virtual void optimize(const boost::uint32_t& offset) OVERRIDE {
+	virtual void optimize(const boost::uint32_t& offset) override {
 		// Reset the generation counter
 		iteration_ = offset;
 
@@ -518,7 +518,7 @@ public:
 	/**
 	 * A little convenience function that helps to avoid having to specify explicit scopes
 	 */
-	virtual void optimize() OVERRIDE {
+	virtual void optimize() override {
 		GOptimizableI::optimize();
 	}
 
@@ -867,7 +867,7 @@ public:
 	 * are unaffected. It might be useful to implement actions here as well, though, in order
 	 * to make better use of Multi-Populations in Evolutionary Algorithms.
 	 */
-	virtual bool randomInit(const activityMode&) OVERRIDE {
+	virtual bool randomInit(const activityMode&) override {
 	   return false;
 	}
 
@@ -901,7 +901,7 @@ public:
 	 */
 	virtual void addConfigurationOptions (
 		Gem::Common::GParserBuilder& gpb
-	) OVERRIDE {
+	) override {
 		// Call our parent class'es function
 		GMutableSetT<ind_type>::addConfigurationOptions(gpb);
 
@@ -1054,7 +1054,7 @@ public:
 	 * GBrokerEA class which should prevent objects of its type from being stored as an individual in its population.
 	 * All other objects do not need to re-implement this function (unless they rely on the name for some reason).
 	 */
-	virtual std::string getIndividualCharacteristic() const OVERRIDE {
+	virtual std::string getIndividualCharacteristic() const override {
 		return std::string("GENEVA_OPTIMIZATIONALGORITHM");
 	}
 
@@ -1065,7 +1065,7 @@ public:
    virtual boost::any getVarVal(
       const std::string& descr
       , const boost::tuple<std::size_t, std::string, std::size_t>& target
-   ) OVERRIDE {
+   ) override {
       return GOptimizableI::getBestIndividual<GParameterSet>()->getVarVal(descr, target);
    }
 
@@ -1115,7 +1115,7 @@ public:
     * @param oldValue The old value
     * @return true if newValue is better than oldValue, otherwise false.
     */
-   virtual bool isBetter(double newValue, const double& oldValue) const OVERRIDE {
+   virtual bool isBetter(double newValue, const double& oldValue) const override {
 #ifdef DEBUG
       if(this->empty()) {
          glogger
@@ -1139,7 +1139,7 @@ public:
     * @param oldValue The old value
     * @return true of newValue is worse than oldValue, otherwise false.
     */
-   virtual bool isWorse(double newValue, const double& oldValue) const OVERRIDE {
+   virtual bool isWorse(double newValue, const double& oldValue) const override {
 #ifdef DEBUG
       if(this->empty()) {
          glogger
@@ -1157,7 +1157,7 @@ public:
     * Retrieves the worst possible evaluation result, depending on whether we are
     * in maximization or minimization mode
     */
-   virtual double getWorstCase() const OVERRIDE {
+   virtual double getWorstCase() const override {
 #ifdef DEBUG
       if(this->empty()) {
          glogger
@@ -1175,7 +1175,7 @@ public:
     * Retrieves the best possible evaluation result, depending on whether we are
     * in maximization or minimization mode
     */
-   virtual double getBestCase() const OVERRIDE {
+   virtual double getBestCase() const override {
 #ifdef DEBUG
       if(this->empty()) {
          glogger
@@ -1216,7 +1216,7 @@ protected:
 	 *
 	 * @param cp Another GOptimizationAlgorithm object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject* cp) OVERRIDE {
+	virtual void load_(const GObject* cp) override {
 		const GOptimizationAlgorithmT<ind_type> *p_load = GObject::gobject_conversion<GOptimizationAlgorithmT<ind_type> >(cp);
 
 		// Load the parent class'es data
@@ -1257,7 +1257,7 @@ protected:
     * Retrieves the best individual found up to now (which is the best individual
     * in the priority queue).
     */
-   virtual boost::shared_ptr<GParameterSet> customGetBestIndividual() OVERRIDE {
+   virtual boost::shared_ptr<GParameterSet> customGetBestIndividual() override {
 #ifdef DEBUG
       boost::shared_ptr<GParameterSet> p = bestIndividuals_.best();
       if(p) return p;
@@ -1280,7 +1280,7 @@ protected:
     * Retrieves a list of the best individuals found (equal to the content of
     * the priority queue)
     */
-   virtual std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() OVERRIDE {
+   virtual std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() override {
       return bestIndividuals_.toVector();
    }
 
@@ -1375,7 +1375,7 @@ protected:
 	 * @param The id of an evaluation criterion (will be ignored by this function)
 	 * @return The fitness of the best individual in the population
 	 */
-	virtual double fitnessCalculation() OVERRIDE {
+	virtual double fitnessCalculation() override {
 	   // Make sure the population is optimized
 	   GOptimizableI::optimize();
 
@@ -1827,7 +1827,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() OVERRIDE {
+	virtual bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 		bool result = false;
 
@@ -1846,7 +1846,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		// Call the parent class'es function
 		GMutableSetT<ind_type>::specificTestsNoFailureExpected_GUnitTests();
@@ -1860,7 +1860,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		// Call the parent class'es function
 		GMutableSetT<ind_type>::specificTestsFailuresExpected_GUnitTests();
@@ -1973,7 +1973,7 @@ public:
 	       const GObject& cp
 	       , const Gem::Common::expectation& e
 	       , const double& limit
-	    ) const OVERRIDE {
+	    ) const override {
 	       using namespace Gem::Common;
 
 	       // Check that we are indeed dealing with a GAdaptorT reference
@@ -2136,7 +2136,7 @@ public:
 	     *
 	     * cp A pointer to another GOptimizationMonitorT object, camouflaged as a GObject
 	     */
-	    virtual void load_(const GObject* cp) OVERRIDE {
+	    virtual void load_(const GObject* cp) override {
 	    	const GOptimizationMonitorT *p_load = GObject::gobject_conversion<GOptimizationMonitorT>(cp);
 
 	    	// Load the parent classes' data ...
@@ -2154,7 +2154,7 @@ public:
 	    /**
 	     * Creates a deep clone of this object
 	     */
-		virtual GObject* clone_() const OVERRIDE {
+		virtual GObject* clone_() const override {
 			return new typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT(*this);
 		}
 
@@ -2169,7 +2169,7 @@ public:
 		/**
 		 * Applies modifications to this object. This is needed for testing purposes
 		 */
-		virtual bool modify_GUnitTests() OVERRIDE {
+		virtual bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 	      bool result = false;
 
@@ -2188,7 +2188,7 @@ public:
 		/**
 		 * Performs self tests that are expected to succeed. This is needed for testing purposes
 		 */
-		virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+		virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 			// Call the parent class'es function
 			GObject::specificTestsNoFailureExpected_GUnitTests();
@@ -2202,7 +2202,7 @@ public:
 		/**
 		 * Performs self tests that are expected to fail. This is needed for testing purposes
 		 */
-		virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+		virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 			// Call the parent class'es function
 			GObject::specificTestsFailuresExpected_GUnitTests();

@@ -224,7 +224,7 @@ public:
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
-   ) const OVERRIDE {
+   ) const override {
       using namespace Gem::Common;
 
       // Check that we are indeed dealing with a GConstrainedIntT<int_type> reference
@@ -248,7 +248,7 @@ public:
 	 * @param val The value to which the transformation should be applied
 	 * @return The transformed value
 	 */
-	virtual int_type transfer(const int_type& val) const OVERRIDE {
+	virtual int_type transfer(const int_type& val) const override {
 		// Find out the size of the confined area
 	   int_type lowerBoundary = GConstrainedNumT<int_type>::getLowerBoundary();
 	   int_type upperBoundary = GConstrainedNumT<int_type>::getUpperBoundary();
@@ -308,7 +308,7 @@ public:
    /**
     * Emits a name for this class / object
     */
-   virtual std::string name() const OVERRIDE {
+   virtual std::string name() const override {
       return std::string("GConstrainedIntT");
    }
 
@@ -319,7 +319,7 @@ protected:
 	 *
 	 * @param cp Another GConstrainedIntT<int_type> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject *cp) OVERRIDE {
+	virtual void load_(const GObject *cp) override {
 		// Convert GObject pointer to local format
 		const GConstrainedIntT<int_type> *p_load = GObject::gobject_conversion<GConstrainedIntT<int_type> >(cp);
 
@@ -337,7 +337,7 @@ protected:
 	/**
 	 * Randomly initializes the parameter (within its limits)
 	 */
-	virtual bool randomInit_(const activityMode&) OVERRIDE {
+	virtual bool randomInit_(const activityMode&) override {
 		this->setValue(
          this->GObject::gr_ptr()->uniform_int(
             GConstrainedNumT<int_type>::getLowerBoundary()
@@ -375,7 +375,7 @@ public:
 	 *
 	 * @return A boolean which indicates whether modifications were made
 	 */
-	virtual bool modify_GUnitTests() OVERRIDE {
+	virtual bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
       bool result = false;
 
@@ -394,7 +394,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		// Some general settings
 		const int_type minLower = -50; // NOTE: This will fail if int_type is unsigned; GConstrainedIntT has been designed for signed types only
@@ -590,7 +590,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() OVERRIDE {
+	virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GConstrainedNumT<int_type>::specificTestsFailuresExpected_GUnitTests();
