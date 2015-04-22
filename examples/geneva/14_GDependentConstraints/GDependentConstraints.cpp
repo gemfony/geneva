@@ -36,7 +36,6 @@
 #include <iostream>
 
 // Boost header files go here
-#include <boost/bind.hpp>
 #include <boost/ref.hpp>
 
 // Geneva header files go here
@@ -124,12 +123,9 @@ int main(int argc, char **argv) {
       progplot_ptr->setUseRawEvaluation(useRawFitness); // Use untransformed evaluation values for logging
 
       go.registerPluggableOM(
-         boost::bind(
-            &GProgressPlotterT<GParameterSet, double>::informationFunction
-            , progplot_ptr
-            , _1
-            , _2
-         )
+         [progplot_ptr](const infoMode& im, GOptimizationAlgorithmT<GParameterSet> * const goa){
+            progplot_ptr->informationFunction(im, goa);
+         }
       );
    }
 
