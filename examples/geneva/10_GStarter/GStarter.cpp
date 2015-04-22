@@ -36,7 +36,6 @@
 #include <iostream>
 
 // Boost header files go here
-#include <boost/bind.hpp>
 
 // Geneva header files go here
 #include <geneva/Go2.hpp>
@@ -65,8 +64,8 @@ int main(int argc, char **argv) {
 	// it with the global store. This step is OPTIONAL. We recommend checking the chapters
 	// on writing custom progress monitors within the Geneva framework.
    GOAMonitorStore->setOnce(
-         "ea"
-         , boost::shared_ptr<GSigmaMonitor>(new GSigmaMonitor("./sigmaProgress.C"))
+      "ea"
+      , boost::shared_ptr<GSigmaMonitor>(new GSigmaMonitor("./sigmaProgress.C"))
    );
 
    // Another possibility: Add a "pluggable optimization monitor" to Go2. This
@@ -79,12 +78,9 @@ int main(int argc, char **argv) {
       allSolutionLogger_ptr(new GAllSolutionFileLoggerT<GParameterSet>("allLog.txt", boundaries));
 
    go.registerPluggableOM(
-      boost::bind(
-         &GAllSolutionFileLoggerT<GParameterSet>::informationFunction
-         , allSolutionLogger_ptr
-         , _1
-         , _2
-      )
+      [allSolutionLogger_ptr](const infoMode& im, GOptimizationAlgorithmT<GParameterSet> * const goa){
+         allSolutionLogger_ptr->informationFunction(im, goa);
+      }
    );
 
    // Create a factory for GStarterIndividual objects and perform

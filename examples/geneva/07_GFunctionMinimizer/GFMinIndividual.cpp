@@ -120,27 +120,18 @@ const GFMinIndividual& GFMinIndividual::operator=(const GFMinIndividual& cp){
 void GFMinIndividual::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 ) {
-	std::string comment;
-
 	// Call our parent class'es function
 	GParameterSet::addConfigurationOptions(gpb);
 
 	// Add local data
-	comment = ""; // Reset the comment string
-	comment += "Specifies which target function should be used:;";
-	comment += "0: Parabola;";
-	comment += "1: Berlich;";
 	gpb.registerFileParameter<targetFunction>(
 		"targetFunction" // The name of the variable
 		, GO_DEF_TARGETFUNCTION // The default value
-		, boost::bind(
-			&GFMinIndividual::setTargetFunction
-			, this
-			, _1
-		  )
-		, Gem::Common::VAR_IS_ESSENTIAL
-		, comment
-	);
+		, [this](targetFunction tF) { this->setTargetFunction(tF); }
+	)
+	<< "Specifies which target function should be used:" << std::endl
+   << "0: Parabola" << std::endl
+   << "1: Berlich";
 }
 
 /*******************************************************************************************/
