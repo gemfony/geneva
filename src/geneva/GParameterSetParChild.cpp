@@ -147,26 +147,16 @@ void GParameterSetParChild::compare(
 void GParameterSetParChild::addConfigurationOptions (
    Gem::Common::GParserBuilder& gpb
 ) {
-   std::string comment;
-
    // Call our parent class'es function
    GBaseParChildT<GParameterSet>::addConfigurationOptions(gpb);
 
-
-   comment = ""; // Reset the comment string
-   comment += "The likelihood for parent individuals to be \"fused\" together;";
-   comment += "rather than \"just\" being created through duplication schemes;";
    gpb.registerFileParameter<double>(
       "amalgamationLikelihood" // The name of the variable
       , DEFAULTAMALGAMATIONLIKELIHOOD // The default value
-      , boost::bind(
-         &GParameterSetParChild::setAmalgamationLikelihood
-         , this
-         , _1
-        )
-      , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-      , comment
-   );
+      , [this](double al){ this->setAmalgamationLikelihood(al); }
+   )
+   << "The likelihood for parent individuals to be \"fused\" together" << std::endl
+   << "rather than \"just\" being created through duplication schemes";
 }
 
 /******************************************************************************/
