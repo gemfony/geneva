@@ -46,7 +46,6 @@
 
 // Boost header files go here
 #include <boost/shared_ptr.hpp>
-#include <boost/bind.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/cast.hpp>

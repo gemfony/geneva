@@ -93,7 +93,6 @@
 #include <boost/thread/condition_variable.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/bind.hpp>
 #include <boost/utility.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/date_time.hpp>

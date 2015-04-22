@@ -47,7 +47,6 @@
 
 #include <boost/cstdint.hpp>
 #include <boost/utility.hpp>
-#include <boost/bind.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>

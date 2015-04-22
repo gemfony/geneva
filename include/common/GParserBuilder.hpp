@@ -57,7 +57,6 @@
 #include <boost/date_time.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/function.hpp>
-#include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 #include <boost/thread/mutex.hpp>
 
