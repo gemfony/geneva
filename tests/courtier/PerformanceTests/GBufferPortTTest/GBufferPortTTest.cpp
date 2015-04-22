@@ -39,15 +39,14 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
-#include <boost/bind.hpp>
 #include <boost/date_time.hpp>
 
 #include "courtier/GBufferPortT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GThreadGroup.hpp"
 
-#include "GSimpleContainer.hpp"
-#include "GRandomNumberContainer.hpp"
+#include "../../Misc/GSimpleContainer.hpp"
+#include "../../Misc/GRandomNumberContainer.hpp"
 
 #define WORKLOAD GSimpleContainer
 // #define WORKLOAD GRandomNumberContainer
@@ -266,13 +265,13 @@ int main(int argc, char **argv) {
 	//--------------------------------------------------------------------------------
 	// Find out about our configuration options
 	if(!parseCommandLine(
-			argc, argv
-			, nProductionCycles
-			, nContainerEntries
-			, putTimeoutMS
-			, getTimeoutMS
-			, maxPutTimeouts
-			, maxGetTimeouts
+      argc, argv
+      , nProductionCycles
+      , nContainerEntries
+      , putTimeoutMS
+      , getTimeoutMS
+      , maxPutTimeouts
+      , maxGetTimeouts
 	))
 	{ exit(0); }
 
@@ -283,27 +282,23 @@ int main(int argc, char **argv) {
 	//--------------------------------------------------------------------------------
 	// Start the producer and consumer threads
 	boost::thread producer_thread(
-			boost::bind(
-					producer
-					, nProductionCycles
-					, nContainerEntries
-					, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(putTimeoutMS))
-					, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(getTimeoutMS))
-					, maxPutTimeouts
-					, maxGetTimeouts
-			)
+      producer
+      , nProductionCycles
+      , nContainerEntries
+      , boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(putTimeoutMS))
+      , boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(getTimeoutMS))
+      , maxPutTimeouts
+      , maxGetTimeouts
 	);
 
 	boost::thread processor_thread(
-			boost::bind(
-					processor
-					, nProductionCycles
-					, nContainerEntries
-					, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(putTimeoutMS))
-					, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(getTimeoutMS))
-					, maxPutTimeouts
-					, maxGetTimeouts
-			)
+      processor
+      , nProductionCycles
+      , nContainerEntries
+      , boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(putTimeoutMS))
+      , boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(getTimeoutMS))
+      , maxPutTimeouts
+      , maxGetTimeouts
 	);
 
 	//--------------------------------------------------------------------------------

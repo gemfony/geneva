@@ -36,10 +36,10 @@
 #define GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 
 // Standard headers go here
+#include <functional>
 
 // Boost headers go here
 #include <boost/cstdint.hpp>
-#include <boost/bind.hpp>
 #include <boost/date_time.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -409,7 +409,7 @@ int main(int argc, char**argv) {
 
 	// Start the threads
 	producer_gtg.create_threads(
-		boost::bind(
+		std::bind(
 			producer
 			, nItems
 			, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(timeoutMS))
@@ -424,7 +424,7 @@ int main(int argc, char**argv) {
 	}
 
 	consumer_gtg.create_threads(
-		boost::bind(
+		std::bind(
 			consumer
 			, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(timeoutMS))
 			, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(maxRandomDelayMS))

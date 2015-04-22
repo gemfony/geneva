@@ -39,8 +39,6 @@
 // Boost headers go here
 #include <boost/cstdint.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
 
 // Geneva headers go here
 #include "common/GLogger.hpp"
@@ -226,7 +224,9 @@ int main(int argc, char** argv) {
 		      stc = true;
 		   }
 
-         gtp.async_schedule(boost::function<void()>(boost::bind(&testTask::process, tasks.at(i), stc)));
+         gtp.async_schedule(
+            [tasks,i,stc](){ (tasks.at(i))->process(stc); }
+         );
 		}
 
 		if(nResizeEvents > 0 && gr.weighted_bool(resizeLikelihood)) {

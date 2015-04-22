@@ -33,10 +33,10 @@
  */
 
 #include <vector>
+#include <functional>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
-#include <boost/bind.hpp>
 
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GBrokerT.hpp"
@@ -47,8 +47,8 @@
 #include "common/GExceptions.hpp"
 #include "common/GThreadGroup.hpp"
 
-#include "GRandomNumberContainer.hpp"
-#include "GSimpleContainer.hpp"
+#include "../../Misc/GRandomNumberContainer.hpp"
+#include "../../Misc/GSimpleContainer.hpp"
 #include "GArgumentParser.hpp"
 
 std::size_t producer_counter;
@@ -249,7 +249,7 @@ int main(int argc, char **argv) {
 	// Create the required number of connectorProducer threads
 	if(useDirectBrokerConnection) {
 		connectorProducer_gtg.create_threads(
-         boost::bind(
+         std::bind(
             brokerProducer
             , nProductionCycles
             , nContainerObjects
@@ -259,7 +259,7 @@ int main(int argc, char **argv) {
 		);
 	} else {
 		connectorProducer_gtg.create_threads(
-			boost::bind(
+			std::bind(
 				connectorProducer
 				, nProductionCycles
 				, nContainerObjects
@@ -299,7 +299,7 @@ int main(int argc, char **argv) {
 	         clients.push_back(p);
 
 	         worker_gtg.create_thread(
-	            boost::bind(&GAsioTCPClientT<WORKLOAD>::run,p)
+               [p](){ p->run(); }
 	         );
 			}
 		}
@@ -343,7 +343,7 @@ int main(int argc, char **argv) {
             clients.push_back(p);
 
             worker_gtg.create_thread(
-               boost::bind(&GAsioTCPClientT<WORKLOAD>::run,p)
+               [p](){ p->run(); }
             );
          }
 		}
