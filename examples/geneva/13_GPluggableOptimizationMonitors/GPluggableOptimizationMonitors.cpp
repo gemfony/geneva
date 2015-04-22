@@ -36,7 +36,6 @@
 #include <iostream>
 
 // Boost header files go here
-#include <boost/bind.hpp>
 #include <boost/ref.hpp>
 #include <boost/program_options.hpp>
 
@@ -240,12 +239,9 @@ int main(int argc, char **argv) {
 
    if(collectiveMonitor_ptr->hasOptimizationMonitors()) {
       go.registerPluggableOM(
-            boost::bind(
-                  &GCollectiveMonitorT<GParameterSet>::informationFunction
-                  , collectiveMonitor_ptr
-                  , _1
-                  , _2
-            )
+         [collectiveMonitor_ptr](const infoMode& im, GOptimizationAlgorithmT<GParameterSet> * const goa){
+            collectiveMonitor_ptr->informationFunction(im, goa);
+         }
       );
    }
 
