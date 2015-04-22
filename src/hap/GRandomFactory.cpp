@@ -325,11 +325,7 @@ void GRandomFactory::setNProducerThreads(const boost::uint16_t& n01Threads)
 			if (n01Threads_local > n01Threads_.load()) { // start new 01 threads
 				for (boost::uint16_t i = n01Threads_.load(); i < n01Threads_local; i++) {
 					producer_threads_01_.create_thread(
-                  boost::bind(
-                     &GRandomFactory::producer01
-                     , this
-                     , this->getSeed()
-                  )
+					   [this](){ this->producer01(this->getSeed()); }
 					);
 				}
 			} else if (n01Threads_local < n01Threads_.load()) { // We need to remove threads
@@ -357,11 +353,7 @@ boost::shared_ptr<random_container> GRandomFactory::new01Container() {
 		   //---------------------------------------------------------
 		   for (boost::uint16_t i = 0; i < n01Threads_.load(); i++) {
 		      producer_threads_01_.create_thread(
-		         boost::bind(
-		            &GRandomFactory::producer01
-		            , this
-		            , this->getSeed()
-		         )
+               [this](){ this->producer01(this->getSeed()); }
 		      );
 		   }
          //---------------------------------------------------------

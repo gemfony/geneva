@@ -759,33 +759,24 @@ void GFunctionIndividual::compare(
 void GFunctionIndividual::addConfigurationOptions (
 	Gem::Common::GParserBuilder& gpb
 ) {
-	std::string comment;
-
 	// Call our parent class'es function
 	GParameterSet::addConfigurationOptions(gpb);
 
 	// Local data
-   comment = ""; // Reset the comment string
-   comment += "Specifies which demo function should be used:;";
-   comment += "0: Parabola;";
-   comment += "1: Berlich;";
-   comment += "2: Rosenbrock;";
-   comment += "3: Ackley;";
-   comment += "4: Rastrigin;";
-   comment += "5: Schwefel;";
-   comment += "6: Salomon;";
-   comment += "7: Negative Parabola;";
    gpb.registerFileParameter<solverFunction>(
       "demoFunction" // The name of the variable
       , GO_DEF_EVALFUNCTION // The default value
-      , boost::bind(
-         &GFunctionIndividual::setDemoFunction
-         , this
-         , _1
-      )
-      , Gem::Common::VAR_IS_ESSENTIAL
-      , comment
-   );
+      , [this](solverFunction sf){ this->setDemoFunction(sf); }
+   )
+   << "Specifies which demo function should be used:" << std::endl
+   << "0: Parabola" << std::endl
+   << "1: Berlich" << std::endl
+   << "2: Rosenbrock" << std::endl
+   << "3: Ackley" << std::endl
+   << "4: Rastrigin" << std::endl
+   << "5: Schwefel" << std::endl
+   << "6: Salomon" << std::endl
+   << "7: Negative Parabola" << std::endl;
 }
 
 /******************************************************************************/
