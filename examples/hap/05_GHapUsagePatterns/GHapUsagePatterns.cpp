@@ -37,7 +37,6 @@
 
 // Boost header files go here
 #include <boost/thread/thread.hpp>
-#include <boost/bind.hpp>
 
 // Geneva header files go here
 #include "hap/GRandomT.hpp"
@@ -199,8 +198,8 @@ int main(int argc, char **argv) {
 	}
 
 	// Try thread specific storage access to GRandomT
-	boost::thread t1(boost::bind(produceNumbers, 1));
-	boost::thread t2(boost::bind(produceNumbers, 2));
+	boost::thread t1(produceNumbers, 1);
+	boost::thread t2(produceNumbers, 2);
 	t1.join();
 	t2.join();
 
