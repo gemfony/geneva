@@ -40,7 +40,6 @@
 #include <sstream>
 
 // Boost header files go here
-#include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>

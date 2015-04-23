@@ -298,9 +298,7 @@ int main(int argc, char **argv) {
 	         boost::shared_ptr<GAsioTCPClientT<WORKLOAD> > p(new GAsioTCPClientT<WORKLOAD>("localhost", "10000"));
 	         clients.push_back(p);
 
-	         worker_gtg.create_thread(
-               [p](){ p->run(); }
-	         );
+	         worker_gtg.create_thread( [p](){ p->run(); } );
 			}
 		}
 		break;
@@ -342,9 +340,7 @@ int main(int argc, char **argv) {
             boost::shared_ptr<GAsioTCPClientT<WORKLOAD> > p(new GAsioTCPClientT<WORKLOAD>("localhost", "10000"));
             clients.push_back(p);
 
-            worker_gtg.create_thread(
-               [p](){ p->run(); }
-            );
+            worker_gtg.create_thread( [p](){ p->run(); } );
          }
 		}
 		break;

@@ -225,7 +225,7 @@ int main(int argc, char** argv) {
 		   }
 
          gtp.async_schedule(
-            [tasks,i,stc](){ (tasks.at(i))->process(stc); }
+            [&tasks,i,stc](){ (tasks.at(i))->process(stc); }
          );
 		}
 

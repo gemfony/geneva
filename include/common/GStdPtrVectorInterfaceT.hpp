@@ -272,7 +272,7 @@ public:
       return std::count_if(
          data.begin()
          , data.end()
-         , [item](const boost::shared_ptr<T>& cont_item) -> bool {
+         , [&item](const boost::shared_ptr<T>& cont_item) -> bool {
             bool result = false;
 #ifdef DEBUG
             try {
@@ -318,7 +318,7 @@ public:
 		return std::find_if(
          data.begin()
          , data.end()
-         , [item](const boost::shared_ptr<T>& cont_item) -> bool {
+         , [&item](const boost::shared_ptr<T>& cont_item) -> bool {
 		      bool result = false;
 #ifdef DEBUG
             try {

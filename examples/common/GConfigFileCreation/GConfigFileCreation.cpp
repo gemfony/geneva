@@ -38,7 +38,6 @@
 
 // Boost header files go here
 #include <boost/lexical_cast.hpp>
-#include <boost/bind.hpp>
 #include <boost/array.hpp>
 
 // Geneva header files go here

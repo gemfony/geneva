@@ -45,7 +45,6 @@
 // Boost headers go here
 #include <boost/array.hpp>
 #include <boost/asio.hpp>
-#include <boost/bind.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
@@ -632,14 +631,15 @@ class GAsioServerSessionT
    void async_processRequest() {
       try {
          // Initiate the first read session. Every transmission starts with a command
+         auto p = GAsioServerSessionT<processable_type>::shared_from_this();
          boost::asio::async_read(
              socket_
              , boost::asio::buffer(commandBuffer_)
              , strand_.wrap(
-                boost::bind(
+                std::bind(
                    &GAsioServerSessionT<processable_type>::async_handle_read_command
                    , GAsioServerSessionT<processable_type>::shared_from_this()
-                   , boost::asio::placeholders::error
+                   , std::placeholders::_1 // Replaces boost::asio::placeholders::error
                 )
              )
          );
@@ -730,10 +730,10 @@ class GAsioServerSessionT
          boost::asio::async_read(
              socket_
              , boost::asio::buffer(commandBuffer_)
-             , strand_.wrap(boost::bind(
+             , strand_.wrap(std::bind(
                    &GAsioServerSessionT<processable_type>::async_handle_read_portid
                    , GAsioServerSessionT<processable_type>::shared_from_this()
-                   , boost::asio::placeholders::error
+                   , std::placeholders::_1 // Replaces boost::asio::placeholders::error
              ))
          );
       } catch(const boost::system::system_error &e) {
@@ -784,10 +784,10 @@ class GAsioServerSessionT
          boost::asio::async_read(
              socket_
              , boost::asio::buffer(commandBuffer_)
-             , strand_.wrap(boost::bind(
+             , strand_.wrap(std::bind(
                    &GAsioServerSessionT<processable_type>::async_handle_read_datasize
                    , GAsioServerSessionT<processable_type>::shared_from_this()
-                   , boost::asio::placeholders::error
+                   , std::placeholders::_1 // Replaces boost::asio::placeholders::error
              ))
          );
       } catch(const boost::system::system_error &e) {
@@ -841,11 +841,11 @@ class GAsioServerSessionT
       try {
          socket_.async_read_some(
             boost::asio::buffer(dataBuffer_)
-            , strand_.wrap(boost::bind(
+            , strand_.wrap(std::bind(
                   &GAsioServerSessionT<processable_type>::async_handle_read_body
                   , GAsioServerSessionT<processable_type>::shared_from_this()
-                  , boost::asio::placeholders::error
-                  , boost::asio::placeholders::bytes_transferred
+                  , std::placeholders::_1 // Replaces boost::asio::placeholders::error
+                  , std::placeholders::_2 // Replaces boost::asio::placeholders::bytes_transferred
             ))
          );
       } catch(const boost::system::system_error &e) {
@@ -903,11 +903,11 @@ class GAsioServerSessionT
          try {
             socket_.async_read_some(
                boost::asio::buffer(dataBuffer_)
-               , strand_.wrap(boost::bind(
+               , strand_.wrap(std::bind(
                        &GAsioServerSessionT<processable_type>::async_handle_read_body
                      , GAsioServerSessionT<processable_type>::shared_from_this()
-                     , boost::asio::placeholders::error
-                     , boost::asio::placeholders::bytes_transferred
+                     , std::placeholders::_1 // Replaces boost::asio::placeholders::error
+                     , std::placeholders::_2 // Replaces boost::asio::placeholders::bytes_transferred
                ))
             );
          } catch(const boost::system::system_error &e) {
@@ -1014,10 +1014,10 @@ class GAsioServerSessionT
          boost::asio::async_write(
             socket_
             , buffers
-            , strand_.wrap(boost::bind(
+            , strand_.wrap(std::bind(
                   &GAsioServerSessionT<processable_type>::handle_write
                   , GAsioServerSessionT<processable_type>::shared_from_this()
-                  , boost::asio::placeholders::error
+                  , std::placeholders::_1 // Replaces boost::asio::placeholders::error
             ))
          );
       } catch(const boost::system::system_error &e) {
@@ -1054,10 +1054,10 @@ class GAsioServerSessionT
          boost::asio::async_write(
                socket_
                , boost::asio::buffer(outbound_command)
-               , strand_.wrap(boost::bind(
+               , strand_.wrap(std::bind(
                      &GAsioServerSessionT<processable_type>::handle_write
                      , GAsioServerSessionT<processable_type>::shared_from_this()
-                     , boost::asio::placeholders::error
+                     , std::placeholders::_1 // Replaces boost::asio::placeholders::error
                ))
          );
       } catch(const boost::system::system_error &e) {
@@ -1380,8 +1380,10 @@ class GAsioTCPConsumerT
          // Create a number of threads responsible for the io_service_ objects
          // This absolutely needs to happen after the first session has started,
          // so the io_service doesn't run out of work
-         boost::function<void()> io_s = boost::bind(&boost::asio::io_service::run, &io_service_);
-         gtg_.create_threads(io_s, listenerThreads_);
+         gtg_.create_threads(
+            [&](){ io_service_.run(); }
+            , listenerThreads_
+         );
       } catch(const boost::system::system_error &e) {
          glogger
          << "In GAsioTCPConsumerT::async_startProcessing():" << std::endl
@@ -1494,8 +1496,8 @@ class GAsioTCPConsumerT
          , Gem::Common::PORTIDTYPE portId
    ) {
       gtp_.async_schedule(
-            boost::function<void()>(
-               boost::bind(
+            std::function<void()>(
+               std::bind(
                   &GAsioTCPConsumerT<processable_type>::handle_workItemComplete // Does its own error checks
                   , this
                   , dataBody_ptr
@@ -1578,11 +1580,11 @@ class GAsioTCPConsumerT
       try {
          acceptor_.async_accept(
                newSession->getSocket()
-               , boost::bind(
+               , std::bind(
                      &GAsioTCPConsumerT<processable_type>::async_handleAccept
                      , this
                      , newSession
-                     , boost::asio::placeholders::error
+                     , std::placeholders::_1 // Replaces boost::asio::placeholders::error
                )
          );
       } catch(const boost::system::system_error &e) {

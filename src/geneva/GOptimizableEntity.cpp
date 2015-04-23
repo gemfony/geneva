@@ -487,7 +487,7 @@ std::vector<double> GOptimizableEntity::transformedFitnessVec() const {
 /******************************************************************************/
 /**
  * A wrapper for the non-const fitness function, so we can bind to it. It is
- * needed as boost::bind cannot distinguish between the non-const and const
+ * needed as bind cannot distinguish between the non-const and const
  * overload of the fitness() function.
  */
 double GOptimizableEntity::nonConstFitness(
@@ -501,7 +501,7 @@ double GOptimizableEntity::nonConstFitness(
 /******************************************************************************/
 /**
  * A wrapper for the const fitness function, so we can bind to it. It is
- * needed as boost::bind cannot distinguish between the non-const and const
+ * needed as bind cannot distinguish between the non-const and const
  * overload of the fitness() function.
  */
 double GOptimizableEntity::constFitness(

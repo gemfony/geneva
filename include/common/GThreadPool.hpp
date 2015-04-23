@@ -94,11 +94,7 @@ public:
 	/***************************************************************************/
 	/**
 	 * Submits the task to Boost.ASIO's io_service. This function will return immediately,
-	 * before the completion of the task.It consists of two distinct blocks with individual
-	 * locking which, for the purpose of multi-threading, have the same effect as two
-	 * distinct functions. I.e., the first block may be executed, then another async_schedule
-	 * call may take over. The first block starts worker threads, if needed. Except for the
-	 * first call(s), if() will never trigger. The second block does the actual job submission.
+	 * before the completion of the task.
 	 *
 	 * @param f The function to be executed by the threads in the pool
 	 */
@@ -135,9 +131,7 @@ public:
 	      );
 
 	      gtg_.create_threads (
-	         [&]() {
-	            io_service_.run();
-	         }
+	         [&]() { io_service_.run(); }
 	         , nThreads_.load()
 	      );
 
