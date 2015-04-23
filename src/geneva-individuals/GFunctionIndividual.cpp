@@ -1010,7 +1010,7 @@ std::ostream& operator<<(std::ostream& s, const Gem::Geneva::GFunctionIndividual
 /**
  * Provide an easy way to print the individual's content through a smart-pointer
  */
-std::ostream& operator<<(std::ostream& s, boost::shared_ptr<Gem::Geneva::GFunctionIndividual> f_ptr) {
+std::ostream& operator<<(std::ostream& s, std::shared_ptr<Gem::Geneva::GFunctionIndividual> f_ptr) {
    return operator<<(s,*f_ptr);
 }
 
@@ -1123,12 +1123,12 @@ GFunctionIndividualFactory::~GFunctionIndividualFactory()
 /**
  * Loads the data of another GFunctionIndividualFactory object
  */
-void GFunctionIndividualFactory::load(boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > cp_raw_ptr) {
+void GFunctionIndividualFactory::load(std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > cp_raw_ptr) {
    // Load our parent class'es data
    Gem::Common::GFactoryT<GParameterSet>::load(cp_raw_ptr);
 
    // Convert the base pointer
-   boost::shared_ptr<GFunctionIndividualFactory> cp_ptr
+   std::shared_ptr<GFunctionIndividualFactory> cp_ptr
       = Gem::Common::convertSmartPointer<Gem::Common::GFactoryT<GParameterSet>, GFunctionIndividualFactory>(cp_raw_ptr);
 
    // And then our own
@@ -1161,8 +1161,8 @@ void GFunctionIndividualFactory::load(boost::shared_ptr<Gem::Common::GFactoryT<G
 /**
  * Creates a deep clone of this object
  */
-boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > GFunctionIndividualFactory::clone() const {
-   return boost::shared_ptr<GFunctionIndividualFactory>(new GFunctionIndividualFactory(*this));
+std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > GFunctionIndividualFactory::clone() const {
+   return std::shared_ptr<GFunctionIndividualFactory>(new GFunctionIndividualFactory(*this));
 }
 
 /******************************************************************************/
@@ -1732,12 +1732,12 @@ void GFunctionIndividualFactory::setAdProbRange(double minAdProb, double maxAdPr
  *
  * @return Items of the desired type
  */
-boost::shared_ptr<GParameterSet> GFunctionIndividualFactory::getObject_(
+std::shared_ptr<GParameterSet> GFunctionIndividualFactory::getObject_(
 	Gem::Common::GParserBuilder& gpb
 	, const std::size_t& id
 ) {
 	// Will hold the result
-	boost::shared_ptr<GFunctionIndividual> target(new GFunctionIndividual());
+	std::shared_ptr<GFunctionIndividual> target(new GFunctionIndividual());
 
 	// Make the object's local configuration options known
 	target->addConfigurationOptions(gpb);
@@ -1998,14 +1998,14 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& p) {
+void GFunctionIndividualFactory::postProcess_(std::shared_ptr<GParameterSet>& p) {
 	// Set up a random number generator
 	Gem::Hap::GRandom gr;
 
 	// Set up an adaptor for the collections, so they know how to be adapted
-	boost::shared_ptr<GAdaptorT<double> > gat_ptr;
+	std::shared_ptr<GAdaptorT<double> > gat_ptr;
 	if(useBiGaussian_) {
-		boost::shared_ptr<GDoubleBiGaussAdaptor> gdbga_ptr(new GDoubleBiGaussAdaptor());
+		std::shared_ptr<GDoubleBiGaussAdaptor> gdbga_ptr(new GDoubleBiGaussAdaptor());
 		gdbga_ptr->setAllSigma1(sigma1_, sigmaSigma1_, minSigma1_, maxSigma1_);
 		gdbga_ptr->setAllSigma1(sigma2_, sigmaSigma2_, minSigma2_, maxSigma2_);
 		gdbga_ptr->setAllSigma1(delta_, sigmaDelta_, minDelta_, maxDelta_);
@@ -2013,7 +2013,7 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& 
 		gdbga_ptr->setAdaptionProbability(adProb_);
 		gat_ptr = gdbga_ptr;
 	} else {
-		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma1_, sigmaSigma1_, minSigma1_, maxSigma1_));
+		std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma1_, sigmaSigma1_, minSigma1_, maxSigma1_));
 		gdga_ptr->setAdaptionThreshold(adaptionThreshold_);
 		gdga_ptr->setAdaptionProbability(adProb_);
 		gat_ptr = gdga_ptr;
@@ -2037,12 +2037,12 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& 
       {
          // Set up a collection, each initialized with a random number in the range [min,max[
          // Random initialization happens in the constructor.
-         boost::shared_ptr<GDoubleCollection> gdc_ptr;
+         std::shared_ptr<GDoubleCollection> gdc_ptr;
 
          if(INITRANDOM == iM_) {
-            gdc_ptr = boost::shared_ptr<GDoubleCollection>(new GDoubleCollection(nData, minVar_, maxVar_));
+            gdc_ptr = std::shared_ptr<GDoubleCollection>(new GDoubleCollection(nData, minVar_, maxVar_));
          } else { // INITPERIMETER
-            gdc_ptr = boost::shared_ptr<GDoubleCollection>(new GDoubleCollection(nData, (maxVar_ + minVar_) / 2., minVar_, maxVar_));
+            gdc_ptr = std::shared_ptr<GDoubleCollection>(new GDoubleCollection(nData, (maxVar_ + minVar_) / 2., minVar_, maxVar_));
             gdc_ptr->at(perimeterPos) = minVar_;
          }
 
@@ -2057,12 +2057,12 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& 
       {
 
          // Set up a collection
-         boost::shared_ptr<GConstrainedDoubleCollection> gcdc_ptr;
+         std::shared_ptr<GConstrainedDoubleCollection> gcdc_ptr;
 
          if(INITRANDOM == iM_) {
-            gcdc_ptr = boost::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(nData, minVar_, maxVar_));
+            gcdc_ptr = std::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(nData, minVar_, maxVar_));
          } else { // INITPERIMETER
-            gcdc_ptr = boost::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(nData, (maxVar_ + minVar_) / 2., minVar_, maxVar_));
+            gcdc_ptr = std::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(nData, (maxVar_ + minVar_) / 2., minVar_, maxVar_));
             gcdc_ptr->at(perimeterPos) = minVar_;
          }
 
@@ -2076,12 +2076,12 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& 
 	case USEGDOUBLEOBJECTCOLLECTION:
       {
          // Set up a collection of GDoubleObject objects
-         boost::shared_ptr<GDoubleObjectCollection> gdoc_ptr(new GDoubleObjectCollection());
+         std::shared_ptr<GDoubleObjectCollection> gdoc_ptr(new GDoubleObjectCollection());
 
          // Fill the collection with GDoubleObject objects, each equipped with a copy of our adaptor
          // Note that addAdaptor() itself will take care of cloning the adaptor
          for(std::size_t i=0; i<nData; i++) {
-            boost::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject(minVar_, maxVar_));
+            std::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject(minVar_, maxVar_));
             if(INITPERIMETER == iM_) {
                if(i == perimeterPos) {
                   *gdo_ptr = minVar_;
@@ -2103,12 +2103,12 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& 
 	case USEGCONSTRAINEDDOUBLEOBJECTCOLLECTION:
 	{
 		// Set up a collection of GConstrainedDoubleObject objects
-		boost::shared_ptr<GConstrainedDoubleObjectCollection> gcdoc_ptr(new GConstrainedDoubleObjectCollection());
+		std::shared_ptr<GConstrainedDoubleObjectCollection> gcdoc_ptr(new GConstrainedDoubleObjectCollection());
 
 		// Fill the collection with GConstrainedDoubleObject objects, each equipped with a copy of our adaptor
 		// Note that addAdaptor() itself will take care of cloning the adaptor
 		for(std::size_t i=0; i<nData; i++) {
-			boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(minVar_, maxVar_));
+			std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(minVar_, maxVar_));
 			if(INITPERIMETER == iM_) {
 				if(i == perimeterPos) {
 					*gcdo_ptr = minVar_;
@@ -2132,7 +2132,7 @@ void GFunctionIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& 
       // Fill the individual with GConstrainedDoubleObject objects, each equipped with a copy of our adaptor
       // Note that addAdaptor() itself will take care of cloning the adaptor
       for(std::size_t i=0; i<nData; i++) {
-         boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(minVar_, maxVar_));
+         std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(minVar_, maxVar_));
          if(INITPERIMETER == iM_) {
             if(i == perimeterPos) {
                *gcdo_ptr = minVar_;

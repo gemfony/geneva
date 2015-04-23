@@ -372,11 +372,11 @@ void GDoubleCollection::doubleFixedValueInit(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GDoubleCollection::doubleAdd(
-   boost::shared_ptr<GParameterBase> p_base
+   std::shared_ptr<GParameterBase> p_base
    , const activityMode& am
 ) {
    // We first need to convert p_base into the local type
-   boost::shared_ptr<GDoubleCollection> p
+   std::shared_ptr<GDoubleCollection> p
       = GParameterBase::parameterbase_cast<GDoubleCollection>(p_base);
 
    // Cross-check that the sizes match
@@ -400,11 +400,11 @@ void GDoubleCollection::doubleAdd(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GDoubleCollection::doubleSubtract(
-   boost::shared_ptr<GParameterBase> p_base
+   std::shared_ptr<GParameterBase> p_base
    , const activityMode& am
 ) {
    // We first need to convert p_base into the local type
-   boost::shared_ptr<GDoubleCollection> p
+   std::shared_ptr<GDoubleCollection> p
       = GParameterBase::parameterbase_cast<GDoubleCollection>(p_base);
 
    // Cross-check that the sizes match
@@ -506,14 +506,14 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
-	boost::shared_ptr<GAdaptorT<double> > storedAdaptor;
+	std::shared_ptr<GAdaptorT<double> > storedAdaptor;
 
 	if(this->hasAdaptor()) {
 		storedAdaptor = this->getAdaptor();
 		adaptorStored = true;
 	}
 
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0));
+	std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0));
 	gdga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	gdga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(gdga_ptr);
@@ -524,8 +524,8 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test the GParameterT<T>::adaptImpl() implementation
-		boost::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
-		boost::shared_ptr<GDoubleCollection> p_test2 = this->clone<GDoubleCollection>();
+		std::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
+		std::shared_ptr<GDoubleCollection> p_test2 = this->clone<GDoubleCollection>();
 
 		if(p_test1->hasAdaptor()) {
 			// Make sure the collection is clean
@@ -560,9 +560,9 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test of GParameterCollectionT<T>::swap(const GParameterCollectionT<T>&)
-		boost::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
-		boost::shared_ptr<GDoubleCollection> p_test2 = this->clone<GDoubleCollection>();
-		boost::shared_ptr<GDoubleCollection> p_test3 = this->clone<GDoubleCollection>();
+		std::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
+		std::shared_ptr<GDoubleCollection> p_test2 = this->clone<GDoubleCollection>();
+		std::shared_ptr<GDoubleCollection> p_test3 = this->clone<GDoubleCollection>();
 
 		if(p_test1->hasAdaptor()) {
 			// Make sure the collection is clean
@@ -609,7 +609,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test the GStdSimpleVectorInterfaceT<double>::reserve(), capacity() and max_size() functions
-		boost::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
+		std::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
 		// Make sure the collection is empty
 		BOOST_CHECK_NO_THROW(p_test1->clear());
@@ -638,7 +638,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test the GStdSimpleVectorInterfaceT<double>::count(), find() and begin() functions
-		boost::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
+		std::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
 		// Add some data
 		BOOST_CHECK_NO_THROW(p_test1->fillWithData(nItems));
@@ -658,7 +658,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test setting and retrieval of items with the operator[] and at() functions of GStdSimpleVectorInterfaceT<double>
-		boost::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
+		std::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
 		// Add some data
 		BOOST_CHECK_NO_THROW(p_test1->fillWithData(nItems));
@@ -677,7 +677,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test the GStdSimpleVectorInterfaceT<double>::front() and back() functions
-		boost::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
+		std::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
 		// Add some data
 		BOOST_CHECK_NO_THROW(p_test1->fillWithData(nItems));
@@ -690,7 +690,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test iteration over the vector and retrieval of the end() iterator (Test of GStdSimpleVectorInterfaceT<double> functionality)
-		boost::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
+		std::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
 		// Add some data
 		BOOST_CHECK_NO_THROW(p_test1->fillWithData(nItems));
@@ -705,7 +705,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test inserting and erasure of items, the pop_back and resize functions and the getDataCopy and operator= functions (Test of GStdSimpleVectorInterfaceT<double> functionality)
-		boost::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
+		std::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
 		// Add some data
 		BOOST_CHECK_NO_THROW(p_test1->fillWithData(nItems));
@@ -779,14 +779,14 @@ void GDoubleCollection::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
-	boost::shared_ptr<GAdaptorT<double> > storedAdaptor;
+	std::shared_ptr<GAdaptorT<double> > storedAdaptor;
 
 	if(this->hasAdaptor()) {
 		storedAdaptor = this->getAdaptor();
 		adaptorStored = true;
 	}
 
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0));
+	std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0));
 	gdga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	gdga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(gdga_ptr);

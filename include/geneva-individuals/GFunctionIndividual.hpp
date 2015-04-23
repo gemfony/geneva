@@ -439,7 +439,7 @@ private:
  * Provide an easy way to print the individual's content
  */
 G_API_INDIVIDUALS std::ostream& operator<<(std::ostream&, const Gem::Geneva::GFunctionIndividual&);
-G_API_INDIVIDUALS std::ostream& operator<<(std::ostream&, boost::shared_ptr<Gem::Geneva::GFunctionIndividual>);
+G_API_INDIVIDUALS std::ostream& operator<<(std::ostream&, std::shared_ptr<Gem::Geneva::GFunctionIndividual>);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -604,17 +604,17 @@ public:
    /***************************************************************************/
 
    /** @brief Loads the data of another GFunctionIndividualFactory object */
-	G_API_INDIVIDUALS virtual void load(boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >);
+	G_API_INDIVIDUALS virtual void load(std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >);
    /** @brief Creates a deep clone of this object */
-	G_API_INDIVIDUALS virtual boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > clone() const;
+	G_API_INDIVIDUALS virtual std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > clone() const;
 
 protected:
 	/** @brief Creates individuals of this type */
-	G_API_INDIVIDUALS virtual boost::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
+	G_API_INDIVIDUALS virtual std::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
 	/** @brief Allows to describe local configuration options in derived classes */
 	G_API_INDIVIDUALS virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
 	/** @brief Allows to act on the configuration options received from the configuration file */
-	G_API_INDIVIDUALS virtual void postProcess_(boost::shared_ptr<GParameterSet>&);
+	G_API_INDIVIDUALS virtual void postProcess_(std::shared_ptr<GParameterSet>&);
 
 private:
    /** @brief Set the value of the minVar_ variable */

@@ -455,7 +455,7 @@ protected:
 			}
 
 			// Retrieve the globally best individual for later use
-			boost::shared_ptr<GParameterSet> g_best_ptr = swarm->GOptimizableI::getBestIndividual<GParameterSet>();
+			std::shared_ptr<GParameterSet> g_best_ptr = swarm->GOptimizableI::getBestIndividual<GParameterSet>();
          // Extract the fitness (Note: this will throw, if the individual is "dirty")
          double global_best_fitness = g_best_ptr->transformedFitness();
 
@@ -501,7 +501,7 @@ protected:
 
 			// Extract the locally best individuals and mark them in the plot
 			for(std::size_t neighborhood=0; neighborhood<swarm->getNNeighborhoods(); neighborhood++) {
-				boost::shared_ptr<GParameterSet> l_best_ptr = swarm->getBestNeighborhoodIndividual<GParameterSet>(neighborhood);
+				std::shared_ptr<GParameterSet> l_best_ptr = swarm->getBestNeighborhoodIndividual<GParameterSet>(neighborhood);
 
 				// Extract the coordinates
 				double x_local_best = l_best_ptr->at<GDoubleCollection>(0)->at(0);
@@ -558,7 +558,7 @@ protected:
 			std::size_t particle = 0;
 			for(it=swarm->begin(); it!=swarm->end(); ++it, ++particle) {
 				// Retrieve the data members
-				boost::shared_ptr<GDoubleCollection> x = (*it)->at<GDoubleCollection>(0);
+				std::shared_ptr<GDoubleCollection> x = (*it)->at<GDoubleCollection>(0);
 				// Store a reference for ease of access
 				const GDoubleCollection& x_ref = *x;
 #ifdef DEBUG

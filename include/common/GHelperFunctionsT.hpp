@@ -101,8 +101,8 @@ std::string vecToString(const std::vector<vecType>& vec) {
  */
 template <typename T>
 void copySmartPointer (
-	const boost::shared_ptr<T>& from
-	, boost::shared_ptr<T>& to
+	const std::shared_ptr<T>& from
+	, std::shared_ptr<T>& to
 ) {
 	// Make sure to is empty when from is empty
 	if(!from) {
@@ -118,7 +118,7 @@ void copySmartPointer (
 
 /******************************************************************************/
 /**
- * This function takes two vectors of boost::shared_ptr smart pointers and copies
+ * This function takes two vectors of std::shared_ptr smart pointers and copies
  * one into the other. As we want to make a deep copy of the smart pointers' contents
  * this can be quite complicated. Note that we assume here that the objects pointed to
  * can be copied using an operator=(). The function also assumes the existence of
@@ -130,11 +130,11 @@ void copySmartPointer (
  */
 template <typename T>
 void copySmartPointerVector(
-   const std::vector<boost::shared_ptr<T> >& from
-   , std::vector<boost::shared_ptr<T> >& to
+   const std::vector<std::shared_ptr<T> >& from
+   , std::vector<std::shared_ptr<T> >& to
 ) {
-	typename std::vector<boost::shared_ptr<T> >::const_iterator it_from;
-	typename std::vector<boost::shared_ptr<T> >::iterator it_to;
+	typename std::vector<std::shared_ptr<T> >::const_iterator it_from;
+	typename std::vector<std::shared_ptr<T> >::iterator it_to;
 
 	std::size_t size_from = from.size();
 	std::size_t size_to = to.size();
@@ -152,7 +152,7 @@ void copySmartPointerVector(
 
 		// Then attach copies of the remaining items
 		for(it_from=from.begin()+size_to; it_from!=from.end(); ++it_from) {
-			boost::shared_ptr<T> p(new T(**it_from));
+			std::shared_ptr<T> p(new T(**it_from));
 			to.push_back(p);
 		}
 	}
@@ -237,7 +237,7 @@ void copyArrays (
 
 /******************************************************************************/
 /**
- * This function takes two arrays of boost::shared_ptr smart pointers and copies
+ * This function takes two arrays of std::shared_ptr smart pointers and copies
  * one into the other. We want to make a deep copy of the smart pointers' contents.
  * Note that we assume here that the objects pointed to can be copied using an
  * operator=(). The function also assumes the existence of a valid copy constructor.
@@ -251,32 +251,32 @@ void copyArrays (
  */
 template <typename T>
 void copySmartPointerArrays(
-   boost::shared_ptr<T> const * const from
-   , boost::shared_ptr<T> *& to
+   std::shared_ptr<T> const * const from
+   , std::shared_ptr<T> *& to
    , const std::size_t& size_from
    , std::size_t& size_to
 ) {
    //--------------------------------------------------------------------------
    // Do some error checks
-   if((boost::shared_ptr<T> const * const)NULL==from && 0!=size_from) {
+   if((std::shared_ptr<T> const * const)NULL==from && 0!=size_from) {
       glogger
       << "In copySmartPointerArrays(): Error: from-array is empty, but size_from isn\'t:" << size_from << std::endl
       << GEXCEPTION;
    }
 
-   if((boost::shared_ptr<T> const * const)NULL!=from && 0==size_from) {
+   if((std::shared_ptr<T> const * const)NULL!=from && 0==size_from) {
       glogger
       << "In copySmartPointerArrays(): Error: from-array isn't empty, but size_from is:" << std::endl
       << GEXCEPTION;
    }
 
-   if((boost::shared_ptr<T> *)NULL==to && 0!=size_to) {
+   if((std::shared_ptr<T> *)NULL==to && 0!=size_to) {
       glogger
       << "In copySmartPointerArrays(): Error: to-array is empty, but size_to isn\'t:" << size_to << std::endl
       << GEXCEPTION;
    }
 
-   if((boost::shared_ptr<T> *)NULL!=to && 0==size_to) {
+   if((std::shared_ptr<T> *)NULL!=to && 0==size_to) {
       glogger
       << "In copySmartPointerArrays(): Error: to-array isn't empty, but size_to is" << std::endl
       << GEXCEPTION;
@@ -290,12 +290,12 @@ void copySmartPointerArrays(
          to[i].reset();
       }
       delete [] to;
-      to = new boost::shared_ptr<T>[size_from];
+      to = new std::shared_ptr<T>[size_from];
       size_to = size_from;
    }
 
    for(std::size_t i=0; i<size_to; i++) {
-      to[i] = boost::shared_ptr<T>(new T(*(from[i])));
+      to[i] = std::shared_ptr<T>(new T(*(from[i])));
    }
 }
 
@@ -305,33 +305,33 @@ void copySmartPointerArrays(
  * if the conversion cannot be done.
  */
 template <typename source_type, typename target_type>
-boost::shared_ptr<target_type> convertSmartPointer(boost::shared_ptr<source_type> p_raw) {
+std::shared_ptr<target_type> convertSmartPointer(std::shared_ptr<source_type> p_raw) {
 #ifdef DEBUG
       // Check that we have indeed been given an item and that the pointer isn't empty
       if(!p_raw) {
          glogger
-         << "In boost::shared_ptr<target_type> convertSmartPointer(boost::shared_ptr<source_type> p_raw) :" << std::endl
+         << "In std::shared_ptr<target_type> convertSmartPointer(std::shared_ptr<source_type> p_raw) :" << std::endl
          << "Error: Pointer is empty." << std::endl
          << GEXCEPTION;
 
          // Make the compiler happy
-         return boost::shared_ptr<target_type>();
+         return std::shared_ptr<target_type>();
       }
 
       // Do the actual conversion
-      boost::shared_ptr<target_type> p = boost::dynamic_pointer_cast<target_type>(p_raw);
+      std::shared_ptr<target_type> p = std::dynamic_pointer_cast<target_type>(p_raw);
       if(p) return p;
       else {
          glogger
-         << "In boost::shared_ptr<target_type> convertSmartPointer(boost::shared_ptr<source_type> p_raw) :" << std::endl
+         << "In std::shared_ptr<target_type> convertSmartPointer(std::shared_ptr<source_type> p_raw) :" << std::endl
          << "Error: Invalid conversion to type " << typeid(target_type).name() << std::endl
          << GEXCEPTION;
 
          // Make the compiler happy
-         return boost::shared_ptr<target_type>();
+         return std::shared_ptr<target_type>();
       }
 #else
-      return boost::static_pointer_cast<target_type>(p_raw);
+      return std::static_pointer_cast<target_type>(p_raw);
 #endif /* DEBUG */
 }
 

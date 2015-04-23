@@ -400,7 +400,7 @@ public:
   virtual G_API_GENEVA ~bScanPar();
 
   /** @brief Cloning of this object */
-  G_API_GENEVA boost::shared_ptr<bScanPar> clone() const;
+  G_API_GENEVA std::shared_ptr<bScanPar> clone() const;
 
 private:
   /** @brief The default constructor -- only needed for de-serialization, hence private */
@@ -441,7 +441,7 @@ public:
    virtual G_API_GENEVA ~int32ScanPar();
 
    /** @brief Cloning of this object */
-   G_API_GENEVA boost::shared_ptr<int32ScanPar> clone() const;
+   G_API_GENEVA std::shared_ptr<int32ScanPar> clone() const;
 
 private:
    /** @brief The default constructor -- only needed for de-serialization, hence private */
@@ -482,7 +482,7 @@ public:
    virtual G_API_GENEVA ~dScanPar();
 
    /** @brief Cloning of this object */
-   G_API_GENEVA boost::shared_ptr<dScanPar> clone() const;
+   G_API_GENEVA std::shared_ptr<dScanPar> clone() const;
 
 private:
    /** @brief The default constructor -- only needed for de-serialization, hence private */
@@ -524,7 +524,7 @@ public:
    virtual G_API_GENEVA ~fScanPar();
 
    /** @brief Cloning of this object */
-   G_API_GENEVA boost::shared_ptr<fScanPar> clone() const;
+   G_API_GENEVA std::shared_ptr<fScanPar> clone() const;
 
 private:
    /** @brief The default constructor -- only needed for de-serialization, hence private */

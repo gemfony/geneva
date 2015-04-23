@@ -76,7 +76,7 @@ public:
 	/** @brief The default constructor */
 	G_API_GENEVA GBooleanObjectCollection();
 	/** @brief Initialization with a number of GBooleanObject objects */
-	G_API_GENEVA GBooleanObjectCollection(const std::size_t&, boost::shared_ptr<GBooleanObject>);
+	G_API_GENEVA GBooleanObjectCollection(const std::size_t&, std::shared_ptr<GBooleanObject>);
 	/** @brief Initialization with a number of GBoolean objects with a given probability for the value "true" */
 	G_API_GENEVA GBooleanObjectCollection(const std::size_t&, const double&);
 	/** @brief The copy constructor */

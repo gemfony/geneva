@@ -101,7 +101,7 @@ template<typename carrier_type>
 class GBrokerT
 	:private boost::noncopyable
 {
-	typedef typename boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<boost::shared_ptr<carrier_type> > > GBoundedBufferWithIdT_Ptr;
+	typedef typename std::shared_ptr<Gem::Common::GBoundedBufferWithIdT<std::shared_ptr<carrier_type> > > GBoundedBufferWithIdT_Ptr;
 	typedef typename std::list<GBoundedBufferWithIdT_Ptr> BufferPtrList;
 	typedef typename std::map<Gem::Common::PORTIDTYPE, GBoundedBufferWithIdT_Ptr> BufferPtrMap;
 
@@ -146,7 +146,7 @@ public:
 		if(finalized_) return;
 
 		// Shut down all consumers
-		typename std::vector<boost::shared_ptr<GBaseConsumerT<carrier_type> > >::iterator it;
+		typename std::vector<std::shared_ptr<GBaseConsumerT<carrier_type> > >::iterator it;
 		for(it=consumerCollection_.begin(); it!=consumerCollection_.end(); ++it) {
 			(*it)->shutdown();
 		}
@@ -188,7 +188,7 @@ public:
 	 *
 	 * @param gbp A shared pointer to a new GBufferPortT object
 	 */
-	void enrol(boost::shared_ptr<GBufferPortT<boost::shared_ptr<carrier_type> > > gbp) {
+	void enrol(std::shared_ptr<GBufferPortT<std::shared_ptr<carrier_type> > > gbp) {
 		// Lock the access to our internal data
 		boost::mutex::scoped_lock rawBuffersPresentLock(RawBuffersPresentMutex_);
 		boost::mutex::scoped_lock processedBuffersPresentLock(ProcessedBuffersPresentMutex_);
@@ -212,8 +212,8 @@ public:
 
 		// Retrieve the processed and original queues and tag them with
 		// a suitable id. Increment the id for later use during other enrollments.
-		boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<boost::shared_ptr<carrier_type> > > original = gbp->getOriginalQueue();
-		boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<boost::shared_ptr<carrier_type> > > processed = gbp->getProcessedQueue();
+		std::shared_ptr<Gem::Common::GBoundedBufferWithIdT<std::shared_ptr<carrier_type> > > original = gbp->getOriginalQueue();
+		std::shared_ptr<Gem::Common::GBoundedBufferWithIdT<std::shared_ptr<carrier_type> > > processed = gbp->getProcessedQueue();
 		original->setId(portId);
 		processed->setId(portId);
 
@@ -256,7 +256,7 @@ public:
 	 *
 	 * @param gc A pointer to a GBaseConsumerT<carrier_type> object
 	 */
-	void enrol(boost::shared_ptr<GBaseConsumerT<carrier_type> > gc) {
+	void enrol(std::shared_ptr<GBaseConsumerT<carrier_type> > gc) {
 		boost::mutex::scoped_lock consumerEnrolmentLock(consumerEnrolmentMutex_);
 
 		// Do nothing if a consumer of this type has already been registered
@@ -280,7 +280,7 @@ public:
 	 * @param p Holds the retrieved "raw" item
 	 * @return A key that uniquely identifies the origin of p
 	 */
-	Gem::Common::PORTIDTYPE get(boost::shared_ptr<carrier_type> & p) {
+	Gem::Common::PORTIDTYPE get(std::shared_ptr<carrier_type> & p) {
 	   typename BufferPtrList::iterator currentGetPosition;
 
 		// Locks access to our internal data until we have a copy of a buffer.
@@ -323,7 +323,7 @@ public:
 	 * @return A key that uniquely identifies the origin of p
 	 */
 	Gem::Common::PORTIDTYPE get(
-      boost::shared_ptr<carrier_type> & p
+      std::shared_ptr<carrier_type> & p
       , boost::posix_time::time_duration timeout
    ) {
 	   typename BufferPtrList::iterator currentGetPosition;
@@ -370,7 +370,7 @@ public:
 	 */
 	bool get(
       Gem::Common::PORTIDTYPE& id
-      , boost::shared_ptr<carrier_type> & p
+      , std::shared_ptr<carrier_type> & p
       , boost::posix_time::time_duration timeout
 	) {
 		// Locks access to our internal data until we have a copy of a buffer.
@@ -413,7 +413,7 @@ public:
 	 */
 	void put(
       Gem::Common::PORTIDTYPE id
-      , boost::shared_ptr<carrier_type> p
+      , std::shared_ptr<carrier_type> p
 	) {
 	   {
          boost::mutex::scoped_lock processedBuffersPresentLock(ProcessedBuffersPresentMutex_);
@@ -455,7 +455,7 @@ public:
 	 */
 	bool put(
       Gem::Common::PORTIDTYPE id
-      , boost::shared_ptr<carrier_type> p
+      , std::shared_ptr<carrier_type> p
       , boost::posix_time::time_duration timeout
 	) {
       //------------------------------------------------------------------------
@@ -521,7 +521,7 @@ public:
 #endif /* DEBUG */
 
 	   bool result = true;
-	   typename std::vector<boost::shared_ptr<GBaseConsumerT<carrier_type> > >::const_iterator cit;
+	   typename std::vector<std::shared_ptr<GBaseConsumerT<carrier_type> > >::const_iterator cit;
 	   for(cit=consumerCollection_.begin(); cit!=consumerCollection_.end(); ++cit) {
 	     if(!(*cit)->capableOfFullReturn()) {
 	       result = false;
@@ -610,7 +610,7 @@ private:
 	typename BufferPtrList::iterator currentGetPosition_; ///< The current get position in the RawBuffers_ collection
 	bool buffersPresent_; ///< Set to true once the first buffers have been enrolled
 
-	std::vector<boost::shared_ptr<GBaseConsumerT<carrier_type> > > consumerCollection_; ///< Holds the actual consumers
+	std::vector<std::shared_ptr<GBaseConsumerT<carrier_type> > > consumerCollection_; ///< Holds the actual consumers
 	std::vector<std::string> consumerTypesPresent_; ///< Holds identifying strings for each consumer
 };
 

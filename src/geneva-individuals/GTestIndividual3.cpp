@@ -58,7 +58,7 @@ GTestIndividual3::GTestIndividual3() : GParameterSet()
    // Create suitable adaptors
 
    // Gaussian distributed random numbers
-   boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr_tmpl(
+   std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr_tmpl(
          new GDoubleGaussAdaptor(
                GTI_DEF_SIGMA
                , GTI_DEF_SIGMASIGMA
@@ -73,30 +73,30 @@ GTestIndividual3::GTestIndividual3() : GParameterSet()
 
    // Create one GParameterObjectCollection for each data item
    for(std::size_t i_cnt=0; i_cnt<GTI_DEF_NITEMS; i_cnt++) {
-      boost::shared_ptr<GParameterObjectCollection> gpoc_ptr(new GParameterObjectCollection());
+      std::shared_ptr<GParameterObjectCollection> gpoc_ptr(new GParameterObjectCollection());
 
       //--------------------------------------------------------------------------------------------
-      boost::shared_ptr<GConstrainedDoubleCollection> a_ptr(new GConstrainedDoubleCollection(2, 0., 1.));
+      std::shared_ptr<GConstrainedDoubleCollection> a_ptr(new GConstrainedDoubleCollection(2, 0., 1.));
       a_ptr->addAdaptor(gdga_ptr_tmpl);
       gpoc_ptr->push_back(a_ptr);
 
       //--------------------------------------------------------------------------------------------
-      boost::shared_ptr<GConstrainedDoubleObject> b_ptr(new GConstrainedDoubleObject(0., 0.3));
+      std::shared_ptr<GConstrainedDoubleObject> b_ptr(new GConstrainedDoubleObject(0., 0.3));
       b_ptr->addAdaptor(gdga_ptr_tmpl);
       gpoc_ptr->push_back(b_ptr);
 
       //--------------------------------------------------------------------------------------------
-      boost::shared_ptr<GConstrainedDoubleCollection> c_ptr(new GConstrainedDoubleCollection(3, 0., 1.));
+      std::shared_ptr<GConstrainedDoubleCollection> c_ptr(new GConstrainedDoubleCollection(3, 0., 1.));
       c_ptr->addAdaptor(gdga_ptr_tmpl);
       gpoc_ptr->push_back(c_ptr);
 
       //--------------------------------------------------------------------------------------------
-      boost::shared_ptr<GConstrainedDoubleCollection> d_ptr(new GConstrainedDoubleCollection(3, 0., 1.));
+      std::shared_ptr<GConstrainedDoubleCollection> d_ptr(new GConstrainedDoubleCollection(3, 0., 1.));
       d_ptr->addAdaptor(gdga_ptr_tmpl);
       gpoc_ptr->push_back(d_ptr);
 
       //--------------------------------------------------------------------------------------------
-      boost::shared_ptr<GConstrainedDoubleObject> e_ptr(new GConstrainedDoubleObject(0.3, 0.6));
+      std::shared_ptr<GConstrainedDoubleObject> e_ptr(new GConstrainedDoubleObject(0.3, 0.6));
       e_ptr->addAdaptor(gdga_ptr_tmpl);
       gpoc_ptr->push_back(e_ptr);
 
@@ -271,36 +271,36 @@ boost::shared_array<float> GTestIndividual3::getPlainData() const {
 
    boost::shared_array<float> result(new float[10*GTI_DEF_NITEMS]);
    for(std::size_t i=0; i<GTI_DEF_NITEMS; i++) {
-      boost::shared_ptr<GParameterObjectCollection> gpoc_ptr = this->at<GParameterObjectCollection>(i);
+      std::shared_ptr<GParameterObjectCollection> gpoc_ptr = this->at<GParameterObjectCollection>(i);
 
       //---------------------------------------------------------
       // Extract the data of the middle of the circle
-      boost::shared_ptr<GConstrainedDoubleCollection> a_ptr = gpoc_ptr->at<GConstrainedDoubleCollection>(0);
+      std::shared_ptr<GConstrainedDoubleCollection> a_ptr = gpoc_ptr->at<GConstrainedDoubleCollection>(0);
       result[i*10+0] = boost::numeric_cast<float>(a_ptr->at(0));
       result[i*10+1] = boost::numeric_cast<float>(a_ptr->at(1));
 
       //---------------------------------------------------------
       // Extract the radius of the circle
-      boost::shared_ptr<GConstrainedDoubleObject> b_ptr = gpoc_ptr->at<GConstrainedDoubleObject>(1);
+      std::shared_ptr<GConstrainedDoubleObject> b_ptr = gpoc_ptr->at<GConstrainedDoubleObject>(1);
       result[i*10+2] = boost::numeric_cast<float>(b_ptr->value());
 
       //---------------------------------------------------------
       // Extract the three angles
-      boost::shared_ptr<GConstrainedDoubleCollection> c_ptr = gpoc_ptr->at<GConstrainedDoubleCollection>(2);
+      std::shared_ptr<GConstrainedDoubleCollection> c_ptr = gpoc_ptr->at<GConstrainedDoubleCollection>(2);
       result[i*10+3] = boost::numeric_cast<float>(c_ptr->at(0));
       result[i*10+4] = boost::numeric_cast<float>(c_ptr->at(1));
       result[i*10+5] = boost::numeric_cast<float>(c_ptr->at(2));
 
       //---------------------------------------------------------
       // Extract the three colors
-      boost::shared_ptr<GConstrainedDoubleCollection> d_ptr = gpoc_ptr->at<GConstrainedDoubleCollection>(3);
+      std::shared_ptr<GConstrainedDoubleCollection> d_ptr = gpoc_ptr->at<GConstrainedDoubleCollection>(3);
       result[i*10+6]  = boost::numeric_cast<float>(d_ptr->at(0));
       result[i*10+7]  = boost::numeric_cast<float>(d_ptr->at(1));
       result[i*10+8]  = boost::numeric_cast<float>(d_ptr->at(2));
 
       //---------------------------------------------------------
       // Extract the alpha channel
-      boost::shared_ptr<GConstrainedDoubleObject> e_ptr = gpoc_ptr->at<GConstrainedDoubleObject>(4);
+      std::shared_ptr<GConstrainedDoubleObject> e_ptr = gpoc_ptr->at<GConstrainedDoubleObject>(4);
       result[i*10+9] = boost::numeric_cast<float>(e_ptr->value());
 
       //---------------------------------------------------------
@@ -357,10 +357,10 @@ void GTestIndividual3::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test that repeated extraction of an object's data results in the same output
-      boost::shared_ptr<GTestIndividual3> p;
+      std::shared_ptr<GTestIndividual3> p;
       boost::shared_array<float> result_old, result_new;
 
-      BOOST_CHECK_NO_THROW(p = boost::shared_ptr<GTestIndividual3>(new GTestIndividual3()));
+      BOOST_CHECK_NO_THROW(p = std::shared_ptr<GTestIndividual3>(new GTestIndividual3()));
       BOOST_CHECK_NO_THROW(result_old = p->getPlainData());
       for(std::size_t i=0; i<NTESTS; i++) {
          BOOST_CHECK_NO_THROW(result_new = p->getPlainData());

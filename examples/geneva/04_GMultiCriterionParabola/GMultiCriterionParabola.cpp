@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
 
 	// Create a factory for GMultiCriterionParabolaIndividual objects and perform
 	// any necessary initial work.
-	boost::shared_ptr<GMultiCriterionParabolaIndividualFactory>
+	std::shared_ptr<GMultiCriterionParabolaIndividualFactory>
 	   gpi_ptr(new GMultiCriterionParabolaIndividualFactory("./config/GMultiCriterionParabolaIndividual.json"));
 
    // Add a content creator so Go2 can generate its own individuals, if necessary
@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
    go.registerDefaultAlgorithm("ea");
 
 	// Perform the actual optimization
-	boost::shared_ptr<GMultiCriterionParabolaIndividual> bestIndividual_ptr = go.optimize<GMultiCriterionParabolaIndividual>();
+	std::shared_ptr<GMultiCriterionParabolaIndividual> bestIndividual_ptr = go.optimize<GMultiCriterionParabolaIndividual>();
 
 	// Do something with the best result
 	std::cout << bestIndividual_ptr << std::endl;

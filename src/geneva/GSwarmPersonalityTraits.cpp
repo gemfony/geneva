@@ -218,7 +218,7 @@ bool GSwarmPersonalityTraits::checkNoPositionUpdateAndReset() {
  *
  * @param p A pointer to the personally best parameter set
  */
-void GSwarmPersonalityTraits::registerPersonalBest(boost::shared_ptr<GParameterSet> p) {
+void GSwarmPersonalityTraits::registerPersonalBest(std::shared_ptr<GParameterSet> p) {
 	// Some error checking
 #ifdef DEBUG
 	// Does it point anywhere ?
@@ -258,7 +258,7 @@ void GSwarmPersonalityTraits::registerPersonalBest(boost::shared_ptr<GParameterS
  *
  * @return The personally best individual
  */
-boost::shared_ptr<GParameterSet> GSwarmPersonalityTraits::getPersonalBest() const {
+std::shared_ptr<GParameterSet> GSwarmPersonalityTraits::getPersonalBest() const {
 #ifdef DEBUG
    if(!personal_best_) {
       glogger
@@ -282,7 +282,7 @@ boost::shared_ptr<GParameterSet> GSwarmPersonalityTraits::getPersonalBest() cons
  * parameter set.
  */
 void GSwarmPersonalityTraits::resetPersonalBest() {
-	personal_best_ = boost::shared_ptr<GParameterSet>(); // empty
+	personal_best_ = std::shared_ptr<GParameterSet>(); // empty
 	personal_best_quality_ = boost::make_tuple(0.,0.);
 }
 
@@ -397,7 +397,7 @@ void GSwarmPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 	//---------------------------------------------------------------------------
 
 	{ // Test setting and retrieval of the noPositionUpdate_ flag
-		boost::shared_ptr<GSwarmPersonalityTraits> p_test = this->clone<GSwarmPersonalityTraits>();
+		std::shared_ptr<GSwarmPersonalityTraits> p_test = this->clone<GSwarmPersonalityTraits>();
 
 		// Check setting and retrieval
 		BOOST_CHECK_NO_THROW(p_test->setNoPositionUpdate());
@@ -419,7 +419,7 @@ void GSwarmPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 	//---------------------------------------------------------------------------
 
 	{ // Test setting and retrieval of the neighborhood
-		boost::shared_ptr<GSwarmPersonalityTraits> p_test = this->clone<GSwarmPersonalityTraits>();
+		std::shared_ptr<GSwarmPersonalityTraits> p_test = this->clone<GSwarmPersonalityTraits>();
 
 		// Setting and retrieval of the neighborhood
 		for(std::size_t i=0; i<10; i++) {

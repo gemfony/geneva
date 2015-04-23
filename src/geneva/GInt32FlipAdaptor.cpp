@@ -238,7 +238,7 @@ void GInt32FlipAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check that the adaptor returns the correct adaptor id
-		boost::shared_ptr<GInt32FlipAdaptor> p_test = this->clone<GInt32FlipAdaptor>();
+		std::shared_ptr<GInt32FlipAdaptor> p_test = this->clone<GInt32FlipAdaptor>();
 
 		BOOST_CHECK_MESSAGE(
 			p_test->getAdaptorId() == GINT32FLIPADAPTOR

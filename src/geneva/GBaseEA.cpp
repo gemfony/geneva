@@ -55,7 +55,7 @@ GBaseEA::GBaseEA()
 {
 	// Register the default optimization monitor
 	this->registerOptimizationMonitor(
-			boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
+			std::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
 					new GEAOptimizationMonitor()
 			)
 	);
@@ -231,8 +231,8 @@ void GBaseEA::finalize() {
 /**
  * Retrieve a GPersonalityTraits object belonging to this algorithm
  */
-boost::shared_ptr<GPersonalityTraits> GBaseEA::getPersonalityTraits() const {
-   return boost::shared_ptr<GEAPersonalityTraits>(new GEAPersonalityTraits());
+std::shared_ptr<GPersonalityTraits> GBaseEA::getPersonalityTraits() const {
+   return std::shared_ptr<GEAPersonalityTraits>(new GEAPersonalityTraits());
 }
 
 /******************************************************************************/
@@ -291,7 +291,7 @@ sortingMode GBaseEA::getSortingScheme() const {
 /**
  * Extracts all individuals on the pareto front
  */
-void GBaseEA::extractCurrentParetoIndividuals(std::vector<boost::shared_ptr<Gem::Geneva::GParameterSet> >& paretoInds) {
+void GBaseEA::extractCurrentParetoIndividuals(std::vector<std::shared_ptr<Gem::Geneva::GParameterSet> >& paretoInds) {
    // Make sure the vector is empty
    paretoInds.clear();
 
@@ -476,7 +476,7 @@ void GBaseEA::addIterationBests(
       case MUCOMMANU_PARETO:
          {
             // Retrieve all individuals on the pareto front
-            std::vector<boost::shared_ptr<Gem::Geneva::GParameterSet> > paretoInds;
+            std::vector<std::shared_ptr<Gem::Geneva::GParameterSet> > paretoInds;
             this->extractCurrentParetoIndividuals(paretoInds);
 
             // We simply add all parent individuals to the queue. As we only want
@@ -583,7 +583,7 @@ void GBaseEA::sortMuPlusNuParetoMode() {
          data.begin() + nIndividualsOnParetoFront
          , data.begin() + nParents_
          , data.end()
-         , [](boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) -> bool {
+         , [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
 	         return x->minOnly_fitness() < y->minOnly_fitness();
 	      }
       );
@@ -595,7 +595,7 @@ void GBaseEA::sortMuPlusNuParetoMode() {
    std::sort(
       data.begin()
       , data.begin() + nParents_
-      , [](boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) -> bool {
+      , [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
          return x->minOnly_fitness() < y->minOnly_fitness();
       }
    );
@@ -680,7 +680,7 @@ void GBaseEA::sortMuCommaNuParetoMode() {
          data.begin() + nIndividualsOnParetoFront
          , data.begin() + nParents_
          , data.end()
-         , [](boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) -> bool {
+         , [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
             return x->minOnly_fitness() < y->minOnly_fitness();
          }
 	   );
@@ -692,7 +692,7 @@ void GBaseEA::sortMuCommaNuParetoMode() {
 	std::sort(
       data.begin()
       , data.begin() + nParents_
-      , [](boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) -> bool {
+      , [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
          return x->minOnly_fitness() < y->minOnly_fitness();
       }
 	);
@@ -707,8 +707,8 @@ void GBaseEA::sortMuCommaNuParetoMode() {
  * @return A boolean indicating whether the first individual dominates the second
  */
 bool GBaseEA::aDominatesB(
-      boost::shared_ptr<GParameterSet> a
-      , boost::shared_ptr<GParameterSet>b) const
+      std::shared_ptr<GParameterSet> a
+      , std::shared_ptr<GParameterSet>b) const
 {
    std::size_t nCriteriaA = a->getNumberOfFitnessCriteria();
 
@@ -764,7 +764,7 @@ void GBaseEA::fillWithObjects(const std::size_t& nIndividuals) {
 
 	// Add some some
 	for(std::size_t i=0; i<nIndividuals; i++) {
-		this->push_back(boost::shared_ptr<Gem::Tests::GTestIndividual1>(new Gem::Tests::GTestIndividual1()));
+		this->push_back(std::shared_ptr<Gem::Tests::GTestIndividual1>(new Gem::Tests::GTestIndividual1()));
 	}
 
 	// Make sure we have unique data items
@@ -787,7 +787,7 @@ void GBaseEA::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Call the parent class'es function
-		boost::shared_ptr<GBaseEA> p_test = this->clone<GBaseEA>();
+		std::shared_ptr<GBaseEA> p_test = this->clone<GBaseEA>();
 
 		// Fill p_test with individuals
 		p_test->fillWithObjects();
@@ -799,7 +799,7 @@ void GBaseEA::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Check setting and retrieval of the population size and number of parents/childs
-		boost::shared_ptr<GBaseEA> p_test = this->clone<GBaseEA>();
+		std::shared_ptr<GBaseEA> p_test = this->clone<GBaseEA>();
 
 		// Set the default population size and number of children to different numbers
 		for(std::size_t nChildren=5; nChildren<10; nChildren++) {
@@ -1023,7 +1023,7 @@ void GBaseEA::GEAOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<G
 
    // Set up the plotters
    for(std::size_t ind=0; ind<nMonitorInds_; ind++) {
-      boost::shared_ptr<Gem::Common::GGraph2D> graph(new Gem::Common::GGraph2D());
+      std::shared_ptr<Gem::Common::GGraph2D> graph(new Gem::Common::GGraph2D());
       graph->setXAxisLabel("Iteration");
       graph->setYAxisLabel("Fitness");
       graph->setPlotLabel(std::string("Individual ") + boost::lexical_cast<std::string>(ind));
@@ -1053,7 +1053,7 @@ void GBaseEA::GEAOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<G
 
    for(std::size_t ind=0; ind<nMonitorInds_; ind++) {
       // Get access to the individual
-      boost::shared_ptr<GParameterSet> gi_ptr = ea->individual_cast<GParameterSet>(ind);
+      std::shared_ptr<GParameterSet> gi_ptr = ea->individual_cast<GParameterSet>(ind);
 
       // Retrieve the fitness of this individual -- all individuals should be "clean" here
       currentTransformedEvaluation = gi_ptr->transformedFitness();
@@ -1078,7 +1078,7 @@ void GBaseEA::GEAOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GP
    gpd.setCanvasDimensions(xDim_, yDim_);
 
    // Copy all plotters into the GPlotDesigner object
-   std::vector<boost::shared_ptr<Gem::Common::GGraph2D> >::iterator it;
+   std::vector<std::shared_ptr<Gem::Common::GGraph2D> >::iterator it;
    for(it=fitnessGraphVec_.begin(); it!=fitnessGraphVec_.end(); ++it) {
       gpd.registerPlotter(*it);
    }

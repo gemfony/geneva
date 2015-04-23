@@ -75,7 +75,7 @@ public:
 	/** @brief The default constructor */
 	G_API_GENEVA GConstrainedInt32ObjectCollection();
 	/** @brief Initialization with a number of GConstrainedInt32Object objects */
-	G_API_GENEVA GConstrainedInt32ObjectCollection(const std::size_t&, boost::shared_ptr<GConstrainedInt32Object>);
+	G_API_GENEVA GConstrainedInt32ObjectCollection(const std::size_t&, std::shared_ptr<GConstrainedInt32Object>);
 	/** @brief The copy constructor */
 	G_API_GENEVA GConstrainedInt32ObjectCollection(const GConstrainedInt32ObjectCollection&);
 	/** @brief The destructor */

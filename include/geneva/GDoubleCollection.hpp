@@ -135,9 +135,9 @@ protected:
    /** @brief Initialization with a constant value */
    virtual G_API_GENEVA void doubleFixedValueInit(const double& value, const activityMode& am) override;
    /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-   virtual G_API_GENEVA void doubleAdd(boost::shared_ptr<GParameterBase>, const activityMode& am) override;
+   virtual G_API_GENEVA void doubleAdd(std::shared_ptr<GParameterBase>, const activityMode& am) override;
    /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-   virtual G_API_GENEVA void doubleSubtract(boost::shared_ptr<GParameterBase>, const activityMode& am) override;
+   virtual G_API_GENEVA void doubleSubtract(std::shared_ptr<GParameterBase>, const activityMode& am) override;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

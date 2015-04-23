@@ -56,35 +56,35 @@ int main(int argc, char **argv) {
 	std::string caption = "Random walks by adaption of different FP-based parameter objects";
 	GPlotDesigner gpd(caption, 2, 3);
 
-	boost::shared_ptr<GGraph2D> gdo_adapt_ptr(new GGraph2D());
+	std::shared_ptr<GGraph2D> gdo_adapt_ptr(new GGraph2D());
 	gdo_adapt_ptr->setPlotMode(Gem::Common::CURVE);
 	gdo_adapt_ptr->setPlotLabel("GDoubleObject");
 	gdo_adapt_ptr->setXAxisLabel("x");
 	gdo_adapt_ptr->setYAxisLabel("y");
 	// gdo_adapt_ptr->setDrawArrows();
 
-	boost::shared_ptr<GGraph2D> gcdo_adapt_ptr(new GGraph2D());
+	std::shared_ptr<GGraph2D> gcdo_adapt_ptr(new GGraph2D());
 	gcdo_adapt_ptr->setPlotMode(Gem::Common::CURVE);
 	gcdo_adapt_ptr->setPlotLabel("GConstrainedDoubleObject");
 	gcdo_adapt_ptr->setXAxisLabel("x");
 	gcdo_adapt_ptr->setYAxisLabel("y");
 	// gcdo_adapt_ptr->setDrawArrows();
 
-	boost::shared_ptr<GGraph2D> gcdoc_adapt_ptr(new GGraph2D());
+	std::shared_ptr<GGraph2D> gcdoc_adapt_ptr(new GGraph2D());
 	gcdoc_adapt_ptr->setPlotMode(Gem::Common::CURVE);
 	gcdoc_adapt_ptr->setPlotLabel("GConstrainedDoubleObjectCollection");
 	gcdoc_adapt_ptr->setXAxisLabel("x");
 	gcdoc_adapt_ptr->setYAxisLabel("y");
 	// gcdoc_adapt_ptr->setDrawArrows();
 
-	boost::shared_ptr<GGraph2D> gdc_adapt_ptr(new GGraph2D());
+	std::shared_ptr<GGraph2D> gdc_adapt_ptr(new GGraph2D());
 	gdc_adapt_ptr->setPlotMode(Gem::Common::CURVE);
 	gdc_adapt_ptr->setPlotLabel("GDoubleCollection");
 	gdc_adapt_ptr->setXAxisLabel("x");
 	gdc_adapt_ptr->setYAxisLabel("y");
 	// gdc_adapt_ptr->setDrawArrows();
 
-	boost::shared_ptr<GGraph2D> gcdc_adapt_ptr(new GGraph2D());
+	std::shared_ptr<GGraph2D> gcdc_adapt_ptr(new GGraph2D());
 	gcdc_adapt_ptr->setPlotMode(Gem::Common::CURVE);
 	gcdc_adapt_ptr->setPlotLabel("GConstrainedDoubleCollection");
 	gcdc_adapt_ptr->setXAxisLabel("x");
@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
 
 	for(std::size_t o=0; o<NPERFOBJECTTYPES; o++) {
 		// Create a GTestIndividual2 object of size 2
-		boost::shared_ptr<GTestIndividual2> gti_ptr(new GTestIndividual2(2,PERFOBJECTTYPE(o)));
+		std::shared_ptr<GTestIndividual2> gti_ptr(new GTestIndividual2(2,PERFOBJECTTYPE(o)));
 
 		std::vector<double> par;
 		for(std::size_t i=0; i<NPOINTS; i++) {

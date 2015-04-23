@@ -52,7 +52,7 @@ GParameterObjectCollection::GParameterObjectCollection()
  */
 GParameterObjectCollection::GParameterObjectCollection(
 	const std::size_t& nCp
-	, boost::shared_ptr<GParameterBase> tmpl_ptr
+	, std::shared_ptr<GParameterBase> tmpl_ptr
 )
 	: GParameterTCollectionT<GParameterBase>(nCp, tmpl_ptr)
 { /* nothing */ }
@@ -188,7 +188,7 @@ void GParameterObjectCollection::load_(const GObject* cp){
  * @param pos The position for which an item should be returned
  * @return The item at position pos
  */
-boost::shared_ptr<Gem::Geneva::GParameterBase> GParameterObjectCollection::at(const std::size_t& pos) {
+std::shared_ptr<Gem::Geneva::GParameterBase> GParameterObjectCollection::at(const std::size_t& pos) {
 	return data.at(pos);
 }
 
@@ -224,14 +224,14 @@ void GParameterObjectCollection::fillWithObjects() {
 
 	// Add a GBooleanObject object
 	// Create a suitable adaptor
-	boost::shared_ptr<GBooleanAdaptor> gba_ptr;
-	BOOST_CHECK_NO_THROW(gba_ptr = boost::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor(1.0)));
+	std::shared_ptr<GBooleanAdaptor> gba_ptr;
+	BOOST_CHECK_NO_THROW(gba_ptr = std::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor(1.0)));
 	BOOST_CHECK_NO_THROW(gba_ptr->setAdaptionThreshold(0)); // Make sure the adaptor's internal parameters don't change through the adaption
 	BOOST_CHECK_NO_THROW(gba_ptr->setAdaptionMode(true)); // Always adapt
 
 	// Create a suitable GBooleanObject object
-	boost::shared_ptr<GBooleanObject> gbo_ptr;
-	BOOST_CHECK_NO_THROW(gbo_ptr = boost::shared_ptr<GBooleanObject>(new GBooleanObject())); // Initialization with standard values
+	std::shared_ptr<GBooleanObject> gbo_ptr;
+	BOOST_CHECK_NO_THROW(gbo_ptr = std::shared_ptr<GBooleanObject>(new GBooleanObject())); // Initialization with standard values
 
 	// Add the adaptor
 	BOOST_CHECK_NO_THROW(gbo_ptr->addAdaptor(gba_ptr));
@@ -244,14 +244,14 @@ void GParameterObjectCollection::fillWithObjects() {
 
 	// Add a GInt32 object
 	// Create a suitable adaptor
-	boost::shared_ptr<GInt32GaussAdaptor> giga_ptr;
-	BOOST_CHECK_NO_THROW(giga_ptr = boost::shared_ptr<GInt32GaussAdaptor>(new GInt32GaussAdaptor(0.025, 0.1, 0, 1, 1.0)));
+	std::shared_ptr<GInt32GaussAdaptor> giga_ptr;
+	BOOST_CHECK_NO_THROW(giga_ptr = std::shared_ptr<GInt32GaussAdaptor>(new GInt32GaussAdaptor(0.025, 0.1, 0, 1, 1.0)));
 	BOOST_CHECK_NO_THROW(giga_ptr->setAdaptionThreshold(0)); // Make sure the adaptor's internal parameters don't change through the adaption
 	BOOST_CHECK_NO_THROW(giga_ptr->setAdaptionMode(true)); // Always adapt
 
 	// Create a suitable GInt32Object object
-	boost::shared_ptr<GInt32Object> gio_ptr;
-	BOOST_CHECK_NO_THROW(gio_ptr = boost::shared_ptr<GInt32Object>(new GInt32Object(-100, 100))); // Initialization in the range -100, 100
+	std::shared_ptr<GInt32Object> gio_ptr;
+	BOOST_CHECK_NO_THROW(gio_ptr = std::shared_ptr<GInt32Object>(new GInt32Object(-100, 100))); // Initialization in the range -100, 100
 
 	// Add the adaptor
 	BOOST_CHECK_NO_THROW(gio_ptr->addAdaptor(giga_ptr));
@@ -264,14 +264,14 @@ void GParameterObjectCollection::fillWithObjects() {
 
 	// Add a GDouble object
 	// Create a suitable adaptor
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr;
-	BOOST_CHECK_NO_THROW(gdga_ptr = boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor(0.025, 0.1, 0, 1, 1.0)));
+	std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr;
+	BOOST_CHECK_NO_THROW(gdga_ptr = std::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor(0.025, 0.1, 0, 1, 1.0)));
 	BOOST_CHECK_NO_THROW(gdga_ptr->setAdaptionThreshold(0)); // Make sure the adaptor's internal parameters don't change through the adaption
 	BOOST_CHECK_NO_THROW(gdga_ptr->setAdaptionMode(true)); // Always adapt
 
 	// Create a suitable GDoubleObject object
-	boost::shared_ptr<GDoubleObject> gdo_ptr;
-	BOOST_CHECK_NO_THROW(gdo_ptr = boost::shared_ptr<GDoubleObject>(new GDoubleObject(-100., 100.))); // Initialization in the range -100, 100
+	std::shared_ptr<GDoubleObject> gdo_ptr;
+	BOOST_CHECK_NO_THROW(gdo_ptr = std::shared_ptr<GDoubleObject>(new GDoubleObject(-100., 100.))); // Initialization in the range -100, 100
 
 	// Add the adaptor
 	BOOST_CHECK_NO_THROW(gdo_ptr->addAdaptor(gdga_ptr));
@@ -304,7 +304,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Call the parent class'es function
-		boost::shared_ptr<GParameterObjectCollection> p_test = this->clone<GParameterObjectCollection>();
+		std::shared_ptr<GParameterObjectCollection> p_test = this->clone<GParameterObjectCollection>();
 
 		// Fill p_test with parameters
 		p_test->fillWithObjects();
@@ -316,8 +316,8 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test that the fpFixedValueInit() function only has an effect on fp parameters
-		boost::shared_ptr<GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
-		boost::shared_ptr<GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr<GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr<GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 		// Fill p_test1 with parameters
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
@@ -336,7 +336,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
 		// Extract the fp parameters
-		boost::shared_ptr<GDoubleObject> gdo_ptr1, gdo_ptr2;
+		std::shared_ptr<GDoubleObject> gdo_ptr1, gdo_ptr2;
 		BOOST_CHECK_NO_THROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
 		BOOST_CHECK_NO_THROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2)	);
 
@@ -350,8 +350,8 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test that the fpMultiplyBy() function only has an effect on fp parameters
-		boost::shared_ptr<GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
-		boost::shared_ptr<GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr<GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr<GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 		// Fill p_test1 with parameters
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
@@ -370,7 +370,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
 		// Extract the fp parameters
-		boost::shared_ptr<GDoubleObject> gdo_ptr1, gdo_ptr2;
+		std::shared_ptr<GDoubleObject> gdo_ptr1, gdo_ptr2;
 		BOOST_CHECK_NO_THROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
 		BOOST_CHECK_NO_THROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
 
@@ -397,8 +397,8 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test that the fpMultiplyByRandom(min,max) function only has an effect on fp parameters
-		boost::shared_ptr<GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
-		boost::shared_ptr<GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr<GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr<GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 		// Fill p_test1 with parameters
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
@@ -420,7 +420,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
 		// Extract the fp parameters
-		boost::shared_ptr<GDoubleObject> gdo_ptr1, gdo_ptr2;
+		std::shared_ptr<GDoubleObject> gdo_ptr1, gdo_ptr2;
 		BOOST_CHECK_NO_THROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
 		BOOST_CHECK_NO_THROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
 
@@ -431,8 +431,8 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test that the fpMultiplyByRandom() function only has an effect on fp parameters
-		boost::shared_ptr<GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
-		boost::shared_ptr<GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr<GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr<GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 		// Fill p_test1 with parameters
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
@@ -454,7 +454,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
 		// Extract the fp parameters
-		boost::shared_ptr<GDoubleObject> gdo_ptr1, gdo_ptr2;
+		std::shared_ptr<GDoubleObject> gdo_ptr1, gdo_ptr2;
 		BOOST_CHECK_NO_THROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
 		BOOST_CHECK_NO_THROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
 
@@ -465,8 +465,8 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test that the fpAdd() function only has an effect on fp parameters
-		boost::shared_ptr<GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
-		boost::shared_ptr<GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr<GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr<GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 		// Fill p_test1 with parameters
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
@@ -488,7 +488,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
 		// Extract the fp parameters
-		boost::shared_ptr<GDoubleObject> gdo_ptr1, gdo_ptr2;
+		std::shared_ptr<GDoubleObject> gdo_ptr1, gdo_ptr2;
 		BOOST_CHECK_NO_THROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
 		BOOST_CHECK_NO_THROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
 
@@ -500,8 +500,8 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test that the fpSubtract() function only has an effect on fp parameters
-		boost::shared_ptr<GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
-		boost::shared_ptr<GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr<GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr<GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 		// Fill p_test1 with parameters
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
@@ -523,7 +523,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
 		// Extract the fp parameters
-		boost::shared_ptr<GDoubleObject> gdo_ptr1, gdo_ptr2;
+		std::shared_ptr<GDoubleObject> gdo_ptr1, gdo_ptr2;
 		BOOST_CHECK_NO_THROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
 		BOOST_CHECK_NO_THROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
 
@@ -535,8 +535,8 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test random initialization (test of GParameterTCollectionT<T>::randomInit_() )
-		boost::shared_ptr<GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
-		boost::shared_ptr<GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr<GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr<GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 		// Fill p_test1 with parameters
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());

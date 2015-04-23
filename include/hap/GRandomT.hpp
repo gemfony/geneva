@@ -181,9 +181,9 @@ private:
 
 	/***************************************************************************/
 	/** @brief Holds the container of uniform random numbers */
-	boost::shared_ptr<random_container> p01_;
+	std::shared_ptr<random_container> p01_;
 	/** @brief A local copy of the global GRandomFactory.  Size is 16 byte on a 64 bit system */
-	boost::shared_ptr<Gem::Hap::GRandomFactory> grf_;
+	std::shared_ptr<Gem::Hap::GRandomFactory> grf_;
 };
 
 /** @brief Convenience typedef */

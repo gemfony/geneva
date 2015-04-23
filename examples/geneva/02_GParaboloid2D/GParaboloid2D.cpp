@@ -58,14 +58,14 @@ int main(int argc, char **argv) {
 	// Add individuals and algorithms and perform the actual optimization cycle
 
 	// Make an individual known to the optimizer
-	boost::shared_ptr<GParaboloidIndividual2D> p(new GParaboloidIndividual2D());
+	std::shared_ptr<GParaboloidIndividual2D> p(new GParaboloidIndividual2D());
 	go.push_back(p);
 
 	// Add an evolutionary algorithm to the Go2 class.
 	go & "ea";
 
 	// Perform the actual optimization
-	boost::shared_ptr<GParaboloidIndividual2D>
+	std::shared_ptr<GParaboloidIndividual2D>
 		bestIndividual_ptr = go.optimize<GParaboloidIndividual2D>();
 
 	// Do something with the best result

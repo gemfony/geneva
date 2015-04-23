@@ -111,7 +111,7 @@ void GSigmaMonitor::cycleInformation(GOptimizationAlgorithmT<GParameterSet> * co
 
    // Extract the requested data. First retrieve the best individual.
    // It can always be found in the first position with evolutionary algorithms
-   boost::shared_ptr<GFMinIndividual> p = ea->clone_at<GFMinIndividual>(0);
+   std::shared_ptr<GFMinIndividual> p = ea->clone_at<GFMinIndividual>(0);
 
    // Retrieve the best "raw" fitness and average sigma value and add it to our local storage
    progressPlotter_->add(boost::tuple<double,double>((double)ea->getIteration(), p->fitness()));

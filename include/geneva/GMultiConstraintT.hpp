@@ -357,7 +357,7 @@ public:
    /**
     * Initialization from a vector of validity checks
     */
-   GValidityCheckContainerT(const std::vector<boost::shared_ptr<GPreEvaluationValidityCheckT<ind_type> > >& validityChecks)
+   GValidityCheckContainerT(const std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type> > >& validityChecks)
    {
       copyGenevaSmartPointerVector(validityChecks, validityChecks_);
    }
@@ -458,7 +458,7 @@ public:
     * Adds a validity check to this object. Note that we clone the check so
     * that it can be used multiple times.
     */
-   void addCheck(boost::shared_ptr<GPreEvaluationValidityCheckT<ind_type> > vc_ptr) {
+   void addCheck(std::shared_ptr<GPreEvaluationValidityCheckT<ind_type> > vc_ptr) {
       if(!vc_ptr) {
          glogger
          << "In GValidityCheckContainerT<>::addCheck(): Error!" << std::endl
@@ -496,7 +496,7 @@ protected:
 
    /***************************************************************************/
    /** @brief Holds all registered validity checks */
-   std::vector<boost::shared_ptr<GPreEvaluationValidityCheckT<ind_type> > > validityChecks_;
+   std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type> > > validityChecks_;
 };
 
 /******************************************************************************/
@@ -536,7 +536,7 @@ public:
     * Initialization from a vector of validity checks
     */
    GCheckCombinerT(
-      const std::vector<boost::shared_ptr<GPreEvaluationValidityCheckT<ind_type> > >& validityChecks
+      const std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type> > >& validityChecks
    )
       : GValidityCheckContainerT<ind_type>(validityChecks)
       , combinerPolicy_(Gem::Geneva::MULTIPLYINVALID)
@@ -659,7 +659,7 @@ protected:
       // First identify invalid checks
       std::vector<double> invalidChecks;
       double validityLevel;
-      typename std::vector<boost::shared_ptr<GPreEvaluationValidityCheckT<ind_type> > >::const_iterator cit;
+      typename std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type> > >::const_iterator cit;
       for(cit=GValidityCheckContainerT<ind_type>::validityChecks_.begin(); cit!=GValidityCheckContainerT<ind_type>::validityChecks_.end(); ++cit) {
          if(!(*cit)->isValid(cp, validityLevel)) {
             invalidChecks.push_back(validityLevel);

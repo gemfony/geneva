@@ -406,21 +406,21 @@ public:
    /**************************************************************************/
 
    /** @brief Submit work items to the external executable for archiving */
-   G_API_INDIVIDUALS void archive(const std::vector<boost::shared_ptr<GExternalEvaluatorIndividual> >& arch) const;
+   G_API_INDIVIDUALS void archive(const std::vector<std::shared_ptr<GExternalEvaluatorIndividual> >& arch) const;
 
    /** @brief Loads the data of another GFunctionIndividualFactory object */
-   virtual G_API_INDIVIDUALS void load(boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >);
+   virtual G_API_INDIVIDUALS void load(std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >);
    /** @brief Creates a deep clone of this object */
-   virtual G_API_INDIVIDUALS boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > clone() const;
+   virtual G_API_INDIVIDUALS std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > clone() const;
 
 
 protected:
    /** @brief Creates individuals of this type */
-   virtual G_API_INDIVIDUALS boost::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
+   virtual G_API_INDIVIDUALS std::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
    /** @brief Allows to describe local configuration options in derived classes */
    virtual G_API_INDIVIDUALS void describeLocalOptions_(Gem::Common::GParserBuilder&);
    /** @brief Allows to act on the configuration options received from the configuration file */
-   virtual G_API_INDIVIDUALS void postProcess_(boost::shared_ptr<GParameterSet>&);
+   virtual G_API_INDIVIDUALS void postProcess_(std::shared_ptr<GParameterSet>&);
 
 private:
    /** @brief Sets up the boost property object holding information about the individual structure */

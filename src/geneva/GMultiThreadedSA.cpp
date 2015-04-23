@@ -233,7 +233,7 @@ void GMultiThreadedSA::finalize() {
 void GMultiThreadedSA::adaptChildren()
 {
    boost::tuple<std::size_t,std::size_t> range = getAdaptionRange();
-   std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
+   std::vector<std::shared_ptr<GParameterSet> >::iterator it;
 
    for(it=data.begin()+boost::get<0>(range); it!=data.begin()+boost::get<1>(range); ++it) {
       tp_ptr_->async_schedule(
@@ -251,7 +251,7 @@ void GMultiThreadedSA::adaptChildren()
  */
 void GMultiThreadedSA::runFitnessCalculation() {
    boost::tuple<std::size_t,std::size_t> range = getEvaluationRange();
-   std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
+   std::vector<std::shared_ptr<GParameterSet> >::iterator it;
 
 #ifdef DEBUG
    // There should be no situation in which a "clean" child is submitted

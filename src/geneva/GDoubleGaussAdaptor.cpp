@@ -275,7 +275,7 @@ void GDoubleGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check that the adaptor returns the correct adaptor id
-		boost::shared_ptr<GDoubleGaussAdaptor> p_test = this->clone<GDoubleGaussAdaptor>();
+		std::shared_ptr<GDoubleGaussAdaptor> p_test = this->clone<GDoubleGaussAdaptor>();
 
 		BOOST_CHECK_MESSAGE(
 			p_test->getAdaptorId() == GDOUBLEGAUSSADAPTOR

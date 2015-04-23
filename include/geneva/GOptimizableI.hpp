@@ -90,7 +90,7 @@ public:
 	 * @return The best individual found during the optimization process, converted to the desired type
 	 */
 	template <typename individual_type>
-	boost::shared_ptr<individual_type> optimize() {
+	std::shared_ptr<individual_type> optimize() {
 		this->optimize(0);
 		return this->getBestIndividual<individual_type>();
 	}
@@ -105,7 +105,7 @@ public:
 	 * @return The best individual found during the optimization process, converted to the desired type
 	 */
 	template <typename individual_type>
-	boost::shared_ptr<individual_type> optimize(
+	std::shared_ptr<individual_type> optimize(
 			const boost::uint32_t& offset
 	) {
 		this->optimize(offset);
@@ -121,7 +121,7 @@ public:
 	 * @return A copy of the best individual found in the optimization run
 	 */
 	template <typename individual_type>
-	boost::shared_ptr<individual_type> getBestIndividual (
+	std::shared_ptr<individual_type> getBestIndividual (
 		typename boost::enable_if<boost::is_base_of<GParameterSet, individual_type> >::type* dummy = 0
 	) {
 		return customGetBestIndividual()->clone<individual_type>();
@@ -136,13 +136,13 @@ public:
 	 * @return A list of copies of the best individuals found in the optimization run
 	 */
 	template <typename individual_type>
-	std::vector<boost::shared_ptr<individual_type> > getBestIndividuals(
+	std::vector<std::shared_ptr<individual_type> > getBestIndividuals(
 		typename boost::enable_if<boost::is_base_of<GParameterSet, individual_type> >::type* dummy = 0
 	) {
-		std::vector<boost::shared_ptr<individual_type> > bestIndividuals;
+		std::vector<std::shared_ptr<individual_type> > bestIndividuals;
 
-		std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
-		std::vector<boost::shared_ptr<GParameterSet> > bestBaseIndividuals = this->customGetBestIndividuals();
+		std::vector<std::shared_ptr<GParameterSet> >::iterator it;
+		std::vector<std::shared_ptr<GParameterSet> > bestBaseIndividuals = this->customGetBestIndividuals();
 
 		// Cross check that we indeed got a valid set of individuals
 		if(bestBaseIndividuals.empty()) {
@@ -172,9 +172,9 @@ public:
 protected:
 	/***************************************************************************/
 	/** @brief Retrieves the best individual found */
-	virtual G_API_GENEVA boost::shared_ptr<GParameterSet> customGetBestIndividual() BASE = 0;
+	virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestIndividual() BASE = 0;
 	/** @brief Retrieves a list of the best individuals found */
-	virtual G_API_GENEVA std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() BASE = 0;
+	virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet> > customGetBestIndividuals() BASE = 0;
    /***************************************************************************/
    /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
    virtual G_API_GENEVA void runFitnessCalculation() BASE = 0;

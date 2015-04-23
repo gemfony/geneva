@@ -95,7 +95,7 @@ public:
 		: Gem::Courtier::GBaseConsumerT<processable_type>()
 		, threadsPerWorker_(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER)))
 		, broker_ptr_(GBROKER(processable_type))
-	   , workerTemplates_(1, boost::shared_ptr<GWorker>(new GDefaultWorker()))
+	   , workerTemplates_(1, std::shared_ptr<GWorker>(new GDefaultWorker()))
 	{ /* nothing */ }
 
    /***************************************************************************/
@@ -202,7 +202,7 @@ public:
       // Start threadsPerWorker_ threads for each registered worker template
       for(std::size_t w=0; w<workerTemplates_.size(); w++) {
          for(std::size_t i=0; i<threadsPerWorker_; i++) {
-            boost::shared_ptr<GWorker> p_worker = (workerTemplates_.at(w))->clone(i,this);
+            std::shared_ptr<GWorker> p_worker = (workerTemplates_.at(w))->clone(i,this);
             gtg_.create_thread(
                [p_worker](){ p_worker->run(); }
             );
@@ -217,7 +217,7 @@ public:
     * existing worker templates will be deleted. The class will not take ownership
     * of the worker templates.
     */
-   void registerWorkerTemplates(const std::vector<boost::shared_ptr<GWorker> >& workerTemplates) {
+   void registerWorkerTemplates(const std::vector<std::shared_ptr<GWorker> >& workerTemplates) {
 #ifdef DEBUG
       if(workerTemplates_.empty()) { // Is the template vector empty ?
          glogger
@@ -248,7 +248,7 @@ public:
     * existing worker templates will be deleted. The class will not take ownership
     * of the worker template.
     */
-   void registerWorkerTemplate(boost::shared_ptr<GWorker> workerTemplate) {
+   void registerWorkerTemplate(std::shared_ptr<GWorker> workerTemplate) {
 #ifdef DEBUG
       if(!workerTemplate) { // Does the template point somewhere ?
          glogger
@@ -269,9 +269,9 @@ public:
     */
    static void setup(
       const std::string& configFile
-      , std::vector<boost::shared_ptr<typename Gem::Courtier::GBoostThreadConsumerT<processable_type>::GWorker> > workers
+      , std::vector<std::shared_ptr<typename Gem::Courtier::GBoostThreadConsumerT<processable_type>::GWorker> > workers
    ) {
-      boost::shared_ptr<GBoostThreadConsumerT<processable_type> > consumer_ptr(new GBoostThreadConsumerT<processable_type>());
+      std::shared_ptr<GBoostThreadConsumerT<processable_type> > consumer_ptr(new GBoostThreadConsumerT<processable_type>());
       consumer_ptr->registerWorkerTemplates(workers);
       consumer_ptr->parseConfigFile(configFile);
       GBROKER(processable_type)->enrol(consumer_ptr);
@@ -284,9 +284,9 @@ public:
     */
    static void setup(
       const std::string& configFile
-      , boost::shared_ptr<typename Gem::Courtier::GBoostThreadConsumerT<processable_type>::GWorker> worker_ptr
+      , std::shared_ptr<typename Gem::Courtier::GBoostThreadConsumerT<processable_type>::GWorker> worker_ptr
    ) {
-      boost::shared_ptr<GBoostThreadConsumerT<processable_type> > consumer_ptr(new GBoostThreadConsumerT<processable_type>());
+      std::shared_ptr<GBoostThreadConsumerT<processable_type> > consumer_ptr(new GBoostThreadConsumerT<processable_type>());
       consumer_ptr->registerWorkerTemplate(worker_ptr);
       consumer_ptr->parseConfigFile(configFile);
       GBROKER(processable_type)->enrol(consumer_ptr);
@@ -300,7 +300,7 @@ public:
    static void setup(
       const std::string& configFile
    ) {
-      boost::shared_ptr<GBoostThreadConsumerT<processable_type> > consumer_ptr(new GBoostThreadConsumerT<processable_type>());
+      std::shared_ptr<GBoostThreadConsumerT<processable_type> > consumer_ptr(new GBoostThreadConsumerT<processable_type>());
       consumer_ptr->parseConfigFile(configFile);
       GBROKER(processable_type)->enrol(consumer_ptr);
    }
@@ -363,9 +363,9 @@ private:
 
 	std::size_t threadsPerWorker_; ///< The maximum number of allowed threads in the pool
 	Gem::Common::GThreadGroup gtg_; ///< Holds the processing threads
-	boost::shared_ptr<GBrokerT<processable_type> > broker_ptr_; ///< A shortcut to the broker so we do not have to go through the singleton
-   std::vector<boost::shared_ptr<GWorker> > workers_; ///< Holds the current worker objects
-   std::vector<boost::shared_ptr<GWorker> > workerTemplates_; ///< All workers will be created as a clone of these workers
+	std::shared_ptr<GBrokerT<processable_type> > broker_ptr_; ///< A shortcut to the broker so we do not have to go through the singleton
+   std::vector<std::shared_ptr<GWorker> > workers_; ///< Holds the current worker objects
+   std::vector<std::shared_ptr<GWorker> > workerTemplates_; ///< All workers will be created as a clone of these workers
 
 public:
    /***************************************************************************/
@@ -423,7 +423,7 @@ public:
          try{
             runLoopHasCommenced_=false;
 
-            boost::shared_ptr<processable_type> p;
+            std::shared_ptr<processable_type> p;
             Gem::Common::PORTIDTYPE id;
             boost::posix_time::time_duration timeout(boost::posix_time::milliseconds(10));
 
@@ -534,7 +534,7 @@ public:
        *
        * @param p A pointer to a processable item meant to allow item-based setup
        */
-      virtual void processInit(boost::shared_ptr<processable_type> p)
+      virtual void processInit(std::shared_ptr<processable_type> p)
       { /* nothing */ }
 
       /************************************************************************/
@@ -573,12 +573,12 @@ public:
       // Some purely virtual functions
 
       /** @brief Creation of deep clones of this object('s derivatives) */
-      virtual boost::shared_ptr<GWorker> clone(
+      virtual std::shared_ptr<GWorker> clone(
             const std::size_t&
             , const GBoostThreadConsumerT<processable_type> *
       ) const = 0;
       /** @brief Actual per-item work is done here -- Implement this in derived classes */
-      virtual void process(boost::shared_ptr<processable_type> p) = 0;
+      virtual void process(std::shared_ptr<processable_type> p) = 0;
    };
 
    /***************************************************************************/
@@ -621,7 +621,7 @@ public:
       /**
        * Create a deep clone of this object, camouflaged as a GWorker
        */
-      virtual boost::shared_ptr<GWorker> clone(
+      virtual std::shared_ptr<GWorker> clone(
             const std::size_t& thread_id
             , const GBoostThreadConsumerT<processable_type> *outer
       ) const {
@@ -634,7 +634,7 @@ public:
          }
 #endif /* DEBUG */
 
-         return boost::shared_ptr<GDefaultWorker>(new GDefaultWorker(*this, thread_id, outer));
+         return std::shared_ptr<GDefaultWorker>(new GDefaultWorker(*this, thread_id, outer));
       }
 
       /************************************************************************/
@@ -642,7 +642,7 @@ public:
        * Actual per-item work is done here. Overload this function if you want
        * to do something different here.
        */
-      virtual void process(boost::shared_ptr<processable_type> p) {
+      virtual void process(std::shared_ptr<processable_type> p) {
          // Do the actual work
    #ifdef DEBUG
          if(p) p->process();

@@ -89,7 +89,7 @@ class GBrokerEASuite: public test_suite
 public:
 	GBrokerEASuite() :test_suite("GBrokerEASuite") {
 	  // create an instance of the test cases class
-	  boost::shared_ptr<GBrokerEA_test> instance(new GBrokerEA_test());
+	  std::shared_ptr<GBrokerEA_test> instance(new GBrokerEA_test());
 
 	  test_case* no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GBrokerEA_test::no_failure_expected, instance);
 	  test_case* failures_expected_test_case = BOOST_CLASS_TEST_CASE(&GBrokerEA_test::failures_expected, instance);

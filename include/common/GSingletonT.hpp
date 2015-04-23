@@ -65,17 +65,17 @@ namespace Common {
  * used inside of Gemfony's singleton, e.g. in case they do not have a default
  * constructor or wish to perform special actions prior to initialization.
  *
- * @return A boost::shared_ptr to a newly created T object
+ * @return A std::shared_ptr to a newly created T object
  */
 template <typename T>
-boost::shared_ptr<T> TFactory_GSingletonT() {
-	return boost::shared_ptr<T>(new T());
+std::shared_ptr<T> TFactory_GSingletonT() {
+	return std::shared_ptr<T>(new T());
 }
 
 /******************************************************************************/
 /**
  * This class implements a singleton pattern, augmented so that it returns
- * a boost::shared_ptr. This allows other singletons to store a shared_ptr to
+ * a std::shared_ptr. This allows other singletons to store a shared_ptr to
  * T, so that it only gets destroyed once it is no longer needed. Note that
  * the static shared_ptr may long have vanished at that time.
  */
@@ -88,15 +88,15 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * If called for the first time, the function creates a boost::shared_ptr
+	 * If called for the first time, the function creates a std::shared_ptr
 	 * of T and returns it to the caller. Subsequent calls to this function
 	 * will return the stored copy of the shared_ptr. Other classes can store
 	 * the pointer, so that T doesn't get deleted while it is still needed.
 	 *
 	 * @param mode Determines the mode in which this function is called
 	 */
-	static boost::shared_ptr<T> Instance(const std::size_t& mode) {
-		static boost::shared_ptr<T> p;
+	static std::shared_ptr<T> Instance(const std::size_t& mode) {
+		static std::shared_ptr<T> p;
 		static boost::mutex creation_mutex;
 
 		switch(mode) {
@@ -117,7 +117,7 @@ public:
 			break;
 		}
 
-		return boost::shared_ptr<T>(); // Make the compiler happy
+		return std::shared_ptr<T>(); // Make the compiler happy
 	}
 
 	/***************************************************************************/

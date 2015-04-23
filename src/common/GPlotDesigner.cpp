@@ -192,7 +192,7 @@ std::string GBasePlotter::dsMarker() const {
 /**
  * Allows to add secondary plots to be added to the same sub-canvas
  */
-void GBasePlotter::registerSecondaryPlotter(boost::shared_ptr<GBasePlotter> sp) {
+void GBasePlotter::registerSecondaryPlotter(std::shared_ptr<GBasePlotter> sp) {
    // Check that the secondary plot isn't empty
    if(!sp) {
       glogger
@@ -220,7 +220,7 @@ void GBasePlotter::registerSecondaryPlotter(boost::shared_ptr<GBasePlotter> sp) 
  * check that the names of both plotters match. If other plot types are
  * compatible with this plotter, you need to overload this function.
  */
-bool GBasePlotter::isCompatible(boost::shared_ptr<GBasePlotter> other) const {
+bool GBasePlotter::isCompatible(std::shared_ptr<GBasePlotter> other) const {
    return (this->getPlotterName() == other->getPlotterName());
 }
 
@@ -270,7 +270,7 @@ std::string GBasePlotter::headerData_() const {
 
    // Extract data from the secondary plotters, if any
    std::size_t pos = 0;
-   std::vector<boost::shared_ptr<GBasePlotter> >::const_iterator cit;
+   std::vector<std::shared_ptr<GBasePlotter> >::const_iterator cit;
    for(cit=secondaryPlotter_.begin(); cit!=secondaryPlotter_.end(); ++cit) {
       // Give the plotters their own id which will act as a child id in this case
       (*cit)->setId(pos);
@@ -298,7 +298,7 @@ std::string GBasePlotter::bodyData_() const {
 
    // Extract data from the secondary plotters, if any
    std::size_t pos = 0;
-   std::vector<boost::shared_ptr<GBasePlotter> >::const_iterator cit;
+   std::vector<std::shared_ptr<GBasePlotter> >::const_iterator cit;
    for(cit=secondaryPlotter_.begin(); cit!=secondaryPlotter_.end(); ++cit) {
       body_data
       << "  // Body data for secondary plotter " << pos << " of " << this->getPlotterName() << std::endl
@@ -322,7 +322,7 @@ std::string GBasePlotter::footerData_() const {
 
    // Extract data from the secondary plotters, if any
    std::size_t pos = 0;
-   std::vector<boost::shared_ptr<GBasePlotter> >::const_iterator cit;
+   std::vector<std::shared_ptr<GBasePlotter> >::const_iterator cit;
    for(cit=secondaryPlotter_.begin(); cit!=secondaryPlotter_.end(); ++cit) {
       footer_data
       << "  // Footer data for secondary plotter " << pos << " of " << this->getPlotterName() << std::endl
@@ -591,8 +591,8 @@ std::string GGraph2D::drawingArguments(bool isSecondary) const {
 /**
  * Retrieve a clone of this object
  */
-boost::shared_ptr<GBasePlotter> GGraph2D::clone() const {
-   return boost::shared_ptr<GBasePlotter>(new GGraph2D(*this));
+std::shared_ptr<GBasePlotter> GGraph2D::clone() const {
+   return std::shared_ptr<GBasePlotter>(new GGraph2D(*this));
 }
 
 /******************************************************************************/
@@ -811,8 +811,8 @@ std::string GGraph2ED::drawingArguments(bool isSecondary) const {
 /**
  * Retrieve a clone of this object
  */
-boost::shared_ptr<GBasePlotter> GGraph2ED::clone() const {
-   return boost::shared_ptr<GBasePlotter>(new GGraph2ED(*this));
+std::shared_ptr<GBasePlotter> GGraph2ED::clone() const {
+   return std::shared_ptr<GBasePlotter>(new GGraph2ED(*this));
 }
 
 /******************************************************************************/
@@ -1054,8 +1054,8 @@ std::string GGraph3D::drawingArguments(bool isSecondary) const {
 /**
  * Retrieve a clone of this object
  */
-boost::shared_ptr<GBasePlotter> GGraph3D::clone() const {
-   return boost::shared_ptr<GBasePlotter>(new GGraph3D(*this));
+std::shared_ptr<GBasePlotter> GGraph3D::clone() const {
+   return std::shared_ptr<GBasePlotter>(new GGraph3D(*this));
 }
 
 /******************************************************************************/
@@ -1342,8 +1342,8 @@ std::string GGraph4D::drawingArguments(bool isSecondary) const {
 /**
  * Retrieve a clone of this object
  */
-boost::shared_ptr<GBasePlotter> GGraph4D::clone() const {
-   return boost::shared_ptr<GBasePlotter>(new GGraph4D(*this));
+std::shared_ptr<GBasePlotter> GGraph4D::clone() const {
+   return std::shared_ptr<GBasePlotter>(new GGraph4D(*this));
 }
 
 /******************************************************************************/
@@ -1560,8 +1560,8 @@ std::string GHistogram1D::getPlotterName() const {
 /**
  * Retrieve a clone of this object
  */
-boost::shared_ptr<GBasePlotter> GHistogram1D::clone() const {
-   return boost::shared_ptr<GBasePlotter>(new GHistogram1D(*this));
+std::shared_ptr<GBasePlotter> GHistogram1D::clone() const {
+   return std::shared_ptr<GBasePlotter>(new GHistogram1D(*this));
 }
 
 /******************************************************************************/
@@ -1781,8 +1781,8 @@ std::string GHistogram1I::getPlotterName() const {
 /**
  * Retrieve a clone of this object
  */
-boost::shared_ptr<GBasePlotter> GHistogram1I::clone() const {
-   return boost::shared_ptr<GBasePlotter>(new GHistogram1I(*this));
+std::shared_ptr<GBasePlotter> GHistogram1I::clone() const {
+   return std::shared_ptr<GBasePlotter>(new GHistogram1I(*this));
 }
 
 
@@ -2151,8 +2151,8 @@ std::string GHistogram2D::getPlotterName() const {
 /**
  * Retrieve a clone of this object
  */
-boost::shared_ptr<GBasePlotter> GHistogram2D::clone() const {
-   return boost::shared_ptr<GBasePlotter>(new GHistogram2D(*this));
+std::shared_ptr<GBasePlotter> GHistogram2D::clone() const {
+   return std::shared_ptr<GBasePlotter>(new GHistogram2D(*this));
 }
 
 
@@ -2331,8 +2331,8 @@ std::string GFunctionPlotter1D::drawingArguments(bool isSecondary) const {
 /**
  * Retrieve a clone of this object
  */
-boost::shared_ptr<GBasePlotter> GFunctionPlotter1D::clone() const {
-   return boost::shared_ptr<GBasePlotter>(new GFunctionPlotter1D(*this));
+std::shared_ptr<GBasePlotter> GFunctionPlotter1D::clone() const {
+   return std::shared_ptr<GBasePlotter>(new GFunctionPlotter1D(*this));
 }
 
 /******************************************************************************/
@@ -2548,8 +2548,8 @@ std::string GFunctionPlotter2D::drawingArguments(bool isSecondary) const {
 /**
  * Retrieve a clone of this object
  */
-boost::shared_ptr<GBasePlotter> GFunctionPlotter2D::clone() const {
-   return boost::shared_ptr<GBasePlotter>(new GFunctionPlotter2D(*this));
+std::shared_ptr<GBasePlotter> GFunctionPlotter2D::clone() const {
+   return std::shared_ptr<GBasePlotter>(new GFunctionPlotter2D(*this));
 }
 
 /******************************************************************************/
@@ -2743,8 +2743,8 @@ std::string GFreeFormPlotter::drawingArguments(bool isSecondary) const {
 /**
  * Retrieve a clone of this object
  */
-boost::shared_ptr<GBasePlotter> GFreeFormPlotter::clone() const {
-   return boost::shared_ptr<GBasePlotter>(new GFreeFormPlotter(*this));
+std::shared_ptr<GBasePlotter> GFreeFormPlotter::clone() const {
+   return std::shared_ptr<GBasePlotter>(new GFreeFormPlotter(*this));
 }
 
 /******************************************************************************/
@@ -2810,7 +2810,7 @@ std::string GPlotDesigner::plot(const boost::filesystem::path& plotName) const {
 
 	// Plot all headers up to the maximum allowed number
 	std::size_t nPlots = 0;
-	std::vector<boost::shared_ptr<GBasePlotter> >::const_iterator it;
+	std::vector<std::shared_ptr<GBasePlotter> >::const_iterator it;
 	for(it=plotters_.begin(); it!=plotters_.end(); ++it) {
 		if(nPlots++ < maxPlots) {
 			result
@@ -2899,7 +2899,7 @@ std::string GPlotDesigner::staticHeader() const {
  *
  * @param plotter_ptr A pointer to a plotter
  */
-void GPlotDesigner::registerPlotter(boost::shared_ptr<GBasePlotter> plotter_ptr) {
+void GPlotDesigner::registerPlotter(std::shared_ptr<GBasePlotter> plotter_ptr) {
 	if(plotter_ptr) {
 		plotter_ptr->setId(plotters_.size());
 		plotters_.push_back(plotter_ptr);

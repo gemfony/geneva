@@ -107,8 +107,8 @@ private:
    std::string fileName_; ///< The name of the output file
 
    Gem::Common::GPlotDesigner gpd_; ///< Ease recording of essential information
-   boost::shared_ptr<Gem::Common::GGraph2D> progressPlotter_; ///< Records progress information
-   boost::shared_ptr<Gem::Common::GGraph2D> sigmaPlotter_; ///< Records progress information about the current sigma
+   std::shared_ptr<Gem::Common::GGraph2D> progressPlotter_; ///< Records progress information
+   std::shared_ptr<Gem::Common::GGraph2D> sigmaPlotter_; ///< Records progress information about the current sigma
 };
 
 /******************************************************************************/

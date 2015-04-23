@@ -220,12 +220,12 @@ public:
 	G_API_HAP bool checkSeedingIsInitialized() const;
 
    /** @brief Delivers a new [0,1[ random number container with the current standard size to clients */
-   G_API_HAP boost::shared_ptr<random_container> new01Container();
+   G_API_HAP std::shared_ptr<random_container> new01Container();
 	/** @brief Retrieval of a new seed for external or internal random number generators */
 	G_API_HAP seed_type getSeed();
 
 	/** @brief Allows recycling of partially used packages */
-	G_API_HAP void returnUsedPackage(boost::shared_ptr<random_container>);
+	G_API_HAP void returnUsedPackage(std::shared_ptr<random_container>);
 
 private:
 	/***************************************************************************/
@@ -241,9 +241,9 @@ private:
 	Gem::Common::GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
 
 	/** @brief A bounded buffer holding the [0,1[ random number packages */
-	Gem::Common::GBoundedBufferT<boost::shared_ptr<random_container> > p01_; // Note: Absolutely needs to be defined after the thread group !!!
+	Gem::Common::GBoundedBufferT<std::shared_ptr<random_container> > p01_; // Note: Absolutely needs to be defined after the thread group !!!
    /** @brief A bounded buffer holding [0,1[ random number packages ready for recycling */
-   Gem::Common::GBoundedBufferT<boost::shared_ptr<random_container> > r01_;
+   Gem::Common::GBoundedBufferT<std::shared_ptr<random_container> > r01_;
 
 	static boost::uint16_t multiple_call_trap_; ///< Trap to catch multiple instantiations of this class
 	static boost::mutex factory_creation_mutex_; ///< Synchronization of access to multiple_call_trap in constructor
@@ -252,7 +252,7 @@ private:
 
 	boost::random::random_device nondet_rng; ///< Source of non-deterministic random numbers
 	initial_seed_type startSeed_; ///< Stores the initial start seed
-	boost::shared_ptr<mersenne_twister> mt_ptr_;
+	std::shared_ptr<mersenne_twister> mt_ptr_;
 	mutable boost::shared_mutex seedingMutex_; ///< Regulates start-up of the seeding process
 };
 

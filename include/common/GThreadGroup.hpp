@@ -103,7 +103,7 @@ class GThreadGroup
 {
 	friend class GThreadPool;
 
-	typedef boost::shared_ptr<boost::thread> thread_ptr;
+	typedef std::shared_ptr<boost::thread> thread_ptr;
 	typedef std::vector<thread_ptr> thread_vector;
 
 public:
@@ -139,7 +139,7 @@ public:
 	 * @return A pointer to the newly created thread
 	 */
 	template<typename F>
-	boost::shared_ptr<boost::thread> create_thread(F f) {
+	std::shared_ptr<boost::thread> create_thread(F f) {
 		boost::lock_guard<boost::mutex> guard(m_);
 		thread_ptr new_thread(new boost::thread(f));
 		threads_.push_back(new_thread);

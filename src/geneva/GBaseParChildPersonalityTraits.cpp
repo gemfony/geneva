@@ -389,7 +389,7 @@ void GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests()
    // --------------------------------------------------------------------------
 
    { // Check that it is possible to mark this as a parent or child-entity
-      boost::shared_ptr<GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
+      std::shared_ptr<GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
 
       // Mark this object as belonging to a parent and check the correct setting
       BOOST_CHECK_NO_THROW(p_test->setIsParent());
@@ -404,7 +404,7 @@ void GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests()
 
 
    { // Check that the parent counter is incremented or reset correctly
-      boost::shared_ptr<GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
+      std::shared_ptr<GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
 
       // Mark this object as belonging to a child and check the correct setting
       BOOST_CHECK_NO_THROW(p_test->setIsChild());
@@ -430,7 +430,7 @@ void GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests()
    // --------------------------------------------------------------------------
 
    { // Check setting and retrieval of the individual's position in the population
-      boost::shared_ptr<GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
+      std::shared_ptr<GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
 
       for(std::size_t i=0; i<10; i++) {
          BOOST_CHECK_NO_THROW(p_test->setPopulationPosition(i));
@@ -441,7 +441,7 @@ void GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests()
    // --------------------------------------------------------------------------
 
    { // Test setting and retrieval of valid parent ids
-      boost::shared_ptr<GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
+      std::shared_ptr<GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
 
       for(std::size_t i=0; i<10; i++) {
          BOOST_CHECK_NO_THROW(p_test->setParentId(i));
@@ -474,7 +474,7 @@ void GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests() 
    // --------------------------------------------------------------------------
 
    { // Test that retrieval of the parent id throws, if the id isn't set
-      boost::shared_ptr<GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
+      std::shared_ptr<GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
 
       BOOST_CHECK_NO_THROW(p_test->unsetParentId());
       BOOST_CHECK_THROW(p_test->getParentId(), Gem::Common::gemfony_error_condition);

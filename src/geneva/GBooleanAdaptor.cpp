@@ -299,7 +299,7 @@ void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check that the adaptor returns the correct adaptor id
-		boost::shared_ptr<GBooleanAdaptor> p_test = this->clone<GBooleanAdaptor>();
+		std::shared_ptr<GBooleanAdaptor> p_test = this->clone<GBooleanAdaptor>();
 
 		BOOST_CHECK_MESSAGE(
 			p_test->getAdaptorId() == GBOOLEANADAPTOR

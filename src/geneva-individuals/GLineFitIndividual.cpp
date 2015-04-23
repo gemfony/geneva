@@ -61,8 +61,8 @@ GLineFitIndividual::GLineFitIndividual(
 	using namespace Gem::Geneva;
 
    for(std::size_t i=0; i<2; i++) {
-      boost::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject());
-      boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0.0001, 0.4, 1.)); // sigma, sigmaSigma, minSigma, maxSigma, adProb
+      std::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject());
+      std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0.0001, 0.4, 1.)); // sigma, sigmaSigma, minSigma, maxSigma, adProb
       gdo_ptr->addAdaptor(gdga_ptr);
       this->push_back(gdo_ptr);
    }
@@ -326,12 +326,12 @@ GLineFitIndividualFactory::~GLineFitIndividualFactory()
  *
  * @return Items of the desired type
  */
-boost::shared_ptr<GParameterSet> GLineFitIndividualFactory::getObject_(
+std::shared_ptr<GParameterSet> GLineFitIndividualFactory::getObject_(
    Gem::Common::GParserBuilder& gpb
    , const std::size_t& id
 ) {
    // Will hold the result
-   boost::shared_ptr<GLineFitIndividual> target(new GLineFitIndividual(this->dataPoints_));
+   std::shared_ptr<GLineFitIndividual> target(new GLineFitIndividual(this->dataPoints_));
 
    // Make the object's local configuration options known
    target->addConfigurationOptions(gpb);
@@ -364,9 +364,9 @@ void GLineFitIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GLineFitIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& p_base) {
+void GLineFitIndividualFactory::postProcess_(std::shared_ptr<GParameterSet>& p_base) {
    // Convert the base pointer to our local type
-   boost::shared_ptr<GLineFitIndividual> p
+   std::shared_ptr<GLineFitIndividual> p
       = Gem::Common::convertSmartPointer<GParameterSet, GLineFitIndividual>(p_base);
 
    // Nothing to be done here

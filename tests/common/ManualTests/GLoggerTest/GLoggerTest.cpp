@@ -46,8 +46,8 @@
 using namespace Gem::Common;
 
 int main(int argc, char** argv) {
-   boost::shared_ptr<GBaseLogTarget> gcl_ptr(new GConsoleLogger());
-   boost::shared_ptr<GBaseLogTarget> gfl_ptr(new GFileLogger("./somePathToLogFile.txt"));
+   std::shared_ptr<GBaseLogTarget> gcl_ptr(new GConsoleLogger());
+   std::shared_ptr<GBaseLogTarget> gfl_ptr(new GFileLogger("./somePathToLogFile.txt"));
 
    glogger.addLogTarget(gcl_ptr);
    glogger.addLogTarget(gfl_ptr);

@@ -229,7 +229,7 @@ bool GRandomFactory::setStartSeed(const initial_seed_type& initial_seed) {
    if(!mt_ptr_) { // double check locking pattern
       boost::upgrade_to_unique_lock< boost::shared_mutex > unique_lck(sm_lck); // exclusive access
       if(!mt_ptr_) {
-         mt_ptr_ = boost::shared_ptr<mersenne_twister>(new mersenne_twister(boost::numeric_cast<seed_type>(initial_seed)));
+         mt_ptr_ = std::shared_ptr<mersenne_twister>(new mersenne_twister(boost::numeric_cast<seed_type>(initial_seed)));
          startSeed_ = initial_seed;
          return true;
       }
@@ -278,7 +278,7 @@ boost::uint32_t GRandomFactory::getSeed(){
       if(!mt_ptr_) { // double lock pattern
          boost::upgrade_to_unique_lock< boost::shared_mutex > unique_lck(sm_lck); // exclusive access
          if(!mt_ptr_) {
-            mt_ptr_ = boost::shared_ptr<mersenne_twister>(new mersenne_twister(boost::numeric_cast<seed_type>(startSeed_)));
+            mt_ptr_ = std::shared_ptr<mersenne_twister>(new mersenne_twister(boost::numeric_cast<seed_type>(startSeed_)));
          }
       }
    }
@@ -295,7 +295,7 @@ boost::uint32_t GRandomFactory::getSeed(){
  * @param r A pointer to a partially used work package
  * @param current_pos The first position in the array that holds unused random numbers
  */
-void GRandomFactory::returnUsedPackage(boost::shared_ptr<random_container> p) {
+void GRandomFactory::returnUsedPackage(std::shared_ptr<random_container> p) {
    // We try to add the item to the r01_ queue, until a timeout occurs.
    // Once this is the case we delete the package, so we do not overflow
    // with recycled packages
@@ -345,7 +345,7 @@ void GRandomFactory::setNProducerThreads(const boost::uint16_t& n01Threads)
  *
  * @return A packet of new [0,1[ random numbers
  */
-boost::shared_ptr<random_container> GRandomFactory::new01Container() {
+std::shared_ptr<random_container> GRandomFactory::new01Container() {
 	// Start the producer threads upon first access to this function
 	if(!threadsHaveBeenStarted_.load()) {
 		boost::unique_lock<boost::mutex> tc_lk(thread_creation_mutex_);
@@ -362,13 +362,13 @@ boost::shared_ptr<random_container> GRandomFactory::new01Container() {
 		}
 	}
 
-	boost::shared_ptr<random_container> p; // empty
+	std::shared_ptr<random_container> p; // empty
 	try {
 		p01_.pop_back(p, boost::posix_time::milliseconds(DEFAULTFACTORYGETWAIT));
 	} catch (Gem::Common::condition_time_out&) {
       // nothing - our way of signaling a time out
-      // is to return an empty boost::shared_ptr
-	   p = boost::shared_ptr<random_container>();
+      // is to return an empty std::shared_ptr
+	   p = std::shared_ptr<random_container>();
 	}
 
 	return p;
@@ -386,7 +386,7 @@ boost::shared_ptr<random_container> GRandomFactory::new01Container() {
 void GRandomFactory::producer01(boost::uint32_t seed)  {
 	try {
 		lagged_fibonacci lf(seed);
-		boost::shared_ptr<random_container> p;
+		std::shared_ptr<random_container> p;
 
 		while(!boost::this_thread::interruption_requested()) {
 		   if(!p) { // buffer is still empty
@@ -411,7 +411,7 @@ void GRandomFactory::producer01(boost::uint32_t seed)  {
 		         p->refresh(lf);
 
 		      } catch (Gem::Common::condition_time_out&) { // O.k., so we need to create a new container
-		         p = boost::shared_ptr<random_container>(new random_container(DEFAULTARRAYSIZE, lf));
+		         p = std::shared_ptr<random_container>(new random_container(DEFAULTARRAYSIZE, lf));
 		      }
 		   }
 

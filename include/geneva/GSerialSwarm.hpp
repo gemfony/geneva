@@ -144,14 +144,14 @@ public:
  * specialization of the factory function that creates objects of this type.
  */
 template <>
-inline G_API_GENEVA boost::shared_ptr<Gem::Geneva::GSerialSwarm> TFactory_GUnitTests<Gem::Geneva::GSerialSwarm>() {
+inline G_API_GENEVA std::shared_ptr<Gem::Geneva::GSerialSwarm> TFactory_GUnitTests<Gem::Geneva::GSerialSwarm>() {
    using namespace Gem::Tests;
    const std::size_t NNEIGHBORHOODS=2;
    const std::size_t NNEIGHBORHOODMEMBERS=3;
-   boost::shared_ptr<Gem::Geneva::GSerialSwarm> p;
-   BOOST_CHECK_NO_THROW(p= boost::shared_ptr<Gem::Geneva::GSerialSwarm>(new Gem::Geneva::GSerialSwarm(NNEIGHBORHOODS, NNEIGHBORHOODMEMBERS)));
+   std::shared_ptr<Gem::Geneva::GSerialSwarm> p;
+   BOOST_CHECK_NO_THROW(p= std::shared_ptr<Gem::Geneva::GSerialSwarm>(new Gem::Geneva::GSerialSwarm(NNEIGHBORHOODS, NNEIGHBORHOODMEMBERS)));
    for(std::size_t i=0; i<NNEIGHBORHOODS*NNEIGHBORHOODMEMBERS; i++) {
-      p->push_back(boost::shared_ptr<GTestIndividual1>(new GTestIndividual1()));
+      p->push_back(std::shared_ptr<GTestIndividual1>(new GTestIndividual1()));
    }
    return p;
 }

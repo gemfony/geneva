@@ -141,9 +141,9 @@ protected:
    /** @brief Initialization with a constant value */
    virtual G_API_GENEVA void doubleFixedValueInit(const double& value, const activityMode& am) override;
    /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-   virtual G_API_GENEVA void doubleAdd(boost::shared_ptr<GParameterBase>, const activityMode& am) override;
+   virtual G_API_GENEVA void doubleAdd(std::shared_ptr<GParameterBase>, const activityMode& am) override;
    /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-   virtual G_API_GENEVA void doubleSubtract(boost::shared_ptr<GParameterBase>, const activityMode& am) override;
+   virtual G_API_GENEVA void doubleSubtract(std::shared_ptr<GParameterBase>, const activityMode& am) override;
 
 	/***************************************************************************/
 	/** @brief The default constructor. Intentionally protected	 */
@@ -175,13 +175,13 @@ public:
  * specialization of the factory function that creates objects of this type.
  */
 template <>
-inline boost::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection> TFactory_GUnitTests<Gem::Geneva::GConstrainedDoubleCollection>() {
+inline std::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection> TFactory_GUnitTests<Gem::Geneva::GConstrainedDoubleCollection>() {
    const std::size_t NPARAMETERS = 100;
    double LOWERBOUNDARY = -10.;
    double UPPERBOUNDARY =  10.;
-   boost::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection> p;
+   std::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection> p;
    BOOST_CHECK_NO_THROW(
-         p= boost::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection>(
+         p= std::shared_ptr<Gem::Geneva::GConstrainedDoubleCollection>(
                new Gem::Geneva::GConstrainedDoubleCollection(NPARAMETERS, LOWERBOUNDARY, UPPERBOUNDARY)
          )
    );

@@ -80,7 +80,7 @@ public:
 	/** @brief The default constructor */
 	G_API_GENEVA GParameterObjectCollection();
 	/** @brief Initialization with a number of GParameterBase objects */
-	G_API_GENEVA GParameterObjectCollection(const std::size_t&, boost::shared_ptr<GParameterBase>);
+	G_API_GENEVA GParameterObjectCollection(const std::size_t&, std::shared_ptr<GParameterBase>);
 	/** @brief The copy constructor */
 	G_API_GENEVA GParameterObjectCollection(const GParameterObjectCollection&);
 	/** @brief The destructor */
@@ -102,7 +102,7 @@ public:
    ) const override;
 
 	/** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
-	G_API_GENEVA boost::shared_ptr<Gem::Geneva::GParameterBase> at(const std::size_t& pos);
+	G_API_GENEVA std::shared_ptr<Gem::Geneva::GParameterBase> at(const std::size_t& pos);
 
    /** @brief Emits a name for this class / object */
    virtual G_API_GENEVA std::string name() const override;
@@ -118,7 +118,7 @@ public:
 	 * @return A converted version of the GParameterBase object, as required by the user
 	 */
 	template <typename parameter_type>
-	const boost::shared_ptr<parameter_type> at(
+	const std::shared_ptr<parameter_type> at(
 			  const std::size_t& pos
 			, typename boost::enable_if<boost::is_base_of<GParameterBase, parameter_type> >::type* dummy = 0
 	)  const {
@@ -130,7 +130,7 @@ public:
 	      << GEXCEPTION;
 
 	      // Make the compiler happy
-	      return boost::shared_ptr<parameter_type>();
+	      return std::shared_ptr<parameter_type>();
  	   }
 #endif /* DEBUG */
 

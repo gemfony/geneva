@@ -52,7 +52,7 @@ GConstrainedDoubleObjectCollection::GConstrainedDoubleObjectCollection()
  */
 GConstrainedDoubleObjectCollection::GConstrainedDoubleObjectCollection(
 	const std::size_t& nCp
-	, boost::shared_ptr<GConstrainedDoubleObject> tmpl_ptr
+	, std::shared_ptr<GConstrainedDoubleObject> tmpl_ptr
 )
 	:GParameterTCollectionT<GConstrainedDoubleObject>(nCp, tmpl_ptr)
 { /* nothing */ }
@@ -220,16 +220,16 @@ void GConstrainedDoubleObjectCollection::fillWithObjects(const std::size_t& nAdd
 	// Add GConstrainedDoubleObject items with adaptors to p_test1
 	for(std::size_t i=0; i<nAddedObjects; i++) {
 		// Create a suitable adaptor
-		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr;
+		std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr;
 
-		BOOST_CHECK_NO_THROW(gdga_ptr = boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0)));
+		BOOST_CHECK_NO_THROW(gdga_ptr = std::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0)));
 		BOOST_CHECK_NO_THROW(gdga_ptr->setAdaptionThreshold(0)); // Make sure the adaptor's internal parameters don't change through the adaption
 		BOOST_CHECK_NO_THROW(gdga_ptr->setAdaptionMode(true)); // Always adapt
 
 		// Create a suitable GConstrainedDoubleObject object
-		boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr;
+		std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr;
 
-		BOOST_CHECK_NO_THROW(gcdo_ptr = boost::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(-100., 100.))); // Boundaries in the range [-100., 100.[
+		BOOST_CHECK_NO_THROW(gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(-100., 100.))); // Boundaries in the range [-100., 100.[
 
 		// Add the adaptor
 		BOOST_CHECK_NO_THROW(gcdo_ptr->addAdaptor(gdga_ptr));
@@ -267,7 +267,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 	// --------------------------------------------------------------------------
 
 	{ // Call the parent class'es function
-		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test = this->clone<GConstrainedDoubleObjectCollection>();
+		std::shared_ptr<GConstrainedDoubleObjectCollection> p_test = this->clone<GConstrainedDoubleObjectCollection>();
 
 		// Fill p_test with objects
 		p_test->fillWithObjects(nAddedObjects);
@@ -279,8 +279,8 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 	// --------------------------------------------------------------------------
 
 	{ // Test the GParameterTCollectionT<T>::adaptImpl() implementation
-		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
-		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test2 = this->clone<GConstrainedDoubleObjectCollection>();
+		std::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
+		std::shared_ptr<GConstrainedDoubleObjectCollection> p_test2 = this->clone<GConstrainedDoubleObjectCollection>();
 
 		// Fill p_test1 with objects
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
@@ -307,7 +307,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 	// --------------------------------------------------------------------------
 
 	{ // Test initialization of GConstrainedDouble objects with a fixed floating point value
-		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
+		std::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
 
 		// Fill p_test1 with objects
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
@@ -327,7 +327,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 	// --------------------------------------------------------------------------
 
 	{ // Test multiplication with a fixed value
-		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
+		std::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
 
 		// Fill p_test1 with objects
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
@@ -350,8 +350,8 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 	// --------------------------------------------------------------------------
 
 	{ // Test multiplication with a random number in a given range
-		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
-		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test2 = this->clone<GConstrainedDoubleObjectCollection>();
+		std::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
+		std::shared_ptr<GConstrainedDoubleObjectCollection> p_test2 = this->clone<GConstrainedDoubleObjectCollection>();
 
 		// Fill p_test1 with objects
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
@@ -386,8 +386,8 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 	// --------------------------------------------------------------------------
 
 	{ // Test multiplication with a random number in a the range [0,1[
-		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
-		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test2 = this->clone<GConstrainedDoubleObjectCollection>();
+		std::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
+		std::shared_ptr<GConstrainedDoubleObjectCollection> p_test2 = this->clone<GConstrainedDoubleObjectCollection>();
 
 		// Fill p_test1 with objects
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
@@ -422,8 +422,8 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 	// --------------------------------------------------------------------------
 
 	{ // Test addition of another object
-		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
-		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test2 = this->clone<GConstrainedDoubleObjectCollection>();
+		std::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
+		std::shared_ptr<GConstrainedDoubleObjectCollection> p_test2 = this->clone<GConstrainedDoubleObjectCollection>();
 
 		// Fill p_test1 with objects
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
@@ -451,8 +451,8 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 	// --------------------------------------------------------------------------
 
 	{ // Test subtraction of another object
-		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
-		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test2 = this->clone<GConstrainedDoubleObjectCollection>();
+		std::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
+		std::shared_ptr<GConstrainedDoubleObjectCollection> p_test2 = this->clone<GConstrainedDoubleObjectCollection>();
 
 		// Fill p_test1 with objects
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
@@ -499,8 +499,8 @@ void GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTest
 	// --------------------------------------------------------------------------
 
 	{ // Test that fpAdd throws if an item of invalid size is added (Test of GParameterTCollectionT<T>::fpAdd() )
-		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
-		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test2 = this->clone<GConstrainedDoubleObjectCollection>();
+		std::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
+		std::shared_ptr<GConstrainedDoubleObjectCollection> p_test2 = this->clone<GConstrainedDoubleObjectCollection>();
 
 		// Fill p_test1 with objects
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
@@ -521,8 +521,8 @@ void GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTest
 	// --------------------------------------------------------------------------
 
 	{ // Test that fpSubtract throws if an item of invalid size is added (Test of GParameterTCollectionT<T>::fpSubtract() )
-		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
-		boost::shared_ptr<GConstrainedDoubleObjectCollection> p_test2 = this->clone<GConstrainedDoubleObjectCollection>();
+		std::shared_ptr<GConstrainedDoubleObjectCollection> p_test1 = this->clone<GConstrainedDoubleObjectCollection>();
+		std::shared_ptr<GConstrainedDoubleObjectCollection> p_test2 = this->clone<GConstrainedDoubleObjectCollection>();
 
 		// Fill p_test1 with objects
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));

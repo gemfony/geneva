@@ -78,7 +78,7 @@ enum distType {
 };
 
 template <class T>
-void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std::size_t& nEntries, boost::shared_ptr<Gem::Hap::GRandomBase> gr_ptr){
+void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std::size_t& nEntries, std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr){
 	std::size_t i;
 
 	switch(dType){
@@ -147,7 +147,7 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 }
 
 int main(int argc, char **argv){
-	boost::shared_ptr<Gem::Hap::GRandomBase> gr_ptr;
+	std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr;
 
 	bool verbose;
 	std::size_t nEntries;
@@ -172,11 +172,11 @@ int main(int argc, char **argv){
 	// Set the random number generation mode as requested
 	switch(rnrProductionMode) {
 	case 0:
-		gr_ptr = boost::shared_ptr<GRandomT<RANDOMPROXY> >(new GRandomT<RANDOMPROXY>());
+		gr_ptr = std::shared_ptr<GRandomT<RANDOMPROXY> >(new GRandomT<RANDOMPROXY>());
 		break;
 
 	case 1:
-		gr_ptr = boost::shared_ptr<GRandomT<RANDOMLOCAL> >(new GRandomT<RANDOMLOCAL>());
+		gr_ptr = std::shared_ptr<GRandomT<RANDOMLOCAL> >(new GRandomT<RANDOMLOCAL>());
 		break;
 	};
 
@@ -219,18 +219,18 @@ int main(int argc, char **argv){
 	ofs << std::endl;
 
 	// In this test correlations between subsequent numbers of two generators (with different seeds) are sought for
-	boost::shared_ptr<Gem::Hap::GRandomBase> gr_ptr_one;
-	boost::shared_ptr<Gem::Hap::GRandomBase> gr_ptr_two;
+	std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr_one;
+	std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr_two;
 
 	switch(rnrProductionMode) {
 	case 0:
-		gr_ptr_one = boost::shared_ptr<GRandomT<RANDOMPROXY> >(new GRandomT<RANDOMPROXY>());
-		gr_ptr_two = boost::shared_ptr<GRandomT<RANDOMPROXY> >(new GRandomT<RANDOMPROXY>());
+		gr_ptr_one = std::shared_ptr<GRandomT<RANDOMPROXY> >(new GRandomT<RANDOMPROXY>());
+		gr_ptr_two = std::shared_ptr<GRandomT<RANDOMPROXY> >(new GRandomT<RANDOMPROXY>());
 		break;
 
 	case 1:
-		gr_ptr_one = boost::shared_ptr<GRandomT<RANDOMLOCAL> >(new GRandomT<RANDOMLOCAL>());
-		gr_ptr_two = boost::shared_ptr<GRandomT<RANDOMLOCAL> >(new GRandomT<RANDOMLOCAL>());
+		gr_ptr_one = std::shared_ptr<GRandomT<RANDOMLOCAL> >(new GRandomT<RANDOMLOCAL>());
+		gr_ptr_two = std::shared_ptr<GRandomT<RANDOMLOCAL> >(new GRandomT<RANDOMLOCAL>());
 		break;
 	};
 
@@ -243,14 +243,14 @@ int main(int argc, char **argv){
 	// initial values (after a number of calls) are asked for. There should be no
 	// correlation.
 	for(i=1; i<=10; i++) {
-		boost::shared_ptr<Gem::Hap::GRandomBase> gr_ptr_seed;
+		std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr_seed;
 		switch(rnrProductionMode) {
 		case 0:
-			gr_ptr_seed = boost::shared_ptr<GRandomT<RANDOMPROXY> >(new GRandomT<RANDOMPROXY>());
+			gr_ptr_seed = std::shared_ptr<GRandomT<RANDOMPROXY> >(new GRandomT<RANDOMPROXY>());
 			break;
 
 		case 1:
-			gr_ptr_seed = boost::shared_ptr<GRandomT<RANDOMLOCAL> >(new GRandomT<RANDOMLOCAL>());
+			gr_ptr_seed = std::shared_ptr<GRandomT<RANDOMLOCAL> >(new GRandomT<RANDOMLOCAL>());
 			break;
 		};
 

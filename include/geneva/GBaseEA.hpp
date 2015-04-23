@@ -128,7 +128,7 @@ public:
    G_API_GENEVA sortingMode getSortingScheme() const;
 
    /** @brief Extracts all individuals on the pareto front */
-   G_API_GENEVA void extractCurrentParetoIndividuals(std::vector<boost::shared_ptr<Gem::Geneva::GParameterSet> >&);
+   G_API_GENEVA void extractCurrentParetoIndividuals(std::vector<std::shared_ptr<Gem::Geneva::GParameterSet> >&);
 
    /** @brief Adds the individuals of this iteration to a priority queue */
    G_API_GENEVA void addIterationBests(GParameterSetFixedSizePriorityQueue&);
@@ -170,7 +170,7 @@ protected:
    virtual G_API_GENEVA void finalize() override;
 
    /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-   virtual G_API_GENEVA boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
+   virtual G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
 
 private:
    /***************************************************************************/
@@ -180,7 +180,7 @@ private:
     */
    class indParetoComp {
    public:
-      bool operator()(boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) {
+      bool operator()(std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) {
          return x->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront() > y->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront();
       }
    };
@@ -191,7 +191,7 @@ private:
    /** @brief Selection according to the pareto tag in MUCOMMANU mode (i.e. not taking into account the parents) */
    void sortMuCommaNuParetoMode();
    /** @brief Determines whether the first individual dominates the second */
-   bool aDominatesB(boost::shared_ptr<GParameterSet>, boost::shared_ptr<GParameterSet>) const;
+   bool aDominatesB(std::shared_ptr<GParameterSet>, std::shared_ptr<GParameterSet>) const;
 
    /***************************************************************************/
    // Local data
@@ -297,7 +297,7 @@ public:
       std::size_t nMonitorInds_; ///< The number if individuals that should be monitored
       std::string resultFile_; ///< The name of the file to which data is emitted
 
-      std::vector<boost::shared_ptr<Gem::Common::GGraph2D> > fitnessGraphVec_;
+      std::vector<std::shared_ptr<Gem::Common::GGraph2D> > fitnessGraphVec_;
 
      public:
       /** @brief Applies modifications to this object. This is needed for testing purposes */

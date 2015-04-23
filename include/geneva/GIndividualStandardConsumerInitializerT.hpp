@@ -70,7 +70,7 @@ public:
    /** @brief The initializing constructor */
    GIndividualStandardConsumerInitializerT() {
       // Create a smart pointer holding the consumer
-      boost::shared_ptr<Gem::Courtier::GBaseConsumerT<Gem::Geneva::GParameterSet> > p(new c_type());
+      std::shared_ptr<Gem::Courtier::GBaseConsumerT<Gem::Geneva::GParameterSet> > p(new c_type());
       std::string mnemonic = p->getMnemonic();
 
       // Register the consumer with the store, if it hasn't happened yet

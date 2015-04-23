@@ -104,7 +104,7 @@ public:
    /** @brief Loads the data of another GParameterSetFixedSizePriorityQueue object, camouflaged as a GFixedSizePriorityQueueT<T> */
    virtual G_API_GENEVA void load(const Gem::Common::GFixedSizePriorityQueueT<GParameterSet>&);
    /** @brief Creates a deep clone of this object */
-   virtual G_API_GENEVA boost::shared_ptr<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> > clone() const;
+   virtual G_API_GENEVA std::shared_ptr<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> > clone() const;
 
    /** @brief Checks whether no item has the dirty flag set */
    G_API_GENEVA bool allClean(std::size_t&) const;
@@ -113,9 +113,9 @@ public:
 
 protected:
    /** @brief Evaluates a single work item, so that it can be sorted */
-   virtual G_API_GENEVA double evaluation(const boost::shared_ptr<GParameterSet>&) const;
+   virtual G_API_GENEVA double evaluation(const std::shared_ptr<GParameterSet>&) const;
    /** @brief Returns a unique id for a work item */
-   virtual G_API_GENEVA std::string id(const boost::shared_ptr<GParameterSet>&) const;
+   virtual G_API_GENEVA std::string id(const std::shared_ptr<GParameterSet>&) const;
 };
 
 /******************************************************************************/

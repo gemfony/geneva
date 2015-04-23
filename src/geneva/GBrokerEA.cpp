@@ -251,7 +251,7 @@ bool GBrokerEA::usesBroker() const {
  */
 void GBrokerEA::adaptChildren() {
 	boost::tuple<std::size_t,std::size_t> range = getAdaptionRange();
-	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
+	std::vector<std::shared_ptr<GParameterSet> >::iterator it;
 
 	for(it=data.begin()+boost::get<0>(range); it!=data.begin()+boost::get<1>(range); ++it) {
 		tp_ptr_->async_schedule( [it](){(*it)->adapt();} );
@@ -307,7 +307,7 @@ void GBrokerEA::runFitnessCalculation() {
  * Fixes the population after a job submission
  */
 void GBrokerEA::fixAfterJobSubmission() {
-	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
+	std::vector<std::shared_ptr<GParameterSet> >::iterator it;
 	std::size_t np = getNParents();
 	boost::uint32_t iteration=getIteration();
 
@@ -324,7 +324,7 @@ void GBrokerEA::fixAfterJobSubmission() {
 	std::for_each(
       oldWorkItems_.begin()
       , oldWorkItems_.end()
-      , [iteration](boost::shared_ptr<GParameterSet> p){ p->setAssignedIteration(iteration); }
+      , [iteration](std::shared_ptr<GParameterSet> p){ p->setAssignedIteration(iteration); }
 	);
 
 	// Make sure that parents are at the beginning of the array.

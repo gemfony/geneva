@@ -131,7 +131,7 @@ public:
 	G_API_GENEVA void setMaxMode(const bool&);
 
 	/** @brief Emits a GParameterSet object that only has the GParameterBase objects attached to it */
-	G_API_GENEVA boost::shared_ptr<GParameterSet> parameter_clone() const;
+	G_API_GENEVA std::shared_ptr<GParameterSet> parameter_clone() const;
 
    /** @brief Do the required processing for this object */
    virtual G_API_GENEVA bool process() override;
@@ -166,7 +166,7 @@ public:
    G_API_GENEVA bool isGoodEnough(const std::vector<double>&);
 
    /** @brief Perform a fusion operation between this object and another */
-   virtual G_API_GENEVA boost::shared_ptr<GParameterSet> amalgamate(const boost::shared_ptr<GParameterSet>) const BASE;
+   virtual G_API_GENEVA std::shared_ptr<GParameterSet> amalgamate(const std::shared_ptr<GParameterSet>) const BASE;
 
    /** @brief Performs a cross-over with another GParameterSet object on a "per item" basis */
    G_API_GENEVA void perItemCrossOver(const GParameterSet&, const double&);
@@ -196,7 +196,7 @@ public:
 	 * @return A converted version of the GParameterBase object, as required by the user
 	 */
 	template <typename par_type>
-	const boost::shared_ptr<par_type> at(
+	const std::shared_ptr<par_type> at(
       const std::size_t& pos
       , typename boost::enable_if<boost::is_base_of<GParameterBase, par_type> >::type* dummy = 0
 	)  const {
@@ -519,14 +519,14 @@ public:
     */
    template <typename par_type>
    void add(
-      boost::shared_ptr<GParameterSet> p
+      std::shared_ptr<GParameterSet> p
       , const activityMode& am
    ) {
       GParameterSet::iterator it;
       GParameterSet::const_iterator cit;
 
       // Note that the GParameterBase objects need to accept a
-      // boost::shared_ptr<GParameterBase>, contrary to the calling conventions
+      // std::shared_ptr<GParameterBase>, contrary to the calling conventions
       // of this function.
       for(it=this->begin(), cit=p->begin(); it!=this->end(); ++it, ++cit) {
          (*it)->add<par_type>(*cit, am);
@@ -539,14 +539,14 @@ public:
     */
    template <typename par_type>
    void subtract(
-      boost::shared_ptr<GParameterSet> p
+      std::shared_ptr<GParameterSet> p
       , const activityMode& am
    ) {
       GParameterSet::iterator it;
       GParameterSet::const_iterator cit;
 
       // Note that the GParameterBase objects need to accept a
-      // boost::shared_ptr<GParameterBase>, contrary to the calling conventions
+      // std::shared_ptr<GParameterBase>, contrary to the calling conventions
       // of this function.
       for(it=this->begin(), cit=p->begin(); it!=this->end(); ++it, ++cit) {
          (*it)->subtract<par_type>(*cit, am);

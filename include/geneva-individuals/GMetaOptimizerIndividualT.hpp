@@ -494,7 +494,7 @@ public:
     * Retrieves the current number of parents. Needed for the optimization monitor.
     */
    std::size_t getNParents() const {
-      boost::shared_ptr<GConstrainedInt32Object>  npar_ptr = this->at<GConstrainedInt32Object>(MOT_NPARENTS);
+      std::shared_ptr<GConstrainedInt32Object>  npar_ptr = this->at<GConstrainedInt32Object>(MOT_NPARENTS);
       return npar_ptr->value();
    }
 
@@ -503,7 +503,7 @@ public:
     * Retrieves the current number of children. Needed for the optimization monitor.
     */
    std::size_t getNChildren() const {
-      boost::shared_ptr<GConstrainedInt32Object>  nch_ptr = this->at<GConstrainedInt32Object>(MOT_NCHILDREN);
+      std::shared_ptr<GConstrainedInt32Object>  nch_ptr = this->at<GConstrainedInt32Object>(MOT_NCHILDREN);
       return nch_ptr->value();
    }
 
@@ -512,9 +512,9 @@ public:
     * Retrieves the adaption probability. Needed for the optimization monitor.
     */
    double getAdProb() const {
-      boost::shared_ptr<GConstrainedDoubleObject> minAdProb_ptr             = this->at<GConstrainedDoubleObject>(MOT_MINADPROB);
-      boost::shared_ptr<GConstrainedDoubleObject> adProbRange_ptr           = this->at<GConstrainedDoubleObject>(MOT_ADPROBRANGE);
-      boost::shared_ptr<GConstrainedDoubleObject> adProbStartPercentage_ptr = this->at<GConstrainedDoubleObject>(MOT_ADPROBSTARTPERCENTAGE);
+      std::shared_ptr<GConstrainedDoubleObject> minAdProb_ptr             = this->at<GConstrainedDoubleObject>(MOT_MINADPROB);
+      std::shared_ptr<GConstrainedDoubleObject> adProbRange_ptr           = this->at<GConstrainedDoubleObject>(MOT_ADPROBRANGE);
+      std::shared_ptr<GConstrainedDoubleObject> adProbStartPercentage_ptr = this->at<GConstrainedDoubleObject>(MOT_ADPROBSTARTPERCENTAGE);
 
       return minAdProb_ptr->value() + adProbStartPercentage_ptr->value() * adProbRange_ptr->value();
    }
@@ -524,7 +524,7 @@ public:
     * Retrieves the lower sigma boundary. Needed for the optimization monitor.
     */
    double getMinSigma() const {
-      boost::shared_ptr<GConstrainedDoubleObject> minsigma_ptr
+      std::shared_ptr<GConstrainedDoubleObject> minsigma_ptr
          = this->at<GConstrainedDoubleObject>(MOT_MINSIGMA);
       return minsigma_ptr->value();
    }
@@ -534,7 +534,7 @@ public:
     * Retrieves the sigma range. Needed for the optimization monitor.
     */
    double getSigmaRange() const {
-      boost::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr
+      std::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr
          = this->at<GConstrainedDoubleObject>(MOT_SIGMARANGE);
       return sigmarange_ptr->value();
    }
@@ -544,7 +544,7 @@ public:
     * Retrieves the sigma-sigma parameter. Needed for the optimization monitor.
     */
    double getSigmaSigma() const {
-      boost::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr
+      std::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr
          = this->at<GConstrainedDoubleObject>(MOT_SIGMASIGMA);
       return sigmasigma_ptr->value();
    }
@@ -555,7 +555,7 @@ public:
     * and factory.
     */
    static void addContent(
-      boost::shared_ptr<GMetaOptimizerIndividualT<ind_type> > p
+      std::shared_ptr<GMetaOptimizerIndividualT<ind_type> > p
       , const std::size_t& initNParents
       , const std::size_t& nParents_LB
       , const std::size_t& nParents_UB
@@ -599,10 +599,10 @@ public:
       // nParents
 
       // Small number of possible values -- use a flip-adaptor
-      boost::shared_ptr<GInt32FlipAdaptor> gifa_ptr(new GInt32FlipAdaptor());
+      std::shared_ptr<GInt32FlipAdaptor> gifa_ptr(new GInt32FlipAdaptor());
       gifa_ptr->setAdaptionProbability(1.);
 
-      boost::shared_ptr<GConstrainedInt32Object>
+      std::shared_ptr<GConstrainedInt32Object>
          npar_ptr(new GConstrainedInt32Object(
                boost::numeric_cast<boost::int32_t>(initNParents)
                , boost::numeric_cast<boost::int32_t>(nParents_LB)
@@ -621,7 +621,7 @@ public:
       // nChildren
 
       // Create a default standard gauss adaptor
-      boost::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(
+      std::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(
             0.025   // sigma
             , 0.2   // sigmaSigma
             , 0.001   // minSigma
@@ -630,7 +630,7 @@ public:
          )
       );
 
-      boost::shared_ptr<GConstrainedInt32Object> nch_ptr(new GConstrainedInt32Object(
+      std::shared_ptr<GConstrainedInt32Object> nch_ptr(new GConstrainedInt32Object(
             boost::numeric_cast<boost::int32_t>(initNChildren)
             , boost::numeric_cast<boost::int32_t>(nChildren_LB)
             , boost::numeric_cast<boost::int32_t>(nChildren_UB)
@@ -646,7 +646,7 @@ public:
       // amalgamationLklh
 
       // Create a default standard gauss adaptor
-      boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(
+      std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(
             0.025    // sigma
             , 0.2    // sigmaSigma
             , 0.001  // minSigma
@@ -654,7 +654,7 @@ public:
             , 1.     // adProb
          )
       );
-      boost::shared_ptr<GConstrainedDoubleObject> amalgamationLklh_ptr(new GConstrainedDoubleObject(
+      std::shared_ptr<GConstrainedDoubleObject> amalgamationLklh_ptr(new GConstrainedDoubleObject(
             initAmalgamationLklh // initial value
             , amalgamationLklh_LB  // lower boundary
             , amalgamationLklh_UB // upper boundary
@@ -670,7 +670,7 @@ public:
       //------------------------------------------------------------
       // minAdProb
 
-      boost::shared_ptr<GConstrainedDoubleObject> minAdProb_ptr(new GConstrainedDoubleObject(
+      std::shared_ptr<GConstrainedDoubleObject> minAdProb_ptr(new GConstrainedDoubleObject(
             initMinAdProb  // initial value
             , minAdProb_LB // lower boundary
             , minAdProb_UB // upper boundary
@@ -686,7 +686,7 @@ public:
       //------------------------------------------------------------
       // adProbRange
 
-      boost::shared_ptr<GConstrainedDoubleObject> adProbRange_ptr(new GConstrainedDoubleObject(
+      std::shared_ptr<GConstrainedDoubleObject> adProbRange_ptr(new GConstrainedDoubleObject(
             initAdProbRange  // initial value
             , adProbRange_LB // lower boundary
             , adProbRange_UB // upper boundary
@@ -702,7 +702,7 @@ public:
       //------------------------------------------------------------
       // adProbStartPercentage
 
-      boost::shared_ptr<GConstrainedDoubleObject> adProbStartPercentage_ptr(new GConstrainedDoubleObject(
+      std::shared_ptr<GConstrainedDoubleObject> adProbStartPercentage_ptr(new GConstrainedDoubleObject(
             initAdProbStartPercentage  // initial value
             , 0. // lower boundary
             , 1. // upper boundary
@@ -718,7 +718,7 @@ public:
       //------------------------------------------------------------
       // adaptAdProb
 
-      boost::shared_ptr<GConstrainedDoubleObject> adaptAdProb_ptr(new GConstrainedDoubleObject(
+      std::shared_ptr<GConstrainedDoubleObject> adaptAdProb_ptr(new GConstrainedDoubleObject(
             initAdaptAdProb // initial value
             , adaptAdProb_LB // lower boundary
             , adaptAdProb_UB // upper boundary
@@ -732,7 +732,7 @@ public:
       //------------------------------------------------------------
       // minSigma
 
-      boost::shared_ptr<GConstrainedDoubleObject> minsigma_ptr(new GConstrainedDoubleObject(
+      std::shared_ptr<GConstrainedDoubleObject> minsigma_ptr(new GConstrainedDoubleObject(
             initMinSigma // initial value
             , minSigma_LB // lower boundary
             , minSigma_UB // upper boundary
@@ -746,7 +746,7 @@ public:
       //------------------------------------------------------------
       // sigmaRange
 
-      boost::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr(new GConstrainedDoubleObject(
+      std::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr(new GConstrainedDoubleObject(
             initSigmaRange // initial value
             , sigmaRange_LB // lower boundary
             , sigmaRange_UB // upper boundary
@@ -760,7 +760,7 @@ public:
       //------------------------------------------------------------
       // sigmaRangePercentage
 
-      boost::shared_ptr<GConstrainedDoubleObject> sigmaRangePercentage_ptr(new GConstrainedDoubleObject(
+      std::shared_ptr<GConstrainedDoubleObject> sigmaRangePercentage_ptr(new GConstrainedDoubleObject(
             initSigmaRangePercentage  // initial value
             , 0. // lower boundary
             , 1. // upper boundary
@@ -777,7 +777,7 @@ public:
       // sigmaSigma
 
       // The sigma adaption strength may change between 0.01 and 1
-      boost::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr(new GConstrainedDoubleObject(
+      std::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr(new GConstrainedDoubleObject(
          initSigmaSigma  // initial value
          , sigmaSigma_LB  // lower boundary
          , sigmaSigma_UB  // upper boundary
@@ -791,7 +791,7 @@ public:
       //------------------------------------------------------------
       // crossOverProb
 
-      boost::shared_ptr<GConstrainedDoubleObject> crossOverProb_ptr(new GConstrainedDoubleObject(
+      std::shared_ptr<GConstrainedDoubleObject> crossOverProb_ptr(new GConstrainedDoubleObject(
             initCrossOverProb  // initial value
             , crossOverProb_LB  // lower boundary
             , crossOverProb_UB  // upper boundary
@@ -813,18 +813,18 @@ public:
       std::ostringstream result;
 
       // Retrieve the parameters
-      boost::shared_ptr<GConstrainedInt32Object>  npar_ptr                  = this->at<GConstrainedInt32Object> (MOT_NPARENTS);
-      boost::shared_ptr<GConstrainedInt32Object>  nch_ptr                   = this->at<GConstrainedInt32Object> (MOT_NCHILDREN);
-      boost::shared_ptr<GConstrainedDoubleObject> amalgamation_ptr          = this->at<GConstrainedDoubleObject>(MOT_AMALGAMATION);
-      boost::shared_ptr<GConstrainedDoubleObject> minAdProb_ptr             = this->at<GConstrainedDoubleObject>(MOT_MINADPROB);
-      boost::shared_ptr<GConstrainedDoubleObject> adProbRange_ptr           = this->at<GConstrainedDoubleObject>(MOT_ADPROBRANGE);
-      boost::shared_ptr<GConstrainedDoubleObject> adProbStartPercentage_ptr = this->at<GConstrainedDoubleObject>(MOT_ADPROBSTARTPERCENTAGE);
-      boost::shared_ptr<GConstrainedDoubleObject> adaptAdprob_ptr           = this->at<GConstrainedDoubleObject>(MOT_ADAPTADPROB);
-      boost::shared_ptr<GConstrainedDoubleObject> minsigma_ptr              = this->at<GConstrainedDoubleObject>(MOT_MINSIGMA);
-      boost::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr            = this->at<GConstrainedDoubleObject>(MOT_SIGMARANGE);
-      boost::shared_ptr<GConstrainedDoubleObject> sigmaRangePercentage_ptr  = this->at<GConstrainedDoubleObject>(MOT_SIGMARANGEPERCENTAGE);
-      boost::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr            = this->at<GConstrainedDoubleObject>(MOT_SIGMASIGMA);
-      boost::shared_ptr<GConstrainedDoubleObject> crossOverProb_ptr         = this->at<GConstrainedDoubleObject>(MOT_CROSSOVERPROB);
+      std::shared_ptr<GConstrainedInt32Object>  npar_ptr                  = this->at<GConstrainedInt32Object> (MOT_NPARENTS);
+      std::shared_ptr<GConstrainedInt32Object>  nch_ptr                   = this->at<GConstrainedInt32Object> (MOT_NCHILDREN);
+      std::shared_ptr<GConstrainedDoubleObject> amalgamation_ptr          = this->at<GConstrainedDoubleObject>(MOT_AMALGAMATION);
+      std::shared_ptr<GConstrainedDoubleObject> minAdProb_ptr             = this->at<GConstrainedDoubleObject>(MOT_MINADPROB);
+      std::shared_ptr<GConstrainedDoubleObject> adProbRange_ptr           = this->at<GConstrainedDoubleObject>(MOT_ADPROBRANGE);
+      std::shared_ptr<GConstrainedDoubleObject> adProbStartPercentage_ptr = this->at<GConstrainedDoubleObject>(MOT_ADPROBSTARTPERCENTAGE);
+      std::shared_ptr<GConstrainedDoubleObject> adaptAdprob_ptr           = this->at<GConstrainedDoubleObject>(MOT_ADAPTADPROB);
+      std::shared_ptr<GConstrainedDoubleObject> minsigma_ptr              = this->at<GConstrainedDoubleObject>(MOT_MINSIGMA);
+      std::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr            = this->at<GConstrainedDoubleObject>(MOT_SIGMARANGE);
+      std::shared_ptr<GConstrainedDoubleObject> sigmaRangePercentage_ptr  = this->at<GConstrainedDoubleObject>(MOT_SIGMARANGEPERCENTAGE);
+      std::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr            = this->at<GConstrainedDoubleObject>(MOT_SIGMASIGMA);
+      std::shared_ptr<GConstrainedDoubleObject> crossOverProb_ptr         = this->at<GConstrainedDoubleObject>(MOT_CROSSOVERPROB);
 
       // Stream the results
 
@@ -869,7 +869,7 @@ public:
     * Registers a factory class with this object. This function clones the factory,
     * so the individual can be sure to have a unique factory.
     */
-   void registerIndividualFactory(boost::shared_ptr<typename ind_type::FACTORYTYPE> factory) {
+   void registerIndividualFactory(std::shared_ptr<typename ind_type::FACTORYTYPE> factory) {
       if(!factory) {
          glogger
          << "In GMetaOptimizerIndividualT<T>::registerIndividualFactory(): Error!" << std::endl
@@ -930,18 +930,18 @@ protected:
       bool maxMode = false;
 
       // Retrieve the parameters
-      boost::shared_ptr<GConstrainedInt32Object>  npar_ptr                  = this->at<GConstrainedInt32Object> (MOT_NPARENTS);
-      boost::shared_ptr<GConstrainedInt32Object>  nch_ptr                   = this->at<GConstrainedInt32Object> (MOT_NCHILDREN);
-      boost::shared_ptr<GConstrainedDoubleObject> amalgamation_ptr          = this->at<GConstrainedDoubleObject>(MOT_AMALGAMATION);
-      boost::shared_ptr<GConstrainedDoubleObject> minAdProb_ptr             = this->at<GConstrainedDoubleObject>(MOT_MINADPROB);
-      boost::shared_ptr<GConstrainedDoubleObject> adProbRange_ptr           = this->at<GConstrainedDoubleObject>(MOT_ADPROBRANGE);
-      boost::shared_ptr<GConstrainedDoubleObject> adProbStartPercentage_ptr = this->at<GConstrainedDoubleObject>(MOT_ADPROBSTARTPERCENTAGE);
-      boost::shared_ptr<GConstrainedDoubleObject> adaptAdprob_ptr           = this->at<GConstrainedDoubleObject>(MOT_ADAPTADPROB);
-      boost::shared_ptr<GConstrainedDoubleObject> minsigma_ptr              = this->at<GConstrainedDoubleObject>(MOT_MINSIGMA);
-      boost::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr            = this->at<GConstrainedDoubleObject>(MOT_SIGMARANGE);
-      boost::shared_ptr<GConstrainedDoubleObject> sigmaRangePercentage_ptr  = this->at<GConstrainedDoubleObject>(MOT_SIGMARANGEPERCENTAGE);
-      boost::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr            = this->at<GConstrainedDoubleObject>(MOT_SIGMASIGMA);
-      boost::shared_ptr<GConstrainedDoubleObject> crossOverProb_ptr         = this->at<GConstrainedDoubleObject>(MOT_CROSSOVERPROB);
+      std::shared_ptr<GConstrainedInt32Object>  npar_ptr                  = this->at<GConstrainedInt32Object> (MOT_NPARENTS);
+      std::shared_ptr<GConstrainedInt32Object>  nch_ptr                   = this->at<GConstrainedInt32Object> (MOT_NCHILDREN);
+      std::shared_ptr<GConstrainedDoubleObject> amalgamation_ptr          = this->at<GConstrainedDoubleObject>(MOT_AMALGAMATION);
+      std::shared_ptr<GConstrainedDoubleObject> minAdProb_ptr             = this->at<GConstrainedDoubleObject>(MOT_MINADPROB);
+      std::shared_ptr<GConstrainedDoubleObject> adProbRange_ptr           = this->at<GConstrainedDoubleObject>(MOT_ADPROBRANGE);
+      std::shared_ptr<GConstrainedDoubleObject> adProbStartPercentage_ptr = this->at<GConstrainedDoubleObject>(MOT_ADPROBSTARTPERCENTAGE);
+      std::shared_ptr<GConstrainedDoubleObject> adaptAdprob_ptr           = this->at<GConstrainedDoubleObject>(MOT_ADAPTADPROB);
+      std::shared_ptr<GConstrainedDoubleObject> minsigma_ptr              = this->at<GConstrainedDoubleObject>(MOT_MINSIGMA);
+      std::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr            = this->at<GConstrainedDoubleObject>(MOT_SIGMARANGE);
+      std::shared_ptr<GConstrainedDoubleObject> sigmaRangePercentage_ptr  = this->at<GConstrainedDoubleObject>(MOT_SIGMARANGEPERCENTAGE);
+      std::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr            = this->at<GConstrainedDoubleObject>(MOT_SIGMASIGMA);
+      std::shared_ptr<GConstrainedDoubleObject> crossOverProb_ptr         = this->at<GConstrainedDoubleObject>(MOT_CROSSOVERPROB);
 
 #ifdef DEBUG
       // Check that we have been given a factory
@@ -983,7 +983,7 @@ protected:
       GEvolutionaryAlgorithmFactory ea(subEA_config_, em);
 
       // Run the required number of optimizations
-      boost::shared_ptr<GBaseEA> ea_ptr;
+      std::shared_ptr<GBaseEA> ea_ptr;
 
       boost::uint32_t nChildren = boost::numeric_cast<boost::uint32_t>(nch_ptr->value());
       boost::uint32_t nParents = boost::numeric_cast<boost::uint32_t>(npar_ptr->value());
@@ -1005,7 +1005,7 @@ protected:
          // Add the required number of individuals
          for(std::size_t ind=0; ind<popSize; ind++) {
             // Retrieve an individual
-            boost::shared_ptr<GParameterSet> gi_ptr = ind_factory_->get();
+            std::shared_ptr<GParameterSet> gi_ptr = ind_factory_->get();
 
             // Find out whether this is a maximization or minimization once per call to fitnessCalculation
             if(first_maxMode) {
@@ -1050,7 +1050,7 @@ protected:
           ea_ptr->optimize();
 
           // Retrieve the best individual
-          boost::shared_ptr<GParameterSet> bestIndividual = ea_ptr->getBestIndividual<GParameterSet>();
+          std::shared_ptr<GParameterSet> bestIndividual = ea_ptr->getBestIndividual<GParameterSet>();
 
          // Retrieve the number of iterations
          iterationsConsumed = ea_ptr->getIteration();
@@ -1127,7 +1127,7 @@ private:
    std::string subEA_config_; ///< Path and name of the configuration file needed for (sub-)evolutionary algorithms
    bool subExecMode_; ///< Whether to use serial (false) or multi-threaded (true) execution for sub-optimization algorithms
 
-   boost::shared_ptr<typename ind_type::FACTORYTYPE> ind_factory_; ///< Holds a factory for our individuals
+   std::shared_ptr<typename ind_type::FACTORYTYPE> ind_factory_; ///< Holds a factory for our individuals
 
 public:
    /***************************************************************************/
@@ -1302,7 +1302,7 @@ public:
     * Registers a factory class with this object. This function clones the factory,
     * so the individual can be sure to have a unique factory.
     */
-   void registerIndividualFactory(boost::shared_ptr<typename ind_type::FACTORYTYPE> factory) {
+   void registerIndividualFactory(std::shared_ptr<typename ind_type::FACTORYTYPE> factory) {
       if(!factory) {
          glogger
          << "In GMetaOptimizerIndividualFactoryT<T>::registerIndividualFactory(): Error!" << std::endl
@@ -1321,12 +1321,12 @@ protected:
     *
     * @return Items of the desired type
     */
-   virtual boost::shared_ptr<GParameterSet> getObject_(
+   virtual std::shared_ptr<GParameterSet> getObject_(
       Gem::Common::GParserBuilder& gpb
       , const std::size_t& id
    ) {
       // Will hold the result
-      boost::shared_ptr<GMetaOptimizerIndividualT<ind_type> >
+      std::shared_ptr<GMetaOptimizerIndividualT<ind_type> >
          target(new GMetaOptimizerIndividualT<ind_type>());
 
       // Make the object's local configuration options known
@@ -1680,10 +1680,10 @@ protected:
     * @param p A smart-pointer to be acted on during post-processing
     */
    virtual void postProcess_(
-      boost::shared_ptr<GParameterSet>& p_base
+      std::shared_ptr<GParameterSet>& p_base
    ) {
       // Convert the base pointer to our local type
-      boost::shared_ptr<GMetaOptimizerIndividualT<ind_type> > p
+      std::shared_ptr<GMetaOptimizerIndividualT<ind_type> > p
          = Gem::Common::convertSmartPointer<GParameterSet, GMetaOptimizerIndividualT<ind_type> >(p_base);
 
       // We simply use a static function defined in GMetaOptimizerIndividualT<ind_type>
@@ -1777,7 +1777,7 @@ private:
    double crossOverProb_LB_;       ///< The lower boundary for the variation of the cross-over probability
    double crossOverProb_UB_;       ///< The upper boundary for the variation of the cross-over probability
 
-   boost::shared_ptr<typename ind_type::FACTORYTYPE> ind_factory_; ///< Holds a factory for our individuals. It will be added to the individuals when needed
+   std::shared_ptr<typename ind_type::FACTORYTYPE> ind_factory_; ///< Holds a factory for our individuals. It will be added to the individuals when needed
 };
 
 /******************************************************************************/
@@ -1923,7 +1923,7 @@ protected:
 
       // Extract the requested data. First retrieve the best individual.
       // It can always be found in the first position with evolutionary algorithms
-      boost::shared_ptr<GMetaOptimizerIndividualT<ind_type> > p = ea->clone_at<GMetaOptimizerIndividualT<ind_type> >(0);
+      std::shared_ptr<GMetaOptimizerIndividualT<ind_type> > p = ea->clone_at<GMetaOptimizerIndividualT<ind_type> >(0);
 
       // Retrieve the best fitness and average sigma value and add it to our local storage
       (*progressPlotter_) & boost::tuple<double,double>((double)ea->getIteration(), p->fitness());
@@ -1997,14 +1997,14 @@ private:
 
    Gem::Common::GPlotDesigner gpd_; ///< Ease recording of essential information
 
-   boost::shared_ptr<Gem::Common::GGraph2D> progressPlotter_; ///< Records progress information
-   boost::shared_ptr<Gem::Common::GGraph2D> nParentPlotter_; ///< Records the number of parents in the individual
-   boost::shared_ptr<Gem::Common::GGraph2D> nChildrenPlotter_; ///< Records the number of children in the individual
-   boost::shared_ptr<Gem::Common::GGraph2D> adProbPlotter_; ///< Records the adaption probability for the individual
-   boost::shared_ptr<Gem::Common::GGraph2D> minSigmaPlotter_; ///< Records the development of the lower sigma boundary
-   boost::shared_ptr<Gem::Common::GGraph2D> maxSigmaPlotter_; ///< Records the development of the upper sigma boundary
-   boost::shared_ptr<Gem::Common::GGraph2D> sigmaRangePlotter_; ///< Records the development of the sigma range
-   boost::shared_ptr<Gem::Common::GGraph2D> sigmaSigmaPlotter_; ///< Records the development of the adaption strength
+   std::shared_ptr<Gem::Common::GGraph2D> progressPlotter_; ///< Records progress information
+   std::shared_ptr<Gem::Common::GGraph2D> nParentPlotter_; ///< Records the number of parents in the individual
+   std::shared_ptr<Gem::Common::GGraph2D> nChildrenPlotter_; ///< Records the number of children in the individual
+   std::shared_ptr<Gem::Common::GGraph2D> adProbPlotter_; ///< Records the adaption probability for the individual
+   std::shared_ptr<Gem::Common::GGraph2D> minSigmaPlotter_; ///< Records the development of the lower sigma boundary
+   std::shared_ptr<Gem::Common::GGraph2D> maxSigmaPlotter_; ///< Records the development of the upper sigma boundary
+   std::shared_ptr<Gem::Common::GGraph2D> sigmaRangePlotter_; ///< Records the development of the sigma range
+   std::shared_ptr<Gem::Common::GGraph2D> sigmaSigmaPlotter_; ///< Records the development of the adaption strength
 };
 
 /******************************************************************************/

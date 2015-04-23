@@ -446,7 +446,7 @@ bool GParserBuilder::parseConfigFile(const std::string& configFile) {
 		pt::read_json(configFile_withBase, ptr);
 
 		// Load the data into our objects and execute the relevant call-back functions
-		std::vector<boost::shared_ptr<GFileParsableI> >::iterator it;
+		std::vector<std::shared_ptr<GFileParsableI> >::iterator it;
 		for(it=file_parameter_proxies_.begin(); it!=file_parameter_proxies_.end(); ++it) {
 			(*it)->load(ptr);
 			(*it)->executeCallBackFunction();
@@ -569,7 +569,7 @@ void GParserBuilder::writeConfigFile(
    boost::property_tree::ptree ptr;
 
    // Output variables and values
-   std::vector<boost::shared_ptr<GFileParsableI> >::const_iterator cit;
+   std::vector<std::shared_ptr<GFileParsableI> >::const_iterator cit;
    for(cit=file_parameter_proxies_.begin(); cit!=file_parameter_proxies_.end(); ++cit) {
       // Only write out the parameter(s) if they are either essential or it
       // has been requested to write out all parameters regardless
@@ -618,7 +618,7 @@ bool GParserBuilder::parseCommandLine(int argc, char **argv, const bool& verbose
       desc.add_options() ("help,h", "Emit help message");
 
       // Add further options from the parameter objects
-      std::vector<boost::shared_ptr<GCLParsableI> >::iterator it;
+      std::vector<std::shared_ptr<GCLParsableI> >::iterator it;
       for(it=cl_parameter_proxies_.begin(); it!=cl_parameter_proxies_.end(); ++it) {
          (*it)->save(desc);
       }

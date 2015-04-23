@@ -215,7 +215,7 @@ protected:
    virtual G_API_GENEVA void finalize() override;
 
    /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-   virtual G_API_GENEVA boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
+   virtual G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
 
    /** @brief Resizes the population to the desired level and does some error checks */
    virtual G_API_GENEVA void adjustPopulation() override;
@@ -286,7 +286,7 @@ private:
    /** @brief Randomly shuffle the work items a number of times */
    void randomShuffle();
    /** @brief Retrieves the next available parameter set */
-   boost::shared_ptr<parSet> getParameterSet(std::size_t&);
+   std::shared_ptr<parSet> getParameterSet(std::size_t&);
    /** @brief Switches to the next parameter set */
    bool switchToNextParameterSet();
    /** @brief Sorts the population according to the primary fitness values */
@@ -300,12 +300,12 @@ private:
    bool scanRandomly_;   ///< Determines whether the algorithm should scan the parameter space randomly or on a grid
    std::size_t nMonitorInds_; ///< The number of best individuals of the entire run to be kept
 
-   std::vector<boost::shared_ptr<bScanPar> >      bVec_;     ///< Holds boolean parameters to be scanned
-   std::vector<boost::shared_ptr<int32ScanPar> >  int32Vec_; ///< Holds 32 bit integer parameters to be scanned
-   std::vector<boost::shared_ptr<dScanPar> >      dVec_;     ///< Holds double values to be scanned
-   std::vector<boost::shared_ptr<fScanPar> >      fVec_;     ///< Holds float values to be scanned
+   std::vector<std::shared_ptr<bScanPar> >      bVec_;     ///< Holds boolean parameters to be scanned
+   std::vector<std::shared_ptr<int32ScanPar> >  int32Vec_; ///< Holds 32 bit integer parameters to be scanned
+   std::vector<std::shared_ptr<dScanPar> >      dVec_;     ///< Holds double values to be scanned
+   std::vector<std::shared_ptr<fScanPar> >      fVec_;     ///< Holds float values to be scanned
 
-   std::vector<boost::shared_ptr<scanParInterface> > allParVec_; /// Holds pointers to all parameter objects
+   std::vector<std::shared_ptr<scanParInterface> > allParVec_; /// Holds pointers to all parameter objects
 
    std::size_t simpleScanItems_; ///< When set to a value > 0, a random scan of the entire parameter space will be made instead of individual parameters -- set through the configuration file
    std::size_t scansPerformed_;  ///< Holds the number of processed items so far while a simple scan is performed

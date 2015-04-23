@@ -68,8 +68,8 @@ namespace Geneva {
  */
 template <typename T>
 void copyGenevaSmartPointer (
-	const boost::shared_ptr<T>& from
-	, boost::shared_ptr<T>& to
+	const std::shared_ptr<T>& from
+	, std::shared_ptr<T>& to
 	, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, T> >::type* dummy = 0
 ) {
 	// Make sure to is empty when from is empty
@@ -94,12 +94,12 @@ void copyGenevaSmartPointer (
  */
 template <typename T>
 void copyGenevaSmartPointerVector(
-		const std::vector<boost::shared_ptr<T> >& from
-		, std::vector<boost::shared_ptr<T> >& to
+		const std::vector<std::shared_ptr<T> >& from
+		, std::vector<std::shared_ptr<T> >& to
 		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, T> >::type* dummy = 0
 ) {
-	typename std::vector<boost::shared_ptr<T> >::const_iterator it_from;
-	typename std::vector<boost::shared_ptr<T> >::iterator it_to;
+	typename std::vector<std::shared_ptr<T> >::const_iterator it_from;
+	typename std::vector<std::shared_ptr<T> >::iterator it_to;
 
 	std::size_t size_from = from.size();
 	std::size_t size_to = to.size();
@@ -141,21 +141,21 @@ void copyGenevaSmartPointerVector(
  * @return The default adaptor for a given base type
  */
 template <typename T>
-boost::shared_ptr<GAdaptorT<T> > getDefaultAdaptor() {
+std::shared_ptr<GAdaptorT<T> > getDefaultAdaptor() {
    glogger
    << "In getDefaultAdaptor():" << std::endl
    << "Function called with invalid type." << std::endl
    << GEXCEPTION;
 
    // Make the compiler happy
-   return boost::shared_ptr<GAdaptorT<T> >();
+   return std::shared_ptr<GAdaptorT<T> >();
 }
 
 // Specializations for double, boost::int32_t and bool
 /******************************************************************************/
-template <> G_API_GENEVA boost::shared_ptr<GAdaptorT<double> > getDefaultAdaptor<double>();
-template <> G_API_GENEVA boost::shared_ptr<GAdaptorT<boost::int32_t> > getDefaultAdaptor<boost::int32_t>();
-template <> G_API_GENEVA boost::shared_ptr<GAdaptorT<bool> > getDefaultAdaptor<bool>();
+template <> G_API_GENEVA std::shared_ptr<GAdaptorT<double> > getDefaultAdaptor<double>();
+template <> G_API_GENEVA std::shared_ptr<GAdaptorT<boost::int32_t> > getDefaultAdaptor<boost::int32_t>();
+template <> G_API_GENEVA std::shared_ptr<GAdaptorT<bool> > getDefaultAdaptor<bool>();
 
 /******************************************************************************/
 

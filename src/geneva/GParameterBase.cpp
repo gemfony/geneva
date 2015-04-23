@@ -1001,7 +1001,7 @@ void GParameterBase::booleanFixedValueInit(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GParameterBase::floatAdd(
-   boost::shared_ptr<GParameterBase>
+   std::shared_ptr<GParameterBase>
    , const activityMode& am
 ) {
    /* Do nothing by default */
@@ -1012,7 +1012,7 @@ void GParameterBase::floatAdd(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GParameterBase::doubleAdd(
-   boost::shared_ptr<GParameterBase>
+   std::shared_ptr<GParameterBase>
    , const activityMode& am
 ) {
    /* Do nothing by default */
@@ -1023,7 +1023,7 @@ void GParameterBase::doubleAdd(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GParameterBase::int32Add(
-   boost::shared_ptr<GParameterBase>
+   std::shared_ptr<GParameterBase>
    , const activityMode& am
 ) {
    /* Do nothing by default */
@@ -1034,7 +1034,7 @@ void GParameterBase::int32Add(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GParameterBase::booleanAdd(
-   boost::shared_ptr<GParameterBase>
+   std::shared_ptr<GParameterBase>
    , const activityMode& am
 ) {
    // Complain: This function should not be called for boolean values
@@ -1049,7 +1049,7 @@ void GParameterBase::booleanAdd(
  * Subtracts the "same-type" parameters of another GParameterBase object from this one
  */
 void GParameterBase::floatSubtract(
-   boost::shared_ptr<GParameterBase>
+   std::shared_ptr<GParameterBase>
    , const activityMode& am
 ) {
    /* Do nothing by default */
@@ -1060,7 +1060,7 @@ void GParameterBase::floatSubtract(
  * Subtracts the "same-type" parameters of another GParameterBase object from this one
  */
 void GParameterBase::doubleSubtract(
-   boost::shared_ptr<GParameterBase>
+   std::shared_ptr<GParameterBase>
    , const activityMode& am
 ) {
    /* Do nothing by default */
@@ -1071,7 +1071,7 @@ void GParameterBase::doubleSubtract(
  * Subtracts the "same-type" parameters of another GParameterBase object from this one
  */
 void GParameterBase::int32Subtract(
-   boost::shared_ptr<GParameterBase>
+   std::shared_ptr<GParameterBase>
    , const activityMode& am
 ) {
    /* Do nothing by default */
@@ -1082,7 +1082,7 @@ void GParameterBase::int32Subtract(
  * Subtracts the "same-type" parameters of another GParameterBase object from this one
  */
 void GParameterBase::booleanSubtract(
-   boost::shared_ptr<GParameterBase>
+   std::shared_ptr<GParameterBase>
    , const activityMode& am
 ) {
    // Complain: This function should not be called for boolean values
@@ -1167,8 +1167,8 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 		using namespace Gem::Common;
 
 		// Create two GParameterBase objects as clone of this object for further usage
-		boost::shared_ptr<GParameterBase> p_test1 = this->clone<GParameterBase>();
-		boost::shared_ptr<GParameterBase> p_test2 = this->clone<GParameterBase>();
+		std::shared_ptr<GParameterBase> p_test1 = this->clone<GParameterBase>();
+		std::shared_ptr<GParameterBase> p_test2 = this->clone<GParameterBase>();
 
 		BOOST_CHECK_NO_THROW(p_test1->blockRandomInitialization());
 		BOOST_CHECK_NO_THROW(p_test2->blockRandomInitialization());
@@ -1211,9 +1211,9 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 	  // been loaded.
 
 		// Create some clones of this object
-		boost::shared_ptr<GParameterBase> p_test = this->clone<GParameterBase>();
-		boost::shared_ptr<GParameterBase> p_test_1 = this->clone<GParameterBase>();
-		boost::shared_ptr<GParameterBase> p_test_2 = this->clone<GParameterBase>();
+		std::shared_ptr<GParameterBase> p_test = this->clone<GParameterBase>();
+		std::shared_ptr<GParameterBase> p_test_1 = this->clone<GParameterBase>();
+		std::shared_ptr<GParameterBase> p_test_2 = this->clone<GParameterBase>();
 
 		// activate adaptions
 		BOOST_CHECK_NO_THROW(p_test_1->setAdaptionsActive());
@@ -1241,8 +1241,8 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 
 	{ // Check adapt() and (de-)activation of adaptions
 		// Create two local clones
-		boost::shared_ptr<GParameterBase> p_test1 = this->clone<GParameterBase>();
-		boost::shared_ptr<GParameterBase> p_test2 = this->clone<GParameterBase>();
+		std::shared_ptr<GParameterBase> p_test1 = this->clone<GParameterBase>();
+		std::shared_ptr<GParameterBase> p_test2 = this->clone<GParameterBase>();
 
 		// Always adapt
 		BOOST_CHECK_NO_THROW(p_test1->setAdaptionsActive());

@@ -239,7 +239,7 @@ private:
 	/***************************************************************************/
 
 	boost::asio::io_service io_service_; ///< Manages the concurrent thread execution
-	boost::shared_ptr<boost::asio::io_service::work> work_; ///< A place holder ensuring that the io_service doesn't stop prematurely
+	std::shared_ptr<boost::asio::io_service::work> work_; ///< A place holder ensuring that the io_service doesn't stop prematurely
 
 	GThreadGroup gtg_; ///< Holds the actual threads
 

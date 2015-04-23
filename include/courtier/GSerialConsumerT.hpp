@@ -142,7 +142,7 @@ private:
 	*/
 	void processItems(){
 		try{
-			boost::shared_ptr<processable_type> p;
+			std::shared_ptr<processable_type> p;
 			Gem::Common::PORTIDTYPE id;
 			boost::posix_time::time_duration timeout(boost::posix_time::milliseconds(10));
 
@@ -208,7 +208,7 @@ private:
 	/***************************************************************************/
 
 	boost::thread processingThread_;
-	boost::shared_ptr<GBrokerT<processable_type> > broker_; ///< A shortcut to the broker so we do not have to go through the singleton
+	std::shared_ptr<GBrokerT<processable_type> > broker_; ///< A shortcut to the broker so we do not have to go through the singleton
 };
 
 /******************************************************************************/

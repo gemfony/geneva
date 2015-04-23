@@ -66,7 +66,7 @@ GBooleanObjectCollection::GBooleanObjectCollection(const GBooleanObjectCollectio
  */
 GBooleanObjectCollection::GBooleanObjectCollection(
 	const std::size_t& nVals
-	, boost::shared_ptr<GBooleanObject> tmpl_ptr
+	, std::shared_ptr<GBooleanObject> tmpl_ptr
 )
 	:GParameterTCollectionT<GBooleanObject>(nVals, tmpl_ptr)
 { /* nothing */ }
@@ -82,7 +82,7 @@ GBooleanObjectCollection::GBooleanObjectCollection(
 		, const double& probability
 ) {
 	for(std::size_t i=0; i<nVals; i++) {
-		this->push_back(boost::shared_ptr<GBooleanObject>(new GBooleanObject(probability)));
+		this->push_back(std::shared_ptr<GBooleanObject>(new GBooleanObject(probability)));
 	}
 }
 
@@ -237,16 +237,16 @@ void GBooleanObjectCollection::fillWithObjects(const std::size_t& nAddedObjects)
 	// Add GBooleanObject items with adaptors to p_test1
 	for(std::size_t i=0; i<nAddedObjects; i++) {
 		// Create a suitable adaptor
-		boost::shared_ptr<GBooleanAdaptor> gba_ptr;
+		std::shared_ptr<GBooleanAdaptor> gba_ptr;
 
-		BOOST_CHECK_NO_THROW(gba_ptr = boost::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor(1.0)));
+		BOOST_CHECK_NO_THROW(gba_ptr = std::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor(1.0)));
 		BOOST_CHECK_NO_THROW(gba_ptr->setAdaptionThreshold(0)); // Make sure the adaptor's internal parameters don't change through the adaption
 		BOOST_CHECK_NO_THROW(gba_ptr->setAdaptionMode(true)); // Always adapt
 
 		// Create a suitable GBooleanObject object
-		boost::shared_ptr<GBooleanObject> gbo_ptr;
+		std::shared_ptr<GBooleanObject> gbo_ptr;
 
-		BOOST_CHECK_NO_THROW(gbo_ptr = boost::shared_ptr<GBooleanObject>(new GBooleanObject())); // Initialization with standard values
+		BOOST_CHECK_NO_THROW(gbo_ptr = std::shared_ptr<GBooleanObject>(new GBooleanObject())); // Initialization with standard values
 
 		// Add the adaptor
 		BOOST_CHECK_NO_THROW(gbo_ptr->addAdaptor(gba_ptr));
@@ -283,7 +283,7 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//----------------------------------------------------------------------------
 
 	{ // Call the parent class'es function
-		boost::shared_ptr<GBooleanObjectCollection> p_test = this->clone<GBooleanObjectCollection>();
+		std::shared_ptr<GBooleanObjectCollection> p_test = this->clone<GBooleanObjectCollection>();
 
 		// Fill p_test with objects
 		p_test->fillWithObjects(nAddedObjects);
@@ -303,7 +303,7 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 	{ // Check copy construction
 		GBooleanObjectCollection gboc1;
-		gboc1.push_back(boost::shared_ptr<GBooleanObject>(new GBooleanObject(0.5)));
+		gboc1.push_back(std::shared_ptr<GBooleanObject>(new GBooleanObject(0.5)));
 		BOOST_CHECK(gboc1.size() == 1);
 		GBooleanObjectCollection gboc2(gboc1);
 		BOOST_CHECK(gboc1.size() == gboc2.size());
@@ -318,7 +318,7 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//----------------------------------------------------------------------------
 
 	{ // Check construction with a number of object templates
-		boost::shared_ptr<GBooleanObject> gbo_ptr(new GBooleanObject(Gem::Common::GDefaultValueT<bool>::value()));
+		std::shared_ptr<GBooleanObject> gbo_ptr(new GBooleanObject(Gem::Common::GDefaultValueT<bool>::value()));
 		GBooleanObjectCollection gboc(nTests, gbo_ptr);
 
 		BOOST_CHECK_MESSAGE(
@@ -363,8 +363,8 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test that the fp-family of functions has no effect on this object (and contained objects)
-		boost::shared_ptr<GBooleanObjectCollection> p_test1 = this->clone<GBooleanObjectCollection>();
-		boost::shared_ptr<GBooleanObjectCollection> p_test2 = this->clone<GBooleanObjectCollection>();
+		std::shared_ptr<GBooleanObjectCollection> p_test1 = this->clone<GBooleanObjectCollection>();
+		std::shared_ptr<GBooleanObjectCollection> p_test2 = this->clone<GBooleanObjectCollection>();
 
 		// Fill p_test1 with objects
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));

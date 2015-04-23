@@ -72,7 +72,7 @@ enum distType {
 };
 
 template <class T>
-void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std::size_t& nEntries, boost::shared_ptr<Gem::Hap::GRandomBase> gr_ptr){
+void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std::size_t& nEntries, std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr){
 	std::size_t i;
 
 	switch(dType){
@@ -121,7 +121,7 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 }
 
 int main(int argc, char **argv){
-	boost::shared_ptr<Gem::Hap::GRandomBase> gr_ptr;
+	std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr;
 
 	bool verbose;
 	const std::size_t nEntries = 60000;
@@ -134,7 +134,7 @@ int main(int argc, char **argv){
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
 	// Create a random number proxy
-	gr_ptr = boost::shared_ptr<GRandomT<RANDOMPROXY> >(new GRandomT<RANDOMPROXY>());
+	gr_ptr = std::shared_ptr<GRandomT<RANDOMPROXY> >(new GRandomT<RANDOMPROXY>());
 
 	boost::filesystem::ofstream ofs("rootPlotRNGDistributions.C");
 	if(!ofs) {

@@ -324,8 +324,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Initialize with a fixed value, then check setting and retrieval of boundaries and random initialization
-			boost::shared_ptr<GNumIntT<int_type> > p_test1 = this->GObject::clone<GNumIntT<int_type> >();
-			boost::shared_ptr<GNumIntT<int_type> > p_test2 = this->GObject::clone<GNumIntT<int_type> >();
+			std::shared_ptr<GNumIntT<int_type> > p_test1 = this->GObject::clone<GNumIntT<int_type> >();
+			std::shared_ptr<GNumIntT<int_type> > p_test2 = this->GObject::clone<GNumIntT<int_type> >();
 
 			// Assign a boolean value true
 			BOOST_CHECK_NO_THROW(*p_test1 = 2*UPPERINITBOUNDARY); // Make sure random initialization cannot randomly result in an unchanged value
@@ -356,9 +356,9 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that the fp-family of functions doesn't have an effect on this object
-			boost::shared_ptr<GNumIntT<int_type> > p_test1 = this->GObject::clone<GNumIntT<int_type> >();
-			boost::shared_ptr<GNumIntT<int_type> > p_test2 = this->GObject::clone<GNumIntT<int_type> >();
-			boost::shared_ptr<GNumIntT<int_type> > p_test3 = this->GObject::clone<GNumIntT<int_type> >();
+			std::shared_ptr<GNumIntT<int_type> > p_test1 = this->GObject::clone<GNumIntT<int_type> >();
+			std::shared_ptr<GNumIntT<int_type> > p_test2 = this->GObject::clone<GNumIntT<int_type> >();
+			std::shared_ptr<GNumIntT<int_type> > p_test3 = this->GObject::clone<GNumIntT<int_type> >();
 
 			// Assign a boolean value true
 			BOOST_CHECK_NO_THROW(*p_test1 = FIXEDVALUEINIT); // Make sure random initialization cannot randomly result in an unchanged value

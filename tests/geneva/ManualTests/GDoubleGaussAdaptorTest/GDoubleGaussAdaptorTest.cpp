@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
 	{ exit(1); }
 
 	// The adaptor object to be tested
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga(
+	std::shared_ptr<GDoubleGaussAdaptor> gdga(
 			new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));
 	gdga->setAdaptionThreshold(adaptionThreshold);
 
@@ -93,21 +93,21 @@ int main(int argc, char **argv) {
 	gpd.setCanvasDimensions(1200,1200);
 
 	// 2D Graph for the value of the mutation-subject
-	boost::shared_ptr<GGraph2D> gmutpar_iter_ptr(new GGraph2D());
+	std::shared_ptr<GGraph2D> gmutpar_iter_ptr(new GGraph2D());
 	gmutpar_iter_ptr->setPlotMode(Gem::Common::SCATTER);
 	gmutpar_iter_ptr->setPlotLabel("Mutation parameter (iteration)");
 	gmutpar_iter_ptr->setXAxisLabel("Iteration");
 	gmutpar_iter_ptr->setYAxisLabel("Value of mutation parameter");
 
 	// 2D Graph for the difference between current and last mutation parameter
-	boost::shared_ptr<GGraph2D> gmutpardiff_iter_ptr(new GGraph2D());
+	std::shared_ptr<GGraph2D> gmutpardiff_iter_ptr(new GGraph2D());
 	gmutpardiff_iter_ptr->setPlotMode(Gem::Common::SCATTER);
 	gmutpardiff_iter_ptr->setPlotLabel("Difference between consecutive mutation parameters (iteration)");
 	gmutpardiff_iter_ptr->setXAxisLabel("Iteration");
 	gmutpardiff_iter_ptr->setYAxisLabel("Difference");
 
 	// 2D Graph for sigma as a function of the iteration
-	boost::shared_ptr<GGraph2D> gsigma_iter_ptr(new GGraph2D());
+	std::shared_ptr<GGraph2D> gsigma_iter_ptr(new GGraph2D());
 	gsigma_iter_ptr->setPlotMode(Gem::Common::SCATTER);
 	gsigma_iter_ptr->setPlotLabel("Sigma as a function of the iteration");
 	gsigma_iter_ptr->setXAxisLabel("Iteration");

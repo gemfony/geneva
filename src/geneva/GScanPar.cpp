@@ -171,8 +171,8 @@ bScanPar::~bScanPar()
 /**
  * Cloning of this object
  */
-boost::shared_ptr<bScanPar> bScanPar::clone() const {
-   return boost::shared_ptr<bScanPar>(new bScanPar(*this));
+std::shared_ptr<bScanPar> bScanPar::clone() const {
+   return std::shared_ptr<bScanPar>(new bScanPar(*this));
 }
 
 /******************************************************************************/
@@ -215,8 +215,8 @@ int32ScanPar::~int32ScanPar()
 /**
  * Cloning
  */
-boost::shared_ptr<int32ScanPar> int32ScanPar::clone() const {
-   return boost::shared_ptr<int32ScanPar>(new int32ScanPar(*this));
+std::shared_ptr<int32ScanPar> int32ScanPar::clone() const {
+   return std::shared_ptr<int32ScanPar>(new int32ScanPar(*this));
 }
 
 /******************************************************************************/
@@ -259,8 +259,8 @@ dScanPar::~dScanPar()
 /**
  * Cloning
  */
-boost::shared_ptr<dScanPar> dScanPar::clone() const {
-   return boost::shared_ptr<dScanPar>(new dScanPar(*this));
+std::shared_ptr<dScanPar> dScanPar::clone() const {
+   return std::shared_ptr<dScanPar>(new dScanPar(*this));
 }
 
 /******************************************************************************/
@@ -303,8 +303,8 @@ fScanPar::~fScanPar()
 /**
  * Cloning
  */
-boost::shared_ptr<fScanPar> fScanPar::clone() const {
-   return boost::shared_ptr<fScanPar>(new fScanPar(*this));
+std::shared_ptr<fScanPar> fScanPar::clone() const {
+   return std::shared_ptr<fScanPar>(new fScanPar(*this));
 }
 
 /******************************************************************************/

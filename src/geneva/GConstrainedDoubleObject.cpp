@@ -370,11 +370,11 @@ void GConstrainedDoubleObject::doubleFixedValueInit(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GConstrainedDoubleObject::doubleAdd(
-   boost::shared_ptr<GParameterBase> p_base
+   std::shared_ptr<GParameterBase> p_base
    , const activityMode& am
 ) {
    // We first need to convert p_base into the local type
-   boost::shared_ptr<GConstrainedDoubleObject> p
+   std::shared_ptr<GConstrainedDoubleObject> p
       = GParameterBase::parameterbase_cast<GConstrainedDoubleObject>(p_base);
    GParameterT<double>::setValue(transfer(this->value() + p->value()));
 }
@@ -384,11 +384,11 @@ void GConstrainedDoubleObject::doubleAdd(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GConstrainedDoubleObject::doubleSubtract(
-   boost::shared_ptr<GParameterBase> p_base
+   std::shared_ptr<GParameterBase> p_base
    , const activityMode& am
 ) {
    // We first need to convert p_base into the local type
-   boost::shared_ptr<GConstrainedDoubleObject> p
+   std::shared_ptr<GConstrainedDoubleObject> p
       = GParameterBase::parameterbase_cast<GConstrainedDoubleObject>(p_base);
    GParameterT<double>::setValue(transfer(this->value() - p->value()));
 }
@@ -447,14 +447,14 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
-	boost::shared_ptr<GAdaptorT<double> > storedAdaptor;
+	std::shared_ptr<GAdaptorT<double> > storedAdaptor;
 
 	if(this->hasAdaptor()) {
 		storedAdaptor = this->getAdaptor();
 		adaptorStored = true;
 	}
 
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0));
+	std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0));
 	gdga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	gdga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(gdga_ptr);
@@ -465,7 +465,7 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check that assignment of a value with operator= works both for set and unset boundaries
-		boost::shared_ptr<GConstrainedDoubleObject> p_test = this->GObject::clone<GConstrainedDoubleObject>();
+		std::shared_ptr<GConstrainedDoubleObject> p_test = this->GObject::clone<GConstrainedDoubleObject>();
 
 		// Reset the boundaries so we are free to do what we want
 		BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
@@ -492,7 +492,7 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check construction with two boundaries plus initialization with a random value and extraction of that value
-		boost::shared_ptr<GConstrainedDoubleObject> p_test(new GConstrainedDoubleObject(0.3, 0.6));
+		std::shared_ptr<GConstrainedDoubleObject> p_test(new GConstrainedDoubleObject(0.3, 0.6));
 		BOOST_CHECK_NO_THROW(testVal3 = p_test->value());
 	}
 
@@ -500,7 +500,7 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 
    { // Check construction with two boundaries and a value and extraction of that value
       const double TESTVAL = 0.4;
-      boost::shared_ptr<GConstrainedDoubleObject> p_test(new GConstrainedDoubleObject(0.4, 0.3, 0.6));
+      std::shared_ptr<GConstrainedDoubleObject> p_test(new GConstrainedDoubleObject(0.4, 0.3, 0.6));
       BOOST_CHECK_NO_THROW(testVal3 = p_test->value());
       BOOST_CHECK(testVal3 == TESTVAL);
    }
@@ -509,7 +509,7 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 
    { // Check that repeated retrieval of the value always yields the same value
       const double TESTVAL = 0.4;
-      boost::shared_ptr<GConstrainedDoubleObject> p_test(new GConstrainedDoubleObject(0.4, 0.3, 0.6));
+      std::shared_ptr<GConstrainedDoubleObject> p_test(new GConstrainedDoubleObject(0.4, 0.3, 0.6));
       for(std::size_t i=0; i<NTESTS; i++) {
          BOOST_CHECK_NO_THROW(testVal3 = p_test->value());
          BOOST_CHECK_MESSAGE(
@@ -544,14 +544,14 @@ void GConstrainedDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
-	boost::shared_ptr<GAdaptorT<double> > storedAdaptor;
+	std::shared_ptr<GAdaptorT<double> > storedAdaptor;
 
 	if(this->hasAdaptor()) {
 		storedAdaptor = this->getAdaptor();
 		adaptorStored = true;
 	}
 
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0));
+	std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0));
 	gdga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	gdga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(gdga_ptr);

@@ -123,7 +123,7 @@ GBasePS::GBasePS()
 {
    // Register the default optimization monitor
    this->registerOptimizationMonitor(
-         boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
+         std::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
                new GPSOptimizationMonitor()
          )
    );
@@ -147,22 +147,22 @@ GBasePS::GBasePS(const GBasePS& cp)
    // applies to the copying of the optimization monitor.
 
    // Load the parameter objects
-   std::vector<boost::shared_ptr<bScanPar> >::const_iterator b_it;
+   std::vector<std::shared_ptr<bScanPar> >::const_iterator b_it;
    for(b_it=cp.bVec_.begin(); b_it!=cp.bVec_.end(); ++b_it) {
       bVec_.push_back((*b_it)->clone());
    }
 
-   std::vector<boost::shared_ptr<int32ScanPar> >::const_iterator i_it;
+   std::vector<std::shared_ptr<int32ScanPar> >::const_iterator i_it;
    for(i_it=cp.int32Vec_.begin(); i_it!=cp.int32Vec_.end(); ++i_it) {
       int32Vec_.push_back((*i_it)->clone());
    }
 
-   std::vector<boost::shared_ptr<dScanPar> >::const_iterator d_it;
+   std::vector<std::shared_ptr<dScanPar> >::const_iterator d_it;
    for(d_it=cp.dVec_.begin(); d_it!=cp.dVec_.end(); ++d_it) {
       dVec_.push_back((*d_it)->clone());
    }
 
-   std::vector<boost::shared_ptr<fScanPar> >::const_iterator f_it;
+   std::vector<std::shared_ptr<fScanPar> >::const_iterator f_it;
    for(f_it=cp.fVec_.begin(); f_it!=cp.fVec_.end(); ++f_it) {
       fVec_.push_back((*f_it)->clone());
    }
@@ -332,25 +332,25 @@ void GBasePS::load_(const GObject *cp) {
 
    // Load the parameter objects
    bVec_.clear();
-   std::vector<boost::shared_ptr<bScanPar> >::const_iterator b_it;
+   std::vector<std::shared_ptr<bScanPar> >::const_iterator b_it;
    for(b_it=(p_load->bVec_).begin(); b_it!=(p_load->bVec_).end(); ++b_it) {
       bVec_.push_back((*b_it)->clone());
    }
 
    int32Vec_.clear();
-   std::vector<boost::shared_ptr<int32ScanPar> >::const_iterator i_it;
+   std::vector<std::shared_ptr<int32ScanPar> >::const_iterator i_it;
    for(i_it=(p_load->int32Vec_).begin(); i_it!=(p_load->int32Vec_).end(); ++i_it) {
       int32Vec_.push_back((*i_it)->clone());
    }
 
    dVec_.clear();
-   std::vector<boost::shared_ptr<dScanPar> >::const_iterator d_it;
+   std::vector<std::shared_ptr<dScanPar> >::const_iterator d_it;
    for(d_it=(p_load->dVec_).begin(); d_it!=(p_load->dVec_).end(); ++d_it) {
       dVec_.push_back((*d_it)->clone());
    }
 
    fVec_.clear();
-   std::vector<boost::shared_ptr<fScanPar> >::const_iterator f_it;
+   std::vector<std::shared_ptr<fScanPar> >::const_iterator f_it;
    for(f_it=(p_load->fVec_).begin(); f_it!=(p_load->fVec_).end(); ++f_it) {
       fVec_.push_back((*f_it)->clone());
    }
@@ -416,7 +416,7 @@ void GBasePS::updateSelectedParameters() {
       //------------------------------------------------------------------------
       // Retrieve a work item
       std::size_t mode = 0;
-      boost::shared_ptr<parSet> pS = getParameterSet(mode);
+      std::shared_ptr<parSet> pS = getParameterSet(mode);
 
       switch(mode) {
          //---------------------------------------------------------------------
@@ -608,22 +608,22 @@ void GBasePS::randomShuffle() {
  * Resets all parameter objects
  */
 void GBasePS::resetParameterObjects() {
-   std::vector<boost::shared_ptr<bScanPar> >::iterator b_it;
+   std::vector<std::shared_ptr<bScanPar> >::iterator b_it;
    for(b_it=bVec_.begin(); b_it!=bVec_.end(); ++b_it) {
       (*b_it)->resetPosition();
    }
 
-   std::vector<boost::shared_ptr<int32ScanPar> >::iterator i_it;
+   std::vector<std::shared_ptr<int32ScanPar> >::iterator i_it;
    for(i_it=int32Vec_.begin(); i_it!=int32Vec_.end(); ++i_it) {
       (*i_it)->resetPosition();
    }
 
-   std::vector<boost::shared_ptr<fScanPar> >::iterator f_it;
+   std::vector<std::shared_ptr<fScanPar> >::iterator f_it;
    for(f_it=fVec_.begin(); f_it!=fVec_.end(); ++f_it) {
       (*f_it)->resetPosition();
    }
 
-   std::vector<boost::shared_ptr<dScanPar> >::iterator d_it;
+   std::vector<std::shared_ptr<dScanPar> >::iterator d_it;
    for(d_it=dVec_.begin(); d_it!=dVec_.end(); ++d_it) {
       (*d_it)->resetPosition();
    }
@@ -638,15 +638,15 @@ void GBasePS::resetParameterObjects() {
  *
  * @param mode Indicates whether parameters are identified by name or by id
  */
-boost::shared_ptr<parSet> GBasePS::getParameterSet(std::size_t& mode) {
+std::shared_ptr<parSet> GBasePS::getParameterSet(std::size_t& mode) {
    // Create a new parSet object
-   boost::shared_ptr<parSet> result(new parSet());
+   std::shared_ptr<parSet> result(new parSet());
 
    bool modeSet = false;
 
    // Extract the relevant data and store it in a parSet object
    // 1) For boolean objects
-   std::vector<boost::shared_ptr<bScanPar> >::iterator b_it;
+   std::vector<std::shared_ptr<bScanPar> >::iterator b_it;
    for(b_it=bVec_.begin(); b_it!=bVec_.end(); ++b_it) {
       NAMEANDIDTYPE var = (*b_it)->getVarAddress();
 
@@ -666,7 +666,7 @@ boost::shared_ptr<parSet> GBasePS::getParameterSet(std::size_t& mode) {
       (result->bParVec).push_back(item);
    }
    // 2) For boost::int32_t objects
-   std::vector<boost::shared_ptr<int32ScanPar> >::iterator i_it;
+   std::vector<std::shared_ptr<int32ScanPar> >::iterator i_it;
    for(i_it=int32Vec_.begin(); i_it!=int32Vec_.end(); ++i_it) {
       NAMEANDIDTYPE var = (*i_it)->getVarAddress();
 
@@ -686,7 +686,7 @@ boost::shared_ptr<parSet> GBasePS::getParameterSet(std::size_t& mode) {
       (result->iParVec).push_back(item);
    }
    // 3) For float objects
-   std::vector<boost::shared_ptr<fScanPar> >::iterator f_it;
+   std::vector<std::shared_ptr<fScanPar> >::iterator f_it;
    for(f_it=fVec_.begin(); f_it!=fVec_.end(); ++f_it) {
       NAMEANDIDTYPE var = (*f_it)->getVarAddress();
 
@@ -706,7 +706,7 @@ boost::shared_ptr<parSet> GBasePS::getParameterSet(std::size_t& mode) {
       (result->fParVec).push_back(item);
    }
    // 4) For double objects
-   std::vector<boost::shared_ptr<dScanPar> >::iterator d_it;
+   std::vector<std::shared_ptr<dScanPar> >::iterator d_it;
    for(d_it=dVec_.begin(); d_it!=dVec_.end(); ++d_it) {
       NAMEANDIDTYPE var = (*d_it)->getVarAddress();
 
@@ -738,7 +738,7 @@ boost::shared_ptr<parSet> GBasePS::getParameterSet(std::size_t& mode) {
  * collection (false)
  */
 bool GBasePS::switchToNextParameterSet() {
-   std::vector<boost::shared_ptr<scanParInterface> >::iterator it = allParVec_.begin();
+   std::vector<std::shared_ptr<scanParInterface> >::iterator it = allParVec_.begin();
 
    // Switch to the next parameter set
    while(true) {
@@ -760,22 +760,22 @@ bool GBasePS::switchToNextParameterSet() {
  */
 void GBasePS::fillAllParVec() {
    // 1) For boolean objects
-   std::vector<boost::shared_ptr<bScanPar> >::iterator b_it;
+   std::vector<std::shared_ptr<bScanPar> >::iterator b_it;
    for(b_it=bVec_.begin(); b_it!=bVec_.end(); ++b_it) {
       allParVec_.push_back(*b_it);
    }
    // 2) For boost::int32_t objects
-   std::vector<boost::shared_ptr<int32ScanPar> >::iterator i_it;
+   std::vector<std::shared_ptr<int32ScanPar> >::iterator i_it;
    for(i_it=int32Vec_.begin(); i_it!=int32Vec_.end(); ++i_it) {
       allParVec_.push_back(*i_it);
    }
    // 3) For float objects
-   std::vector<boost::shared_ptr<fScanPar> >::iterator f_it;
+   std::vector<std::shared_ptr<fScanPar> >::iterator f_it;
    for(f_it=fVec_.begin(); f_it!=fVec_.end(); ++f_it) {
       allParVec_.push_back(*f_it);
    }
    // 4) For double objects
-   std::vector<boost::shared_ptr<dScanPar> >::iterator d_it;
+   std::vector<std::shared_ptr<dScanPar> >::iterator d_it;
    for(d_it=dVec_.begin(); d_it!=dVec_.end(); ++d_it) {
       allParVec_.push_back(*d_it);
    }
@@ -880,7 +880,7 @@ void GBasePS::setParameterSpecs(std::string parStr) {
       std::vector<parPropSpec<double> >::const_iterator d_cit = boost::get<0>(t_d);
       std::vector<parPropSpec<double> >::const_iterator d_end = boost::get<1>(t_d);
       for(; d_cit!=d_end; ++d_cit) { // Note: d_cit is already set to the begin of the double parameter arrays
-         dVec_.push_back(boost::shared_ptr<dScanPar>(new dScanPar(*d_cit, scanRandomly_)));
+         dVec_.push_back(std::shared_ptr<dScanPar>(new dScanPar(*d_cit, scanRandomly_)));
       }
 
       // Retrieve float parameters
@@ -892,7 +892,7 @@ void GBasePS::setParameterSpecs(std::string parStr) {
       std::vector<parPropSpec<float> >::const_iterator f_cit = boost::get<0>(t_f);
       std::vector<parPropSpec<float> >::const_iterator f_end = boost::get<1>(t_f);
       for(; f_cit!=f_end; ++f_cit) { // Note: f_cit is already set to the begin of the double parameter arrays
-         fVec_.push_back(boost::shared_ptr<fScanPar>(new fScanPar(*f_cit, scanRandomly_)));
+         fVec_.push_back(std::shared_ptr<fScanPar>(new fScanPar(*f_cit, scanRandomly_)));
       }
 
       // Retrieve integer parameters
@@ -904,7 +904,7 @@ void GBasePS::setParameterSpecs(std::string parStr) {
       std::vector<parPropSpec<boost::int32_t> >::const_iterator i_cit = boost::get<0>(t_i);
       std::vector<parPropSpec<boost::int32_t> >::const_iterator i_end = boost::get<1>(t_i);
       for(; i_cit!=i_end; ++i_cit) { // Note: i_cit is already set to the begin of the double parameter arrays
-         int32Vec_.push_back(boost::shared_ptr<int32ScanPar>(new int32ScanPar(*i_cit, scanRandomly_)));
+         int32Vec_.push_back(std::shared_ptr<int32ScanPar>(new int32ScanPar(*i_cit, scanRandomly_)));
       }
 
       // Retrieve boolean parameters
@@ -916,7 +916,7 @@ void GBasePS::setParameterSpecs(std::string parStr) {
       std::vector<parPropSpec<bool> >::const_iterator b_cit = boost::get<0>(t_b);
       std::vector<parPropSpec<bool> >::const_iterator b_end = boost::get<1>(t_b);
       for(; b_cit!=b_end; ++b_cit) { // Note: b_cit is already set to the begin of the double parameter arrays
-         bVec_.push_back(boost::shared_ptr<bScanPar>(new bScanPar(*b_cit, scanRandomly_)));
+         bVec_.push_back(std::shared_ptr<bScanPar>(new bScanPar(*b_cit, scanRandomly_)));
       }
    }
 
@@ -999,8 +999,8 @@ void GBasePS::finalize() {
 /**
  * Retrieve a GPersonalityTraits object belonging to this algorithm
  */
-boost::shared_ptr<GPersonalityTraits> GBasePS::getPersonalityTraits() const {
-   return boost::shared_ptr<GPSPersonalityTraits>(new GPSPersonalityTraits());
+std::shared_ptr<GPersonalityTraits> GBasePS::getPersonalityTraits() const {
+   return std::shared_ptr<GPSPersonalityTraits>(new GPSPersonalityTraits());
 }
 
 /******************************************************************************/

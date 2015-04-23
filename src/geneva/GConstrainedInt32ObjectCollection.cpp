@@ -51,7 +51,7 @@ GConstrainedInt32ObjectCollection::GConstrainedInt32ObjectCollection()
  */
 GConstrainedInt32ObjectCollection::GConstrainedInt32ObjectCollection(
 	const std::size_t& nCp
-	, boost::shared_ptr<GConstrainedInt32Object> tmpl_ptr
+	, std::shared_ptr<GConstrainedInt32Object> tmpl_ptr
 )
 	:GParameterTCollectionT<GConstrainedInt32Object>(nCp, tmpl_ptr)
 { /* nothing */ }
@@ -215,16 +215,16 @@ void GConstrainedInt32ObjectCollection::fillWithObjects(const std::size_t& nAdde
 	// Add GConstrainedInt32Object items with adaptors to p_test1
 	for(std::size_t i=0; i<nAddedObjects; i++) {
 		// Create a suitable adaptor
-		boost::shared_ptr<GInt32GaussAdaptor> giga_ptr;
+		std::shared_ptr<GInt32GaussAdaptor> giga_ptr;
 
-		BOOST_CHECK_NO_THROW(giga_ptr = boost::shared_ptr<GInt32GaussAdaptor>(new GInt32GaussAdaptor(0.025, 0.1, 0, 1, 1.0)));
+		BOOST_CHECK_NO_THROW(giga_ptr = std::shared_ptr<GInt32GaussAdaptor>(new GInt32GaussAdaptor(0.025, 0.1, 0, 1, 1.0)));
 		BOOST_CHECK_NO_THROW(giga_ptr->setAdaptionThreshold(0)); // Make sure the adaptor's internal parameters don't change through the adaption
 		BOOST_CHECK_NO_THROW(giga_ptr->setAdaptionMode(true)); // Always adapt
 
 		// Create a suitable GConstrainedInt32Object object
-		boost::shared_ptr<GConstrainedInt32Object> gcio_ptr;
+		std::shared_ptr<GConstrainedInt32Object> gcio_ptr;
 
-		BOOST_CHECK_NO_THROW(gcio_ptr = boost::shared_ptr<GConstrainedInt32Object>(new GConstrainedInt32Object(-100, 100))); // Initialization in the range -100, 100
+		BOOST_CHECK_NO_THROW(gcio_ptr = std::shared_ptr<GConstrainedInt32Object>(new GConstrainedInt32Object(-100, 100))); // Initialization in the range -100, 100
 
 		// Add the adaptor
 		BOOST_CHECK_NO_THROW(gcio_ptr->addAdaptor(giga_ptr));
@@ -260,7 +260,7 @@ void GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTest
 	// --------------------------------------------------------------------------
 
 	{ // Call the parent class'es function
-		boost::shared_ptr<GConstrainedInt32ObjectCollection> p_test = this->clone<GConstrainedInt32ObjectCollection>();
+		std::shared_ptr<GConstrainedInt32ObjectCollection> p_test = this->clone<GConstrainedInt32ObjectCollection>();
 
 		// Fill p_test with objects
 		p_test->fillWithObjects(nAddedObjects);
@@ -272,8 +272,8 @@ void GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTest
 	// --------------------------------------------------------------------------
 
 	{ // Test that the fp-family of functions has no effect on this object (and contained objects)
-		boost::shared_ptr<GConstrainedInt32ObjectCollection> p_test1 = this->clone<GConstrainedInt32ObjectCollection>();
-		boost::shared_ptr<GConstrainedInt32ObjectCollection> p_test2 = this->clone<GConstrainedInt32ObjectCollection>();
+		std::shared_ptr<GConstrainedInt32ObjectCollection> p_test1 = this->clone<GConstrainedInt32ObjectCollection>();
+		std::shared_ptr<GConstrainedInt32ObjectCollection> p_test2 = this->clone<GConstrainedInt32ObjectCollection>();
 
 		// Fill p_test1 with objects
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));

@@ -85,7 +85,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	// Tests of construction, loading, cloning, ...
 
 	{ // Test default construction and copy construction
-		boost::shared_ptr<T> T_ptr, T_ptr_cp;
+		std::shared_ptr<T> T_ptr, T_ptr_cp;
 
 		// Default construction
 		BOOST_REQUIRE_NO_THROW(T_ptr = TFactory_GUnitTests<T>());
@@ -95,8 +95,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		BOOST_REQUIRE_NO_THROW(T_ptr->modify_GUnitTests());
 
 		// Copy construction
-		BOOST_REQUIRE_NO_THROW(T_ptr_cp = boost::shared_ptr<T>(new T(*T_ptr)));
-		// T_ptr_cp = boost::shared_ptr<T>(new T(*T_ptr));
+		BOOST_REQUIRE_NO_THROW(T_ptr_cp = std::shared_ptr<T>(new T(*T_ptr)));
+		// T_ptr_cp = std::shared_ptr<T>(new T(*T_ptr));
 
 		// Check for equivalence and similarity
 		BOOST_CHECK(gep.isEqual(*T_ptr_cp, *T_ptr));
@@ -113,7 +113,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	}
 
    { // Test cloning to GObject
-      boost::shared_ptr<GObject> T_ptr, T_ptr_clone;
+      std::shared_ptr<GObject> T_ptr, T_ptr_clone;
 
       // Default construction
       BOOST_REQUIRE_NO_THROW(T_ptr = TFactory_GUnitTests<T>());
@@ -140,7 +140,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
    }
 
 	{ // Test cloning to a target type
-		boost::shared_ptr<T> T_ptr, T_ptr_clone;
+		std::shared_ptr<T> T_ptr, T_ptr_clone;
 
 		// Default construction
 		BOOST_REQUIRE_NO_THROW(T_ptr = TFactory_GUnitTests<T>());
@@ -166,8 +166,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		BOOST_REQUIRE_NO_THROW(T_ptr_clone.reset());
 	}
 
-	{ // Test loading through a boost::shared_ptr
-		boost::shared_ptr<T> T_ptr, T_ptr_load;
+	{ // Test loading through a std::shared_ptr
+		std::shared_ptr<T> T_ptr, T_ptr_load;
 
 		// Default construction
 		BOOST_REQUIRE_NO_THROW(T_ptr = TFactory_GUnitTests<T>());
@@ -196,7 +196,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	}
 
    { // Test loading through a reference
-      boost::shared_ptr<T> T_ptr, T_ptr_load;
+      std::shared_ptr<T> T_ptr, T_ptr_load;
 
       // Default construction
       BOOST_REQUIRE_NO_THROW(T_ptr = TFactory_GUnitTests<T>());
@@ -224,7 +224,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
    }
 
 	{ // Check assignment using operator=
-		boost::shared_ptr<T> T_ptr, T_ptr_assign;
+		std::shared_ptr<T> T_ptr, T_ptr_assign;
 
 		// Default construction
 		BOOST_REQUIRE_NO_THROW(T_ptr = TFactory_GUnitTests<T>());
@@ -255,9 +255,9 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	//---------------------------------------------------------------------------//
 	// Check (de-)serialization in different modes.
 	{ // plain text format
-		boost::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
+		std::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
 		BOOST_REQUIRE(T_ptr1); // must point somewhere
-		boost::shared_ptr<T> T_ptr2 = TFactory_GUnitTests<T>();
+		std::shared_ptr<T> T_ptr2 = TFactory_GUnitTests<T>();
 		BOOST_REQUIRE(T_ptr2); // must point somewhere
 
 		// Modify and check inequality
@@ -269,9 +269,9 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	}
 
 	{ // XML format
-		boost::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
+		std::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
 		BOOST_REQUIRE(T_ptr1); // must point somewhere
-		boost::shared_ptr<T> T_ptr2 = TFactory_GUnitTests<T>();
+		std::shared_ptr<T> T_ptr2 = TFactory_GUnitTests<T>();
 		BOOST_REQUIRE(T_ptr2); // must point somewhere
 
 		// Modify and check inequality
@@ -283,9 +283,9 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	}
 
 	{ // binary test format
-		boost::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
+		std::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
 		BOOST_REQUIRE(T_ptr1); // must point somewhere
-		boost::shared_ptr<T> T_ptr2 = TFactory_GUnitTests<T>();
+		std::shared_ptr<T> T_ptr2 = TFactory_GUnitTests<T>();
 		BOOST_REQUIRE(T_ptr2); // must point somewhere
 
 		// Modify and check inequality
@@ -299,7 +299,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	//---------------------------------------------------------------------------//
 
 	{ // Run specific tests for the current object type
-		boost::shared_ptr<T> T_ptr;
+		std::shared_ptr<T> T_ptr;
 		BOOST_CHECK_NO_THROW(T_ptr = TFactory_GUnitTests<T>());
 		BOOST_REQUIRE(T_ptr); // must point somewhere
 		// BOOST_CHECK_NO_THROW(T_ptr->specificTestsNoFailureExpected_GUnitTests());
@@ -323,7 +323,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_failures_expected, T){
 	{
 		// Checks that self-assignment throws in DEBUG mode
 #ifdef DEBUG
-		boost::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
+		std::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
 		BOOST_REQUIRE(T_ptr1); // must point somewhere
 		BOOST_CHECK_THROW(T_ptr1->GObject::load(T_ptr1);, Gem::Common::gemfony_error_condition);
 #endif
@@ -332,7 +332,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_failures_expected, T){
 	//---------------------------------------------------------------------------//
 	// Run specific tests for the current object type
 	{
-		boost::shared_ptr<T> T_ptr = TFactory_GUnitTests<T>();
+		std::shared_ptr<T> T_ptr = TFactory_GUnitTests<T>();
 		BOOST_REQUIRE(T_ptr); // must point somewhere
 		BOOST_CHECK_NO_THROW(T_ptr->specificTestsFailuresExpected_GUnitTests());
 	}

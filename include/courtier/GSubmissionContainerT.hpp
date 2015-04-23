@@ -127,7 +127,7 @@ public:
 	 *
 	 * @param cD_ptr A pointer to the object whose data should be loaded
 	 */
-	virtual void loadConstantData(boost::shared_ptr<submission_type>)
+	virtual void loadConstantData(std::shared_ptr<submission_type>)
 	{ /* nothing */ }
 
 	/***************************************************************************/

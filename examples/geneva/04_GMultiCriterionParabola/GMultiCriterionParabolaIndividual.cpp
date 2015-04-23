@@ -65,7 +65,7 @@ std::ostream& operator<<(std::ostream& s, const Gem::Geneva::GMultiCriterionPara
 /**
  * Provide an easy way to print the individual's content through a smart-pointer
  */
-std::ostream& operator<<(std::ostream& s, boost::shared_ptr<Gem::Geneva::GMultiCriterionParabolaIndividual> f_ptr) {
+std::ostream& operator<<(std::ostream& s, std::shared_ptr<Gem::Geneva::GMultiCriterionParabolaIndividual> f_ptr) {
    return operator<<(s,*f_ptr);
 }
 
@@ -275,12 +275,12 @@ void GMultiCriterionParabolaIndividualFactory::describeLocalOptions_(Gem::Common
  * @param id The id of the individual to be created
  * @return An individual of the desired type
  */
-boost::shared_ptr<GParameterSet> GMultiCriterionParabolaIndividualFactory::getObject_(
+std::shared_ptr<GParameterSet> GMultiCriterionParabolaIndividualFactory::getObject_(
    Gem::Common::GParserBuilder& gpb
    , const std::size_t& id
 ) {
    // Will hold the result
-   boost::shared_ptr<GMultiCriterionParabolaIndividual> target(new GMultiCriterionParabolaIndividual());
+   std::shared_ptr<GMultiCriterionParabolaIndividual> target(new GMultiCriterionParabolaIndividual());
 
    // Make the object's local configuration options known
    target->addConfigurationOptions(gpb);
@@ -291,9 +291,9 @@ boost::shared_ptr<GParameterSet> GMultiCriterionParabolaIndividualFactory::getOb
 /******************************************************************************/
 
 void GMultiCriterionParabolaIndividualFactory::postProcess_(
-   boost::shared_ptr<GParameterSet>& p_base
+   std::shared_ptr<GParameterSet>& p_base
 ) {
-   boost::shared_ptr<GMultiCriterionParabolaIndividual> p
+   std::shared_ptr<GMultiCriterionParabolaIndividual> p
       = Gem::Common::convertSmartPointer<GParameterSet, GMultiCriterionParabolaIndividual>(p_base);
 
    if(firstParsed_) {
@@ -307,7 +307,7 @@ void GMultiCriterionParabolaIndividualFactory::postProcess_(
 
    for(std::size_t npar=0; npar<nPar_; npar++) {
       // GConstrainedDoubleObject cannot assume value below or above par_min_/max_
-      boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(par_min_.value(), par_max_.value()));
+      std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(par_min_.value(), par_max_.value()));
       // Add the parameters to this individual
       p->push_back(gcdo_ptr);
    }

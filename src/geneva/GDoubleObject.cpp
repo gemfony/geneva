@@ -363,11 +363,11 @@ void GDoubleObject::doubleFixedValueInit(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GDoubleObject::doubleAdd(
-   boost::shared_ptr<GParameterBase> p_base
+   std::shared_ptr<GParameterBase> p_base
    , const activityMode& am
 ) {
    // We first need to convert p_base into the local type
-   boost::shared_ptr<GDoubleObject> p
+   std::shared_ptr<GDoubleObject> p
       = GParameterBase::parameterbase_cast<GDoubleObject>(p_base);
    GParameterT<double>::setValue(this->value() + p->value());
 }
@@ -377,11 +377,11 @@ void GDoubleObject::doubleAdd(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GDoubleObject::doubleSubtract(
-   boost::shared_ptr<GParameterBase> p_base
+   std::shared_ptr<GParameterBase> p_base
    , const activityMode& am
 ) {
    // We first need to convert p_base into the local type
-   boost::shared_ptr<GDoubleObject> p
+   std::shared_ptr<GDoubleObject> p
       = GParameterBase::parameterbase_cast<GDoubleObject>(p_base);
    GParameterT<double>::setValue(this->value() - p->value());
 }
@@ -434,14 +434,14 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
-	boost::shared_ptr<GAdaptorT<double> > storedAdaptor;
+	std::shared_ptr<GAdaptorT<double> > storedAdaptor;
 
 	if(this->hasAdaptor()) {
 		storedAdaptor = this->getAdaptor();
 		adaptorStored = true;
 	}
 
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 0.5, 1.0));
+	std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 0.5, 1.0));
 	gdga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	gdga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(gdga_ptr);
@@ -452,7 +452,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test of GParameterT<T>'s methods for setting and retrieval of values
-		boost::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
+		std::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
 
 		for(double d=0.; d<10; d+=0.01) {
 			BOOST_CHECK_NO_THROW((*p_test) = d); // Setting using operator=()
@@ -467,7 +467,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test automatic conversion to the target type, using GParameterT<T>'s operator T()
-		boost::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
+		std::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
 
 		double target = -1.;
 		for(double d=0.; d<10; d+=0.01) {
@@ -480,7 +480,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test the GParameterT<T>::adaptImpl() implementation
-		boost::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
+		std::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
 
 		if(p_test->hasAdaptor()) {
 			BOOST_CHECK_NO_THROW(*p_test = 1.);
@@ -499,7 +499,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test resetting, adding and retrieval of adaptors in GParameterBaseWithAdaptorsT<T>
-		boost::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
+		std::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
 
 		// Reset the local adaptor to its pristine condition
 		BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
@@ -511,7 +511,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->hasAdaptor() == true);
 
 		// Retrieve a pointer to the adaptor
-		boost::shared_ptr<GAdaptorT<double> > p_adaptor_base;
+		std::shared_ptr<GAdaptorT<double> > p_adaptor_base;
 		BOOST_CHECK(!p_adaptor_base);
 		BOOST_CHECK_NO_THROW(p_adaptor_base = p_test->getAdaptor());
 
@@ -519,7 +519,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_adaptor_base);
 
 		// Retrieve another, converted pointer to the adaptor
-		boost::shared_ptr<GDoubleGaussAdaptor> gdga_clone_ptr;
+		std::shared_ptr<GDoubleGaussAdaptor> gdga_clone_ptr;
 		BOOST_CHECK(!gdga_clone_ptr);
 		BOOST_CHECK_NO_THROW(gdga_clone_ptr = p_test->getAdaptor<GDoubleGaussAdaptor>());
 
@@ -536,7 +536,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test that retrieval of adaptor doesn't throw in GParameterBaseWithAdaptorsT<T>::getAdaptor() after calling resetAdaptor() (Note: This is the non-templated version of the function)
-		boost::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
+		std::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
 
 		// Make sure the adaptor is in pristine condition
 		BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
@@ -547,7 +547,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test that retrieval of an adaptor doesn't throw in GParameterBaseWithAdaptorsT<T>::getAdaptor<>() after calling resetAdaptor() (Note: This is the templated version of the function)
-		boost::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
+		std::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
 
 		// Make sure no adaptor is present
 		BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
@@ -591,14 +591,14 @@ void GDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
-	boost::shared_ptr<GAdaptorT<double> > storedAdaptor;
+	std::shared_ptr<GAdaptorT<double> > storedAdaptor;
 
 	if(this->hasAdaptor()) {
 		storedAdaptor = this->getAdaptor();
 		adaptorStored = true;
 	}
 
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 0.5, 1.0));
+	std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 0.5, 1.0));
 	gdga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	gdga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(gdga_ptr);
@@ -609,13 +609,13 @@ void GDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test of GParameterBaseWithAdaptorsT<T>::addAdaptor() in case of an empty adaptor pointer
-		boost::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
+		std::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
 
 		// Make sure the object is in pristine condition
 		BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
 
-		// Add an empty boost::shared_ptr<GDoubleGaussAdaptor>. This should throw
-		BOOST_CHECK_THROW(p_test->addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>()), Gem::Common::gemfony_error_condition);
+		// Add an empty std::shared_ptr<GDoubleGaussAdaptor>. This should throw
+		BOOST_CHECK_THROW(p_test->addAdaptor(std::shared_ptr<GDoubleGaussAdaptor>()), Gem::Common::gemfony_error_condition);
 	}
 
 	// --------------------------------------------------------------------------

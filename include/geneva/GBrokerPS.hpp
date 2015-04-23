@@ -133,7 +133,7 @@ protected:
    virtual void runFitnessCalculation() override;
 
 private:
-   std::vector<boost::shared_ptr<GParameterSet> > oldWorkItems_; ///< Temporarily holds old returned work items
+   std::vector<std::shared_ptr<GParameterSet> > oldWorkItems_; ///< Temporarily holds old returned work items
 
 public:
    /***************************************************************************/

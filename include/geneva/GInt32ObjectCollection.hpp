@@ -75,7 +75,7 @@ public:
 	/** @brief The default constructor */
 	G_API_GENEVA GInt32ObjectCollection();
 	/** @brief Initialization with a number of GInt32Object objects */
-	G_API_GENEVA GInt32ObjectCollection(const std::size_t&, boost::shared_ptr<GInt32Object>);
+	G_API_GENEVA GInt32ObjectCollection(const std::size_t&, std::shared_ptr<GInt32Object>);
 	/** @brief The copy constructor */
 	G_API_GENEVA GInt32ObjectCollection(const GInt32ObjectCollection&);
 	/** @brief The destructor */

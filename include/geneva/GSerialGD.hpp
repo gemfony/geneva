@@ -147,11 +147,11 @@ public:
  * A factory function that emits a GSerialGD object
  */
 template <>
-inline boost::shared_ptr<Gem::Geneva::GSerialGD> TFactory_GUnitTests<Gem::Geneva::GSerialGD>() {
+inline std::shared_ptr<Gem::Geneva::GSerialGD> TFactory_GUnitTests<Gem::Geneva::GSerialGD>() {
    using namespace Gem::Tests;
-   boost::shared_ptr<Gem::Geneva::GSerialGD> p;
-   BOOST_CHECK_NO_THROW(p= boost::shared_ptr<Gem::Geneva::GSerialGD>(new Gem::Geneva::GSerialGD()));
-   p->push_back(boost::shared_ptr<GTestIndividual1>(new GTestIndividual1()));
+   std::shared_ptr<Gem::Geneva::GSerialGD> p;
+   BOOST_CHECK_NO_THROW(p= std::shared_ptr<Gem::Geneva::GSerialGD>(new Gem::Geneva::GSerialGD()));
+   p->push_back(std::shared_ptr<GTestIndividual1>(new GTestIndividual1()));
    return p;
 }
 #endif /* GEM_TESTING */

@@ -56,45 +56,27 @@ int main(int argc, char **argv) {
    std::string monitorSpec = "empty";
    bool observeBoundaries = "false";
 
-   std::vector<boost::shared_ptr<po::option_description> > od;
-
-   boost::shared_ptr<po::option_description> printValid_option(
-      new po::option_description(
-         "validOnly"
-         , po::value<bool>(&printValid)->implicit_value(true)->default_value(false) // This allows you say both --validOnly and --validOnly=true
-         , "Enforces output of valid solutions only"
-      )
+   // Assemble command line options
+   boost::program_options::options_description user_options;
+   user_options.add_options() (
+      "validOnly"
+      , po::value<bool>(&printValid)->implicit_value(true)->default_value(false) // This allows you say both --validOnly and --validOnly=true
+      , "Enforces output of valid solutions only"
+   )(
+      "useRawFitness"
+      , po::value<bool>(&useRawFitness)->implicit_value(true)->default_value(false) // This allows you say both --useRawFitness and --useRawFitness=true
+      , "Plot untransformed fitness value, even if a transformation takes place for the purpose of optimization"
+   )(
+      "monitorSpec"
+      , po::value<std::string>(&monitorSpec)->default_value(std::string("empty"))
+      , "Allows you to specify variables to be monitored like this: \"d(var0 -10 10)\""
+   )(
+      "observeBoundaries"
+      , po::value<bool>(&observeBoundaries)->implicit_value(true)->default_value(false) // This allows you say both --observeBoundaries and --observeBoundaries=true
+      , "Only plot inside of specified boundaries (no effect, when monitorSpec hasn't been set)"
    );
-   od.push_back(printValid_option);
 
-   boost::shared_ptr<po::option_description> printTrue_option(
-      new po::option_description(
-         "useRawFitness"
-         , po::value<bool>(&useRawFitness)->implicit_value(true)->default_value(false) // This allows you say both --useRawFitness and --useRawFitness=true
-         , "Plot untransformed fitness value, even if a transformation takes place for the purpose of optimization"
-      )
-   );
-   od.push_back(printTrue_option);
-
-   boost::shared_ptr<po::option_description> monitorSpec_option(
-      new po::option_description(
-         "monitorSpec"
-         , po::value<std::string>(&monitorSpec)->default_value(std::string("empty"))
-         , "Allows you to specify variables to be monitored like this: \"d(var0 -10 10)\""
-      )
-   );
-   od.push_back(monitorSpec_option);
-
-   boost::shared_ptr<po::option_description> observeBoundaries_option(
-      new po::option_description(
-         "observeBoundaries"
-         , po::value<bool>(&observeBoundaries)->implicit_value(true)->default_value(false) // This allows you say both --observeBoundaries and --observeBoundaries=true
-         , "Only plot inside of specified boundaries (no effect, when monitorSpec hasn't been set)"
-      )
-   );
-   od.push_back(observeBoundaries_option);
-
-   Go2 go(argc, argv, "./config/Go2.json", od);
+   Go2 go(argc, argv, "./config/Go2.json", user_options);
 
 	//---------------------------------------------------------------------------
 	// Client mode
@@ -105,7 +87,7 @@ int main(int argc, char **argv) {
 	//---------------------------------------------------------------------------
    // Create a factory for GFunctionIndividual objects and perform
    // any necessary initial work.
-	boost::shared_ptr<GFunctionIndividualFactory>
+	std::shared_ptr<GFunctionIndividualFactory>
 	   gfi_ptr(new GFunctionIndividualFactory("./config/GFunctionIndividual.json"));
 
 	// We want the GFunctionIndividual objects to always use GConstrainedDoubleObject objects
@@ -115,7 +97,7 @@ int main(int argc, char **argv) {
    //---------------------------------------------------------------------------
    // Register a progress plotter with the global optimization algorithm factory
    if(monitorSpec != "empty") {
-      boost::shared_ptr<GProgressPlotterT<GParameterSet, double> > progplot_ptr(new GProgressPlotterT<GParameterSet, double>());
+      std::shared_ptr<GProgressPlotterT<GParameterSet, double> > progplot_ptr(new GProgressPlotterT<GParameterSet, double>());
 
       progplot_ptr->setProfileSpec(monitorSpec);
       progplot_ptr->setObserveBoundaries(observeBoundaries);
@@ -132,16 +114,16 @@ int main(int argc, char **argv) {
    //---------------------------------------------------------------------------
    // Add a number of start values to the go object. We also add some constraint definitions here.
    for(std::size_t i=0; i<10; i++) {
-      boost::shared_ptr<GFunctionIndividual> p = gfi_ptr->get<GFunctionIndividual>();
+      std::shared_ptr<GFunctionIndividual> p = gfi_ptr->get<GFunctionIndividual>();
 
       // Create the constraint objects
-      boost::shared_ptr<GDoubleSumConstraint>           doublesum_constraint_ptr(new GDoubleSumConstraint(1.));
-      boost::shared_ptr<GSphereConstraint>              sphere_constraint_ptr(new GSphereConstraint(3.));
-      boost::shared_ptr<GParameterSetFormulaConstraint> formula_constraint(new GParameterSetFormulaConstraint("fabs(sin({{var0}})/max(fabs({{var1}}), 0.000001))")); // sin(x) < y
-      boost::shared_ptr<GDoubleSumGapConstraint>        gap_constraint(new GDoubleSumGapConstraint(1.,0.05)); // The sum of all variables must be 1 +/- 0.05
+      std::shared_ptr<GDoubleSumConstraint>           doublesum_constraint_ptr(new GDoubleSumConstraint(1.));
+      std::shared_ptr<GSphereConstraint>              sphere_constraint_ptr(new GSphereConstraint(3.));
+      std::shared_ptr<GParameterSetFormulaConstraint> formula_constraint(new GParameterSetFormulaConstraint("fabs(sin({{var0}})/max(fabs({{var1}}), 0.000001))")); // sin(x) < y
+      std::shared_ptr<GDoubleSumGapConstraint>        gap_constraint(new GDoubleSumGapConstraint(1.,0.05)); // The sum of all variables must be 1 +/- 0.05
 
       // Create a check combiner and add the constraint objects to it
-      boost::shared_ptr<GCheckCombinerT<GOptimizableEntity> > combiner_ptr(new GCheckCombinerT<GOptimizableEntity>());
+      std::shared_ptr<GCheckCombinerT<GOptimizableEntity> > combiner_ptr(new GCheckCombinerT<GOptimizableEntity>());
       combiner_ptr->setCombinerPolicy(Gem::Geneva::MULTIPLYINVALID);
 
       combiner_ptr->addCheck(doublesum_constraint_ptr);
@@ -164,7 +146,7 @@ int main(int argc, char **argv) {
    //---------------------------------------------------------------------------
 
 	// Perform the actual optimization
-	boost::shared_ptr<GFunctionIndividual> p = go.optimize<GFunctionIndividual>();
+	std::shared_ptr<GFunctionIndividual> p = go.optimize<GFunctionIndividual>();
 
 	// Here you can do something with the best individual ("p") found.
 	// We simply print its content here, by means of an operator<< implemented

@@ -558,12 +558,12 @@ public:
 	/**
 	 * Registers an optimizationMonitor object (or a derivative) with this object. Note
 	 * that this class will take ownership of the optimization monitor by cloning it.
-	 * You can thus assign the same boost::shared_ptr<GOptimizationAlgorithmT<ind_type> >
+	 * You can thus assign the same std::shared_ptr<GOptimizationAlgorithmT<ind_type> >
 	 * to different objects.
 	 *
 	 * @param om_ptr A shared pointer to a specific optimization monitor
 	 */
-	void registerOptimizationMonitor(boost::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> om_ptr) {
+	void registerOptimizationMonitor(std::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> om_ptr) {
 #ifdef DEBUG
 		if(!om_ptr) {
 		   glogger
@@ -840,7 +840,7 @@ public:
 	 * @return A converted version of the GOptimizableEntity object, as required by the user
 	 */
 	template <typename target_type>
-	boost::shared_ptr<target_type> individual_cast(
+	std::shared_ptr<target_type> individual_cast(
 			 const std::size_t& pos
 		   , typename boost::enable_if<boost::is_base_of<GOptimizableEntity, target_type> >::type* dummy = 0
 	) {
@@ -852,7 +852,7 @@ public:
          << GEXCEPTION;
 
 		   // Make the compiler happy
-		   return boost::shared_ptr<target_type>();
+		   return std::shared_ptr<target_type>();
 		}
 #endif /* DEBUG */
 
@@ -887,9 +887,9 @@ public:
 	/**
 	 * Gives access to the current optimization monitor
 	 *
-	 * @return A boost::shared_ptr to the current optimization monitor
+	 * @return A std::shared_ptr to the current optimization monitor
 	 */
-	boost::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> getOptimizationMonitor() {
+	std::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> getOptimizationMonitor() {
 		return this->optimizationMonitor_ptr_;
 	}
 
@@ -1209,9 +1209,9 @@ protected:
     * Retrieves the best individual found up to now (which is the best individual
     * in the priority queue).
     */
-   virtual boost::shared_ptr<GParameterSet> customGetBestIndividual() override {
+   virtual std::shared_ptr<GParameterSet> customGetBestIndividual() override {
 #ifdef DEBUG
-      boost::shared_ptr<GParameterSet> p = bestIndividuals_.best();
+      std::shared_ptr<GParameterSet> p = bestIndividuals_.best();
       if(p) return p;
       else {
          glogger
@@ -1220,7 +1220,7 @@ protected:
          << GEXCEPTION;
 
          // Make the compiler happy
-         return boost::shared_ptr<GParameterSet>();
+         return std::shared_ptr<GParameterSet>();
       }
 #else
       return bestIndividuals_.best();
@@ -1232,7 +1232,7 @@ protected:
     * Retrieves a list of the best individuals found (equal to the content of
     * the priority queue)
     */
-   virtual std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() override {
+   virtual std::vector<std::shared_ptr<GParameterSet> > customGetBestIndividuals() override {
       return bestIndividuals_.toVector();
    }
 
@@ -1365,7 +1365,7 @@ protected:
 
    /***************************************************************************/
    /** @brief Retrieve a personality trait object belong to this algorithm */
-   virtual boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const = 0;
+   virtual std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const = 0;
 
 	/***************************************************************************/
 	/** @brief Resizes the population to the desired level and does some error checks */
@@ -1770,7 +1770,7 @@ private:
 	bool emitTerminationReason_; ///< Specifies whether information about reasons for termination should be emitted
 	bool halted_; ///< Set to true when halt() has returned "true"
 	std::vector<boost::tuple<double, double> > worstKnownValids_; ///< Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
-	boost::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> optimizationMonitor_ptr_;
+	std::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> optimizationMonitor_ptr_;
 
 public:
 	/***************************************************************************/

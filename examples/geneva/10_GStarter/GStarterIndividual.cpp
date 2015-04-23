@@ -278,11 +278,11 @@ double GStarterIndividual::getAverageSigma() const {
    // Loop over all parameter objects
    for(std::size_t i=0; i<this->size(); i++) {
       // Extract the parameter object
-      boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr
+      std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr
          = this->at<GConstrainedDoubleObject>(i);
 
       // Extract the adaptor
-      boost::shared_ptr<GDoubleGaussAdaptor> adaptor_ptr
+      std::shared_ptr<GDoubleGaussAdaptor> adaptor_ptr
          = gcdo_ptr->getAdaptor<GDoubleGaussAdaptor>();
 
       // Extract the sigma value
@@ -469,8 +469,8 @@ void GStarterIndividual::specificTestsNoFailureExpected_GUnitTests() {
          upperBoundaries.push_back(2.);
       }
 
-      boost::shared_ptr<GStarterIndividual> p_test;
-      BOOST_CHECK_NO_THROW(p_test = boost::shared_ptr<GStarterIndividual>(
+      std::shared_ptr<GStarterIndividual> p_test;
+      BOOST_CHECK_NO_THROW(p_test = std::shared_ptr<GStarterIndividual>(
          new GStarterIndividual(
              0 // indicates the first individual
              , startValues
@@ -490,7 +490,7 @@ void GStarterIndividual::specificTestsNoFailureExpected_GUnitTests() {
    //------------------------------------------------------------------------------
 
    { // Test setting and retrieval of the target function valie
-      boost::shared_ptr<GStarterIndividual> p_test = this->clone<GStarterIndividual>();
+      std::shared_ptr<GStarterIndividual> p_test = this->clone<GStarterIndividual>();
 
       BOOST_CHECK_NO_THROW(p_test->setTargetFunction(PARABOLA));
       BOOST_CHECK(PARABOLA == p_test->getTargetFunction());
@@ -545,7 +545,7 @@ void GStarterIndividual::specificTestsFailuresExpected_GUnitTests() {
  * Allows to output a GStarterIndividual or convert it to a string using
  * boost::lexical_cast
  */
-std::ostream& operator<<(std::ostream& stream, boost::shared_ptr<GStarterIndividual> gsi_ptr) {
+std::ostream& operator<<(std::ostream& stream, std::shared_ptr<GStarterIndividual> gsi_ptr) {
    stream << gsi_ptr->print();
    return stream;
 }
@@ -581,12 +581,12 @@ GStarterIndividualFactory::~GStarterIndividualFactory()
  *
  * @return Items of the desired type
  */
-boost::shared_ptr<GParameterSet> GStarterIndividualFactory::getObject_(
+std::shared_ptr<GParameterSet> GStarterIndividualFactory::getObject_(
 	Gem::Common::GParserBuilder& gpb
 	, const std::size_t& id
 ) {
 	// Will hold the result
-	boost::shared_ptr<GStarterIndividual> target(new GStarterIndividual());
+	std::shared_ptr<GStarterIndividual> target(new GStarterIndividual());
 
 	// Make the object's local configuration options known
 	target->addConfigurationOptions(gpb);
@@ -717,9 +717,9 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GStarterIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& p_base) {
+void GStarterIndividualFactory::postProcess_(std::shared_ptr<GParameterSet>& p_base) {
    // Convert the base pointer to our local type
-   boost::shared_ptr<GStarterIndividual> p
+   std::shared_ptr<GStarterIndividual> p
       = Gem::Common::convertSmartPointer<GParameterSet, GStarterIndividual>(p_base);
 
    // We simply use a static function defined in the GStartIndividual header

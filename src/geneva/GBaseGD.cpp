@@ -60,7 +60,7 @@ GBaseGD::GBaseGD()
 {
 	// Register the default optimization monitor
 	this->registerOptimizationMonitor(
-			boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
+			std::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
 					new GGDOptimizationMonitor()
 			)
 	);
@@ -91,7 +91,7 @@ GBaseGD::GBaseGD(
 {
 	// Register the default optimization monitor
 	this->registerOptimizationMonitor(
-			boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
+			std::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
 					new GGDOptimizationMonitor()
 			)
 	);
@@ -339,7 +339,7 @@ std::string GBaseGD::name() const {
  */
 void GBaseGD::loadCheckpoint(const boost::filesystem::path& cpFile) {
 	// Create a vector to hold the best individuals
-	std::vector<boost::shared_ptr<Gem::Geneva::GParameterSet> > bestIndividuals;
+	std::vector<std::shared_ptr<Gem::Geneva::GParameterSet> > bestIndividuals;
 
 	// Check that the file indeed exists
 	if(!boost::filesystem::exists(cpFile)) {
@@ -690,8 +690,8 @@ void GBaseGD::finalize() {
 /**
  * Retrieve a GPersonalityTraits object belonging to this algorithm
  */
-boost::shared_ptr<GPersonalityTraits> GBaseGD::getPersonalityTraits() const {
-   return boost::shared_ptr<GGDPersonalityTraits>(new GGDPersonalityTraits());
+std::shared_ptr<GPersonalityTraits> GBaseGD::getPersonalityTraits() const {
+   return std::shared_ptr<GGDPersonalityTraits>(new GGDPersonalityTraits());
 }
 
 /******************************************************************************/
@@ -779,7 +779,7 @@ void GBaseGD::adjustPopulation() {
  */
 void GBaseGD::saveCheckpoint() const {
 	// Copy the parent individuals to a vector
-	std::vector<boost::shared_ptr<Gem::Geneva::GParameterSet> > bestIndividuals;
+	std::vector<std::shared_ptr<Gem::Geneva::GParameterSet> > bestIndividuals;
 	GBaseGD::const_iterator it;
 	for(it=this->begin(); it!=this->begin() + nStartingPoints_; ++it) {
 		bestIndividuals.push_back(*it);

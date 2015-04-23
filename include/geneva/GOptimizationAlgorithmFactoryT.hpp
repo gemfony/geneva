@@ -125,7 +125,7 @@ public:
    GOptimizationAlgorithmFactoryT (
 	      const std::string& configFile
 	      , const execMode& pm
-	      , boost::shared_ptr<Gem::Common::GFactoryT<typename optalg_type::individual_type> > contentCreatorPtr
+	      , std::shared_ptr<Gem::Common::GFactoryT<typename optalg_type::individual_type> > contentCreatorPtr
 	)
 	  : Gem::Common::GFactoryT<optalg_type>(configFile)
 	  , pm_(pm)
@@ -187,14 +187,14 @@ public:
     *
     * @return An object of the desired algorithm type
     */
-   virtual boost::shared_ptr<optalg_type> get() override {
+   virtual std::shared_ptr<optalg_type> get() override {
       // Retrieve a work item using the methods implemented in our parent class
-      boost::shared_ptr<optalg_type> p_alg = Gem::Common::GFactoryT<optalg_type>::get();
+      std::shared_ptr<optalg_type> p_alg = Gem::Common::GFactoryT<optalg_type>::get();
 
       // If we have been given a factory function for individuals, fill the object with data
       if(contentCreatorPtr_) { // Has a content creation object been registered ? If so, add individuals to the population
          for(std::size_t ind=0; ind<p_alg->getDefaultPopulationSize(); ind++) {
-            boost::shared_ptr<typename optalg_type::individual_type> p_ind = (*contentCreatorPtr_)();
+            std::shared_ptr<typename optalg_type::individual_type> p_ind = (*contentCreatorPtr_)();
             if(!p_ind) { // No valid item received, the factory has run empty
                break;
             } else {
@@ -206,7 +206,7 @@ public:
       // Has a custom optimization monitor been registered with the global store ?
       // If so, add a clone to the algorithm
       if(GOAMonitorStore->exists(this->getMnemonic())) {
-         boost::shared_ptr<typename optalg_type::GOptimizationMonitorT> p_mon =
+         std::shared_ptr<typename optalg_type::GOptimizationMonitorT> p_mon =
                GOAMonitorStore->get(this->getMnemonic())->GObject::template clone<typename optalg_type::GOptimizationMonitorT>();
 
          if(pluggableInfoFunction_) {
@@ -229,13 +229,13 @@ public:
     * @param pm A user-defined parallelization mode
     * @return An object of the desired algorithm type
     */
-   virtual boost::shared_ptr<optalg_type> get(execMode pm) BASE {
+   virtual std::shared_ptr<optalg_type> get(execMode pm) BASE {
       // Store the previous value
       execMode previous_pm = pm_;
       // Set the parallelization mode
       pm_ = pm;
       // Retrieve an item of the desired type
-      boost::shared_ptr<optalg_type> result = this->get();
+      std::shared_ptr<optalg_type> result = this->get();
       // Reset the parallelization mode to its original value
       pm_ = previous_pm;
 
@@ -251,7 +251,7 @@ public:
     * @return A converted copy of the desired production type
     */
    template <typename target_type>
-   boost::shared_ptr<target_type> get() {
+   std::shared_ptr<target_type> get() {
       return Gem::Common::convertSmartPointer<optalg_type, target_type>(this->get());
    }
 
@@ -265,12 +265,12 @@ public:
     * @return A converted copy of the desired production type
     */
    template <typename target_type>
-   boost::shared_ptr<target_type> get(execMode pm) {
+   std::shared_ptr<target_type> get(execMode pm) {
       execMode previous_pm = pm_;
       // Set the parallelization mode
       pm_ = pm;
       // Retrieve a work item of the production type
-      boost::shared_ptr<optalg_type> result = this->get();
+      std::shared_ptr<optalg_type> result = this->get();
       // Reset the parallelization mode to its original value
       pm_ = previous_pm;
 
@@ -301,7 +301,7 @@ public:
     * Allows to register a content creator
     */
    void registerContentCreator(
-      boost::shared_ptr<Gem::Common::GFactoryT<typename optalg_type::individual_type> > cc_ptr
+      std::shared_ptr<Gem::Common::GFactoryT<typename optalg_type::individual_type> > cc_ptr
    ) {
       if(!cc_ptr) {
          glogger
@@ -507,7 +507,7 @@ protected:
    /**
     * Allows to act on the configuration options received from the configuration file or from the command line
     */
-   virtual void postProcess_(boost::shared_ptr<optalg_type>& p) BASE {
+   virtual void postProcess_(std::shared_ptr<optalg_type>& p) BASE {
       // Set local options
 
       // The maximum allowed number of iterations
@@ -528,7 +528,7 @@ protected:
 
    /***************************************************************************/
 	/** @brief Creates individuals of this type */
-	virtual boost::shared_ptr<optalg_type> getObject_(Gem::Common::GParserBuilder&, const std::size_t&) = 0;
+	virtual std::shared_ptr<optalg_type> getObject_(Gem::Common::GParserBuilder&, const std::size_t&) = 0;
 
 	execMode pm_; ///< Holds information about the desired parallelization mode
 	boost::uint16_t nEvaluationThreads_; ///< The number of threads used for evaluations in multithreaded execution
@@ -536,7 +536,7 @@ protected:
    std::size_t waitFactor_; ///< A static factor to be applied to timeouts
 	bool doLogging_; ///< Specifies whether arrival times of individuals should be logged
 
-	boost::shared_ptr<Gem::Common::GFactoryT<typename optalg_type::individual_type> > contentCreatorPtr_; ///< Holds an object capable of producing objects of the desired type
+	std::shared_ptr<Gem::Common::GFactoryT<typename optalg_type::individual_type> > contentCreatorPtr_; ///< Holds an object capable of producing objects of the desired type
    boost::function<void(const infoMode&, GOptimizationAlgorithmT<typename optalg_type::individual_type> * const)> pluggableInfoFunction_; ///< A user-defined call-back for information retrieval
 
 private:

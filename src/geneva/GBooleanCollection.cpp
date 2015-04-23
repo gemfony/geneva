@@ -460,14 +460,14 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 
    // Make sure we have an appropriate adaptor loaded when performing these tests
    bool adaptorStored = false;
-   boost::shared_ptr<GAdaptorT<bool> > storedAdaptor;
+   std::shared_ptr<GAdaptorT<bool> > storedAdaptor;
 
    if(this->hasAdaptor()) {
       storedAdaptor = this->getAdaptor();
       adaptorStored = true;
    }
 
-   boost::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor(1.0));
+   std::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor(1.0));
    gba_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
    gba_ptr->setAdaptionMode(true); // Always adapt
    this->addAdaptor(gba_ptr);
@@ -588,7 +588,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
    // --------------------------------------------------------------------------
 
    { // Test that random initialization with equal probability will result in roughly the same amount of true and false values
-      boost::shared_ptr<GBooleanCollection> p_test = this->clone<GBooleanCollection>();
+      std::shared_ptr<GBooleanCollection> p_test = this->clone<GBooleanCollection>();
 
       // Make sure the collection is empty
       BOOST_CHECK_NO_THROW(p_test->clear());
@@ -626,7 +626,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
    // --------------------------------------------------------------------------
 
    { // Check that initialization with a probabilty of 0. for true results in just false values
-      boost::shared_ptr<GBooleanCollection> p_test = this->clone<GBooleanCollection>();
+      std::shared_ptr<GBooleanCollection> p_test = this->clone<GBooleanCollection>();
 
       // Make sure the collection is empty
       BOOST_CHECK_NO_THROW(p_test->clear());
@@ -658,7 +658,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
    // --------------------------------------------------------------------------
 
    { // Check that initialization with a probabilty of 1. for true results in just true values
-      boost::shared_ptr<GBooleanCollection> p_test = this->clone<GBooleanCollection>();
+      std::shared_ptr<GBooleanCollection> p_test = this->clone<GBooleanCollection>();
 
       // Make sure the collection is empty
       BOOST_CHECK_NO_THROW(p_test->clear());
@@ -691,7 +691,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 
    { // Test that random initialization with a given probability will result in roughly the expected amount of true and false values
       for(double d=0.1; d<0.9; d+=0.1) {
-         boost::shared_ptr<GBooleanCollection> p_test = this->clone<GBooleanCollection>();
+         std::shared_ptr<GBooleanCollection> p_test = this->clone<GBooleanCollection>();
 
          // Make sure the collection is empty
          BOOST_CHECK_NO_THROW(p_test->clear());
@@ -730,8 +730,8 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
    // --------------------------------------------------------------------------
 
    { // Check that random initialization can be blocked for equal distributions
-      boost::shared_ptr<GBooleanCollection> p_test1 = this->clone<GBooleanCollection>();
-      boost::shared_ptr<GBooleanCollection> p_test2 = this->clone<GBooleanCollection>();
+      std::shared_ptr<GBooleanCollection> p_test1 = this->clone<GBooleanCollection>();
+      std::shared_ptr<GBooleanCollection> p_test2 = this->clone<GBooleanCollection>();
 
       // Make sure the collections are empty
       BOOST_CHECK_NO_THROW(p_test1->clear());
@@ -765,8 +765,8 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
    // --------------------------------------------------------------------------
 
    { // Check that random initialization can be blocked for distributions with a given probability structure
-      boost::shared_ptr<GBooleanCollection> p_test1 = this->clone<GBooleanCollection>();
-      boost::shared_ptr<GBooleanCollection> p_test2 = this->clone<GBooleanCollection>();
+      std::shared_ptr<GBooleanCollection> p_test1 = this->clone<GBooleanCollection>();
+      std::shared_ptr<GBooleanCollection> p_test2 = this->clone<GBooleanCollection>();
 
       // Make sure the collections are empty
       BOOST_CHECK_NO_THROW(p_test1->clear());
@@ -800,9 +800,9 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
    // --------------------------------------------------------------------------
 
    { // Check that the fp-family of functions doesn't have an effect on this object
-      boost::shared_ptr<GBooleanCollection> p_test1 = this->GObject::clone<GBooleanCollection>();
-      boost::shared_ptr<GBooleanCollection> p_test2 = this->GObject::clone<GBooleanCollection>();
-      boost::shared_ptr<GBooleanCollection> p_test3 = this->GObject::clone<GBooleanCollection>();
+      std::shared_ptr<GBooleanCollection> p_test1 = this->GObject::clone<GBooleanCollection>();
+      std::shared_ptr<GBooleanCollection> p_test2 = this->GObject::clone<GBooleanCollection>();
+      std::shared_ptr<GBooleanCollection> p_test3 = this->GObject::clone<GBooleanCollection>();
 
       // Add a few items to p_test1
       for(std::size_t i=0; i<nItems; i++) {
@@ -867,14 +867,14 @@ void GBooleanCollection::specificTestsFailuresExpected_GUnitTests() {
 
    // Make sure we have an appropriate adaptor loaded when performing these tests
    bool adaptorStored = false;
-   boost::shared_ptr<GAdaptorT<bool> > storedAdaptor;
+   std::shared_ptr<GAdaptorT<bool> > storedAdaptor;
 
    if(this->hasAdaptor()) {
       storedAdaptor = this->getAdaptor();
       adaptorStored = true;
    }
 
-   boost::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor(1.0));
+   std::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor(1.0));
    gba_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
    gba_ptr->setAdaptionMode(true); // Always adapt
    this->addAdaptor(gba_ptr);
@@ -885,7 +885,7 @@ void GBooleanCollection::specificTestsFailuresExpected_GUnitTests() {
    // --------------------------------------------------------------------------
 
    { // Check that random initialization with a probability < 0. throws
-      boost::shared_ptr<GBooleanCollection> p_test = this->clone<GBooleanCollection>();
+      std::shared_ptr<GBooleanCollection> p_test = this->clone<GBooleanCollection>();
 
       // Make sure the collection is empty
       BOOST_CHECK_NO_THROW(p_test->clear());
@@ -902,7 +902,7 @@ void GBooleanCollection::specificTestsFailuresExpected_GUnitTests() {
    // --------------------------------------------------------------------------
 
    { // Check that random initialization with a probability > 1. throws
-      boost::shared_ptr<GBooleanCollection> p_test = this->clone<GBooleanCollection>();
+      std::shared_ptr<GBooleanCollection> p_test = this->clone<GBooleanCollection>();
 
       // Make sure the collection is empty
       BOOST_CHECK_NO_THROW(p_test->clear());

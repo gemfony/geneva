@@ -82,7 +82,7 @@ GGradientDescentFactory::GGradientDescentFactory(
 GGradientDescentFactory::GGradientDescentFactory(
    const std::string& configFile
    , const execMode& pm
-   , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr
+   , std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr
 )
    : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm, contentCreatorPtr)
    , maxResubmissions_(5)
@@ -117,25 +117,25 @@ std::string GGradientDescentFactory::getAlgorithmName() const {
  *
  * @return Items of the desired type
  */
-boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GGradientDescentFactory::getObject_(
+std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GGradientDescentFactory::getObject_(
 	Gem::Common::GParserBuilder& gpb
 	, const std::size_t& id
 ) {
 	// Will hold the result
-	boost::shared_ptr<GBaseGD> target;
+	std::shared_ptr<GBaseGD> target;
 
 	// Fill the target pointer as required
 	switch(pm_) {
 	case EXECMODE_SERIAL:
-		target = boost::shared_ptr<GSerialGD>(new GSerialGD());
+		target = std::shared_ptr<GSerialGD>(new GSerialGD());
 		break;
 
 	case EXECMODE_MULTITHREADED:
-		target = boost::shared_ptr<GMultiThreadedGD>(new GMultiThreadedGD());
+		target = std::shared_ptr<GMultiThreadedGD>(new GMultiThreadedGD());
 		break;
 
 	case EXECMODE_BROKERAGE:
-		target = boost::shared_ptr<GBrokerGD>(new GBrokerGD());
+		target = std::shared_ptr<GBrokerGD>(new GBrokerGD());
 		break;
 	}
 
@@ -176,7 +176,7 @@ void GGradientDescentFactory::describeLocalOptions_(Gem::Common::GParserBuilder&
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GGradientDescentFactory::postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >& p_base) {
+void GGradientDescentFactory::postProcess_(std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >& p_base) {
 	// Convert the object to the correct target type
 	switch(pm_) {
 	case EXECMODE_SERIAL:
@@ -185,7 +185,7 @@ void GGradientDescentFactory::postProcess_(boost::shared_ptr<GOptimizationAlgori
 
 	case EXECMODE_MULTITHREADED:
 		{
-			boost::shared_ptr<GMultiThreadedGD> p
+			std::shared_ptr<GMultiThreadedGD> p
 			   = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedGD>(p_base);
 			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
 		}
@@ -193,7 +193,7 @@ void GGradientDescentFactory::postProcess_(boost::shared_ptr<GOptimizationAlgori
 
 	case EXECMODE_BROKERAGE:
 		{
-			boost::shared_ptr<GBrokerGD> p
+			std::shared_ptr<GBrokerGD> p
             = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerGD>(p_base);
 
          p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::doLogging_);

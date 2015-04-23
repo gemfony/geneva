@@ -239,7 +239,7 @@ public:
   /**
    * Allows to set the default log target
    */
-  void setDefaultLogTarget(boost::shared_ptr<GBaseLogTarget> gblt) {
+  void setDefaultLogTarget(std::shared_ptr<GBaseLogTarget> gblt) {
      if(gblt) {
         defaultLogger_ = gblt;
      } else {
@@ -254,7 +254,7 @@ public:
   /**
    * Adds a log target, such as console or file
    */
-  void addLogTarget(boost::shared_ptr<GBaseLogTarget> gblt) {
+  void addLogTarget(std::shared_ptr<GBaseLogTarget> gblt) {
      if(gblt) {
         logVector_.push_back(gblt);
      } else {
@@ -293,7 +293,7 @@ public:
 
      if(!logVector_.empty()) {
         // Do the actual logging
-        std::vector<boost::shared_ptr<GBaseLogTarget> >::const_iterator cit;
+        std::vector<std::shared_ptr<GBaseLogTarget> >::const_iterator cit;
         for(cit=logVector_.begin(); cit!=logVector_.end(); ++cit) {
            (*cit)->log(message);
         }
@@ -321,7 +321,7 @@ public:
 
      if(!logVector_.empty()) {
         // Do the actual logging
-        std::vector<boost::shared_ptr<GBaseLogTarget> >::const_iterator cit;
+        std::vector<std::shared_ptr<GBaseLogTarget> >::const_iterator cit;
         for(cit=logVector_.begin(); cit!=logVector_.end(); ++cit) {
            (*cit)->logWithSource(message, extension);
         }
@@ -386,10 +386,10 @@ public:
 private:
   /***************************************************************************/
 
-  std::vector<boost::shared_ptr<GBaseLogTarget> > logVector_; ///< Contains the log targets
+  std::vector<std::shared_ptr<GBaseLogTarget> > logVector_; ///< Contains the log targets
   mutable boost::mutex logger_mutex_; ///< Needed for concurrent access to the log targets
 
-  boost::shared_ptr<GBaseLogTarget> defaultLogger_; ///< The default log target
+  std::shared_ptr<GBaseLogTarget> defaultLogger_; ///< The default log target
 };
 
 /******************************************************************************/

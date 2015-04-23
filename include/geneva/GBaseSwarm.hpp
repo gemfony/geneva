@@ -205,7 +205,7 @@ public:
 	 * @return A converted shared_ptr to the best individual of a given neighborhood
 	 */
 	template <typename parameterset_type>
-	boost::shared_ptr<parameterset_type> getBestNeighborhoodIndividual(
+	std::shared_ptr<parameterset_type> getBestNeighborhoodIndividual(
       std::size_t neighborhood
      , typename boost::enable_if<boost::is_base_of<GParameterSet, parameterset_type> >::type* dummy = 0
 	){
@@ -218,7 +218,7 @@ public:
          << GEXCEPTION;
 
 		   // Make the compiler happy
-		   return boost::shared_ptr<parameterset_type>();
+		   return std::shared_ptr<parameterset_type>();
 		}
 #endif /* DEBUG */
 
@@ -241,7 +241,7 @@ protected:
 	virtual G_API_GENEVA void finalize() override;
 
    /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-   virtual G_API_GENEVA boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
+   virtual G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
 
 	/** @brief The actual business logic to be performed during each iteration; Returns the best achieved fitness */
 	virtual G_API_GENEVA boost::tuple<double, double> cycleLogic() override;
@@ -266,10 +266,10 @@ protected:
 	/** @brief Triggers an update of an individual's positions */
 	G_API_GENEVA void updateIndividualPositions(
      const std::size_t&
-     , boost::shared_ptr<GParameterSet>
-     , boost::shared_ptr<GParameterSet>
-     , boost::shared_ptr<GParameterSet>
-     , boost::shared_ptr<GParameterSet>
+     , std::shared_ptr<GParameterSet>
+     , std::shared_ptr<GParameterSet>
+     , std::shared_ptr<GParameterSet>
+     , std::shared_ptr<GParameterSet>
      , boost::tuple<double, double, double, double>
 	);
 
@@ -285,9 +285,9 @@ protected:
 	std::size_t defaultNNeighborhoodMembers_; ///< The desired number of individuals belonging to each neighborhood
 	std::vector<std::size_t> nNeighborhoodMembers_; ///< The current number of individuals belonging to each neighborhood
 
-	boost::shared_ptr<GParameterSet> global_best_; ///< The globally best individual
-	std::vector<boost::shared_ptr<GParameterSet> > neighborhood_bests_; ///< The collection of best individuals from each neighborhood
-	std::vector<boost::shared_ptr<GParameterSet> > velocities_; ///< Holds velocities, as calculated in the previous iteration
+	std::shared_ptr<GParameterSet> global_best_; ///< The globally best individual
+	std::vector<std::shared_ptr<GParameterSet> > neighborhood_bests_; ///< The collection of best individuals from each neighborhood
+	std::vector<std::shared_ptr<GParameterSet> > velocities_; ///< Holds velocities, as calculated in the previous iteration
 
 	double c_personal_; ///< A factor for multiplication of personal best distances
 	double c_neighborhood_; ///< A factor for multiplication of neighborhood best distances
@@ -306,9 +306,9 @@ protected:
 	double velocityRangePercentage_; ///< Indicates the percentage of a value range used for the initialization of the velocity
 
 	/** Updates the personal best of an individual */
-	G_API_GENEVA void updatePersonalBest(boost::shared_ptr<GParameterSet>);
+	G_API_GENEVA void updatePersonalBest(std::shared_ptr<GParameterSet>);
 	/** Updates the personal best of an individual, if a better solution was found */
-	G_API_GENEVA void updatePersonalBestIfBetter(boost::shared_ptr<GParameterSet>);
+	G_API_GENEVA void updatePersonalBestIfBetter(std::shared_ptr<GParameterSet>);
 
 	/** @brief Returns the name of this optimization algorithm */
 	virtual G_API_GENEVA std::string getAlgorithmName() const override;
@@ -411,7 +411,7 @@ public:
 
 		std::string resultFile_; ///< The name of the file to which data is emitted
 
-      boost::shared_ptr<Gem::Common::GGraph2D> fitnessGraph_; ///< Holds the fitness data until plotted
+      std::shared_ptr<Gem::Common::GGraph2D> fitnessGraph_; ///< Holds the fitness data until plotted
 
 	public:
 		/** @brief Applies modifications to this object. This is needed for testing purposes */

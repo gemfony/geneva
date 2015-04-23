@@ -112,8 +112,8 @@ int main(int argc, char **argv){
   // Create the first set of parent populations.
   for(std::size_t psuper = 0; psuper<nParentsSuper; psuper++) {
 	  // This smart pointer holds a parent population.
-	  boost::shared_ptr<GSerialEA> sub_pop_ptr
-		  = boost::shared_ptr<GSerialEA>(new GSerialEA());
+	  std::shared_ptr<GSerialEA> sub_pop_ptr
+		  = std::shared_ptr<GSerialEA>(new GSerialEA());
 
 	  // Create the first set of parent individuals. Initialization of parameters is done randomly.
 	  for(std::size_t psub = 0 ; psub<nParentsSub; psub++) {
@@ -147,7 +147,7 @@ int main(int argc, char **argv){
   gmp.optimize();
 
   // Extract the best individual
-  boost::shared_ptr<GFunctionIndividual> p = gmp.getBestIndividual<GFunctionIndividual>();
+  std::shared_ptr<GFunctionIndividual> p = gmp.getBestIndividual<GFunctionIndividual>();
 
   // Do something with the best result found here
 

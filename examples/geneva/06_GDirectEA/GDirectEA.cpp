@@ -138,7 +138,7 @@ int main(int argc, char **argv){
   // If this is a client in networked mode, we can just start the listener and
   // return when it has finished
   if(EXECMODE_BROKERAGE==parallelizationMode && !serverMode) {
-    boost::shared_ptr<GAsioTCPClientT<GParameterSet> >
+    std::shared_ptr<GAsioTCPClientT<GParameterSet> >
        p(new GAsioTCPClientT<GParameterSet>(ip, boost::lexical_cast<std::string>(port)));
 
     p->setMaxStalls(maxStalls); // 0 would mean an infinite number of stalled data retrievals
@@ -154,7 +154,7 @@ int main(int argc, char **argv){
   // We can now start creating populations. We refer to them through the base class
 
   // This smart pointer will hold the different population types
-  boost::shared_ptr<GBaseEA> pop_ptr;
+  std::shared_ptr<GBaseEA> pop_ptr;
 
   // Create the actual populations
   switch (parallelizationMode) {
@@ -162,7 +162,7 @@ int main(int argc, char **argv){
   case EXECMODE_SERIAL: // Serial execution
   {
 	  // Create an empty population
-	  pop_ptr = boost::shared_ptr<GSerialEA>(new GSerialEA());
+	  pop_ptr = std::shared_ptr<GSerialEA>(new GSerialEA());
   }
   break;
 
@@ -170,7 +170,7 @@ int main(int argc, char **argv){
   case EXECMODE_MULTITHREADED: // Multi-threaded execution
   {
 	  // Create the multi-threaded population
-	  boost::shared_ptr<GMultiThreadedEA> popPar_ptr(new GMultiThreadedEA());
+	  std::shared_ptr<GMultiThreadedEA> popPar_ptr(new GMultiThreadedEA());
 
 	  // Population-specific settings
 	  popPar_ptr->setNThreads(nEvaluationThreads);
@@ -184,19 +184,19 @@ int main(int argc, char **argv){
   case EXECMODE_BROKERAGE: // Execution with networked consumer and possibly a local, multi-threaded consumer
   {
 	  // Create a network consumer and enrol it with the broker
-	  boost::shared_ptr<GAsioTCPConsumerT<GParameterSet> >
+	  std::shared_ptr<GAsioTCPConsumerT<GParameterSet> >
 	    gatc(new GAsioTCPConsumerT<GParameterSet>(port, 0, serMode));
 	  GBROKER(Gem::Geneva::GParameterSet)->enrol(gatc);
 
 	  if(addLocalConsumer) { // This is mainly for testing and benchmarking
-		  boost::shared_ptr<GBoostThreadConsumerT<GParameterSet> >
+		  std::shared_ptr<GBoostThreadConsumerT<GParameterSet> >
 		    gbtc(new GBoostThreadConsumerT<GParameterSet>());
 		  gbtc->setNThreadsPerWorker(nEvaluationThreads);
 		  GBROKER(Gem::Geneva::GParameterSet)->enrol(gbtc);
 	  }
 
 	  // Create the actual broker population
-	  boost::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());
+	  std::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());
 
 	  // Assignment to the base pointer
 	  pop_ptr = popBroker_ptr;
@@ -219,14 +219,14 @@ int main(int argc, char **argv){
   GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
   // Create the first set of parent individuals. Initialization of parameters is done randomly.
-  std::vector<boost::shared_ptr<GFunctionIndividual> > parentIndividuals;
+  std::vector<std::shared_ptr<GFunctionIndividual> > parentIndividuals;
   for(std::size_t p = 0 ; p<nParents; p++) {
      parentIndividuals.push_back(gfi.get<GFunctionIndividual>());
   }
 
   /****************************************************************************/
   // Create an instance of our optimization monitor
-  boost::shared_ptr<progressMonitor> pm_ptr(new progressMonitor(parentIndividuals[0]->getDemoFunction())); // The demo function is only known to the individual
+  std::shared_ptr<progressMonitor> pm_ptr(new progressMonitor(parentIndividuals[0]->getDemoFunction())); // The demo function is only known to the individual
   pm_ptr->setProgressDims(xDim, yDim);
   pm_ptr->setFollowProgress(followProgress); // Shall we take snapshots ?
   pm_ptr->setXExtremes(gfi.getMinVar(), gfi.getMaxVar());
@@ -255,7 +255,7 @@ int main(int argc, char **argv){
 
   /****************************************************************************/
   // Do something with the best individual found
-  boost::shared_ptr<GFunctionIndividual> p = pop_ptr->getBestIndividual<GFunctionIndividual>();
+  std::shared_ptr<GFunctionIndividual> p = pop_ptr->getBestIndividual<GFunctionIndividual>();
 
   // Here you can do something with the best individual ("p") found.
   // We simply print its content here, by means of an operator<< implemented

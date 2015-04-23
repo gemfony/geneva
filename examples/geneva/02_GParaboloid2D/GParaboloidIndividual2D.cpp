@@ -51,7 +51,7 @@ GParaboloidIndividual2D::GParaboloidIndividual2D()
 {
 	for(std::size_t npar=0; npar<2; npar++) {
 		// GConstrainedDoubleObject is constrained to [PAR_MIN_:PAR_MAX_[
-		boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(PAR_MIN_, PAR_MAX_));
+		std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(PAR_MIN_, PAR_MAX_));
 		// Add the parameters to this individual
 		this->push_back(gcdo_ptr);
 	}

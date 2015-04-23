@@ -162,7 +162,7 @@ protected:
    virtual G_API_GENEVA void finalize() override;
 
    /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-   virtual G_API_GENEVA boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
+   virtual G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
 
 private:
    /** Performs a simulated annealing style sorting and selection */
@@ -272,7 +272,7 @@ public:
       std::size_t nMonitorInds_; ///< The number if individuals that should be monitored
       std::string resultFile_;     ///< The name of the file to which data is emitted
 
-      std::vector<boost::shared_ptr<Gem::Common::GGraph2D> > fitnessGraphVec_;
+      std::vector<std::shared_ptr<Gem::Common::GGraph2D> > fitnessGraphVec_;
 
      public:
       /** @brief Applies modifications to this object. This is needed for testing purposes */

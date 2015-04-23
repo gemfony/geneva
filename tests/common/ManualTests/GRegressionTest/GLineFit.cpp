@@ -50,10 +50,10 @@ boost::tuple<double, double> gLineFit(const std::vector<boost::tuple<double, dou
    std::vector<boost::tuple<double, double> > points = points_;
 
    // Create a factory for GLineFitIndividual objects
-   boost::shared_ptr<GLineFitIndividualFactory> glfif_ptr(new GLineFitIndividualFactory(points, "./config/GLineFitIndividual.json"));
+   std::shared_ptr<GLineFitIndividualFactory> glfif_ptr(new GLineFitIndividualFactory(points, "./config/GLineFitIndividual.json"));
 
    // Create the optimizer and set its options
-   boost::shared_ptr<GMultiThreadedEA> ea_ptr(new GMultiThreadedEA());
+   std::shared_ptr<GMultiThreadedEA> ea_ptr(new GMultiThreadedEA());
 
    ea_ptr->setPopulationSizes(203,3);
    ea_ptr->setMaxIteration(5000);
@@ -63,7 +63,7 @@ boost::tuple<double, double> gLineFit(const std::vector<boost::tuple<double, dou
    ea_ptr->setMaxStallIteration(100);
 
    // Retrieve a first individual with random values
-   boost::shared_ptr<GParameterSet> p = glfif_ptr->get();
+   std::shared_ptr<GParameterSet> p = glfif_ptr->get();
 
    // Add it to the algorithm
    ea_ptr->push_back(p);
@@ -100,7 +100,7 @@ boost::tuple<double, double> gLineFit(const std::vector<boost::tuple<double, dou
    p->assignValueVector(parVec);
 
    // Start the optimization and extract the best individual
-   boost::shared_ptr<GLineFitIndividual> p_best = ea_ptr->GOptimizableI::optimize<GLineFitIndividual>();
+   std::shared_ptr<GLineFitIndividual> p_best = ea_ptr->GOptimizableI::optimize<GLineFitIndividual>();
 
    return p_best->getLine();
 }

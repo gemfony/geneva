@@ -294,12 +294,12 @@ std::vector<boost::tuple<unsigned int, unsigned int> > GDelayIndividualFactory::
  *
  * @return Items of the desired type
  */
-boost::shared_ptr<Gem::Geneva::GParameterSet> GDelayIndividualFactory::getObject_(
+std::shared_ptr<Gem::Geneva::GParameterSet> GDelayIndividualFactory::getObject_(
    Gem::Common::GParserBuilder& gpb
    , const std::size_t& id
 ) {
    // Will hold the result
-   boost::shared_ptr<GDelayIndividual> target(new GDelayIndividual());
+   std::shared_ptr<GDelayIndividual> target(new GDelayIndividual());
 
    // Make the object's local configuration options known
    target->addConfigurationOptions(gpb );
@@ -363,7 +363,7 @@ void GDelayIndividualFactory::describeLocalOptions_(
  * @param p A smart-pointer to be acted on during post-processing
  */
 void GDelayIndividualFactory::postProcess_(
-      boost::shared_ptr<Gem::Geneva::GParameterSet>& p_raw
+      std::shared_ptr<Gem::Geneva::GParameterSet>& p_raw
 ) {
    // Retrieve information about our id
    std::size_t id = this->getId();
@@ -372,7 +372,7 @@ void GDelayIndividualFactory::postProcess_(
    sleepTimes_ = Gem::Common::stringToUIntTupleVec(delays_);
 
    // Convert the base pointer to the target type
-   boost::shared_ptr<GDelayIndividual> p
+   std::shared_ptr<GDelayIndividual> p
       = Gem::Common::convertSmartPointer<Gem::Geneva::GParameterSet, GDelayIndividual>(p_raw);
 
    if(Gem::Common::GFACTORYWRITEID==id) {
@@ -385,13 +385,13 @@ void GDelayIndividualFactory::postProcess_(
       p->setSleepTime(sleepTime);
 
       // Set up a GDoubleObjectCollection
-      boost::shared_ptr<Gem::Geneva::GDoubleObjectCollection> gbdc_ptr(new Gem::Geneva::GDoubleObjectCollection());
+      std::shared_ptr<Gem::Geneva::GDoubleObjectCollection> gbdc_ptr(new Gem::Geneva::GDoubleObjectCollection());
 
       // Set up nVariables GConstrainedDoubleObject objects in the desired value range,
       // and register them with the collection. The configuration parameters don't matter for this use case
       for(std::size_t var=0; var<nVariables_; var++) {
-         boost::shared_ptr<Gem::Geneva::GDoubleObject> gbd_ptr(new Gem::Geneva::GDoubleObject(0.5));
-         boost::shared_ptr<Gem::Geneva::GDoubleGaussAdaptor> gdga_ptr(new Gem::Geneva::GDoubleGaussAdaptor(0.025, 0.1, 0., 1.));
+         std::shared_ptr<Gem::Geneva::GDoubleObject> gbd_ptr(new Gem::Geneva::GDoubleObject(0.5));
+         std::shared_ptr<Gem::Geneva::GDoubleGaussAdaptor> gdga_ptr(new Gem::Geneva::GDoubleGaussAdaptor(0.025, 0.1, 0., 1.));
          gdga_ptr->setAdaptionThreshold(1);
          gbd_ptr->addAdaptor(gdga_ptr);
 
@@ -411,13 +411,13 @@ void GDelayIndividualFactory::postProcess_(
       p->setSleepTime(sleepTime);
 
       // Set up a GDoubleObjectCollection
-      boost::shared_ptr<Gem::Geneva::GDoubleObjectCollection> gbdc_ptr(new Gem::Geneva::GDoubleObjectCollection());
+      std::shared_ptr<Gem::Geneva::GDoubleObjectCollection> gbdc_ptr(new Gem::Geneva::GDoubleObjectCollection());
 
       // Set up nVariables GConstrainedDoubleObject objects in the desired value range,
       // and register them with the collection. The configuration parameters don't matter for this use case
       for(std::size_t var=0; var<nVariables_; var++) {
-         boost::shared_ptr<Gem::Geneva::GDoubleObject> gbd_ptr(new Gem::Geneva::GDoubleObject(0.5));
-         boost::shared_ptr<Gem::Geneva::GDoubleGaussAdaptor> gdga_ptr(new Gem::Geneva::GDoubleGaussAdaptor(0.025, 0.1, 0., 1.));
+         std::shared_ptr<Gem::Geneva::GDoubleObject> gbd_ptr(new Gem::Geneva::GDoubleObject(0.5));
+         std::shared_ptr<Gem::Geneva::GDoubleGaussAdaptor> gdga_ptr(new Gem::Geneva::GDoubleGaussAdaptor(0.025, 0.1, 0., 1.));
          gdga_ptr->setAdaptionThreshold(1);
          gbd_ptr->addAdaptor(gdga_ptr);
 

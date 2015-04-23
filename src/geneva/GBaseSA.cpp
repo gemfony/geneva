@@ -57,7 +57,7 @@ GBaseSA::GBaseSA()
 {
    // Register the default optimization monitor
    this->registerOptimizationMonitor(
-         boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
+         std::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
                new GSAOptimizationMonitor()
          )
    );
@@ -239,8 +239,8 @@ void GBaseSA::finalize() {
 /**
  * Retrieve a GPersonalityTraits object belonging to this algorithm
  */
-boost::shared_ptr<GPersonalityTraits> GBaseSA::getPersonalityTraits() const {
-   return boost::shared_ptr<GSAPersonalityTraits>(new GSAPersonalityTraits());
+std::shared_ptr<GPersonalityTraits> GBaseSA::getPersonalityTraits() const {
+   return std::shared_ptr<GSAPersonalityTraits>(new GSAPersonalityTraits());
 }
 
 /******************************************************************************/
@@ -252,7 +252,7 @@ void GBaseSA::sortSAMode() {
    std::partial_sort(
       data.begin() + nParents_
       , data.begin() + 2*nParents_, data.end()
-      , [](boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) -> bool {
+      , [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
          return x->minOnly_fitness() < y->minOnly_fitness();
       }
    );
@@ -274,7 +274,7 @@ void GBaseSA::sortSAMode() {
    std::sort(
       data.begin()
       , data.begin() + nParents_
-      , [](boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) -> bool {
+      , [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
          return x->minOnly_fitness() < y->minOnly_fitness();
       }
    );
@@ -693,7 +693,7 @@ void GBaseSA::GSAOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<G
 
    // Set up the plotters
    for(std::size_t ind=0; ind<nMonitorInds_; ind++) {
-      boost::shared_ptr<Gem::Common::GGraph2D> graph(new Gem::Common::GGraph2D());
+      std::shared_ptr<Gem::Common::GGraph2D> graph(new Gem::Common::GGraph2D());
       graph->setXAxisLabel("Iteration");
       graph->setYAxisLabel("Fitness");
       graph->setPlotLabel(std::string("Individual ") + boost::lexical_cast<std::string>(ind));
@@ -723,7 +723,7 @@ void GBaseSA::GSAOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<G
 
    for(std::size_t ind=0; ind<nMonitorInds_; ind++) {
       // Get access to the individual
-      boost::shared_ptr<GParameterSet> gi_ptr = sa->individual_cast<GParameterSet>(ind);
+      std::shared_ptr<GParameterSet> gi_ptr = sa->individual_cast<GParameterSet>(ind);
 
       // Retrieve the fitness of this individual -- all individuals should be "clean" here
       currentTransformedEvaluation = gi_ptr->transformedFitness();
@@ -748,7 +748,7 @@ void GBaseSA::GSAOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GP
    gpd.setCanvasDimensions(xDim_, yDim_);
 
    // Copy all plotters into the GPlotDesigner object
-   std::vector<boost::shared_ptr<Gem::Common::GGraph2D> >::iterator it;
+   std::vector<std::shared_ptr<Gem::Common::GGraph2D> >::iterator it;
    for(it=fitnessGraphVec_.begin(); it!=fitnessGraphVec_.end(); ++it) {
       gpd.registerPlotter(*it);
    }

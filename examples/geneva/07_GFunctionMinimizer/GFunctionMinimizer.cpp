@@ -49,17 +49,14 @@ namespace po = boost::program_options;
 
 int main(int argc, char **argv) {
    bool printBest = false;
-   std::vector<boost::shared_ptr<po::option_description> > od;
-   boost::shared_ptr<po::option_description> print_option(
-      new po::option_description(
+   boost::program_options::options_description user_options;
+   user_options.add_options() (
          "print"
          , po::value<bool>(&printBest)->implicit_value(true)->default_value(false) // This allows you say both --print and --print=true
          , "Switches on printing of the best result"
-      )
-   );
-   od.push_back(print_option);
+      );
 
-	Go2 go(argc, argv, "./config/Go2.json", od);
+	Go2 go(argc, argv, "./config/Go2.json", user_options);
 
 	//---------------------------------------------------------------------
 	// Client mode
@@ -79,11 +76,11 @@ int main(int argc, char **argv) {
 
 	// Register an optimization monitor for evolutionary algorithms. This allows the
 	// GEvolutionaryAlgorithmFactory to find suitable monitors in the global store.
-	GOAMonitorStore->setOnce("ea", boost::shared_ptr<GSigmaMonitor> (new GSigmaMonitor("./sigmaProgress.C")));
+	GOAMonitorStore->setOnce("ea", std::shared_ptr<GSigmaMonitor> (new GSigmaMonitor("./sigmaProgress.C")));
 
 	// Create an evolutionary algorithm in multi-threaded mode
 	GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json", EXECMODE_MULTITHREADED);
-	boost::shared_ptr<GBaseEA> ea_ptr = ea.get<GBaseEA>();
+	std::shared_ptr<GBaseEA> ea_ptr = ea.get<GBaseEA>();
 
 	// Add the algorithm to the Go2 object. Note that the multi-threaded variant will
 	// be executed first, regardless of what other algorithms you might have specified
@@ -92,7 +89,7 @@ int main(int argc, char **argv) {
 	go & ea_ptr;
 
 	// Perform the actual optimization
-	boost::shared_ptr<GFMinIndividual> bestIndividual_ptr = go.optimize<GFMinIndividual>();
+	std::shared_ptr<GFMinIndividual> bestIndividual_ptr = go.optimize<GFMinIndividual>();
 
 	// Do something with the best result. Here: Simply print it, if requested
 	if(printBest) {

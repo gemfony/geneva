@@ -228,7 +228,7 @@ std::string GSerialEA::getIndividualCharacteristic() const {
 void GSerialEA::adaptChildren()
 {
 	boost::tuple<std::size_t,std::size_t> range = getAdaptionRange();
-	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
+	std::vector<std::shared_ptr<GParameterSet> >::iterator it;
 
 	for(it=data.begin()+boost::get<0>(range); it!=data.begin()+boost::get<1>(range); ++it) {
 		(*it)->adapt();
@@ -242,7 +242,7 @@ void GSerialEA::adaptChildren()
 void GSerialEA::runFitnessCalculation()
 {
 	boost::tuple<std::size_t,std::size_t> range = getEvaluationRange();
-	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
+	std::vector<std::shared_ptr<GParameterSet> >::iterator it;
 
 #ifdef DEBUG
    // There should be no situation in which a "clean" child is submitted
@@ -298,7 +298,7 @@ void GSerialEA::specificTestsNoFailureExpected_GUnitTests() {
 	//---------------------------------------------------------------------------
 
 	{ // Call the parent class'es function
-		boost::shared_ptr<GSerialEA> p_test = this->clone<GSerialEA>();
+		std::shared_ptr<GSerialEA> p_test = this->clone<GSerialEA>();
 
 		// Fill p_test with individuals
 		p_test->fillWithObjects();

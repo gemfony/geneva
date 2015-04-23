@@ -78,7 +78,7 @@ void startReferenceMeasurement(
    boost::uint32_t interMeasurementDelay = 1;
    boost::uint32_t nMeasurementsPerIteration = 5;
    std::size_t iter = 0;
-   boost::shared_ptr<GDelayIndividual> gdi_ptr;
+   std::shared_ptr<GDelayIndividual> gdi_ptr;
    while((gdi_ptr = gdif.get<GDelayIndividual>())) {
       if(0==iter) { // The first individual must already have been produced in order to access parsed data
          // Determine the amount of seconds the process should sleep in between two measurements
@@ -146,7 +146,7 @@ void startParallelMeasurement(
    boost::uint32_t interMeasurementDelay = 1;
    boost::uint32_t nMeasurementsPerIteration = 5;
    std::size_t iter = 0;
-   boost::shared_ptr<GDelayIndividual> gdi_ptr;
+   std::shared_ptr<GDelayIndividual> gdi_ptr;
    while((gdi_ptr = gdif.get<GDelayIndividual>())) {
       if(0==iter) { // The first individual must already have been produced in order to access parsed data
          // Determine the amount of seconds the process should sleep in between two measurements
@@ -273,13 +273,13 @@ int main(int argc, char **argv) {
 
    //---------------------------------------------------------------------
    // Will hold all plot information
-   boost::shared_ptr<GGraph2ED> greference_ptr(new GGraph2ED());
+   std::shared_ptr<GGraph2ED> greference_ptr(new GGraph2ED());
    greference_ptr->setPlotLabel("Serial execution times and errors");
 
-   boost::shared_ptr<GGraph2ED> gparallel_ptr(new GGraph2ED());
+   std::shared_ptr<GGraph2ED> gparallel_ptr(new GGraph2ED());
    gparallel_ptr->setPlotLabel("Parallel execution times and errors");
 
-   boost::shared_ptr<GGraph2ED> gratio_ptr(new GGraph2ED());
+   std::shared_ptr<GGraph2ED> gratio_ptr(new GGraph2ED());
    gratio_ptr->setPlotLabel("Speedup: serial/parallel execution times and errors");
 
    (*greference_ptr) & referenceExecutionTimes;

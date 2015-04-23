@@ -76,7 +76,7 @@ namespace Common {
 /**
  * The standard destructor. Assumes that all threads have already
  * been terminated (?), so that the thread objects can be safely deleted.
- * As we are using a vector of boost::shared_ptr<thread> objects, we do not have
+ * As we are using a vector of std::shared_ptr<thread> objects, we do not have
  * to manually erase anything.
  */
 GThreadGroup::~GThreadGroup()
@@ -148,7 +148,7 @@ void GThreadGroup::remove_last() {
 	(threads_.back())->interrupt();
 	(threads_.back())->join();
 
-	// boost::shared_ptr takes care of the deletion of the thread object
+	// std::shared_ptr takes care of the deletion of the thread object
 	threads_.pop_back();
 }
 

@@ -85,7 +85,7 @@ void connectorProducer(
 	brokerConnector.setMaxResubmissions(maxResubmissions);
 
 	// Will hold the data items
-	std::vector<boost::shared_ptr<WORKLOAD> > data, oldWorkItems;
+	std::vector<std::shared_ptr<WORKLOAD> > data, oldWorkItems;
 
 	// Start the loop
 	boost::uint32_t cycleCounter = 0;
@@ -99,7 +99,7 @@ void connectorProducer(
 
 		// Fill a std::vector<> with WORKLOAD objects
 		for(std::size_t i=0; i<nContainerObjects; i++) {
-			data.push_back(boost::shared_ptr<WORKLOAD>(new WORKLOAD(nContainerEntries)));
+			data.push_back(std::shared_ptr<WORKLOAD>(new WORKLOAD(nContainerEntries)));
 		}
       nSentItems += boost::numeric_cast<boost::uint32_t>(data.size());
 
@@ -139,7 +139,7 @@ void brokerProducer(
 	, std::size_t nContainerEntries
 ) {
 	std::size_t id;
-	typedef boost::shared_ptr<Gem::Courtier::GBufferPortT<boost::shared_ptr<WORKLOAD> > > GBufferPortT_ptr;
+	typedef std::shared_ptr<Gem::Courtier::GBufferPortT<std::shared_ptr<WORKLOAD> > > GBufferPortT_ptr;
 
 	{ // Assign a counter to this producer
 		boost::mutex::scoped_lock lk(producer_counter_mutex);
@@ -147,7 +147,7 @@ void brokerProducer(
 	}
 
 	// Create a buffer port and register it with the broker
-	GBufferPortT_ptr CurrentBufferPort_(new Gem::Courtier::GBufferPortT<boost::shared_ptr<WORKLOAD> >());
+	GBufferPortT_ptr CurrentBufferPort_(new Gem::Courtier::GBufferPortT<std::shared_ptr<WORKLOAD> >());
 	GBROKER(WORKLOAD)->enrol(CurrentBufferPort_);
 
 	// Start the loop
@@ -155,11 +155,11 @@ void brokerProducer(
 	while(cycleCounter++ < nProductionCycles) {
 		// Submit the required number of items directly to the broker
 		for(std::size_t i=0; i<nContainerObjects; i++) {
-			CurrentBufferPort_->push_front_orig(boost::shared_ptr<WORKLOAD>(new WORKLOAD(nContainerEntries)));
+			CurrentBufferPort_->push_front_orig(std::shared_ptr<WORKLOAD>(new WORKLOAD(nContainerEntries)));
 		}
 
 		// Wait for all items to return
-		boost::shared_ptr<WORKLOAD> p;
+		std::shared_ptr<WORKLOAD> p;
 		for(std::size_t i=0; i<nContainerObjects; i++) {
 			CurrentBufferPort_->pop_back_processed(p);
 			if(!p) {
@@ -195,7 +195,7 @@ int main(int argc, char **argv) {
 	boost::uint32_t nWorkers;
 	GBSCModes executionMode;
 	bool useDirectBrokerConnection;
-   std::vector<boost::shared_ptr<GAsioTCPClientT<WORKLOAD> > > clients;
+   std::vector<std::shared_ptr<GAsioTCPClientT<WORKLOAD> > > clients;
 
 	// Initialize the global producer counter
 	producer_counter = 0;
@@ -234,7 +234,7 @@ int main(int argc, char **argv) {
 	//--------------------------------------------------------------------------------
 	// If we are in (networked) client mode, start the client code
 	if((executionMode==Gem::Courtier::Tests::NETWORKING || executionMode==Gem::Courtier::Tests::THREAEDANDNETWORKING) && !serverMode) {
-		boost::shared_ptr<GAsioTCPClientT<WORKLOAD> > p(new GAsioTCPClientT<WORKLOAD>(ip, boost::lexical_cast<std::string>(port)));
+		std::shared_ptr<GAsioTCPClientT<WORKLOAD> > p(new GAsioTCPClientT<WORKLOAD>(ip, boost::lexical_cast<std::string>(port)));
 
 		p->setMaxStalls(0); // An infinite number of stalled data retrievals
 		p->setMaxConnectionAttempts(100); // Up to 100 failed connection attempts
@@ -279,7 +279,7 @@ int main(int argc, char **argv) {
 			std::cout << "Using a serial consumer" << std::endl;
 
 			// Create a serial consumer and enrol it with the broker
-			boost::shared_ptr<GSerialConsumerT<WORKLOAD> > gatc(new GSerialConsumerT<WORKLOAD>());
+			std::shared_ptr<GSerialConsumerT<WORKLOAD> > gatc(new GSerialConsumerT<WORKLOAD>());
 			GBROKER(WORKLOAD)->enrol(gatc);
 		}
 		break;
@@ -289,13 +289,13 @@ int main(int argc, char **argv) {
 			std::cout << "Using internal networking" << std::endl;
 
          // Create a network consumer and enrol it with the broker
-         boost::shared_ptr<GAsioTCPConsumerT<WORKLOAD> > gatc(new GAsioTCPConsumerT<WORKLOAD>((unsigned short)10000));
+         std::shared_ptr<GAsioTCPConsumerT<WORKLOAD> > gatc(new GAsioTCPConsumerT<WORKLOAD>((unsigned short)10000));
          GBROKER(WORKLOAD)->enrol(gatc);
 
          // Start the workers
          clients.clear();
 			for(std::size_t worker=0; worker<nWorkers; worker++) {
-	         boost::shared_ptr<GAsioTCPClientT<WORKLOAD> > p(new GAsioTCPClientT<WORKLOAD>("localhost", "10000"));
+	         std::shared_ptr<GAsioTCPClientT<WORKLOAD> > p(new GAsioTCPClientT<WORKLOAD>("localhost", "10000"));
 	         clients.push_back(p);
 
 	         worker_gtg.create_thread( [p](){ p->run(); } );
@@ -308,7 +308,7 @@ int main(int argc, char **argv) {
 			std::cout << "Using networked mode" << std::endl;
 
 			// Create a network consumer and enrol it with the broker
-			boost::shared_ptr<GAsioTCPConsumerT<WORKLOAD> > gatc(new GAsioTCPConsumerT<WORKLOAD>(port));
+			std::shared_ptr<GAsioTCPConsumerT<WORKLOAD> > gatc(new GAsioTCPConsumerT<WORKLOAD>(port));
 			GBROKER(WORKLOAD)->enrol(gatc);
 		}
 		break;
@@ -318,7 +318,7 @@ int main(int argc, char **argv) {
 			std::cout << "Using the multithreaded mode" << std::endl;
 
 			// Create a consumer and make it known to the global broker
-			boost::shared_ptr< GBoostThreadConsumerT<WORKLOAD> > gbtc(new GBoostThreadConsumerT<WORKLOAD>());
+			std::shared_ptr< GBoostThreadConsumerT<WORKLOAD> > gbtc(new GBoostThreadConsumerT<WORKLOAD>());
 			gbtc->setNThreadsPerWorker(10);
 			GBROKER(WORKLOAD)->enrol(gbtc);
 		}
@@ -328,8 +328,8 @@ int main(int argc, char **argv) {
 		{
 			std::cout << "Using multithreading and internal networking" << std::endl;
 
-         boost::shared_ptr<GAsioTCPConsumerT<WORKLOAD> > gatc(new GAsioTCPConsumerT<WORKLOAD>((unsigned short)10000));
-         boost::shared_ptr< GBoostThreadConsumerT<WORKLOAD> > gbtc(new GBoostThreadConsumerT<WORKLOAD>());
+         std::shared_ptr<GAsioTCPConsumerT<WORKLOAD> > gatc(new GAsioTCPConsumerT<WORKLOAD>((unsigned short)10000));
+         std::shared_ptr< GBoostThreadConsumerT<WORKLOAD> > gbtc(new GBoostThreadConsumerT<WORKLOAD>());
 
          GBROKER(WORKLOAD)->enrol(gatc);
          GBROKER(WORKLOAD)->enrol(gbtc);
@@ -337,7 +337,7 @@ int main(int argc, char **argv) {
 			// Start the workers
          clients.clear();
          for(std::size_t worker=0; worker<nWorkers; worker++) {
-            boost::shared_ptr<GAsioTCPClientT<WORKLOAD> > p(new GAsioTCPClientT<WORKLOAD>("localhost", "10000"));
+            std::shared_ptr<GAsioTCPClientT<WORKLOAD> > p(new GAsioTCPClientT<WORKLOAD>("localhost", "10000"));
             clients.push_back(p);
 
             worker_gtg.create_thread( [p](){ p->run(); } );
@@ -349,8 +349,8 @@ int main(int argc, char **argv) {
 		{
 			std::cout << "Using multithreading and the networked mode" << std::endl;
 
-			boost::shared_ptr<GAsioTCPConsumerT<WORKLOAD> > gatc(new GAsioTCPConsumerT<WORKLOAD>(port));
-			boost::shared_ptr< GBoostThreadConsumerT<WORKLOAD> > gbtc(new GBoostThreadConsumerT<WORKLOAD>());
+			std::shared_ptr<GAsioTCPConsumerT<WORKLOAD> > gatc(new GAsioTCPConsumerT<WORKLOAD>(port));
+			std::shared_ptr< GBoostThreadConsumerT<WORKLOAD> > gbtc(new GBoostThreadConsumerT<WORKLOAD>());
 
 			GBROKER(WORKLOAD)->enrol(gatc);
 			GBROKER(WORKLOAD)->enrol(gbtc);

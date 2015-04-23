@@ -75,7 +75,7 @@ int main(int argc, char **argv){
 	// Test a: Mapping from internal to external value
 
    double internalValue = 0., externalValue = 0.;
-   boost::shared_ptr<GGraph2D> mapping_ptr(new GGraph2D());
+   std::shared_ptr<GGraph2D> mapping_ptr(new GGraph2D());
    mapping_ptr->setPlotLabel("Mapping from internal to external value");
 
 	GConstrainedDoubleObject gbd13(-1.,3.); // lower boundary -1, upper Boundary 3

@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
 	// on writing custom progress monitors within the Geneva framework.
    GOAMonitorStore->setOnce(
       "ea"
-      , boost::shared_ptr<GSigmaMonitor>(new GSigmaMonitor("./sigmaProgress.C"))
+      , std::shared_ptr<GSigmaMonitor>(new GSigmaMonitor("./sigmaProgress.C"))
    );
 
    // Another possibility: Add a "pluggable optimization monitor" to Go2. This
@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
    // that do not discriminate between optimization algorithms.
    std::vector<double> boundaries;
    boundaries.push_back(1.);
-   boost::shared_ptr<GAllSolutionFileLoggerT<GParameterSet> >
+   std::shared_ptr<GAllSolutionFileLoggerT<GParameterSet> >
       allSolutionLogger_ptr(new GAllSolutionFileLoggerT<GParameterSet>("allLog.txt", boundaries));
 
    go.registerPluggableOM(
@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
 
    // Create a factory for GStarterIndividual objects and perform
    // any necessary initial work.
-   boost::shared_ptr<GStarterIndividualFactory> gsif_ptr(
+   std::shared_ptr<GStarterIndividualFactory> gsif_ptr(
          new GStarterIndividualFactory("./config/GStarterIndividual.json")
    );
 
@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
    go.registerContentCreator(gsif_ptr);
 
 	// Perform the actual optimization
-	boost::shared_ptr<GStarterIndividual> bestIndividual_ptr = go.optimize<GStarterIndividual>();
+	std::shared_ptr<GStarterIndividual> bestIndividual_ptr = go.optimize<GStarterIndividual>();
 
 	// Do something with the best result. Here we simply print the result to stdout.
 	std::cout << bestIndividual_ptr << std::endl;

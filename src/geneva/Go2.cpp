@@ -105,7 +105,7 @@ Go2::Go2()
 Go2::Go2(
    int argc
    , char **argv
-   , const std::vector<boost::shared_ptr<boost::program_options::option_description> >& od
+   , const boost::program_options::options_description& userDescriptions
 )
 	: GMutableSetT<GParameterSet>()
 	, clientMode_(GO2_DEF_CLIENTMODE)
@@ -132,7 +132,7 @@ Go2::Go2(
 
 	//--------------------------------------------
 	// Load initial configuration options from the command line
-	parseCommandLine(argc, argv, od);
+	parseCommandLine(argc, argv, userDescriptions);
 
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
@@ -195,7 +195,7 @@ Go2::Go2(
    int argc
    , char **argv
    , const std::string& configFilename
-   , const std::vector<boost::shared_ptr<boost::program_options::option_description> >& od
+   , const boost::program_options::options_description& userDescriptions
 )
 	: GMutableSetT<GParameterSet>()
 	, clientMode_(GO2_DEF_CLIENTMODE)
@@ -227,7 +227,7 @@ Go2::Go2(
 
    //--------------------------------------------
 	// Load configuration options from the command line
-	parseCommandLine(argc, argv, od);
+	parseCommandLine(argc, argv, userDescriptions);
 
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
@@ -393,7 +393,7 @@ std::string Go2::name() const {
  */
 void Go2::registerDefaultAlgorithm(const std::string& mn) {
    // Retrieve the algorithm from the global store
-   boost::shared_ptr<GOptimizationAlgorithmFactoryT<GOABase> > p;
+   std::shared_ptr<GOptimizationAlgorithmFactoryT<GOABase> > p;
    if(!GOAFactoryStore->get(mn, p)) {
       glogger
       << "In Go2::registerDefaultAlgorithm(std::string): Error!" << std::endl
@@ -411,7 +411,7 @@ void Go2::registerDefaultAlgorithm(const std::string& mn) {
  * not be used. Note that any individuals registered with the default algorithm
  * will be copied into the Go2 object.
  */
-void Go2::registerDefaultAlgorithm(boost::shared_ptr<GOABase> default_algorithm) {
+void Go2::registerDefaultAlgorithm(std::shared_ptr<GOABase> default_algorithm) {
    // Check that the pointer isn't empty
    if(!default_algorithm) {
       glogger
@@ -527,7 +527,7 @@ int Go2::clientRun() {
    }
 
 	// Retrieve the client worker from the consumer
-	boost::shared_ptr<Gem::Courtier::GBaseClientT<Gem::Geneva::GParameterSet> > p;
+	std::shared_ptr<Gem::Courtier::GBaseClientT<Gem::Geneva::GParameterSet> > p;
 
    if(GConsumerStore->get(consumerName_)->needsClient()) {
 	   p = GConsumerStore->get(consumerName_)->getClient();
@@ -606,7 +606,7 @@ bool Go2::randomInit(const activityMode&) {
  */
 double Go2::fitnessCalculation() {
    // Make sure all optimization work has been carried out
-	boost::shared_ptr<GParameterSet> p = this->GOptimizableI::optimize<GParameterSet>(offset_ + iterationsConsumed_);
+	std::shared_ptr<GParameterSet> p = this->GOptimizableI::optimize<GParameterSet>(offset_ + iterationsConsumed_);
 
    // We use the raw fitness rather than the transformed fitness,
    // as this is custom also for "normal" individuals. Re-evaluation
@@ -637,7 +637,7 @@ std::size_t Go2::getNCLAlgorithms() const {
  *
  * @param alg A base pointer to another optimization algorithm
  */
-void Go2::addAlgorithm(boost::shared_ptr<GOABase> alg) {
+void Go2::addAlgorithm(std::shared_ptr<GOABase> alg) {
 	// Check that the pointer is not empty
 	if(!alg) {
 	   glogger
@@ -669,7 +669,7 @@ void Go2::addAlgorithm(boost::shared_ptr<GOABase> alg) {
  * @param alg A base pointer to another optimization algorithm
  * @return A reference to this object
  */
-Go2& Go2::operator&(boost::shared_ptr<GOABase> alg) {
+Go2& Go2::operator&(std::shared_ptr<GOABase> alg) {
 	this->addAlgorithm(alg);
 	return *this;
 }
@@ -680,7 +680,7 @@ Go2& Go2::operator&(boost::shared_ptr<GOABase> alg) {
  */
 void Go2::addAlgorithm(const std::string& mn) {
    // Retrieve the algorithm from the global store
-   boost::shared_ptr<GOptimizationAlgorithmFactoryT<GOABase> > p;
+   std::shared_ptr<GOptimizationAlgorithmFactoryT<GOABase> > p;
    if(!GOAFactoryStore->get(mn, p)) {
       glogger
       << "In Go2::addAlgorithm(std::string): Error!" << std::endl
@@ -705,7 +705,7 @@ Go2& Go2::operator&(const std::string& mn) {
  * Allows to register a content creator
  */
 void Go2::registerContentCreator (
-      boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > cc_ptr
+      std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > cc_ptr
 ) {
    if(!cc_ptr) {
       glogger
@@ -733,7 +733,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
    // the algorithms_ vector.
    if(!cl_algorithms_.empty()) {
       // Add algorithms that have been specified on the command line
-      std::vector<boost::shared_ptr<GOABase> >::iterator pers_it;
+      std::vector<std::shared_ptr<GOABase> >::iterator pers_it;
       for(pers_it=cl_algorithms_.begin(); pers_it!=cl_algorithms_.end(); ++pers_it) {
          this->addAlgorithm(*pers_it);
       }
@@ -761,7 +761,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
 	if(this->empty()) {
 	   if(contentCreatorPtr_) {
          for(std::size_t ind=0; ind<algorithms_.at(0)->getDefaultPopulationSize(); ind++) {
-            boost::shared_ptr<GParameterSet> p_ind = (*contentCreatorPtr_)();
+            std::shared_ptr<GParameterSet> p_ind = (*contentCreatorPtr_)();
             if(p_ind) {
                this->push_back(p_ind);
             } else { // No valid item received, the factory has run empty
@@ -789,9 +789,9 @@ void Go2::optimize(const boost::uint32_t& offset) {
 	iterationsConsumed_ = offset_;
 	sorted_ = false;
    GOABase::iterator ind_it;
-	std::vector<boost::shared_ptr<GOABase> >::iterator alg_it;
+	std::vector<std::shared_ptr<GOABase> >::iterator alg_it;
 	for(alg_it=algorithms_.begin(); alg_it!=algorithms_.end(); ++alg_it) {
-		boost::shared_ptr<GOABase> p_base = (*alg_it);
+		std::shared_ptr<GOABase> p_base = (*alg_it);
 
 		// Add the pluggable optimization monitor to the algorithm, if it is available
 		if(pluggableInfoFunction_) {
@@ -821,8 +821,8 @@ void Go2::optimize(const boost::uint32_t& offset) {
       iterationsConsumed_ = p_base->getIteration();
 
       // Unload the individuals from the last algorithm and store them again in this object
-      std::vector<boost::shared_ptr<GParameterSet> > bestIndividuals = p_base->GOptimizableI::getBestIndividuals<GParameterSet>();
-      std::vector<boost::shared_ptr<GParameterSet> >::iterator best_it;
+      std::vector<std::shared_ptr<GParameterSet> > bestIndividuals = p_base->GOptimizableI::getBestIndividuals<GParameterSet>();
+      std::vector<std::shared_ptr<GParameterSet> >::iterator best_it;
       for(best_it=bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
          this->push_back(*best_it);
       }
@@ -836,7 +836,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
    std::sort(
       this->begin()
       , this->end()
-      , [](boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) -> bool {
+      , [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
          return x->minOnly_fitness() < y->minOnly_fitness();
       }
    );
@@ -851,7 +851,7 @@ void Go2::optimize(const boost::uint32_t& offset) {
  *
  * @return The best individual found
  */
-boost::shared_ptr<Gem::Geneva::GParameterSet> Go2::customGetBestIndividual() {
+std::shared_ptr<Gem::Geneva::GParameterSet> Go2::customGetBestIndividual() {
 	Go2::iterator it;
 
 	// Do some error checking
@@ -890,7 +890,7 @@ boost::shared_ptr<Gem::Geneva::GParameterSet> Go2::customGetBestIndividual() {
  *
  * @return The best individual found
  */
-std::vector<boost::shared_ptr<Gem::Geneva::GParameterSet> > Go2::customGetBestIndividuals() {
+std::vector<std::shared_ptr<Gem::Geneva::GParameterSet> > Go2::customGetBestIndividuals() {
 	Go2::iterator it;
 
 	// Do some error checking
@@ -910,7 +910,7 @@ std::vector<boost::shared_ptr<Gem::Geneva::GParameterSet> > Go2::customGetBestIn
       }
    }
 
-	std::vector<boost::shared_ptr<Gem::Geneva::GParameterSet> > bestIndividuals;
+	std::vector<std::shared_ptr<Gem::Geneva::GParameterSet> > bestIndividuals;
 	for(it=this->begin(); it!=this->end(); ++it) {
 		// This will result in an implicit downcast
 		bestIndividuals.push_back(*it);
@@ -1043,12 +1043,12 @@ boost::uint32_t Go2::getIterationOffset() const {
  *
  * @param argc The number of command line arguments
  * @param argv An array with the arguments
- * @param od A vector of additional command line options (cmp. boost::program_options)
+ * @param od A program_options object for user-defined command line options
  */
 void Go2::parseCommandLine(
    int argc
    , char **argv
-   , const std::vector<boost::shared_ptr<boost::program_options::option_description> >& od
+   , const boost::program_options::options_description& userOptions
 ) {
    namespace po = boost::program_options;
 
@@ -1098,13 +1098,6 @@ void Go2::parseCommandLine(
          ("consumer,c", po::value<std::string>(&consumerName_), consumer_help.str().c_str())
 		;
 
-      // Add additional options specified as an argument to the constructor
-	   boost::program_options::options_description user("User options");
-      std::vector<boost::shared_ptr<boost::program_options::option_description> >::const_iterator po_cit;
-      for(po_cit=od.begin(); po_cit!=od.end(); ++po_cit) {
-         user.add(*po_cit);
-      }
-
       // Add additional options coming from the algorithms and consumers
       boost::program_options::options_description visible("Global algorithm- and consumer-options");
       boost::program_options::options_description hidden("Hidden algorithm- and consumer-options");
@@ -1126,10 +1119,10 @@ void Go2::parseCommandLine(
 		}
 
       // Add the other options to "general"
-		if(user.options().empty()) {
+		if(userOptions.options().empty()) {
 		   general.add(basic).add(visible).add(hidden);
 		} else {
-		   general.add(basic).add(user).add(visible).add(hidden);
+		   general.add(basic).add(userOptions).add(visible).add(hidden);
 		}
 
 		// Do the actual parsing of the command line
@@ -1142,10 +1135,10 @@ void Go2::parseCommandLine(
             std::cout << general << std::endl;
          } else { // Just show a selection
             boost::program_options::options_description selected(usageString.c_str());
-            if(user.options().empty()) {
+            if(userOptions.options().empty()) {
                selected.add(basic).add(visible);
             } else {
-               selected.add(basic).add(user).add(visible);
+               selected.add(basic).add(userOptions).add(visible);
             }
             std::cout << selected << std::endl;
          }
@@ -1229,7 +1222,7 @@ void Go2::parseCommandLine(
 		   std::vector<std::string>::iterator it;
 			for(it=algs.begin(); it!=algs.end(); ++it) {
             // Retrieve the algorithm factory from the global store
-            boost::shared_ptr<GOptimizationAlgorithmFactoryT<GOABase> > p;
+            std::shared_ptr<GOptimizationAlgorithmFactoryT<GOABase> > p;
             if(!GOAFactoryStore->get(*it, p)) {
                glogger
                << "In Go2::parseCommandLine(int, char**): Error!" << std::endl

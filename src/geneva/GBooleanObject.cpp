@@ -434,14 +434,14 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
-	boost::shared_ptr<GAdaptorT<bool> > storedAdaptor;
+	std::shared_ptr<GAdaptorT<bool> > storedAdaptor;
 
 	if(this->hasAdaptor()) {
 		storedAdaptor = this->getAdaptor();
 		adaptorStored = true;
 	}
 
-	boost::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor(1.0));
+	std::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor(1.0));
 	gba_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	gba_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(gba_ptr);
@@ -498,7 +498,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test that random initialization with equal probability for true and false will result in roughly the same amount of corresponding values
-		boost::shared_ptr<GBooleanObject> p_test = this->clone<GBooleanObject>();
+		std::shared_ptr<GBooleanObject> p_test = this->clone<GBooleanObject>();
 
 		// Assign a boolean value true
 		BOOST_CHECK_NO_THROW(*p_test = true);
@@ -529,7 +529,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test that initialization with a probability of 1 for true will only result in true values
-		boost::shared_ptr<GBooleanObject> p_test = this->clone<GBooleanObject>();
+		std::shared_ptr<GBooleanObject> p_test = this->clone<GBooleanObject>();
 
 		// Assign a boolean value true
 		BOOST_CHECK_NO_THROW(*p_test = false);
@@ -552,7 +552,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test that initialization with a probability of 0 for true will only result in false values
-		boost::shared_ptr<GBooleanObject> p_test = this->clone<GBooleanObject>();
+		std::shared_ptr<GBooleanObject> p_test = this->clone<GBooleanObject>();
 
 		// Assign a boolean value true
 		BOOST_CHECK_NO_THROW(*p_test = true);
@@ -576,7 +576,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 
 	{ // Test that random initialization with a given probability for true will result in roughly the expected amount of corresponding values
 		for(double d=0.1; d<0.9; d+=0.1) {
-			boost::shared_ptr<GBooleanObject> p_test = this->clone<GBooleanObject>();
+			std::shared_ptr<GBooleanObject> p_test = this->clone<GBooleanObject>();
 
 			// Assign a boolean value true
 			BOOST_CHECK_NO_THROW(*p_test = true);
@@ -614,8 +614,8 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check that random initialization can be blocked for equal distributions
-		boost::shared_ptr<GBooleanObject> p_test1 = this->clone<GBooleanObject>();
-		boost::shared_ptr<GBooleanObject> p_test2 = this->clone<GBooleanObject>();
+		std::shared_ptr<GBooleanObject> p_test1 = this->clone<GBooleanObject>();
+		std::shared_ptr<GBooleanObject> p_test2 = this->clone<GBooleanObject>();
 
 		// Assign a boolean value true
 		BOOST_CHECK_NO_THROW(*p_test1 = true);
@@ -645,8 +645,8 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check that random initialization can be blocked for distributions with a given probability structure
-		boost::shared_ptr<GBooleanObject> p_test1 = this->clone<GBooleanObject>();
-		boost::shared_ptr<GBooleanObject> p_test2 = this->clone<GBooleanObject>();
+		std::shared_ptr<GBooleanObject> p_test1 = this->clone<GBooleanObject>();
+		std::shared_ptr<GBooleanObject> p_test2 = this->clone<GBooleanObject>();
 
 		// Assign a boolean value true
 		BOOST_CHECK_NO_THROW(*p_test1 = true);
@@ -676,9 +676,9 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check that the fp-family of functions doesn't have an effect on this object
-		boost::shared_ptr<GBooleanObject> p_test1 = this->GObject::clone<GBooleanObject>();
-		boost::shared_ptr<GBooleanObject> p_test2 = this->GObject::clone<GBooleanObject>();
-		boost::shared_ptr<GBooleanObject> p_test3 = this->GObject::clone<GBooleanObject>();
+		std::shared_ptr<GBooleanObject> p_test1 = this->GObject::clone<GBooleanObject>();
+		std::shared_ptr<GBooleanObject> p_test2 = this->GObject::clone<GBooleanObject>();
+		std::shared_ptr<GBooleanObject> p_test3 = this->GObject::clone<GBooleanObject>();
 
 		// Assign a boolean value true
 		BOOST_CHECK_NO_THROW(*p_test1 = true);
@@ -741,14 +741,14 @@ void GBooleanObject::specificTestsFailuresExpected_GUnitTests() {
 
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
-	boost::shared_ptr<GAdaptorT<bool> > storedAdaptor;
+	std::shared_ptr<GAdaptorT<bool> > storedAdaptor;
 
 	if(this->hasAdaptor()) {
 		storedAdaptor = this->getAdaptor();
 		adaptorStored = true;
 	}
 
-	boost::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor(1.0));
+	std::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor(1.0));
 	gba_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	gba_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(gba_ptr);

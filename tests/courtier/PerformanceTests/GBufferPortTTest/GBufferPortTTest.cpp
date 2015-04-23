@@ -67,7 +67,7 @@ boost::mutex output_mutex;
 /**
  * A barrier on which all threads have to wait
  */
-boost::shared_ptr<boost::barrier> sync_ptr;
+std::shared_ptr<boost::barrier> sync_ptr;
 
 using namespace Gem::Courtier;
 using namespace Gem::Courtier::Tests;
@@ -77,7 +77,7 @@ using namespace Gem::Courtier::Tests;
  * A global buffer port, to/from which WORKLOAD objects are written/read. We store
  * smart pointers instead of the objects themselves.
  */
-GBufferPortT<boost::shared_ptr<WORKLOAD> > bufferport;
+GBufferPortT<std::shared_ptr<WORKLOAD> > bufferport;
 
 /********************************************************************************/
 /*
@@ -113,7 +113,7 @@ void producer(
 	// Submit all required items
 	while(cycleCounter < nProductionCycles) {
 		// Submit the WORKLOAD object
-		boost::shared_ptr<WORKLOAD> p_submit(new WORKLOAD(nContainerEntries));
+		std::shared_ptr<WORKLOAD> p_submit(new WORKLOAD(nContainerEntries));
 		if(putTimeoutMS > 0) {
 			while(!bufferport.push_front_orig_bool(p_submit, putTimeout)) {
 				if(++putTimeouts >= maxPutTimeouts) {
@@ -133,7 +133,7 @@ void producer(
 	// Retrieve the items back. We assume that a single worker is located at the
 	// other end so that we retrieve all items back
 	boost::uint32_t nReceived = 0;
-	boost::shared_ptr<WORKLOAD> p_receive;
+	std::shared_ptr<WORKLOAD> p_receive;
 	while(nReceived < nProductionCycles) {
 		if(getTimeoutMS > 0) {
 			while(!bufferport.pop_back_processed_bool(p_receive, getTimeout)) {
@@ -200,7 +200,7 @@ void processor (
 
 	sync_ptr->wait(); // Do not start before all threads have reached this wait()
 
-	boost::shared_ptr<WORKLOAD> p;
+	std::shared_ptr<WORKLOAD> p;
 	while(cycleCounter < nProductionCycles) {
 		// Retrieve an item from the buffer port
 		if(getTimeoutMS > 0) {
@@ -277,7 +277,7 @@ int main(int argc, char **argv) {
 
 	//--------------------------------------------------------------------------------
 	// Initialize the global barrier so all threads start at a predefined time
-	sync_ptr = boost::shared_ptr<boost::barrier>(new boost::barrier(1+1));
+	sync_ptr = std::shared_ptr<boost::barrier>(new boost::barrier(1+1));
 
 	//--------------------------------------------------------------------------------
 	// Start the producer and consumer threads

@@ -79,7 +79,7 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
 GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory (
    const std::string& configFile
    , const execMode& pm
-   , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr
+   , std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr
 )
    : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm, contentCreatorPtr)
 { /* nothing */ }
@@ -113,25 +113,25 @@ std::string GEvolutionaryAlgorithmFactory::getAlgorithmName() const {
  *
  * @return Items of the desired type
  */
-boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GEvolutionaryAlgorithmFactory::getObject_(
+std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GEvolutionaryAlgorithmFactory::getObject_(
 	Gem::Common::GParserBuilder& gpb
 	, const std::size_t& id
 ) {
 	// Will hold the result
-	boost::shared_ptr<GBaseEA> target;
+	std::shared_ptr<GBaseEA> target;
 
 	// Fill the target pointer as required
 	switch(pm_) {
 	case EXECMODE_SERIAL:
-		target = boost::shared_ptr<GSerialEA>(new GSerialEA());
+		target = std::shared_ptr<GSerialEA>(new GSerialEA());
 		break;
 
 	case EXECMODE_MULTITHREADED:
-		target = boost::shared_ptr<GMultiThreadedEA>(new GMultiThreadedEA());
+		target = std::shared_ptr<GMultiThreadedEA>(new GMultiThreadedEA());
 		break;
 
 	case EXECMODE_BROKERAGE:
-		target = boost::shared_ptr<GBrokerEA>(new GBrokerEA());
+		target = std::shared_ptr<GBrokerEA>(new GBrokerEA());
 		break;
 	}
 
@@ -149,7 +149,7 @@ boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GEvolutionaryAlgorith
  * @param p A smart-pointer to be acted on during post-processing
  */
 void GEvolutionaryAlgorithmFactory::postProcess_(
-      boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >& p_base
+      std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >& p_base
 ) {
 	// Convert the object to the correct target type
 	switch(pm_) {
@@ -159,7 +159,7 @@ void GEvolutionaryAlgorithmFactory::postProcess_(
 
 	case EXECMODE_MULTITHREADED:
 		{
-			boost::shared_ptr<GMultiThreadedEA> p
+			std::shared_ptr<GMultiThreadedEA> p
 			   = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedEA>(p_base);
 			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
 		}
@@ -167,7 +167,7 @@ void GEvolutionaryAlgorithmFactory::postProcess_(
 
 	case EXECMODE_BROKERAGE:
 		{
-			boost::shared_ptr<GBrokerEA> p
+			std::shared_ptr<GBrokerEA> p
 			   = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerEA>(p_base);
 
          p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);

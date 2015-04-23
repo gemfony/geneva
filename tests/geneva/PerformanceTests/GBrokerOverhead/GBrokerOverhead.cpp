@@ -117,17 +117,17 @@ int main(int argc, char **argv){
   GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
   // Create the first set of parent individuals. Initialization of parameters is done randomly.
-  std::vector<boost::shared_ptr<GParameterSet> > parentIndividuals;
+  std::vector<std::shared_ptr<GParameterSet> > parentIndividuals;
   for(std::size_t p = 0 ; p<nParents; p++) {
-	  boost::shared_ptr<GParameterSet> functionIndividual_ptr = gfi();
+	  std::shared_ptr<GParameterSet> functionIndividual_ptr = gfi();
 
 	  // Set up a GDoubleCollection with dimension values, each initialized
 	  // with a random number in the range [min,max[
-	  boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDim,minVar,maxVar));
+	  std::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDim,minVar,maxVar));
 
 	  // Set up and register an adaptor for the collection, so it
 	  // knows how to be adapted.
-	  boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma,sigmaSigma,minSigma,maxSigma));
+	  std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma,sigmaSigma,minSigma,maxSigma));
 	  gdga_ptr->setAdaptionThreshold(adaptionThreshold);
 	  gdga_ptr->setAdaptionProbability(adProb);
 	  gdc_ptr->addAdaptor(gdga_ptr);
@@ -142,7 +142,7 @@ int main(int argc, char **argv){
   // We can now start creating populations. We refer to them through the base class
 
   // This smart pointer will hold the different population types
-  boost::shared_ptr<GBaseEA> pop_ptr;
+  std::shared_ptr<GBaseEA> pop_ptr;
 
   // Create the actual populations
   switch (parallelizationMode) {
@@ -150,7 +150,7 @@ int main(int argc, char **argv){
   case 0: // Serial execution
 	std::cout << "Using serial execution." << std::endl;
     // Create an empty population
-    pop_ptr = boost::shared_ptr<GSerialEA>(new GSerialEA());
+    pop_ptr = std::shared_ptr<GSerialEA>(new GSerialEA());
     break;
 
     //-----------------------------------------------------------------------------------------------------
@@ -158,7 +158,7 @@ int main(int argc, char **argv){
     {
       std::cout << "Using plain multithreaded execution." << std::endl;
       // Create the multi-threaded population
-      boost::shared_ptr<GMultiThreadedEA> popPar_ptr(new GMultiThreadedEA());
+      std::shared_ptr<GMultiThreadedEA> popPar_ptr(new GMultiThreadedEA());
 
       // Population-specific settings
       popPar_ptr->setNThreads(nEvaluationThreads);
@@ -173,12 +173,12 @@ int main(int argc, char **argv){
     {
     	std::cout << "Using the GBoostThreadConsumerT consumer." << std::endl;
 		// Create a consumer and make it known to the global broker
-		boost::shared_ptr<Gem::Courtier::GBoostThreadConsumerT<GParameterSet> > gbtc(new Gem::Courtier::GBoostThreadConsumerT<GParameterSet>());
+		std::shared_ptr<Gem::Courtier::GBoostThreadConsumerT<GParameterSet> > gbtc(new Gem::Courtier::GBoostThreadConsumerT<GParameterSet>());
 		gbtc->setNThreadsPerWorker(nEvaluationThreads);
 		GBROKER(Gem::Geneva::GParameterSet)->enrol(gbtc);
 
 		// Create the actual broker population and set parameters as needed
-		boost::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());
+		std::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());
 
 		// Assignment to the base pointer
 		pop_ptr = popBroker_ptr;

@@ -138,8 +138,8 @@ protected:
 private:
 	/***************************************************************************/
 
-   std::vector<boost::shared_ptr<GParameterSet> > oldIndividuals_; ///< A temporary copy of the last iteration's individuals
-	std::vector<boost::shared_ptr<GParameterSet> > oldWorkItems_; ///< Temporarily holds old returned work items
+   std::vector<std::shared_ptr<GParameterSet> > oldIndividuals_; ///< A temporary copy of the last iteration's individuals
+	std::vector<std::shared_ptr<GParameterSet> > oldWorkItems_; ///< Temporarily holds old returned work items
 
 	/***************************************************************************/
 	/**
@@ -148,7 +148,7 @@ private:
 	 */
 	class indNeighborhoodComp {
 	public:
-	   bool operator()(boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) {
+	   bool operator()(std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) {
 	      return x->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood() < y->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood();
 	   }
 	};

@@ -568,17 +568,17 @@ private:
       long totalMicroseconds = boost::numeric_cast<long>((endTime_ - startTime_).total_microseconds());
 
       // Create the plot objects
-		boost::shared_ptr<GHistogram1D> gets_ptr(new GHistogram1D(1000, 0, totalMicroseconds));
+		std::shared_ptr<GHistogram1D> gets_ptr(new GHistogram1D(1000, 0, totalMicroseconds));
 		gets_ptr->setPlotLabel(std::string("timing of pop_back calls (") +  name_ + std::string(" / ") + boost::posix_time::to_simple_string(startTime_) + std::string(")"));
 		gets_ptr->setXAxisLabel("microsceonds after start");
 		gets_ptr->setYAxisLabel("number of pop_back calls");
 
-		boost::shared_ptr<GHistogram1D> puts_ptr(new GHistogram1D(1000, 0, totalMicroseconds));
+		std::shared_ptr<GHistogram1D> puts_ptr(new GHistogram1D(1000, 0, totalMicroseconds));
 		puts_ptr->setPlotLabel(std::string("timing of push_front calls (") +  name_ + std::string(" / ") + boost::posix_time::to_simple_string(startTime_) + std::string(")"));
       puts_ptr->setXAxisLabel("microsceonds after start");
       puts_ptr->setYAxisLabel("number of push_front calls");
 
-		boost::shared_ptr<GGraph2D> entries_ptr(new GGraph2D());
+		std::shared_ptr<GGraph2D> entries_ptr(new GGraph2D());
 		entries_ptr->setPlotLabel("buffer size");
 		entries_ptr->setXAxisLabel("microsceonds after start");
 		entries_ptr->setYAxisLabel("number of remaining entries in the buffer");

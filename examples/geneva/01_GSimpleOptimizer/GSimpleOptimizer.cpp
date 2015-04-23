@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
 	//---------------------------------------------------------------------------
    // Create a factory for GFunctionIndividual objects and perform
    // any necessary initial work.
-	boost::shared_ptr<GFunctionIndividualFactory>
+	std::shared_ptr<GFunctionIndividualFactory>
 	   gfi_ptr(new GFunctionIndividualFactory("./config/GFunctionIndividual.json"));
 
    // Add a content creator so Go2 can generate its own individuals, if necessary
@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
 	go.registerDefaultAlgorithm("ea");
 
 	// Perform the actual optimization
-	boost::shared_ptr<GFunctionIndividual> p = go.optimize<GFunctionIndividual>();
+	std::shared_ptr<GFunctionIndividual> p = go.optimize<GFunctionIndividual>();
 
 	// Here you can do something with the best individual ("p") found.
 	// We simply print its content here, by means of an operator<< implemented

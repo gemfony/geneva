@@ -145,7 +145,7 @@ int main(int argc, char **argv){
 	// If this is a client in networked mode, we can just start the listener and
 	// return when it has finished
 	if(EXECMODE_BROKERAGE==parallelizationMode && !serverMode) {
-	   boost::shared_ptr<GAsioTCPClientT<GParameterSet> >
+	   std::shared_ptr<GAsioTCPClientT<GParameterSet> >
 		   p(new GAsioTCPClientT<GParameterSet>(ip, boost::lexical_cast<std::string>(port)));
 
 	   p->setMaxStalls(maxStalls); // 0 would mean an infinite number of stalled data retrievals
@@ -161,7 +161,7 @@ int main(int argc, char **argv){
 	// We can now start creating populations. We refer to them through the base class
 
 	// This smart pointer will hold the different population types
-	boost::shared_ptr<GBaseSwarm> pop_ptr;
+	std::shared_ptr<GBaseSwarm> pop_ptr;
 
 	// Create the actual populations
 	switch (parallelizationMode) {
@@ -169,14 +169,14 @@ int main(int argc, char **argv){
 	case 0: // Serial execution
 		// Create an empty population
 		pop_ptr
-		 = boost::shared_ptr<GSerialSwarm>(new GSerialSwarm(nNeighborhoods, nNeighborhoodMembers));
+		 = std::shared_ptr<GSerialSwarm>(new GSerialSwarm(nNeighborhoods, nNeighborhoodMembers));
 		break;
 
    //---------------------------------------------------------------------------
 	case 1: // Multi-threaded execution
 	{
 		// Create the multi-threaded population
-		boost::shared_ptr<GMultiThreadedSwarm>
+		std::shared_ptr<GMultiThreadedSwarm>
 		  popPar_ptr(new GMultiThreadedSwarm(nNeighborhoods, nNeighborhoodMembers));
 
 		// Population-specific settings
@@ -191,19 +191,19 @@ int main(int argc, char **argv){
 	case 2: // Networked execution (server-side)
 	{
 		// Create a network consumer and enrol it with the broker
-		boost::shared_ptr<GAsioTCPConsumerT<GParameterSet> >
+		std::shared_ptr<GAsioTCPConsumerT<GParameterSet> >
 		  gatc(new GAsioTCPConsumerT<GParameterSet>(port, 0, serMode));
 		GBROKER(Gem::Geneva::GParameterSet)->enrol(gatc);
 
       if(addLocalConsumer) { // This is mainly for testing and benchmarking
-        boost::shared_ptr<GBoostThreadConsumerT<GParameterSet> >
+        std::shared_ptr<GBoostThreadConsumerT<GParameterSet> >
           gbtc(new GBoostThreadConsumerT<GParameterSet>());
         gbtc->setNThreadsPerWorker(nEvaluationThreads);
         GBROKER(Gem::Geneva::GParameterSet)->enrol(gbtc);
       }
 
 		// Create the actual broker population
-		boost::shared_ptr<GBrokerSwarm>
+		std::shared_ptr<GBrokerSwarm>
 		  popBroker_ptr(new GBrokerSwarm(nNeighborhoods, nNeighborhoodMembers));
 
 		// Assignment to the base pointer
@@ -227,7 +227,7 @@ int main(int argc, char **argv){
    GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
    // Create the first set of parent individuals
-   std::vector<boost::shared_ptr<GFunctionIndividual> > parentIndividuals;
+   std::vector<std::shared_ptr<GFunctionIndividual> > parentIndividuals;
 
    // Create initial individuals for the population
    if(allRandomInit) { // Random initialization of all individuals in the population
@@ -237,7 +237,7 @@ int main(int argc, char **argv){
    } else { // Individuals of the same neighborhood start from the same location
       for(std::size_t n=0; n<nNeighborhoods; n++) {
          // Initialize the first individual of the neighborhood
-         boost::shared_ptr<GFunctionIndividual> functionIndividual_ptr
+         std::shared_ptr<GFunctionIndividual> functionIndividual_ptr
             = gfi.get<GFunctionIndividual>();
 
          // Now add the required number of clones to the neighborhood
@@ -250,7 +250,7 @@ int main(int argc, char **argv){
 
    /****************************************************************************/
    // Create an instance of our optimization monitor
-   boost::shared_ptr<progressMonitor>
+   std::shared_ptr<progressMonitor>
      pm_ptr(new progressMonitor(parentIndividuals[0]->getDemoFunction())); // The demo function is only known to the individual
    pm_ptr->setProgressDims(xDim, yDim);
    pm_ptr->setFollowProgress(followProgress); // Shall we take snapshots ?
@@ -282,7 +282,7 @@ int main(int argc, char **argv){
 
    /****************************************************************************/
    // Do something with the best individual found
-   boost::shared_ptr<GFunctionIndividual> p = pop_ptr->getBestIndividual<GFunctionIndividual>();
+   std::shared_ptr<GFunctionIndividual> p = pop_ptr->getBestIndividual<GFunctionIndividual>();
 
    // Here you can do something with the best individual ("p") found.
    // We simply print its content here, by means of an operator<< implemented

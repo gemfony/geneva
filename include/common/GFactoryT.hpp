@@ -139,7 +139,7 @@ public:
 	 *
 	 * @return An individual of the desired type
 	 */
-	boost::shared_ptr<prod_type> operator()() {
+	std::shared_ptr<prod_type> operator()() {
 	   return this->get();
 	}
 
@@ -147,7 +147,7 @@ public:
 	/**
 	 * Allows the creation of objects of the desired type.
 	 */
-	virtual boost::shared_ptr<prod_type> get() {
+	virtual std::shared_ptr<prod_type> get() {
       // Make sure the initialization code has been executed.
       // This function will do nothing when called more than once
       this->globalInit();
@@ -164,7 +164,7 @@ public:
       // Retrieve the actual object. It may, in the process of its
       // creation, add further configuration options and call-backs to
       // the parser
-      boost::shared_ptr<prod_type> p = this->getObject_(gpb, id_);
+      std::shared_ptr<prod_type> p = this->getObject_(gpb, id_);
 
       // Read the configuration parameters from file
       if(!gpb.parseConfigFile(configFile_)) {
@@ -210,12 +210,12 @@ public:
 	 * if possible.
 	 */
 	template <typename tT> // "tT" stands for "target type"
-	boost::shared_ptr<tT> get() {
-	   boost::shared_ptr<prod_type> p = this->get();
+	std::shared_ptr<tT> get() {
+	   std::shared_ptr<prod_type> p = this->get();
 	   if(p){
 	      return Gem::Common::convertSmartPointer<prod_type, tT>(p);
 	   } else {
-	      return boost::shared_ptr<tT>(); // Just return an empty pointer
+	      return std::shared_ptr<tT>(); // Just return an empty pointer
 	   }
 	}
 
@@ -241,7 +241,7 @@ public:
 
 		// Retrieve an object (will be discarded at the end of this function)
 		// Here, further options may be added to the parser builder.
-		boost::shared_ptr<prod_type> p = this->getObject_(gpb, GFACTORYWRITEID);
+		std::shared_ptr<prod_type> p = this->getObject_(gpb, GFACTORYWRITEID);
 
 		// Allow the factory to act on configuration options received
 		// in the parsing process.
@@ -261,7 +261,7 @@ public:
 	/**
 	 * Loads the data of another GFactoryT<> object
 	 */
-	virtual void load(boost::shared_ptr<GFactoryT<prod_type> > cp) {
+	virtual void load(std::shared_ptr<GFactoryT<prod_type> > cp) {
 	   configFile_ = cp->configFile_;
 	   id_ = cp->id_;
 	   initialized_ = cp->initialized_;
@@ -273,7 +273,7 @@ public:
 	 * wishing to use this functionality need to overload this function.
 	 * Others don't have to due to this "pseudo-implementation".
 	 */
-	virtual boost::shared_ptr<GFactoryT<prod_type> > clone() const {
+	virtual std::shared_ptr<GFactoryT<prod_type> > clone() const {
 	   glogger
 	   << "In GFactoryT<prod_type>::clone(): Error!" << std::endl
 	   << "Function was called when it shouldn't be." << std::endl
@@ -281,7 +281,7 @@ public:
 	   << GEXCEPTION;
 
 	   // Make the compiler happy
-	   return boost::shared_ptr<GFactoryT<prod_type> >();
+	   return std::shared_ptr<GFactoryT<prod_type> >();
 	}
 
 protected:
@@ -291,9 +291,9 @@ protected:
 	/** @brief Allows to describe local configuration options in derived classes */
 	virtual void describeLocalOptions_(Gem::Common::GParserBuilder& gpb) {};
 	/** @brief Creates individuals of the desired type */
-	virtual boost::shared_ptr<prod_type> getObject_(Gem::Common::GParserBuilder&, const std::size_t&) = 0;
+	virtual std::shared_ptr<prod_type> getObject_(Gem::Common::GParserBuilder&, const std::size_t&) = 0;
 	/** @brief Allows to act on the configuration options received from the configuration file */
-	virtual void postProcess_(boost::shared_ptr<prod_type>&) = 0;
+	virtual void postProcess_(std::shared_ptr<prod_type>&) = 0;
 
    /***************************************************************************/
 	/**

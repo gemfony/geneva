@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
 
    // Create a factory for GExternalEvaluatorIndividual objects and perform
    // any necessary initial work.
-	boost::shared_ptr<GExternalEvaluatorIndividualFactory>
+	std::shared_ptr<GExternalEvaluatorIndividualFactory>
 	   geei_ptr(new GExternalEvaluatorIndividualFactory("./config/GExternalEvaluatorIndividual.json"));
 
    // Add a content creator so Go2 can generate its own individuals, if necessary
@@ -68,10 +68,10 @@ int main(int argc, char **argv) {
    go.registerDefaultAlgorithm("ea");
 
 	// Perform the actual optimization
-	boost::shared_ptr<GExternalEvaluatorIndividual> p = go.optimize<GExternalEvaluatorIndividual>();
+	std::shared_ptr<GExternalEvaluatorIndividual> p = go.optimize<GExternalEvaluatorIndividual>();
 
    // Extract the best individuals found
-   std::vector<boost::shared_ptr<GExternalEvaluatorIndividual> > bestInds
+   std::vector<std::shared_ptr<GExternalEvaluatorIndividual> > bestInds
       = go.getBestIndividuals<GExternalEvaluatorIndividual>();
 
    // Note that the "archive" call is specific to the GTaoExternalEvaluatorIndividual

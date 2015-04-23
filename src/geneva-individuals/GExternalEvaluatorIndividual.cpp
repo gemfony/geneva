@@ -643,12 +643,12 @@ GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory() {
 /**
  * Loads the data of another GFunctionIndividualFactory object
  */
-void GExternalEvaluatorIndividualFactory::load(boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > cp_raw_ptr) {
+void GExternalEvaluatorIndividualFactory::load(std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > cp_raw_ptr) {
    // Load our parent class'es data
    Gem::Common::GFactoryT<GParameterSet>::load(cp_raw_ptr);
 
    // Convert the base pointer
-   boost::shared_ptr<GExternalEvaluatorIndividualFactory> cp_ptr
+   std::shared_ptr<GExternalEvaluatorIndividualFactory> cp_ptr
       = Gem::Common::convertSmartPointer<Gem::Common::GFactoryT<GParameterSet>, GExternalEvaluatorIndividualFactory>(cp_raw_ptr);
 
    // And then our own
@@ -683,8 +683,8 @@ void GExternalEvaluatorIndividualFactory::load(boost::shared_ptr<Gem::Common::GF
 /**
  * Creates a deep clone of this object
  */
-boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > GExternalEvaluatorIndividualFactory::clone() const {
-   return boost::shared_ptr<GExternalEvaluatorIndividualFactory>(new GExternalEvaluatorIndividualFactory(*this));
+std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > GExternalEvaluatorIndividualFactory::clone() const {
+   return std::shared_ptr<GExternalEvaluatorIndividualFactory>(new GExternalEvaluatorIndividualFactory(*this));
 }
 
 /******************************************************************************/
@@ -1237,7 +1237,7 @@ bool GExternalEvaluatorIndividualFactory::getRemoveExecTemporaries() const {
  * Submit work items to the external executable for archiving
  */
 void GExternalEvaluatorIndividualFactory::archive(
-   const std::vector<boost::shared_ptr<GExternalEvaluatorIndividual> >& arch
+   const std::vector<std::shared_ptr<GExternalEvaluatorIndividual> >& arch
 ) const {
    // Check that there are individuals contained in the archive
    if(arch.empty()) return; // Do nothing
@@ -1252,7 +1252,7 @@ void GExternalEvaluatorIndividualFactory::archive(
    ptr_out.put(batch + ".nIndividuals", arch.size());
 
    // Output the individuals in turn
-   std::vector<boost::shared_ptr<GExternalEvaluatorIndividual> >::const_iterator cit;
+   std::vector<std::shared_ptr<GExternalEvaluatorIndividual> >::const_iterator cit;
    std::size_t pos = 0;
    std::string basename;
    for(cit=arch.begin(); cit!=arch.end(); ++cit) {
@@ -1320,12 +1320,12 @@ void GExternalEvaluatorIndividualFactory::archive(
  *
  * @return Items of the desired type
  */
-boost::shared_ptr<GParameterSet> GExternalEvaluatorIndividualFactory::getObject_(
+std::shared_ptr<GParameterSet> GExternalEvaluatorIndividualFactory::getObject_(
    Gem::Common::GParserBuilder& gpb
    , const std::size_t& id
 ) {
    // Will hold the result
-   boost::shared_ptr<GExternalEvaluatorIndividual> target(new GExternalEvaluatorIndividual());
+   std::shared_ptr<GExternalEvaluatorIndividual> target(new GExternalEvaluatorIndividual());
 
    // Make the object's local configuration options known
    target->addConfigurationOptions(gpb);
@@ -1615,11 +1615,11 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GExternalEvaluatorIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& p_raw) {
+void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<GParameterSet>& p_raw) {
    using boost::property_tree::ptree;
 
    // Convert the base pointer to the target type
-   boost::shared_ptr<GExternalEvaluatorIndividual> p
+   std::shared_ptr<GExternalEvaluatorIndividual> p
       = Gem::Common::convertSmartPointer<GParameterSet, GExternalEvaluatorIndividual>(p_raw);
 
    // Set up a random number generator
@@ -1638,9 +1638,9 @@ void GExternalEvaluatorIndividualFactory::postProcess_(boost::shared_ptr<GParame
    }
 
    // Set up an adaptor for the collection, so they know how to be adapted
-   boost::shared_ptr<GAdaptorT<double> > gat_ptr;
+   std::shared_ptr<GAdaptorT<double> > gat_ptr;
    if(useBiGaussian_) {
-      boost::shared_ptr<GDoubleBiGaussAdaptor> gdbga_ptr(new GDoubleBiGaussAdaptor());
+      std::shared_ptr<GDoubleBiGaussAdaptor> gdbga_ptr(new GDoubleBiGaussAdaptor());
       gdbga_ptr->setAllSigma1(sigma1_, sigmaSigma1_, minSigma1_, maxSigma1_);
       gdbga_ptr->setAllSigma2(sigma2_, sigmaSigma2_, minSigma2_, maxSigma2_);
       gdbga_ptr->setAllDelta(delta_, sigmaDelta_, minDelta_, maxDelta_);
@@ -1648,7 +1648,7 @@ void GExternalEvaluatorIndividualFactory::postProcess_(boost::shared_ptr<GParame
       gdbga_ptr->setAdaptionProbability(adProb_);
       gat_ptr = gdbga_ptr;
    } else {
-      boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma1_, sigmaSigma1_, minSigma1_, maxSigma1_));
+      std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma1_, sigmaSigma1_, minSigma1_, maxSigma1_));
       gdga_ptr->setAdaptionThreshold(adaptionThreshold_);
       gdga_ptr->setAdaptionProbability(adProb_);
       gat_ptr = gdga_ptr;
@@ -1701,12 +1701,12 @@ void GExternalEvaluatorIndividualFactory::postProcess_(boost::shared_ptr<GParame
                   double initValue  = (cit->second).get<double>("values.value0");
 
                   // Create an initial (empty) pointer to a GConstrainedDoubleObject
-                  boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr;
+                  std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr;
 
                   // Act on the information, depending on whether random initialization has been requested
                   if(minVar == maxVar) { // We take this as a sign that the parameter should not be modified
                      // Create the parameter object
-                     gcdo_ptr = boost::shared_ptr<GConstrainedDoubleObject>(
+                     gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject>(
                            new GConstrainedDoubleObject(
                                  initValue
                                  , initValue
@@ -1717,10 +1717,10 @@ void GExternalEvaluatorIndividualFactory::postProcess_(boost::shared_ptr<GParame
                      gcdo_ptr->setAdaptionsInactive();
                   } else if(0 == (cit->second).count("initRandom") || false==(cit->second).get<bool>("initRandom")) {
                      // Create the parameter object
-                     gcdo_ptr = boost::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(initValue, minVar, maxVar));
+                     gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(initValue, minVar, maxVar));
                   } else { // Random initialization has been requested
                      // Create the parameter object
-                     gcdo_ptr = boost::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(minVar, maxVar));
+                     gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(minVar, maxVar));
                   }
                   gcdo_ptr->setParameterName(pName);
 
@@ -1756,7 +1756,7 @@ void GExternalEvaluatorIndividualFactory::postProcess_(boost::shared_ptr<GParame
       boost::optional< ptree& > boundsNode_opt = ptr_.get_child_optional("batch.individuals.individual0.bounds");
       if(boundsNode_opt) {
          // Create a check combiner -- it will hold the boundary conditions we find here
-         boost::shared_ptr<GCheckCombinerT<GOptimizableEntity> > combiner_ptr(new GCheckCombinerT<GOptimizableEntity>());
+         std::shared_ptr<GCheckCombinerT<GOptimizableEntity> > combiner_ptr(new GCheckCombinerT<GOptimizableEntity>());
 
          // Loop over all children of the bounds tree
          // Note that for now we only query GConstrainedDoubleObject objects
@@ -1768,7 +1768,7 @@ void GExternalEvaluatorIndividualFactory::postProcess_(boost::shared_ptr<GParame
                bool allowNegative = (cit->second).get<bool>("allowNegative");
 
                // The actual "function-constraint"
-               boost::shared_ptr<GParameterSetFormulaConstraint> formula_constraint(new GParameterSetFormulaConstraint(expression));
+               std::shared_ptr<GParameterSetFormulaConstraint> formula_constraint(new GParameterSetFormulaConstraint(expression));
 
                formula_constraint->setAllowNegative(allowNegative);
 

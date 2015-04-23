@@ -335,7 +335,7 @@ public:
     */
    virtual void loadCheckpoint(const boost::filesystem::path& cpFile) override {
       // Create a vector to hold the best individuals
-      std::vector<boost::shared_ptr<ind_type> > bestIndividuals;
+      std::vector<std::shared_ptr<ind_type> > bestIndividuals;
 
       // Check that the file indeed exists
       if(!boost::filesystem::exists(cpFile)) {
@@ -494,7 +494,7 @@ public:
     * @return A converted shared_ptr to the parent
     */
    template <typename parent_type>
-   boost::shared_ptr<parent_type> getParentIndividual(
+   std::shared_ptr<parent_type> getParentIndividual(
       std::size_t parentId
       , typename boost::enable_if<boost::is_base_of<GOptimizableEntity, parent_type> >::type* dummy = 0
    ){
@@ -507,7 +507,7 @@ public:
          << GEXCEPTION;
 
          // Make the compiler happy
-         return boost::shared_ptr<parent_type>();
+         return std::shared_ptr<parent_type>();
       }
 #endif /* DEBUG */
 
@@ -589,7 +589,7 @@ protected:
          threshold[nParents_-1] = 1.; // Necessary due to rounding errors
       }
 
-      typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
+      typename std::vector<std::shared_ptr<ind_type> >::iterator it;
       for(it=GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_; it!= GOptimizationAlgorithmT<ind_type>::data.end(); ++it) {
          switch(recombinationMethod_){
          case DEFAULTDUPLICATIONSCHEME: // we want the RANDOMDUPLICATIONSCHEME behavior
@@ -680,7 +680,7 @@ protected:
     * This helper function marks parents as parents and children as children.
     */
    void markParents() {
-      typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
+      typename std::vector<std::shared_ptr<ind_type> >::iterator it;
       for(it=GOptimizationAlgorithmT<ind_type>::data.begin(); it!=GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_; ++it){
          (*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsParent();
       }
@@ -691,7 +691,7 @@ protected:
     * This helper function marks children as children
     */
    void markChildren() {
-      typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
+      typename std::vector<std::shared_ptr<ind_type> >::iterator it;
       for(it=GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_; it!=GOptimizationAlgorithmT<ind_type>::data.end(); ++it){
          (*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsChild();
       }
@@ -704,7 +704,7 @@ protected:
     */
    void markIndividualPositions() {
       std::size_t pos = 0;
-      typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
+      typename std::vector<std::shared_ptr<ind_type> >::iterator it;
       for(it=GOptimizationAlgorithmT<ind_type>::data.begin(); it!=GOptimizationAlgorithmT<ind_type>::data.end(); ++it) {
          (*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setPopulationPosition(pos++);
       }
@@ -815,7 +815,7 @@ protected:
       }
 
       // Do the smart pointers actually point to any objects ?
-      typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
+      typename std::vector<std::shared_ptr<ind_type> >::iterator it;
       for(it=GOptimizationAlgorithmT<ind_type>::data.begin(); it!=GOptimizationAlgorithmT<ind_type>::data.end(); ++it) {
          if(!(*it)) { // shared_ptr can be implicitly converted to bool
             glogger
@@ -865,11 +865,11 @@ protected:
     * and the fitness to the base name. We do not save the entire population, but only
     * the best individuals, as these contain the "real" information. Note that no real
     * copying of the individual's data takes place here, as we are dealing with
-    * boost::shared_ptr objects.
+    * std::shared_ptr objects.
     */
    virtual void saveCheckpoint() const override {
       // Copy the nParents best individuals to a vector
-      std::vector<boost::shared_ptr<ind_type> > bestIndividuals;
+      std::vector<std::shared_ptr<ind_type> > bestIndividuals;
       typename GBaseParChildT<ind_type>::const_iterator it;
       for(it=this->begin(); it!=this->begin() + getNParents(); ++it)
          bestIndividuals.push_back(*it);
@@ -934,7 +934,7 @@ protected:
     *
     * @param pos The position of the individual for which a new value should be chosen
     */
-   void randomRecombine(boost::shared_ptr<ind_type>& child) {
+   void randomRecombine(std::shared_ptr<ind_type>& child) {
       std::size_t parent_pos;
 
       if(nParents_==1) {
@@ -968,7 +968,7 @@ protected:
     * @param threshold A std::vector<double> holding the recombination likelihoods for each parent
     */
    void valueRecombine(
-      boost::shared_ptr<ind_type>& p
+      std::shared_ptr<ind_type>& p
       , const std::vector<double>& threshold
    ) {
       bool done=false;
@@ -1021,7 +1021,7 @@ protected:
          GOptimizationAlgorithmT<ind_type>::data.begin()
          , GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_
          , GOptimizationAlgorithmT<ind_type>::data.end()
-         , [](boost::shared_ptr<ind_type> x, boost::shared_ptr<ind_type> y) -> bool {
+         , [](std::shared_ptr<ind_type> x, std::shared_ptr<ind_type> y) -> bool {
             return x->minOnly_fitness() < y->minOnly_fitness();
          }
       );
@@ -1053,7 +1053,7 @@ protected:
          GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_
          , GOptimizationAlgorithmT<ind_type>::data.begin() + 2*nParents_
          , GOptimizationAlgorithmT<ind_type>::data.end()
-         , [](boost::shared_ptr<ind_type> x, boost::shared_ptr<ind_type> y) -> bool {
+         , [](std::shared_ptr<ind_type> x, std::shared_ptr<ind_type> y) -> bool {
             return x->minOnly_fitness() < y->minOnly_fitness();
          }
       );
@@ -1098,7 +1098,7 @@ protected:
             GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_
             , GOptimizationAlgorithmT<ind_type>::data.begin() + 2*nParents_
             , GOptimizationAlgorithmT<ind_type>::data.end()
-            , [](boost::shared_ptr<ind_type> x, boost::shared_ptr<ind_type> y) -> bool {
+            , [](std::shared_ptr<ind_type> x, std::shared_ptr<ind_type> y) -> bool {
                return x->minOnly_fitness() < y->minOnly_fitness();
             }
          );

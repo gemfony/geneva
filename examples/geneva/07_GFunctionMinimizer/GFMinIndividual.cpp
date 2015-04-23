@@ -165,11 +165,11 @@ targetFunction GFMinIndividual::getTargetFunction() const {
  */
 double GFMinIndividual::getAverageSigma() const {
 	// Extract the parameter object
-	boost::shared_ptr<GConstrainedDoubleCollection> ind
+	std::shared_ptr<GConstrainedDoubleCollection> ind
 		= this->at<GConstrainedDoubleCollection>(0);
 
 	// Extract the adaptor
-	boost::shared_ptr<GDoubleGaussAdaptor> adaptor
+	std::shared_ptr<GDoubleGaussAdaptor> adaptor
 		= ind->getAdaptor<GDoubleGaussAdaptor>();
 
 	// Extract and return the sigma value. Only a single parameter object
@@ -288,7 +288,7 @@ std::ostream& operator<<(std::ostream& s, const Gem::Geneva::GFMinIndividual& f)
 /**
  * Provide an easy way to print the individual's content through a smart-pointer
  */
-std::ostream& operator<<(std::ostream& s, boost::shared_ptr<Gem::Geneva::GFMinIndividual> f_ptr) {
+std::ostream& operator<<(std::ostream& s, std::shared_ptr<Gem::Geneva::GFMinIndividual> f_ptr) {
    return operator<<(s,*f_ptr);
 }
 
@@ -326,12 +326,12 @@ GFMinIndividualFactory::~GFMinIndividualFactory()
  *
  * @return Items of the desired type
  */
-boost::shared_ptr<GParameterSet> GFMinIndividualFactory::getObject_(
+std::shared_ptr<GParameterSet> GFMinIndividualFactory::getObject_(
 	Gem::Common::GParserBuilder& gpb
 	, const std::size_t& id
 ) {
 	// Will hold the result
-	boost::shared_ptr<GFMinIndividual> target(new GFMinIndividual());
+	std::shared_ptr<GFMinIndividual> target(new GFMinIndividual());
 
 	// Make the object's local configuration options known
 	target->addConfigurationOptions(gpb);
@@ -441,14 +441,14 @@ void GFMinIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder& 
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GFMinIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& p) {
+void GFMinIndividualFactory::postProcess_(std::shared_ptr<GParameterSet>& p) {
 	// Set up a collection with parDim_ values
-	boost::shared_ptr<GConstrainedDoubleCollection> gcdc_ptr(new GConstrainedDoubleCollection(parDim_, minVar_, maxVar_));
+	std::shared_ptr<GConstrainedDoubleCollection> gcdc_ptr(new GConstrainedDoubleCollection(parDim_, minVar_, maxVar_));
 
 	// Randomly initialize
 	gcdc_ptr->randomInit(ACTIVEONLY);
 
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma_, sigmaSigma_, minSigma_, maxSigma_));
+	std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma_, sigmaSigma_, minSigma_, maxSigma_));
 	gdga_ptr->setAdaptionProbability(adProb_);
 	gcdc_ptr->addAdaptor(gdga_ptr);
 

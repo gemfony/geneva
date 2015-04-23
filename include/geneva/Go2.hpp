@@ -118,9 +118,8 @@ public:
    G_API_GENEVA Go2(
       int
       , char **
-      , const std::vector<boost::shared_ptr<boost::program_options::option_description> >&
-           = std::vector<boost::shared_ptr<boost::program_options::option_description> >()
-	);
+      , const boost::program_options::options_description& = boost::program_options::options_description()
+   );
    /** @brief A constructor that allows to specify a default config file name */
    G_API_GENEVA Go2(const std::string&);
 	/** @brief A constructor that first parses the command line for relevant parameters and allows to specify a default config file name */
@@ -128,9 +127,8 @@ public:
       int
       , char **
       , const std::string&
-      , const std::vector<boost::shared_ptr<boost::program_options::option_description> >&
-           = std::vector<boost::shared_ptr<boost::program_options::option_description> >()
-	);
+      , const boost::program_options::options_description& = boost::program_options::options_description()
+   );
 	/** @brief A copy constructor */
    G_API_GENEVA Go2(const Go2&);
 
@@ -174,9 +172,9 @@ public:
 	virtual G_API_GENEVA double fitnessCalculation() override;
 
 	/** @brief Allows to add an optimization algorithm to the chain */
-	G_API_GENEVA void addAlgorithm(boost::shared_ptr<GOABase>);
+	G_API_GENEVA void addAlgorithm(std::shared_ptr<GOABase>);
 	/** @brief Makes it easier to add algorithms */
-	G_API_GENEVA Go2& operator&(boost::shared_ptr<GOABase>);
+	G_API_GENEVA Go2& operator&(std::shared_ptr<GOABase>);
 	/** @brief Allows to add an optimization algorithm through its mnemonic */
 	G_API_GENEVA void addAlgorithm(const std::string&);
    /** @brief Makes it easier to add algorithms */
@@ -189,7 +187,7 @@ public:
 
    /** @brief Allows to register a content creator */
 	G_API_GENEVA void registerContentCreator(
-         boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
+         std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
    );
 	/** @brief Perform the actual optimization cycle */
 	virtual G_API_GENEVA void optimize(const boost::uint32_t& = 0) override;
@@ -214,8 +212,7 @@ public:
 	G_API_GENEVA void parseCommandLine(
       int
       , char **
-      , const std::vector<boost::shared_ptr<boost::program_options::option_description> >&
-        = std::vector<boost::shared_ptr<boost::program_options::option_description> >()
+      , const boost::program_options::options_description& = boost::program_options::options_description()
    );
 	/** @brief Loads some configuration data from a configuration file */
 	G_API_GENEVA void parseConfigFile(const std::string&);
@@ -235,7 +232,7 @@ public:
 	 * @return The best individual found during the optimization process, converted to the desired type
 	 */
 	template <typename individual_type>
-	boost::shared_ptr<individual_type> optimize() {
+	std::shared_ptr<individual_type> optimize() {
 		return GOptimizableI::optimize<individual_type>();
 	}
 
@@ -250,7 +247,7 @@ public:
 	 * @return The best individual found during the optimization process, converted to the desired type
 	 */
 	template <typename individual_type>
-	boost::shared_ptr<individual_type> optimize(
+	std::shared_ptr<individual_type> optimize(
       const boost::uint32_t& offset
 	) {
 		return GOptimizableI::optimize<individual_type>(offset);
@@ -261,7 +258,7 @@ public:
    virtual G_API_GENEVA std::string name() const;
 
    /** @brief Allows to register a default algorithm. */
-   G_API_GENEVA void registerDefaultAlgorithm(boost::shared_ptr<GOABase>);
+   G_API_GENEVA void registerDefaultAlgorithm(std::shared_ptr<GOABase>);
    /** @brief Allows to register a default algorithm. */
    G_API_GENEVA void registerDefaultAlgorithm(const std::string& default_algorithm);
 
@@ -286,9 +283,9 @@ protected:
 	virtual G_API_GENEVA GObject *clone_() const override;
 
 	/** @brief Retrieves the best individual found */
-	virtual G_API_GENEVA boost::shared_ptr<GParameterSet> customGetBestIndividual() override;
+	virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestIndividual() override;
 	/** @brief Retrieves a list of the best individuals found */
-	virtual G_API_GENEVA std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() override;
+	virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet> > customGetBestIndividuals() override;
 
 	/** @brief Satisfies a requirement of GOptimizableI */
 	virtual G_API_GENEVA void runFitnessCalculation() override;
@@ -320,15 +317,15 @@ private:
 
 	//---------------------------------------------------------------------------
 	// The list of "chained" optimization algorithms
-	std::vector<boost::shared_ptr<GOABase> > algorithms_;
+	std::vector<std::shared_ptr<GOABase> > algorithms_;
 	// Algorithms that were specified on the command line
-	std::vector<boost::shared_ptr<GOABase> > cl_algorithms_;
+	std::vector<std::shared_ptr<GOABase> > cl_algorithms_;
 	// The default algorithm (if any)
-	boost::shared_ptr<GOABase> default_algorithm_;
+	std::shared_ptr<GOABase> default_algorithm_;
 	// A string representation of the default algorithm
 	const std::string default_algorithm_str_; ///< This is the last fall-back
 	// Holds an object capable of producing objects of the desired type
-	boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr_;
+	std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr_;
 	// A user-defined call-back for information retrieval
 	boost::function<void(const infoMode&, GOptimizationAlgorithmT<GParameterSet> * const)> pluggableInfoFunction_;
 };

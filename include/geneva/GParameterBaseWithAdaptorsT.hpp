@@ -103,7 +103,7 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * The destructor. All cleanup work is done by boost::shared_ptr.
+	 * The destructor. All cleanup work is done by std::shared_ptr.
 	 */
 	virtual ~GParameterBaseWithAdaptorsT()
 	{ /* nothing */ }
@@ -187,9 +187,9 @@ public:
 	 * Adds an adaptor to this object. Please note that this class takes ownership of the adaptor
 	 * by cloning it.
 	 *
-	 * @param gat_ptr A boost::shared_ptr to an adaptor
+	 * @param gat_ptr A std::shared_ptr to an adaptor
 	 */
-	void addAdaptor(boost::shared_ptr<GAdaptorT<T> > gat_ptr) {
+	void addAdaptor(std::shared_ptr<GAdaptorT<T> > gat_ptr) {
 		// Check that we have indeed been given an adaptor
 		if(!gat_ptr){
 		   glogger
@@ -225,9 +225,9 @@ public:
 	 * Retrieves the adaptor. Throws in DBEUG mode , if we have no adaptor. It is assumed
 	 * that only the object holding the "master" adaptor pointer should be allowed to modify it.
 	 *
-	 * @return A boost::shared_ptr to the adaptor
+	 * @return A std::shared_ptr to the adaptor
 	 */
-	boost::shared_ptr<GAdaptorT<T> > getAdaptor() const {
+	std::shared_ptr<GAdaptorT<T> > getAdaptor() const {
 #ifdef DEBUG
 		if(!adaptor_) {
 		   glogger
@@ -259,7 +259,7 @@ public:
 	 * @return The desired adaptor instance, using its "natural" type
 	 */
 	template <typename adaptor_type>
-	boost::shared_ptr<adaptor_type> getAdaptor(
+	std::shared_ptr<adaptor_type> getAdaptor(
       typename boost::enable_if<boost::is_base_of<GAdaptorT<T>, adaptor_type> >::type* dummy = 0
 	) const {
 #ifdef DEBUG
@@ -271,7 +271,7 @@ public:
          << GEXCEPTION;
 
 		   // Make the compiler happy
-		   return boost::shared_ptr<adaptor_type>();
+		   return std::shared_ptr<adaptor_type>();
 		}
 #endif /* DEBUG */
 
@@ -482,7 +482,7 @@ private:
 	/**
 	 * @brief Holds the adaptor used for adaption of the values stored in derived classes.
 	 */
-	boost::shared_ptr<GAdaptorT<T> > adaptor_;
+	std::shared_ptr<GAdaptorT<T> > adaptor_;
 
 public:
 	/***************************************************************************/
@@ -518,7 +518,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test that trying to reset the adaptor will not remove it
-			boost::shared_ptr<GParameterBaseWithAdaptorsT<T> > p_test = this->clone<GParameterBaseWithAdaptorsT<T> >();
+			std::shared_ptr<GParameterBaseWithAdaptorsT<T> > p_test = this->clone<GParameterBaseWithAdaptorsT<T> >();
 
 			// Make sure no adaptor is present
 			BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
@@ -532,7 +532,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test that trying to call applyAdaptor(collection) after resetting the adaptor works
-			boost::shared_ptr<GParameterBaseWithAdaptorsT<T> > p_test = this->clone<GParameterBaseWithAdaptorsT<T> >();
+			std::shared_ptr<GParameterBaseWithAdaptorsT<T> > p_test = this->clone<GParameterBaseWithAdaptorsT<T> >();
 
 			// Make sure no adaptor is present
 			BOOST_CHECK_NO_THROW(p_test->resetAdaptor());

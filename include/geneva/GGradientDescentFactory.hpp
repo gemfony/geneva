@@ -83,7 +83,7 @@ public:
    G_API_GENEVA GGradientDescentFactory(
       const std::string&
       , const execMode&
-      , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
+      , std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
    );
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GGradientDescentFactory();
@@ -95,11 +95,11 @@ public:
 
 protected:
 	/** @brief Creates individuals of this type */
-	virtual G_API_GENEVA boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > getObject_(Gem::Common::GParserBuilder&, const std::size_t&) override;
+	virtual G_API_GENEVA std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > getObject_(Gem::Common::GParserBuilder&, const std::size_t&) override;
 	/** @brief Allows to describe local configuration options in derived classes */
 	virtual G_API_GENEVA void describeLocalOptions_(Gem::Common::GParserBuilder&) override;
 	/** @brief Allows to act on the configuration options received from the configuration file */
-	virtual G_API_GENEVA void postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >&) override;
+	virtual G_API_GENEVA void postProcess_(std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >&) override;
 
 private:
 	std::size_t maxResubmissions_; ///< The maximum number of allowed re-submissions in an iteration

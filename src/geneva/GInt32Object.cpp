@@ -361,14 +361,14 @@ void GInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
-	boost::shared_ptr<GAdaptorT<boost::int32_t> > storedAdaptor;
+	std::shared_ptr<GAdaptorT<boost::int32_t> > storedAdaptor;
 
 	if(this->hasAdaptor()) {
 		storedAdaptor = this->getAdaptor();
 		adaptorStored = true;
 	}
 
-	boost::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.025, 0.1, 0., 0.5, 1.0));
+	std::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.025, 0.1, 0., 0.5, 1.0));
 	giga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	giga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(giga_ptr);
@@ -379,7 +379,7 @@ void GInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test different ways of adding an adaptor (Test of GParameterBaseWithAdaptorsT<T> functions)
-		boost::shared_ptr<GInt32Object> p_test = this->clone<GInt32Object>();
+		std::shared_ptr<GInt32Object> p_test = this->clone<GInt32Object>();
 
 		// Make sure we start in pristine condition. This will add a GInt32FlipAdaptor.
 		BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
@@ -389,7 +389,7 @@ void GInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test->addAdaptor(giga_ptr));
 
 		// Check that the addresses of both adaptors differ
-		boost::shared_ptr<GInt32GaussAdaptor> giga_clone_ptr;
+		std::shared_ptr<GInt32GaussAdaptor> giga_clone_ptr;
 		BOOST_CHECK_NO_THROW(giga_clone_ptr = p_test->getAdaptor<GInt32GaussAdaptor>());
 		BOOST_CHECK(giga_clone_ptr.get() != giga_ptr.get());
 
@@ -403,7 +403,7 @@ void GInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test->addAdaptor(giga_ptr));
 
 		// Retrieve the adaptor again
-		boost::shared_ptr<GInt32GaussAdaptor> giga_clone2_ptr;
+		std::shared_ptr<GInt32GaussAdaptor> giga_clone2_ptr;
 		BOOST_CHECK_NO_THROW(giga_clone2_ptr = p_test->getAdaptor<GInt32GaussAdaptor>());
 
 		// Check that the address hasn't changed
@@ -448,14 +448,14 @@ void GInt32Object::specificTestsFailuresExpected_GUnitTests() {
 
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
-	boost::shared_ptr<GAdaptorT<boost::int32_t> > storedAdaptor;
+	std::shared_ptr<GAdaptorT<boost::int32_t> > storedAdaptor;
 
 	if(this->hasAdaptor()) {
 		storedAdaptor = this->getAdaptor();
 		adaptorStored = true;
 	}
 
-	boost::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.025, 0.1, 0., 1., 1.0));
+	std::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.025, 0.1, 0., 1., 1.0));
 	giga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	giga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(giga_ptr);
@@ -467,7 +467,7 @@ void GInt32Object::specificTestsFailuresExpected_GUnitTests() {
 
 #ifdef DEBUG
 	{ // Check that retrieval of the adaptor with simultaneous conversion to an incorrect target type throws (Test of GParameterBaseWithAdaptorsT<T> functions)
-		boost::shared_ptr<GInt32Object> p_test = this->clone<GInt32Object>();
+		std::shared_ptr<GInt32Object> p_test = this->clone<GInt32Object>();
 
 		// Make sure an adaptor is present
 		BOOST_REQUIRE(p_test->hasAdaptor() == true);

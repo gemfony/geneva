@@ -74,7 +74,7 @@ GBaseSwarm::GBaseSwarm()
 
 	// Register the default optimization monitor. This can be overridden by the user.
 	this->registerOptimizationMonitor(
-			boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
+			std::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
 					new GSwarmOptimizationMonitor()
 			)
 	);
@@ -116,7 +116,7 @@ GBaseSwarm::GBaseSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNe
 
 	// Register the default optimization monitor. This can be overridden by the user.
 	this->registerOptimizationMonitor(
-			boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
+			std::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
 					new GSwarmOptimizationMonitor()
 			)
 	);
@@ -133,7 +133,7 @@ GBaseSwarm::GBaseSwarm(const GBaseSwarm& cp)
 	, nNeighborhoods_(cp.nNeighborhoods_)
 	, defaultNNeighborhoodMembers_(cp.defaultNNeighborhoodMembers_)
 	, nNeighborhoodMembers_(cp.nNeighborhoodMembers_)
-	, global_best_((cp.afterFirstIteration())?(cp.global_best_)->clone<GParameterSet>():boost::shared_ptr<GParameterSet>())
+	, global_best_((cp.afterFirstIteration())?(cp.global_best_)->clone<GParameterSet>():std::shared_ptr<GParameterSet>())
 	, neighborhood_bests_(nNeighborhoods_) // We copy the smart pointers over later
 	, c_personal_(cp.c_personal_)
 	, c_neighborhood_(cp.c_neighborhood_)
@@ -284,7 +284,7 @@ void GBaseSwarm::load_(const GObject *cp)
 		// has that value has already been copied.
 		if(afterFirstIteration()) {
 			for(std::size_t i=0; i<nNeighborhoods_; i++) {
-				// We might be in a situation where the boost::shared_ptr which usually
+				// We might be in a situation where the std::shared_ptr which usually
 				// holds the neighborhood bests has not yet been initialized
 				if(neighborhood_bests_[i]) {
 					neighborhood_bests_[i]->GObject::load(p_load->neighborhood_bests_[i]);
@@ -542,7 +542,7 @@ std::size_t GBaseSwarm::getLastNIPos(const std::size_t& neighborhood) const {
  * @param p A pointer to the GParameterSet object to be updated
  */
 void GBaseSwarm::updatePersonalBest(
-		boost::shared_ptr<GParameterSet> p
+		std::shared_ptr<GParameterSet> p
 ) {
 #ifdef DEBUG
    if(!p) {
@@ -570,7 +570,7 @@ void GBaseSwarm::updatePersonalBest(
  * @param p A pointer to the GParameterSet object to be updated
  */
 void GBaseSwarm::updatePersonalBestIfBetter(
-   boost::shared_ptr<GParameterSet> p
+   std::shared_ptr<GParameterSet> p
 ) {
 #ifdef DEBUG
    if(!p) {
@@ -731,7 +731,7 @@ void GBaseSwarm::init() {
       // to have assigned anything else than a GParameterSet derivative to
       // the swarm, then the following line will throw in DEBUG mode or return
       // undefined results in RELEASE mode
-      boost::shared_ptr<GParameterSet> p((*it)->clone<GParameterSet>());
+      std::shared_ptr<GParameterSet> p((*it)->clone<GParameterSet>());
 
       // Extract the parameter vector
       std::vector<double> velVec;
@@ -769,7 +769,7 @@ void GBaseSwarm::init() {
  * Does any necessary finalization work
  */
 void GBaseSwarm::finalize() {
-   // Remove remaining velocity individuals. The boost::shared_ptr<GParameterSet>s
+   // Remove remaining velocity individuals. The std::shared_ptr<GParameterSet>s
    // will take care of deleting the GParameterSet objects.
    velocities_.clear();
 
@@ -781,8 +781,8 @@ void GBaseSwarm::finalize() {
 /**
  * Retrieve a GPersonalityTraits object belonging to this algorithm
  */
-boost::shared_ptr<GPersonalityTraits> GBaseSwarm::getPersonalityTraits() const {
-   return boost::shared_ptr<GSwarmPersonalityTraits>(new GSwarmPersonalityTraits());
+std::shared_ptr<GPersonalityTraits> GBaseSwarm::getPersonalityTraits() const {
+   return std::shared_ptr<GSwarmPersonalityTraits>(new GSwarmPersonalityTraits());
 }
 
 /******************************************************************************/
@@ -916,10 +916,10 @@ void GBaseSwarm::updatePositions() {
  */
 void GBaseSwarm::updateIndividualPositions(
   const std::size_t& neighborhood
-  , boost::shared_ptr<GParameterSet> ind
-  , boost::shared_ptr<GParameterSet> neighborhood_best
-  , boost::shared_ptr<GParameterSet> global_best
-  , boost::shared_ptr<GParameterSet> velocity
+  , std::shared_ptr<GParameterSet> ind
+  , std::shared_ptr<GParameterSet> neighborhood_best
+  , std::shared_ptr<GParameterSet> global_best
+  , std::shared_ptr<GParameterSet> velocity
   , boost::tuple<double, double, double, double> constants
 ) {
 	// Extract the constants from the tuple
@@ -939,7 +939,7 @@ void GBaseSwarm::updateIndividualPositions(
 #endif /* DEBUG */
 
 	// Extract the personal best
-	boost::shared_ptr<GParameterSet> personal_best = ind->getPersonalityTraits<GSwarmPersonalityTraits>()->getPersonalBest();
+	std::shared_ptr<GParameterSet> personal_best = ind->getPersonalityTraits<GSwarmPersonalityTraits>()->getPersonalBest();
 
 	// Further error checks
 #ifdef DEBUG
@@ -1152,7 +1152,7 @@ boost::tuple<double, double> GBaseSwarm::findBests() {
       std::sort(
          this->begin() + firstCounter
          , this->begin() + lastCounter
-         , [](boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) -> bool {
+         , [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
             return x->minOnly_fitness() < y->minOnly_fitness();
          }
       );

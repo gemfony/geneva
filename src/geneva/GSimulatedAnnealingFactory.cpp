@@ -79,7 +79,7 @@ GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
 GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
    const std::string& configFile
    , const execMode& pm
-   , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr
+   , std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr
 )
    : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm, contentCreatorPtr)
 { /* nothing */ }
@@ -113,25 +113,25 @@ std::string GSimulatedAnnealingFactory::getAlgorithmName() const {
  *
  * @return Items of the desired type
  */
-boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GSimulatedAnnealingFactory::getObject_(
+std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GSimulatedAnnealingFactory::getObject_(
    Gem::Common::GParserBuilder& gpb
    , const std::size_t& id
 ) {
    // Will hold the result
-   boost::shared_ptr<GBaseSA> target;
+   std::shared_ptr<GBaseSA> target;
 
    // Fill the target pointer as required
    switch(pm_) {
    case EXECMODE_SERIAL:
-      target = boost::shared_ptr<GSerialSA>(new GSerialSA());
+      target = std::shared_ptr<GSerialSA>(new GSerialSA());
       break;
 
    case EXECMODE_MULTITHREADED:
-      target = boost::shared_ptr<GMultiThreadedSA>(new GMultiThreadedSA());
+      target = std::shared_ptr<GMultiThreadedSA>(new GMultiThreadedSA());
       break;
 
    case EXECMODE_BROKERAGE:
-      target = boost::shared_ptr<GBrokerSA>(new GBrokerSA());
+      target = std::shared_ptr<GBrokerSA>(new GBrokerSA());
       break;
    }
 
@@ -148,7 +148,7 @@ boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GSimulatedAnnealingFa
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GSimulatedAnnealingFactory::postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >& p_base) {
+void GSimulatedAnnealingFactory::postProcess_(std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >& p_base) {
    // Convert the object to the correct target type
    switch(pm_) {
    case EXECMODE_SERIAL:
@@ -157,7 +157,7 @@ void GSimulatedAnnealingFactory::postProcess_(boost::shared_ptr<GOptimizationAlg
 
    case EXECMODE_MULTITHREADED:
       {
-         boost::shared_ptr<GMultiThreadedSA> p
+         std::shared_ptr<GMultiThreadedSA> p
             = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedSA>(p_base);
          p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
       }
@@ -165,7 +165,7 @@ void GSimulatedAnnealingFactory::postProcess_(boost::shared_ptr<GOptimizationAlg
 
    case EXECMODE_BROKERAGE:
       {
-         boost::shared_ptr<GBrokerSA> p
+         std::shared_ptr<GBrokerSA> p
             = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerSA>(p_base);
 
          p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);

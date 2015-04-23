@@ -142,7 +142,7 @@ protected:
 
     	// Extract the requested data. First retrieve the best individual.
     	// It can always be found in the first position with evolutionary algorithms
-    	boost::shared_ptr<GStarterIndividual> p = ea->clone_at<GStarterIndividual>(0);
+    	std::shared_ptr<GStarterIndividual> p = ea->clone_at<GStarterIndividual>(0);
 
     	// Retrieve the best "raw" fitness and average sigma value and add it to our local storage
     	progressPlotter_->add(boost::tuple<double,double>((double)ea->getIteration(), p->fitness()));
@@ -202,8 +202,8 @@ private:
 
 	std::string fileName_; ///< The name of the output file
 	Gem::Common::GPlotDesigner gpd_; ///< Ease recording of essential information
-	boost::shared_ptr<Gem::Common::GGraph2D> progressPlotter_; ///< Records progress information
-	boost::shared_ptr<Gem::Common::GGraph2D> sigmaPlotter_; ///< Records progress information about the current sigma
+	std::shared_ptr<Gem::Common::GGraph2D> progressPlotter_; ///< Records progress information
+	std::shared_ptr<Gem::Common::GGraph2D> sigmaPlotter_; ///< Records progress information about the current sigma
 };
 
 /************************************************************************************************/

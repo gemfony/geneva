@@ -63,7 +63,7 @@ const double maxSigma = 1.;
  * First distribution:
  * gexp(gr_ptr->normal_distribution(gfabs(sigmaSigma_))*(gr_ptr->uniform_bool()?fp_type(1):fp_type(-1)))
  */
-double dist1(boost::shared_ptr<Gem::Hap::GRandomBase> gr_ptr, const double& sigmaSigma) {
+double dist1(std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr, const double& sigmaSigma) {
    return gexp(gr_ptr->normal_distribution(gfabs(sigmaSigma))*(gr_ptr->uniform_bool()?1.:-1.));
 }
 
@@ -71,7 +71,7 @@ double dist1(boost::shared_ptr<Gem::Hap::GRandomBase> gr_ptr, const double& sigm
  * Second distribution:
  * gexp(gr_ptr->normal_distribution(gfabs(sigmaSigma_)))
  */
-double dist2(boost::shared_ptr<Gem::Hap::GRandomBase> gr_ptr, const double& sigmaSigma) {
+double dist2(std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr, const double& sigmaSigma) {
    return gexp(gr_ptr->normal_distribution(gfabs(sigmaSigma)));
 }
 
@@ -94,7 +94,7 @@ int main() {
    double fact_1_02, fact_1_04, fact_1_06, fact_1_08;
    double fact_2_02, fact_2_04, fact_2_06, fact_2_08;
 
-   boost::shared_ptr<Gem::Hap::GRandomBase> gr_ptr = boost::shared_ptr<GRandomT<RANDOMPROXY> >(new GRandomT<RANDOMPROXY>());
+   std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr = std::shared_ptr<GRandomT<RANDOMPROXY> >(new GRandomT<RANDOMPROXY>());
 
    std::string caption_dist  = "Different random distributions for the adaption of sigma, varying sigmaSigma";
    GPlotDesigner gpd_dist (caption_dist, 2, 4);
@@ -104,15 +104,15 @@ int main() {
    GPlotDesigner gpd_devel(caption_devel, 2, 4);
    gpd_devel.setCanvasDimensions(1600,1200);
 
-   boost::shared_ptr<GHistogram1D> dist1_02_ptr(new GHistogram1D(NBINS, 0., 3.));
-   boost::shared_ptr<GHistogram1D> dist1_04_ptr(new GHistogram1D(NBINS, 0., 3.));
-   boost::shared_ptr<GHistogram1D> dist1_06_ptr(new GHistogram1D(NBINS, 0., 3.));
-   boost::shared_ptr<GHistogram1D> dist1_08_ptr(new GHistogram1D(NBINS, 0., 3.));
+   std::shared_ptr<GHistogram1D> dist1_02_ptr(new GHistogram1D(NBINS, 0., 3.));
+   std::shared_ptr<GHistogram1D> dist1_04_ptr(new GHistogram1D(NBINS, 0., 3.));
+   std::shared_ptr<GHistogram1D> dist1_06_ptr(new GHistogram1D(NBINS, 0., 3.));
+   std::shared_ptr<GHistogram1D> dist1_08_ptr(new GHistogram1D(NBINS, 0., 3.));
 
-   boost::shared_ptr<GHistogram1D> dist2_02_ptr(new GHistogram1D(NBINS, 0., 3.));
-   boost::shared_ptr<GHistogram1D> dist2_04_ptr(new GHistogram1D(NBINS, 0., 3.));
-   boost::shared_ptr<GHistogram1D> dist2_06_ptr(new GHistogram1D(NBINS, 0., 3.));
-   boost::shared_ptr<GHistogram1D> dist2_08_ptr(new GHistogram1D(NBINS, 0., 3.));
+   std::shared_ptr<GHistogram1D> dist2_02_ptr(new GHistogram1D(NBINS, 0., 3.));
+   std::shared_ptr<GHistogram1D> dist2_04_ptr(new GHistogram1D(NBINS, 0., 3.));
+   std::shared_ptr<GHistogram1D> dist2_06_ptr(new GHistogram1D(NBINS, 0., 3.));
+   std::shared_ptr<GHistogram1D> dist2_08_ptr(new GHistogram1D(NBINS, 0., 3.));
 
    dist1_02_ptr->setXAxisLabel("Distribution 1 (random sign)"); dist1_02_ptr->setYAxisLabel("Number of Entries"); dist1_02_ptr->setPlotLabel("sigmaSigma = 0.2");
    dist1_04_ptr->setXAxisLabel("Distribution 1 (random sign)"); dist1_04_ptr->setYAxisLabel("Number of Entries"); dist1_04_ptr->setPlotLabel("sigmaSigma = 0.4");
@@ -124,15 +124,15 @@ int main() {
    dist2_06_ptr->setXAxisLabel("Distribution 2 (no sign)"); dist2_06_ptr->setYAxisLabel("Number of Entries"); dist2_06_ptr->setPlotLabel("sigmaSigma = 0.6");
    dist2_08_ptr->setXAxisLabel("Distribution 2 (no sign)"); dist2_08_ptr->setYAxisLabel("Number of Entries"); dist2_08_ptr->setPlotLabel("sigmaSigma = 0.8");
 
-   boost::shared_ptr<GGraph2D> devel1_02_ptr(new GGraph2D());
-   boost::shared_ptr<GGraph2D> devel1_04_ptr(new GGraph2D());
-   boost::shared_ptr<GGraph2D> devel1_06_ptr(new GGraph2D());
-   boost::shared_ptr<GGraph2D> devel1_08_ptr(new GGraph2D());
+   std::shared_ptr<GGraph2D> devel1_02_ptr(new GGraph2D());
+   std::shared_ptr<GGraph2D> devel1_04_ptr(new GGraph2D());
+   std::shared_ptr<GGraph2D> devel1_06_ptr(new GGraph2D());
+   std::shared_ptr<GGraph2D> devel1_08_ptr(new GGraph2D());
 
-   boost::shared_ptr<GGraph2D> devel2_02_ptr(new GGraph2D());
-   boost::shared_ptr<GGraph2D> devel2_04_ptr(new GGraph2D());
-   boost::shared_ptr<GGraph2D> devel2_06_ptr(new GGraph2D());
-   boost::shared_ptr<GGraph2D> devel2_08_ptr(new GGraph2D());
+   std::shared_ptr<GGraph2D> devel2_02_ptr(new GGraph2D());
+   std::shared_ptr<GGraph2D> devel2_04_ptr(new GGraph2D());
+   std::shared_ptr<GGraph2D> devel2_06_ptr(new GGraph2D());
+   std::shared_ptr<GGraph2D> devel2_08_ptr(new GGraph2D());
 
    devel1_02_ptr->setXAxisLabel("Call"); devel1_02_ptr->setYAxisLabel("Sigma with Distribution 1 (random sign)"); devel1_02_ptr->setPlotLabel("sigmaSigma = 0.2");
    devel1_04_ptr->setXAxisLabel("Call"); devel1_04_ptr->setYAxisLabel("Sigma with Distribution 1 (random sign)"); devel1_04_ptr->setPlotLabel("sigmaSigma = 0.4");

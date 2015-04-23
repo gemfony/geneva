@@ -85,7 +85,7 @@ GParameterScanFactory::GParameterScanFactory(
 GParameterScanFactory::GParameterScanFactory(
    const std::string& configFile
    , const execMode& pm
-   , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr
+   , std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr
 )
    : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm, contentCreatorPtr)
    , parameterSpec_("empty")
@@ -152,25 +152,25 @@ void GParameterScanFactory::resetParameterSpecs() {
  *
  * @return Items of the desired type
  */
-boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GParameterScanFactory::getObject_(
+std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GParameterScanFactory::getObject_(
    Gem::Common::GParserBuilder& gpb
    , const std::size_t& id
 ) {
    // Will hold the result
-   boost::shared_ptr<GBasePS> target;
+   std::shared_ptr<GBasePS> target;
 
    // Fill the target pointer as required
    switch(pm_) {
    case EXECMODE_SERIAL:
-      target = boost::shared_ptr<GSerialPS>(new GSerialPS());
+      target = std::shared_ptr<GSerialPS>(new GSerialPS());
       break;
 
    case EXECMODE_MULTITHREADED:
-      target = boost::shared_ptr<GMultiThreadedPS>(new GMultiThreadedPS());
+      target = std::shared_ptr<GMultiThreadedPS>(new GMultiThreadedPS());
       break;
 
    case EXECMODE_BROKERAGE:
-      target = boost::shared_ptr<GBrokerPS>(new GBrokerPS());
+      target = std::shared_ptr<GBrokerPS>(new GBrokerPS());
       break;
    }
 
@@ -237,12 +237,12 @@ void GParameterScanFactory::describeLocalOptions_(Gem::Common::GParserBuilder& g
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GParameterScanFactory::postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >& p_base) {
+void GParameterScanFactory::postProcess_(std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >& p_base) {
    // Convert the object to the correct target type
    switch(pm_) {
    case EXECMODE_SERIAL:
       {
-         boost::shared_ptr<GSerialPS> p
+         std::shared_ptr<GSerialPS> p
             = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GSerialPS>(p_base);
          p->setParameterSpecs(this->getParameterSpecs());
       }
@@ -250,7 +250,7 @@ void GParameterScanFactory::postProcess_(boost::shared_ptr<GOptimizationAlgorith
 
    case EXECMODE_MULTITHREADED:
       {
-         boost::shared_ptr<GMultiThreadedPS> p
+         std::shared_ptr<GMultiThreadedPS> p
             = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedPS>(p_base);
          p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
          p->setParameterSpecs(this->getParameterSpecs());
@@ -259,7 +259,7 @@ void GParameterScanFactory::postProcess_(boost::shared_ptr<GOptimizationAlgorith
 
    case EXECMODE_BROKERAGE:
       {
-         boost::shared_ptr<GBrokerPS> p
+         std::shared_ptr<GBrokerPS> p
             = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerPS>(p_base);
 
          p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::doLogging_);

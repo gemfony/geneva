@@ -93,7 +93,7 @@ public:
 		, processed_(0)
 		, processMax_(0)
 		, returnRegardless_(true)
-		, additionalDataTemplate_(boost::shared_ptr<processable_type>())
+		, additionalDataTemplate_(std::shared_ptr<processable_type>())
 	{ /* nothing*/ }
 
 	/***************************************************************************/
@@ -105,7 +105,7 @@ public:
 	 *
 	 * @param additionalDataTemplate The model of the item to be processed
 	 */
-   GBaseClientT(boost::shared_ptr<processable_type> additionalDataTemplate)
+   GBaseClientT(std::shared_ptr<processable_type> additionalDataTemplate)
 		: startTime_(boost::posix_time::microsec_clock::local_time())
 		, maxDuration_(boost::posix_time::microsec(0))
 		, processed_(0)
@@ -288,7 +288,7 @@ protected:
 
 		// unpack the data and create a new object. Note that de-serialization must
 		// generally happen through the same type that was used for serialization.
-		boost::shared_ptr<processable_type> target = Gem::Common::sharedPtrFromString<processable_type>(istr, serMode);
+		std::shared_ptr<processable_type> target = Gem::Common::sharedPtrFromString<processable_type>(istr, serMode);
 
 		// Check if we have received a valid target. Leave the function if this is not the case
 		if(!target) {
@@ -321,7 +321,7 @@ protected:
 
 		// Everything worked. Indicate that we want to continue
 		return true;
-	} // boost::shared_ptr<processable_type> target will cease to exist at this point
+	} // std::shared_ptr<processable_type> target will cease to exist at this point
 
 	/***************************************************************************/
 
@@ -383,7 +383,7 @@ private:
 
 	bool returnRegardless_; ///< Specifies whether unsuccessful processing attempts should be returned to the server
 
-	boost::shared_ptr<processable_type> additionalDataTemplate_; ///< Optionally holds a template of the object to be processed
+	std::shared_ptr<processable_type> additionalDataTemplate_; ///< Optionally holds a template of the object to be processed
 };
 
 /******************************************************************************/

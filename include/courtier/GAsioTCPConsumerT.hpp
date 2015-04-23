@@ -41,6 +41,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <memory>
 
 // Boost headers go here
 #include <boost/array.hpp>
@@ -159,7 +160,7 @@ public:
    GAsioTCPClientT(
          const std::string& server
          , const std::string& port
-         , boost::shared_ptr<processable_type> additionalDataTemplate
+         , std::shared_ptr<processable_type> additionalDataTemplate
    )
       : GBaseClientT<processable_type>(additionalDataTemplate)
       , maxStalls_(GASIOTCPCONSUMERMAXSTALLS)
@@ -586,7 +587,7 @@ private:
  */
 template <typename processable_type>
 class GAsioServerSessionT
-   : public  boost::enable_shared_from_this<GAsioServerSessionT<processable_type> >
+   : public  std::enable_shared_from_this<GAsioServerSessionT<processable_type> >
    , private boost::noncopyable
  {
  public:
@@ -950,7 +951,7 @@ class GAsioServerSessionT
     */
    void async_submitToRemote(){
       // Retrieve an item from the broker and submit it to the client.
-      boost::shared_ptr<processable_type> p;
+      std::shared_ptr<processable_type> p;
       Gem::Common::PORTIDTYPE portId;
 
       // Do not do anything if the server was stopped
@@ -1114,14 +1115,14 @@ class GAsioServerSessionT
    boost::array<char, 16384>         dataBuffer_;    ///< A buffer holding body data -- was 4096
 
    std::size_t bytesTransferredDataBody_; ///< The number of bytes if the data body transferred so far
-   boost::shared_ptr<std::string> dataBody_ptr_; ///< The actual body data. Implemented as a shared_ptr so we can easily hand the data around
+   std::shared_ptr<std::string> dataBody_ptr_; ///< The actual body data. Implemented as a shared_ptr so we can easily hand the data around
 
    Gem::Common::PORTIDTYPE portId_; ///< The id of a port
    std::size_t dataSize_; ///< Holds the size of the body of data
 
    Gem::Common::serializationMode serializationMode_; ///< Specifies the serialization mode
    GAsioTCPConsumerT<processable_type> *master_;
-   boost::shared_ptr<Gem::Courtier::GBrokerT<processable_type> > broker_ptr_;
+   std::shared_ptr<Gem::Courtier::GBrokerT<processable_type> > broker_ptr_;
 
    boost::posix_time::time_duration timeout_; ///< A timeout for put- and get-operations
 
@@ -1334,8 +1335,8 @@ class GAsioTCPConsumerT
    /**
     * Emits a client suitable for processing the data emitted by this consumer
     */
-   virtual boost::shared_ptr<GBaseClientT<processable_type> > getClient() const {
-      boost::shared_ptr<GAsioTCPClientT<processable_type> > p (
+   virtual std::shared_ptr<GBaseClientT<processable_type> > getClient() const {
+      std::shared_ptr<GAsioTCPClientT<processable_type> > p (
             new GAsioTCPClientT<processable_type>(server_, boost::lexical_cast<std::string>(port_))
       );
 
@@ -1492,7 +1493,7 @@ class GAsioTCPConsumerT
     * session does not need to perform this work
     */
    void async_scheduleDeSerialization(
-         boost::shared_ptr<std::string> dataBody_ptr
+         std::shared_ptr<std::string> dataBody_ptr
          , Gem::Common::PORTIDTYPE portId
    ) {
       gtp_.async_schedule(
@@ -1515,13 +1516,13 @@ class GAsioTCPConsumerT
     * will usually be called in its own thread.
     */
    void handle_workItemComplete(
-         boost::shared_ptr<std::string> dataBody_ptr
+         std::shared_ptr<std::string> dataBody_ptr
          , Gem::Common::serializationMode sM
          , Gem::Common::PORTIDTYPE portId
          , boost::posix_time::time_duration timeout
    ) {
       // De-Serialize the data
-      boost::shared_ptr<processable_type> p
+      std::shared_ptr<processable_type> p
          = Gem::Common::sharedPtrFromString<processable_type>(*dataBody_ptr, sM);
 
       // Complain if this is an empty item
@@ -1569,7 +1570,7 @@ class GAsioTCPConsumerT
    void async_newAccept()
    {
       // First we make sure a new session is started asynchronously so the next request can be served
-      boost::shared_ptr<GAsioServerSessionT<processable_type> > newSession(
+      std::shared_ptr<GAsioServerSessionT<processable_type> > newSession(
             new GAsioServerSessionT<processable_type>(
                   io_service_
                   , serializationMode_
@@ -1616,7 +1617,7 @@ class GAsioTCPConsumerT
     * @param error Possible error conditions
     */
    void async_handleAccept(
-         boost::shared_ptr<GAsioServerSessionT<processable_type> > currentSession
+         std::shared_ptr<GAsioServerSessionT<processable_type> > currentSession
          , const boost::system::error_code& error)
    {
       if(error) {
@@ -1666,7 +1667,7 @@ class GAsioTCPConsumerT
    boost::posix_time::time_duration timeout_; ///< A timeout for put- and get-operations
    Gem::Common::GThreadGroup gtg_; ///< Holds listener threads
    Gem::Common::GThreadPool  gtp_; ///< Holds workers sorting processed items back into the broker
-   boost::shared_ptr<Gem::Courtier::GBrokerT<processable_type> > broker_ptr_;
+   std::shared_ptr<Gem::Courtier::GBrokerT<processable_type> > broker_ptr_;
  };
 
 /******************************************************************************/

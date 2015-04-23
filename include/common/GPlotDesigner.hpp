@@ -143,7 +143,7 @@ public:
 	G_API_COMMON std::string dsMarker() const;
 
 	/** @brief Allows to add secondary plots to be added to the same sub-canvas */
-	G_API_COMMON void registerSecondaryPlotter(boost::shared_ptr<GBasePlotter>);
+	G_API_COMMON void registerSecondaryPlotter(std::shared_ptr<GBasePlotter>);
 
    /** @brief Allows to retrieve the id of this object */
 	G_API_COMMON std::size_t id() const;
@@ -154,7 +154,7 @@ public:
 	virtual G_API_COMMON std::string getPlotterName() const = 0;
 
 	/** @brief Retrieve a clone of this object */
-	virtual G_API_COMMON boost::shared_ptr<GBasePlotter> clone() const = 0;
+	virtual G_API_COMMON std::shared_ptr<GBasePlotter> clone() const = 0;
 
 protected:
    /***************************************************************************/
@@ -172,7 +172,7 @@ protected:
 
    /***************************************************************************/
 	/** @brief Check that a given plotter is compatible with us */
-	virtual G_API_COMMON bool isCompatible(boost::shared_ptr<GBasePlotter>) const;
+	virtual G_API_COMMON bool isCompatible(std::shared_ptr<GBasePlotter>) const;
 
 	/** @brief calculate a suffix from id and parent ids */
 	G_API_COMMON std::string suffix(bool, std::size_t) const;
@@ -201,7 +201,7 @@ private:
    /***************************************************************************/
 
    /** @brief A list of plotters that should emit their data into the same canvas */
-   std::vector<boost::shared_ptr<GBasePlotter> > secondaryPlotter_;
+   std::vector<std::shared_ptr<GBasePlotter> > secondaryPlotter_;
 
 	std::size_t id_; ///< The id of this object
 };
@@ -399,7 +399,7 @@ public:
    virtual G_API_COMMON std::string getPlotterName() const;
 
    /** @brief Retrieve a clone of this object */
-   virtual G_API_COMMON boost::shared_ptr<GBasePlotter> clone() const;
+   virtual G_API_COMMON std::shared_ptr<GBasePlotter> clone() const;
 
 protected:
    /** @brief Retrieve specific header settings for this plot */
@@ -459,7 +459,7 @@ public:
    virtual G_API_COMMON std::string getPlotterName() const;
 
    /** @brief Retrieve a clone of this object */
-   virtual G_API_COMMON boost::shared_ptr<GBasePlotter> clone() const;
+   virtual G_API_COMMON std::shared_ptr<GBasePlotter> clone() const;
 
 protected:
    /** @brief Retrieve specific header settings for this plot */
@@ -535,7 +535,7 @@ public:
 	 * trap to catch calls with un-implemented types. Use the corresponding specializations,
 	 * if available.
 	 */
-	boost::shared_ptr<GDataCollector1T<x_type> > projectX(
+	std::shared_ptr<GDataCollector1T<x_type> > projectX(
       std::size_t
       , boost::tuple<x_type, x_type>
 	) const {
@@ -545,7 +545,7 @@ public:
       << GEXCEPTION;
 
 		// Make the compiler happy
-		return boost::shared_ptr<GDataCollector1T<x_type> >();
+		return std::shared_ptr<GDataCollector1T<x_type> >();
 	}
 
 	/***************************************************************************/
@@ -554,7 +554,7 @@ public:
 	 * trap to catch calls with un-implemented types. Use the corresponding specializations,
 	 * if available.
 	 */
-	boost::shared_ptr<GDataCollector1T<y_type> > projectY(
+	std::shared_ptr<GDataCollector1T<y_type> > projectY(
       std::size_t
       , boost::tuple<y_type, y_type>
 	) const {
@@ -564,7 +564,7 @@ public:
       << GEXCEPTION;
 
 		// Make the compiler happy
-		return boost::shared_ptr<GDataCollector1T<y_type> >();
+		return std::shared_ptr<GDataCollector1T<y_type> >();
 	}
 
    /***************************************************************************/
@@ -697,7 +697,7 @@ protected:
 /******************************************************************************/
 /**
  * Specialization of projectX for <x_type, y_type> = <double, double>, that will return a
- * GHistogram1D object, wrapped into a boost::shared_ptr<GHistogram1D>. In case of a
+ * GHistogram1D object, wrapped into a std::shared_ptr<GHistogram1D>. In case of a
  * default-constructed range, the function will attempt to determine suitable parameters
  * for the range settings.
  *
@@ -705,7 +705,7 @@ protected:
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-boost::shared_ptr<GDataCollector1T<double> >
+std::shared_ptr<GDataCollector1T<double> >
 GDataCollector2T<double, double>::projectX(std::size_t nBinsX, boost::tuple<double, double> rangeX) const {
    boost::tuple<double, double> myRangeX;
    if(rangeX == boost::tuple<double, double>()) {
@@ -717,7 +717,7 @@ GDataCollector2T<double, double>::projectX(std::size_t nBinsX, boost::tuple<doub
    }
 
    // Construct the result object
-   boost::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsX, myRangeX));
+   std::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsX, myRangeX));
    result->setXAxisLabel(this->xAxisLabel());
    result->setYAxisLabel("Number of entries");
    result->setPlotLabel(this->plotLabel() + " / x-projection");
@@ -735,7 +735,7 @@ GDataCollector2T<double, double>::projectX(std::size_t nBinsX, boost::tuple<doub
 /******************************************************************************/
 /**
  * Specialization of projectY for <x_type, y_type> = <double, double>, that will return a
- * GHistogram1D object, wrapped into a boost::shared_ptr<GHistogram1D>. In case of a
+ * GHistogram1D object, wrapped into a std::shared_ptr<GHistogram1D>. In case of a
  * default-constructed range, the function will attempt to determine suitable parameters
  * for the range settings.
  *
@@ -743,7 +743,7 @@ GDataCollector2T<double, double>::projectX(std::size_t nBinsX, boost::tuple<doub
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-boost::shared_ptr<GDataCollector1T<double> >
+std::shared_ptr<GDataCollector1T<double> >
 GDataCollector2T<double, double>::projectY(std::size_t nBinsY, boost::tuple<double, double> rangeY) const {
    boost::tuple<double, double> myRangeY;
    if(rangeY == boost::tuple<double, double>()) {
@@ -755,7 +755,7 @@ GDataCollector2T<double, double>::projectY(std::size_t nBinsY, boost::tuple<doub
    }
 
    // Construct the result object
-   boost::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsY, myRangeY));
+   std::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsY, myRangeY));
    result->setXAxisLabel(this->yAxisLabel());
    result->setYAxisLabel("Number of entries");
    result->setPlotLabel(this->plotLabel() + " / y-projection");
@@ -1036,7 +1036,7 @@ public:
 	G_API_COMMON tddropt get2DOpt() const;
 
    /** @brief Retrieve a clone of this object */
-   virtual G_API_COMMON boost::shared_ptr<GBasePlotter> clone() const;
+   virtual G_API_COMMON std::shared_ptr<GBasePlotter> clone() const;
 
 protected:
    /** @brief Retrieve specific header settings for this plot */
@@ -1097,7 +1097,7 @@ public:
    virtual G_API_COMMON std::string getPlotterName() const;
 
    /** @brief Retrieve a clone of this object */
-   virtual G_API_COMMON boost::shared_ptr<GBasePlotter> clone() const;
+   virtual G_API_COMMON std::shared_ptr<GBasePlotter> clone() const;
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
@@ -1143,7 +1143,7 @@ public:
    G_API_COMMON virtual std::string getPlotterName() const;
 
    /** @brief Retrieve a clone of this object */
-   G_API_COMMON virtual boost::shared_ptr<GBasePlotter> clone() const;
+   G_API_COMMON virtual std::shared_ptr<GBasePlotter> clone() const;
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
@@ -1215,7 +1215,7 @@ public:
     * trap to catch calls with un-implemented types. Use the corresponding specializations,
     * if available.
     */
-   boost::shared_ptr<GDataCollector1T<x_type> > projectX(
+   std::shared_ptr<GDataCollector1T<x_type> > projectX(
       std::size_t
       , boost::tuple<x_type, x_type>
    ) const {
@@ -1225,7 +1225,7 @@ public:
       << GEXCEPTION;
 
       // Make the compiler happy
-      return boost::shared_ptr<GDataCollector1T<x_type> >();
+      return std::shared_ptr<GDataCollector1T<x_type> >();
    }
 
    /***************************************************************************/
@@ -1234,7 +1234,7 @@ public:
     * trap to catch calls with un-implemented types. Use the corresponding specializations,
     * if available.
     */
-   boost::shared_ptr<GDataCollector1T<y_type> > projectY(
+   std::shared_ptr<GDataCollector1T<y_type> > projectY(
       std::size_t
       , boost::tuple<y_type, y_type>
    ) const {
@@ -1244,7 +1244,7 @@ public:
       << GEXCEPTION;
 
       // Make the compiler happy
-      return boost::shared_ptr<GDataCollector1T<y_type> >();
+      return std::shared_ptr<GDataCollector1T<y_type> >();
    }
 
    /***************************************************************************/
@@ -1253,7 +1253,7 @@ public:
     * trap to catch calls with un-implemented types. Use the corresponding specializations,
     * if available.
     */
-   boost::shared_ptr<GDataCollector1T<z_type> > projectZ(
+   std::shared_ptr<GDataCollector1T<z_type> > projectZ(
       std::size_t
       , boost::tuple<z_type, z_type>
    ) const {
@@ -1263,7 +1263,7 @@ public:
       << GEXCEPTION;
 
       // Make the compiler happy
-      return boost::shared_ptr<GDataCollector1T<z_type> >();
+      return std::shared_ptr<GDataCollector1T<z_type> >();
    }
 
    /***************************************************************************/
@@ -1386,7 +1386,7 @@ protected:
 /******************************************************************************/
 /**
  * Specialization of projectX for <x_type, y_type, z_type> = <double, double, double>, that will return a
- * GHistogram1D object, wrapped into a boost::shared_ptr<GHistogram1D>. In case of a
+ * GHistogram1D object, wrapped into a std::shared_ptr<GHistogram1D>. In case of a
  * default-constructed range, the function will attempt to determine suitable parameters
  * for the range settings.
  *
@@ -1394,7 +1394,7 @@ protected:
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-boost::shared_ptr<GDataCollector1T<double> >
+std::shared_ptr<GDataCollector1T<double> >
 GDataCollector3T<double, double,double>::projectX(std::size_t nBinsX, boost::tuple<double, double> rangeX) const {
    boost::tuple<double, double> myRangeX;
    if(rangeX == boost::tuple<double, double>()) {
@@ -1406,7 +1406,7 @@ GDataCollector3T<double, double,double>::projectX(std::size_t nBinsX, boost::tup
    }
 
    // Construct the result object
-   boost::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsX, myRangeX));
+   std::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsX, myRangeX));
    result->setXAxisLabel(this->xAxisLabel());
    result->setYAxisLabel("Number of entries");
    result->setPlotLabel(this->plotLabel() + " / x-projection");
@@ -1423,7 +1423,7 @@ GDataCollector3T<double, double,double>::projectX(std::size_t nBinsX, boost::tup
 /******************************************************************************/
 /**
  * Specialization of projectY for <x_type, y_type, z_type> = <double, double, double>, that will return a
- * GHistogram1D object, wrapped into a boost::shared_ptr<GHistogram1D>. In case of a
+ * GHistogram1D object, wrapped into a std::shared_ptr<GHistogram1D>. In case of a
  * default-constructed range, the function will attempt to determine suitable parameters
  * for the range settings.
  *
@@ -1431,7 +1431,7 @@ GDataCollector3T<double, double,double>::projectX(std::size_t nBinsX, boost::tup
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-boost::shared_ptr<GDataCollector1T<double> >
+std::shared_ptr<GDataCollector1T<double> >
 GDataCollector3T<double, double, double>::projectY(std::size_t nBinsY, boost::tuple<double, double> rangeY) const {
    boost::tuple<double, double> myRangeY;
    if(rangeY == boost::tuple<double, double>()) {
@@ -1443,7 +1443,7 @@ GDataCollector3T<double, double, double>::projectY(std::size_t nBinsY, boost::tu
    }
 
    // Construct the result object
-   boost::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsY, myRangeY));
+   std::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsY, myRangeY));
    result->setXAxisLabel(this->yAxisLabel());
    result->setYAxisLabel("Number of entries");
    result->setPlotLabel(this->plotLabel() + " / y-projection");
@@ -1460,7 +1460,7 @@ GDataCollector3T<double, double, double>::projectY(std::size_t nBinsY, boost::tu
 /******************************************************************************/
 /**
  * Specialization of projectZ for <x_type, y_type, z_type> = <double, double, double>, that will return a
- * GHistogram1D object, wrapped into a boost::shared_ptr<GHistogram1D>. In case of a
+ * GHistogram1D object, wrapped into a std::shared_ptr<GHistogram1D>. In case of a
  * default-constructed range, the function will attempt to determine suitable parameters
  * for the range settings.
  *
@@ -1468,7 +1468,7 @@ GDataCollector3T<double, double, double>::projectY(std::size_t nBinsY, boost::tu
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-boost::shared_ptr<GDataCollector1T<double> >
+std::shared_ptr<GDataCollector1T<double> >
 GDataCollector3T<double, double, double>::projectZ(std::size_t nBinsZ, boost::tuple<double, double> rangeZ) const {
    boost::tuple<double, double> myRangeZ;
    if(rangeZ == boost::tuple<double, double>()) {
@@ -1480,7 +1480,7 @@ GDataCollector3T<double, double, double>::projectZ(std::size_t nBinsZ, boost::tu
    }
 
    // Construct the result object
-   boost::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsZ, myRangeZ));
+   std::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsZ, myRangeZ));
    result->setXAxisLabel(this->zAxisLabel());
    result->setYAxisLabel("Number of entries");
    result->setPlotLabel(this->plotLabel() + " / z-projection");
@@ -1525,7 +1525,7 @@ public:
    virtual G_API_COMMON std::string getPlotterName() const;
 
    /** @brief Retrieve a clone of this object */
-   virtual G_API_COMMON boost::shared_ptr<GBasePlotter> clone() const;
+   virtual G_API_COMMON std::shared_ptr<GBasePlotter> clone() const;
 
 protected:
    /** @brief Retrieve specific header settings for this plot */
@@ -1602,7 +1602,7 @@ public:
     * trap to catch calls with un-implemented types. Use the corresponding specializations,
     * if available.
     */
-   boost::shared_ptr<GDataCollector1T<x_type> > projectX(
+   std::shared_ptr<GDataCollector1T<x_type> > projectX(
       std::size_t
       , boost::tuple<x_type, x_type>
    ) const {
@@ -1612,7 +1612,7 @@ public:
       << GEXCEPTION;
 
       // Make the compiler happy
-      return boost::shared_ptr<GDataCollector1T<x_type> >();
+      return std::shared_ptr<GDataCollector1T<x_type> >();
    }
 
    /***************************************************************************/
@@ -1621,7 +1621,7 @@ public:
     * trap to catch calls with un-implemented types. Use the corresponding specializations,
     * if available.
     */
-   boost::shared_ptr<GDataCollector1T<y_type> > projectY(
+   std::shared_ptr<GDataCollector1T<y_type> > projectY(
       std::size_t
       , boost::tuple<y_type, y_type>
    ) const {
@@ -1631,7 +1631,7 @@ public:
       << GEXCEPTION;
 
       // Make the compiler happy
-      return boost::shared_ptr<GDataCollector1T<y_type> >();
+      return std::shared_ptr<GDataCollector1T<y_type> >();
    }
 
    /***************************************************************************/
@@ -1640,7 +1640,7 @@ public:
     * trap to catch calls with un-implemented types. Use the corresponding specializations,
     * if available.
     */
-   boost::shared_ptr<GDataCollector1T<z_type> > projectZ(
+   std::shared_ptr<GDataCollector1T<z_type> > projectZ(
       std::size_t
       , boost::tuple<z_type, z_type>
    ) const {
@@ -1650,7 +1650,7 @@ public:
       << GEXCEPTION;
 
       // Make the compiler happy
-      return boost::shared_ptr<GDataCollector1T<z_type> >();
+      return std::shared_ptr<GDataCollector1T<z_type> >();
    }
 
    /***************************************************************************/
@@ -1659,7 +1659,7 @@ public:
     * trap to catch calls with un-implemented types. Use the corresponding specializations,
     * if available.
     */
-   boost::shared_ptr<GDataCollector1T<w_type> > projectW(
+   std::shared_ptr<GDataCollector1T<w_type> > projectW(
       std::size_t
       , boost::tuple<w_type, w_type>
    ) const {
@@ -1669,7 +1669,7 @@ public:
       << GEXCEPTION;
 
       // Make the compiler happy
-      return boost::shared_ptr<GDataCollector1T<w_type> >();
+      return std::shared_ptr<GDataCollector1T<w_type> >();
    }
 
    /***************************************************************************/
@@ -1805,7 +1805,7 @@ protected:
 /******************************************************************************/
 /**
  * Specialization of projectX for <x_type, y_type, z_type, w_type> = <double, double, double, double>,
- * that will return a GHistogram1D object, wrapped into a boost::shared_ptr<GHistogram1D>. In case of a
+ * that will return a GHistogram1D object, wrapped into a std::shared_ptr<GHistogram1D>. In case of a
  * default-constructed range, the function will attempt to determine suitable parameters
  * for the range settings.
  *
@@ -1813,7 +1813,7 @@ protected:
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-boost::shared_ptr<GDataCollector1T<double> >
+std::shared_ptr<GDataCollector1T<double> >
 GDataCollector4T<double, double,double, double>::projectX(std::size_t nBinsX, boost::tuple<double, double> rangeX) const {
    boost::tuple<double, double> myRangeX;
    if(rangeX == boost::tuple<double, double>()) {
@@ -1825,7 +1825,7 @@ GDataCollector4T<double, double,double, double>::projectX(std::size_t nBinsX, bo
    }
 
    // Construct the result object
-   boost::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsX, myRangeX));
+   std::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsX, myRangeX));
    result->setXAxisLabel(this->xAxisLabel());
    result->setYAxisLabel("Number of entries");
    result->setPlotLabel(this->plotLabel() + " / x-projection");
@@ -1842,7 +1842,7 @@ GDataCollector4T<double, double,double, double>::projectX(std::size_t nBinsX, bo
 /******************************************************************************/
 /**
  * Specialization of projectY for <x_type, y_type, z_type, w_type> = <double, double, double, double>,
- * that will return a GHistogram1D object, wrapped into a boost::shared_ptr<GHistogram1D>. In case of a
+ * that will return a GHistogram1D object, wrapped into a std::shared_ptr<GHistogram1D>. In case of a
  * default-constructed range, the function will attempt to determine suitable parameters
  * for the range settings.
  *
@@ -1850,7 +1850,7 @@ GDataCollector4T<double, double,double, double>::projectX(std::size_t nBinsX, bo
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-boost::shared_ptr<GDataCollector1T<double> >
+std::shared_ptr<GDataCollector1T<double> >
 GDataCollector4T<double, double, double, double>::projectY(std::size_t nBinsY, boost::tuple<double, double> rangeY) const {
    boost::tuple<double, double> myRangeY;
    if(rangeY == boost::tuple<double, double>()) {
@@ -1862,7 +1862,7 @@ GDataCollector4T<double, double, double, double>::projectY(std::size_t nBinsY, b
    }
 
    // Construct the result object
-   boost::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsY, myRangeY));
+   std::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsY, myRangeY));
    result->setXAxisLabel(this->yAxisLabel());
    result->setYAxisLabel("Number of entries");
    result->setPlotLabel(this->plotLabel() + " / y-projection");
@@ -1879,7 +1879,7 @@ GDataCollector4T<double, double, double, double>::projectY(std::size_t nBinsY, b
 /******************************************************************************/
 /**
  * Specialization of projectZ for <x_type, y_type, z_type, w_type> = <double, double, double, double>,
- * that will return a GHistogram1D object, wrapped into a boost::shared_ptr<GHistogram1D>. In case of a
+ * that will return a GHistogram1D object, wrapped into a std::shared_ptr<GHistogram1D>. In case of a
  * default-constructed range, the function will attempt to determine suitable parameters
  * for the range settings.
  *
@@ -1887,7 +1887,7 @@ GDataCollector4T<double, double, double, double>::projectY(std::size_t nBinsY, b
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-boost::shared_ptr<GDataCollector1T<double> >
+std::shared_ptr<GDataCollector1T<double> >
 GDataCollector4T<double, double, double, double>::projectZ(std::size_t nBinsZ, boost::tuple<double, double> rangeZ) const {
    boost::tuple<double, double> myRangeZ;
    if(rangeZ == boost::tuple<double, double>()) {
@@ -1900,7 +1900,7 @@ GDataCollector4T<double, double, double, double>::projectZ(std::size_t nBinsZ, b
 
 
    // Construct the result object
-   boost::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsZ, myRangeZ));
+   std::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsZ, myRangeZ));
    result->setXAxisLabel(this->zAxisLabel());
    result->setYAxisLabel("Number of entries");
    result->setPlotLabel(this->plotLabel() + " / z-projection");
@@ -1917,7 +1917,7 @@ GDataCollector4T<double, double, double, double>::projectZ(std::size_t nBinsZ, b
 /******************************************************************************/
 /**
  * Specialization of projectZ for <x_type, y_type, z_type, w_type> = <double, double, double, double>,
- * that will return a GHistogram1D object, wrapped into a boost::shared_ptr<GHistogram1D>. In case of a
+ * that will return a GHistogram1D object, wrapped into a std::shared_ptr<GHistogram1D>. In case of a
  * default-constructed range, the function will attempt to determine suitable parameters
  * for the range settings.
  *
@@ -1925,7 +1925,7 @@ GDataCollector4T<double, double, double, double>::projectZ(std::size_t nBinsZ, b
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<> inline
-boost::shared_ptr<GDataCollector1T<double> >
+std::shared_ptr<GDataCollector1T<double> >
 GDataCollector4T<double, double, double, double>::projectW(std::size_t nBinsW, boost::tuple<double, double> rangeW) const {
    boost::tuple<double, double> myRangeW;
    if(rangeW == boost::tuple<double, double>()) {
@@ -1938,7 +1938,7 @@ GDataCollector4T<double, double, double, double>::projectW(std::size_t nBinsW, b
 
 
    // Construct the result object
-   boost::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsW, myRangeW));
+   std::shared_ptr<GHistogram1D> result(new GHistogram1D(nBinsW, myRangeW));
    result->setXAxisLabel("w");
    result->setYAxisLabel("Number of entries");
    result->setPlotLabel(this->plotLabel() + " / w-projection");
@@ -2000,7 +2000,7 @@ public:
    G_API_COMMON std::size_t getNBest() const;
 
    /** @brief Retrieve a clone of this object */
-   virtual G_API_COMMON boost::shared_ptr<GBasePlotter> clone() const;
+   virtual G_API_COMMON std::shared_ptr<GBasePlotter> clone() const;
 
 protected:
    /** @brief Retrieve specific header settings for this plot */
@@ -2054,7 +2054,7 @@ public:
    virtual G_API_COMMON std::string getPlotterName() const;
 
    /** @brief Retrieve a clone of this object */
-   virtual G_API_COMMON boost::shared_ptr<GBasePlotter> clone() const;
+   virtual G_API_COMMON std::shared_ptr<GBasePlotter> clone() const;
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
@@ -2109,7 +2109,7 @@ public:
 	G_API_COMMON virtual std::string getPlotterName() const;
 
    /** @brief Retrieve a clone of this object */
-	G_API_COMMON virtual boost::shared_ptr<GBasePlotter> clone() const;
+	G_API_COMMON virtual std::shared_ptr<GBasePlotter> clone() const;
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
@@ -2170,7 +2170,7 @@ public:
    void registerFooterFunction(boost::function<std::string(bool, std::size_t)>);
 
    /** @brief Retrieve a clone of this object */
-   virtual G_API_COMMON boost::shared_ptr<GBasePlotter> clone() const;
+   virtual G_API_COMMON std::shared_ptr<GBasePlotter> clone() const;
 
 protected:
    /** @brief Retrieve specific header settings for this plot */
@@ -2215,7 +2215,7 @@ public:
    G_API_COMMON void writeToFile(const boost::filesystem::path&);
 
 	/** @brief Allows to add a new plotter object */
-   G_API_COMMON void registerPlotter(boost::shared_ptr<GBasePlotter>);
+   G_API_COMMON void registerPlotter(std::shared_ptr<GBasePlotter>);
 
 	/** @brief Set the dimensions of the output canvas */
    G_API_COMMON void setCanvasDimensions(const boost::uint32_t&, const boost::uint32_t&);
@@ -2244,7 +2244,7 @@ private:
 	/** @brief A header for static data in a ROOT file */
 	std::string staticHeader() const;
 
-	std::vector<boost::shared_ptr<GBasePlotter> > plotters_; ///< A list of plots to be added to the diagram
+	std::vector<std::shared_ptr<GBasePlotter> > plotters_; ///< A list of plots to be added to the diagram
 
 	std::size_t c_x_div_, c_y_div_; ///< The number of divisions in x- and y-direction
 	boost::uint32_t c_x_dim_, c_y_dim_; ///< Holds the number of pixels of the canvas

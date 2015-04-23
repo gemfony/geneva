@@ -459,7 +459,7 @@ protected:
 			}
 
 			// Retrieve the globally best individual for later use
-			boost::shared_ptr<GParameterSet> g_best_ptr = ea->GOptimizableI::getBestIndividual<GParameterSet>();
+			std::shared_ptr<GParameterSet> g_best_ptr = ea->GOptimizableI::getBestIndividual<GParameterSet>();
 			// Extract the fitness (Note: this will throw, if the individual is "dirty")
 			double global_best_fitness = g_best_ptr->transformedFitness();
 
@@ -503,7 +503,7 @@ protected:
 
 			// Extract the parents and mark them in the plot
 			for(std::size_t parentId=0; parentId < nParents; parentId++) {
-				boost::shared_ptr<GParameterSet> p_ptr = ea->getParentIndividual<GParameterSet>(parentId);
+				std::shared_ptr<GParameterSet> p_ptr = ea->getParentIndividual<GParameterSet>(parentId);
 
 				// Extract the coordinates
 				double x_parent = p_ptr->at<GDoubleCollection>(0)->at(0);
@@ -525,7 +525,7 @@ protected:
 			std::size_t cind = 0;
 			for(it=ea->begin() + nParents; it!=ea->end(); ++it) {
 				// Retrieve the data members
-				boost::shared_ptr<GDoubleCollection> x = boost::dynamic_pointer_cast<GParameterSet>(*it)->at<GDoubleCollection>(0);
+				std::shared_ptr<GDoubleCollection> x = std::dynamic_pointer_cast<GParameterSet>(*it)->at<GDoubleCollection>(0);
 				// Store a reference for ease of access
 				const GDoubleCollection& x_ref = *x;
 #ifdef DEBUG

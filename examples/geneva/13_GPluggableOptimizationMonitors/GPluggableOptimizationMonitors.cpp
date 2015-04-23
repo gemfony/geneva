@@ -50,98 +50,6 @@ using namespace Gem::Geneva;
 namespace po = boost::program_options;
 
 /******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * A function that allows parsing of the command line
- */
-void parseCommandLine(
-   std::vector<boost::shared_ptr<po::option_description> >& od
-   , bool& printValid
-   , bool& useRawFitness
-   , std::string& monitorSpec
-   , bool& bestOnly
-   , bool& observeBoundaries
-   , std::string& logAll
-   , std::string& monitorNAdaptions
-   , std::string& logSigma
-) {
-   boost::shared_ptr<po::option_description> printValid_option(
-      new po::option_description(
-         "validOnly"
-         , po::value<bool>(&printValid)->implicit_value(true)->default_value(false) // This allows you say both --validOnly and --validOnly=true
-         , "Enforces output of valid solutions only"
-      )
-   );
-   od.push_back(printValid_option);
-
-   boost::shared_ptr<po::option_description> printTrue_option(
-      new po::option_description(
-         "useRawFitness"
-         , po::value<bool>(&useRawFitness)->implicit_value(true)->default_value(false) // This allows you say both --useRawFitness and --useRawFitness=true
-         , "Plot untransformed fitness value, even if a transformation takes place for the purpose of optimization"
-      )
-   );
-   od.push_back(printTrue_option);
-
-   boost::shared_ptr<po::option_description> monitorSpec_option(
-      new po::option_description(
-         "monitorSpec"
-         , po::value<std::string>(&monitorSpec)->default_value(std::string("empty"))
-         , "Allows you to specify variables to be monitored like this: \"d(var0 -10 10)\""
-      )
-   );
-   od.push_back(monitorSpec_option);
-
-   boost::shared_ptr<po::option_description> bestOnly_option(
-      new po::option_description(
-         "bestOnly"
-         , po::value<bool>(&bestOnly)->default_value(false)
-         , "Allows you to specify whether only the best solutions should be monitored. This option only has an effect when monitorSpec is set."
-      )
-   );
-   od.push_back(bestOnly_option);
-
-   boost::shared_ptr<po::option_description> observeBoundaries_option(
-      new po::option_description(
-         "observeBoundaries"
-         , po::value<bool>(&observeBoundaries)->implicit_value(true)->default_value(false) // This allows you say both --observeBoundaries and --observeBoundaries=true
-         , "Only plot inside of specified boundaries (no effect, when monitorSpec hasn't been set)"
-      )
-   );
-   od.push_back(observeBoundaries_option);
-
-   boost::shared_ptr<po::option_description> logAll_option(
-      new po::option_description(
-         "logAll"
-         , po::value<std::string>(&logAll)->implicit_value(std::string("./log.txt"))->default_value("empty")
-         , "Logs all solutions to the file name provided as argument to this switch"
-      )
-   );
-   od.push_back(logAll_option);
-
-   boost::shared_ptr<po::option_description> nAdaptionsLog_option(
-      new po::option_description(
-         "monitorAdaptions"
-         , po::value<std::string>(&monitorNAdaptions)->implicit_value(std::string("./nAdaptions.C"))->default_value("empty")
-         , "Logs the number of adaptions for all individuals over the course of the optimization. Useful for evolutionary algorithms only."
-      )
-   );
-   od.push_back(nAdaptionsLog_option);
-
-   boost::shared_ptr<po::option_description> sigmaLog_option(
-      new po::option_description(
-         "logSigma"
-         , po::value<std::string>(&logSigma)->implicit_value(std::string("./sigmaLog.C"))->default_value("empty")
-         , "Logs the value of sigma for all or the best adaptors, if GDoubleGaussAdaptors are being used"
-      )
-   );
-   od.push_back(sigmaLog_option);
-}
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
 /**
  * The main function
  */
@@ -158,21 +66,43 @@ int main(int argc, char **argv) {
    std::string monitorNAdaptions = "empty";
    std::string logSigma = "empty";
 
-   std::vector<boost::shared_ptr<po::option_description> > od;
-
-   parseCommandLine(
-      od
-      , printValid
-      , useRawFitness
-      , monitorSpec
-      , bestOnly
-      , observeBoundaries
-      , logAll
-      , monitorNAdaptions
-      , logSigma
+   // Assemble command line options
+   boost::program_options::options_description user_options;
+   user_options.add_options()(
+      "validOnly"
+      , po::value<bool>(&printValid)->implicit_value(true)->default_value(false) // This allows you say both --validOnly and --validOnly=true
+      , "Enforces output of valid solutions only"
+   )(
+      "useRawFitness"
+      , po::value<bool>(&useRawFitness)->implicit_value(true)->default_value(false) // This allows you say both --useRawFitness and --useRawFitness=true
+      , "Plot untransformed fitness value, even if a transformation takes place for the purpose of optimization"
+   )(
+      "monitorSpec"
+      , po::value<std::string>(&monitorSpec)->default_value(std::string("empty"))
+      , "Allows you to specify variables to be monitored like this: \"d(var0 -10 10)\""
+   )(
+      "bestOnly"
+      , po::value<bool>(&bestOnly)->default_value(false)
+      , "Allows you to specify whether only the best solutions should be monitored. This option only has an effect when monitorSpec is set."
+   )(
+      "observeBoundaries"
+      , po::value<bool>(&observeBoundaries)->implicit_value(true)->default_value(false) // This allows you say both --observeBoundaries and --observeBoundaries=true
+      , "Only plot inside of specified boundaries (no effect, when monitorSpec hasn't been set)"
+   )(
+      "logAll"
+      , po::value<std::string>(&logAll)->implicit_value(std::string("./log.txt"))->default_value("empty")
+      , "Logs all solutions to the file name provided as argument to this switch"
+   )(
+      "monitorAdaptions"
+      , po::value<std::string>(&monitorNAdaptions)->implicit_value(std::string("./nAdaptions.C"))->default_value("empty")
+      , "Logs the number of adaptions for all individuals over the course of the optimization. Useful for evolutionary algorithms only."
+   )(
+      "logSigma"
+      , po::value<std::string>(&logSigma)->implicit_value(std::string("./sigmaLog.C"))->default_value("empty")
+      , "Logs the value of sigma for all or the best adaptors, if GDoubleGaussAdaptors are being used"
    );
 
-   Go2 go(argc, argv, "./config/Go2.json", od);
+   Go2 go(argc, argv, "./config/Go2.json", user_options);
 
 	//---------------------------------------------------------------------------
 	// Client mode
@@ -183,17 +113,17 @@ int main(int argc, char **argv) {
 	//---------------------------------------------------------------------------
    // Create a factory for GFunctionIndividual objects and perform
    // any necessary initial work.
-	boost::shared_ptr<GFunctionIndividualFactory>
+	std::shared_ptr<GFunctionIndividualFactory>
 	   gfi_ptr(new GFunctionIndividualFactory("./config/GFunctionIndividual.json"));
 
 	//---------------------------------------------------------------------------
    // Register pluggable optimization monitors, if requested by the user
 
-   boost::shared_ptr<GCollectiveMonitorT<GParameterSet> > collectiveMonitor_ptr(new GCollectiveMonitorT<GParameterSet>());
+   std::shared_ptr<GCollectiveMonitorT<GParameterSet> > collectiveMonitor_ptr(new GCollectiveMonitorT<GParameterSet>());
 
    // Register a progress plotter with the global optimization algorithm factory
    if(monitorSpec != "empty") {
-      boost::shared_ptr<GProgressPlotterT<GParameterSet, double> > progplot_ptr(new GProgressPlotterT<GParameterSet, double>());
+      std::shared_ptr<GProgressPlotterT<GParameterSet, double> > progplot_ptr(new GProgressPlotterT<GParameterSet, double>());
 
       progplot_ptr->setProfileSpec(monitorSpec);
       progplot_ptr->setObserveBoundaries(observeBoundaries);
@@ -208,7 +138,7 @@ int main(int argc, char **argv) {
    }
 
    if(logAll != "empty") {
-      boost::shared_ptr<GAllSolutionFileLoggerT<GParameterSet> > allsolutionLogger_ptr(new GAllSolutionFileLoggerT<GParameterSet>(logAll));
+      std::shared_ptr<GAllSolutionFileLoggerT<GParameterSet> > allsolutionLogger_ptr(new GAllSolutionFileLoggerT<GParameterSet>(logAll));
 
       allsolutionLogger_ptr->setPrintWithNameAndType(true); // Output information about variable names and types
       allsolutionLogger_ptr->setPrintWithCommas(true); // Output commas between values
@@ -219,7 +149,7 @@ int main(int argc, char **argv) {
    }
 
    if(monitorNAdaptions != "empty") {
-      boost::shared_ptr<GNAdpationsLoggerT<GParameterSet> > nAdaptionsLogger_ptr(new GNAdpationsLoggerT<GParameterSet>(monitorNAdaptions));
+      std::shared_ptr<GNAdpationsLoggerT<GParameterSet> > nAdaptionsLogger_ptr(new GNAdpationsLoggerT<GParameterSet>(monitorNAdaptions));
 
       nAdaptionsLogger_ptr->setMonitorBestOnly(false); // Output information for all individuals
       nAdaptionsLogger_ptr->setAddPrintCommand(true); // Create a PNG file if Root-file is executed
@@ -228,7 +158,7 @@ int main(int argc, char **argv) {
    }
 
    if(logSigma != "empty") {
-      boost::shared_ptr<GAdaptorPropertyLoggerT<GParameterSet, double> >
+      std::shared_ptr<GAdaptorPropertyLoggerT<GParameterSet, double> >
          sigmaLogger_ptr(new GAdaptorPropertyLoggerT<GParameterSet, double>(logSigma, "GDoubleGaussAdaptor", "sigma"));
 
       sigmaLogger_ptr->setMonitorBestOnly(false); // Output information for all individuals
@@ -258,7 +188,7 @@ int main(int argc, char **argv) {
 	go.registerDefaultAlgorithm("ea");
 
 	// Perform the actual optimization
-	boost::shared_ptr<GFunctionIndividual> p = go.optimize<GFunctionIndividual>();
+	std::shared_ptr<GFunctionIndividual> p = go.optimize<GFunctionIndividual>();
 
 	// Here you can do something with the best individual ("p") found.
 	// We simply print its content here, by means of an operator<< implemented

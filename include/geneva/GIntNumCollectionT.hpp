@@ -309,8 +309,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Initialize with a fixed value, then check setting and retrieval of boundaries and random initialization
-			boost::shared_ptr<GIntNumCollectionT<int_type> > p_test1 = this->GObject::clone<GIntNumCollectionT<int_type> >();
-			boost::shared_ptr<GIntNumCollectionT<int_type> > p_test2 = this->GObject::clone<GIntNumCollectionT<int_type> >();
+			std::shared_ptr<GIntNumCollectionT<int_type> > p_test1 = this->GObject::clone<GIntNumCollectionT<int_type> >();
+			std::shared_ptr<GIntNumCollectionT<int_type> > p_test2 = this->GObject::clone<GIntNumCollectionT<int_type> >();
 
 			// Make sure p_test1 and p_test2 are empty
 			BOOST_CHECK_NO_THROW(p_test1->clear());
@@ -350,9 +350,9 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that the fp-family of functions doesn't have an effect on this object
-			boost::shared_ptr<GIntNumCollectionT<int_type> > p_test1 = this->GObject::clone<GIntNumCollectionT<int_type> >();
-			boost::shared_ptr<GIntNumCollectionT<int_type> > p_test2 = this->GObject::clone<GIntNumCollectionT<int_type> >();
-			boost::shared_ptr<GIntNumCollectionT<int_type> > p_test3 = this->GObject::clone<GIntNumCollectionT<int_type> >();
+			std::shared_ptr<GIntNumCollectionT<int_type> > p_test1 = this->GObject::clone<GIntNumCollectionT<int_type> >();
+			std::shared_ptr<GIntNumCollectionT<int_type> > p_test2 = this->GObject::clone<GIntNumCollectionT<int_type> >();
+			std::shared_ptr<GIntNumCollectionT<int_type> > p_test3 = this->GObject::clone<GIntNumCollectionT<int_type> >();
 
 			// Add a few items to p_test1
 			for(std::size_t i=0; i<nItems; i++) {

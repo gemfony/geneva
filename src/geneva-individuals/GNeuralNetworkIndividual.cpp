@@ -192,7 +192,7 @@ void trainingSet::compare(
  */
 networkData::networkData()
    : arraySize_(0)
-   , data_((boost::shared_ptr<trainingSet> *)NULL)
+   , data_((std::shared_ptr<trainingSet> *)NULL)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -204,7 +204,7 @@ networkData::networkData()
 networkData::networkData(const std::size_t& arraySize)
    : Gem::Common::GStdSimpleVectorInterfaceT<std::size_t>()
    , arraySize_(arraySize)
-   , data_(new boost::shared_ptr<trainingSet> [arraySize_])
+   , data_(new std::shared_ptr<trainingSet> [arraySize_])
 { /* nothing */ }
 
 /******************************************************************************/
@@ -216,7 +216,7 @@ networkData::networkData(const std::size_t& arraySize)
 networkData::networkData(const std::string& networkDataFile)
    : Gem::Common::GStdSimpleVectorInterfaceT<std::size_t>()
    , arraySize_(0)
-   , data_((boost::shared_ptr<trainingSet> *)NULL)
+   , data_((std::shared_ptr<trainingSet> *)NULL)
 {
 	this->loadFromDisk(networkDataFile);
 }
@@ -230,7 +230,7 @@ networkData::networkData(const std::string& networkDataFile)
 networkData::networkData(const networkData& cp)
    : Gem::Common::GStdSimpleVectorInterfaceT<std::size_t>(cp)
    , arraySize_(0)
-   , data_((boost::shared_ptr<trainingSet> *)NULL)
+   , data_((std::shared_ptr<trainingSet> *)NULL)
 {
    // Make sure the local data is copied
    Gem::Common::copySmartPointerArrays(cp.data_, data_, cp.arraySize_, arraySize_);
@@ -395,11 +395,11 @@ void networkData::loadFromDisk(const std::string& networkDataFile) {
  * Adds a new training set to the collection. Note that the training set isn't
  * cloned, simply a copy of the smart pointer is stored in the internal array.
  *
- * @param tS A boost::shared_ptr<trainingSet> object, pointing to a training set
+ * @param tS A std::shared_ptr<trainingSet> object, pointing to a training set
  * @param pos The position, in which the data set should be stored.
  */
 void networkData::addTrainingSet(
-   boost::shared_ptr<trainingSet> tS
+   std::shared_ptr<trainingSet> tS
    , const std::size_t& pos
 ) {
    if(pos >= arraySize_) {
@@ -418,13 +418,13 @@ void networkData::addTrainingSet(
  * @param pos The position from which an item should be retreived
  * @return The training set at the requested position (or a boost::optional object which evaluates to "false")
  */
-boost::optional<boost::shared_ptr<trainingSet> > networkData::getTrainingSet(
+boost::optional<std::shared_ptr<trainingSet> > networkData::getTrainingSet(
    const std::size_t& pos
 ) const {
    if(pos >= arraySize_) {
-      return boost::optional<boost::shared_ptr<trainingSet> >(); // amounts to "false"
+      return boost::optional<std::shared_ptr<trainingSet> >(); // amounts to "false"
    } else {
-      return boost::optional<boost::shared_ptr<trainingSet> >(data_[pos]);
+      return boost::optional<std::shared_ptr<trainingSet> >(data_[pos]);
    }
 }
 
@@ -590,10 +590,10 @@ std::string networkData::getNetworkGeometryString() const {
 /**
  * Creates a deep clone of this object
  */
-boost::shared_ptr<networkData> networkData::clone() const {
+std::shared_ptr<networkData> networkData::clone() const {
    // Lock access to this function
    boost::lock_guard<boost::mutex> guard(m_);
-   boost::shared_ptr<networkData> result(new networkData(*this));
+   std::shared_ptr<networkData> result(new networkData(*this));
    return result;
 }
 
@@ -870,15 +870,15 @@ void GNeuralNetworkIndividual::init(
          nNodes = *layerIterator;
 
          // Set up a GDoubleObjectCollection
-         boost::shared_ptr<GDoubleObjectCollection> gdoc(new GDoubleObjectCollection());
+         std::shared_ptr<GDoubleObjectCollection> gdoc(new GDoubleObjectCollection());
 
          // Add GDoubleObject objects
          for(std::size_t i=0; i<(layerNumber==0?2*nNodes:nNodes*(nNodesPrevious+1)); i++) {
             // Set up a GDoubleObject object, initializing it with random data
-            boost::shared_ptr<GDoubleObject> gd_ptr(new GDoubleObject(gr.uniform_real<double>(min,max)));
+            std::shared_ptr<GDoubleObject> gd_ptr(new GDoubleObject(gr.uniform_real<double>(min,max)));
 
             // Set up an adaptor
-            boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));
+            std::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));
             gdga->setAdaptionProbability(adProb);
             gdga->setAdaptAdProb(adaptAdProb);
             gdga->setAdProbRange(minAdProb, maxAdProb);
@@ -1410,7 +1410,7 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string& headerFile
    << "      const double weights[nWeights] = {" << std::endl;
 
    for(std::size_t i=0; i<nD_->size(); i++) {
-      boost::shared_ptr<GDoubleObjectCollection> currentLayer = at<GDoubleObjectCollection>(i);
+      std::shared_ptr<GDoubleObjectCollection> currentLayer = at<GDoubleObjectCollection>(i);
 
       for(std::size_t j=0; j<currentLayer->size(); j++) {
          header << "        " << currentLayer->at(j)->value();
@@ -1537,7 +1537,7 @@ double GNeuralNetworkIndividual::fitnessCalculation() {
 
    // Now loop over all data sets
    std::size_t currentPos=0;
-   boost::optional<boost::shared_ptr<trainingSet> > o;
+   boost::optional<std::shared_ptr<trainingSet> > o;
    while((o = nD_->getTrainingSet(currentPos++))) {
       // Retrieve a constant reference to the training data set for faster access
       const trainingSet& tS = **o;
@@ -1675,12 +1675,12 @@ transferFunction GNeuralNetworkIndividualFactory::getTransferFunction() const {
  *
  * @return Items of the desired type
  */
-boost::shared_ptr<GParameterSet> GNeuralNetworkIndividualFactory::getObject_(
+std::shared_ptr<GParameterSet> GNeuralNetworkIndividualFactory::getObject_(
    Gem::Common::GParserBuilder& gpb
    , const std::size_t& id
 ) {
    // Will hold the result
-   boost::shared_ptr<GNeuralNetworkIndividual> target(new GNeuralNetworkIndividual());
+   std::shared_ptr<GNeuralNetworkIndividual> target(new GNeuralNetworkIndividual());
 
    // Make the object's local configuration options known
    target->addConfigurationOptions(gpb);
@@ -1821,9 +1821,9 @@ void GNeuralNetworkIndividualFactory::describeLocalOptions_(Gem::Common::GParser
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GNeuralNetworkIndividualFactory::postProcess_(boost::shared_ptr<GParameterSet>& p_raw) {
+void GNeuralNetworkIndividualFactory::postProcess_(std::shared_ptr<GParameterSet>& p_raw) {
    // Convert the base pointer to the target type
-   boost::shared_ptr<GNeuralNetworkIndividual> p
+   std::shared_ptr<GNeuralNetworkIndividual> p
       = Gem::Common::convertSmartPointer<GParameterSet, GNeuralNetworkIndividual>(p_raw);
 
    // Call the initialization function with our parsed data
@@ -1857,14 +1857,14 @@ namespace Common {
  * A factory function for networkData objects, used by GSingletonT. It
  * queries a global options store for the name of the network data file
  *
- * @return A boost::shared_ptr to a newly created T object
+ * @return A std::shared_ptr to a newly created T object
  */
 template <>
-boost::shared_ptr<Gem::Geneva::networkData> TFactory_GSingletonT() {
+std::shared_ptr<Gem::Geneva::networkData> TFactory_GSingletonT() {
    if(GNeuralNetworkOptions->exists("trainingDataFile")) {
-      return boost::shared_ptr<Gem::Geneva::networkData>(new Gem::Geneva::networkData(GNeuralNetworkOptions->get("trainingDataFile")));
+      return std::shared_ptr<Gem::Geneva::networkData>(new Gem::Geneva::networkData(GNeuralNetworkOptions->get("trainingDataFile")));
    } else {
-      return boost::shared_ptr<Gem::Geneva::networkData>(new Gem::Geneva::networkData(Gem::Geneva::GNN_DEF_DATAFILE));
+      return std::shared_ptr<Gem::Geneva::networkData>(new Gem::Geneva::networkData(Gem::Geneva::GNN_DEF_DATAFILE));
    }
 }
 

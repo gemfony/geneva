@@ -134,7 +134,7 @@ protected:
 	/***************************************************************************/
 private:
 	boost::uint16_t nThreads_; ///< The number of threads
-	boost::shared_ptr<Gem::Common::GThreadPool> tp_ptr_; ///< Temporarily holds a thread pool
+	std::shared_ptr<Gem::Common::GThreadPool> tp_ptr_; ///< Temporarily holds a thread pool
 
 public:
 	/***************************************************************************/
@@ -159,9 +159,9 @@ public:
  * specialization of the factory function that creates objects of this type.
  */
 template <>
-inline boost::shared_ptr<Gem::Geneva::GMultiThreadedSwarm> TFactory_GUnitTests<Gem::Geneva::GMultiThreadedSwarm>() {
-   boost::shared_ptr<Gem::Geneva::GMultiThreadedSwarm> p;
-   BOOST_CHECK_NO_THROW(p= boost::shared_ptr<Gem::Geneva::GMultiThreadedSwarm>(new Gem::Geneva::GMultiThreadedSwarm(5,10)));
+inline std::shared_ptr<Gem::Geneva::GMultiThreadedSwarm> TFactory_GUnitTests<Gem::Geneva::GMultiThreadedSwarm>() {
+   std::shared_ptr<Gem::Geneva::GMultiThreadedSwarm> p;
+   BOOST_CHECK_NO_THROW(p= std::shared_ptr<Gem::Geneva::GMultiThreadedSwarm>(new Gem::Geneva::GMultiThreadedSwarm(5,10)));
    return p;
 }
 

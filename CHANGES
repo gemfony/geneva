@@ -636,14 +636,14 @@ The main changes for this release include:
  - Renamed GBasePopulation to GEvolutionaryAlgorithm, GBrokerPopulation
    to GBrokerEA and GBoostThreadPopulation to GMultiThreadedEA.
  - Implemented a new way to select views of vectors of
-   boost::shared_ptr<GIndividual>, including automatic conversion
+   std::shared_ptr<GIndividual>, including automatic conversion
    "attachViewTo<>()".
  - Allowed adaptors to choose from "always mutate", "never mutate" and
    "mutate with a certain likelihood".
  - Added compilation warnings when using Boost 1.39 or Boost 1.41, which
    seem to have issues wrt. Geneva, possibly in the serialization library.
  - Reworked the test framework, including renovation of gobject_conversion<>.
- - Reworked the clone framework to use boost::shared_ptr instead of "raw"
+ - Reworked the clone framework to use std::shared_ptr instead of "raw"
    GObject* pointers.
  - Reworked the load framework so that public accessible load functions
    is shared pointers.

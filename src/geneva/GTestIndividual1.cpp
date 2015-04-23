@@ -47,8 +47,8 @@ GTestIndividual1::GTestIndividual1()
 : GParameterSet()
 {
    // Fill with some data
-   boost::shared_ptr<Gem::Geneva::GDoubleCollection > gdc_ptr(new Gem::Geneva::GDoubleCollection(100, -10., 10.));
-   boost::shared_ptr<Gem::Geneva::GDoubleGaussAdaptor> gdga1(new Gem::Geneva::GDoubleGaussAdaptor(0.025,0.1,0.,1.));
+   std::shared_ptr<Gem::Geneva::GDoubleCollection > gdc_ptr(new Gem::Geneva::GDoubleCollection(100, -10., 10.));
+   std::shared_ptr<Gem::Geneva::GDoubleGaussAdaptor> gdga1(new Gem::Geneva::GDoubleGaussAdaptor(0.025,0.1,0.,1.));
 
    // Prevent changes to adProb_
    gdga1->setAdaptAdProb(0.);
@@ -191,7 +191,7 @@ double GTestIndividual1::fitnessCalculation() {
 
 	// Extract the first Gem::Geneva::GDoubleCollection object. In a realistic scenario, you might want
 	// to add error checks here upon first invocation.
-	boost::shared_ptr<Gem::Geneva::GDoubleCollection> vC = at<Gem::Geneva::GDoubleCollection>(0);
+	std::shared_ptr<Gem::Geneva::GDoubleCollection> vC = at<Gem::Geneva::GDoubleCollection>(0);
 
 	// Calculate the value of the parabola
 	for(std::size_t i=0; i<vC->size(); i++) {
@@ -246,16 +246,16 @@ void GTestIndividual1::addGDoubleObjects(const std::size_t& nItems) {
 	// Add GDoubleObject items with adaptors to p_test1
 	for(std::size_t i=0; i<nItems; i++) {
 		// Create a suitable adaptor
-		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr;
+		std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr;
 
-		BOOST_CHECK_NO_THROW(gdga_ptr = boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0)));
+		BOOST_CHECK_NO_THROW(gdga_ptr = std::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0)));
 		BOOST_CHECK_NO_THROW(gdga_ptr->setAdaptionThreshold(0)); // Make sure the adaptor's internal parameters don't change through the adaption
 		BOOST_CHECK_NO_THROW(gdga_ptr->setAdaptionMode(true)); // Always adapt
 
 		// Create a suitable GDoubleObject object
-		boost::shared_ptr<GDoubleObject> gdo_ptr;
+		std::shared_ptr<GDoubleObject> gdo_ptr;
 
-		BOOST_CHECK_NO_THROW(gdo_ptr = boost::shared_ptr<GDoubleObject>(new GDoubleObject(-100., 100.))); // Initialization in the range -100, 100
+		BOOST_CHECK_NO_THROW(gdo_ptr = std::shared_ptr<GDoubleObject>(new GDoubleObject(-100., 100.))); // Initialization in the range -100, 100
 
 		// Add the adaptor
 		BOOST_CHECK_NO_THROW(gdo_ptr->addAdaptor(gdga_ptr));
@@ -289,8 +289,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Tests whether calls to adapt() result in changes of the object
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test_old = this->clone<Gem::Tests::GTestIndividual1>();
+		std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+		std::shared_ptr<Gem::Tests::GTestIndividual1> p_test_old = this->clone<Gem::Tests::GTestIndividual1>();
 
 		std::size_t nTests = 1000;
 
@@ -305,7 +305,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 	{ // Tests customAdaptions, dirtyFlag and the effects of the fitness function. Also test setting of server-mode flag
       double evaluation = 0.;
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+		std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Make sure this individual is not dirty
 		if(p_test->isDirty()) {
@@ -367,7 +367,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
    //------------------------------------------------------------------------------
 
    { // Tests whether modification of one clone influences another clone
-      boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test1 = this->clone<Gem::Tests::GTestIndividual1>();
+      std::shared_ptr<Gem::Tests::GTestIndividual1> p_test1 = this->clone<Gem::Tests::GTestIndividual1>();
 
       // Make sure the individual is clean
       if(p_test1->isDirty()) {
@@ -376,7 +376,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
       }
 
       // Create a clone of p_test1
-      boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test2 = p_test1->clone<Gem::Tests::GTestIndividual1>();
+      std::shared_ptr<Gem::Tests::GTestIndividual1> p_test2 = p_test1->clone<Gem::Tests::GTestIndividual1>();
       // Check that the clone is identical to p_test1;
       BOOST_CHECK_NO_THROW(*p_test2 == *p_test1);
 
@@ -394,7 +394,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 	{ // Check the effects of the process function in EA mode, using the "evaluate" call
 	   double currentFitness = 0.;
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+		std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Make sure the individual is clean
       BOOST_CHECK_NO_THROW(currentFitness = p_test->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS));
@@ -406,7 +406,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->isDirty());
 
 		// Tell the individual about its personality and duty
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(boost::shared_ptr<GEAPersonalityTraits>(new GEAPersonalityTraits())));
+		BOOST_CHECK_NO_THROW(p_test->setPersonality(std::shared_ptr<GEAPersonalityTraits>(new GEAPersonalityTraits())));
 
 		// Calling the process() function with the "evaluate" call should clear the dirty flag
 		BOOST_CHECK_NO_THROW(p_test->process());
@@ -419,7 +419,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 	{ // Check the process() function
 	   double currentFitness = 0.;
-	   boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+	   std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Make sure the individual is clean
       BOOST_CHECK_NO_THROW(currentFitness = p_test->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS));
@@ -431,7 +431,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->isDirty());
 
 		// Tell the individual about its personality
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(boost::shared_ptr<GEAPersonalityTraits>(new GEAPersonalityTraits())));
+		BOOST_CHECK_NO_THROW(p_test->setPersonality(std::shared_ptr<GEAPersonalityTraits>(new GEAPersonalityTraits())));
 
 		// Calling the process() function with the "evaluate" call should clear the dirty flag
 		BOOST_CHECK_NO_THROW(p_test->process());
@@ -444,7 +444,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 	{ // Check the effects of the process function in SWARM mode, using the "evaluate" call
 	   double currentFitness = 0.;
-	   boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+	   std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Make sure the individual is clean
       BOOST_CHECK_NO_THROW(currentFitness = p_test->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS));
@@ -456,7 +456,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->isDirty());
 
 		// Tell the individual about its personality and duty
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(boost::shared_ptr<GSwarmPersonalityTraits>(new GSwarmPersonalityTraits())));
+		BOOST_CHECK_NO_THROW(p_test->setPersonality(std::shared_ptr<GSwarmPersonalityTraits>(new GSwarmPersonalityTraits())));
 
 		// Calling the process() function with the "evaluate" call should clear the dirty flag
 		BOOST_CHECK_NO_THROW(p_test->process());
@@ -468,8 +468,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test of GMutableSetT<T>::swap(const GMutableSetT<T>&)
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test1 = this->clone<Gem::Tests::GTestIndividual1>();
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test2 = this->clone<Gem::Tests::GTestIndividual1>();
+		std::shared_ptr<Gem::Tests::GTestIndividual1> p_test1 = this->clone<Gem::Tests::GTestIndividual1>();
+		std::shared_ptr<Gem::Tests::GTestIndividual1> p_test2 = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Check that both individuals are the same
 		BOOST_CHECK(*p_test1 == *p_test2);
@@ -514,8 +514,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Check of the GParameterSet::customAdaptions() function
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test1 = this->clone<Gem::Tests::GTestIndividual1>();
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test2 = this->clone<Gem::Tests::GTestIndividual1>();
+		std::shared_ptr<Gem::Tests::GTestIndividual1> p_test1 = this->clone<Gem::Tests::GTestIndividual1>();
+		std::shared_ptr<Gem::Tests::GTestIndividual1> p_test2 = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Check that both individuals are the same
 		BOOST_CHECK(*p_test1 == *p_test2);
@@ -528,7 +528,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(!p_test2->isDirty());
 
 		// Extract and clone the first individual's GDoubleCollection object for later comparisons
-		boost::shared_ptr<Gem::Geneva::GDoubleCollection> gdc_ptr_old = p_test1->at(std::size_t(0))->clone<Gem::Geneva::GDoubleCollection>();
+		std::shared_ptr<Gem::Geneva::GDoubleCollection> gdc_ptr_old = p_test1->at(std::size_t(0))->clone<Gem::Geneva::GDoubleCollection>();
 
 		// Adapt and evaluate the first individual
 		BOOST_CHECK_NO_THROW(p_test1->customAdaptions());
@@ -544,7 +544,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 != *p_test2);
 
 		// Extract and clone the first individual's GDoubleCollection object for comparison
-		boost::shared_ptr<Gem::Geneva::GDoubleCollection> gdc_ptr_new = p_test1->at(0)->clone<Gem::Geneva::GDoubleCollection>();
+		std::shared_ptr<Gem::Geneva::GDoubleCollection> gdc_ptr_new = p_test1->at(0)->clone<Gem::Geneva::GDoubleCollection>();
 
 		// Check that both GDoubleCollection objects differ
 		BOOST_CHECK(*gdc_ptr_old != *gdc_ptr_new);
@@ -553,7 +553,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test resize_clone, resize_noclone, finding and counting of items (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+		std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
 		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
@@ -565,7 +565,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->size() == nItems);
 
 		// Create a copy of the first parameter item
-		boost::shared_ptr<GDoubleObject> search_ptr;
+		std::shared_ptr<GDoubleObject> search_ptr;
 		Gem::Tests::GTestIndividual1::const_iterator find_cit;
 		BOOST_CHECK_NO_THROW(search_ptr = p_test->at(0)->clone<GDoubleObject>());
 
@@ -598,7 +598,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test insert_clone, insert_noclone (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+		std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
 		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
@@ -607,7 +607,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->size() == nItems);
 
 		// Create a copy of the first parameter item
-		boost::shared_ptr<GDoubleObject> insert_ptr;
+		std::shared_ptr<GDoubleObject> insert_ptr;
 		BOOST_CHECK_NO_THROW(insert_ptr = p_test->at(0)->clone<GDoubleObject>());
 
 		// Assign a fixed value to insert_ptr
@@ -672,7 +672,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test push_back_clone and push_back_noclone (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+		std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
 		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
@@ -681,7 +681,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->size() == nItems);
 
 		// Create a copy of the first parameter item
-		boost::shared_ptr<GDoubleObject> pushback_ptr;
+		std::shared_ptr<GDoubleObject> pushback_ptr;
 		BOOST_CHECK_NO_THROW(pushback_ptr = p_test->at(0)->clone<GDoubleObject>());
 
 		// Assign a fixed value to pushback_ptr
@@ -702,7 +702,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test retrieval of a data copy (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+		std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
 		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
@@ -710,7 +710,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		// Check the current size
 		BOOST_CHECK(p_test->size() == nItems);
 
-		std::vector<boost::shared_ptr<GParameterBase> > dataCopy;
+		std::vector<std::shared_ptr<GParameterBase> > dataCopy;
 		BOOST_CHECK_NO_THROW(p_test->getDataCopy(dataCopy));
 
 		// Check the size and content
@@ -724,8 +724,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 
    { // Check setting and retrieval of the current personality status and whether the personalities themselves can be accessed
-      boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
-      boost::shared_ptr<GPersonalityTraits> p_pt;
+      std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+      std::shared_ptr<GPersonalityTraits> p_pt;
 
       // Reset the personality type
       BOOST_CHECK_NO_THROW(p_test->resetPersonality());
@@ -737,7 +737,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
       );
 
       // Set the personality type to EA
-      BOOST_CHECK_NO_THROW(p_test->setPersonality(boost::shared_ptr<GEAPersonalityTraits>(new GEAPersonalityTraits())));
+      BOOST_CHECK_NO_THROW(p_test->setPersonality(std::shared_ptr<GEAPersonalityTraits>(new GEAPersonalityTraits())));
       BOOST_CHECK_MESSAGE(
             p_test->getPersonality() == "GEAPersonalityTraits"
             ,  "\n"
@@ -746,7 +746,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
       );
 
       // Try to retrieve a GEAPersonalityTraits object and check that the smart pointer actually points somewhere
-      boost::shared_ptr<GEAPersonalityTraits> p_pt_ea;
+      std::shared_ptr<GEAPersonalityTraits> p_pt_ea;
       BOOST_CHECK_NO_THROW(p_pt_ea = p_test->getPersonalityTraits<GEAPersonalityTraits>());
       BOOST_CHECK(p_pt_ea);
       p_pt_ea.reset();
@@ -757,7 +757,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
       p_pt.reset();
 
       // Set the personality type to GD
-      BOOST_CHECK_NO_THROW(p_test->setPersonality(boost::shared_ptr<GGDPersonalityTraits>(new GGDPersonalityTraits())));
+      BOOST_CHECK_NO_THROW(p_test->setPersonality(std::shared_ptr<GGDPersonalityTraits>(new GGDPersonalityTraits())));
       BOOST_CHECK_MESSAGE(
             p_test->getPersonality() == "GGDPersonalityTraits"
             ,  "\n"
@@ -766,7 +766,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
       );
 
       // Try to retrieve a GGDPersonalityTraits object and check that the smart pointer actually points somewhere
-      boost::shared_ptr<GGDPersonalityTraits> p_pt_gd;
+      std::shared_ptr<GGDPersonalityTraits> p_pt_gd;
       BOOST_CHECK_NO_THROW(p_pt_gd = p_test->getPersonalityTraits<GGDPersonalityTraits>());
       BOOST_CHECK(p_pt_gd);
       p_pt_gd.reset();
@@ -777,7 +777,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
       p_pt.reset();
 
       // Set the personality type to SWARM
-      BOOST_CHECK_NO_THROW(p_test->setPersonality(boost::shared_ptr<GSwarmPersonalityTraits>(new GSwarmPersonalityTraits())));
+      BOOST_CHECK_NO_THROW(p_test->setPersonality(std::shared_ptr<GSwarmPersonalityTraits>(new GSwarmPersonalityTraits())));
       BOOST_CHECK_MESSAGE(
             p_test->getPersonality() == "GSwarmPersonalityTraits"
             ,  "\n"
@@ -786,7 +786,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
       );
 
       // Try to retrieve a GSwarmPersonalityTraits object and check that the smart pointer actually points somewhere
-      boost::shared_ptr<GSwarmPersonalityTraits> p_pt_swarm;
+      std::shared_ptr<GSwarmPersonalityTraits> p_pt_swarm;
       BOOST_CHECK_NO_THROW(p_pt_swarm = p_test->getPersonalityTraits<GSwarmPersonalityTraits>());
       BOOST_CHECK(p_pt_swarm);
       p_pt_swarm.reset();
@@ -833,7 +833,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 #ifdef DEBUG
 	{ // Tests that evaluating a dirty individual in "server mode" throws
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+		std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		BOOST_CHECK_NO_THROW(p_test->setDirtyFlag());
 		BOOST_CHECK_THROW(
@@ -846,103 +846,103 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test that trying to count an empty smart pointer throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+		std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
 		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
 
 		// Try to count the number of occurrences of an empty smart pointer. Should throw
-		BOOST_CHECK_THROW(p_test->count(boost::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test->count(std::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
 	}
 
 	//------------------------------------------------------------------------------
 
 	{ // Test that trying to find an empty smart pointer throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+		std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
 		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
 
 		// Try to find an empty smart pointer. Should throw
-		BOOST_CHECK_THROW(p_test->find(boost::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test->find(std::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
 	}
 
 	//------------------------------------------------------------------------------
 
 	{ // Test that trying to insert an empty smart pointer with insert_noclone(pos, item) throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+		std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
 		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
 
 		// Try to insert an empty smart pointers. Should throw
-		BOOST_CHECK_THROW(p_test->insert_noclone(p_test->begin(), boost::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test->insert_noclone(p_test->begin(), std::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
 	}
 
 	//------------------------------------------------------------------------------
 
 	{ // Test that trying to insert an empty smart pointer with insert_noclone(pos, amount, item) throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+		std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
 		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
 
 		// Try to insert a number of empty smart pointers. Should throw
-		BOOST_CHECK_THROW(p_test->insert_noclone(p_test->begin(), 10, boost::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test->insert_noclone(p_test->begin(), 10, std::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
 	}
 
 	//------------------------------------------------------------------------------
 
 	{ // Test that trying to insert an empty smart pointer with insert_clone(pos, item) throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+		std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
 		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
 
 		// Try to insert a number of empty smart pointers. Should throw
-		BOOST_CHECK_THROW(p_test->insert_clone(p_test->begin(), boost::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test->insert_clone(p_test->begin(), std::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
 	}
 
 	//------------------------------------------------------------------------------
 
 	{ // Test that trying to insert an empty smart pointer with insert_clone(pos, amount, item) throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+		std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
 		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
 
 		// Try to insert a number of empty smart pointers. Should throw
-		BOOST_CHECK_THROW(p_test->insert_clone(p_test->begin(), 10, boost::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test->insert_clone(p_test->begin(), 10, std::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
 	}
 
 	//------------------------------------------------------------------------------
 
 	{ // Test that trying to add an empty smart pointer with push_back_clone(item) throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+		std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
 		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
 
 		// Try to attach an empty smart pointer Should throw
-		BOOST_CHECK_THROW(p_test->push_back_clone(boost::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test->push_back_clone(std::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
 	}
 
 	//------------------------------------------------------------------------------
 
 	{ // Test that trying to add an empty smart pointer with push_back_noclone(item) throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+		std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
 		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
 
 		// Try to attach an empty smart pointer Should throw
-		BOOST_CHECK_THROW(p_test->push_back_noclone(boost::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test->push_back_noclone(std::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
 	}
 
 	//------------------------------------------------------------------------------
 
 	{ // Test that trying to resize an empty collection with resize(amount) throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+		std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Make sure p_test is empty
 		BOOST_CHECK_NO_THROW(p_test->clear());
@@ -955,40 +955,40 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test that trying to resize an empty collection with resize_noclone(amount, item) throws if item is an empty smart pointer(Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+		std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Make sure p_test is empty
 		BOOST_CHECK_NO_THROW(p_test->clear());
 		BOOST_CHECK(p_test->empty());
 
 		// Try to resize an empty collection
-		BOOST_CHECK_THROW(p_test->resize_noclone(10, boost::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test->resize_noclone(10, std::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
 	}
 
 	//------------------------------------------------------------------------------
 
 	{ // Test that trying to resize an empty collection with resize_clone(amount, item) throws if item is an empty smart pointer(Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
-		boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+		std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Make sure p_test is empty
 		BOOST_CHECK_NO_THROW(p_test->clear());
 		BOOST_CHECK(p_test->empty());
 
 		// Try to resize an empty collection
-		BOOST_CHECK_THROW(p_test->resize_clone(10, boost::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test->resize_clone(10, std::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
 	}
 
 	//------------------------------------------------------------------------------
 
 #ifdef DEBUG
    { // Test that retrieval of an EA personality traits object from an uninitialized pointer throws in DEBUG mode
-      boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+      std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
       // Make sure the personality type is set to PERSONALITY_NONE
       BOOST_CHECK_NO_THROW(p_test->resetPersonality());
 
       // Trying to retrieve an EA personality object should throw
-      boost::shared_ptr<GEAPersonalityTraits> p_pt_ea;
+      std::shared_ptr<GEAPersonalityTraits> p_pt_ea;
       BOOST_CHECK_THROW(p_pt_ea = p_test->getPersonalityTraits<GEAPersonalityTraits>(), Gem::Common::gemfony_error_condition);
    }
 #endif /* DEBUG */
@@ -997,10 +997,10 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 #ifdef DEBUG
    { // Test that retrieval of an EA personality traits object from an individual with SWARM personality throws
-      boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+      std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
       // Make sure the personality type is set to SWARM
-      BOOST_CHECK_NO_THROW(p_test->setPersonality(boost::shared_ptr<GSwarmPersonalityTraits>(new GSwarmPersonalityTraits())));
+      BOOST_CHECK_NO_THROW(p_test->setPersonality(std::shared_ptr<GSwarmPersonalityTraits>(new GSwarmPersonalityTraits())));
 
       // Trying to retrieve an EA personality object should throw
       BOOST_CHECK_THROW(p_test->getPersonalityTraits<GEAPersonalityTraits>(), Gem::Common::gemfony_error_condition);
@@ -1011,13 +1011,13 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 #ifdef DEBUG
    { // Test that retrieval of a personality traits base object from an individual without personality throws
-      boost::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+      std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
       // Make sure the personality type is set to PERSONALITY_NONE
       BOOST_CHECK_NO_THROW(p_test->resetPersonality());
 
       // Trying to retrieve an EA personality object should throw
-      boost::shared_ptr<GPersonalityTraits> p_pt;
+      std::shared_ptr<GPersonalityTraits> p_pt;
       BOOST_CHECK_THROW(p_pt = p_test->getPersonalityTraits(), Gem::Common::gemfony_error_condition);
    }
 #endif /* DEBUG */

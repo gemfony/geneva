@@ -207,7 +207,7 @@ class networkData
       ar
       & BOOST_SERIALIZATION_NVP(arraySize_);
 
-      data_ = new boost::shared_ptr<trainingSet>[arraySize_];
+      data_ = new std::shared_ptr<trainingSet>[arraySize_];
 
       ar & boost::serialization::make_array(data_, arraySize_);
    }
@@ -260,9 +260,9 @@ public:
 	G_API_INDIVIDUALS void loadFromDisk(const std::string&);
 
 	/** @brief Adds a new training set to the collection, Requires for the network architecture to be defined already */
-	G_API_INDIVIDUALS void addTrainingSet(boost::shared_ptr<trainingSet>, const std::size_t&);
+	G_API_INDIVIDUALS void addTrainingSet(std::shared_ptr<trainingSet>, const std::size_t&);
 	/** @brief Retrieves  training set at a given position */
-	G_API_INDIVIDUALS boost::optional<boost::shared_ptr<trainingSet> > getTrainingSet(const std::size_t&) const;
+	G_API_INDIVIDUALS boost::optional<std::shared_ptr<trainingSet> > getTrainingSet(const std::size_t&) const;
 
 	/** @brief Retrieves the number of input nodes of this network */
 	G_API_INDIVIDUALS std::size_t getNInputNodes() const;
@@ -283,7 +283,7 @@ public:
 	G_API_INDIVIDUALS std::string getNetworkGeometryString() const;
 
 	/** @brief Creates a deep clone of this object */
-	G_API_INDIVIDUALS boost::shared_ptr<networkData> clone() const;
+	G_API_INDIVIDUALS std::shared_ptr<networkData> clone() const;
 
 protected:
    /***************************************************************************/
@@ -299,7 +299,7 @@ private:
    /** @brief The size of the training set */
    std::size_t arraySize_;
    /** @brief Holds the individual data items */
-	boost::shared_ptr<trainingSet> *data_;
+	std::shared_ptr<trainingSet> *data_;
 
 	/** @brief Holds the initialization range in each direction */
 	std::vector<boost::tuple<double, double> > initRange_;
@@ -447,7 +447,7 @@ public:
 	 * @param edgelength The desired edge length of the cube
 	 * @return A copy of the networkData struct that has been created, wrapped in a shared_ptr
 	 */
-	static G_API_INDIVIDUALS boost::shared_ptr<networkData> createHyperCubeNetworkData (
+	static G_API_INDIVIDUALS std::shared_ptr<networkData> createHyperCubeNetworkData (
 			const std::vector<std::size_t>& architecture
 		  , const std::size_t& nDataSets
 		  , const double& edgelength
@@ -483,7 +483,7 @@ public:
 
 		// Create the actual networkData object and attach the architecture
 		// Checks the architecture on the way
-		boost::shared_ptr<networkData> nD(new networkData(nDataSets));
+		std::shared_ptr<networkData> nD(new networkData(nDataSets));
 		std::vector<std::size_t>::const_iterator it;
 		std::size_t layerCounter = 0;
 		for(it=architecture.begin(); it!=architecture.end(); ++it, ++layerCounter) {
@@ -501,7 +501,7 @@ public:
 		bool outside=false;
 		for(std::size_t datCounter=0; datCounter<nDataSets; datCounter++){
 			outside=false;
-			boost::shared_ptr<trainingSet> tS(new trainingSet(nInputNodes, nOutputNodes));
+			std::shared_ptr<trainingSet> tS(new trainingSet(nInputNodes, nOutputNodes));
 
 			for(std::size_t i=0; i<nDim; i++){
 				double oneDimRnd = gr_l.uniform_real<double>(-edgelength,edgelength);
@@ -541,7 +541,7 @@ public:
 	 * @param radius The desired radius of the sphere
 	 * @return A copy of the networkData struct that has been created, wrapped in a shared_ptr
 	 */
-	static G_API_INDIVIDUALS boost::shared_ptr<networkData> createHyperSphereNetworkData (
+	static G_API_INDIVIDUALS std::shared_ptr<networkData> createHyperSphereNetworkData (
 			const std::vector<std::size_t>& architecture
 		  , const std::size_t& nDataSets
 		  , const double& radius
@@ -577,7 +577,7 @@ public:
 
 		// Create the actual networkData object and attach the architecture
 		// Checks the architecture on the way
-		boost::shared_ptr<networkData> nD(new networkData(nDataSets));
+		std::shared_ptr<networkData> nD(new networkData(nDataSets));
 		std::vector<std::size_t>::const_iterator it;
 		std::size_t layerCounter = 0;
 		for(it=architecture.begin(); it!=architecture.end(); ++it, ++layerCounter) {
@@ -595,7 +595,7 @@ public:
 
 		for(std::size_t datCounter=0; datCounter<nDataSets; datCounter++)
 		{
-			boost::shared_ptr<trainingSet> tS(new trainingSet(nInputNodes, nOutputNodes));
+			std::shared_ptr<trainingSet> tS(new trainingSet(nInputNodes, nOutputNodes));
 
 			local_radius = gr_l.uniform_real<double>(3*radius);
 			if(local_radius > radius) tS->Output[0] = 0.99;
@@ -683,7 +683,7 @@ public:
 	 * @param nDataSets The number of training sets to create
 	 * @return A copy of the networkData struct that has been created, wrapped in a shared_ptr
 	 */
-	static G_API_INDIVIDUALS boost::shared_ptr<networkData> createAxisCentricNetworkData (
+	static G_API_INDIVIDUALS std::shared_ptr<networkData> createAxisCentricNetworkData (
 			const std::vector<std::size_t>& architecture
 		  , const std::size_t& nDataSets
 	) {
@@ -718,7 +718,7 @@ public:
 
 		// Create the actual networkData object and attach the architecture
 		// Checks the architecture on the way
-		boost::shared_ptr<networkData> nD(new networkData(nDataSets));
+		std::shared_ptr<networkData> nD(new networkData(nDataSets));
 		std::vector<std::size_t>::const_iterator it;
 		std::size_t layerCounter = 0;
 		for(it=architecture.begin(); it!=architecture.end(); ++it, ++layerCounter) {
@@ -734,7 +734,7 @@ public:
 
 		for(std::size_t dataCounter=0; dataCounter<nDataSets; dataCounter++)
 		{
-			boost::shared_ptr<trainingSet> tS(new trainingSet(nInputNodes, nOutputNodes));
+			std::shared_ptr<trainingSet> tS(new trainingSet(nInputNodes, nOutputNodes));
 
 			// Create even distribution across all dimensions
 			if(dataCounter%2 == 0) {
@@ -793,7 +793,7 @@ public:
 	 * @param nDataSets The number of training sets to create
 	 * @return A copy of the networkData struct that has been created, wrapped in a shared_ptr
 	 */
-	static G_API_INDIVIDUALS boost::shared_ptr<networkData> createSinNetworkData (
+	static G_API_INDIVIDUALS std::shared_ptr<networkData> createSinNetworkData (
 			const std::vector<std::size_t>& architecture
 		  , const std::size_t& nDataSets
 	) {
@@ -834,7 +834,7 @@ public:
 
 		// Create the actual networkData object and attach the architecture
 		// Checks the architecture on the way
-		boost::shared_ptr<networkData> nD(new networkData(nDataSets));
+		std::shared_ptr<networkData> nD(new networkData(nDataSets));
 		std::vector<std::size_t>::const_iterator it;
 		std::size_t layerCounter = 0;
 		for(it=architecture.begin(); it!=architecture.end(); ++it, ++layerCounter) {
@@ -850,7 +850,7 @@ public:
 
 		for(std::size_t dataCounter=0; dataCounter<nDataSets; dataCounter++)
 		{
-			boost::shared_ptr<trainingSet> tS(new trainingSet(nInputNodes, nOutputNodes));
+			std::shared_ptr<trainingSet> tS(new trainingSet(nInputNodes, nOutputNodes));
 
 			// create the two test values
 			tS->Input[0] = gr_l.uniform_real<double>(-6., 6.); // x
@@ -893,7 +893,7 @@ public:
 	) {
 	   // Split the architecture_string as needed. I
 	   std::vector<std::size_t> architecture = Gem::Common::splitStringT<std::size_t>(architecture_string, "-");
-	   boost::shared_ptr<networkData> nD_ptr;
+	   std::shared_ptr<networkData> nD_ptr;
 
 	   switch(t) {
 	   case Gem::Geneva::HYPERCUBE:
@@ -980,7 +980,7 @@ private:
 	/***************************************************************************/
 	// Local variables
 	transferFunction tF_; ///< The transfer function to be used for the training
-	boost::shared_ptr<networkData> nD_; ///< Holds the training data
+	std::shared_ptr<networkData> nD_; ///< Holds the training data
 };
 
 /******************************************************************************/
@@ -1005,11 +1005,11 @@ public:
 
 protected:
    /** @brief Creates individuals of this type */
-   G_API_INDIVIDUALS virtual boost::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
+   G_API_INDIVIDUALS virtual std::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
    /** @brief Allows to describe local configuration options in derived classes */
    G_API_INDIVIDUALS virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
    /** @brief Allows to act on the configuration options received from the configuration file */
-   G_API_INDIVIDUALS virtual void postProcess_(boost::shared_ptr<GParameterSet>&);
+   G_API_INDIVIDUALS virtual void postProcess_(std::shared_ptr<GParameterSet>&);
 
 private:
    /** @brief The default constructor. Intentionally private and undefined */
@@ -1046,7 +1046,7 @@ typedef GSingletonT<GGlobalOptionsT<std::string> > GNNOptStore;
 #define GNeuralNetworkOptions GNNOptStore::Instance(0)
 
 // A factory function for networkData objects, used by GSingletonT
-template <> boost::shared_ptr<Gem::Geneva::networkData> TFactory_GSingletonT();
+template <> std::shared_ptr<Gem::Geneva::networkData> TFactory_GSingletonT();
 
 } /* namespace Common */
 } /* namespace Gem */
@@ -1063,9 +1063,9 @@ template <> boost::shared_ptr<Gem::Geneva::networkData> TFactory_GSingletonT();
  * specialization of the factory function that creates GStartProjectIndividual objects
  */
 template <>
-inline boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual>
+inline std::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual>
 TFactory_GUnitTests<Gem::Geneva::GNeuralNetworkIndividual>() {
-   return boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual>(
+   return std::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual>(
          new Gem::Geneva::GNeuralNetworkIndividual(
                Gem::Geneva::GNN_DEF_MINVAR
                , Gem::Geneva::GNN_DEF_MAXVAR

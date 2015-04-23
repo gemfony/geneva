@@ -175,7 +175,7 @@ public:
       const infoMode& im
       , GOptimizationAlgorithmT<ind_type> * const goa
    ) override {
-      typename std::vector<boost::shared_ptr<GBasePluggableOMT<ind_type> > >::iterator it;
+      typename std::vector<std::shared_ptr<GBasePluggableOMT<ind_type> > >::iterator it;
       for(it=pluggable_monitors_.begin(); it!=pluggable_monitors_.end(); ++it) {
          (*it)->informationFunction(im,goa);
       }
@@ -185,7 +185,7 @@ public:
    /**
     * Allows to register a new pluggable monitor
     */
-   void registerPluggableOM(boost::shared_ptr<GBasePluggableOMT<ind_type> > om_ptr) {
+   void registerPluggableOM(std::shared_ptr<GBasePluggableOMT<ind_type> > om_ptr) {
       if(om_ptr) {
          pluggable_monitors_.push_back(om_ptr);
       } else {
@@ -213,7 +213,7 @@ public:
    }
 
 private:
-   std::vector<boost::shared_ptr<GBasePluggableOMT<ind_type> > > pluggable_monitors_; ///< The collection of monitors
+   std::vector<std::shared_ptr<GBasePluggableOMT<ind_type> > > pluggable_monitors_; ///< The collection of monitors
 };
 
 /******************************************************************************/
@@ -521,7 +521,7 @@ public:
          switch(this->nProfileVars()) {
             case 1:
             {
-               progressPlotter2D_oa_ = boost::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+               progressPlotter2D_oa_ = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
 
                progressPlotter2D_oa_->setPlotMode(Gem::Common::CURVE);
                progressPlotter2D_oa_->setPlotLabel("Fitness as a function of a parameter value");
@@ -533,7 +533,7 @@ public:
                break;
             case 2:
             {
-               progressPlotter3D_oa_ = boost::shared_ptr<Gem::Common::GGraph3D>(new Gem::Common::GGraph3D());
+               progressPlotter3D_oa_ = std::shared_ptr<Gem::Common::GGraph3D>(new Gem::Common::GGraph3D());
 
                progressPlotter3D_oa_->setPlotLabel("Fitness as a function of parameter values");
                progressPlotter3D_oa_->setXAxisLabel(this->getLabel(fp_profVarVec_[0]));
@@ -546,7 +546,7 @@ public:
 
             case 3:
             {
-               progressPlotter4D_oa_ = boost::shared_ptr<Gem::Common::GGraph4D>(new Gem::Common::GGraph4D());
+               progressPlotter4D_oa_ = std::shared_ptr<Gem::Common::GGraph4D>(new Gem::Common::GGraph4D());
 
                progressPlotter4D_oa_->setPlotLabel("Fitness (color-coded) as a function of parameter values");
                progressPlotter4D_oa_->setXAxisLabel(this->getLabel(fp_profVarVec_[0]));
@@ -578,7 +578,7 @@ public:
          double primaryFitness;
 
          if(monitorBestOnly_) { // Monitor the best individuals only
-            boost::shared_ptr<GParameterSet> p = goa->GOptimizableI::template getBestIndividual<GParameterSet>();
+            std::shared_ptr<GParameterSet> p = goa->GOptimizableI::template getBestIndividual<GParameterSet>();
             if(GBasePluggableOMT<ind_type>::useRawEvaluation_) {
                primaryFitness = p->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
             } else {
@@ -757,9 +757,9 @@ private:
    Gem::Common::GPlotDesigner gpd_oa_; ///< A wrapper for the plots
 
    // These are temporaries
-   boost::shared_ptr<Gem::Common::GGraph2D> progressPlotter2D_oa_;
-   boost::shared_ptr<Gem::Common::GGraph3D> progressPlotter3D_oa_;
-   boost::shared_ptr<Gem::Common::GGraph4D> progressPlotter4D_oa_;
+   std::shared_ptr<Gem::Common::GGraph2D> progressPlotter2D_oa_;
+   std::shared_ptr<Gem::Common::GGraph3D> progressPlotter3D_oa_;
+   std::shared_ptr<Gem::Common::GGraph4D> progressPlotter4D_oa_;
 
    std::string fileName_; ///< The name of the file the output should be written to. Note that the class will add the name of the algorithm it acts on
    boost::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions_; ///< The dimensions of the canvas
@@ -1009,7 +1009,7 @@ public:
 
          // Loop over all individuals of the algorithm.
          for(std::size_t pos=0; pos<goa->size(); pos++) {
-            boost::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
+            std::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
 
             // Note that isGoodEnough may throw if loop acts on a "dirty" individual
             if(!boundariesActive_ || ind->isGoodEnough(boundaries_)) {
@@ -1182,7 +1182,7 @@ public:
          // Loop over all individuals of the algorithm.
          std::size_t nIndividuals = goa->size();
          for(std::size_t pos=0; pos<nIndividuals; pos++) {
-            boost::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
+            std::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
             fitnessVec = goa->at(pos)->fitnessVec(useRawFitness_);
 
             std::size_t nFitnessCriteria = goa->getNumberOfFitnessCriteria();
@@ -1383,7 +1383,7 @@ public:
          gpd_oa_.setCanvasDimensions(canvasDimensions_);
 
          // Set up a graph to monitor the best fitness found
-         fitnessGraph2D_oa_ = boost::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+         fitnessGraph2D_oa_ = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
          fitnessGraph2D_oa_->setXAxisLabel("Iteration");
          fitnessGraph2D_oa_->setYAxisLabel("Fitness");
          fitnessGraph2D_oa_->setPlotMode(Gem::Common::CURVE);
@@ -1395,7 +1395,7 @@ public:
          boost::uint32_t iteration = goa->getIteration();
 
          // Record the current fitness
-         boost::shared_ptr<GParameterSet> p = goa->GOptimizableI::template getBestIndividual<GParameterSet>();
+         std::shared_ptr<GParameterSet> p = goa->GOptimizableI::template getBestIndividual<GParameterSet>();
          (*fitnessGraph2D_oa_) & boost::tuple<double,double>(double(iteration), double(p->fitness()));
 
          // Update the largest known iteration and the number of recorded iterations
@@ -1404,12 +1404,12 @@ public:
 
          // Do the actual logging
          if(monitorBestOnly_) {
-            boost::shared_ptr<GParameterSet> best = goa->GOptimizableI::template getBestIndividual<GParameterSet>();
+            std::shared_ptr<GParameterSet> best = goa->GOptimizableI::template getBestIndividual<GParameterSet>();
             nAdaptionsStore_.push_back(boost::tuple<double,double>(double(iteration), double(best->getNAdaptions())));
          } else { // Monitor all individuals
             // Loop over all individuals of the algorithm.
             for(std::size_t pos=0; pos<goa->size(); pos++) {
-               boost::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
+               std::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
                nAdaptionsStore_.push_back(boost::tuple<double,double>(double(iteration), double(ind->getNAdaptions())));
             }
          }
@@ -1422,7 +1422,7 @@ public:
 
          if(monitorBestOnly_) {
             // Create the graph object
-            nAdaptionsGraph2D_oa_ = boost::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+            nAdaptionsGraph2D_oa_ = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
             nAdaptionsGraph2D_oa_->setXAxisLabel("Iteration");
             nAdaptionsGraph2D_oa_->setYAxisLabel("Number of parameter adaptions");
             nAdaptionsGraph2D_oa_->setPlotMode(Gem::Common::CURVE);
@@ -1445,7 +1445,7 @@ public:
             }
 
             // Create the histogram object
-            nAdaptionsHist2D_oa_ = boost::shared_ptr<GHistogram2D>(
+            nAdaptionsHist2D_oa_ = std::shared_ptr<GHistogram2D>(
                   new GHistogram2D(
                         nIterationsRecorded_
                         , maxNAdaptions+1
@@ -1494,9 +1494,9 @@ private:
 
    Gem::Common::GPlotDesigner gpd_oa_; ///< A wrapper for the plots
 
-   boost::shared_ptr<Gem::Common::GHistogram2D> nAdaptionsHist2D_oa_;  ///< Holds the actual histogram
-   boost::shared_ptr<Gem::Common::GGraph2D>     nAdaptionsGraph2D_oa_; ///< Used if we only monitor the best solution in each iteration
-   boost::shared_ptr<Gem::Common::GGraph2D>     fitnessGraph2D_oa_;    ///< Lets us monitor the current fitness of the population
+   std::shared_ptr<Gem::Common::GHistogram2D> nAdaptionsHist2D_oa_;  ///< Holds the actual histogram
+   std::shared_ptr<Gem::Common::GGraph2D>     nAdaptionsGraph2D_oa_; ///< Used if we only monitor the best solution in each iteration
+   std::shared_ptr<Gem::Common::GGraph2D>     fitnessGraph2D_oa_;    ///< Lets us monitor the current fitness of the population
 
    bool monitorBestOnly_; ///< Indicates whether only the best individuals should be monitored
    bool addPrintCommand_; ///< Asks the GPlotDesigner to add a print command to result files
@@ -1722,7 +1722,7 @@ public:
          gpd_oa_.setCanvasDimensions(canvasDimensions_);
 
          // Set up a graph to monitor the best fitness found
-         fitnessGraph2D_oa_ = boost::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+         fitnessGraph2D_oa_ = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
          fitnessGraph2D_oa_->setXAxisLabel("Iteration");
          fitnessGraph2D_oa_->setYAxisLabel("Fitness");
          fitnessGraph2D_oa_->setPlotMode(Gem::Common::CURVE);
@@ -1734,7 +1734,7 @@ public:
          boost::uint32_t iteration = goa->getIteration();
 
          // Record the current fitness
-         boost::shared_ptr<GParameterSet> p = goa->GOptimizableI::template getBestIndividual<GParameterSet>();
+         std::shared_ptr<GParameterSet> p = goa->GOptimizableI::template getBestIndividual<GParameterSet>();
          (*fitnessGraph2D_oa_) & boost::tuple<double,double>(double(iteration), double(p->fitness()));
 
          // Update the largest known iteration and the number of recorded iterations
@@ -1746,7 +1746,7 @@ public:
 
          // Do the actual logging
          if(monitorBestOnly_) {
-            boost::shared_ptr<GParameterSet> best = goa->GOptimizableI::template getBestIndividual<GParameterSet>();
+            std::shared_ptr<GParameterSet> best = goa->GOptimizableI::template getBestIndividual<GParameterSet>();
 
             // Retrieve the adaptor data (e.g. the sigma of a GDoubleGaussAdaptor
             best->queryAdaptor(adaptorName_, property_, data);
@@ -1759,7 +1759,7 @@ public:
          } else { // Monitor all individuals
             // Loop over all individuals of the algorithm.
             for(std::size_t pos=0; pos<goa->size(); pos++) {
-               boost::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
+               std::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
 
                // Retrieve the adaptor data (e.g. the sigma of a GDoubleGaussAdaptor
                ind->queryAdaptor(adaptorName_, property_, data);
@@ -1787,7 +1787,7 @@ public:
          }
 
          // Create the histogram object
-         adaptorPropertyHist2D_oa_ = boost::shared_ptr<GHistogram2D>(
+         adaptorPropertyHist2D_oa_ = std::shared_ptr<GHistogram2D>(
                new GHistogram2D(
                      nIterationsRecorded_
                      , 100
@@ -1837,8 +1837,8 @@ private:
 
    Gem::Common::GPlotDesigner gpd_oa_; ///< A wrapper for the plots
 
-   boost::shared_ptr<Gem::Common::GHistogram2D> adaptorPropertyHist2D_oa_;  ///< Holds the actual histogram
-   boost::shared_ptr<Gem::Common::GGraph2D>     fitnessGraph2D_oa_;    ///< Lets us monitor the current fitness of the population
+   std::shared_ptr<Gem::Common::GHistogram2D> adaptorPropertyHist2D_oa_;  ///< Holds the actual histogram
+   std::shared_ptr<Gem::Common::GGraph2D>     fitnessGraph2D_oa_;    ///< Lets us monitor the current fitness of the population
 
    bool monitorBestOnly_; ///< Indicates whether only the best individuals should be monitored
    bool addPrintCommand_; ///< Asks the GPlotDesigner to add a print command to result files

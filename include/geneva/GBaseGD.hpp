@@ -169,7 +169,7 @@ protected:
 	virtual G_API_GENEVA void finalize() override;
 
    /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-   virtual G_API_GENEVA boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
+   virtual G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
 
 	/** @brief Resizes the population to the desired level and does some error checks */
 	virtual G_API_GENEVA void adjustPopulation() override;
@@ -292,7 +292,7 @@ public:
 
 	   std::string resultFile_; ///< The name of the file to which data is emitted
 
-	   boost::shared_ptr<Gem::Common::GGraph2D> fitnessGraph_; ///< Holds the fitness data until plotted
+	   std::shared_ptr<Gem::Common::GGraph2D> fitnessGraph_; ///< Holds the fitness data until plotted
 
      public:
 	   /** @brief Applies modifications to this object. This is needed for testing purposes */

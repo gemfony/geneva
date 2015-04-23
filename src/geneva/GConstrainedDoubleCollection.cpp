@@ -368,11 +368,11 @@ void GConstrainedDoubleCollection::doubleFixedValueInit(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GConstrainedDoubleCollection::doubleAdd(
-   boost::shared_ptr<GParameterBase> p_base
+   std::shared_ptr<GParameterBase> p_base
    , const activityMode& am
 ) {
    // We first need to convert p_base into the local type
-   boost::shared_ptr<GConstrainedDoubleCollection> p
+   std::shared_ptr<GConstrainedDoubleCollection> p
       = GParameterBase::parameterbase_cast<GConstrainedDoubleCollection>(p_base);
 
    // Cross-check that the sizes match
@@ -396,11 +396,11 @@ void GConstrainedDoubleCollection::doubleAdd(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GConstrainedDoubleCollection::doubleSubtract(
-   boost::shared_ptr<GParameterBase> p_base
+   std::shared_ptr<GParameterBase> p_base
    , const activityMode& am
 ) {
    // We first need to convert p_base into the local type
-   boost::shared_ptr<GConstrainedDoubleCollection> p
+   std::shared_ptr<GConstrainedDoubleCollection> p
       = GParameterBase::parameterbase_cast<GConstrainedDoubleCollection>(p_base);
 
    // Cross-check that the sizes match
@@ -489,9 +489,9 @@ void GConstrainedDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//---------------------------------------------------------------------
 
 	{ // Check that initialization with a fixed value-range yields the desired values
-		boost::shared_ptr<GConstrainedDoubleCollection> p_test;
+		std::shared_ptr<GConstrainedDoubleCollection> p_test;
 
-		BOOST_CHECK_NO_THROW(p_test = boost::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(DEFSIZE, DEFMIN, DEFMAX)));
+		BOOST_CHECK_NO_THROW(p_test = std::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(DEFSIZE, DEFMIN, DEFMAX)));
 		BOOST_CHECK(p_test->size() == DEFSIZE && DEFSIZE>1);
 		for(std::size_t i=1; i<DEFSIZE; i++) { // Check that consecutive values are different
 			BOOST_CHECK(p_test->at(i) != p_test->at(i-1));
@@ -503,9 +503,9 @@ void GConstrainedDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//---------------------------------------------------------------------
 
 	{ // Check that initialization with a fixed value and range yields the desired values
-		boost::shared_ptr<GConstrainedDoubleCollection> p_test;
+		std::shared_ptr<GConstrainedDoubleCollection> p_test;
 
-		BOOST_CHECK_NO_THROW(p_test = boost::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(DEFSIZE, DEFVAL, DEFMIN, DEFMAX)));
+		BOOST_CHECK_NO_THROW(p_test = std::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(DEFSIZE, DEFVAL, DEFMIN, DEFMAX)));
 		BOOST_CHECK(p_test->size() == DEFSIZE);
 		for(std::size_t i=0; i<DEFSIZE; i++) {
 			BOOST_CHECK(p_test->at(i) == DEFVAL);

@@ -147,9 +147,9 @@ private:
    /***************************************************************************/
 
    boost::uint16_t nThreads_; ///< The number of threads
-   boost::shared_ptr<Gem::Common::GThreadPool> tp_ptr_; ///< Temporarily holds a thread pool
+   std::shared_ptr<Gem::Common::GThreadPool> tp_ptr_; ///< Temporarily holds a thread pool
 
-   std::vector<boost::shared_ptr<GParameterSet> > oldWorkItems_; ///< Temporarily holds old returned work items
+   std::vector<std::shared_ptr<GParameterSet> > oldWorkItems_; ///< Temporarily holds old returned work items
 
    /***************************************************************************/
    /**
@@ -158,7 +158,7 @@ private:
     */
    class indParentComp {
    public:
-      bool operator()(boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) {
+      bool operator()(std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) {
          return (x->getPersonalityTraits<GEAPersonalityTraits>()->isParent() > y->getPersonalityTraits<GEAPersonalityTraits>()->isParent());
       }
    };
@@ -178,7 +178,7 @@ private:
       : current_iteration_(cp.current_iteration_)
       { /* nothing */ }
 
-      bool operator()(boost::shared_ptr<GParameterSet> x) {
+      bool operator()(std::shared_ptr<GParameterSet> x) {
          if(x->getPersonalityTraits<GEAPersonalityTraits>()->isParent() && x->getAssignedIteration() != current_iteration_) {
             return true;
          } else {
@@ -199,7 +199,7 @@ private:
     */
    class hasDirtyFlagSet {
    public:
-      bool operator()(boost::shared_ptr<GParameterSet> x) {
+      bool operator()(std::shared_ptr<GParameterSet> x) {
          if(x->isDirty()) {
             return true;
          } else {

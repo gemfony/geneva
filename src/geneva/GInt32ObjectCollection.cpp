@@ -54,7 +54,7 @@ GInt32ObjectCollection::GInt32ObjectCollection()
  */
 GInt32ObjectCollection::GInt32ObjectCollection(
 	const std::size_t& nCp
-	, boost::shared_ptr<GInt32Object> tmpl_ptr
+	, std::shared_ptr<GInt32Object> tmpl_ptr
 )
 	:GParameterTCollectionT<GInt32Object>(nCp, tmpl_ptr)
 { /* nothing */ }
@@ -216,16 +216,16 @@ void GInt32ObjectCollection::fillWithObjects(const std::size_t& nAddedObjects) {
 	// Add GInt32Object items with adaptors to p_test1
 	for(std::size_t i=0; i<nAddedObjects; i++) {
 		// Create a suitable adaptor
-		boost::shared_ptr<GInt32GaussAdaptor> giga_ptr;
+		std::shared_ptr<GInt32GaussAdaptor> giga_ptr;
 
-		BOOST_CHECK_NO_THROW(giga_ptr = boost::shared_ptr<GInt32GaussAdaptor>(new GInt32GaussAdaptor(0.025, 0.1, 0, 1, 1.0)));
+		BOOST_CHECK_NO_THROW(giga_ptr = std::shared_ptr<GInt32GaussAdaptor>(new GInt32GaussAdaptor(0.025, 0.1, 0, 1, 1.0)));
 		BOOST_CHECK_NO_THROW(giga_ptr->setAdaptionThreshold(0)); // Make sure the adaptor's internal parameters don't change through the adaption
 		BOOST_CHECK_NO_THROW(giga_ptr->setAdaptionMode(true)); // Always adapt
 
 		// Create a suitable GInt32Object object
-		boost::shared_ptr<GInt32Object> gio_ptr;
+		std::shared_ptr<GInt32Object> gio_ptr;
 
-		BOOST_CHECK_NO_THROW(gio_ptr = boost::shared_ptr<GInt32Object>(new GInt32Object(-100, 100))); // Initialization in the range -100, 100
+		BOOST_CHECK_NO_THROW(gio_ptr = std::shared_ptr<GInt32Object>(new GInt32Object(-100, 100))); // Initialization in the range -100, 100
 
 		// Add the adaptor
 		BOOST_CHECK_NO_THROW(gio_ptr->addAdaptor(giga_ptr));
@@ -261,7 +261,7 @@ void GInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Call the parent class'es function
-		boost::shared_ptr<GInt32ObjectCollection> p_test = this->clone<GInt32ObjectCollection>();
+		std::shared_ptr<GInt32ObjectCollection> p_test = this->clone<GInt32ObjectCollection>();
 
 		// Fill p_test with objects
 		p_test->fillWithObjects(nAddedObjects);
@@ -273,8 +273,8 @@ void GInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test that the fp-family of functions has no effect on this object (and contained objects)
-		boost::shared_ptr<GInt32ObjectCollection> p_test1 = this->clone<GInt32ObjectCollection>();
-		boost::shared_ptr<GInt32ObjectCollection> p_test2 = this->clone<GInt32ObjectCollection>();
+		std::shared_ptr<GInt32ObjectCollection> p_test1 = this->clone<GInt32ObjectCollection>();
+		std::shared_ptr<GInt32ObjectCollection> p_test2 = this->clone<GInt32ObjectCollection>();
 
 		// Fill p_test1 with objects
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));

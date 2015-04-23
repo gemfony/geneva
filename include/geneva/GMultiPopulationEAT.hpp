@@ -380,7 +380,7 @@ protected:
     *
     * @return The best individual found
     */
-   virtual boost::shared_ptr<GParameterSet> customGetBestIndividual() override {
+   virtual std::shared_ptr<GParameterSet> customGetBestIndividual() override {
 #ifdef DEBUG
          if(this->empty()) {
             glogger
@@ -399,7 +399,7 @@ protected:
     *
     * @return A list of the best individuals found
     */
-   virtual std::vector<boost::shared_ptr<GParameterSet> > customGetBestIndividuals() override {
+   virtual std::vector<std::shared_ptr<GParameterSet> > customGetBestIndividuals() override {
       // Some error checking
       if(this->empty()) {
          glogger
@@ -470,7 +470,7 @@ protected:
     */
    virtual void adaptChildren() override {
       boost::tuple<std::size_t,std::size_t> range = this->getAdaptionRange();
-      typename std::vector<boost::shared_ptr<oa_type> >::iterator it;
+      typename std::vector<std::shared_ptr<oa_type> >::iterator it;
 
       for(it=(this->data).begin()+boost::get<0>(range); it!=(this->data).begin()+boost::get<1>(range); ++it) {
 #ifdef DEBUG
@@ -495,7 +495,7 @@ protected:
     */
    virtual void runFitnessCalculation() override {
       boost::tuple<std::size_t,std::size_t> range = this->getEvaluationRange();
-      typename std::vector<boost::shared_ptr<oa_type> >::iterator it;
+      typename std::vector<std::shared_ptr<oa_type> >::iterator it;
 
 #ifdef DEBUG
       // There should be no situation in which a "clean" individual is submitted
@@ -649,8 +649,8 @@ protected:
    /**
     * Retrieve a GPersonalityTraits object belonging to this algorithm
     */
-   virtual boost::shared_ptr<GPersonalityTraits> getPersonalityTraits() const  override {
-      return boost::shared_ptr<GMPEAPersonalityTraits>(new GMPEAPersonalityTraits());
+   virtual std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const  override {
+      return std::shared_ptr<GMPEAPersonalityTraits>(new GMPEAPersonalityTraits());
    }
 
 private:
@@ -660,7 +660,7 @@ private:
    sortingModeMP smodeMP_; ///< The chosen sorting scheme
    boost::uint16_t nThreads_; ///< The number of threads
 
-   boost::shared_ptr<Gem::Common::GThreadPool> tp_ptr_; ///< Temporarily holds a thread pool
+   std::shared_ptr<Gem::Common::GThreadPool> tp_ptr_; ///< Temporarily holds a thread pool
 
 public:
    /***************************************************************************/

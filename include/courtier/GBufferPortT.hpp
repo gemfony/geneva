@@ -109,7 +109,7 @@ public:
 	 *
 	 * @return A shared_ptr with the "original" queue
 	 */
-	boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<T> > getOriginalQueue() {
+	std::shared_ptr<Gem::Common::GBoundedBufferWithIdT<T> > getOriginalQueue() {
 		return original_;
 	}
 
@@ -119,7 +119,7 @@ public:
 	 *
 	 * @return A shared_ptr with the "processed" queue
 	 */
-	boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<T> > getProcessedQueue() {
+	std::shared_ptr<Gem::Common::GBoundedBufferWithIdT<T> > getProcessedQueue() {
 		return processed_;
 	}
 
@@ -272,8 +272,8 @@ public:
 
 	/***************************************************************************/
 private:
-	boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<T> > original_; ///< The queue for raw objects
-	boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<T> > processed_; ///< The queue for processed objects
+	std::shared_ptr<Gem::Common::GBoundedBufferWithIdT<T> > original_; ///< The queue for raw objects
+	std::shared_ptr<Gem::Common::GBoundedBufferWithIdT<T> > processed_; ///< The queue for processed objects
 };
 
 /******************************************************************************/

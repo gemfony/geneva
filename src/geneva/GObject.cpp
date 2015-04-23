@@ -510,12 +510,12 @@ bool GObject::operator!=(const GObject& cp) const {
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object, storing it in a boost::shared_ptr<GObject>
+ * Creates a deep clone of this object, storing it in a std::shared_ptr<GObject>
  *
- * @return A boost::shared_ptr<GObject> to a clone of the derived object
+ * @return A std::shared_ptr<GObject> to a clone of the derived object
  */
-boost::shared_ptr<GObject> GObject::clone() const {
-	return boost::shared_ptr<GObject>(clone_());
+std::shared_ptr<GObject> GObject::clone() const {
+	return std::shared_ptr<GObject>(clone_());
 }
 
 /* ----------------------------------------------------------------------------------
@@ -575,7 +575,7 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check cloning to GObject format
-		boost::shared_ptr<GObject> p_test = this->clone<GObject>();
+		std::shared_ptr<GObject> p_test = this->clone<GObject>();
 
 		// Check that the pointer actually points somewhere
 		BOOST_CHECK(p_test);
@@ -584,7 +584,7 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
    // --------------------------------------------------------------------------
 
    { // Check the name of the object
-      boost::shared_ptr<GObject> p_test = this->clone<GObject>();
+      std::shared_ptr<GObject> p_test = this->clone<GObject>();
 
       // Check that the pointer actually points somewhere
       BOOST_CHECK_MESSAGE(
@@ -596,7 +596,7 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check cloning to GObject format, using a different method
-		boost::shared_ptr<GObject> p_test = this->clone();
+		std::shared_ptr<GObject> p_test = this->clone();
 
 		// Check that the pointer actually points somewhere
 		BOOST_CHECK(p_test);
@@ -605,7 +605,7 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check that the report function returns a non-empty description
-		boost::shared_ptr<GObject> p_test = this->clone();
+		std::shared_ptr<GObject> p_test = this->clone();
 
 		// Check that the pointer actually points somewhere
 		BOOST_CHECK(!(p_test->report()).empty());
@@ -613,7 +613,7 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 
 
 	{ // Check (de-)serialization from/to a stream in three modes
-		boost::shared_ptr<GObject> p_test = this->clone();
+		std::shared_ptr<GObject> p_test = this->clone();
 
 		{ // Text mode
 			std::ostringstream ostr;
@@ -640,7 +640,7 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check (de-)serialization from/to strings in three modes
-		boost::shared_ptr<GObject> p_test = this->clone();
+		std::shared_ptr<GObject> p_test = this->clone();
 
 		BOOST_CHECK_NO_THROW(p_test->fromString(p_test->toString(Gem::Common::SERIALIZATIONMODE_TEXT), Gem::Common::SERIALIZATIONMODE_TEXT));
 		BOOST_CHECK_NO_THROW(p_test->fromString(p_test->toString(Gem::Common::SERIALIZATIONMODE_XML), Gem::Common::SERIALIZATIONMODE_XML));
@@ -650,7 +650,7 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check (de-)serialization from/to a file in three different modes
-		boost::shared_ptr<GObject> p_test = this->clone();
+		std::shared_ptr<GObject> p_test = this->clone();
 
 		{ // Text mode
 			BOOST_CHECK_NO_THROW(p_test->toFile(bf::path("123test.txt"), Gem::Common::SERIALIZATIONMODE_TEXT));

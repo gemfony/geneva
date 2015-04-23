@@ -54,6 +54,7 @@
 #include <typeinfo>
 #include <vector>
 #include <functional>
+#include <memory>
 
 
 // Boost header files go here
@@ -154,7 +155,7 @@ namespace Geneva {
  * defines a number of interface functions and access patterns commonly needed throughout derived classes.
  * As one example, (de-)serialization is simplified by some of the functions in this class, as is the
  * task of conversion to the derived types. Handling of optimization-related classes sometimes happens through
- * a boost::shared_ptr<GObject>, hence this class has a very central role. The GObject::load_(const GObject *)
+ * a std::shared_ptr<GObject>, hence this class has a very central role. The GObject::load_(const GObject *)
  * and  GObject::clone_() member functions must be re-implemented for each derived class. Further common
  * functionality of many Geneva classes will be implemented here over time.
  */
@@ -234,22 +235,22 @@ public:
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&);
 
-	/** @brief Creates a clone of this object, storing it in a boost::shared_ptr<GObject> */
-	G_API_GENEVA boost::shared_ptr<GObject> clone() const;
+	/** @brief Creates a clone of this object, storing it in a std::shared_ptr<GObject> */
+	G_API_GENEVA std::shared_ptr<GObject> clone() const;
 
    /***************************************************************************/
    /**
     * The function creates a clone of the GObject pointer, converts it to a pointer to a derived class
-    * and emits it as a boost::shared_ptr<> . Note that this template will only be accessible to the
+    * and emits it as a std::shared_ptr<> . Note that this template will only be accessible to the
     * compiler if GObject is a base type of clone_type.
     *
-    * @return A converted clone of this object, wrapped into a boost::shared_ptr
+    * @return A converted clone of this object, wrapped into a std::shared_ptr
     */
    template <typename clone_type>
-   boost::shared_ptr<clone_type> clone(
+   std::shared_ptr<clone_type> clone(
       typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, clone_type> >::type* dummy = 0
    ) const {
-      return Gem::Common::convertSmartPointer<GObject, clone_type>(boost::shared_ptr<GObject>(this->clone_()));
+      return Gem::Common::convertSmartPointer<GObject, clone_type>(std::shared_ptr<GObject>(this->clone_()));
    }
 
    /* ----------------------------------------------------------------------------------
@@ -262,11 +263,11 @@ public:
 	 * Loads the data of another GObject(-derivative), wrapped in a shared pointer. Note that this
 	 * function is only accessible to the compiler if load_type is a derivative of GObject.
 	 *
-	 * @param cp A copy of another GObject-derivative, wrapped into a boost::shared_ptr<>
+	 * @param cp A copy of another GObject-derivative, wrapped into a std::shared_ptr<>
 	 */
 	template <typename load_type>
 	inline void load(
-      const boost::shared_ptr<load_type>& cp
+      const std::shared_ptr<load_type>& cp
       , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) {
 		load_(cp.get());
@@ -282,7 +283,7 @@ public:
 	 * Loads the data of another GObject(-derivative), presented as a constant reference. Note that this
 	 * function is only accessible to the compiler if load_type is a derivative of GObject.
 	 *
-	 * @param cp A copy of another GObject-derivative, wrapped into a boost::shared_ptr<>
+	 * @param cp A copy of another GObject-derivative, wrapped into a std::shared_ptr<>
 	 */
 	template <typename load_type>
 	inline void load(
@@ -400,32 +401,32 @@ protected:
 
 	/***************************************************************************/
 	/**
-	 * This function converts a GObject boost::shared_ptr to the target type, optionally checking for
+	 * This function converts a GObject std::shared_ptr to the target type, optionally checking for
 	 * self-assignment along the ways in DEBUG mode (through selfAssignmentCheck() ).  Note that this
 	 * template will only be accessible to the compiler if GObject is a base type of load_type.
 	 *
-	 * @param load_ptr A boost::shared_ptr<load_type> to the item to be converted
+	 * @param load_ptr A std::shared_ptr<load_type> to the item to be converted
 	 * @param dummy A dummy argument needed for boost's enable_if and type traits magic
-	 * @return A boost::shared_ptr holding the converted object
+	 * @return A std::shared_ptr holding the converted object
 	 */
 	template <typename load_type>
-	inline boost::shared_ptr<load_type> gobject_conversion (
-     boost::shared_ptr<GObject> load_ptr
+	inline std::shared_ptr<load_type> gobject_conversion (
+     std::shared_ptr<GObject> load_ptr
      , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) const {
 		selfAssignmentCheck<load_type>(load_ptr.get());
 
 #ifdef DEBUG
-		boost::shared_ptr<load_type> p = boost::dynamic_pointer_cast<load_type>(load_ptr);
+		std::shared_ptr<load_type> p = std::dynamic_pointer_cast<load_type>(load_ptr);
 		if(p) return p;
 		else {
 		   glogger
-		   << "In boost::shared_ptr<load_type> GObject::gobject_conversion<load_type>() :" << std::endl
+		   << "In std::shared_ptr<load_type> GObject::gobject_conversion<load_type>() :" << std::endl
 		   << "Invalid conversion" << std::endl
 		   << GEXCEPTION;
 		}
 #else
-		return boost::static_pointer_cast<load_type>(load_ptr);
+		return std::static_pointer_cast<load_type>(load_ptr);
 #endif
 	}
 
@@ -456,13 +457,13 @@ public:
 /**
  * A specialization of the general clone for cases where no conversion takes place at all
  *
- * @return A boost::shared_ptr<GObject> to a clone of the derived object
+ * @return A std::shared_ptr<GObject> to a clone of the derived object
  */
 template <>
-inline boost::shared_ptr<GObject> GObject::clone<GObject> (
+inline std::shared_ptr<GObject> GObject::clone<GObject> (
    boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, GObject> >::type* dummy
 ) const {
-   return boost::shared_ptr<GObject>(clone_());
+   return std::shared_ptr<GObject>(clone_());
 }
 
 /* ----------------------------------------------------------------------------------
@@ -625,8 +626,8 @@ void compare (
  */
 template <typename geneva_type>
 void compare (
-   const boost::shared_ptr<geneva_type>& x
-   , const boost::shared_ptr<geneva_type>& y
+   const std::shared_ptr<geneva_type>& x
+   , const std::shared_ptr<geneva_type>& y
    , const std::string& x_name
    , const std::string& y_name
    , const Gem::Common::expectation& e
@@ -741,8 +742,8 @@ void compare (
  */
 template <typename geneva_type>
 void compare (
-   const std::vector<boost::shared_ptr<geneva_type> >& x
-   , const std::vector<boost::shared_ptr<geneva_type> >& y
+   const std::vector<std::shared_ptr<geneva_type> >& x
+   , const std::vector<std::shared_ptr<geneva_type> >& y
    , const std::string& x_name
    , const std::string& y_name
    , const Gem::Common::expectation& e
@@ -770,7 +771,7 @@ void compare (
 
       // Now loop over all members of the vectors
       bool foundDeviation = false;
-      typename std::vector<boost::shared_ptr<geneva_type> >::const_iterator x_it, y_it;
+      typename std::vector<std::shared_ptr<geneva_type> >::const_iterator x_it, y_it;
       std::size_t index = 0;
       for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it, ++index) {
          // First check that both pointers have content
@@ -823,7 +824,7 @@ void compare (
 
       // Now loop over all members of the vectors
       bool foundInequality = false;
-      typename std::vector<boost::shared_ptr<geneva_type> >::const_iterator x_it, y_it;
+      typename std::vector<std::shared_ptr<geneva_type> >::const_iterator x_it, y_it;
       for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it) {
          // First check that both pointers have content
          // Check whether the pointers hold content

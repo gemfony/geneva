@@ -135,7 +135,7 @@ protected:
 
 private:
    boost::uint16_t nThreads_; ///< The number of threads
-   boost::shared_ptr<Gem::Common::GThreadPool> tp_ptr_; ///< Temporarily holds a thread pool
+   std::shared_ptr<Gem::Common::GThreadPool> tp_ptr_; ///< Temporarily holds a thread pool
 
 public:
    /***************************************************************************/

@@ -64,34 +64,34 @@ using namespace boost;
 const boost::uint32_t NTESTS=2000;
 
 int main(int argc, char **argv){
-   boost::shared_ptr<GHistogram1I> multipleFlipMutation_ptr(new GHistogram1I(50, 0.5,50.5));
+   std::shared_ptr<GHistogram1I> multipleFlipMutation_ptr(new GHistogram1I(50, 0.5,50.5));
    multipleFlipMutation_ptr->setPlotLabel("Occurance of different values when flip-mutating, starting with 1");
 
-   boost::shared_ptr<GGraph2D> multipleFlipProgress_ptr(new GGraph2D());
+   std::shared_ptr<GGraph2D> multipleFlipProgress_ptr(new GGraph2D());
    multipleFlipProgress_ptr->setPlotMode(Gem::Common::SCATTER);
    multipleFlipProgress_ptr->setPlotLabel("Current value of a GConstrainedInt32Object after repeated flip mutations");
    multipleFlipProgress_ptr->setXAxisLabel("iteration");
    multipleFlipProgress_ptr->setYAxisLabel("value");
 
-   boost::shared_ptr<GHistogram1I> multipleGaussMutation_ptr(new GHistogram1I(50, 0.5,50.5));
+   std::shared_ptr<GHistogram1I> multipleGaussMutation_ptr(new GHistogram1I(50, 0.5,50.5));
    multipleGaussMutation_ptr->setPlotLabel("Occurance of different values when gauss-mutating, starting with 1");
 
-   boost::shared_ptr<GGraph2D> multipleGaussProgress_ptr(new GGraph2D());
+   std::shared_ptr<GGraph2D> multipleGaussProgress_ptr(new GGraph2D());
    multipleGaussProgress_ptr->setPlotMode(Gem::Common::SCATTER);
    multipleGaussProgress_ptr->setPlotLabel("Current value of a GConstrainedInt32Object after repeated gauss mutations");
    multipleGaussProgress_ptr->setXAxisLabel("iteration");
    multipleGaussProgress_ptr->setYAxisLabel("value");
 
    double internalValue = 0., externalValue = 0.;
-   boost::shared_ptr<GGraph2D> mapping_ptr(new GGraph2D());
+   std::shared_ptr<GGraph2D> mapping_ptr(new GGraph2D());
    mapping_ptr->setPlotLabel("Mapping from internal to external value");
 
    GConstrainedInt32Object gMultFlipMut(1, 1, 50);
-   boost::shared_ptr<GInt32FlipAdaptor> gifa_ptr(new GInt32FlipAdaptor());
+   std::shared_ptr<GInt32FlipAdaptor> gifa_ptr(new GInt32FlipAdaptor());
    gMultFlipMut.addAdaptor(gifa_ptr);
 
    GConstrainedInt32Object gMultGaussMut(1, 1, 50);
-   boost::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(
+   std::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(
          0.025 // sigma
          , 0.1 // sigmaSigma
          , 0. // minSigma

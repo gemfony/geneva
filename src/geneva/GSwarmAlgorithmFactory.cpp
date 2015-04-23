@@ -79,7 +79,7 @@ GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
 GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
    const std::string& configFile
    , const execMode& pm
-   , boost::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr
+   , std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr
 )
    : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm, contentCreatorPtr)
 { /* nothing */ }
@@ -113,25 +113,25 @@ std::string GSwarmAlgorithmFactory::getAlgorithmName() const {
  *
  * @return Items of the desired type
  */
-boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GSwarmAlgorithmFactory::getObject_(
+std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GSwarmAlgorithmFactory::getObject_(
 	Gem::Common::GParserBuilder& gpb
 	, const std::size_t& id
 ) {
 	// Will hold the result
-	boost::shared_ptr<GBaseSwarm> target;
+	std::shared_ptr<GBaseSwarm> target;
 
 	// Fill the target pointer as required
 	switch(pm_) {
 	case EXECMODE_SERIAL:
-		target = boost::shared_ptr<GSerialSwarm>(new GSerialSwarm());
+		target = std::shared_ptr<GSerialSwarm>(new GSerialSwarm());
 		break;
 
 	case EXECMODE_MULTITHREADED:
-		target = boost::shared_ptr<GMultiThreadedSwarm>(new GMultiThreadedSwarm());
+		target = std::shared_ptr<GMultiThreadedSwarm>(new GMultiThreadedSwarm());
 		break;
 
 	case EXECMODE_BROKERAGE:
-		target = boost::shared_ptr<GBrokerSwarm>(new GBrokerSwarm());
+		target = std::shared_ptr<GBrokerSwarm>(new GBrokerSwarm());
 		break;
 	}
 
@@ -148,7 +148,7 @@ boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GSwarmAlgorithmFactor
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GSwarmAlgorithmFactory::postProcess_(boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >& p_base) {
+void GSwarmAlgorithmFactory::postProcess_(std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >& p_base) {
 	// Convert the object to the correct target type
 	switch(pm_) {
 	case EXECMODE_SERIAL:
@@ -157,7 +157,7 @@ void GSwarmAlgorithmFactory::postProcess_(boost::shared_ptr<GOptimizationAlgorit
 
 	case EXECMODE_MULTITHREADED:
 		{
-			boost::shared_ptr<GMultiThreadedSwarm> p
+			std::shared_ptr<GMultiThreadedSwarm> p
 			   = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedSwarm>(p_base);
 			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
 		}
@@ -165,7 +165,7 @@ void GSwarmAlgorithmFactory::postProcess_(boost::shared_ptr<GOptimizationAlgorit
 
 	case EXECMODE_BROKERAGE:
 		{
-			boost::shared_ptr<GBrokerSwarm> p
+			std::shared_ptr<GBrokerSwarm> p
 			   = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerSwarm>(p_base);
 
          p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::doLogging_);

@@ -59,7 +59,7 @@ namespace Geneva {
  * as a collection of GParameterT objects, hence the name.  As an example, one can create a
  * collection of GConstrainedDoubleObject objects with this class rather than a simple GDoubleCollection.
  * In order to facilitate memory management, the GParameterT objects are stored
- * in boost::shared_ptr objects.
+ * in std::shared_ptr objects.
  */
 template<typename T>
 class GParameterTCollectionT
@@ -106,7 +106,7 @@ public:
 	 */
 	GParameterTCollectionT(
       const std::size_t& nCp
-      , boost::shared_ptr<T> tmpl_ptr
+      , std::shared_ptr<T> tmpl_ptr
 	) {
 		for(std::size_t i=0; i<nCp; i++) {
 			this->push_back(tmpl_ptr->template clone<T>());
@@ -1048,11 +1048,11 @@ protected:
     * Adds the "same-type" parameters of another GParameterBase object to this one
     */
    virtual void floatAdd(
-      boost::shared_ptr<GParameterBase> p_base
+      std::shared_ptr<GParameterBase> p_base
       , const activityMode& am
    ) override {
       // We first need to convert p_base into the local type
-      boost::shared_ptr<GParameterTCollectionT<T> > p
+      std::shared_ptr<GParameterTCollectionT<T> > p
          = GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
 
       // Check that both collections have the same size
@@ -1075,11 +1075,11 @@ protected:
     * Adds the "same-type" parameters of another GParameterBase object to this one
     */
    virtual void doubleAdd(
-      boost::shared_ptr<GParameterBase> p_base
+      std::shared_ptr<GParameterBase> p_base
       , const activityMode& am
    ) override {
       // We first need to convert p_base into the local type
-      boost::shared_ptr<GParameterTCollectionT<T> > p
+      std::shared_ptr<GParameterTCollectionT<T> > p
          = GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
 
       // Check that both collections have the same size
@@ -1102,11 +1102,11 @@ protected:
     * Adds the "same-type" parameters of another GParameterBase object to this one
     */
    virtual void int32Add(
-      boost::shared_ptr<GParameterBase> p_base
+      std::shared_ptr<GParameterBase> p_base
       , const activityMode& am
    ) override {
       // We first need to convert p_base into the local type
-      boost::shared_ptr<GParameterTCollectionT<T> > p
+      std::shared_ptr<GParameterTCollectionT<T> > p
          = GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
 
       // Check that both collections have the same size
@@ -1129,11 +1129,11 @@ protected:
     * Subtracts the "same-type" parameters of another GParameterBase object from this one
     */
    virtual void floatSubtract(
-      boost::shared_ptr<GParameterBase> p_base
+      std::shared_ptr<GParameterBase> p_base
       , const activityMode& am
    ) override {
       // We first need to convert p_base into the local type
-      boost::shared_ptr<GParameterTCollectionT<T> > p
+      std::shared_ptr<GParameterTCollectionT<T> > p
          = GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
 
       // Check that both collections have the same size
@@ -1156,11 +1156,11 @@ protected:
     * Subtracts the "same-type" parameters of another GParameterBase object from this one
     */
    virtual void doubleSubtract(
-      boost::shared_ptr<GParameterBase> p_base
+      std::shared_ptr<GParameterBase> p_base
       , const activityMode& am
    ) override {
       // We first need to convert p_base into the local type
-      boost::shared_ptr<GParameterTCollectionT<T> > p
+      std::shared_ptr<GParameterTCollectionT<T> > p
          = GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
 
       // Check that both collections have the same size
@@ -1183,11 +1183,11 @@ protected:
     * Subtracts the "same-type" parameters of another GParameterBase object from this one
     */
    virtual void int32Subtract(
-      boost::shared_ptr<GParameterBase> p_base
+      std::shared_ptr<GParameterBase> p_base
       , const activityMode& am
    ) override {
       // We first need to convert p_base into the local type
-      boost::shared_ptr<GParameterTCollectionT<T> > p
+      std::shared_ptr<GParameterTCollectionT<T> > p
          = GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
 
       // Check that both collections have the same size

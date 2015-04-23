@@ -103,7 +103,7 @@ int main(int argc, char **argv) {
 		// Run the desired number of tests
 		for(std::size_t test=0; test<nTests; test++) {
 			// Retrieve an individual from the factory
-			boost::shared_ptr<GFunctionIndividual> g = gfi.get<GFunctionIndividual>();
+			std::shared_ptr<GFunctionIndividual> g = gfi.get<GFunctionIndividual>();
 
 #ifdef DEBUG
 			if(g->getParameterSize() != *it) {
@@ -126,7 +126,7 @@ int main(int argc, char **argv) {
 			startTime = boost::posix_time::microsec_clock::local_time();
 
 			// Perform the actual optimization and extract the best individual
-			boost::shared_ptr<GFunctionIndividual> p = go.optimize<GFunctionIndividual>();
+			std::shared_ptr<GFunctionIndividual> p = go.optimize<GFunctionIndividual>();
 
 			endTime = boost::posix_time::microsec_clock::local_time();
 
@@ -167,13 +167,13 @@ int main(int argc, char **argv) {
 	//-------------------------------------------------------------------------
 	// Create plots from the result vector
 
-   boost::shared_ptr<GGraph2ED> timing_ptr(new GGraph2ED());
+   std::shared_ptr<GGraph2ED> timing_ptr(new GGraph2ED());
    timing_ptr->setPlotMode(CURVE);
    timing_ptr->setPlotLabel("Timings of optimization runs [s]");
    timing_ptr->setXAxisLabel("Function Dimension");
    timing_ptr->setYAxisLabel("Seconds consumed");
 
-	boost::shared_ptr<GGraph2ED> gopt_ptr(new GGraph2ED());
+	std::shared_ptr<GGraph2ED> gopt_ptr(new GGraph2ED());
 	gopt_ptr->setPlotMode(CURVE);
 	gopt_ptr->setPlotLabel("Best measurements and errors");
 	gopt_ptr->setXAxisLabel("Function Dimension");

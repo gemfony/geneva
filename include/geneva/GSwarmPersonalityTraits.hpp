@@ -109,9 +109,9 @@ public:
 	G_API_GENEVA bool checkNoPositionUpdateAndReset();
 
 	/** @brief Allows to add a new personal best to the individual */
-	G_API_GENEVA void registerPersonalBest(boost::shared_ptr<GParameterSet>);
+	G_API_GENEVA void registerPersonalBest(std::shared_ptr<GParameterSet>);
 	/** @brief Allows to retrieve the personal best individual */
-	G_API_GENEVA boost::shared_ptr<GParameterSet> getPersonalBest() const;
+	G_API_GENEVA std::shared_ptr<GParameterSet> getPersonalBest() const;
 	/** @brief Resets the personal best individual */
 	G_API_GENEVA void resetPersonalBest();
 	/** @brief Retrieve quality of personally best individual */
@@ -134,7 +134,7 @@ private:
 	bool noPositionUpdate_;
 
 	/** @brief Holds the personally best GParameterSet */
-	boost::shared_ptr<GParameterSet> personal_best_;
+	std::shared_ptr<GParameterSet> personal_best_;
 	/** @brief The quality of the personally best individual */
 	boost::tuple<double, double> personal_best_quality_;
 

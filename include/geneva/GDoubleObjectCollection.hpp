@@ -75,7 +75,7 @@ public:
 	/** @brief The default constructor */
 	G_API_GENEVA GDoubleObjectCollection();
 	/** @brief Initialization with a number of GDoubleObject objects */
-	G_API_GENEVA GDoubleObjectCollection(const std::size_t&, boost::shared_ptr<GDoubleObject>);
+	G_API_GENEVA GDoubleObjectCollection(const std::size_t&, std::shared_ptr<GDoubleObject>);
 	/** @brief The copy constructor */
 	G_API_GENEVA GDoubleObjectCollection(const GDoubleObjectCollection&);
 	/** @brief The destructor */

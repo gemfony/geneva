@@ -74,7 +74,7 @@ public:
    /** @brief The initializing constructor */
    inline GOAInitializerT() {
       // Create a smart pointer holding the algorithm
-      boost::shared_ptr<GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> > > p(new oaf_type());
+      std::shared_ptr<GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> > > p(new oaf_type());
       std::string mnemonic = p->getMnemonic();
 
       // Add the factory to the store, if it hasn't been stored there yet

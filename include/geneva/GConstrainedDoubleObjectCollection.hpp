@@ -76,7 +76,7 @@ public:
 	/** @brief The default constructor */
 	G_API_GENEVA GConstrainedDoubleObjectCollection();
 	/** @brief Initialization with a number of GConstrainedDoubleObject objects */
-	G_API_GENEVA GConstrainedDoubleObjectCollection(const std::size_t&, boost::shared_ptr<GConstrainedDoubleObject>);
+	G_API_GENEVA GConstrainedDoubleObjectCollection(const std::size_t&, std::shared_ptr<GConstrainedDoubleObject>);
 	/** @brief The copy constructor */
 	G_API_GENEVA GConstrainedDoubleObjectCollection(const GConstrainedDoubleObjectCollection&);
 	/** @brief The destructor */

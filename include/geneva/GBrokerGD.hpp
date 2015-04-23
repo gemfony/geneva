@@ -141,14 +141,14 @@ private:
 	 * position in the population Smaller position numbers will end up in front.
 	 */
 	struct indPositionComp {
-	   bool operator()(boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) {
+	   bool operator()(std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) {
 	      return x->getPersonalityTraits<GGDPersonalityTraits>()->getPopulationPosition()
 	            < y->getPersonalityTraits<GGDPersonalityTraits>()->getPopulationPosition();
 	   }
 	};
 	/***************************************************************************/
 
-	std::vector<boost::shared_ptr<GParameterSet> > oldWorkItems_; ///< Temporarily holds old returned work items
+	std::vector<std::shared_ptr<GParameterSet> > oldWorkItems_; ///< Temporarily holds old returned work items
 
 public:
 	/***************************************************************************/
@@ -176,9 +176,9 @@ public:
  * specialization of the factory function that creates objects of this type.
  */
 template <>
-inline boost::shared_ptr<Gem::Geneva::GBrokerGD> TFactory_GUnitTests<Gem::Geneva::GBrokerGD>() {
-   boost::shared_ptr<Gem::Geneva::GBrokerGD> p;
-   BOOST_CHECK_NO_THROW(p= boost::shared_ptr<Gem::Geneva::GBrokerGD>(new Gem::Geneva::GBrokerGD()));
+inline std::shared_ptr<Gem::Geneva::GBrokerGD> TFactory_GUnitTests<Gem::Geneva::GBrokerGD>() {
+   std::shared_ptr<Gem::Geneva::GBrokerGD> p;
+   BOOST_CHECK_NO_THROW(p= std::shared_ptr<Gem::Geneva::GBrokerGD>(new Gem::Geneva::GBrokerGD()));
    return p;
 }
 

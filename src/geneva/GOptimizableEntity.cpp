@@ -246,7 +246,7 @@ std::string GOptimizableEntity::name() const {
  * object will be cloned.
  */
 void GOptimizableEntity::registerConstraint(
-   boost::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity> > c_ptr
+   std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity> > c_ptr
 ) {
    if(!c_ptr) {
       glogger
@@ -1532,7 +1532,7 @@ bool GOptimizableEntity::isWorse(double newValue, const double& oldValue) const 
 /**
  * Checks whether this object is better than the argument, depending on the maxMode
  */
-bool GOptimizableEntity::isBetterThan(boost::shared_ptr<GOptimizableEntity> p) const {
+bool GOptimizableEntity::isBetterThan(std::shared_ptr<GOptimizableEntity> p) const {
    if(this->getMaxMode()) {
       if(this->transformedFitness() > p->transformedFitness()) return true;
       else return false;
@@ -1546,7 +1546,7 @@ bool GOptimizableEntity::isBetterThan(boost::shared_ptr<GOptimizableEntity> p) c
 /**
  * Checks whether this object is worse than the argument, depending on the maxMode
  */
-bool GOptimizableEntity::isWorseThan(boost::shared_ptr<GOptimizableEntity> p) const {
+bool GOptimizableEntity::isWorseThan(std::shared_ptr<GOptimizableEntity> p) const {
    if(this->getMaxMode()) {
       if(this->transformedFitness() < p->transformedFitness()) return true;
       else return false;
@@ -1629,7 +1629,7 @@ void GOptimizableEntity::addConfigurationOptions (
  * @param gpt A pointer to an object representing the new personality of this object
  */
 void GOptimizableEntity::setPersonality(
-      boost::shared_ptr<GPersonalityTraits> gpt
+      std::shared_ptr<GPersonalityTraits> gpt
 ) {
    // Make sure we haven't been given an empty pointer
    if(!gpt) {
@@ -1689,7 +1689,7 @@ std::string GOptimizableEntity::getPersonality() const {
  *
  * @return A shared pointer to the personality traits base class
  */
-boost::shared_ptr<GPersonalityTraits> GOptimizableEntity::getPersonalityTraits() {
+std::shared_ptr<GPersonalityTraits> GOptimizableEntity::getPersonalityTraits() {
 #ifdef DEBUG
 	// Do some error checking
 	if(!pt_ptr_) {
@@ -1825,7 +1825,7 @@ void GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test setting and retrieval of the maximization mode flag
-		boost::shared_ptr<GOptimizableEntity> p_test = this->clone<GOptimizableEntity>();
+		std::shared_ptr<GOptimizableEntity> p_test = this->clone<GOptimizableEntity>();
 
 		BOOST_CHECK_NO_THROW(p_test->setMaxMode_(true));
 		BOOST_CHECK(p_test->getMaxMode() == true);
@@ -1836,7 +1836,7 @@ void GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check setting of the dirty flag
-		boost::shared_ptr<GOptimizableEntity> p_test = this->clone<GOptimizableEntity>();
+		std::shared_ptr<GOptimizableEntity> p_test = this->clone<GOptimizableEntity>();
 
 		BOOST_CHECK_NO_THROW(p_test->setDirtyFlag(true));
 		BOOST_CHECK(p_test->isDirty() == true);
@@ -1855,7 +1855,7 @@ void GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test setting and retrieval of the surrounding optimization algorithm's current iteration
-		boost::shared_ptr<GOptimizableEntity> p_test = this->clone<GOptimizableEntity>();
+		std::shared_ptr<GOptimizableEntity> p_test = this->clone<GOptimizableEntity>();
 
 		for(boost::uint32_t i=1; i<10; i++) {
 			BOOST_CHECK_NO_THROW(p_test->setAssignedIteration(i));
@@ -1871,7 +1871,7 @@ void GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test setting and retrieval of the best known fitness so far
-		boost::shared_ptr<GOptimizableEntity> p_test = this->clone<GOptimizableEntity>();
+		std::shared_ptr<GOptimizableEntity> p_test = this->clone<GOptimizableEntity>();
 
 		for(double d=0.; d<1.; d+=0.1) {
 			BOOST_CHECK_NO_THROW(p_test->setBestKnownPrimaryFitness(boost::make_tuple(d,d)));
@@ -1887,7 +1887,7 @@ void GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test setting and retrieval of the number of consecutive stalls
-		boost::shared_ptr<GOptimizableEntity> p_test = this->clone<GOptimizableEntity>();
+		std::shared_ptr<GOptimizableEntity> p_test = this->clone<GOptimizableEntity>();
 
 		for(boost::uint32_t i=1; i<10; i++) {
 			BOOST_CHECK_NO_THROW(p_test->setNStalls(i));

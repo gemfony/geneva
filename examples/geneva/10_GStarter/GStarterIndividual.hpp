@@ -206,9 +206,9 @@ public:
 
 	   // Add the required number of GConstrainedDoubleObject objects to the individual
 	   for(std::size_t i=0; i<startValues.size(); i++) {
-	      boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr;
+	      std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr;
 	      if(0 == prod_id) { // First individual, initialization with standard values
-	         gcdo_ptr = boost::shared_ptr<GConstrainedDoubleObject> (
+	         gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject> (
                new GConstrainedDoubleObject(
                       startValues.at(i)
                       , lowerBoundaries.at(i)
@@ -216,7 +216,7 @@ public:
                 )
 	         );
 	      } else { // Random initialization for all other individuals
-            gcdo_ptr = boost::shared_ptr<GConstrainedDoubleObject> (
+            gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject> (
                new GConstrainedDoubleObject(
                       lowerBoundaries.at(i)
                       , upperBoundaries.at(i)
@@ -224,7 +224,7 @@ public:
             );
 	      }
 
-	      boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
+	      std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
 	            new GDoubleGaussAdaptor(
 	                  sigma
 	                  , sigmaSigma
@@ -273,7 +273,7 @@ public:
 };
 
 /** @brief Allows to output a GStarterIndividual or convert it to a string using boost::lexical_cast */
-std::ostream& operator<<(std::ostream&, boost::shared_ptr<GStarterIndividual>);
+std::ostream& operator<<(std::ostream&, std::shared_ptr<GStarterIndividual>);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -292,11 +292,11 @@ public:
 
 protected:
 	/** @brief Creates individuals of this type */
-	virtual boost::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
+	virtual std::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
 	/** @brief Allows to describe local configuration options in derived classes */
 	virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
 	/** @brief Allows to act on the configuration options received from the configuration file */
-	virtual void postProcess_(boost::shared_ptr<GParameterSet>&);
+	virtual void postProcess_(std::shared_ptr<GParameterSet>&);
 
 private:
 	/** @brief The default constructor. Intentionally private and undefined */

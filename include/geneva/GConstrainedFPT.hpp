@@ -467,7 +467,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that assignment of a value with operator= works both for set and unset boundaries
-			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			std::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
 
 			// Reset the boundaries so we are free to do what we want
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
@@ -494,7 +494,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that assignment of a value with setValue(val) works both for set and unset boundaries
-			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			std::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
 
 			// Reset the boundaries so we are free to do what we want
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
@@ -525,7 +525,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that simultaneous assignment of a valid value and boundaries works
-			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			std::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
 
 			// Reset the boundaries so we are free to do what we want
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
@@ -560,7 +560,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check a number of times that calls to the transfer function do not lie outside of the allowed boundaries
-			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			std::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
 
 			fp_type result = 0.;
 			for(fp_type offset = fp_type(-100); offset < fp_type(100); offset += fp_type(10)) {
@@ -589,7 +589,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test initialization with a single "fixed" value (chosen randomly in a given range)
-			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			std::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
 
 			// Assign a valid value and boundaries
 			BOOST_CHECK_NO_THROW(p_test->setValue(testVal, lowerBoundary, upperBoundary));
@@ -620,7 +620,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test multiplication with a single floating point value that won't make the internal value leave the boundaries
-			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			std::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
 
 			// Reset the boundaries so we are free to do what we want
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
@@ -661,7 +661,7 @@ public:
 
 
 		{ // Test multiplication with a single floating point value that will make the internal value leave its boundaries
-			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			std::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
 
 			// Assign boundaries and values
 			BOOST_CHECK_NO_THROW(p_test->setValue(fp_type(1), lowerBoundary, upperBoundary));
@@ -695,7 +695,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check multiplication with a random number in a wide range that might make the internal value leave its boundaries
-			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			std::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
 
 			// Assign boundaries and values
 			BOOST_CHECK_NO_THROW(p_test->setValue(fp_type(1), lowerBoundary, upperBoundary));
@@ -724,7 +724,7 @@ public:
 		{ // Check multiplication with a random number in the range [0:1[. As the value used for the
 		  // basis of this multiplication is the lower boundary, multiplication will bring the internal
 		  // value outside of the external boundaries
-			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			std::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
 
 			// Assign boundaries and values
 			BOOST_CHECK_NO_THROW(p_test->setValue(lowerBoundary, lowerBoundary, upperBoundary));
@@ -753,8 +753,8 @@ public:
 		{ // Test adding of objects with fpAdd. We try to stay inside of the value range
 			const fp_type lower = fp_type(-10000.), upper = fp_type(10000.);
 
-			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test1 = this->GObject::clone<GConstrainedFPT<fp_type> >();
-			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test2 = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			std::shared_ptr<GConstrainedFPT<fp_type> > p_test1 = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			std::shared_ptr<GConstrainedFPT<fp_type> > p_test2 = this->GObject::clone<GConstrainedFPT<fp_type> >();
 
 			// Reset the boundaries so we are free to do what we want
 			BOOST_CHECK_NO_THROW(p_test1->resetBoundaries());
@@ -781,8 +781,8 @@ public:
 		{ // Test subtraction of objects with fpSubtract. We try to stay inside of the value range
 			const fp_type lower = fp_type(-10000.), upper = fp_type(10000.);
 
-			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test1 = this->GObject::clone<GConstrainedFPT<fp_type> >();
-			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test2 = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			std::shared_ptr<GConstrainedFPT<fp_type> > p_test1 = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			std::shared_ptr<GConstrainedFPT<fp_type> > p_test2 = this->GObject::clone<GConstrainedFPT<fp_type> >();
 
 			// Reset the boundaries so we are free to do what we want
 			BOOST_CHECK_NO_THROW(p_test1->resetBoundaries());
@@ -809,8 +809,8 @@ public:
 		{ // Test random initialization, as well as adding and subtraction of random values, which may leave the value range
 			const fp_type lower = fp_type(-10000.), upper = fp_type(10000.);
 
-			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test1 = this->GObject::clone<GConstrainedFPT<fp_type> >();
-			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test2 = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			std::shared_ptr<GConstrainedFPT<fp_type> > p_test1 = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			std::shared_ptr<GConstrainedFPT<fp_type> > p_test2 = this->GObject::clone<GConstrainedFPT<fp_type> >();
 
 			// Assign a value and boundaries
 			BOOST_CHECK_NO_THROW(p_test1->setValue(fp_type(0.), lower, upper));
@@ -879,7 +879,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that assignment of a value equal to the upper boundary with setValue(val, lower, upper) throws
-			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			std::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
 
 			// Reset the boundaries so we are free to do what we want
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
@@ -891,7 +891,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that assignment of a value equal to the upper boundary with setValue() throws
-			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			std::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
 
 			// Reset the boundaries so we are free to do what we want
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
@@ -906,7 +906,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that setting an upper boundary <= lower boundary with setBoundaries(lower, upper) throws
-			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			std::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
 
 			// Reset the boundaries so we are free to do what we want
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
@@ -918,7 +918,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that setting an upper boundary <= lower boundary with setValue(val, lower, upper) throws
-			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			std::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
 
 			// Reset the boundaries so we are free to do what we want
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
@@ -930,7 +930,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that setting an upper boundary larger than the allowed value (see GConstrainedValueLimit<T>) with the setValue(val, lower, upper) function throws
-			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			std::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
 
 			// Reset the boundaries so we are free to do what we want
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
@@ -946,7 +946,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that setting a lower boundary smaller than the allowed value (see GConstrainedValueLimit<T>)  with the setValue(val, lower, upper) function throws
-			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			std::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
 
 			// Reset the boundaries so we are free to do what we want
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
@@ -962,7 +962,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that setting an upper boundary larger than the allowed value (see GConstrainedValueLimit<T>) with the setBoundaries(lower, upper) function throws
-			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			std::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
 
 			// Reset the boundaries so we are free to do what we want
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
@@ -978,7 +978,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that setting a lower boundary smaller than the allowed value (see GConstrainedValueLimit<T>) with the setBoundaries(lower, upper) function throws
-			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			std::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
 
 			// Reset the boundaries so we are free to do what we want
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());

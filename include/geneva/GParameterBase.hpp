@@ -327,7 +327,7 @@ public:
     */
    template <typename par_type>
    void add(
-      boost::shared_ptr<GParameterBase> p
+      std::shared_ptr<GParameterBase> p
       , const activityMode& am
    ) {
       glogger
@@ -342,7 +342,7 @@ public:
     */
    template <typename par_type>
    void subtract(
-      boost::shared_ptr<GParameterBase> p
+      std::shared_ptr<GParameterBase> p
       , const activityMode& am
    ) {
       glogger
@@ -377,32 +377,32 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * This function converts a GParameterBase boost::shared_ptr to the target type.  Note that this
+	 * This function converts a GParameterBase std::shared_ptr to the target type.  Note that this
 	 * template will only be accessible to the compiler if GParameterBase is a base type of load_type.
 	 *
-	 * @param load_ptr A boost::shared_ptr<load_type> to the item to be converted
+	 * @param load_ptr A std::shared_ptr<load_type> to the item to be converted
 	 * @param dummy A dummy argument needed for boost's enable_if and type traits magic
-	 * @return A boost::shared_ptr holding the converted object
+	 * @return A std::shared_ptr holding the converted object
 	 */
 	template <typename load_type>
-	boost::shared_ptr<load_type> parameterbase_cast (
-			boost::shared_ptr<GParameterBase> load_ptr
+	std::shared_ptr<load_type> parameterbase_cast (
+			std::shared_ptr<GParameterBase> load_ptr
 		  , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GParameterBase, load_type> >::type* dummy = 0
 	) const {
 #ifdef DEBUG
-		boost::shared_ptr<load_type> p = boost::dynamic_pointer_cast<load_type>(load_ptr);
+		std::shared_ptr<load_type> p = std::dynamic_pointer_cast<load_type>(load_ptr);
 		if(p) return p;
 		else {
 		   glogger
-		   << "In boost::shared_ptr<load_type> GParameterBase::parameterbase_cast<load_type>() :" << std::endl
+		   << "In std::shared_ptr<load_type> GParameterBase::parameterbase_cast<load_type>() :" << std::endl
          << "Invalid conversion with load_type = " << typeid(load_type).name() << std::endl
          << GEXCEPTION;
 
 		   // Make the compiler happy
-		   return boost::shared_ptr<load_type>();
+		   return std::shared_ptr<load_type>();
 		}
 #else
-		return boost::static_pointer_cast<load_type>(load_ptr);
+		return std::static_pointer_cast<load_type>(load_ptr);
 #endif
 	}
 
@@ -500,22 +500,22 @@ protected:
    virtual G_API_GENEVA void booleanFixedValueInit(const bool& value, const activityMode& am) BASE;
 
    /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-   virtual G_API_GENEVA void floatAdd(boost::shared_ptr<GParameterBase>, const activityMode& am) BASE;
+   virtual G_API_GENEVA void floatAdd(std::shared_ptr<GParameterBase>, const activityMode& am) BASE;
    /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-   virtual G_API_GENEVA void doubleAdd(boost::shared_ptr<GParameterBase>, const activityMode& am) BASE;
+   virtual G_API_GENEVA void doubleAdd(std::shared_ptr<GParameterBase>, const activityMode& am) BASE;
    /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-   virtual G_API_GENEVA void int32Add(boost::shared_ptr<GParameterBase>, const activityMode& am) BASE;
+   virtual G_API_GENEVA void int32Add(std::shared_ptr<GParameterBase>, const activityMode& am) BASE;
    /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-   virtual G_API_GENEVA void booleanAdd(boost::shared_ptr<GParameterBase>, const activityMode& am) BASE;
+   virtual G_API_GENEVA void booleanAdd(std::shared_ptr<GParameterBase>, const activityMode& am) BASE;
 
    /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-   virtual G_API_GENEVA void floatSubtract(boost::shared_ptr<GParameterBase>, const activityMode& am) BASE;
+   virtual G_API_GENEVA void floatSubtract(std::shared_ptr<GParameterBase>, const activityMode& am) BASE;
    /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-   virtual G_API_GENEVA void doubleSubtract(boost::shared_ptr<GParameterBase>, const activityMode& am) BASE;
+   virtual G_API_GENEVA void doubleSubtract(std::shared_ptr<GParameterBase>, const activityMode& am) BASE;
    /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-   virtual G_API_GENEVA void int32Subtract(boost::shared_ptr<GParameterBase>, const activityMode& am) BASE;
+   virtual G_API_GENEVA void int32Subtract(std::shared_ptr<GParameterBase>, const activityMode& am) BASE;
    /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-   virtual G_API_GENEVA void booleanSubtract(boost::shared_ptr<GParameterBase>, const activityMode& am) BASE;
+   virtual G_API_GENEVA void booleanSubtract(std::shared_ptr<GParameterBase>, const activityMode& am) BASE;
 
 	/***************************************************************************/
 	/** @brief Loads the data of another GObject */
@@ -1267,7 +1267,7 @@ inline  void GParameterBase::fixedValueInit<bool>(
  */
 template <>
 inline  void GParameterBase::add<float>(
-   boost::shared_ptr<GParameterBase> p
+   std::shared_ptr<GParameterBase> p
    , const activityMode& am
 ) {
    if(
@@ -1283,7 +1283,7 @@ inline  void GParameterBase::add<float>(
  */
 template <>
 inline  void GParameterBase::add<double>(
-   boost::shared_ptr<GParameterBase> p
+   std::shared_ptr<GParameterBase> p
    , const activityMode& am
 ) {
    if(
@@ -1299,7 +1299,7 @@ inline  void GParameterBase::add<double>(
  */
 template <>
 inline  void GParameterBase::add<boost::int32_t>(
-   boost::shared_ptr<GParameterBase> p
+   std::shared_ptr<GParameterBase> p
    , const activityMode& am
 ) {
    if(
@@ -1317,7 +1317,7 @@ inline  void GParameterBase::add<boost::int32_t>(
  */
 template <>
 inline  void GParameterBase::add<bool>(
-   boost::shared_ptr<GParameterBase> p
+   std::shared_ptr<GParameterBase> p
    , const activityMode& am
 ) {
    if(
@@ -1334,7 +1334,7 @@ inline  void GParameterBase::add<bool>(
  */
 template <>
 inline  void GParameterBase::subtract<float>(
-   boost::shared_ptr<GParameterBase> p
+   std::shared_ptr<GParameterBase> p
    , const activityMode& am
 ) {
    if(
@@ -1350,7 +1350,7 @@ inline  void GParameterBase::subtract<float>(
  */
 template <>
 inline  void GParameterBase::subtract<double>(
-   boost::shared_ptr<GParameterBase> p
+   std::shared_ptr<GParameterBase> p
    , const activityMode& am
 ) {
    if(
@@ -1366,7 +1366,7 @@ inline  void GParameterBase::subtract<double>(
  */
 template <>
 inline  void GParameterBase::subtract<boost::int32_t>(
-   boost::shared_ptr<GParameterBase> p
+   std::shared_ptr<GParameterBase> p
    , const activityMode& am
 ) {
    if(
@@ -1384,7 +1384,7 @@ inline  void GParameterBase::subtract<boost::int32_t>(
  */
 template <>
 inline  void GParameterBase::subtract<bool>(
-   boost::shared_ptr<GParameterBase> p
+   std::shared_ptr<GParameterBase> p
    , const activityMode& am
 ) {
    if(

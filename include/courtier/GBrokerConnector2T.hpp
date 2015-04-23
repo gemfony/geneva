@@ -186,9 +186,9 @@ public:
     * @return A boolean indicating whether all expected items have returned
     */
    bool workOn(
-         std::vector<boost::shared_ptr<processable_type> >& workItems
+         std::vector<std::shared_ptr<processable_type> >& workItems
          , std::vector<bool>& workItemPos
-         , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
+         , std::vector<std::shared_ptr<processable_type> >& oldWorkItems
          , const std::string& originator = std::string()
    ) {
       bool complete=false;
@@ -252,10 +252,10 @@ public:
     * @return A boolean indicating whether all expected items have returned
     */
    bool workOn(
-         std::vector<boost::shared_ptr<processable_type> >& workItems
+         std::vector<std::shared_ptr<processable_type> >& workItems
          , const std::size_t& start
          , const std::size_t& end
-         , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
+         , std::vector<std::shared_ptr<processable_type> >& oldWorkItems
          , const bool& removeUnprocessed = true
          , const std::string& originator = std::string()
    ) {
@@ -299,10 +299,10 @@ public:
 
       // Remove unprocessed items, if necessary
       if(!complete && removeUnprocessed) {
-         typename std::vector<boost::shared_ptr<processable_type> >::iterator item_it;
+         typename std::vector<std::shared_ptr<processable_type> >::iterator item_it;
          std::vector<bool>::iterator pos_it;
 
-         std::vector<boost::shared_ptr<processable_type> > workItems_tmp;
+         std::vector<std::shared_ptr<processable_type> > workItems_tmp;
          for(
             item_it=workItems.begin()+start, pos_it=workItemPos.begin()+start
             ; item_it!=workItems.begin()+end
@@ -347,9 +347,9 @@ public:
     * @return A boolean indicating whether all expected items have returned
     */
    bool workOn(
-         std::vector<boost::shared_ptr<processable_type> >& workItems
+         std::vector<std::shared_ptr<processable_type> >& workItems
          , const boost::tuple<std::size_t, std::size_t>& range
-         , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
+         , std::vector<std::shared_ptr<processable_type> >& oldWorkItems
          , const bool& removeUnprocessed = true
          , const std::string& originator = std::string()
    ) {
@@ -374,8 +374,8 @@ public:
     * @return A boolean indicating whether all expected items have returned
     */
    bool workOn(
-         std::vector<boost::shared_ptr<processable_type> >& workItems
-         , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
+         std::vector<std::shared_ptr<processable_type> >& workItems
+         , std::vector<std::shared_ptr<processable_type> >& oldWorkItems
          , const bool& removeUnprocessed = true
          , const std::string& originator = std::string()
    ) {
@@ -417,12 +417,12 @@ public:
 protected:
    /***************************************************************************/
    /** @brief Submits a single work item */
-   virtual void submit(boost::shared_ptr<processable_type>) = 0;
+   virtual void submit(std::shared_ptr<processable_type>) = 0;
    /** @brief Waits for work items to return */
    virtual bool waitForReturn(
-      std::vector<boost::shared_ptr<processable_type> >&
+      std::vector<std::shared_ptr<processable_type> >&
       , std::vector<bool>&
-      , std::vector<boost::shared_ptr<processable_type> >&
+      , std::vector<std::shared_ptr<processable_type> >&
    ) = 0;
 
    /***************************************************************************/
@@ -432,9 +432,9 @@ protected:
     * this function.
     */
    virtual void iterationInit(
-      std::vector<boost::shared_ptr<processable_type> >& workItems
+      std::vector<std::shared_ptr<processable_type> >& workItems
       , std::vector<bool>& workItemPos
-      , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
+      , std::vector<std::shared_ptr<processable_type> >& oldWorkItems
    ) BASE {
       // Set the start time of the new iteration
       iterationStartTime_ = boost::posix_time::microsec_clock::local_time();
@@ -447,9 +447,9 @@ protected:
     * this function.
     */
    virtual void iterationFinalize(
-      std::vector<boost::shared_ptr<processable_type> >& workItems
+      std::vector<std::shared_ptr<processable_type> >& workItems
       , std::vector<bool>& workItemPos
-      , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
+      , std::vector<std::shared_ptr<processable_type> >& oldWorkItems
    ) BASE {
       // Make a note of the time needed up to now
       boost::posix_time::time_duration iterationDuration =
@@ -474,7 +474,7 @@ protected:
          oldWorkItems.begin()
          , oldWorkItems.end()
          // , courtierPosComp()
-         , [](boost::shared_ptr<processable_type> x, boost::shared_ptr<processable_type> y) -> bool {
+         , [](std::shared_ptr<processable_type> x, std::shared_ptr<processable_type> y) -> bool {
             using namespace boost;
             return boost::get<1>(x->getCourtierId()) < boost::get<1>(y->getCourtierId());
          }
@@ -486,11 +486,11 @@ protected:
     * Submission of all work items in the list
     */
    void submitAllWorkItems (
-      std::vector<boost::shared_ptr<processable_type> >& workItems
+      std::vector<std::shared_ptr<processable_type> >& workItems
       , std::vector<bool>& workItemPos
    ) {
       // Submit work items
-      typename std::vector<boost::shared_ptr<processable_type> >::iterator it;
+      typename std::vector<std::shared_ptr<processable_type> >::iterator it;
       POSITIONTYPE pos_cnt = 0;
       for(it=workItems.begin(); it!=workItems.end(); ++it) {
          if(GBC_UNPROCESSED==workItemPos[pos_cnt]) { // is the item due to be submitted ? We only submit items that are marked as "unprocessed"
@@ -626,7 +626,7 @@ protected:
     *
     * @param w The work item to be processed
     */
-   virtual void submit(boost::shared_ptr<processable_type> w) override {
+   virtual void submit(std::shared_ptr<processable_type> w) override {
       w->process();
    }
 
@@ -636,9 +636,9 @@ protected:
     * of the submit() function.
     */
    virtual bool waitForReturn(
-      std::vector<boost::shared_ptr<processable_type> >& workItems
+      std::vector<std::shared_ptr<processable_type> >& workItems
       , std::vector<bool>& workItemPos
-      , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
+      , std::vector<std::shared_ptr<processable_type> >& oldWorkItems
    ) override {
       // Mark all positions as returned
       std::vector<bool>::iterator it;
@@ -768,7 +768,7 @@ protected:
     *
     * @param w The work item to be processed
     */
-   virtual void submit(boost::shared_ptr<processable_type> w) override {
+   virtual void submit(std::shared_ptr<processable_type> w) override {
       gtp_.async_schedule( [w]() -> bool { return w->process(); } );
    }
 
@@ -777,9 +777,9 @@ protected:
     * Waits for the thread pool to run empty.
     */
    virtual bool waitForReturn(
-      std::vector<boost::shared_ptr<processable_type> >& workItems
+      std::vector<std::shared_ptr<processable_type> >& workItems
       , std::vector<bool>& workItemPos
-      , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
+      , std::vector<std::shared_ptr<processable_type> >& oldWorkItems
    ) override {
       gtp_.wait();
 
@@ -825,7 +825,7 @@ class GBrokerConnector2T
 
    ///////////////////////////////////////////////////////////////////////
 
-   typedef boost::shared_ptr<Gem::Courtier::GBufferPortT<boost::shared_ptr<processable_type> > > GBufferPortT_ptr;
+   typedef std::shared_ptr<Gem::Courtier::GBufferPortT<std::shared_ptr<processable_type> > > GBufferPortT_ptr;
 
 public:
    /***************************************************************************/
@@ -1066,7 +1066,7 @@ public:
       // Make sure we have a valid buffer port
       if(!CurrentBufferPort_) {
          CurrentBufferPort_
-           = GBufferPortT_ptr(new Gem::Courtier::GBufferPortT<boost::shared_ptr<processable_type> >());
+           = GBufferPortT_ptr(new Gem::Courtier::GBufferPortT<std::shared_ptr<processable_type> >());
       }
 
       // Add the buffer port to the broker
@@ -1091,9 +1091,9 @@ protected:
     * Allows to perform necessary setup work for an iteration
     */
    virtual void iterationInit(
-      std::vector<boost::shared_ptr<processable_type> >& workItems
+      std::vector<std::shared_ptr<processable_type> >& workItems
       , std::vector<bool>& workItemPos
-      , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
+      , std::vector<std::shared_ptr<processable_type> >& oldWorkItems
    ) override {
       // Make sure the parent classes iterationInit function is executed first
       // This function will also update the iteration start time
@@ -1112,9 +1112,9 @@ protected:
     * Waits for all items to return or possibly until a timeout has been reached.
     */
    virtual bool waitForReturn(
-      std::vector<boost::shared_ptr<processable_type> >& workItems
+      std::vector<std::shared_ptr<processable_type> >& workItems
       , std::vector<bool>& workItemPos
-      , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
+      , std::vector<std::shared_ptr<processable_type> >& oldWorkItems
    ) {
       bool complete = false;
 
@@ -1163,7 +1163,7 @@ private:
     *
     * @param w The work item to be processed
     */
-   virtual void submit(boost::shared_ptr<processable_type> w) {
+   virtual void submit(std::shared_ptr<processable_type> w) {
 #ifdef DEBUG
       if(!w) {
          glogger
@@ -1189,9 +1189,9 @@ private:
     *
     * @return The obtained processed work item
     */
-   boost::shared_ptr<processable_type> retrieve() {
+   std::shared_ptr<processable_type> retrieve() {
       // Holds the retrieved item
-      boost::shared_ptr<processable_type> w;
+      std::shared_ptr<processable_type> w;
       CurrentBufferPort_->pop_back_processed(w);
 
       // Perform any necessary logging work
@@ -1207,11 +1207,11 @@ private:
     *
     * @return The obtained processed work item
     */
-   boost::shared_ptr<processable_type> retrieve(
+   std::shared_ptr<processable_type> retrieve(
       const boost::posix_time::time_duration& timeout
    ) {
       // Holds the retrieved item, if any
-      boost::shared_ptr<processable_type> w;
+      std::shared_ptr<processable_type> w;
 
       if(CurrentBufferPort_->pop_back_processed_bool(w, timeout)) { // We have received a valid item
          // Perform any necessary logging work
@@ -1227,11 +1227,11 @@ private:
     * incomplete (false).
     */
    bool waitForTimeOut(
-      std::vector<boost::shared_ptr<processable_type> >& workItems
+      std::vector<std::shared_ptr<processable_type> >& workItems
       , std::vector<bool>& workItemPos
-      , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
+      , std::vector<std::shared_ptr<processable_type> >& oldWorkItems
    ) {
-      boost::shared_ptr<processable_type> w;
+      std::shared_ptr<processable_type> w;
 
       // Note the current iteration for easy reference
       SUBMISSIONCOUNTERTYPE current_iteration = GBaseExecutorT<processable_type>::submission_counter_;
@@ -1294,9 +1294,9 @@ private:
     * number of times.
     */
    bool waitForTimeOutAndResubmit(
-      std::vector<boost::shared_ptr<processable_type> >& workItems
+      std::vector<std::shared_ptr<processable_type> >& workItems
       , std::vector<bool>& workItemPos
-      , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
+      , std::vector<std::shared_ptr<processable_type> >& oldWorkItems
    ) {
       bool complete=false;
       std::size_t nResubmissions = 0;
@@ -1320,9 +1320,9 @@ private:
     * of the work item vector
     */
    bool waitForFullReturn(
-      std::vector<boost::shared_ptr<processable_type> >& workItems
+      std::vector<std::shared_ptr<processable_type> >& workItems
       , std::vector<bool>& workItemPos
-      , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
+      , std::vector<std::shared_ptr<processable_type> >& oldWorkItems
    ) {
       std::size_t nReturnedCurrent = 0;
       while(
@@ -1346,11 +1346,11 @@ private:
     * @return A boolean indicating whether all work items of the current iteration were received
     */
    bool addVerifiedWorkItemAndCheckComplete (
-      boost::shared_ptr<processable_type> w
+      std::shared_ptr<processable_type> w
       , std::size_t& nReturnedCurrent
-      , std::vector<boost::shared_ptr<processable_type> >& workItems
+      , std::vector<std::shared_ptr<processable_type> >& workItems
       , std::vector<bool>& workItemPos
-      , std::vector<boost::shared_ptr<processable_type> >& oldWorkItems
+      , std::vector<std::shared_ptr<processable_type> >& oldWorkItems
    ) {
       bool complete = false;
       SUBMISSIONCOUNTERTYPE current_iteration = GBaseExecutorT<processable_type>::submission_counter_;
@@ -1387,7 +1387,7 @@ private:
    /**
     * Performs necessary logging work for each received work item, if requested
     */
-   void log(boost::shared_ptr<processable_type> w) {
+   void log(std::shared_ptr<processable_type> w) {
       // Make a note of the arrival times in logging mode
       if(doLogging_) {
          boost::tuple<SUBMISSIONCOUNTERTYPE,POSITIONTYPE> courtier_id = w->getCourtierId();

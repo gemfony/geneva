@@ -58,22 +58,22 @@ using namespace Gem::Common::Tests;
 /**
  * The global thread-safe queue
  */
-GBoundedBufferT<boost::shared_ptr<double> > buffer;
+GBoundedBufferT<std::shared_ptr<double> > buffer;
 
 /**
  * A barrier on which all threads have to wait
  */
-boost::shared_ptr<boost::barrier> all_sync_ptr;
+std::shared_ptr<boost::barrier> all_sync_ptr;
 
 /**
  * A barrier on which only producers need to wait
  */
-boost::shared_ptr<boost::barrier> producer_sync_ptr;
+std::shared_ptr<boost::barrier> producer_sync_ptr;
 
 /**
  * A barrier on which only consumers need to wait
  */
-boost::shared_ptr<boost::barrier> consumer_sync_ptr;
+std::shared_ptr<boost::barrier> consumer_sync_ptr;
 
 /**
  * A counter for dropped items inside of the producers
@@ -165,12 +165,12 @@ void producer(
 			for(std::size_t i=0; i<nItems; i++) {
 				var = gr.uniform_01<double>();
 				sum += var;
-				buffer.push_front(boost::shared_ptr<double>(new double(var)));
+				buffer.push_front(std::shared_ptr<double>(new double(var)));
 			}
 		} else { // We use a timeout for push_fronts
 			for(std::size_t i=0; i<nItems; i++) {
 				var = gr.uniform_01<double>();
-				if(buffer.push_front_bool(boost::shared_ptr<double>(new double(var)), timeout)) {
+				if(buffer.push_front_bool(std::shared_ptr<double>(new double(var)), timeout)) {
 					sum += var;
 				} else {
 					nDropped++;
@@ -183,7 +183,7 @@ void producer(
 			for(std::size_t i=0; i<nItems; i++) {
 				var = gr.uniform_01<double>();
 				sum += var;
-				buffer.push_front(boost::shared_ptr<double>(new double(var)));
+				buffer.push_front(std::shared_ptr<double>(new double(var)));
 				boost::this_thread::sleep(
 					boost::posix_time::microseconds(
 					      boost::numeric_cast<boost::posix_time::time_duration::tick_type>(
@@ -195,7 +195,7 @@ void producer(
 		} else {
 			for(std::size_t i=0; i<nItems; i++) {
 				var = gr.uniform_01<double>();
-				if(buffer.push_front_bool(boost::shared_ptr<double>(new double(var)), timeout)) {
+				if(buffer.push_front_bool(std::shared_ptr<double>(new double(var)), timeout)) {
 					sum += var;
 				} else {
 					nDropped++;
@@ -245,7 +245,7 @@ void consumer(
 	std::size_t nStalled = 0;
 	std::size_t iteration = 0;
 	std::vector<std::size_t> droppedIteration;
-	boost::shared_ptr<double> item;
+	std::shared_ptr<double> item;
 	double sum = 0.;
 	bool stopExecution = false;
 	bool maxTimeoutsReached = false;
@@ -400,9 +400,9 @@ int main(int argc, char**argv) {
 	}
 
 	// Initialize the global barrier so all threads start at a predefined time
-	all_sync_ptr = boost::shared_ptr<boost::barrier>(new boost::barrier(boost::numeric_cast<unsigned int>(nProducers + nConsumers)));
-	producer_sync_ptr = boost::shared_ptr<boost::barrier>(new boost::barrier(boost::numeric_cast<unsigned int>(nProducers)));
-	consumer_sync_ptr = boost::shared_ptr<boost::barrier>(new boost::barrier(boost::numeric_cast<unsigned int>(nConsumers)));
+	all_sync_ptr = std::shared_ptr<boost::barrier>(new boost::barrier(boost::numeric_cast<unsigned int>(nProducers + nConsumers)));
+	producer_sync_ptr = std::shared_ptr<boost::barrier>(new boost::barrier(boost::numeric_cast<unsigned int>(nProducers)));
+	consumer_sync_ptr = std::shared_ptr<boost::barrier>(new boost::barrier(boost::numeric_cast<unsigned int>(nConsumers)));
 
 	// Note the start time
 	boost::posix_time::ptime startTime = boost::posix_time::microsec_clock::local_time();

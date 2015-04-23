@@ -50,7 +50,7 @@ namespace Hap {
 
 /******************************************************************************/
 // Some typedefs for the seed manager and random factory
-typedef boost::shared_ptr<boost::thread> thread_ptr;
+typedef std::shared_ptr<boost::thread> thread_ptr;
 typedef boost::mt19937 mersenne_twister;
 // typedef boost::random_device nondet_rng;
 // typedef boost::random_device::result_type initial_seed_type;

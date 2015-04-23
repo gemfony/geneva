@@ -73,8 +73,8 @@ int main(int argc, char **argv){
 	GBooleanObject A(true), A_tmp;
 	GBooleanCollection B(NBIT), B_tmp; // B is initialized with 100 random booleans
 
-	boost::shared_ptr<GBooleanAdaptor> A_adaptor(new GBooleanAdaptor(0.1));
-	boost::shared_ptr<GBooleanAdaptor> B_adaptor(new GBooleanAdaptor(0.2));
+	std::shared_ptr<GBooleanAdaptor> A_adaptor(new GBooleanAdaptor(0.1));
+	std::shared_ptr<GBooleanAdaptor> B_adaptor(new GBooleanAdaptor(0.2));
 
 	A.addAdaptor(A_adaptor);
 	B.addAdaptor(B_adaptor);

@@ -409,7 +409,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that the assignment of different valid values in the allowed range works without boundaries
-			boost::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
+			std::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
 
 			// Reset the boundaries
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
@@ -424,7 +424,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that the assignment of different valid values in the allowed range works with boundaries
-			boost::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
+			std::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
 
 			for(int_type i=-nTests; i<nTests; i++) {
 				// Make sure we start with the maximum range
@@ -446,7 +446,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that the transfer function only returns items in the allowed value range
-			boost::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
+			std::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
 
 			for(int_type i=0; i<nTests; i++) {
 				// Make sure we start with the maximum range
@@ -471,7 +471,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test random initialization using our internal randomInit_ function, without boundaries
-			boost::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
+			std::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
 
 			// Reset the boundaries
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
@@ -483,7 +483,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test random initialization using our internal randomInit_ function, with boundaries
-			boost::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
+			std::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
 
 			for(int_type i=-nTests; i<nTests; i++) {
 				// Make sure we start with the maximum range
@@ -503,7 +503,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that setting an upper boundary larger than the allowed value (see GConstrainedValueLimitT<T>) with the setValue(val, lower, upper) function throws
-			boost::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
+			std::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
 
 			// Reset the boundaries so we are free to do what we want
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
@@ -519,7 +519,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that setting a lower boundary smaller than the allowed value (see GConstrainedValueLimitT<T>)  with the setValue(val, lower, upper) function throws
-			boost::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
+			std::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
 
 			// Reset the boundaries so we are free to do what we want
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
@@ -535,7 +535,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that setting an upper boundary larger than the allowed value (see GConstrainedValueLimitT<T>) with the setBoundaries(lower, upper) function throws
-			boost::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
+			std::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
 
 			// Reset the boundaries so we are free to do what we want
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
@@ -551,7 +551,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that setting a lower boundary smaller than the allowed value (see GConstrainedValueLimitT<T>) with the setBoundaries(lower, upper) function throws
-			boost::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
+			std::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
 
 			// Reset the boundaries so we are free to do what we want
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
@@ -567,7 +567,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test reversion of order
-			boost::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
+			std::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
 
 			// Reset the boundaries so we are free to do what we want
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());

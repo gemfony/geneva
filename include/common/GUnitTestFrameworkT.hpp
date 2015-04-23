@@ -56,20 +56,20 @@
  * This function creates a new T object. It can be specialized by the tested objects e.g. in case
  * they do not have a default constructor.
  *
- * @return A boost::shared_ptr to a newly created T object
+ * @return A std::shared_ptr to a newly created T object
  */
 template <typename T>
-boost::shared_ptr<T> TFactory_GUnitTests() {
-   boost::shared_ptr<T> p;
+std::shared_ptr<T> TFactory_GUnitTests() {
+   std::shared_ptr<T> p;
 
    try {
-      p = boost::shared_ptr<T>(new T());
+      p = std::shared_ptr<T>(new T());
    } catch (const Gem::Common::gemfony_error_condition& g) {
       // Re-throw
       throw g;
    } catch (...) {
       glogger
-      << "In boost::shared_ptr<T> TFactory_GUnitTests(): Error!" << std::endl
+      << "In std::shared_ptr<T> TFactory_GUnitTests(): Error!" << std::endl
       << "Caught unknown exception" << std::endl
       << GEXCEPTION;
    }

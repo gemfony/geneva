@@ -63,8 +63,8 @@ GTestIndividual2::GTestIndividual2(const std::size_t& nObjects, const PERFOBJECT
 	case PERFGDOUBLEOBJECT:
 	{
 		for(std::size_t i=0; i<nObjects; i++) {
-			boost::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject(0.));
-			boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1.,1.));
+			std::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject(0.));
+			std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1.,1.));
 			gdo_ptr->addAdaptor(gdga_ptr);
 			this->push_back(gdo_ptr);
 		}
@@ -74,8 +74,8 @@ GTestIndividual2::GTestIndividual2(const std::size_t& nObjects, const PERFOBJECT
 	case PERFGCONSTRDOUBLEOBJECT:
 	{
 		for(std::size_t i=0; i<nObjects; i++) {
-			boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(0.,-10.,10.));
-			boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1.,1.));
+			std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(0.,-10.,10.));
+			std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1.,1.));
 			gcdo_ptr->addAdaptor(gdga_ptr);
 			this->push_back(gcdo_ptr);
 		}
@@ -84,18 +84,18 @@ GTestIndividual2::GTestIndividual2(const std::size_t& nObjects, const PERFOBJECT
 
 	case PERFGCONSTRAINEDDOUBLEOBJECTCOLLECTION:
 	{
-		boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(0.,-10.,10.));
-		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1.,1.));
+		std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(0.,-10.,10.));
+		std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1.,1.));
 		gcdo_ptr->addAdaptor(gdga_ptr);
-		boost::shared_ptr<GConstrainedDoubleObjectCollection> gcdc_ptr(new GConstrainedDoubleObjectCollection(nObjects,gcdo_ptr));
+		std::shared_ptr<GConstrainedDoubleObjectCollection> gcdc_ptr(new GConstrainedDoubleObjectCollection(nObjects,gcdo_ptr));
 		this->push_back(gcdc_ptr);
 		break;
 	}
 
 	case PERFGDOUBLECOLLECTION:
 	{
-		boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(nObjects,0.,-10.,10.));
-		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1.,1.));
+		std::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(nObjects,0.,-10.,10.));
+		std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1.,1.));
 		gdc_ptr->addAdaptor(gdga_ptr);
 		this->push_back(gdc_ptr);
 		break;
@@ -103,8 +103,8 @@ GTestIndividual2::GTestIndividual2(const std::size_t& nObjects, const PERFOBJECT
 
 	case PERFGCONSTRAINEDDOUBLECOLLECTION:
 	{
-		boost::shared_ptr<GConstrainedDoubleCollection> gcdc_ptr(new GConstrainedDoubleCollection(nObjects,0.,-10.,10.));
-		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1.,1.));
+		std::shared_ptr<GConstrainedDoubleCollection> gcdc_ptr(new GConstrainedDoubleCollection(nObjects,0.,-10.,10.));
+		std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1.,1.));
 		gcdc_ptr->addAdaptor(gdga_ptr);
 		this->push_back(gcdc_ptr);
 		break;

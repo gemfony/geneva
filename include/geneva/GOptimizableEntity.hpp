@@ -312,10 +312,10 @@ public:
 	 * is a derivative of GPersonalityTraits, thanks to the magic of Boost's
 	 * enable_if and Type Traits libraries.
 	 *
-	 * @return A boost::shared_ptr converted to the desired target type
+	 * @return A std::shared_ptr converted to the desired target type
 	 */
 	template <typename personality_type>
-	boost::shared_ptr<personality_type> getPersonalityTraits(
+	std::shared_ptr<personality_type> getPersonalityTraits(
 			typename boost::enable_if<boost::is_base_of<GPersonalityTraits, personality_type> >::type* dummy = 0
 	) {
 #ifdef DEBUG
@@ -327,7 +327,7 @@ public:
          << GEXCEPTION;
 
          // Make the compiler happy
-         return boost::shared_ptr<personality_type>();
+         return std::shared_ptr<personality_type>();
       }
 #endif /* DEBUG */
 
@@ -343,11 +343,11 @@ public:
 
 	/***************************************************************************/
 	/** @brief This function returns the current personality traits base pointer */
-	G_API_GENEVA boost::shared_ptr<GPersonalityTraits> getPersonalityTraits();
+	G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits();
 
 	/** @brief Sets the current personality of this individual */
 	G_API_GENEVA void setPersonality(
-	      boost::shared_ptr<GPersonalityTraits>
+	      std::shared_ptr<GPersonalityTraits>
 	);
 	/** @brief Resets the current personality to PERSONALITY_NONE */
 	G_API_GENEVA void resetPersonality();
@@ -368,7 +368,7 @@ public:
    /** @brief Checks whether all constraints were fulfilled */
    G_API_GENEVA bool constraintsFulfilled() const;
    /** @brief Allows to register a constraint with this individual */
-   G_API_GENEVA void registerConstraint(boost::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity> >);
+   G_API_GENEVA void registerConstraint(std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity> >);
 
    /** @brief Allows to set the policy to use in case this individual represents an invalid solution */
    G_API_GENEVA void setEvaluationPolicy(evaluationPolicy evalPolicy);
@@ -406,9 +406,9 @@ public:
    virtual G_API_GENEVA bool isBetter(double, const double&) const BASE;
 
    /** @brief Checks whether this object is better than the argument, depending on the maxMode */
-   G_API_GENEVA bool isBetterThan(boost::shared_ptr<GOptimizableEntity>) const;
+   G_API_GENEVA bool isBetterThan(std::shared_ptr<GOptimizableEntity>) const;
    /** @brief Checks whether this object is worse than the argument, depending on the maxMode */
-   G_API_GENEVA bool isWorseThan(boost::shared_ptr<GOptimizableEntity>) const;
+   G_API_GENEVA bool isWorseThan(std::shared_ptr<GOptimizableEntity>) const;
 
 protected:
 	/***************************************************************************/
@@ -513,7 +513,7 @@ private:
    /** @brief Indicates how valid a given solution is */
    double validityLevel_;
    /** @brief Holds the actual personality information */
-   boost::shared_ptr<GPersonalityTraits> pt_ptr_;
+   std::shared_ptr<GPersonalityTraits> pt_ptr_;
 
    /** @brief Specifies what to do when the individual is marked as invalid */
    evaluationPolicy evalPolicy_;
@@ -523,7 +523,7 @@ private:
    double barrier_;
 
    /** @brief A constraint-check to be applied to one or more components of this individual */
-   boost::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity> > individualConstraint_;
+   std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity> > individualConstraint_;
 
    std::size_t maxUnsuccessfulAdaptions_; ///< The maximum number of calls to customAdaptions() in a row without actual modifications
    std::size_t maxRetriesUntilValid_; ///< The maximum number an adaption of an individual should be performed until a valid parameter set was found

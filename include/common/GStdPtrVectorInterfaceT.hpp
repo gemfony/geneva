@@ -82,7 +82,7 @@ namespace Common {
 /******************************************************************************/
 /**
  * This class implements the most important functions of the std::vector
- * class. It is intended to hold boost::shared_ptr smart pointers. Hence
+ * class. It is intended to hold std::shared_ptr smart pointers. Hence
  * special implementations of some functions are needed. Furthermore,
  * using this class prevents us from having to derive directly from a
  * std::vector, which has a non-virtual destructor. Note that we assume here
@@ -136,7 +136,7 @@ public:
 	 * @param cp A constant reference to another GStdPtrVectorInterfaceT object
 	 */
     GStdPtrVectorInterfaceT(const GStdPtrVectorInterfaceT<T, B>& cp) {
-		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
+		typename std::vector<std::shared_ptr<T> >::const_iterator cp_it;
 		for(cp_it=cp.data.begin(); cp_it!=cp.data.end(); ++cp_it) {
 			data.push_back((*cp_it)->T::template clone<T>());
 		}
@@ -145,7 +145,7 @@ public:
 	/***************************************************************************/
 	/**
 	 * The destructor. Destruction of the objects will be taken care of
-	 * by boost::shared_ptr<T>.
+	 * by std::shared_ptr<T>.
 	 */
 	virtual ~GStdPtrVectorInterfaceT() {
 		data.clear();
@@ -165,15 +165,15 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Assignment of a std::vector<boost::shared_ptr<T> > . As the vector contains smart
+	 * Assignment of a std::vector<std::shared_ptr<T> > . As the vector contains smart
 	 * pointers, we cannot just copy the pointers themselves but need to copy their content.
 	 *
-	 * @param cp A constant reference to another std::vector<boost::shared_ptr<T> >
+	 * @param cp A constant reference to another std::vector<std::shared_ptr<T> >
 	 * @return The argument of this function
 	 */
-	const std::vector<boost::shared_ptr<T> >& operator=(const std::vector<boost::shared_ptr<T> >& cp) {
-		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
-		typename std::vector<boost::shared_ptr<T> >::iterator it;
+	const std::vector<std::shared_ptr<T> >& operator=(const std::vector<std::shared_ptr<T> >& cp) {
+		typename std::vector<std::shared_ptr<T> >::const_iterator cp_it;
+		typename std::vector<std::shared_ptr<T> >::iterator it;
 
 		std::size_t localSize = data.size();
 		std::size_t cpSize = cp.size();
@@ -228,17 +228,17 @@ public:
 
 	/***************************************************************************/
 	// Typedefs
-	typedef typename std::vector<boost::shared_ptr<T> >::value_type value_type;
-	typedef typename std::vector<boost::shared_ptr<T> >::reference reference;
-	typedef typename std::vector<boost::shared_ptr<T> >::const_reference const_reference;
+	typedef typename std::vector<std::shared_ptr<T> >::value_type value_type;
+	typedef typename std::vector<std::shared_ptr<T> >::reference reference;
+	typedef typename std::vector<std::shared_ptr<T> >::const_reference const_reference;
 
-	typedef typename std::vector<boost::shared_ptr<T> >::iterator iterator;
-	typedef typename std::vector<boost::shared_ptr<T> >::const_iterator const_iterator;
-	typedef typename std::vector<boost::shared_ptr<T> >::reverse_iterator reverse_iterator;
-	typedef typename std::vector<boost::shared_ptr<T> >::const_reverse_iterator const_reverse_iterator;
+	typedef typename std::vector<std::shared_ptr<T> >::iterator iterator;
+	typedef typename std::vector<std::shared_ptr<T> >::const_iterator const_iterator;
+	typedef typename std::vector<std::shared_ptr<T> >::reverse_iterator reverse_iterator;
+	typedef typename std::vector<std::shared_ptr<T> >::const_reverse_iterator const_reverse_iterator;
 
-	typedef typename std::vector<boost::shared_ptr<T> >::size_type size_type;
-	typedef typename std::vector<boost::shared_ptr<T> >::difference_type difference_type;
+	typedef typename std::vector<std::shared_ptr<T> >::size_type size_type;
+	typedef typename std::vector<std::shared_ptr<T> >::difference_type difference_type;
 
 	/***************************************************************************/
 	// Non modifying access
@@ -259,7 +259,7 @@ public:
 	 */
 	template <typename item_type>
 	size_type count(
-      const boost::shared_ptr<item_type>& item
+      const std::shared_ptr<item_type>& item
       , typename boost::enable_if<boost::is_base_of<T, item_type> >::type* dummy = 0
    ) const {
 		if(!item) { // Check that item actually contains something useful
@@ -272,11 +272,11 @@ public:
       return std::count_if(
          data.begin()
          , data.end()
-         , [&item](const boost::shared_ptr<T>& cont_item) -> bool {
+         , [&item](const std::shared_ptr<T>& cont_item) -> bool {
             bool result = false;
 #ifdef DEBUG
             try {
-               result = (*item == *(boost::dynamic_pointer_cast<item_type>(cont_item)));
+               result = (*item == *(std::dynamic_pointer_cast<item_type>(cont_item)));
             }
             catch(...) {
                glogger
@@ -284,7 +284,7 @@ public:
                << GEXCEPTION;
             }
 #else
-            result = (*item == *(boost::static_pointer_cast<item_type>(cont_item)));
+            result = (*item == *(std::static_pointer_cast<item_type>(cont_item)));
 #endif
             return result;
          }
@@ -305,7 +305,7 @@ public:
 	 */
 	template <typename item_type>
 	const_iterator find(
-      const boost::shared_ptr<item_type>& item
+      const std::shared_ptr<item_type>& item
       , typename boost::enable_if<boost::is_base_of<T, item_type> >::type* dummy = 0
    ) const {
 		if(!item) { // Check that item actually contains something useful
@@ -318,18 +318,18 @@ public:
 		return std::find_if(
          data.begin()
          , data.end()
-         , [&item](const boost::shared_ptr<T>& cont_item) -> bool {
+         , [&item](const std::shared_ptr<T>& cont_item) -> bool {
 		      bool result = false;
 #ifdef DEBUG
             try {
-               result = (*item == *(boost::dynamic_pointer_cast<item_type>(cont_item)));
+               result = (*item == *(std::dynamic_pointer_cast<item_type>(cont_item)));
             } catch(...) {
                glogger
                << "Conversion error in GStdPtrVectorInterfaceT::find()" << std::endl
                << GEXCEPTION;
             }
 #else
-            result = (*item == *(boost::static_pointer_cast<item_type>(cont_item)));
+            result = (*item == *(std::static_pointer_cast<item_type>(cont_item)));
 #endif
             return result;
 		   }
@@ -347,7 +347,7 @@ public:
 	 * Clones an object at a given position and convert it to a given target type
 	 */
 	template <typename target_type>
-	boost::shared_ptr<target_type> clone_at(std::size_t pos) const {
+	std::shared_ptr<target_type> clone_at(std::size_t pos) const {
 		return (data.at(pos))->T::template clone<target_type>();
 	}
 
@@ -355,7 +355,7 @@ public:
 	// Modifying functions
 
 	// Exchange of two data sets
-	void swap(std::vector<boost::shared_ptr<T> >& cont) { data.swap(cont); } // not tested -- trivial mapping
+	void swap(std::vector<std::shared_ptr<T> >& cont) { data.swap(cont); } // not tested -- trivial mapping
 
 	// Access to elements (unchecked / checked)
 	reference operator[](std::size_t pos) { return data[pos]; } // not tested -- trivial mapping
@@ -394,7 +394,7 @@ public:
 	 * @param pos The position where the item should be inserted
 	 * @param item_ptr The item to be inserted into the collection
 	 */
-	iterator insert(iterator pos, boost::shared_ptr<T> item_ptr) {
+	iterator insert(iterator pos, std::shared_ptr<T> item_ptr) {
 		return this->insert_noclone(pos, item_ptr);
 	}
 
@@ -412,7 +412,7 @@ public:
 	 * @param pos The position where the item should be inserted
 	 * @param item_ptr The item to be inserted into the collection
 	 */
-	iterator insert_noclone(iterator pos, boost::shared_ptr<T> item_ptr) {
+	iterator insert_noclone(iterator pos, std::shared_ptr<T> item_ptr) {
 		if(!item_ptr) { // Check that item actually contains something useful
 		   glogger
 		   << "In GParameterTCollectionT<T>::insert_noclone(pos, item_ptr):"
@@ -438,7 +438,7 @@ public:
 	 * @param pos The position where the item should be inserted
 	 * @param item_ptr The item to be inserted into the collection
 	 */
-	iterator insert_clone(iterator pos, boost::shared_ptr<T> item_ptr) {
+	iterator insert_clone(iterator pos, std::shared_ptr<T> item_ptr) {
 		if(!item_ptr) { // Check that item actually contains something useful
 		   glogger
 		   << "In GParameterTCollectionT<T>::insert_clone(pos, item_ptr):"
@@ -464,7 +464,7 @@ public:
 	 * @param amount The amount of items to be inserted
 	 * @param item_ptr The item to be inserted into the collection
 	 */
-	void insert(iterator pos, size_type amount, boost::shared_ptr<T> item_ptr) {
+	void insert(iterator pos, size_type amount, std::shared_ptr<T> item_ptr) {
 		this->insert_clone(pos, amount, item_ptr);
 	}
 
@@ -481,7 +481,7 @@ public:
 	 * @param amount The amount of items to be inserted
 	 * @param item_ptr The item to be inserted into the collection
 	 */
-	void insert_clone(iterator pos, size_type amount, boost::shared_ptr<T> item_ptr) {
+	void insert_clone(iterator pos, size_type amount, std::shared_ptr<T> item_ptr) {
 		if(!item_ptr) { // Check that item actually contains something useful
 		   glogger
 		   << "In GParameterTCollectionT<T>::insert_clone(pos, amount, item):" << std::endl
@@ -512,7 +512,7 @@ public:
 	 * @param amount The amount of items to be inserted
 	 * @param item_ptr The item to be inserted into the collection
 	 */
-	void insert_noclone(iterator pos, size_type amount, boost::shared_ptr<T> item_ptr) {
+	void insert_noclone(iterator pos, size_type amount, std::shared_ptr<T> item_ptr) {
 		if(!item_ptr) { // Check that item actually contains something useful
 		   glogger
 		   << "In GParameterTCollectionT<T>::insert_noclone(pos, amount, item):" << std::endl
@@ -543,7 +543,7 @@ public:
 	 *
 	 * @param item_ptr The item to be appended to the collection
 	 */
-	void push_back(boost::shared_ptr<T> item_ptr){
+	void push_back(std::shared_ptr<T> item_ptr){
 		this->push_back_noclone(item_ptr);
 	}
 
@@ -560,7 +560,7 @@ public:
 	 *
 	 * @param item_ptr The item to be appended to the collection
 	 */
-	void push_back_noclone(boost::shared_ptr<T> item_ptr){
+	void push_back_noclone(std::shared_ptr<T> item_ptr){
 		if(!item_ptr) { // Check that item actually contains something useful
 		   glogger
 		   << "In GParameterTCollectionT<T>::push_back(item):" << std::endl
@@ -585,7 +585,7 @@ public:
 	 *
 	 * @param item_ptr The item to be appended to the collection
 	 */
-	void push_back_clone(boost::shared_ptr<T> item_ptr){
+	void push_back_clone(std::shared_ptr<T> item_ptr){
 		if(!item_ptr) { // Check that item actually contains something useful
 		   glogger
 		   << "In GStdPtrVectorInterface<T>::push_back_clone(item):" << std::endl
@@ -641,7 +641,7 @@ public:
 	 * @param amount The new desired size of the vector
 	 * @param item An item that should be used for initialization of new items, if any
 	 */
-	void resize(size_type amount, boost::shared_ptr<T> item_ptr) {
+	void resize(size_type amount, std::shared_ptr<T> item_ptr) {
 		resize_clone(amount, item_ptr);
 	}
 
@@ -661,7 +661,7 @@ public:
 	 * @param amount The new desired size of the vector
 	 * @param item An item that should be used for initialization of new items, if any
 	 */
-	void resize_noclone(size_type amount, boost::shared_ptr<T> item_ptr) {
+	void resize_noclone(size_type amount, std::shared_ptr<T> item_ptr) {
 		std::size_t dataSize = data.size();
 
 		if(amount < dataSize)
@@ -700,7 +700,7 @@ public:
 	 * @param amount The new desired size of the vector
 	 * @param item An item that should be used for initialization of new items, if any
 	 */
-	void resize_clone(size_type amount, boost::shared_ptr<T> item_ptr) {
+	void resize_clone(size_type amount, std::shared_ptr<T> item_ptr) {
 		std::size_t dataSize = data.size();
 
 		if(amount < dataSize)
@@ -738,7 +738,7 @@ public:
 	      data.resize(amount);
 	   } else if(amount > dataSize) { // Add empty smart pointers
          for(std::size_t i=dataSize; i<amount; i++) {
-            data.push_back(boost::shared_ptr<T>());
+            data.push_back(std::shared_ptr<T>());
          }
 	   }
 	}
@@ -754,9 +754,9 @@ public:
 	 *
 	 * @param cp A reference to a vector that will hold a copy of our local data vector
 	 */
-	void getDataCopy(std::vector<boost::shared_ptr<T> >& cp) const {
+	void getDataCopy(std::vector<std::shared_ptr<T> >& cp) const {
 		cp.clear();
-		typename std::vector<boost::shared_ptr<T> >::const_iterator it;
+		typename std::vector<std::shared_ptr<T> >::const_iterator it;
 		for(it=data.begin(); it!= data.end(); ++it) {
 			cp.push_back((*it)->T::template clone<T>());
 		}
@@ -820,10 +820,10 @@ public:
 	 * @param target A vector to which pointers with the derived type are attached
 	 */
 	template <typename derivedType>
-	void attachViewTo(std::vector<boost::shared_ptr<derivedType> >& target) {
-		typename std::vector<boost::shared_ptr<T> >::iterator it;
+	void attachViewTo(std::vector<std::shared_ptr<derivedType> >& target) {
+		typename std::vector<std::shared_ptr<T> >::iterator it;
 		for(it = data.begin(); it!=data.end(); ++it) {
-			boost::shared_ptr<derivedType> p = boost::dynamic_pointer_cast<derivedType>(*it);
+			std::shared_ptr<derivedType> p = std::dynamic_pointer_cast<derivedType>(*it);
 			if(p) {	target.push_back(p); }
 		}
 	}
@@ -836,9 +836,9 @@ public:
 	class conversion_iterator:
 		public boost::iterator_facade<
 		conversion_iterator<derivedType>
-		, boost::shared_ptr<T>
+		, std::shared_ptr<T>
 		, boost::forward_traversal_tag
-		, boost::shared_ptr<derivedType>
+		, std::shared_ptr<derivedType>
 		>
 	{
 	public:
@@ -849,7 +849,7 @@ public:
 		 *
 		 * @param end The end of the iteration sequence
 		 */
-	   conversion_iterator(typename std::vector<boost::shared_ptr<T> >::iterator const& end)
+	   conversion_iterator(typename std::vector<std::shared_ptr<T> >::iterator const& end)
 			:end_(end)
 		 { /* nothing */ }
 
@@ -859,10 +859,10 @@ public:
 		 *
 		 * @param current The value to assign to this iterator
 		 */
-	   void operator=(typename std::vector<boost::shared_ptr<T> >::iterator const& current) {
+	   void operator=(typename std::vector<std::shared_ptr<T> >::iterator const& current) {
 			current_ = current;
 			// Skip to first "good" entry
-			while(current_ != end_ && !(p=boost::dynamic_pointer_cast<derivedType>(*current_))) {
+			while(current_ != end_ && !(p=std::dynamic_pointer_cast<derivedType>(*current_))) {
 				++current_;
 			}
 		}
@@ -874,7 +874,7 @@ public:
 		 * @param other The iterator to check for inequality
 		 * @return A boolean indicating whether this iterator's value is inequal with the other iterator
 		 */
-	   bool operator!=(typename std::vector<boost::shared_ptr<T> >::iterator const& other) const {
+	   bool operator!=(typename std::vector<std::shared_ptr<T> >::iterator const& other) const {
 			return current_ != other;
 		}
 
@@ -887,7 +887,7 @@ public:
 		 *
 		 * @param end The new end of the sequence
 		 */
-	   void resetEndPosition(typename std::vector<boost::shared_ptr<T> >::iterator const& end) {
+	   void resetEndPosition(typename std::vector<std::shared_ptr<T> >::iterator const& end) {
 			end_ = end;
 		}
 
@@ -906,9 +906,9 @@ public:
 		/**
 		 * This is a standard function required by boost's iterator_facade class.
 		 *
-		 * @return A boost::shared_ptr holding the derived object
+		 * @return A std::shared_ptr holding the derived object
 		 */
-		boost::shared_ptr<derivedType> dereference() const {
+		std::shared_ptr<derivedType> dereference() const {
 #ifdef DEBUG
 			if(current_ == end_) {
 			   glogger
@@ -923,7 +923,7 @@ public:
 			   << "In conversion_iterator::dereference(): Error: empty pointer" << std::endl
 			   << GEXCEPTION;
 
-			   return boost::shared_ptr<derivedType>(); // Make the compiler happy / empty pointer
+			   return std::shared_ptr<derivedType>(); // Make the compiler happy / empty pointer
 			}
 #else
 			return p;
@@ -937,7 +937,7 @@ public:
 		 * @param other The item that should be checked for equality
 		 * @return A boolean indicating whether equality was found
 		 */
-		bool equal(typename std::vector<boost::shared_ptr<T> >::iterator const& other) const {
+		bool equal(typename std::vector<std::shared_ptr<T> >::iterator const& other) const {
 			return current_ == other;
 		}
 
@@ -949,19 +949,19 @@ public:
 		void increment() {
 			while (current_ != end_) {
 				++current_;
-				if(current_!=end_ && (p = boost::dynamic_pointer_cast<derivedType>(*current_))) break;
+				if(current_!=end_ && (p = std::dynamic_pointer_cast<derivedType>(*current_))) break;
 			}
 		}
 
 		/************************************************************************/
-		typename std::vector<boost::shared_ptr<T> >::iterator current_; ///< Marks the current position in the iteration sequence
-		typename std::vector<boost::shared_ptr<T> >::iterator end_; ///< Marks the end of the iteration sequence
+		typename std::vector<std::shared_ptr<T> >::iterator current_; ///< Marks the current position in the iteration sequence
+		typename std::vector<std::shared_ptr<T> >::iterator end_; ///< Marks the end of the iteration sequence
 
-		boost::shared_ptr<derivedType> p; ///< Temporary which holds the current valid pointer
+		std::shared_ptr<derivedType> p; ///< Temporary which holds the current valid pointer
 	};
 
 protected:
-	std::vector<boost::shared_ptr<T> > data;
+	std::vector<std::shared_ptr<T> > data;
 
 	/** @brief Intentionally make this object purely virtual, for performance reasons */
 	virtual void dummyFunction() = 0;
@@ -973,9 +973,9 @@ private:
 	/** @brief Intentionally left undefined */
 	bool operator!=(const GStdPtrVectorInterfaceT<T, B>&) const;
 	/** @brief Intentionally left undefined */
-	bool operator==(const std::vector<boost::shared_ptr<T> >&) const;
+	bool operator==(const std::vector<std::shared_ptr<T> >&) const;
 	/** @brief Intentionally left undefined */
-	bool operator!=(const std::vector<boost::shared_ptr<T> >&) const;
+	bool operator!=(const std::vector<std::shared_ptr<T> >&) const;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

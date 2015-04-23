@@ -39,6 +39,7 @@
 #include <string>
 #include <sstream>
 #include <functional>
+#include <memory>
 
 // Boost headers go here
 
@@ -167,8 +168,8 @@ public:
     * it returns an empty smart pointer, so that consumers without the need for
     * clients do not need to re-implement this function.
     */
-   virtual boost::shared_ptr<GBaseClientT<pl_type> > getClient() const {
-      return boost::shared_ptr<GBaseClientT<pl_type> >();
+   virtual std::shared_ptr<GBaseClientT<pl_type> > getClient() const {
+      return std::shared_ptr<GBaseClientT<pl_type> >();
    }
 
    /***************************************************************************/

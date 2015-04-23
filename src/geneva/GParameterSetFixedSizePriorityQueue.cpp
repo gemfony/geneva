@@ -107,8 +107,8 @@ void GParameterSetFixedSizePriorityQueue::load(const Gem::Common::GFixedSizePrio
 /**
  * Creates a deep clone of this object
  */
-boost::shared_ptr<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> > GParameterSetFixedSizePriorityQueue::clone() const {
-   return boost::shared_ptr<GParameterSetFixedSizePriorityQueue>(new GParameterSetFixedSizePriorityQueue(*this));
+std::shared_ptr<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> > GParameterSetFixedSizePriorityQueue::clone() const {
+   return std::shared_ptr<GParameterSetFixedSizePriorityQueue>(new GParameterSetFixedSizePriorityQueue(*this));
 }
 
 /******************************************************************************/
@@ -117,7 +117,7 @@ boost::shared_ptr<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> > GParame
  */
 bool GParameterSetFixedSizePriorityQueue::allClean(std::size_t& pos) const {
    pos = 0;
-   std::deque<boost::shared_ptr<GParameterSet> >::const_iterator cit;
+   std::deque<std::shared_ptr<GParameterSet> >::const_iterator cit;
    for(cit=data_.begin(); cit!=data_.end(); ++cit) {
       if(true == (*cit)->isDirty()) {
          pos = std::distance(data_.begin(), cit);
@@ -134,7 +134,7 @@ bool GParameterSetFixedSizePriorityQueue::allClean(std::size_t& pos) const {
  */
 std::string GParameterSetFixedSizePriorityQueue::getCleanStatus() const {
    std::ostringstream oss;
-   std::deque<boost::shared_ptr<GParameterSet> >::const_iterator cit;
+   std::deque<std::shared_ptr<GParameterSet> >::const_iterator cit;
    for(cit=data_.begin(); cit!=data_.end(); ++cit) {
       oss << "(" << std::distance(data_.begin(), cit) << ", " << ((*cit)->isDirty()?"d":"c") << ") ";
    }
@@ -149,7 +149,7 @@ std::string GParameterSetFixedSizePriorityQueue::getCleanStatus() const {
  * uses the primary evaluation criterion only.
  */
 double GParameterSetFixedSizePriorityQueue::evaluation(
-   const boost::shared_ptr<GParameterSet>& item
+   const std::shared_ptr<GParameterSet>& item
 ) const {
    return item->minOnly_fitness();
 }
@@ -160,7 +160,7 @@ double GParameterSetFixedSizePriorityQueue::evaluation(
  * in the priority queue.
  */
 std::string GParameterSetFixedSizePriorityQueue::id(
-   const boost::shared_ptr<GParameterSet>& item
+   const std::shared_ptr<GParameterSet>& item
 ) const {
    return item->getCurrentEvaluationID();
 }
