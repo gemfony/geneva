@@ -49,7 +49,6 @@
 
 // Boost headers go here
 #include <boost/lexical_cast.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/asio.hpp>
 
 #ifndef GASIOHELPERFUNCTIONS_HPP_

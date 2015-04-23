@@ -37,7 +37,6 @@
 
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 #include <boost/date_time.hpp>
 

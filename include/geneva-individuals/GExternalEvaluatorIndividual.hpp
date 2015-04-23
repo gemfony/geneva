@@ -43,7 +43,6 @@
 #include <string>
 
 // Boost header files go here
-#include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/optional.hpp>

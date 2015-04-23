@@ -44,7 +44,6 @@
 // Boost header files go here
 
 #include <boost/test/unit_test.hpp>
-#include <boost/shared_ptr.hpp>
 
 #ifndef GBROKEREA_TEST_HPP_
 #define GBROKEREA_TEST_HPP_

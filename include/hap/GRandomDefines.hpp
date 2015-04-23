@@ -39,7 +39,6 @@
 #include <cstdlib>
 
 // Boost includes go here
-#include <boost/shared_ptr.hpp>
 #include <boost/random.hpp>
 
 #ifndef GRANDOMDEFINES_HPP_

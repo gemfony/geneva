@@ -45,7 +45,6 @@
 #include <algorithm> // for std::sort
 
 // Boost header files go here
-#include <boost/shared_ptr.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/algorithm/string/trim.hpp>

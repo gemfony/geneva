@@ -42,7 +42,6 @@
 #include <vector>
 
 // Boost header files go here
-#include <boost/shared_ptr.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/date_time.hpp>
 #include <boost/date_time/posix_time/time_serialize.hpp>

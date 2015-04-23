@@ -38,7 +38,6 @@ using boost::unit_test_framework::test_suite;
 using namespace boost::unit_test;
 
 // Boost headers go here
-#include <boost/shared_ptr.hpp>
 
 // This file holds the actual random tests
 #include "GRandomTestHeaders/GRandom_test.hpp"

@@ -42,7 +42,6 @@
 #include <boost/date_time.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
 
 #ifndef GOPTIMIZATIONALGORITHMFACTORYT_HPP_
 #define GOPTIMIZATIONALGORITHMFACTORYT_HPP_

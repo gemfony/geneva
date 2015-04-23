@@ -53,7 +53,6 @@
 #include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/include/phoenix_stl.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/utility.hpp>
 #include <boost/variant.hpp>
 #include <boost/cstdint.hpp>

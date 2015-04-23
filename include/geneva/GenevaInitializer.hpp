@@ -39,7 +39,6 @@
 #include <exception>
 
 // Boost header files go here
-#include <boost/shared_ptr.hpp>
 
 #ifndef INCLUDE_GENEVA_GENEVA_HPP_
 #define INCLUDE_GENEVA_GENEVA_HPP_

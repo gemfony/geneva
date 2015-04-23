@@ -37,7 +37,6 @@
 #include <iostream>
 
 // Boost headers go here
-#include <boost/shared_ptr.hpp>
 #include <boost/math/constants/constants.hpp>
 
 // Geneva headers go here

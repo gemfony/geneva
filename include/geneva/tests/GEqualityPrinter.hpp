@@ -53,7 +53,6 @@
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/optional.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/utility.hpp>
 

@@ -38,7 +38,6 @@
 
 // Boost headers go here
 #include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
 
 // Geneva headers go here
 #include "common/GLogger.hpp"

@@ -35,7 +35,6 @@
 #include <vector>
 #include <functional>
 
-#include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
 #include "courtier/GCourtierEnums.hpp"

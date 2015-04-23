@@ -39,7 +39,6 @@
 #include <iostream>
 
 // Boost header files go here
-#include <boost/shared_ptr.hpp>
 
 #ifndef GINDIVIDUALSTANDARDCONSUMERS_HPP_
 #define GINDIVIDUALSTANDARDCONSUMERS_HPP_

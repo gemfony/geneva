@@ -51,7 +51,6 @@
 #include <boost/cstdint.hpp>
 #include <boost/cast.hpp>
 #include <boost/random.hpp>
-#include <boost/shared_ptr.hpp>
 
 // Geneva header files
 #include "hap/GRandomT.hpp"

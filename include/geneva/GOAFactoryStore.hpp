@@ -38,7 +38,6 @@
 // Standard header files go here
 
 // Boost header files go here
-#include <boost/shared_ptr.hpp>
 
 #ifndef GOAFACTORYSTORE_HPP_
 #define GOAFACTORYSTORE_HPP_

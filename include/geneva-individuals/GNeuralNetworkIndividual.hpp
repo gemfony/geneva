@@ -43,7 +43,6 @@
 #include <fstream>
 
 // Boost header files go here
-#include <boost/shared_ptr.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>

@@ -44,7 +44,6 @@
 #include <boost/filesystem/fstream.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
 
 // Geneva header files go here
 #include "geneva/GBooleanObject.hpp"
