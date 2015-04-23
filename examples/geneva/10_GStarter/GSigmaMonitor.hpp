@@ -40,7 +40,6 @@
 #include <fstream>
 
 // Boost header files go here
-#include <boost/shared_ptr.hpp>
 
 #ifndef GSIGMAMONITOR_HPP_
 #define GSIGMAMONITOR_HPP_

@@ -47,7 +47,6 @@
 #include <typeinfo>
 
 // Boost headers go here
-#include <boost/shared_ptr.hpp>
 #include <boost/cast.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/utility/enable_if.hpp>

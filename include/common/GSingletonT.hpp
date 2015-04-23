@@ -37,10 +37,10 @@
 
 // Standard headers go here
 #include <iostream>
+#include <memory>
 
 // Boost headers go here
 
-#include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/utility.hpp>

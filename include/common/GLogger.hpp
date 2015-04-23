@@ -46,7 +46,6 @@
 
 // Boost header files go here
 #include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/mpl/assert.hpp>

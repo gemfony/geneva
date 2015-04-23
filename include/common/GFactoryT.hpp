@@ -41,7 +41,6 @@
 #include <string>
 
 // Boost header files go here
-#include <boost/shared_ptr.hpp>
 #include <boost/utility.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/mpl/assert.hpp>

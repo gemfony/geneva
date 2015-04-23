@@ -54,7 +54,6 @@
 #include <boost/cstdint.hpp>
 #include <boost/cast.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/algorithm/string.hpp>
 
 #ifndef GPLOTDESIGNER_HPP_

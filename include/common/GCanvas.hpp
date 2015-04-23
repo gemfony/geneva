@@ -52,7 +52,6 @@
 #include <utility> // For std::pair
 
 // Boost header files go here
-#include <boost/shared_ptr.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>

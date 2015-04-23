@@ -39,7 +39,6 @@
 #include <iostream>
 
 // Boost header files go here
-#include <boost/shared_ptr.hpp>
 
 #ifndef GPARABOLOIDINDIVIDUAL_HPP_
 #define GPARABOLOIDINDIVIDUAL_HPP_

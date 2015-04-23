@@ -47,7 +47,6 @@
 // Boost headers go here
 
 #include <boost/cast.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/math/special_functions/next.hpp>

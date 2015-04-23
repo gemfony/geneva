@@ -40,7 +40,6 @@
 #include <fstream>
 
 // Boost header files go here
-#include <boost/shared_ptr.hpp>
 
 #ifndef GOPTIMIZATIONMONITOR_HPP_
 #define GOPTIMIZATIONMONITOR_HPP_

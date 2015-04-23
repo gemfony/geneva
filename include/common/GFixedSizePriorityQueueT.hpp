@@ -42,7 +42,6 @@
 
 // Boost headers go here
 #include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>

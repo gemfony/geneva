@@ -35,7 +35,6 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
 
 using boost::unit_test_framework::test_suite;
 using namespace boost::unit_test;

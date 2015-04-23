@@ -51,7 +51,6 @@
 // Boost headers go here
 
 #include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/utility.hpp>
 #include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>

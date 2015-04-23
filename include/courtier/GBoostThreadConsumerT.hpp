@@ -47,7 +47,6 @@
 #include <boost/thread/condition.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <boost/thread/thread.hpp>
-#include <boost/shared_ptr.hpp>
 
 #ifndef GBOOSTTHREADCONSUMERT_HPP_
 #define GBOOSTTHREADCONSUMERT_HPP_

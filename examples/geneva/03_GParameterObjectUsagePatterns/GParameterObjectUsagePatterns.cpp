@@ -36,7 +36,6 @@
 #include <iostream>
 
 // Boost header files go here
-#include <boost/shared_ptr.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/property_tree/ptree.hpp>
