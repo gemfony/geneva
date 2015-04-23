@@ -240,47 +240,37 @@ int main(int argc, char **argv) {
 
    //---------------------------------------------------------------------
    // Create a factory for GDelayIndividualFactory objects for reference measurements
-   // GDelayIndividualFactory gdif_ref("./config/GDelayIndividual-reference.json");
+   GDelayIndividualFactory gdif_ref("./config/GDelayIndividual-reference.json");
    // ... and for parallel measurements
    GDelayIndividualFactory gdif_par("./config/GDelayIndividual.json");
 
    // For the serial measurement
-   // Go2 go_serial("./config/Go2.json");
-   // go_serial.setParallelizationMode(EXECMODE_SERIAL);
+   Go2 go_serial("./config/Go2.json");
+   go_serial.setParallelizationMode(EXECMODE_SERIAL);
 
    // Add default optimization algorithms to the Go2 objects
-   // go_parallel.registerDefaultAlgorithm("ea");
-   // go_serial.registerDefaultAlgorithm("ea");
+   go_parallel.registerDefaultAlgorithm("ea");
+   go_serial.registerDefaultAlgorithm("ea");
 
    // Threadpool for two threads
-   // Gem::Common::GThreadPool tp(2);
-
-   startParallelMeasurement(go_parallel, gdif_par, parallelExecutionTimes);
-   // startReferenceMeasurement(go_serial, gdif_ref, ab);
-
-   // Create the necessary function objects
-   // boost::function<void()> referenceMeasurement = boost::bind(startReferenceMeasurement, boost::ref(go_serial),   boost::ref(gdif_ref), boost::ref(ab));
-   // boost::function<void()> parallelMeasurement  = boost::bind(startParallelMeasurement,  boost::ref(go_parallel), boost::ref(gdif_par), boost::ref(parallelExecutionTimes));
+   Gem::Common::GThreadPool tp(2);
 
    // Start the reference and parallel threads
-   // tp.async_schedule(referenceMeasurement);
-   // tp.async_schedule(parallelMeasurement);
+   tp.async_schedule([&](){ startReferenceMeasurement(go_serial, gdif_ref, ab); });
+   tp.async_schedule([&](){ startParallelMeasurement(go_parallel, gdif_par, parallelExecutionTimes); });
 
    // And wait for their return
-   // tp.wait();
+   tp.wait();
 
    // Calculate reference times from the line parameters
-   // referenceExecutionTimes = getReferenceTimes(ab, parallelExecutionTimes);
+   referenceExecutionTimes = getReferenceTimes(ab, parallelExecutionTimes);
 
    // Calculate the errors
-   /*
    std::vector<boost::tuple<double, double, double, double> > ratioWithErrors = getRatioErrors(
       referenceExecutionTimes
       , parallelExecutionTimes
    );
-   */
 
-   /*
    //---------------------------------------------------------------------
    // Will hold all plot information
    boost::shared_ptr<GGraph2ED> greference_ptr(new GGraph2ED());
@@ -304,7 +294,6 @@ int main(int argc, char **argv) {
 
    gpd.setCanvasDimensions(800,1200);
    gpd.writeToFile(gdif_par.getResultFileName());
-   */
 
 	return 0;
 }
