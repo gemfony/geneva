@@ -827,7 +827,7 @@ public:
     * Adds a complete set of triangles to the canvas, using Gemfony's
     * "circular" definition
     */
-   void addTriangles(boost::shared_array<t_circle> ts, std::size_t nTriangles) {
+   void addTriangles(std::vector<t_circle> ts, std::size_t nTriangles) {
       for(std::size_t i=0; i<nTriangles; i++) {
          this->addTriangle(ts[i]);
       }

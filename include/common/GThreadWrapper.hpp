@@ -50,7 +50,6 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/function.hpp>
-#include <boost/shared_array.hpp>
 #include <boost/exception/all.hpp>
 
 

@@ -53,7 +53,6 @@
 #include <boost/optional.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/tuple/tuple.hpp>
-#include <boost/shared_array.hpp>
 
 #ifndef GTESTINDIVIDUAL3_HPP_
 #define GTESTINDIVIDUAL3_HPP_
@@ -121,7 +120,7 @@ public:
    ) const override;
 
    /** @brief Get all data members of this class as a plain array */
-	G_API_INDIVIDUALS boost::shared_array<float> getPlainData() const;
+	G_API_INDIVIDUALS std::shared_ptr<float> getPlainData() const;
 
 protected:
 	/** @brief Loads the data of another GTestIndividual3 */

@@ -33,8 +33,15 @@ The main changes for this release include:
 
 ******************************* PLEASE NOTE ************************************
  - Support for C++ standards prior to C++11 was dropped. This allowed the
-   following changes:
+   following changes. Note that some of these require action on your part.
    o std::sort is now based on lambda expressions rather than function objects
+   o Replacement of boost::bind with std::bind or C++11 lambda expressions
+   o Replacement of all boost::shared_ptr with std::shared_ptr . As a consequence 
+     the Go2 interface had to be changed. If you want to define your own command
+     line options, you may now transfer a boost::program_options::options_description
+     object. This simplifies the specification of user-defined command line options,
+     but you will have to change your main() function, if you have used the old
+     Go2-interface before. 
 
 ********************************************************************************
 

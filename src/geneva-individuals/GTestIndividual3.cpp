@@ -257,7 +257,7 @@ double GTestIndividual3::fitnessCalculation() {
 /**
  * Get all data members of this class as a plain array
  */
-boost::shared_array<float> GTestIndividual3::getPlainData() const {
+std::shared_ptr<float> GTestIndividual3::getPlainData() const {
    using namespace Gem::Geneva;
 
 #ifdef DEBUG
@@ -269,39 +269,39 @@ boost::shared_array<float> GTestIndividual3::getPlainData() const {
    }
 #endif /* DEBUG */
 
-   boost::shared_array<float> result(new float[10*GTI_DEF_NITEMS]);
+   // Note that we need to provide a deleter as we are dealing with an array. See e.g. http://stackoverflow.com/questions/13061979/shared-ptr-to-an-array-should-it-be-used
+   std::shared_ptr<float> result(new float[10*GTI_DEF_NITEMS], [](float *p){ delete [] p; });
    for(std::size_t i=0; i<GTI_DEF_NITEMS; i++) {
       std::shared_ptr<GParameterObjectCollection> gpoc_ptr = this->at<GParameterObjectCollection>(i);
 
       //---------------------------------------------------------
       // Extract the data of the middle of the circle
       std::shared_ptr<GConstrainedDoubleCollection> a_ptr = gpoc_ptr->at<GConstrainedDoubleCollection>(0);
-      result[i*10+0] = boost::numeric_cast<float>(a_ptr->at(0));
-      result[i*10+1] = boost::numeric_cast<float>(a_ptr->at(1));
+      (result.get())[i*10+0] = boost::numeric_cast<float>(a_ptr->at(0)); // std::shared_ptr doesn't support subscripting, contrary to boost:shared_array
+      (result.get())[i*10+1] = boost::numeric_cast<float>(a_ptr->at(1));
 
       //---------------------------------------------------------
-      // Extract the radius of the circle
       std::shared_ptr<GConstrainedDoubleObject> b_ptr = gpoc_ptr->at<GConstrainedDoubleObject>(1);
-      result[i*10+2] = boost::numeric_cast<float>(b_ptr->value());
+      (result.get())[i*10+2] = boost::numeric_cast<float>(b_ptr->value());
 
       //---------------------------------------------------------
       // Extract the three angles
       std::shared_ptr<GConstrainedDoubleCollection> c_ptr = gpoc_ptr->at<GConstrainedDoubleCollection>(2);
-      result[i*10+3] = boost::numeric_cast<float>(c_ptr->at(0));
-      result[i*10+4] = boost::numeric_cast<float>(c_ptr->at(1));
-      result[i*10+5] = boost::numeric_cast<float>(c_ptr->at(2));
+      (result.get())[i*10+3] = boost::numeric_cast<float>(c_ptr->at(0));
+      (result.get())[i*10+4] = boost::numeric_cast<float>(c_ptr->at(1));
+      (result.get())[i*10+5] = boost::numeric_cast<float>(c_ptr->at(2));
 
       //---------------------------------------------------------
       // Extract the three colors
       std::shared_ptr<GConstrainedDoubleCollection> d_ptr = gpoc_ptr->at<GConstrainedDoubleCollection>(3);
-      result[i*10+6]  = boost::numeric_cast<float>(d_ptr->at(0));
-      result[i*10+7]  = boost::numeric_cast<float>(d_ptr->at(1));
-      result[i*10+8]  = boost::numeric_cast<float>(d_ptr->at(2));
+      (result.get())[i*10+6]  = boost::numeric_cast<float>(d_ptr->at(0));
+      (result.get())[i*10+7]  = boost::numeric_cast<float>(d_ptr->at(1));
+      (result.get())[i*10+8]  = boost::numeric_cast<float>(d_ptr->at(2));
 
       //---------------------------------------------------------
       // Extract the alpha channel
       std::shared_ptr<GConstrainedDoubleObject> e_ptr = gpoc_ptr->at<GConstrainedDoubleObject>(4);
-      result[i*10+9] = boost::numeric_cast<float>(e_ptr->value());
+      (result.get())[i*10+9] = boost::numeric_cast<float>(e_ptr->value());
 
       //---------------------------------------------------------
    }
@@ -358,14 +358,14 @@ void GTestIndividual3::specificTestsNoFailureExpected_GUnitTests() {
 
 	{ // Test that repeated extraction of an object's data results in the same output
       std::shared_ptr<GTestIndividual3> p;
-      boost::shared_array<float> result_old, result_new;
+      std::shared_ptr<float> result_old, result_new;
 
       BOOST_CHECK_NO_THROW(p = std::shared_ptr<GTestIndividual3>(new GTestIndividual3()));
       BOOST_CHECK_NO_THROW(result_old = p->getPlainData());
       for(std::size_t i=0; i<NTESTS; i++) {
          BOOST_CHECK_NO_THROW(result_new = p->getPlainData());
          for(std::size_t m=0; m<GTI_DEF_NITEMS*10; i++) {
-            BOOST_CHECK(result_old[i] == result_new[i]);
+            BOOST_CHECK((result_old.get())[i] == (result_new.get())[i]); // std::shared_ptr doesn't support subscripting
          }
       }
 	}
