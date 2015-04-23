@@ -52,7 +52,6 @@
 
 #include <boost/cstdint.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/utility.hpp>
 #include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
