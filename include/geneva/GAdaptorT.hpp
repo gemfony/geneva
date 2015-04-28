@@ -871,7 +871,7 @@ protected:
 	virtual void customAdaptions(T&, const T&) BASE = 0;
 
    /** @brief Creates a deep copy of this object */
-   virtual GObject *clone_(void) const = 0;
+   virtual GObject *clone_(void) const override = 0;
 
 private:
 	/***************************************************************************/

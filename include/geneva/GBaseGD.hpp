@@ -159,7 +159,7 @@ protected:
 	/** @brief Loads the data of another population */
 	virtual G_API_GENEVA void load_(const GObject *) override;
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GObject *clone_() const = 0;
+	virtual G_API_GENEVA GObject *clone_() const override = 0;
 
 	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
 	virtual G_API_GENEVA boost::tuple<double, double> cycleLogic() override;
@@ -178,7 +178,7 @@ protected:
 	virtual G_API_GENEVA void saveCheckpoint() const override;
 
 	/** @brief Triggers fitness calculation of a number of individuals */
-	virtual G_API_GENEVA void runFitnessCalculation() = 0;
+	virtual G_API_GENEVA void runFitnessCalculation() override = 0;
 	/** @brief Updates the individual parameters of children */
 	virtual G_API_GENEVA void updateChildParameters();
 	/** @brief Performs a step of the parent individuals */

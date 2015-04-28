@@ -305,7 +305,7 @@ public:
 	 *
 	 * @return A boolean indicating whether adaptors are present
 	 */
-	bool hasAdaptor() const {
+	bool hasAdaptor() const override {
 		if(adaptor_) return true;
 		return false;
 	}
@@ -356,7 +356,7 @@ public:
       const std::string& adaptorName
       , const std::string& property
       , std::vector<boost::any>& data
-   ) const {
+   ) const override {
 #ifdef DEBUG
       if (!adaptor_) {
          glogger
@@ -407,7 +407,7 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Creates a deep clone of this object. Purely virtual, as we do not want this class to be instantiated directly */
-	virtual GObject* clone_() const = 0;
+	virtual GObject* clone_() const override = 0;
    /** @brief Returns a "comparative range"; this is e.g. used to make Gauss-adaption independent of a parameters value range */
    virtual T range() const = 0;
 

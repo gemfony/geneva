@@ -43,6 +43,7 @@
 #include <sstream>
 #include <exception>
 #include <vector>
+#include <memory>
 
 // Boost header files go here
 #include <boost/function.hpp>

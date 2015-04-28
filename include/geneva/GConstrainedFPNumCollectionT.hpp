@@ -301,7 +301,7 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Creates a deep copy of this object */
-	virtual GObject *clone_() const = 0;
+	virtual GObject *clone_() const override = 0;
 
 	/***************************************************************************/
 	/**

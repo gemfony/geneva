@@ -415,7 +415,7 @@ protected:
 	/** @brief Loads the data of another GOptimizableEntity */
 	virtual G_API_GENEVA void load_(const GObject*) override;
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GObject* clone_() const = 0;
+	virtual G_API_GENEVA GObject* clone_() const override = 0;
 
 	/** @brief The fitness calculation for the main quality criterion takes place here */
 	virtual G_API_GENEVA double fitnessCalculation() BASE = 0;

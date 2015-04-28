@@ -394,7 +394,7 @@ protected:
 	 *
 	 * @return A deep clone of this object
 	 */
-	GObject* clone_() const {
+	GObject* clone_() const override {
 		return new progressMonitor(*this);
 	}
 
@@ -404,8 +404,7 @@ protected:
 	 *
 	 * @param cp A pointer to another progressMonitor object, camouflaged as a GObject
 	 */
-	void load_(const GObject * cp)
-	{
+	void load_(const GObject * cp) override {
 		const progressMonitor *p_load = gobject_conversion<progressMonitor>(cp);
 
 		// First load the parent class'es data ...
@@ -433,7 +432,7 @@ protected:
 	 * used for illustration purposes only.
 	 *
 	 */
-	virtual void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+	virtual void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) override {
 	   // Convert the base pointer to the target type
 	   GBaseEA * const ea = static_cast<GBaseEA * const>(goa);
 

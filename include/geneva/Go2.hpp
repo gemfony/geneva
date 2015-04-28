@@ -255,7 +255,7 @@ public:
 
    /***************************************************************************/
    /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const;
+   virtual G_API_GENEVA std::string name() const override;
 
    /** @brief Allows to register a default algorithm. */
    G_API_GENEVA void registerDefaultAlgorithm(std::shared_ptr<GOABase>);

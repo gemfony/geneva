@@ -521,7 +521,7 @@ protected:
 	/** @brief Loads the data of another GObject */
 	virtual G_API_GENEVA void load_(const GObject*) override;
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GObject* clone_() const = 0;
+	virtual G_API_GENEVA GObject* clone_() const override = 0;
 
 	/** @brief Triggers random initialization of the parameter(-collection) */
 	virtual G_API_GENEVA bool randomInit_(const activityMode&) BASE = 0;

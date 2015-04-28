@@ -719,7 +719,7 @@ public:
 	 *
 	 * @return The current iteration of the optimization run
 	 */
-	boost::uint32_t getIteration() const {
+	virtual boost::uint32_t getIteration() const override {
 		return iteration_;
 	}
 
@@ -1054,7 +1054,7 @@ public:
    /***************************************************************************/
 
    /** @brief Emits a name for this class / object; this can be a long name with spaces */
-   virtual std::string name() const = 0;
+   virtual std::string name() const override = 0;
 
    /***************************************************************************/
    /**
@@ -1202,7 +1202,7 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone_() const = 0;
+	virtual GObject* clone_() const override = 0;
 
    /***************************************************************************/
    /**
@@ -1496,7 +1496,7 @@ protected:
 
    /***************************************************************************/
    /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
-   virtual void runFitnessCalculation() = 0;
+   virtual void runFitnessCalculation() override = 0;
 
 private:
    /***************************************************************************/

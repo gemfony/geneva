@@ -103,7 +103,7 @@ public:
    /** @brief The standard assignment operator */
    G_API_GENEVA const GInt32Object& operator=(const GInt32Object&);
 	/** @brief An assignment operator for the contained value type */
-	virtual G_API_GENEVA boost::int32_t operator=(const boost::int32_t&);
+	virtual G_API_GENEVA boost::int32_t operator=(const boost::int32_t&) override;
 
 	/** @brief Checks for equality with another GInt32Object object */
 	G_API_GENEVA bool operator==(const GInt32Object&) const;

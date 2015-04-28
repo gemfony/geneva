@@ -84,7 +84,7 @@ public:
 	virtual G_API_GENEVA ~GBooleanObject();
 
 	/** @brief An assignment operator */
-	virtual G_API_GENEVA bool operator=(const bool&);
+	virtual G_API_GENEVA bool operator=(const bool&) override;
    /** @brief The standard assignment operator */
    G_API_GENEVA const GBooleanObject& operator=(const GBooleanObject&);
 

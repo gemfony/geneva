@@ -215,7 +215,7 @@ public:
     * @param The desired new external value
     * @return The new external value of this object
     */
-   virtual T operator=(const T& val) {
+   virtual T operator=(const T& val) override {
       GConstrainedNumT<T>::setValue(val);
       return val;
    }
@@ -596,7 +596,7 @@ protected:
     * Returns a "comparative range". This is e.g. used to make Gauss-adaption
     * independent of a parameters value range
     */
-   virtual T range() const {
+   virtual T range() const override {
       return upperBoundary_ - lowerBoundary_;
    }
 

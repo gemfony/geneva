@@ -353,7 +353,7 @@ public:
 	 * @param pos The position of the parameter to be set
 	 * @param val The new num_type value stored in this class
 	 */
-	virtual void setValue(const std::size_t& pos, const num_type& val)  {
+	virtual void setValue(const std::size_t& pos, const num_type& val) override {
 		// Do some error checking
 		if(val < lowerBoundary_ || val > upperBoundary_) {
 		   glogger
@@ -466,7 +466,7 @@ protected:
     * Returns a "comparative range". This is e.g. used to make Gauss-adaption
     * independent of a parameters value range
     */
-   virtual num_type range() const {
+   virtual num_type range() const override {
       return upperBoundary_ - lowerBoundary_;
    }
 
@@ -477,11 +477,11 @@ protected:
 	 *
 	 * @return A pointer to a deep clone of this object
 	 */
-	virtual GObject *clone_() const = 0;
+	virtual GObject *clone_() const override = 0;
 
 	/***************************************************************************/
 	/** @brief Triggers random initialization of the parameter collection */
-	virtual bool randomInit_(const activityMode&) = 0;
+	virtual bool randomInit_(const activityMode&) override = 0;
 
 	/***************************************************************************/
 	/**

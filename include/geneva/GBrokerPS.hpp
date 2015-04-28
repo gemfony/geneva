@@ -125,9 +125,9 @@ protected:
    virtual G_API_GENEVA GObject *clone_() const override;
 
    /** @brief Performs necessary initialization work */
-   virtual G_API_GENEVA void init();
+   virtual G_API_GENEVA void init() override;
    /** @brief Does any necessary finalization work */
-   virtual G_API_GENEVA void finalize();
+   virtual G_API_GENEVA void finalize() override;
 
    /** @brief Triggers fitness calculation of a number of individuals */
    virtual void runFitnessCalculation() override;

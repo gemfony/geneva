@@ -344,7 +344,7 @@ protected:
 	 * Creates a deep clone of this object. Declared purely virtual, as this class is not
 	 * intended to be used directly.
 	 */
-	virtual GObject* clone_() const = 0;
+	virtual GObject* clone_() const override = 0;
 
 	/***************************************************************************/
 	/**

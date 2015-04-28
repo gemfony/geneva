@@ -168,7 +168,7 @@ public:
 	 * @param The desired new external value
 	 * @return The new external value of this object
 	 */
-	virtual int_type operator=(const int_type& val) {
+	virtual int_type operator=(const int_type& val) override {
 		return GConstrainedNumT<int_type>::operator=(val);
 	}
 
@@ -331,7 +331,7 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Create a deep copy of this object */
-	virtual GObject *clone_() const = 0;
+	virtual GObject *clone_() const override = 0;
 
 	/***************************************************************************/
 	/**

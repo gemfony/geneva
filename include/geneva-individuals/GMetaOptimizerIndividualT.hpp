@@ -293,7 +293,7 @@ public:
       const GObject& cp
       , const Gem::Common::expectation& e
       , const double& limit
-   ) const override {
+   ) const final {
       // Check that we are indeed dealing with a GAdaptorT reference
       const GMetaOptimizerIndividualT<ind_type> *p_load
                = gobject_conversion<GMetaOptimizerIndividualT<ind_type> >(&cp);
@@ -913,7 +913,7 @@ protected:
     *
     * @return A deep clone of this object, camouflaged as a GObject
     */
-   virtual GObject* clone_() const {
+   virtual GObject* clone_() const final {
       return new GMetaOptimizerIndividualT<ind_type>(*this);
    }
 

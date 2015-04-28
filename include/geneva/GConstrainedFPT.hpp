@@ -243,7 +243,7 @@ public:
 	 * @param The desired new external value
 	 * @return The new external value of this object
 	 */
-	virtual fp_type operator=(const fp_type& val) {
+	virtual fp_type operator=(const fp_type& val) override {
       fp_type tmpVal = val;
       if(val==boost::math::float_next<fp_type>(this->getUpperBoundary())) {
          tmpVal = boost::math::float_prior<fp_type>(val);
@@ -403,7 +403,7 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Create a deep copy of this object */
-	virtual GObject *clone_() const = 0;
+	virtual GObject *clone_() const override = 0;
 
 	/***************************************************************************/
 	/**

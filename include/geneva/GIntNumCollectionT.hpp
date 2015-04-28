@@ -243,7 +243,7 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Creates a deep clone of this object. Pureley virtual, needs to be defined by derived classes */
-	virtual GObject* clone_() const = 0;
+	virtual GObject* clone_() const override = 0;
 
 	/***************************************************************************/
 	/**

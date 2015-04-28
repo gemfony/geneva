@@ -467,46 +467,34 @@ protected:
 	) override {
 		using namespace Gem::Courtier;
 
-		std::string comment;
-
-		comment = "";
-		comment += "Determines the number of threads simultaneously running;";
-		comment += "evaluations in multi-threaded mode. 0 means \"automatic\";";
 		gpb.registerFileParameter<boost::uint16_t>(
 			"nEvaluationThreads"
 			, nEvaluationThreads_
 			, FACT_DEF_NEVALUATIONTHREADS
-			, Gem::Common::VAR_IS_ESSENTIAL
-			, comment
-		);
+		)
+		<< "Determines the number of threads simultaneously running" << std::endl
+      << "evaluations in multi-threaded mode. 0 means \"automatic\"";
 
-		comment = ""; // Reset the comment string
-		comment += "Activates (1) or de-activates (0) logging;";
 		gpb.registerFileParameter<bool>(
 			"doLogging" // The name of the variable
 			, doLogging_
 			, false // The default value
-			, Gem::Common::VAR_IS_SECONDARY
-			, comment
-		);
+		)
+		<< "Activates (1) or de-activates (0) logging";
 
-      // add local data
-      comment = ""; // Reset the comment string
-      comment += "A static factor to be applied to timeouts";
       gpb.registerFileParameter<std::size_t>(
          "waitFactor" // The name of the variable
          , waitFactor_
          , EXPECTFULLRETURN // The default value
-         , Gem::Common::VAR_IS_ESSENTIAL
-         , comment
-      );
+      )
+      << "A static factor to be applied to timeouts";
 	}
 
    /***************************************************************************/
    /**
     * Allows to act on the configuration options received from the configuration file or from the command line
     */
-   virtual void postProcess_(std::shared_ptr<optalg_type>& p) BASE {
+   virtual void postProcess_(std::shared_ptr<optalg_type>& p) override {
       // Set local options
 
       // The maximum allowed number of iterations
@@ -527,7 +515,7 @@ protected:
 
    /***************************************************************************/
 	/** @brief Creates individuals of this type */
-	virtual std::shared_ptr<optalg_type> getObject_(Gem::Common::GParserBuilder&, const std::size_t&) = 0;
+	virtual std::shared_ptr<optalg_type> getObject_(Gem::Common::GParserBuilder&, const std::size_t&) override = 0;
 
 	execMode pm_; ///< Holds information about the desired parallelization mode
 	boost::uint16_t nEvaluationThreads_; ///< The number of threads used for evaluations in multithreaded execution

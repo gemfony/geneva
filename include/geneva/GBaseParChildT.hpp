@@ -291,7 +291,7 @@ public:
     *
     * @return The number of processible items in the current iteration
     */
-   std::size_t getNProcessableItems() const {
+   virtual std::size_t getNProcessableItems() const override {
       boost::tuple<std::size_t,std::size_t> range = this->getEvaluationRange();
 
 #ifdef DEBUG
@@ -517,9 +517,9 @@ public:
 
    /***************************************************************************/
    /** @brief Returns the name of this optimization algorithm */
-   virtual std::string getAlgorithmName() const = 0;
+   virtual std::string getAlgorithmName() const override = 0;
    /** @brief Returns information about the type of optimization algorithm */
-   virtual std::string getOptimizationAlgorithm() const = 0;
+   virtual std::string getOptimizationAlgorithm() const override = 0;
 
    /***************************************************************************/
    /**
@@ -532,11 +532,11 @@ public:
 protected:
    /***************************************************************************/
    /** @brief Creates a deep clone of this object */
-   virtual GObject *clone_() const = 0;
+   virtual GObject *clone_() const override = 0;
    /** @brief Adapts all children of this population */
    virtual void adaptChildren() = 0;
    /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
-   virtual void runFitnessCalculation() = 0;
+   virtual void runFitnessCalculation() override = 0;
    /** @brief Choose new parents, based on the selection scheme set by the user */
    virtual void selectBest() = 0;
    /** @brief Retrieves the evaluation range in a given iteration and sorting scheme */

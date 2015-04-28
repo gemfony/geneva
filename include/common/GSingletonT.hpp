@@ -68,7 +68,7 @@ namespace Common {
  * @return A std::shared_ptr to a newly created T object
  */
 template <typename T>
-std::shared_ptr<T> TFactory_GSingletonT() {
+typename std::shared_ptr<T> TFactory_GSingletonT() {
 	return std::shared_ptr<T>(new T());
 }
 

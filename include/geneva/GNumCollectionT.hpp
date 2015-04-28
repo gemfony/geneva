@@ -372,7 +372,7 @@ protected:
     * Returns a "comparative range". This is e.g. used to make Gauss-adaption
     * independent of a parameters value range
     */
-   virtual T range() const {
+   virtual T range() const override {
       return upperInitBoundary_ - lowerInitBoundary_;
    }
 
@@ -383,11 +383,11 @@ protected:
 	 *
 	 * @return A pointer to a deep clone of this object
 	 */
-	virtual GObject *clone_() const = 0;
+	virtual GObject *clone_() const override = 0;
 
 	/***************************************************************************/
 	/** @brief Triggers random initialization of the parameter collection */
-	virtual bool randomInit_(const activityMode&) = 0;
+	virtual bool randomInit_(const activityMode&) override = 0;
 
 private:
 	/***************************************************************************/

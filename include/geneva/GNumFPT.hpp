@@ -166,7 +166,7 @@ public:
 	 * @param val The value to be assigned to this object
 	 * @return The value that was assigned to this object
 	 */
-	virtual fp_type operator=(const fp_type& val) {
+	virtual fp_type operator=(const fp_type& val) override {
 		return GNumT<fp_type>::operator=(val);
 	}
 
@@ -271,7 +271,7 @@ protected:
 	 *
 	 * @return A pointer to a deep clone of this object
 	 */
-	virtual GObject *clone_() const = 0;
+	virtual GObject *clone_() const override = 0;
 
 	/***************************************************************************/
 	/**

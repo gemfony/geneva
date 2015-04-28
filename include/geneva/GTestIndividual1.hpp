@@ -113,16 +113,16 @@ public:
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
-   ) const override;
+   ) const final;
 
 protected:
 	/** @brief Loads the data of another GTestIndividual1 */
-	virtual G_API_GENEVA void load_(const GObject*);
+	virtual G_API_GENEVA void load_(const GObject*) final;
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GObject* clone_() const;
+	virtual G_API_GENEVA GObject* clone_() const final;
 
 	/** @brief The actual fitness calculation takes place here. */
-	virtual G_API_GENEVA double fitnessCalculation() override;
+	virtual G_API_GENEVA double fitnessCalculation() final;
 public:
 	// Note: The following functions are, in the context of GTestIndividual1,
 	// designed to mainly test parent classes

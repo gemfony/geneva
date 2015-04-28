@@ -167,7 +167,7 @@ public:
 	 * @param val The value to be assigned to this object
 	 * @return The value that was assigned to this object
 	 */
-	virtual int_type operator=(const int_type& val) {
+	virtual int_type operator=(const int_type& val) override {
 		return GNumT<int_type>::operator=(val);
 	}
 
@@ -265,7 +265,7 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Creates a deep clone of this object. Needs to be redefined in derived classes */
-	virtual GObject* clone_() const = 0;
+	virtual GObject* clone_() const override = 0;
 
 	/***************************************************************************/
 	/**

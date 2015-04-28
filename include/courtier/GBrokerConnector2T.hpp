@@ -1114,7 +1114,7 @@ protected:
       std::vector<std::shared_ptr<processable_type> >& workItems
       , std::vector<bool>& workItemPos
       , std::vector<std::shared_ptr<processable_type> >& oldWorkItems
-   ) {
+   ) override {
       bool complete = false;
 
       switch(srm_) {
@@ -1162,7 +1162,7 @@ private:
     *
     * @param w The work item to be processed
     */
-   virtual void submit(std::shared_ptr<processable_type> w) {
+   virtual void submit(std::shared_ptr<processable_type> w) override {
 #ifdef DEBUG
       if(!w) {
          glogger

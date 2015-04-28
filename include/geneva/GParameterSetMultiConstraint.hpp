@@ -110,7 +110,7 @@ protected:
    /** @brief Loads the data of another GParameterSetConstraint */
    virtual G_API_GENEVA void load_(const GObject*) override;
    /** @brief Creates a deep clone of this object */
-   virtual G_API_GENEVA GObject* clone_() const = 0;
+   virtual G_API_GENEVA GObject* clone_() const override = 0;
 };
 
 /******************************************************************************/
@@ -168,7 +168,7 @@ protected:
    /** @brief Loads the data of another GParameterSetConstraint */
    virtual G_API_GENEVA void load_(const GObject*) override;
    /** @brief Creates a deep clone of this object */
-   virtual G_API_GENEVA GObject* clone_() const;
+   virtual G_API_GENEVA GObject* clone_() const override;
 
 private:
    /** @brief The default constructor -- intentionally private*/

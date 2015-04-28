@@ -249,7 +249,7 @@ protected:
 	 *
 	 * @return A pointer to a deep clone of this object
 	 */
-	virtual GObject *clone_() const = 0;
+	virtual GObject *clone_() const override = 0;
 
 	/***************************************************************************/
 	/**

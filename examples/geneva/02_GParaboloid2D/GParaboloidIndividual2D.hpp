@@ -67,12 +67,12 @@ public:
 
 protected:
 	/** @brief Loads the data of another GParaboloidIndividual2D */
-	virtual void load_(const GObject*);
+	virtual void load_(const GObject*) final;
 	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone_() const;
+	virtual GObject* clone_() const final;
 
 	/** @brief The actual fitness calculation takes place here. */
-	virtual double fitnessCalculation() override;
+	virtual double fitnessCalculation() final;
 
 private:
 	/** @brief Make the class accessible to Boost.Serialization */

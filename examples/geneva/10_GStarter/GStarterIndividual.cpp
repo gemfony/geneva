@@ -602,64 +602,45 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
 	// Describe our own options
 	using namespace Gem::Courtier;
 
-	std::string comment;
+   // Allow our parent class to describe its options
+   Gem::Common::GFactoryT<GParameterSet>::describeLocalOptions_(gpb);
 
-	comment = "";
-	comment += "The probability for random adaptions of values in evolutionary algorithms;";
+   // Local data
 	gpb.registerFileParameter<double>(
 		"adProb"
 		, adProb_
 		, GSI_DEF_ADPROB
-		, Gem::Common::VAR_IS_ESSENTIAL
-		, comment
-	);
+	)
+	<< "The probability for random adaptions of values in evolutionary algorithms";
 
-	comment = "";
-	comment += "The sigma for gauss-adaption in ES;";
 	gpb.registerFileParameter<double>(
 		"sigma"
 		, sigma_
 		, GSI_DEF_SIGMA
-		, Gem::Common::VAR_IS_ESSENTIAL
-		, comment
-	);
+	)
+	<< "The sigma for gauss-adaption in ES";
 
-	comment = "";
-	comment += "Influences the self-adaption of gauss-mutation in ES;";
 	gpb.registerFileParameter<double>(
 		"sigmaSigma"
 		, sigmaSigma_
 		, GSI_DEF_SIGMASIGMA
-		, Gem::Common::VAR_IS_ESSENTIAL
-		, comment
-	);
+	)
+	<< "Influences the self-adaption of gauss-mutation in ES";
 
-	comment = "";
-	comment += "The minimum amount value of sigma;";
 	gpb.registerFileParameter<double>(
 		"minSigma"
 		, minSigma_
 		, GSI_DEF_MINSIGMA
-		, Gem::Common::VAR_IS_ESSENTIAL
-		, comment
-	);
+	)
+	<< "The minimum amount value of sigma";
 
-	comment = "";
-	comment += "The maximum amount value of sigma;";
 	gpb.registerFileParameter<double>(
 		"maxSigma"
 		, maxSigma_
 		, GSI_DEF_MAXSIGMA
-		, Gem::Common::VAR_IS_ESSENTIAL
-		, comment
-	);
+	)
+	<< "The maximum amount value of sigma";
 
-	comment = "";
-	comment += "The start values for all parameters;";
-	comment += "Note that the number of entries also determines;";
-	comment += "The number of parameter used in the optimization;";
-	comment += "The number of entries in the vector may be changed;";
-	comment += "in the configuration file.";
 	std::vector<double> defStartValues;
 	defStartValues.push_back(1.);
 	defStartValues.push_back(1.);
@@ -668,14 +649,13 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
 	      "startValues"
 	     , startValues_
 	     , defStartValues
-	     , Gem::Common::VAR_IS_ESSENTIAL
-	     , comment
-	);
+	)
+	<< "The start values for all parameters" << std::endl
+   << "Note that the number of entries also determines" << std::endl
+   << "The number of parameter used in the optimization" << std::endl
+   << "The number of entries in the vector may be changed" << std::endl
+   << "in the configuration file.";
 
-   comment = "";
-   comment += "The lower boundaries for all parameters;";
-   comment += "Note that as many entries are needed as;";
-   comment += "There are entries in the startValues vector";
    std::vector<double> defLowerBoundaries;
    defLowerBoundaries.push_back(0.);
    defLowerBoundaries.push_back(0.);
@@ -684,14 +664,11 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
          "lowerBoundaries"
         , lowerBoundaries_
         , defLowerBoundaries
-        , Gem::Common::VAR_IS_ESSENTIAL
-        , comment
-   );
+   )
+   << "The lower boundaries for all parameters" << std::endl
+   << "Note that as many entries are needed as" << std::endl
+   << "There are entries in the startValues vector";
 
-   comment = "";
-   comment += "The upper boundaries for all parameters;";
-   comment += "Note that as many entries are needed as;";
-   comment += "There are entries in the startValues vector";
    std::vector<double> defUpperBoundaries;
    defUpperBoundaries.push_back(2.);
    defUpperBoundaries.push_back(2.);
@@ -700,12 +677,10 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
          "upperBoundaries"
         , upperBoundaries_
         , defUpperBoundaries
-        , Gem::Common::VAR_IS_ESSENTIAL
-        , comment
-   );
-
-	// Allow our parent class to describe its options
-	Gem::Common::GFactoryT<GParameterSet>::describeLocalOptions_(gpb);
+   )
+   << "The upper boundaries for all parameters" << std::endl
+   << "Note that as many entries are needed as" << std::endl
+   << "There are entries in the startValues vector";
 }
 
 /******************************************************************************/

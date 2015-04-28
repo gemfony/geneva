@@ -89,7 +89,7 @@ public:
    /** @brief The standard assignment operator */
    G_API_GENEVA const GDoubleObject& operator=(const GDoubleObject&);
 	/** @brief An assignment operator for the contained value type */
-	virtual G_API_GENEVA double operator=(const double&);
+	virtual G_API_GENEVA double operator=(const double&) override;
 
 	/** @brief Checks for equality with another GDoubleObject object */
 	G_API_GENEVA bool operator==(const GDoubleObject&) const;

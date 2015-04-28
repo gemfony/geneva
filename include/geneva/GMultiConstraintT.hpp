@@ -317,7 +317,7 @@ protected:
 
    /***************************************************************************/
    /** @brief Creates a deep clone of this object */
-   virtual GObject* clone_() const = 0;
+   virtual GObject* clone_() const override = 0;
 
    /***************************************************************************/
 
@@ -472,11 +472,11 @@ public:
 protected:
    /***************************************************************************/
    /** @brief Checks whether a given parameter set is valid. To be specified in derived classes */
-   virtual double check_(const ind_type *) const = 0;
+   virtual double check_(const ind_type *) const override = 0;
 
    /***************************************************************************/
    /** @brief Creates a deep clone of this object */
-   virtual GObject* clone_() const = 0;
+   virtual GObject* clone_() const override = 0;
 
    /***************************************************************************/
    /**
@@ -655,7 +655,7 @@ protected:
     * DO have to take care here of a situation where the invalidity equals
     * MIN- or MAX_DOUBLE.
     */
-   virtual double check_(const ind_type *cp) const {
+   virtual double check_(const ind_type *cp) const override {
       // First identify invalid checks
       std::vector<double> invalidChecks;
       double validityLevel;
@@ -741,7 +741,7 @@ protected:
    /**
     * Creates a deep clone of this object
     */
-   virtual GObject* clone_() const {
+   virtual GObject* clone_() const override {
       return new GCheckCombinerT<ind_type>(*this);
    }
 

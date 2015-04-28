@@ -240,7 +240,7 @@ public:
     *
     * @return A boolean indicating whether a warp has taken place
     */
-   virtual bool goToNextItem() BASE {
+   virtual bool goToNextItem() override {
       if(++step_ >= nSteps_) {
          step_ = 0;
          return true;
@@ -252,7 +252,7 @@ public:
    /**
     * Checks whether step_ points to the last item in the array
     */
-   virtual bool isAtTerminalPosition() const BASE {
+   virtual bool isAtTerminalPosition() const override {
       if(step_ >= nSteps_) return true;
       else return false;
    }
@@ -261,7 +261,7 @@ public:
    /**
     * Checks whether step_ points to the first item in the array
     */
-   virtual bool isAtFirstPosition() const BASE {
+   virtual bool isAtFirstPosition() const override {
       if(0 == step_) return true;
       else return false;
    }
@@ -270,7 +270,7 @@ public:
    /**
     * Resets the current position
     */
-   virtual void resetPosition() BASE {
+   virtual void resetPosition() override {
       step_ = 0;
    }
 
@@ -278,7 +278,7 @@ public:
    /**
     * Retrieve the type descriptor
     */
-   virtual std::string getTypeDescriptor() const BASE {
+   virtual std::string getTypeDescriptor() const override {
       return typeDescription_;
    }
 
@@ -310,7 +310,7 @@ protected:
 
    /***************************************************************************/
    /** @brief Needs to be re-implemented for derivatives of GStdSimpleVectorInterfaceT<> */
-   virtual void dummyFunction(){};
+   virtual void dummyFunction() override {};
 
    /***************************************************************************/
    /**

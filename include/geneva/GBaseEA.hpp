@@ -131,7 +131,7 @@ public:
    G_API_GENEVA void extractCurrentParetoIndividuals(std::vector<std::shared_ptr<Gem::Geneva::GParameterSet> >&);
 
    /** @brief Adds the individuals of this iteration to a priority queue */
-   G_API_GENEVA void addIterationBests(GParameterSetFixedSizePriorityQueue&);
+   virtual G_API_GENEVA void addIterationBests(GParameterSetFixedSizePriorityQueue&) override;
 
    /** @brief Returns the name of this optimization algorithm */
    virtual G_API_GENEVA std::string getAlgorithmName() const override;
@@ -149,15 +149,15 @@ protected:
    /** @brief Loads the data of another population */
    virtual G_API_GENEVA void load_(const GObject *) override;
    /** @brief Creates a deep clone of this object */
-   virtual G_API_GENEVA GObject *clone_() const = 0;
+   virtual G_API_GENEVA GObject *clone_() const override = 0;
 
    /** @brief Some error checks related to population sizes */
    virtual G_API_GENEVA void populationSanityChecks() const override;
 
    /** @brief Adapts all children of this population */
-   virtual G_API_GENEVA void adaptChildren() = 0;
+   virtual G_API_GENEVA void adaptChildren() override = 0;
    /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
-   virtual G_API_GENEVA void runFitnessCalculation() = 0;
+   virtual G_API_GENEVA void runFitnessCalculation() override = 0;
    /** @brief Selects the best children of the population */
    virtual G_API_GENEVA void selectBest() override;
 

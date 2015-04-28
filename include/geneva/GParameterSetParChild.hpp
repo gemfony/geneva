@@ -112,7 +112,7 @@ public:
 protected:
    /***************************************************************************/
    /** @brief Performs recombination, taking into account possible amalgamation actions */
-   virtual G_API_GENEVA void doRecombine();
+   virtual G_API_GENEVA void doRecombine() override;
    /** @brief Marks the number of stalled optimization attempts in all individuals and gives them an opportunity to update their internal structures. */
    virtual G_API_GENEVA void actOnStalls() override;
 

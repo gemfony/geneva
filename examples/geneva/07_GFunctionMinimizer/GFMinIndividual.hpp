@@ -119,7 +119,7 @@ public:
 	const GFMinIndividual& operator=(const GFMinIndividual&);
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&);
+	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&) final;
 
 	/** @brief Allows to set the demo function */
 	void setTargetFunction(targetFunction);
@@ -132,12 +132,12 @@ public:
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GFMinIndividual */
-	virtual void load_(const GObject*);
+	virtual void load_(const GObject*) final;
 	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone_() const;
+	virtual GObject* clone_() const final;
 
 	/** @brief The actual value calculation takes place here */
-	virtual double fitnessCalculation() override;
+	virtual double fitnessCalculation() final;
 
 	/***************************************************************************/
 

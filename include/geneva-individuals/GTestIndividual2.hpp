@@ -126,16 +126,16 @@ public:
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
-   ) const override;
+   ) const final;
 
 protected:
 	/** @brief Loads the data of another GTestIndividual2 */
-	virtual G_API_INDIVIDUALS void load_(const GObject*);
+	virtual G_API_INDIVIDUALS void load_(const GObject*) final;
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_INDIVIDUALS GObject* clone_() const;
+	virtual G_API_INDIVIDUALS GObject* clone_() const final;
 
 	/** @brief The actual fitness calculation takes place here. */
-	virtual G_API_INDIVIDUALS double fitnessCalculation() override;
+	virtual G_API_INDIVIDUALS double fitnessCalculation() final;
 
 private:
 	/** @brief The default constructor -- protected, as it is only needed for (de-)serialization purposes */

@@ -195,7 +195,7 @@ public:
 	 *
 	 * @return The id of the adaptor
 	 */
-	virtual Gem::Geneva::adaptorId getAdaptorId() const = 0;
+	virtual Gem::Geneva::adaptorId getAdaptorId() const override = 0;
 
 	/* ----------------------------------------------------------------------------------
 	 * Tested in GInt32FlipAdaptor::specificTestsNoFailuresExpected_GUnitTests()
@@ -244,7 +244,7 @@ protected:
 	 *
 	 * @return A deep copy of this object
 	 */
-	virtual GObject *clone_() const = 0;
+	virtual GObject *clone_() const override = 0;
 
 public:
 	/***************************************************************************/

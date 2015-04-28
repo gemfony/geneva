@@ -149,7 +149,7 @@ public:
 	/**
 	 * An assignment operator for the contained value type
 	 */
-	virtual T operator=(const T& val) {
+	virtual T operator=(const T& val) override {
 		return GParameterT<T>::operator=(val);
 	}
 
@@ -354,11 +354,11 @@ protected:
 	 *
 	 * @return A pointer to a deep clone of this object
 	 */
-	virtual GObject *clone_() const = 0;
+	virtual GObject *clone_() const override = 0;
 
 	/***************************************************************************/
 	/** @brief Triggers random initialization of the parameter */
-	virtual bool randomInit_(const activityMode&) = 0;
+	virtual bool randomInit_(const activityMode&) override = 0;
 
 private:
 	/***************************************************************************/

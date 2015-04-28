@@ -340,7 +340,7 @@ protected:
 	/**
 	 * Creates a deep clone of this object. Purely virtual, so this class cannot be instantiated.
 	 */
-	virtual GObject* clone_() const = 0;
+	virtual GObject* clone_() const override = 0;
 
 	/***************************************************************************/
 	/**

@@ -102,7 +102,7 @@ protected:
 	/** @brief Loads the data of another GPersonalityTraits object */
 	virtual G_API_GENEVA void load_(const GObject*) override;
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GObject* clone_() const = 0;
+	virtual G_API_GENEVA GObject* clone_() const override = 0;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

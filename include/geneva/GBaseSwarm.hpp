@@ -233,7 +233,7 @@ protected:
 	/** @brief Loads the data of another population */
 	virtual G_API_GENEVA void load_(const GObject *) override;
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GObject *clone_() const = 0;
+	virtual G_API_GENEVA GObject *clone_() const override = 0;
 
 	/** @brief Does some preparatory work before the optimization starts */
 	virtual G_API_GENEVA void init() override;
@@ -277,7 +277,7 @@ protected:
 	virtual G_API_GENEVA void updatePositions();
 
 	/** @brief Updates the fitness of all individuals */
-	virtual G_API_GENEVA void runFitnessCalculation() = 0;
+	virtual G_API_GENEVA void runFitnessCalculation() override = 0;
    /** @brief Adjusts the velocity vector so that its values don't exceed the allowed value range */
 	G_API_GENEVA void pruneVelocity(std::vector<double>&);
 

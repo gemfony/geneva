@@ -74,13 +74,13 @@ public:
 	virtual G_API_GENEVA ~GOptimizableI();
 
 	/** @brief Perform the actual optimization cycle, starting to count iterations at a given offset */
-	virtual G_API_GENEVA void optimize(const boost::uint32_t& offset) = 0;
+	virtual G_API_GENEVA void optimize(const boost::uint32_t& offset) BASE = 0;
 
 	/** @brief A simple wrapper function that forces the class to start with offset 0 */
 	virtual G_API_GENEVA void optimize() BASE;
 
 	/** @brief Retrieves the current iteration of this object */
-	virtual G_API_GENEVA boost::uint32_t getIteration() const = 0;
+	virtual G_API_GENEVA boost::uint32_t getIteration() const BASE = 0;
 
 	/***************************************************************************/
 	/**

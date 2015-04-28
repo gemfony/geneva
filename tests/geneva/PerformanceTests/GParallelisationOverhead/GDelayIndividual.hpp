@@ -108,7 +108,7 @@ public:
       const GObject& // the other object
       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
       , const double& // the limit for allowed deviations of floating point types
-   ) const override;
+   ) const final;
 
    /** @brief Sets the sleep-time to a user-defined value */
    void setSleepTime(const boost::posix_time::time_duration&);
@@ -117,14 +117,14 @@ public:
 
 protected:
    /** @brief Loads the data of another GDelayIndividual, camouflaged as a GObject */
-   virtual void load_(const GObject*);
+   virtual void load_(const GObject*) final;
    /** @brief Creates a deep clone of this object */
-   virtual Gem::Geneva::GObject* clone_() const;
+   virtual Gem::Geneva::GObject* clone_() const final;
 
    /** @brief The actual adaption operations */
-   virtual std::size_t customAdaptions() override;
+   virtual std::size_t customAdaptions() final;
    /** @brief The actual fitness calculation takes place here */
-   virtual double fitnessCalculation() override;
+   virtual double fitnessCalculation() final;
 
 private:
    boost::posix_time::time_duration sleepTime_; ///< The amount of time the evaluation function should sleep before continuing
@@ -163,11 +163,11 @@ protected:
    virtual std::shared_ptr<Gem::Geneva::GParameterSet> getObject_(
       Gem::Common::GParserBuilder&
       , const std::size_t&
-   );
+   ) final;
    /** @brief Allows to describe local configuration options in derived classes */
-   virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
+   virtual void describeLocalOptions_(Gem::Common::GParserBuilder&) final;
    /** @brief Allows to act on the configuration options received from the configuration file */
-   virtual void postProcess_(std::shared_ptr<Gem::Geneva::GParameterSet>&);
+   virtual void postProcess_(std::shared_ptr<Gem::Geneva::GParameterSet>&) final;
 
 private:
    /** @brief The default constructor. Intentionally private and undefined */

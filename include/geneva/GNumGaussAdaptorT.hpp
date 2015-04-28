@@ -486,7 +486,7 @@ public:
 	/***************************************************************************/
 	/**
 	 * @brief Retrieves the id of the adaptor. */
-	virtual Gem::Geneva::adaptorId getAdaptorId() const = 0;
+	virtual Gem::Geneva::adaptorId getAdaptorId() const override = 0;
 
    /***************************************************************************/
    /**
@@ -551,7 +551,7 @@ protected:
 	 *
 	 * @return A deep copy of this object
 	 */
-	virtual GObject *clone_() const = 0;
+	virtual GObject *clone_() const override = 0;
 
 	/***************************************************************************/
 	/**
@@ -579,7 +579,7 @@ protected:
 	 *
 	 * @param value The value that is going to be adapted in situ
 	 */
-	virtual void customAdaptions(num_type&, const num_type&) = 0;
+	virtual void customAdaptions(num_type&, const num_type&) override = 0;
 
    /***************************************************************************/
    /**
