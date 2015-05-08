@@ -86,34 +86,34 @@ private:
 
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
-	  using boost::serialization::make_nvp;
+		using boost::serialization::make_nvp;
 
-	  ar
-	  & make_nvp("GMutableSetT", boost::serialization::base_object<GMutableSetT<ind_type> >(*this))
-	  & make_nvp("GOptimizableI", boost::serialization::base_object<GOptimizableI>(*this))
-	  & BOOST_SERIALIZATION_NVP(iteration_)
-	  & BOOST_SERIALIZATION_NVP(offset_)
-	  & BOOST_SERIALIZATION_NVP(maxIteration_)
-	  & BOOST_SERIALIZATION_NVP(maxStallIteration_)
-	  & BOOST_SERIALIZATION_NVP(reportIteration_)
-	  & BOOST_SERIALIZATION_NVP(nRecordBestIndividuals_)
-	  & BOOST_SERIALIZATION_NVP(bestIndividuals_)
-	  & BOOST_SERIALIZATION_NVP(defaultPopulationSize_)
-	  & BOOST_SERIALIZATION_NVP(bestKnownPrimaryFitness_)
-	  & BOOST_SERIALIZATION_NVP(bestCurrentPrimaryFitness_)
-	  & BOOST_SERIALIZATION_NVP(stallCounter_)
-	  & BOOST_SERIALIZATION_NVP(stallCounterThreshold_)
-	  & BOOST_SERIALIZATION_NVP(cpInterval_)
-	  & BOOST_SERIALIZATION_NVP(cpBaseName_)
-	  & BOOST_SERIALIZATION_NVP(cpDirectory_)
-	  & BOOST_SERIALIZATION_NVP(cpSerMode_)
-	  & BOOST_SERIALIZATION_NVP(qualityThreshold_)
-	  & BOOST_SERIALIZATION_NVP(hasQualityThreshold_)
-	  & BOOST_SERIALIZATION_NVP(maxDuration_)
-	  & BOOST_SERIALIZATION_NVP(emitTerminationReason_)
-	  & BOOST_SERIALIZATION_NVP(halted_)
-	  & BOOST_SERIALIZATION_NVP(worstKnownValids_)
-	  & BOOST_SERIALIZATION_NVP(optimizationMonitor_ptr_);
+		ar
+		& make_nvp("GMutableSetT", boost::serialization::base_object<GMutableSetT<ind_type> >(*this))
+		& make_nvp("GOptimizableI", boost::serialization::base_object<GOptimizableI>(*this))
+		& BOOST_SERIALIZATION_NVP(iteration_)
+		& BOOST_SERIALIZATION_NVP(offset_)
+		& BOOST_SERIALIZATION_NVP(maxIteration_)
+		& BOOST_SERIALIZATION_NVP(maxStallIteration_)
+		& BOOST_SERIALIZATION_NVP(reportIteration_)
+		& BOOST_SERIALIZATION_NVP(nRecordBestIndividuals_)
+		& BOOST_SERIALIZATION_NVP(bestIndividuals_)
+		& BOOST_SERIALIZATION_NVP(defaultPopulationSize_)
+		& BOOST_SERIALIZATION_NVP(bestKnownPrimaryFitness_)
+		& BOOST_SERIALIZATION_NVP(bestCurrentPrimaryFitness_)
+		& BOOST_SERIALIZATION_NVP(stallCounter_)
+		& BOOST_SERIALIZATION_NVP(stallCounterThreshold_)
+		& BOOST_SERIALIZATION_NVP(cpInterval_)
+		& BOOST_SERIALIZATION_NVP(cpBaseName_)
+		& BOOST_SERIALIZATION_NVP(cpDirectory_)
+		& BOOST_SERIALIZATION_NVP(cpSerMode_)
+		& BOOST_SERIALIZATION_NVP(qualityThreshold_)
+		& BOOST_SERIALIZATION_NVP(hasQualityThreshold_)
+		& BOOST_SERIALIZATION_NVP(maxDuration_)
+		& BOOST_SERIALIZATION_NVP(emitTerminationReason_)
+		& BOOST_SERIALIZATION_NVP(halted_)
+		& BOOST_SERIALIZATION_NVP(worstKnownValids_)
+		& BOOST_SERIALIZATION_NVP(optimizationMonitor_ptr_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -190,38 +190,38 @@ public:
 	{ /* nothing */ }
 
 	/***************************************************************************/
-   /**
-    * Checks for equality with another GOptimizationAlgorithmT<ind_type> object
-    *
-    * @param  cp A constant reference to another GOptimizationAlgorithmT<ind_type> object
-    * @return A boolean indicating whether both objects are equal
-    */
-   bool operator==(const GOptimizationAlgorithmT<ind_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/**
+	 * Checks for equality with another GOptimizationAlgorithmT<ind_type> object
+	 *
+	 * @param  cp A constant reference to another GOptimizationAlgorithmT<ind_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GOptimizationAlgorithmT<ind_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for inequality with another GOptimizationAlgorithmT<ind_type> object
-    *
-    * @param  cp A constant reference to another GOptimizationAlgorithmT<ind_type> object
-    * @return A boolean indicating whether both objects are inequal
-    */
-   bool operator!=(const GOptimizationAlgorithmT<ind_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GOptimizationAlgorithmT<ind_type> object
+	 *
+	 * @param  cp A constant reference to another GOptimizationAlgorithmT<ind_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GOptimizationAlgorithmT<ind_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
 	/***************************************************************************/
 	/**
@@ -283,17 +283,17 @@ public:
 	void setCheckpointBaseName(std::string cpDirectory, std::string cpBaseName) {
 		// Do some basic checks
 		if(cpBaseName == "empty" || cpBaseName.empty()) {
-		   glogger
-		   << "In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
-         << "Error: Invalid cpBaseName: " << cpBaseName << std::endl
-         << GEXCEPTION;
+			glogger
+			<< "In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
+			<< "Error: Invalid cpBaseName: " << cpBaseName << std::endl
+			<< GEXCEPTION;
 		}
 
 		if(cpDirectory == "empty" || cpDirectory.empty()) {
-		   glogger
-		   << "In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
-         << "Error: Invalid cpDirectory: " << cpDirectory << std::endl
-         << GEXCEPTION;
+			glogger
+			<< "In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
+			<< "Error: Invalid cpDirectory: " << cpDirectory << std::endl
+			<< GEXCEPTION;
 		}
 
 		cpBaseName_ = cpBaseName;
@@ -305,22 +305,22 @@ public:
 				<< "Directory " << cpDirectory << " does not exist and will be created automatically." << std::endl;
 
 			if(!boost::filesystem::create_directory(cpDirectory)) {
-			   glogger
-			   << "In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(): Error!" << std::endl
-            << "Could not create directory " << cpDirectory << std::endl
-            << GEXCEPTION;
+				glogger
+				<< "In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(): Error!" << std::endl
+				<< "Could not create directory " << cpDirectory << std::endl
+				<< GEXCEPTION;
 			}
 		} else if(!boost::filesystem::is_directory(cpDirectory)) {
-		   glogger
-		   << "In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(): Error!" << std::endl
-         << cpDirectory << " exists but is no directory." << std::endl
-         << GEXCEPTION;
+			glogger
+			<< "In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(): Error!" << std::endl
+			<< cpDirectory << " exists but is no directory." << std::endl
+			<< GEXCEPTION;
 		}
 
 		// Add a trailing slash to the directory name, if necessary
 		// TODO: THIS IS NOT PORTABLE TO WINDOWS!
-	    if(cpDirectory[cpDirectory.size() - 1] != '/') cpDirectory_ = cpDirectory + '/';
-	    else cpDirectory_ = cpDirectory;
+		if(cpDirectory[cpDirectory.size() - 1] != '/') cpDirectory_ = cpDirectory + '/';
+		else cpDirectory_ = cpDirectory;
 	}
 
 	/***************************************************************************/
@@ -363,57 +363,57 @@ public:
 		return cpSerMode_;
 	}
 
-   /***************************************************************************/
-   /**
-    * Searches for compliance with expectations with respect to another object
-    * of the same type
-    *
-    * @param cp A constant reference to another GObject object
-    * @param e The expected outcome of the comparison
-    * @param limit The maximum deviation for floating point values (important for similarity checks)
-    */
-   virtual void compare(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-   ) const override {
-      using namespace Gem::Common;
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
 
-      // Check that we are indeed dealing with a GAdaptorT reference
-      const GOptimizationAlgorithmT<ind_type> *p_load = GObject::gobject_conversion<GOptimizationAlgorithmT<ind_type> >(&cp);
+		// Check that we are indeed dealing with a GAdaptorT reference
+		const GOptimizationAlgorithmT<ind_type> *p_load = GObject::gobject_conversion<GOptimizationAlgorithmT<ind_type> >(&cp);
 
-      GToken token("GOptimizationAlgorithmT<ind_type>", e);
+		GToken token("GOptimizationAlgorithmT<ind_type>", e);
 
-      // Compare our parent data ...
-      Gem::Common::compare_base<GMutableSetT<ind_type> >(IDENTITY(*this, *p_load), token);
+		// Compare our parent data ...
+		Gem::Common::compare_base<GMutableSetT<ind_type> >(IDENTITY(*this, *p_load), token);
 
-      // ... and then the local data
-      compare_t(IDENTITY(iteration_, p_load->iteration_), token);
-      compare_t(IDENTITY(offset_, p_load->offset_), token);
-      compare_t(IDENTITY(maxIteration_, p_load->maxIteration_), token);
-      compare_t(IDENTITY(maxStallIteration_, p_load->maxStallIteration_), token);
-      compare_t(IDENTITY(reportIteration_, p_load->reportIteration_), token);
-      compare_t(IDENTITY(nRecordBestIndividuals_, p_load->nRecordBestIndividuals_), token);
-      compare_t(IDENTITY(defaultPopulationSize_, p_load->defaultPopulationSize_), token);
-      compare_t(IDENTITY(bestKnownPrimaryFitness_, p_load->bestKnownPrimaryFitness_), token);
-      compare_t(IDENTITY(bestCurrentPrimaryFitness_, p_load->bestCurrentPrimaryFitness_), token);
-      compare_t(IDENTITY(stallCounter_, p_load->stallCounter_), token);
-      compare_t(IDENTITY(stallCounterThreshold_, p_load->stallCounterThreshold_), token);
-      compare_t(IDENTITY(cpInterval_, p_load->cpInterval_), token);
-      compare_t(IDENTITY(cpBaseName_, p_load->cpBaseName_), token);
-      compare_t(IDENTITY(cpDirectory_, p_load->cpDirectory_), token);
-      compare_t(IDENTITY(cpSerMode_, p_load->cpSerMode_), token);
-      compare_t(IDENTITY(qualityThreshold_, p_load->qualityThreshold_), token);
-      compare_t(IDENTITY(hasQualityThreshold_, p_load->hasQualityThreshold_), token);
-      compare_t(IDENTITY(maxDuration_, p_load->maxDuration_), token);
-      compare_t(IDENTITY(emitTerminationReason_, p_load->emitTerminationReason_), token);
-      compare_t(IDENTITY(halted_, p_load->halted_), token);
-      compare_t(IDENTITY(worstKnownValids_, p_load->worstKnownValids_), token);
-      compare_t(IDENTITY(optimizationMonitor_ptr_, p_load->optimizationMonitor_ptr_), token);
+		// ... and then the local data
+		compare_t(IDENTITY(iteration_, p_load->iteration_), token);
+		compare_t(IDENTITY(offset_, p_load->offset_), token);
+		compare_t(IDENTITY(maxIteration_, p_load->maxIteration_), token);
+		compare_t(IDENTITY(maxStallIteration_, p_load->maxStallIteration_), token);
+		compare_t(IDENTITY(reportIteration_, p_load->reportIteration_), token);
+		compare_t(IDENTITY(nRecordBestIndividuals_, p_load->nRecordBestIndividuals_), token);
+		compare_t(IDENTITY(defaultPopulationSize_, p_load->defaultPopulationSize_), token);
+		compare_t(IDENTITY(bestKnownPrimaryFitness_, p_load->bestKnownPrimaryFitness_), token);
+		compare_t(IDENTITY(bestCurrentPrimaryFitness_, p_load->bestCurrentPrimaryFitness_), token);
+		compare_t(IDENTITY(stallCounter_, p_load->stallCounter_), token);
+		compare_t(IDENTITY(stallCounterThreshold_, p_load->stallCounterThreshold_), token);
+		compare_t(IDENTITY(cpInterval_, p_load->cpInterval_), token);
+		compare_t(IDENTITY(cpBaseName_, p_load->cpBaseName_), token);
+		compare_t(IDENTITY(cpDirectory_, p_load->cpDirectory_), token);
+		compare_t(IDENTITY(cpSerMode_, p_load->cpSerMode_), token);
+		compare_t(IDENTITY(qualityThreshold_, p_load->qualityThreshold_), token);
+		compare_t(IDENTITY(hasQualityThreshold_, p_load->hasQualityThreshold_), token);
+		compare_t(IDENTITY(maxDuration_, p_load->maxDuration_), token);
+		compare_t(IDENTITY(emitTerminationReason_, p_load->emitTerminationReason_), token);
+		compare_t(IDENTITY(halted_, p_load->halted_), token);
+		compare_t(IDENTITY(worstKnownValids_, p_load->worstKnownValids_), token);
+		compare_t(IDENTITY(optimizationMonitor_ptr_, p_load->optimizationMonitor_ptr_), token);
 
-      // React on deviations from the expectation
-      token.evaluate();
-   }
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 
 	/***************************************************************************/
@@ -461,8 +461,8 @@ public:
 
 		stallCounter_ = 0;
 
-      // Initialize the start time with the current time.
-      startTime_ = boost::posix_time::microsec_clock::local_time();
+		// Initialize the start time with the current time.
+		startTime_ = boost::posix_time::microsec_clock::local_time();
 
 		// Give derived classes the opportunity to perform any necessary preparatory work.
 		init();
@@ -484,13 +484,13 @@ public:
 			markBestFitness();
 
 			// Let individuals know about the stalls encountered so far
-	      markNStalls();
+			markNStalls();
 
 			// Give derived classes an opportunity to act on stalls. NOTE that no action
 			// may be taken that affects the "dirty" state of individuals
-	      if(stallCounterThreshold_ && stallCounterThresholdExceeded()) {
-	         actOnStalls();
-	      }
+			if(stallCounterThreshold_ && stallCounterThresholdExceeded()) {
+				actOnStalls();
+			}
 
 			// We want to provide feedback to the user in regular intervals.
 			// Set the reportGeneration_ variable to 0 in order not to emit
@@ -533,26 +533,26 @@ public:
 	virtual void doInfo(const infoMode& im) BASE {
 #ifdef DEBUG
 		if(!optimizationMonitor_ptr_) {
-		   glogger
-		   << "In GOptimizationAlgorithmT<ind_type>::doInfo():" << std::endl
-         << "optimizationMonitor_ptr_ is empty when it shouldn't be." << std::endl
-         << GEXCEPTION;
+			glogger
+			<< "In GOptimizationAlgorithmT<ind_type>::doInfo():" << std::endl
+			<< "optimizationMonitor_ptr_ is empty when it shouldn't be." << std::endl
+			<< GEXCEPTION;
 		}
 #endif /* DEBUG */
 
 		(this->optimizationMonitor_ptr_)->informationFunction(im, this);
 	}
 
-   /***************************************************************************/
-   /**
-    * Checks whether a better solution was found. If so, the stallCounter_
-    * variable will have been set to 0
-    *
-    * @return A boolean indicating whether a better solution was found
-    */
+	/***************************************************************************/
+	/**
+	 * Checks whether a better solution was found. If so, the stallCounter_
+	 * variable will have been set to 0
+	 *
+	 * @return A boolean indicating whether a better solution was found
+	 */
 	bool progress() const {
-      return (0==stallCounter_);
-   }
+		return (0==stallCounter_);
+	}
 
 	/***************************************************************************/
 	/**
@@ -566,10 +566,10 @@ public:
 	void registerOptimizationMonitor(std::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> om_ptr) {
 #ifdef DEBUG
 		if(!om_ptr) {
-		   glogger
-		   << "In GOptimizationAlgorithmT<ind_type>::registerOptimizationMonitor():" << std::endl
-         << "om_ptr is empty when it shouldn't be." << std::endl
-         << GEXCEPTION;
+			glogger
+			<< "In GOptimizationAlgorithmT<ind_type>::registerOptimizationMonitor():" << std::endl
+			<< "om_ptr is empty when it shouldn't be." << std::endl
+			<< GEXCEPTION;
 		}
 #endif /* DEBUG */
 
@@ -651,10 +651,10 @@ public:
 
 		// Only allow "real" values
 		if(maxDuration.is_special() || maxDuration.is_negative()) {
-		   glogger
-		   << "In GOptimizationAlgorithmT<ind_type>::setMaxTime() :" << std::endl
-         << "Invalid maxDuration." << std::endl
-         << GEXCEPTION;
+			glogger
+			<< "In GOptimizationAlgorithmT<ind_type>::setMaxTime() :" << std::endl
+			<< "Invalid maxDuration." << std::endl
+			<< GEXCEPTION;
 		}
 
 		maxDuration_ = maxDuration;
@@ -772,7 +772,7 @@ public:
 	 * individuals are asked to update their internal data structures
 	 */
 	void setStallCounterThreshold(boost::uint32_t stallCounterThreshold) {
-	   stallCounterThreshold_ = stallCounterThreshold;
+		stallCounterThreshold_ = stallCounterThreshold;
 	}
 
 	/***************************************************************************/
@@ -781,7 +781,7 @@ public:
 	 * individuals are asked to update their internal data structures
 	 */
 	boost::uint32_t getStallCounterThreshold() const {
-	   return stallCounterThreshold_;
+		return stallCounterThreshold_;
 	}
 
 	/***************************************************************************/
@@ -791,9 +791,9 @@ public:
 	 * @return The best raw and transformed fitness found so far
 	 */
 	boost::tuple<double, double> getBestKnownPrimaryFitness() const {
-	   return (bestIndividuals_.best())->getFitnessTuple();
+		return (bestIndividuals_.best())->getFitnessTuple();
 
-	   // return bestKnownPrimaryFitness_;
+		// return bestKnownPrimaryFitness_;
 	}
 
 	/***************************************************************************/
@@ -841,18 +841,18 @@ public:
 	 */
 	template <typename target_type>
 	std::shared_ptr<target_type> individual_cast(
-			 const std::size_t& pos
-		   , typename boost::enable_if<boost::is_base_of<GOptimizableEntity, target_type> >::type* dummy = 0
+			const std::size_t& pos
+			, typename boost::enable_if<boost::is_base_of<GOptimizableEntity, target_type> >::type* dummy = 0
 	) {
 #ifdef DEBUG
 		if(pos >= this->size()) {
-		   glogger
-		   << "In GOptimizationAlgorithmT<ind_type>::individual_cast<>() : Error" << std::endl
-         << "Tried to access position " << pos << " which is >= array size " << this->size() << std::endl
-         << GEXCEPTION;
+			glogger
+			<< "In GOptimizationAlgorithmT<ind_type>::individual_cast<>() : Error" << std::endl
+			<< "Tried to access position " << pos << " which is >= array size " << this->size() << std::endl
+			<< GEXCEPTION;
 
-		   // Make the compiler happy
-		   return std::shared_ptr<target_type>();
+			// Make the compiler happy
+			return std::shared_ptr<target_type>();
 		}
 #endif /* DEBUG */
 
@@ -868,7 +868,7 @@ public:
 	 * to make better use of Multi-Populations in Evolutionary Algorithms.
 	 */
 	virtual bool randomInit(const activityMode&) override {
-	   return false;
+		return false;
 	}
 
 	/***************************************************************************/
@@ -905,99 +905,99 @@ public:
 		// Call our parent class'es function
 		GMutableSetT<ind_type>::addConfigurationOptions(gpb);
 
-      // Add local data
-      gpb.registerFileParameter<boost::uint32_t>(
-         "maxIteration" // The name of the variable
-         , DEFAULTMAXIT // The default value
-         , [this](boost::uint32_t maxIt){ this->setMaxIteration(maxIt); }
-      )
-      << "The maximum allowed number of iterations";
+		// Add local data
+		gpb.registerFileParameter<boost::uint32_t>(
+			"maxIteration" // The name of the variable
+			, DEFAULTMAXIT // The default value
+			, [this](boost::uint32_t maxIt){ this->setMaxIteration(maxIt); }
+		)
+		<< "The maximum allowed number of iterations";
 
-      gpb.registerFileParameter<boost::uint32_t>(
-         "maxStallIteration" // The name of the variable
-         , DEFAULTMAXSTALLIT // The default value
-         , [this](boost::uint32_t maxStallIt){ this->setMaxStallIteration(maxStallIt); }
-      )
-      << "The maximum allowed number of iterations without improvement" << std::endl
-      << "0 means: no constraint.";
+		gpb.registerFileParameter<boost::uint32_t>(
+			"maxStallIteration" // The name of the variable
+			, DEFAULTMAXSTALLIT // The default value
+			, [this](boost::uint32_t maxStallIt){ this->setMaxStallIteration(maxStallIt); }
+		)
+		<< "The maximum allowed number of iterations without improvement" << std::endl
+		<< "0 means: no constraint.";
 
-      gpb.registerFileParameter<boost::uint32_t>(
-         "indivdualUpdateStallCounterThreshold" // The name of the variable
-         , DEFAULTSTALLCOUNTERTHRESHOLD // The default value
-         , [this](boost::uint32_t stallCounterThreshold){ this->setStallCounterThreshold(stallCounterThreshold); }
-      )
-      << "The number of iterations without improvement after which" << std::endl
-      << "individuals are asked to update their internal data structures" << std::endl
-      << "through the actOnStalls() function. A value of 0 disables this check";
+		gpb.registerFileParameter<boost::uint32_t>(
+			"indivdualUpdateStallCounterThreshold" // The name of the variable
+			, DEFAULTSTALLCOUNTERTHRESHOLD // The default value
+			, [this](boost::uint32_t stallCounterThreshold){ this->setStallCounterThreshold(stallCounterThreshold); }
+		)
+		<< "The number of iterations without improvement after which" << std::endl
+		<< "individuals are asked to update their internal data structures" << std::endl
+		<< "through the actOnStalls() function. A value of 0 disables this check";
 
-      gpb.registerFileParameter<boost::uint32_t>(
-         "reportIteration" // The name of the variable
-         , DEFAULTREPORTITER // The default value
-         , [this](boost::uint32_t rI){ this->setReportIteration(rI); }
-      )
-      << "The number of iterations after which a report should be issued";
+		gpb.registerFileParameter<boost::uint32_t>(
+			"reportIteration" // The name of the variable
+			, DEFAULTREPORTITER // The default value
+			, [this](boost::uint32_t rI){ this->setReportIteration(rI); }
+		)
+		<< "The number of iterations after which a report should be issued";
 
-      gpb.registerFileParameter<std::size_t>(
-         "nRecordBestIndividuals" // The name of the variable
-         , DEFNRECORDBESTINDIVIDUALS // The default value
-         , [this](std::size_t nRecBI){ this->setNRecordBestIndividuals(nRecBI); }
-      )
-      << "Indicates how many \"best\" individuals should be recorded in each iteration";
+		gpb.registerFileParameter<std::size_t>(
+			"nRecordBestIndividuals" // The name of the variable
+			, DEFNRECORDBESTINDIVIDUALS // The default value
+			, [this](std::size_t nRecBI){ this->setNRecordBestIndividuals(nRecBI); }
+		)
+		<< "Indicates how many \"best\" individuals should be recorded in each iteration";
 
-      gpb.registerFileParameter<boost::int32_t>(
-         "cpInterval" // The name of the variable
-         , DEFAULTCHECKPOINTIT // The default value
-         , [this](boost::int32_t cpI){ this->setCheckpointInterval(cpI); }
-      )
-      << "The number of iterations after which a checkpoint should be written." << std::endl
-      << "-1 means: Write a checkpoint file whenever an improvement was encountered" << std::endl
-      << " 0 means: Never emit checkpoint files.";
+		gpb.registerFileParameter<boost::int32_t>(
+			"cpInterval" // The name of the variable
+			, DEFAULTCHECKPOINTIT // The default value
+			, [this](boost::int32_t cpI){ this->setCheckpointInterval(cpI); }
+		)
+		<< "The number of iterations after which a checkpoint should be written." << std::endl
+		<< "-1 means: Write a checkpoint file whenever an improvement was encountered" << std::endl
+		<< " 0 means: Never emit checkpoint files.";
 
-      gpb.registerFileParameter<std::string, std::string>(
-         "cpDirectory"  // The name of the first variable
-         , "cpBaseName" // The name of the second variable
-         , DEFAULTCPDIR // Default value for the first variable
-         , DEFAULTCPBASENAME // Default value for the second variable
-         , [this](std::string cpDir, std::string cpBN){ this->setCheckpointBaseName(cpDir, cpBN); }
-          , "checkpointLocation"
-      )
-      << "The directory where checkpoint files should be stored." << Gem::Common::nextComment() // comments for the second option follow
-      << "The significant part of the checkpoint file name.";
+		gpb.registerFileParameter<std::string, std::string>(
+			"cpDirectory"  // The name of the first variable
+			, "cpBaseName" // The name of the second variable
+			, DEFAULTCPDIR // Default value for the first variable
+			, DEFAULTCPBASENAME // Default value for the second variable
+			, [this](std::string cpDir, std::string cpBN){ this->setCheckpointBaseName(cpDir, cpBN); }
+			, "checkpointLocation"
+		)
+		<< "The directory where checkpoint files should be stored." << Gem::Common::nextComment() // comments for the second option follow
+		<< "The significant part of the checkpoint file name.";
 
-      gpb.registerFileParameter<Gem::Common::serializationMode>(
-         "cpSerMode" // The name of the variable
-         , DEFAULTCPSERMODE // The default value
-         , [this](Gem::Common::serializationMode sM){ this->setCheckpointSerializationMode(sM); }
-      )
-      << "Determines whether check-pointing should be done in" << std::endl
-      << "text- (0), XML- (1), or binary-mode (2)";
+		gpb.registerFileParameter<Gem::Common::serializationMode>(
+			"cpSerMode" // The name of the variable
+			, DEFAULTCPSERMODE // The default value
+			, [this](Gem::Common::serializationMode sM){ this->setCheckpointSerializationMode(sM); }
+		)
+		<< "Determines whether check-pointing should be done in" << std::endl
+		<< "text- (0), XML- (1), or binary-mode (2)";
 
-      gpb.registerFileParameter<double, bool>(
-         "threshold" // The name of the variable
-         , "thresholdActive"
-         , DEFAULTQUALITYTHRESHOLD // The default value
-         , false
-         , [this](double qt, bool ta){ this->setQualityThreshold(qt, ta); }
-         , "qualityTermination"
-      )
-      << "A threshold beyond which optimization is expected to stop" << std::endl
-      << "Note that in order to activate this threshold, you also need to" << std::endl
-      << "set \"hasQualityThreshold\" to 1." << Gem::Common::nextComment()
-      << "Activates (1) or de-activates (0) the quality threshold";
+		gpb.registerFileParameter<double, bool>(
+			"threshold" // The name of the variable
+			, "thresholdActive"
+			, DEFAULTQUALITYTHRESHOLD // The default value
+			, false
+			, [this](double qt, bool ta){ this->setQualityThreshold(qt, ta); }
+			, "qualityTermination"
+		)
+		<< "A threshold beyond which optimization is expected to stop" << std::endl
+		<< "Note that in order to activate this threshold, you also need to" << std::endl
+		<< "set \"hasQualityThreshold\" to 1." << Gem::Common::nextComment()
+		<< "Activates (1) or de-activates (0) the quality threshold";
 
-      gpb.registerFileParameter<boost::posix_time::time_duration>(
-         "maxDuration" // The name of the variable
-         , boost::posix_time::duration_from_string(DEFAULTDURATION) // The default value
-         , [this](boost::posix_time::time_duration mt){ this->setMaxTime(mt); }
-      )
-      << "The maximum allowed time-frame for the optimization";
+		gpb.registerFileParameter<boost::posix_time::time_duration>(
+			"maxDuration" // The name of the variable
+			, boost::posix_time::duration_from_string(DEFAULTDURATION) // The default value
+			, [this](boost::posix_time::time_duration mt){ this->setMaxTime(mt); }
+		)
+		<< "The maximum allowed time-frame for the optimization";
 
-      gpb.registerFileParameter<bool>(
-         "emitTerminationReason" // The name of the variable
-         , DEFAULTEMITTERMINATIONREASON // The default value
-         , [this](bool etr){ this->setEmitTerminationReason(etr); }
-      )
-      << "Triggers emission (1) or omission (0) of information about reasons for termination";
+		gpb.registerFileParameter<bool>(
+			"emitTerminationReason" // The name of the variable
+			, DEFAULTEMITTERMINATIONREASON // The default value
+			, [this](bool etr){ this->setEmitTerminationReason(etr); }
+		)
+		<< "Triggers emission (1) or omission (0) of information about reasons for termination";
 	}
 
 	/***************************************************************************/
@@ -1014,152 +1014,152 @@ public:
 	/**
 	 * Retrieves a parameter of a given type at the specified position
 	 */
-   virtual boost::any getVarVal(
-      const std::string& descr
-      , const boost::tuple<std::size_t, std::string, std::size_t>& target
-   ) override {
-      return GOptimizableI::getBestIndividual<GParameterSet>()->getVarVal(descr, target);
-   }
+	virtual boost::any getVarVal(
+		const std::string& descr
+		, const boost::tuple<std::size_t, std::string, std::size_t>& target
+	) override {
+		return GOptimizableI::getBestIndividual<GParameterSet>()->getVarVal(descr, target);
+	}
 
-   /***************************************************************************/
-   /**
-    * Adds the best individuals of each iteration to a priority queue. The
-    * queue will be sorted by the first evaluation criterion of the individuals
-    * and may either have a limited or unlimited size. Note: this function is
-    * a trap -- the real action happens in overloads of this function, of which
-    * the one for GParameterSet-derivatives is likely the most important.
-    */
-   virtual void addIterationBests(GParameterSetFixedSizePriorityQueue& bestIndividuals) BASE {
-      glogger
-      << "In GOptimizationAlgorithmT<ind_type>::addIterationBests(): Error!" << std::endl
-      << "This function should not have been called" << std::endl
-      << GEXCEPTION;
-   }
+	/***************************************************************************/
+	/**
+	 * Adds the best individuals of each iteration to a priority queue. The
+	 * queue will be sorted by the first evaluation criterion of the individuals
+	 * and may either have a limited or unlimited size. Note: this function is
+	 * a trap -- the real action happens in overloads of this function, of which
+	 * the one for GParameterSet-derivatives is likely the most important.
+	 */
+	virtual void addIterationBests(GParameterSetFixedSizePriorityQueue& bestIndividuals) BASE {
+		glogger
+		<< "In GOptimizationAlgorithmT<ind_type>::addIterationBests(): Error!" << std::endl
+		<< "This function should not have been called" << std::endl
+		<< GEXCEPTION;
+	}
 
-   /***************************************************************************/
-   /**
-    * If individuals have been stored in this population, they are added to the
-    * priority queue. This happens before the optimization cycle starts, so that
-    * best individuals from a previous "chained" optimization run aren't lost.
-    * Only those individuals are stored in the priority queue that do not have the
-    * "dirty flag" set.
-    */
-   virtual void addCleanStoredBests(GParameterSetFixedSizePriorityQueue& bestIndividuals) BASE {
-      glogger
-      << "In GOptimizationAlgorithmT<ind_type>::addCleanStoredBests(): Error!" << std::endl
-      << "This function should not have been called" << std::endl
-      << GEXCEPTION;
-   }
+	/***************************************************************************/
+	/**
+	 * If individuals have been stored in this population, they are added to the
+	 * priority queue. This happens before the optimization cycle starts, so that
+	 * best individuals from a previous "chained" optimization run aren't lost.
+	 * Only those individuals are stored in the priority queue that do not have the
+	 * "dirty flag" set.
+	 */
+	virtual void addCleanStoredBests(GParameterSetFixedSizePriorityQueue& bestIndividuals) BASE {
+		glogger
+		<< "In GOptimizationAlgorithmT<ind_type>::addCleanStoredBests(): Error!" << std::endl
+		<< "This function should not have been called" << std::endl
+		<< GEXCEPTION;
+	}
 
-   /***************************************************************************/
+	/***************************************************************************/
 
-   /** @brief Emits a name for this class / object; this can be a long name with spaces */
-   virtual std::string name() const override = 0;
+	/** @brief Emits a name for this class / object; this can be a long name with spaces */
+	virtual std::string name() const override = 0;
 
-   /***************************************************************************/
-   /**
-    * Helps to determine whether a given value is strictly better (i.e. better than equal)
-    * than another one. As "better" means something different for maximization and minimization,
-    * this function helps to make the code easier to understand. This function requires
-    * that at least one individual has been registered with the algorithm.
-    *
-    * @param newValue The new value
-    * @param oldValue The old value
-    * @return true if newValue is better than oldValue, otherwise false.
-    */
-   virtual bool isBetter(double newValue, const double& oldValue) const override {
+	/***************************************************************************/
+	/**
+	 * Helps to determine whether a given value is strictly better (i.e. better than equal)
+	 * than another one. As "better" means something different for maximization and minimization,
+	 * this function helps to make the code easier to understand. This function requires
+	 * that at least one individual has been registered with the algorithm.
+	 *
+	 * @param newValue The new value
+	 * @param oldValue The old value
+	 * @return true if newValue is better than oldValue, otherwise false.
+	 */
+	virtual bool isBetter(double newValue, const double& oldValue) const override {
 #ifdef DEBUG
-      if(this->empty()) {
-         glogger
-         << "In GOptimizationAlgorithmT<>::isBetter(): Error!" << std::endl
-         << "No individuals have been registered" << std::endl
-         << GEXCEPTION;
-      }
+		if(this->empty()) {
+			glogger
+			<< "In GOptimizationAlgorithmT<>::isBetter(): Error!" << std::endl
+			<< "No individuals have been registered" << std::endl
+			<< GEXCEPTION;
+		}
 #endif
 
-      return this->at(0)->isBetter(newValue, oldValue);
-   }
+		return this->at(0)->isBetter(newValue, oldValue);
+	}
 
-   /***************************************************************************/
-   /**
-    * Helps to determine whether a given value is strictly worse (i.e. worse than equal)
-    * than another one. As "worse" means something different for maximization and minimization,
-    * this function helps to make the code easier to understand. This function requires
-    * that at least one individual has been registered with the algorithm.
-    *
-    * @param newValue The new value
-    * @param oldValue The old value
-    * @return true of newValue is worse than oldValue, otherwise false.
-    */
-   virtual bool isWorse(double newValue, const double& oldValue) const override {
+	/***************************************************************************/
+	/**
+	 * Helps to determine whether a given value is strictly worse (i.e. worse than equal)
+	 * than another one. As "worse" means something different for maximization and minimization,
+	 * this function helps to make the code easier to understand. This function requires
+	 * that at least one individual has been registered with the algorithm.
+	 *
+	 * @param newValue The new value
+	 * @param oldValue The old value
+	 * @return true of newValue is worse than oldValue, otherwise false.
+	 */
+	virtual bool isWorse(double newValue, const double& oldValue) const override {
 #ifdef DEBUG
-      if(this->empty()) {
-         glogger
-         << "In GOptimizationAlgorithmT<>::isWorse(): Error!" << std::endl
-         << "No individuals have been registered" << std::endl
-         << GEXCEPTION;
-      }
+		if(this->empty()) {
+			glogger
+			<< "In GOptimizationAlgorithmT<>::isWorse(): Error!" << std::endl
+			<< "No individuals have been registered" << std::endl
+			<< GEXCEPTION;
+		}
 #endif
 
-      return this->at(0)->isWorse(newValue, oldValue);
-   }
+		return this->at(0)->isWorse(newValue, oldValue);
+	}
 
-   /***************************************************************************/
-   /**
-    * Retrieves the worst possible evaluation result, depending on whether we are
-    * in maximization or minimization mode
-    */
-   virtual double getWorstCase() const override {
+	/***************************************************************************/
+	/**
+	 * Retrieves the worst possible evaluation result, depending on whether we are
+	 * in maximization or minimization mode
+	 */
+	virtual double getWorstCase() const override {
 #ifdef DEBUG
-      if(this->empty()) {
-         glogger
-         << "In GOptimizationAlgorithmT<>::getWorstCase(): Error!" << std::endl
-         << "No individuals have been registered" << std::endl
-         << GEXCEPTION;
-      }
+		if(this->empty()) {
+			glogger
+			<< "In GOptimizationAlgorithmT<>::getWorstCase(): Error!" << std::endl
+			<< "No individuals have been registered" << std::endl
+			<< GEXCEPTION;
+		}
 #endif
 
-      return this->at(0)->getWorstCase();
-   }
+		return this->at(0)->getWorstCase();
+	}
 
-   /***************************************************************************/
-   /**
-    * Retrieves the best possible evaluation result, depending on whether we are
-    * in maximization or minimization mode
-    */
-   virtual double getBestCase() const override {
+	/***************************************************************************/
+	/**
+	 * Retrieves the best possible evaluation result, depending on whether we are
+	 * in maximization or minimization mode
+	 */
+	virtual double getBestCase() const override {
 #ifdef DEBUG
-      if(this->empty()) {
-         glogger
-         << "In GOptimizationAlgorithmT<>::getBestCase(): Error!" << std::endl
-         << "No individuals have been registered" << std::endl
-         << GEXCEPTION;
-      }
+		if(this->empty()) {
+			glogger
+			<< "In GOptimizationAlgorithmT<>::getBestCase(): Error!" << std::endl
+			<< "No individuals have been registered" << std::endl
+			<< GEXCEPTION;
+		}
 #endif
 
-      return this->at(0)->getBestCase();
-   }
+		return this->at(0)->getBestCase();
+	}
 
-   /***************************************************************************/
-   /**
-    * A little helper function that determines whether we are currently inside of the first
-    * iteration
-    *
-    * @return A boolean indicating whether we are inside of the first iteration
-    */
-   bool inFirstIteration() const {
-      return iteration_ == offset_;
-   }
+	/***************************************************************************/
+	/**
+	 * A little helper function that determines whether we are currently inside of the first
+	 * iteration
+	 *
+	 * @return A boolean indicating whether we are inside of the first iteration
+	 */
+	bool inFirstIteration() const {
+		return iteration_ == offset_;
+	}
 
-   /***************************************************************************/
-   /**
-    * A little helper function that determines whether we are after the first iteration
-    *
-    * @return A boolean indicating whether we are after the first iteration
-    */
-   bool afterFirstIteration() const {
-      return iteration_ > offset_;
-   }
+	/***************************************************************************/
+	/**
+	 * A little helper function that determines whether we are after the first iteration
+	 *
+	 * @return A boolean indicating whether we are after the first iteration
+	 */
+	bool afterFirstIteration() const {
+		return iteration_ > offset_;
+	}
 
 protected:
 	/***************************************************************************/
@@ -1204,47 +1204,47 @@ protected:
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const override = 0;
 
-   /***************************************************************************/
-   /**
-    * Retrieves the best individual found up to now (which is the best individual
-    * in the priority queue).
-    */
-   virtual std::shared_ptr<GParameterSet> customGetBestIndividual() override {
+	/***************************************************************************/
+	/**
+	 * Retrieves the best individual found up to now (which is the best individual
+	 * in the priority queue).
+	 */
+	virtual std::shared_ptr<GParameterSet> customGetBestIndividual() override {
 #ifdef DEBUG
-      std::shared_ptr<GParameterSet> p = bestIndividuals_.best();
-      if(p) return p;
-      else {
-         glogger
-         << "In GOptimizationAlgorithmT<T>::customGetBestIndividual(): Error!" << std::endl
-         << "Best individual seems to be empty" << std::endl
-         << GEXCEPTION;
+		std::shared_ptr<GParameterSet> p = bestIndividuals_.best();
+		if(p) return p;
+		else {
+			glogger
+			<< "In GOptimizationAlgorithmT<T>::customGetBestIndividual(): Error!" << std::endl
+			<< "Best individual seems to be empty" << std::endl
+			<< GEXCEPTION;
 
-         // Make the compiler happy
-         return std::shared_ptr<GParameterSet>();
-      }
+			// Make the compiler happy
+			return std::shared_ptr<GParameterSet>();
+		}
 #else
-      return bestIndividuals_.best();
+		return bestIndividuals_.best();
 #endif
-   }
+	}
 
-   /***************************************************************************/
-   /**
-    * Retrieves a list of the best individuals found (equal to the content of
-    * the priority queue)
-    */
-   virtual std::vector<std::shared_ptr<GParameterSet> > customGetBestIndividuals() override {
-      return bestIndividuals_.toVector();
-   }
+	/***************************************************************************/
+	/**
+	 * Retrieves a list of the best individuals found (equal to the content of
+	 * the priority queue)
+	 */
+	virtual std::vector<std::shared_ptr<GParameterSet> > customGetBestIndividuals() override {
+		return bestIndividuals_.toVector();
+	}
 
 	/***************************************************************************/
 	/**
 	 * Allows to set the personality type of the individuals
 	 */
 	virtual void setIndividualPersonalities() {
-      typename GOptimizationAlgorithmT<ind_type>::iterator it;
-      for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->setPersonality(this->getPersonalityTraits());
-      }
+		typename GOptimizationAlgorithmT<ind_type>::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->setPersonality(this->getPersonalityTraits());
+		}
 	}
 
 	/***************************************************************************/
@@ -1281,25 +1281,25 @@ protected:
 	 * @param nRecordBestIndividuals The number of "best" individuals to be recorded in each iteration
 	 */
 	void setNRecordBestIndividuals(std::size_t nRecordBestIndividuals) {
-	   if(0 == nRecordBestIndividuals) {
-	      glogger
-	      << "In GOptimizationAlgorithmT<>::setNRecordBestIndividuals(): Error!" << std::endl
-	      << "Invalid number of individuals to be recorded: " << nRecordBestIndividuals << std::endl
-	      << GEXCEPTION;
-	   }
+		if(0 == nRecordBestIndividuals) {
+			glogger
+			<< "In GOptimizationAlgorithmT<>::setNRecordBestIndividuals(): Error!" << std::endl
+			<< "Invalid number of individuals to be recorded: " << nRecordBestIndividuals << std::endl
+			<< GEXCEPTION;
+		}
 
-	   nRecordBestIndividuals_ = nRecordBestIndividuals;
-	   bestIndividuals_.setMaxSize(nRecordBestIndividuals_);
+		nRecordBestIndividuals_ = nRecordBestIndividuals;
+		bestIndividuals_.setMaxSize(nRecordBestIndividuals_);
 	}
 
-   /***************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieve the number of best individuals to be recorded in each iteration
 	 *
 	 * @return The number of best individuals to be recorded in each iteration
 	 */
 	std::size_t getNRecordBestIndividuals() const {
-	   return nRecordBestIndividuals_;
+		return nRecordBestIndividuals_;
 	}
 
 	/***************************************************************************/
@@ -1328,8 +1328,8 @@ protected:
 	 * @return The fitness of the best individual in the population
 	 */
 	virtual double fitnessCalculation() override {
-	   // Make sure the population is optimized
-	   GOptimizableI::optimize();
+		// Make sure the population is optimized
+		GOptimizableI::optimize();
 
 		// We use the raw fitness rather than the transformed fitness,
 		// as this is custom also for "normal" individuals. Re-evaluation
@@ -1352,7 +1352,7 @@ protected:
 	 * as one of their first actions, call this function.
 	 */
 	virtual void init() BASE
-   { /* nothing */ }
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -1361,11 +1361,11 @@ protected:
 	 * call this function as one of their last actions.
 	 */
 	virtual void finalize() BASE
-   { /* nothing */ }
+	{ /* nothing */ }
 
-   /***************************************************************************/
-   /** @brief Retrieve a personality trait object belong to this algorithm */
-   virtual std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const = 0;
+	/***************************************************************************/
+	/** @brief Retrieve a personality trait object belong to this algorithm */
+	virtual std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const = 0;
 
 	/***************************************************************************/
 	/** @brief Resizes the population to the desired level and does some error checks */
@@ -1377,142 +1377,142 @@ protected:
 	 * cycle.
 	 */
 	virtual void markIteration() BASE {
-      typename GOptimizationAlgorithmT<ind_type>::iterator it;
+		typename GOptimizationAlgorithmT<ind_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->setAssignedIteration(iteration_);
 		}
 	}
 
-   /***************************************************************************/
-   /**
-    * Updates the worst known valid evaluations up to the current iteration
-    * and stores the fitness-values internally. Note: The first tuple-value
-    * in the vector signifies the untransformed (but possible == MIN/MAX_DOUBLE)
-    * evaluation, the second value the potentially transformed value.
-    */
+	/***************************************************************************/
+	/**
+	 * Updates the worst known valid evaluations up to the current iteration
+	 * and stores the fitness-values internally. Note: The first tuple-value
+	 * in the vector signifies the untransformed (but possible == MIN/MAX_DOUBLE)
+	 * evaluation, the second value the potentially transformed value.
+	 */
 	void updateWorstKnownValid() {
-      typename GOptimizationAlgorithmT<ind_type>::iterator it;
-      std::size_t nFitnessCriteria = (*(this->begin()))->getNumberOfFitnessCriteria();
+		typename GOptimizationAlgorithmT<ind_type>::iterator it;
+		std::size_t nFitnessCriteria = (*(this->begin()))->getNumberOfFitnessCriteria();
 
-      // Is this the first call ? Fill worstKnownValids_ with data
-      if(inFirstIteration()) {
-         for(it=this->begin(); it!=this->end(); ++it) {
-            (*it)->populateWorstKnownValid();
-         }
+		// Is this the first call ? Fill worstKnownValids_ with data
+		if(inFirstIteration()) {
+			for(it=this->begin(); it!=this->end(); ++it) {
+				(*it)->populateWorstKnownValid();
+			}
 
-         // Initialize our own, local worstKnownValids_
-         worstKnownValids_ = (*(this->begin()))->getWorstKnownValids();
-      }
+			// Initialize our own, local worstKnownValids_
+			worstKnownValids_ = (*(this->begin()))->getWorstKnownValids();
+		}
 
-      for(it=this->begin(); it!=this->end(); ++it) {
+		for(it=this->begin(); it!=this->end(); ++it) {
 #ifdef DEBUG
-         if((*it)->getNumberOfFitnessCriteria() != nFitnessCriteria) {
-            glogger
-            << "In GOptimizationAlgorithmT<>::updateWorstKnownValid(): Error!" << std::endl
-            << "Got " << (*it)->getNumberOfFitnessCriteria() << " fitness criteria in individual " << (it-this->begin()) << std::endl
-            << "but expected " << nFitnessCriteria << " criteria" << std::endl
-            << GEXCEPTION;
-         }
+			if((*it)->getNumberOfFitnessCriteria() != nFitnessCriteria) {
+				glogger
+				<< "In GOptimizationAlgorithmT<>::updateWorstKnownValid(): Error!" << std::endl
+				<< "Got " << (*it)->getNumberOfFitnessCriteria() << " fitness criteria in individual " << (it-this->begin()) << std::endl
+				<< "but expected " << nFitnessCriteria << " criteria" << std::endl
+				<< GEXCEPTION;
+			}
 
-         if(!worstKnownValids_.empty() && worstKnownValids_.size() != nFitnessCriteria) {
-            glogger
-            << "In GOptimizationAlgorithmT<>::updateWorstKnownValid(): Error!" << std::endl
-            << "Got invalid number of evaluation criteria in worstKnownValids_:" << std::endl
-            << "Got " << worstKnownValids_.size() << " but expected " << nFitnessCriteria << std::endl
-            << GEXCEPTION;
-         }
+			if(!worstKnownValids_.empty() && worstKnownValids_.size() != nFitnessCriteria) {
+				glogger
+				<< "In GOptimizationAlgorithmT<>::updateWorstKnownValid(): Error!" << std::endl
+				<< "Got invalid number of evaluation criteria in worstKnownValids_:" << std::endl
+				<< "Got " << worstKnownValids_.size() << " but expected " << nFitnessCriteria << std::endl
+				<< GEXCEPTION;
+			}
 #endif /* DEBUG */
 
-         if((*it)->isClean() && (*it)->isValid()) { // Is this an individual which has been evaluated and fulfills all constraints ?
-            for(std::size_t id=0; id<nFitnessCriteria; id++) {
-               (*it)->challengeWorstValidFitness(worstKnownValids_.at(id), id);
-            }
-         }
-      }
-   }
+			if((*it)->isClean() && (*it)->isValid()) { // Is this an individual which has been evaluated and fulfills all constraints ?
+				for(std::size_t id=0; id<nFitnessCriteria; id++) {
+					(*it)->challengeWorstValidFitness(worstKnownValids_.at(id), id);
+				}
+			}
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Let the individuals know about the worst known valid solution so far
-    */
+	/***************************************************************************/
+	/**
+	 * Let the individuals know about the worst known valid solution so far
+	 */
 	void markWorstKnownValid() {
-      this->updateWorstKnownValid();
-      typename GOptimizationAlgorithmT<ind_type>::iterator it;
-      for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->setWorstKnownValid(worstKnownValids_);
-      }
-   }
+		this->updateWorstKnownValid();
+		typename GOptimizationAlgorithmT<ind_type>::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->setWorstKnownValid(worstKnownValids_);
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Triggers an update of the individual's evaluation (e.g. in order to
-    * act on the information regarding best or worst evaluations found
-    */
+	/***************************************************************************/
+	/**
+	 * Triggers an update of the individual's evaluation (e.g. in order to
+	 * act on the information regarding best or worst evaluations found
+	 */
 	void triggerEvaluationUpdate() {
-      typename GOptimizationAlgorithmT<ind_type>::iterator it;
-      for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->postEvaluationUpdate();
-      }
-   }
+		typename GOptimizationAlgorithmT<ind_type>::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->postEvaluationUpdate();
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Work to be performed right after the individuals were evaluated. NOTE:
-    * this setup is sub-optimal, as this function isn't called from within
-    * GOptimizationAlgorithmT directly, but only from derived classes. This happens
-    * to prevent an additional split of the cycleLogic function.
-    */
+	/***************************************************************************/
+	/**
+	 * Work to be performed right after the individuals were evaluated. NOTE:
+	 * this setup is sub-optimal, as this function isn't called from within
+	 * GOptimizationAlgorithmT directly, but only from derived classes. This happens
+	 * to prevent an additional split of the cycleLogic function.
+	 */
 	void postEvaluationWork() {
-      // Find the worst known valid solution in the current iteration and
-      // propagate the knowledge to all individuals
-      this->markWorstKnownValid();
+		// Find the worst known valid solution in the current iteration and
+		// propagate the knowledge to all individuals
+		this->markWorstKnownValid();
 
-      // Individuals may choose to update their fitness depending on
-      // the information relayed in this function. Give them a chance
-      // to do so.
-      this->triggerEvaluationUpdate();
-   }
+		// Individuals may choose to update their fitness depending on
+		// the information relayed in this function. Give them a chance
+		// to do so.
+		this->triggerEvaluationUpdate();
+	}
 
-   /***************************************************************************/
-   /**
-    * Let individuals know the number of stalls encountered so far
-    */
+	/***************************************************************************/
+	/**
+	 * Let individuals know the number of stalls encountered so far
+	 */
 	void markNStalls() {
-      typename GOptimizationAlgorithmT<ind_type>::iterator it;
-      for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->setNStalls(stallCounter_);
-      }
-   }
+		typename GOptimizationAlgorithmT<ind_type>::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->setNStalls(stallCounter_);
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Gives derived classes an opportunity to update their internal structures.
-    * NOTE that no action may be taken here that affects the "dirty" state
-    * of individuals. A typical usage scenario would be the update of the adaptor
-    * settings in evolutionary algorithms.
-    */
-   virtual void actOnStalls() BASE
-   { /* nothing */ }
+	/***************************************************************************/
+	/**
+	 * Gives derived classes an opportunity to update their internal structures.
+	 * NOTE that no action may be taken here that affects the "dirty" state
+	 * of individuals. A typical usage scenario would be the update of the adaptor
+	 * settings in evolutionary algorithms.
+	 */
+	virtual void actOnStalls() BASE
+	{ /* nothing */ }
 
-   /***************************************************************************/
-   /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
-   virtual void runFitnessCalculation() override = 0;
+	/***************************************************************************/
+	/** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
+	virtual void runFitnessCalculation() override = 0;
 
 private:
-   /***************************************************************************/
-   /**
-    * Update the stall counter. We use the transformed fitness for comparison
-    * here, so we can usually deal with finite values (due to the transformation
-    * in the case of a constraint violation).
-    */
-   void updateStallCounter(const boost::tuple<double, double>& bestEval) {
-      if(this->isBetter(boost::get<G_TRANSFORMED_FITNESS>(bestEval), boost::get<G_TRANSFORMED_FITNESS>(bestKnownPrimaryFitness_))) {
-         bestKnownPrimaryFitness_ = bestEval;
-         stallCounter_ = 0;
-      } else {
-         stallCounter_++;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Update the stall counter. We use the transformed fitness for comparison
+	 * here, so we can usually deal with finite values (due to the transformation
+	 * in the case of a constraint violation).
+	 */
+	void updateStallCounter(const boost::tuple<double, double>& bestEval) {
+		if(this->isBetter(boost::get<G_TRANSFORMED_FITNESS>(bestEval), boost::get<G_TRANSFORMED_FITNESS>(bestKnownPrimaryFitness_))) {
+			bestKnownPrimaryFitness_ = bestEval;
+			stallCounter_ = 0;
+		} else {
+			stallCounter_++;
+		}
+	}
 
 	/***************************************************************************/
 	/**
@@ -1603,7 +1603,7 @@ private:
 		}
 	}
 
-   /***************************************************************************/
+	/***************************************************************************/
 	/**
 	 * This function returns true if a SIGHUP / CTRL_CLOSE_EVENT signal was sent (provided the user
 	 * has registered the GObject::sigHupHandler signal handler
@@ -1611,17 +1611,17 @@ private:
 	 * @return A boolean indicating whether the program was interrupted with a SIGHUP or CTRL_CLOSE_EVENT signal
 	 */
 	bool sigHupHalt() const {
-	   if(GObject::G_SIGHUP_SENT()) {
+		if(GObject::G_SIGHUP_SENT()) {
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
-	      std::cout
-	      << "Terminating optimization run because a CTRL_CLOSE_EVENT signal has been received" << std::endl;
+			std::cout
+			<< "Terminating optimization run because a CTRL_CLOSE_EVENT signal has been received" << std::endl;
 #else
-	      std::cout
-	      << "Terminating optimization run because a SIGHUP signal has been received" << std::endl;
+			std::cout
+			<< "Terminating optimization run because a SIGHUP signal has been received" << std::endl;
 #endif
-	      return true;
-	   }
-	   else return false;
+			return true;
+		}
+		else return false;
 	}
 
 	/***************************************************************************/
@@ -1701,25 +1701,25 @@ private:
 	   else return true;
 	}
 
-   /***************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Check whether the maxDuration-halt criterion has been set
 	 *
 	 * @return A boolean indication whether the max-duration halt criterion has been set
 	 */
 	bool maxDurationHaltSet() const {
-	   if(0 == maxDuration_.total_microseconds()) return false;
-	   else return true;
+		if(0 == maxDuration_.total_microseconds()) return false;
+		else return true;
 	}
 
-   /***************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Check whether the quality-threshold halt-criterion has been set
 	 *
 	 * @return A boolean indicating whether the quality-threshold halt-criterion has been set
 	 */
 	bool qualityThresholdHaltSet() const {
-	   return hasQualityThreshold_;
+		return hasQualityThreshold_;
 	}
 
 	/***************************************************************************/
@@ -1727,7 +1727,7 @@ private:
 	 * Marks the globally best known fitness in all individuals
 	 */
 	void markBestFitness() {
-      typename GOptimizationAlgorithmT<ind_type>::iterator it;
+		typename GOptimizationAlgorithmT<ind_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->setBestKnownPrimaryFitness(this->getBestKnownPrimaryFitness());
 		}
@@ -1738,10 +1738,10 @@ private:
 	 * Indicates whether the stallCounterThreshold_ has been exceeded
 	 */
 	bool stallCounterThresholdExceeded() const {
-	   return (stallCounter_ > stallCounterThreshold_);
+		return (stallCounter_ > stallCounterThreshold_);
 	}
 
-   /***************************************************************************/
+	/***************************************************************************/
 
 	boost::uint32_t iteration_; ///< The current iteration
 	boost::uint32_t offset_; ///< An iteration offset which can be used, if the optimization starts from a checkpoint file
@@ -1804,7 +1804,7 @@ public:
 		GMutableSetT<ind_type>::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-      condnotset("GOptimizationAlgorithmT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GOptimizationAlgorithmT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -1818,7 +1818,7 @@ public:
 		GMutableSetT<ind_type>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-      condnotset("GOptimizationAlgorithmT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GOptimizationAlgorithmT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -1835,277 +1835,277 @@ public:
 	 */
 	class GOptimizationMonitorT : public GObject
 	{
-	    ///////////////////////////////////////////////////////////////////////
-	    friend class boost::serialization::access;
+		///////////////////////////////////////////////////////////////////////
+		friend class boost::serialization::access;
 
-	    template<typename Archive>
-	    void serialize(Archive & ar, const unsigned int){
-	      using boost::serialization::make_nvp;
+		template<typename Archive>
+		void serialize(Archive & ar, const unsigned int){
+			using boost::serialization::make_nvp;
 
-	      ar
-	      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-	      & BOOST_SERIALIZATION_NVP(quiet_);
-	    }
-	    ///////////////////////////////////////////////////////////////////////
+			ar
+			& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
+			& BOOST_SERIALIZATION_NVP(quiet_);
+		}
+		///////////////////////////////////////////////////////////////////////
 
 	public:
-	    /************************************************************************/
-	    /**
-	     * The default constructor
-	     */
-	    GOptimizationMonitorT()
-	    	: GObject()
-	    	, quiet_(false)
-	    { /* nothing */ }
+		/************************************************************************/
+		/**
+		 * The default constructor
+		 */
+		GOptimizationMonitorT()
+			: GObject()
+			, quiet_(false)
+		{ /* nothing */ }
 
-	    /************************************************************************/
-	    /**
-	     * The copy constructor
-	     *
-	     * @param cp A copy of another GOptimizationMonitorT object
-	     */
-	    GOptimizationMonitorT(
-	        const typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp
-	    )
-	    	: GObject(cp)
-	    	, quiet_(cp.quiet_)
-	    { /* nothing */ }
+		/************************************************************************/
+		/**
+		 * The copy constructor
+		 *
+		 * @param cp A copy of another GOptimizationMonitorT object
+		 */
+		GOptimizationMonitorT(
+			const typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp
+		)
+			: GObject(cp)
+			, quiet_(cp.quiet_)
+		{ /* nothing */ }
 
-	    /************************************************************************/
-	    /**
-	     * The destructor
-	     */
-	    virtual ~GOptimizationMonitorT()
-	    { /* nothing */ }
+		/************************************************************************/
+		/**
+		 * The destructor
+		 */
+		virtual ~GOptimizationMonitorT()
+		{ /* nothing */ }
 
-	    /************************************************************************/
-	    /**
-	     * Checks for equality with another GOptimizationMonitorT object
-	     *
-	     * @param  cp A constant reference to another GOptimizationMonitorT object
-	     * @return A boolean indicating whether both objects are equal
-	     */
-	    virtual bool operator==(const typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp) const {
-	       using namespace Gem::Common;
-	       try {
-	          this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-	          return true;
-	       } catch(g_expectation_violation&) {
-	          return false;
-	       }
-	    }
+		/************************************************************************/
+		/**
+		 * Checks for equality with another GOptimizationMonitorT object
+		 *
+		 * @param  cp A constant reference to another GOptimizationMonitorT object
+		 * @return A boolean indicating whether both objects are equal
+		 */
+		virtual bool operator==(const typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp) const {
+			using namespace Gem::Common;
+			try {
+				this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+				return true;
+			} catch(g_expectation_violation&) {
+				return false;
+			}
+		}
 
-	    /************************************************************************/
-	    /**
-	     * Checks for inequality with another GOptimizationMonitorT object
-	     *
-	     * @param  cp A constant reference to another GOptimizationMonitorT object
-	     * @return A boolean indicating whether both objects are inequal
-	     */
-	    virtual bool operator!=(const typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp) const {
-          using namespace Gem::Common;
-          try {
-             this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-             return true;
-          } catch(g_expectation_violation&) {
-             return false;
-          }
-	    }
+		/************************************************************************/
+		/**
+		 * Checks for inequality with another GOptimizationMonitorT object
+		 *
+		 * @param  cp A constant reference to another GOptimizationMonitorT object
+		 * @return A boolean indicating whether both objects are inequal
+		 */
+		virtual bool operator!=(const typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp) const {
+			using namespace Gem::Common;
+			try {
+				this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+				return true;
+			} catch(g_expectation_violation&) {
+				return false;
+			}
+		}
 
-	    /***************************************************************************/
-	    /**
-	     * Searches for compliance with expectations with respect to another object
-	     * of the same type
-	     *
-	     * @param cp A constant reference to another GObject object
-	     * @param e The expected outcome of the comparison
-	     * @param limit The maximum deviation for floating point values (important for similarity checks)
-	     */
-	    virtual void compare(
-	       const GObject& cp
-	       , const Gem::Common::expectation& e
-	       , const double& limit
-	    ) const override {
-	       using namespace Gem::Common;
+		/***************************************************************************/
+		/**
+		 * Searches for compliance with expectations with respect to another object
+		 * of the same type
+		 *
+		 * @param cp A constant reference to another GObject object
+		 * @param e The expected outcome of the comparison
+		 * @param limit The maximum deviation for floating point values (important for similarity checks)
+		 */
+		virtual void compare(
+			const GObject& cp
+			, const Gem::Common::expectation& e
+			, const double& limit
+		) const override {
+			using namespace Gem::Common;
 
-	       // Check that we are indeed dealing with a GAdaptorT reference
-	       const GOptimizationMonitorT *p_load = GObject::gobject_conversion<GOptimizationMonitorT>(&cp);
+			// Check that we are indeed dealing with a GAdaptorT reference
+			const GOptimizationMonitorT *p_load = GObject::gobject_conversion<GOptimizationMonitorT>(&cp);
 
-	       GToken token("GOptimizationMonitorT", e);
+			GToken token("GOptimizationMonitorT", e);
 
-	       // Compare our parent data ...
-	       Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
+			// Compare our parent data ...
+			Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
 
-	       //... no local data
+			//... no local data
 
-	       // React on deviations from the expectation
-	       token.evaluate();
-	    }
+			// React on deviations from the expectation
+			token.evaluate();
+		}
 
-	    /************************************************************************/
-	    /**
-	     * The actual information function. It is up to the user to define what happens
-	     * in each step. This function only enforces the emission of simple progress
-	     * information to the command line in each iteration (unless the "quiet_" variable
-	     * has been set.
-	     *
-	     * @param im The mode in which the information function is called
-	     * @param goa A pointer to the current optimization algorithm for which information should be emitted
-	     */
-	    void informationFunction(
-	          const infoMode& im
-	          , GOptimizationAlgorithmT<ind_type> * const goa
-	    ) {
-	      // Perform any action defined by the user through pluggable monitor objects
-         if(pluggableInfoFunction_) {
-           pluggableInfoFunction_(im,goa);
-         }
+		/************************************************************************/
+		/**
+		 * The actual information function. It is up to the user to define what happens
+		 * in each step. This function only enforces the emission of simple progress
+		 * information to the command line in each iteration (unless the "quiet_" variable
+		 * has been set.
+		 *
+		 * @param im The mode in which the information function is called
+		 * @param goa A pointer to the current optimization algorithm for which information should be emitted
+		 */
+		void informationFunction(
+				const infoMode& im
+				, GOptimizationAlgorithmT<ind_type> * const goa
+		) {
+			// Perform any action defined by the user through pluggable monitor objects
+			if(pluggableInfoFunction_) {
+			pluggableInfoFunction_(im,goa);
+			}
 
-         // Act on the information mode provided
-	      switch(im) {
-	    	case Gem::Geneva::INFOINIT:
-            {
-               if(!quiet_) {
-                  std::cout << "Starting an optimization run with algorithm \"" << goa->getAlgorithmName() << "\"" << std::endl;
-               }
-               this->firstInformation(goa);
-            }
-            break;
+			// Act on the information mode provided
+			switch(im) {
+			case Gem::Geneva::INFOINIT:
+				{
+					if(!quiet_) {
+						std::cout << "Starting an optimization run with algorithm \"" << goa->getAlgorithmName() << "\"" << std::endl;
+					}
+					this->firstInformation(goa);
+				}
+				break;
 
-	    	case Gem::Geneva::INFOPROCESSING:
-            {
-              // We output raw values here, as this is likely what the user is interested in
-              if(!quiet_) {
-                 std::cout
-                 << std::setprecision(5)
-                 << goa->getIteration() << ": "
-                 << goa->getBestCurrentPrimaryFitness()
-                 << " // best past: " << goa->getBestKnownPrimaryFitness()
-                 << std::endl;
-              }
-              this->cycleInformation(goa);
-            }
-            break;
+			case Gem::Geneva::INFOPROCESSING:
+				{
+					// We output raw values here, as this is likely what the user is interested in
+					if(!quiet_) {
+						std::cout
+						<< std::setprecision(5)
+						<< goa->getIteration() << ": "
+						<< goa->getBestCurrentPrimaryFitness()
+						<< " // best past: " << goa->getBestKnownPrimaryFitness()
+						<< std::endl;
+					}
+					this->cycleInformation(goa);
+				}
+				break;
 
-	    	case Gem::Geneva::INFOEND:
-            {
-               this->lastInformation(goa);
-               if(!quiet_) std::cout << "End of optimization reached in algorithm \""<< goa->getAlgorithmName() << "\"" << std::endl;
-            }
-            break;
+			case Gem::Geneva::INFOEND:
+				{
+					this->lastInformation(goa);
+					if(!quiet_) std::cout << "End of optimization reached in algorithm \""<< goa->getAlgorithmName() << "\"" << std::endl;
+				}
+				break;
 
-	    	default:
-            {
-               glogger
-               << "Received invalid infoMode " << im << std::endl
-               << GEXCEPTION;
-            }
-            break;
-	    	};
-	    }
+			default:
+				{
+					glogger
+					<< "Received invalid infoMode " << im << std::endl
+					<< GEXCEPTION;
+				}
+				break;
+			};
+		}
 
-	    /************************************************************************/
-	    /**
-	     * Prevents any information from being emitted by this object
-	     */
-	    void preventInformationEmission() {
-	    	quiet_ = true;
-	    }
+		/************************************************************************/
+		/**
+		 * Prevents any information from being emitted by this object
+		 */
+		void preventInformationEmission() {
+			quiet_ = true;
+		}
 
-	    /************************************************************************/
-	    /**
-	     * Allows this object to emit information
-	     */
-	    void allowInformationEmission() {
-	    	quiet_ = false;
-	    }
+		/************************************************************************/
+		/**
+		 * Allows this object to emit information
+		 */
+		void allowInformationEmission() {
+			quiet_ = false;
+		}
 
-	    /************************************************************************/
-	    /**
-	     * Allows to check whether the emission of information is prevented
-	     *
-	     * @return A boolean which indicates whether information emission is prevented
-	     */
-	    bool informationEmissionPrevented() const {
-	    	return quiet_;
-	    }
+		/************************************************************************/
+		/**
+		 * Allows to check whether the emission of information is prevented
+		 *
+		 * @return A boolean which indicates whether information emission is prevented
+		 */
+		bool informationEmissionPrevented() const {
+			return quiet_;
+		}
 
-	    /************************************************************************/
-	    /**
-	     * Allows to register a pluggable optimization monitor
-	     */
-	    void registerPluggableOM(boost::function<void(const infoMode&, GOptimizationAlgorithmT<ind_type> * const)> pluggableInfoFunction) {
-	       if(pluggableInfoFunction) {
-	          pluggableInfoFunction_ = pluggableInfoFunction;
-	       } else {
-	          glogger
-	          << "In GoptimizationMonitorT<>::registerPluggableOM(): Tried to register empty call-back" << std::endl
-	          << GEXCEPTION;
-	       }
-	    }
+		/************************************************************************/
+		/**
+		 * Allows to register a pluggable optimization monitor
+		 */
+		void registerPluggableOM(boost::function<void(const infoMode&, GOptimizationAlgorithmT<ind_type> * const)> pluggableInfoFunction) {
+			if(pluggableInfoFunction) {
+				pluggableInfoFunction_ = pluggableInfoFunction;
+			} else {
+				glogger
+				<< "In GoptimizationMonitorT<>::registerPluggableOM(): Tried to register empty call-back" << std::endl
+				<< GEXCEPTION;
+			}
+		}
 
-	    /************************************************************************/
-	    /**
-	     * Allows to reset the local pluggable optimization monitor
-	     */
-	    void resetPluggableOM() {
-	       pluggableInfoFunction_.reset();
-	    }
+		/************************************************************************/
+		/**
+		 * Allows to reset the local pluggable optimization monitor
+		 */
+		void resetPluggableOM() {
+			pluggableInfoFunction_.reset();
+		}
 
 	protected:
-	    /************************************************************************/
-	    /**
-	     * A function that is called once before the optimization starts
-	     *
-	     * @param goa A pointer to the current optimization algorithm for which information should be emitted
-	     */
-	    virtual void firstInformation(GOptimizationAlgorithmT<ind_type> * const goa) BASE
-	    { /* nothing */ }
+		/************************************************************************/
+		/**
+		 * A function that is called once before the optimization starts
+		 *
+		 * @param goa A pointer to the current optimization algorithm for which information should be emitted
+		 */
+		virtual void firstInformation(GOptimizationAlgorithmT<ind_type> * const goa) BASE
+		{ /* nothing */ }
 
-	    /************************************************************************/
-	    /**
-	     * A function that is called during each optimization cycle. It is possible to
-	     * extract quite comprehensive information in each iteration. Have a look at
-	     * the examples accompanying Geneva for further information.
-	     *
-	     * @param goa A pointer to the current optimization algorithm for which information should be emitted
-	     */
-	    virtual void cycleInformation(GOptimizationAlgorithmT<ind_type> * const goa) BASE
-	    { /* nothing */ }
+		/************************************************************************/
+		/**
+		 * A function that is called during each optimization cycle. It is possible to
+		 * extract quite comprehensive information in each iteration. Have a look at
+		 * the examples accompanying Geneva for further information.
+		 *
+		 * @param goa A pointer to the current optimization algorithm for which information should be emitted
+		 */
+		virtual void cycleInformation(GOptimizationAlgorithmT<ind_type> * const goa) BASE
+		{ /* nothing */ }
 
-	    /************************************************************************/
-	    /**
-	     * A function that is called once at the end of the optimization cycle
-	     *
-	     * @param goa A pointer to the current optimization algorithm for which information should be emitted
-	     */
-	    virtual void lastInformation(GOptimizationAlgorithmT<ind_type> * const goa) BASE
-	    { /* nothing */ }
+		/************************************************************************/
+		/**
+		 * A function that is called once at the end of the optimization cycle
+		 *
+		 * @param goa A pointer to the current optimization algorithm for which information should be emitted
+		 */
+		virtual void lastInformation(GOptimizationAlgorithmT<ind_type> * const goa) BASE
+		{ /* nothing */ }
 
-	    /************************************************************************/
-	    /**
-	     * Loads the data of another object
-	     *
-	     * cp A pointer to another GOptimizationMonitorT object, camouflaged as a GObject
-	     */
-	    virtual void load_(const GObject* cp) override {
-	    	const GOptimizationMonitorT *p_load = GObject::gobject_conversion<GOptimizationMonitorT>(cp);
+		/************************************************************************/
+		/**
+		 * Loads the data of another object
+		 *
+		 * cp A pointer to another GOptimizationMonitorT object, camouflaged as a GObject
+		 */
+		virtual void load_(const GObject* cp) override {
+			const GOptimizationMonitorT *p_load = GObject::gobject_conversion<GOptimizationMonitorT>(cp);
 
-	    	// Load the parent classes' data ...
-	    	GObject::load_(cp);
+			// Load the parent classes' data ...
+			GObject::load_(cp);
 
-	    	// ... and then our local data
-	    	quiet_ = p_load->quiet_;
+			// ... and then our local data
+			quiet_ = p_load->quiet_;
 
-	    	// Note: we do not load the pluggable information function, as it is
-	    	// meant as a short-term medium for information retrieval and may be
-	    	// an object specific to a given optimization monitor object
-	    }
+			// Note: we do not load the pluggable information function, as it is
+			// meant as a short-term medium for information retrieval and may be
+			// an object specific to a given optimization monitor object
+		}
 
-	    /************************************************************************/
-	    /**
-	     * Creates a deep clone of this object
-	     */
+		/************************************************************************/
+		/**
+		 * Creates a deep clone of this object
+		 */
 		virtual GObject* clone_() const override {
 			return new typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT(*this);
 		}
@@ -2123,7 +2123,7 @@ public:
 		 */
 		virtual bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
-	      bool result = false;
+			bool result = false;
 
 			// Call the parent class'es function
 			if(GObject::modify_GUnitTests()) result = true;
@@ -2146,7 +2146,7 @@ public:
 			GObject::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-         condnotset("GOptimizationAlgorithmT<>::GOptimizationMonitorT::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+			condnotset("GOptimizationAlgorithmT<>::GOptimizationMonitorT::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 		}
 
@@ -2160,15 +2160,15 @@ public:
 			GObject::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-         condnotset("GOptimizationAlgorithmT<>::GOptimizationMonitorT::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+			condnotset("GOptimizationAlgorithmT<>::GOptimizationMonitorT::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 		}
 
 		/************************************************************************/
 	};
-   /***************************************************************************/
+	/***************************************************************************/
 	/////////////////////////////////////////////////////////////////////////////
-   /***************************************************************************/
+	/***************************************************************************/
 };
 
 /******************************************************************************/
@@ -2192,24 +2192,24 @@ inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::init()
  */
 template <>
 inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::addIterationBests(
-   GParameterSetFixedSizePriorityQueue& bestIndividuals
+	GParameterSetFixedSizePriorityQueue& bestIndividuals
 ) BASE {
-   const bool CLONE = true;
-   const bool DONOTREPLACE = false;
+	const bool CLONE = true;
+	const bool DONOTREPLACE = false;
 
 #ifdef DEBUG
-   if(this->empty()) {
-      glogger
-      << "In GBaseParChildT<GParameterSet>::addIterationBests() :" << std::endl
-      << "Tried to retrieve the best individuals even though the population is empty." << std::endl
-      << GEXCEPTION;
-   }
+	if(this->empty()) {
+		glogger
+		<< "In GBaseParChildT<GParameterSet>::addIterationBests() :" << std::endl
+		<< "Tried to retrieve the best individuals even though the population is empty." << std::endl
+		<< GEXCEPTION;
+	}
 #endif /* DEBUG */
 
-   // We simply add all individuals to the queue -- only the best ones will actually be added (and cloned)
-   // Unless we have asked for the queue to have an unlimited size, the queue will be resized as required
-   // by its maximum allowed size.
-   bestIndividuals.add(this->data, CLONE, DONOTREPLACE);
+	// We simply add all individuals to the queue -- only the best ones will actually be added (and cloned)
+	// Unless we have asked for the queue to have an unlimited size, the queue will be resized as required
+	// by its maximum allowed size.
+	bestIndividuals.add(this->data, CLONE, DONOTREPLACE);
 }
 
 /******************************************************************************/
@@ -2222,19 +2222,19 @@ inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::addIterationBes
  */
 template <>
 inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::addCleanStoredBests(
-   GParameterSetFixedSizePriorityQueue& bestIndividuals
+	GParameterSetFixedSizePriorityQueue& bestIndividuals
 ) {
-   const bool CLONE = true;
+	const bool CLONE = true;
 
-   // We simply add all *clean* individuals to the queue -- only the best ones will actually be added
-   // (and cloned) Unless we have asked for the queue to have an unlimited size, the queue will be
-   // resized as required by its maximum allowed size.
-   GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::iterator it;
-   for(it=this->begin(); it!=this->end(); ++it) {
-      if((*it)->isClean()) {
-         bestIndividuals.add(*it, CLONE);
-      }
-   }
+	// We simply add all *clean* individuals to the queue -- only the best ones will actually be added
+	// (and cloned) Unless we have asked for the queue to have an unlimited size, the queue will be
+	// resized as required by its maximum allowed size.
+	GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::iterator it;
+	for(it=this->begin(); it!=this->end(); ++it) {
+		if((*it)->isClean()) {
+			bestIndividuals.add(*it, CLONE);
+		}
+	}
 }
 
 /******************************************************************************/
@@ -2259,12 +2259,12 @@ inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::finalize()
  * @brief The content of the BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) macro. Needed for Boost.Serialization
  */
 namespace boost {
-  namespace serialization {
-    template<typename ind_type>
-    struct is_abstract<Gem::Geneva::GOptimizationAlgorithmT<ind_type> > : public boost::true_type {};
-    template<typename ind_type>
-    struct is_abstract< const Gem::Geneva::GOptimizationAlgorithmT<ind_type> > : public boost::true_type {};
-  }
+	namespace serialization {
+		template<typename ind_type>
+		struct is_abstract<Gem::Geneva::GOptimizationAlgorithmT<ind_type> > : public boost::true_type {};
+		template<typename ind_type>
+		struct is_abstract< const Gem::Geneva::GOptimizationAlgorithmT<ind_type> > : public boost::true_type {};
+	}
 }
 
 /******************************************************************************/
