@@ -63,34 +63,34 @@ int main(int argc, char **argv) {
 	// Create an optimization monitor (targeted at evolutionary algorithms) and register
 	// it with the global store. This step is OPTIONAL. We recommend checking the chapters
 	// on writing custom progress monitors within the Geneva framework.
-   GOAMonitorStore->setOnce(
-      "ea"
-      , std::shared_ptr<GSigmaMonitor>(new GSigmaMonitor("./sigmaProgress.C"))
-   );
+	GOAMonitorStore->setOnce(
+		"ea"
+		, std::shared_ptr<GSigmaMonitor>(new GSigmaMonitor("./sigmaProgress.C"))
+	);
 
-   // Another possibility: Add a "pluggable optimization monitor" to Go2. This
-   // particular monitor will logg all solutions that were found into the file allLog.txt,
-   // provided their fitness is better than 1. . The option is usually used for monitors
-   // that do not discriminate between optimization algorithms.
-   std::vector<double> boundaries;
-   boundaries.push_back(1.);
-   std::shared_ptr<GAllSolutionFileLoggerT<GParameterSet> >
-      allSolutionLogger_ptr(new GAllSolutionFileLoggerT<GParameterSet>("allLog.txt", boundaries));
+	// Another possibility: Add a "pluggable optimization monitor" to Go2. This
+	// particular monitor will logg all solutions that were found into the file allLog.txt,
+	// provided their fitness is better than 1. . The option is usually used for monitors
+	// that do not discriminate between optimization algorithms.
+	std::vector<double> boundaries;
+	boundaries.push_back(1.);
+	std::shared_ptr<GAllSolutionFileLoggerT<GParameterSet> >
+		allSolutionLogger_ptr(new GAllSolutionFileLoggerT<GParameterSet>("allLog.txt", boundaries));
 
-   go.registerPluggableOM(
-      [allSolutionLogger_ptr](const infoMode& im, GOptimizationAlgorithmT<GParameterSet> * const goa){
-         allSolutionLogger_ptr->informationFunction(im, goa);
-      }
-   );
+	go.registerPluggableOM(
+		[allSolutionLogger_ptr](const infoMode& im, GOptimizationAlgorithmT<GParameterSet> * const goa){
+			allSolutionLogger_ptr->informationFunction(im, goa);
+		}
+	);
 
-   // Create a factory for GStarterIndividual objects and perform
-   // any necessary initial work.
-   std::shared_ptr<GStarterIndividualFactory> gsif_ptr(
-         new GStarterIndividualFactory("./config/GStarterIndividual.json")
-   );
+	// Create a factory for GStarterIndividual objects and perform
+	// any necessary initial work.
+	std::shared_ptr<GStarterIndividualFactory> gsif_ptr(
+		new GStarterIndividualFactory("./config/GStarterIndividual.json")
+	);
 
-   // Add a content creator so Go2 can generate its own individuals, if necessary
-   go.registerContentCreator(gsif_ptr);
+	// Add a content creator so Go2 can generate its own individuals, if necessary
+	go.registerContentCreator(gsif_ptr);
 
 	// Perform the actual optimization
 	std::shared_ptr<GStarterIndividual> bestIndividual_ptr = go.optimize<GStarterIndividual>();

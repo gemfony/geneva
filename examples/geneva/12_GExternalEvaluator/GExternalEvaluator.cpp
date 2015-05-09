@@ -56,29 +56,29 @@ int main(int argc, char **argv) {
 
 	//---------------------------------------------------------------------
 
-   // Create a factory for GExternalEvaluatorIndividual objects and perform
-   // any necessary initial work.
+	// Create a factory for GExternalEvaluatorIndividual objects and perform
+	// any necessary initial work.
 	std::shared_ptr<GExternalEvaluatorIndividualFactory>
-	   geei_ptr(new GExternalEvaluatorIndividualFactory("./config/GExternalEvaluatorIndividual.json"));
+		geei_ptr(new GExternalEvaluatorIndividualFactory("./config/GExternalEvaluatorIndividual.json"));
 
-   // Add a content creator so Go2 can generate its own individuals, if necessary
-   go.registerContentCreator(geei_ptr);
+	// Add a content creator so Go2 can generate its own individuals, if necessary
+	go.registerContentCreator(geei_ptr);
 
-   // Add a default optimization algorithm to the Go2 object
-   go.registerDefaultAlgorithm("ea");
+	// Add a default optimization algorithm to the Go2 object
+	go.registerDefaultAlgorithm("ea");
 
 	// Perform the actual optimization
 	std::shared_ptr<GExternalEvaluatorIndividual> p = go.optimize<GExternalEvaluatorIndividual>();
 
-   // Extract the best individuals found
-   std::vector<std::shared_ptr<GExternalEvaluatorIndividual> > bestInds
-      = go.getBestIndividuals<GExternalEvaluatorIndividual>();
+	// Extract the best individuals found
+	std::vector<std::shared_ptr<GExternalEvaluatorIndividual> > bestInds
+		= go.getBestIndividuals<GExternalEvaluatorIndividual>();
 
-   // Note that the "archive" call is specific to the GTaoExternalEvaluatorIndividual
-   geei_ptr->archive(bestInds);
+	// Note that the "archive" call is specific to the GTaoExternalEvaluatorIndividual
+	geei_ptr->archive(bestInds);
 
-   // The GTaoExternalEvaluatorIndividualFactory will, upon its deletion at the end
-   // of this function, call the external evaluator with the --finalize switch
+	// The GTaoExternalEvaluatorIndividualFactory will, upon its deletion at the end
+	// of this function, call the external evaluator with the --finalize switch
 
-   //---------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
 }

@@ -79,7 +79,7 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::targetFunction& tF) {
  * The default constructor -- intentionally private
  */
 GStarterIndividual::GStarterIndividual()
-   : GParameterSet()
+	: GParameterSet()
 	, targetFunction_(PARABOLA)
 { /* nothing */ }
 
@@ -90,41 +90,41 @@ GStarterIndividual::GStarterIndividual()
  * same dimension.
  */
 GStarterIndividual::GStarterIndividual(
-   const std::size_t& prod_id
-   , const std::vector<double>& startValues
-   , const std::vector<double>& lowerBoundaries
-   , const std::vector<double>& upperBoundaries
-   , const double& sigma
-   , const double& sigmaSigma
-   , const double& minSigma
-   , const double& maxSigma
-   , const double& adProb
+	const std::size_t& prod_id
+	, const std::vector<double>& startValues
+	, const std::vector<double>& lowerBoundaries
+	, const std::vector<double>& upperBoundaries
+	, const double& sigma
+	, const double& sigmaSigma
+	, const double& minSigma
+	, const double& maxSigma
+	, const double& adProb
 )
-   : GParameterSet()
-   , targetFunction_(PARABOLA)
+	: GParameterSet()
+	, targetFunction_(PARABOLA)
 {
-   try {
-      // The following is a static function used both here
-      // and in the factory, so setup code cannot diverge
-      GStarterIndividual::addContent(
-         *this
-         , prod_id
-         , startValues
-         , lowerBoundaries
-         , upperBoundaries
-         , sigma
-         , sigmaSigma
-         , minSigma
-         , maxSigma
-         , adProb
-      );
-   } catch (const Gem::Common::gemfony_error_condition& e) {
-      std::cerr << e.what();
-      std::terminate();
-   } catch (...) {
-      std::cerr << "Unknown exception caught" << std::endl;
-      std::terminate();
-   }
+	try {
+		// The following is a static function used both here
+		// and in the factory, so setup code cannot diverge
+		GStarterIndividual::addContent(
+			*this
+			, prod_id
+			, startValues
+			, lowerBoundaries
+			, upperBoundaries
+			, sigma
+			, sigmaSigma
+			, minSigma
+			, maxSigma
+			, adProb
+		);
+	} catch (const Gem::Common::gemfony_error_condition& e) {
+		std::cerr << e.what();
+		std::terminate();
+	} catch (...) {
+		std::cerr << "Unknown exception caught" << std::endl;
+		std::terminate();
+	}
 }
 
 /******************************************************************************/
@@ -164,13 +164,13 @@ const GStarterIndividual& GStarterIndividual::operator=(const GStarterIndividual
  * @return A boolean indicating whether both objects are equal
  */
 bool GStarterIndividual::operator==(const GStarterIndividual& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch(g_expectation_violation&) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -181,13 +181,13 @@ bool GStarterIndividual::operator==(const GStarterIndividual& cp) const {
  * @return A boolean indicating whether both objects are in-equal
  */
 bool GStarterIndividual::operator!=(const GStarterIndividual& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch(g_expectation_violation&) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -200,25 +200,25 @@ bool GStarterIndividual::operator!=(const GStarterIndividual& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GStarterIndividual::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject& cp
+	, const Gem::Common::expectation& e
+	, const double& limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GStarterIndividual *p_load = gobject_conversion<GStarterIndividual>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GStarterIndividual *p_load = gobject_conversion<GStarterIndividual>(&cp);
 
-   Gem::Common::GToken token("GStarterIndividual", e);
+	Gem::Common::GToken token("GStarterIndividual", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<Gem::Geneva::GParameterSet>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<Gem::Geneva::GParameterSet>(IDENTITY(*this, *p_load), token);
 
-   // ... and then the local data
-   Gem::Common::compare_t(IDENTITY(targetFunction_, p_load->targetFunction_), token);
+	// ... and then the local data
+	Gem::Common::compare_t(IDENTITY(targetFunction_, p_load->targetFunction_), token);
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/
@@ -242,8 +242,8 @@ void GStarterIndividual::addConfigurationOptions (
 		, [this](targetFunction tF){ this->setTargetFunction(tF); }
 	)
 	<< "Specifies which target function should be used:" << std::endl
-   << "0: Parabola" << std::endl
-   << "1: Berlich";
+	<< "0: Parabola" << std::endl
+	<< "1: Berlich";
 }
 
 /*******************************************************************************************/
@@ -273,24 +273,24 @@ targetFunction GStarterIndividual::getTargetFunction() const {
  * @return The average value of sigma used in Gauss adaptors
  */
 double GStarterIndividual::getAverageSigma() const {
-   std::vector<double> sigmas;
+	std::vector<double> sigmas;
 
-   // Loop over all parameter objects
-   for(std::size_t i=0; i<this->size(); i++) {
-      // Extract the parameter object
-      std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr
-         = this->at<GConstrainedDoubleObject>(i);
+	// Loop over all parameter objects
+	for(std::size_t i=0; i<this->size(); i++) {
+		// Extract the parameter object
+		std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr
+			= this->at<GConstrainedDoubleObject>(i);
 
-      // Extract the adaptor
-      std::shared_ptr<GDoubleGaussAdaptor> adaptor_ptr
-         = gcdo_ptr->getAdaptor<GDoubleGaussAdaptor>();
+		// Extract the adaptor
+		std::shared_ptr<GDoubleGaussAdaptor> adaptor_ptr
+			= gcdo_ptr->getAdaptor<GDoubleGaussAdaptor>();
 
-      // Extract the sigma value
-      sigmas.push_back(adaptor_ptr->getSigma());
-   }
+		// Extract the sigma value
+		sigmas.push_back(adaptor_ptr->getSigma());
+	}
 
-   // Return the average
-   return Gem::Common::GMean(sigmas);
+	// Return the average
+	return Gem::Common::GMean(sigmas);
 }
 
 /******************************************************************************/
@@ -298,22 +298,22 @@ double GStarterIndividual::getAverageSigma() const {
  * Emit information about this individual
  */
 std::string GStarterIndividual::print() {
-   std::ostringstream result;
+	std::ostringstream result;
 
-   // Retrieve the parameters
-   std::vector<double> parVec;
-   this->streamline(parVec);
+	// Retrieve the parameters
+	std::vector<double> parVec;
+	this->streamline(parVec);
 
-   result
-   << "GStarterIndividual with target function " << (targetFunction_==PARABOLA?" PARABOLA":" NOISY PARABOLA") << std::endl
-   << "and fitness " << this->fitness() << " has the following parameter values:" << std::endl;
+	result
+	<< "GStarterIndividual with target function " << (targetFunction_==PARABOLA?" PARABOLA":" NOISY PARABOLA") << std::endl
+	<< "and fitness " << this->fitness() << " has the following parameter values:" << std::endl;
 
-   for(std::size_t i=0; i<parVec.size(); i++) {
-      result << i << ": " << parVec.at(i) << std::endl;
-   }
-   result << "The average sigma of this individual is " << this->getAverageSigma() << std::endl;
+	for(std::size_t i=0; i<parVec.size(); i++) {
+		result << i << ": " << parVec.at(i) << std::endl;
+	}
+	result << "The average sigma of this individual is " << this->getAverageSigma() << std::endl;
 
-   return result.str();
+	return result.str();
 }
 
 /******************************************************************************/
@@ -358,19 +358,19 @@ double GStarterIndividual::fitnessCalculation() {
 
 	// Perform the actual calculation
 	switch(targetFunction_) {
-	//-----------------------------------------------------------
-	// A simple, multi-dimensional parabola
-	case PARABOLA:
-		return parabola(parVec);
-		break;
+		//-----------------------------------------------------------
+		// A simple, multi-dimensional parabola
+		case PARABOLA:
+			return parabola(parVec);
+			break;
 
-	//-----------------------------------------------------------
-	// A "noisy" parabola, i.e. a parabola with a very large
-	// number of overlaid local optima
-	case NOISYPARABOLA:
-		return noisyParabola(parVec);
-		break;
-	//-----------------------------------------------------------
+			//-----------------------------------------------------------
+			// A "noisy" parabola, i.e. a parabola with a very large
+			// number of overlaid local optima
+		case NOISYPARABOLA:
+			return noisyParabola(parVec);
+			break;
+			//-----------------------------------------------------------
 	};
 
 	// Make the compiler happy
@@ -416,26 +416,26 @@ double GStarterIndividual::noisyParabola(const std::vector<double>& parVec) cons
  */
 bool GStarterIndividual::modify_GUnitTests() {
 #ifdef GEM_TESTING
-   using boost::unit_test_framework::test_suite;
-   using boost::unit_test_framework::test_case;
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
 
-   bool result = false;
+	bool result = false;
 
-   // Call the parent classes' functions
-   if(Gem::Geneva::GParameterSet::modify_GUnitTests()) result = true;
+	// Call the parent classes' functions
+	if(Gem::Geneva::GParameterSet::modify_GUnitTests()) result = true;
 
-   // Change the parameter settings
-   if(!this->empty()) {
-      this->adapt();
-      result = true;
-   }
+	// Change the parameter settings
+	if(!this->empty()) {
+		this->adapt();
+		result = true;
+	}
 
-   // Let the audience know whether we have changed the content
-   return result;
+	// Let the audience know whether we have changed the content
+	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GStarterIndividual::modify_GUnitTests", "GEM_TESTING");
-   return false;
+	condnotset("GStarterIndividual::modify_GUnitTests", "GEM_TESTING");
+	return false;
 #endif /* GEM_TESTING */
 }
 
@@ -446,63 +446,63 @@ bool GStarterIndividual::modify_GUnitTests() {
  */
 void GStarterIndividual::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
-   using namespace Gem::Geneva;
+	using namespace Gem::Geneva;
 
-   using boost::unit_test_framework::test_suite;
-   using boost::unit_test_framework::test_case;
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
 
-   // Call the parent classes' functions
-   Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests();
+	// Call the parent classes' functions
+	Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests();
 
-   //------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------
 
-   {
-      const std::size_t NENTRIES = 100;
-      double DEFAULTSIGMA = 0.025;
+	{
+		const std::size_t NENTRIES = 100;
+		double DEFAULTSIGMA = 0.025;
 
-      // Check standard construction and whether calculation of the average sigma works
-      std::vector<double> startValues, lowerBoundaries, upperBoundaries;
+		// Check standard construction and whether calculation of the average sigma works
+		std::vector<double> startValues, lowerBoundaries, upperBoundaries;
 
-      for(std::size_t n=0; n<NENTRIES; n++) {
-         startValues.push_back(1.);
-         lowerBoundaries.push_back(0.);
-         upperBoundaries.push_back(2.);
-      }
+		for(std::size_t n=0; n<NENTRIES; n++) {
+			startValues.push_back(1.);
+			lowerBoundaries.push_back(0.);
+			upperBoundaries.push_back(2.);
+		}
 
-      std::shared_ptr<GStarterIndividual> p_test;
-      BOOST_CHECK_NO_THROW(p_test = std::shared_ptr<GStarterIndividual>(
-         new GStarterIndividual(
-             0 // indicates the first individual
-             , startValues
-             , lowerBoundaries
-             , upperBoundaries
-             , DEFAULTSIGMA
-             , 0.6
-             , 0.001
-             , 2.
-             , 0.05
-         )
-      ));
+		std::shared_ptr<GStarterIndividual> p_test;
+		BOOST_CHECK_NO_THROW(p_test = std::shared_ptr<GStarterIndividual>(
+			new GStarterIndividual(
+				0 // indicates the first individual
+				, startValues
+				, lowerBoundaries
+				, upperBoundaries
+				, DEFAULTSIGMA
+				, 0.6
+				, 0.001
+				, 2.
+				, 0.05
+			)
+		));
 
-      BOOST_CHECK_CLOSE(DEFAULTSIGMA, p_test->getAverageSigma(), 0.001); // Should be similar
-   }
+		BOOST_CHECK_CLOSE(DEFAULTSIGMA, p_test->getAverageSigma(), 0.001); // Should be similar
+	}
 
-   //------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------
 
-   { // Test setting and retrieval of the target function valie
-      std::shared_ptr<GStarterIndividual> p_test = this->clone<GStarterIndividual>();
+	{ // Test setting and retrieval of the target function valie
+		std::shared_ptr<GStarterIndividual> p_test = this->clone<GStarterIndividual>();
 
-      BOOST_CHECK_NO_THROW(p_test->setTargetFunction(PARABOLA));
-      BOOST_CHECK(PARABOLA == p_test->getTargetFunction());
+		BOOST_CHECK_NO_THROW(p_test->setTargetFunction(PARABOLA));
+		BOOST_CHECK(PARABOLA == p_test->getTargetFunction());
 
-      BOOST_CHECK_NO_THROW(p_test->setTargetFunction(NOISYPARABOLA));
-      BOOST_CHECK(NOISYPARABOLA == p_test->getTargetFunction());
-   }
+		BOOST_CHECK_NO_THROW(p_test->setTargetFunction(NOISYPARABOLA));
+		BOOST_CHECK(NOISYPARABOLA == p_test->getTargetFunction());
+	}
 
-   //------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GStarterIndividual::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	condnotset("GStarterIndividual::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -513,28 +513,28 @@ void GStarterIndividual::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GStarterIndividual::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
-   using namespace Gem::Geneva;
+	using namespace Gem::Geneva;
 
-   using boost::unit_test_framework::test_suite;
-   using boost::unit_test_framework::test_case;
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
 
-   // Call the parent classes' functions
-   Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests();
+	// Call the parent classes' functions
+	Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests();
 
-   //------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------
 
-   {
-      /* Nothing. Add test cases here that are expected to fail.
-         Enclose with a BOOST_CHECK_THROW, using the expected
-         exception type as an additional argument. See the
-         documentation for the Boost.Test library for further
-         information */
-   }
+	{
+		/* Nothing. Add test cases here that are expected to fail.
+			Enclose with a BOOST_CHECK_THROW, using the expected
+			exception type as an additional argument. See the
+			documentation for the Boost.Test library for further
+			information */
+	}
 
-   //------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GStarterIndividual::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	condnotset("GStarterIndividual::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -546,8 +546,8 @@ void GStarterIndividual::specificTestsFailuresExpected_GUnitTests() {
  * boost::lexical_cast
  */
 std::ostream& operator<<(std::ostream& stream, std::shared_ptr<GStarterIndividual> gsi_ptr) {
-   stream << gsi_ptr->print();
-   return stream;
+	stream << gsi_ptr->print();
+	return stream;
 }
 
 /******************************************************************************/
@@ -602,10 +602,10 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
 	// Describe our own options
 	using namespace Gem::Courtier;
 
-   // Allow our parent class to describe its options
-   Gem::Common::GFactoryT<GParameterSet>::describeLocalOptions_(gpb);
+	// Allow our parent class to describe its options
+	Gem::Common::GFactoryT<GParameterSet>::describeLocalOptions_(gpb);
 
-   // Local data
+	// Local data
 	gpb.registerFileParameter<double>(
 		"adProb"
 		, adProb_
@@ -646,41 +646,41 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
 	defStartValues.push_back(1.);
 	defStartValues.push_back(1.);
 	gpb.registerFileParameter<double>(
-	      "startValues"
-	     , startValues_
-	     , defStartValues
+		"startValues"
+		, startValues_
+		, defStartValues
 	)
 	<< "The start values for all parameters" << std::endl
-   << "Note that the number of entries also determines" << std::endl
-   << "The number of parameter used in the optimization" << std::endl
-   << "The number of entries in the vector may be changed" << std::endl
-   << "in the configuration file.";
+	<< "Note that the number of entries also determines" << std::endl
+	<< "The number of parameter used in the optimization" << std::endl
+	<< "The number of entries in the vector may be changed" << std::endl
+	<< "in the configuration file.";
 
-   std::vector<double> defLowerBoundaries;
-   defLowerBoundaries.push_back(0.);
-   defLowerBoundaries.push_back(0.);
-   defLowerBoundaries.push_back(0.);
-   gpb.registerFileParameter<double>(
-         "lowerBoundaries"
-        , lowerBoundaries_
-        , defLowerBoundaries
-   )
-   << "The lower boundaries for all parameters" << std::endl
-   << "Note that as many entries are needed as" << std::endl
-   << "There are entries in the startValues vector";
+	std::vector<double> defLowerBoundaries;
+	defLowerBoundaries.push_back(0.);
+	defLowerBoundaries.push_back(0.);
+	defLowerBoundaries.push_back(0.);
+	gpb.registerFileParameter<double>(
+		"lowerBoundaries"
+		, lowerBoundaries_
+		, defLowerBoundaries
+	)
+	<< "The lower boundaries for all parameters" << std::endl
+	<< "Note that as many entries are needed as" << std::endl
+	<< "There are entries in the startValues vector";
 
-   std::vector<double> defUpperBoundaries;
-   defUpperBoundaries.push_back(2.);
-   defUpperBoundaries.push_back(2.);
-   defUpperBoundaries.push_back(2.);
-   gpb.registerFileParameter<double>(
-         "upperBoundaries"
-        , upperBoundaries_
-        , defUpperBoundaries
-   )
-   << "The upper boundaries for all parameters" << std::endl
-   << "Note that as many entries are needed as" << std::endl
-   << "There are entries in the startValues vector";
+	std::vector<double> defUpperBoundaries;
+	defUpperBoundaries.push_back(2.);
+	defUpperBoundaries.push_back(2.);
+	defUpperBoundaries.push_back(2.);
+	gpb.registerFileParameter<double>(
+		"upperBoundaries"
+		, upperBoundaries_
+		, defUpperBoundaries
+	)
+	<< "The upper boundaries for all parameters" << std::endl
+	<< "Note that as many entries are needed as" << std::endl
+	<< "There are entries in the startValues vector";
 }
 
 /******************************************************************************/
@@ -693,25 +693,25 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
  * @param p A smart-pointer to be acted on during post-processing
  */
 void GStarterIndividualFactory::postProcess_(std::shared_ptr<GParameterSet>& p_base) {
-   // Convert the base pointer to our local type
-   std::shared_ptr<GStarterIndividual> p
-      = Gem::Common::convertSmartPointer<GParameterSet, GStarterIndividual>(p_base);
+	// Convert the base pointer to our local type
+	std::shared_ptr<GStarterIndividual> p
+		= Gem::Common::convertSmartPointer<GParameterSet, GStarterIndividual>(p_base);
 
-   // We simply use a static function defined in the GStartIndividual header
-   // to set up all parameter objects. It is used both here in the factory and
-   // in one of the constructors.
-   GStarterIndividual::addContent(
-         *p
-         , this->getId()
-         , startValues_
-         , lowerBoundaries_
-         , upperBoundaries_
-         , sigma_
-         , sigmaSigma_
-         , minSigma_
-         , maxSigma_
-         , adProb_
-   );
+	// We simply use a static function defined in the GStartIndividual header
+	// to set up all parameter objects. It is used both here in the factory and
+	// in one of the constructors.
+	GStarterIndividual::addContent(
+		*p
+		, this->getId()
+		, startValues_
+		, lowerBoundaries_
+		, upperBoundaries_
+		, sigma_
+		, sigmaSigma_
+		, minSigma_
+		, maxSigma_
+		, adProb_
+	);
 }
 
 /******************************************************************************/

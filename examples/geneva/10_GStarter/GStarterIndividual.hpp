@@ -67,7 +67,7 @@ namespace Geneva {
  * This enum denotes the possible demo function types
  */
 enum targetFunction {
-	  PARABOLA=0
+	PARABOLA=0
 	, NOISYPARABOLA=1
 };
 
@@ -107,19 +107,19 @@ class GStarterIndividual : public GParameterSet
 	///////////////////////////////////////////////////////////////////////
 
 public:
-   /** @brief The default constructor */
-   GStarterIndividual();
+	/** @brief The default constructor */
+	GStarterIndividual();
 	/** @brief A constructor that receives all arguments */
 	GStarterIndividual(
-      const std::size_t&
-      , const std::vector<double>&
-      , const std::vector<double>&
-      , const std::vector<double>&
-      , const double&
-      , const double&
-      , const double&
-      , const double&
-      , const double&
+		const std::size_t&
+		, const std::vector<double>&
+		, const std::vector<double>&
+		, const std::vector<double>&
+		, const double&
+		, const double&
+		, const double&
+		, const double&
+		, const double&
 	);
 	/** @brief A standard copy constructor */
 	GStarterIndividual(const GStarterIndividual&);
@@ -129,17 +129,17 @@ public:
 	/** @brief A standard assignment operator */
 	const GStarterIndividual& operator=(const GStarterIndividual&);
 
-   /** @brief Checks for equality with another GFunctionIndividual object */
-   bool operator==(const GStarterIndividual&) const;
-   /** @brief Checks for inequality with another GFunctionIndividual object */
-   bool operator!=(const GStarterIndividual& cp) const;
+	/** @brief Checks for equality with another GFunctionIndividual object */
+	bool operator==(const GStarterIndividual&) const;
+	/** @brief Checks for inequality with another GFunctionIndividual object */
+	bool operator!=(const GStarterIndividual& cp) const;
 
-   /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
-   ) const final;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual void compare(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const final;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&) final;
@@ -161,18 +161,18 @@ public:
 	 * and factory.
 	 */
 	static void addContent(
-      GStarterIndividual& p
-      , const std::size_t& prod_id
-      , const std::vector<double>& startValues
-      , const std::vector<double>& lowerBoundaries
-      , const std::vector<double>& upperBoundaries
-      , const double& sigma
-      , const double& sigmaSigma
-      , const double& minSigma
-      , const double& maxSigma
-      , const double& adProb
+		GStarterIndividual& p
+		, const std::size_t& prod_id
+		, const std::vector<double>& startValues
+		, const std::vector<double>& lowerBoundaries
+		, const std::vector<double>& upperBoundaries
+		, const double& sigma
+		, const double& sigmaSigma
+		, const double& minSigma
+		, const double& maxSigma
+		, const double& adProb
 	) {
-	   // Some error checking
+		// Some error checking
 #ifdef DEBUG
 	   // Check whether values have been provided
 	   if(startValues.empty()) {
@@ -203,40 +203,40 @@ public:
 
 #endif /* DEBUG */
 
-	   // Add the required number of GConstrainedDoubleObject objects to the individual
-	   for(std::size_t i=0; i<startValues.size(); i++) {
-	      std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr;
-	      if(0 == prod_id) { // First individual, initialization with standard values
-	         gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject> (
-               new GConstrainedDoubleObject(
-                      startValues.at(i)
-                      , lowerBoundaries.at(i)
-                      , upperBoundaries.at(i)
-                )
-	         );
-	      } else { // Random initialization for all other individuals
-            gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject> (
-               new GConstrainedDoubleObject(
-                      lowerBoundaries.at(i)
-                      , upperBoundaries.at(i)
-                )
-            );
-	      }
+		// Add the required number of GConstrainedDoubleObject objects to the individual
+		for(std::size_t i=0; i<startValues.size(); i++) {
+			std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr;
+			if(0 == prod_id) { // First individual, initialization with standard values
+				gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject> (
+					new GConstrainedDoubleObject(
+						startValues.at(i)
+						, lowerBoundaries.at(i)
+						, upperBoundaries.at(i)
+					)
+				);
+			} else { // Random initialization for all other individuals
+				gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject> (
+					new GConstrainedDoubleObject(
+						lowerBoundaries.at(i)
+						, upperBoundaries.at(i)
+					)
+				);
+			}
 
-	      std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
-	            new GDoubleGaussAdaptor(
-	                  sigma
-	                  , sigmaSigma
-	                  , minSigma
-	                  , maxSigma
-	            )
-	      );
+			std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
+				new GDoubleGaussAdaptor(
+					sigma
+					, sigmaSigma
+					, minSigma
+					, maxSigma
+				)
+			);
 
-	      gdga_ptr->setAdaptionProbability(adProb);
-	      gcdo_ptr->addAdaptor(gdga_ptr);
+			gdga_ptr->setAdaptionProbability(adProb);
+			gcdo_ptr->addAdaptor(gdga_ptr);
 
-	      p.push_back(gcdo_ptr);
-	   }
+			p.push_back(gcdo_ptr);
+		}
 	}
 
 protected:
@@ -263,12 +263,12 @@ private:
 	/***************************************************************************/
 
 public:
-   /** @brief Applies modifications to this object. */
-   virtual bool modify_GUnitTests();
-   /** @brief Performs self tests that are expected to succeed. */
-   virtual void specificTestsNoFailureExpected_GUnitTests();
-   /** @brief Performs self tests that are expected to fail. */
-   virtual void specificTestsFailuresExpected_GUnitTests();
+	/** @brief Applies modifications to this object. */
+	virtual bool modify_GUnitTests();
+	/** @brief Performs self tests that are expected to succeed. */
+	virtual void specificTestsNoFailureExpected_GUnitTests();
+	/** @brief Performs self tests that are expected to fail. */
+	virtual void specificTestsFailuresExpected_GUnitTests();
 };
 
 /** @brief Allows to output a GStarterIndividual or convert it to a string using boost::lexical_cast */

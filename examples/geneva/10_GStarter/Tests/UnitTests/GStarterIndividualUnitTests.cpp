@@ -62,7 +62,7 @@ class GenevaStandardTestSuite
 public:
 	GenevaStandardTestSuite() :test_suite("GenevaStandardTestSuite") {
 		typedef boost::mpl::list<
-		      GStarterIndividual
+				GStarterIndividual
 		>
 		userind_types;
 
@@ -78,8 +78,8 @@ public:
  * The test program entry point
  */
 test_suite* init_unit_test_suite(int argc, char** const argv) {
-   framework::master_test_suite().add(new GenevaStandardTestSuite());
-   return 0;
+	framework::master_test_suite().add(new GenevaStandardTestSuite());
+	return 0;
 }
 
 /************************************************************************************************/
