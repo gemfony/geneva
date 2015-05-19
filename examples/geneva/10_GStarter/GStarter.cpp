@@ -74,8 +74,8 @@ int main(int argc, char **argv) {
 	// that do not discriminate between optimization algorithms.
 	std::vector<double> boundaries;
 	boundaries.push_back(1.);
-	std::shared_ptr<GAllSolutionFileLoggerT<GParameterSet> >
-		allSolutionLogger_ptr(new GAllSolutionFileLoggerT<GParameterSet>("allLog.txt", boundaries));
+	std::shared_ptr<GAllSolutionFileLoggerT<GOptimizationAlgorithmT<GParameterSet> > >
+		allSolutionLogger_ptr(new GAllSolutionFileLoggerT<GOptimizationAlgorithmT<GParameterSet> >("allLog.txt", boundaries));
 
 	go.registerPluggableOM(
 		[allSolutionLogger_ptr](const infoMode& im, GOptimizationAlgorithmT<GParameterSet> * const goa){

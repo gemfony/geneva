@@ -97,9 +97,9 @@ public:
 	 * @param upperBoundary The upper boundary of the value range
 	 */
 	GConstrainedNumCollectionT(
-      const std::size_t size
-      , const num_type& lowerBoundary
-      , const num_type& upperBoundary
+		const std::size_t size
+		, const num_type& lowerBoundary
+		, const num_type& upperBoundary
 	)
 		: GParameterCollectionT<num_type> (size, lowerBoundary)
 		, lowerBoundary_(lowerBoundary)
@@ -107,20 +107,20 @@ public:
 	{
 		// Naturally the upper boundary should be >= the lower boundary
 		if(lowerBoundary_ > upperBoundary_) {
-			std:: cerr << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, lower,upper):" << std::endl
-					   << "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
-					   << "upperBoundary_ = " << upperBoundary_ << std::endl;
+			std::cerr << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, lower,upper):" << std::endl
+			<< "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
+			<< "upperBoundary_ = " << upperBoundary_ << std::endl;
 			std::terminate();
 		}
 
 		// We might have constraints regarding the allowed boundaries. Cross-check
 		if(lowerBoundary < GConstrainedValueLimitT<num_type>::lowest() || upperBoundary > GConstrainedValueLimitT<num_type>::highest()) {
 			std::cerr << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, lower,upper):" << std::endl
-					  << "lower and/or upper limit outside of allowed value range:" << std::endl
-					  << "lowerBoundary = " << lowerBoundary << std::endl
-					  << "upperBoundary = " << upperBoundary << std::endl
-					  << "GConstrainedValueLimit<num_type>::lowest() = " << GConstrainedValueLimitT<num_type>::lowest() << std::endl
-					  << "GConstrainedValueLimit<num_type>::highest() = " << GConstrainedValueLimitT<num_type>::highest();
+			<< "lower and/or upper limit outside of allowed value range:" << std::endl
+			<< "lowerBoundary = " << lowerBoundary << std::endl
+			<< "upperBoundary = " << upperBoundary << std::endl
+			<< "GConstrainedValueLimit<num_type>::lowest() = " << GConstrainedValueLimitT<num_type>::lowest() << std::endl
+			<< "GConstrainedValueLimit<num_type>::highest() = " << GConstrainedValueLimitT<num_type>::highest();
 			std::terminate();
 		}
 	}
@@ -136,10 +136,10 @@ public:
 	 * @param upperBoundary The upper boundary of the value range
 	 */
 	GConstrainedNumCollectionT(
-			const std::size_t size
-			, const num_type& val
-			, const num_type& lowerBoundary
-			, const num_type& upperBoundary
+		const std::size_t size
+		, const num_type& val
+		, const num_type& lowerBoundary
+		, const num_type& upperBoundary
 	)
 		: GParameterCollectionT<num_type> (size, val)
 		, lowerBoundary_(lowerBoundary)
@@ -148,29 +148,29 @@ public:
 		// Naturally the upper boundary should be > the lower boundary
 		if(lowerBoundary_ > upperBoundary_) {
 			std:: cerr << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, val, lower,upper):" << std::endl
-					   << "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
-					   << "upperBoundary_ = " << upperBoundary_ << std::endl;
+			<< "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
+			<< "upperBoundary_ = " << upperBoundary_ << std::endl;
 			std::terminate();
 		}
 
 		// We might have constraints regarding the allowed boundaries. Cross-check
 		if(lowerBoundary < GConstrainedValueLimitT<num_type>::lowest() || upperBoundary > GConstrainedValueLimitT<num_type>::highest()) {
 			std::cerr << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, val, lower,upper):" << std::endl
-					  << "lower and/or upper limit outside of allowed value range:" << std::endl
-					  << "lowerBoundary = " << lowerBoundary << std::endl
-					  << "upperBoundary = " << upperBoundary << std::endl
-					  << "GConstrainedValueLimit<num_type>::lowest() = " << GConstrainedValueLimitT<num_type>::lowest() << std::endl
-					  << "GConstrainedValueLimit<num_type>::highest() = " << GConstrainedValueLimitT<num_type>::highest();
+			<< "lower and/or upper limit outside of allowed value range:" << std::endl
+			<< "lowerBoundary = " << lowerBoundary << std::endl
+			<< "upperBoundary = " << upperBoundary << std::endl
+			<< "GConstrainedValueLimit<num_type>::lowest() = " << GConstrainedValueLimitT<num_type>::lowest() << std::endl
+			<< "GConstrainedValueLimit<num_type>::highest() = " << GConstrainedValueLimitT<num_type>::highest();
 			std::terminate();
 		}
 
 		// Check that assigned value is in the allowed range
 		if(val<lowerBoundary || val > upperBoundary) {
 			std::cerr << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, val, lower,upper):" << std::endl
-					  << "Assigned value is outside of allowed value range:" << std::endl
-					  << "val = " << val << std::endl
-					  << "lowerBoundary = " << lowerBoundary << std::endl
-					  << "upperBoundary = " << upperBoundary << std::endl;
+			<< "Assigned value is outside of allowed value range:" << std::endl
+			<< "val = " << val << std::endl
+			<< "lowerBoundary = " << lowerBoundary << std::endl
+			<< "upperBoundary = " << upperBoundary << std::endl;
 			std::terminate();
 		}
 	}
@@ -193,99 +193,99 @@ public:
 	virtual ~GConstrainedNumCollectionT()
 	{ /* nothing */ }
 
-   /***************************************************************************/
-   /**
-    * The standard assignment operator
-    */
-   const GConstrainedNumCollectionT<num_type>& operator=(const GConstrainedNumCollectionT<num_type>& cp) {
-      this->load_(&cp);
-      return *this;
-   }
-
-   /***************************************************************************/
-   /**
-    * Checks for equality with another GConstrainedNumCollectionT<num_type> object
-    *
-    * @param  cp A constant reference to another GConstrainedNumCollectionT<num_type> object
-    * @return A boolean indicating whether both objects are equal
-    */
-   bool operator==(const GConstrainedNumCollectionT<num_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
-
-   /***************************************************************************/
-   /**
-    * Checks for inequality with another GConstrainedNumCollectionT<num_type> object
-    *
-    * @param  cp A constant reference to another GConstrainedNumCollectionT<num_type> object
-    * @return A boolean indicating whether both objects are inequal
-    */
-   bool operator!=(const GConstrainedNumCollectionT<num_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
-
-   /***************************************************************************/
-   /**
-    * Searches for compliance with expectations with respect to another object
-    * of the same type
-    *
-    * @param cp A constant reference to another GObject object
-    * @param e The expected outcome of the comparison
-    * @param limit The maximum deviation for floating point values (important for similarity checks)
-    */
-   virtual void compare(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-   ) const override {
-      using namespace Gem::Common;
-
-      // Check that we are indeed dealing with a GConstrainedNumCollectionT<num_type> reference
-      const GConstrainedNumCollectionT<num_type>  *p_load = GObject::gobject_conversion<GConstrainedNumCollectionT<num_type> >(&cp);
-
-      GToken token("GConstrainedNumCollectionT<num_type>", e);
-
-      // Compare our parent data ...
-      Gem::Common::compare_base<GParameterCollectionT<num_type> >(IDENTITY(*this, *p_load), token);
-
-      // ... and then the local data
-      compare_t(IDENTITY(lowerBoundary_, p_load->lowerBoundary_), token);
-      compare_t(IDENTITY(upperBoundary_, p_load->upperBoundary_), token);
-
-      // React on deviations from the expectation
-      token.evaluate();
-   }
-
 	/***************************************************************************/
-    /**
-     * Retrieves the lower boundary
-     *
-     * @return The value of the lower boundary
-     */
-	num_type getLowerBoundary() const {
-    	return lowerBoundary_;
+	/**
+	 * The standard assignment operator
+	 */
+	const GConstrainedNumCollectionT<num_type>& operator=(const GConstrainedNumCollectionT<num_type>& cp) {
+		this->load_(&cp);
+		return *this;
 	}
 
 	/***************************************************************************/
-    /**
-     * Retrieves the upper boundary
-     *
-     * @return The value of the upper boundary
-     */
+	/**
+	 * Checks for equality with another GConstrainedNumCollectionT<num_type> object
+	 *
+	 * @param  cp A constant reference to another GConstrainedNumCollectionT<num_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GConstrainedNumCollectionT<num_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GConstrainedNumCollectionT<num_type> object
+	 *
+	 * @param  cp A constant reference to another GConstrainedNumCollectionT<num_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GConstrainedNumCollectionT<num_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are indeed dealing with a GConstrainedNumCollectionT<num_type> reference
+		const GConstrainedNumCollectionT<num_type>  *p_load = GObject::gobject_conversion<GConstrainedNumCollectionT<num_type> >(&cp);
+
+		GToken token("GConstrainedNumCollectionT<num_type>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base<GParameterCollectionT<num_type> >(IDENTITY(*this, *p_load), token);
+
+		// ... and then the local data
+		compare_t(IDENTITY(lowerBoundary_, p_load->lowerBoundary_), token);
+		compare_t(IDENTITY(upperBoundary_, p_load->upperBoundary_), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
+
+	/***************************************************************************/
+	/**
+	  * Retrieves the lower boundary
+	  *
+	  * @return The value of the lower boundary
+	  */
+	num_type getLowerBoundary() const {
+		return lowerBoundary_;
+	}
+
+	/***************************************************************************/
+	/**
+	  * Retrieves the upper boundary
+	  *
+	  * @return The value of the upper boundary
+	  */
 	num_type getUpperBoundary() const {
-    	return upperBoundary_;
+		return upperBoundary_;
 	}
 
 	/***************************************************************************/
@@ -315,22 +315,22 @@ public:
 
 			// Check that the value is inside the allowed range
 			if(currentValues[pos] < lower || currentValues[pos] > upper){
-			   glogger
-			   << "In GConstrainedNumT<num_type>::setBoundaries(const T&, const T&) :" << std::endl
-            << "with typeid(num_type).name() = " << typeid(num_type).name() << std::endl
-            << "Attempt to set new boundaries [" << lower << ":" << upper << "]" << std::endl
-            << "with existing value  " << currentValues[pos] << " at position " << pos << " outside of this range." << std::endl
-            << GEXCEPTION;
+				glogger
+				<< "In GConstrainedNumT<num_type>::setBoundaries(const T&, const T&) :" << std::endl
+				<< "with typeid(num_type).name() = " << typeid(num_type).name() << std::endl
+				<< "Attempt to set new boundaries [" << lower << ":" << upper << "]" << std::endl
+				<< "with existing value  " << currentValues[pos] << " at position " << pos << " outside of this range." << std::endl
+				<< GEXCEPTION;
 			}
 		}
 
 		// Check that the boundaries make sense
 		if(lower > upper) {
-		   glogger
-		   << "In GConstrainedNumT<num_type>::setBoundaries(const num_type&, const num_type&)" << std::endl
-         << "with typeid(num_type).name() = " << typeid(num_type).name() << " :" << std::endl
-         << "Lower and/or upper boundary has invalid value : " << lower << " " << upper << std::endl
-         << GEXCEPTION;
+			glogger
+			<< "In GConstrainedNumT<num_type>::setBoundaries(const num_type&, const num_type&)" << std::endl
+			<< "with typeid(num_type).name() = " << typeid(num_type).name() << " :" << std::endl
+			<< "Lower and/or upper boundary has invalid value : " << lower << " " << upper << std::endl
+			<< GEXCEPTION;
 		}
 
 		lowerBoundary_ = lower;
@@ -356,13 +356,13 @@ public:
 	virtual void setValue(const std::size_t& pos, const num_type& val) override {
 		// Do some error checking
 		if(val < lowerBoundary_ || val > upperBoundary_) {
-		   glogger
-		   << "In GConstrainedNumCollectionT<num_type>::setValue(pos, val):" << std::endl
-         << "In position " << pos << ":" << std::endl
-         << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
-         << "lowerBoundary_ = " << lowerBoundary_ << std::endl
-         << "upperBoundary_ = " << upperBoundary_ << std::endl
-         << GEXCEPTION;
+			glogger
+			<< "In GConstrainedNumCollectionT<num_type>::setValue(pos, val):" << std::endl
+			<< "In position " << pos << ":" << std::endl
+			<< "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
+			<< "lowerBoundary_ = " << lowerBoundary_ << std::endl
+			<< "upperBoundary_ = " << upperBoundary_ << std::endl
+			<< GEXCEPTION;
 		}
 
 		// O.k., assign value
@@ -392,17 +392,17 @@ public:
 	 * value. Declared public so we can do tests of the value transformation. */
 	virtual num_type transfer(const num_type&) const = 0;
 
-   /***************************************************************************/
-   /**
-    * Converts the local data to a boost::property_tree node
-    *
-    * @param ptr The boost::property_tree object the data should be saved to
-    * @param id The id assigned to this object
-    */
-   virtual void toPropertyTree(
-      pt::ptree& ptr
-      , const std::string& baseName
-   ) const override {
+	/***************************************************************************/
+	/**
+	 * Converts the local data to a boost::property_tree node
+	 *
+	 * @param ptr The boost::property_tree object the data should be saved to
+	 * @param id The id assigned to this object
+	 */
+	virtual void toPropertyTree(
+		pt::ptree& ptr
+		, const std::string& baseName
+	) const override {
 #ifdef DEBUG
       // Check that the object isn't empty
       if(this->empty()) {
@@ -413,31 +413,31 @@ public:
       }
 #endif /* DEBUG */
 
-      ptr.put(baseName + ".name", this->getParameterName());
-      ptr.put(baseName + ".type", this->name());
-      ptr.put(baseName + ".baseType", Gem::Common::GTypeToStringT<num_type>::value());
-      ptr.put(baseName + ".isLeaf", this->isLeaf());
-      ptr.put(baseName + ".nVals", this->size());
+		ptr.put(baseName + ".name", this->getParameterName());
+		ptr.put(baseName + ".type", this->name());
+		ptr.put(baseName + ".baseType", Gem::Common::GTypeToStringT<num_type>::value());
+		ptr.put(baseName + ".isLeaf", this->isLeaf());
+		ptr.put(baseName + ".nVals", this->size());
 
-      typename GConstrainedNumCollectionT<num_type>::const_iterator cit;
-      std::size_t pos;
-      for(cit=this->begin(); cit!=this->end(); ++cit) {
-         pos = cit - this->begin();
-         ptr.put(baseName + "values.value" + boost::lexical_cast<std::string>(pos), *cit);
-      }
-      ptr.put(baseName + ".lowerBoundary", this->getLowerBoundary());
-      ptr.put(baseName + ".upperBoundary", this->getUpperBoundary());
-      ptr.put(baseName + ".initRandom", false); // Unused for the creation of a property tree
-      ptr.put(baseName + ".adaptionsActive", this->adaptionsActive());
-   }
+		typename GConstrainedNumCollectionT<num_type>::const_iterator cit;
+		std::size_t pos;
+		for(cit=this->begin(); cit!=this->end(); ++cit) {
+			pos = cit - this->begin();
+			ptr.put(baseName + "values.value" + boost::lexical_cast<std::string>(pos), *cit);
+		}
+		ptr.put(baseName + ".lowerBoundary", this->getLowerBoundary());
+		ptr.put(baseName + ".upperBoundary", this->getUpperBoundary());
+		ptr.put(baseName + ".initRandom", false); // Unused for the creation of a property tree
+		ptr.put(baseName + ".adaptionsActive", this->adaptionsActive());
+	}
 
-   /***************************************************************************/
-   /**
-    * Emits a name for this class / object
-    */
-   virtual std::string name() const override {
-      return std::string("GConstrainedNumCollectionT");
-   }
+	/***************************************************************************/
+	/**
+	 * Emits a name for this class / object
+	 */
+	virtual std::string name() const override {
+		return std::string("GConstrainedNumCollectionT");
+	}
 
 protected:
 	/***************************************************************************/
@@ -461,14 +461,14 @@ protected:
 		upperBoundary_ = p_load->upperBoundary_;
 	}
 
-   /***************************************************************************/
-   /**
-    * Returns a "comparative range". This is e.g. used to make Gauss-adaption
-    * independent of a parameters value range
-    */
-   virtual num_type range() const override {
-      return upperBoundary_ - lowerBoundary_;
-   }
+	/***************************************************************************/
+	/**
+	 * Returns a "comparative range". This is e.g. used to make Gauss-adaption
+	 * independent of a parameters value range
+	 */
+	virtual num_type range() const override {
+		return upperBoundary_ - lowerBoundary_;
+	}
 
 	/***************************************************************************/
 	/**
@@ -517,8 +517,8 @@ public:
 		return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GConstrainedNumCollectionT<>::modify_GUnitTests", "GEM_TESTING");
-   return false;
+		condnotset("GConstrainedNumCollectionT<>::modify_GUnitTests", "GEM_TESTING");
+		return false;
 #endif /* GEM_TESTING */
 	}
 
@@ -531,7 +531,7 @@ public:
 		// Call the parent classes' functions
 		GParameterCollectionT<num_type>::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GConstrainedNumCollectionT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GConstrainedNumCollectionT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -544,7 +544,7 @@ public:
 		// Call the parent classes' functions
 		GParameterCollectionT<num_type>::specificTestsFailuresExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GConstrainedNumCollectionT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GConstrainedNumCollectionT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -557,7 +557,7 @@ public:
  */
 template<>
 inline bool GConstrainedNumCollectionT<bool>::range() const {
-   return true;
+	return true;
 }
 
 /******************************************************************************/
@@ -569,12 +569,12 @@ inline bool GConstrainedNumCollectionT<bool>::range() const {
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
 namespace boost {
-	namespace serialization {
-		template<typename num_type>
-		struct is_abstract<Gem::Geneva::GConstrainedNumCollectionT<num_type> > : public boost::true_type {};
-		template<typename num_type>
-		struct is_abstract< const Gem::Geneva::GConstrainedNumCollectionT<num_type> > : public boost::true_type {};
-	}
+namespace serialization {
+template<typename num_type>
+struct is_abstract<Gem::Geneva::GConstrainedNumCollectionT<num_type> > : public boost::true_type {};
+template<typename num_type>
+struct is_abstract< const Gem::Geneva::GConstrainedNumCollectionT<num_type> > : public boost::true_type {};
+}
 }
 /******************************************************************************/
 

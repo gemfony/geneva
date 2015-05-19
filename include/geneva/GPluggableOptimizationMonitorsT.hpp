@@ -644,7 +644,7 @@ public:
 						}
 					}
 				} else { // Monitor all individuals
-					typename GOptimizationAlgorithmT<oa_type>::iterator it;
+					typename oa_type::iterator it;
 					for(it=goa->begin(); it!=goa->end(); ++it) {
 
 						if(GBasePluggableOMT<oa_type>::useRawEvaluation_) {
