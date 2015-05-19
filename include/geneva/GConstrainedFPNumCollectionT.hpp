@@ -77,8 +77,8 @@ class GConstrainedFPNumCollectionT
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar
-		& make_nvp("GConstrainedNumCollectionT",
-		      boost::serialization::base_object<GConstrainedNumCollectionT<fp_type> >(*this));
+			& make_nvp("GConstrainedNumCollectionT",
+						  boost::serialization::base_object<GConstrainedNumCollectionT<fp_type> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -99,9 +99,9 @@ public:
 	 * @param upperBoundary The upper boundary for data members
 	 */
 	GConstrainedFPNumCollectionT (
-      const std::size_t& size
-      , const fp_type& lowerBoundary
-      , const fp_type& upperBoundary
+		const std::size_t& size
+		, const fp_type& lowerBoundary
+		, const fp_type& upperBoundary
 	)
 		: GConstrainedNumCollectionT<fp_type> (size, lowerBoundary, boost::math::float_prior<fp_type>(upperBoundary)) // Note that we define the upper boundary as "open"
 	{
@@ -126,17 +126,17 @@ public:
 	 * @param upperBoundary The upper boundary for data members
 	 */
 	GConstrainedFPNumCollectionT (
-      const std::size_t& size
-      , const fp_type& val
-      , const fp_type& lowerBoundary
-      , const fp_type& upperBoundary
+		const std::size_t& size
+		, const fp_type& val
+		, const fp_type& lowerBoundary
+		, const fp_type& upperBoundary
 	)
 		: GConstrainedNumCollectionT<fp_type> (
-		      size
-		      , (val==upperBoundary?boost::math::float_prior<fp_type>(val):val)
-		      , lowerBoundary
-		      , boost::math::float_prior<fp_type>(upperBoundary)
-		  ) // Note that we define the upper boundary as "open"
+		size
+		, (val==upperBoundary?boost::math::float_prior<fp_type>(val):val)
+		, lowerBoundary
+		, boost::math::float_prior<fp_type>(upperBoundary)
+	) // Note that we define the upper boundary as "open"
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -154,80 +154,80 @@ public:
 	virtual ~GConstrainedFPNumCollectionT()
 	{ /* nothing */ }
 
-   /***************************************************************************/
-   /**
-    * The standard assignment operator
-    */
-   const GConstrainedFPNumCollectionT<fp_type>& operator=(
-      const GConstrainedFPNumCollectionT<fp_type>& cp
-   ) {
-      this->load_(&cp);
-      return *this;
-   }
+	/***************************************************************************/
+	/**
+	 * The standard assignment operator
+	 */
+	const GConstrainedFPNumCollectionT<fp_type>& operator=(
+		const GConstrainedFPNumCollectionT<fp_type>& cp
+	) {
+		this->load_(&cp);
+		return *this;
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for equality with another GConstrainedFPNumCollectionT<fp_type> object
-    *
-    * @param  cp A constant reference to another GConstrainedFPNumCollectionT<fp_type> object
-    * @return A boolean indicating whether both objects are equal
-    */
-   bool operator==(const GConstrainedFPNumCollectionT<fp_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for equality with another GConstrainedFPNumCollectionT<fp_type> object
+	 *
+	 * @param  cp A constant reference to another GConstrainedFPNumCollectionT<fp_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GConstrainedFPNumCollectionT<fp_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for inequality with another GConstrainedFPNumCollectionT<fp_type> object
-    *
-    * @param  cp A constant reference to another GConstrainedFPNumCollectionT<fp_type> object
-    * @return A boolean indicating whether both objects are inequal
-    */
-   bool operator!=(const GConstrainedFPNumCollectionT<fp_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GConstrainedFPNumCollectionT<fp_type> object
+	 *
+	 * @param  cp A constant reference to another GConstrainedFPNumCollectionT<fp_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GConstrainedFPNumCollectionT<fp_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Searches for compliance with expectations with respect to another object
-    * of the same type
-    *
-    * @param cp A constant reference to another GObject object
-    * @param e The expected outcome of the comparison
-    * @param limit The maximum deviation for floating point values (important for similarity checks)
-    */
-   virtual void compare(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-   ) const override {
-      using namespace Gem::Common;
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
 
-      // Check that we are indeed dealing with a GConstrainedFPNumCollectionT<fp_type> reference
-      const GConstrainedFPNumCollectionT<fp_type>  *p_load = GObject::gobject_conversion<GConstrainedFPNumCollectionT<fp_type> >(&cp);
+		// Check that we are indeed dealing with a GConstrainedFPNumCollectionT<fp_type> reference
+		const GConstrainedFPNumCollectionT<fp_type>  *p_load = GObject::gobject_conversion<GConstrainedFPNumCollectionT<fp_type> >(&cp);
 
-      GToken token("GConstrainedNumCollectionT<fp_type>", e);
+		GToken token("GConstrainedNumCollectionT<fp_type>", e);
 
-      // Compare our parent data ...
-      Gem::Common::compare_base<GConstrainedNumCollectionT<fp_type> >(IDENTITY(*this, *p_load), token);
+		// Compare our parent data ...
+		Gem::Common::compare_base<GConstrainedNumCollectionT<fp_type> >(IDENTITY(*this, *p_load), token);
 
-      // ... no local data
+		// ... no local data
 
-      // React on deviations from the expectation
-      token.evaluate();
-   }
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 	/****************************************************************************/
 	/**
@@ -271,13 +271,13 @@ public:
 		return fp_type(0.);
 	}
 
-   /***************************************************************************/
-   /**
-    * Emits a name for this class / object
-    */
-   virtual std::string name() const override {
-      return std::string("GConstrainedFPNumCollectionT");
-   }
+	/***************************************************************************/
+	/**
+	 * Emits a name for this class / object
+	 */
+	virtual std::string name() const override {
+		return std::string("GConstrainedFPNumCollectionT");
+	}
 
 protected:
 	/***************************************************************************/
@@ -312,8 +312,8 @@ protected:
 			this->setValue(
 				pos
 				, this->GObject::gr_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(
-						GConstrainedNumCollectionT<fp_type>::getLowerBoundary()
-						, GConstrainedNumCollectionT<fp_type>::getUpperBoundary()
+					GConstrainedNumCollectionT<fp_type>::getLowerBoundary()
+					, GConstrainedNumCollectionT<fp_type>::getUpperBoundary()
 				)
 			);
 		}
@@ -347,8 +347,8 @@ public:
 
 		return result;
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GConstrainedFPNumCollectionT<>::modify_GUnitTests", "GEM_TESTING");
-   return false;
+		condnotset("GConstrainedFPNumCollectionT<>::modify_GUnitTests", "GEM_TESTING");
+		return false;
 #endif /* GEM_TESTING */
 	}
 
@@ -361,7 +361,7 @@ public:
 		// Call the parent classes' functions
 		GConstrainedNumCollectionT<fp_type>::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GConstrainedFPNumCollectionT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GConstrainedFPNumCollectionT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -374,7 +374,7 @@ public:
 		// Call the parent classes' functions
 		GConstrainedNumCollectionT<fp_type>::specificTestsFailuresExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GConstrainedFPNumCollectionT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GConstrainedFPNumCollectionT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 };
@@ -388,12 +388,12 @@ public:
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
 namespace boost {
-	namespace serialization {
-		template<typename fp_type>
-		struct is_abstract<Gem::Geneva::GConstrainedFPNumCollectionT<fp_type> > : public boost::true_type {};
-		template<typename fp_type>
-		struct is_abstract< const Gem::Geneva::GConstrainedFPNumCollectionT<fp_type> > : public boost::true_type {};
-	}
+namespace serialization {
+template<typename fp_type>
+struct is_abstract<Gem::Geneva::GConstrainedFPNumCollectionT<fp_type> > : public boost::true_type {};
+template<typename fp_type>
+struct is_abstract< const Gem::Geneva::GConstrainedFPNumCollectionT<fp_type> > : public boost::true_type {};
+}
 }
 /******************************************************************************/
 

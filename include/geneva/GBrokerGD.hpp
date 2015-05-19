@@ -76,7 +76,7 @@ class GBrokerGD
 		ar
 		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseGD)
 		& make_nvp("GBrokerConnector2T_GParameterSet",
-		      boost::serialization::base_object<Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet> >(*this));
+					  boost::serialization::base_object<Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet> >(*this));
 	}
 
 	///////////////////////////////////////////////////////////////////////
@@ -91,20 +91,20 @@ public:
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GBrokerGD();
 
-   /** @brief The standard assignment operator */
-   G_API_GENEVA const GBrokerGD& operator=(const GBrokerGD&);
+	/** @brief The standard assignment operator */
+	G_API_GENEVA const GBrokerGD& operator=(const GBrokerGD&);
 
 	/** @brief Checks for equality with another GBrokerGD object */
 	G_API_GENEVA bool operator==(const GBrokerGD&) const;
 	/** @brief Checks for inequality with another GBrokerGD object */
 	G_API_GENEVA bool operator!=(const GBrokerGD&) const;
 
-   /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
-   ) const override;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 	/** @brief Checks whether a given algorithm type likes to communicate via the broker */
 	virtual G_API_GENEVA bool usesBroker() const override;
@@ -117,8 +117,8 @@ public:
 	/** @brief Allows to assign a name to the role of this individual(-derivative) */
 	virtual G_API_GENEVA std::string getIndividualCharacteristic() const override;
 
-   /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const override;
+	/** @brief Emits a name for this class / object */
+	virtual G_API_GENEVA std::string name() const override;
 
 protected:
 	/** @brief Loads the data of another population */
@@ -141,10 +141,10 @@ private:
 	 * position in the population Smaller position numbers will end up in front.
 	 */
 	struct indPositionComp {
-	   bool operator()(std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) {
-	      return x->getPersonalityTraits<GGDPersonalityTraits>()->getPopulationPosition()
-	            < y->getPersonalityTraits<GGDPersonalityTraits>()->getPopulationPosition();
-	   }
+		bool operator()(std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) {
+			return x->getPersonalityTraits<GGDPersonalityTraits>()->getPopulationPosition()
+					 < y->getPersonalityTraits<GGDPersonalityTraits>()->getPopulationPosition();
+		}
 	};
 	/***************************************************************************/
 

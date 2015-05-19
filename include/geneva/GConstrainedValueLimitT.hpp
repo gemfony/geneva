@@ -63,12 +63,12 @@ namespace Geneva {
 template <typename T>
 struct GConstrainedValueLimitT
 {
-   static T highest() {
-      return boost::numeric::bounds<T>::highest();
-   }
+	static T highest() {
+		return boost::numeric::bounds<T>::highest();
+	}
 
 	static T lowest() {
-	   return boost::numeric::bounds<T>::lowest();
+		return boost::numeric::bounds<T>::lowest();
 	}
 };
 
@@ -83,9 +83,9 @@ struct GConstrainedValueLimitT<double>
 		return GMAXCONSTRAINEDDOUBLE;
 	}
 
-   static double lowest() {
-      return -GMAXCONSTRAINEDDOUBLE;
-   }
+	static double lowest() {
+		return -GMAXCONSTRAINEDDOUBLE;
+	}
 };
 
 /******************************************************************************/
@@ -99,9 +99,9 @@ struct GConstrainedValueLimitT<float>
 		return GMAXCONSTRAINEDFLOAT;
 	}
 
-   static float lowest() {
-      return -GMAXCONSTRAINEDFLOAT;
-   }
+	static float lowest() {
+		return -GMAXCONSTRAINEDFLOAT;
+	}
 };
 
 /******************************************************************************/
@@ -115,9 +115,9 @@ struct GConstrainedValueLimitT<boost::int32_t>
 		return GMAXCONSTRAINEDINT32;
 	}
 
-   static boost::int32_t lowest() {
-      return -GMAXCONSTRAINEDINT32;
-   }
+	static boost::int32_t lowest() {
+		return -GMAXCONSTRAINEDINT32;
+	}
 };
 
 /******************************************************************************/
@@ -127,13 +127,13 @@ struct GConstrainedValueLimitT<boost::int32_t>
 template <>
 struct GConstrainedValueLimitT<bool>
 {
-   static bool highest() {
-      return true;
-   }
+	static bool highest() {
+		return true;
+	}
 
-   static bool lowest() {
-      return false;
-   }
+	static bool lowest() {
+		return false;
+	}
 };
 
 /******************************************************************************/

@@ -64,10 +64,10 @@ class GBooleanObject
 
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
-	  using boost::serialization::make_nvp;
+		using boost::serialization::make_nvp;
 
-	  ar
-	  & make_nvp("GParameterT_bool", boost::serialization::base_object<GParameterT<bool> >(*this));
+		ar
+			& make_nvp("GParameterT_bool", boost::serialization::base_object<GParameterT<bool> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -85,8 +85,8 @@ public:
 
 	/** @brief An assignment operator */
 	virtual G_API_GENEVA bool operator=(const bool&) override;
-   /** @brief The standard assignment operator */
-   G_API_GENEVA const GBooleanObject& operator=(const GBooleanObject&);
+	/** @brief The standard assignment operator */
+	G_API_GENEVA const GBooleanObject& operator=(const GBooleanObject&);
 
 	/** @brief Checks for equality with another GBooleanObject object */
 	G_API_GENEVA bool operator==(const GBooleanObject&) const;
@@ -98,15 +98,15 @@ public:
 	/** @brief Triggers random initialization of the parameter object, with a given likelihood structure */
 	G_API_GENEVA bool randomInit(const double&, const activityMode&);
 
-   /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
-   ) const override;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
-   /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const override;
+	/** @brief Emits a name for this class / object */
+	virtual G_API_GENEVA std::string name() const override;
 
 protected:
 	/** @brief Loads the data of another GObject */
@@ -122,18 +122,18 @@ protected:
 	/** @brief Returns a "comparative range" for this type */
 	virtual G_API_GENEVA bool range() const override;
 
-   /** @brief Attach our local value to the vector. */
-   virtual G_API_GENEVA void booleanStreamline(std::vector<bool>&, const activityMode& am) const override;
-   /** @brief Attach boundaries of type bool to the vectors */
-   virtual G_API_GENEVA void booleanBoundaries(std::vector<bool>&, std::vector<bool>&, const activityMode& am) const override;
-   /** @brief Tell the audience that we own a boost::int32_t value */
-   virtual std::size_t countBoolParameters(const activityMode& am) const override;
-   /** @brief Assigns part of a value vector to the parameter */
-   virtual G_API_GENEVA void assignBooleanValueVector(const std::vector<bool>&, std::size_t&, const activityMode& am) override;
-   /** @brief Attach our local value to the map. */
-   virtual G_API_GENEVA void booleanStreamline(std::map<std::string, std::vector<bool> >&, const activityMode& am) const override;
-   /** @brief Assigns part of a value map to the parameter */
-   virtual G_API_GENEVA void assignBooleanValueVectors(const std::map<std::string, std::vector<bool> >&, const activityMode& am) override;
+	/** @brief Attach our local value to the vector. */
+	virtual G_API_GENEVA void booleanStreamline(std::vector<bool>&, const activityMode& am) const override;
+	/** @brief Attach boundaries of type bool to the vectors */
+	virtual G_API_GENEVA void booleanBoundaries(std::vector<bool>&, std::vector<bool>&, const activityMode& am) const override;
+	/** @brief Tell the audience that we own a boost::int32_t value */
+	virtual std::size_t countBoolParameters(const activityMode& am) const override;
+	/** @brief Assigns part of a value vector to the parameter */
+	virtual G_API_GENEVA void assignBooleanValueVector(const std::vector<bool>&, std::size_t&, const activityMode& am) override;
+	/** @brief Attach our local value to the map. */
+	virtual G_API_GENEVA void booleanStreamline(std::map<std::string, std::vector<bool> >&, const activityMode& am) const override;
+	/** @brief Assigns part of a value map to the parameter */
+	virtual G_API_GENEVA void assignBooleanValueVectors(const std::map<std::string, std::vector<bool> >&, const activityMode& am) override;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

@@ -69,8 +69,8 @@ class GConstrainedDoubleCollection
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar
-		& make_nvp("GConstrainedFPNumCollectionT",
-		      boost::serialization::base_object<GConstrainedFPNumCollectionT<double> >(*this));
+			& make_nvp("GConstrainedFPNumCollectionT",
+						  boost::serialization::base_object<GConstrainedFPNumCollectionT<double> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -78,39 +78,39 @@ public:
 	/***************************************************************************/
 	/** @brief Initialize the lower and upper boundaries for data members of this class */
 	G_API_GENEVA GConstrainedDoubleCollection (
-      const std::size_t&
-      , const double&
-      , const double&
+		const std::size_t&
+		, const double&
+		, const double&
 	);
 	/** @brief Assign a fixed value to all positions of the vector and initialize the allowed value range */
 	G_API_GENEVA GConstrainedDoubleCollection (
-      const std::size_t&
-      , const double&
-      , const double&
-      , const double&
+		const std::size_t&
+		, const double&
+		, const double&
+		, const double&
 	);
 	/** @brief The standard copy constructor */
 	G_API_GENEVA GConstrainedDoubleCollection(const GConstrainedDoubleCollection&);
 	/** @brief The standard destructor */
 	virtual G_API_GENEVA ~GConstrainedDoubleCollection();
 
-   /** @brief The standard assignment operator */
-   G_API_GENEVA const GConstrainedDoubleCollection& operator=(const GConstrainedDoubleCollection&);
+	/** @brief The standard assignment operator */
+	G_API_GENEVA const GConstrainedDoubleCollection& operator=(const GConstrainedDoubleCollection&);
 
 	/** @brief Checks for equality with another GConstrainedDoubleCollection object */
 	G_API_GENEVA bool operator==(const GConstrainedDoubleCollection&) const;
 	/** @brief Checks for inequality with another GConstrainedDoubleCollection object */
 	G_API_GENEVA bool operator!=(const GConstrainedDoubleCollection&) const;
 
-   /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
-   ) const override;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
-   /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const override;
+	/** @brief Emits a name for this class / object */
+	virtual G_API_GENEVA std::string name() const override;
 
 protected:
 	/***************************************************************************/
@@ -119,35 +119,35 @@ protected:
 	/** @brief Creates a deep clone of this object */
 	G_API_GENEVA GObject* clone_() const override;
 
-   /** @brief Attach our local values to the vector. */
-   virtual G_API_GENEVA void doubleStreamline(std::vector<double>&, const activityMode& am) const override;
-   /** @brief Attach boundaries of type double to the vectors */
-   virtual G_API_GENEVA void doubleBoundaries(std::vector<double>&, std::vector<double>&, const activityMode& am) const override;
-   /** @brief Tell the audience that we own a number of double values */
-   virtual G_API_GENEVA std::size_t countDoubleParameters(const activityMode& am) const override;
-   /** @brief Assigns part of a value vector to the parameter */
-   virtual G_API_GENEVA void assignDoubleValueVector(const std::vector<double>&, std::size_t&, const activityMode& am) override;
-   /** @brief Attach our local values to the vector. */
-   virtual G_API_GENEVA void doubleStreamline(std::map<std::string, std::vector<double> >&, const activityMode& am) const override;
-   /** @brief Assigns part of a value map to the parameter */
-   virtual G_API_GENEVA void assignDoubleValueVectors(const std::map<std::string, std::vector<double> >&, const activityMode& am) override;
+	/** @brief Attach our local values to the vector. */
+	virtual G_API_GENEVA void doubleStreamline(std::vector<double>&, const activityMode& am) const override;
+	/** @brief Attach boundaries of type double to the vectors */
+	virtual G_API_GENEVA void doubleBoundaries(std::vector<double>&, std::vector<double>&, const activityMode& am) const override;
+	/** @brief Tell the audience that we own a number of double values */
+	virtual G_API_GENEVA std::size_t countDoubleParameters(const activityMode& am) const override;
+	/** @brief Assigns part of a value vector to the parameter */
+	virtual G_API_GENEVA void assignDoubleValueVector(const std::vector<double>&, std::size_t&, const activityMode& am) override;
+	/** @brief Attach our local values to the vector. */
+	virtual G_API_GENEVA void doubleStreamline(std::map<std::string, std::vector<double> >&, const activityMode& am) const override;
+	/** @brief Assigns part of a value map to the parameter */
+	virtual G_API_GENEVA void assignDoubleValueVectors(const std::map<std::string, std::vector<double> >&, const activityMode& am) override;
 
-   /** @brief Multiplication with a random value in a given range */
-   virtual G_API_GENEVA void doubleMultiplyByRandom(const double& min, const double& max, const activityMode& am) override;
-   /** @brief Multiplication with a random value in the range [0,1[ */
-   virtual G_API_GENEVA void doubleMultiplyByRandom(const activityMode& am) override;
-   /** @brief Multiplication with a constant value */
-   virtual G_API_GENEVA void doubleMultiplyBy(const double& value, const activityMode& am) override;
-   /** @brief Initialization with a constant value */
-   virtual G_API_GENEVA void doubleFixedValueInit(const double& value, const activityMode& am) override;
-   /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-   virtual G_API_GENEVA void doubleAdd(std::shared_ptr<GParameterBase>, const activityMode& am) override;
-   /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-   virtual G_API_GENEVA void doubleSubtract(std::shared_ptr<GParameterBase>, const activityMode& am) override;
+	/** @brief Multiplication with a random value in a given range */
+	virtual G_API_GENEVA void doubleMultiplyByRandom(const double& min, const double& max, const activityMode& am) override;
+	/** @brief Multiplication with a random value in the range [0,1[ */
+	virtual G_API_GENEVA void doubleMultiplyByRandom(const activityMode& am) override;
+	/** @brief Multiplication with a constant value */
+	virtual G_API_GENEVA void doubleMultiplyBy(const double& value, const activityMode& am) override;
+	/** @brief Initialization with a constant value */
+	virtual G_API_GENEVA void doubleFixedValueInit(const double& value, const activityMode& am) override;
+	/** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
+	virtual G_API_GENEVA void doubleAdd(std::shared_ptr<GParameterBase>, const activityMode& am) override;
+	/** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
+	virtual G_API_GENEVA void doubleSubtract(std::shared_ptr<GParameterBase>, const activityMode& am) override;
 
 	/***************************************************************************/
 	/** @brief The default constructor. Intentionally protected	 */
-   G_API_GENEVA GConstrainedDoubleCollection();
+	G_API_GENEVA GConstrainedDoubleCollection();
 
 public:
 	/***************************************************************************/

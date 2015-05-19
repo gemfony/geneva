@@ -64,11 +64,11 @@ class GBooleanObjectCollection
 
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
-	  using boost::serialization::make_nvp;
+		using boost::serialization::make_nvp;
 
-	  ar
-	  & make_nvp("GParameterTCollectionT_gbo",
-			  boost::serialization::base_object<GParameterTCollectionT<GBooleanObject> >(*this));
+		ar
+			& make_nvp("GParameterTCollectionT_gbo",
+						  boost::serialization::base_object<GParameterTCollectionT<GBooleanObject> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -84,23 +84,23 @@ public:
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GBooleanObjectCollection();
 
-   /** @brief The standard assignment operator */
-   G_API_GENEVA const GBooleanObjectCollection& operator=(const GBooleanObjectCollection&);
+	/** @brief The standard assignment operator */
+	G_API_GENEVA const GBooleanObjectCollection& operator=(const GBooleanObjectCollection&);
 
 	/** @brief Checks for equality with another GBooleanObjectCollection object */
 	G_API_GENEVA bool operator==(const GBooleanObjectCollection&) const;
 	/** @brief Checks for inequality with another GBooleanObjectCollection object */
 	G_API_GENEVA bool operator!=(const GBooleanObjectCollection&) const;
 
-   /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
-   ) const override;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
-   /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const override;
+	/** @brief Emits a name for this class / object */
+	virtual G_API_GENEVA std::string name() const override;
 
 protected:
 	/** @brief Loads the data of another GObject */

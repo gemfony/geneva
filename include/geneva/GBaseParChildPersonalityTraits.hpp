@@ -54,93 +54,93 @@ namespace Geneva {
  * to populations comprising parents and children
  */
 class GBaseParChildPersonalityTraits
-   :public GPersonalityTraits
+	:public GPersonalityTraits
 {
-   ///////////////////////////////////////////////////////////////////////
-   friend class boost::serialization::access;
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
 
-   template<typename Archive>
-   void serialize(Archive & ar, const unsigned int){
-     using boost::serialization::make_nvp;
-     ar
-     & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
-     & BOOST_SERIALIZATION_NVP(parentCounter_)
-     & BOOST_SERIALIZATION_NVP(popPos_)
-     & BOOST_SERIALIZATION_NVP(parentId_);
-   }
-   ///////////////////////////////////////////////////////////////////////
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
+		& BOOST_SERIALIZATION_NVP(parentCounter_)
+		& BOOST_SERIALIZATION_NVP(popPos_)
+		& BOOST_SERIALIZATION_NVP(parentId_);
+	}
+	///////////////////////////////////////////////////////////////////////
 
 public:
-   /** @brief The default constructor */
-   G_API_GENEVA GBaseParChildPersonalityTraits();
-   /** @brief The copy contructor */
-   G_API_GENEVA GBaseParChildPersonalityTraits(const GBaseParChildPersonalityTraits&);
-   /** @brief The standard destructor */
-   virtual G_API_GENEVA ~GBaseParChildPersonalityTraits();
+	/** @brief The default constructor */
+	G_API_GENEVA GBaseParChildPersonalityTraits();
+	/** @brief The copy contructor */
+	G_API_GENEVA GBaseParChildPersonalityTraits(const GBaseParChildPersonalityTraits&);
+	/** @brief The standard destructor */
+	virtual G_API_GENEVA ~GBaseParChildPersonalityTraits();
 
-   /** @brief The standard assignment operator */
-   G_API_GENEVA const GBaseParChildPersonalityTraits& operator=(const GBaseParChildPersonalityTraits&);
+	/** @brief The standard assignment operator */
+	G_API_GENEVA const GBaseParChildPersonalityTraits& operator=(const GBaseParChildPersonalityTraits&);
 
-   /** @brief Checks for equality with another GBaseParChildPersonalityTraits object */
-   G_API_GENEVA bool operator==(const GBaseParChildPersonalityTraits&) const;
-   /** @brief Checks for inequality with another GBaseParChildPersonalityTraits object */
-   G_API_GENEVA bool operator!=(const GBaseParChildPersonalityTraits&) const;
+	/** @brief Checks for equality with another GBaseParChildPersonalityTraits object */
+	G_API_GENEVA bool operator==(const GBaseParChildPersonalityTraits&) const;
+	/** @brief Checks for inequality with another GBaseParChildPersonalityTraits object */
+	G_API_GENEVA bool operator!=(const GBaseParChildPersonalityTraits&) const;
 
-   /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
-   ) const override;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
-   /** @brief Marks an individual as a parent*/
-   G_API_GENEVA bool setIsParent();
-   /** @brief Marks an individual as a child */
-   G_API_GENEVA bool setIsChild();
+	/** @brief Marks an individual as a parent*/
+	G_API_GENEVA bool setIsParent();
+	/** @brief Marks an individual as a child */
+	G_API_GENEVA bool setIsChild();
 
-   /** @brief Checks whether this is a parent individual */
-   G_API_GENEVA bool isParent() const;
-   /** @brief Retrieves the current value of the parentCounter_ variable */
-   G_API_GENEVA boost::uint32_t getParentCounter() const;
+	/** @brief Checks whether this is a parent individual */
+	G_API_GENEVA bool isParent() const;
+	/** @brief Retrieves the current value of the parentCounter_ variable */
+	G_API_GENEVA boost::uint32_t getParentCounter() const;
 
-   /** @brief Sets the position of the individual in the population */
-   G_API_GENEVA void setPopulationPosition(const std::size_t&);
-   /** @brief Retrieves the position of the individual in the population */
-   G_API_GENEVA std::size_t getPopulationPosition(void) const;
+	/** @brief Sets the position of the individual in the population */
+	G_API_GENEVA void setPopulationPosition(const std::size_t&);
+	/** @brief Retrieves the position of the individual in the population */
+	G_API_GENEVA std::size_t getPopulationPosition(void) const;
 
-   /** @brief Stores the parent's id with this object */
-   G_API_GENEVA void setParentId(const std::size_t&);
-   /** @brief Retrieves the parent id's value */
-   G_API_GENEVA std::size_t getParentId() const;
-   /** @brief Checks whether a parent id has been set */
-   G_API_GENEVA bool parentIdSet() const;
-   /** @brief Marks the parent id as unset */
-   G_API_GENEVA void unsetParentId();
+	/** @brief Stores the parent's id with this object */
+	G_API_GENEVA void setParentId(const std::size_t&);
+	/** @brief Retrieves the parent id's value */
+	G_API_GENEVA std::size_t getParentId() const;
+	/** @brief Checks whether a parent id has been set */
+	G_API_GENEVA bool parentIdSet() const;
+	/** @brief Marks the parent id as unset */
+	G_API_GENEVA void unsetParentId();
 
-   /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const override;
+	/** @brief Emits a name for this class / object */
+	virtual G_API_GENEVA std::string name() const override;
 
 protected:
-   /** @brief Loads the data of another GBaseParChildPersonalityTraits object */
-   virtual G_API_GENEVA void load_(const GObject*) override;
-   /** @brief Creates a deep clone of this object */
-   virtual G_API_GENEVA GObject* clone_() const override;
+	/** @brief Loads the data of another GBaseParChildPersonalityTraits object */
+	virtual G_API_GENEVA void load_(const GObject*) override;
+	/** @brief Creates a deep clone of this object */
+	virtual G_API_GENEVA GObject* clone_() const override;
 
 private:
-   /** @brief Allows populations to record how often an individual has been reelected as parent (0 if it is a child) */
-   boost::uint32_t parentCounter_;
-   /** @brief Stores the current position in the population */
-   std::size_t popPos_;
-   /** @brief The id of the old parent individual. This is intentionally a signed value. A negative value refers to an unset parent id */
-   boost::int16_t parentId_;
+	/** @brief Allows populations to record how often an individual has been reelected as parent (0 if it is a child) */
+	boost::uint32_t parentCounter_;
+	/** @brief Stores the current position in the population */
+	std::size_t popPos_;
+	/** @brief The id of the old parent individual. This is intentionally a signed value. A negative value refers to an unset parent id */
+	boost::int16_t parentId_;
 
 public:
-   /** @brief Applies modifications to this object. This is needed for testing purposes */
-   virtual G_API_GENEVA bool modify_GUnitTests() override;
-   /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-   virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
-   /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-   virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
+	/** @brief Applies modifications to this object. This is needed for testing purposes */
+	virtual G_API_GENEVA bool modify_GUnitTests() override;
+	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/

@@ -61,90 +61,90 @@ namespace Geneva {
  */
 class GBooleanCollection :public GParameterCollectionT<bool>
 {
-   ///////////////////////////////////////////////////////////////////////
-   friend class boost::serialization::access;
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
 
-   template<typename Archive>
-   void serialize(Archive & ar, const unsigned int){
-      using boost::serialization::make_nvp;
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
 
-      ar & make_nvp("GParameterCollectionT_bool",
-            boost::serialization::base_object<GParameterCollectionT<bool> >(*this));
-   }
-   ///////////////////////////////////////////////////////////////////////
+		ar & make_nvp("GParameterCollectionT_bool",
+						  boost::serialization::base_object<GParameterCollectionT<bool> >(*this));
+	}
+	///////////////////////////////////////////////////////////////////////
 
 public:
-   /** @brief The default constructor */
-   G_API_GENEVA GBooleanCollection();
-   /** @brief Random initialization with a given number of values */
-   explicit G_API_GENEVA GBooleanCollection(const std::size_t&);
-   /** @brief Initialization with a given number of items of defined value */
-   G_API_GENEVA GBooleanCollection(const std::size_t&, const bool&);
-   /** @brief Random initialization with a given number of values of
-    * a certain probability structure */
-   G_API_GENEVA GBooleanCollection(const std::size_t&, const double&);
-   /** @brief A standard copy constructor */
-   G_API_GENEVA GBooleanCollection(const GBooleanCollection&);
-   /** @brief The standard destructor */
-   virtual G_API_GENEVA ~GBooleanCollection();
+	/** @brief The default constructor */
+	G_API_GENEVA GBooleanCollection();
+	/** @brief Random initialization with a given number of values */
+	explicit G_API_GENEVA GBooleanCollection(const std::size_t&);
+	/** @brief Initialization with a given number of items of defined value */
+	G_API_GENEVA GBooleanCollection(const std::size_t&, const bool&);
+	/** @brief Random initialization with a given number of values of
+	 * a certain probability structure */
+	G_API_GENEVA GBooleanCollection(const std::size_t&, const double&);
+	/** @brief A standard copy constructor */
+	G_API_GENEVA GBooleanCollection(const GBooleanCollection&);
+	/** @brief The standard destructor */
+	virtual G_API_GENEVA ~GBooleanCollection();
 
-   /** @brief The standard assignment operator */
-   G_API_GENEVA const GBooleanCollection& operator=(const GBooleanCollection&);
+	/** @brief The standard assignment operator */
+	G_API_GENEVA const GBooleanCollection& operator=(const GBooleanCollection&);
 
-   /** @brief Checks for equality with another GBooleanCollection object */
-   G_API_GENEVA bool operator==(const GBooleanCollection&) const;
-   /** @brief Checks for inequality with another GBooleanCollection object */
-   G_API_GENEVA bool operator!=(const GBooleanCollection&) const;
+	/** @brief Checks for equality with another GBooleanCollection object */
+	G_API_GENEVA bool operator==(const GBooleanCollection&) const;
+	/** @brief Checks for inequality with another GBooleanCollection object */
+	G_API_GENEVA bool operator!=(const GBooleanCollection&) const;
 
-   /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
-   ) const override;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
-   /** @brief Random initialization */
-   virtual G_API_GENEVA bool randomInit(const activityMode&) override;
-   /** @brief Random initialization with a given probability structure */
-   G_API_GENEVA bool randomInit(const double&, const activityMode&);
+	/** @brief Random initialization */
+	virtual G_API_GENEVA bool randomInit(const activityMode&) override;
+	/** @brief Random initialization with a given probability structure */
+	G_API_GENEVA bool randomInit(const double&, const activityMode&);
 
-   /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const override;
+	/** @brief Emits a name for this class / object */
+	virtual G_API_GENEVA std::string name() const override;
 
 protected:
-   /** @brief Loads the data of another GBooleanCollection class */
-   virtual G_API_GENEVA void load_(const GObject *) override;
-   /** @brief Creates a deep copy of this object */
-   virtual G_API_GENEVA GObject *clone_() const override;
+	/** @brief Loads the data of another GBooleanCollection class */
+	virtual G_API_GENEVA void load_(const GObject *) override;
+	/** @brief Creates a deep copy of this object */
+	virtual G_API_GENEVA GObject *clone_() const override;
 
-   /** @brief Triggers random initialization of the parameter collection */
-   virtual G_API_GENEVA bool randomInit_(const activityMode&) override;
-   /** @brief Triggers random initialization of the parameter collection, with a given likelihood structure */
-   G_API_GENEVA bool randomInit_(const double&, const activityMode&);
+	/** @brief Triggers random initialization of the parameter collection */
+	virtual G_API_GENEVA bool randomInit_(const activityMode&) override;
+	/** @brief Triggers random initialization of the parameter collection, with a given likelihood structure */
+	G_API_GENEVA bool randomInit_(const double&, const activityMode&);
 
-   /** @brief Returns a "comparative range" for this type */
-   virtual G_API_GENEVA bool range() const override;
+	/** @brief Returns a "comparative range" for this type */
+	virtual G_API_GENEVA bool range() const override;
 
-   /** @brief Tell the audience that we own a number of boolean values */
-   virtual G_API_GENEVA std::size_t countBoolParameters(const activityMode& am) const override;
-   /** @brief Attach boundaries of type bool to the vectors */
-   virtual G_API_GENEVA void booleanBoundaries(std::vector<bool>&, std::vector<bool>&, const activityMode& am) const override;
-   /** @brief Attach our local values to the vector. */
-   virtual G_API_GENEVA void booleanStreamline(std::vector<bool>&, const activityMode& am) const override;
-   /** @brief Attach our local values to the map */
-   virtual G_API_GENEVA void booleanStreamline(std::map<std::string, std::vector<bool> >&, const activityMode& am) const override;
-   /** @brief Assigns part of a value vector to the parameter */
-   virtual G_API_GENEVA void assignBooleanValueVector(const std::vector<bool>&, std::size_t&, const activityMode& am) override;
-   /** @brief Assigns part of a value map to the parameter */
-   virtual G_API_GENEVA void assignBooleanValueVectors(const std::map<std::string, std::vector<bool> >&, const activityMode& am) override;
+	/** @brief Tell the audience that we own a number of boolean values */
+	virtual G_API_GENEVA std::size_t countBoolParameters(const activityMode& am) const override;
+	/** @brief Attach boundaries of type bool to the vectors */
+	virtual G_API_GENEVA void booleanBoundaries(std::vector<bool>&, std::vector<bool>&, const activityMode& am) const override;
+	/** @brief Attach our local values to the vector. */
+	virtual G_API_GENEVA void booleanStreamline(std::vector<bool>&, const activityMode& am) const override;
+	/** @brief Attach our local values to the map */
+	virtual G_API_GENEVA void booleanStreamline(std::map<std::string, std::vector<bool> >&, const activityMode& am) const override;
+	/** @brief Assigns part of a value vector to the parameter */
+	virtual G_API_GENEVA void assignBooleanValueVector(const std::vector<bool>&, std::size_t&, const activityMode& am) override;
+	/** @brief Assigns part of a value map to the parameter */
+	virtual G_API_GENEVA void assignBooleanValueVectors(const std::map<std::string, std::vector<bool> >&, const activityMode& am) override;
 
 public:
-   /** @brief Applies modifications to this object. This is needed for testing purposes */
-   virtual G_API_GENEVA bool modify_GUnitTests() override;
-   /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-   virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
-   /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-   virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
+	/** @brief Applies modifications to this object. This is needed for testing purposes */
+	virtual G_API_GENEVA bool modify_GUnitTests() override;
+	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/

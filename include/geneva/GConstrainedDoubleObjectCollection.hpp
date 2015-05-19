@@ -64,11 +64,11 @@ class GConstrainedDoubleObjectCollection
 
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
-	  using boost::serialization::make_nvp;
+		using boost::serialization::make_nvp;
 
-	  ar
-	  & make_nvp("GParameterTCollectionT_gbd",
-	        boost::serialization::base_object<GParameterTCollectionT<GConstrainedDoubleObject> >(*this));
+		ar
+			& make_nvp("GParameterTCollectionT_gbd",
+						  boost::serialization::base_object<GParameterTCollectionT<GConstrainedDoubleObject> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -82,23 +82,23 @@ public:
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GConstrainedDoubleObjectCollection();
 
-   /** @brief The standard assignment operator */
-   G_API_GENEVA const GConstrainedDoubleObjectCollection& operator=(const GConstrainedDoubleObjectCollection&);
+	/** @brief The standard assignment operator */
+	G_API_GENEVA const GConstrainedDoubleObjectCollection& operator=(const GConstrainedDoubleObjectCollection&);
 
 	/** @brief Checks for equality with another GConstrainedDoubleObjectCollection object */
 	G_API_GENEVA bool operator==(const GConstrainedDoubleObjectCollection&) const;
 	/** @brief Checks for inequality with another GConstrainedDoubleObjectCollection object */
 	G_API_GENEVA bool operator!=(const GConstrainedDoubleObjectCollection&) const;
 
-   /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
-   ) const override;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
-   /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const override;
+	/** @brief Emits a name for this class / object */
+	virtual G_API_GENEVA std::string name() const override;
 
 protected:
 	/** @brief Loads the data of another GObject */

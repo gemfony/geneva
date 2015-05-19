@@ -102,32 +102,32 @@ class GBaseSwarm
 	///////////////////////////////////////////////////////////////////////
 
 public:
-   /** @brief An easy identifier for the class */
-   static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
+	/** @brief An easy identifier for the class */
+	static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
 
 	/** @brief The default constructor */
-   G_API_GENEVA GBaseSwarm();
+	G_API_GENEVA GBaseSwarm();
 	/** @brief Initialization with neighborhood sizes and amount of individuals in each neighborhood */
-   G_API_GENEVA GBaseSwarm(const std::size_t&, const std::size_t&);
+	G_API_GENEVA GBaseSwarm(const std::size_t&, const std::size_t&);
 	/** @brief A standard copy constructor */
-   G_API_GENEVA GBaseSwarm(const GBaseSwarm&);
+	G_API_GENEVA GBaseSwarm(const GBaseSwarm&);
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GBaseSwarm();
 
-   /** @brief The standard assignment operator */
-   G_API_GENEVA const GBaseSwarm& operator=(const GBaseSwarm&);
+	/** @brief The standard assignment operator */
+	G_API_GENEVA const GBaseSwarm& operator=(const GBaseSwarm&);
 
-   /** @brief Checks for equality with another GBaseSwarm object */
-   virtual G_API_GENEVA bool operator==(const GBaseSwarm&) const;
-   /** @brief Checks for inequality with another GBaseSwarm object */
-   virtual G_API_GENEVA bool operator!=(const GBaseSwarm&) const;
+	/** @brief Checks for equality with another GBaseSwarm object */
+	virtual G_API_GENEVA bool operator==(const GBaseSwarm&) const;
+	/** @brief Checks for inequality with another GBaseSwarm object */
+	virtual G_API_GENEVA bool operator!=(const GBaseSwarm&) const;
 
-   /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
-   ) const override;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 	/** @brief Sets the number of neighborhoods and the number of members in them */
 	G_API_GENEVA void setSwarmSizes(std::size_t, std::size_t);
@@ -206,8 +206,8 @@ public:
 	 */
 	template <typename parameterset_type>
 	std::shared_ptr<parameterset_type> getBestNeighborhoodIndividual(
-      std::size_t neighborhood
-     , typename boost::enable_if<boost::is_base_of<GParameterSet, parameterset_type> >::type* dummy = 0
+		std::size_t neighborhood
+		, typename boost::enable_if<boost::is_base_of<GParameterSet, parameterset_type> >::type* dummy = 0
 	){
 #ifdef DEBUG
 		// Check that the neighborhood is in a valid range
@@ -222,12 +222,12 @@ public:
 		}
 #endif /* DEBUG */
 
-      // Does error checks on the conversion internally
-      return Gem::Common::convertSmartPointer<GParameterSet, parameterset_type>(neighborhood_bests_[neighborhood]);
+		// Does error checks on the conversion internally
+		return Gem::Common::convertSmartPointer<GParameterSet, parameterset_type>(neighborhood_bests_[neighborhood]);
 	}
 
-   /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const override;
+	/** @brief Emits a name for this class / object */
+	virtual G_API_GENEVA std::string name() const override;
 
 protected:
 	/** @brief Loads the data of another population */
@@ -240,13 +240,13 @@ protected:
 	/** @brief Does any necessary finalization work */
 	virtual G_API_GENEVA void finalize() override;
 
-   /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-   virtual G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
+	/** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
+	virtual G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
 
 	/** @brief The actual business logic to be performed during each iteration; Returns the best achieved fitness */
 	virtual G_API_GENEVA boost::tuple<double, double> cycleLogic() override;
-   /** @brief Fixes an incomplete population */
-   virtual G_API_GENEVA void adjustNeighborhoods() BASE;
+	/** @brief Fixes an incomplete population */
+	virtual G_API_GENEVA void adjustNeighborhoods() BASE;
 
 	/** @brief Saves the state of the class to disc. */
 	virtual G_API_GENEVA void saveCheckpoint() const override;
@@ -265,12 +265,12 @@ protected:
 
 	/** @brief Triggers an update of an individual's positions */
 	G_API_GENEVA void updateIndividualPositions(
-     const std::size_t&
-     , std::shared_ptr<GParameterSet>
-     , std::shared_ptr<GParameterSet>
-     , std::shared_ptr<GParameterSet>
-     , std::shared_ptr<GParameterSet>
-     , boost::tuple<double, double, double, double>
+		const std::size_t&
+		, std::shared_ptr<GParameterSet>
+		, std::shared_ptr<GParameterSet>
+		, std::shared_ptr<GParameterSet>
+		, std::shared_ptr<GParameterSet>
+		, boost::tuple<double, double, double, double>
 	);
 
 	/** @brief Triggers an update of all individual's positions */
@@ -278,7 +278,7 @@ protected:
 
 	/** @brief Updates the fitness of all individuals */
 	virtual G_API_GENEVA void runFitnessCalculation() override = 0;
-   /** @brief Adjusts the velocity vector so that its values don't exceed the allowed value range */
+	/** @brief Adjusts the velocity vector so that its values don't exceed the allowed value range */
 	G_API_GENEVA void pruneVelocity(std::vector<double>&);
 
 	std::size_t nNeighborhoods_; ///< The number of neighborhoods in the population
@@ -341,68 +341,68 @@ public:
 	class GSwarmOptimizationMonitor
 		: public GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT
 	{
-	    ///////////////////////////////////////////////////////////////////////
-	    friend class boost::serialization::access;
+		///////////////////////////////////////////////////////////////////////
+		friend class boost::serialization::access;
 
-	    template<typename Archive>
-	    void serialize(Archive & ar, const unsigned int){
-	      using boost::serialization::make_nvp;
+		template<typename Archive>
+		void serialize(Archive & ar, const unsigned int){
+			using boost::serialization::make_nvp;
 
-	      ar
-	      & make_nvp("GOptimizationMonitorT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(*this))
-	      & BOOST_SERIALIZATION_NVP(xDim_)
-	      & BOOST_SERIALIZATION_NVP(yDim_)
-	      & BOOST_SERIALIZATION_NVP(resultFile_);
-	    }
-	    ///////////////////////////////////////////////////////////////////////
+			ar
+			& make_nvp("GOptimizationMonitorT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(*this))
+			& BOOST_SERIALIZATION_NVP(xDim_)
+			& BOOST_SERIALIZATION_NVP(yDim_)
+			& BOOST_SERIALIZATION_NVP(resultFile_);
+		}
+		///////////////////////////////////////////////////////////////////////
 
 	public:
-	    /** @brief The default constructor */
-	    G_API_GENEVA GSwarmOptimizationMonitor();
-	    /** @brief The copy constructor */
-	    G_API_GENEVA GSwarmOptimizationMonitor(const GSwarmOptimizationMonitor&);
-	    /** @brief The destructor */
-	    virtual G_API_GENEVA ~GSwarmOptimizationMonitor();
+		/** @brief The default constructor */
+		G_API_GENEVA GSwarmOptimizationMonitor();
+		/** @brief The copy constructor */
+		G_API_GENEVA GSwarmOptimizationMonitor(const GSwarmOptimizationMonitor&);
+		/** @brief The destructor */
+		virtual G_API_GENEVA ~GSwarmOptimizationMonitor();
 
-	    G_API_GENEVA const GBaseSwarm::GSwarmOptimizationMonitor& operator=(
-	          const GBaseSwarm::GSwarmOptimizationMonitor&
-	    );
+		G_API_GENEVA const GBaseSwarm::GSwarmOptimizationMonitor& operator=(
+			const GBaseSwarm::GSwarmOptimizationMonitor&
+		);
 
-	    /** @brief Checks for equality with another GParameter Base object */
-	    virtual G_API_GENEVA bool operator==(const GSwarmOptimizationMonitor&) const;
-	    /** @brief Checks for inequality with another GSwarmOptimizationMonitor object */
-	    virtual G_API_GENEVA bool operator!=(const GSwarmOptimizationMonitor&) const;
+		/** @brief Checks for equality with another GParameter Base object */
+		virtual G_API_GENEVA bool operator==(const GSwarmOptimizationMonitor&) const;
+		/** @brief Checks for inequality with another GSwarmOptimizationMonitor object */
+		virtual G_API_GENEVA bool operator!=(const GSwarmOptimizationMonitor&) const;
 
-	    /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	    virtual G_API_GENEVA void compare(
-	       const GObject& // the other object
-	       , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-	       , const double& // the limit for allowed deviations of floating point types
-	    ) const override;
+		/** @brief Searches for compliance with expectations with respect to another object of the same type */
+		virtual G_API_GENEVA void compare(
+			const GObject& // the other object
+			, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+			, const double& // the limit for allowed deviations of floating point types
+		) const override;
 
-	    /** @brief Set the dimension of the output canvas */
-	    G_API_GENEVA void setDims(const boost::uint16_t&, const boost::uint16_t&);
-	    /** @brief Retrieve the x-dimension of the output canvas */
-	    G_API_GENEVA boost::uint16_t getXDim() const;
-	    /** @brief Retrieve the y-dimension of the output canvas */
-	    G_API_GENEVA boost::uint16_t getYDim() const;
+		/** @brief Set the dimension of the output canvas */
+		G_API_GENEVA void setDims(const boost::uint16_t&, const boost::uint16_t&);
+		/** @brief Retrieve the x-dimension of the output canvas */
+		G_API_GENEVA boost::uint16_t getXDim() const;
+		/** @brief Retrieve the y-dimension of the output canvas */
+		G_API_GENEVA boost::uint16_t getYDim() const;
 
-	    /** @brief Allows to set the name of the result file */
-	    G_API_GENEVA void setResultFileName(const std::string&);
-	    /** @brief Allows to retrieve the name of the result file */
-	    G_API_GENEVA std::string getResultFileName() const;
+		/** @brief Allows to set the name of the result file */
+		G_API_GENEVA void setResultFileName(const std::string&);
+		/** @brief Allows to retrieve the name of the result file */
+		G_API_GENEVA std::string getResultFileName() const;
 
 	protected:
-	    /** @brief A function that is called once before the optimization starts */
-	    virtual G_API_GENEVA void firstInformation(GOptimizationAlgorithmT<GParameterSet> * const) override;
-	    /** @brief A function that is called during each optimization cycle */
-	    virtual G_API_GENEVA void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const) override;
-	    /** @brief A function that is called once at the end of the optimization cycle */
-	    virtual G_API_GENEVA void lastInformation(GOptimizationAlgorithmT<GParameterSet> * const) override;
+		/** @brief A function that is called once before the optimization starts */
+		virtual G_API_GENEVA void firstInformation(GOptimizationAlgorithmT<GParameterSet> * const) override;
+		/** @brief A function that is called during each optimization cycle */
+		virtual G_API_GENEVA void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const) override;
+		/** @brief A function that is called once at the end of the optimization cycle */
+		virtual G_API_GENEVA void lastInformation(GOptimizationAlgorithmT<GParameterSet> * const) override;
 
-	    /** @brief Loads the data of another object */
-	    virtual G_API_GENEVA void load_(const GObject*) override;
-	    /** @brief Creates a deep clone of this object */
+		/** @brief Loads the data of another object */
+		virtual G_API_GENEVA void load_(const GObject*) override;
+		/** @brief Creates a deep clone of this object */
 		virtual G_API_GENEVA GObject* clone_() const override;
 
 	private:
@@ -411,7 +411,7 @@ public:
 
 		std::string resultFile_; ///< The name of the file to which data is emitted
 
-      std::shared_ptr<Gem::Common::GGraph2D> fitnessGraph_; ///< Holds the fitness data until plotted
+		std::shared_ptr<Gem::Common::GGraph2D> fitnessGraph_; ///< Holds the fitness data until plotted
 
 	public:
 		/** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -424,9 +424,9 @@ public:
 		/************************************************************************/
 	};
 
-   /***************************************************************************/
-   /////////////////////////////////////////////////////////////////////////////
-   /***************************************************************************/
+	/***************************************************************************/
+	/////////////////////////////////////////////////////////////////////////////
+	/***************************************************************************/
 };
 
 /******************************************************************************/

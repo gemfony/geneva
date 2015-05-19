@@ -75,7 +75,7 @@ class GConstrainedFPT
 
 		// Save data
 		ar
-		& make_nvp("GConstrainedNumT_T", boost::serialization::base_object<GConstrainedNumT<fp_type> >(*this));
+			& make_nvp("GConstrainedNumT_T", boost::serialization::base_object<GConstrainedNumT<fp_type> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -89,7 +89,7 @@ public:
 	 */
 	GConstrainedFPT()
 		: GConstrainedNumT<fp_type>()
-    { /* nothing */ }
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -113,10 +113,10 @@ public:
 		: GConstrainedNumT<fp_type>(lowerBoundary, boost::math::float_prior<fp_type>(upperBoundary))
 	{
 		GParameterT<fp_type>::setValue(
-		      this->GObject::gr_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(
-		            lowerBoundary
-		            ,upperBoundary
-		      )
+			this->GObject::gr_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(
+				lowerBoundary
+				,upperBoundary
+			)
 		);
 	}
 
@@ -134,17 +134,17 @@ public:
 	 * @param upperBoundary The upper boundary of the value range
 	 */
 	GConstrainedFPT (
-      const fp_type& val
-     , const fp_type& lowerBoundary
-     , const fp_type& upperBoundary
+		const fp_type& val
+		, const fp_type& lowerBoundary
+		, const fp_type& upperBoundary
 	)
 		: GConstrainedNumT<fp_type>(lowerBoundary, boost::math::float_prior<fp_type>(upperBoundary))
 	{
-	   if(val == upperBoundary) {
-	      GConstrainedNumT<fp_type>::setValue(boost::math::float_prior<fp_type>(upperBoundary));
-	   } else {
-	      GConstrainedNumT<fp_type>::setValue(val);
-	   }
+		if(val == upperBoundary) {
+			GConstrainedNumT<fp_type>::setValue(boost::math::float_prior<fp_type>(upperBoundary));
+		} else {
+			GConstrainedNumT<fp_type>::setValue(val);
+		}
 	}
 
 	/***************************************************************************/
@@ -165,76 +165,76 @@ public:
 	virtual ~GConstrainedFPT()
 	{ /* nothing */	}
 
-   /***************************************************************************/
-   /**
-    * The standard assignment operator
-    */
-   const GConstrainedFPT<fp_type>& operator=(const GConstrainedFPT<fp_type>& cp) {
-      this->load_(&cp);
-      return *this;
-   }
+	/***************************************************************************/
+	/**
+	 * The standard assignment operator
+	 */
+	const GConstrainedFPT<fp_type>& operator=(const GConstrainedFPT<fp_type>& cp) {
+		this->load_(&cp);
+		return *this;
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for equality with another GConstrainedFPT<fp_type> object
-    *
-    * @param  cp A constant reference to another GConstrainedFPT<fp_type> object
-    * @return A boolean indicating whether both objects are equal
-    */
-   bool operator==(const GConstrainedFPT<fp_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for equality with another GConstrainedFPT<fp_type> object
+	 *
+	 * @param  cp A constant reference to another GConstrainedFPT<fp_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GConstrainedFPT<fp_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for inequality with another GConstrainedFPT<fp_type> object
-    *
-    * @param  cp A constant reference to another GConstrainedFPT<fp_type> object
-    * @return A boolean indicating whether both objects are inequal
-    */
-   bool operator!=(const GConstrainedFPT<fp_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GConstrainedFPT<fp_type> object
+	 *
+	 * @param  cp A constant reference to another GConstrainedFPT<fp_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GConstrainedFPT<fp_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Searches for compliance with expectations with respect to another object
-    * of the same type
-    *
-    * @param cp A constant reference to another GObject object
-    * @param e The expected outcome of the comparison
-    * @param limit The maximum deviation for floating point values (important for similarity checks)
-    */
-   virtual void compare(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-   ) const override {
-      using namespace Gem::Common;
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
 
-      // Check that we are indeed dealing with a GConstrainedFPT<fp_type> reference
-      const GConstrainedFPT<fp_type>  *p_load = GObject::gobject_conversion<GConstrainedFPT<fp_type> >(&cp);
+		// Check that we are indeed dealing with a GConstrainedFPT<fp_type> reference
+		const GConstrainedFPT<fp_type>  *p_load = GObject::gobject_conversion<GConstrainedFPT<fp_type> >(&cp);
 
-      GToken token("GConstrainedFPT<fp_type>", e);
+		GToken token("GConstrainedFPT<fp_type>", e);
 
-      // Compare our parent data ...
-      Gem::Common::compare_base<GConstrainedNumT<fp_type> >(IDENTITY(*this, *p_load), token);
+		// Compare our parent data ...
+		Gem::Common::compare_base<GConstrainedNumT<fp_type> >(IDENTITY(*this, *p_load), token);
 
-      // React on deviations from the expectation
-      token.evaluate();
-   }
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 	/***************************************************************************/
 	/**
@@ -244,10 +244,10 @@ public:
 	 * @return The new external value of this object
 	 */
 	virtual fp_type operator=(const fp_type& val) override {
-      fp_type tmpVal = val;
-      if(val==boost::math::float_next<fp_type>(this->getUpperBoundary())) {
-         tmpVal = boost::math::float_prior<fp_type>(val);
-      }
+		fp_type tmpVal = val;
+		if(val==boost::math::float_next<fp_type>(this->getUpperBoundary())) {
+			tmpVal = boost::math::float_prior<fp_type>(val);
+		}
 
 		return GConstrainedNumT<fp_type>::operator=(tmpVal);
 	}
@@ -268,10 +268,10 @@ public:
 	 * @param val The new fp_type value stored in this class
 	 */
 	virtual void setValue(const fp_type& val) override {
-	   fp_type tmpVal = val;
-	   if(val==boost::math::float_next<fp_type>(this->getUpperBoundary())) {
-	      tmpVal = boost::math::float_prior<fp_type>(val);
-	   }
+		fp_type tmpVal = val;
+		if(val==boost::math::float_next<fp_type>(this->getUpperBoundary())) {
+			tmpVal = boost::math::float_prior<fp_type>(val);
+		}
 
 		GConstrainedNumT<fp_type>::setValue(tmpVal);
 	}
@@ -294,19 +294,19 @@ public:
 	 * @param upperBoundary The upper boundary of the value range
 	 */
 	virtual void setValue(
-      const fp_type& val
-      , const fp_type& lowerBoundary
-      , const fp_type& upperBoundary
-   ) override {
-      fp_type tmpVal = val;
-      if(val==upperBoundary) {
-         tmpVal = boost::math::float_prior<fp_type>(val);
-      }
+		const fp_type& val
+		, const fp_type& lowerBoundary
+		, const fp_type& upperBoundary
+	) override {
+		fp_type tmpVal = val;
+		if(val==upperBoundary) {
+			tmpVal = boost::math::float_prior<fp_type>(val);
+		}
 
 		GConstrainedNumT<fp_type>::setValue(
-         tmpVal
-         , lowerBoundary
-         , boost::math::float_prior<fp_type>(upperBoundary)
+			tmpVal
+			, lowerBoundary
+			, boost::math::float_prior<fp_type>(upperBoundary)
 		);
 	}
 
@@ -376,13 +376,13 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-   /***************************************************************************/
-   /**
-    * Emits a name for this class / object
-    */
-   virtual std::string name() const override {
-      return std::string("GConstrainedFPT");
-   }
+	/***************************************************************************/
+	/**
+	 * Emits a name for this class / object
+	 */
+	virtual std::string name() const override {
+		return std::string("GConstrainedFPT");
+	}
 
 protected:
 	/***************************************************************************/
@@ -411,9 +411,9 @@ protected:
 	 */
 	virtual bool randomInit_(const activityMode&) override {
 		this->setValue(
-				this->GObject::gr_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(
-						GConstrainedNumT<fp_type>::getLowerBoundary(), GConstrainedNumT<fp_type>::getUpperBoundary()
-				)
+			this->GObject::gr_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(
+				GConstrainedNumT<fp_type>::getLowerBoundary(), GConstrainedNumT<fp_type>::getUpperBoundary()
+			)
 		);
 
 		return true;
@@ -441,8 +441,8 @@ public:
 		return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GConstrainedFPT<>::modify_GUnitTests", "GEM_TESTING");
-   return false;
+		condnotset("GConstrainedFPT<>::modify_GUnitTests", "GEM_TESTING");
+		return false;
 #endif /* GEM_TESTING */
 	}
 
@@ -1009,12 +1009,12 @@ public:
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
 namespace boost {
-	namespace serialization {
-		template<typename fp_type>
-		struct is_abstract<Gem::Geneva::GConstrainedFPT<fp_type> > : public boost::true_type {};
-		template<typename fp_type>
-		struct is_abstract< const Gem::Geneva::GConstrainedFPT<fp_type> > : public boost::true_type {};
-	}
+namespace serialization {
+template<typename fp_type>
+struct is_abstract<Gem::Geneva::GConstrainedFPT<fp_type> > : public boost::true_type {};
+template<typename fp_type>
+struct is_abstract< const Gem::Geneva::GConstrainedFPT<fp_type> > : public boost::true_type {};
+}
 }
 
 /******************************************************************************/

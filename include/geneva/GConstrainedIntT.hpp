@@ -74,7 +74,7 @@ class GConstrainedIntT
 
 		// Save data
 		ar
-		& make_nvp("GConstrainedNumT_T", boost::serialization::base_object<GConstrainedNumT<int_type> >(*this));
+			& make_nvp("GConstrainedNumT_T", boost::serialization::base_object<GConstrainedNumT<int_type> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -88,7 +88,7 @@ public:
 	 */
 	GConstrainedIntT()
 		: GConstrainedNumT<int_type>()
-    { /* nothing */ }
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -109,8 +109,8 @@ public:
 	 * @param upperBoundary The upper boundary of the value range
 	 */
 	GConstrainedIntT(
-		 const int_type& lowerBoundary
-		 , const int_type& upperBoundary
+		const int_type& lowerBoundary
+		, const int_type& upperBoundary
 	)
 		: GConstrainedNumT<int_type>(lowerBoundary, upperBoundary)
 	{
@@ -126,9 +126,9 @@ public:
 	 * @param upperBoundary The upper boundary of the value range
 	 */
 	GConstrainedIntT(
-      const int_type& val
-      , const int_type& lowerBoundary
-      , const int_type& upperBoundary
+		const int_type& val
+		, const int_type& lowerBoundary
+		, const int_type& upperBoundary
 	)
 		: GConstrainedNumT<int_type>(val, lowerBoundary, upperBoundary)
 	{ /* nothing */	}
@@ -151,14 +151,14 @@ public:
 	virtual ~GConstrainedIntT()
 	{ /* nothing */	}
 
-   /***************************************************************************/
-   /**
-    * The standard assignment operator
-    */
-   const GConstrainedIntT<int_type>& operator=(const GConstrainedIntT<int_type>& cp) {
-      this->load_(&cp);
-      return *this;
-   }
+	/***************************************************************************/
+	/**
+	 * The standard assignment operator
+	 */
+	const GConstrainedIntT<int_type>& operator=(const GConstrainedIntT<int_type>& cp) {
+		this->load_(&cp);
+		return *this;
+	}
 
 	/***************************************************************************/
 	/**
@@ -177,69 +177,69 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-   /***************************************************************************/
-   /**
-    * Checks for equality with another GConstrainedNumT<int_type> object
-    *
-    * @param  cp A constant reference to another GConstrainedNumT<int_type> object
-    * @return A boolean indicating whether both objects are equal
-    */
-   bool operator==(const GConstrainedNumT<int_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for equality with another GConstrainedNumT<int_type> object
+	 *
+	 * @param  cp A constant reference to another GConstrainedNumT<int_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GConstrainedNumT<int_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for inequality with another GConstrainedNumT<int_type> object
-    *
-    * @param  cp A constant reference to another GConstrainedNumT<int_type> object
-    * @return A boolean indicating whether both objects are inequal
-    */
-   bool operator!=(const GConstrainedNumT<int_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GConstrainedNumT<int_type> object
+	 *
+	 * @param  cp A constant reference to another GConstrainedNumT<int_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GConstrainedNumT<int_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Searches for compliance with expectations with respect to another object
-    * of the same type
-    *
-    * @param cp A constant reference to another GObject object
-    * @param e The expected outcome of the comparison
-    * @param limit The maximum deviation for floating point values (important for similarity checks)
-    */
-   virtual void compare(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-   ) const override {
-      using namespace Gem::Common;
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
 
-      // Check that we are indeed dealing with a GConstrainedIntT<int_type> reference
-      const GConstrainedIntT<int_type>  *p_load = GObject::gobject_conversion<GConstrainedIntT<int_type> >(&cp);
+		// Check that we are indeed dealing with a GConstrainedIntT<int_type> reference
+		const GConstrainedIntT<int_type>  *p_load = GObject::gobject_conversion<GConstrainedIntT<int_type> >(&cp);
 
-      GToken token("GConstrainedIntT<int_type>", e);
+		GToken token("GConstrainedIntT<int_type>", e);
 
-      // Compare our parent data ...
-      Gem::Common::compare_base<GConstrainedNumT<int_type> >(IDENTITY(*this, *p_load), token);
+		// Compare our parent data ...
+		Gem::Common::compare_base<GConstrainedNumT<int_type> >(IDENTITY(*this, *p_load), token);
 
-      // ... no local local data
+		// ... no local local data
 
-      // React on deviations from the expectation
-      token.evaluate();
-   }
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 	/***************************************************************************/
 	/**
@@ -250,39 +250,39 @@ public:
 	 */
 	virtual int_type transfer(const int_type& val) const override {
 		// Find out the size of the confined area
-	   int_type lowerBoundary = GConstrainedNumT<int_type>::getLowerBoundary();
-	   int_type upperBoundary = GConstrainedNumT<int_type>::getUpperBoundary();
+		int_type lowerBoundary = GConstrainedNumT<int_type>::getLowerBoundary();
+		int_type upperBoundary = GConstrainedNumT<int_type>::getUpperBoundary();
 
 		if(val >= lowerBoundary && val <= upperBoundary) {
 			return val;
 		}
 		else {
 			// The result
-		   int_type mapping = int_type(0);
+			int_type mapping = int_type(0);
 
 			// Find out the size of the value range. Note that both boundaries
 			// are included, so that we need to add 1 to the difference.
-		   int_type value_range = upperBoundary - lowerBoundary + int_type(1);
+			int_type value_range = upperBoundary - lowerBoundary + int_type(1);
 
 			if(val < lowerBoundary) {
 				// Find out how many full value ranges val is below the lower boundary.
 				// We use integer division here, so 13/4 would be 3.
-			   int_type nBelowLowerBoundary = (lowerBoundary - (val + int_type(1))) / value_range;
+				int_type nBelowLowerBoundary = (lowerBoundary - (val + int_type(1))) / value_range;
 
 				// We are dealing with descending (nBelowLowerBoundary is even) and
 				// ascending ranges (nBelowLowerBoundary is odd), which need to be treated differently
 
-            // Transfer the value into the allowed region
-            mapping = val + (value_range * (nBelowLowerBoundary + int_type(1)));
+				// Transfer the value into the allowed region
+				mapping = val + (value_range * (nBelowLowerBoundary + int_type(1)));
 				if(nBelowLowerBoundary%2 == 0) { // nBelowLowerBoundary is even
-               // Revert the value to a descending sequence
-               mapping = revert(mapping);
+					// Revert the value to a descending sequence
+					mapping = revert(mapping);
 				}
 			}
 			else { // val > getUpperBoundary()
 				// Find out how many full value ranges val is above the upper boundary.
 				// We use integer division here, so 13/4 would be 3.
-			   int_type nAboveUpperBoundary = (val - upperBoundary - int_type(1)) / value_range;
+				int_type nAboveUpperBoundary = (val - upperBoundary - int_type(1)) / value_range;
 
 				// We are dealing with descending (nAboveUpperBoundary is even) and
 				// ascending ranges (nAboveUpperBoundary is odd), which need to be treated differently
@@ -304,13 +304,13 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-   /***************************************************************************/
-   /**
-    * Emits a name for this class / object
-    */
-   virtual std::string name() const override {
-      return std::string("GConstrainedIntT");
-   }
+	/***************************************************************************/
+	/**
+	 * Emits a name for this class / object
+	 */
+	virtual std::string name() const override {
+		return std::string("GConstrainedIntT");
+	}
 
 protected:
 	/***************************************************************************/
@@ -339,11 +339,11 @@ protected:
 	 */
 	virtual bool randomInit_(const activityMode&) override {
 		this->setValue(
-         this->GObject::gr_ptr()->uniform_int(
-            GConstrainedNumT<int_type>::getLowerBoundary()
-            , GConstrainedNumT<int_type>::getUpperBoundary()
-         )
-      );
+			this->GObject::gr_ptr()->uniform_int(
+				GConstrainedNumT<int_type>::getLowerBoundary()
+				, GConstrainedNumT<int_type>::getUpperBoundary()
+			)
+		);
 
 		return true;
 	}
@@ -385,8 +385,8 @@ public:
 		return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GConstrainedIntT<>::modify_GUnitTests", "GEM_TESTING");
-   return false;
+		condnotset("GConstrainedIntT<>::modify_GUnitTests", "GEM_TESTING");
+		return false;
 #endif /* GEM_TESTING */
 	}
 
@@ -582,7 +582,7 @@ public:
 		//------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GConstrainedIntT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GConstrainedIntT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -596,11 +596,11 @@ public:
 		GConstrainedNumT<int_type>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GConstrainedIntT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GConstrainedIntT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
-   /***************************************************************************/
+	/***************************************************************************/
 };
 
 } /* namespace Geneva */
@@ -610,12 +610,12 @@ public:
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
 namespace boost {
-	namespace serialization {
-		template<typename int_type>
-		struct is_abstract<Gem::Geneva::GConstrainedIntT<int_type> > : public boost::true_type {};
-		template<typename int_type>
-		struct is_abstract< const Gem::Geneva::GConstrainedIntT<int_type> > : public boost::true_type {};
-	}
+namespace serialization {
+template<typename int_type>
+struct is_abstract<Gem::Geneva::GConstrainedIntT<int_type> > : public boost::true_type {};
+template<typename int_type>
+struct is_abstract< const Gem::Geneva::GConstrainedIntT<int_type> > : public boost::true_type {};
+}
 }
 
 #endif /* GCONSTRAINEDINTEGERT_HPP_ */

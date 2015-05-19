@@ -58,8 +58,8 @@ namespace Geneva {
  * tasks to remote clients, using Geneva's broker infrastructure.
  */
 class GBrokerSwarm
-  : public GBaseSwarm
-  , public Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>
+	: public GBaseSwarm
+		, public Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -68,9 +68,10 @@ class GBrokerSwarm
 	void serialize(Archive & ar, const unsigned int){
 		using boost::serialization::make_nvp;
 
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseSwarm)
-		   & make_nvp("GBrokerConnector2T_GParameterSet",
-		         boost::serialization::base_object<Gem::Courtier::GBrokerConnector2T<GParameterSet> >(*this));
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseSwarm)
+		& make_nvp("GBrokerConnector2T_GParameterSet",
+					  boost::serialization::base_object<Gem::Courtier::GBrokerConnector2T<GParameterSet> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -84,20 +85,20 @@ public:
 	/** @brief The standard destructor */
 	virtual G_API_GENEVA ~GBrokerSwarm();
 
-   /** @brief The standard assignment operator */
-   G_API_GENEVA const GBrokerSwarm& operator=(const GBrokerSwarm&);
+	/** @brief The standard assignment operator */
+	G_API_GENEVA const GBrokerSwarm& operator=(const GBrokerSwarm&);
 
 	/** @brief Checks for equality with another GBrokerSwarm object */
 	G_API_GENEVA bool operator==(const GBrokerSwarm&) const;
 	/** @brief Checks for inequality with another GBrokerSwarm object */
 	G_API_GENEVA bool operator!=(const GBrokerSwarm&) const;
 
-   /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
-   ) const override;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 	/** @brief Checks whether a given algorithm type likes to communicate via the broker */
 	virtual G_API_GENEVA bool usesBroker() const override;
@@ -110,15 +111,15 @@ public:
 	/** @brief Allows to assign a name to the role of this individual(-derivative) */
 	virtual G_API_GENEVA std::string getIndividualCharacteristic() const override;
 
-   /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const override;
+	/** @brief Emits a name for this class / object */
+	virtual G_API_GENEVA std::string name() const override;
 
 protected:
-   /***************************************************************************/
+	/***************************************************************************/
 	/** @brief Loads the data of another GTransfer Population */
-   virtual G_API_GENEVA void load_(const GObject *) override;
-   /** @brief Creates a deep copy of this object */
-   virtual G_API_GENEVA GObject *clone_() const override;
+	virtual G_API_GENEVA void load_(const GObject *) override;
+	/** @brief Creates a deep copy of this object */
+	virtual G_API_GENEVA GObject *clone_() const override;
 
 	/** @brief Performs any necessary initialization work before the start of the optimization cycle */
 	virtual G_API_GENEVA void init() override;
@@ -130,15 +131,15 @@ protected:
 	/** @brief Triggers the fitness calculation of all individuals */
 	virtual G_API_GENEVA void runFitnessCalculation() override;
 
-   /** @brief Fixes the population after a job submission */
-   virtual G_API_GENEVA void adjustNeighborhoods() override;
-   /** @brief Checks whether each neighborhood has the default size */
-   G_API_GENEVA bool neighborhoodsHaveNominalValues() const;
+	/** @brief Fixes the population after a job submission */
+	virtual G_API_GENEVA void adjustNeighborhoods() override;
+	/** @brief Checks whether each neighborhood has the default size */
+	G_API_GENEVA bool neighborhoodsHaveNominalValues() const;
 
 private:
 	/***************************************************************************/
 
-   std::vector<std::shared_ptr<GParameterSet> > oldIndividuals_; ///< A temporary copy of the last iteration's individuals
+	std::vector<std::shared_ptr<GParameterSet> > oldIndividuals_; ///< A temporary copy of the last iteration's individuals
 	std::vector<std::shared_ptr<GParameterSet> > oldWorkItems_; ///< Temporarily holds old returned work items
 
 	/***************************************************************************/
@@ -148,9 +149,9 @@ private:
 	 */
 	class indNeighborhoodComp {
 	public:
-	   bool operator()(std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) {
-	      return x->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood() < y->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood();
-	   }
+		bool operator()(std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) {
+			return x->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood() < y->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood();
+		}
 	};
 
 	/***************************************************************************/

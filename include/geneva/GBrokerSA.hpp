@@ -67,146 +67,146 @@ namespace Geneva {
  * it is itself usually not shipped over a network connection.
  */
 class GBrokerSA
-   : public GBaseSA
-   , public Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>
+	: public GBaseSA
+	, public Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>
 {
-   ///////////////////////////////////////////////////////////////////////
-   friend class boost::serialization::access;
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
 
-   template<typename Archive>
-   void serialize(Archive & ar, const unsigned int){
-      using boost::serialization::make_nvp;
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
 
-      ar
-      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseSA)
-      & make_nvp("GBrokerConnector2T_GParameterSet", boost::serialization::base_object<Gem::Courtier::GBrokerConnector2T<GParameterSet> >(*this))
-      & BOOST_SERIALIZATION_NVP(nThreads_);
-   }
-   ///////////////////////////////////////////////////////////////////////
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseSA)
+		& make_nvp("GBrokerConnector2T_GParameterSet", boost::serialization::base_object<Gem::Courtier::GBrokerConnector2T<GParameterSet> >(*this))
+		& BOOST_SERIALIZATION_NVP(nThreads_);
+	}
+	///////////////////////////////////////////////////////////////////////
 
 public:
-   /** @brief The standard constructor */
-   G_API_GENEVA GBrokerSA();
-   /** @brief A standard copy constructor */
-   G_API_GENEVA GBrokerSA(const GBrokerSA&);
-   /** @brief The standard destructor */
-   virtual G_API_GENEVA ~GBrokerSA();
+	/** @brief The standard constructor */
+	G_API_GENEVA GBrokerSA();
+	/** @brief A standard copy constructor */
+	G_API_GENEVA GBrokerSA(const GBrokerSA&);
+	/** @brief The standard destructor */
+	virtual G_API_GENEVA ~GBrokerSA();
 
-   /** @brief The standard assignment operator */
-   G_API_GENEVA const GBrokerSA& operator=(const GBrokerSA&);
+	/** @brief The standard assignment operator */
+	G_API_GENEVA const GBrokerSA& operator=(const GBrokerSA&);
 
-   /** @brief Checks for equality with another GBrokerSA object */
-   G_API_GENEVA bool operator==(const GBrokerSA&) const;
-   /** @brief Checks for inequality with another GBrokerSA object */
-   G_API_GENEVA bool operator!=(const GBrokerSA&) const;
+	/** @brief Checks for equality with another GBrokerSA object */
+	G_API_GENEVA bool operator==(const GBrokerSA&) const;
+	/** @brief Checks for inequality with another GBrokerSA object */
+	G_API_GENEVA bool operator!=(const GBrokerSA&) const;
 
-   /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
-   ) const override;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
-   /** @brief Checks whether a given algorithm type likes to communicate via the broker */
-   virtual G_API_GENEVA bool usesBroker() const override;
+	/** @brief Checks whether a given algorithm type likes to communicate via the broker */
+	virtual G_API_GENEVA bool usesBroker() const override;
 
-   /** @brief Adds local configuration options to a GParserBuilder object */
-   virtual G_API_GENEVA void addConfigurationOptions (
-      Gem::Common::GParserBuilder& gpb
-   ) override;
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual G_API_GENEVA void addConfigurationOptions (
+		Gem::Common::GParserBuilder& gpb
+	) override;
 
-   /** @brief Sets the maximum number of threads */
-   G_API_GENEVA void setNThreads(boost::uint16_t);
-   /** @brief Retrieves the maximum number of threads */
-   G_API_GENEVA boost::uint16_t getNThreads() const ;
+	/** @brief Sets the maximum number of threads */
+	G_API_GENEVA void setNThreads(boost::uint16_t);
+	/** @brief Retrieves the maximum number of threads */
+	G_API_GENEVA boost::uint16_t getNThreads() const ;
 
-   /** @brief Allows to assign a name to the role of this individual(-derivative) */
-   virtual G_API_GENEVA std::string getIndividualCharacteristic() const override;
+	/** @brief Allows to assign a name to the role of this individual(-derivative) */
+	virtual G_API_GENEVA std::string getIndividualCharacteristic() const override;
 
-   /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const override;
+	/** @brief Emits a name for this class / object */
+	virtual G_API_GENEVA std::string name() const override;
 
 protected:
-   /** @brief Loads the data of another GTransfer Population */
-   virtual G_API_GENEVA void load_(const GObject *) override;
-   /** @brief Creates a deep copy of this object */
-   virtual G_API_GENEVA GObject *clone_() const override;
+	/** @brief Loads the data of another GTransfer Population */
+	virtual G_API_GENEVA void load_(const GObject *) override;
+	/** @brief Creates a deep copy of this object */
+	virtual G_API_GENEVA GObject *clone_() const override;
 
-   /** @brief Adapt children in a serial manner */
-   virtual G_API_GENEVA void adaptChildren() override;
-   /** @brief Evaluates all children (and possibly parents) of this population */
-   virtual G_API_GENEVA void runFitnessCalculation() override;
-   /** @brief Selects new parents */
-   virtual G_API_GENEVA void selectBest() override;
+	/** @brief Adapt children in a serial manner */
+	virtual G_API_GENEVA void adaptChildren() override;
+	/** @brief Evaluates all children (and possibly parents) of this population */
+	virtual G_API_GENEVA void runFitnessCalculation() override;
+	/** @brief Selects new parents */
+	virtual G_API_GENEVA void selectBest() override;
 
-   /** @brief Performs any necessary initialization work before the start of the optimization cycle */
-   virtual G_API_GENEVA void init() override;
-   /** @brief Performs any necessary finalization work after the end of the optimization cycle */
-   virtual G_API_GENEVA void finalize() override;
+	/** @brief Performs any necessary initialization work before the start of the optimization cycle */
+	virtual G_API_GENEVA void init() override;
+	/** @brief Performs any necessary finalization work after the end of the optimization cycle */
+	virtual G_API_GENEVA void finalize() override;
 
 private:
-   /***************************************************************************/
+	/***************************************************************************/
 
-   boost::uint16_t nThreads_; ///< The number of threads
-   std::shared_ptr<Gem::Common::GThreadPool> tp_ptr_; ///< Temporarily holds a thread pool
+	boost::uint16_t nThreads_; ///< The number of threads
+	std::shared_ptr<Gem::Common::GThreadPool> tp_ptr_; ///< Temporarily holds a thread pool
 
-   std::vector<std::shared_ptr<GParameterSet> > oldWorkItems_; ///< Temporarily holds old returned work items
+	std::vector<std::shared_ptr<GParameterSet> > oldWorkItems_; ///< Temporarily holds old returned work items
 
-   /***************************************************************************/
-   /**
-    * A simple comparison operator that helps to sort individuals according to their
-    * status as parents or children
-    */
-   class indParentComp {
-   public:
-      bool operator()(std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) {
-         return (x->getPersonalityTraits<GSAPersonalityTraits>()->isParent() > y->getPersonalityTraits<GSAPersonalityTraits>()->isParent());
-      }
-   };
+	/***************************************************************************/
+	/**
+	 * A simple comparison operator that helps to sort individuals according to their
+	 * status as parents or children
+	 */
+	class indParentComp {
+	public:
+		bool operator()(std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) {
+			return (x->getPersonalityTraits<GSAPersonalityTraits>()->isParent() > y->getPersonalityTraits<GSAPersonalityTraits>()->isParent());
+		}
+	};
 
-   /***************************************************************************/
-   /**
-    * This simple operator helps to identify individuals that are parents from an
-    * older iteration
-    */
-   class isOldParent {
-   public:
-      isOldParent(const boost::uint32_t current_iteration)
-      : current_iteration_(current_iteration)
-      { /* nothing */ }
+	/***************************************************************************/
+	/**
+	 * This simple operator helps to identify individuals that are parents from an
+	 * older iteration
+	 */
+	class isOldParent {
+	public:
+		isOldParent(const boost::uint32_t current_iteration)
+			: current_iteration_(current_iteration)
+		{ /* nothing */ }
 
-      isOldParent(const isOldParent& cp)
-      : current_iteration_(cp.current_iteration_)
-      { /* nothing */ }
+		isOldParent(const isOldParent& cp)
+			: current_iteration_(cp.current_iteration_)
+		{ /* nothing */ }
 
-      bool operator()(std::shared_ptr<GParameterSet> x) {
-         if(x->getPersonalityTraits<GSAPersonalityTraits>()->isParent() && x->getAssignedIteration() != current_iteration_) {
-            return true;
-         } else {
-            return false;
-         }
-      }
+		bool operator()(std::shared_ptr<GParameterSet> x) {
+			if(x->getPersonalityTraits<GSAPersonalityTraits>()->isParent() && x->getAssignedIteration() != current_iteration_) {
+				return true;
+			} else {
+				return false;
+			}
+		}
 
-   private:
-      isOldParent(); // Intentionally private and undefined
+	private:
+		isOldParent(); // Intentionally private and undefined
 
-      boost::uint32_t current_iteration_;
-   };
+		boost::uint32_t current_iteration_;
+	};
 
-   /***************************************************************************/
+	/***************************************************************************/
 
-   /** @brief Fixes the population after a job submission */
-   void fixAfterJobSubmission();
+	/** @brief Fixes the population after a job submission */
+	void fixAfterJobSubmission();
 
-   /***************************************************************************/
+	/***************************************************************************/
 
 public:
-   /** @brief Applies modifications to this object. This is needed for testing purposes */
-   virtual G_API_GENEVA bool modify_GUnitTests() override;
-   /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-   virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
-   /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-   virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
+	/** @brief Applies modifications to this object. This is needed for testing purposes */
+	virtual G_API_GENEVA bool modify_GUnitTests() override;
+	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/

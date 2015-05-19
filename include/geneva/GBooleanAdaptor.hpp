@@ -68,11 +68,11 @@ class GBooleanAdaptor
 
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
-	  using boost::serialization::make_nvp;
+		using boost::serialization::make_nvp;
 
-	  ar
-	  & make_nvp("GAdaptorT_bool",
-	        boost::serialization::base_object<GAdaptorT<bool> >(*this));
+		ar
+			& make_nvp("GAdaptorT_bool",
+						  boost::serialization::base_object<GAdaptorT<bool> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -87,36 +87,36 @@ public:
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GBooleanAdaptor();
 
-   /** @brief The standard assignment operator */
-   G_API_GENEVA const GBooleanAdaptor& operator=(const GBooleanAdaptor&);
+	/** @brief The standard assignment operator */
+	G_API_GENEVA const GBooleanAdaptor& operator=(const GBooleanAdaptor&);
 
 	/** @brief Checks for equality with another GBooleanAdaptor object */
 	G_API_GENEVA bool operator==(const GBooleanAdaptor&) const;
 	/** @brief Checks for inequality with another GBooleanAdaptor object */
 	G_API_GENEVA bool operator!=(const GBooleanAdaptor&) const;
 
-   /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
-   ) const override;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 	/** @brief Retrieves the id of this adaptor */
 	virtual G_API_GENEVA Gem::Geneva::adaptorId getAdaptorId() const override;
 
-   /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const override;
-   /** @brief Random initialization of the adaptor */
-   G_API_GENEVA bool randomInit() override;
+	/** @brief Emits a name for this class / object */
+	virtual G_API_GENEVA std::string name() const override;
+	/** @brief Random initialization of the adaptor */
+	G_API_GENEVA bool randomInit() override;
 
 protected:
 	/** @brief Loads the data of another GObject */
 	virtual G_API_GENEVA void load_(const GObject*) override;
 	/** @brief Creates a deep clone of this object. */
 	virtual G_API_GENEVA GObject* clone_() const override;
-   /** @brief Flip the value up or down by 1, depending on a random number */
-   virtual G_API_GENEVA void customAdaptions(bool&, const bool&) override;
+	/** @brief Flip the value up or down by 1, depending on a random number */
+	virtual G_API_GENEVA void customAdaptions(bool&, const bool&) override;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
