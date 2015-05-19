@@ -126,12 +126,12 @@ public:
 		, adaptionCounter_(0)
 		, adaptionThreshold_(DEFAULTADAPTIONTHRESHOLD)
 		, adProb_(DEFAULTADPROB)
-	   , adaptAdProb_(DEFAUPTADAPTADPROB)
-	   , minAdProb_(DEFMINADPROB)
-	   , maxAdProb_(DEFMAXADPROB)
+		, adaptAdProb_(DEFAUPTADAPTADPROB)
+	    , minAdProb_(DEFMINADPROB)
+	    , maxAdProb_(DEFMAXADPROB)
 		, adaptionMode_(DEFAULTADAPTIONMODE)
 		, adaptAdaptionProbability_(DEFAULTADAPTADAPTIONPROB)
-	   , adProb_reset_(adProb_)
+	    , adProb_reset_(adProb_)
 	{
 	   // Check that adProb_ is in the allowed range. Adapt, if necessary
 	   if(!Gem::Common::checkRangeCompliance<double>(adProb_, minAdProb_, maxAdProb_)) {
@@ -158,12 +158,12 @@ public:
 		, adaptionCounter_(0)
 		, adaptionThreshold_(DEFAULTADAPTIONTHRESHOLD)
 		, adProb_(adProb)
-	   , adaptAdProb_(DEFAUPTADAPTADPROB)
-      , minAdProb_(DEFMINADPROB)
-      , maxAdProb_(DEFMAXADPROB)
+	    , adaptAdProb_(DEFAUPTADAPTADPROB)
+        , minAdProb_(DEFMINADPROB)
+        , maxAdProb_(DEFMAXADPROB)
 		, adaptionMode_(DEFAULTADAPTIONMODE)
 		, adaptAdaptionProbability_(DEFAULTADAPTADAPTIONPROB)
-	   , adProb_reset_(adProb_)
+	    , adProb_reset_(adProb_)
 	{
 		// Do some error checking
       // Check that adProb_ is in the allowed range. Adapt, if necessary
@@ -190,12 +190,12 @@ public:
 		, adaptionCounter_(cp.adaptionCounter_)
 		, adaptionThreshold_(cp.adaptionThreshold_)
 		, adProb_(cp.adProb_)
-	   , adaptAdProb_(cp.adaptAdProb_)
-      , minAdProb_(cp.minAdProb_)
-      , maxAdProb_(cp.maxAdProb_)
+	    , adaptAdProb_(cp.adaptAdProb_)
+        , minAdProb_(cp.minAdProb_)
+        , maxAdProb_(cp.maxAdProb_)
 		, adaptionMode_(cp.adaptionMode_)
 		, adaptAdaptionProbability_(cp.adaptAdaptionProbability_)
-	   , adProb_reset_(cp.adProb_reset_)
+	    , adProb_reset_(cp.adProb_reset_)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -222,16 +222,16 @@ public:
     * @return A boolean indicating whether both objects are equal
     */
    bool operator==(const GAdaptorT<T>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
+	   using namespace Gem::Common;
+	   try {
+		   this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		   return true;
+	   } catch(g_expectation_violation&) {
+		   return false;
+	   }
    }
 
-   /***************************************************************************/
+	/***************************************************************************/
    /**
     * Checks for inequality with another GAdaptorT<T> object
     *
