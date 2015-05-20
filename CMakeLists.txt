@@ -47,7 +47,6 @@ IF ( NOT GENEVA_PREPAREBUILD_USED )
 	SET( GENEVA_WITH_MPI 0 )
 	SET( CMAKE_VERBOSE_MAKEFILE 1 )
 	SET( CMAKE_INSTALL_PREFIX /opt/geneva )
-	MESSAGE( "OUTPUT DIRECTORY IS" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} )
 ENDIF()
 
 ################################################################################
