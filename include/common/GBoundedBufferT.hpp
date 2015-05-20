@@ -539,7 +539,7 @@ protected:
 
    private:
       /** @brief Default constructor; intentionally private and undefined */
-      buffer_not_full();
+      buffer_not_full() = delete;
 
       const container_type& c_;
       const std::size_t& capacity_;
