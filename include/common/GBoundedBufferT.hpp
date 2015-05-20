@@ -555,8 +555,8 @@ protected:
 
 private:
 	/***************************************************************************/
-	GBoundedBufferT(const GBoundedBufferT<T>&); ///< Disabled copy constructor
-	GBoundedBufferT& operator = (const GBoundedBufferT<T>&); ///< Disabled assign operator
+	GBoundedBufferT(const GBoundedBufferT<T>&) = delete; ///< Disabled copy constructor
+	GBoundedBufferT& operator = (const GBoundedBufferT<T>&) = delete; ///< Disabled assign operator
 
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 	/***************************************************************************/
