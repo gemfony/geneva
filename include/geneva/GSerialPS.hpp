@@ -63,74 +63,74 @@ namespace Geneva {
  */
 class GSerialPS :public GBasePS
 {
-   ///////////////////////////////////////////////////////////////////////
-   friend class boost::serialization::access;
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
 
-   template<typename Archive>
-   void serialize(Archive & ar, const unsigned int) {
-      using boost::serialization::make_nvp;
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int) {
+		using boost::serialization::make_nvp;
 
-      ar
-      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePS);
-   }
+		ar
+			& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePS);
+	}
 
-   ///////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
 
 public:
-   /** @brief The default constructor */
-   G_API_GENEVA GSerialPS();
-   /** @brief A standard copy constructor */
-   G_API_GENEVA GSerialPS(const GSerialPS&);
-   /** @brief The destructor */
-   virtual G_API_GENEVA ~GSerialPS();
+	/** @brief The default constructor */
+	G_API_GENEVA GSerialPS();
+	/** @brief A standard copy constructor */
+	G_API_GENEVA GSerialPS(const GSerialPS&);
+	/** @brief The destructor */
+	virtual G_API_GENEVA ~GSerialPS();
 
-   /** @brief The standard assignment operator */
-   G_API_GENEVA const GSerialPS& operator=(const GSerialPS&);
+	/** @brief The standard assignment operator */
+	G_API_GENEVA const GSerialPS& operator=(const GSerialPS&);
 
-   /** @brief Checks for equality with another GSerialPS object */
-   G_API_GENEVA bool operator==(const GSerialPS&) const;
-   /** @brief Checks for inequality with another GSerialPS object */
-   G_API_GENEVA bool operator!=(const GSerialPS&) const;
+	/** @brief Checks for equality with another GSerialPS object */
+	G_API_GENEVA bool operator==(const GSerialPS&) const;
+	/** @brief Checks for inequality with another GSerialPS object */
+	G_API_GENEVA bool operator!=(const GSerialPS&) const;
 
-   /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
-   ) const override;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
-   /** @brief Adds local configuration options to a GParserBuilder object */
-   virtual G_API_GENEVA void addConfigurationOptions (
-      Gem::Common::GParserBuilder& gpb
-   ) override;
+	/** @brief Adds local configuration options to a GParserBuilder object */
+	virtual G_API_GENEVA void addConfigurationOptions (
+		Gem::Common::GParserBuilder& gpb
+	) override;
 
-   /** @brief Allows to assign a name to the role of this individual(-derivative) */
-   virtual G_API_GENEVA std::string getIndividualCharacteristic() const override;
+	/** @brief Allows to assign a name to the role of this individual(-derivative) */
+	virtual G_API_GENEVA std::string getIndividualCharacteristic() const override;
 
-   /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const override;
+	/** @brief Emits a name for this class / object */
+	virtual G_API_GENEVA std::string name() const override;
 
 protected:
-   /** @brief Loads the data of another population */
-   virtual G_API_GENEVA void load_(const GObject *) override;
-   /** @brief Creates a deep clone of this object */
-   virtual G_API_GENEVA GObject *clone_() const override;
+	/** @brief Loads the data of another population */
+	virtual G_API_GENEVA void load_(const GObject *) override;
+	/** @brief Creates a deep clone of this object */
+	virtual G_API_GENEVA GObject *clone_() const override;
 
-   virtual G_API_GENEVA void init() override;
-   /** @brief Does any necessary finalization work */
-   virtual G_API_GENEVA void finalize() override;
+	virtual G_API_GENEVA void init() override;
+	/** @brief Does any necessary finalization work */
+	virtual G_API_GENEVA void finalize() override;
 
-   /** @brief Triggers fitness calculation of a number of individuals */
-   virtual G_API_GENEVA void runFitnessCalculation() override;
+	/** @brief Triggers fitness calculation of a number of individuals */
+	virtual G_API_GENEVA void runFitnessCalculation() override;
 
 public:
-   /***************************************************************************/
-   /** @brief Applies modifications to this object. This is needed for testing purposes */
-   virtual G_API_GENEVA bool modify_GUnitTests() override;
-   /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-   virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
-   /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-   virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
+	/***************************************************************************/
+	/** @brief Applies modifications to this object. This is needed for testing purposes */
+	virtual G_API_GENEVA bool modify_GUnitTests() override;
+	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 } /* namespace Geneva */

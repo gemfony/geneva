@@ -59,7 +59,7 @@ namespace Geneva {
  */
 template<typename num_type, typename fp_type>
 class GNumGaussAdaptorT
-      :public GAdaptorT<num_type>
+	:public GAdaptorT<num_type>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -104,7 +104,7 @@ public:
 	GNumGaussAdaptorT(const double& probability)
 		: GAdaptorT<num_type> (probability)
 		, sigma_(fp_type(DEFAULTSIGMA))
-      , sigma_reset_(sigma_)
+		, sigma_reset_(sigma_)
 		, sigmaSigma_(fp_type(DEFAULTSIGMASIGMA))
 		, minSigma_(fp_type(DEFAULTMINSIGMA))
 		, maxSigma_(fp_type(DEFAULTMAXSIGMA))
@@ -120,10 +120,10 @@ public:
 	 * @param maxSigma The maximal value allowed for sigma_
 	 */
 	GNumGaussAdaptorT (
-      const fp_type& sigma
-      , const fp_type& sigmaSigma
-      , const fp_type& minSigma
-      , const fp_type& maxSigma
+		const fp_type& sigma
+		, const fp_type& sigmaSigma
+		, const fp_type& minSigma
+		, const fp_type& maxSigma
 	)
 		: GAdaptorT<num_type> ()
 		, sigma_(fp_type(DEFAULTSIGMA))
@@ -151,11 +151,11 @@ public:
 	 * @param probability The likelihood for a adaption actually taking place
 	 */
 	GNumGaussAdaptorT (
-      const fp_type& sigma
-      , const fp_type& sigmaSigma
-      , const fp_type& minSigma
-      , const fp_type& maxSigma
-      , const double& probability
+		const fp_type& sigma
+		, const fp_type& sigmaSigma
+		, const fp_type& minSigma
+		, const fp_type& maxSigma
+		, const double& probability
 	)
 		: GAdaptorT<num_type> (probability)
 		, sigma_(fp_type(DEFAULTSIGMA))
@@ -196,83 +196,83 @@ public:
 	virtual ~GNumGaussAdaptorT()
 	{ /* nothing */ }
 
-   /***************************************************************************/
-   /**
-    * The standard assignment operator
-    */
-   const GNumGaussAdaptorT<num_type, fp_type>& operator=(const GNumGaussAdaptorT<num_type, fp_type>& cp) {
-      this->load_(&cp);
-      return *this;
-   }
+	/***************************************************************************/
+	/**
+	 * The standard assignment operator
+	 */
+	const GNumGaussAdaptorT<num_type, fp_type>& operator=(const GNumGaussAdaptorT<num_type, fp_type>& cp) {
+		this->load_(&cp);
+		return *this;
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for equality with another GNumGaussAdaptorT<num_type, fp_type> object
-    *
-    * @param  cp A constant reference to another GNumGaussAdaptorT<num_type, fp_type> object
-    * @return A boolean indicating whether both objects are equal
-    */
-   bool operator==(const GNumGaussAdaptorT<num_type, fp_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for equality with another GNumGaussAdaptorT<num_type, fp_type> object
+	 *
+	 * @param  cp A constant reference to another GNumGaussAdaptorT<num_type, fp_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GNumGaussAdaptorT<num_type, fp_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for inequality with another GNumGaussAdaptorT<num_type, fp_type> object
-    *
-    * @param  cp A constant reference to another GNumGaussAdaptorT<num_type, fp_type> object
-    * @return A boolean indicating whether both objects are inequal
-    */
-   bool operator!=(const GNumGaussAdaptorT<num_type, fp_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GNumGaussAdaptorT<num_type, fp_type> object
+	 *
+	 * @param  cp A constant reference to another GNumGaussAdaptorT<num_type, fp_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GNumGaussAdaptorT<num_type, fp_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Searches for compliance with expectations with respect to another object
-    * of the same type
-    *
-    * @param cp A constant reference to another GObject object
-    * @param e The expected outcome of the comparison
-    * @param limit The maximum deviation for floating point values (important for similarity checks)
-    */
-   virtual void compare(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-   ) const override {
-      using namespace Gem::Common;
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
 
-      // Check that we are indeed dealing with a GAdaptorT reference
-      const GNumGaussAdaptorT<num_type, fp_type>  *p_load = GObject::gobject_conversion<GNumGaussAdaptorT<num_type, fp_type> >(&cp);
+		// Check that we are indeed dealing with a GAdaptorT reference
+		const GNumGaussAdaptorT<num_type, fp_type>  *p_load = GObject::gobject_conversion<GNumGaussAdaptorT<num_type, fp_type> >(&cp);
 
-      GToken token("GNumGaussAdaptorT<num_type, fp_type>", e);
+		GToken token("GNumGaussAdaptorT<num_type, fp_type>", e);
 
-      // Compare our parent data ...
-      Gem::Common::compare_base<GAdaptorT<num_type> >(IDENTITY(*this, *p_load), token);
+		// Compare our parent data ...
+		Gem::Common::compare_base<GAdaptorT<num_type> >(IDENTITY(*this, *p_load), token);
 
-      // ... and then the local data
-      compare_t(IDENTITY(sigma_, p_load->sigma_), token);
-      compare_t(IDENTITY(sigma_reset_, p_load->sigma_reset_), token);
-      compare_t(IDENTITY(sigmaSigma_, p_load->sigmaSigma_), token);
-      compare_t(IDENTITY(minSigma_, p_load->minSigma_), token);
-      compare_t(IDENTITY(maxSigma_, p_load->maxSigma_), token);
+		// ... and then the local data
+		compare_t(IDENTITY(sigma_, p_load->sigma_), token);
+		compare_t(IDENTITY(sigma_reset_, p_load->sigma_reset_), token);
+		compare_t(IDENTITY(sigmaSigma_, p_load->sigmaSigma_), token);
+		compare_t(IDENTITY(minSigma_, p_load->minSigma_), token);
+		compare_t(IDENTITY(maxSigma_, p_load->maxSigma_), token);
 
-      // React on deviations from the expectation
-      token.evaluate();
-   }
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 	/***************************************************************************/
 	/**
@@ -289,13 +289,13 @@ public:
 		// Sigma must be in the allowed value range.
 		if(!Gem::Common::checkRangeCompliance<fp_type>(sigma, minSigma_, maxSigma_))
 		{
-		   glogger
-		   << "In GNumGaussAdaptorT::setSigma(const fp_type&):" << std::endl
-		   << "sigma is not in the allowed range: " << std::endl
-         << minSigma_ << " <= " << sigma << " < " << maxSigma_ << std::endl
-         << "If you want to use these values you need to" << std::endl
-         << "adapt the allowed range first." << std::endl
-         << GEXCEPTION;
+			glogger
+			<< "In GNumGaussAdaptorT::setSigma(const fp_type&):" << std::endl
+			<< "sigma is not in the allowed range: " << std::endl
+			<< minSigma_ << " <= " << sigma << " < " << maxSigma_ << std::endl
+			<< "If you want to use these values you need to" << std::endl
+			<< "adapt the allowed range first." << std::endl
+			<< GEXCEPTION;
 		}
 
 		sigma_ = sigma;
@@ -311,39 +311,39 @@ public:
 		return sigma_reset_;
 	}
 
-   /***************************************************************************/
-   /**
-    * This function sets the value of the sigma_reset_ parameter. It is used
-    * to rall back sigma_, if the optimization process has stalled
-    *
-    * @param sigma_reset The new value of the sigma_ parameter
-    */
+	/***************************************************************************/
+	/**
+	 * This function sets the value of the sigma_reset_ parameter. It is used
+	 * to rall back sigma_, if the optimization process has stalled
+	 *
+	 * @param sigma_reset The new value of the sigma_ parameter
+	 */
 	void setResetSigma(const fp_type& sigma_reset)
-   {
-      // Sigma must be in the allowed value range.
-      if(!Gem::Common::checkRangeCompliance<fp_type>(sigma_reset, minSigma_, maxSigma_))
-      {
-         glogger
-         << "In GNumGaussAdaptorT::setResetSigma(const fp_type&):" << std::endl
-         << "sigma_reset is not in the allowed range: " << std::endl
-         << minSigma_ << " <= " << sigma_reset << " < " << maxSigma_ << std::endl
-         << "If you want to use these values you need to" << std::endl
-         << "adapt the allowed range first." << std::endl
-         << GEXCEPTION;
-      }
+	{
+		// Sigma must be in the allowed value range.
+		if(!Gem::Common::checkRangeCompliance<fp_type>(sigma_reset, minSigma_, maxSigma_))
+		{
+			glogger
+			<< "In GNumGaussAdaptorT::setResetSigma(const fp_type&):" << std::endl
+			<< "sigma_reset is not in the allowed range: " << std::endl
+			<< minSigma_ << " <= " << sigma_reset << " < " << maxSigma_ << std::endl
+			<< "If you want to use these values you need to" << std::endl
+			<< "adapt the allowed range first." << std::endl
+			<< GEXCEPTION;
+		}
 
-      sigma_reset_ = sigma_reset;
-   }
+		sigma_reset_ = sigma_reset;
+	}
 
-   /***************************************************************************/
-   /**
-    * Retrieves the current value of sigma_.
-    *
-    * @return The current value of sigma_
-    */
+	/***************************************************************************/
+	/**
+	 * Retrieves the current value of sigma_.
+	 *
+	 * @return The current value of sigma_
+	 */
 	fp_type getSigma() const  {
-      return sigma_;
-   }
+		return sigma_;
+	}
 
 	/***************************************************************************/
 	/**
@@ -358,24 +358,24 @@ public:
 	 * @param maxSigma The maximum allowed value of sigma_
 	 */
 	void setSigmaRange(
-      const fp_type& minSigma
-      , const fp_type& maxSigma
-   ){
-	   using namespace Gem::Common;
+		const fp_type& minSigma
+		, const fp_type& maxSigma
+	){
+		using namespace Gem::Common;
 
-      if(minSigma < fp_type(0.) || minSigma > maxSigma || maxSigma > fp_type(1.)) {
-         glogger
-         << "In GNumGaussAdaptorT::setSigmaRange(const fp_type&, const fp_type&):" << std::endl
-         << "Invalid values for minSigma and maxSigma given: " << minSigma << " / " << maxSigma << std::endl
-         << GEXCEPTION;
-      }
+		if(minSigma < fp_type(0.) || minSigma > maxSigma || maxSigma > fp_type(1.)) {
+			glogger
+			<< "In GNumGaussAdaptorT::setSigmaRange(const fp_type&, const fp_type&):" << std::endl
+			<< "Invalid values for minSigma and maxSigma given: " << minSigma << " / " << maxSigma << std::endl
+			<< GEXCEPTION;
+		}
 
-      minSigma_ = minSigma; if(minSigma_ < DEFAULTMINSIGMA) minSigma_ = DEFAULTMINSIGMA; // Silently adapt minSigma
-      maxSigma_ = maxSigma;
+		minSigma_ = minSigma; if(minSigma_ < DEFAULTMINSIGMA) minSigma_ = DEFAULTMINSIGMA; // Silently adapt minSigma
+		maxSigma_ = maxSigma;
 
-      // Rectify sigma_ and reset_sigma_, if necessary
-      Gem::Common::enforceRangeConstraint<fp_type>(sigma_, Gem::Common::gmax(fp_type(minSigma_), fp_type(DEFAULTMINSIGMA)), maxSigma_);
-      Gem::Common::enforceRangeConstraint<fp_type>(sigma_reset_, Gem::Common::gmax(fp_type(minSigma_), fp_type(DEFAULTMINSIGMA)), maxSigma_);
+		// Rectify sigma_ and reset_sigma_, if necessary
+		Gem::Common::enforceRangeConstraint<fp_type>(sigma_, Gem::Common::gmax(fp_type(minSigma_), fp_type(DEFAULTMINSIGMA)), maxSigma_);
+		Gem::Common::enforceRangeConstraint<fp_type>(sigma_reset_, Gem::Common::gmax(fp_type(minSigma_), fp_type(DEFAULTMINSIGMA)), maxSigma_);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -446,11 +446,11 @@ public:
 	 * @param minSigma The maximum value allowed for sigma_
 	 */
 	void setAll(
-      const fp_type& sigma
-      , const fp_type& sigmaSigma
-      , const fp_type& minSigma
-      , const fp_type& maxSigma
-   )	{
+		const fp_type& sigma
+		, const fp_type& sigmaSigma
+		, const fp_type& minSigma
+		, const fp_type& maxSigma
+	)	{
 		setSigmaAdaptionRate(sigmaSigma);
 		setSigmaRange(minSigma, maxSigma);
 		setSigma(sigma);
@@ -488,38 +488,38 @@ public:
 	 * @brief Retrieves the id of the adaptor. */
 	virtual Gem::Geneva::adaptorId getAdaptorId() const override = 0;
 
-   /***************************************************************************/
-   /**
-    * Emits a name for this class / object
-    */
-   virtual std::string name() const  override {
-      return std::string("GNumGaussAdaptorT");
-   }
+	/***************************************************************************/
+	/**
+	 * Emits a name for this class / object
+	 */
+	virtual std::string name() const  override {
+		return std::string("GNumGaussAdaptorT");
+	}
 
-   /***************************************************************************/
-   /**
-    * Triggers updates when the optimization process has stalled. This function
-    * resets the sigma value to its original value and calls the parent class'es function
-    *
-    * @param nStalls The number of consecutive stalls up to this point
-    * @param range A typical value range for type T
-    * @return A boolean indicating whether updates were performed
-    */
-   virtual bool updateOnStall(
-      const std::size_t& nStalls
-      , const num_type& range
-   ) override {
-      // Call our parent class'es function
-      GAdaptorT<num_type>::updateOnStall(nStalls, range);
+	/***************************************************************************/
+	/**
+	 * Triggers updates when the optimization process has stalled. This function
+	 * resets the sigma value to its original value and calls the parent class'es function
+	 *
+	 * @param nStalls The number of consecutive stalls up to this point
+	 * @param range A typical value range for type T
+	 * @return A boolean indicating whether updates were performed
+	 */
+	virtual bool updateOnStall(
+		const std::size_t& nStalls
+		, const num_type& range
+	) override {
+		// Call our parent class'es function
+		GAdaptorT<num_type>::updateOnStall(nStalls, range);
 
-      // Reset the adaption probability
-      if(sigma_ == sigma_reset_) {
-         return false;
-      } else {
-         sigma_ = sigma_reset_;
-         return true;
-      }
-   }
+		// Reset the adaption probability
+		if(sigma_ == sigma_reset_) {
+			return false;
+		} else {
+			sigma_ = sigma_reset_;
+			return true;
+		}
+	}
 
 protected:
 	/***************************************************************************/
@@ -561,15 +561,15 @@ protected:
 	 * @param range A typical range for the parameter with type num_type (unused here)
 	 */
 	virtual void customAdaptAdaption(const num_type&) override {
-	    using namespace Gem::Common;
-	    using namespace Gem::Hap;
+		using namespace Gem::Common;
+		using namespace Gem::Hap;
 
-	    // The following random distribution slightly favours values < 1. Selection pressure
-	    // will keep the values higher if needed
-	    sigma_ *= gexp(GObject::gr_ptr()->normal_distribution(gfabs(sigmaSigma_)));
+		// The following random distribution slightly favours values < 1. Selection pressure
+		// will keep the values higher if needed
+		sigma_ *= gexp(GObject::gr_ptr()->normal_distribution(gfabs(sigmaSigma_)));
 
 		// make sure sigma_ doesn't get out of range
-      Gem::Common::enforceRangeConstraint<fp_type>(sigma_, minSigma_, maxSigma_);
+		Gem::Common::enforceRangeConstraint<fp_type>(sigma_, minSigma_, maxSigma_);
 	}
 
 	/***************************************************************************/
@@ -581,36 +581,36 @@ protected:
 	 */
 	virtual void customAdaptions(num_type&, const num_type&) override = 0;
 
-   /***************************************************************************/
-   /**
-    * Allows to randomly initialize parameter members
-    */
-   virtual bool randomInit() override {
-      using namespace Gem::Common;
-      using namespace Gem::Hap;
+	/***************************************************************************/
+	/**
+	 * Allows to randomly initialize parameter members
+	 */
+	virtual bool randomInit() override {
+		using namespace Gem::Common;
+		using namespace Gem::Hap;
 
-      sigma_ = GObject::gr_ptr()->template uniform_real<fp_type>(minSigma_, maxSigma_);
+		sigma_ = GObject::gr_ptr()->template uniform_real<fp_type>(minSigma_, maxSigma_);
 
-      return true;
-   }
+		return true;
+	}
 
-   /***************************************************************************/
-   /**
-    * Adds a given property value to the vector or returns false, if the property
-    * was not found.
-    */
-   virtual bool customQueryProperty (
-      const std::string& property
-      , std::vector<boost::any>& data
-   ) const override {
-      if(property == "sigma") {
-         data.push_back(boost::any(sigma_));
-      } else {
-         return false;
-      }
+	/***************************************************************************/
+	/**
+	 * Adds a given property value to the vector or returns false, if the property
+	 * was not found.
+	 */
+	virtual bool customQueryProperty (
+		const std::string& property
+		, std::vector<boost::any>& data
+	) const override {
+		if(property == "sigma") {
+			data.push_back(boost::any(sigma_));
+		} else {
+			return false;
+		}
 
-      return true;
-   }
+		return true;
+	}
 
 protected: // For performance reasons, so we do not have to go through access functions
 	/***************************************************************************/
@@ -801,7 +801,7 @@ public:
 		//------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-      condnotset("GNumGaussAdaptorT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GNumGaussAdaptorT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -862,7 +862,7 @@ public:
 		//------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-      condnotset("GNumGaussAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GNumGaussAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 };
@@ -875,12 +875,12 @@ public:
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 namespace boost {
-	namespace serialization {
-		template<typename num_type, typename fp_type>
-		struct is_abstract< Gem::Geneva::GNumGaussAdaptorT<num_type, fp_type> > : public boost::true_type {};
-		template<typename num_type, typename fp_type>
-		struct is_abstract< const Gem::Geneva::GNumGaussAdaptorT<num_type, fp_type> > : public boost::true_type {};
-	}
+namespace serialization {
+template<typename num_type, typename fp_type>
+struct is_abstract< Gem::Geneva::GNumGaussAdaptorT<num_type, fp_type> > : public boost::true_type {};
+template<typename num_type, typename fp_type>
+struct is_abstract< const Gem::Geneva::GNumGaussAdaptorT<num_type, fp_type> > : public boost::true_type {};
+}
 }
 
 #endif /* GNUMGAUSSADAPTORT_HPP_ */

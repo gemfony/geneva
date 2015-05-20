@@ -67,7 +67,7 @@ class GSerialEA
 		using boost::serialization::make_nvp;
 
 		ar
-		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseEA);
+			& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseEA);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -79,20 +79,20 @@ public:
 	/** @brief The standard destructor */
 	virtual G_API_GENEVA ~GSerialEA();
 
-   /** @brief The standard assignment operator */
-   G_API_GENEVA const GSerialEA& operator=(const GSerialEA&);
+	/** @brief The standard assignment operator */
+	G_API_GENEVA const GSerialEA& operator=(const GSerialEA&);
 
 	/** @brief Checks for equality with another GSerialEA object */
 	G_API_GENEVA bool operator==(const GSerialEA&) const;
 	/** @brief Checks for inequality with another GSerialEA object */
 	G_API_GENEVA bool operator!=(const GSerialEA&) const;
 
-   /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
-   ) const override;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 	virtual G_API_GENEVA void addConfigurationOptions (
 		Gem::Common::GParserBuilder& gpb
@@ -101,8 +101,8 @@ public:
 	/** @brief Allows to assign a name to the role of this individual(-derivative) */
 	virtual G_API_GENEVA std::string getIndividualCharacteristic() const override;
 
-   /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const override;
+	/** @brief Emits a name for this class / object */
+	virtual G_API_GENEVA std::string name() const override;
 
 protected:
 	/** @brief Loads data from another object */

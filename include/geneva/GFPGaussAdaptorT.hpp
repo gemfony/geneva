@@ -67,10 +67,10 @@ class GFPGaussAdaptorT
 
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
-	  using boost::serialization::make_nvp;
+		using boost::serialization::make_nvp;
 
-	  ar
-	  & make_nvp("GNumGaussAdaptorT_fp_type", boost::serialization::base_object<GNumGaussAdaptorT<fp_type, fp_type> >(*this));
+		ar
+			& make_nvp("GNumGaussAdaptorT_fp_type", boost::serialization::base_object<GNumGaussAdaptorT<fp_type, fp_type> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -152,90 +152,90 @@ public:
 	virtual ~GFPGaussAdaptorT()
 	{ /* nothing */ }
 
-   /***************************************************************************/
-   /**
-    * The standard assignment operator
-    */
-   const GFPGaussAdaptorT<fp_type>& operator=(const GFPGaussAdaptorT<fp_type>& cp) {
-      this->load_(&cp);
-      return *this;
-   }
+	/***************************************************************************/
+	/**
+	 * The standard assignment operator
+	 */
+	const GFPGaussAdaptorT<fp_type>& operator=(const GFPGaussAdaptorT<fp_type>& cp) {
+		this->load_(&cp);
+		return *this;
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for equality with another GFPGaussAdaptorT<fp_type> object
-    *
-    * @param  cp A constant reference to another GFPGaussAdaptorT<fp_type> object
-    * @return A boolean indicating whether both objects are equal
-    */
-   bool operator==(const GFPGaussAdaptorT<fp_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for equality with another GFPGaussAdaptorT<fp_type> object
+	 *
+	 * @param  cp A constant reference to another GFPGaussAdaptorT<fp_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GFPGaussAdaptorT<fp_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for inequality with another GFPGaussAdaptorT<fp_type> object
-    *
-    * @param  cp A constant reference to another GFPGaussAdaptorT<fp_type> object
-    * @return A boolean indicating whether both objects are inequal
-    */
-   bool operator!=(const GFPGaussAdaptorT<fp_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GFPGaussAdaptorT<fp_type> object
+	 *
+	 * @param  cp A constant reference to another GFPGaussAdaptorT<fp_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GFPGaussAdaptorT<fp_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Searches for compliance with expectations with respect to another object
-    * of the same type
-    *
-    * @param cp A constant reference to another GObject object
-    * @param e The expected outcome of the comparison
-    * @param limit The maximum deviation for floating point values (important for similarity checks)
-    */
-   virtual void compare(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-   ) const override {
-      using namespace Gem::Common;
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
 
-      // Check that we are indeed dealing with a GAdaptorT reference
-      const GFPGaussAdaptorT<fp_type>  *p_load = GObject::gobject_conversion<GFPGaussAdaptorT<fp_type> >(&cp);
+		// Check that we are indeed dealing with a GAdaptorT reference
+		const GFPGaussAdaptorT<fp_type>  *p_load = GObject::gobject_conversion<GFPGaussAdaptorT<fp_type> >(&cp);
 
-      GToken token("GFPGaussAdaptorT<fp_type>", e);
+		GToken token("GFPGaussAdaptorT<fp_type>", e);
 
-      // Compare our parent data ...
-      Gem::Common::compare_base<GNumGaussAdaptorT<fp_type, fp_type> >(IDENTITY(*this, *p_load), token);
+		// Compare our parent data ...
+		Gem::Common::compare_base<GNumGaussAdaptorT<fp_type, fp_type> >(IDENTITY(*this, *p_load), token);
 
-      // ... no local data
+		// ... no local data
 
-      // React on deviations from the expectation
-      token.evaluate();
-   }
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 	/***************************************************************************/
 	/** @brief Retrieves the id of this adaptor */
 	virtual Gem::Geneva::adaptorId getAdaptorId() const override = 0;
 
-   /***************************************************************************/
-   /**
-    * Emits a name for this class / object
-    */
-   virtual std::string name() const override {
-      return std::string("GFPGaussAdaptorT");
-   }
+	/***************************************************************************/
+	/**
+	 * Emits a name for this class / object
+	 */
+	virtual std::string name() const override {
+		return std::string("GFPGaussAdaptorT");
+	}
 
 protected:
 	/***************************************************************************/
@@ -245,8 +245,8 @@ protected:
 	 * @param cp A copy of another GFPGaussAdaptorT<fp_type> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject* cp) override {
-	    // Check that we are not accidently assigning this object to itself
-	    GObject::selfAssignmentCheck<GFPGaussAdaptorT<fp_type> >(cp);
+		// Check that we are not accidently assigning this object to itself
+		GObject::selfAssignmentCheck<GFPGaussAdaptorT<fp_type> >(cp);
 
 		// Load our parent class'es data ...
 		GNumGaussAdaptorT<fp_type, fp_type>::load_(cp);
@@ -266,16 +266,16 @@ protected:
 	 * @param range A typical range for the parameter with type num_type
 	 */
 	virtual void customAdaptions(
-      fp_type& value
-      , const fp_type& range
-   ) override {
-	   using namespace Gem::Common;
-	   using namespace Gem::Hap;
+		fp_type& value
+		, const fp_type& range
+	) override {
+		using namespace Gem::Common;
+		using namespace Gem::Hap;
 
 		// adapt the value in situ. Note that this changes
 		// the argument of this function
 		value
-		+= range * GObject::gr_ptr()->normal_distribution(GNumGaussAdaptorT<fp_type, fp_type>::sigma_);
+			+= range * GObject::gr_ptr()->normal_distribution(GNumGaussAdaptorT<fp_type, fp_type>::sigma_);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -301,8 +301,8 @@ public:
 		return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-      condnotset("GFPGaussAdaptorT<>::modify_GUnitTests", "GEM_TESTING");
-      return false;
+		condnotset("GFPGaussAdaptorT<>::modify_GUnitTests", "GEM_TESTING");
+		return false;
 #endif /* GEM_TESTING */
 	}
 
@@ -337,7 +337,7 @@ public:
 		GNumGaussAdaptorT<fp_type, fp_type>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-      condnotset("GFPGaussAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GFPGaussAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 };
@@ -351,12 +351,12 @@ public:
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
 namespace boost {
-	namespace serialization {
-		template<typename fp_type>
-		struct is_abstract<Gem::Geneva::GFPGaussAdaptorT<fp_type> > : public boost::true_type {};
-		template<typename fp_type>
-		struct is_abstract< const Gem::Geneva::GFPGaussAdaptorT<fp_type> > : public boost::true_type {};
-	}
+namespace serialization {
+template<typename fp_type>
+struct is_abstract<Gem::Geneva::GFPGaussAdaptorT<fp_type> > : public boost::true_type {};
+template<typename fp_type>
+struct is_abstract< const Gem::Geneva::GFPGaussAdaptorT<fp_type> > : public boost::true_type {};
+}
 }
 /******************************************************************************/
 

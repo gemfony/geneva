@@ -70,10 +70,10 @@ class GIntGaussAdaptorT
 
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
-	  using boost::serialization::make_nvp;
+		using boost::serialization::make_nvp;
 
-	  ar
-	  & make_nvp("GNumGaussAdaptorT_int", boost::serialization::base_object<GNumGaussAdaptorT<int_type, double> >(*this));
+		ar
+			& make_nvp("GNumGaussAdaptorT_int", boost::serialization::base_object<GNumGaussAdaptorT<int_type, double> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -84,7 +84,7 @@ public:
 	 */
 	GIntGaussAdaptorT()
 		: GNumGaussAdaptorT<int_type, double>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA)
-    { /* nothing */ }
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -94,7 +94,7 @@ public:
 	 */
 	GIntGaussAdaptorT(const GIntGaussAdaptorT<int_type>& cp)
 		: GNumGaussAdaptorT<int_type, double>(cp)
-    { /* nothing */ }
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -106,7 +106,7 @@ public:
 	 */
 	explicit GIntGaussAdaptorT(const double& adProb)
 		: GNumGaussAdaptorT<int_type, double>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, adProb)
-    { /* nothing */ }
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -124,7 +124,7 @@ public:
 		, const double& maxSigma
 	)
 		: GNumGaussAdaptorT<int_type, double> (sigma, sigmaSigma, minSigma, maxSigma)
-    { /* nothing */ }
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -154,48 +154,48 @@ public:
 	virtual ~GIntGaussAdaptorT()
 	{ /* nothing */ }
 
-   /***************************************************************************/
-   /**
-    * The standard assignment operator
-    */
-   const GIntGaussAdaptorT<int_type>& operator=(const GIntGaussAdaptorT<int_type>& cp) {
-      this->load_(&cp);
-      return *this;
-   }
+	/***************************************************************************/
+	/**
+	 * The standard assignment operator
+	 */
+	const GIntGaussAdaptorT<int_type>& operator=(const GIntGaussAdaptorT<int_type>& cp) {
+		this->load_(&cp);
+		return *this;
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for equality with another GIntGaussAdaptorT<int_type> object
-    *
-    * @param  cp A constant reference to another GIntGaussAdaptorT<int_type> object
-    * @return A boolean indicating whether both objects are equal
-    */
-   bool operator==(const GIntGaussAdaptorT<int_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for equality with another GIntGaussAdaptorT<int_type> object
+	 *
+	 * @param  cp A constant reference to another GIntGaussAdaptorT<int_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GIntGaussAdaptorT<int_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for inequality with another GIntGaussAdaptorT<int_type> object
-    *
-    * @param  cp A constant reference to another GIntGaussAdaptorT<int_type> object
-    * @return A boolean indicating whether both objects are inequal
-    */
-   bool operator!=(const GIntGaussAdaptorT<int_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GIntGaussAdaptorT<int_type> object
+	 *
+	 * @param  cp A constant reference to another GIntGaussAdaptorT<int_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GIntGaussAdaptorT<int_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
 	/***************************************************************************/
 	/**
@@ -207,37 +207,37 @@ public:
 	 * @param limit The maximum deviation for floating point values (important for similarity checks)
 	 */
 	virtual void compare(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
 	) const override {
-	   using namespace Gem::Common;
+		using namespace Gem::Common;
 
-	   // Check that we are indeed dealing with a GAdaptorT reference
-	   const GIntGaussAdaptorT<int_type>  *p_load = GObject::gobject_conversion<GIntGaussAdaptorT<int_type> >(&cp);
+		// Check that we are indeed dealing with a GAdaptorT reference
+		const GIntGaussAdaptorT<int_type>  *p_load = GObject::gobject_conversion<GIntGaussAdaptorT<int_type> >(&cp);
 
-      GToken token("GIntGaussAdaptorT<int_type>", e);
+		GToken token("GIntGaussAdaptorT<int_type>", e);
 
-      // Compare our parent data ...
-      Gem::Common::compare_base<GNumGaussAdaptorT<int_type, double> >(IDENTITY(*this, *p_load), token);
+		// Compare our parent data ...
+		Gem::Common::compare_base<GNumGaussAdaptorT<int_type, double> >(IDENTITY(*this, *p_load), token);
 
-      // // ... no local data
+		// // ... no local data
 
-      // React on deviations from the expectation
-      token.evaluate();
+		// React on deviations from the expectation
+		token.evaluate();
 	}
 
 	/***************************************************************************/
 	/** @brief Retrieves the id of this adaptor */
 	virtual Gem::Geneva::adaptorId getAdaptorId() const override = 0;
 
-   /***************************************************************************/
-   /**
-    * Emits a name for this class / object
-    */
-   virtual std::string name() const override {
-      return std::string("GIntGaussAdaptorT");
-   }
+	/***************************************************************************/
+	/**
+	 * Emits a name for this class / object
+	 */
+	virtual std::string name() const override {
+		return std::string("GIntGaussAdaptorT");
+	}
 
 protected:
 	/***************************************************************************/
@@ -247,8 +247,8 @@ protected:
 	 * @param cp A copy of another GIntGaussAdaptorT<int_type> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject* cp) override {
-	    // Check that we are not accidently assigning this object to itself
-	    GObject::selfAssignmentCheck<GIntGaussAdaptorT<int_type> >(cp);
+		// Check that we are not accidently assigning this object to itself
+		GObject::selfAssignmentCheck<GIntGaussAdaptorT<int_type> >(cp);
 
 		// Load our parent class'es data ...
 		GNumGaussAdaptorT<int_type, double>::load_(cp);
@@ -268,21 +268,21 @@ protected:
 	 * @param range A typical range for the parameter with type num_type
 	 */
 	virtual void customAdaptions(
-      int_type& value
-      , const int_type& range
-   ) override {
-	   using namespace Gem::Common;
-	   using namespace Gem::Hap;
+		int_type& value
+		, const int_type& range
+	) override {
+		using namespace Gem::Common;
+		using namespace Gem::Hap;
 
-	   // Calculate a suitable addition to the current parameter value
+		// Calculate a suitable addition to the current parameter value
 		int_type addition = static_cast<int_type>(static_cast<double>(range) * GObject::gr_ptr()->normal_distribution(this->getSigma()));
 
 		if(addition == 0) { // Enforce a minimal change of 1.
 			addition = GObject::gr_ptr()->uniform_bool()?1:-1;
 		}
 
-      // adapt the value in situ. Note that this changes
-      // the argument of this function
+		// adapt the value in situ. Note that this changes
+		// the argument of this function
 		value += addition;
 	}
 
@@ -308,8 +308,8 @@ public:
 		return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GIntGaussAdaptorT<>::modify_GUnitTests", "GEM_TESTING");
-   return false;
+		condnotset("GIntGaussAdaptorT<>::modify_GUnitTests", "GEM_TESTING");
+		return false;
 #endif /* GEM_TESTING */
 	}
 
@@ -327,7 +327,7 @@ public:
 		//------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GIntGaussAdaptorT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GIntGaussAdaptorT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -340,7 +340,7 @@ public:
 		// Call the parent class'es function
 		GNumGaussAdaptorT<int_type, double>::specificTestsFailuresExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GIntGaussAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GIntGaussAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -355,12 +355,12 @@ public:
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
 namespace boost {
-	namespace serialization {
-		template<typename int_type>
-		struct is_abstract<Gem::Geneva::GIntGaussAdaptorT<int_type> > : public boost::true_type {};
-		template<typename int_type>
-		struct is_abstract< const Gem::Geneva::GIntGaussAdaptorT<int_type> > : public boost::true_type {};
-	}
+namespace serialization {
+template<typename int_type>
+struct is_abstract<Gem::Geneva::GIntGaussAdaptorT<int_type> > : public boost::true_type {};
+template<typename int_type>
+struct is_abstract< const Gem::Geneva::GIntGaussAdaptorT<int_type> > : public boost::true_type {};
+}
 }
 /******************************************************************************/
 

@@ -76,8 +76,8 @@ class GNumT
 	}
 	///////////////////////////////////////////////////////////////////////
 
-   // Make sure this class can only be instantiated with T as an arithmetic type
-   BOOST_MPL_ASSERT((boost::is_arithmetic<T>));
+	// Make sure this class can only be instantiated with T as an arithmetic type
+	BOOST_MPL_ASSERT((boost::is_arithmetic<T>));
 
 public:
 	/** @brief Specifies the type of parameters stored in this collection */
@@ -136,14 +136,14 @@ public:
 	virtual ~GNumT()
 	{ /* nothing */ }
 
-   /***************************************************************************/
-   /**
-    * The standard assignment operator
-    */
-   const GNumT<T>& operator=(const GNumT<T>& cp) {
-      this->load_(&cp);
-      return *this;
-   }
+	/***************************************************************************/
+	/**
+	 * The standard assignment operator
+	 */
+	const GNumT<T>& operator=(const GNumT<T>& cp) {
+		this->load_(&cp);
+		return *this;
+	}
 
 	/***************************************************************************/
 	/**
@@ -153,71 +153,71 @@ public:
 		return GParameterT<T>::operator=(val);
 	}
 
-   /***************************************************************************/
-   /**
-    * Checks for equality with another GNumT<T> object
-    *
-    * @param  cp A constant reference to another GNumT<T> object
-    * @return A boolean indicating whether both objects are equal
-    */
-   bool operator==(const GNumT<T>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for equality with another GNumT<T> object
+	 *
+	 * @param  cp A constant reference to another GNumT<T> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GNumT<T>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for inequality with another GNumT<T> object
-    *
-    * @param  cp A constant reference to another GNumT<T> object
-    * @return A boolean indicating whether both objects are inequal
-    */
-   bool operator!=(const GNumT<T>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GNumT<T> object
+	 *
+	 * @param  cp A constant reference to another GNumT<T> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GNumT<T>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Searches for compliance with expectations with respect to another object
-    * of the same type
-    *
-    * @param cp A constant reference to another GObject object
-    * @param e The expected outcome of the comparison
-    * @param limit The maximum deviation for floating point values (important for similarity checks)
-    */
-   virtual void compare(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-   ) const override {
-      using namespace Gem::Common;
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
 
-      // Check that we are indeed dealing with a GAdaptorT reference
-      const GNumT<T>  *p_load = GObject::gobject_conversion<GNumT<T> >(&cp);
+		// Check that we are indeed dealing with a GAdaptorT reference
+		const GNumT<T>  *p_load = GObject::gobject_conversion<GNumT<T> >(&cp);
 
-      GToken token("GNumT<T>", e);
+		GToken token("GNumT<T>", e);
 
-      // Compare our parent data ...
-      Gem::Common::compare_base<GParameterT<T> >(IDENTITY(*this, *p_load), token);
+		// Compare our parent data ...
+		Gem::Common::compare_base<GParameterT<T> >(IDENTITY(*this, *p_load), token);
 
-      // ... and then the local data
-      compare_t(IDENTITY(lowerInitBoundary_, p_load->lowerInitBoundary_), token);
-      compare_t(IDENTITY(upperInitBoundary_, p_load->upperInitBoundary_), token);
+		// ... and then the local data
+		compare_t(IDENTITY(lowerInitBoundary_, p_load->lowerInitBoundary_), token);
+		compare_t(IDENTITY(upperInitBoundary_, p_load->upperInitBoundary_), token);
 
-      // React on deviations from the expectation
-      token.evaluate();
-   }
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 	/***************************************************************************/
 	/**
@@ -229,12 +229,12 @@ public:
 	void setInitBoundaries(const T& lowerInitBoundary, const T& upperInitBoundary) {
 		// Do some error checking
 		if(lowerInitBoundary >= upperInitBoundary) {
-		   glogger
-		   << "In GNumT<T>::setInitBoundaries():" << std::endl
-         << "Invalid boundaries provided: " << std::endl
-         << "lowerInitBoundary = " << lowerInitBoundary << std::endl
-         << "upperInitBoundary = " << upperInitBoundary << std::endl
-         << GEXCEPTION;
+			glogger
+			<< "In GNumT<T>::setInitBoundaries():" << std::endl
+			<< "Invalid boundaries provided: " << std::endl
+			<< "lowerInitBoundary = " << lowerInitBoundary << std::endl
+			<< "upperInitBoundary = " << upperInitBoundary << std::endl
+			<< GEXCEPTION;
 		}
 
 		lowerInitBoundary_ = lowerInitBoundary;
@@ -277,44 +277,44 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-   /***************************************************************************/
-   /**
-    * Lets the audience know whether this is a leaf or a branch object
-    */
-   virtual bool isLeaf() const override {
-      return true;
-   }
+	/***************************************************************************/
+	/**
+	 * Lets the audience know whether this is a leaf or a branch object
+	 */
+	virtual bool isLeaf() const override {
+		return true;
+	}
 
-   /***************************************************************************/
-   /**
-    * Emits a name for this class / object
-    */
-   virtual std::string name() const override {
-      return std::string("GNumT");
-   }
+	/***************************************************************************/
+	/**
+	 * Emits a name for this class / object
+	 */
+	virtual std::string name() const override {
+		return std::string("GNumT");
+	}
 
-   /***************************************************************************/
-   /**
-    * Converts the local data to a boost::property_tree node
-    *
-    * @param ptr The boost::property_tree object the data should be saved to
-    * @param baseName The name assigned to the object
-    */
-   virtual void toPropertyTree (
-      pt::ptree& ptr
-      , const std::string& baseName
-   ) const override {
-      ptr.put(baseName + ".name", this->getParameterName());
-      ptr.put(baseName + ".type", this->name());
-      ptr.put(baseName + ".baseType", Gem::Common::GTypeToStringT<T>::value());
-      ptr.put(baseName + ".isLeaf", this->isLeaf());
-      ptr.put(baseName + ".nVals", 1);
-      ptr.put(baseName + ".values.value0", this->value());
-      ptr.put(baseName + ".lowerBoundary", this->getLowerInitBoundary());
-      ptr.put(baseName + ".upperBoundary", this->getUpperInitBoundary());
-      ptr.put(baseName + ".initRandom", false); // Unused for the creation of a property tree
-      ptr.put(baseName + ".adaptionsActive", this->adaptionsActive());
-   }
+	/***************************************************************************/
+	/**
+	 * Converts the local data to a boost::property_tree node
+	 *
+	 * @param ptr The boost::property_tree object the data should be saved to
+	 * @param baseName The name assigned to the object
+	 */
+	virtual void toPropertyTree (
+		pt::ptree& ptr
+		, const std::string& baseName
+	) const override {
+		ptr.put(baseName + ".name", this->getParameterName());
+		ptr.put(baseName + ".type", this->name());
+		ptr.put(baseName + ".baseType", Gem::Common::GTypeToStringT<T>::value());
+		ptr.put(baseName + ".isLeaf", this->isLeaf());
+		ptr.put(baseName + ".nVals", 1);
+		ptr.put(baseName + ".values.value0", this->value());
+		ptr.put(baseName + ".lowerBoundary", this->getLowerInitBoundary());
+		ptr.put(baseName + ".upperBoundary", this->getUpperInitBoundary());
+		ptr.put(baseName + ".initRandom", false); // Unused for the creation of a property tree
+		ptr.put(baseName + ".adaptionsActive", this->adaptionsActive());
+	}
 
 protected:
 	/***************************************************************************/
@@ -338,14 +338,14 @@ protected:
 		upperInitBoundary_ = p_load->upperInitBoundary_;
 	}
 
-   /***************************************************************************/
-   /**
-    * Returns a "comparative range". This is e.g. used to make Gauss-adaption
-    * independent of a parameters value range
-    */
-   virtual T range() const override {
-      return upperInitBoundary_ - lowerInitBoundary_;
-   }
+	/***************************************************************************/
+	/**
+	 * Returns a "comparative range". This is e.g. used to make Gauss-adaption
+	 * independent of a parameters value range
+	 */
+	virtual T range() const override {
+		return upperInitBoundary_ - lowerInitBoundary_;
+	}
 
 	/***************************************************************************/
 	/**
@@ -417,7 +417,7 @@ public:
 		//------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-      condnotset("GNumT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GNumT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -446,7 +446,7 @@ public:
 
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-      condnotset("GNumT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GNumT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -461,12 +461,12 @@ public:
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
 namespace boost {
-	namespace serialization {
-		template<typename T>
-		struct is_abstract<Gem::Geneva::GNumT<T> > : public boost::true_type {};
-		template<typename T>
-		struct is_abstract< const Gem::Geneva::GNumT<T> > : public boost::true_type {};
-	}
+namespace serialization {
+template<typename T>
+struct is_abstract<Gem::Geneva::GNumT<T> > : public boost::true_type {};
+template<typename T>
+struct is_abstract< const Gem::Geneva::GNumT<T> > : public boost::true_type {};
+}
 }
 
 /******************************************************************************/

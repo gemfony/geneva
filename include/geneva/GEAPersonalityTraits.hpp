@@ -55,17 +55,17 @@ namespace Geneva {
  * to evolutionary algorithms.
  */
 class GEAPersonalityTraits
-   : public GBaseParChildPersonalityTraits
+	: public GBaseParChildPersonalityTraits
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
-	  using boost::serialization::make_nvp;
-	  ar
-	  & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseParChildPersonalityTraits)
-	  & BOOST_SERIALIZATION_NVP(isOnParetoFront_);
+		using boost::serialization::make_nvp;
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseParChildPersonalityTraits)
+		& BOOST_SERIALIZATION_NVP(isOnParetoFront_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -77,20 +77,20 @@ public:
 	/** @brief The standard destructor */
 	virtual G_API_GENEVA ~GEAPersonalityTraits();
 
-   /** @brief The standard assignment operator */
-   G_API_GENEVA const GEAPersonalityTraits& operator=(const GEAPersonalityTraits&);
+	/** @brief The standard assignment operator */
+	G_API_GENEVA const GEAPersonalityTraits& operator=(const GEAPersonalityTraits&);
 
 	/** @brief Checks for equality with another GEAPersonalityTraits object */
 	G_API_GENEVA bool operator==(const GEAPersonalityTraits&) const;
 	/** @brief Checks for inequality with another GEAPersonalityTraits object */
 	G_API_GENEVA bool operator!=(const GEAPersonalityTraits&) const;
 
-   /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
-   ) const override;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 	/** @brief Allows to check whether this individual lies on the pareto front (only yields useful results after pareto-sorting in EA) */
 	G_API_GENEVA bool isOnParetoFront() const;
@@ -99,8 +99,8 @@ public:
 	/** @brief Allows to specify that this individual does not lie on the pareto front of the current iteration */
 	G_API_GENEVA void setIsNotOnParetoFront();
 
-   /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const override;
+	/** @brief Emits a name for this class / object */
+	virtual G_API_GENEVA std::string name() const override;
 
 protected:
 	/** @brief Loads the data of another GEAPersonalityTraits object */

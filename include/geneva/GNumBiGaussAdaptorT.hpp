@@ -165,91 +165,91 @@ public:
 	virtual ~GNumBiGaussAdaptorT()
 	{ /* nothing */ }
 
-   /***************************************************************************/
-   /**
-    * The standard assignment operator
-    */
-   const GNumBiGaussAdaptorT<num_type, fp_type>& operator=(const GNumBiGaussAdaptorT<num_type, fp_type>& cp) {
-      this->load_(&cp);
-      return *this;
-   }
+	/***************************************************************************/
+	/**
+	 * The standard assignment operator
+	 */
+	const GNumBiGaussAdaptorT<num_type, fp_type>& operator=(const GNumBiGaussAdaptorT<num_type, fp_type>& cp) {
+		this->load_(&cp);
+		return *this;
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for equality with another GNumBiGaussAdaptorT<num_type, fp_type> object
-    *
-    * @param  cp A constant reference to another GNumBiGaussAdaptorT<num_type, fp_type> object
-    * @return A boolean indicating whether both objects are equal
-    */
-   bool operator==(const GNumBiGaussAdaptorT<num_type, fp_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for equality with another GNumBiGaussAdaptorT<num_type, fp_type> object
+	 *
+	 * @param  cp A constant reference to another GNumBiGaussAdaptorT<num_type, fp_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GNumBiGaussAdaptorT<num_type, fp_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for inequality with another GNumBiGaussAdaptorT<num_type, fp_type> object
-    *
-    * @param  cp A constant reference to another GNumBiGaussAdaptorT<num_type, fp_type> object
-    * @return A boolean indicating whether both objects are inequal
-    */
-   bool operator!=(const GNumBiGaussAdaptorT<num_type, fp_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GNumBiGaussAdaptorT<num_type, fp_type> object
+	 *
+	 * @param  cp A constant reference to another GNumBiGaussAdaptorT<num_type, fp_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GNumBiGaussAdaptorT<num_type, fp_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Searches for compliance with expectations with respect to another object
-    * of the same type
-    *
-    * @param cp A constant reference to another GObject object
-    * @param e The expected outcome of the comparison
-    * @param limit The maximum deviation for floating point values (important for similarity checks)
-    */
-   virtual void compare(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-   ) const override {
-      using namespace Gem::Common;
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
 
-      // Check that we are indeed dealing with a GAdaptorT reference
-      const GNumBiGaussAdaptorT<num_type, fp_type>  *p_load = GObject::gobject_conversion<GNumBiGaussAdaptorT<num_type, fp_type> >(&cp);
+		// Check that we are indeed dealing with a GAdaptorT reference
+		const GNumBiGaussAdaptorT<num_type, fp_type>  *p_load = GObject::gobject_conversion<GNumBiGaussAdaptorT<num_type, fp_type> >(&cp);
 
-      GToken token("GNumBiGaussAdaptorT<num_type, fp_type>", e);
+		GToken token("GNumBiGaussAdaptorT<num_type, fp_type>", e);
 
-      // Compare our parent data ...
-      Gem::Common::compare_base<GAdaptorT<num_type> >(IDENTITY(*this, *p_load), token);
+		// Compare our parent data ...
+		Gem::Common::compare_base<GAdaptorT<num_type> >(IDENTITY(*this, *p_load), token);
 
-      // ... and then the local data
-      compare_t(IDENTITY(useSymmetricSigmas_, p_load->useSymmetricSigmas_), token);
-      compare_t(IDENTITY(sigma1_, p_load->sigma1_), token);
-      compare_t(IDENTITY(sigmaSigma1_, p_load->sigmaSigma1_), token);
-      compare_t(IDENTITY(minSigma1_, p_load->minSigma1_), token);
-      compare_t(IDENTITY(maxSigma1_, p_load->maxSigma1_), token);
-      compare_t(IDENTITY(sigma2_, p_load->sigma2_), token);
-      compare_t(IDENTITY(sigmaSigma2_, p_load->sigmaSigma2_), token);
-      compare_t(IDENTITY(minSigma2_, p_load->minSigma2_), token);
-      compare_t(IDENTITY(maxSigma2_, p_load->maxSigma2_), token);
-      compare_t(IDENTITY(delta_, p_load->delta_), token);
-      compare_t(IDENTITY(sigmaDelta_, p_load->sigmaDelta_), token);
-      compare_t(IDENTITY(minDelta_, p_load->minDelta_), token);
-      compare_t(IDENTITY(maxDelta_, p_load->maxDelta_), token);
+		// ... and then the local data
+		compare_t(IDENTITY(useSymmetricSigmas_, p_load->useSymmetricSigmas_), token);
+		compare_t(IDENTITY(sigma1_, p_load->sigma1_), token);
+		compare_t(IDENTITY(sigmaSigma1_, p_load->sigmaSigma1_), token);
+		compare_t(IDENTITY(minSigma1_, p_load->minSigma1_), token);
+		compare_t(IDENTITY(maxSigma1_, p_load->maxSigma1_), token);
+		compare_t(IDENTITY(sigma2_, p_load->sigma2_), token);
+		compare_t(IDENTITY(sigmaSigma2_, p_load->sigmaSigma2_), token);
+		compare_t(IDENTITY(minSigma2_, p_load->minSigma2_), token);
+		compare_t(IDENTITY(maxSigma2_, p_load->maxSigma2_), token);
+		compare_t(IDENTITY(delta_, p_load->delta_), token);
+		compare_t(IDENTITY(sigmaDelta_, p_load->sigmaDelta_), token);
+		compare_t(IDENTITY(minDelta_, p_load->minDelta_), token);
+		compare_t(IDENTITY(maxDelta_, p_load->maxDelta_), token);
 
-      // React on deviations from the expectation
-      token.evaluate();
-   }
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 	/***************************************************************************/
 	/**
@@ -283,13 +283,13 @@ public:
 	void setSigma1(const fp_type& sigma1) {
 		// Sigma1 must be in the allowed value range
 		if(sigma1 < minSigma1_ || sigma1 > maxSigma1_ || sigma1 < fp_type(0)) {
-		   glogger
-		   << "In GNumBiGaussAdaptorT<num_type, fp_type>::setSigma1(const fp_type&):" << std::endl
-         << "sigma1 is not in the allowed range: " << std::endl
-         << minSigma1_ << " <= " << sigma1 << " < " << maxSigma1_ << std::endl
-         << "If you want to use these values you need to" << std::endl
-         << "adapt the allowed range first." << std::endl
-         << GEXCEPTION;
+			glogger
+			<< "In GNumBiGaussAdaptorT<num_type, fp_type>::setSigma1(const fp_type&):" << std::endl
+			<< "sigma1 is not in the allowed range: " << std::endl
+			<< minSigma1_ << " <= " << sigma1 << " < " << maxSigma1_ << std::endl
+			<< "If you want to use these values you need to" << std::endl
+			<< "adapt the allowed range first." << std::endl
+			<< GEXCEPTION;
 		}
 
 		sigma1_ = sigma1;
@@ -318,28 +318,28 @@ public:
 	 * @param maxSigma1 The maximum allowed value of sigma1_
 	 */
 	void setSigma1Range(
-      const fp_type& minSigma1
-      , const fp_type& maxSigma1
-   ){
-	   using namespace Gem::Common;
+		const fp_type& minSigma1
+		, const fp_type& maxSigma1
+	){
+		using namespace Gem::Common;
 
-	   if(minSigma1 < fp_type(0.) || minSigma1 > maxSigma1 || maxSigma1 < boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)) {
-	      glogger
-	      << "In GNumBiGaussAdaptorT::setSigma1Range(const fp_type&, const fp_type&):" << std::endl
-         << "Invalid values for minSigma1 and maxSigma1 given: " << minSigma1 << " / " << maxSigma1 << std::endl
-         << GEXCEPTION;
-	   }
+		if(minSigma1 < fp_type(0.) || minSigma1 > maxSigma1 || maxSigma1 < boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)) {
+			glogger
+			<< "In GNumBiGaussAdaptorT::setSigma1Range(const fp_type&, const fp_type&):" << std::endl
+			<< "Invalid values for minSigma1 and maxSigma1 given: " << minSigma1 << " / " << maxSigma1 << std::endl
+			<< GEXCEPTION;
+		}
 
-      minSigma1_ = minSigma1;
-      maxSigma1_ = maxSigma1;
+		minSigma1_ = minSigma1;
+		maxSigma1_ = maxSigma1;
 
-      // Silently adapt minSigma1_, if it is smaller than DEFAULTMINSIGMA. E.g., a value of 0 does not make sense
-      if(minSigma1_ < fp_type(DEFAULTMINSIGMA)) {
-         minSigma1_ = fp_type(DEFAULTMINSIGMA);
-      }
+		// Silently adapt minSigma1_, if it is smaller than DEFAULTMINSIGMA. E.g., a value of 0 does not make sense
+		if(minSigma1_ < fp_type(DEFAULTMINSIGMA)) {
+			minSigma1_ = fp_type(DEFAULTMINSIGMA);
+		}
 
 		// Rectify sigma1_, if necessary
-      enforceRangeConstraint(sigma1_, minSigma1_, maxSigma1_);
+		enforceRangeConstraint(sigma1_, minSigma1_, maxSigma1_);
 	}
 
 	/***************************************************************************/
@@ -390,11 +390,11 @@ public:
 	 * @param minSigma1 The maximum value allowed for sigma1_
 	 */
 	void setAllSigma1(
-      const fp_type& sigma1
-      , const fp_type& sigmaSigma1
-      , const fp_type& minSigma1
-      , const fp_type& maxSigma1
-   ) {
+		const fp_type& sigma1
+		, const fp_type& sigmaSigma1
+		, const fp_type& minSigma1
+		, const fp_type& maxSigma1
+	) {
 		setSigma1AdaptionRate(sigmaSigma1);
 		setSigma1Range(minSigma1, maxSigma1);
 		setSigma1(sigma1);
@@ -411,15 +411,15 @@ public:
 	 */
 	void setSigma2(const fp_type& sigma2)
 	{
-      // Sigma2 must be in the allowed value range
-	   if(sigma2 < minSigma2_ || sigma2 > maxSigma2_ || sigma2 < fp_type(0)) {
-		   glogger
-		   << "In GNumBiGaussAdaptorT<num_type, fp_type>::setSigma2(const fp_type&):" << std::endl
-		   << "sigma2 is not in the allowed range: " << std::endl
-         << minSigma2_ << " <= " << sigma2 << " < " << maxSigma2_ << std::endl
-         << "If you want to use this value for sigma you need to" << std::endl
-         << "adapt the allowed range first." << std::endl
-         << GEXCEPTION;
+		// Sigma2 must be in the allowed value range
+		if(sigma2 < minSigma2_ || sigma2 > maxSigma2_ || sigma2 < fp_type(0)) {
+			glogger
+			<< "In GNumBiGaussAdaptorT<num_type, fp_type>::setSigma2(const fp_type&):" << std::endl
+			<< "sigma2 is not in the allowed range: " << std::endl
+			<< minSigma2_ << " <= " << sigma2 << " < " << maxSigma2_ << std::endl
+			<< "If you want to use this value for sigma you need to" << std::endl
+			<< "adapt the allowed range first." << std::endl
+			<< GEXCEPTION;
 		}
 
 		sigma2_ = sigma2;
@@ -448,26 +448,26 @@ public:
 	 * @param maxSigma2 The maximum allowed value of sigma2_
 	 */
 	void setSigma2Range(const fp_type& minSigma2, const fp_type& maxSigma2){
-	   using namespace Gem::Common;
+		using namespace Gem::Common;
 
-      if(minSigma2 < fp_type(0.) || minSigma2 > maxSigma2 || maxSigma2 < boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)) {
-         glogger
-         << "In GNumBiGaussAdaptorT::setSigma2Range(const fp_type&, const fp_type&):" << std::endl
-         << "Invalid values for minSigma2 and maxSigma2 given: " << minSigma2 << " / " << maxSigma2 << std::endl
-         << GEXCEPTION;
-      }
+		if(minSigma2 < fp_type(0.) || minSigma2 > maxSigma2 || maxSigma2 < boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)) {
+			glogger
+			<< "In GNumBiGaussAdaptorT::setSigma2Range(const fp_type&, const fp_type&):" << std::endl
+			<< "Invalid values for minSigma2 and maxSigma2 given: " << minSigma2 << " / " << maxSigma2 << std::endl
+			<< GEXCEPTION;
+		}
 
 
-      minSigma2_ = minSigma2;
-      maxSigma2_ = maxSigma2;
+		minSigma2_ = minSigma2;
+		maxSigma2_ = maxSigma2;
 
-      // Silently adapt minSigma1_, if it is smaller than DEFAULTMINSIGMA. E.g., a value of 0 does not make sense
-      if(minSigma2_ < fp_type(DEFAULTMINSIGMA)) {
-         minSigma2_ = fp_type(DEFAULTMINSIGMA);
-      }
+		// Silently adapt minSigma1_, if it is smaller than DEFAULTMINSIGMA. E.g., a value of 0 does not make sense
+		if(minSigma2_ < fp_type(DEFAULTMINSIGMA)) {
+			minSigma2_ = fp_type(DEFAULTMINSIGMA);
+		}
 
-      // Rectify sigma1_, if necessary
-      enforceRangeConstraint(sigma2_, minSigma2_, maxSigma2_);
+		// Rectify sigma1_, if necessary
+		enforceRangeConstraint(sigma2_, minSigma2_, maxSigma2_);
 	}
 
 	/***************************************************************************/
@@ -516,11 +516,11 @@ public:
 	 * @param minSigma2 The maximum value allowed for sigma2_
 	 */
 	void setAllSigma2(
-      const fp_type& sigma2
-      , const fp_type& sigmaSigma2
-      , const fp_type& minSigma2
-      , const fp_type& maxSigma2
-   ) {
+		const fp_type& sigma2
+		, const fp_type& sigmaSigma2
+		, const fp_type& minSigma2
+		, const fp_type& maxSigma2
+	) {
 		setSigma2AdaptionRate(sigmaSigma2);
 		setSigma2Range(minSigma2, maxSigma2);
 		setSigma2(sigma2);
@@ -536,13 +536,13 @@ public:
 	void setDelta(const fp_type& delta)	{
 		// Delta must be in the allowed value range
 		if(delta < minDelta_ || delta > maxDelta_ || delta_ < fp_type(0))	{
-		   glogger
-		   << "In GNumBiGaussAdaptorT::setDelta(const fp_type&):" << std::endl
-         << "delta is not in the allowed range: " << std::endl
-         << minDelta_ << " <= " << delta << " < " << maxDelta_ << std::endl
-         << "If you want to use these values you need to" << std::endl
-         << "adapt the allowed range first." << std::endl
-         << GEXCEPTION;
+			glogger
+			<< "In GNumBiGaussAdaptorT::setDelta(const fp_type&):" << std::endl
+			<< "delta is not in the allowed range: " << std::endl
+			<< minDelta_ << " <= " << delta << " < " << maxDelta_ << std::endl
+			<< "If you want to use these values you need to" << std::endl
+			<< "adapt the allowed range first." << std::endl
+			<< GEXCEPTION;
 		}
 
 		delta_ = delta;
@@ -570,28 +570,28 @@ public:
 	 * @param maxDelta The maximum allowed value of delta_
 	 */
 	void setDeltaRange(
-      const fp_type& minDelta
-      , const fp_type& maxDelta
-   ){
-      if(minDelta < fp_type(0.) || minDelta > maxDelta || maxDelta < boost::numeric_cast<fp_type>(DEFAULTMINDELTA)) {
-         glogger
-         << "In GNumBiGaussAdaptorT::setDeltaRange(const fp_type&, const fp_type&):" << std::endl
-         << "Invalid values for minDelta and maxDelta given: " << minDelta << " / " << maxDelta << std::endl
-         << GEXCEPTION;
-      }
+		const fp_type& minDelta
+		, const fp_type& maxDelta
+	){
+		if(minDelta < fp_type(0.) || minDelta > maxDelta || maxDelta < boost::numeric_cast<fp_type>(DEFAULTMINDELTA)) {
+			glogger
+			<< "In GNumBiGaussAdaptorT::setDeltaRange(const fp_type&, const fp_type&):" << std::endl
+			<< "Invalid values for minDelta and maxDelta given: " << minDelta << " / " << maxDelta << std::endl
+			<< GEXCEPTION;
+		}
 
-      minDelta_ = minDelta;
-      maxDelta_ = maxDelta;
+		minDelta_ = minDelta;
+		maxDelta_ = maxDelta;
 
-      // Note: In contrast to setSigmaXRange(...) we allow a delta < DEFAULTMINDELTA
-      // (as long as it is >= 0), as a delta of 0 makes sense
+		// Note: In contrast to setSigmaXRange(...) we allow a delta < DEFAULTMINDELTA
+		// (as long as it is >= 0), as a delta of 0 makes sense
 
-      // Rectify delta_, if necessary
-      if(delta_<minDelta_) {
-         delta_ = minDelta_;
-      } else if(delta_>maxDelta_) {
-         delta_ = maxDelta_;
-      }
+		// Rectify delta_, if necessary
+		if(delta_<minDelta_) {
+			delta_ = minDelta_;
+		} else if(delta_>maxDelta_) {
+			delta_ = maxDelta_;
+		}
 	}
 
 	/***************************************************************************/
@@ -640,11 +640,11 @@ public:
 	 * @param minDelta The maximum value allowed for delta_
 	 */
 	void setAllDelta(
-      const fp_type& delta
-      , const fp_type& sigmaDelta
-      , const fp_type& minDelta
-      , const fp_type& maxDelta
-   ) {
+		const fp_type& delta
+		, const fp_type& sigmaDelta
+		, const fp_type& minDelta
+		, const fp_type& maxDelta
+	) {
 		setDeltaAdaptionRate(sigmaDelta);
 		setDeltaRange(minDelta, maxDelta);
 		setDelta(delta);
@@ -654,28 +654,28 @@ public:
 	/** @brief Retrieves the id of the adaptor */
 	virtual Gem::Geneva::adaptorId getAdaptorId() const override = 0;
 
-   /***************************************************************************/
-   /**
-    * Emits a name for this class / object
-    */
-   virtual std::string name() const override {
-      return std::string("GNumBiGaussAdaptorT");
-   }
+	/***************************************************************************/
+	/**
+	 * Emits a name for this class / object
+	 */
+	virtual std::string name() const override {
+		return std::string("GNumBiGaussAdaptorT");
+	}
 
-   /***************************************************************************/
-   /**
-    * Allows to randomly initialize parameter members
-    */
-   virtual bool randomInit() override {
-      using namespace Gem::Common;
-      using namespace Gem::Hap;
+	/***************************************************************************/
+	/**
+	 * Allows to randomly initialize parameter members
+	 */
+	virtual bool randomInit() override {
+		using namespace Gem::Common;
+		using namespace Gem::Hap;
 
-      sigma1_ = GObject::gr_ptr()->template uniform_real<fp_type>(minSigma1_, maxSigma1_);
-      sigma2_ = GObject::gr_ptr()->template uniform_real<fp_type>(minSigma2_, maxSigma2_);
-      delta_  = GObject::gr_ptr()->template uniform_real<fp_type>(minDelta_, maxDelta_);
+		sigma1_ = GObject::gr_ptr()->template uniform_real<fp_type>(minSigma1_, maxSigma1_);
+		sigma2_ = GObject::gr_ptr()->template uniform_real<fp_type>(minSigma2_, maxSigma2_);
+		delta_  = GObject::gr_ptr()->template uniform_real<fp_type>(minDelta_, maxDelta_);
 
-      return true;
-   }
+		return true;
+	}
 
 protected:
 	/***************************************************************************/
@@ -725,27 +725,27 @@ protected:
 		maxDelta_ = p_load->maxDelta_;
 	}
 
-   /***************************************************************************/
-   /**
-    * Adds a given property value to the vector or returns false, if the property
-    * was not found.
-    */
-   virtual bool customQueryProperty (
-      const std::string& property
-      , std::vector<boost::any>& data
-   ) const override {
-      if(property == "sigma1") {
-         data.push_back(boost::any(sigma1_));
-      } else if(property == "sigma2") {
-         data.push_back(boost::any(sigma1_));
-      } else if(property == "delta") {
-         data.push_back(boost::any(delta_));
-      } else {
-         return false;
-      }
+	/***************************************************************************/
+	/**
+	 * Adds a given property value to the vector or returns false, if the property
+	 * was not found.
+	 */
+	virtual bool customQueryProperty (
+		const std::string& property
+		, std::vector<boost::any>& data
+	) const override {
+		if(property == "sigma1") {
+			data.push_back(boost::any(sigma1_));
+		} else if(property == "sigma2") {
+			data.push_back(boost::any(sigma1_));
+		} else if(property == "delta") {
+			data.push_back(boost::any(delta_));
+		} else {
+			return false;
+		}
 
-      return true;
-   }
+		return true;
+	}
 
 	/***************************************************************************/
 	/** @brief This function creates a deep copy of this object */
@@ -759,19 +759,19 @@ protected:
 	 * @param range A typical range for the parameter with type num_type (unused here)
 	 */
 	virtual void customAdaptAdaption(const num_type&) override {
-      using namespace Gem::Common;
-      using namespace Gem::Hap;
+		using namespace Gem::Common;
+		using namespace Gem::Hap;
 
-      // The following random distribution slightly favours values < 1. Selection pressure
-      // will keep the values higher if needed
-      sigma1_ *= gexp(GObject::gr_ptr()->normal_distribution(gfabs(sigmaSigma1_)));
-      sigma2_ *= gexp(GObject::gr_ptr()->normal_distribution(gfabs(sigmaSigma2_)));
-      delta_  *= gexp(GObject::gr_ptr()->normal_distribution(gfabs(sigmaDelta_ )));
+		// The following random distribution slightly favours values < 1. Selection pressure
+		// will keep the values higher if needed
+		sigma1_ *= gexp(GObject::gr_ptr()->normal_distribution(gfabs(sigmaSigma1_)));
+		sigma2_ *= gexp(GObject::gr_ptr()->normal_distribution(gfabs(sigmaSigma2_)));
+		delta_  *= gexp(GObject::gr_ptr()->normal_distribution(gfabs(sigmaDelta_ )));
 
 		// Make sure valued don't get out of range
-      enforceRangeConstraint(sigma1_, minSigma1_, maxSigma1_);
-      enforceRangeConstraint(sigma2_, minSigma2_, maxSigma2_);
-      enforceRangeConstraint(delta_ , minDelta_ , maxDelta_);
+		enforceRangeConstraint(sigma1_, minSigma1_, maxSigma1_);
+		enforceRangeConstraint(sigma2_, minSigma2_, maxSigma2_);
+		enforceRangeConstraint(delta_ , minDelta_ , maxDelta_);
 	}
 
 	/***************************************************************************/
@@ -826,7 +826,7 @@ public:
 		GAdaptorT<num_type>::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-      condnotset("GNumBiGaussAdaptorT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GNumBiGaussAdaptorT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -843,7 +843,7 @@ public:
 		GAdaptorT<num_type>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-      condnotset("GNumBiGaussAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GNumBiGaussAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -857,12 +857,12 @@ public:
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 namespace boost {
-	namespace serialization {
-		template<typename num_type, typename fp_type>
-		struct is_abstract< Gem::Geneva::GNumBiGaussAdaptorT<num_type, fp_type> > : public boost::true_type {};
-		template<typename num_type, typename fp_type>
-		struct is_abstract< const Gem::Geneva::GNumBiGaussAdaptorT<num_type, fp_type> > : public boost::true_type {};
-	}
+namespace serialization {
+template<typename num_type, typename fp_type>
+struct is_abstract< Gem::Geneva::GNumBiGaussAdaptorT<num_type, fp_type> > : public boost::true_type {};
+template<typename num_type, typename fp_type>
+struct is_abstract< const Gem::Geneva::GNumBiGaussAdaptorT<num_type, fp_type> > : public boost::true_type {};
+}
 }
 
 /******************************************************************************/

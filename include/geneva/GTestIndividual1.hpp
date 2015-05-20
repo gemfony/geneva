@@ -88,7 +88,7 @@ class GTestIndividual1 :public Gem::Geneva::GParameterSet
 		using boost::serialization::make_nvp;
 
 		ar
-		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
+			& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -100,20 +100,20 @@ public:
 	/** @brief The standard destructor */
 	virtual G_API_GENEVA ~GTestIndividual1();
 
-   /** @brief The standard assignment operator */
-   G_API_GENEVA const GTestIndividual1& operator=(const GTestIndividual1&);
+	/** @brief The standard assignment operator */
+	G_API_GENEVA const GTestIndividual1& operator=(const GTestIndividual1&);
 
 	/** @brief Checks for equality with another GTestIndividual1 object */
 	G_API_GENEVA bool operator==(const GTestIndividual1& cp) const;
 	/** @brief Checks for inequality with another GTestIndividual1 object */
 	G_API_GENEVA bool operator!=(const GTestIndividual1& cp) const;
 
-   /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
-   ) const final;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const final;
 
 protected:
 	/** @brief Loads the data of another GTestIndividual1 */

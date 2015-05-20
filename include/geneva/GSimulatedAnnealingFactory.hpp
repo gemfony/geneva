@@ -63,40 +63,40 @@ namespace Geneva {
  * This class is a specialization of the GFactoryT<> class for evolutionary algorithms.
  */
 class GSimulatedAnnealingFactory
-   : public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >
+	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >
 {
 public:
-   /** @brief An easy identifier for the class */
-   static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
+	/** @brief An easy identifier for the class */
+	static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
 
-   /** @brief The default constructor */
-   G_API_GENEVA GSimulatedAnnealingFactory();
-   /** @brief Initialization with the name of the config file and the default parallelization mode */
-   explicit G_API_GENEVA GSimulatedAnnealingFactory(const std::string&);
-   /** @brief The standard constructor */
-   G_API_GENEVA GSimulatedAnnealingFactory(
-      const std::string&
-      , const execMode&
-   );
-   /** @brief Adds a content creator in addition to the standard values */
-   G_API_GENEVA GSimulatedAnnealingFactory(
-      const std::string&
-      , const execMode&
-      , std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
-   );
-   /** @brief The destructor */
-   virtual G_API_GENEVA ~GSimulatedAnnealingFactory();
+	/** @brief The default constructor */
+	G_API_GENEVA GSimulatedAnnealingFactory();
+	/** @brief Initialization with the name of the config file and the default parallelization mode */
+	explicit G_API_GENEVA GSimulatedAnnealingFactory(const std::string&);
+	/** @brief The standard constructor */
+	G_API_GENEVA GSimulatedAnnealingFactory(
+		const std::string&
+		, const execMode&
+	);
+	/** @brief Adds a content creator in addition to the standard values */
+	G_API_GENEVA GSimulatedAnnealingFactory(
+		const std::string&
+		, const execMode&
+		, std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
+	);
+	/** @brief The destructor */
+	virtual G_API_GENEVA ~GSimulatedAnnealingFactory();
 
-   /** @brief Gives access to the mnemonics / nickname describing an algorithm */
-   virtual G_API_GENEVA std::string getMnemonic() const override;
-   /** @brief Gives access to a clear-text description of the algorithm */
-   virtual G_API_GENEVA std::string getAlgorithmName() const override;
+	/** @brief Gives access to the mnemonics / nickname describing an algorithm */
+	virtual G_API_GENEVA std::string getMnemonic() const override;
+	/** @brief Gives access to a clear-text description of the algorithm */
+	virtual G_API_GENEVA std::string getAlgorithmName() const override;
 
 protected:
-   /** @brief Creates individuals of this type */
-   virtual G_API_GENEVA std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > getObject_(Gem::Common::GParserBuilder&, const std::size_t&) override;
-   /** @brief Allows to act on the configuration options received from the configuration file */
-   virtual G_API_GENEVA void postProcess_(std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >&) override;
+	/** @brief Creates individuals of this type */
+	virtual G_API_GENEVA std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > getObject_(Gem::Common::GParserBuilder&, const std::size_t&) override;
+	/** @brief Allows to act on the configuration options received from the configuration file */
+	virtual G_API_GENEVA void postProcess_(std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >&) override;
 };
 
 /******************************************************************************/

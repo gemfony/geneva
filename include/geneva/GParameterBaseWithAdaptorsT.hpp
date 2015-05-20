@@ -75,7 +75,7 @@ class GParameterBaseWithAdaptorsT:	public GParameterBase
 
 		ar
 		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterBase)
-      & BOOST_SERIALIZATION_NVP(adaptor_);
+		& BOOST_SERIALIZATION_NVP(adaptor_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -108,79 +108,79 @@ public:
 	virtual ~GParameterBaseWithAdaptorsT()
 	{ /* nothing */ }
 
-   /***************************************************************************/
-   /**
-    * The standard assignment operator
-    */
-   const GParameterBaseWithAdaptorsT<T>& operator=(const GParameterBaseWithAdaptorsT<T>& cp) {
-      this->load_(&cp);
-      return *this;
-   }
+	/***************************************************************************/
+	/**
+	 * The standard assignment operator
+	 */
+	const GParameterBaseWithAdaptorsT<T>& operator=(const GParameterBaseWithAdaptorsT<T>& cp) {
+		this->load_(&cp);
+		return *this;
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for equality with another GParameterBaseWithAdaptorsT<T> object
-    *
-    * @param  cp A constant reference to another GParameterBaseWithAdaptorsT<T> object
-    * @return A boolean indicating whether both objects are equal
-    */
-   bool operator==(const GParameterBaseWithAdaptorsT<T>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for equality with another GParameterBaseWithAdaptorsT<T> object
+	 *
+	 * @param  cp A constant reference to another GParameterBaseWithAdaptorsT<T> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GParameterBaseWithAdaptorsT<T>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for inequality with another GParameterBaseWithAdaptorsT<T> object
-    *
-    * @param  cp A constant reference to another GParameterBaseWithAdaptorsT<T> object
-    * @return A boolean indicating whether both objects are inequal
-    */
-   bool operator!=(const GParameterBaseWithAdaptorsT<T>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GParameterBaseWithAdaptorsT<T> object
+	 *
+	 * @param  cp A constant reference to another GParameterBaseWithAdaptorsT<T> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GParameterBaseWithAdaptorsT<T>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Searches for compliance with expectations with respect to another object
-    * of the same type
-    *
-    * @param cp A constant reference to another GObject object
-    * @param e The expected outcome of the comparison
-    * @param limit The maximum deviation for floating point values (important for similarity checks)
-    */
-   virtual void compare(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-   ) const override {
-      using namespace Gem::Common;
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
 
-      // Check that we are indeed dealing with a GAdaptorT reference
-      const GParameterBaseWithAdaptorsT<T>  *p_load = GObject::gobject_conversion<GParameterBaseWithAdaptorsT<T> >(&cp);
+		// Check that we are indeed dealing with a GAdaptorT reference
+		const GParameterBaseWithAdaptorsT<T>  *p_load = GObject::gobject_conversion<GParameterBaseWithAdaptorsT<T> >(&cp);
 
-      GToken token("GParameterBaseWithAdaptorsT<T>", e);
+		GToken token("GParameterBaseWithAdaptorsT<T>", e);
 
-      // Compare our parent data ...
-      Gem::Common::compare_base<GParameterBase>(IDENTITY(*this, *p_load), token);
+		// Compare our parent data ...
+		Gem::Common::compare_base<GParameterBase>(IDENTITY(*this, *p_load), token);
 
-      // We access the relevant data of one of the parent classes directly for simplicity reasons
-      compare_t(IDENTITY(adaptor_, p_load->adaptor_), token);
+		// We access the relevant data of one of the parent classes directly for simplicity reasons
+		compare_t(IDENTITY(adaptor_, p_load->adaptor_), token);
 
-      // React on deviations from the expectation
-      token.evaluate();
-   }
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 	/***************************************************************************/
 	/**
@@ -192,11 +192,11 @@ public:
 	void addAdaptor(std::shared_ptr<GAdaptorT<T> > gat_ptr) {
 		// Check that we have indeed been given an adaptor
 		if(!gat_ptr){
-		   glogger
-		   << "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << std::endl
-         << "with typeid(T).name() = " << typeid(T).name() << ":" << std::endl
-         << "Error: Empty adaptor provided." << std::endl
-         << GEXCEPTION;
+			glogger
+			<< "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << std::endl
+			<< "with typeid(T).name() = " << typeid(T).name() << ":" << std::endl
+			<< "Error: Empty adaptor provided." << std::endl
+			<< GEXCEPTION;
 		}
 
 		if(adaptor_) { // Is an adaptor already present ?
@@ -206,10 +206,10 @@ public:
 				adaptor_ = gat_ptr->GObject::template clone<GAdaptorT<T> >();
 			}
 		} else { // None there ? This should not happen
-		   glogger
-		   << "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << std::endl
-         << "Found no local adaptor. This should not happen!" << std::endl
-         << GEXCEPTION;
+			glogger
+			<< "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << std::endl
+			<< "Found no local adaptor. This should not happen!" << std::endl
+			<< GEXCEPTION;
 		}
 	}
 
@@ -260,7 +260,7 @@ public:
 	 */
 	template <typename adaptor_type>
 	std::shared_ptr<adaptor_type> getAdaptor(
-      typename boost::enable_if<boost::is_base_of<GAdaptorT<T>, adaptor_type> >::type* dummy = 0
+		typename boost::enable_if<boost::is_base_of<GAdaptorT<T>, adaptor_type> >::type* dummy = 0
 	) const {
 #ifdef DEBUG
 		if(!adaptor_) {
@@ -320,7 +320,7 @@ public:
 	 * Emits a name for this class / object
 	 */
 	virtual std::string name() const override {
-	   return std::string("GParameterBaseWithAdaptorsT");
+		return std::string("GParameterBaseWithAdaptorsT");
 	}
 
 	/******************************************************************************/
@@ -341,22 +341,22 @@ public:
       }
 #endif /* DEBUG */
 
-	   return this->adaptor_->updateOnStall(nStalls, this->range());
+		return this->adaptor_->updateOnStall(nStalls, this->range());
 	}
 
-   /******************************************************************************/
-   /**
-    * Retrieves information from an adaptor on a given property
-    *
-    * @param adaoptorName The name of the adaptor to be queried
-    * @param property The property for which information is sought
-    * @param data A vector, to which the properties should be added
-    */
-   virtual void queryAdaptor(
-      const std::string& adaptorName
-      , const std::string& property
-      , std::vector<boost::any>& data
-   ) const override {
+	/******************************************************************************/
+	/**
+	 * Retrieves information from an adaptor on a given property
+	 *
+	 * @param adaoptorName The name of the adaptor to be queried
+	 * @param property The property for which information is sought
+	 * @param data A vector, to which the properties should be added
+	 */
+	virtual void queryAdaptor(
+		const std::string& adaptorName
+		, const std::string& property
+		, std::vector<boost::any>& data
+	) const override {
 #ifdef DEBUG
       if (!adaptor_) {
          glogger
@@ -367,10 +367,10 @@ public:
       }
 #endif /* DEBUG */
 
-      // Note: The following will throw if the adaptor with name "adaptorName" has
-      // no property named "property".
-      this->adaptor_->queryPropertyFrom(adaptorName, property, data);
-   }
+		// Note: The following will throw if the adaptor with name "adaptorName" has
+		// no property named "property".
+		this->adaptor_->queryPropertyFrom(adaptorName, property, data);
+	}
 
 protected:
 	/***************************************************************************/
@@ -408,8 +408,8 @@ protected:
 	/***************************************************************************/
 	/** @brief Creates a deep clone of this object. Purely virtual, as we do not want this class to be instantiated directly */
 	virtual GObject* clone_() const override = 0;
-   /** @brief Returns a "comparative range"; this is e.g. used to make Gauss-adaption independent of a parameters value range */
-   virtual T range() const = 0;
+	/** @brief Returns a "comparative range"; this is e.g. used to make Gauss-adaption independent of a parameters value range */
+	virtual T range() const = 0;
 
 	/***************************************************************************/
 	/**
@@ -420,10 +420,10 @@ protected:
 	 * @param range A typical value range of underlying parameter types
 	 * @return The number of adaptions that were carried out
 	 */
-   std::size_t applyAdaptor(
-      T &value
-      , const T& range
-   ) {
+	std::size_t applyAdaptor(
+		T &value
+		, const T& range
+	) {
 #ifdef DEBUG
 		if (!adaptor_) {
 		   glogger
@@ -453,10 +453,10 @@ protected:
 	 * @param range A typical value range of underlying parameter types
 	 * @return The number of adaptions that were carried out
 	 */
-   std::size_t applyAdaptor(
-      std::vector<T> &collection
-      , const T& range
-   ) {
+	std::size_t applyAdaptor(
+		std::vector<T> &collection
+		, const T& range
+	) {
 #ifdef DEBUG
 		if(!adaptor_) {
 		   glogger
@@ -547,7 +547,7 @@ public:
 		//------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-      condnotset("GParameterBaseWithAdaptorsT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GParameterBaseWithAdaptorsT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -561,7 +561,7 @@ public:
 		GParameterBase::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-      condnotset("GParameterBaseWithAdaptorsT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GParameterBaseWithAdaptorsT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -582,8 +582,8 @@ public:
  */
 template <>
 inline std::size_t GParameterBaseWithAdaptorsT<bool>::applyAdaptor(
-   std::vector<bool>& collection
-   , const bool& range
+	std::vector<bool>& collection
+	, const bool& range
 ) {
 #ifdef DEBUG
       if(!adaptor_) {
@@ -594,18 +594,18 @@ inline std::size_t GParameterBaseWithAdaptorsT<bool>::applyAdaptor(
       }
 #endif /* DEBUG */
 
-   std::size_t nAdapted = 0;
+	std::size_t nAdapted = 0;
 
-   std::vector<bool>::iterator it;
-   for (it = collection.begin(); it != collection.end(); ++it) {
-      bool value = *it;
-      if(1 == adaptor_->adapt(value, range)) {
-         *it = value;
-         nAdapted += 1;
-      }
-   }
+	std::vector<bool>::iterator it;
+	for (it = collection.begin(); it != collection.end(); ++it) {
+		bool value = *it;
+		if(1 == adaptor_->adapt(value, range)) {
+			*it = value;
+			nAdapted += 1;
+		}
+	}
 
-   return nAdapted;
+	return nAdapted;
 }
 
 /******************************************************************************/
@@ -617,12 +617,12 @@ inline std::size_t GParameterBaseWithAdaptorsT<bool>::applyAdaptor(
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
 namespace boost {
-	namespace serialization {
-		template<typename T>
-		struct is_abstract<Gem::Geneva::GParameterBaseWithAdaptorsT<T> > : public boost::true_type {};
-		template<typename T>
-		struct is_abstract< const Gem::Geneva::GParameterBaseWithAdaptorsT<T> > : public boost::true_type {};
-	}
+namespace serialization {
+template<typename T>
+struct is_abstract<Gem::Geneva::GParameterBaseWithAdaptorsT<T> > : public boost::true_type {};
+template<typename T>
+struct is_abstract< const Gem::Geneva::GParameterBaseWithAdaptorsT<T> > : public boost::true_type {};
+}
 }
 
 /******************************************************************************/

@@ -62,10 +62,10 @@ class GInt32Collection
 
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
-	  using boost::serialization::make_nvp;
+		using boost::serialization::make_nvp;
 
-	  ar
-	  & make_nvp("GIntNumCollectionT_int32", boost::serialization::base_object<GIntNumCollectionT<boost::int32_t> >(*this));
+		ar
+			& make_nvp("GIntNumCollectionT_int32", boost::serialization::base_object<GIntNumCollectionT<boost::int32_t> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -74,39 +74,39 @@ public:
 	G_API_GENEVA GInt32Collection();
 	/** @brief Initialization with a number of random values in a given range */
 	G_API_GENEVA GInt32Collection(
-      const std::size_t&
-      , const boost::int32_t&
-      , const boost::int32_t&
+		const std::size_t&
+		, const boost::int32_t&
+		, const boost::int32_t&
 	);
 	/** @brief Initialization with a number of predefined values and the initialization range */
 	G_API_GENEVA GInt32Collection(
-      const std::size_t&
-      , const boost::int32_t&
-      , const boost::int32_t&
-      , const boost::int32_t&
+		const std::size_t&
+		, const boost::int32_t&
+		, const boost::int32_t&
+		, const boost::int32_t&
 	);
 	/** @brief The copy constructor */
 	G_API_GENEVA GInt32Collection(const GInt32Collection&);
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GInt32Collection();
 
-   /** @brief The standard assignment operator */
-   G_API_GENEVA const GInt32Collection& operator=(const GInt32Collection&);
+	/** @brief The standard assignment operator */
+	G_API_GENEVA const GInt32Collection& operator=(const GInt32Collection&);
 
 	/** @brief Checks for equality with another GInt32Collection object */
 	G_API_GENEVA bool operator==(const GInt32Collection&) const;
 	/** @brief Checks for inequality with another GInt32Collection object */
 	G_API_GENEVA bool operator!=(const GInt32Collection&) const;
 
-   /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
-   ) const override;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
-   /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const override;
+	/** @brief Emits a name for this class / object */
+	virtual G_API_GENEVA std::string name() const override;
 
 protected:
 	/** @brief Loads the data of another GObject */
@@ -114,18 +114,18 @@ protected:
 	/** @brief Creates a deep clone of this object. */
 	virtual G_API_GENEVA GObject* clone_() const override;
 
-   /** @brief Attach our local values to the vector. */
-   virtual G_API_GENEVA void int32Streamline(std::vector<boost::int32_t>&, const activityMode& am) const override;
-   /** @brief Attach boundaries of type boost::int32_t to the vectors */
-   virtual G_API_GENEVA void int32Boundaries(std::vector<boost::int32_t>&, std::vector<boost::int32_t>&, const activityMode& am) const override;
-   /** @brief Tell the audience that we own a number of boost::int32_t values */
-   virtual G_API_GENEVA std::size_t countInt32Parameters(const activityMode& am) const override;
-   /** @brief Assigns part of a value vector to the parameter */
-   virtual G_API_GENEVA void assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&, const activityMode& am) override;
-   /** @brief Attach our local values to the vector. */
-   virtual G_API_GENEVA void int32Streamline(std::map<std::string, std::vector<boost::int32_t> >&, const activityMode& am) const override;
-   /** @brief Assigns part of a value vector to the parameter */
-   virtual G_API_GENEVA void assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t> >&, const activityMode& am) override;
+	/** @brief Attach our local values to the vector. */
+	virtual G_API_GENEVA void int32Streamline(std::vector<boost::int32_t>&, const activityMode& am) const override;
+	/** @brief Attach boundaries of type boost::int32_t to the vectors */
+	virtual G_API_GENEVA void int32Boundaries(std::vector<boost::int32_t>&, std::vector<boost::int32_t>&, const activityMode& am) const override;
+	/** @brief Tell the audience that we own a number of boost::int32_t values */
+	virtual G_API_GENEVA std::size_t countInt32Parameters(const activityMode& am) const override;
+	/** @brief Assigns part of a value vector to the parameter */
+	virtual G_API_GENEVA void assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&, const activityMode& am) override;
+	/** @brief Attach our local values to the vector. */
+	virtual G_API_GENEVA void int32Streamline(std::map<std::string, std::vector<boost::int32_t> >&, const activityMode& am) const override;
+	/** @brief Assigns part of a value vector to the parameter */
+	virtual G_API_GENEVA void assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t> >&, const activityMode& am) override;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

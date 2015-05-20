@@ -61,7 +61,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GMultiThreadedEA.hpp
 	GMultiThreadedGD.hpp
 	GMultiThreadedPS.hpp
-	GMultiThreadedSA.hpp	
+	GMultiThreadedSA.hpp
 	GMultiThreadedSwarm.hpp
 	GMutableI.hpp
 	GMutableSetT.hpp
@@ -110,6 +110,9 @@ SET ( OPTIMIZATIONINCLUDES
 	GSwarmPersonalityTraits.hpp
 	GTestIndividual1.hpp
 )
+
+# This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
+ADD_CUSTOM_TARGET(CLION_ALL_GENEVA_HEADERS SOURCES ${OPTIMIZATIONINCLUDES})
 
 INSTALL ( FILES ${OPTIMIZATIONINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/geneva )
 

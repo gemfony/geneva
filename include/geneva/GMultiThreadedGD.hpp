@@ -91,20 +91,20 @@ public:
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GMultiThreadedGD();
 
-   /** @brief The standard assignment operator */
-   G_API_GENEVA const GMultiThreadedGD& operator=(const GMultiThreadedGD&);
+	/** @brief The standard assignment operator */
+	G_API_GENEVA const GMultiThreadedGD& operator=(const GMultiThreadedGD&);
 
 	/** @brief Checks for equality with another GMultiThreadedGD object */
 	G_API_GENEVA bool operator==(const GMultiThreadedGD&) const;
 	/** @brief Checks for inequality with another GMultiThreadedGD object */
 	G_API_GENEVA bool operator!=(const GMultiThreadedGD&) const;
 
-   /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
-   ) const override;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 	/** @brief Sets the maximum number of threads */
 	G_API_GENEVA void setNThreads(boost::uint16_t);
@@ -119,8 +119,8 @@ public:
 	/** @brief Allows to assign a name to the role of this individual(-derivative) */
 	virtual G_API_GENEVA std::string getIndividualCharacteristic() const override;
 
-   /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const override;
+	/** @brief Emits a name for this class / object */
+	virtual G_API_GENEVA std::string name() const override;
 
 protected:
 	/** @brief Loads the data of another population */

@@ -82,7 +82,7 @@ namespace Geneva {
  */
 class GParameterSet
 	: public GMutableSetT<Gem::Geneva::GParameterBase>
-   , public Gem::Courtier::GSubmissionContainerT<GParameterSet>
+	, public Gem::Courtier::GSubmissionContainerT<GParameterSet>
 {
 	friend class Gem::Tests::GTestIndividual1; ///< Needed for testing purposes
 
@@ -91,38 +91,38 @@ class GParameterSet
 
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
-	  using boost::serialization::make_nvp;
-	  ar
-	  & make_nvp("GMutableSetT_GParameterBase", boost::serialization::base_object<GMutableSetT<Gem::Geneva::GParameterBase> >(*this))
-     & make_nvp("GSubmissionContainerT_ParameterSet", boost::serialization::base_object<Gem::Courtier::GSubmissionContainerT<GParameterSet> >(*this))
-	  & BOOST_SERIALIZATION_NVP(perItemCrossOverProbability_);
+		using boost::serialization::make_nvp;
+		ar
+		& make_nvp("GMutableSetT_GParameterBase", boost::serialization::base_object<GMutableSetT<Gem::Geneva::GParameterBase> >(*this))
+		& make_nvp("GSubmissionContainerT_ParameterSet", boost::serialization::base_object<Gem::Courtier::GSubmissionContainerT<GParameterSet> >(*this))
+		& BOOST_SERIALIZATION_NVP(perItemCrossOverProbability_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor */
 	G_API_GENEVA GParameterSet();
-   /** @brief Initialization with the number of fitness criteria */
+	/** @brief Initialization with the number of fitness criteria */
 	G_API_GENEVA GParameterSet(const std::size_t&);
 	/** @brief The copy constructor */
 	G_API_GENEVA GParameterSet(const GParameterSet&);
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GParameterSet();
 
-   /** @brief The standard assignment operator */
-   G_API_GENEVA const GParameterSet& operator=(const GParameterSet&);
+	/** @brief The standard assignment operator */
+	G_API_GENEVA const GParameterSet& operator=(const GParameterSet&);
 
-   /** @brief Checks for equality with another Go2 object */
-   G_API_GENEVA bool operator==(const GParameterSet&) const;
-   /** @brief Checks for inequality with another Go2 object */
-   G_API_GENEVA bool operator!=(const GParameterSet&) const;
+	/** @brief Checks for equality with another Go2 object */
+	G_API_GENEVA bool operator==(const GParameterSet&) const;
+	/** @brief Checks for inequality with another Go2 object */
+	G_API_GENEVA bool operator!=(const GParameterSet&) const;
 
-   /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
-   ) const override;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 	/** @brief Allows to randomly initialize parameter members */
 	virtual G_API_GENEVA bool randomInit(const activityMode&) override;
@@ -133,8 +133,8 @@ public:
 	/** @brief Emits a GParameterSet object that only has the GParameterBase objects attached to it */
 	G_API_GENEVA std::shared_ptr<GParameterSet> parameter_clone() const;
 
-   /** @brief Do the required processing for this object */
-   virtual G_API_GENEVA bool process() override;
+	/** @brief Do the required processing for this object */
+	virtual G_API_GENEVA bool process() override;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) override;
@@ -153,37 +153,37 @@ public:
 	/** @brief Emits a name for this class / object */
 	virtual G_API_GENEVA std::string name() const override;
 
-   /** @brief Retrieves a parameter of a given type at the specified position */
-   virtual G_API_GENEVA boost::any getVarVal(
-      const std::string&
-      , const boost::tuple<std::size_t, std::string, std::size_t>& target
-   ) override;
+	/** @brief Retrieves a parameter of a given type at the specified position */
+	virtual G_API_GENEVA boost::any getVarVal(
+		const std::string&
+		, const boost::tuple<std::size_t, std::string, std::size_t>& target
+	) override;
 
 	/** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
-   G_API_GENEVA GMutableSetT<Gem::Geneva::GParameterBase>::reference at(const std::size_t& pos);
+	G_API_GENEVA GMutableSetT<Gem::Geneva::GParameterBase>::reference at(const std::size_t& pos);
 
 	/** @brief Checks whether this object is better than a given set of evaluations */
-   G_API_GENEVA bool isGoodEnough(const std::vector<double>&);
+	G_API_GENEVA bool isGoodEnough(const std::vector<double>&);
 
-   /** @brief Perform a fusion operation between this object and another */
-   virtual G_API_GENEVA std::shared_ptr<GParameterSet> amalgamate(const std::shared_ptr<GParameterSet>) const BASE;
+	/** @brief Perform a fusion operation between this object and another */
+	virtual G_API_GENEVA std::shared_ptr<GParameterSet> amalgamate(const std::shared_ptr<GParameterSet>) const BASE;
 
-   /** @brief Performs a cross-over with another GParameterSet object on a "per item" basis */
-   G_API_GENEVA void perItemCrossOver(const GParameterSet&, const double&);
+	/** @brief Performs a cross-over with another GParameterSet object on a "per item" basis */
+	G_API_GENEVA void perItemCrossOver(const GParameterSet&, const double&);
 
-   /** @brief Allows to set the "per item" cross-over probability */
-   G_API_GENEVA void setPerItemCrossOverProbability(double);
-   /** @brief Allows to retrieve the "per item" cross-over probability */
-   G_API_GENEVA double getPerItemCrossOverProbability() const;
+	/** @brief Allows to set the "per item" cross-over probability */
+	G_API_GENEVA void setPerItemCrossOverProbability(double);
+	/** @brief Allows to retrieve the "per item" cross-over probability */
+	G_API_GENEVA double getPerItemCrossOverProbability() const;
 
-   /** @brief Triggers updates of adaptors contained in this object */
-   virtual G_API_GENEVA void updateAdaptorsOnStall(const boost::uint32_t&);
-   /** @brief Retrieves information from adaptors with a given property */
-   virtual G_API_GENEVA void queryAdaptor(
-      const std::string& adaptorName
-      , const std::string& property
-      , std::vector<boost::any>& data
-   ) const BASE;
+	/** @brief Triggers updates of adaptors contained in this object */
+	virtual G_API_GENEVA void updateAdaptorsOnStall(const boost::uint32_t&);
+	/** @brief Retrieves information from adaptors with a given property */
+	virtual G_API_GENEVA void queryAdaptor(
+		const std::string& adaptorName
+		, const std::string& property
+		, std::vector<boost::any>& data
+	) const BASE;
 
 	/***************************************************************************/
 	/**
@@ -197,11 +197,11 @@ public:
 	 */
 	template <typename par_type>
 	const std::shared_ptr<par_type> at(
-      const std::size_t& pos
-      , typename boost::enable_if<boost::is_base_of<GParameterBase, par_type> >::type* dummy = 0
+		const std::size_t& pos
+		, typename boost::enable_if<boost::is_base_of<GParameterBase, par_type> >::type* dummy = 0
 	)  const {
-      // Does error checks on the conversion internally
-      return Gem::Common::convertSmartPointer<GParameterBase, par_type>(data.at(pos));
+		// Does error checks on the conversion internally
+		return Gem::Common::convertSmartPointer<GParameterBase, par_type>(data.at(pos));
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -213,93 +213,93 @@ public:
 	/**
 	 * Allows to retrieve a list of all variable names registered with the parameter set
 	 */
-   template <typename par_type>
-   std::vector<std::string> getVariableNames() const {
-      std::vector<std::string> varNames;
-	   std::map<std::string, std::vector<par_type> > pMap;
-	   this->streamline<par_type>(pMap);
+	template <typename par_type>
+	std::vector<std::string> getVariableNames() const {
+		std::vector<std::string> varNames;
+		std::map<std::string, std::vector<par_type> > pMap;
+		this->streamline<par_type>(pMap);
 
-	   typename std::map<std::string, std::vector<par_type> >::const_iterator cit;
-	   for(cit=pMap.begin(); cit!=pMap.end(); ++cit) {
-	      varNames.push_back(cit->first);
-	   }
+		typename std::map<std::string, std::vector<par_type> >::const_iterator cit;
+		for(cit=pMap.begin(); cit!=pMap.end(); ++cit) {
+			varNames.push_back(cit->first);
+		}
 	}
 
-   /***************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Retrieves an item according to a description provided by the target tuple
 	 */
 	template <typename par_type>
 	boost::any getVarItem(
-      const boost::tuple<std::size_t, std::string, std::size_t>& target
+		const boost::tuple<std::size_t, std::string, std::size_t>& target
 	) {
-	   boost::any result;
+		boost::any result;
 
-      switch(boost::get<0>(target)) {
-         //---------------------------------------------------------------------
-         case 0:
-         {
-            std::vector<par_type> vars;
-            this->streamline<par_type>(vars);
-            result = vars.at(boost::get<2>(target));
-         }
-         break;
+		switch(boost::get<0>(target)) {
+			//---------------------------------------------------------------------
+			case 0:
+			{
+				std::vector<par_type> vars;
+				this->streamline<par_type>(vars);
+				result = vars.at(boost::get<2>(target));
+			}
+				break;
 
-         //---------------------------------------------------------------------
-         case 1: // var[3]
-         case 2: // var    --> treated as var[0]
-         {
-            std::map<std::string, std::vector<par_type> > varMap;
-            this->streamline<par_type>(varMap);
-            result = (Gem::Common::getMapItem<std::vector<par_type> >(varMap, boost::get<1>(target))).at(boost::get<2>(target));
-         }
-         break;
+				//---------------------------------------------------------------------
+			case 1: // var[3]
+			case 2: // var    --> treated as var[0]
+			{
+				std::map<std::string, std::vector<par_type> > varMap;
+				this->streamline<par_type>(varMap);
+				result = (Gem::Common::getMapItem<std::vector<par_type> >(varMap, boost::get<1>(target))).at(boost::get<2>(target));
+			}
+				break;
 
-         //---------------------------------------------------------------------
-         default:
-         {
-            glogger
-            << "In GParameterSet::getVarVal(): Error!" << std::endl
-            << "Got invalid mode setting: " << boost::get<0>(target) << std::endl
-            << GEXCEPTION;
-         }
-         break;
+				//---------------------------------------------------------------------
+			default:
+			{
+				glogger
+				<< "In GParameterSet::getVarVal(): Error!" << std::endl
+				<< "Got invalid mode setting: " << boost::get<0>(target) << std::endl
+				<< GEXCEPTION;
+			}
+				break;
 
-         //---------------------------------------------------------------------
-      }
+				//---------------------------------------------------------------------
+		}
 
-      return result;
+		return result;
 	}
 
-   /***************************************************************************/
-   /**
-    * Retrieve information about the total number of parameters of type
-    * par_type in the individual. Note that the GParameterBase-template
-    * function will throw if this function is called for an unsupported type.
-    *
-    * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
-    */
-   template <typename par_type>
-   std::size_t countParameters(
-      const activityMode& am = DEFAULTACTIVITYMODE
-   ) const {
-      std::size_t result = 0;
+	/***************************************************************************/
+	/**
+	 * Retrieve information about the total number of parameters of type
+	 * par_type in the individual. Note that the GParameterBase-template
+	 * function will throw if this function is called for an unsupported type.
+	 *
+	 * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
+	 */
+	template <typename par_type>
+	std::size_t countParameters(
+		const activityMode& am = DEFAULTACTIVITYMODE
+	) const {
+		std::size_t result = 0;
 
-      // Loop over all GParameterBase objects. Each object
-      // will contribute the amount of its parameters of this type
-      // to the result.
-      GParameterSet::const_iterator cit;
-      for(cit=this->begin(); cit!=this->end(); ++cit) {
-         result += (*cit)->countParameters<par_type>(am);
-      }
+		// Loop over all GParameterBase objects. Each object
+		// will contribute the amount of its parameters of this type
+		// to the result.
+		GParameterSet::const_iterator cit;
+		for(cit=this->begin(); cit!=this->end(); ++cit) {
+			result += (*cit)->countParameters<par_type>(am);
+		}
 
-      return result;
-   }
+		return result;
+	}
 
-   /* ----------------------------------------------------------------------------------
-    * So far untested.
-    * ----------------------------------------------------------------------------------
-    */
+	/* ----------------------------------------------------------------------------------
+	 * So far untested.
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/***************************************************************************/
 	/**
@@ -312,8 +312,8 @@ public:
 	 */
 	template <typename par_type>
 	void streamline(
-      std::vector<par_type>& parVec
-      , const activityMode& am = DEFAULTACTIVITYMODE
+		std::vector<par_type>& parVec
+		, const activityMode& am = DEFAULTACTIVITYMODE
 	) const {
 		// Make sure the vector is clean
 		parVec.clear();
@@ -330,34 +330,34 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-   /***************************************************************************/
-   /**
-    * Loops over all GParameterBase objects. Each object will add its name
-    * and the values of its parameters to the map, if they comply with the
-    * type of the parameters to be stored in the vector.
-    *
-    * @param parVec The map to which the parameters will be added
-    * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
-    */
-   template <typename par_type>
-   void streamline(
-      std::map<std::string, std::vector<par_type> >& parVec
-      , const activityMode& am = DEFAULTACTIVITYMODE
-   ) const {
-      // Make sure the vector is clean
-      parVec.clear();
+	/***************************************************************************/
+	/**
+	 * Loops over all GParameterBase objects. Each object will add its name
+	 * and the values of its parameters to the map, if they comply with the
+	 * type of the parameters to be stored in the vector.
+	 *
+	 * @param parVec The map to which the parameters will be added
+	 * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
+	 */
+	template <typename par_type>
+	void streamline(
+		std::map<std::string, std::vector<par_type> >& parVec
+		, const activityMode& am = DEFAULTACTIVITYMODE
+	) const {
+		// Make sure the vector is clean
+		parVec.clear();
 
-      // Loop over all GParameterBase objects.
-      GParameterSet::const_iterator cit;
-      for(cit=this->begin(); cit!=this->end(); ++cit) {
-         (*cit)->streamline<par_type>(parVec, am);
-      }
-   }
+		// Loop over all GParameterBase objects.
+		GParameterSet::const_iterator cit;
+		for(cit=this->begin(); cit!=this->end(); ++cit) {
+			(*cit)->streamline<par_type>(parVec, am);
+		}
+	}
 
-   /* ----------------------------------------------------------------------------------
-    * So far untested.
-    * ----------------------------------------------------------------------------------
-    */
+	/* ----------------------------------------------------------------------------------
+	 * So far untested.
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/***************************************************************************/
 	/**
@@ -368,9 +368,9 @@ public:
 	 */
 	template <typename par_type>
 	void assignValueVector(
-      const std::vector<par_type>& parVec
-      , const activityMode& am = DEFAULTACTIVITYMODE
-   ) {
+		const std::vector<par_type>& parVec
+		, const activityMode& am = DEFAULTACTIVITYMODE
+	) {
 #ifdef DEBUG
 		if(countParameters<par_type>() != parVec.size()) {
 		   glogger
@@ -394,171 +394,171 @@ public:
 		GOptimizableEntity::setDirtyFlag();
 	}
 
-   /***************************************************************************/
-   /**
-    * Assigns values from a std::map<std::string, std::vector<par_type> > to the parameters in the collection
-    *
-    * @param parMap A map of values, to be assigned to be added to GParameterBase derivatives
-    * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be assigned
-    */
-   template <typename par_type>
-   void assignValueVectors(
-      const std::map<std::string, std::vector<par_type> >& parMap
-      , const activityMode& am = DEFAULTACTIVITYMODE
-   ) {
-      // Loop over all GParameterBase objects. Each object will extract the relevant parameters
-      GParameterSet::const_iterator cit;
-      for(cit=this->begin(); cit!=this->end(); ++cit) {
-         (*cit)->assignValueVectors<par_type>(parMap, am);
-      }
+	/***************************************************************************/
+	/**
+	 * Assigns values from a std::map<std::string, std::vector<par_type> > to the parameters in the collection
+	 *
+	 * @param parMap A map of values, to be assigned to be added to GParameterBase derivatives
+	 * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be assigned
+	 */
+	template <typename par_type>
+	void assignValueVectors(
+		const std::map<std::string, std::vector<par_type> >& parMap
+		, const activityMode& am = DEFAULTACTIVITYMODE
+	) {
+		// Loop over all GParameterBase objects. Each object will extract the relevant parameters
+		GParameterSet::const_iterator cit;
+		for(cit=this->begin(); cit!=this->end(); ++cit) {
+			(*cit)->assignValueVectors<par_type>(parMap, am);
+		}
 
-      // As we have modified our internal data sets, make sure the dirty flag is set
-      GOptimizableEntity::setDirtyFlag();
-   }
+		// As we have modified our internal data sets, make sure the dirty flag is set
+		GOptimizableEntity::setDirtyFlag();
+	}
 
-   /***************************************************************************/
-   /**
-    * Loops over all GParameterBase objects. Each object will add the
-    * lower and upper boundaries of its parameters to the vector, if
-    * they comply with the type of the parameters to be stored in the
-    * vector.
-    *
-    * @param lBndVec The vector to which the lower boundaries will be added
-    * @param uBndVec The vector to which the upper boundaries will be added
-    * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
-    */
-   template <typename par_type>
-   void boundaries(
-      std::vector<par_type>& lBndVec
-      , std::vector<par_type>& uBndVec
-      , const activityMode& am = DEFAULTACTIVITYMODE
-   ) const {
-      // Make sure the vectors are clean
-      lBndVec.clear();
-      uBndVec.clear();
+	/***************************************************************************/
+	/**
+	 * Loops over all GParameterBase objects. Each object will add the
+	 * lower and upper boundaries of its parameters to the vector, if
+	 * they comply with the type of the parameters to be stored in the
+	 * vector.
+	 *
+	 * @param lBndVec The vector to which the lower boundaries will be added
+	 * @param uBndVec The vector to which the upper boundaries will be added
+	 * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
+	 */
+	template <typename par_type>
+	void boundaries(
+		std::vector<par_type>& lBndVec
+		, std::vector<par_type>& uBndVec
+		, const activityMode& am = DEFAULTACTIVITYMODE
+	) const {
+		// Make sure the vectors are clean
+		lBndVec.clear();
+		uBndVec.clear();
 
-      // Loop over all GParameterBase objects.
-      GParameterSet::const_iterator cit;
-      for(cit=this->begin(); cit!=this->end(); ++cit) {
-         (*cit)->boundaries<par_type>(lBndVec, uBndVec, am);
-      }
-   }
+		// Loop over all GParameterBase objects.
+		GParameterSet::const_iterator cit;
+		for(cit=this->begin(); cit!=this->end(); ++cit) {
+			(*cit)->boundaries<par_type>(lBndVec, uBndVec, am);
+		}
+	}
 
-   /* ----------------------------------------------------------------------------------
-    * So far untested.
-    * ----------------------------------------------------------------------------------
-    */
+	/* ----------------------------------------------------------------------------------
+	 * So far untested.
+	 * ----------------------------------------------------------------------------------
+	 */
 
-   /***************************************************************************/
-   /**
-    * Multiplication with a random value in a given range
-    */
-   template <typename par_type>
-   void multiplyByRandom(
-      const par_type& min
-      , const par_type& max
-      , const activityMode& am
-   ) {
-      // Loop over all GParameterBase objects.
-      GParameterSet::iterator it;
-      for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->multiplyByRandom<par_type>(min, max, am);
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Multiplication with a random value in a given range
+	 */
+	template <typename par_type>
+	void multiplyByRandom(
+		const par_type& min
+		, const par_type& max
+		, const activityMode& am
+	) {
+		// Loop over all GParameterBase objects.
+		GParameterSet::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->multiplyByRandom<par_type>(min, max, am);
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Multiplication with a random value in the range [0, 1[
-    */
-   template <typename par_type>
-   void multiplyByRandom(
-      const activityMode& am
-   ) {
-      // Loop over all GParameterBase objects.
-      GParameterSet::iterator it;
-      for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->multiplyByRandom<par_type>(am);
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Multiplication with a random value in the range [0, 1[
+	 */
+	template <typename par_type>
+	void multiplyByRandom(
+		const activityMode& am
+	) {
+		// Loop over all GParameterBase objects.
+		GParameterSet::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->multiplyByRandom<par_type>(am);
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Multiplication with a constant value
-    */
-   template <typename par_type>
-   void multiplyBy(
-      const par_type& val
-      , const activityMode& am
-   ) {
-      // Loop over all GParameterBase objects.
-      GParameterSet::iterator it;
-      for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->multiplyBy<par_type>(val, am);
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Multiplication with a constant value
+	 */
+	template <typename par_type>
+	void multiplyBy(
+		const par_type& val
+		, const activityMode& am
+	) {
+		// Loop over all GParameterBase objects.
+		GParameterSet::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->multiplyBy<par_type>(val, am);
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Initializes all parameters of a given type with a constant value
-    */
-   template <typename par_type>
-   void fixedValueInit(
-      const par_type& val
-      , const activityMode& am
-   ) {
-      // Loop over all GParameterBase objects.
-      GParameterSet::iterator it;
-      for(it=this->begin(); it!=this->end(); ++it) {
-         (*it)->fixedValueInit<par_type>(val, am);
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Initializes all parameters of a given type with a constant value
+	 */
+	template <typename par_type>
+	void fixedValueInit(
+		const par_type& val
+		, const activityMode& am
+	) {
+		// Loop over all GParameterBase objects.
+		GParameterSet::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->fixedValueInit<par_type>(val, am);
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Adds the parameters of another GParameterSet object to this one
-    */
-   template <typename par_type>
-   void add(
-      std::shared_ptr<GParameterSet> p
-      , const activityMode& am
-   ) {
-      GParameterSet::iterator it;
-      GParameterSet::const_iterator cit;
+	/***************************************************************************/
+	/**
+	 * Adds the parameters of another GParameterSet object to this one
+	 */
+	template <typename par_type>
+	void add(
+		std::shared_ptr<GParameterSet> p
+		, const activityMode& am
+	) {
+		GParameterSet::iterator it;
+		GParameterSet::const_iterator cit;
 
-      // Note that the GParameterBase objects need to accept a
-      // std::shared_ptr<GParameterBase>, contrary to the calling conventions
-      // of this function.
-      for(it=this->begin(), cit=p->begin(); it!=this->end(); ++it, ++cit) {
-         (*it)->add<par_type>(*cit, am);
-      }
-   }
+		// Note that the GParameterBase objects need to accept a
+		// std::shared_ptr<GParameterBase>, contrary to the calling conventions
+		// of this function.
+		for(it=this->begin(), cit=p->begin(); it!=this->end(); ++it, ++cit) {
+			(*it)->add<par_type>(*cit, am);
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Subtracts the parameters of another GParameterSet object from this one
-    */
-   template <typename par_type>
-   void subtract(
-      std::shared_ptr<GParameterSet> p
-      , const activityMode& am
-   ) {
-      GParameterSet::iterator it;
-      GParameterSet::const_iterator cit;
+	/***************************************************************************/
+	/**
+	 * Subtracts the parameters of another GParameterSet object from this one
+	 */
+	template <typename par_type>
+	void subtract(
+		std::shared_ptr<GParameterSet> p
+		, const activityMode& am
+	) {
+		GParameterSet::iterator it;
+		GParameterSet::const_iterator cit;
 
-      // Note that the GParameterBase objects need to accept a
-      // std::shared_ptr<GParameterBase>, contrary to the calling conventions
-      // of this function.
-      for(it=this->begin(), cit=p->begin(); it!=this->end(); ++it, ++cit) {
-         (*it)->subtract<par_type>(*cit, am);
-      }
-   }
+		// Note that the GParameterBase objects need to accept a
+		// std::shared_ptr<GParameterBase>, contrary to the calling conventions
+		// of this function.
+		for(it=this->begin(), cit=p->begin(); it!=this->end(); ++it, ++cit) {
+			(*it)->subtract<par_type>(*cit, am);
+		}
+	}
 
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GObject */
-   G_API_GENEVA virtual void load_(const GObject*) override;
+	G_API_GENEVA virtual void load_(const GObject*) override;
 	/** @brief Creates a deep clone of this object */
-   G_API_GENEVA virtual GObject* clone_() const override;
+	G_API_GENEVA virtual GObject* clone_() const override;
 
 	/** @brief The actual fitness calculation takes place here */
 	virtual G_API_GENEVA double fitnessCalculation() override ;

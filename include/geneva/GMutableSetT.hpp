@@ -66,39 +66,39 @@ class GMutableSetT:
 	public GOptimizableEntity,
 	public Gem::Common::GStdPtrVectorInterfaceT<T, Gem::Geneva::GObject>
 {
-    ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
 
-    template<typename Archive>
-    void serialize(Archive & ar, const unsigned int){
-      using boost::serialization::make_nvp;
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
 
-      ar
-      & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GOptimizableEntity)
-      & make_nvp("GStdPtrVectorInterfaceT_T", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<T, Gem::Geneva::GObject> >(*this));
-    }
-    ///////////////////////////////////////////////////////////////////////
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GOptimizableEntity)
+		& make_nvp("GStdPtrVectorInterfaceT_T", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<T, Gem::Geneva::GObject> >(*this));
+	}
+	///////////////////////////////////////////////////////////////////////
 
 public:
 	/***************************************************************************/
 	/**
 	 * The default constructor. No local data, hence nothing to do.
 	 */
-    GMutableSetT()
+	GMutableSetT()
 		: GOptimizableEntity()
 		, Gem::Common::GStdPtrVectorInterfaceT<T, Gem::Geneva::GObject>()
 	{ /* nothing */	}
 
-   /***************************************************************************/
-   /**
-    * Initialization with the number of fitness criteria
-    *
-    * @param nFitnessCriteria The number of fitness criteria used by this object
-    */
-    GMutableSetT(const std::size_t& nFitnessCriteria)
-      : GOptimizableEntity(nFitnessCriteria)
-      , Gem::Common::GStdPtrVectorInterfaceT<T, Gem::Geneva::GObject>()
-   { /* nothing */   }
+	/***************************************************************************/
+	/**
+	 * Initialization with the number of fitness criteria
+	 *
+	 * @param nFitnessCriteria The number of fitness criteria used by this object
+	 */
+	GMutableSetT(const std::size_t& nFitnessCriteria)
+		: GOptimizableEntity(nFitnessCriteria)
+		, Gem::Common::GStdPtrVectorInterfaceT<T, Gem::Geneva::GObject>()
+	{ /* nothing */   }
 
 	/***************************************************************************/
 	/**
@@ -107,7 +107,7 @@ public:
 	 *
 	 * @param cp A copy of another GMutableSetT<T> object
 	 */
-    GMutableSetT(const GMutableSetT<T>& cp)
+	GMutableSetT(const GMutableSetT<T>& cp)
 		: GOptimizableEntity(cp)
 		, Gem::Common::GStdPtrVectorInterfaceT<T, Gem::Geneva::GObject>(cp)
 	{ /* nothing */ }
@@ -120,79 +120,79 @@ public:
 	virtual ~GMutableSetT()
 	{ /* nothing */ }
 
-   /***************************************************************************/
-   /**
-    * The standard assignment operator
-    */
-   const GMutableSetT<T>& operator=(const GMutableSetT<T>& cp) {
-      this->load_(&cp);
-      return *this;
-   }
+	/***************************************************************************/
+	/**
+	 * The standard assignment operator
+	 */
+	const GMutableSetT<T>& operator=(const GMutableSetT<T>& cp) {
+		this->load_(&cp);
+		return *this;
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for equality with another GMutableSetT<T> object
-    *
-    * @param  cp A constant reference to another GMutableSetT<T> object
-    * @return A boolean indicating whether both objects are equal
-    */
-   bool operator==(const GMutableSetT<T>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for equality with another GMutableSetT<T> object
+	 *
+	 * @param  cp A constant reference to another GMutableSetT<T> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GMutableSetT<T>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for inequality with another GMutableSetT<T> object
-    *
-    * @param  cp A constant reference to another GMutableSetT<T> object
-    * @return A boolean indicating whether both objects are inequal
-    */
-   bool operator!=(const GMutableSetT<T>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GMutableSetT<T> object
+	 *
+	 * @param  cp A constant reference to another GMutableSetT<T> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GMutableSetT<T>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Searches for compliance with expectations with respect to another object
-    * of the same type
-    *
-    * @param cp A constant reference to another GObject object
-    * @param e The expected outcome of the comparison
-    * @param limit The maximum deviation for floating point values (important for similarity checks)
-    */
-   virtual void compare(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-   ) const override {
-      using namespace Gem::Common;
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
 
-      // Check that we are indeed dealing with a GAdaptorT reference
-      const GMutableSetT<T> *p_load = GObject::gobject_conversion<GMutableSetT<T> >(&cp);
+		// Check that we are indeed dealing with a GAdaptorT reference
+		const GMutableSetT<T> *p_load = GObject::gobject_conversion<GMutableSetT<T> >(&cp);
 
-      GToken token("GMutableSetT<T>", e);
+		GToken token("GMutableSetT<T>", e);
 
-      // Compare our parent data ...
-      Gem::Common::compare_base<GOptimizableEntity>(IDENTITY(*this, *p_load), token);
+		// Compare our parent data ...
+		Gem::Common::compare_base<GOptimizableEntity>(IDENTITY(*this, *p_load), token);
 
-      // ... and then the local data
-      compare_t(IDENTITY(this->data,  p_load->data), token);
+		// ... and then the local data
+		compare_t(IDENTITY(this->data,  p_load->data), token);
 
-      // React on deviations from the expectation
-      token.evaluate();
-   }
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 	/***************************************************************************/
 	/**
@@ -200,7 +200,7 @@ public:
 	 * individuals in this case.
 	 */
 	inline void swap(GMutableSetT<T>& cp) {
-	   Gem::Common::GStdPtrVectorInterfaceT<T, Gem::Geneva::GObject>::swap(cp.data);
+		Gem::Common::GStdPtrVectorInterfaceT<T, Gem::Geneva::GObject>::swap(cp.data);
 		GOptimizableEntity::setDirtyFlag();
 		cp.setDirtyFlag();
 	}
@@ -225,20 +225,20 @@ public:
 		// No local data
 	}
 
-   /***************************************************************************/
-   /**
-    * Emits a name for this class / object
-    */
-   virtual std::string name() const override {
-      return std::string("GMutableSetT");
-   }
+	/***************************************************************************/
+	/**
+	 * Emits a name for this class / object
+	 */
+	virtual std::string name() const override {
+		return std::string("GMutableSetT");
+	}
 
 protected:
 	/***************************************************************************/
-   /**
-   * A random number generator. Note that the actual calculation is possibly
-   * done in a random number server, depending on the defines you have chosen.
-   */
+	/**
+	* A random number generator. Note that the actual calculation is possibly
+	* done in a random number server, depending on the defines you have chosen.
+	*/
 #ifdef GEM_GENEVA_USE_LOCAL_RANDOM_ADAPTION /* produce random numbers locally */
 	Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL> gr;
 #else /* act as a proxy, take random numbers from a factory */
@@ -253,11 +253,11 @@ protected:
 	 */
 	virtual void load_(const GObject* cp) override {
 		// Convert cp into local format
-	  const GMutableSetT<T> *p_load = this->template gobject_conversion<GMutableSetT<T> >(cp);
+		const GMutableSetT<T> *p_load = this->template gobject_conversion<GMutableSetT<T> >(cp);
 
-	  // No local data - load the parent class'es data
-	  GOptimizableEntity::load_(cp);
-	  Gem::Common::GStdPtrVectorInterfaceT<T, Gem::Geneva::GObject>::operator=(*p_load);
+		// No local data - load the parent class'es data
+		GOptimizableEntity::load_(cp);
+		Gem::Common::GStdPtrVectorInterfaceT<T, Gem::Geneva::GObject>::operator=(*p_load);
 	}
 
 	/***************************************************************************/
@@ -295,8 +295,8 @@ public:
 		return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GMutableSetT<>::modify_GUnitTests", "GEM_TESTING");
-   return false;
+		condnotset("GMutableSetT<>::modify_GUnitTests", "GEM_TESTING");
+		return false;
 #endif /* GEM_TESTING */
 	}
 
@@ -316,7 +316,7 @@ public:
 		// no local data, nothing to test
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GMutableSetT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GMutableSetT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -336,7 +336,7 @@ public:
 		// no local data, nothing to test
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GMutableSetT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GMutableSetT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -351,12 +351,12 @@ public:
  * @brief The content of the BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) macro. Needed for Boost.Serialization
  */
 namespace boost {
-  namespace serialization {
-    template<typename T>
-    struct is_abstract<Gem::Geneva::GMutableSetT<T> > : public boost::true_type {};
-    template<typename T>
-    struct is_abstract< const Gem::Geneva::GMutableSetT<T> > : public boost::true_type {};
-  }
+namespace serialization {
+template<typename T>
+struct is_abstract<Gem::Geneva::GMutableSetT<T> > : public boost::true_type {};
+template<typename T>
+struct is_abstract< const Gem::Geneva::GMutableSetT<T> > : public boost::true_type {};
+}
 }
 
 /******************************************************************************/

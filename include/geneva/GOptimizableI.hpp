@@ -62,8 +62,8 @@ class GOptimizableI {
 
 	template<typename Archive>
 	void serialize(Archive &, const unsigned int){
-	  using boost::serialization::make_nvp;
-	  /* nothing */
+		using boost::serialization::make_nvp;
+		/* nothing */
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -106,7 +106,7 @@ public:
 	 */
 	template <typename individual_type>
 	std::shared_ptr<individual_type> optimize(
-			const boost::uint32_t& offset
+		const boost::uint32_t& offset
 	) {
 		this->optimize(offset);
 		return this->getBestIndividual<individual_type>();
@@ -146,10 +146,10 @@ public:
 
 		// Cross check that we indeed got a valid set of individuals
 		if(bestBaseIndividuals.empty()) {
-		   glogger
-		   << "In GOptimizableI::getBestIndividuals(): Error!" << std::endl
-         << "Received empty collection of best individuals." << std::endl
-         << GEXCEPTION;
+			glogger
+			<< "In GOptimizableI::getBestIndividuals(): Error!" << std::endl
+			<< "Received empty collection of best individuals." << std::endl
+			<< GEXCEPTION;
 		}
 
 		for(it=bestBaseIndividuals.begin(); it!=bestBaseIndividuals.end(); ++it) {
@@ -175,11 +175,11 @@ protected:
 	virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestIndividual() BASE = 0;
 	/** @brief Retrieves a list of the best individuals found */
 	virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet> > customGetBestIndividuals() BASE = 0;
-   /***************************************************************************/
-   /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
-   virtual G_API_GENEVA void runFitnessCalculation() BASE = 0;
+	/***************************************************************************/
+	/** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
+	virtual G_API_GENEVA void runFitnessCalculation() BASE = 0;
 
-   /***************************************************************************/
+	/***************************************************************************/
 };
 
 /******************************************************************************/

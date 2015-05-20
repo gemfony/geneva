@@ -62,11 +62,11 @@ class GGDPersonalityTraits :public GPersonalityTraits
 
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
-	  using boost::serialization::make_nvp;
+		using boost::serialization::make_nvp;
 
-	  ar
-	  & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
-	  & BOOST_SERIALIZATION_NVP(popPos_);
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
+		& BOOST_SERIALIZATION_NVP(popPos_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -78,28 +78,28 @@ public:
 	/** @brief The standard destructor */
 	virtual G_API_GENEVA ~GGDPersonalityTraits();
 
-   /** @brief The standard assignment operator */
-   G_API_GENEVA const GGDPersonalityTraits& operator=(const GGDPersonalityTraits&);
+	/** @brief The standard assignment operator */
+	G_API_GENEVA const GGDPersonalityTraits& operator=(const GGDPersonalityTraits&);
 
 	/** @brief Checks for equality with another GGDPersonalityTraits object */
 	G_API_GENEVA bool operator==(const GGDPersonalityTraits&) const;
 	/** @brief Checks for inequality with another GGDPersonalityTraits object */
 	G_API_GENEVA bool operator!=(const GGDPersonalityTraits&) const;
 
-   /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
-   ) const override;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 	/** @brief Sets the position of the individual in the population */
 	G_API_GENEVA void setPopulationPosition(const std::size_t&) ;
 	/** @brief Retrieves the position of the individual in the population */
 	G_API_GENEVA std::size_t getPopulationPosition(void) const ;
 
-   /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const override;
+	/** @brief Emits a name for this class / object */
+	virtual G_API_GENEVA std::string name() const override;
 
 protected:
 	/** @brief Loads the data of another GGDPersonalityTraits object */

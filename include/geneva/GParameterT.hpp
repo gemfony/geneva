@@ -65,11 +65,11 @@ class GParameterT
 
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
-	  using boost::serialization::make_nvp;
+		using boost::serialization::make_nvp;
 
-	  ar
-	  & make_nvp("GParameterBaseWithAdaptors_T", boost::serialization::base_object<GParameterBaseWithAdaptorsT<T> >(*this))
-	  & BOOST_SERIALIZATION_NVP(val_);
+		ar
+		& make_nvp("GParameterBaseWithAdaptors_T", boost::serialization::base_object<GParameterBaseWithAdaptorsT<T> >(*this))
+		& BOOST_SERIALIZATION_NVP(val_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -77,25 +77,25 @@ public:
 	/** @brief Used to identify the type supplied to this object */
 	typedef T p_type;
 
-   /***************************************************************************/
+	/***************************************************************************/
 	/** The default constructor */
 	GParameterT()
-	   : GParameterBaseWithAdaptorsT<T>()
-	   , val_(Gem::Common::GDefaultValueT<T>::value())
+		: GParameterBaseWithAdaptorsT<T>()
+		, val_(Gem::Common::GDefaultValueT<T>::value())
 	{ /* nothing */ }
 
-   /***************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialization by contained value.
 	 *
 	 * @param val The new value of val_
 	 */
 	GParameterT(const T& val)
-	   : GParameterBaseWithAdaptorsT<T>()
-	   , val_(val)
+		: GParameterBaseWithAdaptorsT<T>()
+		, val_(val)
 	{ /* nothing */   }
 
-   /***************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Initialization with boundaries
 	 *
@@ -103,39 +103,39 @@ public:
     * @param upperBoundary Upper boundary of value- or initialization range
 	 */
 	GParameterT(
-      const T& lowerBoundary
-      , const T& upperBoundary
-   )
-      : GParameterBaseWithAdaptorsT<T>(lowerBoundary, upperBoundary)
-      , val_(Gem::Common::GDefaultValueT<T>::value())
-   { /* nothing */   }
+		const T& lowerBoundary
+		, const T& upperBoundary
+	)
+		: GParameterBaseWithAdaptorsT<T>(lowerBoundary, upperBoundary)
+		, val_(Gem::Common::GDefaultValueT<T>::value())
+	{ /* nothing */   }
 
-   /***************************************************************************/
-   /**
-    * The copy constructor.
-    *
-    * @param cp A copy of another GParameterT<T> object
-    */
+	/***************************************************************************/
+	/**
+	 * The copy constructor.
+	 *
+	 * @param cp A copy of another GParameterT<T> object
+	 */
 	GParameterT(const GParameterT<T>& cp)
-      : GParameterBaseWithAdaptorsT<T>(cp)
-      , val_(cp.val_)
-   { /* nothing */   }
+		: GParameterBaseWithAdaptorsT<T>(cp)
+		, val_(cp.val_)
+	{ /* nothing */   }
 
-   /***************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The destructor
 	 */
 	virtual ~GParameterT()
 	{ /* nothing */ }
 
-   /***************************************************************************/
-   /**
-    * The standard assignment operator
-    */
-   const GParameterT<T>& operator=(const GParameterT<T>& cp) {
-      this->load_(&cp);
-      return *this;
-   }
+	/***************************************************************************/
+	/**
+	 * The standard assignment operator
+	 */
+	const GParameterT<T>& operator=(const GParameterT<T>& cp) {
+		this->load_(&cp);
+		return *this;
+	}
 
 	/***************************************************************************/
 	/**
@@ -195,70 +195,70 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-   /***************************************************************************/
-   /**
-    * Checks for equality with another GParameterT<T> object
-    *
-    * @param  cp A constant reference to another GParameterT<T> object
-    * @return A boolean indicating whether both objects are equal
-    */
-   bool operator==(const GParameterT<T>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for equality with another GParameterT<T> object
+	 *
+	 * @param  cp A constant reference to another GParameterT<T> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GParameterT<T>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for inequality with another GParameterT<T> object
-    *
-    * @param  cp A constant reference to another GParameterT<T> object
-    * @return A boolean indicating whether both objects are inequal
-    */
-   bool operator!=(const GParameterT<T>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GParameterT<T> object
+	 *
+	 * @param  cp A constant reference to another GParameterT<T> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GParameterT<T>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Searches for compliance with expectations with respect to another object
-    * of the same type
-    *
-    * @param cp A constant reference to another GObject object
-    * @param e The expected outcome of the comparison
-    * @param limit The maximum deviation for floating point values (important for similarity checks)
-    */
-   virtual void compare(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-   ) const override {
-      using namespace Gem::Common;
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
 
-      // Check that we are indeed dealing with a GAdaptorT reference
-      const GParameterT<T>  *p_load = GObject::gobject_conversion<GParameterT<T> >(&cp);
+		// Check that we are indeed dealing with a GAdaptorT reference
+		const GParameterT<T>  *p_load = GObject::gobject_conversion<GParameterT<T> >(&cp);
 
-      GToken token("GParameterT<T>", e);
+		GToken token("GParameterT<T>", e);
 
-      // Compare our parent data ...
-      Gem::Common::compare_base<GParameterBaseWithAdaptorsT<T> >(IDENTITY(*this, *p_load), token);
+		// Compare our parent data ...
+		Gem::Common::compare_base<GParameterBaseWithAdaptorsT<T> >(IDENTITY(*this, *p_load), token);
 
-      // ... and then the local data
-      compare_t(IDENTITY(val_, p_load->val_), token);
+		// ... and then the local data
+		compare_t(IDENTITY(val_, p_load->val_), token);
 
-      // React on deviations from the expectation
-      token.evaluate();
-   }
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 	/***************************************************************************/
 	/**
@@ -268,9 +268,9 @@ public:
 	 */
 	virtual std::size_t adaptImpl() override {
 		return GParameterBaseWithAdaptorsT<T>::applyAdaptor(
-         val_
-         , this->range()
-      );
+			val_
+			, this->range()
+		);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -286,34 +286,34 @@ public:
 	 * @param baseName The name assigned to the object
 	 */
 	virtual void toPropertyTree (
-      pt::ptree& ptr
-      , const std::string& baseName
+		pt::ptree& ptr
+		, const std::string& baseName
 	) const override {
-      ptr.put(baseName + ".name", this->getParameterName());
-      ptr.put(baseName + ".type", this->name());
-      ptr.put(baseName + ".baseType", Gem::Common::GTypeToStringT<T>::value());
-      ptr.put(baseName + ".isLeaf", this->isLeaf());
-      ptr.put(baseName + ".nVals", 1);
-      ptr.put(baseName + ".values.value0", this->value());
-      ptr.put(baseName + ".initRandom", false); // Unused for the creation of a property tree
-      ptr.put(baseName + ".adaptionsActive", this->adaptionsActive());
+		ptr.put(baseName + ".name", this->getParameterName());
+		ptr.put(baseName + ".type", this->name());
+		ptr.put(baseName + ".baseType", Gem::Common::GTypeToStringT<T>::value());
+		ptr.put(baseName + ".isLeaf", this->isLeaf());
+		ptr.put(baseName + ".nVals", 1);
+		ptr.put(baseName + ".values.value0", this->value());
+		ptr.put(baseName + ".initRandom", false); // Unused for the creation of a property tree
+		ptr.put(baseName + ".adaptionsActive", this->adaptionsActive());
 	}
 
-   /***************************************************************************/
-   /**
-    * Lets the audience know whether this is a leaf or a branch object
-    */
-   virtual bool isLeaf() const override {
-      return true;
-   }
+	/***************************************************************************/
+	/**
+	 * Lets the audience know whether this is a leaf or a branch object
+	 */
+	virtual bool isLeaf() const override {
+		return true;
+	}
 
-   /***************************************************************************/
-   /**
-    * Emits a name for this class / object
-    */
-   virtual std::string name() const override {
-      return std::string("GParameterT");
-   }
+	/***************************************************************************/
+	/**
+	 * Emits a name for this class / object
+	 */
+	virtual std::string name() const override {
+		return std::string("GParameterT");
+	}
 
 protected:
 	/***************************************************************************/
@@ -325,7 +325,7 @@ protected:
 	 *
 	 * @param val The new T value stored in this class
 	 */
-   void setValue_(const T& val) const {
+	void setValue_(const T& val) const {
 		val_ = val;
 	}
 
@@ -384,8 +384,8 @@ public:
 		return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GParameterT<>::modify_GUnitTests", "GEM_TESTING");
-   return false;
+		condnotset("GParameterT<>::modify_GUnitTests", "GEM_TESTING");
+		return false;
 #endif /* GEM_TESTING */
 	}
 
@@ -415,7 +415,7 @@ public:
 		GParameterBaseWithAdaptorsT<T>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-      condnotset("GParameterT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GParameterT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -430,12 +430,12 @@ public:
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
 namespace boost {
-	namespace serialization {
-		template<typename T>
-		struct is_abstract<Gem::Geneva::GParameterT<T> > : public boost::true_type {};
-		template<typename T>
-		struct is_abstract< const Gem::Geneva::GParameterT<T> > : public boost::true_type {};
-	}
+namespace serialization {
+template<typename T>
+struct is_abstract<Gem::Geneva::GParameterT<T> > : public boost::true_type {};
+template<typename T>
+struct is_abstract< const Gem::Geneva::GParameterT<T> > : public boost::true_type {};
+}
 }
 
 /******************************************************************************/

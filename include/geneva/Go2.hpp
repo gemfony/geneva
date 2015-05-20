@@ -109,46 +109,46 @@ typedef Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet> GOABase
  */
 class Go2
 	: public GMutableSetT<GParameterSet>
-	, public GOptimizableI
+		, public GOptimizableI
 {
 public:
 	/** @brief The default constructor */
-   G_API_GENEVA Go2();
+	G_API_GENEVA Go2();
 	/** @brief A constructor that first parses the command line for relevant parameters */
-   G_API_GENEVA Go2(
-      int
-      , char **
-      , const boost::program_options::options_description& = boost::program_options::options_description()
-   );
-   /** @brief A constructor that allows to specify a default config file name */
-   G_API_GENEVA Go2(const std::string&);
+	G_API_GENEVA Go2(
+		int
+		, char **
+		, const boost::program_options::options_description& = boost::program_options::options_description()
+	);
+	/** @brief A constructor that allows to specify a default config file name */
+	G_API_GENEVA Go2(const std::string&);
 	/** @brief A constructor that first parses the command line for relevant parameters and allows to specify a default config file name */
-   G_API_GENEVA Go2(
-      int
-      , char **
-      , const std::string&
-      , const boost::program_options::options_description& = boost::program_options::options_description()
-   );
+	G_API_GENEVA Go2(
+		int
+		, char **
+		, const std::string&
+		, const boost::program_options::options_description& = boost::program_options::options_description()
+	);
 	/** @brief A copy constructor */
-   G_API_GENEVA Go2(const Go2&);
+	G_API_GENEVA Go2(const Go2&);
 
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~Go2();
 
-   /** @brief The standard assignment operator */
-   G_API_GENEVA const Go2& operator=(const Go2&);
+	/** @brief The standard assignment operator */
+	G_API_GENEVA const Go2& operator=(const Go2&);
 
 	/** @brief Checks for equality with another Go2 object */
 	G_API_GENEVA bool operator==(const Go2&) const;
 	/** @brief Checks for inequality with another Go2 object */
 	G_API_GENEVA bool operator!=(const Go2&) const;
 
-   /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
-   ) const override;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 	/** @brief Triggers execution of the client loop */
 	G_API_GENEVA int clientRun();
@@ -177,18 +177,18 @@ public:
 	G_API_GENEVA Go2& operator&(std::shared_ptr<GOABase>);
 	/** @brief Allows to add an optimization algorithm through its mnemonic */
 	G_API_GENEVA void addAlgorithm(const std::string&);
-   /** @brief Makes it easier to add algorithms */
+	/** @brief Makes it easier to add algorithms */
 	G_API_GENEVA Go2& operator&(const std::string&);
 
-   /** @brief Retrieves the currently registered number of algorithms */
+	/** @brief Retrieves the currently registered number of algorithms */
 	G_API_GENEVA std::size_t getNAlgorithms() const;
-   /** @brief Retrieves the currently registered number of command line algorithms */
+	/** @brief Retrieves the currently registered number of command line algorithms */
 	G_API_GENEVA std::size_t getNCLAlgorithms() const;
 
-   /** @brief Allows to register a content creator */
+	/** @brief Allows to register a content creator */
 	G_API_GENEVA void registerContentCreator(
-         std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
-   );
+		std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
+	);
 	/** @brief Perform the actual optimization cycle */
 	virtual G_API_GENEVA void optimize(const boost::uint32_t& = 0) override;
 
@@ -210,10 +210,10 @@ public:
 
 	/** @brief Loads some configuration data from arguments passed on the command line (or another char ** that is presented to it) */
 	G_API_GENEVA void parseCommandLine(
-      int
-      , char **
-      , const boost::program_options::options_description& = boost::program_options::options_description()
-   );
+		int
+		, char **
+		, const boost::program_options::options_description& = boost::program_options::options_description()
+	);
 	/** @brief Loads some configuration data from a configuration file */
 	G_API_GENEVA void parseConfigFile(const std::string&);
 
@@ -248,32 +248,32 @@ public:
 	 */
 	template <typename individual_type>
 	std::shared_ptr<individual_type> optimize(
-      const boost::uint32_t& offset
+		const boost::uint32_t& offset
 	) {
 		return GOptimizableI::optimize<individual_type>(offset);
 	}
 
-   /***************************************************************************/
-   /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const override;
+	/***************************************************************************/
+	/** @brief Emits a name for this class / object */
+	virtual G_API_GENEVA std::string name() const override;
 
-   /** @brief Allows to register a default algorithm. */
-   G_API_GENEVA void registerDefaultAlgorithm(std::shared_ptr<GOABase>);
-   /** @brief Allows to register a default algorithm. */
-   G_API_GENEVA void registerDefaultAlgorithm(const std::string& default_algorithm);
+	/** @brief Allows to register a default algorithm. */
+	G_API_GENEVA void registerDefaultAlgorithm(std::shared_ptr<GOABase>);
+	/** @brief Allows to register a default algorithm. */
+	G_API_GENEVA void registerDefaultAlgorithm(const std::string& default_algorithm);
 
-   /** @brief Retrieves a parameter of a given type at the specified position */
-   virtual G_API_GENEVA boost::any getVarVal(
-      const std::string&
-      , const boost::tuple<std::size_t, std::string, std::size_t>& target
-   ) override;
+	/** @brief Retrieves a parameter of a given type at the specified position */
+	virtual G_API_GENEVA boost::any getVarVal(
+		const std::string&
+		, const boost::tuple<std::size_t, std::string, std::size_t>& target
+	) override;
 
-   /** @brief Allows to register a pluggable optimization monitor */
-   G_API_GENEVA void registerPluggableOM (
-         boost::function<void(const infoMode&, GOptimizationAlgorithmT<GParameterSet> * const)> pluggableInfoFunction
-   );
-   /** @brief Allows to reset the local pluggable optimization monitor */
-   G_API_GENEVA void resetPluggableOM();
+	/** @brief Allows to register a pluggable optimization monitor */
+	G_API_GENEVA void registerPluggableOM (
+		boost::function<void(const infoMode&, GOptimizationAlgorithmT<GParameterSet> * const)> pluggableInfoFunction
+	);
+	/** @brief Allows to reset the local pluggable optimization monitor */
+	G_API_GENEVA void resetPluggableOM();
 
 protected:
 	/***************************************************************************/
@@ -291,12 +291,12 @@ protected:
 	virtual G_API_GENEVA void runFitnessCalculation() override;
 
 private:
-   /** @brief Sets the number of random number production threads */
+	/** @brief Sets the number of random number production threads */
 	G_API_GENEVA void setNProducerThreads(const boost::uint16_t&);
 
-   /***************************************************************************/
-   // Initialization code for the Geneva library
-   GenevaInitializer gi_;
+	/***************************************************************************/
+	// Initialization code for the Geneva library
+	GenevaInitializer gi_;
 
 	/***************************************************************************/
 	// These parameters can enter the object through the constructor

@@ -62,14 +62,14 @@ class GSwarmPersonalityTraits :public GPersonalityTraits
 
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
-	  using boost::serialization::make_nvp;
+		using boost::serialization::make_nvp;
 
-	  ar
-	  & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
-	  & BOOST_SERIALIZATION_NVP(neighborhood_)
-	  & BOOST_SERIALIZATION_NVP(noPositionUpdate_)
-	  & BOOST_SERIALIZATION_NVP(personal_best_)
-	  & BOOST_SERIALIZATION_NVP(personal_best_quality_);
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
+		& BOOST_SERIALIZATION_NVP(neighborhood_)
+		& BOOST_SERIALIZATION_NVP(noPositionUpdate_)
+		& BOOST_SERIALIZATION_NVP(personal_best_)
+		& BOOST_SERIALIZATION_NVP(personal_best_quality_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -81,20 +81,20 @@ public:
 	/** @brief The standard destructor */
 	virtual G_API_GENEVA ~GSwarmPersonalityTraits();
 
-   /** @brief The standard assignment operator */
-   G_API_GENEVA const GSwarmPersonalityTraits& operator=(const GSwarmPersonalityTraits&);
+	/** @brief The standard assignment operator */
+	G_API_GENEVA const GSwarmPersonalityTraits& operator=(const GSwarmPersonalityTraits&);
 
 	/** @brief Checks for equality with another GSwarmPersonalityTraits object */
 	G_API_GENEVA bool operator==(const GSwarmPersonalityTraits&) const;
 	/** @brief Checks for inequality with another GSwarmPersonalityTraits object */
 	G_API_GENEVA bool operator!=(const GSwarmPersonalityTraits&) const;
 
-   /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
-   ) const override;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 	/** @brief Specifies in which neighborhood the individual is at present */
 	G_API_GENEVA void setNeighborhood(const std::size_t&) ;
@@ -117,8 +117,8 @@ public:
 	/** @brief Retrieve quality of personally best individual */
 	G_API_GENEVA boost::tuple<double, double> getPersonalBestQuality() const;
 
-   /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const override;
+	/** @brief Emits a name for this class / object */
+	virtual G_API_GENEVA std::string name() const override;
 
 protected:
 	/** @brief Loads the data of another GSwarmPersonalityTraits object */

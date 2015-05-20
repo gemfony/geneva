@@ -72,50 +72,50 @@ namespace Geneva {
  * the objects.
  */
 class GParameterSetFixedSizePriorityQueue
-   : public Gem::Common::GFixedSizePriorityQueueT<GParameterSet>
+	: public Gem::Common::GFixedSizePriorityQueueT<GParameterSet>
 {
-   ///////////////////////////////////////////////////////////////////////
-   friend class boost::serialization::access;
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
 
-   template<typename Archive>
-   void serialize(Archive & ar, const unsigned int){
-     using boost::serialization::make_nvp;
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
 
-     ar
-     & make_nvp("GFSPQ", boost::serialization::base_object<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> >(*this));
-   }
-   ///////////////////////////////////////////////////////////////////////
+		ar
+			& make_nvp("GFSPQ", boost::serialization::base_object<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> >(*this));
+	}
+	///////////////////////////////////////////////////////////////////////
 
 public:
-   /** @brief The default constructor */
-   G_API_GENEVA GParameterSetFixedSizePriorityQueue();
-   /** @brief Initialization with the maximum size */
-   explicit G_API_GENEVA GParameterSetFixedSizePriorityQueue(const std::size_t&);
-   /** @brief Initialization with the maximum size and the information, whether higher or lower evaluations are considered better */
-   G_API_GENEVA GParameterSetFixedSizePriorityQueue(const std::size_t&, const bool&);
-   /** @brief The copy constructor */
-   G_API_GENEVA GParameterSetFixedSizePriorityQueue(const GParameterSetFixedSizePriorityQueue&);
-   /** @brief The destructor */
-   G_API_GENEVA ~GParameterSetFixedSizePriorityQueue();
+	/** @brief The default constructor */
+	G_API_GENEVA GParameterSetFixedSizePriorityQueue();
+	/** @brief Initialization with the maximum size */
+	explicit G_API_GENEVA GParameterSetFixedSizePriorityQueue(const std::size_t&);
+	/** @brief Initialization with the maximum size and the information, whether higher or lower evaluations are considered better */
+	G_API_GENEVA GParameterSetFixedSizePriorityQueue(const std::size_t&, const bool&);
+	/** @brief The copy constructor */
+	G_API_GENEVA GParameterSetFixedSizePriorityQueue(const GParameterSetFixedSizePriorityQueue&);
+	/** @brief The destructor */
+	G_API_GENEVA ~GParameterSetFixedSizePriorityQueue();
 
-   /** @brief Copy the data of another GParameterSetFixedSizePriorityQueue over */
-   G_API_GENEVA const GParameterSetFixedSizePriorityQueue& operator=(const GParameterSetFixedSizePriorityQueue&);
+	/** @brief Copy the data of another GParameterSetFixedSizePriorityQueue over */
+	G_API_GENEVA const GParameterSetFixedSizePriorityQueue& operator=(const GParameterSetFixedSizePriorityQueue&);
 
-   /** @brief Loads the data of another GParameterSetFixedSizePriorityQueue object, camouflaged as a GFixedSizePriorityQueueT<T> */
-   virtual G_API_GENEVA void load(const Gem::Common::GFixedSizePriorityQueueT<GParameterSet>&);
-   /** @brief Creates a deep clone of this object */
-   virtual G_API_GENEVA std::shared_ptr<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> > clone() const;
+	/** @brief Loads the data of another GParameterSetFixedSizePriorityQueue object, camouflaged as a GFixedSizePriorityQueueT<T> */
+	virtual G_API_GENEVA void load(const Gem::Common::GFixedSizePriorityQueueT<GParameterSet>&);
+	/** @brief Creates a deep clone of this object */
+	virtual G_API_GENEVA std::shared_ptr<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> > clone() const;
 
-   /** @brief Checks whether no item has the dirty flag set */
-   G_API_GENEVA bool allClean(std::size_t&) const;
-   /** @brief Emits information about the "dirty flag" of all items */
-   G_API_GENEVA std::string getCleanStatus() const;
+	/** @brief Checks whether no item has the dirty flag set */
+	G_API_GENEVA bool allClean(std::size_t&) const;
+	/** @brief Emits information about the "dirty flag" of all items */
+	G_API_GENEVA std::string getCleanStatus() const;
 
 protected:
-   /** @brief Evaluates a single work item, so that it can be sorted */
-   virtual G_API_GENEVA double evaluation(const std::shared_ptr<GParameterSet>&) const;
-   /** @brief Returns a unique id for a work item */
-   virtual G_API_GENEVA std::string id(const std::shared_ptr<GParameterSet>&) const;
+	/** @brief Evaluates a single work item, so that it can be sorted */
+	virtual G_API_GENEVA double evaluation(const std::shared_ptr<GParameterSet>&) const;
+	/** @brief Returns a unique id for a work item */
+	virtual G_API_GENEVA std::string id(const std::shared_ptr<GParameterSet>&) const;
 };
 
 /******************************************************************************/

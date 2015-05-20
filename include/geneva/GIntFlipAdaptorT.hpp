@@ -72,7 +72,7 @@ class GIntFlipAdaptorT
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar
-		& make_nvp("GNumFlipAdaptorT", boost::serialization::base_object<GNumFlipAdaptorT<int_type> >(*this));
+			& make_nvp("GNumFlipAdaptorT", boost::serialization::base_object<GNumFlipAdaptorT<int_type> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -114,78 +114,78 @@ public:
 	virtual ~GIntFlipAdaptorT()
 	{ /* nothing */ }
 
-   /***************************************************************************/
-   /**
-    * The standard assignment operator
-    */
-   const GIntFlipAdaptorT<int_type>& operator=(const GIntFlipAdaptorT<int_type>& cp) {
-      this->load_(&cp);
-      return *this;
-   }
+	/***************************************************************************/
+	/**
+	 * The standard assignment operator
+	 */
+	const GIntFlipAdaptorT<int_type>& operator=(const GIntFlipAdaptorT<int_type>& cp) {
+		this->load_(&cp);
+		return *this;
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for equality with another GIntFlipAdaptorT<int_type> object
-    *
-    * @param  cp A constant reference to another GIntFlipAdaptorT<int_type> object
-    * @return A boolean indicating whether both objects are equal
-    */
-   bool operator==(const GIntFlipAdaptorT<int_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for equality with another GIntFlipAdaptorT<int_type> object
+	 *
+	 * @param  cp A constant reference to another GIntFlipAdaptorT<int_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GIntFlipAdaptorT<int_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for inequality with another GIntFlipAdaptorT<int_type> object
-    *
-    * @param  cp A constant reference to another GIntFlipAdaptorT<int_type> object
-    * @return A boolean indicating whether both objects are inequal
-    */
-   bool operator!=(const GIntFlipAdaptorT<int_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GIntFlipAdaptorT<int_type> object
+	 *
+	 * @param  cp A constant reference to another GIntFlipAdaptorT<int_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GIntFlipAdaptorT<int_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Searches for compliance with expectations with respect to another object
-    * of the same type
-    *
-    * @param cp A constant reference to another GObject object
-    * @param e The expected outcome of the comparison
-    * @param limit The maximum deviation for floating point values (important for similarity checks)
-    */
-   virtual void compare(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-   ) const override {
-      using namespace Gem::Common;
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
 
-      // Check that we are indeed dealing with a GAdaptorT reference
-      const GIntFlipAdaptorT<int_type>  *p_load = GObject::gobject_conversion<GIntFlipAdaptorT<int_type> >(&cp);
+		// Check that we are indeed dealing with a GAdaptorT reference
+		const GIntFlipAdaptorT<int_type>  *p_load = GObject::gobject_conversion<GIntFlipAdaptorT<int_type> >(&cp);
 
-      GToken token("GIntFlipAdaptorT<int_type>", e);
+		GToken token("GIntFlipAdaptorT<int_type>", e);
 
-      // Compare our parent data ...
-      Gem::Common::compare_base<GNumFlipAdaptorT<int_type> >(IDENTITY(*this, *p_load), token);
+		// Compare our parent data ...
+		Gem::Common::compare_base<GNumFlipAdaptorT<int_type> >(IDENTITY(*this, *p_load), token);
 
-      //... no local data
+		//... no local data
 
-      // React on deviations from the expectation
-      token.evaluate();
-   }
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 
 	/***************************************************************************/
@@ -203,22 +203,22 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
-   /***************************************************************************/
-   /**
-    * Emits a name for this class / object
-    */
-   virtual std::string name() const override {
-      return std::string("GIntFlipAdaptorT");
-   }
+	/***************************************************************************/
+	/**
+	 * Emits a name for this class / object
+	 */
+	virtual std::string name() const override {
+		return std::string("GIntFlipAdaptorT");
+	}
 
-   /***************************************************************************/
-   /**
-    * Allows to randomly initialize parameter members. No local data, hence no
-    * action taken.
-    */
-   virtual bool randomInit() override {
-      return false;
-   }
+	/***************************************************************************/
+	/**
+	 * Allows to randomly initialize parameter members. No local data, hence no
+	 * action taken.
+	 */
+	virtual bool randomInit() override {
+		return false;
+	}
 
 protected:
 	/***************************************************************************/
@@ -227,7 +227,7 @@ protected:
 	 *
 	 * @param A copy of another GIntFlipAdaptorT, camouflaged as a GObject
 	 */
-   void load_(const GObject *cp) override	{
+	void load_(const GObject *cp) override	{
 		// Check that this object is not accidently assigned to itself
 		GObject::selfAssignmentCheck<GIntFlipAdaptorT<int_type> >(cp);
 
@@ -317,12 +317,12 @@ public:
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
 namespace boost {
-	namespace serialization {
-		template<typename int_type>
-		struct is_abstract<Gem::Geneva::GIntFlipAdaptorT<int_type> > : public boost::true_type {};
-		template<typename int_type>
-		struct is_abstract< const Gem::Geneva::GIntFlipAdaptorT<int_type> > : public boost::true_type {};
-	}
+namespace serialization {
+template<typename int_type>
+struct is_abstract<Gem::Geneva::GIntFlipAdaptorT<int_type> > : public boost::true_type {};
+template<typename int_type>
+struct is_abstract< const Gem::Geneva::GIntFlipAdaptorT<int_type> > : public boost::true_type {};
+}
 }
 
 /******************************************************************************/

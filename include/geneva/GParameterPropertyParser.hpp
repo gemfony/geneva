@@ -83,21 +83,21 @@ typedef boost::tuple<std::size_t, std::string, std::size_t> NAMEANDIDTYPE;
  */
 template <typename par_type>
 struct parPropSpec {
-   // mode: (0, ...), (VarName[0], ...) or (VarName, ...)
-   // variable name
-   // optional index
-   NAMEANDIDTYPE var;
-   par_type lowerBoundary; ///< The lower boundary for the parameter scan
-   par_type upperBoundary; ///< The upper boundary for the parameter scan
-   std::size_t nSteps;   ///< The number of steps from the lower boundary to the upper boundary (or possibly the number of random values from this parameter range, depending on the scan mode and parameter type)
+	// mode: (0, ...), (VarName[0], ...) or (VarName, ...)
+	// variable name
+	// optional index
+	NAMEANDIDTYPE var;
+	par_type lowerBoundary; ///< The lower boundary for the parameter scan
+	par_type upperBoundary; ///< The upper boundary for the parameter scan
+	std::size_t nSteps;   ///< The number of steps from the lower boundary to the upper boundary (or possibly the number of random values from this parameter range, depending on the scan mode and parameter type)
 
-   // Swap with another parPropSpec
-   void swap(parPropSpec<par_type>& b) {
-      NAMEANDIDTYPE var_c = b.var; b.var = this->var; this->var = var_c;
-      par_type lowerBoundary_c = b.lowerBoundary;  b.lowerBoundary = this->lowerBoundary; this->lowerBoundary = lowerBoundary_c;
-      par_type upperBoundary_c = b.upperBoundary;  b.upperBoundary = this->upperBoundary; this->upperBoundary = upperBoundary_c;
-      std::size_t nSteps_c = b.nSteps; b.nSteps = this->nSteps; this->nSteps = nSteps_c;
-   }
+	// Swap with another parPropSpec
+	void swap(parPropSpec<par_type>& b) {
+		NAMEANDIDTYPE var_c = b.var; b.var = this->var; this->var = var_c;
+		par_type lowerBoundary_c = b.lowerBoundary;  b.lowerBoundary = this->lowerBoundary; this->lowerBoundary = lowerBoundary_c;
+		par_type upperBoundary_c = b.upperBoundary;  b.upperBoundary = this->upperBoundary; this->upperBoundary = upperBoundary_c;
+		std::size_t nSteps_c = b.nSteps; b.nSteps = this->nSteps; this->nSteps = nSteps_c;
+	}
 };
 
 /******************************************************************************/
@@ -107,7 +107,7 @@ struct parPropSpec {
  * data component is the number of items to be scanned.
  */
 struct G_API_GENEVA simpleScanSpec {
-   std::size_t nItems;
+	std::size_t nItems;
 };
 
 /******************************************************************************/
@@ -120,29 +120,29 @@ struct G_API_GENEVA simpleScanSpec {
  */
 template <typename par_type>
 std::ostream& operator<<(std::ostream& o, const parPropSpec<par_type>& s) {
-   if(0 == boost::get<0>(s.var)) {
-      o
-      << "index       = " << boost::get<2>(s.var) << std::endl;
-   } else if(1 == boost::get<0>(s.var)){
-      o
-      << "Address     = " << boost::get<1>(s.var) << "[" << boost::get<2>(s.var) << "]" << std::endl;
-   } else if (2 == boost::get<0>(s.var)){
-      o
-      << "Name        = " << boost::get<1>(s.var) << std::endl;
-   } else {
-      glogger
-      << "In std::ostream& operator<<(std::ostream& o, const parPropSpec<par_type>& s): Error!" << std::endl
-      << "Got invalid mode " << boost::get<0>(s.var) << std::endl
-      << GEXCEPTION;
-   }
+	if(0 == boost::get<0>(s.var)) {
+		o
+		<< "index       = " << boost::get<2>(s.var) << std::endl;
+	} else if(1 == boost::get<0>(s.var)){
+		o
+		<< "Address     = " << boost::get<1>(s.var) << "[" << boost::get<2>(s.var) << "]" << std::endl;
+	} else if (2 == boost::get<0>(s.var)){
+		o
+		<< "Name        = " << boost::get<1>(s.var) << std::endl;
+	} else {
+		glogger
+		<< "In std::ostream& operator<<(std::ostream& o, const parPropSpec<par_type>& s): Error!" << std::endl
+		<< "Got invalid mode " << boost::get<0>(s.var) << std::endl
+		<< GEXCEPTION;
+	}
 
-   o
-   << "mode          = " << boost::get<0>(s.var) << std::endl
-   << "lowerBoundary = " << s.lowerBoundary << std::endl
-   << "upperBoundary = " << s.upperBoundary << std::endl
-   << "nSteps        = " << s.nSteps << std::endl;
+	o
+	<< "mode          = " << boost::get<0>(s.var) << std::endl
+	<< "lowerBoundary = " << s.lowerBoundary << std::endl
+	<< "upperBoundary = " << s.upperBoundary << std::endl
+	<< "nSteps        = " << s.nSteps << std::endl;
 
-   return o;
+	return o;
 }
 
 /******************************************************************************/
@@ -156,44 +156,44 @@ std::ostream& operator<<(std::ostream& o, const parPropSpec<par_type>& s) {
 
 /** @brief Makes the struct boost.fusion-compatible */
 BOOST_FUSION_ADAPT_STRUCT(
-      Gem::Geneva::parPropSpec<double>,
-      (Gem::Geneva::NAMEANDIDTYPE, var)
-      (double, lowerBoundary)
-      (double, upperBoundary)
-      (std::size_t, nSteps)
+	Gem::Geneva::parPropSpec<double>,
+	(Gem::Geneva::NAMEANDIDTYPE, var)
+		(double, lowerBoundary)
+		(double, upperBoundary)
+		(std::size_t, nSteps)
 )
 
 /** @brief Makes the struct boost.fusion-compatible */
 BOOST_FUSION_ADAPT_STRUCT(
-      Gem::Geneva::parPropSpec<float>,
-      (Gem::Geneva::NAMEANDIDTYPE, var)
-      (float, lowerBoundary)
-      (float, upperBoundary)
-      (std::size_t, nSteps)
+	Gem::Geneva::parPropSpec<float>,
+	(Gem::Geneva::NAMEANDIDTYPE, var)
+		(float, lowerBoundary)
+		(float, upperBoundary)
+		(std::size_t, nSteps)
 )
 
 /** @brief Makes the struct boost.fusion-compatible */
 BOOST_FUSION_ADAPT_STRUCT(
-      Gem::Geneva::parPropSpec<boost::int32_t>,
-      (Gem::Geneva::NAMEANDIDTYPE, var)
-      (boost::int32_t, lowerBoundary)
-      (boost::int32_t, upperBoundary)
-      (std::size_t, nSteps)
+	Gem::Geneva::parPropSpec<boost::int32_t>,
+	(Gem::Geneva::NAMEANDIDTYPE, var)
+		(boost::int32_t, lowerBoundary)
+		(boost::int32_t, upperBoundary)
+		(std::size_t, nSteps)
 )
 
 /** @brief Makes the struct boost.fusion-compatible */
 BOOST_FUSION_ADAPT_STRUCT(
-      Gem::Geneva::parPropSpec<bool>,
-      (Gem::Geneva::NAMEANDIDTYPE, var)
-      (bool, lowerBoundary)
-      (bool, upperBoundary)
-      (std::size_t, nSteps)
+	Gem::Geneva::parPropSpec<bool>,
+	(Gem::Geneva::NAMEANDIDTYPE, var)
+		(bool, lowerBoundary)
+		(bool, upperBoundary)
+		(std::size_t, nSteps)
 )
 
 /** @brief Makes the struct boost.fusion-compatible */
 BOOST_FUSION_ADAPT_STRUCT(
-      Gem::Geneva::simpleScanSpec,
-      (std::size_t, nItems)
+	Gem::Geneva::simpleScanSpec,
+	(std::size_t, nItems)
 )
 
 /******************************************************************************/
@@ -212,76 +212,76 @@ namespace Geneva {
 class GParameterPropertyParser: boost::noncopyable // Make sure this class cannot be copied
 {
 public:
-   /** @brief The standard constructor -- assignment of the "raw" paramter property string */
-   G_API_GENEVA GParameterPropertyParser(const std::string&);
+	/** @brief The standard constructor -- assignment of the "raw" paramter property string */
+	G_API_GENEVA GParameterPropertyParser(const std::string&);
 
-   /** @brief Retrieves the raw parameter description */
-   G_API_GENEVA std::string getRawParameterDescription() const;
-   /** @brief Allows to check whether parsing has already taken place */
-   G_API_GENEVA bool isParsed() const;
+	/** @brief Retrieves the raw parameter description */
+	G_API_GENEVA std::string getRawParameterDescription() const;
+	/** @brief Allows to check whether parsing has already taken place */
+	G_API_GENEVA bool isParsed() const;
 
-   /** @brief Allows to reset the internal structures and to parse a new parameter string */
-   G_API_GENEVA void setNewParameterDescription(std::string);
+	/** @brief Allows to reset the internal structures and to parse a new parameter string */
+	G_API_GENEVA void setNewParameterDescription(std::string);
 
-   /** @brief Initiates parsing of the raw string */
-   G_API_GENEVA void parse();
+	/** @brief Initiates parsing of the raw string */
+	G_API_GENEVA void parse();
 
-   /** @brief Retrieve the number of "simple scan" items */
-   G_API_GENEVA std::size_t getNSimpleScanItems() const;
+	/** @brief Retrieve the number of "simple scan" items */
+	G_API_GENEVA std::size_t getNSimpleScanItems() const;
 
-   /***************************************************************************/
-   /**
-    * This function returns a set of const_iterators that allow to retrieve
-    * the information from the parsers. Note that these iterators may go out
-    * of scope, if a new parameter description is supplied to this class.
-    *
-    * The first tuple-entry allows you to access all parameter entries. When the
-    * function is called, it is set to the start of the vector. The second tuple
-    * entry is set to the vector end.
-    *
-    * The function will throw if parsing hasn't happened yet.
-    *
-    * Note that this implementation is a trap. Use one of the overloads for
-    * supported types instead.
-    */
-   template <typename par_type>
-   boost::tuple<typename std::vector<parPropSpec<par_type> >::const_iterator, typename std::vector<parPropSpec<par_type> >::const_iterator> getIterators() const {
-      boost::tuple<typename std::vector<parPropSpec<par_type> >::const_iterator, typename std::vector<parPropSpec<par_type> >::const_iterator> result;
+	/***************************************************************************/
+	/**
+	 * This function returns a set of const_iterators that allow to retrieve
+	 * the information from the parsers. Note that these iterators may go out
+	 * of scope, if a new parameter description is supplied to this class.
+	 *
+	 * The first tuple-entry allows you to access all parameter entries. When the
+	 * function is called, it is set to the start of the vector. The second tuple
+	 * entry is set to the vector end.
+	 *
+	 * The function will throw if parsing hasn't happened yet.
+	 *
+	 * Note that this implementation is a trap. Use one of the overloads for
+	 * supported types instead.
+	 */
+	template <typename par_type>
+	boost::tuple<typename std::vector<parPropSpec<par_type> >::const_iterator, typename std::vector<parPropSpec<par_type> >::const_iterator> getIterators() const {
+		boost::tuple<typename std::vector<parPropSpec<par_type> >::const_iterator, typename std::vector<parPropSpec<par_type> >::const_iterator> result;
 
-      glogger
-      << "In generic GParameterPropertyParser::getIterators<par_type>() function: Error!" << std::endl
-      << "Function was called for an unsupported type" << std::endl
-      << GEXCEPTION;
+		glogger
+		<< "In generic GParameterPropertyParser::getIterators<par_type>() function: Error!" << std::endl
+		<< "Function was called for an unsupported type" << std::endl
+		<< GEXCEPTION;
 
-      // Make the compiler happy
-      return result;
-   }
+		// Make the compiler happy
+		return result;
+	}
 
 private:
-   /***************************************************************************/
-   /** @brief The default constructor -- intentionally private and undefined */
-   GParameterPropertyParser();
+	/***************************************************************************/
+	/** @brief The default constructor -- intentionally private and undefined */
+	GParameterPropertyParser();
 
-   boost::spirit::qi::rule<std::string::const_iterator, std::string(), boost::spirit::ascii::space_type> varSpec;
-   boost::spirit::qi::rule<std::string::const_iterator, boost::tuple<char, std::string>(), boost::spirit::ascii::space_type> varString;
+	boost::spirit::qi::rule<std::string::const_iterator, std::string(), boost::spirit::ascii::space_type> varSpec;
+	boost::spirit::qi::rule<std::string::const_iterator, boost::tuple<char, std::string>(), boost::spirit::ascii::space_type> varString;
 
-   boost::spirit::qi::rule<std::string::const_iterator, std::string(), boost::spirit::ascii::space_type> identifier;
-   boost::spirit::qi::rule<std::string::const_iterator, NAMEANDIDTYPE(), boost::spirit::ascii::space_type> varReference;
+	boost::spirit::qi::rule<std::string::const_iterator, std::string(), boost::spirit::ascii::space_type> identifier;
+	boost::spirit::qi::rule<std::string::const_iterator, NAMEANDIDTYPE(), boost::spirit::ascii::space_type> varReference;
 
-   boost::spirit::qi::rule<std::string::const_iterator, simpleScanSpec()              , boost::spirit::ascii::space_type> simpleScanParser;
-   boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<double>()         , boost::spirit::ascii::space_type> doubleStringParser;
-   boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<float>()          , boost::spirit::ascii::space_type> floatStringParser;
-   boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<boost::int32_t>() , boost::spirit::ascii::space_type> intStringParser;
-   boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<bool>()           , boost::spirit::ascii::space_type> boolStringParser;
+	boost::spirit::qi::rule<std::string::const_iterator, simpleScanSpec()              , boost::spirit::ascii::space_type> simpleScanParser;
+	boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<double>()         , boost::spirit::ascii::space_type> doubleStringParser;
+	boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<float>()          , boost::spirit::ascii::space_type> floatStringParser;
+	boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<boost::int32_t>() , boost::spirit::ascii::space_type> intStringParser;
+	boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<bool>()           , boost::spirit::ascii::space_type> boolStringParser;
 
-   std::string raw_; ///< Holds the "raw" parameter description
-   bool parsed_;     ///< Indicates whether the raw_ string has already been parsed
+	std::string raw_; ///< Holds the "raw" parameter description
+	bool parsed_;     ///< Indicates whether the raw_ string has already been parsed
 
-   std::vector<simpleScanSpec>               sSpecVec; ///< Holds parameter specifications for simple scans
-   std::vector<parPropSpec<double> >         dSpecVec; ///< Holds parameter specifications for double values
-   std::vector<parPropSpec<float> >          fSpecVec; ///< Holds parameter specifications for float values
-   std::vector<parPropSpec<boost::int32_t> > iSpecVec; ///< Holds parameter specifications for integer values
-   std::vector<parPropSpec<bool> >           bSpecVec; ///< Holds parameter specifications for boolean values
+	std::vector<simpleScanSpec>               sSpecVec; ///< Holds parameter specifications for simple scans
+	std::vector<parPropSpec<double> >         dSpecVec; ///< Holds parameter specifications for double values
+	std::vector<parPropSpec<float> >          fSpecVec; ///< Holds parameter specifications for float values
+	std::vector<parPropSpec<boost::int32_t> > iSpecVec; ///< Holds parameter specifications for integer values
+	std::vector<parPropSpec<bool> >           bSpecVec; ///< Holds parameter specifications for boolean values
 };
 
 /******************************************************************************/
@@ -301,19 +301,19 @@ private:
 template <>
 inline boost::tuple<std::vector<parPropSpec<double> >::const_iterator, std::vector<parPropSpec<double> >::const_iterator>
 GParameterPropertyParser::getIterators<double>() const {
-   // Make sure parsing has happened.
-   if(!parsed_) {
-      glogger
-      << "In GParameterPropertyParser::getIterators<double>(): Error!" << std::endl
-      << "Tried to retrieve iterators when parsing hasn't happened yet" << std::endl
-      << GEXCEPTION;
-   }
+	// Make sure parsing has happened.
+	if(!parsed_) {
+		glogger
+		<< "In GParameterPropertyParser::getIterators<double>(): Error!" << std::endl
+		<< "Tried to retrieve iterators when parsing hasn't happened yet" << std::endl
+		<< GEXCEPTION;
+	}
 
 
-   std::vector<parPropSpec<double> >::const_iterator runner_it = dSpecVec.begin();
-   std::vector<parPropSpec<double> >::const_iterator end_it    = dSpecVec.end();
+	std::vector<parPropSpec<double> >::const_iterator runner_it = dSpecVec.begin();
+	std::vector<parPropSpec<double> >::const_iterator end_it    = dSpecVec.end();
 
-   return boost::tuple<std::vector<parPropSpec<double> >::const_iterator, std::vector<parPropSpec<double> >::const_iterator>(runner_it, end_it);
+	return boost::tuple<std::vector<parPropSpec<double> >::const_iterator, std::vector<parPropSpec<double> >::const_iterator>(runner_it, end_it);
 }
 
 /******************************************************************************/
@@ -333,19 +333,19 @@ GParameterPropertyParser::getIterators<double>() const {
 template <>
 inline boost::tuple<std::vector<parPropSpec<float> >::const_iterator, std::vector<parPropSpec<float> >::const_iterator>
 GParameterPropertyParser::getIterators<float>() const {
-   // Make sure parsing has happened.
-   if(!parsed_) {
-      glogger
-      << "In GParameterPropertyParser::getIterators<float>(): Error!" << std::endl
-      << "Tried to retrieve iterators when parsing hasn't happened yet" << std::endl
-      << GEXCEPTION;
-   }
+	// Make sure parsing has happened.
+	if(!parsed_) {
+		glogger
+		<< "In GParameterPropertyParser::getIterators<float>(): Error!" << std::endl
+		<< "Tried to retrieve iterators when parsing hasn't happened yet" << std::endl
+		<< GEXCEPTION;
+	}
 
 
-   std::vector<parPropSpec<float> >::const_iterator runner_it = fSpecVec.begin();
-   std::vector<parPropSpec<float> >::const_iterator end_it    = fSpecVec.end();
+	std::vector<parPropSpec<float> >::const_iterator runner_it = fSpecVec.begin();
+	std::vector<parPropSpec<float> >::const_iterator end_it    = fSpecVec.end();
 
-   return boost::tuple<std::vector<parPropSpec<float> >::const_iterator, std::vector<parPropSpec<float> >::const_iterator>(runner_it, end_it);
+	return boost::tuple<std::vector<parPropSpec<float> >::const_iterator, std::vector<parPropSpec<float> >::const_iterator>(runner_it, end_it);
 }
 
 /******************************************************************************/
@@ -365,18 +365,18 @@ GParameterPropertyParser::getIterators<float>() const {
 template <>
 inline boost::tuple<std::vector<parPropSpec<boost::int32_t> >::const_iterator, std::vector<parPropSpec<boost::int32_t> >::const_iterator>
 GParameterPropertyParser::getIterators<boost::int32_t>() const {
-   // Make sure parsing has happened.
-   if(!parsed_) {
-      glogger
-      << "In GParameterPropertyParser::getIterators<boost::int32_t>(): Error!" << std::endl
-      << "Tried to retrieve iterators when parsing hasn't happened yet" << std::endl
-      << GEXCEPTION;
-   }
+	// Make sure parsing has happened.
+	if(!parsed_) {
+		glogger
+		<< "In GParameterPropertyParser::getIterators<boost::int32_t>(): Error!" << std::endl
+		<< "Tried to retrieve iterators when parsing hasn't happened yet" << std::endl
+		<< GEXCEPTION;
+	}
 
-   std::vector<parPropSpec<boost::int32_t> >::const_iterator runner_it = iSpecVec.begin();
-   std::vector<parPropSpec<boost::int32_t> >::const_iterator end_it    = iSpecVec.end();
+	std::vector<parPropSpec<boost::int32_t> >::const_iterator runner_it = iSpecVec.begin();
+	std::vector<parPropSpec<boost::int32_t> >::const_iterator end_it    = iSpecVec.end();
 
-   return boost::tuple<std::vector<parPropSpec<boost::int32_t> >::const_iterator, std::vector<parPropSpec<boost::int32_t> >::const_iterator>(runner_it, end_it);
+	return boost::tuple<std::vector<parPropSpec<boost::int32_t> >::const_iterator, std::vector<parPropSpec<boost::int32_t> >::const_iterator>(runner_it, end_it);
 }
 
 /******************************************************************************/
@@ -396,18 +396,18 @@ GParameterPropertyParser::getIterators<boost::int32_t>() const {
 template <>
 inline boost::tuple<std::vector<parPropSpec<bool> >::const_iterator, std::vector<parPropSpec<bool> >::const_iterator>
 GParameterPropertyParser::getIterators<bool>() const {
-   // Make sure parsing has happened.
-   if(!parsed_) {
-      glogger
-      << "In GParameterPropertyParser::getIterators<bool>(): Error!" << std::endl
-      << "Tried to retrieve iterators when parsing hasn't happened yet" << std::endl
-      << GEXCEPTION;
-   }
+	// Make sure parsing has happened.
+	if(!parsed_) {
+		glogger
+		<< "In GParameterPropertyParser::getIterators<bool>(): Error!" << std::endl
+		<< "Tried to retrieve iterators when parsing hasn't happened yet" << std::endl
+		<< GEXCEPTION;
+	}
 
-   std::vector<parPropSpec<bool> >::const_iterator runner_it = bSpecVec.begin();
-   std::vector<parPropSpec<bool> >::const_iterator end_it    = bSpecVec.end();
+	std::vector<parPropSpec<bool> >::const_iterator runner_it = bSpecVec.begin();
+	std::vector<parPropSpec<bool> >::const_iterator end_it    = bSpecVec.end();
 
-   return boost::tuple<std::vector<parPropSpec<bool> >::const_iterator, std::vector<parPropSpec<bool> >::const_iterator>(runner_it, end_it);
+	return boost::tuple<std::vector<parPropSpec<bool> >::const_iterator, std::vector<parPropSpec<bool> >::const_iterator>(runner_it, end_it);
 }
 
 /******************************************************************************/

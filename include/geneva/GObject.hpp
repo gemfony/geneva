@@ -161,49 +161,49 @@ namespace Geneva {
 class GObject
 	:public Gem::Common::GSerializableI
 {
-    ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
 
-    template<typename Archive>
-    void serialize(Archive &, const unsigned int)  {
-      using boost::serialization::make_nvp;
+	template<typename Archive>
+	void serialize(Archive &, const unsigned int)  {
+		using boost::serialization::make_nvp;
 
-      // No local data
-    }
-    ///////////////////////////////////////////////////////////////////////
+		// No local data
+	}
+	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor */
-   G_API_GENEVA GObject() ;
+	G_API_GENEVA GObject() ;
 	/** @brief The copy constructor */
-   G_API_GENEVA GObject(const GObject& cp) ;
+	G_API_GENEVA GObject(const GObject& cp) ;
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GObject();
 
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
 	virtual G_API_GENEVA void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
 	) const BASE;
 
-   /** @brief Checks whether this object fulfills a given expectation in relation to another object */
-   virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
-      const GObject&
-      , const Gem::Common::expectation&
-      , const double&
-      , const std::string&
-      , const std::string&
-      , const bool&
-   ) const;
+	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
+	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
+		const GObject&
+		, const Gem::Common::expectation&
+		, const double&
+		, const std::string&
+		, const std::string&
+		, const bool&
+	) const;
 
 	/** @brief Allows derived classes to assign other class'es values */
 	G_API_GENEVA const GObject& operator=(const GObject&);
 
-   /** @brief Checks for equality with another GObject object */
-   virtual G_API_GENEVA bool operator==(const GObject&) const;
-   /** @brief Checks for inequality with another GObject object */
-   virtual G_API_GENEVA bool operator!=(const GObject&) const;
+	/** @brief Checks for equality with another GObject object */
+	virtual G_API_GENEVA bool operator==(const GObject&) const;
+	/** @brief Checks for inequality with another GObject object */
+	virtual G_API_GENEVA bool operator!=(const GObject&) const;
 
 	/** @brief Convert class to a serial representation that is then written to a stream */
 	G_API_GENEVA void toStream(std::ostream&, const Gem::Common::serializationMode&) const;
@@ -223,13 +223,13 @@ public:
 	/** @brief Returns an XML description of the derivative it is called for */
 	G_API_GENEVA std::string report() const;
 
-   /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const;
+	/** @brief Emits a name for this class / object */
+	virtual G_API_GENEVA std::string name() const;
 
 	/** @brief Writes a configuration file to disk */
-   G_API_GENEVA void writeConfigFile(const std::string&, const std::string&);
+	G_API_GENEVA void writeConfigFile(const std::string&, const std::string&);
 	/** @brief Reads a configuration file from disk */
-   G_API_GENEVA void readConfigFile(const std::string&);
+	G_API_GENEVA void readConfigFile(const std::string&);
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&);
@@ -237,25 +237,25 @@ public:
 	/** @brief Creates a clone of this object, storing it in a std::shared_ptr<GObject> */
 	G_API_GENEVA std::shared_ptr<GObject> clone() const;
 
-   /***************************************************************************/
-   /**
-    * The function creates a clone of the GObject pointer, converts it to a pointer to a derived class
-    * and emits it as a std::shared_ptr<> . Note that this template will only be accessible to the
-    * compiler if GObject is a base type of clone_type.
-    *
-    * @return A converted clone of this object, wrapped into a std::shared_ptr
-    */
-   template <typename clone_type>
-   std::shared_ptr<clone_type> clone(
-      typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, clone_type> >::type* dummy = 0
-   ) const {
-      return Gem::Common::convertSmartPointer<GObject, clone_type>(std::shared_ptr<GObject>(this->clone_()));
-   }
+	/***************************************************************************/
+	/**
+	 * The function creates a clone of the GObject pointer, converts it to a pointer to a derived class
+	 * and emits it as a std::shared_ptr<> . Note that this template will only be accessible to the
+	 * compiler if GObject is a base type of clone_type.
+	 *
+	 * @return A converted clone of this object, wrapped into a std::shared_ptr
+	 */
+	template <typename clone_type>
+	std::shared_ptr<clone_type> clone(
+		typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, clone_type> >::type* dummy = 0
+	) const {
+		return Gem::Common::convertSmartPointer<GObject, clone_type>(std::shared_ptr<GObject>(this->clone_()));
+	}
 
-   /* ----------------------------------------------------------------------------------
-    * cloning is tested for all objects taking part in the Geneva standard tests
-    * ----------------------------------------------------------------------------------
-    */
+	/* ----------------------------------------------------------------------------------
+	 * cloning is tested for all objects taking part in the Geneva standard tests
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/***************************************************************************/
 	/**
@@ -266,8 +266,8 @@ public:
 	 */
 	template <typename load_type>
 	inline void load(
-      const std::shared_ptr<load_type>& cp
-      , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
+		const std::shared_ptr<load_type>& cp
+		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) {
 		load_(cp.get());
 	}
@@ -286,8 +286,8 @@ public:
 	 */
 	template <typename load_type>
 	inline void load(
-      const load_type& cp
-      , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
+		const load_type& cp
+		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) {
 		load_(&cp);
 	}
@@ -302,7 +302,7 @@ public:
 	 * Checks whether a SIGHUP or CTRL_CLOSE_EVENT signal has been sent
 	 */
 	static G_API_GENEVA bool G_SIGHUP_SENT() {
-	   return (1==GObject::GenevaSigHupSent);
+		return (1==GObject::GenevaSigHupSent);
 	}
 
 	/***************************************************************************/
@@ -311,21 +311,21 @@ public:
 	 * both for Windows and Unix-Systems.
 	 */
 	static G_API_GENEVA void sigHupHandler(int signum) {
-	   if(G_SIGHUP == signum) {
-	      GObject::GenevaSigHupSent = 1;
-	   }
+		if(G_SIGHUP == signum) {
+			GObject::GenevaSigHupSent = 1;
+		}
 	}
 
-   /***************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Central access to a random number generator through thread-local storage
 	 */
 	inline boost::thread_specific_ptr<Gem::Hap::GRandom>& gr_ptr() {
-	   static boost::thread_specific_ptr<Gem::Hap::GRandom> instance;
-	   if(!instance.get()) {
-	      instance.reset(new Gem::Hap::GRandom());
-	   }
-	   return instance;
+		static boost::thread_specific_ptr<Gem::Hap::GRandom> instance;
+		if(!instance.get()) {
+			instance.reset(new Gem::Hap::GRandom());
+		}
+		return instance;
 	}
 
 protected:
@@ -342,8 +342,8 @@ protected:
 	 */
 	template <typename load_type>
 	inline void selfAssignmentCheck (
-			const GObject *load_ptr
-		  , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
+		const GObject *load_ptr
+		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) const {
 #ifdef DEBUG
 		// Check that this object is not accidentally assigned to itself.
@@ -370,8 +370,8 @@ protected:
 	 */
 	template <typename load_type>
 	inline const load_type* gobject_conversion (
-     const GObject *load_ptr
-     , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
+		const GObject *load_ptr
+		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) const {
 		selfAssignmentCheck<load_type>(load_ptr);
 
@@ -410,8 +410,8 @@ protected:
 	 */
 	template <typename load_type>
 	inline std::shared_ptr<load_type> gobject_conversion (
-     std::shared_ptr<GObject> load_ptr
-     , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
+		std::shared_ptr<GObject> load_ptr
+		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) const {
 		selfAssignmentCheck<load_type>(load_ptr.get());
 
@@ -460,9 +460,9 @@ public:
  */
 template <>
 inline std::shared_ptr<GObject> GObject::clone<GObject> (
-   boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, GObject> >::type* dummy
+	boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, GObject> >::type* dummy
 ) const {
-   return std::shared_ptr<GObject>(clone_());
+	return std::shared_ptr<GObject>(clone_());
 }
 
 /* ----------------------------------------------------------------------------------
@@ -536,75 +536,75 @@ namespace Common {
  */
 template <typename geneva_type>
 void compare (
-   const geneva_type& x
-   , const geneva_type& y
-   , const std::string& x_name
-   , const std::string& y_name
-   , const Gem::Common::expectation& e
-   , const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
-   , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type> >::type* dummy = 0
+	const geneva_type& x
+	, const geneva_type& y
+	, const std::string& x_name
+	, const std::string& y_name
+	, const Gem::Common::expectation& e
+	, const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
+	, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type> >::type* dummy = 0
 ) {
-   bool expectationMet = false;
-   std::string expectation_str;
-   std::ostringstream error;
+	bool expectationMet = false;
+	std::string expectation_str;
+	std::ostringstream error;
 
-   switch(e) {
-   case Gem::Common::CE_FP_SIMILARITY:
-   case Gem::Common::CE_EQUALITY:
-   {
-      expectation_str = "CE_FP_SIMILARITY / CE_EQUALITY";
+	switch(e) {
+		case Gem::Common::CE_FP_SIMILARITY:
+		case Gem::Common::CE_EQUALITY:
+		{
+			expectation_str = "CE_FP_SIMILARITY / CE_EQUALITY";
 
-      // If we reach this line, then both pointers have content
+			// If we reach this line, then both pointers have content
 
-      { // Check whether the content differs
-         try {
-            x.compare(y,e,limit);
-         } catch(g_expectation_violation& g) {
-            error
-            << "Content of " << x_name << " and " << y_name << " differ." << std::endl
-            << "Thus the expectation of " << expectation_str << " was violated:" << std::endl
-            << g.what() << std::endl;
-            break; // Terminate the switch statement
-         }
+			{ // Check whether the content differs
+				try {
+					x.compare(y,e,limit);
+				} catch(g_expectation_violation& g) {
+					error
+					<< "Content of " << x_name << " and " << y_name << " differ." << std::endl
+					<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl
+					<< g.what() << std::endl;
+					break; // Terminate the switch statement
+				}
 
-         // If we reach this line, the expectation was met
-         expectationMet = true;
-      }
-   }
-   break;
+				// If we reach this line, the expectation was met
+				expectationMet = true;
+			}
+		}
+			break;
 
-   case Gem::Common::CE_INEQUALITY:
-   {
-      expectation_str = "CE_INEQUALITY";
+		case Gem::Common::CE_INEQUALITY:
+		{
+			expectation_str = "CE_INEQUALITY";
 
-      // Check whether the content differs
-      try {
-         x.compare(y,e,limit);
-      } catch(g_expectation_violation& g) {
-         // If we catch an expectation violation for expectation "inequality",
-         // we simply break the switch statement so that expectationMet remains to be false
-         error
-         << "Content of " << x_name << " and " << y_name << " are equal/similar." << std::endl
-         << "Thus the expectation of " << expectation_str << " was violated:" << std::endl
-         << g.what() << std::endl;
-         break;
-      }
-      expectationMet = true;
-   }
-   break;
+			// Check whether the content differs
+			try {
+				x.compare(y,e,limit);
+			} catch(g_expectation_violation& g) {
+				// If we catch an expectation violation for expectation "inequality",
+				// we simply break the switch statement so that expectationMet remains to be false
+				error
+				<< "Content of " << x_name << " and " << y_name << " are equal/similar." << std::endl
+				<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl
+				<< g.what() << std::endl;
+				break;
+			}
+			expectationMet = true;
+		}
+			break;
 
-   default:
-   {
-      glogger
-      << "In compare(/* 6 */): Got invalid expectation " << e << std::endl
-      << GEXCEPTION;
-   }
-   break;
-   };
+		default:
+		{
+			glogger
+			<< "In compare(/* 6 */): Got invalid expectation " << e << std::endl
+			<< GEXCEPTION;
+		}
+			break;
+	};
 
-   if(!expectationMet) {
-      throw g_expectation_violation(error.str());
-   }
+	if(!expectationMet) {
+		throw g_expectation_violation(error.str());
+	}
 }
 
 /******************************************************************************/
@@ -625,102 +625,102 @@ void compare (
  */
 template <typename geneva_type>
 void compare (
-   const std::shared_ptr<geneva_type>& x
-   , const std::shared_ptr<geneva_type>& y
-   , const std::string& x_name
-   , const std::string& y_name
-   , const Gem::Common::expectation& e
-   , const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
-   , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type> >::type* dummy = 0
+	const std::shared_ptr<geneva_type>& x
+	, const std::shared_ptr<geneva_type>& y
+	, const std::string& x_name
+	, const std::string& y_name
+	, const Gem::Common::expectation& e
+	, const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
+	, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type> >::type* dummy = 0
 ) {
-   bool expectationMet = false;
-   std::string expectation_str;
-   std::ostringstream error;
+	bool expectationMet = false;
+	std::string expectation_str;
+	std::ostringstream error;
 
-   switch(e) {
-   case Gem::Common::CE_FP_SIMILARITY:
-   case Gem::Common::CE_EQUALITY:
-   {
-      expectation_str = "CE_FP_SIMILARITY / CE_EQUALITY";
+	switch(e) {
+		case Gem::Common::CE_FP_SIMILARITY:
+		case Gem::Common::CE_EQUALITY:
+		{
+			expectation_str = "CE_FP_SIMILARITY / CE_EQUALITY";
 
-      // Check whether the pointers hold content
-      if(x && !y) {
-         error
-         << "Smart pointer " << x_name << " holds content while " << y_name << " does not." << std::endl
-         << "Thus the expectation of " << expectation_str << " was violated" << std::endl;
-         break; //
-      } else if(!x && y) {
-         error
-         << "Smart pointer " << x_name << " doesn't hold content while " << y_name << " does." << std::endl
-         << "Thus the expectation of " << expectation_str << " was violated" << std::endl;
-         break;  // The expectation was clearly not met
-      } else if(!x && !y) { // No content to check. Both smart pointers can be considered equal
-         expectationMet = true;
-         break;
-      }
+			// Check whether the pointers hold content
+			if(x && !y) {
+				error
+				<< "Smart pointer " << x_name << " holds content while " << y_name << " does not." << std::endl
+				<< "Thus the expectation of " << expectation_str << " was violated" << std::endl;
+				break; //
+			} else if(!x && y) {
+				error
+				<< "Smart pointer " << x_name << " doesn't hold content while " << y_name << " does." << std::endl
+				<< "Thus the expectation of " << expectation_str << " was violated" << std::endl;
+				break;  // The expectation was clearly not met
+			} else if(!x && !y) { // No content to check. Both smart pointers can be considered equal
+				expectationMet = true;
+				break;
+			}
 
-      // If we reach this line, then both pointers have content
+			// If we reach this line, then both pointers have content
 
-      { // Check whether the content differs
-         try {
-            x->compare(*y,e,limit);
-         } catch(g_expectation_violation& g) {
-            error
-            << "Content of " << x_name << " and " << y_name << " differ." << std::endl
-            << "Thus the expectation of " << expectation_str << " was violated:" << std::endl
-            << g.what() << std::endl;
-            break; // Terminate the switch statement
-         }
+			{ // Check whether the content differs
+				try {
+					x->compare(*y,e,limit);
+				} catch(g_expectation_violation& g) {
+					error
+					<< "Content of " << x_name << " and " << y_name << " differ." << std::endl
+					<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl
+					<< g.what() << std::endl;
+					break; // Terminate the switch statement
+				}
 
-         // If we reach this line, the expectation was met
-         expectationMet = true;
-      }
-   }
-   break;
+				// If we reach this line, the expectation was met
+				expectationMet = true;
+			}
+		}
+			break;
 
-   case Gem::Common::CE_INEQUALITY:
-   {
-      expectation_str = "CE_INEQUALITY";
+		case Gem::Common::CE_INEQUALITY:
+		{
+			expectation_str = "CE_INEQUALITY";
 
-      // Check whether the pointers hold content
-      if((x && !y) || (!x && y)) {
-         expectationMet = true;
-         break;
-      } else if(!x && !y) { // No content to check. Both smart pointers can be considered equal
-         error
-         << "Both smart pointers are empty and are thus considered equal." << std::endl
-         << "Thus the expectation of " << expectation_str << " was violated:" << std::endl;
-         break; // The expectation was not met
-      }
+			// Check whether the pointers hold content
+			if((x && !y) || (!x && y)) {
+				expectationMet = true;
+				break;
+			} else if(!x && !y) { // No content to check. Both smart pointers can be considered equal
+				error
+				<< "Both smart pointers are empty and are thus considered equal." << std::endl
+				<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl;
+				break; // The expectation was not met
+			}
 
-      // Check whether the content differs
-      try {
-         x->compare(*y,e,limit);
-      } catch(g_expectation_violation& g) {
-         // If we catch an expectation violation for expectation "inequality",
-         // we simply break the switch statement so that expectationMet remains to be false
-         error
-         << "Content of " << x_name << " and " << y_name << " are equal/similar." << std::endl
-         << "Thus the expectation of " << expectation_str << " was violated:" << std::endl
-         << g.what() << std::endl;
-         break;
-      }
-      expectationMet = true;
-   }
-   break;
+			// Check whether the content differs
+			try {
+				x->compare(*y,e,limit);
+			} catch(g_expectation_violation& g) {
+				// If we catch an expectation violation for expectation "inequality",
+				// we simply break the switch statement so that expectationMet remains to be false
+				error
+				<< "Content of " << x_name << " and " << y_name << " are equal/similar." << std::endl
+				<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl
+				<< g.what() << std::endl;
+				break;
+			}
+			expectationMet = true;
+		}
+			break;
 
-   default:
-   {
-      glogger
-      << "In compare(/* 7 */): Got invalid expectation " << e << std::endl
-      << GEXCEPTION;
-   }
-   break;
-   };
+		default:
+		{
+			glogger
+			<< "In compare(/* 7 */): Got invalid expectation " << e << std::endl
+			<< GEXCEPTION;
+		}
+			break;
+	};
 
-   if(!expectationMet) {
-      throw g_expectation_violation(error.str());
-   }
+	if(!expectationMet) {
+		throw g_expectation_violation(error.str());
+	}
 }
 
 /******************************************************************************/
@@ -741,133 +741,133 @@ void compare (
  */
 template <typename geneva_type>
 void compare (
-   const std::vector<std::shared_ptr<geneva_type> >& x
-   , const std::vector<std::shared_ptr<geneva_type> >& y
-   , const std::string& x_name
-   , const std::string& y_name
-   , const Gem::Common::expectation& e
-   , const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
-   , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type> >::type* dummy = 0
+	const std::vector<std::shared_ptr<geneva_type> >& x
+, const std::vector<std::shared_ptr<geneva_type> >& y
+, const std::string& x_name
+, const std::string& y_name
+, const Gem::Common::expectation& e
+, const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
+, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type> >::type* dummy = 0
 ) {
-   bool expectationMet = false;
-   std::string expectation_str;
-   std::ostringstream error;
+bool expectationMet = false;
+std::string expectation_str;
+std::ostringstream error;
 
-   switch(e) {
-   case Gem::Common::CE_FP_SIMILARITY:
-   case Gem::Common::CE_EQUALITY:
-   {
-      expectation_str = "CE_FP_SIMILARITY / CE_EQUALITY";
+switch(e) {
+case Gem::Common::CE_FP_SIMILARITY:
+case Gem::Common::CE_EQUALITY:
+{
+	expectation_str = "CE_FP_SIMILARITY / CE_EQUALITY";
 
-      // First check sizes
-      if(x.size() != y.size()) {
-         error
-         << "Vectors " << x_name << " and " << y_name << " have different sizes " << x.size() << " / " << y.size() << std::endl
-         << "Thus the expectation of " << expectation_str << " was violated:" << std::endl;
-         // Terminate the switch statement. expectationMet will be false then
-         break;
-      }
+	// First check sizes
+	if(x.size() != y.size()) {
+		error
+		<< "Vectors " << x_name << " and " << y_name << " have different sizes " << x.size() << " / " << y.size() << std::endl
+		<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl;
+		// Terminate the switch statement. expectationMet will be false then
+		break;
+	}
 
-      // Now loop over all members of the vectors
-      bool foundDeviation = false;
-      typename std::vector<std::shared_ptr<geneva_type> >::const_iterator x_it, y_it;
-      std::size_t index = 0;
-      for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it, ++index) {
-         // First check that both pointers have content
-         // Check whether the pointers hold content
-         if(*x_it && !*y_it) {
-            error
-            << "Smart pointer " << x_name << "[" << index << "] holds content while " << y_name << "[" << index << "]  does not." << std::endl
-            << "Thus the expectation of " << expectation_str << " was violated" << std::endl;
-            foundDeviation = true;
-            break; // terminate the loop
-         } else if(!*x_it && *y_it) {
-            error
-            << "Smart pointer " << x_name << "[" << index << "] doesn't hold content while " << y_name << "[" << index << "]  does." << std::endl
-            << "Thus the expectation of " << expectation_str << " was violated" << std::endl;
-            foundDeviation = true;
-            break;  // terminate the loop
-         } else if(!*x_it && !*y_it) { // No content to check. Both smart pointers can be considered equal
-            continue; // Go on with next iteration in the loop
-         }
+	// Now loop over all members of the vectors
+	bool foundDeviation = false;
+	typename std::vector<std::shared_ptr<geneva_type> >::const_iterator x_it, y_it;
+	std::size_t index = 0;
+	for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it, ++index) {
+		// First check that both pointers have content
+		// Check whether the pointers hold content
+		if(*x_it && !*y_it) {
+			error
+			<< "Smart pointer " << x_name << "[" << index << "] holds content while " << y_name << "[" << index << "]  does not." << std::endl
+			<< "Thus the expectation of " << expectation_str << " was violated" << std::endl;
+			foundDeviation = true;
+			break; // terminate the loop
+		} else if(!*x_it && *y_it) {
+			error
+			<< "Smart pointer " << x_name << "[" << index << "] doesn't hold content while " << y_name << "[" << index << "]  does." << std::endl
+			<< "Thus the expectation of " << expectation_str << " was violated" << std::endl;
+			foundDeviation = true;
+			break;  // terminate the loop
+		} else if(!*x_it && !*y_it) { // No content to check. Both smart pointers can be considered equal
+			continue; // Go on with next iteration in the loop
+		}
 
-         // At this point we know that both pointers have content. We can now check the content
-         // which is assumed to have the compare() function
-         try {
-          (*x_it)->compare(**y_it,e,limit);
-         } catch(g_expectation_violation& g) {
-            error
-            << "Content of " << x_name << "[" << index << "] and " << y_name << "[" << index << "] differs." << std::endl
-            << "Thus the expectation of " << expectation_str << " was violated:" << std::endl
-            << g.what() << std::endl;
-            foundDeviation = true;
-            break; // Terminate the loop
-         }
-      }
+		// At this point we know that both pointers have content. We can now check the content
+		// which is assumed to have the compare() function
+		try {
+			(*x_it)->compare(**y_it,e,limit);
+		} catch(g_expectation_violation& g) {
+			error
+			<< "Content of " << x_name << "[" << index << "] and " << y_name << "[" << index << "] differs." << std::endl
+			<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl
+			<< g.what() << std::endl;
+			foundDeviation = true;
+			break; // Terminate the loop
+		}
+	}
 
-      if(!foundDeviation) {
-         expectationMet = true;
-      }
-   }
-   break;
+	if(!foundDeviation) {
+		expectationMet = true;
+	}
+}
+break;
 
-   case Gem::Common::CE_INEQUALITY:
-   {
-      expectation_str = "CE_INEQUALITY";
+case Gem::Common::CE_INEQUALITY:
+{
+	expectation_str = "CE_INEQUALITY";
 
-      // First check sizes. The expectation of inequality will be met if they differ
-      if(x.size() != y.size()) {
-         expectationMet = true;
-         break; // Terminate the switch statement
-      }
+	// First check sizes. The expectation of inequality will be met if they differ
+	if(x.size() != y.size()) {
+		expectationMet = true;
+		break; // Terminate the switch statement
+	}
 
-      // Now loop over all members of the vectors
-      bool foundInequality = false;
-      typename std::vector<std::shared_ptr<geneva_type> >::const_iterator x_it, y_it;
-      for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it) {
-         // First check that both pointers have content
-         // Check whether the pointers hold content
-         if((*x_it && !*y_it) || (!*x_it && *y_it)) {
-            foundInequality = true;
-            break; // terminate the loop
-         } else if(!*x_it && !*y_it) { // No content to check. Both smart pointers can be considered equal
-            continue; // Go on with next iteration in the loop - there is nothing to check here
-         }
+	// Now loop over all members of the vectors
+	bool foundInequality = false;
+	typename std::vector<std::shared_ptr<geneva_type> >::const_iterator x_it, y_it;
+	for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it) {
+		// First check that both pointers have content
+		// Check whether the pointers hold content
+		if((*x_it && !*y_it) || (!*x_it && *y_it)) {
+			foundInequality = true;
+			break; // terminate the loop
+		} else if(!*x_it && !*y_it) { // No content to check. Both smart pointers can be considered equal
+			continue; // Go on with next iteration in the loop - there is nothing to check here
+		}
 
-         // At this point we know that both pointers have content. We can now check this content
-         // which is assumed to have the compare() function
-         try {
-          (*x_it)->compare(**y_it,e,limit);
-          foundInequality = true;
-          break; // terminate the loop
-         } catch(g_expectation_violation&) {
-            // Go on with the next item in the vector -- the content is equal or similar
-            continue;
-         }
-      }
+		// At this point we know that both pointers have content. We can now check this content
+		// which is assumed to have the compare() function
+		try {
+			(*x_it)->compare(**y_it,e,limit);
+			foundInequality = true;
+			break; // terminate the loop
+		} catch(g_expectation_violation&) {
+			// Go on with the next item in the vector -- the content is equal or similar
+			continue;
+		}
+	}
 
-      if(foundInequality) {
-         expectationMet = true;
-      } else {
-         error
-         << "The two vectors " << x_name << " and " << y_name << " are equal." << std::endl
-         << "Thus the expectation of " << expectation_str << " was violated:" << std::endl;
-      }
-   }
-   break;
+	if(foundInequality) {
+		expectationMet = true;
+	} else {
+		error
+		<< "The two vectors " << x_name << " and " << y_name << " are equal." << std::endl
+		<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl;
+	}
+}
+break;
 
-   default:
-   {
-      glogger
-      << "In compare(/* 8 */): Got invalid expectation " << e << std::endl
-      << GEXCEPTION;
-   }
-   break;
-   };
+default:
+{
+glogger
+<< "In compare(/* 8 */): Got invalid expectation " << e << std::endl
+<< GEXCEPTION;
+}
+break;
+};
 
-   if(!expectationMet) {
-      throw g_expectation_violation(error.str());
-   }
+if(!expectationMet) {
+throw g_expectation_violation(error.str());
+}
 }
 
 /******************************************************************************/

@@ -63,10 +63,10 @@ class GIntNumCollectionT
 
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
-	  using boost::serialization::make_nvp;
+		using boost::serialization::make_nvp;
 
-	  ar
-	  & make_nvp("GNumCollectionT_intType", boost::serialization::base_object<GNumCollectionT<int_type> >(*this));
+		ar
+			& make_nvp("GNumCollectionT_intType", boost::serialization::base_object<GNumCollectionT<int_type> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -93,9 +93,9 @@ public:
 	 * @param max The maximum random value
 	 */
 	GIntNumCollectionT(
-      const std::size_t& nval
-      , const int_type& min
-      , const int_type& max
+		const std::size_t& nval
+		, const int_type& min
+		, const int_type& max
 	)
 		: GNumCollectionT<int_type>(nval, min, min, max) // Initialization of a vector with nval variables of value "min"
 	{
@@ -118,10 +118,10 @@ public:
 	 * @param max The maximum random value
 	 */
 	GIntNumCollectionT(
-      const std::size_t& nval
-      , const int_type& val
-      , const int_type& min
-      , const int_type& max
+		const std::size_t& nval
+		, const int_type& val
+		, const int_type& min
+		, const int_type& max
 	)
 		: GNumCollectionT<int_type>(nval, val, min, max)
 	{ /* nothing */ }
@@ -143,86 +143,86 @@ public:
 	virtual ~GIntNumCollectionT()
 	{ /* nothing */ }
 
-   /***************************************************************************/
-   /**
-    * The standard assignment operator
-    */
-   const GIntNumCollectionT<int_type>& operator=(const GIntNumCollectionT<int_type>& cp) {
-      this->load_(&cp);
-      return *this;
-   }
+	/***************************************************************************/
+	/**
+	 * The standard assignment operator
+	 */
+	const GIntNumCollectionT<int_type>& operator=(const GIntNumCollectionT<int_type>& cp) {
+		this->load_(&cp);
+		return *this;
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for equality with another GIntNumCollectionT<int_type> object
-    *
-    * @param  cp A constant reference to another GIntNumCollectionT<int_type> object
-    * @return A boolean indicating whether both objects are equal
-    */
-   bool operator==(const GIntNumCollectionT<int_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for equality with another GIntNumCollectionT<int_type> object
+	 *
+	 * @param  cp A constant reference to another GIntNumCollectionT<int_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GIntNumCollectionT<int_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for inequality with another GIntNumCollectionT<int_type> object
-    *
-    * @param  cp A constant reference to another GIntNumCollectionT<int_type> object
-    * @return A boolean indicating whether both objects are inequal
-    */
-   bool operator!=(const GIntNumCollectionT<int_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GIntNumCollectionT<int_type> object
+	 *
+	 * @param  cp A constant reference to another GIntNumCollectionT<int_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GIntNumCollectionT<int_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Searches for compliance with expectations with respect to another object
-    * of the same type
-    *
-    * @param cp A constant reference to another GObject object
-    * @param e The expected outcome of the comparison
-    * @param limit The maximum deviation for floating point values (important for similarity checks)
-    */
-   virtual void compare(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-   ) const override {
-      using namespace Gem::Common;
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
 
-      // Check that we are indeed dealing with a GAdaptorT reference
-      const GIntNumCollectionT<int_type>  *p_load = GObject::gobject_conversion<GIntNumCollectionT<int_type> >(&cp);
+		// Check that we are indeed dealing with a GAdaptorT reference
+		const GIntNumCollectionT<int_type>  *p_load = GObject::gobject_conversion<GIntNumCollectionT<int_type> >(&cp);
 
-      GToken token("GIntNumCollectionT<int_type>", e);
+		GToken token("GIntNumCollectionT<int_type>", e);
 
-      // Compare our parent data ...
-      Gem::Common::compare_base<GNumCollectionT<int_type> >(IDENTITY(*this, *p_load), token);
+		// Compare our parent data ...
+		Gem::Common::compare_base<GNumCollectionT<int_type> >(IDENTITY(*this, *p_load), token);
 
-      // ... no local data
+		// ... no local data
 
-      // React on deviations from the expectation
-      token.evaluate();
-   }
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
-   /***************************************************************************/
-   /**
-    * Emits a name for this class / object
-    */
-   virtual std::string name() const override {
-      return std::string("GIntNumCollectionT");
-   }
+	/***************************************************************************/
+	/**
+	 * Emits a name for this class / object
+	 */
+	virtual std::string name() const override {
+		return std::string("GIntNumCollectionT");
+	}
 
 protected:
 	/***************************************************************************/
@@ -231,9 +231,9 @@ protected:
 	 *
 	 * @param cp A copy of another GIntNumCollectionT<int_type>  object, camouflaged as a GObject
 	 */
-   void load_(const GObject* cp) override {
-	    // Check that we are not accidently assigning this object to itself
-	    GObject::selfAssignmentCheck<GIntNumCollectionT<int_type> >(cp);
+	void load_(const GObject* cp) override {
+		// Check that we are not accidently assigning this object to itself
+		GObject::selfAssignmentCheck<GIntNumCollectionT<int_type> >(cp);
 
 		// Load our parent class'es data ...
 		GNumCollectionT<int_type>::load_(cp);
@@ -252,7 +252,7 @@ protected:
 	 * that is added later will remain unaffected.
 	 */
 	bool randomInit_(const activityMode&) override {
-	   bool randomized = false;
+		bool randomized = false;
 
 		int_type lowerBoundary = GNumCollectionT<int_type>::getLowerInitBoundary();
 		int_type upperBoundary = GNumCollectionT<int_type>::getUpperInitBoundary();
@@ -394,7 +394,7 @@ public:
 		//------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-      condnotset("GIntNumCollectionT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GIntNumCollectionT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -408,7 +408,7 @@ public:
 		GNumCollectionT<int_type>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-      condnotset("GIntNumCollectionT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GIntNumCollectionT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -424,12 +424,12 @@ public:
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
 namespace boost {
-	namespace serialization {
-		template<typename int_type>
-		struct is_abstract<Gem::Geneva::GIntNumCollectionT<int_type> > : public boost::true_type {};
-		template<typename int_type>
-		struct is_abstract< const Gem::Geneva::GIntNumCollectionT<int_type> > : public boost::true_type {};
-	}
+namespace serialization {
+template<typename int_type>
+struct is_abstract<Gem::Geneva::GIntNumCollectionT<int_type> > : public boost::true_type {};
+template<typename int_type>
+struct is_abstract< const Gem::Geneva::GIntNumCollectionT<int_type> > : public boost::true_type {};
+}
 }
 
 /******************************************************************************/

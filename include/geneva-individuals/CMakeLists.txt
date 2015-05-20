@@ -14,6 +14,9 @@ SET ( SAMPLEINDIVIDUALCONFIGS
 	# No config files at the moment
 )
 
+# This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
+ADD_CUSTOM_TARGET(CLION_ALL_GENEVAINDIVIDUAL_HEADERS SOURCES ${SAMPLEINDIVIDUALINCLUDES})
+
 # Copy the config files to the build tree for easier testing
 FILE ( COPY ${SAMPLEINDIVIDUALCONFIGS} DESTINATION . )
 

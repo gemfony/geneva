@@ -150,14 +150,14 @@ public:
 	virtual ~GNumFPT()
 	{ /* nothing */ }
 
-   /***************************************************************************/
-   /**
-    * The standard assignment operator
-    */
-   const GNumFPT<fp_type>& operator=(const GNumFPT<fp_type>& cp) {
-      this->load_(&cp);
-      return *this;
-   }
+	/***************************************************************************/
+	/**
+	 * The standard assignment operator
+	 */
+	const GNumFPT<fp_type>& operator=(const GNumFPT<fp_type>& cp) {
+		this->load_(&cp);
+		return *this;
+	}
 
 	/***************************************************************************/
 	/**
@@ -170,79 +170,79 @@ public:
 		return GNumT<fp_type>::operator=(val);
 	}
 
-   /***************************************************************************/
-   /**
-    * Checks for equality with another GNumFPT<fp_type> object
-    *
-    * @param  cp A constant reference to another GNumFPT<fp_type> object
-    * @return A boolean indicating whether both objects are equal
-    */
-   bool operator==(const GNumFPT<fp_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for equality with another GNumFPT<fp_type> object
+	 *
+	 * @param  cp A constant reference to another GNumFPT<fp_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GNumFPT<fp_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for inequality with another GNumFPT<fp_type> object
-    *
-    * @param  cp A constant reference to another GNumFPT<fp_type> object
-    * @return A boolean indicating whether both objects are inequal
-    */
-   bool operator!=(const GNumFPT<fp_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation& g) {
-         glogger
-         << g << GLOGGING;
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GNumFPT<fp_type> object
+	 *
+	 * @param  cp A constant reference to another GNumFPT<fp_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GNumFPT<fp_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation& g) {
+			glogger
+			<< g << GLOGGING;
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Searches for compliance with expectations with respect to another object
-    * of the same type
-    *
-    * @param cp A constant reference to another GObject object
-    * @param e The expected outcome of the comparison
-    * @param limit The maximum deviation for floating point values (important for similarity checks)
-    */
-   virtual void compare(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-   ) const override {
-      using namespace Gem::Common;
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
 
-      // Check that we are indeed dealing with a GAdaptorT reference
-      const GNumFPT<fp_type>  *p_load = GObject::gobject_conversion<GNumFPT<fp_type> >(&cp);
+		// Check that we are indeed dealing with a GAdaptorT reference
+		const GNumFPT<fp_type>  *p_load = GObject::gobject_conversion<GNumFPT<fp_type> >(&cp);
 
-      GToken token("GNumFPT<fp_type>", e);
+		GToken token("GNumFPT<fp_type>", e);
 
-      // Compare our parent data ...
-      Gem::Common::compare_base<GNumT<fp_type> >(IDENTITY(*this, *p_load), token);
+		// Compare our parent data ...
+		Gem::Common::compare_base<GNumT<fp_type> >(IDENTITY(*this, *p_load), token);
 
-      // ... no local data
+		// ... no local data
 
-      // React on deviations from the expectation
-      token.evaluate();
-   }
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
-   /***************************************************************************/
-   /**
-    * Emits a name for this class / object
-    */
-   virtual std::string name() const override {
-      return std::string("GNumFPT");
-   }
+	/***************************************************************************/
+	/**
+	 * Emits a name for this class / object
+	 */
+	virtual std::string name() const override {
+		return std::string("GNumFPT");
+	}
 
 protected:
 	/***************************************************************************/
@@ -281,8 +281,8 @@ protected:
 		fp_type lowerBoundary = GNumT<fp_type>::getLowerInitBoundary();
 		fp_type upperBoundary = GNumT<fp_type>::getUpperInitBoundary();
 		GParameterT<fp_type>::setValue(
-         this->GObject::gr_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerBoundary, upperBoundary)
-      );
+			this->GObject::gr_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerBoundary, upperBoundary)
+		);
 
 		return true;
 	}
@@ -521,7 +521,7 @@ public:
 		//------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-      condnotset("GNumFPT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GNumFPT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -535,11 +535,11 @@ public:
 		GNumT<fp_type>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-      condnotset("GNumFPT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GNumFPT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
-   /***************************************************************************/
+	/***************************************************************************/
 };
 
 } /* namespace Geneva */
@@ -549,12 +549,12 @@ public:
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
 namespace boost {
-	namespace serialization {
-		template<typename fp_type>
-		struct is_abstract<Gem::Geneva::GNumFPT<fp_type> > : public boost::true_type {};
-		template<typename fp_type>
-		struct is_abstract< const Gem::Geneva::GNumFPT<fp_type> > : public boost::true_type {};
-	}
+namespace serialization {
+template<typename fp_type>
+struct is_abstract<Gem::Geneva::GNumFPT<fp_type> > : public boost::true_type {};
+template<typename fp_type>
+struct is_abstract< const Gem::Geneva::GNumFPT<fp_type> > : public boost::true_type {};
+}
 }
 /******************************************************************************/
 

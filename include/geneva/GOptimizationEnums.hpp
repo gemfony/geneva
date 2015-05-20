@@ -75,10 +75,10 @@ const std::size_t DEFMAXRETRIESUNTILVALID=10;
 /******************************************************************************/
 // Indicates whether only active, inactive or all parameters should be extracted
 enum G_API_GENEVA activityMode {
-   ACTIVEONLY = 0 // Extract only active parameters
-   , ALLPARAMETERS = 1 // Extract all parameters
-   , INACTIVEONLY = 2 // Only extract inactive parameters
-   , DEFAULTACTIVITYMODE = 1 // The default extraction mode
+	ACTIVEONLY = 0 // Extract only active parameters
+	, ALLPARAMETERS = 1 // Extract all parameters
+	, INACTIVEONLY = 2 // Only extract inactive parameters
+	, DEFAULTACTIVITYMODE = 1 // The default extraction mode
 };
 
 /******************************************************************************/
@@ -348,8 +348,8 @@ const double DEFAULTQUALITYTHRESHOLD=0.;
  * Selection of policy for validity-check combiner
  */
 enum G_API_GENEVA validityCheckCombinerPolicy {
-   MULTIPLYINVALID = 0   // Multiplies all invalid checks (i.e. return values > 1) or returns 0, if all checks are valid
-   , ADDINVALID = 1      // Adds all invalid checks or returns 0, if all checks are valid
+	MULTIPLYINVALID = 0   // Multiplies all invalid checks (i.e. return values > 1) or returns 0, if all checks are valid
+	, ADDINVALID = 1      // Adds all invalid checks or returns 0, if all checks are valid
 };
 
 /******************************************************************************/
@@ -357,11 +357,11 @@ enum G_API_GENEVA validityCheckCombinerPolicy {
  * Selection of policy for evaluation
  */
 enum G_API_GENEVA evaluationPolicy {
-   USESIMPLEEVALUATION = 0            // Run evaluation function even for invalid parameter sets
-   , USEWORSTCASEFORINVALID = 1       // Assign the worst possible value to invalid individuals, evaluate valid solutions as usual
-   , USESIGMOID = 2                   // Assign a multiple of validityLevel_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations
-   , USEWORSTKNOWNVALIDFORINVALID = 3 // Assign "invalidityLevel*worstKnownValid" to invalid individuals
-   , EVALUATIONPOLICY_LAST = USEWORSTKNOWNVALIDFORINVALID
+	USESIMPLEEVALUATION = 0            // Run evaluation function even for invalid parameter sets
+	, USEWORSTCASEFORINVALID = 1       // Assign the worst possible value to invalid individuals, evaluate valid solutions as usual
+	, USESIGMOID = 2                   // Assign a multiple of validityLevel_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations
+	, USEWORSTKNOWNVALIDFORINVALID = 3 // Assign "invalidityLevel*worstKnownValid" to invalid individuals
+	, EVALUATIONPOLICY_LAST = USEWORSTKNOWNVALIDFORINVALID
 };
 
 // * Note that this might be accompanied by assistance from the optimization algorithm
@@ -390,7 +390,7 @@ const execMode DEFAULTEXECMODE = EXECMODE_MULTITHREADED;
  * - VALUEDUPLICATIONSCHEME prefers parents with a higher fitness
  */
 enum G_API_GENEVA duplicationScheme {
-	  DEFAULTDUPLICATIONSCHEME = 0
+	DEFAULTDUPLICATIONSCHEME = 0
 	, RANDOMDUPLICATIONSCHEME = 1
 	, VALUEDUPLICATIONSCHEME = 2
 	, DUPLICATIONSCHEME_LAST = VALUEDUPLICATIONSCHEME
@@ -401,7 +401,7 @@ enum G_API_GENEVA duplicationScheme {
  * The info function can be called in these three modes
  */
 enum G_API_GENEVA infoMode {
-	  INFOINIT = 0
+	INFOINIT = 0
 	, INFOPROCESSING = 1
 	, INFOEND = 2
 	, INFOMODE_LAST = INFOEND
@@ -430,7 +430,7 @@ enum G_API_GENEVA adaptorId {
  * (unless a better child was found). All other parents are selected from children only.
  */
 enum G_API_GENEVA sortingMode {
-	  MUPLUSNU_SINGLEEVAL = 0
+	MUPLUSNU_SINGLEEVAL = 0
 	, MUCOMMANU_SINGLEEVAL = 1
 	, MUNU1PRETAIN_SINGLEEVAL = 2
 	, MUPLUSNU_PARETO = 3
@@ -443,10 +443,10 @@ enum G_API_GENEVA sortingMode {
  * The selection mode in MPEA populations.
  */
 enum G_API_GENEVA sortingModeMP {
-     MUPLUSNU_SINGLEEVAL_MP = 0
-   , MUCOMMANU_SINGLEEVAL_MP = 1
-   , MUNU1PRETAIN_SINGLEEVAL_MP = 2
-   , SORTINGMODEMP_LAST = MUNU1PRETAIN_SINGLEEVAL_MP
+	MUPLUSNU_SINGLEEVAL_MP = 0
+	, MUCOMMANU_SINGLEEVAL_MP = 1
+	, MUNU1PRETAIN_SINGLEEVAL_MP = 2
+	, SORTINGMODEMP_LAST = MUNU1PRETAIN_SINGLEEVAL_MP
 };
 
 /******************************************************************************/
@@ -505,7 +505,7 @@ const std::size_t DEFAULTNNEIGHBORHOODMEMBERS = 10; ///< The default number of m
  * Specifies different update rules in swarms
  */
 enum updateRule {
-	  SWARM_UPDATERULE_LINEAR = 0
+	SWARM_UPDATERULE_LINEAR = 0
 	, SWARM_UPDATERULE_CLASSIC = 1
 	, UPDATERULE_LAST = SWARM_UPDATERULE_CLASSIC
 };

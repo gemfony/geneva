@@ -67,31 +67,31 @@ class GGradientDescentFactory
 	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >
 {
 public:
-   /** @brief An easy identifier for the class */
-   static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
+	/** @brief An easy identifier for the class */
+	static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
 
-   /** @brief The default constructor */
-   G_API_GENEVA GGradientDescentFactory();
-   /** @brief Initialization with the name of the config file and the default parallelization mode */
-   explicit G_API_GENEVA GGradientDescentFactory(const std::string&);
+	/** @brief The default constructor */
+	G_API_GENEVA GGradientDescentFactory();
+	/** @brief Initialization with the name of the config file and the default parallelization mode */
+	explicit G_API_GENEVA GGradientDescentFactory(const std::string&);
 	/** @brief The standard constructor */
-   G_API_GENEVA GGradientDescentFactory(
-      const std::string&
-      , const execMode&
+	G_API_GENEVA GGradientDescentFactory(
+		const std::string&
+		, const execMode&
 	);
-   /** @brief A constructor that also adds a content creation function */
-   G_API_GENEVA GGradientDescentFactory(
-      const std::string&
-      , const execMode&
-      , std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
-   );
+	/** @brief A constructor that also adds a content creation function */
+	G_API_GENEVA GGradientDescentFactory(
+		const std::string&
+		, const execMode&
+		, std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
+	);
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GGradientDescentFactory();
 
-   /** @brief Gives access to the mnemonics / nickname describing an algorithm */
-   virtual G_API_GENEVA std::string getMnemonic() const override;
-   /** @brief Gives access to a clear-text description of the algorithm */
-   virtual G_API_GENEVA std::string getAlgorithmName() const override;
+	/** @brief Gives access to the mnemonics / nickname describing an algorithm */
+	virtual G_API_GENEVA std::string getMnemonic() const override;
+	/** @brief Gives access to a clear-text description of the algorithm */
+	virtual G_API_GENEVA std::string getAlgorithmName() const override;
 
 protected:
 	/** @brief Creates individuals of this type */

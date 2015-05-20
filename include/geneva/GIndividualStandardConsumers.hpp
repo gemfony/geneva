@@ -62,19 +62,19 @@ namespace Geneva {
  * A consumer used for network communication, using GParameterSet-derivatives
  */
 class GIndividualTCPConsumer
-   : public Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GParameterSet>
+	: public Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GParameterSet>
 {
 public:
-   /** @brief The default constructor */
-   G_API_GENEVA GIndividualTCPConsumer();
-   /** @brief A constructor that takes a number of vital arguments */
-   G_API_GENEVA GIndividualTCPConsumer(
-      const unsigned short&
-      , const std::size_t& = 0
-      , const Gem::Common::serializationMode& = Gem::Common::SERIALIZATIONMODE_BINARY
-   );
-   /** @brief The destructor */
-   virtual G_API_GENEVA ~GIndividualTCPConsumer();
+	/** @brief The default constructor */
+	G_API_GENEVA GIndividualTCPConsumer();
+	/** @brief A constructor that takes a number of vital arguments */
+	G_API_GENEVA GIndividualTCPConsumer(
+		const unsigned short&
+		, const std::size_t& = 0
+		, const Gem::Common::serializationMode& = Gem::Common::SERIALIZATIONMODE_BINARY
+	);
+	/** @brief The destructor */
+	virtual G_API_GENEVA ~GIndividualTCPConsumer();
 };
 
 /******************************************************************************/
@@ -84,13 +84,13 @@ public:
  * A consumer used for multi-threaded processing, using GParameterSet-derivatives
  */
 class GIndividualThreadConsumer
-   : public Gem::Courtier::GBoostThreadConsumerT<Gem::Geneva::GParameterSet>
+	: public Gem::Courtier::GBoostThreadConsumerT<Gem::Geneva::GParameterSet>
 {
 public:
-   /** @brief The default constructor */
-   G_API_GENEVA GIndividualThreadConsumer();
-   /** @brief The desstructor */
-   virtual G_API_GENEVA ~GIndividualThreadConsumer();
+	/** @brief The default constructor */
+	G_API_GENEVA GIndividualThreadConsumer();
+	/** @brief The desstructor */
+	virtual G_API_GENEVA ~GIndividualThreadConsumer();
 };
 
 /******************************************************************************/
@@ -101,13 +101,13 @@ public:
  * Its payload are GParameterSet-derivatives.
  */
 class GIndividualSerialConsumer
-   : public Gem::Courtier::GSerialConsumerT<Gem::Geneva::GParameterSet>
+	: public Gem::Courtier::GSerialConsumerT<Gem::Geneva::GParameterSet>
 {
 public:
-   /** @brief The default constructor */
-   G_API_GENEVA GIndividualSerialConsumer();
-   /** @brief The desstructor */
-   virtual G_API_GENEVA ~GIndividualSerialConsumer();
+	/** @brief The default constructor */
+	G_API_GENEVA GIndividualSerialConsumer();
+	/** @brief The desstructor */
+	virtual G_API_GENEVA ~GIndividualSerialConsumer();
 };
 
 /******************************************************************************/

@@ -69,7 +69,7 @@ class GFPNumCollectionT
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar
-		& make_nvp("GNumCollectionT_fpType", boost::serialization::base_object<GNumCollectionT<fp_type> >(*this));
+			& make_nvp("GNumCollectionT_fpType", boost::serialization::base_object<GNumCollectionT<fp_type> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -94,9 +94,9 @@ public:
 	 * @param max The maximum random value
 	 */
 	GFPNumCollectionT(
-      const std::size_t& nval
-      , const fp_type& min
-      , const fp_type& max
+		const std::size_t& nval
+		, const fp_type& min
+		, const fp_type& max
 	)
 		: GNumCollectionT<fp_type>(nval, min, min, max) // The vector is preset to nval entries with value "min"
 	{
@@ -140,87 +140,87 @@ public:
 	 */
 	virtual ~GFPNumCollectionT()
 	{ /* nothing */ }
-	
-   /***************************************************************************/
-   /**
-    * The standard assignment operator
-    */
-   const GFPNumCollectionT<fp_type>& operator=(const GFPNumCollectionT<fp_type>& cp) {
-      this->load_(&cp);
-      return *this;
-   }
 
-   /***************************************************************************/
-   /**
-    * Checks for equality with another GFPNumCollectionT<fp_type> object
-    *
-    * @param  cp A constant reference to another GFPNumCollectionT<fp_type> object
-    * @return A boolean indicating whether both objects are equal
-    */
-   bool operator==(const GFPNumCollectionT<fp_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * The standard assignment operator
+	 */
+	const GFPNumCollectionT<fp_type>& operator=(const GFPNumCollectionT<fp_type>& cp) {
+		this->load_(&cp);
+		return *this;
+	}
 
-   /***************************************************************************/
-   /**
-    * Checks for inequality with another GFPNumCollectionT<fp_type> object
-    *
-    * @param  cp A constant reference to another GFPNumCollectionT<fp_type> object
-    * @return A boolean indicating whether both objects are inequal
-    */
-   bool operator!=(const GFPNumCollectionT<fp_type>& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Checks for equality with another GFPNumCollectionT<fp_type> object
+	 *
+	 * @param  cp A constant reference to another GFPNumCollectionT<fp_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GFPNumCollectionT<fp_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Searches for compliance with expectations with respect to another object
-    * of the same type
-    *
-    * @param cp A constant reference to another GObject object
-    * @param e The expected outcome of the comparison
-    * @param limit The maximum deviation for floating point values (important for similarity checks)
-    */
-   virtual void compare(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-   ) const override {
-      using namespace Gem::Common;
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GFPNumCollectionT<fp_type> object
+	 *
+	 * @param  cp A constant reference to another GFPNumCollectionT<fp_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GFPNumCollectionT<fp_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-      // Check that we are indeed dealing with a GAdaptorT reference
-      const GFPNumCollectionT<fp_type>  *p_load = GObject::gobject_conversion<GFPNumCollectionT<fp_type> >(&cp);
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
 
-      GToken token("GFPNumCollectionT<fp_type>", e);
+		// Check that we are indeed dealing with a GAdaptorT reference
+		const GFPNumCollectionT<fp_type>  *p_load = GObject::gobject_conversion<GFPNumCollectionT<fp_type> >(&cp);
 
-      // Compare our parent data ...
-      Gem::Common::compare_base<GNumCollectionT<fp_type> >(IDENTITY(*this, *p_load), token);
+		GToken token("GFPNumCollectionT<fp_type>", e);
 
-      // ... no local data
+		// Compare our parent data ...
+		Gem::Common::compare_base<GNumCollectionT<fp_type> >(IDENTITY(*this, *p_load), token);
 
-      // React on deviations from the expectation
-      token.evaluate();
-   }
+		// ... no local data
 
-   /***************************************************************************/
-   /**
-    * Emits a name for this class / object
-    */
-   virtual std::string name() const override {
-      return std::string("GFPNumCollectionT");
-   }
+		// React on deviations from the expectation
+		token.evaluate();
+	}
+
+	/***************************************************************************/
+	/**
+	 * Emits a name for this class / object
+	 */
+	virtual std::string name() const override {
+		return std::string("GFPNumCollectionT");
+	}
 
 protected:
 	/***************************************************************************/
@@ -258,7 +258,7 @@ protected:
 	 * set up. Data that is added later will remain unaffected.
 	 */
 	virtual bool randomInit_(const activityMode& am) override {
-	   bool randomized = false;
+		bool randomized = false;
 
 		fp_type lowerBoundary = GNumCollectionT<fp_type>::getLowerInitBoundary();
 		fp_type upperBoundary = GNumCollectionT<fp_type>::getUpperInitBoundary();
@@ -586,7 +586,7 @@ public:
 		//------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-      condnotset("GFPNumCollectionT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GFPNumCollectionT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -601,12 +601,12 @@ public:
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
 namespace boost {
-	namespace serialization {
-		template<typename fp_type>
-		struct is_abstract<Gem::Geneva::GFPNumCollectionT<fp_type> > : public boost::true_type {};
-		template<typename fp_type>
-		struct is_abstract< const Gem::Geneva::GFPNumCollectionT<fp_type> > : public boost::true_type {};
-	}
+namespace serialization {
+template<typename fp_type>
+struct is_abstract<Gem::Geneva::GFPNumCollectionT<fp_type> > : public boost::true_type {};
+template<typename fp_type>
+struct is_abstract< const Gem::Geneva::GFPNumCollectionT<fp_type> > : public boost::true_type {};
+}
 }
 /******************************************************************************/
 

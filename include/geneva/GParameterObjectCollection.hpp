@@ -69,10 +69,10 @@ class GParameterObjectCollection
 
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
-	  using boost::serialization::make_nvp;
+		using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GParameterTCollectionT_gbd",
-			  boost::serialization::base_object<GParameterTCollectionT<GParameterBase> >(*this));
+		ar & make_nvp("GParameterTCollectionT_gbd",
+						  boost::serialization::base_object<GParameterTCollectionT<GParameterBase> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -86,26 +86,26 @@ public:
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GParameterObjectCollection();
 
-   /** @brief The standard assignment operator */
-   G_API_GENEVA const GParameterObjectCollection& operator=(const GParameterObjectCollection&);
+	/** @brief The standard assignment operator */
+	G_API_GENEVA const GParameterObjectCollection& operator=(const GParameterObjectCollection&);
 
 	/** @brief Checks for equality with another GParameterObjectCollection object */
 	G_API_GENEVA bool operator==(const GParameterObjectCollection&) const;
 	/** @brief Checks for inequality with another GParameterObjectCollection object */
 	G_API_GENEVA bool operator!=(const GParameterObjectCollection&) const;
 
-   /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
-   ) const override;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 	/** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
 	G_API_GENEVA std::shared_ptr<Gem::Geneva::GParameterBase> at(const std::size_t& pos);
 
-   /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const override;
+	/** @brief Emits a name for this class / object */
+	virtual G_API_GENEVA std::string name() const override;
 
 	/***************************************************************************/
 	/**
@@ -119,8 +119,8 @@ public:
 	 */
 	template <typename parameter_type>
 	const std::shared_ptr<parameter_type> at(
-			  const std::size_t& pos
-			, typename boost::enable_if<boost::is_base_of<GParameterBase, parameter_type> >::type* dummy = 0
+		const std::size_t& pos
+		, typename boost::enable_if<boost::is_base_of<GParameterBase, parameter_type> >::type* dummy = 0
 	)  const {
 #ifdef DEBUG
 	   if(this->empty() || pos >= this->size()) {
@@ -134,8 +134,8 @@ public:
  	   }
 #endif /* DEBUG */
 
-	   // Does error checks on the conversion internally
-      return Gem::Common::convertSmartPointer<GParameterBase, parameter_type>(data.at(pos));
+		// Does error checks on the conversion internally
+		return Gem::Common::convertSmartPointer<GParameterBase, parameter_type>(data.at(pos));
 	}
 
 protected:

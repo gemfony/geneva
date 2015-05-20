@@ -301,8 +301,8 @@ public:
 		// Check that the provided directory exists
 		if(!boost::filesystem::exists(cpDirectory)) {
 			std::cerr
-				<< "In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(): Warning!" << std::endl
-				<< "Directory " << cpDirectory << " does not exist and will be created automatically." << std::endl;
+			<< "In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(): Warning!" << std::endl
+			<< "Directory " << cpDirectory << " does not exist and will be created automatically." << std::endl;
 
 			if(!boost::filesystem::create_directory(cpDirectory)) {
 				glogger
@@ -496,7 +496,7 @@ public:
 			// Set the reportGeneration_ variable to 0 in order not to emit
 			// any information at all.
 			if(reportIteration_ && (iteration_%reportIteration_ == 0)) {
-			   doInfo(INFOPROCESSING);
+				doInfo(INFOPROCESSING);
 			}
 
 			// update the iteration_ counter
@@ -841,8 +841,8 @@ public:
 	 */
 	template <typename target_type>
 	std::shared_ptr<target_type> individual_cast(
-			const std::size_t& pos
-			, typename boost::enable_if<boost::is_base_of<GOptimizableEntity, target_type> >::type* dummy = 0
+		const std::size_t& pos
+		, typename boost::enable_if<boost::is_base_of<GOptimizableEntity, target_type> >::type* dummy = 0
 	) {
 #ifdef DEBUG
 		if(pos >= this->size()) {
@@ -1274,7 +1274,7 @@ protected:
 		defaultPopulationSize_ = defPopSize;
 	}
 
-   /***************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Set the number of "best" individuals to be recorded in each iteration
 	 *
@@ -1679,15 +1679,15 @@ private:
 		return false;
 	}
 
-   /***************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Check whether the max-iteration halt is set
 	 *
 	 * @return A boolean indicating whether the "max-iteration halt" has been set
 	 */
 	bool maxIterationHaltset() const {
-	   if(0 == maxIteration_) return false;
-	   else return true;
+		if(0 == maxIteration_) return false;
+		else return true;
 	}
 
 	/***************************************************************************/
@@ -1697,8 +1697,8 @@ private:
 	 * @return A boolean indicating whether a halt criterion based on the number of stalls has been set
 	 */
 	bool stallHaltSet() const {
-	   if(0 == maxStallIteration_) return false;
-	   else return true;
+		if(0 == maxStallIteration_) return false;
+		else return true;
 	}
 
 	/***************************************************************************/
@@ -1953,26 +1953,26 @@ public:
 		 * @param goa A pointer to the current optimization algorithm for which information should be emitted
 		 */
 		void informationFunction(
-				const infoMode& im
-				, GOptimizationAlgorithmT<ind_type> * const goa
+			const infoMode& im
+			, GOptimizationAlgorithmT<ind_type> * const goa
 		) {
 			// Perform any action defined by the user through pluggable monitor objects
 			if(pluggableInfoFunction_) {
-			pluggableInfoFunction_(im,goa);
+				pluggableInfoFunction_(im,goa);
 			}
 
 			// Act on the information mode provided
 			switch(im) {
-			case Gem::Geneva::INFOINIT:
+				case Gem::Geneva::INFOINIT:
 				{
 					if(!quiet_) {
 						std::cout << "Starting an optimization run with algorithm \"" << goa->getAlgorithmName() << "\"" << std::endl;
 					}
 					this->firstInformation(goa);
 				}
-				break;
+					break;
 
-			case Gem::Geneva::INFOPROCESSING:
+				case Gem::Geneva::INFOPROCESSING:
 				{
 					// We output raw values here, as this is likely what the user is interested in
 					if(!quiet_) {
@@ -1985,22 +1985,22 @@ public:
 					}
 					this->cycleInformation(goa);
 				}
-				break;
+					break;
 
-			case Gem::Geneva::INFOEND:
+				case Gem::Geneva::INFOEND:
 				{
 					this->lastInformation(goa);
 					if(!quiet_) std::cout << "End of optimization reached in algorithm \""<< goa->getAlgorithmName() << "\"" << std::endl;
 				}
-				break;
+					break;
 
-			default:
+				default:
 				{
 					glogger
 					<< "Received invalid infoMode " << im << std::endl
 					<< GEXCEPTION;
 				}
-				break;
+					break;
 			};
 		}
 
@@ -2259,12 +2259,12 @@ inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::finalize()
  * @brief The content of the BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) macro. Needed for Boost.Serialization
  */
 namespace boost {
-	namespace serialization {
-		template<typename ind_type>
-		struct is_abstract<Gem::Geneva::GOptimizationAlgorithmT<ind_type> > : public boost::true_type {};
-		template<typename ind_type>
-		struct is_abstract< const Gem::Geneva::GOptimizationAlgorithmT<ind_type> > : public boost::true_type {};
-	}
+namespace serialization {
+template<typename ind_type>
+struct is_abstract<Gem::Geneva::GOptimizationAlgorithmT<ind_type> > : public boost::true_type {};
+template<typename ind_type>
+struct is_abstract< const Gem::Geneva::GOptimizationAlgorithmT<ind_type> > : public boost::true_type {};
+}
 }
 
 /******************************************************************************/

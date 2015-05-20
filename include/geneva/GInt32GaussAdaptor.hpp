@@ -68,10 +68,10 @@ class GInt32GaussAdaptor
 
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
-	  using boost::serialization::make_nvp;
+		using boost::serialization::make_nvp;
 
-	  ar
-	  & make_nvp("GIntGaussAdaptorT_int32", boost::serialization::base_object<GIntGaussAdaptorT<boost::int32_t> >(*this));
+		ar
+			& make_nvp("GIntGaussAdaptorT_int32", boost::serialization::base_object<GIntGaussAdaptorT<boost::int32_t> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -84,42 +84,42 @@ public:
 	explicit G_API_GENEVA GInt32GaussAdaptor(const double&);
 	/** @brief Initialization with a number of values belonging to the width of the gaussian */
 	G_API_GENEVA GInt32GaussAdaptor(
-      const double&
-      , const double&
-      , const double&
-      , const double&
+		const double&
+		, const double&
+		, const double&
+		, const double&
 	);
 	/** @brief Initialization with a number of values belonging to the width of the gaussian and the adaption probability */
 	G_API_GENEVA GInt32GaussAdaptor(
-      const double&
-      , const double&
-      , const double&
-      , const double&
-      , const double&
+		const double&
+		, const double&
+		, const double&
+		, const double&
+		, const double&
 	);
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GInt32GaussAdaptor();
 
-   /** @brief The standard assignment operator */
-   G_API_GENEVA const GInt32GaussAdaptor& operator=(const GInt32GaussAdaptor&);
+	/** @brief The standard assignment operator */
+	G_API_GENEVA const GInt32GaussAdaptor& operator=(const GInt32GaussAdaptor&);
 
 	/** @brief Checks for equality with another GInt32GaussAdaptor object */
 	G_API_GENEVA bool operator==(const GInt32GaussAdaptor&) const;
 	/** @brief Checks for inequality with another GInt32GaussAdaptor object */
 	G_API_GENEVA bool operator!=(const GInt32GaussAdaptor&) const;
 
-   /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_GENEVA void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
-   ) const override;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 	/** @brief Retrieves the id of this adaptor */
 	virtual G_API_GENEVA Gem::Geneva::adaptorId getAdaptorId() const override;
 
-   /** @brief Emits a name for this class / object */
-   virtual G_API_GENEVA std::string name() const override;
+	/** @brief Emits a name for this class / object */
+	virtual G_API_GENEVA std::string name() const override;
 
 protected:
 	/** @brief Loads the data of another GObject */

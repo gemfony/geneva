@@ -94,9 +94,9 @@ public:
 	 * @param val  The value to be assigned to each position
 	 */
 	GParameterCollectionT(
-      const std::size_t& nval
-      , const T& val
-   )
+		const std::size_t& nval
+		, const T& val
+	)
 		: GParameterBaseWithAdaptorsT<T> ()
 		, Gem::Common::GStdSimpleVectorInterfaceT<T>(nval, val)
 	{ /* nothing */ }
@@ -119,79 +119,79 @@ public:
 	virtual ~GParameterCollectionT()
 	{ /* nothing */ }
 
-   /***************************************************************************/
-   /**
-    * The standard assignment operator
-    */
-   const GParameterCollectionT<T>& operator=(const GParameterCollectionT<T>& cp) {
-      this->load_(&cp);
-      return *this;
-   }
+	/***************************************************************************/
+	/**
+	 * The standard assignment operator
+	 */
+	const GParameterCollectionT<T>& operator=(const GParameterCollectionT<T>& cp) {
+		this->load_(&cp);
+		return *this;
+	}
 
-   /***************************************************************************/
-    /**
-     * Checks for equality with another GParameterCollectionT<T> object
-     *
-     * @param  cp A constant reference to another GParameterCollectionT<T> object
-     * @return A boolean indicating whether both objects are equal
-     */
-    bool operator==(const GParameterCollectionT<T>& cp) const {
-       using namespace Gem::Common;
-       try {
-          this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-          return true;
-       } catch(g_expectation_violation&) {
-          return false;
-       }
-    }
+	/***************************************************************************/
+	/**
+	  * Checks for equality with another GParameterCollectionT<T> object
+	  *
+	  * @param  cp A constant reference to another GParameterCollectionT<T> object
+	  * @return A boolean indicating whether both objects are equal
+	  */
+	bool operator==(const GParameterCollectionT<T>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-    /***************************************************************************/
-    /**
-     * Checks for inequality with another GParameterCollectionT<T> object
-     *
-     * @param  cp A constant reference to another GParameterCollectionT<T> object
-     * @return A boolean indicating whether both objects are inequal
-     */
-    bool operator!=(const GParameterCollectionT<T>& cp) const {
-       using namespace Gem::Common;
-       try {
-          this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-          return true;
-       } catch(g_expectation_violation&) {
-          return false;
-       }
-    }
+	/***************************************************************************/
+	/**
+	  * Checks for inequality with another GParameterCollectionT<T> object
+	  *
+	  * @param  cp A constant reference to another GParameterCollectionT<T> object
+	  * @return A boolean indicating whether both objects are inequal
+	  */
+	bool operator!=(const GParameterCollectionT<T>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
 
-   /***************************************************************************/
-   /**
-    * Searches for compliance with expectations with respect to another object
-    * of the same type
-    *
-    * @param cp A constant reference to another GObject object
-    * @param e The expected outcome of the comparison
-    * @param limit The maximum deviation for floating point values (important for similarity checks)
-    */
-   virtual void compare(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-   ) const override {
-      using namespace Gem::Common;
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
 
-      // Check that we are indeed dealing with a GAdaptorT reference
-      const GParameterCollectionT<T>  *p_load = GObject::gobject_conversion<GParameterCollectionT<T> >(&cp);
+		// Check that we are indeed dealing with a GAdaptorT reference
+		const GParameterCollectionT<T>  *p_load = GObject::gobject_conversion<GParameterCollectionT<T> >(&cp);
 
-      GToken token("GParameterCollectionT<T>", e);
+		GToken token("GParameterCollectionT<T>", e);
 
-      // Compare our parent data ...
-      Gem::Common::compare_base<GParameterBaseWithAdaptorsT<T> >(IDENTITY(*this, *p_load), token);
+		// Compare our parent data ...
+		Gem::Common::compare_base<GParameterBaseWithAdaptorsT<T> >(IDENTITY(*this, *p_load), token);
 
-      // We access the relevant data of one of the parent classes directly for simplicity reasons
-      compare_t(IDENTITY(this->data, p_load->data), token);
+		// We access the relevant data of one of the parent classes directly for simplicity reasons
+		compare_t(IDENTITY(this->data, p_load->data), token);
 
-      // React on deviations from the expectation
-      token.evaluate();
-   }
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 	/***************************************************************************/
 	/**
@@ -202,10 +202,10 @@ public:
 	 * @return The number of adaptions that were carried out
 	 */
 	virtual std::size_t adaptImpl() override {
-	   return GParameterBaseWithAdaptorsT<T>::applyAdaptor(
-	         Gem::Common::GStdSimpleVectorInterfaceT<T>::data
-         , this->range()
-      );
+		return GParameterBaseWithAdaptorsT<T>::applyAdaptor(
+			Gem::Common::GStdSimpleVectorInterfaceT<T>::data
+			, this->range()
+		);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -231,7 +231,7 @@ public:
 	 * Swap another object's vector with ours
 	 */
 	inline void swap(GParameterCollectionT<T>& cp) {
-	   Gem::Common::GStdSimpleVectorInterfaceT<T>::swap(cp.data);
+		Gem::Common::GStdSimpleVectorInterfaceT<T>::swap(cp.data);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -275,8 +275,8 @@ public:
 	 * @param id The id assigned to this object
 	 */
 	virtual void toPropertyTree(
-	      pt::ptree& ptr
-	      , const std::string& baseName
+		pt::ptree& ptr
+		, const std::string& baseName
 	) const override {
 #ifdef DEBUG
 	   // Check that the object isn't empty
@@ -288,37 +288,37 @@ public:
 	   }
 #endif /* DEBUG */
 
-      ptr.put(baseName + ".name", this->getParameterName());
-      ptr.put(baseName + ".type", this->name());
-      ptr.put(baseName + ".baseType", Gem::Common::GTypeToStringT<T>::value());
-      ptr.put(baseName + ".isLeaf", this->isLeaf());
-      ptr.put(baseName + ".nVals", this->size());
+		ptr.put(baseName + ".name", this->getParameterName());
+		ptr.put(baseName + ".type", this->name());
+		ptr.put(baseName + ".baseType", Gem::Common::GTypeToStringT<T>::value());
+		ptr.put(baseName + ".isLeaf", this->isLeaf());
+		ptr.put(baseName + ".nVals", this->size());
 
-      typename GParameterCollectionT<T>::const_iterator cit;
-      std::size_t pos;
-      for(cit=this->begin(); cit!=this->end(); ++cit) {
-         pos = cit - this->begin();
-         ptr.put(baseName + "values.value" + boost::lexical_cast<std::string>(pos), *cit);
-      }
-      ptr.put(baseName + ".initRandom", false); // Unused for the creation of a property tree
-      ptr.put(baseName + ".adaptionsActive", this->adaptionsActive());
+		typename GParameterCollectionT<T>::const_iterator cit;
+		std::size_t pos;
+		for(cit=this->begin(); cit!=this->end(); ++cit) {
+			pos = cit - this->begin();
+			ptr.put(baseName + "values.value" + boost::lexical_cast<std::string>(pos), *cit);
+		}
+		ptr.put(baseName + ".initRandom", false); // Unused for the creation of a property tree
+		ptr.put(baseName + ".adaptionsActive", this->adaptionsActive());
 	}
 
-   /***************************************************************************/
-   /**
-    * Lets the audience know whether this is a leaf or a branch object
-    */
-   virtual bool isLeaf() const override {
-      return true;
-   }
+	/***************************************************************************/
+	/**
+	 * Lets the audience know whether this is a leaf or a branch object
+	 */
+	virtual bool isLeaf() const override {
+		return true;
+	}
 
-   /***************************************************************************/
-   /**
-    * Emits a name for this class / object
-    */
-   virtual std::string name() const override {
-      return std::string("GParameterCollectionT");
-   }
+	/***************************************************************************/
+	/**
+	 * Emits a name for this class / object
+	 */
+	virtual std::string name() const override {
+		return std::string("GParameterCollectionT");
+	}
 
 protected:
 	/***************************************************************************/
@@ -384,7 +384,7 @@ public:
 		Gem::Common::GStdSimpleVectorInterfaceT<T>::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-      condnotset("GParameterCollectionT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GParameterCollectionT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -400,7 +400,7 @@ public:
 
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-      condnotset("GParameterCollectionT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GParameterCollectionT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -415,12 +415,12 @@ public:
  * @brief The content of the BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) macro. Needed for Boost.Serialization
  */
 namespace boost {
-  namespace serialization {
-    template<typename T>
-    struct is_abstract<Gem::Geneva::GParameterCollectionT<T> > : public boost::true_type {};
-    template<typename T>
-    struct is_abstract< const Gem::Geneva::GParameterCollectionT<T> > : public boost::true_type {};
-  }
+namespace serialization {
+template<typename T>
+struct is_abstract<Gem::Geneva::GParameterCollectionT<T> > : public boost::true_type {};
+template<typename T>
+struct is_abstract< const Gem::Geneva::GParameterCollectionT<T> > : public boost::true_type {};
+}
 }
 
 /******************************************************************************/
