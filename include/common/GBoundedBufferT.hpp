@@ -558,6 +558,7 @@ private:
 	GBoundedBufferT(const GBoundedBufferT<T>&) = delete; ///< Disabled copy constructor
 	GBoundedBufferT& operator = (const GBoundedBufferT<T>&) = delete; ///< Disabled assign operator
 
+	// TODO: This is dangerous: one definition rule!
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 	/***************************************************************************/
 	/**
