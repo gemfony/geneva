@@ -471,37 +471,6 @@ inline std::shared_ptr<GObject> GObject::clone<GObject> (
  */
 
 /******************************************************************************/
-// A define for the compare-infrastructure (used e.g. in operator== and in unit tests)
-#define COMPARE_PARENT(p,c,e,l) \
-g_n_tests++; \
-switch(e){ \
-case Gem::Common::CE_FP_SIMILARITY: \
-case Gem::Common::CE_EQUALITY: \
-{ \
-    p::compare((c),(e),(l));\
-} \
-break; \
-\
-case Gem::Common::CE_INEQUALITY: \
-{ \
-   try{ \
-      p::compare((c),(e),(l)); \
-   } catch(g_expectation_violation&) { \
-       g_n_violations++; \
-   } \
-} \
-break; \
-\
-default: \
-{ \
-   glogger \
-   << "Got invalid expectation " << e << std::endl \
-   << GEXCEPTION; \
-} \
-break; \
-}; \
-
-/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
