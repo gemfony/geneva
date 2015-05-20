@@ -52,11 +52,11 @@ if [ $# -eq 0 ]; then
 
 	CMAKE="/usr/bin/cmake"         # Where the cmake executable is located
 	BUILDMODE="Release"            # Release, Debug, RelWithDebInfo, MinSizeRel or Sanitize (experimental, will default to Debug on unsupported platforms)
-	BUILDSTD="cxx98"               # "auto": choose automatically; "cxx98": enforce the C++98 standard; "cxx11": enforce the C++11 standard
+	BUILDSTD="cxx11"               # "auto": choose automatically; "cxx98": enforce the C++98 standard; "cxx11": enforce the C++11 standard
 	BUILDWITHMPI="0"               # Whether Geneva should be built with MPI support (experimental!). NOTE: Boost.MPI must be installed alongside supported MPI libraries
-	BUILDTESTCODE="0"              # Whether to build Geneva with testing code
+	BUILDTESTCODE="1"              # Whether to build Geneva with testing code
 	BUILDSTATIC="0"                # Whether to build static code / libraries (experimental!)
-	VERBOSEMAKEFILE="0"            # Whether compilation information should be emitted
+	VERBOSEMAKEFILE="1"            # Whether compilation information should be emitted
 	INSTALLDIR="/opt/geneva"       # Where the Geneva library shall go
 	CEXTRAFLAGS=""                 # Further CMake settings you might want to provide
 elif [ $# -eq 1 ]; then
@@ -266,7 +266,7 @@ if [ "x${_BOOST_SYSTEM}" = "xfalse" ]; then
 	BOOSTSYSTEMFLAG="-DBoost_NO_SYSTEM_PATHS=1"
 fi
 
-CONFIGURE="${CMAKE} $BOOSTLOCATIONPATHS $BOOSTSYSTEMFLAG \
+CONFIGURE="${CMAKE} -DGENEVA_PREPAREBUILD_USED=1 $BOOSTLOCATIONPATHS $BOOSTSYSTEMFLAG \
 -DGENEVA_BUILD_TYPE=${BUILDMODE} \
 -DGENEVA_BUILD_TESTS=${BUILDTESTCODE} \
 -DGENEVA_STATIC=${BUILDSTATIC} \

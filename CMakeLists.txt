@@ -35,6 +35,22 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 PROJECT (Geneva_Library_Collection)
 
 ################################################################################
+# Check if we were called through prepareBuild.sh . If not, we
+# need to specify some default values.
+IF ( NOT GENEVA_PREPAREBUILD_USED )
+	SET( BOOST_ROOT /opt/boost )
+	SET( Boost_NO_SYSTEM_PATHS 1 )
+	SET( GENEVA_BUILD_TYPE Release )
+	SET( GENEVA_BUILD_TESTS 1 )
+	SET( GENEVA_STATIC 0 )
+	SET( GENEVA_CXX_STD cxx11 )
+	SET( GENEVA_WITH_MPI 0 )
+	SET( CMAKE_VERBOSE_MAKEFILE 1 )
+	SET( CMAKE_INSTALL_PREFIX /opt/geneva )
+	MESSAGE( "OUTPUT DIRECTORY IS" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} )
+ENDIF()
+
+################################################################################
 # We create some examples and test programs as part of the build process.
 # This variable allows their build-scripts to detect that they are being
 # called from within the master build-script. This prevents redundant searches
@@ -155,7 +171,7 @@ ENDIF()
 MESSAGE("${MSG}\n")
 
 ################################################################################
-# Code for package generation with CPack. This is experimental and the packages 
+# Code for package generation with CPack. This is experimental and the packages
 # don't satisfy the Linux FHS yet. Use with care.
 #
 # RPM or DEB packages can be created using umask 022 && fakeroot make package.
@@ -167,13 +183,13 @@ SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "The Geneva optimization library")
 
 # The package description. Indentation is important!
 SET(CPACK_AUX_PACKAGE_DESCRIPTION
- "This is the Geneva optimization library. As the name suggests --it stands for 
- 'Grid-enabled evolutionary algorithms'--, Geneva aims to provide the necessary 
- tools to perform parametric optimization in parallel on devices ranging from 
+ "This is the Geneva optimization library. As the name suggests --it stands for
+ 'Grid-enabled evolutionary algorithms'--, Geneva aims to provide the necessary
+ tools to perform parametric optimization in parallel on devices ranging from
  multi-processor machines over clusters all the way to Grids and Cloud installations.
- Geneva does not want to be the fastest library of evolutionary algorithms on 
- single-processor machines, but is instead targeted at large scale problems, 
- where the evaluation of a single candidate solution will typically take longer 
+ Geneva does not want to be the fastest library of evolutionary algorithms on
+ single-processor machines, but is instead targeted at large scale problems,
+ where the evaluation of a single candidate solution will typically take longer
  than a few seconds."
 )
 
@@ -186,13 +202,13 @@ SET(CPACK_PACKAGING_INSTALL_PREFIX "/opt/geneva")
 
 # DEB specific variables. Indentation is important in the description!
 SET(
-	CPACK_DEBIAN_PACKAGE_DESCRIPTION 
+	CPACK_DEBIAN_PACKAGE_DESCRIPTION
 	"${CPACK_PACKAGE_DESCRIPTION_SUMMARY}\n ${CPACK_AUX_PACKAGE_DESCRIPTION}"
 )
 SET(CPACK_DEBIAN_PACKAGE_SECTION "Science")
 SET(CPACK_DEBIAN_PACKAGE_PRIORITY "Extra")
 SET(
-	CPACK_DEBIAN_PACKAGE_DEPENDS 
+	CPACK_DEBIAN_PACKAGE_DEPENDS
 	"libboost-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
 	libboost-date-time-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
 	libboost-filesystem-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
