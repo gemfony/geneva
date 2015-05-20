@@ -1,0 +1,9 @@
+/build/**
+!/build/README*
+/include/common/GGlobalDefines.hpp
+/.idea
+/.project
+/.settings
+/.cproject
+/.DS_Store
+/.com.apple.*
