@@ -511,7 +511,7 @@ protected:
 
    private:
       /** @brief Default constructor; intentionally private and undefined */
-      buffer_not_empty();
+      buffer_not_empty() = delete;
 
       const container_type& c_; ///< Holds a reference to the actual container
    };
