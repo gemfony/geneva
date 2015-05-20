@@ -48,9 +48,9 @@ Please do make sure that Boost has been compiled with the same C++ standard
 mode that you wish to use for Geneva (in particular, do not mix libraries
 compiled in C++11 and C++98 mode).
 
-If you wish to build from the source code available from our version control 
-tree you will also need the Bazaar version control tools. This is not needed 
-if you only intend to build the official releases from the provided "tar balls".
+If you wish to build from the source code available from our version control
+tree you will also need the Git version control tool. This is not needed if
+you only intend to build the official releases from the provided "tar balls".
 
 
 Installation prerequisites on Debian/Ubuntu
@@ -59,7 +59,7 @@ Installation prerequisites on Debian/Ubuntu
 The following commands should be enough to install the required prerequisites
 in any reasonably modern Debian/Ubuntu release (Debian 6, Ubuntu 10.10 or later):
 
-sudo apt-get install --no-install-recommends cmake bzr g++
+sudo apt-get install --no-install-recommends cmake git g++
 
 sudo apt-get install --no-install-recommends libboost-dev libboost-date-time-dev \
         libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev \
@@ -71,8 +71,8 @@ Installation prerequisites on MacOS X (tested only on 10.10)
 ------------------------------------------------------------
 
 You should first install the Xcode environment from the App store. This
-will give you a working, Clang-based C++ compiler. You should also install Mac versions
-of CMake and bzr.
+will give you a working, Clang-based C++ compiler. You should also install Mac
+versions of CMake and Git.
 
 We recommend that you compile a custom boost version. With Boost 1.57,
 unpack the archive, then run the following commands inside of the main
@@ -98,7 +98,7 @@ using clang : 98
     : "/usr/bin/clang++"
     : <cxxflags>"-std=c++98 -stdlib=libstdc++" <linkflags>"-stdlib=libstdc++"
     ;
-    
+
 This will enforce the usage of libstdc++ and the 98 C++ standard.
 
 - bootstrap boost, then call
