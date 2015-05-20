@@ -413,10 +413,11 @@ bool GParserBuilder::parseConfigFile(const std::string& configFile) {
 		// Do some error checking. Also check that the configuration file exists.
 		// If not, create a default version
 		if(!bf::exists(configFile_withBase)) {
-			std::cerr
+			glogger
 			<< "Note: In GParserBuilder::parseConfigFile():" << std::endl
 			<< "Configuration file " << configFile_withBase << " does not exist." << std::endl
-			<< "We will try to create a file with default values for you." << std::endl;
+			<< "We will try to create a file with default values for you." << std::endl
+			<< GLOGGING;
 
 			std::string header = "This configuration file was automatically created by GParserBuilder;";
 			this->writeConfigFile(
@@ -454,18 +455,21 @@ bool GParserBuilder::parseConfigFile(const std::string& configFile) {
 
 		result = true;
 	} catch(const gemfony_error_condition& e) {
-		std::
-		cerr << "Caught gemfony_error_condition when parsing configuration file " << configFile_withBase << ":" << std::endl
-		<< e.what() << std::endl;
+		glogger
+		<< "Caught gemfony_error_condition when parsing configuration file " << configFile_withBase << ":" << std::endl
+		<< e.what() << std::endl
+		<< GLOGGING;
 		result=false;
 	} catch(const std::exception& e) {
-		std::cerr
+		glogger
 		<< "Caught std::exception when parsing configuration file " << configFile_withBase << ":" << std::endl
-		<< e.what() << std::endl;
+		<< e.what() << std::endl
+		<< GLOGGING;
 		result=false;
 	} catch(...) {
-		std::cerr
-		<< "Unknown error while parsing the configuration file " << configFile_withBase << std::endl;
+		glogger
+		<< "Unknown error while parsing the configuration file " << configFile_withBase << std::endl
+		<< GLOGGING;
 		result=false;
 	}
 
@@ -482,9 +486,9 @@ bool GParserBuilder::parseConfigFile(const std::string& configFile) {
  * @param writeAll A boolean parameter that indicates whether all or only essential parameters should be written
  */
 void GParserBuilder::writeConfigFile(
-      const std::string& configFile
-      , const std::string& header
-      , bool writeAll
+	const std::string& configFile
+	, const std::string& header
+	, bool writeAll
 ) const {
    using namespace boost::filesystem;
 
@@ -644,16 +648,16 @@ bool GParserBuilder::parseCommandLine(int argc, char **argv, const bool& verbose
          }
       }
    } catch(const po::error& e) {
-      std::cerr
+      glogger
       << "In GParserBuilder::parseCommandLine(int argc, char **argv):" << std::endl
       << "Error parsing the command line:" << std::endl
-      << e.what() << std::endl;
-      exit(1);
+      << e.what() << std::endl
+		<< GTERMINATION;
    } catch(...) {
-      std::cerr
+      glogger
       << "In GParserBuilder::parseCommandLine(int argc, char **argv):" << std::endl
-      << "Unknown error while parsing the command line" << std::endl;
-      exit(1);
+      << "Unknown error while parsing the command line" << std::endl
+		<< GTERMINATION;
    }
 
    return result;

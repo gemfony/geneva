@@ -119,11 +119,13 @@ GStarterIndividual::GStarterIndividual(
 			, adProb
 		);
 	} catch (const Gem::Common::gemfony_error_condition& e) {
-		std::cerr << e.what();
-		std::terminate();
+		glogger
+		<< e.what()
+		<< GTERMINATION;
 	} catch (...) {
-		std::cerr << "Unknown exception caught" << std::endl;
-		std::terminate();
+		glogger
+		<< "Unknown exception caught" << std::endl
+		<< GTERMINATION;
 	}
 }
 
