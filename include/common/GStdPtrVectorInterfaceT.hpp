@@ -96,36 +96,35 @@ namespace Common {
  * add default-constructed T() objects, if the requested size is larger than
  * the current one.
  */
-template <typename T, typename B> // B stands for "base type"
-class GStdPtrVectorInterfaceT
-{
-    ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
+template<typename T, typename B> // B stands for "base type"
+class GStdPtrVectorInterfaceT {
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
 
-    template<typename Archive>
-    void serialize(Archive & ar, const unsigned int){
-      using boost::serialization::make_nvp;
+	template<typename Archive>
+	void serialize(Archive &ar, const unsigned int) {
+		using boost::serialization::make_nvp;
 
-      // Some preparation needed if this is a load operation.
-      // This is needed to work around a problem in Boost 1.58
-      if(Archive::is_loading::value) {
-         data.clear();
-      }
+		// Some preparation needed if this is a load operation.
+		// This is needed to work around a problem in Boost 1.58
+		if (Archive::is_loading::value) {
+			data.clear();
+		}
 
-      ar
-      & BOOST_SERIALIZATION_NVP(data);
-    }
-    ///////////////////////////////////////////////////////////////////////
+		ar
+			&BOOST_SERIALIZATION_NVP(data);
+	}
+	///////////////////////////////////////////////////////////////////////
 
-    // Make sure B is a base class of T
-    BOOST_MPL_ASSERT((boost::is_base_of<B, T>));
+	// Make sure B is a base class of T
+	BOOST_MPL_ASSERT((boost::is_base_of<B, T>));
 
 public:
-   /***************************************************************************/
+	/***************************************************************************/
 	/**
 	 * The default constructor
 	 */
-    GStdPtrVectorInterfaceT() { /* nothing */ }
+	GStdPtrVectorInterfaceT() { /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -134,9 +133,10 @@ public:
 	 *
 	 * @param cp A constant reference to another GStdPtrVectorInterfaceT object
 	 */
-    GStdPtrVectorInterfaceT(const GStdPtrVectorInterfaceT<T, B>& cp) {
-		typename std::vector<std::shared_ptr<T> >::const_iterator cp_it;
-		for(cp_it=cp.data.begin(); cp_it!=cp.data.end(); ++cp_it) {
+	GStdPtrVectorInterfaceT(const GStdPtrVectorInterfaceT<T, B> &cp) {
+		typename std::vector<std::shared_ptr < T> > ::const_iterator
+		cp_it;
+		for (cp_it = cp.data.begin(); cp_it != cp.data.end(); ++cp_it) {
 			data.push_back((*cp_it)->T::template clone<T>());
 		}
 	}
@@ -157,7 +157,7 @@ public:
 	 * @param cp A copy of another GStdPtrVectorInterfaceT<T, B> object
 	 * @return The argument of this function
 	 */
-	const GStdPtrVectorInterfaceT<T, B>& operator=(const GStdPtrVectorInterfaceT<T, B>& cp) {
+	const GStdPtrVectorInterfaceT<T, B> &operator=(const GStdPtrVectorInterfaceT<T, B> &cp) {
 		this->operator=(cp.data);
 		return cp;
 	}
@@ -170,35 +170,41 @@ public:
 	 * @param cp A constant reference to another std::vector<std::shared_ptr<T> >
 	 * @return The argument of this function
 	 */
-	const std::vector<std::shared_ptr<T> >& operator=(const std::vector<std::shared_ptr<T> >& cp) {
-		typename std::vector<std::shared_ptr<T> >::const_iterator cp_it;
-		typename std::vector<std::shared_ptr<T> >::iterator it;
+	const std::vector<std::shared_ptr < T> >&
+
+	operator=(const std::vector<std::shared_ptr < T>
+
+	>& cp) {
+		typename std::vector<std::shared_ptr < T> > ::const_iterator
+		cp_it;
+		typename std::vector<std::shared_ptr < T> > ::iterator
+		it;
 
 		std::size_t localSize = data.size();
 		std::size_t cpSize = cp.size();
 
-		if(cpSize == localSize) { // The most likely case
-			for(it=data.begin(), cp_it=cp.begin(); it!=data.end(); ++it, ++cp_it) {
+		if (cpSize == localSize) { // The most likely case
+			for (it = data.begin(), cp_it = cp.begin(); it != data.end(); ++it, ++cp_it) {
 				(*it)->B::load(*cp_it);
 			}
 		}
-		else if(cpSize > localSize) {
+		else if (cpSize > localSize) {
 			// First copy the initial elements
-			for(it=data.begin(), cp_it=cp.begin(); it!=data.end(); ++it, ++cp_it) {
+			for (it = data.begin(), cp_it = cp.begin(); it != data.end(); ++it, ++cp_it) {
 				(*it)->B::load(*cp_it);
 			}
 
 			// Then attach the remaining objects from cp
-			for(cp_it=cp.begin()+localSize; cp_it != cp.end(); ++cp_it) {
+			for (cp_it = cp.begin() + localSize; cp_it != cp.end(); ++cp_it) {
 				data.push_back((*cp_it)->T::template clone<T>());
 			}
 		}
-		else if(cpSize < localSize) {
+		else if (cpSize < localSize) {
 			// First get rid of surplus items
 			data.resize(cpSize);
 
 			// Then copy the elements
-			for(it=data.begin(), cp_it=cp.begin(); it!=data.end(); ++it, ++cp_it) {
+			for (it = data.begin(), cp_it = cp.begin(); it != data.end(); ++it, ++cp_it) {
 				(*it)->B::load(*cp_it);
 			}
 		}
@@ -206,38 +212,45 @@ public:
 		return cp;
 	}
 
-   /***************************************************************************/
-   /**
-    * Searches for compliance with expectations with respect to another object
-    * of the same type
-    *
-    * @param cp A constant reference to another GStdPtrVectorInterfaceT object
-    * @param e The expected outcome of the comparison
-    * @param limit The maximum deviation for floating point values (important for similarity checks)
-    */
-   virtual void compare_base(
-      const GStdPtrVectorInterfaceT<T, B>& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-   ) const BASE {
-      Gem::Common::GToken token("GBaseEA::GEAOptimizationMonitor", e);
-      Gem::Common::compare_t(IDENTITY(this->data, cp.data), token);
-      token.evaluate();
-   }
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GStdPtrVectorInterfaceT object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare_base(
+		const GStdPtrVectorInterfaceT<T, B> &cp, const Gem::Common::expectation &e, const double &limit
+	) const BASE {
+		Gem::Common::GToken token("GBaseEA::GEAOptimizationMonitor", e);
+		Gem::Common::compare_t(IDENTITY(this->data, cp.data), token);
+		token.evaluate();
+	}
 
 	/***************************************************************************/
 	// Typedefs
-	typedef typename std::vector<std::shared_ptr<T> >::value_type value_type;
-	typedef typename std::vector<std::shared_ptr<T> >::reference reference;
-	typedef typename std::vector<std::shared_ptr<T> >::const_reference const_reference;
+	typedef typename std::vector<std::shared_ptr < T> >
+	::value_type value_type;
+	typedef typename std::vector<std::shared_ptr < T> >
+	::reference reference;
+	typedef typename std::vector<std::shared_ptr < T> >
+	::const_reference const_reference;
 
-	typedef typename std::vector<std::shared_ptr<T> >::iterator iterator;
-	typedef typename std::vector<std::shared_ptr<T> >::const_iterator const_iterator;
-	typedef typename std::vector<std::shared_ptr<T> >::reverse_iterator reverse_iterator;
-	typedef typename std::vector<std::shared_ptr<T> >::const_reverse_iterator const_reverse_iterator;
+	typedef typename std::vector<std::shared_ptr < T> >
+	::iterator iterator;
+	typedef typename std::vector<std::shared_ptr < T> >
+	::const_iterator const_iterator;
+	typedef typename std::vector<std::shared_ptr < T> >
+	::reverse_iterator reverse_iterator;
+	typedef typename std::vector<std::shared_ptr < T> >
+	::const_reverse_iterator const_reverse_iterator;
 
-	typedef typename std::vector<std::shared_ptr<T> >::size_type size_type;
-	typedef typename std::vector<std::shared_ptr<T> >::difference_type difference_type;
+	typedef typename std::vector<std::shared_ptr < T> >
+	::size_type size_type;
+	typedef typename std::vector<std::shared_ptr < T> >
+	::difference_type difference_type;
 
 	/***************************************************************************/
 	// Non modifying access
@@ -256,23 +269,21 @@ public:
 	 *
 	 * @param item The item to be counted in the collection
 	 */
-	template <typename item_type>
+	template<typename item_type>
 	size_type count(
-      const std::shared_ptr<item_type>& item
-      , typename boost::enable_if<boost::is_base_of<T, item_type> >::type* dummy = 0
-   ) const {
-		if(!item) { // Check that item actually contains something useful
-		   glogger
-		   << "In GParameterTCollectionT<T>::count(item):"
-		   << "Tried to count an empty smart pointer." << std::endl
-		   << GEXCEPTION;
+		const std::shared_ptr <item_type> &item,
+		typename boost::enable_if<boost::is_base_of<T, item_type> >::type *dummy = 0
+	) const {
+		if (!item) { // Check that item actually contains something useful
+			glogger
+			<< "In GParameterTCollectionT<T>::count(item):"
+			<< "Tried to count an empty smart pointer." << std::endl
+			<< GEXCEPTION;
 		}
 
-      return std::count_if(
-         data.begin()
-         , data.end()
-         , [&item](const std::shared_ptr<T>& cont_item) -> bool {
-            bool result = false;
+		return std::count_if(
+			data.begin(), data.end(), [&item](const std::shared_ptr <T> &cont_item) -> bool {
+				bool result = false;
 #ifdef DEBUG
             try {
                result = (*item == *(std::dynamic_pointer_cast<item_type>(cont_item)));
@@ -283,11 +294,11 @@ public:
                << GEXCEPTION;
             }
 #else
-            result = (*item == *(std::static_pointer_cast<item_type>(cont_item)));
+				result = (*item == *(std::static_pointer_cast<item_type>(cont_item)));
 #endif
-            return result;
-         }
-      );
+				return result;
+			}
+		);
 	}
 
 	/* -------------------------------------------------------------------------
@@ -302,23 +313,21 @@ public:
 	 * re-implemented here, as we are dealing with a collection of smart pointers
 	 * and we do not want to compare the pointers themselves.
 	 */
-	template <typename item_type>
+	template<typename item_type>
 	const_iterator find(
-      const std::shared_ptr<item_type>& item
-      , typename boost::enable_if<boost::is_base_of<T, item_type> >::type* dummy = 0
-   ) const {
-		if(!item) { // Check that item actually contains something useful
-		   glogger
-		   << "In GParameterTCollectionT<T>::find(item):"
-         << "Tried to find an empty smart pointer." << std::endl
-         << GEXCEPTION;
+		const std::shared_ptr <item_type> &item,
+		typename boost::enable_if<boost::is_base_of<T, item_type> >::type *dummy = 0
+	) const {
+		if (!item) { // Check that item actually contains something useful
+			glogger
+			<< "In GParameterTCollectionT<T>::find(item):"
+			<< "Tried to find an empty smart pointer." << std::endl
+			<< GEXCEPTION;
 		}
 
 		return std::find_if(
-         data.begin()
-         , data.end()
-         , [&item](const std::shared_ptr<T>& cont_item) -> bool {
-		      bool result = false;
+			data.begin(), data.end(), [&item](const std::shared_ptr <T> &cont_item) -> bool {
+				bool result = false;
 #ifdef DEBUG
             try {
                result = (*item == *(std::dynamic_pointer_cast<item_type>(cont_item)));
@@ -328,10 +337,10 @@ public:
                << GEXCEPTION;
             }
 #else
-            result = (*item == *(std::static_pointer_cast<item_type>(cont_item)));
+				result = (*item == *(std::static_pointer_cast<item_type>(cont_item)));
 #endif
-            return result;
-		   }
+				return result;
+			}
 		);
 	}
 
@@ -345,8 +354,8 @@ public:
 	/**
 	 * Clones an object at a given position and convert it to a given target type
 	 */
-	template <typename target_type>
-	std::shared_ptr<target_type> clone_at(std::size_t pos) const {
+	template<typename target_type>
+	std::shared_ptr <target_type> clone_at(std::size_t pos) const {
 		return (data.at(pos))->T::template clone<target_type>();
 	}
 
@@ -354,7 +363,9 @@ public:
 	// Modifying functions
 
 	// Exchange of two data sets
-	void swap(std::vector<std::shared_ptr<T> >& cont) { data.swap(cont); } // not tested -- trivial mapping
+	void swap(std::vector<std::shared_ptr < T>
+
+	>& cont) { data.swap(cont); } // not tested -- trivial mapping
 
 	// Access to elements (unchecked / checked)
 	reference operator[](std::size_t pos) { return data[pos]; } // not tested -- trivial mapping
@@ -393,7 +404,7 @@ public:
 	 * @param pos The position where the item should be inserted
 	 * @param item_ptr The item to be inserted into the collection
 	 */
-	iterator insert(iterator pos, std::shared_ptr<T> item_ptr) {
+	iterator insert(iterator pos, std::shared_ptr <T> item_ptr) {
 		return this->insert_noclone(pos, item_ptr);
 	}
 
@@ -411,12 +422,12 @@ public:
 	 * @param pos The position where the item should be inserted
 	 * @param item_ptr The item to be inserted into the collection
 	 */
-	iterator insert_noclone(iterator pos, std::shared_ptr<T> item_ptr) {
-		if(!item_ptr) { // Check that item actually contains something useful
-		   glogger
-		   << "In GParameterTCollectionT<T>::insert_noclone(pos, item_ptr):"
-         << "Tried to insert an empty smart pointer." << std::endl
-         << GEXCEPTION;
+	iterator insert_noclone(iterator pos, std::shared_ptr <T> item_ptr) {
+		if (!item_ptr) { // Check that item actually contains something useful
+			glogger
+			<< "In GParameterTCollectionT<T>::insert_noclone(pos, item_ptr):"
+			<< "Tried to insert an empty smart pointer." << std::endl
+			<< GEXCEPTION;
 		}
 
 		return data.insert(pos, item_ptr);
@@ -437,12 +448,12 @@ public:
 	 * @param pos The position where the item should be inserted
 	 * @param item_ptr The item to be inserted into the collection
 	 */
-	iterator insert_clone(iterator pos, std::shared_ptr<T> item_ptr) {
-		if(!item_ptr) { // Check that item actually contains something useful
-		   glogger
-		   << "In GParameterTCollectionT<T>::insert_clone(pos, item_ptr):"
-         << "Tried to insert an empty smart pointer." << std::endl
-         << GEXCEPTION;
+	iterator insert_clone(iterator pos, std::shared_ptr <T> item_ptr) {
+		if (!item_ptr) { // Check that item actually contains something useful
+			glogger
+			<< "In GParameterTCollectionT<T>::insert_clone(pos, item_ptr):"
+			<< "Tried to insert an empty smart pointer." << std::endl
+			<< GEXCEPTION;
 		}
 
 		return data.insert(pos, item_ptr->T::template clone<T>());
@@ -463,7 +474,7 @@ public:
 	 * @param amount The amount of items to be inserted
 	 * @param item_ptr The item to be inserted into the collection
 	 */
-	void insert(iterator pos, size_type amount, std::shared_ptr<T> item_ptr) {
+	void insert(iterator pos, size_type amount, std::shared_ptr <T> item_ptr) {
 		this->insert_clone(pos, amount, item_ptr);
 	}
 
@@ -480,18 +491,18 @@ public:
 	 * @param amount The amount of items to be inserted
 	 * @param item_ptr The item to be inserted into the collection
 	 */
-	void insert_clone(iterator pos, size_type amount, std::shared_ptr<T> item_ptr) {
-		if(!item_ptr) { // Check that item actually contains something useful
-		   glogger
-		   << "In GParameterTCollectionT<T>::insert_clone(pos, amount, item):" << std::endl
-         << "Tried to insert an empty smart pointer." << std::endl
-         << GEXCEPTION;
+	void insert_clone(iterator pos, size_type amount, std::shared_ptr <T> item_ptr) {
+		if (!item_ptr) { // Check that item actually contains something useful
+			glogger
+			<< "In GParameterTCollectionT<T>::insert_clone(pos, amount, item):" << std::endl
+			<< "Tried to insert an empty smart pointer." << std::endl
+			<< GEXCEPTION;
 		}
 
 		std::size_t iterator_pos = pos - data.begin();
-		for(std::size_t i=0; i<amount; i++) {
-			 // Note that we re-calculate the iterator, as it is not clear whether it remains valid
-			data.insert(data.begin() + iterator_pos,  item_ptr->T::template clone<T>());
+		for (std::size_t i = 0; i < amount; i++) {
+			// Note that we re-calculate the iterator, as it is not clear whether it remains valid
+			data.insert(data.begin() + iterator_pos, item_ptr->T::template clone<T>());
 		}
 	}
 
@@ -511,19 +522,19 @@ public:
 	 * @param amount The amount of items to be inserted
 	 * @param item_ptr The item to be inserted into the collection
 	 */
-	void insert_noclone(iterator pos, size_type amount, std::shared_ptr<T> item_ptr) {
-		if(!item_ptr) { // Check that item actually contains something useful
-		   glogger
-		   << "In GParameterTCollectionT<T>::insert_noclone(pos, amount, item):" << std::endl
-         << "Tried to insert an empty smart pointer." << std::endl
-         << GEXCEPTION;
- 		}
+	void insert_noclone(iterator pos, size_type amount, std::shared_ptr <T> item_ptr) {
+		if (!item_ptr) { // Check that item actually contains something useful
+			glogger
+			<< "In GParameterTCollectionT<T>::insert_noclone(pos, amount, item):" << std::endl
+			<< "Tried to insert an empty smart pointer." << std::endl
+			<< GEXCEPTION;
+		}
 
 		std::size_t iterator_pos = pos - data.begin();
 		// Create (amount-1) clones
-		for(std::size_t i=0; i<amount-1; i++) {
-			 // Note that we re-calculate the iterator, as it is not clear whether it remains valid
-			data.insert(data.begin() + iterator_pos,  item_ptr->T::template clone<T>());
+		for (std::size_t i = 0; i < amount - 1; i++) {
+			// Note that we re-calculate the iterator, as it is not clear whether it remains valid
+			data.insert(data.begin() + iterator_pos, item_ptr->T::template clone<T>());
 		}
 		// Add the argument
 		data.insert(data.begin() + iterator_pos, item_ptr);
@@ -542,7 +553,7 @@ public:
 	 *
 	 * @param item_ptr The item to be appended to the collection
 	 */
-	void push_back(std::shared_ptr<T> item_ptr){
+	void push_back(std::shared_ptr <T> item_ptr) {
 		this->push_back_noclone(item_ptr);
 	}
 
@@ -559,12 +570,12 @@ public:
 	 *
 	 * @param item_ptr The item to be appended to the collection
 	 */
-	void push_back_noclone(std::shared_ptr<T> item_ptr){
-		if(!item_ptr) { // Check that item actually contains something useful
-		   glogger
-		   << "In GParameterTCollectionT<T>::push_back(item):" << std::endl
-         << "Tried to insert an empty smart pointer." << std::endl
-         << GEXCEPTION;
+	void push_back_noclone(std::shared_ptr <T> item_ptr) {
+		if (!item_ptr) { // Check that item actually contains something useful
+			glogger
+			<< "In GParameterTCollectionT<T>::push_back(item):" << std::endl
+			<< "Tried to insert an empty smart pointer." << std::endl
+			<< GEXCEPTION;
 		}
 
 		data.push_back(item_ptr);
@@ -584,12 +595,12 @@ public:
 	 *
 	 * @param item_ptr The item to be appended to the collection
 	 */
-	void push_back_clone(std::shared_ptr<T> item_ptr){
-		if(!item_ptr) { // Check that item actually contains something useful
-		   glogger
-		   << "In GStdPtrVectorInterface<T>::push_back_clone(item):" << std::endl
-         << "Tried to insert an empty smart pointer." << std::endl
-         << GEXCEPTION;
+	void push_back_clone(std::shared_ptr <T> item_ptr) {
+		if (!item_ptr) { // Check that item actually contains something useful
+			glogger
+			<< "In GStdPtrVectorInterface<T>::push_back_clone(item):" << std::endl
+			<< "Tried to insert an empty smart pointer." << std::endl
+			<< GEXCEPTION;
 		}
 
 		data.push_back(item_ptr->T::template clone<T>());
@@ -604,23 +615,23 @@ public:
 	/***************************************************************************/
 	// Removal at a given position or in a range
 	iterator erase(iterator pos) { return data.erase(pos); }  // not tested -- trivial mapping
-	iterator erase(iterator from, iterator to) { return data.erase(from,to); }  // not tested -- trivial mapping
+	iterator erase(iterator from, iterator to) { return data.erase(from, to); }  // not tested -- trivial mapping
 
 	// Removing an element from the end of the vector
-	void pop_back(){ data.pop_back(); }  // not tested -- trivial mapping
+	void pop_back() { data.pop_back(); }  // not tested -- trivial mapping
 
 	/***************************************************************************/
 	/**
 	 * Resizing the vector. This function will clone the first item in the collection, if available.
 	 */
 	void resize(size_type amount) {
-		if(this->empty() && amount != 0) {
-		   glogger
-		   << "In GStdPtrVectorInterface<T>::resize(size_type):" << std::endl
-         << "Tried to increase the size even though the vector is empty." << std::endl
-         << "Use a resize-version that allows you to specify the objects" << std::endl
-         << "to be added." << std::endl
-         << GEXCEPTION;
+		if (this->empty() && amount != 0) {
+			glogger
+			<< "In GStdPtrVectorInterface<T>::resize(size_type):" << std::endl
+			<< "Tried to increase the size even though the vector is empty." << std::endl
+			<< "Use a resize-version that allows you to specify the objects" << std::endl
+			<< "to be added." << std::endl
+			<< GEXCEPTION;
 		}
 
 		this->resize_clone(amount, this->at(0));
@@ -640,7 +651,7 @@ public:
 	 * @param amount The new desired size of the vector
 	 * @param item An item that should be used for initialization of new items, if any
 	 */
-	void resize(size_type amount, std::shared_ptr<T> item_ptr) {
+	void resize(size_type amount, std::shared_ptr <T> item_ptr) {
 		resize_clone(amount, item_ptr);
 	}
 
@@ -660,22 +671,22 @@ public:
 	 * @param amount The new desired size of the vector
 	 * @param item An item that should be used for initialization of new items, if any
 	 */
-	void resize_noclone(size_type amount, std::shared_ptr<T> item_ptr) {
+	void resize_noclone(size_type amount, std::shared_ptr <T> item_ptr) {
 		std::size_t dataSize = data.size();
 
-		if(amount < dataSize)
+		if (amount < dataSize)
 			data.resize(amount);
-		else if(amount > dataSize) {
+		else if (amount > dataSize) {
 			// Check that item is not empty
-			if(!item_ptr) { // Check that item actually contains something useful
-			   glogger
-			   << "In GParameterTCollectionT<T>::resize(amount, item):" << std::endl
-            << "Tried to insert an empty smart pointer." << std::endl
-            << GEXCEPTION;
+			if (!item_ptr) { // Check that item actually contains something useful
+				glogger
+				<< "In GParameterTCollectionT<T>::resize(amount, item):" << std::endl
+				<< "Tried to insert an empty smart pointer." << std::endl
+				<< GEXCEPTION;
 			}
 
 			// Create a (amount - dataSize -1) clones
-			for(std::size_t i=dataSize; i<amount-1; i++) {
+			for (std::size_t i = dataSize; i < amount - 1; i++) {
 				data.push_back(item_ptr->T::template clone<T>());
 			}
 
@@ -699,21 +710,21 @@ public:
 	 * @param amount The new desired size of the vector
 	 * @param item An item that should be used for initialization of new items, if any
 	 */
-	void resize_clone(size_type amount, std::shared_ptr<T> item_ptr) {
+	void resize_clone(size_type amount, std::shared_ptr <T> item_ptr) {
 		std::size_t dataSize = data.size();
 
-		if(amount < dataSize)
+		if (amount < dataSize)
 			data.resize(amount);
-		else if(amount > dataSize) {
+		else if (amount > dataSize) {
 			// Check that item is not empty
-			if(!item_ptr) { // Check that item actually contains something useful
-			   glogger
-			   << "In GParameterTCollectionT<T>::resize(amount, item):" << std::endl
-			   << "Tried to insert an empty smart pointer." << std::endl
-			   << GEXCEPTION;
+			if (!item_ptr) { // Check that item actually contains something useful
+				glogger
+				<< "In GParameterTCollectionT<T>::resize(amount, item):" << std::endl
+				<< "Tried to insert an empty smart pointer." << std::endl
+				<< GEXCEPTION;
 			}
 
-			for(std::size_t i=dataSize; i<amount; i++) {
+			for (std::size_t i = dataSize; i < amount; i++) {
 				data.push_back(item_ptr->T::template clone<T>());
 			}
 		}
@@ -732,14 +743,14 @@ public:
 	 * data items to each position.
 	 */
 	void resize_empty(size_type amount) {
-	   std::size_t dataSize = data.size();
-	   if(amount < dataSize) {
-	      data.resize(amount);
-	   } else if(amount > dataSize) { // Add empty smart pointers
-         for(std::size_t i=dataSize; i<amount; i++) {
-            data.push_back(std::shared_ptr<T>());
-         }
-	   }
+		std::size_t dataSize = data.size();
+		if (amount < dataSize) {
+			data.resize(amount);
+		} else if (amount > dataSize) { // Add empty smart pointers
+			for (std::size_t i = dataSize; i < amount; i++) {
+				data.push_back(std::shared_ptr<T>());
+			}
+		}
 	}
 
 	/***************************************************************************/
@@ -753,10 +764,13 @@ public:
 	 *
 	 * @param cp A reference to a vector that will hold a copy of our local data vector
 	 */
-	void getDataCopy(std::vector<std::shared_ptr<T> >& cp) const {
+	void getDataCopy(std::vector<std::shared_ptr < T>
+
+	>& cp) const {
 		cp.clear();
-		typename std::vector<std::shared_ptr<T> >::const_iterator it;
-		for(it=data.begin(); it!= data.end(); ++it) {
+		typename std::vector<std::shared_ptr < T> > ::const_iterator
+		it;
+		for (it = data.begin(); it != data.end(); ++it) {
 			cp.push_back((*it)->T::template clone<T>());
 		}
 	}
@@ -769,7 +783,7 @@ public:
 	 * @param cp A copy of another GStdPtrVectorInterfaceT<T, B> object
 	 * @param pos The position as of which the cross-over should be performed
 	 */
-	void crossOver(GStdPtrVectorInterfaceT<T, B>& cp, const std::size_t& pos) {
+	void crossOver(GStdPtrVectorInterfaceT<T, B> &cp, const std::size_t &pos) {
 		// Find out the minimum size of both vectors
 		std::size_t minSize = (std::min)(this->size(), cp.size());
 
@@ -784,28 +798,28 @@ public:
 #endif /* DEBUG */
 
 		// Swap the elements
-		for(std::size_t i=pos; i<minSize; i++) {
+		for (std::size_t i = pos; i < minSize; i++) {
 			std::swap(this->at(i), cp.at(i));
 		}
 
 		// Move the elements of the longer vector over to the other
 		// and remove the elements from the other vector
-		if(this->size() > cp.size()) {
+		if (this->size() > cp.size()) {
 			// Attach elements to the other vector
-			for(std::size_t i=cp.size(); i<this->size(); i++) {
+			for (std::size_t i = cp.size(); i < this->size(); i++) {
 				cp.push_back(this->at(i));
 			}
 
 			// Remove the surplus elements from this vector
-			this->erase(this->begin()+minSize, this->end());
+			this->erase(this->begin() + minSize, this->end());
 		} else if (cp.size() > this->size()) {
 			// Attach elements to the other vector
-			for(std::size_t i=this->size(); i<cp.size(); i++) {
+			for (std::size_t i = this->size(); i < cp.size(); i++) {
 				this->push_back(cp.at(i));
 			}
 
 			// Remove the surplus elements from this vector
-			cp.erase(cp.begin()+minSize, cp.end());
+			cp.erase(cp.begin() + minSize, cp.end());
 		}
 
 		// Nothing to do if both vectors have the same size
@@ -818,12 +832,15 @@ public:
 	 *
 	 * @param target A vector to which pointers with the derived type are attached
 	 */
-	template <typename derivedType>
-	void attachViewTo(std::vector<std::shared_ptr<derivedType> >& target) {
-		typename std::vector<std::shared_ptr<T> >::iterator it;
-		for(it = data.begin(); it!=data.end(); ++it) {
-			std::shared_ptr<derivedType> p = std::dynamic_pointer_cast<derivedType>(*it);
-			if(p) {	target.push_back(p); }
+	template<typename derivedType>
+	void attachViewTo(std::vector<std::shared_ptr < derivedType>
+
+	>& target) {
+		typename std::vector<std::shared_ptr < T> > ::iterator
+		it;
+		for (it = data.begin(); it != data.end(); ++it) {
+			std::shared_ptr <derivedType> p = std::dynamic_pointer_cast<derivedType>(*it);
+			if (p) { target.push_back(p); }
 		}
 	}
 
@@ -831,26 +848,29 @@ public:
 	/////////////////////////////////////////////////////////////////////////////
 	/***************************************************************************/
 	/** An iterator implementation that facilitates access to derived elements */
-	template <typename derivedType>
-	class conversion_iterator:
+	template<typename derivedType>
+	class conversion_iterator :
 		public boost::iterator_facade<
-		conversion_iterator<derivedType>
-		, std::shared_ptr<T>
-		, boost::forward_traversal_tag
-		, std::shared_ptr<derivedType>
-		>
-	{
+			conversion_iterator<derivedType>, std::shared_ptr < T>,
+		boost::forward_traversal_tag,
+		std::shared_ptr<derivedType>
+		> {
 	public:
-      /************************************************************************/
+		/************************************************************************/
 		/**
 		 * The standard constructor. The iterator needs to know about the end of the
 		 * sequence so it can skip items not fitting the derivation pattern.
 		 *
 		 * @param end The end of the iteration sequence
 		 */
-	   conversion_iterator(typename std::vector<std::shared_ptr<T> >::iterator const& end)
-			:end_(end)
-		 { /* nothing */ }
+		conversion_iterator(typename std::vector<std::shared_ptr < T>
+
+		>
+		::iterator const &end
+		)
+		:
+		end_(end)
+			{ /* nothing */ }
 
 		/************************************************************************/
 		/**
@@ -858,10 +878,14 @@ public:
 		 *
 		 * @param current The value to assign to this iterator
 		 */
-	   void operator=(typename std::vector<std::shared_ptr<T> >::iterator const& current) {
+		void operator=(typename std::vector<std::shared_ptr < T>
+
+		>
+		::iterator const &current
+		) {
 			current_ = current;
 			// Skip to first "good" entry
-			while(current_ != end_ && !(p=std::dynamic_pointer_cast<derivedType>(*current_))) {
+			while (current_ != end_ && !(p = std::dynamic_pointer_cast<derivedType>(*current_))) {
 				++current_;
 			}
 		}
@@ -873,7 +897,11 @@ public:
 		 * @param other The iterator to check for inequality
 		 * @return A boolean indicating whether this iterator's value is inequal with the other iterator
 		 */
-	   bool operator!=(typename std::vector<std::shared_ptr<T> >::iterator const& other) const {
+		bool operator!=(typename std::vector<std::shared_ptr < T>
+
+		>
+		::iterator const &other
+		) const {
 			return current_ != other;
 		}
 
@@ -886,7 +914,11 @@ public:
 		 *
 		 * @param end The new end of the sequence
 		 */
-	   void resetEndPosition(typename std::vector<std::shared_ptr<T> >::iterator const& end) {
+		void resetEndPosition(typename std::vector<std::shared_ptr < T>
+
+		>
+		::iterator const &end
+		) {
 			end_ = end;
 		}
 
@@ -907,7 +939,7 @@ public:
 		 *
 		 * @return A std::shared_ptr holding the derived object
 		 */
-		std::shared_ptr<derivedType> dereference() const {
+		std::shared_ptr <derivedType> dereference() const {
 #ifdef DEBUG
 			if(current_ == end_) {
 			   glogger
@@ -936,7 +968,11 @@ public:
 		 * @param other The item that should be checked for equality
 		 * @return A boolean indicating whether equality was found
 		 */
-		bool equal(typename std::vector<std::shared_ptr<T> >::iterator const& other) const {
+		bool equal(typename std::vector<std::shared_ptr < T>
+
+		>
+		::iterator const &other
+		) const {
 			return current_ == other;
 		}
 
@@ -948,19 +984,22 @@ public:
 		void increment() {
 			while (current_ != end_) {
 				++current_;
-				if(current_!=end_ && (p = std::dynamic_pointer_cast<derivedType>(*current_))) break;
+				if (current_ != end_ && (p = std::dynamic_pointer_cast<derivedType>(*current_))) break;
 			}
 		}
 
 		/************************************************************************/
-		typename std::vector<std::shared_ptr<T> >::iterator current_; ///< Marks the current position in the iteration sequence
-		typename std::vector<std::shared_ptr<T> >::iterator end_; ///< Marks the end of the iteration sequence
+		typename std::vector<std::shared_ptr < T> >
+		::iterator current_; ///< Marks the current position in the iteration sequence
+		typename std::vector<std::shared_ptr < T> >
+		::iterator end_; ///< Marks the end of the iteration sequence
 
-		std::shared_ptr<derivedType> p; ///< Temporary which holds the current valid pointer
+		std::shared_ptr <derivedType> p; ///< Temporary which holds the current valid pointer
 	};
 
 protected:
-	std::vector<std::shared_ptr<T> > data;
+	std::vector<std::shared_ptr < T> >
+	data;
 
 	/** @brief Intentionally make this object purely virtual, for performance reasons */
 	virtual void dummyFunction() = 0;
@@ -968,20 +1007,29 @@ protected:
 private:
 	/***************************************************************************/
 	/** @brief Intentionally left undefined */
-	bool operator==(const GStdPtrVectorInterfaceT<T, B>&) const;
+	bool operator==(const GStdPtrVectorInterfaceT<T, B> &) const;
+
 	/** @brief Intentionally left undefined */
-	bool operator!=(const GStdPtrVectorInterfaceT<T, B>&) const;
+	bool operator!=(const GStdPtrVectorInterfaceT<T, B> &) const;
+
 	/** @brief Intentionally left undefined */
-	bool operator==(const std::vector<std::shared_ptr<T> >&) const;
+	bool operator==(const std::vector<std::shared_ptr < T>
+
+	>&) const;
+
 	/** @brief Intentionally left undefined */
-	bool operator!=(const std::vector<std::shared_ptr<T> >&) const;
+	bool operator!=(const std::vector<std::shared_ptr < T>
+
+	>&) const;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	// Note to self: changes to GStdPtrVectorInterface should be minimal and not involve objects pointed to
 	virtual bool modify_GUnitTests() BASE { /* nothing here yet */ return false; }
+
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
 	virtual void specificTestsNoFailureExpected_GUnitTests() BASE { /* nothing here yet */ }
+
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests() BASE { /* nothing here yet */ }
 };
@@ -996,12 +1044,14 @@ public:
  * @brief The content of the BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) macro. Needed for Boost.Serialization
  */
 namespace boost {
-  namespace serialization {
-    template<typename T, typename B>
-    struct is_abstract<Gem::Common::GStdPtrVectorInterfaceT<T, B> > : public boost::true_type {};
-    template<typename T, typename B>
-    struct is_abstract< const Gem::Common::GStdPtrVectorInterfaceT<T, B> > : public boost::true_type {};
-  }
+namespace serialization {
+template<typename T, typename B>
+struct is_abstract<Gem::Common::GStdPtrVectorInterfaceT<T, B> > : public boost::true_type {
+};
+template<typename T, typename B>
+struct is_abstract<const Gem::Common::GStdPtrVectorInterfaceT<T, B> > : public boost::true_type {
+};
+}
 }
 
 /******************************************************************************/

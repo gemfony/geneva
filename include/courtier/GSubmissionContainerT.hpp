@@ -72,16 +72,16 @@ namespace Courtier {
  * re-implement the purely virtual functions in derived classes. Note that it is mandatory for
  * derived classes to be serializable and to trigger serialization of this class.
  */
-template <typename submission_type>
+template<typename submission_type>
 class GSubmissionContainerT {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int){
-	  using boost::serialization::make_nvp;
+	void serialize(Archive &ar, const unsigned int) {
+		using boost::serialization::make_nvp;
 
-	  ar & BOOST_SERIALIZATION_NVP(id_);
+		ar &BOOST_SERIALIZATION_NVP(id_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -90,8 +90,7 @@ public:
 	/**
 	 * The default constructor
 	 */
-	GSubmissionContainerT()
-	{ /* nothing */ }
+	GSubmissionContainerT() { /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -100,17 +99,15 @@ public:
 	 * @param cp A copy of another GSubmissionContainer object
 	 */
 	GSubmissionContainerT(
-	      const GSubmissionContainerT<submission_type>& cp
-	) : id_(cp.id_)
-	{ /* nothing */ }
+		const GSubmissionContainerT<submission_type> &cp
+	) : id_(cp.id_) { /* nothing */ }
 
 
 	/***************************************************************************/
 	/**
 	 * The destructor
 	 */
-	virtual ~GSubmissionContainerT()
-	{ /* nothing */ }
+	virtual ~GSubmissionContainerT() { /* nothing */ }
 
 	/***************************************************************************/
 	/** @brief Allows derived classes to specify the tasks to be performed for this object */
@@ -127,8 +124,7 @@ public:
 	 *
 	 * @param cD_ptr A pointer to the object whose data should be loaded
 	 */
-	virtual void loadConstantData(std::shared_ptr<submission_type>)
-	{ /* nothing */ }
+	virtual void loadConstantData(std::shared_ptr <submission_type>) { /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -136,7 +132,7 @@ public:
 	 *
 	 * @param id An id that allows the broker connector to identify this object
 	 */
-	void setCourtierId(const boost::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2>& id) {
+	void setCourtierId(const boost::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> &id) {
 		id_ = id;
 	}
 
@@ -152,8 +148,8 @@ public:
 
 private:
 	/***************************************************************************/
-    /** @brief A two-part id that can be assigned to this container object */
-    boost::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> id_;
+	/** @brief A two-part id that can be assigned to this container object */
+	boost::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> id_;
 };
 
 /******************************************************************************/
@@ -165,12 +161,14 @@ private:
 /** @brief Mark this class as abstract. This is the content of
  * BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) */
 namespace boost {
-	namespace serialization {
-		template<typename submission_type>
-		struct is_abstract<Gem::Courtier::GSubmissionContainerT<submission_type> > : public boost::true_type {};
-		template<typename submission_type>
-		struct is_abstract< const Gem::Courtier::GSubmissionContainerT<submission_type> > : public boost::true_type {};
-	}
+namespace serialization {
+template<typename submission_type>
+struct is_abstract<Gem::Courtier::GSubmissionContainerT<submission_type> > : public boost::true_type {
+};
+template<typename submission_type>
+struct is_abstract<const Gem::Courtier::GSubmissionContainerT<submission_type> > : public boost::true_type {
+};
+}
 }
 
 /******************************************************************************/

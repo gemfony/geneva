@@ -54,13 +54,13 @@ namespace Common {
  * This function instantiates and gives access to an arbitrary, user-defined
  * variable or object to be stored in thread-local storage.
  */
-template <typename tss_type>
-inline boost::thread_specific_ptr<tss_type>& tss_ptr() {
-   static boost::thread_specific_ptr<tss_type> instance;
-   if(!instance.get()) {
-      instance.reset(new tss_type());
-   }
-   return instance;
+template<typename tss_type>
+inline boost::thread_specific_ptr<tss_type> &tss_ptr() {
+	static boost::thread_specific_ptr<tss_type> instance;
+	if (!instance.get()) {
+		instance.reset(new tss_type());
+	}
+	return instance;
 }
 
 /**

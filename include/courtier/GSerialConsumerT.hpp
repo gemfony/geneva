@@ -57,35 +57,31 @@ namespace Courtier {
  * optimization algorithms with all available execution modes instead
  * of different implementations of the algorithms for each mode.
  */
-template <class processable_type>
+template<class processable_type>
 class GSerialConsumerT
-	:public Gem::Courtier::GBaseConsumerT<processable_type>
-{
+	: public Gem::Courtier::GBaseConsumerT<processable_type> {
 public:
 	/***************************************************************************/
 	/**
 	 * The default constructor. Nothing special here.
 	 */
-   GSerialConsumerT()
-		: Gem::Courtier::GBaseConsumerT<processable_type>()
-		, broker_(GBROKER(processable_type))
-	{ /* nothing */ }
+	GSerialConsumerT()
+		: Gem::Courtier::GBaseConsumerT<processable_type>(), broker_(GBROKER(processable_type)) { /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * Standard destructor
 	 */
-	virtual  ~GSerialConsumerT()
-	{ /* nothing */ }
+	virtual  ~GSerialConsumerT() { /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * Starts a single worker thread. Termination of the thread is
 	 * triggered by a call to GBaseConsumerT<processable_type>::shutdown().
 	 */
-	 void async_startProcessing() {
+	void async_startProcessing() {
 		processingThread_ = boost::thread(
-		   [this](){ this->processItems(); }
+			[this]() { this->processItems(); }
 		);
 	}
 
@@ -94,9 +90,9 @@ public:
 	* Finalization code. Sends all threads an interrupt signal.
 	*/
 	virtual void shutdown() {
-	   // This will set the GBaseConsumerT<processable_type>::stop_ flag
-	   GBaseConsumerT<processable_type>::shutdown();
-	   // Wait for our local threads to join
+		// This will set the GBaseConsumerT<processable_type>::stop_ flag
+		GBaseConsumerT<processable_type>::shutdown();
+		// Wait for our local threads to join
 		processingThread_.join();
 	}
 
@@ -107,32 +103,33 @@ public:
 	* @return A unique identifier for a given consumer
 	*/
 	virtual std::string getConsumerName() const {
-	  return std::string("GSerialConsumerT");
+		return std::string("GSerialConsumerT");
 	}
 
 	/***************************************************************************/
-   /**
-    * Returns a short identifier for this consumer
-    */
-   virtual std::string getMnemonic() const {
-      return std::string("sc");
-   }
+	/**
+	 * Returns a short identifier for this consumer
+	 */
+	virtual std::string getMnemonic() const {
+		return std::string("sc");
+	}
 
-   /***************************************************************************/
-   /**
-    * Returns an indication whether full return can be expected from this
-    * consumer. Since evaluation is performed aerially, we assume that this
-    * is possible and return true.
-    */
-   virtual bool capableOfFullReturn() const {
-      return true;
-   }
+	/***************************************************************************/
+	/**
+	 * Returns an indication whether full return can be expected from this
+	 * consumer. Since evaluation is performed aerially, we assume that this
+	 * is possible and return true.
+	 */
+	virtual bool capableOfFullReturn() const {
+		return true;
+	}
 
 private:
-   /***************************************************************************/
+	/***************************************************************************/
 
-	GSerialConsumerT(const GSerialConsumerT<processable_type>&); ///< Intentionally left undefined
-	const GSerialConsumerT<processable_type>& operator=(const GSerialConsumerT<processable_type>&); ///< Intentionally left undefined
+	GSerialConsumerT(const GSerialConsumerT<processable_type> &); ///< Intentionally left undefined
+	const GSerialConsumerT<processable_type> &operator=(
+		const GSerialConsumerT<processable_type> &); ///< Intentionally left undefined
 
 	/***************************************************************************/
 	/**
@@ -140,18 +137,18 @@ private:
 	* and returns them when finished. As this function is the main
 	* execution point of a thread, we need to catch all exceptions.
 	*/
-	void processItems(){
-		try{
-			std::shared_ptr<processable_type> p;
+	void processItems() {
+		try {
+			std::shared_ptr <processable_type> p;
 			Gem::Common::PORTIDTYPE id;
 			boost::posix_time::time_duration timeout(boost::posix_time::milliseconds(10));
 
-			while(true){
+			while (true) {
 				// Have we been asked to stop ?
-			   if(GBaseConsumerT<processable_type>::stopped()) break;
+				if (GBaseConsumerT<processable_type>::stopped()) break;
 
-			   // If we didn't get a valid item, start again with the while loop
-				if(!broker_->get(id, p, timeout)) {
+				// If we didn't get a valid item, start again with the while loop
+				if (!broker_->get(id, p, timeout)) {
 					continue;
 				}
 
@@ -171,33 +168,33 @@ private:
 				// Return the item to the broker. The item will be discarded
 				// if the requested target queue cannot be found.
 				try {
-					while(!broker_->put(id, p, timeout)){ // Items can get lost here
+					while (!broker_->put(id, p, timeout)) { // Items can get lost here
 						// Terminate if we have been asked to stop
-					   if(GBaseConsumerT<processable_type>::stopped()) break;
+						if (GBaseConsumerT<processable_type>::stopped()) break;
 					}
-				} catch (Gem::Courtier::buffer_not_present&) {
+				} catch (Gem::Courtier::buffer_not_present &) {
 					continue;
 				}
 			}
 		}
-		catch(boost::thread_interrupted&){
+		catch (boost::thread_interrupted &) {
 			// Terminate
 			return;
 		}
-		catch(std::exception& e) {
+		catch (std::exception &e) {
 			std::ostringstream error;
 			error << "In GSerialConsumerT::processItems(): Caught std::exception with message" << std::endl
-			      << e.what() << std::endl;
+			<< e.what() << std::endl;
 			std::cerr << error.str();
 			std::terminate();
 		}
-		catch(boost::exception&){
+		catch (boost::exception &) {
 			std::ostringstream error;
-		    error << "In GSerialConsumerT::processItems(): Caught boost::exception with message" << std::endl;
-		    std::cerr << error.str();
-		    std::terminate();
+			error << "In GSerialConsumerT::processItems(): Caught boost::exception with message" << std::endl;
+			std::cerr << error.str();
+			std::terminate();
 		}
-		catch(...) {
+		catch (...) {
 			std::ostringstream error;
 			error << "In GSerialConsumerT::processItems(): Caught unknown exception." << std::endl;
 			std::cerr << error.str();
@@ -208,7 +205,7 @@ private:
 	/***************************************************************************/
 
 	boost::thread processingThread_;
-	std::shared_ptr<GBrokerT<processable_type> > broker_; ///< A shortcut to the broker so we do not have to go through the singleton
+	std::shared_ptr <GBrokerT<processable_type>> broker_; ///< A shortcut to the broker so we do not have to go through the singleton
 };
 
 /******************************************************************************/

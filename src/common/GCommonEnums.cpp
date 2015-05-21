@@ -45,10 +45,10 @@ namespace Common {
  * @param lt the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Common::logType& lt){
-   boost::uint16_t tmp = static_cast<boost::uint16_t>(lt);
-   o << tmp;
-   return o;
+std::ostream &operator<<(std::ostream &o, const Gem::Common::logType &lt) {
+	boost::uint16_t tmp = static_cast<boost::uint16_t>(lt);
+	o << tmp;
+	return o;
 }
 
 /******************************************************************************/
@@ -59,17 +59,17 @@ std::ostream& operator<<(std::ostream& o, const Gem::Common::logType& lt){
  * @param lt The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Common::logType& lt){
-   boost::uint16_t tmp;
-   i >> tmp;
+std::istream &operator>>(std::istream &i, Gem::Common::logType &lt) {
+	boost::uint16_t tmp;
+	i >> tmp;
 
 #ifdef DEBUG
    lt = boost::numeric_cast<Gem::Common::logType>(tmp);
 #else
-   lt = static_cast<Gem::Common::logType>(tmp);
+	lt = static_cast<Gem::Common::logType>(tmp);
 #endif /* DEBUG */
 
-   return i;
+	return i;
 }
 
 /******************************************************************************/
@@ -80,7 +80,7 @@ std::istream& operator>>(std::istream& i, Gem::Common::logType& lt){
  * @param tbs the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Common::triboolStates& tbs){
+std::ostream &operator<<(std::ostream &o, const Gem::Common::triboolStates &tbs) {
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(tbs);
 	o << tmp;
 	return o;
@@ -94,7 +94,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Common::triboolStates& tbs)
  * @param tbs The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Common::triboolStates& tbs){
+std::istream &operator>>(std::istream &i, Gem::Common::triboolStates &tbs) {
 	boost::uint16_t tmp;
 	i >> tmp;
 
@@ -115,7 +115,7 @@ std::istream& operator>>(std::istream& i, Gem::Common::triboolStates& tbs){
  * @param serMode the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Common::serializationMode& serMode){
+std::ostream &operator<<(std::ostream &o, const Gem::Common::serializationMode &serMode) {
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(serMode);
 	o << tmp;
 	return o;
@@ -129,7 +129,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Common::serializationMode& 
  * @param serMode The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Common::serializationMode& serMode){
+std::istream &operator>>(std::istream &i, Gem::Common::serializationMode &serMode) {
 	boost::uint16_t tmp;
 	i >> tmp;
 
@@ -150,7 +150,7 @@ std::istream& operator>>(std::istream& i, Gem::Common::serializationMode& serMod
  * @param expect the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Common::expectation& expect){
+std::ostream &operator<<(std::ostream &o, const Gem::Common::expectation &expect) {
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(expect);
 	o << tmp;
 	return o;
@@ -164,7 +164,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Common::expectation& expect
  * @param expect The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Common::expectation& expect){
+std::istream &operator>>(std::istream &i, Gem::Common::expectation &expect) {
 	boost::uint16_t tmp;
 	i >> tmp;
 

@@ -54,66 +54,66 @@ namespace Common {
  * This class allows to specify a string for a given type. Useful e.g. for
  * debugging output.
  */
-template <typename T>
+template<typename T>
 struct GTypeToStringT {
-   static std::string value() {
-      return std::string("unknown");
-   }
+	static std::string value() {
+		return std::string("unknown");
+	}
 };
 
 /******************************************************************************/
 /**
  * Specialization for T == double
  */
-template <>
+template<>
 struct GTypeToStringT<double> {
-   static std::string value() {
-      return std::string("double");
-   }
+	static std::string value() {
+		return std::string("double");
+	}
 };
 
 /******************************************************************************/
 /**
  * Specialization for T == float
  */
-template <>
+template<>
 struct GTypeToStringT<float> {
-   static std::string value() {
-      return std::string("float");
-   }
+	static std::string value() {
+		return std::string("float");
+	}
 };
 
 /******************************************************************************/
 /**
  * Specialization for T == boost::int32_t
  */
-template <>
+template<>
 struct GTypeToStringT<boost::int32_t> {
-   static std::string value() {
-      return std::string("int32_t");
-   }
+	static std::string value() {
+		return std::string("int32_t");
+	}
 };
 
 /******************************************************************************/
 /**
  * Specialization for T == bool
  */
-template <>
+template<>
 struct GTypeToStringT<bool> {
-   static std::string value() {
-      return std::string("bool");
-   }
+	static std::string value() {
+		return std::string("bool");
+	}
 };
 
 /******************************************************************************/
 /**
  * Specialization for T == string
  */
-template <>
+template<>
 struct GTypeToStringT<std::string> {
-   static std::string value() {
-      return std::string("string");
-   }
+	static std::string value() {
+		return std::string("string");
+	}
 };
 
 /******************************************************************************/

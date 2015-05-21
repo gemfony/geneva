@@ -65,18 +65,18 @@ namespace Hap {
  * produced in different ways. We only define the interface here. The actual
  * implementation can be found in the (partial) specializations of this class.
  */
-template <Gem::Hap::RANDFLAVOURS s = Gem::Hap::RANDOMPROXY>
+template<Gem::Hap::RANDFLAVOURS s = Gem::Hap::RANDOMPROXY>
 class GRandomT
- : public Gem::Hap::GRandomBase
-{
+	: public Gem::Hap::GRandomBase {
 public:
 	/** @brief The default constructor */
-   GRandomT();
+	GRandomT();
+
 	/** @brief The destructor */
 	virtual ~GRandomT();
 
 protected:
-	 /** @brief Uniformly distributed double random numbers in the range [0,1[ */
+	/** @brief Uniformly distributed double random numbers in the range [0,1[ */
 	virtual double dbl_random01();
 };
 
@@ -90,19 +90,17 @@ protected:
  * As the class derives from boost::noncopyable, it is not possible to assign other
  * objects or use copy constructors.
  */
-template <>
+template<>
 class GRandomT<Gem::Hap::RANDOMPROXY>
-	: public Gem::Hap::GRandomBase
-{
+	: public Gem::Hap::GRandomBase {
 public:
 	/***************************************************************************/
 	/**
 	 * The standard constructor
 	 */
-   GRandomT()
-		: Gem::Hap::GRandomBase()
-      , p01_( /* empty */ )
-		, grf_(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
+	GRandomT()
+		: Gem::Hap::GRandomBase(), p01_( /* empty */ ),
+		  grf_(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
 	{
 		// Make sure we have a first random number package available
 		getNewP01();
@@ -112,11 +110,10 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	virtual ~GRandomT()
-	{
-	   if(p01_){
-	      grf_->returnUsedPackage(p01_);
-	   }
+	virtual ~GRandomT() {
+		if (p01_) {
+			grf_->returnUsedPackage(p01_);
+		}
 		grf_.reset();
 	}
 
@@ -131,11 +128,11 @@ protected:
 	 * assumes that a valid container is already available.
 	 */
 	virtual double dbl_random01() {
-		if(p01_->empty()) {
-		   // Get rid of the old container ...
-		   grf_->returnUsedPackage(p01_);
-         // ... then get a new one
-		   getNewP01();
+		if (p01_->empty()) {
+			// Get rid of the old container ...
+			grf_->returnUsedPackage(p01_);
+			// ... then get a new one
+			getNewP01();
 		}
 		return p01_->next();
 	}
@@ -181,9 +178,9 @@ private:
 
 	/***************************************************************************/
 	/** @brief Holds the container of uniform random numbers */
-	std::shared_ptr<random_container> p01_;
+	std::shared_ptr <random_container> p01_;
 	/** @brief A local copy of the global GRandomFactory.  Size is 16 byte on a 64 bit system */
-	std::shared_ptr<Gem::Hap::GRandomFactory> grf_;
+	std::shared_ptr <Gem::Hap::GRandomFactory> grf_;
 };
 
 /** @brief Convenience typedef */
@@ -199,26 +196,23 @@ typedef GRandomT<Gem::Hap::RANDOMPROXY> GRandom;
  * the constructor, or is taken from the global seed manager (recommended) in
  * case the default constructor is used.
  */
-template <>
+template<>
 class GRandomT<Gem::Hap::RANDOMLOCAL>
-	: public Gem::Hap::GRandomBase
-{
+	: public Gem::Hap::GRandomBase {
 public:
 	/***************************************************************************/
 	/**
 	 * The standard constructor
 	 */
-   GRandomT()
-		: Gem::Hap::GRandomBase()
-		, linCongr_(boost::numeric_cast<boost::random::rand48::result_type>(GRANDOMFACTORY->getSeed()))
-	{ /* nothing */ }
+	GRandomT()
+		: Gem::Hap::GRandomBase(),
+		  linCongr_(boost::numeric_cast<boost::random::rand48::result_type>(GRANDOMFACTORY->getSeed())) { /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * The standard destructor
 	 */
-	virtual ~GRandomT()
-	{ /* nothing */ }
+	virtual ~GRandomT() { /* nothing */ }
 
 protected:
 	/***************************************************************************/
@@ -226,17 +220,17 @@ protected:
 	 * This function produces uniform random numbers locally.
 	 */
 	virtual double dbl_random01() {
-		boost::rand48::result_type enumerator  = linCongr_() - (linCongr_.min)();
+		boost::rand48::result_type enumerator = linCongr_() - (linCongr_.min)();
 		boost::rand48::result_type denominator = (linCongr_.max)() - (linCongr_.min)();
 
-		enumerator>0?enumerator-=1:enumerator=0;
+		enumerator > 0 ? enumerator -= 1 : enumerator = 0;
 
 #ifdef DEBUG
 		double value =  boost::numeric_cast<double>(enumerator)/boost::numeric_cast<double>(denominator);
 		assert(value>=double(0.) && value<double(1.));
 		return value;
 #else
-		return static_cast<double>(enumerator)/static_cast<double>(denominator);
+		return static_cast<double>(enumerator) / static_cast<double>(denominator);
 #endif
 	}
 

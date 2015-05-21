@@ -76,8 +76,8 @@ namespace Common {
 
 /******************************************************************************/
 
-const std::size_t GFACTTORYFIRSTID=std::size_t(1);
-const std::size_t GFACTORYWRITEID =std::size_t(0);
+const std::size_t GFACTTORYFIRSTID = std::size_t(1);
+const std::size_t GFACTORYWRITEID = std::size_t(0);
 
 /******************************************************************************/
 /**
@@ -86,21 +86,21 @@ const std::size_t GFACTORYWRITEID =std::size_t(0);
  * work needs to be done in functions that are implemented in derived classes for each target
  * object individually, or in specializations of this class.
  */
-template <typename prod_type>
+template<typename prod_type>
 class GFactoryT {
-   ///////////////////////////////////////////////////////////////////////
-   friend class boost::serialization::access;
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
 
-   template<typename Archive>
-   void serialize(Archive & ar, const unsigned int)  {
-     using boost::serialization::make_nvp;
+	template<typename Archive>
+	void serialize(Archive &ar, const unsigned int) {
+		using boost::serialization::make_nvp;
 
-     ar
-     & BOOST_SERIALIZATION_NVP(configFile_)
-     & BOOST_SERIALIZATION_NVP(id_)
-     & BOOST_SERIALIZATION_NVP(initialized_);
-   }
-   ///////////////////////////////////////////////////////////////////////
+		ar
+		& BOOST_SERIALIZATION_NVP(configFile_)
+		& BOOST_SERIALIZATION_NVP(id_)
+		& BOOST_SERIALIZATION_NVP(initialized_);
+	}
+	///////////////////////////////////////////////////////////////////////
 
 public:
 	/***************************************************************************/
@@ -109,28 +109,21 @@ public:
 	 *
 	 * @param configFile The name of a configuration file holding information about objects of type T
 	 */
-   GFactoryT(const std::string& configFile)
-		: configFile_(configFile)
-		, id_(GFACTTORYFIRSTID)
-		, initialized_(false)
-	{ /* nothing */ }
+	GFactoryT(const std::string &configFile)
+		: configFile_(configFile), id_(GFACTTORYFIRSTID), initialized_(false) { /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * The copy constructor
 	 */
-   GFactoryT(const GFactoryT<prod_type>& cp)
-	   : configFile_(cp.configFile_)
-	   , id_(cp.id_)
-	   , initialized_(cp.initialized_)
-	{ /* nothing */ }
+	GFactoryT(const GFactoryT<prod_type> &cp)
+		: configFile_(cp.configFile_), id_(cp.id_), initialized_(cp.initialized_) { /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * The destructor.
 	 */
-	virtual ~GFactoryT()
-	{ /* nothing */ }
+	virtual ~GFactoryT() { /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -138,50 +131,50 @@ public:
 	 *
 	 * @return An individual of the desired type
 	 */
-	std::shared_ptr<prod_type> operator()() {
-	   return this->get();
+	std::shared_ptr <prod_type> operator()() {
+		return this->get();
 	}
 
-   /***************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Allows the creation of objects of the desired type.
 	 */
-	virtual std::shared_ptr<prod_type> get() {
-      // Make sure the initialization code has been executed.
-      // This function will do nothing when called more than once
-      this->globalInit();
+	virtual std::shared_ptr <prod_type> get() {
+		// Make sure the initialization code has been executed.
+		// This function will do nothing when called more than once
+		this->globalInit();
 
-      // Create a parser builder object. It will be destroyed at
-      // the end of this function and thus cannot cause trouble
-      // due to registered call-backs and references
-      Gem::Common::GParserBuilder gpb;
+		// Create a parser builder object. It will be destroyed at
+		// the end of this function and thus cannot cause trouble
+		// due to registered call-backs and references
+		Gem::Common::GParserBuilder gpb;
 
-      // Add specific configuration options for the derived factory.
-      // These may correspond to local variables
-      this->describeLocalOptions_(gpb);
+		// Add specific configuration options for the derived factory.
+		// These may correspond to local variables
+		this->describeLocalOptions_(gpb);
 
-      // Retrieve the actual object. It may, in the process of its
-      // creation, add further configuration options and call-backs to
-      // the parser
-      std::shared_ptr<prod_type> p = this->getObject_(gpb, id_);
+		// Retrieve the actual object. It may, in the process of its
+		// creation, add further configuration options and call-backs to
+		// the parser
+		std::shared_ptr <prod_type> p = this->getObject_(gpb, id_);
 
-      // Read the configuration parameters from file
-      if(!gpb.parseConfigFile(configFile_)) {
-         glogger
-         << "In GFactoryT<prod_type>::operator(): Error!" << std::endl
-         << "Could not parse configuration file " << configFile_ << std::endl
-         << GEXCEPTION;
-      }
+		// Read the configuration parameters from file
+		if (!gpb.parseConfigFile(configFile_)) {
+			glogger
+			<< "In GFactoryT<prod_type>::operator(): Error!" << std::endl
+			<< "Could not parse configuration file " << configFile_ << std::endl
+			<< GEXCEPTION;
+		}
 
-      // Allow the factory to act on configuration options received
-      // in the parsing process.
-      this->postProcess_(p);
+		// Allow the factory to act on configuration options received
+		// in the parsing process.
+		this->postProcess_(p);
 
-      // Update the id
-      id_++;
+		// Update the id
+		id_++;
 
-      // Let the audience know
-      return p;
+		// Let the audience know
+		return p;
 	}
 
 	/***************************************************************************/
@@ -191,7 +184,7 @@ public:
 	 * @return The name of the config-file
 	 */
 	std::string getConfigFile() const {
-	   return configFile_;
+		return configFile_;
 	}
 
 	/***************************************************************************/
@@ -200,7 +193,7 @@ public:
 	 * the next individual
 	 */
 	void setConfigFile(std::string configFile) {
-	   configFile_ = configFile;
+		configFile_ = configFile;
 	}
 
 	/***************************************************************************/
@@ -208,14 +201,15 @@ public:
 	 * Retrieves an object of the desired type and converts it to a target type,
 	 * if possible.
 	 */
-	template <typename tT> // "tT" stands for "target type"
-	std::shared_ptr<tT> get() {
-	   std::shared_ptr<prod_type> p = this->get();
-	   if(p){
-	      return Gem::Common::convertSmartPointer<prod_type, tT>(p);
-	   } else {
-	      return std::shared_ptr<tT>(); // Just return an empty pointer
-	   }
+	template<typename tT>
+	// "tT" stands for "target type"
+	std::shared_ptr <tT> get() {
+		std::shared_ptr <prod_type> p = this->get();
+		if (p) {
+			return Gem::Common::convertSmartPointer<prod_type, tT>(p);
+		} else {
+			return std::shared_ptr<tT>(); // Just return an empty pointer
+		}
 	}
 
 	/***************************************************************************/
@@ -225,7 +219,7 @@ public:
 	 * @param configFile The name of the configuration file to be written
 	 * @param header A header to be prepended to the configuration file
 	 */
-	void writeConfigFile(const std::string& header) {
+	void writeConfigFile(const std::string &header) {
 		// Make sure the initialization code has been executed.
 		// This function will do nothing when called more than once
 		this->globalInit();
@@ -240,19 +234,19 @@ public:
 
 		// Retrieve an object (will be discarded at the end of this function)
 		// Here, further options may be added to the parser builder.
-		std::shared_ptr<prod_type> p = this->getObject_(gpb, GFACTORYWRITEID);
+		std::shared_ptr <prod_type> p = this->getObject_(gpb, GFACTORYWRITEID);
 
 		// Allow the factory to act on configuration options received
 		// in the parsing process.
 		this->postProcess_(p);
 
 		// Write out the configuration file, if options have been registered
-		if(gpb.numberOfFileOptions() > 0) {
+		if (gpb.numberOfFileOptions() > 0) {
 			gpb.writeConfigFile(configFile_, header, true);
 		} else {
 			std::cout
-				<< "Warning: An attempt was made to write out configuration file " << configFile_ << std::endl
-				<< "even though no configuration options were registered. Doing nothing." << std::endl;
+			<< "Warning: An attempt was made to write out configuration file " << configFile_ << std::endl
+			<< "even though no configuration options were registered. Doing nothing." << std::endl;
 		}
 	}
 
@@ -260,10 +254,10 @@ public:
 	/**
 	 * Loads the data of another GFactoryT<> object
 	 */
-	virtual void load(std::shared_ptr<GFactoryT<prod_type> > cp) {
-	   configFile_ = cp->configFile_;
-	   id_ = cp->id_;
-	   initialized_ = cp->initialized_;
+	virtual void load(std::shared_ptr <GFactoryT<prod_type>> cp) {
+		configFile_ = cp->configFile_;
+		id_ = cp->id_;
+		initialized_ = cp->initialized_;
 	}
 
 	/***************************************************************************/
@@ -272,51 +266,54 @@ public:
 	 * wishing to use this functionality need to overload this function.
 	 * Others don't have to due to this "pseudo-implementation".
 	 */
-	virtual std::shared_ptr<GFactoryT<prod_type> > clone() const {
-	   glogger
-	   << "In GFactoryT<prod_type>::clone(): Error!" << std::endl
-	   << "Function was called when it shouldn't be." << std::endl
-	   << "This function is a trap." << std::endl
-	   << GEXCEPTION;
+	virtual std::shared_ptr <GFactoryT<prod_type>> clone() const {
+		glogger
+		<< "In GFactoryT<prod_type>::clone(): Error!" << std::endl
+		<< "Function was called when it shouldn't be." << std::endl
+		<< "This function is a trap." << std::endl
+		<< GEXCEPTION;
 
-	   // Make the compiler happy
-	   return std::shared_ptr<GFactoryT<prod_type> >();
+		// Make the compiler happy
+		return std::shared_ptr<GFactoryT<prod_type> >();
 	}
 
 protected:
 	/***************************************************************************/
 	/** @brief Performs necessary initialization work */
-	virtual void init_() {}
-	/** @brief Allows to describe local configuration options in derived classes */
-	virtual void describeLocalOptions_(Gem::Common::GParserBuilder& gpb) {};
-	/** @brief Creates individuals of the desired type */
-	virtual std::shared_ptr<prod_type> getObject_(Gem::Common::GParserBuilder&, const std::size_t&) = 0;
-	/** @brief Allows to act on the configuration options received from the configuration file */
-	virtual void postProcess_(std::shared_ptr<prod_type>&) = 0;
+	virtual void init_() { }
 
-   /***************************************************************************/
+	/** @brief Allows to describe local configuration options in derived classes */
+	virtual void describeLocalOptions_(Gem::Common::GParserBuilder &gpb) { };
+
+	/** @brief Creates individuals of the desired type */
+	virtual std::shared_ptr <prod_type> getObject_(Gem::Common::GParserBuilder &, const std::size_t &) = 0;
+
+	/** @brief Allows to act on the configuration options received from the configuration file */
+	virtual void postProcess_(std::shared_ptr <prod_type> &) = 0;
+
+	/***************************************************************************/
 	/**
 	 * Retrieve the current value of the id_ variable
 	 */
 	std::size_t getId() const {
-	   return id_;
+		return id_;
 	}
 
 private:
-   /***************************************************************************/
-   /**
-    * Performs necessary global initialization work. This function is meant for
-    * initialization work performed just prior to the creation of the first
-    * item. It will do nothing when called more than once. All real work is done
-    * in the "init_()" function, which may be overloaded by the user.
-    */
-   void globalInit() {
-      if(!initialized_) {
-         // Perform the user-defined initialization work
-         this->init_();
-         initialized_ = true;
-      }
-   }
+	/***************************************************************************/
+	/**
+	 * Performs necessary global initialization work. This function is meant for
+	 * initialization work performed just prior to the creation of the first
+	 * item. It will do nothing when called more than once. All real work is done
+	 * in the "init_()" function, which may be overloaded by the user.
+	 */
+	void globalInit() {
+		if (!initialized_) {
+			// Perform the user-defined initialization work
+			this->init_();
+			initialized_ = true;
+		}
+	}
 
 	/***************************************************************************/
 	GFactoryT(); ///< The default constructor. Intentionally private and undefined
@@ -336,12 +333,14 @@ private:
  * BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) */
 
 namespace boost {
-   namespace serialization {
-      template<typename T>
-      struct is_abstract<Gem::Common::GFactoryT<T> > : public boost::true_type {};
-      template<typename T>
-      struct is_abstract< const Gem::Common::GFactoryT<T> > : public boost::true_type {};
-   }
+namespace serialization {
+template<typename T>
+struct is_abstract<Gem::Common::GFactoryT<T> > : public boost::true_type {
+};
+template<typename T>
+struct is_abstract<const Gem::Common::GFactoryT<T> > : public boost::true_type {
+};
+}
 }
 
 /******************************************************************************/

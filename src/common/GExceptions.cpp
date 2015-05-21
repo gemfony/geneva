@@ -69,23 +69,21 @@ namespace Common {
 /**
  * The standard constructor
  */
-gemfony_error_condition::gemfony_error_condition(const std::string& description) throw()
-      : description_(description)
-{ /* nothing */ }
+gemfony_error_condition::gemfony_error_condition(const std::string &description) throw()
+	: description_(description) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-gemfony_error_condition::~gemfony_error_condition()  throw()
-{ /* nothing */ }
+gemfony_error_condition::~gemfony_error_condition()  throw() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Allows to add further information to the exception
  */
-void gemfony_error_condition::add(const std::string& newMessage) throw() {
-   description_ += newMessage;
+void gemfony_error_condition::add(const std::string &newMessage) throw() {
+	description_ += newMessage;
 }
 
 /******************************************************************************/
@@ -100,19 +98,19 @@ void gemfony_error_condition::add(const std::string& newMessage) throw() {
  *    throw g()
  * }
  */
-gemfony_error_condition& gemfony_error_condition::operator() (
-   const std::string& s
+gemfony_error_condition &gemfony_error_condition::operator()(
+	const std::string &s
 ) throw() {
-   this->add(s + "\n");
-   return *this;
+	this->add(s + "\n");
+	return *this;
 }
 
 /******************************************************************************/
 /**
  * Emits information when thrown
  */
-const char* gemfony_error_condition::what() const throw() {
-   return description_.c_str();
+const char *gemfony_error_condition::what() const throw() {
+	return description_.c_str();
 }
 
 /******************************************************************************/
@@ -120,16 +118,16 @@ const char* gemfony_error_condition::what() const throw() {
  * Allows to check whether any information is stored in this class
  */
 bool gemfony_error_condition::empty() const throw() {
-   return description_.empty();
+	return description_.empty();
 }
 
 /******************************************************************************/
 /**
  * This function allows to output a gemfony_error_condition to a stream
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Common::gemfony_error_condition& g) {
-   o << g.what();
-   return o;
+std::ostream &operator<<(std::ostream &o, const Gem::Common::gemfony_error_condition &g) {
+	o << g.what();
+	return o;
 }
 
 /******************************************************************************/
@@ -142,14 +140,14 @@ std::ostream& operator<<(std::ostream& o, const Gem::Common::gemfony_error_condi
  * Raise an exception if a given define wasn't set. "F" stands for "function",
  * "D" for "define".
  */
-void condnotset(const std::string& F, const std::string& D) {
-   std::ostringstream error;
-   error
-        << std::endl
-        << "================================================" << std::endl
-        << "In function " << F << " Error!" << std::endl
-        << "Function was called even though " << D << " hasn't been set." << std::endl
-        << "================================================" << std::endl;                               \
+void condnotset(const std::string &F, const std::string &D) {
+	std::ostringstream error;
+	error
+	<< std::endl
+	<< "================================================" << std::endl
+	<< "In function " << F << " Error!" << std::endl
+	<< "Function was called even though " << D << " hasn't been set." << std::endl
+	<< "================================================" << std::endl;                               \
         throw(Gem::Common::gemfony_error_condition(error.str()));
 }
 

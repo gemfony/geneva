@@ -73,16 +73,14 @@ namespace Common {
 /**
  * The standard constructor
  */
-math_logic_error::math_logic_error(const std::string& errorText) throw()
-   : gemfony_error_condition(errorText)
-{ /* nothing */ }
+math_logic_error::math_logic_error(const std::string &errorText) throw()
+	: gemfony_error_condition(errorText) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-math_logic_error::~math_logic_error()  throw()
-{ /* nothing */ }
+math_logic_error::~math_logic_error()  throw() { /* nothing */ }
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -91,15 +89,13 @@ math_logic_error::~math_logic_error()  throw()
  * The standard constructor
  */
 division_by_0::division_by_0() throw()
-   : math_logic_error("Division by 0 in Geneva formula parser")
-{ /* nothing */ }
+	: math_logic_error("Division by 0 in Geneva formula parser") { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-division_by_0::~division_by_0() throw()
-{ /* nothing */ }
+division_by_0::~division_by_0() throw() { /* nothing */ }
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -107,32 +103,37 @@ division_by_0::~division_by_0() throw()
 // Some swap functions needed to deal with MSVC peculiarities
 
 // Swaps two nil structs
-void nil::swap(nil &n) {}
+void nil::swap(nil &n) { }
+
 // Swaps two signed_ structs
-void signed_::swap(signed_& s) {
-   std::swap(sign, s.sign);
-   std::swap(operand_, s.operand_);
+void signed_::swap(signed_ &s) {
+	std::swap(sign, s.sign);
+	std::swap(operand_, s.operand_);
 }
+
 // Swaps two operation structs
-void operation::swap(operation& o) {
-   std::swap(operator_, o.operator_);
-   std::swap(operand_, o.operand_);
+void operation::swap(operation &o) {
+	std::swap(operator_, o.operator_);
+	std::swap(operand_, o.operand_);
 }
+
 // Swaps two unary_function_ structs
-void unary_function_::swap(unary_function_& u) {
-   std::swap(fname_, u.fname_);
-   std::swap(operand_, u.operand_);
+void unary_function_::swap(unary_function_ &u) {
+	std::swap(fname_, u.fname_);
+	std::swap(operand_, u.operand_);
 }
+
 // Swaps two binary_function_ structs
-void binary_function_::swap(binary_function_& b) {
-   std::swap(fname_, b.fname_);
-   std::swap(operand1_, b.operand1_);
-   std::swap(operand2_, b.operand2_);
+void binary_function_::swap(binary_function_ &b) {
+	std::swap(fname_, b.fname_);
+	std::swap(operand1_, b.operand1_);
+	std::swap(operand2_, b.operand2_);
 }
+
 // Swaps two ast_expression structs
-void ast_expression::swap(ast_expression& a) {
-   std::swap(first, a.first);
-   std::swap(rest, a.rest);
+void ast_expression::swap(ast_expression &a) {
+	std::swap(first, a.first);
+	std::swap(rest, a.rest);
 }
 
 /******************************************************************************/
@@ -146,28 +147,28 @@ void ast_expression::swap(ast_expression& a) {
 namespace boost {
 namespace spirit {
 
-void swap(Gem::Common::nil& a, Gem::Common::nil& b) {
-   a.swap(b);
+void swap(Gem::Common::nil &a, Gem::Common::nil &b) {
+	a.swap(b);
 }
 
-void swap(Gem::Common::signed_& a, Gem::Common::signed_& b) {
-   a.swap(b);
+void swap(Gem::Common::signed_ &a, Gem::Common::signed_ &b) {
+	a.swap(b);
 }
 
-void swap(Gem::Common::operation& a, Gem::Common::operation& b) {
-   a.swap(b);
+void swap(Gem::Common::operation &a, Gem::Common::operation &b) {
+	a.swap(b);
 }
 
-void swap(Gem::Common::unary_function_& a, Gem::Common::unary_function_& b) {
-   a.swap(b);
+void swap(Gem::Common::unary_function_ &a, Gem::Common::unary_function_ &b) {
+	a.swap(b);
 }
 
-void swap(Gem::Common::binary_function_& a, Gem::Common::binary_function_& b) {
-   a.swap(b);
+void swap(Gem::Common::binary_function_ &a, Gem::Common::binary_function_ &b) {
+	a.swap(b);
 }
 
-void swap(Gem::Common::ast_expression& a, Gem::Common::ast_expression& b) {
-   a.swap(b);
+void swap(Gem::Common::ast_expression &a, Gem::Common::ast_expression &b) {
+	a.swap(b);
 }
 
 } /* namespace spirit */

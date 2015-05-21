@@ -31,9 +31,9 @@
  * For further information on Gemfony scientific and Geneva, visit
  * http://www.gemfony.eu .
  */
- 
+
 // Global checks, defines and includes needed for all of Geneva
-#include "common/GGlobalDefines.hpp" 
+#include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
 #include <string>
@@ -57,8 +57,8 @@
 /******************************************************************************/
 /**
  * We need local signals, so we can act both on Windows and POSIX-OSs
- */ 
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+ */
+#if defined(_MSC_VER)  && (_MSC_VER >= 1020)
 #define G_SIGHUP CTRL_CLOSE_EVENT
 #else
 #define G_SIGHUP SIGHUP
@@ -77,31 +77,25 @@ const double CE_DEF_SIMILARITY_DIFFERENCE = pow(10., -5);
 
 /******************************************************************************/
 /**
- * Indicates whether higher or lower values are considered better. Needed e.g. 
+ * Indicates whether higher or lower values are considered better. Needed e.g.
  * in conjunction with the sorting in priority queues.
  */
 const bool HIGHERISBETTER = true;
-const bool LOWERISBETTER  = false;
+const bool LOWERISBETTER = false;
 
 /******************************************************************************/
 /**
  * Different log and exception types
  */
 enum G_API_COMMON logType {
-   EXCEPTION = 0
-   , TERMINATION = 1
-   , WARNING = 2
-   , LOGGING = 3
-   , FILE = 4
-   , STDOUT = 5
-   , STDERR = 6
+	EXCEPTION = 0, TERMINATION = 1, WARNING = 2, LOGGING = 3, FILE = 4, STDOUT = 5, STDERR = 6
 };
 
 /******************************************************************************/
 /** @brief Puts a Gem::Common::logType into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream& operator<<(std::ostream&, const Gem::Common::logType&);
+G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::logType &);
 /** @brief Reads a Gem::Common::logType from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream& operator>>(std::istream&, Gem::Common::logType&);
+G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::logType &);
 
 /******************************************************************************/
 /**
@@ -121,33 +115,29 @@ const bool VAR_IS_SECONDARY = false;
  * Needed for the serialization of boost::logic::tribool
  */
 enum G_API_COMMON triboolStates {
-	  TBS_FALSE
-	, TBS_INDETERMINATE
-	, TBS_TRUE
+	TBS_FALSE, TBS_INDETERMINATE, TBS_TRUE
 };
 
 /******************************************************************************/
 /** @brief Puts a Gem::Common::triboolStates into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON  std::ostream& operator<<(std::ostream&, const Gem::Common::triboolStates&);
+G_API_COMMON  std::ostream &operator<<(std::ostream &, const Gem::Common::triboolStates &);
 /** @brief Reads a Gem::Common::triboolStates from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream& operator>>(std::istream&, Gem::Common::triboolStates&);
+G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::triboolStates &);
 
 /******************************************************************************/
 /**
  * The serialization modes that are currently allowed
  */
 enum G_API_COMMON serializationMode {
-	  SERIALIZATIONMODE_TEXT = 0
-	, SERIALIZATIONMODE_XML = 1
-	, SERIALIZATIONMODE_BINARY = 2
+	SERIALIZATIONMODE_TEXT = 0, SERIALIZATIONMODE_XML = 1, SERIALIZATIONMODE_BINARY = 2
 };
 
 /******************************************************************************/
 
 /** @brief Puts a Gem::Common::serializationMode into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream& operator<<(std::ostream&, const Gem::Common::serializationMode&);
+G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::serializationMode &);
 /** @brief Reads a Gem::Common::serializationMode item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream& operator>>(std::istream&, Gem::Common::serializationMode&);
+G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::serializationMode &);
 
 /******************************************************************************/
 /**
@@ -161,17 +151,17 @@ const bool CE_WITH_MESSAGES = true;
  * Needed to express expectations in testing framework. CE stands for "Check expectation".
  */
 enum G_API_COMMON expectation {
-	  CE_EQUALITY // bitwise equality of all checked components
+	CE_EQUALITY // bitwise equality of all checked components
 	, CE_FP_SIMILARITY // equality for non-floating point components, similarity for floating point
-   , CE_INEQUALITY // at least one checked component differs
+	, CE_INEQUALITY // at least one checked component differs
 };
 
 /******************************************************************************/
 
 /** @brief Puts a Gem::Common::expectation into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream& operator<<(std::ostream&, const Gem::Common::expectation&);
+G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::expectation &);
 /** @brief Reads a Gem::Common::expectation item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream& operator>>(std::istream&, Gem::Common::expectation&);
+G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::expectation &);
 
 /******************************************************************************/
 /**

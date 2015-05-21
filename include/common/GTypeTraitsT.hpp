@@ -76,18 +76,22 @@ namespace Common {
  * used to distinguish compare functions that act on types through their own
  * compare() from compare-variants that act through operator==/!= .
  */
-template <typename T>
-class has_compare_member
-{
-    typedef char yes;
-    typedef long no;
+template<typename T>
+class has_compare_member {
+	typedef char yes;
+	typedef long no;
 
-    // TODO: Replace BOOST_TYPEOF with decltype when switch to C++11 is complete
-    template <typename C> static yes test( BOOST_TYPEOF(&C::compare) ) ;
-    template <typename C> static no  test(...);
+	// TODO: Replace BOOST_TYPEOF with decltype when switch to C++11 is complete
+	template<typename C>
+	static yes test(BOOST_TYPEOF(&C::compare));
+
+	template<typename C>
+	static no test(...);
 
 public:
-    enum { value = sizeof(test<T>(0)) == sizeof(char) };
+	enum {
+		value = sizeof(test<T>(0)) == sizeof(char)
+	};
 };
 
 /******************************************************************************/

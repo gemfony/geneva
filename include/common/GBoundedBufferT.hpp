@@ -111,7 +111,8 @@ namespace Common {
 
 /******************************************************************************/
 /** @brief Class to be thrown as a message in the case of a time-out in GBuffer */
-class condition_time_out: public std::exception {};
+class condition_time_out : public std::exception {
+};
 
 /******************************************************************************/
 /**
@@ -142,8 +143,7 @@ const std::size_t DEFAULTBUFFERSIZE = 20000;
  */
 template<typename T>
 class GBoundedBufferT
-	: private boost::noncopyable
-{
+	: private boost::noncopyable {
 public:
 
 	typedef typename std::deque<T> container_type;
@@ -172,8 +172,8 @@ public:
 	 *
 	 * @param capacity The desired size of the buffer
 	 */
-	explicit GBoundedBufferT(const std::size_t& capacity)
-		: capacity_(capacity?capacity:1)
+	explicit GBoundedBufferT(const std::size_t &capacity)
+		: capacity_(capacity ? capacity : 1)
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		, name_("no name")
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
@@ -191,20 +191,20 @@ public:
 	 * means termination of the program. No logging takes place, as we want
 	 * this class to be independent of the Geneva framework
 	 */
-	virtual ~GBoundedBufferT()
-	{
+	virtual ~GBoundedBufferT() {
 		// Any error here is deadly ...
 		try {
 			boost::mutex::scoped_lock lock(m_);
 			container_.clear();
 		}
-		// This is a standard error raised by the lock/mutex
-		catch(boost::thread_resource_error&) {
-			std::cerr << "Caught thread_resource_error in GBoundedBufferT::~GBoundedBufferT(). Terminating ..." << std::endl;
+			// This is a standard error raised by the lock/mutex
+		catch (boost::thread_resource_error &) {
+			std::cerr << "Caught thread_resource_error in GBoundedBufferT::~GBoundedBufferT(). Terminating ..." <<
+			std::endl;
 			std::terminate();
 		}
-		// We do not know whether any of the destructors of the items in the buffer throw anything
-		catch(...) {
+			// We do not know whether any of the destructors of the items in the buffer throw anything
+		catch (...) {
 			std::cerr << "Caught unknown exception in GBoundedBufferT::~GBoundedBufferT(). Terminating ..." << std::endl;
 			std::terminate();
 		}
@@ -252,9 +252,9 @@ public:
 	 * @param item An item to be added to the front of the buffer
 	 * @param timeout duration until a timeout occurs
 	 */
-	void push_front(value_type item, const boost::posix_time::time_duration& timeout) {
+	void push_front(value_type item, const boost::posix_time::time_duration &timeout) {
 		boost::mutex::scoped_lock lock(m_);
-		if(!not_full_.timed_wait(lock,timeout,buffer_not_full(container_, capacity_))) {
+		if (!not_full_.timed_wait(lock, timeout, buffer_not_full(container_, capacity_))) {
 			throw Gem::Common::condition_time_out();
 		}
 		container_.push_front(item);
@@ -279,9 +279,9 @@ public:
 	 * @param timeout duration until a timeout occurs
 	 * @return A boolean indicating whether an item has been successfully submitted
 	 */
-	bool push_front_bool(value_type item, const boost::posix_time::time_duration& timeout) {
+	bool push_front_bool(value_type item, const boost::posix_time::time_duration &timeout) {
 		boost::mutex::scoped_lock lock(m_);
-		if(!not_full_.timed_wait(lock, timeout, buffer_not_full(container_, capacity_))) {
+		if (!not_full_.timed_wait(lock, timeout, buffer_not_full(container_, capacity_))) {
 			return false;
 		}
 		container_.push_front(item);
@@ -305,7 +305,7 @@ public:
 	 *
 	 * @param item Reference to a single item that was removed from the end of the buffer
 	 */
-	void pop_back(value_type& item) {
+	void pop_back(value_type &item) {
 		boost::mutex::scoped_lock lock(m_);
 		not_empty_.wait(lock, buffer_not_empty(container_));
 
@@ -339,9 +339,9 @@ public:
 	 * @param item Reference to a single item that was removed from the end of the buffer
 	 * @param timeout duration until a timeout occurs
 	 */
-	void pop_back(value_type& item, const boost::posix_time::time_duration& timeout) {
+	void pop_back(value_type &item, const boost::posix_time::time_duration &timeout) {
 		boost::mutex::scoped_lock lock(m_);
-		if(!not_empty_.timed_wait(lock,timeout,buffer_not_empty(container_))) {
+		if (!not_empty_.timed_wait(lock, timeout, buffer_not_empty(container_))) {
 			throw Gem::Common::condition_time_out();
 		}
 
@@ -377,9 +377,9 @@ public:
 	 * @param timeout duration until a timeout occurs
 	 * @return A boolean indicating whether an item has been successfully retrieved
 	 */
-	bool pop_back_bool(value_type& item, const boost::posix_time::time_duration& timeout) {
+	bool pop_back_bool(value_type &item, const boost::posix_time::time_duration &timeout) {
 		boost::mutex::scoped_lock lock(m_);
-		if(!not_empty_.timed_wait(lock,timeout,buffer_not_empty(container_))) {
+		if (!not_empty_.timed_wait(lock, timeout, buffer_not_empty(container_))) {
 			return false;
 		}
 
@@ -495,55 +495,51 @@ protected:
 	 * Note that this code is only called in a safe context, hence no protection
 	 * is necessary.
 	 */
-   struct buffer_not_empty {
-   public:
-      /* @brief Initializes the local container reference */
-      buffer_not_empty(
-         const container_type& c
-      )
-         :c_(c)
-      { /* nothing */ }
+	struct buffer_not_empty {
+	public:
+		/* @brief Initializes the local container reference */
+		buffer_not_empty(
+			const container_type &c
+		)
+			: c_(c) { /* nothing */ }
 
-      /** @brief Used for the actual test */
-      bool operator()() const {
-        return (!c_.empty());
-      }
+		/** @brief Used for the actual test */
+		bool operator()() const {
+			return (!c_.empty());
+		}
 
-   private:
-      /** @brief Default constructor; intentionally private and undefined */
-      buffer_not_empty() = delete;
+	private:
+		/** @brief Default constructor; intentionally private and undefined */
+		buffer_not_empty() = delete;
 
-      const container_type& c_; ///< Holds a reference to the actual container
-   };
+		const container_type &c_; ///< Holds a reference to the actual container
+	};
 
-   /**
-    * A function object that checks whether a given container is full or not.
-    * Note that this code is only called in a safe context, hence no protection
-    * is necessary.
-    */
-   struct buffer_not_full {
-   public:
-      /* @brief Initializes the local container reference and the maximum capacity */
-      buffer_not_full(
-         const container_type& c
-         , const std::size_t& capacity
-      )
-         : c_(c)
-         , capacity_(capacity)
-      { /* nothing */ }
+	/**
+	 * A function object that checks whether a given container is full or not.
+	 * Note that this code is only called in a safe context, hence no protection
+	 * is necessary.
+	 */
+	struct buffer_not_full {
+	public:
+		/* @brief Initializes the local container reference and the maximum capacity */
+		buffer_not_full(
+			const container_type &c, const std::size_t &capacity
+		)
+			: c_(c), capacity_(capacity) { /* nothing */ }
 
-      /** @brief Used for the actual test */
-      bool operator()() const {
-        return (c_.size() < capacity_);
-      }
+		/** @brief Used for the actual test */
+		bool operator()() const {
+			return (c_.size() < capacity_);
+		}
 
-   private:
-      /** @brief Default constructor; intentionally private and undefined */
-      buffer_not_full() = delete;
+	private:
+		/** @brief Default constructor; intentionally private and undefined */
+		buffer_not_full() = delete;
 
-      const container_type& c_;
-      const std::size_t& capacity_;
-   };
+		const container_type &c_;
+		const std::size_t &capacity_;
+	};
 
 	/***************************************************************************/
 
@@ -555,8 +551,8 @@ protected:
 
 private:
 	/***************************************************************************/
-	GBoundedBufferT(const GBoundedBufferT<T>&) = delete; ///< Disabled copy constructor
-	GBoundedBufferT& operator = (const GBoundedBufferT<T>&) = delete; ///< Disabled assign operator
+	GBoundedBufferT(const GBoundedBufferT<T> &) = delete; ///< Disabled copy constructor
+	GBoundedBufferT &operator=(const GBoundedBufferT<T> &) = delete; ///< Disabled assign operator
 
 	// TODO: This is dangerous: one definition rule!
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER

@@ -98,11 +98,10 @@ class GThreadPool;
  * Anthony Williams, as offered as part of the Boost 1.36 release
  */
 class GThreadGroup
-    :private boost::noncopyable
-{
+	: private boost::noncopyable {
 	friend class GThreadPool;
 
-	typedef std::shared_ptr<boost::thread> thread_ptr;
+	typedef std::shared_ptr <boost::thread> thread_ptr;
 	typedef std::vector<thread_ptr> thread_vector;
 
 public:
@@ -125,7 +124,7 @@ public:
 	G_API_COMMON void remove_last();
 
 	/** @brief Interrupts, joins and finally removes the last nThreads threads in the group */
-	G_API_COMMON void remove_last(const std::size_t&);
+	G_API_COMMON void remove_last(const std::size_t &);
 
 	/** @brief Returns the size of the current thread group */
 	G_API_COMMON std::size_t size() const;
@@ -138,7 +137,7 @@ public:
 	 * @return A pointer to the newly created thread
 	 */
 	template<typename F>
-	std::shared_ptr<boost::thread> create_thread(F f) {
+	std::shared_ptr <boost::thread> create_thread(F f) {
 		boost::lock_guard<boost::mutex> guard(m_);
 		thread_ptr new_thread(new boost::thread(f));
 		threads_.push_back(new_thread);
@@ -155,8 +154,8 @@ public:
 	 * @return A pointer to the newly created thread
 	 */
 	template<typename F>
-	void create_threads(F f, const std::size_t& nThreads)	{
-		for(std::size_t i=0; i<nThreads; i++) create_thread(f);
+	void create_threads(F f, const std::size_t &nThreads) {
+		for (std::size_t i = 0; i < nThreads; i++) create_thread(f);
 	}
 
 	/***************************************************************************/

@@ -75,12 +75,12 @@ namespace serialization {
  * @param tpl The tuple to be serialized
  */
 template<typename archive, typename T0>
-void serialize(archive & ar, boost::tuple<T0> & tpl, unsigned int) {
+void serialize(archive &ar, boost::tuple<T0> &tpl, unsigned int) {
 	using namespace boost;
 	using boost::serialization::make_nvp;
 
 	ar
-	& make_nvp("tpl_0", boost::get<0>(tpl));
+		&make_nvp("tpl_0", boost::get<0>(tpl));
 }
 
 /******************************************************************************/
@@ -90,7 +90,7 @@ void serialize(archive & ar, boost::tuple<T0> & tpl, unsigned int) {
  * @param tpl The tuple to be serialized
  */
 template<typename archive, typename T0, typename T1>
-void serialize(archive & ar, boost::tuple<T0, T1> & tpl, unsigned int) {
+void serialize(archive &ar, boost::tuple<T0, T1> &tpl, unsigned int) {
 	using namespace boost;
 	using boost::serialization::make_nvp;
 
@@ -106,7 +106,7 @@ void serialize(archive & ar, boost::tuple<T0, T1> & tpl, unsigned int) {
  * @param tpl The tuple to be serialized
  */
 template<typename archive, typename T0, typename T1, typename T2>
-void serialize(archive & ar, boost::tuple<T0, T1, T2> & tpl, unsigned int) {
+void serialize(archive &ar, boost::tuple<T0, T1, T2> &tpl, unsigned int) {
 	using namespace boost;
 	using boost::serialization::make_nvp;
 
@@ -123,7 +123,7 @@ void serialize(archive & ar, boost::tuple<T0, T1, T2> & tpl, unsigned int) {
  * @param tpl The tuple to be serialized
  */
 template<typename archive, typename T0, typename T1, typename T2, typename T3>
-void serialize(archive & ar, boost::tuple<T0, T1, T2, T3> & tpl, unsigned int) {
+void serialize(archive &ar, boost::tuple<T0, T1, T2, T3> &tpl, unsigned int) {
 	using namespace boost;
 	using boost::serialization::make_nvp;
 
@@ -141,7 +141,7 @@ void serialize(archive & ar, boost::tuple<T0, T1, T2, T3> & tpl, unsigned int) {
  * @param tpl The tuple to be serialized
  */
 template<typename archive, typename T0, typename T1, typename T2, typename T3, typename T4>
-void serialize(archive & ar, boost::tuple<T0, T1, T2, T3, T4> & tpl, unsigned int) {
+void serialize(archive &ar, boost::tuple<T0, T1, T2, T3, T4> &tpl, unsigned int) {
 	using namespace boost;
 	using boost::serialization::make_nvp;
 
@@ -160,7 +160,7 @@ void serialize(archive & ar, boost::tuple<T0, T1, T2, T3, T4> & tpl, unsigned in
  * @param tpl The tuple to be serialized
  */
 template<typename archive, typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
-void serialize(archive & ar, boost::tuple<T0, T1, T2, T3, T4, T5> & tpl, unsigned int) {
+void serialize(archive &ar, boost::tuple<T0, T1, T2, T3, T4, T5> &tpl, unsigned int) {
 	using namespace boost;
 	using boost::serialization::make_nvp;
 

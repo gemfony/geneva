@@ -42,6 +42,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard heades go here
+#include <memory>
 
 // Boost headers go here
 
@@ -58,23 +59,23 @@
  *
  * @return A std::shared_ptr to a newly created T object
  */
-template <typename T>
-std::shared_ptr<T> TFactory_GUnitTests() {
-   std::shared_ptr<T> p;
+template<typename T>
+std::shared_ptr <T> TFactory_GUnitTests() {
+	std::shared_ptr <T> p;
 
-   try {
-      p = std::shared_ptr<T>(new T());
-   } catch (const Gem::Common::gemfony_error_condition& g) {
-      // Re-throw
-      throw g;
-   } catch (...) {
-      glogger
-      << "In std::shared_ptr<T> TFactory_GUnitTests(): Error!" << std::endl
-      << "Caught unknown exception" << std::endl
-      << GEXCEPTION;
-   }
+	try {
+		p = std::shared_ptr<T>(new T());
+	} catch (const Gem::Common::gemfony_error_condition &g) {
+		// Re-throw
+		throw g;
+	} catch (...) {
+		glogger
+		<< "In std::shared_ptr<T> TFactory_GUnitTests(): Error!" << std::endl
+		<< "Caught unknown exception" << std::endl
+		<< GEXCEPTION;
+	}
 
-   return p;
+	return p;
 }
 
 /******************************************************************************/

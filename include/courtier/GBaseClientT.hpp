@@ -77,23 +77,18 @@ namespace Courtier {
  * corresponding object, to process it and to deliver the results to the server.
  * This class assumes that the template parameter implements the "process()" call.
  */
-template <typename processable_type>
+template<typename processable_type>
 class GBaseClientT
-	:private boost::noncopyable
-{
+	: private boost::noncopyable {
 public:
 	/***************************************************************************/
 	/**
 	 * The default constructor.
 	 */
-   GBaseClientT()
-		: startTime_(boost::posix_time::microsec_clock::local_time())
-		, maxDuration_(boost::posix_time::microsec(0))
-		, processed_(0)
-		, processMax_(0)
-		, returnRegardless_(true)
-		, additionalDataTemplate_(std::shared_ptr<processable_type>())
-	{ /* nothing*/ }
+	GBaseClientT()
+		: startTime_(boost::posix_time::microsec_clock::local_time()), maxDuration_(boost::posix_time::microsec(0)),
+		  processed_(0), processMax_(0), returnRegardless_(true),
+		  additionalDataTemplate_(std::shared_ptr<processable_type>()) { /* nothing*/ }
 
 	/***************************************************************************/
 
@@ -104,14 +99,10 @@ public:
 	 *
 	 * @param additionalDataTemplate The model of the item to be processed
 	 */
-   GBaseClientT(std::shared_ptr<processable_type> additionalDataTemplate)
-		: startTime_(boost::posix_time::microsec_clock::local_time())
-		, maxDuration_(boost::posix_time::microsec(0))
-		, processed_(0)
-		, processMax_(0)
-		, returnRegardless_(true)
-		, additionalDataTemplate_(additionalDataTemplate)
-	{ /* nothing*/ }
+	GBaseClientT(std::shared_ptr <processable_type> additionalDataTemplate)
+		: startTime_(boost::posix_time::microsec_clock::local_time()), maxDuration_(boost::posix_time::microsec(0)),
+		  processed_(0), processMax_(0), returnRegardless_(true),
+		  additionalDataTemplate_(additionalDataTemplate) { /* nothing*/ }
 
 
 	/***************************************************************************/
@@ -119,8 +110,7 @@ public:
 	/**
 	 * A standard destructor. We have no local, dynamically allocated data, hence it is empty.
 	 */
-	virtual ~GBaseClientT()
-	{ /* nothing */ }
+	virtual ~GBaseClientT() { /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -129,46 +119,45 @@ public:
 	 * number of processing steps has been reached. All network connectivity is done
 	 * in process().
 	 */
-	void run(){
-		try{
-			if(this->init()) {
-				while(
-               !this->halt() &&
-               CLIENT_CONTINUE == this->process()
-				)
-				{ /* nothing*/ }
+	void run() {
+		try {
+			if (this->init()) {
+				while (
+					!this->halt() &&
+					CLIENT_CONTINUE == this->process()
+					) { /* nothing*/ }
 			} else {
-			   glogger
-			   << "In GBaseClientT<T>::run(): Initialization failed. Leaving ..." << std::endl
-			   << GEXCEPTION;
+				glogger
+				<< "In GBaseClientT<T>::run(): Initialization failed. Leaving ..." << std::endl
+				<< GEXCEPTION;
 			}
 
-			if(!this->finally()) {
+			if (!this->finally()) {
 				glogger
 				<< "In GBaseClientT<T>::run(): Finalization failed." << std::endl
 				<< GEXCEPTION;
 			}
 		}
-		catch(Gem::Common::gemfony_error_condition& e){
-         glogger
-         << "In GBaseClientT<T>::run():" << std::endl
-         << "Caught Gem::Common::gemfony_error_condition" << std::endl
-         << "with message" << std::endl
-         << e.what()
-         << GEXCEPTION;
-		}
-		catch(boost::exception&){
-		   glogger
-		   << "In GBaseClientT<T>::run(): Caught boost::exception" << std::endl
+		catch (Gem::Common::gemfony_error_condition &e) {
+			glogger
+			<< "In GBaseClientT<T>::run():" << std::endl
+			<< "Caught Gem::Common::gemfony_error_condition" << std::endl
+			<< "with message" << std::endl
+			<< e.what()
 			<< GEXCEPTION;
 		}
-      catch(std::exception& e){
-         glogger
-         << "In GBaseClientT<T>::run(): Caught std::exception with message" << std::endl
-         << e.what()
-         << GEXCEPTION;
-      }
-		catch(...){
+		catch (boost::exception &) {
+			glogger
+			<< "In GBaseClientT<T>::run(): Caught boost::exception" << std::endl
+			<< GEXCEPTION;
+		}
+		catch (std::exception &e) {
+			glogger
+			<< "In GBaseClientT<T>::run(): Caught std::exception with message" << std::endl
+			<< e.what()
+			<< GEXCEPTION;
+		}
+		catch (...) {
 			glogger
 			<< "In GBaseClientT<T>::run(): Caught unknown exception" << std::endl
 			<< GEXCEPTION;
@@ -183,7 +172,7 @@ public:
 	 *
 	 * @param processMax Desired value for the processMax_ variable
 	 */
-	void setProcessMax(const boost::uint32_t& processMax){
+	void setProcessMax(const boost::uint32_t &processMax) {
 		processMax_ = processMax;
 	}
 
@@ -194,7 +183,7 @@ public:
 	 *
 	 * @return The value of the processMax_ variable
 	 */
-	boost::uint32_t getProcessMax() const{
+	boost::uint32_t getProcessMax() const {
 		return processMax_;
 	}
 
@@ -204,15 +193,15 @@ public:
 	 *
 	 * @param maxDuration The maximum allowed processing time
 	 */
-	void setMaxTime(const boost::posix_time::time_duration& maxDuration) {
+	void setMaxTime(const boost::posix_time::time_duration &maxDuration) {
 		using namespace boost::posix_time;
 
 		// Only allow "real" values
-		if(maxDuration.is_special() || maxDuration.is_negative()) {
-		   glogger
-		   << "In GBaseClientT<T>::setMaxTime():" << std::endl
-         << "Invalid maxDuration." << std::endl
-         << GEXCEPTION;
+		if (maxDuration.is_special() || maxDuration.is_negative()) {
+			glogger
+			<< "In GBaseClientT<T>::setMaxTime():" << std::endl
+			<< "Invalid maxDuration." << std::endl
+			<< GEXCEPTION;
 		}
 
 		maxDuration_ = maxDuration;
@@ -235,7 +224,7 @@ public:
 	 *
 	 * @param returnRegardless Specifies whether results should be returned to the server regardless of their success
 	 */
-	void setReturnRegardless(const bool& returnRegardless) {
+	void setReturnRegardless(const bool &returnRegardless) {
 		returnRegardless_ = returnRegardless;
 	}
 
@@ -247,7 +236,7 @@ public:
     * @return Whether results should be returned to the server regardless of their success
 	 */
 	bool getReturnRegardless() const {
-	   return returnRegardless_;
+		return returnRegardless_;
 	}
 
 protected:
@@ -257,28 +246,28 @@ protected:
 	 * In order to allow derived classes to concentrate on network issues, all
 	 * unpacking, the calculation, and packing is done in the GBaseClientT class
 	 */
-	bool process(){
-		 // Store the current serialization mode
+	bool process() {
+		// Store the current serialization mode
 		Gem::Common::serializationMode serMode;
 
 		// Get an item from the server
 		std::string istr, serModeStr, portId;
-		if(!this->retrieve(istr, serModeStr, portId)) {
-		   return false;
+		if (!this->retrieve(istr, serModeStr, portId)) {
+			return false;
 		}
 
 		// There is a possibility that we have received an unknown command
 		// or a timeout command. In this case we want to try again until retrieve()
 		// returns "false". If we return true here, the next "process" command will
 		// be executed.
-		if(istr == "empty") return true;
+		if (istr == "empty") return true;
 
 		// Check the serialization mode we need to use
-		if(serModeStr == ""){
-		   glogger
-		   << "In GBaseClientT<T>::process() : Warning!" << std::endl
-		   << "Found empty serModeStr. Leaving." << std::endl
-		   << GWARNING;
+		if (serModeStr == "") {
+			glogger
+			<< "In GBaseClientT<T>::process() : Warning!" << std::endl
+			<< "Found empty serModeStr. Leaving." << std::endl
+			<< GWARNING;
 
 			return false;
 		}
@@ -287,22 +276,22 @@ protected:
 
 		// unpack the data and create a new object. Note that de-serialization must
 		// generally happen through the same type that was used for serialization.
-		std::shared_ptr<processable_type> target = Gem::Common::sharedPtrFromString<processable_type>(istr, serMode);
+		std::shared_ptr <processable_type> target = Gem::Common::sharedPtrFromString<processable_type>(istr, serMode);
 
 		// Check if we have received a valid target. Leave the function if this is not the case
-		if(!target) {
-		   glogger
-		   << "In GBaseClientT<T>::process() : Warning!" << std::endl
-         << "Received empty target." << std::endl
-         << GWARNING;
+		if (!target) {
+			glogger
+			<< "In GBaseClientT<T>::process() : Warning!" << std::endl
+			<< "Received empty target." << std::endl
+			<< GWARNING;
 
-		   // This means that process() will be called again
+			// This means that process() will be called again
 			return true;
 		}
 
 		// If we have a model for the item to be parallelized, load its data into the target
-		if(additionalDataTemplate_) {
-		   target->loadConstantData(additionalDataTemplate_);
+		if (additionalDataTemplate_) {
+			target->loadConstantData(additionalDataTemplate_);
 		}
 
 		// This one line is all it takes to do the processing required for this object.
@@ -310,12 +299,12 @@ protected:
 		// what is being done during the processing. If processing did not lead to a useful result,
 		// information will be returned back to the server only if returnRegardless_
 		// is set to true.
-		if(!target->process() && !returnRegardless_) return true;
+		if (!target->process() && !returnRegardless_) return true;
 
 		// transform target back into a string and submit to the server. The actual
 		// actions done by submit are defined by derived classes.
-		if(!this->submit(Gem::Common::sharedPtrToString(target, serMode), portId)) {
-		   return false;
+		if (!this->submit(Gem::Common::sharedPtrToString(target, serMode), portId)) {
+			return false;
 		}
 
 		// Everything worked. Indicate that we want to continue
@@ -335,17 +324,17 @@ protected:
 	/***************************************************************************/
 
 	/** @brief Retrieve work items from the server. To be defined by derived classes. */
-	virtual bool retrieve(std::string&, std::string&, std::string&) = 0;
+	virtual bool retrieve(std::string &, std::string &, std::string &) = 0;
 
 	/***************************************************************************/
 
 	/** @brief Submit processed items to the server. To be defined by derived classes. */
-	virtual bool submit(const std::string&, const std::string&) = 0;
+	virtual bool submit(const std::string &, const std::string &) = 0;
 
 	/***************************************************************************/
 
 	/** @brief Custom halt condition for processing */
-	virtual bool customHalt(){ return false; }
+	virtual bool customHalt() { return false; }
 
 private:
 	/***************************************************************************/
@@ -356,18 +345,19 @@ private:
 	 *
 	 * @return A boolean indicating whether a halt condition was reached
 	 */
-	bool halt(){
+	bool halt() {
 		using namespace boost::posix_time;
 
 		// Maximum number of processing steps reached ?
-		if(processMax_ && (processed_++ >= processMax_)) return true;
+		if (processMax_ && (processed_++ >= processMax_)) return true;
 
 		// Maximum duration reached ?
-		if(maxDuration_.total_microseconds() &&
-		  ((microsec_clock::local_time() - startTime_) >= maxDuration_)) return true;
+		if (maxDuration_.total_microseconds() &&
+			 ((microsec_clock::local_time() - startTime_) >= maxDuration_))
+			return true;
 
 		// Custom halt condition reached ?
-		if(customHalt()) return true;
+		if (customHalt()) return true;
 
 		return false;
 	}
@@ -382,7 +372,7 @@ private:
 
 	bool returnRegardless_; ///< Specifies whether unsuccessful processing attempts should be returned to the server
 
-	std::shared_ptr<processable_type> additionalDataTemplate_; ///< Optionally holds a template of the object to be processed
+	std::shared_ptr <processable_type> additionalDataTemplate_; ///< Optionally holds a template of the object to be processed
 };
 
 /******************************************************************************/

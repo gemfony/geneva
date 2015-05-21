@@ -54,33 +54,29 @@ namespace Common {
 /**
  * The standard constructor
  */
-GLockVarBool::GLockVarBool(const bool& var)
-   : GLockVarT<bool>(var)
-{ /* nothing */ }
+GLockVarBool::GLockVarBool(const bool &var)
+	: GLockVarT<bool>(var) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The copy constructor
  */
-GLockVarBool::GLockVarBool(const GLockVarBool& cp)
-   : GLockVarT<bool>(cp)
-{ /* nothing */ }
+GLockVarBool::GLockVarBool(const GLockVarBool &cp)
+	: GLockVarT<bool>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GLockVarBool::~GLockVarBool()
-{ /* nothing */ }
+GLockVarBool::~GLockVarBool() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The default constructor -- intentionally private
  */
-GLockVarBool::GLockVarBool()
-{ /* nothing */ }
+GLockVarBool::GLockVarBool() { /* nothing */ }
 
- /******************************************************************************/
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

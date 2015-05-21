@@ -58,13 +58,13 @@ namespace Courtier {
  * Indicates processed or unprocessed work items
  */
 const bool GBC_UNPROCESSED = true;
-const bool GBC_PROCESSED   = false;
+const bool GBC_PROCESSED = false;
 
 /******************************************************************************/
 /**
  * Indicates whether a client wants to continue or terminate
  */
-const bool CLIENT_CONTINUE  = true;
+const bool CLIENT_CONTINUE = true;
 const bool CLIENT_TERMINATE = false;
 
 /******************************************************************************/
@@ -76,7 +76,7 @@ const bool CLIENT_TERMINATE = false;
  * 16 digits describing the number of bytes to expect. This should however suffice for
  * every practical purpose.
  */
-const std::size_t COMMANDLENGTH=16;
+const std::size_t COMMANDLENGTH = 16;
 
 /******************************************************************************/
 /**
@@ -120,9 +120,7 @@ const std::string DEFAULTDURATION = EMPTYDURATION;
  * Needed by the broker connector
  */
 enum G_API_COURTIER submissionReturnMode {
-	INCOMPLETERETURN = 0
-	, RESUBMISSIONAFTERTIMEOUT = 1
-	, EXPECTFULLRETURN = 2
+	INCOMPLETERETURN = 0, RESUBMISSIONAFTERTIMEOUT = 1, EXPECTFULLRETURN = 2
 };
 
 const submissionReturnMode DEFAULTSRM = EXPECTFULLRETURN;
@@ -133,7 +131,7 @@ const std::size_t DEFAULTMAXRESUBMISSIONS = 5;
  * These two typedefs allow to steer the types of ids assigned to objects submitted to the broker
  */
 typedef boost::uint64_t ID_TYPE_1;
-typedef std::size_t     ID_TYPE_2;
+typedef std::size_t ID_TYPE_2;
 
 typedef ID_TYPE_1 SUBMISSIONCOUNTERTYPE;
 typedef ID_TYPE_2 POSITIONTYPE;
@@ -141,10 +139,10 @@ typedef ID_TYPE_2 POSITIONTYPE;
 /******************************************************************************/
 
 /** @brief Puts a Gem::Courtier::submissionReturnMode into a stream. Needed also for boost::lexical_cast<> */
-G_API_COURTIER std::ostream& operator<<(std::ostream&, const Gem::Courtier::submissionReturnMode&);
+G_API_COURTIER std::ostream &operator<<(std::ostream &, const Gem::Courtier::submissionReturnMode &);
 
 /** @brief Reads a Gem::Courtier::submissionReturnMode item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COURTIER std::istream& operator>>(std::istream&, Gem::Courtier::submissionReturnMode&);
+G_API_COURTIER std::istream &operator>>(std::istream &, Gem::Courtier::submissionReturnMode &);
 
 /******************************************************************************/
 

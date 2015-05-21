@@ -79,8 +79,7 @@ namespace Common {
  * As we are using a vector of std::shared_ptr<thread> objects, we do not have
  * to manually erase anything.
  */
-GThreadGroup::~GThreadGroup()
-{ /* nothing */ }
+GThreadGroup::~GThreadGroup() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -118,7 +117,7 @@ void GThreadGroup::remove_thread(thread_ptr thrd) {
 void GThreadGroup::join_all() {
 	boost::lock_guard<boost::mutex> guard(m_);
 
-	for (thread_vector::iterator it = threads_.begin(); it!= threads_.end(); ++it) {
+	for (thread_vector::iterator it = threads_.begin(); it != threads_.end(); ++it) {
 		(*it)->join();
 	}
 }
@@ -159,7 +158,7 @@ void GThreadGroup::remove_last() {
  *
  * @param nThreads The number of threads at the end of the group that shall be removed
  */
-void GThreadGroup::remove_last(const std::size_t& nThreads) {
+void GThreadGroup::remove_last(const std::size_t &nThreads) {
 	for (std::size_t i = 0; i < nThreads; i++) {
 		remove_last();
 	}
@@ -182,7 +181,7 @@ std::size_t GThreadGroup::size() const {
  * thread GThreadPool class.
  */
 void GThreadGroup::clearThreads() {
-   threads_.clear();
+	threads_.clear();
 }
 
 /******************************************************************************/

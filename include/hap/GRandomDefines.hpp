@@ -49,7 +49,7 @@ namespace Hap {
 
 /******************************************************************************/
 // Some typedefs for the seed manager and random factory
-typedef std::shared_ptr<boost::thread> thread_ptr;
+typedef std::shared_ptr <boost::thread> thread_ptr;
 typedef boost::mt19937 mersenne_twister;
 // typedef boost::random_device nondet_rng;
 // typedef boost::random_device::result_type initial_seed_type;
@@ -85,19 +85,19 @@ const double rnr_max = static_cast<double>(boost::numeric::bounds<boost::int32_t
  * by reading from /dev/urandom). The chosen value follows a setting
  * in boost's mersenne twister library.
  */
-const boost::uint32_t DEFAULTSTARTSEED=5489;
+const boost::uint32_t DEFAULTSTARTSEED = 5489;
 
 /******************************************************************************/
 /**
  * This value specifies the number of seeds in the queue
  */
-const std::size_t DEFAULTSEEDQUEUESIZE=1000;
+const std::size_t DEFAULTSEEDQUEUESIZE = 1000;
 
 /******************************************************************************/
 /**
  * The minimal size of the double buffer in the GRandomFactoryT
  */
-const std::size_t MINDOUBLEBUFFERSIZE=10000;
+const std::size_t MINDOUBLEBUFFERSIZE = 10000;
 
 /******************************************************************************/
 

@@ -67,7 +67,7 @@ namespace Common {
  *
  * @return A std::shared_ptr to a newly created T object
  */
-template <typename T>
+template<typename T>
 typename std::shared_ptr<T> TFactory_GSingletonT() {
 	return std::shared_ptr<T>(new T());
 }
@@ -81,10 +81,9 @@ typename std::shared_ptr<T> TFactory_GSingletonT() {
  */
 template<typename T>
 class GSingletonT
-	:boost::noncopyable
-{
+	: boost::noncopyable {
 public:
-   typedef T STYPE;
+	typedef T STYPE;
 
 	/***************************************************************************/
 	/**
@@ -95,26 +94,26 @@ public:
 	 *
 	 * @param mode Determines the mode in which this function is called
 	 */
-	static std::shared_ptr<T> Instance(const std::size_t& mode) {
-		static std::shared_ptr<T> p;
+	static std::shared_ptr <T> Instance(const std::size_t &mode) {
+		static std::shared_ptr <T> p;
 		static boost::mutex creation_mutex;
 
-		switch(mode) {
-		case 0:
-			// Several callers can reach the next line simultaneously. Hence, if
-			// p is empty, we need to ask again if it is empty after we have acquired the lock
-			if(!p) {
-				// Prevent concurrent "first" access
-				boost::mutex::scoped_lock lk(creation_mutex);
-				if(!p) p = Gem::Common::TFactory_GSingletonT<T>();
-			}
+		switch (mode) {
+			case 0:
+				// Several callers can reach the next line simultaneously. Hence, if
+				// p is empty, we need to ask again if it is empty after we have acquired the lock
+				if (!p) {
+					// Prevent concurrent "first" access
+					boost::mutex::scoped_lock lk(creation_mutex);
+					if (!p) p = Gem::Common::TFactory_GSingletonT<T>();
+				}
 
-			return p;
-			break;
+				return p;
+				break;
 
-		case 1:
-			p.reset();
-			break;
+			case 1:
+				p.reset();
+				break;
 		}
 
 		return std::shared_ptr<T>(); // Make the compiler happy
