@@ -69,18 +69,16 @@ namespace Courtier {
  */
 template<typename T>
 class GBufferPortT
-	:private boost::noncopyable
-{
+	: private boost::noncopyable {
 public:
 	/***************************************************************************/
 	/**
 	 * The default constructor. Note that, when using this constructor, the
 	 * GBoundedBufferWithIdT objects will assume the default sizes.
 	 */
-   GBufferPortT()
-		: original_(new Gem::Common::GBoundedBufferWithIdT<T>())
-		, processed_(new Gem::Common::GBoundedBufferWithIdT<T>())
-	{
+	GBufferPortT()
+		: original_(new Gem::Common::GBoundedBufferWithIdT<T>()),
+		  processed_(new Gem::Common::GBoundedBufferWithIdT<T>()) {
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		original_->setName("raw buffer");
 		processed_->setName("processed buffer");
@@ -93,10 +91,9 @@ public:
 	 *
 	 * @param size The desired capacity of the GBoundedBufferWithIdT objects
 	 */
-	explicit GBufferPortT(const std::size_t& size)
-	   : original_(new Gem::Common::GBoundedBufferWithIdT<T>(size))
-	   , processed_(new Gem::Common::GBoundedBufferWithIdT<T>(size))
-	{
+	explicit GBufferPortT(const std::size_t &size)
+		: original_(new Gem::Common::GBoundedBufferWithIdT<T>(size)),
+		  processed_(new Gem::Common::GBoundedBufferWithIdT<T>(size)) {
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		original_->setName("raw buffer");
 		processed_->setName("processed buffer");
@@ -109,7 +106,7 @@ public:
 	 *
 	 * @return A shared_ptr with the "original" queue
 	 */
-	std::shared_ptr<Gem::Common::GBoundedBufferWithIdT<T> > getOriginalQueue() {
+	std::shared_ptr <Gem::Common::GBoundedBufferWithIdT<T>> getOriginalQueue() {
 		return original_;
 	}
 
@@ -119,7 +116,7 @@ public:
 	 *
 	 * @return A shared_ptr with the "processed" queue
 	 */
-	std::shared_ptr<Gem::Common::GBoundedBufferWithIdT<T> > getProcessedQueue() {
+	std::shared_ptr <Gem::Common::GBoundedBufferWithIdT<T>> getProcessedQueue() {
 		return processed_;
 	}
 
@@ -142,7 +139,7 @@ public:
 	 * @param item An item to be added to the buffer
 	 * @param timeout duration until a timeout occurs
 	 */
-	void push_front_orig(T item, const boost::posix_time::time_duration& timeout) {
+	void push_front_orig(T item, const boost::posix_time::time_duration &timeout) {
 		original_->push_front(item, timeout);
 	}
 
@@ -155,7 +152,7 @@ public:
 	 * @param timeout duration until a timeout occurs
 	 * @return A boolean indicating whether an item could be submitted
 	 */
-	bool push_front_orig_bool(T item, const boost::posix_time::time_duration& timeout) {
+	bool push_front_orig_bool(T item, const boost::posix_time::time_duration &timeout) {
 		return original_->push_front_bool(item, timeout);
 	}
 
@@ -166,7 +163,7 @@ public:
 	 *
 	 * @param item A reference to the item to be retrieved
 	 */
-	void pop_back_orig(T& item) {
+	void pop_back_orig(T &item) {
 		original_->pop_back(item);
 	}
 
@@ -179,7 +176,7 @@ public:
 	 * @param item The item that was retrieved from the queue
 	 * @param timeout duration until a timeout occurs
 	 */
-	void pop_back_orig(T& item, const boost::posix_time::time_duration& timeout) {
+	void pop_back_orig(T &item, const boost::posix_time::time_duration &timeout) {
 		original_->pop_back(item, timeout);
 	}
 
@@ -193,7 +190,7 @@ public:
 	 * @param timeout duration until a timeout occurs
 	 * @return A boolean indicating whether an item could be retrieved
 	 */
-	bool pop_back_orig_bool(T& item, const boost::posix_time::time_duration& timeout) {
+	bool pop_back_orig_bool(T &item, const boost::posix_time::time_duration &timeout) {
 		return original_->pop_back_bool(item, timeout);
 	}
 
@@ -216,7 +213,7 @@ public:
 	 * @param item An item to be added to the buffer
 	 * @param timeout duration until a timeout occurs
 	 */
-	void push_front_processed(T item, const boost::posix_time::time_duration& timeout) {
+	void push_front_processed(T item, const boost::posix_time::time_duration &timeout) {
 		processed_->push_front(item, timeout);
 	}
 
@@ -229,7 +226,7 @@ public:
 	 * @param timeout duration until a timeout occurs
 	 * @return A boolean indicating whether an item could be submitted
 	 */
-	bool push_front_processed_bool(T item, const boost::posix_time::time_duration& timeout) {
+	bool push_front_processed_bool(T item, const boost::posix_time::time_duration &timeout) {
 		return processed_->push_front_bool(item, timeout);
 	}
 
@@ -240,7 +237,7 @@ public:
 	 *
 	 * @param The item that was retrieved from the queue
 	 */
-	void pop_back_processed(T& item) {
+	void pop_back_processed(T &item) {
 		processed_->pop_back(item);
 	}
 
@@ -252,7 +249,7 @@ public:
 	 * @param item The item that was retrieved from the queue
 	 * @param timeout duration until a timeout occurs
 	 */
-	void pop_back_processed(T& item, const boost::posix_time::time_duration& timeout) {
+	void pop_back_processed(T &item, const boost::posix_time::time_duration &timeout) {
 		processed_->pop_back(item, timeout);
 	}
 
@@ -266,14 +263,14 @@ public:
 	 * @param timeout duration until a timeout occurs
 	 * @return A boolean indicating whether an item could be retrieved
 	 */
-	bool pop_back_processed_bool(T& item, const boost::posix_time::time_duration& timeout) {
+	bool pop_back_processed_bool(T &item, const boost::posix_time::time_duration &timeout) {
 		return processed_->pop_back_bool(item, timeout);
 	}
 
 	/***************************************************************************/
 private:
-	std::shared_ptr<Gem::Common::GBoundedBufferWithIdT<T> > original_; ///< The queue for raw objects
-	std::shared_ptr<Gem::Common::GBoundedBufferWithIdT<T> > processed_; ///< The queue for processed objects
+	std::shared_ptr <Gem::Common::GBoundedBufferWithIdT<T>> original_; ///< The queue for raw objects
+	std::shared_ptr <Gem::Common::GBoundedBufferWithIdT<T>> processed_; ///< The queue for processed objects
 };
 
 /******************************************************************************/

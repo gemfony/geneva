@@ -64,13 +64,13 @@ namespace Courtier {
 
 /******************************************************************************/
 /** @brief Assembles a query string from a given command */
-G_API_COURTIER std::string assembleQueryString(const std::string&, const std::size_t&);
+G_API_COURTIER std::string assembleQueryString(const std::string &, const std::size_t &);
 
 /** @brief Extracts the size of ASIO's data section from a C string. */
-G_API_COURTIER std::size_t extractDataSize(const char*, const std::size_t&);
+G_API_COURTIER std::size_t extractDataSize(const char *, const std::size_t &);
 
 /** @brief Cleanly shuts down a socket */
-G_API_COURTIER void disconnect(boost::asio::ip::tcp::socket&);
+G_API_COURTIER void disconnect(boost::asio::ip::tcp::socket &);
 
 /******************************************************************************/
 
