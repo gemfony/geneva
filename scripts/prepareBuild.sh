@@ -52,7 +52,7 @@ if [ $# -eq 0 ]; then
 
 	CMAKE="/usr/bin/cmake"         # Where the cmake executable is located
 	BUILDMODE="Release"            # Release, Debug, RelWithDebInfo, MinSizeRel or Sanitize (experimental, will default to Debug on unsupported platforms)
-	BUILDSTD="cxx11"               # "auto": choose automatically; "cxx98": enforce the C++98 standard; "cxx11": enforce the C++11 standard
+	BUILDSTD="cxx11"               # "auto": choose automatically; "cxx11": enforce the C++11 standard, "cxx14": enforce the C++14 standard
 	BUILDWITHMPI="0"               # Whether Geneva should be built with MPI support (experimental!). NOTE: Boost.MPI must be installed alongside supported MPI libraries
 	BUILDTESTCODE="1"              # Whether to build Geneva with testing code
 	BUILDSTATIC="0"                # Whether to build static code / libraries (experimental!)
@@ -90,7 +90,7 @@ elif [ $# -eq 1 ]; then
 	fi
 
 	if [ -z "${BUILDSTD}" ]; then
-		BUILDSTD="cxx98"
+		BUILDSTD="cxx11"
 		echo "Variable BUILDSTD wasn't set. Setting to default value '${BUILDSTD}'"
 	fi
 
@@ -214,9 +214,11 @@ if [ ! "${VERBOSEMAKEFILE}" = "0" ] && [ ! "${VERBOSEMAKEFILE}" = "1" ]; then
 	exit
 fi
 
-if [ ! "${BUILDSTD}" = "auto" ] && [ ! "${BUILDSTD}" = "cxx98" ] && [ ! "${BUILDSTD}" = "cxx11" ]; then
-	echo -e "\nError: Variable BUILDSTD must be auto, cxx98 or cxx11. Got ${BUILDSTD}"
+if [ ! "${BUILDSTD}" = "auto" ] && [ ! "${BUILDSTD}" = "cxx11" ] && [ ! "${BUILDSTD}" = "cxx14" ]; then
+	echo -e "\nError: Variable BUILDSTD must be auto, cxx11 or cxx14. Got ${BUILDSTD}"
 	echo -e "Leaving...\n"
+
+
 	exit
 fi
 
