@@ -43,32 +43,29 @@ namespace Geneva {
  * The default constructor
  */
 GPersonalityTraits::GPersonalityTraits()
-   : GObject()
-{ /* nothing */ }
+	: GObject() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The copy constructor
  */
-GPersonalityTraits::GPersonalityTraits(const GPersonalityTraits& cp)
-   : GObject(cp)
-{ /* nothing */ }
+GPersonalityTraits::GPersonalityTraits(const GPersonalityTraits &cp)
+	: GObject(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor. No local, dynamically allocated data,
  * hence it does nothing.
  */
-GPersonalityTraits::~GPersonalityTraits()
-{ /* nothing */ }
+GPersonalityTraits::~GPersonalityTraits() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GPersonalityTraits& GPersonalityTraits::operator=(const GPersonalityTraits& cp) {
-   this->load_(&cp);
-   return *this;
+const GPersonalityTraits &GPersonalityTraits::operator=(const GPersonalityTraits &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -78,14 +75,14 @@ const GPersonalityTraits& GPersonalityTraits::operator=(const GPersonalityTraits
  * @param  cp A constant reference to another GPersonalityTraits object
  * @return A boolean indicating whether both objects are equal
  */
-bool GPersonalityTraits::operator==(const GPersonalityTraits& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GPersonalityTraits::operator==(const GPersonalityTraits &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -95,14 +92,14 @@ bool GPersonalityTraits::operator==(const GPersonalityTraits& cp) const {
  * @param  cp A constant reference to another GPersonalityTraits object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GPersonalityTraits::operator!=(const GPersonalityTraits& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GPersonalityTraits::operator!=(const GPersonalityTraits &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -115,24 +112,22 @@ bool GPersonalityTraits::operator!=(const GPersonalityTraits& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GPersonalityTraits::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GPersonalityTraits *p_load = GObject::gobject_conversion<GPersonalityTraits>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GPersonalityTraits *p_load = GObject::gobject_conversion<GPersonalityTraits>(&cp);
 
-   GToken token("GPersonalityTraits", e);
+	GToken token("GPersonalityTraits", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/
@@ -140,7 +135,7 @@ void GPersonalityTraits::compare(
  * Emits a name for this class / object
  */
 std::string GPersonalityTraits::name() const {
-   return std::string("GPersonalityTraits");
+	return std::string("GPersonalityTraits");
 }
 
 /******************************************************************************/
@@ -167,10 +162,10 @@ void GPersonalityTraits::load_(const GObject *cp) {
  */
 bool GPersonalityTraits::modify_GUnitTests() {
 #ifdef GEM_TESTING
-   bool result = false;
+	bool result = false;
 
 	// Call the parent class'es function
-	if(GObject::modify_GUnitTests()) result = true;
+	if (GObject::modify_GUnitTests()) result = true;
 
 	return result;
 

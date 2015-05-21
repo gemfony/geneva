@@ -50,18 +50,16 @@ G_API_GENEVA const std::string GBaseEA::nickname = "ea";
  * vital parameters, such as the population size or the parent individuals by hand.
  */
 GBaseEA::GBaseEA()
-	: GParameterSetParChild()
-	, smode_(DEFAULTSMODE)
-{
+	: GParameterSetParChild(), smode_(DEFAULTSMODE) {
 	// Register the default optimization monitor
 	this->registerOptimizationMonitor(
-			std::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
-					new GEAOptimizationMonitor()
-			)
+		std::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
+			new GEAOptimizationMonitor()
+		)
 	);
 
 	// Make sure we start with a valid population size if the user does not supply these values
-	this->setPopulationSizes(100,1);
+	this->setPopulationSizes(100, 1);
 }
 
 /******************************************************************************/
@@ -72,10 +70,8 @@ GBaseEA::GBaseEA()
  *
  * @param cp Another GBaseEA object
  */
-GBaseEA::GBaseEA(const GBaseEA& cp)
-	: GParameterSetParChild(cp)
-	, smode_(cp.smode_)
-{
+GBaseEA::GBaseEA(const GBaseEA &cp)
+	: GParameterSetParChild(cp), smode_(cp.smode_) {
 	// Copying / setting of the optimization algorithm id is done by the parent class. The same
 	// applies to the copying of the optimization monitor.
 }
@@ -84,16 +80,15 @@ GBaseEA::GBaseEA(const GBaseEA& cp)
 /**
  * The standard destructor. All work is done in the parent class.
  */
-GBaseEA::~GBaseEA()
-{ /* nothing */ }
+GBaseEA::~GBaseEA() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard assignment operator
  */
-const GBaseEA& GBaseEA::operator=(const GBaseEA& cp) {
-   this->load_(&cp);
-   return *this;
+const GBaseEA &GBaseEA::operator=(const GBaseEA &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -103,14 +98,14 @@ const GBaseEA& GBaseEA::operator=(const GBaseEA& cp) {
  * @param  cp A constant reference to another GBaseEA object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBaseEA::operator==(const GBaseEA& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBaseEA::operator==(const GBaseEA &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -120,14 +115,14 @@ bool GBaseEA::operator==(const GBaseEA& cp) const {
  * @param  cp A constant reference to another GBaseEA object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GBaseEA::operator!=(const GBaseEA& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBaseEA::operator!=(const GBaseEA &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -136,8 +131,7 @@ bool GBaseEA::operator!=(const GBaseEA& cp) const {
  *
  * @param cp A pointer to another GBaseEA object, camouflaged as a GObject
  */
-void GBaseEA::load_(const GObject * cp)
-{
+void GBaseEA::load_(const GObject *cp) {
 	const GBaseEA *p_load = gobject_conversion<GBaseEA>(cp);
 
 	// First load the parent class'es data ...
@@ -157,25 +151,23 @@ void GBaseEA::load_(const GObject * cp)
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBaseEA::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GBaseEA *p_load = GObject::gobject_conversion<GBaseEA>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GBaseEA *p_load = GObject::gobject_conversion<GBaseEA>(&cp);
 
-   GToken token("GBaseEA", e);
+	GToken token("GBaseEA", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GParameterSetParChild>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GParameterSetParChild>(IDENTITY(*this, *p_load), token);
 
-   // ... and then the local data
-   compare_t(IDENTITY(smode_, p_load->smode_), token);
+	// ... and then the local data
+	compare_t(IDENTITY(smode_, p_load->smode_), token);
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/
@@ -183,7 +175,7 @@ void GBaseEA::compare(
  * Emits a name for this class / object
  */
 std::string GBaseEA::name() const {
-   return std::string("GBaseEA");
+	return std::string("GBaseEA");
 }
 
 /******************************************************************************/
@@ -224,15 +216,15 @@ void GBaseEA::init() {
  */
 void GBaseEA::finalize() {
 	// Last action
-   GParameterSetParChild::finalize();
+	GParameterSetParChild::finalize();
 }
 
 /******************************************************************************/
 /**
  * Retrieve a GPersonalityTraits object belonging to this algorithm
  */
-std::shared_ptr<GPersonalityTraits> GBaseEA::getPersonalityTraits() const {
-   return std::shared_ptr<GEAPersonalityTraits>(new GEAPersonalityTraits());
+std::shared_ptr <GPersonalityTraits> GBaseEA::getPersonalityTraits() const {
+	return std::shared_ptr<GEAPersonalityTraits>(new GEAPersonalityTraits());
 }
 
 /******************************************************************************/
@@ -241,8 +233,8 @@ std::shared_ptr<GPersonalityTraits> GBaseEA::getPersonalityTraits() const {
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
-void GBaseEA::addConfigurationOptions (
-	Gem::Common::GParserBuilder& gpb
+void GBaseEA::addConfigurationOptions(
+	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
 	GParameterSetParChild::addConfigurationOptions(gpb);
@@ -250,7 +242,7 @@ void GBaseEA::addConfigurationOptions (
 	gpb.registerFileParameter<sortingMode>(
 		"sortingMethod" // The name of the variable
 		, DEFAULTSMODE // The default value
-		, [this](sortingMode sm){ this->setSortingScheme(sm); }
+		, [this](sortingMode sm) { this->setSortingScheme(sm); }
 	)
 	<< "The sorting scheme. Options" << std::endl
 	<< "0: MUPLUSNU mode with a single evaluation criterion" << std::endl
@@ -273,7 +265,7 @@ void GBaseEA::addConfigurationOptions (
  * @param smode The desired sorting scheme
  */
 void GBaseEA::setSortingScheme(sortingMode smode) {
-	smode_=smode;
+	smode_ = smode;
 }
 
 /******************************************************************************/
@@ -291,16 +283,31 @@ sortingMode GBaseEA::getSortingScheme() const {
 /**
  * Extracts all individuals on the pareto front
  */
-void GBaseEA::extractCurrentParetoIndividuals(std::vector<std::shared_ptr<Gem::Geneva::GParameterSet> >& paretoInds) {
-   // Make sure the vector is empty
-   paretoInds.clear();
+void GBaseEA::extractCurrentParetoIndividuals(std::vector<std::shared_ptr < Gem::Geneva::GParameterSet>
 
-   GBaseEA::iterator it;
-   for(it=this->begin(); it!=this->end(); ++it) {
-      if((*it)->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront()) {
-         paretoInds.push_back(*it);
-      }
-   }
+>& paretoInds) {
+// Make sure the vector is empty
+paretoInds.
+
+clear();
+
+GBaseEA::iterator it;
+for(
+it = this->begin();
+it!=this->
+
+end();
+
+++it) {
+if((*it)->
+
+getPersonalityTraits<GEAPersonalityTraits>() -> isOnParetoFront()
+
+) {
+paretoInds.
+push_back(*it);
+}
+}
 }
 
 /******************************************************************************/
@@ -308,54 +315,54 @@ void GBaseEA::extractCurrentParetoIndividuals(std::vector<std::shared_ptr<Gem::G
  * Some error checks related to population sizes
  */
 void GBaseEA::populationSanityChecks() const {
-   // First check that we have been given a suitable value for the number of parents.
-   // Note that a number of checks (e.g. population size != 0) has already been done
-   // in the parent class.
-   if(nParents_ == 0) {
-      glogger
-      << "In GBaseEA::populationSanityChecks(): Error!" << std::endl
-      << "Number of parents is set to 0"
-      << GEXCEPTION;
-   }
+	// First check that we have been given a suitable value for the number of parents.
+	// Note that a number of checks (e.g. population size != 0) has already been done
+	// in the parent class.
+	if (nParents_ == 0) {
+		glogger
+		<< "In GBaseEA::populationSanityChecks(): Error!" << std::endl
+		<< "Number of parents is set to 0"
+		<< GEXCEPTION;
+	}
 
-   // In MUCOMMANU_SINGLEEVAL mode we want to have at least as many children as parents,
-   // whereas MUPLUSNU_SINGLEEVAL only requires the population size to be larger than the
-   // number of parents. MUNU1PRETAIN has the same requirements as MUCOMMANU_SINGLEEVAL,
-   // as it is theoretically possible that all children are better than the former
-   // parents, so that the first parent individual will be replaced.
-   std::size_t popSize = getPopulationSize();
-   if( // TODO: Why are PARETO modes missing here ?
-         ((smode_==MUCOMMANU_SINGLEEVAL || smode_==MUNU1PRETAIN_SINGLEEVAL) && (popSize < 2*nParents_)) ||
-         (smode_==MUPLUSNU_SINGLEEVAL && popSize<=nParents_)
-   ){
-      std::ostringstream error;
-      error
-      << "In GBaseEA::populationSanityChecks() :" << std::endl
-      << "Requested size of population is too small :" << popSize << " " << nParents_ << std::endl
-      << "Sorting scheme is ";
+	// In MUCOMMANU_SINGLEEVAL mode we want to have at least as many children as parents,
+	// whereas MUPLUSNU_SINGLEEVAL only requires the population size to be larger than the
+	// number of parents. MUNU1PRETAIN has the same requirements as MUCOMMANU_SINGLEEVAL,
+	// as it is theoretically possible that all children are better than the former
+	// parents, so that the first parent individual will be replaced.
+	std::size_t popSize = getPopulationSize();
+	if ( // TODO: Why are PARETO modes missing here ?
+		((smode_ == MUCOMMANU_SINGLEEVAL || smode_ == MUNU1PRETAIN_SINGLEEVAL) && (popSize < 2 * nParents_)) ||
+		(smode_ == MUPLUSNU_SINGLEEVAL && popSize <= nParents_)
+		) {
+		std::ostringstream error;
+		error
+		<< "In GBaseEA::populationSanityChecks() :" << std::endl
+		<< "Requested size of population is too small :" << popSize << " " << nParents_ << std::endl
+		<< "Sorting scheme is ";
 
-      switch(smode_) {
-      case MUPLUSNU_SINGLEEVAL:
-         error << "MUPLUSNU_SINGLEEVAL" << std::endl;
-         break;
-      case MUCOMMANU_SINGLEEVAL:
-         error << "MUCOMMANU_SINGLEEVAL" << std::endl;
-         break;
-      case MUNU1PRETAIN_SINGLEEVAL:
-         error << "MUNU1PRETAIN" << std::endl;
-         break;
-      case MUPLUSNU_PARETO:
-         error << "MUPLUSNU_PARETO" << std::endl;
-         break;
-      case MUCOMMANU_PARETO:
-         error << "MUCOMMANU_PARETO" << std::endl;
-         break;
-      };
+		switch (smode_) {
+			case MUPLUSNU_SINGLEEVAL:
+				error << "MUPLUSNU_SINGLEEVAL" << std::endl;
+				break;
+			case MUCOMMANU_SINGLEEVAL:
+				error << "MUCOMMANU_SINGLEEVAL" << std::endl;
+				break;
+			case MUNU1PRETAIN_SINGLEEVAL:
+				error << "MUNU1PRETAIN" << std::endl;
+				break;
+			case MUPLUSNU_PARETO:
+				error << "MUPLUSNU_PARETO" << std::endl;
+				break;
+			case MUCOMMANU_PARETO:
+				error << "MUCOMMANU_PARETO" << std::endl;
+				break;
+		};
 
-      glogger
-      << error.str()
-      << GEXCEPTION;
-   }
+		glogger
+		<< error.str()
+		<< GEXCEPTION;
+	}
 
 }
 
@@ -363,8 +370,7 @@ void GBaseEA::populationSanityChecks() const {
 /**
  * Choose new parents, based on the selection scheme set by the user.
  */
-void GBaseEA::selectBest()
-{
+void GBaseEA::selectBest() {
 #ifdef DEBUG
 	// We require at this stage that at least the default number of
 	// children is present. If individuals can get lost in your setting,
@@ -379,61 +385,56 @@ void GBaseEA::selectBest()
 	}
 #endif /* DEBUG */
 
-	switch(smode_) {
-	//----------------------------------------------------------------------------
-	case MUPLUSNU_SINGLEEVAL:
-      {
-         sortMuPlusNuMode();
-      }
-		break;
+	switch (smode_) {
+		//----------------------------------------------------------------------------
+		case MUPLUSNU_SINGLEEVAL: {
+			sortMuPlusNuMode();
+		}
+			break;
 
-	//----------------------------------------------------------------------------
-	case MUNU1PRETAIN_SINGLEEVAL:
-      {
-         if(this->inFirstIteration()) {
-            sortMuPlusNuMode();
-         } else {
-            sortMunu1pretainMode();
-         }
-      }
-		break;
+			//----------------------------------------------------------------------------
+		case MUNU1PRETAIN_SINGLEEVAL: {
+			if (this->inFirstIteration()) {
+				sortMuPlusNuMode();
+			} else {
+				sortMunu1pretainMode();
+			}
+		}
+			break;
 
-	//----------------------------------------------------------------------------
-	case MUCOMMANU_SINGLEEVAL:
-      {
-         if(this->inFirstIteration()) {
-            sortMuPlusNuMode();
-         } else {
-            sortMuCommaNuMode();
-         }
-      }
-		break;
+			//----------------------------------------------------------------------------
+		case MUCOMMANU_SINGLEEVAL: {
+			if (this->inFirstIteration()) {
+				sortMuPlusNuMode();
+			} else {
+				sortMuCommaNuMode();
+			}
+		}
+			break;
 
-	//----------------------------------------------------------------------------
-	case MUPLUSNU_PARETO:
-		sortMuPlusNuParetoMode();
-		break;
+			//----------------------------------------------------------------------------
+		case MUPLUSNU_PARETO:
+			sortMuPlusNuParetoMode();
+			break;
 
-	//----------------------------------------------------------------------------
-	case MUCOMMANU_PARETO:
-      {
-         if(this->inFirstIteration()) {
-            sortMuPlusNuParetoMode();
-         } else {
-            sortMuCommaNuParetoMode();
-         }
-      }
-		break;
+			//----------------------------------------------------------------------------
+		case MUCOMMANU_PARETO: {
+			if (this->inFirstIteration()) {
+				sortMuPlusNuParetoMode();
+			} else {
+				sortMuCommaNuParetoMode();
+			}
+		}
+			break;
 
-   //----------------------------------------------------------------------------
-	default:
-      {
-         glogger
-         << "In GBaseEA::selectBest(): Error" << std::endl
-         << "Incorrect sorting scheme requested: " << smode_ << std::endl
-         << GEXCEPTION;
-      }
-	   break;
+			//----------------------------------------------------------------------------
+		default: {
+			glogger
+			<< "In GBaseEA::selectBest(): Error" << std::endl
+			<< "Incorrect sorting scheme requested: " << smode_ << std::endl
+			<< GEXCEPTION;
+		}
+			break;
 	}
 
 	// Let parents know they are parents
@@ -449,10 +450,10 @@ void GBaseEA::selectBest()
  * want the individuals on the current pareto front to be added.
  */
 void GBaseEA::addIterationBests(
-   GParameterSetFixedSizePriorityQueue& bestIndividuals
+	GParameterSetFixedSizePriorityQueue & bestIndividuals
 ) {
-   const bool REPLACE = true;
-   const bool CLONE = true;
+	const bool REPLACE = true;
+	const bool CLONE = true;
 
 #ifdef DEBUG
    if(this->empty()) {
@@ -463,39 +464,37 @@ void GBaseEA::addIterationBests(
    }
 #endif /* DEBUG */
 
-   switch(smode_) {
-      //----------------------------------------------------------------------------
-      case MUPLUSNU_SINGLEEVAL:
-      case MUNU1PRETAIN_SINGLEEVAL:
-      case MUCOMMANU_SINGLEEVAL:
-         GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::addIterationBests(bestIndividuals);
-         break;
+	switch (smode_) {
+		//----------------------------------------------------------------------------
+		case MUPLUSNU_SINGLEEVAL:
+		case MUNU1PRETAIN_SINGLEEVAL:
+		case MUCOMMANU_SINGLEEVAL:
+			GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::addIterationBests(bestIndividuals);
+			break;
 
-      //----------------------------------------------------------------------------
-      case MUPLUSNU_PARETO:
-      case MUCOMMANU_PARETO:
-         {
-            // Retrieve all individuals on the pareto front
-            std::vector<std::shared_ptr<Gem::Geneva::GParameterSet> > paretoInds;
-            this->extractCurrentParetoIndividuals(paretoInds);
+			//----------------------------------------------------------------------------
+		case MUPLUSNU_PARETO:
+		case MUCOMMANU_PARETO: {
+			// Retrieve all individuals on the pareto front
+			std::vector<std::shared_ptr < Gem::Geneva::GParameterSet> > paretoInds;
+			this->extractCurrentParetoIndividuals(paretoInds);
 
-            // We simply add all parent individuals to the queue. As we only want
-            // the individuals on the current pareto front, we replace all members
-            // of the current priority queue
-            bestIndividuals.add(paretoInds, CLONE, REPLACE);
-         }
-         break;
+			// We simply add all parent individuals to the queue. As we only want
+			// the individuals on the current pareto front, we replace all members
+			// of the current priority queue
+			bestIndividuals.add(paretoInds, CLONE, REPLACE);
+		}
+			break;
 
-      //----------------------------------------------------------------------------
-      default:
-         {
-            glogger
-            << "In GBaseEA::addIterationBests(): Error" << std::endl
-            << "Incorrect sorting scheme requested: " << smode_ << std::endl
-            << GEXCEPTION;
-         }
-         break;
-   }
+			//----------------------------------------------------------------------------
+		default: {
+			glogger
+			<< "In GBaseEA::addIterationBests(): Error" << std::endl
+			<< "Incorrect sorting scheme requested: " << smode_ << std::endl
+			<< GEXCEPTION;
+		}
+			break;
+	}
 }
 
 /******************************************************************************/
@@ -506,13 +505,12 @@ void GBaseEA::addIterationBests(
  *
  * @return The range inside which evaluation should take place
  */
-boost::tuple<std::size_t,std::size_t> GBaseEA::getEvaluationRange() const {
-   // We evaluate all individuals in the first iteration This happens so pluggable
-   // optimization monitors do not need to distinguish between algorithms
-   return boost::tuple<std::size_t, std::size_t>(
-         inFirstIteration()?0:getNParents()
-         ,  data.size()
-   );
+boost::tuple<std::size_t, std::size_t> GBaseEA::getEvaluationRange() const {
+	// We evaluate all individuals in the first iteration This happens so pluggable
+	// optimization monitors do not need to distinguish between algorithms
+	return boost::tuple<std::size_t, std::size_t>(
+		inFirstIteration() ? 0 : getNParents(), data.size()
+	);
 }
 
 /******************************************************************************/
@@ -525,30 +523,30 @@ void GBaseEA::sortMuPlusNuParetoMode() {
 	GBaseEA::iterator it, it_cmp;
 
 	// We fall back to the single-eval MUPLUSNU mode if there is just one evaluation criterion
-	it=this->begin();
-	if(!(*it)->hasMultipleFitnessCriteria()) {
+	it = this->begin();
+	if (!(*it)->hasMultipleFitnessCriteria()) {
 		sortMuPlusNuMode();
 	}
 
 	// Mark all individuals as being on the pareto front initially
-	for(it=this->begin(); it!=this->end(); ++it) {
+	for (it = this->begin(); it != this->end(); ++it) {
 		(*it)->getPersonalityTraits<GEAPersonalityTraits>()->resetParetoTag();
 	}
 
 	// Compare all parameters
-	for(it=this->begin(); it!=this->end(); ++it) {
-		for(it_cmp=it+1; it_cmp != this->end(); ++it_cmp) {
+	for (it = this->begin(); it != this->end(); ++it) {
+		for (it_cmp = it + 1; it_cmp != this->end(); ++it_cmp) {
 			// If we already know that this individual is *not*
 			// on the front we do not have to do any tests
-			if(!(*it_cmp)->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront()) continue;
+			if (!(*it_cmp)->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront()) continue;
 
 			// Check if it dominates it_cmp. If so, mark it accordingly
-			if(aDominatesB(*it, *it_cmp)) {
+			if (aDominatesB(*it, *it_cmp)) {
 				(*it_cmp)->getPersonalityTraits<GEAPersonalityTraits>()->setIsNotOnParetoFront();
 			}
 
 			// If a it dominated by it_cmp, we mark it accordingly and break the loop
-			if(aDominatesB(*it_cmp, *it)) {
+			if (aDominatesB(*it_cmp, *it)) {
 				(*it)->getPersonalityTraits<GEAPersonalityTraits>()->setIsNotOnParetoFront();
 				break;
 			}
@@ -562,8 +560,8 @@ void GBaseEA::sortMuPlusNuParetoMode() {
 
 	// Count the number of individuals on the pareto front
 	std::size_t nIndividualsOnParetoFront = 0;
-	for(it=this->begin(); it!=this->end(); ++it) {
-		if((*it)->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront()) nIndividualsOnParetoFront++;
+	for (it = this->begin(); it != this->end(); ++it) {
+		if ((*it)->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront()) nIndividualsOnParetoFront++;
 	}
 
 	// If the number of individuals on the pareto front exceeds the number of parents, we
@@ -574,31 +572,28 @@ void GBaseEA::sortMuPlusNuParetoMode() {
 	// remaining parent positions to be filled up with the non-pareto-front individuals with
 	// the best minOnly_fitness(0), i.e. with the best "master" fitness (transformed to take into
 	// account minimization and maximization).
-	if(nIndividualsOnParetoFront > getNParents()) {
+	if (nIndividualsOnParetoFront > getNParents()) {
 		// randomly shuffle pareto-front individuals to avoid a bias
-		std::random_shuffle(this->begin(), this->begin()+nIndividualsOnParetoFront);
-	} else if(nIndividualsOnParetoFront < getNParents()) {
+		std::random_shuffle(this->begin(), this->begin() + nIndividualsOnParetoFront);
+	} else if (nIndividualsOnParetoFront < getNParents()) {
 		// Sort the non-pareto-front individuals according to their master fitness
-	   std::partial_sort(
-         data.begin() + nIndividualsOnParetoFront
-         , data.begin() + nParents_
-         , data.end()
-         , [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
-	         return x->minOnly_fitness() < y->minOnly_fitness();
-	      }
-      );
+		std::partial_sort(
+			data.begin() + nIndividualsOnParetoFront, data.begin() + nParents_, data.end(),
+			[](std::shared_ptr <GParameterSet> x, std::shared_ptr <GParameterSet> y) -> bool {
+				return x->minOnly_fitness() < y->minOnly_fitness();
+			}
+		);
 	}
 
 	// Finally, we sort the parents only according to their master fitness. This is meant
 	// to give some sense to the value recombination scheme. It won't change much in case of the
 	// random recombination scheme.
-   std::sort(
-      data.begin()
-      , data.begin() + nParents_
-      , [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
-         return x->minOnly_fitness() < y->minOnly_fitness();
-      }
-   );
+	std::sort(
+		data.begin(), data.begin() + nParents_,
+		[](std::shared_ptr <GParameterSet> x, std::shared_ptr <GParameterSet> y) -> bool {
+			return x->minOnly_fitness() < y->minOnly_fitness();
+		}
+	);
 }
 
 /******************************************************************************/
@@ -611,36 +606,36 @@ void GBaseEA::sortMuCommaNuParetoMode() {
 	GBaseEA::iterator it, it_cmp;
 
 	// We fall back to the single-eval MUCOMMANU mode if there is just one evaluation criterion
-	it=this->begin();
-	if(!(*it)->hasMultipleFitnessCriteria()) {
+	it = this->begin();
+	if (!(*it)->hasMultipleFitnessCriteria()) {
 		sortMuCommaNuMode();
 		return;
 	}
 
 	// Mark the last iterations parents as not being on the pareto front
-	for(it=this->begin(); it!=this->begin() + nParents_; ++it) {
+	for (it = this->begin(); it != this->begin() + nParents_; ++it) {
 		(*it)->getPersonalityTraits<GEAPersonalityTraits>()->setIsNotOnParetoFront();
 	}
 
 	// Mark all children as being on the pareto front initially
-	for(it=this->begin()+nParents_; it!=this->end(); ++it) {
+	for (it = this->begin() + nParents_; it != this->end(); ++it) {
 		(*it)->getPersonalityTraits<GEAPersonalityTraits>()->resetParetoTag();
 	}
 
 	// Compare all parameters of all children
-	for(it=this->begin()+nParents_; it!=this->end(); ++it) {
-		for(it_cmp=it+1; it_cmp!=this->end(); ++it_cmp) {
+	for (it = this->begin() + nParents_; it != this->end(); ++it) {
+		for (it_cmp = it + 1; it_cmp != this->end(); ++it_cmp) {
 			// If we already know that this individual is *not*
 			// on the front we do not have to do any tests
-			if(!(*it_cmp)->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront()) continue;
+			if (!(*it_cmp)->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront()) continue;
 
 			// Check if it dominates it_cmp. If so, mark it accordingly
-			if(aDominatesB(*it, *it_cmp)) {
+			if (aDominatesB(*it, *it_cmp)) {
 				(*it_cmp)->getPersonalityTraits<GEAPersonalityTraits>()->setIsNotOnParetoFront();
 			}
 
 			// If a it dominated by it_cmp, we mark it accordingly and break the loop
-			if(aDominatesB(*it_cmp, *it)) {
+			if (aDominatesB(*it_cmp, *it)) {
 				(*it)->getPersonalityTraits<GEAPersonalityTraits>()->setIsNotOnParetoFront();
 				break;
 			}
@@ -657,8 +652,8 @@ void GBaseEA::sortMuCommaNuParetoMode() {
 
 	// Count the number of individuals on the pareto front
 	std::size_t nIndividualsOnParetoFront = 0;
-	for(it=this->begin(); it!=this->end(); ++it) {
-		if((*it)->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront()) nIndividualsOnParetoFront++;
+	for (it = this->begin(); it != this->end(); ++it) {
+		if ((*it)->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront()) nIndividualsOnParetoFront++;
 	}
 
 	// If the number of individuals on the pareto front exceeds the number of parents, we
@@ -671,30 +666,27 @@ void GBaseEA::sortMuCommaNuParetoMode() {
 	// minimization and maximization. Note that, unlike MUCOMMANU_SINGLEEVAL
 	// this implies the possibility that former parents are "elected" as new parents again. This
 	// might be changed in subsequent versions of Geneva (TODO).
-	if(nIndividualsOnParetoFront > getNParents()) {
+	if (nIndividualsOnParetoFront > getNParents()) {
 		// randomly shuffle pareto-front individuals to avoid a bias
-		std::random_shuffle(this->begin(), this->begin()+nIndividualsOnParetoFront);
-	} else if(nIndividualsOnParetoFront < getNParents()) {
+		std::random_shuffle(this->begin(), this->begin() + nIndividualsOnParetoFront);
+	} else if (nIndividualsOnParetoFront < getNParents()) {
 		// Sort the non-pareto-front individuals according to their master fitness
-	   std::partial_sort(
-         data.begin() + nIndividualsOnParetoFront
-         , data.begin() + nParents_
-         , data.end()
-         , [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
-            return x->minOnly_fitness() < y->minOnly_fitness();
-         }
-	   );
+		std::partial_sort(
+			data.begin() + nIndividualsOnParetoFront, data.begin() + nParents_, data.end(),
+			[](std::shared_ptr <GParameterSet> x, std::shared_ptr <GParameterSet> y) -> bool {
+				return x->minOnly_fitness() < y->minOnly_fitness();
+			}
+		);
 	}
 
 	// Finally, we sort the parents only according to their master fitness. This is meant
 	// to give some sense to the value recombination scheme. It won't change much in case of the
 	// random recombination scheme.
 	std::sort(
-      data.begin()
-      , data.begin() + nParents_
-      , [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
-         return x->minOnly_fitness() < y->minOnly_fitness();
-      }
+		data.begin(), data.begin() + nParents_,
+		[](std::shared_ptr <GParameterSet> x, std::shared_ptr <GParameterSet> y) -> bool {
+			return x->minOnly_fitness() < y->minOnly_fitness();
+		}
 	);
 }
 
@@ -707,10 +699,8 @@ void GBaseEA::sortMuCommaNuParetoMode() {
  * @return A boolean indicating whether the first individual dominates the second
  */
 bool GBaseEA::aDominatesB(
-      std::shared_ptr<GParameterSet> a
-      , std::shared_ptr<GParameterSet>b) const
-{
-   std::size_t nCriteriaA = a->getNumberOfFitnessCriteria();
+	std::shared_ptr < GParameterSet > a, std::shared_ptr < GParameterSet > b) const {
+	std::size_t nCriteriaA = a->getNumberOfFitnessCriteria();
 
 #ifdef DEBUG
    std::size_t nCriteriaB = b->getNumberOfFitnessCriteria();
@@ -722,11 +712,11 @@ bool GBaseEA::aDominatesB(
    }
 #endif
 
-   for(std::size_t i=0; i<nCriteriaA; i++) {
-      if(this->isWorse(a->transformedFitness(i), b->transformedFitness(i))) return false;
-   }
+	for (std::size_t i = 0; i < nCriteriaA; i++) {
+		if (this->isWorse(a->transformedFitness(i), b->transformedFitness(i))) return false;
+	}
 
-   return true;
+	return true;
 }
 
 /******************************************************************************/
@@ -741,7 +731,7 @@ bool GBaseEA::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GParameterSetParChild::modify_GUnitTests()) result = true;
+	if (GParameterSetParChild::modify_GUnitTests()) result = true;
 
 	return result;
 
@@ -757,13 +747,13 @@ bool GBaseEA::modify_GUnitTests() {
  *
  * @param nIndividuals The number of individuals that should be added to the collection
  */
-void GBaseEA::fillWithObjects(const std::size_t& nIndividuals) {
+void GBaseEA::fillWithObjects(const std::size_t &nIndividuals) {
 #ifdef GEM_TESTING
 	// Clear the collection, so we can start fresh
 	BOOST_CHECK_NO_THROW(this->clear());
 
 	// Add some some
-	for(std::size_t i=0; i<nIndividuals; i++) {
+	for (std::size_t i = 0; i < nIndividuals; i++) {
 		this->push_back(std::shared_ptr<Gem::Tests::GTestIndividual1>(new Gem::Tests::GTestIndividual1()));
 	}
 
@@ -781,13 +771,13 @@ void GBaseEA::fillWithObjects(const std::size_t& nIndividuals) {
  */
 void GBaseEA::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
-   // Call the parent class'es function
-   GParameterSetParChild::specificTestsNoFailureExpected_GUnitTests();
+	// Call the parent class'es function
+	GParameterSetParChild::specificTestsNoFailureExpected_GUnitTests();
 
 	//------------------------------------------------------------------------------
 
 	{ // Call the parent class'es function
-		std::shared_ptr<GBaseEA> p_test = this->clone<GBaseEA>();
+		std::shared_ptr <GBaseEA> p_test = this->clone<GBaseEA>();
 
 		// Fill p_test with individuals
 		p_test->fillWithObjects();
@@ -799,29 +789,29 @@ void GBaseEA::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Check setting and retrieval of the population size and number of parents/childs
-		std::shared_ptr<GBaseEA> p_test = this->clone<GBaseEA>();
+		std::shared_ptr <GBaseEA> p_test = this->clone<GBaseEA>();
 
 		// Set the default population size and number of children to different numbers
-		for(std::size_t nChildren=5; nChildren<10; nChildren++) {
-			for(std::size_t nParents=1; nParents < nChildren; nParents++) {
+		for (std::size_t nChildren = 5; nChildren < 10; nChildren++) {
+			for (std::size_t nParents = 1; nParents < nChildren; nParents++) {
 				// Clear the collection
 				BOOST_CHECK_NO_THROW(p_test->clear());
 
 				// Add the required number of individuals
 				p_test->fillWithObjects(nParents + nChildren);
 
-				BOOST_CHECK_NO_THROW(p_test->setPopulationSizes(nParents+nChildren, nParents));
+				BOOST_CHECK_NO_THROW(p_test->setPopulationSizes(nParents + nChildren, nParents));
 
 				// Check that the number of parents is as expected
 				BOOST_CHECK_MESSAGE(p_test->getNParents() == nParents,
-					   "p_test->getNParents() == " << p_test->getNParents()
-					<< ", nParents = " << nParents
-					<< ", size = " << p_test->size());
+										  "p_test->getNParents() == " << p_test->getNParents()
+										  << ", nParents = " << nParents
+										  << ", size = " << p_test->size());
 
 				// Check that the actual number of children has the same value
 				BOOST_CHECK_MESSAGE(p_test->getNChildren() == nChildren,
-						"p_test->getNChildren() = " << p_test->getNChildren()
-						<< ", nChildren = " << nChildren);
+										  "p_test->getNChildren() = " << p_test->getNChildren()
+										  << ", nChildren = " << nChildren);
 			}
 		}
 	}
@@ -840,7 +830,7 @@ void GBaseEA::specificTestsNoFailureExpected_GUnitTests() {
 void GBaseEA::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-   GParameterSetParChild::specificTestsFailuresExpected_GUnitTests();
+	GParameterSetParChild::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */
    condnotset("GBaseEA::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -854,12 +844,8 @@ void GBaseEA::specificTestsFailuresExpected_GUnitTests() {
  * The default constructor
  */
 GBaseEA::GEAOptimizationMonitor::GEAOptimizationMonitor()
-	: GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT()
-	, xDim_(DEFAULTXDIMOM)
-	, yDim_(DEFAULTYDIMOM)
-	, nMonitorInds_(0)
-   , resultFile_(DEFAULTROOTRESULTFILEOM)
-{ /* nothing */ }
+	: GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT(), xDim_(DEFAULTXDIMOM), yDim_(DEFAULTYDIMOM),
+	  nMonitorInds_(0), resultFile_(DEFAULTROOTRESULTFILEOM) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -867,30 +853,25 @@ GBaseEA::GEAOptimizationMonitor::GEAOptimizationMonitor()
  *
  * @param cp A copy of another GEAOptimizationMonitor object
  */
-GBaseEA::GEAOptimizationMonitor::GEAOptimizationMonitor(const GBaseEA::GEAOptimizationMonitor& cp)
-	: GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT(cp)
-	, xDim_(cp.xDim_)
-	, yDim_(cp.yDim_)
-	, nMonitorInds_(cp.nMonitorInds_)
-	, resultFile_(cp.resultFile_)
-{ /* nothing */ }
+GBaseEA::GEAOptimizationMonitor::GEAOptimizationMonitor(const GBaseEA::GEAOptimizationMonitor &cp)
+	: GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT(cp), xDim_(cp.xDim_), yDim_(cp.yDim_),
+	  nMonitorInds_(cp.nMonitorInds_), resultFile_(cp.resultFile_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GBaseEA::GEAOptimizationMonitor::~GEAOptimizationMonitor()
-{ /* nothing */ }
+GBaseEA::GEAOptimizationMonitor::~GEAOptimizationMonitor() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GBaseEA::GEAOptimizationMonitor& GBaseEA::GEAOptimizationMonitor::operator=(
-   const GBaseEA::GEAOptimizationMonitor& cp
+const GBaseEA::GEAOptimizationMonitor &GBaseEA::GEAOptimizationMonitor::operator=(
+	const GBaseEA::GEAOptimizationMonitor &cp
 ) {
-   this->load_(&cp);
-   return *this;
+	this->load_(&cp);
+	return *this;
 }
 
 
@@ -901,14 +882,14 @@ const GBaseEA::GEAOptimizationMonitor& GBaseEA::GEAOptimizationMonitor::operator
  * @param  cp A constant reference to another GEAOptimizationMonitor object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBaseEA::GEAOptimizationMonitor::operator==(const GBaseEA::GEAOptimizationMonitor& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBaseEA::GEAOptimizationMonitor::operator==(const GBaseEA::GEAOptimizationMonitor &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -918,14 +899,14 @@ bool GBaseEA::GEAOptimizationMonitor::operator==(const GBaseEA::GEAOptimizationM
  * @param  cp A constant reference to another GEAOptimizationMonitor object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GBaseEA::GEAOptimizationMonitor::operator!=(const GBaseEA::GEAOptimizationMonitor& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBaseEA::GEAOptimizationMonitor::operator!=(const GBaseEA::GEAOptimizationMonitor &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -938,28 +919,27 @@ bool GBaseEA::GEAOptimizationMonitor::operator!=(const GBaseEA::GEAOptimizationM
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBaseEA::GEAOptimizationMonitor::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GBaseEA::GEAOptimizationMonitor *p_load = GObject::gobject_conversion<GBaseEA::GEAOptimizationMonitor>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GBaseEA::GEAOptimizationMonitor *p_load = GObject::gobject_conversion<GBaseEA::GEAOptimizationMonitor>(&cp);
 
-   GToken token("GBaseEA::GEAOptimizationMonitor", e);
+	GToken token("GBaseEA::GEAOptimizationMonitor", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT >(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(IDENTITY(*this, *p_load),
+																														  token);
 
-   // ... and then the local data
-   compare_t(IDENTITY(xDim_, p_load->xDim_), token);
-   compare_t(IDENTITY(yDim_, p_load->yDim_), token);
-   compare_t(IDENTITY(nMonitorInds_, p_load->nMonitorInds_), token);
-   compare_t(IDENTITY(resultFile_, p_load->resultFile_), token);
+	// ... and then the local data
+	compare_t(IDENTITY(xDim_, p_load->xDim_), token);
+	compare_t(IDENTITY(yDim_, p_load->yDim_), token);
+	compare_t(IDENTITY(nMonitorInds_, p_load->nMonitorInds_), token);
+	compare_t(IDENTITY(resultFile_, p_load->resultFile_), token);
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/
@@ -969,9 +949,9 @@ void GBaseEA::GEAOptimizationMonitor::compare(
  * @param resultFile The desired name of the result file
  */
 void GBaseEA::GEAOptimizationMonitor::setResultFileName(
-      const std::string& resultFile
+	const std::string &resultFile
 ) {
-  resultFile_ = resultFile;
+	resultFile_ = resultFile;
 }
 
 /******************************************************************************/
@@ -981,7 +961,7 @@ void GBaseEA::GEAOptimizationMonitor::setResultFileName(
  * @return The current name of the result file
  */
 std::string GBaseEA::GEAOptimizationMonitor::getResultFileName() const {
-  return resultFile_;
+	return resultFile_;
 }
 
 /******************************************************************************/
@@ -990,8 +970,9 @@ std::string GBaseEA::GEAOptimizationMonitor::getResultFileName() const {
  *
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
  */
-void GBaseEA::GEAOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
-   // Perform the conversion to the target algorithm
+void GBaseEA::GEAOptimizationMonitor::firstInformation(GOptimizationAlgorithmT < GParameterSet > * const
+goa) {
+// Perform the conversion to the target algorithm
 #ifdef DEBUG
    if(goa->getOptimizationAlgorithm() != "PERSONALITY_EA") {
       glogger
@@ -1001,8 +982,8 @@ void GBaseEA::GEAOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<G
    }
 #endif /* DEBUG */
 
-   // Convert the base pointer to the target type
-   GBaseEA * const ea = static_cast<GBaseEA * const>(goa);
+// Convert the base pointer to the target type
+GBaseEA *const ea = static_cast<GBaseEA *const>(goa);
 
 #ifdef DEBUG
    if(nMonitorInds_ > ea->size()) {
@@ -1014,23 +995,32 @@ void GBaseEA::GEAOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<G
    }
 #endif /* DEBUG */
 
-   // Determine a suitable number of monitored individuals, if it hasn't already
-   // been set externally. We allow a maximum of 3 monitored individuals by default
-   // (or the number of parents, if <= 3).
-   if(nMonitorInds_ == 0) {
-      nMonitorInds_ = (std::min)(ea->getNParents(), std::size_t(3));
-   }
+// Determine a suitable number of monitored individuals, if it hasn't already
+// been set externally. We allow a maximum of 3 monitored individuals by default
+// (or the number of parents, if <= 3).
+if(nMonitorInds_ == 0) {
+nMonitorInds_ = (std::min)(ea->getNParents(), std::size_t(3));
+}
 
-   // Set up the plotters
-   for(std::size_t ind=0; ind<nMonitorInds_; ind++) {
-      std::shared_ptr<Gem::Common::GGraph2D> graph(new Gem::Common::GGraph2D());
-      graph->setXAxisLabel("Iteration");
-      graph->setYAxisLabel("Fitness");
-      graph->setPlotLabel(std::string("Individual ") + boost::lexical_cast<std::string>(ind));
-      graph->setPlotMode(Gem::Common::CURVE);
+// Set up the plotters
+for(
+std::size_t ind = 0;
+ind<nMonitorInds_;
+ind++) {
+std::shared_ptr <Gem::Common::GGraph2D> graph(new Gem::Common::GGraph2D());
+graph->setXAxisLabel("Iteration");
+graph->setYAxisLabel("Fitness");
+graph->
+setPlotLabel(std::string("Individual ")
++
+boost::lexical_cast<std::string>(ind)
+);
+graph->
+setPlotMode(Gem::Common::CURVE);
 
-      fitnessGraphVec_.push_back(graph);
-   }
+fitnessGraphVec_.
+push_back(graph);
+}
 }
 
 /******************************************************************************/
@@ -1041,25 +1031,32 @@ void GBaseEA::GEAOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<G
  *
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
  */
-void GBaseEA::GEAOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
-   bool isDirty = false;
-   double currentTransformedEvaluation = 0.;
+void GBaseEA::GEAOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT < GParameterSet > * const
+goa) {
+bool isDirty = false;
+double currentTransformedEvaluation = 0.;
 
-	// Convert the base pointer to the target type
-	GBaseEA * const ea = static_cast<GBaseEA * const>(goa);
+// Convert the base pointer to the target type
+GBaseEA *const ea = static_cast<GBaseEA *const>(goa);
 
-   // Retrieve the current iteration
-   boost::uint32_t iteration = ea->getIteration();
+// Retrieve the current iteration
+boost::uint32_t iteration = ea->getIteration();
 
-   for(std::size_t ind=0; ind<nMonitorInds_; ind++) {
-      // Get access to the individual
-      std::shared_ptr<GParameterSet> gi_ptr = ea->individual_cast<GParameterSet>(ind);
+for(
+std::size_t ind = 0;
+ind<nMonitorInds_;
+ind++) {
+// Get access to the individual
+std::shared_ptr <GParameterSet> gi_ptr = ea->individual_cast<GParameterSet>(ind);
 
-      // Retrieve the fitness of this individual -- all individuals should be "clean" here
-      currentTransformedEvaluation = gi_ptr->transformedFitness();
-      // Add the data to our graph
-      (fitnessGraphVec_.at(ind))->add(boost::tuple<double,double>(iteration, currentTransformedEvaluation));
-   }
+// Retrieve the fitness of this individual -- all individuals should be "clean" here
+currentTransformedEvaluation = gi_ptr->transformedFitness();
+// Add the data to our graph
+(fitnessGraphVec_.
+at(ind)
+)->
+add(boost::tuple<double, double>(iteration, currentTransformedEvaluation));
+}
 }
 
 /******************************************************************************/
@@ -1068,27 +1065,44 @@ void GBaseEA::GEAOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<G
  *
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
  */
-void GBaseEA::GEAOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
-   Gem::Common::GPlotDesigner gpd(
-         std::string("Fitness of ") + boost::lexical_cast<std::string>(nMonitorInds_) + std::string(" best EA individuals")
-         , 1
-         , nMonitorInds_
-   );
+void GBaseEA::GEAOptimizationMonitor::lastInformation(GOptimizationAlgorithmT < GParameterSet > * const
+goa) {
+Gem::Common::GPlotDesigner gpd(
+	std::string("Fitness of ") + boost::lexical_cast<std::string>(nMonitorInds_) + std::string(" best EA individuals"),
+	1, nMonitorInds_
+);
 
-   gpd.setCanvasDimensions(xDim_, yDim_);
+gpd.
+setCanvasDimensions(xDim_, yDim_
+);
 
-   // Copy all plotters into the GPlotDesigner object
-   std::vector<std::shared_ptr<Gem::Common::GGraph2D> >::iterator it;
-   for(it=fitnessGraphVec_.begin(); it!=fitnessGraphVec_.end(); ++it) {
-      gpd.registerPlotter(*it);
-   }
+// Copy all plotters into the GPlotDesigner object
+std::vector<std::shared_ptr < Gem::Common::GGraph2D> >
+::iterator it;
+for(
+it = fitnessGraphVec_.begin();
+it!=fitnessGraphVec_.
 
-   // Write out the plot
-   gpd.writeToFile(this->getResultFileName());
+end();
 
-   // Clear all plotters, so they do not get added repeatedly, when
-   // optimize is called repeatedly on the same (or a cloned) object.
-   fitnessGraphVec_.clear();
+++it) {
+gpd.
+registerPlotter(*it);
+}
+
+// Write out the plot
+gpd.writeToFile(this->
+
+getResultFileName()
+
+);
+
+// Clear all plotters, so they do not get added repeatedly, when
+// optimize is called repeatedly on the same (or a cloned) object.
+fitnessGraphVec_.
+
+clear();
+
 }
 
 /******************************************************************************/
@@ -1098,7 +1112,7 @@ void GBaseEA::GEAOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GP
  * @param xDim The desired dimension of the canvas in x-direction
  * @param yDim The desired dimension of the canvas in y-direction
  */
-void GBaseEA::GEAOptimizationMonitor::setDims(const boost::uint32_t& xDim, const boost::uint32_t& yDim) {
+void GBaseEA::GEAOptimizationMonitor::setDims(const boost::uint32_t &xDim, const boost::uint32_t &yDim) {
 	xDim_ = xDim;
 	yDim_ = yDim;
 }
@@ -1110,7 +1124,7 @@ void GBaseEA::GEAOptimizationMonitor::setDims(const boost::uint32_t& xDim, const
  * @return The dimensions of the canvas as a tuple
  */
 boost::tuple<boost::uint32_t, boost::uint32_t> GBaseEA::GEAOptimizationMonitor::getDims() const {
-   return boost::tuple<boost::uint32_t, boost::uint32_t>(xDim_, yDim_);
+	return boost::tuple<boost::uint32_t, boost::uint32_t>(xDim_, yDim_);
 }
 
 /******************************************************************************/
@@ -1139,7 +1153,7 @@ boost::uint32_t GBaseEA::GEAOptimizationMonitor::getYDim() const {
  *
  * @oaram nMonitorInds The number of individuals in the population that should be monitored
  */
-void GBaseEA::GEAOptimizationMonitor::setNMonitorIndividuals(const std::size_t& nMonitorInds) {
+void GBaseEA::GEAOptimizationMonitor::setNMonitorIndividuals(const std::size_t &nMonitorInds) {
 	nMonitorInds_ = nMonitorInds;
 }
 
@@ -1159,7 +1173,7 @@ std::size_t GBaseEA::GEAOptimizationMonitor::getNMonitorIndividuals() const {
  *
  * cp A pointer to another GBaseEA::GEAOptimizationMonitor object, camouflaged as a GObject
  */
-void GBaseEA::GEAOptimizationMonitor::load_(const GObject* cp) {
+void GBaseEA::GEAOptimizationMonitor::load_(const GObject *cp) {
 	const GBaseEA::GEAOptimizationMonitor *p_load = gobject_conversion<GBaseEA::GEAOptimizationMonitor>(cp);
 
 	// Load the parent classes' data ...
@@ -1178,7 +1192,7 @@ void GBaseEA::GEAOptimizationMonitor::load_(const GObject* cp) {
  *
  * @return A deep clone of this object
  */
-GObject* GBaseEA::GEAOptimizationMonitor::clone_() const {
+GObject *GBaseEA::GEAOptimizationMonitor::clone_() const {
 	return new GBaseEA::GEAOptimizationMonitor(*this);
 }
 
@@ -1191,7 +1205,7 @@ bool GBaseEA::GEAOptimizationMonitor::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::modify_GUnitTests()) result = true;
+	if (GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::modify_GUnitTests()) result = true;
 
 	return result;
 
@@ -1207,7 +1221,7 @@ bool GBaseEA::GEAOptimizationMonitor::modify_GUnitTests() {
  */
 void GBaseEA::GEAOptimizationMonitor::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
-   // Call the parent class'es function
+	// Call the parent class'es function
 	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
@@ -1221,7 +1235,7 @@ void GBaseEA::GEAOptimizationMonitor::specificTestsNoFailureExpected_GUnitTests(
  */
 void GBaseEA::GEAOptimizationMonitor::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
-   // Call the parent class'es function
+	// Call the parent class'es function
 	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */

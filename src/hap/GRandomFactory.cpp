@@ -46,32 +46,28 @@ namespace Hap {
  * @param lf A reference to an external random number generator
  */
 random_container::random_container(
-   const std::size_t& binSize
-   , lagged_fibonacci& lf
+	const std::size_t &binSize, lagged_fibonacci &lf
 )
-   : current_pos_(0)
-   , binSize_(binSize)
-   , r_((double *)NULL)
-{
-   try {
-      r_ = new double[binSize_];
-      for(std::size_t pos=0; pos<binSize_; pos++) {
-         r_[pos]=lf();
-      }
-   } catch(const std::bad_alloc& e) {
-      // This will propagate the exception to the global error handler so it can be logged
-      glogger
-      << "In random_container::random_container(const std::size_t&): Error!" << std::endl
-      << "std::bad_alloc caught with message" << std::endl
-      << e.what() << std::endl
-      << GEXCEPTION;
-   } catch(...) {
-      // This will propagate the exception to the global error handler so it can be logged
-      glogger
-      << "In random_container::random_container(const std::size_t&): Error!" << std::endl
-      << "unknown exception caught" << std::endl
-      << GEXCEPTION;
-   }
+	: current_pos_(0), binSize_(binSize), r_((double *) NULL) {
+	try {
+		r_ = new double[binSize_];
+		for (std::size_t pos = 0; pos < binSize_; pos++) {
+			r_[pos] = lf();
+		}
+	} catch (const std::bad_alloc &e) {
+		// This will propagate the exception to the global error handler so it can be logged
+		glogger
+		<< "In random_container::random_container(const std::size_t&): Error!" << std::endl
+		<< "std::bad_alloc caught with message" << std::endl
+		<< e.what() << std::endl
+		<< GEXCEPTION;
+	} catch (...) {
+		// This will propagate the exception to the global error handler so it can be logged
+		glogger
+		<< "In random_container::random_container(const std::size_t&): Error!" << std::endl
+		<< "unknown exception caught" << std::endl
+		<< GEXCEPTION;
+	}
 }
 
 /******************************************************************************/
@@ -79,9 +75,9 @@ random_container::random_container(
  * The destructor -- gets rid of the random buffer r
  */
 random_container::~random_container() {
-   if(r_) {
-      delete [] r_;
-   }
+	if (r_) {
+		delete[] r_;
+	}
 }
 
 /******************************************************************************/
@@ -89,7 +85,7 @@ random_container::~random_container() {
  * Returns the size of the buffer
  */
 std::size_t random_container::size() const {
-   return binSize_;
+	return binSize_;
 }
 
 /******************************************************************************/
@@ -97,7 +93,7 @@ std::size_t random_container::size() const {
  * Returns the current position
  */
 std::size_t random_container::getCurrentPosition() const {
-   return current_pos_;
+	return current_pos_;
 }
 
 /******************************************************************************/
@@ -105,11 +101,11 @@ std::size_t random_container::getCurrentPosition() const {
  * Replaces "used" random numbers by new numbers and resets the current_pos_
  * pointer.
  */
-void random_container::refresh(lagged_fibonacci& lf) {
-   for(std::size_t pos=0; pos<current_pos_; pos++) {
-      r_[pos]=lf();
-   }
-   current_pos_ = 0;
+void random_container::refresh(lagged_fibonacci &lf) {
+	for (std::size_t pos = 0; pos < current_pos_; pos++) {
+		r_[pos] = lf();
+	}
+	current_pos_ = 0;
 }
 
 /******************************************************************************/
@@ -127,29 +123,26 @@ boost::mutex Gem::Hap::GRandomFactory::factory_creation_mutex_;
  * that this class is instantiated only once.
  */
 GRandomFactory::GRandomFactory()
-	: finalized_(false)
-	, threadsHaveBeenStarted_(false)
-	, n01Threads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)))
-	, p01_ (DEFAULTFACTORYBUFFERSIZE)
-   , r01_ (DEFAULTFACTORYBUFFERSIZE)
-   , startSeed_(boost::numeric_cast<initial_seed_type>(this->nondet_rng()))
-{
-   // Check whether enough entropy is available. Warn, if this is not the case
-   if(0. == nondet_rng.entropy()) {
-      glogger
-      << "In GSeedManager::GSeedManager(): Error!" << std::endl
-      << "Source of non-deterministic random numbers" << std::endl
-      << "has entropy 0." << std::endl
-      << GWARNING;
-   }
+	: finalized_(false), threadsHaveBeenStarted_(false),
+	  n01Threads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS))),
+	  p01_(DEFAULTFACTORYBUFFERSIZE), r01_(DEFAULTFACTORYBUFFERSIZE),
+	  startSeed_(boost::numeric_cast<initial_seed_type>(this->nondet_rng())) {
+	// Check whether enough entropy is available. Warn, if this is not the case
+	if (0. == nondet_rng.entropy()) {
+		glogger
+		<< "In GSeedManager::GSeedManager(): Error!" << std::endl
+		<< "Source of non-deterministic random numbers" << std::endl
+		<< "has entropy 0." << std::endl
+		<< GWARNING;
+	}
 
 	boost::mutex::scoped_lock lk(factory_creation_mutex_);
-	if(multiple_call_trap_ > 0) {
-	   std::cerr
-	   << "Error in GRandomFactory::GRandomFactory():" << std::endl
-	   << "Class has been instantiated before." << std::endl
-	   << "and may be instantiated only once" << std::endl;
-	   std::terminate();
+	if (multiple_call_trap_ > 0) {
+		std::cerr
+		<< "Error in GRandomFactory::GRandomFactory():" << std::endl
+		<< "Class has been instantiated before." << std::endl
+		<< "and may be instantiated only once" << std::endl;
+		std::terminate();
 	}
 	else {
 		multiple_call_trap_++;
@@ -183,7 +176,7 @@ void GRandomFactory::init() { /* nothing */ }
  */
 void GRandomFactory::finalize() {
 	// Only allow one finalization action to be carried out
-	if(finalized_) return;
+	if (finalized_) return;
 
 	producer_threads_01_.interrupt_all(); // doesn't throw
 	producer_threads_01_.join_all();
@@ -197,7 +190,7 @@ void GRandomFactory::finalize() {
  * @return The current value of the arraySize_ variable
  */
 std::size_t GRandomFactory::getCurrentArraySize() const {
-   return DEFAULTARRAYSIZE;
+	return DEFAULTARRAYSIZE;
 }
 
 /******************************************************************************/
@@ -223,19 +216,20 @@ std::size_t GRandomFactory::getBufferSize() const {
  * @param seed The desired initial value of the global seed
  * @return A boolean indicating whether the seed could be set
  */
-bool GRandomFactory::setStartSeed(const initial_seed_type& initial_seed) {
-   // Determine whether the seed-generator has already been initialized. If not, start it
-   boost::upgrade_lock<boost::shared_mutex> sm_lck(seedingMutex_);
-   if(!mt_ptr_) { // double check locking pattern
-      boost::upgrade_to_unique_lock< boost::shared_mutex > unique_lck(sm_lck); // exclusive access
-      if(!mt_ptr_) {
-         mt_ptr_ = std::shared_ptr<mersenne_twister>(new mersenne_twister(boost::numeric_cast<seed_type>(initial_seed)));
-         startSeed_ = initial_seed;
-         return true;
-      }
-   }
+bool GRandomFactory::setStartSeed(const initial_seed_type &initial_seed) {
+	// Determine whether the seed-generator has already been initialized. If not, start it
+	boost::upgrade_lock<boost::shared_mutex> sm_lck(seedingMutex_);
+	if (!mt_ptr_) { // double check locking pattern
+		boost::upgrade_to_unique_lock<boost::shared_mutex> unique_lck(sm_lck); // exclusive access
+		if (!mt_ptr_) {
+			mt_ptr_ = std::shared_ptr<mersenne_twister>(
+				new mersenne_twister(boost::numeric_cast<seed_type>(initial_seed)));
+			startSeed_ = initial_seed;
+			return true;
+		}
+	}
 
-   return false;
+	return false;
 }
 
 /******************************************************************************/
@@ -245,8 +239,8 @@ bool GRandomFactory::setStartSeed(const initial_seed_type& initial_seed) {
  * @return The value of the global start seed
  */
 initial_seed_type GRandomFactory::getStartSeed() const {
-   boost::shared_lock<boost::shared_mutex> sm_lck(seedingMutex_);
-   return startSeed_;
+	boost::shared_lock<boost::shared_mutex> sm_lck(seedingMutex_);
+	return startSeed_;
 }
 
 /******************************************************************************/
@@ -256,11 +250,8 @@ initial_seed_type GRandomFactory::getStartSeed() const {
  * @return A boolean indicating whether seeding has already been initialized
  */
 bool GRandomFactory::checkSeedingIsInitialized() const {
-   boost::shared_lock<boost::shared_mutex> sm_lck(seedingMutex_);
-   if(mt_ptr_) {
-      return true;
-   }
-   return false;
+	boost::shared_lock<boost::shared_mutex> sm_lck(seedingMutex_);
+	return mt_ptr_ ? true : false;
 }
 
 /******************************************************************************/
@@ -272,18 +263,19 @@ bool GRandomFactory::checkSeedingIsInitialized() const {
  *
  * @return A seed taken from a local random number generator
  */
-boost::uint32_t GRandomFactory::getSeed(){
-   { // Determine whether the seed-generator has already been initialized. If not, start it
-      boost::upgrade_lock<boost::shared_mutex> sm_lck(seedingMutex_);
-      if(!mt_ptr_) { // double lock pattern
-         boost::upgrade_to_unique_lock< boost::shared_mutex > unique_lck(sm_lck); // exclusive access
-         if(!mt_ptr_) {
-            mt_ptr_ = std::shared_ptr<mersenne_twister>(new mersenne_twister(boost::numeric_cast<seed_type>(startSeed_)));
-         }
-      }
-   }
+boost::uint32_t GRandomFactory::getSeed() {
+	{ // Determine whether the seed-generator has already been initialized. If not, start it
+		boost::upgrade_lock<boost::shared_mutex> sm_lck(seedingMutex_);
+		if (!mt_ptr_) { // double lock pattern
+			boost::upgrade_to_unique_lock<boost::shared_mutex> unique_lck(sm_lck); // exclusive access
+			if (!mt_ptr_) {
+				mt_ptr_ = std::shared_ptr<mersenne_twister>(
+					new mersenne_twister(boost::numeric_cast<seed_type>(startSeed_)));
+			}
+		}
+	}
 
-   boost::unique_lock<boost::shared_mutex> sm_lck(seedingMutex_);
+	boost::unique_lock<boost::shared_mutex> sm_lck(seedingMutex_);
 	return (*mt_ptr_)();
 }
 
@@ -295,15 +287,15 @@ boost::uint32_t GRandomFactory::getSeed(){
  * @param r A pointer to a partially used work package
  * @param current_pos The first position in the array that holds unused random numbers
  */
-void GRandomFactory::returnUsedPackage(std::shared_ptr<random_container> p) {
-   // We try to add the item to the r01_ queue, until a timeout occurs.
-   // Once this is the case we delete the package, so we do not overflow
-   // with recycled packages
-   try{
-      r01_.push_front(p, boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
-   } catch (Gem::Common::condition_time_out&) { // No luck buffer is full. Delete the recycling bin
-      p.reset();
-   }
+void GRandomFactory::returnUsedPackage(std::shared_ptr < random_container > p) {
+	// We try to add the item to the r01_ queue, until a timeout occurs.
+	// Once this is the case we delete the package, so we do not overflow
+	// with recycled packages
+	try {
+		r01_.push_front(p, boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
+	} catch (Gem::Common::condition_time_out &) { // No luck buffer is full. Delete the recycling bin
+		p.reset();
+	}
 }
 
 /******************************************************************************/
@@ -312,25 +304,25 @@ void GRandomFactory::returnUsedPackage(std::shared_ptr<random_container> p) {
  *
  * @param n01Threads
  */
-void GRandomFactory::setNProducerThreads(const boost::uint16_t& n01Threads)
-{
+void GRandomFactory::setNProducerThreads(const boost::uint16_t &n01Threads) {
 	// Make a suggestion for the number of threads, if requested
-   boost::uint16_t n01Threads_local =
-         (n01Threads>0)?n01Threads:(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)));
+	boost::uint16_t n01Threads_local =
+		(n01Threads > 0) ? n01Threads : (boost::numeric_cast<boost::uint16_t>(
+			Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)));
 
 	// Threads might already be running, so we need to regulate access
 	{
 		boost::unique_lock<boost::mutex> lk(thread_creation_mutex_);
-		if(threadsHaveBeenStarted_.load()) {
+		if (threadsHaveBeenStarted_.load()) {
 			if (n01Threads_local > n01Threads_.load()) { // start new 01 threads
 				for (boost::uint16_t i = n01Threads_.load(); i < n01Threads_local; i++) {
 					producer_threads_01_.create_thread(
-					   [this](){ this->producer01(this->getSeed()); }
+						[this]() { this->producer01(this->getSeed()); }
 					);
 				}
 			} else if (n01Threads_local < n01Threads_.load()) { // We need to remove threads
-			   // remove_last will internally call "interrupt" for these threads
-			   producer_threads_01_.remove_last(n01Threads_.load() - n01Threads_local);
+				// remove_last will internally call "interrupt" for these threads
+				producer_threads_01_.remove_last(n01Threads_.load() - n01Threads_local);
 			}
 		}
 
@@ -345,30 +337,30 @@ void GRandomFactory::setNProducerThreads(const boost::uint16_t& n01Threads)
  *
  * @return A packet of new [0,1[ random numbers
  */
-std::shared_ptr<random_container> GRandomFactory::new01Container() {
+std::shared_ptr <random_container> GRandomFactory::new01Container() {
 	// Start the producer threads upon first access to this function
-	if(!threadsHaveBeenStarted_.load()) {
+	if (!threadsHaveBeenStarted_.load()) {
 		boost::unique_lock<boost::mutex> tc_lk(thread_creation_mutex_);
-		if(!threadsHaveBeenStarted_.load()) { // double checked locking pattern
-		   //---------------------------------------------------------
-		   for (boost::uint16_t i = 0; i < n01Threads_.load(); i++) {
-		      producer_threads_01_.create_thread(
-               [this](){ this->producer01(this->getSeed()); }
-		      );
-		   }
-         //---------------------------------------------------------
+		if (!threadsHaveBeenStarted_.load()) { // double checked locking pattern
+			//---------------------------------------------------------
+			for (boost::uint16_t i = 0; i < n01Threads_.load(); i++) {
+				producer_threads_01_.create_thread(
+					[this]() { this->producer01(this->getSeed()); }
+				);
+			}
+			//---------------------------------------------------------
 
-			threadsHaveBeenStarted_=true;
+			threadsHaveBeenStarted_ = true;
 		}
 	}
 
-	std::shared_ptr<random_container> p; // empty
+	std::shared_ptr <random_container> p; // empty
 	try {
 		p01_.pop_back(p, boost::posix_time::milliseconds(DEFAULTFACTORYGETWAIT));
-	} catch (Gem::Common::condition_time_out&) {
-      // nothing - our way of signaling a time out
-      // is to return an empty std::shared_ptr
-	   p = std::shared_ptr<random_container>();
+	} catch (Gem::Common::condition_time_out &) {
+		// nothing - our way of signaling a time out
+		// is to return an empty std::shared_ptr
+		p = std::shared_ptr<random_container>();
 	}
 
 	return p;
@@ -383,20 +375,20 @@ std::shared_ptr<random_container> GRandomFactory::new01Container() {
  *
  * @param seed A seed for our local random number generator
  */
-void GRandomFactory::producer01(boost::uint32_t seed)  {
+void GRandomFactory::producer01(boost::uint32_t seed) {
 	try {
 		lagged_fibonacci lf(seed);
-		std::shared_ptr<random_container> p;
+		std::shared_ptr <random_container> p;
 
-		while(!boost::this_thread::interruption_requested()) {
-		   if(!p) { // buffer is still empty
-		      // First we try to retrieve a "recycled" item from the r01_ buffer. If this
-		      // fails (likely because the buffer is empty), we create a new item instead
-		      try {
-		         r01_.pop_back(p, boost::posix_time::milliseconds(DEFAULTFACTORYGETWAIT));
+		while (!boost::this_thread::interruption_requested()) {
+			if (!p) { // buffer is still empty
+				// First we try to retrieve a "recycled" item from the r01_ buffer. If this
+				// fails (likely because the buffer is empty), we create a new item instead
+				try {
+					r01_.pop_back(p, boost::posix_time::milliseconds(DEFAULTFACTORYGETWAIT));
 
-		         // If we reach this line, we have successfully retrieved a recycled container.
-		         // First do some error-checking
+					// If we reach this line, we have successfully retrieved a recycled container.
+					// First do some error-checking
 #ifdef DEBUG
 		         if(!p) {
 		            glogger
@@ -407,44 +399,44 @@ void GRandomFactory::producer01(boost::uint32_t seed)  {
 
 #endif /* DEBUG */
 
-		         // Finally we replace "used" random numbers with new ones
-		         p->refresh(lf);
+					// Finally we replace "used" random numbers with new ones
+					p->refresh(lf);
 
-		      } catch (Gem::Common::condition_time_out&) { // O.k., so we need to create a new container
-		         p = std::shared_ptr<random_container>(new random_container(DEFAULTARRAYSIZE, lf));
-		      }
-		   }
+				} catch (Gem::Common::condition_time_out &) { // O.k., so we need to create a new container
+					p = std::shared_ptr<random_container>(new random_container(DEFAULTARRAYSIZE, lf));
+				}
+			}
 
-		   // Thanks to the following call, thread creation will be mostly idle if the buffer is full
-		   try {
-		      // Put the bufffer in the queue
-		      p01_.push_front(p, boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
-		      // Reset the shared_ptr so the next pointer may be created
-		      p.reset();
-		   } catch (Gem::Common::condition_time_out&) {
-		      continue; // Try again, if we didn't succeed
-		   }
+			// Thanks to the following call, thread creation will be mostly idle if the buffer is full
+			try {
+				// Put the bufffer in the queue
+				p01_.push_front(p, boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
+				// Reset the shared_ptr so the next pointer may be created
+				p.reset();
+			} catch (Gem::Common::condition_time_out &) {
+				continue; // Try again, if we didn't succeed
+			}
 		}
-	} catch (boost::thread_interrupted&) { // Not an error
+	} catch (boost::thread_interrupted &) { // Not an error
 		return; // We're done
-	} catch (std::bad_alloc& e) {
-	   glogger
-	   << "In GRandomFactory::producer01(): Error!" << std::endl
+	} catch (std::bad_alloc &e) {
+		glogger
+		<< "In GRandomFactory::producer01(): Error!" << std::endl
 		<< "Caught std::bad_alloc exception with message"
 		<< std::endl << e.what() << std::endl
 		<< GEXCEPTION;
-	} catch (std::invalid_argument& e) {
+	} catch (std::invalid_argument &e) {
 		glogger
 		<< "In GRandomFactory::producer01(): Error!" << std::endl
-		<< "Caught std::invalid_argument exception with message"  << std::endl
+		<< "Caught std::invalid_argument exception with message" << std::endl
 		<< e.what() << std::endl
 		<< GEXCEPTION;
-	} catch (boost::thread_resource_error&) {
+	} catch (boost::thread_resource_error &) {
 		glogger
-      << "In GRandomFactory::producer01(): Error!" << std::endl
-      << "Caught boost::thread_resource_error exception which"  << std::endl
-      << "likely indicates that a mutex could not be locked."  << std::endl
-      << GEXCEPTION;
+		<< "In GRandomFactory::producer01(): Error!" << std::endl
+		<< "Caught boost::thread_resource_error exception which" << std::endl
+		<< "likely indicates that a mutex could not be locked." << std::endl
+		<< GEXCEPTION;
 	} catch (...) {
 		glogger
 		<< "In GRandomFactory::producer01(): Error!" << std::endl

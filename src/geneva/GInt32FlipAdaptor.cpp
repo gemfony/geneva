@@ -45,8 +45,7 @@ namespace Geneva {
  * The default constructor
  */
 GInt32FlipAdaptor::GInt32FlipAdaptor()
-   : GIntFlipAdaptorT<boost::int32_t>()
-{ /* nothing */ }
+	: GIntFlipAdaptorT<boost::int32_t>() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -54,9 +53,8 @@ GInt32FlipAdaptor::GInt32FlipAdaptor()
  *
  * @param cp A copy of another GInt32FlipAdaptor object
  */
-GInt32FlipAdaptor::GInt32FlipAdaptor(const GInt32FlipAdaptor& cp)
-	: GIntFlipAdaptorT<boost::int32_t>(cp)
-{ /* nothing */ }
+GInt32FlipAdaptor::GInt32FlipAdaptor(const GInt32FlipAdaptor &cp)
+	: GIntFlipAdaptorT<boost::int32_t>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -64,16 +62,14 @@ GInt32FlipAdaptor::GInt32FlipAdaptor(const GInt32FlipAdaptor& cp)
  *
  * @param adProb The adaption probability
  */
-GInt32FlipAdaptor::GInt32FlipAdaptor(const double& adProb)
-	: GIntFlipAdaptorT<boost::int32_t>(adProb)
-{ /* nothing */ }
+GInt32FlipAdaptor::GInt32FlipAdaptor(const double &adProb)
+	: GIntFlipAdaptorT<boost::int32_t>(adProb) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GInt32FlipAdaptor::~GInt32FlipAdaptor()
-{ /* nothing */ }
+GInt32FlipAdaptor::~GInt32FlipAdaptor() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -81,7 +77,7 @@ GInt32FlipAdaptor::~GInt32FlipAdaptor()
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GInt32FlipAdaptor::clone_() const {
+GObject *GInt32FlipAdaptor::clone_() const {
 	return new GInt32FlipAdaptor(*this);
 }
 
@@ -89,9 +85,9 @@ GObject* GInt32FlipAdaptor::clone_() const {
 /**
  * The standard assignment operator
  */
-const GInt32FlipAdaptor& GInt32FlipAdaptor::operator=(const GInt32FlipAdaptor& cp) {
-   this->load_(&cp);
-   return *this;
+const GInt32FlipAdaptor &GInt32FlipAdaptor::operator=(const GInt32FlipAdaptor &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -101,14 +97,14 @@ const GInt32FlipAdaptor& GInt32FlipAdaptor::operator=(const GInt32FlipAdaptor& c
  * @param  cp A constant reference to another GInt32FlipAdaptor object
  * @return A boolean indicating whether both objects are equal
  */
-bool GInt32FlipAdaptor::operator==(const GInt32FlipAdaptor& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GInt32FlipAdaptor::operator==(const GInt32FlipAdaptor &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -118,14 +114,14 @@ bool GInt32FlipAdaptor::operator==(const GInt32FlipAdaptor& cp) const {
  * @param  cp A constant reference to another GInt32FlipAdaptor object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GInt32FlipAdaptor::operator!=(const GInt32FlipAdaptor& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GInt32FlipAdaptor::operator!=(const GInt32FlipAdaptor &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -138,24 +134,22 @@ bool GInt32FlipAdaptor::operator!=(const GInt32FlipAdaptor& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GInt32FlipAdaptor::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GInt32FlipAdaptor *p_load = GObject::gobject_conversion<GInt32FlipAdaptor>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GInt32FlipAdaptor *p_load = GObject::gobject_conversion<GInt32FlipAdaptor>(&cp);
 
-   GToken token("GInt32FlipAdaptor", e);
+	GToken token("GInt32FlipAdaptor", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GIntFlipAdaptorT<boost::int32_t> >(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GIntFlipAdaptorT<boost::int32_t> >(IDENTITY(*this, *p_load), token);
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -163,7 +157,7 @@ void GInt32FlipAdaptor::compare(
  * Emits a name for this class / object
  */
 std::string GInt32FlipAdaptor::name() const {
-   return std::string("GInt32FlipAdaptor");
+	return std::string("GInt32FlipAdaptor");
 }
 
 /******************************************************************************/
@@ -172,9 +166,9 @@ std::string GInt32FlipAdaptor::name() const {
  *
  * @param cp A copy of another GInt32FlipAdaptor object, camouflaged as a GObject
  */
-void GInt32FlipAdaptor::load_(const GObject* cp){
-    // Check that we are not accidently assigning this object to itself
-    GObject::selfAssignmentCheck<GInt32FlipAdaptor>(cp);
+void GInt32FlipAdaptor::load_(const GObject *cp) {
+	// Check that we are not accidently assigning this object to itself
+	GObject::selfAssignmentCheck<GInt32FlipAdaptor>(cp);
 
 	// Load our parent class'es data ...
 	GIntFlipAdaptorT<boost::int32_t>::load_(cp);
@@ -212,7 +206,7 @@ bool GInt32FlipAdaptor::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GIntFlipAdaptorT<boost::int32_t>::modify_GUnitTests()) result = true;
+	if (GIntFlipAdaptorT<boost::int32_t>::modify_GUnitTests()) result = true;
 
 	return result;
 
@@ -238,13 +232,12 @@ void GInt32FlipAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check that the adaptor returns the correct adaptor id
-		std::shared_ptr<GInt32FlipAdaptor> p_test = this->clone<GInt32FlipAdaptor>();
+		std::shared_ptr <GInt32FlipAdaptor> p_test = this->clone<GInt32FlipAdaptor>();
 
 		BOOST_CHECK_MESSAGE(
-			p_test->getAdaptorId() == GINT32FLIPADAPTOR
-			,  "\n"
-			<< "p_test->getAdaptorId() = " << p_test->getAdaptorId()
-			<< "GINT32FLIPADAPTOR      = " << GINT32FLIPADAPTOR << "\n"
+			p_test->getAdaptorId() == GINT32FLIPADAPTOR, "\n"
+																		<< "p_test->getAdaptorId() = " << p_test->getAdaptorId()
+																		<< "GINT32FLIPADAPTOR      = " << GINT32FLIPADAPTOR << "\n"
 		);
 	}
 

@@ -46,10 +46,10 @@ namespace Courtier {
  * @param sz Resulting size of the query string
  * @return The query string
  */
-std::string assembleQueryString(const std::string& query, const std::size_t& sz){
-  std::ostringstream query_stream;
-  query_stream << std::setw(sz) << query;
-  return query_stream.str();
+std::string assembleQueryString(const std::string &query, const std::size_t &sz) {
+	std::ostringstream query_stream;
+	query_stream << std::setw(sz) << query;
+	return query_stream.str();
 }
 
 /******************************************************************************/
@@ -61,16 +61,16 @@ std::string assembleQueryString(const std::string& query, const std::size_t& sz)
  * @param sz The size of the data string
  * @return The size of the data
  */
-std::size_t extractDataSize(const char* ds, const std::size_t& sz){
-  std::istringstream is(std::string(ds, sz));
-  std::size_t inboundDataSize = 0;
-  if (!(is >> std::hex >> inboundDataSize)) {
-     glogger
-     << "In extractDataSize: Got invalid header!" << std::endl
-     << GEXCEPTION;
-  }
+std::size_t extractDataSize(const char *ds, const std::size_t &sz) {
+	std::istringstream is(std::string(ds, sz));
+	std::size_t inboundDataSize = 0;
+	if (!(is >> std::hex >> inboundDataSize)) {
+		glogger
+		<< "In extractDataSize: Got invalid header!" << std::endl
+		<< GEXCEPTION;
+	}
 
-  return inboundDataSize;
+	return inboundDataSize;
 }
 
 /******************************************************************************/
@@ -79,10 +79,10 @@ std::size_t extractDataSize(const char* ds, const std::size_t& sz){
  *
  * @param socket The socket on which the shutdown should be performed
  */
-void disconnect(boost::asio::ip::tcp::socket& socket) {
-   boost::system::error_code ignore;
-   socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
-   socket.close();
+void disconnect(boost::asio::ip::tcp::socket &socket) {
+	boost::system::error_code ignore;
+	socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
+	socket.close();
 }
 
 /******************************************************************************/

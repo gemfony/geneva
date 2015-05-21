@@ -44,9 +44,7 @@ namespace Geneva {
  * The default constructor
  */
 GEAPersonalityTraits::GEAPersonalityTraits()
-	: GBaseParChildPersonalityTraits()
-	, isOnParetoFront_(true)
-{ /* nothing */ }
+	: GBaseParChildPersonalityTraits(), isOnParetoFront_(true) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -54,25 +52,22 @@ GEAPersonalityTraits::GEAPersonalityTraits()
  *
  * @param cp A copy of another GEAPersonalityTraits object
  */
-GEAPersonalityTraits::GEAPersonalityTraits(const GEAPersonalityTraits& cp)
-	: GBaseParChildPersonalityTraits(cp)
-	, isOnParetoFront_(cp.isOnParetoFront_)
-{ /* nothing */ }
+GEAPersonalityTraits::GEAPersonalityTraits(const GEAPersonalityTraits &cp)
+	: GBaseParChildPersonalityTraits(cp), isOnParetoFront_(cp.isOnParetoFront_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
-GEAPersonalityTraits::~GEAPersonalityTraits()
-{ /* nothing */ }
+GEAPersonalityTraits::~GEAPersonalityTraits() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GEAPersonalityTraits& GEAPersonalityTraits::operator=(const GEAPersonalityTraits& cp) {
-   this->load_(&cp);
-   return *this;
+const GEAPersonalityTraits &GEAPersonalityTraits::operator=(const GEAPersonalityTraits &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -82,14 +77,14 @@ const GEAPersonalityTraits& GEAPersonalityTraits::operator=(const GEAPersonality
  * @param  cp A constant reference to another GEAPersonalityTraits object
  * @return A boolean indicating whether both objects are equal
  */
-bool GEAPersonalityTraits::operator==(const GEAPersonalityTraits& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GEAPersonalityTraits::operator==(const GEAPersonalityTraits &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -99,14 +94,14 @@ bool GEAPersonalityTraits::operator==(const GEAPersonalityTraits& cp) const {
  * @param  cp A constant reference to another GEAPersonalityTraits object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GEAPersonalityTraits::operator!=(const GEAPersonalityTraits& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GEAPersonalityTraits::operator!=(const GEAPersonalityTraits &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -119,25 +114,23 @@ bool GEAPersonalityTraits::operator!=(const GEAPersonalityTraits& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GEAPersonalityTraits::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GEAPersonalityTraits *p_load = GObject::gobject_conversion<GEAPersonalityTraits>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GEAPersonalityTraits *p_load = GObject::gobject_conversion<GEAPersonalityTraits>(&cp);
 
-   GToken token("GEAPersonalityTraits", e);
+	GToken token("GEAPersonalityTraits", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GBaseParChildPersonalityTraits>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GBaseParChildPersonalityTraits>(IDENTITY(*this, *p_load), token);
 
-   // ... and then the local data
-   compare_t(IDENTITY(isOnParetoFront_, p_load->isOnParetoFront_), token);
+	// ... and then the local data
+	compare_t(IDENTITY(isOnParetoFront_, p_load->isOnParetoFront_), token);
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -145,7 +138,7 @@ void GEAPersonalityTraits::compare(
  * Emits a name for this class / object
  */
 std::string GEAPersonalityTraits::name() const {
-   return std::string("GEAPersonalityTraits");
+	return std::string("GEAPersonalityTraits");
 }
 
 /******************************************************************************/
@@ -154,7 +147,7 @@ std::string GEAPersonalityTraits::name() const {
  *
  * @return A clone of this object, camouflaged as a GObject
  */
-GObject* GEAPersonalityTraits::clone_() const {
+GObject *GEAPersonalityTraits::clone_() const {
 	return new GEAPersonalityTraits(*this);
 }
 
@@ -164,7 +157,7 @@ GObject* GEAPersonalityTraits::clone_() const {
  *
  * @param cp A copy of another GEAPersonalityTraits object, camouflaged as a GObject
  */
-void GEAPersonalityTraits::load_(const GObject* cp) {
+void GEAPersonalityTraits::load_(const GObject *cp) {
 	const GEAPersonalityTraits *p_load = gobject_conversion<GEAPersonalityTraits>(cp);
 
 	// Load the parent class'es data
@@ -210,10 +203,10 @@ void GEAPersonalityTraits::setIsNotOnParetoFront() {
  */
 bool GEAPersonalityTraits::modify_GUnitTests() {
 #ifdef GEM_TESTING
-   bool result = false;
+	bool result = false;
 
 	// Call the parent class'es function
-	if(GBaseParChildPersonalityTraits::modify_GUnitTests()) result = true;
+	if (GBaseParChildPersonalityTraits::modify_GUnitTests()) result = true;
 
 	return result;
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
@@ -234,7 +227,7 @@ void GEAPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests();
 
-   // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw

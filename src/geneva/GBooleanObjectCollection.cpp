@@ -43,8 +43,7 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GBooleanObjectCollection::GBooleanObjectCollection()
-{ /* nothing */ }
+GBooleanObjectCollection::GBooleanObjectCollection() { /* nothing */ }
 
 // Tested in this file
 
@@ -54,9 +53,8 @@ GBooleanObjectCollection::GBooleanObjectCollection()
  *
  * @param cp A copy of another GBooleanObjectCollection object
  */
-GBooleanObjectCollection::GBooleanObjectCollection(const GBooleanObjectCollection& cp)
-	: GParameterTCollectionT<GBooleanObject>(cp)
-{ /* nothing */ }
+GBooleanObjectCollection::GBooleanObjectCollection(const GBooleanObjectCollection &cp)
+	: GParameterTCollectionT<GBooleanObject>(cp) { /* nothing */ }
 
 // Tested in this file
 
@@ -65,11 +63,9 @@ GBooleanObjectCollection::GBooleanObjectCollection(const GBooleanObjectCollectio
  * Initialization with a number of identical GBooleanObject objects
  */
 GBooleanObjectCollection::GBooleanObjectCollection(
-	const std::size_t& nVals
-	, std::shared_ptr<GBooleanObject> tmpl_ptr
+	const std::size_t &nVals, std::shared_ptr <GBooleanObject> tmpl_ptr
 )
-	:GParameterTCollectionT<GBooleanObject>(nVals, tmpl_ptr)
-{ /* nothing */ }
+	: GParameterTCollectionT<GBooleanObject>(nVals, tmpl_ptr) { /* nothing */ }
 
 // Tested in this file
 
@@ -78,10 +74,9 @@ GBooleanObjectCollection::GBooleanObjectCollection(
  * Initialization with a number of GBoolean objects with a given probability for the value "true"
  */
 GBooleanObjectCollection::GBooleanObjectCollection(
-		const std::size_t& nVals
-		, const double& probability
+	const std::size_t &nVals, const double &probability
 ) {
-	for(std::size_t i=0; i<nVals; i++) {
+	for (std::size_t i = 0; i < nVals; i++) {
 		this->push_back(std::shared_ptr<GBooleanObject>(new GBooleanObject(probability)));
 	}
 }
@@ -92,8 +87,7 @@ GBooleanObjectCollection::GBooleanObjectCollection(
 /**
  * The destructor
  */
-GBooleanObjectCollection::~GBooleanObjectCollection()
-{ /* nothing */ }
+GBooleanObjectCollection::~GBooleanObjectCollection() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -101,7 +95,7 @@ GBooleanObjectCollection::~GBooleanObjectCollection()
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GBooleanObjectCollection::clone_() const {
+GObject *GBooleanObjectCollection::clone_() const {
 	return new GBooleanObjectCollection(*this);
 }
 
@@ -109,11 +103,11 @@ GObject* GBooleanObjectCollection::clone_() const {
 /**
  * The standard assignment operator
  */
-const GBooleanObjectCollection& GBooleanObjectCollection::operator=(
-   const GBooleanObjectCollection& cp
+const GBooleanObjectCollection &GBooleanObjectCollection::operator=(
+	const GBooleanObjectCollection &cp
 ) {
-   this->load_(&cp);
-   return *this;
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -123,14 +117,14 @@ const GBooleanObjectCollection& GBooleanObjectCollection::operator=(
  * @param  cp A constant reference to another GBooleanObjectCollection object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBooleanObjectCollection::operator==(const GBooleanObjectCollection& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBooleanObjectCollection::operator==(const GBooleanObjectCollection &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -140,14 +134,14 @@ bool GBooleanObjectCollection::operator==(const GBooleanObjectCollection& cp) co
  * @param  cp A constant reference to another GBooleanObjectCollection object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GBooleanObjectCollection::operator!=(const GBooleanObjectCollection& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBooleanObjectCollection::operator!=(const GBooleanObjectCollection &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -160,24 +154,22 @@ bool GBooleanObjectCollection::operator!=(const GBooleanObjectCollection& cp) co
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBooleanObjectCollection::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GBooleanObjectCollection *p_load = GObject::gobject_conversion<GBooleanObjectCollection>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GBooleanObjectCollection *p_load = GObject::gobject_conversion<GBooleanObjectCollection>(&cp);
 
-   GToken token("GBooleanObjectCollection", e);
+	GToken token("GBooleanObjectCollection", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GParameterTCollectionT<GBooleanObject> >(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GParameterTCollectionT<GBooleanObject> >(IDENTITY(*this, *p_load), token);
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -185,7 +177,7 @@ void GBooleanObjectCollection::compare(
  * Emits a name for this class / object
  */
 std::string GBooleanObjectCollection::name() const {
-   return std::string("GBooleanObjectCollection");
+	return std::string("GBooleanObjectCollection");
 }
 
 /******************************************************************************/
@@ -194,9 +186,9 @@ std::string GBooleanObjectCollection::name() const {
  *
  * @param cp A copy of another GBooleanObjectCollection object, camouflaged as a GObject
  */
-void GBooleanObjectCollection::load_(const GObject* cp){
+void GBooleanObjectCollection::load_(const GObject *cp) {
 	// Check for a possible self-assignment
-    GObject::selfAssignmentCheck<GBooleanObjectCollection>(cp);
+	GObject::selfAssignmentCheck<GBooleanObjectCollection>(cp);
 
 	// Load our parent class'es data ...
 	GParameterTCollectionT<GBooleanObject>::load_(cp);
@@ -229,24 +221,26 @@ bool GBooleanObjectCollection::modify_GUnitTests() {
 /**
  * Fills the collection with GBooleanObject objects
  */
-void GBooleanObjectCollection::fillWithObjects(const std::size_t& nAddedObjects) {
+void GBooleanObjectCollection::fillWithObjects(const std::size_t &nAddedObjects) {
 #ifdef GEM_TESTING
 	// Clear the collection, so we can start fresh
 	BOOST_CHECK_NO_THROW(this->clear());
 
 	// Add GBooleanObject items with adaptors to p_test1
-	for(std::size_t i=0; i<nAddedObjects; i++) {
+	for (std::size_t i = 0; i < nAddedObjects; i++) {
 		// Create a suitable adaptor
-		std::shared_ptr<GBooleanAdaptor> gba_ptr;
+		std::shared_ptr <GBooleanAdaptor> gba_ptr;
 
 		BOOST_CHECK_NO_THROW(gba_ptr = std::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor(1.0)));
-		BOOST_CHECK_NO_THROW(gba_ptr->setAdaptionThreshold(0)); // Make sure the adaptor's internal parameters don't change through the adaption
+		BOOST_CHECK_NO_THROW(gba_ptr->setAdaptionThreshold(
+			0)); // Make sure the adaptor's internal parameters don't change through the adaption
 		BOOST_CHECK_NO_THROW(gba_ptr->setAdaptionMode(true)); // Always adapt
 
 		// Create a suitable GBooleanObject object
-		std::shared_ptr<GBooleanObject> gbo_ptr;
+		std::shared_ptr <GBooleanObject> gbo_ptr;
 
-		BOOST_CHECK_NO_THROW(gbo_ptr = std::shared_ptr<GBooleanObject>(new GBooleanObject())); // Initialization with standard values
+		BOOST_CHECK_NO_THROW(
+			gbo_ptr = std::shared_ptr<GBooleanObject>(new GBooleanObject())); // Initialization with standard values
 
 		// Add the adaptor
 		BOOST_CHECK_NO_THROW(gbo_ptr->addAdaptor(gba_ptr));
@@ -273,7 +267,7 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	const std::size_t nAddedObjects = 10;
 	const std::size_t nTests = 10000;
 	const double LOWERINITBOUNDARY = -10;
-	const double UPPERINITBOUNDARY =  10;
+	const double UPPERINITBOUNDARY = 10;
 	const double FIXEDVALUEINIT = 1.;
 	const double MULTVALUE = 3.;
 	const double RANDLOWERBOUNDARY = 0.;
@@ -283,7 +277,7 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//----------------------------------------------------------------------------
 
 	{ // Call the parent class'es function
-		std::shared_ptr<GBooleanObjectCollection> p_test = this->clone<GBooleanObjectCollection>();
+		std::shared_ptr <GBooleanObjectCollection> p_test = this->clone<GBooleanObjectCollection>();
 
 		// Fill p_test with objects
 		p_test->fillWithObjects(nAddedObjects);
@@ -308,32 +302,32 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		GBooleanObjectCollection gboc2(gboc1);
 		BOOST_CHECK(gboc1.size() == gboc2.size());
 		BOOST_CHECK_MESSAGE(
-				gboc1.at(0)->value() == gboc2.at(0)->value()
-				, "\n"
-				<< "gboc1.at(0)->value() = " << gboc1.at(0)->value()
-				<< "gboc2.at(0)->value() = " << gboc2.at(0)->value()
+			gboc1.at(0)->value() == gboc2.at(0)->value(), "\n"
+																		 << "gboc1.at(0)->value() = " << gboc1.at(0)->value()
+																		 << "gboc2.at(0)->value() = " << gboc2.at(0)->value()
 		);
 	}
 
 	//----------------------------------------------------------------------------
 
 	{ // Check construction with a number of object templates
-		std::shared_ptr<GBooleanObject> gbo_ptr(new GBooleanObject(Gem::Common::GDefaultValueT<bool>::value()));
+		std::shared_ptr <GBooleanObject> gbo_ptr(new GBooleanObject(Gem::Common::GDefaultValueT<bool>::value()));
 		GBooleanObjectCollection gboc(nTests, gbo_ptr);
 
 		BOOST_CHECK_MESSAGE(
-				gboc.size() == nTests
-				, "\n"
-				<< "gboc.size() = " << gboc.size()
-				<< "nTests = " << nTests
+			gboc.size() == nTests, "\n"
+										  << "gboc.size() = " << gboc.size()
+										  << "nTests = " << nTests
 		);
 
-		for(std::size_t i=0; i<nTests; i++) {
+		for (std::size_t i = 0; i < nTests; i++) {
 			BOOST_CHECK_MESSAGE(
-					gboc.at(i)->value() == Gem::Common::GDefaultValueT<bool>::value()
-					, "\n"
-					<< "gboc.at(" << i << ")->value() = " << gboc.at(i)->value()
-					<< "Gem::Common::GDefaultValueT<bool>::value() = " << Gem::Common::GDefaultValueT<bool>::value()
+				gboc.at(i)->value() == Gem::Common::GDefaultValueT<bool>::value(), "\n"
+																										 << "gboc.at(" << i << ")->value() = " <<
+																										 gboc.at(i)->value()
+																										 <<
+																										 "Gem::Common::GDefaultValueT<bool>::value() = " <<
+																										 Gem::Common::GDefaultValueT<bool>::value()
 			);
 		}
 	}
@@ -343,28 +337,27 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	{ // Check construction with a number of GBooleanObject with a given probability for "true"
 		GBooleanObjectCollection gboc(nTests, 0.5);
 
-		std::size_t nTrue=0, nFalse=0;
-		for(std::size_t i=0; i<nTests; i++) {
-			gboc.at(i)->value()==true?nTrue++:nFalse++;
+		std::size_t nTrue = 0, nFalse = 0;
+		for (std::size_t i = 0; i < nTests; i++) {
+			gboc.at(i)->value() == true ? nTrue++ : nFalse++;
 		}
 
 		// We allow a slight deviation, as the initialization is a random process
 		BOOST_REQUIRE(nFalse != 0); // There should be a few false values
-		double ratio = double(nTrue)/double(nFalse);
+		double ratio = double(nTrue) / double(nFalse);
 		BOOST_CHECK_MESSAGE(
-				ratio>LOWERBND && ratio<UPPERBND
-				,  "\n"
-				<< "ratio = " << ratio << "\n"
-				<< "nTrue = " << nTrue << "\n"
-				<< "nFalse = " << nFalse << "\n"
+			ratio > LOWERBND && ratio < UPPERBND, "\n"
+															  << "ratio = " << ratio << "\n"
+															  << "nTrue = " << nTrue << "\n"
+															  << "nFalse = " << nFalse << "\n"
 		);
 	}
 
 	// --------------------------------------------------------------------------
 
 	{ // Test that the fp-family of functions has no effect on this object (and contained objects)
-		std::shared_ptr<GBooleanObjectCollection> p_test1 = this->clone<GBooleanObjectCollection>();
-		std::shared_ptr<GBooleanObjectCollection> p_test2 = this->clone<GBooleanObjectCollection>();
+		std::shared_ptr <GBooleanObjectCollection> p_test1 = this->clone<GBooleanObjectCollection>();
+		std::shared_ptr <GBooleanObjectCollection> p_test2 = this->clone<GBooleanObjectCollection>();
 
 		// Fill p_test1 with objects
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));

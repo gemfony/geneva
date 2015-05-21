@@ -44,8 +44,7 @@ namespace Geneva {
  * hence this function is empty.
  */
 GSerialSA::GSerialSA()
-   : GBaseSA()
-{ /* nothing */ }
+	: GBaseSA() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -53,17 +52,15 @@ GSerialSA::GSerialSA()
  *
  * @param cp Reference to another GSerialSA object
  */
-GSerialSA::GSerialSA(const GSerialSA& cp)
-   : GBaseSA(cp)
-{ /* nothing */ }
+GSerialSA::GSerialSA(const GSerialSA &cp)
+	: GBaseSA(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor. No local, dynamically allocated data,
  * hence this function is empty.
  */
-GSerialSA::~GSerialSA()
-{ /* nothing */ }
+GSerialSA::~GSerialSA() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -72,15 +69,15 @@ GSerialSA::~GSerialSA()
  * @param vp Pointer to another GSerialSA object, camouflaged as a GObject
  */
 void GSerialSA::load_(const GObject *cp) {
-   // Convert GObject pointer to local format
-   // const GSerialSA *p_load = this->gobject_conversion<GSerialSA>(cp);
-   // Uncomment the previous line and comment the following line if you wish to use local data
-   GObject::selfAssignmentCheck<GSerialSA>(cp);
+	// Convert GObject pointer to local format
+	// const GSerialSA *p_load = this->gobject_conversion<GSerialSA>(cp);
+	// Uncomment the previous line and comment the following line if you wish to use local data
+	GObject::selfAssignmentCheck<GSerialSA>(cp);
 
-   // First load our parent class'es data ...
-   GBaseSA::load_(cp);
+	// First load our parent class'es data ...
+	GBaseSA::load_(cp);
 
-   // no local data ...
+	// no local data ...
 }
 
 /******************************************************************************/
@@ -89,17 +86,17 @@ void GSerialSA::load_(const GObject *cp) {
  *
  * @return A deep copy of this object, camouflaged as a GObject
  */
-GObject *GSerialSA::clone_() const  {
-   return new GSerialSA(*this);
+GObject *GSerialSA::clone_() const {
+	return new GSerialSA(*this);
 }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GSerialSA& GSerialSA::operator=(const GSerialSA& cp) {
-   this->load_(&cp);
-   return *this;
+const GSerialSA &GSerialSA::operator=(const GSerialSA &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -109,14 +106,14 @@ const GSerialSA& GSerialSA::operator=(const GSerialSA& cp) {
  * @param  cp A constant reference to another GSerialSA object
  * @return A boolean indicating whether both objects are equal
  */
-bool GSerialSA::operator==(const GSerialSA& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GSerialSA::operator==(const GSerialSA &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -126,14 +123,14 @@ bool GSerialSA::operator==(const GSerialSA& cp) const {
  * @param  cp A constant reference to another GSerialSA object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GSerialSA::operator!=(const GSerialSA& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GSerialSA::operator!=(const GSerialSA &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -146,24 +143,22 @@ bool GSerialSA::operator!=(const GSerialSA& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GSerialSA::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GSerialSA *p_load = GObject::gobject_conversion<GSerialSA>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GSerialSA *p_load = GObject::gobject_conversion<GSerialSA>(&cp);
 
-   GToken token("GSerialSA", e);
+	GToken token("GSerialSA", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GBaseSA>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GBaseSA>(IDENTITY(*this, *p_load), token);
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/
@@ -171,7 +166,7 @@ void GSerialSA::compare(
  * Emits a name for this class / object
  */
 std::string GSerialSA::name() const {
-   return std::string("GSerialSA");
+	return std::string("GSerialSA");
 }
 
 /******************************************************************************/
@@ -179,10 +174,10 @@ std::string GSerialSA::name() const {
  * Necessary initialization work before the start of the optimization
  */
 void GSerialSA::init() {
-   // GBaseSA sees exactly the environment it would when called from its own class
-   GBaseSA::init();
+	// GBaseSA sees exactly the environment it would when called from its own class
+	GBaseSA::init();
 
-   // Put own initialization code here
+	// Put own initialization code here
 }
 
 /******************************************************************************/
@@ -190,10 +185,10 @@ void GSerialSA::init() {
  * Necessary clean-up work after the optimization has finished
  */
 void GSerialSA::finalize() {
-    // Put own finalization code here
+	// Put own finalization code here
 
-   // GBaseSA sees exactly the environment it would when called from its own class
-   GBaseSA::finalize();
+	// GBaseSA sees exactly the environment it would when called from its own class
+	GBaseSA::finalize();
 }
 
 /******************************************************************************/
@@ -202,13 +197,13 @@ void GSerialSA::finalize() {
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
-void GSerialSA::addConfigurationOptions (
-   Gem::Common::GParserBuilder& gpb
+void GSerialSA::addConfigurationOptions(
+	Gem::Common::GParserBuilder &gpb
 ) {
-   // Call our parent class'es function
-   GBaseSA::addConfigurationOptions(gpb);
+	// Call our parent class'es function
+	GBaseSA::addConfigurationOptions(gpb);
 
-   // No local data
+	// No local data
 }
 
 /******************************************************************************/
@@ -218,31 +213,31 @@ void GSerialSA::addConfigurationOptions (
  * All other objects do not need to re-implement this function (unless they rely on the name for some reason).
  */
 std::string GSerialSA::getIndividualCharacteristic() const {
-   return std::string("GENEVA_SERIALOPTALG");
+	return std::string("GENEVA_SERIALOPTALG");
 }
 
 /******************************************************************************/
 /**
  * Adapt all children in sequence. Evaluation is done in a seperate function (runFitnessCalculation).
  */
-void GSerialSA::adaptChildren()
-{
-   boost::tuple<std::size_t,std::size_t> range = getAdaptionRange();
-   std::vector<std::shared_ptr<GParameterSet> >::iterator it;
+void GSerialSA::adaptChildren() {
+	boost::tuple<std::size_t, std::size_t> range = getAdaptionRange();
+	std::vector<std::shared_ptr < GParameterSet> > ::iterator
+	it;
 
-   for(it=data.begin()+boost::get<0>(range); it!=data.begin()+boost::get<1>(range); ++it) {
-      (*it)->adapt();
-   }
+	for (it = data.begin() + boost::get<0>(range); it != data.begin() + boost::get<1>(range); ++it) {
+		(*it)->adapt();
+	}
 }
 
 /******************************************************************************/
 /**
  * Evaluate all children (and possibly parents, depending on the iteration)
  */
-void GSerialSA::runFitnessCalculation()
-{
-   boost::tuple<std::size_t,std::size_t> range = getEvaluationRange();
-   std::vector<std::shared_ptr<GParameterSet> >::iterator it;
+void GSerialSA::runFitnessCalculation() {
+	boost::tuple<std::size_t, std::size_t> range = getEvaluationRange();
+	std::vector<std::shared_ptr < GParameterSet> > ::iterator
+	it;
 
 #ifdef DEBUG
    // There should be no situation in which a "clean" child is submitted
@@ -259,10 +254,10 @@ void GSerialSA::runFitnessCalculation()
    }
 #endif
 
-   for(it=data.begin() + boost::get<0>(range); it!=data.begin() + boost::get<1>(range); ++it) {
-      // Perform the actual evaluation
-      (*it)->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
-   }
+	for (it = data.begin() + boost::get<0>(range); it != data.begin() + boost::get<1>(range); ++it) {
+		// Perform the actual evaluation
+		(*it)->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
+	}
 }
 
 /******************************************************************************/
@@ -273,12 +268,12 @@ void GSerialSA::runFitnessCalculation()
  */
 bool GSerialSA::modify_GUnitTests() {
 #ifdef GEM_TESTING
-   bool result = false;
+	bool result = false;
 
-   // Call the parent class'es function
-   if(GBaseSA::modify_GUnitTests()) result = true;
+	// Call the parent class'es function
+	if (GBaseSA::modify_GUnitTests()) result = true;
 
-   return result;
+	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GSerialSA::modify_GUnitTests", "GEM_TESTING");
@@ -293,11 +288,11 @@ bool GSerialSA::modify_GUnitTests() {
 void GSerialSA::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
 
-   // Call the parent class'es function
-   GBaseSA::specificTestsNoFailureExpected_GUnitTests();
+	// Call the parent class'es function
+	GBaseSA::specificTestsNoFailureExpected_GUnitTests();
 
-   //---------------------------------------------------------------------------
-   //---------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GSerialSA::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -310,8 +305,8 @@ void GSerialSA::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GSerialSA::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
-   // Call the parent class'es function
-   GBaseSA::specificTestsFailuresExpected_GUnitTests();
+	// Call the parent class'es function
+	GBaseSA::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GSerialSA::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

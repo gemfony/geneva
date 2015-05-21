@@ -44,21 +44,18 @@ namespace Geneva {
  * The default constructor. No local, dynamically allocated data, hence this function is empty.
  */
 GMultiThreadedSwarm::GMultiThreadedSwarm()
-   : GBaseSwarm()
-   , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
-{ /* nothing */ }
+	: GBaseSwarm(), nThreads_(
+	boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS))) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * A standard constructor. No local, dynamically allocated data, hence this function is empty.
  */
 GMultiThreadedSwarm::GMultiThreadedSwarm(
-   const std::size_t& nNeighborhoods
-   , const std::size_t& nNeighborhoodMembers
+	const std::size_t &nNeighborhoods, const std::size_t &nNeighborhoodMembers
 )
-   : GBaseSwarm(nNeighborhoods, nNeighborhoodMembers)
-   , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
-{ /* nothing */ }
+	: GBaseSwarm(nNeighborhoods, nNeighborhoodMembers), nThreads_(
+	boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS))) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -66,18 +63,15 @@ GMultiThreadedSwarm::GMultiThreadedSwarm(
  *
  * @param cp Reference to another GMultiThreadedEA object
  */
-GMultiThreadedSwarm::GMultiThreadedSwarm(const GMultiThreadedSwarm& cp)
-   : GBaseSwarm(cp)
-   , nThreads_(cp.nThreads_)
-{ /* nothing */ }
+GMultiThreadedSwarm::GMultiThreadedSwarm(const GMultiThreadedSwarm &cp)
+	: GBaseSwarm(cp), nThreads_(cp.nThreads_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor. We clear remaining work items in the
  * thread pool and wait for active tasks to finish.
  */
-GMultiThreadedSwarm::~GMultiThreadedSwarm()
-{ /* nothing */ }
+GMultiThreadedSwarm::~GMultiThreadedSwarm() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -100,9 +94,9 @@ void GMultiThreadedSwarm::load_(const GObject *cp) {
 /**
  * The standard assignment operator
  */
-const GMultiThreadedSwarm& GMultiThreadedSwarm::operator=(const GMultiThreadedSwarm& cp) {
-   this->load_(&cp);
-   return *this;
+const GMultiThreadedSwarm &GMultiThreadedSwarm::operator=(const GMultiThreadedSwarm &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -112,14 +106,14 @@ const GMultiThreadedSwarm& GMultiThreadedSwarm::operator=(const GMultiThreadedSw
  * @param  cp A constant reference to another GMultiThreadedSwarm object
  * @return A boolean indicating whether both objects are equal
  */
-bool GMultiThreadedSwarm::operator==(const GMultiThreadedSwarm& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GMultiThreadedSwarm::operator==(const GMultiThreadedSwarm &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -129,14 +123,14 @@ bool GMultiThreadedSwarm::operator==(const GMultiThreadedSwarm& cp) const {
  * @param  cp A constant reference to another GMultiThreadedSwarm object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GMultiThreadedSwarm::operator!=(const GMultiThreadedSwarm& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GMultiThreadedSwarm::operator!=(const GMultiThreadedSwarm &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -149,25 +143,23 @@ bool GMultiThreadedSwarm::operator!=(const GMultiThreadedSwarm& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GMultiThreadedSwarm::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GMultiThreadedSwarm *p_load = GObject::gobject_conversion<GMultiThreadedSwarm>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GMultiThreadedSwarm *p_load = GObject::gobject_conversion<GMultiThreadedSwarm>(&cp);
 
-   GToken token("GMultiThreadedSwarm", e);
+	GToken token("GMultiThreadedSwarm", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GBaseSwarm>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GBaseSwarm>(IDENTITY(*this, *p_load), token);
 
-   // ... and then the local data
-   compare_t(IDENTITY(nThreads_, p_load->nThreads_), token);
+	// ... and then the local data
+	compare_t(IDENTITY(nThreads_, p_load->nThreads_), token);
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -175,7 +167,7 @@ void GMultiThreadedSwarm::compare(
  * Emits a name for this class / object
  */
 std::string GMultiThreadedSwarm::name() const {
-   return std::string("GMultiThreadedSwarm");
+	return std::string("GMultiThreadedSwarm");
 }
 
 /******************************************************************************/
@@ -184,7 +176,7 @@ std::string GMultiThreadedSwarm::name() const {
  *
  * @return A deep copy of this object, camouflaged as a GObject
  */
-GObject *GMultiThreadedSwarm::clone_() const  {
+GObject *GMultiThreadedSwarm::clone_() const {
 	return new GMultiThreadedSwarm(*this);
 }
 
@@ -205,30 +197,30 @@ void GMultiThreadedSwarm::init() {
  * Necessary clean-up work after the optimization has finished
  */
 void GMultiThreadedSwarm::finalize() {
-   // Check whether there were any errors during thread execution
-   if(tp_ptr_->hasErrors()) {
-      std::ostringstream oss;
+	// Check whether there were any errors during thread execution
+	if (tp_ptr_->hasErrors()) {
+		std::ostringstream oss;
 
-      std::vector<std::string> errors;
-      errors = tp_ptr_->getErrors();
+		std::vector<std::string> errors;
+		errors = tp_ptr_->getErrors();
 
-      oss
-      << "========================================================================" << std::endl
-      << "In GMultiThreadedSwarm::finalize(): WARNING" << std::endl
-      << "There were errors during thread execution:" << std::endl
-      << std::endl;
+		oss
+		<< "========================================================================" << std::endl
+		<< "In GMultiThreadedSwarm::finalize(): WARNING" << std::endl
+		<< "There were errors during thread execution:" << std::endl
+		<< std::endl;
 
-      for(std::vector<std::string>::iterator it=errors.begin(); it!=errors.end(); ++it) {
-         oss << *it << std::endl;
-      }
+		for (std::vector<std::string>::iterator it = errors.begin(); it != errors.end(); ++it) {
+			oss << *it << std::endl;
+		}
 
-      oss << std::endl
-      << "========================================================================" << std::endl;
+		oss << std::endl
+		<< "========================================================================" << std::endl;
 
-      glogger // We cannot currently interrupt glogger input, all input must be transferred in one go
-      << oss.str()
-      << GWARNING;
-   }
+		glogger // We cannot currently interrupt glogger input, all input must be transferred in one go
+		<< oss.str()
+		<< GWARNING;
+	}
 
 	// Terminate our thread pool
 	tp_ptr_.reset();
@@ -243,8 +235,8 @@ void GMultiThreadedSwarm::finalize() {
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
-void GMultiThreadedSwarm::addConfigurationOptions (
-	Gem::Common::GParserBuilder& gpb
+void GMultiThreadedSwarm::addConfigurationOptions(
+	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
 	GBaseSwarm::addConfigurationOptions(gpb);
@@ -253,7 +245,7 @@ void GMultiThreadedSwarm::addConfigurationOptions (
 	gpb.registerFileParameter<boost::uint16_t>(
 		"nEvaluationThreads" // The name of the variable
 		, 0 // The default value
-		, [this](boost::uint16_t nt){ this->setNThreads(nt); }
+		, [this](boost::uint16_t nt) { this->setNThreads(nt); }
 	)
 	<< "The number of evaluation threads" << std::endl
 	<< "0 means: determine automatically";
@@ -274,13 +266,13 @@ std::string GMultiThreadedSwarm::getIndividualCharacteristic() const {
  * Updates the fitness of all individuals
  */
 void GMultiThreadedSwarm::runFitnessCalculation() {
-   GMultiThreadedSwarm::iterator it;
-   for(it=this->begin(); it!=this->end(); ++it) {
-      // Do the actual scheduling
-      tp_ptr_->async_schedule(
-         [it](){ (*it)->nonConstFitness(0, ALLOWREEVALUATION, USETRANSFORMEDFITNESS); }
-      );
-   }
+	GMultiThreadedSwarm::iterator it;
+	for (it = this->begin(); it != this->end(); ++it) {
+		// Do the actual scheduling
+		tp_ptr_->async_schedule(
+			[it]() { (*it)->nonConstFitness(0, ALLOWREEVALUATION, USETRANSFORMEDFITNESS); }
+		);
+	}
 
 	// wait for the pool to run out of tasks
 	tp_ptr_->wait();
@@ -296,7 +288,7 @@ void GMultiThreadedSwarm::runFitnessCalculation() {
  * @param nThreads The number of threads this class uses
  */
 void GMultiThreadedSwarm::setNThreads(boost::uint16_t nThreads) {
-	if(nThreads == 0) {
+	if (nThreads == 0) {
 		nThreads_ = boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
 	} else {
 		nThreads_ = nThreads;
@@ -309,7 +301,7 @@ void GMultiThreadedSwarm::setNThreads(boost::uint16_t nThreads) {
  *
  * @return The maximum number of allowed threads
  */
-boost::uint16_t GMultiThreadedSwarm::getNThreads() const  {
+boost::uint16_t GMultiThreadedSwarm::getNThreads() const {
 	return nThreads_;
 }
 
@@ -324,7 +316,7 @@ bool GMultiThreadedSwarm::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GBaseSwarm::modify_GUnitTests()) result = true;
+	if (GBaseSwarm::modify_GUnitTests()) result = true;
 
 	return result;
 

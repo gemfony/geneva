@@ -42,12 +42,8 @@ namespace Geneva {
  * The default constructor. Adaptions are switched on by default.
  */
 GParameterBase::GParameterBase()
-	: GObject()
-	, GMutableI()
-	, adaptionsActive_(true)
-	, randomInitializationBlocked_(false)
-	, parameterName_(boost::lexical_cast<std::string>(boost::uuids::random_generator()()))
-{ /* nothing */ }
+	: GObject(), GMutableI(), adaptionsActive_(true), randomInitializationBlocked_(false),
+	  parameterName_(boost::lexical_cast<std::string>(boost::uuids::random_generator()())) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -55,28 +51,23 @@ GParameterBase::GParameterBase()
  *
  * @param cp A copy of another GParameterBase object
  */
-GParameterBase::GParameterBase(const GParameterBase& cp)
-	: GObject(cp)
-	, GMutableI(cp)
-	, adaptionsActive_(cp.adaptionsActive_)
-	, randomInitializationBlocked_(cp.randomInitializationBlocked_)
-	, parameterName_(cp.parameterName_)
-{ /* nothing */ }
+GParameterBase::GParameterBase(const GParameterBase &cp)
+	: GObject(cp), GMutableI(cp), adaptionsActive_(cp.adaptionsActive_),
+	  randomInitializationBlocked_(cp.randomInitializationBlocked_), parameterName_(cp.parameterName_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor. No local data, hence nothing to do.
  */
-GParameterBase::~GParameterBase()
-{ /* nothing */ }
+GParameterBase::~GParameterBase() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GParameterBase& GParameterBase::operator=(const GParameterBase& cp) {
-   this->load_(&cp);
-   return *this;
+const GParameterBase &GParameterBase::operator=(const GParameterBase &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -85,7 +76,7 @@ const GParameterBase& GParameterBase::operator=(const GParameterBase& cp) {
  *
  * @param cp A copy of another GParameterBase object, camouflaged as a GObject
  */
-void GParameterBase::load_(const GObject* cp){
+void GParameterBase::load_(const GObject *cp) {
 	// Convert cp into local format
 	const GParameterBase *p_load = gobject_conversion<GParameterBase>(cp);
 
@@ -106,10 +97,10 @@ void GParameterBase::load_(const GObject* cp){
  * @return The number of adaptions that were performed
  */
 std::size_t GParameterBase::adapt() {
-	if(adaptionsActive_) {
-	   return adaptImpl(); // Will determine whether a modification was made
+	if (adaptionsActive_) {
+		return adaptImpl(); // Will determine whether a modification was made
 	} else {
-	   return 0;
+		return 0;
 	}
 }
 
@@ -170,7 +161,7 @@ bool GParameterBase::adaptionsActive() const {
  * @return A boolean indicating whether adaptions are inactive for this object
  */
 bool GParameterBase::adaptionsInactive() const {
-   return !adaptionsActive_;
+	return !adaptionsActive_;
 }
 
 /******************************************************************************/
@@ -180,14 +171,14 @@ bool GParameterBase::adaptionsInactive() const {
  * @param  cp A constant reference to another GParameterBase object
  * @return A boolean indicating whether both objects are equal
  */
-bool GParameterBase::operator==(const GParameterBase& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GParameterBase::operator==(const GParameterBase &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -197,14 +188,14 @@ bool GParameterBase::operator==(const GParameterBase& cp) const {
  * @param  cp A constant reference to another GParameterBase object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GParameterBase::operator!=(const GParameterBase& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GParameterBase::operator!=(const GParameterBase &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -217,27 +208,25 @@ bool GParameterBase::operator!=(const GParameterBase& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GParameterBase::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GParameterBase *p_load = GObject::gobject_conversion<GParameterBase>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GParameterBase *p_load = GObject::gobject_conversion<GParameterBase>(&cp);
 
-   GToken token("GParameterBase", e);
+	GToken token("GParameterBase", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
 
-   // ... and then the local data
-   compare_t(IDENTITY(adaptionsActive_, p_load->adaptionsActive_), token);
-   compare_t(IDENTITY(randomInitializationBlocked_, p_load->randomInitializationBlocked_), token);
-   compare_t(IDENTITY(parameterName_, p_load->parameterName_), token);
+	// ... and then the local data
+	compare_t(IDENTITY(adaptionsActive_, p_load->adaptionsActive_), token);
+	compare_t(IDENTITY(randomInitializationBlocked_, p_load->randomInitializationBlocked_), token);
+	compare_t(IDENTITY(parameterName_, p_load->parameterName_), token);
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -245,21 +234,21 @@ void GParameterBase::compare(
  * Emits a name for this class / object
  */
 std::string GParameterBase::name() const {
-   return std::string("GParameterBase");
+	return std::string("GParameterBase");
 }
 
 /***********************************************************************************/
 /**
  * Allows to assign a name to this parameter
  */
-void GParameterBase::setParameterName(const std::string& pn) {
-   parameterName_ = pn;
+void GParameterBase::setParameterName(const std::string &pn) {
+	parameterName_ = pn;
 }
 
 /***********************************************************************************/
 /** @brief Allows to retrieve the name of this parameter */
 std::string GParameterBase::getParameterName() const {
-   return parameterName_;
+	return parameterName_;
 }
 
 /***********************************************************************************/
@@ -270,67 +259,63 @@ std::string GParameterBase::getParameterName() const {
  * @param am The desired activity mode (ACTIVEONLY, ALLPARAMETERS or INACTIVEONLY)
  * @return A boolean indicating whether a given GParameterBase-derivative matches the activity mode
  */
-bool GParameterBase::amMatch(const activityMode& am) const {
-   switch(am) {
-      case ACTIVEONLY:
-      {
-         if(this->adaptionsActive()) {
-            return true;
-         } else {
-            return false;
-         }
-      }
-      break;
+bool GParameterBase::amMatch(const activityMode &am) const {
+	switch (am) {
+		case ACTIVEONLY: {
+			if (this->adaptionsActive()) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+			break;
 
-      case ALLPARAMETERS:
-      {
-         return true;
-      }
-      break;
+		case ALLPARAMETERS: {
+			return true;
+		}
+			break;
 
-      case INACTIVEONLY:
-      {
-         if(this->adaptionsInactive()) {
-            return true;
-         } else {
-            return false;
-         }
-      }
-      break;
+		case INACTIVEONLY: {
+			if (this->adaptionsInactive()) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+			break;
 
-      default:
-      {
-         glogger
-         << "In GParameterBase::amMatch(const activityMode& am): Error!" << std::endl
-         << "Got invalid activity mode " << am << std::endl
-         << GEXCEPTION;
-      }
-      break;
-   }
+		default: {
+			glogger
+			<< "In GParameterBase::amMatch(const activityMode& am): Error!" << std::endl
+			<< "Got invalid activity mode " << am << std::endl
+			<< GEXCEPTION;
+		}
+			break;
+	}
 
-   glogger
-   << "In GParameterBase::amMatch(const activityMode& am): Error!" << std::endl
-   << "This line should never be reached" << std::endl
-   << GEXCEPTION;
+	glogger
+	<< "In GParameterBase::amMatch(const activityMode& am): Error!" << std::endl
+	<< "This line should never be reached" << std::endl
+	<< GEXCEPTION;
 
-   // Make the compiler happy
-   return false;
+	// Make the compiler happy
+	return false;
 }
 
 /***********************************************************************************/
 /**
  * Returns true on the case of an activity mode mismatch
  */
-bool GParameterBase::amMismatch(const activityMode& am) const {
-   return !amMatch(am);
+bool GParameterBase::amMismatch(const activityMode &am) const {
+	return !amMatch(am);
 }
 
 /******************************************************************************/
 /**
  * Checks whether this object matches a given activity mode and is modifiable
  */
-bool GParameterBase::modifiableAmMatchOrHandover(const activityMode& am) const {
-   return ((this->isLeaf() && this->amMatch(am)) || !this->isLeaf());
+bool GParameterBase::modifiableAmMatchOrHandover(const activityMode &am) const {
+	return ((this->isLeaf() && this->amMatch(am)) || !this->isLeaf());
 }
 
 /***********************************************************************************/
@@ -338,7 +323,7 @@ bool GParameterBase::modifiableAmMatchOrHandover(const activityMode& am) const {
  * Lets the audience know whether this is a leaf or a branch object
  */
 bool GParameterBase::isLeaf() const {
-   return false;
+	return false;
 }
 
 /******************************************************************************/
@@ -361,14 +346,14 @@ bool GParameterBase::hasAdaptor() const {
  * Triggers random initialization of the parameter(-collection). This is the public
  * version of this function, which only acts if initialization has not been blocked.
  */
-bool GParameterBase::randomInit(const activityMode& am) {
-	if(
-      !randomInitializationBlocked_
-      && this->modifiableAmMatchOrHandover(am)
-   ) {
-	   return randomInit_(am);
+bool GParameterBase::randomInit(const activityMode &am) {
+	if (
+		!randomInitializationBlocked_
+		&& this->modifiableAmMatchOrHandover(am)
+		) {
+		return randomInit_(am);
 	} else {
-	   return false;
+		return false;
 	}
 }
 
@@ -408,8 +393,7 @@ bool GParameterBase::isParameterCollection() const {
  * the actual work.
  */
 void GParameterBase::floatStreamline(
-   std::vector<float>& parVec
-   , const activityMode&
+	std::vector<float> &parVec, const activityMode &
 ) const {
 	/* do nothing by default */
 }
@@ -426,8 +410,7 @@ void GParameterBase::floatStreamline(
  * the actual work.
  */
 void GParameterBase::doubleStreamline(
-   std::vector<double>& parVec
-   , const activityMode&
+	std::vector<double> &parVec, const activityMode &
 ) const {
 	/* do nothing by default */
 }
@@ -444,8 +427,7 @@ void GParameterBase::doubleStreamline(
  * the actual work.
  */
 void GParameterBase::int32Streamline(
-   std::vector<boost::int32_t>& parVec
-   , const activityMode&
+	std::vector<boost::int32_t> &parVec, const activityMode &
 ) const {
 	/* do nothing by default */
 }
@@ -462,8 +444,7 @@ void GParameterBase::int32Streamline(
  * the actual work.
  */
 void GParameterBase::booleanStreamline(
-   std::vector<bool>& parVec
-   , const activityMode&
+	std::vector<bool> &parVec, const activityMode &
 ) const {
 	/* do nothing by default */
 }
@@ -480,11 +461,9 @@ void GParameterBase::booleanStreamline(
  * the actual work.
  */
 void GParameterBase::floatStreamline(
-   std::map<std::string
-   , std::vector<float> >& parVec
-   , const activityMode&
+	std::map<std::string, std::vector<float> > &parVec, const activityMode &
 ) const {
-   /* do nothing by default */
+	/* do nothing by default */
 }
 
 /* -----------------------------------------------------------------------------
@@ -499,11 +478,9 @@ void GParameterBase::floatStreamline(
  * the actual work.
  */
 void GParameterBase::doubleStreamline(
-   std::map<std::string
-   , std::vector<double> >& parVec
-   , const activityMode&
+	std::map<std::string, std::vector<double> > &parVec, const activityMode &
 ) const {
-   /* do nothing by default */
+	/* do nothing by default */
 }
 
 /* -----------------------------------------------------------------------------
@@ -518,11 +495,9 @@ void GParameterBase::doubleStreamline(
  * the actual work.
  */
 void GParameterBase::int32Streamline(
-   std::map<std::string
-   , std::vector<boost::int32_t> >& parVec
-   , const activityMode&
+	std::map<std::string, std::vector<boost::int32_t> > &parVec, const activityMode &
 ) const {
-   /* do nothing by default */
+	/* do nothing by default */
 }
 
 /* -----------------------------------------------------------------------------
@@ -537,11 +512,9 @@ void GParameterBase::int32Streamline(
  * the actual work.
  */
 void GParameterBase::booleanStreamline(
-   std::map<std::string
-   , std::vector<bool> >& parVec
-   , const activityMode&
+	std::map<std::string, std::vector<bool> > &parVec, const activityMode &
 ) const {
-   /* do nothing by default */
+	/* do nothing by default */
 }
 
 /* -----------------------------------------------------------------------------
@@ -557,9 +530,7 @@ void GParameterBase::booleanStreamline(
  * @param uBndVec A vector of upper float parameter boundaries
  */
 void GParameterBase::floatBoundaries(
-		std::vector<float>& lBndVec
-		, std::vector<float>& uBndVec
-		, const activityMode&
+	std::vector<float> &lBndVec, std::vector<float> &uBndVec, const activityMode &
 ) const {
 	/* do nothing by default */
 }
@@ -572,9 +543,7 @@ void GParameterBase::floatBoundaries(
  * @param uBndVec A vector of upper double parameter boundaries
  */
 void GParameterBase::doubleBoundaries(
-		std::vector<double>& lBndVec
-		, std::vector<double>& uBndVec
-		, const activityMode&
+	std::vector<double> &lBndVec, std::vector<double> &uBndVec, const activityMode &
 ) const {
 	/* do nothing by default */
 }
@@ -587,9 +556,7 @@ void GParameterBase::doubleBoundaries(
  * @param uBndVec A vector of upper boost::int32_t parameter boundaries
  */
 void GParameterBase::int32Boundaries(
-		std::vector<boost::int32_t>& lBndVec
-		, std::vector<boost::int32_t>& uBndVec
-		, const activityMode&
+	std::vector<boost::int32_t> &lBndVec, std::vector<boost::int32_t> &uBndVec, const activityMode &
 ) const {
 	/* do nothing by default */
 }
@@ -602,9 +569,7 @@ void GParameterBase::int32Boundaries(
  * @param uBndVec A vector of upper bool parameter boundaries
  */
 void GParameterBase::booleanBoundaries(
-		std::vector<bool>& lBndVec
-		, std::vector<bool>& uBndVec
-		, const activityMode&
+	std::vector<bool> &lBndVec, std::vector<bool> &uBndVec, const activityMode &
 ) const {
 	/* do nothing by default */
 }
@@ -617,7 +582,7 @@ void GParameterBase::booleanBoundaries(
  * @return The number of float parameters in this object
  */
 std::size_t GParameterBase::countFloatParameters(
-   const activityMode& am
+	const activityMode &am
 ) const {
 	return 0;
 }
@@ -636,7 +601,7 @@ std::size_t GParameterBase::countFloatParameters(
  * @return The number of double parameters in this object
  */
 std::size_t GParameterBase::countDoubleParameters(
-   const activityMode& am
+	const activityMode &am
 ) const {
 	return 0;
 }
@@ -655,7 +620,7 @@ std::size_t GParameterBase::countDoubleParameters(
  * @return The number of boost::int32_t parameters in this object
  */
 std::size_t GParameterBase::countInt32Parameters(
-   const activityMode& am
+	const activityMode &am
 ) const {
 	return 0;
 }
@@ -674,7 +639,7 @@ std::size_t GParameterBase::countInt32Parameters(
  * @return The number of bool parameters in this object
  */
 std::size_t GParameterBase::countBoolParameters(
-   const activityMode& am
+	const activityMode &am
 ) const {
 	return 0;
 }
@@ -689,9 +654,7 @@ std::size_t GParameterBase::countBoolParameters(
  * Assigns part of a value vector to the parameter
  */
 void GParameterBase::assignFloatValueVector(
-   const std::vector<float>& parVec
-   , std::size_t& pos
-   , const activityMode&
+	const std::vector<float> &parVec, std::size_t &pos, const activityMode &
 ) {
 	/* Do nothing by default */
 }
@@ -706,9 +669,7 @@ void GParameterBase::assignFloatValueVector(
  * Assigns part of a value vector to the parameter
  */
 void GParameterBase::assignDoubleValueVector(
-   const std::vector<double>& parVec
-   , std::size_t& pos
-   , const activityMode&
+	const std::vector<double> &parVec, std::size_t &pos, const activityMode &
 ) {
 	/* Do nothing by default */
 }
@@ -723,9 +684,7 @@ void GParameterBase::assignDoubleValueVector(
  * Assigns part of a value vector to the parameter
  */
 void GParameterBase::assignInt32ValueVector(
-   const std::vector<boost::int32_t>& parVec
-   , std::size_t& pos
-   , const activityMode&
+	const std::vector<boost::int32_t> &parVec, std::size_t &pos, const activityMode &
 ) {
 	/* Do nothing by default */
 }
@@ -740,9 +699,7 @@ void GParameterBase::assignInt32ValueVector(
  * Assigns part of a value vector to the parameter
  */
 void GParameterBase::assignBooleanValueVector(
-   const std::vector<bool>& parVec
-   , std::size_t& pos
-   , const activityMode&
+	const std::vector<bool> &parVec, std::size_t &pos, const activityMode &
 ) {
 	/* Do nothing by default */
 }
@@ -757,10 +714,9 @@ void GParameterBase::assignBooleanValueVector(
  * Assigns part of a value vector to the parameter
  */
 void GParameterBase::assignFloatValueVectors(
-   const std::map<std::string, std::vector<float> >& parMap
-   , const activityMode&
+	const std::map<std::string, std::vector<float> > &parMap, const activityMode &
 ) {
-   /* Do nothing by default */
+	/* Do nothing by default */
 }
 
 /* -----------------------------------------------------------------------------
@@ -773,10 +729,9 @@ void GParameterBase::assignFloatValueVectors(
  * Assigns part of a value vector to the parameter
  */
 void GParameterBase::assignDoubleValueVectors(
-   const std::map<std::string, std::vector<double> >& parMap
-   , const activityMode&
+	const std::map<std::string, std::vector<double> > &parMap, const activityMode &
 ) {
-   /* Do nothing by default */
+	/* Do nothing by default */
 }
 
 /* -----------------------------------------------------------------------------
@@ -789,10 +744,9 @@ void GParameterBase::assignDoubleValueVectors(
  * Assigns part of a value vector to the parameter
  */
 void GParameterBase::assignInt32ValueVectors(
-   const std::map<std::string, std::vector<boost::int32_t> >& parMap
-   , const activityMode&
+	const std::map<std::string, std::vector<boost::int32_t> > &parMap, const activityMode &
 ) {
-   /* Do nothing by default */
+	/* Do nothing by default */
 }
 
 /* -----------------------------------------------------------------------------
@@ -805,10 +759,9 @@ void GParameterBase::assignInt32ValueVectors(
  * Assigns part of a value vector to the parameter
  */
 void GParameterBase::assignBooleanValueVectors(
-   const std::map<std::string, std::vector<bool> >& parMap
-   , const activityMode&
+	const std::map<std::string, std::vector<bool> > &parMap, const activityMode &
 ) {
-   /* Do nothing by default */
+	/* Do nothing by default */
 }
 
 /* -----------------------------------------------------------------------------
@@ -821,11 +774,9 @@ void GParameterBase::assignBooleanValueVectors(
  * Multiplication with a random value in a given range
  */
 void GParameterBase::floatMultiplyByRandom(
-   const float& min
-   , const float& max
-   , const activityMode& am
+	const float &min, const float &max, const activityMode &am
 ) {
-   /* Do nothing by default */
+	/* Do nothing by default */
 }
 
 /******************************************************************************/
@@ -833,11 +784,9 @@ void GParameterBase::floatMultiplyByRandom(
  * Multiplication with a random value in a given range
  */
 void GParameterBase::doubleMultiplyByRandom(
-   const double& min
-   , const double& max
-   , const activityMode& am
+	const double &min, const double &max, const activityMode &am
 ) {
-   /* Do nothing by default */
+	/* Do nothing by default */
 }
 
 /******************************************************************************/
@@ -845,11 +794,9 @@ void GParameterBase::doubleMultiplyByRandom(
  * Multiplication with a random value in a given range
  */
 void GParameterBase::int32MultiplyByRandom(
-   const boost::int32_t& min
-   , const boost::int32_t& max
-   , const activityMode& am
+	const boost::int32_t &min, const boost::int32_t &max, const activityMode &am
 ) {
-   /* Do nothing by default */
+	/* Do nothing by default */
 }
 
 /******************************************************************************/
@@ -857,51 +804,49 @@ void GParameterBase::int32MultiplyByRandom(
  * Multiplication with a random value in a given range
  */
 void GParameterBase::booleanMultiplyByRandom(
-   const bool& min
-   , const bool& max
-   , const activityMode& am
+	const bool &min, const bool &max, const activityMode &am
 ) {
-   // Complain: This function should not be called for boolean values
-   glogger
-   << "In GParameterBase::booleanMultiplyByRandom(min,max): Error!" << std::endl
-   << "This function should not be called for boolean parameters" << std::endl
-   << GEXCEPTION;
+	// Complain: This function should not be called for boolean values
+	glogger
+	<< "In GParameterBase::booleanMultiplyByRandom(min,max): Error!" << std::endl
+	<< "This function should not be called for boolean parameters" << std::endl
+	<< GEXCEPTION;
 }
 
 /******************************************************************************/
 /**
  * Multiplication with a random value in the range [0,1[
  */
-void GParameterBase::floatMultiplyByRandom(const activityMode& am) {
-   /* Do nothing by default */
+void GParameterBase::floatMultiplyByRandom(const activityMode &am) {
+	/* Do nothing by default */
 }
 
 /******************************************************************************/
 /**
  * Multiplication with a random value in the range [0,1[
  */
-void GParameterBase::doubleMultiplyByRandom(const activityMode& am) {
-   /* Do nothing by default */
+void GParameterBase::doubleMultiplyByRandom(const activityMode &am) {
+	/* Do nothing by default */
 }
 
 /******************************************************************************/
 /**
  * Multiplication with a random value in the range [0,1[
  */
-void GParameterBase::int32MultiplyByRandom(const activityMode& am) {
-   /* Do nothing by default */
+void GParameterBase::int32MultiplyByRandom(const activityMode &am) {
+	/* Do nothing by default */
 }
 
 /******************************************************************************/
 /**
  * Multiplication with a random value in the range [0,1[
  */
-void GParameterBase::booleanMultiplyByRandom(const activityMode& am) {
-   // Complain: This function should not be called for boolean values
-   glogger
-   << "In GParameterBase::booleanMultiplyByRandom(): Error!" << std::endl
-   << "This function should not be called for boolean parameters" << std::endl
-   << GEXCEPTION;
+void GParameterBase::booleanMultiplyByRandom(const activityMode &am) {
+	// Complain: This function should not be called for boolean values
+	glogger
+	<< "In GParameterBase::booleanMultiplyByRandom(): Error!" << std::endl
+	<< "This function should not be called for boolean parameters" << std::endl
+	<< GEXCEPTION;
 }
 
 /******************************************************************************/
@@ -909,10 +854,9 @@ void GParameterBase::booleanMultiplyByRandom(const activityMode& am) {
  * Multiplication with a constant value
  */
 void GParameterBase::floatMultiplyBy(
-   const float& value
-   , const activityMode& am
+	const float &value, const activityMode &am
 ) {
-   /* Do nothing by default */
+	/* Do nothing by default */
 }
 
 /******************************************************************************/
@@ -920,10 +864,9 @@ void GParameterBase::floatMultiplyBy(
  * Multiplication with a constant value
  */
 void GParameterBase::doubleMultiplyBy(
-   const double& value
-   , const activityMode& am
+	const double &value, const activityMode &am
 ) {
-   /* Do nothing by default */
+	/* Do nothing by default */
 }
 
 /******************************************************************************/
@@ -931,10 +874,9 @@ void GParameterBase::doubleMultiplyBy(
  * Multiplication with a constant value
  */
 void GParameterBase::int32MultiplyBy(
-   const boost::int32_t& value
-   , const activityMode& am
+	const boost::int32_t &value, const activityMode &am
 ) {
-   /* Do nothing by default */
+	/* Do nothing by default */
 }
 
 /******************************************************************************/
@@ -942,14 +884,13 @@ void GParameterBase::int32MultiplyBy(
  * Multiplication with a random value in the range [0,1[
  */
 void GParameterBase::booleanMultiplyBy(
-   const bool& value
-   , const activityMode& am
+	const bool &value, const activityMode &am
 ) {
-   // Complain: This function should not be called for boolean values
-   glogger
-   << "In GParameterBase::booleanMultiplyBy(): Error!" << std::endl
-   << "This function should not be called for boolean parameters" << std::endl
-   << GEXCEPTION;
+	// Complain: This function should not be called for boolean values
+	glogger
+	<< "In GParameterBase::booleanMultiplyBy(): Error!" << std::endl
+	<< "This function should not be called for boolean parameters" << std::endl
+	<< GEXCEPTION;
 }
 
 /******************************************************************************/
@@ -957,10 +898,9 @@ void GParameterBase::booleanMultiplyBy(
  * Initialization with a constant value
  */
 void GParameterBase::floatFixedValueInit(
-   const float& value
-   , const activityMode& am
+	const float &value, const activityMode &am
 ) {
-   /* Do nothing by default */
+	/* Do nothing by default */
 }
 
 /******************************************************************************/
@@ -968,10 +908,9 @@ void GParameterBase::floatFixedValueInit(
  * Initialization with a constant value
  */
 void GParameterBase::doubleFixedValueInit(
-   const double& value
-   , const activityMode& am
+	const double &value, const activityMode &am
 ) {
-   /* Do nothing by default */
+	/* Do nothing by default */
 }
 
 /******************************************************************************/
@@ -979,10 +918,9 @@ void GParameterBase::doubleFixedValueInit(
  * Initialization with a constant value
  */
 void GParameterBase::int32FixedValueInit(
-   const boost::int32_t& value
-   , const activityMode& am
+	const boost::int32_t &value, const activityMode &am
 ) {
-   /* Do nothing by default */
+	/* Do nothing by default */
 }
 
 /******************************************************************************/
@@ -990,10 +928,9 @@ void GParameterBase::int32FixedValueInit(
  * Initialization with a constant value
  */
 void GParameterBase::booleanFixedValueInit(
-   const bool& value
-   , const activityMode& am
+	const bool &value, const activityMode &am
 ) {
-   /* Do nothing by default */
+	/* Do nothing by default */
 }
 
 /******************************************************************************/
@@ -1001,10 +938,10 @@ void GParameterBase::booleanFixedValueInit(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GParameterBase::floatAdd(
-   std::shared_ptr<GParameterBase>
-   , const activityMode& am
+	std::shared_ptr < GParameterBase > , const
+activityMode &am
 ) {
-   /* Do nothing by default */
+/* Do nothing by default */
 }
 
 /******************************************************************************/
@@ -1012,10 +949,10 @@ void GParameterBase::floatAdd(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GParameterBase::doubleAdd(
-   std::shared_ptr<GParameterBase>
-   , const activityMode& am
+	std::shared_ptr < GParameterBase > , const
+activityMode &am
 ) {
-   /* Do nothing by default */
+/* Do nothing by default */
 }
 
 /******************************************************************************/
@@ -1023,10 +960,10 @@ void GParameterBase::doubleAdd(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GParameterBase::int32Add(
-   std::shared_ptr<GParameterBase>
-   , const activityMode& am
+	std::shared_ptr < GParameterBase > , const
+activityMode &am
 ) {
-   /* Do nothing by default */
+/* Do nothing by default */
 }
 
 /******************************************************************************/
@@ -1034,14 +971,15 @@ void GParameterBase::int32Add(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GParameterBase::booleanAdd(
-   std::shared_ptr<GParameterBase>
-   , const activityMode& am
+	std::shared_ptr < GParameterBase > , const
+activityMode &am
 ) {
-   // Complain: This function should not be called for boolean values
-   glogger
-   << "In GParameterBase::booleanAdd(): Error!" << std::endl
-   << "This function should not be called for boolean parameters" << std::endl
-   << GEXCEPTION;
+// Complain: This function should not be called for boolean values
+glogger
+<< "In GParameterBase::booleanAdd(): Error!" << std::endl
+<< "This function should not be called for boolean parameters" << std::endl
+<<
+GEXCEPTION;
 }
 
 /******************************************************************************/
@@ -1049,10 +987,10 @@ void GParameterBase::booleanAdd(
  * Subtracts the "same-type" parameters of another GParameterBase object from this one
  */
 void GParameterBase::floatSubtract(
-   std::shared_ptr<GParameterBase>
-   , const activityMode& am
+	std::shared_ptr < GParameterBase > , const
+activityMode &am
 ) {
-   /* Do nothing by default */
+/* Do nothing by default */
 }
 
 /******************************************************************************/
@@ -1060,10 +998,10 @@ void GParameterBase::floatSubtract(
  * Subtracts the "same-type" parameters of another GParameterBase object from this one
  */
 void GParameterBase::doubleSubtract(
-   std::shared_ptr<GParameterBase>
-   , const activityMode& am
+	std::shared_ptr < GParameterBase > , const
+activityMode &am
 ) {
-   /* Do nothing by default */
+/* Do nothing by default */
 }
 
 /******************************************************************************/
@@ -1071,10 +1009,10 @@ void GParameterBase::doubleSubtract(
  * Subtracts the "same-type" parameters of another GParameterBase object from this one
  */
 void GParameterBase::int32Subtract(
-   std::shared_ptr<GParameterBase>
-   , const activityMode& am
+	std::shared_ptr < GParameterBase > , const
+activityMode &am
 ) {
-   /* Do nothing by default */
+/* Do nothing by default */
 }
 
 /******************************************************************************/
@@ -1082,14 +1020,15 @@ void GParameterBase::int32Subtract(
  * Subtracts the "same-type" parameters of another GParameterBase object from this one
  */
 void GParameterBase::booleanSubtract(
-   std::shared_ptr<GParameterBase>
-   , const activityMode& am
+	std::shared_ptr < GParameterBase > , const
+activityMode &am
 ) {
-   // Complain: This function should not be called for boolean values
-   glogger
-   << "In GParameterBase::booleanSubtract(): Error!" << std::endl
-   << "This function should not be called for boolean parameters" << std::endl
-   << GEXCEPTION;
+// Complain: This function should not be called for boolean values
+glogger
+<< "In GParameterBase::booleanSubtract(): Error!" << std::endl
+<< "This function should not be called for boolean parameters" << std::endl
+<<
+GEXCEPTION;
 }
 
 /******************************************************************************/
@@ -1139,10 +1078,10 @@ bool GParameterBase::randomInitializationBlocked() const {
  */
 bool GParameterBase::modify_GUnitTests() {
 #ifdef GEM_TESTING
-   bool result = false;
+	bool result = false;
 
 	// Call the parent class'es function
-	if(GObject::modify_GUnitTests()) result = true;
+	if (GObject::modify_GUnitTests()) result = true;
 
 	return result;
 
@@ -1167,8 +1106,8 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 		using namespace Gem::Common;
 
 		// Create two GParameterBase objects as clone of this object for further usage
-		std::shared_ptr<GParameterBase> p_test1 = this->clone<GParameterBase>();
-		std::shared_ptr<GParameterBase> p_test2 = this->clone<GParameterBase>();
+		std::shared_ptr <GParameterBase> p_test1 = this->clone<GParameterBase>();
+		std::shared_ptr <GParameterBase> p_test2 = this->clone<GParameterBase>();
 
 		BOOST_CHECK_NO_THROW(p_test1->blockRandomInitialization());
 		BOOST_CHECK_NO_THROW(p_test2->blockRandomInitialization());
@@ -1188,32 +1127,32 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 		// Random initialization should change p_test1. We run the test
 		// multiple times, as random initialization particularly of
 		// boolean parameters may turn out to be the same as before
-		if(p_test1->isIndividualParameter()) {
-         bool valueChanged = false;
-         p_test2->load(p_test1);
-         for(int i=0; i<100; i++) {
-            if(p_test1->randomInit(ALLPARAMETERS)) {
-               if(*p_test1 != *p_test2) {
-                  valueChanged = true;
-                  break;
-               }
-            }
-         }
-         BOOST_CHECK(valueChanged);
+		if (p_test1->isIndividualParameter()) {
+			bool valueChanged = false;
+			p_test2->load(p_test1);
+			for (int i = 0; i < 100; i++) {
+				if (p_test1->randomInit(ALLPARAMETERS)) {
+					if (*p_test1 != *p_test2) {
+						valueChanged = true;
+						break;
+					}
+				}
+			}
+			BOOST_CHECK(valueChanged);
 		}
 	}
 
 	//---------------------------------------------------------------------
 
 	{ // Check activating and de-activating adaptions. Note that the
-	  // effects of these flags can only be tested if an adaptor or
-	  // multiple adaptors (in the case of object collections) have
-	  // been loaded.
+		// effects of these flags can only be tested if an adaptor or
+		// multiple adaptors (in the case of object collections) have
+		// been loaded.
 
 		// Create some clones of this object
-		std::shared_ptr<GParameterBase> p_test = this->clone<GParameterBase>();
-		std::shared_ptr<GParameterBase> p_test_1 = this->clone<GParameterBase>();
-		std::shared_ptr<GParameterBase> p_test_2 = this->clone<GParameterBase>();
+		std::shared_ptr <GParameterBase> p_test = this->clone<GParameterBase>();
+		std::shared_ptr <GParameterBase> p_test_1 = this->clone<GParameterBase>();
+		std::shared_ptr <GParameterBase> p_test_2 = this->clone<GParameterBase>();
 
 		// activate adaptions
 		BOOST_CHECK_NO_THROW(p_test_1->setAdaptionsActive());
@@ -1223,12 +1162,13 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test_2->setAdaptionsInactive());
 		BOOST_CHECK(p_test_2->adaptionsActive() == false);
 
-		if(p_test_1->hasAdaptor() && p_test_2->hasAdaptor()) {
-		   bool adapted = false;
-			BOOST_CHECK_NO_THROW(adapted = p_test_1->adapt()); // Should change, unless we are dealing with an "empty" container type
+		if (p_test_1->hasAdaptor() && p_test_2->hasAdaptor()) {
+			bool adapted = false;
+			BOOST_CHECK_NO_THROW(
+				adapted = p_test_1->adapt()); // Should change, unless we are dealing with an "empty" container type
 			BOOST_CHECK_NO_THROW(p_test->setAdaptionsActive()); // Make sure differences do not stem from this flag
-			if(adapted) {
-			   BOOST_CHECK(*p_test_1 != *p_test);
+			if (adapted) {
+				BOOST_CHECK(*p_test_1 != *p_test);
 			}
 
 			BOOST_CHECK_NO_THROW(p_test_2->adapt()); // Should stay unchanged
@@ -1241,8 +1181,8 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 
 	{ // Check adapt() and (de-)activation of adaptions
 		// Create two local clones
-		std::shared_ptr<GParameterBase> p_test1 = this->clone<GParameterBase>();
-		std::shared_ptr<GParameterBase> p_test2 = this->clone<GParameterBase>();
+		std::shared_ptr <GParameterBase> p_test1 = this->clone<GParameterBase>();
+		std::shared_ptr <GParameterBase> p_test2 = this->clone<GParameterBase>();
 
 		// Always adapt
 		BOOST_CHECK_NO_THROW(p_test1->setAdaptionsActive());
@@ -1253,13 +1193,13 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test2->adaptionsActive() == true);
 
 		// Check that we have adaption powers when using the random number generator
-		if(p_test1->hasAdaptor()) {
-			for(std::size_t i=0; i<100; i++) {
-			   bool adapted = false;
+		if (p_test1->hasAdaptor()) {
+			for (std::size_t i = 0; i < 100; i++) {
+				bool adapted = false;
 				BOOST_CHECK_NO_THROW(adapted = p_test1->adapt());
-				if(adapted) {
-				   BOOST_CHECK(*p_test1 != *p_test2);
-			   }
+				if (adapted) {
+					BOOST_CHECK(*p_test1 != *p_test2);
+				}
 				BOOST_CHECK_NO_THROW(p_test1->load(p_test2));
 				BOOST_CHECK(*p_test1 == *p_test2);
 			}
@@ -1269,13 +1209,13 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test1->setAdaptionsInactive());
 		BOOST_CHECK_NO_THROW(p_test2->setAdaptionsInactive());
 
-      // Check that adaptions are indeed inactive in both objects
-      BOOST_CHECK(p_test1->adaptionsActive() == false);
-      BOOST_CHECK(p_test2->adaptionsActive() == false);
+		// Check that adaptions are indeed inactive in both objects
+		BOOST_CHECK(p_test1->adaptionsActive() == false);
+		BOOST_CHECK(p_test2->adaptionsActive() == false);
 
 		// Check that adaptions do not occur anymore in p_test1
-		if(p_test1->hasAdaptor()) {
-			for(std::size_t i=0; i<100; i++) {
+		if (p_test1->hasAdaptor()) {
+			for (std::size_t i = 0; i < 100; i++) {
 				BOOST_CHECK_NO_THROW(p_test1->adapt());
 				BOOST_CHECK(*p_test1 == *p_test2);
 			}

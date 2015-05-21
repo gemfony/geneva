@@ -44,8 +44,7 @@ namespace Geneva {
  * The default constructor
  */
 GBooleanObject::GBooleanObject()
-	: GParameterT<bool>()
-{ /* nothing */ }
+	: GParameterT<bool>() { /* nothing */ }
 
 // Tested in this file
 
@@ -55,9 +54,8 @@ GBooleanObject::GBooleanObject()
  *
  * @param cp A copy of another GBooleanObject object
  */
-GBooleanObject::GBooleanObject(const GBooleanObject& cp)
-	: GParameterT<bool>(cp)
-{ /* nothing */ }
+GBooleanObject::GBooleanObject(const GBooleanObject &cp)
+	: GParameterT<bool>(cp) { /* nothing */ }
 
 // Tested in this file
 
@@ -67,9 +65,8 @@ GBooleanObject::GBooleanObject(const GBooleanObject& cp)
  *
  * @param val A value used for the initialization
  */
-GBooleanObject::GBooleanObject(const bool& val)
-	: GParameterT<bool>(val)
-{ /* nothing */ }
+GBooleanObject::GBooleanObject(const bool &val)
+	: GParameterT<bool>(val) { /* nothing */ }
 
 // Tested in this file
 
@@ -79,9 +76,9 @@ GBooleanObject::GBooleanObject(const bool& val)
  *
  * @param prob The probability for the value "true"
  */
-GBooleanObject::GBooleanObject(const double& probability) {
-   using namespace Gem::Common;
-   using namespace Gem::Hap;
+GBooleanObject::GBooleanObject(const double &probability) {
+	using namespace Gem::Common;
+	using namespace Gem::Hap;
 
 	this->setValue(GObject::gr_ptr()->weighted_bool(probability));
 }
@@ -92,18 +89,17 @@ GBooleanObject::GBooleanObject(const double& probability) {
 /**
  * The destructor
  */
-GBooleanObject::~GBooleanObject()
-{ /* nothing */ }
+GBooleanObject::~GBooleanObject() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GBooleanObject& GBooleanObject::operator=(
-   const GBooleanObject& cp
+const GBooleanObject &GBooleanObject::operator=(
+	const GBooleanObject &cp
 ) {
-   this->load_(&cp);
-   return *this;
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -113,7 +109,7 @@ const GBooleanObject& GBooleanObject::operator=(
  * @param val The value to be assigned to this object
  * @return The value that was just assigned to this object
  */
-bool GBooleanObject::operator=(const bool& val) {
+bool GBooleanObject::operator=(const bool &val) {
 	return GParameterT<bool>::operator=(val);
 }
 
@@ -123,7 +119,7 @@ bool GBooleanObject::operator=(const bool& val) {
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GBooleanObject::clone_() const {
+GObject *GBooleanObject::clone_() const {
 	return new GBooleanObject(*this);
 }
 
@@ -134,14 +130,14 @@ GObject* GBooleanObject::clone_() const {
  * @param  cp A constant reference to another GBooleanObject object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBooleanObject::operator==(const GBooleanObject& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBooleanObject::operator==(const GBooleanObject &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -151,14 +147,14 @@ bool GBooleanObject::operator==(const GBooleanObject& cp) const {
  * @param  cp A constant reference to another GBooleanObject object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GBooleanObject::operator!=(const GBooleanObject& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBooleanObject::operator!=(const GBooleanObject &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -166,8 +162,8 @@ bool GBooleanObject::operator!=(const GBooleanObject& cp) const {
  * Random initialization. This is a helper function, without it we'd
  * have to say things like "myGBooleanObject.GParameterBase::randomInit();".
  */
-bool GBooleanObject::randomInit(const activityMode& am) {
-  return GParameterBase::randomInit(am);
+bool GBooleanObject::randomInit(const activityMode &am) {
+	return GParameterBase::randomInit(am);
 }
 
 /* ----------------------------------------------------------------------------------
@@ -179,15 +175,15 @@ bool GBooleanObject::randomInit(const activityMode& am) {
 /**
  * Triggers random initialization of the parameter object, with a given likelihood structure
  */
-bool GBooleanObject::randomInit(const double& probability, const activityMode& am) {
-  if(
-     !GParameterBase::randomInitializationBlocked()
-     && this->modifiableAmMatchOrHandover(am)
-  ) {
-     return randomInit_(probability, am);
-  } else {
-     return false;
-  }
+bool GBooleanObject::randomInit(const double &probability, const activityMode &am) {
+	if (
+		!GParameterBase::randomInitializationBlocked()
+		&& this->modifiableAmMatchOrHandover(am)
+		) {
+		return randomInit_(probability, am);
+	} else {
+		return false;
+	}
 }
 
 /* ----------------------------------------------------------------------------------
@@ -199,9 +195,9 @@ bool GBooleanObject::randomInit(const double& probability, const activityMode& a
 /**
  * Triggers random initialization of the parameter object
  */
-bool GBooleanObject::randomInit_(const activityMode&) {
-   using namespace Gem::Common;
-   using namespace Gem::Hap;
+bool GBooleanObject::randomInit_(const activityMode &) {
+	using namespace Gem::Common;
+	using namespace Gem::Hap;
 
 	this->setValue(GObject::gr_ptr()->uniform_bool());
 
@@ -219,13 +215,13 @@ bool GBooleanObject::randomInit_(const activityMode&) {
  * This function holds the actual initialization logic, used in the publicly accessible
  * GBooleanObject::randomInit(const double& probability) function.
  */
-bool GBooleanObject::randomInit_(const double& probability, const activityMode& am) {
-   using namespace Gem::Common;
-   using namespace Gem::Hap;
+bool GBooleanObject::randomInit_(const double &probability, const activityMode &am) {
+	using namespace Gem::Common;
+	using namespace Gem::Hap;
 
-   this->setValue(GObject::gr_ptr()->weighted_bool(probability));
+	this->setValue(GObject::gr_ptr()->weighted_bool(probability));
 
-   return true;
+	return true;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -239,7 +235,7 @@ bool GBooleanObject::randomInit_(const double& probability, const activityMode& 
  * be considered to be more of a "dummy".
  */
 bool GBooleanObject::range() const {
-   return true;
+	return true;
 }
 
 /******************************************************************************/
@@ -252,24 +248,22 @@ bool GBooleanObject::range() const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBooleanObject::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GBooleanObject *p_load = GObject::gobject_conversion<GBooleanObject>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GBooleanObject *p_load = GObject::gobject_conversion<GBooleanObject>(&cp);
 
-   GToken token("GBooleanObject", e);
+	GToken token("GBooleanObject", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GParameterT<bool> >(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GParameterT<bool> >(IDENTITY(*this, *p_load), token);
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -277,7 +271,7 @@ void GBooleanObject::compare(
  * Emits a name for this class / object
  */
 std::string GBooleanObject::name() const {
-   return std::string("GBooleanObject");
+	return std::string("GBooleanObject");
 }
 
 /******************************************************************************/
@@ -288,8 +282,7 @@ std::string GBooleanObject::name() const {
  * @param parVec The vector to which the local value should be attached
  */
 void GBooleanObject::booleanStreamline(
-   std::vector<bool>& parVec
-   , const activityMode& am
+	std::vector<bool> &parVec, const activityMode &am
 ) const {
 	parVec.push_back(this->value());
 }
@@ -301,8 +294,7 @@ void GBooleanObject::booleanStreamline(
  * @param parVec The map to which the local value should be attached
  */
 void GBooleanObject::booleanStreamline(
-   std::map<std::string, std::vector<bool> >& parVec
-   , const activityMode& am
+	std::map<std::string, std::vector<bool> > &parVec, const activityMode &am
 ) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
@@ -313,9 +305,9 @@ void GBooleanObject::booleanStreamline(
    }
 #endif /* DEBUG */
 
-   std::vector<bool> parameters;
-   parameters.push_back(this->value());
-   parVec[this->getParameterName()] = parameters;
+	std::vector<bool> parameters;
+	parameters.push_back(this->value());
+	parVec[this->getParameterName()] = parameters;
 }
 
 /******************************************************************************/
@@ -327,9 +319,7 @@ void GBooleanObject::booleanStreamline(
  * @param uBndVec A vector of upper bool parameter boundaries
  */
 void GBooleanObject::booleanBoundaries(
-   std::vector<bool>& lBndVec
-   , std::vector<bool>& uBndVec
-   , const activityMode& am
+	std::vector<bool> &lBndVec, std::vector<bool> &uBndVec, const activityMode &am
 ) const {
 	lBndVec.push_back(false);
 	uBndVec.push_back(true);
@@ -344,9 +334,9 @@ void GBooleanObject::booleanBoundaries(
  * @return The number of active, incactive or all float parameters
  */
 std::size_t GBooleanObject::countBoolParameters(
-   const activityMode& am
+	const activityMode &am
 ) const {
-   return 1;
+	return 1;
 }
 
 /******************************************************************************/
@@ -354,9 +344,7 @@ std::size_t GBooleanObject::countBoolParameters(
  * Assigns part of a value vector to the parameter
  */
 void GBooleanObject::assignBooleanValueVector(
-   const std::vector<bool>& parVec
-   , std::size_t& pos
-   , const activityMode& am
+	const std::vector<bool> &parVec, std::size_t &pos, const activityMode &am
 ) {
 #ifdef DEBUG
 	// Do we have a valid position ?
@@ -377,11 +365,9 @@ void GBooleanObject::assignBooleanValueVector(
  * Assigns part of a value map to the parameter
  */
 void GBooleanObject::assignBooleanValueVectors(
-   const std::map<std::string
-   , std::vector<bool> >& parMap
-   , const activityMode& am
+	const std::map<std::string, std::vector<bool> > &parMap, const activityMode &am
 ) {
-   this->setValue((Gem::Common::getMapItem<std::vector<bool> >(parMap,this->getParameterName())).at(0));
+	this->setValue((Gem::Common::getMapItem<std::vector<bool> >(parMap, this->getParameterName())).at(0));
 }
 
 /******************************************************************************/
@@ -390,7 +376,7 @@ void GBooleanObject::assignBooleanValueVectors(
  *
  * @param cp A copy of another GBooleanObject object, camouflaged as a GObject
  */
-void GBooleanObject::load_(const GObject* cp){
+void GBooleanObject::load_(const GObject *cp) {
 	// Check for a possible self-assignment
 	GObject::selfAssignmentCheck<GBooleanObject>(cp);
 
@@ -411,7 +397,7 @@ bool GBooleanObject::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GParameterT<bool>::modify_GUnitTests()) result = true;
+	if (GParameterT<bool>::modify_GUnitTests()) result = true;
 
 	return result;
 
@@ -429,19 +415,19 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Some general settings
 	const bool FIXEDVALUEINIT = true;
-    const double LOWERBND = 0.8, UPPERBND = 1.2;
+	const double LOWERBND = 0.8, UPPERBND = 1.2;
 	const std::size_t nTests = 10000;
 
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
-	std::shared_ptr<GAdaptorT<bool> > storedAdaptor;
+	std::shared_ptr <GAdaptorT<bool>> storedAdaptor;
 
-	if(this->hasAdaptor()) {
+	if (this->hasAdaptor()) {
 		storedAdaptor = this->getAdaptor();
 		adaptorStored = true;
 	}
 
-	std::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor(1.0));
+	std::shared_ptr <GBooleanAdaptor> gba_ptr(new GBooleanAdaptor(1.0));
 	gba_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	gba_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(gba_ptr);
@@ -454,10 +440,10 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 	{ // Test default constructor
 		GBooleanObject gbo;
 		BOOST_CHECK_MESSAGE (
-				gbo.value() == Gem::Common::GDefaultValueT<bool>::value()
-				, "\n"
-				<< "gbo.value() = " << gbo.value()
-				<< "DEFBOVAL = " << Gem::Common::GDefaultValueT<bool>::value()
+			gbo.value() == Gem::Common::GDefaultValueT<bool>::value(), "\n"
+																						  << "gbo.value() = " << gbo.value()
+																						  << "DEFBOVAL = " <<
+																						  Gem::Common::GDefaultValueT<bool>::value()
 		);
 	}
 
@@ -467,38 +453,36 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		GBooleanObject gbo1(false), gbo2(gbo1);
 
 		BOOST_CHECK_MESSAGE (
-				gbo1.value()==false && gbo2.value()==gbo1.value()
-				, "\n"
-				<< "gbo1.value() = " << gbo1.value()
-				<< "gbo2.value() = " << gbo2.value()
+			gbo1.value() == false && gbo2.value() == gbo1.value(), "\n"
+																					 << "gbo1.value() = " << gbo1.value()
+																					 << "gbo2.value() = " << gbo2.value()
 		);
 	}
 
 	// --------------------------------------------------------------------------
 
 	{ // Check construction with a given probability for the value "true"
-		std::size_t nTrue=0, nFalse=0;
-		for(std::size_t i=0; i<nTests; i++) {
+		std::size_t nTrue = 0, nFalse = 0;
+		for (std::size_t i = 0; i < nTests; i++) {
 			GBooleanObject gbo(0.5);
-			gbo.value()==true?nTrue++:nFalse++;
+			gbo.value() == true ? nTrue++ : nFalse++;
 		}
 
 		// We allow a slight deviation, as the initialization is a random process
 		BOOST_REQUIRE(nFalse != 0); // There should be a few false values
-		double ratio = double(nTrue)/double(nFalse);
+		double ratio = double(nTrue) / double(nFalse);
 		BOOST_CHECK_MESSAGE(
-				ratio>LOWERBND && ratio<UPPERBND
-				,  "\n"
-				<< "ratio = " << ratio << "\n"
-				<< "nTrue = " << nTrue << "\n"
-				<< "nFalse = " << nFalse << "\n"
+			ratio > LOWERBND && ratio < UPPERBND, "\n"
+															  << "ratio = " << ratio << "\n"
+															  << "nTrue = " << nTrue << "\n"
+															  << "nFalse = " << nFalse << "\n"
 		);
 	}
 
 	// --------------------------------------------------------------------------
 
 	{ // Test that random initialization with equal probability for true and false will result in roughly the same amount of corresponding values
-		std::shared_ptr<GBooleanObject> p_test = this->clone<GBooleanObject>();
+		std::shared_ptr <GBooleanObject> p_test = this->clone<GBooleanObject>();
 
 		// Assign a boolean value true
 		BOOST_CHECK_NO_THROW(*p_test = true);
@@ -509,27 +493,26 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		// with the internal randomInit_ function.
 		std::size_t nTrue = 0;
 		std::size_t nFalse = 0;
-		for(std::size_t i=0; i<nTests; i++) {
+		for (std::size_t i = 0; i < nTests; i++) {
 			p_test->randomInit_(ALLPARAMETERS);
-			p_test->value()?nTrue++:nFalse++;
+			p_test->value() ? nTrue++ : nFalse++;
 		}
 
 		// We allow a slight deviation, as the initialization is a random process
 		BOOST_REQUIRE(nFalse != 0); // There should be a few false values
-		double ratio = double(nTrue)/double(nFalse);
+		double ratio = double(nTrue) / double(nFalse);
 		BOOST_CHECK_MESSAGE(
-				ratio>0.8 && ratio<1.2
-				,  "\n"
-				<< "ratio = " << ratio << "\n"
-				<< "nTrue = " << nTrue << "\n"
-				<< "nFalse = " << nFalse << "\n"
+			ratio > 0.8 && ratio < 1.2, "\n"
+												 << "ratio = " << ratio << "\n"
+												 << "nTrue = " << nTrue << "\n"
+												 << "nFalse = " << nFalse << "\n"
 		);
 	}
 
 	// --------------------------------------------------------------------------
 
 	{ // Test that initialization with a probability of 1 for true will only result in true values
-		std::shared_ptr<GBooleanObject> p_test = this->clone<GBooleanObject>();
+		std::shared_ptr <GBooleanObject> p_test = this->clone<GBooleanObject>();
 
 		// Assign a boolean value true
 		BOOST_CHECK_NO_THROW(*p_test = false);
@@ -540,19 +523,19 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		// with the internal randomInit_ function.
 		std::size_t nTrue = 0;
 		std::size_t nFalse = 0;
-		for(std::size_t i=0; i<nTests; i++) {
+		for (std::size_t i = 0; i < nTests; i++) {
 			p_test->randomInit_(1., ALLPARAMETERS);
-			p_test->value()?nTrue++:nFalse++;
+			p_test->value() ? nTrue++ : nFalse++;
 		}
 
 		// We should have received only true values
-		BOOST_CHECK(nTrue ==nTests);
+		BOOST_CHECK(nTrue == nTests);
 	}
 
 	// --------------------------------------------------------------------------
 
 	{ // Test that initialization with a probability of 0 for true will only result in false values
-		std::shared_ptr<GBooleanObject> p_test = this->clone<GBooleanObject>();
+		std::shared_ptr <GBooleanObject> p_test = this->clone<GBooleanObject>();
 
 		// Assign a boolean value true
 		BOOST_CHECK_NO_THROW(*p_test = true);
@@ -563,20 +546,20 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		// with the internal randomInit_ function.
 		std::size_t nTrue = 0;
 		std::size_t nFalse = 0;
-		for(std::size_t i=0; i<nTests; i++) {
+		for (std::size_t i = 0; i < nTests; i++) {
 			p_test->randomInit_(0., ALLPARAMETERS);
-			p_test->value()?nTrue++:nFalse++;
+			p_test->value() ? nTrue++ : nFalse++;
 		}
 
 		// We should have received only true values
-		BOOST_CHECK(nFalse ==nTests);
+		BOOST_CHECK(nFalse == nTests);
 	}
 
 	//-----------------------------------------------------------------------------
 
 	{ // Test that random initialization with a given probability for true will result in roughly the expected amount of corresponding values
-		for(double d=0.1; d<0.9; d+=0.1) {
-			std::shared_ptr<GBooleanObject> p_test = this->clone<GBooleanObject>();
+		for (double d = 0.1; d < 0.9; d += 0.1) {
+			std::shared_ptr <GBooleanObject> p_test = this->clone<GBooleanObject>();
 
 			// Assign a boolean value true
 			BOOST_CHECK_NO_THROW(*p_test = true);
@@ -590,23 +573,24 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 			// with the internal randomInit_ function.
 			std::size_t nTrue = 0;
 			std::size_t nFalse = 0;
-			for(std::size_t i=0; i<nTests; i++) {
+			for (std::size_t i = 0; i < nTests; i++) {
 				p_test->randomInit_(d, ALLPARAMETERS);
-				p_test->value()?nTrue++:nFalse++;
+				p_test->value() ? nTrue++ : nFalse++;
 			}
 
 			// We allow a slight deviation, as the initialization is a random process
-			double expectedTrueMin = 0.8*d*nTests;
-			double expectedTrueMax = 1.2*d*nTests;
+			double expectedTrueMin = 0.8 * d * nTests;
+			double expectedTrueMax = 1.2 * d * nTests;
 
 			BOOST_CHECK_MESSAGE(
-					double(nTrue) > expectedTrueMin && double(nTrue) < expectedTrueMax
-					,  "\n"
-					<< "d = " << d << "\n"
-					<< "Allowed window = " << expectedTrueMin << " - " << expectedTrueMax << "\n"
-					<< "nTests = " << nTests << "\n"
-					<< "nTrue = " << nTrue << "\n"
-					<< "nFalse = " << nFalse << "\n"
+				double(nTrue) > expectedTrueMin && double(nTrue) < expectedTrueMax, "\n"
+																										  << "d = " << d << "\n"
+																										  << "Allowed window = " <<
+																										  expectedTrueMin << " - " <<
+																										  expectedTrueMax << "\n"
+																										  << "nTests = " << nTests << "\n"
+																										  << "nTrue = " << nTrue << "\n"
+																										  << "nFalse = " << nFalse << "\n"
 			);
 		}
 	}
@@ -614,8 +598,8 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check that random initialization can be blocked for equal distributions
-		std::shared_ptr<GBooleanObject> p_test1 = this->clone<GBooleanObject>();
-		std::shared_ptr<GBooleanObject> p_test2 = this->clone<GBooleanObject>();
+		std::shared_ptr <GBooleanObject> p_test1 = this->clone<GBooleanObject>();
+		std::shared_ptr <GBooleanObject> p_test2 = this->clone<GBooleanObject>();
 
 		// Assign a boolean value true
 		BOOST_CHECK_NO_THROW(*p_test1 = true);
@@ -645,8 +629,8 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check that random initialization can be blocked for distributions with a given probability structure
-		std::shared_ptr<GBooleanObject> p_test1 = this->clone<GBooleanObject>();
-		std::shared_ptr<GBooleanObject> p_test2 = this->clone<GBooleanObject>();
+		std::shared_ptr <GBooleanObject> p_test1 = this->clone<GBooleanObject>();
+		std::shared_ptr <GBooleanObject> p_test2 = this->clone<GBooleanObject>();
 
 		// Assign a boolean value true
 		BOOST_CHECK_NO_THROW(*p_test1 = true);
@@ -676,9 +660,9 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check that the fp-family of functions doesn't have an effect on this object
-		std::shared_ptr<GBooleanObject> p_test1 = this->GObject::clone<GBooleanObject>();
-		std::shared_ptr<GBooleanObject> p_test2 = this->GObject::clone<GBooleanObject>();
-		std::shared_ptr<GBooleanObject> p_test3 = this->GObject::clone<GBooleanObject>();
+		std::shared_ptr <GBooleanObject> p_test1 = this->GObject::clone<GBooleanObject>();
+		std::shared_ptr <GBooleanObject> p_test2 = this->GObject::clone<GBooleanObject>();
+		std::shared_ptr <GBooleanObject> p_test3 = this->GObject::clone<GBooleanObject>();
 
 		// Assign a boolean value true
 		BOOST_CHECK_NO_THROW(*p_test1 = true);
@@ -723,7 +707,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 	this->resetAdaptor();
 
 	// Load the old adaptor, if needed
-	if(adaptorStored) {
+	if (adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
 
@@ -741,14 +725,14 @@ void GBooleanObject::specificTestsFailuresExpected_GUnitTests() {
 
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
-	std::shared_ptr<GAdaptorT<bool> > storedAdaptor;
+	std::shared_ptr <GAdaptorT<bool>> storedAdaptor;
 
-	if(this->hasAdaptor()) {
+	if (this->hasAdaptor()) {
 		storedAdaptor = this->getAdaptor();
 		adaptorStored = true;
 	}
 
-	std::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor(1.0));
+	std::shared_ptr <GBooleanAdaptor> gba_ptr(new GBooleanAdaptor(1.0));
 	gba_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	gba_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(gba_ptr);
@@ -760,7 +744,7 @@ void GBooleanObject::specificTestsFailuresExpected_GUnitTests() {
 	this->resetAdaptor();
 
 	// Load the old adaptor, if needed
-	if(adaptorStored) {
+	if (adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
 

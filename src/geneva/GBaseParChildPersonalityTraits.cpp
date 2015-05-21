@@ -44,10 +44,7 @@ namespace Geneva {
  * The default constructor
  */
 GBaseParChildPersonalityTraits::GBaseParChildPersonalityTraits()
-   : GPersonalityTraits()
-   , parentCounter_(0)
-   , popPos_(0)
-   , parentId_(-1) // means "unset"
+	: GPersonalityTraits(), parentCounter_(0), popPos_(0), parentId_(-1) // means "unset"
 { /* nothing */ }
 
 /******************************************************************************/
@@ -56,29 +53,25 @@ GBaseParChildPersonalityTraits::GBaseParChildPersonalityTraits()
  *
  * @param cp A copy of another GBaseParChildPersonalityTraits object
  */
-GBaseParChildPersonalityTraits::GBaseParChildPersonalityTraits(const GBaseParChildPersonalityTraits& cp)
-   : GPersonalityTraits(cp)
-   , parentCounter_(cp.parentCounter_)
-   , popPos_(cp.popPos_)
-   , parentId_(cp.parentId_)
-{ /* nothing */ }
+GBaseParChildPersonalityTraits::GBaseParChildPersonalityTraits(const GBaseParChildPersonalityTraits &cp)
+	: GPersonalityTraits(cp), parentCounter_(cp.parentCounter_), popPos_(cp.popPos_),
+	  parentId_(cp.parentId_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
-GBaseParChildPersonalityTraits::~GBaseParChildPersonalityTraits()
-{ /* nothing */ }
+GBaseParChildPersonalityTraits::~GBaseParChildPersonalityTraits() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GBaseParChildPersonalityTraits& GBaseParChildPersonalityTraits::operator=(
-   const GBaseParChildPersonalityTraits& cp
+const GBaseParChildPersonalityTraits &GBaseParChildPersonalityTraits::operator=(
+	const GBaseParChildPersonalityTraits &cp
 ) {
-   this->load_(&cp);
-   return *this;
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -88,14 +81,14 @@ const GBaseParChildPersonalityTraits& GBaseParChildPersonalityTraits::operator=(
  * @param  cp A constant reference to another GBaseParChildPersonalityTraits object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBaseParChildPersonalityTraits::operator==(const GBaseParChildPersonalityTraits& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBaseParChildPersonalityTraits::operator==(const GBaseParChildPersonalityTraits &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -105,14 +98,14 @@ bool GBaseParChildPersonalityTraits::operator==(const GBaseParChildPersonalityTr
  * @param  cp A constant reference to another GBaseParChildPersonalityTraits object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GBaseParChildPersonalityTraits::operator!=(const GBaseParChildPersonalityTraits& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBaseParChildPersonalityTraits::operator!=(const GBaseParChildPersonalityTraits &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -125,27 +118,25 @@ bool GBaseParChildPersonalityTraits::operator!=(const GBaseParChildPersonalityTr
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBaseParChildPersonalityTraits::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GBaseParChildPersonalityTraits *p_load = GObject::gobject_conversion<GBaseParChildPersonalityTraits>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GBaseParChildPersonalityTraits *p_load = GObject::gobject_conversion<GBaseParChildPersonalityTraits>(&cp);
 
-   GToken token("GBaseParChildPersonalityTraits", e);
+	GToken token("GBaseParChildPersonalityTraits", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
 
-   // ... and then the local data
-   compare_t(IDENTITY(parentCounter_, p_load->parentCounter_), token);
-   compare_t(IDENTITY(popPos_, p_load->popPos_), token);
-   compare_t(IDENTITY(parentId_, p_load->parentId_), token);
+	// ... and then the local data
+	compare_t(IDENTITY(parentCounter_, p_load->parentCounter_), token);
+	compare_t(IDENTITY(popPos_, p_load->popPos_), token);
+	compare_t(IDENTITY(parentId_, p_load->parentId_), token);
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -153,7 +144,7 @@ void GBaseParChildPersonalityTraits::compare(
  * Emits a name for this class / object
  */
 std::string GBaseParChildPersonalityTraits::name() const {
-   return std::string("GBaseParChildPersonalityTraits");
+	return std::string("GBaseParChildPersonalityTraits");
 }
 
 /******************************************************************************/
@@ -162,8 +153,8 @@ std::string GBaseParChildPersonalityTraits::name() const {
  *
  * @return A clone of this object, camouflaged as a GObject
  */
-GObject* GBaseParChildPersonalityTraits::clone_() const {
-   return new GBaseParChildPersonalityTraits(*this);
+GObject *GBaseParChildPersonalityTraits::clone_() const {
+	return new GBaseParChildPersonalityTraits(*this);
 }
 
 /******************************************************************************/
@@ -172,16 +163,16 @@ GObject* GBaseParChildPersonalityTraits::clone_() const {
  *
  * @param cp A copy of another GBaseParChildPersonalityTraits object, camouflaged as a GObject
  */
-void GBaseParChildPersonalityTraits::load_(const GObject* cp) {
-   const GBaseParChildPersonalityTraits *p_load = gobject_conversion<GBaseParChildPersonalityTraits>(cp);
+void GBaseParChildPersonalityTraits::load_(const GObject *cp) {
+	const GBaseParChildPersonalityTraits *p_load = gobject_conversion<GBaseParChildPersonalityTraits>(cp);
 
-   // Load the parent class'es data
-   GPersonalityTraits::load_(cp);
+	// Load the parent class'es data
+	GPersonalityTraits::load_(cp);
 
-   // Then load our local data
-   parentCounter_ = p_load->parentCounter_;
-   popPos_ = p_load->popPos_;
-   parentId_ = p_load->parentId_;
+	// Then load our local data
+	parentCounter_ = p_load->parentCounter_;
+	popPos_ = p_load->popPos_;
+	parentId_ = p_load->parentId_;
 }
 
 /******************************************************************************/
@@ -191,7 +182,7 @@ void GBaseParChildPersonalityTraits::load_(const GObject* cp) {
  * @return A boolean indicating whether this object is a parent at this time
  */
 bool GBaseParChildPersonalityTraits::isParent() const {
-   return (parentCounter_>0)?true:false;
+	return (parentCounter_ > 0) ? true : false;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -206,7 +197,7 @@ bool GBaseParChildPersonalityTraits::isParent() const {
  * @return The current value of the parentCounter_ variable
  */
 boost::uint32_t GBaseParChildPersonalityTraits::getParentCounter() const {
-   return parentCounter_;
+	return parentCounter_;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -221,9 +212,9 @@ boost::uint32_t GBaseParChildPersonalityTraits::getParentCounter() const {
  * @return A boolean indicating whether this individual was previously a parent (true) or a child (false)
  */
 bool GBaseParChildPersonalityTraits::setIsParent() {
-   bool previous=(parentCounter_>0)?true:false;
-   parentCounter_++;
-   return previous;
+	bool previous = (parentCounter_ > 0) ? true : false;
+	parentCounter_++;
+	return previous;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -238,9 +229,9 @@ bool GBaseParChildPersonalityTraits::setIsParent() {
  * @return A boolean indicating whether this individual was previously a parent (true) or a child (false)
  */
 bool GBaseParChildPersonalityTraits::setIsChild() {
-   bool previous=(parentCounter_>0)?true:false;
-   parentCounter_=0;
-   return previous;
+	bool previous = (parentCounter_ > 0) ? true : false;
+	parentCounter_ = 0;
+	return previous;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -254,8 +245,8 @@ bool GBaseParChildPersonalityTraits::setIsChild() {
  *
  * @param popPos The new position of this individual in the population
  */
-void GBaseParChildPersonalityTraits::setPopulationPosition(const std::size_t& popPos) {
-   popPos_ = popPos;
+void GBaseParChildPersonalityTraits::setPopulationPosition(const std::size_t &popPos) {
+	popPos_ = popPos;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -270,7 +261,7 @@ void GBaseParChildPersonalityTraits::setPopulationPosition(const std::size_t& po
  * @return The current position of this individual in the population
  */
 std::size_t GBaseParChildPersonalityTraits::getPopulationPosition(void) const {
-   return popPos_;
+	return popPos_;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -284,8 +275,8 @@ std::size_t GBaseParChildPersonalityTraits::getPopulationPosition(void) const {
  *
  * @param parentId The id of the individual's parent
  */
-void GBaseParChildPersonalityTraits::setParentId(const std::size_t& parentId) {
-   parentId_ = (boost::int16_t) parentId;
+void GBaseParChildPersonalityTraits::setParentId(const std::size_t &parentId) {
+	parentId_ = (boost::int16_t) parentId;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -301,16 +292,16 @@ void GBaseParChildPersonalityTraits::setParentId(const std::size_t& parentId) {
  * @return The parent's id
  */
 std::size_t GBaseParChildPersonalityTraits::getParentId() const {
-   if(parentId_ >= 0) return parentId_;
-   else {
-      glogger
-      << "In GBaseParChildPersonalityTraits::getParentId():" << std::endl
-      << "parentId_ is unset" << std::endl
-      << GEXCEPTION;
-   }
+	if (parentId_ >= 0) return parentId_;
+	else {
+		glogger
+		<< "In GBaseParChildPersonalityTraits::getParentId():" << std::endl
+		<< "parentId_ is unset" << std::endl
+		<< GEXCEPTION;
+	}
 
-   // Make the compiler happy
-   return std::size_t(0);
+	// Make the compiler happy
+	return std::size_t(0);
 }
 
 /* ----------------------------------------------------------------------------------
@@ -326,8 +317,8 @@ std::size_t GBaseParChildPersonalityTraits::getParentId() const {
  * @return A boolean which indicates whether the parent id has been set
  */
 bool GBaseParChildPersonalityTraits::parentIdSet() const {
-   if(parentId_ >= 0) return true;
-   else return false;
+	if (parentId_ >= 0) return true;
+	else return false;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -340,7 +331,7 @@ bool GBaseParChildPersonalityTraits::parentIdSet() const {
  * Marks the parent id as unset
  */
 void GBaseParChildPersonalityTraits::unsetParentId() {
-   parentId_ = -1;
+	parentId_ = -1;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -357,16 +348,16 @@ void GBaseParChildPersonalityTraits::unsetParentId() {
  */
 bool GBaseParChildPersonalityTraits::modify_GUnitTests() {
 #ifdef GEM_TESTING
-   bool result = false;
+	bool result = false;
 
-   // Call the parent class'es function
-   if(GPersonalityTraits::modify_GUnitTests()) result = true;
+	// Call the parent class'es function
+	if (GPersonalityTraits::modify_GUnitTests()) result = true;
 
-   // A relatively harmless modification is a change of the parentCounter variable
-   parentCounter_++;
-   result = true;
+	// A relatively harmless modification is a change of the parentCounter variable
+	parentCounter_++;
+	result = true;
 
-   return result;
+	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GBaseParChildPersonalityTraits::modify_GUnitTests", "GEM_TESTING");
@@ -380,79 +371,79 @@ bool GBaseParChildPersonalityTraits::modify_GUnitTests() {
  */
 void GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
-   using boost::unit_test_framework::test_suite;
-   using boost::unit_test_framework::test_case;
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
 
-   // Call the parent class'es function
-   GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests();
+	// Call the parent class'es function
+	GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests();
 
-   // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
-   { // Check that it is possible to mark this as a parent or child-entity
-      std::shared_ptr<GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
+	{ // Check that it is possible to mark this as a parent or child-entity
+		std::shared_ptr <GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
 
-      // Mark this object as belonging to a parent and check the correct setting
-      BOOST_CHECK_NO_THROW(p_test->setIsParent());
-      BOOST_CHECK(p_test->isParent() == true);
+		// Mark this object as belonging to a parent and check the correct setting
+		BOOST_CHECK_NO_THROW(p_test->setIsParent());
+		BOOST_CHECK(p_test->isParent() == true);
 
-      // Mark this object as belonging to a child and check the correct setting
-      BOOST_CHECK_NO_THROW(p_test->setIsChild());
-      BOOST_CHECK(p_test->isParent() == false);
-   }
+		// Mark this object as belonging to a child and check the correct setting
+		BOOST_CHECK_NO_THROW(p_test->setIsChild());
+		BOOST_CHECK(p_test->isParent() == false);
+	}
 
-   // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 
-   { // Check that the parent counter is incremented or reset correctly
-      std::shared_ptr<GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
+	{ // Check that the parent counter is incremented or reset correctly
+		std::shared_ptr <GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
 
-      // Mark this object as belonging to a child and check the correct setting
-      BOOST_CHECK_NO_THROW(p_test->setIsChild());
-      BOOST_CHECK(p_test->isParent() == false);
+		// Mark this object as belonging to a child and check the correct setting
+		BOOST_CHECK_NO_THROW(p_test->setIsChild());
+		BOOST_CHECK(p_test->isParent() == false);
 
-      // Check that the parent counter is now 0
-      BOOST_CHECK(p_test->getParentCounter() == 0);
+		// Check that the parent counter is now 0
+		BOOST_CHECK(p_test->getParentCounter() == 0);
 
-      // Mark the individual as a parent a number of times and check the parent counter
-      for(boost::uint32_t i=1; i<=10; i++) {
-         BOOST_CHECK_NO_THROW(p_test->setIsParent());
-         BOOST_CHECK(p_test->getParentCounter() == i);
-      }
+		// Mark the individual as a parent a number of times and check the parent counter
+		for (boost::uint32_t i = 1; i <= 10; i++) {
+			BOOST_CHECK_NO_THROW(p_test->setIsParent());
+			BOOST_CHECK(p_test->getParentCounter() == i);
+		}
 
-      // Mark the individual as a child and check the parent counter again
-      BOOST_CHECK_NO_THROW(p_test->setIsChild());
-      BOOST_CHECK(p_test->isParent() == false);
+		// Mark the individual as a child and check the parent counter again
+		BOOST_CHECK_NO_THROW(p_test->setIsChild());
+		BOOST_CHECK(p_test->isParent() == false);
 
-      // Check that the parent counter is now 0
-      BOOST_CHECK(p_test->getParentCounter() == 0);
-   }
+		// Check that the parent counter is now 0
+		BOOST_CHECK(p_test->getParentCounter() == 0);
+	}
 
-   // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
-   { // Check setting and retrieval of the individual's position in the population
-      std::shared_ptr<GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
+	{ // Check setting and retrieval of the individual's position in the population
+		std::shared_ptr <GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
 
-      for(std::size_t i=0; i<10; i++) {
-         BOOST_CHECK_NO_THROW(p_test->setPopulationPosition(i));
-         BOOST_CHECK(p_test->getPopulationPosition() == i);
-      }
-   }
+		for (std::size_t i = 0; i < 10; i++) {
+			BOOST_CHECK_NO_THROW(p_test->setPopulationPosition(i));
+			BOOST_CHECK(p_test->getPopulationPosition() == i);
+		}
+	}
 
-   // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
-   { // Test setting and retrieval of valid parent ids
-      std::shared_ptr<GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
+	{ // Test setting and retrieval of valid parent ids
+		std::shared_ptr <GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
 
-      for(std::size_t i=0; i<10; i++) {
-         BOOST_CHECK_NO_THROW(p_test->setParentId(i));
-         BOOST_CHECK(p_test->getParentId() == i);
-         BOOST_CHECK(p_test->parentIdSet() == true);
-         BOOST_CHECK_NO_THROW(p_test->unsetParentId());
-         BOOST_CHECK(p_test->parentIdSet() == false);
-      }
-   }
+		for (std::size_t i = 0; i < 10; i++) {
+			BOOST_CHECK_NO_THROW(p_test->setParentId(i));
+			BOOST_CHECK(p_test->getParentId() == i);
+			BOOST_CHECK(p_test->parentIdSet() == true);
+			BOOST_CHECK_NO_THROW(p_test->unsetParentId());
+			BOOST_CHECK(p_test->parentIdSet() == false);
+		}
+	}
 
-   // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -465,22 +456,22 @@ void GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests()
  */
 void GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
-   using boost::unit_test_framework::test_suite;
-   using boost::unit_test_framework::test_case;
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
 
-   // Call the parent class'es function
-   GPersonalityTraits::specificTestsFailuresExpected_GUnitTests();
+	// Call the parent class'es function
+	GPersonalityTraits::specificTestsFailuresExpected_GUnitTests();
 
-   // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
-   { // Test that retrieval of the parent id throws, if the id isn't set
-      std::shared_ptr<GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
+	{ // Test that retrieval of the parent id throws, if the id isn't set
+		std::shared_ptr <GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
 
-      BOOST_CHECK_NO_THROW(p_test->unsetParentId());
-      BOOST_CHECK_THROW(p_test->getParentId(), Gem::Common::gemfony_error_condition);
-   }
+		BOOST_CHECK_NO_THROW(p_test->unsetParentId());
+		BOOST_CHECK_THROW(p_test->getParentId(), Gem::Common::gemfony_error_condition);
+	}
 
-   // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

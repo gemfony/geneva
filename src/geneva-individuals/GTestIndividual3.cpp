@@ -50,61 +50,57 @@ const double GTI_DEF_ADPROB = 0.05;
 /**
  * The default constructor
  */
-GTestIndividual3::GTestIndividual3() : GParameterSet()
-{
-   using namespace Gem::Geneva;
+GTestIndividual3::GTestIndividual3() : GParameterSet() {
+	using namespace Gem::Geneva;
 
-   /////////////////////////////////////////////////////////////////////////////
-   // Create suitable adaptors
+	/////////////////////////////////////////////////////////////////////////////
+	// Create suitable adaptors
 
-   // Gaussian distributed random numbers
-   std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr_tmpl(
-         new GDoubleGaussAdaptor(
-               GTI_DEF_SIGMA
-               , GTI_DEF_SIGMASIGMA
-               , GTI_DEF_MINSIGMA
-               , GTI_DEF_MAXSIGMA
-         )
-   );
-   gdga_ptr_tmpl->setAdaptionProbability(GTI_DEF_ADPROB);
+	// Gaussian distributed random numbers
+	std::shared_ptr <GDoubleGaussAdaptor> gdga_ptr_tmpl(
+		new GDoubleGaussAdaptor(
+			GTI_DEF_SIGMA, GTI_DEF_SIGMASIGMA, GTI_DEF_MINSIGMA, GTI_DEF_MAXSIGMA
+		)
+	);
+	gdga_ptr_tmpl->setAdaptionProbability(GTI_DEF_ADPROB);
 
-   /////////////////////////////////////////////////////////////////////////////
-   // Set up a hierarchical data structure
+	/////////////////////////////////////////////////////////////////////////////
+	// Set up a hierarchical data structure
 
-   // Create one GParameterObjectCollection for each data item
-   for(std::size_t i_cnt=0; i_cnt<GTI_DEF_NITEMS; i_cnt++) {
-      std::shared_ptr<GParameterObjectCollection> gpoc_ptr(new GParameterObjectCollection());
+	// Create one GParameterObjectCollection for each data item
+	for (std::size_t i_cnt = 0; i_cnt < GTI_DEF_NITEMS; i_cnt++) {
+		std::shared_ptr <GParameterObjectCollection> gpoc_ptr(new GParameterObjectCollection());
 
-      //--------------------------------------------------------------------------------------------
-      std::shared_ptr<GConstrainedDoubleCollection> a_ptr(new GConstrainedDoubleCollection(2, 0., 1.));
-      a_ptr->addAdaptor(gdga_ptr_tmpl);
-      gpoc_ptr->push_back(a_ptr);
+		//--------------------------------------------------------------------------------------------
+		std::shared_ptr <GConstrainedDoubleCollection> a_ptr(new GConstrainedDoubleCollection(2, 0., 1.));
+		a_ptr->addAdaptor(gdga_ptr_tmpl);
+		gpoc_ptr->push_back(a_ptr);
 
-      //--------------------------------------------------------------------------------------------
-      std::shared_ptr<GConstrainedDoubleObject> b_ptr(new GConstrainedDoubleObject(0., 0.3));
-      b_ptr->addAdaptor(gdga_ptr_tmpl);
-      gpoc_ptr->push_back(b_ptr);
+		//--------------------------------------------------------------------------------------------
+		std::shared_ptr <GConstrainedDoubleObject> b_ptr(new GConstrainedDoubleObject(0., 0.3));
+		b_ptr->addAdaptor(gdga_ptr_tmpl);
+		gpoc_ptr->push_back(b_ptr);
 
-      //--------------------------------------------------------------------------------------------
-      std::shared_ptr<GConstrainedDoubleCollection> c_ptr(new GConstrainedDoubleCollection(3, 0., 1.));
-      c_ptr->addAdaptor(gdga_ptr_tmpl);
-      gpoc_ptr->push_back(c_ptr);
+		//--------------------------------------------------------------------------------------------
+		std::shared_ptr <GConstrainedDoubleCollection> c_ptr(new GConstrainedDoubleCollection(3, 0., 1.));
+		c_ptr->addAdaptor(gdga_ptr_tmpl);
+		gpoc_ptr->push_back(c_ptr);
 
-      //--------------------------------------------------------------------------------------------
-      std::shared_ptr<GConstrainedDoubleCollection> d_ptr(new GConstrainedDoubleCollection(3, 0., 1.));
-      d_ptr->addAdaptor(gdga_ptr_tmpl);
-      gpoc_ptr->push_back(d_ptr);
+		//--------------------------------------------------------------------------------------------
+		std::shared_ptr <GConstrainedDoubleCollection> d_ptr(new GConstrainedDoubleCollection(3, 0., 1.));
+		d_ptr->addAdaptor(gdga_ptr_tmpl);
+		gpoc_ptr->push_back(d_ptr);
 
-      //--------------------------------------------------------------------------------------------
-      std::shared_ptr<GConstrainedDoubleObject> e_ptr(new GConstrainedDoubleObject(0.3, 0.6));
-      e_ptr->addAdaptor(gdga_ptr_tmpl);
-      gpoc_ptr->push_back(e_ptr);
+		//--------------------------------------------------------------------------------------------
+		std::shared_ptr <GConstrainedDoubleObject> e_ptr(new GConstrainedDoubleObject(0.3, 0.6));
+		e_ptr->addAdaptor(gdga_ptr_tmpl);
+		gpoc_ptr->push_back(e_ptr);
 
-      //--------------------------------------------------------------------------------------------
+		//--------------------------------------------------------------------------------------------
 
-      // Finally add the collection to the individual
-      this->push_back(gpoc_ptr);
-   }
+		// Finally add the collection to the individual
+		this->push_back(gpoc_ptr);
+	}
 }
 
 /******************************************************************************/
@@ -113,16 +109,14 @@ GTestIndividual3::GTestIndividual3() : GParameterSet()
  *
  * @param cp A constant reference to another GTestIndividual3 object
  */
-GTestIndividual3::GTestIndividual3(const GTestIndividual3& cp)
-: Gem::Geneva::GParameterSet(cp)
-{	/* nothing */ }
+GTestIndividual3::GTestIndividual3(const GTestIndividual3 &cp)
+	: Gem::Geneva::GParameterSet(cp) {   /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
-GTestIndividual3::~GTestIndividual3()
-{ /* nothing */	}
+GTestIndividual3::~GTestIndividual3() { /* nothing */   }
 
 /******************************************************************************/
 /**
@@ -131,7 +125,7 @@ GTestIndividual3::~GTestIndividual3()
  * @param cp A copy of another GTestIndividual3 object
  * @return A constant reference to this object
  */
-const GTestIndividual3& GTestIndividual3::operator=(const GTestIndividual3& cp){
+const GTestIndividual3 &GTestIndividual3::operator=(const GTestIndividual3 &cp) {
 	GTestIndividual3::load_(&cp);
 	return *this;
 }
@@ -143,14 +137,14 @@ const GTestIndividual3& GTestIndividual3::operator=(const GTestIndividual3& cp){
  * @param  cp A constant reference to another GTestIndividual3 object
  * @return A boolean indicating whether both objects are equal
  */
-bool GTestIndividual3::operator==(const GTestIndividual3& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GTestIndividual3::operator==(const GTestIndividual3 &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -160,14 +154,14 @@ bool GTestIndividual3::operator==(const GTestIndividual3& cp) const {
  * @param  cp A constant reference to another GTestIndividual3 object
  * @return A boolean indicating whether both objects are in-equal
  */
-bool GTestIndividual3::operator!=(const GTestIndividual3& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GTestIndividual3::operator!=(const GTestIndividual3 &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -180,25 +174,23 @@ bool GTestIndividual3::operator!=(const GTestIndividual3& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GTestIndividual3::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
-   using namespace Gem::Geneva;
+	using namespace Gem::Common;
+	using namespace Gem::Geneva;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GTestIndividual3 *p_load = GObject::gobject_conversion<GTestIndividual3>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GTestIndividual3 *p_load = GObject::gobject_conversion<GTestIndividual3>(&cp);
 
-   Gem::Common::GToken token("GTestIndividual3", e);
+	Gem::Common::GToken token("GTestIndividual3", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GParameterSet>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GParameterSet>(IDENTITY(*this, *p_load), token);
 
-   // ...no local data
+	// ...no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/
@@ -207,8 +199,7 @@ void GTestIndividual3::compare(
  *
  * @param cp A copy of another GTestIndividual3, camouflaged as a GObject
  */
-void GTestIndividual3::load_(const GObject* cp)
-{
+void GTestIndividual3::load_(const GObject *cp) {
 	using namespace Gem::Common;
 	using namespace Gem::Geneva;
 
@@ -227,7 +218,7 @@ void GTestIndividual3::load_(const GObject* cp)
  *
  * @return A deep clone of this object, camouflaged as a GObject
  */
-Gem::Geneva::GObject* GTestIndividual3::clone_() const {
+Gem::Geneva::GObject *GTestIndividual3::clone_() const {
 	return new GTestIndividual3(*this);
 }
 
@@ -246,7 +237,7 @@ double GTestIndividual3::fitnessCalculation() {
 	this->streamline(parVec);
 
 	// Calculate the value of the parabola
-	for(std::size_t i=0; i<parVec.size(); i++) {
+	for (std::size_t i = 0; i < parVec.size(); i++) {
 		result += GSQUARED(parVec[i]);
 	}
 
@@ -257,8 +248,8 @@ double GTestIndividual3::fitnessCalculation() {
 /**
  * Get all data members of this class as a plain array
  */
-std::shared_ptr<float> GTestIndividual3::getPlainData() const {
-   using namespace Gem::Geneva;
+std::shared_ptr <float> GTestIndividual3::getPlainData() const {
+	using namespace Gem::Geneva;
 
 #ifdef DEBUG
    if(this->size() != GTI_DEF_NITEMS) {
@@ -269,45 +260,46 @@ std::shared_ptr<float> GTestIndividual3::getPlainData() const {
    }
 #endif /* DEBUG */
 
-   // Note that we need to provide a deleter as we are dealing with an array. See e.g. http://stackoverflow.com/questions/13061979/shared-ptr-to-an-array-should-it-be-used
-   std::shared_ptr<float> result(new float[10*GTI_DEF_NITEMS], [](float *p){ delete [] p; });
-   for(std::size_t i=0; i<GTI_DEF_NITEMS; i++) {
-      std::shared_ptr<GParameterObjectCollection> gpoc_ptr = this->at<GParameterObjectCollection>(i);
+	// Note that we need to provide a deleter as we are dealing with an array. See e.g. http://stackoverflow.com/questions/13061979/shared-ptr-to-an-array-should-it-be-used
+	std::shared_ptr <float> result(new float[10 * GTI_DEF_NITEMS], [](float *p) { delete[] p; });
+	for (std::size_t i = 0; i < GTI_DEF_NITEMS; i++) {
+		std::shared_ptr <GParameterObjectCollection> gpoc_ptr = this->at<GParameterObjectCollection>(i);
 
-      //---------------------------------------------------------
-      // Extract the data of the middle of the circle
-      std::shared_ptr<GConstrainedDoubleCollection> a_ptr = gpoc_ptr->at<GConstrainedDoubleCollection>(0);
-      (result.get())[i*10+0] = boost::numeric_cast<float>(a_ptr->at(0)); // std::shared_ptr doesn't support subscripting, contrary to boost:shared_array
-      (result.get())[i*10+1] = boost::numeric_cast<float>(a_ptr->at(1));
+		//---------------------------------------------------------
+		// Extract the data of the middle of the circle
+		std::shared_ptr <GConstrainedDoubleCollection> a_ptr = gpoc_ptr->at<GConstrainedDoubleCollection>(0);
+		(result.get())[i * 10 + 0] = boost::numeric_cast<float>(
+			a_ptr->at(0)); // std::shared_ptr doesn't support subscripting, contrary to boost:shared_array
+		(result.get())[i * 10 + 1] = boost::numeric_cast<float>(a_ptr->at(1));
 
-      //---------------------------------------------------------
-      std::shared_ptr<GConstrainedDoubleObject> b_ptr = gpoc_ptr->at<GConstrainedDoubleObject>(1);
-      (result.get())[i*10+2] = boost::numeric_cast<float>(b_ptr->value());
+		//---------------------------------------------------------
+		std::shared_ptr <GConstrainedDoubleObject> b_ptr = gpoc_ptr->at<GConstrainedDoubleObject>(1);
+		(result.get())[i * 10 + 2] = boost::numeric_cast<float>(b_ptr->value());
 
-      //---------------------------------------------------------
-      // Extract the three angles
-      std::shared_ptr<GConstrainedDoubleCollection> c_ptr = gpoc_ptr->at<GConstrainedDoubleCollection>(2);
-      (result.get())[i*10+3] = boost::numeric_cast<float>(c_ptr->at(0));
-      (result.get())[i*10+4] = boost::numeric_cast<float>(c_ptr->at(1));
-      (result.get())[i*10+5] = boost::numeric_cast<float>(c_ptr->at(2));
+		//---------------------------------------------------------
+		// Extract the three angles
+		std::shared_ptr <GConstrainedDoubleCollection> c_ptr = gpoc_ptr->at<GConstrainedDoubleCollection>(2);
+		(result.get())[i * 10 + 3] = boost::numeric_cast<float>(c_ptr->at(0));
+		(result.get())[i * 10 + 4] = boost::numeric_cast<float>(c_ptr->at(1));
+		(result.get())[i * 10 + 5] = boost::numeric_cast<float>(c_ptr->at(2));
 
-      //---------------------------------------------------------
-      // Extract the three colors
-      std::shared_ptr<GConstrainedDoubleCollection> d_ptr = gpoc_ptr->at<GConstrainedDoubleCollection>(3);
-      (result.get())[i*10+6]  = boost::numeric_cast<float>(d_ptr->at(0));
-      (result.get())[i*10+7]  = boost::numeric_cast<float>(d_ptr->at(1));
-      (result.get())[i*10+8]  = boost::numeric_cast<float>(d_ptr->at(2));
+		//---------------------------------------------------------
+		// Extract the three colors
+		std::shared_ptr <GConstrainedDoubleCollection> d_ptr = gpoc_ptr->at<GConstrainedDoubleCollection>(3);
+		(result.get())[i * 10 + 6] = boost::numeric_cast<float>(d_ptr->at(0));
+		(result.get())[i * 10 + 7] = boost::numeric_cast<float>(d_ptr->at(1));
+		(result.get())[i * 10 + 8] = boost::numeric_cast<float>(d_ptr->at(2));
 
-      //---------------------------------------------------------
-      // Extract the alpha channel
-      std::shared_ptr<GConstrainedDoubleObject> e_ptr = gpoc_ptr->at<GConstrainedDoubleObject>(4);
-      (result.get())[i*10+9] = boost::numeric_cast<float>(e_ptr->value());
+		//---------------------------------------------------------
+		// Extract the alpha channel
+		std::shared_ptr <GConstrainedDoubleObject> e_ptr = gpoc_ptr->at<GConstrainedDoubleObject>(4);
+		(result.get())[i * 10 + 9] = boost::numeric_cast<float>(e_ptr->value());
 
-      //---------------------------------------------------------
-   }
+		//---------------------------------------------------------
+	}
 
-   // Let the audience know
-   return result;
+	// Let the audience know
+	return result;
 }
 
 /******************************************************************************/
@@ -325,7 +317,7 @@ bool GTestIndividual3::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent classes' functions
-	if(Gem::Geneva::GParameterSet::modify_GUnitTests()) result = true;
+	if (Gem::Geneva::GParameterSet::modify_GUnitTests()) result = true;
 
 	// Change the parameter settings
 	result = true;
@@ -349,25 +341,25 @@ void GTestIndividual3::specificTestsNoFailureExpected_GUnitTests() {
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
-   // Call the parent classes' functions
-   Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests();
+	// Call the parent classes' functions
+	Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests();
 
 	const std::size_t NTESTS = 100;
 
 	//------------------------------------------------------------------------------
 
 	{ // Test that repeated extraction of an object's data results in the same output
-      std::shared_ptr<GTestIndividual3> p;
-      std::shared_ptr<float> result_old, result_new;
+		std::shared_ptr <GTestIndividual3> p;
+		std::shared_ptr <float> result_old, result_new;
 
-      BOOST_CHECK_NO_THROW(p = std::shared_ptr<GTestIndividual3>(new GTestIndividual3()));
-      BOOST_CHECK_NO_THROW(result_old = p->getPlainData());
-      for(std::size_t i=0; i<NTESTS; i++) {
-         BOOST_CHECK_NO_THROW(result_new = p->getPlainData());
-         for(std::size_t m=0; m<GTI_DEF_NITEMS*10; i++) {
-            BOOST_CHECK((result_old.get())[i] == (result_new.get())[i]); // std::shared_ptr doesn't support subscripting
-         }
-      }
+		BOOST_CHECK_NO_THROW(p = std::shared_ptr<GTestIndividual3>(new GTestIndividual3()));
+		BOOST_CHECK_NO_THROW(result_old = p->getPlainData());
+		for (std::size_t i = 0; i < NTESTS; i++) {
+			BOOST_CHECK_NO_THROW(result_new = p->getPlainData());
+			for (std::size_t m = 0; m < GTI_DEF_NITEMS * 10; i++) {
+				BOOST_CHECK((result_old.get())[i] == (result_new.get())[i]); // std::shared_ptr doesn't support subscripting
+			}
+		}
 	}
 
 	//------------------------------------------------------------------------------

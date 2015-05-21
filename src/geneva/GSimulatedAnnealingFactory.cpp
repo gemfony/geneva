@@ -46,18 +46,17 @@ G_API_GENEVA const std::string GSimulatedAnnealingFactory::nickname = "sa";
  * The default constructor
  */
 GSimulatedAnnealingFactory::GSimulatedAnnealingFactory()
-   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >("./config/GSimulatedAnnealing.json")
-{ /* nothing */ }
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(
+	"./config/GSimulatedAnnealing.json") { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization with the name of the config file and the default parallelization mode
  */
 GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
-      const std::string& configFile
+	const std::string &configFile
 )
-   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile)
-{ /* nothing */ }
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -65,11 +64,9 @@ GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
  * target item as needed.
  */
 GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
-   const std::string& configFile
-   , const execMode& pm
+	const std::string &configFile, const execMode &pm
 )
-   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm)
-{ /* nothing */ }
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -77,26 +74,24 @@ GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
  * to add a content creator. It initializes a target item as needed.
  */
 GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
-   const std::string& configFile
-   , const execMode& pm
-   , std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr
+	const std::string &configFile, const execMode &pm,
+	std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm, contentCreatorPtr)
-{ /* nothing */ }
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm,
+																									  contentCreatorPtr) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GSimulatedAnnealingFactory::~GSimulatedAnnealingFactory()
-{ /* nothing */ }
+GSimulatedAnnealingFactory::~GSimulatedAnnealingFactory() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Gives access to the mnemonics / nickname describing an algorithm
  */
 std::string GSimulatedAnnealingFactory::getMnemonic() const {
-   return GSimulatedAnnealingFactory::nickname;
+	return GSimulatedAnnealingFactory::nickname;
 }
 
 /******************************************************************************/
@@ -104,7 +99,7 @@ std::string GSimulatedAnnealingFactory::getMnemonic() const {
  * Gives access to a clear-text description of the algorithm
  */
 std::string GSimulatedAnnealingFactory::getAlgorithmName() const {
-   return std::string("Simulated Annealing");
+	return std::string("Simulated Annealing");
 }
 
 /******************************************************************************/
@@ -113,32 +108,31 @@ std::string GSimulatedAnnealingFactory::getAlgorithmName() const {
  *
  * @return Items of the desired type
  */
-std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GSimulatedAnnealingFactory::getObject_(
-   Gem::Common::GParserBuilder& gpb
-   , const std::size_t& id
+std::shared_ptr <GOptimizationAlgorithmT<GParameterSet>> GSimulatedAnnealingFactory::getObject_(
+	Gem::Common::GParserBuilder &gpb, const std::size_t &id
 ) {
-   // Will hold the result
-   std::shared_ptr<GBaseSA> target;
+	// Will hold the result
+	std::shared_ptr <GBaseSA> target;
 
-   // Fill the target pointer as required
-   switch(pm_) {
-   case EXECMODE_SERIAL:
-      target = std::shared_ptr<GSerialSA>(new GSerialSA());
-      break;
+	// Fill the target pointer as required
+	switch (pm_) {
+		case EXECMODE_SERIAL:
+			target = std::shared_ptr<GSerialSA>(new GSerialSA());
+			break;
 
-   case EXECMODE_MULTITHREADED:
-      target = std::shared_ptr<GMultiThreadedSA>(new GMultiThreadedSA());
-      break;
+		case EXECMODE_MULTITHREADED:
+			target = std::shared_ptr<GMultiThreadedSA>(new GMultiThreadedSA());
+			break;
 
-   case EXECMODE_BROKERAGE:
-      target = std::shared_ptr<GBrokerSA>(new GBrokerSA());
-      break;
-   }
+		case EXECMODE_BROKERAGE:
+			target = std::shared_ptr<GBrokerSA>(new GBrokerSA());
+			break;
+	}
 
-   // Make the local configuration options known (up to the level of GBaseSA)
-   target->GBaseSA::addConfigurationOptions(gpb);
+	// Make the local configuration options known (up to the level of GBaseSA)
+	target->GBaseSA::addConfigurationOptions(gpb);
 
-   return target;
+	return target;
 }
 
 /******************************************************************************/
@@ -148,36 +142,34 @@ std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GSimulatedAnnealingFact
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GSimulatedAnnealingFactory::postProcess_(std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >& p_base) {
-   // Convert the object to the correct target type
-   switch(pm_) {
-   case EXECMODE_SERIAL:
-      // nothing
-      break;
+void GSimulatedAnnealingFactory::postProcess_(std::shared_ptr < GOptimizationAlgorithmT<GParameterSet> > &p_base) {
+	// Convert the object to the correct target type
+	switch (pm_) {
+		case EXECMODE_SERIAL:
+			// nothing
+			break;
 
-   case EXECMODE_MULTITHREADED:
-      {
-         std::shared_ptr<GMultiThreadedSA> p
-            = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedSA>(p_base);
-         p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
-      }
-      break;
+		case EXECMODE_MULTITHREADED: {
+			std::shared_ptr <GMultiThreadedSA> p
+				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedSA>(p_base);
+			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
+		}
+			break;
 
-   case EXECMODE_BROKERAGE:
-      {
-         std::shared_ptr<GBrokerSA> p
-            = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerSA>(p_base);
+		case EXECMODE_BROKERAGE: {
+			std::shared_ptr <GBrokerSA> p
+				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerSA>(p_base);
 
-         p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
-         p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::doLogging_);
-         p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::waitFactor_);
+			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
+			p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::doLogging_);
+			p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::waitFactor_);
 
-      }
-      break;
-   }
+		}
+			break;
+	}
 
-   // Call our parent class'es function
-   GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::postProcess_(p_base);
+	// Call our parent class'es function
+	GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::postProcess_(p_base);
 }
 
 /******************************************************************************/

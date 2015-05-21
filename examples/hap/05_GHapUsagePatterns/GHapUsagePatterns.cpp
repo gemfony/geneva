@@ -69,6 +69,12 @@ void produceNumbers(int id) {
          producer2_vec.push_back(Gem::Common::tss_ptr<Gem::Hap::GRandom>()->uniform_01<double>());
       }
       break;
+
+		default:
+			glogger
+			<< "Unkown id " << id << std::endl
+			<< GEXCEPTION;
+		break;
    }
 }
 

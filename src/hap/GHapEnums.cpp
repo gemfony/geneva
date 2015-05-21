@@ -34,10 +34,8 @@
 
 #include "hap/GHapEnums.hpp"
 
-namespace Gem
-{
-namespace Hap
-{
+namespace Gem {
+namespace Hap {
 
 /******************************************************************************/
 /**
@@ -47,7 +45,7 @@ namespace Hap
  * @param grts the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Hap::RANDFLAVOURS& grts){
+std::ostream &operator<<(std::ostream &o, const Gem::Hap::RANDFLAVOURS &grts) {
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(grts);
 	o << tmp;
 	return o;
@@ -61,7 +59,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Hap::RANDFLAVOURS& grts){
  * @param grts The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Hap::RANDFLAVOURS& grts){
+std::istream &operator>>(std::istream &i, Gem::Hap::RANDFLAVOURS &grts) {
 	boost::uint16_t tmp;
 	i >> tmp;
 

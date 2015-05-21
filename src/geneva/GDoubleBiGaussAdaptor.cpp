@@ -43,8 +43,7 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GDoubleBiGaussAdaptor::GDoubleBiGaussAdaptor()
-{ /* nothing */ }
+GDoubleBiGaussAdaptor::GDoubleBiGaussAdaptor() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -52,9 +51,8 @@ GDoubleBiGaussAdaptor::GDoubleBiGaussAdaptor()
  *
  * @param cp A copy of another GDoubleBiGaussAdaptor object
  */
-GDoubleBiGaussAdaptor::GDoubleBiGaussAdaptor(const GDoubleBiGaussAdaptor& cp)
-	: GFPBiGaussAdaptorT<double>(cp)
-{ /* nothing */ }
+GDoubleBiGaussAdaptor::GDoubleBiGaussAdaptor(const GDoubleBiGaussAdaptor &cp)
+	: GFPBiGaussAdaptorT<double>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -62,16 +60,14 @@ GDoubleBiGaussAdaptor::GDoubleBiGaussAdaptor(const GDoubleBiGaussAdaptor& cp)
  *
  * @param adProb The adaption probability
  */
-GDoubleBiGaussAdaptor::GDoubleBiGaussAdaptor(const double& adProb)
-	: GFPBiGaussAdaptorT<double>(adProb)
-{ /* nothing */ }
+GDoubleBiGaussAdaptor::GDoubleBiGaussAdaptor(const double &adProb)
+	: GFPBiGaussAdaptorT<double>(adProb) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GDoubleBiGaussAdaptor::~GDoubleBiGaussAdaptor()
-{ /* nothing */ }
+GDoubleBiGaussAdaptor::~GDoubleBiGaussAdaptor() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -79,7 +75,7 @@ GDoubleBiGaussAdaptor::~GDoubleBiGaussAdaptor()
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GDoubleBiGaussAdaptor::clone_() const {
+GObject *GDoubleBiGaussAdaptor::clone_() const {
 	return new GDoubleBiGaussAdaptor(*this);
 }
 
@@ -87,11 +83,11 @@ GObject* GDoubleBiGaussAdaptor::clone_() const {
 /**
  * The standard assignment operator
  */
-const GDoubleBiGaussAdaptor& GDoubleBiGaussAdaptor::operator=(
-   const GDoubleBiGaussAdaptor& cp
+const GDoubleBiGaussAdaptor &GDoubleBiGaussAdaptor::operator=(
+	const GDoubleBiGaussAdaptor &cp
 ) {
-   this->load_(&cp);
-   return *this;
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -101,14 +97,14 @@ const GDoubleBiGaussAdaptor& GDoubleBiGaussAdaptor::operator=(
  * @param  cp A constant reference to another GDoubleBiGaussAdaptor object
  * @return A boolean indicating whether both objects are equal
  */
-bool GDoubleBiGaussAdaptor::operator==(const GDoubleBiGaussAdaptor& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GDoubleBiGaussAdaptor::operator==(const GDoubleBiGaussAdaptor &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -118,14 +114,14 @@ bool GDoubleBiGaussAdaptor::operator==(const GDoubleBiGaussAdaptor& cp) const {
  * @param  cp A constant reference to another GDoubleBiGaussAdaptor object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GDoubleBiGaussAdaptor::operator!=(const GDoubleBiGaussAdaptor& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GDoubleBiGaussAdaptor::operator!=(const GDoubleBiGaussAdaptor &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -138,24 +134,22 @@ bool GDoubleBiGaussAdaptor::operator!=(const GDoubleBiGaussAdaptor& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GDoubleBiGaussAdaptor::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GDoubleBiGaussAdaptor *p_load = GObject::gobject_conversion<GDoubleBiGaussAdaptor>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GDoubleBiGaussAdaptor *p_load = GObject::gobject_conversion<GDoubleBiGaussAdaptor>(&cp);
 
-   GToken token("GDoubleBiGaussAdaptor", e);
+	GToken token("GDoubleBiGaussAdaptor", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GFPBiGaussAdaptorT<double> >(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GFPBiGaussAdaptorT<double> >(IDENTITY(*this, *p_load), token);
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -163,7 +157,7 @@ void GDoubleBiGaussAdaptor::compare(
  * Emits a name for this class / object
  */
 std::string GDoubleBiGaussAdaptor::name() const {
-   return std::string("GDoubleBiGaussAdaptor");
+	return std::string("GDoubleBiGaussAdaptor");
 }
 
 /******************************************************************************/
@@ -172,9 +166,9 @@ std::string GDoubleBiGaussAdaptor::name() const {
  *
  * @param cp A copy of another GDoubleBiGaussAdaptor object, camouflaged as a GObject
  */
-void GDoubleBiGaussAdaptor::load_(const GObject* cp){
-    // Check that we are not accidently assigning this object to itself
-    GObject::selfAssignmentCheck<GDoubleBiGaussAdaptor>(cp);
+void GDoubleBiGaussAdaptor::load_(const GObject *cp) {
+	// Check that we are not accidently assigning this object to itself
+	GObject::selfAssignmentCheck<GDoubleBiGaussAdaptor>(cp);
 
 	// Load our parent class'es data ...
 	GFPBiGaussAdaptorT<double>::load_(cp);
@@ -205,13 +199,13 @@ Gem::Geneva::adaptorId GDoubleBiGaussAdaptor::getAdaptorId() const {
  */
 bool GDoubleBiGaussAdaptor::modify_GUnitTests() {
 #ifdef GEM_TESTING
-   using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GFPBiGaussAdaptorT<double>::modify_GUnitTests()) result = true;
+	if (GFPBiGaussAdaptorT<double>::modify_GUnitTests()) result = true;
 
 	return result;
 
@@ -236,13 +230,13 @@ void GDoubleBiGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check that the adaptor returns the correct adaptor id
-		std::shared_ptr<GDoubleBiGaussAdaptor> p_test = this->clone<GDoubleBiGaussAdaptor>();
+		std::shared_ptr <GDoubleBiGaussAdaptor> p_test = this->clone<GDoubleBiGaussAdaptor>();
 
 		BOOST_CHECK_MESSAGE(
-			p_test->getAdaptorId() == GDOUBLEBIGAUSSADAPTOR
-			,  "\n"
-			<< "p_test->getAdaptorId() = " << p_test->getAdaptorId()
-			<< "GDOUBLEBIGAUSSADAPTOR     = " << GDOUBLEBIGAUSSADAPTOR << "\n"
+			p_test->getAdaptorId() == GDOUBLEBIGAUSSADAPTOR, "\n"
+																			 << "p_test->getAdaptorId() = " << p_test->getAdaptorId()
+																			 << "GDOUBLEBIGAUSSADAPTOR     = " << GDOUBLEBIGAUSSADAPTOR <<
+																			 "\n"
 		);
 	}
 

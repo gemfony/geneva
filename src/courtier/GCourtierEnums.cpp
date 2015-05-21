@@ -45,7 +45,7 @@ namespace Courtier {
  * @param srm the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Courtier::submissionReturnMode& srm) {
+std::ostream &operator<<(std::ostream &o, const Gem::Courtier::submissionReturnMode &srm) {
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(srm);
 	o << tmp;
 	return o;
@@ -59,7 +59,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Courtier::submissionReturnM
  * @param srm The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Courtier::submissionReturnMode& srm) {
+std::istream &operator>>(std::istream &i, Gem::Courtier::submissionReturnMode &srm) {
 	boost::uint16_t tmp;
 	i >> tmp;
 

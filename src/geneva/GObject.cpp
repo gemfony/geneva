@@ -46,8 +46,7 @@ volatile G_API_GENEVA std::sig_atomic_t GObject::GenevaSigHupSent = 0;
  * The default constructor initializes the internal values of this class.
  * In particular, it sets the name of the Geneva object to "GObject"
  */
-GObject::GObject()
-{ /* nothing */ }
+GObject::GObject() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -55,16 +54,14 @@ GObject::GObject()
  *
  * @param cp A copy of another GObject object
  */
-GObject::GObject(const GObject& cp)
-{ /* nothing */ }
+GObject::GObject(const GObject &cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * As no memory is dynamically allocated in GObject, no work has to
  * be done by this destructor.
  */
-GObject::~GObject()
-{ /* nothing */ }
+GObject::~GObject() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -76,25 +73,24 @@ GObject::~GObject()
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GObject::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that cp isn't the same object as this one
-   this->selfAssignmentCheck<GObject>(&cp);
+	// Check that cp isn't the same object as this one
+	this->selfAssignmentCheck<GObject>(&cp);
 
-   // No parent classes to check...
+	// No parent classes to check...
 
-   // ... and no local data
+	// ... and no local data
 
-   // We consider two GObject instances to be always equal, as they
-   // do not have any local data and this is the base class. Hence
-   // we throw an expectation violation for the expectation CE_INEQUALITY.
-   if(CE_INEQUALITY == e) {
-      throw g_expectation_violation("In GObject: instance is empty and a base class, hence the expectation of inequality is always violated.");
-   }
+	// We consider two GObject instances to be always equal, as they
+	// do not have any local data and this is the base class. Hence
+	// we throw an expectation violation for the expectation CE_INEQUALITY.
+	if (CE_INEQUALITY == e) {
+		throw g_expectation_violation(
+			"In GObject: instance is empty and a base class, hence the expectation of inequality is always violated.");
+	}
 }
 
 /******************************************************************************/
@@ -112,31 +108,27 @@ void GObject::compare(
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GObject::checkRelationshipWith(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
-   , const std::string& caller
-   , const std::string& y_name
-   , const bool& withMessages
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit, const std::string &caller,
+	const std::string &y_name, const bool &withMessages
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that cp isn't the same object as this one
-   this->selfAssignmentCheck<GObject>(&cp);
+	// Check that cp isn't the same object as this one
+	this->selfAssignmentCheck<GObject>(&cp);
 
-   GToken token("GObject", e);
+	GToken token("GObject", e);
 
-   // Do the actual comparison
-   Gem::Common::compare_t(IDENTITY(*this, cp), token);
+	// Do the actual comparison
+	Gem::Common::compare_t(IDENTITY(*this, cp), token);
 
-   // Perform a standard compare check
-   try {
-      token.evaluate();
-   } catch(g_expectation_violation& g) {
-      return boost::optional<std::string>(std::string(g.what()));
-   }
+	// Perform a standard compare check
+	try {
+		token.evaluate();
+	} catch (g_expectation_violation &g) {
+		return boost::optional<std::string>(std::string(g.what()));
+	}
 
-   return boost::optional<std::string>();
+	return boost::optional<std::string>();
 }
 
 /* ----------------------------------------------------------------------------------
@@ -166,7 +158,7 @@ std::string GObject::report() const {
  * Emits a name for this class / object
  */
 std::string GObject::name() const {
-   return std::string("GObject");
+	return std::string("GObject");
 }
 
 /* ----------------------------------------------------------------------------------
@@ -182,37 +174,32 @@ std::string GObject::name() const {
  * @param serMod The desired serialization mode
  */
 void GObject::toStream(
-   std::ostream& oarchive_stream
-   , const Gem::Common::serializationMode& serMod
+	std::ostream &oarchive_stream, const Gem::Common::serializationMode &serMod
 ) const {
-   const GObject *local = this; // Serialization should happen through a base pointer
+	const GObject *local = this; // Serialization should happen through a base pointer
 
-   switch(serMod)
-   {
-      case Gem::Common::SERIALIZATIONMODE_TEXT:
-      {
-         boost::archive::text_oarchive oa(oarchive_stream);
-         oa << boost::serialization::make_nvp("classhierarchyFromGObject", local);
-      } // note: explicit scope here is essential so the oa-destructor gets called
+	switch (serMod) {
+		case Gem::Common::SERIALIZATIONMODE_TEXT: {
+			boost::archive::text_oarchive oa(oarchive_stream);
+			oa << boost::serialization::make_nvp("classhierarchyFromGObject", local);
+		} // note: explicit scope here is essential so the oa-destructor gets called
 
-      break;
+			break;
 
-      case Gem::Common::SERIALIZATIONMODE_XML:
-      {
-         boost::archive::xml_oarchive oa(oarchive_stream);
-         oa << boost::serialization::make_nvp("classhierarchyFromGObject", local);
-      } // note: explicit scope here is essential so the oa-destructor gets called
+		case Gem::Common::SERIALIZATIONMODE_XML: {
+			boost::archive::xml_oarchive oa(oarchive_stream);
+			oa << boost::serialization::make_nvp("classhierarchyFromGObject", local);
+		} // note: explicit scope here is essential so the oa-destructor gets called
 
-      break;
+			break;
 
-      case Gem::Common::SERIALIZATIONMODE_BINARY:
-      {
-         boost::archive::binary_oarchive oa(oarchive_stream);
-         oa << boost::serialization::make_nvp("classhierarchyFromGObject", local);
-      } // note: explicit scope here is essential so the oa-destructor gets called
+		case Gem::Common::SERIALIZATIONMODE_BINARY: {
+			boost::archive::binary_oarchive oa(oarchive_stream);
+			oa << boost::serialization::make_nvp("classhierarchyFromGObject", local);
+		} // note: explicit scope here is essential so the oa-destructor gets called
 
-      break;
-   }
+			break;
+	}
 }
 
 /* ----------------------------------------------------------------------------------
@@ -230,41 +217,36 @@ void GObject::toStream(
  *
  */
 void GObject::fromStream(
-   std::istream& istr
-   , const Gem::Common::serializationMode& serMod
+	std::istream &istr, const Gem::Common::serializationMode &serMod
 ) {
-   // De-serialization and serialization should happen through a pointer to the same type.
-   GObject *local = (GObject *)NULL;
+	// De-serialization and serialization should happen through a pointer to the same type.
+	GObject *local = (GObject *) NULL;
 
-   switch(serMod)
-   {
-      case Gem::Common::SERIALIZATIONMODE_TEXT:
-      {
-         boost::archive::text_iarchive ia(istr);
-         ia >> boost::serialization::make_nvp("classhierarchyFromGObject", local);
-      } // note: explicit scope here is essential so the ia-destructor gets called
+	switch (serMod) {
+		case Gem::Common::SERIALIZATIONMODE_TEXT: {
+			boost::archive::text_iarchive ia(istr);
+			ia >> boost::serialization::make_nvp("classhierarchyFromGObject", local);
+		} // note: explicit scope here is essential so the ia-destructor gets called
 
-      break;
+			break;
 
-      case Gem::Common::SERIALIZATIONMODE_XML:
-      {
-         boost::archive::xml_iarchive ia(istr);
-         ia >> boost::serialization::make_nvp("classhierarchyFromGObject", local);
-      } // note: explicit scope here is essential so the ia-destructor gets called
+		case Gem::Common::SERIALIZATIONMODE_XML: {
+			boost::archive::xml_iarchive ia(istr);
+			ia >> boost::serialization::make_nvp("classhierarchyFromGObject", local);
+		} // note: explicit scope here is essential so the ia-destructor gets called
 
-      break;
+			break;
 
-      case Gem::Common::SERIALIZATIONMODE_BINARY:
-      {
-         boost::archive::binary_iarchive ia(istr);
-         ia >> boost::serialization::make_nvp("classhierarchyFromGObject", local);
-      } // note: explicit scope here is essential so the ia-destructor gets called
+		case Gem::Common::SERIALIZATIONMODE_BINARY: {
+			boost::archive::binary_iarchive ia(istr);
+			ia >> boost::serialization::make_nvp("classhierarchyFromGObject", local);
+		} // note: explicit scope here is essential so the ia-destructor gets called
 
-      break;
-   }
+			break;
+	}
 
-   load_(local);
-   if(local) delete local;
+	load_(local);
+	if (local) delete local;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -282,10 +264,10 @@ void GObject::fromStream(
  * @param serMod The desired serialization mode
  * @return A text-representation of this class (or its derivative)
  */
-std::string GObject::toString(const Gem::Common::serializationMode& serMod) const {
+std::string GObject::toString(const Gem::Common::serializationMode &serMod) const {
 	std::ostringstream oarchive_stream;
 	toStream(oarchive_stream, serMod);
-    return oarchive_stream.str();
+	return oarchive_stream.str();
 }
 
 /* ----------------------------------------------------------------------------------
@@ -305,11 +287,10 @@ std::string GObject::toString(const Gem::Common::serializationMode& serMod) cons
 
  */
 void GObject::fromString(
-   const std::string& descr
-   , const Gem::Common::serializationMode& serMod
+	const std::string &descr, const Gem::Common::serializationMode &serMod
 ) {
-   std::istringstream istr(descr);
-   fromStream(istr, serMod);
+	std::istringstream istr(descr);
+	fromStream(istr, serMod);
 }
 
 /* ----------------------------------------------------------------------------------
@@ -326,20 +307,19 @@ void GObject::fromString(
  * @param serMod The desired serialization mode
  */
 void GObject::toFile(
-     const bf::path& p
-   , const Gem::Common::serializationMode& serMod
+	const bf::path &p, const Gem::Common::serializationMode &serMod
 ) const {
-   bf::ofstream ofstr(p);
+	bf::ofstream ofstr(p);
 
-   if(!ofstr) {
-      glogger
-      << "In GObject::toFile():" << std::endl
-      << "Problems connecting to file " << p.string() << std::endl
-      << GEXCEPTION;
-   }
+	if (!ofstr) {
+		glogger
+		<< "In GObject::toFile():" << std::endl
+		<< "Problems connecting to file " << p.string() << std::endl
+		<< GEXCEPTION;
+	}
 
-   toStream(ofstr, serMod);
-   ofstr.close();
+	toStream(ofstr, serMod);
+	ofstr.close();
 
 #ifdef DEBUG
    if(!bf::exists(bf::path(p))) {
@@ -366,25 +346,24 @@ void GObject::toFile(
  * @param serMod The desired serialization mode
  */
 void GObject::fromFile(
-     const bf::path& p
-   , const Gem::Common::serializationMode& serMod
+	const bf::path &p, const Gem::Common::serializationMode &serMod
 ) {
-   // Check that the file exists
-   if(!bf::exists(bf::path(p))) {
-      glogger
-      << "In GObject::fromFile(): Error!" << std::endl
-      << "Requested input file " << p.string() << std::endl
-      << "does not exist." << std::endl
-      << GEXCEPTION;
-   }
+	// Check that the file exists
+	if (!bf::exists(bf::path(p))) {
+		glogger
+		<< "In GObject::fromFile(): Error!" << std::endl
+		<< "Requested input file " << p.string() << std::endl
+		<< "does not exist." << std::endl
+		<< GEXCEPTION;
+	}
 
-   bf::ifstream ifstr(p);
+	bf::ifstream ifstr(p);
 
-	if(!ifstr) {
-	   glogger
-	   << "In GObject::fromFile():" << std::endl
-	   << "Problem connecting to file " << p.string() << std::endl
-	   << GEXCEPTION;
+	if (!ifstr) {
+		glogger
+		<< "In GObject::fromFile():" << std::endl
+		<< "Problem connecting to file " << p.string() << std::endl
+		<< GEXCEPTION;
 	}
 
 	fromStream(ifstr, serMod);
@@ -405,8 +384,7 @@ void GObject::fromFile(
  * @param header A header to be prepended to the configuration file
  */
 void GObject::writeConfigFile(
-   const std::string& configFile
-   , const std::string& header
+	const std::string &configFile, const std::string &header
 ) {
 	// This class will handle the interaction with configuration files
 	Gem::Common::GParserBuilder gpb;
@@ -430,7 +408,7 @@ void GObject::writeConfigFile(
  *
  * @param configFile The name of the configuration file to be parsed
  */
-void GObject::readConfigFile(const std::string& configFile) {
+void GObject::readConfigFile(const std::string &configFile) {
 	// This class will handle the interaction with configuration files
 	Gem::Common::GParserBuilder gpb;
 
@@ -469,9 +447,9 @@ void GObject::load_(const GObject *cp) {
 /**
  * Allows derived classes to assign other class'es values
  */
-const GObject& GObject::operator=(const GObject& cp) {
-   this->load_(&cp);
-   return *this;
+const GObject &GObject::operator=(const GObject &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -481,14 +459,14 @@ const GObject& GObject::operator=(const GObject& cp) {
  * @param  cp A constant reference to another GObject object
  * @return A boolean indicating whether both objects are equal
  */
-bool GObject::operator==(const GObject& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GObject::operator==(const GObject &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -498,14 +476,14 @@ bool GObject::operator==(const GObject& cp) const {
  * @param  cp A constant reference to another GObject object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GObject::operator!=(const GObject& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GObject::operator!=(const GObject &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -514,7 +492,7 @@ bool GObject::operator!=(const GObject& cp) const {
  *
  * @return A std::shared_ptr<GObject> to a clone of the derived object
  */
-std::shared_ptr<GObject> GObject::clone() const {
+std::shared_ptr <GObject> GObject::clone() const {
 	return std::shared_ptr<GObject>(clone_());
 }
 
@@ -532,7 +510,7 @@ std::shared_ptr<GObject> GObject::clone() const {
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
 void GObject::addConfigurationOptions(
-	Gem::Common::GParserBuilder& gpb
+	Gem::Common::GParserBuilder &gpb
 ) {
 	// No local data, no relevant parent classes, hence nothing to do
 }
@@ -575,28 +553,27 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check cloning to GObject format
-		std::shared_ptr<GObject> p_test = this->clone<GObject>();
+		std::shared_ptr <GObject> p_test = this->clone<GObject>();
 
 		// Check that the pointer actually points somewhere
 		BOOST_CHECK(p_test);
 	}
 
-   // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
-   { // Check the name of the object
-      std::shared_ptr<GObject> p_test = this->clone<GObject>();
+	{ // Check the name of the object
+		std::shared_ptr <GObject> p_test = this->clone<GObject>();
 
-      // Check that the pointer actually points somewhere
-      BOOST_CHECK_MESSAGE(
-            p_test->GObject::name() == "GObject"
-            , "Name is " << p_test->GObject::name()
-      );
-   }
+		// Check that the pointer actually points somewhere
+		BOOST_CHECK_MESSAGE(
+			p_test->GObject::name() == "GObject", "Name is " << p_test->GObject::name()
+		);
+	}
 
 	// --------------------------------------------------------------------------
 
 	{ // Check cloning to GObject format, using a different method
-		std::shared_ptr<GObject> p_test = this->clone();
+		std::shared_ptr <GObject> p_test = this->clone();
 
 		// Check that the pointer actually points somewhere
 		BOOST_CHECK(p_test);
@@ -605,7 +582,7 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check that the report function returns a non-empty description
-		std::shared_ptr<GObject> p_test = this->clone();
+		std::shared_ptr <GObject> p_test = this->clone();
 
 		// Check that the pointer actually points somewhere
 		BOOST_CHECK(!(p_test->report()).empty());
@@ -613,7 +590,7 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 
 
 	{ // Check (de-)serialization from/to a stream in three modes
-		std::shared_ptr<GObject> p_test = this->clone();
+		std::shared_ptr <GObject> p_test = this->clone();
 
 		{ // Text mode
 			std::ostringstream ostr;
@@ -640,17 +617,20 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check (de-)serialization from/to strings in three modes
-		std::shared_ptr<GObject> p_test = this->clone();
+		std::shared_ptr <GObject> p_test = this->clone();
 
-		BOOST_CHECK_NO_THROW(p_test->fromString(p_test->toString(Gem::Common::SERIALIZATIONMODE_TEXT), Gem::Common::SERIALIZATIONMODE_TEXT));
-		BOOST_CHECK_NO_THROW(p_test->fromString(p_test->toString(Gem::Common::SERIALIZATIONMODE_XML), Gem::Common::SERIALIZATIONMODE_XML));
-		BOOST_CHECK_NO_THROW(p_test->fromString(p_test->toString(Gem::Common::SERIALIZATIONMODE_BINARY), Gem::Common::SERIALIZATIONMODE_BINARY));
+		BOOST_CHECK_NO_THROW(p_test->fromString(p_test->toString(Gem::Common::SERIALIZATIONMODE_TEXT),
+															 Gem::Common::SERIALIZATIONMODE_TEXT));
+		BOOST_CHECK_NO_THROW(
+			p_test->fromString(p_test->toString(Gem::Common::SERIALIZATIONMODE_XML), Gem::Common::SERIALIZATIONMODE_XML));
+		BOOST_CHECK_NO_THROW(p_test->fromString(p_test->toString(Gem::Common::SERIALIZATIONMODE_BINARY),
+															 Gem::Common::SERIALIZATIONMODE_BINARY));
 	}
 
 	// --------------------------------------------------------------------------
 
 	{ // Check (de-)serialization from/to a file in three different modes
-		std::shared_ptr<GObject> p_test = this->clone();
+		std::shared_ptr <GObject> p_test = this->clone();
 
 		{ // Text mode
 			BOOST_CHECK_NO_THROW(p_test->toFile(bf::path("123test.txt"), Gem::Common::SERIALIZATIONMODE_TEXT));

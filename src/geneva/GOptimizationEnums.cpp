@@ -44,10 +44,10 @@ namespace Geneva {
  * @param am the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Geneva::activityMode& am) {
-   boost::uint16_t tmp = static_cast<boost::uint16_t>(am);
-   o << tmp;
-   return o;
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::activityMode &am) {
+	boost::uint16_t tmp = static_cast<boost::uint16_t>(am);
+	o << tmp;
+	return o;
 }
 
 /******************************************************************************/
@@ -58,17 +58,17 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::activityMode& am) {
  * @param am The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Geneva::activityMode& am) {
-   boost::uint16_t tmp;
-   i >> tmp;
+std::istream &operator>>(std::istream &i, Gem::Geneva::activityMode &am) {
+	boost::uint16_t tmp;
+	i >> tmp;
 
 #ifdef DEBUG
    am = boost::numeric_cast<Gem::Geneva::activityMode>(tmp);
 #else
-   am = static_cast<Gem::Geneva::activityMode>(tmp);
+	am = static_cast<Gem::Geneva::activityMode>(tmp);
 #endif /* DEBUG */
 
-   return i;
+	return i;
 }
 
 /******************************************************************************/
@@ -79,10 +79,10 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::activityMode& am) {
  * @param vccp the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Geneva::validityCheckCombinerPolicy& vccp) {
-   boost::uint16_t tmp = static_cast<boost::uint16_t>(vccp);
-   o << tmp;
-   return o;
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::validityCheckCombinerPolicy &vccp) {
+	boost::uint16_t tmp = static_cast<boost::uint16_t>(vccp);
+	o << tmp;
+	return o;
 }
 
 /******************************************************************************/
@@ -93,17 +93,17 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::validityCheckCombin
  * @param vccp The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Geneva::validityCheckCombinerPolicy& vccp) {
-   boost::uint16_t tmp;
-   i >> tmp;
+std::istream &operator>>(std::istream &i, Gem::Geneva::validityCheckCombinerPolicy &vccp) {
+	boost::uint16_t tmp;
+	i >> tmp;
 
 #ifdef DEBUG
    vccp = boost::numeric_cast<Gem::Geneva::validityCheckCombinerPolicy>(tmp);
 #else
-   vccp = static_cast<Gem::Geneva::validityCheckCombinerPolicy>(tmp);
+	vccp = static_cast<Gem::Geneva::validityCheckCombinerPolicy>(tmp);
 #endif /* DEBUG */
 
-   return i;
+	return i;
 }
 
 /******************************************************************************/
@@ -114,10 +114,10 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::validityCheckCombinerPoli
  * @param iip the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Geneva::evaluationPolicy& iip) {
-   boost::uint16_t tmp = static_cast<boost::uint16_t>(iip);
-   o << tmp;
-   return o;
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::evaluationPolicy &iip) {
+	boost::uint16_t tmp = static_cast<boost::uint16_t>(iip);
+	o << tmp;
+	return o;
 }
 
 /******************************************************************************/
@@ -128,17 +128,17 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::evaluationPolicy& i
  * @param iip The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Geneva::evaluationPolicy& iip) {
-   boost::uint16_t tmp;
-   i >> tmp;
+std::istream &operator>>(std::istream &i, Gem::Geneva::evaluationPolicy &iip) {
+	boost::uint16_t tmp;
+	i >> tmp;
 
 #ifdef DEBUG
    iip = boost::numeric_cast<Gem::Geneva::evaluationPolicy>(tmp);
 #else
-   iip = static_cast<Gem::Geneva::evaluationPolicy>(tmp);
+	iip = static_cast<Gem::Geneva::evaluationPolicy>(tmp);
 #endif /* DEBUG */
 
-   return i;
+	return i;
 }
 
 /******************************************************************************/
@@ -149,7 +149,7 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::evaluationPolicy& iip) {
  * @param pm the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Geneva::execMode& pm) {
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::execMode &pm) {
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(pm);
 	o << tmp;
 	return o;
@@ -163,7 +163,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::execMode& pm) {
  * @param pm The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Geneva::execMode& pm) {
+std::istream &operator>>(std::istream &i, Gem::Geneva::execMode &pm) {
 	boost::uint16_t tmp;
 	i >> tmp;
 
@@ -184,7 +184,7 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::execMode& pm) {
  * @param rc the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Geneva::duplicationScheme& rc) {
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::duplicationScheme &rc) {
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(rc);
 	o << tmp;
 	return o;
@@ -198,7 +198,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::duplicationScheme& 
  * @param rc The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Geneva::duplicationScheme& rc) {
+std::istream &operator>>(std::istream &i, Gem::Geneva::duplicationScheme &rc) {
 	boost::uint16_t tmp;
 	i >> tmp;
 
@@ -219,7 +219,7 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::duplicationScheme& rc) {
  * @param im the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Geneva::infoMode& im) {
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::infoMode &im) {
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(im);
 	o << tmp;
 	return o;
@@ -233,7 +233,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::infoMode& im) {
  * @param im The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Geneva::infoMode& im) {
+std::istream &operator>>(std::istream &i, Gem::Geneva::infoMode &im) {
 	boost::uint16_t tmp;
 	i >> tmp;
 
@@ -254,7 +254,7 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::infoMode& im) {
  * @param aid the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Geneva::adaptorId& aid) {
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::adaptorId &aid) {
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(aid);
 	o << tmp;
 	return o;
@@ -268,7 +268,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::adaptorId& aid) {
  * @param aid The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Geneva::adaptorId& aid) {
+std::istream &operator>>(std::istream &i, Gem::Geneva::adaptorId &aid) {
 	boost::uint16_t tmp;
 	i >> tmp;
 
@@ -289,7 +289,7 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::adaptorId& aid) {
  * @param smode the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Geneva::sortingMode& smode) {
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::sortingMode &smode) {
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(smode);
 	o << tmp;
 	return o;
@@ -303,7 +303,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::sortingMode& smode)
  * @param smode The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Geneva::sortingMode& smode) {
+std::istream &operator>>(std::istream &i, Gem::Geneva::sortingMode &smode) {
 	boost::uint16_t tmp;
 	i >> tmp;
 
@@ -324,10 +324,10 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::sortingMode& smode) {
  * @param smode the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Geneva::sortingModeMP& smode) {
-   boost::uint16_t tmp = static_cast<boost::uint16_t>(smode);
-   o << tmp;
-   return o;
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::sortingModeMP &smode) {
+	boost::uint16_t tmp = static_cast<boost::uint16_t>(smode);
+	o << tmp;
+	return o;
 }
 
 /******************************************************************************/
@@ -338,17 +338,17 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::sortingModeMP& smod
  * @param smode The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Geneva::sortingModeMP& smode) {
-   boost::uint16_t tmp;
-   i >> tmp;
+std::istream &operator>>(std::istream &i, Gem::Geneva::sortingModeMP &smode) {
+	boost::uint16_t tmp;
+	i >> tmp;
 
 #ifdef DEBUG
    smode = boost::numeric_cast<Gem::Geneva::sortingModeMP>(tmp);
 #else
-   smode = static_cast<Gem::Geneva::sortingModeMP>(tmp);
+	smode = static_cast<Gem::Geneva::sortingModeMP>(tmp);
 #endif /* DEBUG */
 
-   return i;
+	return i;
 }
 
 /******************************************************************************/
@@ -359,7 +359,7 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::sortingModeMP& smode) {
  * @param ur the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Geneva::updateRule& ur) {
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::updateRule &ur) {
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(ur);
 	o << tmp;
 	return o;
@@ -373,7 +373,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::updateRule& ur) {
  * @param ur The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Geneva::updateRule& ur) {
+std::istream &operator>>(std::istream &i, Gem::Geneva::updateRule &ur) {
 	boost::uint16_t tmp;
 	i >> tmp;
 

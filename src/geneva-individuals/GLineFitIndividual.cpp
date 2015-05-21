@@ -43,8 +43,7 @@ namespace Geneva {
 /**
  * The default constructor -- private, as it is only needed for (de-)serialization purposes
  */
-GLineFitIndividual::GLineFitIndividual() : GParameterSet()
-{ /* nothing */ }
+GLineFitIndividual::GLineFitIndividual() : GParameterSet() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -53,19 +52,18 @@ GLineFitIndividual::GLineFitIndividual() : GParameterSet()
  * @param nObjects The number of parameters to be added to this individual
  */
 GLineFitIndividual::GLineFitIndividual(
-   const std::vector<boost::tuple<double, double> >& dataPoints
+	const std::vector<boost::tuple<double, double> > &dataPoints
 )
-   : GParameterSet()
-   , dataPoints_(dataPoints)
-{
+	: GParameterSet(), dataPoints_(dataPoints) {
 	using namespace Gem::Geneva;
 
-   for(std::size_t i=0; i<2; i++) {
-      std::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject());
-      std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0.0001, 0.4, 1.)); // sigma, sigmaSigma, minSigma, maxSigma, adProb
-      gdo_ptr->addAdaptor(gdga_ptr);
-      this->push_back(gdo_ptr);
-   }
+	for (std::size_t i = 0; i < 2; i++) {
+		std::shared_ptr <GDoubleObject> gdo_ptr(new GDoubleObject());
+		std::shared_ptr <GDoubleGaussAdaptor> gdga_ptr(
+			new GDoubleGaussAdaptor(0.025, 0.1, 0.0001, 0.4, 1.)); // sigma, sigmaSigma, minSigma, maxSigma, adProb
+		gdo_ptr->addAdaptor(gdga_ptr);
+		this->push_back(gdo_ptr);
+	}
 }
 
 /******************************************************************************/
@@ -74,25 +72,22 @@ GLineFitIndividual::GLineFitIndividual(
  *
  * @param cp A constant reference to another GLineFitIndividual object
  */
-GLineFitIndividual::GLineFitIndividual(const GLineFitIndividual& cp)
-   : Gem::Geneva::GParameterSet(cp)
-   , dataPoints_(cp.dataPoints_)
-{	/* nothing */ }
+GLineFitIndividual::GLineFitIndividual(const GLineFitIndividual &cp)
+	: Gem::Geneva::GParameterSet(cp), dataPoints_(cp.dataPoints_) {   /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
-GLineFitIndividual::~GLineFitIndividual()
-{ /* nothing */	}
+GLineFitIndividual::~GLineFitIndividual() { /* nothing */   }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GLineFitIndividual& GLineFitIndividual::operator=(const GLineFitIndividual& cp) {
-   this->load_(&cp);
-   return *this;
+const GLineFitIndividual &GLineFitIndividual::operator=(const GLineFitIndividual &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -102,14 +97,14 @@ const GLineFitIndividual& GLineFitIndividual::operator=(const GLineFitIndividual
  * @param  cp A constant reference to another GLineFitIndividual object
  * @return A boolean indicating whether both objects are equal
  */
-bool GLineFitIndividual::operator==(const GLineFitIndividual& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GLineFitIndividual::operator==(const GLineFitIndividual &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -119,14 +114,14 @@ bool GLineFitIndividual::operator==(const GLineFitIndividual& cp) const {
  * @param  cp A constant reference to another GLineFitIndividual object
  * @return A boolean indicating whether both objects are in-equal
  */
-bool GLineFitIndividual::operator!=(const GLineFitIndividual& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GLineFitIndividual::operator!=(const GLineFitIndividual &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -139,25 +134,23 @@ bool GLineFitIndividual::operator!=(const GLineFitIndividual& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GLineFitIndividual::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GLineFitIndividual *p_load = GObject::gobject_conversion<GLineFitIndividual>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GLineFitIndividual *p_load = GObject::gobject_conversion<GLineFitIndividual>(&cp);
 
-   GToken token("GLineFitIndividual", e);
+	GToken token("GLineFitIndividual", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GParameterSet>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GParameterSet>(IDENTITY(*this, *p_load), token);
 
-   // ... and then the local data
-   compare_t(IDENTITY(dataPoints_, p_load->dataPoints_), token);
+	// ... and then the local data
+	compare_t(IDENTITY(dataPoints_, p_load->dataPoints_), token);
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/
@@ -165,9 +158,9 @@ void GLineFitIndividual::compare(
  * Retrieves the tuple (a,b) of the line represented by this object
  */
 boost::tuple<double, double> GLineFitIndividual::getLine() const {
-   std::vector<double> parVec;
-   this->streamline(parVec);
-   return boost::tuple<double,double>(parVec.at(0), parVec.at(1));
+	std::vector<double> parVec;
+	this->streamline(parVec);
+	return boost::tuple<double, double>(parVec.at(0), parVec.at(1));
 }
 
 /******************************************************************************/
@@ -176,8 +169,7 @@ boost::tuple<double, double> GLineFitIndividual::getLine() const {
  *
  * @param cp A copy of another GLineFitIndividual, camouflaged as a GObject
  */
-void GLineFitIndividual::load_(const GObject* cp)
-{
+void GLineFitIndividual::load_(const GObject *cp) {
 	using namespace Gem::Common;
 	using namespace Gem::Geneva;
 
@@ -197,7 +189,7 @@ void GLineFitIndividual::load_(const GObject* cp)
  *
  * @return A deep clone of this object, camouflaged as a GObject
  */
-Gem::Geneva::GObject* GLineFitIndividual::clone_() const {
+Gem::Geneva::GObject *GLineFitIndividual::clone_() const {
 	return new GLineFitIndividual(*this);
 }
 
@@ -221,8 +213,8 @@ double GLineFitIndividual::fitnessCalculation() {
 	// Sum up the square deviation of line and data points
 	double deviation = 0.;
 	std::vector<boost::tuple<double, double> >::iterator it;
-	for(it=dataPoints_.begin(); it!=dataPoints_.end(); ++it) {
-	   deviation = (a+b*boost::get<0>(*it)) - boost::get<1>(*it);
+	for (it = dataPoints_.begin(); it != dataPoints_.end(); ++it) {
+		deviation = (a + b * boost::get<0>(*it)) - boost::get<1>(*it);
 		result += GSQUARED(deviation);
 	}
 
@@ -243,7 +235,7 @@ bool GLineFitIndividual::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent classes' functions
-	if(Gem::Geneva::GParameterSet::modify_GUnitTests()) result = true;
+	if (Gem::Geneva::GParameterSet::modify_GUnitTests()) result = true;
 
 	// Change the parameter settings
 	result = true;
@@ -266,8 +258,8 @@ void GLineFitIndividual::specificTestsNoFailureExpected_GUnitTests() {
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
-   // Call the parent classes' functions
-   Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests();
+	// Call the parent classes' functions
+	Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests();
 
 	//------------------------------------------------------------------------------
 	//------------------------------------------------------------------------------
@@ -306,19 +298,15 @@ void GLineFitIndividual::specificTestsFailuresExpected_GUnitTests() {
  * @param configFile The name of the configuration file
  */
 GLineFitIndividualFactory::GLineFitIndividualFactory(
-   const std::vector<boost::tuple<double, double> >& dataPoints
-   , const std::string& configFile
+	const std::vector<boost::tuple<double, double> > &dataPoints, const std::string &configFile
 )
-   : Gem::Common::GFactoryT<GParameterSet>(configFile)
-   , dataPoints_(dataPoints)
-{ /* nothing */ }
+	: Gem::Common::GFactoryT<GParameterSet>(configFile), dataPoints_(dataPoints) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GLineFitIndividualFactory::~GLineFitIndividualFactory()
-{ /* nothing */ }
+GLineFitIndividualFactory::~GLineFitIndividualFactory() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -326,33 +314,32 @@ GLineFitIndividualFactory::~GLineFitIndividualFactory()
  *
  * @return Items of the desired type
  */
-std::shared_ptr<GParameterSet> GLineFitIndividualFactory::getObject_(
-   Gem::Common::GParserBuilder& gpb
-   , const std::size_t& id
+std::shared_ptr <GParameterSet> GLineFitIndividualFactory::getObject_(
+	Gem::Common::GParserBuilder &gpb, const std::size_t &id
 ) {
-   // Will hold the result
-   std::shared_ptr<GLineFitIndividual> target(new GLineFitIndividual(this->dataPoints_));
+	// Will hold the result
+	std::shared_ptr <GLineFitIndividual> target(new GLineFitIndividual(this->dataPoints_));
 
-   // Make the object's local configuration options known
-   target->addConfigurationOptions(gpb);
+	// Make the object's local configuration options known
+	target->addConfigurationOptions(gpb);
 
-   return target;
+	return target;
 }
 
 /******************************************************************************/
 /**
  * Allows to describe local configuration options for gradient descents
  */
-void GLineFitIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder& gpb) {
-   // Describe our own options
-   using namespace Gem::Courtier;
+void GLineFitIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &gpb) {
+	// Describe our own options
+	using namespace Gem::Courtier;
 
-   std::string comment;
+	std::string comment;
 
-   // No local options
+	// No local options
 
-   // Allow our parent class to describe its options
-   Gem::Common::GFactoryT<GParameterSet>::describeLocalOptions_(gpb);
+	// Allow our parent class to describe its options
+	Gem::Common::GFactoryT<GParameterSet>::describeLocalOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -364,12 +351,12 @@ void GLineFitIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GLineFitIndividualFactory::postProcess_(std::shared_ptr<GParameterSet>& p_base) {
-   // Convert the base pointer to our local type
-   std::shared_ptr<GLineFitIndividual> p
-      = Gem::Common::convertSmartPointer<GParameterSet, GLineFitIndividual>(p_base);
+void GLineFitIndividualFactory::postProcess_(std::shared_ptr < GParameterSet > &p_base) {
+	// Convert the base pointer to our local type
+	std::shared_ptr <GLineFitIndividual> p
+		= Gem::Common::convertSmartPointer<GParameterSet, GLineFitIndividual>(p_base);
 
-   // Nothing to be done here
+	// Nothing to be done here
 }
 
 /******************************************************************************/

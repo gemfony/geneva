@@ -44,8 +44,7 @@ namespace Geneva {
  * The default constructor
  */
 GSAPersonalityTraits::GSAPersonalityTraits()
-   : GBaseParChildPersonalityTraits()
-{ /* nothing */ }
+	: GBaseParChildPersonalityTraits() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -53,24 +52,22 @@ GSAPersonalityTraits::GSAPersonalityTraits()
  *
  * @param cp A copy of another GSAPersonalityTraits object
  */
-GSAPersonalityTraits::GSAPersonalityTraits(const GSAPersonalityTraits& cp)
-   : GBaseParChildPersonalityTraits(cp)
-{ /* nothing */ }
+GSAPersonalityTraits::GSAPersonalityTraits(const GSAPersonalityTraits &cp)
+	: GBaseParChildPersonalityTraits(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
-GSAPersonalityTraits::~GSAPersonalityTraits()
-{ /* nothing */ }
+GSAPersonalityTraits::~GSAPersonalityTraits() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GSAPersonalityTraits& GSAPersonalityTraits::operator=(const GSAPersonalityTraits& cp) {
-   this->load_(&cp);
-   return *this;
+const GSAPersonalityTraits &GSAPersonalityTraits::operator=(const GSAPersonalityTraits &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -80,14 +77,14 @@ const GSAPersonalityTraits& GSAPersonalityTraits::operator=(const GSAPersonality
  * @param  cp A constant reference to another GSAPersonalityTraits object
  * @return A boolean indicating whether both objects are equal
  */
-bool GSAPersonalityTraits::operator==(const GSAPersonalityTraits& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GSAPersonalityTraits::operator==(const GSAPersonalityTraits &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -97,14 +94,14 @@ bool GSAPersonalityTraits::operator==(const GSAPersonalityTraits& cp) const {
  * @param  cp A constant reference to another GSAPersonalityTraits object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GSAPersonalityTraits::operator!=(const GSAPersonalityTraits& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GSAPersonalityTraits::operator!=(const GSAPersonalityTraits &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -117,24 +114,22 @@ bool GSAPersonalityTraits::operator!=(const GSAPersonalityTraits& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GSAPersonalityTraits::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GSAPersonalityTraits *p_load = GObject::gobject_conversion<GSAPersonalityTraits>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GSAPersonalityTraits *p_load = GObject::gobject_conversion<GSAPersonalityTraits>(&cp);
 
-   GToken token("GSAPersonalityTraits", e);
+	GToken token("GSAPersonalityTraits", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GBaseParChildPersonalityTraits>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GBaseParChildPersonalityTraits>(IDENTITY(*this, *p_load), token);
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/
@@ -142,7 +137,7 @@ void GSAPersonalityTraits::compare(
  * Emits a name for this class / object
  */
 std::string GSAPersonalityTraits::name() const {
-   return std::string("GSAPersonalityTraits");
+	return std::string("GSAPersonalityTraits");
 }
 
 /******************************************************************************/
@@ -151,8 +146,8 @@ std::string GSAPersonalityTraits::name() const {
  *
  * @return A clone of this object, camouflaged as a GObject
  */
-GObject* GSAPersonalityTraits::clone_() const {
-   return new GSAPersonalityTraits(*this);
+GObject *GSAPersonalityTraits::clone_() const {
+	return new GSAPersonalityTraits(*this);
 }
 
 /******************************************************************************/
@@ -161,14 +156,14 @@ GObject* GSAPersonalityTraits::clone_() const {
  *
  * @param cp A copy of another GSAPersonalityTraits object, camouflaged as a GObject
  */
-void GSAPersonalityTraits::load_(const GObject* cp) {
-   const GSAPersonalityTraits *p_load = gobject_conversion<GSAPersonalityTraits>(cp);
+void GSAPersonalityTraits::load_(const GObject *cp) {
+	const GSAPersonalityTraits *p_load = gobject_conversion<GSAPersonalityTraits>(cp);
 
-   // Load the parent class'es data
-   GBaseParChildPersonalityTraits::load_(cp);
+	// Load the parent class'es data
+	GBaseParChildPersonalityTraits::load_(cp);
 
-   // Then load our local data
-   // no local data ...
+	// Then load our local data
+	// no local data ...
 }
 
 /******************************************************************************/
@@ -179,12 +174,12 @@ void GSAPersonalityTraits::load_(const GObject* cp) {
  */
 bool GSAPersonalityTraits::modify_GUnitTests() {
 #ifdef GEM_TESTING
-   bool result = false;
+	bool result = false;
 
-   // Call the parent class'es function
-   if(GBaseParChildPersonalityTraits::modify_GUnitTests()) result = true;
+	// Call the parent class'es function
+	if (GBaseParChildPersonalityTraits::modify_GUnitTests()) result = true;
 
-   return result;
+	return result;
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GSAPersonalityTraits::modify_GUnitTests", "GEM_TESTING");
    return false;
@@ -197,14 +192,14 @@ bool GSAPersonalityTraits::modify_GUnitTests() {
  */
 void GSAPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
-   using boost::unit_test_framework::test_suite;
-   using boost::unit_test_framework::test_case;
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
 
-   // Call the parent class'es function
-   GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests();
+	// Call the parent class'es function
+	GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests();
 
-   // --------------------------------------------------------------------------
-   // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GSAPersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -217,14 +212,14 @@ void GSAPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GSAPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
-   using boost::unit_test_framework::test_suite;
-   using boost::unit_test_framework::test_case;
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
 
-   // Call the parent class'es function
-   GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests();
+	// Call the parent class'es function
+	GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests();
 
-   // --------------------------------------------------------------------------
-   // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GSAPersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

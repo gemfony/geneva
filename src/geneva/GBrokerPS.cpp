@@ -44,35 +44,31 @@ namespace Geneva {
  * The default constructor
  */
 GBrokerPS::GBrokerPS() :
-   GBasePS()
-   , Gem::Courtier::GBrokerConnector2T<GParameterSet>(Gem::Courtier::RESUBMISSIONAFTERTIMEOUT)
-{ /* nothing */ }
+	GBasePS(),
+	Gem::Courtier::GBrokerConnector2T<GParameterSet>(Gem::Courtier::RESUBMISSIONAFTERTIMEOUT) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * A standard copy constructor
  */
-GBrokerPS::GBrokerPS(const GBrokerPS& cp)
-   : GBasePS(cp)
-   , Gem::Courtier::GBrokerConnector2T<GParameterSet>(cp)
-{ /* nothing */ }
+GBrokerPS::GBrokerPS(const GBrokerPS &cp)
+	: GBasePS(cp), Gem::Courtier::GBrokerConnector2T<GParameterSet>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor.
  */
-GBrokerPS::~GBrokerPS()
-{ /* nothing */ }
+GBrokerPS::~GBrokerPS() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GBrokerPS& GBrokerPS::operator=(
-   const GBrokerPS& cp
+const GBrokerPS &GBrokerPS::operator=(
+	const GBrokerPS &cp
 ) {
-   this->load_(&cp);
-   return *this;
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -82,15 +78,14 @@ const GBrokerPS& GBrokerPS::operator=(
  * @param  cp A constant reference to another GBrokerPS object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBrokerPS::operator==(const GBrokerPS& cp) const
-{
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBrokerPS::operator==(const GBrokerPS &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -100,15 +95,14 @@ bool GBrokerPS::operator==(const GBrokerPS& cp) const
  * @param  cp A constant reference to another GBrokerPS object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GBrokerPS::operator!=(const GBrokerPS& cp) const
-{
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBrokerPS::operator!=(const GBrokerPS &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -121,26 +115,24 @@ bool GBrokerPS::operator!=(const GBrokerPS& cp) const
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBrokerPS::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GBrokerPS *p_load = GObject::gobject_conversion<GBrokerPS>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GBrokerPS *p_load = GObject::gobject_conversion<GBrokerPS>(&cp);
 
-   GToken token("GBrokerPS", e);
+	GToken token("GBrokerPS", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GBasePS>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GBasePS>(IDENTITY(*this, *p_load), token);
 
-   // We do not compare the broker data
+	// We do not compare the broker data
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -148,7 +140,7 @@ void GBrokerPS::compare(
  * Emits a name for this class / object
  */
 std::string GBrokerPS::name() const {
-   return std::string("GBrokerPS");
+	return std::string("GBrokerPS");
 }
 
 /******************************************************************************/
@@ -159,7 +151,7 @@ std::string GBrokerPS::name() const {
  * @return A boolean indicating whether this algorithm communicates via the broker
  */
 bool GBrokerPS::usesBroker() const {
-   return true;
+	return true;
 }
 
 /******************************************************************************/
@@ -169,11 +161,11 @@ bool GBrokerPS::usesBroker() const {
  * @param vp Pointer to another GBrokerPS object, camouflaged as a GObject
  */
 void GBrokerPS::load_(const GObject *cp) {
-   const GBrokerPS *p_load = gobject_conversion<GBrokerPS> (cp);
+	const GBrokerPS *p_load = gobject_conversion<GBrokerPS>(cp);
 
-   // Load the parent classes' data ...
-   GBasePS::load_(cp);
-   Gem::Courtier::GBrokerConnector2T<GParameterSet>::load(p_load);
+	// Load the parent classes' data ...
+	GBasePS::load_(cp);
+	Gem::Courtier::GBrokerConnector2T<GParameterSet>::load(p_load);
 }
 
 /******************************************************************************/
@@ -183,7 +175,7 @@ void GBrokerPS::load_(const GObject *cp) {
  * @return A deep copy of this object, camouflaged as a GObject
  */
 GObject *GBrokerPS::clone_() const {
-   return new GBrokerPS(*this);
+	return new GBrokerPS(*this);
 }
 
 /******************************************************************************/
@@ -191,11 +183,11 @@ GObject *GBrokerPS::clone_() const {
  * Necessary initialization work before the start of the optimization
  */
 void GBrokerPS::init() {
-   // GBasePS sees exactly the environment it would when called from its own class
-   GBasePS::init();
+	// GBasePS sees exactly the environment it would when called from its own class
+	GBasePS::init();
 
-   // Initialize the broker connector
-   Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::init();
+	// Initialize the broker connector
+	Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::init();
 }
 
 /******************************************************************************/
@@ -203,11 +195,11 @@ void GBrokerPS::init() {
  * Necessary clean-up work after the optimization has finished
  */
 void GBrokerPS::finalize() {
-   // Finalize the broker connector
-   Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::finalize();
+	// Finalize the broker connector
+	Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::finalize();
 
-   // GBasePS sees exactly the environment it would when called from its own class
-   GBasePS::finalize();
+	// GBasePS sees exactly the environment it would when called from its own class
+	GBasePS::finalize();
 }
 
 /******************************************************************************/
@@ -216,16 +208,16 @@ void GBrokerPS::finalize() {
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
-void GBrokerPS::addConfigurationOptions (
-   Gem::Common::GParserBuilder& gpb
+void GBrokerPS::addConfigurationOptions(
+	Gem::Common::GParserBuilder &gpb
 ) {
-   std::string comment;
+	std::string comment;
 
-   // Call our parent class'es function
-   GBasePS::addConfigurationOptions(gpb);
-   Gem::Courtier::GBrokerConnector2T<GParameterSet>::addConfigurationOptions(gpb);
+	// Call our parent class'es function
+	GBasePS::addConfigurationOptions(gpb);
+	Gem::Courtier::GBrokerConnector2T<GParameterSet>::addConfigurationOptions(gpb);
 
-   // no local data
+	// no local data
 }
 
 /******************************************************************************/
@@ -235,7 +227,7 @@ void GBrokerPS::addConfigurationOptions (
  * All other objects do not need to re-implement this function (unless they rely on the name for some reason).
  */
 std::string GBrokerPS::getIndividualCharacteristic() const {
-   return std::string("GENEVA_BROKEROPTALG");
+	return std::string("GENEVA_BROKEROPTALG");
 }
 
 /******************************************************************************/
@@ -248,8 +240,8 @@ std::string GBrokerPS::getIndividualCharacteristic() const {
  * @return The best fitness found amongst all parents
  */
 void GBrokerPS::runFitnessCalculation() {
-   using namespace Gem::Courtier;
-   bool complete = false;
+	using namespace Gem::Courtier;
+	bool complete = false;
 
 #ifdef DEBUG
    GBrokerPS::iterator it;
@@ -264,22 +256,19 @@ void GBrokerPS::runFitnessCalculation() {
    }
 #endif /* DEBUG */
 
-   //--------------------------------------------------------------------------------
-   // Submit all work items and wait for their return
-   boost::tuple<std::size_t,std::size_t> range(0, this->size());
-   complete = GBrokerConnector2T<GParameterSet>::workOn(
-         data
-         , range
-         , oldWorkItems_
-         , false // Do not remove unprocessed item
-   );
+	//--------------------------------------------------------------------------------
+	// Submit all work items and wait for their return
+	boost::tuple<std::size_t, std::size_t> range(0, this->size());
+	complete = GBrokerConnector2T<GParameterSet>::workOn(
+		data, range, oldWorkItems_, false // Do not remove unprocessed item
+	);
 
-   if(!complete) {
-      glogger
-      << "In GBrokerPS::runFitnessCalculation(): Error!" << std::endl
-      << "No complete set of items received" << std::endl
-      << GEXCEPTION;
-   }
+	if (!complete) {
+		glogger
+		<< "In GBrokerPS::runFitnessCalculation(): Error!" << std::endl
+		<< "No complete set of items received" << std::endl
+		<< GEXCEPTION;
+	}
 }
 
 /******************************************************************************/
@@ -291,12 +280,12 @@ void GBrokerPS::runFitnessCalculation() {
 bool GBrokerPS::modify_GUnitTests() {
 #ifdef GEM_TESTING
 
-   bool result = false;
+	bool result = false;
 
-   // Call the parent class'es function
-   if(GBasePS::modify_GUnitTests()) result = true;
+	// Call the parent class'es function
+	if (GBasePS::modify_GUnitTests()) result = true;
 
-   return result;
+	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GBrokerPS::modify_GUnitTests", "GEM_TESTING");
@@ -310,8 +299,8 @@ bool GBrokerPS::modify_GUnitTests() {
  */
 void GBrokerPS::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
-   // Call the parent class'es function
-   GBasePS::specificTestsNoFailureExpected_GUnitTests();
+	// Call the parent class'es function
+	GBasePS::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GBrokerPS::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -324,8 +313,8 @@ void GBrokerPS::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GBrokerPS::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
-   // Call the parent class'es function
-   GBasePS::specificTestsFailuresExpected_GUnitTests();
+	// Call the parent class'es function
+	GBasePS::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GBrokerPS::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

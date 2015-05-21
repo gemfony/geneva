@@ -35,6 +35,7 @@
 #include "geneva/GBrokerSwarm.hpp"
 
 #include <boost/serialization/export.hpp>
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBrokerSwarm)
 
 namespace Gem {
@@ -45,9 +46,8 @@ namespace Geneva {
  * The default constructor
  */
 GBrokerSwarm::GBrokerSwarm()
-	: GBaseSwarm()
-	, Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(Gem::Courtier::INCOMPLETERETURN)
-{ /* nothing */ }
+	: GBaseSwarm(),
+	  Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(Gem::Courtier::INCOMPLETERETURN) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -58,12 +58,10 @@ GBrokerSwarm::GBrokerSwarm()
  * @param nNeighborhoodMembers The expected number of members inside of them
  */
 GBrokerSwarm::GBrokerSwarm(
-   const std::size_t& nNeighborhoods
-   , const std::size_t& nNeighborhoodMembers
+	const std::size_t &nNeighborhoods, const std::size_t &nNeighborhoodMembers
 )
-	: GBaseSwarm(nNeighborhoods, nNeighborhoodMembers)
-	, Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(Gem::Courtier::INCOMPLETERETURN)
-{ /* nothing */ }
+	: GBaseSwarm(nNeighborhoods, nNeighborhoodMembers),
+	  Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(Gem::Courtier::INCOMPLETERETURN) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -71,28 +69,25 @@ GBrokerSwarm::GBrokerSwarm(
  *
  * @param cp A copy of another GBrokerSwarm object
  */
-GBrokerSwarm::GBrokerSwarm(const GBrokerSwarm& cp)
-	: GBaseSwarm(cp)
-    , Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(cp)
-{ /* nothing */ }
+GBrokerSwarm::GBrokerSwarm(const GBrokerSwarm &cp)
+	: GBaseSwarm(cp), Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor. We have no object-wide dynamically allocated data, hence
  * this function is empty.
  */
-GBrokerSwarm::~GBrokerSwarm()
-{ /* nothing */}
+GBrokerSwarm::~GBrokerSwarm() { /* nothing */}
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GBrokerSwarm& GBrokerSwarm::operator=(
-   const GBrokerSwarm& cp
+const GBrokerSwarm &GBrokerSwarm::operator=(
+	const GBrokerSwarm &cp
 ) {
-   this->load_(&cp);
-   return *this;
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -102,7 +97,7 @@ const GBrokerSwarm& GBrokerSwarm::operator=(
  *
  * @param cp A pointer to another GBrokerSwarm object, camouflaged as a GObject
  */
-void GBrokerSwarm::load_(const GObject * cp) {
+void GBrokerSwarm::load_(const GObject *cp) {
 	const GBrokerSwarm *p_load = gobject_conversion<GBrokerSwarm>(cp);
 
 	// Load the parent classes' data ...
@@ -129,14 +124,14 @@ GObject *GBrokerSwarm::clone_() const {
  * @param  cp A constant reference to another GBrokerSwarm object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBrokerSwarm::operator==(const GBrokerSwarm& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBrokerSwarm::operator==(const GBrokerSwarm &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -146,14 +141,14 @@ bool GBrokerSwarm::operator==(const GBrokerSwarm& cp) const {
  * @param  cp A constant reference to another GBrokerSwarm object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GBrokerSwarm::operator!=(const GBrokerSwarm& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBrokerSwarm::operator!=(const GBrokerSwarm &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -166,24 +161,22 @@ bool GBrokerSwarm::operator!=(const GBrokerSwarm& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBrokerSwarm::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GBrokerSwarm *p_load = GObject::gobject_conversion<GBrokerSwarm>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GBrokerSwarm *p_load = GObject::gobject_conversion<GBrokerSwarm>(&cp);
 
-   GToken token("GBrokerSwarm", e);
+	GToken token("GBrokerSwarm", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GBaseSwarm>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GBaseSwarm>(IDENTITY(*this, *p_load), token);
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -191,7 +184,7 @@ void GBrokerSwarm::compare(
  * Emits a name for this class / object
  */
 std::string GBrokerSwarm::name() const {
-   return std::string("GBrokerSwarm");
+	return std::string("GBrokerSwarm");
 }
 
 /******************************************************************************/
@@ -202,8 +195,8 @@ void GBrokerSwarm::init() {
 	// GBaseSwarm sees exactly the environment it would when called from its own class
 	GBaseSwarm::init();
 
-   // Initialize the broker connector
-   Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::init();
+	// Initialize the broker connector
+	Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::init();
 }
 
 /******************************************************************************/
@@ -211,8 +204,8 @@ void GBrokerSwarm::init() {
  * Performs any necessary finalization work after the end of the optimization cycle
  */
 void GBrokerSwarm::finalize() {
-   // Finalize the broker connector
-   Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::finalize();
+	// Finalize the broker connector
+	Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::finalize();
 
 	// GBaseSwarm sees exactly the environment it would when called from its own class
 	GBaseSwarm::finalize();
@@ -235,8 +228,8 @@ bool GBrokerSwarm::usesBroker() const {
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
-void GBrokerSwarm::addConfigurationOptions (
-	Gem::Common::GParserBuilder& gpb
+void GBrokerSwarm::addConfigurationOptions(
+	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
 	GBaseSwarm::addConfigurationOptions(gpb);
@@ -284,11 +277,11 @@ void GBrokerSwarm::updatePositions() {
 #endif
 
 	oldIndividuals_.clear();
-	if(afterFirstIteration()) {
+	if (afterFirstIteration()) {
 		GBrokerSwarm::iterator it;
 
 		// Clone the individuals and copy them over
-		for(it=this->begin(); it!=this->end(); ++it) {
+		for (it = this->begin(); it != this->end(); ++it) {
 			oldIndividuals_.push_back((*it)->clone<GParameterSet>());
 		}
 	}
@@ -309,28 +302,27 @@ void GBrokerSwarm::runFitnessCalculation() {
 	//--------------------------------------------------------------------------------
 	// Now submit work items and wait for results
 	Gem::Courtier::GBrokerConnector2T<GParameterSet>::workOn(
-      data
-      , oldWorkItems_
-      , true // Remove unprocessed items
+		data, oldWorkItems_, true // Remove unprocessed items
 	);
 
-   // Update the iteration of older individuals (they will keep their old neighborhood id)
+	// Update the iteration of older individuals (they will keep their old neighborhood id)
 	// and attach them to the data vector
-   std::vector<std::shared_ptr<GParameterSet> >::iterator old_it;
-   for(old_it=oldWorkItems_.begin(); old_it!=oldWorkItems_.end(); ++old_it) {
-      (*old_it)->setAssignedIteration(iteration);
+	std::vector<std::shared_ptr < GParameterSet> > ::iterator
+	old_it;
+	for (old_it = oldWorkItems_.begin(); old_it != oldWorkItems_.end(); ++old_it) {
+		(*old_it)->setAssignedIteration(iteration);
 
-      this->push_back(*old_it);
-   }
-   oldWorkItems_.clear();
+		this->push_back(*old_it);
+	}
+	oldWorkItems_.clear();
 
-   // Sort according to the individuals' neighborhoods
-   sort(data.begin(), data.end(), indNeighborhoodComp());
+	// Sort according to the individuals' neighborhoods
+	sort(data.begin(), data.end(), indNeighborhoodComp());
 
 	// Now update the number of items in each neighborhood: First reset the number of members of each neighborhood
-	Gem::Common::assignVecConst(nNeighborhoodMembers_, (std::size_t)0);
+	Gem::Common::assignVecConst(nNeighborhoodMembers_, (std::size_t) 0);
 	// Then update the number of individuals in each neighborhood
-	for(it=this->begin(); it!=this->end(); ++it) {
+	for (it = this->begin(); it != this->end(); ++it) {
 		nNeighborhoodMembers_[(*it)->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood()] += 1;
 	}
 
@@ -361,32 +353,33 @@ void GBrokerSwarm::adjustNeighborhoods() {
 	// Neighborhoods with too many items are pruned. findBests() has sorted each neighborhood
 	// according to its fitness, so we know that the best items are in the front position of each
 	// neighborhood. We thus simply remove items at the end of neighborhoods that are too large.
-	for(std::size_t n=0; n<nNeighborhoods_; n++) { // Loop over all neighborhoods
+	for (std::size_t n = 0; n < nNeighborhoods_; n++) { // Loop over all neighborhoods
 		// Calculate the desired position of our own first individual in this neighborhood
 		// As we start with the first neighborhood and add or remove surplus or missing items,
 		// getFirstNIPos() will return a valid position.
 		firstNIPos = getFirstNIPos(n);
 
-		if(nNeighborhoodMembers_[n] == defaultNNeighborhoodMembers_) {
+		if (nNeighborhoodMembers_[n] == defaultNNeighborhoodMembers_) {
 			continue;
-		} else if(nNeighborhoodMembers_[n] > defaultNNeighborhoodMembers_) { // Remove surplus items from the end of the neighborhood
+		} else if (nNeighborhoodMembers_[n] >
+					  defaultNNeighborhoodMembers_) { // Remove surplus items from the end of the neighborhood
 			// Find out, how many surplus items there are
 			std::size_t nSurplus = nNeighborhoodMembers_[n] - defaultNNeighborhoodMembers_;
 
 			// Remove nSurplus items from the position (n+1)*defaultNNeighborhoodMembers_
 			data.erase(
-					data.begin()   +  (n+1)*defaultNNeighborhoodMembers_
-					, data.begin() + ((n+1)*defaultNNeighborhoodMembers_ + nSurplus)
+				data.begin() + (n + 1) * defaultNNeighborhoodMembers_,
+				data.begin() + ((n + 1) * defaultNNeighborhoodMembers_ + nSurplus)
 			);
 		} else { // nNeighborhoodMembers_[n] < defaultNNeighborhoodMembers_
 			// The number of missing items
 			std::size_t nMissing = defaultNNeighborhoodMembers_ - nNeighborhoodMembers_[n];
 
-			if(afterFirstIteration()) { // The most likely case
+			if (afterFirstIteration()) { // The most likely case
 				// Copy the best items of this neighborhood over from the oldIndividuals_ vector.
 				// Each neighborhood there should have been sorted according to the individuals
 				// fitness, with the best individuals in the front of each neighborhood.
-				for(std::size_t i=0; i<nMissing; i++) {
+				for (std::size_t i = 0; i < nMissing; i++) {
 					data.insert(data.begin() + firstNIPos, *(oldIndividuals_.begin() + firstNIPos + i));
 				}
 			} else { // first iteration
@@ -401,7 +394,7 @@ void GBrokerSwarm::adjustNeighborhoods() {
 #endif
 
 				// Fill up with random items.
-				for(std::size_t nM = 0; nM < nMissing; nM++) {
+				for (std::size_t nM = 0; nM < nMissing; nM++) {
 					// Insert a clone of the first individual of the collection
 					data.insert(data.begin() + firstNIPos, (this->front())->clone<GParameterSet>());
 
@@ -439,8 +432,8 @@ void GBrokerSwarm::adjustNeighborhoods() {
  * @return A boolean which indicates whether all neighborhoods have the default size
  */
 bool GBrokerSwarm::neighborhoodsHaveNominalValues() const {
-	for(std::size_t n=0; n<nNeighborhoods_; n++) {
-		if(nNeighborhoodMembers_[n] == defaultNNeighborhoodMembers_) return false;
+	for (std::size_t n = 0; n < nNeighborhoods_; n++) {
+		if (nNeighborhoodMembers_[n] == defaultNNeighborhoodMembers_) return false;
 	}
 	return true;
 }
@@ -453,10 +446,10 @@ bool GBrokerSwarm::neighborhoodsHaveNominalValues() const {
  */
 bool GBrokerSwarm::modify_GUnitTests() {
 #ifdef GEM_TESTING
-   bool result = false;
+	bool result = false;
 
 	// Call the parent class'es function
-	if(GBaseSwarm::modify_GUnitTests()) result = true;
+	if (GBaseSwarm::modify_GUnitTests()) result = true;
 
 	return result;
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
@@ -471,7 +464,7 @@ bool GBrokerSwarm::modify_GUnitTests() {
  */
 void GBrokerSwarm::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
-   // Call the parent class'es function
+	// Call the parent class'es function
 	GBaseSwarm::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw

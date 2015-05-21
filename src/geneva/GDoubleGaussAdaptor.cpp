@@ -43,8 +43,7 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GDoubleGaussAdaptor::GDoubleGaussAdaptor()
-{ /* nothing */ }
+GDoubleGaussAdaptor::GDoubleGaussAdaptor() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -52,9 +51,8 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor()
  *
  * @param cp A copy of another GDoubleGaussAdaptor object
  */
-GDoubleGaussAdaptor::GDoubleGaussAdaptor(const GDoubleGaussAdaptor& cp)
-	: GFPGaussAdaptorT<double>(cp)
-{ /* nothing */ }
+GDoubleGaussAdaptor::GDoubleGaussAdaptor(const GDoubleGaussAdaptor &cp)
+	: GFPGaussAdaptorT<double>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -62,9 +60,8 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor(const GDoubleGaussAdaptor& cp)
  *
  * @param adProb The adaption probability
  */
-GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double& adProb)
-	: GFPGaussAdaptorT<double>(adProb)
-{ /* nothing */ }
+GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double &adProb)
+	: GFPGaussAdaptorT<double>(adProb) { /* nothing */ }
 
 /********************************************************************************************/
 /**
@@ -76,13 +73,9 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double& adProb)
  * @param maxSigma The maximal value allowed for sigma_
  */
 GDoubleGaussAdaptor::GDoubleGaussAdaptor(
-   const double& sigma
-   , const double& sigmaSigma
-   , const double& minSigma
-   , const double& maxSigma
+	const double &sigma, const double &sigmaSigma, const double &minSigma, const double &maxSigma
 )
-	: GFPGaussAdaptorT<double> (sigma, sigmaSigma, minSigma, maxSigma)
-{ /* nothing */ }
+	: GFPGaussAdaptorT<double>(sigma, sigmaSigma, minSigma, maxSigma) { /* nothing */ }
 
 /********************************************************************************************/
 /**
@@ -96,31 +89,25 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor(
  * @param adProb The adaption probability
  */
 GDoubleGaussAdaptor::GDoubleGaussAdaptor(
-   const double& sigma
-   , const double& sigmaSigma
-   , const double& minSigma
-   , const double& maxSigma
-   , const double& adProb
+	const double &sigma, const double &sigmaSigma, const double &minSigma, const double &maxSigma, const double &adProb
 )
-	: GFPGaussAdaptorT<double> (sigma, sigmaSigma, minSigma, maxSigma, adProb)
-{ /* nothing */ }
+	: GFPGaussAdaptorT<double>(sigma, sigmaSigma, minSigma, maxSigma, adProb) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GDoubleGaussAdaptor::~GDoubleGaussAdaptor()
-{ /* nothing */ }
+GDoubleGaussAdaptor::~GDoubleGaussAdaptor() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GDoubleGaussAdaptor& GDoubleGaussAdaptor::operator=(
-   const GDoubleGaussAdaptor& cp
+const GDoubleGaussAdaptor &GDoubleGaussAdaptor::operator=(
+	const GDoubleGaussAdaptor &cp
 ) {
-   this->load_(&cp);
-   return *this;
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -129,7 +116,7 @@ const GDoubleGaussAdaptor& GDoubleGaussAdaptor::operator=(
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GDoubleGaussAdaptor::clone_() const {
+GObject *GDoubleGaussAdaptor::clone_() const {
 	return new GDoubleGaussAdaptor(*this);
 }
 
@@ -140,14 +127,14 @@ GObject* GDoubleGaussAdaptor::clone_() const {
  * @param  cp A constant reference to another GDoubleGaussAdaptor object
  * @return A boolean indicating whether both objects are equal
  */
-bool GDoubleGaussAdaptor::operator==(const GDoubleGaussAdaptor& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GDoubleGaussAdaptor::operator==(const GDoubleGaussAdaptor &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -157,14 +144,14 @@ bool GDoubleGaussAdaptor::operator==(const GDoubleGaussAdaptor& cp) const {
  * @param  cp A constant reference to another GDoubleGaussAdaptor object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GDoubleGaussAdaptor::operator!=(const GDoubleGaussAdaptor& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GDoubleGaussAdaptor::operator!=(const GDoubleGaussAdaptor &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -177,24 +164,22 @@ bool GDoubleGaussAdaptor::operator!=(const GDoubleGaussAdaptor& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GDoubleGaussAdaptor::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GDoubleGaussAdaptor *p_load = GObject::gobject_conversion<GDoubleGaussAdaptor>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GDoubleGaussAdaptor *p_load = GObject::gobject_conversion<GDoubleGaussAdaptor>(&cp);
 
-   GToken token("GDoubleGaussAdaptor", e);
+	GToken token("GDoubleGaussAdaptor", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GFPGaussAdaptorT<double> >(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GFPGaussAdaptorT<double> >(IDENTITY(*this, *p_load), token);
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -202,7 +187,7 @@ void GDoubleGaussAdaptor::compare(
  * Emits a name for this class / object
  */
 std::string GDoubleGaussAdaptor::name() const {
-   return std::string("GDoubleGaussAdaptor");
+	return std::string("GDoubleGaussAdaptor");
 }
 
 /******************************************************************************/
@@ -211,9 +196,9 @@ std::string GDoubleGaussAdaptor::name() const {
  *
  * @param cp A copy of another GDoubleGaussAdaptor object, camouflaged as a GObject
  */
-void GDoubleGaussAdaptor::load_(const GObject* cp){
-    // Check that we are not accidently assigning this object to itself
-    GObject::selfAssignmentCheck<GDoubleGaussAdaptor>(cp);
+void GDoubleGaussAdaptor::load_(const GObject *cp) {
+	// Check that we are not accidently assigning this object to itself
+	GObject::selfAssignmentCheck<GDoubleGaussAdaptor>(cp);
 
 	// Load our parent class'es data ...
 	GFPGaussAdaptorT<double>::load_(cp);
@@ -244,13 +229,13 @@ Gem::Geneva::adaptorId GDoubleGaussAdaptor::getAdaptorId() const {
  */
 bool GDoubleGaussAdaptor::modify_GUnitTests() {
 #ifdef GEM_TESTING
-   using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GFPGaussAdaptorT<double>::modify_GUnitTests()) result = true;
+	if (GFPGaussAdaptorT<double>::modify_GUnitTests()) result = true;
 
 	return result;
 
@@ -275,13 +260,12 @@ void GDoubleGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check that the adaptor returns the correct adaptor id
-		std::shared_ptr<GDoubleGaussAdaptor> p_test = this->clone<GDoubleGaussAdaptor>();
+		std::shared_ptr <GDoubleGaussAdaptor> p_test = this->clone<GDoubleGaussAdaptor>();
 
 		BOOST_CHECK_MESSAGE(
-			p_test->getAdaptorId() == GDOUBLEGAUSSADAPTOR
-			,  "\n"
-			<< "p_test->getAdaptorId() = " << p_test->getAdaptorId()
-			<< "GDOUBLEGAUSSADAPTOR     = " << GDOUBLEGAUSSADAPTOR << "\n"
+			p_test->getAdaptorId() == GDOUBLEGAUSSADAPTOR, "\n"
+																		  << "p_test->getAdaptorId() = " << p_test->getAdaptorId()
+																		  << "GDOUBLEGAUSSADAPTOR     = " << GDOUBLEGAUSSADAPTOR << "\n"
 		);
 	}
 
@@ -303,7 +287,7 @@ void GDoubleGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GDoubleGaussAdaptor::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
-   using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function

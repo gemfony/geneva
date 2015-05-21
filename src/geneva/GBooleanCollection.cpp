@@ -45,8 +45,7 @@ namespace Geneva {
  * by the parent class.
  */
 GBooleanCollection::GBooleanCollection()
-   : GParameterCollectionT<bool>()
-{ /* nothing */ }
+	: GParameterCollectionT<bool>() { /* nothing */ }
 
 // Tested in this class
 
@@ -56,9 +55,8 @@ GBooleanCollection::GBooleanCollection()
  *
  * @param cp A copy of another GBooleanCollection object
  */
-GBooleanCollection::GBooleanCollection(const GBooleanCollection& cp)
-   : GParameterCollectionT<bool>(cp)
-{ /* nothing */ }
+GBooleanCollection::GBooleanCollection(const GBooleanCollection &cp)
+	: GParameterCollectionT<bool>(cp) { /* nothing */ }
 
 // Tested in this class
 
@@ -68,15 +66,14 @@ GBooleanCollection::GBooleanCollection(const GBooleanCollection& cp)
  *
  * @param nval The size of the collection
  */
-GBooleanCollection::GBooleanCollection(const std::size_t& nval)
-   : GParameterCollectionT<bool>()
-{
-   using namespace Gem::Common;
-   using namespace Gem::Hap;
+GBooleanCollection::GBooleanCollection(const std::size_t &nval)
+	: GParameterCollectionT<bool>() {
+	using namespace Gem::Common;
+	using namespace Gem::Hap;
 
-   for(std::size_t i= 0; i<nval; i++) {
-      this->push_back(GObject::gr_ptr()->uniform_bool());
-   }
+	for (std::size_t i = 0; i < nval; i++) {
+		this->push_back(GObject::gr_ptr()->uniform_bool());
+	}
 }
 
 // Tested in this class
@@ -88,9 +85,8 @@ GBooleanCollection::GBooleanCollection(const std::size_t& nval)
  * @param nval The size of the collection
  * @param val  The value to be assigned to each position
  */
-GBooleanCollection::GBooleanCollection(const std::size_t& nval, const bool& val)
-   : GParameterCollectionT<bool>(nval, val)
-{ /* nothing */ }
+GBooleanCollection::GBooleanCollection(const std::size_t &nval, const bool &val)
+	: GParameterCollectionT<bool>(nval, val) { /* nothing */ }
 
 // Tested in this class
 
@@ -102,15 +98,14 @@ GBooleanCollection::GBooleanCollection(const std::size_t& nval, const bool& val)
  * @param nval The size of the collection
  * @param probability The probability for true values in the collection
  */
-GBooleanCollection::GBooleanCollection(const std::size_t& nval, const double& probability)
-   : GParameterCollectionT<bool>()
-{
-   using namespace Gem::Common;
-   using namespace Gem::Hap;
+GBooleanCollection::GBooleanCollection(const std::size_t &nval, const double &probability)
+	: GParameterCollectionT<bool>() {
+	using namespace Gem::Common;
+	using namespace Gem::Hap;
 
-   for(std::size_t i= 0; i<nval; i++) {
-      this->push_back(GObject::gr_ptr()->weighted_bool(probability));
-   }
+	for (std::size_t i = 0; i < nval; i++) {
+		this->push_back(GObject::gr_ptr()->weighted_bool(probability));
+	}
 }
 
 // Tested in this class
@@ -119,18 +114,17 @@ GBooleanCollection::GBooleanCollection(const std::size_t& nval, const double& pr
 /**
  * The standard destructor. No local data, hence it is empty.
  */
-GBooleanCollection::~GBooleanCollection()
-{ /* nothing */ }
+GBooleanCollection::~GBooleanCollection() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GBooleanCollection& GBooleanCollection::operator=(
-   const GBooleanCollection& cp
+const GBooleanCollection &GBooleanCollection::operator=(
+	const GBooleanCollection &cp
 ) {
-   this->load_(&cp);
-   return *this;
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -139,8 +133,8 @@ const GBooleanCollection& GBooleanCollection::operator=(
  *
  * @return A deep clone of this object
  */
-GObject *GBooleanCollection::clone_() const{
-   return new GBooleanCollection(*this);
+GObject *GBooleanCollection::clone_() const {
+	return new GBooleanCollection(*this);
 }
 
 /******************************************************************************/
@@ -150,11 +144,11 @@ GObject *GBooleanCollection::clone_() const{
  *
  * @param gb A pointer to another GBooleanCollection object, camouflaged as a GObject
  */
-void GBooleanCollection::load_(const GObject * cp){
-   // Check for a possible self-assignment
-   GObject::selfAssignmentCheck<GBooleanCollection>(cp);
+void GBooleanCollection::load_(const GObject *cp) {
+	// Check for a possible self-assignment
+	GObject::selfAssignmentCheck<GBooleanCollection>(cp);
 
-   GParameterCollectionT<bool>::load_(cp);
+	GParameterCollectionT<bool>::load_(cp);
 }
 
 /******************************************************************************/
@@ -163,18 +157,18 @@ void GBooleanCollection::load_(const GObject * cp){
  * function assumes that the collection has been completely set up. Data
  * that is added later will remain unaffected.
  */
-bool GBooleanCollection::randomInit_(const activityMode&) {
-   bool randomized = false;
+bool GBooleanCollection::randomInit_(const activityMode &) {
+	bool randomized = false;
 
-   using namespace Gem::Common;
-   using namespace Gem::Hap;
+	using namespace Gem::Common;
+	using namespace Gem::Hap;
 
-   for(std::size_t i=0; i<this->size(); i++) {
-      (*this)[i] = GObject::gr_ptr()->uniform_bool();
-      randomized = true;
-   }
+	for (std::size_t i = 0; i < this->size(); i++) {
+		(*this)[i] = GObject::gr_ptr()->uniform_bool();
+		randomized = true;
+	}
 
-   return randomized;
+	return randomized;
 }
 
 /******************************************************************************/
@@ -183,23 +177,23 @@ bool GBooleanCollection::randomInit_(const activityMode&) {
  *
  * @param probability The probability for true values in the collection
  */
-bool GBooleanCollection::randomInit_(const double& probability, const activityMode&) {
-   using namespace Gem::Common;
-   using namespace Gem::Hap;
+bool GBooleanCollection::randomInit_(const double &probability, const activityMode &) {
+	using namespace Gem::Common;
+	using namespace Gem::Hap;
 
-   // Do some error checking
-   if(probability<0. || probability>1.) {
-      glogger
-      << "In GBooleanCollection::randomInit_(" << probability << "):" << std::endl
-      << "Requested probability outside of allowed range [0:1]" << std::endl
-      << GEXCEPTION;
-   }
+	// Do some error checking
+	if (probability < 0. || probability > 1.) {
+		glogger
+		<< "In GBooleanCollection::randomInit_(" << probability << "):" << std::endl
+		<< "Requested probability outside of allowed range [0:1]" << std::endl
+		<< GEXCEPTION;
+	}
 
-   for(std::size_t i=0; i<this->size(); i++) {
-      (*this)[i] = GObject::gr_ptr()->weighted_bool(probability);
-   }
+	for (std::size_t i = 0; i < this->size(); i++) {
+		(*this)[i] = GObject::gr_ptr()->weighted_bool(probability);
+	}
 
-   return true;
+	return true;
 }
 
 /******************************************************************************/
@@ -207,8 +201,8 @@ bool GBooleanCollection::randomInit_(const double& probability, const activityMo
  * Random initialization. This is a helper function, without it we'd
  * have to say things like "myGBooleanCollectionObject.GParameterBase::randomInit();".
  */
-bool GBooleanCollection::randomInit(const activityMode& am) {
-   return GParameterBase::randomInit(am); // This will also take into account the "blocked initialization" flag
+bool GBooleanCollection::randomInit(const activityMode &am) {
+	return GParameterBase::randomInit(am); // This will also take into account the "blocked initialization" flag
 }
 
 /******************************************************************************/
@@ -218,15 +212,15 @@ bool GBooleanCollection::randomInit(const activityMode& am) {
  *
  * @param probability The probability for true values in the collection
  */
-bool GBooleanCollection::randomInit(const double& probability, const activityMode& am) {
-   if(
-      !GParameterBase::randomInitializationBlocked()
-      && this->modifiableAmMatchOrHandover(am)
-   ) {
-      return randomInit_(probability, am);
-   } else {
-      return false;
-   }
+bool GBooleanCollection::randomInit(const double &probability, const activityMode &am) {
+	if (
+		!GParameterBase::randomInitializationBlocked()
+		&& this->modifiableAmMatchOrHandover(am)
+		) {
+		return randomInit_(probability, am);
+	} else {
+		return false;
+	}
 }
 
 /***************************************************************************/
@@ -235,7 +229,7 @@ bool GBooleanCollection::randomInit(const double& probability, const activityMod
  * be considered to be more of a "dummy".
  */
 bool GBooleanCollection::range() const {
-   return true;
+	return true;
 }
 
 /******************************************************************************/
@@ -245,14 +239,14 @@ bool GBooleanCollection::range() const {
  * @param  cp A constant reference to another GBooleanCollection object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBooleanCollection::operator==(const GBooleanCollection& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBooleanCollection::operator==(const GBooleanCollection &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -262,14 +256,14 @@ bool GBooleanCollection::operator==(const GBooleanCollection& cp) const {
  * @param  cp A constant reference to another GBooleanCollection object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GBooleanCollection::operator!=(const GBooleanCollection& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBooleanCollection::operator!=(const GBooleanCollection &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -282,24 +276,22 @@ bool GBooleanCollection::operator!=(const GBooleanCollection& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBooleanCollection::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GBooleanCollection *p_load = GObject::gobject_conversion<GBooleanCollection>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GBooleanCollection *p_load = GObject::gobject_conversion<GBooleanCollection>(&cp);
 
-   GToken token("GBooleanCollection", e);
+	GToken token("GBooleanCollection", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GParameterCollectionT<bool> >(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GParameterCollectionT<bool> >(IDENTITY(*this, *p_load), token);
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -307,7 +299,7 @@ void GBooleanCollection::compare(
  * Emits a name for this class / object
  */
 std::string GBooleanCollection::name() const {
-   return std::string("GBooleanCollection");
+	return std::string("GBooleanCollection");
 }
 
 /******************************************************************************/
@@ -318,13 +310,12 @@ std::string GBooleanCollection::name() const {
  * @param parVec The vector to which the local values should be attached
  */
 void GBooleanCollection::booleanStreamline(
-   std::vector<bool>& parVec
-   , const activityMode&
+	std::vector<bool> &parVec, const activityMode &
 ) const {
-   GBooleanCollection::const_iterator cit;
-   for(cit=this->begin(); cit!=this->end(); ++cit) {
-      parVec.push_back(*cit);
-   }
+	GBooleanCollection::const_iterator cit;
+	for (cit = this->begin(); cit != this->end(); ++cit) {
+		parVec.push_back(*cit);
+	}
 }
 
 /******************************************************************************/
@@ -335,9 +326,7 @@ void GBooleanCollection::booleanStreamline(
  * @param parVec The map to which the local values should be attached
  */
 void GBooleanCollection::booleanStreamline(
-   std::map<std::string
-   , std::vector<bool> >& parVec
-   , const activityMode& am
+	std::map<std::string, std::vector<bool> > &parVec, const activityMode &am
 ) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
@@ -348,9 +337,9 @@ void GBooleanCollection::booleanStreamline(
    }
 #endif /* DEBUG */
 
-   std::vector<bool> parameters;
-   this->booleanStreamline(parameters, am);
-   parVec[this->getParameterName()] = parameters;
+	std::vector<bool> parameters;
+	this->booleanStreamline(parameters, am);
+	parVec[this->getParameterName()] = parameters;
 }
 
 /******************************************************************************/
@@ -361,15 +350,13 @@ void GBooleanCollection::booleanStreamline(
  * @param uBndVec A vector of upper bool parameter boundaries
  */
 void GBooleanCollection::booleanBoundaries(
-   std::vector<bool>& lBndVec
-   , std::vector<bool>& uBndVec
-   , const activityMode& am
+	std::vector<bool> &lBndVec, std::vector<bool> &uBndVec, const activityMode &am
 ) const {
-   GBooleanCollection::const_iterator cit;
-   for(cit=this->begin(); cit!=this->end(); ++cit) {
-      lBndVec.push_back(false);
-      uBndVec.push_back(true);
-   }
+	GBooleanCollection::const_iterator cit;
+	for (cit = this->begin(); cit != this->end(); ++cit) {
+		lBndVec.push_back(false);
+		uBndVec.push_back(true);
+	}
 }
 
 /******************************************************************************/
@@ -380,9 +367,9 @@ void GBooleanCollection::booleanBoundaries(
  * @return The number of bool parameters
  */
 std::size_t GBooleanCollection::countBoolParameters(
-   const activityMode& am
+	const activityMode &am
 ) const {
-   return this->size();
+	return this->size();
 }
 
 /******************************************************************************/
@@ -390,11 +377,9 @@ std::size_t GBooleanCollection::countBoolParameters(
  * Assigns part of a value vector to the parameter
  */
 void GBooleanCollection::assignBooleanValueVector(
-   const std::vector<bool>& parVec
-   , std::size_t& pos
-   , const activityMode& am
+	const std::vector<bool> &parVec, std::size_t &pos, const activityMode &am
 ) {
-   for(GBooleanCollection::iterator it=this->begin(); it!=this->end(); ++it) {
+	for (GBooleanCollection::iterator it = this->begin(); it != this->end(); ++it) {
 #ifdef DEBUG
       // Do we have a valid position ?
       if(pos >= parVec.size()) {
@@ -405,9 +390,9 @@ void GBooleanCollection::assignBooleanValueVector(
       }
 #endif
 
-      (*it) = parVec[pos];
-      pos++;
-   }
+		(*it) = parVec[pos];
+		pos++;
+	}
 }
 
 /******************************************************************************/
@@ -415,15 +400,13 @@ void GBooleanCollection::assignBooleanValueVector(
  * Assigns part of a value map to the parameter
  */
 void GBooleanCollection::assignBooleanValueVectors(
-   const std::map<std::string
-   , std::vector<bool> >& parMap
-   , const activityMode& am
+	const std::map<std::string, std::vector<bool> > &parMap, const activityMode &am
 ) {
-   GBooleanCollection::iterator it;
-   std::size_t cnt = 0;
-   for(it=this->begin(); it!=this->end(); ++it) {
-      *it = (Gem::Common::getMapItem<std::vector<bool> >(parMap,this->getParameterName())).at(cnt++);
-   }
+	GBooleanCollection::iterator it;
+	std::size_t cnt = 0;
+	for (it = this->begin(); it != this->end(); ++it) {
+		*it = (Gem::Common::getMapItem<std::vector<bool> >(parMap, this->getParameterName())).at(cnt++);
+	}
 }
 
 /******************************************************************************/
@@ -434,12 +417,12 @@ void GBooleanCollection::assignBooleanValueVectors(
  */
 bool GBooleanCollection::modify_GUnitTests() {
 #ifdef GEM_TESTING
-   bool result = false;
+	bool result = false;
 
-   // Call the parent class'es function
-   if(GParameterCollectionT<bool>::modify_GUnitTests()) result = true;
+	// Call the parent class'es function
+	if (GParameterCollectionT<bool>::modify_GUnitTests()) result = true;
 
-   return result;
+	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GBooleanCollection::modify_GUnitTests", "GEM_TESTING");
@@ -453,403 +436,394 @@ bool GBooleanCollection::modify_GUnitTests() {
  */
 void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
-   // A few settings
-   const std::size_t nItems = 10000;
-   const bool FIXEDVALUEINIT = true;
-   const double LOWERBND = 0.8, UPPERBND = 1.2;
-
-   // Make sure we have an appropriate adaptor loaded when performing these tests
-   bool adaptorStored = false;
-   std::shared_ptr<GAdaptorT<bool> > storedAdaptor;
-
-   if(this->hasAdaptor()) {
-      storedAdaptor = this->getAdaptor();
-      adaptorStored = true;
-   }
-
-   std::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor(1.0));
-   gba_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
-   gba_ptr->setAdaptionMode(true); // Always adapt
-   this->addAdaptor(gba_ptr);
-
-   // Call the parent class'es function
-   GParameterCollectionT<bool>::specificTestsNoFailureExpected_GUnitTests();
-
-   // --------------------------------------------------------------------------
-
-   { // Check default constructor
-      GBooleanCollection gbc;
-      BOOST_CHECK(gbc.empty());
-   }
-
-   // --------------------------------------------------------------------------
-
-   { // Check copy construction
-      GBooleanCollection gbc1;
-      BOOST_CHECK_NO_THROW(gbc1.push_back(true));
-      GBooleanCollection gbc2(gbc1);
-      BOOST_CHECK_MESSAGE(
-            gbc2.size() == 1 && gbc2.at(0) == true
-            , "\n"
-            << "gbc2.size() = " << gbc2.size()
-            << "gbc2.at(0) = " << gbc2.at(0)
-      );
-   }
-
-   // --------------------------------------------------------------------------
-
-   { // Check construction with a number of random bits
-      GBooleanCollection gbc(nItems);
-
-      BOOST_CHECK_MESSAGE(
-            gbc.size() == nItems
-            , "\n"
-            << "gbc.size() = " << gbc.size()
-            << "nItems = " << nItems
-      );
-
-      // Count the number of true and false values
-      std::size_t nTrue = 0;
-      std::size_t nFalse = 0;
-      for(std::size_t i=0; i<nItems; i++) {
-         gbc.at(i)?nTrue++:nFalse++;
-      }
-
-      // We allow a slight deviation, as the initialization is a random process
-      BOOST_REQUIRE(nFalse != 0); // There should be a few false values
-      double ratio = double(nTrue)/double(nFalse);
-      BOOST_CHECK_MESSAGE(
-            ratio>LOWERBND && ratio<UPPERBND
-            ,  "\n"
-            << "ratio = " << ratio << "\n"
-            << "nTrue = " << nTrue << "\n"
-            << "nFalse = " << nFalse << "\n"
-      );
-   }
-
-   // --------------------------------------------------------------------------
-
-   { // Check construction with a number of identical bits
-      GBooleanCollection gbc(nItems, true);
-
-      BOOST_CHECK_MESSAGE(
-            gbc.size() == nItems
-            , "\n"
-            << "gbc.size() = " << gbc.size()
-            << "nItems = " << nItems
-      );
-
-      // Count the number of true and false values
-      std::size_t nTrue = 0;
-      std::size_t nFalse = 0;
-      for(std::size_t i=0; i<nItems; i++) {
-         gbc.at(i)?nTrue++:nFalse++;
-      }
-
-      BOOST_CHECK_MESSAGE(
-            nTrue == nItems
-            ,  "\n"
-            << "nTrue = " << nTrue << "\n"
-            << "nItems = " << nItems << "\n"
-      );
-   }
-
-   // --------------------------------------------------------------------------
-
-   { // Check construction with a given probability for the value true
-      GBooleanCollection gbc(nItems, 0.5);
-
-      BOOST_CHECK_MESSAGE(
-            gbc.size() == nItems
-            , "\n"
-            << "gbc.size() = " << gbc.size()
-            << "nItems = " << nItems
-      );
-
-      // Count the number of true and false values
-      std::size_t nTrue = 0;
-      std::size_t nFalse = 0;
-      for(std::size_t i=0; i<nItems; i++) {
-         gbc.at(i)?nTrue++:nFalse++;
-      }
-
-      // We allow a slight deviation, as the initialization is a random process
-      BOOST_REQUIRE(nFalse != 0); // There should be a few false values
-      double ratio = double(nTrue)/double(nFalse);
-      BOOST_CHECK_MESSAGE(
-            ratio>LOWERBND && ratio<UPPERBND
-            ,  "\n"
-            << "ratio = " << ratio << "\n"
-            << "nTrue = " << nTrue << "\n"
-            << "nFalse = " << nFalse << "\n"
-      );
-   }
-
-   // --------------------------------------------------------------------------
-
-   { // Test that random initialization with equal probability will result in roughly the same amount of true and false values
-      std::shared_ptr<GBooleanCollection> p_test = this->clone<GBooleanCollection>();
-
-      // Make sure the collection is empty
-      BOOST_CHECK_NO_THROW(p_test->clear());
-
-      // Add items of fixed value
-      for(std::size_t i=0; i<nItems; i++) {
-         p_test->push_back(true);
-      }
-
-      // Check the size
-      BOOST_CHECK(p_test->size() == nItems);
-
-      // Randomly initialize, using the internal function
-      BOOST_CHECK_NO_THROW(p_test->randomInit_(ALLPARAMETERS));
-
-      // Count the number of true and false values
-      std::size_t nTrue = 0;
-      std::size_t nFalse = 0;
-      for(std::size_t i=0; i<nItems; i++) {
-         p_test->at(i)?nTrue++:nFalse++;
-      }
-
-      // We allow a slight deviation, as the initialization is a random process
-      BOOST_REQUIRE(nFalse != 0); // There should be a few false values
-      double ratio = double(nTrue)/double(nFalse);
-      BOOST_CHECK_MESSAGE(
-            ratio>LOWERBND && ratio<UPPERBND
-            ,  "\n"
-            << "ratio = " << ratio << "\n"
-            << "nTrue = " << nTrue << "\n"
-            << "nFalse = " << nFalse << "\n"
-      );
-   }
-
-   // --------------------------------------------------------------------------
-
-   { // Check that initialization with a probabilty of 0. for true results in just false values
-      std::shared_ptr<GBooleanCollection> p_test = this->clone<GBooleanCollection>();
-
-      // Make sure the collection is empty
-      BOOST_CHECK_NO_THROW(p_test->clear());
-
-      // Add items of fixed value
-      for(std::size_t i=0; i<nItems; i++) {
-         p_test->push_back(true);
-      }
-
-      // Randomly initialize, using the internal function
-      BOOST_CHECK_NO_THROW(p_test->randomInit_(0., ALLPARAMETERS));
-
-      // Count the number of true and false values
-      std::size_t nTrue = 0;
-      std::size_t nFalse = 0;
-      for(std::size_t i=0; i<nItems; i++) {
-         p_test->at(i)?nTrue++:nFalse++;
-      }
-
-      // Cross-check
-      BOOST_CHECK_MESSAGE(
-            nTrue == 0
-            ,  "\n"
-            << "nTrue = " << nTrue << "\n"
-            << "nFalse = " << nFalse << "\n"
-      );
-   }
-
-   // --------------------------------------------------------------------------
-
-   { // Check that initialization with a probabilty of 1. for true results in just true values
-      std::shared_ptr<GBooleanCollection> p_test = this->clone<GBooleanCollection>();
-
-      // Make sure the collection is empty
-      BOOST_CHECK_NO_THROW(p_test->clear());
-
-      // Add items of fixed value
-      for(std::size_t i=0; i<nItems; i++) {
-         p_test->push_back(false);
-      }
-
-      // Randomly initialize, using the internal function
-      BOOST_CHECK_NO_THROW(p_test->randomInit_(1., ALLPARAMETERS));
-
-      // Count the number of true and false values
-      std::size_t nTrue = 0;
-      std::size_t nFalse = 0;
-      for(std::size_t i=0; i<nItems; i++) {
-         p_test->at(i)?nTrue++:nFalse++;
-      }
-
-      // Cross-check
-      BOOST_CHECK_MESSAGE(
-            nTrue == nItems
-            ,  "\n"
-            << "nTrue = " << nTrue << "\n"
-            << "nFalse = " << nFalse << "\n"
-      );
-   }
-
-   // --------------------------------------------------------------------------
-
-   { // Test that random initialization with a given probability will result in roughly the expected amount of true and false values
-      for(double d=0.1; d<0.9; d+=0.1) {
-         std::shared_ptr<GBooleanCollection> p_test = this->clone<GBooleanCollection>();
-
-         // Make sure the collection is empty
-         BOOST_CHECK_NO_THROW(p_test->clear());
-
-         // Add items of fixed value
-         for(std::size_t i=0; i<nItems; i++) {
-            p_test->push_back(false);
-         }
-
-         // Randomly initialize, using the internal function and the required probability
-         BOOST_CHECK_NO_THROW(p_test->randomInit_(d, ALLPARAMETERS));
-
-         // Count the number of true and false values
-         std::size_t nTrue = 0;
-         std::size_t nFalse = 0;
-         for(std::size_t i=0; i<nItems; i++) {
-            p_test->at(i)?nTrue++:nFalse++;
-         }
-
-         // We allow a slight deviation, as the initialization is a random process
-         double expectedTrueMin = 0.8*d*nItems;
-         double expectedTrueMax = 1.2*d*nItems;
-
-         BOOST_CHECK_MESSAGE(
-               double(nTrue) > expectedTrueMin && double(nTrue) < expectedTrueMax
-               ,  "\n"
-               << "d = " << d << "\n"
-               << "Allowed window = " << expectedTrueMin << " - " << expectedTrueMax << "\n"
-               << "nItems = " << nItems << "\n"
-               << "nTrue = " << nTrue << "\n"
-               << "nFalse = " << nFalse << "\n"
-         );
-      }
-   }
-
-   // --------------------------------------------------------------------------
-
-   { // Check that random initialization can be blocked for equal distributions
-      std::shared_ptr<GBooleanCollection> p_test1 = this->clone<GBooleanCollection>();
-      std::shared_ptr<GBooleanCollection> p_test2 = this->clone<GBooleanCollection>();
-
-      // Make sure the collections are empty
-      BOOST_CHECK_NO_THROW(p_test1->clear());
-      BOOST_CHECK_NO_THROW(p_test2->clear());
-
-      // Add items of fixed value
-      for(std::size_t i=0; i<nItems; i++) {
-         p_test1->push_back(false);
-      }
-
-      // Block random initialization and cross check
-      BOOST_CHECK_NO_THROW(p_test1->blockRandomInitialization());
-      BOOST_CHECK(p_test1->randomInitializationBlocked() == true);
-
-      // Load the data into p_test2
-      BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
-
-      // Check that both objects are equal
-      BOOST_CHECK(*p_test1 == *p_test2);
-
-      // Check that random initialization is also blocked for p_test2
-      BOOST_CHECK(p_test2->randomInitializationBlocked() == true);
-
-      // Try to randomly initialize, using the *external* function
-      BOOST_CHECK_NO_THROW(p_test1->randomInit(ALLPARAMETERS));
-
-      // Check that both objects are still the same
-      BOOST_CHECK(*p_test1 == *p_test2);
-   }
-
-   // --------------------------------------------------------------------------
-
-   { // Check that random initialization can be blocked for distributions with a given probability structure
-      std::shared_ptr<GBooleanCollection> p_test1 = this->clone<GBooleanCollection>();
-      std::shared_ptr<GBooleanCollection> p_test2 = this->clone<GBooleanCollection>();
-
-      // Make sure the collections are empty
-      BOOST_CHECK_NO_THROW(p_test1->clear());
-      BOOST_CHECK_NO_THROW(p_test2->clear());
-
-      // Add items of fixed value
-      for(std::size_t i=0; i<nItems; i++) {
-         p_test1->push_back(false);
-      }
-
-      // Block random initialization and cross check
-      BOOST_CHECK_NO_THROW(p_test1->blockRandomInitialization());
-      BOOST_CHECK(p_test1->randomInitializationBlocked() == true);
-
-      // Load the data into p_test2
-      BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
-
-      // Check that both objects are equal
-      BOOST_CHECK(*p_test1 == *p_test2);
-
-      // Check that random initialization is also blocked for p_test2
-      BOOST_CHECK(p_test2->randomInitializationBlocked() == true);
-
-      // Try to randomly initialize, using the *external* function
-      BOOST_CHECK_NO_THROW(p_test1->randomInit(0.7, ALLPARAMETERS));
-
-      // Check that both objects are still the same
-      BOOST_CHECK(*p_test1 == *p_test2);
-   }
-
-   // --------------------------------------------------------------------------
-
-   { // Check that the fp-family of functions doesn't have an effect on this object
-      std::shared_ptr<GBooleanCollection> p_test1 = this->GObject::clone<GBooleanCollection>();
-      std::shared_ptr<GBooleanCollection> p_test2 = this->GObject::clone<GBooleanCollection>();
-      std::shared_ptr<GBooleanCollection> p_test3 = this->GObject::clone<GBooleanCollection>();
-
-      // Add a few items to p_test1
-      for(std::size_t i=0; i<nItems; i++) {
-         p_test1->push_back(FIXEDVALUEINIT);
-      }
-
-      // Load into p_test2 and p_test3 and test equality
-      BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
-      BOOST_CHECK_NO_THROW(p_test3->load(p_test1));
-      BOOST_CHECK(*p_test2 == *p_test1);
-      BOOST_CHECK(*p_test3 == *p_test1);
-      BOOST_CHECK(*p_test3 == *p_test2);
-
-      // Check that initialization with a fixed floating point value has no effect on this object
-      BOOST_CHECK_NO_THROW(p_test2->fixedValueInit<double>(2., ALLPARAMETERS));
-      BOOST_CHECK(*p_test2 == *p_test1);
-
-      // Check that multiplication with a fixed floating point value has no effect on this object
-      BOOST_CHECK_NO_THROW(p_test2->multiplyBy<double>(2., ALLPARAMETERS));
-      BOOST_CHECK(*p_test2 == *p_test1);
-
-      // Check that a component-wise multiplication with a random fp value in a given range does not have an effect on this object
-      BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(1., 2., ALLPARAMETERS));
-      BOOST_CHECK(*p_test2 == *p_test1);
-
-      // Check that a component-wise multiplication with a random fp value in the range [0:1[ does not have an effect on this object
-      BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(ALLPARAMETERS));
-      BOOST_CHECK(*p_test2 == *p_test1);
-
-      // Check that adding p_test1 to p_test3 does not have an effect
-      BOOST_CHECK_NO_THROW(p_test3->add<double>(p_test1, ALLPARAMETERS));
-      BOOST_CHECK(*p_test3 == *p_test2);
-
-      // Check that subtracting p_test1 from p_test3 does not have an effect
-      BOOST_CHECK_NO_THROW(p_test3->subtract<double>(p_test1, ALLPARAMETERS));
-      BOOST_CHECK(*p_test3 == *p_test2);
-   }
-
-   // --------------------------------------------------------------------------
-
-   // Remove the test adaptor
-   this->resetAdaptor();
-
-   // Load the old adaptor, if needed
-   if(adaptorStored) {
-      this->addAdaptor(storedAdaptor);
-   }
+	// A few settings
+	const std::size_t nItems = 10000;
+	const bool FIXEDVALUEINIT = true;
+	const double LOWERBND = 0.8, UPPERBND = 1.2;
+
+	// Make sure we have an appropriate adaptor loaded when performing these tests
+	bool adaptorStored = false;
+	std::shared_ptr <GAdaptorT<bool>> storedAdaptor;
+
+	if (this->hasAdaptor()) {
+		storedAdaptor = this->getAdaptor();
+		adaptorStored = true;
+	}
+
+	std::shared_ptr <GBooleanAdaptor> gba_ptr(new GBooleanAdaptor(1.0));
+	gba_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
+	gba_ptr->setAdaptionMode(true); // Always adapt
+	this->addAdaptor(gba_ptr);
+
+	// Call the parent class'es function
+	GParameterCollectionT<bool>::specificTestsNoFailureExpected_GUnitTests();
+
+	// --------------------------------------------------------------------------
+
+	{ // Check default constructor
+		GBooleanCollection gbc;
+		BOOST_CHECK(gbc.empty());
+	}
+
+	// --------------------------------------------------------------------------
+
+	{ // Check copy construction
+		GBooleanCollection gbc1;
+		BOOST_CHECK_NO_THROW(gbc1.push_back(true));
+		GBooleanCollection gbc2(gbc1);
+		BOOST_CHECK_MESSAGE(
+			gbc2.size() == 1 && gbc2.at(0) == true, "\n"
+																 << "gbc2.size() = " << gbc2.size()
+																 << "gbc2.at(0) = " << gbc2.at(0)
+		);
+	}
+
+	// --------------------------------------------------------------------------
+
+	{ // Check construction with a number of random bits
+		GBooleanCollection gbc(nItems);
+
+		BOOST_CHECK_MESSAGE(
+			gbc.size() == nItems, "\n"
+										 << "gbc.size() = " << gbc.size()
+										 << "nItems = " << nItems
+		);
+
+		// Count the number of true and false values
+		std::size_t nTrue = 0;
+		std::size_t nFalse = 0;
+		for (std::size_t i = 0; i < nItems; i++) {
+			gbc.at(i) ? nTrue++ : nFalse++;
+		}
+
+		// We allow a slight deviation, as the initialization is a random process
+		BOOST_REQUIRE(nFalse != 0); // There should be a few false values
+		double ratio = double(nTrue) / double(nFalse);
+		BOOST_CHECK_MESSAGE(
+			ratio > LOWERBND && ratio < UPPERBND, "\n"
+															  << "ratio = " << ratio << "\n"
+															  << "nTrue = " << nTrue << "\n"
+															  << "nFalse = " << nFalse << "\n"
+		);
+	}
+
+	// --------------------------------------------------------------------------
+
+	{ // Check construction with a number of identical bits
+		GBooleanCollection gbc(nItems, true);
+
+		BOOST_CHECK_MESSAGE(
+			gbc.size() == nItems, "\n"
+										 << "gbc.size() = " << gbc.size()
+										 << "nItems = " << nItems
+		);
+
+		// Count the number of true and false values
+		std::size_t nTrue = 0;
+		std::size_t nFalse = 0;
+		for (std::size_t i = 0; i < nItems; i++) {
+			gbc.at(i) ? nTrue++ : nFalse++;
+		}
+
+		BOOST_CHECK_MESSAGE(
+			nTrue == nItems, "\n"
+								  << "nTrue = " << nTrue << "\n"
+								  << "nItems = " << nItems << "\n"
+		);
+	}
+
+	// --------------------------------------------------------------------------
+
+	{ // Check construction with a given probability for the value true
+		GBooleanCollection gbc(nItems, 0.5);
+
+		BOOST_CHECK_MESSAGE(
+			gbc.size() == nItems, "\n"
+										 << "gbc.size() = " << gbc.size()
+										 << "nItems = " << nItems
+		);
+
+		// Count the number of true and false values
+		std::size_t nTrue = 0;
+		std::size_t nFalse = 0;
+		for (std::size_t i = 0; i < nItems; i++) {
+			gbc.at(i) ? nTrue++ : nFalse++;
+		}
+
+		// We allow a slight deviation, as the initialization is a random process
+		BOOST_REQUIRE(nFalse != 0); // There should be a few false values
+		double ratio = double(nTrue) / double(nFalse);
+		BOOST_CHECK_MESSAGE(
+			ratio > LOWERBND && ratio < UPPERBND, "\n"
+															  << "ratio = " << ratio << "\n"
+															  << "nTrue = " << nTrue << "\n"
+															  << "nFalse = " << nFalse << "\n"
+		);
+	}
+
+	// --------------------------------------------------------------------------
+
+	{ // Test that random initialization with equal probability will result in roughly the same amount of true and false values
+		std::shared_ptr <GBooleanCollection> p_test = this->clone<GBooleanCollection>();
+
+		// Make sure the collection is empty
+		BOOST_CHECK_NO_THROW(p_test->clear());
+
+		// Add items of fixed value
+		for (std::size_t i = 0; i < nItems; i++) {
+			p_test->push_back(true);
+		}
+
+		// Check the size
+		BOOST_CHECK(p_test->size() == nItems);
+
+		// Randomly initialize, using the internal function
+		BOOST_CHECK_NO_THROW(p_test->randomInit_(ALLPARAMETERS));
+
+		// Count the number of true and false values
+		std::size_t nTrue = 0;
+		std::size_t nFalse = 0;
+		for (std::size_t i = 0; i < nItems; i++) {
+			p_test->at(i) ? nTrue++ : nFalse++;
+		}
+
+		// We allow a slight deviation, as the initialization is a random process
+		BOOST_REQUIRE(nFalse != 0); // There should be a few false values
+		double ratio = double(nTrue) / double(nFalse);
+		BOOST_CHECK_MESSAGE(
+			ratio > LOWERBND && ratio < UPPERBND, "\n"
+															  << "ratio = " << ratio << "\n"
+															  << "nTrue = " << nTrue << "\n"
+															  << "nFalse = " << nFalse << "\n"
+		);
+	}
+
+	// --------------------------------------------------------------------------
+
+	{ // Check that initialization with a probabilty of 0. for true results in just false values
+		std::shared_ptr <GBooleanCollection> p_test = this->clone<GBooleanCollection>();
+
+		// Make sure the collection is empty
+		BOOST_CHECK_NO_THROW(p_test->clear());
+
+		// Add items of fixed value
+		for (std::size_t i = 0; i < nItems; i++) {
+			p_test->push_back(true);
+		}
+
+		// Randomly initialize, using the internal function
+		BOOST_CHECK_NO_THROW(p_test->randomInit_(0., ALLPARAMETERS));
+
+		// Count the number of true and false values
+		std::size_t nTrue = 0;
+		std::size_t nFalse = 0;
+		for (std::size_t i = 0; i < nItems; i++) {
+			p_test->at(i) ? nTrue++ : nFalse++;
+		}
+
+		// Cross-check
+		BOOST_CHECK_MESSAGE(
+			nTrue == 0, "\n"
+							<< "nTrue = " << nTrue << "\n"
+							<< "nFalse = " << nFalse << "\n"
+		);
+	}
+
+	// --------------------------------------------------------------------------
+
+	{ // Check that initialization with a probabilty of 1. for true results in just true values
+		std::shared_ptr <GBooleanCollection> p_test = this->clone<GBooleanCollection>();
+
+		// Make sure the collection is empty
+		BOOST_CHECK_NO_THROW(p_test->clear());
+
+		// Add items of fixed value
+		for (std::size_t i = 0; i < nItems; i++) {
+			p_test->push_back(false);
+		}
+
+		// Randomly initialize, using the internal function
+		BOOST_CHECK_NO_THROW(p_test->randomInit_(1., ALLPARAMETERS));
+
+		// Count the number of true and false values
+		std::size_t nTrue = 0;
+		std::size_t nFalse = 0;
+		for (std::size_t i = 0; i < nItems; i++) {
+			p_test->at(i) ? nTrue++ : nFalse++;
+		}
+
+		// Cross-check
+		BOOST_CHECK_MESSAGE(
+			nTrue == nItems, "\n"
+								  << "nTrue = " << nTrue << "\n"
+								  << "nFalse = " << nFalse << "\n"
+		);
+	}
+
+	// --------------------------------------------------------------------------
+
+	{ // Test that random initialization with a given probability will result in roughly the expected amount of true and false values
+		for (double d = 0.1; d < 0.9; d += 0.1) {
+			std::shared_ptr <GBooleanCollection> p_test = this->clone<GBooleanCollection>();
+
+			// Make sure the collection is empty
+			BOOST_CHECK_NO_THROW(p_test->clear());
+
+			// Add items of fixed value
+			for (std::size_t i = 0; i < nItems; i++) {
+				p_test->push_back(false);
+			}
+
+			// Randomly initialize, using the internal function and the required probability
+			BOOST_CHECK_NO_THROW(p_test->randomInit_(d, ALLPARAMETERS));
+
+			// Count the number of true and false values
+			std::size_t nTrue = 0;
+			std::size_t nFalse = 0;
+			for (std::size_t i = 0; i < nItems; i++) {
+				p_test->at(i) ? nTrue++ : nFalse++;
+			}
+
+			// We allow a slight deviation, as the initialization is a random process
+			double expectedTrueMin = 0.8 * d * nItems;
+			double expectedTrueMax = 1.2 * d * nItems;
+
+			BOOST_CHECK_MESSAGE(
+				double(nTrue) > expectedTrueMin && double(nTrue) < expectedTrueMax, "\n"
+																										  << "d = " << d << "\n"
+																										  << "Allowed window = " <<
+																										  expectedTrueMin << " - " <<
+																										  expectedTrueMax << "\n"
+																										  << "nItems = " << nItems << "\n"
+																										  << "nTrue = " << nTrue << "\n"
+																										  << "nFalse = " << nFalse << "\n"
+			);
+		}
+	}
+
+	// --------------------------------------------------------------------------
+
+	{ // Check that random initialization can be blocked for equal distributions
+		std::shared_ptr <GBooleanCollection> p_test1 = this->clone<GBooleanCollection>();
+		std::shared_ptr <GBooleanCollection> p_test2 = this->clone<GBooleanCollection>();
+
+		// Make sure the collections are empty
+		BOOST_CHECK_NO_THROW(p_test1->clear());
+		BOOST_CHECK_NO_THROW(p_test2->clear());
+
+		// Add items of fixed value
+		for (std::size_t i = 0; i < nItems; i++) {
+			p_test1->push_back(false);
+		}
+
+		// Block random initialization and cross check
+		BOOST_CHECK_NO_THROW(p_test1->blockRandomInitialization());
+		BOOST_CHECK(p_test1->randomInitializationBlocked() == true);
+
+		// Load the data into p_test2
+		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+
+		// Check that both objects are equal
+		BOOST_CHECK(*p_test1 == *p_test2);
+
+		// Check that random initialization is also blocked for p_test2
+		BOOST_CHECK(p_test2->randomInitializationBlocked() == true);
+
+		// Try to randomly initialize, using the *external* function
+		BOOST_CHECK_NO_THROW(p_test1->randomInit(ALLPARAMETERS));
+
+		// Check that both objects are still the same
+		BOOST_CHECK(*p_test1 == *p_test2);
+	}
+
+	// --------------------------------------------------------------------------
+
+	{ // Check that random initialization can be blocked for distributions with a given probability structure
+		std::shared_ptr <GBooleanCollection> p_test1 = this->clone<GBooleanCollection>();
+		std::shared_ptr <GBooleanCollection> p_test2 = this->clone<GBooleanCollection>();
+
+		// Make sure the collections are empty
+		BOOST_CHECK_NO_THROW(p_test1->clear());
+		BOOST_CHECK_NO_THROW(p_test2->clear());
+
+		// Add items of fixed value
+		for (std::size_t i = 0; i < nItems; i++) {
+			p_test1->push_back(false);
+		}
+
+		// Block random initialization and cross check
+		BOOST_CHECK_NO_THROW(p_test1->blockRandomInitialization());
+		BOOST_CHECK(p_test1->randomInitializationBlocked() == true);
+
+		// Load the data into p_test2
+		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+
+		// Check that both objects are equal
+		BOOST_CHECK(*p_test1 == *p_test2);
+
+		// Check that random initialization is also blocked for p_test2
+		BOOST_CHECK(p_test2->randomInitializationBlocked() == true);
+
+		// Try to randomly initialize, using the *external* function
+		BOOST_CHECK_NO_THROW(p_test1->randomInit(0.7, ALLPARAMETERS));
+
+		// Check that both objects are still the same
+		BOOST_CHECK(*p_test1 == *p_test2);
+	}
+
+	// --------------------------------------------------------------------------
+
+	{ // Check that the fp-family of functions doesn't have an effect on this object
+		std::shared_ptr <GBooleanCollection> p_test1 = this->GObject::clone<GBooleanCollection>();
+		std::shared_ptr <GBooleanCollection> p_test2 = this->GObject::clone<GBooleanCollection>();
+		std::shared_ptr <GBooleanCollection> p_test3 = this->GObject::clone<GBooleanCollection>();
+
+		// Add a few items to p_test1
+		for (std::size_t i = 0; i < nItems; i++) {
+			p_test1->push_back(FIXEDVALUEINIT);
+		}
+
+		// Load into p_test2 and p_test3 and test equality
+		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+		BOOST_CHECK_NO_THROW(p_test3->load(p_test1));
+		BOOST_CHECK(*p_test2 == *p_test1);
+		BOOST_CHECK(*p_test3 == *p_test1);
+		BOOST_CHECK(*p_test3 == *p_test2);
+
+		// Check that initialization with a fixed floating point value has no effect on this object
+		BOOST_CHECK_NO_THROW(p_test2->fixedValueInit<double>(2., ALLPARAMETERS));
+		BOOST_CHECK(*p_test2 == *p_test1);
+
+		// Check that multiplication with a fixed floating point value has no effect on this object
+		BOOST_CHECK_NO_THROW(p_test2->multiplyBy<double>(2., ALLPARAMETERS));
+		BOOST_CHECK(*p_test2 == *p_test1);
+
+		// Check that a component-wise multiplication with a random fp value in a given range does not have an effect on this object
+		BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(1., 2., ALLPARAMETERS));
+		BOOST_CHECK(*p_test2 == *p_test1);
+
+		// Check that a component-wise multiplication with a random fp value in the range [0:1[ does not have an effect on this object
+		BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(ALLPARAMETERS));
+		BOOST_CHECK(*p_test2 == *p_test1);
+
+		// Check that adding p_test1 to p_test3 does not have an effect
+		BOOST_CHECK_NO_THROW(p_test3->add<double>(p_test1, ALLPARAMETERS));
+		BOOST_CHECK(*p_test3 == *p_test2);
+
+		// Check that subtracting p_test1 from p_test3 does not have an effect
+		BOOST_CHECK_NO_THROW(p_test3->subtract<double>(p_test1, ALLPARAMETERS));
+		BOOST_CHECK(*p_test3 == *p_test2);
+	}
+
+	// --------------------------------------------------------------------------
+
+	// Remove the test adaptor
+	this->resetAdaptor();
+
+	// Load the old adaptor, if needed
+	if (adaptorStored) {
+		this->addAdaptor(storedAdaptor);
+	}
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GBooleanCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -862,69 +836,69 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GBooleanCollection::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
-   // A few settings
-   std::size_t nItems = 10000;
+	// A few settings
+	std::size_t nItems = 10000;
 
-   // Make sure we have an appropriate adaptor loaded when performing these tests
-   bool adaptorStored = false;
-   std::shared_ptr<GAdaptorT<bool> > storedAdaptor;
+	// Make sure we have an appropriate adaptor loaded when performing these tests
+	bool adaptorStored = false;
+	std::shared_ptr <GAdaptorT<bool>> storedAdaptor;
 
-   if(this->hasAdaptor()) {
-      storedAdaptor = this->getAdaptor();
-      adaptorStored = true;
-   }
+	if (this->hasAdaptor()) {
+		storedAdaptor = this->getAdaptor();
+		adaptorStored = true;
+	}
 
-   std::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor(1.0));
-   gba_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
-   gba_ptr->setAdaptionMode(true); // Always adapt
-   this->addAdaptor(gba_ptr);
+	std::shared_ptr <GBooleanAdaptor> gba_ptr(new GBooleanAdaptor(1.0));
+	gba_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
+	gba_ptr->setAdaptionMode(true); // Always adapt
+	this->addAdaptor(gba_ptr);
 
-   // Call the parent class'es function
-   GParameterCollectionT<bool>::specificTestsFailuresExpected_GUnitTests();
+	// Call the parent class'es function
+	GParameterCollectionT<bool>::specificTestsFailuresExpected_GUnitTests();
 
-   // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
-   { // Check that random initialization with a probability < 0. throws
-      std::shared_ptr<GBooleanCollection> p_test = this->clone<GBooleanCollection>();
+	{ // Check that random initialization with a probability < 0. throws
+		std::shared_ptr <GBooleanCollection> p_test = this->clone<GBooleanCollection>();
 
-      // Make sure the collection is empty
-      BOOST_CHECK_NO_THROW(p_test->clear());
+		// Make sure the collection is empty
+		BOOST_CHECK_NO_THROW(p_test->clear());
 
-      // Add items of fixed value
-      for(std::size_t i=0; i<nItems; i++) {
-         p_test->push_back(true);
-      }
+		// Add items of fixed value
+		for (std::size_t i = 0; i < nItems; i++) {
+			p_test->push_back(true);
+		}
 
-      // Randomly initialize, using the internal function
-      BOOST_CHECK_THROW(p_test->randomInit_(-1., ALLPARAMETERS), Gem::Common::gemfony_error_condition);
-   }
+		// Randomly initialize, using the internal function
+		BOOST_CHECK_THROW(p_test->randomInit_(-1., ALLPARAMETERS), Gem::Common::gemfony_error_condition);
+	}
 
-   // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
-   { // Check that random initialization with a probability > 1. throws
-      std::shared_ptr<GBooleanCollection> p_test = this->clone<GBooleanCollection>();
+	{ // Check that random initialization with a probability > 1. throws
+		std::shared_ptr <GBooleanCollection> p_test = this->clone<GBooleanCollection>();
 
-      // Make sure the collection is empty
-      BOOST_CHECK_NO_THROW(p_test->clear());
+		// Make sure the collection is empty
+		BOOST_CHECK_NO_THROW(p_test->clear());
 
-      // Add items of fixed value
-      for(std::size_t i=0; i<nItems; i++) {
-         p_test->push_back(true);
-      }
+		// Add items of fixed value
+		for (std::size_t i = 0; i < nItems; i++) {
+			p_test->push_back(true);
+		}
 
-      // Randomly initialize, using the internal function
-      BOOST_CHECK_THROW(p_test->randomInit_(2., ALLPARAMETERS), Gem::Common::gemfony_error_condition);
-   }
+		// Randomly initialize, using the internal function
+		BOOST_CHECK_THROW(p_test->randomInit_(2., ALLPARAMETERS), Gem::Common::gemfony_error_condition);
+	}
 
-   // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
-   // Remove the test adaptor
-   this->resetAdaptor();
+	// Remove the test adaptor
+	this->resetAdaptor();
 
-   // Load the old adaptor, if needed
-   if(adaptorStored) {
-      this->addAdaptor(storedAdaptor);
-   }
+	// Load the old adaptor, if needed
+	if (adaptorStored) {
+		this->addAdaptor(storedAdaptor);
+	}
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GBooleanCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

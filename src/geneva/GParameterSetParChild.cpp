@@ -42,9 +42,7 @@ namespace Geneva {
  * The default constructor
  */
 GParameterSetParChild::GParameterSetParChild()
-   : GBaseParChildT<GParameterSet>()
-   , amalgamationLikelihood_(DEFAULTAMALGAMATIONLIKELIHOOD)
-{ /* nothing */ }
+	: GBaseParChildT<GParameterSet>(), amalgamationLikelihood_(DEFAULTAMALGAMATIONLIKELIHOOD) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -52,25 +50,22 @@ GParameterSetParChild::GParameterSetParChild()
  *
  * @param cp Another GParameterSetParChild object
  */
-GParameterSetParChild::GParameterSetParChild(const GParameterSetParChild& cp)
-   : GBaseParChildT<GParameterSet>(cp)
-   , amalgamationLikelihood_(cp.amalgamationLikelihood_)
-{ /* nothing */ }
+GParameterSetParChild::GParameterSetParChild(const GParameterSetParChild &cp)
+	: GBaseParChildT<GParameterSet>(cp), amalgamationLikelihood_(cp.amalgamationLikelihood_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
-GParameterSetParChild::~GParameterSetParChild()
-{ /* nothing */ }
+GParameterSetParChild::~GParameterSetParChild() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GParameterSetParChild& GParameterSetParChild::operator=(const GParameterSetParChild& cp) {
-   this->load_(&cp);
-   return *this;
+const GParameterSetParChild &GParameterSetParChild::operator=(const GParameterSetParChild &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -80,14 +75,14 @@ const GParameterSetParChild& GParameterSetParChild::operator=(const GParameterSe
  * @param  cp A constant reference to another GParameterSetParChild object
  * @return A boolean indicating whether both objects are equal
  */
-bool GParameterSetParChild::operator==(const GParameterSetParChild& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GParameterSetParChild::operator==(const GParameterSetParChild &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -97,14 +92,14 @@ bool GParameterSetParChild::operator==(const GParameterSetParChild& cp) const {
  * @param  cp A constant reference to another GParameterSetParChild object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GParameterSetParChild::operator!=(const GParameterSetParChild& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GParameterSetParChild::operator!=(const GParameterSetParChild &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -117,25 +112,23 @@ bool GParameterSetParChild::operator!=(const GParameterSetParChild& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GParameterSetParChild::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GParameterSetParChild *p_load = GObject::gobject_conversion<GParameterSetParChild>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GParameterSetParChild *p_load = GObject::gobject_conversion<GParameterSetParChild>(&cp);
 
-   GToken token("GParameterSetParChild", e);
+	GToken token("GParameterSetParChild", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GBaseParChildT<GParameterSet> >(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GBaseParChildT<GParameterSet> >(IDENTITY(*this, *p_load), token);
 
-   // ... and then the local data
-   compare_t(IDENTITY(amalgamationLikelihood_, p_load->amalgamationLikelihood_), token);
+	// ... and then the local data
+	compare_t(IDENTITY(amalgamationLikelihood_, p_load->amalgamationLikelihood_), token);
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/
@@ -144,19 +137,19 @@ void GParameterSetParChild::compare(
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
-void GParameterSetParChild::addConfigurationOptions (
-   Gem::Common::GParserBuilder& gpb
+void GParameterSetParChild::addConfigurationOptions(
+	Gem::Common::GParserBuilder &gpb
 ) {
-   // Call our parent class'es function
-   GBaseParChildT<GParameterSet>::addConfigurationOptions(gpb);
+	// Call our parent class'es function
+	GBaseParChildT<GParameterSet>::addConfigurationOptions(gpb);
 
-   gpb.registerFileParameter<double>(
-      "amalgamationLikelihood" // The name of the variable
-      , DEFAULTAMALGAMATIONLIKELIHOOD // The default value
-      , [this](double al){ this->setAmalgamationLikelihood(al); }
-   )
-   << "The likelihood for parent individuals to be \"fused\" together" << std::endl
-   << "rather than \"just\" being created through duplication schemes";
+	gpb.registerFileParameter<double>(
+		"amalgamationLikelihood" // The name of the variable
+		, DEFAULTAMALGAMATIONLIKELIHOOD // The default value
+		, [this](double al) { this->setAmalgamationLikelihood(al); }
+	)
+	<< "The likelihood for parent individuals to be \"fused\" together" << std::endl
+	<< "rather than \"just\" being created through duplication schemes";
 }
 
 /******************************************************************************/
@@ -165,14 +158,14 @@ void GParameterSetParChild::addConfigurationOptions (
  * performed instead of "just" duplication.
  */
 void GParameterSetParChild::setAmalgamationLikelihood(double amalgamationLikelihood) {
-   if(amalgamationLikelihood < 0. || amalgamationLikelihood > 1.) {
-      glogger
-      << "In GParameterSetParChild::setCrossOverLikelihood(" << amalgamationLikelihood << "): Error!" << std::endl
-      << "Received invalid likelihood for amalgamation. Must be in the range [0:1]." << std::endl
-      << GEXCEPTION;
-   }
+	if (amalgamationLikelihood < 0. || amalgamationLikelihood > 1.) {
+		glogger
+		<< "In GParameterSetParChild::setCrossOverLikelihood(" << amalgamationLikelihood << "): Error!" << std::endl
+		<< "Received invalid likelihood for amalgamation. Must be in the range [0:1]." << std::endl
+		<< GEXCEPTION;
+	}
 
-   amalgamationLikelihood_ = amalgamationLikelihood;
+	amalgamationLikelihood_ = amalgamationLikelihood;
 }
 
 /******************************************************************************/
@@ -181,7 +174,7 @@ void GParameterSetParChild::setAmalgamationLikelihood(double amalgamationLikelih
  * performed instead of "just" duplication.
  */
 double GParameterSetParChild::getAmalgamationLikelihood() const {
-   return amalgamationLikelihood_;
+	return amalgamationLikelihood_;
 }
 
 /******************************************************************************/
@@ -190,73 +183,75 @@ double GParameterSetParChild::getAmalgamationLikelihood() const {
  * recombination scheme.
  */
 void GParameterSetParChild::doRecombine() {
-   std::size_t i;
-   std::vector<double> threshold(nParents_);
-   double thresholdSum=0.;
-   // TODO: Check whether it is sufficient to do this only once
-   if(VALUEDUPLICATIONSCHEME == recombinationMethod_ && nParents_ > 1) {          // Calculate a weight vector
-      for(i=0; i<nParents_; i++) {
-         thresholdSum += 1./(static_cast<double>(i)+2.);
-      }
-      for(i=0; i<nParents_-1; i++) {
-         // Normalizing the sum to 1
-         threshold[i] = (1./(static_cast<double>(i)+2.)) / thresholdSum;
+	std::size_t i;
+	std::vector<double> threshold(nParents_);
+	double thresholdSum = 0.;
+	// TODO: Check whether it is sufficient to do this only once
+	if (VALUEDUPLICATIONSCHEME == recombinationMethod_ && nParents_ > 1) {          // Calculate a weight vector
+		for (i = 0; i < nParents_; i++) {
+			thresholdSum += 1. / (static_cast<double>(i) + 2.);
+		}
+		for (i = 0; i < nParents_ - 1; i++) {
+			// Normalizing the sum to 1
+			threshold[i] = (1. / (static_cast<double>(i) + 2.)) / thresholdSum;
 
-         // Make sure the subsequent range is in the right position
-         if(i>0) threshold[i] += threshold[i-1];
-      }
-      threshold[nParents_-1] = 1.; // Necessary due to rounding errors
-   }
+			// Make sure the subsequent range is in the right position
+			if (i > 0) threshold[i] += threshold[i - 1];
+		}
+		threshold[nParents_ - 1] = 1.; // Necessary due to rounding errors
+	}
 
-   std::vector<std::shared_ptr<GParameterSet> >::iterator it;
-   for(it=GOptimizationAlgorithmT<GParameterSet>::data.begin()+nParents_; it!= GOptimizationAlgorithmT<GParameterSet>::data.end(); ++it) {
-      // Retrieve a random number so we can decide whether to perform cross-over or duplication
-      // If we do perform cross-over, we always cross the best individual with another random parent
-      if(nParents_ > 1 && GOptimizationAlgorithmT<GParameterSet>::gr.uniform_01<double>() < amalgamationLikelihood_) { // Create individuals using a cross-over scheme
-         std::shared_ptr<GParameterSet> bestParent = this->front();
-         std::shared_ptr<GParameterSet> combiner   = (nParents_ > 2)?*(this->begin() + GOptimizationAlgorithmT<GParameterSet>::gr.uniform_int<std::size_t>(1, nParents_-1)):(*(this->begin()+1));
+	std::vector<std::shared_ptr < GParameterSet> > ::iterator
+	it;
+	for (it = GOptimizationAlgorithmT<GParameterSet>::data.begin() + nParents_;
+		  it != GOptimizationAlgorithmT<GParameterSet>::data.end(); ++it) {
+		// Retrieve a random number so we can decide whether to perform cross-over or duplication
+		// If we do perform cross-over, we always cross the best individual with another random parent
+		if (nParents_ > 1 && GOptimizationAlgorithmT<GParameterSet>::gr.uniform_01<double>() <
+									amalgamationLikelihood_) { // Create individuals using a cross-over scheme
+			std::shared_ptr <GParameterSet> bestParent = this->front();
+			std::shared_ptr <GParameterSet> combiner = (nParents_ > 2) ? *(this->begin() +
+																								GOptimizationAlgorithmT<GParameterSet>::gr.uniform_int<std::size_t>(
+																									1, nParents_ - 1)) : (*(this->begin() + 1));
 
-         (*it)->GObject::load(bestParent->amalgamate(combiner));
-      } else { // Just perform duplication
-         switch(recombinationMethod_){
-         case DEFAULTDUPLICATIONSCHEME: // we want the RANDOMDUPLICATIONSCHEME behavior
-         case RANDOMDUPLICATIONSCHEME:
-            {
-               randomRecombine(*it);
-            }
-            break;
+			(*it)->GObject::load(bestParent->amalgamate(combiner));
+		} else { // Just perform duplication
+			switch (recombinationMethod_) {
+				case DEFAULTDUPLICATIONSCHEME: // we want the RANDOMDUPLICATIONSCHEME behavior
+				case RANDOMDUPLICATIONSCHEME: {
+					randomRecombine(*it);
+				}
+					break;
 
-         case VALUEDUPLICATIONSCHEME:
-            {
-               if(nParents_ == 1) {
-                  (*it)->GObject::load(*(GOptimizationAlgorithmT<GParameterSet>::data.begin()));
-                  (*it)->GOptimizableEntity::getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(0);
-               } else {
-                  // A recombination taking into account the value does not make
-                  // sense in the first iteration, as parents might not have a suitable
-                  // value. Instead, this function might accidently trigger value
-                  // calculation. Hence we fall back to random recombination in iteration 0.
-                  // No value calculation takes place there.
-                  if(GOptimizationAlgorithmT<GParameterSet>::inFirstIteration()) {
-                     randomRecombine(*it);
-                  } else {
-                     valueRecombine(*it, threshold);
-                  }
-               }
-            }
-            break;
+				case VALUEDUPLICATIONSCHEME: {
+					if (nParents_ == 1) {
+						(*it)->GObject::load(*(GOptimizationAlgorithmT<GParameterSet>::data.begin()));
+						(*it)->GOptimizableEntity::getPersonalityTraits < GBaseParChildPersonalityTraits > ()->setParentId(0);
+					} else {
+						// A recombination taking into account the value does not make
+						// sense in the first iteration, as parents might not have a suitable
+						// value. Instead, this function might accidently trigger value
+						// calculation. Hence we fall back to random recombination in iteration 0.
+						// No value calculation takes place there.
+						if (GOptimizationAlgorithmT<GParameterSet>::inFirstIteration()) {
+							randomRecombine(*it);
+						} else {
+							valueRecombine(*it, threshold);
+						}
+					}
+				}
+					break;
 
-         default:
-            {
-               glogger
-               << "In GParameterSetParChild::doRecombine(): Error!" << std::endl
-               << "Got invalid duplication scheme: " << recombinationMethod_ << std::endl
-               << GEXCEPTION;
-            }
-            break;
-         }
-      }
-   }
+				default: {
+					glogger
+					<< "In GParameterSetParChild::doRecombine(): Error!" << std::endl
+					<< "Got invalid duplication scheme: " << recombinationMethod_ << std::endl
+					<< GEXCEPTION;
+				}
+					break;
+			}
+		}
+	}
 }
 
 /***************************************************************************/
@@ -267,16 +262,16 @@ void GParameterSetParChild::doRecombine() {
  * untouched, so that otherwise successful adaptor settings may survive.
  */
 void GParameterSetParChild::actOnStalls() {
-   // Make sure the actions of our parent class are carried out
-   GBaseParChildT<GParameterSet>::actOnStalls();
+	// Make sure the actions of our parent class are carried out
+	GBaseParChildT<GParameterSet>::actOnStalls();
 
-   if(this->getNParents() > 1) {
-      // Update parent individuals. We leave the best parent untouched
-      GParameterSetParChild::iterator it;
-      for(it=this->begin()+1; it!=this->begin() + this->getNParents(); ++it) {
-         (*it)->updateAdaptorsOnStall(this->getStallCounter());
-      }
-   }
+	if (this->getNParents() > 1) {
+		// Update parent individuals. We leave the best parent untouched
+		GParameterSetParChild::iterator it;
+		for (it = this->begin() + 1; it != this->begin() + this->getNParents(); ++it) {
+			(*it)->updateAdaptorsOnStall(this->getStallCounter());
+		}
+	}
 }
 
 /******************************************************************************/
@@ -286,8 +281,8 @@ void GParameterSetParChild::actOnStalls() {
  * actual optimization cycle starts.
  */
 void GParameterSetParChild::init() {
-   // To be performed before any other action
-   GBaseParChildT<GParameterSet>::init();
+	// To be performed before any other action
+	GBaseParChildT<GParameterSet>::init();
 }
 
 /******************************************************************************/
@@ -295,8 +290,8 @@ void GParameterSetParChild::init() {
  * Does any necessary finalization work
  */
 void GParameterSetParChild::finalize() {
-   // Last action
-   GBaseParChildT<GParameterSet>::finalize();
+	// Last action
+	GBaseParChildT<GParameterSet>::finalize();
 }
 
 /******************************************************************************/
@@ -305,15 +300,14 @@ void GParameterSetParChild::finalize() {
  *
  * @param cp A pointer to another GParameterSetParChild object, camouflaged as a GObject
  */
-void GParameterSetParChild::load_(const GObject * cp)
-{
-   const GParameterSetParChild *p_load = gobject_conversion<GParameterSetParChild>(cp);
+void GParameterSetParChild::load_(const GObject *cp) {
+	const GParameterSetParChild *p_load = gobject_conversion<GParameterSetParChild>(cp);
 
-   // First load the parent class'es data ...
-   GBaseParChildT<GParameterSet>::load_(cp);
+	// First load the parent class'es data ...
+	GBaseParChildT<GParameterSet>::load_(cp);
 
-   // ... and then our own data
-   amalgamationLikelihood_ = p_load->amalgamationLikelihood_;
+	// ... and then our own data
+	amalgamationLikelihood_ = p_load->amalgamationLikelihood_;
 }
 
 /******************************************************************************/
@@ -324,12 +318,12 @@ void GParameterSetParChild::load_(const GObject * cp)
  */
 bool GParameterSetParChild::modify_GUnitTests() {
 #ifdef GEM_TESTING
-   bool result = false;
+	bool result = false;
 
-   // Call the parent class'es function
-   if(GBaseParChildT<GParameterSet>::modify_GUnitTests()) result = true;
+	// Call the parent class'es function
+	if (GBaseParChildT<GParameterSet>::modify_GUnitTests()) result = true;
 
-   return result;
+	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GParameterSetParChild::modify_GUnitTests", "GEM_TESTING");
@@ -343,11 +337,11 @@ bool GParameterSetParChild::modify_GUnitTests() {
  */
 void GParameterSetParChild::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
-   // Call the parent class'es function
-   GBaseParChildT<GParameterSet>::specificTestsNoFailureExpected_GUnitTests();
+	// Call the parent class'es function
+	GBaseParChildT<GParameterSet>::specificTestsNoFailureExpected_GUnitTests();
 
-   //------------------------------------------------------------------------------
-   //------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GParameterSetParChild::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -360,11 +354,11 @@ void GParameterSetParChild::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GParameterSetParChild::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
-   // Call the parent class'es function
-   GBaseParChildT<GParameterSet>::specificTestsFailuresExpected_GUnitTests();
+	// Call the parent class'es function
+	GBaseParChildT<GParameterSet>::specificTestsFailuresExpected_GUnitTests();
 
-   //------------------------------------------------------------------------------
-   //------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */
    condnotset("GParameterSetParChild::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

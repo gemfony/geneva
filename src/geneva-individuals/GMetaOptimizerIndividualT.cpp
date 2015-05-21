@@ -49,10 +49,10 @@ namespace Geneva {
  * @param mot the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Geneva::metaOptimizationTarget& mot) {
-   boost::uint16_t tmp = static_cast<boost::uint16_t>(mot);
-   o << tmp;
-   return o;
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::metaOptimizationTarget &mot) {
+	boost::uint16_t tmp = static_cast<boost::uint16_t>(mot);
+	o << tmp;
+	return o;
 }
 
 /******************************************************************************/
@@ -63,17 +63,17 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::metaOptimizationTar
  * @param mot The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Geneva::metaOptimizationTarget& mot) {
-   boost::uint16_t tmp;
-   i >> tmp;
+std::istream &operator>>(std::istream &i, Gem::Geneva::metaOptimizationTarget &mot) {
+	boost::uint16_t tmp;
+	i >> tmp;
 
 #ifdef DEBUG
    mot = boost::numeric_cast<Gem::Geneva::metaOptimizationTarget>(tmp);
 #else
-   mot = static_cast<Gem::Geneva::metaOptimizationTarget>(tmp);
+	mot = static_cast<Gem::Geneva::metaOptimizationTarget>(tmp);
 #endif /* DEBUG */
 
-   return i;
+	return i;
 }
 
 /******************************************************************************/

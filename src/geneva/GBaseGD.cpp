@@ -48,21 +48,18 @@ G_API_GENEVA const std::string GBaseGD::nickname = "gd";
  * The default constructor
  */
 GBaseGD::GBaseGD()
-	: GOptimizationAlgorithmT<GParameterSet>()
-	, nStartingPoints_(DEFAULTGDSTARTINGPOINTS)
-	, nFPParmsFirst_(0)
-	, finiteStep_(DEFAULTFINITESTEP)
-	, stepSize_(DEFAULTSTEPSIZE)
-	, stepRatio_(DEFAULTSTEPSIZE/DEFAULTFINITESTEP) // Will be recalculated in init()
-   , dblLowerParameterBoundaries_() // Will be extracted in init()
-   , dblUpperParameterBoundaries_() // Will be extratced in init()
-   , adjustedFiniteStep_() // Will be recalculated in init()
+	: GOptimizationAlgorithmT<GParameterSet>(), nStartingPoints_(DEFAULTGDSTARTINGPOINTS), nFPParmsFirst_(0),
+	  finiteStep_(DEFAULTFINITESTEP), stepSize_(DEFAULTSTEPSIZE),
+	  stepRatio_(DEFAULTSTEPSIZE / DEFAULTFINITESTEP) // Will be recalculated in init()
+	, dblLowerParameterBoundaries_() // Will be extracted in init()
+	, dblUpperParameterBoundaries_() // Will be extratced in init()
+	, adjustedFiniteStep_() // Will be recalculated in init()
 {
 	// Register the default optimization monitor
 	this->registerOptimizationMonitor(
-			std::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
-					new GGDOptimizationMonitor()
-			)
+		std::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
+			new GGDOptimizationMonitor()
+		)
 	);
 }
 
@@ -75,25 +72,20 @@ GBaseGD::GBaseGD()
  * @param stepSize The size of the multiplicative factor of the adaption process
  */
 GBaseGD::GBaseGD(
-   const std::size_t& nStartingPoints
-   , const double& finiteStep
-   , const double& stepSize
+	const std::size_t &nStartingPoints, const double &finiteStep, const double &stepSize
 )
-	: GOptimizationAlgorithmT<GParameterSet>()
-	, nStartingPoints_(nStartingPoints)
-	, nFPParmsFirst_(0)
-	, finiteStep_(finiteStep)
-	, stepSize_(stepSize)
-	, stepRatio_(DEFAULTSTEPSIZE/DEFAULTFINITESTEP) // Will be recalculated in init()
-   , dblLowerParameterBoundaries_() // Will be extracted in init()
-   , dblUpperParameterBoundaries_() // Will be extracted in init()
-   , adjustedFiniteStep_() // Will be recalculated in init()
+	: GOptimizationAlgorithmT<GParameterSet>(), nStartingPoints_(nStartingPoints), nFPParmsFirst_(0),
+	  finiteStep_(finiteStep), stepSize_(stepSize),
+	  stepRatio_(DEFAULTSTEPSIZE / DEFAULTFINITESTEP) // Will be recalculated in init()
+	, dblLowerParameterBoundaries_() // Will be extracted in init()
+	, dblUpperParameterBoundaries_() // Will be extracted in init()
+	, adjustedFiniteStep_() // Will be recalculated in init()
 {
 	// Register the default optimization monitor
 	this->registerOptimizationMonitor(
-			std::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
-					new GGDOptimizationMonitor()
-			)
+		std::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
+			new GGDOptimizationMonitor()
+		)
 	);
 }
 
@@ -103,16 +95,13 @@ GBaseGD::GBaseGD(
  *
  * @param cp A copy of another GradientDescent object
  */
-GBaseGD::GBaseGD(const GBaseGD& cp)
-	: GOptimizationAlgorithmT<GParameterSet>(cp)
-	, nStartingPoints_(cp.nStartingPoints_)
-	, nFPParmsFirst_(cp.nFPParmsFirst_)
-	, finiteStep_(cp.finiteStep_)
-	, stepSize_(cp.stepSize_)
-   , stepRatio_(cp.stepRatio_) // Will be recalculated in init()
-   , dblLowerParameterBoundaries_(cp.dblLowerParameterBoundaries_) // Will be extracted in init()
-   , dblUpperParameterBoundaries_(cp.dblUpperParameterBoundaries_) // Will be extracted in init()
-   , adjustedFiniteStep_(cp.adjustedFiniteStep_) // Will be recalculated in init()
+GBaseGD::GBaseGD(const GBaseGD &cp)
+	: GOptimizationAlgorithmT<GParameterSet>(cp), nStartingPoints_(cp.nStartingPoints_),
+	  nFPParmsFirst_(cp.nFPParmsFirst_), finiteStep_(cp.finiteStep_), stepSize_(cp.stepSize_),
+	  stepRatio_(cp.stepRatio_) // Will be recalculated in init()
+	, dblLowerParameterBoundaries_(cp.dblLowerParameterBoundaries_) // Will be extracted in init()
+	, dblUpperParameterBoundaries_(cp.dblUpperParameterBoundaries_) // Will be extracted in init()
+	, adjustedFiniteStep_(cp.adjustedFiniteStep_) // Will be recalculated in init()
 {
 	// Copying / setting of the optimization algorithm id is done by the parent class. The same
 	// applies to the copying of the optimization monitor.
@@ -122,16 +111,15 @@ GBaseGD::GBaseGD(const GBaseGD& cp)
 /**
  * The destructor
  */
-GBaseGD::~GBaseGD()
-{ /* nothing */ }
+GBaseGD::~GBaseGD() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GBaseGD& GBaseGD::operator=(const GBaseGD& cp) {
-   this->load_(&cp);
-   return *this;
+const GBaseGD &GBaseGD::operator=(const GBaseGD &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -141,14 +129,14 @@ const GBaseGD& GBaseGD::operator=(const GBaseGD& cp) {
  * @param  cp A constant reference to another GBaseGD object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBaseGD::operator==(const GBaseGD& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBaseGD::operator==(const GBaseGD &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -158,14 +146,14 @@ bool GBaseGD::operator==(const GBaseGD& cp) const {
  * @param  cp A constant reference to another GBaseGD object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GBaseGD::operator!=(const GBaseGD& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBaseGD::operator!=(const GBaseGD &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -197,11 +185,11 @@ std::size_t GBaseGD::getNStartingPoints() const {
  */
 void GBaseGD::setNStartingPoints(std::size_t nStartingPoints) {
 	// Do some error checking
-	if(nStartingPoints == 0) {
-	   glogger
-	   << "In GBaseGD::setNStartingPoints(const std::size_t&):" << std::endl
-      << "Got invalid number of starting points." << std::endl
-      << GEXCEPTION;
+	if (nStartingPoints == 0) {
+		glogger
+		<< "In GBaseGD::setNStartingPoints(const std::size_t&):" << std::endl
+		<< "Got invalid number of starting points." << std::endl
+		<< GEXCEPTION;
 	}
 
 	nStartingPoints_ = nStartingPoints;
@@ -214,14 +202,14 @@ void GBaseGD::setNStartingPoints(std::size_t nStartingPoints) {
  * @param finiteStep The desired size of the adaption
  */
 void GBaseGD::setFiniteStep(double finiteStep) {
-   // Check that finiteStep_ has an appropriate value
-   if(finiteStep_ <= 0. || finiteStep_ > 1000.) { // Specified in permille of the allowed or preferred value range
-      glogger
-      << "In GBaseGD::setFiniteStep(double): Error!" << std::endl
-      << "Invalid values of finiteStep_: " << finiteStep_ << std::endl
-      << "Must be in the range ]0.:1000.]" << std::endl
-      << GEXCEPTION;
-   }
+	// Check that finiteStep_ has an appropriate value
+	if (finiteStep_ <= 0. || finiteStep_ > 1000.) { // Specified in permille of the allowed or preferred value range
+		glogger
+		<< "In GBaseGD::setFiniteStep(double): Error!" << std::endl
+		<< "Invalid values of finiteStep_: " << finiteStep_ << std::endl
+		<< "Must be in the range ]0.:1000.]" << std::endl
+		<< GEXCEPTION;
+	}
 
 	finiteStep_ = finiteStep;
 }
@@ -243,14 +231,14 @@ double GBaseGD::getFiniteStep() const {
  * @param stepSize A multiplicative factor for the adaption process
  */
 void GBaseGD::setStepSize(double stepSize) {
-   // Check that stepSize_ has an appropriate value
-   if(stepSize_ <= 0. || stepSize_ > 1000.) { // Specified in permille of the allowed or preferred value range
-      glogger
-      << "In GBaseGD::setStepSize(double): Error!" << std::endl
-      << "Invalid values of stepSize_: " << stepSize_ << std::endl
-      << "Must be in the range ]0.:1000.]" << std::endl
-      << GEXCEPTION;
-   }
+	// Check that stepSize_ has an appropriate value
+	if (stepSize_ <= 0. || stepSize_ > 1000.) { // Specified in permille of the allowed or preferred value range
+		glogger
+		<< "In GBaseGD::setStepSize(double): Error!" << std::endl
+		<< "Invalid values of stepSize_: " << stepSize_ << std::endl
+		<< "Must be in the range ]0.:1000.]" << std::endl
+		<< GEXCEPTION;
+	}
 
 	stepSize_ = stepSize;
 }
@@ -272,7 +260,7 @@ double GBaseGD::getStepSize() const {
  * @return The number of processable items in the current iteration
  */
 std::size_t GBaseGD::getNProcessableItems() const {
-   return this->size(); // Evaluation always needs to be done for the entire population
+	return this->size(); // Evaluation always needs to be done for the entire population
 }
 
 /******************************************************************************/
@@ -295,32 +283,30 @@ std::string GBaseGD::getAlgorithmName() const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBaseGD::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GBaseGD *p_load = GObject::gobject_conversion<GBaseGD>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GBaseGD *p_load = GObject::gobject_conversion<GBaseGD>(&cp);
 
-   GToken token("GBaseGD", e);
+	GToken token("GBaseGD", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet> >(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet> >(IDENTITY(*this, *p_load), token);
 
-   // ... and then the local data
-   compare_t(IDENTITY(nStartingPoints_, p_load->nStartingPoints_), token);
-   compare_t(IDENTITY(nFPParmsFirst_, p_load->nFPParmsFirst_), token);
-   compare_t(IDENTITY(finiteStep_, p_load->finiteStep_), token);
-   compare_t(IDENTITY(stepSize_, p_load->stepSize_), token);
-   compare_t(IDENTITY(stepRatio_, p_load->stepRatio_), token);
-   compare_t(IDENTITY(dblLowerParameterBoundaries_, p_load->dblLowerParameterBoundaries_), token);
-   compare_t(IDENTITY(dblUpperParameterBoundaries_, p_load->dblUpperParameterBoundaries_), token);
-   compare_t(IDENTITY(adjustedFiniteStep_, p_load->adjustedFiniteStep_), token);
+	// ... and then the local data
+	compare_t(IDENTITY(nStartingPoints_, p_load->nStartingPoints_), token);
+	compare_t(IDENTITY(nFPParmsFirst_, p_load->nFPParmsFirst_), token);
+	compare_t(IDENTITY(finiteStep_, p_load->finiteStep_), token);
+	compare_t(IDENTITY(stepSize_, p_load->stepSize_), token);
+	compare_t(IDENTITY(stepRatio_, p_load->stepRatio_), token);
+	compare_t(IDENTITY(dblLowerParameterBoundaries_, p_load->dblLowerParameterBoundaries_), token);
+	compare_t(IDENTITY(dblUpperParameterBoundaries_, p_load->dblUpperParameterBoundaries_), token);
+	compare_t(IDENTITY(adjustedFiniteStep_, p_load->adjustedFiniteStep_), token);
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/
@@ -328,7 +314,7 @@ void GBaseGD::compare(
  * Emits a name for this class / object
  */
 std::string GBaseGD::name() const {
-   return std::string("GBaseGD");
+	return std::string("GBaseGD");
 }
 
 /******************************************************************************/
@@ -337,51 +323,51 @@ std::string GBaseGD::name() const {
  *
  * @param cpFile The name of the file the checkpoint should be loaded from
  */
-void GBaseGD::loadCheckpoint(const boost::filesystem::path& cpFile) {
+void GBaseGD::loadCheckpoint(const boost::filesystem::path &cpFile) {
 	// Create a vector to hold the best individuals
-	std::vector<std::shared_ptr<Gem::Geneva::GParameterSet> > bestIndividuals;
+	std::vector<std::shared_ptr < Gem::Geneva::GParameterSet> > bestIndividuals;
 
 	// Check that the file indeed exists
-	if(!boost::filesystem::exists(cpFile)) {
-	   glogger
-	   << "In GBaseGD::loadCheckpoint(const const bf::path&)" << std::endl
-      << "Got invalid checkpoint file name " << cpFile.string() << std::endl
-      << GEXCEPTION;
+	if (!boost::filesystem::exists(cpFile)) {
+		glogger
+		<< "In GBaseGD::loadCheckpoint(const const bf::path&)" << std::endl
+		<< "Got invalid checkpoint file name " << cpFile.string() << std::endl
+		<< GEXCEPTION;
 	}
 
 	// Create the input stream and check that it is in good order
 	boost::filesystem::ifstream checkpointStream(cpFile);
-	if(!checkpointStream) {
-	   glogger
-	   << "In GBaseGD::loadCheckpoint(const const bf::path&)" << std::endl
-      << "Error: Could not open input file" << std::endl
-      << GEXCEPTION;
+	if (!checkpointStream) {
+		glogger
+		<< "In GBaseGD::loadCheckpoint(const const bf::path&)" << std::endl
+		<< "Error: Could not open input file" << std::endl
+		<< GEXCEPTION;
 	}
 
-	switch(getCheckpointSerializationMode()) {
-	case Gem::Common::SERIALIZATIONMODE_TEXT:
-		// Load the data from disc in text mode
+	switch (getCheckpointSerializationMode()) {
+		case Gem::Common::SERIALIZATIONMODE_TEXT:
+			// Load the data from disc in text mode
 		{
 			boost::archive::text_iarchive ia(checkpointStream);
-		    ia >> boost::serialization::make_nvp("bestIndividuals", bestIndividuals);
+			ia >> boost::serialization::make_nvp("bestIndividuals", bestIndividuals);
 		} // note: explicit scope here is essential so the ia-destructor gets called
-		break;
+			break;
 
-	case Gem::Common::SERIALIZATIONMODE_XML:
-		// Load the data from disc in xml mode
+		case Gem::Common::SERIALIZATIONMODE_XML:
+			// Load the data from disc in xml mode
 		{
 			boost::archive::xml_iarchive ia(checkpointStream);
-		    ia >> boost::serialization::make_nvp("bestIndividuals", bestIndividuals);
+			ia >> boost::serialization::make_nvp("bestIndividuals", bestIndividuals);
 		} // note: explicit scope here is essential so the ia-destructor gets called
-		break;
+			break;
 
-	case Gem::Common::SERIALIZATIONMODE_BINARY:
-		// Load the data from disc in binary mode
+		case Gem::Common::SERIALIZATIONMODE_BINARY:
+			// Load the data from disc in binary mode
 		{
 			boost::archive::binary_iarchive ia(checkpointStream);
-		    ia >> boost::serialization::make_nvp("bestIndividuals", bestIndividuals);
+			ia >> boost::serialization::make_nvp("bestIndividuals", bestIndividuals);
 		} // note: explicit scope here is essential so the ia-destructor gets called
-		break;
+			break;
 	}
 
 	// Make sure the stream is closed again
@@ -390,16 +376,16 @@ void GBaseGD::loadCheckpoint(const boost::filesystem::path& cpFile) {
 	// Load the individuals into this class
 	std::size_t thisSize = this->size();
 	std::size_t biSize = bestIndividuals.size();
-	if(thisSize >= biSize) { // The most likely case
-		for(std::size_t ic=0; ic<biSize; ic++) {
+	if (thisSize >= biSize) { // The most likely case
+		for (std::size_t ic = 0; ic < biSize; ic++) {
 			(*this)[ic]->GObject::load(bestIndividuals[ic]);
 		}
 	}
-	else if(thisSize < biSize) {
-		for(std::size_t ic=0; ic<thisSize; ic++) {
+	else if (thisSize < biSize) {
+		for (std::size_t ic = 0; ic < thisSize; ic++) {
 			(*this)[ic]->GObject::load(bestIndividuals[ic]);
 		}
-		for(std::size_t ic=thisSize; ic<biSize; ic++) {
+		for (std::size_t ic = thisSize; ic < biSize; ic++) {
 			this->push_back(bestIndividuals[ic]);
 		}
 	}
@@ -436,7 +422,7 @@ void GBaseGD::load_(const GObject *cp) {
  * @return The value of the best individual found in this iteration
  */
 boost::tuple<double, double> GBaseGD::cycleLogic() {
-	if(afterFirstIteration()) {
+	if (afterFirstIteration()) {
 		// Update the parameters of the parent individuals. This
 		// only makes sense once the individuals have been evaluated
 		this->updateParentIndividuals();
@@ -448,22 +434,24 @@ boost::tuple<double, double> GBaseGD::cycleLogic() {
 	// Trigger value calculation for all individuals (including parents)
 	runFitnessCalculation();
 
-   // Perform post-evaluation updates (mostly of individuals)
-   postEvaluationWork();
+	// Perform post-evaluation updates (mostly of individuals)
+	postEvaluationWork();
 
-   boost::tuple<double,double> bestFitness      = boost::make_tuple(this->getWorstCase(), this->getWorstCase());
-   boost::tuple<double,double> fitnessCandidate = boost::make_tuple(this->getWorstCase(), this->getWorstCase());
+	boost::tuple<double, double> bestFitness = boost::make_tuple(this->getWorstCase(), this->getWorstCase());
+	boost::tuple<double, double> fitnessCandidate = boost::make_tuple(this->getWorstCase(), this->getWorstCase());
 
-   // Retrieve information about the best fitness found and disallow re-evaluation
+	// Retrieve information about the best fitness found and disallow re-evaluation
 	GBaseGD::iterator it;
-	for(it=this->begin(); it!=this->begin() + this->getNStartingPoints(); ++it) {
-	   boost::get<G_RAW_FITNESS>(fitnessCandidate)         = (*it)->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
-	   boost::get<G_TRANSFORMED_FITNESS>(fitnessCandidate) = (*it)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
+	for (it = this->begin(); it != this->begin() + this->getNStartingPoints(); ++it) {
+		boost::get<G_RAW_FITNESS>(fitnessCandidate) = (*it)->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
+		boost::get<G_TRANSFORMED_FITNESS>(fitnessCandidate) = (*it)->fitness(0, PREVENTREEVALUATION,
+																									USETRANSFORMEDFITNESS);
 
-	   if(this->isBetter(boost::get<G_TRANSFORMED_FITNESS>(fitnessCandidate), boost::get<G_TRANSFORMED_FITNESS>(bestFitness))) {
-	      bestFitness = fitnessCandidate;
-      }
-   }
+		if (this->isBetter(boost::get<G_TRANSFORMED_FITNESS>(fitnessCandidate),
+								 boost::get<G_TRANSFORMED_FITNESS>(bestFitness))) {
+			bestFitness = fitnessCandidate;
+		}
+	}
 
 	return bestFitness;
 }
@@ -474,15 +462,15 @@ boost::tuple<double, double> GBaseGD::cycleLogic() {
  */
 void GBaseGD::updateChildParameters() {
 	// Loop over all starting points
-	for(std::size_t i=0; i<nStartingPoints_; i++) {
+	for (std::size_t i = 0; i < nStartingPoints_; i++) {
 		// Extract the fp vector
 		std::vector<double> parmVec;
 		this->at(i)->streamline<double>(parmVec, ACTIVEONLY); // Only extract active parameters
 
 		// Loop over all directions
-		for(std::size_t j=0; j<nFPParmsFirst_; j++) {
+		for (std::size_t j = 0; j < nFPParmsFirst_; j++) {
 			// Calculate the position of the child
-			std::size_t childPos = nStartingPoints_ + i*nFPParmsFirst_ + j;
+			std::size_t childPos = nStartingPoints_ + i * nFPParmsFirst_ + j;
 
 			// Load the current "parent" into the "child"
 			this->at(childPos)->GObject::load(this->at(i));
@@ -531,7 +519,7 @@ try {
  * TODO: keep going in the same direction as long as there is an improvement
  */
 void GBaseGD::updateParentIndividuals() {
-	for(std::size_t i=0; i<nStartingPoints_; i++) {
+	for (std::size_t i = 0; i < nStartingPoints_; i++) {
 		// Extract the fp vector
 		std::vector<double> parmVec;
 		this->at(i)->streamline<double>(parmVec, ACTIVEONLY);
@@ -551,22 +539,22 @@ void GBaseGD::updateParentIndividuals() {
 
 		// Calculate the adaption of each parameter
 		// double gradient = 0.;
-		for(std::size_t j=0; j<nFPParmsFirst_; j++) {
+		for (std::size_t j = 0; j < nFPParmsFirst_; j++) {
 			// Calculate the position of the child
-			std::size_t childPos = nStartingPoints_ + i*nFPParmsFirst_ + j;
+			std::size_t childPos = nStartingPoints_ + i * nFPParmsFirst_ + j;
 
 			// Calculate the step to be performed in a given direction and
 			// adjust the parameter vector of each parent
 			try {
-			   parmVec[j] -= boost::numeric_cast<double>(
-			         stepRatio_ *
-			         ((long double)(this->at(childPos)->minOnly_fitness()) - (long double)(parentFitness))
-			   );
-			} catch(boost::bad_numeric_cast& e) {
-			   glogger
-			   << "In GBaseGD::updateParentIndividuals(): Error!" << std::endl
-			   << "Bad conversion with message " << e.what() << std::endl
-			   << GEXCEPTION;
+				parmVec[j] -= boost::numeric_cast<double>(
+					stepRatio_ *
+					((long double) (this->at(childPos)->minOnly_fitness()) - (long double) (parentFitness))
+				);
+			} catch (boost::bad_numeric_cast &e) {
+				glogger
+				<< "In GBaseGD::updateParentIndividuals(): Error!" << std::endl
+				<< "Bad conversion with message " << e.what() << std::endl
+				<< GEXCEPTION;
 			}
 		}
 
@@ -581,8 +569,8 @@ void GBaseGD::updateParentIndividuals() {
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
-void GBaseGD::addConfigurationOptions (
-	Gem::Common::GParserBuilder& gpb
+void GBaseGD::addConfigurationOptions(
+	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
 	GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions(gpb);
@@ -591,14 +579,14 @@ void GBaseGD::addConfigurationOptions (
 	gpb.registerFileParameter<std::size_t>(
 		"nStartingPoints" // The name of the variable
 		, DEFAULTGDSTARTINGPOINTS // The default value
-		, [this](std::size_t nsp){ this->setNStartingPoints(nsp); }
+		, [this](std::size_t nsp) { this->setNStartingPoints(nsp); }
 	)
 	<< "The number of simultaneous gradient descents";
 
 	gpb.registerFileParameter<double>(
 		"finiteStep" // The name of the variable
 		, DEFAULTFINITESTEP // The default value
-      , [this](double fs){ this->setFiniteStep(fs); }
+		, [this](double fs) { this->setFiniteStep(fs); }
 	)
 	<< "The size of the adjustment in the difference quotient," << std::endl
 	<< "specified in per mill of the allowed or expected value" << std::endl
@@ -607,7 +595,7 @@ void GBaseGD::addConfigurationOptions (
 	gpb.registerFileParameter<double>(
 		"stepSize" // The name of the variable
 		, DEFAULTSTEPSIZE // The default value
-      , [this](double ss){ this->setStepSize(ss); }
+		, [this](double ss) { this->setStepSize(ss); }
 	)
 	<< "The size of each step into the" << std::endl
 	<< "direction of steepest descent," << std::endl
@@ -623,8 +611,8 @@ void GBaseGD::init() {
 	// To be performed before any other action
 	GOptimizationAlgorithmT<GParameterSet>::init();
 
-   // Extract the boundaries of all parameters
-   this->at(0)->boundaries(dblLowerParameterBoundaries_, dblUpperParameterBoundaries_, ACTIVEONLY);
+	// Extract the boundaries of all parameters
+	this->at(0)->boundaries(dblLowerParameterBoundaries_, dblUpperParameterBoundaries_, ACTIVEONLY);
 
 #ifdef DEBUG
    // Size matters!
@@ -655,23 +643,24 @@ void GBaseGD::init() {
    }
 #endif /* DEBUG */
 
-   // Set the step ratio. We do the calculation in long double precision to preserve accuracy
-   stepRatio_ = ((long double)stepSize_)/((long double)finiteStep_);
+	// Set the step ratio. We do the calculation in long double precision to preserve accuracy
+	stepRatio_ = ((long double) stepSize_) / ((long double) finiteStep_);
 
-   // Calculate a specific finiteStep_ value for each parameter in long double precision
-   try {
-      adjustedFiniteStep_.clear();
-      long double finiteStepRatio = ((long double)finiteStep_)/((long double)1000.);
-      for(std::size_t pos=0; pos<dblLowerParameterBoundaries_.size(); pos++) {
-         long double parameterRange = (long double)dblUpperParameterBoundaries_[pos] - (long double)dblLowerParameterBoundaries_[pos];
-         adjustedFiniteStep_.push_back(boost::numeric_cast<double>(finiteStepRatio*parameterRange));
-      }
-   } catch(boost::bad_numeric_cast& e) {
-      glogger
-      << "In GBaseGD::init(): Error!" << std::endl
-      << "Bad conversion with message " << e.what() << std::endl
-      << GEXCEPTION;
-   }
+	// Calculate a specific finiteStep_ value for each parameter in long double precision
+	try {
+		adjustedFiniteStep_.clear();
+		long double finiteStepRatio = ((long double) finiteStep_) / ((long double) 1000.);
+		for (std::size_t pos = 0; pos < dblLowerParameterBoundaries_.size(); pos++) {
+			long double parameterRange =
+				(long double) dblUpperParameterBoundaries_[pos] - (long double) dblLowerParameterBoundaries_[pos];
+			adjustedFiniteStep_.push_back(boost::numeric_cast<double>(finiteStepRatio * parameterRange));
+		}
+	} catch (boost::bad_numeric_cast &e) {
+		glogger
+		<< "In GBaseGD::init(): Error!" << std::endl
+		<< "Bad conversion with message " << e.what() << std::endl
+		<< GEXCEPTION;
+	}
 
 	// Tell individuals about their position in the population
 	markIndividualPositions();
@@ -690,8 +679,8 @@ void GBaseGD::finalize() {
 /**
  * Retrieve a GPersonalityTraits object belonging to this algorithm
  */
-std::shared_ptr<GPersonalityTraits> GBaseGD::getPersonalityTraits() const {
-   return std::shared_ptr<GGDPersonalityTraits>(new GGDPersonalityTraits());
+std::shared_ptr <GPersonalityTraits> GBaseGD::getPersonalityTraits() const {
+	return std::shared_ptr<GGDPersonalityTraits>(new GGDPersonalityTraits());
 }
 
 /******************************************************************************/
@@ -705,22 +694,22 @@ void GBaseGD::adjustPopulation() {
 	// Do some error checking ...
 
 	// We need at least one individual
-	if(nStart == 0) {
-	   glogger
-	   << "In GBaseGD::adjustPopulation():" << std::endl
-      << "You didn't add any individuals to the collection. We need at least one." << std::endl
-      << GEXCEPTION;
+	if (nStart == 0) {
+		glogger
+		<< "In GBaseGD::adjustPopulation():" << std::endl
+		<< "You didn't add any individuals to the collection. We need at least one." << std::endl
+		<< GEXCEPTION;
 	}
 
 	// Update the number of active floating point parameters in the individuals
 	nFPParmsFirst_ = this->at(0)->countParameters<double>(ACTIVEONLY);
 
 	// Check that the first individual has floating point parameters (double for the moment)
-	if(nFPParmsFirst_ == 0) {
-	   glogger
-	   << "In GBaseGD::adjustPopulation():" << std::endl
-      << "No floating point parameters in individual." << std::endl
-      << GEXCEPTION;
+	if (nFPParmsFirst_ == 0) {
+		glogger
+		<< "In GBaseGD::adjustPopulation():" << std::endl
+		<< "No floating point parameters in individual." << std::endl
+		<< GEXCEPTION;
 	}
 
 	// Check that all individuals currently available have the same amount of parameters
@@ -737,11 +726,11 @@ void GBaseGD::adjustPopulation() {
 #endif
 
 	// Set the default size of the population
-	GOptimizationAlgorithmT<GParameterSet>::setDefaultPopulationSize(nStartingPoints_*(nFPParmsFirst_+1));
+	GOptimizationAlgorithmT<GParameterSet>::setDefaultPopulationSize(nStartingPoints_ * (nFPParmsFirst_ + 1));
 
 	// First create a suitable number of start individuals and initialize them as required
-	if(nStart < nStartingPoints_) {
-		for(std::size_t i=0; i<(nStartingPoints_-nStart); i++) {
+	if (nStart < nStartingPoints_) {
+		for (std::size_t i = 0; i < (nStartingPoints_ - nStart); i++) {
 			// Create a copy of the first individual
 			this->push_back(this->at(0)->clone<GParameterSet>());
 			// Make sure our start values differ
@@ -754,8 +743,8 @@ void GBaseGD::adjustPopulation() {
 
 	// Add the required number of clones for each starting point. These will be
 	// used for the calculation of the difference quotient for each parameter
-	for(std::size_t i=0; i<nStartingPoints_; i++) {
-		for(std::size_t j=0; j<nFPParmsFirst_; j++) {
+	for (std::size_t i = 0; i < nStartingPoints_; i++) {
+		for (std::size_t j = 0; j < nFPParmsFirst_; j++) {
 			this->push_back(this->at(i)->clone<GParameterSet>());
 		}
 	}
@@ -779,54 +768,54 @@ void GBaseGD::adjustPopulation() {
  */
 void GBaseGD::saveCheckpoint() const {
 	// Copy the parent individuals to a vector
-	std::vector<std::shared_ptr<Gem::Geneva::GParameterSet> > bestIndividuals;
+	std::vector<std::shared_ptr < Gem::Geneva::GParameterSet> > bestIndividuals;
 	GBaseGD::const_iterator it;
-	for(it=this->begin(); it!=this->begin() + nStartingPoints_; ++it) {
+	for (it = this->begin(); it != this->begin() + nStartingPoints_; ++it) {
 		bestIndividuals.push_back(*it);
 	}
 
 	// Determine a suitable name for the output file
 	std::string outputFile =
-			getCheckpointDirectory() +
-			(this->halted()?"final":boost::lexical_cast<std::string>(getIteration())) +
-			"_"	+
-			boost::lexical_cast<std::string>(boost::get<G_TRANSFORMED_FITNESS>(getBestKnownPrimaryFitness())) +
-			"_"	+
-			getCheckpointBaseName();
+		getCheckpointDirectory() +
+		(this->halted() ? "final" : boost::lexical_cast<std::string>(getIteration())) +
+		"_" +
+		boost::lexical_cast<std::string>(boost::get<G_TRANSFORMED_FITNESS>(getBestKnownPrimaryFitness())) +
+		"_" +
+		getCheckpointBaseName();
 
 	// Create the output stream and check that it is in good order
 	bf::ofstream checkpointStream(outputFile);
-	if(!checkpointStream) {
-	   glogger
-	   << "In GBaseGD::saveCheckpoint()" << std::endl
-      << "Error: Could not open output file " << outputFile.c_str() << std::endl
-      << GEXCEPTION;
+	if (!checkpointStream) {
+		glogger
+		<< "In GBaseGD::saveCheckpoint()" << std::endl
+		<< "Error: Could not open output file " << outputFile.c_str() << std::endl
+		<< GEXCEPTION;
 	}
 
-	switch(getCheckpointSerializationMode()) {
-	case Gem::Common::SERIALIZATIONMODE_TEXT:
-		// Write the individuals' data to disc in text mode
+	switch (getCheckpointSerializationMode()) {
+		case Gem::Common::SERIALIZATIONMODE_TEXT:
+			// Write the individuals' data to disc in text mode
 		{
 			boost::archive::text_oarchive oa(checkpointStream);
 			oa << boost::serialization::make_nvp("bestIndividuals", bestIndividuals);
 		} // note: explicit scope here is essential so the oa-destructor gets called
-		break;
+			break;
 
-	case Gem::Common::SERIALIZATIONMODE_XML:
-		// Write the individuals' data to disc in XML mode
+		case Gem::Common::SERIALIZATIONMODE_XML:
+			// Write the individuals' data to disc in XML mode
 		{
 			boost::archive::xml_oarchive oa(checkpointStream);
 			oa << boost::serialization::make_nvp("bestIndividuals", bestIndividuals);
 		} // note: explicit scope here is essential so the oa-destructor gets called
-		break;
+			break;
 
-	case Gem::Common::SERIALIZATIONMODE_BINARY:
-		// Write the individuals' data to disc in binary mode
+		case Gem::Common::SERIALIZATIONMODE_BINARY:
+			// Write the individuals' data to disc in binary mode
 		{
 			boost::archive::binary_oarchive oa(checkpointStream);
 			oa << boost::serialization::make_nvp("bestIndividuals", bestIndividuals);
 		} // note: explicit scope here is essential so the oa-destructor gets called
-		break;
+			break;
 	}
 
 	// Make sure the stream is closed again
@@ -839,7 +828,7 @@ void GBaseGD::saveCheckpoint() const {
  * population.
  */
 void GBaseGD::markIndividualPositions() {
-	for(std::size_t pos=0; pos<this->size(); pos++) {
+	for (std::size_t pos = 0; pos < this->size(); pos++) {
 		this->at(pos)->getPersonalityTraits<GGDPersonalityTraits>()->setPopulationPosition(pos);
 	}
 }
@@ -850,10 +839,10 @@ void GBaseGD::markIndividualPositions() {
  */
 bool GBaseGD::modify_GUnitTests() {
 #ifdef GEM_TESTING
-   bool result = false;
+	bool result = false;
 
 	// Call the parent class'es function
-	if(GOptimizationAlgorithmT<GParameterSet>::modify_GUnitTests()) result = true;
+	if (GOptimizationAlgorithmT<GParameterSet>::modify_GUnitTests()) result = true;
 
 	return result;
 #else /* GEM_TESTING */
@@ -893,11 +882,8 @@ void GBaseGD::specificTestsFailuresExpected_GUnitTests() {
  * The default constructor
  */
 GBaseGD::GGDOptimizationMonitor::GGDOptimizationMonitor()
-   : xDim_(DEFAULTXDIMOM)
-   , yDim_(DEFAULTYDIMOM)
-   , resultFile_(DEFAULTROOTRESULTFILEOM)
-   , fitnessGraph_(new Gem::Common::GGraph2D())
-{ /* nothing */ }
+	: xDim_(DEFAULTXDIMOM), yDim_(DEFAULTYDIMOM), resultFile_(DEFAULTROOTRESULTFILEOM),
+	  fitnessGraph_(new Gem::Common::GGraph2D()) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -905,31 +891,26 @@ GBaseGD::GGDOptimizationMonitor::GGDOptimizationMonitor()
  *
  * @param cp A copy of another GGDOptimizationMonitor object
  */
-GBaseGD::GGDOptimizationMonitor::GGDOptimizationMonitor(const GBaseGD::GGDOptimizationMonitor& cp)
-	: GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT(cp)
-	, xDim_(cp.xDim_)
-	, yDim_(cp.yDim_)
-	, resultFile_(cp.resultFile_)
-	, fitnessGraph_(new Gem::Common::GGraph2D())
-{ /* nothing */ }
+GBaseGD::GGDOptimizationMonitor::GGDOptimizationMonitor(const GBaseGD::GGDOptimizationMonitor &cp)
+	: GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT(cp), xDim_(cp.xDim_), yDim_(cp.yDim_),
+	  resultFile_(cp.resultFile_), fitnessGraph_(new Gem::Common::GGraph2D()) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GBaseGD::GGDOptimizationMonitor::~GGDOptimizationMonitor()
-{ /* nothing */ }
+GBaseGD::GGDOptimizationMonitor::~GGDOptimizationMonitor() { /* nothing */ }
 
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GBaseGD::GGDOptimizationMonitor& GBaseGD::GGDOptimizationMonitor::operator=(
-   const GBaseGD::GGDOptimizationMonitor& cp
+const GBaseGD::GGDOptimizationMonitor &GBaseGD::GGDOptimizationMonitor::operator=(
+	const GBaseGD::GGDOptimizationMonitor &cp
 ) {
-   this->load_(&cp);
-   return *this;
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -939,14 +920,14 @@ const GBaseGD::GGDOptimizationMonitor& GBaseGD::GGDOptimizationMonitor::operator
  * @param  cp A constant reference to another GGDOptimizationMonitor object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBaseGD::GGDOptimizationMonitor::operator==(const GBaseGD::GGDOptimizationMonitor& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBaseGD::GGDOptimizationMonitor::operator==(const GBaseGD::GGDOptimizationMonitor &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -956,14 +937,14 @@ bool GBaseGD::GGDOptimizationMonitor::operator==(const GBaseGD::GGDOptimizationM
  * @param  cp A constant reference to another GGDOptimizationMonitor object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GBaseGD::GGDOptimizationMonitor::operator!=(const GBaseGD::GGDOptimizationMonitor& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBaseGD::GGDOptimizationMonitor::operator!=(const GBaseGD::GGDOptimizationMonitor &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -976,27 +957,26 @@ bool GBaseGD::GGDOptimizationMonitor::operator!=(const GBaseGD::GGDOptimizationM
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBaseGD::GGDOptimizationMonitor::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GBaseGD::GGDOptimizationMonitor *p_load = GObject::gobject_conversion<GBaseGD::GGDOptimizationMonitor>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GBaseGD::GGDOptimizationMonitor *p_load = GObject::gobject_conversion<GBaseGD::GGDOptimizationMonitor>(&cp);
 
-   GToken token("GBaseGD::GGDOptimizationMonitor", e);
+	GToken token("GBaseGD::GGDOptimizationMonitor", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(IDENTITY(*this, *p_load),
+																														  token);
 
-   // ... and then the local data
-   compare_t(IDENTITY(xDim_, p_load->xDim_), token);
-   compare_t(IDENTITY(yDim_, p_load->yDim_), token);
-   compare_t(IDENTITY(resultFile_, p_load->resultFile_), token);
+	// ... and then the local data
+	compare_t(IDENTITY(xDim_, p_load->xDim_), token);
+	compare_t(IDENTITY(yDim_, p_load->yDim_), token);
+	compare_t(IDENTITY(resultFile_, p_load->resultFile_), token);
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/
@@ -1006,9 +986,9 @@ void GBaseGD::GGDOptimizationMonitor::compare(
  * @param resultFile The desired name of the result file
  */
 void GBaseGD::GGDOptimizationMonitor::setResultFileName(
-   const std::string& resultFile
+	const std::string &resultFile
 ) {
-  resultFile_ = resultFile;
+	resultFile_ = resultFile;
 }
 
 /******************************************************************************/
@@ -1018,7 +998,7 @@ void GBaseGD::GGDOptimizationMonitor::setResultFileName(
  * @return The current name of the result file
  */
 std::string GBaseGD::GGDOptimizationMonitor::getResultFileName() const {
-  return resultFile_;
+	return resultFile_;
 }
 
 
@@ -1029,7 +1009,7 @@ std::string GBaseGD::GGDOptimizationMonitor::getResultFileName() const {
  * @param xDim The desired dimension of the canvas in x-direction
  * @param yDim The desired dimension of the canvas in y-direction
  */
-void GBaseGD::GGDOptimizationMonitor::setDims(const boost::uint32_t& xDim, const boost::uint32_t& yDim) {
+void GBaseGD::GGDOptimizationMonitor::setDims(const boost::uint32_t &xDim, const boost::uint32_t &yDim) {
 	xDim_ = xDim;
 	yDim_ = yDim;
 }
@@ -1041,7 +1021,7 @@ void GBaseGD::GGDOptimizationMonitor::setDims(const boost::uint32_t& xDim, const
  * @return The dimensions of the canvas as a tuple
  */
 boost::tuple<boost::uint32_t, boost::uint32_t> GBaseGD::GGDOptimizationMonitor::getDims() const {
-   return boost::tuple<boost::uint32_t, boost::uint32_t>(xDim_, yDim_);
+	return boost::tuple<boost::uint32_t, boost::uint32_t>(xDim_, yDim_);
 }
 
 /******************************************************************************/
@@ -1070,7 +1050,7 @@ boost::uint32_t GBaseGD::GGDOptimizationMonitor::getYDim() const {
  *
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
  */
-void GBaseGD::GGDOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+void GBaseGD::GGDOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GParameterSet> *const goa) {
 #ifdef DEBUG
    if(goa->getOptimizationAlgorithm() != "PERSONALITY_GD") {
       glogger
@@ -1080,10 +1060,10 @@ void GBaseGD::GGDOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<G
    }
 #endif /* DEBUG */
 
-   // Configure the plotter
-   fitnessGraph_->setXAxisLabel("Iteration");
-   fitnessGraph_->setYAxisLabel("Fitness");
-   fitnessGraph_->setPlotMode(Gem::Common::CURVE);
+	// Configure the plotter
+	fitnessGraph_->setXAxisLabel("Iteration");
+	fitnessGraph_->setYAxisLabel("Fitness");
+	fitnessGraph_->setPlotMode(Gem::Common::CURVE);
 }
 
 /******************************************************************************/
@@ -1094,11 +1074,12 @@ void GBaseGD::GGDOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<G
  *
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
  */
-void GBaseGD::GGDOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+void GBaseGD::GGDOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<GParameterSet> *const goa) {
 	// Perform the conversion to the target algorithm
-	GBaseGD * const gd = static_cast<GBaseGD * const>(goa);
+	GBaseGD *const gd = static_cast<GBaseGD *const>(goa);
 
-	fitnessGraph_->add(boost::tuple<double,double>(gd->getIteration(), boost::get<G_TRANSFORMED_FITNESS>(gd->getBestKnownPrimaryFitness())));
+	fitnessGraph_->add(boost::tuple<double, double>(gd->getIteration(), boost::get<G_TRANSFORMED_FITNESS>(
+		gd->getBestKnownPrimaryFitness())));
 }
 
 /******************************************************************************/
@@ -1107,19 +1088,18 @@ void GBaseGD::GGDOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<G
  *
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
  */
-void GBaseGD::GGDOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
-   Gem::Common::GPlotDesigner gpd(
-         "Fitness of best individual"
-         , 1, 1 // A single plot / grid of dimension 1/1
-   );
+void GBaseGD::GGDOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GParameterSet> *const goa) {
+	Gem::Common::GPlotDesigner gpd(
+		"Fitness of best individual", 1, 1 // A single plot / grid of dimension 1/1
+	);
 
-   gpd.setCanvasDimensions(xDim_, yDim_);
-   gpd.registerPlotter(fitnessGraph_);
+	gpd.setCanvasDimensions(xDim_, yDim_);
+	gpd.registerPlotter(fitnessGraph_);
 
-   gpd.writeToFile(this->getResultFileName());
+	gpd.writeToFile(this->getResultFileName());
 
-   // Store a new graph so repeated calls to optimize create new graphs
-   fitnessGraph_.reset(new Gem::Common::GGraph2D());
+	// Store a new graph so repeated calls to optimize create new graphs
+	fitnessGraph_.reset(new Gem::Common::GGraph2D());
 }
 
 /******************************************************************************/
@@ -1128,7 +1108,7 @@ void GBaseGD::GGDOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GP
  *
  * cp A pointer to another GGDOptimizationMonitor object, camouflaged as a GObject
  */
-void GBaseGD::GGDOptimizationMonitor::load_(const GObject* cp) {
+void GBaseGD::GGDOptimizationMonitor::load_(const GObject *cp) {
 	const GBaseGD::GGDOptimizationMonitor *p_load = gobject_conversion<GBaseGD::GGDOptimizationMonitor>(cp);
 
 	// Load the parent classes' data ...
@@ -1146,7 +1126,7 @@ void GBaseGD::GGDOptimizationMonitor::load_(const GObject* cp) {
  *
  * @return A deep clone of this object
  */
-GObject* GBaseGD::GGDOptimizationMonitor::clone_() const {
+GObject *GBaseGD::GGDOptimizationMonitor::clone_() const {
 	return new GBaseGD::GGDOptimizationMonitor(*this);
 }
 
@@ -1159,7 +1139,7 @@ bool GBaseGD::GGDOptimizationMonitor::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::modify_GUnitTests()) result = true;
+	if (GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::modify_GUnitTests()) result = true;
 
 	return result;
 

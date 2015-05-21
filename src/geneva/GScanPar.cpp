@@ -48,87 +48,80 @@ namespace Geneva {
 /**
  * Returns a set of boolean data items
  */
-template <>
+template<>
 std::vector<bool> fillWithData<bool>(
-   std::size_t nSteps
-   , bool      lower
-   , bool      upper
+	std::size_t nSteps, bool lower, bool upper
 ) {
-   std::vector<bool> result;
-   result.push_back(false);
-   result.push_back(true);
-   return result;
+	std::vector<bool> result;
+	result.push_back(false);
+	result.push_back(true);
+	return result;
 }
 
 /******************************************************************************/
 /**
  * Returns a set of boost::int32_t data items
  */
-template <>
+template<>
 std::vector<boost::int32_t> fillWithData<boost::int32_t>(
-   std::size_t      nSteps // will only be used for random entries
-   , boost::int32_t lower
-   , boost::int32_t upper // inclusive
+	std::size_t nSteps // will only be used for random entries
+	, boost::int32_t lower, boost::int32_t upper // inclusive
 ) {
-   std::vector<boost::int32_t> result;
-   for(boost::int32_t i=lower; i<=upper; i++) {
-      result.push_back(i);
-   }
-   return result;
+	std::vector<boost::int32_t> result;
+	for (boost::int32_t i = lower; i <= upper; i++) {
+		result.push_back(i);
+	}
+	return result;
 }
 
 /******************************************************************************/
 /**
  * Returns a set of float data items
  */
-template <>
+template<>
 std::vector<float> fillWithData<float>(
-   std::size_t nSteps
-   , float     lower
-   , float     upper
+	std::size_t nSteps, float lower, float upper
 ) {
-   std::vector<float> result;
+	std::vector<float> result;
 
-   // We require at least 2 steps, unless we are are in random mode
-   if(nSteps<2) {
-      glogger
-      << "In std::vector<float> fillWithData<float>(): Error!" << std::endl
-      << "Number of requested steps is too low: " << nSteps << std::endl
-      << GEXCEPTION;
-   }
+	// We require at least 2 steps, unless we are are in random mode
+	if (nSteps < 2) {
+		glogger
+		<< "In std::vector<float> fillWithData<float>(): Error!" << std::endl
+		<< "Number of requested steps is too low: " << nSteps << std::endl
+		<< GEXCEPTION;
+	}
 
-   for(std::size_t i=0; i<nSteps; i++) {
-      result.push_back(lower + (upper-lower)*float(i)/float(nSteps-1));
-   }
+	for (std::size_t i = 0; i < nSteps; i++) {
+		result.push_back(lower + (upper - lower) * float(i) / float(nSteps - 1));
+	}
 
-   return result;
+	return result;
 }
 
 /******************************************************************************/
 /**
  * Returns a set of double data items
  */
-template <>
+template<>
 std::vector<double> fillWithData<double>(
-   std::size_t nSteps
-   , double    lower
-   , double    upper
+	std::size_t nSteps, double lower, double upper
 ) {
-   std::vector<double> result;
+	std::vector<double> result;
 
-   // We require at least 2 steps, unless we are are in random mode
-   if(nSteps<2) {
-      glogger
-      << "In std::vector<float> fillWithData<double>(): Error!" << std::endl
-      << "Number of requested steps is too low: " << nSteps << std::endl
-      << GEXCEPTION;
-   }
+	// We require at least 2 steps, unless we are are in random mode
+	if (nSteps < 2) {
+		glogger
+		<< "In std::vector<float> fillWithData<double>(): Error!" << std::endl
+		<< "Number of requested steps is too low: " << nSteps << std::endl
+		<< GEXCEPTION;
+	}
 
-   for(std::size_t i=0; i<nSteps; i++) {
-      result.push_back(lower + (upper-lower)*double(i)/double(nSteps-1));
-   }
+	for (std::size_t i = 0; i < nSteps; i++) {
+		result.push_back(lower + (upper - lower) * double(i) / double(nSteps - 1));
+	}
 
-   return result;
+	return result;
 }
 
 /******************************************************************************/
@@ -138,41 +131,36 @@ std::vector<double> fillWithData<double>(
  * The default constructor. Only needed for de-serialization.
  */
 bScanPar::bScanPar()
-   : baseScanParT<bool>()
-{ /* nothing */ }
+	: baseScanParT<bool>() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Construction from local variables
  */
 bScanPar::bScanPar(
-   parPropSpec<bool> pps
-   , bool randomScan
+	parPropSpec<bool> pps, bool randomScan
 )
-   : baseScanParT<bool>(pps, randomScan,"b")
-{ /* nothing */ }
+	: baseScanParT<bool>(pps, randomScan, "b") { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The copy constructor
  */
-bScanPar::bScanPar(const bScanPar& cp)
-   :baseScanParT<bool>(cp)
-{ /* nothing */ }
+bScanPar::bScanPar(const bScanPar &cp)
+	: baseScanParT<bool>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-bScanPar::~bScanPar()
-{ /* nothing */ }
+bScanPar::~bScanPar() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Cloning of this object
  */
-std::shared_ptr<bScanPar> bScanPar::clone() const {
-   return std::shared_ptr<bScanPar>(new bScanPar(*this));
+std::shared_ptr <bScanPar> bScanPar::clone() const {
+	return std::shared_ptr<bScanPar>(new bScanPar(*this));
 }
 
 /******************************************************************************/
@@ -182,41 +170,36 @@ std::shared_ptr<bScanPar> bScanPar::clone() const {
  * The default constructor. Only needed for de-serialization.
  */
 int32ScanPar::int32ScanPar()
-   : baseScanParT<boost::int32_t>()
-{ /* nothing */ }
+	: baseScanParT<boost::int32_t>() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
 int32ScanPar::int32ScanPar(
-   parPropSpec<boost::int32_t> pps
-   , bool randomScan
+	parPropSpec<boost::int32_t> pps, bool randomScan
 )
-   : baseScanParT<boost::int32_t>(pps, randomScan, "i")
-{ /* nothing */ }
+	: baseScanParT<boost::int32_t>(pps, randomScan, "i") { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The copy constructor
  */
-int32ScanPar::int32ScanPar(const int32ScanPar& cp)
-   : baseScanParT<boost::int32_t>(cp)
-{ /* nothing */ }
+int32ScanPar::int32ScanPar(const int32ScanPar &cp)
+	: baseScanParT<boost::int32_t>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-int32ScanPar::~int32ScanPar()
-{ /* nothing */ }
+int32ScanPar::~int32ScanPar() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Cloning
  */
-std::shared_ptr<int32ScanPar> int32ScanPar::clone() const {
-   return std::shared_ptr<int32ScanPar>(new int32ScanPar(*this));
+std::shared_ptr <int32ScanPar> int32ScanPar::clone() const {
+	return std::shared_ptr<int32ScanPar>(new int32ScanPar(*this));
 }
 
 /******************************************************************************/
@@ -226,41 +209,36 @@ std::shared_ptr<int32ScanPar> int32ScanPar::clone() const {
  * The default constructor. Only needed for de-serialization.
  */
 dScanPar::dScanPar()
-   : baseScanParT<double>()
-{ /* nothing */ }
+	: baseScanParT<double>() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
 dScanPar::dScanPar(
-   parPropSpec<double> pps
-   , bool randomScan
+	parPropSpec<double> pps, bool randomScan
 )
-   : baseScanParT<double>(pps, randomScan, "d")
-{ /* nothing */ }
+	: baseScanParT<double>(pps, randomScan, "d") { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The copy constructor
  */
-dScanPar::dScanPar(const dScanPar& cp)
-   : baseScanParT<double>(cp)
-{ /* nothing */ }
+dScanPar::dScanPar(const dScanPar &cp)
+	: baseScanParT<double>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-dScanPar::~dScanPar()
-{ /* nothing */ }
+dScanPar::~dScanPar() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Cloning
  */
-std::shared_ptr<dScanPar> dScanPar::clone() const {
-   return std::shared_ptr<dScanPar>(new dScanPar(*this));
+std::shared_ptr <dScanPar> dScanPar::clone() const {
+	return std::shared_ptr<dScanPar>(new dScanPar(*this));
 }
 
 /******************************************************************************/
@@ -270,41 +248,36 @@ std::shared_ptr<dScanPar> dScanPar::clone() const {
  * The default constructor. Only needed for de-serialization.
  */
 fScanPar::fScanPar()
-   : baseScanParT<float>()
-{ /* nothing */ }
+	: baseScanParT<float>() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
 fScanPar::fScanPar(
-      parPropSpec<float> pps
-      , bool randomScan
+	parPropSpec<float> pps, bool randomScan
 )
-   : baseScanParT<float>(pps, randomScan, "f")
-{ /* nothing */ }
+	: baseScanParT<float>(pps, randomScan, "f") { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The copy constructor
  */
-fScanPar::fScanPar(const fScanPar& cp)
-   : baseScanParT<float>(cp)
-{ /* nothing */ }
+fScanPar::fScanPar(const fScanPar &cp)
+	: baseScanParT<float>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-fScanPar::~fScanPar()
-{ /* nothing */ }
+fScanPar::~fScanPar() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Cloning
  */
-std::shared_ptr<fScanPar> fScanPar::clone() const {
-   return std::shared_ptr<fScanPar>(new fScanPar(*this));
+std::shared_ptr <fScanPar> fScanPar::clone() const {
+	return std::shared_ptr<fScanPar>(new fScanPar(*this));
 }
 
 /******************************************************************************/

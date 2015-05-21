@@ -44,43 +44,37 @@ namespace Geneva {
  * The default constructor
  */
 GSerialGD::GSerialGD()
-	: GBaseGD()
-{ /* nothing */ }
+	: GBaseGD() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization with the number of starting points and the size of the finite step
  */
-GSerialGD::GSerialGD (
-		const std::size_t& nStartingPoints
-		, const double& finiteStep
-		, const double& stepSize
+GSerialGD::GSerialGD(
+	const std::size_t &nStartingPoints, const double &finiteStep, const double &stepSize
 )
-	: GBaseGD(nStartingPoints, finiteStep, stepSize)
-{ /* nothing */ }
+	: GBaseGD(nStartingPoints, finiteStep, stepSize) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * A standard copy constructor
  */
-GSerialGD::GSerialGD(const GSerialGD& cp)
-	: GBaseGD(cp)
-{ /* nothing */ }
+GSerialGD::GSerialGD(const GSerialGD &cp)
+	: GBaseGD(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor.
  */
-GSerialGD::~GSerialGD()
-{ /* nothing */ }
+GSerialGD::~GSerialGD() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GSerialGD& GSerialGD::operator=(const GSerialGD& cp) {
-   this->load_(&cp);
-   return *this;
+const GSerialGD &GSerialGD::operator=(const GSerialGD &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -90,14 +84,14 @@ const GSerialGD& GSerialGD::operator=(const GSerialGD& cp) {
  * @param  cp A constant reference to another GSerialGD object
  * @return A boolean indicating whether both objects are equal
  */
-bool GSerialGD::operator==(const GSerialGD& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GSerialGD::operator==(const GSerialGD &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -107,14 +101,14 @@ bool GSerialGD::operator==(const GSerialGD& cp) const {
  * @param  cp A constant reference to another GSerialGD object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GSerialGD::operator!=(const GSerialGD& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GSerialGD::operator!=(const GSerialGD &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -127,24 +121,22 @@ bool GSerialGD::operator!=(const GSerialGD& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GSerialGD::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GSerialGD *p_load = GObject::gobject_conversion<GSerialGD>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GSerialGD *p_load = GObject::gobject_conversion<GSerialGD>(&cp);
 
-   GToken token("GSerialGD", e);
+	GToken token("GSerialGD", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GBaseGD>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GBaseGD>(IDENTITY(*this, *p_load), token);
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/
@@ -152,7 +144,7 @@ void GSerialGD::compare(
  * Emits a name for this class / object
  */
 std::string GSerialGD::name() const {
-   return std::string("GSerialGD");
+	return std::string("GSerialGD");
 }
 
 /******************************************************************************/
@@ -179,7 +171,7 @@ void GSerialGD::load_(const GObject *cp) {
  *
  * @return A deep copy of this object, camouflaged as a GObject
  */
-GObject *GSerialGD::clone_() const  {
+GObject *GSerialGD::clone_() const {
 	return new GSerialGD(*this);
 }
 
@@ -211,8 +203,8 @@ void GSerialGD::finalize() {
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
-void GSerialGD::addConfigurationOptions (
-	Gem::Common::GParserBuilder& gpb
+void GSerialGD::addConfigurationOptions(
+	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
 	GBaseGD::addConfigurationOptions(gpb);
@@ -237,8 +229,8 @@ std::string GSerialGD::getIndividualCharacteristic() const {
  */
 void GSerialGD::runFitnessCalculation() {
 	// Trigger value calculation for all individuals (including parents)
-   GSerialGD::iterator it; // An iterator that allows us to loop over the collection
-   for(it=this->begin(); it!=this->end(); ++it) {
+	GSerialGD::iterator it; // An iterator that allows us to loop over the collection
+	for (it = this->begin(); it != this->end(); ++it) {
 #ifdef DEBUG
       // Make sure the evaluated individuals have the dirty flag set
       if(afterFirstIteration() && !(*it)->isDirty()) {
@@ -249,9 +241,9 @@ void GSerialGD::runFitnessCalculation() {
       }
 #endif /* DEBUG */
 
-      // Perform the actual evaluation
-      (*it)->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
-   }
+		// Perform the actual evaluation
+		(*it)->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
+	}
 }
 
 /******************************************************************************/
@@ -260,10 +252,10 @@ void GSerialGD::runFitnessCalculation() {
  */
 bool GSerialGD::modify_GUnitTests() {
 #ifdef GEM_TESTING
-   bool result = false;
+	bool result = false;
 
 	// Call the parent class'es function
-	if(GBaseGD::modify_GUnitTests()) result = true;
+	if (GBaseGD::modify_GUnitTests()) result = true;
 
 	return result;
 

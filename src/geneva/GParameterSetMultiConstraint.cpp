@@ -45,59 +45,56 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GParameterSetConstraint::GParameterSetConstraint()
-{ /* nothing */ }
+GParameterSetConstraint::GParameterSetConstraint() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The copy constructor
  */
-GParameterSetConstraint::GParameterSetConstraint(const GParameterSetConstraint& cp)
-   : GPreEvaluationValidityCheckT<GOptimizableEntity>(cp)
-{ /* nothing */ }
+GParameterSetConstraint::GParameterSetConstraint(const GParameterSetConstraint &cp)
+	: GPreEvaluationValidityCheckT<GOptimizableEntity>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GParameterSetConstraint::~GParameterSetConstraint()
-{ /* nothing */ }
+GParameterSetConstraint::~GParameterSetConstraint() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GParameterSetConstraint& GParameterSetConstraint::operator=(const GParameterSetConstraint& cp) {
-   this->load_(&cp);
-   return *this;
+const GParameterSetConstraint &GParameterSetConstraint::operator=(const GParameterSetConstraint &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
 /**
  * Checks for equality with another GIndividualConstraint object
  */
-bool GParameterSetConstraint::operator==(const GParameterSetConstraint& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GParameterSetConstraint::operator==(const GParameterSetConstraint &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
 /**
  * Checks for inequality with another GIndividualConstraint object
  */
-bool GParameterSetConstraint::operator!=(const GParameterSetConstraint& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GParameterSetConstraint::operator!=(const GParameterSetConstraint &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -110,24 +107,22 @@ bool GParameterSetConstraint::operator!=(const GParameterSetConstraint& cp) cons
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GParameterSetConstraint::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GParameterSetConstraint *p_load = GObject::gobject_conversion<GParameterSetConstraint>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GParameterSetConstraint *p_load = GObject::gobject_conversion<GParameterSetConstraint>(&cp);
 
-   GToken token("GParameterSetConstraint", e);
+	GToken token("GParameterSetConstraint", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GPreEvaluationValidityCheckT<GOptimizableEntity> >(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GPreEvaluationValidityCheckT<GOptimizableEntity> >(IDENTITY(*this, *p_load), token);
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/
@@ -135,10 +130,10 @@ void GParameterSetConstraint::compare(
  * Adds local configuration options to a GParserBuilder object
  */
 void GParameterSetConstraint::addConfigurationOptions(
-   Gem::Common::GParserBuilder& gpb
+	Gem::Common::GParserBuilder &gpb
 ) {
-   // Call our parent class'es function
-   GPreEvaluationValidityCheckT<GOptimizableEntity>::addConfigurationOptions(gpb);
+	// Call our parent class'es function
+	GPreEvaluationValidityCheckT<GOptimizableEntity>::addConfigurationOptions(gpb);
 }
 
 /******************************************************************************/
@@ -146,25 +141,25 @@ void GParameterSetConstraint::addConfigurationOptions(
  * Checks whether a given individual is valid
  */
 double GParameterSetConstraint::check_(
-   const GOptimizableEntity * p_raw
+	const GOptimizableEntity *p_raw
 ) const {
-   const GParameterSet * p = Gem::Common::convertSimplePointer<GOptimizableEntity, GParameterSet>(p_raw);
-   return this->check_(p);
+	const GParameterSet *p = Gem::Common::convertSimplePointer<GOptimizableEntity, GParameterSet>(p_raw);
+	return this->check_(p);
 }
 
 /******************************************************************************/
 /**
  * Loads the data of another GParameterSetConstraint
  */
-void GParameterSetConstraint::load_(const GObject* cp) {
-   // Check that we are indeed dealing with an object of the same type and that we are not
-   // accidently trying to compare this object with itself.
-   const GParameterSetConstraint *p_load = GObject::gobject_conversion<GParameterSetConstraint>(cp);
+void GParameterSetConstraint::load_(const GObject *cp) {
+	// Check that we are indeed dealing with an object of the same type and that we are not
+	// accidently trying to compare this object with itself.
+	const GParameterSetConstraint *p_load = GObject::gobject_conversion<GParameterSetConstraint>(cp);
 
-   // Load our parent class'es data ...
-   GPreEvaluationValidityCheckT<GOptimizableEntity>::load_(cp);
+	// Load our parent class'es data ...
+	GPreEvaluationValidityCheckT<GOptimizableEntity>::load_(cp);
 
-   // no local data
+	// no local data
 }
 
 /******************************************************************************/
@@ -173,59 +168,54 @@ void GParameterSetConstraint::load_(const GObject* cp) {
 /**
  * The default constructor -- private, only needed for (de-)serialization
  */
-GParameterSetFormulaConstraint::GParameterSetFormulaConstraint()
-{ /* nothing */ }
+GParameterSetFormulaConstraint::GParameterSetFormulaConstraint() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * A constructor that accepts a formula in string form as its argument
  */
 GParameterSetFormulaConstraint::GParameterSetFormulaConstraint(std::string rawFormula)
-   : rawFormula_(rawFormula)
-{ /* nothing */ }
+	: rawFormula_(rawFormula) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The copy constructor
  */
-GParameterSetFormulaConstraint::GParameterSetFormulaConstraint(const GParameterSetFormulaConstraint& cp)
-   : GParameterSetConstraint(cp)
-   , rawFormula_(cp.rawFormula_)
-{ /* nothing */ }
+GParameterSetFormulaConstraint::GParameterSetFormulaConstraint(const GParameterSetFormulaConstraint &cp)
+	: GParameterSetConstraint(cp), rawFormula_(cp.rawFormula_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GParameterSetFormulaConstraint::~GParameterSetFormulaConstraint()
-{ /* nothing */ }
+GParameterSetFormulaConstraint::~GParameterSetFormulaConstraint() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Checks for equality with another GIndividualConstraint object
  */
-bool GParameterSetFormulaConstraint::operator==(const GParameterSetFormulaConstraint& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GParameterSetFormulaConstraint::operator==(const GParameterSetFormulaConstraint &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
 /**
  * Checks for inequality with another GIndividualConstraint object
  */
-bool GParameterSetFormulaConstraint::operator!=(const GParameterSetFormulaConstraint& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GParameterSetFormulaConstraint::operator!=(const GParameterSetFormulaConstraint &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -238,25 +228,23 @@ bool GParameterSetFormulaConstraint::operator!=(const GParameterSetFormulaConstr
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GParameterSetFormulaConstraint::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GParameterSetFormulaConstraint *p_load = GObject::gobject_conversion<GParameterSetFormulaConstraint>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GParameterSetFormulaConstraint *p_load = GObject::gobject_conversion<GParameterSetFormulaConstraint>(&cp);
 
-   GToken token("GParameterSetFormulaConstraint", e);
+	GToken token("GParameterSetFormulaConstraint", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GParameterSetConstraint>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GParameterSetConstraint>(IDENTITY(*this, *p_load), token);
 
-   // ... and then the local data
-   compare_t(IDENTITY(rawFormula_, p_load->rawFormula_), token);
+	// ... and then the local data
+	compare_t(IDENTITY(rawFormula_, p_load->rawFormula_), token);
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/
@@ -264,10 +252,10 @@ void GParameterSetFormulaConstraint::compare(
  * Adds local configuration options to a GParserBuilder object
  */
 void GParameterSetFormulaConstraint::addConfigurationOptions(
-   Gem::Common::GParserBuilder& gpb
+	Gem::Common::GParserBuilder &gpb
 ) {
-   // Call our parent class'es function
-   GParameterSetConstraint::addConfigurationOptions(gpb);
+	// Call our parent class'es function
+	GParameterSetConstraint::addConfigurationOptions(gpb);
 }
 
 /******************************************************************************/
@@ -280,49 +268,49 @@ void GParameterSetFormulaConstraint::addConfigurationOptions(
  * TODO: Make this work for all parameter types
  */
 double GParameterSetFormulaConstraint::check_(
-   const GParameterSet * p
+	const GParameterSet *p
 ) const {
-   std::map<std::string, std::vector<double> > parameterValues;
+	std::map<std::string, std::vector<double> > parameterValues;
 
-   p->streamline(parameterValues); // Extract the parameter values including names
-   Gem::Common::GFormulaParserT<double> f(rawFormula_); // Create the parser
+	p->streamline(parameterValues); // Extract the parameter values including names
+	Gem::Common::GFormulaParserT<double> f(rawFormula_); // Create the parser
 
-   try {
-      return f(parameterValues); // Parse the formula. This may throw a Gem::Common::math_logic_error
-   } catch(Gem::Common::math_logic_error& m) {
-      glogger
-      << "In GParameterSetFormulaConstraint::check_(): WARNING" << std::endl
-      << "Caught Gem::Common::math_logic_error with message" << std::endl
-      << m.what() << std::endl
-      << "We will return MAX_DOUBLE" << std::endl
-      << GWARNING;
+	try {
+		return f(parameterValues); // Parse the formula. This may throw a Gem::Common::math_logic_error
+	} catch (Gem::Common::math_logic_error &m) {
+		glogger
+		<< "In GParameterSetFormulaConstraint::check_(): WARNING" << std::endl
+		<< "Caught Gem::Common::math_logic_error with message" << std::endl
+		<< m.what() << std::endl
+		<< "We will return MAX_DOUBLE" << std::endl
+		<< GWARNING;
 
-      return boost::numeric::bounds<double>::highest();
-   }
+		return boost::numeric::bounds<double>::highest();
+	}
 }
 
 /******************************************************************************/
 /**
  * Loads the data of another GParameterSetFormulaConstraint
  */
-void GParameterSetFormulaConstraint::load_(const GObject* cp) {
-   // Check that we are indeed dealing with an object of the same type and that we are not
-   // accidently trying to compare this object with itself.
-   const GParameterSetFormulaConstraint *p_load = GObject::gobject_conversion<GParameterSetFormulaConstraint>(cp);
+void GParameterSetFormulaConstraint::load_(const GObject *cp) {
+	// Check that we are indeed dealing with an object of the same type and that we are not
+	// accidently trying to compare this object with itself.
+	const GParameterSetFormulaConstraint *p_load = GObject::gobject_conversion<GParameterSetFormulaConstraint>(cp);
 
-   // Load our parent class'es data ...
-   GPreEvaluationValidityCheckT<GOptimizableEntity>::load_(cp);
+	// Load our parent class'es data ...
+	GPreEvaluationValidityCheckT<GOptimizableEntity>::load_(cp);
 
-   // ... and then our local data
-   rawFormula_ = p_load->rawFormula_;
+	// ... and then our local data
+	rawFormula_ = p_load->rawFormula_;
 }
 
 /******************************************************************************/
 /**
  * Returns a deep clone of this object
  */
-GObject* GParameterSetFormulaConstraint::clone_() const {
-   return new GParameterSetFormulaConstraint(*this);
+GObject *GParameterSetFormulaConstraint::clone_() const {
+	return new GParameterSetFormulaConstraint(*this);
 }
 
 /******************************************************************************/

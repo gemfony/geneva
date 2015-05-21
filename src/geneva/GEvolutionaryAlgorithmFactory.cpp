@@ -46,18 +46,17 @@ G_API_GENEVA const std::string GEvolutionaryAlgorithmFactory::nickname = "ea";
  * The default constructor
  */
 GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory()
-   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >("./config/GEvolutionaryAlgorithm.json")
-{ /* nothing */ }
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(
+	"./config/GEvolutionaryAlgorithm.json") { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization with the name of the config file and the default parallelization mode
  */
 GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
-      const std::string& configFile
+	const std::string &configFile
 )
-   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile)
-{ /* nothing */ }
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -65,38 +64,34 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
  * target item as needed.
  */
 GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
-	const std::string& configFile
-	, const execMode& pm
+	const std::string &configFile, const execMode &pm
 )
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm)
-{ /* nothing */ }
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * A constructor with the ability to switch the parallelization mode and
  * to add a content creator. It initializes a target item as needed.
  */
-GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory (
-   const std::string& configFile
-   , const execMode& pm
-   , std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr
+GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
+	const std::string &configFile, const execMode &pm,
+	std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm, contentCreatorPtr)
-{ /* nothing */ }
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm,
+																									  contentCreatorPtr) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GEvolutionaryAlgorithmFactory::~GEvolutionaryAlgorithmFactory()
-{ /* nothing */ }
+GEvolutionaryAlgorithmFactory::~GEvolutionaryAlgorithmFactory() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Gives access to the mnemonics / nickname describing an algorithm
  */
 std::string GEvolutionaryAlgorithmFactory::getMnemonic() const {
-   return GEvolutionaryAlgorithmFactory::nickname;
+	return GEvolutionaryAlgorithmFactory::nickname;
 }
 
 /******************************************************************************/
@@ -104,7 +99,7 @@ std::string GEvolutionaryAlgorithmFactory::getMnemonic() const {
  * Gives access to a clear-text description of the algorithm
  */
 std::string GEvolutionaryAlgorithmFactory::getAlgorithmName() const {
-   return std::string("Evolutionary Algorithm");
+	return std::string("Evolutionary Algorithm");
 }
 
 /******************************************************************************/
@@ -113,26 +108,25 @@ std::string GEvolutionaryAlgorithmFactory::getAlgorithmName() const {
  *
  * @return Items of the desired type
  */
-std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GEvolutionaryAlgorithmFactory::getObject_(
-	Gem::Common::GParserBuilder& gpb
-	, const std::size_t& id
+std::shared_ptr <GOptimizationAlgorithmT<GParameterSet>> GEvolutionaryAlgorithmFactory::getObject_(
+	Gem::Common::GParserBuilder &gpb, const std::size_t &id
 ) {
 	// Will hold the result
-	std::shared_ptr<GBaseEA> target;
+	std::shared_ptr <GBaseEA> target;
 
 	// Fill the target pointer as required
-	switch(pm_) {
-	case EXECMODE_SERIAL:
-		target = std::shared_ptr<GSerialEA>(new GSerialEA());
-		break;
+	switch (pm_) {
+		case EXECMODE_SERIAL:
+			target = std::shared_ptr<GSerialEA>(new GSerialEA());
+			break;
 
-	case EXECMODE_MULTITHREADED:
-		target = std::shared_ptr<GMultiThreadedEA>(new GMultiThreadedEA());
-		break;
+		case EXECMODE_MULTITHREADED:
+			target = std::shared_ptr<GMultiThreadedEA>(new GMultiThreadedEA());
+			break;
 
-	case EXECMODE_BROKERAGE:
-		target = std::shared_ptr<GBrokerEA>(new GBrokerEA());
-		break;
+		case EXECMODE_BROKERAGE:
+			target = std::shared_ptr<GBrokerEA>(new GBrokerEA());
+			break;
 	}
 
 	// Make the local configuration options known (up to the level of GBaseEA)
@@ -149,32 +143,30 @@ std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GEvolutionaryAlgorithmF
  * @param p A smart-pointer to be acted on during post-processing
  */
 void GEvolutionaryAlgorithmFactory::postProcess_(
-      std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >& p_base
+	std::shared_ptr < GOptimizationAlgorithmT<GParameterSet> > &p_base
 ) {
 	// Convert the object to the correct target type
-	switch(pm_) {
-	case EXECMODE_SERIAL:
-		// nothing
-		break;
+	switch (pm_) {
+		case EXECMODE_SERIAL:
+			// nothing
+			break;
 
-	case EXECMODE_MULTITHREADED:
-		{
-			std::shared_ptr<GMultiThreadedEA> p
-			   = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedEA>(p_base);
+		case EXECMODE_MULTITHREADED: {
+			std::shared_ptr <GMultiThreadedEA> p
+				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedEA>(p_base);
 			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
 		}
-		break;
+			break;
 
-	case EXECMODE_BROKERAGE:
-		{
-			std::shared_ptr<GBrokerEA> p
-			   = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerEA>(p_base);
+		case EXECMODE_BROKERAGE: {
+			std::shared_ptr <GBrokerEA> p
+				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerEA>(p_base);
 
-         p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
+			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
 			p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::doLogging_);
 			p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::waitFactor_);
 		}
-		break;
+			break;
 	}
 
 	// Call our parent class'es function

@@ -41,8 +41,7 @@ namespace Geneva {
 /**
  * The destructor
  */
-GRateableI::~GRateableI()
-{ /* nothing */ }
+GRateableI::~GRateableI() { /* nothing */ }
 
 /******************************************************************************/
 

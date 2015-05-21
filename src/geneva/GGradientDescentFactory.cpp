@@ -46,20 +46,18 @@ G_API_GENEVA const std::string GGradientDescentFactory::nickname = "gd";
  * The default constructor
  */
 GGradientDescentFactory::GGradientDescentFactory()
-   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >("./config/GGradientDescent.json")
-   , maxResubmissions_(5)
-{ /* nothing */ }
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >("./config/GGradientDescent.json"),
+	  maxResubmissions_(5) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization with the name of the config file and the default parallelization mode
  */
 GGradientDescentFactory::GGradientDescentFactory(
-      const std::string& configFile
+	const std::string &configFile
 )
-   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile)
-   , maxResubmissions_(5)
-{ /* nothing */ }
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile),
+	  maxResubmissions_(5) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -67,12 +65,10 @@ GGradientDescentFactory::GGradientDescentFactory(
  * target item as needed.
  */
 GGradientDescentFactory::GGradientDescentFactory(
-	const std::string& configFile
-	, const execMode& pm
+	const std::string &configFile, const execMode &pm
 )
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm)
-	, maxResubmissions_(0)
-{ /* nothing */ }
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm),
+	  maxResubmissions_(0) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -80,27 +76,24 @@ GGradientDescentFactory::GGradientDescentFactory(
  * to add a content creator. It initializes a target item as needed.
  */
 GGradientDescentFactory::GGradientDescentFactory(
-   const std::string& configFile
-   , const execMode& pm
-   , std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr
+	const std::string &configFile, const execMode &pm,
+	std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-   : GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm, contentCreatorPtr)
-   , maxResubmissions_(5)
-{ /* nothing */ }
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm, contentCreatorPtr),
+	  maxResubmissions_(5) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GGradientDescentFactory::~GGradientDescentFactory()
-{ /* nothing */ }
+GGradientDescentFactory::~GGradientDescentFactory() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Gives access to the mnemonics / nickname describing an algorithm
  */
 std::string GGradientDescentFactory::getMnemonic() const {
-   return GGradientDescentFactory::nickname;
+	return GGradientDescentFactory::nickname;
 }
 
 /******************************************************************************/
@@ -108,7 +101,7 @@ std::string GGradientDescentFactory::getMnemonic() const {
  * Gives access to a clear-text description of the algorithm
  */
 std::string GGradientDescentFactory::getAlgorithmName() const {
-   return std::string("Gradient Descent");
+	return std::string("Gradient Descent");
 }
 
 /******************************************************************************/
@@ -117,26 +110,25 @@ std::string GGradientDescentFactory::getAlgorithmName() const {
  *
  * @return Items of the desired type
  */
-std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GGradientDescentFactory::getObject_(
-	Gem::Common::GParserBuilder& gpb
-	, const std::size_t& id
+std::shared_ptr <GOptimizationAlgorithmT<GParameterSet>> GGradientDescentFactory::getObject_(
+	Gem::Common::GParserBuilder &gpb, const std::size_t &id
 ) {
 	// Will hold the result
-	std::shared_ptr<GBaseGD> target;
+	std::shared_ptr <GBaseGD> target;
 
 	// Fill the target pointer as required
-	switch(pm_) {
-	case EXECMODE_SERIAL:
-		target = std::shared_ptr<GSerialGD>(new GSerialGD());
-		break;
+	switch (pm_) {
+		case EXECMODE_SERIAL:
+			target = std::shared_ptr<GSerialGD>(new GSerialGD());
+			break;
 
-	case EXECMODE_MULTITHREADED:
-		target = std::shared_ptr<GMultiThreadedGD>(new GMultiThreadedGD());
-		break;
+		case EXECMODE_MULTITHREADED:
+			target = std::shared_ptr<GMultiThreadedGD>(new GMultiThreadedGD());
+			break;
 
-	case EXECMODE_BROKERAGE:
-		target = std::shared_ptr<GBrokerGD>(new GBrokerGD());
-		break;
+		case EXECMODE_BROKERAGE:
+			target = std::shared_ptr<GBrokerGD>(new GBrokerGD());
+			break;
 	}
 
 	// Make the local configuration options known
@@ -149,7 +141,7 @@ std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > GGradientDescentFactory
 /**
  * Allows to describe local configuration options for gradient descents
  */
-void GGradientDescentFactory::describeLocalOptions_(Gem::Common::GParserBuilder& gpb) {
+void GGradientDescentFactory::describeLocalOptions_(Gem::Common::GParserBuilder &gpb) {
 	// Describe our own options
 	using namespace Gem::Courtier;
 
@@ -158,11 +150,7 @@ void GGradientDescentFactory::describeLocalOptions_(Gem::Common::GParserBuilder&
 	comment = "";
 	comment += "The maximum number of allowed re-submissions in an iteration;";
 	gpb.registerFileParameter<std::size_t>(
-		"maxResubmissions"
-		, maxResubmissions_
-		, DEFAULTMAXRESUBMISSIONS
-		, Gem::Common::VAR_IS_ESSENTIAL
-		, comment
+		"maxResubmissions", maxResubmissions_, DEFAULTMAXRESUBMISSIONS, Gem::Common::VAR_IS_ESSENTIAL, comment
 	);
 
 	// Allow our parent class to describe its options
@@ -176,37 +164,35 @@ void GGradientDescentFactory::describeLocalOptions_(Gem::Common::GParserBuilder&
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GGradientDescentFactory::postProcess_(std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >& p_base) {
+void GGradientDescentFactory::postProcess_(std::shared_ptr < GOptimizationAlgorithmT<GParameterSet> > &p_base) {
 	// Convert the object to the correct target type
-	switch(pm_) {
-	case EXECMODE_SERIAL:
-		// nothing
-		break;
+	switch (pm_) {
+		case EXECMODE_SERIAL:
+			// nothing
+			break;
 
-	case EXECMODE_MULTITHREADED:
-		{
-			std::shared_ptr<GMultiThreadedGD> p
-			   = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedGD>(p_base);
+		case EXECMODE_MULTITHREADED: {
+			std::shared_ptr <GMultiThreadedGD> p
+				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedGD>(p_base);
 			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
 		}
-		break;
+			break;
 
-	case EXECMODE_BROKERAGE:
-		{
-			std::shared_ptr<GBrokerGD> p
-            = Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerGD>(p_base);
+		case EXECMODE_BROKERAGE: {
+			std::shared_ptr <GBrokerGD> p
+				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerGD>(p_base);
 
-         p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::doLogging_);
-         p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::waitFactor_);
+			p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::doLogging_);
+			p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::waitFactor_);
 
 			// This differs from e.g. GEvolutionaryAlgorithmFactory
 			p->setMaxResubmissions(maxResubmissions_);
 		}
-		break;
+			break;
 	}
 
-   // Call our parent class'es function
-   GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::postProcess_(p_base);
+	// Call our parent class'es function
+	GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::postProcess_(p_base);
 }
 
 /******************************************************************************/

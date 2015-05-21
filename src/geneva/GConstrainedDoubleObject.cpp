@@ -44,8 +44,7 @@ namespace Geneva {
  * The default constructor
  */
 GConstrainedDoubleObject::GConstrainedDoubleObject()
-	: GConstrainedFPT<double>()
-{ /* nothing */ }
+	: GConstrainedFPT<double>() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -55,11 +54,9 @@ GConstrainedDoubleObject::GConstrainedDoubleObject()
  * @param upperBoundary The upper boundary of the value range
  */
 GConstrainedDoubleObject::GConstrainedDoubleObject(
-   const double& lowerBoundary
-   , const double& upperBoundary
+	const double &lowerBoundary, const double &upperBoundary
 )
-	: GConstrainedFPT<double>(lowerBoundary, upperBoundary)
-{ /* nothing */ }
+	: GConstrainedFPT<double>(lowerBoundary, upperBoundary) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -69,13 +66,10 @@ GConstrainedDoubleObject::GConstrainedDoubleObject(
  * @param lowerBoundary The lower boundary of the value range
  * @param upperBoundary The upper boundary of the value range
  */
-GConstrainedDoubleObject::GConstrainedDoubleObject (
-     const double& val
-   , const double& lowerBoundary
-   , const double& upperBoundary
+GConstrainedDoubleObject::GConstrainedDoubleObject(
+	const double &val, const double &lowerBoundary, const double &upperBoundary
 )
-	: GConstrainedFPT<double>(val, lowerBoundary, upperBoundary)
-{ /* nothing */ }
+	: GConstrainedFPT<double>(val, lowerBoundary, upperBoundary) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -83,9 +77,8 @@ GConstrainedDoubleObject::GConstrainedDoubleObject (
  *
  * @param cp A copy of another GConstrainedDoubleObject object
  */
-GConstrainedDoubleObject::GConstrainedDoubleObject(const GConstrainedDoubleObject& cp)
-	: GConstrainedFPT<double>(cp)
-{ /* nothing */ }
+GConstrainedDoubleObject::GConstrainedDoubleObject(const GConstrainedDoubleObject &cp)
+	: GConstrainedFPT<double>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -93,26 +86,24 @@ GConstrainedDoubleObject::GConstrainedDoubleObject(const GConstrainedDoubleObjec
  *
  * @param val A value used for the initialization
  */
-GConstrainedDoubleObject::GConstrainedDoubleObject(const double& val)
-	: GConstrainedFPT<double>(val)
-{ /* nothing */ }
+GConstrainedDoubleObject::GConstrainedDoubleObject(const double &val)
+	: GConstrainedFPT<double>(val) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GConstrainedDoubleObject::~GConstrainedDoubleObject()
-{ /* nothing */ }
+GConstrainedDoubleObject::~GConstrainedDoubleObject() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GConstrainedDoubleObject& GConstrainedDoubleObject::operator=(
-   const GConstrainedDoubleObject& cp
+const GConstrainedDoubleObject &GConstrainedDoubleObject::operator=(
+	const GConstrainedDoubleObject &cp
 ) {
-   this->load_(&cp);
-   return *this;
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -122,7 +113,7 @@ const GConstrainedDoubleObject& GConstrainedDoubleObject::operator=(
  * @param val The value to be assigned to this object
  * @return The value that was just assigned to this object
  */
-double GConstrainedDoubleObject::operator=(const double& val) {
+double GConstrainedDoubleObject::operator=(const double &val) {
 	return GConstrainedFPT<double>::operator=(val);
 }
 
@@ -132,7 +123,7 @@ double GConstrainedDoubleObject::operator=(const double& val) {
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GConstrainedDoubleObject::clone_() const {
+GObject *GConstrainedDoubleObject::clone_() const {
 	return new GConstrainedDoubleObject(*this);
 }
 
@@ -143,14 +134,14 @@ GObject* GConstrainedDoubleObject::clone_() const {
  * @param  cp A constant reference to another GConstrainedDoubleObject object
  * @return A boolean indicating whether both objects are equal
  */
-bool GConstrainedDoubleObject::operator==(const GConstrainedDoubleObject& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GConstrainedDoubleObject::operator==(const GConstrainedDoubleObject &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -160,14 +151,14 @@ bool GConstrainedDoubleObject::operator==(const GConstrainedDoubleObject& cp) co
  * @param  cp A constant reference to another GConstrainedDoubleObject object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GConstrainedDoubleObject::operator!=(const GConstrainedDoubleObject& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GConstrainedDoubleObject::operator!=(const GConstrainedDoubleObject &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -180,24 +171,22 @@ bool GConstrainedDoubleObject::operator!=(const GConstrainedDoubleObject& cp) co
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GConstrainedDoubleObject::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GConstrainedDoubleObject *p_load = GObject::gobject_conversion<GConstrainedDoubleObject>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GConstrainedDoubleObject *p_load = GObject::gobject_conversion<GConstrainedDoubleObject>(&cp);
 
-   GToken token("GConstrainedDoubleObject", e);
+	GToken token("GConstrainedDoubleObject", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GConstrainedFPT<double> >(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GConstrainedFPT<double> >(IDENTITY(*this, *p_load), token);
 
-   // .... no local data
+	// .... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -205,7 +194,7 @@ void GConstrainedDoubleObject::compare(
  * Emits a name for this class / object
  */
 std::string GConstrainedDoubleObject::name() const {
-   return std::string("GConstrainedDoubleObject");
+	return std::string("GConstrainedDoubleObject");
 }
 
 /******************************************************************************/
@@ -216,10 +205,9 @@ std::string GConstrainedDoubleObject::name() const {
  * @param parVec The vector to which the local value should be attached
  */
 void GConstrainedDoubleObject::doubleStreamline(
-   std::vector<double>& parVec
-   , const activityMode& am
+	std::vector<double> &parVec, const activityMode &am
 ) const {
-   // Note: application of the transfer function happens in GConstrainedNumT inside value()
+	// Note: application of the transfer function happens in GConstrainedNumT inside value()
 	parVec.push_back(this->value());
 }
 
@@ -230,14 +218,12 @@ void GConstrainedDoubleObject::doubleStreamline(
  * @param parVec The map to which the local value should be attached
  */
 void GConstrainedDoubleObject::doubleStreamline(
-   std::map<std::string
-   , std::vector<double> >& parVec
-   , const activityMode& am
+	std::map<std::string, std::vector<double> > &parVec, const activityMode &am
 ) const {
-   std::vector<double> parameters;
-   // Note: application of the transfer function happens in GConstrainedNumT inside value()
-   parameters.push_back(this->value());
-   parVec[this->getParameterName()]=parameters;
+	std::vector<double> parameters;
+	// Note: application of the transfer function happens in GConstrainedNumT inside value()
+	parameters.push_back(this->value());
+	parVec[this->getParameterName()] = parameters;
 }
 
 /******************************************************************************/
@@ -248,9 +234,7 @@ void GConstrainedDoubleObject::doubleStreamline(
  * @param uBndVec A vector of upper double parameter boundaries
  */
 void GConstrainedDoubleObject::doubleBoundaries(
-   std::vector<double>& lBndVec
-   , std::vector<double>& uBndVec
-   , const activityMode& am
+	std::vector<double> &lBndVec, std::vector<double> &uBndVec, const activityMode &am
 ) const {
 	lBndVec.push_back(this->getLowerBoundary());
 	uBndVec.push_back(this->getUpperBoundary());
@@ -264,9 +248,9 @@ void GConstrainedDoubleObject::doubleBoundaries(
  * @return The number 1, as we own a single double parameter
  */
 std::size_t GConstrainedDoubleObject::countDoubleParameters(
-   const activityMode& am
+	const activityMode &am
 ) const {
-   return 1;
+	return 1;
 }
 
 /******************************************************************************/
@@ -275,9 +259,7 @@ std::size_t GConstrainedDoubleObject::countDoubleParameters(
  * the parameter value, so that it lies inside of the allowed value range.
  */
 void GConstrainedDoubleObject::assignDoubleValueVector(
-   const std::vector<double>& parVec
-   , std::size_t& pos
-   , const activityMode& am
+	const std::vector<double> &parVec, std::size_t &pos, const activityMode &am
 ) {
 #ifdef DEBUG
 	// Do we have a valid position ?
@@ -298,17 +280,15 @@ void GConstrainedDoubleObject::assignDoubleValueVector(
  * Assigns part of a value map to the parameter
  */
 void GConstrainedDoubleObject::assignDoubleValueVectors(
-   const std::map<std::string, std::vector<double> >& parMap
-   , const activityMode& am
+	const std::map<std::string, std::vector<double> > &parMap, const activityMode &am
 ) {
-   this->setValue(
-      this->transfer(
-         Gem::Common::getMapItem(
-            parMap
-            ,this->getParameterName()
-         ).at(0)
-      )
-   );
+	this->setValue(
+		this->transfer(
+			Gem::Common::getMapItem(
+				parMap, this->getParameterName()
+			).at(0)
+		)
+	);
 }
 
 /******************************************************************************/
@@ -316,16 +296,14 @@ void GConstrainedDoubleObject::assignDoubleValueVectors(
  * Multiplication with a random value in a given range
  */
 void GConstrainedDoubleObject::doubleMultiplyByRandom(
-   const double& min
-   , const double& max
-   , const activityMode& am
+	const double &min, const double &max, const activityMode &am
 ) {
-   GParameterT<double>::setValue(
-      transfer(
-         GParameterT<double>::value() *
-         this->GObject::gr_ptr()->uniform_real<double>(min, max)
-      )
-   );
+	GParameterT<double>::setValue(
+		transfer(
+			GParameterT<double>::value() *
+			this->GObject::gr_ptr()->uniform_real<double>(min, max)
+		)
+	);
 }
 
 /******************************************************************************/
@@ -333,14 +311,14 @@ void GConstrainedDoubleObject::doubleMultiplyByRandom(
  * Multiplication with a random value in the range [0,1[
  */
 void GConstrainedDoubleObject::doubleMultiplyByRandom(
-   const activityMode& am
+	const activityMode &am
 ) {
-   GParameterT<double>::setValue(
-      transfer(
-         GParameterT<double>::value() *
-         this->GObject::gr_ptr()->uniform_01<double>()
-      )
-   );
+	GParameterT<double>::setValue(
+		transfer(
+			GParameterT<double>::value() *
+			this->GObject::gr_ptr()->uniform_01<double>()
+		)
+	);
 }
 
 /******************************************************************************/
@@ -348,10 +326,9 @@ void GConstrainedDoubleObject::doubleMultiplyByRandom(
  * Multiplication with a constant value
  */
 void GConstrainedDoubleObject::doubleMultiplyBy(
-   const double& val
-   , const activityMode& am
+	const double &val, const activityMode &am
 ) {
-   GParameterT<double>::setValue(transfer(val * GParameterT<double>::value()));
+	GParameterT<double>::setValue(transfer(val * GParameterT<double>::value()));
 }
 
 /******************************************************************************/
@@ -359,10 +336,9 @@ void GConstrainedDoubleObject::doubleMultiplyBy(
  * Initialization with a constant value
  */
 void GConstrainedDoubleObject::doubleFixedValueInit(
-   const double& val
-   , const activityMode& am
+	const double &val, const activityMode &am
 ) {
-   GParameterT<double>::setValue(transfer(val));
+	GParameterT<double>::setValue(transfer(val));
 }
 
 /******************************************************************************/
@@ -370,13 +346,13 @@ void GConstrainedDoubleObject::doubleFixedValueInit(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GConstrainedDoubleObject::doubleAdd(
-   std::shared_ptr<GParameterBase> p_base
-   , const activityMode& am
+	std::shared_ptr < GParameterBase > p_base, const
+activityMode &am
 ) {
-   // We first need to convert p_base into the local type
-   std::shared_ptr<GConstrainedDoubleObject> p
-      = GParameterBase::parameterbase_cast<GConstrainedDoubleObject>(p_base);
-   GParameterT<double>::setValue(transfer(this->value() + p->value()));
+// We first need to convert p_base into the local type
+std::shared_ptr <GConstrainedDoubleObject> p
+	= GParameterBase::parameterbase_cast<GConstrainedDoubleObject>(p_base);
+GParameterT<double>::setValue(transfer(this->value() + p->value()));
 }
 
 /******************************************************************************/
@@ -384,13 +360,13 @@ void GConstrainedDoubleObject::doubleAdd(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GConstrainedDoubleObject::doubleSubtract(
-   std::shared_ptr<GParameterBase> p_base
-   , const activityMode& am
+	std::shared_ptr < GParameterBase > p_base, const
+activityMode &am
 ) {
-   // We first need to convert p_base into the local type
-   std::shared_ptr<GConstrainedDoubleObject> p
-      = GParameterBase::parameterbase_cast<GConstrainedDoubleObject>(p_base);
-   GParameterT<double>::setValue(transfer(this->value() - p->value()));
+// We first need to convert p_base into the local type
+std::shared_ptr <GConstrainedDoubleObject> p
+	= GParameterBase::parameterbase_cast<GConstrainedDoubleObject>(p_base);
+GParameterT<double>::setValue(transfer(this->value() - p->value()));
 }
 
 
@@ -400,9 +376,9 @@ void GConstrainedDoubleObject::doubleSubtract(
  *
  * @param cp A copy of another GConstrainedDoubleObject object, camouflaged as a GObject
  */
-void GConstrainedDoubleObject::load_(const GObject* cp){
+void GConstrainedDoubleObject::load_(const GObject *cp) {
 	// Check for a possible self-assignment
-    GObject::selfAssignmentCheck<GConstrainedDoubleObject>(cp);
+	GObject::selfAssignmentCheck<GConstrainedDoubleObject>(cp);
 
 	// Load our parent class'es data ...
 	GConstrainedFPT<double>::load_(cp);
@@ -421,7 +397,7 @@ bool GConstrainedDoubleObject::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GConstrainedFPT<double>::modify_GUnitTests()) result = true;
+	if (GConstrainedFPT<double>::modify_GUnitTests()) result = true;
 
 	return result;
 
@@ -447,14 +423,14 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
-	std::shared_ptr<GAdaptorT<double> > storedAdaptor;
+	std::shared_ptr <GAdaptorT<double>> storedAdaptor;
 
-	if(this->hasAdaptor()) {
+	if (this->hasAdaptor()) {
 		storedAdaptor = this->getAdaptor();
 		adaptorStored = true;
 	}
 
-	std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0));
+	std::shared_ptr <GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0));
 	gdga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	gdga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(gdga_ptr);
@@ -465,7 +441,7 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check that assignment of a value with operator= works both for set and unset boundaries
-		std::shared_ptr<GConstrainedDoubleObject> p_test = this->GObject::clone<GConstrainedDoubleObject>();
+		std::shared_ptr <GConstrainedDoubleObject> p_test = this->GObject::clone<GConstrainedDoubleObject>();
 
 		// Reset the boundaries so we are free to do what we want
 		BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
@@ -492,32 +468,31 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check construction with two boundaries plus initialization with a random value and extraction of that value
-		std::shared_ptr<GConstrainedDoubleObject> p_test(new GConstrainedDoubleObject(0.3, 0.6));
+		std::shared_ptr <GConstrainedDoubleObject> p_test(new GConstrainedDoubleObject(0.3, 0.6));
 		BOOST_CHECK_NO_THROW(testVal3 = p_test->value());
 	}
 
-   // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
-   { // Check construction with two boundaries and a value and extraction of that value
-      const double TESTVAL = 0.4;
-      std::shared_ptr<GConstrainedDoubleObject> p_test(new GConstrainedDoubleObject(0.4, 0.3, 0.6));
-      BOOST_CHECK_NO_THROW(testVal3 = p_test->value());
-      BOOST_CHECK(testVal3 == TESTVAL);
-   }
+	{ // Check construction with two boundaries and a value and extraction of that value
+		const double TESTVAL = 0.4;
+		std::shared_ptr <GConstrainedDoubleObject> p_test(new GConstrainedDoubleObject(0.4, 0.3, 0.6));
+		BOOST_CHECK_NO_THROW(testVal3 = p_test->value());
+		BOOST_CHECK(testVal3 == TESTVAL);
+	}
 
-   // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
-   { // Check that repeated retrieval of the value always yields the same value
-      const double TESTVAL = 0.4;
-      std::shared_ptr<GConstrainedDoubleObject> p_test(new GConstrainedDoubleObject(0.4, 0.3, 0.6));
-      for(std::size_t i=0; i<NTESTS; i++) {
-         BOOST_CHECK_NO_THROW(testVal3 = p_test->value());
-         BOOST_CHECK_MESSAGE(
-               testVal3 == TESTVAL
-               , "The value has changed: " << testVal3 << " / " << TESTVAL
-         );
-      }
-   }
+	{ // Check that repeated retrieval of the value always yields the same value
+		const double TESTVAL = 0.4;
+		std::shared_ptr <GConstrainedDoubleObject> p_test(new GConstrainedDoubleObject(0.4, 0.3, 0.6));
+		for (std::size_t i = 0; i < NTESTS; i++) {
+			BOOST_CHECK_NO_THROW(testVal3 = p_test->value());
+			BOOST_CHECK_MESSAGE(
+				testVal3 == TESTVAL, "The value has changed: " << testVal3 << " / " << TESTVAL
+			);
+		}
+	}
 
 	// --------------------------------------------------------------------------
 
@@ -525,11 +500,11 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	this->resetAdaptor();
 
 	// Load the old adaptor, if needed
-	if(adaptorStored) {
+	if (adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
 
-   // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -544,14 +519,14 @@ void GConstrainedDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
-	std::shared_ptr<GAdaptorT<double> > storedAdaptor;
+	std::shared_ptr <GAdaptorT<double>> storedAdaptor;
 
-	if(this->hasAdaptor()) {
+	if (this->hasAdaptor()) {
 		storedAdaptor = this->getAdaptor();
 		adaptorStored = true;
 	}
 
-	std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0));
+	std::shared_ptr <GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0));
 	gdga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	gdga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(gdga_ptr);
@@ -563,7 +538,7 @@ void GConstrainedDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 	this->resetAdaptor();
 
 	// Load the old adaptor, if needed
-	if(adaptorStored) {
+	if (adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
 

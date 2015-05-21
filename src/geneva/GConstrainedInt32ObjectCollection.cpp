@@ -42,19 +42,16 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GConstrainedInt32ObjectCollection::GConstrainedInt32ObjectCollection()
-{ /* nothing */ }
+GConstrainedInt32ObjectCollection::GConstrainedInt32ObjectCollection() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization with a number of identical GConstrainedDoubleObject objects
  */
 GConstrainedInt32ObjectCollection::GConstrainedInt32ObjectCollection(
-	const std::size_t& nCp
-	, std::shared_ptr<GConstrainedInt32Object> tmpl_ptr
+	const std::size_t &nCp, std::shared_ptr <GConstrainedInt32Object> tmpl_ptr
 )
-	:GParameterTCollectionT<GConstrainedInt32Object>(nCp, tmpl_ptr)
-{ /* nothing */ }
+	: GParameterTCollectionT<GConstrainedInt32Object>(nCp, tmpl_ptr) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -62,26 +59,24 @@ GConstrainedInt32ObjectCollection::GConstrainedInt32ObjectCollection(
  *
  * @param cp A copy of another GConstrainedInt32ObjectCollection object
  */
-GConstrainedInt32ObjectCollection::GConstrainedInt32ObjectCollection(const GConstrainedInt32ObjectCollection& cp)
-	: GParameterTCollectionT<GConstrainedInt32Object>(cp)
-{ /* nothing */ }
+GConstrainedInt32ObjectCollection::GConstrainedInt32ObjectCollection(const GConstrainedInt32ObjectCollection &cp)
+	: GParameterTCollectionT<GConstrainedInt32Object>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GConstrainedInt32ObjectCollection::~GConstrainedInt32ObjectCollection()
-{ /* nothing */ }
+GConstrainedInt32ObjectCollection::~GConstrainedInt32ObjectCollection() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GConstrainedInt32ObjectCollection& GConstrainedInt32ObjectCollection::operator=(
-   const GConstrainedInt32ObjectCollection& cp
+const GConstrainedInt32ObjectCollection &GConstrainedInt32ObjectCollection::operator=(
+	const GConstrainedInt32ObjectCollection &cp
 ) {
-   this->load_(&cp);
-   return *this;
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -90,7 +85,7 @@ const GConstrainedInt32ObjectCollection& GConstrainedInt32ObjectCollection::oper
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GConstrainedInt32ObjectCollection::clone_() const {
+GObject *GConstrainedInt32ObjectCollection::clone_() const {
 	return new GConstrainedInt32ObjectCollection(*this);
 }
 
@@ -101,14 +96,14 @@ GObject* GConstrainedInt32ObjectCollection::clone_() const {
  * @param  cp A constant reference to another GConstrainedInt32ObjectCollection object
  * @return A boolean indicating whether both objects are equal
  */
-bool GConstrainedInt32ObjectCollection::operator==(const GConstrainedInt32ObjectCollection& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GConstrainedInt32ObjectCollection::operator==(const GConstrainedInt32ObjectCollection &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -118,14 +113,14 @@ bool GConstrainedInt32ObjectCollection::operator==(const GConstrainedInt32Object
  * @param  cp A constant reference to another GConstrainedInt32ObjectCollection object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GConstrainedInt32ObjectCollection::operator!=(const GConstrainedInt32ObjectCollection& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GConstrainedInt32ObjectCollection::operator!=(const GConstrainedInt32ObjectCollection &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -138,24 +133,23 @@ bool GConstrainedInt32ObjectCollection::operator!=(const GConstrainedInt32Object
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GConstrainedInt32ObjectCollection::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GConstrainedInt32ObjectCollection *p_load = GObject::gobject_conversion<GConstrainedInt32ObjectCollection>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GConstrainedInt32ObjectCollection *p_load = GObject::gobject_conversion<GConstrainedInt32ObjectCollection>(
+		&cp);
 
-   GToken token("GConstrainedInt32ObjectCollection", e);
+	GToken token("GConstrainedInt32ObjectCollection", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GParameterTCollectionT<GConstrainedInt32Object> >(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GParameterTCollectionT<GConstrainedInt32Object> >(IDENTITY(*this, *p_load), token);
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -163,7 +157,7 @@ void GConstrainedInt32ObjectCollection::compare(
  * Emits a name for this class / object
  */
 std::string GConstrainedInt32ObjectCollection::name() const {
-   return std::string("GConstrainedInt32ObjectCollection");
+	return std::string("GConstrainedInt32ObjectCollection");
 }
 
 /******************************************************************************/
@@ -172,9 +166,9 @@ std::string GConstrainedInt32ObjectCollection::name() const {
  *
  * @param cp A copy of another GConstrainedInt32ObjectCollection object, camouflaged as a GObject
  */
-void GConstrainedInt32ObjectCollection::load_(const GObject* cp){
+void GConstrainedInt32ObjectCollection::load_(const GObject *cp) {
 	// Check for a possible self-assignment
-    GObject::selfAssignmentCheck<GConstrainedInt32ObjectCollection>(cp);
+	GObject::selfAssignmentCheck<GConstrainedInt32ObjectCollection>(cp);
 
 	// Load our parent class'es data ...
 	GParameterTCollectionT<GConstrainedInt32Object>::load_(cp);
@@ -207,24 +201,27 @@ bool GConstrainedInt32ObjectCollection::modify_GUnitTests() {
 /**
  * Fills the collection with GConstrainedInt32Object objects
  */
-void GConstrainedInt32ObjectCollection::fillWithObjects(const std::size_t& nAddedObjects) {
+void GConstrainedInt32ObjectCollection::fillWithObjects(const std::size_t &nAddedObjects) {
 #ifdef GEM_TESTING
 	// Clear the collection, so we can start fresh
 	BOOST_CHECK_NO_THROW(this->clear());
 
 	// Add GConstrainedInt32Object items with adaptors to p_test1
-	for(std::size_t i=0; i<nAddedObjects; i++) {
+	for (std::size_t i = 0; i < nAddedObjects; i++) {
 		// Create a suitable adaptor
-		std::shared_ptr<GInt32GaussAdaptor> giga_ptr;
+		std::shared_ptr <GInt32GaussAdaptor> giga_ptr;
 
-		BOOST_CHECK_NO_THROW(giga_ptr = std::shared_ptr<GInt32GaussAdaptor>(new GInt32GaussAdaptor(0.025, 0.1, 0, 1, 1.0)));
-		BOOST_CHECK_NO_THROW(giga_ptr->setAdaptionThreshold(0)); // Make sure the adaptor's internal parameters don't change through the adaption
+		BOOST_CHECK_NO_THROW(
+			giga_ptr = std::shared_ptr<GInt32GaussAdaptor>(new GInt32GaussAdaptor(0.025, 0.1, 0, 1, 1.0)));
+		BOOST_CHECK_NO_THROW(giga_ptr->setAdaptionThreshold(
+			0)); // Make sure the adaptor's internal parameters don't change through the adaption
 		BOOST_CHECK_NO_THROW(giga_ptr->setAdaptionMode(true)); // Always adapt
 
 		// Create a suitable GConstrainedInt32Object object
-		std::shared_ptr<GConstrainedInt32Object> gcio_ptr;
+		std::shared_ptr <GConstrainedInt32Object> gcio_ptr;
 
-		BOOST_CHECK_NO_THROW(gcio_ptr = std::shared_ptr<GConstrainedInt32Object>(new GConstrainedInt32Object(-100, 100))); // Initialization in the range -100, 100
+		BOOST_CHECK_NO_THROW(gcio_ptr = std::shared_ptr<GConstrainedInt32Object>(
+			new GConstrainedInt32Object(-100, 100))); // Initialization in the range -100, 100
 
 		// Add the adaptor
 		BOOST_CHECK_NO_THROW(gcio_ptr->addAdaptor(giga_ptr));
@@ -251,7 +248,7 @@ void GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTest
 	const std::size_t nAddedObjects = 10;
 	const std::size_t nTests = 100;
 	const double LOWERINITBOUNDARY = -10;
-	const double UPPERINITBOUNDARY =  10;
+	const double UPPERINITBOUNDARY = 10;
 	const double FIXEDVALUEINIT = 1.;
 	const double MULTVALUE = 3.;
 	const double RANDLOWERBOUNDARY = 0.;
@@ -260,7 +257,7 @@ void GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTest
 	// --------------------------------------------------------------------------
 
 	{ // Call the parent class'es function
-		std::shared_ptr<GConstrainedInt32ObjectCollection> p_test = this->clone<GConstrainedInt32ObjectCollection>();
+		std::shared_ptr <GConstrainedInt32ObjectCollection> p_test = this->clone<GConstrainedInt32ObjectCollection>();
 
 		// Fill p_test with objects
 		p_test->fillWithObjects(nAddedObjects);
@@ -272,8 +269,8 @@ void GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTest
 	// --------------------------------------------------------------------------
 
 	{ // Test that the fp-family of functions has no effect on this object (and contained objects)
-		std::shared_ptr<GConstrainedInt32ObjectCollection> p_test1 = this->clone<GConstrainedInt32ObjectCollection>();
-		std::shared_ptr<GConstrainedInt32ObjectCollection> p_test2 = this->clone<GConstrainedInt32ObjectCollection>();
+		std::shared_ptr <GConstrainedInt32ObjectCollection> p_test1 = this->clone<GConstrainedInt32ObjectCollection>();
+		std::shared_ptr <GConstrainedInt32ObjectCollection> p_test2 = this->clone<GConstrainedInt32ObjectCollection>();
 
 		// Fill p_test1 with objects
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));

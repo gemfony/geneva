@@ -211,7 +211,9 @@ public:
 		// The expected number of work items from the current iteration
 		expectedNumber_ = std::count(workItemPos.begin(), workItemPos.end(), true);
 		// Take care of a situation where no items have been submitted
-		if (expectedNumber_ == 0) return true;
+		if (expectedNumber_ == 0) {
+			return true;
+		}
 
 		// Make sure the vector of old work items is empty
 		oldWorkItems.clear();
@@ -1264,11 +1266,10 @@ private:
 		// for the first item to return so we can estimate a suitable timeout
 		if (0 == current_iteration) { // Wait indefinitely for first item
 			w = this->retrieve();
-			if (w && this->addVerifiedWorkItemAndCheckComplete
-				(
+			if (w && this->addVerifiedWorkItemAndCheckComplete(
 					w, nReturnedCurrent, workItems, workItemPos, oldWorkItems
 				)
-				) {
+			) {
 				return true;
 			}
 

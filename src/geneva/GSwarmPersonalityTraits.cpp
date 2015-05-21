@@ -44,12 +44,8 @@ namespace Geneva {
  * The default constructor
  */
 GSwarmPersonalityTraits::GSwarmPersonalityTraits()
-   : GPersonalityTraits()
-   , neighborhood_(0)
-   , noPositionUpdate_(false)
-   , personal_best_() // empty
-   , personal_best_quality_(boost::make_tuple(0.,0.))
-{ /* nothing */ }
+	: GPersonalityTraits(), neighborhood_(0), noPositionUpdate_(false), personal_best_() // empty
+	, personal_best_quality_(boost::make_tuple(0., 0.)) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -57,35 +53,31 @@ GSwarmPersonalityTraits::GSwarmPersonalityTraits()
  *
  * @param cp A copy of another GSwarmPersonalityTraits object
  */
-GSwarmPersonalityTraits::GSwarmPersonalityTraits(const GSwarmPersonalityTraits& cp)
-	: GPersonalityTraits(cp)
-	, neighborhood_(cp.neighborhood_)
-	, noPositionUpdate_(cp.noPositionUpdate_)
-	, personal_best_() // empty at this point
-	, personal_best_quality_(cp.personal_best_quality_)
-{
-   // Copy the personal_best_ vector over
-   copyGenevaSmartPointer(cp.personal_best_, personal_best_);
-   // Make sure we do not get a "chain" of individuals
-   if(personal_best_) {
-      personal_best_->resetPersonality();
-   }
+GSwarmPersonalityTraits::GSwarmPersonalityTraits(const GSwarmPersonalityTraits &cp)
+	: GPersonalityTraits(cp), neighborhood_(cp.neighborhood_), noPositionUpdate_(cp.noPositionUpdate_),
+	  personal_best_() // empty at this point
+	, personal_best_quality_(cp.personal_best_quality_) {
+	// Copy the personal_best_ vector over
+	copyGenevaSmartPointer(cp.personal_best_, personal_best_);
+	// Make sure we do not get a "chain" of individuals
+	if (personal_best_) {
+		personal_best_->resetPersonality();
+	}
 }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
-GSwarmPersonalityTraits::~GSwarmPersonalityTraits()
-{ /* nothing */ }
+GSwarmPersonalityTraits::~GSwarmPersonalityTraits() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GSwarmPersonalityTraits& GSwarmPersonalityTraits::operator=(const GSwarmPersonalityTraits& cp) {
-   this->load_(&cp);
-   return *this;
+const GSwarmPersonalityTraits &GSwarmPersonalityTraits::operator=(const GSwarmPersonalityTraits &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -95,14 +87,14 @@ const GSwarmPersonalityTraits& GSwarmPersonalityTraits::operator=(const GSwarmPe
  * @param  cp A constant reference to another GSwarmPersonalityTraits object
  * @return A boolean indicating whether both objects are equal
  */
-bool GSwarmPersonalityTraits::operator==(const GSwarmPersonalityTraits& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GSwarmPersonalityTraits::operator==(const GSwarmPersonalityTraits &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -112,14 +104,14 @@ bool GSwarmPersonalityTraits::operator==(const GSwarmPersonalityTraits& cp) cons
  * @param  cp A constant reference to another GSwarmPersonalityTraits object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GSwarmPersonalityTraits::operator!=(const GSwarmPersonalityTraits& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GSwarmPersonalityTraits::operator!=(const GSwarmPersonalityTraits &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -132,29 +124,27 @@ bool GSwarmPersonalityTraits::operator!=(const GSwarmPersonalityTraits& cp) cons
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GSwarmPersonalityTraits::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GSwarmPersonalityTraits *p_load = GObject::gobject_conversion<GSwarmPersonalityTraits>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GSwarmPersonalityTraits *p_load = GObject::gobject_conversion<GSwarmPersonalityTraits>(&cp);
 
-   GToken token("GSwarmPersonalityTraits", e);
+	GToken token("GSwarmPersonalityTraits", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GPersonalityTraits>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GPersonalityTraits>(IDENTITY(*this, *p_load), token);
 
-   // ... and then the local data
-   compare_t(IDENTITY(neighborhood_, p_load->neighborhood_), token);
-   compare_t(IDENTITY(noPositionUpdate_, p_load->noPositionUpdate_), token);
-   compare_t(IDENTITY(personal_best_, p_load->personal_best_), token);
-   compare_t(IDENTITY(personal_best_quality_, p_load->personal_best_quality_), token);
+	// ... and then the local data
+	compare_t(IDENTITY(neighborhood_, p_load->neighborhood_), token);
+	compare_t(IDENTITY(noPositionUpdate_, p_load->noPositionUpdate_), token);
+	compare_t(IDENTITY(personal_best_, p_load->personal_best_), token);
+	compare_t(IDENTITY(personal_best_quality_, p_load->personal_best_quality_), token);
 
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/
@@ -162,7 +152,7 @@ void GSwarmPersonalityTraits::compare(
  * Emits a name for this class / object
  */
 std::string GSwarmPersonalityTraits::name() const {
-   return std::string("GSwarmPersonalityTraits");
+	return std::string("GSwarmPersonalityTraits");
 }
 
 /******************************************************************************/
@@ -201,7 +191,7 @@ bool GSwarmPersonalityTraits::noPositionUpdate() const {
  */
 bool GSwarmPersonalityTraits::checkNoPositionUpdateAndReset() {
 	bool current = noPositionUpdate_;
-	if(noPositionUpdate_) noPositionUpdate_ = false;
+	if (noPositionUpdate_) noPositionUpdate_ = false;
 	return current;
 }
 
@@ -218,7 +208,7 @@ bool GSwarmPersonalityTraits::checkNoPositionUpdateAndReset() {
  *
  * @param p A pointer to the personally best parameter set
  */
-void GSwarmPersonalityTraits::registerPersonalBest(std::shared_ptr<GParameterSet> p) {
+void GSwarmPersonalityTraits::registerPersonalBest(std::shared_ptr < GParameterSet > p) {
 	// Some error checking
 #ifdef DEBUG
 	// Does it point anywhere ?
@@ -238,11 +228,11 @@ void GSwarmPersonalityTraits::registerPersonalBest(std::shared_ptr<GParameterSet
 	}
 #endif
 
-   // Copy the personal_best_ vector over and make sure we do not get a "chain" of individuals
-   copyGenevaSmartPointer(p, personal_best_);
-   if(personal_best_) {
-      personal_best_->resetPersonality();
-   }
+	// Copy the personal_best_ vector over and make sure we do not get a "chain" of individuals
+	copyGenevaSmartPointer(p, personal_best_);
+	if (personal_best_) {
+		personal_best_->resetPersonality();
+	}
 
 	personal_best_quality_ = p->getFitnessTuple();
 }
@@ -258,7 +248,7 @@ void GSwarmPersonalityTraits::registerPersonalBest(std::shared_ptr<GParameterSet
  *
  * @return The personally best individual
  */
-std::shared_ptr<GParameterSet> GSwarmPersonalityTraits::getPersonalBest() const {
+std::shared_ptr <GParameterSet> GSwarmPersonalityTraits::getPersonalBest() const {
 #ifdef DEBUG
    if(!personal_best_) {
       glogger
@@ -283,7 +273,7 @@ std::shared_ptr<GParameterSet> GSwarmPersonalityTraits::getPersonalBest() const 
  */
 void GSwarmPersonalityTraits::resetPersonalBest() {
 	personal_best_ = std::shared_ptr<GParameterSet>(); // empty
-	personal_best_quality_ = boost::make_tuple(0.,0.);
+	personal_best_quality_ = boost::make_tuple(0., 0.);
 }
 
 /* ----------------------------------------------------------------------------------
@@ -312,7 +302,7 @@ boost::tuple<double, double> GSwarmPersonalityTraits::getPersonalBestQuality() c
  *
  * @return A clone of this object, camouflaged as a GObject
  */
-GObject* GSwarmPersonalityTraits::clone_() const {
+GObject *GSwarmPersonalityTraits::clone_() const {
 	return new GSwarmPersonalityTraits(*this);
 }
 
@@ -322,7 +312,7 @@ GObject* GSwarmPersonalityTraits::clone_() const {
  *
  * @param cp A copy of another GSwarmPersonalityTraits object, camouflaged as a GObject
  */
-void GSwarmPersonalityTraits::load_(const GObject* cp) {
+void GSwarmPersonalityTraits::load_(const GObject *cp) {
 	const GSwarmPersonalityTraits *p_load = this->gobject_conversion<GSwarmPersonalityTraits>(cp);
 
 	// Load the parent class'es data
@@ -332,10 +322,10 @@ void GSwarmPersonalityTraits::load_(const GObject* cp) {
 	neighborhood_ = p_load->neighborhood_;
 	noPositionUpdate_ = p_load->noPositionUpdate_;
 
-   // Copy the personal_best_ vector over and make sure we do not get a "chain" of individuals
+	// Copy the personal_best_ vector over and make sure we do not get a "chain" of individuals
 	copyGenevaSmartPointer(p_load->personal_best_, personal_best_);
-	if(personal_best_) {
-      personal_best_->resetPersonality();
+	if (personal_best_) {
+		personal_best_->resetPersonality();
 	}
 
 	personal_best_quality_ = p_load->personal_best_quality_;
@@ -347,7 +337,7 @@ void GSwarmPersonalityTraits::load_(const GObject* cp) {
  *
  * @param neighborhood The current neighborhood of this individual
  */
-void GSwarmPersonalityTraits::setNeighborhood(const std::size_t& neighborhood) {
+void GSwarmPersonalityTraits::setNeighborhood(const std::size_t &neighborhood) {
 	neighborhood_ = neighborhood;
 }
 
@@ -369,10 +359,10 @@ std::size_t GSwarmPersonalityTraits::getNeighborhood(void) const {
  */
 bool GSwarmPersonalityTraits::modify_GUnitTests() {
 #ifdef GEM_TESTING
-   bool result = false;
+	bool result = false;
 
 	// Call the parent class'es function
-	if(GPersonalityTraits::modify_GUnitTests()) result = true;
+	if (GPersonalityTraits::modify_GUnitTests()) result = true;
 
 	return result;
 
@@ -397,7 +387,7 @@ void GSwarmPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 	//---------------------------------------------------------------------------
 
 	{ // Test setting and retrieval of the noPositionUpdate_ flag
-		std::shared_ptr<GSwarmPersonalityTraits> p_test = this->clone<GSwarmPersonalityTraits>();
+		std::shared_ptr <GSwarmPersonalityTraits> p_test = this->clone<GSwarmPersonalityTraits>();
 
 		// Check setting and retrieval
 		BOOST_CHECK_NO_THROW(p_test->setNoPositionUpdate());
@@ -419,10 +409,10 @@ void GSwarmPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 	//---------------------------------------------------------------------------
 
 	{ // Test setting and retrieval of the neighborhood
-		std::shared_ptr<GSwarmPersonalityTraits> p_test = this->clone<GSwarmPersonalityTraits>();
+		std::shared_ptr <GSwarmPersonalityTraits> p_test = this->clone<GSwarmPersonalityTraits>();
 
 		// Setting and retrieval of the neighborhood
-		for(std::size_t i=0; i<10; i++) {
+		for (std::size_t i = 0; i < 10; i++) {
 			BOOST_CHECK_NO_THROW(p_test->setNeighborhood(i));
 			BOOST_CHECK(p_test->getNeighborhood() == i);
 		}

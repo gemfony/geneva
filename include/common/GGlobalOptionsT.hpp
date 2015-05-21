@@ -166,8 +166,7 @@ public:
 	 */
 	bool exists(const std::string &key) const {
 		boost::lock_guard<boost::mutex> guard(m_);
-		if (kvp_.find(key) != kvp_.end()) return true;
-		else return false;
+		return (kvp_.find(key) != kvp_.end() ? true : false);
 	}
 
 	/************************************************************************/

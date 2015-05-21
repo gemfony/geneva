@@ -37,6 +37,7 @@
 
 // Standard headers go here
 #include <functional>
+#include <memory>
 
 // Boost headers go here
 #include <boost/cstdint.hpp>

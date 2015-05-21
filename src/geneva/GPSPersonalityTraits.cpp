@@ -43,9 +43,7 @@ namespace Geneva {
  * The default constructor
  */
 GPSPersonalityTraits::GPSPersonalityTraits()
-   : GPersonalityTraits()
-   , popPos_(0)
-{ /* nothing */ }
+	: GPersonalityTraits(), popPos_(0) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -53,25 +51,22 @@ GPSPersonalityTraits::GPSPersonalityTraits()
  *
  * @param cp A copy of another GPSPersonalityTraits object
  */
-GPSPersonalityTraits::GPSPersonalityTraits(const GPSPersonalityTraits& cp)
-   : GPersonalityTraits(cp)
-   , popPos_(cp.popPos_)
-{ /* nothing */ }
+GPSPersonalityTraits::GPSPersonalityTraits(const GPSPersonalityTraits &cp)
+	: GPersonalityTraits(cp), popPos_(cp.popPos_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
-GPSPersonalityTraits::~GPSPersonalityTraits()
-{ /* nothing */ }
+GPSPersonalityTraits::~GPSPersonalityTraits() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GPSPersonalityTraits& GPSPersonalityTraits::operator=(const GPSPersonalityTraits& cp) {
-   this->load_(&cp);
-   return *this;
+const GPSPersonalityTraits &GPSPersonalityTraits::operator=(const GPSPersonalityTraits &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -81,14 +76,14 @@ const GPSPersonalityTraits& GPSPersonalityTraits::operator=(const GPSPersonality
  * @param  cp A constant reference to another GPSPersonalityTraits object
  * @return A boolean indicating whether both objects are equal
  */
-bool GPSPersonalityTraits::operator==(const GPSPersonalityTraits& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GPSPersonalityTraits::operator==(const GPSPersonalityTraits &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -98,14 +93,14 @@ bool GPSPersonalityTraits::operator==(const GPSPersonalityTraits& cp) const {
  * @param  cp A constant reference to another GPSPersonalityTraits object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GPSPersonalityTraits::operator!=(const GPSPersonalityTraits& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GPSPersonalityTraits::operator!=(const GPSPersonalityTraits &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -118,25 +113,23 @@ bool GPSPersonalityTraits::operator!=(const GPSPersonalityTraits& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GPSPersonalityTraits::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GPSPersonalityTraits *p_load = GObject::gobject_conversion<GPSPersonalityTraits>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GPSPersonalityTraits *p_load = GObject::gobject_conversion<GPSPersonalityTraits>(&cp);
 
-   GToken token("GPSPersonalityTraits", e);
+	GToken token("GPSPersonalityTraits", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GPersonalityTraits>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GPersonalityTraits>(IDENTITY(*this, *p_load), token);
 
-   // ... and then the local data
-   compare_t(IDENTITY(popPos_, p_load->popPos_), token);
+	// ... and then the local data
+	compare_t(IDENTITY(popPos_, p_load->popPos_), token);
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -144,7 +137,7 @@ void GPSPersonalityTraits::compare(
  * Emits a name for this class / object
  */
 std::string GPSPersonalityTraits::name() const {
-   return std::string("GPSPersonalityTraits");
+	return std::string("GPSPersonalityTraits");
 }
 
 /******************************************************************************/
@@ -153,8 +146,8 @@ std::string GPSPersonalityTraits::name() const {
  *
  * @return A clone of this object, camouflaged as a GObject
  */
-GObject* GPSPersonalityTraits::clone_() const {
-   return new GPSPersonalityTraits(*this);
+GObject *GPSPersonalityTraits::clone_() const {
+	return new GPSPersonalityTraits(*this);
 }
 
 /******************************************************************************/
@@ -163,14 +156,14 @@ GObject* GPSPersonalityTraits::clone_() const {
  *
  * @param cp A copy of another GPSPersonalityTraits object, camouflaged as a GObject
  */
-void GPSPersonalityTraits::load_(const GObject* cp) {
-   const GPSPersonalityTraits *p_load = gobject_conversion<GPSPersonalityTraits>(cp);
+void GPSPersonalityTraits::load_(const GObject *cp) {
+	const GPSPersonalityTraits *p_load = gobject_conversion<GPSPersonalityTraits>(cp);
 
-   // Load the parent class'es data
-   GPersonalityTraits::load_(cp);
+	// Load the parent class'es data
+	GPersonalityTraits::load_(cp);
 
-   // and then the local data
-   popPos_ = p_load->popPos_;
+	// and then the local data
+	popPos_ = p_load->popPos_;
 }
 
 /******************************************************************************/
@@ -179,8 +172,8 @@ void GPSPersonalityTraits::load_(const GObject* cp) {
  *
  * @param popPos The new position of this individual in the population
  */
-void GPSPersonalityTraits::setPopulationPosition(const std::size_t& popPos) {
-   popPos_ = popPos;
+void GPSPersonalityTraits::setPopulationPosition(const std::size_t &popPos) {
+	popPos_ = popPos;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -195,7 +188,7 @@ void GPSPersonalityTraits::setPopulationPosition(const std::size_t& popPos) {
  * @return The current position of this individual in the population
  */
 std::size_t GPSPersonalityTraits::getPopulationPosition(void) const {
-   return popPos_;
+	return popPos_;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -211,12 +204,12 @@ std::size_t GPSPersonalityTraits::getPopulationPosition(void) const {
  */
 bool GPSPersonalityTraits::modify_GUnitTests() {
 #ifdef GEM_TESTING
-   bool result = false;
+	bool result = false;
 
-   // Call the parent class'es function
-   if(GPersonalityTraits::modify_GUnitTests()) result = true;
+	// Call the parent class'es function
+	if (GPersonalityTraits::modify_GUnitTests()) result = true;
 
-   return result;
+	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GPSPersonalityTraits::modify_GUnitTests", "GEM_TESTING");
@@ -230,16 +223,16 @@ bool GPSPersonalityTraits::modify_GUnitTests() {
  */
 void GPSPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
-   using boost::unit_test_framework::test_suite;
-   using boost::unit_test_framework::test_case;
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
 
-   // Call the parent class'es function
-   GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests();
+	// Call the parent class'es function
+	GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests();
 
 
-   // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
-   // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GPSPersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -252,15 +245,15 @@ void GPSPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GPSPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
-   using boost::unit_test_framework::test_suite;
-   using boost::unit_test_framework::test_case;
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
 
-   // Call the parent class'es function
-   GPersonalityTraits::specificTestsFailuresExpected_GUnitTests();
+	// Call the parent class'es function
+	GPersonalityTraits::specificTestsFailuresExpected_GUnitTests();
 
-   // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
-   // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GPSPersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

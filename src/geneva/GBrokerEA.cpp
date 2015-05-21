@@ -44,11 +44,10 @@ namespace Geneva {
  * The default constructor
  */
 GBrokerEA::GBrokerEA()
-	: GBaseEA()
-	, Gem::Courtier::GBrokerConnector2T<GParameterSet>(Gem::Courtier::INCOMPLETERETURN)
-   // , Gem::Courtier::GBrokerConnector2T<GParameterSet>(Gem::Courtier::EXPECTFULLRETURN)
-	, nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
-{ /* nothing */ }
+	: GBaseEA(), Gem::Courtier::GBrokerConnector2T<GParameterSet>(Gem::Courtier::INCOMPLETERETURN)
+	// , Gem::Courtier::GBrokerConnector2T<GParameterSet>(Gem::Courtier::EXPECTFULLRETURN)
+	, nThreads_(
+		boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS))) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -56,19 +55,15 @@ GBrokerEA::GBrokerEA()
  *
  * @param cp A copy of another GBrokerEA object
  */
-GBrokerEA::GBrokerEA(const GBrokerEA& cp)
-	: GBaseEA(cp)
-	, Gem::Courtier::GBrokerConnector2T<GParameterSet>(cp)
-	, nThreads_(cp.nThreads_)
-{ /* nothing */ }
+GBrokerEA::GBrokerEA(const GBrokerEA &cp)
+	: GBaseEA(cp), Gem::Courtier::GBrokerConnector2T<GParameterSet>(cp), nThreads_(cp.nThreads_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor. We have no object-wide dynamically allocated data, hence
  * this function is empty.
  */
-GBrokerEA::~GBrokerEA()
-{ /* nothing */}
+GBrokerEA::~GBrokerEA() { /* nothing */}
 
 /******************************************************************************/
 /**
@@ -77,7 +72,7 @@ GBrokerEA::~GBrokerEA()
  *
  * @param cp A pointer to another GBrokerEA object, camouflaged as a GObject
  */
-void GBrokerEA::load_(const GObject * cp) {
+void GBrokerEA::load_(const GObject *cp) {
 	const GBrokerEA *p_load = gobject_conversion<GBrokerEA>(cp);
 
 	// Load the parent classes' data ...
@@ -102,11 +97,11 @@ GObject *GBrokerEA::clone_() const {
 /**
  * The standard assignment operator
  */
-const GBrokerEA& GBrokerEA::operator=(
-   const GBrokerEA& cp
+const GBrokerEA &GBrokerEA::operator=(
+	const GBrokerEA &cp
 ) {
-   this->load_(&cp);
-   return *this;
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -116,14 +111,14 @@ const GBrokerEA& GBrokerEA::operator=(
  * @param  cp A constant reference to another GBrokerEA object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBrokerEA::operator==(const GBrokerEA& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBrokerEA::operator==(const GBrokerEA &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -133,14 +128,14 @@ bool GBrokerEA::operator==(const GBrokerEA& cp) const {
  * @param  cp A constant reference to another GBrokerEA object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GBrokerEA::operator!=(const GBrokerEA& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBrokerEA::operator!=(const GBrokerEA &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -153,27 +148,25 @@ bool GBrokerEA::operator!=(const GBrokerEA& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBrokerEA::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GBrokerEA *p_load = GObject::gobject_conversion<GBrokerEA>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GBrokerEA *p_load = GObject::gobject_conversion<GBrokerEA>(&cp);
 
-   GToken token("GBrokerEA", e);
+	GToken token("GBrokerEA", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GBaseEA>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GBaseEA>(IDENTITY(*this, *p_load), token);
 
-   // We do not compare the broker data
+	// We do not compare the broker data
 
-   // ... compare the local data
-   compare_t(IDENTITY(nThreads_, p_load->nThreads_), token);
+	// ... compare the local data
+	compare_t(IDENTITY(nThreads_, p_load->nThreads_), token);
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -181,7 +174,7 @@ void GBrokerEA::compare(
  * Emits a name for this class / object
  */
 std::string GBrokerEA::name() const {
-   return std::string("GBrokerEA");
+	return std::string("GBrokerEA");
 }
 
 /******************************************************************************/
@@ -204,31 +197,31 @@ void GBrokerEA::init() {
  * Performs any necessary finalization work after the end of the optimization cycle
  */
 void GBrokerEA::finalize() {
-   // Check whether there were any errors during thread execution
-   if(tp_ptr_->hasErrors()) {
-      std::vector<std::string> errors;
-      errors = tp_ptr_->getErrors();
+	// Check whether there were any errors during thread execution
+	if (tp_ptr_->hasErrors()) {
+		std::vector<std::string> errors;
+		errors = tp_ptr_->getErrors();
 
-      glogger
-      << "========================================================================" << std::endl
-      << "In GBrokerEA::finalize():" << std::endl
-      << "There were errors during thread execution:" << std::endl
-      << std::endl;
+		glogger
+		<< "========================================================================" << std::endl
+		<< "In GBrokerEA::finalize():" << std::endl
+		<< "There were errors during thread execution:" << std::endl
+		<< std::endl;
 
-      for(std::vector<std::string>::iterator it=errors.begin(); it!=errors.end(); ++it) {
-         glogger << *it << std::endl;
-      }
+		for (std::vector<std::string>::iterator it = errors.begin(); it != errors.end(); ++it) {
+			glogger << *it << std::endl;
+		}
 
-      glogger << std::endl
-      << "========================================================================" << std::endl
-      << GEXCEPTION;
-   }
+		glogger << std::endl
+		<< "========================================================================" << std::endl
+		<< GEXCEPTION;
+	}
 
 	// Terminate our thread pool
 	tp_ptr_.reset();
 
-   // Finalize the broker connector
-   Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::finalize();
+	// Finalize the broker connector
+	Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::finalize();
 
 	// GBaseEA sees exactly the environment it would when called from its own class
 	GBaseEA::finalize();
@@ -250,11 +243,12 @@ bool GBrokerEA::usesBroker() const {
  * Adapt all children in parallel. Evaluation is done in a seperate function (runFitnessCalculation).
  */
 void GBrokerEA::adaptChildren() {
-	boost::tuple<std::size_t,std::size_t> range = getAdaptionRange();
-	std::vector<std::shared_ptr<GParameterSet> >::iterator it;
+	boost::tuple<std::size_t, std::size_t> range = getAdaptionRange();
+	std::vector<std::shared_ptr < GParameterSet> > ::iterator
+	it;
 
-	for(it=data.begin()+boost::get<0>(range); it!=data.begin()+boost::get<1>(range); ++it) {
-		tp_ptr_->async_schedule( [it](){(*it)->adapt();} );
+	for (it = data.begin() + boost::get<0>(range); it != data.begin() + boost::get<1>(range); ++it) {
+		tp_ptr_->async_schedule([it]() { (*it)->adapt(); });
 	}
 
 	// Wait for all threads in the pool to complete their work
@@ -291,10 +285,7 @@ void GBrokerEA::runFitnessCalculation() {
 	//--------------------------------------------------------------------------------
 	// Now submit work items and wait for results.
 	Gem::Courtier::GBrokerConnector2T<GParameterSet>::workOn(
-      data
-      , range
-      , oldWorkItems_
-      , true // Remove unprocessed items
+		data, range, oldWorkItems_, true // Remove unprocessed items
 	);
 
 	//--------------------------------------------------------------------------------
@@ -307,47 +298,46 @@ void GBrokerEA::runFitnessCalculation() {
  * Fixes the population after a job submission
  */
 void GBrokerEA::fixAfterJobSubmission() {
-	std::vector<std::shared_ptr<GParameterSet> >::iterator it;
+	std::vector<std::shared_ptr < GParameterSet> > ::iterator
+	it;
 	std::size_t np = getNParents();
-	boost::uint32_t iteration=getIteration();
+	boost::uint32_t iteration = getIteration();
 
 	// Remove parents from older iterations from old work items -- we do not want them.
-   // Note that "remove_if" simply moves items not satisfying the predicate to the end of the list.
-   // We thus need to explicitly erase these items. remove_if returns the iterator position right after
-   // the last item not satisfying the predicate.
-   oldWorkItems_.erase(
-      std::remove_if(oldWorkItems_.begin(), oldWorkItems_.end(), isOldParent(iteration))
-	   , oldWorkItems_.end()
+	// Note that "remove_if" simply moves items not satisfying the predicate to the end of the list.
+	// We thus need to explicitly erase these items. remove_if returns the iterator position right after
+	// the last item not satisfying the predicate.
+	oldWorkItems_.erase(
+		std::remove_if(oldWorkItems_.begin(), oldWorkItems_.end(), isOldParent(iteration)), oldWorkItems_.end()
 	);
 
 	// Make it known to remaining old individuals that they are now part of a new iteration
 	std::for_each(
-      oldWorkItems_.begin()
-      , oldWorkItems_.end()
-      , [iteration](std::shared_ptr<GParameterSet> p){ p->setAssignedIteration(iteration); }
+		oldWorkItems_.begin(), oldWorkItems_.end(),
+		[iteration](std::shared_ptr <GParameterSet> p) { p->setAssignedIteration(iteration); }
 	);
 
 	// Make sure that parents are at the beginning of the array.
 	sort(data.begin(), data.end(), indParentComp());
 
 	// Attach all old work items to the end of the current population and clear the array of old items
-	for(it=oldWorkItems_.begin(); it!=oldWorkItems_.end(); ++it) {
-	   data.push_back(*it);
+	for (it = oldWorkItems_.begin(); it != oldWorkItems_.end(); ++it) {
+		data.push_back(*it);
 	}
 	oldWorkItems_.clear();
 
 	// Add missing individuals, as clones of the last item
-	if(data.size() < getDefaultPopulationSize()){
-		std::size_t fixSize= getDefaultPopulationSize() - data.size();
-		for(std::size_t i=0; i<fixSize; i++){
+	if (data.size() < getDefaultPopulationSize()) {
+		std::size_t fixSize = getDefaultPopulationSize() - data.size();
+		for (std::size_t i = 0; i < fixSize; i++) {
 			// This function will create a clone of its argument
 			this->push_back_clone(data.back());
 		}
 	}
 
 	// Mark the first nParents_ individuals as parents in the first iteration. We want to have a "sane" population.
-	if(inFirstIteration()){
-		for(it=this->begin(); it!=this->begin() + np; ++it) {
+	if (inFirstIteration()) {
+		for (it = this->begin(); it != this->begin() + np; ++it) {
 			(*it)->getPersonalityTraits<GEAPersonalityTraits>()->setIsParent();
 		}
 	}
@@ -395,8 +385,8 @@ void GBrokerEA::selectBest() {
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
-void GBrokerEA::addConfigurationOptions (
-	Gem::Common::GParserBuilder& gpb
+void GBrokerEA::addConfigurationOptions(
+	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
 	GBaseEA::addConfigurationOptions(gpb);
@@ -406,7 +396,7 @@ void GBrokerEA::addConfigurationOptions (
 	gpb.registerFileParameter<boost::uint16_t>(
 		"nEvaluationThreads" // The name of the variable
 		, 0 // The default value
-		, [this](boost::uint16_t nt){ this->setNThreads(nt); }
+		, [this](boost::uint16_t nt) { this->setNThreads(nt); }
 	)
 	<< "The number of threads used to simultaneously adapt individuals";
 }
@@ -420,7 +410,7 @@ void GBrokerEA::addConfigurationOptions (
  * @param nThreads The number of threads this class uses
  */
 void GBrokerEA::setNThreads(boost::uint16_t nThreads) {
-	if(nThreads == 0) {
+	if (nThreads == 0) {
 		nThreads_ = boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
 	}
 	else {
@@ -434,7 +424,7 @@ void GBrokerEA::setNThreads(boost::uint16_t nThreads) {
  *
  * @return The maximum number of allowed threads
  */
-boost::uint16_t GBrokerEA::getNThreads() const  {
+boost::uint16_t GBrokerEA::getNThreads() const {
 	return nThreads_;
 }
 
@@ -459,7 +449,7 @@ bool GBrokerEA::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GBaseEA::modify_GUnitTests()) result = true;
+	if (GBaseEA::modify_GUnitTests()) result = true;
 
 	return result;
 

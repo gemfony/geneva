@@ -89,13 +89,20 @@ namespace Gem
 		  case 2:
 			  parModeString = "networked";
 			  break;
+
+		  default:
+			  glogger
+			  << "Unkown parallelization mode " << parallelizationMode << std::endl
+			  << GEXCEPTION;
+			  break;
 		  };
 
-		  std::cout << std::endl
-				  << "Running with the following command line options:" << std::endl
-				  << "configFile = " << configFile << std::endl
-				  << "parallelizationMode = " << parModeString << std::endl
-				  << std::endl;
+		  std::cout
+		  << std::endl
+		  << "Running with the following command line options:" << std::endl
+		  << "configFile = " << configFile << std::endl
+		  << "parallelizationMode = " << parModeString << std::endl
+		  << std::endl;
 	  }
 	  catch(...){
 		  std::cout << "Error parsing the command line" << std::endl;

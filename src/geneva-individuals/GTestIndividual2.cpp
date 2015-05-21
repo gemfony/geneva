@@ -44,8 +44,7 @@ namespace Tests {
  * The default constructor -- private, as it is only needed for (de-)serialization purposes
  */
 GTestIndividual2::GTestIndividual2()
-: GParameterSet()
-{ /* nothing */ }
+	: GParameterSet() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -53,71 +52,66 @@ GTestIndividual2::GTestIndividual2()
  *
  * @param nObjects The number of parameters to be added to this individual
  */
-GTestIndividual2::GTestIndividual2(const std::size_t& nObjects, const PERFOBJECTTYPE& otype)
-: GParameterSet()
-{
+GTestIndividual2::GTestIndividual2(const std::size_t &nObjects, const PERFOBJECTTYPE &otype)
+	: GParameterSet() {
 	using namespace Gem::Geneva;
 
 	// Fill with the requested amount of data of the requested type
-	switch(otype) {
-	case PERFGDOUBLEOBJECT:
-	{
-		for(std::size_t i=0; i<nObjects; i++) {
-			std::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject(0.));
-			std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1.,1.));
-			gdo_ptr->addAdaptor(gdga_ptr);
-			this->push_back(gdo_ptr);
+	switch (otype) {
+		case PERFGDOUBLEOBJECT: {
+			for (std::size_t i = 0; i < nObjects; i++) {
+				std::shared_ptr <GDoubleObject> gdo_ptr(new GDoubleObject(0.));
+				std::shared_ptr <GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.));
+				gdo_ptr->addAdaptor(gdga_ptr);
+				this->push_back(gdo_ptr);
+			}
+			break;
 		}
-		break;
-	}
 
-	case PERFGCONSTRDOUBLEOBJECT:
-	{
-		for(std::size_t i=0; i<nObjects; i++) {
-			std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(0.,-10.,10.));
-			std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1.,1.));
+		case PERFGCONSTRDOUBLEOBJECT: {
+			for (std::size_t i = 0; i < nObjects; i++) {
+				std::shared_ptr <GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(0., -10., 10.));
+				std::shared_ptr <GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.));
+				gcdo_ptr->addAdaptor(gdga_ptr);
+				this->push_back(gcdo_ptr);
+			}
+			break;
+		}
+
+		case PERFGCONSTRAINEDDOUBLEOBJECTCOLLECTION: {
+			std::shared_ptr <GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(0., -10., 10.));
+			std::shared_ptr <GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.));
 			gcdo_ptr->addAdaptor(gdga_ptr);
-			this->push_back(gcdo_ptr);
+			std::shared_ptr <GConstrainedDoubleObjectCollection> gcdc_ptr(
+				new GConstrainedDoubleObjectCollection(nObjects, gcdo_ptr));
+			this->push_back(gcdc_ptr);
+			break;
 		}
-		break;
-	}
 
-	case PERFGCONSTRAINEDDOUBLEOBJECTCOLLECTION:
-	{
-		std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(0.,-10.,10.));
-		std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1.,1.));
-		gcdo_ptr->addAdaptor(gdga_ptr);
-		std::shared_ptr<GConstrainedDoubleObjectCollection> gcdc_ptr(new GConstrainedDoubleObjectCollection(nObjects,gcdo_ptr));
-		this->push_back(gcdc_ptr);
-		break;
-	}
+		case PERFGDOUBLECOLLECTION: {
+			std::shared_ptr <GDoubleCollection> gdc_ptr(new GDoubleCollection(nObjects, 0., -10., 10.));
+			std::shared_ptr <GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.));
+			gdc_ptr->addAdaptor(gdga_ptr);
+			this->push_back(gdc_ptr);
+			break;
+		}
 
-	case PERFGDOUBLECOLLECTION:
-	{
-		std::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(nObjects,0.,-10.,10.));
-		std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1.,1.));
-		gdc_ptr->addAdaptor(gdga_ptr);
-		this->push_back(gdc_ptr);
-		break;
-	}
+		case PERFGCONSTRAINEDDOUBLECOLLECTION: {
+			std::shared_ptr <GConstrainedDoubleCollection> gcdc_ptr(
+				new GConstrainedDoubleCollection(nObjects, 0., -10., 10.));
+			std::shared_ptr <GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.));
+			gcdc_ptr->addAdaptor(gdga_ptr);
+			this->push_back(gcdc_ptr);
+			break;
+		}
 
-	case PERFGCONSTRAINEDDOUBLECOLLECTION:
-	{
-		std::shared_ptr<GConstrainedDoubleCollection> gcdc_ptr(new GConstrainedDoubleCollection(nObjects,0.,-10.,10.));
-		std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1.,1.));
-		gcdc_ptr->addAdaptor(gdga_ptr);
-		this->push_back(gcdc_ptr);
-		break;
-	}
-
-	default:
-	{
-		std::cerr
-		<< "In GTestIndividual2::GTestIndividual2(): Error!" << std::endl
-		<< "Invalid object type requested: " << otype << std::endl;
-		exit(1);
-		break;
-	}
+		default: {
+			std::cerr
+			<< "In GTestIndividual2::GTestIndividual2(): Error!" << std::endl
+			<< "Invalid object type requested: " << otype << std::endl;
+			exit(1);
+			break;
+		}
 	}
 }
 
@@ -127,16 +121,14 @@ GTestIndividual2::GTestIndividual2(const std::size_t& nObjects, const PERFOBJECT
  *
  * @param cp A constant reference to another GTestIndividual2 object
  */
-GTestIndividual2::GTestIndividual2(const GTestIndividual2& cp)
-: Gem::Geneva::GParameterSet(cp)
-{	/* nothing */ }
+GTestIndividual2::GTestIndividual2(const GTestIndividual2 &cp)
+	: Gem::Geneva::GParameterSet(cp) {   /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
-GTestIndividual2::~GTestIndividual2()
-{ /* nothing */	}
+GTestIndividual2::~GTestIndividual2() { /* nothing */   }
 
 /******************************************************************************/
 /**
@@ -145,7 +137,7 @@ GTestIndividual2::~GTestIndividual2()
  * @param cp A copy of another GTestIndividual2 object
  * @return A constant reference to this object
  */
-const GTestIndividual2& GTestIndividual2::operator=(const GTestIndividual2& cp){
+const GTestIndividual2 &GTestIndividual2::operator=(const GTestIndividual2 &cp) {
 	GTestIndividual2::load_(&cp);
 	return *this;
 }
@@ -157,14 +149,14 @@ const GTestIndividual2& GTestIndividual2::operator=(const GTestIndividual2& cp){
  * @param  cp A constant reference to another GTestIndividual2 object
  * @return A boolean indicating whether both objects are equal
  */
-bool GTestIndividual2::operator==(const GTestIndividual2& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GTestIndividual2::operator==(const GTestIndividual2 &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -174,14 +166,14 @@ bool GTestIndividual2::operator==(const GTestIndividual2& cp) const {
  * @param  cp A constant reference to another GTestIndividual2 object
  * @return A boolean indicating whether both objects are in-equal
  */
-bool GTestIndividual2::operator!=(const GTestIndividual2& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GTestIndividual2::operator!=(const GTestIndividual2 &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -194,25 +186,23 @@ bool GTestIndividual2::operator!=(const GTestIndividual2& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GTestIndividual2::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
-   using namespace Gem::Geneva;
+	using namespace Gem::Common;
+	using namespace Gem::Geneva;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GTestIndividual2 *p_load = GObject::gobject_conversion<GTestIndividual2>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GTestIndividual2 *p_load = GObject::gobject_conversion<GTestIndividual2>(&cp);
 
-   Gem::Common::GToken token("GTestIndividual2", e);
+	Gem::Common::GToken token("GTestIndividual2", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GParameterSet>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GParameterSet>(IDENTITY(*this, *p_load), token);
 
-   // ...no local data
+	// ...no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/
@@ -221,8 +211,7 @@ void GTestIndividual2::compare(
  *
  * @param cp A copy of another GTestIndividual2, camouflaged as a GObject
  */
-void GTestIndividual2::load_(const GObject* cp)
-{
+void GTestIndividual2::load_(const GObject *cp) {
 	using namespace Gem::Common;
 	using namespace Gem::Geneva;
 
@@ -241,7 +230,7 @@ void GTestIndividual2::load_(const GObject* cp)
  *
  * @return A deep clone of this object, camouflaged as a GObject
  */
-Gem::Geneva::GObject* GTestIndividual2::clone_() const {
+Gem::Geneva::GObject *GTestIndividual2::clone_() const {
 	return new GTestIndividual2(*this);
 }
 
@@ -260,7 +249,7 @@ double GTestIndividual2::fitnessCalculation() {
 	this->streamline(parVec);
 
 	// Calculate the value of the parabola
-	for(std::size_t i=0; i<parVec.size(); i++) {
+	for (std::size_t i = 0; i < parVec.size(); i++) {
 		result += GSQUARED(parVec[i]);
 	}
 
@@ -281,7 +270,7 @@ bool GTestIndividual2::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent classes' functions
-	if(Gem::Geneva::GParameterSet::modify_GUnitTests()) result = true;
+	if (Gem::Geneva::GParameterSet::modify_GUnitTests()) result = true;
 
 	// Change the parameter settings
 	result = true;
@@ -305,8 +294,8 @@ void GTestIndividual2::specificTestsNoFailureExpected_GUnitTests() {
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
-   // Call the parent classes' functions
-   Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests();
+	// Call the parent classes' functions
+	Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests();
 
 	//------------------------------------------------------------------------------
 	//------------------------------------------------------------------------------

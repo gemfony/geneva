@@ -42,8 +42,7 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GDoubleObject::GDoubleObject()
-{ /* nothing */ }
+GDoubleObject::GDoubleObject() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -51,9 +50,8 @@ GDoubleObject::GDoubleObject()
  *
  * @param cp A copy of another GDoubleObject object
  */
-GDoubleObject::GDoubleObject(const GDoubleObject& cp)
-	: GNumFPT<double>(cp)
-{ /* nothing */ }
+GDoubleObject::GDoubleObject(const GDoubleObject &cp)
+	: GNumFPT<double>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -61,9 +59,8 @@ GDoubleObject::GDoubleObject(const GDoubleObject& cp)
  *
  * @param val A value used for the initialization
  */
-GDoubleObject::GDoubleObject(const double& val)
-	: GNumFPT<double>(val)
-{ /* nothing */ }
+GDoubleObject::GDoubleObject(const double &val)
+	: GNumFPT<double>(val) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -73,11 +70,9 @@ GDoubleObject::GDoubleObject(const double& val)
  * @param upperBoundary The upper boundary for the random number used in the initialization
  */
 GDoubleObject::GDoubleObject(
-		const double& lowerBoundary
-		, const double& upperBoundary
+	const double &lowerBoundary, const double &upperBoundary
 )
-	: GNumFPT<double>(lowerBoundary, upperBoundary)
-{ /* nothing */ }
+	: GNumFPT<double>(lowerBoundary, upperBoundary) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -88,29 +83,25 @@ GDoubleObject::GDoubleObject(
  * @param upperBoundary The upper boundary for random initialization
  */
 GDoubleObject::GDoubleObject(
-		const double& val
-		, const double& lowerBoundary
-		, const double& upperBoundary
+	const double &val, const double &lowerBoundary, const double &upperBoundary
 )
-	: GNumFPT<double>(val, lowerBoundary, upperBoundary)
-{ /* nothing */ }
+	: GNumFPT<double>(val, lowerBoundary, upperBoundary) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GDoubleObject::~GDoubleObject()
-{ /* nothing */ }
+GDoubleObject::~GDoubleObject() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GDoubleObject& GDoubleObject::operator=(
-   const GDoubleObject& cp
+const GDoubleObject &GDoubleObject::operator=(
+	const GDoubleObject &cp
 ) {
-   this->load_(&cp);
-   return *this;
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -120,7 +111,7 @@ const GDoubleObject& GDoubleObject::operator=(
  * @param val The value to be assigned to this object
  * @return The value that was just assigned to this object
  */
-double GDoubleObject::operator=(const double& val) {
+double GDoubleObject::operator=(const double &val) {
 	return GNumFPT<double>::operator=(val);
 }
 
@@ -130,7 +121,7 @@ double GDoubleObject::operator=(const double& val) {
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GDoubleObject::clone_() const {
+GObject *GDoubleObject::clone_() const {
 	return new GDoubleObject(*this);
 }
 
@@ -141,14 +132,14 @@ GObject* GDoubleObject::clone_() const {
  * @param  cp A constant reference to another GDoubleObject object
  * @return A boolean indicating whether both objects are equal
  */
-bool GDoubleObject::operator==(const GDoubleObject& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GDoubleObject::operator==(const GDoubleObject &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -158,14 +149,14 @@ bool GDoubleObject::operator==(const GDoubleObject& cp) const {
  * @param  cp A constant reference to another GDoubleObject object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GDoubleObject::operator!=(const GDoubleObject& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GDoubleObject::operator!=(const GDoubleObject &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -178,24 +169,22 @@ bool GDoubleObject::operator!=(const GDoubleObject& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GDoubleObject::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GDoubleObject *p_load = GObject::gobject_conversion<GDoubleObject>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GDoubleObject *p_load = GObject::gobject_conversion<GDoubleObject>(&cp);
 
-   GToken token("GDoubleObject", e);
+	GToken token("GDoubleObject", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GNumFPT<double> >(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GNumFPT<double> >(IDENTITY(*this, *p_load), token);
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -203,7 +192,7 @@ void GDoubleObject::compare(
  * Emits a name for this class / object
  */
 std::string GDoubleObject::name() const {
-   return std::string("GDoubleObject");
+	return std::string("GDoubleObject");
 }
 
 /******************************************************************************/
@@ -214,8 +203,7 @@ std::string GDoubleObject::name() const {
  * @param parVec The vector to which the local value should be attached
  */
 void GDoubleObject::doubleStreamline(
-   std::vector<double>& parVec
-   , const activityMode& am
+	std::vector<double> &parVec, const activityMode &am
 ) const {
 	parVec.push_back(this->value());
 }
@@ -227,8 +215,7 @@ void GDoubleObject::doubleStreamline(
  * @param parVec The map to which the local value should be attached
  */
 void GDoubleObject::doubleStreamline(
-   std::map<std::string, std::vector<double> >& parVec
-   , const activityMode& am
+	std::map<std::string, std::vector<double> > &parVec, const activityMode &am
 ) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
@@ -239,9 +226,9 @@ void GDoubleObject::doubleStreamline(
    }
 #endif /* DEBUG */
 
-   std::vector<double> parameters;
-   parameters.push_back(this->value());
-   parVec[this->getParameterName()] = parameters;
+	std::vector<double> parameters;
+	parameters.push_back(this->value());
+	parVec[this->getParameterName()] = parameters;
 }
 
 
@@ -255,9 +242,7 @@ void GDoubleObject::doubleStreamline(
  * @param uBndVec A vector of upper double parameter boundaries
  */
 void GDoubleObject::doubleBoundaries(
-   std::vector<double>& lBndVec
-   , std::vector<double>& uBndVec
-   , const activityMode& am
+	std::vector<double> &lBndVec, std::vector<double> &uBndVec, const activityMode &am
 ) const {
 	lBndVec.push_back(this->getLowerInitBoundary());
 	uBndVec.push_back(this->getUpperInitBoundary());
@@ -271,9 +256,9 @@ void GDoubleObject::doubleBoundaries(
  * @return The number 1, as we own a single double parameter
  */
 std::size_t GDoubleObject::countDoubleParameters(
-   const activityMode& am
+	const activityMode &am
 ) const {
-   return 1;
+	return 1;
 }
 
 /******************************************************************************/
@@ -281,9 +266,7 @@ std::size_t GDoubleObject::countDoubleParameters(
  * Assigns part of a value vector to the parameter
  */
 void GDoubleObject::assignDoubleValueVector(
-   const std::vector<double>& parVec
-   , std::size_t& pos
-   , const activityMode& am
+	const std::vector<double> &parVec, std::size_t &pos, const activityMode &am
 ) {
 #ifdef DEBUG
 	// Do we have a valid position ?
@@ -304,10 +287,9 @@ void GDoubleObject::assignDoubleValueVector(
  * Assigns part of a value map to the parameter
  */
 void GDoubleObject::assignDoubleValueVectors(
-   const std::map<std::string, std::vector<double> >& parMap
-   , const activityMode& am
+	const std::map<std::string, std::vector<double> > &parMap, const activityMode &am
 ) {
-   this->setValue((Gem::Common::getMapItem(parMap,this->getParameterName())).at(0));
+	this->setValue((Gem::Common::getMapItem(parMap, this->getParameterName())).at(0));
 }
 
 /******************************************************************************/
@@ -315,13 +297,11 @@ void GDoubleObject::assignDoubleValueVectors(
  * Multiplication with a random value in a given range
  */
 void GDoubleObject::doubleMultiplyByRandom(
-   const double& min
-   , const double& max
-   , const activityMode& am
+	const double &min, const double &max, const activityMode &am
 ) {
-   GParameterT<double>::setValue(
-      GParameterT<double>::value() * this->GObject::gr_ptr()->uniform_real<double>(min, max)
-   );
+	GParameterT<double>::setValue(
+		GParameterT<double>::value() * this->GObject::gr_ptr()->uniform_real<double>(min, max)
+	);
 }
 
 /******************************************************************************/
@@ -329,11 +309,11 @@ void GDoubleObject::doubleMultiplyByRandom(
  * Multiplication with a random value in the range [0,1[
  */
 void GDoubleObject::doubleMultiplyByRandom(
-   const activityMode& am
+	const activityMode &am
 ) {
-   GParameterT<double>::setValue(
-      GParameterT<double>::value() * this->GObject::gr_ptr()->uniform_01<double>()
-   );
+	GParameterT<double>::setValue(
+		GParameterT<double>::value() * this->GObject::gr_ptr()->uniform_01<double>()
+	);
 }
 
 /******************************************************************************/
@@ -341,10 +321,9 @@ void GDoubleObject::doubleMultiplyByRandom(
  * Multiplication with a constant value
  */
 void GDoubleObject::doubleMultiplyBy(
-   const double& val
-   , const activityMode& am
+	const double &val, const activityMode &am
 ) {
-   GParameterT<double>::setValue(val * GParameterT<double>::value());
+	GParameterT<double>::setValue(val * GParameterT<double>::value());
 }
 
 /******************************************************************************/
@@ -352,10 +331,9 @@ void GDoubleObject::doubleMultiplyBy(
  * Initialization with a constant value
  */
 void GDoubleObject::doubleFixedValueInit(
-   const double& val
-   , const activityMode& am
+	const double &val, const activityMode &am
 ) {
-   GParameterT<double>::setValue(val);
+	GParameterT<double>::setValue(val);
 }
 
 /******************************************************************************/
@@ -363,13 +341,21 @@ void GDoubleObject::doubleFixedValueInit(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GDoubleObject::doubleAdd(
-   std::shared_ptr<GParameterBase> p_base
-   , const activityMode& am
+	std::shared_ptr < GParameterBase > p_base, const
+activityMode &am
 ) {
-   // We first need to convert p_base into the local type
-   std::shared_ptr<GDoubleObject> p
-      = GParameterBase::parameterbase_cast<GDoubleObject>(p_base);
-   GParameterT<double>::setValue(this->value() + p->value());
+// We first need to convert p_base into the local type
+std::shared_ptr <GDoubleObject> p
+	= GParameterBase::parameterbase_cast<GDoubleObject>(p_base);
+GParameterT<double>::setValue(this->
+
+value()
+
++ p->
+
+value()
+
+);
 }
 
 /******************************************************************************/
@@ -377,13 +363,21 @@ void GDoubleObject::doubleAdd(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GDoubleObject::doubleSubtract(
-   std::shared_ptr<GParameterBase> p_base
-   , const activityMode& am
+	std::shared_ptr < GParameterBase > p_base, const
+activityMode &am
 ) {
-   // We first need to convert p_base into the local type
-   std::shared_ptr<GDoubleObject> p
-      = GParameterBase::parameterbase_cast<GDoubleObject>(p_base);
-   GParameterT<double>::setValue(this->value() - p->value());
+// We first need to convert p_base into the local type
+std::shared_ptr <GDoubleObject> p
+	= GParameterBase::parameterbase_cast<GDoubleObject>(p_base);
+GParameterT<double>::setValue(this->
+
+value()
+
+- p->
+
+value()
+
+);
 }
 
 /******************************************************************************/
@@ -392,9 +386,9 @@ void GDoubleObject::doubleSubtract(
  *
  * @param cp A copy of another GDoubleObject object, camouflaged as a GObject
  */
-void GDoubleObject::load_(const GObject* cp){
-    // Check that we are not accidently assigning this object to itself
-    GObject::selfAssignmentCheck<GDoubleObject>(cp);
+void GDoubleObject::load_(const GObject *cp) {
+	// Check that we are not accidently assigning this object to itself
+	GObject::selfAssignmentCheck<GDoubleObject>(cp);
 
 	// Load our parent class'es data ...
 	GNumFPT<double>::load_(cp);
@@ -413,7 +407,7 @@ bool GDoubleObject::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GNumFPT<double>::modify_GUnitTests()) result = true;
+	if (GNumFPT<double>::modify_GUnitTests()) result = true;
 
 	return result;
 
@@ -434,14 +428,14 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
-	std::shared_ptr<GAdaptorT<double> > storedAdaptor;
+	std::shared_ptr <GAdaptorT<double>> storedAdaptor;
 
-	if(this->hasAdaptor()) {
+	if (this->hasAdaptor()) {
 		storedAdaptor = this->getAdaptor();
 		adaptorStored = true;
 	}
 
-	std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 0.5, 1.0));
+	std::shared_ptr <GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 0.5, 1.0));
 	gdga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	gdga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(gdga_ptr);
@@ -452,9 +446,9 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test of GParameterT<T>'s methods for setting and retrieval of values
-		std::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
+		std::shared_ptr <GDoubleObject> p_test = this->clone<GDoubleObject>();
 
-		for(double d=0.; d<10; d+=0.01) {
+		for (double d = 0.; d < 10; d += 0.01) {
 			BOOST_CHECK_NO_THROW((*p_test) = d); // Setting using operator=()
 			BOOST_CHECK(p_test->value() == d); // Retrieval through the value() function
 			BOOST_CHECK_NO_THROW(p_test->setValue(d)); // Setting using the setValue() function
@@ -467,10 +461,10 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test automatic conversion to the target type, using GParameterT<T>'s operator T()
-		std::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
+		std::shared_ptr <GDoubleObject> p_test = this->clone<GDoubleObject>();
 
 		double target = -1.;
-		for(double d=0.; d<10; d+=0.01) {
+		for (double d = 0.; d < 10; d += 0.01) {
 			BOOST_CHECK_NO_THROW(p_test->setValue(d)); // Setting using the setValue() function
 			BOOST_CHECK_NO_THROW(target = *p_test); // Automatic conversion
 			BOOST_CHECK(target == d); // Cross-check
@@ -480,15 +474,15 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test the GParameterT<T>::adaptImpl() implementation
-		std::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
+		std::shared_ptr <GDoubleObject> p_test = this->clone<GDoubleObject>();
 
-		if(p_test->hasAdaptor()) {
+		if (p_test->hasAdaptor()) {
 			BOOST_CHECK_NO_THROW(*p_test = 1.);
 			double origVal = *p_test;
 			BOOST_CHECK(*p_test == 1.);
 			BOOST_CHECK(origVal == 1.);
 
-			for(std::size_t i=0; i<nTests; i++) {
+			for (std::size_t i = 0; i < nTests; i++) {
 				BOOST_CHECK_NO_THROW(p_test->adaptImpl());
 				BOOST_CHECK(origVal != *p_test); // Should be different
 				BOOST_CHECK_NO_THROW(origVal = *p_test);
@@ -499,7 +493,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test resetting, adding and retrieval of adaptors in GParameterBaseWithAdaptorsT<T>
-		std::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
+		std::shared_ptr <GDoubleObject> p_test = this->clone<GDoubleObject>();
 
 		// Reset the local adaptor to its pristine condition
 		BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
@@ -511,7 +505,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->hasAdaptor() == true);
 
 		// Retrieve a pointer to the adaptor
-		std::shared_ptr<GAdaptorT<double> > p_adaptor_base;
+		std::shared_ptr <GAdaptorT<double>> p_adaptor_base;
 		BOOST_CHECK(!p_adaptor_base);
 		BOOST_CHECK_NO_THROW(p_adaptor_base = p_test->getAdaptor());
 
@@ -519,7 +513,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_adaptor_base);
 
 		// Retrieve another, converted pointer to the adaptor
-		std::shared_ptr<GDoubleGaussAdaptor> gdga_clone_ptr;
+		std::shared_ptr <GDoubleGaussAdaptor> gdga_clone_ptr;
 		BOOST_CHECK(!gdga_clone_ptr);
 		BOOST_CHECK_NO_THROW(gdga_clone_ptr = p_test->getAdaptor<GDoubleGaussAdaptor>());
 
@@ -536,7 +530,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test that retrieval of adaptor doesn't throw in GParameterBaseWithAdaptorsT<T>::getAdaptor() after calling resetAdaptor() (Note: This is the non-templated version of the function)
-		std::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
+		std::shared_ptr <GDoubleObject> p_test = this->clone<GDoubleObject>();
 
 		// Make sure the adaptor is in pristine condition
 		BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
@@ -547,7 +541,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test that retrieval of an adaptor doesn't throw in GParameterBaseWithAdaptorsT<T>::getAdaptor<>() after calling resetAdaptor() (Note: This is the templated version of the function)
-		std::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
+		std::shared_ptr <GDoubleObject> p_test = this->clone<GDoubleObject>();
 
 		// Make sure no adaptor is present
 		BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
@@ -555,28 +549,28 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test->getAdaptor<GDoubleGaussAdaptor>());
 	}
 
-   // Remove the test adaptor
-   this->resetAdaptor();
+	// Remove the test adaptor
+	this->resetAdaptor();
 
-   // Load the old adaptor, if needed
-   if(adaptorStored) {
-      this->addAdaptor(storedAdaptor);
-   }
+	// Load the old adaptor, if needed
+	if (adaptorStored) {
+		this->addAdaptor(storedAdaptor);
+	}
 
 
-   // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
-   { // Check that construction with initialization boundaries leads to random content
+	{ // Check that construction with initialization boundaries leads to random content
 
-      double previous = -1.;
-      for(std::size_t i=0; i<10; i++) {
-         GDoubleObject p(0., 10000000.);
-         BOOST_CHECK(p.value() != previous);
-         previous = p.value();
-      }
-   }
+		double previous = -1.;
+		for (std::size_t i = 0; i < 10; i++) {
+			GDoubleObject p(0., 10000000.);
+			BOOST_CHECK(p.value() != previous);
+			previous = p.value();
+		}
+	}
 
-   // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GDoubleObject::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -591,14 +585,14 @@ void GDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
-	std::shared_ptr<GAdaptorT<double> > storedAdaptor;
+	std::shared_ptr <GAdaptorT<double>> storedAdaptor;
 
-	if(this->hasAdaptor()) {
+	if (this->hasAdaptor()) {
 		storedAdaptor = this->getAdaptor();
 		adaptorStored = true;
 	}
 
-	std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 0.5, 1.0));
+	std::shared_ptr <GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 0.5, 1.0));
 	gdga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	gdga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(gdga_ptr);
@@ -609,13 +603,14 @@ void GDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test of GParameterBaseWithAdaptorsT<T>::addAdaptor() in case of an empty adaptor pointer
-		std::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
+		std::shared_ptr <GDoubleObject> p_test = this->clone<GDoubleObject>();
 
 		// Make sure the object is in pristine condition
 		BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
 
 		// Add an empty std::shared_ptr<GDoubleGaussAdaptor>. This should throw
-		BOOST_CHECK_THROW(p_test->addAdaptor(std::shared_ptr<GDoubleGaussAdaptor>()), Gem::Common::gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test->addAdaptor(std::shared_ptr<GDoubleGaussAdaptor>()),
+								Gem::Common::gemfony_error_condition);
 	}
 
 	// --------------------------------------------------------------------------
@@ -624,7 +619,7 @@ void GDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 	this->resetAdaptor();
 
 	// Load the old adaptor, if needed
-	if(adaptorStored) {
+	if (adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
 

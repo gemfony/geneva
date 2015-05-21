@@ -8,15 +8,15 @@ A: Geneva stands for "Grid-enabled evolutionary algorithms". The library will ul
    with Grid computing and particle physics, which in turn are closely related to CERN in
    Geneva/Switzerland, the name still seems to be appropriate.
 
-Q: There is the "Geneva library collection" and the "Geneva optimization library". What 
+Q: There is the "Geneva library collection" and the "Geneva optimization library". What
    does that mean ?
 A: When Geneva was first developed, a lot of functionality was needed that may be used
    in a wider context than "just" optimization. Hence we have split off several general
    purpose libraries. The whole of the library collection still carries the name "Geneva",
    as does the special purpose optimization library.
-   
+
 Q: Which sub-libraries exist in the Geneva library collection ?
-A: - The COMMON library holds miscellaneous functionality needed in many contexts. This 
+A: - The COMMON library holds miscellaneous functionality needed in many contexts. This
    includes the creation and parsing of configuration files, visualization of results,
    logging and exception handling as well as some additional code for unit tests.
    - The COURTIER library holds a broker infrastructure with pluggable execution modules.
@@ -30,16 +30,16 @@ A: - The COMMON library holds miscellaneous functionality needed in many context
    random number factory running in the background, as well as random number proxies giving
    consumers the impression that they are dealing with local random number generators.
 
-Q: Where do I find the documentation ? 
-A: There is a complete manual available in PDF format here: 
+Q: Where do I find the documentation ?
+A: There is a complete manual available in PDF format here:
    http://www.gemfony.eu/fileadmin/documentation/geneva-manual.pdf . Note that
-   it might be lacking behind the development of the Geneva library. Hence it 
+   it might be lacking behind the development of the Geneva library. Hence it
    is also recommended to look at the examples shipped with the Geneva sources.
    These are also a good starting point for creating your own solutions.
 
 Q: Which platforms does Geneva run on ?
 A: Geneva is mainly being developed on Linux (particularly the Debian and Ubuntu brands,
-   with tests also happening on CentOS and BSD, the latter with CLang). We have also 
+   with tests also happening on CentOS and BSD, the latter with CLang). We have also
    succeeded to compile the Geneva/Boost 1.54 combo on MacOS X 10.8.4. Note, though, that
    support for MacOS is experimental at best. We would love to hear from you if you have
    ported Geneva to another platform (particularly Microsoft Windows with Visual Studio).
@@ -49,7 +49,7 @@ A: Yes.
 
 Q: Ummmh -- so if there are bugs, why don't you fix them ?
 A: We have done our best to check the Geneva library for all kinds of possible problems.
-   Particularly, there is a comprehensive unit test framework for the core 
+   Particularly, there is a comprehensive unit test framework for the core
    libraries. So the actual number of bugs should be quite low. However, we cannot test
    Geneva under all possible circumstances. This is where, in the best tradition of Open
    Source software, we rely on YOU to report the problems you have encountered. Also note
@@ -64,7 +64,7 @@ A: https://bugs.launchpad.net/geneva
 Q: What kind of reports should be sent to the bug tracker ?
 A: General bugs (i.e. every situation, where Geneva does not behave as expected or
    where an exception is thrown). Please also let us know about any warning you encounter
-   during the compilation process or when running Geneva. We do need to know the exact 
+   during the compilation process or when running Geneva. We do need to know the exact
    execution environment in this case.
 
 Q: Where to post general questions about the Geneva usage or development ?
@@ -84,9 +84,9 @@ Q: What happens to my contributions ?
 A: We will carefully review your contributions and will then decide whether to add them to
    the general source tree. It is likely that we will make changes to code you have supplied
    to us before inclusion to the source tree. Please also note that we might have to ask
-   you to sign a contributor agreement before we accept changes to the code. Please see the 
+   you to sign a contributor agreement before we accept changes to the code. Please see the
    manual for further details.
-   
+
 
 Technical questions:
 ====================
@@ -96,7 +96,7 @@ A: In former releases, throw() specifiers were used to list the exceptions a fun
    could throw. A rationale for the decision to remove these specifiers can be found
    here: http://www.gotw.ca/publications/mill22.htm .
 
-Q: When I run one of the examples in networked mode (either on the local box or over a LAN/WAN), 
+Q: When I run one of the examples in networked mode (either on the local box or over a LAN/WAN),
    the optimization stops reproducibly after a few hundred iterations. Is this a bug ?
 A: The Geneva library assumes that evaluation functions run for a (possibly very) long time.
    Consequently clients disconnect from the server as soon as they have received a work item,
@@ -105,10 +105,10 @@ A: The Geneva library assumes that evaluation functions run for a (possibly very
    This means that a lot of connections are opened and closed in a very short time. You might
    then quickly run out of ports, whose number is limited on Linux (you can find this out with
    the command "cat /proc/sys/net/ipv4/ip_local_port_range"). One remedy is explained here:
-   http://www.speedguide.net/read_articles.php?id=121 (search for TCP_TW_REUSE). The command 
+   http://www.speedguide.net/read_articles.php?id=121 (search for TCP_TW_REUSE). The command
    suggested there is "echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse". NOTE THAT YOU NEED TO
-   CAREFULLY EVALUATE THE EFFECTS OF SETTING THIS VARIABLE ON YOUR SYSTEM. See also a 
-   related 2007 discussion on the Boost.Asio Usenet forum (quoted e.g. here: 
+   CAREFULLY EVALUATE THE EFFECTS OF SETTING THIS VARIABLE ON YOUR SYSTEM. See also a
+   related 2007 discussion on the Boost.Asio Usenet forum (quoted e.g. here:
    http://osdir.com/ml/lib.boost.asio.user/2007-06/msg00101.html). *** The situation
    is actually very similar to a web server with a high volume of requests, and you will
    experience similar problems *** There are many more tuning options in the Linux kernel for
@@ -123,7 +123,7 @@ A: The following variables are available for deeper control of some aspects of t
      GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
         Enables the generation and output of benchmarking information by
         common/GBoundedBufferT.hpp . Mostly to be used in code tests, not for general
-        consumption. Do NOT use this for normal optmization.
+        consumption. Do NOT use this for normal optimization.
 
      GEM_COMMON_PRINT_COMMANDLINE
         Enables the printing of the command line for debugging purposes when executing

@@ -44,47 +44,41 @@ namespace Geneva {
  * The default constructor
  */
 GBrokerGD::GBrokerGD()
-	: GBaseGD()
-	, Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(Gem::Courtier::RESUBMISSIONAFTERTIMEOUT)
-{ /* nothing */ }
+	: GBaseGD(), Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(
+	Gem::Courtier::RESUBMISSIONAFTERTIMEOUT) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization with the number of starting points and the size of the finite step
  */
 GBrokerGD::GBrokerGD(
-		const std::size_t& nStartingPoints
-		, const double& finiteStep, const double& stepSize
+	const std::size_t &nStartingPoints, const double &finiteStep, const double &stepSize
 )
-	: GBaseGD(nStartingPoints, finiteStep, stepSize)
-	, Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(Gem::Courtier::RESUBMISSIONAFTERTIMEOUT)
-{ /* nothing */ }
+	: GBaseGD(nStartingPoints, finiteStep, stepSize), Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(
+	Gem::Courtier::RESUBMISSIONAFTERTIMEOUT) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * A standard copy constructor
  */
-GBrokerGD::GBrokerGD(const GBrokerGD& cp)
-	: GBaseGD(cp)
-	, Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(cp)
-{ /* nothing */ }
+GBrokerGD::GBrokerGD(const GBrokerGD &cp)
+	: GBaseGD(cp), Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor.
  */
-GBrokerGD::~GBrokerGD()
-{ /* nothing */ }
+GBrokerGD::~GBrokerGD() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GBrokerGD& GBrokerGD::operator=(
-   const GBrokerGD& cp
+const GBrokerGD &GBrokerGD::operator=(
+	const GBrokerGD &cp
 ) {
-   this->load_(&cp);
-   return *this;
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -94,15 +88,14 @@ const GBrokerGD& GBrokerGD::operator=(
  * @param  cp A constant reference to another GBrokerGD object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBrokerGD::operator==(const GBrokerGD& cp) const
-{
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBrokerGD::operator==(const GBrokerGD &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -112,15 +105,14 @@ bool GBrokerGD::operator==(const GBrokerGD& cp) const
  * @param  cp A constant reference to another GBrokerGD object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GBrokerGD::operator!=(const GBrokerGD& cp) const
-{
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBrokerGD::operator!=(const GBrokerGD &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -133,26 +125,24 @@ bool GBrokerGD::operator!=(const GBrokerGD& cp) const
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBrokerGD::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GBrokerGD *p_load = GObject::gobject_conversion<GBrokerGD>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GBrokerGD *p_load = GObject::gobject_conversion<GBrokerGD>(&cp);
 
-   GToken token("GBrokerGD", e);
+	GToken token("GBrokerGD", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GBaseGD>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GBaseGD>(IDENTITY(*this, *p_load), token);
 
-   // We do not compare the broker data
+	// We do not compare the broker data
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -160,7 +150,7 @@ void GBrokerGD::compare(
  * Emits a name for this class / object
  */
 std::string GBrokerGD::name() const {
-   return std::string("GBrokerGD");
+	return std::string("GBrokerGD");
 }
 
 /******************************************************************************/
@@ -181,7 +171,7 @@ bool GBrokerGD::usesBroker() const {
  * @param vp Pointer to another GBrokerGD object, camouflaged as a GObject
  */
 void GBrokerGD::load_(const GObject *cp) {
-	const GBrokerGD *p_load = gobject_conversion<GBrokerGD> (cp);
+	const GBrokerGD *p_load = gobject_conversion<GBrokerGD>(cp);
 
 	// Load the parent classes' data ...
 	GBaseGD::load_(cp);
@@ -208,8 +198,8 @@ void GBrokerGD::init() {
 	// GGradientDesccent sees exactly the environment it would when called from its own class
 	GBaseGD::init();
 
-   // Initialize the broker connector
-   Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::init();
+	// Initialize the broker connector
+	Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::init();
 }
 
 /******************************************************************************/
@@ -217,8 +207,8 @@ void GBrokerGD::init() {
  * Necessary clean-up work after the optimization has finished
  */
 void GBrokerGD::finalize() {
-   // Finalize the broker connector
-   Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::finalize();
+	// Finalize the broker connector
+	Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::finalize();
 
 	// GBaseGD sees exactly the environment it would when called from its own class
 	GBaseGD::finalize();
@@ -230,8 +220,8 @@ void GBrokerGD::finalize() {
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
-void GBrokerGD::addConfigurationOptions (
-	Gem::Common::GParserBuilder& gpb
+void GBrokerGD::addConfigurationOptions(
+	Gem::Common::GParserBuilder &gpb
 ) {
 	std::string comment;
 
@@ -278,19 +268,16 @@ void GBrokerGD::runFitnessCalculation() {
 
 	//--------------------------------------------------------------------------------
 	// Submit all work items and wait for their return
-	boost::tuple<std::size_t,std::size_t> range(0, this->size());
+	boost::tuple<std::size_t, std::size_t> range(0, this->size());
 	complete = GBrokerConnector2T<Gem::Geneva::GParameterSet>::workOn(
-      data
-      , range
-      , oldWorkItems_
-      , false // Do not remove unprocessed item
+		data, range, oldWorkItems_, false // Do not remove unprocessed item
 	);
 
-	if(!complete) {
-	   glogger
-	   << "In GBrokerGD::runFitnessCalculation(): Error!" << std::endl
-      << "No complete set of items received" << std::endl
-      << GEXCEPTION;
+	if (!complete) {
+		glogger
+		<< "In GBrokerGD::runFitnessCalculation(): Error!" << std::endl
+		<< "No complete set of items received" << std::endl
+		<< GEXCEPTION;
 	}
 
 	//--------------------------------------------------------------------------------
@@ -308,7 +295,7 @@ bool GBrokerGD::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GBaseGD::modify_GUnitTests()) result = true;
+	if (GBaseGD::modify_GUnitTests()) result = true;
 
 	return result;
 
@@ -338,7 +325,7 @@ void GBrokerGD::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GBrokerGD::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
-   // Call the parent class'es function
+	// Call the parent class'es function
 	GBaseGD::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw

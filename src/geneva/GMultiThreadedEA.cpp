@@ -47,9 +47,7 @@ namespace Geneva {
  * cannot be determined.
  */
 GMultiThreadedEA::GMultiThreadedEA()
-   : GBaseEA()
-   , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads()))
-{ /* nothing */ }
+	: GBaseEA(), nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads())) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -57,25 +55,22 @@ GMultiThreadedEA::GMultiThreadedEA()
  *
  * @param cp Reference to another GMultiThreadedEA object
  */
-GMultiThreadedEA::GMultiThreadedEA(const GMultiThreadedEA& cp)
-   : GBaseEA(cp)
-   , nThreads_(cp.nThreads_)
-{ /* nothing */ }
+GMultiThreadedEA::GMultiThreadedEA(const GMultiThreadedEA &cp)
+	: GBaseEA(cp), nThreads_(cp.nThreads_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor.
  */
-GMultiThreadedEA::~GMultiThreadedEA()
-{ /* nothing */ }
+GMultiThreadedEA::~GMultiThreadedEA() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GMultiThreadedEA& GMultiThreadedEA::operator=(const GMultiThreadedEA& cp) {
-   this->load_(&cp);
-   return *this;
+const GMultiThreadedEA &GMultiThreadedEA::operator=(const GMultiThreadedEA &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -101,7 +96,7 @@ void GMultiThreadedEA::load_(const GObject *cp) {
  *
  * @return A deep copy of this object, camouflaged as a GObject
  */
-GObject *GMultiThreadedEA::clone_() const  {
+GObject *GMultiThreadedEA::clone_() const {
 	return new GMultiThreadedEA(*this);
 }
 
@@ -112,14 +107,14 @@ GObject *GMultiThreadedEA::clone_() const  {
  * @param  cp A constant reference to another GMultiThreadedEA object
  * @return A boolean indicating whether both objects are equal
  */
-bool GMultiThreadedEA::operator==(const GMultiThreadedEA& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GMultiThreadedEA::operator==(const GMultiThreadedEA &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -129,14 +124,14 @@ bool GMultiThreadedEA::operator==(const GMultiThreadedEA& cp) const {
  * @param  cp A constant reference to another GMultiThreadedEA object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GMultiThreadedEA::operator!=(const GMultiThreadedEA& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GMultiThreadedEA::operator!=(const GMultiThreadedEA &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -149,25 +144,23 @@ bool GMultiThreadedEA::operator!=(const GMultiThreadedEA& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GMultiThreadedEA::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GMultiThreadedEA *p_load = GObject::gobject_conversion<GMultiThreadedEA>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GMultiThreadedEA *p_load = GObject::gobject_conversion<GMultiThreadedEA>(&cp);
 
-   GToken token("GMultiThreadedEA", e);
+	GToken token("GMultiThreadedEA", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GBaseEA>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GBaseEA>(IDENTITY(*this, *p_load), token);
 
-   // ... and then the local data
-   compare_t(IDENTITY(nThreads_, p_load->nThreads_), token);
+	// ... and then the local data
+	compare_t(IDENTITY(nThreads_, p_load->nThreads_), token);
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -175,7 +168,7 @@ void GMultiThreadedEA::compare(
  * Emits a name for this class / object
  */
 std::string GMultiThreadedEA::name() const {
-   return std::string("GMultiThreadedEA");
+	return std::string("GMultiThreadedEA");
 }
 
 /******************************************************************************/
@@ -195,21 +188,21 @@ void GMultiThreadedEA::init() {
  * Necessary clean-up work after the optimization has finished
  */
 void GMultiThreadedEA::finalize() {
-   // Check whether there were any errors during thread execution
-   if(tp_ptr_->hasErrors()) {
-      std::ostringstream oss;
-      std::vector<std::string> errors;
-      errors = tp_ptr_->getErrors();
+	// Check whether there were any errors during thread execution
+	if (tp_ptr_->hasErrors()) {
+		std::ostringstream oss;
+		std::vector<std::string> errors;
+		errors = tp_ptr_->getErrors();
 
-      for(std::vector<std::string>::iterator it=errors.begin(); it!=errors.end(); ++it) {
-         oss << *it << std::endl;
-      }
+		for (std::vector<std::string>::iterator it = errors.begin(); it != errors.end(); ++it) {
+			oss << *it << std::endl;
+		}
 
-      glogger
-      << "Warning: There were errors during thread execution in GThreadPool:" << std::endl
-      << oss.str() << std::endl
-      << GWARNING;
-   }
+		glogger
+		<< "Warning: There were errors during thread execution in GThreadPool:" << std::endl
+		<< oss.str() << std::endl
+		<< GWARNING;
+	}
 
 	// Terminate our thread pool
 	tp_ptr_.reset();
@@ -222,13 +215,13 @@ void GMultiThreadedEA::finalize() {
 /**
  * Adapt all children in parallel. Evaluation is done in a seperate function (runFitnessCalculation).
  */
-void GMultiThreadedEA::adaptChildren()
-{
-	boost::tuple<std::size_t,std::size_t> range = getAdaptionRange();
-	std::vector<std::shared_ptr<GParameterSet> >::iterator it;
+void GMultiThreadedEA::adaptChildren() {
+	boost::tuple<std::size_t, std::size_t> range = getAdaptionRange();
+	std::vector<std::shared_ptr < GParameterSet> > ::iterator
+	it;
 
-	for(it=data.begin()+boost::get<0>(range); it!=data.begin()+boost::get<1>(range); ++it) {
-		tp_ptr_->async_schedule([it](){(*it)->adapt();});
+	for (it = data.begin() + boost::get<0>(range); it != data.begin() + boost::get<1>(range); ++it) {
+		tp_ptr_->async_schedule([it]() { (*it)->adapt(); });
 	}
 
 	// Wait for all threads in the pool to complete their work
@@ -240,8 +233,9 @@ void GMultiThreadedEA::adaptChildren()
  * Evaluate all children (and possibly parents, depending on the iteration and sorting mode) in parallel
  */
 void GMultiThreadedEA::runFitnessCalculation() {
-	boost::tuple<std::size_t,std::size_t> range = getEvaluationRange();
-	std::vector<std::shared_ptr<GParameterSet> >::iterator it;
+	boost::tuple<std::size_t, std::size_t> range = getEvaluationRange();
+	std::vector<std::shared_ptr < GParameterSet> > ::iterator
+	it;
 
 #ifdef DEBUG
    // There should be no situation in which a "clean" child is submitted
@@ -259,11 +253,11 @@ void GMultiThreadedEA::runFitnessCalculation() {
 #endif
 
 	// Make evaluation possible and initiate the worker threads
-	for(it=data.begin() + boost::get<0>(range); it!=data.begin() + boost::get<1>(range); ++it) {
-	   // Do the actual scheduling
-      tp_ptr_->async_schedule(
-         [it](){ (*it)->nonConstFitness(0, ALLOWREEVALUATION, USETRANSFORMEDFITNESS); }
-      );
+	for (it = data.begin() + boost::get<0>(range); it != data.begin() + boost::get<1>(range); ++it) {
+		// Do the actual scheduling
+		tp_ptr_->async_schedule(
+			[it]() { (*it)->nonConstFitness(0, ALLOWREEVALUATION, USETRANSFORMEDFITNESS); }
+		);
 	}
 
 	// Wait for all threads in the pool to complete their work
@@ -276,8 +270,8 @@ void GMultiThreadedEA::runFitnessCalculation() {
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
-void GMultiThreadedEA::addConfigurationOptions (
-	Gem::Common::GParserBuilder& gpb
+void GMultiThreadedEA::addConfigurationOptions(
+	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
 	GBaseEA::addConfigurationOptions(gpb);
@@ -286,7 +280,7 @@ void GMultiThreadedEA::addConfigurationOptions (
 	gpb.registerFileParameter<boost::uint16_t>(
 		"nEvaluationThreads" // The name of the variable
 		, 0 // The default value
-		, [this](boost::uint16_t nt){ this->setNThreads(nt); }
+		, [this](boost::uint16_t nt) { this->setNThreads(nt); }
 	)
 	<< "The number of threads used to simultaneously process individuals";
 }
@@ -311,7 +305,7 @@ std::string GMultiThreadedEA::getIndividualCharacteristic() const {
  * @param nThreads The number of threads this class uses
  */
 void GMultiThreadedEA::setNThreads(boost::uint16_t nThreads) {
-	if(nThreads == 0) {
+	if (nThreads == 0) {
 		nThreads_ = boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
 	}
 	else {
@@ -325,7 +319,7 @@ void GMultiThreadedEA::setNThreads(boost::uint16_t nThreads) {
  *
  * @return The maximum number of allowed threads
  */
-boost::uint16_t GMultiThreadedEA::getNThreads() const  {
+boost::uint16_t GMultiThreadedEA::getNThreads() const {
 	return nThreads_;
 }
 
@@ -340,7 +334,7 @@ bool GMultiThreadedEA::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GBaseEA::modify_GUnitTests()) result = true;
+	if (GBaseEA::modify_GUnitTests()) result = true;
 
 	return result;
 

@@ -43,30 +43,27 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GSerialPS::GSerialPS() : GBasePS()
-{ /* nothing */ }
+GSerialPS::GSerialPS() : GBasePS() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * A standard copy constructor
  */
-GSerialPS::GSerialPS(const GSerialPS& cp) : GBasePS(cp)
-{ /* nothing */ }
+GSerialPS::GSerialPS(const GSerialPS &cp) : GBasePS(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor.
  */
-GSerialPS::~GSerialPS()
-{ /* nothing */ }
+GSerialPS::~GSerialPS() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GSerialPS& GSerialPS::operator=(const GSerialPS& cp) {
-   this->load_(&cp);
-   return *this;
+const GSerialPS &GSerialPS::operator=(const GSerialPS &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -76,14 +73,14 @@ const GSerialPS& GSerialPS::operator=(const GSerialPS& cp) {
  * @param  cp A constant reference to another GSerialPS object
  * @return A boolean indicating whether both objects are equal
  */
-bool GSerialPS::operator==(const GSerialPS& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GSerialPS::operator==(const GSerialPS &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -93,14 +90,14 @@ bool GSerialPS::operator==(const GSerialPS& cp) const {
  * @param  cp A constant reference to another GSerialPS object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GSerialPS::operator!=(const GSerialPS& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GSerialPS::operator!=(const GSerialPS &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -113,24 +110,22 @@ bool GSerialPS::operator!=(const GSerialPS& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GSerialPS::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GSerialPS *p_load = GObject::gobject_conversion<GSerialPS>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GSerialPS *p_load = GObject::gobject_conversion<GSerialPS>(&cp);
 
-   GToken token("GSerialPS", e);
+	GToken token("GSerialPS", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GBasePS>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GBasePS>(IDENTITY(*this, *p_load), token);
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/
@@ -138,7 +133,7 @@ void GSerialPS::compare(
  * Emits a name for this class / object
  */
 std::string GSerialPS::name() const {
-   return std::string("GSerialPS");
+	return std::string("GSerialPS");
 }
 
 /******************************************************************************/
@@ -148,15 +143,15 @@ std::string GSerialPS::name() const {
  * @param vp Pointer to another GSerialPS object, camouflaged as a GObject
  */
 void GSerialPS::load_(const GObject *cp) {
-   // Convert GObject pointer to local format
-   // const GSerialPS *p_load = this->gobject_conversion<GSerialPS>(cp);
-   // Uncomment the previous line and comment the following line if you wish to use local data
-   GObject::selfAssignmentCheck<GSerialPS>(cp);
+	// Convert GObject pointer to local format
+	// const GSerialPS *p_load = this->gobject_conversion<GSerialPS>(cp);
+	// Uncomment the previous line and comment the following line if you wish to use local data
+	GObject::selfAssignmentCheck<GSerialPS>(cp);
 
-   // First load our parent class'es data ...
-   GBasePS::load_(cp);
+	// First load our parent class'es data ...
+	GBasePS::load_(cp);
 
-   // ... no local data
+	// ... no local data
 }
 
 /******************************************************************************/
@@ -165,8 +160,8 @@ void GSerialPS::load_(const GObject *cp) {
  *
  * @return A deep copy of this object, camouflaged as a GObject
  */
-GObject *GSerialPS::clone_() const  {
-   return new GSerialPS(*this);
+GObject *GSerialPS::clone_() const {
+	return new GSerialPS(*this);
 }
 
 /******************************************************************************/
@@ -174,10 +169,10 @@ GObject *GSerialPS::clone_() const  {
  * Necessary initialization work before the start of the optimization
  */
 void GSerialPS::init() {
-   // GSerialPS sees exactly the environment it would when called from its own class
-   GBasePS::init();
+	// GSerialPS sees exactly the environment it would when called from its own class
+	GBasePS::init();
 
-   // Add local configuration code here
+	// Add local configuration code here
 }
 
 /******************************************************************************/
@@ -185,10 +180,10 @@ void GSerialPS::init() {
  * Necessary clean-up work after the optimization has finished
  */
 void GSerialPS::finalize() {
-   // Add local finalization code here
+	// Add local finalization code here
 
-   // GSerialPS sees exactly the environment it would when called from its own class
-   GBasePS::finalize();
+	// GSerialPS sees exactly the environment it would when called from its own class
+	GBasePS::finalize();
 }
 
 /******************************************************************************/
@@ -197,13 +192,13 @@ void GSerialPS::finalize() {
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
-void GSerialPS::addConfigurationOptions (
-   Gem::Common::GParserBuilder& gpb
+void GSerialPS::addConfigurationOptions(
+	Gem::Common::GParserBuilder &gpb
 ) {
-   // Call our parent class'es function
-   GBasePS::addConfigurationOptions(gpb);
+	// Call our parent class'es function
+	GBasePS::addConfigurationOptions(gpb);
 
-   // no local data
+	// no local data
 }
 
 /******************************************************************************/
@@ -213,7 +208,7 @@ void GSerialPS::addConfigurationOptions (
  * All other objects do not need to re-implement this function (unless they rely on the name for some reason).
  */
 std::string GSerialPS::getIndividualCharacteristic() const {
-   return std::string("GENEVA_SERIALOPTALG");
+	return std::string("GENEVA_SERIALOPTALG");
 }
 
 /******************************************************************************/
@@ -225,9 +220,9 @@ std::string GSerialPS::getIndividualCharacteristic() const {
  * @return The best fitness found amongst all parents
  */
 void GSerialPS::runFitnessCalculation() {
-   // Trigger value calculation for all individuals
-   GSerialPS::iterator it;
-   for(it=this->begin(); it!=this->end(); ++it) {
+	// Trigger value calculation for all individuals
+	GSerialPS::iterator it;
+	for (it = this->begin(); it != this->end(); ++it) {
 #ifdef DEBUG
       // Make sure the evaluated individuals have the dirty flag set
       if(!(*it)->isDirty()) {
@@ -238,9 +233,9 @@ void GSerialPS::runFitnessCalculation() {
       }
 #endif /* DEBUG */
 
-      // Perform the actual evaluation
-      (*it)->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
-   }
+		// Perform the actual evaluation
+		(*it)->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
+	}
 }
 
 /******************************************************************************/
@@ -249,12 +244,12 @@ void GSerialPS::runFitnessCalculation() {
  */
 bool GSerialPS::modify_GUnitTests() {
 #ifdef GEM_TESTING
-   bool result = false;
+	bool result = false;
 
-   // Call the parent class'es function
-   if(GBasePS::modify_GUnitTests()) result = true;
+	// Call the parent class'es function
+	if (GBasePS::modify_GUnitTests()) result = true;
 
-   return result;
+	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GSerialPS::modify_GUnitTests", "GEM_TESTING");
@@ -268,8 +263,8 @@ bool GSerialPS::modify_GUnitTests() {
  */
 void GSerialPS::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
-   // Call the parent class'es function
-   GBasePS::specificTestsNoFailureExpected_GUnitTests();
+	// Call the parent class'es function
+	GBasePS::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GSerialPS::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -282,8 +277,8 @@ void GSerialPS::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GSerialPS::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
-   // Call the parent class'es function
-   GBasePS::specificTestsFailuresExpected_GUnitTests();
+	// Call the parent class'es function
+	GBasePS::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GSerialPS::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

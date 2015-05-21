@@ -45,19 +45,16 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GInt32ObjectCollection::GInt32ObjectCollection()
-{ /* nothing */ }
+GInt32ObjectCollection::GInt32ObjectCollection() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization with a number of identical GConstrainedDoubleObject objects
  */
 GInt32ObjectCollection::GInt32ObjectCollection(
-	const std::size_t& nCp
-	, std::shared_ptr<GInt32Object> tmpl_ptr
+	const std::size_t &nCp, std::shared_ptr <GInt32Object> tmpl_ptr
 )
-	:GParameterTCollectionT<GInt32Object>(nCp, tmpl_ptr)
-{ /* nothing */ }
+	: GParameterTCollectionT<GInt32Object>(nCp, tmpl_ptr) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -65,16 +62,14 @@ GInt32ObjectCollection::GInt32ObjectCollection(
  *
  * @param cp A copy of another GInt32ObjectCollection object
  */
-GInt32ObjectCollection::GInt32ObjectCollection(const GInt32ObjectCollection& cp)
-	: GParameterTCollectionT<GInt32Object>(cp)
-{ /* nothing */ }
+GInt32ObjectCollection::GInt32ObjectCollection(const GInt32ObjectCollection &cp)
+	: GParameterTCollectionT<GInt32Object>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GInt32ObjectCollection::~GInt32ObjectCollection()
-{ /* nothing */ }
+GInt32ObjectCollection::~GInt32ObjectCollection() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -82,7 +77,7 @@ GInt32ObjectCollection::~GInt32ObjectCollection()
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GInt32ObjectCollection::clone_() const {
+GObject *GInt32ObjectCollection::clone_() const {
 	return new GInt32ObjectCollection(*this);
 }
 
@@ -90,9 +85,9 @@ GObject* GInt32ObjectCollection::clone_() const {
 /**
  * The standard assignment operator
  */
-const GInt32ObjectCollection& GInt32ObjectCollection::operator=(const GInt32ObjectCollection& cp) {
-   this->load_(&cp);
-   return *this;
+const GInt32ObjectCollection &GInt32ObjectCollection::operator=(const GInt32ObjectCollection &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -102,14 +97,14 @@ const GInt32ObjectCollection& GInt32ObjectCollection::operator=(const GInt32Obje
  * @param  cp A constant reference to another GInt32ObjectCollection object
  * @return A boolean indicating whether both objects are equal
  */
-bool GInt32ObjectCollection::operator==(const GInt32ObjectCollection& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GInt32ObjectCollection::operator==(const GInt32ObjectCollection &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -119,14 +114,14 @@ bool GInt32ObjectCollection::operator==(const GInt32ObjectCollection& cp) const 
  * @param  cp A constant reference to another GInt32ObjectCollection object
  * @return A boolean indicating whether both objects are in-equal
  */
-bool GInt32ObjectCollection::operator!=(const GInt32ObjectCollection& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GInt32ObjectCollection::operator!=(const GInt32ObjectCollection &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -139,24 +134,22 @@ bool GInt32ObjectCollection::operator!=(const GInt32ObjectCollection& cp) const 
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GInt32ObjectCollection::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GInt32ObjectCollection *p_load = GObject::gobject_conversion<GInt32ObjectCollection>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GInt32ObjectCollection *p_load = GObject::gobject_conversion<GInt32ObjectCollection>(&cp);
 
-   GToken token("GInt32ObjectCollection", e);
+	GToken token("GInt32ObjectCollection", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GParameterTCollectionT<GInt32Object> >(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GParameterTCollectionT<GInt32Object> >(IDENTITY(*this, *p_load), token);
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -164,7 +157,7 @@ void GInt32ObjectCollection::compare(
  * Emits a name for this class / object
  */
 std::string GInt32ObjectCollection::name() const {
-   return std::string("GInt32ObjectCollection");
+	return std::string("GInt32ObjectCollection");
 }
 
 /******************************************************************************/
@@ -173,9 +166,9 @@ std::string GInt32ObjectCollection::name() const {
  *
  * @param cp A copy of another GInt32ObjectCollection object, camouflaged as a GObject
  */
-void GInt32ObjectCollection::load_(const GObject* cp){
-    // Check that we are not accidently assigning this object to itself
-    GObject::selfAssignmentCheck<GInt32ObjectCollection>(cp);
+void GInt32ObjectCollection::load_(const GObject *cp) {
+	// Check that we are not accidently assigning this object to itself
+	GObject::selfAssignmentCheck<GInt32ObjectCollection>(cp);
 
 	// Load our parent class'es data ...
 	GParameterTCollectionT<GInt32Object>::load_(cp);
@@ -208,24 +201,27 @@ bool GInt32ObjectCollection::modify_GUnitTests() {
 /**
  * Fills the collection with GInt32Object objects
  */
-void GInt32ObjectCollection::fillWithObjects(const std::size_t& nAddedObjects) {
+void GInt32ObjectCollection::fillWithObjects(const std::size_t &nAddedObjects) {
 #ifdef GEM_TESTING
 	// Clear the collection, so we can start fresh
 	BOOST_CHECK_NO_THROW(this->clear());
 
 	// Add GInt32Object items with adaptors to p_test1
-	for(std::size_t i=0; i<nAddedObjects; i++) {
+	for (std::size_t i = 0; i < nAddedObjects; i++) {
 		// Create a suitable adaptor
-		std::shared_ptr<GInt32GaussAdaptor> giga_ptr;
+		std::shared_ptr <GInt32GaussAdaptor> giga_ptr;
 
-		BOOST_CHECK_NO_THROW(giga_ptr = std::shared_ptr<GInt32GaussAdaptor>(new GInt32GaussAdaptor(0.025, 0.1, 0, 1, 1.0)));
-		BOOST_CHECK_NO_THROW(giga_ptr->setAdaptionThreshold(0)); // Make sure the adaptor's internal parameters don't change through the adaption
+		BOOST_CHECK_NO_THROW(
+			giga_ptr = std::shared_ptr<GInt32GaussAdaptor>(new GInt32GaussAdaptor(0.025, 0.1, 0, 1, 1.0)));
+		BOOST_CHECK_NO_THROW(giga_ptr->setAdaptionThreshold(
+			0)); // Make sure the adaptor's internal parameters don't change through the adaption
 		BOOST_CHECK_NO_THROW(giga_ptr->setAdaptionMode(true)); // Always adapt
 
 		// Create a suitable GInt32Object object
-		std::shared_ptr<GInt32Object> gio_ptr;
+		std::shared_ptr <GInt32Object> gio_ptr;
 
-		BOOST_CHECK_NO_THROW(gio_ptr = std::shared_ptr<GInt32Object>(new GInt32Object(-100, 100))); // Initialization in the range -100, 100
+		BOOST_CHECK_NO_THROW(
+			gio_ptr = std::shared_ptr<GInt32Object>(new GInt32Object(-100, 100))); // Initialization in the range -100, 100
 
 		// Add the adaptor
 		BOOST_CHECK_NO_THROW(gio_ptr->addAdaptor(giga_ptr));
@@ -252,7 +248,7 @@ void GInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	const std::size_t nAddedObjects = 10;
 	const std::size_t nTests = 100;
 	const double LOWERINITBOUNDARY = -10;
-	const double UPPERINITBOUNDARY =  10;
+	const double UPPERINITBOUNDARY = 10;
 	const double FIXEDVALUEINIT = 1.;
 	const double MULTVALUE = 3.;
 	const double RANDLOWERBOUNDARY = 0.;
@@ -261,7 +257,7 @@ void GInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Call the parent class'es function
-		std::shared_ptr<GInt32ObjectCollection> p_test = this->clone<GInt32ObjectCollection>();
+		std::shared_ptr <GInt32ObjectCollection> p_test = this->clone<GInt32ObjectCollection>();
 
 		// Fill p_test with objects
 		p_test->fillWithObjects(nAddedObjects);
@@ -273,8 +269,8 @@ void GInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test that the fp-family of functions has no effect on this object (and contained objects)
-		std::shared_ptr<GInt32ObjectCollection> p_test1 = this->clone<GInt32ObjectCollection>();
-		std::shared_ptr<GInt32ObjectCollection> p_test2 = this->clone<GInt32ObjectCollection>();
+		std::shared_ptr <GInt32ObjectCollection> p_test1 = this->clone<GInt32ObjectCollection>();
+		std::shared_ptr <GInt32ObjectCollection> p_test2 = this->clone<GInt32ObjectCollection>();
 
 		// Fill p_test1 with objects
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));

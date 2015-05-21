@@ -41,15 +41,13 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GOptimizableI::GOptimizableI()
-{ /* nothing */ }
+GOptimizableI::GOptimizableI() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GOptimizableI::~GOptimizableI()
-{ /* nothing */ }
+GOptimizableI::~GOptimizableI() { /* nothing */ }
 
 /******************************************************************************/
 /**

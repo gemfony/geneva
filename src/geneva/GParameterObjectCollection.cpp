@@ -43,19 +43,16 @@ namespace Geneva {
  * The default constructor
  */
 GParameterObjectCollection::GParameterObjectCollection()
-   : GParameterTCollectionT<GParameterBase>()
-{ /* nothing */ }
+	: GParameterTCollectionT<GParameterBase>() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization with a number of identical GParameterBase objects
  */
 GParameterObjectCollection::GParameterObjectCollection(
-	const std::size_t& nCp
-	, std::shared_ptr<GParameterBase> tmpl_ptr
+	const std::size_t &nCp, std::shared_ptr <GParameterBase> tmpl_ptr
 )
-	: GParameterTCollectionT<GParameterBase>(nCp, tmpl_ptr)
-{ /* nothing */ }
+	: GParameterTCollectionT<GParameterBase>(nCp, tmpl_ptr) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -63,16 +60,14 @@ GParameterObjectCollection::GParameterObjectCollection(
  *
  * @param cp A copy of another GParameterObjectCollection object
  */
-GParameterObjectCollection::GParameterObjectCollection(const GParameterObjectCollection& cp)
-	: GParameterTCollectionT<GParameterBase>(cp)
-{ /* nothing */ }
+GParameterObjectCollection::GParameterObjectCollection(const GParameterObjectCollection &cp)
+	: GParameterTCollectionT<GParameterBase>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GParameterObjectCollection::~GParameterObjectCollection()
-{ /* nothing */ }
+GParameterObjectCollection::~GParameterObjectCollection() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -80,7 +75,7 @@ GParameterObjectCollection::~GParameterObjectCollection()
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GParameterObjectCollection::clone_() const {
+GObject *GParameterObjectCollection::clone_() const {
 	return new GParameterObjectCollection(*this);
 }
 
@@ -88,9 +83,9 @@ GObject* GParameterObjectCollection::clone_() const {
 /**
  * The standard assignment operator
  */
-const GParameterObjectCollection& GParameterObjectCollection::operator=(const GParameterObjectCollection& cp) {
-   this->load_(&cp);
-   return *this;
+const GParameterObjectCollection &GParameterObjectCollection::operator=(const GParameterObjectCollection &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -100,14 +95,14 @@ const GParameterObjectCollection& GParameterObjectCollection::operator=(const GP
  * @param  cp A constant reference to another GParameterObjectCollection object
  * @return A boolean indicating whether both objects are equal
  */
-bool GParameterObjectCollection::operator==(const GParameterObjectCollection& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GParameterObjectCollection::operator==(const GParameterObjectCollection &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -117,14 +112,14 @@ bool GParameterObjectCollection::operator==(const GParameterObjectCollection& cp
  * @param  cp A constant reference to another GParameterObjectCollection object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GParameterObjectCollection::operator!=(const GParameterObjectCollection& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GParameterObjectCollection::operator!=(const GParameterObjectCollection &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -137,24 +132,22 @@ bool GParameterObjectCollection::operator!=(const GParameterObjectCollection& cp
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GParameterObjectCollection::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GParameterObjectCollection *p_load = GObject::gobject_conversion<GParameterObjectCollection>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GParameterObjectCollection *p_load = GObject::gobject_conversion<GParameterObjectCollection>(&cp);
 
-   GToken token("GParameterObjectCollection", e);
+	GToken token("GParameterObjectCollection", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GParameterTCollectionT<GParameterBase> >(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GParameterTCollectionT<GParameterBase> >(IDENTITY(*this, *p_load), token);
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/
@@ -162,7 +155,7 @@ void GParameterObjectCollection::compare(
  * Emits a name for this class / object
  */
 std::string GParameterObjectCollection::name() const {
-   return std::string("GParameterObjectCollection");
+	return std::string("GParameterObjectCollection");
 }
 
 /******************************************************************************/
@@ -171,9 +164,9 @@ std::string GParameterObjectCollection::name() const {
  *
  * @param cp A copy of another GParameterObjectCollection object, camouflaged as a GObject
  */
-void GParameterObjectCollection::load_(const GObject* cp){
+void GParameterObjectCollection::load_(const GObject *cp) {
 	// Check for a possible self-assignment
-   GObject::selfAssignmentCheck<GParameterObjectCollection>(cp);
+	GObject::selfAssignmentCheck<GParameterObjectCollection>(cp);
 
 	// Load our parent class'es data ...
 	GParameterTCollectionT<GParameterBase>::load_(cp);
@@ -188,7 +181,7 @@ void GParameterObjectCollection::load_(const GObject* cp){
  * @param pos The position for which an item should be returned
  * @return The item at position pos
  */
-std::shared_ptr<Gem::Geneva::GParameterBase> GParameterObjectCollection::at(const std::size_t& pos) {
+std::shared_ptr <Gem::Geneva::GParameterBase> GParameterObjectCollection::at(const std::size_t &pos) {
 	return data.at(pos);
 }
 
@@ -224,14 +217,16 @@ void GParameterObjectCollection::fillWithObjects() {
 
 	// Add a GBooleanObject object
 	// Create a suitable adaptor
-	std::shared_ptr<GBooleanAdaptor> gba_ptr;
+	std::shared_ptr <GBooleanAdaptor> gba_ptr;
 	BOOST_CHECK_NO_THROW(gba_ptr = std::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor(1.0)));
-	BOOST_CHECK_NO_THROW(gba_ptr->setAdaptionThreshold(0)); // Make sure the adaptor's internal parameters don't change through the adaption
+	BOOST_CHECK_NO_THROW(gba_ptr->setAdaptionThreshold(
+		0)); // Make sure the adaptor's internal parameters don't change through the adaption
 	BOOST_CHECK_NO_THROW(gba_ptr->setAdaptionMode(true)); // Always adapt
 
 	// Create a suitable GBooleanObject object
-	std::shared_ptr<GBooleanObject> gbo_ptr;
-	BOOST_CHECK_NO_THROW(gbo_ptr = std::shared_ptr<GBooleanObject>(new GBooleanObject())); // Initialization with standard values
+	std::shared_ptr <GBooleanObject> gbo_ptr;
+	BOOST_CHECK_NO_THROW(
+		gbo_ptr = std::shared_ptr<GBooleanObject>(new GBooleanObject())); // Initialization with standard values
 
 	// Add the adaptor
 	BOOST_CHECK_NO_THROW(gbo_ptr->addAdaptor(gba_ptr));
@@ -244,14 +239,16 @@ void GParameterObjectCollection::fillWithObjects() {
 
 	// Add a GInt32 object
 	// Create a suitable adaptor
-	std::shared_ptr<GInt32GaussAdaptor> giga_ptr;
+	std::shared_ptr <GInt32GaussAdaptor> giga_ptr;
 	BOOST_CHECK_NO_THROW(giga_ptr = std::shared_ptr<GInt32GaussAdaptor>(new GInt32GaussAdaptor(0.025, 0.1, 0, 1, 1.0)));
-	BOOST_CHECK_NO_THROW(giga_ptr->setAdaptionThreshold(0)); // Make sure the adaptor's internal parameters don't change through the adaption
+	BOOST_CHECK_NO_THROW(giga_ptr->setAdaptionThreshold(
+		0)); // Make sure the adaptor's internal parameters don't change through the adaption
 	BOOST_CHECK_NO_THROW(giga_ptr->setAdaptionMode(true)); // Always adapt
 
 	// Create a suitable GInt32Object object
-	std::shared_ptr<GInt32Object> gio_ptr;
-	BOOST_CHECK_NO_THROW(gio_ptr = std::shared_ptr<GInt32Object>(new GInt32Object(-100, 100))); // Initialization in the range -100, 100
+	std::shared_ptr <GInt32Object> gio_ptr;
+	BOOST_CHECK_NO_THROW(
+		gio_ptr = std::shared_ptr<GInt32Object>(new GInt32Object(-100, 100))); // Initialization in the range -100, 100
 
 	// Add the adaptor
 	BOOST_CHECK_NO_THROW(gio_ptr->addAdaptor(giga_ptr));
@@ -264,14 +261,17 @@ void GParameterObjectCollection::fillWithObjects() {
 
 	// Add a GDouble object
 	// Create a suitable adaptor
-	std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr;
-	BOOST_CHECK_NO_THROW(gdga_ptr = std::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor(0.025, 0.1, 0, 1, 1.0)));
-	BOOST_CHECK_NO_THROW(gdga_ptr->setAdaptionThreshold(0)); // Make sure the adaptor's internal parameters don't change through the adaption
+	std::shared_ptr <GDoubleGaussAdaptor> gdga_ptr;
+	BOOST_CHECK_NO_THROW(
+		gdga_ptr = std::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor(0.025, 0.1, 0, 1, 1.0)));
+	BOOST_CHECK_NO_THROW(gdga_ptr->setAdaptionThreshold(
+		0)); // Make sure the adaptor's internal parameters don't change through the adaption
 	BOOST_CHECK_NO_THROW(gdga_ptr->setAdaptionMode(true)); // Always adapt
 
 	// Create a suitable GDoubleObject object
-	std::shared_ptr<GDoubleObject> gdo_ptr;
-	BOOST_CHECK_NO_THROW(gdo_ptr = std::shared_ptr<GDoubleObject>(new GDoubleObject(-100., 100.))); // Initialization in the range -100, 100
+	std::shared_ptr <GDoubleObject> gdo_ptr;
+	BOOST_CHECK_NO_THROW(gdo_ptr = std::shared_ptr<GDoubleObject>(
+		new GDoubleObject(-100., 100.))); // Initialization in the range -100, 100
 
 	// Add the adaptor
 	BOOST_CHECK_NO_THROW(gdo_ptr->addAdaptor(gdga_ptr));
@@ -295,7 +295,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Some settings
 	const double LOWERINITBOUNDARY = -10;
-	const double UPPERINITBOUNDARY =  10;
+	const double UPPERINITBOUNDARY = 10;
 	const double FIXEDVALUEINIT = 1.;
 	const double MULTVALUE = 3.;
 	const double RANDLOWERBOUNDARY = 2.;
@@ -304,7 +304,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Call the parent class'es function
-		std::shared_ptr<GParameterObjectCollection> p_test = this->clone<GParameterObjectCollection>();
+		std::shared_ptr <GParameterObjectCollection> p_test = this->clone<GParameterObjectCollection>();
 
 		// Fill p_test with parameters
 		p_test->fillWithObjects();
@@ -316,8 +316,8 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test that the fpFixedValueInit() function only has an effect on fp parameters
-		std::shared_ptr<GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
-		std::shared_ptr<GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr <GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr <GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 		// Fill p_test1 with parameters
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
@@ -336,9 +336,9 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
 		// Extract the fp parameters
-		std::shared_ptr<GDoubleObject> gdo_ptr1, gdo_ptr2;
+		std::shared_ptr <GDoubleObject> gdo_ptr1, gdo_ptr2;
 		BOOST_CHECK_NO_THROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
-		BOOST_CHECK_NO_THROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2)	);
+		BOOST_CHECK_NO_THROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
 
 		// Check that the value is changed
 		BOOST_CHECK(gdo_ptr1->value() != gdo_ptr2->value());
@@ -350,8 +350,8 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test that the fpMultiplyBy() function only has an effect on fp parameters
-		std::shared_ptr<GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
-		std::shared_ptr<GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr <GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr <GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 		// Fill p_test1 with parameters
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
@@ -370,7 +370,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
 		// Extract the fp parameters
-		std::shared_ptr<GDoubleObject> gdo_ptr1, gdo_ptr2;
+		std::shared_ptr <GDoubleObject> gdo_ptr1, gdo_ptr2;
 		BOOST_CHECK_NO_THROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
 		BOOST_CHECK_NO_THROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
 
@@ -389,16 +389,16 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 		// The fp value should have changed
 		BOOST_CHECK_MESSAGE(
-         gdo_ptr2->value() == FIXEDVALUEINIT*MULTVALUE
-         , "gdo_ptr2->value() = " << gdo_ptr2->value() << ", FIXEDVALUEINIT*MULTVALUE = " << FIXEDVALUEINIT*MULTVALUE
-      );
+			gdo_ptr2->value() == FIXEDVALUEINIT * MULTVALUE,
+			"gdo_ptr2->value() = " << gdo_ptr2->value() << ", FIXEDVALUEINIT*MULTVALUE = " << FIXEDVALUEINIT * MULTVALUE
+		);
 	}
 
 	//------------------------------------------------------------------------------
 
 	{ // Test that the fpMultiplyByRandom(min,max) function only has an effect on fp parameters
-		std::shared_ptr<GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
-		std::shared_ptr<GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr <GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr <GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 		// Fill p_test1 with parameters
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
@@ -420,7 +420,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
 		// Extract the fp parameters
-		std::shared_ptr<GDoubleObject> gdo_ptr1, gdo_ptr2;
+		std::shared_ptr <GDoubleObject> gdo_ptr1, gdo_ptr2;
 		BOOST_CHECK_NO_THROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
 		BOOST_CHECK_NO_THROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
 
@@ -431,8 +431,8 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test that the fpMultiplyByRandom() function only has an effect on fp parameters
-		std::shared_ptr<GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
-		std::shared_ptr<GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr <GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr <GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 		// Fill p_test1 with parameters
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
@@ -454,7 +454,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
 		// Extract the fp parameters
-		std::shared_ptr<GDoubleObject> gdo_ptr1, gdo_ptr2;
+		std::shared_ptr <GDoubleObject> gdo_ptr1, gdo_ptr2;
 		BOOST_CHECK_NO_THROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
 		BOOST_CHECK_NO_THROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
 
@@ -465,8 +465,8 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test that the fpAdd() function only has an effect on fp parameters
-		std::shared_ptr<GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
-		std::shared_ptr<GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr <GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr <GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 		// Fill p_test1 with parameters
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
@@ -488,20 +488,20 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
 		// Extract the fp parameters
-		std::shared_ptr<GDoubleObject> gdo_ptr1, gdo_ptr2;
+		std::shared_ptr <GDoubleObject> gdo_ptr1, gdo_ptr2;
 		BOOST_CHECK_NO_THROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
 		BOOST_CHECK_NO_THROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
 
 		// The fp value should have changed, the value should be (FIXEDVALUEINIT+FIXEDVALUEINIT)
 		BOOST_CHECK(gdo_ptr2->value() != gdo_ptr1->value());
-		BOOST_CHECK(gdo_ptr2->value() == FIXEDVALUEINIT+FIXEDVALUEINIT);
+		BOOST_CHECK(gdo_ptr2->value() == FIXEDVALUEINIT + FIXEDVALUEINIT);
 	}
 
 	//------------------------------------------------------------------------------
 
 	{ // Test that the fpSubtract() function only has an effect on fp parameters
-		std::shared_ptr<GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
-		std::shared_ptr<GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr <GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr <GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 		// Fill p_test1 with parameters
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
@@ -523,7 +523,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*(p_test1->at(1)) == *(p_test2->at(1)));
 
 		// Extract the fp parameters
-		std::shared_ptr<GDoubleObject> gdo_ptr1, gdo_ptr2;
+		std::shared_ptr <GDoubleObject> gdo_ptr1, gdo_ptr2;
 		BOOST_CHECK_NO_THROW(gdo_ptr1 = p_test1->at<GDoubleObject>(2));
 		BOOST_CHECK_NO_THROW(gdo_ptr2 = p_test2->at<GDoubleObject>(2));
 
@@ -535,8 +535,8 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test random initialization (test of GParameterTCollectionT<T>::randomInit_() )
-		std::shared_ptr<GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
-		std::shared_ptr<GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr <GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr <GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 		// Fill p_test1 with parameters
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());

@@ -43,16 +43,14 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue()
-{ /* nothing */ }
+GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization with the maximum size
  */
-GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(const std::size_t& maxSize)
-   : Gem::Common::GFixedSizePriorityQueueT<GParameterSet>(maxSize)
-{ /* nothing */ }
+GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(const std::size_t &maxSize)
+	: Gem::Common::GFixedSizePriorityQueueT<GParameterSet>(maxSize) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -60,72 +58,69 @@ GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(const s
  * lower evaluations are considered better
  */
 GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(
-   const std::size_t& maxSize
-   , const bool& higherIsBetter
+	const std::size_t &maxSize, const bool &higherIsBetter
 )
-   : Gem::Common::GFixedSizePriorityQueueT<GParameterSet>(maxSize, higherIsBetter)
-{ /* nothing */ }
+	: Gem::Common::GFixedSizePriorityQueueT<GParameterSet>(maxSize, higherIsBetter) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The copy constructor
  */
 GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(
-   const GParameterSetFixedSizePriorityQueue& cp
+	const GParameterSetFixedSizePriorityQueue &cp
 )
-   : Gem::Common::GFixedSizePriorityQueueT<GParameterSet>(cp)
-{ /* nothing */ }
+	: Gem::Common::GFixedSizePriorityQueueT<GParameterSet>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GParameterSetFixedSizePriorityQueue::~GParameterSetFixedSizePriorityQueue()
-{ /* nothing */ }
+GParameterSetFixedSizePriorityQueue::~GParameterSetFixedSizePriorityQueue() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Copy the data of another GParameterSetFixedSizePriorityQueue over
  */
-const GParameterSetFixedSizePriorityQueue& GParameterSetFixedSizePriorityQueue::operator=(
-   const GParameterSetFixedSizePriorityQueue& cp
+const GParameterSetFixedSizePriorityQueue &GParameterSetFixedSizePriorityQueue::operator=(
+	const GParameterSetFixedSizePriorityQueue &cp
 ) {
-   this->load(cp);
-   return *this;
+	this->load(cp);
+	return *this;
 }
 
 /******************************************************************************/
 /**
  * Loads the data of another GParameterSetFixedSizePriorityQueue object, camouflaged as a GFixedSizePriorityQueueT<GParameterSet>
  */
-void GParameterSetFixedSizePriorityQueue::load(const Gem::Common::GFixedSizePriorityQueueT<GParameterSet>& cp) {
-   // No local data, so we only call the parent class'es function
-   Gem::Common::GFixedSizePriorityQueueT<GParameterSet>::load(cp);
+void GParameterSetFixedSizePriorityQueue::load(const Gem::Common::GFixedSizePriorityQueueT<GParameterSet> &cp) {
+	// No local data, so we only call the parent class'es function
+	Gem::Common::GFixedSizePriorityQueueT<GParameterSet>::load(cp);
 }
 
 /******************************************************************************/
 /**
  * Creates a deep clone of this object
  */
-std::shared_ptr<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> > GParameterSetFixedSizePriorityQueue::clone() const {
-   return std::shared_ptr<GParameterSetFixedSizePriorityQueue>(new GParameterSetFixedSizePriorityQueue(*this));
+std::shared_ptr <Gem::Common::GFixedSizePriorityQueueT<GParameterSet>> GParameterSetFixedSizePriorityQueue::clone() const {
+	return std::shared_ptr<GParameterSetFixedSizePriorityQueue>(new GParameterSetFixedSizePriorityQueue(*this));
 }
 
 /******************************************************************************/
 /**
  * Checks whether no item has the dirty flag set
  */
-bool GParameterSetFixedSizePriorityQueue::allClean(std::size_t& pos) const {
-   pos = 0;
-   std::deque<std::shared_ptr<GParameterSet> >::const_iterator cit;
-   for(cit=data_.begin(); cit!=data_.end(); ++cit) {
-      if(true == (*cit)->isDirty()) {
-         pos = std::distance(data_.begin(), cit);
-         return false;
-      }
-   }
+bool GParameterSetFixedSizePriorityQueue::allClean(std::size_t &pos) const {
+	pos = 0;
+	std::deque<std::shared_ptr < GParameterSet> > ::const_iterator
+	cit;
+	for (cit = data_.begin(); cit != data_.end(); ++cit) {
+		if (true == (*cit)->isDirty()) {
+			pos = std::distance(data_.begin(), cit);
+			return false;
+		}
+	}
 
-   return true;
+	return true;
 }
 
 /******************************************************************************/
@@ -133,13 +128,14 @@ bool GParameterSetFixedSizePriorityQueue::allClean(std::size_t& pos) const {
  * Emits information about the "dirty flag" of all items
  */
 std::string GParameterSetFixedSizePriorityQueue::getCleanStatus() const {
-   std::ostringstream oss;
-   std::deque<std::shared_ptr<GParameterSet> >::const_iterator cit;
-   for(cit=data_.begin(); cit!=data_.end(); ++cit) {
-      oss << "(" << std::distance(data_.begin(), cit) << ", " << ((*cit)->isDirty()?"d":"c") << ") ";
-   }
+	std::ostringstream oss;
+	std::deque<std::shared_ptr < GParameterSet> > ::const_iterator
+	cit;
+	for (cit = data_.begin(); cit != data_.end(); ++cit) {
+		oss << "(" << std::distance(data_.begin(), cit) << ", " << ((*cit)->isDirty() ? "d" : "c") << ") ";
+	}
 
-   return oss.str();
+	return oss.str();
 }
 
 /******************************************************************************/
@@ -149,9 +145,9 @@ std::string GParameterSetFixedSizePriorityQueue::getCleanStatus() const {
  * uses the primary evaluation criterion only.
  */
 double GParameterSetFixedSizePriorityQueue::evaluation(
-   const std::shared_ptr<GParameterSet>& item
+	const std::shared_ptr <GParameterSet> &item
 ) const {
-   return item->minOnly_fitness();
+	return item->minOnly_fitness();
 }
 
 /******************************************************************************/
@@ -160,9 +156,9 @@ double GParameterSetFixedSizePriorityQueue::evaluation(
  * in the priority queue.
  */
 std::string GParameterSetFixedSizePriorityQueue::id(
-   const std::shared_ptr<GParameterSet>& item
+	const std::shared_ptr <GParameterSet> &item
 ) const {
-   return item->getCurrentEvaluationID();
+	return item->getCurrentEvaluationID();
 }
 
 /******************************************************************************/

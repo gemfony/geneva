@@ -43,8 +43,7 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GInt32Object::GInt32Object()
-{ /* nothing */ }
+GInt32Object::GInt32Object() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -52,9 +51,8 @@ GInt32Object::GInt32Object()
  *
  * @param cp A copy of another GInt32Object object
  */
-GInt32Object::GInt32Object(const GInt32Object& cp)
-	: GNumIntT<boost::int32_t>(cp)
-{ /* nothing */ }
+GInt32Object::GInt32Object(const GInt32Object &cp)
+	: GNumIntT<boost::int32_t>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -62,9 +60,8 @@ GInt32Object::GInt32Object(const GInt32Object& cp)
  *
  * @param val A value used for the initialization
  */
-GInt32Object::GInt32Object(const boost::int32_t& val)
-	: GNumIntT<boost::int32_t>(val)
-{ /* nothing */ }
+GInt32Object::GInt32Object(const boost::int32_t &val)
+	: GNumIntT<boost::int32_t>(val) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -74,11 +71,9 @@ GInt32Object::GInt32Object(const boost::int32_t& val)
  * @param upperBoundary The upper boundary for the random number used in the initialization
  */
 GInt32Object::GInt32Object(
-   const boost::int32_t& lowerBoundary
-   , const boost::int32_t& upperBoundary
+	const boost::int32_t &lowerBoundary, const boost::int32_t &upperBoundary
 )
-	: GNumIntT<boost::int32_t>(lowerBoundary, upperBoundary)
-{ /* nothing */ }
+	: GNumIntT<boost::int32_t>(lowerBoundary, upperBoundary) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -90,27 +85,23 @@ GInt32Object::GInt32Object(
  * @param upperBoundary The upper boundary for the random number used in the initialization
  */
 GInt32Object::GInt32Object(
-   const boost::int32_t& val
-   , const boost::int32_t& lowerBoundary
-   , const boost::int32_t& upperBoundary
+	const boost::int32_t &val, const boost::int32_t &lowerBoundary, const boost::int32_t &upperBoundary
 )
-	: GNumIntT<boost::int32_t>(val, lowerBoundary, upperBoundary)
-{ /* nothing */ }
+	: GNumIntT<boost::int32_t>(val, lowerBoundary, upperBoundary) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GInt32Object::~GInt32Object()
-{ /* nothing */ }
+GInt32Object::~GInt32Object() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GInt32Object& GInt32Object::operator=(const GInt32Object& cp) {
-   this->load_(&cp);
-   return *this;
+const GInt32Object &GInt32Object::operator=(const GInt32Object &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -120,7 +111,7 @@ const GInt32Object& GInt32Object::operator=(const GInt32Object& cp) {
  * @param val The value to be assigned to this object
  * @return The value that was just assigned to this object
  */
-boost::int32_t GInt32Object::operator=(const boost::int32_t& val) {
+boost::int32_t GInt32Object::operator=(const boost::int32_t &val) {
 	return GNumIntT<boost::int32_t>::operator=(val);
 }
 
@@ -130,7 +121,7 @@ boost::int32_t GInt32Object::operator=(const boost::int32_t& val) {
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GInt32Object::clone_() const {
+GObject *GInt32Object::clone_() const {
 	return new GInt32Object(*this);
 }
 
@@ -141,14 +132,14 @@ GObject* GInt32Object::clone_() const {
  * @param  cp A constant reference to another GInt32Object object
  * @return A boolean indicating whether both objects are equal
  */
-bool GInt32Object::operator==(const GInt32Object& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GInt32Object::operator==(const GInt32Object &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -158,14 +149,14 @@ bool GInt32Object::operator==(const GInt32Object& cp) const {
  * @param  cp A constant reference to another GInt32Object object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GInt32Object::operator!=(const GInt32Object& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GInt32Object::operator!=(const GInt32Object &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -178,24 +169,22 @@ bool GInt32Object::operator!=(const GInt32Object& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GInt32Object::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GInt32Object *p_load = GObject::gobject_conversion<GInt32Object>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GInt32Object *p_load = GObject::gobject_conversion<GInt32Object>(&cp);
 
-   GToken token("GInt32Object", e);
+	GToken token("GInt32Object", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GNumIntT<boost::int32_t> >(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GNumIntT<boost::int32_t> >(IDENTITY(*this, *p_load), token);
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -203,7 +192,7 @@ void GInt32Object::compare(
  * Emits a name for this class / object
  */
 std::string GInt32Object::name() const {
-   return std::string("GInt32Object");
+	return std::string("GInt32Object");
 }
 
 /******************************************************************************/
@@ -214,8 +203,7 @@ std::string GInt32Object::name() const {
  * @param parVec The vector to which the local value should be attached
  */
 void GInt32Object::int32Streamline(
-   std::vector<boost::int32_t>& parVec
-   , const activityMode& am
+	std::vector<boost::int32_t> &parVec, const activityMode &am
 ) const {
 	parVec.push_back(this->value());
 }
@@ -227,8 +215,7 @@ void GInt32Object::int32Streamline(
  * @param parVec The map to which the local value should be attached
  */
 void GInt32Object::int32Streamline(
-   std::map<std::string, std::vector<boost::int32_t> >& parVec
-   , const activityMode& am
+	std::map<std::string, std::vector<boost::int32_t> > &parVec, const activityMode &am
 ) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
@@ -239,9 +226,9 @@ void GInt32Object::int32Streamline(
    }
 #endif /* DEBUG */
 
-   std::vector<boost::int32_t> parameters;
-   parameters.push_back(this->value());
-   parVec[this->getParameterName()] = parameters;
+	std::vector<boost::int32_t> parameters;
+	parameters.push_back(this->value());
+	parVec[this->getParameterName()] = parameters;
 }
 
 /******************************************************************************/
@@ -253,9 +240,7 @@ void GInt32Object::int32Streamline(
  * @param uBndVec A vector of upper boost::int32_t parameter boundaries
  */
 void GInt32Object::int32Boundaries(
-   std::vector<boost::int32_t>& lBndVec
-   , std::vector<boost::int32_t>& uBndVec
-   , const activityMode& am
+	std::vector<boost::int32_t> &lBndVec, std::vector<boost::int32_t> &uBndVec, const activityMode &am
 ) const {
 	lBndVec.push_back(this->getLowerInitBoundary());
 	uBndVec.push_back(this->getUpperInitBoundary());
@@ -269,9 +254,9 @@ void GInt32Object::int32Boundaries(
  * @return The number 1, as we own a single boost::int32_t parameter
  */
 std::size_t GInt32Object::countInt32Parameters(
-   const activityMode& am
+	const activityMode &am
 ) const {
-   return 1;
+	return 1;
 }
 
 /******************************************************************************/
@@ -279,9 +264,7 @@ std::size_t GInt32Object::countInt32Parameters(
  * Assigns part of a value vector to the parameter
  */
 void GInt32Object::assignInt32ValueVector(
-   const std::vector<boost::int32_t>& parVec
-   , std::size_t& pos
-   , const activityMode& am
+	const std::vector<boost::int32_t> &parVec, std::size_t &pos, const activityMode &am
 ) {
 #ifdef DEBUG
 	// Do we have a valid position ?
@@ -302,10 +285,9 @@ void GInt32Object::assignInt32ValueVector(
  * Assigns part of a value map to the parameter
  */
 void GInt32Object::assignInt32ValueVectors(
-   const std::map<std::string, std::vector<boost::int32_t> >& parMap
-   , const activityMode& am
+	const std::map<std::string, std::vector<boost::int32_t> > &parMap, const activityMode &am
 ) {
-   this->setValue((Gem::Common::getMapItem(parMap,this->getParameterName())).at(0));
+	this->setValue((Gem::Common::getMapItem(parMap, this->getParameterName())).at(0));
 }
 
 /******************************************************************************/
@@ -314,9 +296,9 @@ void GInt32Object::assignInt32ValueVectors(
  *
  * @param cp A copy of another GInt32Object object, camouflaged as a GObject
  */
-void GInt32Object::load_(const GObject* cp){
-    // Check that we are not accidently assigning this object to itself
-    GObject::selfAssignmentCheck<GInt32Object>(cp);
+void GInt32Object::load_(const GObject *cp) {
+	// Check that we are not accidently assigning this object to itself
+	GObject::selfAssignmentCheck<GInt32Object>(cp);
 
 	// Load our parent class'es data ...
 	GNumIntT<boost::int32_t>::load_(cp);
@@ -336,7 +318,7 @@ bool GInt32Object::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GNumIntT<boost::int32_t>::modify_GUnitTests()) result = true;
+	if (GNumIntT<boost::int32_t>::modify_GUnitTests()) result = true;
 
 	return result;
 
@@ -356,19 +338,19 @@ void GInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 	// A few settings
 	const std::size_t nTests = 10000;
 	const boost::int32_t LOWERINITBOUNDARY = -10;
-	const boost::int32_t UPPERINITBOUNDARY =  10;
+	const boost::int32_t UPPERINITBOUNDARY = 10;
 	const boost::int32_t FIXEDVALUEINIT = 1;
 
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
-	std::shared_ptr<GAdaptorT<boost::int32_t> > storedAdaptor;
+	std::shared_ptr <GAdaptorT<boost::int32_t>> storedAdaptor;
 
-	if(this->hasAdaptor()) {
+	if (this->hasAdaptor()) {
 		storedAdaptor = this->getAdaptor();
 		adaptorStored = true;
 	}
 
-	std::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.025, 0.1, 0., 0.5, 1.0));
+	std::shared_ptr <GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.025, 0.1, 0., 0.5, 1.0));
 	giga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	giga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(giga_ptr);
@@ -379,7 +361,7 @@ void GInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test different ways of adding an adaptor (Test of GParameterBaseWithAdaptorsT<T> functions)
-		std::shared_ptr<GInt32Object> p_test = this->clone<GInt32Object>();
+		std::shared_ptr <GInt32Object> p_test = this->clone<GInt32Object>();
 
 		// Make sure we start in pristine condition. This will add a GInt32FlipAdaptor.
 		BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
@@ -389,7 +371,7 @@ void GInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test->addAdaptor(giga_ptr));
 
 		// Check that the addresses of both adaptors differ
-		std::shared_ptr<GInt32GaussAdaptor> giga_clone_ptr;
+		std::shared_ptr <GInt32GaussAdaptor> giga_clone_ptr;
 		BOOST_CHECK_NO_THROW(giga_clone_ptr = p_test->getAdaptor<GInt32GaussAdaptor>());
 		BOOST_CHECK(giga_clone_ptr.get() != giga_ptr.get());
 
@@ -403,7 +385,7 @@ void GInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test->addAdaptor(giga_ptr));
 
 		// Retrieve the adaptor again
-		std::shared_ptr<GInt32GaussAdaptor> giga_clone2_ptr;
+		std::shared_ptr <GInt32GaussAdaptor> giga_clone2_ptr;
 		BOOST_CHECK_NO_THROW(giga_clone2_ptr = p_test->getAdaptor<GInt32GaussAdaptor>());
 
 		// Check that the address hasn't changed
@@ -416,23 +398,23 @@ void GInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 	this->resetAdaptor();
 
 	// Load the old adaptor, if needed
-	if(adaptorStored) {
+	if (adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
 
-   // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	{ // Check that construction with initialization boundaries leads to random content
 
-	   boost::int32_t previous = -1;
-	   for(std::size_t i=0; i<10; i++) {
-	      GInt32Object p(0, 10000000);
-	      BOOST_CHECK(p.value() != previous);
-	      previous = p.value();
-	   }
+		boost::int32_t previous = -1;
+		for (std::size_t i = 0; i < 10; i++) {
+			GInt32Object p(0, 10000000);
+			BOOST_CHECK(p.value() != previous);
+			previous = p.value();
+		}
 	}
 
-   // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GInt32Object::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -448,14 +430,14 @@ void GInt32Object::specificTestsFailuresExpected_GUnitTests() {
 
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
-	std::shared_ptr<GAdaptorT<boost::int32_t> > storedAdaptor;
+	std::shared_ptr <GAdaptorT<boost::int32_t>> storedAdaptor;
 
-	if(this->hasAdaptor()) {
+	if (this->hasAdaptor()) {
 		storedAdaptor = this->getAdaptor();
 		adaptorStored = true;
 	}
 
-	std::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.025, 0.1, 0., 1., 1.0));
+	std::shared_ptr <GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.025, 0.1, 0., 1., 1.0));
 	giga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	giga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(giga_ptr);
@@ -483,7 +465,7 @@ void GInt32Object::specificTestsFailuresExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	// Load the old adaptor, if needed
-	if(adaptorStored) {
+	if (adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
 

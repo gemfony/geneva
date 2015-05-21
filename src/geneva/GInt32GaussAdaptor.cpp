@@ -46,8 +46,8 @@ namespace Geneva {
  * suitable for us.
  */
 GInt32GaussAdaptor::GInt32GaussAdaptor()
-	: GIntGaussAdaptorT<boost::int32_t>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA)
-{ /* nothing */ }
+	: GIntGaussAdaptorT<boost::int32_t>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA,
+													DEFAULTMAXSIGMA) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -55,9 +55,8 @@ GInt32GaussAdaptor::GInt32GaussAdaptor()
  *
  * @param cp A copy of another GInt32GaussAdaptor object
  */
-GInt32GaussAdaptor::GInt32GaussAdaptor(const GInt32GaussAdaptor& cp)
-	: GIntGaussAdaptorT<boost::int32_t>(cp)
-{ /* nothing */ }
+GInt32GaussAdaptor::GInt32GaussAdaptor(const GInt32GaussAdaptor &cp)
+	: GIntGaussAdaptorT<boost::int32_t>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -67,9 +66,9 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(const GInt32GaussAdaptor& cp)
  *
  * @param adProb The adaption probability
  */
-GInt32GaussAdaptor::GInt32GaussAdaptor(const double& adProb)
-	: GIntGaussAdaptorT<boost::int32_t>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, adProb)
-{ /* nothing */ }
+GInt32GaussAdaptor::GInt32GaussAdaptor(const double &adProb)
+	: GIntGaussAdaptorT<boost::int32_t>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA,
+													adProb) { /* nothing */ }
 
 /********************************************************************************************/
 /**
@@ -81,13 +80,9 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(const double& adProb)
  * @param maxSigma The maximal value allowed for sigma_
  */
 GInt32GaussAdaptor::GInt32GaussAdaptor(
-   const double& sigma
-   , const double& sigmaSigma
-   , const double& minSigma
-   , const double& maxSigma
+	const double &sigma, const double &sigmaSigma, const double &minSigma, const double &maxSigma
 )
-	: GIntGaussAdaptorT<boost::int32_t> (sigma, sigmaSigma, minSigma, maxSigma)
-{ /* nothing */ }
+	: GIntGaussAdaptorT<boost::int32_t>(sigma, sigmaSigma, minSigma, maxSigma) { /* nothing */ }
 
 /********************************************************************************************/
 /**
@@ -101,21 +96,15 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(
  * @param adProb The adaption probability
  */
 GInt32GaussAdaptor::GInt32GaussAdaptor(
-   const double& sigma
-   , const double& sigmaSigma
-   , const double& minSigma
-   , const double& maxSigma
-   , const double& adProb
+	const double &sigma, const double &sigmaSigma, const double &minSigma, const double &maxSigma, const double &adProb
 )
-	: GIntGaussAdaptorT<boost::int32_t> (sigma, sigmaSigma, minSigma, maxSigma, adProb)
-{ /* nothing */ }
+	: GIntGaussAdaptorT<boost::int32_t>(sigma, sigmaSigma, minSigma, maxSigma, adProb) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GInt32GaussAdaptor::~GInt32GaussAdaptor()
-{ /* nothing */ }
+GInt32GaussAdaptor::~GInt32GaussAdaptor() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -123,7 +112,7 @@ GInt32GaussAdaptor::~GInt32GaussAdaptor()
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GInt32GaussAdaptor::clone_() const {
+GObject *GInt32GaussAdaptor::clone_() const {
 	return new GInt32GaussAdaptor(*this);
 }
 
@@ -131,9 +120,9 @@ GObject* GInt32GaussAdaptor::clone_() const {
 /**
  * The standard assignment operator
  */
-const GInt32GaussAdaptor& GInt32GaussAdaptor::operator=(const GInt32GaussAdaptor& cp) {
-   this->load_(&cp);
-   return *this;
+const GInt32GaussAdaptor &GInt32GaussAdaptor::operator=(const GInt32GaussAdaptor &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -143,14 +132,14 @@ const GInt32GaussAdaptor& GInt32GaussAdaptor::operator=(const GInt32GaussAdaptor
  * @param  cp A constant reference to another GInt32GaussAdaptor object
  * @return A boolean indicating whether both objects are equal
  */
-bool GInt32GaussAdaptor::operator==(const GInt32GaussAdaptor& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GInt32GaussAdaptor::operator==(const GInt32GaussAdaptor &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -160,14 +149,14 @@ bool GInt32GaussAdaptor::operator==(const GInt32GaussAdaptor& cp) const {
  * @param  cp A constant reference to another GInt32GaussAdaptor object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GInt32GaussAdaptor::operator!=(const GInt32GaussAdaptor& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GInt32GaussAdaptor::operator!=(const GInt32GaussAdaptor &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -180,24 +169,22 @@ bool GInt32GaussAdaptor::operator!=(const GInt32GaussAdaptor& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GInt32GaussAdaptor::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GInt32GaussAdaptor *p_load = GObject::gobject_conversion<GInt32GaussAdaptor>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GInt32GaussAdaptor *p_load = GObject::gobject_conversion<GInt32GaussAdaptor>(&cp);
 
-   GToken token("GInt32GaussAdaptor", e);
+	GToken token("GInt32GaussAdaptor", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GIntGaussAdaptorT<boost::int32_t> >(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GIntGaussAdaptorT<boost::int32_t> >(IDENTITY(*this, *p_load), token);
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -205,7 +192,7 @@ void GInt32GaussAdaptor::compare(
  * Emits a name for this class / object
  */
 std::string GInt32GaussAdaptor::name() const {
-   return std::string("GInt32GaussAdaptor");
+	return std::string("GInt32GaussAdaptor");
 }
 
 /******************************************************************************/
@@ -214,9 +201,9 @@ std::string GInt32GaussAdaptor::name() const {
  *
  * @param cp A copy of another GInt32GaussAdaptor object, camouflaged as a GObject
  */
-void GInt32GaussAdaptor::load_(const GObject* cp){
-    // Check that we are not accidently assigning this object to itself
-    GObject::selfAssignmentCheck<GInt32GaussAdaptor>(cp);
+void GInt32GaussAdaptor::load_(const GObject *cp) {
+	// Check that we are not accidently assigning this object to itself
+	GObject::selfAssignmentCheck<GInt32GaussAdaptor>(cp);
 
 	// Load our parent class'es data ...
 	GIntGaussAdaptorT<boost::int32_t>::load_(cp);
@@ -251,7 +238,7 @@ bool GInt32GaussAdaptor::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GIntGaussAdaptorT<boost::int32_t>::modify_GUnitTests()) result = true;
+	if (GIntGaussAdaptorT<boost::int32_t>::modify_GUnitTests()) result = true;
 
 	return result;
 
@@ -274,13 +261,12 @@ void GInt32GaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Check that the adaptor returns the correct adaptor id
-		std::shared_ptr<GInt32GaussAdaptor> p_test = this->clone<GInt32GaussAdaptor>();
+		std::shared_ptr <GInt32GaussAdaptor> p_test = this->clone<GInt32GaussAdaptor>();
 
 		BOOST_CHECK_MESSAGE(
-			p_test->getAdaptorId() == GINT32GAUSSADAPTOR
-			,  "\n"
-			<< "p_test->getAdaptorId() = " << p_test->getAdaptorId()
-			<< "GINT32GAUSSADAPTOR     = " << GINT32GAUSSADAPTOR << "\n"
+			p_test->getAdaptorId() == GINT32GAUSSADAPTOR, "\n"
+																		 << "p_test->getAdaptorId() = " << p_test->getAdaptorId()
+																		 << "GINT32GAUSSADAPTOR     = " << GINT32GAUSSADAPTOR << "\n"
 		);
 	}
 

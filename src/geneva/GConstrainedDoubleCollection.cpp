@@ -44,8 +44,7 @@ namespace Geneva {
  * The default constructor. Protected, as it is only needed for de-serialization purposes.
  */
 GConstrainedDoubleCollection::GConstrainedDoubleCollection()
-	: GConstrainedFPNumCollectionT<double> ()
-{ /* nothing */ }
+	: GConstrainedFPNumCollectionT<double>() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -57,13 +56,10 @@ GConstrainedDoubleCollection::GConstrainedDoubleCollection()
  * @param lowerBoundary The lower boundary for data members
  * @param upperBoundary The upper boundary for data members
  */
-GConstrainedDoubleCollection::GConstrainedDoubleCollection (
-   const std::size_t& size
-   , const double& lowerBoundary
-   , const double& upperBoundary
+GConstrainedDoubleCollection::GConstrainedDoubleCollection(
+	const std::size_t &size, const double &lowerBoundary, const double &upperBoundary
 )
-	: GConstrainedFPNumCollectionT<double> (size, lowerBoundary, upperBoundary)
-{ /* nothing */ }
+	: GConstrainedFPNumCollectionT<double>(size, lowerBoundary, upperBoundary) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -76,14 +72,10 @@ GConstrainedDoubleCollection::GConstrainedDoubleCollection (
  * @param lowerBoundary The lower boundary for data members
  * @param upperBoundary The upper boundary for data members
  */
-GConstrainedDoubleCollection::GConstrainedDoubleCollection (
-		const std::size_t& size
-		, const double& val
-		, const double& lowerBoundary
-		, const double& upperBoundary
+GConstrainedDoubleCollection::GConstrainedDoubleCollection(
+	const std::size_t &size, const double &val, const double &lowerBoundary, const double &upperBoundary
 )
-	: GConstrainedFPNumCollectionT<double> (size, val, lowerBoundary, upperBoundary)
-{ /* nothing */ }
+	: GConstrainedFPNumCollectionT<double>(size, val, lowerBoundary, upperBoundary) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -91,26 +83,24 @@ GConstrainedDoubleCollection::GConstrainedDoubleCollection (
  *
  * @param cp A copy of another GConstrainedDoubleCollection object
  */
-GConstrainedDoubleCollection::GConstrainedDoubleCollection(const GConstrainedDoubleCollection& cp)
-	: GConstrainedFPNumCollectionT<double> (cp)
-{ /* nothing */ }
+GConstrainedDoubleCollection::GConstrainedDoubleCollection(const GConstrainedDoubleCollection &cp)
+	: GConstrainedFPNumCollectionT<double>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
-GConstrainedDoubleCollection::~GConstrainedDoubleCollection()
-{ /* nothing */ }
+GConstrainedDoubleCollection::~GConstrainedDoubleCollection() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GConstrainedDoubleCollection& GConstrainedDoubleCollection::operator=(
-   const GConstrainedDoubleCollection& cp
+const GConstrainedDoubleCollection &GConstrainedDoubleCollection::operator=(
+	const GConstrainedDoubleCollection &cp
 ) {
-   this->load_(&cp);
-   return *this;
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -120,14 +110,14 @@ const GConstrainedDoubleCollection& GConstrainedDoubleCollection::operator=(
  * @param  cp A constant reference to another GConstrainedDoubleCollection object
  * @return A boolean indicating whether both objects are equal
  */
-bool GConstrainedDoubleCollection::operator==(const GConstrainedDoubleCollection& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GConstrainedDoubleCollection::operator==(const GConstrainedDoubleCollection &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -137,14 +127,14 @@ bool GConstrainedDoubleCollection::operator==(const GConstrainedDoubleCollection
  * @param  cp A constant reference to another GConstrainedDoubleCollection object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GConstrainedDoubleCollection::operator!=(const GConstrainedDoubleCollection& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GConstrainedDoubleCollection::operator!=(const GConstrainedDoubleCollection &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -157,24 +147,22 @@ bool GConstrainedDoubleCollection::operator!=(const GConstrainedDoubleCollection
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GConstrainedDoubleCollection::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GConstrainedDoubleCollection *p_load = GObject::gobject_conversion<GConstrainedDoubleCollection>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GConstrainedDoubleCollection *p_load = GObject::gobject_conversion<GConstrainedDoubleCollection>(&cp);
 
-   GToken token("GConstrainedDoubleCollection", e);
+	GToken token("GConstrainedDoubleCollection", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GConstrainedFPNumCollectionT<double> >(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GConstrainedFPNumCollectionT<double> >(IDENTITY(*this, *p_load), token);
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -182,7 +170,7 @@ void GConstrainedDoubleCollection::compare(
  * Emits a name for this class / object
  */
 std::string GConstrainedDoubleCollection::name() const {
-   return std::string("GConstrainedDoubleCollection");
+	return std::string("GConstrainedDoubleCollection");
 }
 
 /******************************************************************************/
@@ -193,13 +181,12 @@ std::string GConstrainedDoubleCollection::name() const {
  * @param parVec The vector to which the local value should be attached
  */
 void GConstrainedDoubleCollection::doubleStreamline(
-   std::vector<double>& parVec
-   , const activityMode& am
+	std::vector<double> &parVec, const activityMode &am
 ) const {
-   GConstrainedDoubleCollection::const_iterator cit;
-   for(cit=this->begin(); cit!=this->end(); ++cit) {
-      parVec.push_back(this->transfer(*cit));
-   }
+	GConstrainedDoubleCollection::const_iterator cit;
+	for (cit = this->begin(); cit != this->end(); ++cit) {
+		parVec.push_back(this->transfer(*cit));
+	}
 }
 
 /******************************************************************************/
@@ -210,8 +197,7 @@ void GConstrainedDoubleCollection::doubleStreamline(
  * @param parVec The map to which the local value should be attached
  */
 void GConstrainedDoubleCollection::doubleStreamline(
-   std::map<std::string, std::vector<double> >& parVec
-   , const activityMode& am
+	std::map<std::string, std::vector<double> > &parVec, const activityMode &am
 ) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
@@ -222,9 +208,9 @@ void GConstrainedDoubleCollection::doubleStreamline(
    }
 #endif /* DEBUG */
 
-   std::vector<double> parameters;
-   this->doubleStreamline(parameters, am);
-   parVec[this->getParameterName()] = parameters;
+	std::vector<double> parameters;
+	this->doubleStreamline(parameters, am);
+	parVec[this->getParameterName()] = parameters;
 }
 
 /******************************************************************************/
@@ -235,13 +221,11 @@ void GConstrainedDoubleCollection::doubleStreamline(
  * @param uBndVec A vector of upper double parameter boundaries
  */
 void GConstrainedDoubleCollection::doubleBoundaries(
-   std::vector<double>& lBndVec
-   , std::vector<double>& uBndVec
-   , const activityMode& am
+	std::vector<double> &lBndVec, std::vector<double> &uBndVec, const activityMode &am
 ) const {
 	// Add a lower and upper boundary to the vectors
 	// for each variable in the collection
-	for(std::size_t pos = 0; pos < this->size(); pos++) {
+	for (std::size_t pos = 0; pos < this->size(); pos++) {
 		lBndVec.push_back(this->getLowerBoundary());
 		uBndVec.push_back(this->getUpperBoundary());
 	}
@@ -255,9 +239,9 @@ void GConstrainedDoubleCollection::doubleBoundaries(
  * @return The number of double parameters
  */
 std::size_t GConstrainedDoubleCollection::countDoubleParameters(
-   const activityMode& am
+	const activityMode &am
 ) const {
-   return this->size();
+	return this->size();
 }
 
 /******************************************************************************/
@@ -269,11 +253,9 @@ std::size_t GConstrainedDoubleCollection::countDoubleParameters(
  * @param pos The position inside of the vector from which the data is extracted in each turn of the loop
  */
 void GConstrainedDoubleCollection::assignDoubleValueVector(
-   const std::vector<double>& parVec
-   , std::size_t& pos
-   , const activityMode& am
+	const std::vector<double> &parVec, std::size_t &pos, const activityMode &am
 ) {
-	for(std::size_t i=0; i<this->size(); i++) {
+	for (std::size_t i = 0; i < this->size(); i++) {
 #ifdef DEBUG
 		  // Do we have a valid position ?
 		  if(pos >= parVec.size()) {
@@ -284,8 +266,8 @@ void GConstrainedDoubleCollection::assignDoubleValueVector(
 		  }
 #endif
 
-		  this->setValue(i, this->transfer(parVec[pos]));
-		  pos++;
+		this->setValue(i, this->transfer(parVec[pos]));
+		pos++;
 	}
 }
 
@@ -294,12 +276,11 @@ void GConstrainedDoubleCollection::assignDoubleValueVector(
  * Assigns part of a value map to the parameter
  */
 void GConstrainedDoubleCollection::assignDoubleValueVectors(
-   const std::map<std::string, std::vector<double> >& parMap
-   , const activityMode& am
+	const std::map<std::string, std::vector<double> > &parMap, const activityMode &am
 ) {
-   for(std::size_t i=0; i<this->size(); i++) {
-     this->setValue(i, this->transfer((Gem::Common::getMapItem(parMap,this->getParameterName())).at(i)));
-   }
+	for (std::size_t i = 0; i < this->size(); i++) {
+		this->setValue(i, this->transfer((Gem::Common::getMapItem(parMap, this->getParameterName())).at(i)));
+	}
 }
 
 /******************************************************************************/
@@ -307,19 +288,16 @@ void GConstrainedDoubleCollection::assignDoubleValueVectors(
  * Multiplication with a random value in a given range
  */
 void GConstrainedDoubleCollection::doubleMultiplyByRandom(
-   const double& min
-   , const double& max
-   , const activityMode& am
+	const double &min, const double &max, const activityMode &am
 ) {
-   for(std::size_t pos=0; pos<this->size(); pos++) {
-      GParameterCollectionT<double>::setValue(
-         pos
-         , transfer(
-               this->value(pos) *
-               this->gr_ptr()->uniform_real<double>(min, max)
-         )
-      );
-   }
+	for (std::size_t pos = 0; pos < this->size(); pos++) {
+		GParameterCollectionT<double>::setValue(
+			pos, transfer(
+				this->value(pos) *
+				this->gr_ptr()->uniform_real<double>(min, max)
+			)
+		);
+	}
 }
 
 /******************************************************************************/
@@ -327,14 +305,13 @@ void GConstrainedDoubleCollection::doubleMultiplyByRandom(
  * Multiplication with a random value in the range [0,1[
  */
 void GConstrainedDoubleCollection::doubleMultiplyByRandom(
-   const activityMode& am
+	const activityMode &am
 ) {
-   for(std::size_t pos=0; pos<this->size(); pos++) {
-      GParameterCollectionT<double>::setValue(
-            pos
-            , transfer(this->value(pos) * this->gr_ptr()->uniform_01<double>())
-      );
-   }
+	for (std::size_t pos = 0; pos < this->size(); pos++) {
+		GParameterCollectionT<double>::setValue(
+			pos, transfer(this->value(pos) * this->gr_ptr()->uniform_01<double>())
+		);
+	}
 }
 
 /******************************************************************************/
@@ -342,12 +319,11 @@ void GConstrainedDoubleCollection::doubleMultiplyByRandom(
  * Multiplication with a constant value
  */
 void GConstrainedDoubleCollection::doubleMultiplyBy(
-   const double& val
-   , const activityMode& am
+	const double &val, const activityMode &am
 ) {
-   for(std::size_t pos=0; pos<this->size(); pos++) {
-      GParameterCollectionT<double>::setValue(pos, transfer(val * this->value(pos)));
-   }
+	for (std::size_t pos = 0; pos < this->size(); pos++) {
+		GParameterCollectionT<double>::setValue(pos, transfer(val * this->value(pos)));
+	}
 }
 
 /******************************************************************************/
@@ -355,12 +331,11 @@ void GConstrainedDoubleCollection::doubleMultiplyBy(
  * Initialization with a constant value
  */
 void GConstrainedDoubleCollection::doubleFixedValueInit(
-   const double& val
-   , const activityMode& am
+	const double &val, const activityMode &am
 ) {
-   for(std::size_t pos=0; pos<this->size(); pos++) {
-      GParameterCollectionT<double>::setValue(pos, transfer(val));
-   }
+	for (std::size_t pos = 0; pos < this->size(); pos++) {
+		GParameterCollectionT<double>::setValue(pos, transfer(val));
+	}
 }
 
 /******************************************************************************/
@@ -368,27 +343,50 @@ void GConstrainedDoubleCollection::doubleFixedValueInit(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GConstrainedDoubleCollection::doubleAdd(
-   std::shared_ptr<GParameterBase> p_base
-   , const activityMode& am
+	std::shared_ptr < GParameterBase > p_base, const
+activityMode &am
 ) {
-   // We first need to convert p_base into the local type
-   std::shared_ptr<GConstrainedDoubleCollection> p
-      = GParameterBase::parameterbase_cast<GConstrainedDoubleCollection>(p_base);
+// We first need to convert p_base into the local type
+std::shared_ptr <GConstrainedDoubleCollection> p
+	= GParameterBase::parameterbase_cast<GConstrainedDoubleCollection>(p_base);
 
-   // Cross-check that the sizes match
-   if(this->size() != p->size()) {
-      glogger
-      << "In GConstrainedDoubleCollection::doubleAdd():" << std::endl
-      << "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
-      << GEXCEPTION;
-   }
+// Cross-check that the sizes match
+if(this->
 
-   for(std::size_t pos=0; pos<this->size(); pos++) {
-      GParameterCollectionT<double>::setValue(
-         pos
-         , transfer(this->value(pos) + p->value(pos))
-      );
-   }
+size()
+
+!= p->
+
+size()
+
+) {
+glogger
+<< "In GConstrainedDoubleCollection::doubleAdd():" << std::endl
+<< "Sizes of vectors don't match: " << this->
+
+size()
+
+<< "/" << p->
+
+size()
+
+<< std::endl
+<<
+GEXCEPTION;
+}
+
+for(
+std::size_t pos = 0;
+pos<this->
+
+size();
+
+pos++) {
+GParameterCollectionT<double>::setValue(
+	pos
+, transfer(this->value(pos) + p->value(pos))
+);
+}
 }
 
 /******************************************************************************/
@@ -396,27 +394,50 @@ void GConstrainedDoubleCollection::doubleAdd(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GConstrainedDoubleCollection::doubleSubtract(
-   std::shared_ptr<GParameterBase> p_base
-   , const activityMode& am
+	std::shared_ptr < GParameterBase > p_base, const
+activityMode &am
 ) {
-   // We first need to convert p_base into the local type
-   std::shared_ptr<GConstrainedDoubleCollection> p
-      = GParameterBase::parameterbase_cast<GConstrainedDoubleCollection>(p_base);
+// We first need to convert p_base into the local type
+std::shared_ptr <GConstrainedDoubleCollection> p
+	= GParameterBase::parameterbase_cast<GConstrainedDoubleCollection>(p_base);
 
-   // Cross-check that the sizes match
-   if(this->size() != p->size()) {
-      glogger
-      << "In GConstrainedDoubleCollection::doubleSubtract():" << std::endl
-      << "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
-      << GEXCEPTION;
-   }
+// Cross-check that the sizes match
+if(this->
 
-   for(std::size_t pos=0; pos<this->size(); pos++) {
-      GParameterCollectionT<double>::setValue(
-         pos
-         , transfer(this->value(pos) - p->value(pos))
-      );
-   }
+size()
+
+!= p->
+
+size()
+
+) {
+glogger
+<< "In GConstrainedDoubleCollection::doubleSubtract():" << std::endl
+<< "Sizes of vectors don't match: " << this->
+
+size()
+
+<< "/" << p->
+
+size()
+
+<< std::endl
+<<
+GEXCEPTION;
+}
+
+for(
+std::size_t pos = 0;
+pos<this->
+
+size();
+
+pos++) {
+GParameterCollectionT<double>::setValue(
+	pos
+, transfer(this->value(pos) - p->value(pos))
+);
+}
 }
 
 /******************************************************************************/
@@ -428,7 +449,7 @@ void GConstrainedDoubleCollection::doubleSubtract(
  *
  * @param cp A copy of another GConstrainedDoubleCollection object, camouflaged as a GObject
  */
-void GConstrainedDoubleCollection::load_(const GObject *cp){
+void GConstrainedDoubleCollection::load_(const GObject *cp) {
 	// Convert cp into local format
 	// const GConstrainedDoubleCollection *p_load = GObject::gobject_conversion<GConstrainedDoubleCollection>(cp);
 	// Uncomment the previous line and comment the following line if you wish to use local data
@@ -446,7 +467,7 @@ void GConstrainedDoubleCollection::load_(const GObject *cp){
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GConstrainedDoubleCollection::clone_() const {
+GObject *GConstrainedDoubleCollection::clone_() const {
 	return new GConstrainedDoubleCollection(*this);
 }
 
@@ -458,10 +479,10 @@ GObject* GConstrainedDoubleCollection::clone_() const {
  */
 bool GConstrainedDoubleCollection::modify_GUnitTests() {
 #ifdef GEM_TESTING
-   bool result = false;
+	bool result = false;
 
 	// Call the parent classes' functions
-	if(GConstrainedFPNumCollectionT<double>::modify_GUnitTests()) result = true;
+	if (GConstrainedFPNumCollectionT<double>::modify_GUnitTests()) result = true;
 
 	return result;
 
@@ -481,37 +502,41 @@ void GConstrainedDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 	GConstrainedFPNumCollectionT<double>::specificTestsNoFailureExpected_GUnitTests();
 
 	// Some parameters
-	const std::size_t DEFSIZE=10;
-	const double DEFVAL=1.;
-	const double DEFMIN=-10.;
-	const double DEFMAX= 10.;
+	const std::size_t DEFSIZE = 10;
+	const double DEFVAL = 1.;
+	const double DEFMIN = -10.;
+	const double DEFMAX = 10.;
 
 	//---------------------------------------------------------------------
 
 	{ // Check that initialization with a fixed value-range yields the desired values
-		std::shared_ptr<GConstrainedDoubleCollection> p_test;
+		std::shared_ptr <GConstrainedDoubleCollection> p_test;
 
-		BOOST_CHECK_NO_THROW(p_test = std::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(DEFSIZE, DEFMIN, DEFMAX)));
-		BOOST_CHECK(p_test->size() == DEFSIZE && DEFSIZE>1);
-		for(std::size_t i=1; i<DEFSIZE; i++) { // Check that consecutive values are different
-			BOOST_CHECK(p_test->at(i) != p_test->at(i-1));
+		BOOST_CHECK_NO_THROW(p_test = std::shared_ptr<GConstrainedDoubleCollection>(
+			new GConstrainedDoubleCollection(DEFSIZE, DEFMIN, DEFMAX)));
+		BOOST_CHECK(p_test->size() == DEFSIZE && DEFSIZE > 1);
+		for (std::size_t i = 1; i < DEFSIZE; i++) { // Check that consecutive values are different
+			BOOST_CHECK(p_test->at(i) != p_test->at(i - 1));
 		}
 		BOOST_CHECK(p_test->getLowerBoundary() == DEFMIN);
-		BOOST_CHECK(p_test->getUpperBoundary() == boost::math::float_prior<double>(DEFMAX)); // The upper boundary is an open one
+		BOOST_CHECK(
+			p_test->getUpperBoundary() == boost::math::float_prior<double>(DEFMAX)); // The upper boundary is an open one
 	}
 
 	//---------------------------------------------------------------------
 
 	{ // Check that initialization with a fixed value and range yields the desired values
-		std::shared_ptr<GConstrainedDoubleCollection> p_test;
+		std::shared_ptr <GConstrainedDoubleCollection> p_test;
 
-		BOOST_CHECK_NO_THROW(p_test = std::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(DEFSIZE, DEFVAL, DEFMIN, DEFMAX)));
+		BOOST_CHECK_NO_THROW(p_test = std::shared_ptr<GConstrainedDoubleCollection>(
+			new GConstrainedDoubleCollection(DEFSIZE, DEFVAL, DEFMIN, DEFMAX)));
 		BOOST_CHECK(p_test->size() == DEFSIZE);
-		for(std::size_t i=0; i<DEFSIZE; i++) {
+		for (std::size_t i = 0; i < DEFSIZE; i++) {
 			BOOST_CHECK(p_test->at(i) == DEFVAL);
 		}
 		BOOST_CHECK(p_test->getLowerBoundary() == DEFMIN);
-		BOOST_CHECK(p_test->getUpperBoundary() == boost::math::float_prior<double>(DEFMAX)); // The upper boundary is an open one
+		BOOST_CHECK(
+			p_test->getUpperBoundary() == boost::math::float_prior<double>(DEFMAX)); // The upper boundary is an open one
 	}
 
 	//---------------------------------------------------------------------

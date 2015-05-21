@@ -44,8 +44,8 @@ namespace Geneva {
  * The default constructor
  */
 GenevaInitializer::GenevaInitializer() {
-   GRANDOMFACTORY->init();
-   GBROKER(Gem::Geneva::GParameterSet)->init();
+	GRANDOMFACTORY->init();
+	GBROKER(Gem::Geneva::GParameterSet)->init();
 }
 
 /******************************************************************************/

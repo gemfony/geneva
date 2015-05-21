@@ -44,8 +44,7 @@ namespace Geneva {
  * hence this function is empty.
  */
 GSerialEA::GSerialEA()
-   : GBaseEA()
-{ /* nothing */ }
+	: GBaseEA() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -53,25 +52,23 @@ GSerialEA::GSerialEA()
  *
  * @param cp Reference to another GSerialEA object
  */
-GSerialEA::GSerialEA(const GSerialEA& cp)
-   : GBaseEA(cp)
-{ /* nothing */ }
+GSerialEA::GSerialEA(const GSerialEA &cp)
+	: GBaseEA(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor. No local, dynamically allocated data,
  * hence this function is empty.
  */
-GSerialEA::~GSerialEA()
-{ /* nothing */ }
+GSerialEA::~GSerialEA() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GSerialEA& GSerialEA::operator=(const GSerialEA& cp) {
-   this->load_(&cp);
-   return *this;
+const GSerialEA &GSerialEA::operator=(const GSerialEA &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -98,7 +95,7 @@ void GSerialEA::load_(const GObject *cp) {
  *
  * @return A deep copy of this object, camouflaged as a GObject
  */
-GObject *GSerialEA::clone_() const  {
+GObject *GSerialEA::clone_() const {
 	return new GSerialEA(*this);
 }
 
@@ -109,14 +106,14 @@ GObject *GSerialEA::clone_() const  {
  * @param  cp A constant reference to another GSerialEA object
  * @return A boolean indicating whether both objects are equal
  */
-bool GSerialEA::operator==(const GSerialEA& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GSerialEA::operator==(const GSerialEA &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -126,14 +123,14 @@ bool GSerialEA::operator==(const GSerialEA& cp) const {
  * @param  cp A constant reference to another GSerialEA object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GSerialEA::operator!=(const GSerialEA& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GSerialEA::operator!=(const GSerialEA &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -146,24 +143,22 @@ bool GSerialEA::operator!=(const GSerialEA& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GSerialEA::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GSerialEA *p_load = GObject::gobject_conversion<GSerialEA>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GSerialEA *p_load = GObject::gobject_conversion<GSerialEA>(&cp);
 
-   GToken token("GSerialEA", e);
+	GToken token("GSerialEA", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GBaseEA>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GBaseEA>(IDENTITY(*this, *p_load), token);
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/
@@ -171,7 +166,7 @@ void GSerialEA::compare(
  * Emits a name for this class / object
  */
 std::string GSerialEA::name() const {
-   return std::string("GSerialEA");
+	return std::string("GSerialEA");
 }
 
 /******************************************************************************/
@@ -190,7 +185,7 @@ void GSerialEA::init() {
  * Necessary clean-up work after the optimization has finished
  */
 void GSerialEA::finalize() {
-    // Put own finalization code here
+	// Put own finalization code here
 
 	// GBaseEA sees exactly the environment it would when called from its own class
 	GBaseEA::finalize();
@@ -202,8 +197,8 @@ void GSerialEA::finalize() {
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
-void GSerialEA::addConfigurationOptions (
-	Gem::Common::GParserBuilder& gpb
+void GSerialEA::addConfigurationOptions(
+	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
 	GBaseEA::addConfigurationOptions(gpb);
@@ -225,12 +220,12 @@ std::string GSerialEA::getIndividualCharacteristic() const {
 /**
  * Adapt all children in sequence. Evaluation is done in a seperate function (evaluateChildren).
  */
-void GSerialEA::adaptChildren()
-{
-	boost::tuple<std::size_t,std::size_t> range = getAdaptionRange();
-	std::vector<std::shared_ptr<GParameterSet> >::iterator it;
+void GSerialEA::adaptChildren() {
+	boost::tuple<std::size_t, std::size_t> range = getAdaptionRange();
+	std::vector<std::shared_ptr < GParameterSet> > ::iterator
+	it;
 
-	for(it=data.begin()+boost::get<0>(range); it!=data.begin()+boost::get<1>(range); ++it) {
+	for (it = data.begin() + boost::get<0>(range); it != data.begin() + boost::get<1>(range); ++it) {
 		(*it)->adapt();
 	}
 }
@@ -239,10 +234,10 @@ void GSerialEA::adaptChildren()
 /**
  * Evaluate all children (and possibly parents, depending on the iteration)
  */
-void GSerialEA::runFitnessCalculation()
-{
-	boost::tuple<std::size_t,std::size_t> range = getEvaluationRange();
-	std::vector<std::shared_ptr<GParameterSet> >::iterator it;
+void GSerialEA::runFitnessCalculation() {
+	boost::tuple<std::size_t, std::size_t> range = getEvaluationRange();
+	std::vector<std::shared_ptr < GParameterSet> > ::iterator
+	it;
 
 #ifdef DEBUG
    // There should be no situation in which a "clean" child is submitted
@@ -259,7 +254,7 @@ void GSerialEA::runFitnessCalculation()
    }
 #endif
 
-	for(it=data.begin() + boost::get<0>(range); it!=data.begin() + boost::get<1>(range); ++it) {
+	for (it = data.begin() + boost::get<0>(range); it != data.begin() + boost::get<1>(range); ++it) {
 		// Perform the actual evaluation
 		(*it)->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
 	}
@@ -276,7 +271,7 @@ bool GSerialEA::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GBaseEA::modify_GUnitTests()) result = true;
+	if (GBaseEA::modify_GUnitTests()) result = true;
 
 	return result;
 
@@ -293,12 +288,12 @@ bool GSerialEA::modify_GUnitTests() {
 void GSerialEA::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
 
-   GBaseEA::specificTestsNoFailureExpected_GUnitTests();
+	GBaseEA::specificTestsNoFailureExpected_GUnitTests();
 
 	//---------------------------------------------------------------------------
 
 	{ // Call the parent class'es function
-		std::shared_ptr<GSerialEA> p_test = this->clone<GSerialEA>();
+		std::shared_ptr <GSerialEA> p_test = this->clone<GSerialEA>();
 
 		// Fill p_test with individuals
 		p_test->fillWithObjects();

@@ -44,47 +44,40 @@ namespace Geneva {
  * The default constructor
  */
 GMultiThreadedGD::GMultiThreadedGD()
-	: GBaseGD()
-	, nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
-{ /* nothing */ }
+	: GBaseGD(), nThreads_(
+	boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS))) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization with the number of starting points and the size of the finite step
  */
-GMultiThreadedGD::GMultiThreadedGD (
-		const std::size_t& nStartingPoints
-		, const double& finiteStep
-		, const double& stepSize
+GMultiThreadedGD::GMultiThreadedGD(
+	const std::size_t &nStartingPoints, const double &finiteStep, const double &stepSize
 )
-	: GBaseGD(nStartingPoints, finiteStep, stepSize)
-	, nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
-{ /* nothing */ }
+	: GBaseGD(nStartingPoints, finiteStep, stepSize), nThreads_(
+	boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS))) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * A standard copy constructor
  */
-GMultiThreadedGD::GMultiThreadedGD(const GMultiThreadedGD& cp)
-	: GBaseGD(cp)
-	, nThreads_(cp.nThreads_)
-{ /* nothing */ }
+GMultiThreadedGD::GMultiThreadedGD(const GMultiThreadedGD &cp)
+	: GBaseGD(cp), nThreads_(cp.nThreads_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor. We clear remaining work items in the
  * thread pool and wait for active tasks to finish.
  */
-GMultiThreadedGD::~GMultiThreadedGD()
-{ /* nothing */ }
+GMultiThreadedGD::~GMultiThreadedGD() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GMultiThreadedGD& GMultiThreadedGD::operator=(const GMultiThreadedGD& cp) {
-   this->load_(&cp);
-   return *this;
+const GMultiThreadedGD &GMultiThreadedGD::operator=(const GMultiThreadedGD &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -94,14 +87,14 @@ const GMultiThreadedGD& GMultiThreadedGD::operator=(const GMultiThreadedGD& cp) 
  * @param  cp A constant reference to another GMultiThreadedGD object
  * @return A boolean indicating whether both objects are equal
  */
-bool GMultiThreadedGD::operator==(const GMultiThreadedGD& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GMultiThreadedGD::operator==(const GMultiThreadedGD &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -111,14 +104,14 @@ bool GMultiThreadedGD::operator==(const GMultiThreadedGD& cp) const {
  * @param  cp A constant reference to another GMultiThreadedGD object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GMultiThreadedGD::operator!=(const GMultiThreadedGD& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GMultiThreadedGD::operator!=(const GMultiThreadedGD &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -131,25 +124,23 @@ bool GMultiThreadedGD::operator!=(const GMultiThreadedGD& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GMultiThreadedGD::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GMultiThreadedGD *p_load = GObject::gobject_conversion<GMultiThreadedGD>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GMultiThreadedGD *p_load = GObject::gobject_conversion<GMultiThreadedGD>(&cp);
 
-   GToken token("GMultiThreadedGD", e);
+	GToken token("GMultiThreadedGD", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GBaseGD>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GBaseGD>(IDENTITY(*this, *p_load), token);
 
-   // ... and then the local data
-   compare_t(IDENTITY(nThreads_, p_load->nThreads_), token);
+	// ... and then the local data
+	compare_t(IDENTITY(nThreads_, p_load->nThreads_), token);
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -157,7 +148,7 @@ void GMultiThreadedGD::compare(
  * Emits a name for this class / object
  */
 std::string GMultiThreadedGD::name() const {
-   return std::string("GMultiThreadedGD");
+	return std::string("GMultiThreadedGD");
 }
 
 /******************************************************************************/
@@ -170,7 +161,7 @@ std::string GMultiThreadedGD::name() const {
  * @param nThreads The number of threads this class uses
  */
 void GMultiThreadedGD::setNThreads(boost::uint16_t nThreads) {
-	if(nThreads == 0) {
+	if (nThreads == 0) {
 		nThreads_ = boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
 	}
 	else {
@@ -184,7 +175,7 @@ void GMultiThreadedGD::setNThreads(boost::uint16_t nThreads) {
  *
  * @return The maximum number of allowed threads
  */
-boost::uint16_t GMultiThreadedGD::getNThreads() const  {
+boost::uint16_t GMultiThreadedGD::getNThreads() const {
 	return nThreads_;
 }
 
@@ -211,7 +202,7 @@ void GMultiThreadedGD::load_(const GObject *cp) {
  *
  * @return A deep copy of this object, camouflaged as a GObject
  */
-GObject *GMultiThreadedGD::clone_() const  {
+GObject *GMultiThreadedGD::clone_() const {
 	return new GMultiThreadedGD(*this);
 }
 
@@ -232,30 +223,30 @@ void GMultiThreadedGD::init() {
  * Necessary clean-up work after the optimization has finished
  */
 void GMultiThreadedGD::finalize() {
-   // Check whether there were any errors during thread execution
-   if(tp_ptr_->hasErrors()) {
-      std::ostringstream oss;
+	// Check whether there were any errors during thread execution
+	if (tp_ptr_->hasErrors()) {
+		std::ostringstream oss;
 
-      std::vector<std::string> errors;
-      errors = tp_ptr_->getErrors();
+		std::vector<std::string> errors;
+		errors = tp_ptr_->getErrors();
 
-      oss
-      << "========================================================================" << std::endl
-      << "In GMultiThreadedGD::finalize(): WARNING" << std::endl
-      << "There were errors during thread execution:" << std::endl
-      << std::endl;
+		oss
+		<< "========================================================================" << std::endl
+		<< "In GMultiThreadedGD::finalize(): WARNING" << std::endl
+		<< "There were errors during thread execution:" << std::endl
+		<< std::endl;
 
-      for(std::vector<std::string>::iterator it=errors.begin(); it!=errors.end(); ++it) {
-         oss << *it << std::endl;
-      }
+		for (std::vector<std::string>::iterator it = errors.begin(); it != errors.end(); ++it) {
+			oss << *it << std::endl;
+		}
 
-      oss << std::endl
-      << "========================================================================" << std::endl;
+		oss << std::endl
+		<< "========================================================================" << std::endl;
 
-      glogger // We cannot currently interrupt glogger input, all input must be transferred in one go
-      << oss.str()
-      << GWARNING;
-   }
+		glogger // We cannot currently interrupt glogger input, all input must be transferred in one go
+		<< oss.str()
+		<< GWARNING;
+	}
 
 	// Terminate our thread pool
 	tp_ptr_.reset();
@@ -270,8 +261,8 @@ void GMultiThreadedGD::finalize() {
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
-void GMultiThreadedGD::addConfigurationOptions (
-	Gem::Common::GParserBuilder& gpb
+void GMultiThreadedGD::addConfigurationOptions(
+	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
 	GBaseGD::addConfigurationOptions(gpb);
@@ -280,7 +271,7 @@ void GMultiThreadedGD::addConfigurationOptions (
 	gpb.registerFileParameter<boost::uint16_t>(
 		"nEvaluationThreads" // The name of the variable
 		, 0 // The default value
-		, [this](boost::uint16_t nt){ this->setNThreads(nt); }
+		, [this](boost::uint16_t nt) { this->setNThreads(nt); }
 	)
 	<< "The number of evaluation threads" << std::endl
 	<< "0 means: determine automatically;";
@@ -303,7 +294,7 @@ std::string GMultiThreadedGD::getIndividualCharacteristic() const {
  */
 void GMultiThreadedGD::runFitnessCalculation() {
 	GMultiThreadedGD::iterator it; // An iterator that allows us to loop over the collection
-	for(it=this->begin(); it!=this->end(); ++it) {
+	for (it = this->begin(); it != this->end(); ++it) {
 #ifdef DEBUG
       // Make sure the evaluated individuals have the dirty flag set
       if(afterFirstIteration() && !(*it)->isDirty()) {
@@ -314,11 +305,11 @@ void GMultiThreadedGD::runFitnessCalculation() {
       }
 #endif /* DEBUG */
 
-      // Do the actual scheduling
-      tp_ptr_->async_schedule(
-         [it](){(*it)->nonConstFitness(0, ALLOWREEVALUATION, USETRANSFORMEDFITNESS);}
-      );
-   }
+		// Do the actual scheduling
+		tp_ptr_->async_schedule(
+			[it]() { (*it)->nonConstFitness(0, ALLOWREEVALUATION, USETRANSFORMEDFITNESS); }
+		);
+	}
 
 	// wait for the pool to run out of tasks
 	tp_ptr_->wait();
@@ -335,7 +326,7 @@ bool GMultiThreadedGD::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GBaseGD::modify_GUnitTests()) result = true;
+	if (GBaseGD::modify_GUnitTests()) result = true;
 
 	return result;
 

@@ -44,8 +44,7 @@ namespace Geneva {
  * The default constructor
  */
 GConstrainedInt32Object::GConstrainedInt32Object()
-	: GConstrainedIntT<boost::int32_t>()
-{ /* nothing */ }
+	: GConstrainedIntT<boost::int32_t>() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -56,11 +55,9 @@ GConstrainedInt32Object::GConstrainedInt32Object()
  * @param upperBoundary The upper boundary of the value range
  */
 GConstrainedInt32Object::GConstrainedInt32Object(
-   const boost::int32_t& lowerBoundary
-   , const boost::int32_t& upperBoundary
+	const boost::int32_t &lowerBoundary, const boost::int32_t &upperBoundary
 )
-	: GConstrainedIntT<boost::int32_t>(lowerBoundary, upperBoundary)
-{ /* nothing */ }
+	: GConstrainedIntT<boost::int32_t>(lowerBoundary, upperBoundary) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -70,13 +67,10 @@ GConstrainedInt32Object::GConstrainedInt32Object(
  * @param lowerBoundary The lower boundary of the value range
  * @param upperBoundary The upper boundary of the value range
  */
-GConstrainedInt32Object::GConstrainedInt32Object (
-     const boost::int32_t& val
-   , const boost::int32_t& lowerBoundary
-   , const boost::int32_t& upperBoundary
+GConstrainedInt32Object::GConstrainedInt32Object(
+	const boost::int32_t &val, const boost::int32_t &lowerBoundary, const boost::int32_t &upperBoundary
 )
-	: GConstrainedIntT<boost::int32_t>(val, lowerBoundary, upperBoundary)
-{ /* nothing */ }
+	: GConstrainedIntT<boost::int32_t>(val, lowerBoundary, upperBoundary) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -84,9 +78,8 @@ GConstrainedInt32Object::GConstrainedInt32Object (
  *
  * @param cp A copy of another GConstrainedInt32Object object
  */
-GConstrainedInt32Object::GConstrainedInt32Object(const GConstrainedInt32Object& cp)
-	: GConstrainedIntT<boost::int32_t>(cp)
-{ /* nothing */ }
+GConstrainedInt32Object::GConstrainedInt32Object(const GConstrainedInt32Object &cp)
+	: GConstrainedIntT<boost::int32_t>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -94,26 +87,24 @@ GConstrainedInt32Object::GConstrainedInt32Object(const GConstrainedInt32Object& 
  *
  * @param val A value used for the initialization
  */
-GConstrainedInt32Object::GConstrainedInt32Object(const boost::int32_t& val)
-	: GConstrainedIntT<boost::int32_t>(val)
-{ /* nothing */ }
+GConstrainedInt32Object::GConstrainedInt32Object(const boost::int32_t &val)
+	: GConstrainedIntT<boost::int32_t>(val) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GConstrainedInt32Object::~GConstrainedInt32Object()
-{ /* nothing */ }
+GConstrainedInt32Object::~GConstrainedInt32Object() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GConstrainedInt32Object& GConstrainedInt32Object::operator=(
-   const GConstrainedInt32Object& cp
+const GConstrainedInt32Object &GConstrainedInt32Object::operator=(
+	const GConstrainedInt32Object &cp
 ) {
-   this->load_(&cp);
-   return *this;
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -123,7 +114,7 @@ const GConstrainedInt32Object& GConstrainedInt32Object::operator=(
  * @param val The value to be assigned to this object
  * @return The value that was just assigned to this object
  */
-boost::int32_t GConstrainedInt32Object::operator=(const boost::int32_t& val) {
+boost::int32_t GConstrainedInt32Object::operator=(const boost::int32_t &val) {
 	return GConstrainedIntT<boost::int32_t>::operator=(val);
 }
 
@@ -133,7 +124,7 @@ boost::int32_t GConstrainedInt32Object::operator=(const boost::int32_t& val) {
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GConstrainedInt32Object::clone_() const {
+GObject *GConstrainedInt32Object::clone_() const {
 	return new GConstrainedInt32Object(*this);
 }
 
@@ -144,14 +135,14 @@ GObject* GConstrainedInt32Object::clone_() const {
  * @param  cp A constant reference to another GConstrainedInt32Object object
  * @return A boolean indicating whether both objects are equal
  */
-bool GConstrainedInt32Object::operator==(const GConstrainedInt32Object& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GConstrainedInt32Object::operator==(const GConstrainedInt32Object &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -161,14 +152,14 @@ bool GConstrainedInt32Object::operator==(const GConstrainedInt32Object& cp) cons
  * @param  cp A constant reference to another GConstrainedInt32Object object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GConstrainedInt32Object::operator!=(const GConstrainedInt32Object& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GConstrainedInt32Object::operator!=(const GConstrainedInt32Object &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -181,24 +172,22 @@ bool GConstrainedInt32Object::operator!=(const GConstrainedInt32Object& cp) cons
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GConstrainedInt32Object::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GConstrainedInt32Object *p_load = GObject::gobject_conversion<GConstrainedInt32Object>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GConstrainedInt32Object *p_load = GObject::gobject_conversion<GConstrainedInt32Object>(&cp);
 
-   GToken token("GConstrainedInt32Object", e);
+	GToken token("GConstrainedInt32Object", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GConstrainedIntT<boost::int32_t> >(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GConstrainedIntT<boost::int32_t> >(IDENTITY(*this, *p_load), token);
 
-   // .... no local data
+	// .... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 
@@ -207,7 +196,7 @@ void GConstrainedInt32Object::compare(
  * Emits a name for this class / object
  */
 std::string GConstrainedInt32Object::name() const {
-   return std::string("GConstrainedInt32Object");
+	return std::string("GConstrainedInt32Object");
 }
 
 /******************************************************************************/
@@ -218,8 +207,7 @@ std::string GConstrainedInt32Object::name() const {
  * @param parVec The vector to which the local value should be attached
  */
 void GConstrainedInt32Object::int32Streamline(
-   std::vector<boost::int32_t>& parVec
-   , const activityMode& am
+	std::vector<boost::int32_t> &parVec, const activityMode &am
 ) const {
 	parVec.push_back(this->value());
 }
@@ -232,12 +220,11 @@ void GConstrainedInt32Object::int32Streamline(
  * @param parVec The vector to which the local value should be attached
  */
 void GConstrainedInt32Object::int32Streamline(
-   std::map<std::string, std::vector<boost::int32_t> >& parVec
-   , const activityMode& am
+	std::map<std::string, std::vector<boost::int32_t> > &parVec, const activityMode &am
 ) const {
-   std::vector<boost::int32_t> parameters;
-   parameters.push_back(this->value());
-   parVec[this->getParameterName()] = parameters;
+	std::vector<boost::int32_t> parameters;
+	parameters.push_back(this->value());
+	parVec[this->getParameterName()] = parameters;
 }
 
 /******************************************************************************/
@@ -248,9 +235,7 @@ void GConstrainedInt32Object::int32Streamline(
  * @param uBndVec A vector of upper boost::int32_t parameter boundaries
  */
 void GConstrainedInt32Object::int32Boundaries(
-   std::vector<boost::int32_t>& lBndVec
-   , std::vector<boost::int32_t>& uBndVec
-   , const activityMode& am
+	std::vector<boost::int32_t> &lBndVec, std::vector<boost::int32_t> &uBndVec, const activityMode &am
 ) const {
 	lBndVec.push_back(this->getLowerBoundary());
 	uBndVec.push_back(this->getUpperBoundary());
@@ -264,9 +249,9 @@ void GConstrainedInt32Object::int32Boundaries(
  * @return The number 1, as we own a single boost::int32_t parameter
  */
 std::size_t GConstrainedInt32Object::countInt32Parameters(
-   const activityMode& am
+	const activityMode &am
 ) const {
-   return 1;
+	return 1;
 }
 
 /******************************************************************************/
@@ -275,9 +260,7 @@ std::size_t GConstrainedInt32Object::countInt32Parameters(
  * to the assigned value, so that it lies inside of the allowed value range.
  */
 void GConstrainedInt32Object::assignInt32ValueVector(
-   const std::vector<boost::int32_t>& parVec
-   , std::size_t& pos
-   , const activityMode& am
+	const std::vector<boost::int32_t> &parVec, std::size_t &pos, const activityMode &am
 ) {
 #ifdef DEBUG
 	// Do we have a valid position ?
@@ -298,17 +281,15 @@ void GConstrainedInt32Object::assignInt32ValueVector(
  * Assigns part of a value map to the parameter
  */
 void GConstrainedInt32Object::assignInt32ValueVectors(
-   const std::map<std::string, std::vector<boost::int32_t> >& parMap
-   , const activityMode& am
+	const std::map<std::string, std::vector<boost::int32_t> > &parMap, const activityMode &am
 ) {
-   this->setValue(
-      this->transfer(
-         Gem::Common::getMapItem(
-            parMap
-            ,this->getParameterName()
-         ).at(0)
-      )
-   );
+	this->setValue(
+		this->transfer(
+			Gem::Common::getMapItem(
+				parMap, this->getParameterName()
+			).at(0)
+		)
+	);
 }
 
 /******************************************************************************/
@@ -317,9 +298,9 @@ void GConstrainedInt32Object::assignInt32ValueVectors(
  *
  * @param cp A copy of another GConstrainedInt32Object object, camouflaged as a GObject
  */
-void GConstrainedInt32Object::load_(const GObject* cp){
+void GConstrainedInt32Object::load_(const GObject *cp) {
 	// Check for a possible self-assignment
-    GObject::selfAssignmentCheck<GConstrainedInt32Object>(cp);
+	GObject::selfAssignmentCheck<GConstrainedInt32Object>(cp);
 
 	// Load our parent class'es data ...
 	GConstrainedIntT<boost::int32_t>::load_(cp);
@@ -331,7 +312,7 @@ void GConstrainedInt32Object::load_(const GObject* cp){
 /**
  * Triggers random initialization of the parameter object
  */
-bool GConstrainedInt32Object::randomInit_(const activityMode& am) {
+bool GConstrainedInt32Object::randomInit_(const activityMode &am) {
 	return GConstrainedIntT<boost::int32_t>::randomInit_(am);
 }
 
@@ -351,7 +332,7 @@ bool GConstrainedInt32Object::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GConstrainedIntT<boost::int32_t>::modify_GUnitTests()) result = true;
+	if (GConstrainedIntT<boost::int32_t>::modify_GUnitTests()) result = true;
 
 	return result;
 
@@ -369,14 +350,14 @@ void GConstrainedInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
-	std::shared_ptr<GAdaptorT<boost::int32_t> > storedAdaptor;
+	std::shared_ptr <GAdaptorT<boost::int32_t>> storedAdaptor;
 
-	if(this->hasAdaptor()) {
+	if (this->hasAdaptor()) {
 		storedAdaptor = this->getAdaptor();
 		adaptorStored = true;
 	}
 
-	std::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.025, 0.1, 0., 1., 1.0));
+	std::shared_ptr <GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.025, 0.1, 0., 1., 1.0));
 	giga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	giga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(giga_ptr);
@@ -388,7 +369,7 @@ void GConstrainedInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 	this->resetAdaptor();
 
 	// Load the old adaptor, if needed
-	if(adaptorStored) {
+	if (adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
 
@@ -405,14 +386,14 @@ void GConstrainedInt32Object::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
-	std::shared_ptr<GAdaptorT<boost::int32_t> > storedAdaptor;
+	std::shared_ptr <GAdaptorT<boost::int32_t>> storedAdaptor;
 
-	if(this->hasAdaptor()) {
+	if (this->hasAdaptor()) {
 		storedAdaptor = this->getAdaptor();
 		adaptorStored = true;
 	}
 
-	std::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.025, 0.1, 0., 1., 1.0));
+	std::shared_ptr <GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.025, 0.1, 0., 1., 1.0));
 	giga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	giga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(giga_ptr);
@@ -424,7 +405,7 @@ void GConstrainedInt32Object::specificTestsFailuresExpected_GUnitTests() {
 	this->resetAdaptor();
 
 	// Load the old adaptor, if needed
-	if(adaptorStored) {
+	if (adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
 

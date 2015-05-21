@@ -44,34 +44,30 @@ namespace Geneva {
  * The default constructor
  */
 GMultiThreadedPS::GMultiThreadedPS()
-   : GBasePS()
-   , nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
-{ /* nothing */ }
+	: GBasePS(), nThreads_(
+	boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS))) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * A standard copy constructor
  */
-GMultiThreadedPS::GMultiThreadedPS(const GMultiThreadedPS& cp)
-   : GBasePS(cp)
-   , nThreads_(cp.nThreads_)
-{ /* nothing */ }
+GMultiThreadedPS::GMultiThreadedPS(const GMultiThreadedPS &cp)
+	: GBasePS(cp), nThreads_(cp.nThreads_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor. We clear remaining work items in the
  * thread pool and wait for active tasks to finish.
  */
-GMultiThreadedPS::~GMultiThreadedPS()
-{ /* nothing */ }
+GMultiThreadedPS::~GMultiThreadedPS() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GMultiThreadedPS& GMultiThreadedPS::operator=(const GMultiThreadedPS& cp) {
-   this->load_(&cp);
-   return *this;
+const GMultiThreadedPS &GMultiThreadedPS::operator=(const GMultiThreadedPS &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -81,14 +77,14 @@ const GMultiThreadedPS& GMultiThreadedPS::operator=(const GMultiThreadedPS& cp) 
  * @param  cp A constant reference to another GMultiThreadedPS object
  * @return A boolean indicating whether both objects are equal
  */
-bool GMultiThreadedPS::operator==(const GMultiThreadedPS& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GMultiThreadedPS::operator==(const GMultiThreadedPS &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -98,14 +94,14 @@ bool GMultiThreadedPS::operator==(const GMultiThreadedPS& cp) const {
  * @param  cp A constant reference to another GMultiThreadedPS object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GMultiThreadedPS::operator!=(const GMultiThreadedPS& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GMultiThreadedPS::operator!=(const GMultiThreadedPS &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -118,25 +114,23 @@ bool GMultiThreadedPS::operator!=(const GMultiThreadedPS& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GMultiThreadedPS::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GMultiThreadedPS *p_load = GObject::gobject_conversion<GMultiThreadedPS>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GMultiThreadedPS *p_load = GObject::gobject_conversion<GMultiThreadedPS>(&cp);
 
-   GToken token("GMultiThreadedPS", e);
+	GToken token("GMultiThreadedPS", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GBasePS>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GBasePS>(IDENTITY(*this, *p_load), token);
 
-   // ... and then the local data
-   compare_t(IDENTITY(nThreads_, p_load->nThreads_), token);
+	// ... and then the local data
+	compare_t(IDENTITY(nThreads_, p_load->nThreads_), token);
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -144,7 +138,7 @@ void GMultiThreadedPS::compare(
  * Emits a name for this class / object
  */
 std::string GMultiThreadedPS::name() const {
-   return std::string("GMultiThreadedPS");
+	return std::string("GMultiThreadedPS");
 }
 
 /******************************************************************************/
@@ -157,12 +151,12 @@ std::string GMultiThreadedPS::name() const {
  * @param nThreads The number of threads this class uses
  */
 void GMultiThreadedPS::setNThreads(boost::uint16_t nThreads) {
-   if(nThreads == 0) {
-      nThreads_ = boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
-   }
-   else {
-      nThreads_ = nThreads;
-   }
+	if (nThreads == 0) {
+		nThreads_ = boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
+	}
+	else {
+		nThreads_ = nThreads;
+	}
 }
 
 /******************************************************************************/
@@ -171,8 +165,8 @@ void GMultiThreadedPS::setNThreads(boost::uint16_t nThreads) {
  *
  * @return The maximum number of allowed threads
  */
-boost::uint16_t GMultiThreadedPS::getNThreads() const  {
-   return nThreads_;
+boost::uint16_t GMultiThreadedPS::getNThreads() const {
+	return nThreads_;
 }
 
 /******************************************************************************/
@@ -182,14 +176,14 @@ boost::uint16_t GMultiThreadedPS::getNThreads() const  {
  * @param vp Pointer to another GMultiThreadedPS object, camouflaged as a GObject
  */
 void GMultiThreadedPS::load_(const GObject *cp) {
-   // Convert GObject pointer to local format
-   const GMultiThreadedPS *p_load = this->gobject_conversion<GMultiThreadedPS>(cp);
+	// Convert GObject pointer to local format
+	const GMultiThreadedPS *p_load = this->gobject_conversion<GMultiThreadedPS>(cp);
 
-   // First load our parent class'es data ...
-   GBasePS::load_(cp);
+	// First load our parent class'es data ...
+	GBasePS::load_(cp);
 
-   // ... and then our own
-   nThreads_ = p_load->nThreads_;
+	// ... and then our own
+	nThreads_ = p_load->nThreads_;
 }
 
 /******************************************************************************/
@@ -198,8 +192,8 @@ void GMultiThreadedPS::load_(const GObject *cp) {
  *
  * @return A deep copy of this object, camouflaged as a GObject
  */
-GObject *GMultiThreadedPS::clone_() const  {
-   return new GMultiThreadedPS(*this);
+GObject *GMultiThreadedPS::clone_() const {
+	return new GMultiThreadedPS(*this);
 }
 
 /******************************************************************************/
@@ -207,11 +201,11 @@ GObject *GMultiThreadedPS::clone_() const  {
  * Necessary initialization work before the start of the optimization
  */
 void GMultiThreadedPS::init() {
-   // GBasePS sees exactly the environment it would when called from its own class
-   GBasePS::init();
+	// GBasePS sees exactly the environment it would when called from its own class
+	GBasePS::init();
 
-   // Initialize our thread pool
-   tp_ptr_.reset(new Gem::Common::GThreadPool(nThreads_));
+	// Initialize our thread pool
+	tp_ptr_.reset(new Gem::Common::GThreadPool(nThreads_));
 }
 
 /******************************************************************************/
@@ -219,37 +213,37 @@ void GMultiThreadedPS::init() {
  * Necessary clean-up work after the optimization has finished
  */
 void GMultiThreadedPS::finalize() {
-   // Check whether there were any errors during thread execution
-   if(tp_ptr_->hasErrors()) {
-      std::ostringstream oss;
+	// Check whether there were any errors during thread execution
+	if (tp_ptr_->hasErrors()) {
+		std::ostringstream oss;
 
-      std::vector<std::string> errors;
-      errors = tp_ptr_->getErrors();
+		std::vector<std::string> errors;
+		errors = tp_ptr_->getErrors();
 
-      oss
-      << "========================================================================" << std::endl
-      << "In GMultiThreadedPS::finalize(): WARNING" << std::endl
-      << "There were errors during thread execution:" << std::endl
-      << std::endl;
+		oss
+		<< "========================================================================" << std::endl
+		<< "In GMultiThreadedPS::finalize(): WARNING" << std::endl
+		<< "There were errors during thread execution:" << std::endl
+		<< std::endl;
 
-      for(std::vector<std::string>::iterator it=errors.begin(); it!=errors.end(); ++it) {
-         oss << *it << std::endl;
-      }
+		for (std::vector<std::string>::iterator it = errors.begin(); it != errors.end(); ++it) {
+			oss << *it << std::endl;
+		}
 
-      oss << std::endl
-      << "========================================================================" << std::endl;
+		oss << std::endl
+		<< "========================================================================" << std::endl;
 
-      glogger // We cannot currently interrupt glogger input, all input must be transferred in one go
-      << oss.str()
-      << GWARNING;
-   }
+		glogger // We cannot currently interrupt glogger input, all input must be transferred in one go
+		<< oss.str()
+		<< GWARNING;
+	}
 
 
-   // Terminate our thread pool
-   tp_ptr_.reset();
+	// Terminate our thread pool
+	tp_ptr_.reset();
 
-   // GBasePS sees exactly the environment it would when called from its own class
-   GBasePS::finalize();
+	// GBasePS sees exactly the environment it would when called from its own class
+	GBasePS::finalize();
 }
 
 /******************************************************************************/
@@ -258,20 +252,20 @@ void GMultiThreadedPS::finalize() {
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
-void GMultiThreadedPS::addConfigurationOptions (
-   Gem::Common::GParserBuilder& gpb
+void GMultiThreadedPS::addConfigurationOptions(
+	Gem::Common::GParserBuilder &gpb
 ) {
-   // Call our parent class'es function
-   GBasePS::addConfigurationOptions(gpb);
+	// Call our parent class'es function
+	GBasePS::addConfigurationOptions(gpb);
 
-   // add local data
-   gpb.registerFileParameter<boost::uint16_t>(
-      "nEvaluationThreads" // The name of the variable
-      , 0 // The default value
-      , [this](boost::uint16_t nt){ this->setNThreads(nt); }
-   )
-   << "The number of evaluation threads" << std::endl
-   << "0 means: determine automatically;";
+	// add local data
+	gpb.registerFileParameter<boost::uint16_t>(
+		"nEvaluationThreads" // The name of the variable
+		, 0 // The default value
+		, [this](boost::uint16_t nt) { this->setNThreads(nt); }
+	)
+	<< "The number of evaluation threads" << std::endl
+	<< "0 means: determine automatically;";
 }
 
 /******************************************************************************/
@@ -281,7 +275,7 @@ void GMultiThreadedPS::addConfigurationOptions (
  * All other objects do not need to re-implement this function (unless they rely on the name for some reason).
  */
 std::string GMultiThreadedPS::getIndividualCharacteristic() const {
-   return std::string("GENEVA_MTOPTALG");
+	return std::string("GENEVA_MTOPTALG");
 }
 
 /******************************************************************************/
@@ -293,9 +287,9 @@ std::string GMultiThreadedPS::getIndividualCharacteristic() const {
  * @return The best fitness found amongst all parents
  */
 void GMultiThreadedPS::runFitnessCalculation() {
-   // Trigger value calculation for all individuals (including parents)
-   GMultiThreadedPS::iterator it;
-   for(it=this->begin(); it!=this->end(); ++it) {
+	// Trigger value calculation for all individuals (including parents)
+	GMultiThreadedPS::iterator it;
+	for (it = this->begin(); it != this->end(); ++it) {
 #ifdef DEBUG
       // Make sure the evaluated individuals have the dirty flag set
       if(!(*it)->isDirty()) {
@@ -306,14 +300,14 @@ void GMultiThreadedPS::runFitnessCalculation() {
       }
 #endif /* DEBUG */
 
-      // Do the actual scheduling
-      tp_ptr_->async_schedule(
-         [it](){ (*it)->nonConstFitness(0, ALLOWREEVALUATION, USETRANSFORMEDFITNESS); }
-      );
-   }
+		// Do the actual scheduling
+		tp_ptr_->async_schedule(
+			[it]() { (*it)->nonConstFitness(0, ALLOWREEVALUATION, USETRANSFORMEDFITNESS); }
+		);
+	}
 
-   // wait for the pool to run out of tasks
-   tp_ptr_->wait();
+	// wait for the pool to run out of tasks
+	tp_ptr_->wait();
 }
 
 /******************************************************************************/
@@ -324,12 +318,12 @@ void GMultiThreadedPS::runFitnessCalculation() {
  */
 bool GMultiThreadedPS::modify_GUnitTests() {
 #ifdef GEM_TESTING
-   bool result = false;
+	bool result = false;
 
-   // Call the parent class'es function
-   if(GBasePS::modify_GUnitTests()) result = true;
+	// Call the parent class'es function
+	if (GBasePS::modify_GUnitTests()) result = true;
 
-   return result;
+	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GMultiThreadedPS::modify_GUnitTests", "GEM_TESTING");
@@ -343,8 +337,8 @@ bool GMultiThreadedPS::modify_GUnitTests() {
  */
 void GMultiThreadedPS::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
-   // Call the parent class'es function
-   GBasePS::specificTestsNoFailureExpected_GUnitTests();
+	// Call the parent class'es function
+	GBasePS::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GMultiThreadedPS::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -357,8 +351,8 @@ void GMultiThreadedPS::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GMultiThreadedPS::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
-   // Call the parent class'es function
-   GBasePS::specificTestsFailuresExpected_GUnitTests();
+	// Call the parent class'es function
+	GBasePS::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GMultiThreadedPS::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

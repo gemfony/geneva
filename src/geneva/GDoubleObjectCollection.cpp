@@ -42,19 +42,16 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GDoubleObjectCollection::GDoubleObjectCollection()
-{ /* nothing */ }
+GDoubleObjectCollection::GDoubleObjectCollection() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization with a number of identical GDoubleObject objects
  */
 GDoubleObjectCollection::GDoubleObjectCollection(
-	const std::size_t& nCp
-	, std::shared_ptr<GDoubleObject> tmpl_ptr
+	const std::size_t &nCp, std::shared_ptr <GDoubleObject> tmpl_ptr
 )
-	:GParameterTCollectionT<GDoubleObject>(nCp, tmpl_ptr)
-{ /* nothing */ }
+	: GParameterTCollectionT<GDoubleObject>(nCp, tmpl_ptr) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -62,16 +59,14 @@ GDoubleObjectCollection::GDoubleObjectCollection(
  *
  * @param cp A copy of another GDoubleObjectCollection object
  */
-GDoubleObjectCollection::GDoubleObjectCollection(const GDoubleObjectCollection& cp)
-	: GParameterTCollectionT<GDoubleObject>(cp)
-{ /* nothing */ }
+GDoubleObjectCollection::GDoubleObjectCollection(const GDoubleObjectCollection &cp)
+	: GParameterTCollectionT<GDoubleObject>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GDoubleObjectCollection::~GDoubleObjectCollection()
-{ /* nothing */ }
+GDoubleObjectCollection::~GDoubleObjectCollection() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -79,7 +74,7 @@ GDoubleObjectCollection::~GDoubleObjectCollection()
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GDoubleObjectCollection::clone_() const {
+GObject *GDoubleObjectCollection::clone_() const {
 	return new GDoubleObjectCollection(*this);
 }
 
@@ -87,11 +82,11 @@ GObject* GDoubleObjectCollection::clone_() const {
 /**
  * The standard assignment operator
  */
-const GDoubleObjectCollection& GDoubleObjectCollection::operator=(
-   const GDoubleObjectCollection& cp
+const GDoubleObjectCollection &GDoubleObjectCollection::operator=(
+	const GDoubleObjectCollection &cp
 ) {
-   this->load_(&cp);
-   return *this;
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -101,14 +96,14 @@ const GDoubleObjectCollection& GDoubleObjectCollection::operator=(
  * @param  cp A constant reference to another GDoubleObjectCollection object
  * @return A boolean indicating whether both objects are equal
  */
-bool GDoubleObjectCollection::operator==(const GDoubleObjectCollection& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GDoubleObjectCollection::operator==(const GDoubleObjectCollection &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -118,14 +113,14 @@ bool GDoubleObjectCollection::operator==(const GDoubleObjectCollection& cp) cons
  * @param  cp A constant reference to another GDoubleObjectCollection object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GDoubleObjectCollection::operator!=(const GDoubleObjectCollection& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GDoubleObjectCollection::operator!=(const GDoubleObjectCollection &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -138,24 +133,22 @@ bool GDoubleObjectCollection::operator!=(const GDoubleObjectCollection& cp) cons
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GDoubleObjectCollection::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GDoubleObjectCollection *p_load = GObject::gobject_conversion<GDoubleObjectCollection>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GDoubleObjectCollection *p_load = GObject::gobject_conversion<GDoubleObjectCollection>(&cp);
 
-   GToken token("GDoubleObjectCollection", e);
+	GToken token("GDoubleObjectCollection", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GParameterTCollectionT<GDoubleObject> >(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GParameterTCollectionT<GDoubleObject> >(IDENTITY(*this, *p_load), token);
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -163,7 +156,7 @@ void GDoubleObjectCollection::compare(
  * Emits a name for this class / object
  */
 std::string GDoubleObjectCollection::name() const {
-   return std::string("GDoubleObjectCollection");
+	return std::string("GDoubleObjectCollection");
 }
 
 /******************************************************************************/
@@ -172,9 +165,9 @@ std::string GDoubleObjectCollection::name() const {
  *
  * @param cp A copy of another GDoubleObjectCollection object, camouflaged as a GObject
  */
-void GDoubleObjectCollection::load_(const GObject* cp){
-    // Check that we are not accidently assigning this object to itself
-    GObject::selfAssignmentCheck<GDoubleObjectCollection>(cp);
+void GDoubleObjectCollection::load_(const GObject *cp) {
+	// Check that we are not accidently assigning this object to itself
+	GObject::selfAssignmentCheck<GDoubleObjectCollection>(cp);
 
 	// Load our parent class'es data ...
 	GParameterTCollectionT<GDoubleObject>::load_(cp);
@@ -190,7 +183,7 @@ void GDoubleObjectCollection::load_(const GObject* cp){
  */
 bool GDoubleObjectCollection::modify_GUnitTests() {
 #ifdef GEM_TESTING
-   this->fillWithObjects(10);
+	this->fillWithObjects(10);
 
 	// Call the parent class'es function
 	GParameterTCollectionT<GDoubleObject>::modify_GUnitTests();
@@ -206,24 +199,27 @@ bool GDoubleObjectCollection::modify_GUnitTests() {
 /**
  * Fills the collection with GDoubleObject objects
  */
-void GDoubleObjectCollection::fillWithObjects(const std::size_t& nAddedObjects) {
+void GDoubleObjectCollection::fillWithObjects(const std::size_t &nAddedObjects) {
 #ifdef GEM_TESTING
 	// Clear the collection, so we can start fresh
 	BOOST_CHECK_NO_THROW(this->clear());
 
 	// Add GDoubleObject items with adaptors to p_test1
-	for(std::size_t i=0; i<nAddedObjects; i++) {
+	for (std::size_t i = 0; i < nAddedObjects; i++) {
 		// Create a suitable adaptor
-		std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr;
+		std::shared_ptr <GDoubleGaussAdaptor> gdga_ptr;
 
-		BOOST_CHECK_NO_THROW(gdga_ptr = std::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0)));
-		BOOST_CHECK_NO_THROW(gdga_ptr->setAdaptionThreshold(0)); // Make sure the adaptor's internal parameters don't change through the adaption
+		BOOST_CHECK_NO_THROW(
+			gdga_ptr = std::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0)));
+		BOOST_CHECK_NO_THROW(gdga_ptr->setAdaptionThreshold(
+			0)); // Make sure the adaptor's internal parameters don't change through the adaption
 		BOOST_CHECK_NO_THROW(gdga_ptr->setAdaptionMode(true)); // Always adapt
 
 		// Create a suitable GDoubleObject object
-		std::shared_ptr<GDoubleObject> gdo_ptr;
+		std::shared_ptr <GDoubleObject> gdo_ptr;
 
-		BOOST_CHECK_NO_THROW(gdo_ptr = std::shared_ptr<GDoubleObject>(new GDoubleObject(-100., 100.))); // Initialization in the range -100, 100
+		BOOST_CHECK_NO_THROW(gdo_ptr = std::shared_ptr<GDoubleObject>(
+			new GDoubleObject(-100., 100.))); // Initialization in the range -100, 100
 
 		// Add the adaptor
 		BOOST_CHECK_NO_THROW(gdo_ptr->addAdaptor(gdga_ptr));
@@ -250,7 +246,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	const std::size_t nAddedObjects = 10;
 	const std::size_t nTests = 100;
 	const double LOWERINITBOUNDARY = -10.1;
-	const double UPPERINITBOUNDARY =  10.1;
+	const double UPPERINITBOUNDARY = 10.1;
 	const double FIXEDVALUEINIT = 1.;
 	const double MULTVALUE = 3.;
 	const double RANDLOWERBOUNDARY = 0.;
@@ -259,7 +255,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Call the parent class'es function
-		std::shared_ptr<GDoubleObjectCollection> p_test = this->clone<GDoubleObjectCollection>();
+		std::shared_ptr <GDoubleObjectCollection> p_test = this->clone<GDoubleObjectCollection>();
 
 		// Fill p_test with objects
 		p_test->fillWithObjects(nAddedObjects);
@@ -271,13 +267,13 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test the GParameterTCollectionT<T>::adaptImpl() implementation
-		std::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
-		std::shared_ptr<GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
+		std::shared_ptr <GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
+		std::shared_ptr <GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
 
 		// Fill p_test1 with objects
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
 
-	    // Load the p_test1 data into p_test2
+		// Load the p_test1 data into p_test2
 		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
 
 		// Check that both objects are identical
@@ -291,7 +287,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 != *p_test2);
 
 		// All items in the collection must have been modified individually
-		for(std::size_t i=0; i<nAddedObjects; i++) {
+		for (std::size_t i = 0; i < nAddedObjects; i++) {
 			BOOST_CHECK(*(p_test1->at(i)) != *(p_test2->at(i)));
 		}
 	}
@@ -299,7 +295,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test initialization of GDouble objects with a fixed floating point value
-		std::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
+		std::shared_ptr <GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
 
 		// Fill p_test1 with objects
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
@@ -311,7 +307,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, ALLPARAMETERS));
 
 		// Check that all items have the expected value
-		for(std::size_t i=0; i<nAddedObjects; i++) {
+		for (std::size_t i = 0; i < nAddedObjects; i++) {
 			BOOST_CHECK(p_test1->at(i)->value() == FIXEDVALUEINIT);
 		}
 	}
@@ -319,7 +315,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test multiplication with a fixed value
-		std::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
+		std::shared_ptr <GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
 
 		// Fill p_test1 with objects
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
@@ -334,7 +330,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test1->multiplyBy<double>(MULTVALUE, ALLPARAMETERS));
 
 		// Check the values of all items
-		for(std::size_t i=0; i<nAddedObjects; i++) {
+		for (std::size_t i = 0; i < nAddedObjects; i++) {
 			BOOST_CHECK(p_test1->at(i)->value() == MULTVALUE);
 		}
 	}
@@ -342,8 +338,8 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test multiplication with a random number in a given range
-		std::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
-		std::shared_ptr<GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
+		std::shared_ptr <GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
+		std::shared_ptr <GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
 
 		// Fill p_test1 with objects
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
@@ -370,7 +366,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 != *p_test2);
 
 		// Check that each item individually differs
-		for(std::size_t i=0; i<nAddedObjects; i++) {
+		for (std::size_t i = 0; i < nAddedObjects; i++) {
 			BOOST_CHECK(p_test1->at(i)->value() != p_test2->at(i)->value());
 		}
 	}
@@ -378,8 +374,8 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test multiplication with a random number in a the range [0,1[
-		std::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
-		std::shared_ptr<GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
+		std::shared_ptr <GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
+		std::shared_ptr <GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
 
 		// Fill p_test1 with objects
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
@@ -406,7 +402,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 != *p_test2);
 
 		// Check that each item individually differs
-		for(std::size_t i=0; i<nAddedObjects; i++) {
+		for (std::size_t i = 0; i < nAddedObjects; i++) {
 			BOOST_CHECK(p_test1->at(i)->value() != p_test2->at(i)->value());
 		}
 	}
@@ -414,8 +410,8 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test addition of another object
-		std::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
-		std::shared_ptr<GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
+		std::shared_ptr <GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
+		std::shared_ptr <GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
 
 		// Fill p_test1 with objects
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
@@ -435,7 +431,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test2->add<double>(p_test1, ALLPARAMETERS));
 
 		// Check each position of p_test2 individually
-		for(std::size_t i=0; i<nAddedObjects; i++) {
+		for (std::size_t i = 0; i < nAddedObjects; i++) {
 			BOOST_CHECK(p_test2->at(i)->value() == double(2.) + double(1.));
 		}
 	}
@@ -443,8 +439,8 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test subtraction of another object
-		std::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
-		std::shared_ptr<GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
+		std::shared_ptr <GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
+		std::shared_ptr <GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
 
 		// Fill p_test1 with objects
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
@@ -464,7 +460,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test2->subtract<double>(p_test1, ALLPARAMETERS));
 
 		// Check each position of p_test2 individually
-		for(std::size_t i=0; i<nAddedObjects; i++) {
+		for (std::size_t i = 0; i < nAddedObjects; i++) {
 			BOOST_CHECK(p_test2->at(i)->value() == double(2.) - double(1.));
 		}
 	}
@@ -491,8 +487,8 @@ void GDoubleObjectCollection::specificTestsFailuresExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test that fpAdd throws if an item of invalid size is added (Test of GParameterTCollectionT<T>::fpAdd() )
-		std::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
-		std::shared_ptr<GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
+		std::shared_ptr <GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
+		std::shared_ptr <GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
 
 		// Fill p_test1 with objects
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
@@ -513,8 +509,8 @@ void GDoubleObjectCollection::specificTestsFailuresExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test that fpSubtract throws if an item of invalid size is added (Test of GParameterTCollectionT<T>::fpSubtract() )
-		std::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
-		std::shared_ptr<GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
+		std::shared_ptr <GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
+		std::shared_ptr <GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
 
 		// Fill p_test1 with objects
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));

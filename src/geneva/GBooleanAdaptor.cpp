@@ -43,8 +43,7 @@ namespace Geneva {
  * The default constructor
  */
 GBooleanAdaptor::GBooleanAdaptor()
-	: GAdaptorT<bool>(DEFAULTBITADPROB)
-{ /* nothing */ }
+	: GAdaptorT<bool>(DEFAULTBITADPROB) { /* nothing */ }
 
 // Tested in this class
 
@@ -54,9 +53,8 @@ GBooleanAdaptor::GBooleanAdaptor()
  *
  * @param cp A copy of another GBooleanAdaptor object
  */
-GBooleanAdaptor::GBooleanAdaptor(const GBooleanAdaptor& cp)
-	: GAdaptorT<bool>(cp)
-{ /* nothing */ }
+GBooleanAdaptor::GBooleanAdaptor(const GBooleanAdaptor &cp)
+	: GAdaptorT<bool>(cp) { /* nothing */ }
 
 // Tested in this class
 
@@ -66,9 +64,8 @@ GBooleanAdaptor::GBooleanAdaptor(const GBooleanAdaptor& cp)
  *
  * @param adProb The adaption probability
  */
-GBooleanAdaptor::GBooleanAdaptor(const double& adProb)
-	: GAdaptorT<bool>(adProb)
-{ /* nothing */ }
+GBooleanAdaptor::GBooleanAdaptor(const double &adProb)
+	: GAdaptorT<bool>(adProb) { /* nothing */ }
 
 // Tested in this class
 
@@ -76,8 +73,7 @@ GBooleanAdaptor::GBooleanAdaptor(const double& adProb)
 /**
  * The destructor
  */
-GBooleanAdaptor::~GBooleanAdaptor()
-{ /* nothing */ }
+GBooleanAdaptor::~GBooleanAdaptor() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -85,7 +81,7 @@ GBooleanAdaptor::~GBooleanAdaptor()
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GBooleanAdaptor::clone_() const {
+GObject *GBooleanAdaptor::clone_() const {
 	return new GBooleanAdaptor(*this);
 }
 
@@ -94,21 +90,20 @@ GObject* GBooleanAdaptor::clone_() const {
  * Flip the value up or down by 1, depending on a random number
  */
 void GBooleanAdaptor::customAdaptions(
-   bool& value
-   , const bool& range
+	bool &value, const bool &range
 ) {
-   value==true?value=false:value=true;
+	value == true ? value = false : value = true;
 }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GBooleanAdaptor& GBooleanAdaptor::operator=(
-   const GBooleanAdaptor& cp
+const GBooleanAdaptor &GBooleanAdaptor::operator=(
+	const GBooleanAdaptor &cp
 ) {
-   this->load_(&cp);
-   return *this;
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -118,14 +113,14 @@ const GBooleanAdaptor& GBooleanAdaptor::operator=(
  * @param  cp A constant reference to another GBooleanAdaptor object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBooleanAdaptor::operator==(const GBooleanAdaptor& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBooleanAdaptor::operator==(const GBooleanAdaptor &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -135,14 +130,14 @@ bool GBooleanAdaptor::operator==(const GBooleanAdaptor& cp) const {
  * @param  cp A constant reference to another GBooleanAdaptor object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GBooleanAdaptor::operator!=(const GBooleanAdaptor& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GBooleanAdaptor::operator!=(const GBooleanAdaptor &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -155,24 +150,22 @@ bool GBooleanAdaptor::operator!=(const GBooleanAdaptor& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBooleanAdaptor::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseSwarm reference
-   const GBooleanAdaptor *p_load = GObject::gobject_conversion<GBooleanAdaptor>(&cp);
+	// Check that we are indeed dealing with a GBaseSwarm reference
+	const GBooleanAdaptor *p_load = GObject::gobject_conversion<GBooleanAdaptor>(&cp);
 
-   GToken token("GBooleanAdaptor", e);
+	GToken token("GBooleanAdaptor", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GAdaptorT<bool> >(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GAdaptorT<bool> >(IDENTITY(*this, *p_load), token);
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -180,7 +173,7 @@ void GBooleanAdaptor::compare(
  * Emits a name for this class / object
  */
 std::string GBooleanAdaptor::name() const {
-   return std::string("GBooleanAdaptor");
+	return std::string("GBooleanAdaptor");
 }
 
 /***********************************************************************************//**
@@ -188,7 +181,7 @@ std::string GBooleanAdaptor::name() const {
  * action taken.
  */
 bool GBooleanAdaptor::randomInit() {
-   return false;
+	return false;
 }
 
 /******************************************************************************/
@@ -197,7 +190,7 @@ bool GBooleanAdaptor::randomInit() {
  *
  * @param cp A copy of another GBooleanAdaptor object, camouflaged as a GObject
  */
-void GBooleanAdaptor::load_(const GObject* cp){
+void GBooleanAdaptor::load_(const GObject *cp) {
 	// Check for a possible self-assignment
 	GObject::selfAssignmentCheck<GBooleanAdaptor>(cp);
 
@@ -236,7 +229,7 @@ bool GBooleanAdaptor::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GAdaptorT<bool>::modify_GUnitTests()) result = true;
+	if (GAdaptorT<bool>::modify_GUnitTests()) result = true;
 
 	return result;
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
@@ -262,10 +255,10 @@ void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	{ // Check default construction
 		GBooleanAdaptor gba;
 		BOOST_CHECK_MESSAGE(
-				gba.getAdaptionProbability() == DEFAULTBITADPROB
-				, "\n"
-				<< "gba.getAdaptionProbability() = " << gba.getAdaptionProbability() << "\n"
-				<< "DEFAULTADPROB = " << DEFAULTBITADPROB
+			gba.getAdaptionProbability() == DEFAULTBITADPROB, "\n"
+																			  << "gba.getAdaptionProbability() = " <<
+																			  gba.getAdaptionProbability() << "\n"
+																			  << "DEFAULTADPROB = " << DEFAULTBITADPROB
 		);
 	}
 
@@ -275,10 +268,10 @@ void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 		const double TRIALADPROB = 0.1;
 		GBooleanAdaptor gba(TRIALADPROB);
 		BOOST_CHECK_MESSAGE(
-				gba.getAdaptionProbability() == TRIALADPROB
-				, "\n"
-				<< "gba.getAdaptionProbability() = " << gba.getAdaptionProbability()
-				<< "TRIALADPROB = " << TRIALADPROB
+			gba.getAdaptionProbability() == TRIALADPROB, "\n"
+																		<< "gba.getAdaptionProbability() = " <<
+																		gba.getAdaptionProbability()
+																		<< "TRIALADPROB = " << TRIALADPROB
 		);
 	}
 
@@ -289,23 +282,22 @@ void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 		GBooleanAdaptor gba1(TRIALADPROB);
 		GBooleanAdaptor gba2(gba1);
 		BOOST_CHECK_MESSAGE(
-				gba2.getAdaptionProbability() == TRIALADPROB
-				, "\n"
-				<< "gba2.getAdaptionProbability() = " << gba2.getAdaptionProbability()
-				<< "TRIALADPROB = " << TRIALADPROB
+			gba2.getAdaptionProbability() == TRIALADPROB, "\n"
+																		 << "gba2.getAdaptionProbability() = " <<
+																		 gba2.getAdaptionProbability()
+																		 << "TRIALADPROB = " << TRIALADPROB
 		);
 	}
 
 	// --------------------------------------------------------------------------
 
 	{ // Check that the adaptor returns the correct adaptor id
-		std::shared_ptr<GBooleanAdaptor> p_test = this->clone<GBooleanAdaptor>();
+		std::shared_ptr <GBooleanAdaptor> p_test = this->clone<GBooleanAdaptor>();
 
 		BOOST_CHECK_MESSAGE(
-			p_test->getAdaptorId() == GBOOLEANADAPTOR
-			,  "\n"
-			<< "p_test->getAdaptorId() = " << p_test->getAdaptorId()
-			<< "GBOOLEANADAPTOR        = " << GBOOLEANADAPTOR << "\n"
+			p_test->getAdaptorId() == GBOOLEANADAPTOR, "\n"
+																	 << "p_test->getAdaptorId() = " << p_test->getAdaptorId()
+																	 << "GBOOLEANADAPTOR        = " << GBOOLEANADAPTOR << "\n"
 		);
 	}
 

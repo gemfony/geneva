@@ -43,9 +43,7 @@ namespace Geneva {
  * The default constructor
  */
 GGDPersonalityTraits::GGDPersonalityTraits()
-   : GPersonalityTraits()
-   , popPos_(0)
-{ /* nothing */ }
+	: GPersonalityTraits(), popPos_(0) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -53,27 +51,24 @@ GGDPersonalityTraits::GGDPersonalityTraits()
  *
  * @param cp A copy of another GGDPersonalityTraits object
  */
-GGDPersonalityTraits::GGDPersonalityTraits(const GGDPersonalityTraits& cp)
-	: GPersonalityTraits(cp)
-	, popPos_(cp.popPos_)
-{ /* nothing */ }
+GGDPersonalityTraits::GGDPersonalityTraits(const GGDPersonalityTraits &cp)
+	: GPersonalityTraits(cp), popPos_(cp.popPos_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
-GGDPersonalityTraits::~GGDPersonalityTraits()
-{ /* nothing */ }
+GGDPersonalityTraits::~GGDPersonalityTraits() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GGDPersonalityTraits& GGDPersonalityTraits::operator=(
-   const GGDPersonalityTraits& cp
+const GGDPersonalityTraits &GGDPersonalityTraits::operator=(
+	const GGDPersonalityTraits &cp
 ) {
-   this->load_(&cp);
-   return *this;
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -83,14 +78,14 @@ const GGDPersonalityTraits& GGDPersonalityTraits::operator=(
  * @param  cp A constant reference to another GGDPersonalityTraits object
  * @return A boolean indicating whether both objects are equal
  */
-bool GGDPersonalityTraits::operator==(const GGDPersonalityTraits& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GGDPersonalityTraits::operator==(const GGDPersonalityTraits &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -100,14 +95,14 @@ bool GGDPersonalityTraits::operator==(const GGDPersonalityTraits& cp) const {
  * @param  cp A constant reference to another GGDPersonalityTraits object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GGDPersonalityTraits::operator!=(const GGDPersonalityTraits& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GGDPersonalityTraits::operator!=(const GGDPersonalityTraits &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -120,25 +115,23 @@ bool GGDPersonalityTraits::operator!=(const GGDPersonalityTraits& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GGDPersonalityTraits::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GGDPersonalityTraits *p_load = GObject::gobject_conversion<GGDPersonalityTraits>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GGDPersonalityTraits *p_load = GObject::gobject_conversion<GGDPersonalityTraits>(&cp);
 
-   GToken token("GGDPersonalityTraits", e);
+	GToken token("GGDPersonalityTraits", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GPersonalityTraits>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GPersonalityTraits>(IDENTITY(*this, *p_load), token);
 
-   // ... and then the local data
-   compare_t(IDENTITY(popPos_, p_load->popPos_), token);
+	// ... and then the local data
+	compare_t(IDENTITY(popPos_, p_load->popPos_), token);
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -146,7 +139,7 @@ void GGDPersonalityTraits::compare(
  * Emits a name for this class / object
  */
 std::string GGDPersonalityTraits::name() const {
-   return std::string("GGDPersonalityTraits");
+	return std::string("GGDPersonalityTraits");
 }
 
 /******************************************************************************/
@@ -155,7 +148,7 @@ std::string GGDPersonalityTraits::name() const {
  *
  * @return A clone of this object, camouflaged as a GObject
  */
-GObject* GGDPersonalityTraits::clone_() const {
+GObject *GGDPersonalityTraits::clone_() const {
 	return new GGDPersonalityTraits(*this);
 }
 
@@ -165,7 +158,7 @@ GObject* GGDPersonalityTraits::clone_() const {
  *
  * @param cp A copy of another GGDPersonalityTraits object, camouflaged as a GObject
  */
-void GGDPersonalityTraits::load_(const GObject* cp) {
+void GGDPersonalityTraits::load_(const GObject *cp) {
 	const GGDPersonalityTraits *p_load = gobject_conversion<GGDPersonalityTraits>(cp);
 
 	// Load the parent class'es data
@@ -181,7 +174,7 @@ void GGDPersonalityTraits::load_(const GObject* cp) {
  *
  * @param popPos The new position of this individual in the population
  */
-void GGDPersonalityTraits::setPopulationPosition(const std::size_t& popPos) {
+void GGDPersonalityTraits::setPopulationPosition(const std::size_t &popPos) {
 	popPos_ = popPos;
 }
 
@@ -216,7 +209,7 @@ bool GGDPersonalityTraits::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GPersonalityTraits::modify_GUnitTests()) result = true;
+	if (GPersonalityTraits::modify_GUnitTests()) result = true;
 
 	return result;
 

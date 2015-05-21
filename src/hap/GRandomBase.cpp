@@ -42,20 +42,14 @@ namespace Hap {
  * The standard constructor
  */
 GRandomBase::GRandomBase()
-	: min_value(GRandomBase::result_type(0.))
-	, max_value(GRandomBase::result_type(1.))
-	, fltGaussCache_(float(0.))
-	, dblGaussCache_(double(0.))
-	, fltGaussCacheAvailable_(false)
-	, dblGaussCacheAvailable_(false)
-{ /* nothing */ }
+	: min_value(GRandomBase::result_type(0.)), max_value(GRandomBase::result_type(1.)), fltGaussCache_(float(0.)),
+	  dblGaussCache_(double(0.)), fltGaussCacheAvailable_(false), dblGaussCacheAvailable_(false) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GRandomBase::~GRandomBase()
-{ /* nothing */ }
+GRandomBase::~GRandomBase() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -102,11 +96,11 @@ GRandomBase::result_type (GRandomBase::max)() const {
  * @param p The probability for the value "true" to be returned
  * @return A boolean value, which will be true with a user-defined likelihood
  */
-bool GRandomBase::weighted_bool(const double& probability) {
+bool GRandomBase::weighted_bool(const double &probability) {
 #ifdef DEBUG
 	assert(probability>=0. && probability<=1.);
 #endif
-	return ((uniform_01<double>()<probability)?true:false);
+	return uniform_01<double>() < probability;
 }
 
 /******************************************************************************/

@@ -47,9 +47,9 @@ namespace Geneva {
  *
  * @return The default adaptor for the base type "double"
  */
-template <>
-std::shared_ptr<GAdaptorT<double> > getDefaultAdaptor<double>() {
-   return std::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor());
+template<>
+std::shared_ptr <GAdaptorT<double>> getDefaultAdaptor<double>() {
+	return std::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor());
 }
 
 /******************************************************************************/
@@ -58,9 +58,9 @@ std::shared_ptr<GAdaptorT<double> > getDefaultAdaptor<double>() {
  *
  * @return The default adaptor for the base type "boost::int32_t"
  */
-template <>
-std::shared_ptr<GAdaptorT<boost::int32_t> > getDefaultAdaptor<boost::int32_t>() {
-   return std::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor());
+template<>
+std::shared_ptr <GAdaptorT<boost::int32_t>> getDefaultAdaptor<boost::int32_t>() {
+	return std::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor());
 }
 
 /******************************************************************************/
@@ -69,9 +69,9 @@ std::shared_ptr<GAdaptorT<boost::int32_t> > getDefaultAdaptor<boost::int32_t>() 
  *
  * @return The default adaptor for the base type "bool"
  */
-template <>
-std::shared_ptr<GAdaptorT<bool> > getDefaultAdaptor<bool>() {
-   return std::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor());
+template<>
+std::shared_ptr <GAdaptorT<bool>> getDefaultAdaptor<bool>() {
+	return std::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor());
 }
 
 /******************************************************************************/

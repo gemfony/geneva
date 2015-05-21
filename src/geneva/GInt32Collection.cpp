@@ -43,8 +43,7 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GInt32Collection::GInt32Collection()
-{ /* nothing */ }
+GInt32Collection::GInt32Collection() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -55,12 +54,9 @@ GInt32Collection::GInt32Collection()
  * @param max The maximum random value
  */
 GInt32Collection::GInt32Collection(
-   const std::size_t& nval
-   , const boost::int32_t& min
-   , const boost::int32_t& max
+	const std::size_t &nval, const boost::int32_t &min, const boost::int32_t &max
 )
-	: GIntNumCollectionT<boost::int32_t>(nval, min, max)
-{ /* nothing */ }
+	: GIntNumCollectionT<boost::int32_t>(nval, min, max) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -72,13 +68,9 @@ GInt32Collection::GInt32Collection(
  * @param max The maximum random value
  */
 GInt32Collection::GInt32Collection(
-   const std::size_t& nval
-   , const boost::int32_t& val
-   , const boost::int32_t& min
-   , const boost::int32_t& max
+	const std::size_t &nval, const boost::int32_t &val, const boost::int32_t &min, const boost::int32_t &max
 )
-	: GIntNumCollectionT<boost::int32_t>(nval, val, min, max)
-{ /* nothing */ }
+	: GIntNumCollectionT<boost::int32_t>(nval, val, min, max) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -86,16 +78,14 @@ GInt32Collection::GInt32Collection(
  *
  * @param cp A copy of another GInt32Collection object
  */
-GInt32Collection::GInt32Collection(const GInt32Collection& cp)
-	: GIntNumCollectionT<boost::int32_t>(cp)
-{ /* nothing */ }
+GInt32Collection::GInt32Collection(const GInt32Collection &cp)
+	: GIntNumCollectionT<boost::int32_t>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GInt32Collection::~GInt32Collection()
-{ /* nothing */ }
+GInt32Collection::~GInt32Collection() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -103,7 +93,7 @@ GInt32Collection::~GInt32Collection()
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GInt32Collection::clone_() const {
+GObject *GInt32Collection::clone_() const {
 	return new GInt32Collection(*this);
 }
 
@@ -111,9 +101,9 @@ GObject* GInt32Collection::clone_() const {
 /**
  * The standard assignment operator
  */
-const GInt32Collection& GInt32Collection::operator=(const GInt32Collection& cp) {
-   this->load_(&cp);
-   return *this;
+const GInt32Collection &GInt32Collection::operator=(const GInt32Collection &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -123,14 +113,14 @@ const GInt32Collection& GInt32Collection::operator=(const GInt32Collection& cp) 
  * @param  cp A constant reference to another GInt32Collection object
  * @return A boolean indicating whether both objects are equal
  */
-bool GInt32Collection::operator==(const GInt32Collection& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GInt32Collection::operator==(const GInt32Collection &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -140,14 +130,14 @@ bool GInt32Collection::operator==(const GInt32Collection& cp) const {
  * @param  cp A constant reference to another GInt32Collection object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GInt32Collection::operator!=(const GInt32Collection& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GInt32Collection::operator!=(const GInt32Collection &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -160,24 +150,22 @@ bool GInt32Collection::operator!=(const GInt32Collection& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GInt32Collection::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GInt32Collection *p_load = GObject::gobject_conversion<GInt32Collection>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GInt32Collection *p_load = GObject::gobject_conversion<GInt32Collection>(&cp);
 
-   GToken token("GInt32Collection", e);
+	GToken token("GInt32Collection", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GIntNumCollectionT<boost::int32_t> >(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GIntNumCollectionT<boost::int32_t> >(IDENTITY(*this, *p_load), token);
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /***********************************************************************************/
@@ -185,7 +173,7 @@ void GInt32Collection::compare(
  * Emits a name for this class / object
  */
 std::string GInt32Collection::name() const {
-   return std::string("GInt32Collection");
+	return std::string("GInt32Collection");
 }
 
 /******************************************************************************/
@@ -196,11 +184,10 @@ std::string GInt32Collection::name() const {
  * @param parVec The vector to which the local values should be attached
  */
 void GInt32Collection::int32Streamline(
-   std::vector<boost::int32_t>& parVec
-   , const activityMode& am
+	std::vector<boost::int32_t> &parVec, const activityMode &am
 ) const {
 	GInt32Collection::const_iterator cit;
-	for(cit=this->begin(); cit!=this->end(); ++cit) {
+	for (cit = this->begin(); cit != this->end(); ++cit) {
 		parVec.push_back(*cit);
 	}
 }
@@ -213,8 +200,7 @@ void GInt32Collection::int32Streamline(
  * @param parVec The map to which the local values should be attached
  */
 void GInt32Collection::int32Streamline(
-   std::map<std::string, std::vector<boost::int32_t> >& parVec
-   , const activityMode& am
+	std::map<std::string, std::vector<boost::int32_t> > &parVec, const activityMode &am
 ) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
@@ -225,9 +211,9 @@ void GInt32Collection::int32Streamline(
    }
 #endif /* DEBUG */
 
-   std::vector<boost::int32_t> parameters;
-   this->int32Streamline(parameters, am);
-   parVec[this->getParameterName()] = parameters;
+	std::vector<boost::int32_t> parameters;
+	this->int32Streamline(parameters, am);
+	parVec[this->getParameterName()] = parameters;
 }
 
 /******************************************************************************/
@@ -239,14 +225,12 @@ void GInt32Collection::int32Streamline(
  * @param uBndVec A vector of upper boost::int32_t parameter boundaries
  */
 void GInt32Collection::int32Boundaries(
-   std::vector<boost::int32_t>& lBndVec
-   , std::vector<boost::int32_t>& uBndVec
-   , const activityMode& am
+	std::vector<boost::int32_t> &lBndVec, std::vector<boost::int32_t> &uBndVec, const activityMode &am
 ) const {
 	// Add as man lower and upper boundaries to the vector as
 	// there are variables
 	GInt32Collection::const_iterator cit;
-	for(cit=this->begin(); cit!=this->end(); ++cit) {
+	for (cit = this->begin(); cit != this->end(); ++cit) {
 		lBndVec.push_back(this->getLowerInitBoundary());
 		uBndVec.push_back(this->getUpperInitBoundary());
 	}
@@ -260,9 +244,9 @@ void GInt32Collection::int32Boundaries(
  * @return The number of boost::int32_t parameters
  */
 std::size_t GInt32Collection::countInt32Parameters(
-   const activityMode& am
+	const activityMode &am
 ) const {
-   return this->size();
+	return this->size();
 }
 
 /******************************************************************************/
@@ -270,10 +254,9 @@ std::size_t GInt32Collection::countInt32Parameters(
  * Assigns part of a value vector to the parameter
  */
 void GInt32Collection::assignInt32ValueVector(
-   const std::vector<boost::int32_t>& parVec, std::size_t& pos
-   , const activityMode& am
+	const std::vector<boost::int32_t> &parVec, std::size_t &pos, const activityMode &am
 ) {
-   for(GInt32Collection::iterator it=this->begin(); it!=this->end(); ++it) {
+	for (GInt32Collection::iterator it = this->begin(); it != this->end(); ++it) {
 #ifdef DEBUG
       // Do we have a valid position ?
       if(pos >= parVec.size()) {
@@ -284,9 +267,9 @@ void GInt32Collection::assignInt32ValueVector(
       }
 #endif
 
-      (*it) = parVec[pos];
-      pos++;
-   }
+		(*it) = parVec[pos];
+		pos++;
+	}
 }
 
 /******************************************************************************/
@@ -294,14 +277,13 @@ void GInt32Collection::assignInt32ValueVector(
  * Assigns part of a value map to the parameter
  */
 void GInt32Collection::assignInt32ValueVectors(
-   const std::map<std::string, std::vector<boost::int32_t> >& parMap
-   , const activityMode& am
+	const std::map<std::string, std::vector<boost::int32_t> > &parMap, const activityMode &am
 ) {
-   GInt32Collection::iterator it;
-   std::size_t cnt = 0;
-   for(it=this->begin(); it!=this->end(); ++it) {
-      *it = (Gem::Common::getMapItem(parMap,this->getParameterName())).at(cnt++);
-   }
+	GInt32Collection::iterator it;
+	std::size_t cnt = 0;
+	for (it = this->begin(); it != this->end(); ++it) {
+		*it = (Gem::Common::getMapItem(parMap, this->getParameterName())).at(cnt++);
+	}
 }
 
 /******************************************************************************/
@@ -310,9 +292,9 @@ void GInt32Collection::assignInt32ValueVectors(
  *
  * @param cp A copy of another GInt32Collection object, camouflaged as a GObject
  */
-void GInt32Collection::load_(const GObject* cp){
-    // Check that we are not accidently assigning this object to itself
-    GObject::selfAssignmentCheck<GInt32Collection>(cp);
+void GInt32Collection::load_(const GObject *cp) {
+	// Check that we are not accidently assigning this object to itself
+	GObject::selfAssignmentCheck<GInt32Collection>(cp);
 
 	// Load our parent class'es data ...
 	GIntNumCollectionT<boost::int32_t>::load_(cp);
@@ -331,7 +313,7 @@ bool GInt32Collection::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GIntNumCollectionT<boost::int32_t>::modify_GUnitTests()) result = true;
+	if (GIntNumCollectionT<boost::int32_t>::modify_GUnitTests()) result = true;
 
 	return result;
 
@@ -349,14 +331,14 @@ void GInt32Collection::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
-	std::shared_ptr<GAdaptorT<boost::int32_t> > storedAdaptor;
+	std::shared_ptr <GAdaptorT<boost::int32_t>> storedAdaptor;
 
-	if(this->hasAdaptor()) {
+	if (this->hasAdaptor()) {
 		storedAdaptor = this->getAdaptor();
 		adaptorStored = true;
 	}
 
-	std::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.025, 0.1, 0., 1., 1.0));
+	std::shared_ptr <GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.025, 0.1, 0., 1., 1.0));
 	giga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	giga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(giga_ptr);
@@ -370,7 +352,7 @@ void GInt32Collection::specificTestsNoFailureExpected_GUnitTests() {
 	this->resetAdaptor();
 
 	// Load the old adaptor, if needed
-	if(adaptorStored) {
+	if (adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
 
@@ -387,14 +369,14 @@ void GInt32Collection::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
-	std::shared_ptr<GAdaptorT<boost::int32_t> > storedAdaptor;
+	std::shared_ptr <GAdaptorT<boost::int32_t>> storedAdaptor;
 
-	if(this->hasAdaptor()) {
+	if (this->hasAdaptor()) {
 		storedAdaptor = this->getAdaptor();
 		adaptorStored = true;
 	}
 
-	std::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.025, 0.1, 0., 1., 1.0));
+	std::shared_ptr <GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.025, 0.1, 0., 1., 1.0));
 	giga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	giga_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(giga_ptr);
@@ -408,7 +390,7 @@ void GInt32Collection::specificTestsFailuresExpected_GUnitTests() {
 	this->resetAdaptor();
 
 	// Load the old adaptor, if needed
-	if(adaptorStored) {
+	if (adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
 

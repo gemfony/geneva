@@ -43,19 +43,16 @@ namespace Geneva {
  * The default constructor. Intentionally empty, as it is only needed for de-serialization purposes
  */
 GSerialSwarm::GSerialSwarm()
-	: GBaseSwarm()
-{ /* nothing */ }
+	: GBaseSwarm() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * A standard constructor. No local, dynamically allocated data, hence this function is empty.
  */
 GSerialSwarm::GSerialSwarm(
-	const std::size_t& nNeighborhoods
-	, const std::size_t& nNeighborhoodMembers
+	const std::size_t &nNeighborhoods, const std::size_t &nNeighborhoodMembers
 )
-   : GBaseSwarm(nNeighborhoods, nNeighborhoodMembers)
-{ /* nothing */ }
+	: GBaseSwarm(nNeighborhoods, nNeighborhoodMembers) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -63,16 +60,14 @@ GSerialSwarm::GSerialSwarm(
  *
  * @param cp Reference to another GMultiThreadedEA object
  */
-GSerialSwarm::GSerialSwarm(const GSerialSwarm& cp)
-   : GBaseSwarm(cp)
-{ /* nothing */ }
+GSerialSwarm::GSerialSwarm(const GSerialSwarm &cp)
+	: GBaseSwarm(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor.
  */
-GSerialSwarm::~GSerialSwarm()
-{ /* nothing */ }
+GSerialSwarm::~GSerialSwarm() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -96,9 +91,9 @@ void GSerialSwarm::load_(const GObject *cp) {
 /**
  * The standard assignment operator
  */
-const GSerialSwarm& GSerialSwarm::operator=(const GSerialSwarm& cp) {
-   this->load_(&cp);
-   return *this;
+const GSerialSwarm &GSerialSwarm::operator=(const GSerialSwarm &cp) {
+	this->load_(&cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -108,14 +103,14 @@ const GSerialSwarm& GSerialSwarm::operator=(const GSerialSwarm& cp) {
  * @param  cp A constant reference to another GSerialSwarm object
  * @return A boolean indicating whether both objects are equal
  */
-bool GSerialSwarm::operator==(const GSerialSwarm& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GSerialSwarm::operator==(const GSerialSwarm &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -125,14 +120,14 @@ bool GSerialSwarm::operator==(const GSerialSwarm& cp) const {
  * @param  cp A constant reference to another GSerialSwarm object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GSerialSwarm::operator!=(const GSerialSwarm& cp) const {
-   using namespace Gem::Common;
-   try {
-      this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-      return true;
-   } catch(g_expectation_violation&) {
-      return false;
-   }
+bool GSerialSwarm::operator!=(const GSerialSwarm &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -145,24 +140,22 @@ bool GSerialSwarm::operator!=(const GSerialSwarm& cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GSerialSwarm::compare(
-   const GObject& cp
-   , const Gem::Common::expectation& e
-   , const double& limit
+	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-   using namespace Gem::Common;
+	using namespace Gem::Common;
 
-   // Check that we are indeed dealing with a GBaseEA reference
-   const GSerialSwarm *p_load = GObject::gobject_conversion<GSerialSwarm>(&cp);
+	// Check that we are indeed dealing with a GBaseEA reference
+	const GSerialSwarm *p_load = GObject::gobject_conversion<GSerialSwarm>(&cp);
 
-   GToken token("GSerialSwarm", e);
+	GToken token("GSerialSwarm", e);
 
-   // Compare our parent data ...
-   Gem::Common::compare_base<GBaseSwarm>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GBaseSwarm>(IDENTITY(*this, *p_load), token);
 
-   // ... no local data
+	// ... no local data
 
-   // React on deviations from the expectation
-   token.evaluate();
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/
@@ -170,7 +163,7 @@ void GSerialSwarm::compare(
  * Emits a name for this class / object
  */
 std::string GSerialSwarm::name() const {
-   return std::string("GSerialSwarm");
+	return std::string("GSerialSwarm");
 }
 
 /******************************************************************************/
@@ -179,7 +172,7 @@ std::string GSerialSwarm::name() const {
  *
  * @return A deep copy of this object, camouflaged as a GObject
  */
-GObject *GSerialSwarm::clone_() const  {
+GObject *GSerialSwarm::clone_() const {
 	return new GSerialSwarm(*this);
 }
 
@@ -211,8 +204,8 @@ void GSerialSwarm::finalize() {
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
-void GSerialSwarm::addConfigurationOptions (
-	Gem::Common::GParserBuilder& gpb
+void GSerialSwarm::addConfigurationOptions(
+	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
 	GBaseSwarm::addConfigurationOptions(gpb);
@@ -235,12 +228,12 @@ std::string GSerialSwarm::getIndividualCharacteristic() const {
  * Updates the fitness of all individuals
  */
 void GSerialSwarm::runFitnessCalculation() {
-   bool originalServerMode = false;
-   GSerialSwarm::iterator it;
-   for(it=this->begin(); it!=this->end(); ++it) {
-      // Perform the actual evaluation
-      (*it)->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
-   }
+	bool originalServerMode = false;
+	GSerialSwarm::iterator it;
+	for (it = this->begin(); it != this->end(); ++it) {
+		// Perform the actual evaluation
+		(*it)->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
+	}
 }
 
 /******************************************************************************/
@@ -251,10 +244,10 @@ void GSerialSwarm::runFitnessCalculation() {
  */
 bool GSerialSwarm::modify_GUnitTests() {
 #ifdef GEM_TESTING
-   bool result = false;
+	bool result = false;
 
 	// Call the parent class'es function
-	if(GBaseSwarm::modify_GUnitTests()) result = true;
+	if (GBaseSwarm::modify_GUnitTests()) result = true;
 
 	return result;
 
