@@ -54,7 +54,7 @@
 
 //-----------------------------------------------------------
 // For Microsoft-compatible compilers
-#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#if defined(_MSC_VER)  && (_MSC_VER >= 1020)
 
 #include <winsock2.h>
 #include <windows.h>
@@ -71,7 +71,7 @@
 /** The minimum allowed version of the Boost library */
 #define MIN_BOOST_VERSION @GENEVA_MIN_BOOST_API_VERSION@
 
-#if BOOST_VERSION < MIN_BOOST_VERSION
+#if BOOST_VERSION< MIN_BOOST_VERSION
 #error "Error: Boost should at least have version @GENEVA_MIN_BOOST_VERSION@ !"
 #endif /* BOOST_VERSION */
 
@@ -122,7 +122,7 @@
 #endif /* GEM_DYNAMIC */
 //-----------------------------------------------------------
 
-// Check for C++11 and enable some macros, if possible. 
+// Check for C++11 and enable some macros, if possible.
 // We only support this for Gcc, Clang and Intel compilers.
 #define BASE
 

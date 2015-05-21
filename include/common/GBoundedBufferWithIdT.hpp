@@ -74,18 +74,14 @@ typedef boost::uint32_t PORTIDTYPE;
  */
 template<typename T>
 class GBoundedBufferWithIdT
-	:public Gem::Common::GBoundedBufferT<T>
-{
+	: public Gem::Common::GBoundedBufferT<T> {
 public:
 	/***************************************************************************/
 	/**
 	 * The default constructor.
 	 */
-   GBoundedBufferWithIdT()
-		: Gem::Common::GBoundedBufferT<T>()
-		, id_(0)
-		, idSet_(false)
-	{ /* nothing */}
+	GBoundedBufferWithIdT()
+		: Gem::Common::GBoundedBufferT<T>(), id_(0), idSet_(false) { /* nothing */}
 
 	/***************************************************************************/
 	/**
@@ -94,18 +90,14 @@ public:
 	 *
 	 * @param capacity The desired size of the buffer
 	 */
-	explicit GBoundedBufferWithIdT(const std::size_t& capacity)
-		: Gem::Common::GBoundedBufferT<T>(capacity)
-		, id_(0)
-		, idSet_(false)
-	{ /* nothing */}
+	explicit GBoundedBufferWithIdT(const std::size_t &capacity)
+		: Gem::Common::GBoundedBufferT<T>(capacity), id_(0), idSet_(false) { /* nothing */}
 
 	/***************************************************************************/
 	/**
 	 * A standard destructor.
 	 */
-	virtual ~GBoundedBufferWithIdT()
-	{ /* nothing */ }
+	virtual ~GBoundedBufferWithIdT() { /* nothing */ }
 
 	/***************************************************************************/
 	/*
@@ -124,8 +116,8 @@ public:
 	 *
 	 * @param id The desired value of the id_ variable
 	 */
-	void setId(const PORTIDTYPE& id) {
-		if(!idSet_){
+	void setId(const PORTIDTYPE &id) {
+		if (!idSet_) {
 			id_ = id;
 			idSet_ = true;
 		}

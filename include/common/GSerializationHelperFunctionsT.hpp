@@ -81,33 +81,30 @@ namespace Common {
  * @param sm The corresponding serialization mode
  * @return A string representation of gt_ptr
  */
-template <typename T>
-std::string sharedPtrToString(std::shared_ptr<T> gt_ptr, const Gem::Common::serializationMode& serMod){
+template<typename T>
+std::string sharedPtrToString(std::shared_ptr <T> gt_ptr, const Gem::Common::serializationMode &serMod) {
 	std::ostringstream oarchive_stream;
 
-	switch(serMod){
-	case Gem::Common::SERIALIZATIONMODE_TEXT:
-		{
+	switch (serMod) {
+		case Gem::Common::SERIALIZATIONMODE_TEXT: {
 			boost::archive::text_oarchive oa(oarchive_stream);
 			oa << boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
 		} // note: explicit scope here is essential so the oa-destructor gets called
 
-		break;
+			break;
 
-	case Gem::Common::SERIALIZATIONMODE_XML:
-		{
+		case Gem::Common::SERIALIZATIONMODE_XML: {
 			boost::archive::xml_oarchive oa(oarchive_stream);
 			oa << boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
 		}
-		break;
+			break;
 
-	case Gem::Common::SERIALIZATIONMODE_BINARY:
-		{
+		case Gem::Common::SERIALIZATIONMODE_BINARY: {
 			boost::archive::binary_oarchive oa(oarchive_stream);
 			oa << boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
 		}
 
-		break;
+			break;
 	}
 
 	return oarchive_stream.str();
@@ -122,48 +119,45 @@ std::string sharedPtrToString(std::shared_ptr<T> gt_ptr, const Gem::Common::seri
  * @param sm The corresponding serialization mode
  * @return A shared_ptr to the restored object
  */
-template <typename T>
-std::shared_ptr<T> sharedPtrFromString(const std::string& gt_string, const Gem::Common::serializationMode& serMod){
+template<typename T>
+std::shared_ptr <T> sharedPtrFromString(const std::string &gt_string, const Gem::Common::serializationMode &serMod) {
 	std::istringstream istr(gt_string);
-	std::shared_ptr<T> gt_ptr;
+	std::shared_ptr <T> gt_ptr;
 
 	try {
-      switch(serMod){
-      case Gem::Common::SERIALIZATIONMODE_TEXT:
-         {
-            boost::archive::text_iarchive ia(istr);
-            ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
-         } // note: explicit scope here is essential so the ia-destructor gets called
+		switch (serMod) {
+			case Gem::Common::SERIALIZATIONMODE_TEXT: {
+				boost::archive::text_iarchive ia(istr);
+				ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
+			} // note: explicit scope here is essential so the ia-destructor gets called
 
-         break;
+				break;
 
-      case Gem::Common::SERIALIZATIONMODE_XML:
-         {
-            boost::archive::xml_iarchive ia(istr);
-            ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
-         }
+			case Gem::Common::SERIALIZATIONMODE_XML: {
+				boost::archive::xml_iarchive ia(istr);
+				ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
+			}
 
-         break;
+				break;
 
-      case Gem::Common::SERIALIZATIONMODE_BINARY:
-         {
-            boost::archive::binary_iarchive ia(istr);
-            ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
-         }
-         break;
-      }
-	} catch (boost::archive::archive_exception& e) {
-	   glogger
-	   << "In sharedPtrFromString(): Error!" << std::endl
-	   << "Caught boost::archive::archive_exception" << std::endl
-	   << "with message" << std::endl
-	   << e.what() << std::endl
-	   << GEXCEPTION;
+			case Gem::Common::SERIALIZATIONMODE_BINARY: {
+				boost::archive::binary_iarchive ia(istr);
+				ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
+			}
+				break;
+		}
+	} catch (boost::archive::archive_exception &e) {
+		glogger
+		<< "In sharedPtrFromString(): Error!" << std::endl
+		<< "Caught boost::archive::archive_exception" << std::endl
+		<< "with message" << std::endl
+		<< e.what() << std::endl
+		<< GEXCEPTION;
 	} catch (...) {
-      glogger
-      << "In sharedPtrFromString(): Error!" << std::endl
-      << "Caught unknown exception" << std::endl
-      << GEXCEPTION;
+		glogger
+		<< "In sharedPtrFromString(): Error!" << std::endl
+		<< "Caught unknown exception" << std::endl
+		<< GEXCEPTION;
 	}
 
 	return gt_ptr;

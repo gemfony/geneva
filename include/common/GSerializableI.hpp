@@ -56,16 +56,17 @@ namespace Common {
  */
 class GSerializableI {
 public:
-   /** @brief The default constructor */
-   GSerializableI() { /* nothing */ }
+	/** @brief The default constructor */
+	GSerializableI() { /* nothing */ }
+
 	/** @brief The standard destructor */
 	virtual ~GSerializableI() { /* nothing */ }
 
 	/** @brief Create a text representation from this class */
-	virtual std::string toString(const serializationMode&) const = 0;
+	virtual std::string toString(const serializationMode &) const = 0;
 
 	/** @brief Initialize this class from a text representation */
-	virtual void fromString(const std::string&, const serializationMode&) = 0;
+	virtual void fromString(const std::string &, const serializationMode &) = 0;
 };
 
 /******************************************************************************/

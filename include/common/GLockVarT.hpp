@@ -88,187 +88,180 @@ namespace Common {
  * for non-standard types, you will need to supply the necessary BOOST_CLASS_EXPORT_KEY/IMPLEMENT
  * combo yourself.
  */
-template <typename T>
+template<typename T>
 class GLockVarT {
-   /////////////////////////////////////////////////////////////////////////////
-   friend class boost::serialization::access;
+	/////////////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
 
-   template<typename Archive>
-   void serialize(Archive & ar, const unsigned int){
-     using boost::serialization::make_nvp;
+	template<typename Archive>
+	void serialize(Archive &ar, const unsigned int) {
+		using boost::serialization::make_nvp;
 
-     ar
-     & BOOST_SERIALIZATION_NVP(var_)
-     & BOOST_SERIALIZATION_NVP(locked_);
-   }
-   /////////////////////////////////////////////////////////////////////////////
+		ar
+		& BOOST_SERIALIZATION_NVP(var_)
+		& BOOST_SERIALIZATION_NVP(locked_);
+	}
+	/////////////////////////////////////////////////////////////////////////////
 
 public:
-   /***************************************************************************/
-   /**
-    * Initialization with a given value. The default value will be set to "var"
-    */
-   GLockVarT(const T& var)
-      : var_(var)
-      , default_(var)
-      , locked_(true) // locked by default
-   { /* nothing */ }
+	/***************************************************************************/
+	/**
+	 * Initialization with a given value. The default value will be set to "var"
+	 */
+	GLockVarT(const T &var)
+		: var_(var), default_(var), locked_(true) // locked by default
+	{ /* nothing */ }
 
-   /***************************************************************************/
-   /**
-    * Copy construction
-    */
-   GLockVarT(const GLockVarT<T>& cp)
-      : var_(cp.var_)
-      , default_(cp.default_)
-      , locked_(true) // locked by default, even if "foreign" object isn't locked
-   { /* nothing */ }
+	/***************************************************************************/
+	/**
+	 * Copy construction
+	 */
+	GLockVarT(const GLockVarT<T> &cp)
+		: var_(cp.var_), default_(cp.default_), locked_(true) // locked by default, even if "foreign" object isn't locked
+	{ /* nothing */ }
 
-   /***************************************************************************/
-   /**
-    * The destructor
-    */
-   virtual ~GLockVarT()
-   { /* nothing */ }
+	/***************************************************************************/
+	/**
+	 * The destructor
+	 */
+	virtual ~GLockVarT() { /* nothing */ }
 
-   /***************************************************************************/
-   /**
-    * Assignment of another object. This function will throw if the object is
-    * locked. The default value will remain untouched.
-    */
-   const GLockVarT<T>& operator=(const GLockVarT<T>& cp) {
-      if(locked_) {
-         glogger
-         << "In GLockVarT<T>& operator=(GLockVarT<T>& cp): Error!" << std::endl
-         << "Tried to assign variable while access is locked" << std::endl
-         << GEXCEPTION;
-      }
+	/***************************************************************************/
+	/**
+	 * Assignment of another object. This function will throw if the object is
+	 * locked. The default value will remain untouched.
+	 */
+	const GLockVarT<T> &operator=(const GLockVarT<T> &cp) {
+		if (locked_) {
+			glogger
+			<< "In GLockVarT<T>& operator=(GLockVarT<T>& cp): Error!" << std::endl
+			<< "Tried to assign variable while access is locked" << std::endl
+			<< GEXCEPTION;
+		}
 
-      var_ = cp.value();
-      // Note that we do not change the "locked" status, irrespective of what the status of cp is
+		var_ = cp.value();
+		// Note that we do not change the "locked" status, irrespective of what the status of cp is
 
-      return *this;
-   }
+		return *this;
+	}
 
-   /***************************************************************************/
-   /**
-    * Assignment of a given instance of T (not wrapped into a GLockVarT<T> object
-    */
-   const T& operator=(const T& var) {
-      if(locked_) {
-         glogger
-         << "In GLockVarT<T>& operator=(GLockVarT<T>& cp): Error!" << std::endl
-         << "Tried to assign variable while access is locked" << std::endl
-         << GEXCEPTION;
-      }
+	/***************************************************************************/
+	/**
+	 * Assignment of a given instance of T (not wrapped into a GLockVarT<T> object
+	 */
+	const T &operator=(const T &var) {
+		if (locked_) {
+			glogger
+			<< "In GLockVarT<T>& operator=(GLockVarT<T>& cp): Error!" << std::endl
+			<< "Tried to assign variable while access is locked" << std::endl
+			<< GEXCEPTION;
+		}
 
-      var_ = var;
-      return var_;
-   }
+		var_ = var;
+		return var_;
+	}
 
-   /***************************************************************************/
-   /**
-    * Explicit setting of value (always possible, even if access is locked. Note
-    * that a call to this function will not change the "locked" state of this
-    * object.
-    */
-   void setValue(const T& var) {
-      var_ = var;
-   }
+	/***************************************************************************/
+	/**
+	 * Explicit setting of value (always possible, even if access is locked. Note
+	 * that a call to this function will not change the "locked" state of this
+	 * object.
+	 */
+	void setValue(const T &var) {
+		var_ = var;
+	}
 
-   /***************************************************************************/
-   /**
-    * Value retrieval
-    */
-   const T& value() const {
-      return var_;
-   }
+	/***************************************************************************/
+	/**
+	 * Value retrieval
+	 */
+	const T &value() const {
+		return var_;
+	}
 
-   /***************************************************************************/
-   /**
-    * Value retrieval
-    */
-   const T& operator()() const {
-      return this->value();
-   }
+	/***************************************************************************/
+	/**
+	 * Value retrieval
+	 */
+	const T &operator()() const {
+		return this->value();
+	}
 
-   /***************************************************************************/
-   /**
-    * Automatic conversion to target type, e.g. for calculations
-    */
-   operator T() const {
-      return var_;
-   }
+	/***************************************************************************/
+	/**
+	 * Automatic conversion to target type, e.g. for calculations
+	 */
+	operator T() const {
+		return var_;
+	}
 
-   /***************************************************************************/
-   /**
-    * Locking
-    */
-   void lock() {
-      locked_ = true;
-   }
+	/***************************************************************************/
+	/**
+	 * Locking
+	 */
+	void lock() {
+		locked_ = true;
+	}
 
-   /***************************************************************************/
-   /**
-    * Locking with a specific value
-    */
-   void lockWithValue(const T& var) {
-      locked_ = true;
-      var_ = var;
-   }
+	/***************************************************************************/
+	/**
+	 * Locking with a specific value
+	 */
+	void lockWithValue(const T &var) {
+		locked_ = true;
+		var_ = var;
+	}
 
-   /***************************************************************************/
-   /**
-    * Unlocking
-    */
-   void unlock() {
-      locked_ = false;
-   }
+	/***************************************************************************/
+	/**
+	 * Unlocking
+	 */
+	void unlock() {
+		locked_ = false;
+	}
 
-   /***************************************************************************/
-   /**
-    * Unlocking with a specific value
-    */
-   void unlockWithValue(const T& var) {
-      locked_ = false;
-      var_ = var;
-   }
+	/***************************************************************************/
+	/**
+	 * Unlocking with a specific value
+	 */
+	void unlockWithValue(const T &var) {
+		locked_ = false;
+		var_ = var;
+	}
 
-   /***************************************************************************/
-   /**
-    * Check if the object is locked
-    */
-   bool isLocked() const {
-      return locked_;
-   }
+	/***************************************************************************/
+	/**
+	 * Check if the object is locked
+	 */
+	bool isLocked() const {
+		return locked_;
+	}
 
-   /***************************************************************************/
-   /**
-    * Returns the object to a locked state with its default value
-    */
-   void reset() {
-      locked_ = true;
-      var_ = default_;
-   }
+	/***************************************************************************/
+	/**
+	 * Returns the object to a locked state with its default value
+	 */
+	void reset() {
+		locked_ = true;
+		var_ = default_;
+	}
 
 protected:
-   /***************************************************************************/
-   /**
-    * The default constructor. The default value will be set to 0. This constructor
-    * is only needed for (de-)serialization.
-    */
-   GLockVarT()
-      : var_(T(0))
-      , default_(T(0))
-      , locked_(true) // locked by default
-   { /* nothing */ }
+	/***************************************************************************/
+	/**
+	 * The default constructor. The default value will be set to 0. This constructor
+	 * is only needed for (de-)serialization.
+	 */
+	GLockVarT()
+		: var_(T(0)), default_(T(0)), locked_(true) // locked by default
+	{ /* nothing */ }
 
 private:
-   /***************************************************************************/
-   T var_; ///< Holds the actual parameter value
-   const T default_; ///< Holds a default value for var_
+	/***************************************************************************/
+	T var_; ///< Holds the actual parameter value
+	const T default_; ///< Holds a default value for var_
 
-   bool locked_; ///< Allows to lock access to the variable, so that it cannot be changed
+	bool locked_; ///< Allows to lock access to the variable, so that it cannot be changed
 };
 
 /******************************************************************************/
@@ -276,31 +269,32 @@ private:
 /******************************************************************************/
 
 class GLockVarBool
-   : public GLockVarT<bool>
-{
-   /////////////////////////////////////////////////////////////////////////////
-   friend class boost::serialization::access;
+	: public GLockVarT<bool> {
+	/////////////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
 
-   template<typename Archive>
-   void serialize(Archive & ar, const unsigned int){
-     using boost::serialization::make_nvp;
+	template<typename Archive>
+	void serialize(Archive &ar, const unsigned int) {
+		using boost::serialization::make_nvp;
 
-     ar
-     & make_nvp("GLockVarT_bool", boost::serialization::base_object<GLockVarT<bool> >(*this));
-   }
-   /////////////////////////////////////////////////////////////////////////////
+		ar
+			&make_nvp("GLockVarT_bool", boost::serialization::base_object<GLockVarT<bool> >(*this));
+	}
+	/////////////////////////////////////////////////////////////////////////////
 
 public:
-   /** @brief The standard constructor */
-   GLockVarBool(const bool&);
-   /** @brief The copy constructor */
-   GLockVarBool(const GLockVarBool&);
-   /** @brief The destructor */
-   ~GLockVarBool();
+	/** @brief The standard constructor */
+	GLockVarBool(const bool &);
+
+	/** @brief The copy constructor */
+	GLockVarBool(const GLockVarBool &);
+
+	/** @brief The destructor */
+	~GLockVarBool();
 
 protected:
-   /** @brief The default constructor -- intentionally protected */
-   GLockVarBool();
+	/** @brief The default constructor -- intentionally protected */
+	GLockVarBool();
 };
 
 /******************************************************************************/
