@@ -44,14 +44,8 @@ namespace Common {
  * The default constructor
  */
 GBasePlotter::GBasePlotter()
-	: drawingArguments_("")
-	, x_axis_label_("x")
-	, y_axis_label_("y")
-	, z_axis_label_("z")
-	, plot_label_("")
-	, dsMarker_("")
-	, id_(0)
-{ /* nothing */ }
+	: drawingArguments_(""), x_axis_label_("x"), y_axis_label_("y"), z_axis_label_("z"), plot_label_(""), dsMarker_(""),
+	  id_(0) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -59,35 +53,29 @@ GBasePlotter::GBasePlotter()
  *
  * @param cp A copy of another GBasePlotter object
  */
-GBasePlotter::GBasePlotter(const GBasePlotter& cp)
-	: drawingArguments_(cp.drawingArguments_)
-	, x_axis_label_(cp.x_axis_label_)
-	, y_axis_label_(cp.y_axis_label_)
-	, z_axis_label_(cp.z_axis_label_)
-	, plot_label_(cp.plot_label_)
-	, dsMarker_(cp.dsMarker_)
-	, id_(cp.id_)
-{ /* nothing */ }
+GBasePlotter::GBasePlotter(const GBasePlotter &cp)
+	: drawingArguments_(cp.drawingArguments_), x_axis_label_(cp.x_axis_label_), y_axis_label_(cp.y_axis_label_),
+	  z_axis_label_(cp.z_axis_label_), plot_label_(cp.plot_label_), dsMarker_(cp.dsMarker_),
+	  id_(cp.id_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GBasePlotter::~GBasePlotter()
-{ /* nothing */ }
+GBasePlotter::~GBasePlotter() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The assignment operator
  */
-void GBasePlotter::operator=(const GBasePlotter& cp) {
+void GBasePlotter::operator=(const GBasePlotter &cp) {
 	drawingArguments_ = cp.drawingArguments_;
 	x_axis_label_ = cp.x_axis_label_;
 	y_axis_label_ = cp.y_axis_label_;
 	z_axis_label_ = cp.z_axis_label_;
-	plot_label_   = cp.plot_label_;
-	dsMarker_     = cp.dsMarker_;
-	id_           = cp.id_;
+	plot_label_ = cp.plot_label_;
+	dsMarker_ = cp.dsMarker_;
+	id_ = cp.id_;
 }
 
 /******************************************************************************/
@@ -192,26 +180,26 @@ std::string GBasePlotter::dsMarker() const {
 /**
  * Allows to add secondary plots to be added to the same sub-canvas
  */
-void GBasePlotter::registerSecondaryPlotter(std::shared_ptr<GBasePlotter> sp) {
-   // Check that the secondary plot isn't empty
-   if(!sp) {
-      glogger
-      << "In GBasePlotter::registerSecondaryPlot(): Error!" << std::endl
-      << "Got empty secondary plot" << std::endl
-      << GEXCEPTION;
-   }
+void GBasePlotter::registerSecondaryPlotter(std::shared_ptr < GBasePlotter > sp) {
+	// Check that the secondary plot isn't empty
+	if (!sp) {
+		glogger
+		<< "In GBasePlotter::registerSecondaryPlot(): Error!" << std::endl
+		<< "Got empty secondary plot" << std::endl
+		<< GEXCEPTION;
+	}
 
-   // Check that the secondary plotter is compatible with us
-   if(!this->isCompatible(sp)) {
-      glogger
-      << "In GBasePlotter::registerSecondaryPlot(): Error!" << std::endl
-      << "Received incompatible secondary plotter" << std::endl
-      << sp->getPlotterName() << " in plotter " << this->getPlotterName() << std::endl
-      << GEXCEPTION;
-   }
+	// Check that the secondary plotter is compatible with us
+	if (!this->isCompatible(sp)) {
+		glogger
+		<< "In GBasePlotter::registerSecondaryPlot(): Error!" << std::endl
+		<< "Received incompatible secondary plotter" << std::endl
+		<< sp->getPlotterName() << " in plotter " << this->getPlotterName() << std::endl
+		<< GEXCEPTION;
+	}
 
-   // Add the plotter to our collection
-   secondaryPlotter_.push_back(sp);
+	// Add the plotter to our collection
+	secondaryPlotter_.push_back(sp);
 }
 
 /******************************************************************************/
@@ -220,8 +208,8 @@ void GBasePlotter::registerSecondaryPlotter(std::shared_ptr<GBasePlotter> sp) {
  * check that the names of both plotters match. If other plot types are
  * compatible with this plotter, you need to overload this function.
  */
-bool GBasePlotter::isCompatible(std::shared_ptr<GBasePlotter> other) const {
-   return (this->getPlotterName() == other->getPlotterName());
+bool GBasePlotter::isCompatible(std::shared_ptr < GBasePlotter > other) const {
+	return (this->getPlotterName() == other->getPlotterName());
 }
 
 /******************************************************************************/
@@ -229,15 +217,16 @@ bool GBasePlotter::isCompatible(std::shared_ptr<GBasePlotter> other) const {
  * calculate a suffix from id and parent ids
  */
 std::string GBasePlotter::suffix(bool isSecondary, std::size_t pId) const {
-   std::string result;
+	std::string result;
 
-   if(!isSecondary) {
-      result = std::string("_") + boost::lexical_cast<std::string>(this->id());
-   } else {
-      result = std::string("_") + boost::lexical_cast<std::string>(pId) + std::string("_") + boost::lexical_cast<std::string>(this->id());
-   }
+	if (!isSecondary) {
+		result = std::string("_") + boost::lexical_cast<std::string>(this->id());
+	} else {
+		result = std::string("_") + boost::lexical_cast<std::string>(pId) + std::string("_") +
+					boost::lexical_cast<std::string>(this->id());
+	}
 
-   return result;
+	return result;
 }
 
 /******************************************************************************/
@@ -254,7 +243,7 @@ std::size_t GBasePlotter::id() const {
  *
  * @param id The id to be assigned to this object
  */
-void GBasePlotter::setId(const std::size_t& id) {
+void GBasePlotter::setId(const std::size_t &id) {
 	id_ = id;
 }
 
@@ -263,27 +252,28 @@ void GBasePlotter::setId(const std::size_t& id) {
  * Retrieve specific header settings for this plot
  */
 std::string GBasePlotter::headerData_() const {
-   std::ostringstream header_data;
+	std::ostringstream header_data;
 
-   // Add this plot's data
-   header_data << this->headerData(false, 0);
+	// Add this plot's data
+	header_data << this->headerData(false, 0);
 
-   // Extract data from the secondary plotters, if any
-   std::size_t pos = 0;
-   std::vector<std::shared_ptr<GBasePlotter> >::const_iterator cit;
-   for(cit=secondaryPlotter_.begin(); cit!=secondaryPlotter_.end(); ++cit) {
-      // Give the plotters their own id which will act as a child id in this case
-      (*cit)->setId(pos);
+	// Extract data from the secondary plotters, if any
+	std::size_t pos = 0;
+	std::vector<std::shared_ptr < GBasePlotter> > ::const_iterator
+	cit;
+	for (cit = secondaryPlotter_.begin(); cit != secondaryPlotter_.end(); ++cit) {
+		// Give the plotters their own id which will act as a child id in this case
+		(*cit)->setId(pos);
 
-      // We parent id 0 is reserved for primary plotters
-      header_data
-      << "  // Header data for secondary plotter " << pos << " of " << this->getPlotterName() << std::endl
-      << (*cit)->headerData(true, this->id()) << std::endl;
+		// We parent id 0 is reserved for primary plotters
+		header_data
+		<< "  // Header data for secondary plotter " << pos << " of " << this->getPlotterName() << std::endl
+		<< (*cit)->headerData(true, this->id()) << std::endl;
 
-      pos++;
-   }
+		pos++;
+	}
 
-   return header_data.str();
+	return header_data.str();
 }
 
 /******************************************************************************/
@@ -291,23 +281,24 @@ std::string GBasePlotter::headerData_() const {
  * Retrieves the actual data sets
  */
 std::string GBasePlotter::bodyData_() const {
-   std::ostringstream body_data;
+	std::ostringstream body_data;
 
-   // Add this plot's data
-   body_data << this->bodyData(false, 0);
+	// Add this plot's data
+	body_data << this->bodyData(false, 0);
 
-   // Extract data from the secondary plotters, if any
-   std::size_t pos = 0;
-   std::vector<std::shared_ptr<GBasePlotter> >::const_iterator cit;
-   for(cit=secondaryPlotter_.begin(); cit!=secondaryPlotter_.end(); ++cit) {
-      body_data
-      << "  // Body data for secondary plotter " << pos << " of " << this->getPlotterName() << std::endl
-      << (*cit)->bodyData(true, this->id()) << std::endl;
+	// Extract data from the secondary plotters, if any
+	std::size_t pos = 0;
+	std::vector<std::shared_ptr < GBasePlotter> > ::const_iterator
+	cit;
+	for (cit = secondaryPlotter_.begin(); cit != secondaryPlotter_.end(); ++cit) {
+		body_data
+		<< "  // Body data for secondary plotter " << pos << " of " << this->getPlotterName() << std::endl
+		<< (*cit)->bodyData(true, this->id()) << std::endl;
 
-      pos++;
-   }
+		pos++;
+	}
 
-   return body_data.str();
+	return body_data.str();
 }
 
 /******************************************************************************/
@@ -315,23 +306,24 @@ std::string GBasePlotter::bodyData_() const {
  * Retrieves specific draw commands for this plot
  */
 std::string GBasePlotter::footerData_() const {
-   std::ostringstream footer_data;
+	std::ostringstream footer_data;
 
-   // Add this plot's data
-   footer_data << this->footerData(false, 0);
+	// Add this plot's data
+	footer_data << this->footerData(false, 0);
 
-   // Extract data from the secondary plotters, if any
-   std::size_t pos = 0;
-   std::vector<std::shared_ptr<GBasePlotter> >::const_iterator cit;
-   for(cit=secondaryPlotter_.begin(); cit!=secondaryPlotter_.end(); ++cit) {
-      footer_data
-      << "  // Footer data for secondary plotter " << pos << " of " << this->getPlotterName() << std::endl
-      << (*cit)->footerData(true, this->id()) << std::endl;
+	// Extract data from the secondary plotters, if any
+	std::size_t pos = 0;
+	std::vector<std::shared_ptr < GBasePlotter> > ::const_iterator
+	cit;
+	for (cit = secondaryPlotter_.begin(); cit != secondaryPlotter_.end(); ++cit) {
+		footer_data
+		<< "  // Footer data for secondary plotter " << pos << " of " << this->getPlotterName() << std::endl
+		<< (*cit)->footerData(true, this->id()) << std::endl;
 
-      pos++;
-   }
+		pos++;
+	}
 
-   return footer_data.str();
+	return footer_data.str();
 }
 
 /******************************************************************************/
@@ -341,34 +333,28 @@ std::string GBasePlotter::footerData_() const {
  * The default constructor
  */
 GGraph2D::GGraph2D()
-	: pM_(DEFPLOTMODE)
-	, drawArrows_(false)
-{ /* nothing */ }
+	: pM_(DEFPLOTMODE), drawArrows_(false) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * A copy constructor
  */
-GGraph2D::GGraph2D(const GGraph2D& cp)
-	: GDataCollector2T<double,double>(cp)
-	, pM_(cp.pM_)
-	, drawArrows_(cp.drawArrows_)
-{ /* nothing */ }
+GGraph2D::GGraph2D(const GGraph2D &cp)
+	: GDataCollector2T<double, double>(cp), pM_(cp.pM_), drawArrows_(cp.drawArrows_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GGraph2D::~GGraph2D()
-{ /* nothing */ }
+GGraph2D::~GGraph2D() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The assignment operator
  */
-const GGraph2D & GGraph2D::operator=(const GGraph2D& cp) {
+const GGraph2D &GGraph2D::operator=(const GGraph2D &cp) {
 	// Copy our parent class'es data
-	GDataCollector2T<double,double>::operator=(cp);
+	GDataCollector2T<double, double>::operator=(cp);
 
 	// and then our own
 	pM_ = cp.pM_;
@@ -424,7 +410,7 @@ graphPlotMode GGraph2D::getPlotMode() const {
  * Retrieves a unique name for this plotter
  */
 std::string GGraph2D::getPlotterName() const {
-   return "GGraph2D";
+	return "GGraph2D";
 }
 
 /******************************************************************************/
@@ -442,14 +428,15 @@ std::string GGraph2D::headerData(bool isSecondary, std::size_t pId) const {
 	std::string yArrayName = "y_" + arrayBaseName;
 
 	std::string comment;
-	if(dsMarker_ != "") {
+	if (dsMarker_ != "") {
 		comment = "// " + dsMarker_;
 	}
 
 	header_data
-		<< "  double " << xArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << (comment!=""?comment:"") << std::endl
-		<< "  double " << yArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
-		<< std::endl;
+	<< "  double " << xArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" <<
+	(comment != "" ? comment : "") << std::endl
+	<< "  double " << yArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
+	<< std::endl;
 
 	return header_data.str();
 }
@@ -462,14 +449,14 @@ std::string GGraph2D::bodyData(bool isSecondary, std::size_t pId) const {
 	std::ostringstream body_data;
 
 	// Set up suitable arrays for the header
-   std::string baseName = suffix(isSecondary, pId);
-   std::string arrayBaseName = "array_" + baseName;
+	std::string baseName = suffix(isSecondary, pId);
+	std::string arrayBaseName = "array_" + baseName;
 
 	std::string xArrayName = "x_" + arrayBaseName;
 	std::string yArrayName = "y_" + arrayBaseName;
 
 	std::string comment;
-	if(dsMarker_ != "") {
+	if (dsMarker_ != "") {
 		body_data << "// " + dsMarker_ << std::endl;
 	}
 
@@ -477,9 +464,10 @@ std::string GGraph2D::bodyData(bool isSecondary, std::size_t pId) const {
 	std::vector<boost::tuple<double, double> >::const_iterator it;
 	std::size_t posCounter = 0;
 
-	for(it=data_.begin(); it!=data_.end(); ++it) {
+	for (it = data_.begin(); it != data_.end(); ++it) {
 		body_data
-			<< "  " << xArrayName << "[" << posCounter << "] = " << boost::get<0>(*it) << ";" << "\t" << yArrayName << "[" << posCounter << "] = " << boost::get<1>(*it) << ";" << std::endl;
+		<< "  " << xArrayName << "[" << posCounter << "] = " << boost::get<0>(*it) << ";" << "\t" << yArrayName << "[" <<
+		posCounter << "] = " << boost::get<1>(*it) << ";" << std::endl;
 
 		posCounter++;
 	}
@@ -496,8 +484,8 @@ std::string GGraph2D::footerData(bool isSecondary, std::size_t pId) const {
 	std::ostringstream footer_data;
 
 	// Set up suitable arrays for the header
-   std::string baseName = suffix(isSecondary, pId);
-   std::string arrayBaseName = "array_" + baseName;
+	std::string baseName = suffix(isSecondary, pId);
+	std::string arrayBaseName = "array_" + baseName;
 
 	std::string xArrayName = "x_" + arrayBaseName;
 	std::string yArrayName = "y_" + arrayBaseName;
@@ -505,7 +493,7 @@ std::string GGraph2D::footerData(bool isSecondary, std::size_t pId) const {
 	std::string graphName = std::string("graph") + baseName;
 
 	std::string comment;
-	if(dsMarker_ != "") {
+	if (dsMarker_ != "") {
 		footer_data << "// " + dsMarker_ << std::endl;
 	}
 
@@ -514,38 +502,40 @@ std::string GGraph2D::footerData(bool isSecondary, std::size_t pId) const {
 
 	// Fill the data in our tuple-vector into a ROOT TGraph object
 	footer_data
-		<< "  TGraph *" << graphName << " = new TGraph(" << data_.size() <<", " << xArrayName << ", " << yArrayName << ");" << std::endl
-		<< "  " << graphName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
-		<< "  " << graphName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl;
+	<< "  TGraph *" << graphName << " = new TGraph(" << data_.size() << ", " << xArrayName << ", " << yArrayName <<
+	");" << std::endl
+	<< "  " << graphName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+	<< "  " << graphName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl;
 
-	if(plot_label_ != "") {
+	if (plot_label_ != "") {
 		footer_data
-			<< "  " << graphName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
-	}  else {
+		<< "  " << graphName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+	} else {
 		footer_data
-			<< "  " << graphName << "->SetTitle(\" \");" << std::endl;
+		<< "  " << graphName << "->SetTitle(\" \");" << std::endl;
 	}
 
 	footer_data
-		<< "  " << graphName << "->Draw(\""<< dA << "\");" << std::endl
-		<< std::endl;
+	<< "  " << graphName << "->Draw(\"" << dA << "\");" << std::endl
+	<< std::endl;
 
-	if(drawArrows_ && data_.size() >= 2) {
+	if (drawArrows_ && data_.size() >= 2) {
 		std::vector<boost::tuple<double, double> >::const_iterator it;
 		std::size_t posCounter = 0;
 
 		double x1 = boost::get<0>(*data_.begin());
 		double y1 = boost::get<1>(*data_.begin());
-		double x2,y2;
+		double x2, y2;
 
-		for(it=data_.begin()+1; it!=data_.end(); ++it) {
+		for (it = data_.begin() + 1; it != data_.end(); ++it) {
 			x2 = boost::get<0>(*it);
 			y2 = boost::get<1>(*it);
 
 			footer_data
-				<< "  TArrow * ta_" << graphName << "_" << posCounter << " = new TArrow(" << x1 << ", " << y1 << "," << x2 << ", " << y2 << ", " << 0.05 << ", \"|>\");" << std::endl
-				<< "  ta_" << graphName << "_" << posCounter << "->SetArrowSize(0.01);" << std::endl
-				<< "  ta_" << graphName << "_" << posCounter << "->Draw();" << std::endl;
+			<< "  TArrow * ta_" << graphName << "_" << posCounter << " = new TArrow(" << x1 << ", " << y1 << "," << x2 <<
+			", " << y2 << ", " << 0.05 << ", \"|>\");" << std::endl
+			<< "  ta_" << graphName << "_" << posCounter << "->SetArrowSize(0.01);" << std::endl
+			<< "  ta_" << graphName << "_" << posCounter << "->Draw();" << std::endl;
 
 			x1 = x2;
 			y1 = y2;
@@ -553,7 +543,7 @@ std::string GGraph2D::footerData(bool isSecondary, std::size_t pId) const {
 			posCounter++;
 		}
 		footer_data
-			<< std::endl;
+		<< std::endl;
 	}
 	footer_data << std::endl;
 
@@ -566,33 +556,33 @@ std::string GGraph2D::footerData(bool isSecondary, std::size_t pId) const {
  * Retrieve the current drawing arguments
  */
 std::string GGraph2D::drawingArguments(bool isSecondary) const {
-   std::string dA = "";
+	std::string dA = "";
 
-   if(this->drawingArguments_ != "") {
-      dA = this->drawingArguments_;
-   } else {
-      if(SCATTER == pM_ || true==drawArrows_) {
-         dA = "P";
-      } else {
-         dA = "PL";
-      }
+	if (this->drawingArguments_ != "") {
+		dA = this->drawingArguments_;
+	} else {
+		if (SCATTER == pM_ || true == drawArrows_) {
+			dA = "P";
+		} else {
+			dA = "PL";
+		}
 
-      if(isSecondary) {
-         dA = dA + ",same";
-      } else {
-         dA = "A" + dA;
-      }
-   }
+		if (isSecondary) {
+			dA = dA + ",same";
+		} else {
+			dA = "A" + dA;
+		}
+	}
 
-   return dA;
+	return dA;
 }
 
 /******************************************************************************/
 /**
  * Retrieve a clone of this object
  */
-std::shared_ptr<GBasePlotter> GGraph2D::clone() const {
-   return std::shared_ptr<GBasePlotter>(new GGraph2D(*this));
+std::shared_ptr <GBasePlotter> GGraph2D::clone() const {
+	return std::shared_ptr<GBasePlotter>(new GGraph2D(*this));
 }
 
 /******************************************************************************/
@@ -602,32 +592,28 @@ std::shared_ptr<GBasePlotter> GGraph2D::clone() const {
  * The default constructor
  */
 GGraph2ED::GGraph2ED()
-	: pM_(DEFPLOTMODE)
-{ /* nothing */ }
+	: pM_(DEFPLOTMODE) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * A copy constructor
  */
-GGraph2ED::GGraph2ED(const GGraph2ED& cp)
-	: GDataCollector2ET<double,double>(cp)
-	, pM_(cp.pM_)
-{ /* nothing */ }
+GGraph2ED::GGraph2ED(const GGraph2ED &cp)
+	: GDataCollector2ET<double, double>(cp), pM_(cp.pM_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GGraph2ED::~GGraph2ED()
-{ /* nothing */ }
+GGraph2ED::~GGraph2ED() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The assignment operator
  */
-const GGraph2ED & GGraph2ED::operator=(const GGraph2ED& cp) {
+const GGraph2ED &GGraph2ED::operator=(const GGraph2ED &cp) {
 	// Copy our parent class'es data
-	GDataCollector2ET<double,double>::operator=(cp);
+	GDataCollector2ET<double, double>::operator=(cp);
 
 	// and then our own
 	pM_ = cp.pM_;
@@ -660,7 +646,7 @@ graphPlotMode GGraph2ED::getPlotMode() const {
  * Retrieves a unique name for this plotter
  */
 std::string GGraph2ED::getPlotterName() const {
-   return "GGraph2ED";
+	return "GGraph2ED";
 }
 
 /******************************************************************************/
@@ -671,25 +657,26 @@ std::string GGraph2ED::headerData(bool isSecondary, std::size_t pId) const {
 	std::ostringstream header_data;
 
 	// Set up suitable arrays for the header
-   std::string baseName = suffix(isSecondary, pId);
-   std::string arrayBaseName = "array_" + baseName;
+	std::string baseName = suffix(isSecondary, pId);
+	std::string arrayBaseName = "array_" + baseName;
 
-	std::string  xArrayName = "x_" + arrayBaseName;
+	std::string xArrayName = "x_" + arrayBaseName;
 	std::string exArrayName = "ex_" + arrayBaseName;
-	std::string  yArrayName = "y_" + arrayBaseName;
+	std::string yArrayName = "y_" + arrayBaseName;
 	std::string eyArrayName = "ey_" + arrayBaseName;
 
 	std::string comment;
-	if(dsMarker_ != "") {
+	if (dsMarker_ != "") {
 		comment = "// " + dsMarker_;
 	}
 
 	header_data
-		<< "  double " <<  xArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << (comment!=""?comment:"") << std::endl
-		<< "  double " << exArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
-		<< "  double " <<  yArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
-		<< "  double " << eyArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
-		<< std::endl;
+	<< "  double " << xArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" <<
+	(comment != "" ? comment : "") << std::endl
+	<< "  double " << exArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
+	<< "  double " << yArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
+	<< "  double " << eyArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
+	<< std::endl;
 
 	return header_data.str();
 }
@@ -702,16 +689,16 @@ std::string GGraph2ED::bodyData(bool isSecondary, std::size_t pId) const {
 	std::ostringstream body_data;
 
 	// Set up suitable arrays for the header
-   std::string baseName = suffix(isSecondary, pId);
-   std::string arrayBaseName = "array_" + baseName;
+	std::string baseName = suffix(isSecondary, pId);
+	std::string arrayBaseName = "array_" + baseName;
 
-	std::string  xArrayName = "x_" + arrayBaseName;
+	std::string xArrayName = "x_" + arrayBaseName;
 	std::string exArrayName = "ex_" + arrayBaseName;
-	std::string  yArrayName = "y_" + arrayBaseName;
+	std::string yArrayName = "y_" + arrayBaseName;
 	std::string eyArrayName = "ey_" + arrayBaseName;
 
 	std::string comment;
-	if(dsMarker_ != "") {
+	if (dsMarker_ != "") {
 		body_data << "// " + dsMarker_ << std::endl;
 	}
 
@@ -719,12 +706,12 @@ std::string GGraph2ED::bodyData(bool isSecondary, std::size_t pId) const {
 	std::vector<boost::tuple<double, double, double, double> >::const_iterator it;
 	std::size_t posCounter = 0;
 
-	for(it=data_.begin(); it!=data_.end(); ++it) {
+	for (it = data_.begin(); it != data_.end(); ++it) {
 		body_data
-			<< "  " <<  xArrayName << "[" << posCounter << "] = " << boost::get<0>(*it) << ";" << std::endl
-			<< "  " << exArrayName << "[" << posCounter << "] = " << boost::get<1>(*it) << ";" << std::endl
-			<< "  " <<  yArrayName << "[" << posCounter << "] = " << boost::get<2>(*it) << ";" << std::endl
-			<< "  " << eyArrayName << "[" << posCounter << "] = " << boost::get<3>(*it) << ";" << std::endl;
+		<< "  " << xArrayName << "[" << posCounter << "] = " << boost::get<0>(*it) << ";" << std::endl
+		<< "  " << exArrayName << "[" << posCounter << "] = " << boost::get<1>(*it) << ";" << std::endl
+		<< "  " << yArrayName << "[" << posCounter << "] = " << boost::get<2>(*it) << ";" << std::endl
+		<< "  " << eyArrayName << "[" << posCounter << "] = " << boost::get<3>(*it) << ";" << std::endl;
 
 		posCounter++;
 	}
@@ -741,18 +728,18 @@ std::string GGraph2ED::footerData(bool isSecondary, std::size_t pId) const {
 	std::ostringstream footer_data;
 
 	// Set up suitable arrays for the header
-   std::string baseName = suffix(isSecondary, pId);
-   std::string arrayBaseName = "array_" + baseName;
+	std::string baseName = suffix(isSecondary, pId);
+	std::string arrayBaseName = "array_" + baseName;
 
-	std::string  xArrayName = "x_" + arrayBaseName;
+	std::string xArrayName = "x_" + arrayBaseName;
 	std::string exArrayName = "ex_" + arrayBaseName;
-	std::string  yArrayName = "y_" + arrayBaseName;
+	std::string yArrayName = "y_" + arrayBaseName;
 	std::string eyArrayName = "ey_" + arrayBaseName;
 
 	std::string graphName = std::string("graph_") + baseName;
 
 	std::string comment;
-	if(dsMarker_ != "") {
+	if (dsMarker_ != "") {
 		footer_data << "// " + dsMarker_ << std::endl;
 	}
 
@@ -762,21 +749,22 @@ std::string GGraph2ED::footerData(bool isSecondary, std::size_t pId) const {
 
 	// Fill the data in our tuple-vector into a ROOT TGraphErrors object
 	footer_data
-		<< "  TGraphErrors *" << graphName << " = new TGraphErrors(" << data_.size() <<", " << xArrayName << ", " << yArrayName << ", " << exArrayName << " ," << eyArrayName << ");" << std::endl
-		<< "  " << graphName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
-		<< "  " << graphName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl;
+	<< "  TGraphErrors *" << graphName << " = new TGraphErrors(" << data_.size() << ", " << xArrayName << ", " <<
+	yArrayName << ", " << exArrayName << " ," << eyArrayName << ");" << std::endl
+	<< "  " << graphName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+	<< "  " << graphName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl;
 
-	if(plot_label_ != "") {
+	if (plot_label_ != "") {
 		footer_data
-			<< "  " << graphName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
-	}  else {
+		<< "  " << graphName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+	} else {
 		footer_data
-			<< "  " << graphName << "->SetTitle(\" \");" << std::endl;
+		<< "  " << graphName << "->SetTitle(\" \");" << std::endl;
 	}
 
 	footer_data
-		<< "  " << graphName << "->Draw(\""<< dA << "\");" << std::endl
-		<< std::endl;
+	<< "  " << graphName << "->Draw(\"" << dA << "\");" << std::endl
+	<< std::endl;
 
 	return footer_data.str();
 }
@@ -786,33 +774,33 @@ std::string GGraph2ED::footerData(bool isSecondary, std::size_t pId) const {
  * Retrieve the current drawing arguments
  */
 std::string GGraph2ED::drawingArguments(bool isSecondary) const {
-   std::string dA = "";
+	std::string dA = "";
 
-   if(this->drawingArguments_ != "") {
-      dA = this->drawingArguments_;
-   } else {
-      if(SCATTER == pM_) {
-         dA = "P";
-      } else {
-         dA = "PL";
-      }
+	if (this->drawingArguments_ != "") {
+		dA = this->drawingArguments_;
+	} else {
+		if (SCATTER == pM_) {
+			dA = "P";
+		} else {
+			dA = "PL";
+		}
 
-      if(isSecondary) {
-         dA = dA + ",same";
-      } else {
-         dA = "A" + dA;
-      }
-   }
+		if (isSecondary) {
+			dA = dA + ",same";
+		} else {
+			dA = "A" + dA;
+		}
+	}
 
-   return dA;
+	return dA;
 }
 
 /******************************************************************************/
 /**
  * Retrieve a clone of this object
  */
-std::shared_ptr<GBasePlotter> GGraph2ED::clone() const {
-   return std::shared_ptr<GBasePlotter>(new GGraph2ED(*this));
+std::shared_ptr <GBasePlotter> GGraph2ED::clone() const {
+	return std::shared_ptr<GBasePlotter>(new GGraph2ED(*this));
 }
 
 /******************************************************************************/
@@ -822,37 +810,33 @@ std::shared_ptr<GBasePlotter> GGraph2ED::clone() const {
  * The default constructor
  */
 GGraph3D::GGraph3D()
-   : drawLines_(false)
-{ /* nothing */ }
+	: drawLines_(false) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * A copy constructor
  */
-GGraph3D::GGraph3D(const GGraph3D& cp)
-   : GDataCollector3T<double,double,double>(cp)
-   , drawLines_(cp.drawLines_)
-{ /* nothing */ }
+GGraph3D::GGraph3D(const GGraph3D &cp)
+	: GDataCollector3T<double, double, double>(cp), drawLines_(cp.drawLines_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GGraph3D::~GGraph3D()
-{ /* nothing */ }
+GGraph3D::~GGraph3D() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The assignment operator
  */
-const GGraph3D & GGraph3D::operator=(const GGraph3D& cp) {
-   // Copy our parent class'es data
-   GDataCollector3T<double,double,double>::operator=(cp);
+const GGraph3D &GGraph3D::operator=(const GGraph3D &cp) {
+	// Copy our parent class'es data
+	GDataCollector3T<double, double, double>::operator=(cp);
 
-   // and then our own
-   drawLines_ = cp.drawLines_;
+	// and then our own
+	drawLines_ = cp.drawLines_;
 
-   return *this;
+	return *this;
 }
 
 /******************************************************************************/
@@ -862,7 +846,7 @@ const GGraph3D & GGraph3D::operator=(const GGraph3D& cp) {
  * @param dL The desired value of the drawLines_ variable
  */
 void GGraph3D::setDrawLines(bool dL) {
-   drawLines_ = dL;
+	drawLines_ = dL;
 }
 
 /******************************************************************************/
@@ -872,7 +856,7 @@ void GGraph3D::setDrawLines(bool dL) {
  * @return The value of the drawLines_ variable
  */
 bool GGraph3D::getDrawLines() const {
-   return drawLines_;
+	return drawLines_;
 }
 
 /******************************************************************************/
@@ -880,7 +864,7 @@ bool GGraph3D::getDrawLines() const {
  * Retrieves a unique name for this plotter
  */
 std::string GGraph3D::getPlotterName() const {
-   return "GGraph3D";
+	return "GGraph3D";
 }
 
 /******************************************************************************/
@@ -888,28 +872,29 @@ std::string GGraph3D::getPlotterName() const {
  * Retrieve specific header settings for this plot
  */
 std::string GGraph3D::headerData(bool isSecondary, std::size_t pId) const {
-   std::ostringstream header_data;
+	std::ostringstream header_data;
 
-   // Set up suitable arrays for the header
-   std::string baseName = suffix(isSecondary, pId);
-   std::string arrayBaseName = "array_" + baseName;
+	// Set up suitable arrays for the header
+	std::string baseName = suffix(isSecondary, pId);
+	std::string arrayBaseName = "array_" + baseName;
 
-   std::string xArrayName = "x_" + arrayBaseName;
-   std::string yArrayName = "y_" + arrayBaseName;
-   std::string zArrayName = "z_" + arrayBaseName;
+	std::string xArrayName = "x_" + arrayBaseName;
+	std::string yArrayName = "y_" + arrayBaseName;
+	std::string zArrayName = "z_" + arrayBaseName;
 
-   std::string comment;
-   if(dsMarker_ != "") {
-      comment = "// " + dsMarker_;
-   }
+	std::string comment;
+	if (dsMarker_ != "") {
+		comment = "// " + dsMarker_;
+	}
 
-   header_data
-      << "  double " << xArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << (comment!=""?comment:"") << std::endl
-      << "  double " << yArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
-      << "  double " << zArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
-      << std::endl;
+	header_data
+	<< "  double " << xArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" <<
+	(comment != "" ? comment : "") << std::endl
+	<< "  double " << yArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
+	<< "  double " << zArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
+	<< std::endl;
 
-   return header_data.str();
+	return header_data.str();
 }
 
 /******************************************************************************/
@@ -917,36 +902,36 @@ std::string GGraph3D::headerData(bool isSecondary, std::size_t pId) const {
  * Retrieves the actual data sets
  */
 std::string GGraph3D::bodyData(bool isSecondary, std::size_t pId) const {
-   std::ostringstream body_data;
+	std::ostringstream body_data;
 
-   // Set up suitable arrays for the header
-   std::string baseName = suffix(isSecondary, pId);
-   std::string arrayBaseName = "array_" + baseName;
+	// Set up suitable arrays for the header
+	std::string baseName = suffix(isSecondary, pId);
+	std::string arrayBaseName = "array_" + baseName;
 
-   std::string xArrayName = "x_" + arrayBaseName;
-   std::string yArrayName = "y_" + arrayBaseName;
-   std::string zArrayName = "z_" + arrayBaseName;
+	std::string xArrayName = "x_" + arrayBaseName;
+	std::string yArrayName = "y_" + arrayBaseName;
+	std::string zArrayName = "z_" + arrayBaseName;
 
-   std::string comment;
-   if(dsMarker_ != "") {
-      body_data << "// " + dsMarker_ << std::endl;
-   }
+	std::string comment;
+	if (dsMarker_ != "") {
+		body_data << "// " + dsMarker_ << std::endl;
+	}
 
-   // Fill data from the tuples into the arrays
-   std::vector<boost::tuple<double, double, double> >::const_iterator it;
-   std::size_t posCounter = 0;
+	// Fill data from the tuples into the arrays
+	std::vector<boost::tuple<double, double, double> >::const_iterator it;
+	std::size_t posCounter = 0;
 
-   for(it=data_.begin(); it!=data_.end(); ++it) {
-      body_data
-         << "  " << xArrayName << "[" << posCounter << "] = " << boost::get<0>(*it) << ";" << "\t"
-                 << yArrayName << "[" << posCounter << "] = " << boost::get<1>(*it) << ";" << "\t"
-                 << zArrayName << "[" << posCounter << "] = " << boost::get<2>(*it) << ";" << std::endl;
+	for (it = data_.begin(); it != data_.end(); ++it) {
+		body_data
+		<< "  " << xArrayName << "[" << posCounter << "] = " << boost::get<0>(*it) << ";" << "\t"
+		<< yArrayName << "[" << posCounter << "] = " << boost::get<1>(*it) << ";" << "\t"
+		<< zArrayName << "[" << posCounter << "] = " << boost::get<2>(*it) << ";" << std::endl;
 
-      posCounter++;
-   }
-   body_data << std::endl;
+		posCounter++;
+	}
+	body_data << std::endl;
 
-   return body_data.str();
+	return body_data.str();
 }
 
 /******************************************************************************/
@@ -954,80 +939,81 @@ std::string GGraph3D::bodyData(bool isSecondary, std::size_t pId) const {
  * Retrieves specific draw commands for this plot
  */
 std::string GGraph3D::footerData(bool isSecondary, std::size_t pId) const {
-   std::ostringstream footer_data;
+	std::ostringstream footer_data;
 
-   // Set up suitable arrays for the header
-   std::string baseName = suffix(isSecondary, pId);
-   std::string arrayBaseName = "array_" + baseName;
+	// Set up suitable arrays for the header
+	std::string baseName = suffix(isSecondary, pId);
+	std::string arrayBaseName = "array_" + baseName;
 
-   std::string xArrayName = "x_" + arrayBaseName;
-   std::string yArrayName = "y_" + arrayBaseName;
-   std::string zArrayName = "z_" + arrayBaseName;
+	std::string xArrayName = "x_" + arrayBaseName;
+	std::string yArrayName = "y_" + arrayBaseName;
+	std::string zArrayName = "z_" + arrayBaseName;
 
-   std::string graphName = std::string("graph_") + baseName;
+	std::string graphName = std::string("graph_") + baseName;
 
-   std::string comment;
-   if(dsMarker_ != "") {
-      footer_data << "// " + dsMarker_ << std::endl;
-   }
+	std::string comment;
+	if (dsMarker_ != "") {
+		footer_data << "// " + dsMarker_ << std::endl;
+	}
 
-   // Check whether custom drawing arguments have been set or whether one
-   // of our generic choices has been selected
-   std::string dA = this->drawingArguments(isSecondary);
+	// Check whether custom drawing arguments have been set or whether one
+	// of our generic choices has been selected
+	std::string dA = this->drawingArguments(isSecondary);
 
-   // Fill the data in our tuple-vector into a ROOT TGraph object
-   footer_data
-      << "  TGraph2D *" << graphName << " = new TGraph2D(" << data_.size() <<", " << xArrayName << ", " << yArrayName << ", " << zArrayName << ");" << std::endl
-      << "  " << graphName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
-      << "  " << graphName << "->GetXaxis()->SetTitleOffset(1.5);" << std::endl
-      << "  " << graphName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
-      << "  " << graphName << "->GetYaxis()->SetTitleOffset(1.5);" << std::endl
-      << "  " << graphName << "->GetZaxis()->SetTitle(\"" << zAxisLabel() << "\");" << std::endl
-      << "  " << graphName << "->GetZaxis()->SetTitleOffset(1.5);" << std::endl
-      << "  " << graphName << "->SetMarkerStyle(20);" << std::endl
-      << "  " << graphName << "->SetMarkerSize(1);" << std::endl
-      << "  " << graphName << "->SetMarkerColor(2);" << std::endl;
+	// Fill the data in our tuple-vector into a ROOT TGraph object
+	footer_data
+	<< "  TGraph2D *" << graphName << " = new TGraph2D(" << data_.size() << ", " << xArrayName << ", " << yArrayName <<
+	", " << zArrayName << ");" << std::endl
+	<< "  " << graphName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+	<< "  " << graphName << "->GetXaxis()->SetTitleOffset(1.5);" << std::endl
+	<< "  " << graphName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
+	<< "  " << graphName << "->GetYaxis()->SetTitleOffset(1.5);" << std::endl
+	<< "  " << graphName << "->GetZaxis()->SetTitle(\"" << zAxisLabel() << "\");" << std::endl
+	<< "  " << graphName << "->GetZaxis()->SetTitleOffset(1.5);" << std::endl
+	<< "  " << graphName << "->SetMarkerStyle(20);" << std::endl
+	<< "  " << graphName << "->SetMarkerSize(1);" << std::endl
+	<< "  " << graphName << "->SetMarkerColor(2);" << std::endl;
 
-   if(plot_label_ != "") {
-      footer_data
-         << "  " << graphName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
-   }  else {
-      footer_data
-         << "  " << graphName << "->SetTitle(\" \");" << std::endl;
-   }
+	if (plot_label_ != "") {
+		footer_data
+		<< "  " << graphName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+	} else {
+		footer_data
+		<< "  " << graphName << "->SetTitle(\" \");" << std::endl;
+	}
 
-   footer_data
-      << "  " << graphName << "->Draw(\""<< dA << "\");" << std::endl
-      << std::endl;
+	footer_data
+	<< "  " << graphName << "->Draw(\"" << dA << "\");" << std::endl
+	<< std::endl;
 
-   if(drawLines_ && data_.size() >= 2) {
-      std::vector<boost::tuple<double, double, double> >::const_iterator it;
-      std::size_t posCounter = 0;
+	if (drawLines_ && data_.size() >= 2) {
+		std::vector<boost::tuple<double, double, double> >::const_iterator it;
+		std::size_t posCounter = 0;
 
-      double x,y,z;
+		double x, y, z;
 
-      footer_data
-      << "  TPolyLine3D *lines_" << graphName << " = new TPolyLine3D(" << data_.size() << ");" << std::endl
-      << std::endl;
+		footer_data
+		<< "  TPolyLine3D *lines_" << graphName << " = new TPolyLine3D(" << data_.size() << ");" << std::endl
+		<< std::endl;
 
-      for(it=data_.begin()+1; it!=data_.end(); ++it) {
-         x = boost::get<0>(*it);
-         y = boost::get<1>(*it);
-         z = boost::get<2>(*it);
+		for (it = data_.begin() + 1; it != data_.end(); ++it) {
+			x = boost::get<0>(*it);
+			y = boost::get<1>(*it);
+			z = boost::get<2>(*it);
 
-         footer_data
-         << "  lines_" << graphName << "->SetPoint(" << posCounter << ", " << x << ", " << y << ", " << z << ");";
+			footer_data
+			<< "  lines_" << graphName << "->SetPoint(" << posCounter << ", " << x << ", " << y << ", " << z << ");";
 
-         posCounter++;
-      }
-      footer_data
-      << std::endl
-      << "  lines_" << graphName << "->SetLineWidth(3);" << std::endl
-      << "  lines_" << graphName << "->Draw();" << std::endl
-      << std::endl;
-   }
+			posCounter++;
+		}
+		footer_data
+		<< std::endl
+		<< "  lines_" << graphName << "->SetLineWidth(3);" << std::endl
+		<< "  lines_" << graphName << "->Draw();" << std::endl
+		<< std::endl;
+	}
 
-   return footer_data.str();
+	return footer_data.str();
 }
 
 /******************************************************************************/
@@ -1035,27 +1021,27 @@ std::string GGraph3D::footerData(bool isSecondary, std::size_t pId) const {
  * Retrieve the current drawing arguments
  */
 std::string GGraph3D::drawingArguments(bool isSecondary) const {
-   std::string dA = "";
+	std::string dA = "";
 
-   if(this->drawingArguments_ != "") {
-      dA = this->drawingArguments_;
-   } else {
-      dA = "P";
+	if (this->drawingArguments_ != "") {
+		dA = this->drawingArguments_;
+	} else {
+		dA = "P";
 
-      if(isSecondary) {
-         dA = dA + ",same";
-      }
-   }
+		if (isSecondary) {
+			dA = dA + ",same";
+		}
+	}
 
-   return dA;
+	return dA;
 }
 
 /******************************************************************************/
 /**
  * Retrieve a clone of this object
  */
-std::shared_ptr<GBasePlotter> GGraph3D::clone() const {
-   return std::shared_ptr<GBasePlotter>(new GGraph3D(*this));
+std::shared_ptr <GBasePlotter> GGraph3D::clone() const {
+	return std::shared_ptr<GBasePlotter>(new GGraph3D(*this));
 }
 
 /******************************************************************************/
@@ -1065,77 +1051,68 @@ std::shared_ptr<GBasePlotter> GGraph3D::clone() const {
  * The default constructor
  */
 GGraph4D::GGraph4D()
-   : minMarkerSize_(0.001)
-   , maxMarkerSize_(1.)
-   , smallWLargeMarker_(true)
-   , nBest_(0)
-{ /* nothing */ }
+	: minMarkerSize_(0.001), maxMarkerSize_(1.), smallWLargeMarker_(true), nBest_(0) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * A copy constructor
  */
-GGraph4D::GGraph4D(const GGraph4D& cp)
-   : GDataCollector4T<double,double,double,double>(cp)
-   , minMarkerSize_(cp.minMarkerSize_)
-   , maxMarkerSize_(cp.maxMarkerSize_)
-   , smallWLargeMarker_(cp.smallWLargeMarker_)
-   , nBest_(cp.nBest_)
-{ /* nothing */ }
+GGraph4D::GGraph4D(const GGraph4D &cp)
+	: GDataCollector4T<double, double, double, double>(cp), minMarkerSize_(cp.minMarkerSize_),
+	  maxMarkerSize_(cp.maxMarkerSize_), smallWLargeMarker_(cp.smallWLargeMarker_), nBest_(cp.nBest_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GGraph4D::~GGraph4D()
-{ /* nothing */ }
+GGraph4D::~GGraph4D() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The assignment operator
  */
-const GGraph4D & GGraph4D::operator=(const GGraph4D& cp) {
-   // Copy our parent class'es data
-   GDataCollector4T<double,double,double,double>::operator=(cp);
+const GGraph4D &GGraph4D::operator=(const GGraph4D &cp) {
+	// Copy our parent class'es data
+	GDataCollector4T<double, double, double, double>::operator=(cp);
 
-   // copy local data
-   minMarkerSize_     = cp.minMarkerSize_;
-   maxMarkerSize_     = cp.maxMarkerSize_;
-   smallWLargeMarker_ = cp.smallWLargeMarker_;
-   nBest_             = cp.nBest_;
+	// copy local data
+	minMarkerSize_ = cp.minMarkerSize_;
+	maxMarkerSize_ = cp.maxMarkerSize_;
+	smallWLargeMarker_ = cp.smallWLargeMarker_;
+	nBest_ = cp.nBest_;
 
-   return *this;
+	return *this;
 }
 
 /******************************************************************************/
 /**
  * Allows to set the minimum marker size
  */
-void GGraph4D::setMinMarkerSize(const double& minMarkerSize) {
-   if(minMarkerSize < 0.) {
-      glogger
-      << "In GGraph4D::setMinMarkerSize(): Error!" << std::endl
-      << "Received invalid minimum marker size: " << minMarkerSize << std::endl
-      << GEXCEPTION;
-   }
+void GGraph4D::setMinMarkerSize(const double &minMarkerSize) {
+	if (minMarkerSize < 0.) {
+		glogger
+		<< "In GGraph4D::setMinMarkerSize(): Error!" << std::endl
+		<< "Received invalid minimum marker size: " << minMarkerSize << std::endl
+		<< GEXCEPTION;
+	}
 
-   minMarkerSize_ = minMarkerSize;
+	minMarkerSize_ = minMarkerSize;
 }
 
 /******************************************************************************/
 /**
  * Allows to set the maximum marker size
  */
-void GGraph4D::setMaxMarkerSize(const double& maxMarkerSize) {
-   if(maxMarkerSize < 0. || maxMarkerSize < minMarkerSize_) {
-      glogger
-      << "In GGraph4D::setMinMarkerSize(): Error!" << std::endl
-      << "Received invalid minimum marker size: " << minMarkerSize_ << " " << maxMarkerSize << "." << std::endl
-      << "Always set the lower boundary first." << std::endl
-      << GEXCEPTION;
-   }
+void GGraph4D::setMaxMarkerSize(const double &maxMarkerSize) {
+	if (maxMarkerSize < 0. || maxMarkerSize < minMarkerSize_) {
+		glogger
+		<< "In GGraph4D::setMinMarkerSize(): Error!" << std::endl
+		<< "Received invalid minimum marker size: " << minMarkerSize_ << " " << maxMarkerSize << "." << std::endl
+		<< "Always set the lower boundary first." << std::endl
+		<< GEXCEPTION;
+	}
 
-   maxMarkerSize_ = maxMarkerSize;
+	maxMarkerSize_ = maxMarkerSize;
 }
 
 /******************************************************************************/
@@ -1143,7 +1120,7 @@ void GGraph4D::setMaxMarkerSize(const double& maxMarkerSize) {
  * Allows to retrieve the minimum marker size
  */
 double GGraph4D::getMinMarkerSize() const {
-   return minMarkerSize_;
+	return minMarkerSize_;
 }
 
 /******************************************************************************/
@@ -1151,15 +1128,15 @@ double GGraph4D::getMinMarkerSize() const {
  * Allows to retrieve the maximum marker size
  */
 double GGraph4D::getMaxMarkerSize() const {
-   return maxMarkerSize_;
+	return maxMarkerSize_;
 }
 
 /******************************************************************************/
 /**
  * Allows to specify whether small w yield large markers
  */
-void GGraph4D::setSmallWLargeMarker(const bool& swlm) {
-   smallWLargeMarker_ = swlm;
+void GGraph4D::setSmallWLargeMarker(const bool &swlm) {
+	smallWLargeMarker_ = swlm;
 }
 
 /******************************************************************************/
@@ -1167,7 +1144,7 @@ void GGraph4D::setSmallWLargeMarker(const bool& swlm) {
  * Allows to check whether small w yield large markers
  */
 bool GGraph4D::getSmallWLargeMarker() const {
-   return smallWLargeMarker_;
+	return smallWLargeMarker_;
 }
 
 /******************************************************************************/
@@ -1175,8 +1152,8 @@ bool GGraph4D::getSmallWLargeMarker() const {
  * Allows to set the number of solutions the class should show. Setting the value
  * to 0 will result in all data being displayed.
  */
-void GGraph4D::setNBest(const std::size_t& nBest) {
-   nBest_ = nBest;
+void GGraph4D::setNBest(const std::size_t &nBest) {
+	nBest_ = nBest;
 }
 
 /******************************************************************************/
@@ -1184,7 +1161,7 @@ void GGraph4D::setNBest(const std::size_t& nBest) {
  * Allows to retrieve the number of solutions the class should show
  */
 std::size_t GGraph4D::getNBest() const {
-   return nBest_;
+	return nBest_;
 }
 
 /******************************************************************************/
@@ -1192,7 +1169,7 @@ std::size_t GGraph4D::getNBest() const {
  * Retrieves a unique name for this plotter
  */
 std::string GGraph4D::getPlotterName() const {
-   return "GGraph4D";
+	return "GGraph4D";
 }
 
 /******************************************************************************/
@@ -1200,11 +1177,11 @@ std::string GGraph4D::getPlotterName() const {
  * Retrieve specific header settings for this plot
  */
 std::string GGraph4D::headerData(bool isSecondary, std::size_t pId) const {
-   std::ostringstream header_data;
+	std::ostringstream header_data;
 
-   // nothing
+	// nothing
 
-   return header_data.str();
+	return header_data.str();
 }
 
 /******************************************************************************/
@@ -1212,11 +1189,11 @@ std::string GGraph4D::headerData(bool isSecondary, std::size_t pId) const {
  * Retrieves the actual data sets
  */
 std::string GGraph4D::bodyData(bool isSecondary, std::size_t pId) const {
-   std::ostringstream body_data;
+	std::ostringstream body_data;
 
-   // nothing
+	// nothing
 
-   return body_data.str();
+	return body_data.str();
 }
 
 /******************************************************************************/
@@ -1224,106 +1201,103 @@ std::string GGraph4D::bodyData(bool isSecondary, std::size_t pId) const {
  * Retrieves specific draw commands for this plot
  */
 std::string GGraph4D::footerData(bool isSecondary, std::size_t pId) const {
-   std::vector<boost::tuple<double,double,double,double> > localData = data_;
+	std::vector<boost::tuple<double, double, double, double> > localData = data_;
 
-   std::string baseName = suffix(isSecondary, pId);
+	std::string baseName = suffix(isSecondary, pId);
 
-   // Sort the data, so we can select the nBest_ best more easily
-   if(smallWLargeMarker_) {
-      std::sort(
-            localData.begin()
-            , localData.end()
-            , [](
-              boost::tuple<double,double,double,double> a
-              , boost::tuple<double,double,double,double> b
-            ) -> bool {
-               return (boost::get<3>(a) < boost::get<3>(b));
-            }
-       );
-   } else {
-      std::sort(
-            localData.begin()
-            , localData.end()
-            , [] (
-                  boost::tuple<double,double,double,double> a
-                  , boost::tuple<double,double,double,double> b
-            ) -> bool{
-               return (boost::get<3>(a) > boost::get<3>(b));
-            }
-       );
-   }
+	// Sort the data, so we can select the nBest_ best more easily
+	if (smallWLargeMarker_) {
+		std::sort(
+			localData.begin(), localData.end(), [](
+				boost::tuple<double, double, double, double> a, boost::tuple<double, double, double, double> b
+			) -> bool {
+				return (boost::get<3>(a) < boost::get<3>(b));
+			}
+		);
+	} else {
+		std::sort(
+			localData.begin(), localData.end(), [](
+				boost::tuple<double, double, double, double> a, boost::tuple<double, double, double, double> b
+			) -> bool {
+				return (boost::get<3>(a) > boost::get<3>(b));
+			}
+		);
+	}
 
-   std::ostringstream footer_data;
+	std::ostringstream footer_data;
 
-   // Find out about the minimum and maximum values of the data vector
-   boost::tuple<double,double,double,double,double,double,double,double> minMax = Gem::Common::getMinMax(localData);
+	// Find out about the minimum and maximum values of the data vector
+	boost::tuple<double, double, double, double, double, double, double, double> minMax = Gem::Common::getMinMax(
+		localData);
 
-   // Set up TView object for our 3D data, spanning the minimum and maximum values
-   footer_data
-   << "  TH3F *fr = new TH3F(\"fr\",\"fr\","
-   <<               "10, " << boost::get<0>(minMax) << ", " << boost::get<1>(minMax) << ", "
-   <<               "10, " << boost::get<2>(minMax) << ", " << boost::get<3>(minMax) << ", "
-   <<               "10, " << boost::get<4>(minMax) << ", " << boost::get<5>(minMax) << ");" << std::endl
-   << "  fr->SetTitle(\" \");" << std::endl
-   << "  fr->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
-   << "  fr->GetXaxis()->SetTitleOffset(1.6);" << std::endl
-   << "  fr->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
-   << "  fr->GetYaxis()->SetTitleOffset(1.6);" << std::endl
-   << "  fr->GetZaxis()->SetTitle(\"" << zAxisLabel() << "\");" << std::endl
-   << "  fr->GetZaxis()->SetTitleOffset(1.6);" << std::endl
-   << std::endl
-   << "  fr->Draw();" << std::endl;
+	// Set up TView object for our 3D data, spanning the minimum and maximum values
+	footer_data
+	<< "  TH3F *fr = new TH3F(\"fr\",\"fr\","
+	<< "10, " << boost::get<0>(minMax) << ", " << boost::get<1>(minMax) << ", "
+	<< "10, " << boost::get<2>(minMax) << ", " << boost::get<3>(minMax) << ", "
+	<< "10, " << boost::get<4>(minMax) << ", " << boost::get<5>(minMax) << ");" << std::endl
+	<< "  fr->SetTitle(\" \");" << std::endl
+	<< "  fr->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+	<< "  fr->GetXaxis()->SetTitleOffset(1.6);" << std::endl
+	<< "  fr->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
+	<< "  fr->GetYaxis()->SetTitleOffset(1.6);" << std::endl
+	<< "  fr->GetZaxis()->SetTitle(\"" << zAxisLabel() << "\");" << std::endl
+	<< "  fr->GetZaxis()->SetTitleOffset(1.6);" << std::endl
+	<< std::endl
+	<< "  fr->Draw();" << std::endl;
 
-   double wMin = boost::get<6>(minMax);
-   double wMax = boost::get<7>(minMax);
+	double wMin = boost::get<6>(minMax);
+	double wMax = boost::get<7>(minMax);
 
-   // Fill data from the tuples into the arrays
-   double wRange = wMax-wMin;
-   std::size_t pos = 0;
-   std::vector<boost::tuple<double, double, double, double> >::const_iterator it;
-   for(it=localData.begin(); it!=localData.end(); ++it) {
-      std::string polyMarkerName = std::string("pm3d_") + baseName + std::string("_") + boost::lexical_cast<std::string>(pos);
+	// Fill data from the tuples into the arrays
+	double wRange = wMax - wMin;
+	std::size_t pos = 0;
+	std::vector<boost::tuple<double, double, double, double> >::const_iterator it;
+	for (it = localData.begin(); it != localData.end(); ++it) {
+		std::string polyMarkerName =
+			std::string("pm3d_") + baseName + std::string("_") + boost::lexical_cast<std::string>(pos);
 
-      // create a TPolyMarker3D for a single data point
-      footer_data
-      << "  TPolyMarker3D *" << polyMarkerName << " = new TPolyMarker3D(1);" << std::endl;
+		// create a TPolyMarker3D for a single data point
+		footer_data
+		<< "  TPolyMarker3D *" << polyMarkerName << " = new TPolyMarker3D(1);" << std::endl;
 
-      double x = boost::get<0>(*it);
-      double y = boost::get<1>(*it);
-      double z = boost::get<2>(*it);
-      double w = boost::get<3>(*it);
+		double x = boost::get<0>(*it);
+		double y = boost::get<1>(*it);
+		double z = boost::get<2>(*it);
+		double w = boost::get<3>(*it);
 
-      // Translate the fourth component into a marker size. By default,
-      // smaller values will yield the largest value
-      double markerSize = 0.;
-      if(0==pos) {
-         markerSize = 2*maxMarkerSize_;
-      } else {
-         if(smallWLargeMarker_) {
-            markerSize = minMarkerSize_ + (maxMarkerSize_-minMarkerSize_)*pow((1. - (w-wMin)/wRange),8.);
-         } else {
-            markerSize = minMarkerSize_ + (maxMarkerSize_-minMarkerSize_)*pow(((w-wMin)/wRange), 8);
-         }
-      }
+		// Translate the fourth component into a marker size. By default,
+		// smaller values will yield the largest value
+		double markerSize = 0.;
+		if (0 == pos) {
+			markerSize = 2 * maxMarkerSize_;
+		} else {
+			if (smallWLargeMarker_) {
+				markerSize = minMarkerSize_ + (maxMarkerSize_ - minMarkerSize_) * pow((1. - (w - wMin) / wRange), 8.);
+			} else {
+				markerSize = minMarkerSize_ + (maxMarkerSize_ - minMarkerSize_) * pow(((w - wMin) / wRange), 8);
+			}
+		}
 
-      footer_data
-      << "  " << polyMarkerName << "->SetPoint(" << pos << ", " << x << ", " << y << ", " << z << "); // w = " << w << std::endl
-      << "  " << polyMarkerName << "->SetMarkerSize(" << markerSize << ");" << std::endl
-      << "  " << polyMarkerName << "->SetMarkerColor(" << (0==pos?4:2) << ");" << std::endl
-      << "  " << polyMarkerName << "->SetMarkerStyle(8);" << std::endl
-      << "  " << polyMarkerName << "->Draw();" << std::endl
-      << std::endl;
+		footer_data
+		<< "  " << polyMarkerName << "->SetPoint(" << pos << ", " << x << ", " << y << ", " << z << "); // w = " << w <<
+		std::endl
+		<< "  " << polyMarkerName << "->SetMarkerSize(" << markerSize << ");" << std::endl
+		<< "  " << polyMarkerName << "->SetMarkerColor(" << (0 == pos ? 4 : 2) << ");" << std::endl
+		<< "  " << polyMarkerName << "->SetMarkerStyle(8);" << std::endl
+		<< "  " << polyMarkerName << "->Draw();" << std::endl
+		<< std::endl;
 
-      pos++;
+		pos++;
 
-      if(nBest_ && pos >= nBest_) {
-         break;
-      }
-   }
+		if (nBest_ && pos >= nBest_) {
+			break;
+		}
+	}
 
-   footer_data << std::endl;
+	footer_data << std::endl;
 
-   return footer_data.str();
+	return footer_data.str();
 }
 
 /******************************************************************************/
@@ -1331,19 +1305,19 @@ std::string GGraph4D::footerData(bool isSecondary, std::size_t pId) const {
  * Retrieve the current drawing arguments
  */
 std::string GGraph4D::drawingArguments(bool isSecondary) const {
-   std::string dA = "";
+	std::string dA = "";
 
-   // nothing
+	// nothing
 
-   return dA;
+	return dA;
 }
 
 /******************************************************************************/
 /**
  * Retrieve a clone of this object
  */
-std::shared_ptr<GBasePlotter> GGraph4D::clone() const {
-   return std::shared_ptr<GBasePlotter>(new GGraph4D(*this));
+std::shared_ptr <GBasePlotter> GGraph4D::clone() const {
+	return std::shared_ptr<GBasePlotter>(new GGraph4D(*this));
 }
 
 /******************************************************************************/
@@ -1353,27 +1327,18 @@ std::shared_ptr<GBasePlotter> GGraph4D::clone() const {
  * The standard constructor
  */
 GHistogram1D::GHistogram1D(
-	const std::size_t& nBinsX
-	, const double& minX
-	, const double& maxX
+	const std::size_t &nBinsX, const double &minX, const double &maxX
 )
-	: nBinsX_(nBinsX)
-	, minX_(minX)
-	, maxX_(maxX)
-{ /* nothing */ }
+	: nBinsX_(nBinsX), minX_(minX), maxX_(maxX) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization with a range in the form of a tuple
  */
 GHistogram1D::GHistogram1D(
-	const std::size_t& nBinsX
-	, const boost::tuple<double,double>& rangeX
+	const std::size_t &nBinsX, const boost::tuple<double, double> &rangeX
 )
-	: nBinsX_(nBinsX)
-	, minX_(boost::get<0>(rangeX))
-	, maxX_(boost::get<1>(rangeX))
-{ /* nothing */ }
+	: nBinsX_(nBinsX), minX_(boost::get<0>(rangeX)), maxX_(boost::get<1>(rangeX)) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -1381,19 +1346,14 @@ GHistogram1D::GHistogram1D(
  *
  * @param cp a copy of another GHistogram1D object
  */
-GHistogram1D::GHistogram1D(const GHistogram1D& cp)
-	: GDataCollector1T<double>(cp)
-	, nBinsX_(cp.nBinsX_)
-	, minX_(cp. minX_)
-	, maxX_(cp.maxX_)
-{ /* nothing */ }
+GHistogram1D::GHistogram1D(const GHistogram1D &cp)
+	: GDataCollector1T<double>(cp), nBinsX_(cp.nBinsX_), minX_(cp.minX_), maxX_(cp.maxX_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GHistogram1D::~GHistogram1D()
-{ /* nothing */ }
+GHistogram1D::~GHistogram1D() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -1401,13 +1361,13 @@ GHistogram1D::~GHistogram1D()
  *
  * @param cp A copy of another GHistogram1D object
  */
-const GHistogram1D &GHistogram1D::operator=(const GHistogram1D& cp) {
+const GHistogram1D &GHistogram1D::operator=(const GHistogram1D &cp) {
 	// Copy our parent class'es data ...
 	GDataCollector1T<double>::operator=(cp);
 
 	// ... and then our local data
 	nBinsX_ = cp.nBinsX_;
-	minX_ = cp. minX_;
+	minX_ = cp.minX_;
 	maxX_ = cp.maxX_;
 
 	return *this;
@@ -1421,15 +1381,16 @@ std::string GHistogram1D::headerData(bool isSecondary, std::size_t pId) const {
 	std::ostringstream header_data;
 
 	std::string comment;
-	if(dsMarker_ != "") {
+	if (dsMarker_ != "") {
 		comment = "// " + dsMarker_;
 	}
 
 	std::string histName = "histD" + suffix(isSecondary, pId);
 
 	header_data
-		<< "  TH1D *" << histName << " = new TH1D(\"" << histName << "\", \"" << histName << "\"," << nBinsX_ << ", " << minX_ << ", " << maxX_ << ");" << (comment!=""?comment:"") << std::endl
-		<< std::endl;
+	<< "  TH1D *" << histName << " = new TH1D(\"" << histName << "\", \"" << histName << "\"," << nBinsX_ << ", " <<
+	minX_ << ", " << maxX_ << ");" << (comment != "" ? comment : "") << std::endl
+	<< std::endl;
 
 	return header_data.str();
 }
@@ -1442,7 +1403,7 @@ std::string GHistogram1D::bodyData(bool isSecondary, std::size_t pId) const {
 	std::ostringstream body_data;
 
 	std::string comment;
-	if(dsMarker_ != "") {
+	if (dsMarker_ != "") {
 		comment = "// " + dsMarker_;
 	} else {
 		comment = "";
@@ -1452,9 +1413,9 @@ std::string GHistogram1D::bodyData(bool isSecondary, std::size_t pId) const {
 
 	std::vector<double>::const_iterator it;
 	std::size_t posCounter = 0;
-	for(it=data_.begin(); it!=data_.end(); ++it) {
+	for (it = data_.begin(); it != data_.end(); ++it) {
 		body_data
-			<< "  " << histName << "->Fill(" << *it << ");" << (posCounter==0?comment:("")) << std::endl;
+		<< "  " << histName << "->Fill(" << *it << ");" << (posCounter == 0 ? comment : ("")) << std::endl;
 		posCounter++;
 	}
 	body_data << std::endl;
@@ -1471,16 +1432,16 @@ std::string GHistogram1D::footerData(bool isSecondary, std::size_t pId) const {
 
 	std::string histName = "histD" + suffix(isSecondary, pId);
 
-	if(plot_label_ != "") {
+	if (plot_label_ != "") {
 		footer_data
-			<< "  " << histName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
-	}  else {
+		<< "  " << histName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+	} else {
 		footer_data
-			<< "  " << histName << "->SetTitle(\" \");" << std::endl;
+		<< "  " << histName << "->SetTitle(\" \");" << std::endl;
 	}
 
 	std::string comment;
-	if(dsMarker_ != "") {
+	if (dsMarker_ != "") {
 		footer_data << "// " + dsMarker_ << std::endl;
 	}
 
@@ -1488,10 +1449,10 @@ std::string GHistogram1D::footerData(bool isSecondary, std::size_t pId) const {
 	std::string dA = this->drawingArguments(isSecondary);
 
 	footer_data
-	    << "  " << histName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
-	    << "  " << histName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
-		<< "  " << histName << "->Draw(\""<< dA << "\");" << std::endl
-		<< std::endl;
+	<< "  " << histName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+	<< "  " << histName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
+	<< "  " << histName << "->Draw(\"" << dA << "\");" << std::endl
+	<< std::endl;
 
 	return footer_data.str();
 }
@@ -1501,21 +1462,21 @@ std::string GHistogram1D::footerData(bool isSecondary, std::size_t pId) const {
  * Retrieve the current drawing arguments
  */
 std::string GHistogram1D::drawingArguments(bool isSecondary) const {
-   std::string dA = "";
+	std::string dA = "";
 
-   if(drawingArguments_ != "") {
-      dA = drawingArguments_;
-   } else {
-      if(isSecondary) {
-         if("" == dA) {
-            dA = "same";
-         } else {
-            dA = dA + ",same";
-         }
-      }
-   }
+	if (drawingArguments_ != "") {
+		dA = drawingArguments_;
+	} else {
+		if (isSecondary) {
+			if ("" == dA) {
+				dA = "same";
+			} else {
+				dA = dA + ",same";
+			}
+		}
+	}
 
-   return dA;
+	return dA;
 }
 
 /******************************************************************************/
@@ -1553,15 +1514,15 @@ double GHistogram1D::getMaxX() const {
  * Retrieves a unique name for this plotter
  */
 std::string GHistogram1D::getPlotterName() const {
-   return "GHistogram1D";
+	return "GHistogram1D";
 }
 
 /******************************************************************************/
 /**
  * Retrieve a clone of this object
  */
-std::shared_ptr<GBasePlotter> GHistogram1D::clone() const {
-   return std::shared_ptr<GBasePlotter>(new GHistogram1D(*this));
+std::shared_ptr <GBasePlotter> GHistogram1D::clone() const {
+	return std::shared_ptr<GBasePlotter>(new GHistogram1D(*this));
 }
 
 /******************************************************************************/
@@ -1571,29 +1532,19 @@ std::shared_ptr<GBasePlotter> GHistogram1D::clone() const {
  * The standard constructor
  */
 GHistogram1I::GHistogram1I(
-   const std::size_t& nBinsX
-   , const double& minX
-   , const double& maxX
+	const std::size_t &nBinsX, const double &minX, const double &maxX
 )
-   : GDataCollector1T<boost::int32_t>()
-   , nBinsX_(nBinsX)
-   , minX_(minX)
-   , maxX_(maxX)
-{ /* nothing */ }
+	: GDataCollector1T<boost::int32_t>(), nBinsX_(nBinsX), minX_(minX), maxX_(maxX) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization with a range in the form of a tuple
  */
 GHistogram1I::GHistogram1I(
-   const std::size_t& nBinsX
-   , const boost::tuple<double,double>& rangeX
+	const std::size_t &nBinsX, const boost::tuple<double, double> &rangeX
 )
-   : GDataCollector1T<boost::int32_t>()
-   , nBinsX_(nBinsX)
-   , minX_(boost::get<0>(rangeX))
-   , maxX_(boost::get<1>(rangeX))
-{ /* nothing */ }
+	: GDataCollector1T<boost::int32_t>(), nBinsX_(nBinsX), minX_(boost::get<0>(rangeX)),
+	  maxX_(boost::get<1>(rangeX)) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -1601,19 +1552,14 @@ GHistogram1I::GHistogram1I(
  *
  * @param cp a copy of another GHistogram1I object
  */
-GHistogram1I::GHistogram1I(const GHistogram1I& cp)
-   : GDataCollector1T<boost::int32_t>(cp)
-   , nBinsX_(cp.nBinsX_)
-   , minX_(cp. minX_)
-   , maxX_(cp.maxX_)
-{ /* nothing */ }
+GHistogram1I::GHistogram1I(const GHistogram1I &cp)
+	: GDataCollector1T<boost::int32_t>(cp), nBinsX_(cp.nBinsX_), minX_(cp.minX_), maxX_(cp.maxX_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GHistogram1I::~GHistogram1I()
-{ /* nothing */ }
+GHistogram1I::~GHistogram1I() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -1621,16 +1567,16 @@ GHistogram1I::~GHistogram1I()
  *
  * @param cp A copy of another GHistogram1I object
  */
-const GHistogram1I& GHistogram1I::operator=(const GHistogram1I& cp) {
-   // Copy our parent class'es data ...
-   GDataCollector1T<boost::int32_t>::operator=(cp);
+const GHistogram1I &GHistogram1I::operator=(const GHistogram1I &cp) {
+	// Copy our parent class'es data ...
+	GDataCollector1T<boost::int32_t>::operator=(cp);
 
-   // ... and then our local data
-   nBinsX_ = cp.nBinsX_;
-   minX_ = cp. minX_;
-   maxX_ = cp.maxX_;
+	// ... and then our local data
+	nBinsX_ = cp.nBinsX_;
+	minX_ = cp.minX_;
+	maxX_ = cp.maxX_;
 
-   return *this;
+	return *this;
 }
 
 /******************************************************************************/
@@ -1638,20 +1584,21 @@ const GHistogram1I& GHistogram1I::operator=(const GHistogram1I& cp) {
  * Retrieve specific header settings for this plot
  */
 std::string GHistogram1I::headerData(bool isSecondary, std::size_t pId) const {
-   std::ostringstream header_data;
+	std::ostringstream header_data;
 
-   std::string comment;
-   if(dsMarker_ != "") {
-      comment = "// " + dsMarker_;
-   }
+	std::string comment;
+	if (dsMarker_ != "") {
+		comment = "// " + dsMarker_;
+	}
 
-   std::string histName = "histI" + suffix(isSecondary, pId);
+	std::string histName = "histI" + suffix(isSecondary, pId);
 
-   header_data
-      << "  TH1I *" << histName << " = new TH1I(\"" << histName << "\", \"" << histName << "\"," << nBinsX_ << ", " << minX_ << ", " << maxX_ << ");" << (comment!=""?comment:"") << std::endl
-      << std::endl;
+	header_data
+	<< "  TH1I *" << histName << " = new TH1I(\"" << histName << "\", \"" << histName << "\"," << nBinsX_ << ", " <<
+	minX_ << ", " << maxX_ << ");" << (comment != "" ? comment : "") << std::endl
+	<< std::endl;
 
-   return header_data.str();
+	return header_data.str();
 }
 
 /******************************************************************************/
@@ -1659,28 +1606,28 @@ std::string GHistogram1I::headerData(bool isSecondary, std::size_t pId) const {
  * Retrieves the actual data sets
  */
 std::string GHistogram1I::bodyData(bool isSecondary, std::size_t pId) const {
-   std::ostringstream body_data;
+	std::ostringstream body_data;
 
-   std::string comment;
-   if(dsMarker_ != "") {
-      comment = "// " + dsMarker_;
-   } else {
-      comment = "";
-   }
+	std::string comment;
+	if (dsMarker_ != "") {
+		comment = "// " + dsMarker_;
+	} else {
+		comment = "";
+	}
 
-   std::string histName = "histI" + suffix(isSecondary, pId);
+	std::string histName = "histI" + suffix(isSecondary, pId);
 
-   std::vector<boost::int32_t>::const_iterator it;
-   std::size_t posCounter = 0;
-   for(it=data_.begin(); it!=data_.end(); ++it) {
-      body_data
-         << "  " << histName << "->Fill(" << *it << ");" << (posCounter==0?comment:("")) << std::endl;
-      posCounter++;
-   }
+	std::vector<boost::int32_t>::const_iterator it;
+	std::size_t posCounter = 0;
+	for (it = data_.begin(); it != data_.end(); ++it) {
+		body_data
+		<< "  " << histName << "->Fill(" << *it << ");" << (posCounter == 0 ? comment : ("")) << std::endl;
+		posCounter++;
+	}
 
-   body_data << std::endl;
+	body_data << std::endl;
 
-   return body_data.str();
+	return body_data.str();
 }
 
 /******************************************************************************/
@@ -1688,33 +1635,33 @@ std::string GHistogram1I::bodyData(bool isSecondary, std::size_t pId) const {
  * Retrieves specific draw commands for this plot
  */
 std::string GHistogram1I::footerData(bool isSecondary, std::size_t pId) const {
-   std::ostringstream footer_data;
+	std::ostringstream footer_data;
 
-   std::string histName = "histI" + suffix(isSecondary, pId);
+	std::string histName = "histI" + suffix(isSecondary, pId);
 
-   if(plot_label_ != "") {
-      footer_data
-         << "  " << histName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
-   }  else {
-      footer_data
-         << "  " << histName << "->SetTitle(\" \");" << std::endl;
-   }
+	if (plot_label_ != "") {
+		footer_data
+		<< "  " << histName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+	} else {
+		footer_data
+		<< "  " << histName << "->SetTitle(\" \");" << std::endl;
+	}
 
-   std::string comment;
-   if(dsMarker_ != "") {
-      footer_data << "// " + dsMarker_ << std::endl;
-   }
+	std::string comment;
+	if (dsMarker_ != "") {
+		footer_data << "// " + dsMarker_ << std::endl;
+	}
 
-   // Check whether custom drawing arguments have been set
-   std::string dA = this->drawingArguments(isSecondary);
+	// Check whether custom drawing arguments have been set
+	std::string dA = this->drawingArguments(isSecondary);
 
-   footer_data
-       << "  " << histName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
-       << "  " << histName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
-      << "  " << histName << "->Draw(\""<< dA << "\");" << std::endl
-      << std::endl;
+	footer_data
+	<< "  " << histName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+	<< "  " << histName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
+	<< "  " << histName << "->Draw(\"" << dA << "\");" << std::endl
+	<< std::endl;
 
-   return footer_data.str();
+	return footer_data.str();
 }
 
 /******************************************************************************/
@@ -1722,21 +1669,21 @@ std::string GHistogram1I::footerData(bool isSecondary, std::size_t pId) const {
  * Retrieve the current drawing arguments
  */
 std::string GHistogram1I::drawingArguments(bool isSecondary) const {
-   std::string dA = "";
+	std::string dA = "";
 
-   if(drawingArguments_ != "") {
-      dA = drawingArguments_;
-   } else {
-      if(isSecondary) {
-         if("" == dA) {
-            dA = "same";
-         } else {
-            dA = dA + ",same";
-         }
-      }
-   }
+	if (drawingArguments_ != "") {
+		dA = drawingArguments_;
+	} else {
+		if (isSecondary) {
+			if ("" == dA) {
+				dA = "same";
+			} else {
+				dA = dA + ",same";
+			}
+		}
+	}
 
-   return dA;
+	return dA;
 }
 
 /******************************************************************************/
@@ -1746,7 +1693,7 @@ std::string GHistogram1I::drawingArguments(bool isSecondary) const {
  * @return The number of bins in x-direction
  */
 std::size_t GHistogram1I::getNBinsX() const {
-   return nBinsX_;
+	return nBinsX_;
 }
 
 /******************************************************************************/
@@ -1756,7 +1703,7 @@ std::size_t GHistogram1I::getNBinsX() const {
  * @return The lower boundary of the plot
  */
 double GHistogram1I::getMinX() const {
-   return minX_;
+	return minX_;
 }
 
 /******************************************************************************/
@@ -1766,7 +1713,7 @@ double GHistogram1I::getMinX() const {
  * @return The upper boundary of the plot
  */
 double GHistogram1I::getMaxX() const {
-   return maxX_;
+	return maxX_;
 }
 
 /******************************************************************************/
@@ -1774,15 +1721,15 @@ double GHistogram1I::getMaxX() const {
  * Retrieves a unique name for this plotter
  */
 std::string GHistogram1I::getPlotterName() const {
-   return "GHistogram1I";
+	return "GHistogram1I";
 }
 
 /******************************************************************************/
 /**
  * Retrieve a clone of this object
  */
-std::shared_ptr<GBasePlotter> GHistogram1I::clone() const {
-   return std::shared_ptr<GBasePlotter>(new GHistogram1I(*this));
+std::shared_ptr <GBasePlotter> GHistogram1I::clone() const {
+	return std::shared_ptr<GBasePlotter>(new GHistogram1I(*this));
 }
 
 
@@ -1793,40 +1740,22 @@ std::shared_ptr<GBasePlotter> GHistogram1I::clone() const {
  * The standard constructor
  */
 GHistogram2D::GHistogram2D(
-	const std::size_t& nBinsX
-	, const std::size_t& nBinsY
-	, const double& minX
-	, const double& maxX
-	, const double& minY
-	, const double& maxY
+	const std::size_t &nBinsX, const std::size_t &nBinsY, const double &minX, const double &maxX, const double &minY,
+	const double &maxY
 )
-	: nBinsX_(nBinsX)
-	, nBinsY_(nBinsY)
-	, minX_(minX)
-	, maxX_(maxX)
-	, minY_(minY)
-	, maxY_(maxY)
-	, dropt_(TDEMPTY)
-{ /* nothing */ }
+	: nBinsX_(nBinsX), nBinsY_(nBinsY), minX_(minX), maxX_(maxX), minY_(minY), maxY_(maxY),
+	  dropt_(TDEMPTY) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization with ranges
  */
 GHistogram2D::GHistogram2D(
-	const std::size_t& nBinsX
-	, const std::size_t& nBinsY
-	, const boost::tuple<double,double>& rangeX
-	, const boost::tuple<double,double>& rangeY
+	const std::size_t &nBinsX, const std::size_t &nBinsY, const boost::tuple<double, double> &rangeX,
+	const boost::tuple<double, double> &rangeY
 )
-	: nBinsX_(nBinsX)
-	, nBinsY_(nBinsY)
-	, minX_(boost::get<0>(rangeX))
-	, maxX_(boost::get<1>(rangeX))
-	, minY_(boost::get<0>(rangeY))
-	, maxY_(boost::get<1>(rangeY))
-	, dropt_(TDEMPTY)
-{ /* nothing */ }
+	: nBinsX_(nBinsX), nBinsY_(nBinsY), minX_(boost::get<0>(rangeX)), maxX_(boost::get<1>(rangeX)),
+	  minY_(boost::get<0>(rangeY)), maxY_(boost::get<1>(rangeY)), dropt_(TDEMPTY) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -1834,23 +1763,15 @@ GHistogram2D::GHistogram2D(
  *
  * @param cp a copy of another GHistogram2D object
  */
-GHistogram2D::GHistogram2D(const GHistogram2D& cp)
-	: GDataCollector2T<double, double>(cp)
-	, nBinsX_(cp.nBinsX_)
-	, nBinsY_(cp.nBinsY_)
-	, minX_(cp. minX_)
-	, maxX_(cp.maxX_)
-	, minY_(cp. minY_)
-	, maxY_(cp.maxY_)
-	, dropt_(cp.dropt_)
-{ /* nothing */ }
+GHistogram2D::GHistogram2D(const GHistogram2D &cp)
+	: GDataCollector2T<double, double>(cp), nBinsX_(cp.nBinsX_), nBinsY_(cp.nBinsY_), minX_(cp.minX_), maxX_(cp.maxX_),
+	  minY_(cp.minY_), maxY_(cp.maxY_), dropt_(cp.dropt_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GHistogram2D::~GHistogram2D()
-{ /* nothing */ }
+GHistogram2D::~GHistogram2D() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -1858,16 +1779,16 @@ GHistogram2D::~GHistogram2D()
  *
  * @param cp A copy of another GHistogram2D object
  */
-const GHistogram2D &GHistogram2D::operator=(const GHistogram2D& cp) {
+const GHistogram2D &GHistogram2D::operator=(const GHistogram2D &cp) {
 	// Copy our parent class'es data ...
-	GDataCollector2T<double,double>::operator=(cp);
+	GDataCollector2T<double, double>::operator=(cp);
 
 	// ... and then our local data
 	nBinsX_ = cp.nBinsX_;
 	nBinsY_ = cp.nBinsY_;
-	minX_ = cp. minX_;
+	minX_ = cp.minX_;
 	maxX_ = cp.maxX_;
-	minY_ = cp. minY_;
+	minY_ = cp.minY_;
 	maxY_ = cp.maxY_;
 	dropt_ = cp.dropt_;
 
@@ -1882,35 +1803,35 @@ std::string GHistogram2D::headerData(bool isSecondary, std::size_t pId) const {
 	std::ostringstream header_data;
 
 	std::string comment;
-	if(dsMarker_ != "") {
+	if (dsMarker_ != "") {
 		comment = "// " + dsMarker_;
 	}
 
 	std::string histName = "hist2D" + suffix(isSecondary, pId);
 
 	header_data
-		<< "  TH2D *"
-		<< histName
-		<< " = new TH2D(\""
-		<< histName
-		<< "\", \""
-		<< histName
-		<< "\","
-		<< nBinsX_
-		<< ", "
-		<< minX_
-		<< ", "
-		<< maxX_
-		<< ","
-		<< nBinsY_
-		<< ", "
-		<< minY_
-		<< ", "
-		<< maxY_
-		<< ");"
-		<< (comment!=""?comment:"")
-		<< std::endl
-		<< std::endl;
+	<< "  TH2D *"
+	<< histName
+	<< " = new TH2D(\""
+	<< histName
+	<< "\", \""
+	<< histName
+	<< "\","
+	<< nBinsX_
+	<< ", "
+	<< minX_
+	<< ", "
+	<< maxX_
+	<< ","
+	<< nBinsY_
+	<< ", "
+	<< minY_
+	<< ", "
+	<< maxY_
+	<< ");"
+	<< (comment != "" ? comment : "")
+	<< std::endl
+	<< std::endl;
 
 	return header_data.str();
 }
@@ -1923,7 +1844,7 @@ std::string GHistogram2D::bodyData(bool isSecondary, std::size_t pId) const {
 	std::ostringstream body_data;
 
 	std::string comment;
-	if(dsMarker_ != "") {
+	if (dsMarker_ != "") {
 		comment = "// " + dsMarker_;
 	} else {
 		comment = "";
@@ -1931,11 +1852,12 @@ std::string GHistogram2D::bodyData(bool isSecondary, std::size_t pId) const {
 
 	std::string histName = "hist2D" + suffix(isSecondary, pId);
 
-	std::vector<boost::tuple<double,double> >::const_iterator it;
+	std::vector<boost::tuple<double, double> >::const_iterator it;
 	std::size_t posCounter = 0;
-	for(it=data_.begin(); it!=data_.end(); ++it) {
+	for (it = data_.begin(); it != data_.end(); ++it) {
 		body_data
-			<< "  " << histName << "->Fill(" << boost::get<0>(*it) << ", " << boost::get<1>(*it) << ");" << (posCounter==0?comment:("")) << std::endl;
+		<< "  " << histName << "->Fill(" << boost::get<0>(*it) << ", " << boost::get<1>(*it) << ");" <<
+		(posCounter == 0 ? comment : ("")) << std::endl;
 		posCounter++;
 	}
 
@@ -1953,16 +1875,16 @@ std::string GHistogram2D::footerData(bool isSecondary, std::size_t pId) const {
 
 	std::string histName = "hist2D" + suffix(isSecondary, pId);
 
-	if(plot_label_ != "") {
+	if (plot_label_ != "") {
 		footer_data
-			<< "  " << histName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
-	}  else {
+		<< "  " << histName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+	} else {
 		footer_data
-			<< "  " << histName << "->SetTitle(\" \");" << std::endl;
+		<< "  " << histName << "->SetTitle(\" \");" << std::endl;
 	}
 
 	std::string comment;
-	if(dsMarker_ != "") {
+	if (dsMarker_ != "") {
 		footer_data << "// " + dsMarker_ << std::endl;
 	}
 
@@ -1972,7 +1894,7 @@ std::string GHistogram2D::footerData(bool isSecondary, std::size_t pId) const {
 	footer_data
 	<< "  " << histName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
 	<< "  " << histName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
-	<< "  " << histName << "->Draw(\""<< dA << "\");" << std::endl
+	<< "  " << histName << "->Draw(\"" << dA << "\");" << std::endl
 	<< std::endl;
 
 	return footer_data.str();
@@ -1983,100 +1905,99 @@ std::string GHistogram2D::footerData(bool isSecondary, std::size_t pId) const {
  * Retrieve the current drawing arguments
  */
 std::string GHistogram2D::drawingArguments(bool isSecondary) const {
-   std::string dA = "";
+	std::string dA = "";
 
-   if(drawingArguments_ != "") {
-      dA = drawingArguments_;
-   } else {
-      switch(dropt_) {
-      case TDEMPTY:
-         dA = "";
-         break;
+	if (drawingArguments_ != "") {
+		dA = drawingArguments_;
+	} else {
+		switch (dropt_) {
+			case TDEMPTY:
+				dA = "";
+				break;
 
-      case SURFONE:
-         dA = "SURF1";
-         break;
+			case SURFONE:
+				dA = "SURF1";
+				break;
 
-      case SURFTWOZ:
-         dA = "SURF2Z";
-         break;
+			case SURFTWOZ:
+				dA = "SURF2Z";
+				break;
 
-      case SURFTHREE:
-         dA = "SURF3";
-         break;
+			case SURFTHREE:
+				dA = "SURF3";
+				break;
 
-      case SURFFOUR:
-         dA = "SURF4";
-         break;
+			case SURFFOUR:
+				dA = "SURF4";
+				break;
 
-      case CONTZ:
-         dA = "CONTZ";
-         break;
+			case CONTZ:
+				dA = "CONTZ";
+				break;
 
-      case CONTONE:
-         dA = "CONT1";
-         break;
+			case CONTONE:
+				dA = "CONT1";
+				break;
 
-      case CONTTWO:
-         dA = "CONT2";
-         break;
+			case CONTTWO:
+				dA = "CONT2";
+				break;
 
-      case CONTTHREE:
-         dA = "CONT3";
-         break;
+			case CONTTHREE:
+				dA = "CONT3";
+				break;
 
-      case TEXT:
-         dA = "TEXT";
-         break;
+			case TEXT:
+				dA = "TEXT";
+				break;
 
-      case SCAT:
-         dA = "SCAT";
-         break;
+			case SCAT:
+				dA = "SCAT";
+				break;
 
-      case BOX:
-         dA = "BOX";
-         break;
+			case BOX:
+				dA = "BOX";
+				break;
 
-      case ARR:
-         dA = "ARR";
-         break;
+			case ARR:
+				dA = "ARR";
+				break;
 
-      case COLZ:
-         dA = "COLZ";
-         break;
+			case COLZ:
+				dA = "COLZ";
+				break;
 
-      case LEGO:
-         dA = "LEGO";
-         break;
+			case LEGO:
+				dA = "LEGO";
+				break;
 
-      case LEGOONE:
-         dA = "LEGO1";
-         break;
+			case LEGOONE:
+				dA = "LEGO1";
+				break;
 
-      case SURFONEPOL:
-         dA = "SURF1POL";
-         break;
+			case SURFONEPOL:
+				dA = "SURF1POL";
+				break;
 
-      case SURFONECYL:
-         dA = "SURF1CYL";
-         break;
+			case SURFONECYL:
+				dA = "SURF1CYL";
+				break;
 
-      default:
-         {
-            glogger
-            << "In GHistogram2D::drawingArguments(): Error!" << std::endl
-            << "Encountered unknown drawing option " << dropt_ << std::endl
-            << GEXCEPTION;
-         }
-         break;
-      }
+			default: {
+				glogger
+				<< "In GHistogram2D::drawingArguments(): Error!" << std::endl
+				<< "Encountered unknown drawing option " << dropt_ << std::endl
+				<< GEXCEPTION;
+			}
+				break;
+		}
 
-      if(isSecondary) {
-         dA = dA + ",same";
-      }
-   }
+		if (isSecondary) {
+			dA = dA + ",same";
+		}
+	}
 
-   return dA;
+	return dA;
 }
 
 /******************************************************************************/
@@ -2144,15 +2065,15 @@ double GHistogram2D::getMaxY() const {
  * Retrieves a unique name for this plotter
  */
 std::string GHistogram2D::getPlotterName() const {
-   return "GHistogram2D";
+	return "GHistogram2D";
 }
 
 /******************************************************************************/
 /**
  * Retrieve a clone of this object
  */
-std::shared_ptr<GBasePlotter> GHistogram2D::clone() const {
-   return std::shared_ptr<GBasePlotter>(new GHistogram2D(*this));
+std::shared_ptr <GBasePlotter> GHistogram2D::clone() const {
+	return std::shared_ptr<GBasePlotter>(new GHistogram2D(*this));
 }
 
 
@@ -2165,13 +2086,9 @@ std::shared_ptr<GBasePlotter> GHistogram2D::clone() const {
  * @param fD A descriptor for the function to be plotted
  */
 GFunctionPlotter1D::GFunctionPlotter1D(
-		const std::string& fD
-		, const boost::tuple<double,double>& xExtremes
+	const std::string &fD, const boost::tuple<double, double> &xExtremes
 )
-	: functionDescription_(fD)
-	, xExtremes_(xExtremes)
-	, nSamplesX_(DEFNSAMPLES)
-{ /* nothing */ }
+	: functionDescription_(fD), xExtremes_(xExtremes), nSamplesX_(DEFNSAMPLES) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -2179,19 +2096,15 @@ GFunctionPlotter1D::GFunctionPlotter1D(
  *
  * @param cp A reference to another GFunctionPlotter1D object
  */
-GFunctionPlotter1D::GFunctionPlotter1D(const GFunctionPlotter1D& cp)
-	: GBasePlotter(cp)
-	, functionDescription_(cp.functionDescription_)
-	, xExtremes_(cp.xExtremes_)
-	, nSamplesX_(cp.nSamplesX_)
-{ /* nothing */ }
+GFunctionPlotter1D::GFunctionPlotter1D(const GFunctionPlotter1D &cp)
+	: GBasePlotter(cp), functionDescription_(cp.functionDescription_), xExtremes_(cp.xExtremes_),
+	  nSamplesX_(cp.nSamplesX_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GFunctionPlotter1D::~GFunctionPlotter1D()
-{ /* nothing */ }
+GFunctionPlotter1D::~GFunctionPlotter1D() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -2199,7 +2112,7 @@ GFunctionPlotter1D::~GFunctionPlotter1D()
  *
  * @param cp A reference to another GFunctionPlotter1D object
  */
-const GFunctionPlotter1D & GFunctionPlotter1D::operator=(const GFunctionPlotter1D& cp) {
+const GFunctionPlotter1D &GFunctionPlotter1D::operator=(const GFunctionPlotter1D &cp) {
 	// Copy our parent class'es data
 	GBasePlotter::operator=(cp);
 
@@ -2226,7 +2139,7 @@ void GFunctionPlotter1D::setNSamplesX(std::size_t nSamplesX) {
  * Retrieves a unique name for this plotter
  */
 std::string GFunctionPlotter1D::getPlotterName() const {
-   return "GFunctionPlotter1D";
+	return "GFunctionPlotter1D";
 }
 
 /******************************************************************************/
@@ -2237,22 +2150,25 @@ std::string GFunctionPlotter1D::getPlotterName() const {
  */
 std::string GFunctionPlotter1D::headerData(bool isSecondary, std::size_t pId) const {
 	// Check the extreme values for consistency
-	if(boost::get<0>(xExtremes_) >= boost::get<1>(xExtremes_)) {
-	   glogger
-	   << "In GFunctionPlotter1D::headerData(): Error!" << std::endl
-      << "lower boundary >= upper boundary: " << boost::get<0>(xExtremes_) << " / " << boost::get<1>(xExtremes_) << std::endl
-      << GEXCEPTION;
+	if (boost::get<0>(xExtremes_) >= boost::get<1>(xExtremes_)) {
+		glogger
+		<< "In GFunctionPlotter1D::headerData(): Error!" << std::endl
+		<< "lower boundary >= upper boundary: " << boost::get<0>(xExtremes_) << " / " << boost::get<1>(xExtremes_) <<
+		std::endl
+		<< GEXCEPTION;
 	}
 
 	std::ostringstream result;
 
 	std::string comment;
-	if(dsMarker_ != "") {
+	if (dsMarker_ != "") {
 		comment = "// " + dsMarker_;
 	}
 
 	std::string functionName = "func1D" + suffix(isSecondary, pId);
-	result << "  TF1 *" << functionName << " = new TF1(\"" << functionName << "\", \"" << functionDescription_ << "\"," << boost::get<0>(xExtremes_) << ", " << boost::get<1>(xExtremes_) << ");" << (comment!=""?comment:"") << std::endl;
+	result << "  TF1 *" << functionName << " = new TF1(\"" << functionName << "\", \"" << functionDescription_ <<
+	"\"," << boost::get<0>(xExtremes_) << ", " << boost::get<1>(xExtremes_) << ");" << (comment != "" ? comment : "") <<
+	std::endl;
 
 	return result.str();
 }
@@ -2278,29 +2194,29 @@ std::string GFunctionPlotter1D::footerData(bool isSecondary, std::size_t pId) co
 	std::ostringstream footer_data;
 
 	std::string comment;
-	if(dsMarker_ != "") {
+	if (dsMarker_ != "") {
 		comment = "// " + dsMarker_;
 	}
 
-   std::string functionName = "func1D" + suffix(isSecondary, pId);
+	std::string functionName = "func1D" + suffix(isSecondary, pId);
 	footer_data
-		<< "  " << functionName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
-		<< "  " << functionName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
-	    << "  " << functionName << "->SetNpx(" << nSamplesX_ << ");" << std::endl;
+	<< "  " << functionName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+	<< "  " << functionName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
+	<< "  " << functionName << "->SetNpx(" << nSamplesX_ << ");" << std::endl;
 
-	if(plot_label_ != "") {
+	if (plot_label_ != "") {
 		footer_data
-			<< "  " << functionName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+		<< "  " << functionName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
 	} else {
 		footer_data
-			<< "  " << functionName << "->SetTitle(\" \");" << std::endl;
+		<< "  " << functionName << "->SetTitle(\" \");" << std::endl;
 	}
 
 	std::string dA = this->drawingArguments(isSecondary);
 
 	footer_data
-		<< "  " << functionName << "->Draw(" << dA << ");" << (comment!=""?comment:"") << std::endl
-		<< std::endl;
+	<< "  " << functionName << "->Draw(" << dA << ");" << (comment != "" ? comment : "") << std::endl
+	<< std::endl;
 
 	return footer_data.str();
 }
@@ -2310,29 +2226,29 @@ std::string GFunctionPlotter1D::footerData(bool isSecondary, std::size_t pId) co
  * Retrieve the current drawing arguments
  */
 std::string GFunctionPlotter1D::drawingArguments(bool isSecondary) const {
-   std::string dA = "";
+	std::string dA = "";
 
-   if(this->drawingArguments_ != "") {
-      dA = this->drawingArguments_;
-   }
+	if (this->drawingArguments_ != "") {
+		dA = this->drawingArguments_;
+	}
 
-   if(isSecondary) {
-      if("" == dA) {
-         dA = "same";
-      } else {
-         dA = dA + ",same";
-      }
-   }
+	if (isSecondary) {
+		if ("" == dA) {
+			dA = "same";
+		} else {
+			dA = dA + ",same";
+		}
+	}
 
-   return dA;
+	return dA;
 }
 
 /******************************************************************************/
 /**
  * Retrieve a clone of this object
  */
-std::shared_ptr<GBasePlotter> GFunctionPlotter1D::clone() const {
-   return std::shared_ptr<GBasePlotter>(new GFunctionPlotter1D(*this));
+std::shared_ptr <GBasePlotter> GFunctionPlotter1D::clone() const {
+	return std::shared_ptr<GBasePlotter>(new GFunctionPlotter1D(*this));
 }
 
 /******************************************************************************/
@@ -2344,16 +2260,10 @@ std::shared_ptr<GBasePlotter> GFunctionPlotter1D::clone() const {
  * @param fD A descriptor for the function to be plotted
  */
 GFunctionPlotter2D::GFunctionPlotter2D(
-		const std::string& fD
-		, const boost::tuple<double,double>& xExtremes
-		, const boost::tuple<double,double>& yExtremes
+	const std::string &fD, const boost::tuple<double, double> &xExtremes, const boost::tuple<double, double> &yExtremes
 )
-	: functionDescription_(fD)
-	, xExtremes_(xExtremes)
-	, yExtremes_(yExtremes)
-	, nSamplesX_(DEFNSAMPLES)
-	, nSamplesY_(DEFNSAMPLES)
-{ /* nothing */ }
+	: functionDescription_(fD), xExtremes_(xExtremes), yExtremes_(yExtremes), nSamplesX_(DEFNSAMPLES),
+	  nSamplesY_(DEFNSAMPLES) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -2361,21 +2271,15 @@ GFunctionPlotter2D::GFunctionPlotter2D(
  *
  * @param cp A reference to another GFunctionPlotter2D object
  */
-GFunctionPlotter2D::GFunctionPlotter2D(const GFunctionPlotter2D& cp)
-	: GBasePlotter(cp)
-	, functionDescription_(cp.functionDescription_)
-	, xExtremes_(cp.xExtremes_)
-	, yExtremes_(cp.yExtremes_)
-	, nSamplesX_(cp.nSamplesX_)
-	, nSamplesY_(cp.nSamplesY_)
-{ /* nothing */ }
+GFunctionPlotter2D::GFunctionPlotter2D(const GFunctionPlotter2D &cp)
+	: GBasePlotter(cp), functionDescription_(cp.functionDescription_), xExtremes_(cp.xExtremes_),
+	  yExtremes_(cp.yExtremes_), nSamplesX_(cp.nSamplesX_), nSamplesY_(cp.nSamplesY_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GFunctionPlotter2D::~GFunctionPlotter2D()
-{ /* nothing */ }
+GFunctionPlotter2D::~GFunctionPlotter2D() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -2383,7 +2287,7 @@ GFunctionPlotter2D::~GFunctionPlotter2D()
  *
  * @param cp A reference to another GFunctionPlotter2D object
  */
-const GFunctionPlotter2D & GFunctionPlotter2D::operator=(const GFunctionPlotter2D& cp) {
+const GFunctionPlotter2D &GFunctionPlotter2D::operator=(const GFunctionPlotter2D &cp) {
 	// Copy our parent class'es data
 	GBasePlotter::operator=(cp);
 
@@ -2422,7 +2326,7 @@ void GFunctionPlotter2D::setNSamplesY(std::size_t nSamplesY) {
  * Retrieves a unique name for this plotter
  */
 std::string GFunctionPlotter2D::getPlotterName() const {
-   return "GFunctionPlotter2D";
+	return "GFunctionPlotter2D";
 }
 
 /******************************************************************************/
@@ -2433,45 +2337,47 @@ std::string GFunctionPlotter2D::getPlotterName() const {
  */
 std::string GFunctionPlotter2D::headerData(bool isSecondary, std::size_t pId) const {
 	// Check the extreme values for consistency
-	if(boost::get<0>(xExtremes_) >= boost::get<1>(xExtremes_)) {
-	   glogger
-	   << "In GFunctionPlotter2D::headerData(): Error!" << std::endl
-      << "lower boundary(x) >= upper boundary(x): " << boost::get<0>(xExtremes_) << " / " << boost::get<1>(xExtremes_) << std::endl
-      << GEXCEPTION;
+	if (boost::get<0>(xExtremes_) >= boost::get<1>(xExtremes_)) {
+		glogger
+		<< "In GFunctionPlotter2D::headerData(): Error!" << std::endl
+		<< "lower boundary(x) >= upper boundary(x): " << boost::get<0>(xExtremes_) << " / " <<
+		boost::get<1>(xExtremes_) << std::endl
+		<< GEXCEPTION;
 	}
 
-	if(boost::get<0>(yExtremes_) >= boost::get<1>(yExtremes_)) {
-	   glogger
-	   << "In GFunctionPlotter2D::headerData(): Error!" << std::endl
-      << "lower boundary(y) >= upper boundary(y): " << boost::get<0>(yExtremes_) << " / " << boost::get<1>(yExtremes_) << std::endl
-      << GEXCEPTION;
+	if (boost::get<0>(yExtremes_) >= boost::get<1>(yExtremes_)) {
+		glogger
+		<< "In GFunctionPlotter2D::headerData(): Error!" << std::endl
+		<< "lower boundary(y) >= upper boundary(y): " << boost::get<0>(yExtremes_) << " / " <<
+		boost::get<1>(yExtremes_) << std::endl
+		<< GEXCEPTION;
 	}
 
 	std::ostringstream result;
 
 	std::string comment;
-	if(dsMarker_ != "") {
+	if (dsMarker_ != "") {
 		comment = "// " + dsMarker_;
 	}
 
-   std::string functionName = "func2D" + suffix(isSecondary, pId);
+	std::string functionName = "func2D" + suffix(isSecondary, pId);
 	result
-		<< "  TF2 *"
-		<< functionName
-		<< " = new TF2(\""
-		<< functionName << "\", \""
-		<< functionDescription_
-		<< "\","
-		<< boost::get<0>(xExtremes_)
-		<< ", "
-		<< boost::get<1>(xExtremes_)
-		<< ", "
-		<< boost::get<0>(yExtremes_)
-		<< ", "
-		<< boost::get<1>(yExtremes_)
-		<< ");"
-		<< (comment!=""?comment:"")
-		<< std::endl;
+	<< "  TF2 *"
+	<< functionName
+	<< " = new TF2(\""
+	<< functionName << "\", \""
+	<< functionDescription_
+	<< "\","
+	<< boost::get<0>(xExtremes_)
+	<< ", "
+	<< boost::get<1>(xExtremes_)
+	<< ", "
+	<< boost::get<0>(yExtremes_)
+	<< ", "
+	<< boost::get<1>(yExtremes_)
+	<< ");"
+	<< (comment != "" ? comment : "")
+	<< std::endl;
 
 	return result.str();
 }
@@ -2497,31 +2403,31 @@ std::string GFunctionPlotter2D::footerData(bool isSecondary, std::size_t pId) co
 	std::ostringstream footer_data;
 
 	std::string comment;
-	if(dsMarker_ != "") {
+	if (dsMarker_ != "") {
 		comment = "// " + dsMarker_;
 	}
 
 	std::string functionName = "func2D" + suffix(isSecondary, pId);
 	footer_data
-		<< "  " << functionName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
-		<< "  " << functionName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
-		<< "  " << functionName << "->GetZaxis()->SetTitle(\"" << zAxisLabel() << "\");" << std::endl
-	    << "  " << functionName << "->SetNpx(" << nSamplesX_ << ");" << std::endl
-	    << "  " << functionName << "->SetNpy(" << nSamplesY_ << ");" << std::endl;
+	<< "  " << functionName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+	<< "  " << functionName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
+	<< "  " << functionName << "->GetZaxis()->SetTitle(\"" << zAxisLabel() << "\");" << std::endl
+	<< "  " << functionName << "->SetNpx(" << nSamplesX_ << ");" << std::endl
+	<< "  " << functionName << "->SetNpy(" << nSamplesY_ << ");" << std::endl;
 
-	if(plot_label_ != "") {
+	if (plot_label_ != "") {
 		footer_data
-			<< "  " << functionName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+		<< "  " << functionName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
 	} else {
 		footer_data
-			<< "  " << functionName << "->SetTitle(\" \");" << std::endl;
+		<< "  " << functionName << "->SetTitle(\" \");" << std::endl;
 	}
 
 	std::string dA = this->drawingArguments(isSecondary);
 
 	footer_data
-		<< "  " << functionName << "->Draw(" << dA << ");" << (comment!=""?comment:"") << std::endl
-		<< std::endl;
+	<< "  " << functionName << "->Draw(" << dA << ");" << (comment != "" ? comment : "") << std::endl
+	<< std::endl;
 
 	return footer_data.str();
 }
@@ -2531,25 +2437,25 @@ std::string GFunctionPlotter2D::footerData(bool isSecondary, std::size_t pId) co
  * Retrieve the current drawing arguments
  */
 std::string GFunctionPlotter2D::drawingArguments(bool isSecondary) const {
-   std::string dA = "";
+	std::string dA = "";
 
-   if(isSecondary) {
-      if("" == dA) {
-         dA = "same";
-      } else {
-         dA = dA + ",same";
-      }
-   }
+	if (isSecondary) {
+		if ("" == dA) {
+			dA = "same";
+		} else {
+			dA = dA + ",same";
+		}
+	}
 
-   return dA;
+	return dA;
 }
 
 /******************************************************************************/
 /**
  * Retrieve a clone of this object
  */
-std::shared_ptr<GBasePlotter> GFunctionPlotter2D::clone() const {
-   return std::shared_ptr<GBasePlotter>(new GFunctionPlotter2D(*this));
+std::shared_ptr <GBasePlotter> GFunctionPlotter2D::clone() const {
+	return std::shared_ptr<GBasePlotter>(new GFunctionPlotter2D(*this));
 }
 
 /******************************************************************************/
@@ -2559,10 +2465,7 @@ std::shared_ptr<GBasePlotter> GFunctionPlotter2D::clone() const {
  * The default constructor
  */
 GFreeFormPlotter::GFreeFormPlotter()
-	: headerData_("")
-	, bodyData_("")
-	, footerData_("")
-{ /* nothing */ }
+	: headerData_(""), bodyData_(""), footerData_("") { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -2570,19 +2473,15 @@ GFreeFormPlotter::GFreeFormPlotter()
  *
  * @param cp A copy of another GFreeFormPlotter object
  */
-GFreeFormPlotter::GFreeFormPlotter(const GFreeFormPlotter& cp)
-	: GBasePlotter(cp)
-	, headerData_(cp.headerData_)
-	, bodyData_(cp.bodyData_)
-	, footerData_(cp.footerData_)
-{ /* nothing */ }
+GFreeFormPlotter::GFreeFormPlotter(const GFreeFormPlotter &cp)
+	: GBasePlotter(cp), headerData_(cp.headerData_), bodyData_(cp.bodyData_),
+	  footerData_(cp.footerData_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GFreeFormPlotter::~GFreeFormPlotter()
-{ /* nothing */ }
+GFreeFormPlotter::~GFreeFormPlotter() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -2590,8 +2489,7 @@ GFreeFormPlotter::~GFreeFormPlotter()
  *
  * @param cp A copy of another GFreeFormPlotter object
  */
-const GFreeFormPlotter& GFreeFormPlotter::operator=(const GFreeFormPlotter& cp)
-{
+const GFreeFormPlotter &GFreeFormPlotter::operator=(const GFreeFormPlotter &cp) {
 	// Copy our parent class'es data ...
 	GBasePlotter::operator=(cp);
 
@@ -2610,7 +2508,7 @@ const GFreeFormPlotter& GFreeFormPlotter::operator=(const GFreeFormPlotter& cp)
  * Retrieves a unique name for this plotter
  */
 std::string GFreeFormPlotter::getPlotterName() const {
-   return "GFreeFormPlotter";
+	return "GFreeFormPlotter";
 }
 
 /******************************************************************************/
@@ -2620,12 +2518,12 @@ std::string GFreeFormPlotter::getPlotterName() const {
  * @return A string holding the header data
  */
 std::string GFreeFormPlotter::headerData(bool isSecondary, std::size_t pId) const {
-   if(headerFunction_) {
-      return headerFunction_(isSecondary, pId);
-   }
-   else {
-      return headerData_;
-   }
+	if (headerFunction_) {
+		return headerFunction_(isSecondary, pId);
+	}
+	else {
+		return headerData_;
+	}
 }
 
 /******************************************************************************/
@@ -2635,12 +2533,12 @@ std::string GFreeFormPlotter::headerData(bool isSecondary, std::size_t pId) cons
  * @return A string holding the body data
  */
 std::string GFreeFormPlotter::bodyData(bool isSecondary, std::size_t pId) const {
-   if(bodyFunction_) {
-      return bodyFunction_(isSecondary, pId);
-   }
-   else {
-      return bodyData_;
-   }
+	if (bodyFunction_) {
+		return bodyFunction_(isSecondary, pId);
+	}
+	else {
+		return bodyData_;
+	}
 }
 
 /******************************************************************************/
@@ -2650,19 +2548,19 @@ std::string GFreeFormPlotter::bodyData(bool isSecondary, std::size_t pId) const 
  * @return A string holding the footer data
  */
 std::string GFreeFormPlotter::footerData(bool isSecondary, std::size_t pId) const {
-   if(footerFunction_) {
-      return footerFunction_(isSecondary, pId);
-   }
-   else {
-      return footerData_;
-   }
+	if (footerFunction_) {
+		return footerFunction_(isSecondary, pId);
+	}
+	else {
+		return footerData_;
+	}
 }
 
 /******************************************************************************/
 /**
  * Adds a string with header data
  */
-void GFreeFormPlotter::setHeaderData(const std::string& hD) {
+void GFreeFormPlotter::setHeaderData(const std::string &hD) {
 	headerData_ = hD;
 }
 
@@ -2670,7 +2568,7 @@ void GFreeFormPlotter::setHeaderData(const std::string& hD) {
 /**
  * Adds a string with body data
  */
-void GFreeFormPlotter::setBodyData(const std::string& bD){
+void GFreeFormPlotter::setBodyData(const std::string &bD) {
 	bodyData_ = bD;
 }
 
@@ -2678,7 +2576,7 @@ void GFreeFormPlotter::setBodyData(const std::string& bD){
 /**
  * Adds a string with footer data
  */
-void GFreeFormPlotter::setFooterData(const std::string& fD) {
+void GFreeFormPlotter::setFooterData(const std::string &fD) {
 	footerData_ = fD;
 }
 
@@ -2687,14 +2585,14 @@ void GFreeFormPlotter::setFooterData(const std::string& fD) {
  * Registers a function that returns the desired header data
  */
 void GFreeFormPlotter::registerHeaderFunction(boost::function<std::string(bool, std::size_t)> hf) {
-   if(!hf) {
-      glogger
-      << "In GFreeFormPlotter::registerHeaderFunction(): Error!" << std::endl
-      << "Received empty function" << std::endl
-      << GEXCEPTION;
-   }
+	if (!hf) {
+		glogger
+		<< "In GFreeFormPlotter::registerHeaderFunction(): Error!" << std::endl
+		<< "Received empty function" << std::endl
+		<< GEXCEPTION;
+	}
 
-   headerFunction_ = hf;
+	headerFunction_ = hf;
 }
 
 /******************************************************************************/
@@ -2702,14 +2600,14 @@ void GFreeFormPlotter::registerHeaderFunction(boost::function<std::string(bool, 
  * Registers a function that returns the desired body data
  */
 void GFreeFormPlotter::registerBodyFunction(boost::function<std::string(bool, std::size_t)> bf) {
-   if(!bf) {
-      glogger
-      << "In GFreeFormPlotter::registerBodyFunction(): Error!" << std::endl
-      << "Received empty function" << std::endl
-      << GEXCEPTION;
-   }
+	if (!bf) {
+		glogger
+		<< "In GFreeFormPlotter::registerBodyFunction(): Error!" << std::endl
+		<< "Received empty function" << std::endl
+		<< GEXCEPTION;
+	}
 
-   bodyFunction_ = bf;
+	bodyFunction_ = bf;
 }
 
 /******************************************************************************/
@@ -2717,14 +2615,14 @@ void GFreeFormPlotter::registerBodyFunction(boost::function<std::string(bool, st
  * Registers a function that returns the desired footer data
  */
 void GFreeFormPlotter::registerFooterFunction(boost::function<std::string(bool, std::size_t)> ff) {
-   if(!ff) {
-      glogger
-      << "In GFreeFormPlotter::registerFooterFunction(): Error!" << std::endl
-      << "Received empty function" << std::endl
-      << GEXCEPTION;
-   }
+	if (!ff) {
+		glogger
+		<< "In GFreeFormPlotter::registerFooterFunction(): Error!" << std::endl
+		<< "Received empty function" << std::endl
+		<< GEXCEPTION;
+	}
 
-   footerFunction_ = ff;
+	footerFunction_ = ff;
 }
 
 /******************************************************************************/
@@ -2732,19 +2630,19 @@ void GFreeFormPlotter::registerFooterFunction(boost::function<std::string(bool, 
  * Retrieve the current drawing arguments
  */
 std::string GFreeFormPlotter::drawingArguments(bool isSecondary) const {
-   std::string dA = "";
+	std::string dA = "";
 
-   // nothing
+	// nothing
 
-   return dA;
+	return dA;
 }
 
 /******************************************************************************/
 /**
  * Retrieve a clone of this object
  */
-std::shared_ptr<GBasePlotter> GFreeFormPlotter::clone() const {
-   return std::shared_ptr<GBasePlotter>(new GFreeFormPlotter(*this));
+std::shared_ptr <GBasePlotter> GFreeFormPlotter::clone() const {
+	return std::shared_ptr<GBasePlotter>(new GFreeFormPlotter(*this));
 }
 
 /******************************************************************************/
@@ -2758,17 +2656,10 @@ std::shared_ptr<GBasePlotter> GFreeFormPlotter::clone() const {
  * @param c_y_div The number of plots in y-direction
  */
 GPlotDesigner::GPlotDesigner(
-	const std::string& canvasLabel
-	, const std::size_t& c_x_div
-	, const std::size_t& c_y_div
+	const std::string &canvasLabel, const std::size_t &c_x_div, const std::size_t &c_y_div
 )
-	: c_x_div_(c_x_div)
-	, c_y_div_(c_y_div)
-	, c_x_dim_(DEFCXDIM)
-	, c_y_dim_(DEFCYDIM)
-	, canvasLabel_(canvasLabel)
-   , addPrintCommand_(false)
-{ /* nothing */ }
+	: c_x_div_(c_x_div), c_y_div_(c_y_div), c_x_dim_(DEFCXDIM), c_y_dim_(DEFCYDIM), canvasLabel_(canvasLabel),
+	  addPrintCommand_(false) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -2776,7 +2667,7 @@ GPlotDesigner::GPlotDesigner(
  *
  * @param fileName The name of the file to which the data can be written
  */
-void GPlotDesigner::writeToFile(const boost::filesystem::path& fileName) {
+void GPlotDesigner::writeToFile(const boost::filesystem::path &fileName) {
 	boost::filesystem::ofstream result(fileName);
 	result << plot(fileName);
 	result.close();
@@ -2786,22 +2677,22 @@ void GPlotDesigner::writeToFile(const boost::filesystem::path& fileName) {
 /*
  * Emits the overall plot
  */
-std::string GPlotDesigner::plot(const boost::filesystem::path& plotName) const {
+std::string GPlotDesigner::plot(const boost::filesystem::path &plotName) const {
 	std::ostringstream result;
-	std::size_t maxPlots = c_x_div_*c_y_div_;
+	std::size_t maxPlots = c_x_div_ * c_y_div_;
 
-	if(plotters_.size() > maxPlots) {
-	   glogger
-	   << "In GPlotDesigner::plot() (Canvas label = \"" << this->getCanvasLabel() << "\":" << std::endl
-	   << "Warning! Found more plots than pads (" << plotters_.size() << " vs. " << maxPlots << ")" << std::endl
-	   << "Some of the plots will be ignored" << std::endl
-	   << GWARNING;
+	if (plotters_.size() > maxPlots) {
+		glogger
+		<< "In GPlotDesigner::plot() (Canvas label = \"" << this->getCanvasLabel() << "\":" << std::endl
+		<< "Warning! Found more plots than pads (" << plotters_.size() << " vs. " << maxPlots << ")" << std::endl
+		<< "Some of the plots will be ignored" << std::endl
+		<< GWARNING;
 	}
 
 	result
-		<< "{" << std::endl
-		<<    staticHeader()
-		<< std::endl;
+	<< "{" << std::endl
+	<< staticHeader()
+	<< std::endl;
 
 	// Plot all body sections up to the maximum allowed number
 	result
@@ -2810,11 +2701,12 @@ std::string GPlotDesigner::plot(const boost::filesystem::path& plotName) const {
 
 	// Plot all headers up to the maximum allowed number
 	std::size_t nPlots = 0;
-	std::vector<std::shared_ptr<GBasePlotter> >::const_iterator it;
-	for(it=plotters_.begin(); it!=plotters_.end(); ++it) {
-		if(nPlots++ < maxPlots) {
+	std::vector<std::shared_ptr < GBasePlotter> > ::const_iterator
+	it;
+	for (it = plotters_.begin(); it != plotters_.end(); ++it) {
+		if (nPlots++ < maxPlots) {
 			result
-			<< (*it)->headerData_()  << std::endl;
+			<< (*it)->headerData_() << std::endl;
 		}
 	}
 
@@ -2824,8 +2716,8 @@ std::string GPlotDesigner::plot(const boost::filesystem::path& plotName) const {
 	<< std::endl;
 
 	nPlots = 0;
-	for(it=plotters_.begin(); it!=plotters_.end(); ++it) {
-		if(nPlots++ < maxPlots) {
+	for (it = plotters_.begin(); it != plotters_.end(); ++it) {
+		if (nPlots++ < maxPlots) {
 			result
 			<< (*it)->bodyData_() << std::endl;
 		}
@@ -2837,11 +2729,11 @@ std::string GPlotDesigner::plot(const boost::filesystem::path& plotName) const {
 	<< std::endl;
 
 	nPlots = 0;
-	for(it=plotters_.begin(); it!=plotters_.end(); ++it) {
-		if(nPlots < maxPlots) {
+	for (it = plotters_.begin(); it != plotters_.end(); ++it) {
+		if (nPlots < maxPlots) {
 			result
-			<< "  graphPad->cd(" << nPlots+1 << ");" << std::endl /* cd starts at 1 */
-			<< (*it)->footerData_()	<< std::endl;
+			<< "  graphPad->cd(" << nPlots + 1 << ");" << std::endl /* cd starts at 1 */
+			<< (*it)->footerData_() << std::endl;
 
 			nPlots++;
 		}
@@ -2852,13 +2744,13 @@ std::string GPlotDesigner::plot(const boost::filesystem::path& plotName) const {
 	<< "  cc->cd();" << std::endl;
 
 	// Check if we are supposed to output a png file
-	if(addPrintCommand_ && plotName.string() != "empty" && !(plotName.string()).empty()) {
-	   std::string plotName_local = plotName.string(); // Make sure there are no white spaces
-	   boost::trim(plotName_local);
-	   result
-	   << std::endl
-	   << "  // Print out the data of this file to a png file" << std::endl
-	   << "  cc->Print(\"" << plotName_local << ".png\");" << std::endl;
+	if (addPrintCommand_ && plotName.string() != "empty" && !(plotName.string()).empty()) {
+		std::string plotName_local = plotName.string(); // Make sure there are no white spaces
+		boost::trim(plotName_local);
+		result
+		<< std::endl
+		<< "  // Print out the data of this file to a png file" << std::endl
+		<< "  cc->Print(\"" << plotName_local << ".png\");" << std::endl;
 	}
 
 	result
@@ -2875,20 +2767,20 @@ std::string GPlotDesigner::staticHeader() const {
 	std::ostringstream result;
 
 	result
-	  << "  gROOT->Reset();" << std::endl
-	  << "  gStyle->SetCanvasColor(0);" << std::endl
-	  << "  gStyle->SetStatBorderSize(1);" << std::endl
-	  << "  gStyle->SetOptStat(0);" << std::endl
-	  << std::endl
-	  << "  TCanvas *cc = new TCanvas(\"cc\", \"cc\",0,0,"<< c_x_dim_ << "," << c_y_dim_ << ");" << std::endl
-	  << std::endl
-	  << "  TPaveLabel* canvasTitle = new TPaveLabel(0.2,0.95,0.8,0.99, \"" << canvasLabel_ << "\");" << std::endl
-	  << "  canvasTitle->Draw();" << std::endl
-	  << std::endl
-	  << "  TPad* graphPad = new TPad(\"Graphs\", \"Graphs\", 0.01, 0.01, 0.99, 0.94);" << std::endl
-	  << "  graphPad->Draw();" << std::endl
-	  << "  graphPad->Divide(" << c_x_div_ << "," << c_y_div_ << ");" << std::endl
-	  << std::endl;
+	<< "  gROOT->Reset();" << std::endl
+	<< "  gStyle->SetCanvasColor(0);" << std::endl
+	<< "  gStyle->SetStatBorderSize(1);" << std::endl
+	<< "  gStyle->SetOptStat(0);" << std::endl
+	<< std::endl
+	<< "  TCanvas *cc = new TCanvas(\"cc\", \"cc\",0,0," << c_x_dim_ << "," << c_y_dim_ << ");" << std::endl
+	<< std::endl
+	<< "  TPaveLabel* canvasTitle = new TPaveLabel(0.2,0.95,0.8,0.99, \"" << canvasLabel_ << "\");" << std::endl
+	<< "  canvasTitle->Draw();" << std::endl
+	<< std::endl
+	<< "  TPad* graphPad = new TPad(\"Graphs\", \"Graphs\", 0.01, 0.01, 0.99, 0.94);" << std::endl
+	<< "  graphPad->Draw();" << std::endl
+	<< "  graphPad->Divide(" << c_x_div_ << "," << c_y_div_ << ");" << std::endl
+	<< std::endl;
 
 	return result.str();
 }
@@ -2899,15 +2791,15 @@ std::string GPlotDesigner::staticHeader() const {
  *
  * @param plotter_ptr A pointer to a plotter
  */
-void GPlotDesigner::registerPlotter(std::shared_ptr<GBasePlotter> plotter_ptr) {
-	if(plotter_ptr) {
+void GPlotDesigner::registerPlotter(std::shared_ptr < GBasePlotter > plotter_ptr) {
+	if (plotter_ptr) {
 		plotter_ptr->setId(plotters_.size());
 		plotters_.push_back(plotter_ptr);
 	} else {
-	   glogger
-	   << "GPlotDesigner::registerPlotter(): Error!" << std::endl
-      << "Got empty plotter" << std::endl
-      << GEXCEPTION;
+		glogger
+		<< "GPlotDesigner::registerPlotter(): Error!" << std::endl
+		<< "Got empty plotter" << std::endl
+		<< GEXCEPTION;
 	}
 }
 
@@ -2919,8 +2811,7 @@ void GPlotDesigner::registerPlotter(std::shared_ptr<GBasePlotter> plotter_ptr) {
  * @param c_x_dim The y-dimension of the output canvas
  */
 void GPlotDesigner::setCanvasDimensions(
-	const boost::uint32_t& c_x_dim
-	, const boost::uint32_t& c_y_dim
+	const boost::uint32_t &c_x_dim, const boost::uint32_t &c_y_dim
 ) {
 	c_x_dim_ = c_x_dim;
 	c_y_dim_ = c_y_dim;
@@ -2934,9 +2825,9 @@ void GPlotDesigner::setCanvasDimensions(
  * @param c_x_dim The y-dimension of the output canvas
  */
 void GPlotDesigner::setCanvasDimensions(
-   const boost::tuple<boost::uint32_t, boost::uint32_t>& c_dim
+	const boost::tuple<boost::uint32_t, boost::uint32_t> &c_dim
 ) {
-   this->setCanvasDimensions(boost::get<0>(c_dim), boost::get<1>(c_dim));
+	this->setCanvasDimensions(boost::get<0>(c_dim), boost::get<1>(c_dim));
 }
 
 /******************************************************************************/
@@ -2953,8 +2844,8 @@ boost::tuple<boost::uint32_t, boost::uint32_t> GPlotDesigner::getCanvasDimension
 /**
  * Allows to set the canvas label
  */
-void GPlotDesigner::setCanvasLabel(const std::string& canvasLabel) {
-   canvasLabel_ = canvasLabel;
+void GPlotDesigner::setCanvasLabel(const std::string &canvasLabel) {
+	canvasLabel_ = canvasLabel;
 }
 
 /******************************************************************************/
@@ -2962,7 +2853,7 @@ void GPlotDesigner::setCanvasLabel(const std::string& canvasLabel) {
  * Allows to retrieve the canvas label
  */
 std::string GPlotDesigner::getCanvasLabel() const {
-   return canvasLabel_;
+	return canvasLabel_;
 }
 
 /******************************************************************************/
@@ -2970,7 +2861,7 @@ std::string GPlotDesigner::getCanvasLabel() const {
  * Allows to add a "Print" command to the end of the script so that picture files are created
  */
 void GPlotDesigner::setAddPrintCommand(bool addPrintCommand) {
-   addPrintCommand_ = addPrintCommand;
+	addPrintCommand_ = addPrintCommand;
 }
 
 /******************************************************************************/
@@ -2978,7 +2869,7 @@ void GPlotDesigner::setAddPrintCommand(bool addPrintCommand) {
  * Allows to retrieve the current value of the addPrintCommand_ variable
  */
 bool GPlotDesigner::getAddPrintCommand() const {
-   return addPrintCommand_;
+	return addPrintCommand_;
 }
 
 /******************************************************************************/
@@ -2986,7 +2877,7 @@ bool GPlotDesigner::getAddPrintCommand() const {
  * Resets the plotters
  */
 void GPlotDesigner::resetPlotters() {
-   plotters_.clear();
+	plotters_.clear();
 }
 
 /******************************************************************************/

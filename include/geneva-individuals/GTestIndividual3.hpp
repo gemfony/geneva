@@ -83,16 +83,15 @@ namespace Tests {
  * This individual tests different access methods for parameter objects inside
  * of the individual.
  */
-class GTestIndividual3 :public Gem::Geneva::GParameterSet
-{
+class GTestIndividual3 : public Gem::Geneva::GParameterSet {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int) {
+	void serialize(Archive &ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
+		ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -100,33 +99,35 @@ public:
 	/** @brief The default constructor */
 	G_API_INDIVIDUALS GTestIndividual3();
 	/** @brief The copy constructor */
-	G_API_INDIVIDUALS GTestIndividual3(const GTestIndividual3&);
+	G_API_INDIVIDUALS GTestIndividual3(const GTestIndividual3 &);
+
 	/** @brief The destructor */
 	virtual G_API_INDIVIDUALS ~GTestIndividual3();
 
 	/** @brief A standard assignment operator */
-	G_API_INDIVIDUALS const GTestIndividual3& operator=(const GTestIndividual3&);
+	G_API_INDIVIDUALS const GTestIndividual3 &operator=(const GTestIndividual3 &);
 
 	/** @brief Checks for equality with another GTestIndividual3 object */
-	G_API_INDIVIDUALS bool operator==(const GTestIndividual3& cp) const;
+	G_API_INDIVIDUALS bool operator==(const GTestIndividual3 &cp) const;
 	/** @brief Checks for inequality with another GTestIndividual3 object */
-	G_API_INDIVIDUALS bool operator!=(const GTestIndividual3& cp) const;
+	G_API_INDIVIDUALS bool operator!=(const GTestIndividual3 &cp) const;
 
-   /** @brief Searches for compliance with expectations with respect to another object of the same type */
-   virtual G_API_INDIVIDUALS void compare(
-      const GObject& // the other object
-      , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-      , const double& // the limit for allowed deviations of floating point types
-   ) const final;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_INDIVIDUALS void compare(
+		const GObject & // the other object
+		, const Gem::Common::expectation & // the expectation for this object, e.g. equality
+		, const double & // the limit for allowed deviations of floating point types
+	) const final;
 
-   /** @brief Get all data members of this class as a plain array */
-	G_API_INDIVIDUALS std::shared_ptr<float> getPlainData() const;
+	/** @brief Get all data members of this class as a plain array */
+	G_API_INDIVIDUALS std::shared_ptr <float> getPlainData() const;
 
 protected:
 	/** @brief Loads the data of another GTestIndividual3 */
-	virtual G_API_INDIVIDUALS void load_(const GObject*) final;
+	virtual G_API_INDIVIDUALS void load_(const GObject *) final;
+
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_INDIVIDUALS GObject* clone_() const final;
+	virtual G_API_INDIVIDUALS GObject *clone_() const final;
 
 	/** @brief The actual fitness calculation takes place here. */
 	virtual G_API_INDIVIDUALS double fitnessCalculation() final;
@@ -134,8 +135,10 @@ protected:
 public:
 	/** @brief Applies modifications to this object. */
 	virtual G_API_INDIVIDUALS bool modify_GUnitTests();
+
 	/** @brief Performs self tests that are expected to succeed. */
 	virtual G_API_INDIVIDUALS void specificTestsNoFailureExpected_GUnitTests();
+
 	/** @brief Performs self tests that are expected to fail. */
 	virtual G_API_INDIVIDUALS void specificTestsFailuresExpected_GUnitTests();
 };

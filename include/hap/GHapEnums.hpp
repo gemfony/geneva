@@ -58,16 +58,17 @@ namespace Hap {
  * Allowed specializations of Gem::Hap::GRandomT<T>
  */
 enum G_API_HAP RANDFLAVOURS {
-    RANDOMPROXY = 0 // random numbers are taken from the factory
-  , RANDOMLOCAL = 1 // random numbers are produced locally, using a seed taken from the seed manager or provided to the constructor
+	RANDOMPROXY = 0 // random numbers are taken from the factory
+	,
+	RANDOMLOCAL = 1 // random numbers are produced locally, using a seed taken from the seed manager or provided to the constructor
 };
 
 /******************************************************************************/
 
 /** @brief Puts a Gem::Hap::RANDFLAVOURS into a stream. Needed also for boost::lexical_cast<> */
-G_API_HAP std::ostream& operator<<(std::ostream&, const Gem::Hap::RANDFLAVOURS&);
+G_API_HAP std::ostream &operator<<(std::ostream &, const Gem::Hap::RANDFLAVOURS &);
 /** @brief Reads a Gem::Hap::RANDFLAVOURS item from a stream. Needed also for boost::lexical_cast<> */
-G_API_HAP std::istream& operator>>(std::istream&, Gem::Hap::RANDFLAVOURS&);
+G_API_HAP std::istream &operator>>(std::istream &, Gem::Hap::RANDFLAVOURS &);
 
 /******************************************************************************/
 

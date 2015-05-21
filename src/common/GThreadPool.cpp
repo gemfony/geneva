@@ -42,11 +42,7 @@ namespace Common {
  * Initialization with the "native" number of threads for this architecture
  */
 GThreadPool::GThreadPool()
-	: errorCounter_(0)
-	, tasksInFlight_(0)
-   , nThreads_(getNHardwareThreads())
-   , threads_started_(false)
-{ /* nothing */ }
+	: errorCounter_(0), tasksInFlight_(0), nThreads_(getNHardwareThreads()), threads_started_(false) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -55,12 +51,9 @@ GThreadPool::GThreadPool()
  *
  * @param nThreads The desired number of threads executing work concurrently in the pool
  */
-GThreadPool::GThreadPool(const unsigned int& nThreads)
-	: errorCounter_(0)
-	, tasksInFlight_(0)
-   , nThreads_(nThreads?nThreads:getNHardwareThreads())
-   , threads_started_(false)
-{ /* nothing */ }
+GThreadPool::GThreadPool(const unsigned int &nThreads)
+	: errorCounter_(0), tasksInFlight_(0), nThreads_(nThreads ? nThreads : getNHardwareThreads()),
+	  threads_started_(false) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -69,34 +62,34 @@ GThreadPool::GThreadPool(const unsigned int& nThreads)
  * wait() may occur. It does allow the queue to run empty, though.
  */
 GThreadPool::~GThreadPool() {
-   // Make sure no new jobs may be submitted and let the pool run empty
-   boost::unique_lock<boost::mutex> job_lck(task_submission_mutex_);
-   { // Makes sure cnt_lck is released
-      // Acquire the lock, then return it as long as the condition hasn't been fulfilled
-      boost::unique_lock<boost::mutex> cnt_lck(task_counter_mutex_);
-      while(tasksInFlight_.load() > 0) { // Deal with spurious wake-ups
-         condition_.wait(cnt_lck);
-      }
-   }
+	// Make sure no new jobs may be submitted and let the pool run empty
+	boost::unique_lock<boost::mutex> job_lck(task_submission_mutex_);
+	{ // Makes sure cnt_lck is released
+		// Acquire the lock, then return it as long as the condition hasn't been fulfilled
+		boost::unique_lock<boost::mutex> cnt_lck(task_counter_mutex_);
+		while (tasksInFlight_.load() > 0) { // Deal with spurious wake-ups
+			condition_.wait(cnt_lck);
+		}
+	}
 
-   // Clear the thread group
-   work_.reset(); // This will initiate termination of all threads
-   gtg_.join_all(); // wait for the threads to terminate
-   gtg_.clearThreads(); // Clear the thread group
+	// Clear the thread group
+	work_.reset(); // This will initiate termination of all threads
+	gtg_.join_all(); // wait for the threads to terminate
+	gtg_.clearThreads(); // Clear the thread group
 
-   if(this->hasErrors()) {
-      boost::unique_lock<boost::mutex> error_lck(error_mutex_);
+	if (this->hasErrors()) {
+		boost::unique_lock<boost::mutex> error_lck(error_mutex_);
 
-      std::ostringstream errors;
-      std::vector<std::string>::iterator it;
-      for(it=errorLog_.begin(); it!=errorLog_.end(); ++it) {
-         errors << *it << std::endl;
-      }
-      glogger
-      << "Report from GThreadPool::~GThreadPool(): There were errors during thread execution:" << std::endl
-      << errors.str()
-      << GWARNING;
-   }
+		std::ostringstream errors;
+		std::vector<std::string>::iterator it;
+		for (it = errorLog_.begin(); it != errorLog_.end(); ++it) {
+			errors << *it << std::endl;
+		}
+		glogger
+		<< "Report from GThreadPool::~GThreadPool(): There were errors during thread execution:" << std::endl
+		<< errors.str()
+		<< GWARNING;
+	}
 }
 
 /******************************************************************************/
@@ -112,55 +105,53 @@ GThreadPool::~GThreadPool() {
  * @param nThreads The desired number of threads
  */
 void GThreadPool::setNThreads(unsigned int nThreads) {
-   unsigned int nThreadsLocal = nThreads?nThreads:getNHardwareThreads();
-   if(gtg_.size() == nThreadsLocal) { // We do nothing if we already have the desired size
-      return;
-   }
+	unsigned int nThreadsLocal = nThreads ? nThreads : getNHardwareThreads();
+	if (gtg_.size() == nThreadsLocal) { // We do nothing if we already have the desired size
+		return;
+	}
 
-   // Make sure no new jobs may be submitted
-   boost::unique_lock<boost::mutex> job_lck(task_submission_mutex_);
+	// Make sure no new jobs may be submitted
+	boost::unique_lock<boost::mutex> job_lck(task_submission_mutex_);
 
-   // At this point all potential async_schedule calls, just like the wait() function,
-   // must be waiting to acquire the task_submission_mutex_.
+	// At this point all potential async_schedule calls, just like the wait() function,
+	// must be waiting to acquire the task_submission_mutex_.
 
-   { // Let the pool run empty
-      // Acquire the lock, then return it as long as the condition hasn't been fulfilled
-      boost::unique_lock<boost::mutex> cnt_lck(task_counter_mutex_);
-      while(tasksInFlight_.load() > 0) { // Deal with spurious wake-ups
-         condition_.wait(cnt_lck);
-      }
-   }
+	{ // Let the pool run empty
+		// Acquire the lock, then return it as long as the condition hasn't been fulfilled
+		boost::unique_lock<boost::mutex> cnt_lck(task_counter_mutex_);
+		while (tasksInFlight_.load() > 0) { // Deal with spurious wake-ups
+			condition_.wait(cnt_lck);
+		}
+	}
 
-   // If threads were already running, either add new threads or recreate the pool
-   if(true==threads_started_.load()) {
-      if(nThreadsLocal > nThreads_.load()) { // We simply add the required number of threads
-         gtg_.create_threads (
-            [&]() { io_service_.run(); }
-            , nThreadsLocal - nThreads_.load()
-         );
-      } else { // We need to remove threads and thus reset the entire pool
-         work_.reset(); // This will initiate termination of all threads
-         gtg_.join_all(); // wait for the threads to terminate
-         gtg_.clearThreads(); // Clear the thread group
+	// If threads were already running, either add new threads or recreate the pool
+	if (true == threads_started_.load()) {
+		if (nThreadsLocal > nThreads_.load()) { // We simply add the required number of threads
+			gtg_.create_threads(
+				[&]() { io_service_.run(); }, nThreadsLocal - nThreads_.load()
+			);
+		} else { // We need to remove threads and thus reset the entire pool
+			work_.reset(); // This will initiate termination of all threads
+			gtg_.join_all(); // wait for the threads to terminate
+			gtg_.clearThreads(); // Clear the thread group
 
-         // Reset the io_service object, so run may be called again
-         io_service_.reset();
+			// Reset the io_service object, so run may be called again
+			io_service_.reset();
 
-         // Store a new worker (a place holder, really) in the io_service_ object
-         work_.reset(
-            new boost::asio::io_service::work(io_service_)
-         );
+			// Store a new worker (a place holder, really) in the io_service_ object
+			work_.reset(
+				new boost::asio::io_service::work(io_service_)
+			);
 
-         // Start the threads
-         gtg_.create_threads (
-            [&]() { io_service_.run(); }
-            , nThreadsLocal
-         );
-      }
-   }
+			// Start the threads
+			gtg_.create_threads(
+				[&]() { io_service_.run(); }, nThreadsLocal
+			);
+		}
+	}
 
-   // Finally set the new number of threads
-   nThreads_ = nThreadsLocal;
+	// Finally set the new number of threads
+	nThreads_ = nThreadsLocal;
 }
 
 /******************************************************************************/
@@ -168,7 +159,7 @@ void GThreadPool::setNThreads(unsigned int nThreads) {
  * Retrieves the current "true" number of threads being used in the pool
  */
 unsigned int GThreadPool::getNThreads() const {
-   return boost::numeric_cast<unsigned int>(gtg_.size());
+	return boost::numeric_cast<unsigned int>(gtg_.size());
 }
 
 /******************************************************************************/
@@ -190,7 +181,7 @@ bool GThreadPool::hasErrors() const {
  * @param errorLog The vector to which the errors should be saved
  */
 std::vector<std::string> GThreadPool::getErrors() const {
-   boost::unique_lock<boost::mutex> error_lck(error_mutex_);
+	boost::unique_lock<boost::mutex> error_lck(error_mutex_);
 	return errorLog_;
 }
 
@@ -199,7 +190,7 @@ std::vector<std::string> GThreadPool::getErrors() const {
  * Clears the error logs
  */
 void GThreadPool::clearErrors() {
-   boost::unique_lock<boost::mutex> error_lck(error_mutex_); // Prevent concurrent write access
+	boost::unique_lock<boost::mutex> error_lck(error_mutex_); // Prevent concurrent write access
 	errorCounter_ = 0;
 	errorLog_.clear();
 }
@@ -210,16 +201,16 @@ void GThreadPool::clearErrors() {
  * function may NOT be called from a task running inside of the pool.
  */
 void GThreadPool::wait() {
-   // Make sure no new jobs may be submitted
-   boost::unique_lock<boost::mutex> job_lck(task_submission_mutex_);
+	// Make sure no new jobs may be submitted
+	boost::unique_lock<boost::mutex> job_lck(task_submission_mutex_);
 
-   { // Makes sure cnt_lck is released
-      // Acquire the lock, then return it as long as the condition hasn't been fulfilled
-      boost::unique_lock<boost::mutex> cnt_lck(task_counter_mutex_);
-      while(tasksInFlight_.load() > 0) { // Deal with spurious wake-ups
-         condition_.wait(cnt_lck);
-      }
-   }
+	{ // Makes sure cnt_lck is released
+		// Acquire the lock, then return it as long as the condition hasn't been fulfilled
+		boost::unique_lock<boost::mutex> cnt_lck(task_counter_mutex_);
+		while (tasksInFlight_.load() > 0) { // Deal with spurious wake-ups
+			condition_.wait(cnt_lck);
+		}
+	}
 }
 
 /******************************************************************************/

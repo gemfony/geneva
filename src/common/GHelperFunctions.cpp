@@ -53,17 +53,17 @@ namespace Common {
 bool g_hwt_read = false; // global in this file
 unsigned int g_nHardwareThreads = Gem::Common::DEFAULTNHARDWARETHREADS; // global in this file
 
-unsigned int getNHardwareThreads(const unsigned int& defaultNThreads) {
-   boost::upgrade_lock< boost::shared_mutex > lck(g_hwt_read_mutex); // read-only access
-   if(false == g_hwt_read) { // upgrade to exclusive lock; double-lock pattern
-      boost::upgrade_to_unique_lock< boost::shared_mutex > unique_lck(lck);
-      if(false == g_hwt_read) {
-         g_hwt_read = true;
-         g_nHardwareThreads = boost::thread::hardware_concurrency();
-      }
-   } // exclusive access ends
+unsigned int getNHardwareThreads(const unsigned int &defaultNThreads) {
+	boost::upgrade_lock<boost::shared_mutex> lck(g_hwt_read_mutex); // read-only access
+	if (false == g_hwt_read) { // upgrade to exclusive lock; double-lock pattern
+		boost::upgrade_to_unique_lock<boost::shared_mutex> unique_lck(lck);
+		if (false == g_hwt_read) {
+			g_hwt_read = true;
+			g_nHardwareThreads = boost::thread::hardware_concurrency();
+		}
+	} // exclusive access ends
 
-	if(g_nHardwareThreads > 0) {
+	if (g_nHardwareThreads > 0) {
 		return g_nHardwareThreads;
 	} else {
 #ifdef DEBUG
@@ -87,22 +87,21 @@ unsigned int getNHardwareThreads(const unsigned int& defaultNThreads) {
  * @param p The name of the file to be loaded
  * @return The data contained in the file
  */
-std::string loadTextDataFromFile(const boost::filesystem::path& p) {
-   // Check that the file exists
-   if(!boost::filesystem::exists(p)) {
-      glogger
-      << "In loadTextDataFromFile(): Error!" << std::endl
-      << "Tried to load data from file " << p.string() << std::endl
-      << "which does not exist" << std::endl
-      << GEXCEPTION;
-   }
+std::string loadTextDataFromFile(const boost::filesystem::path &p) {
+	// Check that the file exists
+	if (!boost::filesystem::exists(p)) {
+		glogger
+		<< "In loadTextDataFromFile(): Error!" << std::endl
+		<< "Tried to load data from file " << p.string() << std::endl
+		<< "which does not exist" << std::endl
+		<< GEXCEPTION;
+	}
 
-   boost::filesystem::ifstream sourceFileStream(p);
-   std::string sourceFile (
-      std::istreambuf_iterator<char>(sourceFileStream)
-      , (std::istreambuf_iterator<char>())
-   );
-   return sourceFile;
+	boost::filesystem::ifstream sourceFileStream(p);
+	std::string sourceFile(
+		std::istreambuf_iterator<char>(sourceFileStream), (std::istreambuf_iterator<char>())
+	);
+	return sourceFile;
 }
 
 /******************************************************************************/
@@ -116,46 +115,45 @@ std::string loadTextDataFromFile(const boost::filesystem::path& p) {
  * @return The error code
  */
 int runExternalCommand(
-   const boost::filesystem::path& program
-   , const std::vector<std::string>& arguments
-   , const boost::filesystem::path& commandOutputFileName
-   , std::string& fullCommand
+	const boost::filesystem::path &program, const std::vector<std::string> &arguments,
+	const boost::filesystem::path &commandOutputFileName, std::string &fullCommand
 ) {
-   // Convert slashes to backslashes on Windows
-   boost::filesystem::path p_program = program;
-   std::string localCommand = (p_program.make_preferred()).string();
+	// Convert slashes to backslashes on Windows
+	boost::filesystem::path p_program = program;
+	std::string localCommand = (p_program.make_preferred()).string();
 
-   // Add command line arguments
-   std::vector<std::string>::const_iterator cit;
-   for(cit=arguments.begin(); cit!=arguments.end(); ++cit) {
-      localCommand += (std::string(" ") + *cit);
-   }
+	// Add command line arguments
+	std::vector<std::string>::const_iterator cit;
+	for (cit = arguments.begin(); cit != arguments.end(); ++cit) {
+		localCommand += (std::string(" ") + *cit);
+	}
 
-   // If requested by the user, we want to send the command to an external file
-   if(boost::filesystem::path() != commandOutputFileName) {
-      boost::filesystem::path p_commandOutputFileName = commandOutputFileName;
-      std::string localcommandOutputFileName = (p_commandOutputFileName.make_preferred()).string();
+	// If requested by the user, we want to send the command to an external file
+	if (boost::filesystem::path() != commandOutputFileName) {
+		boost::filesystem::path p_commandOutputFileName = commandOutputFileName;
+		std::string localcommandOutputFileName = (p_commandOutputFileName.make_preferred()).string();
 
-      localCommand = std::string("(") + localCommand + std::string(") > ") + localcommandOutputFileName + std::string(" 2>&1");
-   }
+		localCommand =
+			std::string("(") + localCommand + std::string(") > ") + localcommandOutputFileName + std::string(" 2>&1");
+	}
 
-   // MOstly for external debugging
+	// MOstly for external debugging
 #ifdef GEM_COMMON_PRINT_COMMANDLINE
    std::cout << "Executing external command \"" << localCommand << "\" ...";
 #endif /* GEM_COMMON_PRINT_COMMANDLINE */
 
-   // Assign the full command (mostly needed for external error-evaluation)
-   fullCommand = localCommand;
+	// Assign the full command (mostly needed for external error-evaluation)
+	fullCommand = localCommand;
 
-   // Run the actual command. T
-   int errorCode = system(localCommand.c_str());
+	// Run the actual command. T
+	int errorCode = system(localCommand.c_str());
 
 #ifdef GEM_COMMON_PRINT_COMMANDLINE
    std::cout << "... done." << std::endl;
 #endif /* GEM_COMMON_PRINT_COMMANDLINE */
 
-   // The error code will be returned as the function valiue
-   return errorCode;
+	// The error code will be returned as the function valiue
+	return errorCode;
 }
 
 /******************************************************************************/
@@ -165,25 +163,24 @@ int runExternalCommand(
  * @param s The serialization mode which should be translated to a string
  * @return A string for a given serialization mode
  */
-std::string serializationModeToString(const serializationMode& s) {
-	switch(s) {
-	case SERIALIZATIONMODE_TEXT:
-		return std::string("text mode");
-		break;
-	case SERIALIZATIONMODE_XML:
-		return std::string("XML mode");
-		break;
-	case SERIALIZATIONMODE_BINARY:
-		return std::string("binary mode");
-		break;
-	default:
-	{
-	   glogger
-	   << "In serializationModeToString(): Error!" << std::endl
-      << "Incorrect serialization mode requested: " << s << std::endl
-      << GEXCEPTION;
-		break;
-	}
+std::string serializationModeToString(const serializationMode &s) {
+	switch (s) {
+		case SERIALIZATIONMODE_TEXT:
+			return std::string("text mode");
+			break;
+		case SERIALIZATIONMODE_XML:
+			return std::string("XML mode");
+			break;
+		case SERIALIZATIONMODE_BINARY:
+			return std::string("binary mode");
+			break;
+		default: {
+			glogger
+			<< "In serializationModeToString(): Error!" << std::endl
+			<< "Incorrect serialization mode requested: " << s << std::endl
+			<< GEXCEPTION;
+			break;
+		}
 	}
 
 	// Make the compiler happy
@@ -199,8 +196,8 @@ std::string serializationModeToString(const serializationMode& s) {
  * @param sep The separator character
  * @return A std::vector holding the fragments
  */
-std::vector<std::string> splitString(const std::string& str, const char* sep) {
-   std::vector<std::string> result;
+std::vector<std::string> splitString(const std::string &str, const char *sep) {
+	std::vector<std::string> result;
 
 #ifdef DEBUG
    if(1 != std::string(sep).size()) {
@@ -211,17 +208,17 @@ std::vector<std::string> splitString(const std::string& str, const char* sep) {
    }
 #endif /* DEBUG */
 
-   typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-   boost::char_separator<char> sep_char(sep);
-   tokenizer oaTokenizer(str, sep_char);
-   for(tokenizer::iterator oa=oaTokenizer.begin(); oa!=oaTokenizer.end(); ++oa) {
-      std::string frag = *oa;
-      boost::trim(frag); // Remove any leading or trailing white spaces
-      if(frag.empty()) continue; // Ignore empty strings
-      result.push_back(frag);
-   }
+	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+	boost::char_separator<char> sep_char(sep);
+	tokenizer oaTokenizer(str, sep_char);
+	for (tokenizer::iterator oa = oaTokenizer.begin(); oa != oaTokenizer.end(); ++oa) {
+		std::string frag = *oa;
+		boost::trim(frag); // Remove any leading or trailing white spaces
+		if (frag.empty()) continue; // Ignore empty strings
+		result.push_back(frag);
+	}
 
-   return result;
+	return result;
 }
 
 /******************************************************************************/
@@ -230,33 +227,30 @@ std::vector<std::string> splitString(const std::string& str, const char* sep) {
  * an exception. The list must at least contain one entry and must be
  * comma-separated.
  */
-std::vector<unsigned int> stringToUIntVec(const std::string& raw) {
-   using namespace boost::spirit;
+std::vector<unsigned int> stringToUIntVec(const std::string &raw) {
+	using namespace boost::spirit;
 
-   std::vector<unsigned int> result;
-   bool success = false;
+	std::vector<unsigned int> result;
+	bool success = false;
 
-   std::string::const_iterator from = raw.begin();
-   std::string::const_iterator to   = raw.end();
+	std::string::const_iterator from = raw.begin();
+	std::string::const_iterator to = raw.end();
 
-   // Do the actual parsing
-   success = qi::phrase_parse(
-      from , to
-      , ( uint_ % ',')
-      , qi::space
-      , result
-   );
+	// Do the actual parsing
+	success = qi::phrase_parse(
+		from, to, (uint_ % ','), qi::space, result
+	);
 
-   if (from != to || !success) {
-      std::string rest(from, to);
-      glogger
-      << "In stringToUIntVec(const std::string& raw): Error!" << std::endl
-      << "Parsing failed." << std::endl
-      << "Stopped at: \": " << rest << "\"" << std::endl
-      << GEXCEPTION;
-   }
+	if (from != to || !success) {
+		std::string rest(from, to);
+		glogger
+		<< "In stringToUIntVec(const std::string& raw): Error!" << std::endl
+		<< "Parsing failed." << std::endl
+		<< "Stopped at: \": " << rest << "\"" << std::endl
+		<< GEXCEPTION;
+	}
 
-   return result;
+	return result;
 }
 
 /******************************************************************************/
@@ -265,33 +259,30 @@ std::vector<unsigned int> stringToUIntVec(const std::string& raw) {
  * an exception. The list must at least contain one entry and must be
  * comma-separated.
  */
-std::vector<double> stringToDoubleVec(const std::string& raw) {
-   using namespace boost::spirit;
+std::vector<double> stringToDoubleVec(const std::string &raw) {
+	using namespace boost::spirit;
 
-   std::vector<double> result;
-   bool success = false;
+	std::vector<double> result;
+	bool success = false;
 
-   std::string::const_iterator from = raw.begin();
-   std::string::const_iterator to   = raw.end();
+	std::string::const_iterator from = raw.begin();
+	std::string::const_iterator to = raw.end();
 
-   // Do the actual parsing
-   success = qi::phrase_parse(
-      from , to
-      , ( double_ % ',')
-      , qi::space
-      , result
-   );
+	// Do the actual parsing
+	success = qi::phrase_parse(
+		from, to, (double_ % ','), qi::space, result
+	);
 
-   if (from != to || !success) {
-      std::string rest(from, to);
-      glogger
-      << "In stringToDoubleVec(const std::string& raw): Error!" << std::endl
-      << "Parsing failed." << std::endl
-      << "Stopped at: \": " << rest << "\"" << std::endl
-      << GEXCEPTION;
-   }
+	if (from != to || !success) {
+		std::string rest(from, to);
+		glogger
+		<< "In stringToDoubleVec(const std::string& raw): Error!" << std::endl
+		<< "Parsing failed." << std::endl
+		<< "Stopped at: \": " << rest << "\"" << std::endl
+		<< GEXCEPTION;
+	}
 
-   return result;
+	return result;
 }
 
 
@@ -300,36 +291,33 @@ std::vector<double> stringToDoubleVec(const std::string& raw) {
  * Splits a string into a vector of unsigned int-tuples, if possible, or
  * throws an exception. The string should have the form "(1,2), (3,4)" etc.
  */
-std::vector<boost::tuple<unsigned int, unsigned int> > stringToUIntTupleVec(const std::string& raw) {
-   using namespace boost::spirit;
+std::vector<boost::tuple<unsigned int, unsigned int> > stringToUIntTupleVec(const std::string &raw) {
+	using namespace boost::spirit;
 
-   typedef std::string::const_iterator cit_type;
-   typedef std::vector<boost::tuple<unsigned int, unsigned int> > res_type;
+	typedef std::string::const_iterator cit_type;
+	typedef std::vector<boost::tuple<unsigned int, unsigned int> > res_type;
 
-   std::vector<boost::tuple<unsigned int, unsigned int> > result;
-   bool success = false;
+	std::vector<boost::tuple<unsigned int, unsigned int> > result;
+	bool success = false;
 
-   std::string::const_iterator from = raw.begin();
-   std::string::const_iterator to   = raw.end();
+	std::string::const_iterator from = raw.begin();
+	std::string::const_iterator to = raw.end();
 
-   // Do the actual parsing
-   success = qi::phrase_parse(
-      from, to
-      , ( ('(' >> uint_ >> ',' >> uint_ >> ')') % ',')
-      , qi::space
-      , result
-   );
+	// Do the actual parsing
+	success = qi::phrase_parse(
+		from, to, (('(' >> uint_ >> ',' >> uint_ >> ')') % ','), qi::space, result
+	);
 
-   if (from != to || !success) {
-      std::string rest(from, to);
-      glogger
-      << "In stringToUIntTupleVec(const std::string& raw): Error!" << std::endl
-      << "Parsing failed." << std::endl
-      << "Stopped at: \"" << rest << "\"" << std::endl
-      << GEXCEPTION;
-   }
+	if (from != to || !success) {
+		std::string rest(from, to);
+		glogger
+		<< "In stringToUIntTupleVec(const std::string& raw): Error!" << std::endl
+		<< "Parsing failed." << std::endl
+		<< "Stopped at: \"" << rest << "\"" << std::endl
+		<< GEXCEPTION;
+	}
 
-   return result;
+	return result;
 }
 
 /******************************************************************************/
