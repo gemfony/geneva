@@ -69,16 +69,16 @@ const bool DEFAULTSTARTATONCE = true;
 /********************************************************************************************/
 
 bool parseCommandLine(
-		int argc
-	  , char **argv
-	  , std::string& resultFile
-	  , std::size_t& nProducers
-	  , std::size_t& nItems
-	  , std::size_t& nConsumers
-	  , long& timeoutMS
-	  , long& maxRandomDelayMS
-	  , long& startDelayMS
-	  , bool& startAtOnce
+	int argc
+	, char **argv
+	, std::string& resultFile
+	, std::size_t& nProducers
+	, std::size_t& nItems
+	, std::size_t& nConsumers
+	, long& timeoutMS
+	, long& maxRandomDelayMS
+	, long& startDelayMS
+	, bool& startAtOnce
 );
 
 /********************************************************************************************/
