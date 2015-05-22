@@ -93,22 +93,7 @@ public:
 	GParameterT(const T& val)
 		: GParameterBaseWithAdaptorsT<T>()
 		, val_(val)
-	{ /* nothing */   }
-
-	/***************************************************************************/
-	/**
-	 * Initialization with boundaries
-	 *
-    * @param lowerBoundary Lower boundary of value- or initialization range
-    * @param upperBoundary Upper boundary of value- or initialization range
-	 */
-	GParameterT(
-		const T& lowerBoundary
-		, const T& upperBoundary
-	)
-		: GParameterBaseWithAdaptorsT<T>(lowerBoundary, upperBoundary)
-		, val_(Gem::Common::GDefaultValueT<T>::value())
-	{ /* nothing */   }
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**

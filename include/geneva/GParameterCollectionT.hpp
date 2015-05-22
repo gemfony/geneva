@@ -297,7 +297,7 @@ public:
 		typename GParameterCollectionT<T>::const_iterator cit;
 		std::size_t pos;
 		for(cit=this->begin(); cit!=this->end(); ++cit) {
-			pos = cit - this->begin();
+			pos = std::distance(this->begin(), cit);
 			ptr.put(baseName + "values.value" + boost::lexical_cast<std::string>(pos), *cit);
 		}
 		ptr.put(baseName + ".initRandom", false); // Unused for the creation of a property tree

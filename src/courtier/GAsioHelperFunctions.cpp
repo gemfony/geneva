@@ -48,7 +48,7 @@ namespace Courtier {
  */
 std::string assembleQueryString(const std::string &query, const std::size_t &sz) {
 	std::ostringstream query_stream;
-	query_stream << std::setw(sz) << query;
+	query_stream << std::setw(boost::numeric_cast<int>(sz)) << query;
 	return query_stream.str();
 }
 

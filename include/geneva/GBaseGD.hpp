@@ -36,6 +36,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <memory>
 
 // Boost headers go here
 

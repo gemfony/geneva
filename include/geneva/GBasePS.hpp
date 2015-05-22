@@ -37,6 +37,7 @@
 
 // Standard headers go here
 #include <fstream>
+#include <memory>
 
 // Boost headers go here
 
@@ -289,8 +290,6 @@ private:
 	std::shared_ptr<parSet> getParameterSet(std::size_t&);
 	/** @brief Switches to the next parameter set */
 	bool switchToNextParameterSet();
-	/** @brief Sorts the population according to the primary fitness values */
-	void sortPopulation();
 	/** @brief Fills all parameter objects into the allParVec_ vector */
 	void fillAllParVec();
 	/** @brief Clears the allParVec_ vector */
