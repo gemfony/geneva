@@ -256,8 +256,9 @@ void consumer(
 	// Find out about the timeout in microseconds
 	long timeoutMS = timeout.total_microseconds();
 	if(timeoutMS == 0) {
-		std::cerr << "In consumer(): Error! Got timeout of 0" << std::endl;
-		std::terminate();
+		glogger
+		<< "In consumer(): Error! Got timeout of 0" << std::endl
+		<< GTERMINATION;
 	}
 
 	// Find out about the id of this producer

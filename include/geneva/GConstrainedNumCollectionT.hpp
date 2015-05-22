@@ -107,21 +107,23 @@ public:
 	{
 		// Naturally the upper boundary should be >= the lower boundary
 		if(lowerBoundary_ > upperBoundary_) {
-			std::cerr << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, lower,upper):" << std::endl
+			glogger
+			<< "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, lower,upper):" << std::endl
 			<< "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
-			<< "upperBoundary_ = " << upperBoundary_ << std::endl;
-			std::terminate();
+			<< "upperBoundary_ = " << upperBoundary_ << std::endl
+			<< GTERMINATION;
 		}
 
 		// We might have constraints regarding the allowed boundaries. Cross-check
 		if(lowerBoundary < GConstrainedValueLimitT<num_type>::lowest() || upperBoundary > GConstrainedValueLimitT<num_type>::highest()) {
-			std::cerr << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, lower,upper):" << std::endl
+			glogger
+			<< "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, lower,upper):" << std::endl
 			<< "lower and/or upper limit outside of allowed value range:" << std::endl
 			<< "lowerBoundary = " << lowerBoundary << std::endl
 			<< "upperBoundary = " << upperBoundary << std::endl
 			<< "GConstrainedValueLimit<num_type>::lowest() = " << GConstrainedValueLimitT<num_type>::lowest() << std::endl
-			<< "GConstrainedValueLimit<num_type>::highest() = " << GConstrainedValueLimitT<num_type>::highest();
-			std::terminate();
+			<< "GConstrainedValueLimit<num_type>::highest() = " << GConstrainedValueLimitT<num_type>::highest()
+			<< GTERMINATION;
 		}
 	}
 
@@ -147,31 +149,34 @@ public:
 	{
 		// Naturally the upper boundary should be > the lower boundary
 		if(lowerBoundary_ > upperBoundary_) {
-			std:: cerr << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, val, lower,upper):" << std::endl
+			glogger
+			<< "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, val, lower,upper):" << std::endl
 			<< "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
-			<< "upperBoundary_ = " << upperBoundary_ << std::endl;
-			std::terminate();
+			<< "upperBoundary_ = " << upperBoundary_ << std::endl
+			<< GTERMINATION;
 		}
 
 		// We might have constraints regarding the allowed boundaries. Cross-check
 		if(lowerBoundary < GConstrainedValueLimitT<num_type>::lowest() || upperBoundary > GConstrainedValueLimitT<num_type>::highest()) {
-			std::cerr << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, val, lower,upper):" << std::endl
+			glogger
+			<< "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, val, lower,upper):" << std::endl
 			<< "lower and/or upper limit outside of allowed value range:" << std::endl
 			<< "lowerBoundary = " << lowerBoundary << std::endl
 			<< "upperBoundary = " << upperBoundary << std::endl
 			<< "GConstrainedValueLimit<num_type>::lowest() = " << GConstrainedValueLimitT<num_type>::lowest() << std::endl
-			<< "GConstrainedValueLimit<num_type>::highest() = " << GConstrainedValueLimitT<num_type>::highest();
-			std::terminate();
+			<< "GConstrainedValueLimit<num_type>::highest() = " << GConstrainedValueLimitT<num_type>::highest() << std::endl
+			<< GTERMINATION;
 		}
 
 		// Check that assigned value is in the allowed range
 		if(val<lowerBoundary || val > upperBoundary) {
-			std::cerr << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, val, lower,upper):" << std::endl
+			glogger
+			<< "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, val, lower,upper):" << std::endl
 			<< "Assigned value is outside of allowed value range:" << std::endl
 			<< "val = " << val << std::endl
 			<< "lowerBoundary = " << lowerBoundary << std::endl
-			<< "upperBoundary = " << upperBoundary << std::endl;
-			std::terminate();
+			<< "upperBoundary = " << upperBoundary << std::endl
+			<< GTERMINATION;
 		}
 	}
 

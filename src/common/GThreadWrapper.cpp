@@ -57,30 +57,26 @@ void GThreadWrapper::operator()() {
 		f_();
 	}
 	catch(Gem::Common::gemfony_error_condition& e) {
-		std::ostringstream error;
-		error << "In GThreadWrapper::operator(): Caught Gem::Common::gemfony_error_condition with message" << std::endl
-		      << e.what() << std::endl;
-		std::cerr << error.str();
-		std::terminate();
+		glogger
+		<< "In GThreadWrapper::operator(): Caught Gem::Common::gemfony_error_condition with message" << std::endl
+		<< e.what() << std::endl
+		<< GTERMINATION;
 	}
 	catch(std::exception& e){
-		std::ostringstream error;
-		error << "In GThreadWrapper::operator(): Caught std::exception with message" << std::endl
-		      << e.what() << std::endl;
-		std::cerr << error.str();
-		std::terminate();
+		glogger
+		<< "In GThreadWrapper::operator(): Caught std::exception with message" << std::endl
+		<< e.what() << std::endl
+		<< GTERMINATION;
 	}
 	catch(boost::exception& e){
-		std::ostringstream error;
-		error << "In GThreadWrapper::operator(): Caught boost::exception with message" << std::endl;
-		std::cerr << error.str();
-		std::terminate();
+		glogger
+		<< "In GThreadWrapper::operator(): Caught boost::exception with message" << std::endl
+		<< GTERMINATION;
 	}
 	catch(...){
-		std::ostringstream error;
-		error << "GThreadWrapper::operator(): Caught unknown exception" << std::endl;
-		std::cerr << error.str();
-		std::terminate();
+		glogger
+		<< "GThreadWrapper::operator(): Caught unknown exception" << std::endl
+		<< GTERMINATION;
 	}
 #else /* DEBUG */
 	f_(); // Simply execute the worker task without catching any exceptions

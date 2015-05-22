@@ -1199,9 +1199,10 @@ void Go2::parseCommandLine(
 		}
 	}
 	catch (const po::error &e) {
-		std::cerr << "Error parsing the command line:" << std::endl
-		<< e.what() << std::endl;
-		exit(1);
+		glogger
+		<< "Error parsing the command line:" << std::endl
+		<< e.what() << std::endl
+		<< GEXCEPTION;
 	}
 }
 

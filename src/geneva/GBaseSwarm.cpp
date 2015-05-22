@@ -354,13 +354,17 @@ std::string GBaseSwarm::name() const {
 void GBaseSwarm::setSwarmSizes(std::size_t nNeighborhoods, std::size_t defaultNNeighborhoodMembers) {
 	// Enforce useful settings
 	if (nNeighborhoods == 0) {
-		std::cerr << "In GBaseSwarm::setSwarmSizes(): Warning!" << std::endl
-		<< "Requested number of neighborhoods is 0. Setting to 1." << std::endl;
+		glogger
+		<< "In GBaseSwarm::setSwarmSizes(): Warning!" << std::endl
+		<< "Requested number of neighborhoods is 0. Setting to 1." << std::endl
+		<< GWARNING;
 	}
 
 	if (defaultNNeighborhoodMembers <= 1) {
-		std::cerr << "In GBaseSwarm::setSwarmSizes(): Warning!" << std::endl
-		<< "Requested number of members in each neighborhood is too small. Setting to 2." << std::endl;
+		glogger
+		<< "In GBaseSwarm::setSwarmSizes(): Warning!" << std::endl
+		<< "Requested number of members in each neighborhood is too small. Setting to 2." << std::endl
+		<< GWARNING;
 	}
 
 	nNeighborhoods_ = nNeighborhoods ? nNeighborhoods : 1;

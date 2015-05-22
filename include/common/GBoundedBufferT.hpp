@@ -199,14 +199,15 @@ public:
 		}
 			// This is a standard error raised by the lock/mutex
 		catch (boost::thread_resource_error &) {
-			std::cerr << "Caught thread_resource_error in GBoundedBufferT::~GBoundedBufferT(). Terminating ..." <<
-			std::endl;
-			std::terminate();
+			glogger
+			<< "Caught thread_resource_error in GBoundedBufferT::~GBoundedBufferT(). Terminating ..." << std::endl
+			<< GTERMINATION;
 		}
 			// We do not know whether any of the destructors of the items in the buffer throw anything
 		catch (...) {
-			std::cerr << "Caught unknown exception in GBoundedBufferT::~GBoundedBufferT(). Terminating ..." << std::endl;
-			std::terminate();
+			glogger
+			<< "Caught unknown exception in GBoundedBufferT::~GBoundedBufferT(). Terminating ..." << std::endl
+			<< GTERMINATION;
 		}
 
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER

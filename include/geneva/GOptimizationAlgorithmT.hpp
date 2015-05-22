@@ -300,9 +300,10 @@ public:
 
 		// Check that the provided directory exists
 		if(!boost::filesystem::exists(cpDirectory)) {
-			std::cerr
+			glogger
 			<< "In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(): Warning!" << std::endl
-			<< "Directory " << cpDirectory << " does not exist and will be created automatically." << std::endl;
+			<< "Directory " << cpDirectory << " does not exist and will be created automatically." << std::endl
+			<< GWARNING;
 
 			if(!boost::filesystem::create_directory(cpDirectory)) {
 				glogger
@@ -1527,8 +1528,9 @@ private:
 		ptime currentTime = microsec_clock::local_time();
 		if((currentTime - startTime_) >= maxDuration_) {
 			if(emitTerminationReason_) {
-				std::cerr
-				<< "Terminating optimization run because maximum time frame has been exceeded." << std::endl;
+				glogger
+				<< "Terminating optimization run because maximum time frame has been exceeded." << std::endl
+				<< GLOGGING;
 			}
 
 			return true;
@@ -1549,11 +1551,12 @@ private:
 	bool qualityHalt() const {
 		if(this->isBetter(boost::get<G_RAW_FITNESS>(bestKnownPrimaryFitness_), qualityThreshold_)) {
 			if(emitTerminationReason_) {
-				std::cerr
+				glogger
 				<< "Terminating optimization run because" << std::endl
 				<< "quality threshold " << qualityThreshold_ << " has been reached." << std::endl
 				<< "Best untransformed quality found was " << boost::get<G_RAW_FITNESS>(bestKnownPrimaryFitness_) << std::endl
-				<< "with termination in iteration " << iteration_ << std::endl;
+				<< "with termination in iteration " << iteration_ << std::endl
+				<< GLOGGING;
 			}
 
 			return true;
@@ -1633,8 +1636,9 @@ private:
 	bool customHalt_() const {
 		if(customHalt()) {
 			if(emitTerminationReason_) {
-				std::cerr
-				<< "Terminating optimization run because custom halt criterion has triggered." << std::endl;
+				glogger
+				<< "Terminating optimization run because custom halt criterion has triggered." << std::endl
+				<< GLOGGING;
 			}
 
 			return true;

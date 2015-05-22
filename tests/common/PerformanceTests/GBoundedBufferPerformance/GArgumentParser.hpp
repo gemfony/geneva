@@ -46,6 +46,9 @@
 #ifndef GARGUMENTPARSER_HPP_
 #define GARGUMENTPARSER_HPP_
 
+// Geneva headers go here
+#include "common/GLogger.hpp"
+
 namespace Gem {
 namespace Common {
 namespace Tests {

@@ -251,11 +251,12 @@ int_type checkValueRange(
 
 	if (false == result) {
 		if (warnOnly) {
-			std::cerr << "Warning:" << std::endl
+			glogger
+			<< "Warning:" << std::endl
 			<< "In checkValueRange<int_type>(): Error!" << std::endl
 			<< "Value " << val << " outside of recommended range " << std::endl
-			<< min << (lowerOpen ? " (open) - " : " (closed) - ") << max << (upperOpen ? " (open)" : " (closed)") <<
-			std::endl;
+			<< min << (lowerOpen ? " (open) - " : " (closed) - ") << max << (upperOpen ? " (open)" : " (closed)") <<  std::endl
+			<< GWARNING;
 		} else {
 			glogger
 			<< "In checkValueRange<int_type>(): Error!" << std::endl

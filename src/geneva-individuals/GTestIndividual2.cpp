@@ -106,10 +106,10 @@ GTestIndividual2::GTestIndividual2(const std::size_t &nObjects, const PERFOBJECT
 		}
 
 		default: {
-			std::cerr
+			glogger
 			<< "In GTestIndividual2::GTestIndividual2(): Error!" << std::endl
-			<< "Invalid object type requested: " << otype << std::endl;
-			exit(1);
+			<< "Invalid object type requested: " << otype << std::endl
+			<< GTERMINATION;
 			break;
 		}
 	}

@@ -121,8 +121,9 @@ int main(int argc, char **argv) {
 				break;
 
 			default:
-				std::cerr << "Error in main(): Incorrect object type requested: " << o << std::endl;
-				exit(1);
+				glogger
+				<< "Error in main(): Incorrect object type requested: " << o << std::endl
+				<< GEXCEPTION;
 				break;
 			}
 

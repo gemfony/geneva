@@ -52,6 +52,9 @@
 namespace Gem {
 namespace Tests {
 
+// Geneva headers go here
+#include "common/GLogger.hpp"
+
 // Default settings
 const std::size_t DEFAULTNENTRIES=20000;
 const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;

@@ -47,6 +47,7 @@
 #define GARGUMENTPARSER_HPP_
 
 // Geneva headers go here
+#include "common/GLogger.hpp"
 
 namespace Gem {
 namespace Courtier {
@@ -66,14 +67,8 @@ const std::size_t DEFAULTMAXGETTIMEOUTS = 100;
 /********************************************************************************************/
 
 bool parseCommandLine(
-	int
-  , char **
-  , boost::uint32_t& nProductionCycles
-  , std::size_t& nContainerEntries
-  , long& putTimeoutMS
-  , long& getTimeoutMS
-  , std::size_t& maxPutTimeouts
-  , std::size_t& maxGetTimeouts
+	int, char **, boost::uint32_t &nProductionCycles, std::size_t &nContainerEntries, long &putTimeoutMS,
+	long &getTimeoutMS, std::size_t &maxPutTimeouts, std::size_t &maxGetTimeouts
 );
 
 /********************************************************************************************/

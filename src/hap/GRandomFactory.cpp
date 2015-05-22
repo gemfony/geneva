@@ -138,11 +138,11 @@ GRandomFactory::GRandomFactory()
 
 	boost::mutex::scoped_lock lk(factory_creation_mutex_);
 	if (multiple_call_trap_ > 0) {
-		std::cerr
+		glogger
 		<< "Error in GRandomFactory::GRandomFactory():" << std::endl
 		<< "Class has been instantiated before." << std::endl
-		<< "and may be instantiated only once" << std::endl;
-		std::terminate();
+		<< "and may be instantiated only once" << std::endl
+		<< GTERMINATION;
 	}
 	else {
 		multiple_call_trap_++;

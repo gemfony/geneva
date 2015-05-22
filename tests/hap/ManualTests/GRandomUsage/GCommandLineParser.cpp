@@ -32,6 +32,7 @@
  * http://www.gemfony.eu .
  */
 
+#include <common/GLogger.hpp>
 #include "GCommandLineParser.hpp"
 
 namespace Gem
@@ -76,7 +77,9 @@ bool parseCommandLine(int argc, char **argv,
 		}
 
 		if(rnrProductionMode > 1) {
-			std::cerr << "Got invalid random number production mode: " << rnrProductionMode << std::endl;
+			glogger
+			<< "Got invalid random number production mode: " << rnrProductionMode << std::endl
+			<< GWARNING;
 			return false;
 		}
 
@@ -85,16 +88,19 @@ bool parseCommandLine(int argc, char **argv,
 			if(rnrProductionMode == 0) rnrProductionModeString = "Factory";
 			else if(rnrProductionMode == 1) rnrProductionModeString = "Local";
 
-			std::cout << std::endl
-				      << "Running with the following options:" << std::endl
-				      << "nEntries = " << nEntries << std::endl
-					  << "nProducerThreads = " << nProducerThreads << std::endl
-					  << "rnrProductionMode = " << rnrProductionModeString << std::endl
-					  << std::endl;
+			std::cout
+			<< std::endl
+			<< "Running with the following options:" << std::endl
+			<< "nEntries = " << nEntries << std::endl
+		   << "nProducerThreads = " << nProducerThreads << std::endl
+		   << "rnrProductionMode = " << rnrProductionModeString << std::endl
+		   << std::endl;
 		}
 	}
 	catch(...){
-		std::cout << "Error parsing the command line" << std::endl;
+		glogger
+		<< "Error parsing the command line" << std::endl
+		<< GWARNING;
 		return false;
 	}
 

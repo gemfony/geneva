@@ -803,9 +803,10 @@ void GBasePS::clearAllParVec() {
  */
 bool GBasePS::customHalt() const {
 	if (this->cycleLogicHalt_) {
-		std::cerr
+		glogger
 		<< "Terminating the loop as no items are left to be" << std::endl
-		<< "processed in parameter scan." << std::endl;
+		<< "processed in parameter scan." << std::endl
+		<< GLOGGING;
 		return true;
 	} else {
 		return false;

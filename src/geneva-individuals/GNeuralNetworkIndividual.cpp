@@ -1230,12 +1230,11 @@ void GNeuralNetworkIndividual::writeVisualizationFile(const std::string &visFile
 		<< "}" << std::endl;
 	}
 	else {
-		std::ostringstream error;
-		error
+		glogger
 		<< "In GNeuralNetworkIndividual::writeVisualizationFile(const std::string&) : Warning!" << std::endl
 		<< "Request to create visualization program for more than two input dimensions!" << std::endl
-		<< "No action taken." << std::endl;
-		std::cerr << error.str();
+		<< "No action taken." << std::endl
+		<< GWARNING;
 	}
 
 	// Clean up

@@ -182,23 +182,20 @@ private:
 			return;
 		}
 		catch (std::exception &e) {
-			std::ostringstream error;
-			error << "In GSerialConsumerT::processItems(): Caught std::exception with message" << std::endl
-			<< e.what() << std::endl;
-			std::cerr << error.str();
-			std::terminate();
+			glogger
+			<< "In GSerialConsumerT::processItems(): Caught std::exception with message" << std::endl
+			<< e.what() << std::endl
+			<< GEXCEPTION;
 		}
 		catch (boost::exception &) {
-			std::ostringstream error;
-			error << "In GSerialConsumerT::processItems(): Caught boost::exception with message" << std::endl;
-			std::cerr << error.str();
-			std::terminate();
+			glogger
+			<< "In GSerialConsumerT::processItems(): Caught boost::exception with message" << std::endl
+			<< GEXCEPTION;
 		}
 		catch (...) {
-			std::ostringstream error;
-			error << "In GSerialConsumerT::processItems(): Caught unknown exception." << std::endl;
-			std::cerr << error.str();
-			std::terminate();
+			glogger
+			<< "In GSerialConsumerT::processItems(): Caught unknown exception." << std::endl
+			<< GEXCEPTION;
 		}
 	}
 

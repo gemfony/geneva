@@ -182,7 +182,9 @@ int main(int argc, char **argv){
 
 	boost::filesystem::ofstream ofs("randomResult.C");
 	if(!ofs) {
-		std::cerr << "Error: Could not write file" << std::endl;
+		glogger
+		<< "Error: Could not write file" << std::endl
+		<< GWARNING;
 		return 1;
 	}
 
