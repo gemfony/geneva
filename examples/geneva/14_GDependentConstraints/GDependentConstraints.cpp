@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
 	bool printValid = false;
 	bool useRawFitness = false;
 	std::string monitorSpec = "empty";
-	bool observeBoundaries = "false";
+	bool observeBoundaries = false;
 
 	// Assemble command line options
 	boost::program_options::options_description user_options;

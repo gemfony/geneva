@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
 	bool useRawFitness = false;
 	std::string monitorSpec = "empty";
 	bool bestOnly = false;
-	bool observeBoundaries = "false";
+	bool observeBoundaries = false;
 	std::string logAll = "empty";
 	std::string monitorNAdaptions = "empty";
 	std::string logSigma = "empty";
@@ -70,11 +70,11 @@ int main(int argc, char **argv) {
 	boost::program_options::options_description user_options;
 	user_options.add_options()(
 		"validOnly"
-		, po::value<bool>(&printValid)->implicit_value(true)->default_value(false) // This allows you say both --validOnly and --validOnly=true
+		, po::value<bool>(&printValid)->implicit_value(true)->default_value(false) // This allows you to say both --validOnly and --validOnly=true
 		, "Enforces output of valid solutions only"
 	)(
 		"useRawFitness"
-		, po::value<bool>(&useRawFitness)->implicit_value(true)->default_value(false) // This allows you say both --useRawFitness and --useRawFitness=true
+		, po::value<bool>(&useRawFitness)->implicit_value(true)->default_value(false) // This allows you to say both --useRawFitness and --useRawFitness=true
 		, "Plot untransformed fitness value, even if a transformation takes place for the purpose of optimization"
 	)(
 		"monitorSpec"
