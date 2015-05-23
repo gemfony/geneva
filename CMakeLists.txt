@@ -35,21 +35,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 PROJECT (Geneva_Library_Collection)
 
 ################################################################################
-# Check if we were called through prepareBuild.sh . If not, we
-# need to specify some default values.
-IF ( NOT GENEVA_PREPAREBUILD_USED )
-	SET( BOOST_ROOT /opt/boost )
-	SET( Boost_NO_SYSTEM_PATHS 1 )
-	SET( GENEVA_BUILD_TYPE Release )
-	SET( GENEVA_BUILD_TESTS 1 )
-	SET( GENEVA_STATIC 0 )
-	SET( GENEVA_CXX_STD cxx11 )
-	SET( GENEVA_WITH_MPI 0 )
-	SET( CMAKE_VERBOSE_MAKEFILE 1 )
-	SET( CMAKE_INSTALL_PREFIX /opt/geneva )
-ENDIF()
-
-################################################################################
 # We create some examples and test programs as part of the build process.
 # This variable allows their build-scripts to detect that they are being
 # called from within the master build-script. This prevents redundant searches
