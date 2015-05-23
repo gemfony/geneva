@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
 	bool printValid = false;
 	bool useRawFitness = false;
 	std::string monitorSpec = "empty";
-	bool observeBoundaries = "false";
+	bool observeBoundaries = false;
 
 	// Assemble command line options
 	boost::program_options::options_description user_options;
@@ -97,18 +97,14 @@ int main(int argc, char **argv) {
 	//---------------------------------------------------------------------------
 	// Register a progress plotter with the global optimization algorithm factory
 	if(monitorSpec != "empty") {
-		std::shared_ptr<GProgressPlotterT<GOptimizationAlgorithmT<GParameterSet>, double> > progplot_ptr(new GProgressPlotterT<GOptimizationAlgorithmT<GParameterSet>, double>());
+		std::shared_ptr<GProgressPlotterT<GParameterSet, double> > progplot_ptr(new GProgressPlotterT<GParameterSet, double>());
 
 		progplot_ptr->setProfileSpec(monitorSpec);
 		progplot_ptr->setObserveBoundaries(observeBoundaries);
 		progplot_ptr->setMonitorValidOnly(printValid); // Only record valid parameters, when printValid is set to true
 		progplot_ptr->setUseRawEvaluation(useRawFitness); // Use untransformed evaluation values for logging
 
-		go.registerPluggableOM(
-			[progplot_ptr](const infoMode& im, GOptimizationAlgorithmT<GParameterSet> * const goa){
-				progplot_ptr->informationFunction(im, goa);
-			}
-		);
+		go.registerPluggableOM(progplot_ptr);
 	}
 
 	//---------------------------------------------------------------------------

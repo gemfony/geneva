@@ -7,7 +7,7 @@ Wishlist:
 Feature- and API-additions:
 
  - Drop C++98 support, and switch to rely on some features from the
-   C++11 standard. 
+   C++11 standard.
  - A scripting interface to optimization algorithms, so that new
    algorithms can be more easily implemented and tested even by
    people not familiar with all of Geneva.
@@ -18,8 +18,8 @@ Feature- and API-additions:
  - Variable length parents and best individuals in evolutionary algorithms
    to better support pareto optimization.
  - A simple interface to influence the process of optimization (in particular
-   checkpointing, termination and continuation of the program as well as 
-   extraction of the current best solutions as a result of user-demands. 
+   checkpointing, termination and continuation of the program as well as
+   extraction of the current best solutions as a result of user-demands.
 
 API-compatible changes:
 
@@ -33,17 +33,21 @@ The main changes for this release include:
 
 ******************************* PLEASE NOTE ************************************
  - Support for C++ standards prior to C++11 was dropped. This allowed the
-   following changes. Note that some of these require action on your part.
+   following changes. NOTE THAT SOME OF THESE MAY REQUIRE CHANGES ON YOUR SIDE
    o std::sort is now based on lambda expressions rather than function objects
    o Replacement of boost::bind with std::bind or C++11 lambda expressions
-   o Replacement of all boost::shared_ptr with std::shared_ptr . As a consequence 
+   o Replacement of all boost::shared_ptr with std::shared_ptr . As a consequence
      the Go2 interface had to be changed. If you want to define your own command
      line options, you may now transfer a boost::program_options::options_description
      object. This simplifies the specification of user-defined command line options,
      but you will have to change your main() function, if you have used the old
-     Go2-interface before. 
+     Go2-interface before.
+   o Pluggable optimization monitors may now be registered solely through their
+     std::shared_ptr, making the interface more logical.
 
 ********************************************************************************
+
+Recommended version of Boost: 1.57; Minimum Boost version: 1.57
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.6.1, "Ivrea - Via Arduino" - April 20, 2015
@@ -143,7 +147,7 @@ The main changes for this release include:
  - Removed GExternalSetterIndividual in favour of a more versatile
    enforceFitnessUpdate().
  - Fixed Bug #1399716 in Launchpad --> Calling go & "ea" & "sa" crashed.
- - Introduced a more versatile syntax for configuration options in 
+ - Introduced a more versatile syntax for configuration options in
    GParserBuilder. You can now say things like:
      gpb.registerFileParameter<boost::uint32_t>(...) << "my comment";
  - Added an option to override default values of configuration options
@@ -171,7 +175,7 @@ The main changes for this release include:
    are now flagged as invalid (with an automatic calculation of an
    "invalidity"), unless the "allowNegative" parameter of the constraint
    objects has been set. In this case negative values are still considered
-   to be valid in constraint objects. 
+   to be valid in constraint objects.
  - Removed single precision floating point classes, as these were
    practically never used and are realistically unneded in the presence
    of double precision types. This might later be replaced by a
@@ -333,7 +337,7 @@ The main changes for this release include:
  - Simplified the optimization monitor infrastructure.
  - Added pluggable optimization monitors that allow to easily monitor
    common properties of all optimization algorithms. In this context,
-   added a monitor that allows to plot one or two variables together with 
+   added a monitor that allows to plot one or two variables together with
    their fitness for all individuals touched during the optimization.
  - Centralized conversion of smart pointers using a Gem::Common function.
  - Removed non-portable "long double" functions from
@@ -414,7 +418,7 @@ The main changes for this release include:
  - Introduced a new interface class GOptimizableI, as the basis
    of GOptimizationAlgorithmT and various wrapper classes.
  - Removed all std::pair in favor of boost::tuple (the future std::tuple).
- - Some renaming of variables. E.g.: renamed 'recoSchemes' to the 
+ - Some renaming of variables. E.g.: renamed 'recoSchemes' to the
    more appropriate 'duplicationScheme', dito for this enums constants.
  - Renamed public cpp variables according to the library they
    are used in, GEM_<LIB>_<VAR>.
@@ -471,7 +475,7 @@ The main changes for this release include:
 * Version 0.9.1, "Route Cockroft" - February 12, 2011
 
 The main changes for this release include:
- - Implemented Simulated Annealing, as part of Evolutionary Algorithms. 
+ - Implemented Simulated Annealing, as part of Evolutionary Algorithms.
    NOTE: This SA implementation is still rather untested, use with care
    at this point.
  - Made sure that parameter objects always have an adaptor loaded. Before

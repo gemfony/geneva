@@ -1830,6 +1830,68 @@ public:
 
 
 public:
+	/******************************************************************************/
+	////////////////////////////////////////////////////////////////////////////////
+	/******************************************************************************/
+	/**
+	 * The base class of all pluggable optimization monitors
+	 */
+	class GBasePluggableOMT {
+	public:
+		/***************************************************************************/
+		/**
+		 * The default constructpr
+		 */
+		GBasePluggableOMT()
+			: useRawEvaluation_(false)
+		{ /* nothing */ }
+
+		/***************************************************************************/
+		/**
+		 * The copy constructor
+		 */
+		GBasePluggableOMT(const typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT& cp)
+			: useRawEvaluation_(cp.useRawEvaluation_)
+		{ /* nothing */ }
+
+		/***************************************************************************/
+		/**
+		 * The Destructor
+		 */
+		virtual ~GBasePluggableOMT()
+		{ /* nothing */ }
+
+		/***************************************************************************/
+		/**
+		 * Overload this function in derived classes, specifying actions for
+		 * initialization, the optimization cycles and finalization.
+		 */
+		virtual void informationFunction(
+			const infoMode& im
+			, GOptimizationAlgorithmT<ind_type> * const goa
+		) BASE = 0;
+
+		/***************************************************************************/
+		/**
+		 * Allows to set the useRawEvaluation_ variable
+		 */
+		void setUseRawEvaluation(bool useRaw) {
+			useRawEvaluation_ = useRaw;
+		}
+
+		/***************************************************************************/
+		/**
+		 * Allows to retrieve the value of the useRawEvaluation_ variable
+		 */
+		bool getUseRawEvaluation() const {
+			return useRawEvaluation_;
+		}
+
+	protected:
+		/***************************************************************************/
+		bool useRawEvaluation_; ///< Specifies whether the true (unmodified) evaluation should be used
+	};
+
 	/***************************************************************************/
 	/////////////////////////////////////////////////////////////////////////////
 	/***************************************************************************/
@@ -1961,8 +2023,8 @@ public:
 			, GOptimizationAlgorithmT<ind_type> * const goa
 		) {
 			// Perform any action defined by the user through pluggable monitor objects
-			if(pluggableInfoFunction_) {
-				pluggableInfoFunction_(im,goa);
+			if(pluggableOM_) {
+				pluggableOM_->informationFunction(im,goa);
 			}
 
 			// Act on the information mode provided
@@ -2038,12 +2100,12 @@ public:
 		/**
 		 * Allows to register a pluggable optimization monitor
 		 */
-		void registerPluggableOM(boost::function<void(const infoMode&, GOptimizationAlgorithmT<ind_type> * const)> pluggableInfoFunction) {
-			if(pluggableInfoFunction) {
-				pluggableInfoFunction_ = pluggableInfoFunction;
+		void registerPluggableOM(std::shared_ptr<GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT> pluggableOM) {
+			if(pluggableOM) {
+				pluggableOM_ = pluggableOM;
 			} else {
 				glogger
-				<< "In GoptimizationMonitorT<>::registerPluggableOM(): Tried to register empty call-back" << std::endl
+				<< "In GoptimizationMonitorT<>::registerPluggableOM(): Tried to register empty pluggable optimization monitor" << std::endl
 				<< GEXCEPTION;
 			}
 		}
@@ -2053,7 +2115,7 @@ public:
 		 * Allows to reset the local pluggable optimization monitor
 		 */
 		void resetPluggableOM() {
-			pluggableInfoFunction_.reset();
+			pluggableOM_.reset();
 		}
 
 	protected:
@@ -2118,7 +2180,7 @@ public:
 		/************************************************************************/
 
 		bool quiet_; ///< Specifies whether any information should be emitted at all
-		boost::function<void(const infoMode&, GOptimizationAlgorithmT<ind_type> * const)> pluggableInfoFunction_; ///< A user-defined call-back for information retrieval
+		std::shared_ptr<GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT> pluggableOM_; // A user-defined means for information retrieval
 
 	public:
 		/************************************************************************/

@@ -197,7 +197,7 @@ protected:
 private:
 	/********************************************************************************************/
 
-	GSigmaMonitor(); ///< Default constructor; Intentionally private and undefined
+	GSigmaMonitor() = delete; ///< Default constructor; Intentionally private and undefined
 
 	std::string fileName_; ///< The name of the output file
 	Gem::Common::GPlotDesigner gpd_; ///< Ease recording of essential information

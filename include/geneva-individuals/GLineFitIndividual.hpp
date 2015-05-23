@@ -176,7 +176,7 @@ protected:
 
 private:
 	/** @brief The default constructor. Intentionally private and undefined */
-	GLineFitIndividualFactory();
+	GLineFitIndividualFactory() = delete;
 
 	std::vector<boost::tuple<double, double> > dataPoints_; ///< Holds data points for the fit
 };

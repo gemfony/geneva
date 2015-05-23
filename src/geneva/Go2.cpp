@@ -406,13 +406,13 @@ boost::any Go2::getVarVal(
  * Allows to register a pluggable optimization monitor
  */
 void Go2::registerPluggableOM(
-	boost::function<void(const infoMode &, GOptimizationAlgorithmT<GParameterSet> *const)> pluggableInfoFunction
+	std::shared_ptr<GOABase::GBasePluggableOMT> pluggableOM
 ) {
-	if (pluggableInfoFunction) {
-		pluggableInfoFunction_ = pluggableInfoFunction;
+	if (pluggableOM) {
+		pluggableOM_ = pluggableOM;
 	} else {
 		glogger
-		<< "In Go2::registerPluggableOM(): Tried to register empty call-back" << std::endl
+		<< "In Go2::registerPluggableOM(): Tried to register empty pluggable optimization monitor" << std::endl
 		<< GEXCEPTION;
 	}
 }
@@ -422,7 +422,7 @@ void Go2::registerPluggableOM(
  * Allows to reset the local pluggable optimization monitor
  */
 void Go2::resetPluggableOM() {
-	pluggableInfoFunction_ = boost::function<void(const infoMode &, GOptimizationAlgorithmT<GParameterSet> *const)>();
+	pluggableOM_.reset();
 }
 
 /******************************************************************************/
@@ -753,8 +753,8 @@ void Go2::optimize(const boost::uint32_t &offset) {
 		std::shared_ptr <GOABase> p_base = (*alg_it);
 
 		// Add the pluggable optimization monitor to the algorithm, if it is available
-		if (pluggableInfoFunction_) {
-			p_base->getOptimizationMonitor()->registerPluggableOM(pluggableInfoFunction_);
+		if (pluggableOM_) {
+			p_base->getOptimizationMonitor()->registerPluggableOM(pluggableOM_);
 		}
 
 		// Add the individuals to the algorithm.

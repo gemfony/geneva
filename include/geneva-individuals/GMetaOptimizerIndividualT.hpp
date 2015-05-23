@@ -1535,7 +1535,7 @@ protected:
 private:
 	/***************************************************************************/
 	/** @brief The default constructor. Intentionally private and undefined */
-	GMetaOptimizerIndividualFactoryT();
+	GMetaOptimizerIndividualFactoryT() = delete;
 
 	// Parameters pertaining to the ea population
 	std::size_t initNParents_;  ///< The initial number of parents
@@ -1783,7 +1783,7 @@ protected:
 private:
 	/***************************************************************************/
 
-	GOptOptMonitorT(); ///< Default constructor; Intentionally private and undefined
+	GOptOptMonitorT() = delete; ///< Default constructor; Intentionally private and undefined
 
 	std::string fileName_; ///< The name of the output file
 

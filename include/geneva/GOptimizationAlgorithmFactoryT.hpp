@@ -70,14 +70,14 @@ const boost::uint16_t FACT_DEF_NEVALUATIONTHREADS=0;
 /**
  * This class is a specialization of the GFactoryT<> class for optimization algorithms.
  */
-template <typename optalg_type>
+template <typename oa_type>
 class GOptimizationAlgorithmFactoryT
-	: public Gem::Common::GFactoryT<optalg_type>
+	: public Gem::Common::GFactoryT<oa_type>
 {
 public:
 	/***************************************************************************/
 	// Let the audience know what type of algorithm will be produced
-	typedef optalg_type pType;
+	typedef oa_type pType;
 
 	/***************************************************************************/
 	/**
@@ -86,7 +86,7 @@ public:
 	explicit GOptimizationAlgorithmFactoryT (
 		const std::string& configFile
 	)
-		: Gem::Common::GFactoryT<optalg_type>(configFile)
+		: Gem::Common::GFactoryT<oa_type>(configFile)
 		, pm_(DEFAULTEXECMODE)
 		, nEvaluationThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 		, waitFactor_(Gem::Courtier::DEFAULTBROKERWAITFACTOR2)
@@ -106,7 +106,7 @@ public:
 		const std::string& configFile
 		, const execMode& pm
 	)
-		: Gem::Common::GFactoryT<optalg_type>(configFile)
+		: Gem::Common::GFactoryT<oa_type>(configFile)
 		, pm_(pm)
 		, nEvaluationThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 		, waitFactor_(Gem::Courtier::DEFAULTBROKERWAITFACTOR2)
@@ -124,9 +124,9 @@ public:
 	GOptimizationAlgorithmFactoryT (
 		const std::string& configFile
 		, const execMode& pm
-		, std::shared_ptr<Gem::Common::GFactoryT<typename optalg_type::individual_type> > contentCreatorPtr
+		, std::shared_ptr<Gem::Common::GFactoryT<typename oa_type::individual_type> > contentCreatorPtr
 	)
-		: Gem::Common::GFactoryT<optalg_type>(configFile)
+		: Gem::Common::GFactoryT<oa_type>(configFile)
 		, pm_(pm)
 		, nEvaluationThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 		, waitFactor_(Gem::Courtier::DEFAULTBROKERWAITFACTOR2)
@@ -186,14 +186,14 @@ public:
 	 *
 	 * @return An object of the desired algorithm type
 	 */
-	virtual std::shared_ptr<optalg_type> get() override {
+	virtual std::shared_ptr<oa_type> get() override {
 		// Retrieve a work item using the methods implemented in our parent class
-		std::shared_ptr<optalg_type> p_alg = Gem::Common::GFactoryT<optalg_type>::get();
+		std::shared_ptr<oa_type> p_alg = Gem::Common::GFactoryT<oa_type>::get();
 
 		// If we have been given a factory function for individuals, fill the object with data
 		if(contentCreatorPtr_) { // Has a content creation object been registered ? If so, add individuals to the population
 			for(std::size_t ind=0; ind<p_alg->getDefaultPopulationSize(); ind++) {
-				std::shared_ptr<typename optalg_type::individual_type> p_ind = (*contentCreatorPtr_)();
+				std::shared_ptr<typename oa_type::individual_type> p_ind = (*contentCreatorPtr_)();
 				if(!p_ind) { // No valid item received, the factory has run empty
 					break;
 				} else {
@@ -205,11 +205,11 @@ public:
 		// Has a custom optimization monitor been registered with the global store ?
 		// If so, add a clone to the algorithm
 		if(GOAMonitorStore->exists(this->getMnemonic())) {
-			std::shared_ptr<typename optalg_type::GOptimizationMonitorT> p_mon =
-				GOAMonitorStore->get(this->getMnemonic())->GObject::template clone<typename optalg_type::GOptimizationMonitorT>();
+			std::shared_ptr<typename oa_type::GOptimizationMonitorT> p_mon =
+				GOAMonitorStore->get(this->getMnemonic())->GObject::template clone<typename oa_type::GOptimizationMonitorT>();
 
-			if(pluggableInfoFunction_) {
-				p_mon->registerPluggableOM(pluggableInfoFunction_);
+			if(pluggableOM_) {
+				p_mon->registerPluggableOM(pluggableOM_);
 			}
 
 			p_alg->registerOptimizationMonitor(p_mon);
@@ -228,13 +228,13 @@ public:
 	 * @param pm A user-defined parallelization mode
 	 * @return An object of the desired algorithm type
 	 */
-	virtual std::shared_ptr<optalg_type> get(execMode pm) BASE {
+	virtual std::shared_ptr<oa_type> get(execMode pm) BASE {
 		// Store the previous value
 		execMode previous_pm = pm_;
 		// Set the parallelization mode
 		pm_ = pm;
 		// Retrieve an item of the desired type
-		std::shared_ptr<optalg_type> result = this->get();
+		std::shared_ptr<oa_type> result = this->get();
 		// Reset the parallelization mode to its original value
 		pm_ = previous_pm;
 
@@ -251,7 +251,7 @@ public:
 	 */
 	template <typename target_type>
 	std::shared_ptr<target_type> get() {
-		return Gem::Common::convertSmartPointer<optalg_type, target_type>(this->get());
+		return Gem::Common::convertSmartPointer<oa_type, target_type>(this->get());
 	}
 
 	/***************************************************************************/
@@ -269,12 +269,12 @@ public:
 		// Set the parallelization mode
 		pm_ = pm;
 		// Retrieve a work item of the production type
-		std::shared_ptr<optalg_type> result = this->get();
+		std::shared_ptr<oa_type> result = this->get();
 		// Reset the parallelization mode to its original value
 		pm_ = previous_pm;
 
 		// Return a converted pointer
-		return Gem::Common::convertSmartPointer<optalg_type, target_type>(result);
+		return Gem::Common::convertSmartPointer<oa_type, target_type>(result);
 	}
 
 	/***************************************************************************/
@@ -300,7 +300,7 @@ public:
 	 * Allows to register a content creator
 	 */
 	void registerContentCreator(
-		std::shared_ptr<Gem::Common::GFactoryT<typename optalg_type::individual_type> > cc_ptr
+		std::shared_ptr<Gem::Common::GFactoryT<typename oa_type::individual_type> > cc_ptr
 	) {
 		if(!cc_ptr) {
 			glogger
@@ -316,12 +316,12 @@ public:
 	/**
 	 * Allows to register a pluggable optimization monitor
 	 */
-	void registerPluggableOM(boost::function<void(const infoMode&, GOptimizationAlgorithmT<typename optalg_type::individual_type> * const)> pluggableInfoFunction) {
-		if(pluggableInfoFunction) {
-			pluggableInfoFunction_ = pluggableInfoFunction;
+	void registerPluggableOM(std::shared_ptr<typename oa_type::GBasePluggableOMT> pluggableOM) {
+		if(pluggableOM) {
+			pluggableOM_ = pluggableOM;
 		} else {
 			glogger
-			<< "In GoptimizationAlgorithmFactoryT<>::registerPluggableOM(): Tried to register empty call-back" << std::endl
+			<< "In GoptimizationAlgorithmFactoryT<>::registerPluggableOM(): Tried to register empty pluggable optimization monitor" << std::endl
 			<< GEXCEPTION;
 		}
 	}
@@ -331,7 +331,7 @@ public:
 	 * Allows to reset the local pluggable optimization monitor
 	 */
 	void resetPluggableOM() {
-		pluggableInfoFunction_= boost::function<void(const infoMode&, GOptimizationAlgorithmT<typename optalg_type::individual_type> * const)>();
+		pluggableOM_.reset();
 	}
 
 	/***************************************************************************/
@@ -494,28 +494,28 @@ protected:
 	/**
 	 * Allows to act on the configuration options received from the configuration file or from the command line
 	 */
-	virtual void postProcess_(std::shared_ptr<optalg_type>& p) override {
+	virtual void postProcess_(std::shared_ptr<oa_type>& p) override {
 		// Set local options
 
 		// The maximum allowed number of iterations
 		if(this->maxIterationsCLSet()) {
-			p->optalg_type::setMaxIteration(this->getMaxIterationCL());
+			p->oa_type::setMaxIteration(this->getMaxIterationCL());
 		}
 
 		// The maximum number of stalls until operation stops
 		if(this->maxStallIterationsCLSet()) {
-			p->optalg_type::setMaxStallIteration(this->getMaxStallIterationCL());
+			p->oa_type::setMaxStallIteration(this->getMaxStallIterationCL());
 		}
 
 		// The maximum amount of time until operation stops
 		if(this->maxSecondsCLSet()) {
-			p->optalg_type::setMaxTime(this->getMaxTimeCL());
+			p->oa_type::setMaxTime(this->getMaxTimeCL());
 		}
 	}
 
 	/***************************************************************************/
 	/** @brief Creates individuals of this type */
-	virtual std::shared_ptr<optalg_type> getObject_(Gem::Common::GParserBuilder&, const std::size_t&) override = 0;
+	virtual std::shared_ptr<oa_type> getObject_(Gem::Common::GParserBuilder&, const std::size_t&) override = 0;
 
 	execMode pm_; ///< Holds information about the desired parallelization mode
 	boost::uint16_t nEvaluationThreads_; ///< The number of threads used for evaluations in multithreaded execution
@@ -523,13 +523,13 @@ protected:
 	std::size_t waitFactor_; ///< A static factor to be applied to timeouts
 	bool doLogging_; ///< Specifies whether arrival times of individuals should be logged
 
-	std::shared_ptr<Gem::Common::GFactoryT<typename optalg_type::individual_type> > contentCreatorPtr_; ///< Holds an object capable of producing objects of the desired type
-	boost::function<void(const infoMode&, GOptimizationAlgorithmT<typename optalg_type::individual_type> * const)> pluggableInfoFunction_; ///< A user-defined call-back for information retrieval
+	std::shared_ptr<Gem::Common::GFactoryT<typename oa_type::individual_type> > contentCreatorPtr_; ///< Holds an object capable of producing objects of the desired type
+	std::shared_ptr<typename oa_type::GBasePluggableOMT> pluggableOM_; // A user-defined means for information retrieval
 
 private:
 	/***************************************************************************/
 	/** @brief The default constructor. Intentionally private and undefined */
-	GOptimizationAlgorithmFactoryT();
+	GOptimizationAlgorithmFactoryT() = delete;
 
 	boost::int32_t maxIterationCL_; ///< The maximum number of iterations. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
 	boost::int32_t maxStallIterationCL_; ///< The maximum number of generations without improvement, after which optimization is stopped. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET

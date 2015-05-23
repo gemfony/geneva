@@ -153,9 +153,9 @@ public:
 private:
 	/***************************************************************************/
 
-	random_container(); ///< The default constructor -- intentionally private and undefined
-	random_container(const random_container &); ///< The copy constructor -- intentionally private and undefined
-	const random_container &operator=(const random_container &); ///< intentionally private and undefined
+	random_container() = delete; ///< The default constructor -- intentionally private and undefined
+	random_container(const random_container &) = delete; ///< The copy constructor -- intentionally private and undefined
+	const random_container &operator=(const random_container &) = delete; ///< intentionally private and undefined
 
 	std::size_t current_pos_; ///< The current position in the array
 	const std::size_t binSize_;     ///< The size of the buffer

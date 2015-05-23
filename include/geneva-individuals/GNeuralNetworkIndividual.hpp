@@ -1002,7 +1002,7 @@ protected:
 
 private:
 	/** @brief The default constructor. Intentionally private and undefined */
-	GNeuralNetworkIndividualFactory();
+	GNeuralNetworkIndividualFactory() = delete;
 
 	double adProb_;
 	double adaptAdProb_;

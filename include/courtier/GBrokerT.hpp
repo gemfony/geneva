@@ -554,7 +554,7 @@ private:
 
 	private:
 		/** @brief Default constructor; intentionally private and undefined */
-		rawBuffersPresent();
+		rawBuffersPresent() = delete;
 
 		const BufferPtrList &b_; ///< Holds a reference to the actual container
 	};
@@ -578,14 +578,14 @@ private:
 
 	private:
 		/** @brief Default constructor; intentionally private and undefined */
-		processedBuffersPresent();
+		processedBuffersPresent() = delete;
 
 		const BufferPtrMap &b_; ///< Holds a reference to the actual container
 	};
 
 	/***************************************************************************/
-	GBrokerT(const GBrokerT<carrier_type> &); ///< Intentionally left undefined
-	const GBrokerT &operator=(const GBrokerT<carrier_type> &); ///< Intentionally left undefined
+	GBrokerT(const GBrokerT<carrier_type> &) = delete; ///< Intentionally left undefined
+	const GBrokerT &operator=(const GBrokerT<carrier_type> &) = delete; ///< Intentionally left undefined
 
 	bool finalized_; ///< Indicates whether the finalization code has already been executed
 

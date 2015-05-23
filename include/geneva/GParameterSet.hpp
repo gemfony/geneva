@@ -566,7 +566,7 @@ protected:
 	virtual G_API_GENEVA std::size_t customAdaptions() override ;
 
 private:
-	explicit G_API_GENEVA GParameterSet(const float&); ///< Intentionally private and undefined
+	explicit G_API_GENEVA GParameterSet(const float&) = delete; ///< Intentionally private and undefined
 
 	double perItemCrossOverProbability_; ///< A likelihood for "per item" cross-over operations to be performed
 

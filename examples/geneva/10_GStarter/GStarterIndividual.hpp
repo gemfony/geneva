@@ -299,7 +299,7 @@ protected:
 
 private:
 	/** @brief The default constructor. Intentionally private and undefined */
-	GStarterIndividualFactory();
+	GStarterIndividualFactory() = delete;
 
 	double adProb_; ///< Probability for a parameter to be mutated
 	double sigma_; ///< Step-width

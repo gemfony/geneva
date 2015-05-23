@@ -269,9 +269,7 @@ public:
 	) override;
 
 	/** @brief Allows to register a pluggable optimization monitor */
-	G_API_GENEVA void registerPluggableOM (
-		boost::function<void(const infoMode&, GOptimizationAlgorithmT<GParameterSet> * const)> pluggableInfoFunction
-	);
+	G_API_GENEVA void registerPluggableOM(std::shared_ptr<GOABase::GBasePluggableOMT>);
 	/** @brief Allows to reset the local pluggable optimization monitor */
 	G_API_GENEVA void resetPluggableOM();
 
@@ -326,8 +324,8 @@ private:
 	const std::string default_algorithm_str_; ///< This is the last fall-back
 	// Holds an object capable of producing objects of the desired type
 	std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr_;
-	// A user-defined call-back for information retrieval
-	boost::function<void(const infoMode&, GOptimizationAlgorithmT<GParameterSet> * const)> pluggableInfoFunction_;
+	// A user-defined means for information retrieval
+	std::shared_ptr<GOABase::GBasePluggableOMT> pluggableOM_;
 };
 
 /******************************************************************************/

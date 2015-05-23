@@ -171,7 +171,7 @@ protected:
 
 private:
    /** @brief The default constructor. Intentionally private and undefined */
-   GDelayIndividualFactory();
+   GDelayIndividualFactory() = delete;
 
    /** @brief Converts a tuple to a time format */
    boost::posix_time::time_duration tupleToTime(const boost::tuple<unsigned int, unsigned int>&);

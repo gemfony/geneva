@@ -423,7 +423,7 @@ public:
 	G_API_COMMON bool hasAccompInfo() const;
 
 private:
-	GManipulator(); ///< Intentionally private and undefined
+	GManipulator() = delete; ///< Intentionally private and undefined
 
 	std::string accompInfo_; ///< Holds accompanying information
 	logType logType_; ///< Holds the type of logging event used for instantiating the manipulator

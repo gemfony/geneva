@@ -316,7 +316,7 @@ private:
 	}
 
 	/***************************************************************************/
-	GFactoryT(); ///< The default constructor. Intentionally private and undefined
+	GFactoryT() = delete; ///< The default constructor. Intentionally private and undefined
 
 	std::string configFile_; ///< The name of the configuration file
 	std::size_t id_; ///< The id/number of the individual currently being created
