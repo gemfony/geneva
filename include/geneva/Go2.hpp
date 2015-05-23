@@ -269,7 +269,7 @@ public:
 	) override;
 
 	/** @brief Allows to register a pluggable optimization monitor */
-	G_API_GENEVA void registerPluggableOM(std::shared_ptr<GBasePluggableOMT<GOABase> >);
+	G_API_GENEVA void registerPluggableOM(std::shared_ptr<GOABase::GBasePluggableOMT>);
 	/** @brief Allows to reset the local pluggable optimization monitor */
 	G_API_GENEVA void resetPluggableOM();
 
@@ -325,7 +325,7 @@ private:
 	// Holds an object capable of producing objects of the desired type
 	std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr_;
 	// A user-defined means for information retrieval
-	std::shared_ptr<GBasePluggableOMT<GOABase> > pluggableOM_;
+	std::shared_ptr<GOABase::GBasePluggableOMT> pluggableOM_;
 };
 
 /******************************************************************************/

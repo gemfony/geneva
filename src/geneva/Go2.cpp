@@ -406,7 +406,7 @@ boost::any Go2::getVarVal(
  * Allows to register a pluggable optimization monitor
  */
 void Go2::registerPluggableOM(
-	std::shared_ptr<GBasePluggableOMT<GOABase> > pluggableOM
+	std::shared_ptr<GOABase::GBasePluggableOMT> pluggableOM
 ) {
 	if (pluggableOM) {
 		pluggableOM_ = pluggableOM;

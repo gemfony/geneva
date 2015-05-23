@@ -55,6 +55,7 @@
 #include "common/GPlotDesigner.hpp"
 #include "common/GLogger.hpp"
 #include "geneva/GParameterPropertyParser.hpp"
+#include "geneva/GOptimizationAlgorithmT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -64,71 +65,9 @@ namespace Geneva {
  * This is a collection of simple pluggable modules suitable for emitting certain specialized
  * information from within optimization algorithms. They can be plugged into GOptimizationMonitorT<>
  * derivatives. The one requirement is that they implement a function "informationFunction"
+ * according to the API of GOptimizationAlgorithmT<>::GBasePluggableOMT
  */
 
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * The base class. It ensures that the pluggable optimization monitors cannot
- * be copied.
- */
-template <typename oa_type>
-class GBasePluggableOMT {
-public:
-	/***************************************************************************/
-	/**
-	 * The default constructpr
-	 */
-	GBasePluggableOMT()
-		: useRawEvaluation_(false)
-	{ /* nothing */ }
-
-	/***************************************************************************/
-	/**
-	 * The copy constructor
-	 */
-	GBasePluggableOMT(const GBasePluggableOMT<oa_type>& cp)
-		: useRawEvaluation_(cp.useRawEvaluation_)
-	{ /* nothing */ }
-
-	/***************************************************************************/
-	/**
-	 * The Destructor
-	 */
-	virtual ~GBasePluggableOMT()
-	{ /* nothing */ }
-
-	/***************************************************************************/
-	/**
-	 * Overload this function in derived classes, specifying actions for
-	 * initialization, the optimization cycles and finalization.
-	 */
-	virtual void informationFunction(
-		const infoMode& im
-		, oa_type * const goa
-	) BASE = 0;
-
-	/***************************************************************************/
-	/**
-	 * Allows to set the useRawEvaluation_ variable
-	 */
-	void setUseRawEvaluation(bool useRaw) {
-		useRawEvaluation_ = useRaw;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to retrieve the value of the useRawEvaluation_ variable
-	 */
-	bool getUseRawEvaluation() const {
-		return useRawEvaluation_;
-	}
-
-protected:
-	/***************************************************************************/
-	bool useRawEvaluation_; ///< Specifies whether the true (unmodified) evaluation should be used
-};
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -137,9 +76,9 @@ protected:
  * This class accepts a number of other pluggable monitors and executes them
  * in sequnce.
  */
-template <typename oa_type>
+template <typename ind_type>
 class GCollectiveMonitorT
-	: public GBasePluggableOMT<oa_type>
+	: public GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT
 {
 public:
 	/***************************************************************************/
@@ -153,8 +92,8 @@ public:
 	/**
 	 * The copy constructor
 	 */
-	GCollectiveMonitorT(const GCollectiveMonitorT<oa_type>& cp)
-		: GBasePluggableOMT<oa_type>(cp)
+	GCollectiveMonitorT(const GCollectiveMonitorT<ind_type>& cp)
+		: GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT(cp)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -170,9 +109,9 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, oa_type * const goa
+		, typename Gem::Geneva::GOptimizationAlgorithmT<ind_type> * const goa
 	) override {
-		typename std::vector<std::shared_ptr<GBasePluggableOMT<oa_type> > >::iterator it;
+		typename std::vector<std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT> >::iterator it;
 		for(it=pluggable_monitors_.begin(); it!=pluggable_monitors_.end(); ++it) {
 			(*it)->informationFunction(im,goa);
 		}
@@ -182,7 +121,7 @@ public:
 	/**
 	 * Allows to register a new pluggable monitor
 	 */
-	void registerPluggableOM(std::shared_ptr<GBasePluggableOMT<oa_type> > om_ptr) {
+	void registerPluggableOM(std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT> om_ptr) {
 		if(om_ptr) {
 			pluggable_monitors_.push_back(om_ptr);
 		} else {
@@ -210,7 +149,7 @@ public:
 	}
 
 private:
-	std::vector<std::shared_ptr<GBasePluggableOMT<oa_type> > > pluggable_monitors_; ///< The collection of monitors
+	std::vector<std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT> > pluggable_monitors_; ///< The collection of monitors
 };
 
 /******************************************************************************/
@@ -221,8 +160,9 @@ private:
  * best individuals of a population, creating a graphical output using ROOT. It
  * supports floating point types only. double and float values may not be mixed.
  */
-template <typename oa_type, typename fp_type>
-class GProgressPlotterT : public GBasePluggableOMT<oa_type>
+template <typename ind_type, typename fp_type>
+class GProgressPlotterT
+	: public GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT
 {
 	// Make sure this class can only be instantiated if fp_type really is a floating point type
 	BOOST_MPL_ASSERT((boost::is_floating_point<fp_type>));
@@ -261,8 +201,8 @@ public:
 	/**
 	 * The copy constructor
 	 */
-	GProgressPlotterT(const GProgressPlotterT<oa_type, fp_type>& cp)
-		: GBasePluggableOMT<oa_type>(cp)
+	GProgressPlotterT(const GProgressPlotterT<GOptimizationAlgorithmT<ind_type>, fp_type>& cp)
+		: GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT(cp)
 		, gpd_oa_("Progress information", 1, 1) // Not copied
 		, fileName_(cp.fileName_)
 		, canvasDimensions_(cp.canvasDimensions_)
@@ -491,7 +431,7 @@ public:
 			default:
 			{
 				glogger
-				<< "In GProgressPlotterT<oa_type, fp_type>::getLabel(): Error" << std::endl
+				<< "In GProgressPlotterT<ind_type, fp_type>::getLabel(): Error" << std::endl
 				<< "Invalid mode " << var_mode << " requested" << std::endl
 				<< GEXCEPTION;
 			}
@@ -510,7 +450,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, oa_type * const goa
+		, typename Gem::Geneva::GOptimizationAlgorithmT<ind_type> * const goa
 	) override {
 		switch(im) {
 			case Gem::Geneva::INFOINIT:
@@ -557,7 +497,7 @@ public:
 					default:
 					{
 						glogger
-						<< "NOTE: In GProgressPlotterT<oa_type, fp_type>::informationFunction(INFOINIT):" << std::endl
+						<< "NOTE: In GProgressPlotterT<ind_type, fp_type>::informationFunction(INFOINIT):" << std::endl
 						<< "Number of profiling dimensions " << this->nProfileVars() << " can not be displayed." << std::endl
 						<< "No graphical output will be created." << std::endl
 						<< GLOGGING;
@@ -576,7 +516,7 @@ public:
 
 				if(monitorBestOnly_) { // Monitor the best individuals only
 					std::shared_ptr<GParameterSet> p = goa->GOptimizableI::template getBestIndividual<GParameterSet>();
-					if(GBasePluggableOMT<oa_type>::useRawEvaluation_) {
+					if(GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::useRawEvaluation_) {
 						primaryFitness = p->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
 					} else {
 						primaryFitness = p->transformedFitness();
@@ -643,10 +583,10 @@ public:
 						}
 					}
 				} else { // Monitor all individuals
-					typename oa_type::iterator it;
+					typename Gem::Geneva::GOptimizationAlgorithmT<ind_type>::iterator it;
 					for(it=goa->begin(); it!=goa->end(); ++it) {
 
-						if(GBasePluggableOMT<oa_type>::useRawEvaluation_) {
+						if(GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::useRawEvaluation_) {
 							primaryFitness = (*it)->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
 						} else {
 							primaryFitness = (*it)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
@@ -741,7 +681,7 @@ public:
 			default:
 			{
 				glogger
-				<< "In GProgressPlotterT<oa_type, fp_type>::informationFunction(): Received invalid infoMode " << im << std::endl
+				<< "In GProgressPlotterT<ind_type, fp_type>::informationFunction(): Received invalid infoMode " << im << std::endl
 				<< GEXCEPTION;
 			}
 				break;
@@ -784,11 +724,12 @@ private:
  * if individual_type is either a derivative of GParamterSet or is an object of the
  * GParameterSet class itself.
  */
-template <typename oa_type>
-class GAllSolutionFileLoggerT : public GBasePluggableOMT<oa_type>
+template <typename ind_type>
+class GAllSolutionFileLoggerT
+	: public GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT
 {
 	// Make sure this class can only be instantiated if individual_type is a derivative of GParameterSet
-	BOOST_MPL_ASSERT((boost::is_base_of<GParameterSet, typename oa_type::individual_type>));
+	BOOST_MPL_ASSERT((boost::is_base_of<GParameterSet, ind_type>));
 
 public:
 	/***************************************************************************/
@@ -838,7 +779,7 @@ public:
 	/**
 	 * The copy constructor
 	 */
-	GAllSolutionFileLoggerT(const GAllSolutionFileLoggerT<oa_type>& cp)
+	GAllSolutionFileLoggerT(const GAllSolutionFileLoggerT<ind_type>& cp)
 		: fileName_(cp.fileName_)
 		, boundaries_(cp.boundaries_)
 		, boundariesActive_(cp.boundariesActive_)
@@ -977,7 +918,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, oa_type * const goa
+		, typename Gem::Geneva::GOptimizationAlgorithmT<ind_type> * const goa
 	) override {
 		switch(im) {
 			case Gem::Geneva::INFOINIT:
@@ -1049,11 +990,12 @@ private:
  * This class prints out all evaluations of each iteration. The format is
  * eval0_0, eval0_1, ... ,eval0_n, ..., evalm_0, evalm_1, ... ,evalm_n
  */
-template <typename oa_type>
-class GIterationResultsFileLoggerT : public GBasePluggableOMT<oa_type>
+template <typename ind_type>
+class GIterationResultsFileLoggerT
+	: public GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT
 {
 	// Make sure this class can only be instantiated if individual_type is a derivative of GParameterSet
-	BOOST_MPL_ASSERT((boost::is_base_of<GParameterSet, typename oa_type::individual_type>));
+	BOOST_MPL_ASSERT((boost::is_base_of<GParameterSet, ind_type>));
 
 public:
 	/***************************************************************************/
@@ -1080,7 +1022,7 @@ public:
 	/**
 	 * The copy constructor
 	 */
-	GIterationResultsFileLoggerT(const GIterationResultsFileLoggerT<oa_type>& cp)
+	GIterationResultsFileLoggerT(const GIterationResultsFileLoggerT<ind_type>& cp)
 		: fileName_(cp.fileName_)
 		, withCommas_(cp.withCommas_)
 		, useRawFitness_(cp.useRawFitness_)
@@ -1148,7 +1090,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, oa_type * const goa
+		, typename Gem::Geneva::GOptimizationAlgorithmT<ind_type> * const goa
 	) override {
 		switch(im) {
 			case Gem::Geneva::INFOINIT:
@@ -1216,11 +1158,12 @@ private:
  * to a file. This is mostly needed for debugging and profiling purposes. The
  * number of adaptions made is a good measure for the adaption probability.
  */
-template <typename oa_type>
-class GNAdpationsLoggerT : public GBasePluggableOMT<oa_type>
+template <typename ind_type>
+class GNAdpationsLoggerT
+	: public GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT
 {
 	// Make sure this class can only be instantiated if individual_type is a derivative of GParameterSet
-	BOOST_MPL_ASSERT((boost::is_base_of<GParameterSet, typename oa_type::individual_type>));
+	BOOST_MPL_ASSERT((boost::is_base_of<GParameterSet, ind_type>));
 
 public:
 	/***************************************************************************/
@@ -1257,7 +1200,7 @@ public:
 	/**
 	 * The copy constructor
 	 */
-	GNAdpationsLoggerT(const GNAdpationsLoggerT<oa_type>& cp)
+	GNAdpationsLoggerT(const GNAdpationsLoggerT<ind_type>& cp)
 		: fileName_(cp.fileName_)
 		, canvasDimensions_(cp.canvasDimensions_)
 		, gpd_oa_("Number of adaptions per iteration", 1, 2) // Not copied
@@ -1354,7 +1297,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, oa_type * const goa
+		, typename Gem::Geneva::GOptimizationAlgorithmT<ind_type> * const goa
 	) override {
 		using namespace Gem::Common;
 
@@ -1511,11 +1454,12 @@ private:
  * This class allows to log chosen properties of adaptors. Such properties
  * are limited to numeric entities, that may be converted to double
  */
-template <typename oa_type, typename num_type>
-class GAdaptorPropertyLoggerT : public GBasePluggableOMT<oa_type>
+template <typename ind_type, typename num_type>
+class GAdaptorPropertyLoggerT
+	: public GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT
 {
 	// Make sure this class can only be instantiated if individual_type is a derivative of GParameterSet
-	BOOST_MPL_ASSERT((boost::is_base_of<GParameterSet, typename oa_type::individual_type>));
+	BOOST_MPL_ASSERT((boost::is_base_of<GParameterSet, ind_type>));
 	// Make sure this class can only be instantiated if num_type is numeric
 	BOOST_MPL_ASSERT((boost::is_arithmetic<num_type>));
 
@@ -1562,7 +1506,7 @@ public:
 	/**
 	 * The copy constructor
 	 */
-	GAdaptorPropertyLoggerT(const GAdaptorPropertyLoggerT<oa_type, num_type>& cp)
+	GAdaptorPropertyLoggerT(const GAdaptorPropertyLoggerT<ind_type, num_type>& cp)
 		: fileName_(cp.fileName_)
 		, adaptorName_(cp.adaptorName_)
 		, property_(cp.property_)
@@ -1693,7 +1637,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, oa_type * const goa
+		, typename Gem::Geneva::GOptimizationAlgorithmT<ind_type> * const goa
 	) override {
 		using namespace Gem::Common;
 

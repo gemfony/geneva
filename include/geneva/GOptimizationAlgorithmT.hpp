@@ -57,7 +57,6 @@
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GParameterSetFixedSizePriorityQueue.hpp"
-#include "geneva/GPluggableOptimizationMonitorsT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -1831,6 +1830,68 @@ public:
 
 
 public:
+	/******************************************************************************/
+	////////////////////////////////////////////////////////////////////////////////
+	/******************************************************************************/
+	/**
+	 * The base class of all pluggable optimization monitors
+	 */
+	class GBasePluggableOMT {
+	public:
+		/***************************************************************************/
+		/**
+		 * The default constructpr
+		 */
+		GBasePluggableOMT()
+			: useRawEvaluation_(false)
+		{ /* nothing */ }
+
+		/***************************************************************************/
+		/**
+		 * The copy constructor
+		 */
+		GBasePluggableOMT(const typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT& cp)
+			: useRawEvaluation_(cp.useRawEvaluation_)
+		{ /* nothing */ }
+
+		/***************************************************************************/
+		/**
+		 * The Destructor
+		 */
+		virtual ~GBasePluggableOMT()
+		{ /* nothing */ }
+
+		/***************************************************************************/
+		/**
+		 * Overload this function in derived classes, specifying actions for
+		 * initialization, the optimization cycles and finalization.
+		 */
+		virtual void informationFunction(
+			const infoMode& im
+			, GOptimizationAlgorithmT<ind_type> * const goa
+		) BASE = 0;
+
+		/***************************************************************************/
+		/**
+		 * Allows to set the useRawEvaluation_ variable
+		 */
+		void setUseRawEvaluation(bool useRaw) {
+			useRawEvaluation_ = useRaw;
+		}
+
+		/***************************************************************************/
+		/**
+		 * Allows to retrieve the value of the useRawEvaluation_ variable
+		 */
+		bool getUseRawEvaluation() const {
+			return useRawEvaluation_;
+		}
+
+	protected:
+		/***************************************************************************/
+		bool useRawEvaluation_; ///< Specifies whether the true (unmodified) evaluation should be used
+	};
+
 	/***************************************************************************/
 	/////////////////////////////////////////////////////////////////////////////
 	/***************************************************************************/
@@ -2039,7 +2100,7 @@ public:
 		/**
 		 * Allows to register a pluggable optimization monitor
 		 */
-		void registerPluggableOM(std::shared_ptr<GBasePluggableOMT<GOptimizationAlgorithmT<ind_type> > > pluggableOM) {
+		void registerPluggableOM(std::shared_ptr<GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT> pluggableOM) {
 			if(pluggableOM) {
 				pluggableOM_ = pluggableOM;
 			} else {
@@ -2119,7 +2180,7 @@ public:
 		/************************************************************************/
 
 		bool quiet_; ///< Specifies whether any information should be emitted at all
-		std::shared_ptr<GBasePluggableOMT<GOptimizationAlgorithmT<ind_type> > > pluggableOM_; // A user-defined means for information retrieval
+		std::shared_ptr<GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT> pluggableOM_; // A user-defined means for information retrieval
 
 	public:
 		/************************************************************************/
