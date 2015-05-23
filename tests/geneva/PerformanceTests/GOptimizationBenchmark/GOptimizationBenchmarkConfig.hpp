@@ -151,7 +151,7 @@ public:
 private:
 	/*****************************************************************************/
 
-	GOptimizationBenchmarkConfig(); ///< Default constructor: Intentionally private and undefined
+	GOptimizationBenchmarkConfig() = delete; ///< Default constructor: Intentionally private and undefined
 
 	Gem::Common::GParserBuilder gpb_; ///< Handles the actual parsing
 

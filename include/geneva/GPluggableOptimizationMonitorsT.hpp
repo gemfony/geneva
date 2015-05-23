@@ -74,8 +74,7 @@ namespace Geneva {
  * be copied.
  */
 template <typename oa_type>
-class GBasePluggableOMT
-{
+class GBasePluggableOMT {
 public:
 	/***************************************************************************/
 	/**

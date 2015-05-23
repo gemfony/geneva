@@ -411,7 +411,7 @@ protected:
 	virtual std::string drawingArguments(bool) const;
 
 private:
-	GHistogram1D(); ///< The default constructor -- intentionally private and undefined
+	GHistogram1D() = delete; ///< The default constructor -- intentionally private and undefined
 
 	std::size_t nBinsX_; ///< The number of bins in the histogram
 
@@ -470,7 +470,7 @@ protected:
 	virtual std::string drawingArguments(bool) const;
 
 private:
-	GHistogram1I(); ///< The default constructor -- intentionally private and undefined
+	GHistogram1I() = delete; ///< The default constructor -- intentionally private and undefined
 
 	std::size_t nBinsX_; ///< The number of bins in the histogram
 
@@ -1029,7 +1029,7 @@ protected:
 	virtual std::string drawingArguments(bool) const;
 
 private:
-	GHistogram2D(); ///< The default constructor -- intentionally private and undefined
+	GHistogram2D() = delete; ///< The default constructor -- intentionally private and undefined
 
 	std::size_t nBinsX_; ///< The number of bins in the x-direction of the histogram
 	std::size_t nBinsY_; ///< The number of bins in the y-direction of the histogram
@@ -2044,7 +2044,7 @@ protected:
 	virtual std::string drawingArguments(bool) const;
 
 private:
-	GFunctionPlotter1D(); ///< The default constructor -- intentionally private and undefined
+	GFunctionPlotter1D() = delete; ///< The default constructor -- intentionally private and undefined
 
 	std::string functionDescription_;
 
@@ -2098,7 +2098,7 @@ protected:
 	virtual std::string drawingArguments(bool) const;
 
 private:
-	GFunctionPlotter2D(); ///< The default constructor -- intentionally private and undefined
+	GFunctionPlotter2D() = delete; ///< The default constructor -- intentionally private and undefined
 
 	std::string functionDescription_;
 
@@ -2218,7 +2218,7 @@ public:
 
 private:
 	/** @brief The default constructor -- intentionally private and undefined */
-	GPlotDesigner();
+	GPlotDesigner() = delete;
 
 	/** @brief A header for static data in a ROOT file */
 	std::string staticHeader() const;

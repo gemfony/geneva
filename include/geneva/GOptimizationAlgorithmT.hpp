@@ -57,6 +57,7 @@
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GParameterSetFixedSizePriorityQueue.hpp"
+#include "geneva/GPluggableOptimizationMonitorsT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -1961,8 +1962,8 @@ public:
 			, GOptimizationAlgorithmT<ind_type> * const goa
 		) {
 			// Perform any action defined by the user through pluggable monitor objects
-			if(pluggableInfoFunction_) {
-				pluggableInfoFunction_(im,goa);
+			if(pluggableOM_) {
+				pluggableOM_->informationFunction(im,goa);
 			}
 
 			// Act on the information mode provided
@@ -2038,12 +2039,12 @@ public:
 		/**
 		 * Allows to register a pluggable optimization monitor
 		 */
-		void registerPluggableOM(boost::function<void(const infoMode&, GOptimizationAlgorithmT<ind_type> * const)> pluggableInfoFunction) {
-			if(pluggableInfoFunction) {
-				pluggableInfoFunction_ = pluggableInfoFunction;
+		void registerPluggableOM(std::shared_ptr<GBasePluggableOMT<GOptimizationAlgorithmT<ind_type> > > pluggableOM) {
+			if(pluggableOM) {
+				pluggableOM_ = pluggableOM;
 			} else {
 				glogger
-				<< "In GoptimizationMonitorT<>::registerPluggableOM(): Tried to register empty call-back" << std::endl
+				<< "In GoptimizationMonitorT<>::registerPluggableOM(): Tried to register empty pluggable optimization monitor" << std::endl
 				<< GEXCEPTION;
 			}
 		}
@@ -2053,7 +2054,7 @@ public:
 		 * Allows to reset the local pluggable optimization monitor
 		 */
 		void resetPluggableOM() {
-			pluggableInfoFunction_.reset();
+			pluggableOM_.reset();
 		}
 
 	protected:
@@ -2118,7 +2119,7 @@ public:
 		/************************************************************************/
 
 		bool quiet_; ///< Specifies whether any information should be emitted at all
-		boost::function<void(const infoMode&, GOptimizationAlgorithmT<ind_type> * const)> pluggableInfoFunction_; ///< A user-defined call-back for information retrieval
+		std::shared_ptr<GBasePluggableOMT<GOptimizationAlgorithmT<ind_type> > > pluggableOM_; // A user-defined means for information retrieval
 
 	public:
 		/************************************************************************/

@@ -187,7 +187,7 @@ private:
 		}
 
 	private:
-		isOldParent(); // Intentionally private and undefined
+		isOldParent() = delete; // Intentionally private and undefined
 
 		boost::uint32_t current_iteration_;
 	};

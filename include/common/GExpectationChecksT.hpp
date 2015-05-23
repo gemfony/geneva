@@ -93,7 +93,7 @@ public:
 
 private:
 	/** @brief The default constructor: Intentionally private and undefined */
-	g_expectation_violation();
+	g_expectation_violation() = delete;
 };
 
 /******************************************************************************/
@@ -147,7 +147,7 @@ public:
 
 private:
 	/** @brief The default constructor -- intentionally private and undefined */
-	GToken();
+	GToken() = delete;
 
 	/** @brief Counts all tests vs. tests that have met the expectation */
 	boost::tuple<std::size_t, std::size_t> testCounter_;
@@ -206,7 +206,7 @@ public:
 
 private:
 	/** @brief The default constructor -- intentionally private and undefined */
-	identity();
+	identity() = delete;
 
 	/** @brief Does the actual conversion, including a check that B is indeed a base of T */
 	template<typename B>

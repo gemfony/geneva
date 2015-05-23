@@ -105,7 +105,7 @@ public:
 
 private:
 	/** @brief The default constructor: Intentionally private and undefined */
-	gemfony_error_condition() throw();
+	gemfony_error_condition() throw() = delete;
 
 	std::string description_; ///< Holds the actual error description
 };

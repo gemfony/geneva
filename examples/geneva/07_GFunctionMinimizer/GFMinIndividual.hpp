@@ -185,7 +185,7 @@ protected:
 
 private:
 	/** @brief The default constructor. Intentionally private and undefined */
-	GFMinIndividualFactory();
+	GFMinIndividualFactory() = delete;
 
 	double adProb_;
 	double sigma_;

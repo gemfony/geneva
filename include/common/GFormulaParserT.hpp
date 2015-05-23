@@ -130,7 +130,7 @@ public:
 
 private:
 	/** @brief The default constructor: Intentionally private and undefined */
-	math_logic_error();
+	math_logic_error() = delete;
 };
 
 /******************************************************************************/
@@ -160,14 +160,15 @@ public:
 	/** @brief The standard constructor */
 	acos_invalid_range(const fp_type &val) throw()
 		: math_logic_error(std::string("acos: Value ") + boost::lexical_cast<std::string>(val) +
-								 std::string(" out of valid range [-1:1] in GFormulaParserT")) { /* nothing */ }
+								 std::string(" out of valid range [-1:1] in GFormulaParserT"))
+	{ /* nothing */ }
 
 	/** @brief The destructor */
 	virtual ~acos_invalid_range() throw() { /* nothing */ }
 
 private:
 	/** @brief The default constructor: Intentionally private and undefined */
-	acos_invalid_range();
+	acos_invalid_range() = delete;
 };
 
 /******************************************************************************/
@@ -189,7 +190,7 @@ public:
 
 private:
 	/** @brief The default constructor: Intentionally private and undefined */
-	asin_invalid_range();
+	asin_invalid_range() = delete;
 };
 
 /******************************************************************************/
@@ -205,14 +206,15 @@ public:
 	/** @brief The standard constructor */
 	log_negative_value(const fp_type &val) throw()
 		: math_logic_error(std::string("log: Value ") + boost::lexical_cast<std::string>(val) +
-								 std::string(" <= 0 in GFormulaParserT")) { /* nothing */ }
+								 std::string(" <= 0 in GFormulaParserT"))
+	{ /* nothing */ }
 
 	/** @brief The destructor */
 	virtual ~log_negative_value() throw() { /* nothing */ }
 
 private:
 	/** @brief The default constructor: Intentionally private and undefined */
-	log_negative_value();
+	log_negative_value() = delete;
 };
 
 /******************************************************************************/
@@ -227,14 +229,15 @@ public:
 	/** @brief The standard constructor */
 	log10_negative_value(const fp_type &val) throw()
 		: math_logic_error(std::string("log10: Value ") + boost::lexical_cast<std::string>(val) +
-								 std::string(" <= 0  in GFormulaParserT")) { /* nothing */ }
+								 std::string(" <= 0  in GFormulaParserT"))
+	{ /* nothing */ }
 
 	/** @brief The destructor */
 	virtual ~log10_negative_value() throw() { /* nothing */ }
 
 private:
 	/** @brief The default constructor: Intentionally private and undefined */
-	log10_negative_value();
+	log10_negative_value() = delete;
 };
 
 /******************************************************************************/
@@ -256,7 +259,7 @@ public:
 
 private:
 	/** @brief The default constructor: Intentionally private and undefined */
-	sqrt_negative_value();
+	sqrt_negative_value() = delete;
 };
 
 /******************************************************************************/
@@ -936,7 +939,7 @@ private:
 	// Local data and empty functions
 
 	/** @brief The default constructor -- intentionally private and undefined */
-	GFormulaParserT();
+	GFormulaParserT() = delete;
 
 	std::string raw_formula_; ///< Holds the formula with place holders
 

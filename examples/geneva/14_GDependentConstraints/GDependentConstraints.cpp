@@ -104,11 +104,7 @@ int main(int argc, char **argv) {
 		progplot_ptr->setMonitorValidOnly(printValid); // Only record valid parameters, when printValid is set to true
 		progplot_ptr->setUseRawEvaluation(useRawFitness); // Use untransformed evaluation values for logging
 
-		go.registerPluggableOM(
-			[progplot_ptr](const infoMode& im, GOptimizationAlgorithmT<GParameterSet> * const goa){
-				progplot_ptr->informationFunction(im, goa);
-			}
-		);
+		go.registerPluggableOM(progplot_ptr);
 	}
 
 	//---------------------------------------------------------------------------

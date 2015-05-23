@@ -256,7 +256,7 @@ public:
 	G_API_COMMON std::size_t getCommentLevel() const;
 
 private:
-	commentLevel(); ///< The default constructor -- intentionally private and undefined
+	commentLevel() = delete; ///< The default constructor -- intentionally private and undefined
 	std::size_t commentLevel_; ///< The id of the comment inside of GParsableI
 };
 
@@ -361,7 +361,7 @@ protected:
 private:
 	/***************************************************************************/
 	/** @brief The default constructor. Intentionally private and undefined */
-	GParsableI();
+	GParsableI() = delete;
 
 	std::vector<std::string> optionName_; ///< The name of this parameter
 	std::vector<std::string> comment_; ///< A comment assigned to this parameter
@@ -412,7 +412,7 @@ protected:
 private:
 	/***************************************************************************/
 	/** @brief The default constructor. Intentionally private and undefined */
-	GFileParsableI();
+	GFileParsableI() = delete;
 
 	bool isEssential_; ///< Indicates whether this is an essential variable
 };
@@ -453,7 +453,7 @@ protected:
 private:
 	/***************************************************************************/
 	/** @brief The default constructor. Intentionally private and undefined */
-	GCLParsableI();
+	GCLParsableI() = delete;
 };
 
 /******************************************************************************/
@@ -508,7 +508,7 @@ protected:
 
 private:
 	/***************************************************************************/
-	GSingleParmT(); ///< The default constructor -- intentionally private and undefined
+	GSingleParmT() = delete; ///< The default constructor -- intentionally private and undefined
 };
 
 /******************************************************************************/
@@ -632,7 +632,7 @@ protected:
 
 private:
 	/***************************************************************************/
-	GFileSingleParsableParameterT(); ///< The default constructor. Intentionally private and undefined
+	GFileSingleParsableParameterT() = delete; ///< The default constructor. Intentionally private and undefined
 	boost::function<void(parameter_type)> callBack_; ///< Holds the call-back function
 };
 
@@ -733,7 +733,7 @@ protected:
 
 private:
 	/***************************************************************************/
-	GFileReferenceParsableParameterT(); ///< The default constructor. Intentionally private and undefined
+	GFileReferenceParsableParameterT() = delete; ///< The default constructor. Intentionally private and undefined
 
 	parameter_type &storedReference_; ///< Holds the reference to which the parsed value will be assigned
 };
@@ -799,7 +799,7 @@ protected:
 
 private:
 	/***************************************************************************/
-	GCombinedParT(); ///< The default constructor -- intentionally private and undefined
+	GCombinedParT() = delete; ///< The default constructor -- intentionally private and undefined
 };
 
 /******************************************************************************/
@@ -950,7 +950,7 @@ protected:
 
 private:
 	/***************************************************************************/
-	GFileCombinedParsableParameterT(); ///< The default constructor. Intentionally private and undefined
+	GFileCombinedParsableParameterT() = delete; ///< The default constructor. Intentionally private and undefined
 
 	boost::function<void(par_type0, par_type1)> callBack_; ///< Holds the call-back function
 };
@@ -1003,7 +1003,7 @@ protected:
 
 private:
 	/***************************************************************************/
-	GVectorParT(); ///< The default constructor -- intentionally private and undefined
+	GVectorParT() = delete; ///< The default constructor -- intentionally private and undefined
 };
 
 /******************************************************************************/
@@ -1330,7 +1330,7 @@ protected:
 
 private:
 	/***************************************************************************/
-	GArrayParT(); ///< The default constructor -- intentionally private and undefined
+	GArrayParT() = delete; ///< The default constructor -- intentionally private and undefined
 };
 
 /******************************************************************************/
@@ -1674,7 +1674,7 @@ protected:
 
 private:
 	/***************************************************************************/
-	GCLReferenceParsableParameterT(); ///< The default constructor. Intentionally private and undefined
+	GCLReferenceParsableParameterT() = delete; ///< The default constructor. Intentionally private and undefined
 
 	parameter_type &storedReference_; ///< Holds the reference to which the parsed value will be assigned
 	parameter_type def_val_; ///< Holds the default value
@@ -2253,7 +2253,7 @@ private:
 
 	private:
 		// Intentionally private and undefined
-		findFileProxyByName();
+		findFileProxyByName() = delete;
 
 		// The name of the proxy
 		std::string proxyName_;
@@ -2278,7 +2278,7 @@ private:
 
 	private:
 		// Intentionally private and undefined
-		findCLProxyByName();
+		findCLProxyByName() = delete;
 
 		// The name of the proxy
 		std::string proxyName_;

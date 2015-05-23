@@ -168,11 +168,7 @@ int main(int argc, char **argv) {
 	}
 
 	if(collectiveMonitor_ptr->hasOptimizationMonitors()) {
-		go.registerPluggableOM(
-			[collectiveMonitor_ptr](const infoMode& im, GOptimizationAlgorithmT<GParameterSet> * const goa){
-				collectiveMonitor_ptr->informationFunction(im, goa);
-			}
-		);
+		go.registerPluggableOM(collectiveMonitor_ptr);
 	}
 
 	//---------------------------------------------------------------------------

@@ -260,7 +260,7 @@ public:
 private:
 	/***************************************************************************/
 	/** @brief The default constructor -- intentionally private and undefined */
-	GParameterPropertyParser();
+	GParameterPropertyParser() = delete;
 
 	boost::spirit::qi::rule<std::string::const_iterator, std::string(), boost::spirit::ascii::space_type> varSpec;
 	boost::spirit::qi::rule<std::string::const_iterator, boost::tuple<char, std::string>(), boost::spirit::ascii::space_type> varString;

@@ -77,11 +77,7 @@ int main(int argc, char **argv) {
 	std::shared_ptr<GAllSolutionFileLoggerT<GOptimizationAlgorithmT<GParameterSet> > >
 		allSolutionLogger_ptr(new GAllSolutionFileLoggerT<GOptimizationAlgorithmT<GParameterSet> >("allLog.txt", boundaries));
 
-	go.registerPluggableOM(
-		[allSolutionLogger_ptr](const infoMode& im, GOptimizationAlgorithmT<GParameterSet> * const goa){
-			allSolutionLogger_ptr->informationFunction(im, goa);
-		}
-	);
+	go.registerPluggableOM(allSolutionLogger_ptr);
 
 	// Create a factory for GStarterIndividual objects and perform
 	// any necessary initial work.

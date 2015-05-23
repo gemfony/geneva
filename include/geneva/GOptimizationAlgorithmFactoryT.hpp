@@ -208,8 +208,8 @@ public:
 			std::shared_ptr<typename optalg_type::GOptimizationMonitorT> p_mon =
 				GOAMonitorStore->get(this->getMnemonic())->GObject::template clone<typename optalg_type::GOptimizationMonitorT>();
 
-			if(pluggableInfoFunction_) {
-				p_mon->registerPluggableOM(pluggableInfoFunction_);
+			if(pluggableOM_) {
+				p_mon->registerPluggableOM(pluggableOM_);
 			}
 
 			p_alg->registerOptimizationMonitor(p_mon);
@@ -316,12 +316,12 @@ public:
 	/**
 	 * Allows to register a pluggable optimization monitor
 	 */
-	void registerPluggableOM(boost::function<void(const infoMode&, GOptimizationAlgorithmT<typename optalg_type::individual_type> * const)> pluggableInfoFunction) {
-		if(pluggableInfoFunction) {
-			pluggableInfoFunction_ = pluggableInfoFunction;
+	void registerPluggableOM(std::shared_ptr<GBasePluggableOMT<optalg_type> > pluggableOM) {
+		if(pluggableOM) {
+			pluggableOM_ = pluggableOM;
 		} else {
 			glogger
-			<< "In GoptimizationAlgorithmFactoryT<>::registerPluggableOM(): Tried to register empty call-back" << std::endl
+			<< "In GoptimizationAlgorithmFactoryT<>::registerPluggableOM(): Tried to register empty pluggable optimization monitor" << std::endl
 			<< GEXCEPTION;
 		}
 	}
@@ -331,7 +331,7 @@ public:
 	 * Allows to reset the local pluggable optimization monitor
 	 */
 	void resetPluggableOM() {
-		pluggableInfoFunction_= boost::function<void(const infoMode&, GOptimizationAlgorithmT<typename optalg_type::individual_type> * const)>();
+		pluggableOM_.reset();
 	}
 
 	/***************************************************************************/
@@ -524,12 +524,12 @@ protected:
 	bool doLogging_; ///< Specifies whether arrival times of individuals should be logged
 
 	std::shared_ptr<Gem::Common::GFactoryT<typename optalg_type::individual_type> > contentCreatorPtr_; ///< Holds an object capable of producing objects of the desired type
-	boost::function<void(const infoMode&, GOptimizationAlgorithmT<typename optalg_type::individual_type> * const)> pluggableInfoFunction_; ///< A user-defined call-back for information retrieval
+	std::shared_ptr<GBasePluggableOMT<optalg_type> > pluggableOM_; // A user-defined means for information retrieval
 
 private:
 	/***************************************************************************/
 	/** @brief The default constructor. Intentionally private and undefined */
-	GOptimizationAlgorithmFactoryT();
+	GOptimizationAlgorithmFactoryT() = delete;
 
 	boost::int32_t maxIterationCL_; ///< The maximum number of iterations. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
 	boost::int32_t maxStallIterationCL_; ///< The maximum number of generations without improvement, after which optimization is stopped. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
