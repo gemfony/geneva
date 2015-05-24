@@ -60,98 +60,98 @@ using namespace Gem::Hap;
  * The main function.
  */
 int main(int argc, char **argv){
-  std::string configFile;		  
-  std::string ip;
-  boost::uint16_t nEvaluationThreads;
-  std::size_t populationSizeSuper;
-  std::size_t nParentsSuper;
-  boost::uint32_t maxIterationsSuper;
-  long maxMinutesSuper;
-  boost::uint32_t reportIterationSuper;
-  duplicationScheme rSchemeSuper;
-  sortingModeMP smodeSuper;
-  std::size_t populationSizeSub;
-  std::size_t nParentsSub;
-  boost::uint32_t maxIterationsSub;
-  long maxMinutesSub;
-  boost::uint32_t reportIterationSub;
-  duplicationScheme rSchemeSub;
-  sortingMode smodeSub;
+	std::string configFile;
+	std::string ip;
+	boost::uint16_t nEvaluationThreads;
+	std::size_t populationSizeSuper;
+	std::size_t nParentsSuper;
+	boost::uint32_t maxIterationsSuper;
+	long maxMinutesSuper;
+	boost::uint32_t reportIterationSuper;
+	duplicationScheme rSchemeSuper;
+	sortingModeMP smodeSuper;
+	std::size_t populationSizeSub;
+	std::size_t nParentsSub;
+	boost::uint32_t maxIterationsSub;
+	long maxMinutesSub;
+	boost::uint32_t reportIterationSub;
+	duplicationScheme rSchemeSub;
+	sortingMode smodeSub;
 
-  /****************************************************************************/
-  // Parse the command line
+	/****************************************************************************/
+	// Parse the command line
 
-  if(!parseCommandLine(
-     argc, argv
-     , nEvaluationThreads
-     , populationSizeSuper
-     , nParentsSuper
-     , maxIterationsSuper
-     , maxMinutesSuper
-     , reportIterationSuper
-     , rSchemeSuper
-     , smodeSuper
-     , populationSizeSub
-     , nParentsSub
-     , maxIterationsSub
-     , maxMinutesSub
-     , reportIterationSub
-     , rSchemeSub
-     , smodeSub
-  )) { exit(1); } // Leave if help was requested.
+	if(!parseCommandLine(
+		argc, argv
+		, nEvaluationThreads
+		, populationSizeSuper
+		, nParentsSuper
+		, maxIterationsSuper
+		, maxMinutesSuper
+		, reportIterationSuper
+		, rSchemeSuper
+		, smodeSuper
+		, populationSizeSub
+		, nParentsSub
+		, maxIterationsSub
+		, maxMinutesSub
+		, reportIterationSub
+		, rSchemeSub
+		, smodeSub
+	)) { exit(1); } // Leave if help was requested.
 
-  /****************************************************************************/
-  // This EA population can hold derivatives of GBaseEA
-  GMultiPopulationEAT<GBaseEA> gmp(nEvaluationThreads);
+	/****************************************************************************/
+	// This EA population can hold derivatives of GBaseEA
+	GMultiPopulationEAT<GBaseEA> gmp(nEvaluationThreads);
 
-  /****************************************************************************/
-  // Create a factory for GFunctionIndividual objects and perform
-  // any necessary initial work.
-  GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
+	/****************************************************************************/
+	// Create a factory for GFunctionIndividual objects and perform
+	// any necessary initial work.
+	GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
-  // Create the first set of parent populations.
-  for(std::size_t psuper = 0; psuper<nParentsSuper; psuper++) {
-	  // This smart pointer holds a parent population.
-	  std::shared_ptr<GSerialEA> sub_pop_ptr
-		  = std::shared_ptr<GSerialEA>(new GSerialEA());
+	// Create the first set of parent populations.
+	for(std::size_t psuper = 0; psuper<nParentsSuper; psuper++) {
+		// This smart pointer holds a parent population.
+		std::shared_ptr<GSerialEA> sub_pop_ptr
+			= std::shared_ptr<GSerialEA>(new GSerialEA());
 
-	  // Create the first set of parent individuals. Initialization of parameters is done randomly.
-	  for(std::size_t psub = 0 ; psub<nParentsSub; psub++) {
-		  sub_pop_ptr->push_back(gfi());
-	  }
+		// Create the first set of parent individuals. Initialization of parameters is done randomly.
+		for(std::size_t psub = 0 ; psub<nParentsSub; psub++) {
+			sub_pop_ptr->push_back(gfi());
+		}
 
-	  // Specify some general population settings
-	  sub_pop_ptr->setPopulationSizes(populationSizeSub,nParentsSub);
-	  sub_pop_ptr->setMaxIteration(maxIterationsSub);
-	  sub_pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutesSub));
-	  sub_pop_ptr->setReportIteration(reportIterationSub);
-	  sub_pop_ptr->setRecombinationMethod(rSchemeSub);
-	  sub_pop_ptr->setSortingScheme(smodeSub);
-	  sub_pop_ptr->setEmitTerminationReason(false);
+		// Specify some general population settings
+		sub_pop_ptr->setPopulationSizes(populationSizeSub,nParentsSub);
+		sub_pop_ptr->setMaxIteration(maxIterationsSub);
+		sub_pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutesSub));
+		sub_pop_ptr->setReportIteration(reportIterationSub);
+		sub_pop_ptr->setRecombinationMethod(rSchemeSub);
+		sub_pop_ptr->setSortingScheme(smodeSub);
+		sub_pop_ptr->setEmitTerminationReason(false);
 
-	  // Add the sub population to the vector
-	  gmp.push_back(sub_pop_ptr);
-  }
+		// Add the sub population to the vector
+		gmp.push_back(sub_pop_ptr);
+	}
 
-  /****************************************************************************/
-  // Specify some general population settings
-  gmp.setPopulationSizes(populationSizeSuper,nParentsSuper);
-  gmp.setMaxIteration(maxIterationsSuper);
-  gmp.setMaxTime(boost::posix_time::minutes(maxMinutesSuper));
-  gmp.setReportIteration(reportIterationSuper);
-  gmp.setRecombinationMethod(rSchemeSuper);
-  gmp.setSortingScheme(smodeSuper);
-  gmp.setEmitTerminationReason(true);
+	/****************************************************************************/
+	// Specify some general population settings
+	gmp.setPopulationSizes(populationSizeSuper,nParentsSuper);
+	gmp.setMaxIteration(maxIterationsSuper);
+	gmp.setMaxTime(boost::posix_time::minutes(maxMinutesSuper));
+	gmp.setReportIteration(reportIterationSuper);
+	gmp.setRecombinationMethod(rSchemeSuper);
+	gmp.setSortingScheme(smodeSuper);
+	gmp.setEmitTerminationReason(true);
 
-  // Do the actual optimization
-  gmp.optimize();
+	// Do the actual optimization
+	gmp.optimize();
 
-  // Extract the best individual
-  std::shared_ptr<GFunctionIndividual> p = gmp.getBestIndividual<GFunctionIndividual>();
+	// Extract the best individual
+	std::shared_ptr<GFunctionIndividual> p = gmp.getBestIndividual<GFunctionIndividual>();
 
-  // Do something with the best result found here
+	// Do something with the best result found here
 
-  /****************************************************************************/
-  // Terminate Geneva
-  return 0;
+	/****************************************************************************/
+	// Terminate Geneva
+	return 0;
 }

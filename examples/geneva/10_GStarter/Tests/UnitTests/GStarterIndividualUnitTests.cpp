@@ -68,8 +68,8 @@ public:
 
 		/****************************************************************************************/
 
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected,  userind_types) );
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected,  userind_types) );
+		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, userind_types) );
+		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, userind_types) );
 	}
 };
 

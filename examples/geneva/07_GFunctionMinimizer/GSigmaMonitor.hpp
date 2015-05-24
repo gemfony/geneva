@@ -63,51 +63,51 @@ const std::size_t P_YDIM=1400;
  * the class uses ROOT scripts for the output of its results.
  */
 class GSigmaMonitor
-   :public GBaseEA::GEAOptimizationMonitor
+	:public GBaseEA::GEAOptimizationMonitor
 {
-   ///////////////////////////////////////////////////////////////////////
-   friend class boost::serialization::access;
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
 
-   template<typename Archive>
-   void serialize(Archive & ar, const unsigned int){
-      using boost::serialization::make_nvp;
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
 
-      ar
-      & make_nvp("GBaseEA_GEAOptimizationMonitor", boost::serialization::base_object<GBaseEA::GEAOptimizationMonitor>(*this))
-      & BOOST_SERIALIZATION_NVP(fileName_);
-   }
-   ///////////////////////////////////////////////////////////////////////
+		ar
+		& make_nvp("GBaseEA_GEAOptimizationMonitor", boost::serialization::base_object<GBaseEA::GEAOptimizationMonitor>(*this))
+		& BOOST_SERIALIZATION_NVP(fileName_);
+	}
+	///////////////////////////////////////////////////////////////////////
 
 public:
-   /** @brief The default constructor */
-   GSigmaMonitor(const std::string fileName);
-   /** @brief The copy constructor */
-   GSigmaMonitor(const GSigmaMonitor& cp);
-   /** @brief The destructor */
-   virtual ~GSigmaMonitor();
+	/** @brief The default constructor */
+	GSigmaMonitor(const std::string fileName);
+	/** @brief The copy constructor */
+	GSigmaMonitor(const GSigmaMonitor& cp);
+	/** @brief The destructor */
+	virtual ~GSigmaMonitor();
 
 protected:
-   /** @brief A function that is called once before the optimization starts */
-   virtual void firstInformation(GOptimizationAlgorithmT<GParameterSet> * const goa);
-   /** @brief A function that is called during each optimization cycle */
-   virtual void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa);
-   /** @brief A function that is called once at the end of the optimization cycle */
-   virtual void lastInformation(GOptimizationAlgorithmT<GParameterSet> * const goa);
+	/** @brief A function that is called once before the optimization starts */
+	virtual void firstInformation(GOptimizationAlgorithmT<GParameterSet> * const goa);
+	/** @brief A function that is called during each optimization cycle */
+	virtual void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa);
+	/** @brief A function that is called once at the end of the optimization cycle */
+	virtual void lastInformation(GOptimizationAlgorithmT<GParameterSet> * const goa);
 
-   /** @brief Loads the data of another object */
-   virtual void load_(const GObject* cp);
-   /** @brief Creates a deep clone of this object */
-   virtual GObject* clone_() const;
+	/** @brief Loads the data of another object */
+	virtual void load_(const GObject* cp);
+	/** @brief Creates a deep clone of this object */
+	virtual GObject* clone_() const;
 
 private:
-   /** @brief The default constructor -- intentionally private */
-   GSigmaMonitor();
+	/** @brief The default constructor -- intentionally private */
+	GSigmaMonitor();
 
-   std::string fileName_; ///< The name of the output file
+	std::string fileName_; ///< The name of the output file
 
-   Gem::Common::GPlotDesigner gpd_; ///< Ease recording of essential information
-   std::shared_ptr<Gem::Common::GGraph2D> progressPlotter_; ///< Records progress information
-   std::shared_ptr<Gem::Common::GGraph2D> sigmaPlotter_; ///< Records progress information about the current sigma
+	Gem::Common::GPlotDesigner gpd_; ///< Ease recording of essential information
+	std::shared_ptr<Gem::Common::GGraph2D> progressPlotter_; ///< Records progress information
+	std::shared_ptr<Gem::Common::GGraph2D> sigmaPlotter_; ///< Records progress information about the current sigma
 };
 
 /******************************************************************************/

@@ -48,13 +48,13 @@ using namespace Gem::Geneva;
 namespace po = boost::program_options;
 
 int main(int argc, char **argv) {
-   bool printBest = false;
-   boost::program_options::options_description user_options;
-   user_options.add_options() (
-         "print"
-         , po::value<bool>(&printBest)->implicit_value(true)->default_value(false) // This allows you say both --print and --print=true
-         , "Switches on printing of the best result"
-      );
+	bool printBest = false;
+	boost::program_options::options_description user_options;
+	user_options.add_options() (
+		"print"
+		, po::value<bool>(&printBest)->implicit_value(true)->default_value(false) // This allows you say both --print and --print=true
+		, "Switches on printing of the best result"
+	);
 
 	Go2 go(argc, argv, "./config/Go2.json", user_options);
 
@@ -93,8 +93,8 @@ int main(int argc, char **argv) {
 
 	// Do something with the best result. Here: Simply print it, if requested
 	if(printBest) {
-	   std::cout
-	   << "Best individual found has values" << std::endl
-	   << bestIndividual_ptr << std::endl;
+		std::cout
+		<< "Best individual found has values" << std::endl
+		<< bestIndividual_ptr << std::endl;
 	}
 }

@@ -65,7 +65,7 @@ namespace Geneva {
  * This enum denotes the possible demo function types
  */
 enum targetFunction {
-	  GFM_PARABOLA=0
+	GFM_PARABOLA=0
 	, GFM_NOISYPARABOLA=1
 };
 
@@ -102,7 +102,7 @@ class GFMinIndividual
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int) {
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
-		   & BOOST_SERIALIZATION_NVP(targetFunction_);
+		& BOOST_SERIALIZATION_NVP(targetFunction_);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////

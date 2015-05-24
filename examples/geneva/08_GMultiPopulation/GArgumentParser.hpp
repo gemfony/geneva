@@ -86,22 +86,22 @@ const duplicationScheme DEFAULTRSCHEMESUB=VALUEDUPLICATIONSCHEME;
  * Parses the command line
  */
 bool parseCommandLine(
-     int argc, char** argv
-     , boost::uint16_t& nEvaluationThreads
-     , std::size_t& populationSizeSuper
-     , std::size_t& nParentsSuper
-     , boost::uint32_t& maxIterationsSuper
-     , long& maxMinutesSuper
-     , boost::uint32_t& reportIterationSuper
-     , duplicationScheme& rSchemeSuper
-     , sortingModeMP& smodeSuper
-     , std::size_t& populationSizeSub
-     , std::size_t& nParentsSub
-     , boost::uint32_t& maxIterationsSub
-     , long& maxMinutesSub
-     , boost::uint32_t& reportIterationSub
-     , duplicationScheme& rSchemeSub
-     , sortingMode& smodeSub
+	int argc, char** argv
+	, boost::uint16_t& nEvaluationThreads
+	, std::size_t& populationSizeSuper
+	, std::size_t& nParentsSuper
+	, boost::uint32_t& maxIterationsSuper
+	, long& maxMinutesSuper
+	, boost::uint32_t& reportIterationSuper
+	, duplicationScheme& rSchemeSuper
+	, sortingModeMP& smodeSuper
+	, std::size_t& populationSizeSub
+	, std::size_t& nParentsSub
+	, boost::uint32_t& maxIterationsSub
+	, long& maxMinutesSub
+	, boost::uint32_t& reportIterationSub
+	, duplicationScheme& rSchemeSub
+	, sortingMode& smodeSub
 );
 
 /******************************************************************************/

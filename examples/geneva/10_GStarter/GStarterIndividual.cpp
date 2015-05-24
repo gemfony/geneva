@@ -162,7 +162,7 @@ const GStarterIndividual& GStarterIndividual::operator=(const GStarterIndividual
 /**
  * Checks for equality with another GStarterIndividual object
  *
- * @param  cp A constant reference to another GStarterIndividual object
+ * @param cp A constant reference to another GStarterIndividual object
  * @return A boolean indicating whether both objects are equal
  */
 bool GStarterIndividual::operator==(const GStarterIndividual& cp) const {
@@ -179,7 +179,7 @@ bool GStarterIndividual::operator==(const GStarterIndividual& cp) const {
 /**
  * Checks for inequality with another GStarterIndividual object
  *
- * @param  cp A constant reference to another GStarterIndividual object
+ * @param cp A constant reference to another GStarterIndividual object
  * @return A boolean indicating whether both objects are in-equal
  */
 bool GStarterIndividual::operator!=(const GStarterIndividual& cp) const {
@@ -435,7 +435,7 @@ bool GStarterIndividual::modify_GUnitTests() {
 	// Let the audience know whether we have changed the content
 	return result;
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
 	condnotset("GStarterIndividual::modify_GUnitTests", "GEM_TESTING");
 	return false;
 #endif /* GEM_TESTING */
@@ -503,7 +503,7 @@ void GStarterIndividual::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
 	condnotset("GStarterIndividual::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
@@ -535,7 +535,7 @@ void GStarterIndividual::specificTestsFailuresExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
 	condnotset("GStarterIndividual::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }

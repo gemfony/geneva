@@ -174,32 +174,32 @@ public:
 	) {
 		// Some error checking
 #ifdef DEBUG
-	   // Check whether values have been provided
-	   if(startValues.empty()) {
-	   	glogger
-	   	<< "In GStarterIndividual::addContent(): Error!" << std::endl
-	      << "No parameters given" << std::endl
-	    	<< GTERMINATE;
-	   }
+		// Check whether values have been provided
+		if(startValues.empty()) {
+			glogger
+			<< "In GStarterIndividual::addContent(): Error!" << std::endl
+			<< "No parameters given" << std::endl
+			<< GTERMINATE;
+		}
 
-	   // Check whether all sizes match
-	   if(startValues.size() != lowerBoundaries.size() || startValues.size() != upperBoundaries.size()) {
-	   	glogger
-	   	<<  "In GStarterIndividual::addContent(): Error!" << std::endl
-	      << "Invalid sizes" << startValues.size() << " / " << lowerBoundaries.size() << " / " << upperBoundaries.size() << std::endl
-	      << GTERMINATE;
-	   }
+		// Check whether all sizes match
+		if(startValues.size() != lowerBoundaries.size() || startValues.size() != upperBoundaries.size()) {
+			glogger
+			<< "In GStarterIndividual::addContent(): Error!" << std::endl
+			<< "Invalid sizes" << startValues.size() << " / " << lowerBoundaries.size() << " / " << upperBoundaries.size() << std::endl
+			<< GTERMINATE;
+		}
 
-	   // Check that start values and boundaries have valid values
-	   for(std::size_t i=0; i<startValues.size(); i++) {
-	      Gem::Common::checkValueRange( // We expect the start value to be in the range [lower, upper[
-	            startValues.at(i)
-	            , lowerBoundaries.at(i)
-	            , upperBoundaries.at(i)
-	            , false // closed lower boundary
-	            , true  // open upper boundary
-	      );
-	   }
+		// Check that start values and boundaries have valid values
+		for(std::size_t i=0; i<startValues.size(); i++) {
+			Gem::Common::checkValueRange( // We expect the start value to be in the range [lower, upper[
+					startValues.at(i)
+					, lowerBoundaries.at(i)
+					, upperBoundaries.at(i)
+					, false // closed lower boundary
+					, true  // open upper boundary
+			);
+		}
 
 #endif /* DEBUG */
 

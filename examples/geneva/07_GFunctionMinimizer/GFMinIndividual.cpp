@@ -130,8 +130,8 @@ void GFMinIndividual::addConfigurationOptions (
 		, [this](targetFunction tF) { this->setTargetFunction(tF); }
 	)
 	<< "Specifies which target function should be used:" << std::endl
-   << "0: Parabola" << std::endl
-   << "1: Berlich";
+	<< "0: Parabola" << std::endl
+	<< "1: Berlich";
 }
 
 /*******************************************************************************************/
@@ -219,19 +219,19 @@ double GFMinIndividual::fitnessCalculation() {
 
 	// Perform the actual calculation
 	switch(targetFunction_) {
-	//-----------------------------------------------------------
-	// A simple, multi-dimensional parabola
-	case GFM_PARABOLA:
-		return parabola(parVec);
-		break;
+		//-----------------------------------------------------------
+		// A simple, multi-dimensional parabola
+		case GFM_PARABOLA:
+			return parabola(parVec);
+			break;
 
-	//-----------------------------------------------------------
-	// A "noisy" parabola, i.e. a parabola with a very large
-	// number of overlaid local optima
-	case GFM_NOISYPARABOLA:
-		return noisyParabola(parVec);
-		break;
-	//-----------------------------------------------------------
+			//-----------------------------------------------------------
+			// A "noisy" parabola, i.e. a parabola with a very large
+			// number of overlaid local optima
+		case GFM_NOISYPARABOLA:
+			return noisyParabola(parVec);
+			break;
+			//-----------------------------------------------------------
 	};
 
 	// Make the compiler happy
@@ -273,15 +273,15 @@ double GFMinIndividual::noisyParabola(const std::vector<double>& parVec) const {
  * Provide an easy way to print the individual's content
  */
 std::ostream& operator<<(std::ostream& s, const Gem::Geneva::GFMinIndividual& f) {
-   std::vector<double> parVec;
-   f.streamline(parVec);
+	std::vector<double> parVec;
+	f.streamline(parVec);
 
-   std::vector<double>::iterator it;
-   for(it=parVec.begin(); it!=parVec.end(); ++it) {
-      std::cout << (it-parVec.begin()) << ": " << *it << std::endl;
-   }
+	std::vector<double>::iterator it;
+	for(it=parVec.begin(); it!=parVec.end(); ++it) {
+		std::cout << (it-parVec.begin()) << ": " << *it << std::endl;
+	}
 
-   return s;
+	return s;
 }
 
 /******************************************************************************/
@@ -289,7 +289,7 @@ std::ostream& operator<<(std::ostream& s, const Gem::Geneva::GFMinIndividual& f)
  * Provide an easy way to print the individual's content through a smart-pointer
  */
 std::ostream& operator<<(std::ostream& s, std::shared_ptr<Gem::Geneva::GFMinIndividual> f_ptr) {
-   return operator<<(s,*f_ptr);
+	return operator<<(s,*f_ptr);
 }
 
 /******************************************************************************/
