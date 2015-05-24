@@ -580,6 +580,7 @@ FUNCTION (
 		SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++" PARENT_SCOPE)
 		IF( NOT GENEVA_STATIC )
 			SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -stdlib=libstdc++" PARENT_SCOPE)
+			SET (MACOSX_RPATH 1)
 		ENDIF()
 	ENDIF()
 	#--------------------------------------------------------------------------
