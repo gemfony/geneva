@@ -78,193 +78,193 @@ using namespace Gem::Common;
  * The main function.
  */
 int main(int argc, char **argv){
-  boost::uint16_t parallelizationMode;
-  bool serverMode;
-  std::string ip;
-  unsigned short port;
-  boost::uint32_t maxStalls;
-  boost::uint32_t maxConnectionAttempts;
-  boost::uint16_t nProducerThreads;
-  boost::uint16_t nEvaluationThreads;
-  std::size_t populationSize;
-  std::size_t nParents;
-  boost::uint32_t maxIterations;
-  long maxMinutes;
-  boost::uint32_t reportIteration;
-  duplicationScheme rScheme;
-  sortingMode smode;
-  Gem::Common::serializationMode serMode;
-  boost::uint16_t xDim;
-  boost::uint16_t yDim;
-  bool followProgress;
-  bool addLocalConsumer;
+	boost::uint16_t parallelizationMode;
+	bool serverMode;
+	std::string ip;
+	unsigned short port;
+	boost::uint32_t maxStalls;
+	boost::uint32_t maxConnectionAttempts;
+	boost::uint16_t nProducerThreads;
+	boost::uint16_t nEvaluationThreads;
+	std::size_t populationSize;
+	std::size_t nParents;
+	boost::uint32_t maxIterations;
+	long maxMinutes;
+	boost::uint32_t reportIteration;
+	duplicationScheme rScheme;
+	sortingMode smode;
+	Gem::Common::serializationMode serMode;
+	boost::uint16_t xDim;
+	boost::uint16_t yDim;
+	bool followProgress;
+	bool addLocalConsumer;
 
-  /****************************************************************************/
-  // Initialization of Geneva
-  GenevaInitializer gi;
+	/****************************************************************************/
+	// Initialization of Geneva
+	GenevaInitializer gi;
 
-  /****************************************************************************/
-  // Retrieve all necessary configuration data from the command line
+	/****************************************************************************/
+	// Retrieve all necessary configuration data from the command line
 
-  if(!parseCommandLine(
-     argc, argv
-     , parallelizationMode
-     , serverMode
-     , ip
-     , port
-     , maxStalls
-     , maxConnectionAttempts
-     , serMode
-     , addLocalConsumer
-     , nProducerThreads
-     , nEvaluationThreads
-     , populationSize
-     , nParents
-     , maxIterations
-     , maxMinutes
-     , reportIteration
-     , rScheme
-     , smode
-     , xDim
-     , yDim
-     , followProgress
-  )) { exit(1); }
+	if(!parseCommandLine(
+		argc, argv
+		, parallelizationMode
+		, serverMode
+		, ip
+		, port
+		, maxStalls
+		, maxConnectionAttempts
+		, serMode
+		, addLocalConsumer
+		, nProducerThreads
+		, nEvaluationThreads
+		, populationSize
+		, nParents
+		, maxIterations
+		, maxMinutes
+		, reportIteration
+		, rScheme
+		, smode
+		, xDim
+		, yDim
+		, followProgress
+	)) { exit(1); }
 
-  /****************************************************************************/
-  // Random numbers are our most valuable good. Set the number of threads
-  GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
+	/****************************************************************************/
+	// Random numbers are our most valuable good. Set the number of threads
+	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
-  /****************************************************************************/
-  // If this is a client in networked mode, we can just start the listener and
-  // return when it has finished
-  if(EXECMODE_BROKERAGE==parallelizationMode && !serverMode) {
-    std::shared_ptr<GAsioTCPClientT<GParameterSet> >
-       p(new GAsioTCPClientT<GParameterSet>(ip, boost::lexical_cast<std::string>(port)));
+	/****************************************************************************/
+	// If this is a client in networked mode, we can just start the listener and
+	// return when it has finished
+	if(EXECMODE_BROKERAGE==parallelizationMode && !serverMode) {
+		std::shared_ptr<GAsioTCPClientT<GParameterSet> >
+			p(new GAsioTCPClientT<GParameterSet>(ip, boost::lexical_cast<std::string>(port)));
 
-    p->setMaxStalls(maxStalls); // 0 would mean an infinite number of stalled data retrievals
-    p->setMaxConnectionAttempts(maxConnectionAttempts);
+		p->setMaxStalls(maxStalls); // 0 would mean an infinite number of stalled data retrievals
+		p->setMaxConnectionAttempts(maxConnectionAttempts);
 
-    // Start the actual processing loop
-    p->run();
+		// Start the actual processing loop
+		p->run();
 
-    return 0;
-  }
+		return 0;
+	}
 
-  /****************************************************************************/
-  // We can now start creating populations. We refer to them through the base class
+	/****************************************************************************/
+	// We can now start creating populations. We refer to them through the base class
 
-  // This smart pointer will hold the different population types
-  std::shared_ptr<GBaseEA> pop_ptr;
+	// This smart pointer will hold the different population types
+	std::shared_ptr<GBaseEA> pop_ptr;
 
-  // Create the actual populations
-  switch (parallelizationMode) {
-  //----------------------------------------------------------------------------
-  case EXECMODE_SERIAL: // Serial execution
-  {
-	  // Create an empty population
-	  pop_ptr = std::shared_ptr<GSerialEA>(new GSerialEA());
-  }
-  break;
+	// Create the actual populations
+	switch (parallelizationMode) {
+		//----------------------------------------------------------------------------
+		case EXECMODE_SERIAL: // Serial execution
+		{
+			// Create an empty population
+			pop_ptr = std::shared_ptr<GSerialEA>(new GSerialEA());
+		}
+			break;
 
-  //----------------------------------------------------------------------------
-  case EXECMODE_MULTITHREADED: // Multi-threaded execution
-  {
-	  // Create the multi-threaded population
-	  std::shared_ptr<GMultiThreadedEA> popPar_ptr(new GMultiThreadedEA());
+			//----------------------------------------------------------------------------
+		case EXECMODE_MULTITHREADED: // Multi-threaded execution
+		{
+			// Create the multi-threaded population
+			std::shared_ptr<GMultiThreadedEA> popPar_ptr(new GMultiThreadedEA());
 
-	  // Population-specific settings
-	  popPar_ptr->setNThreads(nEvaluationThreads);
+			// Population-specific settings
+			popPar_ptr->setNThreads(nEvaluationThreads);
 
-	  // Assignment to the base pointer
-	  pop_ptr = popPar_ptr;
-  }
-  break;
+			// Assignment to the base pointer
+			pop_ptr = popPar_ptr;
+		}
+			break;
 
-  //----------------------------------------------------------------------------
-  case EXECMODE_BROKERAGE: // Execution with networked consumer and possibly a local, multi-threaded consumer
-  {
-	  // Create a network consumer and enrol it with the broker
-	  std::shared_ptr<GAsioTCPConsumerT<GParameterSet> >
-	    gatc(new GAsioTCPConsumerT<GParameterSet>(port, 0, serMode));
-	  GBROKER(Gem::Geneva::GParameterSet)->enrol(gatc);
+			//----------------------------------------------------------------------------
+		case EXECMODE_BROKERAGE: // Execution with networked consumer and possibly a local, multi-threaded consumer
+		{
+			// Create a network consumer and enrol it with the broker
+			std::shared_ptr<GAsioTCPConsumerT<GParameterSet> >
+				gatc(new GAsioTCPConsumerT<GParameterSet>(port, 0, serMode));
+			GBROKER(Gem::Geneva::GParameterSet)->enrol(gatc);
 
-	  if(addLocalConsumer) { // This is mainly for testing and benchmarking
-		  std::shared_ptr<GBoostThreadConsumerT<GParameterSet> >
-		    gbtc(new GBoostThreadConsumerT<GParameterSet>());
-		  gbtc->setNThreadsPerWorker(nEvaluationThreads);
-		  GBROKER(Gem::Geneva::GParameterSet)->enrol(gbtc);
-	  }
+			if(addLocalConsumer) { // This is mainly for testing and benchmarking
+				std::shared_ptr<GBoostThreadConsumerT<GParameterSet> >
+					gbtc(new GBoostThreadConsumerT<GParameterSet>());
+				gbtc->setNThreadsPerWorker(nEvaluationThreads);
+				GBROKER(Gem::Geneva::GParameterSet)->enrol(gbtc);
+			}
 
-	  // Create the actual broker population
-	  std::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());
+			// Create the actual broker population
+			std::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());
 
-	  // Assignment to the base pointer
-	  pop_ptr = popBroker_ptr;
-  }
-  break;
+			// Assignment to the base pointer
+			pop_ptr = popBroker_ptr;
+		}
+			break;
 
-  //----------------------------------------------------------------------------
-  default:
-  {
-     glogger
-     << "In main(): Received invalid parallelization mode " <<  parallelizationMode << std::endl
-     << GEXCEPTION;
-  }
-  break;
-  }
+			//----------------------------------------------------------------------------
+		default:
+		{
+			glogger
+			<< "In main(): Received invalid parallelization mode " << parallelizationMode << std::endl
+			<< GEXCEPTION;
+		}
+			break;
+	}
 
-  /****************************************************************************/
-  // Create a factory for GFunctionIndividual objects and perform
-  // any necessary initial work.
-  GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
+	/****************************************************************************/
+	// Create a factory for GFunctionIndividual objects and perform
+	// any necessary initial work.
+	GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
-  // Create the first set of parent individuals. Initialization of parameters is done randomly.
-  std::vector<std::shared_ptr<GFunctionIndividual> > parentIndividuals;
-  for(std::size_t p = 0 ; p<nParents; p++) {
-     parentIndividuals.push_back(gfi.get<GFunctionIndividual>());
-  }
+	// Create the first set of parent individuals. Initialization of parameters is done randomly.
+	std::vector<std::shared_ptr<GFunctionIndividual> > parentIndividuals;
+	for(std::size_t p = 0 ; p<nParents; p++) {
+		parentIndividuals.push_back(gfi.get<GFunctionIndividual>());
+	}
 
-  /****************************************************************************/
-  // Create an instance of our optimization monitor
-  std::shared_ptr<progressMonitor> pm_ptr(new progressMonitor(parentIndividuals[0]->getDemoFunction())); // The demo function is only known to the individual
-  pm_ptr->setProgressDims(xDim, yDim);
-  pm_ptr->setFollowProgress(followProgress); // Shall we take snapshots ?
-  pm_ptr->setXExtremes(gfi.getMinVar(), gfi.getMaxVar());
-  pm_ptr->setYExtremes(gfi.getMinVar(), gfi.getMaxVar());
+	/****************************************************************************/
+	// Create an instance of our optimization monitor
+	std::shared_ptr<progressMonitor> pm_ptr(new progressMonitor(parentIndividuals[0]->getDemoFunction())); // The demo function is only known to the individual
+	pm_ptr->setProgressDims(xDim, yDim);
+	pm_ptr->setFollowProgress(followProgress); // Shall we take snapshots ?
+	pm_ptr->setXExtremes(gfi.getMinVar(), gfi.getMaxVar());
+	pm_ptr->setYExtremes(gfi.getMinVar(), gfi.getMaxVar());
 
-  /****************************************************************************/
-  // Now we have suitable populations and can fill them with data
+	/****************************************************************************/
+	// Now we have suitable populations and can fill them with data
 
-  // Add individuals to the population. Many Geneva classes, such as
-  // the optimization classes, feature an interface very similar to std::vector.
-  for(std::size_t p = 0 ; p<parentIndividuals.size(); p++) {
-    pop_ptr->push_back(parentIndividuals[p]);
-  }
- 
-  // Specify some general population settings
-  pop_ptr->setPopulationSizes(populationSize,nParents);
-  pop_ptr->setMaxIteration(maxIterations);
-  pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes));
-  pop_ptr->setReportIteration(reportIteration);
-  pop_ptr->setRecombinationMethod(rScheme);
-  pop_ptr->setSortingScheme(smode);
-  pop_ptr->registerOptimizationMonitor(pm_ptr);
-  
-  // Perform the actual optimization
-  pop_ptr->optimize();
+	// Add individuals to the population. Many Geneva classes, such as
+	// the optimization classes, feature an interface very similar to std::vector.
+	for(std::size_t p = 0 ; p<parentIndividuals.size(); p++) {
+		pop_ptr->push_back(parentIndividuals[p]);
+	}
 
-  /****************************************************************************/
-  // Do something with the best individual found
-  std::shared_ptr<GFunctionIndividual> p = pop_ptr->getBestIndividual<GFunctionIndividual>();
+	// Specify some general population settings
+	pop_ptr->setPopulationSizes(populationSize,nParents);
+	pop_ptr->setMaxIteration(maxIterations);
+	pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes));
+	pop_ptr->setReportIteration(reportIteration);
+	pop_ptr->setRecombinationMethod(rScheme);
+	pop_ptr->setSortingScheme(smode);
+	pop_ptr->registerOptimizationMonitor(pm_ptr);
 
-  // Here you can do something with the best individual ("p") found.
-  // We simply print its content here, by means of an operator<< implemented
-  // in the GFunctionIndividual code.
-  std::cout
-  << "Best result found:" << std::endl
-  << p << std::endl;
+	// Perform the actual optimization
+	pop_ptr->optimize();
 
-  /****************************************************************************/
-  // Terminate
-  return(0);
+	/****************************************************************************/
+	// Do something with the best individual found
+	std::shared_ptr<GFunctionIndividual> p = pop_ptr->getBestIndividual<GFunctionIndividual>();
+
+	// Here you can do something with the best individual ("p") found.
+	// We simply print its content here, by means of an operator<< implemented
+	// in the GFunctionIndividual code.
+	std::cout
+	<< "Best result found:" << std::endl
+	<< p << std::endl;
+
+	/****************************************************************************/
+	// Terminate
+	return(0);
 }

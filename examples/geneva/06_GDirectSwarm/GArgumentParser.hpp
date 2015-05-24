@@ -95,31 +95,31 @@ const bool DEFAULTALLRANDOMINIT=true;
  * Parses the command line
  */
 bool parseCommandLine(
-   int argc, char **argv
-   , boost::uint16_t& parallelizationMode
-   , bool& serverMode
-   , std::string& ip
-   , unsigned short& port
-   , boost::uint32_t& maxStalls
-   , boost::uint32_t& maxConnectionAttempts
-   , Gem::Common::serializationMode& serMode
-   , bool& addLocalConsumer
-   , std::size_t& nNeighborhoods
-   , std::size_t& nNeighborhoodMembers
-   , double& cPersonal
-   , double& cNeighborhood
-   , double& cGlobal
-   , double& cVelocity
-   , updateRule& ur
-   , bool& allRandomInit
-   , boost::uint16_t& nProducerThreads
-   , boost::uint16_t& nEvaluationThreads
-   , boost::uint32_t& maxIterations
-   , long& maxMinutes
-   , boost::uint32_t& reportIteration
-   , boost::uint16_t& xDim
-   , boost::uint16_t& yDim
-   , bool& followProgress
+	int argc, char **argv
+	, boost::uint16_t& parallelizationMode
+	, bool& serverMode
+	, std::string& ip
+	, unsigned short& port
+	, boost::uint32_t& maxStalls
+	, boost::uint32_t& maxConnectionAttempts
+	, Gem::Common::serializationMode& serMode
+	, bool& addLocalConsumer
+	, std::size_t& nNeighborhoods
+	, std::size_t& nNeighborhoodMembers
+	, double& cPersonal
+	, double& cNeighborhood
+	, double& cGlobal
+	, double& cVelocity
+	, updateRule& ur
+	, bool& allRandomInit
+	, boost::uint16_t& nProducerThreads
+	, boost::uint16_t& nEvaluationThreads
+	, boost::uint32_t& maxIterations
+	, long& maxMinutes
+	, boost::uint32_t& reportIteration
+	, boost::uint16_t& xDim
+	, boost::uint16_t& yDim
+	, bool& followProgress
 );
 
 /******************************************************************************/

@@ -87,20 +87,20 @@ class progressMonitor
 
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
-	  using boost::serialization::make_nvp;
+		using boost::serialization::make_nvp;
 
-	  ar
-	  & make_nvp("GBaseEA_GEAOptimizationMonitor", boost::serialization::base_object<GBaseEA::GEAOptimizationMonitor>(*this))
-	  & BOOST_SERIALIZATION_NVP(xDimProgress_)
-	  & BOOST_SERIALIZATION_NVP(yDimProgress_)
-	  & BOOST_SERIALIZATION_NVP(df_)
-	  & BOOST_SERIALIZATION_NVP(followProgress_)
-	  & BOOST_SERIALIZATION_NVP(snapshotBaseName_)
-	  & BOOST_SERIALIZATION_NVP(minX_)
-	  & BOOST_SERIALIZATION_NVP(maxX_)
-	  & BOOST_SERIALIZATION_NVP(minY_)
-	  & BOOST_SERIALIZATION_NVP(maxY_)
-	  & BOOST_SERIALIZATION_NVP(outputPath_);
+		ar
+		& make_nvp("GBaseEA_GEAOptimizationMonitor", boost::serialization::base_object<GBaseEA::GEAOptimizationMonitor>(*this))
+		& BOOST_SERIALIZATION_NVP(xDimProgress_)
+		& BOOST_SERIALIZATION_NVP(yDimProgress_)
+		& BOOST_SERIALIZATION_NVP(df_)
+		& BOOST_SERIALIZATION_NVP(followProgress_)
+		& BOOST_SERIALIZATION_NVP(snapshotBaseName_)
+		& BOOST_SERIALIZATION_NVP(minX_)
+		& BOOST_SERIALIZATION_NVP(maxX_)
+		& BOOST_SERIALIZATION_NVP(minY_)
+		& BOOST_SERIALIZATION_NVP(maxY_)
+		& BOOST_SERIALIZATION_NVP(outputPath_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -123,7 +123,7 @@ public:
 		, minY_(-10.)
 		, maxY_( 10.)
 		, outputPath_("./results/")
-	{ /* nothing */  }
+	{ /* nothing */ }
 
 	/**********************************************************************************/
 	/**
@@ -168,75 +168,75 @@ public:
 	/**
 	 * Checks for equality with another GParameter Base object
 	 *
-	 * @param  cp A constant reference to another GEAOptimizationMonitor object
+	 * @param cp A constant reference to another GEAOptimizationMonitor object
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const progressMonitor& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
 	}
 
 	/**********************************************************************************/
 	/**
 	 * Checks for inequality with another GEAOptimizationMonitor object
 	 *
-	 * @param  cp A constant reference to another GEAOptimizationMonitor object
+	 * @param cp A constant reference to another GEAOptimizationMonitor object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const progressMonitor& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
 	}
 
-   /***************************************************************************/
-   /**
-    * Searches for compliance with expectations with respect to another object
-    * of the same type
-    *
-    * @param cp A constant reference to another GObject object
-    * @param e The expected outcome of the comparison
-    * @param limit The maximum deviation for floating point values (important for similarity checks)
-    */
-   virtual void compare(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-   ) const override {
-      // Check that we are indeed dealing with a GAdaptorT reference
-      const progressMonitor *p_load = GObject::gobject_conversion<progressMonitor >(&cp);
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		// Check that we are indeed dealing with a GAdaptorT reference
+		const progressMonitor *p_load = GObject::gobject_conversion<progressMonitor >(&cp);
 
-      Gem::Common::GToken token("progressMonitor", e);
+		Gem::Common::GToken token("progressMonitor", e);
 
-      // Compare our parent data ...
-      Gem::Common::compare_base<GBaseEA::GEAOptimizationMonitor>(IDENTITY(*this, *p_load), token);
+		// Compare our parent data ...
+		Gem::Common::compare_base<GBaseEA::GEAOptimizationMonitor>(IDENTITY(*this, *p_load), token);
 
-      // ... and then the local data
-      Gem::Common::compare_t(IDENTITY(xDimProgress_, p_load->xDimProgress_), token);
-      Gem::Common::compare_t(IDENTITY(yDimProgress_, p_load->yDimProgress_), token);
-      Gem::Common::compare_t(IDENTITY(df_, p_load->df_), token);
-      Gem::Common::compare_t(IDENTITY(followProgress_, p_load->followProgress_), token);
-      Gem::Common::compare_t(IDENTITY(snapshotBaseName_, p_load->snapshotBaseName_), token);
-      Gem::Common::compare_t(IDENTITY(minX_, p_load->minX_), token);
-      Gem::Common::compare_t(IDENTITY(maxX_, p_load->maxX_), token);
-      Gem::Common::compare_t(IDENTITY(minY_, p_load->minY_), token);
-      Gem::Common::compare_t(IDENTITY(maxY_, p_load->maxY_), token);
-      Gem::Common::compare_t(IDENTITY(xDimProgress_, p_load->xDimProgress_), token);
-      Gem::Common::compare_t(IDENTITY(yDimProgress_, p_load->yDimProgress_), token);
-      Gem::Common::compare_t(IDENTITY(outputPath_, p_load->outputPath_), token);
+		// ... and then the local data
+		Gem::Common::compare_t(IDENTITY(xDimProgress_, p_load->xDimProgress_), token);
+		Gem::Common::compare_t(IDENTITY(yDimProgress_, p_load->yDimProgress_), token);
+		Gem::Common::compare_t(IDENTITY(df_, p_load->df_), token);
+		Gem::Common::compare_t(IDENTITY(followProgress_, p_load->followProgress_), token);
+		Gem::Common::compare_t(IDENTITY(snapshotBaseName_, p_load->snapshotBaseName_), token);
+		Gem::Common::compare_t(IDENTITY(minX_, p_load->minX_), token);
+		Gem::Common::compare_t(IDENTITY(maxX_, p_load->maxX_), token);
+		Gem::Common::compare_t(IDENTITY(minY_, p_load->minY_), token);
+		Gem::Common::compare_t(IDENTITY(maxY_, p_load->maxY_), token);
+		Gem::Common::compare_t(IDENTITY(xDimProgress_, p_load->xDimProgress_), token);
+		Gem::Common::compare_t(IDENTITY(yDimProgress_, p_load->yDimProgress_), token);
+		Gem::Common::compare_t(IDENTITY(outputPath_, p_load->outputPath_), token);
 
-      // React on deviations from the expectation
-      token.evaluate();
-   }
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 	/*********************************************************************************************/
 	/**
@@ -318,10 +318,10 @@ public:
 	 */
 	void setXExtremes(const double& minX, const double& maxX) {
 		if(minX >= maxX) {
-		   glogger
-		   << "In progressMonitor::setXExtremes(): Error!" << std::endl
-		   << "Invalid min/max x values provided: " << minX << " / " << maxX << std::endl
-		   << GEXCEPTION;
+			glogger
+			<< "In progressMonitor::setXExtremes(): Error!" << std::endl
+			<< "Invalid min/max x values provided: " << minX << " / " << maxX << std::endl
+			<< GEXCEPTION;
 		}
 
 		minX_ = minX;
@@ -337,10 +337,10 @@ public:
 	 */
 	void setYExtremes(const double& minY, const double& maxY) {
 		if(minY >= maxY) {
-		   glogger
-		   << "In progressMonitor::setYExtremes(): Error!" << std::endl
-		   << "Invalid min/max y values provided: " << minY << " / " << maxY << std::endl
-		   << GEXCEPTION;
+			glogger
+			<< "In progressMonitor::setYExtremes(): Error!" << std::endl
+			<< "Invalid min/max y values provided: " << minY << " / " << maxY << std::endl
+			<< GEXCEPTION;
 		}
 
 		minY_ = minY;
@@ -433,8 +433,8 @@ protected:
 	 *
 	 */
 	virtual void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) override {
-	   // Convert the base pointer to the target type
-	   GBaseEA * const ea = static_cast<GBaseEA * const>(goa);
+		// Convert the base pointer to the target type
+		GBaseEA * const ea = static_cast<GBaseEA * const>(goa);
 
 		if(followProgress_) {
 			boost::uint32_t iteration = ea->getIteration();
@@ -451,10 +451,10 @@ protected:
 			// Open a file stream
 			boost::filesystem::ofstream ofs(boost::filesystem::path(outputPath_ + outputFileName));
 			if(!ofs) {
-			   glogger
-			   << "In progressMonitor::cycleInformation(): Error!" << std::endl
-			   << "Could not open output file " << outputFileName << std::endl
-			   << GEXCEPTION;
+				glogger
+				<< "In progressMonitor::cycleInformation(): Error!" << std::endl
+				<< "Could not open output file " << outputFileName << std::endl
+				<< GEXCEPTION;
 			}
 
 			// Retrieve the globally best individual for later use
@@ -530,8 +530,8 @@ protected:
 #ifdef DEBUG
 				// Check that we indeed only have two dimensions
 				if(x_ref.size() != 2) {
-				   glogger
-				   << "In progressMonitor::eaCycleInformation(): Error!" << std::endl
+					glogger
+					<< "In progressMonitor::eaCycleInformation(): Error!" << std::endl
 					<< "Found GDoubleCollection with invalid number of entries: " << x_ref.size() << std::endl
 					<< GEXCEPTION;
 				}

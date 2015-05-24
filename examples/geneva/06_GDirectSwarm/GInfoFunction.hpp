@@ -86,19 +86,19 @@ class progressMonitor
 
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
-	  using boost::serialization::make_nvp;
+		using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GBaseSwarm_GSwarmOptimizationMonitor", boost::serialization::base_object<GBaseSwarm::GSwarmOptimizationMonitor>(*this))
-	  	 & BOOST_SERIALIZATION_NVP(xDimProgress_)
-	  	 & BOOST_SERIALIZATION_NVP(yDimProgress_)
-	  	 & BOOST_SERIALIZATION_NVP(df_)
-	  	 & BOOST_SERIALIZATION_NVP(followProgress_)
-	  	 & BOOST_SERIALIZATION_NVP(snapshotBaseName_)
-	  	 & BOOST_SERIALIZATION_NVP(minX_)
-	  	 & BOOST_SERIALIZATION_NVP(maxX_)
-	  	 & BOOST_SERIALIZATION_NVP(minY_)
-	  	 & BOOST_SERIALIZATION_NVP(maxY_)
-	  	 & BOOST_SERIALIZATION_NVP(outputPath_);
+		ar & make_nvp("GBaseSwarm_GSwarmOptimizationMonitor", boost::serialization::base_object<GBaseSwarm::GSwarmOptimizationMonitor>(*this))
+		& BOOST_SERIALIZATION_NVP(xDimProgress_)
+		& BOOST_SERIALIZATION_NVP(yDimProgress_)
+		& BOOST_SERIALIZATION_NVP(df_)
+		& BOOST_SERIALIZATION_NVP(followProgress_)
+		& BOOST_SERIALIZATION_NVP(snapshotBaseName_)
+		& BOOST_SERIALIZATION_NVP(minX_)
+		& BOOST_SERIALIZATION_NVP(maxX_)
+		& BOOST_SERIALIZATION_NVP(minY_)
+		& BOOST_SERIALIZATION_NVP(maxY_)
+		& BOOST_SERIALIZATION_NVP(outputPath_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -121,7 +121,7 @@ public:
 		, minY_(-10.)
 		, maxY_( 10.)
 		, outputPath_("./results/")
-	{ /* nothing */  }
+	{ /* nothing */ }
 
 	/**********************************************************************************/
 	/**
@@ -143,12 +143,12 @@ public:
 		, outputPath_(cp.outputPath_)
 	{ /* nothing */ }
 
-   /**********************************************************************************/
-   /**
-    * A simple destructor
-    */
-   virtual ~progressMonitor()
-   { /* nothing */ }
+	/**********************************************************************************/
+	/**
+	 * A simple destructor
+	 */
+	virtual ~progressMonitor()
+	{ /* nothing */ }
 
 	/**********************************************************************************/
 	/**
@@ -166,75 +166,75 @@ public:
 	/**
 	 * Checks for equality with another GParameter Base object
 	 *
-	 * @param  cp A constant reference to another GEAOptimizationMonitor object
+	 * @param cp A constant reference to another GEAOptimizationMonitor object
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const progressMonitor& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
 	}
 
 	/**********************************************************************************/
 	/**
 	 * Checks for inequality with another GEAOptimizationMonitor object
 	 *
-	 * @param  cp A constant reference to another GEAOptimizationMonitor object
+	 * @param cp A constant reference to another GEAOptimizationMonitor object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const progressMonitor& cp) const {
-      using namespace Gem::Common;
-      try {
-         this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-         return true;
-      } catch(g_expectation_violation&) {
-         return false;
-      }
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
 	}
 
-   /***************************************************************************/
-   /**
-    * Searches for compliance with expectations with respect to another object
-    * of the same type
-    *
-    * @param cp A constant reference to another GObject object
-    * @param e The expected outcome of the comparison
-    * @param limit The maximum deviation for floating point values (important for similarity checks)
-    */
-   virtual void compare(
-      const GObject& cp
-      , const Gem::Common::expectation& e
-      , const double& limit
-   ) const override {
-      // Check that we are indeed dealing with a GAdaptorT reference
-      const progressMonitor *p_load = GObject::gobject_conversion<progressMonitor >(&cp);
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		// Check that we are indeed dealing with a GAdaptorT reference
+		const progressMonitor *p_load = GObject::gobject_conversion<progressMonitor >(&cp);
 
-      Gem::Common::GToken token("progressMonitor", e);
+		Gem::Common::GToken token("progressMonitor", e);
 
-      // Compare our parent data ...
-      Gem::Common::compare_base<GBaseSwarm::GSwarmOptimizationMonitor>(IDENTITY(*this, *p_load), token);
+		// Compare our parent data ...
+		Gem::Common::compare_base<GBaseSwarm::GSwarmOptimizationMonitor>(IDENTITY(*this, *p_load), token);
 
-      // ... and then the local data
-      Gem::Common::compare_t(IDENTITY(xDimProgress_, p_load->xDimProgress_), token);
-      Gem::Common::compare_t(IDENTITY(yDimProgress_, p_load->yDimProgress_), token);
-      Gem::Common::compare_t(IDENTITY(df_, p_load->df_), token);
-      Gem::Common::compare_t(IDENTITY(followProgress_, p_load->followProgress_), token);
-      Gem::Common::compare_t(IDENTITY(snapshotBaseName_, p_load->snapshotBaseName_), token);
-      Gem::Common::compare_t(IDENTITY(minX_, p_load->minX_), token);
-      Gem::Common::compare_t(IDENTITY(maxX_, p_load->maxX_), token);
-      Gem::Common::compare_t(IDENTITY(minY_, p_load->minY_), token);
-      Gem::Common::compare_t(IDENTITY(maxY_, p_load->maxY_), token);
-      Gem::Common::compare_t(IDENTITY(xDimProgress_, p_load->xDimProgress_), token);
-      Gem::Common::compare_t(IDENTITY(yDimProgress_, p_load->yDimProgress_), token);
-      Gem::Common::compare_t(IDENTITY(outputPath_, p_load->outputPath_), token);
+		// ... and then the local data
+		Gem::Common::compare_t(IDENTITY(xDimProgress_, p_load->xDimProgress_), token);
+		Gem::Common::compare_t(IDENTITY(yDimProgress_, p_load->yDimProgress_), token);
+		Gem::Common::compare_t(IDENTITY(df_, p_load->df_), token);
+		Gem::Common::compare_t(IDENTITY(followProgress_, p_load->followProgress_), token);
+		Gem::Common::compare_t(IDENTITY(snapshotBaseName_, p_load->snapshotBaseName_), token);
+		Gem::Common::compare_t(IDENTITY(minX_, p_load->minX_), token);
+		Gem::Common::compare_t(IDENTITY(maxX_, p_load->maxX_), token);
+		Gem::Common::compare_t(IDENTITY(minY_, p_load->minY_), token);
+		Gem::Common::compare_t(IDENTITY(maxY_, p_load->maxY_), token);
+		Gem::Common::compare_t(IDENTITY(xDimProgress_, p_load->xDimProgress_), token);
+		Gem::Common::compare_t(IDENTITY(yDimProgress_, p_load->yDimProgress_), token);
+		Gem::Common::compare_t(IDENTITY(outputPath_, p_load->outputPath_), token);
 
-      // React on deviations from the expectation
-      token.evaluate();
-   }
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 	/*********************************************************************************************/
 	/**
@@ -318,7 +318,7 @@ public:
 		if(minX >= maxX) {
 			std::ostringstream error;
 			error << "In progressMonitor::setXExtremes(): Error!" << std::endl
-				  << "Invalid min/max x values provided: " << minX << " / " << maxX << std::endl;
+			<< "Invalid min/max x values provided: " << minX << " / " << maxX << std::endl;
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
@@ -337,7 +337,7 @@ public:
 		if(minY >= maxY) {
 			std::ostringstream error;
 			error << "In progressMonitor::setYExtremes(): Error!" << std::endl
-				  << "Invalid min/max y values provided: " << minY << " / " << maxY << std::endl;
+			<< "Invalid min/max y values provided: " << minY << " / " << maxY << std::endl;
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
@@ -430,8 +430,8 @@ protected:
 	 * used for illustration purposes only.
 	 */
 	virtual void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) override {
-      // Convert the base pointer to the target type
-      GBaseSwarm * const swarm = static_cast<GBaseSwarm * const>(goa);
+		// Convert the base pointer to the target type
+		GBaseSwarm * const swarm = static_cast<GBaseSwarm * const>(goa);
 
 		if(followProgress_) {
 			boost::uint32_t iteration = swarm->getIteration();
@@ -449,54 +449,54 @@ protected:
 			if(!ofs) {
 				std::ostringstream error;
 				error << "In progressMonitor::swarmCycleInformation(): Error!" << std::endl
-					  << "Could not open output file " << outputFileName << std::endl;
+				<< "Could not open output file " << outputFileName << std::endl;
 				throw(Gem::Common::gemfony_error_condition(error.str()));
 			}
 
 			// Retrieve the globally best individual for later use
 			std::shared_ptr<GParameterSet> g_best_ptr = swarm->GOptimizableI::getBestIndividual<GParameterSet>();
-         // Extract the fitness (Note: this will throw, if the individual is "dirty")
-         double global_best_fitness = g_best_ptr->transformedFitness();
+			// Extract the fitness (Note: this will throw, if the individual is "dirty")
+			double global_best_fitness = g_best_ptr->transformedFitness();
 
 			// Output a ROOT header
 			ofs << "{" << std::endl
-				<< "  gROOT->Reset();" << std::endl
-				<< "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0," << xDimProgress_ << "," << yDimProgress_ << ");" << std::endl
-				<< "  gStyle->SetTitle(\"" << (GFunctionIndividual::getStringRepresentation(df_) + " / iteration = " + boost::lexical_cast<std::string>(iteration)) + " / fitness = "<< global_best_fitness << "\");" << std::endl
-				<< std::endl
-			    << "  TF2 *tf = new TF2(\"tf\", \"" << GFunctionIndividual::get2DROOTFunction(df_) << "\", " << minX_ << ", " << maxX_ << ", " << minY_ << ", " << maxY_ << ");" << std::endl
-				<< "  tf->SetLineWidth(0.05);" << std::endl
-				<< "  tf->SetLineColor(16);" << std::endl
-				<< "  tf->GetXaxis()->SetLabelSize(0.02);" << std::endl
-				<< "  tf->GetYaxis()->SetLabelSize(0.02);" << std::endl
-				<< "  tf->GetHistogram()->SetTitle(\"" << (GFunctionIndividual::getStringRepresentation(df_) + " / iteration " + boost::lexical_cast<std::string>(iteration)) + " / fitness = "<< global_best_fitness << "\");"
-				<< std::endl
-				<< "  tf->Draw();" << std::endl
-				<< std::endl;
+			<< "  gROOT->Reset();" << std::endl
+			<< "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0," << xDimProgress_ << "," << yDimProgress_ << ");" << std::endl
+			<< "  gStyle->SetTitle(\"" << (GFunctionIndividual::getStringRepresentation(df_) + " / iteration = " + boost::lexical_cast<std::string>(iteration)) + " / fitness = "<< global_best_fitness << "\");" << std::endl
+			<< std::endl
+			<< "  TF2 *tf = new TF2(\"tf\", \"" << GFunctionIndividual::get2DROOTFunction(df_) << "\", " << minX_ << ", " << maxX_ << ", " << minY_ << ", " << maxY_ << ");" << std::endl
+			<< "  tf->SetLineWidth(0.05);" << std::endl
+			<< "  tf->SetLineColor(16);" << std::endl
+			<< "  tf->GetXaxis()->SetLabelSize(0.02);" << std::endl
+			<< "  tf->GetYaxis()->SetLabelSize(0.02);" << std::endl
+			<< "  tf->GetHistogram()->SetTitle(\"" << (GFunctionIndividual::getStringRepresentation(df_) + " / iteration " + boost::lexical_cast<std::string>(iteration)) + " / fitness = "<< global_best_fitness << "\");"
+			<< std::endl
+			<< "  tf->Draw();" << std::endl
+			<< std::endl;
 
 			// Draw lines where the global optima are
 			std::vector<double> f_x_mins = GFunctionIndividual::getXMin(df_);
 			std::vector<double> f_y_mins = GFunctionIndividual::getYMin(df_);
 
 			ofs << "  //============================================================" << std::endl
-			    << "  // Minima and maxima" << std::endl
-			    << std::endl;
+			<< "  // Minima and maxima" << std::endl
+			<< std::endl;
 			for(std::size_t i=0; i<f_x_mins.size(); i++) {
 				ofs << "  TLine *tlx" << i << " = new TLine(" << f_x_mins[i] << ", " << minY_ << ", " << f_x_mins[i] << ", " << maxY_ << ");" << std::endl
-					<< "  tlx" << i << "->SetLineStyle(5);" << std::endl
-					<< "  tlx" << i << "->SetLineColor(45);" << std::endl
-					<< "  tlx" << i << "->Draw();" << std::endl;
+				<< "  tlx" << i << "->SetLineStyle(5);" << std::endl
+				<< "  tlx" << i << "->SetLineColor(45);" << std::endl
+				<< "  tlx" << i << "->Draw();" << std::endl;
 			}
 			for(std::size_t i=0; i<f_y_mins.size(); i++) {
 				ofs << "  TLine *tly" << i << " = new TLine(" << minX_ << ", " << f_y_mins[i] << ", " << maxX_ << ", " << f_y_mins[i] << ");" << std::endl
-					<< "  tly" << i << "->SetLineStyle(5);" << std::endl
-					<< "  tly" << i << "->SetLineColor(45);" << std::endl
-					<< "  tly" << i << "->Draw();" << std::endl;
+				<< "  tly" << i << "->SetLineStyle(5);" << std::endl
+				<< "  tly" << i << "->SetLineColor(45);" << std::endl
+				<< "  tly" << i << "->Draw();" << std::endl;
 			}
 			ofs << std::endl
-			    << "  //============================================================" << std::endl
-				<< "  // Neighborhood bests" << std::endl
-				<< std::endl;
+			<< "  //============================================================" << std::endl
+			<< "  // Neighborhood bests" << std::endl
+			<< std::endl;
 
 			// Extract the locally best individuals and mark them in the plot
 			for(std::size_t neighborhood=0; neighborhood<swarm->getNNeighborhoods(); neighborhood++) {
@@ -509,23 +509,23 @@ protected:
 				// Add to the plot, if the marker would still be inside the main drawing area
 				if(x_local_best > minX_ && x_local_best < maxX_ && y_local_best > minY_ && y_local_best < maxY_) {
 					ofs << "  TMarker *lbest" << neighborhood << " = new TMarker(" << x_local_best << ", " << y_local_best << ", 22);" << std::endl // A circle
-						<< "  lbest" << neighborhood << "->SetMarkerColor(4);" << std::endl
-						<< "  lbest" << neighborhood << "->SetMarkerSize(1.3);" << std::endl
-						<< "  lbest" << neighborhood << "->Draw();" << std::endl
-						<< std::endl;
+					<< "  lbest" << neighborhood << "->SetMarkerColor(4);" << std::endl
+					<< "  lbest" << neighborhood << "->SetMarkerSize(1.3);" << std::endl
+					<< "  lbest" << neighborhood << "->Draw();" << std::endl
+					<< std::endl;
 				} else { // Mark entries as being outside of the drawing area
 					ofs << "  // TMarker *lbest" << neighborhood << " = new TMarker(" << x_local_best << ", " << y_local_best << ", 22); /* Marker outside of drawing area! */" << std::endl
-						<< "  // lbest" << neighborhood << "->SetMarkerColor(4);" << std::endl
-						<< "  // lbest" << neighborhood << "->SetMarkerSize(1.3);" << std::endl
-						<< "  // lbest" << neighborhood << "->Draw();" << std::endl
-						<< std::endl;
+					<< "  // lbest" << neighborhood << "->SetMarkerColor(4);" << std::endl
+					<< "  // lbest" << neighborhood << "->SetMarkerSize(1.3);" << std::endl
+					<< "  // lbest" << neighborhood << "->Draw();" << std::endl
+					<< std::endl;
 				}
 			}
 
 			ofs << std::endl
-				<< "  //============================================================" << std::endl
-				<< "  // Global best" << std::endl
-				<< std::endl;
+			<< "  //============================================================" << std::endl
+			<< "  // Global best" << std::endl
+			<< std::endl;
 
 			// Extract the coordinates of the globally best individual and mark them in the plot
 			double x_global_best = g_best_ptr->at<GDoubleCollection>(0)->at(0);
@@ -534,24 +534,24 @@ protected:
 			// Add to the plot, if the marker would still be inside the main drawing area
 			if(x_global_best > minX_ && x_global_best < maxX_ && y_global_best > minY_ && y_global_best < maxY_) {
 				ofs << "  TMarker *gbest = new TMarker(" << x_global_best << ", " << y_global_best << ", 8);" << std::endl // A circle
-					<< "  gbest->SetMarkerColor(2);" << std::endl
-					<< "  gbest->SetMarkerSize(1.8);" << std::endl
-					<< "  gbest->Draw();" << std::endl
-					<< std::endl;
+				<< "  gbest->SetMarkerColor(2);" << std::endl
+				<< "  gbest->SetMarkerSize(1.8);" << std::endl
+				<< "  gbest->Draw();" << std::endl
+				<< std::endl;
 			} else {
 				ofs << "  // TMarker *gbest = new TMarker(" << x_global_best << ", " << y_global_best << ", 8); /* Marker outside of drawing area! */" << std::endl
-					<< "  // gbest->SetMarkerColor(2);" << std::endl
-					<< "  // gbest->SetMarkerSize(1.8);" << std::endl
-					<< "  // gbest->Draw();" << std::endl
-					<< std::endl;
+				<< "  // gbest->SetMarkerColor(2);" << std::endl
+				<< "  // gbest->SetMarkerSize(1.8);" << std::endl
+				<< "  // gbest->Draw();" << std::endl
+				<< std::endl;
 			}
 
 
 			// Loop over all individuals in this iteration and output their parameters
 			ofs << std::endl
-				<< "  //============================================================" << std::endl
-				<< "  // Individuals" << std::endl
-				<< std::endl;
+			<< "  //============================================================" << std::endl
+			<< "  // Individuals" << std::endl
+			<< std::endl;
 
 			GBaseSwarm::iterator it;
 			std::size_t particle = 0;
@@ -573,23 +573,23 @@ protected:
 				// Only draw the particle if it is inside of the function plot
 				if(x_ref[0] > minX_ && x_ref[0] < maxX_ && x_ref[1] > minY_ && x_ref[1] < maxY_) {
 					ofs << "  TText txt_" << particle << "(" << x_ref[0] << ", " << x_ref[1] << ", \"" << (*it)->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood() << "\");" << std::endl
-						<< "  txt_" << particle << "->SetTextSize(0.013);" << std::endl
-						<< "  txt_" << particle << "->Draw();" << std::endl
-						<< std::endl;
+					<< "  txt_" << particle << "->SetTextSize(0.013);" << std::endl
+					<< "  txt_" << particle << "->Draw();" << std::endl
+					<< std::endl;
 				} else {
 					ofs << "  // TText txt_" << particle << "(" << x_ref[0] << ", " << x_ref[1] << ", \"" << (*it)->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood() << "\"); /* Marker outside of drawing area! */" << std::endl
-						<< "  // txt_" << particle << "->SetTextSize(0.013);" << std::endl
-						<< "  // txt_" << particle << "->Draw();" << std::endl
-						<< std::endl;
+					<< "  // txt_" << particle << "->SetTextSize(0.013);" << std::endl
+					<< "  // txt_" << particle << "->Draw();" << std::endl
+					<< std::endl;
 				}
 			}
 
 			ofs << std::endl
-				<< "  //============================================================" << std::endl
-				<< "  // Plotting" << std::endl
-				<< std::endl
-				<< "  cc->Print(\"" << (snapshotBaseName_ + "_" + boost::lexical_cast<std::string>(iteration) + ".jpg") << "\");" << std::endl
-				<< "}" << std::endl;
+			<< "  //============================================================" << std::endl
+			<< "  // Plotting" << std::endl
+			<< std::endl
+			<< "  cc->Print(\"" << (snapshotBaseName_ + "_" + boost::lexical_cast<std::string>(iteration) + ".jpg") << "\");" << std::endl
+			<< "}" << std::endl;
 
 			// Close the file stream
 			ofs.close();
