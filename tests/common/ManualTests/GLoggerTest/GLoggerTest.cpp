@@ -45,40 +45,40 @@
 using namespace Gem::Common;
 
 int main(int argc, char** argv) {
-   std::shared_ptr<GBaseLogTarget> gcl_ptr(new GConsoleLogger());
-   std::shared_ptr<GBaseLogTarget> gfl_ptr(new GFileLogger("./somePathToLogFile.txt"));
+	std::shared_ptr<GBaseLogTarget> gcl_ptr(new GConsoleLogger());
+	std::shared_ptr<GBaseLogTarget> gfl_ptr(new GFileLogger("./somePathToLogFile.txt"));
 
-   glogger.addLogTarget(gcl_ptr);
-   glogger.addLogTarget(gfl_ptr);
+	glogger.addLogTarget(gcl_ptr);
+	glogger.addLogTarget(gfl_ptr);
 
-   // Emission of a leading std::endl
-   glogger << std::endl << "This comment starts in the next line!" << std::endl << GLOGGING;
+	// Emission of a leading std::endl
+	glogger << std::endl << "This comment starts in the next line!" << std::endl << GLOGGING;
 
-   // Normal output to all logging targets
-   glogger << "Some information " << 1 << " " << 2 << std::endl << GLOGGING;
+	// Normal output to all logging targets
+	glogger << "Some information " << 1 << " " << 2 << std::endl << GLOGGING;
 
-   // Warning emitted to all targets
-   glogger << "Some information " << 3 << " " << 4 << std::endl << GWARNING;
+	// Warning emitted to all targets
+	glogger << "Some information " << 3 << " " << 4 << std::endl << GWARNING;
 
-   // Raising an exception. Note that the data will also be written to
-   // a file named GENEVA-EXCEPTION.log
-   try {
-      glogger << "Some information " << 5 << " " << 6 << std::endl << GEXCEPTION;
-   } catch(gemfony_error_condition& e) {
-      std::cout
-      << "Caught exception with message" << std::endl
-      << e << std::endl;
-   }
+	// Raising an exception. Note that the data will also be written to
+	// a file named GENEVA-EXCEPTION.log
+	try {
+		glogger << "Some information " << 5 << " " << 6 << std::endl << GEXCEPTION;
+	} catch(gemfony_error_condition& e) {
+		std::cout
+		<< "Caught exception with message" << std::endl
+		<< e << std::endl;
+	}
 
-   // Output to a specific file
-   glogger(boost::filesystem::path("anotherFile")) << "Some other information " << 7 << " " << 8 << std::endl << GFILE;
+	// Output to a specific file
+	glogger(boost::filesystem::path("anotherFile")) << "Some other information " << 7 << " " << 8 << std::endl << GFILE;
 
-   // Output to registered logging targets with a given extension
-   glogger(std::string("extension")) << "And yet another information " << 9 << " " << 10 << std::endl << GLOGGING;
+	// Output to registered logging targets with a given extension
+	glogger(std::string("extension")) << "And yet another information " << 9 << " " << 10 << std::endl << GLOGGING;
 
-   // Output to stdout
-   glogger << "std::out-information" << std::endl << GSTDOUT;
+	// Output to stdout
+	glogger << "std::out-information" << std::endl << GSTDOUT;
 
-   // Output to stderr
-   glogger << "std::err information" << std::endl << GSTDERR;
+	// Output to stderr
+	glogger << "std::err information" << std::endl << GSTDERR;
 }

@@ -46,27 +46,27 @@
 using namespace Gem::Common;
 
 int main(int argc, char** argv) {
-   { // Test of the parsing of an integer string
-      std::string in_single = "1, 2, 3, 4";
-      std::vector<unsigned int> result_single;
-      result_single = stringToUIntVec(in_single);
+	{ // Test of the parsing of an integer string
+		std::string in_single = "1, 2, 3, 4";
+		std::vector<unsigned int> result_single;
+		result_single = stringToUIntVec(in_single);
 
-      std::vector<unsigned int>::iterator it;
-      for(it=result_single.begin(); it!=result_single.end(); ++it) {
-         std::cout << *it << " ";
-      }
-      std::cout << std::endl;
-   }
+		std::vector<unsigned int>::iterator it;
+		for(it=result_single.begin(); it!=result_single.end(); ++it) {
+			std::cout << *it << " ";
+		}
+		std::cout << std::endl;
+	}
 
-   { // Test of tuple parsing
-      std::string in_tuple  = "(1,2), (3,4 ) , (3    ,  5)";
-      std::vector<boost::tuple<unsigned int, unsigned int> > result_tuple;
-      result_tuple  = stringToUIntTupleVec(in_tuple);
+	{ // Test of tuple parsing
+		std::string in_tuple  = "(1,2), (3,4 ) , (3    ,  5)";
+		std::vector<boost::tuple<unsigned int, unsigned int> > result_tuple;
+		result_tuple = stringToUIntTupleVec(in_tuple);
 
-      std::vector<boost::tuple<unsigned int, unsigned int> >::iterator it;
-      for(it=result_tuple.begin(); it!=result_tuple.end(); ++it) {
-         std::cout << *it << " ";
-      }
-      std::cout << std::endl;
-   }
+		std::vector<boost::tuple<unsigned int, unsigned int> >::iterator it;
+		for(it=result_tuple.begin(); it!=result_tuple.end(); ++it) {
+			std::cout << *it << " ";
+		}
+		std::cout << std::endl;
+	}
 }

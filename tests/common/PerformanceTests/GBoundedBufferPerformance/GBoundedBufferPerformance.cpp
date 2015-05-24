@@ -186,8 +186,8 @@ void producer(
 				buffer.push_front(std::shared_ptr<double>(new double(var)));
 				boost::this_thread::sleep(
 					boost::posix_time::microseconds(
-					      boost::numeric_cast<boost::posix_time::time_duration::tick_type>(
-					       gr.uniform_int(long(0), maxRandomDelayMS)
+						boost::numeric_cast<boost::posix_time::time_duration::tick_type>(
+							gr.uniform_int(long(0), maxRandomDelayMS)
 						)
 					)
 				);
@@ -203,8 +203,8 @@ void producer(
 				}
 				boost::this_thread::sleep(
 					boost::posix_time::microseconds(
-					      boost::numeric_cast<boost::posix_time::time_duration::tick_type>(
-					        gr.uniform_int(long(0), maxRandomDelayMS)
+						boost::numeric_cast<boost::posix_time::time_duration::tick_type>(
+							gr.uniform_int(long(0), maxRandomDelayMS)
 						)
 					)
 				);
@@ -311,8 +311,8 @@ void consumer(
 			}
 			boost::this_thread::sleep(
 				boost::posix_time::microseconds(
-				      boost::numeric_cast<boost::posix_time::time_duration::tick_type>(
-				       gr.uniform_int(long(0), maxRandomDelayMS)
+					boost::numeric_cast<boost::posix_time::time_duration::tick_type>(
+						gr.uniform_int(long(0), maxRandomDelayMS)
 					)
 				)
 			);
@@ -362,17 +362,17 @@ int main(int argc, char**argv) {
 
 	// Read the program options
 	if(!parseCommandLine(
-			argc, argv
-			, resultFile
-			, nProducers
-			, nItems
-			, nConsumers
-			, timeoutMS
-			, maxRandomDelayMS
-			, startDelayMS
-			, startAtOnce
-		)
+		argc, argv
+		, resultFile
+		, nProducers
+		, nItems
+		, nConsumers
+		, timeoutMS
+		, maxRandomDelayMS
+		, startDelayMS
+		, startAtOnce
 	)
+		)
 	{ exit(1); }
 
 	// Initialize the counters and vectors
@@ -384,10 +384,10 @@ int main(int argc, char**argv) {
 	consumerSum.resize(nConsumers);
 
 	// Prepare the termination criterion for consumers
-   {
-      boost::unique_lock<boost::shared_mutex> lock(consumerStopMutex);
-      consumerStop = false;
-   }
+	{
+		boost::unique_lock<boost::shared_mutex> lock(consumerStopMutex);
+		consumerStop = false;
+	}
 
 	// Initialize the producer counters with 0s
 	for(std::size_t i=0; i<nProducers; i++) {
@@ -415,7 +415,7 @@ int main(int argc, char**argv) {
 			, nItems
 			, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(timeoutMS))
 			, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(maxRandomDelayMS))
-		    , startAtOnce
+			, startAtOnce
 		)
 		, nProducers
 	);
@@ -429,7 +429,7 @@ int main(int argc, char**argv) {
 			consumer
 			, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(timeoutMS))
 			, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(maxRandomDelayMS))
-		    , startAtOnce
+			, startAtOnce
 		)
 		, nConsumers);
 

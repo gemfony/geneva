@@ -40,41 +40,41 @@
 using namespace Gem::Common;
 
 int main(int argc, char**argv) {
-   GCanvas<8> gc, gc2;
+	GCanvas<8> gc, gc2;
 
-   // Check loading of the data from file
-   gc.loadFromFile(bf::path("./pictures/ml.ppm"));
-   gc2 = gc;
+	// Check loading of the data from file
+	gc.loadFromFile(bf::path("./pictures/ml.ppm"));
+	gc2 = gc;
 
-   // Check that there is no difference between both
-   if(gc2.diff(gc) != 0.) {
-      std::cout << "Error: Found difference between objects: " << gc2.diff(gc) << std::endl;
-      return 1;
-   }
+	// Check that there is no difference between both
+	if(gc2.diff(gc) != 0.) {
+		std::cout << "Error: Found difference between objects: " << gc2.diff(gc) << std::endl;
+		return 1;
+	}
 
-   // Set up a red, semi-transparent triangle ...
-   t_circle t_c;
-   t_c.middle = coord2D(0.5f,0.5f);
-   t_c.radius = 0.1f;
-   t_c.angle1 = float(0.0);
-   t_c.angle2 = float(0.25);
-   t_c.angle3 = float(0.5);
-   t_c.r = 1.f;
-   t_c.g = 0.f;
-   t_c.b = 0.f;
-   t_c.a = 0.5f;
+	// Set up a red, semi-transparent triangle ...
+	t_circle t_c;
+	t_c.middle = coord2D(0.5f,0.5f);
+	t_c.radius = 0.1f;
+	t_c.angle1 = float(0.0);
+	t_c.angle2 = float(0.25);
+	t_c.angle3 = float(0.5);
+	t_c.r = 1.f;
+	t_c.g = 0.f;
+	t_c.b = 0.f;
+	t_c.a = 0.5f;
 
-   // ... and add it to the canvas
-   gc.addTriangle(t_c);
+	// ... and add it to the canvas
+	gc.addTriangle(t_c);
 
-   // Check that there is a difference between gc2 and gc
-   if(gc2.diff(gc) <= 0.) {
-      std::cout << "Error: Incorrect difference between objects: " << gc2.diff(gc) << std::endl;
-      exit(1);
-   }
+	// Check that there is a difference between gc2 and gc
+	if(gc2.diff(gc) <= 0.) {
+		std::cout << "Error: Incorrect difference between objects: " << gc2.diff(gc) << std::endl;
+		exit(1);
+	}
 
-   // Finally save the picture to disk
-   gc.toFile(bf::path("./pictures/result.ppm"));
+	// Finally save the picture to disk
+	gc.toFile(bf::path("./pictures/result.ppm"));
 
-   return 0;
+	return 0;
 }

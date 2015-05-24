@@ -60,9 +60,9 @@ int main(int argc, char** argv) {
 	gcos_ptr->setXAxisLabel("x");
 	gcos_ptr->setYAxisLabel("cos(x)");
 
-   std::shared_ptr<GGraph2D> gcos_ptr_2(new GGraph2D());
-   gcos_ptr_2->setPlotMode(Gem::Common::SCATTER);
-   gsin_ptr->registerSecondaryPlotter(gcos_ptr_2);
+	std::shared_ptr<GGraph2D> gcos_ptr_2(new GGraph2D());
+	gcos_ptr_2->setPlotMode(Gem::Common::SCATTER);
+	gsin_ptr->registerSecondaryPlotter(gcos_ptr_2);
 
 	for(std::size_t i=0; i<1000; i++) {
 		double x = 2*boost::math::constants::pi<double>()*double(i)/1000. - boost::math::constants::pi<double>();
