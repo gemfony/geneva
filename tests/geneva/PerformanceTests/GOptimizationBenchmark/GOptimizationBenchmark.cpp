@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
 	// Loop over all dimensions and the number of tests in each dimension
 	std::size_t nTests = gbc.getNTests();
 	std::vector<xyWE> resultVec; // Will hold the results for each dimension
-   std::vector<xyWE> timingVec; // Will hold the results for each dimension
+	std::vector<xyWE> timingVec; // Will hold the results for each dimension
 	std::vector<boost::uint32_t> dimVec = gbc.getParDim(); // Will hold the dimensions for each test row
 	std::vector<boost::uint32_t>::iterator it;
 	std::string functionName;
@@ -88,12 +88,12 @@ int main(int argc, char **argv) {
 	GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
 	for(it=dimVec.begin(); it!=dimVec.end(); ++it) {
-      // Individual test results go here
-      std::vector<double> bestResult;
-      // The time consumed until the optimization was terminated
-      std::vector<double> timeConsumed;
-      // Holds timing measurements
-	   boost::posix_time::ptime startTime, endTime;
+		// Individual test results go here
+		std::vector<double> bestResult;
+		// The time consumed until the optimization was terminated
+		std::vector<double> timeConsumed;
+		// Holds timing measurements
+		boost::posix_time::ptime startTime, endTime;
 
 		std::cout << "Starting new measurement with dimension " << *it << std::endl;
 
@@ -107,15 +107,15 @@ int main(int argc, char **argv) {
 
 #ifdef DEBUG
 			if(g->getParameterSize() != *it) {
-			   glogger
-			   << "In main(): parameter size of individual != requested size: " << g->getParameterSize() << " / " << *it << std::endl
-			   << GEXCEPTION;
+				glogger
+				<< "In main(): parameter size of individual != requested size: " << g->getParameterSize() << " / " << *it << std::endl
+				<< GEXCEPTION;
 			}
 
 			if(!go.empty()) {
-			   glogger
-			   << "In main(): go contains " << go.size() << " items when it should be empty." << std::endl
-			   << GEXCEPTION;
+				glogger
+				<< "In main(): go contains " << go.size() << " items when it should be empty." << std::endl
+				<< GEXCEPTION;
 			}
 #endif /* DEBUG */
 
@@ -167,11 +167,11 @@ int main(int argc, char **argv) {
 	//-------------------------------------------------------------------------
 	// Create plots from the result vector
 
-   std::shared_ptr<GGraph2ED> timing_ptr(new GGraph2ED());
-   timing_ptr->setPlotMode(CURVE);
-   timing_ptr->setPlotLabel("Timings of optimization runs [s]");
-   timing_ptr->setXAxisLabel("Function Dimension");
-   timing_ptr->setYAxisLabel("Seconds consumed");
+	std::shared_ptr<GGraph2ED> timing_ptr(new GGraph2ED());
+	timing_ptr->setPlotMode(CURVE);
+	timing_ptr->setPlotLabel("Timings of optimization runs [s]");
+	timing_ptr->setXAxisLabel("Function Dimension");
+	timing_ptr->setYAxisLabel("Seconds consumed");
 
 	std::shared_ptr<GGraph2ED> gopt_ptr(new GGraph2ED());
 	gopt_ptr->setPlotMode(CURVE);

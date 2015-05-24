@@ -67,56 +67,56 @@ using namespace Gem::Tests;
  * @param ab The parameters a and b of the line best describing all measurements, so that f(x)=a+b*x
  */
 void startReferenceMeasurement(
-   Go2& go
-   , GDelayIndividualFactory& gdif
-   , boost::tuple<double,double,double,double>& ab
+	Go2& go
+	, GDelayIndividualFactory& gdif
+	, boost::tuple<double,double,double,double>& ab
 ) {
-   std::vector<boost::tuple<double, double> > referenceExecutionTimes;
+	std::vector<boost::tuple<double, double> > referenceExecutionTimes;
 
-   //---------------------------------------------------------------------
-   // Loop until no valid individuals can be retrieved anymore
-   boost::uint32_t interMeasurementDelay = 1;
-   boost::uint32_t nMeasurementsPerIteration = 5;
-   std::size_t iter = 0;
-   std::shared_ptr<GDelayIndividual> gdi_ptr;
-   while((gdi_ptr = gdif.get<GDelayIndividual>())) {
-      if(0==iter) { // The first individual must already have been produced in order to access parsed data
-         // Determine the amount of seconds the process should sleep in between two measurements
-         interMeasurementDelay = gdif.getInterMeasurementDelay();
-         // Determine the number of measurements to be made for each delay
-         nMeasurementsPerIteration = gdif.getNMeasurements();
-      }
+	//---------------------------------------------------------------------
+	// Loop until no valid individuals can be retrieved anymore
+	boost::uint32_t interMeasurementDelay = 1;
+	boost::uint32_t nMeasurementsPerIteration = 5;
+	std::size_t iter = 0;
+	std::shared_ptr<GDelayIndividual> gdi_ptr;
+	while((gdi_ptr = gdif.get<GDelayIndividual>())) {
+		if(0==iter) { // The first individual must already have been produced in order to access parsed data
+			// Determine the amount of seconds the process should sleep in between two measurements
+			interMeasurementDelay = gdif.getInterMeasurementDelay();
+			// Determine the number of measurements to be made for each delay
+			nMeasurementsPerIteration = gdif.getNMeasurements();
+		}
 
-      for(boost::uint32_t i=0; i<nMeasurementsPerIteration; i++) {
-         // Make the individual known to the optimizer
-         go.push_back(gdi_ptr);
+		for(boost::uint32_t i=0; i<nMeasurementsPerIteration; i++) {
+			// Make the individual known to the optimizer
+			go.push_back(gdi_ptr);
 
-         // Do the actual optimization and measure the time
-         boost::posix_time::ptime startTime = boost::posix_time::microsec_clock::local_time();
-         go.optimize<GDelayIndividual>();
-         boost::posix_time::ptime endTime = boost::posix_time::microsec_clock::local_time();
-         boost::posix_time::time_duration duration = endTime - startTime;
+			// Do the actual optimization and measure the time
+			boost::posix_time::ptime startTime = boost::posix_time::microsec_clock::local_time();
+			go.optimize<GDelayIndividual>();
+			boost::posix_time::ptime endTime = boost::posix_time::microsec_clock::local_time();
+			boost::posix_time::time_duration duration = endTime - startTime;
 
-         referenceExecutionTimes.push_back(
-            boost::tuple<double,double>(
-               double(gdi_ptr->getSleepTime().total_milliseconds())/1000.
-               , double(duration.total_milliseconds())/1000.
-             )
-         );
+			referenceExecutionTimes.push_back(
+				boost::tuple<double,double>(
+					double(gdi_ptr->getSleepTime().total_milliseconds())/1000.
+					, double(duration.total_milliseconds())/1000.
+				)
+			);
 
-         // Clean up the collection
-         go.clear();
-      }
+			// Clean up the collection
+			go.clear();
+		}
 
-      // Wait for late arrivals
-      boost::this_thread::sleep(boost::posix_time::seconds(interMeasurementDelay));
+		// Wait for late arrivals
+		boost::this_thread::sleep(boost::posix_time::seconds(interMeasurementDelay));
 
-      // Increment the iteration counter
-      iter++;
-   }
+		// Increment the iteration counter
+		iter++;
+	}
 
-   // Calculate the regression parameters a and b, including errors
-   ab = getRegressionParameters(referenceExecutionTimes);
+	// Calculate the regression parameters a and b, including errors
+	ab = getRegressionParameters(referenceExecutionTimes);
 }
 
 /******************************************************************************/
@@ -133,67 +133,67 @@ void startReferenceMeasurement(
  * @param parallelExecutionTimes A vector of parallel execution times, together with errors
  */
 void startParallelMeasurement(
-   Go2& go
-   , GDelayIndividualFactory& gdif
-   , std::vector<boost::tuple<double,double,double,double> >& parallelExecutionTimes
+	Go2& go
+	, GDelayIndividualFactory& gdif
+	, std::vector<boost::tuple<double,double,double,double> >& parallelExecutionTimes
 ) {
-   //---------------------------------------------------------------------
-   // Make sure the output vector is empty
-   parallelExecutionTimes.clear();
+	//---------------------------------------------------------------------
+	// Make sure the output vector is empty
+	parallelExecutionTimes.clear();
 
-   //---------------------------------------------------------------------
-   // Loop until no valid individuals can be retrieved anymore
-   boost::uint32_t interMeasurementDelay = 1;
-   boost::uint32_t nMeasurementsPerIteration = 5;
-   std::size_t iter = 0;
-   std::shared_ptr<GDelayIndividual> gdi_ptr;
-   while((gdi_ptr = gdif.get<GDelayIndividual>())) {
-      if(0==iter) { // The first individual must already have been produced in order to access parsed data
-         // Determine the amount of seconds the process should sleep in between two measurements
-         interMeasurementDelay = gdif.getInterMeasurementDelay();
-         // Determine the number of measurements to be made for each delay
-         nMeasurementsPerIteration = gdif.getNMeasurements();
-      }
+	//---------------------------------------------------------------------
+	// Loop until no valid individuals can be retrieved anymore
+	boost::uint32_t interMeasurementDelay = 1;
+	boost::uint32_t nMeasurementsPerIteration = 5;
+	std::size_t iter = 0;
+	std::shared_ptr<GDelayIndividual> gdi_ptr;
+	while((gdi_ptr = gdif.get<GDelayIndividual>())) {
+		if(0==iter) { // The first individual must already have been produced in order to access parsed data
+			// Determine the amount of seconds the process should sleep in between two measurements
+			interMeasurementDelay = gdif.getInterMeasurementDelay();
+			// Determine the number of measurements to be made for each delay
+			nMeasurementsPerIteration = gdif.getNMeasurements();
+		}
 
-      std::vector<double> delaySummary;
-      std::cout << "Starting " << nMeasurementsPerIteration << " measurements" << std::endl;
-      for(boost::uint32_t i=0; i<nMeasurementsPerIteration; i++) {
-         // Make the individual known to the optimizer
-         go.push_back(gdi_ptr);
+		std::vector<double> delaySummary;
+		std::cout << "Starting " << nMeasurementsPerIteration << " measurements" << std::endl;
+		for(boost::uint32_t i=0; i<nMeasurementsPerIteration; i++) {
+			// Make the individual known to the optimizer
+			go.push_back(gdi_ptr);
 
-         // Do the actual optimization and measure the time
-         boost::posix_time::ptime startTime = boost::posix_time::microsec_clock::local_time();
-         go.optimize<GDelayIndividual>();
-         boost::posix_time::ptime endTime = boost::posix_time::microsec_clock::local_time();
-         boost::posix_time::time_duration duration = endTime - startTime;
+			// Do the actual optimization and measure the time
+			boost::posix_time::ptime startTime = boost::posix_time::microsec_clock::local_time();
+			go.optimize<GDelayIndividual>();
+			boost::posix_time::ptime endTime = boost::posix_time::microsec_clock::local_time();
+			boost::posix_time::time_duration duration = endTime - startTime;
 
-         delaySummary.push_back(double(duration.total_milliseconds())/1000.);
+			delaySummary.push_back(double(duration.total_milliseconds())/1000.);
 
-         // Clean up the collection
-         go.clear();
-      }
+			// Clean up the collection
+			go.clear();
+		}
 
-      // Calculate the mean value and standard deviation of all measurements
-      boost::tuple<double,double> ms = Gem::Common::GStandardDeviation<double>(delaySummary);
-      // Output the results
-      parallelExecutionTimes.push_back(
-         boost::tuple<double,double,double,double>(
-            double(gdi_ptr->getSleepTime().total_milliseconds())/1000.
-            , 0. // No error on the sleep time
-            , boost::get<0>(ms) // mean
-            , boost::get<1>(ms) // standard deviation
-         )
-      );
+		// Calculate the mean value and standard deviation of all measurements
+		boost::tuple<double,double> ms = Gem::Common::GStandardDeviation<double>(delaySummary);
+		// Output the results
+		parallelExecutionTimes.push_back(
+			boost::tuple<double,double,double,double>(
+				double(gdi_ptr->getSleepTime().total_milliseconds())/1000.
+				, 0. // No error on the sleep time
+				, boost::get<0>(ms) // mean
+				, boost::get<1>(ms) // standard deviation
+			)
+		);
 
-      // Clean up the delay vector
-      delaySummary.clear();
+		// Clean up the delay vector
+		delaySummary.clear();
 
-      // Wait for late arrivals
-      boost::this_thread::sleep(boost::posix_time::seconds(interMeasurementDelay));
+		// Wait for late arrivals
+		boost::this_thread::sleep(boost::posix_time::seconds(interMeasurementDelay));
 
-      // Increment the iteration counter
-      iter++;
-   }
+		// Increment the iteration counter
+		iter++;
+	}
 }
 
 /******************************************************************************/
@@ -201,99 +201,99 @@ void startParallelMeasurement(
  * Calculate suitable timings including errors for the reference measurement
  */
 std::vector<boost::tuple<double,double,double,double> > getReferenceTimes(
-   const boost::tuple<double,double,double,double>& ab
-   , const std::vector<boost::tuple<double,double,double,double> >& measurementTemplate
+	const boost::tuple<double,double,double,double>& ab
+	, const std::vector<boost::tuple<double,double,double,double> >& measurementTemplate
 ) {
-   std::vector<boost::tuple<double,double,double,double> > referenceExecutionTimes = measurementTemplate;
+	std::vector<boost::tuple<double,double,double,double> > referenceExecutionTimes = measurementTemplate;
 
-   std::vector<boost::tuple<double,double,double,double> >::iterator it;
-   for(it=referenceExecutionTimes.begin(); it!=referenceExecutionTimes.end(); ++it) {
-      double sleepTime = boost::get<0>(*it); // Left unmodified, taken from measurementTemplate
+	std::vector<boost::tuple<double,double,double,double> >::iterator it;
+	for(it=referenceExecutionTimes.begin(); it!=referenceExecutionTimes.end(); ++it) {
+		double sleepTime = boost::get<0>(*it); // Left unmodified, taken from measurementTemplate
 
-      double a     = boost::get<0>(ab);
-      double a_err = boost::get<1>(ab);
-      double b     = boost::get<2>(ab);
-      double b_err = boost::get<3>(ab);
+		double a     = boost::get<0>(ab);
+		double a_err = boost::get<1>(ab);
+		double b     = boost::get<2>(ab);
+		double b_err = boost::get<3>(ab);
 
-      boost::get<1>(*it) = 0.; // No error on the sleep time
-      boost::get<2>(*it) = a + b*sleepTime; // a line
-      boost::get<3>(*it) = sqrt(gpow(a_err, 2.) + gpow(sleepTime*b_err, 2.));
-   }
+		boost::get<1>(*it) = 0.; // No error on the sleep time
+		boost::get<2>(*it) = a + b*sleepTime; // a line
+		boost::get<3>(*it) = sqrt(gpow(a_err, 2.) + gpow(sleepTime*b_err, 2.));
+	}
 
-   return referenceExecutionTimes;
+	return referenceExecutionTimes;
 }
 
 /******************************************************************************/
 
 int main(int argc, char **argv) {
-   std::vector<boost::tuple<double,double,double,double> > parallelExecutionTimes, referenceExecutionTimes;
-   boost::tuple<double,double,double,double> ab;
+	std::vector<boost::tuple<double,double,double,double> > parallelExecutionTimes, referenceExecutionTimes;
+	boost::tuple<double,double,double,double> ab;
 
-   // For the parallel measurement
-   Go2 go_parallel(argc, argv, "./config/Go2.json");
+	// For the parallel measurement
+	Go2 go_parallel(argc, argv, "./config/Go2.json");
 
-   //---------------------------------------------------------------------
-   // Client mode
-   if(go_parallel.clientMode()) {
-      return go_parallel.clientRun();
-   }
+	//---------------------------------------------------------------------
+	// Client mode
+	if(go_parallel.clientMode()) {
+		return go_parallel.clientRun();
+	}
 
-   //---------------------------------------------------------------------
-   // Create a factory for GDelayIndividualFactory objects for reference measurements
-   GDelayIndividualFactory gdif_ref("./config/GDelayIndividual-reference.json");
-   // ... and for parallel measurements
-   GDelayIndividualFactory gdif_par("./config/GDelayIndividual.json");
+	//---------------------------------------------------------------------
+	// Create a factory for GDelayIndividualFactory objects for reference measurements
+	GDelayIndividualFactory gdif_ref("./config/GDelayIndividual-reference.json");
+	// ... and for parallel measurements
+	GDelayIndividualFactory gdif_par("./config/GDelayIndividual.json");
 
-   // For the serial measurement
-   Go2 go_serial("./config/Go2.json");
-   go_serial.setParallelizationMode(EXECMODE_SERIAL);
+	// For the serial measurement
+	Go2 go_serial("./config/Go2.json");
+	go_serial.setParallelizationMode(EXECMODE_SERIAL);
 
-   // Add default optimization algorithms to the Go2 objects
-   go_parallel.registerDefaultAlgorithm("ea");
-   go_serial.registerDefaultAlgorithm("ea");
+	// Add default optimization algorithms to the Go2 objects
+	go_parallel.registerDefaultAlgorithm("ea");
+	go_serial.registerDefaultAlgorithm("ea");
 
-   // Threadpool for two threads
-   Gem::Common::GThreadPool tp(2);
+	// Threadpool for two threads
+	Gem::Common::GThreadPool tp(2);
 
-   // Start the reference and parallel threads
-   tp.async_schedule([&](){ startReferenceMeasurement(go_serial, gdif_ref, ab); });
-   tp.async_schedule([&](){ startParallelMeasurement(go_parallel, gdif_par, parallelExecutionTimes); });
+	// Start the reference and parallel threads
+	tp.async_schedule([&](){ startReferenceMeasurement(go_serial, gdif_ref, ab); });
+	tp.async_schedule([&](){ startParallelMeasurement(go_parallel, gdif_par, parallelExecutionTimes); });
 
-   // And wait for their return
-   tp.wait();
+	// And wait for their return
+	tp.wait();
 
-   // Calculate reference times from the line parameters
-   referenceExecutionTimes = getReferenceTimes(ab, parallelExecutionTimes);
+	// Calculate reference times from the line parameters
+	referenceExecutionTimes = getReferenceTimes(ab, parallelExecutionTimes);
 
-   // Calculate the errors
-   std::vector<boost::tuple<double, double, double, double> > ratioWithErrors = getRatioErrors(
-      referenceExecutionTimes
-      , parallelExecutionTimes
-   );
+	// Calculate the errors
+	std::vector<boost::tuple<double, double, double, double> > ratioWithErrors = getRatioErrors(
+		referenceExecutionTimes
+		, parallelExecutionTimes
+	);
 
-   //---------------------------------------------------------------------
-   // Will hold all plot information
-   std::shared_ptr<GGraph2ED> greference_ptr(new GGraph2ED());
-   greference_ptr->setPlotLabel("Serial execution times and errors");
+	//---------------------------------------------------------------------
+	// Will hold all plot information
+	std::shared_ptr<GGraph2ED> greference_ptr(new GGraph2ED());
+	greference_ptr->setPlotLabel("Serial execution times and errors");
 
-   std::shared_ptr<GGraph2ED> gparallel_ptr(new GGraph2ED());
-   gparallel_ptr->setPlotLabel("Parallel execution times and errors");
+	std::shared_ptr<GGraph2ED> gparallel_ptr(new GGraph2ED());
+	gparallel_ptr->setPlotLabel("Parallel execution times and errors");
 
-   std::shared_ptr<GGraph2ED> gratio_ptr(new GGraph2ED());
-   gratio_ptr->setPlotLabel("Speedup: serial/parallel execution times and errors");
+	std::shared_ptr<GGraph2ED> gratio_ptr(new GGraph2ED());
+	gratio_ptr->setPlotLabel("Speedup: serial/parallel execution times and errors");
 
-   (*greference_ptr) & referenceExecutionTimes;
-   (*gparallel_ptr)  & parallelExecutionTimes;
-   (*gratio_ptr)     & ratioWithErrors;
+	(*greference_ptr) & referenceExecutionTimes;
+	(*gparallel_ptr)  & parallelExecutionTimes;
+	(*gratio_ptr)     & ratioWithErrors;
 
-   GPlotDesigner gpd("Processing times and speed-up as a function of evaluation time", 1,3);
+	GPlotDesigner gpd("Processing times and speed-up as a function of evaluation time", 1,3);
 
-   gpd.registerPlotter(greference_ptr);
-   gpd.registerPlotter(gparallel_ptr);
-   gpd.registerPlotter(gratio_ptr);
+	gpd.registerPlotter(greference_ptr);
+	gpd.registerPlotter(gparallel_ptr);
+	gpd.registerPlotter(gratio_ptr);
 
-   gpd.setCanvasDimensions(800,1200);
-   gpd.writeToFile(gdif_par.getResultFileName());
+	gpd.setCanvasDimensions(800,1200);
+	gpd.writeToFile(gdif_par.getResultFileName());
 
 	return 0;
 }

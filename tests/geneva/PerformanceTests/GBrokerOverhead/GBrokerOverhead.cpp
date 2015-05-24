@@ -56,157 +56,157 @@
  * The main function.
  */
 int main(int argc, char **argv){
-  std::string configFile;
-  boost::uint16_t parallelizationMode;
-  std::string ip;
-  boost::uint16_t nProducerThreads;
-  boost::uint16_t nEvaluationThreads;
-  std::size_t populationSize;
-  std::size_t nParents;
-  boost::uint32_t maxIterations;
-  long maxMinutes;
-  boost::uint32_t reportIteration;
-  duplicationScheme rScheme;
-  std::size_t parDim;
-  double minVar;
-  double maxVar;
-  sortingMode smode;
-  boost::uint32_t nProcessingUnits;
-  solverFunction df;
-  boost::uint32_t adaptionThreshold;
-  double sigma;
-  double sigmaSigma;
-  double minSigma;
-  double maxSigma;
-  double adProb;
+	std::string configFile;
+	boost::uint16_t parallelizationMode;
+	std::string ip;
+	boost::uint16_t nProducerThreads;
+	boost::uint16_t nEvaluationThreads;
+	std::size_t populationSize;
+	std::size_t nParents;
+	boost::uint32_t maxIterations;
+	long maxMinutes;
+	boost::uint32_t reportIteration;
+	duplicationScheme rScheme;
+	std::size_t parDim;
+	double minVar;
+	double maxVar;
+	sortingMode smode;
+	boost::uint32_t nProcessingUnits;
+	solverFunction df;
+	boost::uint32_t adaptionThreshold;
+	double sigma;
+	double sigmaSigma;
+	double minSigma;
+	double maxSigma;
+	double adProb;
 
-  if(!Gem::Tests::parseCommandLine(argc, argv,
-		       configFile,
-		       parallelizationMode)
-     ||
-     !Gem::Tests::parseConfigFile(
-         configFile
-         , nProducerThreads
-         , nEvaluationThreads
-         , populationSize
-         , nParents
-         , maxIterations
-         , maxMinutes
-         , reportIteration
-         , rScheme
-         , smode
-         , nProcessingUnits
-         , adProb
-         , adaptionThreshold
-         , sigma
-         , sigmaSigma
-         , minSigma
-         , maxSigma
-         , parDim
-         , minVar
-         , maxVar
-         , df))
-    { exit(1); }
+	if(!Gem::Tests::parseCommandLine(argc, argv,
+												configFile,
+												parallelizationMode)
+		||
+		!Gem::Tests::parseConfigFile(
+			configFile
+			, nProducerThreads
+			, nEvaluationThreads
+			, populationSize
+			, nParents
+			, maxIterations
+			, maxMinutes
+			, reportIteration
+			, rScheme
+			, smode
+			, nProcessingUnits
+			, adProb
+			, adaptionThreshold
+			, sigma
+			, sigmaSigma
+			, minSigma
+			, maxSigma
+			, parDim
+			, minVar
+			, maxVar
+			, df))
+	{ exit(1); }
 
-  // Random numbers are our most valuable good. Set the number of threads
-  GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
+	// Random numbers are our most valuable good. Set the number of threads
+	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
-  //***************************************************************************
-  // Create a factory for GFunctionIndividual objects and perform
-  // any necessary initial work.
-  GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
+	//***************************************************************************
+	// Create a factory for GFunctionIndividual objects and perform
+	// any necessary initial work.
+	GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
-  // Create the first set of parent individuals. Initialization of parameters is done randomly.
-  std::vector<std::shared_ptr<GParameterSet> > parentIndividuals;
-  for(std::size_t p = 0 ; p<nParents; p++) {
-	  std::shared_ptr<GParameterSet> functionIndividual_ptr = gfi();
+	// Create the first set of parent individuals. Initialization of parameters is done randomly.
+	std::vector<std::shared_ptr<GParameterSet> > parentIndividuals;
+	for(std::size_t p = 0 ; p<nParents; p++) {
+		std::shared_ptr<GParameterSet> functionIndividual_ptr = gfi();
 
-	  // Set up a GDoubleCollection with dimension values, each initialized
-	  // with a random number in the range [min,max[
-	  std::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDim,minVar,maxVar));
+		// Set up a GDoubleCollection with dimension values, each initialized
+		// with a random number in the range [min,max[
+		std::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDim,minVar,maxVar));
 
-	  // Set up and register an adaptor for the collection, so it
-	  // knows how to be adapted.
-	  std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma,sigmaSigma,minSigma,maxSigma));
-	  gdga_ptr->setAdaptionThreshold(adaptionThreshold);
-	  gdga_ptr->setAdaptionProbability(adProb);
-	  gdc_ptr->addAdaptor(gdga_ptr);
+		// Set up and register an adaptor for the collection, so it
+		// knows how to be adapted.
+		std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma,sigmaSigma,minSigma,maxSigma));
+		gdga_ptr->setAdaptionThreshold(adaptionThreshold);
+		gdga_ptr->setAdaptionProbability(adProb);
+		gdc_ptr->addAdaptor(gdga_ptr);
 
-	  // Make the parameter collection known to this individual
-	  functionIndividual_ptr->push_back(gdc_ptr);
+		// Make the parameter collection known to this individual
+		functionIndividual_ptr->push_back(gdc_ptr);
 
-	  parentIndividuals.push_back(functionIndividual_ptr);
-  }
+		parentIndividuals.push_back(functionIndividual_ptr);
+	}
 
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // We can now start creating populations. We refer to them through the base class
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// We can now start creating populations. We refer to them through the base class
 
-  // This smart pointer will hold the different population types
-  std::shared_ptr<GBaseEA> pop_ptr;
+	// This smart pointer will hold the different population types
+	std::shared_ptr<GBaseEA> pop_ptr;
 
-  // Create the actual populations
-  switch (parallelizationMode) {
-    //-----------------------------------------------------------------------------------------------------
-  case 0: // Serial execution
-	std::cout << "Using serial execution." << std::endl;
-    // Create an empty population
-    pop_ptr = std::shared_ptr<GSerialEA>(new GSerialEA());
-    break;
+	// Create the actual populations
+	switch (parallelizationMode) {
+		//-----------------------------------------------------------------------------------------------------
+		case 0: // Serial execution
+			std::cout << "Using serial execution." << std::endl;
+			// Create an empty population
+			pop_ptr = std::shared_ptr<GSerialEA>(new GSerialEA());
+			break;
 
-    //-----------------------------------------------------------------------------------------------------
-  case 1: // Multi-threaded execution
-    {
-      std::cout << "Using plain multithreaded execution." << std::endl;
-      // Create the multi-threaded population
-      std::shared_ptr<GMultiThreadedEA> popPar_ptr(new GMultiThreadedEA());
+			//-----------------------------------------------------------------------------------------------------
+		case 1: // Multi-threaded execution
+		{
+			std::cout << "Using plain multithreaded execution." << std::endl;
+			// Create the multi-threaded population
+			std::shared_ptr<GMultiThreadedEA> popPar_ptr(new GMultiThreadedEA());
 
-      // Population-specific settings
-      popPar_ptr->setNThreads(nEvaluationThreads);
+			// Population-specific settings
+			popPar_ptr->setNThreads(nEvaluationThreads);
 
-      // Assignment to the base pointer
-      pop_ptr = popPar_ptr;
-    }
-    break;
+			// Assignment to the base pointer
+			pop_ptr = popPar_ptr;
+		}
+			break;
 
-    //-----------------------------------------------------------------------------------------------------
-  case 2: // Execution with multi-threaded consumer
-    {
-    	std::cout << "Using the GBoostThreadConsumerT consumer." << std::endl;
-		// Create a consumer and make it known to the global broker
-		std::shared_ptr<Gem::Courtier::GBoostThreadConsumerT<GParameterSet> > gbtc(new Gem::Courtier::GBoostThreadConsumerT<GParameterSet>());
-		gbtc->setNThreadsPerWorker(nEvaluationThreads);
-		GBROKER(Gem::Geneva::GParameterSet)->enrol(gbtc);
+			//-----------------------------------------------------------------------------------------------------
+		case 2: // Execution with multi-threaded consumer
+		{
+			std::cout << "Using the GBoostThreadConsumerT consumer." << std::endl;
+			// Create a consumer and make it known to the global broker
+			std::shared_ptr<Gem::Courtier::GBoostThreadConsumerT<GParameterSet> > gbtc(new Gem::Courtier::GBoostThreadConsumerT<GParameterSet>());
+			gbtc->setNThreadsPerWorker(nEvaluationThreads);
+			GBROKER(Gem::Geneva::GParameterSet)->enrol(gbtc);
 
-		// Create the actual broker population and set parameters as needed
-		std::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());
+			// Create the actual broker population and set parameters as needed
+			std::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());
 
-		// Assignment to the base pointer
-		pop_ptr = popBroker_ptr;
-    }
-    break;
-  }
+			// Assignment to the base pointer
+			pop_ptr = popBroker_ptr;
+		}
+			break;
+	}
 
 
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // Now we have suitable populations and can fill them with data
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Now we have suitable populations and can fill them with data
 
-  // Add individuals to the population
-  for(std::size_t p = 0 ; p<nParents; p++) {
-    pop_ptr->push_back(parentIndividuals[p]);
-  }
+	// Add individuals to the population
+	for(std::size_t p = 0 ; p<nParents; p++) {
+		pop_ptr->push_back(parentIndividuals[p]);
+	}
 
-  // Specify some general population settings
-  pop_ptr->setPopulationSizes(populationSize, nParents);
-  pop_ptr->setMaxIteration(maxIterations);
-  pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes));
-  pop_ptr->setReportIteration(reportIteration);
-  pop_ptr->setRecombinationMethod(rScheme);
-  pop_ptr->setSortingScheme(smode);
+	// Specify some general population settings
+	pop_ptr->setPopulationSizes(populationSize, nParents);
+	pop_ptr->setMaxIteration(maxIterations);
+	pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes));
+	pop_ptr->setReportIteration(reportIteration);
+	pop_ptr->setRecombinationMethod(rScheme);
+	pop_ptr->setSortingScheme(smode);
 
-  // Do the actual optimization
-  pop_ptr->optimize();
+	// Do the actual optimization
+	pop_ptr->optimize();
 
-  //--------------------------------------------------------------------------------------------
-  // Terminate
-  return 0;
+	//--------------------------------------------------------------------------------------------
+	// Terminate
+	return 0;
 }

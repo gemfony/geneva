@@ -143,7 +143,7 @@ public:
 			GEAPersonalityTraits
 			, GGDPersonalityTraits
 			, GSwarmPersonalityTraits
-         , GSAPersonalityTraits
+			, GSAPersonalityTraits
 			, GPSPersonalityTraits
 		>
 		trait_types;
@@ -160,7 +160,7 @@ public:
 		typedef boost::mpl::list<
 			Gem::Tests::GTestIndividual1
 			// , Gem::Tests::GTestIndividual3
-		   , Gem::Geneva::GFunctionIndividual
+			, Gem::Geneva::GFunctionIndividual
 		>
 		individual_types;
 
@@ -201,8 +201,8 @@ public:
  * The test program entry point
  */
 test_suite* init_unit_test_suite(int argc, char** const argv) {
-   framework::master_test_suite().add(new GenevaStandardTestSuite());
-   return 0;
+	framework::master_test_suite().add(new GenevaStandardTestSuite());
+	return 0;
 }
 
 /*************************************************************************************************/

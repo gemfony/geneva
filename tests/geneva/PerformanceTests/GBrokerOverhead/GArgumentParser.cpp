@@ -116,8 +116,8 @@ bool parseCommandLine(int argc, char **argv,
 
 /************************************************************************************************/
 /**
-  * A function that parses a config file for further parameters
-  */
+ * A function that parses a config file for further parameters
+ */
 bool parseConfigFile(
 	const std::string &configFile, boost::uint16_t &nProducerThreads, boost::uint16_t &nEvaluationThreads,
 	std::size_t &populationSize, std::size_t &nParents, boost::uint32_t &maxIterations, long &maxMinutes,
@@ -159,7 +159,7 @@ bool parseConfigFile(
 			("rScheme", po::value<boost::uint16_t>(&recombinationScheme)->default_value(DEFAULTRSCHEME),
 			 "The recombination scheme for the super-population")
 			("sortingScheme,o", po::value<sortingMode>(&smode)->default_value(DEFAULTSORTINGSCHEME),
-			 "Determines whether sorting is done in MUCOMMANU_SINGLEEVAL (0), MUPLUSNU_SINGLEEVAL (1)  or MUNU1PRETAIN (2) mode")
+			 "Determines whether sorting is done in MUCOMMANU_SINGLEEVAL (0), MUPLUSNU_SINGLEEVAL (1) or MUNU1PRETAIN (2) mode")
 			("verbose", po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 			 "Whether additional information should be emitted")
 			("nProcessingUnits", po::value<boost::uint32_t>(&nProcessingUnits)->default_value(DEFAULTGBTCNPROCUNITS),

@@ -158,36 +158,36 @@ int main(int argc, char **argv) {
 			double serializationTimeD = double(serializationTime.total_microseconds())/1000000.;
 
 			switch(o) {
-			case 0:
-				gdo_adapt_ptr->add(boost::tuple<double,double>((double)s, adaptionTimeD));
-				gdo_ser_ptr->add(boost::tuple<double,double>((double)s, serializationTimeD));
-				break;
+				case 0:
+					gdo_adapt_ptr->add(boost::tuple<double,double>((double)s, adaptionTimeD));
+					gdo_ser_ptr->add(boost::tuple<double,double>((double)s, serializationTimeD));
+					break;
 
-			case 1:
-				gcdo_adapt_ptr->add(boost::tuple<double,double>((double)s, adaptionTimeD));
-				gcdo_ser_ptr->add(boost::tuple<double,double>((double)s, serializationTimeD));
-				break;
+				case 1:
+					gcdo_adapt_ptr->add(boost::tuple<double,double>((double)s, adaptionTimeD));
+					gcdo_ser_ptr->add(boost::tuple<double,double>((double)s, serializationTimeD));
+					break;
 
-			case 2:
-				gcdoc_adapt_ptr->add(boost::tuple<double,double>((double)s, adaptionTimeD));
-				gcdoc_ser_ptr->add(boost::tuple<double,double>((double)s, serializationTimeD));
-				break;
+				case 2:
+					gcdoc_adapt_ptr->add(boost::tuple<double,double>((double)s, adaptionTimeD));
+					gcdoc_ser_ptr->add(boost::tuple<double,double>((double)s, serializationTimeD));
+					break;
 
-			case 3:
-				gdc_adapt_ptr->add(boost::tuple<double,double>((double)s, adaptionTimeD));
-				gdc_ser_ptr->add(boost::tuple<double,double>((double)s, serializationTimeD));
-				break;
+				case 3:
+					gdc_adapt_ptr->add(boost::tuple<double,double>((double)s, adaptionTimeD));
+					gdc_ser_ptr->add(boost::tuple<double,double>((double)s, serializationTimeD));
+					break;
 
-			case 4:
-				gcdc_adapt_ptr->add(boost::tuple<double,double>((double)s, adaptionTimeD));
-				gcdc_ser_ptr->add(boost::tuple<double,double>((double)s, serializationTimeD));
-				break;
+				case 4:
+					gcdc_adapt_ptr->add(boost::tuple<double,double>((double)s, adaptionTimeD));
+					gcdc_ser_ptr->add(boost::tuple<double,double>((double)s, serializationTimeD));
+					break;
 
-			default:
-				glogger
-				<< "Error in main(): Incorrect object type requested: " << o << std::endl
-				<< GEXCEPTION;
-				break;
+				default:
+					glogger
+					<< "Error in main(): Incorrect object type requested: " << o << std::endl
+					<< GEXCEPTION;
+					break;
 			}
 		}
 	}
