@@ -47,7 +47,7 @@
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
-   Go2 go(argc, argv, "./config/Go2.json");
+	Go2 go(argc, argv, "./config/Go2.json");
 
 	//---------------------------------------------------------------------------
 	// Client mode
@@ -61,19 +61,19 @@ int main(int argc, char **argv) {
 	signal(G_SIGHUP, GObject::sigHupHandler);
 
 	//---------------------------------------------------------------------------
-   // Create a factory for GFunctionIndividual objects and perform
-   // any necessary initial work.
+	// Create a factory for GFunctionIndividual objects and perform
+	// any necessary initial work.
 	std::shared_ptr<GFunctionIndividualFactory>
-	   gfi_ptr(new GFunctionIndividualFactory("./config/GFunctionIndividual.json"));
+		gfi_ptr(new GFunctionIndividualFactory("./config/GFunctionIndividual.json"));
 
-   // Add a content creator so Go2 can generate its own individuals, if necessary
-   go.registerContentCreator(gfi_ptr);
+	// Add a content creator so Go2 can generate its own individuals, if necessary
+	go.registerContentCreator(gfi_ptr);
 
 	// Add a default optimization algorithm to the Go2 object. This is optional.
-   // Indeed "ea" is the default setting anyway. However, if you do not like it, you
-   // can register another default algorithm here, which will then be used, unless
-   // you specify other algorithms on the command line. You can also add a smart
-   // pointer to an optimization algorithm here instead of its mnemonic.
+	// Indeed "ea" is the default setting anyway. However, if you do not like it, you
+	// can register another default algorithm here, which will then be used, unless
+	// you specify other algorithms on the command line. You can also add a smart
+	// pointer to an optimization algorithm here instead of its mnemonic.
 	go.registerDefaultAlgorithm("ea");
 
 	// Perform the actual optimization

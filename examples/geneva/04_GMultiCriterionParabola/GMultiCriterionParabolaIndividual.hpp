@@ -63,7 +63,7 @@ const std::size_t NPAR_MC = 3;
  */
 class GMultiCriterionParabolaIndividual :public GParameterSet
 {
-   friend class GMultiCriterionParabolaIndividualFactory;
+	friend class GMultiCriterionParabolaIndividualFactory;
 
 	/***************************************************************************/
 	/**
@@ -76,9 +76,9 @@ class GMultiCriterionParabolaIndividual :public GParameterSet
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
 	}
 
-   /** @brief Make the class accessible to Boost.Serialization */
-   friend class boost::serialization::access;
-   /***************************************************************************/
+	/** @brief Make the class accessible to Boost.Serialization */
+	friend class boost::serialization::access;
+	/***************************************************************************/
 
 public:
 	/** @brief The standard constructor */
@@ -104,10 +104,10 @@ protected:
 	virtual double fitnessCalculation() final;
 
 private:
-   /** @brief The default constructor -- intentionally private*/
-   GMultiCriterionParabolaIndividual();
-   /** @brief Holds the minima needed for multi-criterion optimization */
-   std::vector<double> minima_;
+	/** @brief The default constructor -- intentionally private*/
+	GMultiCriterionParabolaIndividual();
+	/** @brief Holds the minima needed for multi-criterion optimization */
+	std::vector<double> minima_;
 };
 
 /******************************************************************************/
@@ -126,21 +126,21 @@ public:
 	virtual ~GMultiCriterionParabolaIndividualFactory();
 
 protected:
-   /** @brief Creates individuals of this type */
-   virtual std::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
-   /** @brief Allows to describe local configuration options in derived classes */
-   virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
-   /** @brief Allows to act on the configuration options received from the configuration file */
-   virtual void postProcess_(std::shared_ptr<GParameterSet>&);
+	/** @brief Creates individuals of this type */
+	virtual std::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
+	/** @brief Allows to describe local configuration options in derived classes */
+	virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
+	/** @brief Allows to act on the configuration options received from the configuration file */
+	virtual void postProcess_(std::shared_ptr<GParameterSet>&);
 
 private:
-   Gem::Common::GOneTimeRefParameterT<double> par_min_; ///< The lower boundary of the initialization range
-   Gem::Common::GOneTimeRefParameterT<double> par_max_; ///< The upper boundary of the initialization range
-   Gem::Common::GOneTimeRefParameterT<std::string> minima_string_; ///< The minima encoded as a string
+	Gem::Common::GOneTimeRefParameterT<double> par_min_; ///< The lower boundary of the initialization range
+	Gem::Common::GOneTimeRefParameterT<double> par_max_; ///< The upper boundary of the initialization range
+	Gem::Common::GOneTimeRefParameterT<std::string> minima_string_; ///< The minima encoded as a string
 
-   std::vector<double> minima_; ///< The desired minima of the parabolas
-   std::size_t nPar_; ///< The number of parameters to be added to the individual
-   bool firstParsed_; ///< Set to false when the configuration files were parsed for the first time
+	std::vector<double> minima_; ///< The desired minima of the parabolas
+	std::size_t nPar_; ///< The number of parameters to be added to the individual
+	bool firstParsed_; ///< Set to false when the configuration files were parsed for the first time
 };
 
 /******************************************************************************/

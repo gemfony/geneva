@@ -69,49 +69,49 @@ using namespace Gem::Geneva;
  * This example wants to demonstrate the basic usage of parameter objects
  */
 int main(int argc, char **argv) {
-   //===========================================================================
-   // Parameter Sets
+	//===========================================================================
+	// Parameter Sets
 
-   { // Conversion of parameter object data to boost::property_tree
-      // Create a factory for GFunctionIndividual objects and perform
-      // any necessary initial work.
-      std::shared_ptr<GFunctionIndividualFactory>
-         gfi_ptr(new GFunctionIndividualFactory("./config/GFunctionIndividual.json"));
+	{ // Conversion of parameter object data to boost::property_tree
+		// Create a factory for GFunctionIndividual objects and perform
+		// any necessary initial work.
+		std::shared_ptr<GFunctionIndividualFactory>
+			gfi_ptr(new GFunctionIndividualFactory("./config/GFunctionIndividual.json"));
 
-      // Note: This object already contains a parameter object, in
-      // addition to those added below.
-      std::shared_ptr<GParameterSet> gfi_test = gfi_ptr->get();
+		// Note: This object already contains a parameter object, in
+		// addition to those added below.
+		std::shared_ptr<GParameterSet> gfi_test = gfi_ptr->get();
 
-      gfi_test->push_back(std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(-7,17)));
-      gfi_test->push_back(std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(-5,5)));
+		gfi_test->push_back(std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(-7,17)));
+		gfi_test->push_back(std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(-5,5)));
 
-      // Add some more data
-      gfi_test->push_back(std::shared_ptr<GBooleanObject>(new GBooleanObject()));
-      gfi_test->push_back(std::shared_ptr<GDoubleObject>(new GDoubleObject()));
-      gfi_test->push_back(std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject()));
-      gfi_test->push_back(std::shared_ptr<GInt32Object>(new GInt32Object()));
-      gfi_test->push_back(std::shared_ptr<GConstrainedInt32Object>(new GConstrainedInt32Object()));
+		// Add some more data
+		gfi_test->push_back(std::shared_ptr<GBooleanObject>(new GBooleanObject()));
+		gfi_test->push_back(std::shared_ptr<GDoubleObject>(new GDoubleObject()));
+		gfi_test->push_back(std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject()));
+		gfi_test->push_back(std::shared_ptr<GInt32Object>(new GInt32Object()));
+		gfi_test->push_back(std::shared_ptr<GConstrainedInt32Object>(new GConstrainedInt32Object()));
 
-      std::shared_ptr<GParameterObjectCollection> gpoc_ptr(new GParameterObjectCollection());
-      gpoc_ptr->push_back(std::shared_ptr<GDoubleObject>(new GDoubleObject()));
-      gpoc_ptr->push_back(std::shared_ptr<GDoubleObject>(new GDoubleObject()));
-      gpoc_ptr->push_back(std::shared_ptr<GDoubleObject>(new GDoubleObject()));
-      gpoc_ptr->push_back(std::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(5, -10., 10.)));
+		std::shared_ptr<GParameterObjectCollection> gpoc_ptr(new GParameterObjectCollection());
+		gpoc_ptr->push_back(std::shared_ptr<GDoubleObject>(new GDoubleObject()));
+		gpoc_ptr->push_back(std::shared_ptr<GDoubleObject>(new GDoubleObject()));
+		gpoc_ptr->push_back(std::shared_ptr<GDoubleObject>(new GDoubleObject()));
+		gpoc_ptr->push_back(std::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(5, -10., 10.)));
 
-      gfi_test->push_back(gpoc_ptr);
+		gfi_test->push_back(gpoc_ptr);
 
-      boost::property_tree::ptree ptr;
-      gfi_test->toPropertyTree(ptr);
+		boost::property_tree::ptree ptr;
+		gfi_test->toPropertyTree(ptr);
 
 #if BOOST_VERSION > 105500
-      boost::property_tree::xml_writer_settings<std::string> settings('\t', 1);
+		boost::property_tree::xml_writer_settings<std::string> settings('\t', 1);
 #else
-      boost::property_tree::xml_writer_settings<char> settings('\t', 1);
+		boost::property_tree::xml_writer_settings<char> settings('\t', 1);
 #endif /* BOOST_VERSION */
-      boost::property_tree::write_xml("result.xml", ptr, std::locale(), settings);
+		boost::property_tree::write_xml("result.xml", ptr, std::locale(), settings);
 
-      // Now run this program and see the file "result.xml" for the output
-   }
+		// Now run this program and see the file "result.xml" for the output
+	}
 
 	//===========================================================================
 	// Parameter Types
@@ -304,10 +304,10 @@ int main(int argc, char **argv) {
 		// 5% probability for the adaption of this object when adaptor is called
 		double adProb = 0.05;
 		std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
-				new GDoubleGaussAdaptor(
-						sigma, sigmaSigma, minSigma, maxSigma
-				)
-	    );
+			new GDoubleGaussAdaptor(
+				sigma, sigmaSigma, minSigma, maxSigma
+			)
+		);
 		gdga_ptr->setAdaptionProbability(adProb);
 		c1.addAdaptor(gdga_ptr);
 
@@ -350,10 +350,10 @@ int main(int argc, char **argv) {
 		// 5% probability for the adaption of this object when adaptor is called
 		double adProb = 0.05;
 		std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
-				new GDoubleGaussAdaptor(
-						sigma, sigmaSigma, minSigma, maxSigma
-				)
-	    );
+			new GDoubleGaussAdaptor(
+				sigma, sigmaSigma, minSigma, maxSigma
+			)
+		);
 		gdga_ptr->setAdaptionProbability(adProb);
 		c1.addAdaptor(gdga_ptr);
 
@@ -491,7 +491,7 @@ int main(int argc, char **argv) {
 		GConstrainedInt32ObjectCollection c2(c1); // Copy construction
 		// Copy construction inside of smart pointer
 		std::shared_ptr<GConstrainedInt32ObjectCollection>
-		    p_c3(new GConstrainedInt32ObjectCollection(c1));
+			p_c3(new GConstrainedInt32ObjectCollection(c1));
 		// Note: Copy construction will create deep copies
 		// of all objects stored in c1
 
@@ -608,7 +608,7 @@ int main(int argc, char **argv) {
 		GBooleanObjectCollection c1; // Default constructor
 		GBooleanObjectCollection c2(c1); // Copy construction
 		std::shared_ptr<GBooleanObjectCollection> p_c3(
-				new GBooleanObjectCollection(c1)
+			new GBooleanObjectCollection(c1)
 		); // Copy construction inside of smart pointer
 		// Note: Copy construction will create deep copies
 		// of all objects stored in c1
@@ -700,7 +700,7 @@ int main(int argc, char **argv) {
 		GParameterObjectCollection c1; // Default constructor
 		GParameterObjectCollection c2(c1); // Copy construction
 		std::shared_ptr<GParameterObjectCollection> p_c3(
-				new GParameterObjectCollection(c1)
+			new GParameterObjectCollection(c1)
 		); // Copy construction inside of smart pointer
 		// Note: Copy construction will create deep copies
 		// of all objects stored in c1
@@ -729,7 +729,7 @@ int main(int argc, char **argv) {
 		// in GParameterObjectCollection objects and create
 		// tree-like structures in this way
 		std::shared_ptr<GParameterObjectCollection> p_child(
-				new GParameterObjectCollection()
+			new GParameterObjectCollection()
 		);
 		c1.push_back(p_child);
 
@@ -787,9 +787,9 @@ int main(int argc, char **argv) {
 
 		//-----------------------------------------------------
 		// Setting and retrieval of specific configuration parameters
-      a1.setSigmaRange(minSigma, maxSigma);
-      boost::tuple<double,double> t = a1.getSigmaRange();
-      std::cout << boost::get<0>(t) << " " << boost::get<1>(t) << std::endl;
+		a1.setSigmaRange(minSigma, maxSigma);
+		boost::tuple<double,double> t = a1.getSigmaRange();
+		std::cout << boost::get<0>(t) << " " << boost::get<1>(t) << std::endl;
 
 		a1.setSigma(sigma);
 		double sigma2 = a1.getSigma();
@@ -860,21 +860,21 @@ int main(int argc, char **argv) {
 		// Set all sigma1 and sigma2 parameters at once. Note: We use
 		// the lower/upper boundaries extracted above.
 		a1.setAllSigma1(
-				sigma1
-				, sigma1AdaptionRate
-				, boost::get<0>(sigma1Range)
-				, boost::get<1>(sigma1Range)
+			sigma1
+			, sigma1AdaptionRate
+			, boost::get<0>(sigma1Range)
+			, boost::get<1>(sigma1Range)
 		);
 		a1.setAllSigma2(
-				sigma2
-				, sigma2AdaptionRate
-				, boost::get<0>(sigma2Range)
-				, boost::get<1>(sigma2Range)
+			sigma2
+			, sigma2AdaptionRate
+			, boost::get<0>(sigma2Range)
+			, boost::get<1>(sigma2Range)
 		);
 
-      // Set/get the lower and upper boundaries of delta
-      a1.setDeltaRange(0.,5.);
-      boost::tuple<double,double> deltaRange = a1.getDeltaRange();
+		// Set/get the lower and upper boundaries of delta
+		a1.setDeltaRange(0.,5.);
+		boost::tuple<double,double> deltaRange = a1.getDeltaRange();
 
 		// Set the initial distance between both peaks
 		// and retieve the current value
@@ -941,8 +941,8 @@ int main(int argc, char **argv) {
 		boost::tuple<double,double> t = a1.getSigmaRange();
 		std::cout << boost::get<0>(t) << " " << boost::get<1>(t) << std::endl;
 
-      a1.setSigma(sigma);
-      double sigma2 = a1.getSigma();
+		a1.setSigma(sigma);
+		double sigma2 = a1.getSigma();
 
 		a1.setSigmaAdaptionRate(sigmaSigma);
 		double adaptionRate = a1.getSigmaAdaptionRate();
