@@ -69,7 +69,7 @@ public:
 	// The default constructor
 	GRandom_test():
 		nTests_(100000)
-      , nSeeds_(100000)
+		, nSeeds_(100000)
 	{ /* empty */ }
 
 	/***********************************************************************************/
@@ -438,14 +438,14 @@ class GHapSuite: public test_suite
 {
 public:
 	GHapSuite() :test_suite("GHapSuite") {
-	  // create an instance of the test cases class
-	  boost::shared_ptr<GRandom_test> instance(new GRandom_test());
+		// create an instance of the test cases class
+		boost::shared_ptr<GRandom_test> instance(new GRandom_test());
 
-	  test_case* GRandom_no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GRandom_test::no_failure_expected, instance);
-	  test_case* GRandom_failures_expected_test_case = BOOST_CLASS_TEST_CASE(&GRandom_test::failures_expected, instance);
+		test_case* GRandom_no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GRandom_test::no_failure_expected, instance);
+		test_case* GRandom_failures_expected_test_case = BOOST_CLASS_TEST_CASE(&GRandom_test::failures_expected, instance);
 
-	  add(GRandom_no_failure_expected_test_case);
-	  add(GRandom_failures_expected_test_case);
+		add(GRandom_no_failure_expected_test_case);
+		add(GRandom_failures_expected_test_case);
 	}
 };
 

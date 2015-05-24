@@ -63,85 +63,85 @@ const std::size_t NENTRIES = 100000;
 const std::size_t NBINS = 100;
 
 int main(int argc, char **argv){
-   double x1, x2, x3, x4, sum1, sum2, sum3, sum4;
+	double x1, x2, x3, x4, sum1, sum2, sum3, sum4;
 
-   std::shared_ptr<GRandomT<RANDOMPROXY> > gr_ptr(new GRandomT<RANDOMPROXY>());
+	std::shared_ptr<GRandomT<RANDOMPROXY> > gr_ptr(new GRandomT<RANDOMPROXY>());
 
-   std::shared_ptr<GHistogram1D> x1_ptr(new GHistogram1D(NBINS, 0., 1.));
-   std::shared_ptr<GHistogram1D> x2_ptr(new GHistogram1D(NBINS, 0., 1.));
-   std::shared_ptr<GHistogram1D> x3_ptr(new GHistogram1D(NBINS, 0., 1.));
-   std::shared_ptr<GHistogram1D> x4_ptr(new GHistogram1D(NBINS, 0., 1.));
+	std::shared_ptr<GHistogram1D> x1_ptr(new GHistogram1D(NBINS, 0., 1.));
+	std::shared_ptr<GHistogram1D> x2_ptr(new GHistogram1D(NBINS, 0., 1.));
+	std::shared_ptr<GHistogram1D> x3_ptr(new GHistogram1D(NBINS, 0., 1.));
+	std::shared_ptr<GHistogram1D> x4_ptr(new GHistogram1D(NBINS, 0., 1.));
 
-   std::shared_ptr<GHistogram1D> sum1_extract_ptr(new GHistogram1D(NBINS, 0., 1.)); // 1 - x1
-   std::shared_ptr<GHistogram1D> sum2_extract_ptr(new GHistogram1D(NBINS, 0., 1.)); // 2 - (x1+x2)
-   std::shared_ptr<GHistogram1D> sum3_extract_ptr(new GHistogram1D(NBINS, 0., 1.)); // 3 - (x1+x2+x3)
-   std::shared_ptr<GHistogram1D> sum4_extract_ptr(new GHistogram1D(NBINS, 0., 1.)); // 4 - (x1+x2+x3+x4)
+	std::shared_ptr<GHistogram1D> sum1_extract_ptr(new GHistogram1D(NBINS, 0., 1.)); // 1 - x1
+	std::shared_ptr<GHistogram1D> sum2_extract_ptr(new GHistogram1D(NBINS, 0., 1.)); // 2 - (x1+x2)
+	std::shared_ptr<GHistogram1D> sum3_extract_ptr(new GHistogram1D(NBINS, 0., 1.)); // 3 - (x1+x2+x3)
+	std::shared_ptr<GHistogram1D> sum4_extract_ptr(new GHistogram1D(NBINS, 0., 1.)); // 4 - (x1+x2+x3+x4)
 
-   std::shared_ptr<GHistogram1D> sum1_all_ptr(new GHistogram1D(NBINS, 0., 1.));  // 1 - x1
-   std::shared_ptr<GHistogram1D> sum2_all_ptr(new GHistogram1D(NBINS, -1., 1.)); // 2 - (x1+x2)
-   std::shared_ptr<GHistogram1D> sum3_all_ptr(new GHistogram1D(NBINS, -2., 1.)); // 3 - (x1+x2+x3)
-   std::shared_ptr<GHistogram1D> sum4_all_ptr(new GHistogram1D(NBINS, -3., 1.)); // 4 - (x1+x2+x3+x4)
+	std::shared_ptr<GHistogram1D> sum1_all_ptr(new GHistogram1D(NBINS, 0., 1.));  // 1 - x1
+	std::shared_ptr<GHistogram1D> sum2_all_ptr(new GHistogram1D(NBINS, -1., 1.)); // 2 - (x1+x2)
+	std::shared_ptr<GHistogram1D> sum3_all_ptr(new GHistogram1D(NBINS, -2., 1.)); // 3 - (x1+x2+x3)
+	std::shared_ptr<GHistogram1D> sum4_all_ptr(new GHistogram1D(NBINS, -3., 1.)); // 4 - (x1+x2+x3+x4)
 
-   x1_ptr->setXAxisLabel("x1");  x1_ptr->setYAxisLabel("Number of Entries"); x1_ptr->setPlotLabel("x_{1}");
-   x2_ptr->setXAxisLabel("x2");  x2_ptr->setYAxisLabel("Number of Entries"); x2_ptr->setPlotLabel("x_{2}");
-   x3_ptr->setXAxisLabel("x3");  x3_ptr->setYAxisLabel("Number of Entries"); x3_ptr->setPlotLabel("x_{3}");
-   x4_ptr->setXAxisLabel("x4");  x4_ptr->setYAxisLabel("Number of Entries"); x4_ptr->setPlotLabel("x_{4}");
+	x1_ptr->setXAxisLabel("x1"); x1_ptr->setYAxisLabel("Number of Entries"); x1_ptr->setPlotLabel("x_{1}");
+	x2_ptr->setXAxisLabel("x2"); x2_ptr->setYAxisLabel("Number of Entries"); x2_ptr->setPlotLabel("x_{2}");
+	x3_ptr->setXAxisLabel("x3"); x3_ptr->setYAxisLabel("Number of Entries"); x3_ptr->setPlotLabel("x_{3}");
+	x4_ptr->setXAxisLabel("x4"); x4_ptr->setYAxisLabel("Number of Entries"); x4_ptr->setPlotLabel("x_{4}");
 
-   sum1_extract_ptr->setXAxisLabel("1-x1"); sum1_extract_ptr->setYAxisLabel("Number of Entries"); sum1_extract_ptr->setPlotLabel("1.-x_{1}, extract");
-   sum2_extract_ptr->setXAxisLabel("1-(x1+x2)"); sum2_extract_ptr->setYAxisLabel("Number of Entries"); sum2_extract_ptr->setPlotLabel("1.-(x_{1}+x_{2}), extract");
-   sum3_extract_ptr->setXAxisLabel("1-(x1+x2+x3)"); sum3_extract_ptr->setYAxisLabel("Number of Entries"); sum3_extract_ptr->setPlotLabel("1.-(x_{1}+x_{2}+x_{3}), extract");
-   sum4_extract_ptr->setXAxisLabel("1-(x1+x2+x3+x4)"); sum4_extract_ptr->setYAxisLabel("Number of Entries"); sum4_extract_ptr->setPlotLabel("1.-(x_{1}+x_{2}+x_{3}+x_{4}), extract");
+	sum1_extract_ptr->setXAxisLabel("1-x1"); sum1_extract_ptr->setYAxisLabel("Number of Entries"); sum1_extract_ptr->setPlotLabel("1.-x_{1}, extract");
+	sum2_extract_ptr->setXAxisLabel("1-(x1+x2)"); sum2_extract_ptr->setYAxisLabel("Number of Entries"); sum2_extract_ptr->setPlotLabel("1.-(x_{1}+x_{2}), extract");
+	sum3_extract_ptr->setXAxisLabel("1-(x1+x2+x3)"); sum3_extract_ptr->setYAxisLabel("Number of Entries"); sum3_extract_ptr->setPlotLabel("1.-(x_{1}+x_{2}+x_{3}), extract");
+	sum4_extract_ptr->setXAxisLabel("1-(x1+x2+x3+x4)"); sum4_extract_ptr->setYAxisLabel("Number of Entries"); sum4_extract_ptr->setPlotLabel("1.-(x_{1}+x_{2}+x_{3}+x_{4}), extract");
 
-   sum1_all_ptr->setXAxisLabel("1-x1"); sum1_all_ptr->setYAxisLabel("Number of Entries"); sum1_all_ptr->setPlotLabel("1.-x_{1}, all");
-   sum2_all_ptr->setXAxisLabel("1-(x1+x2)"); sum2_all_ptr->setYAxisLabel("Number of Entries"); sum2_all_ptr->setPlotLabel("1.-(x_{1}+x_{2}), all");
-   sum3_all_ptr->setXAxisLabel("1-(x1+x2+x3)"); sum3_all_ptr->setYAxisLabel("Number of Entries"); sum3_all_ptr->setPlotLabel("1.-(x_{1}+x_{2}+x_{3}), all");
-   sum4_all_ptr->setXAxisLabel("1-(x1+x2+x3+x4)"); sum4_all_ptr->setYAxisLabel("Number of Entries"); sum4_all_ptr->setPlotLabel("1.-(x_{1}+x_{2}+x_{3}+x_{4}), all");
+	sum1_all_ptr->setXAxisLabel("1-x1"); sum1_all_ptr->setYAxisLabel("Number of Entries"); sum1_all_ptr->setPlotLabel("1.-x_{1}, all");
+	sum2_all_ptr->setXAxisLabel("1-(x1+x2)"); sum2_all_ptr->setYAxisLabel("Number of Entries"); sum2_all_ptr->setPlotLabel("1.-(x_{1}+x_{2}), all");
+	sum3_all_ptr->setXAxisLabel("1-(x1+x2+x3)"); sum3_all_ptr->setYAxisLabel("Number of Entries"); sum3_all_ptr->setPlotLabel("1.-(x_{1}+x_{2}+x_{3}), all");
+	sum4_all_ptr->setXAxisLabel("1-(x1+x2+x3+x4)"); sum4_all_ptr->setYAxisLabel("Number of Entries"); sum4_all_ptr->setPlotLabel("1.-(x_{1}+x_{2}+x_{3}+x_{4}), all");
 
-   for(std::size_t i=0; i<NENTRIES; i++) {
-      x1=gr_ptr->GRandomBase::uniform_01<double>();
-      x2=gr_ptr->GRandomBase::uniform_01<double>();
-      x3=gr_ptr->GRandomBase::uniform_01<double>();
-      x4=gr_ptr->GRandomBase::uniform_01<double>();
+	for(std::size_t i=0; i<NENTRIES; i++) {
+		x1=gr_ptr->GRandomBase::uniform_01<double>();
+		x2=gr_ptr->GRandomBase::uniform_01<double>();
+		x3=gr_ptr->GRandomBase::uniform_01<double>();
+		x4=gr_ptr->GRandomBase::uniform_01<double>();
 
-      sum1 = x1;
-      sum2 = x1+x2;
-      sum3 = x1+x2+x3;
-      sum4 = x1+x2+x3+x4;
+		sum1 = x1;
+		sum2 = x1+x2;
+		sum3 = x1+x2+x3;
+		sum4 = x1+x2+x3+x4;
 
-      x1_ptr->add(x1);
-      x2_ptr->add(x2);
-      x3_ptr->add(x3);
-      x4_ptr->add(x4);
+		x1_ptr->add(x1);
+		x2_ptr->add(x2);
+		x3_ptr->add(x3);
+		x4_ptr->add(x4);
 
-      sum1_extract_ptr->add(1.-sum1);
-      sum2_extract_ptr->add(1.-sum2);
-      sum3_extract_ptr->add(1.-sum3);
-      sum4_extract_ptr->add(1.-sum4);
+		sum1_extract_ptr->add(1.-sum1);
+		sum2_extract_ptr->add(1.-sum2);
+		sum3_extract_ptr->add(1.-sum3);
+		sum4_extract_ptr->add(1.-sum4);
 
-      sum1_all_ptr->add(1.-sum1);
-      sum2_all_ptr->add(1.-sum2);
-      sum3_all_ptr->add(1.-sum3);
-      sum4_all_ptr->add(1.-sum4);
-   }
+		sum1_all_ptr->add(1.-sum1);
+		sum2_all_ptr->add(1.-sum2);
+		sum3_all_ptr->add(1.-sum3);
+		sum4_all_ptr->add(1.-sum4);
+	}
 
-   GPlotDesigner gpd("Dependent random number distributions", 4,3);
+	GPlotDesigner gpd("Dependent random number distributions", 4,3);
 
-   gpd.setCanvasDimensions(1600,1200);
+	gpd.setCanvasDimensions(1600,1200);
 
-   gpd.registerPlotter(x1_ptr);
-   gpd.registerPlotter(x2_ptr);
-   gpd.registerPlotter(x3_ptr);
-   gpd.registerPlotter(x4_ptr);
+	gpd.registerPlotter(x1_ptr);
+	gpd.registerPlotter(x2_ptr);
+	gpd.registerPlotter(x3_ptr);
+	gpd.registerPlotter(x4_ptr);
 
-   gpd.registerPlotter(sum1_extract_ptr);
-   gpd.registerPlotter(sum2_extract_ptr);
-   gpd.registerPlotter(sum3_extract_ptr);
-   gpd.registerPlotter(sum4_extract_ptr);
+	gpd.registerPlotter(sum1_extract_ptr);
+	gpd.registerPlotter(sum2_extract_ptr);
+	gpd.registerPlotter(sum3_extract_ptr);
+	gpd.registerPlotter(sum4_extract_ptr);
 
-   gpd.registerPlotter(sum1_all_ptr);
-   gpd.registerPlotter(sum2_all_ptr);
-   gpd.registerPlotter(sum3_all_ptr);
-   gpd.registerPlotter(sum4_all_ptr);
+	gpd.registerPlotter(sum1_all_ptr);
+	gpd.registerPlotter(sum2_all_ptr);
+	gpd.registerPlotter(sum3_all_ptr);
+	gpd.registerPlotter(sum4_all_ptr);
 
-   gpd.writeToFile("rootPlotDependentDistributions.C");
+	gpd.writeToFile("rootPlotDependentDistributions.C");
 }

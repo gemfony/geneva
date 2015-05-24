@@ -46,10 +46,10 @@ namespace Tests
  */
 
 bool parseCommandLine(int argc, char **argv,
-					  std::size_t& nEntries,
-					  boost::uint16_t& nProducerThreads,
-					  boost::uint16_t& rnrProductionMode,
-					  bool& verbose)
+							 std::size_t& nEntries,
+							 boost::uint16_t& nProducerThreads,
+							 boost::uint16_t& rnrProductionMode,
+							 bool& verbose)
 {
 	try{
 		// Check the command line options. Uses the Boost program options library.
@@ -92,9 +92,9 @@ bool parseCommandLine(int argc, char **argv,
 			<< std::endl
 			<< "Running with the following options:" << std::endl
 			<< "nEntries = " << nEntries << std::endl
-		   << "nProducerThreads = " << nProducerThreads << std::endl
-		   << "rnrProductionMode = " << rnrProductionModeString << std::endl
-		   << std::endl;
+			<< "nProducerThreads = " << nProducerThreads << std::endl
+			<< "rnrProductionMode = " << rnrProductionModeString << std::endl
+			<< std::endl;
 		}
 	}
 	catch(...){
