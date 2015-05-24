@@ -57,25 +57,25 @@ std::vector<double> producer2_vec;
  * Test of GRandom-access through thread-specific pointer
  */
 void produceNumbers(int id) {
-   switch(id) {
-      case 1:
-      for(std::size_t i=0; i<NPROD; i++) {
-         producer1_vec.push_back(Gem::Common::tss_ptr<Gem::Hap::GRandom>()->uniform_01<double>());
-      }
-      break;
+	switch(id) {
+		case 1:
+			for(std::size_t i=0; i<NPROD; i++) {
+				producer1_vec.push_back(Gem::Common::tss_ptr<Gem::Hap::GRandom>()->uniform_01<double>());
+			}
+			break;
 
-      case 2:
-      for(std::size_t i=0; i<NPROD; i++) {
-         producer2_vec.push_back(Gem::Common::tss_ptr<Gem::Hap::GRandom>()->uniform_01<double>());
-      }
-      break;
+		case 2:
+			for(std::size_t i=0; i<NPROD; i++) {
+				producer2_vec.push_back(Gem::Common::tss_ptr<Gem::Hap::GRandom>()->uniform_01<double>());
+			}
+			break;
 
 		default:
 			glogger
 			<< "Unkown id " << id << std::endl
 			<< GEXCEPTION;
-		break;
-   }
+			break;
+	}
 }
 
 /***********************************************************************************/
@@ -137,12 +137,12 @@ int main(int argc, char **argv) {
 		}
 
 		{
-			 // This function adds two gaussians with sigma "sigma" and a distance
-			 // "distance" from each other, centered around mean. The idea is to use
-			 // this function in conjunction with evolutionary strategies, so we avoid
-			 // searching with the highest likelihood at a location where we already
-			 // know a good value exists. Rather we want to shift the highest likelihood
-			 // for probes a bit further away from the candidate solution.
+			// This function adds two gaussians with sigma "sigma" and a distance
+			// "distance" from each other, centered around mean. The idea is to use
+			// this function in conjunction with evolutionary strategies, so we avoid
+			// searching with the highest likelihood at a location where we already
+			// know a good value exists. Rather we want to shift the highest likelihood
+			// for probes a bit further away from the candidate solution.
 			double mean = 1.;
 			double sigma = 2.;
 			double distance = 3.;
@@ -150,12 +150,12 @@ int main(int argc, char **argv) {
 		}
 
 		{
-			 // This function adds two gaussians with sigmas "sigma1", "sigma2" and a distance
-			 // of "distance" from each other, centered around mean. The idea is to use
-			 // this function in conjunction with evolutionary strategies, so we avoid
-			 // searching with the highest likelihood at a location where we already
-			 // know a good value exists. Rather we want to shift the highest likelihood
-			 // for probes a bit further away from the candidate solution.
+			// This function adds two gaussians with sigmas "sigma1", "sigma2" and a distance
+			// of "distance" from each other, centered around mean. The idea is to use
+			// this function in conjunction with evolutionary strategies, so we avoid
+			// searching with the highest likelihood at a location where we already
+			// know a good value exists. Rather we want to shift the highest likelihood
+			// for probes a bit further away from the candidate solution.
 			double mean = 1.;
 			double sigma1 = 2.;
 			double sigma2 = 1.;
@@ -183,7 +183,7 @@ int main(int argc, char **argv) {
 		}
 
 		{
-			 // This function produces integer random numbers in the range of [0, max] .
+			// This function produces integer random numbers in the range of [0, max] .
 			boost::int32_t max = 10;
 			boost::int32_t int_rand_max = gr.uniform_int(max);
 		}

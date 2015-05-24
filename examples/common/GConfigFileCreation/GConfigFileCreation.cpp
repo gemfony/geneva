@@ -96,49 +96,49 @@ int main(int argc, char **argv) {
 	//----------------------------------------------------------------
 	// Register some command line options
 	gpb.registerCLParameter<int>(
-	      "creationSwitcher,c"
-	      , creationSwitcher
-	      , int(0)
-	      , "Allows to switch between configuration file creation (0) and file parsing (1)"
+		"creationSwitcher,c"
+		, creationSwitcher
+		, int(0)
+		, "Allows to switch between configuration file creation (0) and file parsing (1)"
 	);
 
 	// Information may be streamed!
-   gpb.registerCLParameter<bool>(
-         "useOperator,o"
-         , useOperator
-         , false
-   ) << "Allows to enforce usage of gpb.registerFileParameter() << comment";
+	gpb.registerCLParameter<bool>(
+		"useOperator,o"
+		, useOperator
+		, false
+	) << "Allows to enforce usage of gpb.registerFileParameter() << comment";
 
 	gpb.registerCLParameter<std::string>(
-	      "fileName,f"
-	      , fileName
-	      , "./config/configFile.json"
-	      , "The name of the file information should be written to or read from"
+		"fileName,f"
+		, fileName
+		, "./config/configFile.json"
+		, "The name of the file information should be written to or read from"
 	);
 
 	// Parse the command line and leave if the help flag was given
 	if(Gem::Common::GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, true /*verbose*/)) {
-	   return 0;
+		return 0;
 	}
 
 	//----------------------------------------------------------------
 	// Example 1: Registering a call-back function (which in this
 	// case sets a globally defined integer variable)
 	if(useOperator) {
-      gpb.registerFileParameter<int>(
-         "iOption2"
-         , SOMEGLOBALINTDEFAULT
-         , setGlobalInt
-      )
-      << "This is a comment for a call-back option" << std::endl;
+		gpb.registerFileParameter<int>(
+			"iOption2"
+			, SOMEGLOBALINTDEFAULT
+			, setGlobalInt
+		)
+		<< "This is a comment for a call-back option" << std::endl;
 	} else {
-      gpb.registerFileParameter<int>(
-         "iOption2"
-         , SOMEGLOBALINTDEFAULT
-         , setGlobalInt
-         , Gem::Common::VAR_IS_SECONDARY // Could also be VAR_IS_ESSENTIAL
-         , "This is a comment for a call-back option"
-      );
+		gpb.registerFileParameter<int>(
+			"iOption2"
+			, SOMEGLOBALINTDEFAULT
+			, setGlobalInt
+			, Gem::Common::VAR_IS_SECONDARY // Could also be VAR_IS_ESSENTIAL
+			, "This is a comment for a call-back option"
+		);
 	}
 
 	//----------------------------------------------------------------
@@ -153,51 +153,51 @@ int main(int argc, char **argv) {
 	const double D3DEFAULT = 3.;
 
 	if(useOperator) {
-      gpb.registerFileParameter<int,double>(
-         "iOption3"
-         , "dOption1"
-         , I3DEFAULT
-         , D3DEFAULT
-         , tvfo
-         , "combinedLabel"
-      )
-      << "A comment concerning the first option"
-      << nextComment() // commentLevel(1) would be another option
-      << "A comment concerning the second option;with a second line";
+		gpb.registerFileParameter<int,double>(
+			"iOption3"
+			, "dOption1"
+			, I3DEFAULT
+			, D3DEFAULT
+			, tvfo
+			, "combinedLabel"
+		)
+		<< "A comment concerning the first option"
+		<< nextComment() // commentLevel(1) would be another option
+		<< "A comment concerning the second option;with a second line";
 	} else {
-      gpb.registerFileParameter<int,double>(
-         "iOption3"
-         , "dOption1"
-         , I3DEFAULT
-         , D3DEFAULT
-         , tvfo
-         , "combinedLabel"
-         , Gem::Common::VAR_IS_ESSENTIAL // Could also be VAR_IS_SECONDARY
-         , "A comment concerning the first option"
-         , "A comment concerning the second option;with a second line"
-      );
+		gpb.registerFileParameter<int,double>(
+			"iOption3"
+			, "dOption1"
+			, I3DEFAULT
+			, D3DEFAULT
+			, tvfo
+			, "combinedLabel"
+			, Gem::Common::VAR_IS_ESSENTIAL // Could also be VAR_IS_SECONDARY
+			, "A comment concerning the first option"
+			, "A comment concerning the second option;with a second line"
+		);
 	}
 
 	//----------------------------------------------------------------
 	// Example 3: We can directly set a variable by providing a reference to it.
 	int i = 0; const int IDEFAULT = 0;
 
-   if(useOperator) {
-      gpb.registerFileParameter<int>(
-         "iOption"
-         , i
-         , IDEFAULT
-      )
-      << "This is a comment; This is the second line of the comment";
-   } else {
-      gpb.registerFileParameter<int>(
-         "iOption"
-         , i
-         , IDEFAULT
-         , Gem::Common::VAR_IS_ESSENTIAL // Could also be VAR_IS_SECONDARY
-         , "This is a comment; This is the second line of the comment"
-      );
-   }
+	if(useOperator) {
+		gpb.registerFileParameter<int>(
+			"iOption"
+			, i
+			, IDEFAULT
+		)
+		<< "This is a comment; This is the second line of the comment";
+	} else {
+		gpb.registerFileParameter<int>(
+			"iOption"
+			, i
+			, IDEFAULT
+			, Gem::Common::VAR_IS_ESSENTIAL // Could also be VAR_IS_SECONDARY
+			, "This is a comment; This is the second line of the comment"
+		);
+	}
 
 	//----------------------------------------------------------------
 	// Example 4: Adding a std::vector<> of configurable type to the config
@@ -206,22 +206,22 @@ int main(int argc, char **argv) {
 	defaultDoubleVec4.push_back(0.);
 	defaultDoubleVec4.push_back(1.);
 
-   if(useOperator) {
-      gpb.registerFileParameter<double>(
-         "vectorOptionsWithCallback"
-         , defaultDoubleVec4
-         , setGlobalDoubleVec // The call-back function. See at the beginning of this file
-      )
-      << "Yet another comment";
-   } else {
-      gpb.registerFileParameter<double>(
-         "vectorOptionsWithCallback"
-         , defaultDoubleVec4
-         , setGlobalDoubleVec // The call-back function. See at the beginning of this file
-         , Gem::Common::VAR_IS_ESSENTIAL // Could also be VAR_IS_SECONDARY
-         , "Yet another comment"
-      );
-   }
+	if(useOperator) {
+		gpb.registerFileParameter<double>(
+			"vectorOptionsWithCallback"
+			, defaultDoubleVec4
+			, setGlobalDoubleVec // The call-back function. See at the beginning of this file
+		)
+		<< "Yet another comment";
+	} else {
+		gpb.registerFileParameter<double>(
+			"vectorOptionsWithCallback"
+			, defaultDoubleVec4
+			, setGlobalDoubleVec // The call-back function. See at the beginning of this file
+			, Gem::Common::VAR_IS_ESSENTIAL // Could also be VAR_IS_SECONDARY
+			, "Yet another comment"
+		);
+	}
 
 	//----------------------------------------------------------------
 	// Example 5: Adding a reference to a vector of configurable type
@@ -233,23 +233,23 @@ int main(int argc, char **argv) {
 	defaultDoubleVec5.push_back(0.);
 	defaultDoubleVec5.push_back(1.);
 
-   if(useOperator) {
-      gpb.registerFileParameter<double>(
-         "vectorOptionsReference"
-         , targetDoubleVector
-         , defaultDoubleVec5
-      )
-      << "And yet another comment";
+	if(useOperator) {
+		gpb.registerFileParameter<double>(
+			"vectorOptionsReference"
+			, targetDoubleVector
+			, defaultDoubleVec5
+		)
+		<< "And yet another comment";
 
-   } else {
-      gpb.registerFileParameter<double>(
-         "vectorOptionsReference"
-         , targetDoubleVector
-         , defaultDoubleVec5
-         , Gem::Common::VAR_IS_ESSENTIAL // Could also be VAR_IS_SECONDARY
-         , "And yet another comment"
-      );
-   }
+	} else {
+		gpb.registerFileParameter<double>(
+			"vectorOptionsReference"
+			, targetDoubleVector
+			, defaultDoubleVec5
+			, Gem::Common::VAR_IS_ESSENTIAL // Could also be VAR_IS_SECONDARY
+			, "And yet another comment"
+		);
+	}
 
 	//----------------------------------------------------------------
 	// Example 6: Adding an array of fixed size to the collection
@@ -259,22 +259,22 @@ int main(int argc, char **argv) {
 		defValArray[i] = boost::numeric_cast<int>(i);
 	}
 
-   if(useOperator) {
-      gpb.registerFileParameter<int,ARRAYSIZE>(
-         "boostArrayWithCallback"
-         , defValArray
-         , setGlobalBoostArray // The call back function
-      )
-      << "A comment regarding arrays with call-back functions";
-   } else {
-      gpb.registerFileParameter<int,ARRAYSIZE>(
-         "boostArrayWithCallback"
-         , defValArray
-         , setGlobalBoostArray // The call back function
-         , Gem::Common::VAR_IS_ESSENTIAL // Could also be VAR_IS_SECONDARY
-         , "A comment regarding arrays with call-back functions"
-      );
-   }
+	if(useOperator) {
+		gpb.registerFileParameter<int,ARRAYSIZE>(
+			"boostArrayWithCallback"
+			, defValArray
+			, setGlobalBoostArray // The call back function
+		)
+		<< "A comment regarding arrays with call-back functions";
+	} else {
+		gpb.registerFileParameter<int,ARRAYSIZE>(
+			"boostArrayWithCallback"
+			, defValArray
+			, setGlobalBoostArray // The call back function
+			, Gem::Common::VAR_IS_ESSENTIAL // Could also be VAR_IS_SECONDARY
+			, "A comment regarding arrays with call-back functions"
+		);
+	}
 
 	//----------------------------------------------------------------
 	// Example 7: Adding a reference to a boost::array object. We
@@ -282,22 +282,22 @@ int main(int argc, char **argv) {
 
 	boost::array<int,ARRAYSIZE> targetArray;
 
-   if(useOperator) {
-      gpb.registerFileParameter<int,ARRAYSIZE>(
-           "boostArrayReference"
-           , targetArray
-           , defValArray
-        )
-        << "A comment regarding boost::array references";
-   } else {
-      gpb.registerFileParameter<int,ARRAYSIZE>(
-         "boostArrayReference"
-         , targetArray
-         , defValArray
-         , Gem::Common::VAR_IS_ESSENTIAL // Could also be VAR_IS_SECONDARY
-         , "A comment regarding boost::array references"
-      );
-   }
+	if(useOperator) {
+		gpb.registerFileParameter<int,ARRAYSIZE>(
+			"boostArrayReference"
+			, targetArray
+			, defValArray
+		)
+		<< "A comment regarding boost::array references";
+	} else {
+		gpb.registerFileParameter<int,ARRAYSIZE>(
+			"boostArrayReference"
+			, targetArray
+			, defValArray
+			, Gem::Common::VAR_IS_ESSENTIAL // Could also be VAR_IS_SECONDARY
+			, "A comment regarding boost::array references"
+		);
+	}
 
 	//----------------------------------------------------------------
 	//////////////////////////////////////////////////////////////////
@@ -308,21 +308,21 @@ int main(int argc, char **argv) {
 
 	// Depending on the command line argument, write or read a configuration file
 	switch(creationSwitcher) {
-	case 0: // file creation
-	{
-		std::string header = "This is a not so complicated header;with a second line;and a third line as well";
-		bool writeAll = true; // If set to false, only essential (but no secondary variables) are written
-		gpb.writeConfigFile(fileName, header, writeAll);
-	}
-		break;
+		case 0: // file creation
+		{
+			std::string header = "This is a not so complicated header;with a second line;and a third line as well";
+			bool writeAll = true; // If set to false, only essential (but no secondary variables) are written
+			gpb.writeConfigFile(fileName, header, writeAll);
+		}
+			break;
 
-	case 1: // file parsing
-	{
-		gpb.parseConfigFile(fileName);
-	}
-		break;
+		case 1: // file parsing
+		{
+			gpb.parseConfigFile(fileName);
+		}
+			break;
 
-	default: // Complain
-		throw;
+		default: // Complain
+			throw;
 	}
 }
