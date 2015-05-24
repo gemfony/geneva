@@ -81,14 +81,14 @@ int main(int argc, char **argv){
 	boost::filesystem::ofstream ofs("bitflipResult.C"); // Output file
 
 	ofs << "{" << std::endl
-		<< "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,800,800);" << std::endl
-		<< "  cc->Divide(2,2);" << std::endl
-		<< std::endl
-		<< "  TH1F *singleFlipValueNPA = new TH1F(\"singleFlipValueNPA\",\"singleFlipValueNPA\",2,-0.5,1.5);" << std::endl
-		<< "  TH1F *collectionFlipValueNPA = new TH1F(\"collectionFlipValueNPA\",\"collectionFlipValueNPA\",2,-0.5,1.5);" << std::endl
-		<< "  TH1F *singleFlipValuePA = new TH1F(\"singleFlipValuePA\",\"singleFlipValuePA\",2,-0.5,1.5);" << std::endl
-		<< "  TH1F *collectionFlipValuePA = new TH1F(\"collectionFlipValuePA\",\"collectionFlipValuePA\",2,-0.5,1.5);" << std::endl
-		<< std::endl;
+	<< "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,800,800);" << std::endl
+	<< "  cc->Divide(2,2);" << std::endl
+	<< std::endl
+	<< "  TH1F *singleFlipValueNPA = new TH1F(\"singleFlipValueNPA\",\"singleFlipValueNPA\",2,-0.5,1.5);" << std::endl
+	<< "  TH1F *collectionFlipValueNPA = new TH1F(\"collectionFlipValueNPA\",\"collectionFlipValueNPA\",2,-0.5,1.5);" << std::endl
+	<< "  TH1F *singleFlipValuePA = new TH1F(\"singleFlipValuePA\",\"singleFlipValuePA\",2,-0.5,1.5);" << std::endl
+	<< "  TH1F *collectionFlipValuePA = new TH1F(\"collectionFlipValuePA\",\"collectionFlipValuePA\",2,-0.5,1.5);" << std::endl
+	<< std::endl;
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	// Tests without adaption of flip probability
@@ -126,7 +126,7 @@ int main(int argc, char **argv){
 	}
 
 	std::cout << "A flip ratio (no probability adaption): " << A_noprobadapt_flipped/double(MAXFLIP) << std::endl
-		      << "B flip ratio (no probability adaption): " << B_noprobadapt_flipped/double(MAXFLIP*NBIT) << std::endl;
+	<< "B flip ratio (no probability adaption): " << B_noprobadapt_flipped/double(MAXFLIP*NBIT) << std::endl;
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	// Tests with adaption of flip probability
@@ -170,19 +170,19 @@ int main(int argc, char **argv){
 	}
 
 	std::cout << "A flip ratio (probability adaption): " << A_probadapt_flipped/double(MAXFLIP) << std::endl
-		      << "B flip ratio (probability adaption): " << B_probadapt_flipped/double(MAXFLIP*NBIT) << std::endl;
+	<< "B flip ratio (probability adaption): " << B_probadapt_flipped/double(MAXFLIP*NBIT) << std::endl;
 
 	ofs << std::endl
-		<< "  cc->cd(1);" << std::endl
-		<< "  singleFlipValueNPA->Draw();" << std::endl
-		<< "  cc->cd(2);" << std::endl
-		<< "  collectionFlipValueNPA->Draw();" << std::endl
-		<< "  cc->cd(3);" << std::endl
-		<< "  singleFlipValuePA->Draw();" << std::endl
-		<< "  cc->cd(4);" << std::endl
-		<< "  collectionFlipValuePA->Draw();" << std::endl
-		<< "  cc->cd();" << std::endl
-		<< "}" << std::endl;
+	<< "  cc->cd(1);" << std::endl
+	<< "  singleFlipValueNPA->Draw();" << std::endl
+	<< "  cc->cd(2);" << std::endl
+	<< "  collectionFlipValueNPA->Draw();" << std::endl
+	<< "  cc->cd(3);" << std::endl
+	<< "  singleFlipValuePA->Draw();" << std::endl
+	<< "  cc->cd(4);" << std::endl
+	<< "  collectionFlipValuePA->Draw();" << std::endl
+	<< "  cc->cd();" << std::endl
+	<< "}" << std::endl;
 
 	ofs.close();
 

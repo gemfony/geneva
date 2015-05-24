@@ -71,20 +71,20 @@ int main(int argc, char **argv) {
 	std::string resultFile;
 
 	if (!parseCommandLine(
-      argc, argv
-      , sigma
-      , sigmaSigma
-      , minSigma
-      , maxSigma
-      , adaptionThreshold
-      , resultFile
-      , maxIter
-      , verbose))
+		argc, argv
+		, sigma
+		, sigmaSigma
+		, minSigma
+		, maxSigma
+		, adaptionThreshold
+		, resultFile
+		, maxIter
+		, verbose))
 	{ exit(1); }
 
 	// The adaptor object to be tested
 	std::shared_ptr<GDoubleGaussAdaptor> gdga(
-			new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));
+		new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));
 	gdga->setAdaptionThreshold(adaptionThreshold);
 
 	// Create the GPlotDesigner object

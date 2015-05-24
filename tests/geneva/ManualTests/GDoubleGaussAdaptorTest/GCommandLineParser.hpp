@@ -68,14 +68,14 @@ const boost::uint32_t CMD_DEFAULTADAPTIONTHRESHOLD=1;
 namespace po = boost::program_options;
 
 bool parseCommandLine(int argc, char **argv,
-		double& sigma,
-		double& sigmaSigma,
-		double& minSigma,
-		double& maxSigma,
-		boost::uint32_t& adaptionThreshold,
-		std::string& resultFile,
-		boost::uint32_t& maxIter,
-		bool& verbose);
+							 double& sigma,
+							 double& sigmaSigma,
+							 double& minSigma,
+							 double& maxSigma,
+							 boost::uint32_t& adaptionThreshold,
+							 std::string& resultFile,
+							 boost::uint32_t& maxIter,
+							 bool& verbose);
 
 } /* namespace Tests */
 } /* namespace Gem */

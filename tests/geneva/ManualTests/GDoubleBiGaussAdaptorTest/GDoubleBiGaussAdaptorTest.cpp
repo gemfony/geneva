@@ -73,23 +73,23 @@ int main(int argc, char **argv) {
 	std::string resultFile;
 
 	if (!parseCommandLine(argc, argv
-		                  , sigma1
-		                  , sigmaSigma1
-		                  , minSigma1
-		                  , maxSigma1
-		                  , sigma2
-		                  , sigmaSigma2
-		                  , minSigma2
-		                  , maxSigma2
-		                  , delta
-		                  , sigmaDelta
-		                  , minDelta
-		                  , maxDelta
-		                  , adaptionThreshold
-		                  , resultFile
-		                  , maxIter
-		                  , verbose
-		                  ))
+								 , sigma1
+								 , sigmaSigma1
+								 , minSigma1
+								 , maxSigma1
+								 , sigma2
+								 , sigmaSigma2
+								 , minSigma2
+								 , maxSigma2
+								 , delta
+								 , sigmaDelta
+								 , minDelta
+								 , maxDelta
+								 , adaptionThreshold
+								 , resultFile
+								 , maxIter
+								 , verbose
+	))
 	{ exit(1); }
 
 	// The adaptor object to be tested

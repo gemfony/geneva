@@ -100,31 +100,31 @@ int main(int argc, char **argv) {
 			gti_ptr->streamline(par);
 
 			switch(o) {
-			case 0:
-				(*gdo_adapt_ptr) & boost::tuple<double,double>(par[0], par[1]);
-				break;
+				case 0:
+					(*gdo_adapt_ptr) & boost::tuple<double,double>(par[0], par[1]);
+					break;
 
-			case 1:
-				(*gcdo_adapt_ptr) & boost::tuple<double,double>(par[0], par[1]);
-				break;
+				case 1:
+					(*gcdo_adapt_ptr) & boost::tuple<double,double>(par[0], par[1]);
+					break;
 
-			case 2:
-				(*gcdoc_adapt_ptr) & boost::tuple<double,double>(par[0], par[1]);
-				break;
+				case 2:
+					(*gcdoc_adapt_ptr) & boost::tuple<double,double>(par[0], par[1]);
+					break;
 
-			case 3:
-				(*gdc_adapt_ptr) & boost::tuple<double,double>(par[0], par[1]);
-				break;
+				case 3:
+					(*gdc_adapt_ptr) & boost::tuple<double,double>(par[0], par[1]);
+					break;
 
-			case 4:
-				(*gcdc_adapt_ptr) & boost::tuple<double,double>(par[0], par[1]);
-				break;
+				case 4:
+					(*gcdc_adapt_ptr) & boost::tuple<double,double>(par[0], par[1]);
+					break;
 
-			default:
-				glogger
-				<< "Error in main(): Incorrect object type requested: " << o << std::endl
-				<< GEXCEPTION;
-				break;
+				default:
+					glogger
+					<< "Error in main(): Incorrect object type requested: " << o << std::endl
+					<< GEXCEPTION;
+					break;
 			}
 
 			gti_ptr->adapt();

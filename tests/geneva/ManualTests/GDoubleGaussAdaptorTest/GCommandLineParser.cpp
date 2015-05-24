@@ -43,37 +43,37 @@ namespace Tests {
  */
 
 bool parseCommandLine(int argc, char **argv,
-		double& sigma,
-		double& sigmaSigma,
-		double& minSigma,
-		double& maxSigma,
-		boost::uint32_t& adaptionThreshold,
-		std::string& resultFile,
-		boost::uint32_t& maxIter,
-		bool& verbose)
+							 double& sigma,
+							 double& sigmaSigma,
+							 double& minSigma,
+							 double& maxSigma,
+							 boost::uint32_t& adaptionThreshold,
+							 std::string& resultFile,
+							 boost::uint32_t& maxIter,
+							 bool& verbose)
 {
 	try {
 		// Check the command line options. Uses the Boost program options library.
 		po::options_description desc("Allowed options");
 		desc.add_options()
-		("help,h", "emit help message")
-		("sigma,S",po::value<double>(&sigma)->default_value(CMD_DEFAULTSIGMA),
+			("help,h", "emit help message")
+			("sigma,S",po::value<double>(&sigma)->default_value(CMD_DEFAULTSIGMA),
 				"Width of the gaussian")
-		("sigmaSigma,s",po::value<double>(&sigmaSigma)->default_value(CMD_DEFAULTSIGMASIGMA),
+			("sigmaSigma,s",po::value<double>(&sigmaSigma)->default_value(CMD_DEFAULTSIGMASIGMA),
 				"Width of the gaussian used to adapt sigma")
-		("minSigma,m",po::value<double>(&minSigma)->default_value(CMD_DEFAULTMINSIGMA),
+			("minSigma,m",po::value<double>(&minSigma)->default_value(CMD_DEFAULTMINSIGMA),
 				"Minimal allowed value of sigma")
-		("maxSigma,M",po::value<double>(&maxSigma)->default_value(CMD_DEFAULTMAXSIGMA),
+			("maxSigma,M",po::value<double>(&maxSigma)->default_value(CMD_DEFAULTMAXSIGMA),
 				"Maximum allowed value of sigma")
-		("adaptionThreshold,a",po::value<boost::uint32_t>(&adaptionThreshold)->default_value(CMD_DEFAULTADAPTIONTHRESHOLD),
+			("adaptionThreshold,a",po::value<boost::uint32_t>(&adaptionThreshold)->default_value(CMD_DEFAULTADAPTIONTHRESHOLD),
 				"Number of calls to adapt() after which the adaption parameters should be modified")
-		("resultFile,F",po::value<std::string>(&resultFile)->default_value(CMD_DEFAULTRESULTFILE),
+			("resultFile,F",po::value<std::string>(&resultFile)->default_value(CMD_DEFAULTRESULTFILE),
 				"The file to write the result to")
-		("maxIter,I",po::value<boost::uint32_t>(&maxIter)->default_value(CMD_DEFAULTMAXITER),
+			("maxIter,I",po::value<boost::uint32_t>(&maxIter)->default_value(CMD_DEFAULTMAXITER),
 				"The maximum number of test cycles")
-		("verbose,v",po::value<bool>(&verbose)->default_value(CMD_DEFAULTVERBOSE),
+			("verbose,v",po::value<bool>(&verbose)->default_value(CMD_DEFAULTVERBOSE),
 				"Whether to emit status information")
-		;
+			;
 
 		po::variables_map vm;
 		po::store(po::parse_command_line(argc, argv, desc), vm);
