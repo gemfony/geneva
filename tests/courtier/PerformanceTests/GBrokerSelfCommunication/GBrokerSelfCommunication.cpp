@@ -100,22 +100,22 @@ void connectorProducer(
 		for(std::size_t i=0; i<nContainerObjects; i++) {
 			data.push_back(std::shared_ptr<WORKLOAD>(new WORKLOAD(nContainerEntries)));
 		}
-      nSentItems += boost::numeric_cast<boost::uint32_t>(data.size());
+		nSentItems += boost::numeric_cast<boost::uint32_t>(data.size());
 
-      bool complete = brokerConnector.workOn(
-         data
-         , boost::tuple<std::size_t,std::size_t>(0, data.size())
-         , oldWorkItems
-         , true // Remove unprocessed items
-      );
+		bool complete = brokerConnector.workOn(
+			data
+			, boost::tuple<std::size_t,std::size_t>(0, data.size())
+			, oldWorkItems
+			, true // Remove unprocessed items
+		);
 
-      nReceivedItemsNew += boost::numeric_cast<boost::uint32_t>(data.size());
-      nReceivedItemsOld += boost::numeric_cast<boost::uint32_t>(oldWorkItems.size());
+		nReceivedItemsNew += boost::numeric_cast<boost::uint32_t>(data.size());
+		nReceivedItemsOld += boost::numeric_cast<boost::uint32_t>(oldWorkItems.size());
 
-      std::cout << "Cycle " << cycleCounter << " completed in producer " << id << std::endl << std::flush;
+		std::cout << "Cycle " << cycleCounter << " completed in producer " << id << std::endl << std::flush;
 	}
 
-   brokerConnector.finalize(); // This will reset the buffer port
+	brokerConnector.finalize(); // This will reset the buffer port
 
 	std::cout
 	<< "connectorProducer " << id << " has finished." << std::endl
@@ -186,15 +186,15 @@ int main(int argc, char **argv) {
 	unsigned short port;
 	Gem::Common::serializationMode serMode;
 	boost::uint32_t nProducers;
-  	boost::uint32_t nProductionCycles;
-  	submissionReturnMode srm;
-  	std::size_t maxResubmissions;
+	boost::uint32_t nProductionCycles;
+	submissionReturnMode srm;
+	std::size_t maxResubmissions;
 	boost::uint32_t nContainerObjects;
 	std::size_t nContainerEntries;
 	boost::uint32_t nWorkers;
 	GBSCModes executionMode;
 	bool useDirectBrokerConnection;
-   std::vector<std::shared_ptr<GAsioTCPClientT<WORKLOAD> > > clients;
+	std::vector<std::shared_ptr<GAsioTCPClientT<WORKLOAD> > > clients;
 
 	// Initialize the global producer counter
 	producer_counter = 0;
@@ -206,25 +206,25 @@ int main(int argc, char **argv) {
 	//--------------------------------------------------------------------------------
 	// Find out about our configuration options
 	if(!parseCommandLine(
-			argc, argv
-			, configFile
-			, executionMode
-			, serverMode
-			, ip
-			, port
-			, serMode
-			, srm
-			, useDirectBrokerConnection
-		) || !parseConfigFile(
-			configFile
-			, nProducers
-			, nProductionCycles
-			, nContainerObjects
-			, nContainerEntries
-			, maxResubmissions
-			, nWorkers
-		)
-	){ exit(0); }
+		argc, argv
+		, configFile
+		, executionMode
+		, serverMode
+		, ip
+		, port
+		, serMode
+		, srm
+		, useDirectBrokerConnection
+	) || !parseConfigFile(
+		configFile
+		, nProducers
+		, nProductionCycles
+		, nContainerObjects
+		, nContainerEntries
+		, maxResubmissions
+		, nWorkers
+	)
+		){ exit(0); }
 
 	//--------------------------------------------------------------------------------
 	// Initialize the broker
@@ -248,13 +248,13 @@ int main(int argc, char **argv) {
 	// Create the required number of connectorProducer threads
 	if(useDirectBrokerConnection) {
 		connectorProducer_gtg.create_threads(
-         std::bind(
-            brokerProducer
-            , nProductionCycles
-            , nContainerObjects
-            , nContainerEntries
-         )
-		   , nProducers
+			std::bind(
+				brokerProducer
+				, nProductionCycles
+				, nContainerObjects
+				, nContainerEntries
+			)
+			, nProducers
 		);
 	} else {
 		connectorProducer_gtg.create_threads(
@@ -266,14 +266,14 @@ int main(int argc, char **argv) {
 				, srm
 				, maxResubmissions
 			)
-		   , nProducers
+			, nProducers
 		);
 	}
 
 	//--------------------------------------------------------------------------------
 	// Add the desired consumers to the broker
 	switch(executionMode) {
-	case Gem::Courtier::Tests::SERIAL:
+		case Gem::Courtier::Tests::SERIAL:
 		{
 			std::cout << "Using a serial consumer" << std::endl;
 
@@ -281,28 +281,28 @@ int main(int argc, char **argv) {
 			std::shared_ptr<GSerialConsumerT<WORKLOAD> > gatc(new GSerialConsumerT<WORKLOAD>());
 			GBROKER(WORKLOAD)->enrol(gatc);
 		}
-		break;
+			break;
 
-	case Gem::Courtier::Tests::INTERNALNETWORKING:
+		case Gem::Courtier::Tests::INTERNALNETWORKING:
 		{
 			std::cout << "Using internal networking" << std::endl;
 
-         // Create a network consumer and enrol it with the broker
-         std::shared_ptr<GAsioTCPConsumerT<WORKLOAD> > gatc(new GAsioTCPConsumerT<WORKLOAD>((unsigned short)10000));
-         GBROKER(WORKLOAD)->enrol(gatc);
+			// Create a network consumer and enrol it with the broker
+			std::shared_ptr<GAsioTCPConsumerT<WORKLOAD> > gatc(new GAsioTCPConsumerT<WORKLOAD>((unsigned short)10000));
+			GBROKER(WORKLOAD)->enrol(gatc);
 
-         // Start the workers
-         clients.clear();
+			// Start the workers
+			clients.clear();
 			for(std::size_t worker=0; worker<nWorkers; worker++) {
-	         std::shared_ptr<GAsioTCPClientT<WORKLOAD> > p(new GAsioTCPClientT<WORKLOAD>("localhost", "10000"));
-	         clients.push_back(p);
+				std::shared_ptr<GAsioTCPClientT<WORKLOAD> > p(new GAsioTCPClientT<WORKLOAD>("localhost", "10000"));
+				clients.push_back(p);
 
-	         worker_gtg.create_thread( [p](){ p->run(); } );
+				worker_gtg.create_thread( [p](){ p->run(); } );
 			}
 		}
-		break;
+			break;
 
-	case Gem::Courtier::Tests::NETWORKING:
+		case Gem::Courtier::Tests::NETWORKING:
 		{
 			std::cout << "Using networked mode" << std::endl;
 
@@ -310,9 +310,9 @@ int main(int argc, char **argv) {
 			std::shared_ptr<GAsioTCPConsumerT<WORKLOAD> > gatc(new GAsioTCPConsumerT<WORKLOAD>(port));
 			GBROKER(WORKLOAD)->enrol(gatc);
 		}
-		break;
+			break;
 
-	case Gem::Courtier::Tests::MULTITHREADING:
+		case Gem::Courtier::Tests::MULTITHREADING:
 		{
 			std::cout << "Using the multithreaded mode" << std::endl;
 
@@ -321,30 +321,30 @@ int main(int argc, char **argv) {
 			gbtc->setNThreadsPerWorker(10);
 			GBROKER(WORKLOAD)->enrol(gbtc);
 		}
-		break;
+			break;
 
-	case Gem::Courtier::Tests::THREADANDINTERNALNETWORKING:
+		case Gem::Courtier::Tests::THREADANDINTERNALNETWORKING:
 		{
 			std::cout << "Using multithreading and internal networking" << std::endl;
 
-         std::shared_ptr<GAsioTCPConsumerT<WORKLOAD> > gatc(new GAsioTCPConsumerT<WORKLOAD>((unsigned short)10000));
-         std::shared_ptr< GBoostThreadConsumerT<WORKLOAD> > gbtc(new GBoostThreadConsumerT<WORKLOAD>());
+			std::shared_ptr<GAsioTCPConsumerT<WORKLOAD> > gatc(new GAsioTCPConsumerT<WORKLOAD>((unsigned short)10000));
+			std::shared_ptr< GBoostThreadConsumerT<WORKLOAD> > gbtc(new GBoostThreadConsumerT<WORKLOAD>());
 
-         GBROKER(WORKLOAD)->enrol(gatc);
-         GBROKER(WORKLOAD)->enrol(gbtc);
+			GBROKER(WORKLOAD)->enrol(gatc);
+			GBROKER(WORKLOAD)->enrol(gbtc);
 
 			// Start the workers
-         clients.clear();
-         for(std::size_t worker=0; worker<nWorkers; worker++) {
-            std::shared_ptr<GAsioTCPClientT<WORKLOAD> > p(new GAsioTCPClientT<WORKLOAD>("localhost", "10000"));
-            clients.push_back(p);
+			clients.clear();
+			for(std::size_t worker=0; worker<nWorkers; worker++) {
+				std::shared_ptr<GAsioTCPClientT<WORKLOAD> > p(new GAsioTCPClientT<WORKLOAD>("localhost", "10000"));
+				clients.push_back(p);
 
-            worker_gtg.create_thread( [p](){ p->run(); } );
-         }
+				worker_gtg.create_thread( [p](){ p->run(); } );
+			}
 		}
-		break;
+			break;
 
-	case Gem::Courtier::Tests::THREAEDANDNETWORKING:
+		case Gem::Courtier::Tests::THREAEDANDNETWORKING:
 		{
 			std::cout << "Using multithreading and the networked mode" << std::endl;
 
@@ -354,15 +354,15 @@ int main(int argc, char **argv) {
 			GBROKER(WORKLOAD)->enrol(gatc);
 			GBROKER(WORKLOAD)->enrol(gbtc);
 		}
-		break;
+			break;
 
-	default:
+		default:
 		{
 			raiseException(
-					"Error: Invalid execution mode requested: " << executionMode << std::endl
+				"Error: Invalid execution mode requested: " << executionMode << std::endl
 			);
 		}
-		break;
+			break;
 	};
 
 	//--------------------------------------------------------------------------------
@@ -370,10 +370,10 @@ int main(int argc, char **argv) {
 	connectorProducer_gtg.join_all();
 
 	if(
-      executionMode == Gem::Courtier::Tests::INTERNALNETWORKING ||
-      executionMode == Gem::Courtier::Tests::THREADANDINTERNALNETWORKING
-   ) {
-	   worker_gtg.join_all();
+		executionMode == Gem::Courtier::Tests::INTERNALNETWORKING ||
+		executionMode == Gem::Courtier::Tests::THREADANDINTERNALNETWORKING
+		) {
+		worker_gtg.join_all();
 	}
 
 	std::cout << "All threads have joined" << std::endl;

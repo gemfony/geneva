@@ -79,28 +79,28 @@ const bool DEFAULTUSEDIRECTBROKERCONNECTIONAP = false;
 /********************************************************************************************/
 
 bool parseCommandLine(
-		int
-	  , char **
-	  , std::string& configFile
-	  , GBSCModes&
-	  , bool&
-	  , std::string&
-	  , unsigned short&
-	  , Gem::Common::serializationMode&
-	  , submissionReturnMode&
-	  , bool&
+	int
+	, char **
+	, std::string& configFile
+	, GBSCModes&
+	, bool&
+	, std::string&
+	, unsigned short&
+	, Gem::Common::serializationMode&
+	, submissionReturnMode&
+	, bool&
 );
 
 /********************************************************************************************/
 
 bool parseConfigFile(
-		const std::string&
-	  , boost::uint32_t&
-	  , boost::uint32_t&
-	  , boost::uint32_t&
-	  , std::size_t&
-	  , std::size_t&
-	  , boost::uint32_t&
+	const std::string&
+	, boost::uint32_t&
+	, boost::uint32_t&
+	, boost::uint32_t&
+	, std::size_t&
+	, std::size_t&
+	, boost::uint32_t&
 );
 
 /********************************************************************************************/

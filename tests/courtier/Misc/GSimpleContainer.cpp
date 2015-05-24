@@ -45,7 +45,7 @@ namespace Tests {
  * The default constructor -- only needed for de-serialization purposes.
  */
 GSimpleContainer::GSimpleContainer()
-   : storedNumber_(0)
+	: storedNumber_(0)
 { /* nothing */ }
 
 /********************************************************************************************/

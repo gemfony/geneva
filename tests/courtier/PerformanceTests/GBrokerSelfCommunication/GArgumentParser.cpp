@@ -60,10 +60,9 @@ bool parseCommandLine(
 			("serverMode,s",
 			 "Whether to run networked execution in server or client mode. The option only gets evaluated if \"--parallelizationMode=2\" or \"--parallelizationMode=5\"")
 			("ip", po::value<std::string>(&ip)->default_value(DEFAULTIPAP), "The ip of the server")
-			("port", po::value < unsigned
-		short > (&port)->default_value(DEFAULTPORTAP), "The port of the server")
-		("serMode", po::value<Gem::Common::serializationMode>(&serMode)->default_value(DEFAULTSERMODEAP),
-			"Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
+			("port", po::value < unsigned short > (&port)->default_value(DEFAULTPORTAP), "The port of the server")
+			("serMode", po::value<Gem::Common::serializationMode>(&serMode)->default_value(DEFAULTSERMODEAP),
+			 "Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
 			("srm,f", po::value<submissionReturnMode>(&srm)->default_value(DEFAULTSRMAP),
 			 "Whether items from older iterations may return and an incomplete return is acceptable (0), the "
 				 "same but without the permission for older items to return (0) ir whether a complete return of"

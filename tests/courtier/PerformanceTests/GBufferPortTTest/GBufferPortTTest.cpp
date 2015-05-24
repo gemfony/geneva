@@ -264,13 +264,13 @@ int main(int argc, char **argv) {
 	//--------------------------------------------------------------------------------
 	// Find out about our configuration options
 	if(!parseCommandLine(
-      argc, argv
-      , nProductionCycles
-      , nContainerEntries
-      , putTimeoutMS
-      , getTimeoutMS
-      , maxPutTimeouts
-      , maxGetTimeouts
+		argc, argv
+		, nProductionCycles
+		, nContainerEntries
+		, putTimeoutMS
+		, getTimeoutMS
+		, maxPutTimeouts
+		, maxGetTimeouts
 	))
 	{ exit(0); }
 
@@ -281,23 +281,23 @@ int main(int argc, char **argv) {
 	//--------------------------------------------------------------------------------
 	// Start the producer and consumer threads
 	boost::thread producer_thread(
-      producer
-      , nProductionCycles
-      , nContainerEntries
-      , boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(putTimeoutMS))
-      , boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(getTimeoutMS))
-      , maxPutTimeouts
-      , maxGetTimeouts
+		producer
+		, nProductionCycles
+		, nContainerEntries
+		, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(putTimeoutMS))
+		, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(getTimeoutMS))
+		, maxPutTimeouts
+		, maxGetTimeouts
 	);
 
 	boost::thread processor_thread(
-      processor
-      , nProductionCycles
-      , nContainerEntries
-      , boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(putTimeoutMS))
-      , boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(getTimeoutMS))
-      , maxPutTimeouts
-      , maxGetTimeouts
+		processor
+		, nProductionCycles
+		, nContainerEntries
+		, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(putTimeoutMS))
+		, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(getTimeoutMS))
+		, maxPutTimeouts
+		, maxGetTimeouts
 	);
 
 	//--------------------------------------------------------------------------------
