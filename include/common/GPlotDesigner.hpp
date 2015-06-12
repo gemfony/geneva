@@ -56,6 +56,24 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/variant.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/tracking.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/export.hpp>
+
+
 #ifndef GPLOTDESIGNER_HPP_
 #define GPLOTDESIGNER_HPP_
 
@@ -75,6 +93,13 @@ namespace Common {
 enum G_API_COMMON graphPlotMode {
 	SCATTER = 0, CURVE = 1
 };
+
+/** @brief Puts a Gem::Common::graphPlotMode into a stream; Needed also for boost::lexical_cast<> */
+G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::graphPlotMode &);
+/** @brief Reads a Gem::Common::graphPlotMode from a stream; Needed also for boost::lexical_cast<> */
+G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::graphPlotMode &);
+
+/******************************************************************************/
 
 //Some default values
 
@@ -102,6 +127,25 @@ class GPlotDesigner;
  */
 class GBasePlotter {
 	friend class GPlotDesigner;
+
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+
+		ar
+		& BOOST_SERIALIZATION_NVP(drawingArguments_)
+		& BOOST_SERIALIZATION_NVP(x_axis_label_)
+		& BOOST_SERIALIZATION_NVP(y_axis_label_)
+		& BOOST_SERIALIZATION_NVP(z_axis_label_)
+		& BOOST_SERIALIZATION_NVP(plot_label_)
+		& BOOST_SERIALIZATION_NVP(dsMarker_)
+		& BOOST_SERIALIZATION_NVP(secondaryPlotter_)
+  		& BOOST_SERIALIZATION_NVP(id_);
+	}
+	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor */
@@ -204,8 +248,7 @@ private:
 	/***************************************************************************/
 
 	/** @brief A list of plotters that should emit their data into the same canvas */
-	std::vector<std::shared_ptr < GBasePlotter> >
-	secondaryPlotter_;
+	std::vector<std::shared_ptr < GBasePlotter> > secondaryPlotter_;
 
 	std::size_t id_; ///< The id of this object
 };
@@ -217,6 +260,20 @@ private:
  */
 template<typename x_type>
 class GDataCollector1T : public GBasePlotter {
+
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePlotter)
+		& BOOST_SERIALIZATION_NVP(data_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
 public:
 	/***************************************************************************/
 	/**
@@ -365,6 +422,22 @@ protected:
  * A wrapper for ROOT's TH1D class (1-d double data)
  */
 class GHistogram1D : public GDataCollector1T<double> {
+
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+
+		ar
+		& make_nvp("GDataCollector1T_double", boost::serialization::base_object<GDataCollector1T<double> >(*this))
+		& BOOST_SERIALIZATION_NVP(nBinsX_)
+		& BOOST_SERIALIZATION_NVP(minX_)
+		& BOOST_SERIALIZATION_NVP(maxX_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
 public:
 	/** @brief The standard constructor */
 	G_API_COMMON GHistogram1D(
@@ -424,6 +497,22 @@ private:
  * A wrapper for ROOT's TH1I class (1-d integer data)
  */
 class GHistogram1I : public GDataCollector1T<boost::int32_t> {
+
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+
+		ar
+		& make_nvp("GDataCollector1T_int32_t", boost::serialization::base_object<GDataCollector1T<boost::int32_t> >(*this))
+		& BOOST_SERIALIZATION_NVP(nBinsX_)
+		& BOOST_SERIALIZATION_NVP(minX_)
+		& BOOST_SERIALIZATION_NVP(maxX_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
 public:
 	/** @brief The standard constructor */
 	G_API_COMMON GHistogram1I(
@@ -474,7 +563,7 @@ private:
 
 	std::size_t nBinsX_; ///< The number of bins in the histogram
 
-	double minX_; ///< The lower boundary of the histogram
+	double minX_; ///< The lower boundary of the histogram // TODO: Really "double" ?
 	double maxX_; ///< The upper boundary of the histogram
 };
 
@@ -484,6 +573,20 @@ private:
  */
 template<typename x_type, typename y_type>
 class GDataCollector2T : public GBasePlotter {
+
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePlotter)
+		& BOOST_SERIALIZATION_NVP(data_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
 public:
 	/***************************************************************************/
 	/**
@@ -767,6 +870,20 @@ GDataCollector2T<double, double>::projectY(std::size_t nBinsY, boost::tuple<doub
  */
 template<typename x_type, typename y_type>
 class GDataCollector2ET : public GBasePlotter {
+
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePlotter)
+		& BOOST_SERIALIZATION_NVP(data_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
 public:
 	/***************************************************************************/
 	/**
@@ -965,12 +1082,37 @@ enum G_API_COMMON tddropt {
 	SURFONECYL = 17
 };
 
+/** @brief Puts a Gem::Common::tddropt into a stream; Needed also for boost::lexical_cast<> */
+G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::tddropt &);
+/** @brief Reads a Gem::Common::tddropt from a stream; Needed also for boost::lexical_cast<> */
+G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::tddropt &);
+
 /******************************************************************************/
 /**
  * A wrapper for ROOT's TH2D class (2-d double data)
  */
 class GHistogram2D
 	: public GDataCollector2T<double, double> {
+
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+
+		ar
+		& make_nvp("GDataCollector2T_double_double", boost::serialization::base_object<GDataCollector2T<double, double> >(*this))
+		& BOOST_SERIALIZATION_NVP(nBinsX_)
+		& BOOST_SERIALIZATION_NVP(nBinsY_)
+		& BOOST_SERIALIZATION_NVP(minX_)
+		& BOOST_SERIALIZATION_NVP(maxX_)
+		& BOOST_SERIALIZATION_NVP(minY_)
+		& BOOST_SERIALIZATION_NVP(maxY_)
+		& BOOST_SERIALIZATION_NVP(dropt_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
 public:
 	/** @brief The standard constructor */
 	G_API_COMMON GHistogram2D(
@@ -1049,6 +1191,21 @@ private:
  */
 class GGraph2D
 	: public GDataCollector2T<double, double> {
+
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+
+		ar
+		& make_nvp("GDataCollector2T_double_double", boost::serialization::base_object<GDataCollector2T<double, double> >(*this))
+		& BOOST_SERIALIZATION_NVP(pM_)
+		& BOOST_SERIALIZATION_NVP(drawArrows_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
 public:
 	/** @brief The default constructor */
 	G_API_COMMON GGraph2D();
@@ -1102,6 +1259,20 @@ private:
  */
 class GGraph2ED
 	: public GDataCollector2ET<double, double> {
+
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+
+		ar
+		& make_nvp("GDataCollector2ET_double_double", boost::serialization::base_object<GDataCollector2ET<double, double> >(*this))
+		& BOOST_SERIALIZATION_NVP(pM_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
 public:
 	/** @brief The default constructor */
 	G_API_COMMON GGraph2ED();
@@ -1150,6 +1321,20 @@ private:
 template<typename x_type, typename y_type, typename z_type>
 class GDataCollector3T
 	: public GBasePlotter {
+
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePlotter)
+		& BOOST_SERIALIZATION_NVP(data_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
 public:
 	/***************************************************************************/
 	/**
@@ -1481,6 +1666,20 @@ GDataCollector3T<double, double, double>::projectZ(std::size_t nBinsZ, boost::tu
  * only allows a single plot mode.
  */
 class GGraph3D : public GDataCollector3T<double, double, double> {
+
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+
+		ar
+		& make_nvp("GDataCollector3T_3double", boost::serialization::base_object<GDataCollector3T<double, double, double> >(*this))
+		& BOOST_SERIALIZATION_NVP(drawLines_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
 public:
 	/** @brief The default constructor */
 	G_API_COMMON GGraph3D();
@@ -1531,6 +1730,20 @@ template<
 >
 class GDataCollector4T
 	: public GBasePlotter {
+
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePlotter)
+		& BOOST_SERIALIZATION_NVP(data_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
 public:
 	/***************************************************************************/
 	/**
@@ -1937,6 +2150,23 @@ GDataCollector4T<double, double, double, double>::projectW(std::size_t nBinsW,
  */
 class GGraph4D
 	: public GDataCollector4T<double, double, double, double> {
+
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+
+		ar
+		& make_nvp("GDataCollector4T_4double", boost::serialization::base_object<GDataCollector4T<double, double, double, double> >(*this))
+		& BOOST_SERIALIZATION_NVP(minMarkerSize_)
+		& BOOST_SERIALIZATION_NVP(maxMarkerSize_)
+		& BOOST_SERIALIZATION_NVP(smallWLargeMarker_)
+		& BOOST_SERIALIZATION_NVP(nBest_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
 public:
 	/** @brief The default constructor */
 	G_API_COMMON GGraph4D();
@@ -2006,6 +2236,22 @@ private:
  */
 class GFunctionPlotter1D
 	: public GBasePlotter {
+
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePlotter)
+		& BOOST_SERIALIZATION_NVP(functionDescription_)
+		& BOOST_SERIALIZATION_NVP(xExtremes_)
+		& BOOST_SERIALIZATION_NVP(nSamplesX_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
 public:
 	/** @brief The standard constructor */
 	G_API_COMMON GFunctionPlotter1D(
@@ -2058,6 +2304,24 @@ private:
  */
 class GFunctionPlotter2D
 	: public GBasePlotter {
+
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePlotter)
+		& BOOST_SERIALIZATION_NVP(functionDescription_)
+		& BOOST_SERIALIZATION_NVP(xExtremes_)
+		& BOOST_SERIALIZATION_NVP(yExtremes_)
+		& BOOST_SERIALIZATION_NVP(nSamplesX_)
+		& BOOST_SERIALIZATION_NVP(nSamplesY_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
 public:
 	/** @brief The standard constructor */
 	G_API_COMMON GFunctionPlotter2D(
@@ -2107,72 +2371,6 @@ private:
 
 	std::size_t nSamplesX_; ///< The number of sampling points of the function
 	std::size_t nSamplesY_; ///< The number of sampling points of the function
-};
-
-
-/******************************************************************************/
-/**
- * This class allows to add free-form root-data to the master plot
- */
-class GFreeFormPlotter : public GBasePlotter {
-public:
-	/** @brief The default constructor */
-	G_API_COMMON GFreeFormPlotter();
-	/** @brief A copy constructor */
-	G_API_COMMON GFreeFormPlotter(const GFreeFormPlotter &);
-
-	/** @brief The destructor */
-	virtual G_API_COMMON ~GFreeFormPlotter();
-
-	/** @brief The assignment operator */
-	G_API_COMMON const GFreeFormPlotter &operator=(const GFreeFormPlotter &);
-
-	/** @brief Retrieves a unique name for this plotter */
-	virtual G_API_COMMON std::string getPlotterName() const;
-
-	/** @brief Adds a string with header data */
-	G_API_COMMON void setHeaderData(const std::string &);
-	/** @brief Adds a string with body data */
-	G_API_COMMON void setBodyData(const std::string &);
-	/** @brief Adds a string with footer data */
-	G_API_COMMON void setFooterData(const std::string &);
-
-	/** @brief Registers a function that returns the desired header data */
-	G_API_COMMON void registerHeaderFunction(boost::function<std::string(bool, std::size_t)>);
-
-	/** @brief Registers a function that returns the desired body data */
-	void registerBodyFunction(boost::function<std::string(bool, std::size_t)>);
-
-	/** @brief Registers a function that returns the desired footer data */
-	void registerFooterFunction(boost::function<std::string(bool, std::size_t)>);
-
-	/** @brief Retrieve a clone of this object */
-	virtual G_API_COMMON std::shared_ptr <GBasePlotter> clone() const;
-
-protected:
-	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData(bool, std::size_t) const;
-
-	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData(bool, std::size_t) const;
-
-	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData(bool, std::size_t) const;
-
-	/** @brief Retrieve the current drawing arguments */
-	virtual std::string drawingArguments(bool) const;
-
-private:
-	std::string headerData_; ///< The data to be written into the master plot's header
-	std::string bodyData_; ///< The data to be written into the master plot's body
-	std::string footerData_; ///< The data to be written into the master plot's footer
-
-	boost::function<std::string(bool,
-										 std::size_t)> headerFunction_; ///< A function that returns the necessary header data
-	boost::function<std::string(bool,
-										 std::size_t)> bodyFunction_;   ///< A function that returns the necessary body   data
-	boost::function<std::string(bool,
-										 std::size_t)> footerFunction_; ///< A function that returns the necessary footer data
 };
 
 /******************************************************************************/

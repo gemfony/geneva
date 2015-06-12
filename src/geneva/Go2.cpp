@@ -409,7 +409,7 @@ void Go2::registerPluggableOM(
 	std::shared_ptr<GOABase::GBasePluggableOMT> pluggableOM
 ) {
 	if (pluggableOM) {
-		pluggableOM_ = pluggableOM;
+		pluggable_monitors_.push_back(pluggableOM);
 	} else {
 		glogger
 		<< "In Go2::registerPluggableOM(): Tried to register empty pluggable optimization monitor" << std::endl
@@ -422,7 +422,15 @@ void Go2::registerPluggableOM(
  * Allows to reset the local pluggable optimization monitor
  */
 void Go2::resetPluggableOM() {
-	pluggableOM_.reset();
+	pluggable_monitors_.clear();
+}
+
+/******************************************************************************/
+/**
+ * Allows to check whether pluggable optimization monitors were registered
+ */
+bool Go2::hasOptimizationMonitors() const {
+	return !pluggable_monitors_.empty();
 }
 
 /******************************************************************************/
@@ -752,9 +760,9 @@ void Go2::optimize(const boost::uint32_t &offset) {
 	for (alg_it = algorithms_.begin(); alg_it != algorithms_.end(); ++alg_it) {
 		std::shared_ptr <GOABase> p_base = (*alg_it);
 
-		// Add the pluggable optimization monitor to the algorithm, if it is available
-		if (pluggableOM_) {
-			p_base->getOptimizationMonitor()->registerPluggableOM(pluggableOM_);
+		// Add the pluggable optimization monitors to the algorithm
+		for(auto it: pluggable_monitors_) {
+			p_base->getOptimizationMonitor()->registerPluggableOM(it);
 		}
 
 		// Add the individuals to the algorithm.
@@ -789,7 +797,8 @@ void Go2::optimize(const boost::uint32_t &offset) {
 		}
 
 		bestIndividuals.clear();
-		p_base->clear();
+		p_base->clear(); // Get rid of local individuals in the algorithm
+		p_base->getOptimizationMonitor()->resetPluggableOM(); // Get rid of the algorithm's pluggable optimizatiuon monitors
 	}
 
 	// Sort the individuals according to their primary fitness so we have it easier later on

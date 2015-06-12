@@ -217,9 +217,8 @@ public:
 	virtual std::size_t adaptImpl() override {
 		std::size_t nAdapted = 0;
 
-		typename GParameterTCollectionT<T>::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			nAdapted += (*it)->adapt();
+		for(auto it: *this) {
+			nAdapted += it->adapt();
 		}
 
 		return nAdapted;
@@ -258,9 +257,8 @@ public:
 	virtual bool updateAdaptorsOnStall(const std::size_t& nStalls) override {
 		bool updatePerformed = false;
 
-		typename GParameterTCollectionT<T>::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			if((*it)->updateAdaptorsOnStall(nStalls)) {
+		for(auto it: *this) {
+			if(it->updateAdaptorsOnStall(nStalls)) {
 				updatePerformed = true;
 			}
 		}

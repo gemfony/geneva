@@ -74,12 +74,33 @@ namespace Geneva {
 /******************************************************************************/
 /**
  * This class accepts a number of other pluggable monitors and executes them
- * in sequnce.
+ * in sequence.
  */
 template <typename ind_type>
 class GCollectiveMonitorT
 	: public GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT
 {
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+
+		ar
+		& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(*this));
+
+		// Some preparation needed if this is a load operation.
+		// This is needed to work around a problem in Boost 1.58
+		if (Archive::is_loading::value) {
+			pluggable_monitors_.clear();
+		}
+
+		ar
+		& BOOST_SERIALIZATION_NVP(pluggable_monitors_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
 public:
 	/***************************************************************************/
 	/**
@@ -103,6 +124,71 @@ public:
 	virtual ~GCollectiveMonitorT()
 	{ /* nothing */ }
 
+	/************************************************************************/
+	/**
+	 * Checks for equality with another GCollectiveMonitorT object
+	 *
+	 * @param  cp A constant reference to another GCollectiveMonitorT object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	virtual bool operator==(const GCollectiveMonitorT<ind_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
+
+	/************************************************************************/
+	/**
+	 * Checks for inequality with another GCollectiveMonitorT object
+	 *
+	 * @param  cp A constant reference to another GCollectiveMonitorT object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	virtual bool operator!=(const GCollectiveMonitorT<ind_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are indeed dealing with a GAdaptorT reference
+		const GCollectiveMonitorT<ind_type> *p_load = GObject::gobject_conversion<GCollectiveMonitorT<ind_type> >(&cp);
+
+		GToken token("GCollectiveMonitorT", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base<typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+
+		// ... and then our local data
+		compare_t(IDENTITY(pluggable_monitors_, p_load->pluggable_monitors_), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
+
 	/***************************************************************************/
 	/**
 	 * Aggregates the work of all registered pluggable monitors
@@ -111,9 +197,8 @@ public:
 		const infoMode& im
 		, typename Gem::Geneva::GOptimizationAlgorithmT<ind_type> * const goa
 	) override {
-		typename std::vector<std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT> >::iterator it;
-		for(it=pluggable_monitors_.begin(); it!=pluggable_monitors_.end(); ++it) {
-			(*it)->informationFunction(im,goa);
+		for(auto it: pluggable_monitors_) {
+			it->informationFunction(im,goa);
 		}
 	}
 
@@ -144,9 +229,40 @@ public:
 	/**
 	 * Allows to clear all registered monitors
 	 */
-	void reset() {
+	void resetPluggbleOM() {
 		pluggable_monitors_.clear();
 	}
+
+protected:
+	/************************************************************************/
+	/**
+	 * Loads the data of another object
+	 *
+	 * cp A pointer to another GCollectiveMonitorT<ind_type> object, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject* cp) override {
+		const GCollectiveMonitorT<ind_type> *p_load = GObject::gobject_conversion<GCollectiveMonitorT<ind_type> >(cp);
+
+		// Load the parent classes' data ...
+		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
+
+		// ... and then our local data
+
+		// TODO: Compare local pluggable OM
+
+		// Note: we do not load the pluggable information function, as it is
+		// meant as a short-term medium for information retrieval and may be
+		// an object specific to a given optimization monitor object
+	}
+
+	/************************************************************************/
+	/**
+	 * Creates a deep clone of this object
+	 */
+	virtual GObject* clone_() const override {
+		return new GCollectiveMonitorT<ind_type>(*this);
+	}
+
 
 private:
 	std::vector<std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT> > pluggable_monitors_; ///< The collection of monitors
@@ -164,6 +280,24 @@ template <typename ind_type, typename fp_type>
 class GProgressPlotterT
 	: public GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT
 {
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+
+		ar
+			& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(*this))
+			& BOOST_SERIALIZATION_NVP(fileName_)
+			& BOOST_SERIALIZATION_NVP(canvasDimensions_)
+		   & BOOST_SERIALIZATION_NVP(monitorBestOnly_)
+			& BOOST_SERIALIZATION_NVP(monitorValidOnly_)
+		   & BOOST_SERIALIZATION_NVP(observeBoundaries_)
+			& BOOST_SERIALIZATION_NVP(addPrintCommand_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
 	// Make sure this class can only be instantiated if fp_type really is a floating point type
 	BOOST_MPL_ASSERT((boost::is_floating_point<fp_type>));
 
@@ -201,7 +335,7 @@ public:
 	/**
 	 * The copy constructor
 	 */
-	GProgressPlotterT(const GProgressPlotterT<GOptimizationAlgorithmT<ind_type>, fp_type>& cp)
+	GProgressPlotterT(const GProgressPlotterT<ind_type, fp_type>& cp)
 		: GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT(cp)
 		, gpd_oa_("Progress information", 1, 1) // Not copied
 		, fileName_(cp.fileName_)
@@ -218,6 +352,76 @@ public:
 	 */
 	virtual ~GProgressPlotterT()
 	{ /* nothing */ }
+
+	/************************************************************************/
+	/**
+	 * Checks for equality with another GProgressPlotterT object
+	 *
+	 * @param  cp A constant reference to another GProgressPlotterT object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	virtual bool operator==(const GProgressPlotterT<ind_type, fp_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
+
+	/************************************************************************/
+	/**
+	 * Checks for inequality with another GProgressPlotterT object
+	 *
+	 * @param  cp A constant reference to another GProgressPlotterT object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	virtual bool operator!=(const GProgressPlotterT<ind_type, fp_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are indeed dealing with a GAdaptorT reference
+		const GProgressPlotterT<ind_type, fp_type> *p_load = GObject::gobject_conversion<GProgressPlotterT<ind_type, fp_type> >(&cp);
+
+		GToken token("GCollectiveMonitorT", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base<typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+
+		// ... and then our local data
+		compare_t(IDENTITY(fileName_, p_load->fileName_), token);
+		compare_t(IDENTITY(canvasDimensions_, p_load->canvasDimensions_), token);
+		compare_t(IDENTITY(monitorBestOnly_, p_load->monitorBestOnly_), token);
+		compare_t(IDENTITY(monitorValidOnly_, p_load->monitorValidOnly_), token);
+		compare_t(IDENTITY(observeBoundaries_, p_load->observeBoundaries_), token);
+		compare_t(IDENTITY(addPrintCommand_, p_load->addPrintCommand_), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 	/**************************************************************************/
 	/**
@@ -688,6 +892,37 @@ public:
 		};
 	}
 
+protected:
+	/************************************************************************/
+	/**
+	 * Loads the data of another object
+	 *
+	 * cp A pointer to another GProgressPlotterT<ind_type, fp_type> object, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject* cp) override {
+		const GProgressPlotterT<ind_type, fp_type> *p_load
+			= GObject::gobject_conversion<GProgressPlotterT<ind_type, fp_type> >(cp);
+
+		// Load the parent classes' data ...
+		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
+
+		// ... and then our local data
+		fileName_ = p_load->fileName_;
+		canvasDimensions_ = p_load->canvasDimensions_;
+		monitorBestOnly_ = p_load->monitorBestOnly_;
+		monitorValidOnly_ = p_load->monitorValidOnly_;
+		observeBoundaries_ = p_load->observeBoundaries_;
+		addPrintCommand_ = p_load->addPrintCommand_;
+	}
+
+	/************************************************************************/
+	/**
+	 * Creates a deep clone of this object
+	 */
+	virtual GObject* clone_() const override {
+		return new GProgressPlotterT<ind_type, fp_type>(*this);
+	}
+
 private:
 	std::vector<parPropSpec<fp_type> > fp_profVarVec_; ///< Holds information about variables to be profiled
 
@@ -795,6 +1030,77 @@ public:
 	 */
 	virtual ~GAllSolutionFileLoggerT()
 	{ /* nothing */ }
+
+	/************************************************************************/
+	/**
+	 * Checks for equality with another GAllSolutionFileLoggerT<ind_type> object
+	 *
+	 * @param  cp A constant reference to another GAllSolutionFileLoggerT<ind_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	virtual bool operator==(const GAllSolutionFileLoggerT<ind_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
+
+	/************************************************************************/
+	/**
+	 * Checks for inequality with another GAllSolutionFileLoggerT<ind_type> object
+	 *
+	 * @param  cp A constant reference to another GAllSolutionFileLoggerT<ind_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	virtual bool operator!=(const GAllSolutionFileLoggerT<ind_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are indeed dealing with a GAdaptorT reference
+		const GAllSolutionFileLoggerT<ind_type> *p_load = GObject::gobject_conversion<GAllSolutionFileLoggerT<ind_type> >(&cp);
+
+		GToken token("GAllSolutionFileLoggerT", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base<typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+
+		// ... and then our local data
+		compare_t(IDENTITY(fileName_, p_load->fileName_), token);
+		compare_t(IDENTITY(boundaries_, p_load->boundaries_), token);
+		compare_t(IDENTITY(boundariesActive_, p_load->boundariesActive_), token);
+		compare_t(IDENTITY(withNameAndType_, p_load->withNameAndType_), token);
+		compare_t(IDENTITY(withCommas_, p_load->withCommas_), token);
+		compare_t(IDENTITY(useRawFitness_, p_load->useRawFitness_), token);
+		compare_t(IDENTITY(showValidity_, p_load->showValidity_), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 	/***************************************************************************/
 	/**
@@ -971,6 +1277,38 @@ public:
 		};
 	}
 
+protected:
+	/************************************************************************/
+	/**
+	 * Loads the data of another object
+	 *
+	 * cp A pointer to another GAllSolutionFileLoggerT<ind_type> object, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject* cp) override {
+		const GAllSolutionFileLoggerT<ind_type> *p_load
+			= GObject::gobject_conversion<GAllSolutionFileLoggerT<ind_type> >(cp);
+
+		// Load the parent classes' data ...
+		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
+
+		// ... and then our local data
+		fileName_ = p_load->fileName_;
+		boundaries_ = p_load->boundaries_;
+		boundariesActive_ = p_load->boundariesActive_;
+		withNameAndType_ = p_load->withNameAndType_;
+		withCommas_ = p_load->withCommas_;
+		useRawFitness_ = p_load->useRawFitness_;
+		showValidity_ = p_load->showValidity_;
+	}
+
+	/************************************************************************/
+	/**
+	 * Creates a deep clone of this object
+	 */
+	virtual GObject* clone_() const override {
+		return new GAllSolutionFileLoggerT<ind_type>(*this);
+	}
+
 private:
 	/***************************************************************************/
 
@@ -1034,6 +1372,73 @@ public:
 	 */
 	virtual ~GIterationResultsFileLoggerT()
 	{ /* nothing */ }
+
+	/************************************************************************/
+	/**
+	 * Checks for equality with another GIterationResultsFileLoggerT<ind_type> object
+	 *
+	 * @param  cp A constant reference to another GIterationResultsFileLoggerT<ind_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	virtual bool operator==(const GIterationResultsFileLoggerT<ind_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
+
+	/************************************************************************/
+	/**
+	 * Checks for inequality with another GIterationResultsFileLoggerT<ind_type> object
+	 *
+	 * @param  cp A constant reference to another GIterationResultsFileLoggerT<ind_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	virtual bool operator!=(const GIterationResultsFileLoggerT<ind_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are indeed dealing with a GAdaptorT reference
+		const GIterationResultsFileLoggerT<ind_type> *p_load = GObject::gobject_conversion<GIterationResultsFileLoggerT<ind_type> >(&cp);
+
+		GToken token("GIterationResultsFileLoggerT", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base<typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+
+		// ... and then our local data
+		compare_t(IDENTITY(fileName_, p_load->fileName_), token);
+		compare_t(IDENTITY(withCommas_, p_load->withCommas_), token);
+		compare_t(IDENTITY(useRawFitness_, p_load->useRawFitness_), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 	/***************************************************************************/
 	/**
@@ -1142,6 +1547,34 @@ public:
 		};
 	}
 
+protected:
+	/************************************************************************/
+	/**
+	 * Loads the data of another object
+	 *
+	 * cp A pointer to another GIterationResultsFileLoggerT<ind_type> object, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject* cp) override {
+		const GIterationResultsFileLoggerT<ind_type> *p_load
+			= GObject::gobject_conversion<GIterationResultsFileLoggerT<ind_type> >(cp);
+
+		// Load the parent classes' data ...
+		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
+
+		// ... and then our local data
+		fileName_ = p_load->fileName_;
+		withCommas_ = p_load->withCommas_;
+		useRawFitness_ = p_load->useRawFitness_;
+	}
+
+	/************************************************************************/
+	/**
+	 * Creates a deep clone of this object
+	 */
+	virtual GObject* clone_() const override {
+		return new GIterationResultsFileLoggerT<ind_type>(*this);
+	}
+
 private:
 	/***************************************************************************/
 
@@ -1217,6 +1650,77 @@ public:
 	 */
 	virtual ~GNAdpationsLoggerT()
 	{ /* nothing */ }
+
+	/************************************************************************/
+	/**
+	 * Checks for equality with another GNAdpationsLoggerT<ind_type> object
+	 *
+	 * @param  cp A constant reference to another GNAdpationsLoggerT<ind_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	virtual bool operator==(const GNAdpationsLoggerT<ind_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
+
+	/************************************************************************/
+	/**
+	 * Checks for inequality with another GNAdpationsLoggerT<ind_type> object
+	 *
+	 * @param  cp A constant reference to another GNAdpationsLoggerT<ind_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	virtual bool operator!=(const GNAdpationsLoggerT<ind_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are indeed dealing with a GAdaptorT reference
+		const GNAdpationsLoggerT<ind_type> *p_load = GObject::gobject_conversion<GNAdpationsLoggerT<ind_type> >(&cp);
+
+		GToken token("GNAdpationsLoggerT", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base<typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+
+		// ... and then our local data
+		compare_t(IDENTITY(fileName_, p_load->fileName_), token);
+		compare_t(IDENTITY(canvasDimensions_, p_load->canvasDimensions_), token);
+		compare_t(IDENTITY(monitorBestOnly_, p_load->monitorBestOnly_), token);
+		compare_t(IDENTITY(addPrintCommand_, p_load->addPrintCommand_), token);
+		compare_t(IDENTITY(maxIteration_, p_load->maxIteration_), token);
+		compare_t(IDENTITY(nIterationsRecorded_, p_load->nIterationsRecorded_), token);
+		compare_t(IDENTITY(nAdaptionsStore_, p_load->nAdaptionsStore_), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 	/***************************************************************************/
 	/**
@@ -1425,6 +1929,38 @@ public:
 		};
 	}
 
+protected:
+	/************************************************************************/
+	/**
+	 * Loads the data of another object
+	 *
+	 * cp A pointer to another GNAdpationsLoggerT<ind_type> object, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject* cp) override {
+		const GNAdpationsLoggerT<ind_type> *p_load
+			= GObject::gobject_conversion<GNAdpationsLoggerT<ind_type> >(cp);
+
+		// Load the parent classes' data ...
+		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
+
+		// ... and then our local data
+		fileName_ = p_load->fileName_;
+		canvasDimensions_ = p_load->canvasDimensions_;
+		monitorBestOnly_ = p_load->monitorBestOnly_;
+		addPrintCommand_ = p_load->addPrintCommand_;
+		maxIteration_ = p_load->maxIteration_;
+		nIterationsRecorded_ = p_load->nIterationsRecorded_;
+		nAdaptionsStore_ = p_load->nAdaptionsStore_;
+	}
+
+	/************************************************************************/
+	/**
+	 * Creates a deep clone of this object
+	 */
+	virtual GObject* clone_() const override {
+		return new GNAdpationsLoggerT<ind_type>(*this);
+	}
+
 private:
 	/***************************************************************************/
 
@@ -1525,6 +2061,79 @@ public:
 	 */
 	virtual ~GAdaptorPropertyLoggerT()
 	{ /* nothing */ }
+
+	/************************************************************************/
+	/**
+	 * Checks for equality with another GAdaptorPropertyLoggerT<ind_type, num_type> object
+	 *
+	 * @param  cp A constant reference to another GAdaptorPropertyLoggerT<ind_type, num_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	virtual bool operator==(const GAdaptorPropertyLoggerT<ind_type, num_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
+
+	/************************************************************************/
+	/**
+	 * Checks for inequality with another GAdaptorPropertyLoggerT<ind_type, num_type> object
+	 *
+	 * @param  cp A constant reference to another GAdaptorPropertyLoggerT<ind_type, num_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	virtual bool operator!=(const GAdaptorPropertyLoggerT<ind_type, num_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are indeed dealing with a GAdaptorT reference
+		const GAdaptorPropertyLoggerT<ind_type, num_type> *p_load = GObject::gobject_conversion<GAdaptorPropertyLoggerT<ind_type, num_type> >(&cp);
+
+		GToken token("GAdaptorPropertyLoggerT", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base<typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+
+		// ... and then our local data
+		compare_t(IDENTITY(fileName_, p_load->fileName_), token);
+		compare_t(IDENTITY(adaptorName_, p_load->adaptorName_), token);
+		compare_t(IDENTITY(property_, p_load->property_), token);
+		compare_t(IDENTITY(canvasDimensions_, p_load->canvasDimensions_), token);
+		compare_t(IDENTITY(monitorBestOnly_, p_load->monitorBestOnly_), token);
+		compare_t(IDENTITY(addPrintCommand_, p_load->addPrintCommand_), token);
+		compare_t(IDENTITY(maxIteration_, p_load->maxIteration_), token);
+		compare_t(IDENTITY(nIterationsRecorded_, p_load->nIterationsRecorded_), token);
+		compare_t(IDENTITY(adaptorPropertyStore_, p_load->adaptorPropertyStore_), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 	/***************************************************************************/
 	/**
@@ -1764,6 +2373,40 @@ public:
 			}
 				break;
 		};
+	}
+
+protected:
+	/************************************************************************/
+	/**
+	 * Loads the data of another object
+	 *
+	 * cp A pointer to another GAdaptorPropertyLoggerT<ind_type, num_type object, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject* cp) override {
+		const GAdaptorPropertyLoggerT<ind_type, num_type> *p_load
+			= GObject::gobject_conversion<GAdaptorPropertyLoggerT<ind_type, num_type> >(cp);
+
+		// Load the parent classes' data ...
+		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
+
+		// ... and then our local data
+		fileName_ = p_load->fileName_;
+		adaptorName_ = p_load->adaptorName_;
+		property_ = p_load->property_;
+		canvasDimensions_ = p_load->canvasDimensions_;
+		monitorBestOnly_ = p_load->monitorBestOnly_;
+		addPrintCommand_ = p_load->addPrintCommand_;
+		maxIteration_ = p_load->maxIteration_;
+		nIterationsRecorded_ = p_load->nIterationsRecorded_;
+		adaptorPropertyStore_ = p_load->adaptorPropertyStore_;
+	}
+
+	/************************************************************************/
+	/**
+	 * Creates a deep clone of this object
+	 */
+	virtual GObject* clone_() const override {
+		return new GAdaptorPropertyLoggerT<ind_type, num_type>(*this);
 	}
 
 private:

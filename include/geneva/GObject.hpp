@@ -107,8 +107,8 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
-#include <boost/property_tree/ptree_serialization.hpp>
 
+#include <boost/property_tree/ptree_serialization.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>

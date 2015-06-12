@@ -1836,7 +1836,21 @@ public:
 	/**
 	 * The base class of all pluggable optimization monitors
 	 */
-	class GBasePluggableOMT {
+	class GBasePluggableOMT : public GObject
+	{
+		///////////////////////////////////////////////////////////////////////
+		friend class boost::serialization::access;
+
+		template<typename Archive>
+		void serialize(Archive & ar, const unsigned int){
+			using boost::serialization::make_nvp;
+
+			ar
+			& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
+			& BOOST_SERIALIZATION_NVP(useRawEvaluation_);
+		}
+		///////////////////////////////////////////////////////////////////////
+
 	public:
 		/***************************************************************************/
 		/**
@@ -1860,6 +1874,71 @@ public:
 		 */
 		virtual ~GBasePluggableOMT()
 		{ /* nothing */ }
+
+		/************************************************************************/
+		/**
+		 * Checks for equality with another GBasePluggableOMT object
+		 *
+		 * @param  cp A constant reference to another GBasePluggableOMT object
+		 * @return A boolean indicating whether both objects are equal
+		 */
+		virtual bool operator==(const typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT& cp) const {
+			using namespace Gem::Common;
+			try {
+				this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+				return true;
+			} catch(g_expectation_violation&) {
+				return false;
+			}
+		}
+
+		/************************************************************************/
+		/**
+		 * Checks for inequality with another GBasePluggableOMT object
+		 *
+		 * @param  cp A constant reference to another GBasePluggableOMT object
+		 * @return A boolean indicating whether both objects are inequal
+		 */
+		virtual bool operator!=(const typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT& cp) const {
+			using namespace Gem::Common;
+			try {
+				this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+				return true;
+			} catch(g_expectation_violation&) {
+				return false;
+			}
+		}
+
+		/***************************************************************************/
+		/**
+		 * Searches for compliance with expectations with respect to another object
+		 * of the same type
+		 *
+		 * @param cp A constant reference to another GObject object
+		 * @param e The expected outcome of the comparison
+		 * @param limit The maximum deviation for floating point values (important for similarity checks)
+		 */
+		virtual void compare(
+			const GObject& cp
+			, const Gem::Common::expectation& e
+			, const double& limit
+		) const override {
+			using namespace Gem::Common;
+
+			// Check that we are indeed dealing with a GAdaptorT reference
+			const GBasePluggableOMT *p_load = GObject::gobject_conversion<GBasePluggableOMT>(&cp);
+
+			GToken token("GBasePluggableOMT", e);
+
+			// Compare our parent data ...
+			Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
+
+			// ... and then our local data
+			compare_t(IDENTITY(useRawEvaluation_, p_load->useRawEvaluation_), token);
+
+			// React on deviations from the expectation
+			token.evaluate();
+		}
 
 		/***************************************************************************/
 		/**
@@ -1888,8 +1967,78 @@ public:
 		}
 
 	protected:
+		/************************************************************************/
+		/**
+		 * Loads the data of another object
+		 *
+		 * cp A pointer to another GBasePluggableOMT object, camouflaged as a GObject
+		 */
+		virtual void load_(const GObject* cp) override {
+			const GBasePluggableOMT *p_load = GObject::gobject_conversion<GBasePluggableOMT>(cp);
+
+			// Load the parent classes' data ...
+			GObject::load_(cp);
+
+			// ... and then our local data
+			useRawEvaluation_ = p_load->useRawEvaluation_;
+		}
+
+		/************************************************************************/
+		/** @brief Creates a deep clone of this object */
+		virtual GObject* clone_() const override = 0;
+
 		/***************************************************************************/
 		bool useRawEvaluation_; ///< Specifies whether the true (unmodified) evaluation should be used
+
+	public:
+		/************************************************************************/
+		/**
+		 * Applies modifications to this object. This is needed for testing purposes
+		 */
+		virtual bool modify_GUnitTests() override {
+#ifdef GEM_TESTING
+			bool result = false;
+
+			// Call the parent class'es function
+			if(GObject::modify_GUnitTests()) result = true;
+
+			return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+			condnotset("GOptimizationAlgorithmT<>::GBasePluggableOMT::modify_GUnitTests", "GEM_TESTING");
+			return false;
+#endif /* GEM_TESTING */
+		}
+
+		/************************************************************************/
+		/**
+		 * Performs self tests that are expected to succeed. This is needed for testing purposes
+		 */
+		virtual void specificTestsNoFailureExpected_GUnitTests() override {
+#ifdef GEM_TESTING
+			// Call the parent class'es function
+			GObject::specificTestsNoFailureExpected_GUnitTests();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+			condnotset("GOptimizationAlgorithmT<>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+		}
+
+		/************************************************************************/
+		/**
+		 * Performs self tests that are expected to fail. This is needed for testing purposes
+		 */
+		virtual void specificTestsFailuresExpected_GUnitTests() override {
+#ifdef GEM_TESTING
+			// Call the parent class'es function
+			GObject::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+			condnotset("GOptimizationAlgorithmT<>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+		}
+
+		/************************************************************************/
 	};
 
 	/***************************************************************************/
@@ -2002,7 +2151,8 @@ public:
 			// Compare our parent data ...
 			Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
 
-			//... no local data
+			// ... and then our local data
+			compare_t(IDENTITY(quiet_, p_load->quiet_), token);
 
 			// React on deviations from the expectation
 			token.evaluate();
@@ -2023,8 +2173,10 @@ public:
 			, GOptimizationAlgorithmT<ind_type> * const goa
 		) {
 			// Perform any action defined by the user through pluggable monitor objects
-			if(pluggableOM_) {
-				pluggableOM_->informationFunction(im,goa);
+			if(!pluggable_monitors_.empty()) {
+				for(auto it: pluggable_monitors_) {
+					it->informationFunction(im,goa);
+				}
 			}
 
 			// Act on the information mode provided
@@ -2102,7 +2254,7 @@ public:
 		 */
 		void registerPluggableOM(std::shared_ptr<GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT> pluggableOM) {
 			if(pluggableOM) {
-				pluggableOM_ = pluggableOM;
+				pluggable_monitors_.push_back(pluggableOM);
 			} else {
 				glogger
 				<< "In GoptimizationMonitorT<>::registerPluggableOM(): Tried to register empty pluggable optimization monitor" << std::endl
@@ -2112,10 +2264,18 @@ public:
 
 		/************************************************************************/
 		/**
-		 * Allows to reset the local pluggable optimization monitor
+		 * Allows to reset the local pluggable optimization monitors
 		 */
 		void resetPluggableOM() {
-			pluggableOM_.reset();
+			pluggable_monitors_.clear();
+		}
+
+		/******************************************************************************/
+		/**
+		 * Allows to check whether pluggable optimization monitors were registered
+		 */
+		bool hasOptimizationMonitors() const {
+			return !pluggable_monitors_.empty();
 		}
 
 	protected:
@@ -2180,7 +2340,8 @@ public:
 		/************************************************************************/
 
 		bool quiet_; ///< Specifies whether any information should be emitted at all
-		std::shared_ptr<GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT> pluggableOM_; // A user-defined means for information retrieval
+
+		std::vector<std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT> > pluggable_monitors_; ///< A collection of monitors
 
 	public:
 		/************************************************************************/

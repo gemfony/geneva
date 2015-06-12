@@ -47,7 +47,8 @@ The main changes for this release include:
 
 ********************************************************************************
 
-Recommended version of Boost: 1.57; Minimum Boost version: 1.57
+Recommended version of Boost: 1.57; Minimum Boost version: 1.57.
+NOTE: Boost 1.58 ist NOT recommended, due to a severe bug affecting Geneva.
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.6.1, "Ivrea - Via Arduino" - April 20, 2015

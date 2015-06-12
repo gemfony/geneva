@@ -119,8 +119,6 @@ int main(int argc, char **argv) {
 	//---------------------------------------------------------------------------
 	// Register pluggable optimization monitors, if requested by the user
 
-	std::shared_ptr<GCollectiveMonitorT<GParameterSet> > collectiveMonitor_ptr(new GCollectiveMonitorT<GParameterSet>());
-
 	// Register a progress plotter with the global optimization algorithm factory
 	if(monitorSpec != "empty") {
 		std::shared_ptr<GProgressPlotterT<GParameterSet, double> > progplot_ptr(new GProgressPlotterT<GParameterSet, double>());
@@ -134,7 +132,7 @@ int main(int argc, char **argv) {
 		// Request printing of png files (upon processing of the .C file with ROOT)
 		progplot_ptr->setAddPrintCommand(true);
 
-		collectiveMonitor_ptr->registerPluggableOM(progplot_ptr);
+		go.registerPluggableOM(progplot_ptr);
 	}
 
 	if(logAll != "empty") {
@@ -145,7 +143,7 @@ int main(int argc, char **argv) {
 		allsolutionLogger_ptr->setUseTrueFitness(false); // Output "transformed" fitness, not the "true" value
 		allsolutionLogger_ptr->setShowValidity(true); // Indicate, whether this is a valid solution
 
-		collectiveMonitor_ptr->registerPluggableOM(allsolutionLogger_ptr);
+		go.registerPluggableOM(allsolutionLogger_ptr);
 	}
 
 	if(monitorNAdaptions != "empty") {
@@ -154,7 +152,7 @@ int main(int argc, char **argv) {
 		nAdaptionsLogger_ptr->setMonitorBestOnly(false); // Output information for all individuals
 		nAdaptionsLogger_ptr->setAddPrintCommand(true); // Create a PNG file if Root-file is executed
 
-		collectiveMonitor_ptr->registerPluggableOM(nAdaptionsLogger_ptr);
+		go.registerPluggableOM(nAdaptionsLogger_ptr);
 	}
 
 	if(logSigma != "empty") {
@@ -164,11 +162,7 @@ int main(int argc, char **argv) {
 		sigmaLogger_ptr->setMonitorBestOnly(false); // Output information for all individuals
 		sigmaLogger_ptr->setAddPrintCommand(true); // Create a PNG file if Root-file is executed
 
-		collectiveMonitor_ptr->registerPluggableOM(sigmaLogger_ptr);
-	}
-
-	if(collectiveMonitor_ptr->hasOptimizationMonitors()) {
-		go.registerPluggableOM(collectiveMonitor_ptr);
+		go.registerPluggableOM(sigmaLogger_ptr);
 	}
 
 	//---------------------------------------------------------------------------

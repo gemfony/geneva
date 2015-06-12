@@ -41,6 +41,84 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * Puts a Gem::Common::graphPlotMode item into a stream. This is needed for
+ * (de-)serialization of the graphPlotMode enum.
+ *
+ * @param o The ostream the item should be added to
+ * @param gpm the item to be added to the stream
+ * @return The std::ostream object used to add the item to
+ */
+std::ostream &operator<<(std::ostream &o, const Gem::Common::graphPlotMode &gpm) {
+	boost::uint16_t tmp = static_cast<boost::uint16_t>(gpm);
+	o << tmp;
+	return o;
+}
+
+/******************************************************************************/
+/**
+ * Reads a Gem::Common::graphPlotMode item from a stream. This is needed for
+ * (de-)serialization of the graphPlotMode enum.
+ *
+ * @param i The stream the item should be read from
+ * @param gpm The item read from the stream
+ * @return The std::istream object used to read the item from
+ */
+std::istream &operator>>(std::istream &i, Gem::Common::graphPlotMode &gpm) {
+	boost::uint16_t tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+   gpm = boost::numeric_cast<Gem::Common::graphPlotMode>(tmp);
+#else
+	gpm = static_cast<Gem::Common::graphPlotMode>(tmp);
+#endif /* DEBUG */
+
+	return i;
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * Puts a Gem::Common::tddropt item into a stream. This is needed for
+ * (de-)serialization of the tddropt enum.
+ *
+ * @param o The ostream the item should be added to
+ * @param tdo the item to be added to the stream
+ * @return The std::ostream object used to add the item to
+ */
+std::ostream &operator<<(std::ostream &o, const Gem::Common::tddropt &tdo) {
+	boost::uint16_t tmp = static_cast<boost::uint16_t>(tdo);
+	o << tmp;
+	return o;
+}
+
+/******************************************************************************/
+/**
+ * Reads a Gem::Common::tddropt item from a stream. This is needed for
+ * (de-)serialization of the tddropt enum.
+ *
+ * @param i The stream the item should be read from
+ * @param tdo The item read from the stream
+ * @return The std::istream object used to read the item from
+ */
+std::istream &operator>>(std::istream &i, Gem::Common::tddropt &tdo) {
+	boost::uint16_t tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+   tdo = boost::numeric_cast<Gem::Common::tddropt>(tmp);
+#else
+	tdo = static_cast<Gem::Common::tddropt>(tmp);
+#endif /* DEBUG */
+
+	return i;
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * The default constructor
  */
 GBasePlotter::GBasePlotter()
@@ -2456,193 +2534,6 @@ std::string GFunctionPlotter2D::drawingArguments(bool isSecondary) const {
  */
 std::shared_ptr <GBasePlotter> GFunctionPlotter2D::clone() const {
 	return std::shared_ptr<GBasePlotter>(new GFunctionPlotter2D(*this));
-}
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * The default constructor
- */
-GFreeFormPlotter::GFreeFormPlotter()
-	: headerData_(""), bodyData_(""), footerData_("") { /* nothing */ }
-
-/******************************************************************************/
-/**
- * A copy constructor
- *
- * @param cp A copy of another GFreeFormPlotter object
- */
-GFreeFormPlotter::GFreeFormPlotter(const GFreeFormPlotter &cp)
-	: GBasePlotter(cp), headerData_(cp.headerData_), bodyData_(cp.bodyData_),
-	  footerData_(cp.footerData_) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GFreeFormPlotter::~GFreeFormPlotter() { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The assignment operator
- *
- * @param cp A copy of another GFreeFormPlotter object
- */
-const GFreeFormPlotter &GFreeFormPlotter::operator=(const GFreeFormPlotter &cp) {
-	// Copy our parent class'es data ...
-	GBasePlotter::operator=(cp);
-
-	// ... and then our local data
-	headerData_ = cp.headerData_;
-	bodyData_ = cp.bodyData_;
-	footerData_ = cp.footerData_;
-
-	// We do not copy the free form functions
-
-	return *this;
-}
-
-/******************************************************************************/
-/**
- * Retrieves a unique name for this plotter
- */
-std::string GFreeFormPlotter::getPlotterName() const {
-	return "GFreeFormPlotter";
-}
-
-/******************************************************************************/
-/**
- * Retrieve specific header settings for this plot
- *
- * @return A string holding the header data
- */
-std::string GFreeFormPlotter::headerData(bool isSecondary, std::size_t pId) const {
-	if (headerFunction_) {
-		return headerFunction_(isSecondary, pId);
-	}
-	else {
-		return headerData_;
-	}
-}
-
-/******************************************************************************/
-/**
- * Retrieves the actual data sets
- *
- * @return A string holding the body data
- */
-std::string GFreeFormPlotter::bodyData(bool isSecondary, std::size_t pId) const {
-	if (bodyFunction_) {
-		return bodyFunction_(isSecondary, pId);
-	}
-	else {
-		return bodyData_;
-	}
-}
-
-/******************************************************************************/
-/**
- * Retrieves specific draw commands for this plot
- *
- * @return A string holding the footer data
- */
-std::string GFreeFormPlotter::footerData(bool isSecondary, std::size_t pId) const {
-	if (footerFunction_) {
-		return footerFunction_(isSecondary, pId);
-	}
-	else {
-		return footerData_;
-	}
-}
-
-/******************************************************************************/
-/**
- * Adds a string with header data
- */
-void GFreeFormPlotter::setHeaderData(const std::string &hD) {
-	headerData_ = hD;
-}
-
-/******************************************************************************/
-/**
- * Adds a string with body data
- */
-void GFreeFormPlotter::setBodyData(const std::string &bD) {
-	bodyData_ = bD;
-}
-
-/******************************************************************************/
-/**
- * Adds a string with footer data
- */
-void GFreeFormPlotter::setFooterData(const std::string &fD) {
-	footerData_ = fD;
-}
-
-/******************************************************************************/
-/**
- * Registers a function that returns the desired header data
- */
-void GFreeFormPlotter::registerHeaderFunction(boost::function<std::string(bool, std::size_t)> hf) {
-	if (!hf) {
-		glogger
-		<< "In GFreeFormPlotter::registerHeaderFunction(): Error!" << std::endl
-		<< "Received empty function" << std::endl
-		<< GEXCEPTION;
-	}
-
-	headerFunction_ = hf;
-}
-
-/******************************************************************************/
-/**
- * Registers a function that returns the desired body data
- */
-void GFreeFormPlotter::registerBodyFunction(boost::function<std::string(bool, std::size_t)> bf) {
-	if (!bf) {
-		glogger
-		<< "In GFreeFormPlotter::registerBodyFunction(): Error!" << std::endl
-		<< "Received empty function" << std::endl
-		<< GEXCEPTION;
-	}
-
-	bodyFunction_ = bf;
-}
-
-/******************************************************************************/
-/**
- * Registers a function that returns the desired footer data
- */
-void GFreeFormPlotter::registerFooterFunction(boost::function<std::string(bool, std::size_t)> ff) {
-	if (!ff) {
-		glogger
-		<< "In GFreeFormPlotter::registerFooterFunction(): Error!" << std::endl
-		<< "Received empty function" << std::endl
-		<< GEXCEPTION;
-	}
-
-	footerFunction_ = ff;
-}
-
-/******************************************************************************/
-/**
- * Retrieve the current drawing arguments
- */
-std::string GFreeFormPlotter::drawingArguments(bool isSecondary) const {
-	std::string dA = "";
-
-	// nothing
-
-	return dA;
-}
-
-/******************************************************************************/
-/**
- * Retrieve a clone of this object
- */
-std::shared_ptr <GBasePlotter> GFreeFormPlotter::clone() const {
-	return std::shared_ptr<GBasePlotter>(new GFreeFormPlotter(*this));
 }
 
 /******************************************************************************/
