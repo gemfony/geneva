@@ -73,6 +73,89 @@ namespace Common {
 
 /******************************************************************************/
 /**
+ * This function checks in DEBUG mode whether a "derived_ptr" pointer points to another
+ * "base" object supplied as a function argument. This is needed in order to
+ * prevent assignment of a pointer's content to itself. Note that this template
+ * function will only be accessible to the compiler if the type of "base" is a
+ * base type of derived_type or the same type.
+ *
+ * @param derived_ptr A pointer to a possibly derived object
+ * @param base_ptr A pointer to the base object
+ */
+template <typename derived_type, typename base_type>
+void ptrEqualityCheck (
+	const derived_type *derived_ptr
+	, const base_type *base_ptr
+	, typename boost::enable_if<boost::is_base_of<base_type, derived_type> >::type* dummy = 0
+) {
+#ifdef DEBUG
+	// Check that this object is not accidentally assigned to itself.
+	if ((boost::is_same<derived_type, base_type>::value?derived_ptr:static_cast<base_type *>(derived_ptr)) == base_ptr) {
+		glogger
+		<< "In Gem::Common::ptrEqualityCheck<load_type, base_type>() :" << std::endl
+		<< "derived_ptr and base_ptr point to the same object!" << std::endl
+		<< GEXCEPTION;
+	}
+#endif
+}
+
+/******************************************************************************/
+/**
+ * This function converts the "convert_ptr" pointer to the target type.  Note that this template will
+ * only be accessible to the compiler if base_type is a base type of target_type.
+ */
+template <typename target_type, typename base_type>
+const target_type * g_ptr_conversion (
+	const base_type *convert_ptr
+	, typename boost::enable_if<boost::is_base_of<base_type, target_type> >::type* dummy = 0
+) {
+#ifdef DEBUG
+	const target_type *p = dynamic_cast<const target_type *>(convert_ptr);
+
+	if(p) {
+		return p;
+	} else {
+		glogger
+		<< "In const target_type* g_ptr_conversion<target_type, base_type>() :" << std::endl
+		<< "Invalid conversion to type with type name " << typeid(target_type).name() << std::endl
+		<< GEXCEPTION;
+
+		// Make the compiler happy
+		return nullptr;
+	}
+#else
+	return static_cast<const target_type *>(convert_ptr);
+#endif
+}
+
+/******************************************************************************/
+/**
+ * This function converts the "convert_ptr" pointer to the target type.  Note that this template will
+ * only be accessible to the compiler if base_type is a base type of target_type.
+ */
+template <typename target_type, typename base_type>
+std::shared_ptr<target_type> g_ptr_conversion (
+	std::shared_ptr<base_type> convert_ptr
+	, typename boost::enable_if<boost::is_base_of<base_type, target_type> >::type* dummy = 0
+) {
+#ifdef DEBUG
+	std::shared_ptr<target_type> p = std::dynamic_pointer_cast<target_type>(convert_ptr);
+
+	if(p) {
+		return p;
+	} else {
+		glogger
+		<< "In std::shared_ptr<target_type> g_ptr_conversion<target_type, base_type>() :" << std::endl
+		<< "Invalid conversion to type with type name " << typeid(target_type).name() << std::endl
+		<< GEXCEPTION;
+	}
+#else
+	return std::static_pointer_cast<target_type>(convert_ptr);
+#endif
+}
+
+/******************************************************************************/
+/**
  * This function takes a std::vector and transforms its contents to a std::string.
  * Note that this function assumes, that the template type of the vector can
  * be streamed.
@@ -128,10 +211,8 @@ void copySmartPointer(
  */
 template<typename T>
 void copySmartPointerVector(
-	const std::vector<std::shared_ptr < T>
-
->& from
-, std::vector<std::shared_ptr < T> >& to
+	const std::vector<std::shared_ptr < T> >& from
+	, std::vector<std::shared_ptr < T> >& to
 ) {
 typename std::vector<std::shared_ptr < T> >
 ::const_iterator it_from;

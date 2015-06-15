@@ -345,15 +345,7 @@ protected:
 		const GObject *load_ptr
 		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) const {
-#ifdef DEBUG
-		// Check that this object is not accidentally assigned to itself.
-		if (load_ptr == this) {
-			glogger
-			<< "In GObject::selfAssignmentCheck<load_type>() :" << std::endl
-			<< "Tried to assign an object to or compare with itself." << std::endl
-			<< GEXCEPTION;
-		}
-#endif
+		Gem::Common::ptrEqualityCheck(load_ptr, this);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -368,28 +360,16 @@ protected:
 	 * along the ways in DEBUG mode (through selfAssignmentCheck() ).  Note that this template will
 	 * only be accessible to the compiler if GObject is a base type of load_type.
 	 */
-	template <typename load_type>
-	inline const load_type* gobject_conversion (
-		const GObject *load_ptr
-		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
+	template <typename target_type>
+	inline const target_type* gobject_conversion (
+		const GObject *convert_ptr
+		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, target_type> >::type* dummy = 0
 	) const {
-		selfAssignmentCheck<load_type>(load_ptr);
+		// Check that load_ptr points to another object
+		Gem::Common::ptrEqualityCheck(convert_ptr, this);
 
-#ifdef DEBUG
-		const load_type *p = dynamic_cast<const load_type *>(load_ptr);
-		if(p) return p;
-		else {
-		   glogger
-		   << "In const GObject* GObject::gobject_conversion<load_type>() :" << std::endl
-		   << "Invalid conversion to type with type name " << typeid(load_type).name() << std::endl
-		   << GEXCEPTION;
-
-		   // Make the compiler happy
-		   return (load_type *)NULL;
-		}
-#else
-		return static_cast<const load_type *>(load_ptr);
-#endif
+		// Do the actual conversion
+		return Gem::Common::g_ptr_conversion<target_type, GObject>(convert_ptr);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -408,25 +388,16 @@ protected:
 	 * @param dummy A dummy argument needed for boost's enable_if and type traits magic
 	 * @return A std::shared_ptr holding the converted object
 	 */
-	template <typename load_type>
-	inline std::shared_ptr<load_type> gobject_conversion (
-		std::shared_ptr<GObject> load_ptr
-		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
+	template <typename target_type>
+	inline std::shared_ptr<target_type> gobject_conversion (
+		std::shared_ptr<GObject> convert_ptr
+		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, target_type> >::type* dummy = 0
 	) const {
-		selfAssignmentCheck<load_type>(load_ptr.get());
+		// Check that load_ptr points to another object
+		Gem::Common::ptrEqualityCheck(convert_ptr.get(), this);
 
-#ifdef DEBUG
-		std::shared_ptr<load_type> p = std::dynamic_pointer_cast<load_type>(load_ptr);
-		if(p) return p;
-		else {
-		   glogger
-		   << "In std::shared_ptr<load_type> GObject::gobject_conversion<load_type>() :" << std::endl
-		   << "Invalid conversion" << std::endl
-		   << GEXCEPTION;
-		}
-#else
-		return std::static_pointer_cast<load_type>(load_ptr);
-#endif
+		// Do the actual conversion
+		return Gem::Common::g_ptr_conversion<target_type, GObject>(convert_ptr);
 	}
 
 	/* ----------------------------------------------------------------------------------

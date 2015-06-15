@@ -122,25 +122,44 @@ std::istream &operator>>(std::istream &i, Gem::Common::tddropt &tdo) {
  * The default constructor
  */
 GBasePlotter::GBasePlotter()
-	: drawingArguments_(""), x_axis_label_("x"), y_axis_label_("y"), z_axis_label_("z"), plot_label_(""), dsMarker_(""),
-	  id_(0) { /* nothing */ }
+	: drawingArguments_("")
+	, x_axis_label_("x")
+	, y_axis_label_("y")
+	, z_axis_label_("z")
+	, plot_label_("")
+	, dsMarker_("")
+	, secondaryPlotter_()
+	, id_(0)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
- * A copy constructor
+ * The copy constructor
  *
  * @param cp A copy of another GBasePlotter object
  */
 GBasePlotter::GBasePlotter(const GBasePlotter &cp)
-	: drawingArguments_(cp.drawingArguments_), x_axis_label_(cp.x_axis_label_), y_axis_label_(cp.y_axis_label_),
-	  z_axis_label_(cp.z_axis_label_), plot_label_(cp.plot_label_), dsMarker_(cp.dsMarker_),
-	  id_(cp.id_) { /* nothing */ }
+	: drawingArguments_(cp.drawingArguments_)
+	, x_axis_label_(cp.x_axis_label_)
+	, y_axis_label_(cp.y_axis_label_)
+	, z_axis_label_(cp.z_axis_label_)
+	, plot_label_(cp.plot_label_)
+	, dsMarker_(cp.dsMarker_)
+   , secondaryPlotter_()
+	, id_(cp.id_)
+{
+	// Copy secondary plot data over
+	for(auto plotter: cp.secondaryPlotter_) {
+		secondaryPlotter_.push_back(plotter->clone());
+	}
+}
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GBasePlotter::~GBasePlotter() { /* nothing */ }
+GBasePlotter::~GBasePlotter()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -309,6 +328,14 @@ std::string GBasePlotter::suffix(bool isSecondary, std::size_t pId) const {
 
 /******************************************************************************/
 /**
+ * Loads the data of another GObject
+ */
+void GBasePlotter::load_(const GBasePlotter* cp) {
+
+}
+
+/******************************************************************************/
+/**
  * Allows to retrieve the id of this object
  */
 std::size_t GBasePlotter::id() const {
@@ -323,6 +350,14 @@ std::size_t GBasePlotter::id() const {
  */
 void GBasePlotter::setId(const std::size_t &id) {
 	id_ = id;
+}
+
+/******************************************************************************/
+/**
+ * Retrieve a clone of this object
+ */
+std::shared_ptr<GBasePlotter> GBasePlotter::clone() {
+	return std::shared_ptr<GBasePlotter>(this->clone_());
 }
 
 /******************************************************************************/
@@ -657,10 +692,10 @@ std::string GGraph2D::drawingArguments(bool isSecondary) const {
 
 /******************************************************************************/
 /**
- * Retrieve a clone of this object
+ * Creates a deep clone of this object
  */
-std::shared_ptr <GBasePlotter> GGraph2D::clone() const {
-	return std::shared_ptr<GBasePlotter>(new GGraph2D(*this));
+GBasePlotter* GGraph2D::clone_() const {
+	return new GGraph2D(*this);
 }
 
 /******************************************************************************/
@@ -875,10 +910,10 @@ std::string GGraph2ED::drawingArguments(bool isSecondary) const {
 
 /******************************************************************************/
 /**
- * Retrieve a clone of this object
+ * Creates a deep clone of this object
  */
-std::shared_ptr <GBasePlotter> GGraph2ED::clone() const {
-	return std::shared_ptr<GBasePlotter>(new GGraph2ED(*this));
+GBasePlotter* GGraph2ED::clone_() const {
+	return new GGraph2ED(*this);
 }
 
 /******************************************************************************/
@@ -1116,10 +1151,10 @@ std::string GGraph3D::drawingArguments(bool isSecondary) const {
 
 /******************************************************************************/
 /**
- * Retrieve a clone of this object
+ * Creates a deep clone of this object
  */
-std::shared_ptr <GBasePlotter> GGraph3D::clone() const {
-	return std::shared_ptr<GBasePlotter>(new GGraph3D(*this));
+GBasePlotter* GGraph3D::clone_() const {
+	return new GGraph3D(*this);
 }
 
 /******************************************************************************/
@@ -1392,10 +1427,10 @@ std::string GGraph4D::drawingArguments(bool isSecondary) const {
 
 /******************************************************************************/
 /**
- * Retrieve a clone of this object
+ * Creates a deep clone of this object
  */
-std::shared_ptr <GBasePlotter> GGraph4D::clone() const {
-	return std::shared_ptr<GBasePlotter>(new GGraph4D(*this));
+GBasePlotter* GGraph4D::clone_() const {
+	return new GGraph4D(*this);
 }
 
 /******************************************************************************/
@@ -1597,10 +1632,10 @@ std::string GHistogram1D::getPlotterName() const {
 
 /******************************************************************************/
 /**
- * Retrieve a clone of this object
+ * Creates a deep clone of this object
  */
-std::shared_ptr <GBasePlotter> GHistogram1D::clone() const {
-	return std::shared_ptr<GBasePlotter>(new GHistogram1D(*this));
+GBasePlotter* GHistogram1D::clone_() const {
+	return new GHistogram1D(*this);
 }
 
 /******************************************************************************/
@@ -1804,10 +1839,10 @@ std::string GHistogram1I::getPlotterName() const {
 
 /******************************************************************************/
 /**
- * Retrieve a clone of this object
+ * Creates a deep clone of this object
  */
-std::shared_ptr <GBasePlotter> GHistogram1I::clone() const {
-	return std::shared_ptr<GBasePlotter>(new GHistogram1I(*this));
+GBasePlotter* GHistogram1I::clone_() const {
+	return new GHistogram1I(*this);
 }
 
 
@@ -2148,12 +2183,11 @@ std::string GHistogram2D::getPlotterName() const {
 
 /******************************************************************************/
 /**
- * Retrieve a clone of this object
+ * Creates a deep clone of this object
  */
-std::shared_ptr <GBasePlotter> GHistogram2D::clone() const {
-	return std::shared_ptr<GBasePlotter>(new GHistogram2D(*this));
+GBasePlotter* GHistogram2D::clone_() const {
+	return new GHistogram2D(*this);
 }
-
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -2323,10 +2357,10 @@ std::string GFunctionPlotter1D::drawingArguments(bool isSecondary) const {
 
 /******************************************************************************/
 /**
- * Retrieve a clone of this object
+ * Creates a deep clone of this object
  */
-std::shared_ptr <GBasePlotter> GFunctionPlotter1D::clone() const {
-	return std::shared_ptr<GBasePlotter>(new GFunctionPlotter1D(*this));
+GBasePlotter* GFunctionPlotter1D::clone_() const {
+	return new GFunctionPlotter1D(*this);
 }
 
 /******************************************************************************/
@@ -2530,10 +2564,10 @@ std::string GFunctionPlotter2D::drawingArguments(bool isSecondary) const {
 
 /******************************************************************************/
 /**
- * Retrieve a clone of this object
+ * Creates a deep clone of this object
  */
-std::shared_ptr <GBasePlotter> GFunctionPlotter2D::clone() const {
-	return std::shared_ptr<GBasePlotter>(new GFunctionPlotter2D(*this));
+GBasePlotter* GFunctionPlotter2D::clone_() const {
+	return new GFunctionPlotter2D(*this);
 }
 
 /******************************************************************************/

@@ -80,6 +80,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
+#include "common/GHelperFunctionsT.hpp"
 #include "common/GMathHelperFunctionsT.hpp"
 #include "common/GCommonEnums.hpp"
 
@@ -197,7 +198,52 @@ public:
 	virtual G_API_COMMON std::string getPlotterName() const = 0;
 
 	/** @brief Retrieve a clone of this object */
-	virtual G_API_COMMON std::shared_ptr <GBasePlotter> clone() const = 0;
+	virtual G_API_COMMON std::shared_ptr <GBasePlotter> clone();
+
+	/***************************************************************************/
+	/**
+	 * The function creates a clone of the GObject pointer, converts it to a pointer to a derived class
+	 * and emits it as a std::shared_ptr<> . Note that this template will only be accessible to the
+	 * compiler if GObject is a base type of clone_type.
+	 *
+	 * @return A converted clone of this object, wrapped into a std::shared_ptr
+	 */
+	template <typename clone_type>
+	std::shared_ptr<clone_type> clone(
+		typename boost::enable_if<boost::is_base_of<Gem::Common::GBasePlotter, clone_type> >::type* dummy = 0
+	) const {
+		return Gem::Common::convertSmartPointer<GBasePlotter, clone_type>(std::shared_ptr<GBasePlotter>(this->clone_()));
+	}
+
+	/***************************************************************************/
+	/**
+	 * Loads the data of another GBasePlotter(-derivative), wrapped in a shared pointer. Note that this
+	 * function is only accessible to the compiler if load_type is a derivative of GBasePlotter.
+	 *
+	 * @param cp A copy of another GBasePlotter-derivative, wrapped into a std::shared_ptr<>
+	 */
+	template <typename load_type>
+	inline void load(
+		const std::shared_ptr<load_type>& cp
+		, typename boost::enable_if<boost::is_base_of<Gem::Common::GBasePlotter, load_type> >::type* dummy = 0
+	) {
+		load_(cp.get());
+	}
+
+	/***************************************************************************/
+	/**
+	 * Loads the data of another GBasePlotter(-derivative), presented as a constant reference. Note that this
+	 * function is only accessible to the compiler if load_type is a derivative of GBasePlotter.
+	 *
+	 * @param cp A copy of another GBasePlotter-derivative, wrapped into a std::shared_ptr<>
+	 */
+	template <typename load_type>
+	inline void load(
+		const load_type& cp
+		, typename boost::enable_if<boost::is_base_of<Gem::Common::GBasePlotter, load_type> >::type* dummy = 0
+	) {
+		load_(&cp);
+	}
 
 protected:
 	/***************************************************************************/
@@ -221,6 +267,11 @@ protected:
 
 	/** @brief calculate a suffix from id and parent ids */
 	G_API_COMMON std::string suffix(bool, std::size_t) const;
+
+	/** @brief Loads the data of another GObject */
+	virtual G_API_GENEVA void load_(const GBasePlotter*);
+	/** @brief Creates a deep clone of this object */
+	virtual G_API_GENEVA GBasePlotter* clone_() const = 0;
 
 	/***************************************************************************/
 
@@ -412,6 +463,9 @@ public:
 	}
 
 protected:
+	/** @brief Creates a deep clone of this object */
+	virtual G_API_GENEVA GBasePlotter* clone_() const = 0;
+
 	/***************************************************************************/
 
 	std::vector<x_type> data_; ///< Holds the actual data
@@ -467,9 +521,6 @@ public:
 	/** @brief Retrieves a unique name for this plotter */
 	virtual G_API_COMMON std::string getPlotterName() const;
 
-	/** @brief Retrieve a clone of this object */
-	virtual G_API_COMMON std::shared_ptr <GBasePlotter> clone() const;
-
 protected:
 	/** @brief Retrieve specific header settings for this plot */
 	virtual std::string headerData(bool, std::size_t) const;
@@ -482,6 +533,9 @@ protected:
 
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const;
+
+	/** @brief Creates a deep clone of this object */
+	virtual G_API_GENEVA GBasePlotter* clone_() const;
 
 private:
 	GHistogram1D() = delete; ///< The default constructor -- intentionally private and undefined
@@ -542,9 +596,6 @@ public:
 	/** @brief Retrieves a unique name for this plotter */
 	virtual G_API_COMMON std::string getPlotterName() const;
 
-	/** @brief Retrieve a clone of this object */
-	virtual G_API_COMMON std::shared_ptr <GBasePlotter> clone() const;
-
 protected:
 	/** @brief Retrieve specific header settings for this plot */
 	virtual std::string headerData(bool, std::size_t) const;
@@ -557,6 +608,9 @@ protected:
 
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const;
+
+	/** @brief Creates a deep clone of this object */
+	virtual G_API_GENEVA GBasePlotter* clone_() const;
 
 private:
 	GHistogram1I() = delete; ///< The default constructor -- intentionally private and undefined
@@ -766,7 +820,6 @@ public:
 		}
 	}
 
-public:
 	/***************************************************************************/
 	/**
 	 * Sorts the data according to its x-component
@@ -781,6 +834,9 @@ public:
 	}
 
 protected:
+	/** @brief Creates a deep clone of this object */
+	virtual G_API_GENEVA GBasePlotter* clone_() const = 0;
+
 	/***************************************************************************/
 
 	std::vector<boost::tuple<x_type, y_type> > data_; ///< Holds the actual data
@@ -1036,7 +1092,6 @@ public:
 		*this & item;
 	}
 
-public:
 	/***************************************************************************/
 	/**
 	 * Sorts the data according to its x-component
@@ -1052,6 +1107,9 @@ public:
 	}
 
 protected:
+	/** @brief Creates a deep clone of this object */
+	virtual G_API_GENEVA GBasePlotter* clone_() const = 0;
+
 	/***************************************************************************/
 
 	std::vector<boost::tuple<x_type, x_type, y_type, y_type> > data_; ///< Holds the actual data
@@ -1154,9 +1212,6 @@ public:
 	/** @brief Allows to retrieve 2d-drawing options */
 	G_API_COMMON tddropt get2DOpt() const;
 
-	/** @brief Retrieve a clone of this object */
-	virtual G_API_COMMON std::shared_ptr <GBasePlotter> clone() const;
-
 protected:
 	/** @brief Retrieve specific header settings for this plot */
 	virtual std::string headerData(bool, std::size_t) const;
@@ -1169,6 +1224,9 @@ protected:
 
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const;
+
+	/** @brief Creates a deep clone of this object */
+	virtual G_API_GENEVA GBasePlotter* clone_() const;
 
 private:
 	GHistogram2D() = delete; ///< The default constructor -- intentionally private and undefined
@@ -1232,9 +1290,6 @@ public:
 	/** @brief Retrieves a unique name for this plotter */
 	virtual G_API_COMMON std::string getPlotterName() const;
 
-	/** @brief Retrieve a clone of this object */
-	virtual G_API_COMMON std::shared_ptr <GBasePlotter> clone() const;
-
 protected:
 	/** @brief Retrieve specific header settings for this plot */
 	virtual std::string headerData(bool, std::size_t) const;
@@ -1247,6 +1302,9 @@ protected:
 
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const;
+
+	/** @brief Creates a deep clone of this object */
+	virtual G_API_GENEVA GBasePlotter* clone_() const;
 
 private:
 	graphPlotMode pM_; ///< Whether to create scatter plots or a curve, connected by lines
@@ -1294,9 +1352,6 @@ public:
 	/** @brief Retrieves a unique name for this plotter */
 	G_API_COMMON virtual std::string getPlotterName() const;
 
-	/** @brief Retrieve a clone of this object */
-	G_API_COMMON virtual std::shared_ptr <GBasePlotter> clone() const;
-
 protected:
 	/** @brief Retrieve specific header settings for this plot */
 	virtual std::string headerData(bool, std::size_t) const;
@@ -1309,6 +1364,9 @@ protected:
 
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const;
+
+	/** @brief Creates a deep clone of this object */
+	virtual G_API_GENEVA GBasePlotter* clone_() const;
 
 private:
 	graphPlotMode pM_; ///< Whether to create scatter plots or a curve, connected by lines
@@ -1537,6 +1595,9 @@ public:
 	}
 
 protected:
+	/** @brief Creates a deep clone of this object */
+	virtual G_API_GENEVA GBasePlotter* clone_() const = 0;
+
 	/***************************************************************************/
 
 	std::vector<boost::tuple<x_type, y_type, z_type> > data_; ///< Holds the actual data
@@ -1701,9 +1762,6 @@ public:
 	/** @brief Retrieves a unique name for this plotter */
 	virtual G_API_COMMON std::string getPlotterName() const;
 
-	/** @brief Retrieve a clone of this object */
-	virtual G_API_COMMON std::shared_ptr <GBasePlotter> clone() const;
-
 protected:
 	/** @brief Retrieve specific header settings for this plot */
 	virtual std::string headerData(bool, std::size_t) const;
@@ -1716,6 +1774,9 @@ protected:
 
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const;
+
+	/** @brief Creates a deep clone of this object */
+	virtual G_API_GENEVA GBasePlotter* clone_() const;
 
 private:
 	bool drawLines_; ///< When set to true, lines will be drawn between consecutive points
@@ -1973,6 +2034,9 @@ public:
 	}
 
 protected:
+	/** @brief Creates a deep clone of this object */
+	virtual G_API_GENEVA GBasePlotter* clone_() const = 0;
+
 	/***************************************************************************/
 
 	std::vector<boost::tuple<x_type, y_type, z_type, w_type> > data_; ///< Holds the actual data
@@ -2203,9 +2267,6 @@ public:
 	/** @brief Allows to retrieve the number of solutions the class should show */
 	G_API_COMMON std::size_t getNBest() const;
 
-	/** @brief Retrieve a clone of this object */
-	virtual G_API_COMMON std::shared_ptr <GBasePlotter> clone() const;
-
 protected:
 	/** @brief Retrieve specific header settings for this plot */
 	virtual std::string headerData(bool, std::size_t) const;
@@ -2218,6 +2279,9 @@ protected:
 
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const;
+
+	/** @brief Creates a deep clone of this object */
+	virtual G_API_GENEVA GBasePlotter* clone_() const;
 
 private:
 	double minMarkerSize_; ///< The minimum allowed size of the marker
@@ -2273,9 +2337,6 @@ public:
 	/** @brief Retrieves a unique name for this plotter */
 	virtual G_API_COMMON std::string getPlotterName() const;
 
-	/** @brief Retrieve a clone of this object */
-	virtual G_API_COMMON std::shared_ptr <GBasePlotter> clone() const;
-
 protected:
 	/** @brief Retrieve specific header settings for this plot */
 	virtual std::string headerData(bool, std::size_t) const;
@@ -2288,6 +2349,9 @@ protected:
 
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const;
+
+	/** @brief Creates a deep clone of this object */
+	virtual G_API_GENEVA GBasePlotter* clone_() const;
 
 private:
 	GFunctionPlotter1D() = delete; ///< The default constructor -- intentionally private and undefined
@@ -2345,9 +2409,6 @@ public:
 	/** @brief Retrieves a unique name for this plotter */
 	G_API_COMMON virtual std::string getPlotterName() const;
 
-	/** @brief Retrieve a clone of this object */
-	G_API_COMMON virtual std::shared_ptr <GBasePlotter> clone() const;
-
 protected:
 	/** @brief Retrieve specific header settings for this plot */
 	virtual std::string headerData(bool, std::size_t) const;
@@ -2360,6 +2421,9 @@ protected:
 
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const;
+
+	/** @brief Creates a deep clone of this object */
+	virtual G_API_GENEVA GBasePlotter* clone_() const;
 
 private:
 	GFunctionPlotter2D() = delete; ///< The default constructor -- intentionally private and undefined

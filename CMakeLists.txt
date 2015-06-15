@@ -72,11 +72,12 @@ SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
 INCLUDE(CommonGenevaBuild)
 
 ###############################################################################
-# Set the library/package version
+# Set the library/package version. Uneven minor numbers denote development
+# versions while even minor numbers stand for production releases.
 
 SET(VERSION_MAJOR "1")
-SET(VERSION_MINOR "6")
-SET(VERSION_PATCH "1")
+SET(VERSION_MINOR "9")
+SET(VERSION_PATCH "0")
 
 SET(GENEVA_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
