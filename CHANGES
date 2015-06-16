@@ -47,6 +47,10 @@ The main changes for this release include:
 
 ********************************************************************************
 
+ - Added a G_DEPRECATED macro so sole old functions may remain, but are marked
+   as deprecated. Such functions may go away without further notice in future
+   versions of Geneva.
+
 Recommended version of Boost: 1.57; Minimum Boost version: 1.57.
 NOTE: Boost 1.58 ist NOT recommended, due to a severe bug affecting Geneva.
 

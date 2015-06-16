@@ -73,27 +73,26 @@ namespace Common {
 
 /******************************************************************************/
 /**
- * This function checks in DEBUG mode whether a "derived_ptr" pointer points to another
- * "base" object supplied as a function argument. This is needed in order to
- * prevent assignment of a pointer's content to itself. Note that this template
- * function will only be accessible to the compiler if the type of "base" is a
- * base type of derived_type or the same type.
+ * This function checks in DEBUG mode whether two pointers point to the
+ * same object. The function will throw if this is the case. This is needed
+ * in order to prevent assignment of a pointer's content to itself. Both pointers
+ * must be of the same type or must be convertible to each other. The function
+ * will not throw in case p1 is a nullptr.
  *
- * @param derived_ptr A pointer to a possibly derived object
- * @param base_ptr A pointer to the base object
+ * @param p1 The first pointer to be checked
+ * @param p2 The second pointer to be checked
  */
-template <typename derived_type, typename base_type>
-void ptrEqualityCheck (
-	const derived_type *derived_ptr
-	, const base_type *base_ptr
-	, typename boost::enable_if<boost::is_base_of<base_type, derived_type> >::type* dummy = 0
+template <typename T>
+void ptrDifferenceCheck (
+	const T *p1
+	, const T *p2
 ) {
 #ifdef DEBUG
-	// Check that this object is not accidentally assigned to itself.
-	if ((boost::is_same<derived_type, base_type>::value?derived_ptr:static_cast<base_type *>(derived_ptr)) == base_ptr) {
+	// Check that the two pointers point to different objects
+	if (nullptr!=p1 && p1==p2) {
 		glogger
-		<< "In Gem::Common::ptrEqualityCheck<load_type, base_type>() :" << std::endl
-		<< "derived_ptr and base_ptr point to the same object!" << std::endl
+		<< "In Gem::Common::ptrEqualityCheck<T>() :" << std::endl
+		<< "p1 and p2 point to the same object!" << std::endl
 		<< GEXCEPTION;
 	}
 #endif
@@ -101,10 +100,40 @@ void ptrEqualityCheck (
 
 /******************************************************************************/
 /**
- * This function converts the "convert_ptr" pointer to the target type.  Note that this template will
- * only be accessible to the compiler if base_type is a base type of target_type.
+ * This function checks in DEBUG mode whether two pointers point to the
+ * same object. The function will throw if this is the case. This is needed
+ * in order to prevent assignment of a pointer's content to itself. Both pointers
+ * must be of the same type or must be convertible to each other. The function
+ * will not throw in case p1 is a nullptr.
+ *
+ * @param p1 The first pointer to be checked
+ * @param p2 The second pointer to be checked
  */
-template <typename target_type, typename base_type>
+template <typename T>
+void ptrDifferenceCheck (
+	std::shared_ptr<T> p1
+	, std::shared_ptr<T> p2
+) {
+#ifdef DEBUG
+	// Check that the two pointers point to different objects
+	if (p1 && p1.get()==p2.get()) {
+		glogger
+		<< "In Gem::Common::ptrEqualityCheck<T>() :" << std::endl
+		<< "Smart pointers p1 and p2 point to the same object!" << std::endl
+		<< GEXCEPTION;
+	}
+#endif
+}
+
+
+/******************************************************************************/
+/**
+ * This function converts the "convert_ptr" pointer to the target type.  Note that this template will
+ * only be accessible to the compiler if base_type is a base type of target_type.  As a consequence, the
+ * function allows up-casts, but no downcasts. The function will do nothing, if convert_ptr points to
+ * nullptr.
+ */
+template <typename base_type, typename target_type>
 const target_type * g_ptr_conversion (
 	const base_type *convert_ptr
 	, typename boost::enable_if<boost::is_base_of<base_type, target_type> >::type* dummy = 0
@@ -112,7 +141,7 @@ const target_type * g_ptr_conversion (
 #ifdef DEBUG
 	const target_type *p = dynamic_cast<const target_type *>(convert_ptr);
 
-	if(p) {
+	if(nullptr==convert_ptr || p) {
 		return p;
 	} else {
 		glogger
@@ -131,9 +160,11 @@ const target_type * g_ptr_conversion (
 /******************************************************************************/
 /**
  * This function converts the "convert_ptr" pointer to the target type.  Note that this template will
- * only be accessible to the compiler if base_type is a base type of target_type.
+ * only be accessible to the compiler if base_type is a base type of target_type. As a consequence, the
+ * function allows up-casts, but no downcasts. The function will do nothing, if convert_ptr points to
+ * nullptr.
  */
-template <typename target_type, typename base_type>
+template <typename base_type, typename target_type>
 std::shared_ptr<target_type> g_ptr_conversion (
 	std::shared_ptr<base_type> convert_ptr
 	, typename boost::enable_if<boost::is_base_of<base_type, target_type> >::type* dummy = 0
@@ -141,7 +172,7 @@ std::shared_ptr<target_type> g_ptr_conversion (
 #ifdef DEBUG
 	std::shared_ptr<target_type> p = std::dynamic_pointer_cast<target_type>(convert_ptr);
 
-	if(p) {
+	if(nullptr==convert_ptr.get() || p) {
 		return p;
 	} else {
 		glogger
@@ -152,6 +183,56 @@ std::shared_ptr<target_type> g_ptr_conversion (
 #else
 	return std::static_pointer_cast<target_type>(convert_ptr);
 #endif
+}
+
+/******************************************************************************/
+/**
+ * This function will convert a "convert_ptr" to a given target type and will
+ * check whether it points to the same object as another pointer supplied
+ * as a function argument.  Note that this function will only be accessible to
+ * the compiler if base_type is a base type of target_type. As a consequence, the
+ + function allows up-casts, but no downcasts. The function will not throw for
+ * nullptr-values.
+ *
+ * @param convert_ptr A base pointer to be converted to the target type
+ * @param compare_ptr A pointer to be compared to convert_ptr
+ */
+template <typename base_type, typename target_type>
+std::shared_ptr<target_type> g_convert_and_compare (
+	std::shared_ptr<base_type> convert_ptr
+	, std::shared_ptr<base_type> compare_ptr
+	, typename boost::enable_if<boost::is_base_of<base_type, target_type> >::type* dummy = 0
+) {
+	// Compare the two pointers (will throw in case of equality)
+	ptrDifferenceCheck(convert_ptr, compare_ptr);
+
+	// Then convert and return the base pointer -- tis call will throw, if conversion cannot be done
+	return g_ptr_conversion<base_type, target_type>(convert_ptr);
+}
+
+/******************************************************************************/
+/**
+ * This function will convert a "convert_ptr" to a given target type and will
+ * check whether it points to the same object as another pointer supplied
+ * as a function argument.  Note that this function will only be accessible to
+ * the compiler if base_type is a base type of target_type. As a consequence, the
+ + function allows up-casts, but no downcasts. The function will not throw for
+ * nullptr-values.
+ *
+ * @param convert_ptr A base pointer to be converted to the target type
+ * @param compare_ptr A pointer to be compared to convert_ptr
+ */
+template <typename base_type, typename target_type>
+const target_type* g_convert_and_compare (
+	const base_type * convert_ptr
+	, const base_type * compare_ptr
+	, typename boost::enable_if<boost::is_base_of<base_type, target_type> >::type* dummy = 0
+) {
+	// Compare the two pointers (will throw in case of equality)
+	ptrDifferenceCheck(convert_ptr, compare_ptr);
+
+	// Then convert and return the base pointer -- tis call will throw, if conversion cannot be done
+	return g_ptr_conversion<base_type, target_type>(convert_ptr);
 }
 
 /******************************************************************************/

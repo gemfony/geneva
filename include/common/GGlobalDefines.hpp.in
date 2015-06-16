@@ -129,4 +129,18 @@
 /** Funnily, on g++ std::pow(x,2) seems to be less efficient than direct multiplication */
 #define GSQUARED(X) (X) * (X)
 
+//-----------------------------------------------------------
+// Allow to mark functions as deprecated on supported compilers
+#ifdef __GNUC__
+#define G_DEPRECATED(message) __attribute__ ((deprecated(#message)))
+#elif defined(__clang__)
+#define G_DEPRECATED(message) __attribute__ ((deprecated(#message)))
+#elif defined(_MSC_VER)
+#define G_DEPRECATED(message) __declspec(deprecated(#message))
+#else
+#define G_DEPRECATED(message)
+#endif
+
+//-----------------------------------------------------------
+
 #endif /* GGLOBALDEFINES_HPP_ */

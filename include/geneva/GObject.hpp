@@ -341,11 +341,11 @@ protected:
 	 * that this template will only be accessible to the compiler if GObject is a base type of load_type.
 	 */
 	template <typename load_type>
-	inline void selfAssignmentCheck (
+	G_DEPRECATED("Use Gem::Common::ptrDifferenceCheck instead") void selfAssignmentCheck (
 		const GObject *load_ptr
 		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) const {
-		Gem::Common::ptrEqualityCheck(load_ptr, this);
+		Gem::Common::ptrDifferenceCheck(load_ptr, this);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -361,15 +361,11 @@ protected:
 	 * only be accessible to the compiler if GObject is a base type of load_type.
 	 */
 	template <typename target_type>
-	inline const target_type* gobject_conversion (
+	G_DEPRECATED("Use Gem::Common::g_ptr_conversion instead") const target_type* gobject_conversion (
 		const GObject *convert_ptr
 		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, target_type> >::type* dummy = 0
 	) const {
-		// Check that load_ptr points to another object
-		Gem::Common::ptrEqualityCheck(convert_ptr, this);
-
-		// Do the actual conversion
-		return Gem::Common::g_ptr_conversion<target_type, GObject>(convert_ptr);
+		return Gem::Common::g_convert_and_compare<GObject, target_type>(convert_ptr, this);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -389,15 +385,11 @@ protected:
 	 * @return A std::shared_ptr holding the converted object
 	 */
 	template <typename target_type>
-	inline std::shared_ptr<target_type> gobject_conversion (
+	G_DEPRECATED("Use Gem::Common::g_ptr_conversion instead") std::shared_ptr<target_type> gobject_conversion (
 		std::shared_ptr<GObject> convert_ptr
 		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, target_type> >::type* dummy = 0
 	) const {
-		// Check that load_ptr points to another object
-		Gem::Common::ptrEqualityCheck(convert_ptr.get(), this);
-
-		// Do the actual conversion
-		return Gem::Common::g_ptr_conversion<target_type, GObject>(convert_ptr);
+		return Gem::Common::g_convert_and_compare<GObject, target_type>(convert_ptr, this);
 	}
 
 	/* ----------------------------------------------------------------------------------
