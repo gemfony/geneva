@@ -224,8 +224,8 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GConstrainedFPT<fp_type> reference
-		const GConstrainedFPT<fp_type>  *p_load = GObject::gobject_conversion<GConstrainedFPT<fp_type> >(&cp);
+		// Check that we are dealing with a GConstrainedFPT<fp_type>  reference independent of this object and convert the pointer
+		const GConstrainedFPT<fp_type>  *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedFPT<fp_type> >(cp, this);
 
 		GToken token("GConstrainedFPT<fp_type>", e);
 
@@ -392,8 +392,8 @@ protected:
 	 * @param cp Another GConstrainedFPT<fp_type> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject *cp) override {
-		// Convert GObject pointer to local format
-		const GConstrainedFPT<fp_type> *p_load = GObject::gobject_conversion<GConstrainedFPT<fp_type> >(cp);
+		// Check that we are dealing with a GConstrainedFPT<fp_type>  reference independent of this object and convert the pointer
+		const GConstrainedFPT<fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedFPT<fp_type> >(cp, this);
 
 		// Load our parent class'es data ...
 		GConstrainedNumT<fp_type>::load_(cp);

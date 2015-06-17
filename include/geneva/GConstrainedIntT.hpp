@@ -227,8 +227,8 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GConstrainedIntT<int_type> reference
-		const GConstrainedIntT<int_type>  *p_load = GObject::gobject_conversion<GConstrainedIntT<int_type> >(&cp);
+		// Check that we are dealing with a GConstrainedIntT<int_type> reference independent of this object and convert the pointer
+		const GConstrainedIntT<int_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedIntT<int_type> >(cp, this);
 
 		GToken token("GConstrainedIntT<int_type>", e);
 
@@ -320,8 +320,8 @@ protected:
 	 * @param cp Another GConstrainedIntT<int_type> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject *cp) override {
-		// Convert GObject pointer to local format
-		const GConstrainedIntT<int_type> *p_load = GObject::gobject_conversion<GConstrainedIntT<int_type> >(cp);
+		// Check that we are dealing with a GConstrainedIntT<int_type> reference independent of this object and convert the pointer
+		const GConstrainedIntT<int_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedIntT<int_type> >(cp, this);
 
 		// Load our parent class'es data ...
 		GConstrainedNumT<int_type>::load_(cp);

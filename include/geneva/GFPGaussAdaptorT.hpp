@@ -211,8 +211,8 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const GFPGaussAdaptorT<fp_type>  *p_load = GObject::gobject_conversion<GFPGaussAdaptorT<fp_type> >(&cp);
+		// Check that we are dealing with a GFPGaussAdaptorT<fp_type> reference independent of this object and convert the pointer
+		const GFPGaussAdaptorT<fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GFPGaussAdaptorT<fp_type> >(cp, this);
 
 		GToken token("GFPGaussAdaptorT<fp_type>", e);
 

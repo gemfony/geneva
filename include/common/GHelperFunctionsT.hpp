@@ -245,6 +245,34 @@ const target_type* g_convert_and_compare (
 
 /******************************************************************************/
 /**
+ * This function will convert a "convert_ref" to a given target type and will
+ * check whether it points to the same object as another pointer supplied
+ * as a function argument.  Note that this function will only be accessible to
+ * the compiler if base_type is a base type of target_type. As a consequence, the
+ + function allows up-casts, but no downcasts. The function will not throw for
+ * nullptr-values.
+ *
+ * @param convert_ref A reference to an object to be converted to the target type as a pointer
+ * @param compare_ptr A pointer to be compared to convert_ptr
+ */
+template <typename base_type, typename target_type>
+const target_type* g_convert_and_compare (
+	const base_type& convert_ref
+	, const target_type * compare_ptr
+	, typename boost::enable_if<boost::is_base_of<base_type, target_type> >::type* dummy = 0
+) {
+	// Convert the base pointer -- this call will throw, if conversion cannot be done
+	const target_type * p =  g_ptr_conversion<base_type, target_type>(&convert_ref);
+
+	// Then compare the two pointers (will throw in case of equality)
+	ptrDifferenceCheck(p, compare_ptr);
+
+	// Return the converted pointer
+	return p;
+}
+
+/******************************************************************************/
+/**
  * This function takes a std::vector and transforms its contents to a std::string.
  * Note that this function assumes, that the template type of the vector can
  * be streamed.

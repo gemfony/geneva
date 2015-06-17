@@ -208,8 +208,8 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GBaseParChildT reference
-		const GBaseParChildT<ind_type> *p_load = GObject::gobject_conversion<GBaseParChildT<ind_type> >(&cp);
+		// Check that we are dealing with a GBaseParChildT<ind_type>  reference independent of this object and convert the pointer
+		const GBaseParChildT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GBaseParChildT<ind_type> >(cp, this);
 
 		GToken token("GBaseParChildT<ind_type>", e);
 
@@ -551,7 +551,8 @@ protected:
 	 * @param cp A pointer to another GBaseParChildT<ind_type> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject * cp) override {
-		const GBaseParChildT<ind_type> *p_load = GObject::gobject_conversion<GBaseParChildT<ind_type> >(cp);
+		// Check that we are dealing with a GBaseParChildT<ind_type>  reference independent of this object and convert the pointer
+		const GBaseParChildT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GBaseParChildT<ind_type> >(cp, this);
 
 		// First load the parent class'es data ...
 		GOptimizationAlgorithmT<ind_type>::load_(cp);

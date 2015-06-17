@@ -264,8 +264,8 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const GAdaptorT<T>  *p_load = gobject_conversion<GAdaptorT<T> >(&cp);
+		// Check that we are dealing with a GAdaptorT<T> reference independent of this object and convert the pointer
+		const GAdaptorT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorT<T> >(cp, this);
 
 		GToken token("GAdaptorT<T>", e);
 
@@ -798,8 +798,8 @@ protected:
 	 * @param gb A pointer to another GAdaptorT<T>, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject *cp) override {
-		// Convert cp into local format
-		const GAdaptorT<T> *p_load = gobject_conversion<GAdaptorT<T> >(cp);
+		// Check that we are dealing with a GAdaptorT<T> reference independent of this object and convert the pointer
+		const GAdaptorT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorT<T> >(cp, this);
 
 		// Load the parent class'es data
 		GObject::load_(cp);
