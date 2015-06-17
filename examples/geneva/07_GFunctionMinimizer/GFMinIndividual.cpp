@@ -184,9 +184,8 @@ double GFMinIndividual::getAverageSigma() const {
  * @param cp A copy of another GFMinIndividual, camouflaged as a GObject
  */
 void GFMinIndividual::load_(const GObject* cp){
-	// Check that we are indeed dealing with an object of the same type and that we are not
-	// accidently trying to compare this object with itself.
-	const GFMinIndividual *p_load = gobject_conversion<GFMinIndividual>(cp);
+	// Check that we are dealing with a GFMinIndividual reference independent of this object and convert the pointer
+	const GFMinIndividual *p_load = Gem::Common::g_convert_and_compare<GObject, GFMinIndividual>(cp, this);
 
 	// Load our parent class'es data ...
 	GParameterSet::load_(cp);

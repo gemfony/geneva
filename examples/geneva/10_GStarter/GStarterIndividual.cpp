@@ -208,8 +208,8 @@ void GStarterIndividual::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GStarterIndividual *p_load = gobject_conversion<GStarterIndividual>(&cp);
+	// Check that we are dealing with a GStarterIndividual reference independent of this object and convert the pointer
+	const GStarterIndividual *p_load = Gem::Common::g_convert_and_compare<GObject, GStarterIndividual>(&cp, this);
 
 	Gem::Common::GToken token("GStarterIndividual", e);
 
@@ -325,9 +325,8 @@ std::string GStarterIndividual::print() {
  * @param cp A copy of another GStarterIndividual, camouflaged as a GObject
  */
 void GStarterIndividual::load_(const GObject* cp){
-	// Check that we are indeed dealing with an object of the same type and that we are not
-	// accidently trying to compare this object with itself.
-	const GStarterIndividual *p_load = gobject_conversion<GStarterIndividual>(cp);
+	// Check that we are dealing with a GStarterIndividual reference independent of this object and convert the pointer
+	const GStarterIndividual *p_load = Gem::Common::g_convert_and_compare<GObject, GStarterIndividual>(cp, this);
 
 	// Load our parent class'es data ...
 	GParameterSet::load_(cp);

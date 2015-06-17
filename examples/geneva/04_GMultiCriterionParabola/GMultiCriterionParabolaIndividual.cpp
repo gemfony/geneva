@@ -150,7 +150,8 @@ void GMultiCriterionParabolaIndividual::setMinima(const std::vector<double>& min
  */
 void GMultiCriterionParabolaIndividual::load_(const GObject* cp)
 {
-	const GMultiCriterionParabolaIndividual *p_load = GObject::gobject_conversion<GMultiCriterionParabolaIndividual>(cp);
+	// Check that we are dealing with a GMultiCriterionParabolaIndividual reference independent of this object and convert the pointer
+	const GMultiCriterionParabolaIndividual *p_load = Gem::Common::g_convert_and_compare<GObject, GMultiCriterionParabolaIndividual>(cp, this);
 
 	// Load our parent's data ...
 	GParameterSet::load_(cp);

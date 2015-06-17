@@ -173,9 +173,8 @@ protected:
 	 * @param cp A copy of another GSigmaMonitor object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject* cp) {
-		// Check that we are indeed dealing with an object of the same type and that we are not
-		// accidently trying to compare this object with itself.
-		const GSigmaMonitor *p_load = gobject_conversion<GSigmaMonitor>(cp);
+		// Check that we are dealing with a GSigmaMonitor reference independent of this object and convert the pointer
+		const GSigmaMonitor *p_load = Gem::Common::g_convert_and_compare<GObject, GSigmaMonitor>(cp, this);
 
 		// Trigger loading of our parent class'es data
 		GBaseEA::GEAOptimizationMonitor::load_(cp);

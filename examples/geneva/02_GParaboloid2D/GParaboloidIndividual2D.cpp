@@ -86,7 +86,8 @@ GParaboloidIndividual2D::~GParaboloidIndividual2D()
  */
 void GParaboloidIndividual2D::load_(const GObject* cp)
 {
-	const GParaboloidIndividual2D *p_load = GObject::gobject_conversion<GParaboloidIndividual2D>(cp);
+	// Check that we are dealing with a GParaboloidIndividual2D reference independent of this object and convert the pointer
+	const GParaboloidIndividual2D *p_load = Gem::Common::g_convert_and_compare<GObject, GParaboloidIndividual2D>(cp, this);
 
 	// Load our parent's data
 	GParameterSet::load_(cp);

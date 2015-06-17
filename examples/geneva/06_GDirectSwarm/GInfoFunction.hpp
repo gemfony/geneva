@@ -210,8 +210,8 @@ public:
 		, const Gem::Common::expectation& e
 		, const double& limit
 	) const override {
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const progressMonitor *p_load = GObject::gobject_conversion<progressMonitor >(&cp);
+		// Check that we are dealing with a progressMonitor reference independent of this object and convert the pointer
+		const progressMonitor *p_load = Gem::Common::g_convert_and_compare<GObject, progressMonitor>(&cp, this);
 
 		Gem::Common::GToken token("progressMonitor", e);
 
@@ -403,7 +403,8 @@ protected:
 	 * @param cp A pointer to another progressMonitor object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject * cp) override {
-		const progressMonitor *p_load = gobject_conversion<progressMonitor>(cp);
+		// Check that we are dealing with a progressMonitor reference independent of this object and convert the pointer
+		const progressMonitor *p_load = Gem::Common::g_convert_and_compare<GObject, progressMonitor>(cp, this);
 
 		// First load the parent class'es data ...
 		GSerialSwarm::GSwarmOptimizationMonitor::load_(cp);
