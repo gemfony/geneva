@@ -165,8 +165,8 @@ std::string GParameterObjectCollection::name() const {
  * @param cp A copy of another GParameterObjectCollection object, camouflaged as a GObject
  */
 void GParameterObjectCollection::load_(const GObject *cp) {
-	// Check for a possible self-assignment
-	GObject::selfAssignmentCheck<GParameterObjectCollection>(cp);
+	// Convert the pointer to our target type and check for self-assignment
+	const GParameterObjectCollection * p_load = Gem::Common::g_convert_and_compare<GObject, GParameterObjectCollection>(cp, this);
 
 	// Load our parent class'es data ...
 	GParameterTCollectionT<GParameterBase>::load_(cp);

@@ -78,10 +78,8 @@ const GSerialEA &GSerialEA::operator=(const GSerialEA &cp) {
  * @param vp Pointer to another GSerialEA object, camouflaged as a GObject
  */
 void GSerialEA::load_(const GObject *cp) {
-	// Convert GObject pointer to local format
-	// const GSerialEA *p_load = this->gobject_conversion<GSerialEA>(cp);
-	// Uncomment the previous line and comment the following line if you wish to use local data
-	GObject::selfAssignmentCheck<GSerialEA>(cp);
+	// Convert the pointer to our target type and check for self-assignment
+	const GSerialEA * p_load = Gem::Common::g_convert_and_compare<GObject, GSerialEA>(cp, this);
 
 	// First load our parent class'es data ...
 	GBaseEA::load_(cp);

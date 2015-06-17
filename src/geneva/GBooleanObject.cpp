@@ -377,8 +377,8 @@ void GBooleanObject::assignBooleanValueVectors(
  * @param cp A copy of another GBooleanObject object, camouflaged as a GObject
  */
 void GBooleanObject::load_(const GObject *cp) {
-	// Check for a possible self-assignment
-	GObject::selfAssignmentCheck<GBooleanObject>(cp);
+	// Convert the pointer to our target type and check for self-assignment
+	const GBooleanObject * p_load = Gem::Common::g_convert_and_compare<GObject, GBooleanObject >(cp, this);
 
 	// Load our parent class'es data ...
 	GParameterT<bool>::load_(cp);

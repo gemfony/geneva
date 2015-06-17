@@ -293,8 +293,8 @@ void GInt32Collection::assignInt32ValueVectors(
  * @param cp A copy of another GInt32Collection object, camouflaged as a GObject
  */
 void GInt32Collection::load_(const GObject *cp) {
-	// Check that we are not accidently assigning this object to itself
-	GObject::selfAssignmentCheck<GInt32Collection>(cp);
+	// Convert the pointer to our target type and check for self-assignment
+	const GInt32Collection * p_load = Gem::Common::g_convert_and_compare<GObject, GInt32Collection>(cp, this);
 
 	// Load our parent class'es data ...
 	GIntNumCollectionT<boost::int32_t>::load_(cp);

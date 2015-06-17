@@ -377,8 +377,8 @@ GParameterT<double>::setValue(transfer(this->value() - p->value()));
  * @param cp A copy of another GConstrainedDoubleObject object, camouflaged as a GObject
  */
 void GConstrainedDoubleObject::load_(const GObject *cp) {
-	// Check for a possible self-assignment
-	GObject::selfAssignmentCheck<GConstrainedDoubleObject>(cp);
+	// Convert the pointer to our target type and check for self-assignment
+	const GConstrainedDoubleObject * p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedDoubleObject>(cp, this);
 
 	// Load our parent class'es data ...
 	GConstrainedFPT<double>::load_(cp);

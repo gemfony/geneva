@@ -228,8 +228,8 @@ protected:
 	 * @param A copy of another GIntFlipAdaptorT, camouflaged as a GObject
 	 */
 	void load_(const GObject *cp) override	{
-		// Check that this object is not accidently assigned to itself
-		GObject::selfAssignmentCheck<GIntFlipAdaptorT<int_type> >(cp);
+		// Convert the pointer to our target type and check for self-assignment
+		const GIntFlipAdaptorT<int_type> * p_load = Gem::Common::g_convert_and_compare<GObject, GIntFlipAdaptorT<int_type> >(cp, this);
 
 		// Load the data of our parent class ...
 		GNumFlipAdaptorT<int_type>::load_(cp);

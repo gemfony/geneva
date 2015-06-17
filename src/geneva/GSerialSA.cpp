@@ -69,10 +69,8 @@ GSerialSA::~GSerialSA() { /* nothing */ }
  * @param vp Pointer to another GSerialSA object, camouflaged as a GObject
  */
 void GSerialSA::load_(const GObject *cp) {
-	// Convert GObject pointer to local format
-	// const GSerialSA *p_load = this->gobject_conversion<GSerialSA>(cp);
-	// Uncomment the previous line and comment the following line if you wish to use local data
-	GObject::selfAssignmentCheck<GSerialSA>(cp);
+	// Convert the pointer to our target type and check for self-assignment
+	const GSerialSA * p_load = Gem::Common::g_convert_and_compare<GObject, GSerialSA>(cp, this);
 
 	// First load our parent class'es data ...
 	GBaseSA::load_(cp);

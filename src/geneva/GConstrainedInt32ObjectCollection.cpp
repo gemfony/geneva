@@ -167,8 +167,8 @@ std::string GConstrainedInt32ObjectCollection::name() const {
  * @param cp A copy of another GConstrainedInt32ObjectCollection object, camouflaged as a GObject
  */
 void GConstrainedInt32ObjectCollection::load_(const GObject *cp) {
-	// Check for a possible self-assignment
-	GObject::selfAssignmentCheck<GConstrainedInt32ObjectCollection>(cp);
+	// Convert the pointer to our target type and check for self-assignment
+	const GConstrainedInt32ObjectCollection * p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedInt32ObjectCollection>(cp, this);
 
 	// Load our parent class'es data ...
 	GParameterTCollectionT<GConstrainedInt32Object>::load_(cp);

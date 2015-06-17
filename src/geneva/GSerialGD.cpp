@@ -154,10 +154,8 @@ std::string GSerialGD::name() const {
  * @param vp Pointer to another GSerialGD object, camouflaged as a GObject
  */
 void GSerialGD::load_(const GObject *cp) {
-	// Convert GObject pointer to local format
-	// const GSerialGD *p_load = this->gobject_conversion<GSerialGD>(cp);
-	// Uncomment the previous line and comment the following line if you wish to use local data
-	GObject::selfAssignmentCheck<GSerialGD>(cp);
+	// Convert the pointer to our target type and check for self-assignment
+	const GSerialGD * p_load = Gem::Common::g_convert_and_compare<GObject, GSerialGD>(cp, this);
 
 	// First load our parent class'es data ...
 	GBaseGD::load_(cp);

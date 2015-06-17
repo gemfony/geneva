@@ -145,8 +145,8 @@ GObject *GBooleanCollection::clone_() const {
  * @param gb A pointer to another GBooleanCollection object, camouflaged as a GObject
  */
 void GBooleanCollection::load_(const GObject *cp) {
-	// Check for a possible self-assignment
-	GObject::selfAssignmentCheck<GBooleanCollection>(cp);
+	// Convert the pointer to our target type and check for self-assignment
+	const GBooleanCollection * p_load = Gem::Common::g_convert_and_compare<GObject, GBooleanCollection >(cp, this);
 
 	GParameterCollectionT<bool>::load_(cp);
 }

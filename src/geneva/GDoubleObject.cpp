@@ -387,8 +387,8 @@ value()
  * @param cp A copy of another GDoubleObject object, camouflaged as a GObject
  */
 void GDoubleObject::load_(const GObject *cp) {
-	// Check that we are not accidently assigning this object to itself
-	GObject::selfAssignmentCheck<GDoubleObject>(cp);
+	// Convert the pointer to our target type and check for self-assignment
+	const GDoubleObject * p_load = Gem::Common::g_convert_and_compare<GObject, GDoubleObject>(cp, this);
 
 	// Load our parent class'es data ...
 	GNumFPT<double>::load_(cp);

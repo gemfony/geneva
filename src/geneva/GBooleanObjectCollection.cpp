@@ -187,8 +187,8 @@ std::string GBooleanObjectCollection::name() const {
  * @param cp A copy of another GBooleanObjectCollection object, camouflaged as a GObject
  */
 void GBooleanObjectCollection::load_(const GObject *cp) {
-	// Check for a possible self-assignment
-	GObject::selfAssignmentCheck<GBooleanObjectCollection>(cp);
+	// Convert the pointer to our target type and check for self-assignment
+	const GBooleanObjectCollection * p_load = Gem::Common::g_convert_and_compare<GObject, GBooleanObjectCollection>(cp, this);
 
 	// Load our parent class'es data ...
 	GParameterTCollectionT<GBooleanObject>::load_(cp);

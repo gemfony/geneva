@@ -170,8 +170,8 @@ std::string GConstrainedDoubleObjectCollection::name() const {
  * @param cp A copy of another GConstrainedDoubleObjectCollection object, camouflaged as a GObject
  */
 void GConstrainedDoubleObjectCollection::load_(const GObject *cp) {
-	// Check for a possible self-assignment
-	GObject::selfAssignmentCheck<GConstrainedDoubleObjectCollection>(cp);
+	// Convert the pointer to our target type and check for self-assignment
+	const GConstrainedDoubleObjectCollection * p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedDoubleObjectCollection>(cp, this);
 
 	// Load our parent class'es data ...
 	GParameterTCollectionT<GConstrainedDoubleObject>::load_(cp);

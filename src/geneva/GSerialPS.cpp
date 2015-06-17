@@ -143,10 +143,8 @@ std::string GSerialPS::name() const {
  * @param vp Pointer to another GSerialPS object, camouflaged as a GObject
  */
 void GSerialPS::load_(const GObject *cp) {
-	// Convert GObject pointer to local format
-	// const GSerialPS *p_load = this->gobject_conversion<GSerialPS>(cp);
-	// Uncomment the previous line and comment the following line if you wish to use local data
-	GObject::selfAssignmentCheck<GSerialPS>(cp);
+	// Convert the pointer to our target type and check for self-assignment
+	const GSerialPS * p_load = Gem::Common::g_convert_and_compare<GObject, GSerialPS>(cp, this);
 
 	// First load our parent class'es data ...
 	GBasePS::load_(cp);

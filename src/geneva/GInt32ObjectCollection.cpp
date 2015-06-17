@@ -167,8 +167,8 @@ std::string GInt32ObjectCollection::name() const {
  * @param cp A copy of another GInt32ObjectCollection object, camouflaged as a GObject
  */
 void GInt32ObjectCollection::load_(const GObject *cp) {
-	// Check that we are not accidently assigning this object to itself
-	GObject::selfAssignmentCheck<GInt32ObjectCollection>(cp);
+	// Convert the pointer to our target type and check for self-assignment
+	const GInt32ObjectCollection * p_load = Gem::Common::g_convert_and_compare<GObject, GInt32ObjectCollection>(cp, this);
 
 	// Load our parent class'es data ...
 	GParameterTCollectionT<GInt32Object>::load_(cp);

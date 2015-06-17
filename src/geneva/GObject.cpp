@@ -78,7 +78,7 @@ void GObject::compare(
 	using namespace Gem::Common;
 
 	// Check that cp isn't the same object as this one
-	this->selfAssignmentCheck<GObject>(&cp);
+	Gem::Common::ptrDifferenceCheck(&cp, this);
 
 	// No parent classes to check...
 
@@ -114,7 +114,7 @@ boost::optional<std::string> GObject::checkRelationshipWith(
 	using namespace Gem::Common;
 
 	// Check that cp isn't the same object as this one
-	this->selfAssignmentCheck<GObject>(&cp);
+	Gem::Common::ptrDifferenceCheck(&cp, this);
 
 	GToken token("GObject", e);
 
@@ -432,8 +432,8 @@ void GObject::readConfigFile(const std::string &configFile) {
  * @param cp A pointer to another GObject object
  */
 void GObject::load_(const GObject *cp) {
-	// Checks whether we are accidently assigning the object to itself
-	selfAssignmentCheck<GObject>(cp);
+	// Check that cp isn't the same object as this one
+	Gem::Common::ptrDifferenceCheck(cp, this);
 
 	// No local data
 }

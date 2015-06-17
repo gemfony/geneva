@@ -146,7 +146,8 @@ const target_type * g_ptr_conversion (
 	} else {
 		glogger
 		<< "In const target_type* g_ptr_conversion<target_type, base_type>() :" << std::endl
-		<< "Invalid conversion to type with type name " << typeid(target_type).name() << std::endl
+		<< "Invalid conversion from type with name " << typeid(base_type).name() << std::endl
+		<< "to type with name " << typeid(target_type).name() << std::endl
 		<< GEXCEPTION;
 
 		// Make the compiler happy
@@ -177,7 +178,8 @@ std::shared_ptr<target_type> g_ptr_conversion (
 	} else {
 		glogger
 		<< "In std::shared_ptr<target_type> g_ptr_conversion<target_type, base_type>() :" << std::endl
-		<< "Invalid conversion to type with type name " << typeid(target_type).name() << std::endl
+		<< "Invalid conversion from type with name " << typeid(base_type).name() << std::endl
+		<< "to type with name " << typeid(target_type).name() << std::endl
 		<< GEXCEPTION;
 	}
 #else
@@ -200,14 +202,17 @@ std::shared_ptr<target_type> g_ptr_conversion (
 template <typename base_type, typename target_type>
 std::shared_ptr<target_type> g_convert_and_compare (
 	std::shared_ptr<base_type> convert_ptr
-	, std::shared_ptr<base_type> compare_ptr
+	, std::shared_ptr<target_type> compare_ptr
 	, typename boost::enable_if<boost::is_base_of<base_type, target_type> >::type* dummy = 0
 ) {
-	// Compare the two pointers (will throw in case of equality)
-	ptrDifferenceCheck(convert_ptr, compare_ptr);
+	// Convert the base pointer -- this call will throw, if conversion cannot be done
+	std::shared_ptr<target_type> p =  g_ptr_conversion<base_type, target_type>(convert_ptr);
 
-	// Then convert and return the base pointer -- tis call will throw, if conversion cannot be done
-	return g_ptr_conversion<base_type, target_type>(convert_ptr);
+	// Then compare the two pointers (will throw in case of equality)
+	ptrDifferenceCheck(p, compare_ptr);
+
+	// Return the converted pointer
+	return p;
 }
 
 /******************************************************************************/
@@ -225,14 +230,17 @@ std::shared_ptr<target_type> g_convert_and_compare (
 template <typename base_type, typename target_type>
 const target_type* g_convert_and_compare (
 	const base_type * convert_ptr
-	, const base_type * compare_ptr
+	, const target_type * compare_ptr
 	, typename boost::enable_if<boost::is_base_of<base_type, target_type> >::type* dummy = 0
 ) {
-	// Compare the two pointers (will throw in case of equality)
-	ptrDifferenceCheck(convert_ptr, compare_ptr);
+	// Convert the base pointer -- this call will throw, if conversion cannot be done
+	const target_type * p =  g_ptr_conversion<base_type, target_type>(convert_ptr);
 
-	// Then convert and return the base pointer -- tis call will throw, if conversion cannot be done
-	return g_ptr_conversion<base_type, target_type>(convert_ptr);
+	// Then compare the two pointers (will throw in case of equality)
+	ptrDifferenceCheck(p, compare_ptr);
+
+	// Return the converted pointer
+	return p;
 }
 
 /******************************************************************************/

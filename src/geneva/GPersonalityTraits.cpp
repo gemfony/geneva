@@ -145,8 +145,8 @@ std::string GPersonalityTraits::name() const {
  * @param cp A copy of another GPersonalityTraits object, camouflaged as a GObject
  */
 void GPersonalityTraits::load_(const GObject *cp) {
-	// Check that we are not accidently assigning this object to itself
-	GObject::selfAssignmentCheck<GPersonalityTraits>(cp);
+	// Convert the pointer to our target type and check for self-assignment
+	const GPersonalityTraits * p_load = Gem::Common::g_convert_and_compare<GObject, GPersonalityTraits>(cp, this);
 
 	// Load the parent class'es data
 	GObject::load_(cp);

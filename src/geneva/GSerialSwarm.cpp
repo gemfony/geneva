@@ -76,10 +76,8 @@ GSerialSwarm::~GSerialSwarm() { /* nothing */ }
  * @param vp Pointer to another GSerialSwarm object, camouflaged as a GObject
  */
 void GSerialSwarm::load_(const GObject *cp) {
-	// Convert GObject pointer to local format
-	// const GSerialSwarm *p_load = this->gobject_conversion<GSerialSwarm>(cp);
-	// Uncomment the previous line and comment the following line if you wish to use local data
-	GObject::selfAssignmentCheck<GSerialSwarm>(cp);
+	// Convert the pointer to our target type and check for self-assignment
+	const GSerialSwarm * p_load = Gem::Common::g_convert_and_compare<GObject, GSerialSwarm>(cp, this);
 
 	// First load our parent class'es data ...
 	GBaseSwarm::load_(cp);

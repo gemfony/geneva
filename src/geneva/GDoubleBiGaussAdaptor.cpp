@@ -167,8 +167,8 @@ std::string GDoubleBiGaussAdaptor::name() const {
  * @param cp A copy of another GDoubleBiGaussAdaptor object, camouflaged as a GObject
  */
 void GDoubleBiGaussAdaptor::load_(const GObject *cp) {
-	// Check that we are not accidently assigning this object to itself
-	GObject::selfAssignmentCheck<GDoubleBiGaussAdaptor>(cp);
+	// Convert the pointer to our target type and check for self-assignment
+	const GDoubleBiGaussAdaptor * p_load = Gem::Common::g_convert_and_compare<GObject, GDoubleBiGaussAdaptor>(cp, this);
 
 	// Load our parent class'es data ...
 	GFPBiGaussAdaptorT<double>::load_(cp);

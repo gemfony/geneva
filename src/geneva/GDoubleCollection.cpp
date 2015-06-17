@@ -459,8 +459,8 @@ value(pos)
  * @param cp A copy of another GDoubleCollection object, camouflaged as a GObject
  */
 void GDoubleCollection::load_(const GObject *cp) {
-	// Check that we are not accidently assigning this object to itself
-	GObject::selfAssignmentCheck<GDoubleCollection>(cp);
+	// Convert the pointer to our target type and check for self-assignment
+	const GDoubleCollection * p_load = Gem::Common::g_convert_and_compare<GObject, GDoubleCollection>(cp, this);
 
 	// Load our parent class'es data ...
 	GFPNumCollectionT<double>::load_(cp);

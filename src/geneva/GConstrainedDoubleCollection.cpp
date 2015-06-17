@@ -450,10 +450,8 @@ GParameterCollectionT<double>::setValue(
  * @param cp A copy of another GConstrainedDoubleCollection object, camouflaged as a GObject
  */
 void GConstrainedDoubleCollection::load_(const GObject *cp) {
-	// Convert cp into local format
-	// const GConstrainedDoubleCollection *p_load = GObject::gobject_conversion<GConstrainedDoubleCollection>(cp);
-	// Uncomment the previous line and comment the following line if you wish to use local data
-	GObject::selfAssignmentCheck<GConstrainedDoubleCollection>(cp);
+	// Convert the pointer to our target type and check for self-assignment
+	const GConstrainedDoubleCollection * p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedDoubleCollection>(cp, this);
 
 	// Load our parent class'es data ...
 	GConstrainedFPNumCollectionT<double>::load_(cp);

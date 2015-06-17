@@ -166,8 +166,8 @@ std::string GDoubleObjectCollection::name() const {
  * @param cp A copy of another GDoubleObjectCollection object, camouflaged as a GObject
  */
 void GDoubleObjectCollection::load_(const GObject *cp) {
-	// Check that we are not accidently assigning this object to itself
-	GObject::selfAssignmentCheck<GDoubleObjectCollection>(cp);
+	// Convert the pointer to our target type and check for self-assignment
+	const GDoubleObjectCollection * p_load = Gem::Common::g_convert_and_compare<GObject, GDoubleObjectCollection>(cp, this);
 
 	// Load our parent class'es data ...
 	GParameterTCollectionT<GDoubleObject>::load_(cp);

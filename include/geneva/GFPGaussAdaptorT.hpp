@@ -245,8 +245,8 @@ protected:
 	 * @param cp A copy of another GFPGaussAdaptorT<fp_type> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject* cp) override {
-		// Check that we are not accidently assigning this object to itself
-		GObject::selfAssignmentCheck<GFPGaussAdaptorT<fp_type> >(cp);
+		// Convert the pointer to our target type and check for self-assignment
+		const GFPGaussAdaptorT<fp_type> * p_load = Gem::Common::g_convert_and_compare<GObject, GFPGaussAdaptorT<fp_type> >(cp, this);
 
 		// Load our parent class'es data ...
 		GNumGaussAdaptorT<fp_type, fp_type>::load_(cp);

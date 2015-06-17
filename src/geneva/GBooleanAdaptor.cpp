@@ -191,8 +191,8 @@ bool GBooleanAdaptor::randomInit() {
  * @param cp A copy of another GBooleanAdaptor object, camouflaged as a GObject
  */
 void GBooleanAdaptor::load_(const GObject *cp) {
-	// Check for a possible self-assignment
-	GObject::selfAssignmentCheck<GBooleanAdaptor>(cp);
+	// Convert the pointer to our target type and check for self-assignment
+	const GBooleanAdaptor * p_load = Gem::Common::g_convert_and_compare<GObject, GBooleanAdaptor >(cp, this);
 
 	// Load our parent class'es data ...
 	GAdaptorT<bool>::load_(cp);

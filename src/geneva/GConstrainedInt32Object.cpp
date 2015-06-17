@@ -299,8 +299,8 @@ void GConstrainedInt32Object::assignInt32ValueVectors(
  * @param cp A copy of another GConstrainedInt32Object object, camouflaged as a GObject
  */
 void GConstrainedInt32Object::load_(const GObject *cp) {
-	// Check for a possible self-assignment
-	GObject::selfAssignmentCheck<GConstrainedInt32Object>(cp);
+	// Convert the pointer to our target type and check for self-assignment
+	const GConstrainedInt32Object * p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedInt32Object>(cp, this);
 
 	// Load our parent class'es data ...
 	GConstrainedIntT<boost::int32_t>::load_(cp);
