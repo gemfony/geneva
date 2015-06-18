@@ -129,8 +129,8 @@ void GBrokerGD::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GBrokerGD *p_load = GObject::gobject_conversion<GBrokerGD>(&cp);
+	// Check that we are dealing with a GBrokerGD reference independent of this object and convert the pointer
+	const GBrokerGD *p_load = Gem::Common::g_convert_and_compare<GObject, GBrokerGD >(cp, this);
 
 	GToken token("GBrokerGD", e);
 
@@ -171,7 +171,8 @@ bool GBrokerGD::usesBroker() const {
  * @param vp Pointer to another GBrokerGD object, camouflaged as a GObject
  */
 void GBrokerGD::load_(const GObject *cp) {
-	const GBrokerGD *p_load = gobject_conversion<GBrokerGD>(cp);
+	// Check that we are dealing with a GBrokerGD reference independent of this object and convert the pointer
+	const GBrokerGD *p_load = Gem::Common::g_convert_and_compare<GObject, GBrokerGD >(cp, this);
 
 	// Load the parent classes' data ...
 	GBaseGD::load_(cp);

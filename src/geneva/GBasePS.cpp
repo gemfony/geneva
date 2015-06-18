@@ -256,8 +256,8 @@ void GBasePS::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBasePS reference
-	const GBasePS *p_load = GObject::gobject_conversion<GBasePS>(&cp);
+	// Check that we are dealing with a GBasePS reference independent of this object and convert the pointer
+	const GBasePS *p_load = Gem::Common::g_convert_and_compare<GObject, GBasePS>(cp, this);
 
 	GToken token("GBasePS", e);
 
@@ -308,7 +308,8 @@ std::size_t GBasePS::getNMonitorInds() const {
  * @param cp A pointer to another GBasePS object, camouflaged as a GObject
  */
 void GBasePS::load_(const GObject *cp) {
-	const GBasePS *p_load = this->gobject_conversion<GBasePS>(cp);
+	// Check that we are dealing with a GBasePS reference independent of this object and convert the pointer
+	const GBasePS *p_load = Gem::Common::g_convert_and_compare<GObject, GBasePS>(cp, this);
 
 	// First load the parent class'es data.
 	// This will also take care of copying all individuals.
@@ -1199,8 +1200,8 @@ void GBasePS::GPSOptimizationMonitor::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GBasePS::GPSOptimizationMonitor *p_load = GObject::gobject_conversion<GBasePS::GPSOptimizationMonitor>(&cp);
+	// Check that we are dealing with a GBasePS::GPSOptimizationMonitor reference independent of this object and convert the pointer
+	const GBasePS::GPSOptimizationMonitor *p_load = Gem::Common::g_convert_and_compare<GObject, GBasePS::GPSOptimizationMonitor>(cp, this);
 
 	GToken token("GBasePS::GPSOptimizationMonitor", e);
 
@@ -1378,7 +1379,8 @@ void GBasePS::GPSOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GP
  * @param cp A pointer to another GPSOptimizationMonitor object, camouflaged as a GObject
  */
 void GBasePS::GPSOptimizationMonitor::load_(const GObject *cp) {
-	const GBasePS::GPSOptimizationMonitor *p_load = gobject_conversion<GBasePS::GPSOptimizationMonitor>(cp);
+	// Check that we are dealing with a GBasePS::GPSOptimizationMonitor reference independent of this object and convert the pointer
+	const GBasePS::GPSOptimizationMonitor *p_load = Gem::Common::g_convert_and_compare<GObject, GBasePS::GPSOptimizationMonitor>(cp, this);
 
 	// Load the parent classes' data ...
 	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::load_(cp);

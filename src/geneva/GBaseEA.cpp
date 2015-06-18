@@ -132,7 +132,8 @@ bool GBaseEA::operator!=(const GBaseEA &cp) const {
  * @param cp A pointer to another GBaseEA object, camouflaged as a GObject
  */
 void GBaseEA::load_(const GObject *cp) {
-	const GBaseEA *p_load = gobject_conversion<GBaseEA>(cp);
+	// Check that we are dealing with a GBaseEA reference independent of this object and convert the pointer
+	const GBaseEA *p_load = Gem::Common::g_convert_and_compare<GObject, GBaseEA>(cp, this);
 
 	// First load the parent class'es data ...
 	GParameterSetParChild::load_(cp);
@@ -155,8 +156,8 @@ void GBaseEA::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GBaseEA *p_load = GObject::gobject_conversion<GBaseEA>(&cp);
+	// Check that we are dealing with a GBaseEA reference independent of this object and convert the pointer
+	const GBaseEA *p_load = Gem::Common::g_convert_and_compare<GObject, GBaseEA>(cp, this);
 
 	GToken token("GBaseEA", e);
 
@@ -923,8 +924,8 @@ void GBaseEA::GEAOptimizationMonitor::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GBaseEA::GEAOptimizationMonitor *p_load = GObject::gobject_conversion<GBaseEA::GEAOptimizationMonitor>(&cp);
+	// Check that we are dealing with a GBaseEA::GEAOptimizationMonito reference independent of this object and convert the pointer
+	const GBaseEA::GEAOptimizationMonitor *p_load = Gem::Common::g_convert_and_compare<GObject, GBaseEA::GEAOptimizationMonitor>(cp, this);
 
 	GToken token("GBaseEA::GEAOptimizationMonitor", e);
 
@@ -1174,7 +1175,8 @@ std::size_t GBaseEA::GEAOptimizationMonitor::getNMonitorIndividuals() const {
  * cp A pointer to another GBaseEA::GEAOptimizationMonitor object, camouflaged as a GObject
  */
 void GBaseEA::GEAOptimizationMonitor::load_(const GObject *cp) {
-	const GBaseEA::GEAOptimizationMonitor *p_load = gobject_conversion<GBaseEA::GEAOptimizationMonitor>(cp);
+	// Check that we are dealing with a GBaseEA::GEAOptimizationMonito reference independent of this object and convert the pointer
+	const GBaseEA::GEAOptimizationMonitor *p_load = Gem::Common::g_convert_and_compare<GObject, GBaseEA::GEAOptimizationMonitor>(cp, this);
 
 	// Load the parent classes' data ...
 	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::load_(cp);

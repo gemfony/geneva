@@ -280,8 +280,8 @@ void GBooleanCollection::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GBooleanCollection *p_load = GObject::gobject_conversion<GBooleanCollection>(&cp);
+	// Check that we are dealing with a GBooleanCollection reference independent of this object and convert the pointer
+	const GBooleanCollection *p_load = Gem::Common::g_convert_and_compare<GObject, GBooleanCollection >(cp, this);
 
 	GToken token("GBooleanCollection", e);
 

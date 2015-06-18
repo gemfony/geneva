@@ -154,8 +154,8 @@ void GBooleanAdaptor::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseSwarm reference
-	const GBooleanAdaptor *p_load = GObject::gobject_conversion<GBooleanAdaptor>(&cp);
+	// Check that we are dealing with a GBooleanAdaptor reference independent of this object and convert the pointer
+	const GBooleanAdaptor *p_load = Gem::Common::g_convert_and_compare<GObject, GBooleanAdaptor >(cp, this);
 
 	GToken token("GBooleanAdaptor", e);
 

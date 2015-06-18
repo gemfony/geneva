@@ -71,7 +71,8 @@ GBrokerSA::~GBrokerSA() { /* nothing */}
  * @param cp A pointer to another GBrokerSA object, camouflaged as a GObject
  */
 void GBrokerSA::load_(const GObject *cp) {
-	const GBrokerSA *p_load = gobject_conversion<GBrokerSA>(cp);
+	// Check that we are dealing with a GBrokerSA reference independent of this object and convert the pointer
+	const GBrokerSA *p_load = Gem::Common::g_convert_and_compare<GObject, GBrokerSA >(cp, this);
 
 	// Load the parent classes' data ...
 	GBaseSA::load_(cp);
@@ -146,12 +147,14 @@ bool GBrokerSA::operator!=(const GBrokerSA &cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBrokerSA::compare(
-	const GObject &cp, const Gem::Common::expectation &e, const double &limit
+	const GObject &cp
+	, const Gem::Common::expectation &e
+	, const double &limit
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GBrokerSA *p_load = GObject::gobject_conversion<GBrokerSA>(&cp);
+	// Check that we are dealing with a GBrokerSA reference independent of this object and convert the pointer
+	const GBrokerSA *p_load = Gem::Common::g_convert_and_compare<GObject, GBrokerSA >(cp, this);
 
 	GToken token("GBrokerSA", e);
 

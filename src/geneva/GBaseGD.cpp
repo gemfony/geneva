@@ -287,8 +287,8 @@ void GBaseGD::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GBaseGD *p_load = GObject::gobject_conversion<GBaseGD>(&cp);
+	// Check that we are dealing with a GBaseGD reference independent of this object and convert the pointer
+	const GBaseGD *p_load = Gem::Common::g_convert_and_compare<GObject, GBaseGD>(cp, this);
 
 	GToken token("GBaseGD", e);
 
@@ -398,7 +398,8 @@ void GBaseGD::loadCheckpoint(const boost::filesystem::path &cpFile) {
  * @param cp A pointer to another GBaseGD object, camouflaged as a GObject
  */
 void GBaseGD::load_(const GObject *cp) {
-	const GBaseGD *p_load = this->gobject_conversion<GBaseGD>(cp);
+	// Check that we are dealing with a GBaseGD reference independent of this object and convert the pointer
+	const GBaseGD *p_load = Gem::Common::g_convert_and_compare<GObject, GBaseGD>(cp, this);
 
 	// First load the parent class'es data.
 	// This will also take care of copying all individuals.
@@ -961,8 +962,8 @@ void GBaseGD::GGDOptimizationMonitor::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GBaseGD::GGDOptimizationMonitor *p_load = GObject::gobject_conversion<GBaseGD::GGDOptimizationMonitor>(&cp);
+	// Check that we are dealing with a GBaseGD::GGDOptimizationMonitor reference independent of this object and convert the pointer
+	const GBaseGD::GGDOptimizationMonitor *p_load = Gem::Common::g_convert_and_compare<GObject, GBaseGD::GGDOptimizationMonitor>(cp, this);
 
 	GToken token("GBaseGD::GGDOptimizationMonitor", e);
 
@@ -1109,7 +1110,8 @@ void GBaseGD::GGDOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GP
  * cp A pointer to another GGDOptimizationMonitor object, camouflaged as a GObject
  */
 void GBaseGD::GGDOptimizationMonitor::load_(const GObject *cp) {
-	const GBaseGD::GGDOptimizationMonitor *p_load = gobject_conversion<GBaseGD::GGDOptimizationMonitor>(cp);
+	// Check that we are dealing with a GBaseGD::GGDOptimizationMonitor reference independent of this object and convert the pointer
+	const GBaseGD::GGDOptimizationMonitor *p_load = Gem::Common::g_convert_and_compare<GObject, GBaseGD::GGDOptimizationMonitor>(cp, this);
 
 	// Load the parent classes' data ...
 	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::load_(cp);

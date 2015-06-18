@@ -73,7 +73,8 @@ GBrokerEA::~GBrokerEA() { /* nothing */}
  * @param cp A pointer to another GBrokerEA object, camouflaged as a GObject
  */
 void GBrokerEA::load_(const GObject *cp) {
-	const GBrokerEA *p_load = gobject_conversion<GBrokerEA>(cp);
+	// Check that we are dealing with a GBrokerEA reference independent of this object and convert the pointer
+	const GBrokerEA *p_load = Gem::Common::g_convert_and_compare<GObject, GBrokerEA >(cp, this);
 
 	// Load the parent classes' data ...
 	GBaseEA::load_(cp);
@@ -152,8 +153,8 @@ void GBrokerEA::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GBrokerEA *p_load = GObject::gobject_conversion<GBrokerEA>(&cp);
+	// Check that we are dealing with a GBrokerEA reference independent of this object and convert the pointer
+	const GBrokerEA *p_load = Gem::Common::g_convert_and_compare<GObject, GBrokerEA >(cp, this);
 
 	GToken token("GBrokerEA", e);
 

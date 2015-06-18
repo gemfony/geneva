@@ -204,7 +204,8 @@ std::string GBaseSwarm::getOptimizationAlgorithm() const {
  * @param cp A pointer to another GBaseSwarm object, camouflaged as a GObject
  */
 void GBaseSwarm::load_(const GObject *cp) {
-	const GBaseSwarm *p_load = this->gobject_conversion<GBaseSwarm>(cp);
+	// Check that we are dealing with a GBooleanAdaptor reference independent of this object and convert the pointer
+	const GBaseSwarm *p_load = Gem::Common::g_convert_and_compare<GObject, GBaseSwarm >(cp, this);
 
 	// First load the parent class'es data.
 	// This will also take care of copying all individuals.
@@ -298,8 +299,8 @@ void GBaseSwarm::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseSwarm reference
-	const GBaseSwarm *p_load = GObject::gobject_conversion<GBaseSwarm>(&cp);
+	// Check that we are dealing with a GBooleanAdaptor reference independent of this object and convert the pointer
+	const GBaseSwarm *p_load = Gem::Common::g_convert_and_compare<GObject, GBaseSwarm >(cp, this);
 
 	GToken token("GBaseSwarm", e);
 
@@ -1637,9 +1638,8 @@ void GBaseSwarm::GSwarmOptimizationMonitor::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GBaseSwarm::GSwarmOptimizationMonitor *p_load = GObject::gobject_conversion<GBaseSwarm::GSwarmOptimizationMonitor>(
-		&cp);
+	// Check that we are dealing with a GBaseSwarm::GSwarmOptimizationMonitor reference independent of this object and convert the pointer
+	const GBaseSwarm::GSwarmOptimizationMonitor *p_load = Gem::Common::g_convert_and_compare<GObject, GBaseSwarm::GSwarmOptimizationMonitor >(cp, this);
 
 	GToken token("GBaseSwarm::GSwarmOptimizationMonitor", e);
 
@@ -1777,7 +1777,8 @@ void GBaseSwarm::GSwarmOptimizationMonitor::lastInformation(GOptimizationAlgorit
  * cp A pointer to another GSwarmOptimizationMonitor object, camouflaged as a GObject
  */
 void GBaseSwarm::GSwarmOptimizationMonitor::load_(const GObject *cp) {
-	const GBaseSwarm::GSwarmOptimizationMonitor *p_load = gobject_conversion<GBaseSwarm::GSwarmOptimizationMonitor>(cp);
+	// Check that we are dealing with a GBaseSwarm::GSwarmOptimizationMonitor reference independent of this object and convert the pointer
+	const GBaseSwarm::GSwarmOptimizationMonitor *p_load = Gem::Common::g_convert_and_compare<GObject, GBaseSwarm::GSwarmOptimizationMonitor >(cp, this);
 
 	// Load the parent classes' data ...
 	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::load_(cp);

@@ -98,7 +98,8 @@ const GBrokerSwarm &GBrokerSwarm::operator=(
  * @param cp A pointer to another GBrokerSwarm object, camouflaged as a GObject
  */
 void GBrokerSwarm::load_(const GObject *cp) {
-	const GBrokerSwarm *p_load = gobject_conversion<GBrokerSwarm>(cp);
+	// Check that we are dealing with a GBrokerSwarm reference independent of this object and convert the pointer
+	const GBrokerSwarm *p_load = Gem::Common::g_convert_and_compare<GObject, GBrokerSwarm >(cp, this);
 
 	// Load the parent classes' data ...
 	GBaseSwarm::load_(cp);
@@ -165,8 +166,8 @@ void GBrokerSwarm::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GBrokerSwarm *p_load = GObject::gobject_conversion<GBrokerSwarm>(&cp);
+	// Check that we are dealing with a GBrokerSwarm reference independent of this object and convert the pointer
+	const GBrokerSwarm *p_load = Gem::Common::g_convert_and_compare<GObject, GBrokerSwarm >(cp, this);
 
 	GToken token("GBrokerSwarm", e);
 
