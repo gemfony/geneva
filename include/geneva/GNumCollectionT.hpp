@@ -356,8 +356,8 @@ protected:
 	 * @param cp A copy of another GNumCollectionT<T> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject *cp) override {
-		// Convert cp into local format
-		const GNumCollectionT<T> *p_load = GObject::gobject_conversion<GNumCollectionT<T> >(cp);
+		// Check that we are dealing with a GNumCollectionT<T> reference independent of this object and convert the pointer
+		const GNumCollectionT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumCollectionT<T>>(cp, this);
 
 		// Load our parent class'es data ...
 		GParameterCollectionT<T>::load_(cp);

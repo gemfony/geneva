@@ -530,8 +530,8 @@ protected:
 	 * @param A copy of another GNumGaussAdaptorT<num_type, fp_type>, camouflaged as a GObject
 	 */
 	void load_(const GObject *cp) override {
-		// Convert GObject pointer to local format
-		const GNumGaussAdaptorT<num_type, fp_type> *p_load = GObject::gobject_conversion<GNumGaussAdaptorT<num_type, fp_type> >(cp);
+		// Check that we are dealing with a GNumGaussAdaptorT<num_type, fp_type> reference independent of this object and convert the pointer
+		const GNumGaussAdaptorT<num_type, fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumGaussAdaptorT<num_type, fp_type> >(cp, this);
 
 		// Load the data of our parent class ...
 		GAdaptorT<num_type>::load_(cp);

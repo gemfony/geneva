@@ -191,8 +191,8 @@ void GTestIndividual2::compare(
 	using namespace Gem::Common;
 	using namespace Gem::Geneva;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GTestIndividual2 *p_load = GObject::gobject_conversion<GTestIndividual2>(&cp);
+	// Check that we are dealing with a GTestIndividual2 reference independent of this object and convert the pointer
+	const GTestIndividual2 *p_load = Gem::Common::g_convert_and_compare<GObject, GTestIndividual2>(cp, this);
 
 	Gem::Common::GToken token("GTestIndividual2", e);
 
@@ -215,8 +215,8 @@ void GTestIndividual2::load_(const GObject *cp) {
 	using namespace Gem::Common;
 	using namespace Gem::Geneva;
 
-	// Check that we are indeed dealing with a GTestIndividual2 object
-	const GTestIndividual2 *p_load = gobject_conversion<GTestIndividual2>(cp);
+	// Check that we are dealing with a GTestIndividual2 reference independent of this object and convert the pointer
+	const GTestIndividual2 *p_load = Gem::Common::g_convert_and_compare<GObject, GTestIndividual2>(cp, this);
 
 	// Load our parent's data
 	GParameterSet::load_(cp);

@@ -111,8 +111,8 @@ void GParameterSetConstraint::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GParameterSetConstraint *p_load = GObject::gobject_conversion<GParameterSetConstraint>(&cp);
+	// Check that we are dealing with a GParameterSetConstraint reference independent of this object and convert the pointer
+	const GParameterSetConstraint *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterSetConstraint>(cp, this);
 
 	GToken token("GParameterSetConstraint", e);
 
@@ -152,9 +152,8 @@ double GParameterSetConstraint::check_(
  * Loads the data of another GParameterSetConstraint
  */
 void GParameterSetConstraint::load_(const GObject *cp) {
-	// Check that we are indeed dealing with an object of the same type and that we are not
-	// accidently trying to compare this object with itself.
-	const GParameterSetConstraint *p_load = GObject::gobject_conversion<GParameterSetConstraint>(cp);
+	// Check that we are dealing with a GParameterSetConstraint reference independent of this object and convert the pointer
+	const GParameterSetConstraint *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterSetConstraint>(cp, this);
 
 	// Load our parent class'es data ...
 	GPreEvaluationValidityCheckT<GOptimizableEntity>::load_(cp);
@@ -232,8 +231,8 @@ void GParameterSetFormulaConstraint::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GParameterSetFormulaConstraint *p_load = GObject::gobject_conversion<GParameterSetFormulaConstraint>(&cp);
+	// Check that we are dealing with a GParameterSetFormulaConstraint reference independent of this object and convert the pointer
+	const GParameterSetFormulaConstraint *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterSetFormulaConstraint>(cp, this);
 
 	GToken token("GParameterSetFormulaConstraint", e);
 
@@ -294,9 +293,8 @@ double GParameterSetFormulaConstraint::check_(
  * Loads the data of another GParameterSetFormulaConstraint
  */
 void GParameterSetFormulaConstraint::load_(const GObject *cp) {
-	// Check that we are indeed dealing with an object of the same type and that we are not
-	// accidently trying to compare this object with itself.
-	const GParameterSetFormulaConstraint *p_load = GObject::gobject_conversion<GParameterSetFormulaConstraint>(cp);
+	// Check that we are dealing with a GParameterSetFormulaConstraint reference independent of this object and convert the pointer
+	const GParameterSetFormulaConstraint *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterSetFormulaConstraint>(cp, this);
 
 	// Load our parent class'es data ...
 	GPreEvaluationValidityCheckT<GOptimizableEntity>::load_(cp);

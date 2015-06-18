@@ -114,8 +114,8 @@ void GSerialPS::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GSerialPS *p_load = GObject::gobject_conversion<GSerialPS>(&cp);
+	// Check that we are dealing with a GSerialPS reference independent of this object and convert the pointer
+	const GSerialPS *p_load = Gem::Common::g_convert_and_compare<GObject, GSerialPS>(cp, this);
 
 	GToken token("GSerialPS", e);
 

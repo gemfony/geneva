@@ -122,8 +122,8 @@ bool GExternalEvaluatorIndividual::operator!=(const GExternalEvaluatorIndividual
 void GExternalEvaluatorIndividual::compare(
 	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GExternalEvaluatorIndividual *p_load = GObject::gobject_conversion<GExternalEvaluatorIndividual>(&cp);
+	// Check that we are dealing with a GExternalEvaluatorIndividual reference independent of this object and convert the pointer
+	const GExternalEvaluatorIndividual *p_load = Gem::Common::g_convert_and_compare<GObject, GExternalEvaluatorIndividual>(cp, this);
 
 	Gem::Common::GToken token("GExternalEvaluatorIndividual", e);
 
@@ -233,8 +233,8 @@ std::size_t GExternalEvaluatorIndividual::getNExpectedResults() const {
  * @param cp A copy of another GExternalEvaluatorIndividual, camouflaged as a GObject
  */
 void GExternalEvaluatorIndividual::load_(const GObject *cp) {
-	// Convert to a local representation
-	const GExternalEvaluatorIndividual *p_load = gobject_conversion<GExternalEvaluatorIndividual>(cp);
+	// Check that we are dealing with a GExternalEvaluatorIndividual reference independent of this object and convert the pointer
+	const GExternalEvaluatorIndividual *p_load = Gem::Common::g_convert_and_compare<GObject, GExternalEvaluatorIndividual>(cp, this);
 
 	// First load the data of our parent class ...
 	GParameterSet::load_(cp);

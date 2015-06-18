@@ -138,8 +138,8 @@ void GLineFitIndividual::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GLineFitIndividual *p_load = GObject::gobject_conversion<GLineFitIndividual>(&cp);
+	// Check that we are dealing with a GLineFitIndividual reference independent of this object and convert the pointer
+	const GLineFitIndividual *p_load = Gem::Common::g_convert_and_compare<GObject, GLineFitIndividual>(cp, this);
 
 	GToken token("GLineFitIndividual", e);
 
@@ -173,8 +173,8 @@ void GLineFitIndividual::load_(const GObject *cp) {
 	using namespace Gem::Common;
 	using namespace Gem::Geneva;
 
-	// Check that we are indeed dealing with a GLineFitIndividual object
-	const GLineFitIndividual *p_load = gobject_conversion<GLineFitIndividual>(cp);
+	// Check that we are dealing with a GLineFitIndividual reference independent of this object and convert the pointer
+	const GLineFitIndividual *p_load = Gem::Common::g_convert_and_compare<GObject, GLineFitIndividual>(cp, this);
 
 	// Load our parent's data
 	GParameterSet::load_(cp);

@@ -174,8 +174,8 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const GNumFlipAdaptorT<num_type>  *p_load = GObject::gobject_conversion<GNumFlipAdaptorT<num_type> >(&cp);
+		// Check that we are dealing with a GNumFlipAdaptorT<num_type> reference independent of this object and convert the pointer
+		const GNumFlipAdaptorT<num_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumFlipAdaptorT<num_type> >(cp, this);
 
 		GToken token("GNumFlipAdaptorT<num_type>", e);
 

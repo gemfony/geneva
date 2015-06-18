@@ -142,8 +142,8 @@ void GSerialSwarm::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GSerialSwarm *p_load = GObject::gobject_conversion<GSerialSwarm>(&cp);
+	// Check that we are dealing with a GSerialSwarm reference independent of this object and convert the pointer
+	const GSerialSwarm *p_load = Gem::Common::g_convert_and_compare<GObject, GSerialSwarm>(cp, this);
 
 	GToken token("GSerialSwarm", e);
 

@@ -117,8 +117,8 @@ void GPSPersonalityTraits::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GPSPersonalityTraits *p_load = GObject::gobject_conversion<GPSPersonalityTraits>(&cp);
+	// Check that we are dealing with a GPSPersonalityTraits reference independent of this object and convert the pointer
+	const GPSPersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GPSPersonalityTraits>(cp, this);
 
 	GToken token("GPSPersonalityTraits", e);
 
@@ -157,7 +157,8 @@ GObject *GPSPersonalityTraits::clone_() const {
  * @param cp A copy of another GPSPersonalityTraits object, camouflaged as a GObject
  */
 void GPSPersonalityTraits::load_(const GObject *cp) {
-	const GPSPersonalityTraits *p_load = gobject_conversion<GPSPersonalityTraits>(cp);
+	// Check that we are dealing with a GPSPersonalityTraits reference independent of this object and convert the pointer
+	const GPSPersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GPSPersonalityTraits>(cp, this);
 
 	// Load the parent class'es data
 	GPersonalityTraits::load_(cp);
