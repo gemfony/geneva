@@ -2451,7 +2451,7 @@ protected:
 	virtual G_API_COMMON GBasePlotter* clone_() const;
 
 private:
-	GFunctionPlotter1D() = delete; ///< The default constructor -- intentionally private and undefined
+	GFunctionPlotter1D() = delete; ///< The default constructor
 
 	std::string functionDescription_;
 
