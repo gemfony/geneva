@@ -255,8 +255,8 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const GNumGaussAdaptorT<num_type, fp_type>  *p_load = GObject::gobject_conversion<GNumGaussAdaptorT<num_type, fp_type> >(&cp);
+		// Check that we are dealing with a GNumGaussAdaptorT<num_type, fp_type> reference independent of this object and convert the pointer
+		const GNumGaussAdaptorT<num_type, fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumGaussAdaptorT<num_type, fp_type> >(cp, this);
 
 		GToken token("GNumGaussAdaptorT<num_type, fp_type>", e);
 

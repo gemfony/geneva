@@ -217,8 +217,8 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const GNumCollectionT<T>  *p_load = GObject::gobject_conversion<GNumCollectionT<T> >(&cp);
+		// Check that we are dealing with a GNumCollectionT<T> reference independent of this object and convert the pointer
+		const GNumCollectionT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumCollectionT<T> >(cp, this);
 
 		GToken token("GNumCollectionT<T>", e);
 

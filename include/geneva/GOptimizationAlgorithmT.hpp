@@ -380,8 +380,8 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const GOptimizationAlgorithmT<ind_type> *p_load = GObject::gobject_conversion<GOptimizationAlgorithmT<ind_type> >(&cp);
+		// Check that we are dealing with a GOptimizationAlgorithmT<ind_type> reference independent of this object and convert the pointer
+		const GOptimizationAlgorithmT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GOptimizationAlgorithmT<ind_type> >(cp, this);
 
 		GToken token("GOptimizationAlgorithmT<ind_type>", e);
 
@@ -1170,7 +1170,8 @@ protected:
 	 * @param cp Another GOptimizationAlgorithm object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject* cp) override {
-		const GOptimizationAlgorithmT<ind_type> *p_load = GObject::gobject_conversion<GOptimizationAlgorithmT<ind_type> >(cp);
+		// Check that we are dealing with a GOptimizationAlgorithmT<ind_type> reference independent of this object and convert the pointer
+		const GOptimizationAlgorithmT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GOptimizationAlgorithmT<ind_type> >(cp, this);
 
 		// Load the parent class'es data
 		GMutableSetT<ind_type>::load_(cp);
@@ -1925,8 +1926,8 @@ public:
 		) const override {
 			using namespace Gem::Common;
 
-			// Check that we are indeed dealing with a GAdaptorT reference
-			const GBasePluggableOMT *p_load = GObject::gobject_conversion<GBasePluggableOMT>(&cp);
+			// Check that we are dealing with a GBasePluggableOMT reference independent of this object and convert the pointer
+			const GBasePluggableOMT *p_load = Gem::Common::g_convert_and_compare<GObject, GBasePluggableOMT >(cp, this);
 
 			GToken token("GBasePluggableOMT", e);
 
@@ -1974,7 +1975,8 @@ public:
 		 * cp A pointer to another GBasePluggableOMT object, camouflaged as a GObject
 		 */
 		virtual void load_(const GObject* cp) override {
-			const GBasePluggableOMT *p_load = GObject::gobject_conversion<GBasePluggableOMT>(cp);
+			// Check that we are dealing with a GBasePluggableOMT reference independent of this object and convert the pointer
+			const GBasePluggableOMT *p_load = Gem::Common::g_convert_and_compare<GObject, GBasePluggableOMT >(cp, this);
 
 			// Load the parent classes' data ...
 			GObject::load_(cp);
@@ -2143,8 +2145,8 @@ public:
 		) const override {
 			using namespace Gem::Common;
 
-			// Check that we are indeed dealing with a GAdaptorT reference
-			const GOptimizationMonitorT *p_load = GObject::gobject_conversion<GOptimizationMonitorT>(&cp);
+			// Check that we are dealing with a GOptimizationMonitorT reference independent of this object and convert the pointer
+			const GOptimizationMonitorT *p_load = Gem::Common::g_convert_and_compare<GObject, GOptimizationMonitorT >(cp, this);
 
 			GToken token("GOptimizationMonitorT", e);
 
@@ -2315,7 +2317,8 @@ public:
 		 * cp A pointer to another GOptimizationMonitorT object, camouflaged as a GObject
 		 */
 		virtual void load_(const GObject* cp) override {
-			const GOptimizationMonitorT *p_load = GObject::gobject_conversion<GOptimizationMonitorT>(cp);
+			// Check that we are dealing with a GOptimizationMonitorT reference independent of this object and convert the pointer
+			const GOptimizationMonitorT *p_load = Gem::Common::g_convert_and_compare<GObject, GOptimizationMonitorT >(cp, this);
 
 			// Load the parent classes' data ...
 			GObject::load_(cp);

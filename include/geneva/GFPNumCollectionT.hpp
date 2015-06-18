@@ -200,8 +200,8 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const GFPNumCollectionT<fp_type>  *p_load = GObject::gobject_conversion<GFPNumCollectionT<fp_type> >(&cp);
+		// Check that we are dealing with a GFPNumCollectionT<fp_type> reference independent of this object and convert the pointer
+		const GFPNumCollectionT<fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GFPNumCollectionT<fp_type> >(cp, this);
 
 		GToken token("GFPNumCollectionT<fp_type>", e);
 
@@ -233,8 +233,8 @@ protected:
 	 * @param cp A copy of another GFPNumCollectionT<fp_type> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject *cp) override {
-		// Convert cp into local format
-		const GFPNumCollectionT<fp_type> *p_load = GObject::gobject_conversion<GFPNumCollectionT<fp_type> >(cp);
+		// Check that we are dealing with a GFPNumCollectionT<fp_type> reference independent of this object and convert the pointer
+		const GFPNumCollectionT<fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GFPNumCollectionT<fp_type> >(cp, this);
 
 		// Load our parent class'es data ...
 		GNumCollectionT<fp_type>::load_(cp);

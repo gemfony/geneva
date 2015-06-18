@@ -281,9 +281,8 @@ public:
 	virtual void compare(
 		const GObject &cp, const Gem::Common::expectation &e, const double &limit
 	) const final {
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const GMetaOptimizerIndividualT<ind_type> *p_load
-			= gobject_conversion<GMetaOptimizerIndividualT<ind_type> >(&cp);
+		// Check that we are dealing with a GMetaOptimizerIndividualT<ind_type> reference independent of this object and convert the pointer
+		const GMetaOptimizerIndividualT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GMetaOptimizerIndividualT<ind_type>>(cp, this);
 
 		Gem::Common::GToken token("GMetaOptimizerIndividualT<ind_type>", e);
 
@@ -859,10 +858,8 @@ protected:
 	 * @param cp A copy of another GMetaOptimizerIndividualT<ind_type>, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject *cp) {
-		// Check that we are indeed dealing with an object of the same type and that we are not
-		// accidently trying to compare this object with itself.
-		const GMetaOptimizerIndividualT<ind_type> *p_load
-			= gobject_conversion<GMetaOptimizerIndividualT<ind_type> >(cp);
+		// Check that we are dealing with a GMetaOptimizerIndividualT<ind_type> reference independent of this object and convert the pointer
+		const GMetaOptimizerIndividualT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GMetaOptimizerIndividualT<ind_type>>(cp, this);
 
 		// Load our parent class'es data ...
 		GParameterSet::load_(cp);
@@ -1759,9 +1756,8 @@ protected:
 	  * @param cp A copy of another GOptOptMonitorT object, camouflaged as a GObject
 	  */
 	virtual void load_(const GObject *cp) {
-		// Check that we are indeed dealing with an object of the same type and that we are not
-		// accidently trying to compare this object with itself.
-		const GOptOptMonitorT<ind_type> *p_load = gobject_conversion<GOptOptMonitorT<ind_type> >(cp);
+		// Check that we are dealing with a GOptOptMonitorT<ind_type> reference independent of this object and convert the pointer
+		const GOptOptMonitorT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GOptOptMonitorT<ind_type> >(cp, this);
 
 		// Trigger loading of our parent class'es data
 		GBaseEA::GEAOptimizationMonitor::load_(cp);

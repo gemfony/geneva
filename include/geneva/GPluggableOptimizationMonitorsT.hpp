@@ -174,8 +174,8 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const GCollectiveMonitorT<ind_type> *p_load = GObject::gobject_conversion<GCollectiveMonitorT<ind_type> >(&cp);
+		// Check that we are dealing with a GCollectiveMonitorT<ind_type> reference independent of this object and convert the pointer
+		const GCollectiveMonitorT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GCollectiveMonitorT<ind_type> >(cp, this);
 
 		GToken token("GCollectiveMonitorT", e);
 
@@ -241,7 +241,8 @@ protected:
 	 * cp A pointer to another GCollectiveMonitorT<ind_type> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject* cp) override {
-		const GCollectiveMonitorT<ind_type> *p_load = GObject::gobject_conversion<GCollectiveMonitorT<ind_type> >(cp);
+		// Check that we are dealing with a GCollectiveMonitorT<ind_type> reference independent of this object and convert the pointer
+		const GCollectiveMonitorT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GCollectiveMonitorT<ind_type> >(cp, this);
 
 		// Load the parent classes' data ...
 		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
@@ -403,8 +404,8 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const GProgressPlotterT<ind_type, fp_type> *p_load = GObject::gobject_conversion<GProgressPlotterT<ind_type, fp_type> >(&cp);
+		// Check that we are dealing with a GProgressPlotterT<ind_type, fp_type reference independent of this object and convert the pointer
+		const GProgressPlotterT<ind_type, fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GProgressPlotterT<ind_type, fp_type> >(cp, this);
 
 		GToken token("GCollectiveMonitorT", e);
 
@@ -900,8 +901,8 @@ protected:
 	 * cp A pointer to another GProgressPlotterT<ind_type, fp_type> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject* cp) override {
-		const GProgressPlotterT<ind_type, fp_type> *p_load
-			= GObject::gobject_conversion<GProgressPlotterT<ind_type, fp_type> >(cp);
+		// Check that we are dealing with a GProgressPlotterT<ind_type, fp_type reference independent of this object and convert the pointer
+		const GProgressPlotterT<ind_type, fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GProgressPlotterT<ind_type, fp_type> >(cp, this);
 
 		// Load the parent classes' data ...
 		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
@@ -1081,8 +1082,8 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const GAllSolutionFileLoggerT<ind_type> *p_load = GObject::gobject_conversion<GAllSolutionFileLoggerT<ind_type> >(&cp);
+		// Check that we are dealing with a GAllSolutionFileLoggerT<ind_type> reference independent of this object and convert the pointer
+		const GAllSolutionFileLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAllSolutionFileLoggerT<ind_type> >(cp, this);
 
 		GToken token("GAllSolutionFileLoggerT", e);
 
@@ -1285,8 +1286,8 @@ protected:
 	 * cp A pointer to another GAllSolutionFileLoggerT<ind_type> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject* cp) override {
-		const GAllSolutionFileLoggerT<ind_type> *p_load
-			= GObject::gobject_conversion<GAllSolutionFileLoggerT<ind_type> >(cp);
+		// Check that we are dealing with a GAllSolutionFileLoggerT<ind_type> reference independent of this object and convert the pointer
+		const GAllSolutionFileLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAllSolutionFileLoggerT<ind_type> >(cp, this);
 
 		// Load the parent classes' data ...
 		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
@@ -1423,8 +1424,8 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const GIterationResultsFileLoggerT<ind_type> *p_load = GObject::gobject_conversion<GIterationResultsFileLoggerT<ind_type> >(&cp);
+		// Check that we are dealing with a GIterationResultsFileLoggerT<ind_type> reference independent of this object and convert the pointer
+		const GIterationResultsFileLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GIterationResultsFileLoggerT<ind_type> >(cp, this);
 
 		GToken token("GIterationResultsFileLoggerT", e);
 
@@ -1555,8 +1556,8 @@ protected:
 	 * cp A pointer to another GIterationResultsFileLoggerT<ind_type> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject* cp) override {
-		const GIterationResultsFileLoggerT<ind_type> *p_load
-			= GObject::gobject_conversion<GIterationResultsFileLoggerT<ind_type> >(cp);
+		// Check that we are dealing with a GIterationResultsFileLoggerT<ind_type> reference independent of this object and convert the pointer
+		const GIterationResultsFileLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GIterationResultsFileLoggerT<ind_type> >(cp, this);
 
 		// Load the parent classes' data ...
 		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
@@ -1701,8 +1702,8 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const GNAdpationsLoggerT<ind_type> *p_load = GObject::gobject_conversion<GNAdpationsLoggerT<ind_type> >(&cp);
+		// Check that we are dealing with a GNAdpationsLoggerT<ind_type> reference independent of this object and convert the pointer
+		const GNAdpationsLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNAdpationsLoggerT<ind_type> >(cp, this);
 
 		GToken token("GNAdpationsLoggerT", e);
 
@@ -1937,8 +1938,8 @@ protected:
 	 * cp A pointer to another GNAdpationsLoggerT<ind_type> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject* cp) override {
-		const GNAdpationsLoggerT<ind_type> *p_load
-			= GObject::gobject_conversion<GNAdpationsLoggerT<ind_type> >(cp);
+		// Check that we are dealing with a GNAdpationsLoggerT<ind_type> reference independent of this object and convert the pointer
+		const GNAdpationsLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNAdpationsLoggerT<ind_type> >(cp, this);
 
 		// Load the parent classes' data ...
 		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
@@ -2112,8 +2113,8 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const GAdaptorPropertyLoggerT<ind_type, num_type> *p_load = GObject::gobject_conversion<GAdaptorPropertyLoggerT<ind_type, num_type> >(&cp);
+		// Check that we are dealing with a GAdaptorPropertyLoggerT<ind_type, num_type> reference independent of this object and convert the pointer
+		const GAdaptorPropertyLoggerT<ind_type, num_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorPropertyLoggerT<ind_type, num_type> >(cp, this);
 
 		GToken token("GAdaptorPropertyLoggerT", e);
 
@@ -2383,8 +2384,8 @@ protected:
 	 * cp A pointer to another GAdaptorPropertyLoggerT<ind_type, num_type object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject* cp) override {
-		const GAdaptorPropertyLoggerT<ind_type, num_type> *p_load
-			= GObject::gobject_conversion<GAdaptorPropertyLoggerT<ind_type, num_type> >(cp);
+		// Check that we are dealing with a GAdaptorPropertyLoggerT<ind_type, num_type> reference independent of this object and convert the pointer
+		const GAdaptorPropertyLoggerT<ind_type, num_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorPropertyLoggerT<ind_type, num_type> >(cp, this);
 
 		// Load the parent classes' data ...
 		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);

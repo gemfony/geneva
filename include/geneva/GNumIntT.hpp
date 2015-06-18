@@ -221,8 +221,8 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const GNumIntT<int_type>  *p_load = GObject::gobject_conversion<GNumIntT<int_type> >(&cp);
+		// Check that we are dealing with a GNumIntT<int_type> reference independent of this object and convert the pointer
+		const GNumIntT<int_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumIntT<int_type> >(cp, this);
 
 		GToken token("GNumIntT<int_type>", e);
 
@@ -254,8 +254,8 @@ protected:
 	 * @param cp A copy of another GNumIntT<int_type> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject *cp) override {
-		// Convert cp into local format
-		const GNumIntT<int_type> *p_load = GObject::gobject_conversion<GNumIntT<int_type> >(cp);
+		// Check that we are dealing with a GNumIntT<int_type> reference independent of this object and convert the pointer
+		const GNumIntT<int_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumIntT<int_type> >(cp, this);
 
 		// Load our parent class'es data ...
 		GNumT<int_type>::load_(cp);

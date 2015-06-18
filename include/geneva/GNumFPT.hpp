@@ -222,8 +222,8 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const GNumFPT<fp_type>  *p_load = GObject::gobject_conversion<GNumFPT<fp_type> >(&cp);
+		// Check that we are dealing with a GNumFPT<fp_type> reference independent of this object and convert the pointer
+		const GNumFPT<fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumFPT<fp_type>>(cp, this);
 
 		GToken token("GNumFPT<fp_type>", e);
 

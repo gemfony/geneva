@@ -179,8 +179,8 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const GMutableSetT<T> *p_load = GObject::gobject_conversion<GMutableSetT<T> >(&cp);
+		// Check that we are dealing with a GMutableSetT<T> reference independent of this object and convert the pointer
+		const GMutableSetT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GMutableSetT<T> >(cp, this);
 
 		GToken token("GMutableSetT<T>", e);
 

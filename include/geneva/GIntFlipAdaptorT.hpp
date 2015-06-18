@@ -173,8 +173,8 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const GIntFlipAdaptorT<int_type>  *p_load = GObject::gobject_conversion<GIntFlipAdaptorT<int_type> >(&cp);
+		// Check that we are dealing with a GIntFlipAdaptorT<int_type> reference independent of this object and convert the pointer
+		const GIntFlipAdaptorT<int_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GIntFlipAdaptorT<int_type> >(cp, this);
 
 		GToken token("GIntFlipAdaptorT<int_type>", e);
 

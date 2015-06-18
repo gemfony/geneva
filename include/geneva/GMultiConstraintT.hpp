@@ -164,8 +164,8 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const GPreEvaluationValidityCheckT<ind_type> *p_load = GObject::gobject_conversion<GPreEvaluationValidityCheckT<ind_type> >(&cp);
+		// Check that we are dealing with a GPreEvaluationValidityCheckT<ind_type>  reference independent of this object and convert the pointer
+		const GPreEvaluationValidityCheckT<ind_type>  *p_load = Gem::Common::g_convert_and_compare<GObject, GPreEvaluationValidityCheckT<ind_type> >(cp, this);
 
 		GToken token("GPreEvaluationValidityCheckT<ind_type>", e);
 
@@ -304,9 +304,8 @@ protected:
 	 * Loads the data of another GPreEvaluationValidityCheckT<ind_type>
 	 */
 	virtual void load_(const GObject* cp) override {
-		// Check that we are indeed dealing with an object of the same type and that we are not
-		// accidently trying to compare this object with itself.
-		const GPreEvaluationValidityCheckT<ind_type> *p_load = GObject::gobject_conversion<GPreEvaluationValidityCheckT<ind_type> >(cp);
+		// Check that we are dealing with a GPreEvaluationValidityCheckT<ind_type>  reference independent of this object and convert the pointer
+		const GPreEvaluationValidityCheckT<ind_type>  *p_load = Gem::Common::g_convert_and_compare<GObject, GPreEvaluationValidityCheckT<ind_type> >(cp, this);
 
 		// Load our parent class'es data ...
 		GObject::load_(cp);
@@ -438,8 +437,8 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const GValidityCheckContainerT<ind_type> *p_load = GObject::gobject_conversion<GValidityCheckContainerT<ind_type> >(&cp);
+		// Check that we are dealing with a GValidityCheckContainerT<ind_type>  reference independent of this object and convert the pointer
+		const GValidityCheckContainerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GValidityCheckContainerT<ind_type> >(cp, this);
 
 		GToken token("GValidityCheckContainerT<ind_type>", e);
 
@@ -483,9 +482,8 @@ protected:
 	 * Loads the data of another GPreEvaluationValidityCheckT<ind_type>
 	 */
 	virtual void load_(const GObject* cp) override {
-		// Check that we are indeed dealing with an object of the same type and that we are not
-		// accidently trying to compare this object with itself.
-		const GValidityCheckContainerT<ind_type> *p_load = GObject::gobject_conversion<GValidityCheckContainerT<ind_type> >(cp);
+		// Check that we are dealing with a GValidityCheckContainerT<ind_type>  reference independent of this object and convert the pointer
+		const GValidityCheckContainerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GValidityCheckContainerT<ind_type> >(cp, this);
 
 		// Load our parent class'es data ...
 		GPreEvaluationValidityCheckT<ind_type>::load_(cp);
@@ -617,8 +615,8 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const GCheckCombinerT<ind_type> *p_load = GObject::gobject_conversion<GCheckCombinerT<ind_type> >(&cp);
+		// Check that we are dealing with a GCheckCombinerT<ind_type>  reference independent of this object and convert the pointer
+		const GCheckCombinerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GCheckCombinerT<ind_type> >(cp, this);
 
 		GToken token("GCheckCombinerT<ind_type", e);
 
@@ -750,9 +748,8 @@ protected:
 	 * Loads the data of another GPreEvaluationValidityCheckT<ind_type>
 	 */
 	virtual void load_(const GObject* cp) override {
-		// Check that we are indeed dealing with an object of the same type and that we are not
-		// accidently trying to compare this object with itself.
-		const GCheckCombinerT<ind_type> *p_load = GObject::gobject_conversion<GCheckCombinerT<ind_type> >(cp);
+		// Check that we are dealing with a GCheckCombinerT<ind_type>  reference independent of this object and convert the pointer
+		const GCheckCombinerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GCheckCombinerT<ind_type> >(cp, this);
 
 		// Load our parent class'es data ...
 		GPreEvaluationValidityCheckT<ind_type>::load_(cp);

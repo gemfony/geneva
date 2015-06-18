@@ -191,8 +191,8 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const GMultiPopulationEAT<oa_type> *p_load = GObject::gobject_conversion<GMultiPopulationEAT<oa_type> >(&cp);
+		// Check that we are dealing with a GMultiPopulationEAT<oa_type> reference independent of this object and convert the pointer
+		const GMultiPopulationEAT<oa_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GMultiPopulationEAT<oa_type> >(cp, this);
 
 		GToken token("GMultiPopulationEAT<oa_type>", e);
 
@@ -351,7 +351,8 @@ protected:
 	 * @param cp A pointer to another GMultiPopulationEAT object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject * cp) override {
-		const GMultiPopulationEAT<oa_type> *p_load = GObject::gobject_conversion<GMultiPopulationEAT<oa_type> >(cp);
+		// Check that we are dealing with a GMultiPopulationEAT<oa_type> reference independent of this object and convert the pointer
+		const GMultiPopulationEAT<oa_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GMultiPopulationEAT<oa_type> >(cp, this);
 
 		// First load the parent class'es data ...
 		GBaseParChildT<oa_type>::load_(cp);

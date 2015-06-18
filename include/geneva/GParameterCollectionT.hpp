@@ -178,8 +178,8 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const GParameterCollectionT<T>  *p_load = GObject::gobject_conversion<GParameterCollectionT<T> >(&cp);
+		// Check that we are dealing with a  GParameterCollectionT<T> reference independent of this object and convert the pointer
+		const GParameterCollectionT<T> *p_load = Gem::Common::g_convert_and_compare<GObject,  GParameterCollectionT<T> >(cp, this);
 
 		GToken token("GParameterCollectionT<T>", e);
 
@@ -328,8 +328,8 @@ protected:
 	 * @param cp A copy of another GParameterCollectionT<T> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject* cp) override {
-		// Convert cp into local format and check for self-assignment
-		const GParameterCollectionT<T> *p_load = GObject::gobject_conversion<GParameterCollectionT<T> >(cp);
+		// Check that we are dealing with a  GParameterCollectionT<T> reference independent of this object and convert the pointer
+		const GParameterCollectionT<T> *p_load = Gem::Common::g_convert_and_compare<GObject,  GParameterCollectionT<T> >(cp, this);
 
 		// Load our parent class'es data ...
 		GParameterBaseWithAdaptorsT<T>::load_(cp);
