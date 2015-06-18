@@ -162,8 +162,8 @@ void GOptimizableEntity::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GOptimizableEntity *p_load = GObject::gobject_conversion<GOptimizableEntity>(&cp);
+	// Check that we are dealing with a GOptimizableEntity reference independent of this object and convert the pointer
+	const GOptimizableEntity *p_load = Gem::Common::g_convert_and_compare<GObject, GOptimizableEntity>(cp, this);
 
 	GToken token("GOptimizableEntity", e);
 
@@ -245,7 +245,8 @@ evaluationPolicy GOptimizableEntity::getEvaluationPolicy() const {
  * @param cp A copy of another GOptimizableEntity object, camouflaged as a GObject
  */
 void GOptimizableEntity::load_(const GObject *cp) {
-	const GOptimizableEntity *p_load = gobject_conversion<GOptimizableEntity>(cp);
+	// Check that we are dealing with a GOptimizableEntity reference independent of this object and convert the pointer
+	const GOptimizableEntity *p_load = Gem::Common::g_convert_and_compare<GObject, GOptimizableEntity>(cp, this);
 
 	// Load the parent class'es data
 	GObject::load_(cp);

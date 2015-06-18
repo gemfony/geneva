@@ -306,8 +306,8 @@ void Go2::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const Go2 *p_load = GObject::gobject_conversion<Go2>(&cp);
+	// Check that we are dealing with a GOptimizableEntity reference independent of this object and convert the pointer
+	const Go2 *p_load = Gem::Common::g_convert_and_compare<GObject, Go2>(cp, this);
 
 	GToken token("Go2", e);
 
@@ -440,7 +440,8 @@ bool Go2::hasOptimizationMonitors() const {
  * @param cp A copy of another Go2 object, camouflaged as a GObject
  */
 void Go2::load_(const GObject *cp) {
-	const Go2 *p_load = gobject_conversion<Go2>(cp);
+	// Check that we are dealing with a GOptimizableEntity reference independent of this object and convert the pointer
+	const Go2 *p_load = Gem::Common::g_convert_and_compare<GObject, Go2>(cp, this);
 
 	// First load the parent class'es data ...
 	GMutableSetT<GParameterSet>::load_(cp);

@@ -118,8 +118,8 @@ void GMPEAPersonalityTraits::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GMPEAPersonalityTraits *p_load = GObject::gobject_conversion<GMPEAPersonalityTraits>(&cp);
+	// Check that we are dealing with a GMPEAPersonalityTraits reference independent of this object and convert the pointer
+	const GMPEAPersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GMPEAPersonalityTraits>(cp, this);
 
 	GToken token("GMPEAPersonalityTraits", e);
 
@@ -157,7 +157,8 @@ GObject *GMPEAPersonalityTraits::clone_() const {
  * @param cp A copy of another GMPEAPersonalityTraits object, camouflaged as a GObject
  */
 void GMPEAPersonalityTraits::load_(const GObject *cp) {
-	const GMPEAPersonalityTraits *p_load = gobject_conversion<GMPEAPersonalityTraits>(cp);
+	// Check that we are dealing with a GMPEAPersonalityTraits reference independent of this object and convert the pointer
+	const GMPEAPersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GMPEAPersonalityTraits>(cp, this);
 
 	// Load the parent class'es data
 	GBaseParChildPersonalityTraits::load_(cp);

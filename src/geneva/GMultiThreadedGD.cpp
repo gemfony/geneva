@@ -128,8 +128,8 @@ void GMultiThreadedGD::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GMultiThreadedGD *p_load = GObject::gobject_conversion<GMultiThreadedGD>(&cp);
+	// Check that we are dealing with a GMultiThreadedGD reference independent of this object and convert the pointer
+	const GMultiThreadedGD *p_load = Gem::Common::g_convert_and_compare<GObject, GMultiThreadedGD>(cp, this);
 
 	GToken token("GMultiThreadedGD", e);
 
@@ -186,8 +186,8 @@ boost::uint16_t GMultiThreadedGD::getNThreads() const {
  * @param vp Pointer to another GMultiThreadedGD object, camouflaged as a GObject
  */
 void GMultiThreadedGD::load_(const GObject *cp) {
-	// Convert GObject pointer to local format
-	const GMultiThreadedGD *p_load = this->gobject_conversion<GMultiThreadedGD>(cp);
+	// Check that we are dealing with a GMultiThreadedGD reference independent of this object and convert the pointer
+	const GMultiThreadedGD *p_load = Gem::Common::g_convert_and_compare<GObject, GMultiThreadedGD>(cp, this);
 
 	// First load our parent class'es data ...
 	GBaseGD::load_(cp);

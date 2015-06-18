@@ -138,8 +138,8 @@ void GInt32FlipAdaptor::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GInt32FlipAdaptor *p_load = GObject::gobject_conversion<GInt32FlipAdaptor>(&cp);
+	// Check that we are dealing with a GInt32FlipAdaptor reference independent of this object and convert the pointer
+	const GInt32FlipAdaptor *p_load = Gem::Common::g_convert_and_compare<GObject, GInt32FlipAdaptor>(cp, this);
 
 	GToken token("GInt32FlipAdaptor", e);
 

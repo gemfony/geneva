@@ -80,8 +80,8 @@ GMultiThreadedSwarm::~GMultiThreadedSwarm() { /* nothing */ }
  * @param vp Pointer to another GMultiThreadedSwarm object, camouflaged as a GObject
  */
 void GMultiThreadedSwarm::load_(const GObject *cp) {
-	// Convert GObject pointer to local format
-	const GMultiThreadedSwarm *p_load = this->gobject_conversion<GMultiThreadedSwarm>(cp);
+	// Check that we are dealing with a GMultiThreadedSwarm reference independent of this object and convert the pointer
+	const GMultiThreadedSwarm *p_load = Gem::Common::g_convert_and_compare<GObject, GMultiThreadedSwarm>(cp, this);
 
 	// First load our parent class'es data ...
 	GBaseSwarm::load_(cp);
@@ -147,8 +147,8 @@ void GMultiThreadedSwarm::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GMultiThreadedSwarm *p_load = GObject::gobject_conversion<GMultiThreadedSwarm>(&cp);
+	// Check that we are dealing with a GMultiThreadedSwarm reference independent of this object and convert the pointer
+	const GMultiThreadedSwarm *p_load = Gem::Common::g_convert_and_compare<GObject, GMultiThreadedSwarm>(cp, this);
 
 	GToken token("GMultiThreadedSwarm", e);
 

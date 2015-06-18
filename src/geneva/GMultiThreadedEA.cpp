@@ -80,8 +80,8 @@ const GMultiThreadedEA &GMultiThreadedEA::operator=(const GMultiThreadedEA &cp) 
  * @param vp Pointer to another GMultiThreadedEA object, camouflaged as a GObject
  */
 void GMultiThreadedEA::load_(const GObject *cp) {
-	// Convert GObject pointer to local format
-	const GMultiThreadedEA *p_load = this->gobject_conversion<GMultiThreadedEA>(cp);
+	// Check that we are dealing with a GMultiThreadedEA reference independent of this object and convert the pointer
+	const GMultiThreadedEA *p_load = Gem::Common::g_convert_and_compare<GObject, GMultiThreadedEA>(cp, this);
 
 	// First load our parent class'es data ...
 	GBaseEA::load_(cp);
@@ -148,8 +148,8 @@ void GMultiThreadedEA::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GMultiThreadedEA *p_load = GObject::gobject_conversion<GMultiThreadedEA>(&cp);
+	// Check that we are dealing with a GMultiThreadedEA reference independent of this object and convert the pointer
+	const GMultiThreadedEA *p_load = Gem::Common::g_convert_and_compare<GObject, GMultiThreadedEA>(cp, this);
 
 	GToken token("GMultiThreadedEA", e);
 

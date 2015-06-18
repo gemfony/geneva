@@ -168,8 +168,9 @@ void GDoubleGaussAdaptor::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GDoubleGaussAdaptor *p_load = GObject::gobject_conversion<GDoubleGaussAdaptor>(&cp);
+
+	// Check that we are dealing with a GDoubleGaussAdaptor reference independent of this object and convert the pointer
+	const GDoubleGaussAdaptor *p_load = Gem::Common::g_convert_and_compare<GObject, GDoubleGaussAdaptor>(cp, this);
 
 	GToken token("GDoubleGaussAdaptor", e);
 

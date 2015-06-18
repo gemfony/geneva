@@ -173,8 +173,8 @@ void GInt32Object::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GInt32Object *p_load = GObject::gobject_conversion<GInt32Object>(&cp);
+	// Check that we are dealing with a GInt32Object reference independent of this object and convert the pointer
+	const GInt32Object *p_load = Gem::Common::g_convert_and_compare<GObject, GInt32Object>(cp, this);
 
 	GToken token("GInt32Object", e);
 

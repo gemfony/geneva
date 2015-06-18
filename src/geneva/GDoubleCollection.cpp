@@ -156,8 +156,8 @@ void GDoubleCollection::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GDoubleCollection *p_load = GObject::gobject_conversion<GDoubleCollection>(&cp);
+	// Check that we are dealing with a GDoubleCollection reference independent of this object and convert the pointer
+	const GDoubleCollection *p_load = Gem::Common::g_convert_and_compare<GObject, GDoubleCollection>(cp, this);
 
 	GToken token("GDoubleCollection", e);
 

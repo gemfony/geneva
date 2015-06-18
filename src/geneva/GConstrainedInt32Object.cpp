@@ -176,8 +176,8 @@ void GConstrainedInt32Object::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GConstrainedInt32Object *p_load = GObject::gobject_conversion<GConstrainedInt32Object>(&cp);
+	// Check that we are dealing with a GConstrainedInt32Object reference independent of this object and convert the pointer
+	const GConstrainedInt32Object *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedInt32Object>(cp, this);
 
 	GToken token("GConstrainedInt32Object", e);
 

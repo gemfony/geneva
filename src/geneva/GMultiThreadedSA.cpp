@@ -71,8 +71,8 @@ GMultiThreadedSA::~GMultiThreadedSA() { /* nothing */ }
  * @param vp Pointer to another GMultiThreadedSA object, camouflaged as a GObject
  */
 void GMultiThreadedSA::load_(const GObject *cp) {
-	// Convert GObject pointer to local format
-	const GMultiThreadedSA *p_load = this->gobject_conversion<GMultiThreadedSA>(cp);
+	// Check that we are dealing with a GMultiThreadedSA reference independent of this object and convert the pointer
+	const GMultiThreadedSA *p_load = Gem::Common::g_convert_and_compare<GObject, GMultiThreadedSA>(cp, this);
 
 	// First load our parent class'es data ...
 	GBaseSA::load_(cp);
@@ -148,8 +148,8 @@ void GMultiThreadedSA::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GMultiThreadedSA *p_load = GObject::gobject_conversion<GMultiThreadedSA>(&cp);
+	// Check that we are dealing with a GMultiThreadedSA reference independent of this object and convert the pointer
+	const GMultiThreadedSA *p_load = Gem::Common::g_convert_and_compare<GObject, GMultiThreadedSA>(cp, this);
 
 	GToken token("GMultiThreadedSA", e);
 

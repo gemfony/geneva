@@ -77,8 +77,8 @@ const GParameterBase &GParameterBase::operator=(const GParameterBase &cp) {
  * @param cp A copy of another GParameterBase object, camouflaged as a GObject
  */
 void GParameterBase::load_(const GObject *cp) {
-	// Convert cp into local format
-	const GParameterBase *p_load = gobject_conversion<GParameterBase>(cp);
+	// Check that we are dealing with a GParameterBase reference independent of this object and convert the pointer
+	const GParameterBase *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterBase>(cp, this);
 
 	// Load the parent class'es data
 	GObject::load_(cp);
@@ -212,8 +212,8 @@ void GParameterBase::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GParameterBase *p_load = GObject::gobject_conversion<GParameterBase>(&cp);
+	// Check that we are dealing with a GParameterBase reference independent of this object and convert the pointer
+	const GParameterBase *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterBase>(cp, this);
 
 	GToken token("GParameterBase", e);
 

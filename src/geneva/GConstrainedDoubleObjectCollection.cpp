@@ -140,9 +140,8 @@ void GConstrainedDoubleObjectCollection::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GConstrainedDoubleObjectCollection *p_load = GObject::gobject_conversion<GConstrainedDoubleObjectCollection>(
-		&cp);
+	// Check that we are dealing with a GConstrainedDoubleObjectCollection reference independent of this object and convert the pointer
+	const GConstrainedDoubleObjectCollection *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedDoubleObjectCollection>(cp, this);
 
 	GToken token("GConstrainedDoubleObjectCollection", e);
 
