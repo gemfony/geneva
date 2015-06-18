@@ -123,8 +123,8 @@ void GDoubleSumConstraint::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GDoubleSumConstraint *p_load = GObject::gobject_conversion<GDoubleSumConstraint>(&cp);
+	// Check that we are dealing with a GDoubleSumConstraint reference independent of this object and convert the pointer
+	const GDoubleSumConstraint *p_load = Gem::Common::g_convert_and_compare<GObject, GDoubleSumConstraint>(cp, this);
 
 	Gem::Common::GToken token("GDoubleSumConstraint", e);
 
@@ -177,9 +177,8 @@ double GDoubleSumConstraint::check_(
  * Loads the data of another GDoubleSumConstraint
  */
 void GDoubleSumConstraint::load_(const GObject *cp) {
-	// Check that we are indeed dealing with an object of the same type and that we are not
-	// accidently trying to compare this object with itself.
-	const GDoubleSumConstraint *p_load = GObject::gobject_conversion<GDoubleSumConstraint>(cp);
+	// Check that we are dealing with a GDoubleSumConstraint reference independent of this object and convert the pointer
+	const GDoubleSumConstraint *p_load = Gem::Common::g_convert_and_compare<GObject, GDoubleSumConstraint>(cp, this);
 
 	// Load our parent class'es data ...
 	GParameterSetConstraint::load_(cp);
@@ -277,8 +276,8 @@ void GDoubleSumGapConstraint::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GDoubleSumGapConstraint *p_load = GObject::gobject_conversion<GDoubleSumGapConstraint>(&cp);
+	// Check that we are dealing with a GDoubleSumGapConstraint reference independent of this object and convert the pointer
+	const GDoubleSumGapConstraint *p_load = Gem::Common::g_convert_and_compare<GObject, GDoubleSumGapConstraint>(cp, this);
 
 	Gem::Common::GToken token("GDoubleSumGapConstraint", e);
 
@@ -332,9 +331,8 @@ double GDoubleSumGapConstraint::check_(
  * Loads the data of another GDoubleSumGapConstraint
  */
 void GDoubleSumGapConstraint::load_(const GObject *cp) {
-	// Check that we are indeed dealing with an object of the same type and that we are not
-	// accidently trying to compare this object with itself.
-	const GDoubleSumGapConstraint *p_load = GObject::gobject_conversion<GDoubleSumGapConstraint>(cp);
+	// Check that we are dealing with a GDoubleSumGapConstraint reference independent of this object and convert the pointer
+	const GDoubleSumGapConstraint *p_load = Gem::Common::g_convert_and_compare<GObject, GDoubleSumGapConstraint>(cp, this);
 
 	// Load our parent class'es data ...
 	GParameterSetConstraint::load_(cp);
@@ -430,8 +428,8 @@ bool GSphereConstraint::operator!=(const GSphereConstraint &cp) const {
 void GSphereConstraint::compare(
 	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GSphereConstraint *p_load = GObject::gobject_conversion<GSphereConstraint>(&cp);
+	// Check that we are dealing with a GSphereConstraint reference independent of this object and convert the pointer
+	const GSphereConstraint *p_load = Gem::Common::g_convert_and_compare<GObject, GSphereConstraint>(cp, this);
 
 	Gem::Common::GToken token("GSphereConstraint", e);
 
@@ -485,9 +483,8 @@ double GSphereConstraint::check_(
  * Loads the data of another GSphereConstraint
  */
 void GSphereConstraint::load_(const GObject *cp) {
-	// Check that we are indeed dealing with an object of the same type and that we are not
-	// accidently trying to compare this object with itself.
-	const GSphereConstraint *p_load = GObject::gobject_conversion<GSphereConstraint>(cp);
+	// Check that we are dealing with a GSphereConstraint reference independent of this object and convert the pointer
+	const GSphereConstraint *p_load = Gem::Common::g_convert_and_compare<GObject, GSphereConstraint>(cp, this);
 
 	// Load our parent class'es data ...
 	GParameterSetConstraint::load_(cp);
@@ -701,8 +698,8 @@ bool GFunctionIndividual::operator!=(const GFunctionIndividual &cp) const {
 void GFunctionIndividual::compare(
 	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GFunctionIndividual *p_load = GObject::gobject_conversion<GFunctionIndividual>(&cp);
+	// Check that we are dealing with a GFunctionIndividual reference independent of this object and convert the pointer
+	const GFunctionIndividual *p_load = Gem::Common::g_convert_and_compare<GObject, GFunctionIndividual>(cp, this);
 
 	Gem::Common::GToken token("GFunctionIndividual", e);
 
@@ -785,9 +782,8 @@ std::size_t GFunctionIndividual::getParameterSize() const {
  * @param cp A copy of another GFunctionIndividual, camouflaged as a GObject
  */
 void GFunctionIndividual::load_(const GObject *cp) {
-	// Check that we are indeed dealing with an object of the same type and that we are not
-	// accidently trying to compare this object with itself.
-	const GFunctionIndividual *p_load = GObject::gobject_conversion<GFunctionIndividual>(cp);
+	// Check that we are dealing with a GFunctionIndividual reference independent of this object and convert the pointer
+	const GFunctionIndividual *p_load = Gem::Common::g_convert_and_compare<GObject, GFunctionIndividual>(cp, this);
 
 	// Load our parent class'es data ...
 	GParameterSet::load_(cp);

@@ -130,8 +130,8 @@ void GParameterSet::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GParameterSet *p_load = GObject::gobject_conversion<GParameterSet>(&cp);
+	// Check that we are dealing with a GParameterSet reference independent of this object and convert the pointer
+	const GParameterSet *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterSet>(cp, this);
 
 	GToken token("GParameterSet", e);
 
@@ -297,8 +297,8 @@ void GParameterSet::queryAdaptor(
  * @param cp A copy of another GParameterSet object, camouflaged as a GObject
  */
 void GParameterSet::load_(const GObject *cp) {
-	// Convert to local format
-	const GParameterSet *p_load = this->gobject_conversion<GParameterSet>(cp);
+	// Check that we are dealing with a GParameterSet reference independent of this object and convert the pointer
+	const GParameterSet *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterSet>(cp, this);
 
 	// Load the parent class'es data
 	GMutableSetT<Gem::Geneva::GParameterBase>::load_(cp);

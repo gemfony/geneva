@@ -116,8 +116,8 @@ void GParameterSetParChild::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GParameterSetParChild *p_load = GObject::gobject_conversion<GParameterSetParChild>(&cp);
+	// Check that we are dealing with a GParameterSetParChild reference independent of this object and convert the pointer
+	const GParameterSetParChild *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterSetParChild>(cp, this);
 
 	GToken token("GParameterSetParChild", e);
 
@@ -301,7 +301,8 @@ void GParameterSetParChild::finalize() {
  * @param cp A pointer to another GParameterSetParChild object, camouflaged as a GObject
  */
 void GParameterSetParChild::load_(const GObject *cp) {
-	const GParameterSetParChild *p_load = gobject_conversion<GParameterSetParChild>(cp);
+	// Check that we are dealing with a GParameterSetParChild reference independent of this object and convert the pointer
+	const GParameterSetParChild *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterSetParChild>(cp, this);
 
 	// First load the parent class'es data ...
 	GBaseParChildT<GParameterSet>::load_(cp);

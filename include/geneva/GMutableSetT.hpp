@@ -252,8 +252,8 @@ protected:
 	 * @param cp A copy of another GMutableSetT object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject* cp) override {
-		// Convert cp into local format
-		const GMutableSetT<T> *p_load = this->template gobject_conversion<GMutableSetT<T> >(cp);
+		// Check that we are dealing with a GMutableSetT<T> reference independent of this object and convert the pointer
+		const GMutableSetT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GMutableSetT<T>>(cp, this);
 
 		// No local data - load the parent class'es data
 		GOptimizableEntity::load_(cp);

@@ -202,9 +202,9 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * The function creates a clone of the GObject pointer, converts it to a pointer to a derived class
+	 * The function creates a clone of the object, converts it to a pointer to a derived class
 	 * and emits it as a std::shared_ptr<> . Note that this template will only be accessible to the
-	 * compiler if GObject is a base type of clone_type.
+	 * compiler if GBasePlotter is a base type of clone_type.
 	 *
 	 * @return A converted clone of this object, wrapped into a std::shared_ptr
 	 */
@@ -268,10 +268,10 @@ protected:
 	/** @brief calculate a suffix from id and parent ids */
 	G_API_COMMON std::string suffix(bool, std::size_t) const;
 
-	/** @brief Loads the data of another GObject */
-	virtual G_API_GENEVA void load_(const GBasePlotter*);
+	/** @brief Loads the data of another object */
+	virtual G_API_COMMON void load_(const GBasePlotter*);
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GBasePlotter* clone_() const = 0;
+	virtual G_API_COMMON GBasePlotter* clone_() const = 0;
 
 	/***************************************************************************/
 
@@ -463,8 +463,24 @@ public:
 	}
 
 protected:
+	/***************************************************************************/
+	/**
+	 * Loads the data of another object
+	 */
+	virtual void load_(const GBasePlotter* cp) {
+		// Check that we are dealing with a GDataCollector1T<x_type> reference independent of this object and convert the pointer
+		const GDataCollector1T<x_type> *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GDataCollector1T<x_type>>(cp, this);
+
+		// Load our parent class'es data ...
+		GBasePlotter::load_(cp);
+
+		// ... and then our own
+		data_ = p_load->data_; // This assumes that x_type is POD
+	}
+
+	/***************************************************************************/
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GBasePlotter* clone_() const = 0;
+	virtual G_API_COMMON GBasePlotter* clone_() const = 0;
 
 	/***************************************************************************/
 
@@ -534,8 +550,10 @@ protected:
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const;
 
+	/** @brief Loads the data of another object */
+	virtual G_API_COMMON void load_(const GBasePlotter*);
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GBasePlotter* clone_() const;
+	virtual G_API_COMMON GBasePlotter* clone_() const;
 
 private:
 	GHistogram1D() = delete; ///< The default constructor -- intentionally private and undefined
@@ -609,8 +627,10 @@ protected:
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const;
 
+	/** @brief Loads the data of another object */
+	virtual G_API_COMMON void load_(const GBasePlotter*);
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GBasePlotter* clone_() const;
+	virtual G_API_COMMON GBasePlotter* clone_() const;
 
 private:
 	GHistogram1I() = delete; ///< The default constructor -- intentionally private and undefined
@@ -834,8 +854,25 @@ public:
 	}
 
 protected:
+	/***************************************************************************/
+	/**
+	 * Loads the data of another object
+	 */
+	virtual void load_(const GBasePlotter* cp) {
+		// Check that we are dealing with a GDataCollector2T<x_type, y_type> reference independent of this object and convert the pointer
+		const GDataCollector2T<x_type, y_type> *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GDataCollector2T<x_type, y_type> >(cp, this);
+
+		// Load our parent class'es data ...
+		GBasePlotter::load_(cp);
+
+		// ... and then our own
+		data_ = p_load->data_; // This assumes that x_type is POD
+	}
+
+	/***************************************************************************/
+
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GBasePlotter* clone_() const = 0;
+	virtual G_API_COMMON GBasePlotter* clone_() const = 0;
 
 	/***************************************************************************/
 
@@ -1107,8 +1144,24 @@ public:
 	}
 
 protected:
+	/***************************************************************************/
+	/**
+	 * Loads the data of another object
+	 */
+	virtual void load_(const GBasePlotter* cp) {
+		// Check that we are dealing with a GDataCollector2ET<x_type, y_type> reference independent of this object and convert the pointer
+		const GDataCollector2ET<x_type, y_type> *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GDataCollector2ET<x_type, y_type> >(cp, this);
+
+		// Load our parent class'es data ...
+		GBasePlotter::load_(cp);
+
+		// ... and then our own
+		data_ = p_load->data_; // This assumes that x_type is POD
+	}
+
+	/***************************************************************************/
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GBasePlotter* clone_() const = 0;
+	virtual G_API_COMMON GBasePlotter* clone_() const = 0;
 
 	/***************************************************************************/
 
@@ -1225,8 +1278,10 @@ protected:
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const;
 
+	/** @brief Loads the data of another object */
+	virtual G_API_COMMON void load_(const GBasePlotter*);
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GBasePlotter* clone_() const;
+	virtual G_API_COMMON GBasePlotter* clone_() const;
 
 private:
 	GHistogram2D() = delete; ///< The default constructor -- intentionally private and undefined
@@ -1303,8 +1358,10 @@ protected:
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const;
 
+	/** @brief Loads the data of another object */
+	virtual G_API_COMMON void load_(const GBasePlotter*);
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GBasePlotter* clone_() const;
+	virtual G_API_COMMON GBasePlotter* clone_() const;
 
 private:
 	graphPlotMode pM_; ///< Whether to create scatter plots or a curve, connected by lines
@@ -1365,8 +1422,10 @@ protected:
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const;
 
+	/** @brief Loads the data of another object */
+	virtual G_API_COMMON void load_(const GBasePlotter*);
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GBasePlotter* clone_() const;
+	virtual G_API_COMMON GBasePlotter* clone_() const;
 
 private:
 	graphPlotMode pM_; ///< Whether to create scatter plots or a curve, connected by lines
@@ -1595,8 +1654,24 @@ public:
 	}
 
 protected:
+	/***************************************************************************/
+	/**
+	 * Loads the data of another object
+	 */
+	virtual void load_(const GBasePlotter* cp) {
+		// Check that we are dealing with a GDataCollector3T<x_type, y_type, z_type> reference independent of this object and convert the pointer
+		const GDataCollector3T<x_type, y_type, z_type> *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GDataCollector3T<x_type, y_type, z_type> >(cp, this);
+
+		// Load our parent class'es data ...
+		GBasePlotter::load_(cp);
+
+		// ... and then our own
+		data_ = p_load->data_; // This assumes that x_type is POD
+	}
+
+	/***************************************************************************/
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GBasePlotter* clone_() const = 0;
+	virtual G_API_COMMON GBasePlotter* clone_() const = 0;
 
 	/***************************************************************************/
 
@@ -1775,8 +1850,10 @@ protected:
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const;
 
+	/** @brief Loads the data of another object */
+	virtual G_API_COMMON void load_(const GBasePlotter*);
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GBasePlotter* clone_() const;
+	virtual G_API_COMMON GBasePlotter* clone_() const;
 
 private:
 	bool drawLines_; ///< When set to true, lines will be drawn between consecutive points
@@ -2034,8 +2111,24 @@ public:
 	}
 
 protected:
+	/***************************************************************************/
+	/**
+	 * Loads the data of another object
+	 */
+	virtual void load_(const GBasePlotter* cp) {
+		// Check that we are dealing with a GDataCollector4T<x_type, y_type, z_type, w_type> reference independent of this object and convert the pointer
+		const GDataCollector4T<x_type, y_type, z_type, w_type> *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GDataCollector4T<x_type, y_type, z_type, w_type> >(cp, this);
+
+		// Load our parent class'es data ...
+		GBasePlotter::load_(cp);
+
+		// ... and then our own
+		data_ = p_load->data_; // This assumes that x_type is POD
+	}
+
+	/***************************************************************************/
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GBasePlotter* clone_() const = 0;
+	virtual G_API_COMMON GBasePlotter* clone_() const = 0;
 
 	/***************************************************************************/
 
@@ -2280,8 +2373,10 @@ protected:
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const;
 
+	/** @brief Loads the data of another object */
+	virtual G_API_COMMON void load_(const GBasePlotter*);
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GBasePlotter* clone_() const;
+	virtual G_API_COMMON GBasePlotter* clone_() const;
 
 private:
 	double minMarkerSize_; ///< The minimum allowed size of the marker
@@ -2350,8 +2445,10 @@ protected:
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const;
 
+	/** @brief Loads the data of another object */
+	virtual G_API_COMMON void load_(const GBasePlotter*);
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GBasePlotter* clone_() const;
+	virtual G_API_COMMON GBasePlotter* clone_() const;
 
 private:
 	GFunctionPlotter1D() = delete; ///< The default constructor -- intentionally private and undefined
@@ -2422,8 +2519,10 @@ protected:
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const;
 
+	/** @brief Loads the data of another object */
+	virtual G_API_COMMON void load_(const GBasePlotter*);
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GBasePlotter* clone_() const;
+	virtual G_API_COMMON GBasePlotter* clone_() const;
 
 private:
 	GFunctionPlotter2D() = delete; ///< The default constructor -- intentionally private and undefined

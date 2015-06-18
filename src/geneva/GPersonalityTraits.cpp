@@ -116,8 +116,8 @@ void GPersonalityTraits::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GPersonalityTraits *p_load = GObject::gobject_conversion<GPersonalityTraits>(&cp);
+	// Check that we are dealing with a GPersonalityTraits reference independent of this object and convert the pointer
+	const GPersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GPersonalityTraits>(cp, this);
 
 	GToken token("GPersonalityTraits", e);
 

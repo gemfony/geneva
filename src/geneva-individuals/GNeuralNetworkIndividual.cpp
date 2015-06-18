@@ -761,8 +761,8 @@ void GNeuralNetworkIndividual::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GNeuralNetworkIndividual *p_load = GObject::gobject_conversion<GNeuralNetworkIndividual>(&cp);
+	// Check that we are dealing with a GNeuralNetworkIndividual reference independent of this object and convert the pointer
+	const GNeuralNetworkIndividual *p_load = Gem::Common::g_convert_and_compare<GObject, GNeuralNetworkIndividual>(cp, this);
 
 	GToken token("GNeuralNetworkIndividual", e);
 
@@ -1450,7 +1450,8 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &headerFile
  * @param cp A copy of another GNeuralNetworkIndividual, camouflaged as a GObject
  */
 void GNeuralNetworkIndividual::load_(const GObject *cp) {
-	const GNeuralNetworkIndividual *p_load = gobject_conversion<GNeuralNetworkIndividual>(cp);
+	// Check that we are dealing with a GNeuralNetworkIndividual reference independent of this object and convert the pointer
+	const GNeuralNetworkIndividual *p_load = Gem::Common::g_convert_and_compare<GObject, GNeuralNetworkIndividual>(cp, this);
 
 	// Load the parent class'es data
 	GParameterSet::load_(cp);

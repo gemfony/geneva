@@ -127,8 +127,8 @@ void GDelayIndividual::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GDelayIndividual *p_load = Gem::Geneva::GObject::gobject_conversion<GDelayIndividual>(&cp);
+	// Check that we are dealing with a GDelayIndividual reference independent of this object and convert the pointer
+	const GDelayIndividual *p_load = Gem::Common::g_convert_and_compare<GObject, GDelayIndividual>(cp, this);
 
 	Gem::Common::GToken token("GDelayIndividual", e);
 
@@ -149,7 +149,8 @@ void GDelayIndividual::compare(
  * @param cp A copy of another GDelayIndividual, camouflaged as a GObject
  */
 void GDelayIndividual::load_(const Gem::Geneva::GObject* cp){
-	const GDelayIndividual *p_load = gobject_conversion<GDelayIndividual>(cp);
+	// Check that we are dealing with a GDelayIndividual reference independent of this object and convert the pointer
+	const GDelayIndividual *p_load = Gem::Common::g_convert_and_compare<GObject, GDelayIndividual>(cp, this);
 
 	// Load our parent class'es data ...
 	Gem::Geneva::GParameterSet::load_(cp);

@@ -136,8 +136,8 @@ void GParameterObjectCollection::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GParameterObjectCollection *p_load = GObject::gobject_conversion<GParameterObjectCollection>(&cp);
+	// Check that we are dealing with a GParameterObjectCollection reference independent of this object and convert the pointer
+	const GParameterObjectCollection *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterObjectCollection>(cp, this);
 
 	GToken token("GParameterObjectCollection", e);
 

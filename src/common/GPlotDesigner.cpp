@@ -328,14 +328,6 @@ std::string GBasePlotter::suffix(bool isSecondary, std::size_t pId) const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GObject
- */
-void GBasePlotter::load_(const GBasePlotter* cp) {
-
-}
-
-/******************************************************************************/
-/**
  * Allows to retrieve the id of this object
  */
 std::size_t GBasePlotter::id() const {
@@ -358,6 +350,32 @@ void GBasePlotter::setId(const std::size_t &id) {
  */
 std::shared_ptr<GBasePlotter> GBasePlotter::clone() {
 	return std::shared_ptr<GBasePlotter>(this->clone_());
+}
+
+/******************************************************************************/
+/**
+ * Loads the data of another object
+ */
+void GBasePlotter::load_(const GBasePlotter* cp) {
+	// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
+	const GBasePlotter *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GBasePlotter>(cp, this);
+
+	// No parent class
+
+	// Load local data
+	drawingArguments_ = p_load->drawingArguments_;
+	x_axis_label_     = p_load->x_axis_label_;
+	y_axis_label_     = p_load->y_axis_label_;
+	z_axis_label_     = p_load->z_axis_label_;
+	plot_label_       = p_load->plot_label_;
+	dsMarker_         = p_load->dsMarker_;
+	id_               = p_load->id_;
+
+	// Clear our secondary plotters and load from cp
+	secondaryPlotter_.clear();
+	for(auto it: p_load->secondaryPlotter_) {
+		secondaryPlotter_.push_back(it->clone());
+	}
 }
 
 /******************************************************************************/
@@ -699,6 +717,22 @@ GBasePlotter* GGraph2D::clone_() const {
 }
 
 /******************************************************************************/
+/**
+ * Loads the data of another object
+ */
+void GGraph2D::load_(const GBasePlotter* cp) {
+	// Check that we are dealing with a GGraph2D reference independent of this object and convert the pointer
+	const GGraph2D *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GGraph2D>(cp, this);
+
+	// Load our parent class'es data ...
+	GDataCollector2T<double, double>::load_(cp);
+
+	// ... and then our local data
+	pM_         = p_load->pM_;
+	drawArrows_ = p_load->drawArrows_;
+}
+
+/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
@@ -914,6 +948,21 @@ std::string GGraph2ED::drawingArguments(bool isSecondary) const {
  */
 GBasePlotter* GGraph2ED::clone_() const {
 	return new GGraph2ED(*this);
+}
+
+/******************************************************************************/
+/**
+ * Loads the data of another object
+ */
+void GGraph2ED::load_(const GBasePlotter* cp) {
+	// Check that we are dealing with a GGraph2ED reference independent of this object and convert the pointer
+	const GGraph2ED *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GGraph2ED>(cp, this);
+
+	// Load our parent class'es data ...
+	GDataCollector2ET<double, double>::load_(cp);
+
+	// ... and then our local data
+	pM_         = p_load->pM_;
 }
 
 /******************************************************************************/
@@ -1155,6 +1204,21 @@ std::string GGraph3D::drawingArguments(bool isSecondary) const {
  */
 GBasePlotter* GGraph3D::clone_() const {
 	return new GGraph3D(*this);
+}
+
+/******************************************************************************/
+/**
+ * Loads the data of another object
+ */
+void GGraph3D::load_(const GBasePlotter* cp) {
+	// Check that we are dealing with a GGraph3D reference independent of this object and convert the pointer
+	const GGraph3D *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GGraph3D>(cp, this);
+
+	// Load our parent class'es data ...
+	GDataCollector3T<double, double, double>::load_(cp);
+
+	// ... and then our local data
+	drawLines_ = p_load->drawLines_;
 }
 
 /******************************************************************************/
@@ -1434,6 +1498,24 @@ GBasePlotter* GGraph4D::clone_() const {
 }
 
 /******************************************************************************/
+/**
+ * Loads the data of another object
+ */
+void GGraph4D::load_(const GBasePlotter* cp) {
+	// Check that we are dealing with a GGraph4D reference independent of this object and convert the pointer
+	const GGraph4D *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GGraph4D>(cp, this);
+
+	// Load our parent class'es data ...
+	GDataCollector4T<double, double, double, double>::load_(cp);
+
+	// ... and then our local data
+	minMarkerSize_     = p_load->minMarkerSize_;
+	maxMarkerSize_     = p_load->maxMarkerSize_;
+	smallWLargeMarker_ = p_load->smallWLargeMarker_;
+	nBest_             = p_load->nBest_;
+}
+
+/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
@@ -1636,6 +1718,23 @@ std::string GHistogram1D::getPlotterName() const {
  */
 GBasePlotter* GHistogram1D::clone_() const {
 	return new GHistogram1D(*this);
+}
+
+/******************************************************************************/
+/**
+ * Loads the data of another object
+ */
+void GHistogram1D::load_(const GBasePlotter* cp) {
+	// Check that we are dealing with a GHistogram1D reference independent of this object and convert the pointer
+	const GHistogram1D *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GHistogram1D>(cp, this);
+
+	// Load our parent class'es data ...
+	GDataCollector1T<double>::load_(cp);
+
+	// ... and then our local data
+	nBinsX_ = p_load->nBinsX_;
+	minX_     = p_load->minX_;
+	maxX_     = p_load->maxX_;
 }
 
 /******************************************************************************/
@@ -1845,6 +1944,22 @@ GBasePlotter* GHistogram1I::clone_() const {
 	return new GHistogram1I(*this);
 }
 
+/******************************************************************************/
+/**
+ * Loads the data of another object
+ */
+void GHistogram1I::load_(const GBasePlotter* cp) {
+	// Check that we are dealing with a GHistogram1I reference independent of this object and convert the pointer
+	const GHistogram1I *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GHistogram1I>(cp, this);
+
+	// Load our parent class'es data ...
+	GDataCollector1T<boost::int32_t>::load_(cp);
+
+	// ... and then our local data
+	nBinsX_   = p_load->nBinsX_;
+	minX_     = p_load->minX_;
+	maxX_     = p_load->maxX_;
+}
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -2190,6 +2305,27 @@ GBasePlotter* GHistogram2D::clone_() const {
 }
 
 /******************************************************************************/
+/**
+ * Loads the data of another object
+ */
+void GHistogram2D::load_(const GBasePlotter* cp) {
+	// Check that we are dealing with a GHistogram2D reference independent of this object and convert the pointer
+	const GHistogram2D *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GHistogram2D>(cp, this);
+
+	// Load our parent class'es data ...
+	GDataCollector2T<double, double>::load_(cp);
+
+	// ... and then our local data
+	nBinsX_   = p_load->nBinsX_;
+	nBinsY_   = p_load->nBinsY_;
+	minX_     = p_load->minX_;
+	maxX_     = p_load->maxX_;
+	minY_     = p_load->minY_;
+	maxY_     = p_load->maxY_;
+	dropt_    = p_load->dropt_;
+}
+
+/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
@@ -2361,6 +2497,23 @@ std::string GFunctionPlotter1D::drawingArguments(bool isSecondary) const {
  */
 GBasePlotter* GFunctionPlotter1D::clone_() const {
 	return new GFunctionPlotter1D(*this);
+}
+
+/******************************************************************************/
+/**
+ * Loads the data of another object
+ */
+void GFunctionPlotter1D::load_(const GBasePlotter* cp) {
+	// Check that we are dealing with a GFunctionPlotter1D reference independent of this object and convert the pointer
+	const GFunctionPlotter1D *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GFunctionPlotter1D>(cp, this);
+
+	// Load our parent class'es data ...
+	GBasePlotter::load_(cp);
+
+	// ... and then our local data
+	functionDescription_ = p_load->functionDescription_;
+	xExtremes_           = p_load->xExtremes_;
+	nSamplesX_           = p_load->nSamplesX_;
 }
 
 /******************************************************************************/
@@ -2568,6 +2721,25 @@ std::string GFunctionPlotter2D::drawingArguments(bool isSecondary) const {
  */
 GBasePlotter* GFunctionPlotter2D::clone_() const {
 	return new GFunctionPlotter2D(*this);
+}
+
+/******************************************************************************/
+/**
+ * Loads the data of another object
+ */
+void GFunctionPlotter2D::load_(const GBasePlotter* cp) {
+	// Check that we are dealing with a GFunctionPlotter2D reference independent of this object and convert the pointer
+	const GFunctionPlotter2D *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GFunctionPlotter2D>(cp, this);
+
+	// Load our parent class'es data ...
+	GBasePlotter::load_(cp);
+
+	// ... and then our local data
+	functionDescription_ = p_load->functionDescription_;
+	xExtremes_           = p_load->xExtremes_;
+	yExtremes_           = p_load->yExtremes_;
+	nSamplesX_           = p_load->nSamplesX_;
+	nSamplesY_           = p_load->nSamplesY_;
 }
 
 /******************************************************************************/

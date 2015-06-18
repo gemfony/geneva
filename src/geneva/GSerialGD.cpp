@@ -125,8 +125,8 @@ void GSerialGD::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GBaseEA reference
-	const GSerialGD *p_load = GObject::gobject_conversion<GSerialGD>(&cp);
+	// Check that we are dealing with a GSerialGD reference independent of this object and convert the pointer
+	const GSerialGD *p_load = Gem::Common::g_convert_and_compare<GObject, GSerialGD>(cp, this);
 
 	GToken token("GSerialGD", e);
 
