@@ -1066,44 +1066,29 @@ add(boost::tuple<double, double>(iteration, currentTransformedEvaluation));
  *
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
  */
-void GBaseEA::GEAOptimizationMonitor::lastInformation(GOptimizationAlgorithmT < GParameterSet > * const
-goa) {
-Gem::Common::GPlotDesigner gpd(
-	std::string("Fitness of ") + boost::lexical_cast<std::string>(nMonitorInds_) + std::string(" best EA individuals"),
-	1, nMonitorInds_
-);
+void GBaseEA::GEAOptimizationMonitor::lastInformation(
+	GOptimizationAlgorithmT < GParameterSet > * const goa
+) {
+	Gem::Common::GPlotDesigner gpd(
+		std::string("Fitness of ") + boost::lexical_cast<std::string>(nMonitorInds_) + std::string(" best EA individuals")
+		, 1
+		, nMonitorInds_
+	);
 
-gpd.
-setCanvasDimensions(xDim_, yDim_
-);
+	gpd.setCanvasDimensions(xDim_, yDim_);
 
-// Copy all plotters into the GPlotDesigner object
-std::vector<std::shared_ptr < Gem::Common::GGraph2D>>
-::iterator it;
-for(
-it = fitnessGraphVec_.begin();
-it!=fitnessGraphVec_.
+	// Copy all plotters into the GPlotDesigner object
+	std::vector<std::shared_ptr < Gem::Common::GGraph2D>>::iterator it;
+	for(it = fitnessGraphVec_.begin(); it!=fitnessGraphVec_.end(); ++it) {
+		gpd.registerPlotter(*it);
+	}
 
-end();
+	// Write out the plot
+	gpd.writeToFile(this->getResultFileName());
 
-++it) {
-gpd.
-registerPlotter(*it);
-}
-
-// Write out the plot
-gpd.writeToFile(this->
-
-getResultFileName()
-
-);
-
-// Clear all plotters, so they do not get added repeatedly, when
-// optimize is called repeatedly on the same (or a cloned) object.
-fitnessGraphVec_.
-
-clear();
-
+	// Clear all plotters, so they do not get added repeatedly, when
+	// optimize is called repeatedly on the same (or a cloned) object.
+	fitnessGraphVec_.clear();
 }
 
 /******************************************************************************/

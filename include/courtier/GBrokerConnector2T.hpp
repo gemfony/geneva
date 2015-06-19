@@ -252,19 +252,12 @@ public:
 	 * @return A boolean indicating whether all expected items have returned
 	 */
 	bool workOn(
-		std::vector<std::shared_ptr < processable_type>
-
-	>& workItems
-	,
-	const std::size_t &start
-	,
-	const std::size_t &end
-	, std::vector<std::shared_ptr < processable_type>
-	>& oldWorkItems
-	,
-	const bool &removeUnprocessed = true
-	,
-	const std::string &originator = std::string()
+		std::vector<std::shared_ptr < processable_type>>& workItems
+		, const std::size_t &start
+		, const std::size_t &end
+		, std::vector<std::shared_ptr < processable_type>>& oldWorkItems
+		, const bool &removeUnprocessed = true
+		, const std::string &originator = std::string()
 	) {
 		bool complete = false;
 
@@ -379,14 +372,10 @@ public:
 	 * @return A boolean indicating whether all expected items have returned
 	 */
 	bool workOn(
-		std::vector<std::shared_ptr < processable_type>
-
-	>& workItems
-	, std::vector<std::shared_ptr < processable_type>>& oldWorkItems
-	,
-	const bool &removeUnprocessed = true
-	,
-	const std::string &originator = std::string()
+		std::vector<std::shared_ptr < processable_type>>& workItems
+		, std::vector<std::shared_ptr < processable_type>>& oldWorkItems
+		, const bool &removeUnprocessed = true
+		, const std::string &originator = std::string()
 	) {
 		return this->workOn(
 			workItems, 0, workItems.size(), oldWorkItems, removeUnprocessed, originator
@@ -651,16 +640,10 @@ protected:
 	 * of the submit() function.
 	 */
 	virtual bool waitForReturn(
-		std::vector<std::shared_ptr < processable_type>
-
-	>& workItems
-	,
-	std::vector<bool> &workItemPos
-	, std::vector<std::shared_ptr < processable_type>
-	>& oldWorkItems
-	)
-
-	override {
+		std::vector<std::shared_ptr < processable_type>>& workItems
+		, std::vector<bool> &workItemPos
+		, std::vector<std::shared_ptr < processable_type>>& oldWorkItems
+	) override {
 		// Mark all positions as returned
 		std::vector<bool>::iterator it;
 		for (it = workItemPos.begin(); it != workItemPos.end(); ++it) {
@@ -689,7 +672,7 @@ class GMTExecutorT
 		using boost::serialization::make_nvp;
 
 		ar
-			&make_nvp("GBaseExecutorT", boost::serialization::base_object<GBaseExecutorT<processable_type>>(*this));
+			& make_nvp("GBaseExecutorT", boost::serialization::base_object<GBaseExecutorT<processable_type>>(*this));
 	}
 
 	///////////////////////////////////////////////////////////////////////

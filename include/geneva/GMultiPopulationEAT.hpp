@@ -447,13 +447,13 @@ protected:
 			<< "Sorting scheme is ";
 
 			switch(smodeMP_) {
-				case MUPLUSNU_SINGLEEVAL:
+				case MUPLUSNU_SINGLEEVAL_MP:
 					error << "MUPLUSNU_SINGLEEVAL" << std::endl;
 					break;
-				case MUCOMMANU_SINGLEEVAL:
+				case MUCOMMANU_SINGLEEVAL_MP:
 					error << "MUCOMMANU_SINGLEEVAL" << std::endl;
 					break;
-				case MUNU1PRETAIN_SINGLEEVAL:
+				case MUNU1PRETAIN_SINGLEEVAL_MP:
 					error << "MUNU1PRETAIN" << std::endl;
 					break;
 			};

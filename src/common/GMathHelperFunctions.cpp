@@ -325,7 +325,7 @@ double gfabs(const double &x) {
  * @param x The value for which fabs should be calculated
  * @return The fabs value of x
  */
-double gfabs(const long double &x) {
+long double gfabs(const long double &x) {
 #ifdef __CYGWIN__
    return fabs(boost::numeric_cast<double>(x));
 #else
@@ -495,7 +495,7 @@ double gexp(const double &x) {
  * @return The sign value of x
  */
 float gsign(const float &x) {
-	return copysignf(1., x);
+	return copysignf(1.f, x);
 }
 
 /******************************************************************************/
@@ -530,7 +530,7 @@ double gpow(const double &x, const double &y) {
  * Calculates the hypot value of a float value
  */
 float ghypot(const float &x, const float &y) {
-	return boost::math::hypot(x, y);
+	return boost::math::hypot<float, float>(x, y);
 }
 
 /******************************************************************************/

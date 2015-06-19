@@ -80,7 +80,8 @@ namespace Common {
  * An exception to be thrown in case of an expectation violation.
  */
 class g_expectation_violation
-	: public gemfony_error_condition {
+	: public gemfony_error_condition
+{
 public:
 	/** @brief The standard constructor */
 	G_API_COMMON g_expectation_violation(const std::string &) throw();
@@ -104,7 +105,8 @@ private:
  * of expectations
  */
 class GToken
-	: private boost::noncopyable {
+	: private boost::noncopyable
+{
 public:
 	/** @brief The standard constructor -- initialization with class name and expectation */
 	G_API_COMMON GToken(const std::string &, const Gem::Common::expectation &);

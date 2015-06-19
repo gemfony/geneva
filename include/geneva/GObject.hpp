@@ -150,16 +150,12 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * GObject is the parent class for the majority of Geneva optimization classes. Essentially, GObject
- * defines a number of interface functions and access patterns commonly needed throughout derived classes.
- * As one example, (de-)serialization is simplified by some of the functions in this class, as is the
- * task of conversion to the derived types. Handling of optimization-related classes sometimes happens through
- * a std::shared_ptr<GObject>, hence this class has a very central role. The GObject::load_(const GObject *)
- * and  GObject::clone_() member functions must be re-implemented for each derived class. Further common
- * functionality of many Geneva classes will be implemented here over time.
+ * GObject is the parent class for the majority of Geneva optimization classes.
+ * Handling of optimization-related classes sometimes happens through a
+ * std::shared_ptr<GObject>, hence this class has a very central role.
  */
 class GObject
-	:public Gem::Common::GSerializableI
+	:public Gem::Common::GSerializableI<GObject>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -185,7 +181,7 @@ public:
 		const GObject& // the other object
 		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		, const double& // the limit for allowed deviations of floating point types
-	) const BASE;
+	) const override;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
@@ -234,69 +230,6 @@ public:
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&);
 
-	/** @brief Creates a clone of this object, storing it in a std::shared_ptr<GObject> */
-	G_API_GENEVA std::shared_ptr<GObject> clone() const;
-
-	/***************************************************************************/
-	/**
-	 * The function creates a clone of the GObject pointer, converts it to a pointer to a derived class
-	 * and emits it as a std::shared_ptr<> . Note that this template will only be accessible to the
-	 * compiler if GObject is a base type of clone_type.
-	 *
-	 * @return A converted clone of this object, wrapped into a std::shared_ptr
-	 */
-	template <typename clone_type>
-	std::shared_ptr<clone_type> clone(
-		typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, clone_type>>::type* dummy = 0
-	) const {
-		return Gem::Common::convertSmartPointer<GObject, clone_type>(std::shared_ptr<GObject>(this->clone_()));
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * cloning is tested for all objects taking part in the Geneva standard tests
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Loads the data of another GObject(-derivative), wrapped in a shared pointer. Note that this
-	 * function is only accessible to the compiler if load_type is a derivative of GObject.
-	 *
-	 * @param cp A copy of another GObject-derivative, wrapped into a std::shared_ptr<>
-	 */
-	template <typename load_type>
-	inline void load(
-		const std::shared_ptr<load_type>& cp
-		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type>>::type* dummy = 0
-	) {
-		load_(cp.get());
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * loading is tested for all objects taking part in the Geneva standard tests
-	 * ----------------------------------------------------------------------------------
-	 */
-
-	/***************************************************************************/
-	/**
-	 * Loads the data of another GObject(-derivative), presented as a constant reference. Note that this
-	 * function is only accessible to the compiler if load_type is a derivative of GObject.
-	 *
-	 * @param cp A copy of another GObject-derivative, wrapped into a std::shared_ptr<>
-	 */
-	template <typename load_type>
-	inline void load(
-		const load_type& cp
-		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type>>::type* dummy = 0
-	) {
-		load_(&cp);
-	}
-
-	/* ----------------------------------------------------------------------------------
-	 * loading is tested for all objects taking part in the Geneva standard tests
-	 * ----------------------------------------------------------------------------------
-	 */
-
 	/***************************************************************************/
 	/**
 	 * Checks whether a SIGHUP or CTRL_CLOSE_EVENT signal has been sent
@@ -331,9 +264,9 @@ public:
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GObject */
-	virtual G_API_GENEVA void load_(const GObject*);
+	virtual G_API_GENEVA void load_(const GObject*) override;
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GObject* clone_() const = 0;
+	virtual G_API_GENEVA GObject* clone_() const override = 0;
 
 	/***************************************************************************/
 	/**
@@ -431,24 +364,6 @@ public:
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests();
 };
-
-/******************************************************************************/
-/**
- * A specialization of the general clone for cases where no conversion takes place at all
- *
- * @return A std::shared_ptr<GObject> to a clone of the derived object
- */
-template <>
-inline std::shared_ptr<GObject> GObject::clone<GObject> (
-	boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, GObject>>::type* dummy
-) const {
-	return std::shared_ptr<GObject>(clone_());
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
 
 /******************************************************************************/
 
@@ -691,132 +606,132 @@ void compare (
 template <typename geneva_type>
 void compare (
 	const std::vector<std::shared_ptr<geneva_type>>& x
-, const std::vector<std::shared_ptr<geneva_type>>& y
-, const std::string& x_name
-, const std::string& y_name
-, const Gem::Common::expectation& e
-, const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
-, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type>>::type* dummy = 0
+	, const std::vector<std::shared_ptr<geneva_type>>& y
+	, const std::string& x_name
+	, const std::string& y_name
+	, const Gem::Common::expectation& e
+	, const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
+	, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type>>::type* dummy = 0
 ) {
-bool expectationMet = false;
-std::string expectation_str;
-std::ostringstream error;
+	bool expectationMet = false;
+	std::string expectation_str;
+	std::ostringstream error;
 
-switch(e) {
-case Gem::Common::CE_FP_SIMILARITY:
-case Gem::Common::CE_EQUALITY:
-{
-	expectation_str = "CE_FP_SIMILARITY / CE_EQUALITY";
+	switch(e) {
+	case Gem::Common::CE_FP_SIMILARITY:
+	case Gem::Common::CE_EQUALITY:
+	{
+		expectation_str = "CE_FP_SIMILARITY / CE_EQUALITY";
 
-	// First check sizes
-	if(x.size() != y.size()) {
-		error
-		<< "Vectors " << x_name << " and " << y_name << " have different sizes " << x.size() << " / " << y.size() << std::endl
-		<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl;
-		// Terminate the switch statement. expectationMet will be false then
-		break;
-	}
-
-	// Now loop over all members of the vectors
-	bool foundDeviation = false;
-	typename std::vector<std::shared_ptr<geneva_type>>::const_iterator x_it, y_it;
-	std::size_t index = 0;
-	for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it, ++index) {
-		// First check that both pointers have content
-		// Check whether the pointers hold content
-		if(*x_it && !*y_it) {
+		// First check sizes
+		if(x.size() != y.size()) {
 			error
-			<< "Smart pointer " << x_name << "[" << index << "] holds content while " << y_name << "[" << index << "]  does not." << std::endl
-			<< "Thus the expectation of " << expectation_str << " was violated" << std::endl;
-			foundDeviation = true;
-			break; // terminate the loop
-		} else if(!*x_it && *y_it) {
+			<< "Vectors " << x_name << " and " << y_name << " have different sizes " << x.size() << " / " << y.size() << std::endl
+			<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl;
+			// Terminate the switch statement. expectationMet will be false then
+			break;
+		}
+
+		// Now loop over all members of the vectors
+		bool foundDeviation = false;
+		typename std::vector<std::shared_ptr<geneva_type>>::const_iterator x_it, y_it;
+		std::size_t index = 0;
+		for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it, ++index) {
+			// First check that both pointers have content
+			// Check whether the pointers hold content
+			if(*x_it && !*y_it) {
+				error
+				<< "Smart pointer " << x_name << "[" << index << "] holds content while " << y_name << "[" << index << "]  does not." << std::endl
+				<< "Thus the expectation of " << expectation_str << " was violated" << std::endl;
+				foundDeviation = true;
+				break; // terminate the loop
+			} else if(!*x_it && *y_it) {
+				error
+				<< "Smart pointer " << x_name << "[" << index << "] doesn't hold content while " << y_name << "[" << index << "]  does." << std::endl
+				<< "Thus the expectation of " << expectation_str << " was violated" << std::endl;
+				foundDeviation = true;
+				break;  // terminate the loop
+			} else if(!*x_it && !*y_it) { // No content to check. Both smart pointers can be considered equal
+				continue; // Go on with next iteration in the loop
+			}
+
+			// At this point we know that both pointers have content. We can now check the content
+			// which is assumed to have the compare() function
+			try {
+				(*x_it)->compare(**y_it,e,limit);
+			} catch(g_expectation_violation& g) {
+				error
+				<< "Content of " << x_name << "[" << index << "] and " << y_name << "[" << index << "] differs." << std::endl
+				<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl
+				<< g.what() << std::endl;
+				foundDeviation = true;
+				break; // Terminate the loop
+			}
+		}
+
+		if(!foundDeviation) {
+			expectationMet = true;
+		}
+	}
+	break;
+
+	case Gem::Common::CE_INEQUALITY:
+	{
+		expectation_str = "CE_INEQUALITY";
+
+		// First check sizes. The expectation of inequality will be met if they differ
+		if(x.size() != y.size()) {
+			expectationMet = true;
+			break; // Terminate the switch statement
+		}
+
+		// Now loop over all members of the vectors
+		bool foundInequality = false;
+		typename std::vector<std::shared_ptr<geneva_type>>::const_iterator x_it, y_it;
+		for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it) {
+			// First check that both pointers have content
+			// Check whether the pointers hold content
+			if((*x_it && !*y_it) || (!*x_it && *y_it)) {
+				foundInequality = true;
+				break; // terminate the loop
+			} else if(!*x_it && !*y_it) { // No content to check. Both smart pointers can be considered equal
+				continue; // Go on with next iteration in the loop - there is nothing to check here
+			}
+
+			// At this point we know that both pointers have content. We can now check this content
+			// which is assumed to have the compare() function
+			try {
+				(*x_it)->compare(**y_it,e,limit);
+				foundInequality = true;
+				break; // terminate the loop
+			} catch(g_expectation_violation&) {
+				// Go on with the next item in the vector -- the content is equal or similar
+				continue;
+			}
+		}
+
+		if(foundInequality) {
+			expectationMet = true;
+		} else {
 			error
-			<< "Smart pointer " << x_name << "[" << index << "] doesn't hold content while " << y_name << "[" << index << "]  does." << std::endl
-			<< "Thus the expectation of " << expectation_str << " was violated" << std::endl;
-			foundDeviation = true;
-			break;  // terminate the loop
-		} else if(!*x_it && !*y_it) { // No content to check. Both smart pointers can be considered equal
-			continue; // Go on with next iteration in the loop
-		}
-
-		// At this point we know that both pointers have content. We can now check the content
-		// which is assumed to have the compare() function
-		try {
-			(*x_it)->compare(**y_it,e,limit);
-		} catch(g_expectation_violation& g) {
-			error
-			<< "Content of " << x_name << "[" << index << "] and " << y_name << "[" << index << "] differs." << std::endl
-			<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl
-			<< g.what() << std::endl;
-			foundDeviation = true;
-			break; // Terminate the loop
+			<< "The two vectors " << x_name << " and " << y_name << " are equal." << std::endl
+			<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl;
 		}
 	}
+	break;
 
-	if(!foundDeviation) {
-		expectationMet = true;
+	default:
+	{
+		glogger
+		<< "In compare(/* 8 */): Got invalid expectation " << e << std::endl
+		<< GEXCEPTION;
 	}
-}
-break;
+	break;
+	};
 
-case Gem::Common::CE_INEQUALITY:
-{
-	expectation_str = "CE_INEQUALITY";
-
-	// First check sizes. The expectation of inequality will be met if they differ
-	if(x.size() != y.size()) {
-		expectationMet = true;
-		break; // Terminate the switch statement
+	if(!expectationMet) {
+		throw g_expectation_violation(error.str());
 	}
-
-	// Now loop over all members of the vectors
-	bool foundInequality = false;
-	typename std::vector<std::shared_ptr<geneva_type>>::const_iterator x_it, y_it;
-	for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it) {
-		// First check that both pointers have content
-		// Check whether the pointers hold content
-		if((*x_it && !*y_it) || (!*x_it && *y_it)) {
-			foundInequality = true;
-			break; // terminate the loop
-		} else if(!*x_it && !*y_it) { // No content to check. Both smart pointers can be considered equal
-			continue; // Go on with next iteration in the loop - there is nothing to check here
-		}
-
-		// At this point we know that both pointers have content. We can now check this content
-		// which is assumed to have the compare() function
-		try {
-			(*x_it)->compare(**y_it,e,limit);
-			foundInequality = true;
-			break; // terminate the loop
-		} catch(g_expectation_violation&) {
-			// Go on with the next item in the vector -- the content is equal or similar
-			continue;
-		}
-	}
-
-	if(foundInequality) {
-		expectationMet = true;
-	} else {
-		error
-		<< "The two vectors " << x_name << " and " << y_name << " are equal." << std::endl
-		<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl;
-	}
-}
-break;
-
-default:
-{
-glogger
-<< "In compare(/* 8 */): Got invalid expectation " << e << std::endl
-<< GEXCEPTION;
-}
-break;
-};
-
-if(!expectationMet) {
-throw g_expectation_violation(error.str());
-}
 }
 
 /******************************************************************************/

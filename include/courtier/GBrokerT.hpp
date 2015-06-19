@@ -100,9 +100,9 @@ const Gem::Common::PORTIDTYPE MAXPORTID = boost::numeric::bounds<Gem::Common::PO
  */
 template<typename carrier_type>
 class GBrokerT
-	: private boost::noncopyable {
-	typedef typename std::shared_ptr<Gem::Common::GBoundedBufferWithIdT<std::shared_ptr < carrier_type>> >
-	GBoundedBufferWithIdT_Ptr;
+	: private boost::noncopyable
+{
+	typedef typename std::shared_ptr<Gem::Common::GBoundedBufferWithIdT<std::shared_ptr < carrier_type>> > GBoundedBufferWithIdT_Ptr;
 	typedef typename std::list<GBoundedBufferWithIdT_Ptr> BufferPtrList;
 	typedef typename std::map<Gem::Common::PORTIDTYPE, GBoundedBufferWithIdT_Ptr> BufferPtrMap;
 
@@ -285,8 +285,6 @@ public:
 	 * @return A key that uniquely identifies the origin of p
 	 */
 	Gem::Common::PORTIDTYPE get(std::shared_ptr <carrier_type> &p) {
-		typename BufferPtrList::iterator currentGetPosition;
-
 		// Locks access to our internal data until we have a copy of a buffer.
 		// This will prevent the buffer from being removed, as the use count
 		// is increased. Also fixes the iterator.
@@ -329,8 +327,6 @@ public:
 	Gem::Common::PORTIDTYPE get(
 		std::shared_ptr <carrier_type> &p, boost::posix_time::time_duration timeout
 	) {
-		typename BufferPtrList::iterator currentGetPosition;
-
 		// Locks access to our internal data until we have a copy of a buffer.
 		// This will prevent the buffer from being removed, as the use count
 		// is increased. Also fixes the iterator.

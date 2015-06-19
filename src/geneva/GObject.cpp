@@ -73,7 +73,9 @@ GObject::~GObject() { /* nothing */ }
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GObject::compare(
-	const GObject &cp, const Gem::Common::expectation &e, const double &limit
+	const GObject &cp
+	, const Gem::Common::expectation &e
+	, const double &limit
 ) const {
 	using namespace Gem::Common;
 
@@ -89,7 +91,8 @@ void GObject::compare(
 	// we throw an expectation violation for the expectation CE_INEQUALITY.
 	if (CE_INEQUALITY == e) {
 		throw g_expectation_violation(
-			"In GObject: instance is empty and a base class, hence the expectation of inequality is always violated.");
+			"In GObject: instance is empty and a base class, hence the expectation of inequality is always violated."
+		);
 	}
 }
 
@@ -108,8 +111,12 @@ void GObject::compare(
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GObject::checkRelationshipWith(
-	const GObject &cp, const Gem::Common::expectation &e, const double &limit, const std::string &caller,
-	const std::string &y_name, const bool &withMessages
+	const GObject &cp
+	, const Gem::Common::expectation &e
+	, const double &limit
+	, const std::string &caller
+	, const std::string &y_name
+	, const bool &withMessages
 ) const {
 	using namespace Gem::Common;
 
@@ -492,9 +499,9 @@ bool GObject::operator!=(const GObject &cp) const {
  *
  * @return A std::shared_ptr<GObject> to a clone of the derived object
  */
-std::shared_ptr <GObject> GObject::clone() const {
-	return std::shared_ptr<GObject>(clone_());
-}
+// std::shared_ptr <GObject> GObject::clone() const {
+// 	return std::shared_ptr<GObject>(clone_());
+// }
 
 /* ----------------------------------------------------------------------------------
  * Tested in GObject::specificTestsNoFailureExpected_GUnitTests() as well as in
