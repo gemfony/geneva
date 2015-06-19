@@ -144,7 +144,7 @@ void GDoubleBiGaussAdaptor::compare(
 	GToken token("GDoubleBiGaussAdaptor", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GFPBiGaussAdaptorT<double> >(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GFPBiGaussAdaptorT<double>>(IDENTITY(*this, *p_load), token);
 
 	// ... no local data
 

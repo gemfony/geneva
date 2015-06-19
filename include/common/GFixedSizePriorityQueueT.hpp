@@ -136,7 +136,7 @@ public:
 	 */
 	GFixedSizePriorityQueueT(const GFixedSizePriorityQueueT<T> &cp)
 		: maxSize_(cp.maxSize_), higherIsBetter_(cp.higherIsBetter_) {
-		typename std::deque<std::shared_ptr < T> > ::const_iterator
+		typename std::deque<std::shared_ptr < T>> ::const_iterator
 		cit;
 		for (cit = cp.data_.begin(); cit != cp.data_.end(); ++cit) {
 			data_.push_back((*cit)->template clone<T>());
@@ -164,7 +164,7 @@ public:
 		data_.clear();
 
 		// Copy all data over
-		typename std::deque<std::shared_ptr < T> > ::const_iterator
+		typename std::deque<std::shared_ptr < T>> ::const_iterator
 		cit;
 		for (cit = cp.data_.begin(); cit != cp.data_.end(); ++cit) {
 			data_.push_back((*cit)->template clone<T>());
@@ -334,7 +334,7 @@ public:
 		// At this point, worstKnownEvaluation will be
 		// - the worst case, if the queue is empty or all entries in the queue will be replaced
 		// - the evaluation of the worst entry in the queue if we only add items (regardless of whether they will be cloned or not)
-		typename std::vector<std::shared_ptr < T> > ::const_iterator
+		typename std::vector<std::shared_ptr < T>> ::const_iterator
 		cit;
 		for (cit = items.begin(); cit != items.end(); ++cit) {
 			// Add the work item to the queue
@@ -410,12 +410,12 @@ public:
 	/**
 	 * Converts the local deque to a std::vector and returns it
 	 */
-	std::vector<std::shared_ptr < T> >
+	std::vector<std::shared_ptr < T>>
 
 	toVector() {
-		std::vector<std::shared_ptr < T> > result;
+		std::vector<std::shared_ptr < T>> result;
 
-		typename std::deque<std::shared_ptr < T> > ::iterator
+		typename std::deque<std::shared_ptr < T>> ::iterator
 		it;
 		for (it = data_.begin(); it != data_.end(); ++it) {
 			result.push_back(*it);
@@ -533,7 +533,7 @@ protected:
 	/** @brief Returns a unique id for a work item */
 	virtual std::string id(const std::shared_ptr <T> &) const = 0;
 
-	std::deque<std::shared_ptr < T> >
+	std::deque<std::shared_ptr < T>>
 	data_; ///< Holds the actual data
 
 	std::size_t maxSize_; ///< The maximum number of work-items

@@ -211,7 +211,7 @@ private:
 	/** @brief Does the actual conversion, including a check that B is indeed a base of T */
 	template<typename B>
 	identity<B> to(
-		typename boost::enable_if<boost::is_base_of<B, T> >::type *dummy = 0
+		typename boost::enable_if<boost::is_base_of<B, T>>::type *dummy = 0
 	) const {
 		const B &x_conv = dynamic_cast<const B &>(x);
 		const B &y_conv = dynamic_cast<const B &>(y);
@@ -303,9 +303,9 @@ template<typename basic_type>
 void compare(
 	const basic_type &x, const basic_type &y, const std::string &x_name, const std::string &y_name,
 	const Gem::Common::expectation &e, const double &limit = 0.,
-	typename boost::disable_if<boost::is_floating_point<basic_type> >::type *dummy1 = 0
+	typename boost::disable_if<boost::is_floating_point<basic_type>>::type *dummy1 = 0
 #ifndef _MSC_VER // TODO: Replace BOOST_TYPEOF with decltype in header when switch to C++11 is complete
-	, typename boost::disable_if<typename Gem::Common::has_compare_member<basic_type> >::type *dummy2 = 0
+	, typename boost::disable_if<typename Gem::Common::has_compare_member<basic_type>>::type *dummy2 = 0
 #endif
 ) {
 	bool expectationMet = false;
@@ -365,7 +365,7 @@ template<typename fp_type>
 void compare(
 	const fp_type &x, const fp_type &y, const std::string &x_name, const std::string &y_name,
 	const Gem::Common::expectation &e, const double &limit = CE_DEF_SIMILARITY_DIFFERENCE,
-	typename boost::enable_if<boost::is_floating_point<fp_type> >::type *dummy = 0
+	typename boost::enable_if<boost::is_floating_point<fp_type>>::type *dummy = 0
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -431,7 +431,7 @@ template<typename basic_type>
 void compare(
 	const std::vector<basic_type> &x, const std::vector<basic_type> &y, const std::string &x_name,
 	const std::string &y_name, const Gem::Common::expectation &e, const double &limit = 0.,
-	typename boost::disable_if<boost::is_floating_point<basic_type> >::type *dummy = 0
+	typename boost::disable_if<boost::is_floating_point<basic_type>>::type *dummy = 0
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -512,7 +512,7 @@ template<typename fp_type>
 void compare(
 	const std::vector<fp_type> &x, const std::vector<fp_type> &y, const std::string &x_name, const std::string &y_name,
 	const Gem::Common::expectation &e, const double &limit = CE_DEF_SIMILARITY_DIFFERENCE,
-	typename boost::enable_if<boost::is_floating_point<fp_type> >::type *dummy = 0
+	typename boost::enable_if<boost::is_floating_point<fp_type>>::type *dummy = 0
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -645,7 +645,7 @@ template<typename B>
 void compare_base(
 	const identity<B> &data, GToken &token
 #ifndef _MSC_VER // TODO: Replace BOOST_TYPEOF with decltype in header when switch to C++11 is complete
-	, typename boost::enable_if<typename Gem::Common::has_compare_member<B> >::type *dummy = 0
+	, typename boost::enable_if<typename Gem::Common::has_compare_member<B>>::type *dummy = 0
 #endif
 ) {
 	try {

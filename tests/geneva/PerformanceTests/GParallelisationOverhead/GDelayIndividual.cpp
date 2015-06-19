@@ -285,7 +285,7 @@ boost::uint32_t GDelayIndividualFactory::getInterMeasurementDelay() const {
  *
  * @return The sleep times, as determined by this object
  */
-std::vector<boost::tuple<unsigned int, unsigned int> > GDelayIndividualFactory::getSleepTimes() const {
+std::vector<boost::tuple<unsigned int, unsigned int>> GDelayIndividualFactory::getSleepTimes() const {
 	return sleepTimes_;
 }
 

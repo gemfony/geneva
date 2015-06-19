@@ -272,7 +272,7 @@ public:
 		std::size_t nMonitorInds_; ///< The number if individuals that should be monitored
 		std::string resultFile_;     ///< The name of the file to which data is emitted
 
-		std::vector<std::shared_ptr<Gem::Common::GGraph2D> > fitnessGraphVec_;
+		std::vector<std::shared_ptr<Gem::Common::GGraph2D>> fitnessGraphVec_;
 
 	public:
 		/** @brief Applies modifications to this object. This is needed for testing purposes */

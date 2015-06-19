@@ -124,7 +124,7 @@ public:
 	GOptimizationAlgorithmFactoryT (
 		const std::string& configFile
 		, const execMode& pm
-		, std::shared_ptr<Gem::Common::GFactoryT<typename oa_type::individual_type> > contentCreatorPtr
+		, std::shared_ptr<Gem::Common::GFactoryT<typename oa_type::individual_type>> contentCreatorPtr
 	)
 		: Gem::Common::GFactoryT<oa_type>(configFile)
 		, pm_(pm)
@@ -300,7 +300,7 @@ public:
 	 * Allows to register a content creator
 	 */
 	void registerContentCreator(
-		std::shared_ptr<Gem::Common::GFactoryT<typename oa_type::individual_type> > cc_ptr
+		std::shared_ptr<Gem::Common::GFactoryT<typename oa_type::individual_type>> cc_ptr
 	) {
 		if(!cc_ptr) {
 			glogger
@@ -523,7 +523,7 @@ protected:
 	std::size_t waitFactor_; ///< A static factor to be applied to timeouts
 	bool doLogging_; ///< Specifies whether arrival times of individuals should be logged
 
-	std::shared_ptr<Gem::Common::GFactoryT<typename oa_type::individual_type> > contentCreatorPtr_; ///< Holds an object capable of producing objects of the desired type
+	std::shared_ptr<Gem::Common::GFactoryT<typename oa_type::individual_type>> contentCreatorPtr_; ///< Holds an object capable of producing objects of the desired type
 	std::shared_ptr<typename oa_type::GBasePluggableOMT> pluggableOM_; // A user-defined means for information retrieval
 
 private:

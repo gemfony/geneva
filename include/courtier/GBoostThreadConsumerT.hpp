@@ -367,9 +367,9 @@ private:
 	std::size_t threadsPerWorker_; ///< The maximum number of allowed threads in the pool
 	Gem::Common::GThreadGroup gtg_; ///< Holds the processing threads
 	std::shared_ptr <GBrokerT<processable_type>> broker_ptr_; ///< A shortcut to the broker so we do not have to go through the singleton
-	std::vector<std::shared_ptr < GWorker> >
+	std::vector<std::shared_ptr < GWorker>>
 	workers_; ///< Holds the current worker objects
-	std::vector<std::shared_ptr < GWorker> >
+	std::vector<std::shared_ptr < GWorker>>
 	workerTemplates_; ///< All workers will be created as a clone of these workers
 
 public:

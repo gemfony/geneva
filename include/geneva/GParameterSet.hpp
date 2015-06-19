@@ -93,8 +93,8 @@ class GParameterSet
 	void serialize(Archive & ar, const unsigned int){
 		using boost::serialization::make_nvp;
 		ar
-		& make_nvp("GMutableSetT_GParameterBase", boost::serialization::base_object<GMutableSetT<Gem::Geneva::GParameterBase> >(*this))
-		& make_nvp("GSubmissionContainerT_ParameterSet", boost::serialization::base_object<Gem::Courtier::GSubmissionContainerT<GParameterSet> >(*this))
+		& make_nvp("GMutableSetT_GParameterBase", boost::serialization::base_object<GMutableSetT<Gem::Geneva::GParameterBase>>(*this))
+		& make_nvp("GSubmissionContainerT_ParameterSet", boost::serialization::base_object<Gem::Courtier::GSubmissionContainerT<GParameterSet>>(*this))
 		& BOOST_SERIALIZATION_NVP(perItemCrossOverProbability_);
 	}
 	///////////////////////////////////////////////////////////////////////
@@ -198,7 +198,7 @@ public:
 	template <typename par_type>
 	const std::shared_ptr<par_type> at(
 		const std::size_t& pos
-		, typename boost::enable_if<boost::is_base_of<GParameterBase, par_type> >::type* dummy = 0
+		, typename boost::enable_if<boost::is_base_of<GParameterBase, par_type>>::type* dummy = 0
 	)  const {
 		// Does error checks on the conversion internally
 		return Gem::Common::convertSmartPointer<GParameterBase, par_type>(data.at(pos));
@@ -216,10 +216,10 @@ public:
 	template <typename par_type>
 	std::vector<std::string> getVariableNames() const {
 		std::vector<std::string> varNames;
-		std::map<std::string, std::vector<par_type> > pMap;
+		std::map<std::string, std::vector<par_type>> pMap;
 		this->streamline<par_type>(pMap);
 
-		typename std::map<std::string, std::vector<par_type> >::const_iterator cit;
+		typename std::map<std::string, std::vector<par_type>>::const_iterator cit;
 		for(cit=pMap.begin(); cit!=pMap.end(); ++cit) {
 			varNames.push_back(cit->first);
 		}
@@ -249,9 +249,9 @@ public:
 			case 1: // var[3]
 			case 2: // var    --> treated as var[0]
 			{
-				std::map<std::string, std::vector<par_type> > varMap;
+				std::map<std::string, std::vector<par_type>> varMap;
 				this->streamline<par_type>(varMap);
-				result = (Gem::Common::getMapItem<std::vector<par_type> >(varMap, boost::get<1>(target))).at(boost::get<2>(target));
+				result = (Gem::Common::getMapItem<std::vector<par_type>>(varMap, boost::get<1>(target))).at(boost::get<2>(target));
 			}
 				break;
 
@@ -341,7 +341,7 @@ public:
 	 */
 	template <typename par_type>
 	void streamline(
-		std::map<std::string, std::vector<par_type> >& parVec
+		std::map<std::string, std::vector<par_type>>& parVec
 		, const activityMode& am = DEFAULTACTIVITYMODE
 	) const {
 		// Make sure the vector is clean
@@ -396,14 +396,14 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Assigns values from a std::map<std::string, std::vector<par_type> > to the parameters in the collection
+	 * Assigns values from a std::map<std::string, std::vector<par_type>> to the parameters in the collection
 	 *
 	 * @param parMap A map of values, to be assigned to be added to GParameterBase derivatives
 	 * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be assigned
 	 */
 	template <typename par_type>
 	void assignValueVectors(
-		const std::map<std::string, std::vector<par_type> >& parMap
+		const std::map<std::string, std::vector<par_type>>& parMap
 		, const activityMode& am = DEFAULTACTIVITYMODE
 	) {
 		// Loop over all GParameterBase objects. Each object will extract the relevant parameters

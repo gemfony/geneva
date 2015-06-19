@@ -67,7 +67,7 @@ class GBooleanObject
 		using boost::serialization::make_nvp;
 
 		ar
-			& make_nvp("GParameterT_bool", boost::serialization::base_object<GParameterT<bool> >(*this));
+			& make_nvp("GParameterT_bool", boost::serialization::base_object<GParameterT<bool>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -131,9 +131,9 @@ protected:
 	/** @brief Assigns part of a value vector to the parameter */
 	virtual G_API_GENEVA void assignBooleanValueVector(const std::vector<bool>&, std::size_t&, const activityMode& am) override;
 	/** @brief Attach our local value to the map. */
-	virtual G_API_GENEVA void booleanStreamline(std::map<std::string, std::vector<bool> >&, const activityMode& am) const override;
+	virtual G_API_GENEVA void booleanStreamline(std::map<std::string, std::vector<bool>>&, const activityMode& am) const override;
 	/** @brief Assigns part of a value map to the parameter */
-	virtual G_API_GENEVA void assignBooleanValueVectors(const std::map<std::string, std::vector<bool> >&, const activityMode& am) override;
+	virtual G_API_GENEVA void assignBooleanValueVectors(const std::map<std::string, std::vector<bool>>&, const activityMode& am) override;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

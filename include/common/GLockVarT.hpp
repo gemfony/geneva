@@ -278,7 +278,7 @@ class GLockVarBool
 		using boost::serialization::make_nvp;
 
 		ar
-			&make_nvp("GLockVarT_bool", boost::serialization::base_object<GLockVarT<bool> >(*this));
+			&make_nvp("GLockVarT_bool", boost::serialization::base_object<GLockVarT<bool>>(*this));
 	}
 	/////////////////////////////////////////////////////////////////////////////
 

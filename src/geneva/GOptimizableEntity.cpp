@@ -209,7 +209,7 @@ std::string GOptimizableEntity::name() const {
  * object will be cloned.
  */
 void GOptimizableEntity::registerConstraint(
-	std::shared_ptr < GPreEvaluationValidityCheckT<GOptimizableEntity> > c_ptr
+	std::shared_ptr < GPreEvaluationValidityCheckT<GOptimizableEntity>> c_ptr
 ) {
 	if (!c_ptr) {
 		glogger
@@ -219,7 +219,7 @@ void GOptimizableEntity::registerConstraint(
 	}
 
 	// We store clones, so individual objects do not share the same object
-	individualConstraint_ = c_ptr->GObject::clone<GPreEvaluationValidityCheckT<GOptimizableEntity> >();
+	individualConstraint_ = c_ptr->GObject::clone<GPreEvaluationValidityCheckT<GOptimizableEntity>>();
 }
 
 /******************************************************************************/
@@ -1238,7 +1238,7 @@ std::string GOptimizableEntity::getCurrentEvaluationID() const {
  * value, the second value the (possibly transformed) evaluation.
  */
 void GOptimizableEntity::setWorstKnownValid(
-	const std::vector<boost::tuple<double, double> > &worstKnownValid
+	const std::vector<boost::tuple<double, double>> &worstKnownValid
 ) {
 	worstKnownValids_ = worstKnownValid;
 }
@@ -1266,7 +1266,7 @@ boost::tuple<double, double> GOptimizableEntity::getWorstKnownValid(
  * Allows to retrieve all worst known valid evaluations up to the
  * current iteration, as set by an external optimization algorithm
  */
-std::vector<boost::tuple<double, double> > GOptimizableEntity::getWorstKnownValids() const {
+std::vector<boost::tuple<double, double>> GOptimizableEntity::getWorstKnownValids() const {
 	return worstKnownValids_;
 }
 
@@ -1351,7 +1351,7 @@ void GOptimizableEntity::postEvaluationUpdate() {
  */
 double GOptimizableEntity::sumCombiner() const {
 	double result = 0.;
-	std::vector<boost::tuple<double, double> >::const_iterator cit;
+	std::vector<boost::tuple<double, double>>::const_iterator cit;
 	for (cit = currentFitnessVec_.begin(); cit != currentFitnessVec_.end(); ++cit) {
 		result += boost::get<G_TRANSFORMED_FITNESS>(*cit);
 	}
@@ -1366,7 +1366,7 @@ double GOptimizableEntity::sumCombiner() const {
  */
 double GOptimizableEntity::fabsSumCombiner() const {
 	double result = 0.;
-	std::vector<boost::tuple<double, double> >::const_iterator cit;
+	std::vector<boost::tuple<double, double>>::const_iterator cit;
 	for (cit = currentFitnessVec_.begin(); cit != currentFitnessVec_.end(); ++cit) {
 		result += fabs(boost::get<G_TRANSFORMED_FITNESS>(*cit));
 	}
@@ -1383,7 +1383,7 @@ double GOptimizableEntity::fabsSumCombiner() const {
  */
 double GOptimizableEntity::squaredSumCombiner() const {
 	double result = 0.;
-	std::vector<boost::tuple<double, double> >::const_iterator cit;
+	std::vector<boost::tuple<double, double>>::const_iterator cit;
 	for (cit = currentFitnessVec_.begin(); cit != currentFitnessVec_.end(); ++cit) {
 		result += GSQUARED(boost::get<G_TRANSFORMED_FITNESS>(*cit));
 	}
@@ -1401,7 +1401,7 @@ double GOptimizableEntity::squaredSumCombiner() const {
  */
 double GOptimizableEntity::weighedSquaredSumCombiner(const std::vector<double> &weights) const {
 	double result = 0.;
-	std::vector<boost::tuple<double, double> >::const_iterator cit_eval;
+	std::vector<boost::tuple<double, double>>::const_iterator cit_eval;
 	std::vector<double>::const_iterator cit_weights;
 
 	if (currentFitnessVec_.size() != weights.size()) {

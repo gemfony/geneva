@@ -160,7 +160,7 @@ void GInt32Collection::compare(
 	GToken token("GInt32Collection", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GIntNumCollectionT<boost::int32_t> >(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GIntNumCollectionT<boost::int32_t>>(IDENTITY(*this, *p_load), token);
 
 	// ... no local data
 
@@ -200,12 +200,12 @@ void GInt32Collection::int32Streamline(
  * @param parVec The map to which the local values should be attached
  */
 void GInt32Collection::int32Streamline(
-	std::map<std::string, std::vector<boost::int32_t> > &parVec, const activityMode &am
+	std::map<std::string, std::vector<boost::int32_t>> &parVec, const activityMode &am
 ) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
       glogger
-      << "In GInt32Collection::int32Streamline(std::map<std::string, std::vector<boost::int32_t> >& parVec) const: Error!" << std::endl
+      << "In GInt32Collection::int32Streamline(std::map<std::string, std::vector<boost::int32_t>>& parVec) const: Error!" << std::endl
       << "No name was assigned to the object" << std::endl
       << GEXCEPTION;
    }
@@ -277,7 +277,7 @@ void GInt32Collection::assignInt32ValueVector(
  * Assigns part of a value map to the parameter
  */
 void GInt32Collection::assignInt32ValueVectors(
-	const std::map<std::string, std::vector<boost::int32_t> > &parMap, const activityMode &am
+	const std::map<std::string, std::vector<boost::int32_t>> &parMap, const activityMode &am
 ) {
 	GInt32Collection::iterator it;
 	std::size_t cnt = 0;

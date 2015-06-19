@@ -163,10 +163,10 @@ private:
 namespace boost {
 namespace serialization {
 template<typename submission_type>
-struct is_abstract<Gem::Courtier::GSubmissionContainerT<submission_type> > : public boost::true_type {
+struct is_abstract<Gem::Courtier::GSubmissionContainerT<submission_type>> : public boost::true_type {
 };
 template<typename submission_type>
-struct is_abstract<const Gem::Courtier::GSubmissionContainerT<submission_type> > : public boost::true_type {
+struct is_abstract<const Gem::Courtier::GSubmissionContainerT<submission_type>> : public boost::true_type {
 };
 }
 }

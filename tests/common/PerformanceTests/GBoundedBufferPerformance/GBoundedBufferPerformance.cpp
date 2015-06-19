@@ -58,7 +58,7 @@ using namespace Gem::Common::Tests;
 /**
  * The global thread-safe queue
  */
-GBoundedBufferT<std::shared_ptr<double> > buffer;
+GBoundedBufferT<std::shared_ptr<double>> buffer;
 
 /**
  * A barrier on which all threads have to wait

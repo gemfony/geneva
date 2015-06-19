@@ -71,7 +71,7 @@ class GNumBiGaussAdaptorT :public GAdaptorT<num_type>
 
 		// Save all necessary data
 		ar
-		& make_nvp("GAdaptorT_num", boost::serialization::base_object<GAdaptorT<num_type> >(*this))
+		& make_nvp("GAdaptorT_num", boost::serialization::base_object<GAdaptorT<num_type>>(*this))
 		& BOOST_SERIALIZATION_NVP(useSymmetricSigmas_)
 		& BOOST_SERIALIZATION_NVP(sigma1_)
 		& BOOST_SERIALIZATION_NVP(sigmaSigma1_)
@@ -225,12 +225,12 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GNumBiGaussAdaptorT<num_type, fp_type> reference independent of this object and convert the pointer
-		const GNumBiGaussAdaptorT<num_type, fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumBiGaussAdaptorT<num_type, fp_type> >(cp, this);
+		const GNumBiGaussAdaptorT<num_type, fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumBiGaussAdaptorT<num_type, fp_type>>(cp, this);
 
 		GToken token("GNumBiGaussAdaptorT<num_type, fp_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GAdaptorT<num_type> >(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GAdaptorT<num_type>>(IDENTITY(*this, *p_load), token);
 
 		// ... and then the local data
 		compare_t(IDENTITY(useSymmetricSigmas_, p_load->useSymmetricSigmas_), token);
@@ -704,7 +704,7 @@ protected:
 	 */
 	void load_(const GObject *cp) override	{
 		// Check that we are dealing with a GNumBiGaussAdaptorT<num_type, fp_type> reference independent of this object and convert the pointer
-		const GNumBiGaussAdaptorT<num_type, fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumBiGaussAdaptorT<num_type, fp_type> >(cp, this);
+		const GNumBiGaussAdaptorT<num_type, fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumBiGaussAdaptorT<num_type, fp_type>>(cp, this);
 
 		// Load the data of our parent class ...
 		GAdaptorT<num_type>::load_(cp);
@@ -859,9 +859,9 @@ public:
 namespace boost {
 namespace serialization {
 template<typename num_type, typename fp_type>
-struct is_abstract< Gem::Geneva::GNumBiGaussAdaptorT<num_type, fp_type> > : public boost::true_type {};
+struct is_abstract< Gem::Geneva::GNumBiGaussAdaptorT<num_type, fp_type>> : public boost::true_type {};
 template<typename num_type, typename fp_type>
-struct is_abstract< const Gem::Geneva::GNumBiGaussAdaptorT<num_type, fp_type> > : public boost::true_type {};
+struct is_abstract< const Gem::Geneva::GNumBiGaussAdaptorT<num_type, fp_type>> : public boost::true_type {};
 }
 }
 

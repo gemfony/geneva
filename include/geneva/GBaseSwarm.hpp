@@ -81,7 +81,7 @@ class GBaseSwarm
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GOptimizationAlgorithmT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet> >(*this))
+		& make_nvp("GOptimizationAlgorithmT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet>>(*this))
 		& BOOST_SERIALIZATION_NVP(nNeighborhoods_)
 		& BOOST_SERIALIZATION_NVP(defaultNNeighborhoodMembers_)
 		& BOOST_SERIALIZATION_NVP(nNeighborhoodMembers_)
@@ -207,7 +207,7 @@ public:
 	template <typename parameterset_type>
 	std::shared_ptr<parameterset_type> getBestNeighborhoodIndividual(
 		std::size_t neighborhood
-		, typename boost::enable_if<boost::is_base_of<GParameterSet, parameterset_type> >::type* dummy = 0
+		, typename boost::enable_if<boost::is_base_of<GParameterSet, parameterset_type>>::type* dummy = 0
 	){
 #ifdef DEBUG
 		// Check that the neighborhood is in a valid range
@@ -286,8 +286,8 @@ protected:
 	std::vector<std::size_t> nNeighborhoodMembers_; ///< The current number of individuals belonging to each neighborhood
 
 	std::shared_ptr<GParameterSet> global_best_; ///< The globally best individual
-	std::vector<std::shared_ptr<GParameterSet> > neighborhood_bests_; ///< The collection of best individuals from each neighborhood
-	std::vector<std::shared_ptr<GParameterSet> > velocities_; ///< Holds velocities, as calculated in the previous iteration
+	std::vector<std::shared_ptr<GParameterSet>> neighborhood_bests_; ///< The collection of best individuals from each neighborhood
+	std::vector<std::shared_ptr<GParameterSet>> velocities_; ///< Holds velocities, as calculated in the previous iteration
 
 	double c_personal_; ///< A factor for multiplication of personal best distances
 	double c_neighborhood_; ///< A factor for multiplication of neighborhood best distances

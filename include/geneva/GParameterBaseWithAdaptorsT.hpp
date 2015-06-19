@@ -98,7 +98,7 @@ public:
 	 */
 	GParameterBaseWithAdaptorsT(const GParameterBaseWithAdaptorsT<T>& cp)
 		: GParameterBase(cp)
-		, adaptor_((cp.adaptor_)->GObject::template clone<GAdaptorT<T> >())
+		, adaptor_((cp.adaptor_)->GObject::template clone<GAdaptorT<T>>())
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -168,7 +168,7 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a  GParameterBaseWithAdaptorsT<T> reference independent of this object and convert the pointer
-		const GParameterBaseWithAdaptorsT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterBaseWithAdaptorsT<T> >(cp, this);
+		const GParameterBaseWithAdaptorsT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterBaseWithAdaptorsT<T>>(cp, this);
 
 		GToken token("GParameterBaseWithAdaptorsT<T>", e);
 
@@ -189,7 +189,7 @@ public:
 	 *
 	 * @param gat_ptr A std::shared_ptr to an adaptor
 	 */
-	void addAdaptor(std::shared_ptr<GAdaptorT<T> > gat_ptr) {
+	void addAdaptor(std::shared_ptr<GAdaptorT<T>> gat_ptr) {
 		// Check that we have indeed been given an adaptor
 		if(!gat_ptr){
 			glogger
@@ -203,7 +203,7 @@ public:
 			if (adaptor_->getAdaptorId() == gat_ptr->getAdaptorId()) {
 				adaptor_->GObject::load(gat_ptr);
 			} else { // Different type - need to clone and assign to gat_ptr
-				adaptor_ = gat_ptr->GObject::template clone<GAdaptorT<T> >();
+				adaptor_ = gat_ptr->GObject::template clone<GAdaptorT<T>>();
 			}
 		} else { // None there ? This should not happen
 			glogger
@@ -227,7 +227,7 @@ public:
 	 *
 	 * @return A std::shared_ptr to the adaptor
 	 */
-	std::shared_ptr<GAdaptorT<T> > getAdaptor() const {
+	std::shared_ptr<GAdaptorT<T>> getAdaptor() const {
 #ifdef DEBUG
 		if(!adaptor_) {
 		   glogger
@@ -260,7 +260,7 @@ public:
 	 */
 	template <typename adaptor_type>
 	std::shared_ptr<adaptor_type> getAdaptor(
-		typename boost::enable_if<boost::is_base_of<GAdaptorT<T>, adaptor_type> >::type* dummy = 0
+		typename boost::enable_if<boost::is_base_of<GAdaptorT<T>, adaptor_type>>::type* dummy = 0
 	) const {
 #ifdef DEBUG
 		if(!adaptor_) {
@@ -382,7 +382,7 @@ protected:
 	 */
 	virtual void load_(const GObject* cp) override {
 		// Check that we are dealing with a  GParameterBaseWithAdaptorsT<T> reference independent of this object and convert the pointer
-		const GParameterBaseWithAdaptorsT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterBaseWithAdaptorsT<T> >(cp, this);
+		const GParameterBaseWithAdaptorsT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterBaseWithAdaptorsT<T>>(cp, this);
 
 		// Load our parent class'es data ...
 		GParameterBase::load_(cp);
@@ -401,7 +401,7 @@ protected:
 		if (adaptor_->getAdaptorId() == p_load->adaptor_->getAdaptorId()) {
 			adaptor_->GObject::load(p_load->adaptor_);
 		} else { // Different type - need to convert
-			adaptor_ = p_load->adaptor_->GObject::template clone<GAdaptorT<T> >();
+			adaptor_ = p_load->adaptor_->GObject::template clone<GAdaptorT<T>>();
 		}
 	}
 
@@ -482,7 +482,7 @@ private:
 	/**
 	 * @brief Holds the adaptor used for adaption of the values stored in derived classes.
 	 */
-	std::shared_ptr<GAdaptorT<T> > adaptor_;
+	std::shared_ptr<GAdaptorT<T>> adaptor_;
 
 public:
 	/***************************************************************************/
@@ -518,7 +518,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test that trying to reset the adaptor will not remove it
-			std::shared_ptr<GParameterBaseWithAdaptorsT<T> > p_test = this->clone<GParameterBaseWithAdaptorsT<T> >();
+			std::shared_ptr<GParameterBaseWithAdaptorsT<T>> p_test = this->clone<GParameterBaseWithAdaptorsT<T>>();
 
 			// Make sure no adaptor is present
 			BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
@@ -532,7 +532,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test that trying to call applyAdaptor(collection) after resetting the adaptor works
-			std::shared_ptr<GParameterBaseWithAdaptorsT<T> > p_test = this->clone<GParameterBaseWithAdaptorsT<T> >();
+			std::shared_ptr<GParameterBaseWithAdaptorsT<T>> p_test = this->clone<GParameterBaseWithAdaptorsT<T>>();
 
 			// Make sure no adaptor is present
 			BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
@@ -619,9 +619,9 @@ inline std::size_t GParameterBaseWithAdaptorsT<bool>::applyAdaptor(
 namespace boost {
 namespace serialization {
 template<typename T>
-struct is_abstract<Gem::Geneva::GParameterBaseWithAdaptorsT<T> > : public boost::true_type {};
+struct is_abstract<Gem::Geneva::GParameterBaseWithAdaptorsT<T>> : public boost::true_type {};
 template<typename T>
-struct is_abstract< const Gem::Geneva::GParameterBaseWithAdaptorsT<T> > : public boost::true_type {};
+struct is_abstract< const Gem::Geneva::GParameterBaseWithAdaptorsT<T>> : public boost::true_type {};
 }
 }
 

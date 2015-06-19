@@ -75,7 +75,7 @@ class GMutableSetT:
 
 		ar
 		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GOptimizableEntity)
-		& make_nvp("GStdPtrVectorInterfaceT_T", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<T, Gem::Geneva::GObject> >(*this));
+		& make_nvp("GStdPtrVectorInterfaceT_T", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<T, Gem::Geneva::GObject>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -180,7 +180,7 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GMutableSetT<T> reference independent of this object and convert the pointer
-		const GMutableSetT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GMutableSetT<T> >(cp, this);
+		const GMutableSetT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GMutableSetT<T>>(cp, this);
 
 		GToken token("GMutableSetT<T>", e);
 
@@ -353,9 +353,9 @@ public:
 namespace boost {
 namespace serialization {
 template<typename T>
-struct is_abstract<Gem::Geneva::GMutableSetT<T> > : public boost::true_type {};
+struct is_abstract<Gem::Geneva::GMutableSetT<T>> : public boost::true_type {};
 template<typename T>
-struct is_abstract< const Gem::Geneva::GMutableSetT<T> > : public boost::true_type {};
+struct is_abstract< const Gem::Geneva::GMutableSetT<T>> : public boost::true_type {};
 }
 }
 

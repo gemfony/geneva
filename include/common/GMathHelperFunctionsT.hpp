@@ -81,7 +81,7 @@ const bool GERRORONLY = false;
 template<typename fp_type>
 void enforceRangeConstraint(
 	fp_type &val, const fp_type &lower, const fp_type &upper,
-	typename boost::enable_if<boost::is_floating_point<fp_type> >::type *dummy = 0
+	typename boost::enable_if<boost::is_floating_point<fp_type>>::type *dummy = 0
 ) {
 #ifdef DEBUG
    if(lower > upper) {
@@ -110,7 +110,7 @@ void enforceRangeConstraint(
 template<typename fp_type>
 bool checkRangeCompliance(
 	const fp_type &val, const fp_type &lower, const fp_type &upper,
-	typename boost::enable_if<boost::is_floating_point<fp_type> >::type *dummy = 0
+	typename boost::enable_if<boost::is_floating_point<fp_type>>::type *dummy = 0
 ) {
 #ifdef DEBUG
    if(lower > upper) {
@@ -135,7 +135,7 @@ bool checkRangeCompliance(
  */
 template<typename fp_type>
 fp_type getWorstCase(
-	bool maxMode, typename boost::enable_if<boost::is_floating_point<fp_type> >::type *dummy = 0
+	bool maxMode, typename boost::enable_if<boost::is_floating_point<fp_type>>::type *dummy = 0
 ) {
 	return (maxMode ? boost::numeric::bounds<fp_type>::lowest() : boost::numeric::bounds<fp_type>::highest());
 }
@@ -147,7 +147,7 @@ fp_type getWorstCase(
  */
 template<typename fp_type>
 fp_type getBestCase(
-	bool maxMode, typename boost::enable_if<boost::is_floating_point<fp_type> >::type *dummy = 0
+	bool maxMode, typename boost::enable_if<boost::is_floating_point<fp_type>>::type *dummy = 0
 ) {
 	return (maxMode ? boost::numeric::bounds<fp_type>::highest() : boost::numeric::bounds<fp_type>::lowest());
 }
@@ -174,7 +174,7 @@ const bool GFNOWARNING = false;
 template<typename fp_type>
 fp_type checkValueRange(
 	fp_type val, fp_type min, fp_type max, bool lowerOpen = false, bool upperOpen = false, bool warnOnly = false,
-	std::string varName = std::string(), typename boost::enable_if<boost::is_floating_point<fp_type> >::type *dummy = 0
+	std::string varName = std::string(), typename boost::enable_if<boost::is_floating_point<fp_type>>::type *dummy = 0
 ) {
 	bool result = true;
 
@@ -233,7 +233,7 @@ const bool GINTUPPEROPEN = true;
 template<typename int_type>
 int_type checkValueRange(
 	int_type val, int_type min, int_type max, bool lowerOpen = false, bool upperOpen = false, bool warnOnly = false,
-	typename boost::enable_if<boost::is_integral<int_type> >::type *dummy = 0
+	typename boost::enable_if<boost::is_integral<int_type>>::type *dummy = 0
 ) {
 	bool result = true;
 
@@ -309,7 +309,7 @@ boost::tuple<x_type_undet, x_type_undet> getMinMax(const std::vector<x_type_unde
  */
 template<typename x_type_undet, typename y_type_undet>
 boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>
-getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet> > &extDat) {
+getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet>> &extDat) {
 	// Do some error checking
 	if (extDat.size() < (std::size_t) 2) {
 		glogger
@@ -342,7 +342,7 @@ getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet> > &extDat) 
  */
 template<typename x_type_undet, typename y_type_undet, typename z_type_undet>
 boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet, z_type_undet>
-getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_undet> > &extDat) {
+getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_undet>> &extDat) {
 	// Do some error checking
 	if (extDat.size() < (std::size_t) 2) {
 		glogger
@@ -380,7 +380,7 @@ getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_unde
  */
 template<typename x_type_undet, typename y_type_undet, typename z_type_undet, typename w_type_undet>
 boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet, z_type_undet, w_type_undet, w_type_undet>
-getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_undet, w_type_undet> > &extDat) {
+getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_undet, w_type_undet>> &extDat) {
 	// Do some error checking
 	if (extDat.size() < (std::size_t) 2) {
 		glogger
@@ -418,7 +418,7 @@ getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_unde
  */
 template<typename T>
 T GMean(
-	const std::vector<T> &parVec, typename boost::enable_if<boost::is_floating_point<T> >::type *dummy = 0
+	const std::vector<T> &parVec, typename boost::enable_if<boost::is_floating_point<T>>::type *dummy = 0
 ) {
 	T mean = 0.;
 
@@ -449,7 +449,7 @@ T GMean(
  */
 template<typename T>
 boost::tuple<T, T> GStandardDeviation(
-	const std::vector<T> &parVec, typename boost::enable_if<boost::is_floating_point<T> >::type *dummy = 0
+	const std::vector<T> &parVec, typename boost::enable_if<boost::is_floating_point<T>>::type *dummy = 0
 ) {
 	T mean = GMean(parVec), sigma = 0.;
 
@@ -482,7 +482,7 @@ boost::tuple<T, T> GStandardDeviation(
 /**
  * Calculates the mean and standard deviation for each row of a "matrix" made up from several
  * std:vector<T> objects of equal size. E.g., if you have 5 std::vector<double> of size 10, you will
- * get back a std::vector<boost::tuple<double, double> >, of size 10, holding the mean and standard
+ * get back a std::vector<boost::tuple<double, double>>, of size 10, holding the mean and standard
  * deviation of the corresponding positions in the 5 vectors.
  *
  * @param parVec The vectors for which the standard deviations should be calculated
@@ -490,8 +490,8 @@ boost::tuple<T, T> GStandardDeviation(
  */
 template<typename T>
 void GVecStandardDeviation(
-	const std::vector<std::vector<T> > &parVec, std::vector<boost::tuple<T, T> > &result,
-	typename boost::enable_if<boost::is_floating_point<T> >::type *dummy = 0
+	const std::vector<std::vector<T>> &parVec, std::vector<boost::tuple<T, T>> &result,
+	typename boost::enable_if<boost::is_floating_point<T>>::type *dummy = 0
 ) {
 
 #ifdef DEBUG
@@ -533,7 +533,7 @@ void GVecStandardDeviation(
 	// Make sure our result vector is empty
 	result.clear();
 
-	typename std::vector<std::vector<T> >::const_iterator cit;
+	typename std::vector<std::vector<T>>::const_iterator cit;
 	for (std::size_t pos = 0; pos < parVec.at(0).size(); pos++) {
 		std::vector<T> indPar;
 
@@ -689,12 +689,12 @@ void assignVecConst(
  */
 template<typename fp_type>
 boost::tuple<fp_type, fp_type> sumTupleVec(
-	const std::vector<boost::tuple<fp_type, fp_type> > &dataPoints,
-	typename boost::enable_if<boost::is_floating_point<fp_type> >::type *dummy = 0
+	const std::vector<boost::tuple<fp_type, fp_type>> &dataPoints,
+	typename boost::enable_if<boost::is_floating_point<fp_type>>::type *dummy = 0
 ) {
 	boost::tuple<fp_type, fp_type> result = boost::tuple<fp_type, fp_type>(fp_type(0.), fp_type(0.));;
 
-	typename std::vector<boost::tuple<fp_type, fp_type> >::const_iterator cit;
+	typename std::vector<boost::tuple<fp_type, fp_type>>::const_iterator cit;
 	for (cit = dataPoints.begin(); cit != dataPoints.end(); ++cit) {
 		boost::get<0>(result) += boost::get<0>(*cit);
 		boost::get<1>(result) += boost::get<1>(*cit);
@@ -709,12 +709,12 @@ boost::tuple<fp_type, fp_type> sumTupleVec(
  */
 template<typename fp_type>
 boost::tuple<fp_type, fp_type> squareSumTupleVec(
-	const std::vector<boost::tuple<fp_type, fp_type> > &dataPoints,
-	typename boost::enable_if<boost::is_floating_point<fp_type> >::type *dummy = 0
+	const std::vector<boost::tuple<fp_type, fp_type>> &dataPoints,
+	typename boost::enable_if<boost::is_floating_point<fp_type>>::type *dummy = 0
 ) {
 	boost::tuple<fp_type, fp_type> result = boost::tuple<fp_type, fp_type>(fp_type(0.), fp_type(0.));
 
-	typename std::vector<boost::tuple<fp_type, fp_type> >::const_iterator cit;
+	typename std::vector<boost::tuple<fp_type, fp_type>>::const_iterator cit;
 	for (cit = dataPoints.begin(); cit != dataPoints.end(); ++cit) {
 		boost::get<0>(result) += gpow(boost::get<0>(*cit), 2.);
 		boost::get<1>(result) += gpow(boost::get<1>(*cit), 2.);
@@ -729,12 +729,12 @@ boost::tuple<fp_type, fp_type> squareSumTupleVec(
  */
 template<typename fp_type>
 fp_type productSumTupleVec(
-	const std::vector<boost::tuple<fp_type, fp_type> > &dataPoints,
-	typename boost::enable_if<boost::is_floating_point<fp_type> >::type *dummy = 0
+	const std::vector<boost::tuple<fp_type, fp_type>> &dataPoints,
+	typename boost::enable_if<boost::is_floating_point<fp_type>>::type *dummy = 0
 ) {
 	fp_type result = fp_type(0.);
 
-	typename std::vector<boost::tuple<fp_type, fp_type> >::const_iterator cit;
+	typename std::vector<boost::tuple<fp_type, fp_type>>::const_iterator cit;
 	for (cit = dataPoints.begin(); cit != dataPoints.end(); ++cit) {
 		result += boost::get<0>(*cit) * boost::get<1>(*cit);
 	}
@@ -754,11 +754,11 @@ fp_type productSumTupleVec(
  */
 template<typename fp_type>
 fp_type squareDeviation(
-	const std::vector<boost::tuple<fp_type, fp_type> > &dataPoints, const fp_type &a, const fp_type &b,
-	typename boost::enable_if<boost::is_floating_point<fp_type> >::type *dummy = 0
+	const std::vector<boost::tuple<fp_type, fp_type>> &dataPoints, const fp_type &a, const fp_type &b,
+	typename boost::enable_if<boost::is_floating_point<fp_type>>::type *dummy = 0
 ) {
 	fp_type result = fp_type(0);
-	typename std::vector<boost::tuple<fp_type, fp_type> >::const_iterator cit;
+	typename std::vector<boost::tuple<fp_type, fp_type>>::const_iterator cit;
 	for (cit = dataPoints.begin(); cit != dataPoints.end(); ++cit) {
 		result += gpow(boost::get<1>(*cit) - a - b * boost::get<0>(*cit), 2.);
 	}
@@ -776,8 +776,8 @@ fp_type squareDeviation(
  */
 template<typename fp_type>
 boost::tuple<fp_type, fp_type, fp_type, fp_type> getRegressionParameters(
-	const std::vector<boost::tuple<fp_type, fp_type> > &dataPoints,
-	typename boost::enable_if<boost::is_floating_point<fp_type> >::type *dummy = 0
+	const std::vector<boost::tuple<fp_type, fp_type>> &dataPoints,
+	typename boost::enable_if<boost::is_floating_point<fp_type>>::type *dummy = 0
 ) {
 	if (dataPoints.empty()) {
 		return boost::tuple<fp_type, fp_type, fp_type, fp_type>(fp_type(0.), fp_type(0.), fp_type(0.), fp_type(0.));
@@ -820,7 +820,7 @@ boost::tuple<fp_type, fp_type, fp_type, fp_type> getRegressionParameters(
 template<typename fp_type>
 boost::tuple<fp_type, fp_type, fp_type, fp_type> getRatioError(
 	const boost::tuple<fp_type, fp_type, fp_type, fp_type> &s, const boost::tuple<fp_type, fp_type, fp_type, fp_type> &p,
-	typename boost::enable_if<boost::is_floating_point<fp_type> >::type *dummy = 0
+	typename boost::enable_if<boost::is_floating_point<fp_type>>::type *dummy = 0
 ) {
 	// p may not ne 0
 	if (0. == boost::get<2>(p)) {
@@ -859,10 +859,10 @@ boost::tuple<fp_type, fp_type, fp_type, fp_type> getRatioError(
  * of s/p together with their errors.
  */
 template<typename fp_type>
-std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type> > getRatioErrors(
-	const std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type> > &sn,
-	const std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type> > &pn,
-	typename boost::enable_if<boost::is_floating_point<fp_type> >::type *dummy = 0
+std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type>> getRatioErrors(
+	const std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type>> &sn,
+	const std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type>> &pn,
+	typename boost::enable_if<boost::is_floating_point<fp_type>>::type *dummy = 0
 ) {
 	// Check that both vectors have the same size, otherwise complain
 	if (sn.size() != pn.size()) {
@@ -872,8 +872,8 @@ std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type> > getRatioErrors(
 		<< GEXCEPTION;
 	}
 
-	std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type> > spn;
-	typename std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type> >::const_iterator s_cit, p_cit;
+	std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type>> spn;
+	typename std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type>>::const_iterator s_cit, p_cit;
 	for (s_cit = sn.begin(), p_cit = pn.begin(); s_cit != sn.end(); ++s_cit, ++p_cit) {
 		spn.push_back(getRatioError(*s_cit, *p_cit));
 	}

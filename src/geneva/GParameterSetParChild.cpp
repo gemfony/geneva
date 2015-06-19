@@ -122,7 +122,7 @@ void GParameterSetParChild::compare(
 	GToken token("GParameterSetParChild", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GBaseParChildT<GParameterSet> >(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GBaseParChildT<GParameterSet>>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(amalgamationLikelihood_, p_load->amalgamationLikelihood_), token);
@@ -201,7 +201,7 @@ void GParameterSetParChild::doRecombine() {
 		threshold[nParents_ - 1] = 1.; // Necessary due to rounding errors
 	}
 
-	std::vector<std::shared_ptr < GParameterSet> > ::iterator
+	std::vector<std::shared_ptr < GParameterSet>> ::iterator
 	it;
 	for (it = GOptimizationAlgorithmT<GParameterSet>::data.begin() + nParents_;
 		  it != GOptimizationAlgorithmT<GParameterSet>::data.end(); ++it) {

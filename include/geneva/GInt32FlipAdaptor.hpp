@@ -65,7 +65,7 @@ class GInt32FlipAdaptor
 		using boost::serialization::make_nvp;
 
 		ar
-			& make_nvp("GIntFlipAdaptorT_int32", boost::serialization::base_object<GIntFlipAdaptorT<boost::int32_t> >(*this));
+			& make_nvp("GIntFlipAdaptorT_int32", boost::serialization::base_object<GIntFlipAdaptorT<boost::int32_t>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 

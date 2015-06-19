@@ -316,7 +316,7 @@ public:
 	 */
 	template <typename personality_type>
 	std::shared_ptr<personality_type> getPersonalityTraits(
-		typename boost::enable_if<boost::is_base_of<GPersonalityTraits, personality_type> >::type* dummy = 0
+		typename boost::enable_if<boost::is_base_of<GPersonalityTraits, personality_type>>::type* dummy = 0
 	) {
 #ifdef DEBUG
       // Check that pt_ptr_ actually points somewhere
@@ -368,7 +368,7 @@ public:
 	/** @brief Checks whether all constraints were fulfilled */
 	G_API_GENEVA bool constraintsFulfilled() const;
 	/** @brief Allows to register a constraint with this individual */
-	G_API_GENEVA void registerConstraint(std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity> >);
+	G_API_GENEVA void registerConstraint(std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity>>);
 
 	/** @brief Allows to set the policy to use in case this individual represents an invalid solution */
 	G_API_GENEVA void setEvaluationPolicy(evaluationPolicy evalPolicy);
@@ -381,11 +381,11 @@ public:
 	G_API_GENEVA bool isInValid() const;
 
 	/** @brief Allows an optimization algorithm to set the worst known valid evaluation up to the current iteration */
-	G_API_GENEVA void setWorstKnownValid(const std::vector<boost::tuple<double, double> >&);
+	G_API_GENEVA void setWorstKnownValid(const std::vector<boost::tuple<double, double>>&);
 	/** @brief Allows to retrieve the worst known valid evaluation up to the current iteration, as set by an external optimization algorithm */
 	G_API_GENEVA boost::tuple<double, double> getWorstKnownValid(const boost::uint32_t&) const;
 	/** @brief Allows to retrieve all worst known valid evaluations up to the current iteration, as set by an external optimization algorithm */
-	G_API_GENEVA std::vector<boost::tuple<double, double> > getWorstKnownValids() const;
+	G_API_GENEVA std::vector<boost::tuple<double, double>> getWorstKnownValids() const;
 	/** @brief Fills the worstKnownValid-vector with best values */
 	G_API_GENEVA void populateWorstKnownValid();
 
@@ -493,10 +493,10 @@ private:
 	/** @brief The total number of fitness criteria */
 	std::size_t nFitnessCriteria_;
 	/** @brief Holds this object's internal, raw and transformed fitness */
-	std::vector<boost::tuple<double, double> > currentFitnessVec_;
+	std::vector<boost::tuple<double, double>> currentFitnessVec_;
 
 	/** @brief The worst known evaluation up to the current iteration */
-	std::vector<boost::tuple<double, double> > worstKnownValids_;
+	std::vector<boost::tuple<double, double>> worstKnownValids_;
 	/** @brief Indicates whether the user has marked this solution as invalid inside of the evaluation function */
 	Gem::Common::GLockVarT<bool> markedAsInvalidByUser_;
 
@@ -523,7 +523,7 @@ private:
 	double barrier_;
 
 	/** @brief A constraint-check to be applied to one or more components of this individual */
-	std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity> > individualConstraint_;
+	std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity>> individualConstraint_;
 
 	std::size_t maxUnsuccessfulAdaptions_; ///< The maximum number of calls to customAdaptions() in a row without actual modifications
 	std::size_t maxRetriesUntilValid_; ///< The maximum number an adaption of an individual should be performed until a valid parameter set was found

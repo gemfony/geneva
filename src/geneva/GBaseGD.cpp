@@ -293,7 +293,7 @@ void GBaseGD::compare(
 	GToken token("GBaseGD", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet> >(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet>>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(nStartingPoints_, p_load->nStartingPoints_), token);
@@ -325,7 +325,7 @@ std::string GBaseGD::name() const {
  */
 void GBaseGD::loadCheckpoint(const boost::filesystem::path &cpFile) {
 	// Create a vector to hold the best individuals
-	std::vector<std::shared_ptr < Gem::Geneva::GParameterSet> > bestIndividuals;
+	std::vector<std::shared_ptr < Gem::Geneva::GParameterSet>> bestIndividuals;
 
 	// Check that the file indeed exists
 	if (!boost::filesystem::exists(cpFile)) {
@@ -769,7 +769,7 @@ void GBaseGD::adjustPopulation() {
  */
 void GBaseGD::saveCheckpoint() const {
 	// Copy the parent individuals to a vector
-	std::vector<std::shared_ptr < Gem::Geneva::GParameterSet> > bestIndividuals;
+	std::vector<std::shared_ptr < Gem::Geneva::GParameterSet>> bestIndividuals;
 	GBaseGD::const_iterator it;
 	for (it = this->begin(); it != this->begin() + nStartingPoints_; ++it) {
 		bestIndividuals.push_back(*it);

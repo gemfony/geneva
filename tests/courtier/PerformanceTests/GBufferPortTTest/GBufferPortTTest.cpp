@@ -76,7 +76,7 @@ using namespace Gem::Courtier::Tests;
  * A global buffer port, to/from which WORKLOAD objects are written/read. We store
  * smart pointers instead of the objects themselves.
  */
-GBufferPortT<std::shared_ptr<WORKLOAD> > bufferport;
+GBufferPortT<std::shared_ptr<WORKLOAD>> bufferport;
 
 /********************************************************************************/
 /*

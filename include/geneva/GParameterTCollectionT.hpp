@@ -76,7 +76,7 @@ class GParameterTCollectionT
 		// Save the data
 		ar
 		& make_nvp("GParameterBase", boost::serialization::base_object<GParameterBase>(*this))
-		& make_nvp("GStdPtrVectorInterfaceT_T", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<T, Gem::Geneva::GObject> >(*this));
+		& make_nvp("GStdPtrVectorInterfaceT_T", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<T, Gem::Geneva::GObject>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -191,7 +191,7 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GParameterTCollectionT<T> reference independent of this object and convert the pointer
-		const GParameterTCollectionT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterTCollectionT<T> >(cp, this);
+		const GParameterTCollectionT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterTCollectionT<T>>(cp, this);
 
 		GToken token("GParameterTCollectionT<T>", e);
 
@@ -330,7 +330,7 @@ protected:
 	 */
 	virtual void load_(const GObject* cp) override {
 		// Check that we are dealing with a GParameterTCollectionT<T> reference independent of this object and convert the pointer
-		const GParameterTCollectionT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterTCollectionT<T> >(cp, this);
+		const GParameterTCollectionT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterTCollectionT<T>>(cp, this);
 
 		// Load our parent class'es data ...
 		GParameterBase::load_(cp);
@@ -468,7 +468,7 @@ protected:
 	 * @param parVec The map to which the float parameters will be attached
 	 */
 	virtual void floatStreamline(
-		std::map<std::string, std::vector<float> >& parVec
+		std::map<std::string, std::vector<float>>& parVec
 		, const activityMode& am
 	) const override {
 		typename GParameterTCollectionT<T>::const_iterator cit;
@@ -490,7 +490,7 @@ protected:
 	 * @param parVec The map to which the double parameters will be attached
 	 */
 	virtual void doubleStreamline(
-		std::map<std::string, std::vector<double> >& parVec
+		std::map<std::string, std::vector<double>>& parVec
 		, const activityMode& am
 	) const override {
 		typename GParameterTCollectionT<T>::const_iterator cit;
@@ -512,7 +512,7 @@ protected:
 	 * @param parVec The map to which the boost::int32_t parameters will be attached
 	 */
 	virtual void int32Streamline(
-		std::map<std::string, std::vector<boost::int32_t> >& parVec
+		std::map<std::string, std::vector<boost::int32_t>>& parVec
 		, const activityMode& am
 	) const override {
 		typename GParameterTCollectionT<T>::const_iterator cit;
@@ -534,7 +534,7 @@ protected:
 	 * @param parVec The map to which the boolean parameters will be attached
 	 */
 	virtual void booleanStreamline(
-		std::map<std::string, std::vector<bool> >& parVec
+		std::map<std::string, std::vector<bool>>& parVec
 		, const activityMode& am
 	) const override {
 		typename GParameterTCollectionT<T>::const_iterator cit;
@@ -792,7 +792,7 @@ protected:
 	 * Assigns part of a value vector to the parameter
 	 */
 	virtual void assignFloatValueVectors(
-		const std::map<std::string, std::vector<float> >& parMap
+		const std::map<std::string, std::vector<float>>& parMap
 		, const activityMode& am
 	) override {
 		typename GParameterTCollectionT<T>::iterator it;
@@ -811,7 +811,7 @@ protected:
 	 * Assigns part of a value vector to the parameter
 	 */
 	virtual void assignDoubleValueVectors(
-		const std::map<std::string, std::vector<double> >& parMap
+		const std::map<std::string, std::vector<double>>& parMap
 		, const activityMode& am
 	) override {
 		typename GParameterTCollectionT<T>::iterator it;
@@ -831,7 +831,7 @@ protected:
 	 */
 	virtual void assignInt32ValueVectors(
 		const std::map<std::string
-			, std::vector<boost::int32_t> >& parMap
+			, std::vector<boost::int32_t>>& parMap
 		, const activityMode& am
 	) override {
 		typename GParameterTCollectionT<T>::iterator it;
@@ -851,7 +851,7 @@ protected:
 	 */
 	virtual void assignBooleanValueVectors(
 		const std::map<std::string
-			, std::vector<bool> >& parMap
+			, std::vector<bool>>& parMap
 		, const activityMode& am
 	) override {
 		typename GParameterTCollectionT<T>::iterator it;
@@ -1050,8 +1050,8 @@ protected:
 		, const activityMode& am
 	) override {
 		// We first need to convert p_base into the local type
-		std::shared_ptr<GParameterTCollectionT<T> > p
-			= GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
+		std::shared_ptr<GParameterTCollectionT<T>> p
+			= GParameterBase::parameterbase_cast<GParameterTCollectionT<T>>(p_base);
 
 		// Check that both collections have the same size
 		if(this->size() != p->size()) {
@@ -1077,8 +1077,8 @@ protected:
 		, const activityMode& am
 	) override {
 		// We first need to convert p_base into the local type
-		std::shared_ptr<GParameterTCollectionT<T> > p
-			= GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
+		std::shared_ptr<GParameterTCollectionT<T>> p
+			= GParameterBase::parameterbase_cast<GParameterTCollectionT<T>>(p_base);
 
 		// Check that both collections have the same size
 		if(this->size() != p->size()) {
@@ -1104,8 +1104,8 @@ protected:
 		, const activityMode& am
 	) override {
 		// We first need to convert p_base into the local type
-		std::shared_ptr<GParameterTCollectionT<T> > p
-			= GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
+		std::shared_ptr<GParameterTCollectionT<T>> p
+			= GParameterBase::parameterbase_cast<GParameterTCollectionT<T>>(p_base);
 
 		// Check that both collections have the same size
 		if(this->size() != p->size()) {
@@ -1131,8 +1131,8 @@ protected:
 		, const activityMode& am
 	) override {
 		// We first need to convert p_base into the local type
-		std::shared_ptr<GParameterTCollectionT<T> > p
-			= GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
+		std::shared_ptr<GParameterTCollectionT<T>> p
+			= GParameterBase::parameterbase_cast<GParameterTCollectionT<T>>(p_base);
 
 		// Check that both collections have the same size
 		if(this->size() != p->size()) {
@@ -1158,8 +1158,8 @@ protected:
 		, const activityMode& am
 	) override {
 		// We first need to convert p_base into the local type
-		std::shared_ptr<GParameterTCollectionT<T> > p
-			= GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
+		std::shared_ptr<GParameterTCollectionT<T>> p
+			= GParameterBase::parameterbase_cast<GParameterTCollectionT<T>>(p_base);
 
 		// Check that both collections have the same size
 		if(this->size() != p->size()) {
@@ -1185,8 +1185,8 @@ protected:
 		, const activityMode& am
 	) override {
 		// We first need to convert p_base into the local type
-		std::shared_ptr<GParameterTCollectionT<T> > p
-			= GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
+		std::shared_ptr<GParameterTCollectionT<T>> p
+			= GParameterBase::parameterbase_cast<GParameterTCollectionT<T>>(p_base);
 
 		// Check that both collections have the same size
 		if(this->size() != p->size()) {
@@ -1280,9 +1280,9 @@ public:
 namespace boost {
 namespace serialization {
 template<typename T>
-struct is_abstract<Gem::Geneva::GParameterTCollectionT<T> > : public boost::true_type {};
+struct is_abstract<Gem::Geneva::GParameterTCollectionT<T>> : public boost::true_type {};
 template<typename T>
-struct is_abstract< const Gem::Geneva::GParameterTCollectionT<T> > : public boost::true_type {};
+struct is_abstract< const Gem::Geneva::GParameterTCollectionT<T>> : public boost::true_type {};
 }
 }
 

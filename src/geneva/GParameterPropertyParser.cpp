@@ -180,7 +180,7 @@ void GParameterPropertyParser::parse() {
 	std::string::const_iterator from = raw_.begin();
 	std::string::const_iterator to = raw_.end();
 
-	std::vector<boost::tuple<char, std::string> > variableDescriptions;
+	std::vector<boost::tuple<char, std::string>> variableDescriptions;
 
 	// Dissect the raw string into sub-strings responsible for individual parameters
 	success = phrase_parse(
@@ -196,7 +196,7 @@ void GParameterPropertyParser::parse() {
 	}
 
 	// Process each individual string
-	std::vector<boost::tuple<char, std::string> >::iterator it;
+	std::vector<boost::tuple<char, std::string>>::iterator it;
 	for (it = variableDescriptions.begin(); it != variableDescriptions.end(); ++it) {
 		std::string varDescr = boost::get<1>(*it);
 

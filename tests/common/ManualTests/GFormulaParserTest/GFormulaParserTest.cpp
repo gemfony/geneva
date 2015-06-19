@@ -71,7 +71,7 @@ using namespace std;
 
 int test_main(int argc, char** const argv) {
 	{ // Test replacement of variables and constants (1)
-		std::map<std::string, std::vector<double> > parameterValues;
+		std::map<std::string, std::vector<double>> parameterValues;
 
 		std::string formula("sin({{0}})/{{1}}");
 
@@ -90,7 +90,7 @@ int test_main(int argc, char** const argv) {
 	}
 
 	{ // Test replacement of variables and constants (1)
-		std::map<std::string, std::vector<double> > parameterValues;
+		std::map<std::string, std::vector<double>> parameterValues;
 
 		std::string formula("fabs(sin({{0}})/max({{1}}, 0.000001))");
 
@@ -109,7 +109,7 @@ int test_main(int argc, char** const argv) {
 	}
 
 	{ // Test replacement of variables and constants (1)
-		std::map<std::string, std::vector<double> > parameterValues;
+		std::map<std::string, std::vector<double>> parameterValues;
 
 		std::string formula("sin({{var0[2]}})/{{var1}}");
 
@@ -128,7 +128,7 @@ int test_main(int argc, char** const argv) {
 	}
 
 	{ // Test replacement of variables and constants (2)
-		std::map<std::string, std::vector<double> > parameterValues;
+		std::map<std::string, std::vector<double>> parameterValues;
 		std::map<std::string, double> userConstants;
 
 		std::string formula("gem*sin({{var1}})*cos(pi)");

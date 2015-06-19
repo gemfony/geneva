@@ -162,7 +162,7 @@ void GDoubleCollection::compare(
 	GToken token("GDoubleCollection", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GFPNumCollectionT<double> >(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GFPNumCollectionT<double>>(IDENTITY(*this, *p_load), token);
 
 	// ... no local data
 
@@ -202,12 +202,12 @@ void GDoubleCollection::doubleStreamline(
  * @param parVec The map to which the local value should be attached
  */
 void GDoubleCollection::doubleStreamline(
-	std::map<std::string, std::vector<double> > &parVec, const activityMode &am
+	std::map<std::string, std::vector<double>> &parVec, const activityMode &am
 ) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
       glogger
-      << "In GDoubleCollection::doubleStreamline(std::map<std::string, std::vector<double> >& parVec) const: Error!" << std::endl
+      << "In GDoubleCollection::doubleStreamline(std::map<std::string, std::vector<double>>& parVec) const: Error!" << std::endl
       << "No name was assigned to the object" << std::endl
       << GEXCEPTION;
    }
@@ -281,7 +281,7 @@ void GDoubleCollection::assignDoubleValueVector(
  * Assigns part of a value map to the parameter
  */
 void GDoubleCollection::assignDoubleValueVectors(
-	const std::map<std::string, std::vector<double> > &parMap, const activityMode &am
+	const std::map<std::string, std::vector<double>> &parMap, const activityMode &am
 ) {
 	GDoubleCollection::iterator it;
 	std::size_t cnt = 0;

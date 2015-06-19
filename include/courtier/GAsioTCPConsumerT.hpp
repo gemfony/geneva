@@ -569,7 +569,7 @@ private:
  */
 template<typename processable_type>
 class GAsioServerSessionT
-	: public std::enable_shared_from_this<GAsioServerSessionT<processable_type> >, private boost::noncopyable {
+	: public std::enable_shared_from_this<GAsioServerSessionT<processable_type>>, private boost::noncopyable {
 public:
 	/***************************************************************************/
 	/**

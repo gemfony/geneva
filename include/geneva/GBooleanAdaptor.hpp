@@ -72,7 +72,7 @@ class GBooleanAdaptor
 
 		ar
 			& make_nvp("GAdaptorT_bool",
-						  boost::serialization::base_object<GAdaptorT<bool> >(*this));
+						  boost::serialization::base_object<GAdaptorT<bool>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 

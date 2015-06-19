@@ -67,7 +67,7 @@ class GConstrainedInt32ObjectCollection
 
 		ar
 			& make_nvp("GParameterTCollectionT_gbi",
-						  boost::serialization::base_object<GParameterTCollectionT<GConstrainedInt32Object> >(*this));
+						  boost::serialization::base_object<GParameterTCollectionT<GConstrainedInt32Object>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 

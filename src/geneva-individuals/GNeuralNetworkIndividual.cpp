@@ -393,15 +393,15 @@ tS;
  * @param pos The position from which an item should be retreived
  * @return The training set at the requested position (or a boost::optional object which evaluates to "false")
  */
-boost::optional<std::shared_ptr < trainingSet> >
+boost::optional<std::shared_ptr < trainingSet>>
 
 networkData::getTrainingSet(
 	const std::size_t &pos
 ) const {
 	if (pos >= arraySize_) {
-		return boost::optional<std::shared_ptr < trainingSet> > (); // amounts to "false"
+		return boost::optional<std::shared_ptr < trainingSet>> (); // amounts to "false"
 	} else {
-		return boost::optional<std::shared_ptr < trainingSet> > (data_[pos]);
+		return boost::optional<std::shared_ptr < trainingSet>> (data_[pos]);
 	}
 }
 
@@ -537,7 +537,7 @@ bool networkData::initRangeSet() const {
 /**
  * Allows to set the initialization range
  */
-void networkData::setInitRange(const std::vector<boost::tuple<double, double> > &initRange) {
+void networkData::setInitRange(const std::vector<boost::tuple<double, double>> &initRange) {
 	initRange_ = initRange;
 }
 
@@ -545,7 +545,7 @@ void networkData::setInitRange(const std::vector<boost::tuple<double, double> > 
 /**
  * Allows to retrieve the initialization range
  */
-std::vector<boost::tuple<double, double> > networkData::getInitRange() const {
+std::vector<boost::tuple<double, double>> networkData::getInitRange() const {
 	return initRange_;
 }
 
@@ -913,7 +913,7 @@ void GNeuralNetworkIndividual::writeVisualizationFile(const std::string &visFile
 		// Retrieve information about the initialization range
 		// We only act if initialization ranges have been registered.
 		// If not, than the above default values will be used.
-		std::vector<boost::tuple<double, double> > initRange = nD_->getInitRange();
+		std::vector<boost::tuple<double, double>> initRange = nD_->getInitRange();
 		if (initRange.size() == 2) {
 			x_low = boost::get<0>(initRange.at(0));
 			x_high = boost::get<1>(initRange.at(0));
@@ -1506,7 +1506,7 @@ double GNeuralNetworkIndividual::fitnessCalculation() {
 
 	// Now loop over all data sets
 	std::size_t currentPos = 0;
-	boost::optional<std::shared_ptr < trainingSet> > o;
+	boost::optional<std::shared_ptr < trainingSet>> o;
 	while ((o = nD_->getTrainingSet(currentPos++))) {
 		// Retrieve a constant reference to the training data set for faster access
 		const trainingSet &tS = **o;

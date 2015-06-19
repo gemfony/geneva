@@ -68,7 +68,7 @@ class GBooleanObjectCollection
 
 		ar
 			& make_nvp("GParameterTCollectionT_gbo",
-						  boost::serialization::base_object<GParameterTCollectionT<GBooleanObject> >(*this));
+						  boost::serialization::base_object<GParameterTCollectionT<GBooleanObject>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 

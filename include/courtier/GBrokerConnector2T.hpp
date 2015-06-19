@@ -303,11 +303,11 @@ public:
 
 		// Remove unprocessed items, if necessary
 		if (!complete && removeUnprocessed) {
-			typename std::vector<std::shared_ptr < processable_type> > ::iterator
+			typename std::vector<std::shared_ptr < processable_type>> ::iterator
 			item_it;
 			std::vector<bool>::iterator pos_it;
 
-			std::vector<std::shared_ptr < processable_type> > workItems_tmp;
+			std::vector<std::shared_ptr < processable_type>> workItems_tmp;
 			for (
 				item_it = workItems.begin() + start, pos_it = workItemPos.begin() + start;
 				item_it != workItems.begin() + end; ++item_it, ++pos_it
@@ -382,7 +382,7 @@ public:
 		std::vector<std::shared_ptr < processable_type>
 
 	>& workItems
-	, std::vector<std::shared_ptr < processable_type> >& oldWorkItems
+	, std::vector<std::shared_ptr < processable_type>>& oldWorkItems
 	,
 	const bool &removeUnprocessed = true
 	,
@@ -429,7 +429,7 @@ protected:
 
 	>&
 	, std::vector<bool>&
-	, std::vector<std::shared_ptr < processable_type> >&
+	, std::vector<std::shared_ptr < processable_type>>&
 	) = 0;
 
 	/***************************************************************************/
@@ -507,7 +507,7 @@ protected:
 	std::vector<bool> &workItemPos
 	) {
 		// Submit work items
-		typename std::vector<std::shared_ptr < processable_type> > ::iterator
+		typename std::vector<std::shared_ptr < processable_type>> ::iterator
 		it;
 		POSITIONTYPE pos_cnt = 0;
 		for (it = workItems.begin(); it != workItems.end(); ++it) {
@@ -556,7 +556,7 @@ class GSerialExecutorT
 		using boost::serialization::make_nvp;
 
 		ar
-			&make_nvp("GBaseExecutorT", boost::serialization::base_object<GBaseExecutorT<processable_type> >(*this));
+			&make_nvp("GBaseExecutorT", boost::serialization::base_object<GBaseExecutorT<processable_type>>(*this));
 	}
 
 	///////////////////////////////////////////////////////////////////////
@@ -689,7 +689,7 @@ class GMTExecutorT
 		using boost::serialization::make_nvp;
 
 		ar
-			&make_nvp("GBaseExecutorT", boost::serialization::base_object<GBaseExecutorT<processable_type> >(*this));
+			&make_nvp("GBaseExecutorT", boost::serialization::base_object<GBaseExecutorT<processable_type>>(*this));
 	}
 
 	///////////////////////////////////////////////////////////////////////
@@ -835,7 +835,7 @@ class GBrokerConnector2T
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GBaseExecutorT", boost::serialization::base_object<GBaseExecutorT<processable_type> >(*this))
+		& make_nvp("GBaseExecutorT", boost::serialization::base_object<GBaseExecutorT<processable_type>>(*this))
 		& BOOST_SERIALIZATION_NVP(srm_)
 		& BOOST_SERIALIZATION_NVP(maxResubmissions_)
 		& BOOST_SERIALIZATION_NVP(doLogging_);
@@ -843,7 +843,7 @@ class GBrokerConnector2T
 
 	///////////////////////////////////////////////////////////////////////
 
-	typedef std::shared_ptr <Gem::Courtier::GBufferPortT<std::shared_ptr < processable_type>> >
+	typedef std::shared_ptr <Gem::Courtier::GBufferPortT<std::shared_ptr < processable_type>>>
 	GBufferPortT_ptr;
 
 public:
@@ -1072,7 +1072,7 @@ public:
 		// Make sure we have a valid buffer port
 		if (!CurrentBufferPort_) {
 			CurrentBufferPort_
-				= GBufferPortT_ptr(new Gem::Courtier::GBufferPortT<std::shared_ptr < processable_type> > ());
+				= GBufferPortT_ptr(new Gem::Courtier::GBufferPortT<std::shared_ptr < processable_type>> ());
 		}
 
 		// Add the buffer port to the broker
@@ -1431,7 +1431,7 @@ private:
 	std::size_t waitFactor_; ///< A static factor to be applied to timeouts
 
 	bool doLogging_; ///< Specifies whether arrival times of work items should be logged
-	std::vector<boost::tuple<SUBMISSIONCOUNTERTYPE, SUBMISSIONCOUNTERTYPE, boost::posix_time::ptime> > logData_; ///< Holds the sending and receiving iteration as well as the time needed for completion
+	std::vector<boost::tuple<SUBMISSIONCOUNTERTYPE, SUBMISSIONCOUNTERTYPE, boost::posix_time::ptime>> logData_; ///< Holds the sending and receiving iteration as well as the time needed for completion
 	std::vector<boost::posix_time::ptime> iterationStartTimes_; ///< Holds the start times of given iterations, if logging is activated
 
 	GBufferPortT_ptr CurrentBufferPort_; ///< Holds a GBufferPortT object during the calculation. Note: It is neither serialized nor copied

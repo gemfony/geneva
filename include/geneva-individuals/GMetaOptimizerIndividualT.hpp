@@ -1513,7 +1513,7 @@ protected:
 	) {
 		// Convert the base pointer to our local type
 		std::shared_ptr <GMetaOptimizerIndividualT<ind_type>> p
-			= Gem::Common::convertSmartPointer<GParameterSet, GMetaOptimizerIndividualT<ind_type> >(p_base);
+			= Gem::Common::convertSmartPointer<GParameterSet, GMetaOptimizerIndividualT<ind_type>>(p_base);
 
 		// We simply use a static function defined in GMetaOptimizerIndividualT<ind_type>
 		GMetaOptimizerIndividualT<ind_type>::addContent(
@@ -1712,7 +1712,7 @@ protected:
 
 		// Extract the requested data. First retrieve the best individual.
 		// It can always be found in the first position with evolutionary algorithms
-		std::shared_ptr <GMetaOptimizerIndividualT<ind_type>> p = ea->clone_at<GMetaOptimizerIndividualT<ind_type> >(0);
+		std::shared_ptr <GMetaOptimizerIndividualT<ind_type>> p = ea->clone_at<GMetaOptimizerIndividualT<ind_type>>(0);
 
 		// Retrieve the best fitness and average sigma value and add it to our local storage
 		(*progressPlotter_) & boost::tuple<double, double>((double) ea->getIteration(), p->fitness());
@@ -1757,7 +1757,7 @@ protected:
 	  */
 	virtual void load_(const GObject *cp) {
 		// Check that we are dealing with a GOptOptMonitorT<ind_type> reference independent of this object and convert the pointer
-		const GOptOptMonitorT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GOptOptMonitorT<ind_type> >(cp, this);
+		const GOptOptMonitorT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GOptOptMonitorT<ind_type>>(cp, this);
 
 		// Trigger loading of our parent class'es data
 		GBaseEA::GEAOptimizationMonitor::load_(cp);

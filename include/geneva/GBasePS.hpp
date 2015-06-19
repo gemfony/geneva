@@ -122,7 +122,7 @@ class GBasePS
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GOptimizationAlgorithmT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet> >(*this))
+		& make_nvp("GOptimizationAlgorithmT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet>>(*this))
 		& BOOST_SERIALIZATION_NVP(scanRandomly_)
 		& BOOST_SERIALIZATION_NVP(nMonitorInds_)
 		& BOOST_SERIALIZATION_NVP(bVec_)
@@ -270,7 +270,7 @@ private:
 	template <typename data_type>
 	void addDataPoint(
 		const boost::tuple<data_type, std::size_t, std::string, std::size_t>& dataPoint
-		, std::map<std::string, std::vector<data_type> >& dataMap
+		, std::map<std::string, std::vector<data_type>>& dataMap
 	) {
 		data_type   lData = boost::get<0>(dataPoint);
 		std::string lName = boost::get<2>(dataPoint);
@@ -299,12 +299,12 @@ private:
 	bool scanRandomly_;   ///< Determines whether the algorithm should scan the parameter space randomly or on a grid
 	std::size_t nMonitorInds_; ///< The number of best individuals of the entire run to be kept
 
-	std::vector<std::shared_ptr<bScanPar> >      bVec_;     ///< Holds boolean parameters to be scanned
-	std::vector<std::shared_ptr<int32ScanPar> >  int32Vec_; ///< Holds 32 bit integer parameters to be scanned
-	std::vector<std::shared_ptr<dScanPar> >      dVec_;     ///< Holds double values to be scanned
-	std::vector<std::shared_ptr<fScanPar> >      fVec_;     ///< Holds float values to be scanned
+	std::vector<std::shared_ptr<bScanPar>>      bVec_;     ///< Holds boolean parameters to be scanned
+	std::vector<std::shared_ptr<int32ScanPar>>  int32Vec_; ///< Holds 32 bit integer parameters to be scanned
+	std::vector<std::shared_ptr<dScanPar>>      dVec_;     ///< Holds double values to be scanned
+	std::vector<std::shared_ptr<fScanPar>>      fVec_;     ///< Holds float values to be scanned
 
-	std::vector<std::shared_ptr<scanParInterface> > allParVec_; /// Holds pointers to all parameter objects
+	std::vector<std::shared_ptr<scanParInterface>> allParVec_; /// Holds pointers to all parameter objects
 
 	std::size_t simpleScanItems_; ///< When set to a value > 0, a random scan of the entire parameter space will be made instead of individual parameters -- set through the configuration file
 	std::size_t scansPerformed_;  ///< Holds the number of processed items so far while a simple scan is performed

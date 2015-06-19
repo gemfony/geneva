@@ -46,7 +46,7 @@ G_API_GENEVA const std::string GGradientDescentFactory::nickname = "gd";
  * The default constructor
  */
 GGradientDescentFactory::GGradientDescentFactory()
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >("./config/GGradientDescent.json"),
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>("./config/GGradientDescent.json"),
 	  maxResubmissions_(5) { /* nothing */ }
 
 /******************************************************************************/
@@ -56,7 +56,7 @@ GGradientDescentFactory::GGradientDescentFactory()
 GGradientDescentFactory::GGradientDescentFactory(
 	const std::string &configFile
 )
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile),
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(configFile),
 	  maxResubmissions_(5) { /* nothing */ }
 
 /******************************************************************************/
@@ -67,7 +67,7 @@ GGradientDescentFactory::GGradientDescentFactory(
 GGradientDescentFactory::GGradientDescentFactory(
 	const std::string &configFile, const execMode &pm
 )
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm),
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(configFile, pm),
 	  maxResubmissions_(0) { /* nothing */ }
 
 /******************************************************************************/
@@ -79,7 +79,7 @@ GGradientDescentFactory::GGradientDescentFactory(
 	const std::string &configFile, const execMode &pm,
 	std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm, contentCreatorPtr),
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(configFile, pm, contentCreatorPtr),
 	  maxResubmissions_(5) { /* nothing */ }
 
 /******************************************************************************/
@@ -154,7 +154,7 @@ void GGradientDescentFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
 	);
 
 	// Allow our parent class to describe its options
-	GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::describeLocalOptions_(gpb);
+	GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::describeLocalOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -164,7 +164,7 @@ void GGradientDescentFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GGradientDescentFactory::postProcess_(std::shared_ptr < GOptimizationAlgorithmT<GParameterSet> > &p_base) {
+void GGradientDescentFactory::postProcess_(std::shared_ptr < GOptimizationAlgorithmT<GParameterSet>> &p_base) {
 	// Convert the object to the correct target type
 	switch (pm_) {
 		case EXECMODE_SERIAL:
@@ -174,7 +174,7 @@ void GGradientDescentFactory::postProcess_(std::shared_ptr < GOptimizationAlgori
 		case EXECMODE_MULTITHREADED: {
 			std::shared_ptr <GMultiThreadedGD> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedGD>(p_base);
-			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
+			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::nEvaluationThreads_);
 		}
 			break;
 
@@ -182,8 +182,8 @@ void GGradientDescentFactory::postProcess_(std::shared_ptr < GOptimizationAlgori
 			std::shared_ptr <GBrokerGD> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerGD>(p_base);
 
-			p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::doLogging_);
-			p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::waitFactor_);
+			p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::doLogging_);
+			p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::waitFactor_);
 
 			// This differs from e.g. GEvolutionaryAlgorithmFactory
 			p->setMaxResubmissions(maxResubmissions_);
@@ -192,7 +192,7 @@ void GGradientDescentFactory::postProcess_(std::shared_ptr < GOptimizationAlgori
 	}
 
 	// Call our parent class'es function
-	GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::postProcess_(p_base);
+	GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::postProcess_(p_base);
 }
 
 /******************************************************************************/

@@ -305,7 +305,7 @@ void GBaseSwarm::compare(
 	GToken token("GBaseSwarm", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet> >(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet>>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(nNeighborhoods_, p_load->nNeighborhoods_), token);

@@ -477,7 +477,7 @@ void GBaseEA::addIterationBests(
 		case MUPLUSNU_PARETO:
 		case MUCOMMANU_PARETO: {
 			// Retrieve all individuals on the pareto front
-			std::vector<std::shared_ptr < Gem::Geneva::GParameterSet> > paretoInds;
+			std::vector<std::shared_ptr < Gem::Geneva::GParameterSet>> paretoInds;
 			this->extractCurrentParetoIndividuals(paretoInds);
 
 			// We simply add all parent individuals to the queue. As we only want
@@ -1078,7 +1078,7 @@ setCanvasDimensions(xDim_, yDim_
 );
 
 // Copy all plotters into the GPlotDesigner object
-std::vector<std::shared_ptr < Gem::Common::GGraph2D> >
+std::vector<std::shared_ptr < Gem::Common::GGraph2D>>
 ::iterator it;
 for(
 it = fitnessGraphVec_.begin();

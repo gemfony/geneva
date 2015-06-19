@@ -181,7 +181,7 @@ void GConstrainedDoubleObject::compare(
 	GToken token("GConstrainedDoubleObject", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GConstrainedFPT<double> >(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GConstrainedFPT<double>>(IDENTITY(*this, *p_load), token);
 
 	// .... no local data
 
@@ -218,7 +218,7 @@ void GConstrainedDoubleObject::doubleStreamline(
  * @param parVec The map to which the local value should be attached
  */
 void GConstrainedDoubleObject::doubleStreamline(
-	std::map<std::string, std::vector<double> > &parVec, const activityMode &am
+	std::map<std::string, std::vector<double>> &parVec, const activityMode &am
 ) const {
 	std::vector<double> parameters;
 	// Note: application of the transfer function happens in GConstrainedNumT inside value()
@@ -280,7 +280,7 @@ void GConstrainedDoubleObject::assignDoubleValueVector(
  * Assigns part of a value map to the parameter
  */
 void GConstrainedDoubleObject::assignDoubleValueVectors(
-	const std::map<std::string, std::vector<double> > &parMap, const activityMode &am
+	const std::map<std::string, std::vector<double>> &parMap, const activityMode &am
 ) {
 	this->setValue(
 		this->transfer(

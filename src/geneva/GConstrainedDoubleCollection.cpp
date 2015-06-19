@@ -157,7 +157,7 @@ void GConstrainedDoubleCollection::compare(
 	GToken token("GConstrainedDoubleCollection", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GConstrainedFPNumCollectionT<double> >(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GConstrainedFPNumCollectionT<double>>(IDENTITY(*this, *p_load), token);
 
 	// ... no local data
 
@@ -197,12 +197,12 @@ void GConstrainedDoubleCollection::doubleStreamline(
  * @param parVec The map to which the local value should be attached
  */
 void GConstrainedDoubleCollection::doubleStreamline(
-	std::map<std::string, std::vector<double> > &parVec, const activityMode &am
+	std::map<std::string, std::vector<double>> &parVec, const activityMode &am
 ) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
       glogger
-      << "In GConstrainedDoubleCollection::doubleStreamline(std::map<std::string, std::vector<double> >& parVec) const: Error!" << std::endl
+      << "In GConstrainedDoubleCollection::doubleStreamline(std::map<std::string, std::vector<double>>& parVec) const: Error!" << std::endl
       << "No name was assigned to the object" << std::endl
       << GEXCEPTION;
    }
@@ -276,7 +276,7 @@ void GConstrainedDoubleCollection::assignDoubleValueVector(
  * Assigns part of a value map to the parameter
  */
 void GConstrainedDoubleCollection::assignDoubleValueVectors(
-	const std::map<std::string, std::vector<double> > &parMap, const activityMode &am
+	const std::map<std::string, std::vector<double>> &parMap, const activityMode &am
 ) {
 	for (std::size_t i = 0; i < this->size(); i++) {
 		this->setValue(i, this->transfer((Gem::Common::getMapItem(parMap, this->getParameterName())).at(i)));

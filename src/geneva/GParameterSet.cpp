@@ -136,7 +136,7 @@ void GParameterSet::compare(
 	GToken token("GParameterSet", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GMutableSetT<Gem::Geneva::GParameterBase> >(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GMutableSetT<Gem::Geneva::GParameterBase>>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(perItemCrossOverProbability_, p_load->perItemCrossOverProbability_), token);
@@ -696,15 +696,15 @@ void GParameterSet::toPropertyTree(
  * @return A string holding the parameter values and possibly the types
  */
 std::string GParameterSet::toCSV(bool withNameAndType, bool withCommas, bool useRawFitness, bool showValidity) const {
-	std::map<std::string, std::vector<double> > dData;
-	std::map<std::string, std::vector<float> > fData;
-	std::map<std::string, std::vector<boost::int32_t> > iData;
-	std::map<std::string, std::vector<bool> > bData;
+	std::map<std::string, std::vector<double>> dData;
+	std::map<std::string, std::vector<float>> fData;
+	std::map<std::string, std::vector<boost::int32_t>> iData;
+	std::map<std::string, std::vector<bool>> bData;
 
-	std::map<std::string, std::vector<double> >::const_iterator d_it;
-	std::map<std::string, std::vector<float> >::const_iterator f_it;
-	std::map<std::string, std::vector<boost::int32_t> >::const_iterator i_it;
-	std::map<std::string, std::vector<bool> >::const_iterator b_it;
+	std::map<std::string, std::vector<double>>::const_iterator d_it;
+	std::map<std::string, std::vector<float>>::const_iterator f_it;
+	std::map<std::string, std::vector<boost::int32_t>>::const_iterator i_it;
+	std::map<std::string, std::vector<bool>>::const_iterator b_it;
 
 	// Retrieve the parameter maps
 	this->streamline<double>(dData);

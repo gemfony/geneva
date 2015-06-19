@@ -179,7 +179,7 @@ void GInt32GaussAdaptor::compare(
 	GToken token("GInt32GaussAdaptor", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GIntGaussAdaptorT<boost::int32_t> >(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GIntGaussAdaptorT<boost::int32_t>>(IDENTITY(*this, *p_load), token);
 
 	// ... no local data
 

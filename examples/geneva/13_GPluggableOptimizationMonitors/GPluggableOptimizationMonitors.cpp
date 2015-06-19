@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
 
 	// Register a progress plotter with the global optimization algorithm factory
 	if(monitorSpec != "empty") {
-		std::shared_ptr<GProgressPlotterT<GParameterSet, double> > progplot_ptr(new GProgressPlotterT<GParameterSet, double>());
+		std::shared_ptr<GProgressPlotterT<GParameterSet, double>> progplot_ptr(new GProgressPlotterT<GParameterSet, double>());
 
 		progplot_ptr->setProfileSpec(monitorSpec);
 		progplot_ptr->setObserveBoundaries(observeBoundaries);
@@ -136,7 +136,7 @@ int main(int argc, char **argv) {
 	}
 
 	if(logAll != "empty") {
-		std::shared_ptr<GAllSolutionFileLoggerT<GParameterSet> > allsolutionLogger_ptr(new GAllSolutionFileLoggerT<GParameterSet>(logAll));
+		std::shared_ptr<GAllSolutionFileLoggerT<GParameterSet>> allsolutionLogger_ptr(new GAllSolutionFileLoggerT<GParameterSet>(logAll));
 
 		allsolutionLogger_ptr->setPrintWithNameAndType(true); // Output information about variable names and types
 		allsolutionLogger_ptr->setPrintWithCommas(true); // Output commas between values
@@ -147,7 +147,7 @@ int main(int argc, char **argv) {
 	}
 
 	if(monitorNAdaptions != "empty") {
-		std::shared_ptr<GNAdpationsLoggerT<GParameterSet> > nAdaptionsLogger_ptr(new GNAdpationsLoggerT<GParameterSet>(monitorNAdaptions));
+		std::shared_ptr<GNAdpationsLoggerT<GParameterSet>> nAdaptionsLogger_ptr(new GNAdpationsLoggerT<GParameterSet>(monitorNAdaptions));
 
 		nAdaptionsLogger_ptr->setMonitorBestOnly(false); // Output information for all individuals
 		nAdaptionsLogger_ptr->setAddPrintCommand(true); // Create a PNG file if Root-file is executed
@@ -156,7 +156,7 @@ int main(int argc, char **argv) {
 	}
 
 	if(logSigma != "empty") {
-		std::shared_ptr<GAdaptorPropertyLoggerT<GParameterSet, double> >
+		std::shared_ptr<GAdaptorPropertyLoggerT<GParameterSet, double>>
 			sigmaLogger_ptr(new GAdaptorPropertyLoggerT<GParameterSet, double>(logSigma, "GDoubleGaussAdaptor", "sigma"));
 
 		sigmaLogger_ptr->setMonitorBestOnly(false); // Output information for all individuals

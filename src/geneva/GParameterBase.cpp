@@ -461,7 +461,7 @@ void GParameterBase::booleanStreamline(
  * the actual work.
  */
 void GParameterBase::floatStreamline(
-	std::map<std::string, std::vector<float> > &parVec, const activityMode &
+	std::map<std::string, std::vector<float>> &parVec, const activityMode &
 ) const {
 	/* do nothing by default */
 }
@@ -478,7 +478,7 @@ void GParameterBase::floatStreamline(
  * the actual work.
  */
 void GParameterBase::doubleStreamline(
-	std::map<std::string, std::vector<double> > &parVec, const activityMode &
+	std::map<std::string, std::vector<double>> &parVec, const activityMode &
 ) const {
 	/* do nothing by default */
 }
@@ -495,7 +495,7 @@ void GParameterBase::doubleStreamline(
  * the actual work.
  */
 void GParameterBase::int32Streamline(
-	std::map<std::string, std::vector<boost::int32_t> > &parVec, const activityMode &
+	std::map<std::string, std::vector<boost::int32_t>> &parVec, const activityMode &
 ) const {
 	/* do nothing by default */
 }
@@ -512,7 +512,7 @@ void GParameterBase::int32Streamline(
  * the actual work.
  */
 void GParameterBase::booleanStreamline(
-	std::map<std::string, std::vector<bool> > &parVec, const activityMode &
+	std::map<std::string, std::vector<bool>> &parVec, const activityMode &
 ) const {
 	/* do nothing by default */
 }
@@ -714,7 +714,7 @@ void GParameterBase::assignBooleanValueVector(
  * Assigns part of a value vector to the parameter
  */
 void GParameterBase::assignFloatValueVectors(
-	const std::map<std::string, std::vector<float> > &parMap, const activityMode &
+	const std::map<std::string, std::vector<float>> &parMap, const activityMode &
 ) {
 	/* Do nothing by default */
 }
@@ -729,7 +729,7 @@ void GParameterBase::assignFloatValueVectors(
  * Assigns part of a value vector to the parameter
  */
 void GParameterBase::assignDoubleValueVectors(
-	const std::map<std::string, std::vector<double> > &parMap, const activityMode &
+	const std::map<std::string, std::vector<double>> &parMap, const activityMode &
 ) {
 	/* Do nothing by default */
 }
@@ -744,7 +744,7 @@ void GParameterBase::assignDoubleValueVectors(
  * Assigns part of a value vector to the parameter
  */
 void GParameterBase::assignInt32ValueVectors(
-	const std::map<std::string, std::vector<boost::int32_t> > &parMap, const activityMode &
+	const std::map<std::string, std::vector<boost::int32_t>> &parMap, const activityMode &
 ) {
 	/* Do nothing by default */
 }
@@ -759,7 +759,7 @@ void GParameterBase::assignInt32ValueVectors(
  * Assigns part of a value vector to the parameter
  */
 void GParameterBase::assignBooleanValueVectors(
-	const std::map<std::string, std::vector<bool> > &parMap, const activityMode &
+	const std::map<std::string, std::vector<bool>> &parMap, const activityMode &
 ) {
 	/* Do nothing by default */
 }

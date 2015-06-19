@@ -312,7 +312,7 @@ void Go2::compare(
 	GToken token("Go2", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GMutableSetT<GParameterSet> >(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GMutableSetT<GParameterSet>>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(clientMode_, p_load->clientMode_), token);
@@ -671,7 +671,7 @@ Go2 &Go2::operator&(const std::string &mn) {
  * Allows to register a content creator
  */
 void Go2::registerContentCreator(
-	std::shared_ptr < Gem::Common::GFactoryT<GParameterSet> > cc_ptr
+	std::shared_ptr < Gem::Common::GFactoryT<GParameterSet>> cc_ptr
 ) {
 	if (!cc_ptr) {
 		glogger
@@ -699,7 +699,7 @@ void Go2::optimize(const boost::uint32_t &offset) {
 	// the algorithms_ vector.
 	if (!cl_algorithms_.empty()) {
 		// Add algorithms that have been specified on the command line
-		std::vector<std::shared_ptr < GOABase> > ::iterator
+		std::vector<std::shared_ptr < GOABase>> ::iterator
 		pers_it;
 		for (pers_it = cl_algorithms_.begin(); pers_it != cl_algorithms_.end(); ++pers_it) {
 			this->addAlgorithm(*pers_it);
@@ -756,7 +756,7 @@ void Go2::optimize(const boost::uint32_t &offset) {
 	iterationsConsumed_ = offset_;
 	sorted_ = false;
 	GOABase::iterator ind_it;
-	std::vector<std::shared_ptr < GOABase> > ::iterator
+	std::vector<std::shared_ptr < GOABase>> ::iterator
 	alg_it;
 	for (alg_it = algorithms_.begin(); alg_it != algorithms_.end(); ++alg_it) {
 		std::shared_ptr <GOABase> p_base = (*alg_it);
@@ -789,9 +789,9 @@ void Go2::optimize(const boost::uint32_t &offset) {
 		iterationsConsumed_ = p_base->getIteration();
 
 		// Unload the individuals from the last algorithm and store them again in this object
-		std::vector<std::shared_ptr < GParameterSet> > bestIndividuals =
+		std::vector<std::shared_ptr < GParameterSet>> bestIndividuals =
 			p_base->GOptimizableI::getBestIndividuals < GParameterSet > ();
-		std::vector<std::shared_ptr < GParameterSet> > ::iterator
+		std::vector<std::shared_ptr < GParameterSet>> ::iterator
 		best_it;
 		for (best_it = bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
 			this->push_back(*best_it);
@@ -860,7 +860,7 @@ std::shared_ptr <Gem::Geneva::GParameterSet> Go2::customGetBestIndividual() {
  *
  * @return The best individual found
  */
-std::vector<std::shared_ptr < Gem::Geneva::GParameterSet> >
+std::vector<std::shared_ptr < Gem::Geneva::GParameterSet>>
 
 Go2::customGetBestIndividuals() {
 	Go2::iterator it;
@@ -883,7 +883,7 @@ Go2::customGetBestIndividuals() {
 		}
 	}
 
-	std::vector<std::shared_ptr < Gem::Geneva::GParameterSet> > bestIndividuals;
+	std::vector<std::shared_ptr < Gem::Geneva::GParameterSet>> bestIndividuals;
 	for (it = this->begin(); it != this->end(); ++it) {
 		// This will result in an implicit downcast
 		bestIndividuals.push_back(*it);

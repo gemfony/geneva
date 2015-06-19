@@ -192,12 +192,12 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GMultiPopulationEAT<oa_type> reference independent of this object and convert the pointer
-		const GMultiPopulationEAT<oa_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GMultiPopulationEAT<oa_type> >(cp, this);
+		const GMultiPopulationEAT<oa_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GMultiPopulationEAT<oa_type>>(cp, this);
 
 		GToken token("GMultiPopulationEAT<oa_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GBaseParChildT<oa_type> >(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GBaseParChildT<oa_type>>(IDENTITY(*this, *p_load), token);
 
 		// ... and then the local data
 		compare_t(IDENTITY(smodeMP_,  p_load->smodeMP_), token);
@@ -352,7 +352,7 @@ protected:
 	 */
 	virtual void load_(const GObject * cp) override {
 		// Check that we are dealing with a GMultiPopulationEAT<oa_type> reference independent of this object and convert the pointer
-		const GMultiPopulationEAT<oa_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GMultiPopulationEAT<oa_type> >(cp, this);
+		const GMultiPopulationEAT<oa_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GMultiPopulationEAT<oa_type>>(cp, this);
 
 		// First load the parent class'es data ...
 		GBaseParChildT<oa_type>::load_(cp);
@@ -400,7 +400,7 @@ protected:
 	 *
 	 * @return A list of the best individuals found
 	 */
-	virtual std::vector<std::shared_ptr<GParameterSet> > customGetBestIndividuals() override {
+	virtual std::vector<std::shared_ptr<GParameterSet>> customGetBestIndividuals() override {
 		// Some error checking
 		if(this->empty()) {
 			glogger
@@ -471,7 +471,7 @@ protected:
 	 */
 	virtual void adaptChildren() override {
 		boost::tuple<std::size_t,std::size_t> range = this->getAdaptionRange();
-		typename std::vector<std::shared_ptr<oa_type> >::iterator it;
+		typename std::vector<std::shared_ptr<oa_type>>::iterator it;
 
 		for(it=(this->data).begin()+boost::get<0>(range); it!=(this->data).begin()+boost::get<1>(range); ++it) {
 #ifdef DEBUG
@@ -496,7 +496,7 @@ protected:
 	 */
 	virtual void runFitnessCalculation() override {
 		boost::tuple<std::size_t,std::size_t> range = this->getEvaluationRange();
-		typename std::vector<std::shared_ptr<oa_type> >::iterator it;
+		typename std::vector<std::shared_ptr<oa_type>>::iterator it;
 
 #ifdef DEBUG
       // There should be no situation in which a "clean" individual is submitted

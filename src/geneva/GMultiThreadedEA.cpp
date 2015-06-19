@@ -217,7 +217,7 @@ void GMultiThreadedEA::finalize() {
  */
 void GMultiThreadedEA::adaptChildren() {
 	boost::tuple<std::size_t, std::size_t> range = getAdaptionRange();
-	std::vector<std::shared_ptr < GParameterSet> > ::iterator
+	std::vector<std::shared_ptr < GParameterSet>> ::iterator
 	it;
 
 	for (it = data.begin() + boost::get<0>(range); it != data.begin() + boost::get<1>(range); ++it) {
@@ -234,7 +234,7 @@ void GMultiThreadedEA::adaptChildren() {
  */
 void GMultiThreadedEA::runFitnessCalculation() {
 	boost::tuple<std::size_t, std::size_t> range = getEvaluationRange();
-	std::vector<std::shared_ptr < GParameterSet> > ::iterator
+	std::vector<std::shared_ptr < GParameterSet>> ::iterator
 	it;
 
 #ifdef DEBUG

@@ -733,7 +733,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		// Check the current size
 		BOOST_CHECK(p_test->size() == nItems);
 
-		std::vector<std::shared_ptr < GParameterBase> > dataCopy;
+		std::vector<std::shared_ptr < GParameterBase>> dataCopy;
 		BOOST_CHECK_NO_THROW(p_test->getDataCopy(dataCopy));
 
 		// Check the size and content

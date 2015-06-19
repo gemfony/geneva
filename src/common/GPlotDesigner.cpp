@@ -390,7 +390,7 @@ std::string GBasePlotter::headerData_() const {
 
 	// Extract data from the secondary plotters, if any
 	std::size_t pos = 0;
-	std::vector<std::shared_ptr < GBasePlotter> > ::const_iterator
+	std::vector<std::shared_ptr < GBasePlotter>> ::const_iterator
 	cit;
 	for (cit = secondaryPlotter_.begin(); cit != secondaryPlotter_.end(); ++cit) {
 		// Give the plotters their own id which will act as a child id in this case
@@ -419,7 +419,7 @@ std::string GBasePlotter::bodyData_() const {
 
 	// Extract data from the secondary plotters, if any
 	std::size_t pos = 0;
-	std::vector<std::shared_ptr < GBasePlotter> > ::const_iterator
+	std::vector<std::shared_ptr < GBasePlotter>> ::const_iterator
 	cit;
 	for (cit = secondaryPlotter_.begin(); cit != secondaryPlotter_.end(); ++cit) {
 		body_data
@@ -444,7 +444,7 @@ std::string GBasePlotter::footerData_() const {
 
 	// Extract data from the secondary plotters, if any
 	std::size_t pos = 0;
-	std::vector<std::shared_ptr < GBasePlotter> > ::const_iterator
+	std::vector<std::shared_ptr < GBasePlotter>> ::const_iterator
 	cit;
 	for (cit = secondaryPlotter_.begin(); cit != secondaryPlotter_.end(); ++cit) {
 		footer_data
@@ -592,7 +592,7 @@ std::string GGraph2D::bodyData(bool isSecondary, std::size_t pId) const {
 	}
 
 	// Fill data from the tuples into the arrays
-	std::vector<boost::tuple<double, double> >::const_iterator it;
+	std::vector<boost::tuple<double, double>>::const_iterator it;
 	std::size_t posCounter = 0;
 
 	for (it = data_.begin(); it != data_.end(); ++it) {
@@ -651,7 +651,7 @@ std::string GGraph2D::footerData(bool isSecondary, std::size_t pId) const {
 	<< std::endl;
 
 	if (drawArrows_ && data_.size() >= 2) {
-		std::vector<boost::tuple<double, double> >::const_iterator it;
+		std::vector<boost::tuple<double, double>>::const_iterator it;
 		std::size_t posCounter = 0;
 
 		double x1 = boost::get<0>(*data_.begin());
@@ -850,7 +850,7 @@ std::string GGraph2ED::bodyData(bool isSecondary, std::size_t pId) const {
 	}
 
 	// Fill data from the tuples into the arrays
-	std::vector<boost::tuple<double, double, double, double> >::const_iterator it;
+	std::vector<boost::tuple<double, double, double, double>>::const_iterator it;
 	std::size_t posCounter = 0;
 
 	for (it = data_.begin(); it != data_.end(); ++it) {
@@ -1080,7 +1080,7 @@ std::string GGraph3D::bodyData(bool isSecondary, std::size_t pId) const {
 	}
 
 	// Fill data from the tuples into the arrays
-	std::vector<boost::tuple<double, double, double> >::const_iterator it;
+	std::vector<boost::tuple<double, double, double>>::const_iterator it;
 	std::size_t posCounter = 0;
 
 	for (it = data_.begin(); it != data_.end(); ++it) {
@@ -1149,7 +1149,7 @@ std::string GGraph3D::footerData(bool isSecondary, std::size_t pId) const {
 	<< std::endl;
 
 	if (drawLines_ && data_.size() >= 2) {
-		std::vector<boost::tuple<double, double, double> >::const_iterator it;
+		std::vector<boost::tuple<double, double, double>>::const_iterator it;
 		std::size_t posCounter = 0;
 
 		double x, y, z;
@@ -1378,7 +1378,7 @@ std::string GGraph4D::bodyData(bool isSecondary, std::size_t pId) const {
  * Retrieves specific draw commands for this plot
  */
 std::string GGraph4D::footerData(bool isSecondary, std::size_t pId) const {
-	std::vector<boost::tuple<double, double, double, double> > localData = data_;
+	std::vector<boost::tuple<double, double, double, double>> localData = data_;
 
 	std::string baseName = suffix(isSecondary, pId);
 
@@ -1429,7 +1429,7 @@ std::string GGraph4D::footerData(bool isSecondary, std::size_t pId) const {
 	// Fill data from the tuples into the arrays
 	double wRange = wMax - wMin;
 	std::size_t pos = 0;
-	std::vector<boost::tuple<double, double, double, double> >::const_iterator it;
+	std::vector<boost::tuple<double, double, double, double>>::const_iterator it;
 	for (it = localData.begin(); it != localData.end(); ++it) {
 		std::string polyMarkerName =
 			std::string("pm3d_") + baseName + std::string("_") + boost::lexical_cast<std::string>(pos);
@@ -2080,7 +2080,7 @@ std::string GHistogram2D::bodyData(bool isSecondary, std::size_t pId) const {
 
 	std::string histName = "hist2D" + suffix(isSecondary, pId);
 
-	std::vector<boost::tuple<double, double> >::const_iterator it;
+	std::vector<boost::tuple<double, double>>::const_iterator it;
 	std::size_t posCounter = 0;
 	for (it = data_.begin(); it != data_.end(); ++it) {
 		body_data
@@ -2798,7 +2798,7 @@ std::string GPlotDesigner::plot(const boost::filesystem::path &plotName) const {
 
 	// Plot all headers up to the maximum allowed number
 	std::size_t nPlots = 0;
-	std::vector<std::shared_ptr < GBasePlotter> > ::const_iterator
+	std::vector<std::shared_ptr < GBasePlotter>> ::const_iterator
 	it;
 	for (it = plotters_.begin(); it != plotters_.end(); ++it) {
 		if (nPlots++ < maxPlots) {

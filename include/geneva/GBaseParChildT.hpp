@@ -90,7 +90,7 @@ class GBaseParChildT
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GOptimizationAlgorithmT_ind_type", boost::serialization::base_object<GOptimizationAlgorithmT<ind_type> >(*this))
+		& make_nvp("GOptimizationAlgorithmT_ind_type", boost::serialization::base_object<GOptimizationAlgorithmT<ind_type>>(*this))
 		& BOOST_SERIALIZATION_NVP(nParents_)
 		& BOOST_SERIALIZATION_NVP(recombinationMethod_)
 		& BOOST_SERIALIZATION_NVP(defaultNChildren_)
@@ -209,12 +209,12 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GBaseParChildT<ind_type>  reference independent of this object and convert the pointer
-		const GBaseParChildT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GBaseParChildT<ind_type> >(cp, this);
+		const GBaseParChildT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GBaseParChildT<ind_type>>(cp, this);
 
 		GToken token("GBaseParChildT<ind_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GOptimizationAlgorithmT<ind_type> >(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GOptimizationAlgorithmT<ind_type>>(IDENTITY(*this, *p_load), token);
 
 		// ... and then the local data
 		compare_t(IDENTITY(nParents_, p_load->nParents_), token);
@@ -335,7 +335,7 @@ public:
 	 */
 	virtual void loadCheckpoint(const boost::filesystem::path& cpFile) override {
 		// Create a vector to hold the best individuals
-		std::vector<std::shared_ptr<ind_type> > bestIndividuals;
+		std::vector<std::shared_ptr<ind_type>> bestIndividuals;
 
 		// Check that the file indeed exists
 		if(!boost::filesystem::exists(cpFile)) {
@@ -496,7 +496,7 @@ public:
 	template <typename parent_type>
 	std::shared_ptr<parent_type> getParentIndividual(
 		std::size_t parentId
-		, typename boost::enable_if<boost::is_base_of<GOptimizableEntity, parent_type> >::type* dummy = 0
+		, typename boost::enable_if<boost::is_base_of<GOptimizableEntity, parent_type>>::type* dummy = 0
 	){
 #ifdef DEBUG
       // Check that the parent id is in a valid range
@@ -552,7 +552,7 @@ protected:
 	 */
 	virtual void load_(const GObject * cp) override {
 		// Check that we are dealing with a GBaseParChildT<ind_type>  reference independent of this object and convert the pointer
-		const GBaseParChildT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GBaseParChildT<ind_type> >(cp, this);
+		const GBaseParChildT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GBaseParChildT<ind_type>>(cp, this);
 
 		// First load the parent class'es data ...
 		GOptimizationAlgorithmT<ind_type>::load_(cp);
@@ -590,7 +590,7 @@ protected:
 			threshold[nParents_-1] = 1.; // Necessary due to rounding errors
 		}
 
-		typename std::vector<std::shared_ptr<ind_type> >::iterator it;
+		typename std::vector<std::shared_ptr<ind_type>>::iterator it;
 		for(it=GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_; it!= GOptimizationAlgorithmT<ind_type>::data.end(); ++it) {
 			switch(recombinationMethod_){
 				case DEFAULTDUPLICATIONSCHEME: // we want the RANDOMDUPLICATIONSCHEME behavior
@@ -681,7 +681,7 @@ protected:
 	 * This helper function marks parents as parents and children as children.
 	 */
 	void markParents() {
-		typename std::vector<std::shared_ptr<ind_type> >::iterator it;
+		typename std::vector<std::shared_ptr<ind_type>>::iterator it;
 		for(it=GOptimizationAlgorithmT<ind_type>::data.begin(); it!=GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_; ++it){
 			(*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsParent();
 		}
@@ -692,7 +692,7 @@ protected:
 	 * This helper function marks children as children
 	 */
 	void markChildren() {
-		typename std::vector<std::shared_ptr<ind_type> >::iterator it;
+		typename std::vector<std::shared_ptr<ind_type>>::iterator it;
 		for(it=GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_; it!=GOptimizationAlgorithmT<ind_type>::data.end(); ++it){
 			(*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsChild();
 		}
@@ -705,7 +705,7 @@ protected:
 	 */
 	void markIndividualPositions() {
 		std::size_t pos = 0;
-		typename std::vector<std::shared_ptr<ind_type> >::iterator it;
+		typename std::vector<std::shared_ptr<ind_type>>::iterator it;
 		for(it=GOptimizationAlgorithmT<ind_type>::data.begin(); it!=GOptimizationAlgorithmT<ind_type>::data.end(); ++it) {
 			(*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setPopulationPosition(pos++);
 		}
@@ -816,7 +816,7 @@ protected:
 		}
 
 		// Do the smart pointers actually point to any objects ?
-		typename std::vector<std::shared_ptr<ind_type> >::iterator it;
+		typename std::vector<std::shared_ptr<ind_type>>::iterator it;
 		for(it=GOptimizationAlgorithmT<ind_type>::data.begin(); it!=GOptimizationAlgorithmT<ind_type>::data.end(); ++it) {
 			if(!(*it)) { // shared_ptr can be implicitly converted to bool
 				glogger
@@ -870,7 +870,7 @@ protected:
 	 */
 	virtual void saveCheckpoint() const override {
 		// Copy the nParents best individuals to a vector
-		std::vector<std::shared_ptr<ind_type> > bestIndividuals;
+		std::vector<std::shared_ptr<ind_type>> bestIndividuals;
 		typename GBaseParChildT<ind_type>::const_iterator it;
 		for(it=this->begin(); it!=this->begin() + getNParents(); ++it)
 			bestIndividuals.push_back(*it);
@@ -1195,9 +1195,9 @@ public:
 namespace boost {
 namespace serialization {
 template<typename ind_type>
-struct is_abstract<Gem::Geneva::GBaseParChildT<ind_type> > : public boost::true_type {};
+struct is_abstract<Gem::Geneva::GBaseParChildT<ind_type>> : public boost::true_type {};
 template<typename ind_type>
-struct is_abstract< const Gem::Geneva::GBaseParChildT<ind_type> > : public boost::true_type {};
+struct is_abstract< const Gem::Geneva::GBaseParChildT<ind_type>> : public boost::true_type {};
 }
 }
 

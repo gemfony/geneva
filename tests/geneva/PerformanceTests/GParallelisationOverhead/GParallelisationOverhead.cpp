@@ -71,7 +71,7 @@ void startReferenceMeasurement(
 	, GDelayIndividualFactory& gdif
 	, boost::tuple<double,double,double,double>& ab
 ) {
-	std::vector<boost::tuple<double, double> > referenceExecutionTimes;
+	std::vector<boost::tuple<double, double>> referenceExecutionTimes;
 
 	//---------------------------------------------------------------------
 	// Loop until no valid individuals can be retrieved anymore
@@ -135,7 +135,7 @@ void startReferenceMeasurement(
 void startParallelMeasurement(
 	Go2& go
 	, GDelayIndividualFactory& gdif
-	, std::vector<boost::tuple<double,double,double,double> >& parallelExecutionTimes
+	, std::vector<boost::tuple<double,double,double,double>>& parallelExecutionTimes
 ) {
 	//---------------------------------------------------------------------
 	// Make sure the output vector is empty
@@ -200,13 +200,13 @@ void startParallelMeasurement(
 /**
  * Calculate suitable timings including errors for the reference measurement
  */
-std::vector<boost::tuple<double,double,double,double> > getReferenceTimes(
+std::vector<boost::tuple<double,double,double,double>> getReferenceTimes(
 	const boost::tuple<double,double,double,double>& ab
-	, const std::vector<boost::tuple<double,double,double,double> >& measurementTemplate
+	, const std::vector<boost::tuple<double,double,double,double>>& measurementTemplate
 ) {
-	std::vector<boost::tuple<double,double,double,double> > referenceExecutionTimes = measurementTemplate;
+	std::vector<boost::tuple<double,double,double,double>> referenceExecutionTimes = measurementTemplate;
 
-	std::vector<boost::tuple<double,double,double,double> >::iterator it;
+	std::vector<boost::tuple<double,double,double,double>>::iterator it;
 	for(it=referenceExecutionTimes.begin(); it!=referenceExecutionTimes.end(); ++it) {
 		double sleepTime = boost::get<0>(*it); // Left unmodified, taken from measurementTemplate
 
@@ -226,7 +226,7 @@ std::vector<boost::tuple<double,double,double,double> > getReferenceTimes(
 /******************************************************************************/
 
 int main(int argc, char **argv) {
-	std::vector<boost::tuple<double,double,double,double> > parallelExecutionTimes, referenceExecutionTimes;
+	std::vector<boost::tuple<double,double,double,double>> parallelExecutionTimes, referenceExecutionTimes;
 	boost::tuple<double,double,double,double> ab;
 
 	// For the parallel measurement
@@ -266,7 +266,7 @@ int main(int argc, char **argv) {
 	referenceExecutionTimes = getReferenceTimes(ab, parallelExecutionTimes);
 
 	// Calculate the errors
-	std::vector<boost::tuple<double, double, double, double> > ratioWithErrors = getRatioErrors(
+	std::vector<boost::tuple<double, double, double, double>> ratioWithErrors = getRatioErrors(
 		referenceExecutionTimes
 		, parallelExecutionTimes
 	);

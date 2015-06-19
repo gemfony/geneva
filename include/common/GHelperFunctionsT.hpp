@@ -136,7 +136,7 @@ void ptrDifferenceCheck (
 template <typename base_type, typename target_type>
 const target_type * g_ptr_conversion (
 	const base_type *convert_ptr
-	, typename boost::enable_if<boost::is_base_of<base_type, target_type> >::type* dummy = 0
+	, typename boost::enable_if<boost::is_base_of<base_type, target_type>>::type* dummy = 0
 ) {
 #ifdef DEBUG
 	const target_type *p = dynamic_cast<const target_type *>(convert_ptr);
@@ -168,7 +168,7 @@ const target_type * g_ptr_conversion (
 template <typename base_type, typename target_type>
 std::shared_ptr<target_type> g_ptr_conversion (
 	std::shared_ptr<base_type> convert_ptr
-	, typename boost::enable_if<boost::is_base_of<base_type, target_type> >::type* dummy = 0
+	, typename boost::enable_if<boost::is_base_of<base_type, target_type>>::type* dummy = 0
 ) {
 #ifdef DEBUG
 	std::shared_ptr<target_type> p = std::dynamic_pointer_cast<target_type>(convert_ptr);
@@ -203,7 +203,7 @@ template <typename base_type, typename target_type>
 std::shared_ptr<target_type> g_convert_and_compare (
 	std::shared_ptr<base_type> convert_ptr
 	, std::shared_ptr<target_type> compare_ptr
-	, typename boost::enable_if<boost::is_base_of<base_type, target_type> >::type* dummy = 0
+	, typename boost::enable_if<boost::is_base_of<base_type, target_type>>::type* dummy = 0
 ) {
 	// Convert the base pointer -- this call will throw, if conversion cannot be done
 	std::shared_ptr<target_type> p =  g_ptr_conversion<base_type, target_type>(convert_ptr);
@@ -231,7 +231,7 @@ template <typename base_type, typename target_type>
 const target_type* g_convert_and_compare (
 	const base_type * convert_ptr
 	, const target_type * compare_ptr
-	, typename boost::enable_if<boost::is_base_of<base_type, target_type> >::type* dummy = 0
+	, typename boost::enable_if<boost::is_base_of<base_type, target_type>>::type* dummy = 0
 ) {
 	// Convert the base pointer -- this call will throw, if conversion cannot be done
 	const target_type * p =  g_ptr_conversion<base_type, target_type>(convert_ptr);
@@ -259,7 +259,7 @@ template <typename base_type, typename target_type>
 const target_type* g_convert_and_compare (
 	const base_type& convert_ref
 	, const target_type * compare_ptr
-	, typename boost::enable_if<boost::is_base_of<base_type, target_type> >::type* dummy = 0
+	, typename boost::enable_if<boost::is_base_of<base_type, target_type>>::type* dummy = 0
 ) {
 	// Convert the base pointer -- this call will throw, if conversion cannot be done
 	const target_type * p =  g_ptr_conversion<base_type, target_type>(&convert_ref);
@@ -328,12 +328,12 @@ void copySmartPointer(
  */
 template<typename T>
 void copySmartPointerVector(
-	const std::vector<std::shared_ptr < T> >& from
-	, std::vector<std::shared_ptr < T> >& to
+	const std::vector<std::shared_ptr < T>>& from
+	, std::vector<std::shared_ptr < T>>& to
 ) {
-typename std::vector<std::shared_ptr < T> >
+typename std::vector<std::shared_ptr < T>>
 ::const_iterator it_from;
-typename std::vector<std::shared_ptr < T> >
+typename std::vector<std::shared_ptr < T>>
 ::iterator it_to;
 
 std::size_t size_from = from.size();
@@ -655,7 +655,7 @@ std::vector<split_type> splitStringT(const std::string &raw, const char *sep) {
  * split of a string "0/0 0/1 1/0" into tuples of integers.
  */
 template<typename split_type1, typename split_type2>
-std::vector<boost::tuple<split_type1, split_type2> > splitStringT(
+std::vector<boost::tuple<split_type1, split_type2>> splitStringT(
 	const std::string &raw, const char *sep1, const char *sep2
 ) {
 	// Check that sep1 and sep2 differ
@@ -667,7 +667,7 @@ std::vector<boost::tuple<split_type1, split_type2> > splitStringT(
 	}
 
 	std::vector<std::string> fragments = Gem::Common::splitString(raw, sep1);
-	std::vector<boost::tuple<split_type1, split_type2> > result;
+	std::vector<boost::tuple<split_type1, split_type2>> result;
 	std::vector<std::string>::iterator it;
 	for (it = fragments.begin(); it != fragments.end(); ++it) {
 		std::vector<std::string> sub_fragments = Gem::Common::splitString(*it, sep2);

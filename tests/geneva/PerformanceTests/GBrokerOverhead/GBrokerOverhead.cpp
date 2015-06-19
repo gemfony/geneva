@@ -117,7 +117,7 @@ int main(int argc, char **argv){
 	GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
 	// Create the first set of parent individuals. Initialization of parameters is done randomly.
-	std::vector<std::shared_ptr<GParameterSet> > parentIndividuals;
+	std::vector<std::shared_ptr<GParameterSet>> parentIndividuals;
 	for(std::size_t p = 0 ; p<nParents; p++) {
 		std::shared_ptr<GParameterSet> functionIndividual_ptr = gfi();
 
@@ -173,7 +173,7 @@ int main(int argc, char **argv){
 		{
 			std::cout << "Using the GBoostThreadConsumerT consumer." << std::endl;
 			// Create a consumer and make it known to the global broker
-			std::shared_ptr<Gem::Courtier::GBoostThreadConsumerT<GParameterSet> > gbtc(new Gem::Courtier::GBoostThreadConsumerT<GParameterSet>());
+			std::shared_ptr<Gem::Courtier::GBoostThreadConsumerT<GParameterSet>> gbtc(new Gem::Courtier::GBoostThreadConsumerT<GParameterSet>());
 			gbtc->setNThreadsPerWorker(nEvaluationThreads);
 			GBROKER(Gem::Geneva::GParameterSet)->enrol(gbtc);
 

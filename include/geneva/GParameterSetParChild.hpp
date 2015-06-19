@@ -71,7 +71,7 @@ class GParameterSetParChild
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GBaseParChildT_GParameterSet", boost::serialization::base_object<GBaseParChildT<GParameterSet> >(*this))
+		& make_nvp("GBaseParChildT_GParameterSet", boost::serialization::base_object<GBaseParChildT<GParameterSet>>(*this))
 		& BOOST_SERIALIZATION_NVP(amalgamationLikelihood_);
 	}
 	///////////////////////////////////////////////////////////////////////

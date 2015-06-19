@@ -187,7 +187,7 @@ public:
 
 	/** @brief Allows to register a content creator */
 	G_API_GENEVA void registerContentCreator(
-		std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
+		std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>
 	);
 	/** @brief Perform the actual optimization cycle */
 	virtual G_API_GENEVA void optimize(const boost::uint32_t& = 0) override;
@@ -285,7 +285,7 @@ protected:
 	/** @brief Retrieves the best individual found */
 	virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestIndividual() override;
 	/** @brief Retrieves a list of the best individuals found */
-	virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet> > customGetBestIndividuals() override;
+	virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestIndividuals() override;
 
 	/** @brief Satisfies a requirement of GOptimizableI */
 	virtual G_API_GENEVA void runFitnessCalculation() override;
@@ -317,17 +317,17 @@ private:
 
 	//---------------------------------------------------------------------------
 	// The list of "chained" optimization algorithms
-	std::vector<std::shared_ptr<GOABase> > algorithms_;
+	std::vector<std::shared_ptr<GOABase>> algorithms_;
 	// Algorithms that were specified on the command line
-	std::vector<std::shared_ptr<GOABase> > cl_algorithms_;
+	std::vector<std::shared_ptr<GOABase>> cl_algorithms_;
 	// The default algorithm (if any)
 	std::shared_ptr<GOABase> default_algorithm_;
 	// A string representation of the default algorithm
 	const std::string default_algorithm_str_; ///< This is the last fall-back
 	// Holds an object capable of producing objects of the desired type
-	std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> > contentCreatorPtr_;
+	std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr_;
 	// A user-defined means for information retrieval
-	std::vector<std::shared_ptr<Gem::Geneva::GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT> > pluggable_monitors_;
+	std::vector<std::shared_ptr<Gem::Geneva::GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>> pluggable_monitors_;
 };
 
 /******************************************************************************/

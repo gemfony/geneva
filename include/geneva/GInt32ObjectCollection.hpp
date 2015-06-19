@@ -67,7 +67,7 @@ class GInt32ObjectCollection
 
 		ar
 			& make_nvp("GParameterTCollectionT_ioc",
-						  boost::serialization::base_object<GParameterTCollectionT<GInt32Object> >(*this));
+						  boost::serialization::base_object<GParameterTCollectionT<GInt32Object>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 

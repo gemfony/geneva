@@ -68,8 +68,8 @@ class GParameterCollectionT
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar
-		& make_nvp("GParameterBaseWithAdaptorsT_T", boost::serialization::base_object<GParameterBaseWithAdaptorsT<T> >(*this))
-		& make_nvp("GStdSimpleVectorInterfaceT_T", boost::serialization::base_object<Gem::Common::GStdSimpleVectorInterfaceT<T> >(*this));
+		& make_nvp("GParameterBaseWithAdaptorsT_T", boost::serialization::base_object<GParameterBaseWithAdaptorsT<T>>(*this))
+		& make_nvp("GStdSimpleVectorInterfaceT_T", boost::serialization::base_object<Gem::Common::GStdSimpleVectorInterfaceT<T>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -179,12 +179,12 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a  GParameterCollectionT<T> reference independent of this object and convert the pointer
-		const GParameterCollectionT<T> *p_load = Gem::Common::g_convert_and_compare<GObject,  GParameterCollectionT<T> >(cp, this);
+		const GParameterCollectionT<T> *p_load = Gem::Common::g_convert_and_compare<GObject,  GParameterCollectionT<T>>(cp, this);
 
 		GToken token("GParameterCollectionT<T>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GParameterBaseWithAdaptorsT<T> >(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GParameterBaseWithAdaptorsT<T>>(IDENTITY(*this, *p_load), token);
 
 		// We access the relevant data of one of the parent classes directly for simplicity reasons
 		compare_t(IDENTITY(this->data, p_load->data), token);
@@ -329,7 +329,7 @@ protected:
 	 */
 	virtual void load_(const GObject* cp) override {
 		// Check that we are dealing with a  GParameterCollectionT<T> reference independent of this object and convert the pointer
-		const GParameterCollectionT<T> *p_load = Gem::Common::g_convert_and_compare<GObject,  GParameterCollectionT<T> >(cp, this);
+		const GParameterCollectionT<T> *p_load = Gem::Common::g_convert_and_compare<GObject,  GParameterCollectionT<T>>(cp, this);
 
 		// Load our parent class'es data ...
 		GParameterBaseWithAdaptorsT<T>::load_(cp);
@@ -417,9 +417,9 @@ public:
 namespace boost {
 namespace serialization {
 template<typename T>
-struct is_abstract<Gem::Geneva::GParameterCollectionT<T> > : public boost::true_type {};
+struct is_abstract<Gem::Geneva::GParameterCollectionT<T>> : public boost::true_type {};
 template<typename T>
-struct is_abstract< const Gem::Geneva::GParameterCollectionT<T> > : public boost::true_type {};
+struct is_abstract< const Gem::Geneva::GParameterCollectionT<T>> : public boost::true_type {};
 }
 }
 

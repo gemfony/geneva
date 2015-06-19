@@ -56,7 +56,7 @@ using namespace Gem::Geneva;
 int main(int argc, char** argv) {
 	// Create a suitable data distribution for our tests. It is possible to
 	// describe this distribution by a line f(x) = x, i.e. a=0, b=1
-	std::vector<boost::tuple<double, double> > dataPoints;
+	std::vector<boost::tuple<double, double>> dataPoints;
 	for(std::size_t i=0; i<100; i++) {
 		double x = double(i-50);
 		dataPoints.push_back(boost::tuple<double, double>(x, x+sin(x)));

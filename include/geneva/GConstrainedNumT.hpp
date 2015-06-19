@@ -75,7 +75,7 @@ class GConstrainedNumT
 
 		// Save data
 		ar
-		& make_nvp("GParameterT_T", boost::serialization::base_object<GParameterT<T> >(*this))
+		& make_nvp("GParameterT_T", boost::serialization::base_object<GParameterT<T>>(*this))
 		& BOOST_SERIALIZATION_NVP(lowerBoundary_)
 		& BOOST_SERIALIZATION_NVP(upperBoundary_);
 	}
@@ -280,12 +280,12 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GConstrainedNumT<T> reference independent of this object and convert the pointer
-		const GConstrainedNumT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedNumT<T> >(cp, this);
+		const GConstrainedNumT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedNumT<T>>(cp, this);
 
 		GToken token("GConstrainedNumT<T>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GParameterT<T> >(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GParameterT<T>>(IDENTITY(*this, *p_load), token);
 
 		// ... and then the local data
 		compare_t(IDENTITY(lowerBoundary_, p_load->lowerBoundary_), token);
@@ -581,7 +581,7 @@ protected:
 	 */
 	virtual void load_(const GObject *cp) override {
 		// Check that we are dealing with a GConstrainedNumT<T> reference independent of this object and convert the pointer
-		const GConstrainedNumT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedNumT<T> >(cp, this);
+		const GConstrainedNumT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedNumT<T>>(cp, this);
 
 		// Load our parent class'es data ...
 		GParameterT<T>::load_(cp);
@@ -648,7 +648,7 @@ public:
 
 		{ // Make sure resetting the boundaries results in correct limits
 			// Clone the current object, so we can always recover from failures
-			std::shared_ptr<GConstrainedNumT<T> > p_test = this->GObject::template clone<GConstrainedNumT<T> >();
+			std::shared_ptr<GConstrainedNumT<T>> p_test = this->GObject::template clone<GConstrainedNumT<T>>();
 
 			// Make sure we can freely assign values
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
@@ -665,7 +665,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that assigning a simple, valid value works
-			std::shared_ptr<GConstrainedNumT<T> > p_test = this->GObject::template clone<GConstrainedNumT<T> >();
+			std::shared_ptr<GConstrainedNumT<T>> p_test = this->GObject::template clone<GConstrainedNumT<T>>();
 
 			// Make sure we can freely assign values
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
@@ -689,7 +689,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test that setting of boundaries with setBoundaries(lower, upper) results in the correct values
-			std::shared_ptr<GConstrainedNumT<T> > p_test = this->GObject::template clone<GConstrainedNumT<T> >();
+			std::shared_ptr<GConstrainedNumT<T>> p_test = this->GObject::template clone<GConstrainedNumT<T>>();
 
 			// Make sure we can freely assign values
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
@@ -720,7 +720,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test that setting of boundaries with setValue(val, lower, upper) results in the correct values
-			std::shared_ptr<GConstrainedNumT<T> > p_test = this->GObject::template clone<GConstrainedNumT<T> >();
+			std::shared_ptr<GConstrainedNumT<T>> p_test = this->GObject::template clone<GConstrainedNumT<T>>();
 
 			// Make sure we can freely assign values
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
@@ -766,7 +766,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that assigning a valid value using operator= results in the correct value
-			std::shared_ptr<GConstrainedNumT<T> > p_test = this->GObject::template clone<GConstrainedNumT<T> >();
+			std::shared_ptr<GConstrainedNumT<T>> p_test = this->GObject::template clone<GConstrainedNumT<T>>();
 
 			// Make sure we can freely assign values
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
@@ -800,7 +800,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that setting invalid boundaries in setBoundaries(lower, upper) throws
-			std::shared_ptr<GConstrainedNumT<T> > p_test = this->GObject::template clone<GConstrainedNumT<T> >();
+			std::shared_ptr<GConstrainedNumT<T>> p_test = this->GObject::template clone<GConstrainedNumT<T>>();
 
 			// Setting an upper boundary < lower boundary should throw
 			BOOST_CHECK_THROW(p_test->setBoundaries(T(1), T(0)), Gem::Common::gemfony_error_condition);
@@ -809,7 +809,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that setting boundaries incompatible with the current value throws
-			std::shared_ptr<GConstrainedNumT<T> > p_test = this->GObject::template clone<GConstrainedNumT<T> >();
+			std::shared_ptr<GConstrainedNumT<T>> p_test = this->GObject::template clone<GConstrainedNumT<T>>();
 
 			// First make sure we have the widest possible boundaries
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
@@ -824,7 +824,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that setting invalid boundaries with setValue(val, lower, upper) throws
-			std::shared_ptr<GConstrainedNumT<T> > p_test = this->GObject::template clone<GConstrainedNumT<T> >();
+			std::shared_ptr<GConstrainedNumT<T>> p_test = this->GObject::template clone<GConstrainedNumT<T>>();
 
 			// Setting an upper boundary < lower boundary should throw
 			BOOST_CHECK_THROW(p_test->setValue(T(0), T(2), T(0)), Gem::Common::gemfony_error_condition);
@@ -833,7 +833,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that setting a value outside of valid boundaries with setValue(val, lower, upper) throws
-			std::shared_ptr<GConstrainedNumT<T> > p_test = this->GObject::template clone<GConstrainedNumT<T> >();
+			std::shared_ptr<GConstrainedNumT<T>> p_test = this->GObject::template clone<GConstrainedNumT<T>>();
 
 			// Try to assign a value outside of the allowed boundaries should throw
 			BOOST_CHECK_THROW(p_test->setValue(T(2), T(0), T(1)), Gem::Common::gemfony_error_condition);
@@ -842,7 +842,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that setting a value outside of the currently assigned boundaries throws
-			std::shared_ptr<GConstrainedNumT<T> > p_test = this->GObject::template clone<GConstrainedNumT<T> >();
+			std::shared_ptr<GConstrainedNumT<T>> p_test = this->GObject::template clone<GConstrainedNumT<T>>();
 
 			// Assign a compatible value and boundaries
 			BOOST_CHECK_NO_THROW(p_test->setValue(T(0), T(0), T(1)));
@@ -854,7 +854,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that assigning a value using operator= outside of the allowed range throws
-			std::shared_ptr<GConstrainedNumT<T> > p_test = this->GObject::template clone<GConstrainedNumT<T> >();
+			std::shared_ptr<GConstrainedNumT<T>> p_test = this->GObject::template clone<GConstrainedNumT<T>>();
 
 			// Assign a compatible value and boundaries
 			BOOST_CHECK_NO_THROW(p_test->setValue(T(0), T(0), T(1)));
@@ -887,9 +887,9 @@ public:
 namespace boost {
 namespace serialization {
 template<typename T>
-struct is_abstract<Gem::Geneva::GConstrainedNumT<T> > : public boost::true_type {};
+struct is_abstract<Gem::Geneva::GConstrainedNumT<T>> : public boost::true_type {};
 template<typename T>
-struct is_abstract< const Gem::Geneva::GConstrainedNumT<T> > : public boost::true_type {};
+struct is_abstract< const Gem::Geneva::GConstrainedNumT<T>> : public boost::true_type {};
 }
 }
 

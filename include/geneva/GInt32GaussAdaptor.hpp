@@ -71,7 +71,7 @@ class GInt32GaussAdaptor
 		using boost::serialization::make_nvp;
 
 		ar
-			& make_nvp("GIntGaussAdaptorT_int32", boost::serialization::base_object<GIntGaussAdaptorT<boost::int32_t> >(*this));
+			& make_nvp("GIntGaussAdaptorT_int32", boost::serialization::base_object<GIntGaussAdaptorT<boost::int32_t>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 

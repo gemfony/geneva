@@ -65,7 +65,7 @@ class GInt32Collection
 		using boost::serialization::make_nvp;
 
 		ar
-			& make_nvp("GIntNumCollectionT_int32", boost::serialization::base_object<GIntNumCollectionT<boost::int32_t> >(*this));
+			& make_nvp("GIntNumCollectionT_int32", boost::serialization::base_object<GIntNumCollectionT<boost::int32_t>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -123,9 +123,9 @@ protected:
 	/** @brief Assigns part of a value vector to the parameter */
 	virtual G_API_GENEVA void assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&, const activityMode& am) override;
 	/** @brief Attach our local values to the vector. */
-	virtual G_API_GENEVA void int32Streamline(std::map<std::string, std::vector<boost::int32_t> >&, const activityMode& am) const override;
+	virtual G_API_GENEVA void int32Streamline(std::map<std::string, std::vector<boost::int32_t>>&, const activityMode& am) const override;
 	/** @brief Assigns part of a value vector to the parameter */
-	virtual G_API_GENEVA void assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t> >&, const activityMode& am) override;
+	virtual G_API_GENEVA void assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t>>&, const activityMode& am) override;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

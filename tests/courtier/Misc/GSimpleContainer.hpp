@@ -83,7 +83,7 @@ class GSimpleContainer
 	void serialize(Archive & ar, const unsigned int){
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("GSubmissionContainerT_GSimpleContainer", boost::serialization::base_object<Gem::Courtier::GSubmissionContainerT<GSimpleContainer> >(*this))
+		ar & make_nvp("GSubmissionContainerT_GSimpleContainer", boost::serialization::base_object<Gem::Courtier::GSubmissionContainerT<GSimpleContainer>>(*this))
 		& BOOST_SERIALIZATION_NVP(storedNumber_);
 	}
 	///////////////////////////////////////////////////////////////////////

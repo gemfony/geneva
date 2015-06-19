@@ -76,7 +76,7 @@ class GBrokerGD
 		ar
 		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseGD)
 		& make_nvp("GBrokerConnector2T_GParameterSet",
-					  boost::serialization::base_object<Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet> >(*this));
+					  boost::serialization::base_object<Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>>(*this));
 	}
 
 	///////////////////////////////////////////////////////////////////////
@@ -148,7 +148,7 @@ private:
 	};
 	/***************************************************************************/
 
-	std::vector<std::shared_ptr<GParameterSet> > oldWorkItems_; ///< Temporarily holds old returned work items
+	std::vector<std::shared_ptr<GParameterSet>> oldWorkItems_; ///< Temporarily holds old returned work items
 
 public:
 	/***************************************************************************/

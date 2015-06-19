@@ -160,7 +160,7 @@ void GBooleanAdaptor::compare(
 	GToken token("GBooleanAdaptor", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GAdaptorT<bool> >(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GAdaptorT<bool>>(IDENTITY(*this, *p_load), token);
 
 	// ... no local data
 

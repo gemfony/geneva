@@ -603,7 +603,7 @@ private:
 
 	boost::posix_time::ptime startTime_; ///< Holds information about the construction time of this object
 	boost::posix_time::ptime endTime_; ///< Holds information about the destruction time of this object
-	std::vector<boost::tuple<long, std::size_t> > entries_;
+	std::vector<boost::tuple<long, std::size_t>> entries_;
 
 	std::vector<long> gets_, puts_; ///< Holds information about submission- and retrieval-times
 

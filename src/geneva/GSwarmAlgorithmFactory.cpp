@@ -46,7 +46,7 @@ G_API_GENEVA const std::string GSwarmAlgorithmFactory::nickname = "swarm";
  * The default constructor
  */
 GSwarmAlgorithmFactory::GSwarmAlgorithmFactory()
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(
 	"./config/GSwarmAlgorithm.json") { /* nothing */ }
 
 /******************************************************************************/
@@ -56,7 +56,7 @@ GSwarmAlgorithmFactory::GSwarmAlgorithmFactory()
 GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
 	const std::string &configFile
 )
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile) { /* nothing */ }
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(configFile) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -66,7 +66,7 @@ GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
 GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
 	const std::string &configFile, const execMode &pm
 )
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm) { /* nothing */ }
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(configFile, pm) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -77,7 +77,7 @@ GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
 	const std::string &configFile, const execMode &pm,
 	std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm,
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(configFile, pm,
 																									  contentCreatorPtr) { /* nothing */ }
 
 /******************************************************************************/
@@ -142,7 +142,7 @@ std::shared_ptr <GOptimizationAlgorithmT<GParameterSet>> GSwarmAlgorithmFactory:
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GSwarmAlgorithmFactory::postProcess_(std::shared_ptr < GOptimizationAlgorithmT<GParameterSet> > &p_base) {
+void GSwarmAlgorithmFactory::postProcess_(std::shared_ptr < GOptimizationAlgorithmT<GParameterSet>> &p_base) {
 	// Convert the object to the correct target type
 	switch (pm_) {
 		case EXECMODE_SERIAL:
@@ -152,7 +152,7 @@ void GSwarmAlgorithmFactory::postProcess_(std::shared_ptr < GOptimizationAlgorit
 		case EXECMODE_MULTITHREADED: {
 			std::shared_ptr <GMultiThreadedSwarm> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedSwarm>(p_base);
-			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
+			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::nEvaluationThreads_);
 		}
 			break;
 
@@ -160,14 +160,14 @@ void GSwarmAlgorithmFactory::postProcess_(std::shared_ptr < GOptimizationAlgorit
 			std::shared_ptr <GBrokerSwarm> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerSwarm>(p_base);
 
-			p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::doLogging_);
-			p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::waitFactor_);
+			p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::doLogging_);
+			p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::waitFactor_);
 		}
 			break;
 	}
 
 	// Call our parent class'es function
-	GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::postProcess_(p_base);
+	GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::postProcess_(p_base);
 }
 
 /******************************************************************************/

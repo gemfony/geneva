@@ -247,7 +247,7 @@ public:
 	 */
 	template <typename clone_type>
 	std::shared_ptr<clone_type> clone(
-		typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, clone_type> >::type* dummy = 0
+		typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, clone_type>>::type* dummy = 0
 	) const {
 		return Gem::Common::convertSmartPointer<GObject, clone_type>(std::shared_ptr<GObject>(this->clone_()));
 	}
@@ -267,7 +267,7 @@ public:
 	template <typename load_type>
 	inline void load(
 		const std::shared_ptr<load_type>& cp
-		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
+		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type>>::type* dummy = 0
 	) {
 		load_(cp.get());
 	}
@@ -287,7 +287,7 @@ public:
 	template <typename load_type>
 	inline void load(
 		const load_type& cp
-		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
+		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type>>::type* dummy = 0
 	) {
 		load_(&cp);
 	}
@@ -344,7 +344,7 @@ protected:
 	G_DEPRECATED("Use Gem::Common::ptrDifferenceCheck instead")
 	void selfAssignmentCheck (
 		const GObject *load_ptr
-		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
+		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type>>::type* dummy = 0
 	) const {
 		Gem::Common::ptrDifferenceCheck(load_ptr, this);
 	}
@@ -365,7 +365,7 @@ protected:
 	G_DEPRECATED("Use Gem::Common::g_convert_and_compare instead")
 	const target_type* gobject_conversion (
 		const GObject *convert_ptr
-		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, target_type> >::type* dummy = 0
+		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, target_type>>::type* dummy = 0
 	) const {
 		// Convert the base pointer -- this call will throw, if conversion cannot be done
 		const target_type * p =  Gem::Common::g_ptr_conversion<GObject, target_type>(convert_ptr);
@@ -397,7 +397,7 @@ protected:
 	G_DEPRECATED("Use Gem::Common::g_convert_and_compare instead")
 	std::shared_ptr<target_type> gobject_conversion (
 		std::shared_ptr<GObject> convert_ptr
-		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, target_type> >::type* dummy = 0
+		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, target_type>>::type* dummy = 0
 	) const {
 		// Convert the base pointer -- this call will throw, if conversion cannot be done
 		std::shared_ptr<target_type> p =  Gem::Common::g_ptr_conversion<GObject, target_type>(convert_ptr);
@@ -440,7 +440,7 @@ public:
  */
 template <>
 inline std::shared_ptr<GObject> GObject::clone<GObject> (
-	boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, GObject> >::type* dummy
+	boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, GObject>>::type* dummy
 ) const {
 	return std::shared_ptr<GObject>(clone_());
 }
@@ -491,7 +491,7 @@ void compare (
 	, const std::string& y_name
 	, const Gem::Common::expectation& e
 	, const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
-	, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type> >::type* dummy = 0
+	, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type>>::type* dummy = 0
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -580,7 +580,7 @@ void compare (
 	, const std::string& y_name
 	, const Gem::Common::expectation& e
 	, const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
-	, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type> >::type* dummy = 0
+	, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type>>::type* dummy = 0
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -690,13 +690,13 @@ void compare (
  */
 template <typename geneva_type>
 void compare (
-	const std::vector<std::shared_ptr<geneva_type> >& x
-, const std::vector<std::shared_ptr<geneva_type> >& y
+	const std::vector<std::shared_ptr<geneva_type>>& x
+, const std::vector<std::shared_ptr<geneva_type>>& y
 , const std::string& x_name
 , const std::string& y_name
 , const Gem::Common::expectation& e
 , const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
-, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type> >::type* dummy = 0
+, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type>>::type* dummy = 0
 ) {
 bool expectationMet = false;
 std::string expectation_str;
@@ -719,7 +719,7 @@ case Gem::Common::CE_EQUALITY:
 
 	// Now loop over all members of the vectors
 	bool foundDeviation = false;
-	typename std::vector<std::shared_ptr<geneva_type> >::const_iterator x_it, y_it;
+	typename std::vector<std::shared_ptr<geneva_type>>::const_iterator x_it, y_it;
 	std::size_t index = 0;
 	for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it, ++index) {
 		// First check that both pointers have content
@@ -772,7 +772,7 @@ case Gem::Common::CE_INEQUALITY:
 
 	// Now loop over all members of the vectors
 	bool foundInequality = false;
-	typename std::vector<std::shared_ptr<geneva_type> >::const_iterator x_it, y_it;
+	typename std::vector<std::shared_ptr<geneva_type>>::const_iterator x_it, y_it;
 	for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it) {
 		// First check that both pointers have content
 		// Check whether the pointers hold content

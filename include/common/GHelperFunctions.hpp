@@ -108,7 +108,7 @@ std::vector<double> stringToDoubleVec(const std::string &);
 /******************************************************************************/
 /** @brief Splits a string into a vector of unsigned int-tuples, if possible */
 G_API_COMMON
-std::vector<boost::tuple<unsigned int, unsigned int> > stringToUIntTupleVec(const std::string &);
+std::vector<boost::tuple<unsigned int, unsigned int>> stringToUIntTupleVec(const std::string &);
 
 /******************************************************************************/
 

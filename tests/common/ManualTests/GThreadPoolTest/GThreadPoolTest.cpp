@@ -208,7 +208,7 @@ int main(int argc, char** argv) {
 	// Start measurements
 
 	// Create a number of test tasks
-	std::vector<std::shared_ptr<testTask> > tasks(nJobs);
+	std::vector<std::shared_ptr<testTask>> tasks(nJobs);
 	for(std::size_t i=0; i<nJobs; i++) {
 		tasks.at(i).reset(new testTask);
 	}

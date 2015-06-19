@@ -164,7 +164,7 @@ void GBooleanObjectCollection::compare(
 	GToken token("GBooleanObjectCollection", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GParameterTCollectionT<GBooleanObject> >(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GParameterTCollectionT<GBooleanObject>>(IDENTITY(*this, *p_load), token);
 
 	// ... no local data
 

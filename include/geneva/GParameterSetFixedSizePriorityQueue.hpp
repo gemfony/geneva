@@ -82,7 +82,7 @@ class GParameterSetFixedSizePriorityQueue
 		using boost::serialization::make_nvp;
 
 		ar
-			& make_nvp("GFSPQ", boost::serialization::base_object<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> >(*this));
+			& make_nvp("GFSPQ", boost::serialization::base_object<Gem::Common::GFixedSizePriorityQueueT<GParameterSet>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -104,7 +104,7 @@ public:
 	/** @brief Loads the data of another GParameterSetFixedSizePriorityQueue object, camouflaged as a GFixedSizePriorityQueueT<T> */
 	virtual G_API_GENEVA void load(const Gem::Common::GFixedSizePriorityQueueT<GParameterSet>&);
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA std::shared_ptr<Gem::Common::GFixedSizePriorityQueueT<GParameterSet> > clone() const;
+	virtual G_API_GENEVA std::shared_ptr<Gem::Common::GFixedSizePriorityQueueT<GParameterSet>> clone() const;
 
 	/** @brief Checks whether no item has the dirty flag set */
 	G_API_GENEVA bool allClean(std::size_t&) const;

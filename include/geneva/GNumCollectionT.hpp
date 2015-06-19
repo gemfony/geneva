@@ -73,7 +73,7 @@ class GNumCollectionT
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar
-		& make_nvp("GParameterCollectionT",	boost::serialization::base_object<GParameterCollectionT<T> >(*this))
+		& make_nvp("GParameterCollectionT",	boost::serialization::base_object<GParameterCollectionT<T>>(*this))
 		& BOOST_SERIALIZATION_NVP(lowerInitBoundary_)
 		& BOOST_SERIALIZATION_NVP(upperInitBoundary_);
 	}
@@ -110,7 +110,7 @@ public:
 		const std::size_t& nval
 		, const T& min
 		, const T& max
-		, typename boost::enable_if<boost::is_arithmetic<T> >::type* dummy = 0
+		, typename boost::enable_if<boost::is_arithmetic<T>>::type* dummy = 0
 	)
 		: GParameterCollectionT<T> (nval, min)
 		, lowerInitBoundary_(min)
@@ -134,7 +134,7 @@ public:
 		, const T& val
 		, const T& min
 		, const T& max
-		, typename boost::enable_if<boost::is_arithmetic<T> >::type* dummy = 0
+		, typename boost::enable_if<boost::is_arithmetic<T>>::type* dummy = 0
 	)
 		: GParameterCollectionT<T> (nval, val)
 		, lowerInitBoundary_(min)
@@ -218,12 +218,12 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GNumCollectionT<T> reference independent of this object and convert the pointer
-		const GNumCollectionT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumCollectionT<T> >(cp, this);
+		const GNumCollectionT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumCollectionT<T>>(cp, this);
 
 		GToken token("GNumCollectionT<T>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GParameterCollectionT<T> >(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GParameterCollectionT<T>>(IDENTITY(*this, *p_load), token);
 
 		// ... and then the local data
 		compare_t(IDENTITY(lowerInitBoundary_, p_load->lowerInitBoundary_), token);
@@ -243,7 +243,7 @@ public:
 	void setInitBoundaries(
 		const T& lowerInitBoundary
 		, const T& upperInitBoundary
-		, typename boost::enable_if<boost::is_arithmetic<T> >::type* dummy = 0
+		, typename boost::enable_if<boost::is_arithmetic<T>>::type* dummy = 0
 	) {
 		// Do some error checking
 		if(lowerInitBoundary >= upperInitBoundary) {
@@ -432,7 +432,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test setting and retrieval of initialization boundaries
-			std::shared_ptr<GNumCollectionT<T> > p_test = this->GObject::template clone<GNumCollectionT<T> >();
+			std::shared_ptr<GNumCollectionT<T>> p_test = this->GObject::template clone<GNumCollectionT<T>>();
 
 			// Set the boundaries
 			BOOST_CHECK_NO_THROW(p_test->setInitBoundaries(LOWERTESTINITVAL, UPPERTESTINITVAL));
@@ -465,7 +465,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that assignement of initialization boundaries throws for invalid boundaries
-			std::shared_ptr<GNumCollectionT<T> > p_test = this->GObject::template clone<GNumCollectionT<T> >();
+			std::shared_ptr<GNumCollectionT<T>> p_test = this->GObject::template clone<GNumCollectionT<T>>();
 
 			BOOST_CHECK_THROW(p_test->setInitBoundaries(UPPERTESTINITVAL, LOWERTESTINITVAL), Gem::Common::gemfony_error_condition);
 		}
@@ -491,9 +491,9 @@ public:
 namespace boost {
 namespace serialization {
 template<typename T>
-struct is_abstract<Gem::Geneva::GNumCollectionT<T> > : public boost::true_type {};
+struct is_abstract<Gem::Geneva::GNumCollectionT<T>> : public boost::true_type {};
 template<typename T>
-struct is_abstract< const Gem::Geneva::GNumCollectionT<T> > : public boost::true_type {};
+struct is_abstract< const Gem::Geneva::GNumCollectionT<T>> : public boost::true_type {};
 }
 }
 /******************************************************************************/

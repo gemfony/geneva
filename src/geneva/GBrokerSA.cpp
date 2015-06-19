@@ -187,7 +187,7 @@ void GBrokerSA::init() {
 	// Note that evolutionary algorithms may store arbitrary "GParameterSet"-derivatives, hence it is also possible
 	// to store brokered optimization algorithms in it, which does not make sense.
 	{
-		std::vector<std::shared_ptr < GParameterSet> > ::iterator
+		std::vector<std::shared_ptr < GParameterSet>> ::iterator
 		it;
 		for (it = this->begin(); it != this->end(); ++it) {
 			if ((*it)->getIndividualCharacteristic() == "GENEVA_BROKEROPTALG"
@@ -263,7 +263,7 @@ bool GBrokerSA::usesBroker() const {
  */
 void GBrokerSA::adaptChildren() {
 	boost::tuple<std::size_t, std::size_t> range = getAdaptionRange();
-	std::vector<std::shared_ptr < GParameterSet> > ::iterator
+	std::vector<std::shared_ptr < GParameterSet>> ::iterator
 	it;
 
 	for (it = data.begin() + boost::get<0>(range); it != data.begin() + boost::get<1>(range); ++it) {
@@ -316,7 +316,7 @@ void GBrokerSA::runFitnessCalculation() {
  * Fixes the population after a job submission
  */
 void GBrokerSA::fixAfterJobSubmission() {
-	std::vector<std::shared_ptr < GParameterSet> > ::iterator
+	std::vector<std::shared_ptr < GParameterSet>> ::iterator
 	it;
 	std::size_t np = getNParents();
 	boost::uint32_t iteration = getIteration();

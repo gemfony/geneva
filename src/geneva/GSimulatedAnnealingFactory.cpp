@@ -46,7 +46,7 @@ G_API_GENEVA const std::string GSimulatedAnnealingFactory::nickname = "sa";
  * The default constructor
  */
 GSimulatedAnnealingFactory::GSimulatedAnnealingFactory()
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(
 	"./config/GSimulatedAnnealing.json") { /* nothing */ }
 
 /******************************************************************************/
@@ -56,7 +56,7 @@ GSimulatedAnnealingFactory::GSimulatedAnnealingFactory()
 GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
 	const std::string &configFile
 )
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile) { /* nothing */ }
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(configFile) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -66,7 +66,7 @@ GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
 GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
 	const std::string &configFile, const execMode &pm
 )
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm) { /* nothing */ }
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(configFile, pm) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -77,7 +77,7 @@ GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
 	const std::string &configFile, const execMode &pm,
 	std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm,
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(configFile, pm,
 																									  contentCreatorPtr) { /* nothing */ }
 
 /******************************************************************************/
@@ -142,7 +142,7 @@ std::shared_ptr <GOptimizationAlgorithmT<GParameterSet>> GSimulatedAnnealingFact
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GSimulatedAnnealingFactory::postProcess_(std::shared_ptr < GOptimizationAlgorithmT<GParameterSet> > &p_base) {
+void GSimulatedAnnealingFactory::postProcess_(std::shared_ptr < GOptimizationAlgorithmT<GParameterSet>> &p_base) {
 	// Convert the object to the correct target type
 	switch (pm_) {
 		case EXECMODE_SERIAL:
@@ -152,7 +152,7 @@ void GSimulatedAnnealingFactory::postProcess_(std::shared_ptr < GOptimizationAlg
 		case EXECMODE_MULTITHREADED: {
 			std::shared_ptr <GMultiThreadedSA> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedSA>(p_base);
-			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
+			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::nEvaluationThreads_);
 		}
 			break;
 
@@ -160,16 +160,16 @@ void GSimulatedAnnealingFactory::postProcess_(std::shared_ptr < GOptimizationAlg
 			std::shared_ptr <GBrokerSA> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerSA>(p_base);
 
-			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
-			p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::doLogging_);
-			p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::waitFactor_);
+			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::nEvaluationThreads_);
+			p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::doLogging_);
+			p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::waitFactor_);
 
 		}
 			break;
 	}
 
 	// Call our parent class'es function
-	GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::postProcess_(p_base);
+	GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::postProcess_(p_base);
 }
 
 /******************************************************************************/

@@ -265,7 +265,7 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GAdaptorT<T> reference independent of this object and convert the pointer
-		const GAdaptorT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorT<T> >(cp, this);
+		const GAdaptorT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorT<T>>(cp, this);
 
 		GToken token("GAdaptorT<T>", e);
 
@@ -799,7 +799,7 @@ protected:
 	 */
 	virtual void load_(const GObject *cp) override {
 		// Check that we are dealing with a GAdaptorT<T> reference independent of this object and convert the pointer
-		const GAdaptorT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorT<T> >(cp, this);
+		const GAdaptorT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorT<T>>(cp, this);
 
 		// Load the parent class'es data
 		GObject::load_(cp);
@@ -936,7 +936,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test of GAdaptorT<T>::set/getAdaptionProbability()
-			std::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+			std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
 
 			// The adaption probability should have been cloned
 			BOOST_CHECK_MESSAGE(
@@ -965,7 +965,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that mutating a value with this class actually work with different likelihoods
-			std::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+			std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
 
 			// Make sure the adaption probability is taken into account
 			p_test->setAdaptionMode(boost::logic::indeterminate);
@@ -986,7 +986,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test of GAdaptorT<T>::setAdaptionProbability() regarding the effects on the likelihood for adaption of the variable
-			std::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+			std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
 
 			// Make sure the adaption probability is taken into account
 			p_test->setAdaptionMode(boost::logic::indeterminate);
@@ -1033,7 +1033,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check setting and retrieval of the adaption mode
-			std::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+			std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
 
 			// Check setting of the different allowed values
 			// false
@@ -1067,7 +1067,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check the effect of the adaption mode settings
-			std::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+			std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
 			p_test->setAdaptionProbability(0.5);
 
 			const std::size_t nTests = 10000;
@@ -1113,7 +1113,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test of GAdaptorT<T>::set/getAdaptAdaptionProbability()
-			std::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+			std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
 
 			// The adaption probability should have been cloned
 			BOOST_CHECK_MESSAGE(
@@ -1139,7 +1139,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test retrieval and setting of the adaption threshold and whether the adaptionCounter behaves nicely
-			std::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+			std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
 
 			// Make sure we have the right adaption mode
 			p_test->setAdaptionMode(boost::logic::indeterminate);
@@ -1212,7 +1212,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test that customAdaptions() in derived classes changes a test value on every call
-			std::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+			std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
 
 			std::size_t nTests = 10000;
 
@@ -1254,7 +1254,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test of GAdaptorT<T>::setAdaptionProbability(): Setting a value < 0. should throw
-			std::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+			std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
 
 			// Setting a probability < 0 should throw
 			BOOST_CHECK_THROW(
@@ -1266,7 +1266,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test of GAdaptorT<T>::setAdaptionProbability(): Setting a value > 1. should throw
-			std::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+			std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
 
 			// Setting a probability > 1 should throw
 			BOOST_CHECK_THROW(
@@ -1278,7 +1278,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test of GAdaptorT<T>::setAdaptAdaptionProbability(): Setting a value < 0. should throw
-			std::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+			std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
 
 			// Setting a probability < 0 should throw
 			BOOST_CHECK_THROW(
@@ -1290,7 +1290,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test of GAdaptorT<T>::setAdaptAdaptionProbability(): Setting a value > 1. should throw
-			std::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+			std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
 
 			// Setting a probability > 1 should throw
 			BOOST_CHECK_THROW(
@@ -1303,7 +1303,7 @@ public:
 
 #ifdef DEBUG
 		{ // Check that assigning a NULL pointer for the random number generator throws in DEBUG mode
-			std::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+			std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
 
 			// Assigning a NULL pointer should throw
 			BOOST_CHECK_THROW(
@@ -1334,9 +1334,9 @@ public:
 namespace boost {
 namespace serialization {
 template<typename T>
-struct is_abstract<Gem::Geneva::GAdaptorT<T> > : public boost::true_type {};
+struct is_abstract<Gem::Geneva::GAdaptorT<T>> : public boost::true_type {};
 template<typename T>
-struct is_abstract< const Gem::Geneva::GAdaptorT<T> > : public boost::true_type {};
+struct is_abstract< const Gem::Geneva::GAdaptorT<T>> : public boost::true_type {};
 }
 }
 

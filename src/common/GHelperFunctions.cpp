@@ -208,7 +208,7 @@ std::vector<std::string> splitString(const std::string &str, const char *sep) {
    }
 #endif /* DEBUG */
 
-	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+	typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
 	boost::char_separator<char> sep_char(sep);
 	tokenizer oaTokenizer(str, sep_char);
 	for (tokenizer::iterator oa = oaTokenizer.begin(); oa != oaTokenizer.end(); ++oa) {
@@ -291,13 +291,13 @@ std::vector<double> stringToDoubleVec(const std::string &raw) {
  * Splits a string into a vector of unsigned int-tuples, if possible, or
  * throws an exception. The string should have the form "(1,2), (3,4)" etc.
  */
-std::vector<boost::tuple<unsigned int, unsigned int> > stringToUIntTupleVec(const std::string &raw) {
+std::vector<boost::tuple<unsigned int, unsigned int>> stringToUIntTupleVec(const std::string &raw) {
 	using namespace boost::spirit;
 
 	typedef std::string::const_iterator cit_type;
-	typedef std::vector<boost::tuple<unsigned int, unsigned int> > res_type;
+	typedef std::vector<boost::tuple<unsigned int, unsigned int>> res_type;
 
-	std::vector<boost::tuple<unsigned int, unsigned int> > result;
+	std::vector<boost::tuple<unsigned int, unsigned int>> result;
 	bool success = false;
 
 	std::string::const_iterator from = raw.begin();

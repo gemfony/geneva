@@ -68,7 +68,7 @@ class GNumIntT
 	void serialize(Archive & ar, const unsigned int){
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("GNumT", boost::serialization::base_object<GNumT<int_type> >(*this));
+		ar & make_nvp("GNumT", boost::serialization::base_object<GNumT<int_type>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -222,12 +222,12 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GNumIntT<int_type> reference independent of this object and convert the pointer
-		const GNumIntT<int_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumIntT<int_type> >(cp, this);
+		const GNumIntT<int_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumIntT<int_type>>(cp, this);
 
 		GToken token("GNumIntT<int_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GNumT<int_type> >(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GNumT<int_type>>(IDENTITY(*this, *p_load), token);
 
 		// ... no local data
 
@@ -255,7 +255,7 @@ protected:
 	 */
 	virtual void load_(const GObject *cp) override {
 		// Check that we are dealing with a GNumIntT<int_type> reference independent of this object and convert the pointer
-		const GNumIntT<int_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumIntT<int_type> >(cp, this);
+		const GNumIntT<int_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumIntT<int_type>>(cp, this);
 
 		// Load our parent class'es data ...
 		GNumT<int_type>::load_(cp);
@@ -324,8 +324,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Initialize with a fixed value, then check setting and retrieval of boundaries and random initialization
-			std::shared_ptr<GNumIntT<int_type> > p_test1 = this->GObject::clone<GNumIntT<int_type> >();
-			std::shared_ptr<GNumIntT<int_type> > p_test2 = this->GObject::clone<GNumIntT<int_type> >();
+			std::shared_ptr<GNumIntT<int_type>> p_test1 = this->GObject::clone<GNumIntT<int_type>>();
+			std::shared_ptr<GNumIntT<int_type>> p_test2 = this->GObject::clone<GNumIntT<int_type>>();
 
 			// Assign a boolean value true
 			BOOST_CHECK_NO_THROW(*p_test1 = 2*UPPERINITBOUNDARY); // Make sure random initialization cannot randomly result in an unchanged value
@@ -356,9 +356,9 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that the fp-family of functions doesn't have an effect on this object
-			std::shared_ptr<GNumIntT<int_type> > p_test1 = this->GObject::clone<GNumIntT<int_type> >();
-			std::shared_ptr<GNumIntT<int_type> > p_test2 = this->GObject::clone<GNumIntT<int_type> >();
-			std::shared_ptr<GNumIntT<int_type> > p_test3 = this->GObject::clone<GNumIntT<int_type> >();
+			std::shared_ptr<GNumIntT<int_type>> p_test1 = this->GObject::clone<GNumIntT<int_type>>();
+			std::shared_ptr<GNumIntT<int_type>> p_test2 = this->GObject::clone<GNumIntT<int_type>>();
+			std::shared_ptr<GNumIntT<int_type>> p_test3 = this->GObject::clone<GNumIntT<int_type>>();
 
 			// Assign a boolean value true
 			BOOST_CHECK_NO_THROW(*p_test1 = FIXEDVALUEINIT); // Make sure random initialization cannot randomly result in an unchanged value
@@ -433,9 +433,9 @@ public:
 namespace boost {
 namespace serialization {
 template<typename int_type>
-struct is_abstract<Gem::Geneva::GNumIntT<int_type> > : public boost::true_type {};
+struct is_abstract<Gem::Geneva::GNumIntT<int_type>> : public boost::true_type {};
 template<typename int_type>
-struct is_abstract< const Gem::Geneva::GNumIntT<int_type> > : public boost::true_type {};
+struct is_abstract< const Gem::Geneva::GNumIntT<int_type>> : public boost::true_type {};
 }
 }
 

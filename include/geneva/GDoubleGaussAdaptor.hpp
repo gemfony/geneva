@@ -69,7 +69,7 @@ class GDoubleGaussAdaptor
 		using boost::serialization::make_nvp;
 
 		ar
-			& make_nvp("GFPGaussAdaptorT_double", boost::serialization::base_object<GFPGaussAdaptorT<double> >(*this));
+			& make_nvp("GFPGaussAdaptorT_double", boost::serialization::base_object<GFPGaussAdaptorT<double>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 

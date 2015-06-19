@@ -258,7 +258,7 @@ void GBooleanObject::compare(
 	GToken token("GBooleanObject", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GParameterT<bool> >(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GParameterT<bool>>(IDENTITY(*this, *p_load), token);
 
 	// ... no local data
 
@@ -294,12 +294,12 @@ void GBooleanObject::booleanStreamline(
  * @param parVec The map to which the local value should be attached
  */
 void GBooleanObject::booleanStreamline(
-	std::map<std::string, std::vector<bool> > &parVec, const activityMode &am
+	std::map<std::string, std::vector<bool>> &parVec, const activityMode &am
 ) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
       glogger
-      << "In GBooleanObject::booleanStreamline(std::map<std::string, std::vector<bool> >& parVec) const: Error!" << std::endl
+      << "In GBooleanObject::booleanStreamline(std::map<std::string, std::vector<bool>>& parVec) const: Error!" << std::endl
       << "No name was assigned to the object" << std::endl
       << GEXCEPTION;
    }
@@ -365,9 +365,9 @@ void GBooleanObject::assignBooleanValueVector(
  * Assigns part of a value map to the parameter
  */
 void GBooleanObject::assignBooleanValueVectors(
-	const std::map<std::string, std::vector<bool> > &parMap, const activityMode &am
+	const std::map<std::string, std::vector<bool>> &parMap, const activityMode &am
 ) {
-	this->setValue((Gem::Common::getMapItem<std::vector<bool> >(parMap, this->getParameterName())).at(0));
+	this->setValue((Gem::Common::getMapItem<std::vector<bool>>(parMap, this->getParameterName())).at(0));
 }
 
 /******************************************************************************/

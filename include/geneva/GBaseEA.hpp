@@ -128,7 +128,7 @@ public:
 	G_API_GENEVA sortingMode getSortingScheme() const;
 
 	/** @brief Extracts all individuals on the pareto front */
-	G_API_GENEVA void extractCurrentParetoIndividuals(std::vector<std::shared_ptr<Gem::Geneva::GParameterSet> >&);
+	G_API_GENEVA void extractCurrentParetoIndividuals(std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>>&);
 
 	/** @brief Adds the individuals of this iteration to a priority queue */
 	virtual G_API_GENEVA void addIterationBests(GParameterSetFixedSizePriorityQueue&) override;
@@ -297,7 +297,7 @@ public:
 		std::size_t nMonitorInds_; ///< The number if individuals that should be monitored
 		std::string resultFile_; ///< The name of the file to which data is emitted
 
-		std::vector<std::shared_ptr<Gem::Common::GGraph2D> > fitnessGraphVec_;
+		std::vector<std::shared_ptr<Gem::Common::GGraph2D>> fitnessGraphVec_;
 
 	public:
 		/** @brief Applies modifications to this object. This is needed for testing purposes */

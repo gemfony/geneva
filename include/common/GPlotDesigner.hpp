@@ -210,7 +210,7 @@ public:
 	 */
 	template <typename clone_type>
 	std::shared_ptr<clone_type> clone(
-		typename boost::enable_if<boost::is_base_of<Gem::Common::GBasePlotter, clone_type> >::type* dummy = 0
+		typename boost::enable_if<boost::is_base_of<Gem::Common::GBasePlotter, clone_type>>::type* dummy = 0
 	) const {
 		return Gem::Common::convertSmartPointer<GBasePlotter, clone_type>(std::shared_ptr<GBasePlotter>(this->clone_()));
 	}
@@ -225,7 +225,7 @@ public:
 	template <typename load_type>
 	inline void load(
 		const std::shared_ptr<load_type>& cp
-		, typename boost::enable_if<boost::is_base_of<Gem::Common::GBasePlotter, load_type> >::type* dummy = 0
+		, typename boost::enable_if<boost::is_base_of<Gem::Common::GBasePlotter, load_type>>::type* dummy = 0
 	) {
 		load_(cp.get());
 	}
@@ -240,7 +240,7 @@ public:
 	template <typename load_type>
 	inline void load(
 		const load_type& cp
-		, typename boost::enable_if<boost::is_base_of<Gem::Common::GBasePlotter, load_type> >::type* dummy = 0
+		, typename boost::enable_if<boost::is_base_of<Gem::Common::GBasePlotter, load_type>>::type* dummy = 0
 	) {
 		load_(&cp);
 	}
@@ -299,7 +299,7 @@ private:
 	/***************************************************************************/
 
 	/** @brief A list of plotters that should emit their data into the same canvas */
-	std::vector<std::shared_ptr < GBasePlotter> > secondaryPlotter_;
+	std::vector<std::shared_ptr < GBasePlotter>> secondaryPlotter_;
 
 	std::size_t id_; ///< The id of this object
 };
@@ -501,7 +501,7 @@ class GHistogram1D : public GDataCollector1T<double> {
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GDataCollector1T_double", boost::serialization::base_object<GDataCollector1T<double> >(*this))
+		& make_nvp("GDataCollector1T_double", boost::serialization::base_object<GDataCollector1T<double>>(*this))
 		& BOOST_SERIALIZATION_NVP(nBinsX_)
 		& BOOST_SERIALIZATION_NVP(minX_)
 		& BOOST_SERIALIZATION_NVP(maxX_);
@@ -578,7 +578,7 @@ class GHistogram1I : public GDataCollector1T<boost::int32_t> {
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GDataCollector1T_int32_t", boost::serialization::base_object<GDataCollector1T<boost::int32_t> >(*this))
+		& make_nvp("GDataCollector1T_int32_t", boost::serialization::base_object<GDataCollector1T<boost::int32_t>>(*this))
 		& BOOST_SERIALIZATION_NVP(nBinsX_)
 		& BOOST_SERIALIZATION_NVP(minX_)
 		& BOOST_SERIALIZATION_NVP(maxX_);
@@ -713,7 +713,7 @@ public:
 		<< GEXCEPTION;
 
 		// Make the compiler happy
-		return std::shared_ptr<GDataCollector1T<x_type> >();
+		return std::shared_ptr<GDataCollector1T<x_type>>();
 	}
 
 	/***************************************************************************/
@@ -731,7 +731,7 @@ public:
 		<< GEXCEPTION;
 
 		// Make the compiler happy
-		return std::shared_ptr<GDataCollector1T<y_type> >();
+		return std::shared_ptr<GDataCollector1T<y_type>>();
 	}
 
 	/***************************************************************************/
@@ -798,13 +798,13 @@ public:
 	 * @param point_vec_undet The collection of data items to be added to the collection
 	 */
 	template<typename x_type_undet, typename y_type_undet>
-	void operator&(const std::vector<boost::tuple<x_type_undet, y_type_undet> > &point_vec_undet) {
+	void operator&(const std::vector<boost::tuple<x_type_undet, y_type_undet>> &point_vec_undet) {
 		using boost::numeric::bad_numeric_cast;
 
 		x_type x = x_type(0);
 		y_type y = y_type(0);
 
-		typename std::vector<boost::tuple<x_type_undet, y_type_undet> >::const_iterator cit;
+		typename std::vector<boost::tuple<x_type_undet, y_type_undet>>::const_iterator cit;
 		for (cit = point_vec_undet.begin(); cit != point_vec_undet.end(); ++cit) {
 			// Make sure the data can be converted to doubles
 			try {
@@ -813,7 +813,7 @@ public:
 			}
 			catch (bad_numeric_cast &e) {
 				glogger
-				<< "In GDataCollector2T::operator&(const std::vector<boost::tuple<S,T> >&): Error!" << std::endl
+				<< "In GDataCollector2T::operator&(const std::vector<boost::tuple<S,T>>&): Error!" << std::endl
 				<< "Encountered invalid cast with boost::numeric_cast," << std::endl
 				<< "with the message " << std::endl
 				<< e.what() << std::endl
@@ -832,8 +832,8 @@ public:
 	 *
 	 * @param point_vec The collection of data items to be added to the collection
 	 */
-	void operator&(const std::vector<boost::tuple<x_type, y_type> > &point_vec) {
-		typename std::vector<boost::tuple<x_type, y_type> >::const_iterator cit;
+	void operator&(const std::vector<boost::tuple<x_type, y_type>> &point_vec) {
+		typename std::vector<boost::tuple<x_type, y_type>>::const_iterator cit;
 		for (cit = point_vec.begin(); cit != point_vec.end(); ++cit) {
 			// Add the data item to the collection
 			data_.push_back(*cit);
@@ -860,7 +860,7 @@ protected:
 	 */
 	virtual void load_(const GBasePlotter* cp) {
 		// Check that we are dealing with a GDataCollector2T<x_type, y_type> reference independent of this object and convert the pointer
-		const GDataCollector2T<x_type, y_type> *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GDataCollector2T<x_type, y_type> >(cp, this);
+		const GDataCollector2T<x_type, y_type> *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GDataCollector2T<x_type, y_type>>(cp, this);
 
 		// Load our parent class'es data ...
 		GBasePlotter::load_(cp);
@@ -876,7 +876,7 @@ protected:
 
 	/***************************************************************************/
 
-	std::vector<boost::tuple<x_type, y_type> > data_; ///< Holds the actual data
+	std::vector<boost::tuple<x_type, y_type>> data_; ///< Holds the actual data
 };
 
 /******************************************************************************/
@@ -1071,7 +1071,7 @@ public:
 	 */
 	template<typename x_type_undet, typename y_type_undet>
 	void operator&(
-		const std::vector<boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet> > &point_vec_undet) {
+		const std::vector<boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>> &point_vec_undet) {
 		using boost::numeric::bad_numeric_cast;
 
 		x_type x = x_type(0);
@@ -1079,7 +1079,7 @@ public:
 		y_type y = y_type(0);
 		y_type ey = y_type(0);
 
-		typename std::vector<boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet> >::const_iterator cit;
+		typename std::vector<boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>>::const_iterator cit;
 		for (cit = point_vec_undet.begin(); cit != point_vec_undet.end(); ++cit) {
 			// Make sure the data can be converted to doubles
 			try {
@@ -1090,7 +1090,7 @@ public:
 			}
 			catch (bad_numeric_cast &e) {
 				glogger
-				<< "In GDataCollector2ET::operator&(const std::vector<boost::tuple<S,S,T,T> >&): Error!" << std::endl
+				<< "In GDataCollector2ET::operator&(const std::vector<boost::tuple<S,S,T,T>>&): Error!" << std::endl
 				<< "Encountered invalid cast with boost::numeric_cast," << std::endl
 				<< "with the message " << std::endl
 				<< e.what() << std::endl
@@ -1109,8 +1109,8 @@ public:
 	 *
 	 * @param point_vec The collection of data items to be added to the collection
 	 */
-	void operator&(const std::vector<boost::tuple<x_type, x_type, y_type, y_type> > &point_vec) {
-		typename std::vector<boost::tuple<x_type, x_type, y_type, y_type> >::const_iterator cit;
+	void operator&(const std::vector<boost::tuple<x_type, x_type, y_type, y_type>> &point_vec) {
+		typename std::vector<boost::tuple<x_type, x_type, y_type, y_type>>::const_iterator cit;
 		for (cit = point_vec.begin(); cit != point_vec.end(); ++cit) {
 			// Add the data item to the collection
 			data_.push_back(*cit);
@@ -1150,7 +1150,7 @@ protected:
 	 */
 	virtual void load_(const GBasePlotter* cp) {
 		// Check that we are dealing with a GDataCollector2ET<x_type, y_type> reference independent of this object and convert the pointer
-		const GDataCollector2ET<x_type, y_type> *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GDataCollector2ET<x_type, y_type> >(cp, this);
+		const GDataCollector2ET<x_type, y_type> *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GDataCollector2ET<x_type, y_type>>(cp, this);
 
 		// Load our parent class'es data ...
 		GBasePlotter::load_(cp);
@@ -1165,7 +1165,7 @@ protected:
 
 	/***************************************************************************/
 
-	std::vector<boost::tuple<x_type, x_type, y_type, y_type> > data_; ///< Holds the actual data
+	std::vector<boost::tuple<x_type, x_type, y_type, y_type>> data_; ///< Holds the actual data
 };
 
 /******************************************************************************/
@@ -1213,7 +1213,7 @@ class GHistogram2D
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GDataCollector2T_double_double", boost::serialization::base_object<GDataCollector2T<double, double> >(*this))
+		& make_nvp("GDataCollector2T_double_double", boost::serialization::base_object<GDataCollector2T<double, double>>(*this))
 		& BOOST_SERIALIZATION_NVP(nBinsX_)
 		& BOOST_SERIALIZATION_NVP(nBinsY_)
 		& BOOST_SERIALIZATION_NVP(minX_)
@@ -1313,7 +1313,7 @@ class GGraph2D
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GDataCollector2T_double_double", boost::serialization::base_object<GDataCollector2T<double, double> >(*this))
+		& make_nvp("GDataCollector2T_double_double", boost::serialization::base_object<GDataCollector2T<double, double>>(*this))
 		& BOOST_SERIALIZATION_NVP(pM_)
 		& BOOST_SERIALIZATION_NVP(drawArrows_);
 	}
@@ -1383,7 +1383,7 @@ class GGraph2ED
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GDataCollector2ET_double_double", boost::serialization::base_object<GDataCollector2ET<double, double> >(*this))
+		& make_nvp("GDataCollector2ET_double_double", boost::serialization::base_object<GDataCollector2ET<double, double>>(*this))
 		& BOOST_SERIALIZATION_NVP(pM_);
 	}
 	///////////////////////////////////////////////////////////////////////
@@ -1504,7 +1504,7 @@ public:
 		<< GEXCEPTION;
 
 		// Make the compiler happy
-		return std::shared_ptr<GDataCollector1T<x_type> >();
+		return std::shared_ptr<GDataCollector1T<x_type>>();
 	}
 
 	/***************************************************************************/
@@ -1522,7 +1522,7 @@ public:
 		<< GEXCEPTION;
 
 		// Make the compiler happy
-		return std::shared_ptr<GDataCollector1T<y_type> >();
+		return std::shared_ptr<GDataCollector1T<y_type>>();
 	}
 
 	/***************************************************************************/
@@ -1540,7 +1540,7 @@ public:
 		<< GEXCEPTION;
 
 		// Make the compiler happy
-		return std::shared_ptr<GDataCollector1T<z_type> >();
+		return std::shared_ptr<GDataCollector1T<z_type>>();
 	}
 
 	/***************************************************************************/
@@ -1609,14 +1609,14 @@ public:
 	 * @param point_vec_undet The collection of data items to be added to the collection
 	 */
 	template<typename x_type_undet, typename y_type_undet, typename z_type_undet>
-	void operator&(const std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_undet> > &point_vec_undet) {
+	void operator&(const std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_undet>> &point_vec_undet) {
 		using boost::numeric::bad_numeric_cast;
 
 		x_type x = x_type(0);
 		y_type y = y_type(0);
 		z_type z = z_type(0);
 
-		typename std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_undet> >::const_iterator cit;
+		typename std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_undet>>::const_iterator cit;
 		for (cit = point_vec_undet.begin(); cit != point_vec_undet.end(); ++cit) {
 			// Make sure the data can be converted to doubles
 			try {
@@ -1626,7 +1626,7 @@ public:
 			}
 			catch (bad_numeric_cast &e) {
 				glogger
-				<< "In GDataCollector3T::operator&(const std::vector<boost::tuple<S,T,U> >&): Error!" << std::endl
+				<< "In GDataCollector3T::operator&(const std::vector<boost::tuple<S,T,U>>&): Error!" << std::endl
 				<< "Encountered invalid cast with boost::numeric_cast," << std::endl
 				<< "with the message " << std::endl
 				<< e.what() << std::endl
@@ -1645,8 +1645,8 @@ public:
 	 *
 	 * @param point_vec The collection of data items to be added to the collection
 	 */
-	void operator&(const std::vector<boost::tuple<x_type, y_type, z_type> > &point_vec) {
-		typename std::vector<boost::tuple<x_type, y_type, z_type> >::const_iterator cit;
+	void operator&(const std::vector<boost::tuple<x_type, y_type, z_type>> &point_vec) {
+		typename std::vector<boost::tuple<x_type, y_type, z_type>>::const_iterator cit;
 		for (cit = point_vec.begin(); cit != point_vec.end(); ++cit) {
 			// Add the data item to the collection
 			data_.push_back(*cit);
@@ -1660,7 +1660,7 @@ protected:
 	 */
 	virtual void load_(const GBasePlotter* cp) {
 		// Check that we are dealing with a GDataCollector3T<x_type, y_type, z_type> reference independent of this object and convert the pointer
-		const GDataCollector3T<x_type, y_type, z_type> *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GDataCollector3T<x_type, y_type, z_type> >(cp, this);
+		const GDataCollector3T<x_type, y_type, z_type> *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GDataCollector3T<x_type, y_type, z_type>>(cp, this);
 
 		// Load our parent class'es data ...
 		GBasePlotter::load_(cp);
@@ -1675,7 +1675,7 @@ protected:
 
 	/***************************************************************************/
 
-	std::vector<boost::tuple<x_type, y_type, z_type> > data_; ///< Holds the actual data
+	std::vector<boost::tuple<x_type, y_type, z_type>> data_; ///< Holds the actual data
 };
 
 
@@ -1811,7 +1811,7 @@ class GGraph3D : public GDataCollector3T<double, double, double> {
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GDataCollector3T_3double", boost::serialization::base_object<GDataCollector3T<double, double, double> >(*this))
+		& make_nvp("GDataCollector3T_3double", boost::serialization::base_object<GDataCollector3T<double, double, double>>(*this))
 		& BOOST_SERIALIZATION_NVP(drawLines_);
 	}
 	///////////////////////////////////////////////////////////////////////
@@ -1934,7 +1934,7 @@ public:
 		<< GEXCEPTION;
 
 		// Make the compiler happy
-		return std::shared_ptr<GDataCollector1T<x_type> >();
+		return std::shared_ptr<GDataCollector1T<x_type>>();
 	}
 
 	/***************************************************************************/
@@ -1952,7 +1952,7 @@ public:
 		<< GEXCEPTION;
 
 		// Make the compiler happy
-		return std::shared_ptr<GDataCollector1T<y_type> >();
+		return std::shared_ptr<GDataCollector1T<y_type>>();
 	}
 
 	/***************************************************************************/
@@ -1970,7 +1970,7 @@ public:
 		<< GEXCEPTION;
 
 		// Make the compiler happy
-		return std::shared_ptr<GDataCollector1T<z_type> >();
+		return std::shared_ptr<GDataCollector1T<z_type>>();
 	}
 
 	/***************************************************************************/
@@ -1988,7 +1988,7 @@ public:
 		<< GEXCEPTION;
 
 		// Make the compiler happy
-		return std::shared_ptr<GDataCollector1T<w_type> >();
+		return std::shared_ptr<GDataCollector1T<w_type>>();
 	}
 
 	/***************************************************************************/
@@ -2064,7 +2064,7 @@ public:
 		typename x_type_undet, typename y_type_undet, typename z_type_undet, typename w_type_undet
 	>
 	void operator&(
-		const std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_undet, w_type_undet> > &point_vec_undet) {
+		const std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_undet, w_type_undet>> &point_vec_undet) {
 		using boost::numeric::bad_numeric_cast;
 
 		x_type x = x_type(0);
@@ -2072,7 +2072,7 @@ public:
 		z_type z = z_type(0);
 		w_type w = w_type(0);
 
-		typename std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_undet> >::const_iterator cit;
+		typename std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_undet>>::const_iterator cit;
 		for (cit = point_vec_undet.begin(); cit != point_vec_undet.end(); ++cit) {
 			// Make sure the data can be converted to doubles
 			try {
@@ -2083,7 +2083,7 @@ public:
 			}
 			catch (bad_numeric_cast &e) {
 				glogger
-				<< "In GDataCollector4T::operator&(const std::vector<boost::tuple<S,T,U,W> >&): Error!" << std::endl
+				<< "In GDataCollector4T::operator&(const std::vector<boost::tuple<S,T,U,W>>&): Error!" << std::endl
 				<< "Encountered invalid cast with boost::numeric_cast," << std::endl
 				<< "with the message " << std::endl
 				<< e.what() << std::endl
@@ -2102,8 +2102,8 @@ public:
 	 *
 	 * @param point_vec The collection of data items to be added to the collection
 	 */
-	void operator&(const std::vector<boost::tuple<x_type, y_type, z_type, w_type> > &point_vec) {
-		typename std::vector<boost::tuple<x_type, y_type, z_type, w_type> >::const_iterator cit;
+	void operator&(const std::vector<boost::tuple<x_type, y_type, z_type, w_type>> &point_vec) {
+		typename std::vector<boost::tuple<x_type, y_type, z_type, w_type>>::const_iterator cit;
 		for (cit = point_vec.begin(); cit != point_vec.end(); ++cit) {
 			// Add the data item to the collection
 			data_.push_back(*cit);
@@ -2117,7 +2117,7 @@ protected:
 	 */
 	virtual void load_(const GBasePlotter* cp) {
 		// Check that we are dealing with a GDataCollector4T<x_type, y_type, z_type, w_type> reference independent of this object and convert the pointer
-		const GDataCollector4T<x_type, y_type, z_type, w_type> *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GDataCollector4T<x_type, y_type, z_type, w_type> >(cp, this);
+		const GDataCollector4T<x_type, y_type, z_type, w_type> *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GDataCollector4T<x_type, y_type, z_type, w_type>>(cp, this);
 
 		// Load our parent class'es data ...
 		GBasePlotter::load_(cp);
@@ -2132,7 +2132,7 @@ protected:
 
 	/***************************************************************************/
 
-	std::vector<boost::tuple<x_type, y_type, z_type, w_type> > data_; ///< Holds the actual data
+	std::vector<boost::tuple<x_type, y_type, z_type, w_type>> data_; ///< Holds the actual data
 };
 
 /******************************************************************************/
@@ -2316,7 +2316,7 @@ class GGraph4D
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GDataCollector4T_4double", boost::serialization::base_object<GDataCollector4T<double, double, double, double> >(*this))
+		& make_nvp("GDataCollector4T_4double", boost::serialization::base_object<GDataCollector4T<double, double, double, double>>(*this))
 		& BOOST_SERIALIZATION_NVP(minMarkerSize_)
 		& BOOST_SERIALIZATION_NVP(maxMarkerSize_)
 		& BOOST_SERIALIZATION_NVP(smallWLargeMarker_)
@@ -2584,7 +2584,7 @@ private:
 	/** @brief A header for static data in a ROOT file */
 	std::string staticHeader() const;
 
-	std::vector<std::shared_ptr < GBasePlotter> >
+	std::vector<std::shared_ptr < GBasePlotter>>
 	plotters_; ///< A list of plots to be added to the diagram
 
 	std::size_t c_x_div_, c_y_div_; ///< The number of divisions in x- and y-direction

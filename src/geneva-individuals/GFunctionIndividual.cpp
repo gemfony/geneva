@@ -1024,7 +1024,7 @@ GFunctionIndividualFactory::~GFunctionIndividualFactory() { /* nothing */ }
 /**
  * Loads the data of another GFunctionIndividualFactory object
  */
-void GFunctionIndividualFactory::load(std::shared_ptr < Gem::Common::GFactoryT<GParameterSet> > cp_raw_ptr) {
+void GFunctionIndividualFactory::load(std::shared_ptr < Gem::Common::GFactoryT<GParameterSet>> cp_raw_ptr) {
 	// Load our parent class'es data
 	Gem::Common::GFactoryT<GParameterSet>::load(cp_raw_ptr);
 

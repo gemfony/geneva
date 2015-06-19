@@ -144,7 +144,7 @@ void GInt32ObjectCollection::compare(
 	GToken token("GInt32ObjectCollection", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GParameterTCollectionT<GInt32Object> >(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GParameterTCollectionT<GInt32Object>>(IDENTITY(*this, *p_load), token);
 
 	// ... no local data
 

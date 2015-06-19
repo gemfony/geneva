@@ -101,7 +101,7 @@ const Gem::Common::PORTIDTYPE MAXPORTID = boost::numeric::bounds<Gem::Common::PO
 template<typename carrier_type>
 class GBrokerT
 	: private boost::noncopyable {
-	typedef typename std::shared_ptr<Gem::Common::GBoundedBufferWithIdT<std::shared_ptr < carrier_type> > >
+	typedef typename std::shared_ptr<Gem::Common::GBoundedBufferWithIdT<std::shared_ptr < carrier_type>> >
 	GBoundedBufferWithIdT_Ptr;
 	typedef typename std::list<GBoundedBufferWithIdT_Ptr> BufferPtrList;
 	typedef typename std::map<Gem::Common::PORTIDTYPE, GBoundedBufferWithIdT_Ptr> BufferPtrMap;
@@ -143,7 +143,7 @@ public:
 		if (finalized_) return;
 
 		// Shut down all consumers
-		typename std::vector<std::shared_ptr < GBaseConsumerT<carrier_type> > > ::iterator
+		typename std::vector<std::shared_ptr < GBaseConsumerT<carrier_type>> > ::iterator
 		it;
 		for (it = consumerCollection_.begin(); it != consumerCollection_.end(); ++it) {
 			(*it)->shutdown();
@@ -212,9 +212,9 @@ public:
 
 		// Retrieve the processed and original queues and tag them with
 		// a suitable id. Increment the id for later use during other enrollments.
-		std::shared_ptr < Gem::Common::GBoundedBufferWithIdT<std::shared_ptr < carrier_type> > >
+		std::shared_ptr < Gem::Common::GBoundedBufferWithIdT<std::shared_ptr < carrier_type>> >
 		original = gbp->getOriginalQueue();
-		std::shared_ptr < Gem::Common::GBoundedBufferWithIdT<std::shared_ptr < carrier_type> > >
+		std::shared_ptr < Gem::Common::GBoundedBufferWithIdT<std::shared_ptr < carrier_type>> >
 		processed = gbp->getProcessedQueue();
 		original->setId(portId);
 		processed->setId(portId);
@@ -519,7 +519,7 @@ public:
 #endif /* DEBUG */
 
 		bool result = true;
-		typename std::vector<std::shared_ptr < GBaseConsumerT<carrier_type> > > ::const_iterator
+		typename std::vector<std::shared_ptr < GBaseConsumerT<carrier_type>> > ::const_iterator
 		cit;
 		for (cit = consumerCollection_.begin(); cit != consumerCollection_.end(); ++cit) {
 			if (!(*cit)->capableOfFullReturn()) {
@@ -607,7 +607,7 @@ private:
 	typename BufferPtrList::iterator currentGetPosition_; ///< The current get position in the RawBuffers_ collection
 	bool buffersPresent_; ///< Set to true once the first buffers have been enrolled
 
-	std::vector<std::shared_ptr < GBaseConsumerT<carrier_type> > >
+	std::vector<std::shared_ptr < GBaseConsumerT<carrier_type>> >
 	consumerCollection_; ///< Holds the actual consumers
 	std::vector<std::string> consumerTypesPresent_; ///< Holds identifying strings for each consumer
 };
@@ -618,8 +618,8 @@ private:
  * and only one Broker object exists that is constructed before main begins. All
  * external communication should refer to GBROKER(T).
  */
-#define GBROKER(T)      Gem::Common::GSingletonT<Gem::Courtier::GBrokerT< T > >::Instance(0)
-#define RESETGBROKER(T) Gem::Common::GSingletonT<Gem::Courtier::GBrokerT< T > >::Instance(1)
+#define GBROKER(T)      Gem::Common::GSingletonT<Gem::Courtier::GBrokerT< T >>::Instance(0)
+#define RESETGBROKER(T) Gem::Common::GSingletonT<Gem::Courtier::GBrokerT< T >>::Instance(1)
 
 /******************************************************************************/
 

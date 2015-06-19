@@ -245,7 +245,7 @@ bool GBrokerEA::usesBroker() const {
  */
 void GBrokerEA::adaptChildren() {
 	boost::tuple<std::size_t, std::size_t> range = getAdaptionRange();
-	std::vector<std::shared_ptr < GParameterSet> > ::iterator
+	std::vector<std::shared_ptr < GParameterSet>> ::iterator
 	it;
 
 	for (it = data.begin() + boost::get<0>(range); it != data.begin() + boost::get<1>(range); ++it) {
@@ -299,7 +299,7 @@ void GBrokerEA::runFitnessCalculation() {
  * Fixes the population after a job submission
  */
 void GBrokerEA::fixAfterJobSubmission() {
-	std::vector<std::shared_ptr < GParameterSet> > ::iterator
+	std::vector<std::shared_ptr < GParameterSet>> ::iterator
 	it;
 	std::size_t np = getNParents();
 	boost::uint32_t iteration = getIteration();

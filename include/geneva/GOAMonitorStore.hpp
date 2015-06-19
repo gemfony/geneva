@@ -51,7 +51,7 @@
 // algorithm with a nickname of e.g. "ea" can check in this store whether any specific monitors have
 // been registered.
 typedef Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::GOptimizationMonitorT goam_factory;
-typedef Gem::Common::GSingletonT<Gem::Common::GGlobalOptionsT<std::shared_ptr<goam_factory> > > GOAMStore;
+typedef Gem::Common::GSingletonT<Gem::Common::GGlobalOptionsT<std::shared_ptr<goam_factory>> > GOAMStore;
 #define GOAMonitorStore GOAMStore::Instance(0)
 
 #endif /* GOAMONITORSTORE_HPP_ */

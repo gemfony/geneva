@@ -71,7 +71,7 @@ class GBrokerSwarm
 		ar
 		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseSwarm)
 		& make_nvp("GBrokerConnector2T_GParameterSet",
-					  boost::serialization::base_object<Gem::Courtier::GBrokerConnector2T<GParameterSet> >(*this));
+					  boost::serialization::base_object<Gem::Courtier::GBrokerConnector2T<GParameterSet>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -139,8 +139,8 @@ protected:
 private:
 	/***************************************************************************/
 
-	std::vector<std::shared_ptr<GParameterSet> > oldIndividuals_; ///< A temporary copy of the last iteration's individuals
-	std::vector<std::shared_ptr<GParameterSet> > oldWorkItems_; ///< Temporarily holds old returned work items
+	std::vector<std::shared_ptr<GParameterSet>> oldIndividuals_; ///< A temporary copy of the last iteration's individuals
+	std::vector<std::shared_ptr<GParameterSet>> oldWorkItems_; ///< Temporarily holds old returned work items
 
 	/***************************************************************************/
 	/**

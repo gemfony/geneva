@@ -70,7 +70,7 @@ class GFPGaussAdaptorT
 		using boost::serialization::make_nvp;
 
 		ar
-			& make_nvp("GNumGaussAdaptorT_fp_type", boost::serialization::base_object<GNumGaussAdaptorT<fp_type, fp_type> >(*this));
+			& make_nvp("GNumGaussAdaptorT_fp_type", boost::serialization::base_object<GNumGaussAdaptorT<fp_type, fp_type>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -212,12 +212,12 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GFPGaussAdaptorT<fp_type> reference independent of this object and convert the pointer
-		const GFPGaussAdaptorT<fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GFPGaussAdaptorT<fp_type> >(cp, this);
+		const GFPGaussAdaptorT<fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GFPGaussAdaptorT<fp_type>>(cp, this);
 
 		GToken token("GFPGaussAdaptorT<fp_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GNumGaussAdaptorT<fp_type, fp_type> >(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GNumGaussAdaptorT<fp_type, fp_type>>(IDENTITY(*this, *p_load), token);
 
 		// ... no local data
 
@@ -246,7 +246,7 @@ protected:
 	 */
 	virtual void load_(const GObject* cp) override {
 		// Convert the pointer to our target type and check for self-assignment
-		const GFPGaussAdaptorT<fp_type> * p_load = Gem::Common::g_convert_and_compare<GObject, GFPGaussAdaptorT<fp_type> >(cp, this);
+		const GFPGaussAdaptorT<fp_type> * p_load = Gem::Common::g_convert_and_compare<GObject, GFPGaussAdaptorT<fp_type>>(cp, this);
 
 		// Load our parent class'es data ...
 		GNumGaussAdaptorT<fp_type, fp_type>::load_(cp);
@@ -353,9 +353,9 @@ public:
 namespace boost {
 namespace serialization {
 template<typename fp_type>
-struct is_abstract<Gem::Geneva::GFPGaussAdaptorT<fp_type> > : public boost::true_type {};
+struct is_abstract<Gem::Geneva::GFPGaussAdaptorT<fp_type>> : public boost::true_type {};
 template<typename fp_type>
-struct is_abstract< const Gem::Geneva::GFPGaussAdaptorT<fp_type> > : public boost::true_type {};
+struct is_abstract< const Gem::Geneva::GFPGaussAdaptorT<fp_type>> : public boost::true_type {};
 }
 }
 /******************************************************************************/

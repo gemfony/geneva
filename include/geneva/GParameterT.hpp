@@ -68,7 +68,7 @@ class GParameterT
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GParameterBaseWithAdaptors_T", boost::serialization::base_object<GParameterBaseWithAdaptorsT<T> >(*this))
+		& make_nvp("GParameterBaseWithAdaptors_T", boost::serialization::base_object<GParameterBaseWithAdaptorsT<T>>(*this))
 		& BOOST_SERIALIZATION_NVP(val_);
 	}
 	///////////////////////////////////////////////////////////////////////
@@ -231,12 +231,12 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a  GParameterT<T> reference independent of this object and convert the pointer
-		const  GParameterT<T> *p_load = Gem::Common::g_convert_and_compare<GObject,  GParameterT<T> >(cp, this);
+		const  GParameterT<T> *p_load = Gem::Common::g_convert_and_compare<GObject,  GParameterT<T>>(cp, this);
 
 		GToken token("GParameterT<T>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GParameterBaseWithAdaptorsT<T> >(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GParameterBaseWithAdaptorsT<T>>(IDENTITY(*this, *p_load), token);
 
 		// ... and then the local data
 		compare_t(IDENTITY(val_, p_load->val_), token);
@@ -327,7 +327,7 @@ protected:
 	 */
 	virtual void load_(const GObject* cp) override {
 		// Check that we are dealing with a  GParameterT<T> reference independent of this object and convert the pointer
-		const GParameterT<T> *p_load = Gem::Common::g_convert_and_compare<GObject,  GParameterT<T> >(cp, this);
+		const GParameterT<T> *p_load = Gem::Common::g_convert_and_compare<GObject,  GParameterT<T>>(cp, this);
 
 		// Load our parent class'es data ...
 		GParameterBaseWithAdaptorsT<T>::load_(cp);
@@ -417,9 +417,9 @@ public:
 namespace boost {
 namespace serialization {
 template<typename T>
-struct is_abstract<Gem::Geneva::GParameterT<T> > : public boost::true_type {};
+struct is_abstract<Gem::Geneva::GParameterT<T>> : public boost::true_type {};
 template<typename T>
-struct is_abstract< const Gem::Geneva::GParameterT<T> > : public boost::true_type {};
+struct is_abstract< const Gem::Geneva::GParameterT<T>> : public boost::true_type {};
 }
 }
 

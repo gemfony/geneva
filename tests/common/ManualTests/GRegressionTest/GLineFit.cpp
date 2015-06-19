@@ -45,9 +45,9 @@ namespace Geneva {
  * @param points_ The measurements (x/y-coordinates)
  * @return A tuple of doubles, so that f(x)=a+b*x
  */
-boost::tuple<double, double> gLineFit(const std::vector<boost::tuple<double, double> >& points_) {
+boost::tuple<double, double> gLineFit(const std::vector<boost::tuple<double, double>>& points_) {
 	// Copy the data, as we want to modify (sort) it
-	std::vector<boost::tuple<double, double> > points = points_;
+	std::vector<boost::tuple<double, double>> points = points_;
 
 	// Create a factory for GLineFitIndividual objects
 	std::shared_ptr<GLineFitIndividualFactory> glfif_ptr(new GLineFitIndividualFactory(points, "./config/GLineFitIndividual.json"));

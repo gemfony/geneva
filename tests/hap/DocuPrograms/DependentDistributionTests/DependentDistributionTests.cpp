@@ -65,7 +65,7 @@ const std::size_t NBINS = 100;
 int main(int argc, char **argv){
 	double x1, x2, x3, x4, sum1, sum2, sum3, sum4;
 
-	std::shared_ptr<GRandomT<RANDOMPROXY> > gr_ptr(new GRandomT<RANDOMPROXY>());
+	std::shared_ptr<GRandomT<RANDOMPROXY>> gr_ptr(new GRandomT<RANDOMPROXY>());
 
 	std::shared_ptr<GHistogram1D> x1_ptr(new GHistogram1D(NBINS, 0., 1.));
 	std::shared_ptr<GHistogram1D> x2_ptr(new GHistogram1D(NBINS, 0., 1.));

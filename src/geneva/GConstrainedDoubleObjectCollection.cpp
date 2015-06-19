@@ -146,7 +146,7 @@ void GConstrainedDoubleObjectCollection::compare(
 	GToken token("GConstrainedDoubleObjectCollection", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GParameterTCollectionT<GConstrainedDoubleObject> >(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GParameterTCollectionT<GConstrainedDoubleObject>>(IDENTITY(*this, *p_load), token);
 
 	// ... no local data
 

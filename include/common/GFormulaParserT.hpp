@@ -369,7 +369,7 @@ namespace Common {
  * holders for variables, e.g. "(sin({{var1}})*sqrt({{var2}}) - ({{var3}}*pi))^2".
  * Formulas are provided in string form to the constructor. The evaluate()
  * function will then replace the place-holders with the corresponding entries of
- * a std::map<std::string, std::vector<fp_type> >. For simple variable names such
+ * a std::map<std::string, std::vector<fp_type>>. For simple variable names such
  * as "var2" only the first value of the std::vector is used -- a notation such as
  * "var3{2]" is also possible -- in this case the third value of the vector will be
  * used. An exception will be thrown, if the vector doesn't have enough entries.
@@ -428,7 +428,7 @@ public:
 
 	typedef void result_type; // Needed for the operator() and apply_visitor
 	typedef boost::variant<byte_code, fp_type> codeEntry;
-	typedef std::map<std::string, std::vector<fp_type> > parameter_map;
+	typedef std::map<std::string, std::vector<fp_type>> parameter_map;
 	typedef std::map<std::string, fp_type> constants_map;
 
 	/***************************************************************************/
@@ -949,7 +949,7 @@ private:
 	boost::spirit::qi::rule<std::string::const_iterator, binary_function_(), boost::spirit::ascii::space_type> binary_function_rule_;
 	boost::spirit::qi::rule<std::string::const_iterator, operand(), boost::spirit::ascii::space_type> factor_rule_;
 
-	boost::spirit::qi::real_parser<fp_type, boost::spirit::qi::real_policies<fp_type> > real;
+	boost::spirit::qi::real_parser<fp_type, boost::spirit::qi::real_policies<fp_type>> real;
 
 	boost::spirit::qi::symbols<std::iterator_traits<std::string::const_iterator>::value_type, fp_type> constants_; ///< Holds mathematical- and user-defined constants
 

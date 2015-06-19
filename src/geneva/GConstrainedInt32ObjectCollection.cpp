@@ -143,7 +143,7 @@ void GConstrainedInt32ObjectCollection::compare(
 	GToken token("GConstrainedInt32ObjectCollection", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GParameterTCollectionT<GConstrainedInt32Object> >(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GParameterTCollectionT<GConstrainedInt32Object>>(IDENTITY(*this, *p_load), token);
 
 	// ... no local data
 

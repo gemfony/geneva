@@ -214,11 +214,11 @@ public:
 	 */
 	template <typename par_type>
 	void streamline(
-		std::map<std::string, std::vector<par_type> >& parVec
+		std::map<std::string, std::vector<par_type>>& parVec
 		, const activityMode& am
 	) const {
 		glogger
-		<< "In GParameterBase::streamline(std::map<std::string, std::vec<par_type> >)" << std::endl
+		<< "In GParameterBase::streamline(std::map<std::string, std::vec<par_type>>)" << std::endl
 		<< "Function called for unsupported type!" << std::endl
 		<< GEXCEPTION;
 	}
@@ -246,13 +246,13 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Assigns values from a std::map<std::string, std::vector<par_type> > to the parameter
+	 * Assigns values from a std::map<std::string, std::vector<par_type>> to the parameter
 	 *
 	 * @param parMao The map with the parameters to be assigned to the object
 	 */
 	template <typename par_type>
 	void assignValueVectors(
-		const std::map<std::string, std::vector<par_type> >& parMap
+		const std::map<std::string, std::vector<par_type>>& parMap
 		, const activityMode& am
 	) {
 		glogger
@@ -387,7 +387,7 @@ public:
 	template <typename load_type>
 	std::shared_ptr<load_type> parameterbase_cast (
 		std::shared_ptr<GParameterBase> load_ptr
-		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GParameterBase, load_type> >::type* dummy = 0
+		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GParameterBase, load_type>>::type* dummy = 0
 	) const {
 #ifdef DEBUG
 		std::shared_ptr<load_type> p = std::dynamic_pointer_cast<load_type>(load_ptr);
@@ -437,13 +437,13 @@ protected:
 	virtual G_API_GENEVA void booleanStreamline(std::vector<bool>&, const activityMode&) const BASE;
 
 	/** @brief Attach parameters of type float to the map */
-	virtual G_API_GENEVA void floatStreamline(std::map<std::string, std::vector<float> >&, const activityMode&) const BASE;
+	virtual G_API_GENEVA void floatStreamline(std::map<std::string, std::vector<float>>&, const activityMode&) const BASE;
 	/** @brief Attach parameters of type double to the map */
-	virtual G_API_GENEVA void doubleStreamline(std::map<std::string, std::vector<double> >&, const activityMode&) const BASE;
+	virtual G_API_GENEVA void doubleStreamline(std::map<std::string, std::vector<double>>&, const activityMode&) const BASE;
 	/** @brief Attach parameters of type boost::int32_t to the map */
-	virtual G_API_GENEVA void int32Streamline(std::map<std::string, std::vector<boost::int32_t> >&, const activityMode&) const BASE;
+	virtual G_API_GENEVA void int32Streamline(std::map<std::string, std::vector<boost::int32_t>>&, const activityMode&) const BASE;
 	/** @brief Attach parameters of type bool to the map */
-	virtual G_API_GENEVA void booleanStreamline(std::map<std::string, std::vector<bool> >&, const activityMode&) const BASE;
+	virtual G_API_GENEVA void booleanStreamline(std::map<std::string, std::vector<bool>>&, const activityMode&) const BASE;
 
 	/** @brief Assigns part of a value vector to the parameter */
 	virtual G_API_GENEVA void assignFloatValueVector(const std::vector<float>&, std::size_t&, const activityMode&) BASE;
@@ -455,13 +455,13 @@ protected:
 	virtual G_API_GENEVA void assignBooleanValueVector(const std::vector<bool>&, std::size_t&, const activityMode&) BASE;
 
 	/** @brief Assigns part of a value vector to the parameter */
-	virtual G_API_GENEVA void assignFloatValueVectors(const std::map<std::string, std::vector<float> >&, const activityMode&) BASE;
+	virtual G_API_GENEVA void assignFloatValueVectors(const std::map<std::string, std::vector<float>>&, const activityMode&) BASE;
 	/** @brief Assigns part of a value vector to the parameter */
-	virtual G_API_GENEVA void assignDoubleValueVectors(const std::map<std::string, std::vector<double> >&, const activityMode&) BASE;
+	virtual G_API_GENEVA void assignDoubleValueVectors(const std::map<std::string, std::vector<double>>&, const activityMode&) BASE;
 	/** @brief Assigns part of a value vector to the parameter */
-	virtual G_API_GENEVA void assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t> >&, const activityMode&) BASE;
+	virtual G_API_GENEVA void assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t>>&, const activityMode&) BASE;
 	/** @brief Assigns part of a value vector to the parameter */
-	virtual G_API_GENEVA void assignBooleanValueVectors(const std::map<std::string, std::vector<bool> >&, const activityMode&) BASE;
+	virtual G_API_GENEVA void assignBooleanValueVectors(const std::map<std::string, std::vector<bool>>&, const activityMode&) BASE;
 
 	/** @brief Multiplication with a random value in a given range */
 	virtual G_API_GENEVA void floatMultiplyByRandom(const float& min, const float& max, const activityMode& am) BASE;
@@ -625,7 +625,7 @@ inline void GParameterBase::streamline<bool>(
  */
 template <>
 inline void GParameterBase::streamline<float>(
-	std::map<std::string, std::vector<float> >& parVec
+	std::map<std::string, std::vector<float>>& parVec
 	, const activityMode& am
 ) const {
 	if(
@@ -643,7 +643,7 @@ inline void GParameterBase::streamline<float>(
  */
 template <>
 inline void GParameterBase::streamline<double>(
-	std::map<std::string, std::vector<double> >& parVec
+	std::map<std::string, std::vector<double>>& parVec
 	, const activityMode& am
 ) const {
 	if(
@@ -661,7 +661,7 @@ inline void GParameterBase::streamline<double>(
  */
 template <>
 inline void GParameterBase::streamline<boost::int32_t>(
-	std::map<std::string, std::vector<boost::int32_t> >& parVec
+	std::map<std::string, std::vector<boost::int32_t>>& parVec
 	, const activityMode& am
 ) const {
 	if(
@@ -679,7 +679,7 @@ inline void GParameterBase::streamline<boost::int32_t>(
  */
 template <>
 inline void GParameterBase::streamline<bool>(
-	std::map<std::string, std::vector<bool> >& parVec
+	std::map<std::string, std::vector<bool>>& parVec
 	, const activityMode& am
 ) const {
 	if(
@@ -931,7 +931,7 @@ inline void GParameterBase::assignValueVector<bool>(
 template <>
 inline void GParameterBase::assignValueVectors<float>(
 	const std::map<std::string
-		, std::vector<float> >& parMap
+		, std::vector<float>>& parMap
 	, const activityMode& am
 ) {
 	if(
@@ -950,7 +950,7 @@ inline void GParameterBase::assignValueVectors<float>(
 template <>
 inline  void GParameterBase::assignValueVectors<double>(
 	const std::map<std::string
-		, std::vector<double> >& parMap
+		, std::vector<double>>& parMap
 	, const activityMode& am
 ) {
 	if(
@@ -968,7 +968,7 @@ inline  void GParameterBase::assignValueVectors<double>(
  */
 template <>
 inline  void GParameterBase::assignValueVectors<boost::int32_t>(
-	const std::map<std::string, std::vector<boost::int32_t> >& parMap
+	const std::map<std::string, std::vector<boost::int32_t>>& parMap
 	, const activityMode& am
 ) {
 	if(
@@ -986,7 +986,7 @@ inline  void GParameterBase::assignValueVectors<boost::int32_t>(
  */
 template <>
 inline  void GParameterBase::assignValueVectors<bool>(
-	const std::map<std::string, std::vector<bool> >& parMap
+	const std::map<std::string, std::vector<bool>>& parMap
 	, const activityMode& am
 ) {
 	if(

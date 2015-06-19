@@ -575,7 +575,7 @@ GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory() {
 /**
  * Loads the data of another GFunctionIndividualFactory object
  */
-void GExternalEvaluatorIndividualFactory::load(std::shared_ptr < Gem::Common::GFactoryT<GParameterSet> > cp_raw_ptr) {
+void GExternalEvaluatorIndividualFactory::load(std::shared_ptr < Gem::Common::GFactoryT<GParameterSet>> cp_raw_ptr) {
 	// Load our parent class'es data
 	Gem::Common::GFactoryT<GParameterSet>::load(cp_raw_ptr);
 
@@ -1187,7 +1187,7 @@ size()
 );
 
 // Output the individuals in turn
-std::vector<std::shared_ptr < GExternalEvaluatorIndividual> >
+std::vector<std::shared_ptr < GExternalEvaluatorIndividual>>
 ::const_iterator cit;
 std::size_t pos = 0;
 std::string basename;

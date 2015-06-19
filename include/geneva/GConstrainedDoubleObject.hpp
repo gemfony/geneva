@@ -67,7 +67,7 @@ class GConstrainedDoubleObject
 		using boost::serialization::make_nvp;
 
 		ar & make_nvp("GConstrainedFPT_double",
-						  boost::serialization::base_object<GConstrainedFPT<double> >(*this));
+						  boost::serialization::base_object<GConstrainedFPT<double>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -120,9 +120,9 @@ protected:
 	/** @brief Assigns part of a value vector to the parameter */
 	virtual G_API_GENEVA void assignDoubleValueVector(const std::vector<double>&, std::size_t&, const activityMode& am) override;
 	/** @brief Attach our local value to the vector. */
-	virtual G_API_GENEVA void doubleStreamline(std::map<std::string, std::vector<double> >&, const activityMode& am) const override;
+	virtual G_API_GENEVA void doubleStreamline(std::map<std::string, std::vector<double>>&, const activityMode& am) const override;
 	/** @brief Assigns part of a value map to the parameter */
-	virtual G_API_GENEVA void assignDoubleValueVectors(const std::map<std::string, std::vector<double> >&, const activityMode& am) override;
+	virtual G_API_GENEVA void assignDoubleValueVectors(const std::map<std::string, std::vector<double>>&, const activityMode& am) override;
 
 	/** @brief Multiplication with a random value in a given range */
 	virtual G_API_GENEVA void doubleMultiplyByRandom(const double& min, const double& max, const activityMode& am) override;

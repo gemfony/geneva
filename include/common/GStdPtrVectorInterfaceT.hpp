@@ -134,7 +134,7 @@ public:
 	 * @param cp A constant reference to another GStdPtrVectorInterfaceT object
 	 */
 	GStdPtrVectorInterfaceT(const GStdPtrVectorInterfaceT<T, B> &cp) {
-		typename std::vector<std::shared_ptr < T> > ::const_iterator
+		typename std::vector<std::shared_ptr < T>> ::const_iterator
 		cp_it;
 		for (cp_it = cp.data.begin(); cp_it != cp.data.end(); ++cp_it) {
 			data.push_back((*cp_it)->T::template clone<T>());
@@ -164,20 +164,20 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Assignment of a std::vector<std::shared_ptr<T> > . As the vector contains smart
+	 * Assignment of a std::vector<std::shared_ptr<T>> . As the vector contains smart
 	 * pointers, we cannot just copy the pointers themselves but need to copy their content.
 	 *
-	 * @param cp A constant reference to another std::vector<std::shared_ptr<T> >
+	 * @param cp A constant reference to another std::vector<std::shared_ptr<T>>
 	 * @return The argument of this function
 	 */
-	const std::vector<std::shared_ptr < T> >&
+	const std::vector<std::shared_ptr < T>>&
 
 	operator=(const std::vector<std::shared_ptr < T>
 
 	>& cp) {
-		typename std::vector<std::shared_ptr < T> > ::const_iterator
+		typename std::vector<std::shared_ptr < T>> ::const_iterator
 		cp_it;
-		typename std::vector<std::shared_ptr < T> > ::iterator
+		typename std::vector<std::shared_ptr < T>> ::iterator
 		it;
 
 		std::size_t localSize = data.size();
@@ -231,25 +231,25 @@ public:
 
 	/***************************************************************************/
 	// Typedefs
-	typedef typename std::vector<std::shared_ptr < T> >
+	typedef typename std::vector<std::shared_ptr < T>>
 	::value_type value_type;
-	typedef typename std::vector<std::shared_ptr < T> >
+	typedef typename std::vector<std::shared_ptr < T>>
 	::reference reference;
-	typedef typename std::vector<std::shared_ptr < T> >
+	typedef typename std::vector<std::shared_ptr < T>>
 	::const_reference const_reference;
 
-	typedef typename std::vector<std::shared_ptr < T> >
+	typedef typename std::vector<std::shared_ptr < T>>
 	::iterator iterator;
-	typedef typename std::vector<std::shared_ptr < T> >
+	typedef typename std::vector<std::shared_ptr < T>>
 	::const_iterator const_iterator;
-	typedef typename std::vector<std::shared_ptr < T> >
+	typedef typename std::vector<std::shared_ptr < T>>
 	::reverse_iterator reverse_iterator;
-	typedef typename std::vector<std::shared_ptr < T> >
+	typedef typename std::vector<std::shared_ptr < T>>
 	::const_reverse_iterator const_reverse_iterator;
 
-	typedef typename std::vector<std::shared_ptr < T> >
+	typedef typename std::vector<std::shared_ptr < T>>
 	::size_type size_type;
-	typedef typename std::vector<std::shared_ptr < T> >
+	typedef typename std::vector<std::shared_ptr < T>>
 	::difference_type difference_type;
 
 	/***************************************************************************/
@@ -272,7 +272,7 @@ public:
 	template<typename item_type>
 	size_type count(
 		const std::shared_ptr <item_type> &item,
-		typename boost::enable_if<boost::is_base_of<T, item_type> >::type *dummy = 0
+		typename boost::enable_if<boost::is_base_of<T, item_type>>::type *dummy = 0
 	) const {
 		if (!item) { // Check that item actually contains something useful
 			glogger
@@ -316,7 +316,7 @@ public:
 	template<typename item_type>
 	const_iterator find(
 		const std::shared_ptr <item_type> &item,
-		typename boost::enable_if<boost::is_base_of<T, item_type> >::type *dummy = 0
+		typename boost::enable_if<boost::is_base_of<T, item_type>>::type *dummy = 0
 	) const {
 		if (!item) { // Check that item actually contains something useful
 			glogger
@@ -768,7 +768,7 @@ public:
 
 	>& cp) const {
 		cp.clear();
-		typename std::vector<std::shared_ptr < T> > ::const_iterator
+		typename std::vector<std::shared_ptr < T>> ::const_iterator
 		it;
 		for (it = data.begin(); it != data.end(); ++it) {
 			cp.push_back((*it)->T::template clone<T>());
@@ -836,7 +836,7 @@ public:
 	void attachViewTo(std::vector<std::shared_ptr < derivedType>
 
 	>& target) {
-		typename std::vector<std::shared_ptr < T> > ::iterator
+		typename std::vector<std::shared_ptr < T>> ::iterator
 		it;
 		for (it = data.begin(); it != data.end(); ++it) {
 			std::shared_ptr <derivedType> p = std::dynamic_pointer_cast<derivedType>(*it);
@@ -989,16 +989,16 @@ public:
 		}
 
 		/************************************************************************/
-		typename std::vector<std::shared_ptr < T> >
+		typename std::vector<std::shared_ptr < T>>
 		::iterator current_; ///< Marks the current position in the iteration sequence
-		typename std::vector<std::shared_ptr < T> >
+		typename std::vector<std::shared_ptr < T>>
 		::iterator end_; ///< Marks the end of the iteration sequence
 
 		std::shared_ptr <derivedType> p; ///< Temporary which holds the current valid pointer
 	};
 
 protected:
-	std::vector<std::shared_ptr < T> >
+	std::vector<std::shared_ptr < T>>
 	data;
 
 	/** @brief Intentionally make this object purely virtual, for performance reasons */
@@ -1046,10 +1046,10 @@ public:
 namespace boost {
 namespace serialization {
 template<typename T, typename B>
-struct is_abstract<Gem::Common::GStdPtrVectorInterfaceT<T, B> > : public boost::true_type {
+struct is_abstract<Gem::Common::GStdPtrVectorInterfaceT<T, B>> : public boost::true_type {
 };
 template<typename T, typename B>
-struct is_abstract<const Gem::Common::GStdPtrVectorInterfaceT<T, B> > : public boost::true_type {
+struct is_abstract<const Gem::Common::GStdPtrVectorInterfaceT<T, B>> : public boost::true_type {
 };
 }
 }

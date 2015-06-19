@@ -78,7 +78,7 @@ class GConstrainedFPNumCollectionT
 		using boost::serialization::make_nvp;
 		ar
 			& make_nvp("GConstrainedNumCollectionT",
-						  boost::serialization::base_object<GConstrainedNumCollectionT<fp_type> >(*this));
+						  boost::serialization::base_object<GConstrainedNumCollectionT<fp_type>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -216,12 +216,12 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GConstrainedFPNumCollectionT<fp_type>  reference independent of this object and convert the pointer
-		const GConstrainedFPNumCollectionT<fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedFPNumCollectionT<fp_type> >(cp, this);
+		const GConstrainedFPNumCollectionT<fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedFPNumCollectionT<fp_type>>(cp, this);
 
 		GToken token("GConstrainedNumCollectionT<fp_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GConstrainedNumCollectionT<fp_type> >(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GConstrainedNumCollectionT<fp_type>>(IDENTITY(*this, *p_load), token);
 
 		// ... no local data
 
@@ -291,7 +291,7 @@ protected:
 	 */
 	virtual void load_(const GObject *cp) override {
 		// Check that we are dealing with a GConstrainedFPNumCollectionT<fp_type>  reference independent of this object and convert the pointer
-		const GConstrainedFPNumCollectionT<fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedFPNumCollectionT<fp_type> >(cp, this);
+		const GConstrainedFPNumCollectionT<fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedFPNumCollectionT<fp_type>>(cp, this);
 
 		// Load our parent class'es data ...
 		GConstrainedNumCollectionT<fp_type>::load_(cp);
@@ -390,9 +390,9 @@ public:
 namespace boost {
 namespace serialization {
 template<typename fp_type>
-struct is_abstract<Gem::Geneva::GConstrainedFPNumCollectionT<fp_type> > : public boost::true_type {};
+struct is_abstract<Gem::Geneva::GConstrainedFPNumCollectionT<fp_type>> : public boost::true_type {};
 template<typename fp_type>
-struct is_abstract< const Gem::Geneva::GConstrainedFPNumCollectionT<fp_type> > : public boost::true_type {};
+struct is_abstract< const Gem::Geneva::GConstrainedFPNumCollectionT<fp_type>> : public boost::true_type {};
 }
 }
 /******************************************************************************/

@@ -67,7 +67,7 @@ class GDoubleObjectCollection
 
 		ar
 			& make_nvp("GParameterTCollectionT_gbd",
-						  boost::serialization::base_object<GParameterTCollectionT<GDoubleObject> >(*this));
+						  boost::serialization::base_object<GParameterTCollectionT<GDoubleObject>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 

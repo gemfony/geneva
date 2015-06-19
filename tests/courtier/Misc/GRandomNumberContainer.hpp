@@ -83,7 +83,7 @@ class GRandomNumberContainer
 	void serialize(Archive & ar, const unsigned int){
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("GSubmissionContainerT_GRandomNumberContainer", boost::serialization::base_object<Gem::Courtier::GSubmissionContainerT<GRandomNumberContainer> >(*this))
+		ar & make_nvp("GSubmissionContainerT_GRandomNumberContainer", boost::serialization::base_object<Gem::Courtier::GSubmissionContainerT<GRandomNumberContainer>>(*this))
 		& BOOST_SERIALIZATION_NVP(randomNumbers_);
 	}
 	///////////////////////////////////////////////////////////////////////

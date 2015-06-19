@@ -67,7 +67,7 @@ namespace Geneva {
  * This class is a specialization of the GFactoryT<> class for evolutionary algorithms.
  */
 class GEvolutionaryAlgorithmFactory
-	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >
+	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>
 {
 public:
 	/** @brief An easy identifier for the class */
@@ -86,7 +86,7 @@ public:
 	G_API_GENEVA GEvolutionaryAlgorithmFactory(
 		const std::string&
 		, const execMode&
-		, std::shared_ptr<Gem::Common::GFactoryT<GParameterSet> >
+		, std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>
 	);
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GEvolutionaryAlgorithmFactory();
@@ -98,9 +98,9 @@ public:
 
 protected:
 	/** @brief Creates individuals of this type */
-	virtual G_API_GENEVA std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> > getObject_(Gem::Common::GParserBuilder&, const std::size_t&) override;
+	virtual G_API_GENEVA std::shared_ptr<GOptimizationAlgorithmT<GParameterSet>> getObject_(Gem::Common::GParserBuilder&, const std::size_t&) override;
 	/** @brief Allows to act on the configuration options received from the configuration file */
-	virtual G_API_GENEVA void postProcess_(std::shared_ptr<GOptimizationAlgorithmT<GParameterSet> >&) override;
+	virtual G_API_GENEVA void postProcess_(std::shared_ptr<GOptimizationAlgorithmT<GParameterSet>>&) override;
 };
 
 /******************************************************************************/

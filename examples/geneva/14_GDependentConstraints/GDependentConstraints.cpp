@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
 	//---------------------------------------------------------------------------
 	// Register a progress plotter with the global optimization algorithm factory
 	if(monitorSpec != "empty") {
-		std::shared_ptr<GProgressPlotterT<GParameterSet, double> > progplot_ptr(new GProgressPlotterT<GParameterSet, double>());
+		std::shared_ptr<GProgressPlotterT<GParameterSet, double>> progplot_ptr(new GProgressPlotterT<GParameterSet, double>());
 
 		progplot_ptr->setProfileSpec(monitorSpec);
 		progplot_ptr->setObserveBoundaries(observeBoundaries);
@@ -119,7 +119,7 @@ int main(int argc, char **argv) {
 		std::shared_ptr<GDoubleSumGapConstraint>        gap_constraint(new GDoubleSumGapConstraint(1.,0.05)); // The sum of all variables must be 1 +/- 0.05
 
 		// Create a check combiner and add the constraint objects to it
-		std::shared_ptr<GCheckCombinerT<GOptimizableEntity> > combiner_ptr(new GCheckCombinerT<GOptimizableEntity>());
+		std::shared_ptr<GCheckCombinerT<GOptimizableEntity>> combiner_ptr(new GCheckCombinerT<GOptimizableEntity>());
 		combiner_ptr->setCombinerPolicy(Gem::Geneva::MULTIPLYINVALID);
 
 		combiner_ptr->addCheck(doublesum_constraint_ptr);

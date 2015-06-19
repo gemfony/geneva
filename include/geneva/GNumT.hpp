@@ -70,7 +70,7 @@ class GNumT
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar
-		& make_nvp("GParameterT",	boost::serialization::base_object<GParameterT<T> >(*this))
+		& make_nvp("GParameterT",	boost::serialization::base_object<GParameterT<T>>(*this))
 		& BOOST_SERIALIZATION_NVP(lowerInitBoundary_)
 		& BOOST_SERIALIZATION_NVP(upperInitBoundary_);
 	}
@@ -204,12 +204,12 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GNumT<T> reference independent of this object and convert the pointer
-		const GNumT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumT<T> >(cp, this);
+		const GNumT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumT<T>>(cp, this);
 
 		GToken token("GNumT<T>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GParameterT<T> >(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GParameterT<T>>(IDENTITY(*this, *p_load), token);
 
 		// ... and then the local data
 		compare_t(IDENTITY(lowerInitBoundary_, p_load->lowerInitBoundary_), token);
@@ -328,7 +328,7 @@ protected:
 	 */
 	virtual void load_(const GObject *cp) override {
 		// Check that we are dealing with a GNumT<T> reference independent of this object and convert the pointer
-		const GNumT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumT<T> >(cp, this);
+		const GNumT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumT<T>>(cp, this);
 
 		// Load our parent class'es data ...
 		GParameterT<T>::load_(cp);
@@ -404,7 +404,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test setting and retrieval of initialization boundaries
-			std::shared_ptr<GNumT<T> > p_test = this->GObject::template clone<GNumT<T> >();
+			std::shared_ptr<GNumT<T>> p_test = this->GObject::template clone<GNumT<T>>();
 
 			// Set the boundaries
 			BOOST_CHECK_NO_THROW(p_test->setInitBoundaries(LOWERTESTINITVAL, UPPERTESTINITVAL));
@@ -437,7 +437,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that assignement of initialization boundaries throws for invalid boundaries
-			std::shared_ptr<GNumT<T> > p_test = this->GObject::template clone<GNumT<T> >();
+			std::shared_ptr<GNumT<T>> p_test = this->GObject::template clone<GNumT<T>>();
 
 			BOOST_CHECK_THROW(p_test->setInitBoundaries(UPPERTESTINITVAL, LOWERTESTINITVAL), Gem::Common::gemfony_error_condition);
 		}
@@ -463,9 +463,9 @@ public:
 namespace boost {
 namespace serialization {
 template<typename T>
-struct is_abstract<Gem::Geneva::GNumT<T> > : public boost::true_type {};
+struct is_abstract<Gem::Geneva::GNumT<T>> : public boost::true_type {};
 template<typename T>
-struct is_abstract< const Gem::Geneva::GNumT<T> > : public boost::true_type {};
+struct is_abstract< const Gem::Geneva::GNumT<T>> : public boost::true_type {};
 }
 }
 

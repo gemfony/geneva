@@ -69,7 +69,7 @@ class GFPNumCollectionT
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar
-			& make_nvp("GNumCollectionT_fpType", boost::serialization::base_object<GNumCollectionT<fp_type> >(*this));
+			& make_nvp("GNumCollectionT_fpType", boost::serialization::base_object<GNumCollectionT<fp_type>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -201,12 +201,12 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GFPNumCollectionT<fp_type> reference independent of this object and convert the pointer
-		const GFPNumCollectionT<fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GFPNumCollectionT<fp_type> >(cp, this);
+		const GFPNumCollectionT<fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GFPNumCollectionT<fp_type>>(cp, this);
 
 		GToken token("GFPNumCollectionT<fp_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GNumCollectionT<fp_type> >(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GNumCollectionT<fp_type>>(IDENTITY(*this, *p_load), token);
 
 		// ... no local data
 
@@ -234,7 +234,7 @@ protected:
 	 */
 	virtual void load_(const GObject *cp) override {
 		// Check that we are dealing with a GFPNumCollectionT<fp_type> reference independent of this object and convert the pointer
-		const GFPNumCollectionT<fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GFPNumCollectionT<fp_type> >(cp, this);
+		const GFPNumCollectionT<fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GFPNumCollectionT<fp_type>>(cp, this);
 
 		// Load our parent class'es data ...
 		GNumCollectionT<fp_type>::load_(cp);
@@ -321,8 +321,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check initialization with a fixed value, setting and retrieval of boundaries and random initialization
-			std::shared_ptr<GFPNumCollectionT<fp_type> > p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
-			std::shared_ptr<GFPNumCollectionT<fp_type> > p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
 
 			// Make sure p_test1 and p_test2 are empty
 			BOOST_CHECK_NO_THROW(p_test1->clear());
@@ -365,8 +365,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test multiplication with a fixed value
-			std::shared_ptr<GFPNumCollectionT<fp_type> > p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
-			std::shared_ptr<GFPNumCollectionT<fp_type> > p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
 
 			// Make sure p_test1 and p_test2 are empty
 			BOOST_CHECK_NO_THROW(p_test1->clear());
@@ -401,8 +401,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test multiplication with a random value in fixed range
-			std::shared_ptr<GFPNumCollectionT<fp_type> > p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
-			std::shared_ptr<GFPNumCollectionT<fp_type> > p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
 
 			// Make sure p_test1 and p_test2 are empty
 			BOOST_CHECK_NO_THROW(p_test1->clear());
@@ -428,8 +428,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test multiplication with a random value in the range [0:1[
-			std::shared_ptr<GFPNumCollectionT<fp_type> > p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
-			std::shared_ptr<GFPNumCollectionT<fp_type> > p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
 
 			// Make sure p_test1 and p_test2 are empty
 			BOOST_CHECK_NO_THROW(p_test1->clear());
@@ -455,9 +455,9 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test addition of other GFPNumCollectionT<fp_type> objets
-			std::shared_ptr<GFPNumCollectionT<fp_type> > p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
-			std::shared_ptr<GFPNumCollectionT<fp_type> > p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
-			std::shared_ptr<GFPNumCollectionT<fp_type> > p_test3 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test3 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
 
 			// Make sure all clones are empty
 			BOOST_CHECK_NO_THROW(p_test1->clear());
@@ -497,9 +497,9 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test subtraction of other GFPNumCollectionT<fp_type> objets
-			std::shared_ptr<GFPNumCollectionT<fp_type> > p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
-			std::shared_ptr<GFPNumCollectionT<fp_type> > p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
-			std::shared_ptr<GFPNumCollectionT<fp_type> > p_test3 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test3 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
 
 			// Make sure all clones are empty
 			BOOST_CHECK_NO_THROW(p_test1->clear());
@@ -558,8 +558,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that adding another object of different size throws
-			std::shared_ptr<GFPNumCollectionT<fp_type> > p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
-			std::shared_ptr<GFPNumCollectionT<fp_type> > p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
 
 			// Add a few items to p_test1, but not to p_test2
 			for(std::size_t i=0; i<nItems; i++) {
@@ -572,8 +572,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that subtracting another object of different size throws
-			std::shared_ptr<GFPNumCollectionT<fp_type> > p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
-			std::shared_ptr<GFPNumCollectionT<fp_type> > p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
 
 			// Add a few items to p_test1, but not to p_test2
 			for(std::size_t i=0; i<nItems; i++) {
@@ -603,9 +603,9 @@ public:
 namespace boost {
 namespace serialization {
 template<typename fp_type>
-struct is_abstract<Gem::Geneva::GFPNumCollectionT<fp_type> > : public boost::true_type {};
+struct is_abstract<Gem::Geneva::GFPNumCollectionT<fp_type>> : public boost::true_type {};
 template<typename fp_type>
-struct is_abstract< const Gem::Geneva::GFPNumCollectionT<fp_type> > : public boost::true_type {};
+struct is_abstract< const Gem::Geneva::GFPNumCollectionT<fp_type>> : public boost::true_type {};
 }
 }
 /******************************************************************************/

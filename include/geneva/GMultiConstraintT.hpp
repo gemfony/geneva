@@ -165,7 +165,7 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GPreEvaluationValidityCheckT<ind_type>  reference independent of this object and convert the pointer
-		const GPreEvaluationValidityCheckT<ind_type>  *p_load = Gem::Common::g_convert_and_compare<GObject, GPreEvaluationValidityCheckT<ind_type> >(cp, this);
+		const GPreEvaluationValidityCheckT<ind_type>  *p_load = Gem::Common::g_convert_and_compare<GObject, GPreEvaluationValidityCheckT<ind_type>>(cp, this);
 
 		GToken token("GPreEvaluationValidityCheckT<ind_type>", e);
 
@@ -305,7 +305,7 @@ protected:
 	 */
 	virtual void load_(const GObject* cp) override {
 		// Check that we are dealing with a GPreEvaluationValidityCheckT<ind_type>  reference independent of this object and convert the pointer
-		const GPreEvaluationValidityCheckT<ind_type>  *p_load = Gem::Common::g_convert_and_compare<GObject, GPreEvaluationValidityCheckT<ind_type> >(cp, this);
+		const GPreEvaluationValidityCheckT<ind_type>  *p_load = Gem::Common::g_convert_and_compare<GObject, GPreEvaluationValidityCheckT<ind_type>>(cp, this);
 
 		// Load our parent class'es data ...
 		GObject::load_(cp);
@@ -356,7 +356,7 @@ public:
 	/**
 	 * Initialization from a vector of validity checks
 	 */
-	GValidityCheckContainerT(const std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type> > >& validityChecks)
+	GValidityCheckContainerT(const std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>> >& validityChecks)
 	{
 		copyGenevaSmartPointerVector(validityChecks, validityChecks_);
 	}
@@ -438,12 +438,12 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GValidityCheckContainerT<ind_type>  reference independent of this object and convert the pointer
-		const GValidityCheckContainerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GValidityCheckContainerT<ind_type> >(cp, this);
+		const GValidityCheckContainerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GValidityCheckContainerT<ind_type>>(cp, this);
 
 		GToken token("GValidityCheckContainerT<ind_type>", e);
 
 		// Compare our parent data ...
-		compare_base<GPreEvaluationValidityCheckT<ind_type> >(IDENTITY(*this, *p_load), token);
+		compare_base<GPreEvaluationValidityCheckT<ind_type>>(IDENTITY(*this, *p_load), token);
 
 		// ... and then the local data
 		compare_t(IDENTITY(validityChecks_, p_load->validityChecks_), token);
@@ -457,7 +457,7 @@ public:
 	 * Adds a validity check to this object. Note that we clone the check so
 	 * that it can be used multiple times.
 	 */
-	void addCheck(std::shared_ptr<GPreEvaluationValidityCheckT<ind_type> > vc_ptr) {
+	void addCheck(std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>> vc_ptr) {
 		if(!vc_ptr) {
 			glogger
 			<< "In GValidityCheckContainerT<>::addCheck(): Error!" << std::endl
@@ -465,7 +465,7 @@ public:
 			<< GEXCEPTION;
 		}
 
-		validityChecks_.push_back(vc_ptr->GObject::template clone<GPreEvaluationValidityCheckT<ind_type> >());
+		validityChecks_.push_back(vc_ptr->GObject::template clone<GPreEvaluationValidityCheckT<ind_type>>());
 	}
 
 protected:
@@ -483,7 +483,7 @@ protected:
 	 */
 	virtual void load_(const GObject* cp) override {
 		// Check that we are dealing with a GValidityCheckContainerT<ind_type>  reference independent of this object and convert the pointer
-		const GValidityCheckContainerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GValidityCheckContainerT<ind_type> >(cp, this);
+		const GValidityCheckContainerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GValidityCheckContainerT<ind_type>>(cp, this);
 
 		// Load our parent class'es data ...
 		GPreEvaluationValidityCheckT<ind_type>::load_(cp);
@@ -494,7 +494,7 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Holds all registered validity checks */
-	std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type> > > validityChecks_;
+	std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>> > validityChecks_;
 };
 
 /******************************************************************************/
@@ -534,7 +534,7 @@ public:
 	 * Initialization from a vector of validity checks
 	 */
 	GCheckCombinerT(
-		const std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type> > >& validityChecks
+		const std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>> >& validityChecks
 	)
 	: GValidityCheckContainerT<ind_type>(validityChecks)
 	, combinerPolicy_(Gem::Geneva::MULTIPLYINVALID)
@@ -616,12 +616,12 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GCheckCombinerT<ind_type>  reference independent of this object and convert the pointer
-		const GCheckCombinerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GCheckCombinerT<ind_type> >(cp, this);
+		const GCheckCombinerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GCheckCombinerT<ind_type>>(cp, this);
 
 		GToken token("GCheckCombinerT<ind_type", e);
 
 		// Compare our parent data ...
-		compare_base<GValidityCheckContainerT<ind_type> >(IDENTITY(*this, *p_load), token);
+		compare_base<GValidityCheckContainerT<ind_type>>(IDENTITY(*this, *p_load), token);
 
 		// ... and then the local data
 		compare_t(IDENTITY(combinerPolicy_, p_load->combinerPolicy_), token);
@@ -657,7 +657,7 @@ protected:
 		// First identify invalid checks
 		std::vector<double> invalidChecks;
 		double validityLevel;
-		typename std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type> > >::const_iterator cit;
+		typename std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>> >::const_iterator cit;
 		for(cit=GValidityCheckContainerT<ind_type>::validityChecks_.begin(); cit!=GValidityCheckContainerT<ind_type>::validityChecks_.end(); ++cit) {
 			if(!(*cit)->isValid(cp, validityLevel)) {
 				invalidChecks.push_back(validityLevel);
@@ -749,7 +749,7 @@ protected:
 	 */
 	virtual void load_(const GObject* cp) override {
 		// Check that we are dealing with a GCheckCombinerT<ind_type>  reference independent of this object and convert the pointer
-		const GCheckCombinerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GCheckCombinerT<ind_type> >(cp, this);
+		const GCheckCombinerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GCheckCombinerT<ind_type>>(cp, this);
 
 		// Load our parent class'es data ...
 		GPreEvaluationValidityCheckT<ind_type>::load_(cp);
@@ -777,18 +777,18 @@ private:
 namespace boost {
 namespace serialization {
 template<typename ind_type>
-struct is_abstract< Gem::Geneva::GPreEvaluationValidityCheckT<ind_type> > : public boost::true_type {};
+struct is_abstract< Gem::Geneva::GPreEvaluationValidityCheckT<ind_type>> : public boost::true_type {};
 template<typename ind_type>
-struct is_abstract< const Gem::Geneva::GPreEvaluationValidityCheckT<ind_type> > : public boost::true_type {};
+struct is_abstract< const Gem::Geneva::GPreEvaluationValidityCheckT<ind_type>> : public boost::true_type {};
 }
 }
 
 namespace boost {
 namespace serialization {
 template<typename ind_type>
-struct is_abstract< Gem::Geneva::GValidityCheckContainerT<ind_type> > : public boost::true_type {};
+struct is_abstract< Gem::Geneva::GValidityCheckContainerT<ind_type>> : public boost::true_type {};
 template<typename ind_type>
-struct is_abstract< const Gem::Geneva::GValidityCheckContainerT<ind_type> > : public boost::true_type {};
+struct is_abstract< const Gem::Geneva::GValidityCheckContainerT<ind_type>> : public boost::true_type {};
 }
 }
 

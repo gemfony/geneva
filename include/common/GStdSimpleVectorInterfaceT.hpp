@@ -434,10 +434,10 @@ public:
 namespace boost {
 namespace serialization {
 template<typename T>
-struct is_abstract<Gem::Common::GStdSimpleVectorInterfaceT<T> > : public boost::true_type {
+struct is_abstract<Gem::Common::GStdSimpleVectorInterfaceT<T>> : public boost::true_type {
 };
 template<typename T>
-struct is_abstract<const Gem::Common::GStdSimpleVectorInterfaceT<T> > : public boost::true_type {
+struct is_abstract<const Gem::Common::GStdSimpleVectorInterfaceT<T>> : public boost::true_type {
 };
 }
 }

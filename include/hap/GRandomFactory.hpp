@@ -239,10 +239,10 @@ private:
 	Gem::Common::GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
 
 	/** @brief A bounded buffer holding the [0,1[ random number packages */
-	Gem::Common::GBoundedBufferT<std::shared_ptr < random_container> >
+	Gem::Common::GBoundedBufferT<std::shared_ptr < random_container>>
 	p01_; // Note: Absolutely needs to be defined after the thread group !!!
 	/** @brief A bounded buffer holding [0,1[ random number packages ready for recycling */
-	Gem::Common::GBoundedBufferT<std::shared_ptr < random_container> >
+	Gem::Common::GBoundedBufferT<std::shared_ptr < random_container>>
 	r01_;
 
 	static boost::uint16_t multiple_call_trap_; ///< Trap to catch multiple instantiations of this class

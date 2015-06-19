@@ -138,7 +138,7 @@ int main(int argc, char **argv){
 	// If this is a client in networked mode, we can just start the listener and
 	// return when it has finished
 	if(EXECMODE_BROKERAGE==parallelizationMode && !serverMode) {
-		std::shared_ptr<GAsioTCPClientT<GParameterSet> >
+		std::shared_ptr<GAsioTCPClientT<GParameterSet>>
 			p(new GAsioTCPClientT<GParameterSet>(ip, boost::lexical_cast<std::string>(port)));
 
 		p->setMaxStalls(maxStalls); // 0 would mean an infinite number of stalled data retrievals
@@ -184,12 +184,12 @@ int main(int argc, char **argv){
 		case EXECMODE_BROKERAGE: // Execution with networked consumer and possibly a local, multi-threaded consumer
 		{
 			// Create a network consumer and enrol it with the broker
-			std::shared_ptr<GAsioTCPConsumerT<GParameterSet> >
+			std::shared_ptr<GAsioTCPConsumerT<GParameterSet>>
 				gatc(new GAsioTCPConsumerT<GParameterSet>(port, 0, serMode));
 			GBROKER(Gem::Geneva::GParameterSet)->enrol(gatc);
 
 			if(addLocalConsumer) { // This is mainly for testing and benchmarking
-				std::shared_ptr<GBoostThreadConsumerT<GParameterSet> >
+				std::shared_ptr<GBoostThreadConsumerT<GParameterSet>>
 					gbtc(new GBoostThreadConsumerT<GParameterSet>());
 				gbtc->setNThreadsPerWorker(nEvaluationThreads);
 				GBROKER(Gem::Geneva::GParameterSet)->enrol(gbtc);
@@ -219,7 +219,7 @@ int main(int argc, char **argv){
 	GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
 	// Create the first set of parent individuals. Initialization of parameters is done randomly.
-	std::vector<std::shared_ptr<GFunctionIndividual> > parentIndividuals;
+	std::vector<std::shared_ptr<GFunctionIndividual>> parentIndividuals;
 	for(std::size_t p = 0 ; p<nParents; p++) {
 		parentIndividuals.push_back(gfi.get<GFunctionIndividual>());
 	}

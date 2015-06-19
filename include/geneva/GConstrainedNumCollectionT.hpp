@@ -78,7 +78,7 @@ class GConstrainedNumCollectionT
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar
-		& make_nvp("GParameterCollectionT",	boost::serialization::base_object<GParameterCollectionT<num_type> >(*this))
+		& make_nvp("GParameterCollectionT",	boost::serialization::base_object<GParameterCollectionT<num_type>>(*this))
 		& BOOST_SERIALIZATION_NVP(lowerBoundary_)
 		& BOOST_SERIALIZATION_NVP(upperBoundary_);
 	}
@@ -258,12 +258,12 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GConstrainedNumCollectionT<num_type> reference independent of this object and convert the pointer
-		const GConstrainedNumCollectionT<num_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedNumCollectionT<num_type> >(cp, this);
+		const GConstrainedNumCollectionT<num_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedNumCollectionT<num_type>>(cp, this);
 
 		GToken token("GConstrainedNumCollectionT<num_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GParameterCollectionT<num_type> >(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GParameterCollectionT<num_type>>(IDENTITY(*this, *p_load), token);
 
 		// ... and then the local data
 		compare_t(IDENTITY(lowerBoundary_, p_load->lowerBoundary_), token);
@@ -456,7 +456,7 @@ protected:
 	 */
 	virtual void load_(const GObject *cp) override {
 		// Check that we are dealing with a GConstrainedNumCollectionT<num_type> reference independent of this object and convert the pointer
-		const GConstrainedNumCollectionT<num_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedNumCollectionT<num_type> >(cp, this);
+		const GConstrainedNumCollectionT<num_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedNumCollectionT<num_type>>(cp, this);
 
 		// Load our parent class'es data ...
 		GParameterCollectionT<num_type>::load_(cp);
@@ -576,9 +576,9 @@ inline bool GConstrainedNumCollectionT<bool>::range() const {
 namespace boost {
 namespace serialization {
 template<typename num_type>
-struct is_abstract<Gem::Geneva::GConstrainedNumCollectionT<num_type> > : public boost::true_type {};
+struct is_abstract<Gem::Geneva::GConstrainedNumCollectionT<num_type>> : public boost::true_type {};
 template<typename num_type>
-struct is_abstract< const Gem::Geneva::GConstrainedNumCollectionT<num_type> > : public boost::true_type {};
+struct is_abstract< const Gem::Geneva::GConstrainedNumCollectionT<num_type>> : public boost::true_type {};
 }
 }
 /******************************************************************************/

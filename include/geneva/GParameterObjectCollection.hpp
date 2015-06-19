@@ -72,7 +72,7 @@ class GParameterObjectCollection
 		using boost::serialization::make_nvp;
 
 		ar & make_nvp("GParameterTCollectionT_gbd",
-						  boost::serialization::base_object<GParameterTCollectionT<GParameterBase> >(*this));
+						  boost::serialization::base_object<GParameterTCollectionT<GParameterBase>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -120,7 +120,7 @@ public:
 	template <typename parameter_type>
 	const std::shared_ptr<parameter_type> at(
 		const std::size_t& pos
-		, typename boost::enable_if<boost::is_base_of<GParameterBase, parameter_type> >::type* dummy = 0
+		, typename boost::enable_if<boost::is_base_of<GParameterBase, parameter_type>>::type* dummy = 0
 	)  const {
 #ifdef DEBUG
 	   if(this->empty() || pos >= this->size()) {

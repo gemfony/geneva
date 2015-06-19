@@ -274,7 +274,7 @@ public:
 		<< GEXCEPTION;
 
 		// Make the compiler happy
-		return std::shared_ptr<GFactoryT<prod_type> >();
+		return std::shared_ptr<GFactoryT<prod_type>>();
 	}
 
 protected:
@@ -335,10 +335,10 @@ private:
 namespace boost {
 namespace serialization {
 template<typename T>
-struct is_abstract<Gem::Common::GFactoryT<T> > : public boost::true_type {
+struct is_abstract<Gem::Common::GFactoryT<T>> : public boost::true_type {
 };
 template<typename T>
-struct is_abstract<const Gem::Common::GFactoryT<T> > : public boost::true_type {
+struct is_abstract<const Gem::Common::GFactoryT<T>> : public boost::true_type {
 };
 }
 }

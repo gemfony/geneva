@@ -143,7 +143,7 @@ void GDoubleObjectCollection::compare(
 	GToken token("GDoubleObjectCollection", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GParameterTCollectionT<GDoubleObject> >(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GParameterTCollectionT<GDoubleObject>>(IDENTITY(*this, *p_load), token);
 
 	// ... no local data
 

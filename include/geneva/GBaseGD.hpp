@@ -83,7 +83,7 @@ class GBaseGD
 
 		ar
 		& make_nvp("GOptimizationAlgorithmT_GParameterSet",
-					  boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet> >(*this))
+					  boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet>>(*this))
 		& BOOST_SERIALIZATION_NVP(nStartingPoints_)
 		& BOOST_SERIALIZATION_NVP(nFPParmsFirst_)
 		& BOOST_SERIALIZATION_NVP(finiteStep_)

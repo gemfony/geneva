@@ -70,7 +70,7 @@ class GNumFlipAdaptorT
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar
-			& make_nvp("GAdaptorT", boost::serialization::base_object<GAdaptorT<num_type> >(*this));
+			& make_nvp("GAdaptorT", boost::serialization::base_object<GAdaptorT<num_type>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -175,12 +175,12 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GNumFlipAdaptorT<num_type> reference independent of this object and convert the pointer
-		const GNumFlipAdaptorT<num_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumFlipAdaptorT<num_type> >(cp, this);
+		const GNumFlipAdaptorT<num_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumFlipAdaptorT<num_type>>(cp, this);
 
 		GToken token("GNumFlipAdaptorT<num_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GAdaptorT<num_type> >(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GAdaptorT<num_type>>(IDENTITY(*this, *p_load), token);
 
 		// ... no local data
 
@@ -220,7 +220,7 @@ protected:
 	 */
 	void load_(const GObject *cp) override	{
 		// Convert the pointer to our target type and check for self-assignment
-		const GNumFlipAdaptorT<num_type> * p_load = Gem::Common::g_convert_and_compare<GObject, GNumFlipAdaptorT<num_type> >(cp, this);
+		const GNumFlipAdaptorT<num_type> * p_load = Gem::Common::g_convert_and_compare<GObject, GNumFlipAdaptorT<num_type>>(cp, this);
 
 		// Load the data of our parent class ...
 		GAdaptorT<num_type>::load_(cp);
@@ -338,9 +338,9 @@ public:
 namespace boost {
 namespace serialization {
 template<typename num_type>
-struct is_abstract<Gem::Geneva::GNumFlipAdaptorT<num_type> > : public boost::true_type {};
+struct is_abstract<Gem::Geneva::GNumFlipAdaptorT<num_type>> : public boost::true_type {};
 template<typename num_type>
-struct is_abstract< const Gem::Geneva::GNumFlipAdaptorT<num_type> > : public boost::true_type {};
+struct is_abstract< const Gem::Geneva::GNumFlipAdaptorT<num_type>> : public boost::true_type {};
 }
 }
 

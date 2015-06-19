@@ -46,7 +46,7 @@ G_API_GENEVA const std::string GParameterScanFactory::nickname = "ps";
  * The default constructor
  */
 GParameterScanFactory::GParameterScanFactory()
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >("./config/GParameterScan.json"),
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>("./config/GParameterScan.json"),
 	  parameterSpec_("empty"), parameterSpecCL_("empty") { /* nothing */ }
 
 /******************************************************************************/
@@ -56,7 +56,7 @@ GParameterScanFactory::GParameterScanFactory()
 GParameterScanFactory::GParameterScanFactory(
 	const std::string &configFile
 )
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile), parameterSpec_("empty"),
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(configFile), parameterSpec_("empty"),
 	  parameterSpecCL_("empty") { /* nothing */ }
 
 /******************************************************************************/
@@ -67,7 +67,7 @@ GParameterScanFactory::GParameterScanFactory(
 GParameterScanFactory::GParameterScanFactory(
 	const std::string &configFile, const execMode &pm
 )
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm), parameterSpec_("empty"),
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(configFile, pm), parameterSpec_("empty"),
 	  parameterSpecCL_("empty") { /* nothing */ }
 
 /******************************************************************************/
@@ -79,7 +79,7 @@ GParameterScanFactory::GParameterScanFactory(
 	const std::string &configFile, const execMode &pm,
 	std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >(configFile, pm, contentCreatorPtr),
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(configFile, pm, contentCreatorPtr),
 	  parameterSpec_("empty"), parameterSpecCL_("empty") { /* nothing */ }
 
 /******************************************************************************/
@@ -186,7 +186,7 @@ void GParameterScanFactory::addCLOptions(
 	);
 
 	// Add the parent class'es options
-	GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::addCLOptions(visible, hidden);
+	GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::addCLOptions(visible, hidden);
 }
 
 /******************************************************************************/
@@ -210,7 +210,7 @@ void GParameterScanFactory::describeLocalOptions_(Gem::Common::GParserBuilder &g
 	);
 
 	// Allow our parent class to describe its options
-	GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::describeLocalOptions_(gpb);
+	GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::describeLocalOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -220,7 +220,7 @@ void GParameterScanFactory::describeLocalOptions_(Gem::Common::GParserBuilder &g
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GParameterScanFactory::postProcess_(std::shared_ptr < GOptimizationAlgorithmT<GParameterSet> > &p_base) {
+void GParameterScanFactory::postProcess_(std::shared_ptr < GOptimizationAlgorithmT<GParameterSet>> &p_base) {
 	// Convert the object to the correct target type
 	switch (pm_) {
 		case EXECMODE_SERIAL: {
@@ -233,7 +233,7 @@ void GParameterScanFactory::postProcess_(std::shared_ptr < GOptimizationAlgorith
 		case EXECMODE_MULTITHREADED: {
 			std::shared_ptr <GMultiThreadedPS> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedPS>(p_base);
-			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::nEvaluationThreads_);
+			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::nEvaluationThreads_);
 			p->setParameterSpecs(this->getParameterSpecs());
 		}
 			break;
@@ -242,15 +242,15 @@ void GParameterScanFactory::postProcess_(std::shared_ptr < GOptimizationAlgorith
 			std::shared_ptr <GBrokerPS> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerPS>(p_base);
 
-			p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::doLogging_);
-			p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::waitFactor_);
+			p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::doLogging_);
+			p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::waitFactor_);
 			p->setParameterSpecs(this->getParameterSpecs());
 		}
 			break;
 	}
 
 	// Call our parent class'es function
-	GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet> >::postProcess_(p_base);
+	GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::postProcess_(p_base);
 }
 
 /******************************************************************************/

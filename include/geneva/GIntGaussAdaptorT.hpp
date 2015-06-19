@@ -73,7 +73,7 @@ class GIntGaussAdaptorT
 		using boost::serialization::make_nvp;
 
 		ar
-			& make_nvp("GNumGaussAdaptorT_int", boost::serialization::base_object<GNumGaussAdaptorT<int_type, double> >(*this));
+			& make_nvp("GNumGaussAdaptorT_int", boost::serialization::base_object<GNumGaussAdaptorT<int_type, double>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -214,12 +214,12 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GIntGaussAdaptorT<int_type> reference independent of this object and convert the pointer
-		const GIntGaussAdaptorT<int_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GIntGaussAdaptorT<int_type> >(cp, this);
+		const GIntGaussAdaptorT<int_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GIntGaussAdaptorT<int_type>>(cp, this);
 
 		GToken token("GIntGaussAdaptorT<int_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GNumGaussAdaptorT<int_type, double> >(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GNumGaussAdaptorT<int_type, double>>(IDENTITY(*this, *p_load), token);
 
 		// // ... no local data
 
@@ -248,7 +248,7 @@ protected:
 	 */
 	virtual void load_(const GObject* cp) override {
 		// Convert the pointer to our target type and check for self-assignment
-		const GIntGaussAdaptorT<int_type> * p_load = Gem::Common::g_convert_and_compare<GObject, GIntGaussAdaptorT<int_type> >(cp, this);
+		const GIntGaussAdaptorT<int_type> * p_load = Gem::Common::g_convert_and_compare<GObject, GIntGaussAdaptorT<int_type>>(cp, this);
 
 		// Load our parent class'es data ...
 		GNumGaussAdaptorT<int_type, double>::load_(cp);
@@ -357,9 +357,9 @@ public:
 namespace boost {
 namespace serialization {
 template<typename int_type>
-struct is_abstract<Gem::Geneva::GIntGaussAdaptorT<int_type> > : public boost::true_type {};
+struct is_abstract<Gem::Geneva::GIntGaussAdaptorT<int_type>> : public boost::true_type {};
 template<typename int_type>
-struct is_abstract< const Gem::Geneva::GIntGaussAdaptorT<int_type> > : public boost::true_type {};
+struct is_abstract< const Gem::Geneva::GIntGaussAdaptorT<int_type>> : public boost::true_type {};
 }
 }
 /******************************************************************************/

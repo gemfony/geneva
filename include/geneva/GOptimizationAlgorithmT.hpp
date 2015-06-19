@@ -89,7 +89,7 @@ private:
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GMutableSetT", boost::serialization::base_object<GMutableSetT<ind_type> >(*this))
+		& make_nvp("GMutableSetT", boost::serialization::base_object<GMutableSetT<ind_type>>(*this))
 		& make_nvp("GOptimizableI", boost::serialization::base_object<GOptimizableI>(*this))
 		& BOOST_SERIALIZATION_NVP(iteration_)
 		& BOOST_SERIALIZATION_NVP(offset_)
@@ -381,12 +381,12 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GOptimizationAlgorithmT<ind_type> reference independent of this object and convert the pointer
-		const GOptimizationAlgorithmT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GOptimizationAlgorithmT<ind_type> >(cp, this);
+		const GOptimizationAlgorithmT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GOptimizationAlgorithmT<ind_type>>(cp, this);
 
 		GToken token("GOptimizationAlgorithmT<ind_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GMutableSetT<ind_type> >(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GMutableSetT<ind_type>>(IDENTITY(*this, *p_load), token);
 
 		// ... and then the local data
 		compare_t(IDENTITY(iteration_, p_load->iteration_), token);
@@ -559,7 +559,7 @@ public:
 	/**
 	 * Registers an optimizationMonitor object (or a derivative) with this object. Note
 	 * that this class will take ownership of the optimization monitor by cloning it.
-	 * You can thus assign the same std::shared_ptr<GOptimizationAlgorithmT<ind_type> >
+	 * You can thus assign the same std::shared_ptr<GOptimizationAlgorithmT<ind_type>>
 	 * to different objects.
 	 *
 	 * @param om_ptr A shared pointer to a specific optimization monitor
@@ -843,7 +843,7 @@ public:
 	template <typename target_type>
 	std::shared_ptr<target_type> individual_cast(
 		const std::size_t& pos
-		, typename boost::enable_if<boost::is_base_of<GOptimizableEntity, target_type> >::type* dummy = 0
+		, typename boost::enable_if<boost::is_base_of<GOptimizableEntity, target_type>>::type* dummy = 0
 	) {
 #ifdef DEBUG
 		if(pos >= this->size()) {
@@ -1171,7 +1171,7 @@ protected:
 	 */
 	virtual void load_(const GObject* cp) override {
 		// Check that we are dealing with a GOptimizationAlgorithmT<ind_type> reference independent of this object and convert the pointer
-		const GOptimizationAlgorithmT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GOptimizationAlgorithmT<ind_type> >(cp, this);
+		const GOptimizationAlgorithmT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GOptimizationAlgorithmT<ind_type>>(cp, this);
 
 		// Load the parent class'es data
 		GMutableSetT<ind_type>::load_(cp);
@@ -1234,7 +1234,7 @@ protected:
 	 * Retrieves a list of the best individuals found (equal to the content of
 	 * the priority queue)
 	 */
-	virtual std::vector<std::shared_ptr<GParameterSet> > customGetBestIndividuals() override {
+	virtual std::vector<std::shared_ptr<GParameterSet>> customGetBestIndividuals() override {
 		return bestIndividuals_.toVector();
 	}
 
@@ -1774,7 +1774,7 @@ private:
 	mutable boost::posix_time::ptime startTime_; ///< Used to store the start time of the optimization. Declared mutable so the halt criteria can be const
 	bool emitTerminationReason_; ///< Specifies whether information about reasons for termination should be emitted
 	bool halted_; ///< Set to true when halt() has returned "true"
-	std::vector<boost::tuple<double, double> > worstKnownValids_; ///< Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
+	std::vector<boost::tuple<double, double>> worstKnownValids_; ///< Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
 	std::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> optimizationMonitor_ptr_;
 
 public:
@@ -2344,7 +2344,7 @@ public:
 
 		bool quiet_; ///< Specifies whether any information should be emitted at all
 
-		std::vector<std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT> > pluggable_monitors_; ///< A collection of monitors
+		std::vector<std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>> pluggable_monitors_; ///< A collection of monitors
 
 	public:
 		/************************************************************************/
@@ -2491,9 +2491,9 @@ inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::finalize()
 namespace boost {
 namespace serialization {
 template<typename ind_type>
-struct is_abstract<Gem::Geneva::GOptimizationAlgorithmT<ind_type> > : public boost::true_type {};
+struct is_abstract<Gem::Geneva::GOptimizationAlgorithmT<ind_type>> : public boost::true_type {};
 template<typename ind_type>
-struct is_abstract< const Gem::Geneva::GOptimizationAlgorithmT<ind_type> > : public boost::true_type {};
+struct is_abstract< const Gem::Geneva::GOptimizationAlgorithmT<ind_type>> : public boost::true_type {};
 }
 }
 

@@ -165,7 +165,7 @@ public:
 	 * clients do not need to re-implement this function.
 	 */
 	virtual std::shared_ptr <GBaseClientT<pl_type>> getClient() const {
-		return std::shared_ptr<GBaseClientT<pl_type> >();
+		return std::shared_ptr<GBaseClientT<pl_type>>();
 	}
 
 	/***************************************************************************/

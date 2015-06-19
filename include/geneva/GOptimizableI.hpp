@@ -122,7 +122,7 @@ public:
 	 */
 	template <typename individual_type>
 	std::shared_ptr<individual_type> getBestIndividual (
-		typename boost::enable_if<boost::is_base_of<GParameterSet, individual_type> >::type* dummy = 0
+		typename boost::enable_if<boost::is_base_of<GParameterSet, individual_type>>::type* dummy = 0
 	) {
 		return customGetBestIndividual()->clone<individual_type>();
 	}
@@ -136,13 +136,13 @@ public:
 	 * @return A list of copies of the best individuals found in the optimization run
 	 */
 	template <typename individual_type>
-	std::vector<std::shared_ptr<individual_type> > getBestIndividuals(
-		typename boost::enable_if<boost::is_base_of<GParameterSet, individual_type> >::type* dummy = 0
+	std::vector<std::shared_ptr<individual_type>> getBestIndividuals(
+		typename boost::enable_if<boost::is_base_of<GParameterSet, individual_type>>::type* dummy = 0
 	) {
-		std::vector<std::shared_ptr<individual_type> > bestIndividuals;
+		std::vector<std::shared_ptr<individual_type>> bestIndividuals;
 
-		std::vector<std::shared_ptr<GParameterSet> >::iterator it;
-		std::vector<std::shared_ptr<GParameterSet> > bestBaseIndividuals = this->customGetBestIndividuals();
+		std::vector<std::shared_ptr<GParameterSet>>::iterator it;
+		std::vector<std::shared_ptr<GParameterSet>> bestBaseIndividuals = this->customGetBestIndividuals();
 
 		// Cross check that we indeed got a valid set of individuals
 		if(bestBaseIndividuals.empty()) {
@@ -174,7 +174,7 @@ protected:
 	/** @brief Retrieves the best individual found */
 	virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestIndividual() BASE = 0;
 	/** @brief Retrieves a list of the best individuals found */
-	virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet> > customGetBestIndividuals() BASE = 0;
+	virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestIndividuals() BASE = 0;
 	/***************************************************************************/
 	/** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
 	virtual G_API_GENEVA void runFitnessCalculation() BASE = 0;

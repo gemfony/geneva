@@ -293,7 +293,7 @@ public:
 
 		if (!logVector_.empty()) {
 			// Do the actual logging
-			std::vector<std::shared_ptr < GBaseLogTarget> > ::const_iterator
+			std::vector<std::shared_ptr < GBaseLogTarget>> ::const_iterator
 			cit;
 			for (cit = logVector_.begin(); cit != logVector_.end(); ++cit) {
 				(*cit)->log(message);
@@ -322,7 +322,7 @@ public:
 
 		if (!logVector_.empty()) {
 			// Do the actual logging
-			std::vector<std::shared_ptr < GBaseLogTarget> > ::const_iterator
+			std::vector<std::shared_ptr < GBaseLogTarget>> ::const_iterator
 			cit;
 			for (cit = logVector_.begin(); cit != logVector_.end(); ++cit) {
 				(*cit)->logWithSource(message, extension);
@@ -388,7 +388,7 @@ public:
 private:
 	/***************************************************************************/
 
-	std::vector<std::shared_ptr < GBaseLogTarget> >
+	std::vector<std::shared_ptr < GBaseLogTarget>>
 	logVector_; ///< Contains the log targets
 	mutable boost::mutex logger_mutex_; ///< Needed for concurrent access to the log targets
 
@@ -509,7 +509,7 @@ private:
 /**
 * We currently require the global GLogStreamer object to be a singleton
 */
-typedef Gem::Common::GSingletonT<Gem::Common::GLogger<Gem::Common::GLogStreamer> > log_singleton;
+typedef Gem::Common::GSingletonT<Gem::Common::GLogger<Gem::Common::GLogStreamer>> log_singleton;
 #define glogger_ptr log_singleton::Instance(0)
 #define glogger (*(log_singleton::Instance(0)))
 

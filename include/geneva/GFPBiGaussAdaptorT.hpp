@@ -70,7 +70,7 @@ class GFPBiGaussAdaptorT :public GNumBiGaussAdaptorT<fp_type, fp_type>
 
 		// Save all necessary data
 		ar
-			& make_nvp("GAdaptorT_num", boost::serialization::base_object<GNumBiGaussAdaptorT<fp_type, fp_type> >(*this));
+			& make_nvp("GAdaptorT_num", boost::serialization::base_object<GNumBiGaussAdaptorT<fp_type, fp_type>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -166,12 +166,12 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GFPBiGaussAdaptorT<fp_type> reference independent of this object and convert the pointer
-		const GFPBiGaussAdaptorT<fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GFPBiGaussAdaptorT<fp_type> >(cp, this);
+		const GFPBiGaussAdaptorT<fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GFPBiGaussAdaptorT<fp_type>>(cp, this);
 
 		GToken token("GFPBiGaussAdaptorT<fp_type>", e);
 
 		// Compare our parent data ...
-		compare_base<GNumBiGaussAdaptorT<fp_type, fp_type> >(IDENTITY(*this, *p_load), token);
+		compare_base<GNumBiGaussAdaptorT<fp_type, fp_type>>(IDENTITY(*this, *p_load), token);
 
 		// ... no local data
 
@@ -201,7 +201,7 @@ protected:
 	 */
 	void load_(const GObject *cp) override	{
 		// Check that we are dealing with a GFPBiGaussAdaptorT<fp_type> reference independent of this object and convert the pointer
-		const GFPBiGaussAdaptorT<fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GFPBiGaussAdaptorT<fp_type> >(cp, this);
+		const GFPBiGaussAdaptorT<fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GFPBiGaussAdaptorT<fp_type>>(cp, this);
 
 		// Load the data of our parent class ...
 		GNumBiGaussAdaptorT<fp_type, fp_type>::load_(cp);
@@ -323,9 +323,9 @@ public:
 namespace boost {
 namespace serialization {
 template<typename fp_type>
-struct is_abstract< Gem::Geneva::GFPBiGaussAdaptorT<fp_type> > : public boost::true_type {};
+struct is_abstract< Gem::Geneva::GFPBiGaussAdaptorT<fp_type>> : public boost::true_type {};
 template<typename fp_type>
-struct is_abstract< const Gem::Geneva::GFPBiGaussAdaptorT<fp_type> > : public boost::true_type {};
+struct is_abstract< const Gem::Geneva::GFPBiGaussAdaptorT<fp_type>> : public boost::true_type {};
 }
 }
 

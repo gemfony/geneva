@@ -175,7 +175,7 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GCollectiveMonitorT<ind_type> reference independent of this object and convert the pointer
-		const GCollectiveMonitorT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GCollectiveMonitorT<ind_type> >(cp, this);
+		const GCollectiveMonitorT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GCollectiveMonitorT<ind_type>>(cp, this);
 
 		GToken token("GCollectiveMonitorT", e);
 
@@ -242,7 +242,7 @@ protected:
 	 */
 	virtual void load_(const GObject* cp) override {
 		// Check that we are dealing with a GCollectiveMonitorT<ind_type> reference independent of this object and convert the pointer
-		const GCollectiveMonitorT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GCollectiveMonitorT<ind_type> >(cp, this);
+		const GCollectiveMonitorT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GCollectiveMonitorT<ind_type>>(cp, this);
 
 		// Load the parent classes' data ...
 		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
@@ -266,7 +266,7 @@ protected:
 
 
 private:
-	std::vector<std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT> > pluggable_monitors_; ///< The collection of monitors
+	std::vector<std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>> pluggable_monitors_; ///< The collection of monitors
 };
 
 /******************************************************************************/
@@ -405,7 +405,7 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GProgressPlotterT<ind_type, fp_type reference independent of this object and convert the pointer
-		const GProgressPlotterT<ind_type, fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GProgressPlotterT<ind_type, fp_type> >(cp, this);
+		const GProgressPlotterT<ind_type, fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GProgressPlotterT<ind_type, fp_type>>(cp, this);
 
 		GToken token("GCollectiveMonitorT", e);
 
@@ -450,12 +450,12 @@ public:
 		// Retrieve the parameters
 
 		boost::tuple<
-			typename std::vector<parPropSpec<fp_type> >::const_iterator
-			, typename std::vector<parPropSpec<fp_type> >::const_iterator
+			typename std::vector<parPropSpec<fp_type>>::const_iterator
+			, typename std::vector<parPropSpec<fp_type>>::const_iterator
 		> t_d = ppp.getIterators<fp_type>();
 
-		typename std::vector<parPropSpec<fp_type> >::const_iterator fp_cit = boost::get<0>(t_d);
-		typename std::vector<parPropSpec<fp_type> >::const_iterator d_end = boost::get<1>(t_d);
+		typename std::vector<parPropSpec<fp_type>>::const_iterator fp_cit = boost::get<0>(t_d);
+		typename std::vector<parPropSpec<fp_type>>::const_iterator d_end = boost::get<1>(t_d);
 		for(; fp_cit!=d_end; ++fp_cit) { // Note: fp_cit is already set to the begin of the double parameter arrays
 			fp_profVarVec_.push_back(*fp_cit);
 		}
@@ -902,7 +902,7 @@ protected:
 	 */
 	virtual void load_(const GObject* cp) override {
 		// Check that we are dealing with a GProgressPlotterT<ind_type, fp_type reference independent of this object and convert the pointer
-		const GProgressPlotterT<ind_type, fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GProgressPlotterT<ind_type, fp_type> >(cp, this);
+		const GProgressPlotterT<ind_type, fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GProgressPlotterT<ind_type, fp_type>>(cp, this);
 
 		// Load the parent classes' data ...
 		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
@@ -925,7 +925,7 @@ protected:
 	}
 
 private:
-	std::vector<parPropSpec<fp_type> > fp_profVarVec_; ///< Holds information about variables to be profiled
+	std::vector<parPropSpec<fp_type>> fp_profVarVec_; ///< Holds information about variables to be profiled
 
 	Gem::Common::GPlotDesigner gpd_oa_; ///< A wrapper for the plots
 
@@ -1083,7 +1083,7 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GAllSolutionFileLoggerT<ind_type> reference independent of this object and convert the pointer
-		const GAllSolutionFileLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAllSolutionFileLoggerT<ind_type> >(cp, this);
+		const GAllSolutionFileLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAllSolutionFileLoggerT<ind_type>>(cp, this);
 
 		GToken token("GAllSolutionFileLoggerT", e);
 
@@ -1287,7 +1287,7 @@ protected:
 	 */
 	virtual void load_(const GObject* cp) override {
 		// Check that we are dealing with a GAllSolutionFileLoggerT<ind_type> reference independent of this object and convert the pointer
-		const GAllSolutionFileLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAllSolutionFileLoggerT<ind_type> >(cp, this);
+		const GAllSolutionFileLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAllSolutionFileLoggerT<ind_type>>(cp, this);
 
 		// Load the parent classes' data ...
 		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
@@ -1425,7 +1425,7 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GIterationResultsFileLoggerT<ind_type> reference independent of this object and convert the pointer
-		const GIterationResultsFileLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GIterationResultsFileLoggerT<ind_type> >(cp, this);
+		const GIterationResultsFileLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GIterationResultsFileLoggerT<ind_type>>(cp, this);
 
 		GToken token("GIterationResultsFileLoggerT", e);
 
@@ -1557,7 +1557,7 @@ protected:
 	 */
 	virtual void load_(const GObject* cp) override {
 		// Check that we are dealing with a GIterationResultsFileLoggerT<ind_type> reference independent of this object and convert the pointer
-		const GIterationResultsFileLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GIterationResultsFileLoggerT<ind_type> >(cp, this);
+		const GIterationResultsFileLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GIterationResultsFileLoggerT<ind_type>>(cp, this);
 
 		// Load the parent classes' data ...
 		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
@@ -1703,7 +1703,7 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GNAdpationsLoggerT<ind_type> reference independent of this object and convert the pointer
-		const GNAdpationsLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNAdpationsLoggerT<ind_type> >(cp, this);
+		const GNAdpationsLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNAdpationsLoggerT<ind_type>>(cp, this);
 
 		GToken token("GNAdpationsLoggerT", e);
 
@@ -1863,7 +1863,7 @@ public:
 
 			case Gem::Geneva::INFOEND:
 			{
-				std::vector<boost::tuple<double, double> >::iterator it;
+				std::vector<boost::tuple<double, double>>::iterator it;
 
 				if(monitorBestOnly_) {
 					// Create the graph object
@@ -1939,7 +1939,7 @@ protected:
 	 */
 	virtual void load_(const GObject* cp) override {
 		// Check that we are dealing with a GNAdpationsLoggerT<ind_type> reference independent of this object and convert the pointer
-		const GNAdpationsLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNAdpationsLoggerT<ind_type> >(cp, this);
+		const GNAdpationsLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNAdpationsLoggerT<ind_type>>(cp, this);
 
 		// Load the parent classes' data ...
 		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
@@ -1981,7 +1981,7 @@ private:
 	std::size_t maxIteration_; ///< Holds the largest iteration recorded for the algorithm
 	std::size_t nIterationsRecorded_; ///< Holds the number of iterations that were recorded (not necessarily == maxIteration_
 
-	std::vector<boost::tuple<double, double> > nAdaptionsStore_; ///< Holds all information about the number of adaptions
+	std::vector<boost::tuple<double, double>> nAdaptionsStore_; ///< Holds all information about the number of adaptions
 };
 
 /******************************************************************************/
@@ -2114,7 +2114,7 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GAdaptorPropertyLoggerT<ind_type, num_type> reference independent of this object and convert the pointer
-		const GAdaptorPropertyLoggerT<ind_type, num_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorPropertyLoggerT<ind_type, num_type> >(cp, this);
+		const GAdaptorPropertyLoggerT<ind_type, num_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorPropertyLoggerT<ind_type, num_type>>(cp, this);
 
 		GToken token("GAdaptorPropertyLoggerT", e);
 
@@ -2327,7 +2327,7 @@ public:
 
 			case Gem::Geneva::INFOEND:
 			{
-				std::vector<boost::tuple<double, double> >::iterator it;
+				std::vector<boost::tuple<double, double>>::iterator it;
 
 				// Within adaptorPropertyStore_, find the largest number of adaptions performed
 				double maxProperty = 0.;
@@ -2385,7 +2385,7 @@ protected:
 	 */
 	virtual void load_(const GObject* cp) override {
 		// Check that we are dealing with a GAdaptorPropertyLoggerT<ind_type, num_type> reference independent of this object and convert the pointer
-		const GAdaptorPropertyLoggerT<ind_type, num_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorPropertyLoggerT<ind_type, num_type> >(cp, this);
+		const GAdaptorPropertyLoggerT<ind_type, num_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorPropertyLoggerT<ind_type, num_type>>(cp, this);
 
 		// Load the parent classes' data ...
 		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
@@ -2431,7 +2431,7 @@ private:
 	std::size_t maxIteration_; ///< Holds the largest iteration recorded for the algorithm
 	std::size_t nIterationsRecorded_; ///< Holds the number of iterations that were recorded (not necessarily == maxIteration_
 
-	std::vector<boost::tuple<double, double> > adaptorPropertyStore_; ///< Holds all information about the number of adaptions
+	std::vector<boost::tuple<double, double>> adaptorPropertyStore_; ///< Holds all information about the number of adaptions
 };
 
 /******************************************************************************/

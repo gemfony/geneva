@@ -117,7 +117,7 @@ void GParameterSetConstraint::compare(
 	GToken token("GParameterSetConstraint", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GPreEvaluationValidityCheckT<GOptimizableEntity> >(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GPreEvaluationValidityCheckT<GOptimizableEntity>>(IDENTITY(*this, *p_load), token);
 
 	// ... no local data
 
@@ -269,7 +269,7 @@ void GParameterSetFormulaConstraint::addConfigurationOptions(
 double GParameterSetFormulaConstraint::check_(
 	const GParameterSet *p
 ) const {
-	std::map<std::string, std::vector<double> > parameterValues;
+	std::map<std::string, std::vector<double>> parameterValues;
 
 	p->streamline(parameterValues); // Extract the parameter values including names
 	Gem::Common::GFormulaParserT<double> f(rawFormula_); // Create the parser

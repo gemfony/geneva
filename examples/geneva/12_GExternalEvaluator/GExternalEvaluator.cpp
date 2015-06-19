@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
 	std::shared_ptr<GExternalEvaluatorIndividual> p = go.optimize<GExternalEvaluatorIndividual>();
 
 	// Extract the best individuals found
-	std::vector<std::shared_ptr<GExternalEvaluatorIndividual> > bestInds
+	std::vector<std::shared_ptr<GExternalEvaluatorIndividual>> bestInds
 		= go.getBestIndividuals<GExternalEvaluatorIndividual>();
 
 	// Note that the "archive" call is specific to the GTaoExternalEvaluatorIndividual

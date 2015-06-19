@@ -723,7 +723,7 @@ void GBaseSA::GSAOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GP
 	gpd.setCanvasDimensions(xDim_, yDim_);
 
 	// Copy all plotters into the GPlotDesigner object
-	std::vector<std::shared_ptr < Gem::Common::GGraph2D> > ::iterator
+	std::vector<std::shared_ptr < Gem::Common::GGraph2D>> ::iterator
 	it;
 	for (it = fitnessGraphVec_.begin(); it != fitnessGraphVec_.end(); ++it) {
 		gpd.registerPlotter(*it);

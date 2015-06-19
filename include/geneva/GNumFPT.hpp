@@ -64,7 +64,7 @@ class GNumFPT
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
-		ar & make_nvp("GNumT",	boost::serialization::base_object<GNumT<fp_type> >(*this));
+		ar & make_nvp("GNumT",	boost::serialization::base_object<GNumT<fp_type>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -228,7 +228,7 @@ public:
 		GToken token("GNumFPT<fp_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GNumT<fp_type> >(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GNumT<fp_type>>(IDENTITY(*this, *p_load), token);
 
 		// ... no local data
 
@@ -256,7 +256,7 @@ protected:
 	 */
 	virtual void load_(const GObject *cp) override {
 		// Check that we are dealing with a GNumFPT<fp_type> reference independent of this object and convert the pointer
-		const GNumFPT<fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumFPT<fp_type> >(cp, this);
+		const GNumFPT<fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumFPT<fp_type>>(cp, this);
 
 		// Load our parent class'es data ...
 		GNumT<fp_type>::load_(cp);
@@ -336,8 +336,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check initialization with a fixed value, setting and retrieval of boundaries and random initialization
-			std::shared_ptr<GNumFPT<fp_type> > p_test1 = this->GObject::clone<GNumFPT<fp_type> >();
-			std::shared_ptr<GNumFPT<fp_type> > p_test2 = this->GObject::clone<GNumFPT<fp_type> >();
+			std::shared_ptr<GNumFPT<fp_type>> p_test1 = this->GObject::clone<GNumFPT<fp_type>>();
+			std::shared_ptr<GNumFPT<fp_type>> p_test2 = this->GObject::clone<GNumFPT<fp_type>>();
 
 			// Assign a defined start value
 			p_test1->setValue(fp_type(0));
@@ -385,8 +385,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test multiplication with a fixed value
-			std::shared_ptr<GNumFPT<fp_type> > p_test1 = this->GObject::clone<GNumFPT<fp_type> >();
-			std::shared_ptr<GNumFPT<fp_type> > p_test2 = this->GObject::clone<GNumFPT<fp_type> >();
+			std::shared_ptr<GNumFPT<fp_type>> p_test1 = this->GObject::clone<GNumFPT<fp_type>>();
+			std::shared_ptr<GNumFPT<fp_type>> p_test2 = this->GObject::clone<GNumFPT<fp_type>>();
 
 			// Initialize with a fixed value
 			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(FIXEDVALUEINIT, ALLPARAMETERS));
@@ -414,7 +414,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test multiplication with a random value in fixed range
-			std::shared_ptr<GNumFPT<fp_type> > p_test1 = this->GObject::clone<GNumFPT<fp_type> >();
+			std::shared_ptr<GNumFPT<fp_type>> p_test1 = this->GObject::clone<GNumFPT<fp_type>>();
 
 			// Initialize with a fixed value
 			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(1., ALLPARAMETERS)); // 1. chosen so we see the multiplication value of the random number generator
@@ -433,7 +433,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test multiplication with a random value in the range [0:1[
-			std::shared_ptr<GNumFPT<fp_type> > p_test1 = this->GObject::clone<GNumFPT<fp_type> >();
+			std::shared_ptr<GNumFPT<fp_type>> p_test1 = this->GObject::clone<GNumFPT<fp_type>>();
 
 			// Initialize with a fixed value
 			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(1., ALLPARAMETERS)); // 1. chosen so we see the multiplication value of the random number generator
@@ -452,9 +452,9 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test addition of other GNumFPT<fp_type> objets
-			std::shared_ptr<GNumFPT<fp_type> > p_test1 = this->GObject::clone<GNumFPT<fp_type> >();
-			std::shared_ptr<GNumFPT<fp_type> > p_test2 = this->GObject::clone<GNumFPT<fp_type> >();
-			std::shared_ptr<GNumFPT<fp_type> > p_test3 = this->GObject::clone<GNumFPT<fp_type> >();
+			std::shared_ptr<GNumFPT<fp_type>> p_test1 = this->GObject::clone<GNumFPT<fp_type>>();
+			std::shared_ptr<GNumFPT<fp_type>> p_test2 = this->GObject::clone<GNumFPT<fp_type>>();
+			std::shared_ptr<GNumFPT<fp_type>> p_test3 = this->GObject::clone<GNumFPT<fp_type>>();
 
 			// Initialize with a fixed value
 			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(0., ALLPARAMETERS));
@@ -486,9 +486,9 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test subtraction of other GNumFPT<fp_type> objects
-			std::shared_ptr<GNumFPT<fp_type> > p_test1 = this->GObject::clone<GNumFPT<fp_type> >();
-			std::shared_ptr<GNumFPT<fp_type> > p_test2 = this->GObject::clone<GNumFPT<fp_type> >();
-			std::shared_ptr<GNumFPT<fp_type> > p_test3 = this->GObject::clone<GNumFPT<fp_type> >();
+			std::shared_ptr<GNumFPT<fp_type>> p_test1 = this->GObject::clone<GNumFPT<fp_type>>();
+			std::shared_ptr<GNumFPT<fp_type>> p_test2 = this->GObject::clone<GNumFPT<fp_type>>();
+			std::shared_ptr<GNumFPT<fp_type>> p_test3 = this->GObject::clone<GNumFPT<fp_type>>();
 
 			// Initialize with a fixed value
 			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(0., ALLPARAMETERS));
@@ -551,9 +551,9 @@ public:
 namespace boost {
 namespace serialization {
 template<typename fp_type>
-struct is_abstract<Gem::Geneva::GNumFPT<fp_type> > : public boost::true_type {};
+struct is_abstract<Gem::Geneva::GNumFPT<fp_type>> : public boost::true_type {};
 template<typename fp_type>
-struct is_abstract< const Gem::Geneva::GNumFPT<fp_type> > : public boost::true_type {};
+struct is_abstract< const Gem::Geneva::GNumFPT<fp_type>> : public boost::true_type {};
 }
 }
 /******************************************************************************/

@@ -52,7 +52,7 @@ GLineFitIndividual::GLineFitIndividual() : GParameterSet() { /* nothing */ }
  * @param nObjects The number of parameters to be added to this individual
  */
 GLineFitIndividual::GLineFitIndividual(
-	const std::vector<boost::tuple<double, double> > &dataPoints
+	const std::vector<boost::tuple<double, double>> &dataPoints
 )
 	: GParameterSet(), dataPoints_(dataPoints) {
 	using namespace Gem::Geneva;
@@ -212,7 +212,7 @@ double GLineFitIndividual::fitnessCalculation() {
 
 	// Sum up the square deviation of line and data points
 	double deviation = 0.;
-	std::vector<boost::tuple<double, double> >::iterator it;
+	std::vector<boost::tuple<double, double>>::iterator it;
 	for (it = dataPoints_.begin(); it != dataPoints_.end(); ++it) {
 		deviation = (a + b * boost::get<0>(*it)) - boost::get<1>(*it);
 		result += GSQUARED(deviation);
@@ -298,7 +298,7 @@ void GLineFitIndividual::specificTestsFailuresExpected_GUnitTests() {
  * @param configFile The name of the configuration file
  */
 GLineFitIndividualFactory::GLineFitIndividualFactory(
-	const std::vector<boost::tuple<double, double> > &dataPoints, const std::string &configFile
+	const std::vector<boost::tuple<double, double>> &dataPoints, const std::string &configFile
 )
 	: Gem::Common::GFactoryT<GParameterSet>(configFile), dataPoints_(dataPoints) { /* nothing */ }
 
