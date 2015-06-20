@@ -50,6 +50,10 @@ The main changes for this release include:
  - Added a G_DEPRECATED macro so sole old functions may remain, but are marked
    as deprecated. Such functions may go away without further notice in future
    versions of Geneva.
+ - Gem::Common::GSerializableI is now called GCommonInterfaceT and holds a lot
+   of functionality formerly located in GObject. This happened so other classes
+   (including those found in the Common lib) may profit from the serialization and
+   testing infrastructure.
 
 Recommended version of Boost: 1.57; Minimum Boost version: 1.57.
 NOTE: Boost 1.58 ist NOT recommended, due to a severe bug affecting Geneva.

@@ -1,5 +1,5 @@
 /**
- * @file GSerializableI.hpp
+ * @file GCommonInterfaceT.hpp
  */
 
 /*
@@ -41,8 +41,8 @@
 
 // Boost header files go here
 
-#ifndef GSERIALIZABLEI_HPP_
-#define GSERIALIZABLEI_HPP_
+#ifndef GCOMMONINTERFACET_HPP_
+#define GCOMMONINTERFACET_HPP_
 
 // Geneva header files go here
 #include "GCommonEnums.hpp" // For the serialization mode
@@ -56,19 +56,19 @@ namespace Common {
  * available for the majority of classes in the Gemfony scientific library.
  * As one example, (de-)serialization is simplified by some of the functions
  * in this class, as is the task of conversion to the derived types. The
- * GSerializableI::load_(const T *) and  GSerializableI::clone_() member
+ * GCommonInterfaceT::load_(const T *) and  GCommonInterfaceT::clone_() member
  * functions must be re-implemented for each derived class. Further common
  * functionality of many classes in the Gemfony library collection will be
  * implemented here over time.
  */
 template <typename T>
-class GSerializableI {
+class GCommonInterfaceT {
 public:
 	/** @brief The default constructor */
-	G_API_COMMON GSerializableI() { /* nothing */ }
+	G_API_COMMON GCommonInterfaceT() { /* nothing */ }
 
 	/** @brief The standard destructor */
-	virtual G_API_COMMON ~GSerializableI() { /* nothing */ }
+	virtual G_API_COMMON ~GCommonInterfaceT() { /* nothing */ }
 
 	/** @brief Create a text representation from this class */
 	virtual G_API_COMMON std::string toString(const serializationMode &) const = 0;
@@ -161,4 +161,4 @@ protected:
 } /* namespace Common */
 } /* namespace Gem */
 
-#endif /* GSERIALIZABLEI_HPP_ */
+#endif /* GCOMMONINTERFACET_HPP_ */

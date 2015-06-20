@@ -131,7 +131,7 @@
 #include "common/GExpectationChecksT.hpp"
 #include "common/GHelperFunctionsT.hpp"
 #include "common/GLogger.hpp"
-#include "common/GSerializableI.hpp"
+#include "common/GCommonInterfaceT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GSerializeTupleT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
@@ -155,7 +155,7 @@ namespace Geneva {
  * std::shared_ptr<GObject>, hence this class has a very central role.
  */
 class GObject
-	:public Gem::Common::GSerializableI<GObject>
+	:public Gem::Common::GCommonInterfaceT<GObject>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
