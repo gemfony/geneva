@@ -81,9 +81,8 @@ class has_compare_member {
 	typedef char yes;
 	typedef long no;
 
-	// TODO: Replace BOOST_TYPEOF with decltype when switch to C++11 is complete
 	template<typename C>
-	static yes test(BOOST_TYPEOF(&C::compare));
+	static yes test(decltype(&C::compare));
 
 	template<typename C>
 	static no test(...);

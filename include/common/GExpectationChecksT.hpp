@@ -279,7 +279,7 @@ identity<B> getBaseIdentity(
  * This macro helps to cast an object to its parent class before creating the identity object
  */
 #define IDENTITY_CAST(t, x, y) \
-   Gem::Common::getBaseIdentity< BOOST_TYPEOF(x), t >((x), (y), std::string("(const " #t "&)" #x), std::string("(const " #t "&)" #y))
+   Gem::Common::getBaseIdentity< decltype(x), t >((x), (y), std::string("(const " #t "&)" #x), std::string("(const " #t "&)" #y))
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -303,12 +303,14 @@ identity<B> getBaseIdentity(
  */
 template<typename basic_type>
 void compare(
-	const basic_type &x, const basic_type &y, const std::string &x_name, const std::string &y_name,
-	const Gem::Common::expectation &e, const double &limit = 0.,
-	typename boost::disable_if<boost::is_floating_point<basic_type>>::type *dummy1 = 0
-#ifndef _MSC_VER // TODO: Replace BOOST_TYPEOF with decltype in header when switch to C++11 is complete
+	const basic_type &x
+	, const basic_type &y
+	, const std::string &x_name
+	, const std::string &y_name
+	, const Gem::Common::expectation &e
+	, const double &limit = 0.
+	, typename boost::disable_if<boost::is_floating_point<basic_type>>::type *dummy1 = 0
 	, typename boost::disable_if<typename Gem::Common::has_compare_member<basic_type>>::type *dummy2 = 0
-#endif
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -645,10 +647,9 @@ void compare_t(
  */
 template<typename B>
 void compare_base(
-	const identity<B> &data, GToken &token
-#ifndef _MSC_VER // TODO: Replace BOOST_TYPEOF with decltype in header when switch to C++11 is complete
+	const identity<B> &data
+	, GToken &token
 	, typename boost::enable_if<typename Gem::Common::has_compare_member<B>>::type *dummy = 0
-#endif
 ) {
 	try {
 		token.incrTestCounter();
