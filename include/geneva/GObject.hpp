@@ -64,8 +64,6 @@
 #include <boost/date_time.hpp>
 #include <boost/date_time/gregorian/greg_serialize.hpp>
 #include <boost/date_time/posix_time/time_serialize.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
 #include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/limits.hpp>
@@ -90,23 +88,6 @@
 #include <boost/utility.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/variant.hpp>
-
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/variant.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/tracking.hpp>
-#include <boost/serialization/split_member.hpp>
-#include <boost/serialization/export.hpp>
 
 #include <boost/property_tree/ptree_serialization.hpp>
 #include <boost/uuid/uuid.hpp>
@@ -142,7 +123,6 @@
 #endif /* GEM_TESTING */
 
 // aliases for ease of use
-namespace bf = boost::filesystem;
 namespace pt = boost::property_tree;
 
 namespace Gem {
@@ -161,10 +141,11 @@ class GObject
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive &, const unsigned int)  {
+	void serialize(Archive &ar, const unsigned int)  {
 		using boost::serialization::make_nvp;
 
-		// No local data
+		ar
+		& make_nvp("GCommonInterfaceT_GObject", boost::serialization::base_object<GCommonInterfaceT<GObject>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -200,24 +181,6 @@ public:
 	virtual G_API_GENEVA bool operator==(const GObject&) const;
 	/** @brief Checks for inequality with another GObject object */
 	virtual G_API_GENEVA bool operator!=(const GObject&) const;
-
-	/** @brief Convert class to a serial representation that is then written to a stream */
-	G_API_GENEVA void toStream(std::ostream&, const Gem::Common::serializationMode&) const;
-	/** @brief Load class from a stream */
-	G_API_GENEVA void fromStream(std::istream&, const Gem::Common::serializationMode&);
-
-	/** @brief Convert class to a serial representation, using a user-specified serialization mode */
-	virtual G_API_GENEVA std::string toString(const Gem::Common::serializationMode&) const override;
-	/** @brief Convert class to a serial representation, using a specific serialization mode */
-	virtual G_API_GENEVA void fromString(const std::string&, const Gem::Common::serializationMode&) override;
-
-	/** @brief Writes a serial representation of this object to a file */
-	G_API_GENEVA void toFile(const bf::path&, const Gem::Common::serializationMode&) const;
-	/** @brief Loads a serial representation of this object from file */
-	G_API_GENEVA void fromFile(const bf::path&, const Gem::Common::serializationMode&);
-
-	/** @brief Returns an XML description of the derivative it is called for */
-	G_API_GENEVA std::string report() const;
 
 	/** @brief Emits a name for this class / object */
 	virtual G_API_GENEVA std::string name() const;
