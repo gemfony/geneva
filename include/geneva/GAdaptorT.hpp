@@ -598,12 +598,12 @@ public:
 
 		// Update the adaption probability, if requested by the user
 		if(adaptAdProb_ > 0) {
-			adProb_ *= gexp(GObject::gr_ptr()->normal_distribution(adaptAdProb_));
+			adProb_ *= gexp(Gem::Hap::gr_tls_ptr()->normal_distribution(adaptAdProb_));
 			Gem::Common::enforceRangeConstraint<double>(adProb_, minAdProb_, maxAdProb_);
 		}
 
 		if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case is indeterminate (means: "depends")
-			if(GObject::gr_ptr()->GRandomBase::template uniform_01<double>() <= adProb_) { // Should we perform adaption
+			if(Gem::Hap::gr_tls_ptr()->GRandomBase::template uniform_01<double>() <= adProb_) { // Should we perform adaption
 				adaptAdaption(range);
 				customAdaptions(val, range);
 				adapted = true;
@@ -663,13 +663,13 @@ public:
 
 		// Update the adaption probability, if requested by the user
 		if(adaptAdProb_ > 0) {
-			adProb_ *= gexp(GObject::gr_ptr()->normal_distribution(adaptAdProb_));
+			adProb_ *= gexp(Gem::Hap::gr_tls_ptr()->normal_distribution(adaptAdProb_));
 			Gem::Common::enforceRangeConstraint<double>(adProb_, minAdProb_, maxAdProb_);
 		}
 
 		if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case is indeterminate (means: "depends")
 			for (it = valVec.begin(); it != valVec.end(); ++it) {
-				if(GObject::gr_ptr()->GRandomBase::template uniform_01<double>() <= adProb_) { // Should we perform adaption ?
+				if(Gem::Hap::gr_tls_ptr()->GRandomBase::template uniform_01<double>() <= adProb_) { // Should we perform adaption ?
 					adaptAdaption(range);
 					customAdaptions(*it, range);
 
@@ -834,7 +834,7 @@ protected:
 				customAdaptAdaption(range);
 			}
 		} else if(adaptAdaptionProbability_) { // Do the same with probability settings
-			if(GObject::gr_ptr()->GRandomBase::template uniform_01<double>() <= adaptAdaptionProbability_) {
+			if(Gem::Hap::gr_tls_ptr()->GRandomBase::template uniform_01<double>() <= adaptAdaptionProbability_) {
 				customAdaptAdaption(range);
 			}
 		}

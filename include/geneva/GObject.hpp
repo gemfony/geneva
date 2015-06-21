@@ -249,18 +249,6 @@ public:
 		}
 	}
 
-	/***************************************************************************/
-	/**
-	 * Central access to a random number generator through thread-local storage
-	 */
-	inline boost::thread_specific_ptr<Gem::Hap::GRandom>& gr_ptr() {
-		static boost::thread_specific_ptr<Gem::Hap::GRandom> instance;
-		if(!instance.get()) {
-			instance.reset(new Gem::Hap::GRandom());
-		}
-		return instance;
-	}
-
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GObject */

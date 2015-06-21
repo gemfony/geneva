@@ -251,7 +251,7 @@ protected:
 		using namespace Gem::Common;
 		using namespace Gem::Hap;
 
-		if(GObject::gr_ptr()->uniform_bool()){
+		if(Gem::Hap::gr_tls_ptr()->uniform_bool()){
 			value += 1;
 		} else {
 			value -= 1;

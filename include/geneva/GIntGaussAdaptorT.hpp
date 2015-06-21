@@ -275,10 +275,10 @@ protected:
 		using namespace Gem::Hap;
 
 		// Calculate a suitable addition to the current parameter value
-		int_type addition = static_cast<int_type>(static_cast<double>(range) * GObject::gr_ptr()->normal_distribution(this->getSigma()));
+		int_type addition = static_cast<int_type>(static_cast<double>(range) * Gem::Hap::gr_tls_ptr()->normal_distribution(this->getSigma()));
 
 		if(addition == 0) { // Enforce a minimal change of 1.
-			addition = GObject::gr_ptr()->uniform_bool()?1:-1;
+			addition = Gem::Hap::gr_tls_ptr()->uniform_bool()?1:-1;
 		}
 
 		// adapt the value in situ. Note that this changes

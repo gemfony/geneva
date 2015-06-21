@@ -670,9 +670,9 @@ public:
 		using namespace Gem::Common;
 		using namespace Gem::Hap;
 
-		sigma1_ = GObject::gr_ptr()->template uniform_real<fp_type>(minSigma1_, maxSigma1_);
-		sigma2_ = GObject::gr_ptr()->template uniform_real<fp_type>(minSigma2_, maxSigma2_);
-		delta_  = GObject::gr_ptr()->template uniform_real<fp_type>(minDelta_, maxDelta_);
+		sigma1_ = Gem::Hap::gr_tls_ptr()->template uniform_real<fp_type>(minSigma1_, maxSigma1_);
+		sigma2_ = Gem::Hap::gr_tls_ptr()->template uniform_real<fp_type>(minSigma2_, maxSigma2_);
+		delta_  = Gem::Hap::gr_tls_ptr()->template uniform_real<fp_type>(minDelta_, maxDelta_);
 
 		return true;
 	}
@@ -764,9 +764,9 @@ protected:
 
 		// The following random distribution slightly favours values < 1. Selection pressure
 		// will keep the values higher if needed
-		sigma1_ *= gexp(GObject::gr_ptr()->normal_distribution(gfabs(sigmaSigma1_)));
-		sigma2_ *= gexp(GObject::gr_ptr()->normal_distribution(gfabs(sigmaSigma2_)));
-		delta_  *= gexp(GObject::gr_ptr()->normal_distribution(gfabs(sigmaDelta_ )));
+		sigma1_ *= gexp(Gem::Hap::gr_tls_ptr()->normal_distribution(gfabs(sigmaSigma1_)));
+		sigma2_ *= gexp(Gem::Hap::gr_tls_ptr()->normal_distribution(gfabs(sigmaSigma2_)));
+		delta_  *= gexp(Gem::Hap::gr_tls_ptr()->normal_distribution(gfabs(sigmaDelta_ )));
 
 		// Make sure valued don't get out of range
 		enforceRangeConstraint(sigma1_, minSigma1_, maxSigma1_);

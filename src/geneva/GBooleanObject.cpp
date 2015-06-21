@@ -80,7 +80,7 @@ GBooleanObject::GBooleanObject(const double &probability) {
 	using namespace Gem::Common;
 	using namespace Gem::Hap;
 
-	this->setValue(GObject::gr_ptr()->weighted_bool(probability));
+	this->setValue(Gem::Hap::gr_tls_ptr()->weighted_bool(probability));
 }
 
 // Tested in this file
@@ -199,7 +199,7 @@ bool GBooleanObject::randomInit_(const activityMode &) {
 	using namespace Gem::Common;
 	using namespace Gem::Hap;
 
-	this->setValue(GObject::gr_ptr()->uniform_bool());
+	this->setValue(Gem::Hap::gr_tls_ptr()->uniform_bool());
 
 	return true;
 }
@@ -219,7 +219,7 @@ bool GBooleanObject::randomInit_(const double &probability, const activityMode &
 	using namespace Gem::Common;
 	using namespace Gem::Hap;
 
-	this->setValue(GObject::gr_ptr()->weighted_bool(probability));
+	this->setValue(Gem::Hap::gr_tls_ptr()->weighted_bool(probability));
 
 	return true;
 }

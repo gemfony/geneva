@@ -301,7 +301,7 @@ void GConstrainedDoubleObject::doubleMultiplyByRandom(
 	GParameterT<double>::setValue(
 		transfer(
 			GParameterT<double>::value() *
-			this->GObject::gr_ptr()->uniform_real<double>(min, max)
+			Gem::Hap::gr_tls_ptr()->uniform_real<double>(min, max)
 		)
 	);
 }
@@ -316,7 +316,7 @@ void GConstrainedDoubleObject::doubleMultiplyByRandom(
 	GParameterT<double>::setValue(
 		transfer(
 			GParameterT<double>::value() *
-			this->GObject::gr_ptr()->uniform_01<double>()
+			Gem::Hap::gr_tls_ptr()->uniform_01<double>()
 		)
 	);
 }

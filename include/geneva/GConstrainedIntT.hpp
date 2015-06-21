@@ -114,7 +114,7 @@ public:
 	)
 		: GConstrainedNumT<int_type>(lowerBoundary, upperBoundary)
 	{
-		GParameterT<int_type>::setValue(this->GObject::gr_ptr()->uniform_int(lowerBoundary,upperBoundary));
+		GParameterT<int_type>::setValue(Gem::Hap::gr_tls_ptr()->uniform_int(lowerBoundary,upperBoundary));
 	}
 
 	/***************************************************************************/
@@ -339,7 +339,7 @@ protected:
 	 */
 	virtual bool randomInit_(const activityMode&) override {
 		this->setValue(
-			this->GObject::gr_ptr()->uniform_int(
+			Gem::Hap::gr_tls_ptr()->uniform_int(
 				GConstrainedNumT<int_type>::getLowerBoundary()
 				, GConstrainedNumT<int_type>::getUpperBoundary()
 			)
@@ -430,14 +430,14 @@ public:
 				// Make sure we start with the maximum range
 				BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
-				int_type lowerBoundary = this->GObject::gr_ptr()->uniform_int(minLower, maxLower);
+				int_type lowerBoundary = Gem::Hap::gr_tls_ptr()->uniform_int(minLower, maxLower);
 				int_type upperBoundary;
-				while((upperBoundary = this->GObject::gr_ptr()->uniform_int(minUpper, maxUpper)) <= lowerBoundary);
+				while((upperBoundary = Gem::Hap::gr_tls_ptr()->uniform_int(minUpper, maxUpper)) <= lowerBoundary);
 
 				BOOST_CHECK_NO_THROW(p_test->setValue(lowerBoundary, lowerBoundary, upperBoundary));
 
 				// Check that there are no values outside of the allowed range
-				int_type probe = this->GObject::gr_ptr()->uniform_int(lowerBoundary, upperBoundary);
+				int_type probe = Gem::Hap::gr_tls_ptr()->uniform_int(lowerBoundary, upperBoundary);
 				BOOST_CHECK_NO_THROW(*p_test = probe);
 				BOOST_CHECK(p_test->value() == probe);
 			}
@@ -452,15 +452,15 @@ public:
 				// Make sure we start with the maximum range
 				BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
-				int_type lowerBoundary = this->GObject::gr_ptr()->uniform_int(minLower, maxLower);
+				int_type lowerBoundary = Gem::Hap::gr_tls_ptr()->uniform_int(minLower, maxLower);
 				int_type upperBoundary;
-				while((upperBoundary = this->GObject::gr_ptr()->uniform_int(minUpper, maxUpper)) <= lowerBoundary);
+				while((upperBoundary = Gem::Hap::gr_tls_ptr()->uniform_int(minUpper, maxUpper)) <= lowerBoundary);
 
 				BOOST_CHECK_NO_THROW(p_test->setValue(lowerBoundary, lowerBoundary, upperBoundary));
 
 				// Check that there are no values outside of the allowed range
 				for(std::size_t j=0; j<100; j++) {
-					int_type probe = this->GObject::gr_ptr()->uniform_int(-10000, 10000);
+					int_type probe = Gem::Hap::gr_tls_ptr()->uniform_int(-10000, 10000);
 					int_type mapping = int_type(0);
 					BOOST_CHECK_NO_THROW(mapping = p_test->transfer(probe));
 					BOOST_CHECK(mapping >= lowerBoundary && mapping <= upperBoundary);
@@ -489,9 +489,9 @@ public:
 				// Make sure we start with the maximum range
 				BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
-				int_type lowerBoundary = this->GObject::gr_ptr()->uniform_int(minLower, maxLower);
+				int_type lowerBoundary = Gem::Hap::gr_tls_ptr()->uniform_int(minLower, maxLower);
 				int_type upperBoundary;
-				while((upperBoundary = this->GObject::gr_ptr()->uniform_int(minUpper, maxUpper)) <= lowerBoundary);
+				while((upperBoundary = Gem::Hap::gr_tls_ptr()->uniform_int(minUpper, maxUpper)) <= lowerBoundary);
 
 				BOOST_CHECK_NO_THROW(p_test->setValue(lowerBoundary, lowerBoundary, upperBoundary));
 
@@ -573,7 +573,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
 			for(int_type i=1; i<100; i++) {
-				int_type probe = this->GObject::gr_ptr()->uniform_int(i,2*i);
+				int_type probe = Gem::Hap::gr_tls_ptr()->uniform_int(i,2*i);
 				BOOST_CHECK_NO_THROW(p_test->setValue(probe, i, 2*i));
 				BOOST_CHECK(p_test->revert(probe) == p_test->getUpperBoundary() - (probe - p_test->getLowerBoundary()));
 			}

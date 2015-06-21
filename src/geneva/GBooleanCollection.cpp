@@ -72,7 +72,7 @@ GBooleanCollection::GBooleanCollection(const std::size_t &nval)
 	using namespace Gem::Hap;
 
 	for (std::size_t i = 0; i < nval; i++) {
-		this->push_back(GObject::gr_ptr()->uniform_bool());
+		this->push_back(Gem::Hap::gr_tls_ptr()->uniform_bool());
 	}
 }
 
@@ -104,7 +104,7 @@ GBooleanCollection::GBooleanCollection(const std::size_t &nval, const double &pr
 	using namespace Gem::Hap;
 
 	for (std::size_t i = 0; i < nval; i++) {
-		this->push_back(GObject::gr_ptr()->weighted_bool(probability));
+		this->push_back(Gem::Hap::gr_tls_ptr()->weighted_bool(probability));
 	}
 }
 
@@ -164,7 +164,7 @@ bool GBooleanCollection::randomInit_(const activityMode &) {
 	using namespace Gem::Hap;
 
 	for (std::size_t i = 0; i < this->size(); i++) {
-		(*this)[i] = GObject::gr_ptr()->uniform_bool();
+		(*this)[i] = Gem::Hap::gr_tls_ptr()->uniform_bool();
 		randomized = true;
 	}
 
@@ -190,7 +190,7 @@ bool GBooleanCollection::randomInit_(const double &probability, const activityMo
 	}
 
 	for (std::size_t i = 0; i < this->size(); i++) {
-		(*this)[i] = GObject::gr_ptr()->weighted_bool(probability);
+		(*this)[i] = Gem::Hap::gr_tls_ptr()->weighted_bool(probability);
 	}
 
 	return true;

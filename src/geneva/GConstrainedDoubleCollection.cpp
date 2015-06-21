@@ -294,7 +294,7 @@ void GConstrainedDoubleCollection::doubleMultiplyByRandom(
 		GParameterCollectionT<double>::setValue(
 			pos, transfer(
 				this->value(pos) *
-				this->gr_ptr()->uniform_real<double>(min, max)
+				Gem::Hap::gr_tls_ptr()->uniform_real<double>(min, max)
 			)
 		);
 	}
@@ -309,7 +309,7 @@ void GConstrainedDoubleCollection::doubleMultiplyByRandom(
 ) {
 	for (std::size_t pos = 0; pos < this->size(); pos++) {
 		GParameterCollectionT<double>::setValue(
-			pos, transfer(this->value(pos) * this->gr_ptr()->uniform_01<double>())
+			pos, transfer(this->value(pos) * Gem::Hap::gr_tls_ptr()->uniform_01<double>())
 		);
 	}
 }

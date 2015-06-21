@@ -275,7 +275,7 @@ protected:
 		// adapt the value in situ. Note that this changes
 		// the argument of this function
 		value
-			+= range * GObject::gr_ptr()->normal_distribution(GNumGaussAdaptorT<fp_type, fp_type>::sigma_);
+			+= range * Gem::Hap::gr_tls_ptr()->normal_distribution(GNumGaussAdaptorT<fp_type, fp_type>::sigma_);
 	}
 
 	/* ----------------------------------------------------------------------------------

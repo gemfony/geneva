@@ -113,7 +113,7 @@ public:
 		: GConstrainedNumT<fp_type>(lowerBoundary, boost::math::float_prior<fp_type>(upperBoundary))
 	{
 		GParameterT<fp_type>::setValue(
-			this->GObject::gr_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(
+			Gem::Hap::gr_tls_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(
 				lowerBoundary
 				,upperBoundary
 			)
@@ -411,7 +411,7 @@ protected:
 	 */
 	virtual bool randomInit_(const activityMode&) override {
 		this->setValue(
-			this->GObject::gr_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(
+			Gem::Hap::gr_tls_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(
 				GConstrainedNumT<fp_type>::getLowerBoundary(), GConstrainedNumT<fp_type>::getUpperBoundary()
 			)
 		);
@@ -571,7 +571,7 @@ public:
 				BOOST_CHECK_NO_THROW(p_test->setValue(tmpLowerBoundary, tmpLowerBoundary, tmpUpperBoundary));
 
 				for(std::size_t i=0; i<nTests; i++) {
-					fp_type randomValue = fp_type(this->GObject::gr_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerRandomBoundary, upperRandomBoundary));
+					fp_type randomValue = fp_type(Gem::Hap::gr_tls_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerRandomBoundary, upperRandomBoundary));
 					BOOST_CHECK_NO_THROW(result = p_test->transfer(randomValue));
 					BOOST_CHECK_MESSAGE(
 							result >= tmpLowerBoundary && result < tmpUpperBoundary
@@ -598,7 +598,7 @@ public:
 				// Randomly initialize with a "fixed" value
 				BOOST_CHECK_NO_THROW(p_test->GParameterBase::template fixedValueInit<fp_type>(
 				      boost::numeric_cast<fp_type>(
-                     this->GObject::gr_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerRandomBoundary, upperRandomBoundary)
+							Gem::Hap::gr_tls_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerRandomBoundary, upperRandomBoundary)
                   )
                   , ALLPARAMETERS
                )
@@ -671,7 +671,7 @@ public:
 				BOOST_CHECK_NO_THROW(
                p_test->GParameterBase::template multiplyBy<fp_type>(
                   boost::numeric_cast<fp_type>(
-                     this->GObject::gr_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerRandomBoundary, upperRandomBoundary)
+							Gem::Hap::gr_tls_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerRandomBoundary, upperRandomBoundary)
                   )
                   , ALLPARAMETERS
                )

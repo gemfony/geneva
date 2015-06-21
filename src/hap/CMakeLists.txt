@@ -4,6 +4,7 @@ SET ( HAPSOURCES
 	GHapEnums
 	GRandomBase
 	GRandomFactory
+	GRandomT
 )
 
 # BUILD_SHARED_LIBS controls the behavior of ADD_LIBRARY if STATIC/SHARED omitted

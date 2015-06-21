@@ -299,7 +299,7 @@ void GDoubleCollection::doubleMultiplyByRandom(
 ) {
 	for (std::size_t pos = 0; pos < this->size(); pos++) {
 		GParameterCollectionT<double>::setValue(
-			pos, this->value(pos) * this->GObject::gr_ptr()->uniform_real<double>(min, max)
+			pos, this->value(pos) * Gem::Hap::gr_tls_ptr()->uniform_real<double>(min, max)
 		);
 	}
 }
@@ -313,7 +313,7 @@ void GDoubleCollection::doubleMultiplyByRandom(
 ) {
 	for (std::size_t pos = 0; pos < this->size(); pos++) {
 		GParameterCollectionT<double>::setValue(
-			pos, this->value(pos) * this->GObject::gr_ptr()->uniform_01<double>()
+			pos, this->value(pos) * Gem::Hap::gr_tls_ptr()->uniform_01<double>()
 		);
 	}
 }
@@ -507,7 +507,7 @@ void GDoubleCollection::fillWithData(const std::size_t &nItems) {
 	BOOST_CHECK_NO_THROW(this->push_back(0.));
 
 	for (std::size_t i = 1; i < nItems - 1; i++) {
-		BOOST_CHECK_NO_THROW(this->push_back(GObject::gr_ptr()->uniform_real<double>(-10., 10.)));
+		BOOST_CHECK_NO_THROW(this->push_back(Gem::Hap::gr_tls_ptr()->uniform_real<double>(-10., 10.)));
 	}
 
 	// Add a single item of defined value, so we can test the find() and count() functions

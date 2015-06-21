@@ -46,11 +46,12 @@
 #include <cassert>
 
 // Boost headers go here
+#include <boost/thread/thread.hpp>
 
 #ifndef GRANDOMT_HPP_
 #define GRANDOMT_HPP_
 
-// Hap headers go here
+// Geneva headers go here
 #include "hap/GRandomBase.hpp"
 #include "common/GLogger.hpp"
 
@@ -185,6 +186,10 @@ private:
 
 /** @brief Convenience typedef */
 typedef GRandomT<Gem::Hap::RANDOMPROXY> GRandom;
+
+/***************************************************************************/
+/** @brief Central access to a random number generator through thread-local storage */
+boost::thread_specific_ptr<Gem::Hap::GRandom>& gr_tls_ptr();
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
