@@ -136,7 +136,7 @@ void ptrDifferenceCheck (
 template <typename base_type, typename target_type>
 const target_type * g_ptr_conversion (
 	const base_type *convert_ptr
-	, typename boost::enable_if<boost::is_base_of<base_type, target_type>>::type* dummy = 0
+	, typename std::enable_if<std::is_base_of<base_type, target_type>::value>::type* dummy = 0
 ) {
 #ifdef DEBUG
 	const target_type *p = dynamic_cast<const target_type *>(convert_ptr);
@@ -168,7 +168,7 @@ const target_type * g_ptr_conversion (
 template <typename base_type, typename target_type>
 std::shared_ptr<target_type> g_ptr_conversion (
 	std::shared_ptr<base_type> convert_ptr
-	, typename boost::enable_if<boost::is_base_of<base_type, target_type>>::type* dummy = 0
+	, typename std::enable_if<std::is_base_of<base_type, target_type>::value>::type* dummy = 0
 ) {
 #ifdef DEBUG
 	std::shared_ptr<target_type> p = std::dynamic_pointer_cast<target_type>(convert_ptr);
@@ -203,7 +203,7 @@ template <typename base_type, typename target_type>
 std::shared_ptr<target_type> g_convert_and_compare (
 	std::shared_ptr<base_type> convert_ptr
 	, std::shared_ptr<target_type> compare_ptr
-	, typename boost::enable_if<boost::is_base_of<base_type, target_type>>::type* dummy = 0
+	, typename std::enable_if<std::is_base_of<base_type, target_type>::value>::type* dummy = 0
 ) {
 	// Convert the base pointer -- this call will throw, if conversion cannot be done
 	std::shared_ptr<target_type> p =  g_ptr_conversion<base_type, target_type>(convert_ptr);
@@ -231,7 +231,7 @@ template <typename base_type, typename target_type>
 const target_type* g_convert_and_compare (
 	const base_type * convert_ptr
 	, const target_type * compare_ptr
-	, typename boost::enable_if<boost::is_base_of<base_type, target_type>>::type* dummy = 0
+	, typename std::enable_if<std::is_base_of<base_type, target_type>::value>::type* dummy = 0
 ) {
 	// Convert the base pointer -- this call will throw, if conversion cannot be done
 	const target_type * p =  g_ptr_conversion<base_type, target_type>(convert_ptr);
@@ -259,7 +259,7 @@ template <typename base_type, typename target_type>
 const target_type* g_convert_and_compare (
 	const base_type& convert_ref
 	, const target_type * compare_ptr
-	, typename boost::enable_if<boost::is_base_of<base_type, target_type>>::type* dummy = 0
+	, typename std::enable_if<std::is_base_of<base_type, target_type>::value>::type* dummy = 0
 ) {
 	// Convert the base pointer -- this call will throw, if conversion cannot be done
 	const target_type * p =  g_ptr_conversion<base_type, target_type>(&convert_ref);
