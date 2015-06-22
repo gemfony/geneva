@@ -36,6 +36,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <type_traits>
 
 // Boost headers go here
 
@@ -73,7 +74,10 @@ class GNumIntT
 	///////////////////////////////////////////////////////////////////////
 
 	// Make sure this class can only be instantiated if int_type is a *signed* integer type
-	BOOST_MPL_ASSERT((boost::is_signed<int_type>));
+	static_assert(
+		std::is_signed<int_type>::value
+		, "int_type should be a signed iteger type"
+	);
 
 public:
 	/** @brief Specifies the type of parameters stored in this object */

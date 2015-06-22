@@ -36,6 +36,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <type_traits>
 
 // Boost headers go here
 
@@ -77,7 +78,10 @@ class GNumT
 	///////////////////////////////////////////////////////////////////////
 
 	// Make sure this class can only be instantiated with T as an arithmetic type
-	BOOST_MPL_ASSERT((boost::is_arithmetic<T>));
+	static_assert(
+		std::is_arithmetic<T>::value
+		, "T should be an arithmetic type"
+	);
 
 public:
 	/** @brief Specifies the type of parameters stored in this collection */
