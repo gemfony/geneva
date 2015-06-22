@@ -36,10 +36,11 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
+#include <type_traits>
 
 // Boost headers go here
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/mpl/assert.hpp>
 
@@ -100,7 +101,10 @@ class GBaseParChildT
 	/////////////////////////////////////////////////////////////////////////////
 
 	// Make sure ind_type is a derivative of GOptimizableEntity (or is GOptimizableEntity itself)
-	BOOST_MPL_ASSERT((boost::is_base_of<GOptimizableEntity, ind_type>));
+	static_assert(
+		std::is_base_of<GOptimizableEntity, ind_type>::value
+		, "GOptimizableEntity is no base type of ind_type"
+	);
 
 public:
 	/***************************************************************************/

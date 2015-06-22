@@ -40,6 +40,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <type_traits>
 
 // Boost header files go here
 #include <boost/math/special_functions/next.hpp> // Needed so we can calculate the next representable value smaller than a given upper boundary
@@ -83,7 +84,10 @@ class GConstrainedFPNumCollectionT
 	///////////////////////////////////////////////////////////////////////
 
 	// Make sure this class can only be instantiated if fp_type really is a floating point type
-	BOOST_MPL_ASSERT((boost::is_floating_point<fp_type>));
+	static_assert(
+		std::is_floating_point<fp_type>::value
+		, "fp_type must be a floating point type"
+	);
 
 public:
 	/** @brief Specifies the type of parameters stored in this collection */

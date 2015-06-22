@@ -42,6 +42,7 @@
 #include <vector>
 #include <utility>
 #include <functional>
+#include <type_traits>
 
 // Boost headers go here
 #include <boost/cstdint.hpp>
@@ -93,8 +94,11 @@ namespace Courtier {
  */
 template<typename processable_type>
 class GBaseExecutorT {
-	// Make sure processable_type is derived from the submission container
-	BOOST_MPL_ASSERT((boost::is_base_of<GSubmissionContainerT<processable_type>, processable_type>));
+	// Make sure processable_type adheres to the GSubmissionContainerT interface
+	static_assert(
+		std::is_base_of<Gem::Courtier::GSubmissionContainerT<processable_type>, processable_type>::value
+		, "processable_type does not adhere to the GSubmissionContainerT interface"
+	);
 
 public:
 	/////////////////////////////////////////////////////////////////////////////
