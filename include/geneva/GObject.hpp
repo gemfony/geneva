@@ -228,7 +228,7 @@ protected:
 	G_DEPRECATED("Use Gem::Common::ptrDifferenceCheck instead")
 	void selfAssignmentCheck (
 		const GObject *load_ptr
-		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type>>::type* dummy = 0
+		, typename std::enable_if<std::is_base_of<Gem::Geneva::GObject, load_type>::value>::type* dummy = 0
 	) const {
 		Gem::Common::ptrDifferenceCheck(load_ptr, this);
 	}
@@ -249,7 +249,7 @@ protected:
 	G_DEPRECATED("Use Gem::Common::g_convert_and_compare instead")
 	const target_type* gobject_conversion (
 		const GObject *convert_ptr
-		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, target_type>>::type* dummy = 0
+		, typename std::enable_if<std::is_base_of<Gem::Geneva::GObject, target_type>::value>::type* dummy = 0
 	) const {
 		// Convert the base pointer -- this call will throw, if conversion cannot be done
 		const target_type * p =  Gem::Common::g_ptr_conversion<GObject, target_type>(convert_ptr);
@@ -274,14 +274,14 @@ protected:
 	 * template will only be accessible to the compiler if GObject is a base type of load_type.
 	 *
 	 * @param load_ptr A std::shared_ptr<load_type> to the item to be converted
-	 * @param dummy A dummy argument needed for boost's enable_if and type traits magic
+	 * @param dummy A dummy argument needed for std::enable_if and type_traits magic
 	 * @return A std::shared_ptr holding the converted object
 	 */
 	template <typename target_type>
 	G_DEPRECATED("Use Gem::Common::g_convert_and_compare instead")
 	std::shared_ptr<target_type> gobject_conversion (
 		std::shared_ptr<GObject> convert_ptr
-		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, target_type>>::type* dummy = 0
+		, typename std::enable_if<std::is_base_of<Gem::Geneva::GObject, target_type>::value>::type* dummy = 0
 	) const {
 		// Convert the base pointer -- this call will throw, if conversion cannot be done
 		std::shared_ptr<target_type> p =  Gem::Common::g_ptr_conversion<GObject, target_type>(convert_ptr);

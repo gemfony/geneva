@@ -333,11 +333,14 @@ std::ostream &operator<<(std::ostream &s, const GToken &g) {
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
  * @param limit The maximum allowed deviation of two floating point values
- * @param dummy Boost::enable_if magic to steer overloaded resolution by the compiler
  */
 void compare(
-	const boost::logic::tribool &x, const boost::logic::tribool &y, const std::string &x_name, const std::string &y_name,
-	const Gem::Common::expectation &e, const double &limit
+	const boost::logic::tribool & x
+	, const boost::logic::tribool &y
+	, const std::string &x_name
+	, const std::string &y_name
+	, const Gem::Common::expectation &e
+	, const double &limit
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;

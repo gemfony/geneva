@@ -309,14 +309,14 @@ public:
 	 * The base algorithms have been declared "friend" of GParameterSet and
 	 * can thus access this function. External entities have no need to do so. Note
 	 * that this function will only be accessible to the compiler if personality_type
-	 * is a derivative of GPersonalityTraits, thanks to the magic of Boost's
-	 * enable_if and Type Traits libraries.
+	 * is a derivative of GPersonalityTraits, thanks to the magic of std::enable_if
+	 * and type_traits.
 	 *
 	 * @return A std::shared_ptr converted to the desired target type
 	 */
 	template <typename personality_type>
 	std::shared_ptr<personality_type> getPersonalityTraits(
-		typename boost::enable_if<boost::is_base_of<GPersonalityTraits, personality_type>>::type* dummy = 0
+		typename std::enable_if<std::is_base_of<GPersonalityTraits, personality_type>::value>::type* dummy = 0
 	) {
 #ifdef DEBUG
       // Check that pt_ptr_ actually points somewhere

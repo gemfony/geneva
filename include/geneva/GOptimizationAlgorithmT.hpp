@@ -834,8 +834,8 @@ public:
 	 * requested position exists.
 	 *
 	 * Note that this function will only be accessible to the compiler if ind_type
-	 * is a derivative of GOptimizableEntity, thanks to the magic of Boost's enable_if and Type
-	 * Traits libraries.
+	 * is a derivative of GOptimizableEntity, thanks to the magic of std::enable_if
+	 * and type_traits.
 	 *
 	 * @param pos The position in our data array that shall be converted
 	 * @return A converted version of the GOptimizableEntity object, as required by the user
@@ -843,7 +843,7 @@ public:
 	template <typename target_type>
 	std::shared_ptr<target_type> individual_cast(
 		const std::size_t& pos
-		, typename boost::enable_if<boost::is_base_of<GOptimizableEntity, target_type>>::type* dummy = 0
+		, typename std::enable_if<std::is_base_of<GOptimizableEntity, target_type>::value>::type* dummy = 0
 	) {
 #ifdef DEBUG
 		if(pos >= this->size()) {

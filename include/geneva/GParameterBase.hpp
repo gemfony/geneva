@@ -381,13 +381,13 @@ public:
 	 * template will only be accessible to the compiler if GParameterBase is a base type of load_type.
 	 *
 	 * @param load_ptr A std::shared_ptr<load_type> to the item to be converted
-	 * @param dummy A dummy argument needed for boost's enable_if and type traits magic
+	 * @param dummy A dummy argument needed for std::enable_if and type_traits magic
 	 * @return A std::shared_ptr holding the converted object
 	 */
 	template <typename load_type>
 	std::shared_ptr<load_type> parameterbase_cast (
 		std::shared_ptr<GParameterBase> load_ptr
-		, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GParameterBase, load_type>>::type* dummy = 0
+		, typename std::enable_if<std::is_base_of<Gem::Geneva::GParameterBase, load_type>::value>::type* dummy = 0
 	) const {
 #ifdef DEBUG
 		std::shared_ptr<load_type> p = std::dynamic_pointer_cast<load_type>(load_ptr);

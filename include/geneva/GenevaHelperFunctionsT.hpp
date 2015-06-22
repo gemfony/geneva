@@ -59,8 +59,8 @@ namespace Geneva {
 /******************************************************************************/
 /**
  * This function takes two smart Geneva pointers and copies their contents (if any) with the
- * load / clone functions. boost::enable_if makes sure that this function can only be called
- * for GObject-derivatives (which are then required to have to load/clone interface.
+ * load / clone functions. std::enable_if makes sure that this function can only be called
+ * for GObject-derivatives (which are then required to have to load/clone interface).
  *
  * @param from The source smart pointer
  * @param to The target smart pointer
@@ -69,7 +69,7 @@ template <typename T>
 void copyGenevaSmartPointer (
 	const std::shared_ptr<T>& from
 	, std::shared_ptr<T>& to
-	, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, T>>::type* dummy = 0
+	, typename std::enable_if<std::is_base_of<Gem::Geneva::GObject, T>::value>::type* dummy = 0
 ) {
 	// Make sure to is empty when from is empty
 	if(!from) {
@@ -95,7 +95,7 @@ template <typename T>
 void copyGenevaSmartPointerVector(
 	const std::vector<std::shared_ptr<T>>& from
 	, std::vector<std::shared_ptr<T>>& to
-	, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, T>>::type* dummy = 0
+	, typename std::enable_if<std::is_base_of<Gem::Geneva::GObject, T>::value>::type* dummy = 0
 ) {
 	typename std::vector<std::shared_ptr<T>>::const_iterator it_from;
 	typename std::vector<std::shared_ptr<T>>::iterator it_to;

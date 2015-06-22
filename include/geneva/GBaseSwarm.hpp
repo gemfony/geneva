@@ -199,7 +199,7 @@ public:
 	/**
 	 * Retrieves the best individual of a neighborhood and casts it to the desired type. Note that this
 	 * function will only be accessible to the compiler if parameterset_type is a derivative of GParameterSet,
-	 * thanks to the magic of Boost's enable_if and Type Traits libraries.
+	 * thanks to the magic of std::enable_if and type_traits
 	 *
 	 * @param neighborhood The neighborhood, whose best individual should be returned
 	 * @return A converted shared_ptr to the best individual of a given neighborhood
@@ -207,7 +207,7 @@ public:
 	template <typename parameterset_type>
 	std::shared_ptr<parameterset_type> getBestNeighborhoodIndividual(
 		std::size_t neighborhood
-		, typename boost::enable_if<boost::is_base_of<GParameterSet, parameterset_type>>::type* dummy = 0
+		, typename std::enable_if<std::is_base_of<GParameterSet, parameterset_type>::value>::type* dummy = 0
 	){
 #ifdef DEBUG
 		// Check that the neighborhood is in a valid range

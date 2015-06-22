@@ -492,7 +492,7 @@ public:
 	/**
 	 * Retrieves a specific parent individual and casts it to the desired type. Note that this
 	 * function will only be accessible to the compiler if individual_type is a derivative of GOptimizableEntity,
-	 * thanks to the magic of Boost's enable_if and Type Traits libraries.
+	 * thanks to the magic of the std::enable_if and type_traits.
 	 *
 	 * @param parent The id of the parent that should be returned
 	 * @return A converted shared_ptr to the parent
@@ -500,7 +500,7 @@ public:
 	template <typename parent_type>
 	std::shared_ptr<parent_type> getParentIndividual(
 		std::size_t parentId
-		, typename boost::enable_if<boost::is_base_of<GOptimizableEntity, parent_type>>::type* dummy = 0
+		, typename std::enable_if<std::is_base_of<GOptimizableEntity, parent_type>::value>::type* dummy = 0
 	){
 #ifdef DEBUG
       // Check that the parent id is in a valid range

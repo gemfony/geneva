@@ -122,7 +122,7 @@ public:
 	 */
 	template <typename individual_type>
 	std::shared_ptr<individual_type> getBestIndividual (
-		typename boost::enable_if<boost::is_base_of<GParameterSet, individual_type>>::type* dummy = 0
+		typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type* dummy = 0
 	) {
 		return customGetBestIndividual()->clone<individual_type>();
 	}
@@ -137,7 +137,7 @@ public:
 	 */
 	template <typename individual_type>
 	std::vector<std::shared_ptr<individual_type>> getBestIndividuals(
-		typename boost::enable_if<boost::is_base_of<GParameterSet, individual_type>>::type* dummy = 0
+		typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type* dummy = 0
 	) {
 		std::vector<std::shared_ptr<individual_type>> bestIndividuals;
 

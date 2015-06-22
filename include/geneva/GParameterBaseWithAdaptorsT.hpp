@@ -253,14 +253,13 @@ public:
 	 * will check in DEBUG mode whether an adaptor was indeed stored in this class. It will
 	 * also complain in DEBUG mode if this function was called while no local adaptor was
 	 * stored here. Note that this function will only be accessible to the compiler if adaptor_type
-	 * is a derivative of GAdaptorT<T>, thanks to the magic of Boost's enable_if and Type Traits
-	 * libraries.
+	 * is a derivative of GAdaptorT<T>, thanks to the magic of std::enable_if and type_traits.
 	 *
 	 * @return The desired adaptor instance, using its "natural" type
 	 */
 	template <typename adaptor_type>
 	std::shared_ptr<adaptor_type> getAdaptor(
-		typename boost::enable_if<boost::is_base_of<GAdaptorT<T>, adaptor_type>>::type* dummy = 0
+		typename std::enable_if<std::is_base_of<GAdaptorT<T>, adaptor_type>::value>::type* dummy = 0
 	) const {
 #ifdef DEBUG
 		if(!adaptor_) {
