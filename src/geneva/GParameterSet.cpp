@@ -826,6 +826,10 @@ bool GParameterSet::modify_GUnitTests() {
 	// Call the parent class'es function
 	if (GMutableSetT<Gem::Geneva::GParameterBase>::modify_GUnitTests()) result = true;
 
+	if(this->randomInit(ALLPARAMETERS)) {
+		result = true;
+	}
+
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw

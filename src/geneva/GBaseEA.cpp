@@ -734,6 +734,13 @@ bool GBaseEA::modify_GUnitTests() {
 	// Call the parent class'es function
 	if (GParameterSetParChild::modify_GUnitTests()) result = true;
 
+	if(MUPLUSNU_SINGLEEVAL == this->getSortingScheme()) {
+		this->setSortingScheme(MUCOMMANU_SINGLEEVAL);
+	} else {
+		this->setSortingScheme(MUPLUSNU_SINGLEEVAL);
+	}
+	result = true;
+
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
