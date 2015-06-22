@@ -330,6 +330,9 @@ void GConstrainedDoubleCollection::doubleMultiplyBy(
 /**
  * Initialization with a constant value
  */
+/**
+ * Initialization with a constant value
+ */
 void GConstrainedDoubleCollection::doubleFixedValueInit(
 	const double &val, const activityMode &am
 ) {
@@ -481,6 +484,9 @@ bool GConstrainedDoubleCollection::modify_GUnitTests() {
 
 	// Call the parent classes' functions
 	if (GConstrainedFPNumCollectionT<double>::modify_GUnitTests()) result = true;
+
+	this->randomInit(ALLPARAMETERS);
+	result = true;
 
 	return result;
 

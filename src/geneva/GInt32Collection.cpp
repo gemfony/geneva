@@ -315,6 +315,9 @@ bool GInt32Collection::modify_GUnitTests() {
 	// Call the parent class'es function
 	if (GIntNumCollectionT<boost::int32_t>::modify_GUnitTests()) result = true;
 
+	this->push_back(5);
+	result = true;
+
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw

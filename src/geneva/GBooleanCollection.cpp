@@ -443,6 +443,9 @@ bool GBooleanCollection::modify_GUnitTests() {
 	// Call the parent class'es function
 	if (GParameterCollectionT<bool>::modify_GUnitTests()) result = true;
 
+	this->push_back(true);
+	return true;
+
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
