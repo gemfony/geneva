@@ -2368,6 +2368,13 @@ public:
 			// Call the parent class'es function
 			if(GObject::modify_GUnitTests()) result = true;
 
+			if(this->informationEmissionPrevented()) {
+				this->allowInformationEmission();
+			} else {
+				this->preventInformationEmission();
+			}
+			result = true;
+
 			return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
