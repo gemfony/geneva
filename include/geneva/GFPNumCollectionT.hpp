@@ -36,6 +36,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <type_traits>
 
 // Boost header files go here
 
@@ -74,7 +75,10 @@ class GFPNumCollectionT
 	///////////////////////////////////////////////////////////////////////
 
 	// Make sure this class can only be instantiated if fp_type really is a floating point type
-	BOOST_MPL_ASSERT((boost::is_floating_point<fp_type>));
+	static_assert(
+		std::is_floating_point<fp_type>::value
+		, "fp_type should be a floating point type"
+	);
 
 public:
 	/***************************************************************************/

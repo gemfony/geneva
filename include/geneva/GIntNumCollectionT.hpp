@@ -70,11 +70,11 @@ class GIntNumCollectionT
 	}
 	///////////////////////////////////////////////////////////////////////
 
-	// Make sure this class can only be instantiated if int_type is an integral type
-	BOOST_MPL_ASSERT((boost::is_integral<int_type>));
-
 	// Make sure this class can only be instantiated if int_type is a *signed* integer type
-	BOOST_MPL_ASSERT((boost::is_signed<int_type>));
+	static_assert(
+		std::is_signed<int_type>::value
+		, "int_type should be a signed integer type"
+	);
 
 public:
 	/***************************************************************************/
