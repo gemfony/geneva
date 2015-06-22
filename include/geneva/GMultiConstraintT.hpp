@@ -36,6 +36,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <type_traits>
 
 // Boost header files go here
 #include <boost/mpl/assert.hpp>
@@ -78,7 +79,10 @@ class GPreEvaluationValidityCheckT : public GObject
 	///////////////////////////////////////////////////////////////////////
 
 	// We only accept validity checks for types derived directly or indirectly from GOptimizableEntity
-	BOOST_MPL_ASSERT((boost::is_base_of<Gem::Geneva::GOptimizableEntity , ind_type>));
+	static_assert(
+		std::is_base_of<Gem::Geneva::GOptimizableEntity , ind_type>::value
+		, "GOptimizableEntity is no base of ind_type"
+	);
 
 public:
 	/***************************************************************************/

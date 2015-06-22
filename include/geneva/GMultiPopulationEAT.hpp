@@ -36,6 +36,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <type_traits>
 
 // Boost headers go here
 #include <boost/tuple/tuple.hpp>
@@ -74,7 +75,11 @@ template <typename oa_type>
 class GMultiPopulationEAT
 	:public GBaseParChildT<oa_type>
 {
-	BOOST_MPL_ASSERT((boost::is_base_of<Gem::Geneva::GOptimizableI , oa_type>));
+	static_assert(
+		std::is_base_of<Gem::Geneva::GOptimizableI , oa_type>::value
+		, "GOptimizableI is no base of oa_type"
+	)
+
 	typedef typename oa_type::individual_type ind_type;
 
 public:
