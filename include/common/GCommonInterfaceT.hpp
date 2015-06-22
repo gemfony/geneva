@@ -170,23 +170,6 @@ public:
 	) {
 		T *local = nullptr;
 
-		// Note: (De-)serialization must happen through a pointer to the same type.
-		// TODO: Check if this leads to a memory leak
-		/*
-#ifdef DEBUG
-		local = dynamic_cast<T *>(this);
-		if(!local) {
-			glogger
-			<< "In GCommonInterfaceT<T>::toStream(): Error!" << std::endl
-			<< "Conversion failed" << std::endl
-			<< GEXCEPTION;
-		}
-#else
-		local = static_cast<T *>(this);
-		 */
-//#endif /* DEBUG */
-
-
 		switch (serMod) {
 			case Gem::Common::SERIALIZATIONMODE_TEXT: {
 				boost::archive::text_iarchive ia(istr);

@@ -42,6 +42,7 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include <typeinfo>
 
 // Boost header files go here
 
@@ -61,6 +62,7 @@ using boost::unit_test_framework::test_case;
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GCommonEnums.hpp"
+#include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GUnitTestFrameworkT.hpp"
 #include "geneva/GObject.hpp"
 
@@ -252,7 +254,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	}
 
 	//---------------------------------------------------------------------------//
-	// Check (de-)serialization in different modes.
+	// Check (de-)serialization in different modes through object functions
+
 	{ // plain text format
 		std::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
 		BOOST_REQUIRE(T_ptr1); // must point somewhere
@@ -260,11 +263,15 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		BOOST_REQUIRE(T_ptr2); // must point somewhere
 
 		// Modify and check inequality
-		if(T_ptr1->modify_GUnitTests()) BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
+		if(T_ptr1->modify_GUnitTests()) { // Has the object been modified ?
+			BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
 
-		// Serialize gbc7 and load into gbc7_co, check equalities and similarities
-		BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(Gem::Common::SERIALIZATIONMODE_TEXT), Gem::Common::SERIALIZATIONMODE_TEXT));
-		BOOST_CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
+			// Serialize T_ptr1 and load into T_ptr1, check equalities and similarities
+			BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(Gem::Common::SERIALIZATIONMODE_TEXT), Gem::Common::SERIALIZATIONMODE_TEXT));
+			BOOST_CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
+		} else {
+			std::cout << "Internal (de-)serialization test for object with name " << typeid(T).name() << " not run because original objects are identical / TEXT" << std::endl;
+		}
 	}
 
 	{ // XML format
@@ -274,11 +281,15 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		BOOST_REQUIRE(T_ptr2); // must point somewhere
 
 		// Modify and check inequality
-		if(T_ptr1->modify_GUnitTests()) BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
+		if(T_ptr1->modify_GUnitTests()) {
+			BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
 
-		// Serialize gbc7 and load into gbc7_co, check equalities and similarities
-		BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(Gem::Common::SERIALIZATIONMODE_XML), Gem::Common::SERIALIZATIONMODE_XML));
-		BOOST_CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
+			// Serialize T_ptr1 and load into T_ptr1, check equalities and similarities
+			BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(Gem::Common::SERIALIZATIONMODE_XML), Gem::Common::SERIALIZATIONMODE_XML));
+			BOOST_CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
+		} else {
+			std::cout << "Internal (de-)serialization test for object with name " << typeid(T).name() << " not run because original objects are identical / XML" << std::endl;
+		}
 	}
 
 	{ // binary test format
@@ -288,11 +299,76 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		BOOST_REQUIRE(T_ptr2); // must point somewhere
 
 		// Modify and check inequality
-		if(T_ptr1->modify_GUnitTests()) BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
+		if(T_ptr1->modify_GUnitTests()) {
+			BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
 
-		// Serialize gbc7 and load into gbc7_co, check equalities and similarities
-		BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(Gem::Common::SERIALIZATIONMODE_BINARY), Gem::Common::SERIALIZATIONMODE_BINARY));
-		BOOST_CHECK(gep.isEqual(*T_ptr1, *T_ptr2));
+			// Serialize T_ptr1 and load into T_ptr1, check equalities and similarities
+			BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(Gem::Common::SERIALIZATIONMODE_BINARY), Gem::Common::SERIALIZATIONMODE_BINARY));
+			BOOST_CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
+		} else {
+			std::cout << "Internal (de-)serialization test for object with name " << typeid(T).name() << " not run because original objects are identical / BINARY" << std::endl;
+		}
+	}
+
+	//---------------------------------------------------------------------------//
+	// Check (de-)serialization in different modes through external Gem::Common functions
+	// These are particularly used in the Courtier library
+
+	{ // plain text mode
+		std::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
+		BOOST_REQUIRE(T_ptr1); // must point somewhere
+		std::shared_ptr<T> T_ptr2 = TFactory_GUnitTests<T>();
+		BOOST_REQUIRE(T_ptr2); // must point somewhere
+
+		// Modify and check inequality
+		if(T_ptr1->modify_GUnitTests()) { // Has the object been modified ?
+			BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
+
+			// Serialize T_ptr1 and load into T_ptr1, check equalities and similarities
+			std::string serializedObject = Gem::Common::sharedPtrToString(T_ptr1, Gem::Common::SERIALIZATIONMODE_TEXT);
+			T_ptr2 = Gem::Common::sharedPtrFromString<T>(serializedObject, Gem::Common::SERIALIZATIONMODE_TEXT);
+			BOOST_CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
+		} else {
+			std::cout << "External (de-)serialization test for object with name " << typeid(T).name() << " not run because original objects are identical / TEXT" << std::endl;
+		}
+	}
+
+	{ // XML mode
+		std::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
+		BOOST_REQUIRE(T_ptr1); // must point somewhere
+		std::shared_ptr<T> T_ptr2 = TFactory_GUnitTests<T>();
+		BOOST_REQUIRE(T_ptr2); // must point somewhere
+
+		// Modify and check inequality
+		if(T_ptr1->modify_GUnitTests()) { // Has the object been modified ?
+			BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
+
+			// Serialize T_ptr1 and load into T_ptr1, check equalities and similarities
+			std::string serializedObject = Gem::Common::sharedPtrToString(T_ptr1, Gem::Common::SERIALIZATIONMODE_XML);
+			T_ptr2 = Gem::Common::sharedPtrFromString<T>(serializedObject, Gem::Common::SERIALIZATIONMODE_XML);
+			BOOST_CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
+		} else {
+			std::cout << "External (de-)serialization test for object with name " << typeid(T).name() << " not run because original objects are identical / XML" << std::endl;
+		}
+	}
+
+	{ // Binary mode
+		std::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
+		BOOST_REQUIRE(T_ptr1); // must point somewhere
+		std::shared_ptr<T> T_ptr2 = TFactory_GUnitTests<T>();
+		BOOST_REQUIRE(T_ptr2); // must point somewhere
+
+		// Modify and check inequality
+		if(T_ptr1->modify_GUnitTests()) { // Has the object been modified ?
+			BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
+
+			// Serialize T_ptr1 and load into T_ptr1, check equalities and similarities
+			std::string serializedObject = Gem::Common::sharedPtrToString(T_ptr1, Gem::Common::SERIALIZATIONMODE_BINARY);
+			T_ptr2 = Gem::Common::sharedPtrFromString<T>(serializedObject, Gem::Common::SERIALIZATIONMODE_BINARY);
+			BOOST_CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
+		} else {
+			std::cout << "External (de-)serialization test for object with name " << typeid(T).name() << " not run because original objects are identical / BINARY" << std::endl;
+		}
 	}
 
 	//---------------------------------------------------------------------------//
