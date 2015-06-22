@@ -80,7 +80,7 @@ class GNumGaussAdaptorT
 
 	// Make sure this class can only be instantiated if fp_type really is a floating point type
 	static_assert(
-		std::is_floating_point<fp_type>
+		std::is_floating_point<fp_type>::value
 		, "fp_type should be a floating point type"
 	);
 

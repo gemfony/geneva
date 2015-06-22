@@ -78,7 +78,7 @@ class GMultiPopulationEAT
 	static_assert(
 		std::is_base_of<Gem::Geneva::GOptimizableI , oa_type>::value
 		, "GOptimizableI is no base of oa_type"
-	)
+	);
 
 	typedef typename oa_type::individual_type ind_type;
 

@@ -36,6 +36,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <type_traits>
 
 // Boost headers go here
 
@@ -75,7 +76,10 @@ class GNumFlipAdaptorT
 	///////////////////////////////////////////////////////////////////////
 
 	// Make sure this class can only be instantiated with num_type as an arithmetic type
-	BOOST_MPL_ASSERT((boost::is_arithmetic<num_type>));
+	static_assert(
+		std::is_arithmetic<num_type>::value
+		, "num_type should be an arithmetic type"
+	);
 
 public:
 	/***************************************************************************/

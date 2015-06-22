@@ -37,6 +37,7 @@
 
 // Standard header files go here
 #include <iostream>
+#include <type_traits>
 
 // Boost header files go here
 #include <boost/type_traits.hpp>
@@ -67,7 +68,10 @@ namespace Geneva {
 template <typename oaf_type>
 class GOAInitializerT {
 	// Make sure oaf_type has the expected type
-	BOOST_MPL_ASSERT((boost::is_base_of<GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>> , oaf_type>));
+	static_assert(
+		std::is_base_of<GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>> , oaf_type>::value
+		, "GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>> is no base of oaf_type"
+	);
 
 public:
 	/** @brief The initializing constructor */
