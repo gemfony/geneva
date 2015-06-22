@@ -48,7 +48,7 @@ namespace Hap {
 random_container::random_container(
 	const std::size_t &binSize, lagged_fibonacci &lf
 )
-	: current_pos_(0), binSize_(binSize), r_((double *) NULL) {
+	: current_pos_(0), binSize_(binSize), r_(nullptr) {
 	try {
 		r_ = new double[binSize_];
 		for (std::size_t pos = 0; pos < binSize_; pos++) {

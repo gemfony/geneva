@@ -135,7 +135,6 @@ public:
 			);
 
 			threads_started_ = true;
-			std::cout << "Threads were started" << std::endl;
 		}
 
 		// Update the task counter. NOTE: This needs to happen here

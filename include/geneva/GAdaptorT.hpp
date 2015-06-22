@@ -1302,12 +1302,12 @@ public:
 		//------------------------------------------------------------------------------
 
 #ifdef DEBUG
-		{ // Check that assigning a NULL pointer for the random number generator throws in DEBUG mode
+		{ // Check that assigning a nullptr for the random number generator throws in DEBUG mode
 			std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
 
-			// Assigning a NULL pointer should throw
+			// Assigning a nullptr should throw
 			BOOST_CHECK_THROW(
-					p_test->assignGRandomPointer(NULL);
+					p_test->assignGRandomPointer(nullptr);
 					, Gem::Common::gemfony_error_condition
 			);
 		}

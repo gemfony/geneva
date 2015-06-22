@@ -49,7 +49,7 @@ namespace Geneva {
  * purposes.
  */
 trainingSet::trainingSet()
-	: nInputNodes(0), nOutputNodes(0), Input((double *) NULL), Output((double *) NULL) { /* nothing */ }
+	: nInputNodes(0), nOutputNodes(0), Input(nullptr), Output(nullptr) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -73,7 +73,7 @@ trainingSet::trainingSet(
  * A copy constructor
  */
 trainingSet::trainingSet(const trainingSet &cp)
-	: nInputNodes(0), nOutputNodes(0), Input((double *) NULL), Output((double *) NULL) {
+	: nInputNodes(0), nOutputNodes(0), Input(nullptr), Output(nullptr) {
 	Gem::Common::copyArrays(cp.Input, Input, cp.nInputNodes, nInputNodes);
 	Gem::Common::copyArrays(cp.Output, Output, cp.nOutputNodes, nOutputNodes);
 }
@@ -175,7 +175,7 @@ void trainingSet::compare(
  * purposes.
  */
 networkData::networkData()
-	: arraySize_(0), data_((std::shared_ptr <trainingSet> *) NULL) { /* nothing */ }
+	: arraySize_(0), data_(nullptr) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -195,7 +195,7 @@ networkData::networkData(const std::size_t &arraySize)
  */
 networkData::networkData(const std::string &networkDataFile)
 	: Gem::Common::GStdSimpleVectorInterfaceT<std::size_t>(), arraySize_(0),
-	  data_((std::shared_ptr <trainingSet> *) NULL) {
+	  data_(nullptr) {
 	this->loadFromDisk(networkDataFile);
 }
 
@@ -207,7 +207,7 @@ networkData::networkData(const std::string &networkDataFile)
  */
 networkData::networkData(const networkData &cp)
 	: Gem::Common::GStdSimpleVectorInterfaceT<std::size_t>(cp), arraySize_(0),
-	  data_((std::shared_ptr <trainingSet> *) NULL) {
+	  data_(nullptr) {
 	// Make sure the local data is copied
 	Gem::Common::copySmartPointerArrays(cp.data_, data_, cp.arraySize_, arraySize_);
 }

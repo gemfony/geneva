@@ -389,7 +389,7 @@ public:
 		 * The default constructor
 		 */
 		GWorker()
-			: thread_id_(0), outer_(NULL), parsed_(false), runLoopHasCommenced_(false) { /* nothing */ }
+			: thread_id_(0), outer_(nullptr), parsed_(false), runLoopHasCommenced_(false) { /* nothing */ }
 
 	protected:
 		/************************************************************************/

@@ -139,7 +139,7 @@ public:
 	/**
 	 * The standard constructor
 	 */
-	explicit GOneTimeRefParameterT(const T &def = T(NULL))
+	explicit GOneTimeRefParameterT(const T &def = T(0))
 		: parm_(def), parmDummy_(def), parmSet_(false) { /* nothing */ }
 
 	/***************************************************************************/

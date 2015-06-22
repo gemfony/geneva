@@ -399,7 +399,7 @@ resize(size_from);
 /******************************************************************************/
 /**
  * This function takes two arrays and copies their contents. It assumes that
- * uninitialized arrays point to NULL and that the number of entries given
+ * uninitialized arrays point to nullptr and that the number of entries given
  * is exact. The from-array may be empty, in which case the to array will also
  * be empty after the call to this function. The function assumes that for
  * this operation, T::operator= makes sense. The function may modify all of its
@@ -411,25 +411,25 @@ void copyArrays(
 ) {
 	//--------------------------------------------------------------------------
 	// Do some error checks
-	if ((T const *const) NULL == from && 0 != nFrom) {
+	if (nullptr == from && 0 != nFrom) {
 		glogger
 		<< "In copyArrays(): Error: from-array is empty, but nFrom isn\'t:" << nFrom << std::endl
 		<< GEXCEPTION;
 	}
 
-	if ((T const *const) NULL != from && 0 == nFrom) {
+	if (nullptr != from && 0 == nFrom) {
 		glogger
 		<< "In copyArrays(): Error: from-array isn't empty, but nFrom is:" << std::endl
 		<< GEXCEPTION;
 	}
 
-	if ((T *) NULL == to && 0 != nTo) {
+	if (nullptr == to && 0 != nTo) {
 		glogger
 		<< "In copyArrays(): Error: to-array is empty, but nTo isn\'t:" << nTo << std::endl
 		<< GEXCEPTION;
 	}
 
-	if ((T *) NULL != to && 0 == nTo) {
+	if (nullptr != to && 0 == nTo) {
 		glogger
 		<< "In copyArrays(): Error: to-array isn't empty, but nTo is" << std::endl
 		<< GEXCEPTION;
@@ -438,10 +438,10 @@ void copyArrays(
 	//--------------------------------------------------------------------------
 
 	// If from is empty, make sure all other arguments are empty
-	if ((T const *const) NULL == from) {
+	if (nullptr == from) {
 		nTo = 0;
 		if (to) delete[] to;
-		to = (T *) NULL;
+		to = nullptr;
 
 		return;
 	}
@@ -481,25 +481,25 @@ void copySmartPointerArrays(
 ) {
 	//--------------------------------------------------------------------------
 	// Do some error checks
-	if ((std::shared_ptr <T> const *const) NULL == from && 0 != size_from) {
+	if (nullptr == from && 0 != size_from) {
 		glogger
 		<< "In copySmartPointerArrays(): Error: from-array is empty, but size_from isn\'t:" << size_from << std::endl
 		<< GEXCEPTION;
 	}
 
-	if ((std::shared_ptr <T> const *const) NULL != from && 0 == size_from) {
+	if (nullptr != from && 0 == size_from) {
 		glogger
 		<< "In copySmartPointerArrays(): Error: from-array isn't empty, but size_from is:" << std::endl
 		<< GEXCEPTION;
 	}
 
-	if ((std::shared_ptr <T> *) NULL == to && 0 != size_to) {
+	if (nullptr == to && 0 != size_to) {
 		glogger
 		<< "In copySmartPointerArrays(): Error: to-array is empty, but size_to isn\'t:" << size_to << std::endl
 		<< GEXCEPTION;
 	}
 
-	if ((std::shared_ptr <T> *) NULL != to && 0 == size_to) {
+	if (nullptr != to && 0 == size_to) {
 		glogger
 		<< "In copySmartPointerArrays(): Error: to-array isn't empty, but size_to is" << std::endl
 		<< GEXCEPTION;
@@ -574,7 +574,7 @@ target_type *convertSimplePointer(source_type *p_raw) {
          << GEXCEPTION;
 
          // Make the compiler happy
-         return (target_type *)(NULL);
+         return nullptr;
       }
 
       // Do the actual conversion
@@ -587,7 +587,7 @@ target_type *convertSimplePointer(source_type *p_raw) {
          << GEXCEPTION;
 
          // Make the compiler happy
-         return (target_type *)(NULL);
+         return nullptr;
       }
 #else
 	return static_cast<target_type>(p_raw);
@@ -610,7 +610,7 @@ const target_type *convertSimplePointer(const source_type *p_raw) {
          << GEXCEPTION;
 
          // Make the compiler happy
-         return (const target_type *)(NULL);
+         return nullptr;
       }
 
       // Do the actual conversion
@@ -623,7 +623,7 @@ const target_type *convertSimplePointer(const source_type *p_raw) {
          << GEXCEPTION;
 
          // Make the compiler happy
-         return (const target_type *)(NULL);
+         return nullptr;
       }
 #else
 	return static_cast<const target_type *>(p_raw);

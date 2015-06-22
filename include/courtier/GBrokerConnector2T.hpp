@@ -594,7 +594,7 @@ public:
 	virtual void load(GBaseExecutorT<processable_type> const *const cp_base) override {
 		GSerialExecutorT<processable_type> const *const cp = dynamic_cast<GSerialExecutorT<processable_type> const *const>(cp_base);
 
-		if (!cp) { // NULL pointer
+		if (!cp) { // nullptr
 			glogger
 			<< "In GSerialExecutorT<processable_type>::load(): Conversion error!" << std::endl
 			<< GEXCEPTION;
@@ -728,7 +728,7 @@ public:
 	virtual void load(GBaseExecutorT<processable_type> const *const cp_base) override {
 		GMTExecutorT<processable_type> const *const cp = dynamic_cast<GMTExecutorT<processable_type> const *const>(cp_base);
 
-		if (!cp) { // NULL pointer
+		if (!cp) { // nullptr
 			glogger
 			<< "In GMTExecutorT<processable_type>::load(): Conversion error!" << std::endl
 			<< GEXCEPTION;
@@ -885,7 +885,7 @@ public:
 	virtual void load(GBaseExecutorT<processable_type> const *const cp_base) override {
 		GBrokerConnector2T<processable_type> const *const cp = dynamic_cast<GBrokerConnector2T<processable_type> const *const>(cp_base);
 
-		if (!cp) { // NULL pointer
+		if (!cp) { // nullptr
 			glogger
 			<< "In GBrokerConnector2T<processable_type>::load(): Conversion error!" << std::endl
 			<< GEXCEPTION;
