@@ -48,20 +48,8 @@ G_API_GENEVA const std::string GBaseGD::nickname = "gd";
  * The default constructor
  */
 GBaseGD::GBaseGD()
-	: GOptimizationAlgorithmT<GParameterSet>(), nStartingPoints_(DEFAULTGDSTARTINGPOINTS), nFPParmsFirst_(0),
-	  finiteStep_(DEFAULTFINITESTEP), stepSize_(DEFAULTSTEPSIZE),
-	  stepRatio_(DEFAULTSTEPSIZE / DEFAULTFINITESTEP) // Will be recalculated in init()
-	, dblLowerParameterBoundaries_() // Will be extracted in init()
-	, dblUpperParameterBoundaries_() // Will be extratced in init()
-	, adjustedFiniteStep_() // Will be recalculated in init()
-{
-	// Register the default optimization monitor
-	this->registerOptimizationMonitor(
-		std::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
-			new GGDOptimizationMonitor()
-		)
-	);
-}
+	: GBaseGD(DEFAULTGDSTARTINGPOINTS, DEFAULTFINITESTEP, DEFAULTSTEPSIZE)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -72,14 +60,14 @@ GBaseGD::GBaseGD()
  * @param stepSize The size of the multiplicative factor of the adaption process
  */
 GBaseGD::GBaseGD(
-	const std::size_t &nStartingPoints, const double &finiteStep, const double &stepSize
+	const std::size_t &nStartingPoints
+	, const double &finiteStep
+	, const double &stepSize
 )
-	: GOptimizationAlgorithmT<GParameterSet>(), nStartingPoints_(nStartingPoints), nFPParmsFirst_(0),
-	  finiteStep_(finiteStep), stepSize_(stepSize),
-	  stepRatio_(DEFAULTSTEPSIZE / DEFAULTFINITESTEP) // Will be recalculated in init()
-	, dblLowerParameterBoundaries_() // Will be extracted in init()
-	, dblUpperParameterBoundaries_() // Will be extracted in init()
-	, adjustedFiniteStep_() // Will be recalculated in init()
+	: GOptimizationAlgorithmT<GParameterSet>()
+	, nStartingPoints_(nStartingPoints)
+	, finiteStep_(finiteStep)
+	, stepSize_(stepSize)
 {
 	// Register the default optimization monitor
 	this->registerOptimizationMonitor(
@@ -96,9 +84,12 @@ GBaseGD::GBaseGD(
  * @param cp A copy of another GradientDescent object
  */
 GBaseGD::GBaseGD(const GBaseGD &cp)
-	: GOptimizationAlgorithmT<GParameterSet>(cp), nStartingPoints_(cp.nStartingPoints_),
-	  nFPParmsFirst_(cp.nFPParmsFirst_), finiteStep_(cp.finiteStep_), stepSize_(cp.stepSize_),
-	  stepRatio_(cp.stepRatio_) // Will be recalculated in init()
+	: GOptimizationAlgorithmT<GParameterSet>(cp)
+	, nStartingPoints_(cp.nStartingPoints_)
+	, nFPParmsFirst_(cp.nFPParmsFirst_)
+	, finiteStep_(cp.finiteStep_)
+	, stepSize_(cp.stepSize_)
+	, stepRatio_(cp.stepRatio_) // Will be recalculated in init()
 	, dblLowerParameterBoundaries_(cp.dblLowerParameterBoundaries_) // Will be extracted in init()
 	, dblUpperParameterBoundaries_(cp.dblUpperParameterBoundaries_) // Will be extracted in init()
 	, adjustedFiniteStep_(cp.adjustedFiniteStep_) // Will be recalculated in init()

@@ -128,11 +128,11 @@ protected:
 
 private:
 	/** @brief Allows populations to record how often an individual has been reelected as parent (0 if it is a child) */
-	boost::uint32_t parentCounter_;
+	boost::uint32_t parentCounter_ = 0;
 	/** @brief Stores the current position in the population */
-	std::size_t popPos_;
+	std::size_t popPos_ = 0;
 	/** @brief The id of the old parent individual. This is intentionally a signed value. A negative value refers to an unset parent id */
-	boost::int16_t parentId_;
+	boost::int16_t parentId_ = -1;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

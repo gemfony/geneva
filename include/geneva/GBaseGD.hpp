@@ -187,17 +187,16 @@ protected:
 
 private:
 	/***************************************************************************/
-	std::size_t nStartingPoints_; ///< The number of starting positions in the parameter space
-	std::size_t nFPParmsFirst_; ///< The amount of floating point values in the first individual
+	std::size_t nStartingPoints_ = DEFAULTGDSTARTINGPOINTS; ///< The number of starting positions in the parameter space
+	std::size_t nFPParmsFirst_ = 0; ///< The amount of floating point values in the first individual
 
-	double finiteStep_; ///< The size of the incremental adaption of the feature vector
-	double stepSize_; ///< A multiplicative factor for the adaption
-	long double stepRatio_; ///< The ratio of stepSize_ and finiteStep_. NOTE: long double!
+	double finiteStep_ = DEFAULTFINITESTEP; ///< The size of the incremental adaption of the feature vector
+	double stepSize_ = DEFAULTSTEPSIZE; ///< A multiplicative factor for the adaption
+	long double stepRatio_ = (DEFAULTSTEPSIZE / DEFAULTFINITESTEP); ///< The ratio of stepSize_ and finiteStep_. NOTE: long double; Will be recalculated in init()
 
-	std::vector<double> dblLowerParameterBoundaries_; ///< Holds lower boundaries of double parameters
-	std::vector<double> dblUpperParameterBoundaries_; ///< Holds upper boundaries of double parameters
-
-	std::vector<double> adjustedFiniteStep_; ///< A step-size normalized to each parameter range
+	std::vector<double> dblLowerParameterBoundaries_ = std::vector<double>(); ///< Holds lower boundaries of double parameters; Will be extracted in init()
+	std::vector<double> dblUpperParameterBoundaries_ = std::vector<double>(); ///< Holds upper boundaries of double parameters; Will be extracted in init()
+	std::vector<double> adjustedFiniteStep_ = std::vector<double>(); ///< A step-size normalized to each parameter range; Will be recalculated in init()
 
 	/** @brief Lets individuals know about their position in the population */
 	void markIndividualPositions();

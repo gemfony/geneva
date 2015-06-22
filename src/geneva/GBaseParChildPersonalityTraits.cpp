@@ -43,8 +43,7 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GBaseParChildPersonalityTraits::GBaseParChildPersonalityTraits()
-	: GPersonalityTraits(), parentCounter_(0), popPos_(0), parentId_(-1) // means "unset"
+GBaseParChildPersonalityTraits::GBaseParChildPersonalityTraits() : GPersonalityTraits()
 { /* nothing */ }
 
 /******************************************************************************/
@@ -53,15 +52,21 @@ GBaseParChildPersonalityTraits::GBaseParChildPersonalityTraits()
  *
  * @param cp A copy of another GBaseParChildPersonalityTraits object
  */
-GBaseParChildPersonalityTraits::GBaseParChildPersonalityTraits(const GBaseParChildPersonalityTraits &cp)
-	: GPersonalityTraits(cp), parentCounter_(cp.parentCounter_), popPos_(cp.popPos_),
-	  parentId_(cp.parentId_) { /* nothing */ }
+GBaseParChildPersonalityTraits::GBaseParChildPersonalityTraits(
+	const GBaseParChildPersonalityTraits &cp
+)
+	: GPersonalityTraits(cp)
+	, parentCounter_(cp.parentCounter_)
+	, popPos_(cp.popPos_)
+	, parentId_(cp.parentId_)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
-GBaseParChildPersonalityTraits::~GBaseParChildPersonalityTraits() { /* nothing */ }
+GBaseParChildPersonalityTraits::~GBaseParChildPersonalityTraits()
+{ /* nothing */ }
 
 /***************************************************************************/
 /**
