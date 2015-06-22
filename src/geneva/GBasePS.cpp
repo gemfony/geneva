@@ -113,9 +113,8 @@ G_API_GENEVA const std::string GBasePS::nickname = "ps";
 /**
  * The default constructor
  */
-GBasePS::GBasePS()
-	: GOptimizationAlgorithmT<GParameterSet>(), cycleLogicHalt_(false), scanRandomly_(true),
-	  nMonitorInds_(DEFAULTNMONITORINDS), simpleScanItems_(0), scansPerformed_(0) {
+GBasePS::GBasePS() : GOptimizationAlgorithmT<GParameterSet>()
+{
 	// Register the default optimization monitor
 	this->registerOptimizationMonitor(
 		std::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
@@ -131,32 +130,33 @@ GBasePS::GBasePS()
  * @param cp A copy of another GradientDescent object
  */
 GBasePS::GBasePS(const GBasePS &cp)
-	: GOptimizationAlgorithmT<GParameterSet>(cp), cycleLogicHalt_(cp.cycleLogicHalt_), scanRandomly_(cp.scanRandomly_),
-	  nMonitorInds_(cp.nMonitorInds_), simpleScanItems_(cp.simpleScanItems_), scansPerformed_(cp.scansPerformed_) {
+	: GOptimizationAlgorithmT<GParameterSet>(cp)
+	, cycleLogicHalt_(cp.cycleLogicHalt_)
+	, scanRandomly_(cp.scanRandomly_)
+	, nMonitorInds_(cp.nMonitorInds_)
+	, simpleScanItems_(cp.simpleScanItems_)
+	, scansPerformed_(cp.scansPerformed_)
+{
 	// Copying / setting of the optimization algorithm id is done by the parent class. The same
 	// applies to the copying of the optimization monitor.
 
 	// Load the parameter objects
-	std::vector<std::shared_ptr < bScanPar>> ::const_iterator
-	b_it;
+	std::vector<std::shared_ptr < bScanPar>> ::const_iterator b_it;
 	for (b_it = cp.bVec_.begin(); b_it != cp.bVec_.end(); ++b_it) {
 		bVec_.push_back((*b_it)->clone());
 	}
 
-	std::vector<std::shared_ptr < int32ScanPar>> ::const_iterator
-	i_it;
+	std::vector<std::shared_ptr < int32ScanPar>> ::const_iterator i_it;
 	for (i_it = cp.int32Vec_.begin(); i_it != cp.int32Vec_.end(); ++i_it) {
 		int32Vec_.push_back((*i_it)->clone());
 	}
 
-	std::vector<std::shared_ptr < dScanPar>> ::const_iterator
-	d_it;
+	std::vector<std::shared_ptr < dScanPar>> ::const_iterator d_it;
 	for (d_it = cp.dVec_.begin(); d_it != cp.dVec_.end(); ++d_it) {
 		dVec_.push_back((*d_it)->clone());
 	}
 
-	std::vector<std::shared_ptr < fScanPar>> ::const_iterator
-	f_it;
+	std::vector<std::shared_ptr < fScanPar>> ::const_iterator f_it;
 	for (f_it = cp.fVec_.begin(); f_it != cp.fVec_.end(); ++f_it) {
 		fVec_.push_back((*f_it)->clone());
 	}
@@ -324,29 +324,25 @@ void GBasePS::load_(const GObject *cp) {
 
 	// Load the parameter objects
 	bVec_.clear();
-	std::vector<std::shared_ptr < bScanPar>> ::const_iterator
-	b_it;
+	std::vector<std::shared_ptr < bScanPar>> ::const_iterator b_it;
 	for (b_it = (p_load->bVec_).begin(); b_it != (p_load->bVec_).end(); ++b_it) {
 		bVec_.push_back((*b_it)->clone());
 	}
 
 	int32Vec_.clear();
-	std::vector<std::shared_ptr < int32ScanPar>> ::const_iterator
-	i_it;
+	std::vector<std::shared_ptr < int32ScanPar>> ::const_iterator i_it;
 	for (i_it = (p_load->int32Vec_).begin(); i_it != (p_load->int32Vec_).end(); ++i_it) {
 		int32Vec_.push_back((*i_it)->clone());
 	}
 
 	dVec_.clear();
-	std::vector<std::shared_ptr < dScanPar>> ::const_iterator
-	d_it;
+	std::vector<std::shared_ptr < dScanPar>> ::const_iterator d_it;
 	for (d_it = (p_load->dVec_).begin(); d_it != (p_load->dVec_).end(); ++d_it) {
 		dVec_.push_back((*d_it)->clone());
 	}
 
 	fVec_.clear();
-	std::vector<std::shared_ptr < fScanPar>> ::const_iterator
-	f_it;
+	std::vector<std::shared_ptr < fScanPar>> ::const_iterator f_it;
 	for (f_it = (p_load->fVec_).begin(); f_it != (p_load->fVec_).end(); ++f_it) {
 		fVec_.push_back((*f_it)->clone());
 	}
@@ -603,26 +599,22 @@ void GBasePS::randomShuffle() {
  * Resets all parameter objects
  */
 void GBasePS::resetParameterObjects() {
-	std::vector<std::shared_ptr < bScanPar>> ::iterator
-	b_it;
+	std::vector<std::shared_ptr < bScanPar>> ::iterator b_it;
 	for (b_it = bVec_.begin(); b_it != bVec_.end(); ++b_it) {
 		(*b_it)->resetPosition();
 	}
 
-	std::vector<std::shared_ptr < int32ScanPar>> ::iterator
-	i_it;
+	std::vector<std::shared_ptr < int32ScanPar>> ::iterator i_it;
 	for (i_it = int32Vec_.begin(); i_it != int32Vec_.end(); ++i_it) {
 		(*i_it)->resetPosition();
 	}
 
-	std::vector<std::shared_ptr < fScanPar>> ::iterator
-	f_it;
+	std::vector<std::shared_ptr < fScanPar>> ::iterator f_it;
 	for (f_it = fVec_.begin(); f_it != fVec_.end(); ++f_it) {
 		(*f_it)->resetPosition();
 	}
 
-	std::vector<std::shared_ptr < dScanPar>> ::iterator
-	d_it;
+	std::vector<std::shared_ptr < dScanPar>> ::iterator d_it;
 	for (d_it = dVec_.begin(); d_it != dVec_.end(); ++d_it) {
 		(*d_it)->resetPosition();
 	}
@@ -645,8 +637,7 @@ std::shared_ptr <parSet> GBasePS::getParameterSet(std::size_t &mode) {
 
 	// Extract the relevant data and store it in a parSet object
 	// 1) For boolean objects
-	std::vector<std::shared_ptr < bScanPar>> ::iterator
-	b_it;
+	std::vector<std::shared_ptr < bScanPar>>::iterator b_it;
 	for (b_it = bVec_.begin(); b_it != bVec_.end(); ++b_it) {
 		NAMEANDIDTYPE var = (*b_it)->getVarAddress();
 
@@ -666,8 +657,7 @@ std::shared_ptr <parSet> GBasePS::getParameterSet(std::size_t &mode) {
 		(result->bParVec).push_back(item);
 	}
 	// 2) For boost::int32_t objects
-	std::vector<std::shared_ptr < int32ScanPar>> ::iterator
-	i_it;
+	std::vector<std::shared_ptr < int32ScanPar>>::iterator i_it;
 	for (i_it = int32Vec_.begin(); i_it != int32Vec_.end(); ++i_it) {
 		NAMEANDIDTYPE var = (*i_it)->getVarAddress();
 
@@ -687,8 +677,7 @@ std::shared_ptr <parSet> GBasePS::getParameterSet(std::size_t &mode) {
 		(result->iParVec).push_back(item);
 	}
 	// 3) For float objects
-	std::vector<std::shared_ptr < fScanPar>> ::iterator
-	f_it;
+	std::vector<std::shared_ptr < fScanPar>>::iterator f_it;
 	for (f_it = fVec_.begin(); f_it != fVec_.end(); ++f_it) {
 		NAMEANDIDTYPE var = (*f_it)->getVarAddress();
 
@@ -708,8 +697,7 @@ std::shared_ptr <parSet> GBasePS::getParameterSet(std::size_t &mode) {
 		(result->fParVec).push_back(item);
 	}
 	// 4) For double objects
-	std::vector<std::shared_ptr < dScanPar>> ::iterator
-	d_it;
+	std::vector<std::shared_ptr < dScanPar>>::iterator d_it;
 	for (d_it = dVec_.begin(); d_it != dVec_.end(); ++d_it) {
 		NAMEANDIDTYPE var = (*d_it)->getVarAddress();
 
@@ -764,26 +752,22 @@ bool GBasePS::switchToNextParameterSet() {
  */
 void GBasePS::fillAllParVec() {
 	// 1) For boolean objects
-	std::vector<std::shared_ptr < bScanPar>> ::iterator
-	b_it;
+	std::vector<std::shared_ptr < bScanPar>> ::iterator b_it;
 	for (b_it = bVec_.begin(); b_it != bVec_.end(); ++b_it) {
 		allParVec_.push_back(*b_it);
 	}
 	// 2) For boost::int32_t objects
-	std::vector<std::shared_ptr < int32ScanPar>> ::iterator
-	i_it;
+	std::vector<std::shared_ptr < int32ScanPar>> ::iterator i_it;
 	for (i_it = int32Vec_.begin(); i_it != int32Vec_.end(); ++i_it) {
 		allParVec_.push_back(*i_it);
 	}
 	// 3) For float objects
-	std::vector<std::shared_ptr < fScanPar>> ::iterator
-	f_it;
+	std::vector<std::shared_ptr < fScanPar>> ::iterator f_it;
 	for (f_it = fVec_.begin(); f_it != fVec_.end(); ++f_it) {
 		allParVec_.push_back(*f_it);
 	}
 	// 4) For double objects
-	std::vector<std::shared_ptr < dScanPar>> ::iterator
-	d_it;
+	std::vector<std::shared_ptr < dScanPar>> ::iterator d_it;
 	for (d_it = dVec_.begin(); d_it != dVec_.end(); ++d_it) {
 		allParVec_.push_back(*d_it);
 	}
@@ -1063,8 +1047,11 @@ void GBasePS::saveCheckpoint() const {
 	double newValue = this->at(0)->transformedFitness();
 
 	// Determine a suitable name for the output file
-	std::string outputFile = getCheckpointDirectory() + boost::lexical_cast<std::string>(this->getIteration()) + "_"
-									 + boost::lexical_cast<std::string>(newValue) + "_" + getCheckpointBaseName();
+	std::string outputFile =
+		getCheckpointDirectory()
+		+ boost::lexical_cast<std::string>(this->getIteration()) + "_"
+	 	+ boost::lexical_cast<std::string>(newValue) + "_"
+		+ getCheckpointBaseName();
 
 	this->toFile(boost::filesystem::path(outputFile), getCheckpointSerializationMode());
 }
@@ -1117,11 +1104,10 @@ void GBasePS::specificTestsFailuresExpected_GUnitTests() {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor
+ * The default constructor. All initialization work is done in the class body.
  */
 GBasePS::GPSOptimizationMonitor::GPSOptimizationMonitor()
-	: csvResultFile_(DEFAULTCSVRESULTFILEOM), withNameAndType_(false), withCommas_(true), useRawFitness_(true),
-	  showValidity_(true) { /* nothing */ }
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -1129,16 +1115,23 @@ GBasePS::GPSOptimizationMonitor::GPSOptimizationMonitor()
  *
  * @param cp A copy of another GPSOptimizationMonitor object
  */
-GBasePS::GPSOptimizationMonitor::GPSOptimizationMonitor(const GBasePS::GPSOptimizationMonitor &cp)
-	: GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT(cp), csvResultFile_(cp.csvResultFile_),
-	  withNameAndType_(cp.withNameAndType_), withCommas_(cp.withCommas_), useRawFitness_(cp.useRawFitness_),
-	  showValidity_(cp.showValidity_) { /* nothing */ }
+GBasePS::GPSOptimizationMonitor::GPSOptimizationMonitor(
+	const GBasePS::GPSOptimizationMonitor &cp
+)
+	: GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT(cp)
+	, csvResultFile_(cp.csvResultFile_)
+	, withNameAndType_(cp.withNameAndType_)
+	, withCommas_(cp.withCommas_)
+	, useRawFitness_(cp.useRawFitness_)
+	, showValidity_(cp.showValidity_)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GBasePS::GPSOptimizationMonitor::~GPSOptimizationMonitor() { /* nothing */ }
+GBasePS::GPSOptimizationMonitor::~GPSOptimizationMonitor()
+{ /* nothing */ }
 
 /***************************************************************************/
 /**
@@ -1196,7 +1189,9 @@ bool GBasePS::GPSOptimizationMonitor::operator!=(const GBasePS::GPSOptimizationM
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBasePS::GPSOptimizationMonitor::compare(
-	const GObject &cp, const Gem::Common::expectation &e, const double &limit
+	const GObject &cp
+	, const Gem::Common::expectation &e
+	, const double &limit
 ) const {
 	using namespace Gem::Common;
 

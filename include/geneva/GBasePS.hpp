@@ -295,9 +295,9 @@ private:
 	/** @brief Clears the allParVec_ vector */
 	void clearAllParVec();
 
-	bool cycleLogicHalt_; ///< Temporary flag used to specify that the optimization should be halted
-	bool scanRandomly_;   ///< Determines whether the algorithm should scan the parameter space randomly or on a grid
-	std::size_t nMonitorInds_; ///< The number of best individuals of the entire run to be kept
+	bool cycleLogicHalt_ = false; ///< Temporary flag used to specify that the optimization should be halted
+	bool scanRandomly_ true;   ///< Determines whether the algorithm should scan the parameter space randomly or on a grid
+	std::size_t nMonitorInds_ = DEFAULTNMONITORINDS; ///< The number of best individuals of the entire run to be kept
 
 	std::vector<std::shared_ptr<bScanPar>>      bVec_;     ///< Holds boolean parameters to be scanned
 	std::vector<std::shared_ptr<int32ScanPar>>  int32Vec_; ///< Holds 32 bit integer parameters to be scanned
@@ -306,8 +306,8 @@ private:
 
 	std::vector<std::shared_ptr<scanParInterface>> allParVec_; /// Holds pointers to all parameter objects
 
-	std::size_t simpleScanItems_; ///< When set to a value > 0, a random scan of the entire parameter space will be made instead of individual parameters -- set through the configuration file
-	std::size_t scansPerformed_;  ///< Holds the number of processed items so far while a simple scan is performed
+	std::size_t simpleScanItems_ = 0; ///< When set to a value > 0, a random scan of the entire parameter space will be made instead of individual parameters -- set through the configuration file
+	std::size_t scansPerformed_  = 0; ///< Holds the number of processed items so far while a simple scan is performed
 
 public:
 	/***************************************************************************/
@@ -405,11 +405,11 @@ public:
 		virtual G_API_GENEVA GObject* clone_() const override;
 
 	private:
-		std::string csvResultFile_; ///< The name of the file to which data is emitted
-		bool withNameAndType_; ///< When set to true, explanations for values are printed
-		bool withCommas_; ///< When set to true, commas will be printed in-between values
-		bool useRawFitness_; ///< Indicates whether true- or transformed fitness should be output
-		bool showValidity_; ///< Indicates whether the validity of a solution should be shown
+		std::string csvResultFile_ = DEFAULTCSVRESULTFILEOM; ///< The name of the file to which data is emitted
+		bool withNameAndType_ = false; ///< When set to true, explanations for values are printed
+		bool withCommas_ = true; ///< When set to true, commas will be printed in-between values
+		bool useRawFitness_ = true; ///< Indicates whether true- or transformed fitness should be output
+		bool showValidity_ = true; ///< Indicates whether the validity of a solution should be shown
 
 	public:
 		/** @brief Applies modifications to this object. This is needed for testing purposes */
