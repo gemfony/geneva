@@ -129,6 +129,27 @@ const GBooleanCollection &GBooleanCollection::operator=(
 
 /******************************************************************************/
 /**
+ * FLips the value at a given position
+ */
+void GBooleanCollection::flip(const std::size_t& pos) {
+#ifdef DEBUG
+	if(this->size() <= pos) {
+		glogger
+		<< "In GBooleanCollection::flip(const std::size_t& " << pos << "): Error!" << std::endl
+		<< "Tried to exist position beyond end of vector of size " << this->size() << std::endl
+		<< GEXCEPTION;
+	}
+#endif
+
+	if(true == this->at(pos)) {
+		this->at(pos) = false;
+	} else {
+		this->at(pos) = true;
+	}
+}
+
+/******************************************************************************/
+/**
  * Creates a deep clone of this object
  *
  * @return A deep clone of this object

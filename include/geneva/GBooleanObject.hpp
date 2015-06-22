@@ -98,6 +98,9 @@ public:
 	/** @brief Triggers random initialization of the parameter object, with a given likelihood structure */
 	G_API_GENEVA bool randomInit(const double&, const activityMode&);
 
+	/** @brief Flips the value of this object */
+	G_API_GENEVA void flip();
+
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
 	virtual G_API_GENEVA void compare(
 		const GObject& // the other object

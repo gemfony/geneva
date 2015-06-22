@@ -159,6 +159,18 @@ bool GBooleanObject::operator!=(const GBooleanObject &cp) const {
 
 /******************************************************************************/
 /**
+ * Flips the value of this object
+ */
+void GBooleanObject::flip() {
+	if(true == this->value()) {
+		this->setValue(false);
+	} else {
+		this->setValue(true);
+	}
+}
+
+/******************************************************************************/
+/**
  * Random initialization. This is a helper function, without it we'd
  * have to say things like "myGBooleanObject.GParameterBase::randomInit();".
  */
@@ -398,6 +410,9 @@ bool GBooleanObject::modify_GUnitTests() {
 
 	// Call the parent class'es function
 	if (GParameterT<bool>::modify_GUnitTests()) result = true;
+
+	this->flip();
+	result = true;
 
 	return result;
 

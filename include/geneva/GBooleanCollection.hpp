@@ -96,6 +96,9 @@ public:
 	/** @brief Checks for inequality with another GBooleanCollection object */
 	G_API_GENEVA bool operator!=(const GBooleanCollection&) const;
 
+	/** @brief FLips the value at a given position */
+	G_API_GENEVA void flip(const std::size_t&);
+
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
 	virtual G_API_GENEVA void compare(
 		const GObject& // the other object
