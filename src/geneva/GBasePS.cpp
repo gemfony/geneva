@@ -1414,6 +1414,13 @@ bool GBasePS::GPSOptimizationMonitor::modify_GUnitTests() {
 	// Call the parent class'es function
 	if (GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::modify_GUnitTests()) result = true;
 
+	if(true == this->getPrintWithNameAndType()) {
+		this->setPrintWithNameAndType(false);
+	} else {
+		this->setPrintWithNameAndType(true);
+	}
+	result = true;
+
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw

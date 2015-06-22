@@ -2007,6 +2007,13 @@ public:
 			// Call the parent class'es function
 			if(GObject::modify_GUnitTests()) result = true;
 
+			if(true == this->getUseRawEvaluation()) {
+				this->setUseRawEvaluation(false);
+			} else {
+				this->setUseRawEvaluation(true);
+			}
+			result = true;
+
 			return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw

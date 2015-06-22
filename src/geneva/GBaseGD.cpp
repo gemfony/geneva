@@ -968,8 +968,7 @@ void GBaseGD::GGDOptimizationMonitor::compare(
 	GToken token("GBaseGD::GGDOptimizationMonitor", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(IDENTITY(*this, *p_load),
-																														  token);
+	Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(xDim_, p_load->xDim_), token);
@@ -1142,6 +1141,9 @@ bool GBaseGD::GGDOptimizationMonitor::modify_GUnitTests() {
 
 	// Call the parent class'es function
 	if (GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::modify_GUnitTests()) result = true;
+
+	this->setDims(this->getXDim() + 1, this->getYDim() + 1);
+	result = true;
 
 	return result;
 

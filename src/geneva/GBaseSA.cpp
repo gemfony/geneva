@@ -830,6 +830,9 @@ bool GBaseSA::GSAOptimizationMonitor::modify_GUnitTests() {
 	// Call the parent class'es function
 	if (GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::modify_GUnitTests()) result = true;
 
+	this->setDims(this->getXDim() + 1, this->getYDim() + 1);
+	result = true;
+
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
