@@ -409,6 +409,9 @@ bool GDoubleObject::modify_GUnitTests() {
 	// Call the parent class'es function
 	if (GNumFPT<double>::modify_GUnitTests()) result = true;
 
+	this->randomInit(ALLPARAMETERS);
+	result = true;
+
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw

@@ -334,6 +334,13 @@ bool GConstrainedInt32Object::modify_GUnitTests() {
 	// Call the parent class'es function
 	if (GConstrainedIntT<boost::int32_t>::modify_GUnitTests()) result = true;
 
+	if(this->value() == this->getLowerBoundary()) {
+		this->setValue(this->getLowerBoundary() + 1);
+	} else {
+		this->setValue(this->getLowerBoundary());
+	}
+	result = true;
+
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
