@@ -196,7 +196,7 @@ private:
 	/***************************************************************************/
 	// Local data
 
-	sortingMode smode_; ///< The chosen sorting scheme
+	sortingMode smode_ = DEFAULTSMODE; ///< The chosen sorting scheme
 
 public:
 	/***************************************************************************/
@@ -292,10 +292,10 @@ public:
 		virtual G_API_GENEVA GObject* clone_() const override;
 
 	private:
-		boost::uint32_t xDim_; ///< The dimension of the canvas in x-direction
-		boost::uint32_t yDim_; ///< The dimension of the canvas in y-direction
-		std::size_t nMonitorInds_; ///< The number if individuals that should be monitored
-		std::string resultFile_; ///< The name of the file to which data is emitted
+		boost::uint32_t xDim_ = DEFAULTXDIMOM; ///< The dimension of the canvas in x-direction
+		boost::uint32_t yDim_ = DEFAULTYDIMOM; ///< The dimension of the canvas in y-direction
+		std::size_t nMonitorInds_ = 0; ///< The number if individuals that should be monitored
+		std::string resultFile_ = DEFAULTROOTRESULTFILEOM; ///< The name of the file to which data is emitted
 
 		std::vector<std::shared_ptr<Gem::Common::GGraph2D>> fitnessGraphVec_;
 

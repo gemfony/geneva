@@ -50,7 +50,8 @@ G_API_GENEVA const std::string GBaseEA::nickname = "ea";
  * vital parameters, such as the population size or the parent individuals by hand.
  */
 GBaseEA::GBaseEA()
-	: GParameterSetParChild(), smode_(DEFAULTSMODE) {
+	: GParameterSetParChild()
+{
 	// Register the default optimization monitor
 	this->registerOptimizationMonitor(
 		std::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
@@ -71,7 +72,9 @@ GBaseEA::GBaseEA()
  * @param cp Another GBaseEA object
  */
 GBaseEA::GBaseEA(const GBaseEA &cp)
-	: GParameterSetParChild(cp), smode_(cp.smode_) {
+	: GParameterSetParChild(cp)
+	, smode_(cp.smode_)
+{
 	// Copying / setting of the optimization algorithm id is done by the parent class. The same
 	// applies to the copying of the optimization monitor.
 }
@@ -152,7 +155,9 @@ void GBaseEA::load_(const GObject *cp) {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBaseEA::compare(
-	const GObject &cp, const Gem::Common::expectation &e, const double &limit
+	const GObject &cp
+	, const Gem::Common::expectation &e
+	, const double &limit
 ) const {
 	using namespace Gem::Common;
 
@@ -284,31 +289,19 @@ sortingMode GBaseEA::getSortingScheme() const {
 /**
  * Extracts all individuals on the pareto front
  */
-void GBaseEA::extractCurrentParetoIndividuals(std::vector<std::shared_ptr < Gem::Geneva::GParameterSet>
-
->& paretoInds) {
-// Make sure the vector is empty
-paretoInds.
-
-clear();
-
-GBaseEA::iterator it;
-for(
-it = this->begin();
-it!=this->
-
-end();
-
-++it) {
-if((*it)->
-
-getPersonalityTraits<GEAPersonalityTraits>() -> isOnParetoFront()
-
+void GBaseEA::extractCurrentParetoIndividuals(
+	std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>>& paretoInds
 ) {
-paretoInds.
-push_back(*it);
-}
-}
+	// Make sure the vector is empty
+	paretoInds.clear();
+
+	GBaseEA::iterator it;
+	for(it = this->begin(); it!=this->end(); ++it) {
+		if((*it)->getPersonalityTraits<GEAPersonalityTraits>() -> isOnParetoFront()) {
+			paretoInds.
+			push_back(*it);
+		}
+	}
 }
 
 /******************************************************************************/
@@ -852,8 +845,8 @@ void GBaseEA::specificTestsFailuresExpected_GUnitTests() {
  * The default constructor
  */
 GBaseEA::GEAOptimizationMonitor::GEAOptimizationMonitor()
-	: GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT(), xDim_(DEFAULTXDIMOM), yDim_(DEFAULTYDIMOM),
-	  nMonitorInds_(0), resultFile_(DEFAULTROOTRESULTFILEOM) { /* nothing */ }
+	: GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -862,14 +855,19 @@ GBaseEA::GEAOptimizationMonitor::GEAOptimizationMonitor()
  * @param cp A copy of another GEAOptimizationMonitor object
  */
 GBaseEA::GEAOptimizationMonitor::GEAOptimizationMonitor(const GBaseEA::GEAOptimizationMonitor &cp)
-	: GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT(cp), xDim_(cp.xDim_), yDim_(cp.yDim_),
-	  nMonitorInds_(cp.nMonitorInds_), resultFile_(cp.resultFile_) { /* nothing */ }
+	: GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT(cp)
+	, xDim_(cp.xDim_)
+	, yDim_(cp.yDim_)
+	, nMonitorInds_(cp.nMonitorInds_)
+	, resultFile_(cp.resultFile_)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GBaseEA::GEAOptimizationMonitor::~GEAOptimizationMonitor() { /* nothing */ }
+GBaseEA::GEAOptimizationMonitor::~GEAOptimizationMonitor()
+{ /* nothing */ }
 
 /***************************************************************************/
 /**
@@ -927,7 +925,9 @@ bool GBaseEA::GEAOptimizationMonitor::operator!=(const GBaseEA::GEAOptimizationM
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBaseEA::GEAOptimizationMonitor::compare(
-	const GObject &cp, const Gem::Common::expectation &e, const double &limit
+	const GObject &cp
+	, const Gem::Common::expectation &e
+	, const double &limit
 ) const {
 	using namespace Gem::Common;
 
@@ -978,9 +978,10 @@ std::string GBaseEA::GEAOptimizationMonitor::getResultFileName() const {
  *
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
  */
-void GBaseEA::GEAOptimizationMonitor::firstInformation(GOptimizationAlgorithmT < GParameterSet > * const
-goa) {
-// Perform the conversion to the target algorithm
+void GBaseEA::GEAOptimizationMonitor::firstInformation(
+	GOptimizationAlgorithmT < GParameterSet > * const goa
+) {
+	// Perform the conversion to the target algorithm
 #ifdef DEBUG
    if(goa->getOptimizationAlgorithm() != "PERSONALITY_EA") {
       glogger
@@ -990,8 +991,8 @@ goa) {
    }
 #endif /* DEBUG */
 
-// Convert the base pointer to the target type
-GBaseEA *const ea = static_cast<GBaseEA *const>(goa);
+	// Convert the base pointer to the target type
+	GBaseEA *const ea = static_cast<GBaseEA *const>(goa);
 
 #ifdef DEBUG
    if(nMonitorInds_ > ea->size()) {
@@ -1003,32 +1004,23 @@ GBaseEA *const ea = static_cast<GBaseEA *const>(goa);
    }
 #endif /* DEBUG */
 
-// Determine a suitable number of monitored individuals, if it hasn't already
-// been set externally. We allow a maximum of 3 monitored individuals by default
-// (or the number of parents, if <= 3).
-if(nMonitorInds_ == 0) {
-nMonitorInds_ = (std::min)(ea->getNParents(), std::size_t(3));
-}
+	// Determine a suitable number of monitored individuals, if it hasn't already
+	// been set externally. We allow a maximum of 3 monitored individuals by default
+	// (or the number of parents, if <= 3).
+	if(nMonitorInds_ == 0) {
+		nMonitorInds_ = (std::min)(ea->getNParents(), std::size_t(3));
+	}
 
-// Set up the plotters
-for(
-std::size_t ind = 0;
-ind<nMonitorInds_;
-ind++) {
-std::shared_ptr <Gem::Common::GGraph2D> graph(new Gem::Common::GGraph2D());
-graph->setXAxisLabel("Iteration");
-graph->setYAxisLabel("Fitness");
-graph->
-setPlotLabel(std::string("Individual ")
-+
-boost::lexical_cast<std::string>(ind)
-);
-graph->
-setPlotMode(Gem::Common::CURVE);
+	// Set up the plotters
+	for(std::size_t ind = 0; ind<nMonitorInds_; ind++) {
+		std::shared_ptr <Gem::Common::GGraph2D> graph(new Gem::Common::GGraph2D());
+		graph->setXAxisLabel("Iteration");
+		graph->setYAxisLabel("Fitness");
+		graph->setPlotLabel(std::string("Individual ") + boost::lexical_cast<std::string>(ind));
+		graph->setPlotMode(Gem::Common::CURVE);
 
-fitnessGraphVec_.
-push_back(graph);
-}
+		fitnessGraphVec_.push_back(graph);
+	}
 }
 
 /******************************************************************************/
@@ -1039,32 +1031,27 @@ push_back(graph);
  *
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
  */
-void GBaseEA::GEAOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT < GParameterSet > * const
-goa) {
-bool isDirty = false;
-double currentTransformedEvaluation = 0.;
+void GBaseEA::GEAOptimizationMonitor::cycleInformation(
+	GOptimizationAlgorithmT < GParameterSet > * const goa
+) {
+	bool isDirty = false;
+	double currentTransformedEvaluation = 0.;
 
-// Convert the base pointer to the target type
-GBaseEA *const ea = static_cast<GBaseEA *const>(goa);
+	// Convert the base pointer to the target type
+	GBaseEA *const ea = static_cast<GBaseEA *const>(goa);
 
-// Retrieve the current iteration
-boost::uint32_t iteration = ea->getIteration();
+	// Retrieve the current iteration
+	boost::uint32_t iteration = ea->getIteration();
 
-for(
-std::size_t ind = 0;
-ind<nMonitorInds_;
-ind++) {
-// Get access to the individual
-std::shared_ptr <GParameterSet> gi_ptr = ea->individual_cast<GParameterSet>(ind);
+	for(std::size_t ind = 0; ind<nMonitorInds_; ind++) {
+		// Get access to the individual
+		std::shared_ptr <GParameterSet> gi_ptr = ea->individual_cast<GParameterSet>(ind);
 
-// Retrieve the fitness of this individual -- all individuals should be "clean" here
-currentTransformedEvaluation = gi_ptr->transformedFitness();
-// Add the data to our graph
-(fitnessGraphVec_.
-at(ind)
-)->
-add(boost::tuple<double, double>(iteration, currentTransformedEvaluation));
-}
+		// Retrieve the fitness of this individual -- all individuals should be "clean" here
+		currentTransformedEvaluation = gi_ptr->transformedFitness();
+		// Add the data to our graph
+		(fitnessGraphVec_.at(ind))->add(boost::tuple<double, double>(iteration, currentTransformedEvaluation));
+	}
 }
 
 /******************************************************************************/

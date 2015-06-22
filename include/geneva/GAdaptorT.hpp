@@ -119,32 +119,10 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * The default constructor.
+	 * The default constructor -- uses a delegating constructor
 	 */
-	GAdaptorT()
-		: GObject()
-		, adaptionCounter_(0)
-		, adaptionThreshold_(DEFAULTADAPTIONTHRESHOLD)
-		, adProb_(DEFAULTADPROB)
-		, adaptAdProb_(DEFAUPTADAPTADPROB)
-		, minAdProb_(DEFMINADPROB)
-		, maxAdProb_(DEFMAXADPROB)
-		, adaptionMode_(DEFAULTADAPTIONMODE)
-		, adaptAdaptionProbability_(DEFAULTADAPTADAPTIONPROB)
-		, adProb_reset_(adProb_)
-	{
-		// Check that adProb_ is in the allowed range. Adapt, if necessary
-		if(!Gem::Common::checkRangeCompliance<double>(adProb_, minAdProb_, maxAdProb_)) {
-			glogger
-			<< "In GAdaptorT<T>::GadaptorT():" << std::endl
-			<< "adProb_ value " << adProb_ << " is outside of allowed value range [" << minAdProb_ << ", " << maxAdProb_ << "]" << std::endl
-			<< "The value will be adapted to fit this range." << std::endl
-			<< GWARNING;
-
-			Gem::Common::enforceRangeConstraint<double>(adProb_, minAdProb_, maxAdProb_);
-			Gem::Common::enforceRangeConstraint<double>(adProb_reset_, minAdProb_, maxAdProb_);
-		}
-	}
+	GAdaptorT() : GAdaptorT<T>(DEFAULTADPROB)
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -155,15 +133,7 @@ public:
 	 */
 	GAdaptorT(const double& adProb)
 		: GObject()
-		, adaptionCounter_(0)
-		, adaptionThreshold_(DEFAULTADAPTIONTHRESHOLD)
 		, adProb_(adProb)
-		, adaptAdProb_(DEFAUPTADAPTADPROB)
-		, minAdProb_(DEFMINADPROB)
-		, maxAdProb_(DEFMAXADPROB)
-		, adaptionMode_(DEFAULTADAPTIONMODE)
-		, adaptAdaptionProbability_(DEFAULTADAPTADAPTIONPROB)
-		, adProb_reset_(adProb_)
 	{
 		// Do some error checking
 		// Check that adProb_ is in the allowed range. Adapt, if necessary
@@ -875,16 +845,15 @@ protected:
 
 private:
 	/***************************************************************************/
-	boost::uint32_t adaptionCounter_; ///< A local counter
-	boost::uint32_t adaptionThreshold_; ///< Specifies after how many adaptions the adaption itself should be adapted
-	double adProb_; ///< internal representation of the adaption probability
-	double adaptAdProb_; ///< The rate, at which adProb_ should be adapted
-	double minAdProb_; ///< The lower allowed value for adProb_ during variation
-	double maxAdProb_; ///< The upper allowed value for adProb_ during variation
-	boost::logic::tribool adaptionMode_; ///< false == never adapt; indeterminate == adapt with adProb_ probability; true == always adapt
-	double adaptAdaptionProbability_; ///< Influences the likelihood for the adaption of the adaption parameters
-
-	double adProb_reset_; ///< The value to which adProb_ will be reset if "updateOnStall()" is called
+	boost::uint32_t adaptionCounter_ = 0; ///< A local counter
+	boost::uint32_t adaptionThreshold_ = DEFAULTADAPTIONTHRESHOLD; ///< Specifies after how many adaptions the adaption itself should be adapted
+	double adProb_ = DEFAULTADPROB; ///< internal representation of the adaption probability
+	double adaptAdProb_ = DEFAUPTADAPTADPROB; ///< The rate, at which adProb_ should be adapted
+	double minAdProb_ = DEFMINADPROB; ///< The lower allowed value for adProb_ during variation
+	double maxAdProb_ = DEFMAXADPROB; ///< The upper allowed value for adProb_ during variation
+	boost::logic::tribool adaptionMode_ = DEFAULTADAPTIONMODE; ///< false == never adapt; indeterminate == adapt with adProb_ probability; true == always adapt
+	double adaptAdaptionProbability_ = DEFAULTADAPTADAPTIONPROB; ///< Influences the likelihood for the adaption of the adaption parameters
+	double adProb_reset_ = adProb_; ///< The value to which adProb_ will be reset if "updateOnStall()" is called
 
 public:
 	/***************************************************************************/
