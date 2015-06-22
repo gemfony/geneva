@@ -320,6 +320,9 @@ bool GInt32Object::modify_GUnitTests() {
 	// Call the parent class'es function
 	if (GNumIntT<boost::int32_t>::modify_GUnitTests()) result = true;
 
+	this->setValue(this->value() + 1);
+	result = true;
+
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
