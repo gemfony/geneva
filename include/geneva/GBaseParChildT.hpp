@@ -114,13 +114,7 @@ public:
 	 * vital parameters, such as the population size or the parent individuals by hand
 	 * or do so through the configuration file.
 	 */
-	GBaseParChildT()
-		: Gem::Geneva::GOptimizationAlgorithmT<ind_type>()
-		, nParents_(0)
-		, recombinationMethod_(DEFAULTDUPLICATIONSCHEME)
-		, defaultNChildren_(0)
-		, growthRate_(0)
-		, maxPopulationSize_(0)
+	GBaseParChildT() : Gem::Geneva::GOptimizationAlgorithmT<ind_type>()
 	{
 		// Make sure we start with a valid population size if the user does not supply these values
 		this->setPopulationSizes(100,1);
@@ -1129,11 +1123,12 @@ protected:
 	}
 
 	/***************************************************************************/
-	std::size_t nParents_; ///< The number of parents
-	duplicationScheme recombinationMethod_; ///< The chosen recombination method
-	std::size_t defaultNChildren_; ///< Expected number of children
-	std::size_t growthRate_; ///< Specifies the amount of individuals added per iteration
-	std::size_t maxPopulationSize_; ///< Specifies the maximum amount of individuals in the population if growth is enabled
+
+	std::size_t nParents_ = 0; ///< The number of parents
+	duplicationScheme recombinationMethod_ = DEFAULTDUPLICATIONSCHEME; ///< The chosen recombination method
+	std::size_t defaultNChildren_ = 0; ///< Expected number of children
+	std::size_t growthRate_ = 0; ///< Specifies the amount of individuals added per iteration
+	std::size_t maxPopulationSize_ = 0; ///< Specifies the maximum amount of individuals in the population if growth is enabled
 
 public:
 	/***************************************************************************/
