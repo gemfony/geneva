@@ -54,9 +54,12 @@ GSwarmPersonalityTraits::GSwarmPersonalityTraits()
  * @param cp A copy of another GSwarmPersonalityTraits object
  */
 GSwarmPersonalityTraits::GSwarmPersonalityTraits(const GSwarmPersonalityTraits &cp)
-	: GPersonalityTraits(cp), neighborhood_(cp.neighborhood_), noPositionUpdate_(cp.noPositionUpdate_),
-	  personal_best_() // empty at this point
-	, personal_best_quality_(cp.personal_best_quality_) {
+	: GPersonalityTraits(cp)
+	, neighborhood_(cp.neighborhood_)
+	, noPositionUpdate_(cp.noPositionUpdate_)
+	, personal_best_() // empty at this point
+	, personal_best_quality_(cp.personal_best_quality_)
+{
 	// Copy the personal_best_ vector over
 	copyGenevaSmartPointer(cp.personal_best_, personal_best_);
 	// Make sure we do not get a "chain" of individuals
@@ -364,6 +367,9 @@ bool GSwarmPersonalityTraits::modify_GUnitTests() {
 
 	// Call the parent class'es function
 	if (GPersonalityTraits::modify_GUnitTests()) result = true;
+
+	this->setNeighborhood(this->getNeighborhood() + 1);
+	result = true;
 
 	return result;
 

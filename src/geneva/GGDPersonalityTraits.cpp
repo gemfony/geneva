@@ -212,6 +212,9 @@ bool GGDPersonalityTraits::modify_GUnitTests() {
 	// Call the parent class'es function
 	if (GPersonalityTraits::modify_GUnitTests()) result = true;
 
+	this->setPopulationPosition(this->getPopulationPosition() + 1);
+	result = true;
+
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
