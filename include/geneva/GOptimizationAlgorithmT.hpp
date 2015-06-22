@@ -1791,6 +1791,9 @@ public:
 		// Call the parent class'es function
 		if(GMutableSetT<ind_type>::modify_GUnitTests()) result = true;
 
+		this->setMaxIteration(this->getMaxIteration() + 1);
+		result = true;
+
 		return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
