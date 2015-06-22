@@ -1301,20 +1301,6 @@ public:
 
 		//------------------------------------------------------------------------------
 
-#ifdef DEBUG
-		{ // Check that assigning a nullptr for the random number generator throws in DEBUG mode
-			std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
-
-			// Assigning a nullptr should throw
-			BOOST_CHECK_THROW(
-					p_test->assignGRandomPointer(nullptr);
-					, Gem::Common::gemfony_error_condition
-			);
-		}
-#endif /* DEBUG */
-
-		//------------------------------------------------------------------------------
-
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */

@@ -40,6 +40,7 @@
 #include <vector>
 #include <typeinfo>
 #include <functional>
+#include <type_traits>
 
 // Boost header files go here
 
@@ -117,7 +118,7 @@ class GStdPtrVectorInterfaceT {
 	///////////////////////////////////////////////////////////////////////
 
 	// Make sure B is a base class of T
-	BOOST_MPL_ASSERT((boost::is_base_of<B, T>));
+	static_assert(std::is_base_of<B, T>::value, "B should be a base of T");
 
 public:
 	/***************************************************************************/
@@ -172,13 +173,9 @@ public:
 	 */
 	const std::vector<std::shared_ptr < T>>&
 
-	operator=(const std::vector<std::shared_ptr < T>
-
-	>& cp) {
-		typename std::vector<std::shared_ptr < T>> ::const_iterator
-		cp_it;
-		typename std::vector<std::shared_ptr < T>> ::iterator
-		it;
+	operator=(const std::vector<std::shared_ptr < T>>& cp) {
+		typename std::vector<std::shared_ptr < T>>::const_iterator cp_it;
+		typename std::vector<std::shared_ptr < T>>::iterator it;
 
 		std::size_t localSize = data.size();
 		std::size_t cpSize = cp.size();
@@ -222,7 +219,9 @@ public:
 	 * @param limit The maximum deviation for floating point values (important for similarity checks)
 	 */
 	virtual void compare_base(
-		const GStdPtrVectorInterfaceT<T, B> &cp, const Gem::Common::expectation &e, const double &limit
+		const GStdPtrVectorInterfaceT<T, B> &cp
+		, const Gem::Common::expectation &e
+		, const double &limit
 	) const BASE {
 		Gem::Common::GToken token("GBaseEA::GEAOptimizationMonitor", e);
 		Gem::Common::compare_t(IDENTITY(this->data, cp.data), token);
@@ -231,26 +230,17 @@ public:
 
 	/***************************************************************************/
 	// Typedefs
-	typedef typename std::vector<std::shared_ptr < T>>
-	::value_type value_type;
-	typedef typename std::vector<std::shared_ptr < T>>
-	::reference reference;
-	typedef typename std::vector<std::shared_ptr < T>>
-	::const_reference const_reference;
+	typedef typename std::vector<std::shared_ptr <T>>::value_type value_type;
+	typedef typename std::vector<std::shared_ptr <T>>::reference reference;
+	typedef typename std::vector<std::shared_ptr <T>>::const_reference const_reference;
 
-	typedef typename std::vector<std::shared_ptr < T>>
-	::iterator iterator;
-	typedef typename std::vector<std::shared_ptr < T>>
-	::const_iterator const_iterator;
-	typedef typename std::vector<std::shared_ptr < T>>
-	::reverse_iterator reverse_iterator;
-	typedef typename std::vector<std::shared_ptr < T>>
-	::const_reverse_iterator const_reverse_iterator;
+	typedef typename std::vector<std::shared_ptr <T>>::iterator iterator;
+	typedef typename std::vector<std::shared_ptr <T>>::const_iterator const_iterator;
+	typedef typename std::vector<std::shared_ptr <T>>::reverse_iterator reverse_iterator;
+	typedef typename std::vector<std::shared_ptr <T>>::const_reverse_iterator const_reverse_iterator;
 
-	typedef typename std::vector<std::shared_ptr < T>>
-	::size_type size_type;
-	typedef typename std::vector<std::shared_ptr < T>>
-	::difference_type difference_type;
+	typedef typename std::vector<std::shared_ptr <T>>::size_type size_type;
+	typedef typename std::vector<std::shared_ptr <T>>::difference_type difference_type;
 
 	/***************************************************************************/
 	// Non modifying access

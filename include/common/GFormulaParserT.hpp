@@ -71,6 +71,7 @@
 #include <stack>
 #include <map>
 #include <cmath>
+#include <type_traits>
 
 // Boost headers go here
 
@@ -389,7 +390,7 @@ template<typename fp_type>
 class GFormulaParserT
 	: public boost::spirit::qi::grammar<std::string::const_iterator, ast_expression(), boost::spirit::ascii::space_type> {
 	// Make sure, fp_type is a floating point value
-	BOOST_MPL_ASSERT((boost::is_floating_point<fp_type>));
+	static_assert(std::is_floating_point<fp_type>::value, "fp_type should ne a floating point type");
 
 public:
 	/*****************************************************************************/

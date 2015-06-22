@@ -36,6 +36,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <type_traits>
 
 // Boost headers go here
 
@@ -79,7 +80,10 @@ class GBoostThreadConsumerT
 	: public Gem::Courtier::GBaseConsumerT<processable_type> {
 private:
 	// Make sure processable_type adheres to the GSubmissionContainerT interface
-	BOOST_MPL_ASSERT((boost::is_base_of<Gem::Courtier::GSubmissionContainerT<processable_type>, processable_type>));
+	static_assert(
+		std::is_base_of<Gem::Courtier::GSubmissionContainerT<processable_type>, processable_type>::value
+		, "processable_type does not adhere to the GSubmissionContainerT interface"
+	);
 
 public:
 	class GWorker; ///< Forward declaration

@@ -179,7 +179,7 @@ public:
 			glogger
 			<< "In GStarterIndividual::addContent(): Error!" << std::endl
 			<< "No parameters given" << std::endl
-			<< GTERMINATE;
+			<< GTERMINATION;
 		}
 
 		// Check whether all sizes match
@@ -187,7 +187,7 @@ public:
 			glogger
 			<< "In GStarterIndividual::addContent(): Error!" << std::endl
 			<< "Invalid sizes" << startValues.size() << " / " << lowerBoundaries.size() << " / " << upperBoundaries.size() << std::endl
-			<< GTERMINATE;
+			<< GTERMINATION;
 		}
 
 		// Check that start values and boundaries have valid values
