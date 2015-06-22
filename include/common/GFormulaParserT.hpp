@@ -87,8 +87,6 @@
 #include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/include/phoenix_object.hpp>
 #include <boost/spirit/include/phoenix_bind.hpp>
-#include <boost/mpl/assert.hpp>
-#include <boost/type_traits.hpp>
 #include <boost/foreach.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/optional.hpp>

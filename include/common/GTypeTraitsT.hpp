@@ -49,9 +49,6 @@
 // Boost headers go here
 #include <boost/cast.hpp>
 #include <boost/logic/tribool.hpp>
-#include <boost/utility/enable_if.hpp>
-#include <boost/type_traits.hpp>
-#include <boost/mpl/has_xxx.hpp>
 #include <boost/optional.hpp>
 #include <boost/lexical_cast.hpp>
 

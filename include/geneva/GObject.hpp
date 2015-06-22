@@ -70,8 +70,6 @@
 #include <boost/lambda/lambda.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/logic/tribool_io.hpp>
-#include <boost/mpl/assert.hpp>
-#include <boost/mpl/has_xxx.hpp>
 #include <boost/numeric/conversion/bounds.hpp> // get rid of the numeric_limits<double>::min() vs. numeric_limits<int>::min() problem
 #include <boost/optional.hpp>
 #include <boost/program_options.hpp>
@@ -83,10 +81,7 @@
 #include <boost/thread/tss.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_io.hpp>
-#include <boost/type_traits.hpp>
-#include <boost/type_traits/is_abstract.hpp>
 #include <boost/utility.hpp>
-#include <boost/utility/enable_if.hpp>
 #include <boost/variant.hpp>
 
 #include <boost/property_tree/ptree_serialization.hpp>

@@ -57,7 +57,6 @@
 #include <boost/program_options.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/thread.hpp>
-#include <boost/type_traits.hpp>
 
 #ifndef GCONSUMER_HPP_
 #define GCONSUMER_HPP_

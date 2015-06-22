@@ -48,8 +48,6 @@
 // Boost header files go here
 #include <boost/function.hpp>
 #include <boost/thread.hpp>
-#include <boost/type_traits.hpp>
-#include <boost/mpl/assert.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>

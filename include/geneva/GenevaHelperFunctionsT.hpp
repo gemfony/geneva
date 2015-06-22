@@ -38,10 +38,9 @@
 // Standard headers go here
 #include <vector>
 #include <sstream>
+#include <type_traits>
 
 // Boost headers go here
-#include <boost/utility/enable_if.hpp>
-#include <boost/type_traits.hpp>
 #include <boost/cstdint.hpp>
 
 #ifndef GENEVAHELPERFUNCTIONST_HPP_

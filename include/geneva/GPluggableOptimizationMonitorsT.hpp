@@ -41,8 +41,6 @@
 #include <type_traits>
 
 // Boost header files go here
-#include <boost/mpl/assert.hpp>
-#include <boost/type_traits.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem/operations.hpp>

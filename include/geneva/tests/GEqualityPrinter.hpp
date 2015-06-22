@@ -45,13 +45,9 @@
 
 // Boost header files go here
 
-#include <boost/type_traits.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/test/test_case_template.hpp>
 #include <boost/mpl/list.hpp>
-#include <boost/mpl/has_xxx.hpp>
-#include <boost/utility/enable_if.hpp>
-#include <boost/type_traits.hpp>
 #include <boost/optional.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/utility.hpp>

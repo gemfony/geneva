@@ -42,7 +42,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/tuple/tuple.hpp>
-#include <boost/mpl/assert.hpp>
 
 #ifndef GBASEPARCHILDEAT_HPP_
 #define GBASEPARCHILDEAT_HPP_

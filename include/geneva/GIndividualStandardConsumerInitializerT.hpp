@@ -39,9 +39,6 @@
 #include <iostream>
 
 // Boost header files go here
-#include <boost/type_traits.hpp>
-#include <boost/mpl/assert.hpp>
-
 
 #ifndef GINDIVIDUALSTANDARDCONSUMERINITIALIZERT_HPP_
 #define GINDIVIDUALSTANDARDCONSUMERINITIALIZERT_HPP_

@@ -41,8 +41,6 @@
 // Boost headers go here
 #include <boost/any.hpp>
 #include <boost/cstdint.hpp>
-#include <boost/mpl/assert.hpp>
-#include <boost/type_traits.hpp>
 #include <boost/lexical_cast.hpp>
 
 #ifndef GSCANPAR_HPP_

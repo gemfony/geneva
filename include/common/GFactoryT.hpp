@@ -43,9 +43,6 @@
 // Boost header files go here
 #include <boost/utility.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/mpl/assert.hpp>
-#include <boost/type_traits.hpp>
-
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>

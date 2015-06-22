@@ -51,14 +51,9 @@
 #include <boost/logic/tribool.hpp>
 #include <boost/math/special_functions/next.hpp>
 #include <boost/date_time.hpp>
-#include <boost/utility/enable_if.hpp>
 #include <boost/variant.hpp>
 #include <boost/limits.hpp>
-#include <boost/type_traits.hpp>
 #include <boost/tuple/tuple.hpp>
-#include <boost/type_traits.hpp>
-#include <boost/mpl/assert.hpp>
-#include <boost/utility/enable_if.hpp>
 
 #ifndef GHELPERFUNCTIONST_HPP_
 #define GHELPERFUNCTIONST_HPP_

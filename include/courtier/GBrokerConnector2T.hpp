@@ -64,7 +64,6 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/tuple/tuple.hpp>
-#include <boost/utility/enable_if.hpp>
 
 #ifndef GBROKERCONNECTOR2T_HPP_
 #define GBROKERCONNECTOR2T_HPP_

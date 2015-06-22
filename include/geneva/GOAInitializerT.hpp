@@ -40,8 +40,6 @@
 #include <type_traits>
 
 // Boost header files go here
-#include <boost/type_traits.hpp>
-#include <boost/mpl/assert.hpp>
 
 #ifndef GOAINITIALIZERT_HPP_
 #define GOAINITIALIZERT_HPP_

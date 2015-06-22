@@ -50,7 +50,6 @@
 #include <boost/cstdint.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/tuple/tuple.hpp>
-#include <boost/type_traits.hpp>
 #include <boost/math/special_functions.hpp>
 #include <boost/limits.hpp>
 #include <boost/numeric/conversion/bounds.hpp>

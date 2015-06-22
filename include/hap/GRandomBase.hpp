@@ -59,10 +59,6 @@
 #include <boost/cast.hpp>
 #include <boost/function.hpp>
 #include <boost/random/linear_congruential.hpp>
-#include <boost/utility/enable_if.hpp>
-#include <boost/type_traits.hpp>
-#include <boost/static_assert.hpp>
-#include <boost/concept_check.hpp>
 
 #ifndef GRANDOMBASE_HPP_
 #define GRANDOMBASE_HPP_

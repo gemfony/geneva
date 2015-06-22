@@ -39,7 +39,6 @@
 #include <type_traits>
 
 // Boost header files go here
-#include <boost/mpl/assert.hpp>
 
 #ifndef GMULTICONSTRAINTT_HPP_
 #define GMULTICONSTRAINTT_HPP_
