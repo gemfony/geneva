@@ -38,6 +38,7 @@
 // Standard header files go here
 #include <string>
 #include <fstream>
+#include <type_traits>
 
 // Boost header files go here
 #include <boost/mpl/assert.hpp>
@@ -300,7 +301,10 @@ class GProgressPlotterT
 	///////////////////////////////////////////////////////////////////////
 
 	// Make sure this class can only be instantiated if fp_type really is a floating point type
-	BOOST_MPL_ASSERT((boost::is_floating_point<fp_type>));
+	static_assert(
+		std::is_floating_point<fp_type>::value
+		, "fp_type should be a floating point type"
+	);
 
 public:
 	/***************************************************************************/
@@ -965,7 +969,10 @@ class GAllSolutionFileLoggerT
 	: public GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT
 {
 	// Make sure this class can only be instantiated if individual_type is a derivative of GParameterSet
-	BOOST_MPL_ASSERT((boost::is_base_of<GParameterSet, ind_type>));
+	static_assert(
+		std::is_base_of<GParameterSet, ind_type>::value
+		, "GParameterSet is no base class of ind_type"
+	);
 
 public:
 	/***************************************************************************/
@@ -1334,7 +1341,10 @@ class GIterationResultsFileLoggerT
 	: public GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT
 {
 	// Make sure this class can only be instantiated if individual_type is a derivative of GParameterSet
-	BOOST_MPL_ASSERT((boost::is_base_of<GParameterSet, ind_type>));
+	static_assert(
+		std::is_base_of<GParameterSet, ind_type>::value
+		, "GParameterSet is no base class of ind_type"
+	);
 
 public:
 	/***************************************************************************/
@@ -1597,7 +1607,10 @@ class GNAdpationsLoggerT
 	: public GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT
 {
 	// Make sure this class can only be instantiated if individual_type is a derivative of GParameterSet
-	BOOST_MPL_ASSERT((boost::is_base_of<GParameterSet, ind_type>));
+	static_assert(
+		std::is_base_of<GParameterSet, ind_type>::value
+		, "GParameterSet is no base class of ind_type"
+	);
 
 public:
 	/***************************************************************************/
@@ -1996,9 +2009,15 @@ class GAdaptorPropertyLoggerT
 	: public GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT
 {
 	// Make sure this class can only be instantiated if individual_type is a derivative of GParameterSet
-	BOOST_MPL_ASSERT((boost::is_base_of<GParameterSet, ind_type>));
-	// Make sure this class can only be instantiated if num_type is numeric
-	BOOST_MPL_ASSERT((boost::is_arithmetic<num_type>));
+	static_assert(
+		std::is_base_of<GParameterSet, ind_type>::value
+		, "GParameterSet is no base class of ind_type"
+	);
+
+	static_assert(
+		std::is_arithmetic<num_type>::value
+		, "num_type should be an arithmetic type"
+	);
 
 public:
 	/***************************************************************************/

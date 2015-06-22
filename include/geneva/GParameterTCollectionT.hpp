@@ -36,6 +36,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <type_traits>
 
 // Boost header files go here
 
@@ -81,7 +82,10 @@ class GParameterTCollectionT
 	///////////////////////////////////////////////////////////////////////
 
 	// Make sure T is a derivative of GParameterBase
-	BOOST_MPL_ASSERT((boost::is_base_of<GParameterBase, T>));
+	static_assert(
+		std::is_base_of<GParameterBase, T>::value
+		, "GParameterBase is not a base class of T"
+	);
 
 public:
 	/***************************************************************************/

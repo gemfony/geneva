@@ -36,6 +36,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <type_traits>
 
 // Boost header files go here
 
@@ -56,10 +57,10 @@ namespace Geneva {
  * A class holding a collection of mutable parameters - usually just an atomic value (double,
  * long, bool, ...).
  */
-template<typename T>
+template<typename num_type>
 class GParameterCollectionT
-	:public GParameterBaseWithAdaptorsT<T>,
-	 public Gem::Common::GStdSimpleVectorInterfaceT<T>
+	:public GParameterBaseWithAdaptorsT<num_type>,
+	 public Gem::Common::GStdSimpleVectorInterfaceT<num_type>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -68,13 +69,16 @@ class GParameterCollectionT
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar
-		& make_nvp("GParameterBaseWithAdaptorsT_T", boost::serialization::base_object<GParameterBaseWithAdaptorsT<T>>(*this))
-		& make_nvp("GStdSimpleVectorInterfaceT_T", boost::serialization::base_object<Gem::Common::GStdSimpleVectorInterfaceT<T>>(*this));
+		& make_nvp("GParameterBaseWithAdaptorsT_num_type", boost::serialization::base_object<GParameterBaseWithAdaptorsT<num_type>>(*this))
+		& make_nvp("GStdSimpleVectorInterfaceT_num_type", boost::serialization::base_object<Gem::Common::GStdSimpleVectorInterfaceT<num_type>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
-	// Make sure this class can only be instantiated with T as an arithmetic type
-	BOOST_MPL_ASSERT((boost::is_arithmetic<T>));
+	// Make sure this class can only be instantiated with num_type as an arithmetic type
+	static_assert(
+		std::is_arithmetic<num_type>::value
+		, "num_type should be an arithmetic type"
+	);
 
 public:
 	/***************************************************************************/
@@ -82,8 +86,8 @@ public:
 	 * The default constructor
 	 */
 	GParameterCollectionT()
-		: GParameterBaseWithAdaptorsT<T> ()
-		, Gem::Common::GStdSimpleVectorInterfaceT<T>()
+		: GParameterBaseWithAdaptorsT<num_type> ()
+		, Gem::Common::GStdSimpleVectorInterfaceT<num_type>()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -95,21 +99,21 @@ public:
 	 */
 	GParameterCollectionT(
 		const std::size_t& nval
-		, const T& val
+		, const num_type& val
 	)
-		: GParameterBaseWithAdaptorsT<T> ()
-		, Gem::Common::GStdSimpleVectorInterfaceT<T>(nval, val)
+		: GParameterBaseWithAdaptorsT<num_type> ()
+		, Gem::Common::GStdSimpleVectorInterfaceT<num_type>(nval, val)
 	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * The copy constructor
 	 *
-	 * @param cp A copy of another GParameterCollectionT<T> object
+	 * @param cp A copy of another GParameterCollectionT<num_type> object
 	 */
-	GParameterCollectionT(const GParameterCollectionT<T>& cp)
-		: GParameterBaseWithAdaptorsT<T> (cp)
-		, Gem::Common::GStdSimpleVectorInterfaceT<T>(cp)
+	GParameterCollectionT(const GParameterCollectionT<num_type>& cp)
+		: GParameterBaseWithAdaptorsT<num_type> (cp)
+		, Gem::Common::GStdSimpleVectorInterfaceT<num_type>(cp)
 	{  /* nothing */ }
 
 	/***************************************************************************/
@@ -123,19 +127,19 @@ public:
 	/**
 	 * The standard assignment operator
 	 */
-	const GParameterCollectionT<T>& operator=(const GParameterCollectionT<T>& cp) {
+	const GParameterCollectionT<num_type>& operator=(const GParameterCollectionT<num_type>& cp) {
 		this->load_(&cp);
 		return *this;
 	}
 
 	/***************************************************************************/
 	/**
-	  * Checks for equality with another GParameterCollectionT<T> object
+	  * Checks for equality with another GParameterCollectionT<num_type> object
 	  *
-	  * @param  cp A constant reference to another GParameterCollectionT<T> object
+	  * @param  cp A constant reference to another GParameterCollectionT<num_type> object
 	  * @return A boolean indicating whether both objects are equal
 	  */
-	bool operator==(const GParameterCollectionT<T>& cp) const {
+	bool operator==(const GParameterCollectionT<num_type>& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -147,12 +151,12 @@ public:
 
 	/***************************************************************************/
 	/**
-	  * Checks for inequality with another GParameterCollectionT<T> object
+	  * Checks for inequality with another GParameterCollectionT<num_type> object
 	  *
-	  * @param  cp A constant reference to another GParameterCollectionT<T> object
+	  * @param  cp A constant reference to another GParameterCollectionT<num_type> object
 	  * @return A boolean indicating whether both objects are inequal
 	  */
-	bool operator!=(const GParameterCollectionT<T>& cp) const {
+	bool operator!=(const GParameterCollectionT<num_type>& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -178,13 +182,13 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are dealing with a  GParameterCollectionT<T> reference independent of this object and convert the pointer
-		const GParameterCollectionT<T> *p_load = Gem::Common::g_convert_and_compare<GObject,  GParameterCollectionT<T>>(cp, this);
+		// Check that we are dealing with a  GParameterCollectionT<num_type> reference independent of this object and convert the pointer
+		const GParameterCollectionT<num_type> *p_load = Gem::Common::g_convert_and_compare<GObject,  GParameterCollectionT<num_type>>(cp, this);
 
-		GToken token("GParameterCollectionT<T>", e);
+		GToken token("GParameterCollectionT<num_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GParameterBaseWithAdaptorsT<T>>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GParameterBaseWithAdaptorsT<num_type>>(IDENTITY(*this, *p_load), token);
 
 		// We access the relevant data of one of the parent classes directly for simplicity reasons
 		compare_t(IDENTITY(this->data, p_load->data), token);
@@ -196,14 +200,14 @@ public:
 	/***************************************************************************/
 	/**
 	 * Allows to adapt the values stored in this class. applyAdaptor expects a reference
-	 * to a std::vector<T>. As we are derived from a wrapper of this class, we can just pass
+	 * to a std::vector<num_type>. As we are derived from a wrapper of this class, we can just pass
 	 * a reference to its data vector to the function.
 	 *
 	 * @return The number of adaptions that were carried out
 	 */
 	virtual std::size_t adaptImpl() override {
-		return GParameterBaseWithAdaptorsT<T>::applyAdaptor(
-			Gem::Common::GStdSimpleVectorInterfaceT<T>::data
+		return GParameterBaseWithAdaptorsT<num_type>::applyAdaptor(
+			Gem::Common::GStdSimpleVectorInterfaceT<num_type>::data
 			, this->range()
 		);
 	}
@@ -230,8 +234,8 @@ public:
 	/**
 	 * Swap another object's vector with ours
 	 */
-	inline void swap(GParameterCollectionT<T>& cp) {
-		Gem::Common::GStdSimpleVectorInterfaceT<T>::swap(cp.data);
+	inline void swap(GParameterCollectionT<num_type>& cp) {
+		Gem::Common::GStdSimpleVectorInterfaceT<num_type>::swap(cp.data);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -246,20 +250,20 @@ public:
 	 * @param pos The position for which the value needs to be returned
 	 * @return The value of val_
 	 */
-	virtual T value(const std::size_t& pos) {
+	virtual num_type value(const std::size_t& pos) {
 		return this->at(pos);
 	}
 
 	/***************************************************************************/
 	/**
 	 * Allows to set the internal (and usually externally visible) value at a given position. Note
-	 * that we assume here that T has an operator=() or is a basic value type, such as double
+	 * that we assume here that num_type has an operator=() or is a basic value type, such as double
 	 * or int.
 	 *
 	 * @param pos The position at which the value shout be stored
-	 * @param val The new T value stored in this class
+	 * @param val The new num_type value stored in this class
 	 */
-	virtual void setValue(const std::size_t& pos, const T& val)  {
+	virtual void setValue(const std::size_t& pos, const num_type& val)  {
 		this->at(pos) = val;
 
 #ifdef DEBUG
@@ -282,7 +286,7 @@ public:
 	   // Check that the object isn't empty
 	   if(this->empty()) {
 	      glogger
-	      << "In GParameterCollectionT<T>::toPropertyTree(): Error!" << std::endl
+	      << "In GParameterCollectionT<num_type>::toPropertyTree(): Error!" << std::endl
 	      << "Object is empty!" << std::endl
 	      << GEXCEPTION;
 	   }
@@ -290,11 +294,11 @@ public:
 
 		ptr.put(baseName + ".name", this->getParameterName());
 		ptr.put(baseName + ".type", this->name());
-		ptr.put(baseName + ".baseType", Gem::Common::GTypeToStringT<T>::value());
+		ptr.put(baseName + ".baseType", Gem::Common::GTypeToStringT<num_type>::value());
 		ptr.put(baseName + ".isLeaf", this->isLeaf());
 		ptr.put(baseName + ".nVals", this->size());
 
-		typename GParameterCollectionT<T>::const_iterator cit;
+		typename GParameterCollectionT<num_type>::const_iterator cit;
 		std::size_t pos;
 		for(cit=this->begin(); cit!=this->end(); ++cit) {
 			pos = std::distance(this->begin(), cit);
@@ -323,17 +327,17 @@ public:
 protected:
 	/***************************************************************************/
 	/**
-	 * Loads the data of another GParameterCollectionT<T> object, camouflaged as a GObject
+	 * Loads the data of another GParameterCollectionT<num_type> object, camouflaged as a GObject
 	 *
-	 * @param cp A copy of another GParameterCollectionT<T> object, camouflaged as a GObject
+	 * @param cp A copy of another GParameterCollectionT<num_type> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject* cp) override {
-		// Check that we are dealing with a  GParameterCollectionT<T> reference independent of this object and convert the pointer
-		const GParameterCollectionT<T> *p_load = Gem::Common::g_convert_and_compare<GObject,  GParameterCollectionT<T>>(cp, this);
+		// Check that we are dealing with a  GParameterCollectionT<num_type> reference independent of this object and convert the pointer
+		const GParameterCollectionT<num_type> *p_load = Gem::Common::g_convert_and_compare<GObject,  GParameterCollectionT<num_type>>(cp, this);
 
 		// Load our parent class'es data ...
-		GParameterBaseWithAdaptorsT<T>::load_(cp);
-		Gem::Common::GStdSimpleVectorInterfaceT<T>::operator=(*p_load);
+		GParameterBaseWithAdaptorsT<num_type>::load_(cp);
+		Gem::Common::GStdSimpleVectorInterfaceT<num_type>::operator=(*p_load);
 	}
 
 	/***************************************************************************/
@@ -362,8 +366,8 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GParameterBaseWithAdaptorsT<T>::modify_GUnitTests()) result = true;
-		if(Gem::Common::GStdSimpleVectorInterfaceT<T>::modify_GUnitTests()) result = true;
+		if(GParameterBaseWithAdaptorsT<num_type>::modify_GUnitTests()) result = true;
+		if(Gem::Common::GStdSimpleVectorInterfaceT<num_type>::modify_GUnitTests()) result = true;
 
 		return result;
 
@@ -380,8 +384,8 @@ public:
 	virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 	   // Call the parent classes' functions
-		GParameterBaseWithAdaptorsT<T>::specificTestsNoFailureExpected_GUnitTests();
-		Gem::Common::GStdSimpleVectorInterfaceT<T>::specificTestsNoFailureExpected_GUnitTests();
+		GParameterBaseWithAdaptorsT<num_type>::specificTestsNoFailureExpected_GUnitTests();
+		Gem::Common::GStdSimpleVectorInterfaceT<num_type>::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GParameterCollectionT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -395,8 +399,8 @@ public:
 	virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
-		GParameterBaseWithAdaptorsT<T>::specificTestsFailuresExpected_GUnitTests();
-		Gem::Common::GStdSimpleVectorInterfaceT<T>::specificTestsFailuresExpected_GUnitTests();
+		GParameterBaseWithAdaptorsT<num_type>::specificTestsFailuresExpected_GUnitTests();
+		Gem::Common::GStdSimpleVectorInterfaceT<num_type>::specificTestsFailuresExpected_GUnitTests();
 
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
@@ -412,14 +416,14 @@ public:
 
 /******************************************************************************/
 /**
- * @brief The content of the BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) macro. Needed for Boost.Serialization
+ * @brief The content of the BOOST_SERIALIZATION_ASSUME_ABSTRACT(num_type) macro. Needed for Boost.Serialization
  */
 namespace boost {
 namespace serialization {
-template<typename T>
-struct is_abstract<Gem::Geneva::GParameterCollectionT<T>> : public boost::true_type {};
-template<typename T>
-struct is_abstract< const Gem::Geneva::GParameterCollectionT<T>> : public boost::true_type {};
+template<typename num_type>
+struct is_abstract<Gem::Geneva::GParameterCollectionT<num_type>> : public boost::true_type {};
+template<typename num_type>
+struct is_abstract< const Gem::Geneva::GParameterCollectionT<num_type>> : public boost::true_type {};
 }
 }
 
