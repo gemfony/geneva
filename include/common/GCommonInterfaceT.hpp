@@ -373,7 +373,7 @@ public:
 	 */
 	template <typename clone_type>
 	std::shared_ptr<clone_type> clone(
-		typename boost::enable_if<boost::is_base_of<T, clone_type>>::type* dummy = 0
+		typename std::enable_if<std::is_base_of<T, clone_type>::value>::type* dummy = 0
 	) const {
 		return Gem::Common::convertSmartPointer<T, clone_type>(std::shared_ptr<T>(this->clone_()));
 	}
@@ -393,7 +393,7 @@ public:
 	template <typename load_type>
 	inline void load(
 		const std::shared_ptr<load_type>& cp
-		, typename boost::enable_if<boost::is_base_of<T, load_type>>::type* dummy = 0
+		, typename std::enable_if<std::is_base_of<T, load_type>::value>::type* dummy = 0
 	) {
 		load_(cp.get());
 	}
@@ -413,7 +413,7 @@ public:
 	template <typename load_type>
 	inline void load(
 		const load_type& cp
-		, typename boost::enable_if<boost::is_base_of<T, load_type>>::type* dummy = 0
+		, typename std::enable_if<std::is_base_of<T, load_type>::value>::type* dummy = 0
 	) {
 		load_(&cp);
 	}

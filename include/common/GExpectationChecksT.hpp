@@ -44,6 +44,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <typeinfo>
+#include <type_traits>
 
 // Boost headers go here
 #include <boost/cast.hpp>
@@ -56,9 +57,7 @@
 #include <boost/tuple/tuple_comparison.hpp>
 #include <boost/tuple/tuple_io.hpp>
 #include <boost/optional.hpp>
-#include <boost/type_traits.hpp>
 #include <boost/typeof/typeof.hpp>
-#include <boost/utility/enable_if.hpp>
 
 #ifndef GEXPECTATIONCHECKST_HPP_
 #define GEXPECTATIONCHECKST_HPP_
@@ -213,7 +212,7 @@ private:
 	/** @brief Does the actual conversion, including a check that B is indeed a base of T */
 	template<typename B>
 	identity<B> to(
-		typename boost::enable_if<boost::is_base_of<B, T>>::type *dummy = 0
+		typename std::enable_if<std::is_base_of<B, T>::value>::type *dummy = 0
 	) const {
 		const B &x_conv = dynamic_cast<const B &>(x);
 		const B &y_conv = dynamic_cast<const B &>(y);
@@ -299,7 +298,7 @@ identity<B> getBaseIdentity(
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
  * @param limit The maximum allowed deviation of two floating point values
- * @param dummy Boost::enable_if magic to steer overloaded resolution by the compiler
+ * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template<typename basic_type>
 void compare(
@@ -309,8 +308,8 @@ void compare(
 	, const std::string &y_name
 	, const Gem::Common::expectation &e
 	, const double &limit = 0.
-	, typename boost::disable_if<boost::is_floating_point<basic_type>>::type *dummy1 = 0
-	, typename boost::disable_if<typename Gem::Common::has_compare_member<basic_type>>::type *dummy2 = 0
+	, typename std::enable_if<!std::is_floating_point<basic_type>::value>::type *dummy1 = 0 // Note the negation!
+	, typename std::enable_if<!Gem::Common::has_compare_member<basic_type>::value>::type *dummy2 = 0 // Note the negation
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -363,13 +362,13 @@ void compare(
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
  * @param limit The maximum allowed deviation of two floating point values
- * @param dummy Boost::enable_if magic to steer overloaded resolution by the compiler
+ * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template<typename fp_type>
 void compare(
 	const fp_type &x, const fp_type &y, const std::string &x_name, const std::string &y_name,
 	const Gem::Common::expectation &e, const double &limit = CE_DEF_SIMILARITY_DIFFERENCE,
-	typename boost::enable_if<boost::is_floating_point<fp_type>>::type *dummy = 0
+	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -429,13 +428,13 @@ void compare(
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
  * @param limit The maximum allowed deviation of two floating point values
- * @param dummy Boost::enable_if magic to steer overloaded resolution by the compiler
+ * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template<typename basic_type>
 void compare(
 	const std::vector<basic_type> &x, const std::vector<basic_type> &y, const std::string &x_name,
 	const std::string &y_name, const Gem::Common::expectation &e, const double &limit = 0.,
-	typename boost::disable_if<boost::is_floating_point<basic_type>>::type *dummy = 0
+	typename std::enable_if<!std::is_floating_point<basic_type>::value>::type *dummy = 0
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -510,13 +509,13 @@ void compare(
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
  * @param limit The maximum allowed deviation of two floating point values
- * @param dummy Boost::enable_if magic to steer overloaded resolution by the compiler
+ * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template<typename fp_type>
 void compare(
 	const std::vector<fp_type> &x, const std::vector<fp_type> &y, const std::string &x_name, const std::string &y_name,
 	const Gem::Common::expectation &e, const double &limit = CE_DEF_SIMILARITY_DIFFERENCE,
-	typename boost::enable_if<boost::is_floating_point<fp_type>>::type *dummy = 0
+	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -612,7 +611,7 @@ void compare(
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
  * @param limit The maximum allowed deviation of two floating point values
- * @param dummy Boost::enable_if magic to steer overloaded resolution by the compiler
+ * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template <typename geneva_type>
 void compare (
@@ -622,7 +621,7 @@ void compare (
 	, const std::string& y_name
 	, const Gem::Common::expectation& e
 	, const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
-	, typename boost::enable_if<typename Gem::Common::has_compare_member<geneva_type>>::type *dummy = 0
+	, typename std::enable_if<Gem::Common::has_compare_member<geneva_type>::value>::type *dummy = 0
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -699,7 +698,7 @@ void compare (
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
  * @param limit The maximum allowed deviation of two floating point values
- * @param dummy Boost::enable_if magic to steer overloaded resolution by the compiler
+ * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template <typename geneva_type>
 void compare (
@@ -709,7 +708,7 @@ void compare (
 	, const std::string& y_name
 	, const Gem::Common::expectation& e
 	, const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
-	, typename boost::enable_if<typename Gem::Common::has_compare_member<geneva_type>>::type *dummy = 0
+	, typename std::enable_if<Gem::Common::has_compare_member<geneva_type>::value>::type *dummy = 0
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -813,7 +812,7 @@ void compare (
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
  * @param limit The maximum allowed deviation of two floating point values
- * @param dummy Boost::enable_if magic to steer overloaded resolution by the compiler
+ * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
 template <typename geneva_type>
 void compare (
@@ -823,7 +822,7 @@ void compare (
 	, const std::string& y_name
 	, const Gem::Common::expectation& e
 	, const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
-	, typename boost::enable_if<typename Gem::Common::has_compare_member<geneva_type>>::type *dummy = 0
+	, typename std::enable_if<Gem::Common::has_compare_member<geneva_type>::value>::type *dummy = 0
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -998,7 +997,7 @@ template<typename B>
 void compare_base(
 	const identity<B> &data
 	, GToken &token
-	, typename boost::enable_if<typename Gem::Common::has_compare_member<B>>::type *dummy = 0
+	, typename std::enable_if<Gem::Common::has_compare_member<B>::value>::type *dummy = 0
 ) {
 	try {
 		token.incrTestCounter();
