@@ -69,6 +69,7 @@
 #include "common/GCommonEnums.hpp" // For the serialization mode
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
+#include "common/GTypeTraitsT.hpp"
 
 // aliases for ease of use
 namespace bf = boost::filesystem;
@@ -479,6 +480,24 @@ protected:
 };
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * Make sure GCommonInterfaceT<T> is recognized as a class holding a
+ * compare function. This is arguably more of a hack, as has_compare_member
+ * otherwise returns an incorrect value for GCommonInterfaceT<T>
+ */
+template<typename T>
+class has_compare_member<GCommonInterfaceT<T>> {
+public:
+	enum {
+		value = true
+	};
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */
@@ -496,6 +515,7 @@ struct is_abstract< const Gem::Common::GCommonInterfaceT<T>> : public boost::tru
 }
 
 /******************************************************************************/
-
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 
 #endif /* GCOMMONINTERFACET_HPP_ */

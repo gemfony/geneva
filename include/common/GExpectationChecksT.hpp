@@ -1016,7 +1016,7 @@ template<typename B>
 void compare_base(
 	const identity<B> &data
 	, GToken &token
-	// , typename std::enable_if<Gem::Common::has_compare_member<B>::value>::type *dummy = 0
+	, typename std::enable_if<Gem::Common::has_compare_member<B>::value>::type *dummy = 0
 ) {
 	try {
 		token.incrTestCounter();
