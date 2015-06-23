@@ -51,23 +51,13 @@ GBooleanCollection::GBooleanCollection()
 
 /******************************************************************************/
 /**
- * No local data, hence we can rely on the parent class.
- *
- * @param cp A copy of another GBooleanCollection object
- */
-GBooleanCollection::GBooleanCollection(const GBooleanCollection &cp)
-	: GParameterCollectionT<bool>(cp) { /* nothing */ }
-
-// Tested in this class
-
-/******************************************************************************/
-/**
  * Initializes the class with a set of nval random bits.
  *
  * @param nval The size of the collection
  */
 GBooleanCollection::GBooleanCollection(const std::size_t &nval)
-	: GParameterCollectionT<bool>() {
+	: GParameterCollectionT<bool>()
+{
 	using namespace Gem::Common;
 	using namespace Gem::Hap;
 
@@ -86,7 +76,8 @@ GBooleanCollection::GBooleanCollection(const std::size_t &nval)
  * @param val  The value to be assigned to each position
  */
 GBooleanCollection::GBooleanCollection(const std::size_t &nval, const bool &val)
-	: GParameterCollectionT<bool>(nval, val) { /* nothing */ }
+	: GParameterCollectionT<bool>(nval, val)
+{ /* nothing */ }
 
 // Tested in this class
 
@@ -99,7 +90,8 @@ GBooleanCollection::GBooleanCollection(const std::size_t &nval, const bool &val)
  * @param probability The probability for true values in the collection
  */
 GBooleanCollection::GBooleanCollection(const std::size_t &nval, const double &probability)
-	: GParameterCollectionT<bool>() {
+	: GParameterCollectionT<bool>()
+{
 	using namespace Gem::Common;
 	using namespace Gem::Hap;
 
@@ -107,6 +99,17 @@ GBooleanCollection::GBooleanCollection(const std::size_t &nval, const double &pr
 		this->push_back(Gem::Hap::gr_tls_ptr()->weighted_bool(probability));
 	}
 }
+
+// Tested in this class
+
+/******************************************************************************/
+/**
+ * No local data, hence we can rely on the parent class.
+ *
+ * @param cp A copy of another GBooleanCollection object
+ */
+GBooleanCollection::GBooleanCollection(const GBooleanCollection &cp)
+	: GParameterCollectionT<bool>(cp) { /* nothing */ }
 
 // Tested in this class
 

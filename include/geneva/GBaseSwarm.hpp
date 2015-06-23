@@ -281,29 +281,29 @@ protected:
 	/** @brief Adjusts the velocity vector so that its values don't exceed the allowed value range */
 	G_API_GENEVA void pruneVelocity(std::vector<double>&);
 
-	std::size_t nNeighborhoods_; ///< The number of neighborhoods in the population
-	std::size_t defaultNNeighborhoodMembers_; ///< The desired number of individuals belonging to each neighborhood
-	std::vector<std::size_t> nNeighborhoodMembers_; ///< The current number of individuals belonging to each neighborhood
+	std::size_t nNeighborhoods_ = (DEFAULTNNEIGHBORHOODS ? DEFAULTNNEIGHBORHOODS : 1); ///< The number of neighborhoods in the population
+	std::size_t defaultNNeighborhoodMembers_ = ((DEFAULTNNEIGHBORHOODMEMBERS <= 1) ? 2 : DEFAULTNNEIGHBORHOODMEMBERS); ///< The desired number of individuals belonging to each neighborhood
+	std::vector<std::size_t> nNeighborhoodMembers_ = std::vector<std::size_t>(nNeighborhoods_, 0); ///< The current number of individuals belonging to each neighborhood
 
 	std::shared_ptr<GParameterSet> global_best_; ///< The globally best individual
-	std::vector<std::shared_ptr<GParameterSet>> neighborhood_bests_; ///< The collection of best individuals from each neighborhood
-	std::vector<std::shared_ptr<GParameterSet>> velocities_; ///< Holds velocities, as calculated in the previous iteration
+	std::vector<std::shared_ptr<GParameterSet>> neighborhood_bests_ = std::vector<std::shared_ptr<GParameterSet>>(nNeighborhoods_); ///< The collection of best individuals from each neighborhood
+	std::vector<std::shared_ptr<GParameterSet>> velocities_ = std::vector<std::shared_ptr<GParameterSet>>(); ///< Holds velocities, as calculated in the previous iteration
 
-	double c_personal_; ///< A factor for multiplication of personal best distances
-	double c_neighborhood_; ///< A factor for multiplication of neighborhood best distances
-	double c_global_; ///< A factor for multiplication of global best distances
-	double c_velocity_; ///< A factor for multiplication of velocities
+	double c_personal_ = DEFAULTCPERSONAL; ///< A factor for multiplication of personal best distances
+	double c_neighborhood_ = DEFAULTCNEIGHBORHOOD; ///< A factor for multiplication of neighborhood best distances
+	double c_global_ = DEFAULTCGLOBAL; ///< A factor for multiplication of global best distances
+	double c_velocity_ = DEFAULTCVELOCITY; ///< A factor for multiplication of velocities
 
-	updateRule updateRule_; ///< Specifies how the parameters are updated
-	bool randomFillUp_; ///< Specifies whether neighborhoods are filled up with random values
+	updateRule updateRule_ = DEFAULTUPDATERULE; ///< Specifies how the parameters are updated
+	bool randomFillUp_ = true; ///< Specifies whether neighborhoods are filled up with random values
 
-	boost::uint32_t repulsionThreshold_; ///< The number of stalls until the swarm algorithm switches to repulsion instead of attraction
+	boost::uint32_t repulsionThreshold_ = DEFREPULSIONTHRESHOLD; ///< The number of stalls until the swarm algorithm switches to repulsion instead of attraction
 
-	std::vector<double> dblLowerParameterBoundaries_; ///< Holds lower boundaries of double parameters
-	std::vector<double> dblUpperParameterBoundaries_; ///< Holds upper boundaries of double parameters
-	std::vector<double> dblVelVecMax_; ///< Holds the maximum allowed values of double-type velocities
+	std::vector<double> dblLowerParameterBoundaries_ = std::vector<double>(); ///< Holds lower boundaries of double parameters
+	std::vector<double> dblUpperParameterBoundaries_ = std::vector<double>(); ///< Holds upper boundaries of double parameters
+	std::vector<double> dblVelVecMax_ = std::vector<double>(); ///< Holds the maximum allowed values of double-type velocities
 
-	double velocityRangePercentage_; ///< Indicates the percentage of a value range used for the initialization of the velocity
+	double velocityRangePercentage_ = DEFAULTVELOCITYRANGEPERCENTAGE; ///< Indicates the percentage of a value range used for the initialization of the velocity
 
 	/** Updates the personal best of an individual */
 	G_API_GENEVA void updatePersonalBest(std::shared_ptr<GParameterSet>);
@@ -406,12 +406,12 @@ public:
 		virtual G_API_GENEVA GObject* clone_() const override;
 
 	private:
-		boost::uint16_t xDim_; ///< The dimension of the canvas in x-direction
-		boost::uint16_t yDim_; ///< The dimension of the canvas in y-direction
+		boost::uint16_t xDim_ = DEFAULTXDIMOM; ///< The dimension of the canvas in x-direction
+		boost::uint16_t yDim_ = DEFAULTYDIMOM; ///< The dimension of the canvas in y-direction
 
-		std::string resultFile_; ///< The name of the file to which data is emitted
+		std::string resultFile_ = DEFAULTROOTRESULTFILEOM; ///< The name of the file to which data is emitted
 
-		std::shared_ptr<Gem::Common::GGraph2D> fitnessGraph_; ///< Holds the fitness data until plotted
+		std::shared_ptr<Gem::Common::GGraph2D> fitnessGraph_ = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D()); ///< Holds the fitness data until plotted
 
 	public:
 		/** @brief Applies modifications to this object. This is needed for testing purposes */

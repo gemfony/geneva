@@ -46,8 +46,9 @@ namespace Geneva {
  * The default constructor
  */
 GBrokerSwarm::GBrokerSwarm()
-	: GBaseSwarm(),
-	  Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(Gem::Courtier::INCOMPLETERETURN) { /* nothing */ }
+	: GBaseSwarm()
+	, Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(Gem::Courtier::INCOMPLETERETURN)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -58,10 +59,12 @@ GBrokerSwarm::GBrokerSwarm()
  * @param nNeighborhoodMembers The expected number of members inside of them
  */
 GBrokerSwarm::GBrokerSwarm(
-	const std::size_t &nNeighborhoods, const std::size_t &nNeighborhoodMembers
+	const std::size_t &nNeighborhoods
+	, const std::size_t &nNeighborhoodMembers
 )
-	: GBaseSwarm(nNeighborhoods, nNeighborhoodMembers),
-	  Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(Gem::Courtier::INCOMPLETERETURN) { /* nothing */ }
+	: GBaseSwarm(nNeighborhoods, nNeighborhoodMembers)
+	, Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(Gem::Courtier::INCOMPLETERETURN)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**

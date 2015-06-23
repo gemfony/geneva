@@ -44,31 +44,11 @@ G_API_GENEVA const std::string GBaseSwarm::nickname = "swarm";
 
 /******************************************************************************/
 /**
- * The default constructor.
+ * The default constructor. All work is delegated to another constructor.
  */
 GBaseSwarm::GBaseSwarm()
-	: GOptimizationAlgorithmT<GParameterSet>(), nNeighborhoods_(DEFAULTNNEIGHBORHOODS ? DEFAULTNNEIGHBORHOODS : 1),
-	  defaultNNeighborhoodMembers_((DEFAULTNNEIGHBORHOODMEMBERS <= 1) ? 2 : DEFAULTNNEIGHBORHOODMEMBERS),
-	  nNeighborhoodMembers_(nNeighborhoods_), neighborhood_bests_(nNeighborhoods_), c_personal_(DEFAULTCPERSONAL),
-	  c_neighborhood_(DEFAULTCNEIGHBORHOOD), c_global_(DEFAULTCGLOBAL), c_velocity_(DEFAULTCVELOCITY),
-	  updateRule_(DEFAULTUPDATERULE), randomFillUp_(true), repulsionThreshold_(DEFREPULSIONTHRESHOLD),
-	  dblLowerParameterBoundaries_(), dblUpperParameterBoundaries_(), dblVelVecMax_(),
-	  velocityRangePercentage_(DEFAULTVELOCITYRANGEPERCENTAGE) {
-	GOptimizationAlgorithmT<GParameterSet>::setDefaultPopulationSize(nNeighborhoods_ * defaultNNeighborhoodMembers_);
-
-	// Initialize the number of neighborhood members with 0. adjustPopulation() will later take care to fill the
-	// population with individuals as needed and set the array to the correct values.
-	for (std::size_t i = 0; i < nNeighborhoods_; i++) {
-		nNeighborhoodMembers_[i] = 0;
-	}
-
-	// Register the default optimization monitor. This can be overridden by the user.
-	this->registerOptimizationMonitor(
-		std::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
-			new GSwarmOptimizationMonitor()
-		)
-	);
-}
+	: GBaseSwarm(DEFAULTNNEIGHBORHOODS, DEFAULTNNEIGHBORHOODMEMBERS)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -78,21 +58,15 @@ GBaseSwarm::GBaseSwarm()
  * @param nNeighborhoods The desired number of neighborhoods (hardwired to >= 1)
  * @oaram nNeighborhoodMembers The default number of individuals in each neighborhood (hardwired to >= 2)
  */
-GBaseSwarm::GBaseSwarm(const std::size_t &nNeighborhoods, const std::size_t &nNeighborhoodMembers)
-	: GOptimizationAlgorithmT<GParameterSet>(), nNeighborhoods_(nNeighborhoods ? nNeighborhoods : 1),
-	  defaultNNeighborhoodMembers_((nNeighborhoodMembers <= 1) ? 2 : nNeighborhoodMembers),
-	  nNeighborhoodMembers_(nNeighborhoods_), neighborhood_bests_(nNeighborhoods_), c_personal_(DEFAULTCPERSONAL),
-	  c_neighborhood_(DEFAULTCNEIGHBORHOOD), c_global_(DEFAULTCGLOBAL), c_velocity_(DEFAULTCVELOCITY),
-	  updateRule_(DEFAULTUPDATERULE), randomFillUp_(true), repulsionThreshold_(DEFREPULSIONTHRESHOLD),
-	  dblLowerParameterBoundaries_(), dblUpperParameterBoundaries_(), dblVelVecMax_(),
-	  velocityRangePercentage_(DEFAULTVELOCITYRANGEPERCENTAGE) {
+GBaseSwarm::GBaseSwarm(
+	const std::size_t &nNeighborhoods
+	, const std::size_t &defaultNNeighborhoodMembers
+)
+	: GOptimizationAlgorithmT<GParameterSet>()
+	, nNeighborhoods_(nNeighborhoods ? nNeighborhoods : 1)
+	, defaultNNeighborhoodMembers_((defaultNNeighborhoodMembers <= 1) ? 2 : defaultNNeighborhoodMembers)
+{
 	GOptimizationAlgorithmT<GParameterSet>::setDefaultPopulationSize(nNeighborhoods_ * defaultNNeighborhoodMembers_);
-
-	// Initialize the number of neighborhood members with 0. adjustPopulation() will later take care to fill the
-	// population with individuals as needed and set the array to the correct values.
-	for (std::size_t i = 0; i < nNeighborhoods_; i++) {
-		nNeighborhoodMembers_[i] = 0;
-	}
 
 	// Register the default optimization monitor. This can be overridden by the user.
 	this->registerOptimizationMonitor(
@@ -109,16 +83,24 @@ GBaseSwarm::GBaseSwarm(const std::size_t &nNeighborhoods, const std::size_t &nNe
  * @param cp Another GBaseSwarm object
  */
 GBaseSwarm::GBaseSwarm(const GBaseSwarm &cp)
-	: GOptimizationAlgorithmT<GParameterSet>(cp), nNeighborhoods_(cp.nNeighborhoods_),
-	  defaultNNeighborhoodMembers_(cp.defaultNNeighborhoodMembers_), nNeighborhoodMembers_(cp.nNeighborhoodMembers_),
-	  global_best_(
-		  (cp.afterFirstIteration()) ? (cp.global_best_)->clone<GParameterSet>() : std::shared_ptr<GParameterSet>()),
-	  neighborhood_bests_(nNeighborhoods_) // We copy the smart pointers over later
-	, c_personal_(cp.c_personal_), c_neighborhood_(cp.c_neighborhood_), c_global_(cp.c_global_),
-	  c_velocity_(cp.c_velocity_), updateRule_(cp.updateRule_), randomFillUp_(cp.randomFillUp_),
-	  repulsionThreshold_(cp.repulsionThreshold_), dblLowerParameterBoundaries_(cp.dblLowerParameterBoundaries_),
-	  dblUpperParameterBoundaries_(cp.dblUpperParameterBoundaries_), dblVelVecMax_(cp.dblVelVecMax_),
-	  velocityRangePercentage_(cp.velocityRangePercentage_) {
+	: GOptimizationAlgorithmT<GParameterSet>(cp)
+	, nNeighborhoods_(cp.nNeighborhoods_),
+	  defaultNNeighborhoodMembers_(cp.defaultNNeighborhoodMembers_)
+	, nNeighborhoodMembers_(cp.nNeighborhoodMembers_)
+	, global_best_((cp.afterFirstIteration()) ? (cp.global_best_)->clone<GParameterSet>() : std::shared_ptr<GParameterSet>())
+	, neighborhood_bests_(nNeighborhoods_) // We copy the smart pointers over later
+	, c_personal_(cp.c_personal_)
+	, c_neighborhood_(cp.c_neighborhood_)
+	, c_global_(cp.c_global_)
+	, c_velocity_(cp.c_velocity_)
+	, updateRule_(cp.updateRule_)
+	, randomFillUp_(cp.randomFillUp_)
+	, repulsionThreshold_(cp.repulsionThreshold_)
+	, dblLowerParameterBoundaries_(cp.dblLowerParameterBoundaries_)
+	, dblUpperParameterBoundaries_(cp.dblUpperParameterBoundaries_)
+	, dblVelVecMax_(cp.dblVelVecMax_)
+	, velocityRangePercentage_(cp.velocityRangePercentage_)
+{
 	// Note that this setting might differ from nCPIndividuals, as it is not guaranteed
 	// that cp has, at the time of copying, all individuals present in each neighborhood.
 	// Differences might e.g. occur if not all individuals return from their remote
@@ -141,7 +123,8 @@ GBaseSwarm::GBaseSwarm(const GBaseSwarm &cp)
 /**
  * The standard destructor. Most work is done in the parent class.
  */
-GBaseSwarm::~GBaseSwarm() { /* nothing */ }
+GBaseSwarm::~GBaseSwarm()
+{ /* nothing */ }
 
 /***************************************************************************/
 /**
@@ -878,9 +861,12 @@ void GBaseSwarm::updatePositions() {
  * @param constants A boost::tuple holding the various constants needed for the position update
  */
 void GBaseSwarm::updateIndividualPositions(
-	const std::size_t &neighborhood, std::shared_ptr <GParameterSet> ind,
-	std::shared_ptr <GParameterSet> neighborhood_best, std::shared_ptr <GParameterSet> global_best,
-	std::shared_ptr <GParameterSet> velocity, boost::tuple<double, double, double, double> constants
+	const std::size_t &neighborhood
+	, std::shared_ptr <GParameterSet> ind
+	, std::shared_ptr <GParameterSet> neighborhood_best
+	, std::shared_ptr <GParameterSet> global_best
+	, std::shared_ptr <GParameterSet> velocity
+	, boost::tuple<double, double, double, double> constants
 ) {
 	// Extract the constants from the tuple
 	double cPersonal = boost::get<0>(constants);
@@ -1557,11 +1543,10 @@ void GBaseSwarm::specificTestsFailuresExpected_GUnitTests() {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor
+ * The default constructor. All initialization work is done in the class body.
  */
 GBaseSwarm::GSwarmOptimizationMonitor::GSwarmOptimizationMonitor()
-	: xDim_(DEFAULTXDIMOM), yDim_(DEFAULTYDIMOM), resultFile_(DEFAULTROOTRESULTFILEOM),
-	  fitnessGraph_(new Gem::Common::GGraph2D()) { /* nothing */ }
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -1569,9 +1554,14 @@ GBaseSwarm::GSwarmOptimizationMonitor::GSwarmOptimizationMonitor()
  *
  * @param cp A copy of another GSwarmOptimizationMonitor object
  */
-GBaseSwarm::GSwarmOptimizationMonitor::GSwarmOptimizationMonitor(const GBaseSwarm::GSwarmOptimizationMonitor &cp)
-	: GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT(cp), xDim_(cp.xDim_), yDim_(cp.yDim_),
-	  resultFile_(cp.resultFile_), fitnessGraph_(new Gem::Common::GGraph2D()) { /* nothing */ }
+GBaseSwarm::GSwarmOptimizationMonitor::GSwarmOptimizationMonitor(
+	const GBaseSwarm::GSwarmOptimizationMonitor &cp
+)
+	: GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT(cp)
+	, xDim_(cp.xDim_)
+	, yDim_(cp.yDim_)
+	, resultFile_(cp.resultFile_)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -1634,7 +1624,9 @@ bool GBaseSwarm::GSwarmOptimizationMonitor::operator!=(const GBaseSwarm::GSwarmO
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBaseSwarm::GSwarmOptimizationMonitor::compare(
-	const GObject &cp, const Gem::Common::expectation &e, const double &limit
+	const GObject &cp
+	, const Gem::Common::expectation &e
+	, const double &limit
 ) const {
 	using namespace Gem::Common;
 

@@ -296,7 +296,7 @@ private:
 	void clearAllParVec();
 
 	bool cycleLogicHalt_ = false; ///< Temporary flag used to specify that the optimization should be halted
-	bool scanRandomly_ true;   ///< Determines whether the algorithm should scan the parameter space randomly or on a grid
+	bool scanRandomly_ = true;   ///< Determines whether the algorithm should scan the parameter space randomly or on a grid
 	std::size_t nMonitorInds_ = DEFAULTNMONITORINDS; ///< The number of best individuals of the entire run to be kept
 
 	std::vector<std::shared_ptr<bScanPar>>      bVec_;     ///< Holds boolean parameters to be scanned

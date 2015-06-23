@@ -172,9 +172,9 @@ private:
 	/** @brief Updates the temperature (used for simulated annealing) */
 	void updateTemperature();
 
-	double t0_; ///< The start temperature, used in simulated annealing
-	double t_; ///< The current temperature, used in simulated annealing
-	double alpha_; ///< A constant used in the cooling schedule in simulated annealing
+	double t0_ = SA_T0; ///< The start temperature, used in simulated annealing
+	double t_ = t0_; ///< The current temperature, used in simulated annealing
+	double alpha_ = SA_ALPHA; ///< A constant used in the cooling schedule in simulated annealing
 
 public:
 	/***************************************************************************/
@@ -267,10 +267,10 @@ public:
 		virtual G_API_GENEVA GObject* clone_() const override;
 
 	private:
-		boost::uint16_t xDim_;     ///< The dimension of the canvas in x-direction
-		boost::uint16_t yDim_;     ///< The dimension of the canvas in y-direction
-		std::size_t nMonitorInds_; ///< The number if individuals that should be monitored
-		std::string resultFile_;     ///< The name of the file to which data is emitted
+		boost::uint16_t xDim_ = DEFAULTXDIMOM;     ///< The dimension of the canvas in x-direction
+		boost::uint16_t yDim_ = DEFAULTYDIMOM;     ///< The dimension of the canvas in y-direction
+		std::size_t nMonitorInds_ = 0; ///< The number if individuals that should be monitored
+		std::string resultFile_ = DEFAULTROOTRESULTFILEOM;     ///< The name of the file to which data is emitted
 
 		std::vector<std::shared_ptr<Gem::Common::GGraph2D>> fitnessGraphVec_;
 

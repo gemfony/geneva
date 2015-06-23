@@ -178,7 +178,7 @@ public:
 	virtual G_API_GENEVA bool operator!=(const GObject&) const;
 
 	/** @brief Emits a name for this class / object */
-	virtual G_API_GENEVA std::string name() const;
+	virtual G_API_GENEVA std::string name() const override;
 
 	/** @brief Writes a configuration file to disk */
 	G_API_GENEVA void writeConfigFile(const std::string&, const std::string&);

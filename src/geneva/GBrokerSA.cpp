@@ -41,11 +41,12 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The default constructor
+ * The default constructor. nThreads_ is initialized in the class body.
  */
 GBrokerSA::GBrokerSA()
-	: GBaseSA(), Gem::Courtier::GBrokerConnector2T<GParameterSet>(Gem::Courtier::INCOMPLETERETURN), nThreads_(
-	boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS))) { /* nothing */ }
+	: GBaseSA()
+	, Gem::Courtier::GBrokerConnector2T<GParameterSet>(Gem::Courtier::INCOMPLETERETURN)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -54,14 +55,18 @@ GBrokerSA::GBrokerSA()
  * @param cp A copy of another GBrokerSA object
  */
 GBrokerSA::GBrokerSA(const GBrokerSA &cp)
-	: GBaseSA(cp), Gem::Courtier::GBrokerConnector2T<GParameterSet>(cp), nThreads_(cp.nThreads_) { /* nothing */ }
+	: GBaseSA(cp)
+	, Gem::Courtier::GBrokerConnector2T<GParameterSet>(cp)
+	, nThreads_(cp.nThreads_)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor. We have no object-wide dynamically allocated data, hence
  * this function is empty.
  */
-GBrokerSA::~GBrokerSA() { /* nothing */}
+GBrokerSA::~GBrokerSA()
+{ /* nothing */}
 
 /******************************************************************************/
 /**

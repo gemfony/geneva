@@ -41,13 +41,12 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The default constructor
+ * The default constructor. nThreads is initialized in the class body
  */
 GBrokerEA::GBrokerEA()
-	: GBaseEA(), Gem::Courtier::GBrokerConnector2T<GParameterSet>(Gem::Courtier::INCOMPLETERETURN)
-	// , Gem::Courtier::GBrokerConnector2T<GParameterSet>(Gem::Courtier::EXPECTFULLRETURN)
-	, nThreads_(
-		boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS))) { /* nothing */ }
+	: GBaseEA()
+	, Gem::Courtier::GBrokerConnector2T<GParameterSet>(Gem::Courtier::INCOMPLETERETURN)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -56,7 +55,10 @@ GBrokerEA::GBrokerEA()
  * @param cp A copy of another GBrokerEA object
  */
 GBrokerEA::GBrokerEA(const GBrokerEA &cp)
-	: GBaseEA(cp), Gem::Courtier::GBrokerConnector2T<GParameterSet>(cp), nThreads_(cp.nThreads_) { /* nothing */ }
+	: GBaseEA(cp)
+	, Gem::Courtier::GBrokerConnector2T<GParameterSet>(cp)
+	, nThreads_(cp.nThreads_)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**

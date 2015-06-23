@@ -44,13 +44,11 @@ G_API_GENEVA const std::string GBaseSA::nickname = "sa";
 
 /******************************************************************************/
 /**
- * The default constructor, As we do not have any individuals yet, we set the population
- * size, and number of parents to 0. It is the philosophy of this class not
- * to provide constructors for each and every use case. Instead, you should set
- * vital parameters, such as the population size or the parent individuals by hand.
+ * The default constructor. All initialization work of member variable
+ * is done in the class body.
  */
-GBaseSA::GBaseSA()
-	: GParameterSetParChild(), t0_(SA_T0), t_(t0_), alpha_(SA_ALPHA) {
+GBaseSA::GBaseSA() : GParameterSetParChild()
+{
 	// Register the default optimization monitor
 	this->registerOptimizationMonitor(
 		std::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
@@ -71,7 +69,11 @@ GBaseSA::GBaseSA()
  * @param cp Another GBaseSA object
  */
 GBaseSA::GBaseSA(const GBaseSA &cp)
-	: GParameterSetParChild(cp), t0_(cp.t0_), t_(cp.t_), alpha_(cp.alpha_) {
+	: GParameterSetParChild(cp)
+	, t0_(cp.t0_)
+	, t_(cp.t_)
+	, alpha_(cp.alpha_)
+{
 	// Copying / setting of the optimization algorithm id is done by the parent class. The same
 	// applies to the copying of the optimization monitor.
 }
@@ -80,7 +82,8 @@ GBaseSA::GBaseSA(const GBaseSA &cp)
 /**
  * The standard destructor. All work is done in the parent class.
  */
-GBaseSA::~GBaseSA() { /* nothing */ }
+GBaseSA::~GBaseSA()
+{ /* nothing */ }
 
 /***************************************************************************/
 /**
@@ -154,7 +157,9 @@ void GBaseSA::load_(const GObject *cp) {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBaseSA::compare(
-	const GObject &cp, const Gem::Common::expectation &e, const double &limit
+	const GObject &cp
+	, const Gem::Common::expectation &e
+	, const double &limit
 ) const {
 	using namespace Gem::Common;
 
@@ -507,11 +512,11 @@ void GBaseSA::specificTestsFailuresExpected_GUnitTests() {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor
+ * The default constructor. All initialization work for member variables is
+ * done in the class body.
  */
 GBaseSA::GSAOptimizationMonitor::GSAOptimizationMonitor()
-	: xDim_(DEFAULTXDIMOM), yDim_(DEFAULTYDIMOM), nMonitorInds_(0),
-	  resultFile_(DEFAULTROOTRESULTFILEOM) { /* nothing */ }
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -519,15 +524,22 @@ GBaseSA::GSAOptimizationMonitor::GSAOptimizationMonitor()
  *
  * @param cp A copy of another GSAOptimizationMonitor object
  */
-GBaseSA::GSAOptimizationMonitor::GSAOptimizationMonitor(const GBaseSA::GSAOptimizationMonitor &cp)
-	: GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT(cp), xDim_(cp.xDim_), yDim_(cp.yDim_),
-	  nMonitorInds_(cp.nMonitorInds_), resultFile_(cp.resultFile_) { /* nothing */ }
+GBaseSA::GSAOptimizationMonitor::GSAOptimizationMonitor(
+	const GBaseSA::GSAOptimizationMonitor &cp
+)
+	: GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT(cp)
+	, xDim_(cp.xDim_)
+	, yDim_(cp.yDim_)
+	, nMonitorInds_(cp.nMonitorInds_)
+	, resultFile_(cp.resultFile_)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GBaseSA::GSAOptimizationMonitor::~GSAOptimizationMonitor() { /* nothing */ }
+GBaseSA::GSAOptimizationMonitor::~GSAOptimizationMonitor()
+{ /* nothing */ }
 
 /***************************************************************************/
 /**
@@ -584,7 +596,9 @@ bool GBaseSA::GSAOptimizationMonitor::operator!=(const GBaseSA::GSAOptimizationM
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBaseSA::GSAOptimizationMonitor::compare(
-	const GObject &cp, const Gem::Common::expectation &e, const double &limit
+	const GObject &cp
+	, const Gem::Common::expectation &e
+	, const double &limit
 ) const {
 	using namespace Gem::Common;
 
@@ -744,7 +758,10 @@ void GBaseSA::GSAOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GP
  * @param xDim The desired dimension of the canvas in x-direction
  * @param yDim The desired dimension of the canvas in y-direction
  */
-void GBaseSA::GSAOptimizationMonitor::setDims(const boost::uint16_t &xDim, const boost::uint16_t &yDim) {
+void GBaseSA::GSAOptimizationMonitor::setDims(
+	const boost::uint16_t &xDim
+	, const boost::uint16_t &yDim
+) {
 	xDim_ = xDim;
 	yDim_ = yDim;
 }
