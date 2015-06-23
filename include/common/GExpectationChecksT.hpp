@@ -179,14 +179,25 @@ G_API_COMMON std::ostream &operator<<(std::ostream &s, const GToken &g);
 template<typename T>
 struct identity {
 public:
+	/***************************************************************************/
 	/**
 	 * The standard constructor
 	 */
 	identity(
-		const T &x_var, const T &y_var, const std::string &x_name_var, const std::string &y_name_var, const double &l_var
+		const T &x_var
+		, const T &y_var
+		, const std::string &x_name_var
+		, const std::string &y_name_var
+		, const double &l_var
 	)
-		: x(x_var), y(y_var), x_name(x_name_var), y_name(y_name_var), limit(l_var) { /* nothing */ }
+		: x(x_var)
+		, y(y_var)
+		, x_name(x_name_var)
+		, y_name(y_name_var)
+		, limit(l_var)
+	{ /* nothing */ }
 
+	/***************************************************************************/
 	/**
 	 * Conversion operator. Needed for compare_base, so we do not need
 	 * to use macros for the implicit conversion
@@ -198,6 +209,7 @@ public:
 		return to<B>();
 	}
 
+	/***************************************************************************/
 	// The actual data
 	const T &x;
 	const T &y;
@@ -206,10 +218,14 @@ public:
 	const double limit;
 
 private:
+	/***************************************************************************/
 	/** @brief The default constructor -- intentionally private and undefined */
 	identity() = delete;
 
-	/** @brief Does the actual conversion, including a check that B is indeed a base of T */
+	/***************************************************************************/
+	/**
+	 * Does the actual conversion, including a check that B is indeed a base of T
+	 */
 	template<typename B>
 	identity<B> to(
 		typename std::enable_if<std::is_base_of<B, T>::value>::type *dummy = 0
@@ -224,6 +240,8 @@ private:
 	}
 };
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
  * Easy output of an identity object
@@ -966,7 +984,8 @@ void compare(
  */
 template<typename T>
 void compare_t(
-	const identity<T> &data, GToken &token
+	const identity<T> &data
+	, GToken &token
 ) {
 	try {
 		token.incrTestCounter();
@@ -997,7 +1016,7 @@ template<typename B>
 void compare_base(
 	const identity<B> &data
 	, GToken &token
-	, typename std::enable_if<Gem::Common::has_compare_member<B>::value>::type *dummy = 0
+	// , typename std::enable_if<Gem::Common::has_compare_member<B>::value>::type *dummy = 0
 ) {
 	try {
 		token.incrTestCounter();

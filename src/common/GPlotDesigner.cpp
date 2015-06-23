@@ -119,17 +119,9 @@ std::istream &operator>>(std::istream &i, Gem::Common::tddropt &tdo) {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor
+ * The default constructor. Data members are initialized in the class boddy.
  */
 GBasePlotter::GBasePlotter()
-	: drawingArguments_("")
-	, x_axis_label_("x")
-	, y_axis_label_("y")
-	, z_axis_label_("z")
-	, plot_label_("")
-	, dsMarker_("")
-	, secondaryPlotter_()
-	, id_(0)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -148,9 +140,12 @@ GBasePlotter::GBasePlotter(const GBasePlotter &cp)
    , secondaryPlotter_()
 	, id_(cp.id_)
 {
+	// Note: Explicit scope needed for name resolution of clone -- compare
+	// https://isocpp.org/wiki/faq/templates#nondependent-name-lookup-members
+
 	// Copy secondary plot data over
 	for(auto plotter: cp.secondaryPlotter_) {
-		secondaryPlotter_.push_back(plotter->clone());
+		secondaryPlotter_.push_back(plotter->GCommonInterfaceT<GBasePlotter>::clone());
 	}
 }
 
@@ -346,10 +341,44 @@ void GBasePlotter::setId(const std::size_t &id) {
 
 /******************************************************************************/
 /**
- * Retrieve a clone of this object
+ * Returns the name of this class
  */
-std::shared_ptr<GBasePlotter> GBasePlotter::clone() {
-	return std::shared_ptr<GBasePlotter>(this->clone_());
+std::string GBasePlotter::name() const {
+	return std::string("GBasePlotter");
+}
+
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ */
+void GBasePlotter::compare(
+	const GBasePlotter& cp
+	, const Gem::Common::expectation& e
+	, const double& limit
+) const {
+	using namespace Gem::Common;
+
+	// Check that we are dealing with a GOptimizationAlgorithmT<ind_type> reference independent of this object and convert the pointer
+	const GBasePlotter *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GBasePlotter>(cp, this);
+
+	GToken token("GBasePlotter", e);
+
+	// Compare our parent data ...
+	Gem::Common::compare_base<GCommonInterfaceT<GBasePlotter>>(IDENTITY(*this, *p_load), token);
+
+	// ... and then the local data
+	compare_t(IDENTITY(drawingArguments_, p_load->drawingArguments_), token);
+	compare_t(IDENTITY(x_axis_label_, p_load->x_axis_label_), token);
+	compare_t(IDENTITY(y_axis_label_, p_load->y_axis_label_), token);
+	compare_t(IDENTITY(z_axis_label_, p_load->z_axis_label_), token);
+	compare_t(IDENTITY(plot_label_, p_load->plot_label_), token);
+	compare_t(IDENTITY(dsMarker_, p_load->dsMarker_), token);
+	compare_t(IDENTITY(secondaryPlotter_, p_load->secondaryPlotter_), token);
+	compare_t(IDENTITY(id_, p_load->id_), token);
+
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/
@@ -374,7 +403,7 @@ void GBasePlotter::load_(const GBasePlotter* cp) {
 	// Clear our secondary plotters and load from cp
 	secondaryPlotter_.clear();
 	for(auto it: p_load->secondaryPlotter_) {
-		secondaryPlotter_.push_back(it->clone());
+		secondaryPlotter_.push_back(it->GCommonInterfaceT<GBasePlotter>::clone());
 	}
 }
 

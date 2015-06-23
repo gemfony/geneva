@@ -62,9 +62,9 @@ namespace Geneva {
  * that template arguments have the GObject and the GMutableI interfaces.
  */
 template <typename T>
-class GMutableSetT:
-	public GOptimizableEntity,
-	public Gem::Common::GStdPtrVectorInterfaceT<T, Gem::Geneva::GObject>
+class GMutableSetT
+	: public GOptimizableEntity
+	, public Gem::Common::GStdPtrVectorInterfaceT<T, Gem::Geneva::GObject>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;

@@ -83,6 +83,7 @@
 #include "common/GHelperFunctionsT.hpp"
 #include "common/GMathHelperFunctionsT.hpp"
 #include "common/GCommonEnums.hpp"
+#include "common/GCommonInterfaceT.hpp"
 
 namespace Gem {
 namespace Common {
@@ -126,7 +127,9 @@ class GPlotDesigner;
  * derive from this class. They can be added to a master canvas, which takes care
  * to plot them into sub-pads.
  */
-class GBasePlotter {
+class GBasePlotter
+	: public Gem::Common::GCommonInterfaceT<GBasePlotter>
+{
 	friend class GPlotDesigner;
 
 	///////////////////////////////////////////////////////////////////////
@@ -196,9 +199,15 @@ public:
 
 	/** @brief Retrieves a unique name for this plotter */
 	virtual G_API_COMMON std::string getPlotterName() const = 0;
+	/** @brief Returns the name of this class */
+	virtual G_API_COMMON std::string name() const override;
 
-	/** @brief Retrieve a clone of this object */
-	virtual G_API_COMMON std::shared_ptr <GBasePlotter> clone();
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual void compare(
+		const GBasePlotter& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 	/***************************************************************************/
 	/**
@@ -247,6 +256,12 @@ public:
 
 protected:
 	/***************************************************************************/
+	/** @brief Loads the data of another object */
+	virtual G_API_COMMON void load_(const GBasePlotter*);
+	/** @brief Creates a deep clone of this object */
+	virtual G_API_COMMON GBasePlotter* clone_() const = 0;
+
+	/***************************************************************************/
 	// Functions to be specified in derived classes
 
 	/** @brief Retrieve specific header settings for this plot */
@@ -268,21 +283,16 @@ protected:
 	/** @brief calculate a suffix from id and parent ids */
 	G_API_COMMON std::string suffix(bool, std::size_t) const;
 
-	/** @brief Loads the data of another object */
-	virtual G_API_COMMON void load_(const GBasePlotter*);
-	/** @brief Creates a deep clone of this object */
-	virtual G_API_COMMON GBasePlotter* clone_() const = 0;
-
 	/***************************************************************************/
 
-	std::string drawingArguments_; ///< Holds the drawing arguments for this plot
+	std::string drawingArguments_ = std::string(""); ///< Holds the drawing arguments for this plot
 
-	std::string x_axis_label_; ///< A label for the x-axis
-	std::string y_axis_label_; ///< A label for the y-axis
-	std::string z_axis_label_; ///< A label for the z-axis (if available)
+	std::string x_axis_label_ = std::string("x"); ///< A label for the x-axis
+	std::string y_axis_label_ = std::string("y"); ///< A label for the y-axis
+	std::string z_axis_label_ = std::string("z"); ///< A label for the z-axis (if available)
 
-	std::string plot_label_;   ///< A label to be assigned to the entire plot
-	std::string dsMarker_;     ///< A marker to make the origin of data structures clear in the output file
+	std::string plot_label_ = std::string("");   ///< A label to be assigned to the entire plot
+	std::string dsMarker_ = std::string("");     ///< A marker to make the origin of data structures clear in the output file
 
 private:
 	/***************************************************************************/
@@ -299,9 +309,9 @@ private:
 	/***************************************************************************/
 
 	/** @brief A list of plotters that should emit their data into the same canvas */
-	std::vector<std::shared_ptr < GBasePlotter>> secondaryPlotter_;
+	std::vector<std::shared_ptr<GBasePlotter>> secondaryPlotter_ = std::vector<std::shared_ptr<GBasePlotter>>();
 
-	std::size_t id_; ///< The id of this object
+	std::size_t id_ = 0; ///< The id of this object
 };
 
 /******************************************************************************/

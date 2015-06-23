@@ -109,7 +109,7 @@ typedef Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet> GOABase
  */
 class Go2
 	: public GMutableSetT<GParameterSet>
-		, public GOptimizableI
+	, public GOptimizableI
 {
 public:
 	/** @brief The default constructor */

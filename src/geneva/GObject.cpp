@@ -65,7 +65,7 @@ GObject::~GObject() { /* nothing */ }
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
+ * Checks for compliance with expectations with respect to another object
  * of the same type
  *
  * @param cp A constant reference to another GObject object
@@ -79,21 +79,18 @@ void GObject::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that cp isn't the same object as this one
-	Gem::Common::ptrDifferenceCheck(&cp, this);
+	// Check that we are dealing with a GObject reference independent of this object and convert the pointer
+	const GObject *p_load = Gem::Common::g_convert_and_compare<GObject, GObject>(cp, this);
 
-	// No parent classes to check...
+	GToken token("GObject", e);
 
-	// ... and no local data
+	// Compare our parent data ...
+	Gem::Common::compare_base<GCommonInterfaceT<GObject>>(IDENTITY(*this, *p_load), token);
 
-	// We consider two GObject instances to be always equal, as they
-	// do not have any local data and this is the base class. Hence
-	// we throw an expectation violation for the expectation CE_INEQUALITY.
-	if (CE_INEQUALITY == e) {
-		throw g_expectation_violation(
-			"In GObject: instance is empty and a base class, hence the expectation of inequality is always violated."
-		);
-	}
+	// ... no local data
+
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/

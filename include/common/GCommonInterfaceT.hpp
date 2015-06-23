@@ -68,6 +68,7 @@
 // Geneva header files go here
 #include "common/GCommonEnums.hpp" // For the serialization mode
 #include "common/GExceptions.hpp"
+#include "common/GExpectationChecksT.hpp"
 
 // aliases for ease of use
 namespace bf = boost::filesystem;
@@ -351,14 +352,60 @@ public:
 	}
 
 	/***************************************************************************/
-	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	/**
+	 * Checks for compliance with expectations with respect to another object
+	 * of type T. This purely virtual function ensures the well-formedness of the
+	 * compare hierarchy in derived classes.
+	 *
+	 * @param cp A constant reference to another object of the same type, camouflaged as a base object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
 	virtual void compare(
-		const T& // the other object
-		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
-		, const double& // the limit for allowed deviations of floating point types
+		const T& cp // the other object
+		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
+		, const double& limit // the limit for allowed deviations of floating point types
 	) const BASE = 0;
 
-	/** @brief Creates a clone of this object, storing it in a std::shared_ptr<T> */
+	/***************************************************************************/
+	/**
+	 * Checks for compliance with expectations with respect to another object
+	 * of the same type. This function does the real check. Without it we would get
+	 * an error about "no known conversion from GCommonInterfaceT<T> to T.
+	 *
+	 * @param cp A constant reference to another object of the same type, camouflaged as a base object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	void compare(
+		const GCommonInterfaceT<T>& cp // the other object
+		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
+		, const double& limit // the limit for allowed deviations of floating point types
+	) const {
+		using namespace Gem::Common;
+
+		// Check that cp isn't the same object as this one
+		Gem::Common::ptrDifferenceCheck(&cp, this);
+
+		// No parent classes to check...
+
+		// ... and no local data
+
+		// We consider two instances of this class to be always equal, as they
+		// do not have any local data and this is the base class. Hence
+		// we throw an expectation violation for the expectation CE_INEQUALITY.
+		if (CE_INEQUALITY == e) {
+			throw g_expectation_violation(
+				"In GCommonInterfaceT<T>: instance is empty and a base class, hence the expectation of inequality is always violated."
+			);
+		}
+	}
+
+
+	/***************************************************************************/
+	/**
+	 * Creates a clone of this object, storing it in a std::shared_ptr<T>
+	 */
 	std::shared_ptr<T> clone() const {
 		return std::shared_ptr<T>(clone_());
 	}
