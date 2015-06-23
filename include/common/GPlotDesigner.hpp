@@ -161,7 +161,12 @@ public:
 	virtual G_API_COMMON ~GBasePlotter();
 
 	/** @brief The assignment operator */
-	G_API_COMMON void operator=(const GBasePlotter &);
+	G_API_COMMON const GBasePlotter& operator=(const GBasePlotter &);
+
+	/** @brief Checks for equality with another GObject object */
+	G_API_COMMON bool operator==(const GBasePlotter&) const;
+	/** @brief Checks for inequality with another GObject object */
+	G_API_COMMON bool operator!=(const GBasePlotter&) const;
 
 	/** @brief Allows to set the drawing arguments for this plot */
 	G_API_COMMON void setDrawingArguments(std::string);

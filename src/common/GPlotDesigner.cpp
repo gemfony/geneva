@@ -160,14 +160,43 @@ GBasePlotter::~GBasePlotter()
 /**
  * The assignment operator
  */
-void GBasePlotter::operator=(const GBasePlotter &cp) {
-	drawingArguments_ = cp.drawingArguments_;
-	x_axis_label_ = cp.x_axis_label_;
-	y_axis_label_ = cp.y_axis_label_;
-	z_axis_label_ = cp.z_axis_label_;
-	plot_label_ = cp.plot_label_;
-	dsMarker_ = cp.dsMarker_;
-	id_ = cp.id_;
+const GBasePlotter& GBasePlotter::operator=(const GBasePlotter &cp) {
+	this->load_(&cp);
+	return *this;
+}
+
+/******************************************************************************/
+/**
+ * Checks for equality with another GBasePlotter object
+ *
+ * @param  cp A constant reference to another GBasePlotter object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GBasePlotter::operator==(const GBasePlotter &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
+}
+
+/******************************************************************************/
+/**
+ * Checks for inequality with another GBasePlotter object
+ *
+ * @param  cp A constant reference to another GBasePlotter object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GBasePlotter::operator!=(const GBasePlotter &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
