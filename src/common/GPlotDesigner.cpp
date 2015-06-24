@@ -880,14 +880,43 @@ GGraph2ED::~GGraph2ED() { /* nothing */ }
 /**
  * The assignment operator
  */
-const GGraph2ED &GGraph2ED::operator=(const GGraph2ED &cp) {
-	// Copy our parent class'es data
-	GDataCollector2ET<double, double>::operator=(cp);
-
-	// and then our own
-	pM_ = cp.pM_;
-
+const GGraph2ED& GGraph2ED::operator=(const GGraph2ED &cp) {
+	this->load_(&cp);
 	return *this;
+}
+
+/******************************************************************************/
+/**
+ * Checks for equality with another GGraph2ED object
+ *
+ * @param  cp A constant reference to another GGraph2ED object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GGraph2ED::operator==(const GGraph2ED &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
+}
+
+/******************************************************************************/
+/**
+ * Checks for inequality with another GGraph2ED object
+ *
+ * @param  cp A constant reference to another GGraph2ED object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GGraph2ED::operator!=(const GGraph2ED &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -916,6 +945,41 @@ graphPlotMode GGraph2ED::getPlotMode() const {
  */
 std::string GGraph2ED::getPlotterName() const {
 	return "GGraph2ED";
+}
+
+/******************************************************************************/
+/**
+ * Returns the name of this class
+ */
+std::string GGraph2ED::name() const {
+	return std::string("GGraph2ED");
+}
+
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ */
+void GGraph2ED::compare(
+	const GBasePlotter& cp
+	, const Gem::Common::expectation& e
+	, const double& limit
+) const {
+	using namespace Gem::Common;
+
+	// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
+	const GGraph2ED *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+	GToken token("GGraph2ED", e);
+
+	// Compare our parent data ...
+	Gem::Common::compare_base<GDataCollector2ET<double, double>>(IDENTITY(*this, *p_load), token);
+
+	// ... and then the local data
+	compare_t(IDENTITY(pM_, p_load->pM_), token);
+
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/

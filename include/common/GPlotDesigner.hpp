@@ -1013,7 +1013,7 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are dealing with a GDataCollector1T<x_type> reference independent of this object and convert the pointer
+		// Check that we are dealing with a GDataCollector2T<x_type, y_type> reference independent of this object and convert the pointer
 		const GDataCollector2T<x_type, y_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		GToken token("GDataCollector2T<x_type, y_type>", e);
@@ -1181,12 +1181,43 @@ public:
 	/**
 	 * The assignment operator
 	 */
-	void operator=(const GDataCollector2ET<x_type, y_type> &cp) {
-		// Assign our parent class'es data
-		GBasePlotter::operator=(cp);
+	const GDataCollector2ET<x_type, y_type>& operator=(const GDataCollector2ET<x_type, y_type> &cp) {
+		this->load_(&cp);
+		return *this;
+	}
 
-		// and then our own
-		data_ = cp.data_;
+	/***************************************************************************/
+	/**
+	 * Checks for equality with another GDataCollector2ET<x_type, y_type> object
+	 *
+	 * @param  cp A constant reference to another GDataCollector2ET<x_type, y_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GDataCollector2ET<x_type, y_type> &cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch (g_expectation_violation &) {
+			return false;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GDataCollector2ET<x_type, y_type> object
+	 *
+	 * @param  cp A constant reference to another GDataCollector2ET<x_type, y_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GDataCollector2ET<x_type, y_type> &cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch (g_expectation_violation &) {
+			return false;
+		}
 	}
 
 	/***************************************************************************/
@@ -1316,6 +1347,41 @@ public:
 				return boost::get<0>(x) < boost::get<0>(y);
 			}
 		);
+	}
+
+	/***************************************************************************/
+	/**
+	 * Returns the name of this class
+	 */
+	virtual std::string name() const override {
+		return std::string("GDataCollector2ET<x_type, y_type>");
+	}
+
+	/***************************************************************************/
+	/**
+	 * Investigates compliance with expectations with respect to another object
+	 * of the same type
+	 */
+	virtual void compare(
+		const GBasePlotter& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GDataCollector2ET<x_type, y_type> reference independent of this object and convert the pointer
+		const GDataCollector2ET<x_type, y_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		GToken token("GDataCollector2ET<x_type, y_type>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base<GBasePlotter>(IDENTITY(*this, *p_load), token);
+
+		// ... and then the local data
+		compare_t(IDENTITY(data_, p_load->data_), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
 	}
 
 protected:
@@ -1522,7 +1588,7 @@ public:
 
 	/** @brief Checks for equality with another GGraph2D object */
 	G_API_COMMON bool operator==(const GGraph2D&) const;
-	/** @brief Checks for inequality with another GHistogram1D object */
+	/** @brief Checks for inequality with another GGraph2D object */
 	G_API_COMMON bool operator!=(const GGraph2D&) const;
 
 	/** @brief Adds arrows to the plots between consecutive points */
@@ -1599,9 +1665,13 @@ public:
 
 	/** @brief The destructor */
 	virtual G_API_COMMON ~GGraph2ED();
-
 	/** @brief The assignment operator */
-	G_API_COMMON const GGraph2ED &operator=(const GGraph2ED &);
+	G_API_COMMON const GGraph2ED& operator=(const GGraph2ED &);
+
+	/** @brief Checks for equality with another GGraph2ED object */
+	G_API_COMMON bool operator==(const GGraph2ED&) const;
+	/** @brief Checks for inequality with another GGraph2ED object */
+	G_API_COMMON bool operator!=(const GGraph2ED&) const;
 
 	/** @brief Determines whether a scatter plot or a curve is created */
 	G_API_COMMON void setPlotMode(graphPlotMode);
@@ -1610,6 +1680,15 @@ public:
 
 	/** @brief Retrieves a unique name for this plotter */
 	G_API_COMMON virtual std::string getPlotterName() const;
+	/** @brief Returns the name of this class */
+	virtual G_API_COMMON std::string name() const override;
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual void compare(
+		const GBasePlotter& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
