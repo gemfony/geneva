@@ -115,6 +115,9 @@ const std::size_t DEFNSAMPLES = 100;
 
 const graphPlotMode DEFPLOTMODE = CURVE;
 
+const double DEFMINMARKERSIZE = 0.001;
+const double DEFMAXMARKERSIZE = 1.;
+
 // Easier access to the header-, body- and footer-data
 typedef boost::tuple<std::string, std::string, std::string> plotData;
 
@@ -1632,8 +1635,8 @@ protected:
 	virtual G_API_COMMON GBasePlotter* clone_() const override;
 
 private:
-	graphPlotMode pM_; ///< Whether to create scatter plots or a curve, connected by lines
-	bool drawArrows_; ///< When set to true, arrows will be drawn between consecutive points
+	graphPlotMode pM_ = DEFPLOTMODE; ///< Whether to create scatter plots or a curve, connected by lines
+	bool drawArrows_  = false; ///< When set to true, arrows will be drawn between consecutive points
 };
 
 /******************************************************************************/
@@ -1709,7 +1712,7 @@ protected:
 	virtual G_API_COMMON GBasePlotter* clone_() const override;
 
 private:
-	graphPlotMode pM_; ///< Whether to create scatter plots or a curve, connected by lines
+	graphPlotMode pM_ = DEFPLOTMODE; ///< Whether to create scatter plots or a curve, connected by lines
 };
 
 /******************************************************************************/
@@ -2217,7 +2220,7 @@ protected:
 	virtual G_API_COMMON GBasePlotter* clone_() const override;
 
 private:
-	bool drawLines_; ///< When set to true, lines will be drawn between consecutive points
+	bool drawLines_ = false; ///< When set to true, lines will be drawn between consecutive points
 };
 
 /******************************************************************************/
@@ -2819,12 +2822,12 @@ protected:
 	virtual G_API_COMMON GBasePlotter* clone_() const override;
 
 private:
-	double minMarkerSize_; ///< The minimum allowed size of the marker
-	double maxMarkerSize_; ///< The maximum allowed size of the marker
+	double minMarkerSize_ = DEFMINMARKERSIZE; ///< The minimum allowed size of the marker
+	double maxMarkerSize_ = DEFMAXMARKERSIZE; ///< The maximum allowed size of the marker
 
-	bool smallWLargeMarker_; ///< Indicates whether a small w value yields a large marker
+	bool smallWLargeMarker_ = true; ///< Indicates whether a small w value yields a large marker
 
-	std::size_t nBest_; ///< Determines the number of items the class should show
+	std::size_t nBest_ = 0; ///< Determines the number of items the class should show
 };
 
 /******************************************************************************/
@@ -2907,10 +2910,10 @@ protected:
 private:
 	GFunctionPlotter1D() = delete; ///< The default constructor
 
-	std::string functionDescription_;
+	std::string functionDescription_ = std::string();
 
-	boost::tuple<double, double> xExtremes_; ///< Minimum and maximum values for the x-axis
-	std::size_t nSamplesX_; ///< The number of sampling points of the function
+	boost::tuple<double, double> xExtremes_ = boost::tuple<double, double>(); ///< Minimum and maximum values for the x-axis
+	std::size_t nSamplesX_ = DEFNSAMPLES; ///< The number of sampling points of the function
 };
 
 /******************************************************************************/
@@ -2996,13 +2999,13 @@ protected:
 private:
 	GFunctionPlotter2D() = delete; ///< The default constructor -- intentionally private and undefined
 
-	std::string functionDescription_;
+	std::string functionDescription_ = std::string();
 
-	boost::tuple<double, double> xExtremes_; ///< Minimum and maximum values for the x-axis
-	boost::tuple<double, double> yExtremes_; ///< Minimum and maximum values for the y-axis
+	boost::tuple<double, double> xExtremes_ = boost::tuple<double, double>(); ///< Minimum and maximum values for the x-axis
+	boost::tuple<double, double> yExtremes_ = boost::tuple<double, double>(); ///< Minimum and maximum values for the y-axis
 
-	std::size_t nSamplesX_; ///< The number of sampling points of the function
-	std::size_t nSamplesY_; ///< The number of sampling points of the function
+	std::size_t nSamplesX_ = DEFNSAMPLES; ///< The number of sampling points of the function
+	std::size_t nSamplesY_ = DEFNSAMPLES; ///< The number of sampling points of the function
 };
 
 /******************************************************************************/
@@ -3010,7 +3013,9 @@ private:
  * A class that outputs a ROOT input file (compare http://root.cern.ch), based
  * on the data providers stored in it.
  */
-class GPlotDesigner {
+class GPlotDesigner
+	: public GCommonInterfaceT<GPlotDesigner>
+{
 public:
 	/** @brief The standard constructor */
 	G_API_COMMON GPlotDesigner(
@@ -3022,6 +3027,14 @@ public:
 	G_API_COMMON GPlotDesigner(const GPlotDesigner&);
 	/** @brief The destructor */
 	G_API_COMMON virtual ~GPlotDesigner();
+
+	/** @brief The assignment operator */
+	G_API_COMMON const GPlotDesigner& operator=(const GPlotDesigner &);
+
+	/** @brief Checks for equality with another GPlotDesigner object */
+	G_API_COMMON bool operator==(const GPlotDesigner&) const;
+	/** @brief Checks for inequality with another GPlotDesigner object */
+	G_API_COMMON bool operator!=(const GPlotDesigner&) const;
 
 	/* @brief Emits the overall plot */
 	G_API_COMMON std::string plot(const boost::filesystem::path & = boost::filesystem::path("empty")) const;
@@ -3051,12 +3064,27 @@ public:
 	/** @brief Resets the plotters */
 	G_API_COMMON void resetPlotters();
 
+	/** @brief Returns the name of this class */
+	virtual G_API_COMMON std::string name() const override;
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual void compare(
+		const GPlotDesigner& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
+
 private:
 	/** @brief The default constructor -- intentionally private and undefined */
 	GPlotDesigner() = delete;
 
 	/** @brief A header for static data in a ROOT file */
 	std::string staticHeader() const;
+
+	/** @brief Loads the data of another object */
+	virtual G_API_COMMON void load_(const GPlotDesigner*) override;
+	/** @brief Creates a deep clone of this object */
+	virtual G_API_COMMON GPlotDesigner* clone_() const override;
 
 	std::vector<std::shared_ptr<GBasePlotter>> plotters_ = std::vector<std::shared_ptr<GBasePlotter>>(); ///< A list of plots to be added to the diagram
 

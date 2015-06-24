@@ -429,11 +429,7 @@ void GBasePlotter::load_(const GBasePlotter* cp) {
 	dsMarker_         = p_load->dsMarker_;
 	id_               = p_load->id_;
 
-	// Clear our secondary plotters and load from cp
-	secondaryPlotter_.clear();
-	for(auto it: p_load->secondaryPlotter_) {
-		secondaryPlotter_.push_back(it->GCommonInterfaceT<GBasePlotter>::clone());
-	}
+	copyCloneableSmartPointerVector(p_load->secondaryPlotter_, secondaryPlotter_);
 }
 
 /******************************************************************************/
@@ -519,23 +515,27 @@ std::string GBasePlotter::footerData_() const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor
+ * The default constructor. Member variables are initialized in the class body.
  */
 GGraph2D::GGraph2D()
-	: pM_(DEFPLOTMODE), drawArrows_(false) { /* nothing */ }
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * A copy constructor
  */
 GGraph2D::GGraph2D(const GGraph2D &cp)
-	: GDataCollector2T<double, double>(cp), pM_(cp.pM_), drawArrows_(cp.drawArrows_) { /* nothing */ }
+	: GDataCollector2T<double, double>(cp)
+	, pM_(cp.pM_)
+	, drawArrows_(cp.drawArrows_)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GGraph2D::~GGraph2D() { /* nothing */ }
+GGraph2D::~GGraph2D()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -858,23 +858,26 @@ void GGraph2D::load_(const GBasePlotter* cp) {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor
+ * The default constructor. Data members are initialized in the class body.
  */
 GGraph2ED::GGraph2ED()
-	: pM_(DEFPLOTMODE) { /* nothing */ }
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * A copy constructor
  */
 GGraph2ED::GGraph2ED(const GGraph2ED &cp)
-	: GDataCollector2ET<double, double>(cp), pM_(cp.pM_) { /* nothing */ }
+	: GDataCollector2ET<double, double>(cp)
+	, pM_(cp.pM_)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GGraph2ED::~GGraph2ED() { /* nothing */ }
+GGraph2ED::~GGraph2ED()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -1155,23 +1158,26 @@ void GGraph2ED::load_(const GBasePlotter* cp) {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor
+ * The default constructor. Data members are initialized in the class body.
  */
 GGraph3D::GGraph3D()
-	: drawLines_(false) { /* nothing */ }
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * A copy constructor
  */
 GGraph3D::GGraph3D(const GGraph3D &cp)
-	: GDataCollector3T<double, double, double>(cp), drawLines_(cp.drawLines_) { /* nothing */ }
+	: GDataCollector3T<double, double, double>(cp)
+	, drawLines_(cp.drawLines_)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GGraph3D::~GGraph3D() { /* nothing */ }
+GGraph3D::~GGraph3D()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -1475,24 +1481,29 @@ void GGraph3D::load_(const GBasePlotter* cp) {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor
+ * The default constructor. Data members are initialized in the class body.
  */
 GGraph4D::GGraph4D()
-	: minMarkerSize_(0.001), maxMarkerSize_(1.), smallWLargeMarker_(true), nBest_(0) { /* nothing */ }
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * A copy constructor
  */
 GGraph4D::GGraph4D(const GGraph4D &cp)
-	: GDataCollector4T<double, double, double, double>(cp), minMarkerSize_(cp.minMarkerSize_),
-	  maxMarkerSize_(cp.maxMarkerSize_), smallWLargeMarker_(cp.smallWLargeMarker_), nBest_(cp.nBest_) { /* nothing */ }
+	: GDataCollector4T<double, double, double, double>(cp)
+	, minMarkerSize_(cp.minMarkerSize_)
+	, maxMarkerSize_(cp.maxMarkerSize_)
+	, smallWLargeMarker_(cp.smallWLargeMarker_)
+	, nBest_(cp.nBest_)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GGraph4D::~GGraph4D() { /* nothing */ }
+GGraph4D::~GGraph4D()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -1839,16 +1850,24 @@ void GGraph4D::load_(const GBasePlotter* cp) {
 GHistogram1D::GHistogram1D(
 	const std::size_t &nBinsX, const double &minX, const double &maxX
 )
-	: nBinsX_(nBinsX), minX_(minX), maxX_(maxX) { /* nothing */ }
+	: nBinsX_(nBinsX)
+	, minX_(minX)
+	, maxX_(maxX)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization with a range in the form of a tuple
  */
 GHistogram1D::GHistogram1D(
-	const std::size_t &nBinsX, const boost::tuple<double, double> &rangeX
+	const std::size_t &nBinsX
+	, const boost::tuple<double
+	, double> &rangeX
 )
-	: nBinsX_(nBinsX), minX_(boost::get<0>(rangeX)), maxX_(boost::get<1>(rangeX)) { /* nothing */ }
+	: nBinsX_(nBinsX)
+	, minX_(boost::get<0>(rangeX))
+	, maxX_(boost::get<1>(rangeX))
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -1857,13 +1876,18 @@ GHistogram1D::GHistogram1D(
  * @param cp a copy of another GHistogram1D object
  */
 GHistogram1D::GHistogram1D(const GHistogram1D &cp)
-	: GDataCollector1T<double>(cp), nBinsX_(cp.nBinsX_), minX_(cp.minX_), maxX_(cp.maxX_) { /* nothing */ }
+	: GDataCollector1T<double>(cp)
+	, nBinsX_(cp.nBinsX_)
+	, minX_(cp.minX_)
+	, maxX_(cp.maxX_)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GHistogram1D::~GHistogram1D() { /* nothing */ }
+GHistogram1D::~GHistogram1D()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -2121,19 +2145,29 @@ void GHistogram1D::load_(const GBasePlotter* cp) {
  * The standard constructor
  */
 GHistogram1I::GHistogram1I(
-	const std::size_t &nBinsX, const double &minX, const double &maxX
+	const std::size_t &nBinsX
+	, const double &minX
+	, const double &maxX
 )
-	: GDataCollector1T<boost::int32_t>(), nBinsX_(nBinsX), minX_(minX), maxX_(maxX) { /* nothing */ }
+	: GDataCollector1T<boost::int32_t>()
+	, nBinsX_(nBinsX)
+	, minX_(minX)
+	, maxX_(maxX)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization with a range in the form of a tuple
  */
 GHistogram1I::GHistogram1I(
-	const std::size_t &nBinsX, const boost::tuple<double, double> &rangeX
+	const std::size_t &nBinsX
+	, const boost::tuple<double, double> &rangeX
 )
-	: GDataCollector1T<boost::int32_t>(), nBinsX_(nBinsX), minX_(boost::get<0>(rangeX)),
-	  maxX_(boost::get<1>(rangeX)) { /* nothing */ }
+	: GDataCollector1T<boost::int32_t>()
+	, nBinsX_(nBinsX)
+	, minX_(boost::get<0>(rangeX))
+	, maxX_(boost::get<1>(rangeX))
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -2142,7 +2176,11 @@ GHistogram1I::GHistogram1I(
  * @param cp a copy of another GHistogram1I object
  */
 GHistogram1I::GHistogram1I(const GHistogram1I &cp)
-	: GDataCollector1T<boost::int32_t>(cp), nBinsX_(cp.nBinsX_), minX_(cp.minX_), maxX_(cp.maxX_) { /* nothing */ }
+	: GDataCollector1T<boost::int32_t>(cp)
+	, nBinsX_(cp.nBinsX_)
+	, minX_(cp.minX_)
+	, maxX_(cp.maxX_)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -2408,22 +2446,40 @@ void GHistogram1I::load_(const GBasePlotter* cp) {
  * The standard constructor
  */
 GHistogram2D::GHistogram2D(
-	const std::size_t &nBinsX, const std::size_t &nBinsY, const double &minX, const double &maxX, const double &minY,
-	const double &maxY
+	const std::size_t &nBinsX
+	, const std::size_t &nBinsY
+	, const double &minX
+	, const double &maxX
+	, const double &minY
+	, const double &maxY
 )
-	: nBinsX_(nBinsX), nBinsY_(nBinsY), minX_(minX), maxX_(maxX), minY_(minY), maxY_(maxY),
-	  dropt_(TDEMPTY) { /* nothing */ }
+	: nBinsX_(nBinsX)
+	, nBinsY_(nBinsY)
+	, minX_(minX)
+	, maxX_(maxX)
+	, minY_(minY)
+	, maxY_(maxY)
+	, dropt_(TDEMPTY)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization with ranges
  */
 GHistogram2D::GHistogram2D(
-	const std::size_t &nBinsX, const std::size_t &nBinsY, const boost::tuple<double, double> &rangeX,
-	const boost::tuple<double, double> &rangeY
+	const std::size_t &nBinsX
+	, const std::size_t &nBinsY
+	, const boost::tuple<double, double> &rangeX
+	, const boost::tuple<double, double> &rangeY
 )
-	: nBinsX_(nBinsX), nBinsY_(nBinsY), minX_(boost::get<0>(rangeX)), maxX_(boost::get<1>(rangeX)),
-	  minY_(boost::get<0>(rangeY)), maxY_(boost::get<1>(rangeY)), dropt_(TDEMPTY) { /* nothing */ }
+	: nBinsX_(nBinsX)
+	, nBinsY_(nBinsY)
+	, minX_(boost::get<0>(rangeX))
+	, maxX_(boost::get<1>(rangeX))
+	, minY_(boost::get<0>(rangeY))
+	, maxY_(boost::get<1>(rangeY))
+	, dropt_(TDEMPTY)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -2432,8 +2488,15 @@ GHistogram2D::GHistogram2D(
  * @param cp a copy of another GHistogram2D object
  */
 GHistogram2D::GHistogram2D(const GHistogram2D &cp)
-	: GDataCollector2T<double, double>(cp), nBinsX_(cp.nBinsX_), nBinsY_(cp.nBinsY_), minX_(cp.minX_), maxX_(cp.maxX_),
-	  minY_(cp.minY_), maxY_(cp.maxY_), dropt_(cp.dropt_) { /* nothing */ }
+	: GDataCollector2T<double, double>(cp)
+	, nBinsX_(cp.nBinsX_)
+	, nBinsY_(cp.nBinsY_)
+	, minX_(cp.minX_)
+	, maxX_(cp.maxX_)
+	, minY_(cp.minY_)
+	, maxY_(cp.maxY_)
+	, dropt_(cp.dropt_)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -2831,14 +2894,18 @@ void GHistogram2D::load_(const GBasePlotter* cp) {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The standard constructor
+ * The standard constructor. Some member variables may be initialized in the
+ * class body.
  *
  * @param fD A descriptor for the function to be plotted
  */
 GFunctionPlotter1D::GFunctionPlotter1D(
-	const std::string &fD, const boost::tuple<double, double> &xExtremes
+	const std::string &fD
+	, const boost::tuple<double, double> &xExtremes
 )
-	: functionDescription_(fD), xExtremes_(xExtremes), nSamplesX_(DEFNSAMPLES) { /* nothing */ }
+	: functionDescription_(fD)
+	, xExtremes_(xExtremes)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -2847,14 +2914,18 @@ GFunctionPlotter1D::GFunctionPlotter1D(
  * @param cp A reference to another GFunctionPlotter1D object
  */
 GFunctionPlotter1D::GFunctionPlotter1D(const GFunctionPlotter1D &cp)
-	: GBasePlotter(cp), functionDescription_(cp.functionDescription_), xExtremes_(cp.xExtremes_),
-	  nSamplesX_(cp.nSamplesX_) { /* nothing */ }
+	: GBasePlotter(cp)
+	, functionDescription_(cp.functionDescription_)
+	, xExtremes_(cp.xExtremes_)
+	, nSamplesX_(cp.nSamplesX_)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GFunctionPlotter1D::~GFunctionPlotter1D() { /* nothing */ }
+GFunctionPlotter1D::~GFunctionPlotter1D()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -3089,10 +3160,14 @@ void GFunctionPlotter1D::load_(const GBasePlotter* cp) {
  * @param fD A descriptor for the function to be plotted
  */
 GFunctionPlotter2D::GFunctionPlotter2D(
-	const std::string &fD, const boost::tuple<double, double> &xExtremes, const boost::tuple<double, double> &yExtremes
+	const std::string &fD
+	, const boost::tuple<double, double> &xExtremes
+	, const boost::tuple<double, double> &yExtremes
 )
-	: functionDescription_(fD), xExtremes_(xExtremes), yExtremes_(yExtremes), nSamplesX_(DEFNSAMPLES),
-	  nSamplesY_(DEFNSAMPLES) { /* nothing */ }
+	: functionDescription_(fD)
+	, xExtremes_(xExtremes)
+	, yExtremes_(yExtremes)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -3101,14 +3176,20 @@ GFunctionPlotter2D::GFunctionPlotter2D(
  * @param cp A reference to another GFunctionPlotter2D object
  */
 GFunctionPlotter2D::GFunctionPlotter2D(const GFunctionPlotter2D &cp)
-	: GBasePlotter(cp), functionDescription_(cp.functionDescription_), xExtremes_(cp.xExtremes_),
-	  yExtremes_(cp.yExtremes_), nSamplesX_(cp.nSamplesX_), nSamplesY_(cp.nSamplesY_) { /* nothing */ }
+	: GBasePlotter(cp)
+	, functionDescription_(cp.functionDescription_)
+	, xExtremes_(cp.xExtremes_)
+	, yExtremes_(cp.yExtremes_)
+	, nSamplesX_(cp.nSamplesX_)
+	, nSamplesY_(cp.nSamplesY_)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GFunctionPlotter2D::~GFunctionPlotter2D() { /* nothing */ }
+GFunctionPlotter2D::~GFunctionPlotter2D()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -3415,6 +3496,49 @@ GPlotDesigner::~GPlotDesigner()
 
 /******************************************************************************/
 /**
+ * The assignment operator
+ */
+const GPlotDesigner& GPlotDesigner::operator=(const GPlotDesigner &cp) {
+	this->load_(&cp);
+	return *this;
+}
+
+/******************************************************************************/
+/**
+ * Checks for equality with another GPlotDesigner object
+ *
+ * @param  cp A constant reference to another GPlotDesigner object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GPlotDesigner::operator==(const GPlotDesigner &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
+}
+
+/******************************************************************************/
+/**
+ * Checks for inequality with another GPlotDesigner object
+ *
+ * @param  cp A constant reference to another GPlotDesigner object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GPlotDesigner::operator!=(const GPlotDesigner &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
+}
+
+/******************************************************************************/
+/**
  * Writes the plot to a file
  *
  * @param fileName The name of the file to which the data can be written
@@ -3630,6 +3754,75 @@ bool GPlotDesigner::getAddPrintCommand() const {
  */
 void GPlotDesigner::resetPlotters() {
 	plotters_.clear();
+}
+
+/******************************************************************************/
+/**
+ * Returns the name of this class
+ */
+std::string GPlotDesigner::name() const {
+	return std::string("GPlotDesigner");
+}
+
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ */
+void GPlotDesigner::compare(
+	const GPlotDesigner& cp
+	, const Gem::Common::expectation& e
+	, const double& limit
+) const {
+	using namespace Gem::Common;
+
+	// Check that we are dealing with a GPlotDesigner reference independent of this object and convert the pointer
+	const GPlotDesigner *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+	GToken token("GPlotDesigner", e);
+
+	// Compare our parent data ...
+	Gem::Common::compare_base<GCommonInterfaceT<GPlotDesigner>>(IDENTITY(*this, *p_load), token);
+
+	// ... and then the local data
+	compare_t(IDENTITY(plotters_, p_load->plotters_), token);
+	compare_t(IDENTITY(c_x_div_, p_load->c_x_div_), token);
+	compare_t(IDENTITY(c_y_div_, p_load->c_y_div_), token);
+	compare_t(IDENTITY(c_x_dim_, p_load->c_x_dim_), token);
+	compare_t(IDENTITY(c_y_dim_, p_load->c_y_dim_), token);
+	compare_t(IDENTITY(canvasLabel_, p_load->canvasLabel_), token);
+	compare_t(IDENTITY(addPrintCommand_, p_load->addPrintCommand_), token);
+
+	// React on deviations from the expectation
+	token.evaluate();
+}
+
+/******************************************************************************/
+/**
+ * Creates a deep clone of this object
+ */
+GPlotDesigner* GPlotDesigner::clone_() const {
+	return new GPlotDesigner(*this);
+}
+
+/******************************************************************************/
+/**
+ * Loads the data of another object
+ */
+void GPlotDesigner::load_(const GPlotDesigner* cp) {
+	// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
+	const GPlotDesigner *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+	// No "loadable" parent class
+
+	// Load local data
+	copyCloneableSmartPointerVector(p_load->plotters_, plotters_);
+	c_x_div_           = p_load->c_x_div_;
+	c_y_div_           = p_load->c_y_div_;
+	c_x_dim_           = p_load->c_x_dim_;
+	c_y_dim_           = p_load->c_y_dim_;
+	canvasLabel_       = p_load->canvasLabel_;
+	addPrintCommand_   = p_load->addPrintCommand_;
 }
 
 /******************************************************************************/
