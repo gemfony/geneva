@@ -3113,21 +3113,44 @@ GFunctionPlotter2D::~GFunctionPlotter2D() { /* nothing */ }
 /******************************************************************************/
 /**
  * The assignment operator
- *
- * @param cp A reference to another GFunctionPlotter2D object
  */
-const GFunctionPlotter2D &GFunctionPlotter2D::operator=(const GFunctionPlotter2D &cp) {
-	// Copy our parent class'es data
-	GBasePlotter::operator=(cp);
-
-	// and then our local data
-	functionDescription_ = cp.functionDescription_;
-	xExtremes_ = cp.xExtremes_;
-	yExtremes_ = cp.yExtremes_;
-	nSamplesX_ = cp.nSamplesX_;
-	nSamplesY_ = cp.nSamplesY_;
-
+const GFunctionPlotter2D& GFunctionPlotter2D::operator=(const GFunctionPlotter2D &cp) {
+	this->load_(&cp);
 	return *this;
+}
+
+/******************************************************************************/
+/**
+ * Checks for equality with another GFunctionPlotter2D object
+ *
+ * @param  cp A constant reference to another GFunctionPlotter2D object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GFunctionPlotter2D::operator==(const GFunctionPlotter2D &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
+}
+
+/******************************************************************************/
+/**
+ * Checks for inequality with another GFunctionPlotter2D object
+ *
+ * @param  cp A constant reference to another GFunctionPlotter2D object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GFunctionPlotter2D::operator!=(const GFunctionPlotter2D &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -3157,6 +3180,46 @@ void GFunctionPlotter2D::setNSamplesY(std::size_t nSamplesY) {
 std::string GFunctionPlotter2D::getPlotterName() const {
 	return "GFunctionPlotter2D";
 }
+
+/******************************************************************************/
+/**
+ * Returns the name of this class
+ */
+std::string GFunctionPlotter2D::name() const {
+	return std::string("GFunctionPlotter2D");
+}
+
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ */
+void GFunctionPlotter2D::compare(
+	const GBasePlotter& cp
+	, const Gem::Common::expectation& e
+	, const double& limit
+) const {
+	using namespace Gem::Common;
+
+	// Check that we are dealing with a GGraph3D reference independent of this object and convert the pointer
+	const GFunctionPlotter2D *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+	GToken token("GFunctionPlotter2D", e);
+
+	// Compare our parent data ...
+	Gem::Common::compare_base<GBasePlotter>(IDENTITY(*this, *p_load), token);
+
+	// ... and then the local data
+	compare_t(IDENTITY(functionDescription_, p_load->functionDescription_), token);
+	compare_t(IDENTITY(xExtremes_, p_load->xExtremes_), token);
+	compare_t(IDENTITY(yExtremes_, p_load->yExtremes_), token);
+	compare_t(IDENTITY(nSamplesX_, p_load->nSamplesX_), token);
+	compare_t(IDENTITY(nSamplesY_, p_load->nSamplesY_), token);
+
+	// React on deviations from the expectation
+	token.evaluate();
+}
+
 
 /******************************************************************************/
 /**

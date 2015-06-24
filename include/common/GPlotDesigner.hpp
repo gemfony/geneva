@@ -2868,7 +2868,7 @@ public:
 
 	/** @brief Checks for equality with another GFunctionPlotter1D object */
 	G_API_COMMON bool operator==(const GFunctionPlotter1D&) const;
-	/** @brief Checks for inequality with another GGraph2D object */
+	/** @brief Checks for inequality with another GFunctionPlotter1D object */
 	G_API_COMMON bool operator!=(const GFunctionPlotter1D&) const;
 
 	/** @brief Allows to set the number of sampling points in x-direction */
@@ -2950,7 +2950,13 @@ public:
 	virtual G_API_COMMON ~GFunctionPlotter2D();
 
 	/** @brief The assignment operator */
-	G_API_COMMON const GFunctionPlotter2D &operator=(const GFunctionPlotter2D &);
+	G_API_COMMON const GFunctionPlotter2D& operator=(const GFunctionPlotter2D &);
+
+	/** @brief Checks for equality with another GFunctionPlotter2D object */
+	G_API_COMMON bool operator==(const GFunctionPlotter2D&) const;
+	/** @brief Checks for inequality with another GFunctionPlotter2D object */
+	G_API_COMMON bool operator!=(const GFunctionPlotter2D&) const;
+
 
 	/** @brief Allows to set the number of sampling points in x-direction */
 	G_API_COMMON void setNSamplesX(std::size_t);
@@ -2959,6 +2965,15 @@ public:
 
 	/** @brief Retrieves a unique name for this plotter */
 	G_API_COMMON virtual std::string getPlotterName() const;
+	/** @brief Returns the name of this class */
+	virtual G_API_COMMON std::string name() const override;
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual void compare(
+		const GBasePlotter& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
