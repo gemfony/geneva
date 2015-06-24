@@ -61,7 +61,7 @@ GSwarmPersonalityTraits::GSwarmPersonalityTraits(const GSwarmPersonalityTraits &
 	, personal_best_quality_(cp.personal_best_quality_)
 {
 	// Copy the personal_best_ vector over
-	copyGenevaSmartPointer(cp.personal_best_, personal_best_);
+	Gem::Common::copyCloneableSmartPointer(cp.personal_best_, personal_best_);
 	// Make sure we do not get a "chain" of individuals
 	if (personal_best_) {
 		personal_best_->resetPersonality();
@@ -232,7 +232,7 @@ void GSwarmPersonalityTraits::registerPersonalBest(std::shared_ptr < GParameterS
 #endif
 
 	// Copy the personal_best_ vector over and make sure we do not get a "chain" of individuals
-	copyGenevaSmartPointer(p, personal_best_);
+	Gem::Common::copyCloneableSmartPointer(p, personal_best_);
 	if (personal_best_) {
 		personal_best_->resetPersonality();
 	}
@@ -327,7 +327,7 @@ void GSwarmPersonalityTraits::load_(const GObject *cp) {
 	noPositionUpdate_ = p_load->noPositionUpdate_;
 
 	// Copy the personal_best_ vector over and make sure we do not get a "chain" of individuals
-	copyGenevaSmartPointer(p_load->personal_best_, personal_best_);
+	Gem::Common::copyCloneableSmartPointer(p_load->personal_best_, personal_best_);
 	if (personal_best_) {
 		personal_best_->resetPersonality();
 	}

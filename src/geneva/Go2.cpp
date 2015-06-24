@@ -226,8 +226,8 @@ Go2::Go2(const Go2 &cp)
 
 	//--------------------------------------------
 	// Copy the algorithms vectors over
-	copyGenevaSmartPointerVector(cp.cl_algorithms_, cl_algorithms_);
-	copyGenevaSmartPointerVector(cp.algorithms_, algorithms_);
+	Gem::Common::copyCloneableSmartPointerVector(cp.cl_algorithms_, cl_algorithms_);
+	Gem::Common::copyCloneableSmartPointerVector(cp.algorithms_, algorithms_);
 
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
@@ -236,7 +236,7 @@ Go2::Go2(const Go2 &cp)
 
 	//--------------------------------------------
 	// Copy the default algorithm over, if any
-	copyGenevaSmartPointer<GOABase>(cp.default_algorithm_, default_algorithm_);
+	Gem::Common::copyCloneableSmartPointer<GOABase>(cp.default_algorithm_, default_algorithm_);
 }
 
 /******************************************************************************/
@@ -456,11 +456,11 @@ void Go2::load_(const GObject *cp) {
 	sorted_ = p_load->sorted_;
 	iterationsConsumed_ = p_load->iterationsConsumed_;
 
-	copyGenevaSmartPointer<GOABase>(p_load->default_algorithm_, default_algorithm_);
+	Gem::Common::copyCloneableSmartPointer<GOABase>(p_load->default_algorithm_, default_algorithm_);
 
 	// Copy the algorithm vectors over
-	copyGenevaSmartPointerVector(p_load->algorithms_, algorithms_);
-	copyGenevaSmartPointerVector(p_load->cl_algorithms_, cl_algorithms_);
+	Gem::Common::copyCloneableSmartPointerVector(p_load->algorithms_, algorithms_);
+	Gem::Common::copyCloneableSmartPointerVector(p_load->cl_algorithms_, cl_algorithms_);
 
 	// Cross check other data has been added
 }

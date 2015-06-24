@@ -58,20 +58,34 @@
 
 
 // Geneva headers go here
-#include "common/GExpectationChecksT.hpp"
 
 namespace Gem {
 namespace Common {
 
-#ifndef _MSC_VER
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+// This simple class is used to simplify detection of classes that have the common
+// interface of Gemfony libraries.
+class gemfony_common_interface {};
+
+/**
+ * A type trait helping to check whether a class has the Gemfony Scientific library
+ * interface. The simple convention is that the base class of a hierarchy must
+ * (we recommend) privately inherit from common_gemfony_iterface .
+ */
+template<typename T>
+struct has_gemfony_common_interface {
+	enum {
+		value = std::is_base_of<gemfony_common_interface, T>::value
+	};
+};
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A type trait helping to check whether a class has a compare function. This is
- * used to distinguish compare functions that act on types through their own
- * compare() from compare-variants that act through operator==/!= .
+ * A type trait helping to check whether a class has a compare function.
  */
 template<typename T>
 class has_compare_member {
@@ -93,8 +107,52 @@ public:
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
+/**
+ * A type trait helping to check whether a class has a clone function.
+ */
+template<typename T>
+class has_clone_member {
+	typedef char yes;
+	typedef long no;
 
-#endif /* _MSC_VER */
+	template<typename C>
+	static yes test(decltype(&C::clone));
+
+	template<typename C>
+	static no test(...);
+
+public:
+	enum {
+		value = sizeof(test<T>(0)) == sizeof(char)
+	};
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * A type trait helping to check whether a class has a load function.
+ */
+template<typename T>
+class has_load_member {
+	typedef char yes;
+	typedef long no;
+
+	template<typename C>
+	static yes test(decltype(&C::load));
+
+	template<typename C>
+	static no test(...);
+
+public:
+	enum {
+		value = sizeof(test<T>(0)) == sizeof(char)
+	};
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

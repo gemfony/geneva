@@ -93,10 +93,10 @@ GOptimizableEntity::GOptimizableEntity(const GOptimizableEntity &cp)
 	  steepness_(cp.steepness_), barrier_(cp.barrier_), maxUnsuccessfulAdaptions_(cp.maxUnsuccessfulAdaptions_),
 	  maxRetriesUntilValid_(cp.maxRetriesUntilValid_), nAdaptions_(cp.nAdaptions_), evaluationID_(cp.evaluationID_) {
 	// Copy the personality pointer over
-	copyGenevaSmartPointer(cp.pt_ptr_, pt_ptr_);
+	Gem::Common::copyCloneableSmartPointer(cp.pt_ptr_, pt_ptr_);
 
 	// Make sure any constraints are copied over
-	copyGenevaSmartPointer(cp.individualConstraint_, individualConstraint_);
+	Gem::Common::copyCloneableSmartPointer(cp.individualConstraint_, individualConstraint_);
 }
 
 /******************************************************************************/
@@ -270,8 +270,8 @@ void GOptimizableEntity::load_(const GObject *cp) {
 	nAdaptions_ = p_load->nAdaptions_;
 	evaluationID_ = p_load->evaluationID_;
 
-	copyGenevaSmartPointer(p_load->pt_ptr_, pt_ptr_);
-	copyGenevaSmartPointer(p_load->individualConstraint_, individualConstraint_);
+	Gem::Common::copyCloneableSmartPointer(p_load->pt_ptr_, pt_ptr_);
+	Gem::Common::copyCloneableSmartPointer(p_load->individualConstraint_, individualConstraint_);
 }
 
 /******************************************************************************/

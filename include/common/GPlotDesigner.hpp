@@ -3010,13 +3010,18 @@ private:
  * A class that outputs a ROOT input file (compare http://root.cern.ch), based
  * on the data providers stored in it.
  */
-class GPlotDesigner
-	: boost::noncopyable {
+class GPlotDesigner {
 public:
 	/** @brief The standard constructor */
 	G_API_COMMON GPlotDesigner(
-		const std::string &, const std::size_t &, const std::size_t &
+		const std::string &
+		, const std::size_t &
+		, const std::size_t &
 	);
+	/** @brief The copy constructor */
+	G_API_COMMON GPlotDesigner(const GPlotDesigner&);
+	/** @brief The destructor */
+	G_API_COMMON virtual ~GPlotDesigner();
 
 	/* @brief Emits the overall plot */
 	G_API_COMMON std::string plot(const boost::filesystem::path & = boost::filesystem::path("empty")) const;
@@ -3053,15 +3058,14 @@ private:
 	/** @brief A header for static data in a ROOT file */
 	std::string staticHeader() const;
 
-	std::vector<std::shared_ptr < GBasePlotter>>
-	plotters_; ///< A list of plots to be added to the diagram
+	std::vector<std::shared_ptr<GBasePlotter>> plotters_ = std::vector<std::shared_ptr<GBasePlotter>>(); ///< A list of plots to be added to the diagram
 
-	std::size_t c_x_div_, c_y_div_; ///< The number of divisions in x- and y-direction
-	boost::uint32_t c_x_dim_, c_y_dim_; ///< Holds the number of pixels of the canvas
+	std::size_t c_x_div_ = 1, c_y_div_ = 1; ///< The number of divisions in x- and y-direction
+	boost::uint32_t c_x_dim_ = DEFCXDIM, c_y_dim_ = DEFCYDIM; ///< Holds the number of pixels of the canvas
 
-	std::string canvasLabel_; ///< A label to be assigned to the entire canvas
+	std::string canvasLabel_ = std::string("empty"); ///< A label to be assigned to the entire canvas
 
-	bool addPrintCommand_; ///< Indicates whether a print command for the creation of a png file should be added
+	bool addPrintCommand_ = false; ///< Indicates whether a print command for the creation of a png file should be added
 };
 
 /******************************************************************************/

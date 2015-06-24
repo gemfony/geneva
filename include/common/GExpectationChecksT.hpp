@@ -327,7 +327,7 @@ void compare(
 	, const Gem::Common::expectation &e
 	, const double &limit = 0.
 	, typename std::enable_if<!std::is_floating_point<basic_type>::value>::type *dummy1 = 0 // Note the negation!
-	, typename std::enable_if<!Gem::Common::has_compare_member<basic_type>::value>::type *dummy2 = 0 // Note the negation
+	, typename std::enable_if<!Gem::Common::has_gemfony_common_interface<basic_type>::value>::type *dummy2 = 0 // Note the negation
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -639,7 +639,7 @@ void compare (
 	, const std::string& y_name
 	, const Gem::Common::expectation& e
 	, const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
-	, typename std::enable_if<Gem::Common::has_compare_member<geneva_type>::value>::type *dummy = 0
+	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<geneva_type>::value>::type *dummy = 0
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -726,7 +726,7 @@ void compare (
 	, const std::string& y_name
 	, const Gem::Common::expectation& e
 	, const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
-	, typename std::enable_if<Gem::Common::has_compare_member<geneva_type>::value>::type *dummy = 0
+	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<geneva_type>::value>::type *dummy = 0
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -840,7 +840,7 @@ void compare (
 	, const std::string& y_name
 	, const Gem::Common::expectation& e
 	, const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
-	, typename std::enable_if<Gem::Common::has_compare_member<geneva_type>::value>::type *dummy = 0
+	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<geneva_type>::value>::type *dummy = 0
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -1016,7 +1016,7 @@ template<typename B>
 void compare_base(
 	const identity<B> &data
 	, GToken &token
-	, typename std::enable_if<Gem::Common::has_compare_member<B>::value>::type *dummy = 0
+	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<B>::value>::type *dummy = 0
 ) {
 	try {
 		token.incrTestCounter();

@@ -85,7 +85,13 @@ namespace Common {
  * in this class, as is the task of conversion to the derived types.
  */
 template <typename T>
-class GCommonInterfaceT {
+class GCommonInterfaceT
+	// This simplifies detection of classes that implement the Gemfony interface -- see GTypeTraits.hpp
+	// The problem here is that GCommonInterfaceT<T> is usually the base class of T and thus an incomplete
+	// type at the time type traits are applied. Hence we use another (trivial) base class that simplifies
+	// detection.
+	: private gemfony_common_interface
+{
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
@@ -477,22 +483,6 @@ protected:
 	virtual G_API_COMMON void load_(const T*) BASE = 0;
 	/** @brief Creates a deep clone of this object */
 	virtual G_API_COMMON T* clone_() const BASE = 0;
-};
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * Make sure GCommonInterfaceT<T> is recognized as a class holding a
- * compare function. This is arguably more of a hack, as has_compare_member
- * otherwise returns an incorrect value for GCommonInterfaceT<T>
- */
-template<typename T>
-class has_compare_member<GCommonInterfaceT<T>> {
-public:
-	enum {
-		value = true
-	};
 };
 
 /******************************************************************************/

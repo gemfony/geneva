@@ -62,6 +62,7 @@
 #include "common/GHelperFunctions.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
+#include "common/GTypeTraitsT.hpp"
 
 namespace Gem {
 namespace Common {
@@ -323,72 +324,111 @@ void copySmartPointer(
  */
 template<typename T>
 void copySmartPointerVector(
-	const std::vector<std::shared_ptr < T>>& from
-	, std::vector<std::shared_ptr < T>>& to
+	const std::vector<std::shared_ptr <T>>& from
+	, std::vector<std::shared_ptr <T>>& to
 ) {
-typename std::vector<std::shared_ptr < T>>
-::const_iterator it_from;
-typename std::vector<std::shared_ptr < T>>
-::iterator it_to;
+	typename std::vector<std::shared_ptr <T>>::const_iterator it_from;
+	typename std::vector<std::shared_ptr <T>>::iterator it_to;
 
-std::size_t size_from = from.size();
-std::size_t size_to = to.size();
+	std::size_t size_from = from.size();
+	std::size_t size_to = to.size();
 
-if(size_from==size_to) { // The most likely case
-for(
-it_from = from.begin(), it_to = to.begin();
-it_to!=to.
+	if(size_from==size_to) { // The most likely case
+		for(it_from = from.begin(), it_to = to.begin(); it_to!=to.end(); ++it_from, ++it_to) {
+			**it_to = **it_from; // Uses T::operator=()
+		}
+	} else if(size_from > size_to) {
+		// First copy the data of the first size_to items
+		for(it_from = from.begin(), it_to = to.begin(); it_to!=to.end(); ++it_from, ++it_to) {
+			**it_to = **it_from;
+		}
 
-end();
+		// Then attach copies of the remaining items
+		for(it_from = from.begin() + size_to; it_from!=from.end(); ++it_from) {
+			std::shared_ptr <T> p(new T(**it_from));
+			to.push_back(p);
+		}
+	} else if(size_from<size_to) {
+		// First copy the initial size_foreight items over
+		for(it_from = from.begin(), it_to = to.begin(); it_from!=from.end(); ++it_from, ++it_to) {
+			**it_to = **it_from;
+		}
 
-++it_from, ++it_to) {
-**
-it_to = **it_from; // Uses T::operator=()
-}
-}
-else if(size_from > size_to) {
-// First copy the data of the first size_to items
-for(
-it_from = from.begin(), it_to = to.begin();
-it_to!=to.
-
-end();
-
-++it_from, ++it_to) {
-**
-it_to = **it_from;
-}
-
-// Then attach copies of the remaining items
-for(
-it_from = from.begin() + size_to;
-it_from!=from.
-
-end();
-
-++it_from) {
-std::shared_ptr <T> p(new T(**it_from));
-to.
-push_back(p);
-}
-}
-else if(size_from<size_to) {
-// First copy the initial size_foreight items over
-for(
-it_from = from.begin(), it_to = to.begin();
-it_from!=from.
-
-end();
-
-++it_from, ++it_to) {
-**
-it_to = **it_from;
+		// Then resize the local vector. Surplus items will vanish
+		to.resize(size_from);
+	}
 }
 
-// Then resize the local vector. Surplus items will vanish
-to.
-resize(size_from);
+/******************************************************************************/
+/**
+ * This function takes two smart pointers to cloneable objects and copies their contents (if any)
+ * with the load / clone functions. std::enable_if makes sure that this function can only be called
+ * if the object pointed to has a clone and load function
+ *
+ * @param from The source smart pointer
+ * @param to The target smart pointer
+ */
+template <typename T>
+void copyCloneableSmartPointer (
+	const std::shared_ptr<T>& from
+	, std::shared_ptr<T>& to
+	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<T>::value>::type* dummy = 0
+) {
+	// Make sure to is empty when from is empty
+	if(!from) {
+		to.reset();
+	} else {
+		if(!to) {
+			to = from->T::template clone<T>();
+		} else {
+			to->T::load(from);
+		}
+	}
 }
+
+/******************************************************************************/
+/**
+ * This function copies a vector of smart pointers to cloneable objects to another vector.
+ * It assumes the availability of a load- and clone-call.
+ *
+ * @param from The vector used as the source of the copying
+ * @param to The vector used as the target of the copying
+ */
+template <typename T>
+void copyCloneableSmartPointerVector(
+	const std::vector<std::shared_ptr<T>>& from
+	, std::vector<std::shared_ptr<T>>& to
+	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<T>::value>::type* dummy = 0
+) {
+	typename std::vector<std::shared_ptr<T>>::const_iterator it_from;
+	typename std::vector<std::shared_ptr<T>>::iterator it_to;
+
+	std::size_t size_from = from.size();
+	std::size_t size_to = to.size();
+
+	if(size_from==size_to) { // The most likely case
+		for(it_from=from.begin(), it_to=to.begin(); it_from!=from.end(); ++it_from, ++it_to) {
+			copyCloneableSmartPointer(*it_from, *it_to);
+		}
+	} else if(size_from > size_to) {
+		// First copy the data of the first size_to items
+		for(it_from=from.begin(), it_to=to.begin(); it_to!=to.end(); ++it_from, ++it_to) {
+			copyCloneableSmartPointer(*it_from, *it_to);
+		}
+
+		// Then attach copies of the remaining items
+		for(it_from=from.begin()+size_to; it_from!=from.end(); ++it_from) {
+			to.push_back((*it_from)->T::template clone<T>());
+		}
+	} else if(size_from < size_to) {
+		// First copy the initial size_for items over
+		for(it_from=from.begin(), it_to=to.begin(); it_from!=from.end(); ++it_from, ++it_to) {
+			copyCloneableSmartPointer(*it_from, *it_to);
+		}
+
+		// Then resize the local vector. Surplus items will vanish
+		to.resize(size_from);
+	}
 }
 
 /******************************************************************************/

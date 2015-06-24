@@ -3373,17 +3373,45 @@ void GFunctionPlotter2D::load_(const GBasePlotter* cp) {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The standard constructor
+ * The standard constructor. Note that some variables are initialized in the
+ * class body.
  *
  * @param The label of the canvas
  * @param c_x_div The number of plots in x-direction
  * @param c_y_div The number of plots in y-direction
  */
 GPlotDesigner::GPlotDesigner(
-	const std::string &canvasLabel, const std::size_t &c_x_div, const std::size_t &c_y_div
+	const std::string &canvasLabel
+	, const std::size_t &c_x_div
+	, const std::size_t &c_y_div
 )
-	: c_x_div_(c_x_div), c_y_div_(c_y_div), c_x_dim_(DEFCXDIM), c_y_dim_(DEFCYDIM), canvasLabel_(canvasLabel),
-	  addPrintCommand_(false) { /* nothing */ }
+	: c_x_div_(c_x_div)
+	, c_y_div_(c_y_div)
+	, canvasLabel_(canvasLabel)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The copy constructor
+ */
+GPlotDesigner::GPlotDesigner(const GPlotDesigner& cp)
+	: c_x_div_(cp.c_x_div_)
+	, c_y_div_(cp.c_y_div_)
+	, c_x_dim_(cp.c_x_dim_)
+	, c_y_dim_(cp.c_y_dim_)
+	, canvasLabel_(cp.canvasLabel_)
+	, addPrintCommand_(cp.addPrintCommand_)
+{
+	// Copy any secondary plotters over
+	Gem::Common::copyCloneableSmartPointerVector<GBasePlotter>(cp.plotters_, plotters_);
+}
+
+/******************************************************************************/
+/**
+ * The destructor
+ */
+GPlotDesigner::~GPlotDesigner()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
