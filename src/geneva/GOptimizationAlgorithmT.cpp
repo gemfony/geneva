@@ -38,8 +38,7 @@
 
 /******************************************************************************/
 
-BOOST_CLASS_EXPORT_IMPLEMENT(
-	Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GOptimizableEntity>::GOptimizationMonitorT)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GOptimizableEntity>::GOptimizationMonitorT)
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::GOptimizationMonitorT)
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>)
 

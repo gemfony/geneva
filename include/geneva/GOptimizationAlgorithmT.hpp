@@ -1858,17 +1858,18 @@ public:
 	public:
 		/***************************************************************************/
 		/**
-		 * The default constructpr
+		 * The default constructor. Some member variables may be initialized in the class body.
 		 */
 		GBasePluggableOMT()
-			: useRawEvaluation_(false)
 		{ /* nothing */ }
 
 		/***************************************************************************/
 		/**
 		 * The copy constructor
 		 */
-		GBasePluggableOMT(const typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT& cp)
+		GBasePluggableOMT(
+			const typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT& cp
+		)
 			: useRawEvaluation_(cp.useRawEvaluation_)
 		{ /* nothing */ }
 
@@ -1993,7 +1994,7 @@ public:
 		virtual GObject* clone_() const override = 0;
 
 		/***************************************************************************/
-		bool useRawEvaluation_; ///< Specifies whether the true (unmodified) evaluation should be used
+		bool useRawEvaluation_ = false; ///< Specifies whether the true (unmodified) evaluation should be used
 
 	public:
 		/************************************************************************/

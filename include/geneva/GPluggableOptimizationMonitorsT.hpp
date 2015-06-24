@@ -67,7 +67,6 @@ namespace Geneva {
  * according to the API of GOptimizationAlgorithmT<>::GBasePluggableOMT
  */
 
-
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
@@ -247,12 +246,7 @@ protected:
 		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
 
 		// ... and then our local data
-
-		// TODO: Compare local pluggable OM
-
-		// Note: we do not load the pluggable information function, as it is
-		// meant as a short-term medium for information retrieval and may be
-		// an object specific to a given optimization monitor object
+		Gem::Common::copyCloneableSmartPointerVector(p_load->pluggable_monitors_, pluggable_monitors_);
 	}
 
 	/************************************************************************/
@@ -289,6 +283,7 @@ class GProgressPlotterT
 
 		ar
 			& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(*this))
+			& BOOST_SERIALIZATION_NVP(gpd_oa_)
 			& BOOST_SERIALIZATION_NVP(fileName_)
 			& BOOST_SERIALIZATION_NVP(canvasDimensions_)
 		   & BOOST_SERIALIZATION_NVP(monitorBestOnly_)
@@ -307,7 +302,8 @@ class GProgressPlotterT
 public:
 	/***************************************************************************/
 	/**
-	 * The default constructor
+	 * The default constructor. Some member variables may be initialized
+	 * in the class body.
 	 */
 	GProgressPlotterT()
 		: gpd_oa_("Progress information", 1, 1)

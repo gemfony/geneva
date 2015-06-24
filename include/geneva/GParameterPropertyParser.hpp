@@ -245,8 +245,14 @@ public:
 	 * supported types instead.
 	 */
 	template <typename par_type>
-	boost::tuple<typename std::vector<parPropSpec<par_type>>::const_iterator, typename std::vector<parPropSpec<par_type>>::const_iterator> getIterators() const {
-		boost::tuple<typename std::vector<parPropSpec<par_type>>::const_iterator, typename std::vector<parPropSpec<par_type>>::const_iterator> result;
+	boost::tuple<
+		typename std::vector<parPropSpec<par_type>>::const_iterator
+		, typename std::vector<parPropSpec<par_type>>::const_iterator
+	> getIterators() const {
+		boost::tuple<
+			typename std::vector<parPropSpec<par_type>>::const_iterator
+			, typename std::vector<parPropSpec<par_type>>::const_iterator
+		> result;
 
 		glogger
 		<< "In generic GParameterPropertyParser::getIterators<par_type>() function: Error!" << std::endl
@@ -277,7 +283,7 @@ private:
 	std::string raw_; ///< Holds the "raw" parameter description
 	bool parsed_;     ///< Indicates whether the raw_ string has already been parsed
 
-	std::vector<simpleScanSpec>               sSpecVec; ///< Holds parameter specifications for simple scans
+	std::vector<simpleScanSpec>              sSpecVec; ///< Holds parameter specifications for simple scans
 	std::vector<parPropSpec<double>>         dSpecVec; ///< Holds parameter specifications for double values
 	std::vector<parPropSpec<float>>          fSpecVec; ///< Holds parameter specifications for float values
 	std::vector<parPropSpec<boost::int32_t>> iSpecVec; ///< Holds parameter specifications for integer values
