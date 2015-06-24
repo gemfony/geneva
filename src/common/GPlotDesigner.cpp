@@ -1216,7 +1216,6 @@ bool GGraph3D::operator!=(const GGraph3D &cp) const {
 	}
 }
 
-
 /******************************************************************************/
 /**
  * Adds lines to the plots between consecutive points.
@@ -1499,17 +1498,43 @@ GGraph4D::~GGraph4D() { /* nothing */ }
 /**
  * The assignment operator
  */
-const GGraph4D &GGraph4D::operator=(const GGraph4D &cp) {
-	// Copy our parent class'es data
-	GDataCollector4T<double, double, double, double>::operator=(cp);
-
-	// copy local data
-	minMarkerSize_ = cp.minMarkerSize_;
-	maxMarkerSize_ = cp.maxMarkerSize_;
-	smallWLargeMarker_ = cp.smallWLargeMarker_;
-	nBest_ = cp.nBest_;
-
+const GGraph4D& GGraph4D::operator=(const GGraph4D &cp) {
+	this->load_(&cp);
 	return *this;
+}
+
+/******************************************************************************/
+/**
+ * Checks for equality with another GGraph4D object
+ *
+ * @param  cp A constant reference to another GGraph4D object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GGraph4D::operator==(const GGraph4D &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
+}
+
+/******************************************************************************/
+/**
+ * Checks for inequality with another GGraph4D object
+ *
+ * @param  cp A constant reference to another GGraph4D object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GGraph4D::operator!=(const GGraph4D &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -1599,6 +1624,45 @@ std::size_t GGraph4D::getNBest() const {
 std::string GGraph4D::getPlotterName() const {
 	return "GGraph4D";
 }
+
+/******************************************************************************/
+/**
+ * Returns the name of this class
+ */
+std::string GGraph4D::name() const {
+	return std::string("GGraph4D");
+}
+
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ */
+void GGraph4D::compare(
+	const GBasePlotter& cp
+	, const Gem::Common::expectation& e
+	, const double& limit
+) const {
+	using namespace Gem::Common;
+
+	// Check that we are dealing with a GGraph3D reference independent of this object and convert the pointer
+	const GGraph4D *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+	GToken token("GGraph4D", e);
+
+	// Compare our parent data ...
+	Gem::Common::compare_base<GDataCollector4T<double, double, double, double>>(IDENTITY(*this, *p_load), token);
+
+	// ... and then the local data
+	compare_t(IDENTITY(minMarkerSize_, p_load->minMarkerSize_), token);
+	compare_t(IDENTITY(maxMarkerSize_, p_load->maxMarkerSize_), token);
+	compare_t(IDENTITY(smallWLargeMarker_, p_load->smallWLargeMarker_), token);
+	compare_t(IDENTITY(nBest_, p_load->nBest_), token);
+
+	// React on deviations from the expectation
+	token.evaluate();
+}
+
 
 /******************************************************************************/
 /**
@@ -2795,19 +2859,44 @@ GFunctionPlotter1D::~GFunctionPlotter1D() { /* nothing */ }
 /******************************************************************************/
 /**
  * The assignment operator
- *
- * @param cp A reference to another GFunctionPlotter1D object
  */
-const GFunctionPlotter1D &GFunctionPlotter1D::operator=(const GFunctionPlotter1D &cp) {
-	// Copy our parent class'es data
-	GBasePlotter::operator=(cp);
-
-	// and then our local data
-	functionDescription_ = cp.functionDescription_;
-	xExtremes_ = cp.xExtremes_;
-	nSamplesX_ = cp.nSamplesX_;
-
+const GFunctionPlotter1D& GFunctionPlotter1D::operator=(const GFunctionPlotter1D &cp) {
+	this->load_(&cp);
 	return *this;
+}
+
+/******************************************************************************/
+/**
+ * Checks for equality with another GFunctionPlotter1D object
+ *
+ * @param  cp A constant reference to another GFunctionPlotter1D object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GFunctionPlotter1D::operator==(const GFunctionPlotter1D &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
+}
+
+/******************************************************************************/
+/**
+ * Checks for inequality with another GFunctionPlotter1D object
+ *
+ * @param  cp A constant reference to another GFunctionPlotter1D object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GFunctionPlotter1D::operator!=(const GFunctionPlotter1D &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -2826,6 +2915,43 @@ void GFunctionPlotter1D::setNSamplesX(std::size_t nSamplesX) {
  */
 std::string GFunctionPlotter1D::getPlotterName() const {
 	return "GFunctionPlotter1D";
+}
+
+/******************************************************************************/
+/**
+ * Returns the name of this class
+ */
+std::string GFunctionPlotter1D::name() const {
+	return std::string("GFunctionPlotter1D");
+}
+
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ */
+void GFunctionPlotter1D::compare(
+	const GBasePlotter& cp
+	, const Gem::Common::expectation& e
+	, const double& limit
+) const {
+	using namespace Gem::Common;
+
+	// Check that we are dealing with a GGraph3D reference independent of this object and convert the pointer
+	const GFunctionPlotter1D *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+	GToken token("GFunctionPlotter1D", e);
+
+	// Compare our parent data ...
+	Gem::Common::compare_base<GBasePlotter>(IDENTITY(*this, *p_load), token);
+
+	// ... and then the local data
+	compare_t(IDENTITY(functionDescription_, p_load->functionDescription_), token);
+	compare_t(IDENTITY(xExtremes_, p_load->xExtremes_), token);
+	compare_t(IDENTITY(nSamplesX_, p_load->nSamplesX_), token);
+
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/

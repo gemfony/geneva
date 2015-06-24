@@ -2761,7 +2761,12 @@ public:
 	virtual G_API_COMMON ~GGraph4D();
 
 	/** @brief The assignment operator */
-	G_API_COMMON const GGraph4D &operator=(const GGraph4D &);
+	G_API_COMMON const GGraph4D& operator=(const GGraph4D &);
+
+	/** @brief Checks for equality with another GGraph4D object */
+	G_API_COMMON bool operator==(const GGraph4D&) const;
+	/** @brief Checks for inequality with another GGraph2D object */
+	G_API_COMMON bool operator!=(const GGraph4D&) const;
 
 	/** @brief Allows to set the minimum marker size */
 	G_API_COMMON void setMinMarkerSize(const double &);
@@ -2785,6 +2790,15 @@ public:
 
 	/** @brief Retrieves a unique name for this plotter */
 	G_API_COMMON virtual std::string getPlotterName() const;
+	/** @brief Returns the name of this class */
+	virtual G_API_COMMON std::string name() const override;
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual void compare(
+		const GBasePlotter& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
@@ -2808,7 +2822,7 @@ private:
 	double minMarkerSize_; ///< The minimum allowed size of the marker
 	double maxMarkerSize_; ///< The maximum allowed size of the marker
 
-	bool smallWLargeMarker_; ///< Indicated whether a small w value yields a large marker
+	bool smallWLargeMarker_; ///< Indicates whether a small w value yields a large marker
 
 	std::size_t nBest_; ///< Determines the number of items the class should show
 };
@@ -2850,13 +2864,27 @@ public:
 	virtual G_API_COMMON ~GFunctionPlotter1D();
 
 	/** @brief The assignment operator */
-	G_API_COMMON const GFunctionPlotter1D &operator=(const GFunctionPlotter1D &);
+	G_API_COMMON const GFunctionPlotter1D& operator=(const GFunctionPlotter1D &);
+
+	/** @brief Checks for equality with another GFunctionPlotter1D object */
+	G_API_COMMON bool operator==(const GFunctionPlotter1D&) const;
+	/** @brief Checks for inequality with another GGraph2D object */
+	G_API_COMMON bool operator!=(const GFunctionPlotter1D&) const;
 
 	/** @brief Allows to set the number of sampling points in x-direction */
 	G_API_COMMON void setNSamplesX(std::size_t);
 
 	/** @brief Retrieves a unique name for this plotter */
 	virtual G_API_COMMON std::string getPlotterName() const;
+	/** @brief Returns the name of this class */
+	virtual G_API_COMMON std::string name() const override;
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual void compare(
+		const GBasePlotter& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
