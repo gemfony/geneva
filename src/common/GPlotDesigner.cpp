@@ -650,7 +650,7 @@ void GGraph2D::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
+	// Check that we are dealing with a GGraph2D reference independent of this object and convert the pointer
 	const GGraph2D *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 	GToken token("GGraph2D", e);
@@ -1177,15 +1177,45 @@ GGraph3D::~GGraph3D() { /* nothing */ }
 /**
  * The assignment operator
  */
-const GGraph3D &GGraph3D::operator=(const GGraph3D &cp) {
-	// Copy our parent class'es data
-	GDataCollector3T<double, double, double>::operator=(cp);
-
-	// and then our own
-	drawLines_ = cp.drawLines_;
-
+const GGraph3D& GGraph3D::operator=(const GGraph3D &cp) {
+	this->load_(&cp);
 	return *this;
 }
+
+/******************************************************************************/
+/**
+ * Checks for equality with another GGraph3D object
+ *
+ * @param  cp A constant reference to another GGraph3D object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GGraph3D::operator==(const GGraph3D &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
+}
+
+/******************************************************************************/
+/**
+ * Checks for inequality with another GGraph3D object
+ *
+ * @param  cp A constant reference to another GGraph3D object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GGraph3D::operator!=(const GGraph3D &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
+}
+
 
 /******************************************************************************/
 /**
@@ -1213,6 +1243,41 @@ bool GGraph3D::getDrawLines() const {
  */
 std::string GGraph3D::getPlotterName() const {
 	return "GGraph3D";
+}
+
+/******************************************************************************/
+/**
+ * Returns the name of this class
+ */
+std::string GGraph3D::name() const {
+	return std::string("GGraph3D");
+}
+
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ */
+void GGraph3D::compare(
+	const GBasePlotter& cp
+	, const Gem::Common::expectation& e
+	, const double& limit
+) const {
+	using namespace Gem::Common;
+
+	// Check that we are dealing with a GGraph3D reference independent of this object and convert the pointer
+	const GGraph3D *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+	GToken token("GGraph3D", e);
+
+	// Compare our parent data ...
+	Gem::Common::compare_base<GDataCollector3T<double, double, double>>(IDENTITY(*this, *p_load), token);
+
+	// ... and then the local data
+	compare_t(IDENTITY(drawLines_, p_load->drawLines_), token);
+
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/

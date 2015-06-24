@@ -1762,12 +1762,43 @@ public:
 	/**
 	 * The assignment operator
 	 */
-	void operator=(const GDataCollector3T<x_type, y_type, z_type> &cp) {
-		// Assign our parent class'es data
-		GBasePlotter::operator=(cp);
+	const GDataCollector3T<x_type, y_type, z_type>& operator=(const GDataCollector3T<x_type, y_type, z_type> &cp) {
+		this->load_(&cp);
+		return *this;
+	}
 
-		// and then our own
-		data_ = cp.data_;
+	/***************************************************************************/
+	/**
+	 * Checks for equality with another GDataCollector3T<x_type, y_type, z_type> object
+	 *
+	 * @param  cp A constant reference to another GDataCollector3T<x_type, y_type, z_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GDataCollector3T<x_type, y_type, z_type> &cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch (g_expectation_violation &) {
+			return false;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GDataCollector3T<x_type, y_type, z_type> object
+	 *
+	 * @param  cp A constant reference to another GDataCollector3T<x_type, y_type, z_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GDataCollector3T<x_type, y_type, z_type> &cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch (g_expectation_violation &) {
+			return false;
+		}
 	}
 
 	/***************************************************************************/
@@ -1932,6 +1963,41 @@ public:
 			// Add the data item to the collection
 			data_.push_back(*cit);
 		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Returns the name of this class
+	 */
+	virtual std::string name() const override {
+		return std::string("GDataCollector3T<x_type, y_type, z_type>");
+	}
+
+	/***************************************************************************/
+	/**
+	 * Investigates compliance with expectations with respect to another object
+	 * of the same type
+	 */
+	virtual void compare(
+		const GBasePlotter& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GDataCollector2T<x_type, y_type> reference independent of this object and convert the pointer
+		const GDataCollector3T<x_type, y_type, z_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		GToken token("GDataCollector3T<x_type, y_type, z_type>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base<GBasePlotter>(IDENTITY(*this, *p_load), token);
+
+		// ... and then the local data
+		compare_t(IDENTITY(data_, p_load->data_), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
 	}
 
 protected:
@@ -2108,7 +2174,12 @@ public:
 	virtual G_API_COMMON ~GGraph3D();
 
 	/** @brief The assignment operator */
-	G_API_COMMON const GGraph3D &operator=(const GGraph3D &);
+	G_API_COMMON const GGraph3D& operator=(const GGraph3D &);
+
+	/** @brief Checks for equality with another GGraph3D object */
+	G_API_COMMON bool operator==(const GGraph3D&) const;
+	/** @brief Checks for inequality with another GGraph2D object */
+	G_API_COMMON bool operator!=(const GGraph3D&) const;
 
 	/** @brief Adds lines to the plots between consecutive points */
 	G_API_COMMON void setDrawLines(bool= true);
@@ -2117,6 +2188,15 @@ public:
 
 	/** @brief Retrieves a unique name for this plotter */
 	virtual G_API_COMMON std::string getPlotterName() const;
+	/** @brief Returns the name of this class */
+	virtual G_API_COMMON std::string name() const override;
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual void compare(
+		const GBasePlotter& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
@@ -2192,14 +2272,44 @@ public:
 	/**
 	 * The assignment operator
 	 */
-	void operator=(const GDataCollector4T<x_type, y_type, z_type, w_type> &cp) {
-		// Assign our parent class'es data
-		GBasePlotter::operator=(cp);
-
-		// and then our own
-		data_ = cp.data_;
+	const GDataCollector4T<x_type, y_type, z_type, w_type>& operator=(const GDataCollector4T<x_type, y_type, z_type, w_type> &cp) {
+		this->load_(&cp);
+		return *this;
 	}
 
+	/***************************************************************************/
+	/**
+	 * Checks for equality with another GDataCollector4T<x_type, y_type, z_type, w_type> object
+	 *
+	 * @param  cp A constant reference to another GDataCollector4T<x_type, y_type, z_type, w_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GDataCollector4T<x_type, y_type, z_type, w_type> &cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch (g_expectation_violation &) {
+			return false;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GDataCollector4T<x_type, y_type, z_type, w_type> object
+	 *
+	 * @param  cp A constant reference to another GDataCollector4T<x_type, y_type, z_type, w_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GDataCollector4T<x_type, y_type, z_type, w_type> &cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch (g_expectation_violation &) {
+			return false;
+		}
+	}
 	/***************************************************************************/
 	/**
 	 * Allows to project the graph into a histogram (x-direction). This function is a
@@ -2389,6 +2499,41 @@ public:
 			// Add the data item to the collection
 			data_.push_back(*cit);
 		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Returns the name of this class
+	 */
+	virtual std::string name() const override {
+		return std::string("GDataCollector4T<x_type, y_type, z_type, w_type>");
+	}
+
+	/***************************************************************************/
+	/**
+	 * Investigates compliance with expectations with respect to another object
+	 * of the same type
+	 */
+	virtual void compare(
+		const GBasePlotter& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GDataCollector2T<x_type, y_type> reference independent of this object and convert the pointer
+		const GDataCollector4T<x_type, y_type, z_type, w_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		GToken token("GDataCollector4T<x_type, y_type, z_type, w_type>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base<GBasePlotter>(IDENTITY(*this, *p_load), token);
+
+		// ... and then the local data
+		compare_t(IDENTITY(data_, p_load->data_), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
 	}
 
 protected:
@@ -2633,13 +2778,13 @@ public:
 	/** @brief Allows to check whether small w yield large markers */
 	G_API_COMMON bool getSmallWLargeMarker() const;
 
-	/** @brief Retrieves a unique name for this plotter */
-	G_API_COMMON virtual std::string getPlotterName() const;
-
 	/** @brief Allows to set the number of solutions the class should show */
 	G_API_COMMON void setNBest(const std::size_t &);
 	/** @brief Allows to retrieve the number of solutions the class should show */
 	G_API_COMMON std::size_t getNBest() const;
+
+	/** @brief Retrieves a unique name for this plotter */
+	G_API_COMMON virtual std::string getPlotterName() const;
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
