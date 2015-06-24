@@ -541,15 +541,43 @@ GGraph2D::~GGraph2D() { /* nothing */ }
 /**
  * The assignment operator
  */
-const GGraph2D &GGraph2D::operator=(const GGraph2D &cp) {
-	// Copy our parent class'es data
-	GDataCollector2T<double, double>::operator=(cp);
-
-	// and then our own
-	pM_ = cp.pM_;
-	drawArrows_ = cp.drawArrows_;
-
+const GGraph2D& GGraph2D::operator=(const GGraph2D &cp) {
+	this->load_(&cp);
 	return *this;
+}
+
+/******************************************************************************/
+/**
+ * Checks for equality with another GGraph2D object
+ *
+ * @param  cp A constant reference to another GGraph2D object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GGraph2D::operator==(const GGraph2D &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
+}
+
+/******************************************************************************/
+/**
+ * Checks for inequality with another GGraph2D object
+ *
+ * @param  cp A constant reference to another GGraph2D object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GGraph2D::operator!=(const GGraph2D &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -600,6 +628,42 @@ graphPlotMode GGraph2D::getPlotMode() const {
  */
 std::string GGraph2D::getPlotterName() const {
 	return "GGraph2D";
+}
+
+/******************************************************************************/
+/**
+ * Returns the name of this class
+ */
+std::string GGraph2D::name() const {
+	return std::string("GGraph2D");
+}
+
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ */
+void GGraph2D::compare(
+	const GBasePlotter& cp
+	, const Gem::Common::expectation& e
+	, const double& limit
+) const {
+	using namespace Gem::Common;
+
+	// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
+	const GGraph2D *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+	GToken token("GGraph2D", e);
+
+	// Compare our parent data ...
+	Gem::Common::compare_base<GDataCollector2T<double, double>>(IDENTITY(*this, *p_load), token);
+
+	// ... and then the local data
+	compare_t(IDENTITY(pM_, p_load->pM_), token);
+	compare_t(IDENTITY(drawArrows_, p_load->drawArrows_), token);
+
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/
@@ -2187,23 +2251,44 @@ GHistogram2D::~GHistogram2D() { /* nothing */ }
 /******************************************************************************/
 /**
  * The assignment operator
- *
- * @param cp A copy of another GHistogram2D object
  */
-const GHistogram2D &GHistogram2D::operator=(const GHistogram2D &cp) {
-	// Copy our parent class'es data ...
-	GDataCollector2T<double, double>::operator=(cp);
-
-	// ... and then our local data
-	nBinsX_ = cp.nBinsX_;
-	nBinsY_ = cp.nBinsY_;
-	minX_ = cp.minX_;
-	maxX_ = cp.maxX_;
-	minY_ = cp.minY_;
-	maxY_ = cp.maxY_;
-	dropt_ = cp.dropt_;
-
+const GHistogram2D& GHistogram2D::operator=(const GHistogram2D &cp) {
+	this->load_(&cp);
 	return *this;
+}
+
+/******************************************************************************/
+/**
+ * Checks for equality with another GHistogram2D object
+ *
+ * @param  cp A constant reference to another GHistogram2D object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GHistogram2D::operator==(const GHistogram2D &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
+}
+
+/******************************************************************************/
+/**
+ * Checks for inequality with another GHistogram2D object
+ *
+ * @param  cp A constant reference to another GHistogram2D object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GHistogram2D::operator!=(const GHistogram2D &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -2477,6 +2562,47 @@ double GHistogram2D::getMaxY() const {
  */
 std::string GHistogram2D::getPlotterName() const {
 	return "GHistogram2D";
+}
+
+/******************************************************************************/
+/**
+ * Returns the name of this class
+ */
+std::string GHistogram2D::name() const {
+	return std::string("GHistogram2D");
+}
+
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ */
+void GHistogram2D::compare(
+	const GBasePlotter& cp
+	, const Gem::Common::expectation& e
+	, const double& limit
+) const {
+	using namespace Gem::Common;
+
+	// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
+	const GHistogram2D *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+	GToken token("GHistogram2D", e);
+
+	// Compare our parent data ...
+	Gem::Common::compare_base<GDataCollector2T<double, double>>(IDENTITY(*this, *p_load), token);
+
+	// ... and then the local data
+	compare_t(IDENTITY(nBinsX_, p_load->nBinsX_), token);
+	compare_t(IDENTITY(nBinsY_, p_load->nBinsY_), token);
+	compare_t(IDENTITY(minX_, p_load->minX_), token);
+	compare_t(IDENTITY(maxX_, p_load->maxX_), token);
+	compare_t(IDENTITY(minY_, p_load->minY_), token);
+	compare_t(IDENTITY(maxY_, p_load->maxY_), token);
+	compare_t(IDENTITY(dropt_, p_load->dropt_), token);
+
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/

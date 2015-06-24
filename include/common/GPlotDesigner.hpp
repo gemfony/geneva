@@ -622,7 +622,6 @@ public:
 
 	/** @brief Retrieves a unique name for this plotter */
 	virtual G_API_COMMON std::string getPlotterName() const;
-
 	/** @brief Returns the name of this class */
 	virtual G_API_COMMON std::string name() const override;
 
@@ -1417,7 +1416,13 @@ public:
 	virtual G_API_COMMON ~GHistogram2D();
 
 	/** @brief The assignment operator */
-	G_API_COMMON const GHistogram2D &operator=(const GHistogram2D &);
+	G_API_COMMON const GHistogram2D& operator=(const GHistogram2D &);
+
+	/** @brief Checks for equality with another GHistogram2D object */
+	G_API_COMMON bool operator==(const GHistogram2D&) const;
+	/** @brief Checks for inequality with another GHistogram2D object */
+	G_API_COMMON bool operator!=(const GHistogram2D&) const;
+
 
 	/** @brief Retrieve the number of bins in x-direction */
 	G_API_COMMON std::size_t getNBinsX() const;
@@ -1435,6 +1440,15 @@ public:
 
 	/** @brief Retrieves a unique name for this plotter */
 	G_API_COMMON virtual std::string getPlotterName() const;
+	/** @brief Returns the name of this class */
+	virtual G_API_COMMON std::string name() const override;
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual void compare(
+		const GBasePlotter& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 	/** @brief Allows to specify 2d-drawing options */
 	G_API_COMMON void set2DOpt(tddropt);
@@ -1498,15 +1512,18 @@ class GGraph2D
 public:
 	/** @brief The default constructor */
 	G_API_COMMON GGraph2D();
-
 	/** @brief A copy constructor */
 	G_API_COMMON GGraph2D(const GGraph2D &);
-
 	/** @brief The destructor */
 	virtual G_API_COMMON ~GGraph2D();
 
 	/** @brief The assignment operator */
-	G_API_COMMON const GGraph2D &operator=(const GGraph2D &);
+	G_API_COMMON const GGraph2D& operator=(const GGraph2D &);
+
+	/** @brief Checks for equality with another GGraph2D object */
+	G_API_COMMON bool operator==(const GGraph2D&) const;
+	/** @brief Checks for inequality with another GHistogram1D object */
+	G_API_COMMON bool operator!=(const GGraph2D&) const;
 
 	/** @brief Adds arrows to the plots between consecutive points */
 	G_API_COMMON void setDrawArrows(bool= true);
@@ -1520,6 +1537,15 @@ public:
 
 	/** @brief Retrieves a unique name for this plotter */
 	virtual G_API_COMMON std::string getPlotterName() const;
+	/** @brief Returns the name of this class */
+	virtual G_API_COMMON std::string name() const override;
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual void compare(
+		const GBasePlotter& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
