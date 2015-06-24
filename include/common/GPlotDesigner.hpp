@@ -163,9 +163,9 @@ public:
 	/** @brief The assignment operator */
 	G_API_COMMON const GBasePlotter& operator=(const GBasePlotter &);
 
-	/** @brief Checks for equality with another GObject object */
+	/** @brief Checks for equality with another GBasePlotter object */
 	G_API_COMMON bool operator==(const GBasePlotter&) const;
-	/** @brief Checks for inequality with another GObject object */
+	/** @brief Checks for inequality with another GBasePlotter object */
 	G_API_COMMON bool operator!=(const GBasePlotter&) const;
 
 	/** @brief Allows to set the drawing arguments for this plot */
@@ -262,9 +262,9 @@ public:
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another object */
-	virtual G_API_COMMON void load_(const GBasePlotter*);
+	virtual G_API_COMMON void load_(const GBasePlotter*) override;
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_COMMON GBasePlotter* clone_() const = 0;
+	virtual G_API_COMMON GBasePlotter* clone_() const override = 0;
 
 	/***************************************************************************/
 	// Functions to be specified in derived classes
@@ -369,12 +369,43 @@ public:
 	/**
 	 * The assignment operator
 	 */
-	void operator=(const GDataCollector1T<x_type> &cp) {
-		// Assign our parent class'es data
-		GBasePlotter::operator=(cp);
+	const GDataCollector1T<x_type>& operator=(const GDataCollector1T<x_type> &cp) {
+		this->load_(&cp);
+		return *this;
+	}
 
-		// and then our own
-		data_ = cp.data_;
+	/***************************************************************************/
+	/**
+	 * Checks for equality with another GDataCollector1T<x_type> object
+	 *
+	 * @param  cp A constant reference to another GDataCollector1T<x_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GDataCollector1T<x_type> &cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch (g_expectation_violation &) {
+			return false;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GDataCollector1T<x_type> object
+	 *
+	 * @param  cp A constant reference to another GDataCollector1T<x_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GDataCollector1T<x_type> &cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch (g_expectation_violation &) {
+			return false;
+		}
 	}
 
 	/***************************************************************************/
@@ -408,7 +439,7 @@ public:
 		}
 		catch (bad_numeric_cast &e) {
 			glogger
-			<< "In GDataCollector1T::operator&(const T&): Error!" << std::endl
+			<< "In GDataCollector1T<x_type>::operator&(const T&): Error!" << std::endl
 			<< "Encountered invalid cast with boost::numeric_cast," << std::endl
 			<< "with the message " << std::endl
 			<< e.what() << std::endl
@@ -477,14 +508,49 @@ public:
 		}
 	}
 
+	/***************************************************************************/
+	/**
+	 * Returns the name of this class
+	 */
+	virtual std::string name() const override {
+		return std::string("GDataCollector1T<x_type>");
+	}
+
+	/***************************************************************************/
+	/**
+	 * Investigates compliance with expectations with respect to another object
+	 * of the same type
+	 */
+	virtual void compare(
+		const GBasePlotter& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GDataCollector1T<x_type> reference independent of this object and convert the pointer
+		const GDataCollector1T<x_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		GToken token("GDataCollector1T<x_type>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base<GBasePlotter>(IDENTITY(*this, *p_load), token);
+
+		// ... and then the local data
+		compare_t(IDENTITY(data_, p_load->data_), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
+
 protected:
 	/***************************************************************************/
 	/**
 	 * Loads the data of another object
 	 */
-	virtual void load_(const GBasePlotter* cp) {
+	virtual void load_(const GBasePlotter* cp) override {
 		// Check that we are dealing with a GDataCollector1T<x_type> reference independent of this object and convert the pointer
-		const GDataCollector1T<x_type> *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GDataCollector1T<x_type>>(cp, this);
+		const GDataCollector1T<x_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load our parent class'es data ...
 		GBasePlotter::load_(cp);
@@ -495,7 +561,7 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_COMMON GBasePlotter* clone_() const = 0;
+	virtual G_API_COMMON GBasePlotter* clone_() const override = 0;
 
 	/***************************************************************************/
 
@@ -539,7 +605,12 @@ public:
 	virtual G_API_COMMON ~GHistogram1D();
 
 	/** @brief The assignment operator */
-	G_API_COMMON const GHistogram1D &operator=(const GHistogram1D &);
+	G_API_COMMON const GHistogram1D& operator=(const GHistogram1D &);
+
+	/** @brief Checks for equality with another GHistogram1D object */
+	G_API_COMMON bool operator==(const GHistogram1D&) const;
+	/** @brief Checks for inequality with another GHistogram1D object */
+	G_API_COMMON bool operator!=(const GHistogram1D&) const;
 
 	/** @brief Retrieve the number of bins in x-direction */
 	G_API_COMMON std::size_t getNBinsX() const;
@@ -551,6 +622,16 @@ public:
 
 	/** @brief Retrieves a unique name for this plotter */
 	virtual G_API_COMMON std::string getPlotterName() const;
+
+	/** @brief Returns the name of this class */
+	virtual G_API_COMMON std::string name() const override;
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual void compare(
+		const GBasePlotter& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
@@ -566,9 +647,9 @@ protected:
 	virtual std::string drawingArguments(bool) const;
 
 	/** @brief Loads the data of another object */
-	virtual G_API_COMMON void load_(const GBasePlotter*);
+	virtual G_API_COMMON void load_(const GBasePlotter*) override;
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_COMMON GBasePlotter* clone_() const;
+	virtual G_API_COMMON GBasePlotter* clone_() const override;
 
 private:
 	GHistogram1D() = delete; ///< The default constructor -- intentionally private and undefined
@@ -616,7 +697,12 @@ public:
 	G_API_COMMON ~GHistogram1I();
 
 	/** @brief The assignment operator */
-	G_API_COMMON const GHistogram1I &operator=(const GHistogram1I &);
+	G_API_COMMON const GHistogram1I& operator=(const GHistogram1I &);
+
+	/** @brief Checks for equality with another GHistogram1I object */
+	G_API_COMMON bool operator==(const GHistogram1I&) const;
+	/** @brief Checks for inequality with another GHistogram1I object */
+	G_API_COMMON bool operator!=(const GHistogram1I&) const;
 
 	/** @brief Retrieve the number of bins in x-direction */
 	G_API_COMMON std::size_t getNBinsX() const;
@@ -628,8 +714,22 @@ public:
 
 	/** @brief Retrieves a unique name for this plotter */
 	virtual G_API_COMMON std::string getPlotterName() const;
+	/** @brief Returns the name of this class */
+	virtual G_API_COMMON std::string name() const override;
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual void compare(
+		const GBasePlotter& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 protected:
+	/** @brief Loads the data of another object */
+	virtual G_API_COMMON void load_(const GBasePlotter*) override;
+	/** @brief Creates a deep clone of this object */
+	virtual G_API_COMMON GBasePlotter* clone_() const override;
+
 	/** @brief Retrieve specific header settings for this plot */
 	virtual std::string headerData(bool, std::size_t) const;
 
@@ -641,11 +741,6 @@ protected:
 
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const;
-
-	/** @brief Loads the data of another object */
-	virtual G_API_COMMON void load_(const GBasePlotter*);
-	/** @brief Creates a deep clone of this object */
-	virtual G_API_COMMON GBasePlotter* clone_() const;
 
 private:
 	GHistogram1I() = delete; ///< The default constructor -- intentionally private and undefined
@@ -705,12 +800,43 @@ public:
 	/**
 	 * The assignment operator
 	 */
-	void operator=(const GDataCollector2T<x_type, y_type> &cp) {
-		// Assign our parent class'es data
-		GBasePlotter::operator=(cp);
+	const GDataCollector2T<x_type, y_type>& operator=(const GDataCollector2T<x_type, y_type> &cp) {
+		this->load_(&cp);
+		return *this;
+	}
 
-		// and then our own
-		data_ = cp.data_;
+	/***************************************************************************/
+	/**
+	 * Checks for equality with another GDataCollector2T<x_type, y_type> object
+	 *
+	 * @param  cp A constant reference to another GDataCollector2T<x_type, y_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GDataCollector2T<x_type, y_type> &cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch (g_expectation_violation &) {
+			return false;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GDataCollector2T<x_type, y_type> object
+	 *
+	 * @param  cp A constant reference to another GDataCollector2T<x_type, y_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GDataCollector2T<x_type, y_type> &cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch (g_expectation_violation &) {
+			return false;
+		}
 	}
 
 	/***************************************************************************/
@@ -868,12 +994,47 @@ public:
 		);
 	}
 
+	/***************************************************************************/
+	/**
+	 * Returns the name of this class
+	 */
+	virtual std::string name() const override {
+		return std::string("GDataCollector2T<x_type, y_type>");
+	}
+
+	/***************************************************************************/
+	/**
+	 * Investigates compliance with expectations with respect to another object
+	 * of the same type
+	 */
+	virtual void compare(
+		const GBasePlotter& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GDataCollector1T<x_type> reference independent of this object and convert the pointer
+		const GDataCollector2T<x_type, y_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		GToken token("GDataCollector2T<x_type, y_type>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base<GBasePlotter>(IDENTITY(*this, *p_load), token);
+
+		// ... and then the local data
+		compare_t(IDENTITY(data_, p_load->data_), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
+
 protected:
 	/***************************************************************************/
 	/**
 	 * Loads the data of another object
 	 */
-	virtual void load_(const GBasePlotter* cp) {
+	virtual void load_(const GBasePlotter* cp) override {
 		// Check that we are dealing with a GDataCollector2T<x_type, y_type> reference independent of this object and convert the pointer
 		const GDataCollector2T<x_type, y_type> *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GDataCollector2T<x_type, y_type>>(cp, this);
 
@@ -887,7 +1048,7 @@ protected:
 	/***************************************************************************/
 
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_COMMON GBasePlotter* clone_() const = 0;
+	virtual G_API_COMMON GBasePlotter* clone_() const override = 0;
 
 	/***************************************************************************/
 
@@ -1163,7 +1324,7 @@ protected:
 	/**
 	 * Loads the data of another object
 	 */
-	virtual void load_(const GBasePlotter* cp) {
+	virtual void load_(const GBasePlotter* cp) override {
 		// Check that we are dealing with a GDataCollector2ET<x_type, y_type> reference independent of this object and convert the pointer
 		const GDataCollector2ET<x_type, y_type> *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GDataCollector2ET<x_type, y_type>>(cp, this);
 
@@ -1176,7 +1337,7 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_COMMON GBasePlotter* clone_() const = 0;
+	virtual G_API_COMMON GBasePlotter* clone_() const override = 0;
 
 	/***************************************************************************/
 
@@ -1294,9 +1455,9 @@ protected:
 	virtual std::string drawingArguments(bool) const;
 
 	/** @brief Loads the data of another object */
-	virtual G_API_COMMON void load_(const GBasePlotter*);
+	virtual G_API_COMMON void load_(const GBasePlotter*) override;
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_COMMON GBasePlotter* clone_() const;
+	virtual G_API_COMMON GBasePlotter* clone_() const override;
 
 private:
 	GHistogram2D() = delete; ///< The default constructor -- intentionally private and undefined
@@ -1374,9 +1535,9 @@ protected:
 	virtual std::string drawingArguments(bool) const;
 
 	/** @brief Loads the data of another object */
-	virtual G_API_COMMON void load_(const GBasePlotter*);
+	virtual G_API_COMMON void load_(const GBasePlotter*) override;
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_COMMON GBasePlotter* clone_() const;
+	virtual G_API_COMMON GBasePlotter* clone_() const override;
 
 private:
 	graphPlotMode pM_; ///< Whether to create scatter plots or a curve, connected by lines
@@ -1438,9 +1599,9 @@ protected:
 	virtual std::string drawingArguments(bool) const;
 
 	/** @brief Loads the data of another object */
-	virtual G_API_COMMON void load_(const GBasePlotter*);
+	virtual G_API_COMMON void load_(const GBasePlotter*) override;
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_COMMON GBasePlotter* clone_() const;
+	virtual G_API_COMMON GBasePlotter* clone_() const override;
 
 private:
 	graphPlotMode pM_; ///< Whether to create scatter plots or a curve, connected by lines
@@ -1673,7 +1834,7 @@ protected:
 	/**
 	 * Loads the data of another object
 	 */
-	virtual void load_(const GBasePlotter* cp) {
+	virtual void load_(const GBasePlotter* cp) override {
 		// Check that we are dealing with a GDataCollector3T<x_type, y_type, z_type> reference independent of this object and convert the pointer
 		const GDataCollector3T<x_type, y_type, z_type> *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GDataCollector3T<x_type, y_type, z_type>>(cp, this);
 
@@ -1686,7 +1847,7 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_COMMON GBasePlotter* clone_() const = 0;
+	virtual G_API_COMMON GBasePlotter* clone_() const override = 0;
 
 	/***************************************************************************/
 
@@ -1866,9 +2027,9 @@ protected:
 	virtual std::string drawingArguments(bool) const;
 
 	/** @brief Loads the data of another object */
-	virtual G_API_COMMON void load_(const GBasePlotter*);
+	virtual G_API_COMMON void load_(const GBasePlotter*) override;
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_COMMON GBasePlotter* clone_() const;
+	virtual G_API_COMMON GBasePlotter* clone_() const override;
 
 private:
 	bool drawLines_; ///< When set to true, lines will be drawn between consecutive points
@@ -2130,7 +2291,7 @@ protected:
 	/**
 	 * Loads the data of another object
 	 */
-	virtual void load_(const GBasePlotter* cp) {
+	virtual void load_(const GBasePlotter* cp) override {
 		// Check that we are dealing with a GDataCollector4T<x_type, y_type, z_type, w_type> reference independent of this object and convert the pointer
 		const GDataCollector4T<x_type, y_type, z_type, w_type> *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GDataCollector4T<x_type, y_type, z_type, w_type>>(cp, this);
 
@@ -2143,7 +2304,7 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_COMMON GBasePlotter* clone_() const = 0;
+	virtual G_API_COMMON GBasePlotter* clone_() const override = 0;
 
 	/***************************************************************************/
 
@@ -2389,9 +2550,9 @@ protected:
 	virtual std::string drawingArguments(bool) const;
 
 	/** @brief Loads the data of another object */
-	virtual G_API_COMMON void load_(const GBasePlotter*);
+	virtual G_API_COMMON void load_(const GBasePlotter*) override;
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_COMMON GBasePlotter* clone_() const;
+	virtual G_API_COMMON GBasePlotter* clone_() const override;
 
 private:
 	double minMarkerSize_; ///< The minimum allowed size of the marker
@@ -2461,9 +2622,9 @@ protected:
 	virtual std::string drawingArguments(bool) const;
 
 	/** @brief Loads the data of another object */
-	virtual G_API_COMMON void load_(const GBasePlotter*);
+	virtual G_API_COMMON void load_(const GBasePlotter*) override;
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_COMMON GBasePlotter* clone_() const;
+	virtual G_API_COMMON GBasePlotter* clone_() const override;
 
 private:
 	GFunctionPlotter1D() = delete; ///< The default constructor
@@ -2535,9 +2696,9 @@ protected:
 	virtual std::string drawingArguments(bool) const;
 
 	/** @brief Loads the data of another object */
-	virtual G_API_COMMON void load_(const GBasePlotter*);
+	virtual G_API_COMMON void load_(const GBasePlotter*) override;
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_COMMON GBasePlotter* clone_() const;
+	virtual G_API_COMMON GBasePlotter* clone_() const override;
 
 private:
 	GFunctionPlotter2D() = delete; ///< The default constructor -- intentionally private and undefined

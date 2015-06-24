@@ -388,8 +388,8 @@ void GBasePlotter::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are dealing with a GOptimizationAlgorithmT<ind_type> reference independent of this object and convert the pointer
-	const GBasePlotter *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GBasePlotter>(cp, this);
+	// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
+	const GBasePlotter *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 	GToken token("GBasePlotter", e);
 
@@ -1611,19 +1611,44 @@ GHistogram1D::~GHistogram1D() { /* nothing */ }
 /******************************************************************************/
 /**
  * The assignment operator
- *
- * @param cp A copy of another GHistogram1D object
  */
-const GHistogram1D &GHistogram1D::operator=(const GHistogram1D &cp) {
-	// Copy our parent class'es data ...
-	GDataCollector1T<double>::operator=(cp);
-
-	// ... and then our local data
-	nBinsX_ = cp.nBinsX_;
-	minX_ = cp.minX_;
-	maxX_ = cp.maxX_;
-
+const GHistogram1D& GHistogram1D::operator=(const GHistogram1D &cp) {
+	this->load_(&cp);
 	return *this;
+}
+
+/******************************************************************************/
+/**
+ * Checks for equality with another GHistogram1D object
+ *
+ * @param  cp A constant reference to another GHistogram1D object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GHistogram1D::operator==(const GHistogram1D &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
+}
+
+/******************************************************************************/
+/**
+ * Checks for inequality with another GHistogram1D object
+ *
+ * @param  cp A constant reference to another GHistogram1D object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GHistogram1D::operator!=(const GHistogram1D &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -1772,6 +1797,43 @@ std::string GHistogram1D::getPlotterName() const {
 
 /******************************************************************************/
 /**
+ * Returns the name of this class
+ */
+std::string GHistogram1D::name() const {
+	return std::string("GHistogram1D");
+}
+
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ */
+void GHistogram1D::compare(
+	const GBasePlotter& cp
+	, const Gem::Common::expectation& e
+	, const double& limit
+) const {
+	using namespace Gem::Common;
+
+	// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
+	const GHistogram1D *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+	GToken token("GHistogram1D", e);
+
+	// Compare our parent data ...
+	Gem::Common::compare_base<GDataCollector1T<double>>(IDENTITY(*this, *p_load), token);
+
+	// ... and then the local data
+	compare_t(IDENTITY(nBinsX_, p_load->nBinsX_), token);
+	compare_t(IDENTITY(minX_, p_load->minX_), token);
+	compare_t(IDENTITY(maxX_, p_load->maxX_), token);
+
+	// React on deviations from the expectation
+	token.evaluate();
+}
+
+/******************************************************************************/
+/**
  * Creates a deep clone of this object
  */
 GBasePlotter* GHistogram1D::clone_() const {
@@ -1834,19 +1896,44 @@ GHistogram1I::~GHistogram1I() { /* nothing */ }
 /******************************************************************************/
 /**
  * The assignment operator
- *
- * @param cp A copy of another GHistogram1I object
  */
-const GHistogram1I &GHistogram1I::operator=(const GHistogram1I &cp) {
-	// Copy our parent class'es data ...
-	GDataCollector1T<boost::int32_t>::operator=(cp);
-
-	// ... and then our local data
-	nBinsX_ = cp.nBinsX_;
-	minX_ = cp.minX_;
-	maxX_ = cp.maxX_;
-
+const GHistogram1I& GHistogram1I::operator=(const GHistogram1I &cp) {
+	this->load_(&cp);
 	return *this;
+}
+
+/******************************************************************************/
+/**
+ * Checks for equality with another GHistogram1I object
+ *
+ * @param  cp A constant reference to another GHistogram1I object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GHistogram1I::operator==(const GHistogram1I &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
+}
+
+/******************************************************************************/
+/**
+ * Checks for inequality with another GHistogram1I object
+ *
+ * @param  cp A constant reference to another GHistogram1I object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GHistogram1I::operator!=(const GHistogram1I &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
 }
 
 /******************************************************************************/
@@ -1993,6 +2080,44 @@ double GHistogram1I::getMaxX() const {
 std::string GHistogram1I::getPlotterName() const {
 	return "GHistogram1I";
 }
+
+/******************************************************************************/
+/**
+ * Returns the name of this class
+ */
+std::string GHistogram1I::name() const {
+	return std::string("GHistogram1I");
+}
+
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ */
+void GHistogram1I::compare(
+	const GBasePlotter& cp
+	, const Gem::Common::expectation& e
+	, const double& limit
+) const {
+	using namespace Gem::Common;
+
+	// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
+	const GHistogram1I *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+	GToken token("GHistogram1I", e);
+
+	// Compare our parent data ...
+	Gem::Common::compare_base<GDataCollector1T<boost::int32_t>>(IDENTITY(*this, *p_load), token);
+
+	// ... and then the local data
+	compare_t(IDENTITY(nBinsX_, p_load->nBinsX_), token);
+	compare_t(IDENTITY(minX_, p_load->minX_), token);
+	compare_t(IDENTITY(maxX_, p_load->maxX_), token);
+
+	// React on deviations from the expectation
+	token.evaluate();
+}
+
 
 /******************************************************************************/
 /**
