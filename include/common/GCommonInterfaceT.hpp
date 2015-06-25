@@ -68,6 +68,7 @@
 // Geneva header files go here
 #include "common/GCommonEnums.hpp" // For the serialization mode
 #include "common/GExceptions.hpp"
+#include "common/GHelperFunctionsT.hpp"
 
 // aliases for ease of use
 namespace bf = boost::filesystem;
