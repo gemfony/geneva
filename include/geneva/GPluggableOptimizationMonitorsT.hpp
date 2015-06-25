@@ -122,6 +122,15 @@ public:
 	virtual ~GCollectiveMonitorT()
 	{ /* nothing */ }
 
+	/***************************************************************************/
+	/**
+	 * A standard assignment operator
+	 */
+	const GCollectiveMonitorT<ind_type>& operator=(const GCollectiveMonitorT<ind_type>& cp) {
+		this->load_(&cp);
+		return *this;
+	}
+
 	/************************************************************************/
 	/**
 	 * Checks for equality with another GCollectiveMonitorT object
@@ -154,37 +163,6 @@ public:
 		} catch(g_expectation_violation&) {
 			return false;
 		}
-	}
-
-	/***************************************************************************/
-	/**
-	 * Searches for compliance with expectations with respect to another object
-	 * of the same type
-	 *
-	 * @param cp A constant reference to another GObject object
-	 * @param e The expected outcome of the comparison
-	 * @param limit The maximum deviation for floating point values (important for similarity checks)
-	 */
-	virtual void compare(
-		const GObject& cp
-		, const Gem::Common::expectation& e
-		, const double& limit
-	) const override {
-		using namespace Gem::Common;
-
-		// Check that we are dealing with a GCollectiveMonitorT<ind_type> reference independent of this object and convert the pointer
-		const GCollectiveMonitorT<ind_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
-
-		GToken token("GCollectiveMonitorT", e);
-
-		// Compare our parent data ...
-		Gem::Common::compare_base<typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
-
-		// ... and then our local data
-		compare_t(IDENTITY(pluggable_monitors_, p_load->pluggable_monitors_), token);
-
-		// React on deviations from the expectation
-		token.evaluate();
 	}
 
 	/***************************************************************************/
@@ -231,6 +209,45 @@ public:
 		pluggable_monitors_.clear();
 	}
 
+	/***************************************************************************/
+	/**
+	 * Emits a name for this class / object
+	 */
+	virtual std::string name() const override {
+		return std::string("GCollectiveMonitorT<>");
+	}
+
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GCollectiveMonitorT<ind_type> reference independent of this object and convert the pointer
+		const GCollectiveMonitorT<ind_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		GToken token("GCollectiveMonitorT<>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base<typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+
+		// ... and then our local data
+		compare_t(IDENTITY(pluggable_monitors_, p_load->pluggable_monitors_), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
+
 protected:
 	/************************************************************************/
 	/**
@@ -240,7 +257,7 @@ protected:
 	 */
 	virtual void load_(const GObject* cp) override {
 		// Check that we are dealing with a GCollectiveMonitorT<ind_type> reference independent of this object and convert the pointer
-		const GCollectiveMonitorT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GCollectiveMonitorT<ind_type>>(cp, this);
+		const GCollectiveMonitorT<ind_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load the parent classes' data ...
 		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
@@ -283,7 +300,11 @@ class GProgressPlotterT
 
 		ar
 			& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(*this))
+			& BOOST_SERIALIZATION_NVP(fp_profVarVec_)
 			& BOOST_SERIALIZATION_NVP(gpd_oa_)
+			& BOOST_SERIALIZATION_NVP(progressPlotter2D_oa_)
+			& BOOST_SERIALIZATION_NVP(progressPlotter3D_oa_)
+			& BOOST_SERIALIZATION_NVP(progressPlotter4D_oa_)
 			& BOOST_SERIALIZATION_NVP(fileName_)
 			& BOOST_SERIALIZATION_NVP(canvasDimensions_)
 		   & BOOST_SERIALIZATION_NVP(monitorBestOnly_)
@@ -307,27 +328,20 @@ public:
 	 */
 	GProgressPlotterT()
 		: gpd_oa_("Progress information", 1, 1)
-		, fileName_("progressScan.C")
 		, canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1024,768))
-		, monitorBestOnly_(false)
-		, monitorValidOnly_(false)
-		, observeBoundaries_(false)
-		, addPrintCommand_(false)
 	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * Construction with the information whether only the best individuals
 	 * should be monitored and whether only valid items should be recorded.
+	 * Some member variables may be initialized in the class body.
 	 */
 	GProgressPlotterT(bool monitorBestOnly, bool monitorValidOnly)
 		: gpd_oa_("Progress information", 1, 1)
-		, fileName_("progressScan.C")
 		, canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1024,768))
 		, monitorBestOnly_(monitorBestOnly)
 		, monitorValidOnly_(monitorValidOnly)
-		, observeBoundaries_(false)
-		, addPrintCommand_(false)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -336,14 +350,16 @@ public:
 	 */
 	GProgressPlotterT(const GProgressPlotterT<ind_type, fp_type>& cp)
 		: GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT(cp)
-		, gpd_oa_("Progress information", 1, 1) // Not copied
+		, gpd_oa_(cp.gpd_oa_)
 		, fileName_(cp.fileName_)
 		, canvasDimensions_(cp.canvasDimensions_)
 		, monitorBestOnly_(cp.monitorBestOnly_)
 		, monitorValidOnly_(cp.monitorValidOnly_)
 		, observeBoundaries_(cp.observeBoundaries_)
 		, addPrintCommand_(cp.addPrintCommand_)
-	{ /* nothing */ }
+	{
+		Gem::Common::copyCloneableObjectsVector(cp.fp_profVarVec_, fp_profVarVec_);
+	}
 
 	/***************************************************************************/
 	/**
@@ -351,6 +367,15 @@ public:
 	 */
 	virtual ~GProgressPlotterT()
 	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * A standard assignment operator
+	 */
+	const GProgressPlotterT<ind_type, fp_type>& operator=(const GProgressPlotterT<ind_type, fp_type>& cp) {
+		this->load_(&cp);
+		return *this;
+	}
 
 	/************************************************************************/
 	/**
@@ -384,42 +409,6 @@ public:
 		} catch(g_expectation_violation&) {
 			return false;
 		}
-	}
-
-	/***************************************************************************/
-	/**
-	 * Searches for compliance with expectations with respect to another object
-	 * of the same type
-	 *
-	 * @param cp A constant reference to another GObject object
-	 * @param e The expected outcome of the comparison
-	 * @param limit The maximum deviation for floating point values (important for similarity checks)
-	 */
-	virtual void compare(
-		const GObject& cp
-		, const Gem::Common::expectation& e
-		, const double& limit
-	) const override {
-		using namespace Gem::Common;
-
-		// Check that we are dealing with a GProgressPlotterT<ind_type, fp_type reference independent of this object and convert the pointer
-		const GProgressPlotterT<ind_type, fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GProgressPlotterT<ind_type, fp_type>>(cp, this);
-
-		GToken token("GCollectiveMonitorT", e);
-
-		// Compare our parent data ...
-		Gem::Common::compare_base<typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
-
-		// ... and then our local data
-		compare_t(IDENTITY(fileName_, p_load->fileName_), token);
-		compare_t(IDENTITY(canvasDimensions_, p_load->canvasDimensions_), token);
-		compare_t(IDENTITY(monitorBestOnly_, p_load->monitorBestOnly_), token);
-		compare_t(IDENTITY(monitorValidOnly_, p_load->monitorValidOnly_), token);
-		compare_t(IDENTITY(observeBoundaries_, p_load->observeBoundaries_), token);
-		compare_t(IDENTITY(addPrintCommand_, p_load->addPrintCommand_), token);
-
-		// React on deviations from the expectation
-		token.evaluate();
 	}
 
 	/**************************************************************************/
@@ -891,6 +880,47 @@ public:
 		};
 	}
 
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GProgressPlotterT<ind_type, fp_type reference independent of this object and convert the pointer
+		const GProgressPlotterT<ind_type, fp_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		GToken token("GCollectiveMonitorT", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base<typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+
+		// ... and then our local data
+		compare_t(IDENTITY(fp_profVarVec_, p_load->fp_profVarVec_), token);
+		compare_t(IDENTITY(gpd_oa_, p_load->gpd_oa_), token);
+		compare_t(IDENTITY(progressPlotter2D_oa_, p_load->progressPlotter2D_oa_), token);
+		compare_t(IDENTITY(progressPlotter3D_oa_, p_load->progressPlotter3D_oa_), token);
+		compare_t(IDENTITY(progressPlotter4D_oa_, p_load->progressPlotter4D_oa_), token);
+		compare_t(IDENTITY(fileName_, p_load->fileName_), token);
+		compare_t(IDENTITY(canvasDimensions_, p_load->canvasDimensions_), token);
+		compare_t(IDENTITY(monitorBestOnly_, p_load->monitorBestOnly_), token);
+		compare_t(IDENTITY(monitorValidOnly_, p_load->monitorValidOnly_), token);
+		compare_t(IDENTITY(observeBoundaries_, p_load->observeBoundaries_), token);
+		compare_t(IDENTITY(addPrintCommand_, p_load->addPrintCommand_), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
+
 protected:
 	/************************************************************************/
 	/**
@@ -900,12 +930,17 @@ protected:
 	 */
 	virtual void load_(const GObject* cp) override {
 		// Check that we are dealing with a GProgressPlotterT<ind_type, fp_type reference independent of this object and convert the pointer
-		const GProgressPlotterT<ind_type, fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GProgressPlotterT<ind_type, fp_type>>(cp, this);
+		const GProgressPlotterT<ind_type, fp_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load the parent classes' data ...
 		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
 
 		// ... and then our local data
+		Gem::Common::copyCloneableObjectsVector(p_load->fp_profVarVec_, fp_profVarVec_);
+		gpd_oa_.load(p_load->gpd_oa_);
+		copyCloneableSmartPointer(p_load->progressPlotter2D_oa_, progressPlotter2D_oa_);
+		copyCloneableSmartPointer(p_load->progressPlotter3D_oa_, progressPlotter3D_oa_);
+		copyCloneableSmartPointer(p_load->progressPlotter4D_oa_, progressPlotter4D_oa_);
 		fileName_ = p_load->fileName_;
 		canvasDimensions_ = p_load->canvasDimensions_;
 		monitorBestOnly_ = p_load->monitorBestOnly_;
@@ -932,14 +967,14 @@ private:
 	std::shared_ptr<Gem::Common::GGraph3D> progressPlotter3D_oa_;
 	std::shared_ptr<Gem::Common::GGraph4D> progressPlotter4D_oa_;
 
-	std::string fileName_; ///< The name of the file the output should be written to. Note that the class will add the name of the algorithm it acts on
+	std::string fileName_ = std::string("progressScan.C"); ///< The name of the file the output should be written to. Note that the class will add the name of the algorithm it acts on
 	boost::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions_; ///< The dimensions of the canvas
 
-	bool monitorBestOnly_;  ///< Indicates whether only the best individuals should be monitored
-	bool monitorValidOnly_; ///< Indicates whether only valid individuals should be plotted
-	bool observeBoundaries_; ///< When set to true, the plotter will ignore values outside of a scan boundary
+	bool monitorBestOnly_ = false;  ///< Indicates whether only the best individuals should be monitored
+	bool monitorValidOnly_ = false; ///< Indicates whether only valid individuals should be plotted
+	bool observeBoundaries_ = false; ///< When set to true, the plotter will ignore values outside of a scan boundary
 
-	bool addPrintCommand_; ///< Asks the GPlotDesigner to add a print command to result files
+	bool addPrintCommand_ = false; ///< Asks the GPlotDesigner to add a print command to result files
 };
 
 /******************************************************************************/

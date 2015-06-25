@@ -433,6 +433,51 @@ void copyCloneableSmartPointerVector(
 
 /******************************************************************************/
 /**
+ * This function copies a vector of cloneable / loadable objects to another vector
+ * holding objects of the same type.
+ *
+ * @param from The vector used as the source of the copying
+ * @param to The vector used as the target of the copying
+ */
+template <typename T>
+void copyCloneableObjectsVector(
+	const std::vector<T>& from
+, std::vector<T>& to
+, typename std::enable_if<Gem::Common::has_gemfony_common_interface<T>::value>::type* dummy = 0
+) {
+	typename std::vector<T>::const_iterator it_from;
+	typename std::vector<T>::iterator it_to;
+
+	std::size_t size_from = from.size();
+	std::size_t size_to = to.size();
+
+	if(size_from==size_to) { // The most likely case
+		for(it_from=from.begin(), it_to=to.begin(); it_from!=from.end(); ++it_from, ++it_to) {
+			it_to->load(*it_from);
+		}
+	} else if(size_from > size_to) {
+		// First copy the data of the first size_to items
+		for(it_from=from.begin(), it_to=to.begin(); it_to!=to.end(); ++it_from, ++it_to) {
+			it_to->load(*it_from);
+		}
+
+		// Then attach copies of the remaining items
+		for(it_from=from.begin()+size_to; it_from!=from.end(); ++it_from) {
+			to.push_back(T(*it_from));
+		}
+	} else if(size_from < size_to) {
+		// First copy the initial size_for items over
+		for(it_from=from.begin(), it_to=to.begin(); it_from!=from.end(); ++it_from, ++it_to) {
+			it_to->load(*it_from);
+		}
+
+		// Then resize the local vector. Surplus items will vanish
+		to.resize(size_from);
+	}
+}
+
+/******************************************************************************/
+/**
  * This function takes two arrays and copies their contents. It assumes that
  * uninitialized arrays point to nullptr and that the number of entries given
  * is exact. The from-array may be empty, in which case the to array will also
