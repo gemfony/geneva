@@ -113,7 +113,9 @@ public:
 	 */
 	GCollectiveMonitorT(const GCollectiveMonitorT<ind_type>& cp)
 		: GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT(cp)
-	{ /* nothing */ }
+	{
+		Gem::Common::copyCloneableSmartPointerVector(cp.pluggable_monitors_, pluggable_monitors_);
+	}
 
 	/***************************************************************************/
 	/**
@@ -358,6 +360,9 @@ public:
 		, observeBoundaries_(cp.observeBoundaries_)
 		, addPrintCommand_(cp.addPrintCommand_)
 	{
+		Gem::Common::copyCloneableSmartPointer(cp.progressPlotter2D_oa_, progressPlotter2D_oa_);
+		Gem::Common::copyCloneableSmartPointer(cp.progressPlotter3D_oa_, progressPlotter3D_oa_);
+		Gem::Common::copyCloneableSmartPointer(cp.progressPlotter4D_oa_, progressPlotter4D_oa_);
 		Gem::Common::copyCloneableObjectsVector(cp.fp_profVarVec_, fp_profVarVec_);
 	}
 
@@ -1005,6 +1010,25 @@ template <typename ind_type>
 class GAllSolutionFileLoggerT
 	: public GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT
 {
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+
+		ar
+		& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(*this))
+		& BOOST_SERIALIZATION_NVP(fileName_)
+		& BOOST_SERIALIZATION_NVP(boundaries_)
+		& BOOST_SERIALIZATION_NVP(boundariesActive_)
+		& BOOST_SERIALIZATION_NVP(withNameAndType_)
+		& BOOST_SERIALIZATION_NVP(withCommas_)
+		& BOOST_SERIALIZATION_NVP(useRawFitness_)
+		& BOOST_SERIALIZATION_NVP(showValidity_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
 	// Make sure this class can only be instantiated if individual_type is a derivative of GParameterSet
 	static_assert(
 		std::is_base_of<GParameterSet, ind_type>::value
@@ -1380,6 +1404,21 @@ template <typename ind_type>
 class GIterationResultsFileLoggerT
 	: public GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT
 {
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+
+		ar
+		& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(*this))
+		& BOOST_SERIALIZATION_NVP(fileName_)
+		& BOOST_SERIALIZATION_NVP(withCommas_)
+		& BOOST_SERIALIZATION_NVP(useRawFitness_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
 	// Make sure this class can only be instantiated if individual_type is a derivative of GParameterSet
 	static_assert(
 		std::is_base_of<GParameterSet, ind_type>::value
@@ -1389,22 +1428,19 @@ class GIterationResultsFileLoggerT
 public:
 	/***************************************************************************/
 	/**
-	 * The default constructor
+	 * The default constructor. Note that some variables may be initialized
+	 * in the class body.
 	 */
 	GIterationResultsFileLoggerT()
-		: fileName_("CompleteSolutionLog.txt")
-		, withCommas_(false)
-		, useRawFitness_(true)
 	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
-	 * Initialization with a file name
+	 * Initialization with a file name. Note that some variables may be initialized
+	 * in the class body.
 	 */
 	GIterationResultsFileLoggerT(const std::string& fileName)
 		: fileName_(fileName)
-		, withCommas_(false)
-		, useRawFitness_(true)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -1423,6 +1459,15 @@ public:
 	 */
 	virtual ~GIterationResultsFileLoggerT()
 	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * A standard assignment operator
+	 */
+	const GIterationResultsFileLoggerT<ind_type>& operator=(const GIterationResultsFileLoggerT<ind_type>& cp) {
+		this->load_(&cp);
+		return *this;
+	}
 
 	/************************************************************************/
 	/**
@@ -1460,6 +1505,14 @@ public:
 
 	/***************************************************************************/
 	/**
+	 * Emits a name for this class / object
+	 */
+	virtual std::string name() const override {
+		return std::string("GIterationResultsFileLoggerT<>");
+	}
+
+	/***************************************************************************/
+	/**
 	 * Searches for compliance with expectations with respect to another object
 	 * of the same type
 	 *
@@ -1474,8 +1527,9 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are dealing with a GIterationResultsFileLoggerT<ind_type> reference independent of this object and convert the pointer
-		const GIterationResultsFileLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GIterationResultsFileLoggerT<ind_type>>(cp, this);
+		// Check that we are dealing with a GIterationResultsFileLoggerT<ind_type>
+		// reference independent of this object and convert the pointer
+		const GIterationResultsFileLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		GToken token("GIterationResultsFileLoggerT", e);
 
@@ -1606,8 +1660,9 @@ protected:
 	 * cp A pointer to another GIterationResultsFileLoggerT<ind_type> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject* cp) override {
-		// Check that we are dealing with a GIterationResultsFileLoggerT<ind_type> reference independent of this object and convert the pointer
-		const GIterationResultsFileLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GIterationResultsFileLoggerT<ind_type>>(cp, this);
+		// Check that we are dealing with a GIterationResultsFileLoggerT<ind_type>
+		// reference independent of this object and convert the pointer
+		const GIterationResultsFileLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load the parent classes' data ...
 		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
@@ -1629,9 +1684,9 @@ protected:
 private:
 	/***************************************************************************/
 
-	std::string fileName_; ///< The name of the file to which solutions should be stored
-	bool withCommas_; ///< When set to true, commas will be printed in-between values
-	bool useRawFitness_; ///< Indicates whether true- or transformed fitness should be output
+	std::string fileName_ = "IterationResultsLog.txt"; ///< The name of the file to which solutions should be stored
+	bool withCommas_ = true; ///< When set to true, commas will be printed in-between values
+	bool useRawFitness_ = false; ///< Indicates whether true- or transformed fitness should be output
 };
 
 /******************************************************************************/
@@ -1646,6 +1701,29 @@ template <typename ind_type>
 class GNAdpationsLoggerT
 	: public GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT
 {
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+
+		ar
+		& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(*this))
+		& BOOST_SERIALIZATION_NVP(fileName_)
+		& BOOST_SERIALIZATION_NVP(canvasDimensions_)
+		& BOOST_SERIALIZATION_NVP(gpd_oa_)
+	  	& BOOST_SERIALIZATION_NVP(nAdaptionsHist2D_oa_)
+	 	& BOOST_SERIALIZATION_NVP(nAdaptionsGraph2D_oa_)
+		& BOOST_SERIALIZATION_NVP(fitnessGraph2D_oa_)
+		& BOOST_SERIALIZATION_NVP(monitorBestOnly_)
+		& BOOST_SERIALIZATION_NVP(addPrintCommand_)
+		& BOOST_SERIALIZATION_NVP(maxIteration_)
+		& BOOST_SERIALIZATION_NVP(nIterationsRecorded_)
+		& BOOST_SERIALIZATION_NVP(nAdaptionsStore_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
 	// Make sure this class can only be instantiated if individual_type is a derivative of GParameterSet
 	static_assert(
 		std::is_base_of<GParameterSet, ind_type>::value
@@ -1655,32 +1733,23 @@ class GNAdpationsLoggerT
 public:
 	/***************************************************************************/
 	/**
-	 * The default constructor
+	 * The default constructor. Note that some variables may be
+	 * initialized in the class body.
 	 */
 	GNAdpationsLoggerT()
-		: fileName_("NAdaptions.C")
-		, canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1200,1600))
+		: canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1200,1600))
 		, gpd_oa_("Number of adaptions per iteration", 1, 2)
-		, monitorBestOnly_(false)
-		, addPrintCommand_(false)
-		, maxIteration_(0)
-		, nIterationsRecorded_(0)
-		, nAdaptionsStore_()
 	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
-	 * Initialization with a file name
+	 * Initialization with a file name. Note that some variables may be
+	 * initialized in the class body.
 	 */
 	explicit GNAdpationsLoggerT(const std::string& fileName)
 		: fileName_(fileName)
 		, canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1200,1600))
 		, gpd_oa_("Number of adaptions per iteration", 1, 2)
-		, monitorBestOnly_(false)
-		, addPrintCommand_(false)
-		, maxIteration_(0)
-		, nIterationsRecorded_(0)
-		, nAdaptionsStore_()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -1690,13 +1759,17 @@ public:
 	GNAdpationsLoggerT(const GNAdpationsLoggerT<ind_type>& cp)
 		: fileName_(cp.fileName_)
 		, canvasDimensions_(cp.canvasDimensions_)
-		, gpd_oa_("Number of adaptions per iteration", 1, 2) // Not copied
+		, gpd_oa_(cp.gpd_oa_)
 		, monitorBestOnly_(cp.monitorBestOnly_)
 		, addPrintCommand_(cp.addPrintCommand_)
 		, maxIteration_(cp.maxIteration_)
 		, nIterationsRecorded_(cp.nIterationsRecorded_)
 		, nAdaptionsStore_(cp.nAdaptionsStore_)
-	{ /* nothing */ }
+	{
+		Gem::Common::copyCloneableSmartPointer(cp.nAdaptionsHist2D_oa_, nAdaptionsHist2D_oa_);
+		Gem::Common::copyCloneableSmartPointer(cp.nAdaptionsGraph2D_oa_, nAdaptionsGraph2D_oa_);
+		Gem::Common::copyCloneableSmartPointer(cp.fitnessGraph2D_oa_, fitnessGraph2D_oa_);
+	}
 
 	/***************************************************************************/
 	/**
@@ -1704,6 +1777,15 @@ public:
 	 */
 	virtual ~GNAdpationsLoggerT()
 	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * A standard assignment operator
+	 */
+	const GNAdpationsLoggerT<ind_type>& operator=(const GNAdpationsLoggerT<ind_type>& cp) {
+		this->load_(&cp);
+		return *this;
+	}
 
 	/************************************************************************/
 	/**
@@ -1766,6 +1848,10 @@ public:
 		// ... and then our local data
 		compare_t(IDENTITY(fileName_, p_load->fileName_), token);
 		compare_t(IDENTITY(canvasDimensions_, p_load->canvasDimensions_), token);
+		compare_t(IDENTITY(gpd_oa_, p_load->gpd_oa_), token);
+		compare_t(IDENTITY(nAdaptionsHist2D_oa_, p_load->nAdaptionsHist2D_oa_), token);
+		compare_t(IDENTITY(nAdaptionsGraph2D_oa_, p_load->nAdaptionsGraph2D_oa_), token);
+		compare_t(IDENTITY(fitnessGraph2D_oa_, p_load->fitnessGraph2D_oa_), token);
 		compare_t(IDENTITY(monitorBestOnly_, p_load->monitorBestOnly_), token);
 		compare_t(IDENTITY(addPrintCommand_, p_load->addPrintCommand_), token);
 		compare_t(IDENTITY(maxIteration_, p_load->maxIteration_), token);
@@ -2000,6 +2086,10 @@ protected:
 		// ... and then our local data
 		fileName_ = p_load->fileName_;
 		canvasDimensions_ = p_load->canvasDimensions_;
+		gpd_oa_ = p_load->gpd_oa_;
+		Gem::Common::copyCloneableSmartPointer(p_load->nAdaptionsHist2D_oa_, nAdaptionsHist2D_oa_);
+		Gem::Common::copyCloneableSmartPointer(p_load->nAdaptionsGraph2D_oa_, nAdaptionsGraph2D_oa_);
+		Gem::Common::copyCloneableSmartPointer(p_load->fitnessGraph2D_oa_, fitnessGraph2D_oa_);
 		monitorBestOnly_ = p_load->monitorBestOnly_;
 		addPrintCommand_ = p_load->addPrintCommand_;
 		maxIteration_ = p_load->maxIteration_;
@@ -2018,7 +2108,7 @@ protected:
 private:
 	/***************************************************************************/
 
-	std::string fileName_; ///< The name of the file to which solutions should be stored
+	std::string fileName_ = "NAdaptions.C"; ///< The name of the file to which solutions should be stored
 
 	boost::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions_; ///< The dimensions of the canvas
 
@@ -2028,11 +2118,11 @@ private:
 	std::shared_ptr<Gem::Common::GGraph2D>     nAdaptionsGraph2D_oa_; ///< Used if we only monitor the best solution in each iteration
 	std::shared_ptr<Gem::Common::GGraph2D>     fitnessGraph2D_oa_;    ///< Lets us monitor the current fitness of the population
 
-	bool monitorBestOnly_; ///< Indicates whether only the best individuals should be monitored
-	bool addPrintCommand_; ///< Asks the GPlotDesigner to add a print command to result files
+	bool monitorBestOnly_ = false; ///< Indicates whether only the best individuals should be monitored
+	bool addPrintCommand_ = false; ///< Asks the GPlotDesigner to add a print command to result files
 
-	std::size_t maxIteration_; ///< Holds the largest iteration recorded for the algorithm
-	std::size_t nIterationsRecorded_; ///< Holds the number of iterations that were recorded (not necessarily == maxIteration_
+	std::size_t maxIteration_ = 0; ///< Holds the largest iteration recorded for the algorithm
+	std::size_t nIterationsRecorded_ = 0; ///< Holds the number of iterations that were recorded (not necessarily == maxIteration_
 
 	std::vector<boost::tuple<double, double>> nAdaptionsStore_; ///< Holds all information about the number of adaptions
 };
@@ -2048,6 +2138,30 @@ template <typename ind_type, typename num_type>
 class GAdaptorPropertyLoggerT
 	: public GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT
 {
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+
+		ar
+		& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(*this))
+		& BOOST_SERIALIZATION_NVP(fileName_)
+		& BOOST_SERIALIZATION_NVP(adaptorName_)
+		& BOOST_SERIALIZATION_NVP(property_)
+		& BOOST_SERIALIZATION_NVP(canvasDimensions_)
+		& BOOST_SERIALIZATION_NVP(gpd_oa_)
+		& BOOST_SERIALIZATION_NVP(adaptorPropertyHist2D_oa_)
+		& BOOST_SERIALIZATION_NVP(fitnessGraph2D_oa_)
+		& BOOST_SERIALIZATION_NVP(monitorBestOnly_)
+		& BOOST_SERIALIZATION_NVP(addPrintCommand_)
+		& BOOST_SERIALIZATION_NVP(maxIteration_)
+		& BOOST_SERIALIZATION_NVP(nIterationsRecorded_)
+		& BOOST_SERIALIZATION_NVP(adaptorPropertyStore_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
 	// Make sure this class can only be instantiated if individual_type is a derivative of GParameterSet
 	static_assert(
 		std::is_base_of<GParameterSet, ind_type>::value
@@ -2062,19 +2176,12 @@ class GAdaptorPropertyLoggerT
 public:
 	/***************************************************************************/
 	/**
-	 * The default constructor
+	 * The default constructor. Note that some parmeters may be initialized in
+	 * the class body.
 	 */
 	GAdaptorPropertyLoggerT()
-		: fileName_("NAdaptions.C")
-		, adaptorName_("GDoubleGaussAdaptor")
-		, property_("sigma")
-		, canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1200,1600))
+		: canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1200,1600))
 		, gpd_oa_("Adaptor properties", 1, 2)
-		, monitorBestOnly_(false)
-		, addPrintCommand_(false)
-		, maxIteration_(0)
-		, nIterationsRecorded_(0)
-		, adaptorPropertyStore_()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -2091,11 +2198,6 @@ public:
 		, property_(property)
 		, canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1200,1600))
 		, gpd_oa_("Adaptor properties", 1, 2)
-		, monitorBestOnly_(false)
-		, addPrintCommand_(false)
-		, maxIteration_(0)
-		, nIterationsRecorded_(0)
-		, adaptorPropertyStore_()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -2107,13 +2209,17 @@ public:
 		, adaptorName_(cp.adaptorName_)
 		, property_(cp.property_)
 		, canvasDimensions_(cp.canvasDimensions_)
-		, gpd_oa_("Number of adaptions per iteration", 1, 2) // Not copied
+		, gpd_oa_(cp.gpd_oa_)
 		, monitorBestOnly_(cp.monitorBestOnly_)
 		, addPrintCommand_(cp.addPrintCommand_)
 		, maxIteration_(cp.maxIteration_)
 		, nIterationsRecorded_(cp.nIterationsRecorded_)
 		, adaptorPropertyStore_(cp.adaptorPropertyStore_)
-	{ /* nothing */ }
+	{
+		// Copy the smart pointers over
+		Gem::Common::copyCloneableSmartPointer(cp.adaptorPropertyHist2D_oa_, adaptorPropertyHist2D_oa_);
+		Gem::Common::copyCloneableSmartPointer(cp.fitnessGraph2D_oa_, fitnessGraph2D_oa_);
+	}
 
 	/***************************************************************************/
 	/**
@@ -2121,6 +2227,15 @@ public:
 	 */
 	virtual ~GAdaptorPropertyLoggerT()
 	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * A standard assignment operator
+	 */
+	const GAdaptorPropertyLoggerT<ind_type, num_type>& operator=(const GAdaptorPropertyLoggerT<ind_type, num_type>& cp) {
+		this->load_(&cp);
+		return *this;
+	}
 
 	/************************************************************************/
 	/**
@@ -2158,6 +2273,14 @@ public:
 
 	/***************************************************************************/
 	/**
+	 * Emits a name for this class / object
+	 */
+	virtual std::string name() const override {
+		return std::string("GAdaptorPropertyLoggerT<>");
+	}
+
+	/***************************************************************************/
+	/**
 	 * Searches for compliance with expectations with respect to another object
 	 * of the same type
 	 *
@@ -2185,6 +2308,9 @@ public:
 		compare_t(IDENTITY(adaptorName_, p_load->adaptorName_), token);
 		compare_t(IDENTITY(property_, p_load->property_), token);
 		compare_t(IDENTITY(canvasDimensions_, p_load->canvasDimensions_), token);
+		compare_t(IDENTITY(gpd_oa_, p_load->gpd_oa_), token);
+		compare_t(IDENTITY(adaptorPropertyHist2D_oa_, p_load->adaptorPropertyHist2D_oa_), token);
+		compare_t(IDENTITY(fitnessGraph2D_oa_, p_load->fitnessGraph2D_oa_), token);
 		compare_t(IDENTITY(monitorBestOnly_, p_load->monitorBestOnly_), token);
 		compare_t(IDENTITY(addPrintCommand_, p_load->addPrintCommand_), token);
 		compare_t(IDENTITY(maxIteration_, p_load->maxIteration_), token);
@@ -2454,6 +2580,9 @@ protected:
 		adaptorName_ = p_load->adaptorName_;
 		property_ = p_load->property_;
 		canvasDimensions_ = p_load->canvasDimensions_;
+		gpd_oa_ = p_load->gpd_oa_;
+		Gem::Common::copyCloneableSmartPointer(p_load->adaptorPropertyHist2D_oa_, adaptorPropertyHist2D_oa_);
+		Gem::Common::copyCloneableSmartPointer(p_load->fitnessGraph2D_oa_, fitnessGraph2D_oa_);
 		monitorBestOnly_ = p_load->monitorBestOnly_;
 		addPrintCommand_ = p_load->addPrintCommand_;
 		maxIteration_ = p_load->maxIteration_;
@@ -2472,10 +2601,10 @@ protected:
 private:
 	/***************************************************************************/
 
-	std::string fileName_; ///< The name of the file to which solutions should be stored
+	std::string fileName_ = "NAdaptions.C"; ///< The name of the file to which solutions should be stored
 
-	std::string adaptorName_; ///< The  name of the adaptor for which properties should be logged
-	std::string property_; ///< The name of the property to be logged
+	std::string adaptorName_ = "GDoubleGaussAdaptor"; ///< The  name of the adaptor for which properties should be logged
+	std::string property_ = "sigma"; ///< The name of the property to be logged
 
 	boost::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions_; ///< The dimensions of the canvas
 
@@ -2484,11 +2613,11 @@ private:
 	std::shared_ptr<Gem::Common::GHistogram2D> adaptorPropertyHist2D_oa_;  ///< Holds the actual histogram
 	std::shared_ptr<Gem::Common::GGraph2D>     fitnessGraph2D_oa_;    ///< Lets us monitor the current fitness of the population
 
-	bool monitorBestOnly_; ///< Indicates whether only the best individuals should be monitored
-	bool addPrintCommand_; ///< Asks the GPlotDesigner to add a print command to result files
+	bool monitorBestOnly_ = false; ///< Indicates whether only the best individuals should be monitored
+	bool addPrintCommand_ = false; ///< Asks the GPlotDesigner to add a print command to result files
 
-	std::size_t maxIteration_; ///< Holds the largest iteration recorded for the algorithm
-	std::size_t nIterationsRecorded_; ///< Holds the number of iterations that were recorded (not necessarily == maxIteration_
+	std::size_t maxIteration_ = 0; ///< Holds the largest iteration recorded for the algorithm
+	std::size_t nIterationsRecorded_ = 0; ///< Holds the number of iterations that were recorded (not necessarily == maxIteration_
 
 	std::vector<boost::tuple<double, double>> adaptorPropertyStore_; ///< Holds all information about the number of adaptions
 };
