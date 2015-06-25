@@ -1472,6 +1472,14 @@ public:
 			case Gem::Geneva::INFOEND:
 				// nothing
 				break;
+
+			default:
+			{
+				glogger
+				<< "In GAllSolutionFileLoggerT<ind_type>: Received invalid infoMode " << im << std::endl
+				<< GEXCEPTION;
+			}
+				break;
 		};
 	}
 
@@ -1837,6 +1845,14 @@ public:
 
 			case Gem::Geneva::INFOEND:
 				// nothing
+				break;
+
+			default:
+			{
+				glogger
+				<< "In GIterationResultsFileLoggerT<T>: Received invalid infoMode " << im << std::endl
+				<< GEXCEPTION;
+			}
 				break;
 		};
 	}
@@ -2316,6 +2332,14 @@ public:
 				gpd_oa_.resetPlotters();
 				nAdaptionsHist2D_oa_.reset();
 				nAdaptionsGraph2D_oa_.reset();
+			}
+				break;
+
+			default:
+			{
+				glogger
+				<< "In GNAdpationsLoggerT<T>>: Received invalid infoMode " << im << std::endl
+				<< GEXCEPTION;
 			}
 				break;
 		};
@@ -2871,6 +2895,14 @@ public:
 				// Remove all plotters (they will survive inside of gpd)
 				gpd_oa_.resetPlotters();
 				adaptorPropertyHist2D_oa_.reset();
+			}
+				break;
+
+			default:
+			{
+				glogger
+				<< "In GAdaptorPropertyLoggerT<S,T>: Received invalid infoMode " << im << std::endl
+				<< GEXCEPTION;
 			}
 				break;
 		};
