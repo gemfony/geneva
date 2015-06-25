@@ -882,6 +882,14 @@ public:
 
 	/***************************************************************************/
 	/**
+	 * Emits a name for this class / object
+	 */
+	virtual std::string name() const override {
+		return std::string("GProgressPlotterT<>");
+	}
+
+	/***************************************************************************/
+	/**
 	 * Searches for compliance with expectations with respect to another object
 	 * of the same type
 	 *
@@ -899,7 +907,7 @@ public:
 		// Check that we are dealing with a GProgressPlotterT<ind_type, fp_type reference independent of this object and convert the pointer
 		const GProgressPlotterT<ind_type, fp_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
-		GToken token("GCollectiveMonitorT", e);
+		GToken token("GProgressPlotterT", e);
 
 		// Compare our parent data ...
 		Gem::Common::compare_base<typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
@@ -1006,33 +1014,23 @@ class GAllSolutionFileLoggerT
 public:
 	/***************************************************************************/
 	/**
-	 * The default constructor
+	 * The default constructor. Note that some variables may be initialized in the class body.
 	 */
 	GAllSolutionFileLoggerT()
-		: fileName_("CompleteSolutionLog.txt")
-		, boundariesActive_(false)
-		, withNameAndType_(false)
-		, withCommas_(false)
-		, useRawFitness_(true)
-		, showValidity_(true)
 	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
-	 * Initialization with a file name
+	 * Initialization with a file name. Note that some variables may be initialized in the class body.
 	 */
 	GAllSolutionFileLoggerT(const std::string& fileName)
 		: fileName_(fileName)
-		, boundariesActive_(false)
-		, withNameAndType_(false)
-		, withCommas_(false)
-		, useRawFitness_(true)
-		, showValidity_(true)
 	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
-	 * Initialization with a file name and boundaries
+	 * Initialization with a file name and boundaries.
+	 * Note that some variables may be initialized in the class body.
 	 */
 	GAllSolutionFileLoggerT(
 		const std::string& fileName
@@ -1041,10 +1039,6 @@ public:
 		: fileName_(fileName)
 		, boundaries_(boundaries)
 		, boundariesActive_(true)
-		, withNameAndType_(false)
-		, withCommas_(false)
-		, useRawFitness_(true)
-		, showValidity_(true)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -1067,6 +1061,15 @@ public:
 	 */
 	virtual ~GAllSolutionFileLoggerT()
 	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * A standard assignment operator
+	 */
+	const GAllSolutionFileLoggerT<ind_type>& operator=(const GAllSolutionFileLoggerT<ind_type>& cp) {
+		this->load_(&cp);
+		return *this;
+	}
 
 	/************************************************************************/
 	/**
@@ -1100,6 +1103,14 @@ public:
 		} catch(g_expectation_violation&) {
 			return false;
 		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Emits a name for this class / object
+	 */
+	virtual std::string name() const override {
+		return std::string("GAllSolutionFileLoggerT<>");
 	}
 
 	/***************************************************************************/
@@ -1323,7 +1334,7 @@ protected:
 	 */
 	virtual void load_(const GObject* cp) override {
 		// Check that we are dealing with a GAllSolutionFileLoggerT<ind_type> reference independent of this object and convert the pointer
-		const GAllSolutionFileLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAllSolutionFileLoggerT<ind_type>>(cp, this);
+		const GAllSolutionFileLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load the parent classes' data ...
 		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
@@ -1349,13 +1360,13 @@ protected:
 private:
 	/***************************************************************************/
 
-	std::string fileName_; ///< The name of the file to which solutions should be stored
+	std::string fileName_ = "CompleteSolutionLog.txt"; ///< The name of the file to which solutions should be stored
 	std::vector<double> boundaries_; ///< Value boundaries used to filter logged solutions
-	bool boundariesActive_; ///< Set to true if boundaries have been set
-	bool withNameAndType_; ///< When set to true, explanations for values are printed
-	bool withCommas_; ///< When set to true, commas will be printed in-between values
-	bool useRawFitness_; ///< Indicates whether true- or transformed fitness should be output
-	bool showValidity_; ///< Indicates whether the validity of a solution should be shown
+	bool boundariesActive_ = false; ///< Set to true if boundaries have been set
+	bool withNameAndType_ = false; ///< When set to true, explanations for values are printed
+	bool withCommas_ = false; ///< When set to true, commas will be printed in-between values
+	bool useRawFitness_ = true; ///< Indicates whether true- or transformed fitness should be output
+	bool showValidity_ = true; ///< Indicates whether the validity of a solution should be shown
 };
 
 /******************************************************************************/
