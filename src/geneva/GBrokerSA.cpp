@@ -46,6 +46,7 @@ namespace Geneva {
 GBrokerSA::GBrokerSA()
 	: GBaseSA()
 	, Gem::Courtier::GBrokerConnector2T<GParameterSet>(Gem::Courtier::INCOMPLETERETURN)
+	, nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 { /* nothing */ }
 
 /******************************************************************************/

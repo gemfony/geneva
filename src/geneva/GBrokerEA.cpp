@@ -46,6 +46,7 @@ namespace Geneva {
 GBrokerEA::GBrokerEA()
 	: GBaseEA()
 	, Gem::Courtier::GBrokerConnector2T<GParameterSet>(Gem::Courtier::INCOMPLETERETURN)
+	, nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 { /* nothing */ }
 
 /******************************************************************************/
