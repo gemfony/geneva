@@ -173,7 +173,7 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GCollectiveMonitorT<ind_type> reference independent of this object and convert the pointer
-		const GCollectiveMonitorT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GCollectiveMonitorT<ind_type>>(cp, this);
+		const GCollectiveMonitorT<ind_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		GToken token("GCollectiveMonitorT", e);
 

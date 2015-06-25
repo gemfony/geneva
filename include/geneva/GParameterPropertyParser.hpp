@@ -64,6 +64,7 @@
 #include "common/GLogger.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GCommonInterfaceT.hpp"
+#include "common/GExpectationChecksT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -74,30 +75,198 @@ typedef boost::tuple<std::size_t, std::string, std::size_t> NAMEANDIDTYPE;
 
 /******************************************************************************/
 /**
- * This struct holds common properties of supported parameters in the context
+ * This class holds common properties of supported parameters in the context
  * of parameter scans. This is targeted at float, double, integer and boolean
  * parameter types. Note that particularly the nSteps variable can have different
  * meanings for different types. E.g., for double variables it may stand for the
  * number of steps from the lower (inclusive) to the upper (exclusive) boundary
  * OR the number of random values picked from this range, whereas for booleans
- * it may only signify the latter.
+ * it may only signify the latter. Note that we have given this class the standard
+ * Gemfony interface, so that we may serialize it more easily as part of some
+ * other classes.
  */
 template <typename par_type>
-struct parPropSpec {
-	// mode: (0, ...), (VarName[0], ...) or (VarName, ...)
-	// variable name
-	// optional index
-	NAMEANDIDTYPE var;
-	par_type lowerBoundary; ///< The lower boundary for the parameter scan
-	par_type upperBoundary; ///< The upper boundary for the parameter scan
-	std::size_t nSteps;   ///< The number of steps from the lower boundary to the upper boundary (or possibly the number of random values from this parameter range, depending on the scan mode and parameter type)
+class parPropSpec
+	: public Gem::Common::GCommonInterfaceT<parPropSpec<par_type>>
+{
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
 
-	// Swap with another parPropSpec
+	template<typename Archive>
+	void serialize(Archive &ar, const unsigned int)  {
+		using boost::serialization::make_nvp;
+		using namespace Gem::Common;
+
+		& make_nvp("GCommonInterfaceT_parPropSpec_par_type", boost::serialization::base_object<GCommonInterfaceT<parPropSpec<par_type>>>(*this))
+		& BOOST_SERIALIZATION_NVP(var)
+		& BOOST_SERIALIZATION_NVP(lowerBoundary)
+	  	& BOOST_SERIALIZATION_NVP(upperBoundary)
+	 	& BOOST_SERIALIZATION_NVP(nSteps);
+	}
+	///////////////////////////////////////////////////////////////////////
+
+public:
+	/***************************************************************************/
+	/**
+	 * The (trivial) default constructor. Class members are initialized in the
+	 * class body.
+	 */
+	parPropSpec()
+	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * The copy constructor
+	 */
+	parPropSpec(const parPropSpec& cp)
+		: var(cp.var)
+		, lowerBoundary(cp.lowerBoundary)
+		, upperBoundary(cp.upperBoundary)
+		, nSteps(cp.nSteps)
+	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * The standard destructor
+	 * */
+	virtual ~parPropSpec()
+	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * Assignment opertor
+	 */
+	const parPropSpec<par_type>& operator=(const parPropSpec<par_type> &cp) {
+		this->load_(&cp);
+		return *this;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Checks for equality with another parPropSpec<par_type> object
+	 *
+	 * @param  cp A constant reference to another parPropSpec<par_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const parPropSpec<par_type> &cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch (g_expectation_violation &) {
+			return false;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another parPropSpec<par_type> object
+	 *
+	 * @param  cp A constant reference to another parPropSpec<par_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const parPropSpec<par_type> &cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch (g_expectation_violation &) {
+			return false;
+		}
+	}
+
+
+	/***************************************************************************/
+	/**
+	 * Emits a name for this class / object
+	 */
+	virtual std::string name() const {
+		return std::string("parPropSpec<T>");
+	}
+
+	/***************************************************************************/
+	/**
+	 * Checks for compliance with expectations with respect to another object
+	 * of type T. This purely virtual function ensures the well-formedness of the
+	 * compare hierarchy in derived classes.
+	 *
+	 * @param cp A constant reference to another object of the same type, camouflaged as a base object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const parPropSpec<par_type>& cp // the other object
+		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
+		, const double& limit // the limit for allowed deviations of floating point types
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GPlotDesigner reference independent of this object and convert the pointer
+		const parPropSpec<par_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		Gem::Common::GToken token("parPropSpec<T>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base<GCommonInterfaceT<parPropSpec<par_type>>>(IDENTITY(*this, *p_load), token);
+
+		// ... and then the local data
+		Gem::Common::compare_t(IDENTITY(var, p_load->var), token);
+		Gem::Common::compare_t(IDENTITY(lowerBoundary, p_load->lowerBoundary), token);
+		Gem::Common::compare_t(IDENTITY(upperBoundary, p_load->upperBoundary), token);
+		Gem::Common::compare_t(IDENTITY(nSteps, p_load->nSteps), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
+
+	/***************************************************************************/
+	/**
+	 * Swap with another parPropSpec
+	 */
 	void swap(parPropSpec<par_type>& b) {
 		NAMEANDIDTYPE var_c = b.var; b.var = this->var; this->var = var_c;
 		par_type lowerBoundary_c = b.lowerBoundary;  b.lowerBoundary = this->lowerBoundary; this->lowerBoundary = lowerBoundary_c;
 		par_type upperBoundary_c = b.upperBoundary;  b.upperBoundary = this->upperBoundary; this->upperBoundary = upperBoundary_c;
 		std::size_t nSteps_c = b.nSteps; b.nSteps = this->nSteps; this->nSteps = nSteps_c;
+	}
+
+	/***************************************************************************/
+	// Data ...
+
+	// mode: (0, ...), (VarName[0], ...) or (VarName, ...)
+	// variable name
+	// optional index
+	NAMEANDIDTYPE var = NAMEANDIDTYPE(0,std::string(""),0);
+	par_type lowerBoundary = par_type(0); ///< The lower boundary for the parameter scan
+	par_type upperBoundary = par_type(1); ///< The upper boundary for the parameter scan
+	std::size_t nSteps = 10;   ///< The number of steps from the lower boundary to the upper boundary (or possibly the number of random values from this parameter range, depending on the scan mode and parameter type)
+
+protected:
+	/************************************************************************/
+	/**
+	 * Loads the data of another object
+	 *
+	 * cp A pointer to another parPropSpec<T> object
+	 */
+	virtual void load_(const parPropSpec<par_type>* cp) override {
+		// Check that we are dealing with a parPropSpec<T> reference independent of this object and convert the pointer
+		const parPropSpec<par_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		// No parent class with loadable data
+
+		// Load local data
+		var           = p_load->var;
+		lowerBoundary = p_load->lowerBoundary;
+		upperBoundary = p_load->upperBoundary;
+		nSteps        = p_load->nSteps;
+	}
+
+	/************************************************************************/
+	/**
+	 * Creates a deep clone of this object
+	 */
+	virtual parPropSpec<par_type>* clone_() const override {
+		return new parPropSpec<par_type>(*this);
 	}
 };
 
