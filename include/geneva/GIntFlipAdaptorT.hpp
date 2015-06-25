@@ -305,7 +305,7 @@ public:
 		condnotset("GIntFlipAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
-
+	/***************************************************************************/
 };
 
 /******************************************************************************/

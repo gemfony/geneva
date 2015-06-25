@@ -279,6 +279,69 @@ protected:
 
 private:
 	std::vector<std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>> pluggable_monitors_; ///< The collection of monitors
+
+public:
+	/***************************************************************************/
+	/**
+	 * Applies modifications to this object. This is needed for testing purposes
+	 *
+	 * @return A boolean which indicates whether modifications were made
+	 */
+	virtual bool modify_GUnitTests() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		bool result = false;
+
+		// Call the parent classes' functions
+		if(GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::modify_GUnitTests()) {
+			result = true;
+		}
+
+		// no local data -- nothing to change
+
+		return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GCollectiveMonitorT<ind_type>::modify_GUnitTests", "GEM_TESTING");
+		return false;
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+	 * Performs self tests that are expected to succeed. This is needed for testing purposes
+	 */
+	virtual void specificTestsNoFailureExpected_GUnitTests() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		// Call the parent classes' functions
+		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GCollectiveMonitorT<ind_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+	 * Performs self tests that are expected to fail. This is needed for testing purposes
+	 */
+	virtual void specificTestsFailuresExpected_GUnitTests() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		// Call the parent classes' functions
+		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GCollectiveMonitorT<ind_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+	/***************************************************************************/
 };
 
 /******************************************************************************/
@@ -988,6 +1051,69 @@ private:
 	bool observeBoundaries_ = false; ///< When set to true, the plotter will ignore values outside of a scan boundary
 
 	bool addPrintCommand_ = false; ///< Asks the GPlotDesigner to add a print command to result files
+
+public:
+	/***************************************************************************/
+	/**
+	 * Applies modifications to this object. This is needed for testing purposes
+	 *
+	 * @return A boolean which indicates whether modifications were made
+	 */
+	virtual bool modify_GUnitTests() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		bool result = false;
+
+		// Call the parent classes' functions
+		if(GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::modify_GUnitTests()) {
+			result = true;
+		}
+
+		// no local data -- nothing to change
+
+		return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GProgressPlotterT<ind_type, fp_type>::modify_GUnitTests", "GEM_TESTING");
+		return false;
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+	 * Performs self tests that are expected to succeed. This is needed for testing purposes
+	 */
+	virtual void specificTestsNoFailureExpected_GUnitTests() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		// Call the parent classes' functions
+		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GProgressPlotterT<ind_type, fp_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+	 * Performs self tests that are expected to fail. This is needed for testing purposes
+	 */
+	virtual void specificTestsFailuresExpected_GUnitTests() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		// Call the parent classes' functions
+		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GProgressPlotterT<ind_type, fp_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+	/***************************************************************************/
 };
 
 /******************************************************************************/
@@ -1391,6 +1517,69 @@ private:
 	bool withCommas_ = false; ///< When set to true, commas will be printed in-between values
 	bool useRawFitness_ = true; ///< Indicates whether true- or transformed fitness should be output
 	bool showValidity_ = true; ///< Indicates whether the validity of a solution should be shown
+
+public:
+	/***************************************************************************/
+	/**
+	 * Applies modifications to this object. This is needed for testing purposes
+	 *
+	 * @return A boolean which indicates whether modifications were made
+	 */
+	virtual bool modify_GUnitTests() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		bool result = false;
+
+		// Call the parent classes' functions
+		if(GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::modify_GUnitTests()) {
+			result = true;
+		}
+
+		// no local data -- nothing to change
+
+		return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GAllSolutionFileLoggerT<ind_type>::modify_GUnitTests", "GEM_TESTING");
+		return false;
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+	 * Performs self tests that are expected to succeed. This is needed for testing purposes
+	 */
+	virtual void specificTestsNoFailureExpected_GUnitTests() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		// Call the parent classes' functions
+		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GAllSolutionFileLoggerT<ind_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+	 * Performs self tests that are expected to fail. This is needed for testing purposes
+	 */
+	virtual void specificTestsFailuresExpected_GUnitTests() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		// Call the parent classes' functions
+		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GAllSolutionFileLoggerT<ind_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+	/***************************************************************************/
 };
 
 /******************************************************************************/
@@ -1687,6 +1876,69 @@ private:
 	std::string fileName_ = "IterationResultsLog.txt"; ///< The name of the file to which solutions should be stored
 	bool withCommas_ = true; ///< When set to true, commas will be printed in-between values
 	bool useRawFitness_ = false; ///< Indicates whether true- or transformed fitness should be output
+
+public:
+	/***************************************************************************/
+	/**
+	 * Applies modifications to this object. This is needed for testing purposes
+	 *
+	 * @return A boolean which indicates whether modifications were made
+	 */
+	virtual bool modify_GUnitTests() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		bool result = false;
+
+		// Call the parent classes' functions
+		if(GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::modify_GUnitTests()) {
+			result = true;
+		}
+
+		// no local data -- nothing to change
+
+		return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GIterationResultsFileLoggerT<ind_type>::modify_GUnitTests", "GEM_TESTING");
+		return false;
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+	 * Performs self tests that are expected to succeed. This is needed for testing purposes
+	 */
+	virtual void specificTestsNoFailureExpected_GUnitTests() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		// Call the parent classes' functions
+		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GIterationResultsFileLoggerT<ind_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+	 * Performs self tests that are expected to fail. This is needed for testing purposes
+	 */
+	virtual void specificTestsFailuresExpected_GUnitTests() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		// Call the parent classes' functions
+		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GIterationResultsFileLoggerT<ind_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+	/***************************************************************************/
 };
 
 /******************************************************************************/
@@ -2125,6 +2377,69 @@ private:
 	std::size_t nIterationsRecorded_ = 0; ///< Holds the number of iterations that were recorded (not necessarily == maxIteration_
 
 	std::vector<boost::tuple<double, double>> nAdaptionsStore_; ///< Holds all information about the number of adaptions
+
+public:
+	/***************************************************************************/
+	/**
+	 * Applies modifications to this object. This is needed for testing purposes
+	 *
+	 * @return A boolean which indicates whether modifications were made
+	 */
+	virtual bool modify_GUnitTests() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		bool result = false;
+
+		// Call the parent classes' functions
+		if(GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::modify_GUnitTests()) {
+			result = true;
+		}
+
+		// no local data -- nothing to change
+
+		return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GNAdpationsLoggerT<ind_type>::modify_GUnitTests", "GEM_TESTING");
+		return false;
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+	 * Performs self tests that are expected to succeed. This is needed for testing purposes
+	 */
+	virtual void specificTestsNoFailureExpected_GUnitTests() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		// Call the parent classes' functions
+		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GNAdpationsLoggerT<ind_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+	 * Performs self tests that are expected to fail. This is needed for testing purposes
+	 */
+	virtual void specificTestsFailuresExpected_GUnitTests() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		// Call the parent classes' functions
+		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GNAdpationsLoggerT<ind_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+	/***************************************************************************/
 };
 
 /******************************************************************************/
@@ -2620,6 +2935,69 @@ private:
 	std::size_t nIterationsRecorded_ = 0; ///< Holds the number of iterations that were recorded (not necessarily == maxIteration_
 
 	std::vector<boost::tuple<double, double>> adaptorPropertyStore_; ///< Holds all information about the number of adaptions
+
+public:
+	/***************************************************************************/
+	/**
+	 * Applies modifications to this object. This is needed for testing purposes
+	 *
+	 * @return A boolean which indicates whether modifications were made
+	 */
+	virtual bool modify_GUnitTests() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		bool result = false;
+
+		// Call the parent classes' functions
+		if(GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::modify_GUnitTests()) {
+			result = true;
+		}
+
+		// no local data -- nothing to change
+
+		return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GAdaptorPropertyLoggerT<ind_type, num_type>::modify_GUnitTests", "GEM_TESTING");
+		return false;
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+	 * Performs self tests that are expected to succeed. This is needed for testing purposes
+	 */
+	virtual void specificTestsNoFailureExpected_GUnitTests() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		// Call the parent classes' functions
+		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GAdaptorPropertyLoggerT<ind_type, num_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+	 * Performs self tests that are expected to fail. This is needed for testing purposes
+	 */
+	virtual void specificTestsFailuresExpected_GUnitTests() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		// Call the parent classes' functions
+		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GAdaptorPropertyLoggerT<ind_type, num_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+	/***************************************************************************/
 };
 
 /******************************************************************************/
