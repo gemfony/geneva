@@ -2265,7 +2265,9 @@ public:
 		/**
 		 * Allows to register a pluggable optimization monitor
 		 */
-		void registerPluggableOM(std::shared_ptr<GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT> pluggableOM) {
+		void registerPluggableOM(
+			std::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT> pluggableOM
+		) {
 			if(pluggableOM) {
 				pluggable_monitors_.push_back(pluggableOM);
 			} else {
