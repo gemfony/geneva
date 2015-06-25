@@ -76,30 +76,6 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * An exception to be thrown in case of an expectation violation.
- */
-class g_expectation_violation
-	: public gemfony_error_condition
-{
-public:
-	/** @brief The standard constructor */
-	G_API_COMMON g_expectation_violation(const std::string &) throw();
-
-	/** @brief The destructor */
-	virtual G_API_COMMON ~g_expectation_violation() throw();
-
-	/** @brief Allows to add further informtion, automatically terminated through a '\n' */
-	G_API_COMMON g_expectation_violation &operator()(const std::string &) throw();
-
-private:
-	/** @brief The default constructor: Intentionally private and undefined */
-	g_expectation_violation() = delete;
-};
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
  * A token to be handed to different comparators, so they can signal the violation
  * of expectations
  */

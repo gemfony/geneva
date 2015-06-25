@@ -84,6 +84,8 @@
 #include "common/GMathHelperFunctionsT.hpp"
 #include "common/GCommonEnums.hpp"
 #include "common/GCommonInterfaceT.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GTypeTraitsT.hpp"
 
 namespace Gem {
 namespace Common {

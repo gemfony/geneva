@@ -79,6 +79,8 @@ namespace Gem {
 namespace Common {
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 // Exceptions and related definitions
 
 /**
@@ -114,6 +116,33 @@ private:
 /** @brief This function allows to output a gemfony_error_condition to a stream */
 G_API_COMMON std::ostream& operator<<(std::ostream&, const Gem::Common::gemfony_error_condition&);
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * An exception to be thrown in case of an expectation violation. This is used
+ * in the compare infrastructure, but listed here to resolve a circular dependency.
+ */
+class g_expectation_violation
+	: public gemfony_error_condition
+{
+public:
+	/** @brief The standard constructor */
+	G_API_COMMON g_expectation_violation(const std::string &) throw();
+
+	/** @brief The destructor */
+	virtual G_API_COMMON ~g_expectation_violation() throw();
+
+	/** @brief Allows to add further informtion, automatically terminated through a '\n' */
+	G_API_COMMON g_expectation_violation &operator()(const std::string &) throw();
+
+private:
+	/** @brief The default constructor: Intentionally private and undefined */
+	g_expectation_violation() = delete;
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
 } /* namespace Common */

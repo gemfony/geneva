@@ -45,38 +45,6 @@ const std::size_t TESTCOUNTER = 0;
 const std::size_t SUCCESSCOUNTER = 1;
 
 /******************************************************************************/
-/**
- * The standard constructor
- */
-g_expectation_violation::g_expectation_violation(const std::string &description) throw()
-	: gemfony_error_condition(description) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-g_expectation_violation::~g_expectation_violation() throw() { /* nothing */ }
-
-/******************************************************************************/
-/**
- * Allows to add further informtion, automatically terminated by a '\n'.
- * The intended use for this feature is catching and throwing exceptions in
- * an easy way, e.g. in order to create a stack trace:
- *
- * try {
- *   // some condition
- * } catch(g_expectation_violation& g) {
- *    throw g()
- * }
- */
-g_expectation_violation &g_expectation_violation::operator()(
-	const std::string &s
-) throw() {
-	this->add(s + "\n");
-	return *this;
-}
-
-/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
