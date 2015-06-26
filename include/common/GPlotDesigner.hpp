@@ -208,7 +208,7 @@ public:
 	G_API_COMMON void setId(const std::size_t &);
 
 	/** @brief Retrieves a unique name for this plotter */
-	virtual G_API_COMMON std::string getPlotterName() const = 0;
+	virtual G_API_COMMON std::string getPlotterName() const BASE = 0;
 	/** @brief Returns the name of this class */
 	virtual G_API_COMMON std::string name() const override;
 
@@ -626,7 +626,7 @@ public:
 	G_API_COMMON double getMaxX() const;
 
 	/** @brief Retrieves a unique name for this plotter */
-	virtual G_API_COMMON std::string getPlotterName() const;
+	virtual G_API_COMMON std::string getPlotterName() const override;
 	/** @brief Returns the name of this class */
 	virtual G_API_COMMON std::string name() const override;
 
@@ -717,7 +717,7 @@ public:
 	G_API_COMMON double getMaxX() const;
 
 	/** @brief Retrieves a unique name for this plotter */
-	virtual G_API_COMMON std::string getPlotterName() const;
+	virtual G_API_COMMON std::string getPlotterName() const override;
 	/** @brief Returns the name of this class */
 	virtual G_API_COMMON std::string name() const override;
 
@@ -1510,7 +1510,7 @@ public:
 	G_API_COMMON double getMaxY() const;
 
 	/** @brief Retrieves a unique name for this plotter */
-	G_API_COMMON virtual std::string getPlotterName() const;
+	G_API_COMMON virtual std::string getPlotterName() const override;
 	/** @brief Returns the name of this class */
 	virtual G_API_COMMON std::string name() const override;
 
@@ -1607,7 +1607,7 @@ public:
 	G_API_COMMON graphPlotMode getPlotMode() const;
 
 	/** @brief Retrieves a unique name for this plotter */
-	virtual G_API_COMMON std::string getPlotterName() const;
+	virtual G_API_COMMON std::string getPlotterName() const override;
 	/** @brief Returns the name of this class */
 	virtual G_API_COMMON std::string name() const override;
 
@@ -1684,7 +1684,7 @@ public:
 	G_API_COMMON graphPlotMode getPlotMode() const;
 
 	/** @brief Retrieves a unique name for this plotter */
-	G_API_COMMON virtual std::string getPlotterName() const;
+	G_API_COMMON virtual std::string getPlotterName() const override;
 	/** @brief Returns the name of this class */
 	virtual G_API_COMMON std::string name() const override;
 
@@ -2192,7 +2192,7 @@ public:
 	G_API_COMMON bool getDrawLines() const;
 
 	/** @brief Retrieves a unique name for this plotter */
-	virtual G_API_COMMON std::string getPlotterName() const;
+	virtual G_API_COMMON std::string getPlotterName() const override;
 	/** @brief Returns the name of this class */
 	virtual G_API_COMMON std::string name() const override;
 
@@ -2794,7 +2794,7 @@ public:
 	G_API_COMMON std::size_t getNBest() const;
 
 	/** @brief Retrieves a unique name for this plotter */
-	G_API_COMMON virtual std::string getPlotterName() const;
+	G_API_COMMON virtual std::string getPlotterName() const override;
 	/** @brief Returns the name of this class */
 	virtual G_API_COMMON std::string name() const override;
 
@@ -2880,7 +2880,7 @@ public:
 	G_API_COMMON void setNSamplesX(std::size_t);
 
 	/** @brief Retrieves a unique name for this plotter */
-	virtual G_API_COMMON std::string getPlotterName() const;
+	virtual G_API_COMMON std::string getPlotterName() const override;
 	/** @brief Returns the name of this class */
 	virtual G_API_COMMON std::string name() const override;
 
@@ -2969,7 +2969,7 @@ public:
 	G_API_COMMON void setNSamplesY(std::size_t);
 
 	/** @brief Retrieves a unique name for this plotter */
-	G_API_COMMON virtual std::string getPlotterName() const;
+	G_API_COMMON virtual std::string getPlotterName() const override;
 	/** @brief Returns the name of this class */
 	virtual G_API_COMMON std::string name() const override;
 
