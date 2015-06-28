@@ -162,7 +162,7 @@ void GBaseEA::compare(
 	using namespace Gem::Common;
 
 	// Check that we are dealing with a GBaseEA reference independent of this object and convert the pointer
-	const GBaseEA *p_load = Gem::Common::g_convert_and_compare<GObject, GBaseEA>(cp, this);
+	const GBaseEA *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 	GToken token("GBaseEA", e);
 

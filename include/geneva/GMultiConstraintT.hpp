@@ -361,7 +361,7 @@ public:
 	 */
 	GValidityCheckContainerT(const std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>> >& validityChecks)
 	{
-		Gem::Common::copyCloneableSmartPointerVector(validityChecks, validityChecks_);
+		Gem::Common::copyCloneableSmartPointerContainer(validityChecks, validityChecks_);
 	}
 
 	/***************************************************************************/
@@ -371,7 +371,7 @@ public:
 	GValidityCheckContainerT(const GValidityCheckContainerT<ind_type>& cp)
 		: GPreEvaluationValidityCheckT<ind_type>(cp)
 	{
-		Gem::Common::copyCloneableSmartPointerVector(cp.validityChecks_, validityChecks_);
+		Gem::Common::copyCloneableSmartPointerContainer(cp.validityChecks_, validityChecks_);
 	}
 
 	/***************************************************************************/
@@ -492,7 +492,7 @@ protected:
 		GPreEvaluationValidityCheckT<ind_type>::load_(cp);
 
 		// and then our local data
-		Gem::Common::copyCloneableSmartPointerVector(p_load->validityChecks_, validityChecks_);
+		Gem::Common::copyCloneableSmartPointerContainer(p_load->validityChecks_, validityChecks_);
 	}
 
 	/***************************************************************************/

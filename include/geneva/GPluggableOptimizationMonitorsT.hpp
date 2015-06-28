@@ -381,7 +381,7 @@ public:
 		, resultFile_(cp.resultFile_)
 		, infoInitRun_(cp.infoInitRun_)
 	{
-		Gem::Common::copyCloneableSmartPointerVector(cp.fitnessGraphVec_, fitnessGraphVec_);
+		Gem::Common::copyCloneableSmartPointerContainer(cp.fitnessGraphVec_, fitnessGraphVec_);
 	}
 
 	/***************************************************************************/
@@ -529,7 +529,6 @@ public:
 		return nMonitorInds_;
 	}
 
-
 	/***************************************************************************/
 	/**
 	 * Aggregates the work of all registered pluggable monitors
@@ -645,7 +644,7 @@ protected:
 		resultFile_ = p_load->resultFile_;
 		infoInitRun_ = p_load->infoInitRun_;
 
-		Gem::Common::copyCloneableSmartPointerVector(p_load->fitnessGraphVec_, fitnessGraphVec_);
+		Gem::Common::copyCloneableSmartPointerContainer(p_load->fitnessGraphVec_, fitnessGraphVec_);
 	}
 
 	/************************************************************************/
@@ -778,7 +777,7 @@ public:
 	GCollectiveMonitorT(const GCollectiveMonitorT<ind_type>& cp)
 		: GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT(cp)
 	{
-		Gem::Common::copyCloneableSmartPointerVector(cp.pluggable_monitors_, pluggable_monitors_);
+		Gem::Common::copyCloneableSmartPointerContainer(cp.pluggable_monitors_, pluggable_monitors_);
 	}
 
 	/***************************************************************************/
@@ -929,7 +928,7 @@ protected:
 		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
 
 		// ... and then our local data
-		Gem::Common::copyCloneableSmartPointerVector(p_load->pluggable_monitors_, pluggable_monitors_);
+		Gem::Common::copyCloneableSmartPointerContainer(p_load->pluggable_monitors_, pluggable_monitors_);
 	}
 
 	/************************************************************************/
@@ -1090,7 +1089,7 @@ public:
 		Gem::Common::copyCloneableSmartPointer(cp.progressPlotter2D_oa_, progressPlotter2D_oa_);
 		Gem::Common::copyCloneableSmartPointer(cp.progressPlotter3D_oa_, progressPlotter3D_oa_);
 		Gem::Common::copyCloneableSmartPointer(cp.progressPlotter4D_oa_, progressPlotter4D_oa_);
-		Gem::Common::copyCloneableObjectsVector(cp.fp_profVarVec_, fp_profVarVec_);
+		Gem::Common::copyCloneableObjectsContainer(cp.fp_profVarVec_, fp_profVarVec_);
 	}
 
 	/***************************************************************************/
@@ -1676,7 +1675,7 @@ protected:
 		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
 
 		// ... and then our local data
-		Gem::Common::copyCloneableObjectsVector(p_load->fp_profVarVec_, fp_profVarVec_);
+		Gem::Common::copyCloneableObjectsContainer(p_load->fp_profVarVec_, fp_profVarVec_);
 		gpd_oa_.load(p_load->gpd_oa_);
 		copyCloneableSmartPointer(p_load->progressPlotter2D_oa_, progressPlotter2D_oa_);
 		copyCloneableSmartPointer(p_load->progressPlotter3D_oa_, progressPlotter3D_oa_);

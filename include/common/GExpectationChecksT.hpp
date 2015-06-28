@@ -239,7 +239,10 @@ std::ostream &operator<<(std::ostream &s, const identity<T> &i) {
  */
 template<typename T>
 identity<T> getIdentity(
-	const T &x_var, const T &y_var, const std::string &x_name_var, const std::string &y_name_var
+	const T &x_var
+	, const T &y_var
+	, const std::string &x_name_var
+	, const std::string &y_name_var
 ) {
 	return identity<T>(x_var, y_var, x_name_var, y_name_var, Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE);
 }
@@ -360,9 +363,13 @@ void compare(
  */
 template<typename fp_type>
 void compare(
-	const fp_type &x, const fp_type &y, const std::string &x_name, const std::string &y_name,
-	const Gem::Common::expectation &e, const double &limit = CE_DEF_SIMILARITY_DIFFERENCE,
-	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
+	const fp_type &x
+	, const fp_type &y
+	, const std::string &x_name
+	, const std::string &y_name
+	, const Gem::Common::expectation &e
+	, const double &limit = CE_DEF_SIMILARITY_DIFFERENCE
+	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -424,11 +431,15 @@ void compare(
  * @param limit The maximum allowed deviation of two floating point values
  * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
-template<typename basic_type>
+template<typename base_type, template <typename, typename = std::allocator<base_type>> class c_type>
 void compare(
-	const std::vector<basic_type> &x, const std::vector<basic_type> &y, const std::string &x_name,
-	const std::string &y_name, const Gem::Common::expectation &e, const double &limit = 0.,
-	typename std::enable_if<!std::is_floating_point<basic_type>::value>::type *dummy = 0
+	const c_type<base_type>& x
+	, const c_type<base_type>& y
+	, const std::string &x_name
+	, const std::string &y_name
+	, const Gem::Common::expectation &e
+	, const double &limit = 0.
+	, typename std::enable_if<!std::is_floating_point<base_type>::value>::type *dummy = 0
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -470,7 +481,7 @@ void compare(
 				<< x_name << ".size() == " << x.size() << " / " << y_name << ".size() == " << y.size() << std::endl;
 			} else { // Some data member differs
 				// Find out about the first entry that differs
-				typename std::vector<basic_type>::const_iterator x_it, y_it;
+				typename c_type<base_type>::const_iterator x_it, y_it;
 				std::size_t failedIndex = 0;
 				for (x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it, ++failedIndex) {
 					if (*x_it != *y_it) {
@@ -505,11 +516,15 @@ void compare(
  * @param limit The maximum allowed deviation of two floating point values
  * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
-template<typename fp_type>
+template<typename fp_type, template <typename, typename = std::allocator<fp_type>> class c_type>
 void compare(
-	const std::vector<fp_type> &x, const std::vector<fp_type> &y, const std::string &x_name, const std::string &y_name,
-	const Gem::Common::expectation &e, const double &limit = CE_DEF_SIMILARITY_DIFFERENCE,
-	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
+	const c_type<fp_type> &x
+	, const c_type<fp_type> &y
+	, const std::string &x_name
+	, const std::string &y_name
+	, const Gem::Common::expectation &e
+	, const double &limit = CE_DEF_SIMILARITY_DIFFERENCE
+	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -535,7 +550,7 @@ void compare(
 
 			// Do a per-position comparison
 			bool foundDeviation = false;
-			typename std::vector<fp_type>::const_iterator x_it, y_it;
+			typename c_type<fp_type>::const_iterator x_it, y_it;
 			if (Gem::Common::CE_FP_SIMILARITY == e) {
 				for (x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
 					if (gfabs(*x_it - *y_it) >= boost::numeric_cast<fp_type>(limit)) {
@@ -798,7 +813,8 @@ void compare (
 /**
  * This function checks whether two vectors of smart pointers to complex types meet a given expectation.
  * It is assumed that these types have the standard Geneva interface with corresponding "compare"
- * functions.
+ * functions. For an idea of what the template specifyer does, search for "template template" in conjunction
+ * with containers.
  *
  * @param x The first vector to be compared
  * @param y The second vector to be compared
@@ -808,10 +824,10 @@ void compare (
  * @param limit The maximum allowed deviation of two floating point values
  * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
-template <typename geneva_type>
+template <typename geneva_type, template <typename, typename = std::allocator<std::shared_ptr<geneva_type>>> class c_type>
 void compare (
-	const std::vector<std::shared_ptr<geneva_type>>& x
-	, const std::vector<std::shared_ptr<geneva_type>>& y
+	const c_type<std::shared_ptr<geneva_type>>& x
+	, const c_type<std::shared_ptr<geneva_type>>& y
 	, const std::string& x_name
 	, const std::string& y_name
 	, const Gem::Common::expectation& e
@@ -824,8 +840,7 @@ void compare (
 
 	switch(e) {
 	case Gem::Common::CE_FP_SIMILARITY:
-	case Gem::Common::CE_EQUALITY:
-	{
+	case Gem::Common::CE_EQUALITY: {
 		expectation_str = "CE_FP_SIMILARITY / CE_EQUALITY";
 
 		// First check sizes
@@ -839,7 +854,7 @@ void compare (
 
 		// Now loop over all members of the vectors
 		bool foundDeviation = false;
-		typename std::vector<std::shared_ptr<geneva_type>>::const_iterator x_it, y_it;
+		typename c_type<std::shared_ptr<geneva_type>>::const_iterator x_it, y_it;
 		std::size_t index = 0;
 		for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it, ++index) {
 			// First check that both pointers have content
@@ -877,11 +892,9 @@ void compare (
 		if(!foundDeviation) {
 			expectationMet = true;
 		}
-	}
-	break;
+	} break;
 
-	case Gem::Common::CE_INEQUALITY:
-	{
+	case Gem::Common::CE_INEQUALITY: {
 		expectation_str = "CE_INEQUALITY";
 
 		// First check sizes. The expectation of inequality will be met if they differ
@@ -892,7 +905,7 @@ void compare (
 
 		// Now loop over all members of the vectors
 		bool foundInequality = false;
-		typename std::vector<std::shared_ptr<geneva_type>>::const_iterator x_it, y_it;
+		typename c_type<std::shared_ptr<geneva_type>>::const_iterator x_it, y_it;
 		for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it) {
 			// First check that both pointers have content
 			// Check whether the pointers hold content
@@ -922,16 +935,13 @@ void compare (
 			<< "The two vectors " << x_name << " and " << y_name << " are equal." << std::endl
 			<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl;
 		}
-	}
-	break;
+	} break;
 
-	default:
-	{
+	default: {
 		glogger
 		<< "In compare(/* 8 */): Got invalid expectation " << e << std::endl
 		<< GEXCEPTION;
-	}
-	break;
+	} break;
 	};
 
 	if(!expectationMet) {

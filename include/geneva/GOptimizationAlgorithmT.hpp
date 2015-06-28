@@ -97,8 +97,8 @@ private:
 		& BOOST_SERIALIZATION_NVP(maxIteration_)
 		& BOOST_SERIALIZATION_NVP(maxStallIteration_)
 		& BOOST_SERIALIZATION_NVP(reportIteration_)
-		& BOOST_SERIALIZATION_NVP(nRecordBestIndividuals_)
-		& BOOST_SERIALIZATION_NVP(bestIndividuals_)
+		& BOOST_SERIALIZATION_NVP(nRecordbestGlobalIndividuals_)
+		& BOOST_SERIALIZATION_NVP(bestGlobalIndividuals_)
 		& BOOST_SERIALIZATION_NVP(defaultPopulationSize_)
 		& BOOST_SERIALIZATION_NVP(bestKnownPrimaryFitness_)
 		& BOOST_SERIALIZATION_NVP(bestCurrentPrimaryFitness_)
@@ -123,11 +123,12 @@ private:
 public:
 	/***************************************************************************/
 	/**
-	 * The default constructor. Note that most variables are initialized in the class body
+	 * The default constructor. Note that most variables are initialized in the class body.
 	 */
 	GOptimizationAlgorithmT()
 		: GMutableSetT<ind_type>()
-		, bestIndividuals_(DEFNRECORDBESTINDIVIDUALS, Gem::Common::LOWERISBETTER)
+		, bestGlobalIndividuals_(nRecordbestGlobalIndividuals_, Gem::Common::LOWERISBETTER)
+	  	, bestIterationIndividuals_(0, Gem::Common::LOWERISBETTER) // unlimited size, so all individuals of an iteration fit in
 		, bestKnownPrimaryFitness_(boost::tuple<double,double>(0.,0.)) // will be set appropriately in the optimize() function
 		, bestCurrentPrimaryFitness_(boost::tuple<double,double>(0.,0.)) // will be set appropriately in the optimize() function
 		, maxDuration_(boost::posix_time::duration_from_string(DEFAULTDURATION))
@@ -150,8 +151,9 @@ public:
 		, maxIteration_(cp.maxIteration_)
 		, maxStallIteration_(cp.maxStallIteration_)
 		, reportIteration_(cp.reportIteration_)
-		, nRecordBestIndividuals_(cp.nRecordBestIndividuals_)
-		, bestIndividuals_(cp.bestIndividuals_)
+		, nRecordbestGlobalIndividuals_(cp.nRecordbestGlobalIndividuals_)
+		, bestGlobalIndividuals_(cp.bestGlobalIndividuals_)
+		, bestIterationIndividuals_(cp.bestIterationIndividuals_)
 		, defaultPopulationSize_(cp.defaultPopulationSize_)
 		, bestKnownPrimaryFitness_(cp.bestKnownPrimaryFitness_)
 		, bestCurrentPrimaryFitness_(cp.bestCurrentPrimaryFitness_)
@@ -171,7 +173,7 @@ public:
 	{
 		// Copy the pluggable optimization monitors over (if any)
 		Gem::Common::copyCloneableSmartPointer(cp.default_pluggable_monitor_, default_pluggable_monitor_);
-		Gem::Common::copyCloneableSmartPointerVector(cp.pluggable_monitors_, pluggable_monitors_);
+		Gem::Common::copyCloneableSmartPointerContainer(cp.pluggable_monitors_, pluggable_monitors_);
 	}
 
 	/***************************************************************************/
@@ -395,7 +397,9 @@ public:
 		compare_t(IDENTITY(maxIteration_, p_load->maxIteration_), token);
 		compare_t(IDENTITY(maxStallIteration_, p_load->maxStallIteration_), token);
 		compare_t(IDENTITY(reportIteration_, p_load->reportIteration_), token);
-		compare_t(IDENTITY(nRecordBestIndividuals_, p_load->nRecordBestIndividuals_), token);
+		compare_t(IDENTITY(nRecordbestGlobalIndividuals_, p_load->nRecordbestGlobalIndividuals_), token);
+		compare_t(IDENTITY(bestGlobalIndividuals_, p_load->bestGlobalIndividuals_), token);
+		compare_t(IDENTITY(bestIterationIndividuals_, p_load->bestIterationIndividuals_), token);
 		compare_t(IDENTITY(defaultPopulationSize_, p_load->defaultPopulationSize_), token);
 		compare_t(IDENTITY(bestKnownPrimaryFitness_, p_load->bestKnownPrimaryFitness_), token);
 		compare_t(IDENTITY(bestCurrentPrimaryFitness_, p_load->bestCurrentPrimaryFitness_), token);
@@ -442,7 +446,8 @@ public:
 		// Store any *clean* individuals that have been added to this algorithm
 		// in the priority queue. This happens so that best individuals from a
 		// previous "chained" optimization run aren't lost.
-		addCleanStoredBests(bestIndividuals_);
+		addCleanStoredBests(bestGlobalIndividuals_);
+		addCleanStoredBests(bestGlobalIndividuals_);
 
 		// Resize the population to the desired size and do some error checks.
 		// This function will also check that individuals have indeed been registered
@@ -478,8 +483,10 @@ public:
 			// Update fitness values and the stall counter
 			updateStallCounter((bestCurrentPrimaryFitness_=cycleLogic()));
 
-			// Add the best individuals to the bestIndividuals_ vector
-			updateGlobalBestsPQ(bestIndividuals_);
+			// Add the best individuals to the bestGlobalIndividuals_
+			// and bestIterationIndividuals_ vectors
+			updateGlobalBestsPQ(bestGlobalIndividuals_);
+			updateIterationBestsPQ(bestIterationIndividuals_);
 
 			// Check whether a better value was found, and do the check-pointing, if necessary and requested.
 			checkpoint(progress());
@@ -833,7 +840,7 @@ public:
 	 * @return The best raw and transformed fitness found so far
 	 */
 	boost::tuple<double, double> getBestKnownPrimaryFitness() const {
-		return (bestIndividuals_.best())->getFitnessTuple();
+		return (bestGlobalIndividuals_.best())->getFitnessTuple();
 
 		// return bestKnownPrimaryFitness_;
 	}
@@ -1080,6 +1087,20 @@ public:
 
 	/***************************************************************************/
 	/**
+	 * Adds the best individuals of each iteration to a priority queue, which is cleared
+	 * along the way, so results are only relevant for a given iteration. Note: this function is
+	 * a trap -- the real action happens in overloads of this function, of which
+	 * the one for GParameterSet-derivatives is likely the most important.
+	 */
+	virtual void updateIterationBestsPQ(GParameterSetFixedSizePriorityQueue& bestIndividuals) BASE {
+		glogger
+		<< "In GOptimizationAlgorithmT<ind_type>::updateIterationBestsPQ(): Error!" << std::endl
+		<< "This function should not have been called" << std::endl
+		<< GEXCEPTION;
+	}
+
+	/***************************************************************************/
+	/**
 	 * If individuals have been stored in this population, they are added to the
 	 * priority queue. This happens before the optimization cycle starts, so that
 	 * best individuals from a previous "chained" optimization run aren't lost.
@@ -1223,8 +1244,9 @@ protected:
 		maxIteration_ = p_load->maxIteration_;
 		maxStallIteration_ = p_load->maxStallIteration_;
 		reportIteration_ = p_load->reportIteration_;
-		nRecordBestIndividuals_ = p_load->nRecordBestIndividuals_;
-		bestIndividuals_ = p_load->bestIndividuals_;
+		nRecordbestGlobalIndividuals_ = p_load->nRecordbestGlobalIndividuals_;
+		bestGlobalIndividuals_ = p_load->bestGlobalIndividuals_;
+		bestIterationIndividuals_ = p_load->bestIterationIndividuals_;
 		defaultPopulationSize_ = p_load->defaultPopulationSize_;
 		bestKnownPrimaryFitness_ = p_load->bestKnownPrimaryFitness_;
 		bestCurrentPrimaryFitness_ = p_load->bestCurrentPrimaryFitness_;
@@ -1242,7 +1264,7 @@ protected:
 		worstKnownValids_ = p_load->worstKnownValids_;
 		this->optimizationMonitor_ptr_ = p_load->optimizationMonitor_ptr_->GObject::template clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>();
 		Gem::Common::copyCloneableSmartPointer(p_load->default_pluggable_monitor_, default_pluggable_monitor_);
-		Gem::Common::copyCloneableSmartPointerVector(p_load->pluggable_monitors_, pluggable_monitors_);
+		Gem::Common::copyCloneableSmartPointerContainer(p_load->pluggable_monitors_, pluggable_monitors_);
 	}
 
 	/***************************************************************************/
@@ -1256,7 +1278,7 @@ protected:
 	 */
 	virtual std::shared_ptr<GParameterSet> customGetBestIndividual() override {
 #ifdef DEBUG
-		std::shared_ptr<GParameterSet> p = bestIndividuals_.best();
+		std::shared_ptr<GParameterSet> p = bestGlobalIndividuals_.best();
 		if(p) return p;
 		else {
 			glogger
@@ -1268,7 +1290,7 @@ protected:
 			return std::shared_ptr<GParameterSet>();
 		}
 #else
-		return bestIndividuals_.best();
+		return bestGlobalIndividuals_.best();
 #endif
 	}
 
@@ -1278,7 +1300,7 @@ protected:
 	 * the priority queue)
 	 */
 	virtual std::vector<std::shared_ptr<GParameterSet>> customGetBestIndividuals() override {
-		return bestIndividuals_.toVector();
+		return bestGlobalIndividuals_.toVector();
 	}
 
 	/***************************************************************************/
@@ -1333,8 +1355,8 @@ protected:
 			<< GEXCEPTION;
 		}
 
-		nRecordBestIndividuals_ = nRecordBestIndividuals;
-		bestIndividuals_.setMaxSize(nRecordBestIndividuals_);
+		nRecordbestGlobalIndividuals_ = nRecordBestIndividuals;
+		bestGlobalIndividuals_.setMaxSize(nRecordbestGlobalIndividuals_);
 	}
 
 	/***************************************************************************/
@@ -1344,7 +1366,7 @@ protected:
 	 * @return The number of best individuals to be recorded in each iteration
 	 */
 	std::size_t getNRecordBestIndividuals() const {
-		return nRecordBestIndividuals_;
+		return nRecordbestGlobalIndividuals_;
 	}
 
 	/***************************************************************************/
@@ -1797,10 +1819,9 @@ private:
 	boost::uint32_t maxStallIteration_ = DEFAULTMAXSTALLIT; ///< The maximum number of generations without improvement, after which optimization is stopped
 	boost::uint32_t reportIteration_ = DEFAULTREPORTITER; ///< The number of generations after which a report should be issued
 
-	std::size_t nRecordBestIndividuals_ = DEFNRECORDBESTINDIVIDUALS; ///< Indicates the number of best individuals to be recorded/updated in each iteration
-	GParameterSetFixedSizePriorityQueue bestIndividuals_; ///< A priority queue with the best individuals found so far
+	std::size_t nRecordbestGlobalIndividuals_ = DEFNRECORDBESTINDIVIDUALS; ///< Indicates the number of best individuals to be recorded/updated in each iteration
+	GParameterSetFixedSizePriorityQueue bestGlobalIndividuals_; ///< A priority queue with the best individuals found so far
 	GParameterSetFixedSizePriorityQueue bestIterationIndividuals_; ///< A priority queue with the best individuals of a given iteration
-
 
 	std::size_t defaultPopulationSize_ = DEFAULTPOPULATIONSIZE; ///< The nominal size of the population
 	boost::tuple<double, double> bestKnownPrimaryFitness_; ///< Records the best primary fitness found so far
@@ -2507,6 +2528,33 @@ inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::updateGlobalBes
 	// Unless we have asked for the queue to have an unlimited size, the queue will be resized as required
 	// by its maximum allowed size.
 	bestIndividuals.add(this->data, CLONE, DONOTREPLACE);
+}
+
+/******************************************************************************/
+/**
+ * Adds the individuals of this iteration to a priority queue. The
+ * queue will be sorted by the first evaluation criterion of the individuals
+ * and may either have a limited or unlimited size, depending on user-
+ * settings
+ */
+template <>
+inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::updateIterationBestsPQ(
+	GParameterSetFixedSizePriorityQueue& bestIndividuals
+) BASE {
+	const bool CLONE = true;
+	const bool REPLACE = true;
+
+#ifdef DEBUG
+	if(this->empty()) {
+		glogger
+		<< "In GBaseParChildT<GParameterSet>::updateIterationBestsPQ() :" << std::endl
+		<< "Tried to retrieve the best individuals even though the population is empty." << std::endl
+		<< GEXCEPTION;
+	}
+#endif /* DEBUG */
+
+	// We simply add all individuals to the queue. They will automatically be sorted.
+	bestIndividuals.add(this->data, CLONE, REPLACE);
 }
 
 /******************************************************************************/

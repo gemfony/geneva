@@ -69,6 +69,7 @@
 #include <common/GExpectationChecksT.hpp>
 #include "common/GLogger.hpp"
 #include "common/GMathHelperFunctionsT.hpp"
+#include "common/GCommonInterfaceT.hpp"
 
 namespace Gem {
 namespace Common {
@@ -84,7 +85,9 @@ namespace Common {
  * which returns a std::shared_ptr<T> as a copy of the T object.
  */
 template<typename T>
-class GFixedSizePriorityQueueT {
+class GFixedSizePriorityQueueT
+	: public GCommonInterfaceT<GFixedSizePriorityQueueT<T>>
+{
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
@@ -93,6 +96,7 @@ class GFixedSizePriorityQueueT {
 		using boost::serialization::make_nvp;
 
 		ar
+		& make_nvp("GCommonInterfaceT_GFixedSizePriorityQueueT_T", boost::serialization::base_object<GCommonInterfaceT<GFixedSizePriorityQueueT<T>>>(*this))
 		& BOOST_SERIALIZATION_NVP(data_)
 		& BOOST_SERIALIZATION_NVP(maxSize_)
 		& BOOST_SERIALIZATION_NVP(higherIsBetter_);
@@ -102,10 +106,11 @@ class GFixedSizePriorityQueueT {
 public:
 	/***************************************************************************/
 	/**
-	 * The default constructor
+	 * The default constructor. Note that some variables may be initialized in the class body.
 	 */
 	GFixedSizePriorityQueueT()
-		: maxSize_(10), higherIsBetter_(false) { /* nothing */ }
+		: GFixedSizePriorityQueueT(10, false /* higherIsBetter_ */ )
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -114,8 +119,8 @@ public:
 	 * @param maxSize The maximum size of the queue
 	 */
 	explicit GFixedSizePriorityQueueT(const std::size_t &maxSize)
-		: maxSize_(maxSize), higherIsBetter_(false) { /* nothing */ }
-
+		: GFixedSizePriorityQueueT(maxSize, false /* higherIsBetter_ */ )
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -125,21 +130,24 @@ public:
 	 * @param maxSize The maximum size of the queue
 	 */
 	GFixedSizePriorityQueueT(
-		const std::size_t &maxSize, const bool &higherIsBetter
+		const std::size_t &maxSize
+		, const bool &higherIsBetter
 	)
-		: maxSize_(maxSize), higherIsBetter_(higherIsBetter) { /* nothing */ }
-
+		: data_()
+		, maxSize_(maxSize)
+		, higherIsBetter_(higherIsBetter)
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * The copy constructor
 	 */
 	GFixedSizePriorityQueueT(const GFixedSizePriorityQueueT<T> &cp)
-		: maxSize_(cp.maxSize_), higherIsBetter_(cp.higherIsBetter_) {
-		typename std::deque<std::shared_ptr < T>> ::const_iterator
-		cit;
-		for (cit = cp.data_.begin(); cit != cp.data_.end(); ++cit) {
-			data_.push_back((*cit)->template clone<T>());
+		: maxSize_(cp.maxSize_)
+		, higherIsBetter_(cp.higherIsBetter_)
+	{
+		for(auto cit: data_) {
+			data_.push_back(cit->template clone<T>());
 		}
 	}
 
@@ -152,36 +160,46 @@ public:
 	}
 
 	/***************************************************************************/
-	/** @brief Creates a deep clone of this object */
-	virtual std::shared_ptr <GFixedSizePriorityQueueT<T>> clone() const = 0;
-
-	/***************************************************************************/
 	/**
-	 * Loads the data of another GFixedSizePriorityQueue<T> object
+	 * A standard assignment operator
 	 */
-	virtual void load(const GFixedSizePriorityQueueT<T> &cp) {
-		// Make sure data_ is empty
-		data_.clear();
-
-		// Copy all data over
-		typename std::deque<std::shared_ptr < T>> ::const_iterator
-		cit;
-		for (cit = cp.data_.begin(); cit != cp.data_.end(); ++cit) {
-			data_.push_back((*cit)->template clone<T>());
-		}
-
-		// Copy the singular data sets
-		maxSize_ = cp.maxSize_;
-		higherIsBetter_ = cp.higherIsBetter_;
+	const GFixedSizePriorityQueueT<T>& operator=(const GFixedSizePriorityQueueT<T>& cp) {
+		this->load_(&cp);
+		return *this;
 	}
 
 	/***************************************************************************/
 	/**
-	 * Copy the data of another GFixedSizePriorityQueueT<T> over
+	 * Checks for equality with another GFixedSizePriorityQueueT<T> object
+	 *
+	 * @param  cp A constant reference to another GFixedSizePriorityQueueT<T> object
+	 * @return A boolean indicating whether both objects are equal
 	 */
-	const GFixedSizePriorityQueueT<T> &operator=(const GFixedSizePriorityQueueT<T> &cp) {
-		this->load(cp);
-		return *this;
+	bool operator==(const GFixedSizePriorityQueueT<T>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GFixedSizePriorityQueueT<T> object
+	 *
+	 * @param  cp A constant reference to another GFixedSizePriorityQueueT<T> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GFixedSizePriorityQueueT<T>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
 	}
 
 	/***************************************************************************/
@@ -251,7 +269,8 @@ public:
 	 * @param do_clone If set to true, work items will be cloned. Otherwise only the smart pointer will be added
 	 */
 	virtual void add(
-		std::shared_ptr <T> item, bool do_clone = false
+		std::shared_ptr <T> item
+		, bool do_clone = false
 	) {
 		// Add the work item to the queue
 		// - If the queue is unlimited
@@ -463,7 +482,66 @@ public:
 		return maxSize_;
 	}
 
+	/***************************************************************************/
+	/**
+	 * Returns the name of this class
+	 */
+	std::string name() const {
+		return std::string("GFixedSizePriorityQueueT<T>");
+	}
+
+	/***************************************************************************/
+	/**
+	 * Checks for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GFixedSizePriorityQueueT<T> object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	void compare(
+		const GFixedSizePriorityQueueT<T> &cp
+		, const Gem::Common::expectation &e
+		, const double &limit
+	) const {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GFixedSizePriorityQueueT<T> reference independent of this object and convert the pointer
+		const GFixedSizePriorityQueueT<T> *p_load = Gem::Common::g_convert_and_compare<GFixedSizePriorityQueueT<T>, GFixedSizePriorityQueueT<T>>(cp, this);
+
+		GToken token("GFixedSizePriorityQueueT<T>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base<GCommonInterfaceT<GFixedSizePriorityQueueT<T>>>(IDENTITY(*this, *p_load), token);
+
+		// ... and then our local data
+		compare_t(IDENTITY(data_, p_load->data_), token);
+		compare_t(IDENTITY(maxSize_, p_load->maxSize_), token);
+		compare_t(IDENTITY(higherIsBetter_, p_load->higherIsBetter_), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
+
 protected:
+	/***************************************************************************/
+	/**
+	 * Loads the data of another GFixedSizePriorityQueue<T> object
+	 */
+	virtual void load_(const GFixedSizePriorityQueueT<T> *cp) override {
+		// Check that we are dealing with a GFixedSizePriorityQueueT<T> reference independent of this object and convert the pointer
+		const GFixedSizePriorityQueueT<T> *p_load = Gem::Common::g_convert_and_compare<GFixedSizePriorityQueueT<T>, GFixedSizePriorityQueueT<T>>(cp, this);
+
+		// Load local data
+		Gem::Common::copyCloneableSmartPointerContainer(p_load->data_, data_);
+		maxSize_ = p_load->maxSize_;
+		higherIsBetter_ = p_load->higherIsBetter_;
+	}
+
+	/***************************************************************************/
+	/** @brief Creates a deep clone of this object */
+	virtual GFixedSizePriorityQueueT<T> * clone_() const override = 0;
+
 	/***************************************************************************/
 	/**
 	 * Checks whether value x is better than value y
@@ -527,11 +605,10 @@ protected:
 	/** @brief Returns a unique id for a work item */
 	virtual std::string id(const std::shared_ptr <T> &) const = 0;
 
-	std::deque<std::shared_ptr < T>>
-	data_; ///< Holds the actual data
+	std::deque<std::shared_ptr < T>> data_; ///< Holds the actual data
 
-	std::size_t maxSize_; ///< The maximum number of work-items
-	bool higherIsBetter_; ///< Indicates whether higher evaluations of items indicate a higher priority
+	std::size_t maxSize_ = 10; ///< The maximum number of work-items
+	bool higherIsBetter_ = false; ///< Indicates whether higher evaluations of items indicate a higher priority
 };
 
 /******************************************************************************/

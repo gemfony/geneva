@@ -98,20 +98,35 @@ public:
 	/** @brief The destructor */
 	G_API_GENEVA ~GParameterSetFixedSizePriorityQueue();
 
-	/** @brief Copy the data of another GParameterSetFixedSizePriorityQueue over */
+	/** @brief Allows derived classes to assign other class'es values */
 	G_API_GENEVA const GParameterSetFixedSizePriorityQueue& operator=(const GParameterSetFixedSizePriorityQueue&);
 
-	/** @brief Loads the data of another GParameterSetFixedSizePriorityQueue object, camouflaged as a GFixedSizePriorityQueueT<T> */
-	virtual G_API_GENEVA void load(const Gem::Common::GFixedSizePriorityQueueT<GParameterSet>&);
-	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA std::shared_ptr<Gem::Common::GFixedSizePriorityQueueT<GParameterSet>> clone() const;
+	/** @brief Checks for equality with another GObject object */
+	virtual G_API_GENEVA bool operator==(const GParameterSetFixedSizePriorityQueue&) const;
+	/** @brief Checks for inequality with another GObject object */
+	virtual G_API_GENEVA bool operator!=(const GParameterSetFixedSizePriorityQueue&) const;
 
 	/** @brief Checks whether no item has the dirty flag set */
 	G_API_GENEVA bool allClean(std::size_t&) const;
 	/** @brief Emits information about the "dirty flag" of all items */
 	G_API_GENEVA std::string getCleanStatus() const;
 
+	/** @brief Emits a name for this class / object */
+	virtual G_API_GENEVA std::string name() const override;
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare(
+		const Gem::Common::GFixedSizePriorityQueueT<GParameterSet>& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
+
 protected:
+	/***************************************************************************/
+	/** @brief Loads the data of another population */
+	virtual G_API_GENEVA void load_(const Gem::Common::GFixedSizePriorityQueueT<GParameterSet> *) override;
+	/** @brief Creates a deep clone of this object */
+	virtual G_API_GENEVA Gem::Common::GFixedSizePriorityQueueT<GParameterSet> *clone_() const override;
+
 	/** @brief Evaluates a single work item, so that it can be sorted */
 	virtual G_API_GENEVA double evaluation(const std::shared_ptr<GParameterSet>&) const;
 	/** @brief Returns a unique id for a work item */

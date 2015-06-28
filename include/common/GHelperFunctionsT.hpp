@@ -388,23 +388,23 @@ void copyCloneableSmartPointer (
 
 /******************************************************************************/
 /**
- * This function copies a vector of smart pointers to cloneable objects to another vector.
+ * This function copies a container of smart pointers to cloneable objects to another container.
  * It assumes the availability of a load- and clone-call.
  *
- * @param from The vector used as the source of the copying
- * @param to The vector used as the target of the copying
+ * @param from The container used as the source of the copying
+ * @param to The container used as the target of the copying
  */
-template <typename T>
-void copyCloneableSmartPointerVector(
-	const std::vector<std::shared_ptr<T>>& from
-	, std::vector<std::shared_ptr<T>>& to
+template <typename T, template <typename, typename = std::allocator<std::shared_ptr<T>>> class c_type>
+void copyCloneableSmartPointerContainer(
+	const c_type<std::shared_ptr<T>>& from
+	, c_type<std::shared_ptr<T>>& to
 	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<T>::value>::type* dummy = 0
 ) {
-	typename std::vector<std::shared_ptr<T>>::const_iterator it_from;
-	typename std::vector<std::shared_ptr<T>>::iterator it_to;
+	typename c_type<std::shared_ptr<T>>::const_iterator it_from;
+	typename c_type<std::shared_ptr<T>>::iterator it_to;
 
 	std::size_t size_from = from.size();
-	std::size_t size_to = to.size();
+	std::size_t size_to   = to.size();
 
 	if(size_from==size_to) { // The most likely case
 		for(it_from=from.begin(), it_to=to.begin(); it_from!=from.end(); ++it_from, ++it_to) {
@@ -433,32 +433,32 @@ void copyCloneableSmartPointerVector(
 
 /******************************************************************************/
 /**
- * This function copies a vector of cloneable / loadable objects to another vector
+ * This function copies a container of cloneable / loadable objects to another container
  * holding objects of the same type.
  *
- * @param from The vector used as the source of the copying
- * @param to The vector used as the target of the copying
+ * @param from The container used as the source of the copying
+ * @param to The container used as the target of the copying
  */
-template <typename T>
-void copyCloneableObjectsVector(
-	const std::vector<T>& from
-, std::vector<T>& to
-, typename std::enable_if<Gem::Common::has_gemfony_common_interface<T>::value>::type* dummy = 0
+template <typename T, template <typename, typename = std::allocator<T>> class c_type>
+void copyCloneableObjectsContainer(
+	const c_type<T>& from
+	, c_type<T>& to
+	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<T>::value>::type* dummy = 0
 ) {
-	typename std::vector<T>::const_iterator it_from;
-	typename std::vector<T>::iterator it_to;
+	typename c_type<T>::const_iterator it_from;
+	typename c_type<T>::iterator it_to;
 
 	std::size_t size_from = from.size();
 	std::size_t size_to = to.size();
 
 	if(size_from==size_to) { // The most likely case
 		for(it_from=from.begin(), it_to=to.begin(); it_from!=from.end(); ++it_from, ++it_to) {
-			it_to->load(*it_from);
+			it_to->T::load(*it_from);
 		}
 	} else if(size_from > size_to) {
 		// First copy the data of the first size_to items
 		for(it_from=from.begin(), it_to=to.begin(); it_to!=to.end(); ++it_from, ++it_to) {
-			it_to->load(*it_from);
+			it_to->T::load(*it_from);
 		}
 
 		// Then attach copies of the remaining items
@@ -468,7 +468,7 @@ void copyCloneableObjectsVector(
 	} else if(size_from < size_to) {
 		// First copy the initial size_for items over
 		for(it_from=from.begin(), it_to=to.begin(); it_from!=from.end(); ++it_from, ++it_to) {
-			it_to->load(*it_from);
+			it_to->T::load(*it_from);
 		}
 
 		// Then resize the local vector. Surplus items will vanish

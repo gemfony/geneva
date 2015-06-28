@@ -429,7 +429,7 @@ void GBasePlotter::load_(const GBasePlotter* cp) {
 	dsMarker_         = p_load->dsMarker_;
 	id_               = p_load->id_;
 
-	copyCloneableSmartPointerVector(p_load->secondaryPlotter_, secondaryPlotter_);
+	copyCloneableSmartPointerContainer(p_load->secondaryPlotter_, secondaryPlotter_);
 }
 
 /******************************************************************************/
@@ -3482,7 +3482,7 @@ GPlotDesigner::GPlotDesigner(const GPlotDesigner& cp)
 	, addPrintCommand_(cp.addPrintCommand_)
 {
 	// Copy any secondary plotters over
-	Gem::Common::copyCloneableSmartPointerVector<GBasePlotter>(cp.plotters_, plotters_);
+	Gem::Common::copyCloneableSmartPointerContainer<GBasePlotter>(cp.plotters_, plotters_);
 }
 
 /******************************************************************************/
@@ -3814,7 +3814,7 @@ void GPlotDesigner::load_(const GPlotDesigner* cp) {
 	// No "loadable" parent class
 
 	// Load local data
-	copyCloneableSmartPointerVector(p_load->plotters_, plotters_);
+	copyCloneableSmartPointerContainer(p_load->plotters_, plotters_);
 	c_x_div_           = p_load->c_x_div_;
 	c_y_div_           = p_load->c_y_div_;
 	c_x_dim_           = p_load->c_x_dim_;

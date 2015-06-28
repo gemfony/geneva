@@ -86,28 +86,105 @@ GParameterSetFixedSizePriorityQueue::~GParameterSetFixedSizePriorityQueue()
 /**
  * Copy the data of another GParameterSetFixedSizePriorityQueue over
  */
-const GParameterSetFixedSizePriorityQueue &GParameterSetFixedSizePriorityQueue::operator=(
-	const GParameterSetFixedSizePriorityQueue &cp
+const GParameterSetFixedSizePriorityQueue& GParameterSetFixedSizePriorityQueue::operator=(
+	const GParameterSetFixedSizePriorityQueue& cp
 ) {
-	this->load(cp);
+	this->load_(&cp);
 	return *this;
+}
+
+/******************************************************************************/
+/**
+ * Checks for equality with another GParameterSetFixedSizePriorityQueue object
+ *
+ * @param  cp A constant reference to another GParameterSetFixedSizePriorityQueue object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GParameterSetFixedSizePriorityQueue::operator==(const GParameterSetFixedSizePriorityQueue &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
+}
+
+/******************************************************************************/
+/**
+ * Checks for inequality with another GParameterSetFixedSizePriorityQueue object
+ *
+ * @param  cp A constant reference to another GParameterSetFixedSizePriorityQueue object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GParameterSetFixedSizePriorityQueue::operator!=(const GParameterSetFixedSizePriorityQueue &cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
+}
+
+/******************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GParameterSetFixedSizePriorityQueue::name() const {
+	return std::string("GParameterSetFixedSizePriorityQueue");
+}
+
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GParameterSetFixedSizePriorityQueue object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void GParameterSetFixedSizePriorityQueue::compare(
+	const Gem::Common::GFixedSizePriorityQueueT<GParameterSet>&  cp // the other object
+	, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
+	, const double& limit // the limit for allowed deviations of floating point types
+) const {
+	using namespace Gem::Common;
+
+	// Check that we are dealing with a GParameterSetFixedSizePriorityQueue reference independent of this object and convert the pointer
+	const GParameterSetFixedSizePriorityQueue *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+	GToken token("GBasGParameterSetFixedSizePriorityQueueeEA", e);
+
+	// Compare our parent data ...
+	Gem::Common::compare_base<Gem::Common::GFixedSizePriorityQueueT<GParameterSet>>(IDENTITY(*this, *p_load), token);
+
+	// ... no local data
+
+	// React on deviations from the expectation
+	token.evaluate();
 }
 
 /******************************************************************************/
 /**
  * Loads the data of another GParameterSetFixedSizePriorityQueue object, camouflaged as a GFixedSizePriorityQueueT<GParameterSet>
  */
-void GParameterSetFixedSizePriorityQueue::load(const Gem::Common::GFixedSizePriorityQueueT<GParameterSet> &cp) {
-	// No local data, so we only call the parent class'es function
-	Gem::Common::GFixedSizePriorityQueueT<GParameterSet>::load(cp);
+void GParameterSetFixedSizePriorityQueue::load_(const Gem::Common::GFixedSizePriorityQueueT<GParameterSet> *cp) {
+	// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
+	const GParameterSetFixedSizePriorityQueue *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+	// Load our parent class'es data ...
+	Gem::Common::GFixedSizePriorityQueueT<GParameterSet>::load_(cp);
+
+	// ... no local data
 }
 
 /******************************************************************************/
 /**
  * Creates a deep clone of this object
  */
-std::shared_ptr <Gem::Common::GFixedSizePriorityQueueT<GParameterSet>> GParameterSetFixedSizePriorityQueue::clone() const {
-	return std::shared_ptr<GParameterSetFixedSizePriorityQueue>(new GParameterSetFixedSizePriorityQueue(*this));
+Gem::Common::GFixedSizePriorityQueueT<GParameterSet> * GParameterSetFixedSizePriorityQueue::clone_() const {
+	return new GParameterSetFixedSizePriorityQueue(*this);
 }
 
 /******************************************************************************/

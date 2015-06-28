@@ -226,8 +226,8 @@ Go2::Go2(const Go2 &cp)
 
 	//--------------------------------------------
 	// Copy the algorithms vectors over
-	Gem::Common::copyCloneableSmartPointerVector(cp.cl_algorithms_, cl_algorithms_);
-	Gem::Common::copyCloneableSmartPointerVector(cp.algorithms_, algorithms_);
+	Gem::Common::copyCloneableSmartPointerContainer(cp.cl_algorithms_, cl_algorithms_);
+	Gem::Common::copyCloneableSmartPointerContainer(cp.algorithms_, algorithms_);
 
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
@@ -459,8 +459,8 @@ void Go2::load_(const GObject *cp) {
 	Gem::Common::copyCloneableSmartPointer<GOABase>(p_load->default_algorithm_, default_algorithm_);
 
 	// Copy the algorithm vectors over
-	Gem::Common::copyCloneableSmartPointerVector(p_load->algorithms_, algorithms_);
-	Gem::Common::copyCloneableSmartPointerVector(p_load->cl_algorithms_, cl_algorithms_);
+	Gem::Common::copyCloneableSmartPointerContainer(p_load->algorithms_, algorithms_);
+	Gem::Common::copyCloneableSmartPointerContainer(p_load->cl_algorithms_, cl_algorithms_);
 
 	// Cross check other data has been added
 }
