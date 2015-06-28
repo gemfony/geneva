@@ -74,8 +74,9 @@ class GOptimizationAlgorithmT
 	, public GOptimizableI
 {
 public:
-	// Forward declaration, as this class is only defined at the end of this file
+	// Forward declarations, as these classes are only defined at the end of this file
 	class GOptimizationMonitorT;
+	class GBasePluggableOMT;
 
 	// Allow external entities to determine the type used for the individuals
 	typedef ind_type individual_type;
@@ -113,40 +114,27 @@ private:
 		& BOOST_SERIALIZATION_NVP(emitTerminationReason_)
 		& BOOST_SERIALIZATION_NVP(halted_)
 		& BOOST_SERIALIZATION_NVP(worstKnownValids_)
-		& BOOST_SERIALIZATION_NVP(optimizationMonitor_ptr_);
+		& BOOST_SERIALIZATION_NVP(optimizationMonitor_ptr_)
+		& BOOST_SERIALIZATION_NVP(default_pluggable_monitor_)
+		& BOOST_SERIALIZATION_NVP(pluggable_monitors_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/***************************************************************************/
 	/**
-	 * The default constructor
+	 * The default constructor. Note that most variables are initialized in the class body
 	 */
 	GOptimizationAlgorithmT()
 		: GMutableSetT<ind_type>()
-		, iteration_(0)
-		, offset_(DEFAULTOFFSET)
-		, maxIteration_(DEFAULTMAXIT)
-		, maxStallIteration_(DEFAULTMAXSTALLIT)
-		, reportIteration_(DEFAULTREPORTITER)
-		, nRecordBestIndividuals_(DEFNRECORDBESTINDIVIDUALS)
 		, bestIndividuals_(DEFNRECORDBESTINDIVIDUALS, Gem::Common::LOWERISBETTER)
-		, defaultPopulationSize_(DEFAULTPOPULATIONSIZE)
 		, bestKnownPrimaryFitness_(boost::tuple<double,double>(0.,0.)) // will be set appropriately in the optimize() function
 		, bestCurrentPrimaryFitness_(boost::tuple<double,double>(0.,0.)) // will be set appropriately in the optimize() function
-		, stallCounter_(0)
-		, stallCounterThreshold_(DEFAULTSTALLCOUNTERTHRESHOLD)
-		, cpInterval_(DEFAULTCHECKPOINTIT)
-		, cpBaseName_(DEFAULTCPBASENAME)
-		, cpDirectory_(DEFAULTCPDIR)
-		, cpSerMode_(DEFAULTCPSERMODE)
-		, qualityThreshold_(DEFAULTQUALITYTHRESHOLD)
-		, hasQualityThreshold_(false)
 		, maxDuration_(boost::posix_time::duration_from_string(DEFAULTDURATION))
-		, emitTerminationReason_(DEFAULTEMITTERMINATIONREASON)
-		, halted_(false)
 		, worstKnownValids_()
 		, optimizationMonitor_ptr_(new typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT())
+		, default_pluggable_monitor_(std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>())
+		, pluggable_monitors_()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -180,7 +168,11 @@ public:
 		, halted_(cp.halted_)
 		, worstKnownValids_(cp.worstKnownValids_)
 		, optimizationMonitor_ptr_((cp.optimizationMonitor_ptr_)->GObject::template clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>())
-	{ /* nothing */ }
+	{
+		// Copy the pluggable optimization monitors over (if any)
+		Gem::Common::copyCloneableSmartPointer(cp.default_pluggable_monitor_, default_pluggable_monitor_);
+		Gem::Common::copyCloneableSmartPointerVector(cp.pluggable_monitors_, pluggable_monitors_);
+	}
 
 	/***************************************************************************/
 	/**
@@ -188,6 +180,15 @@ public:
 	 */
 	virtual ~GOptimizationAlgorithmT()
 	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * A standard assignment operator
+	 */
+	const GOptimizationAlgorithmT<ind_type>& operator=(const GOptimizationAlgorithmT<ind_type>& cp) {
+		this->load_(&cp);
+		return *this;
+	}
 
 	/***************************************************************************/
 	/**
@@ -411,6 +412,8 @@ public:
 		compare_t(IDENTITY(halted_, p_load->halted_), token);
 		compare_t(IDENTITY(worstKnownValids_, p_load->worstKnownValids_), token);
 		compare_t(IDENTITY(optimizationMonitor_ptr_, p_load->optimizationMonitor_ptr_), token);
+		compare_t(IDENTITY(default_pluggable_monitor_, p_load->default_pluggable_monitor_), token);
+		compare_t(IDENTITY(pluggable_monitors_, p_load->pluggable_monitors_), token);
 
 		// React on deviations from the expectation
 		token.evaluate();
@@ -553,6 +556,44 @@ public:
 	 */
 	bool progress() const {
 		return (0==stallCounter_);
+	}
+
+	/***************************************************************************/
+	/**
+	 * Allows to register the default pluggable optimization monitor. GOptimizationAlgorithmT<>
+	 * registers a default monitor, which will essentially only output information about the
+	 * current fitness and iteration. You can override this setting and store your own monitor
+	 * with this function. The function will throw if you try to register an empty pointer, and
+	 * there is no way to reset the monitor externally. Note that this function does NOT take
+	 * ownership of the optimization monitor.
+	 */
+	void registerDefaultPluggableOM(
+		std::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT> pluggableOM
+	) {
+		if(pluggableOM) {
+			default_pluggable_monitor_ = pluggableOM;
+		} else {
+			glogger
+			<< "In GoptimizationAlgorithmT<>::registerDefaultPluggableOM(): Tried to register empty pluggable optimization monitor" << std::endl
+			<< GEXCEPTION;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Allows to register a pluggable optimization monitor. Note that this
+	 * function does NOT take ownership of the optimization monitor.
+	 */
+	void registerPluggableOM(
+		std::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT> pluggableOM
+	) {
+		if(pluggableOM) {
+			pluggable_monitors_.push_back(pluggableOM);
+		} else {
+			glogger
+			<< "In GoptimizationMonitorT<>::registerPluggableOM(): Tried to register empty pluggable optimization monitor" << std::endl
+			<< GEXCEPTION;
+		}
 	}
 
 	/***************************************************************************/
@@ -1200,6 +1241,8 @@ protected:
 		halted_ = p_load->halted_;
 		worstKnownValids_ = p_load->worstKnownValids_;
 		this->optimizationMonitor_ptr_ = p_load->optimizationMonitor_ptr_->GObject::template clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>();
+		Gem::Common::copyCloneableSmartPointer(p_load->default_pluggable_monitor_, default_pluggable_monitor_);
+		Gem::Common::copyCloneableSmartPointerVector(p_load->pluggable_monitors_, pluggable_monitors_);
 	}
 
 	/***************************************************************************/
@@ -1748,34 +1791,36 @@ private:
 
 	/***************************************************************************/
 
-	boost::uint32_t iteration_; ///< The current iteration
-	boost::uint32_t offset_; ///< An iteration offset which can be used, if the optimization starts from a checkpoint file
-	boost::uint32_t maxIteration_; ///< The maximum number of iterations
-	boost::uint32_t maxStallIteration_; ///< The maximum number of generations without improvement, after which optimization is stopped
-	boost::uint32_t reportIteration_; ///< The number of generations after which a report should be issued
+	boost::uint32_t iteration_ = 0; ///< The current iteration
+	boost::uint32_t offset_ = DEFAULTOFFSET; ///< An iteration offset which can be used, if the optimization starts from a checkpoint file
+	boost::uint32_t maxIteration_ = DEFAULTMAXIT; ///< The maximum number of iterations
+	boost::uint32_t maxStallIteration_ = DEFAULTMAXSTALLIT; ///< The maximum number of generations without improvement, after which optimization is stopped
+	boost::uint32_t reportIteration_ = DEFAULTREPORTITER; ///< The number of generations after which a report should be issued
 
-	std::size_t nRecordBestIndividuals_; ///< Indicates the number of best individuals to be recorded/updated in each iteration
+	std::size_t nRecordBestIndividuals_ = DEFNRECORDBESTINDIVIDUALS; ///< Indicates the number of best individuals to be recorded/updated in each iteration
 	GParameterSetFixedSizePriorityQueue bestIndividuals_; ///< A priority queue with the best individuals found so far
 
-	std::size_t defaultPopulationSize_; ///< The nominal size of the population
+	std::size_t defaultPopulationSize_ = DEFAULTPOPULATIONSIZE; ///< The nominal size of the population
 	boost::tuple<double, double> bestKnownPrimaryFitness_; ///< Records the best primary fitness found so far
 	boost::tuple<double, double> bestCurrentPrimaryFitness_; ///< Records the best fitness found in the current iteration
 
-	boost::uint32_t stallCounter_; ///< Counts the number of iterations without improvement
-	boost::uint32_t stallCounterThreshold_; ///< The number of stalls after which individuals are asked to update their internal data structures
+	boost::uint32_t stallCounter_ = 0; ///< Counts the number of iterations without improvement
+	boost::uint32_t stallCounterThreshold_ = DEFAULTSTALLCOUNTERTHRESHOLD; ///< The number of stalls after which individuals are asked to update their internal data structures
 
-	boost::int32_t cpInterval_; ///< Number of iterations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered
-	std::string cpBaseName_; ///< The base name of the checkpoint file
-	std::string cpDirectory_; ///< The directory where checkpoint files should be stored
-	Gem::Common::serializationMode cpSerMode_; ///< Determines whether check-pointing should be done in text-, XML, or binary mode
-	double qualityThreshold_; ///< A threshold beyond which optimization is expected to stop
-	bool hasQualityThreshold_; ///< Specifies whether a qualityThreshold has been set
-	boost::posix_time::time_duration maxDuration_; ///< Maximum time frame for the optimization
+	boost::int32_t cpInterval_ = DEFAULTCHECKPOINTIT; ///< Number of iterations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered
+	std::string cpBaseName_ = DEFAULTCPBASENAME; ///< The base name of the checkpoint file
+	std::string cpDirectory_ = DEFAULTCPDIR; ///< The directory where checkpoint files should be stored
+	Gem::Common::serializationMode cpSerMode_ = DEFAULTCPSERMODE; ///< Determines whether check-pointing should be done in text-, XML, or binary mode
+	double qualityThreshold_ = DEFAULTQUALITYTHRESHOLD; ///< A threshold beyond which optimization is expected to stop
+	bool hasQualityThreshold_ = false; ///< Specifies whether a qualityThreshold has been set
+	boost::posix_time::time_duration maxDuration_ = boost::posix_time::duration_from_string(DEFAULTDURATION); ///< Maximum time frame for the optimization
 	mutable boost::posix_time::ptime startTime_; ///< Used to store the start time of the optimization. Declared mutable so the halt criteria can be const
-	bool emitTerminationReason_; ///< Specifies whether information about reasons for termination should be emitted
-	bool halted_; ///< Set to true when halt() has returned "true"
+	bool emitTerminationReason_ = DEFAULTEMITTERMINATIONREASON; ///< Specifies whether information about reasons for termination should be emitted
+	bool halted_ = false; ///< Set to true when halt() has returned "true"
 	std::vector<boost::tuple<double, double>> worstKnownValids_; ///< Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
 	std::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> optimizationMonitor_ptr_;
+	std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT> default_pluggable_monitor_; ///< A default monitor
+	std::vector<std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>> pluggable_monitors_; ///< A collection of monitors
 
 public:
 	/***************************************************************************/

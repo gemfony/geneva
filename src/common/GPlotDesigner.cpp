@@ -473,12 +473,10 @@ std::string GBasePlotter::bodyData_() const {
 
 	// Extract data from the secondary plotters, if any
 	std::size_t pos = 0;
-	std::vector<std::shared_ptr < GBasePlotter>> ::const_iterator
-	cit;
-	for (cit = secondaryPlotter_.begin(); cit != secondaryPlotter_.end(); ++cit) {
+	for (auto cit: secondaryPlotter_) {
 		body_data
 		<< "  // Body data for secondary plotter " << pos << " of " << this->getPlotterName() << std::endl
-		<< (*cit)->bodyData(true, this->id()) << std::endl;
+		<< cit->bodyData(true, this->id()) << std::endl;
 
 		pos++;
 	}

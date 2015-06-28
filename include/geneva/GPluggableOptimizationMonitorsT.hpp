@@ -71,6 +71,556 @@ namespace Geneva {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * This class implements the standard output common to all optimization algorithms.
+ * It will usually be already registered as a pluggable optimization monitor, when
+ * you instantiate a new optimization algorithm.
+ */
+template <typename ind_type>
+class GStandardMonitorT
+	: public GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT
+{
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int) {
+		using boost::serialization::make_nvp;
+
+		ar
+			&make_nvp("GBasePluggableOMT", boost::serialization::base_object<GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(*this));
+	}
+
+	///////////////////////////////////////////////////////////////////////
+
+public:
+	/***************************************************************************/
+	/**
+	 * The default constructor
+	 */
+	GStandardMonitorT()
+	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * The copy constructor
+	 */
+	GStandardMonitorT(const GStandardMonitorT<ind_type>& cp)
+		: GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT(cp)
+	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * The destructor
+	 */
+	virtual ~GStandardMonitorT()
+	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * A standard assignment operator
+	 */
+	const GStandardMonitorT<ind_type>& operator=(const GStandardMonitorT<ind_type>& cp) {
+		this->load_(&cp);
+		return *this;
+	}
+
+	/************************************************************************/
+	/**
+	 * Checks for equality with another GCollectiveMonitorT object
+	 *
+	 * @param  cp A constant reference to another GCollectiveMonitorT object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	virtual bool operator==(const GStandardMonitorT<ind_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
+
+	/************************************************************************/
+	/**
+	 * Checks for inequality with another GCollectiveMonitorT object
+	 *
+	 * @param  cp A constant reference to another GCollectiveMonitorT object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	virtual bool operator!=(const GStandardMonitorT<ind_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Aggregates the work of all registered pluggable monitors
+	 */
+	virtual void informationFunction(
+		const infoMode& im
+		, typename Gem::Geneva::GOptimizationAlgorithmT<ind_type> * const goa
+	) override {
+		switch(im) {
+			case Gem::Geneva::INFOINIT: {
+				glogger
+				<< "Starting an optimization run with algorithm \"" << goa->getAlgorithmName() << "\"" << std::endl
+				<< GLOGGING;
+			}
+				break;
+
+			case Gem::Geneva::INFOPROCESSING: {
+				glogger
+				<< std::setprecision(5)
+				<< goa->getIteration() << ": "
+				<< goa->getBestCurrentPrimaryFitness()
+				<< " // best past: " << goa->getBestKnownPrimaryFitness()
+				<< std::endl
+				<< GLOGGING;
+			}
+				break;
+
+			case Gem::Geneva::INFOEND: {
+				glogger
+				<< "End of optimization reached in algorithm \"" << goa->getAlgorithmName()
+				<< "\"" << std::endl
+				<< GLOGGING;
+			}
+				break;
+
+			default: {
+				glogger
+				<< "In GStandardMonitorT<ind_type>::informationFunction(): Received invalid infoMode " << im << std::endl
+				<< GEXCEPTION;
+			}
+				break;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Emits a name for this class / object
+	 */
+	virtual std::string name() const override {
+		return std::string("GStandardMonitorT<>");
+	}
+
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GCollectiveMonitorT<ind_type> reference independent of this object and convert the pointer
+		const GStandardMonitorT<ind_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		GToken token("GStandardMonitorT<>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base<typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+
+		// ... no local data
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
+
+protected:
+	/************************************************************************/
+	/**
+	 * Loads the data of another object
+	 *
+	 * cp A pointer to another GCollectiveMonitorT<ind_type> object, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject* cp) override {
+		// Check that we are dealing with a GCollectiveMonitorT<ind_type> reference independent of this object and convert the pointer
+		const GStandardMonitorT<ind_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		// Load the parent classes' data ...
+		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
+
+		// ... no local data
+	}
+
+	/************************************************************************/
+	/**
+	 * Creates a deep clone of this object
+	 */
+	virtual GObject* clone_() const override {
+		return new GStandardMonitorT<ind_type>(*this);
+	}
+
+public:
+	/***************************************************************************/
+	/**
+	 * Applies modifications to this object. This is needed for testing purposes
+	 *
+	 * @return A boolean which indicates whether modifications were made
+	 */
+	virtual bool modify_GUnitTests() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		bool result = false;
+
+		// Call the parent classes' functions
+		if(GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::modify_GUnitTests()) {
+			result = true;
+		}
+
+		// no local data -- nothing to change
+
+		return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GStandardMonitorT<ind_type>::modify_GUnitTests", "GEM_TESTING");
+		return false;
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+	 * Performs self tests that are expected to succeed. This is needed for testing purposes
+	 */
+	virtual void specificTestsNoFailureExpected_GUnitTests() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		// Call the parent classes' functions
+		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GStandardMonitorT<ind_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+	 * Performs self tests that are expected to fail. This is needed for testing purposes
+	 */
+	virtual void specificTestsFailuresExpected_GUnitTests() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		// Call the parent classes' functions
+		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GStandardMonitorT<ind_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+	/***************************************************************************/
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * This class allows to output progress information for a given optimization run.
+ * It takes care of successive runs and marks them in the output. At the user's
+ * choice, information may be output for the best individual(s) found so far or
+ * for the best individual(s) in a given iteration.
+ */
+template <typename ind_type>
+class GOptimizationProgressPlotterT
+	: public GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT
+{
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int) {
+		using boost::serialization::make_nvp;
+
+		ar
+		& make_nvp("GBasePluggableOMT", boost::serialization::base_object<GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(*this))
+		& BOOST_SERIALIZATION_NVP(xDim_)
+	  	& BOOST_SERIALIZATION_NVP(yDim_)
+		& BOOST_SERIALIZATION_NVP(nMonitorInds_)
+  		& BOOST_SERIALIZATION_NVP(resultFile_);
+	}
+
+	///////////////////////////////////////////////////////////////////////
+
+public:
+	/***************************************************************************/
+	/**
+	 * The default constructor. Some variables may be initialized in the class body.
+	 */
+	GOptimizationProgressPlotterT()
+	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * The copy constructor
+	 */
+	GOptimizationProgressPlotterT(const GOptimizationProgressPlotterT<ind_type>& cp)
+		: GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT(cp)
+	  	, xDim_(cp.xDim_)
+	  	, yDim_(cp.yDim_)
+		, nMonitorInds_(cp.nMonitorInds_)
+		, resultFile_(cp.resultFile_)
+	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * The destructor
+	 */
+	virtual ~GOptimizationProgressPlotterT()
+	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * A standard assignment operator
+	 */
+	const GOptimizationProgressPlotterT<ind_type>& operator=(const GOptimizationProgressPlotterT<ind_type>& cp) {
+		this->load_(&cp);
+		return *this;
+	}
+
+	/************************************************************************/
+	/**
+	 * Checks for equality with another GCollectiveMonitorT object
+	 *
+	 * @param  cp A constant reference to another GCollectiveMonitorT object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	virtual bool operator==(const GOptimizationProgressPlotterT<ind_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
+
+	/************************************************************************/
+	/**
+	 * Checks for inequality with another GCollectiveMonitorT object
+	 *
+	 * @param  cp A constant reference to another GCollectiveMonitorT object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	virtual bool operator!=(const GOptimizationProgressPlotterT<ind_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch(g_expectation_violation&) {
+			return false;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Aggregates the work of all registered pluggable monitors
+	 */
+	virtual void informationFunction(
+		const infoMode& im
+		, typename Gem::Geneva::GOptimizationAlgorithmT<ind_type> * const goa
+	) override {
+		switch(im) {
+			case Gem::Geneva::INFOINIT: {
+				glogger
+				<< "Starting an optimization run with algorithm \"" << goa->getAlgorithmName() << "\"" << std::endl
+				<< GLOGGING;
+			}
+				break;
+
+			case Gem::Geneva::INFOPROCESSING: {
+				glogger
+				<< std::setprecision(5)
+				<< goa->getIteration() << ": "
+				<< goa->getBestCurrentPrimaryFitness()
+				<< " // best past: " << goa->getBestKnownPrimaryFitness()
+				<< std::endl
+				<< GLOGGING;
+			}
+				break;
+
+			case Gem::Geneva::INFOEND: {
+				glogger
+				<< "End of optimization reached in algorithm \"" << goa->getAlgorithmName()
+				<< "\"" << std::endl
+				<< GLOGGING;
+			}
+				break;
+
+			default: {
+				glogger
+				<< "In GOptimizationProgressPlotterT<ind_type>::informationFunction(): Received invalid infoMode " << im <<
+				std::endl
+				<< GEXCEPTION;
+			}
+				break;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Emits a name for this class / object
+	 */
+	virtual std::string name() const override {
+		return std::string("GOptimizationProgressPlotterT<>");
+	}
+
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 *
+	 * @param cp A constant reference to another GObject object
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 */
+	virtual void compare(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GCollectiveMonitorT<ind_type> reference independent of this object and convert the pointer
+		const GOptimizationProgressPlotterT<ind_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		GToken token("GOptimizationProgressPlotterT<>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base<typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+
+		// ... and then our local data
+		compare_t(IDENTITY(xDim_, p_load->xDim_), token);
+		compare_t(IDENTITY(yDim_, p_load->yDim_), token);
+		compare_t(IDENTITY(nMonitorInds_, p_load->nMonitorInds_), token);
+		compare_t(IDENTITY(resultFile_, p_load->resultFile_), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
+
+protected:
+	/************************************************************************/
+	/**
+	 * Loads the data of another object
+	 *
+	 * cp A pointer to another GCollectiveMonitorT<ind_type> object, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject* cp) override {
+		// Check that we are dealing with a GCollectiveMonitorT<ind_type> reference independent of this object and convert the pointer
+		const GOptimizationProgressPlotterT<ind_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		// Load the parent classes' data ...
+		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
+
+		// ... and then our local data
+		xDim_ = p_load->xDim_;
+		yDim_ = p_load->yDim_;
+		nMonitorInds_ = p_load->nMonitorInds_;
+		resultFile_ = p_load->resultFile_;
+	}
+
+	/************************************************************************/
+	/**
+	 * Creates a deep clone of this object
+	 */
+	virtual GObject* clone_() const override {
+		return new GOptimizationProgressPlotterT<ind_type>(*this);
+	}
+
+
+private:
+	boost::uint32_t xDim_ = DEFAULTXDIMOM; ///< The dimension of the canvas in x-direction
+	boost::uint32_t yDim_ = DEFAULTYDIMOM; ///< The dimension of the canvas in y-direction
+	std::size_t nMonitorInds_ = 0; ///< The number if individuals that should be monitored
+	std::string resultFile_ = DEFAULTROOTRESULTFILEOM; ///< The name of the file to which data is emitted
+
+
+public:
+	/***************************************************************************/
+	/**
+	 * Applies modifications to this object. This is needed for testing purposes
+	 *
+	 * @return A boolean which indicates whether modifications were made
+	 */
+	virtual bool modify_GUnitTests() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		bool result = false;
+
+		// Call the parent classes' functions
+		if(GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::modify_GUnitTests()) {
+			result = true;
+		}
+
+		// no local data -- nothing to change
+
+		return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GOptimizationProgressPlotterT<ind_type>::modify_GUnitTests", "GEM_TESTING");
+		return false;
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+	 * Performs self tests that are expected to succeed. This is needed for testing purposes
+	 */
+	virtual void specificTestsNoFailureExpected_GUnitTests() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		// Call the parent classes' functions
+		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GOptimizationProgressPlotterT<ind_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+	 * Performs self tests that are expected to fail. This is needed for testing purposes
+	 */
+	virtual void specificTestsFailuresExpected_GUnitTests() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		// Call the parent classes' functions
+		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		condnotset("GCollectiveMonitorT<ind_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+/***************************************************************************/
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * This class accepts a number of other pluggable monitors and executes them
  * in sequence.
  */

@@ -123,6 +123,10 @@ const double DEFMAXMARKERSIZE = 1.;
 // Easier access to the header-, body- and footer-data
 typedef boost::tuple<std::string, std::string, std::string> plotData;
 
+// Easier acces to lines
+typedef boost::tuple<double, double, double> pointData;
+typedef boost::tuple<pointData, pointData> line;
+
 // Forward declaration in order to allow a friend statement in GBasePlotter
 class GPlotDesigner;
 
@@ -275,20 +279,20 @@ protected:
 	// Functions to be specified in derived classes
 
 	/** @brief Retrieve specific header settings for this plot */
-	virtual G_API_COMMON std::string headerData(bool, std::size_t) const = 0;
+	virtual G_API_COMMON std::string headerData(bool, std::size_t) const BASE = 0;
 
 	/** @brief Retrieves the actual data sets */
-	virtual G_API_COMMON std::string bodyData(bool, std::size_t) const = 0;
+	virtual G_API_COMMON std::string bodyData(bool, std::size_t) const BASE = 0;
 
 	/** @brief retrieves specific draw commands for this plot */
-	virtual G_API_COMMON std::string footerData(bool, std::size_t) const = 0;
+	virtual G_API_COMMON std::string footerData(bool, std::size_t) const BASE = 0;
 
 	/** @brief Retrieve the current drawing arguments */
-	virtual G_API_COMMON std::string drawingArguments(bool) const = 0;
+	virtual G_API_COMMON std::string drawingArguments(bool) const BASE = 0;
 
 	/***************************************************************************/
 	/** @brief Check that a given plotter is compatible with us */
-	virtual G_API_COMMON bool isCompatible(std::shared_ptr <GBasePlotter>) const;
+	virtual G_API_COMMON bool isCompatible(std::shared_ptr <GBasePlotter>) const BASE;
 
 	/** @brief calculate a suffix from id and parent ids */
 	G_API_COMMON std::string suffix(bool, std::size_t) const;
@@ -303,6 +307,8 @@ protected:
 
 	std::string plot_label_ = std::string("");   ///< A label to be assigned to the entire plot
 	std::string dsMarker_ = std::string("");     ///< A marker to make the origin of data structures clear in the output file
+
+	std::vector<line> lines_; ///< Lines to be drawn into the drawing area
 
 private:
 	/***************************************************************************/
@@ -639,16 +645,16 @@ public:
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData(bool, std::size_t) const;
+	virtual std::string headerData(bool, std::size_t) const override;
 
 	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData(bool, std::size_t) const;
+	virtual std::string bodyData(bool, std::size_t) const override;
 
 	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData(bool, std::size_t) const;
+	virtual std::string footerData(bool, std::size_t) const override;
 
 	/** @brief Retrieve the current drawing arguments */
-	virtual std::string drawingArguments(bool) const;
+	virtual std::string drawingArguments(bool) const override;
 
 	/** @brief Loads the data of another object */
 	virtual G_API_COMMON void load_(const GBasePlotter*) override;
@@ -735,16 +741,16 @@ protected:
 	virtual G_API_COMMON GBasePlotter* clone_() const override;
 
 	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData(bool, std::size_t) const;
+	virtual std::string headerData(bool, std::size_t) const override;
 
 	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData(bool, std::size_t) const;
+	virtual std::string bodyData(bool, std::size_t) const override;
 
 	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData(bool, std::size_t) const;
+	virtual std::string footerData(bool, std::size_t) const override;
 
 	/** @brief Retrieve the current drawing arguments */
-	virtual std::string drawingArguments(bool) const;
+	virtual std::string drawingArguments(bool) const override;
 
 private:
 	GHistogram1I() = delete; ///< The default constructor -- intentionally private and undefined
@@ -1528,16 +1534,16 @@ public:
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData(bool, std::size_t) const;
+	virtual std::string headerData(bool, std::size_t) const override;
 
 	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData(bool, std::size_t) const;
+	virtual std::string bodyData(bool, std::size_t) const override;
 
 	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData(bool, std::size_t) const;
+	virtual std::string footerData(bool, std::size_t) const override;
 
 	/** @brief Retrieve the current drawing arguments */
-	virtual std::string drawingArguments(bool) const;
+	virtual std::string drawingArguments(bool) const override;
 
 	/** @brief Loads the data of another object */
 	virtual G_API_COMMON void load_(const GBasePlotter*) override;
@@ -1620,16 +1626,16 @@ public:
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData(bool, std::size_t) const;
+	virtual std::string headerData(bool, std::size_t) const override;
 
 	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData(bool, std::size_t) const;
+	virtual std::string bodyData(bool, std::size_t) const override;
 
 	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData(bool, std::size_t) const;
+	virtual std::string footerData(bool, std::size_t) const override;
 
 	/** @brief Retrieve the current drawing arguments */
-	virtual std::string drawingArguments(bool) const;
+	virtual std::string drawingArguments(bool) const override;
 
 	/** @brief Loads the data of another object */
 	virtual G_API_COMMON void load_(const GBasePlotter*) override;
@@ -1697,16 +1703,16 @@ public:
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData(bool, std::size_t) const;
+	virtual std::string headerData(bool, std::size_t) const override;
 
 	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData(bool, std::size_t) const;
+	virtual std::string bodyData(bool, std::size_t) const override;
 
 	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData(bool, std::size_t) const;
+	virtual std::string footerData(bool, std::size_t) const override;
 
 	/** @brief Retrieve the current drawing arguments */
-	virtual std::string drawingArguments(bool) const;
+	virtual std::string drawingArguments(bool) const override;
 
 	/** @brief Loads the data of another object */
 	virtual G_API_COMMON void load_(const GBasePlotter*) override;
@@ -2205,16 +2211,16 @@ public:
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData(bool, std::size_t) const;
+	virtual std::string headerData(bool, std::size_t) const override;
 
 	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData(bool, std::size_t) const;
+	virtual std::string bodyData(bool, std::size_t) const override;
 
 	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData(bool, std::size_t) const;
+	virtual std::string footerData(bool, std::size_t) const override;
 
 	/** @brief Retrieve the current drawing arguments */
-	virtual std::string drawingArguments(bool) const;
+	virtual std::string drawingArguments(bool) const override;
 
 	/** @brief Loads the data of another object */
 	virtual G_API_COMMON void load_(const GBasePlotter*) override;
@@ -2807,16 +2813,16 @@ public:
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData(bool, std::size_t) const;
+	virtual std::string headerData(bool, std::size_t) const override;
 
 	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData(bool, std::size_t) const;
+	virtual std::string bodyData(bool, std::size_t) const override;
 
 	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData(bool, std::size_t) const;
+	virtual std::string footerData(bool, std::size_t) const override;
 
 	/** @brief Retrieve the current drawing arguments */
-	virtual std::string drawingArguments(bool) const;
+	virtual std::string drawingArguments(bool) const override;
 
 	/** @brief Loads the data of another object */
 	virtual G_API_COMMON void load_(const GBasePlotter*) override;
@@ -2893,16 +2899,16 @@ public:
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData(bool, std::size_t) const;
+	virtual std::string headerData(bool, std::size_t) const override;
 
 	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData(bool, std::size_t) const;
+	virtual std::string bodyData(bool, std::size_t) const override;
 
 	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData(bool, std::size_t) const;
+	virtual std::string footerData(bool, std::size_t) const override;
 
 	/** @brief Retrieve the current drawing arguments */
-	virtual std::string drawingArguments(bool) const;
+	virtual std::string drawingArguments(bool) const override;
 
 	/** @brief Loads the data of another object */
 	virtual G_API_COMMON void load_(const GBasePlotter*) override;
@@ -2982,16 +2988,16 @@ public:
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData(bool, std::size_t) const;
+	virtual std::string headerData(bool, std::size_t) const override;
 
 	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData(bool, std::size_t) const;
+	virtual std::string bodyData(bool, std::size_t) const override;
 
 	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData(bool, std::size_t) const;
+	virtual std::string footerData(bool, std::size_t) const override;
 
 	/** @brief Retrieve the current drawing arguments */
-	virtual std::string drawingArguments(bool) const;
+	virtual std::string drawingArguments(bool) const override;
 
 	/** @brief Loads the data of another object */
 	virtual G_API_COMMON void load_(const GBasePlotter*) override;

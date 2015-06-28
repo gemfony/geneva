@@ -291,10 +291,8 @@ public:
 
 		if (!logVector_.empty()) {
 			// Do the actual logging
-			std::vector<std::shared_ptr < GBaseLogTarget>> ::const_iterator
-			cit;
-			for (cit = logVector_.begin(); cit != logVector_.end(); ++cit) {
-				(*cit)->log(message);
+			for(auto cit: logVector_) {
+				cit->log(message);
 			}
 		} else {
 			if (defaultLogger_) {
@@ -320,10 +318,8 @@ public:
 
 		if (!logVector_.empty()) {
 			// Do the actual logging
-			std::vector<std::shared_ptr < GBaseLogTarget>> ::const_iterator
-			cit;
-			for (cit = logVector_.begin(); cit != logVector_.end(); ++cit) {
-				(*cit)->logWithSource(message, extension);
+			for(auto cit: logVector_) {
+				cit->logWithSource(message, extension);
 			}
 		} else {
 			if (defaultLogger_) {
