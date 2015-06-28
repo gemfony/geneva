@@ -131,7 +131,7 @@ public:
 	/**
 	 * Retrieves a list of the best individuals and converts them to a given target type.
 	 * Note that this function will not allow you to modify the best individuals themselves
-	 * as it will return a copies to you.
+	 * as it will return copies to you.
 	 *
 	 * @return A list of copies of the best individuals found in the optimization run
 	 */
@@ -141,7 +141,6 @@ public:
 	) {
 		std::vector<std::shared_ptr<individual_type>> bestIndividuals;
 
-		std::vector<std::shared_ptr<GParameterSet>>::iterator it;
 		std::vector<std::shared_ptr<GParameterSet>> bestBaseIndividuals = this->customGetBestIndividuals();
 
 		// Cross check that we indeed got a valid set of individuals
@@ -152,8 +151,8 @@ public:
 			<< GEXCEPTION;
 		}
 
-		for(it=bestBaseIndividuals.begin(); it!=bestBaseIndividuals.end(); ++it) {
-			bestIndividuals.push_back((*it)->clone<individual_type>());
+		for(auto it: bestBaseIndividuals) {
+			bestIndividuals.push_back(it->clone<individual_type>());
 		}
 
 		return bestIndividuals;

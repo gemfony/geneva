@@ -479,7 +479,7 @@ public:
 			updateStallCounter((bestCurrentPrimaryFitness_=cycleLogic()));
 
 			// Add the best individuals to the bestIndividuals_ vector
-			addIterationBests(bestIndividuals_);
+			updateGlobalBestsPQ(bestIndividuals_);
 
 			// Check whether a better value was found, and do the check-pointing, if necessary and requested.
 			checkpoint(progress());
@@ -1071,9 +1071,9 @@ public:
 	 * a trap -- the real action happens in overloads of this function, of which
 	 * the one for GParameterSet-derivatives is likely the most important.
 	 */
-	virtual void addIterationBests(GParameterSetFixedSizePriorityQueue& bestIndividuals) BASE {
+	virtual void updateGlobalBestsPQ(GParameterSetFixedSizePriorityQueue& bestIndividuals) BASE {
 		glogger
-		<< "In GOptimizationAlgorithmT<ind_type>::addIterationBests(): Error!" << std::endl
+		<< "In GOptimizationAlgorithmT<ind_type>::updateGlobalBestsPQ(): Error!" << std::endl
 		<< "This function should not have been called" << std::endl
 		<< GEXCEPTION;
 	}
@@ -1799,6 +1799,8 @@ private:
 
 	std::size_t nRecordBestIndividuals_ = DEFNRECORDBESTINDIVIDUALS; ///< Indicates the number of best individuals to be recorded/updated in each iteration
 	GParameterSetFixedSizePriorityQueue bestIndividuals_; ///< A priority queue with the best individuals found so far
+	GParameterSetFixedSizePriorityQueue bestIterationIndividuals_; ///< A priority queue with the best individuals of a given iteration
+
 
 	std::size_t defaultPopulationSize_ = DEFAULTPOPULATIONSIZE; ///< The nominal size of the population
 	boost::tuple<double, double> bestKnownPrimaryFitness_; ///< Records the best primary fitness found so far
@@ -2486,7 +2488,7 @@ inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::init()
  * settings
  */
 template <>
-inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::addIterationBests(
+inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::updateGlobalBestsPQ(
 	GParameterSetFixedSizePriorityQueue& bestIndividuals
 ) BASE {
 	const bool CLONE = true;
@@ -2495,7 +2497,7 @@ inline void GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::addIterationBes
 #ifdef DEBUG
 	if(this->empty()) {
 		glogger
-		<< "In GBaseParChildT<GParameterSet>::addIterationBests() :" << std::endl
+		<< "In GBaseParChildT<GParameterSet>::updateGlobalBestsPQ() :" << std::endl
 		<< "Tried to retrieve the best individuals even though the population is empty." << std::endl
 		<< GEXCEPTION;
 	}

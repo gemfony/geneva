@@ -131,7 +131,7 @@ public:
 	G_API_GENEVA void extractCurrentParetoIndividuals(std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>>&);
 
 	/** @brief Adds the individuals of this iteration to a priority queue */
-	virtual G_API_GENEVA void addIterationBests(GParameterSetFixedSizePriorityQueue&) override;
+	virtual G_API_GENEVA void updateGlobalBestsPQ(GParameterSetFixedSizePriorityQueue&) override;
 
 	/** @brief Returns the name of this optimization algorithm */
 	virtual G_API_GENEVA std::string getAlgorithmName() const override;

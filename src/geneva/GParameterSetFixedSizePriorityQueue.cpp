@@ -43,14 +43,16 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue() { /* nothing */ }
+GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization with the maximum size
  */
 GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(const std::size_t &maxSize)
-	: Gem::Common::GFixedSizePriorityQueueT<GParameterSet>(maxSize) { /* nothing */ }
+	: Gem::Common::GFixedSizePriorityQueueT<GParameterSet>(maxSize)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -60,7 +62,8 @@ GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(const s
 GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(
 	const std::size_t &maxSize, const bool &higherIsBetter
 )
-	: Gem::Common::GFixedSizePriorityQueueT<GParameterSet>(maxSize, higherIsBetter) { /* nothing */ }
+	: Gem::Common::GFixedSizePriorityQueueT<GParameterSet>(maxSize, higherIsBetter)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -69,13 +72,15 @@ GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(
 GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(
 	const GParameterSetFixedSizePriorityQueue &cp
 )
-	: Gem::Common::GFixedSizePriorityQueueT<GParameterSet>(cp) { /* nothing */ }
+	: Gem::Common::GFixedSizePriorityQueueT<GParameterSet>(cp)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GParameterSetFixedSizePriorityQueue::~GParameterSetFixedSizePriorityQueue() { /* nothing */ }
+GParameterSetFixedSizePriorityQueue::~GParameterSetFixedSizePriorityQueue()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -111,8 +116,7 @@ std::shared_ptr <Gem::Common::GFixedSizePriorityQueueT<GParameterSet>> GParamete
  */
 bool GParameterSetFixedSizePriorityQueue::allClean(std::size_t &pos) const {
 	pos = 0;
-	std::deque<std::shared_ptr < GParameterSet>> ::const_iterator
-	cit;
+	std::deque<std::shared_ptr < GParameterSet>> ::const_iterator cit;
 	for (cit = data_.begin(); cit != data_.end(); ++cit) {
 		if (true == (*cit)->isDirty()) {
 			pos = std::distance(data_.begin(), cit);
@@ -129,8 +133,7 @@ bool GParameterSetFixedSizePriorityQueue::allClean(std::size_t &pos) const {
  */
 std::string GParameterSetFixedSizePriorityQueue::getCleanStatus() const {
 	std::ostringstream oss;
-	std::deque<std::shared_ptr < GParameterSet>> ::const_iterator
-	cit;
+	std::deque<std::shared_ptr < GParameterSet>> ::const_iterator cit;
 	for (cit = data_.begin(); cit != data_.end(); ++cit) {
 		oss << "(" << std::distance(data_.begin(), cit) << ", " << ((*cit)->isDirty() ? "d" : "c") << ") ";
 	}

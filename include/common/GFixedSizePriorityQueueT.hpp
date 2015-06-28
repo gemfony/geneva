@@ -315,13 +315,9 @@ public:
 	 * @param replace If set to true, the queue will be emptied before adding new work items
 	 */
 	virtual void add(
-		const std::vector<std::shared_ptr < T>
-
-	>& items
-	,
-	bool do_clone = false
-	,
-	bool replace = false
+		const std::vector<std::shared_ptr < T>>& items
+		, bool do_clone = false
+		, bool replace = false
 	) {
 		double worstKnownEvaluation = Gem::Common::getWorstCase<double>(higherIsBetter_);
 		if (true == replace || data_.empty()) {
@@ -410,9 +406,7 @@ public:
 	/**
 	 * Converts the local deque to a std::vector and returns it
 	 */
-	std::vector<std::shared_ptr < T>>
-
-	toVector() {
+	std::vector<std::shared_ptr < T>> toVector() {
 		std::vector<std::shared_ptr < T>> result;
 
 		typename std::deque<std::shared_ptr < T>> ::iterator

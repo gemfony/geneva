@@ -308,7 +308,7 @@ public:
 	 * and may either have a limited or unlimited size, depending on user-
 	 * settings
 	 */
-	void addIterationBests(
+	void updateGlobalBestsPQ(
 		GParameterSetFixedSizePriorityQueue& bestIndividuals
 	) override {
 		const bool CLONE = true;
@@ -317,14 +317,14 @@ public:
 #ifdef DEBUG
       if(this->empty()) {
          glogger
-         << "In GBaseParChildT<GParameterSet>::addIterationBests() :" << std::endl
+         << "In GBaseParChildT<GParameterSet>::updateGlobalBestsPQ() :" << std::endl
          << "Tried to retrieve the best individuals even though the population is empty." << std::endl
          << GEXCEPTION;
       }
    #endif /* DEBUG */
 
 		// We simply add the individuals of our first member to the queue
-		this->at(0)->addIterationBests(bestIndividuals);
+		this->at(0)->updateGlobalBestsPQ(bestIndividuals);
 	}
 
 	/***************************************************************************/

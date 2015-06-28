@@ -335,8 +335,8 @@ public:
 /**
  * This class allows to output progress information for a given optimization run.
  * It takes care of successive runs and marks them in the output. At the user's
- * choice, information may be output for the best individual(s) found so far or
- * for the best individual(s) in a given iteration.
+ * choice, information may be output for the n best individual(s) found so far or
+ * for the n best individual(s) in a given iteration.
  */
 template <typename ind_type>
 class GOptimizationProgressPlotterT
@@ -354,7 +354,9 @@ class GOptimizationProgressPlotterT
 		& BOOST_SERIALIZATION_NVP(xDim_)
 	  	& BOOST_SERIALIZATION_NVP(yDim_)
 		& BOOST_SERIALIZATION_NVP(nMonitorInds_)
-  		& BOOST_SERIALIZATION_NVP(resultFile_);
+  		& BOOST_SERIALIZATION_NVP(resultFile_)
+	 	& BOOST_SERIALIZATION_NVP(infoInitRun_)
+		& BOOST_SERIALIZATION_NVP(fitnessGraphVec_);
 	}
 
 	///////////////////////////////////////////////////////////////////////
@@ -377,7 +379,10 @@ public:
 	  	, yDim_(cp.yDim_)
 		, nMonitorInds_(cp.nMonitorInds_)
 		, resultFile_(cp.resultFile_)
-	{ /* nothing */ }
+		, infoInitRun_(cp.infoInitRun_)
+	{
+		Gem::Common::copyCloneableSmartPointerVector(cp.fitnessGraphVec_, fitnessGraphVec_);
+	}
 
 	/***************************************************************************/
 	/**
@@ -395,7 +400,7 @@ public:
 		return *this;
 	}
 
-	/************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks for equality with another GCollectiveMonitorT object
 	 *
@@ -412,7 +417,7 @@ public:
 		}
 	}
 
-	/************************************************************************/
+	/***************************************************************************/
 	/**
 	 * Checks for inequality with another GCollectiveMonitorT object
 	 *
@@ -431,6 +436,102 @@ public:
 
 	/***************************************************************************/
 	/**
+	 * Allows to specify a different name for the result file
+	 *
+	 * @param resultFile The desired name of the result file
+	 */
+	void setResultFileName(
+		const std::string &resultFile
+	) {
+		resultFile_ = resultFile;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Allows to retrieve the current value of the result file name
+	 *
+	 * @return The current name of the result file
+	 */
+	std::string getResultFileName() const {
+		return resultFile_;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Allows to set the dimensions of the canvas
+	 *
+	 * @param xDim The desired dimension of the canvas in x-direction
+	 * @param yDim The desired dimension of the canvas in y-direction
+	 */
+	void setDims(const boost::uint32_t &xDim, const boost::uint32_t &yDim) {
+		xDim_ = xDim;
+		yDim_ = yDim;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Retrieve the dimensions as a tuple
+	 *
+	 * @return The dimensions of the canvas as a tuple
+	 */
+	boost::tuple<boost::uint32_t, boost::uint32_t> getDims() const {
+		return boost::tuple<boost::uint32_t, boost::uint32_t>(xDim_, yDim_);
+	}
+
+	/***************************************************************************/
+	/**
+	 * Retrieves the dimension of the canvas in x-direction
+	 *
+	 * @return The dimension of the canvas in x-direction
+	 */
+	boost::uint32_t getXDim() const {
+		return xDim_;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Retrieves the dimension of the canvas in y-direction
+	 *
+	 * @return The dimension of the canvas in y-direction
+	 */
+	boost::uint32_t getYDim() const {
+		return yDim_;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Sets the number of individuals in the population that should be monitored.
+	 * If nMonitorInds_ == 0, the default will be set to 3, as fitness graphs are plotted in a row,
+	 * and more than 3 will not give satisfactory graphical results. You may however
+	 * request more monitored individuals, but will likely have to postprocess the ROOT script.
+	 * If nMonitorInds_ is set to a larger number than there are individuals in the population,
+	 * the value will be reset to that amount of individuals in informationFunction.
+	 *
+	 * @oaram nMonitorInds The number of individuals in the population that should be monitored
+	 */
+	void setNMonitorIndividuals(const std::size_t &nMonitorInds) {
+		// Determine a suitable number of monitored individuals, if it hasn't already
+		// been set externally.
+		if(nMonitorInds_ == 0) {
+			nMonitorInds_ = std::size_t(3);
+		}
+
+		nMonitorInds_ = nMonitorInds;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Retrieves the number of individuals that are being monitored
+	 *
+	 * @return The number of individuals in the population being monitored
+	 */
+	std::size_t getNMonitorIndividuals() const {
+		return nMonitorInds_;
+	}
+
+
+	/***************************************************************************/
+	/**
 	 * Aggregates the work of all registered pluggable monitors
 	 */
 	virtual void informationFunction(
@@ -439,38 +540,43 @@ public:
 	) override {
 		switch(im) {
 			case Gem::Geneva::INFOINIT: {
-				glogger
-				<< "Starting an optimization run with algorithm \"" << goa->getAlgorithmName() << "\"" << std::endl
-				<< GLOGGING;
-			}
-				break;
+				if(!infoInitRun_) {
+					// Reset the number of monitored individuals to a suitable valie,
+					// if necessary.
+					if(nMonitorInds_ > goa->getPopulationSize()) {
+						nMonitorInds_ = goa->getPopulationSize();
+					}
+
+					// Set up the plotters
+					for(std::size_t ind = 0; ind<nMonitorInds_; ind++) {
+						std::shared_ptr <Gem::Common::GGraph2D> graph(new Gem::Common::GGraph2D());
+						graph->setXAxisLabel("Iteration");
+						graph->setYAxisLabel("Fitness");
+						graph->setPlotLabel(std::string("Individual ") + boost::lexical_cast<std::string>(ind));
+						graph->setPlotMode(Gem::Common::CURVE);
+
+						fitnessGraphVec_.push_back(graph);
+					}
+
+					// Make sure fitnessGraphVec_ is only initialized once
+					infoInitRun_ = true;
+				}
+			} break;
 
 			case Gem::Geneva::INFOPROCESSING: {
-				glogger
-				<< std::setprecision(5)
-				<< goa->getIteration() << ": "
-				<< goa->getBestCurrentPrimaryFitness()
-				<< " // best past: " << goa->getBestKnownPrimaryFitness()
-				<< std::endl
-				<< GLOGGING;
-			}
-				break;
+
+			} break;
 
 			case Gem::Geneva::INFOEND: {
-				glogger
-				<< "End of optimization reached in algorithm \"" << goa->getAlgorithmName()
-				<< "\"" << std::endl
-				<< GLOGGING;
-			}
-				break;
+
+			} break;
 
 			default: {
 				glogger
 				<< "In GOptimizationProgressPlotterT<ind_type>::informationFunction(): Received invalid infoMode " << im <<
 				std::endl
 				<< GEXCEPTION;
-			}
-				break;
+			} break;
 		}
 	}
 
@@ -511,6 +617,8 @@ public:
 		compare_t(IDENTITY(yDim_, p_load->yDim_), token);
 		compare_t(IDENTITY(nMonitorInds_, p_load->nMonitorInds_), token);
 		compare_t(IDENTITY(resultFile_, p_load->resultFile_), token);
+		compare_t(IDENTITY(infoInitRun_, p_load->infoInitRun_), token);
+		compare_t(IDENTITY(fitnessGraphVec_, p_load->fitnessGraphVec_), token);
 
 		// React on deviations from the expectation
 		token.evaluate();
@@ -535,6 +643,9 @@ protected:
 		yDim_ = p_load->yDim_;
 		nMonitorInds_ = p_load->nMonitorInds_;
 		resultFile_ = p_load->resultFile_;
+		infoInitRun_ = p_load->infoInitRun_;
+
+		Gem::Common::copyCloneableSmartPointerVector(p_load->fitnessGraphVec_, fitnessGraphVec_);
 	}
 
 	/************************************************************************/
@@ -545,13 +656,16 @@ protected:
 		return new GOptimizationProgressPlotterT<ind_type>(*this);
 	}
 
-
 private:
+	/************************************************************************/
+
 	boost::uint32_t xDim_ = DEFAULTXDIMOM; ///< The dimension of the canvas in x-direction
 	boost::uint32_t yDim_ = DEFAULTYDIMOM; ///< The dimension of the canvas in y-direction
-	std::size_t nMonitorInds_ = 0; ///< The number if individuals that should be monitored
+	std::size_t nMonitorInds_ = 1; ///< The number of individuals that should be monitored
 	std::string resultFile_ = DEFAULTROOTRESULTFILEOM; ///< The name of the file to which data is emitted
 
+	bool infoInitRun_ = false; ///< Allows to check whether the INFOINIT section of informationFunction has already been passed at least once
+	std::vector<std::shared_ptr<Gem::Common::GGraph2D>> fitnessGraphVec_; ///< Will hold progress information
 
 public:
 	/***************************************************************************/

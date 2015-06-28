@@ -443,7 +443,7 @@ void GBaseEA::selectBest() {
  * settings. The procedure is different for pareto optimization, as we only
  * want the individuals on the current pareto front to be added.
  */
-void GBaseEA::addIterationBests(
+void GBaseEA::updateGlobalBestsPQ(
 	GParameterSetFixedSizePriorityQueue & bestIndividuals
 ) {
 	const bool REPLACE = true;
@@ -452,7 +452,7 @@ void GBaseEA::addIterationBests(
 #ifdef DEBUG
    if(this->empty()) {
       glogger
-      << "In GBaseEA::addIterationBests() :" << std::endl
+      << "In GBaseEA::updateGlobalBestsPQ() :" << std::endl
       << "Tried to retrieve the best individuals even though the population is empty." << std::endl
       << GEXCEPTION;
    }
@@ -463,7 +463,7 @@ void GBaseEA::addIterationBests(
 		case MUPLUSNU_SINGLEEVAL:
 		case MUNU1PRETAIN_SINGLEEVAL:
 		case MUCOMMANU_SINGLEEVAL:
-			GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::addIterationBests(bestIndividuals);
+			GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::updateGlobalBestsPQ(bestIndividuals);
 			break;
 
 			//----------------------------------------------------------------------------
@@ -483,7 +483,7 @@ void GBaseEA::addIterationBests(
 			//----------------------------------------------------------------------------
 		default: {
 			glogger
-			<< "In GBaseEA::addIterationBests(): Error" << std::endl
+			<< "In GBaseEA::updateGlobalBestsPQ(): Error" << std::endl
 			<< "Incorrect sorting scheme requested: " << smode_ << std::endl
 			<< GEXCEPTION;
 		}
