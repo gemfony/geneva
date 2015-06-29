@@ -333,13 +333,13 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class allows to output progress information for a given optimization run.
+ * This class allows to output fitness information for a given optimization run.
  * It takes care of successive runs and marks them in the output. At the user's
  * choice, information may be output for the n best individual(s) found so far or
  * for the n best individual(s) in a given iteration.
  */
 template <typename ind_type>
-class GOptimizationProgressPlotterT
+class GFitnessMonitorT
 	: public GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT
 {
 	///////////////////////////////////////////////////////////////////////
@@ -366,14 +366,14 @@ public:
 	/**
 	 * The default constructor. Some variables may be initialized in the class body.
 	 */
-	GOptimizationProgressPlotterT()
+	GFitnessMonitorT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * The copy constructor
 	 */
-	GOptimizationProgressPlotterT(const GOptimizationProgressPlotterT<ind_type>& cp)
+	GFitnessMonitorT(const GFitnessMonitorT<ind_type>& cp)
 		: GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT(cp)
 	  	, xDim_(cp.xDim_)
 	  	, yDim_(cp.yDim_)
@@ -388,14 +388,14 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual ~GOptimizationProgressPlotterT()
+	virtual ~GFitnessMonitorT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * A standard assignment operator
 	 */
-	const GOptimizationProgressPlotterT<ind_type>& operator=(const GOptimizationProgressPlotterT<ind_type>& cp) {
+	const GFitnessMonitorT<ind_type>& operator=(const GFitnessMonitorT<ind_type>& cp) {
 		this->load_(&cp);
 		return *this;
 	}
@@ -407,7 +407,7 @@ public:
 	 * @param  cp A constant reference to another GCollectiveMonitorT object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool operator==(const GOptimizationProgressPlotterT<ind_type>& cp) const {
+	virtual bool operator==(const GFitnessMonitorT<ind_type>& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -424,7 +424,7 @@ public:
 	 * @param  cp A constant reference to another GCollectiveMonitorT object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	virtual bool operator!=(const GOptimizationProgressPlotterT<ind_type>& cp) const {
+	virtual bool operator!=(const GFitnessMonitorT<ind_type>& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -572,7 +572,7 @@ public:
 
 			default: {
 				glogger
-				<< "In GOptimizationProgressPlotterT<ind_type>::informationFunction(): Received invalid infoMode " << im <<
+				<< "In GFitnessMonitorT<ind_type>::informationFunction(): Received invalid infoMode " << im <<
 				std::endl
 				<< GEXCEPTION;
 			} break;
@@ -584,7 +584,7 @@ public:
 	 * Emits a name for this class / object
 	 */
 	virtual std::string name() const override {
-		return std::string("GOptimizationProgressPlotterT<>");
+		return std::string("GFitnessMonitorT<>");
 	}
 
 	/***************************************************************************/
@@ -604,9 +604,9 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GCollectiveMonitorT<ind_type> reference independent of this object and convert the pointer
-		const GOptimizationProgressPlotterT<ind_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		const GFitnessMonitorT<ind_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
-		GToken token("GOptimizationProgressPlotterT<>", e);
+		GToken token("GFitnessMonitorT<>", e);
 
 		// Compare our parent data ...
 		Gem::Common::compare_base<typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
@@ -632,7 +632,7 @@ protected:
 	 */
 	virtual void load_(const GObject* cp) override {
 		// Check that we are dealing with a GCollectiveMonitorT<ind_type> reference independent of this object and convert the pointer
-		const GOptimizationProgressPlotterT<ind_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		const GFitnessMonitorT<ind_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load the parent classes' data ...
 		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
@@ -652,7 +652,7 @@ protected:
 	 * Creates a deep clone of this object
 	 */
 	virtual GObject* clone_() const override {
-		return new GOptimizationProgressPlotterT<ind_type>(*this);
+		return new GFitnessMonitorT<ind_type>(*this);
 	}
 
 private:
@@ -690,7 +690,7 @@ public:
 		return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GOptimizationProgressPlotterT<ind_type>::modify_GUnitTests", "GEM_TESTING");
+		condnotset("GFitnessMonitorT<ind_type>::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 	}
@@ -707,7 +707,7 @@ public:
 		// Call the parent classes' functions
 		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GOptimizationProgressPlotterT<ind_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GFitnessMonitorT<ind_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -724,7 +724,7 @@ public:
 		GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GCollectiveMonitorT<ind_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GFitnessMonitorT<ind_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 /***************************************************************************/
