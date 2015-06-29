@@ -75,8 +75,8 @@ void startReferenceMeasurement(
 
 	//---------------------------------------------------------------------
 	// Loop until no valid individuals can be retrieved anymore
-	boost::uint32_t interMeasurementDelay = 1;
-	boost::uint32_t nMeasurementsPerIteration = 5;
+	std::uint32_t interMeasurementDelay = 1;
+	std::uint32_t nMeasurementsPerIteration = 5;
 	std::size_t iter = 0;
 	std::shared_ptr<GDelayIndividual> gdi_ptr;
 	while((gdi_ptr = gdif.get<GDelayIndividual>())) {
@@ -87,7 +87,7 @@ void startReferenceMeasurement(
 			nMeasurementsPerIteration = gdif.getNMeasurements();
 		}
 
-		for(boost::uint32_t i=0; i<nMeasurementsPerIteration; i++) {
+		for(std::uint32_t i=0; i<nMeasurementsPerIteration; i++) {
 			// Make the individual known to the optimizer
 			go.push_back(gdi_ptr);
 
@@ -143,8 +143,8 @@ void startParallelMeasurement(
 
 	//---------------------------------------------------------------------
 	// Loop until no valid individuals can be retrieved anymore
-	boost::uint32_t interMeasurementDelay = 1;
-	boost::uint32_t nMeasurementsPerIteration = 5;
+	std::uint32_t interMeasurementDelay = 1;
+	std::uint32_t nMeasurementsPerIteration = 5;
 	std::size_t iter = 0;
 	std::shared_ptr<GDelayIndividual> gdi_ptr;
 	while((gdi_ptr = gdif.get<GDelayIndividual>())) {
@@ -157,7 +157,7 @@ void startParallelMeasurement(
 
 		std::vector<double> delaySummary;
 		std::cout << "Starting " << nMeasurementsPerIteration << " measurements" << std::endl;
-		for(boost::uint32_t i=0; i<nMeasurementsPerIteration; i++) {
+		for(std::uint32_t i=0; i<nMeasurementsPerIteration; i++) {
 			// Make the individual known to the optimizer
 			go.push_back(gdi_ptr);
 

@@ -54,9 +54,9 @@ GInt32Collection::GInt32Collection() { /* nothing */ }
  * @param max The maximum random value
  */
 GInt32Collection::GInt32Collection(
-	const std::size_t &nval, const boost::int32_t &min, const boost::int32_t &max
+	const std::size_t &nval, const std::int32_t &min, const std::int32_t &max
 )
-	: GIntNumCollectionT<boost::int32_t>(nval, min, max) { /* nothing */ }
+	: GIntNumCollectionT<std::int32_t>(nval, min, max) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -68,9 +68,9 @@ GInt32Collection::GInt32Collection(
  * @param max The maximum random value
  */
 GInt32Collection::GInt32Collection(
-	const std::size_t &nval, const boost::int32_t &val, const boost::int32_t &min, const boost::int32_t &max
+	const std::size_t &nval, const std::int32_t &val, const std::int32_t &min, const std::int32_t &max
 )
-	: GIntNumCollectionT<boost::int32_t>(nval, val, min, max) { /* nothing */ }
+	: GIntNumCollectionT<std::int32_t>(nval, val, min, max) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -79,7 +79,7 @@ GInt32Collection::GInt32Collection(
  * @param cp A copy of another GInt32Collection object
  */
 GInt32Collection::GInt32Collection(const GInt32Collection &cp)
-	: GIntNumCollectionT<boost::int32_t>(cp) { /* nothing */ }
+	: GIntNumCollectionT<std::int32_t>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -160,7 +160,7 @@ void GInt32Collection::compare(
 	GToken token("GInt32Collection", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GIntNumCollectionT<boost::int32_t>>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GIntNumCollectionT<std::int32_t>>(IDENTITY(*this, *p_load), token);
 
 	// ... no local data
 
@@ -184,7 +184,7 @@ std::string GInt32Collection::name() const {
  * @param parVec The vector to which the local values should be attached
  */
 void GInt32Collection::int32Streamline(
-	std::vector<boost::int32_t> &parVec, const activityMode &am
+	std::vector<std::int32_t> &parVec, const activityMode &am
 ) const {
 	GInt32Collection::const_iterator cit;
 	for (cit = this->begin(); cit != this->end(); ++cit) {
@@ -200,32 +200,32 @@ void GInt32Collection::int32Streamline(
  * @param parVec The map to which the local values should be attached
  */
 void GInt32Collection::int32Streamline(
-	std::map<std::string, std::vector<boost::int32_t>> &parVec, const activityMode &am
+	std::map<std::string, std::vector<std::int32_t>> &parVec, const activityMode &am
 ) const {
 #ifdef DEBUG
    if((this->getParameterName()).empty()) {
       glogger
-      << "In GInt32Collection::int32Streamline(std::map<std::string, std::vector<boost::int32_t>>& parVec) const: Error!" << std::endl
+      << "In GInt32Collection::int32Streamline(std::map<std::string, std::vector<std::int32_t>>& parVec) const: Error!" << std::endl
       << "No name was assigned to the object" << std::endl
       << GEXCEPTION;
    }
 #endif /* DEBUG */
 
-	std::vector<boost::int32_t> parameters;
+	std::vector<std::int32_t> parameters;
 	this->int32Streamline(parameters, am);
 	parVec[this->getParameterName()] = parameters;
 }
 
 /******************************************************************************/
 /**
- * Attach boundaries of type boost::int32_t to the vectors. Since this is an unbounded type,
+ * Attach boundaries of type std::int32_t to the vectors. Since this is an unbounded type,
  * we use the initialization boundaries as a replacement.
  *
- * @param lBndVec A vector of lower boost::int32_t parameter boundaries
- * @param uBndVec A vector of upper boost::int32_t parameter boundaries
+ * @param lBndVec A vector of lower std::int32_t parameter boundaries
+ * @param uBndVec A vector of upper std::int32_t parameter boundaries
  */
 void GInt32Collection::int32Boundaries(
-	std::vector<boost::int32_t> &lBndVec, std::vector<boost::int32_t> &uBndVec, const activityMode &am
+	std::vector<std::int32_t> &lBndVec, std::vector<std::int32_t> &uBndVec, const activityMode &am
 ) const {
 	// Add as man lower and upper boundaries to the vector as
 	// there are variables
@@ -238,10 +238,10 @@ void GInt32Collection::int32Boundaries(
 
 /******************************************************************************/
 /**
- * Tell the audience that we own a number of boost::int32_t values
+ * Tell the audience that we own a number of std::int32_t values
  *
  * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
- * @return The number of boost::int32_t parameters
+ * @return The number of std::int32_t parameters
  */
 std::size_t GInt32Collection::countInt32Parameters(
 	const activityMode &am
@@ -254,14 +254,14 @@ std::size_t GInt32Collection::countInt32Parameters(
  * Assigns part of a value vector to the parameter
  */
 void GInt32Collection::assignInt32ValueVector(
-	const std::vector<boost::int32_t> &parVec, std::size_t &pos, const activityMode &am
+	const std::vector<std::int32_t> &parVec, std::size_t &pos, const activityMode &am
 ) {
 	for (GInt32Collection::iterator it = this->begin(); it != this->end(); ++it) {
 #ifdef DEBUG
       // Do we have a valid position ?
       if(pos >= parVec.size()) {
          glogger
-         << "In GInt32Collection::assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&):" << std::endl
+         << "In GInt32Collection::assignInt32ValueVector(const std::vector<std::int32_t>&, std::size_t&):" << std::endl
          << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
          << GEXCEPTION;
       }
@@ -277,7 +277,7 @@ void GInt32Collection::assignInt32ValueVector(
  * Assigns part of a value map to the parameter
  */
 void GInt32Collection::assignInt32ValueVectors(
-	const std::map<std::string, std::vector<boost::int32_t>> &parMap, const activityMode &am
+	const std::map<std::string, std::vector<std::int32_t>> &parMap, const activityMode &am
 ) {
 	GInt32Collection::iterator it;
 	std::size_t cnt = 0;
@@ -297,7 +297,7 @@ void GInt32Collection::load_(const GObject *cp) {
 	const GInt32Collection * p_load = Gem::Common::g_convert_and_compare<GObject, GInt32Collection>(cp, this);
 
 	// Load our parent class'es data ...
-	GIntNumCollectionT<boost::int32_t>::load_(cp);
+	GIntNumCollectionT<std::int32_t>::load_(cp);
 
 	// ... no local data
 }
@@ -313,7 +313,7 @@ bool GInt32Collection::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GIntNumCollectionT<boost::int32_t>::modify_GUnitTests()) result = true;
+	if (GIntNumCollectionT<std::int32_t>::modify_GUnitTests()) result = true;
 
 	this->push_back(5);
 	result = true;
@@ -334,7 +334,7 @@ void GInt32Collection::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
-	std::shared_ptr <GAdaptorT<boost::int32_t>> storedAdaptor;
+	std::shared_ptr <GAdaptorT<std::int32_t>> storedAdaptor;
 
 	if (this->hasAdaptor()) {
 		storedAdaptor = this->getAdaptor();
@@ -347,7 +347,7 @@ void GInt32Collection::specificTestsNoFailureExpected_GUnitTests() {
 	this->addAdaptor(giga_ptr);
 
 	// Call the parent class'es function
-	GIntNumCollectionT<boost::int32_t>::specificTestsNoFailureExpected_GUnitTests();
+	GIntNumCollectionT<std::int32_t>::specificTestsNoFailureExpected_GUnitTests();
 
 	// no local data, nothing to test
 
@@ -372,7 +372,7 @@ void GInt32Collection::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
-	std::shared_ptr <GAdaptorT<boost::int32_t>> storedAdaptor;
+	std::shared_ptr <GAdaptorT<std::int32_t>> storedAdaptor;
 
 	if (this->hasAdaptor()) {
 		storedAdaptor = this->getAdaptor();
@@ -385,7 +385,7 @@ void GInt32Collection::specificTestsFailuresExpected_GUnitTests() {
 	this->addAdaptor(giga_ptr);
 
 	// Call the parent class'es function
-	GIntNumCollectionT<boost::int32_t>::specificTestsFailuresExpected_GUnitTests();
+	GIntNumCollectionT<std::int32_t>::specificTestsFailuresExpected_GUnitTests();
 
 	// no local data, nothing to test
 

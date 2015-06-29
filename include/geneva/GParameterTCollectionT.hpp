@@ -422,18 +422,18 @@ protected:
 
 	/***************************************************************************/
 	/**
-	 * Attach parameters of type boost::int32_t to the vector. This function distributes this task
+	 * Attach parameters of type std::int32_t to the vector. This function distributes this task
 	 * to objects contained in the container.
 	 *
-	 * @param parVec The vector to which the boost::int32_t parameters will be attached
+	 * @param parVec The vector to which the std::int32_t parameters will be attached
 	 */
 	virtual void int32Streamline(
-		std::vector<boost::int32_t>& parVec
+		std::vector<std::int32_t>& parVec
 		, const activityMode& am
 	) const override {
 		typename GParameterTCollectionT<T>::const_iterator cit;
 		for(cit=this->begin(); cit!=this->end(); ++cit) {
-			(*cit)->template streamline<boost::int32_t>(parVec, am);
+			(*cit)->template streamline<std::int32_t>(parVec, am);
 		}
 	}
 
@@ -510,18 +510,18 @@ protected:
 
 	/***************************************************************************/
 	/**
-	 * Attach parameters of type boost::int32_t to the map. This function distributes this task
+	 * Attach parameters of type std::int32_t to the map. This function distributes this task
 	 * to objects contained in the container.
 	 *
-	 * @param parVec The map to which the boost::int32_t parameters will be attached
+	 * @param parVec The map to which the std::int32_t parameters will be attached
 	 */
 	virtual void int32Streamline(
-		std::map<std::string, std::vector<boost::int32_t>>& parVec
+		std::map<std::string, std::vector<std::int32_t>>& parVec
 		, const activityMode& am
 	) const override {
 		typename GParameterTCollectionT<T>::const_iterator cit;
 		for(cit=this->begin(); cit!=this->end(); ++cit) {
-			(*cit)->template streamline<boost::int32_t>(parVec, am);
+			(*cit)->template streamline<std::int32_t>(parVec, am);
 		}
 	}
 
@@ -590,19 +590,19 @@ protected:
 
 	/***************************************************************************/
 	/**
-	 * Attach boundaries of type boost::int32_t to the vectors
+	 * Attach boundaries of type std::int32_t to the vectors
 	 *
-	 * @param lBndVec A vector of lower boost::int32_t parameter boundaries
-	 * @param uBndVec A vector of upper boost::int32_t parameter boundaries
+	 * @param lBndVec A vector of lower std::int32_t parameter boundaries
+	 * @param uBndVec A vector of upper std::int32_t parameter boundaries
 	 */
 	virtual void int32Boundaries(
-		std::vector<boost::int32_t>& lBndVec
-		, std::vector<boost::int32_t>& uBndVec
+		std::vector<std::int32_t>& lBndVec
+		, std::vector<std::int32_t>& uBndVec
 		, const activityMode& am
 	) const override {
 		typename GParameterTCollectionT<T>::const_iterator cit;
 		for(cit=this->begin(); cit!=this->end(); ++cit) {
-			(*cit)->template boundaries<boost::int32_t>(lBndVec, uBndVec, am);
+			(*cit)->template boundaries<std::int32_t>(lBndVec, uBndVec, am);
 		}
 	}
 
@@ -671,11 +671,11 @@ protected:
 
 	/***************************************************************************/
 	/**
-	 * Count the number of boost::int32_t parameters. This function returns the responses from all
+	 * Count the number of std::int32_t parameters. This function returns the responses from all
 	 * objects contained in this collection.
 	 *
 	 * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
-	 * @return The number of boost::int32_t parameters in this collection
+	 * @return The number of std::int32_t parameters in this collection
 	 */
 	virtual std::size_t countInt32Parameters(
 		const activityMode& am
@@ -684,7 +684,7 @@ protected:
 
 		typename GParameterTCollectionT<T>::const_iterator cit;
 		for(cit=this->begin(); cit!=this->end(); ++cit) {
-			result += (*cit)->template countParameters<boost::int32_t>(am);
+			result += (*cit)->template countParameters<std::int32_t>(am);
 		}
 
 		return result;
@@ -756,13 +756,13 @@ protected:
 	 * Assigns part of a value vector to the parameter
 	 */
 	virtual void assignInt32ValueVector(
-		const std::vector<boost::int32_t>& parVec
+		const std::vector<std::int32_t>& parVec
 		, std::size_t& pos
 		, const activityMode& am
 	) override {
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->template assignValueVector<boost::int32_t>(parVec, pos, am);
+			(*it)->template assignValueVector<std::int32_t>(parVec, pos, am);
 		}
 	}
 
@@ -835,12 +835,12 @@ protected:
 	 */
 	virtual void assignInt32ValueVectors(
 		const std::map<std::string
-			, std::vector<boost::int32_t>>& parMap
+			, std::vector<std::int32_t>>& parMap
 		, const activityMode& am
 	) override {
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->template assignValueVectors<boost::int32_t>(parMap, am);
+			(*it)->template assignValueVectors<std::int32_t>(parMap, am);
 		}
 	}
 
@@ -904,13 +904,13 @@ protected:
 	 * Multiplication with a random value in a given range
 	 */
 	virtual void int32MultiplyByRandom(
-		const boost::int32_t& min
-		, const boost::int32_t& max
+		const std::int32_t& min
+		, const std::int32_t& max
 		, const activityMode& am
 	) override {
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->template multiplyByRandom<boost::int32_t>(min, max, am);
+			(*it)->template multiplyByRandom<std::int32_t>(min, max, am);
 		}
 	}
 
@@ -943,7 +943,7 @@ protected:
 	virtual void int32MultiplyByRandom(const activityMode& am) override {
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->template multiplyByRandom<boost::int32_t>(am);
+			(*it)->template multiplyByRandom<std::int32_t>(am);
 		}
 	}
 
@@ -980,12 +980,12 @@ protected:
 	 * Multiplication with a constant value
 	 */
 	virtual void int32MultiplyBy(
-		const boost::int32_t& value
+		const std::int32_t& value
 		, const activityMode& am
 	) override {
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->template multiplyBy<boost::int32_t>(value, am);
+			(*it)->template multiplyBy<std::int32_t>(value, am);
 		}
 	}
 
@@ -1022,12 +1022,12 @@ protected:
 	 * Initialization with a constant value
 	 */
 	virtual void int32FixedValueInit(
-		const boost::int32_t& value
+		const std::int32_t& value
 		, const activityMode& am
 	) override {
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->template fixedValueInit<boost::int32_t>(value, am);
+			(*it)->template fixedValueInit<std::int32_t>(value, am);
 		}
 	}
 
@@ -1122,7 +1122,7 @@ protected:
 		typename GParameterTCollectionT<T>::iterator it;
 		typename GParameterTCollectionT<T>::iterator p_it;
 		for(it=this->begin(), p_it=p->begin(); it!=this->end(); ++it, ++p_it) {
-			(*it)->template add<boost::int32_t>(*p_it, am);
+			(*it)->template add<std::int32_t>(*p_it, am);
 		}
 	}
 
@@ -1203,7 +1203,7 @@ protected:
 		typename GParameterTCollectionT<T>::iterator it;
 		typename GParameterTCollectionT<T>::iterator p_it;
 		for(it=this->begin(), p_it=p->begin(); it!=this->end(); ++it, ++p_it) {
-			(*it)->template subtract<boost::int32_t>(*p_it, am);
+			(*it)->template subtract<std::int32_t>(*p_it, am);
 		}
 	}
 

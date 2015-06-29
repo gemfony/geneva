@@ -46,7 +46,7 @@ namespace Geneva {
  * suitable for us.
  */
 GInt32GaussAdaptor::GInt32GaussAdaptor()
-	: GIntGaussAdaptorT<boost::int32_t>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA,
+	: GIntGaussAdaptorT<std::int32_t>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA,
 													DEFAULTMAXSIGMA) { /* nothing */ }
 
 /******************************************************************************/
@@ -56,7 +56,7 @@ GInt32GaussAdaptor::GInt32GaussAdaptor()
  * @param cp A copy of another GInt32GaussAdaptor object
  */
 GInt32GaussAdaptor::GInt32GaussAdaptor(const GInt32GaussAdaptor &cp)
-	: GIntGaussAdaptorT<boost::int32_t>(cp) { /* nothing */ }
+	: GIntGaussAdaptorT<std::int32_t>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -67,7 +67,7 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(const GInt32GaussAdaptor &cp)
  * @param adProb The adaption probability
  */
 GInt32GaussAdaptor::GInt32GaussAdaptor(const double &adProb)
-	: GIntGaussAdaptorT<boost::int32_t>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA,
+	: GIntGaussAdaptorT<std::int32_t>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA,
 													adProb) { /* nothing */ }
 
 /********************************************************************************************/
@@ -82,7 +82,7 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(const double &adProb)
 GInt32GaussAdaptor::GInt32GaussAdaptor(
 	const double &sigma, const double &sigmaSigma, const double &minSigma, const double &maxSigma
 )
-	: GIntGaussAdaptorT<boost::int32_t>(sigma, sigmaSigma, minSigma, maxSigma) { /* nothing */ }
+	: GIntGaussAdaptorT<std::int32_t>(sigma, sigmaSigma, minSigma, maxSigma) { /* nothing */ }
 
 /********************************************************************************************/
 /**
@@ -98,7 +98,7 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(
 GInt32GaussAdaptor::GInt32GaussAdaptor(
 	const double &sigma, const double &sigmaSigma, const double &minSigma, const double &maxSigma, const double &adProb
 )
-	: GIntGaussAdaptorT<boost::int32_t>(sigma, sigmaSigma, minSigma, maxSigma, adProb) { /* nothing */ }
+	: GIntGaussAdaptorT<std::int32_t>(sigma, sigmaSigma, minSigma, maxSigma, adProb) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -179,7 +179,7 @@ void GInt32GaussAdaptor::compare(
 	GToken token("GInt32GaussAdaptor", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GIntGaussAdaptorT<boost::int32_t>>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GIntGaussAdaptorT<std::int32_t>>(IDENTITY(*this, *p_load), token);
 
 	// ... no local data
 
@@ -206,7 +206,7 @@ void GInt32GaussAdaptor::load_(const GObject *cp) {
 	const GInt32GaussAdaptor * p_load = Gem::Common::g_convert_and_compare<GObject, GInt32GaussAdaptor>(cp, this);
 
 	// Load our parent class'es data ...
-	GIntGaussAdaptorT<boost::int32_t>::load_(cp);
+	GIntGaussAdaptorT<std::int32_t>::load_(cp);
 
 	// ... no local data
 }
@@ -238,7 +238,7 @@ bool GInt32GaussAdaptor::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GIntGaussAdaptorT<boost::int32_t>::modify_GUnitTests()) result = true;
+	if (GIntGaussAdaptorT<std::int32_t>::modify_GUnitTests()) result = true;
 
 	return result;
 
@@ -256,7 +256,7 @@ void GInt32GaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
 
 	// Call the parent class'es function
-	GIntGaussAdaptorT<boost::int32_t>::specificTestsNoFailureExpected_GUnitTests();
+	GIntGaussAdaptorT<std::int32_t>::specificTestsNoFailureExpected_GUnitTests();
 
 	// --------------------------------------------------------------------------
 
@@ -284,7 +284,7 @@ void GInt32GaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 void GInt32GaussAdaptor::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	GIntGaussAdaptorT<boost::int32_t>::specificTestsFailuresExpected_GUnitTests();
+	GIntGaussAdaptorT<std::int32_t>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GInt32GaussAdaptor::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

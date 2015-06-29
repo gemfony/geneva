@@ -60,15 +60,15 @@ std::vector<bool> fillWithData<bool>(
 
 /******************************************************************************/
 /**
- * Returns a set of boost::int32_t data items
+ * Returns a set of std::int32_t data items
  */
 template<>
-std::vector<boost::int32_t> fillWithData<boost::int32_t>(
+std::vector<std::int32_t> fillWithData<std::int32_t>(
 	std::size_t nSteps // will only be used for random entries
-	, boost::int32_t lower, boost::int32_t upper // inclusive
+	, std::int32_t lower, std::int32_t upper // inclusive
 ) {
-	std::vector<boost::int32_t> result;
-	for (boost::int32_t i = lower; i <= upper; i++) {
+	std::vector<std::int32_t> result;
+	for (std::int32_t i = lower; i <= upper; i++) {
 		result.push_back(i);
 	}
 	return result;
@@ -170,23 +170,23 @@ std::shared_ptr <bScanPar> bScanPar::clone() const {
  * The default constructor. Only needed for de-serialization.
  */
 int32ScanPar::int32ScanPar()
-	: baseScanParT<boost::int32_t>() { /* nothing */ }
+	: baseScanParT<std::int32_t>() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
 int32ScanPar::int32ScanPar(
-	parPropSpec<boost::int32_t> pps, bool randomScan
+	parPropSpec<std::int32_t> pps, bool randomScan
 )
-	: baseScanParT<boost::int32_t>(pps, randomScan, "i") { /* nothing */ }
+	: baseScanParT<std::int32_t>(pps, randomScan, "i") { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The copy constructor
  */
 int32ScanPar::int32ScanPar(const int32ScanPar &cp)
-	: baseScanParT<boost::int32_t>(cp) { /* nothing */ }
+	: baseScanParT<std::int32_t>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**

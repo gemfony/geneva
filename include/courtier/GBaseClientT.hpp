@@ -172,7 +172,7 @@ public:
 	 *
 	 * @param processMax Desired value for the processMax_ variable
 	 */
-	void setProcessMax(const boost::uint32_t &processMax) {
+	void setProcessMax(const std::uint32_t &processMax) {
 		processMax_ = processMax;
 	}
 
@@ -183,7 +183,7 @@ public:
 	 *
 	 * @return The value of the processMax_ variable
 	 */
-	boost::uint32_t getProcessMax() const {
+	std::uint32_t getProcessMax() const {
 		return processMax_;
 	}
 
@@ -367,8 +367,8 @@ private:
 	boost::posix_time::ptime startTime_; ///< Used to store the start time of the optimization
 	boost::posix_time::time_duration maxDuration_; ///< Maximum time frame for the optimization
 
-	boost::uint32_t processed_; ///< The number of processed items so far
-	boost::uint32_t processMax_; ///< The maximum number of items to process
+	std::uint32_t processed_; ///< The number of processed items so far
+	std::uint32_t processMax_; ///< The maximum number of items to process
 
 	bool returnRegardless_; ///< Specifies whether unsuccessful processing attempts should be returned to the server
 

@@ -50,12 +50,12 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The GConstrainedInt32Object class allows to limit the value range of a boost::int32_t value,
+ * The GConstrainedInt32Object class allows to limit the value range of a std::int32_t value,
  * while applying adaptions to a continuous range. This is done by means of a
  * mapping from an internal representation to an externally visible value.
  */
 class GConstrainedInt32Object
-	: public GConstrainedIntT<boost::int32_t>
+	: public GConstrainedIntT<std::int32_t>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -65,7 +65,7 @@ class GConstrainedInt32Object
 		using boost::serialization::make_nvp;
 
 		ar & make_nvp("GConstrainedIntT_int32",
-						  boost::serialization::base_object<GConstrainedIntT<boost::int32_t>>(*this));
+						  boost::serialization::base_object<GConstrainedIntT<std::int32_t>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -74,19 +74,19 @@ public:
 	G_API_GENEVA GConstrainedInt32Object();
 	/** @brief Initialization with boundaries only */
 	G_API_GENEVA GConstrainedInt32Object(
-		const boost::int32_t&
-		, const boost::int32_t&
+		const std::int32_t&
+		, const std::int32_t&
 	);
 	/** @brief Initialization with value and boundaries */
 	G_API_GENEVA GConstrainedInt32Object(
-		const boost::int32_t&
-		, const boost::int32_t&
-		, const boost::int32_t&
+		const std::int32_t&
+		, const std::int32_t&
+		, const std::int32_t&
 	);
 	/** @brief The copy constructor */
 	G_API_GENEVA GConstrainedInt32Object(const GConstrainedInt32Object&);
 	/** @brief Initialization by contained value */
-	explicit G_API_GENEVA GConstrainedInt32Object(const boost::int32_t&);
+	explicit G_API_GENEVA GConstrainedInt32Object(const std::int32_t&);
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GConstrainedInt32Object();
 
@@ -94,7 +94,7 @@ public:
 	G_API_GENEVA const GConstrainedInt32Object& operator=(const GConstrainedInt32Object&);
 
 	/** @brief An assignment operator for the contained value type */
-	virtual G_API_GENEVA boost::int32_t operator=(const boost::int32_t&) override;
+	virtual G_API_GENEVA std::int32_t operator=(const std::int32_t&) override;
 
 	/** @brief Checks for equality with another GConstrainedInt32Object object */
 	G_API_GENEVA bool operator==(const GConstrainedInt32Object&) const;
@@ -121,17 +121,17 @@ protected:
 	virtual G_API_GENEVA bool randomInit_(const activityMode&) override;
 
 	/** @brief Attach our local value to the vector. */
-	virtual G_API_GENEVA void int32Streamline(std::vector<boost::int32_t>&, const activityMode& am) const override;
-	/** @brief Attach boundaries of type boost::int32_t to the vectors */
-	virtual G_API_GENEVA void int32Boundaries(std::vector<boost::int32_t>&, std::vector<boost::int32_t>&, const activityMode& am) const override;
-	/** @brief Tell the audience that we own a boost::int32_t value */
+	virtual G_API_GENEVA void int32Streamline(std::vector<std::int32_t>&, const activityMode& am) const override;
+	/** @brief Attach boundaries of type std::int32_t to the vectors */
+	virtual G_API_GENEVA void int32Boundaries(std::vector<std::int32_t>&, std::vector<std::int32_t>&, const activityMode& am) const override;
+	/** @brief Tell the audience that we own a std::int32_t value */
 	virtual G_API_GENEVA std::size_t countInt32Parameters(const activityMode& am) const override;
 	/** @brief Assigns part of a value vector to the parameter */
-	virtual G_API_GENEVA void assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&, const activityMode& am) override;
+	virtual G_API_GENEVA void assignInt32ValueVector(const std::vector<std::int32_t>&, std::size_t&, const activityMode& am) override;
 	/** @brief Attach our local value to the vector. */
-	virtual G_API_GENEVA void int32Streamline(std::map<std::string, std::vector<boost::int32_t>>&, const activityMode& am) const override;
+	virtual G_API_GENEVA void int32Streamline(std::map<std::string, std::vector<std::int32_t>>&, const activityMode& am) const override;
 	/** @brief Assigns part of a value vector to the parameter */
-	virtual G_API_GENEVA void assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t>>&, const activityMode& am) override;
+	virtual G_API_GENEVA void assignInt32ValueVectors(const std::map<std::string, std::vector<std::int32_t>>&, const activityMode& am) override;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

@@ -159,7 +159,7 @@ The main changes for this release include:
  - Fixed Bug #1399716 in Launchpad --> Calling go & "ea" & "sa" crashed.
  - Introduced a more versatile syntax for configuration options in
    GParserBuilder. You can now say things like:
-     gpb.registerFileParameter<boost::uint32_t>(...) << "my comment";
+     gpb.registerFileParameter<std::uint32_t>(...) << "my comment";
  - Added an option to override default values of configuration options
    that were set by a parent class (needed for GParserBuilder).
  - Added support for MS Windows using the Cygwin environment.
@@ -520,7 +520,7 @@ The main changes for this release include:
    easier access to information about the optimization process, plus
    visualization of the optimization progress out of the box.
  - Added a set of functions that allows to extract or set all parameters
-   of type double, boost::int32_t or boolean with a single call from an
+   of type double, std::int32_t or boolean with a single call from an
    individual, in the sequence in which they were registered. E.g., if
    a GDoubleObject, GBooleanCollection and a GConstrainedDouble have been
    registered in this order, it would be possible to just extract or set

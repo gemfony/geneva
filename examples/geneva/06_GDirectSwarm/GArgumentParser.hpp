@@ -67,20 +67,20 @@ namespace po = boost::program_options;
 
 /******************************************************************************/
 
-const boost::uint16_t DEFAULTPARALLELIZATIONMODEAP=EXECMODE_MULTITHREADED;
+const std::uint16_t DEFAULTPARALLELIZATIONMODEAP=EXECMODE_MULTITHREADED;
 const unsigned short DEFAULTPORT=10000;
 const std::string DEFAULTIP="localhost";
-const boost::uint32_t DEFAULTMAXSTALLS06=0;
-const boost::uint32_t DEFAULTMAXCONNECTIONATTEMPTS06=100;
-const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
+const std::uint32_t DEFAULTMAXSTALLS06=0;
+const std::uint32_t DEFAULTMAXCONNECTIONATTEMPTS06=100;
+const std::uint16_t DEFAULTNPRODUCERTHREADS=10;
 const Gem::Common::serializationMode DEFAULTSERMODE=Gem::Common::SERIALIZATIONMODE_TEXT;
 const bool DEFAULTADDLOCALCONSUMER=false;
-const boost::uint16_t DEFAULTNEVALUATIONTHREADS=4;
-const boost::uint32_t DEFAULTMAXITERATIONS=200;
-const boost::uint32_t DEFAULTREPORTITERATION=1;
+const std::uint16_t DEFAULTNEVALUATIONTHREADS=4;
+const std::uint32_t DEFAULTMAXITERATIONS=200;
+const std::uint32_t DEFAULTREPORTITERATION=1;
 const long DEFAULTMAXMINUTES=10;
-const boost::uint16_t DEFAULTXDIMAP=1024;
-const boost::uint16_t DEFAULTYDIMAP=1024;
+const std::uint16_t DEFAULTXDIMAP=1024;
+const std::uint16_t DEFAULTYDIMAP=1024;
 const bool DEFAULTFOLLOWPROGRESS=false;
 const std::size_t DEFAULTNNEIGHBORHOODSAP=5;
 const std::size_t DEFAULTNNEIGHBORHOODMEMBERSAP=20;
@@ -96,12 +96,12 @@ const bool DEFAULTALLRANDOMINIT=true;
  */
 bool parseCommandLine(
 	int argc, char **argv
-	, boost::uint16_t& parallelizationMode
+	, std::uint16_t& parallelizationMode
 	, bool& serverMode
 	, std::string& ip
 	, unsigned short& port
-	, boost::uint32_t& maxStalls
-	, boost::uint32_t& maxConnectionAttempts
+	, std::uint32_t& maxStalls
+	, std::uint32_t& maxConnectionAttempts
 	, Gem::Common::serializationMode& serMode
 	, bool& addLocalConsumer
 	, std::size_t& nNeighborhoods
@@ -112,13 +112,13 @@ bool parseCommandLine(
 	, double& cVelocity
 	, updateRule& ur
 	, bool& allRandomInit
-	, boost::uint16_t& nProducerThreads
-	, boost::uint16_t& nEvaluationThreads
-	, boost::uint32_t& maxIterations
+	, std::uint16_t& nProducerThreads
+	, std::uint16_t& nEvaluationThreads
+	, std::uint32_t& maxIterations
 	, long& maxMinutes
-	, boost::uint32_t& reportIteration
-	, boost::uint16_t& xDim
-	, boost::uint16_t& yDim
+	, std::uint32_t& reportIteration
+	, std::uint16_t& xDim
+	, std::uint16_t& yDim
 	, bool& followProgress
 );
 

@@ -61,22 +61,22 @@ typedef boost::mt19937::result_type seed_type;
 
 const std::size_t DEFAULTARRAYSIZE = 1000; ///< Default size of the random number array
 const std::size_t DEFAULTFACTORYBUFFERSIZE = 400; ///< Default size of the underlying buffer
-const boost::uint16_t DEFAULTFACTORYPUTWAIT = 50; ///< waiting time in milliseconds
-const boost::uint16_t DEFAULTFACTORYGETWAIT = 50; ///< waiting time in milliseconds
-const boost::uint16_t DEFAULTSEEDQUEUEPUTWAIT = 50; ///< waiting time for seeding queue in milliseconds
+const std::uint16_t DEFAULTFACTORYPUTWAIT = 50; ///< waiting time in milliseconds
+const std::uint16_t DEFAULTFACTORYGETWAIT = 50; ///< waiting time in milliseconds
+const std::uint16_t DEFAULTSEEDQUEUEPUTWAIT = 50; ///< waiting time for seeding queue in milliseconds
 
 /******************************************************************************/
 /**
  * The number of threads that simultaneously produce [0,1[ random numbers
  */
-const boost::uint16_t DEFAULT01PRODUCERTHREADS = 2;
+const std::uint16_t DEFAULT01PRODUCERTHREADS = 2;
 
 /******************************************************************************/
 /**
- * The maximum value of boost::int32_t, converted to a double value. This is
+ * The maximum value of std::int32_t, converted to a double value. This is
  * needed to scale the output of boost::rand48 to a maximum value of 1.
  */
-const double rnr_max = static_cast<double>(boost::numeric::bounds<boost::int32_t>::highest());
+const double rnr_max = static_cast<double>(boost::numeric::bounds<std::int32_t>::highest());
 
 /******************************************************************************/
 /**
@@ -85,7 +85,7 @@ const double rnr_max = static_cast<double>(boost::numeric::bounds<boost::int32_t
  * by reading from /dev/urandom). The chosen value follows a setting
  * in boost's mersenne twister library.
  */
-const boost::uint32_t DEFAULTSTARTSEED = 5489;
+const std::uint32_t DEFAULTSTARTSEED = 5489;
 
 /******************************************************************************/
 /**

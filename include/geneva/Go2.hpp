@@ -86,14 +86,14 @@ const std::string GO2_DEF_DEFAULTCONFIGFILE="config/Go2.json";
 const bool GO2_DEF_CLIENTMODE=false;
 const execMode GO2_DEF_DEFAULPARALLELIZATIONMODE=EXECMODE_MULTITHREADED;
 const bool GO2_DEF_COPYBESTONLY=true;
-const boost::uint16_t GO2_DEF_NPRODUCERTHREADS=0;
-const boost::uint32_t GO2_DEF_OFFSET=0;
+const std::uint16_t GO2_DEF_NPRODUCERTHREADS=0;
+const std::uint32_t GO2_DEF_OFFSET=0;
 const std::string GO2_DEF_OPTALGS="";
 const std::string GO2_DEF_NOCONSUMER="none";
 
 /******************************************************************************/
 /** @brief Set a number of parameters of the random number factory */
-G_API_GENEVA void setRNFParameters(const boost::uint16_t&);
+G_API_GENEVA void setRNFParameters(const std::uint16_t&);
 
 /******************************************************************************/
 /** Syntactic sugar -- make the code easier to read */
@@ -190,17 +190,17 @@ public:
 		std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>
 	);
 	/** @brief Perform the actual optimization cycle */
-	virtual G_API_GENEVA void optimize(const boost::uint32_t& = 0) override;
+	virtual G_API_GENEVA void optimize(const std::uint32_t& = 0) override;
 
 	/***************************************************************************/
 	// The following is a trivial list of getters and setters
 	G_API_GENEVA void setClientMode(bool);
 	G_API_GENEVA bool getClientMode() const;
 
-	G_API_GENEVA boost::uint16_t getNProducerThreads() const;
+	G_API_GENEVA std::uint16_t getNProducerThreads() const;
 
-	G_API_GENEVA void setOffset(const boost::uint32_t&);
-	G_API_GENEVA boost::uint32_t getIterationOffset() const;
+	G_API_GENEVA void setOffset(const std::uint32_t&);
+	G_API_GENEVA std::uint32_t getIterationOffset() const;
 
 	/** @brief Retrieval of the current iteration */
 	virtual G_API_GENEVA uint32_t getIteration() const override;
@@ -248,7 +248,7 @@ public:
 	 */
 	template <typename individual_type>
 	std::shared_ptr<individual_type> optimize(
-		const boost::uint32_t& offset
+		const std::uint32_t& offset
 	) {
 		return GOptimizableI::optimize<individual_type>(offset);
 	}
@@ -296,7 +296,7 @@ protected:
 
 private:
 	/** @brief Sets the number of random number production threads */
-	G_API_GENEVA void setNProducerThreads(const boost::uint16_t&);
+	G_API_GENEVA void setNProducerThreads(const std::uint16_t&);
 
 	/***************************************************************************/
 	// Initialization code for the Geneva library
@@ -311,13 +311,13 @@ private:
 
 	//---------------------------------------------------------------------------
 	// Parameters for the random number generator
-	boost::uint16_t nProducerThreads_; ///< The number of threads that will simultaneously produce random numbers
+	std::uint16_t nProducerThreads_; ///< The number of threads that will simultaneously produce random numbers
 
 	//---------------------------------------------------------------------------
 	// Internal parameters
-	boost::uint32_t offset_; ///< The offset to be used when starting a new optimization run
+	std::uint32_t offset_; ///< The offset to be used when starting a new optimization run
 	bool sorted_; ///< Indicates whether local individuals have been sorted
-	boost::uint32_t iterationsConsumed_; ///< The number of successive iterations performed by this object so far
+	std::uint32_t iterationsConsumed_; ///< The number of successive iterations performed by this object so far
 
 	//---------------------------------------------------------------------------
 	// The list of "chained" optimization algorithms

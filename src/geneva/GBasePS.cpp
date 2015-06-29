@@ -61,9 +61,9 @@ std::ostream &operator<<(std::ostream &os, const parSet &pS) {
 		os << std::endl;
 	}
 
-	// boost::int32_t data
+	// std::int32_t data
 	if (!pS.iParVec.empty()) {
-		os << "# boost::int32_t data" << std::endl;
+		os << "# std::int32_t data" << std::endl;
 		std::vector<singleInt32Par>::const_iterator cit;
 		for (cit = pS.iParVec.begin(); cit != pS.iParVec.end(); ++cit) {
 			os << std::get<1>(*cit) << ":" << std::get<0>(*cit);
@@ -415,7 +415,7 @@ void GBasePS::updateSelectedParameters() {
 			case 0: // Parameters are referenced by index
 			{
 				std::vector<bool> bData;
-				std::vector<boost::int32_t> iData;
+				std::vector<std::int32_t> iData;
 				std::vector<float> fData;
 				std::vector<double> dData;
 
@@ -423,7 +423,7 @@ void GBasePS::updateSelectedParameters() {
 
 				// Retrieve the parameter vectors
 				this->at(indPos)->streamline<bool>(bData);
-				this->at(indPos)->streamline<boost::int32_t>(iData);
+				this->at(indPos)->streamline<std::int32_t>(iData);
 				this->at(indPos)->streamline<float>(fData);
 				this->at(indPos)->streamline<double>(dData);
 
@@ -435,10 +435,10 @@ void GBasePS::updateSelectedParameters() {
 					this->addDataPoint<bool>(*b_it, bData);
 				}
 
-				// 2) For boost::int32_t data
+				// 2) For std::int32_t data
 				std::vector<singleInt32Par>::iterator i_it;
 				for (i_it = pS->iParVec.begin(); i_it != pS->iParVec.end(); ++i_it) {
-					this->addDataPoint<boost::int32_t>(*i_it, iData);
+					this->addDataPoint<std::int32_t>(*i_it, iData);
 				}
 
 				// 3) For float values
@@ -455,7 +455,7 @@ void GBasePS::updateSelectedParameters() {
 
 				// Copy the data back into the individual
 				this->at(indPos)->assignValueVector<bool>(bData);
-				this->at(indPos)->assignValueVector<boost::int32_t>(iData);
+				this->at(indPos)->assignValueVector<std::int32_t>(iData);
 				this->at(indPos)->assignValueVector<float>(fData);
 				this->at(indPos)->assignValueVector<double>(dData);
 			}
@@ -467,13 +467,13 @@ void GBasePS::updateSelectedParameters() {
 			case 2: // Parameters are references as var --> equivalent to var[0]
 			{
 				std::map<std::string, std::vector<bool>> bData;
-				std::map<std::string, std::vector<boost::int32_t>> iData;
+				std::map<std::string, std::vector<std::int32_t>> iData;
 				std::map<std::string, std::vector<float>> fData;
 				std::map<std::string, std::vector<double>> dData;
 
 				// Retrieve the parameter maos
 				this->at(indPos)->streamline<bool>(bData);
-				this->at(indPos)->streamline<boost::int32_t>(iData);
+				this->at(indPos)->streamline<std::int32_t>(iData);
 				this->at(indPos)->streamline<float>(fData);
 				this->at(indPos)->streamline<double>(dData);
 
@@ -485,10 +485,10 @@ void GBasePS::updateSelectedParameters() {
 					this->addDataPoint<bool>(*b_it, bData);
 				}
 
-				// 2) For boost::int32_t data
+				// 2) For std::int32_t data
 				std::vector<singleInt32Par>::iterator i_it;
 				for (i_it = pS->iParVec.begin(); i_it != pS->iParVec.end(); ++i_it) {
-					this->addDataPoint<boost::int32_t>(*i_it, iData);
+					this->addDataPoint<std::int32_t>(*i_it, iData);
 				}
 
 				// 3) For float values
@@ -506,7 +506,7 @@ void GBasePS::updateSelectedParameters() {
 
 				// Copy the data back into the individual
 				this->at(indPos)->assignValueVectors<bool>(bData);
-				this->at(indPos)->assignValueVectors<boost::int32_t>(iData);
+				this->at(indPos)->assignValueVectors<std::int32_t>(iData);
 				this->at(indPos)->assignValueVectors<float>(fData);
 				this->at(indPos)->assignValueVectors<double>(dData);
 			}
@@ -656,7 +656,7 @@ std::shared_ptr <parSet> GBasePS::getParameterSet(std::size_t &mode) {
 		singleBPar item((*b_it)->getCurrentItem(), std::get<0>(var), std::get<1>(var), std::get<2>(var));
 		(result->bParVec).push_back(item);
 	}
-	// 2) For boost::int32_t objects
+	// 2) For std::int32_t objects
 	std::vector<std::shared_ptr < int32ScanPar>>::iterator i_it;
 	for (i_it = int32Vec_.begin(); i_it != int32Vec_.end(); ++i_it) {
 		NAMEANDIDTYPE var = (*i_it)->getVarAddress();
@@ -756,7 +756,7 @@ void GBasePS::fillAllParVec() {
 	for (b_it = bVec_.begin(); b_it != bVec_.end(); ++b_it) {
 		allParVec_.push_back(*b_it);
 	}
-	// 2) For boost::int32_t objects
+	// 2) For std::int32_t objects
 	std::vector<std::shared_ptr < int32ScanPar>> ::iterator i_it;
 	for (i_it = int32Vec_.begin(); i_it != int32Vec_.end(); ++i_it) {
 		allParVec_.push_back(*i_it);
@@ -886,11 +886,11 @@ void GBasePS::setParameterSpecs(std::string parStr) {
 
 		// Retrieve integer parameters
 		std::tuple<
-			std::vector<parPropSpec<boost::int32_t>>::const_iterator, std::vector<parPropSpec<boost::int32_t>>::const_iterator
-		> t_i = ppp.getIterators<boost::int32_t>();
+			std::vector<parPropSpec<std::int32_t>>::const_iterator, std::vector<parPropSpec<std::int32_t>>::const_iterator
+		> t_i = ppp.getIterators<std::int32_t>();
 
-		std::vector<parPropSpec<boost::int32_t>>::const_iterator i_cit = std::get<0>(t_i);
-		std::vector<parPropSpec<boost::int32_t>>::const_iterator i_end = std::get<1>(t_i);
+		std::vector<parPropSpec<std::int32_t>>::const_iterator i_cit = std::get<0>(t_i);
+		std::vector<parPropSpec<std::int32_t>>::const_iterator i_end = std::get<1>(t_i);
 		for (; i_cit != i_end; ++i_cit) { // Note: i_cit is already set to the begin of the double parameter arrays
 			int32Vec_.push_back(std::shared_ptr<int32ScanPar>(new int32ScanPar(*i_cit, scanRandomly_)));
 		}

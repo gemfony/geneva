@@ -177,7 +177,7 @@ public:
 	G_API_GENEVA double getPerItemCrossOverProbability() const;
 
 	/** @brief Triggers updates of adaptors contained in this object */
-	virtual G_API_GENEVA void updateAdaptorsOnStall(const boost::uint32_t&);
+	virtual G_API_GENEVA void updateAdaptorsOnStall(const std::uint32_t&);
 	/** @brief Retrieves information from adaptors with a given property */
 	virtual G_API_GENEVA void queryAdaptor(
 		const std::string& adaptorName

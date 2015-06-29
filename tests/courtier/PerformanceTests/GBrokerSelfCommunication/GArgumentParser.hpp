@@ -61,18 +61,18 @@ namespace po = boost::program_options;
 
 /********************************************************************************************/
 // Default settings
-const boost::uint32_t DEFAULTNPRODUCERSAP = 5;
-const boost::uint32_t DEFAULTNPRODUCTIONCYLCESAP = 10000;
+const std::uint32_t DEFAULTNPRODUCERSAP = 5;
+const std::uint32_t DEFAULTNPRODUCTIONCYLCESAP = 10000;
 const submissionReturnMode DEFAULTSRMAP = INCOMPLETERETURN;
 const std::size_t DEFAULTMAXRESUBMISSIONSAP = 5;
-const boost::uint32_t DEFAULTNCONTAINEROBJECTSAP = 100;
+const std::uint32_t DEFAULTNCONTAINEROBJECTSAP = 100;
 const std::size_t DEFAULTNCONTAINERENTRIESAP = 100;
-const boost::uint32_t DEFAULTNWORKERSAP = 4;
+const std::uint32_t DEFAULTNWORKERSAP = 4;
 const GBSCModes DEFAULTEXECUTIONMODEAP = Gem::Courtier::Tests::MULTITHREADING;
 const unsigned short DEFAULTPORTAP=10000;
 const std::string DEFAULTIPAP="localhost";
 const std::string DEFAULTCONFIGFILEAP="./GBrokerSelfCommunication.cfg";
-const boost::uint16_t DEFAULTPARALLELIZATIONMODEAP=0;
+const std::uint16_t DEFAULTPARALLELIZATIONMODEAP=0;
 const Gem::Common::serializationMode DEFAULTSERMODEAP=Gem::Common::SERIALIZATIONMODE_BINARY;
 const bool DEFAULTUSEDIRECTBROKERCONNECTIONAP = false;
 
@@ -95,12 +95,12 @@ bool parseCommandLine(
 
 bool parseConfigFile(
 	const std::string&
-	, boost::uint32_t&
-	, boost::uint32_t&
-	, boost::uint32_t&
+	, std::uint32_t&
+	, std::uint32_t&
+	, std::uint32_t&
 	, std::size_t&
 	, std::size_t&
-	, boost::uint32_t&
+	, std::uint32_t&
 );
 
 /********************************************************************************************/

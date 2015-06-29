@@ -65,7 +65,7 @@ namespace Gem {
 namespace Courtier {
 
 /** @brief The default number of threads per worker if the number of hardware threads cannot be determined */
-const boost::uint16_t DEFAULTTHREADSPERWORKER = 1;
+const std::uint16_t DEFAULTTHREADSPERWORKER = 1;
 
 /******************************************************************************/
 /**

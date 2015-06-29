@@ -45,6 +45,7 @@
 
 #include <boost/cstdint.hpp>
 #include <boost/limits.hpp>
+
 #ifndef GCONSTRAINEDVALUELIMITT_HPP_
 #define GCONSTRAINEDVALUELIMITT_HPP_
 
@@ -106,16 +107,16 @@ struct GConstrainedValueLimitT<float>
 
 /******************************************************************************/
 /**
- * Specialization of GConstrainedValueLimitT for boost::int32_t values.
+ * Specialization of GConstrainedValueLimitT for std::int32_t values.
  */
 template <>
-struct GConstrainedValueLimitT<boost::int32_t>
+struct GConstrainedValueLimitT<std::int32_t>
 {
-	static boost::int32_t highest() {
+	static std::int32_t highest() {
 		return GMAXCONSTRAINEDINT32;
 	}
 
-	static boost::int32_t lowest() {
+	static std::int32_t lowest() {
 		return -GMAXCONSTRAINEDINT32;
 	}
 };

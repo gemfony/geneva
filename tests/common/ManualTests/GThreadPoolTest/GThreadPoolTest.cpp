@@ -74,7 +74,7 @@ public:
 	/**
 	 * Allows to check how often increment() has been called
 	 */
-	boost::int32_t getCounterValue() const {
+	std::int32_t getCounterValue() const {
 		return operatorCalled_;
 	}
 
@@ -82,7 +82,7 @@ public:
 	/**
 	 * Retrieves the number of operator calls
 	 */
-	boost::uint32_t getOperatorCalledValue() const {
+	std::uint32_t getOperatorCalledValue() const {
 		return operatorCalled_;
 	}
 
@@ -133,8 +133,8 @@ private:
 	}
 
 	/********************************************************************/
-	boost::int32_t counterValue_; ///< The internal value to be decremented or incremented
-	boost::uint32_t operatorCalled_; ///< This counter will be incremented whenever process() is called
+	std::int32_t counterValue_; ///< The internal value to be decremented or incremented
+	std::uint32_t operatorCalled_; ///< This counter will be incremented whenever process() is called
 
 	Gem::Hap::GRandom gr; // Instantiates a random number generator
 };

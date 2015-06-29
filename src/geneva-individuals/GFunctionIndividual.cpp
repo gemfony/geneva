@@ -512,7 +512,7 @@ GObject *GSphereConstraint::clone_() const {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::solverFunction &ur) {
-	boost::uint16_t tmp = static_cast<boost::uint16_t>(ur);
+	std::uint16_t tmp = static_cast<std::uint16_t>(ur);
 	o << tmp;
 	return o;
 }
@@ -526,7 +526,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::solverFunction &ur)
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::solverFunction &ur) {
-	boost::uint16_t tmp;
+	std::uint16_t tmp;
 	i >> tmp;
 
 #ifdef DEBUG
@@ -547,7 +547,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::solverFunction &ur) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::parameterType &ur) {
-	boost::uint16_t tmp = static_cast<boost::uint16_t>(ur);
+	std::uint16_t tmp = static_cast<std::uint16_t>(ur);
 	o << tmp;
 	return o;
 }
@@ -561,7 +561,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::parameterType &ur) 
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::parameterType &ur) {
-	boost::uint16_t tmp;
+	std::uint16_t tmp;
 	i >> tmp;
 
 #ifdef DEBUG
@@ -582,7 +582,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::parameterType &ur) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::initMode &ur) {
-	boost::uint16_t tmp = static_cast<boost::uint16_t>(ur);
+	std::uint16_t tmp = static_cast<std::uint16_t>(ur);
 	o << tmp;
 	return o;
 }
@@ -596,7 +596,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::initMode &ur) {
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::initMode &ur) {
-	boost::uint16_t tmp;
+	std::uint16_t tmp;
 	i >> tmp;
 
 #ifdef DEBUG
@@ -1112,7 +1112,7 @@ void GFunctionIndividualFactory::setVarBoundaries(std::tuple<double, double> bou
 /**
  * Get the value of the adaptionThreshold_ variable
  */
-boost::uint32_t GFunctionIndividualFactory::getAdaptionThreshold() const {
+std::uint32_t GFunctionIndividualFactory::getAdaptionThreshold() const {
 	return adaptionThreshold_;
 }
 
@@ -1121,7 +1121,7 @@ boost::uint32_t GFunctionIndividualFactory::getAdaptionThreshold() const {
  * Set the value of the adaptionThreshold_ variable
  */
 void GFunctionIndividualFactory::setAdaptionThreshold(
-	boost::uint32_t adaptionThreshold
+	std::uint32_t adaptionThreshold
 ) {
 	adaptionThreshold_ = adaptionThreshold;
 }
@@ -1644,7 +1644,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	comment = "";
 	comment += "The number of successful calls to an adaptor after which adaption;";
 	comment += "of mutation parameters takes place (e.g sigma-variation in gauss mutation);";
-	gpb.registerFileParameter<boost::uint32_t>(
+	gpb.registerFileParameter<std::uint32_t>(
 		"adaptionThreshold", adaptionThreshold_.reference(), GFI_DEF_ADAPTIONTHRESHOLD, Gem::Common::VAR_IS_ESSENTIAL,
 		comment
 	);

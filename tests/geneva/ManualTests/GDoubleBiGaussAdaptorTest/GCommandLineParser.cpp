@@ -56,9 +56,9 @@ bool parseCommandLine (
 	, double& sigmaDelta
 	, double& minDelta
 	, double& maxDelta
-	, boost::uint32_t& adaptionThreshold
+	, std::uint32_t& adaptionThreshold
 	, std::string& resultFile
-	, boost::uint32_t& maxIter
+	, std::uint32_t& maxIter
 	, bool& verbose
 ){
 	try {
@@ -90,11 +90,11 @@ bool parseCommandLine (
 				"Minimal allowed value for delta")
 			("maxDelta",po::value<double>(&maxDelta)->default_value(CMD_DEFAULTMAXDELTA),
 				"Maximum allowed value for delta")
-			("adaptionThreshold,a",po::value<boost::uint32_t>(&adaptionThreshold)->default_value(CMD_DEFAULTADAPTIONTHRESHOLD),
+			("adaptionThreshold,a",po::value<std::uint32_t>(&adaptionThreshold)->default_value(CMD_DEFAULTADAPTIONTHRESHOLD),
 				"Number of calls to adapt() after which the adaption parameters should be modified")
 			("resultFile,F",po::value<std::string>(&resultFile)->default_value(CMD_DEFAULTRESULTFILE),
 				"The file to write the result to")
-			("maxIter,I",po::value<boost::uint32_t>(&maxIter)->default_value(CMD_DEFAULTMAXITER),
+			("maxIter,I",po::value<std::uint32_t>(&maxIter)->default_value(CMD_DEFAULTMAXITER),
 				"The maximum number of test cycles")
 			("verbose,v",po::value<bool>(&verbose)->default_value(CMD_DEFAULTVERBOSE),
 				"Whether to emit status information")

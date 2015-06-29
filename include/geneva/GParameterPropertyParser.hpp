@@ -344,10 +344,10 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 /** @brief Makes the struct boost.fusion-compatible */
 BOOST_FUSION_ADAPT_STRUCT(
-	Gem::Geneva::parPropSpec<boost::int32_t>,
+	Gem::Geneva::parPropSpec<std::int32_t>,
 	(Gem::Geneva::NAMEANDIDTYPE, var)
-		(boost::int32_t, lowerBoundary)
-		(boost::int32_t, upperBoundary)
+		(std::int32_t, lowerBoundary)
+		(std::int32_t, upperBoundary)
 		(std::size_t, nSteps)
 )
 
@@ -447,7 +447,7 @@ private:
 	boost::spirit::qi::rule<std::string::const_iterator, simpleScanSpec()              , boost::spirit::ascii::space_type> simpleScanParser;
 	boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<double>()         , boost::spirit::ascii::space_type> doubleStringParser;
 	boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<float>()          , boost::spirit::ascii::space_type> floatStringParser;
-	boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<boost::int32_t>() , boost::spirit::ascii::space_type> intStringParser;
+	boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<std::int32_t>() , boost::spirit::ascii::space_type> intStringParser;
 	boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<bool>()           , boost::spirit::ascii::space_type> boolStringParser;
 
 	std::string raw_; ///< Holds the "raw" parameter description
@@ -456,7 +456,7 @@ private:
 	std::vector<simpleScanSpec>              sSpecVec; ///< Holds parameter specifications for simple scans
 	std::vector<parPropSpec<double>>         dSpecVec; ///< Holds parameter specifications for double values
 	std::vector<parPropSpec<float>>          fSpecVec; ///< Holds parameter specifications for float values
-	std::vector<parPropSpec<boost::int32_t>> iSpecVec; ///< Holds parameter specifications for integer values
+	std::vector<parPropSpec<std::int32_t>> iSpecVec; ///< Holds parameter specifications for integer values
 	std::vector<parPropSpec<bool>>           bSpecVec; ///< Holds parameter specifications for boolean values
 };
 
@@ -536,23 +536,23 @@ GParameterPropertyParser::getIterators<float>() const {
  *
  * The function will throw if parsing hasn't happened yet.
  *
- * This is the overload for boost::int32_t parameters.
+ * This is the overload for std::int32_t parameters.
  */
 template <>
-inline std::tuple<std::vector<parPropSpec<boost::int32_t>>::const_iterator, std::vector<parPropSpec<boost::int32_t>>::const_iterator>
-GParameterPropertyParser::getIterators<boost::int32_t>() const {
+inline std::tuple<std::vector<parPropSpec<std::int32_t>>::const_iterator, std::vector<parPropSpec<std::int32_t>>::const_iterator>
+GParameterPropertyParser::getIterators<std::int32_t>() const {
 	// Make sure parsing has happened.
 	if(!parsed_) {
 		glogger
-		<< "In GParameterPropertyParser::getIterators<boost::int32_t>(): Error!" << std::endl
+		<< "In GParameterPropertyParser::getIterators<std::int32_t>(): Error!" << std::endl
 		<< "Tried to retrieve iterators when parsing hasn't happened yet" << std::endl
 		<< GEXCEPTION;
 	}
 
-	std::vector<parPropSpec<boost::int32_t>>::const_iterator runner_it = iSpecVec.begin();
-	std::vector<parPropSpec<boost::int32_t>>::const_iterator end_it    = iSpecVec.end();
+	std::vector<parPropSpec<std::int32_t>>::const_iterator runner_it = iSpecVec.begin();
+	std::vector<parPropSpec<std::int32_t>>::const_iterator end_it    = iSpecVec.end();
 
-	return std::tuple<std::vector<parPropSpec<boost::int32_t>>::const_iterator, std::vector<parPropSpec<boost::int32_t>>::const_iterator>(runner_it, end_it);
+	return std::tuple<std::vector<parPropSpec<std::int32_t>>::const_iterator, std::vector<parPropSpec<std::int32_t>>::const_iterator>(runner_it, end_it);
 }
 
 /******************************************************************************/
@@ -597,7 +597,7 @@ namespace spirit {
 
 G_API_GENEVA void swap(Gem::Geneva::parPropSpec<double>&, Gem::Geneva::parPropSpec<double>&);
 G_API_GENEVA void swap(Gem::Geneva::parPropSpec<float>&, Gem::Geneva::parPropSpec<float>&);
-G_API_GENEVA void swap(Gem::Geneva::parPropSpec<boost::int32_t>&, Gem::Geneva::parPropSpec<boost::int32_t>&);
+G_API_GENEVA void swap(Gem::Geneva::parPropSpec<std::int32_t>&, Gem::Geneva::parPropSpec<std::int32_t>&);
 G_API_GENEVA void swap(Gem::Geneva::parPropSpec<bool>&, Gem::Geneva::parPropSpec<bool>&);
 
 

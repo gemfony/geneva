@@ -45,7 +45,7 @@ namespace Tests {
 	*/
 bool parseCommandLine(int argc, char **argv,
 							 std::string &configFile,
-							 boost::uint16_t &parallelizationMode) {
+							 std::uint16_t &parallelizationMode) {
 	try {
 		// Check the command line options. Uses the Boost program options library.
 		po::options_description desc("Usage: evaluator [options]");
@@ -54,7 +54,7 @@ bool parseCommandLine(int argc, char **argv,
 			("configFile,c", po::value<std::string>(&configFile)->default_value(DEFAULTCONFIGFILE),
 			 "The name of the configuration file holding further configuration options")
 			("parallelizationMode,p",
-			 po::value<boost::uint16_t>(&parallelizationMode)->default_value(DEFAULTPARALLELIZATIONMODE),
+			 po::value<std::uint16_t>(&parallelizationMode)->default_value(DEFAULTPARALLELIZATIONMODE),
 			 "Whether or not to run this optimization in serial mode (0), multi-threaded (1) or mt-consumer (2) mode");
 
 		po::variables_map vm;
@@ -119,14 +119,14 @@ bool parseCommandLine(int argc, char **argv,
  * A function that parses a config file for further parameters
  */
 bool parseConfigFile(
-	const std::string &configFile, boost::uint16_t &nProducerThreads, boost::uint16_t &nEvaluationThreads,
-	std::size_t &populationSize, std::size_t &nParents, boost::uint32_t &maxIterations, long &maxMinutes,
-	boost::uint32_t &reportIteration, duplicationScheme &rScheme, sortingMode &smode, boost::uint32_t &nProcessingUnits,
-	double &adProb, boost::uint32_t &adaptionThreshold, double &sigma, double &sigmaSigma, double &minSigma,
+	const std::string &configFile, std::uint16_t &nProducerThreads, std::uint16_t &nEvaluationThreads,
+	std::size_t &populationSize, std::size_t &nParents, std::uint32_t &maxIterations, long &maxMinutes,
+	std::uint32_t &reportIteration, duplicationScheme &rScheme, sortingMode &smode, std::uint32_t &nProcessingUnits,
+	double &adProb, std::uint32_t &adaptionThreshold, double &sigma, double &sigmaSigma, double &minSigma,
 	double &maxSigma, std::size_t &parDim, double &minVar, double &maxVar, solverFunction &df
 ) {
-	boost::uint16_t recombinationScheme = 0;
-	boost::uint16_t evalFunction = 0;
+	std::uint16_t recombinationScheme = 0;
+	std::uint16_t evalFunction = 0;
 	bool verbose = true;
 
 	// Check the name of the configuation file
@@ -141,32 +141,32 @@ bool parseConfigFile(
 		// Check the configuration file line options. Uses the Boost program options library.
 		po::options_description config("Allowed options");
 		config.add_options()
-			("nProducerThreads", po::value<boost::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
+			("nProducerThreads", po::value<std::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
 			 "The amount of random number producer threads")
 			("nEvaluationThreads",
-			 po::value<boost::uint16_t>(&nEvaluationThreads)->default_value(DEFAULTNEVALUATIONTHREADS),
+			 po::value<std::uint16_t>(&nEvaluationThreads)->default_value(DEFAULTNEVALUATIONTHREADS),
 			 "The amount of threads processing individuals simultaneously")
 			("populationSize", po::value<std::size_t>(&populationSize)->default_value(DEFAULTPOPULATIONSIZE),
 			 "The size of the super-population")
 			("nParents", po::value<std::size_t>(&nParents)->default_value(DEFAULTNPARENTS),
 			 "The number of parents in the population") // Needs to be treated separately
-			("maxIterations", po::value<boost::uint32_t>(&maxIterations)->default_value(DEFAULTMAXITERATIONS),
+			("maxIterations", po::value<std::uint32_t>(&maxIterations)->default_value(DEFAULTMAXITERATIONS),
 			 "Maximum number of iterations in the population")
 			("maxMinutes", po::value<long>(&maxMinutes)->default_value(DEFAULTMAXMINUTES),
 			 "The maximum number of minutes the optimization of the population should run")
-			("reportIteration", po::value<boost::uint32_t>(&reportIteration)->default_value(DEFAULTREPORTITERATION),
+			("reportIteration", po::value<std::uint32_t>(&reportIteration)->default_value(DEFAULTREPORTITERATION),
 			 "The number of iterations after which information should be emitted in the super-population")
-			("rScheme", po::value<boost::uint16_t>(&recombinationScheme)->default_value(DEFAULTRSCHEME),
+			("rScheme", po::value<std::uint16_t>(&recombinationScheme)->default_value(DEFAULTRSCHEME),
 			 "The recombination scheme for the super-population")
 			("sortingScheme,o", po::value<sortingMode>(&smode)->default_value(DEFAULTSORTINGSCHEME),
 			 "Determines whether sorting is done in MUCOMMANU_SINGLEEVAL (0), MUPLUSNU_SINGLEEVAL (1) or MUNU1PRETAIN (2) mode")
 			("verbose", po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 			 "Whether additional information should be emitted")
-			("nProcessingUnits", po::value<boost::uint32_t>(&nProcessingUnits)->default_value(DEFAULTGBTCNPROCUNITS),
+			("nProcessingUnits", po::value<std::uint32_t>(&nProcessingUnits)->default_value(DEFAULTGBTCNPROCUNITS),
 			 "Specifies how many processing units are available in networked mode")
 			("adProb", po::value<double>(&adProb)->default_value(DEFAULTGDAADPROB),
 			 "Specifies the likelihood for adaptions to be actually carried out")
-			("adaptionThreshold", po::value<boost::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLD),
+			("adaptionThreshold", po::value<std::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLD),
 			 "Number of calls to adapt() after which adaption parameters should be modified")
 			("sigma", po::value<double>(&sigma)->default_value(DEFAULTSIGMA),
 			 "The width of the gaussian used for the adaption of double values")
@@ -182,7 +182,7 @@ bool parseConfigFile(
 			 "The lower boundary for all variables")
 			("maxVar", po::value<double>(&maxVar)->default_value(DEFAULTMAXVAR),
 			 "The upper boundary for all variables")
-			("evalFunction", po::value<boost::uint16_t>(&evalFunction),
+			("evalFunction", po::value<std::uint16_t>(&evalFunction),
 			 "The id of the evaluation function");
 
 		po::variables_map vm;
@@ -215,11 +215,11 @@ bool parseConfigFile(
 		}
 
 		// Workaround for assigment problem with rScheme
-		if (recombinationScheme == (boost::uint16_t) VALUEDUPLICATIONSCHEME)
+		if (recombinationScheme == (std::uint16_t) VALUEDUPLICATIONSCHEME)
 			rScheme = VALUEDUPLICATIONSCHEME;
-		else if (recombinationScheme == (boost::uint16_t) RANDOMDUPLICATIONSCHEME)
+		else if (recombinationScheme == (std::uint16_t) RANDOMDUPLICATIONSCHEME)
 			rScheme = RANDOMDUPLICATIONSCHEME;
-		else if (recombinationScheme == (boost::uint16_t) DEFAULTDUPLICATIONSCHEME)
+		else if (recombinationScheme == (std::uint16_t) DEFAULTDUPLICATIONSCHEME)
 			rScheme = DEFAULTDUPLICATIONSCHEME;
 		else {
 			glogger
@@ -229,7 +229,7 @@ bool parseConfigFile(
 		}
 
 		// Assign the demo function
-		if (evalFunction > (boost::uint16_t) MAXDEMOFUNCTION) {
+		if (evalFunction > (std::uint16_t) MAXDEMOFUNCTION) {
 			std::cout << "Error: Invalid evaluation function: " << evalFunction
 			<< std::endl;
 			return false;
@@ -239,14 +239,14 @@ bool parseConfigFile(
 		if (verbose) {
 			std::cout << std::endl
 			<< "Running with the following options from " << configFile << ":" << std::endl
-			<< "nProducerThreads = " << (boost::uint16_t) nProducerThreads <<
-			std::endl // boost::uint8_t not printable on gcc ???
+			<< "nProducerThreads = " << (std::uint16_t) nProducerThreads <<
+			std::endl // std::uint8_t not printable on gcc ???
 			<< "populationSize = " << populationSize << std::endl
 			<< "nParents = " << nParents << std::endl
 			<< "maxIterations = " << maxIterations << std::endl
 			<< "maxMinutes = " << maxMinutes << std::endl
 			<< "reportIteration = " << reportIteration << std::endl
-			<< "rScheme = " << (boost::uint16_t) rScheme << std::endl
+			<< "rScheme = " << (std::uint16_t) rScheme << std::endl
 			<< "sortingScheme = " << smode << std::endl
 			<< "nProcessingUnits = " << nProcessingUnits << std::endl
 			<< "adProb = " << adProb << std::endl

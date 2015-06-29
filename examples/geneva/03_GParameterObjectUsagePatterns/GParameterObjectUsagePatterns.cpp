@@ -540,12 +540,12 @@ int main(int argc, char **argv) {
 		GInt32Collection c2(c1); // Copy construction
 		// Copy construction inside of smart pointer
 		std::shared_ptr<GInt32Collection> p_c3(new GInt32Collection(c1));
-		// 100 boost::int32_t values, with an initialization range of [-3,3]
+		// 100 std::int32_t values, with an initialization range of [-3,3]
 		GInt32Collection c4(100, -3, 3);
 
 		//-----------------------------------------------------
 		// Filling with data
-		for(boost::int32_t i=0; i<100; i++) {
+		for(std::int32_t i=0; i<100; i++) {
 			c1.push_back(i);
 		}
 
@@ -804,7 +804,7 @@ int main(int argc, char **argv) {
 		a1.setAdaptionProbability(adProb);
 		double adProb2 = a1.getAdaptionProbability();
 
-		boost::uint32_t adaptionThreshold = 1;
+		std::uint32_t adaptionThreshold = 1;
 		a1.setAdaptionThreshold(adaptionThreshold);
 		adaptionThreshold = a1.getAdaptionThreshold();
 
@@ -899,7 +899,7 @@ int main(int argc, char **argv) {
 		a1.setAdaptionProbability(adProb);
 		double adProb2 = a1.getAdaptionProbability();
 
-		boost::uint32_t adaptionThreshold = 1;
+		std::uint32_t adaptionThreshold = 1;
 		a1.setAdaptionThreshold(adaptionThreshold);
 		adaptionThreshold = a1.getAdaptionThreshold();
 
@@ -954,7 +954,7 @@ int main(int argc, char **argv) {
 		a1.setAdaptionProbability(adProb);
 		double adProb2 = a1.getAdaptionProbability();
 
-		boost::uint32_t adaptionThreshold = 1;
+		std::uint32_t adaptionThreshold = 1;
 		a1.setAdaptionThreshold(adaptionThreshold);
 		adaptionThreshold = a1.getAdaptionThreshold();
 
@@ -987,7 +987,7 @@ int main(int argc, char **argv) {
 		a1.setAdaptionProbability(adProb);
 		double adProb2 = a1.getAdaptionProbability();
 
-		boost::uint32_t adaptionThreshold = 1;
+		std::uint32_t adaptionThreshold = 1;
 		a1.setAdaptionThreshold(adaptionThreshold);
 		adaptionThreshold = a1.getAdaptionThreshold();
 
@@ -1020,7 +1020,7 @@ int main(int argc, char **argv) {
 		a1.setAdaptionProbability(adProb);
 		double adProb2 = a1.getAdaptionProbability();
 
-		boost::uint32_t adaptionThreshold = 1;
+		std::uint32_t adaptionThreshold = 1;
 		a1.setAdaptionThreshold(adaptionThreshold);
 		adaptionThreshold = a1.getAdaptionThreshold();
 

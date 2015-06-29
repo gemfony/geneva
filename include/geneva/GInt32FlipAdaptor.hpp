@@ -55,7 +55,7 @@ namespace Geneva {
  * This adaptor increases or decreases a value by 1
  */
 class GInt32FlipAdaptor
-	:public GIntFlipAdaptorT<boost::int32_t>
+	:public GIntFlipAdaptorT<std::int32_t>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -65,7 +65,7 @@ class GInt32FlipAdaptor
 		using boost::serialization::make_nvp;
 
 		ar
-			& make_nvp("GIntFlipAdaptorT_int32", boost::serialization::base_object<GIntFlipAdaptorT<boost::int32_t>>(*this));
+			& make_nvp("GIntFlipAdaptorT_int32", boost::serialization::base_object<GIntFlipAdaptorT<std::int32_t>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 

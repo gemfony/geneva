@@ -85,10 +85,10 @@ struct GTypeToStringT<float> {
 
 /******************************************************************************/
 /**
- * Specialization for T == boost::int32_t
+ * Specialization for T == std::int32_t
  */
 template<>
-struct GTypeToStringT<boost::int32_t> {
+struct GTypeToStringT<std::int32_t> {
 	static std::string value() {
 		return std::string("int32_t");
 	}

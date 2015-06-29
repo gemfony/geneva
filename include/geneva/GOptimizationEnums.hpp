@@ -45,7 +45,6 @@
 // Boost headers go here
 
 #include <boost/cstdint.hpp>
-#include <boost/limits.hpp>
 #include <boost/logic/tribool.hpp>
 
 #ifndef GOPTIMIZATIONENUMS_HPP_
@@ -63,7 +62,7 @@ namespace Geneva {
  * to repulsion mode. Setting this to 0 will force the swarm algorithm to always
  * use the attraction-mode
  */
-const boost::uint32_t DEFREPULSIONTHRESHOLD = 0;
+const std::uint32_t DEFREPULSIONTHRESHOLD = 0;
 
 /******************************************************************************/
 /**
@@ -135,7 +134,7 @@ const std::string DEFAULTOPTALG="ea";
 
 /******************************************************************************/
 /** @brief The default number of threads for parallelization with boost */
-const boost::uint16_t DEFAULTNBOOSTTHREADS = 2;
+const std::uint16_t DEFAULTNBOOSTTHREADS = 2;
 
 /******************************************************************************/
 /**
@@ -179,12 +178,12 @@ const std::string DEFAULTCSVRESULTFILEOM = "./result.csv";
 /**
  * The default dimension of the canvas in x-direction
  */
-const boost::uint16_t DEFAULTXDIMOM=1024;
+const std::uint16_t DEFAULTXDIMOM=1024;
 
 /**
  * The default dimension of the canvas in y-direction
  */
-const boost::uint16_t DEFAULTYDIMOM=768;
+const std::uint16_t DEFAULTYDIMOM=768;
 
 /******************************************************************************/
 /**
@@ -205,11 +204,11 @@ const float GMAXCONSTRAINEDFLOAT = (boost::numeric::bounds<float>::highest())/10
 
 /******************************************************************************/
 /**
- * The default maximum value for constrained boost::int32_t values. It needs to be smaller
+ * The default maximum value for constrained std::int32_t values. It needs to be smaller
  * than the maximum allowed value for the underlying type in order to allow statements like
  * (max - min) without leaving the allowed value range.
  */
-const boost::int32_t GMAXCONSTRAINEDINT32 = (boost::numeric::bounds<boost::int32_t>::highest())/10;
+const std::int32_t GMAXCONSTRAINEDINT32 = (boost::numeric::bounds<std::int32_t>::highest())/10;
 
 /******************************************************************************/
 /**
@@ -230,14 +229,14 @@ const bool DEFAULTEMITTERMINATIONREASON = true;
  * The number of iterations after which information should be
  * emitted about the inner state of the optimization algorithm.
  */
-const boost::uint32_t DEFAULTREPORTITER = 1;
+const std::uint32_t DEFAULTREPORTITER = 1;
 
 /******************************************************************************/
 /**
  * The number of iterations after which a checkpoint should be written.
  * 0 means that no checkpoints are written at all.
  */
-const boost::uint32_t DEFAULTCHECKPOINTIT = 0;
+const std::uint32_t DEFAULTCHECKPOINTIT = 0;
 
 /******************************************************************************/
 /**
@@ -245,7 +244,7 @@ const boost::uint32_t DEFAULTCHECKPOINTIT = 0;
  * their internal data structures by the optimization algorithm. A value of 0
  * means "disabled".
  */
-const boost::uint32_t DEFAULTSTALLCOUNTERTHRESHOLD = 0;
+const std::uint32_t DEFAULTSTALLCOUNTERTHRESHOLD = 0;
 
 /******************************************************************************/
 /**
@@ -273,26 +272,26 @@ const Gem::Common::serializationMode DEFAULTCPSERMODE = Gem::Common::SERIALIZATI
 /**
  * The default offset for a new optimization run
  */
-const boost::uint32_t DEFAULTOFFSET = 0;
+const std::uint32_t DEFAULTOFFSET = 0;
 
 /******************************************************************************/
 /**
  * The default maximum number of iterations
  */
-const boost::uint32_t DEFAULTMAXIT = 1000;
+const std::uint32_t DEFAULTMAXIT = 1000;
 
 /******************************************************************************/
 /**
  * The default maximum number of iterations without improvement. 0 means: ignore
  */
-const boost::uint32_t DEFAULTMAXSTALLIT = 20;
+const std::uint32_t DEFAULTMAXSTALLIT = 20;
 
 /**
  * The default maximum number of iterations without improvement for paramneter
  * scans. As the algorithm has been instructed to scan an entire range, the
  * value is set to 0 (i.e. it is disabled).
  */
-const boost::uint32_t DEFAULTMAXPARSCANSTALLIT = 0;
+const std::uint32_t DEFAULTMAXPARSCANSTALLIT = 0;
 
 /******************************************************************************/
 /**
@@ -314,13 +313,13 @@ const std::string EMPTYDURATION = "00:00:00.000"; // 0 - no duration
  * Used in conjunction with optimization algorithms that
  * communicate via the "courtier" broker infrastructure.
  */
-const boost::uint32_t DEFAULTBROKERWAITFACTOR = 0;
+const std::uint32_t DEFAULTBROKERWAITFACTOR = 0;
 
 /******************************************************************************/
 /**
  * The default number of processing units
  */
-const boost::uint32_t DEFAULTNPROCESSINGUNITS = 0;
+const std::uint32_t DEFAULTNPROCESSINGUNITS = 0;
 
 /******************************************************************************/
 /**
@@ -480,7 +479,7 @@ const double DEFAULTADPROB = 1.0; ///< 100 percent adaption probability for all 
 const double DEFAUPTADAPTADPROB = 0.1; ///< Whether adProb_ should undergo evolutionary adaption
 const double DEFMINADPROB = 0.001; ///< The lower boundary for variations of adProb_
 const double DEFMAXADPROB = 1.0; ///< The upper boundary for variations of adProb_
-const boost::uint32_t DEFAULTADAPTIONTHRESHOLD = 1; // Adaption parameters should be adapted whenever an adaption takes place
+const std::uint32_t DEFAULTADAPTIONTHRESHOLD = 1; // Adaption parameters should be adapted whenever an adaption takes place
 const double DEFAULTADAPTADAPTIONPROB = 0.1; // 10 percent probability for the adaption of adaption parameters
 
 /******************************************************************************/

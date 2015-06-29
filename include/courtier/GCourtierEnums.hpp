@@ -130,7 +130,7 @@ const std::size_t DEFAULTMAXRESUBMISSIONS = 5;
 /**
  * These two typedefs allow to steer the types of ids assigned to objects submitted to the broker
  */
-typedef boost::uint64_t ID_TYPE_1;
+typedef std::uint64_t ID_TYPE_1;
 typedef std::size_t ID_TYPE_2;
 
 typedef ID_TYPE_1 SUBMISSIONCOUNTERTYPE;

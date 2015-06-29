@@ -57,7 +57,7 @@ const double DEFAULTUPPERINITBOUNDARYSINGLE=1.;
 /******************************************************************************/
 /**
  * This class represents numeric values. The most likely types to be stored
- * in this class are double and boost::int32_t . By using the framework provided
+ * in this class are double and std::int32_t . By using the framework provided
  * by GParameterT, this class becomes rather simple.
  */
 template <typename T>

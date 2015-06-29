@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
 	double sigma1, sigmaSigma1, minSigma1, maxSigma1;
 	double sigma2, sigmaSigma2, minSigma2, maxSigma2;
 	double delta, sigmaDelta, minDelta, maxDelta;
-	boost::uint32_t maxIter, adaptionThreshold;
+	std::uint32_t maxIter, adaptionThreshold;
 	std::string resultFile;
 
 	if (!parseCommandLine(argc, argv
@@ -148,7 +148,7 @@ int main(int argc, char **argv) {
 	// Fill the objects with data
 	double mutVal = 0.;
 	double mutValOld=0;
-	for (boost::uint32_t i = 0; i < maxIter; i++) {
+	for (std::uint32_t i = 0; i < maxIter; i++) {
 		mutValOld = mutVal;
 
 		gdbga_ptr->adapt(mutVal, 1.);

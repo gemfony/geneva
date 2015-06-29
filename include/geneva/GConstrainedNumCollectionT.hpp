@@ -62,7 +62,7 @@ namespace Geneva {
 /**
  * This class represents a collection of numeric values with common
  * boundaries, all modified using the same algorithm. The most likely types to
- * be stored in this class are double and boost::int32_t . Note: If you want
+ * be stored in this class are double and std::int32_t . Note: If you want
  * to access or set the transformed value, use the value() and setValue()
  * functions. Using the subscript operator or at() function, or the
  * native iterator, will give you the "raw" data only.

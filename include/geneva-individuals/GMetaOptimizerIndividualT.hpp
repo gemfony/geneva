@@ -135,7 +135,7 @@ const double GMETAOPT_DEF_CROSSOVERPROB_UB = 1.;     ///< The upper boundary for
 // General meta-optimization parameters
 const std::size_t GMETAOPT_DEF_NRUNSPEROPT = 10;              ///< The number of successive optimization runs
 const double GMETAOPT_DEF_FITNESSTARGET = 0.001;       ///< The fitness target
-const boost::uint32_t GMETAOPT_DEF_ITERATIONTHRESHOLD = 10000;  ///< The maximum allowed number of iterations
+const std::uint32_t GMETAOPT_DEF_ITERATIONTHRESHOLD = 10000;  ///< The maximum allowed number of iterations
 const metaOptimizationTarget GMETAOPT_DEF_MOTARGET = BESTFITNESS;      ///< The target used for the meta optimization
 
 const std::string GMETAOPT_DEF_INDCONFIG = "./config/GFunctionIndividual.json"; ///< The default configuration file for our individuals -- we follow the default template argument
@@ -327,10 +327,10 @@ public:
 		)
 		<< "The fitness below which optimization should stop";
 
-		gpb.registerFileParameter<boost::uint32_t>(
+		gpb.registerFileParameter<std::uint32_t>(
 			"iterationThreshold" // The name of the variable
 			, GMETAOPT_DEF_ITERATIONTHRESHOLD // The default value
-			, [this](boost::uint32_t dit) { this->setIterationThreshold(dit); }
+			, [this](std::uint32_t dit) { this->setIterationThreshold(dit); }
 		)
 		<< "The maximum number of iterations per sub-optimization";
 
@@ -440,7 +440,7 @@ public:
 	/**
 	 * Allows to set the iteration threshold
 	 */
-	void setIterationThreshold(boost::uint32_t iterationThreshold) {
+	void setIterationThreshold(std::uint32_t iterationThreshold) {
 		iterationThreshold_ = iterationThreshold;
 	}
 
@@ -448,7 +448,7 @@ public:
 	/**
 	 * Allows to retrieve the iteration threshold
 	 */
-	boost::uint32_t getIterationThreshold() const {
+	std::uint32_t getIterationThreshold() const {
 		return iterationThreshold_;
 	}
 
@@ -567,8 +567,8 @@ public:
 
 		std::shared_ptr <GConstrainedInt32Object>
 			npar_ptr(new GConstrainedInt32Object(
-			boost::numeric_cast<boost::int32_t>(initNParents), boost::numeric_cast<boost::int32_t>(nParents_LB),
-			boost::numeric_cast<boost::int32_t>(nParents_UB)
+			boost::numeric_cast<std::int32_t>(initNParents), boost::numeric_cast<std::int32_t>(nParents_LB),
+			boost::numeric_cast<std::int32_t>(nParents_UB)
 		)
 		);
 		npar_ptr->addAdaptor(gifa_ptr);
@@ -593,8 +593,8 @@ public:
 		);
 
 		std::shared_ptr <GConstrainedInt32Object> nch_ptr(new GConstrainedInt32Object(
-			boost::numeric_cast<boost::int32_t>(initNChildren), boost::numeric_cast<boost::int32_t>(nChildren_LB),
-			boost::numeric_cast<boost::int32_t>(nChildren_UB)
+			boost::numeric_cast<std::int32_t>(initNChildren), boost::numeric_cast<std::int32_t>(nChildren_LB),
+			boost::numeric_cast<std::int32_t>(nChildren_UB)
 		)
 		);
 		nch_ptr->addAdaptor(giga_ptr);
@@ -955,10 +955,10 @@ protected:
 		// Run the required number of optimizations
 		std::shared_ptr <GBaseEA> ea_ptr;
 
-		boost::uint32_t nChildren = boost::numeric_cast<boost::uint32_t>(nch_ptr->value());
-		boost::uint32_t nParents = boost::numeric_cast<boost::uint32_t>(npar_ptr->value());
-		boost::uint32_t popSize = nParents + nChildren;
-		boost::uint32_t iterationsConsumed = 0;
+		std::uint32_t nChildren = boost::numeric_cast<std::uint32_t>(nch_ptr->value());
+		std::uint32_t nParents = boost::numeric_cast<std::uint32_t>(npar_ptr->value());
+		std::uint32_t popSize = nParents + nChildren;
+		std::uint32_t iterationsConsumed = 0;
 		double amalgamationLikelihood = amalgamation_ptr->value();
 
 		std::vector<double> solverCallsPerOptimization;
@@ -1092,7 +1092,7 @@ protected:
 private:
 	std::size_t nRunsPerOptimization_; ///< The number of runs performed for each (sub-)optimization
 	double fitnessTarget_; ///< The quality target to be reached by
-	boost::uint32_t iterationThreshold_; ///< The maximum allowed number of iterations
+	std::uint32_t iterationThreshold_; ///< The maximum allowed number of iterations
 	metaOptimizationTarget moTarget_; ///< The target used for the meta-optimization
 	std::string individual_config_; ///< Path and name of the configuration file needed for the individual
 	std::string subEA_config_; ///< Path and name of the configuration file needed for (sub-)evolutionary algorithms

@@ -840,7 +840,7 @@ void GOptimizableEntity::challengeWorstValidFitness(
 /**
  * Retrieve the fitness tuple at a given evaluation position.
  */
-std::tuple<double, double> GOptimizableEntity::getFitnessTuple(const boost::uint32_t &id) const {
+std::tuple<double, double> GOptimizableEntity::getFitnessTuple(const std::uint32_t &id) const {
 	return currentFitnessVec_.at(id);
 }
 
@@ -1255,7 +1255,7 @@ void GOptimizableEntity::setWorstKnownValid(
  * as set by an external optimization algorithm, at a given position.
  */
 std::tuple<double, double> GOptimizableEntity::getWorstKnownValid(
-	const boost::uint32_t &id
+	const std::uint32_t &id
 ) const {
 #ifdef DEBUG
    glogger
@@ -1695,7 +1695,7 @@ std::size_t GOptimizableEntity::customAdaptions() BASE {
  *
  * @param parentAlgIteration The current iteration of the optimization algorithm
  */
-void GOptimizableEntity::setAssignedIteration(const boost::uint32_t &parentAlgIteration) {
+void GOptimizableEntity::setAssignedIteration(const std::uint32_t &parentAlgIteration) {
 	assignedIteration_ = parentAlgIteration;
 }
 
@@ -1710,7 +1710,7 @@ void GOptimizableEntity::setAssignedIteration(const boost::uint32_t &parentAlgIt
  *
  * @return The parent optimization algorithm's current iteration
  */
-boost::uint32_t GOptimizableEntity::getAssignedIteration() const {
+std::uint32_t GOptimizableEntity::getAssignedIteration() const {
 	return assignedIteration_;
 }
 
@@ -1725,7 +1725,7 @@ boost::uint32_t GOptimizableEntity::getAssignedIteration() const {
  *
  * @param nStalls The number of optimization cycles without improvement in the parent algorithm
  */
-void GOptimizableEntity::setNStalls(const boost::uint32_t &nStalls) {
+void GOptimizableEntity::setNStalls(const std::uint32_t &nStalls) {
 	nStalls_ = nStalls;
 }
 
@@ -1740,7 +1740,7 @@ void GOptimizableEntity::setNStalls(const boost::uint32_t &nStalls) {
  *
  * @return The number of optimization cycles without improvement in the parent algorithm
  */
-boost::uint32_t GOptimizableEntity::getNStalls() const {
+std::uint32_t GOptimizableEntity::getNStalls() const {
 	return nStalls_;
 }
 
@@ -1828,7 +1828,7 @@ void GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests() {
 	{ // Test setting and retrieval of the surrounding optimization algorithm's current iteration
 		std::shared_ptr <GOptimizableEntity> p_test = this->clone<GOptimizableEntity>();
 
-		for (boost::uint32_t i = 1; i < 10; i++) {
+		for (std::uint32_t i = 1; i < 10; i++) {
 			BOOST_CHECK_NO_THROW(p_test->setAssignedIteration(i));
 			BOOST_CHECK_MESSAGE(
 				p_test->getAssignedIteration() == i, "\n"
@@ -1861,7 +1861,7 @@ void GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests() {
 	{ // Test setting and retrieval of the number of consecutive stalls
 		std::shared_ptr <GOptimizableEntity> p_test = this->clone<GOptimizableEntity>();
 
-		for (boost::uint32_t i = 1; i < 10; i++) {
+		for (std::uint32_t i = 1; i < 10; i++) {
 			BOOST_CHECK_NO_THROW(p_test->setNStalls(i));
 			BOOST_CHECK_MESSAGE(
 				p_test->getNStalls() == i, "\n"

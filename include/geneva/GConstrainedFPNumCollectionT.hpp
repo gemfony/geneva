@@ -251,12 +251,12 @@ public:
 			// Find out which region the value is in (compare figure transferFunction.pdf
 			// that should have been delivered with this software). Note that boost::numeric_cast<>
 			// may throw - exceptions must be caught in surrounding functions.
-			boost::int32_t region = 0;
+			std::int32_t region = 0;
 
 #ifdef DEBUG
-			region =	boost::numeric_cast<boost::int32_t>(Gem::Common::gfloor((fp_type(val) - fp_type(lowerBoundary)) / (fp_type(upperBoundary) - fp_type(lowerBoundary))));
+			region =	boost::numeric_cast<std::int32_t>(Gem::Common::gfloor((fp_type(val) - fp_type(lowerBoundary)) / (fp_type(upperBoundary) - fp_type(lowerBoundary))));
 #else
-			region =	static_cast<boost::int32_t>(Gem::Common::gfloor((fp_type(val) - fp_type(lowerBoundary)) / (fp_type(upperBoundary) - fp_type(lowerBoundary))));
+			region =	static_cast<std::int32_t>(Gem::Common::gfloor((fp_type(val) - fp_type(lowerBoundary)) / (fp_type(upperBoundary) - fp_type(lowerBoundary))));
 #endif
 
 			// Check whether we are in an odd or an even range and calculate the

@@ -65,8 +65,8 @@ using namespace Gem::Courtier::Tests;
  * user-selectable modes, then retrieves them back.
  */
 void connectorProducer(
-	boost::uint32_t nProductionCycles
-	, boost::uint32_t nContainerObjects
+	std::uint32_t nProductionCycles
+	, std::uint32_t nContainerObjects
 	, std::size_t nContainerEntries
 	, submissionReturnMode srm
 	, std::size_t maxResubmissions
@@ -87,10 +87,10 @@ void connectorProducer(
 	std::vector<std::shared_ptr<WORKLOAD>> data, oldWorkItems;
 
 	// Start the loop
-	boost::uint32_t cycleCounter = 0;
-	boost::uint32_t nSentItems = 0;
-	boost::uint32_t nReceivedItemsNew = 0;
-	boost::uint32_t nReceivedItemsOld = 0;
+	std::uint32_t cycleCounter = 0;
+	std::uint32_t nSentItems = 0;
+	std::uint32_t nReceivedItemsNew = 0;
+	std::uint32_t nReceivedItemsOld = 0;
 	while(cycleCounter++ < nProductionCycles) {
 		// Clear the data vector
 		data.clear();
@@ -100,7 +100,7 @@ void connectorProducer(
 		for(std::size_t i=0; i<nContainerObjects; i++) {
 			data.push_back(std::shared_ptr<WORKLOAD>(new WORKLOAD(nContainerEntries)));
 		}
-		nSentItems += boost::numeric_cast<boost::uint32_t>(data.size());
+		nSentItems += boost::numeric_cast<std::uint32_t>(data.size());
 
 		bool complete = brokerConnector.workOn(
 			data
@@ -109,8 +109,8 @@ void connectorProducer(
 			, true // Remove unprocessed items
 		);
 
-		nReceivedItemsNew += boost::numeric_cast<boost::uint32_t>(data.size());
-		nReceivedItemsOld += boost::numeric_cast<boost::uint32_t>(oldWorkItems.size());
+		nReceivedItemsNew += boost::numeric_cast<std::uint32_t>(data.size());
+		nReceivedItemsOld += boost::numeric_cast<std::uint32_t>(oldWorkItems.size());
 
 		std::cout << "Cycle " << cycleCounter << " completed in producer " << id << std::endl << std::flush;
 	}
@@ -133,8 +133,8 @@ void connectorProducer(
  * between both modes.
  */
 void brokerProducer(
-	boost::uint32_t nProductionCycles
-	, boost::uint32_t nContainerObjects
+	std::uint32_t nProductionCycles
+	, std::uint32_t nContainerObjects
 	, std::size_t nContainerEntries
 ) {
 	std::size_t id;
@@ -150,7 +150,7 @@ void brokerProducer(
 	GBROKER(WORKLOAD)->enrol(CurrentBufferPort_);
 
 	// Start the loop
-	boost::uint32_t cycleCounter = 0;
+	std::uint32_t cycleCounter = 0;
 	while(cycleCounter++ < nProductionCycles) {
 		// Submit the required number of items directly to the broker
 		for(std::size_t i=0; i<nContainerObjects; i++) {
@@ -185,13 +185,13 @@ int main(int argc, char **argv) {
 	std::string ip;
 	unsigned short port;
 	Gem::Common::serializationMode serMode;
-	boost::uint32_t nProducers;
-	boost::uint32_t nProductionCycles;
+	std::uint32_t nProducers;
+	std::uint32_t nProductionCycles;
 	submissionReturnMode srm;
 	std::size_t maxResubmissions;
-	boost::uint32_t nContainerObjects;
+	std::uint32_t nContainerObjects;
 	std::size_t nContainerEntries;
-	boost::uint32_t nWorkers;
+	std::uint32_t nWorkers;
 	GBSCModes executionMode;
 	bool useDirectBrokerConnection;
 	std::vector<std::shared_ptr<GAsioTCPClientT<WORKLOAD>> > clients;

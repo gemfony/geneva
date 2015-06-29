@@ -44,6 +44,7 @@
 #include <cmath>
 #include <typeinfo>
 #include <tuple>
+#include <limits>
 
 // Boost headers go here
 
@@ -53,7 +54,6 @@
 #include <boost/math/special_functions/next.hpp>
 #include <boost/date_time.hpp>
 #include <boost/variant.hpp>
-#include <boost/limits.hpp>
 
 #ifndef GHELPERFUNCTIONST_HPP_
 #define GHELPERFUNCTIONST_HPP_

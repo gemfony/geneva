@@ -176,9 +176,9 @@ public:
 	G_API_GENEVA updateRule getUpdateRule() const;
 
 	/** @brief Allows to specify the number of stalls as of which the algorithm switches to repulsive mode */
-	G_API_GENEVA void setRepulsionThreshold(boost::uint32_t);
+	G_API_GENEVA void setRepulsionThreshold(std::uint32_t);
 	/** @brief Allows to retrieve the number of stalls as of which the algorithm switches to repulsive mode */
-	G_API_GENEVA boost::uint32_t getRepulsionThreshold() const;
+	G_API_GENEVA std::uint32_t getRepulsionThreshold() const;
 
 	/** @brief All individuals automatically added to a neighborhood will have equal value */
 	G_API_GENEVA void setNeighborhoodsEqualFillUp();
@@ -297,7 +297,7 @@ protected:
 	updateRule updateRule_ = DEFAULTUPDATERULE; ///< Specifies how the parameters are updated
 	bool randomFillUp_ = true; ///< Specifies whether neighborhoods are filled up with random values
 
-	boost::uint32_t repulsionThreshold_ = DEFREPULSIONTHRESHOLD; ///< The number of stalls until the swarm algorithm switches to repulsion instead of attraction
+	std::uint32_t repulsionThreshold_ = DEFREPULSIONTHRESHOLD; ///< The number of stalls until the swarm algorithm switches to repulsion instead of attraction
 
 	std::vector<double> dblLowerParameterBoundaries_ = std::vector<double>(); ///< Holds lower boundaries of double parameters
 	std::vector<double> dblUpperParameterBoundaries_ = std::vector<double>(); ///< Holds upper boundaries of double parameters
@@ -381,11 +381,11 @@ public:
 		) const override;
 
 		/** @brief Set the dimension of the output canvas */
-		G_API_GENEVA void setDims(const boost::uint16_t&, const boost::uint16_t&);
+		G_API_GENEVA void setDims(const std::uint16_t&, const std::uint16_t&);
 		/** @brief Retrieve the x-dimension of the output canvas */
-		G_API_GENEVA boost::uint16_t getXDim() const;
+		G_API_GENEVA std::uint16_t getXDim() const;
 		/** @brief Retrieve the y-dimension of the output canvas */
-		G_API_GENEVA boost::uint16_t getYDim() const;
+		G_API_GENEVA std::uint16_t getYDim() const;
 
 		/** @brief Allows to set the name of the result file */
 		G_API_GENEVA void setResultFileName(const std::string&);
@@ -406,8 +406,8 @@ public:
 		virtual G_API_GENEVA GObject* clone_() const override;
 
 	private:
-		boost::uint16_t xDim_ = DEFAULTXDIMOM; ///< The dimension of the canvas in x-direction
-		boost::uint16_t yDim_ = DEFAULTYDIMOM; ///< The dimension of the canvas in y-direction
+		std::uint16_t xDim_ = DEFAULTXDIMOM; ///< The dimension of the canvas in x-direction
+		std::uint16_t yDim_ = DEFAULTYDIMOM; ///< The dimension of the canvas in y-direction
 
 		std::string resultFile_ = DEFAULTROOTRESULTFILEOM; ///< The name of the file to which data is emitted
 

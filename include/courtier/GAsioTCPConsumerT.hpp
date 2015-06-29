@@ -96,11 +96,11 @@ namespace Courtier {
 /**
  * Global variables for failed transfers and connection attempts.
  */
-const boost::uint32_t GASIOTCPCONSUMERMAXSTALLS = 10;
-const boost::uint32_t GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS = 10;
+const std::uint32_t GASIOTCPCONSUMERMAXSTALLS = 10;
+const std::uint32_t GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS = 10;
 const unsigned short GASIOTCPCONSUMERDEFAULTPORT = 10000;
 const std::string GASIOTCPCONSUMERDEFAULTSERVER = "localhost";
-const boost::uint16_t GASIOTCPCONSUMERTHREADS = 4;
+const std::uint16_t GASIOTCPCONSUMERTHREADS = 4;
 const Gem::Common::serializationMode GASIOTCPCONSUMERSERIALIZATIONMODE = Gem::Common::SERIALIZATIONMODE_BINARY;
 const bool GASIOTCPCONSUMERRETURNREGARDLESS = true;
 
@@ -178,7 +178,7 @@ public:
 	 *
 	 * @param maxStalls The maximum number of stalled connection attempts
 	 */
-	void setMaxStalls(const boost::uint32_t &maxStalls) {
+	void setMaxStalls(const std::uint32_t &maxStalls) {
 		maxStalls_ = maxStalls;
 	}
 
@@ -188,7 +188,7 @@ public:
 	 *
 	 * @return The value of the maxStalls_ variable
 	 */
-	boost::uint32_t getMaxStalls() const {
+	std::uint32_t getMaxStalls() const {
 		return maxStalls_;
 	}
 
@@ -198,7 +198,7 @@ public:
 	 *
 	 * @param maxConnectionAttempts The maximum number of allowed failed connection attempts
 	 */
-	void setMaxConnectionAttempts(const boost::uint32_t &maxConnectionAttempts) {
+	void setMaxConnectionAttempts(const std::uint32_t &maxConnectionAttempts) {
 		maxConnectionAttempts_ = maxConnectionAttempts;
 	}
 
@@ -208,7 +208,7 @@ public:
 	 *
 	 * @return The value of the maxConnectionAttempts_ variable
 	 */
-	boost::uint32_t getMaxConnectionAttempts() const {
+	std::uint32_t getMaxConnectionAttempts() const {
 		return maxConnectionAttempts_;
 	}
 
@@ -217,7 +217,7 @@ public:
 	 * Retrieves the total number of failed connection attempts during program execution
 	 * up the point of the call;
 	 */
-	boost::uint32_t getTotalConnectionAttempts() const {
+	std::uint32_t getTotalConnectionAttempts() const {
 		return totalConnectionAttempts_;
 	}
 
@@ -229,7 +229,7 @@ protected:
 	 * of the type "idle(5000)", where the number specifies the amount of
 	 * milliseconds the client should wait before reconnecting.
 	 */
-	bool parseIdleCommand(boost::uint32_t &idleTime, const std::string &idleCommand) {
+	bool parseIdleCommand(std::uint32_t &idleTime, const std::string &idleCommand) {
 		using boost::spirit::ascii::space;
 		using boost::spirit::qi::phrase_parse;
 		using boost::spirit::qi::uint_;
@@ -272,7 +272,7 @@ protected:
 		std::string &item, std::string &serMode, std::string &portId
 	) {
 		item = "empty"; // Indicates that no item could be retrieved
-		boost::uint32_t idleTime = 0; // Holds information on the idle time in milliseconds, if "idle" command is received
+		std::uint32_t idleTime = 0; // Holds information on the idle time in milliseconds, if "idle" command is received
 
 		try {
 			// Try to make a connection
@@ -499,7 +499,7 @@ private:
 		// Try to make a connection, at max maxConnectionAttempts_ times
 		long milliSecondsWait = 10;
 
-		boost::uint32_t connectionAttempt = 0;
+		std::uint32_t connectionAttempt = 0;
 
 		boost::system::error_code error;
 		boost::asio::ip::tcp::resolver::iterator endpoint_iterator;
@@ -539,11 +539,11 @@ private:
 
 	/***************************************************************************/
 
-	boost::uint32_t maxStalls_; ///< The maximum allowed number of stalled connection attempts
-	boost::uint32_t maxConnectionAttempts_; ///< The maximum allowed number of failed connection attempts
-	boost::uint32_t totalConnectionAttempts_; ///< The total number of failed connection attempts during program execution
+	std::uint32_t maxStalls_; ///< The maximum allowed number of stalled connection attempts
+	std::uint32_t maxConnectionAttempts_; ///< The maximum allowed number of failed connection attempts
+	std::uint32_t totalConnectionAttempts_; ///< The total number of failed connection attempts during program execution
 
-	boost::uint32_t stalls_; ///< counter for stalled connection attempts
+	std::uint32_t stalls_; ///< counter for stalled connection attempts
 
 	char *tmpBuffer_;
 
@@ -1081,7 +1081,7 @@ private:
 	boost::posix_time::time_duration timeout_; ///< A timeout for put- and get-operations
 
 	std::size_t brokerRetrieveMaxRetries_; ///< The maximum amount
-	boost::uint32_t noDataClientSleepMilliSeconds_; ///< The amount of milliseconds the client should sleep when no data could be retrieved from the broker
+	std::uint32_t noDataClientSleepMilliSeconds_; ///< The amount of milliseconds the client should sleep when no data could be retrieved from the broker
 };
 
 /******************************************************************************/
@@ -1229,7 +1229,7 @@ public:
 	 *
 	 * @param maxStalls The maximum number of stalled connection attempts
 	 */
-	void setMaxStalls(const boost::uint32_t &maxStalls) {
+	void setMaxStalls(const std::uint32_t &maxStalls) {
 		maxStalls_ = maxStalls;
 	}
 
@@ -1239,7 +1239,7 @@ public:
 	 *
 	 * @return The value of the maxStalls_ variable
 	 */
-	boost::uint32_t getMaxStalls() const {
+	std::uint32_t getMaxStalls() const {
 		return maxStalls_;
 	}
 
@@ -1249,7 +1249,7 @@ public:
 	 *
 	 * @param maxConnectionAttempts The maximum number of allowed failed connection attempts
 	 */
-	void setMaxConnectionAttempts(const boost::uint32_t &maxConnectionAttempts) {
+	void setMaxConnectionAttempts(const std::uint32_t &maxConnectionAttempts) {
 		maxConnectionAttempts_ = maxConnectionAttempts;
 	}
 
@@ -1259,7 +1259,7 @@ public:
 	 *
 	 * @return The value of the maxConnectionAttempts_ variable
 	 */
-	boost::uint32_t getMaxConnectionAttempts() const {
+	std::uint32_t getMaxConnectionAttempts() const {
 		return maxConnectionAttempts_;
 	}
 
@@ -1417,10 +1417,10 @@ public:
 			("serializationMode,s", po::value<Gem::Common::serializationMode>(&serializationMode_)->default_value(
 				GASIOTCPCONSUMERSERIALIZATIONMODE),
 			 "\t[tcpc] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
-			("maxStalls", po::value<boost::uint32_t>(&maxStalls_)->default_value(GASIOTCPCONSUMERMAXSTALLS),
+			("maxStalls", po::value<std::uint32_t>(&maxStalls_)->default_value(GASIOTCPCONSUMERMAXSTALLS),
 			 "\t[tcpc] The maximum allowed number of stalled connection attempts of a client")
 			("maxConnectionAttempts",
-			 po::value<boost::uint32_t>(&maxConnectionAttempts_)->default_value(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS),
+			 po::value<std::uint32_t>(&maxConnectionAttempts_)->default_value(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS),
 			 "\t[tcpc] The maximum allowed number of failed connection attempts of a client")
 			("returnRegardless", po::value<bool>(&returnRegardless_)->default_value(GASIOTCPCONSUMERRETURNREGARDLESS),
 			 "\t[tcpc] Specifies whether unsuccessful client-side processing attempts should be returned to the server")
@@ -1592,8 +1592,8 @@ private:
 	std::size_t listenerThreads_;  ///< The number of threads used to listen for incoming connections through io_servce::run()
 	boost::asio::ip::tcp::acceptor acceptor_; ///< takes care of external connection requests
 	Gem::Common::serializationMode serializationMode_; ///< Specifies the serialization mode
-	boost::uint32_t maxStalls_; ///< The maximum allowed number of stalled connection attempts of a client
-	boost::uint32_t maxConnectionAttempts_; ///< The maximum allowed number of failed connection attempts of a client
+	std::uint32_t maxStalls_; ///< The maximum allowed number of stalled connection attempts of a client
+	std::uint32_t maxConnectionAttempts_; ///< The maximum allowed number of failed connection attempts of a client
 	bool returnRegardless_; ///< Specifies whether unsuccessful processing attempts should be returned to the server
 	unsigned short port_; ///< The port on which the server is supposed to listen
 	std::string server_;  ///< The name or ip if the server

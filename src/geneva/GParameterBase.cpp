@@ -422,12 +422,12 @@ void GParameterBase::doubleStreamline(
 
 /******************************************************************************/
 /**
- * Attach parameters of type boost::int32_t to the vector. This function does nothing by
- * default. Parameter types based on boost::int32_t need to overload this function and do
+ * Attach parameters of type std::int32_t to the vector. This function does nothing by
+ * default. Parameter types based on std::int32_t need to overload this function and do
  * the actual work.
  */
 void GParameterBase::int32Streamline(
-	std::vector<boost::int32_t> &parVec, const activityMode &
+	std::vector<std::int32_t> &parVec, const activityMode &
 ) const {
 	/* do nothing by default */
 }
@@ -490,12 +490,12 @@ void GParameterBase::doubleStreamline(
 
 /******************************************************************************/
 /**
- * Attach parameters of type boost::int32_t to the map. This function does nothing by
- * default. Parameter types based on boost::int32_t need to overload this function and do
+ * Attach parameters of type std::int32_t to the map. This function does nothing by
+ * default. Parameter types based on std::int32_t need to overload this function and do
  * the actual work.
  */
 void GParameterBase::int32Streamline(
-	std::map<std::string, std::vector<boost::int32_t>> &parVec, const activityMode &
+	std::map<std::string, std::vector<std::int32_t>> &parVec, const activityMode &
 ) const {
 	/* do nothing by default */
 }
@@ -550,13 +550,13 @@ void GParameterBase::doubleBoundaries(
 
 /******************************************************************************/
 /**
- * Attach boundaries of type boost::int32_t to the vectors
+ * Attach boundaries of type std::int32_t to the vectors
  *
- * @param lBndVec A vector of lower boost::int32_t parameter boundaries
- * @param uBndVec A vector of upper boost::int32_t parameter boundaries
+ * @param lBndVec A vector of lower std::int32_t parameter boundaries
+ * @param uBndVec A vector of upper std::int32_t parameter boundaries
  */
 void GParameterBase::int32Boundaries(
-	std::vector<boost::int32_t> &lBndVec, std::vector<boost::int32_t> &uBndVec, const activityMode &
+	std::vector<std::int32_t> &lBndVec, std::vector<std::int32_t> &uBndVec, const activityMode &
 ) const {
 	/* do nothing by default */
 }
@@ -613,11 +613,11 @@ std::size_t GParameterBase::countDoubleParameters(
 
 /******************************************************************************/
 /**
- * Count the number of boost::int32_t parameters. The actual work needs to be done by
- * derived classes, if they possess boost::int32_t parameters.
+ * Count the number of std::int32_t parameters. The actual work needs to be done by
+ * derived classes, if they possess std::int32_t parameters.
  *
  * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
- * @return The number of boost::int32_t parameters in this object
+ * @return The number of std::int32_t parameters in this object
  */
 std::size_t GParameterBase::countInt32Parameters(
 	const activityMode &am
@@ -684,7 +684,7 @@ void GParameterBase::assignDoubleValueVector(
  * Assigns part of a value vector to the parameter
  */
 void GParameterBase::assignInt32ValueVector(
-	const std::vector<boost::int32_t> &parVec, std::size_t &pos, const activityMode &
+	const std::vector<std::int32_t> &parVec, std::size_t &pos, const activityMode &
 ) {
 	/* Do nothing by default */
 }
@@ -744,7 +744,7 @@ void GParameterBase::assignDoubleValueVectors(
  * Assigns part of a value vector to the parameter
  */
 void GParameterBase::assignInt32ValueVectors(
-	const std::map<std::string, std::vector<boost::int32_t>> &parMap, const activityMode &
+	const std::map<std::string, std::vector<std::int32_t>> &parMap, const activityMode &
 ) {
 	/* Do nothing by default */
 }
@@ -794,7 +794,7 @@ void GParameterBase::doubleMultiplyByRandom(
  * Multiplication with a random value in a given range
  */
 void GParameterBase::int32MultiplyByRandom(
-	const boost::int32_t &min, const boost::int32_t &max, const activityMode &am
+	const std::int32_t &min, const std::int32_t &max, const activityMode &am
 ) {
 	/* Do nothing by default */
 }
@@ -874,7 +874,7 @@ void GParameterBase::doubleMultiplyBy(
  * Multiplication with a constant value
  */
 void GParameterBase::int32MultiplyBy(
-	const boost::int32_t &value, const activityMode &am
+	const std::int32_t &value, const activityMode &am
 ) {
 	/* Do nothing by default */
 }
@@ -918,7 +918,7 @@ void GParameterBase::doubleFixedValueInit(
  * Initialization with a constant value
  */
 void GParameterBase::int32FixedValueInit(
-	const boost::int32_t &value, const activityMode &am
+	const std::int32_t &value, const activityMode &am
 ) {
 	/* Do nothing by default */
 }

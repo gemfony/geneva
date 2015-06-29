@@ -101,7 +101,7 @@ public:
 	/** @brief Checks whether this is a parent individual */
 	G_API_GENEVA bool isParent() const;
 	/** @brief Retrieves the current value of the parentCounter_ variable */
-	G_API_GENEVA boost::uint32_t getParentCounter() const;
+	G_API_GENEVA std::uint32_t getParentCounter() const;
 
 	/** @brief Sets the position of the individual in the population */
 	G_API_GENEVA void setPopulationPosition(const std::size_t&);
@@ -128,11 +128,11 @@ protected:
 
 private:
 	/** @brief Allows populations to record how often an individual has been reelected as parent (0 if it is a child) */
-	boost::uint32_t parentCounter_ = 0;
+	std::uint32_t parentCounter_ = 0;
 	/** @brief Stores the current position in the population */
 	std::size_t popPos_ = 0;
 	/** @brief The id of the old parent individual. This is intentionally a signed value. A negative value refers to an unset parent id */
-	boost::int16_t parentId_ = -1;
+	std::int16_t parentId_ = -1;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

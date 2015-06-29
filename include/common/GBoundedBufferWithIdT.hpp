@@ -60,9 +60,9 @@ namespace Common {
  * Boost, when this class was created.
  */
 #ifdef BOOST_HAS_LONG_LONG
-typedef boost::uint64_t PORTIDTYPE;
+typedef std::uint64_t PORTIDTYPE;
 #else
-typedef boost::uint32_t PORTIDTYPE;
+typedef std::uint32_t PORTIDTYPE;
 #endif
 
 /******************************************************************************/

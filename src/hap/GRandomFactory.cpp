@@ -114,7 +114,7 @@ void random_container::refresh(lagged_fibonacci &lf) {
 /**
  * Initialization of static data members
  */
-boost::uint16_t Gem::Hap::GRandomFactory::multiple_call_trap_ = 0;
+std::uint16_t Gem::Hap::GRandomFactory::multiple_call_trap_ = 0;
 boost::mutex Gem::Hap::GRandomFactory::factory_creation_mutex_;
 
 /******************************************************************************/
@@ -124,7 +124,7 @@ boost::mutex Gem::Hap::GRandomFactory::factory_creation_mutex_;
  */
 GRandomFactory::GRandomFactory()
 	: finalized_(false), threadsHaveBeenStarted_(false),
-	  n01Threads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS))),
+	  n01Threads_(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS))),
 	  p01_(DEFAULTFACTORYBUFFERSIZE), r01_(DEFAULTFACTORYBUFFERSIZE),
 	  startSeed_(boost::numeric_cast<initial_seed_type>(this->nondet_rng())) {
 	// Check whether enough entropy is available. Warn, if this is not the case
@@ -263,7 +263,7 @@ bool GRandomFactory::checkSeedingIsInitialized() const {
  *
  * @return A seed taken from a local random number generator
  */
-boost::uint32_t GRandomFactory::getSeed() {
+std::uint32_t GRandomFactory::getSeed() {
 	{ // Determine whether the seed-generator has already been initialized. If not, start it
 		boost::upgrade_lock<boost::shared_mutex> sm_lck(seedingMutex_);
 		if (!mt_ptr_) { // double lock pattern
@@ -304,10 +304,10 @@ void GRandomFactory::returnUsedPackage(std::shared_ptr < random_container > p) {
  *
  * @param n01Threads
  */
-void GRandomFactory::setNProducerThreads(const boost::uint16_t &n01Threads) {
+void GRandomFactory::setNProducerThreads(const std::uint16_t &n01Threads) {
 	// Make a suggestion for the number of threads, if requested
-	boost::uint16_t n01Threads_local =
-		(n01Threads > 0) ? n01Threads : (boost::numeric_cast<boost::uint16_t>(
+	std::uint16_t n01Threads_local =
+		(n01Threads > 0) ? n01Threads : (boost::numeric_cast<std::uint16_t>(
 			Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)));
 
 	// Threads might already be running, so we need to regulate access
@@ -315,7 +315,7 @@ void GRandomFactory::setNProducerThreads(const boost::uint16_t &n01Threads) {
 		boost::unique_lock<boost::mutex> lk(thread_creation_mutex_);
 		if (threadsHaveBeenStarted_.load()) {
 			if (n01Threads_local > n01Threads_.load()) { // start new 01 threads
-				for (boost::uint16_t i = n01Threads_.load(); i < n01Threads_local; i++) {
+				for (std::uint16_t i = n01Threads_.load(); i < n01Threads_local; i++) {
 					producer_threads_01_.create_thread(
 						[this]() { this->producer01(this->getSeed()); }
 					);
@@ -343,7 +343,7 @@ std::shared_ptr <random_container> GRandomFactory::new01Container() {
 		boost::unique_lock<boost::mutex> tc_lk(thread_creation_mutex_);
 		if (!threadsHaveBeenStarted_.load()) { // double checked locking pattern
 			//---------------------------------------------------------
-			for (boost::uint16_t i = 0; i < n01Threads_.load(); i++) {
+			for (std::uint16_t i = 0; i < n01Threads_.load(); i++) {
 				producer_threads_01_.create_thread(
 					[this]() { this->producer01(this->getSeed()); }
 				);
@@ -375,7 +375,7 @@ std::shared_ptr <random_container> GRandomFactory::new01Container() {
  *
  * @param seed A seed for our local random number generator
  */
-void GRandomFactory::producer01(boost::uint32_t seed) {
+void GRandomFactory::producer01(std::uint32_t seed) {
 	try {
 		lagged_fibonacci lf(seed);
 		std::shared_ptr <random_container> p;

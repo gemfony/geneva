@@ -46,7 +46,7 @@ void swap(Gem::Geneva::parPropSpec<float> &a, Gem::Geneva::parPropSpec<float> &b
 	a.swap(b);
 }
 
-void swap(Gem::Geneva::parPropSpec<boost::int32_t> &a, Gem::Geneva::parPropSpec<boost::int32_t> &b) {
+void swap(Gem::Geneva::parPropSpec<std::int32_t> &a, Gem::Geneva::parPropSpec<std::int32_t> &b) {
 	a.swap(b);
 }
 

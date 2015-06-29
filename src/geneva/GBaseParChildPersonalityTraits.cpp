@@ -202,7 +202,7 @@ bool GBaseParChildPersonalityTraits::isParent() const {
  *
  * @return The current value of the parentCounter_ variable
  */
-boost::uint32_t GBaseParChildPersonalityTraits::getParentCounter() const {
+std::uint32_t GBaseParChildPersonalityTraits::getParentCounter() const {
 	return parentCounter_;
 }
 
@@ -282,7 +282,7 @@ std::size_t GBaseParChildPersonalityTraits::getPopulationPosition(void) const {
  * @param parentId The id of the individual's parent
  */
 void GBaseParChildPersonalityTraits::setParentId(const std::size_t &parentId) {
-	parentId_ = (boost::int16_t) parentId;
+	parentId_ = (std::int16_t) parentId;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -411,7 +411,7 @@ void GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests()
 		BOOST_CHECK(p_test->getParentCounter() == 0);
 
 		// Mark the individual as a parent a number of times and check the parent counter
-		for (boost::uint32_t i = 1; i <= 10; i++) {
+		for (std::uint32_t i = 1; i <= 10; i++) {
 			BOOST_CHECK_NO_THROW(p_test->setIsParent());
 			BOOST_CHECK(p_test->getParentCounter() == i);
 		}

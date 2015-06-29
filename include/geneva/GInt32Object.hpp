@@ -65,7 +65,7 @@ namespace Geneva {
  * (most notably doubles) have their own class as well (GConstrainedDoubleObject, GDoubleObject).
  */
 class GInt32Object
-	:public GNumIntT<boost::int32_t>
+	:public GNumIntT<std::int32_t>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -75,7 +75,7 @@ class GInt32Object
 		using boost::serialization::make_nvp;
 
 		ar
-			& make_nvp("GNumIntT", boost::serialization::base_object<GNumIntT<boost::int32_t>>(*this));
+			& make_nvp("GNumIntT", boost::serialization::base_object<GNumIntT<std::int32_t>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -85,17 +85,17 @@ public:
 	/** @brief The copy constructor */
 	G_API_GENEVA GInt32Object(const GInt32Object&);
 	/** @brief Initialization by contained value */
-	explicit G_API_GENEVA GInt32Object(const boost::int32_t&);
+	explicit G_API_GENEVA GInt32Object(const std::int32_t&);
 	/** @brief Initialization by random number in a given range */
 	G_API_GENEVA GInt32Object(
-		const boost::int32_t&
-		, const boost::int32_t&
+		const std::int32_t&
+		, const std::int32_t&
 	);
 	/** @brief Initialization with a fixed value and a range for random initialization */
 	G_API_GENEVA GInt32Object(
-		const boost::int32_t&
-		, const boost::int32_t&
-		, const boost::int32_t&
+		const std::int32_t&
+		, const std::int32_t&
+		, const std::int32_t&
 	);
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GInt32Object();
@@ -103,7 +103,7 @@ public:
 	/** @brief The standard assignment operator */
 	G_API_GENEVA const GInt32Object& operator=(const GInt32Object&);
 	/** @brief An assignment operator for the contained value type */
-	virtual G_API_GENEVA boost::int32_t operator=(const boost::int32_t&) override;
+	virtual G_API_GENEVA std::int32_t operator=(const std::int32_t&) override;
 
 	/** @brief Checks for equality with another GInt32Object object */
 	G_API_GENEVA bool operator==(const GInt32Object&) const;
@@ -127,17 +127,17 @@ protected:
 	virtual G_API_GENEVA GObject* clone_() const override;
 
 	/** @brief Attach our local value to the vector. */
-	virtual G_API_GENEVA void int32Streamline(std::vector<boost::int32_t>&, const activityMode& am) const override;
-	/** @brief Attach boundaries of type boost::int32_t to the vectors */
-	virtual G_API_GENEVA void int32Boundaries(std::vector<boost::int32_t>&, std::vector<boost::int32_t>&, const activityMode& am) const override;
-	/** @brief Tell the audience that we own a boost::int32_t value */
+	virtual G_API_GENEVA void int32Streamline(std::vector<std::int32_t>&, const activityMode& am) const override;
+	/** @brief Attach boundaries of type std::int32_t to the vectors */
+	virtual G_API_GENEVA void int32Boundaries(std::vector<std::int32_t>&, std::vector<std::int32_t>&, const activityMode& am) const override;
+	/** @brief Tell the audience that we own a std::int32_t value */
 	virtual G_API_GENEVA std::size_t countInt32Parameters(const activityMode& am) const override;
 	/** @brief Assigns part of a value vector to the parameter */
-	virtual G_API_GENEVA void assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&, const activityMode& am) override;
+	virtual G_API_GENEVA void assignInt32ValueVector(const std::vector<std::int32_t>&, std::size_t&, const activityMode& am) override;
 	/** @brief Attach our local value to the map. */
-	virtual G_API_GENEVA void int32Streamline(std::map<std::string, std::vector<boost::int32_t>>&, const activityMode& am) const override;
+	virtual G_API_GENEVA void int32Streamline(std::map<std::string, std::vector<std::int32_t>>&, const activityMode& am) const override;
 	/** @brief Assigns part of a value vector to the parameter */
-	virtual G_API_GENEVA void assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t>>&, const activityMode& am) override;
+	virtual G_API_GENEVA void assignInt32ValueVectors(const std::map<std::string, std::vector<std::int32_t>>&, const activityMode& am) override;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

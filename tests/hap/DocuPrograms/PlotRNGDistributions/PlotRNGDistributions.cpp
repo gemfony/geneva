@@ -93,11 +93,11 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 			break;
 
 		case DISCRETE:
-			for(i=0; i<nEntries; i++) vec_t.push_back(boost::numeric_cast<boost::int32_t>(gr_ptr->uniform_int(10)));
+			for(i=0; i<nEntries; i++) vec_t.push_back(boost::numeric_cast<std::int32_t>(gr_ptr->uniform_int(10)));
 			break;
 
 		case DISCRETEBOUND:
-			for(i=0; i<nEntries; i++) vec_t.push_back(boost::numeric_cast<boost::int32_t>(gr_ptr->uniform_int(-3,10)));
+			for(i=0; i<nEntries; i++) vec_t.push_back(boost::numeric_cast<std::int32_t>(gr_ptr->uniform_int(-3,10)));
 			break;
 
 		case BITPROB:
@@ -125,11 +125,11 @@ int main(int argc, char **argv){
 
 	bool verbose;
 	const std::size_t nEntries = 60000;
-	const boost::uint16_t nProducerThreads = 4;
+	const std::uint16_t nProducerThreads = 4;
 
 	std::size_t i;
 	std::vector<double> gaussian, doublegaussian, even, evenwithboundaries;
-	std::vector<boost::int32_t> discrete, discretebound, bitprob, bitsimple;
+	std::vector<std::int32_t> discrete, discretebound, bitprob, bitsimple;
 
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
@@ -168,10 +168,10 @@ int main(int argc, char **argv){
 	createRandomVector<double>(doublegaussian, DOUBLEGAUSSIAN, nEntries, gr_ptr);
 	createRandomVector<double>(even, EVEN, nEntries, gr_ptr);
 	createRandomVector<double>(evenwithboundaries, EVENWITHBOUNDARIES, nEntries, gr_ptr);
-	createRandomVector<boost::int32_t>(discrete, DISCRETE, nEntries,gr_ptr);
-	createRandomVector<boost::int32_t>(discretebound, DISCRETEBOUND, nEntries, gr_ptr);
-	createRandomVector<boost::int32_t>(bitprob, BITPROB, nEntries, gr_ptr);
-	createRandomVector<boost::int32_t>(bitsimple, BITSIMPLE, nEntries, gr_ptr);
+	createRandomVector<std::int32_t>(discrete, DISCRETE, nEntries,gr_ptr);
+	createRandomVector<std::int32_t>(discretebound, DISCRETEBOUND, nEntries, gr_ptr);
+	createRandomVector<std::int32_t>(bitprob, BITPROB, nEntries, gr_ptr);
+	createRandomVector<std::int32_t>(bitsimple, BITSIMPLE, nEntries, gr_ptr);
 
 	for(i=0; i<nEntries; i++){
 		ofs << "  gauss->Fill(" << gaussian.at(i) << ");" << std::endl;

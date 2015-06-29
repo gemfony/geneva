@@ -60,10 +60,10 @@ const double CMD_DEFAULTSIGMA = 0.025;
 const double CMD_DEFAULTSIGMASIGMA = 0.1;
 const double CMD_DEFAULTMINSIGMA = 0.001;
 const double CMD_DEFAULTMAXSIGMA = 1.;
-const boost::uint32_t CMD_DEFAULTMAXITER = 100000;
+const std::uint32_t CMD_DEFAULTMAXITER = 100000;
 const std::string CMD_DEFAULTRESULTFILE = "result.C";
 const bool CMD_DEFAULTVERBOSE = true;
-const boost::uint32_t CMD_DEFAULTADAPTIONTHRESHOLD=1;
+const std::uint32_t CMD_DEFAULTADAPTIONTHRESHOLD=1;
 
 namespace po = boost::program_options;
 
@@ -72,9 +72,9 @@ bool parseCommandLine(int argc, char **argv,
 							 double& sigmaSigma,
 							 double& minSigma,
 							 double& maxSigma,
-							 boost::uint32_t& adaptionThreshold,
+							 std::uint32_t& adaptionThreshold,
 							 std::string& resultFile,
-							 boost::uint32_t& maxIter,
+							 std::uint32_t& maxIter,
 							 bool& verbose);
 
 } /* namespace Tests */

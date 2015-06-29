@@ -45,6 +45,7 @@
 #include <sstream>
 #include <fstream>
 #include <cassert>
+#include <limits>
 
 // Boost headers go here
 
@@ -58,7 +59,6 @@
 #include <boost/random/random_device.hpp>
 #include <boost/utility.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/limits.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/cast.hpp>
 
@@ -202,7 +202,7 @@ public:
 	G_API_HAP void finalize();
 
 	/** @brief Sets the number of producer threads for this factory. */
-	G_API_HAP void setNProducerThreads(const boost::uint16_t &);
+	G_API_HAP void setNProducerThreads(const std::uint16_t &);
 
 	/** @brief Allows to retrieve the size of the array */
 	G_API_HAP std::size_t getCurrentArraySize() const;
@@ -231,11 +231,11 @@ private:
 	const GRandomFactory &operator=(const GRandomFactory &);  ///< Intentionally left undefined
 
 	/** @brief The production of [0,1[ random numbers takes place here */
-	void producer01(boost::uint32_t seed);
+	void producer01(std::uint32_t seed);
 
 	bool finalized_;
 	boost::atomic<bool> threadsHaveBeenStarted_;
-	boost::atomic<boost::uint16_t> n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
+	boost::atomic<std::uint16_t> n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
 	Gem::Common::GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
 
 	/** @brief A bounded buffer holding the [0,1[ random number packages */
@@ -245,7 +245,7 @@ private:
 	Gem::Common::GBoundedBufferT<std::shared_ptr < random_container>>
 	r01_;
 
-	static boost::uint16_t multiple_call_trap_; ///< Trap to catch multiple instantiations of this class
+	static std::uint16_t multiple_call_trap_; ///< Trap to catch multiple instantiations of this class
 	static boost::mutex factory_creation_mutex_; ///< Synchronization of access to multiple_call_trap in constructor
 
 	mutable boost::mutex thread_creation_mutex_; ///< Synchronization of access to the threadsHaveBeenStarted_ variable

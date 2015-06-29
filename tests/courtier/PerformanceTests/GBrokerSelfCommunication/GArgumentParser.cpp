@@ -156,9 +156,9 @@ bool parseCommandLine(
 /************************************************************************************************/
 
 bool parseConfigFile(
-	const std::string &configFile, boost::uint32_t &nProducers, boost::uint32_t &nProductionCycles,
-	boost::uint32_t &nContainerObjects, std::size_t &nContainerEntries, std::size_t &maxResubmissions,
-	boost::uint32_t &nWorkers
+	const std::string &configFile, std::uint32_t &nProducers, std::uint32_t &nProductionCycles,
+	std::uint32_t &nContainerObjects, std::size_t &nContainerEntries, std::size_t &maxResubmissions,
+	std::uint32_t &nWorkers
 ) {
 	// Check the name of the configuation file
 	if (configFile.empty() || configFile == "empty" || configFile == "unknown") {
@@ -172,14 +172,14 @@ bool parseConfigFile(
 		// Check the configuration file line options. Uses the Boost program options library.
 		po::options_description config("Allowed options");
 		config.add_options()
-			("nProducers", po::value<boost::uint32_t>(&nProducers)->default_value(DEFAULTNPRODUCERSAP))
+			("nProducers", po::value<std::uint32_t>(&nProducers)->default_value(DEFAULTNPRODUCERSAP))
 			("nProductionCycles",
-			 po::value<boost::uint32_t>(&nProductionCycles)->default_value(DEFAULTNPRODUCTIONCYLCESAP))
+			 po::value<std::uint32_t>(&nProductionCycles)->default_value(DEFAULTNPRODUCTIONCYLCESAP))
 			("nContainerObjects",
-			 po::value<boost::uint32_t>(&nContainerObjects)->default_value(DEFAULTNCONTAINEROBJECTSAP))
+			 po::value<std::uint32_t>(&nContainerObjects)->default_value(DEFAULTNCONTAINEROBJECTSAP))
 			("nContainerEntries", po::value<std::size_t>(&nContainerEntries)->default_value(DEFAULTNCONTAINERENTRIESAP))
 			("maxResubmissions", po::value<std::size_t>(&maxResubmissions)->default_value(DEFAULTMAXRESUBMISSIONSAP))
-			("nWorkers", po::value<boost::uint32_t>(&nWorkers)->default_value(DEFAULTNWORKERSAP));
+			("nWorkers", po::value<std::uint32_t>(&nWorkers)->default_value(DEFAULTNWORKERSAP));
 
 		po::variables_map vm;
 		boost::filesystem::ifstream ifs(configFile);

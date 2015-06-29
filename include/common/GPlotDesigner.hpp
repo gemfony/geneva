@@ -107,11 +107,11 @@ G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::graphPlotMode
 
 //Some default values
 
-const boost::uint32_t DEFCXDIM = 1024;
-const boost::uint32_t DEFCYDIM = 768;
+const std::uint32_t DEFCXDIM = 1024;
+const std::uint32_t DEFCYDIM = 768;
 
-const boost::uint32_t DEFCXDIV = 1;
-const boost::uint32_t DEFCYDIV = 1;
+const std::uint32_t DEFCXDIV = 1;
+const std::uint32_t DEFCYDIV = 1;
 
 const std::size_t DEFNSAMPLES = 100;
 
@@ -674,7 +674,7 @@ private:
 /**
  * A wrapper for ROOT's TH1I class (1-d integer data)
  */
-class GHistogram1I : public GDataCollector1T<boost::int32_t> {
+class GHistogram1I : public GDataCollector1T<std::int32_t> {
 
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -684,7 +684,7 @@ class GHistogram1I : public GDataCollector1T<boost::int32_t> {
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GDataCollector1T_int32_t", boost::serialization::base_object<GDataCollector1T<boost::int32_t>>(*this))
+		& make_nvp("GDataCollector1T_int32_t", boost::serialization::base_object<GDataCollector1T<std::int32_t>>(*this))
 		& BOOST_SERIALIZATION_NVP(nBinsX_)
 		& BOOST_SERIALIZATION_NVP(minX_)
 		& BOOST_SERIALIZATION_NVP(maxX_);
@@ -3053,11 +3053,11 @@ public:
 	G_API_COMMON void registerPlotter(std::shared_ptr <GBasePlotter>);
 
 	/** @brief Set the dimensions of the output canvas */
-	G_API_COMMON void setCanvasDimensions(const boost::uint32_t &, const boost::uint32_t &);
+	G_API_COMMON void setCanvasDimensions(const std::uint32_t &, const std::uint32_t &);
 	/** @brief Set the dimensions of the output canvas */
-	G_API_COMMON void setCanvasDimensions(const std::tuple<boost::uint32_t, boost::uint32_t> &);
+	G_API_COMMON void setCanvasDimensions(const std::tuple<std::uint32_t, std::uint32_t> &);
 	/** @brief Allows to retrieve the canvas dimensions */
-	G_API_COMMON std::tuple<boost::uint32_t, boost::uint32_t> getCanvasDimensions() const;
+	G_API_COMMON std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions() const;
 
 	/** @brief Allows to set the canvas label */
 	G_API_COMMON void setCanvasLabel(const std::string &);
@@ -3097,7 +3097,7 @@ private:
 	std::vector<std::shared_ptr<GBasePlotter>> plotters_ = std::vector<std::shared_ptr<GBasePlotter>>(); ///< A list of plots to be added to the diagram
 
 	std::size_t c_x_div_ = 1, c_y_div_ = 1; ///< The number of divisions in x- and y-direction
-	boost::uint32_t c_x_dim_ = DEFCXDIM, c_y_dim_ = DEFCYDIM; ///< Holds the number of pixels of the canvas
+	std::uint32_t c_x_dim_ = DEFCXDIM, c_y_dim_ = DEFCYDIM; ///< Holds the number of pixels of the canvas
 
 	std::string canvasLabel_ = std::string("empty"); ///< A label to be assigned to the entire canvas
 

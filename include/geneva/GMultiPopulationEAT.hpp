@@ -90,7 +90,7 @@ public:
 	GMultiPopulationEAT()
 		: GBaseParChildT<oa_type>()
 		, smodeMP_(DEFAULTSMODEMP)
-		, nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
+		, nThreads_(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 	{
 		// Note: We do not currently register a custom optimization monitor.
 		// A basic monitor has already been registered inside of GOptimizationMonitorT
@@ -289,7 +289,7 @@ public:
 	 *
 	 * @return The maximum number of allowed threads
 	 */
-	boost::uint16_t getNThreads() const  {
+	std::uint16_t getNThreads() const  {
 		return nThreads_;
 	}
 
@@ -684,7 +684,7 @@ private:
 	// Local data
 
 	sortingModeMP smodeMP_; ///< The chosen sorting scheme
-	boost::uint16_t nThreads_; ///< The number of threads
+	std::uint16_t nThreads_; ///< The number of threads
 
 	std::shared_ptr<Gem::Common::GThreadPool> tp_ptr_; ///< Temporarily holds a thread pool
 

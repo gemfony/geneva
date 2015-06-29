@@ -67,13 +67,13 @@ namespace Tests
 {
 
 // Default settings
-const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
-const boost::uint16_t DEFAULTNEVALUATIONTHREADS=4;
+const std::uint16_t DEFAULTNPRODUCERTHREADS=10;
+const std::uint16_t DEFAULTNEVALUATIONTHREADS=4;
 const std::size_t DEFAULTPOPULATIONSIZE=100;
 const std::size_t DEFAULTNPARENTS=5; // Allow to explore the parameter space from many starting points
-const boost::uint32_t DEFAULTMAXITERATIONS=2000;
+const std::uint32_t DEFAULTMAXITERATIONS=2000;
 const long DEFAULTMAXMINUTES=10;
-const boost::uint32_t DEFAULTREPORTITERATION=1;
+const std::uint32_t DEFAULTREPORTITERATION=1;
 const duplicationScheme DEFAULTRSCHEME=VALUEDUPLICATIONSCHEME;
 const bool DEFAULTVERBOSE=true;
 const bool DEFAULTPARALLELIZATIONMODE=1;
@@ -82,14 +82,14 @@ const unsigned short DEFAULTPORT=10000;
 const std::string DEFAULTIP="localhost";
 const std::string DEFAULTCONFIGFILE="./GBrokerOverhead.cfg";
 const sortingMode DEFAULTSORTINGSCHEME=MUPLUSNU_SINGLEEVAL;
-const boost::uint32_t DEFAULTSTARTITERATION=0;
+const std::uint32_t DEFAULTSTARTITERATION=0;
 const std::size_t DEFAULTNBTCONSUMERTHREADS=2;
-const boost::uint32_t DEFAULTGBTCNPROCUNITS=1;
+const std::uint32_t DEFAULTGBTCNPROCUNITS=1;
 const std::size_t DEFAULTPARDIM=100;
 const double DEFAULTMINVAR=-10.;
 const double DEFAULTMAXVAR=10.;
-const boost::uint16_t DEFAULTEVALFUNCTION=0;
-const boost::uint32_t DEFAULTADAPTIONTHRESHOLD=1;
+const std::uint16_t DEFAULTEVALFUNCTION=0;
+const std::uint32_t DEFAULTADAPTIONTHRESHOLD=1;
 const double DEFAULTGDAADPROB=1.0;
 
 namespace po = boost::program_options;
@@ -97,23 +97,23 @@ namespace po = boost::program_options;
 bool parseCommandLine(
 	int argc, char **argv
 	, std::string& configFile
-	, boost::uint16_t& parallelizationMode
+	, std::uint16_t& parallelizationMode
 );
 
 bool parseConfigFile(
 	const std::string& configFile
-	, boost::uint16_t& nProducerThreads
-	, boost::uint16_t& nEvaluationThreads
+	, std::uint16_t& nProducerThreads
+	, std::uint16_t& nEvaluationThreads
 	, std::size_t& populationSize
 	, std::size_t& nParents
-	, boost::uint32_t& maxIterations
+	, std::uint32_t& maxIterations
 	, long& maxMinutes
-	, boost::uint32_t& reportIteration
+	, std::uint32_t& reportIteration
 	, duplicationScheme& rScheme
 	, sortingMode& smode
-	, boost::uint32_t& nProcessingUnits
+	, std::uint32_t& nProcessingUnits
 	, double& adProb
-	, boost::uint32_t& adaptionThreshold
+	, std::uint32_t& adaptionThreshold
 	, double& sigma
 	, double& sigmaSigma
 	, double& minSigma

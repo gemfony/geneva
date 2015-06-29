@@ -686,7 +686,7 @@ public:
 	/**
 	 * Initialization with the number of threads
 	 */
-	GMTExecutorT(boost::uint16_t nThreads)
+	GMTExecutorT(std::uint16_t nThreads)
 		: GBaseExecutorT<processable_type>(), gtp_(nThreads) { /* nothing */ }
 
 	/***************************************************************************/

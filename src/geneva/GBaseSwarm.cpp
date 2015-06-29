@@ -627,10 +627,10 @@ void GBaseSwarm::addConfigurationOptions(
 	<< "Specifies whether neighborhoods should be filled up" << std::endl
 	<< "randomly (true) or start with equal values (false)";
 
-	gpb.registerFileParameter<boost::uint32_t>(
+	gpb.registerFileParameter<std::uint32_t>(
 		"repulsionThreshold" // The name of the variable
 		, DEFREPULSIONTHRESHOLD // The default value
-		, [this](boost::uint32_t rt) { this->setRepulsionThreshold(rt); }
+		, [this](std::uint32_t rt) { this->setRepulsionThreshold(rt); }
 	)
 	<< "The number of stalls as of which the algorithm switches to repulsive mode" << std::endl
 	<< "Set this to 0 in order to disable this feature";
@@ -1439,7 +1439,7 @@ updateRule GBaseSwarm::getUpdateRule() const {
  *
  * @param repulsionThreshold The threshold as of which the algorithm switches to repulsive mode
  */
-void GBaseSwarm::setRepulsionThreshold(boost::uint32_t repulsionThreshold) {
+void GBaseSwarm::setRepulsionThreshold(std::uint32_t repulsionThreshold) {
 	repulsionThreshold_ = repulsionThreshold;
 }
 
@@ -1450,7 +1450,7 @@ void GBaseSwarm::setRepulsionThreshold(boost::uint32_t repulsionThreshold) {
  *
  * @return The value of the repulsionThreshold_ variable
  */
-boost::uint32_t GBaseSwarm::getRepulsionThreshold() const {
+std::uint32_t GBaseSwarm::getRepulsionThreshold() const {
 	return repulsionThreshold_;
 }
 
@@ -1678,7 +1678,7 @@ std::string GBaseSwarm::GSwarmOptimizationMonitor::getResultFileName() const {
  * @param yDim The desired dimension of the canvas in y-direction
  */
 void GBaseSwarm::GSwarmOptimizationMonitor::setDims(
-	const boost::uint16_t &xDim, const boost::uint16_t &yDim
+	const std::uint16_t &xDim, const std::uint16_t &yDim
 ) {
 	xDim_ = xDim;
 	yDim_ = yDim;
@@ -1690,7 +1690,7 @@ void GBaseSwarm::GSwarmOptimizationMonitor::setDims(
  *
  * @return The dimension of the canvas in x-direction
  */
-boost::uint16_t GBaseSwarm::GSwarmOptimizationMonitor::getXDim() const {
+std::uint16_t GBaseSwarm::GSwarmOptimizationMonitor::getXDim() const {
 	return xDim_;
 }
 
@@ -1700,7 +1700,7 @@ boost::uint16_t GBaseSwarm::GSwarmOptimizationMonitor::getXDim() const {
  *
  * @return The dimension of the canvas in y-direction
  */
-boost::uint16_t GBaseSwarm::GSwarmOptimizationMonitor::getYDim() const {
+std::uint16_t GBaseSwarm::GSwarmOptimizationMonitor::getYDim() const {
 	return yDim_;
 }
 

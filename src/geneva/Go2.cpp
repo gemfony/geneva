@@ -44,7 +44,7 @@ namespace Geneva {
  * @param nProducerThreads The number of threads simultaneously producing random numbers
  */
 void setRNFParameters(
-	const boost::uint16_t &nProducerThreads
+	const std::uint16_t &nProducerThreads
 ) {
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
@@ -691,7 +691,7 @@ void Go2::registerContentCreator(
  *
  * @param offset An offset at which the first algorithm should start
  */
-void Go2::optimize(const boost::uint32_t &offset) {
+void Go2::optimize(const std::uint32_t &offset) {
 	// Algorithms specified manually in main() take precedence
 	// before those specified on the command line. E.g., a line
 	// "go & ea_ptr;" (where ea_ptr pointed to an evolutionary
@@ -945,9 +945,9 @@ void Go2::addConfigurationOptions(
 	GMutableSetT<GParameterSet>::addConfigurationOptions(gpb);
 
 	// Add local data
-	gpb.registerFileParameter<boost::uint16_t>(
+	gpb.registerFileParameter<std::uint16_t>(
 		"nProducerThreads" // The name of the first variable
-		, GO2_DEF_NPRODUCERTHREADS, [this](boost::uint16_t npt) { this->setNProducerThreads(npt); }
+		, GO2_DEF_NPRODUCERTHREADS, [this](std::uint16_t npt) { this->setNProducerThreads(npt); }
 	)
 	<< "The number of threads simultaneously producing random numbers";
 }
@@ -988,7 +988,7 @@ bool Go2::getClientMode() const {
  *
  * @param nProducerThreads The number of threads that will simultaneously produce random numbers
  */
-void Go2::setNProducerThreads(const boost::uint16_t &nProducerThreads) {
+void Go2::setNProducerThreads(const std::uint16_t &nProducerThreads) {
 	nProducerThreads_ = nProducerThreads;
 }
 
@@ -998,7 +998,7 @@ void Go2::setNProducerThreads(const boost::uint16_t &nProducerThreads) {
  *
  * @return The number of threads that will simultaneously produce random numbers
  */
-boost::uint16_t Go2::getNProducerThreads() const {
+std::uint16_t Go2::getNProducerThreads() const {
 	return nProducerThreads_;
 }
 
@@ -1009,7 +1009,7 @@ boost::uint16_t Go2::getNProducerThreads() const {
  *
  * @param offset The offset with which the iteration counter should start
  */
-void Go2::setOffset(const boost::uint32_t &offset) {
+void Go2::setOffset(const std::uint32_t &offset) {
 	offset_ = offset;
 }
 
@@ -1037,7 +1037,7 @@ std::string Go2::getAlgorithmName() const {
  *
  * @return The current offset with which the iteration counter will start
  */
-boost::uint32_t Go2::getIterationOffset() const {
+std::uint32_t Go2::getIterationOffset() const {
 	return offset_;
 }
 

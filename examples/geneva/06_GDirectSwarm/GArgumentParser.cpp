@@ -45,12 +45,12 @@ namespace Geneva {
  */
 bool parseCommandLine(
 	int argc, char **argv
-	, boost::uint16_t& parallelizationMode
+	, std::uint16_t& parallelizationMode
 	, bool& serverMode
 	, std::string& ip
 	, unsigned short& port
-	, boost::uint32_t& maxStalls
-	, boost::uint32_t& maxConnectionAttempts
+	, std::uint32_t& maxStalls
+	, std::uint32_t& maxConnectionAttempts
 	, Gem::Common::serializationMode& serMode
 	, bool& addLocalConsumer
 	, std::size_t& nNeighborhoods
@@ -61,19 +61,19 @@ bool parseCommandLine(
 	, double& cVelocity
 	, updateRule& ur
 	, bool& allRandomInit
-	, boost::uint16_t& nProducerThreads
-	, boost::uint16_t& nEvaluationThreads
-	, boost::uint32_t& maxIterations
+	, std::uint16_t& nProducerThreads
+	, std::uint16_t& nEvaluationThreads
+	, std::uint32_t& maxIterations
 	, long& maxMinutes
-	, boost::uint32_t& reportIteration
-	, boost::uint16_t& xDim
-	, boost::uint16_t& yDim
+	, std::uint32_t& reportIteration
+	, std::uint16_t& xDim
+	, std::uint16_t& yDim
 	, bool& followProgress
 ){
 	// Create the parser builder
 	Gem::Common::GParserBuilder gpb;
 
-	gpb.registerCLParameter<boost::uint16_t>(
+	gpb.registerCLParameter<std::uint16_t>(
 		"parallelizationMode,p"
 		, parallelizationMode
 		, DEFAULTPARALLELIZATIONMODEAP
@@ -103,14 +103,14 @@ bool parseCommandLine(
 		, "The port on the server"
 	);
 
-	gpb.registerCLParameter<boost::uint32_t>(
+	gpb.registerCLParameter<std::uint32_t>(
 		"maxStalls"
 		, maxStalls
 		, DEFAULTMAXSTALLS06
 		, "The number of stalled data transfers (i.e. transfers without a useful work item returned) before the client terminates in networked mode"
 	);
 
-	gpb.registerCLParameter<boost::uint32_t>(
+	gpb.registerCLParameter<std::uint32_t>(
 		"maxConnectionAttempts"
 		, maxConnectionAttempts
 		, DEFAULTMAXCONNECTIONATTEMPTS06
@@ -191,28 +191,28 @@ bool parseCommandLine(
 		, true // Always randomly initialize if set
 	);
 
-	gpb.registerCLParameter<boost::uint16_t>(
+	gpb.registerCLParameter<std::uint16_t>(
 		"nProducerThreads"
 		, nProducerThreads
 		, DEFAULTNPRODUCERTHREADS
 		, "The amount of random number producer threads"
 	);
 
-	gpb.registerCLParameter<boost::uint16_t>(
+	gpb.registerCLParameter<std::uint16_t>(
 		"nEvaluationThreads"
 		, nEvaluationThreads
 		, DEFAULTNEVALUATIONTHREADS
 		, "The amount of threads processing individuals simultaneously in multi-threaded mode"
 	);
 
-	gpb.registerCLParameter<boost::uint32_t>(
+	gpb.registerCLParameter<std::uint32_t>(
 		"maxIterations"
 		, maxIterations
 		, DEFAULTMAXITERATIONS
 		, "Maximum number of iterations in the optimization"
 	);
 
-	gpb.registerCLParameter<boost::uint32_t>(
+	gpb.registerCLParameter<std::uint32_t>(
 		"reportIteration"
 		, reportIteration
 		, DEFAULTREPORTITERATION
@@ -226,14 +226,14 @@ bool parseCommandLine(
 		, "The maximum number of minutes the optimization of the population should run"
 	);
 
-	gpb.registerCLParameter<boost::uint16_t>(
+	gpb.registerCLParameter<std::uint16_t>(
 		"xDim"
 		, xDim
 		, DEFAULTXDIMAP
 		, "The x-dimension of the canvas for the result print(s)"
 	);
 
-	gpb.registerCLParameter<boost::uint16_t>(
+	gpb.registerCLParameter<std::uint16_t>(
 		"yDim"
 		, yDim
 		, DEFAULTYDIMAP

@@ -129,7 +129,7 @@ protected:
 	virtual G_API_GENEVA void booleanStreamline(std::vector<bool>&, const activityMode& am) const override;
 	/** @brief Attach boundaries of type bool to the vectors */
 	virtual G_API_GENEVA void booleanBoundaries(std::vector<bool>&, std::vector<bool>&, const activityMode& am) const override;
-	/** @brief Tell the audience that we own a boost::int32_t value */
+	/** @brief Tell the audience that we own a std::int32_t value */
 	virtual std::size_t countBoolParameters(const activityMode& am) const override;
 	/** @brief Assigns part of a value vector to the parameter */
 	virtual G_API_GENEVA void assignBooleanValueVector(const std::vector<bool>&, std::size_t&, const activityMode& am) override;

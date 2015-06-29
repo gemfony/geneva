@@ -115,9 +115,9 @@ public:
 	) override;
 
 	/** @brief Sets the maximum number of threads */
-	G_API_GENEVA void setNThreads(boost::uint16_t);
+	G_API_GENEVA void setNThreads(std::uint16_t);
 	/** @brief Retrieves the maximum number of threads */
-	G_API_GENEVA boost::uint16_t getNThreads() const ;
+	G_API_GENEVA std::uint16_t getNThreads() const ;
 
 	/** @brief Allows to assign a name to the role of this individual(-derivative) */
 	virtual G_API_GENEVA std::string getIndividualCharacteristic() const override;
@@ -146,7 +146,7 @@ protected:
 private:
 	/***************************************************************************/
 
-	boost::uint16_t nThreads_ = DEFAULTNBOOSTTHREADS; ///< The number of threads
+	std::uint16_t nThreads_ = DEFAULTNBOOSTTHREADS; ///< The number of threads
 	std::shared_ptr<Gem::Common::GThreadPool> tp_ptr_; ///< Temporarily holds a thread pool
 
 	std::vector<std::shared_ptr<GParameterSet>> oldWorkItems_; ///< Temporarily holds old returned work items
@@ -170,7 +170,7 @@ private:
 	 */
 	class isOldParent {
 	public:
-		isOldParent(const boost::uint32_t current_iteration)
+		isOldParent(const std::uint32_t current_iteration)
 			: current_iteration_(current_iteration)
 		{ /* nothing */ }
 
@@ -189,7 +189,7 @@ private:
 	private:
 		isOldParent() = delete; // Intentionally private and undefined
 
-		boost::uint32_t current_iteration_;
+		std::uint32_t current_iteration_;
 	};
 
 	/***************************************************************************/

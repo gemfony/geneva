@@ -90,10 +90,10 @@ template <> G_API_GENEVA std::vector<bool> fillWithData<bool>(
 	, bool      upper
 );
 
-template <> G_API_GENEVA std::vector<boost::int32_t> fillWithData<boost::int32_t>(
+template <> G_API_GENEVA std::vector<std::int32_t> fillWithData<std::int32_t>(
 	std::size_t      nSteps // will only be used for random entries
-	, boost::int32_t lower
-	, boost::int32_t upper // inclusive
+	, std::int32_t lower
+	, std::int32_t upper // inclusive
 );
 
 template <> G_API_GENEVA std::vector<float> fillWithData<float>(
@@ -339,11 +339,11 @@ inline bool baseScanParT<bool>::getRandomItem() const {
 
 /******************************************************************************/
 /**
- * Retrieval of a random value for type boost::int32_t
+ * Retrieval of a random value for type std::int32_t
  */
 template <>
-inline boost::int32_t baseScanParT<boost::int32_t>::getRandomItem() const {
-	return gr_.uniform_int<boost::int32_t>(lower_, upper_+1);
+inline std::int32_t baseScanParT<std::int32_t>::getRandomItem() const {
+	return gr_.uniform_int<std::int32_t>(lower_, upper_+1);
 }
 
 /******************************************************************************/
@@ -409,10 +409,10 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A derivative of baseScanParT for boost::int32_t values
+ * A derivative of baseScanParT for std::int32_t values
  */
 class int32ScanPar
-	:public baseScanParT<boost::int32_t>
+	:public baseScanParT<std::int32_t>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -422,7 +422,7 @@ class int32ScanPar
 		using boost::serialization::make_nvp;
 
 		ar
-			& BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<boost::int32_t>);
+			& BOOST_SERIALIZATION_BASE_OBJECT_NVP(baseScanParT<std::int32_t>);
 	}
 
 	///////////////////////////////////////////////////////////////////////
@@ -430,7 +430,7 @@ class int32ScanPar
 public:
 	/** @brief The standard destructor */
 	G_API_GENEVA int32ScanPar(
-		parPropSpec<boost::int32_t>
+		parPropSpec<std::int32_t>
 		, bool
 	);
 	/** @brief Copy constructor */

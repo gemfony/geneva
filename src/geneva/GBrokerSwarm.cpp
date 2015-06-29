@@ -300,7 +300,7 @@ void GBrokerSwarm::updatePositions() {
 void GBrokerSwarm::runFitnessCalculation() {
 	using namespace Gem::Courtier;
 
-	boost::uint32_t iteration = getIteration();
+	std::uint32_t iteration = getIteration();
 	GBrokerSwarm::iterator it;
 
 	//--------------------------------------------------------------------------------

@@ -97,7 +97,7 @@ G_API_COMMON
 std::vector<std::string> splitString(const std::string &, const char *);
 
 /******************************************************************************/
-/** @brief Splits a string into a vector of boost::uint16_t values, if possible */
+/** @brief Splits a string into a vector of std::uint16_t values, if possible */
 G_API_COMMON
 std::vector<unsigned int> stringToUIntVec(const std::string &);
 

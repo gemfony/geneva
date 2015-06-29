@@ -1000,7 +1000,7 @@ std::string GBaseGD::GGDOptimizationMonitor::getResultFileName() const {
  * @param xDim The desired dimension of the canvas in x-direction
  * @param yDim The desired dimension of the canvas in y-direction
  */
-void GBaseGD::GGDOptimizationMonitor::setDims(const boost::uint32_t &xDim, const boost::uint32_t &yDim) {
+void GBaseGD::GGDOptimizationMonitor::setDims(const std::uint32_t &xDim, const std::uint32_t &yDim) {
 	xDim_ = xDim;
 	yDim_ = yDim;
 }
@@ -1011,8 +1011,8 @@ void GBaseGD::GGDOptimizationMonitor::setDims(const boost::uint32_t &xDim, const
  *
  * @return The dimensions of the canvas as a tuple
  */
-std::tuple<boost::uint32_t, boost::uint32_t> GBaseGD::GGDOptimizationMonitor::getDims() const {
-	return std::tuple<boost::uint32_t, boost::uint32_t>(xDim_, yDim_);
+std::tuple<std::uint32_t, std::uint32_t> GBaseGD::GGDOptimizationMonitor::getDims() const {
+	return std::tuple<std::uint32_t, std::uint32_t>(xDim_, yDim_);
 }
 
 /******************************************************************************/
@@ -1021,7 +1021,7 @@ std::tuple<boost::uint32_t, boost::uint32_t> GBaseGD::GGDOptimizationMonitor::ge
  *
  * @return The dimension of the canvas in x-direction
  */
-boost::uint32_t GBaseGD::GGDOptimizationMonitor::getXDim() const {
+std::uint32_t GBaseGD::GGDOptimizationMonitor::getXDim() const {
 	return xDim_;
 }
 
@@ -1031,7 +1031,7 @@ boost::uint32_t GBaseGD::GGDOptimizationMonitor::getXDim() const {
  *
  * @return The dimension of the canvas in y-direction
  */
-boost::uint32_t GBaseGD::GGDOptimizationMonitor::getYDim() const {
+std::uint32_t GBaseGD::GGDOptimizationMonitor::getYDim() const {
 	return yDim_;
 }
 

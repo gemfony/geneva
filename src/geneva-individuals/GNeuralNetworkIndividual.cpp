@@ -586,7 +586,7 @@ std::shared_ptr <networkData> networkData::clone() const {
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::trainingDataType &tdt) {
-	boost::uint16_t tmp;
+	std::uint16_t tmp;
 	i >> tmp;
 
 #ifdef DEBUG
@@ -608,7 +608,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::trainingDataType &tdt) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::trainingDataType &tdt) {
-	boost::uint16_t tmp = static_cast<boost::uint16_t>(tdt);
+	std::uint16_t tmp = static_cast<std::uint16_t>(tdt);
 	o << tmp;
 	return o;
 }
@@ -623,7 +623,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::trainingDataType &t
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::transferFunction &tF) {
-	boost::uint16_t tmp;
+	std::uint16_t tmp;
 	i >> tmp;
 
 #ifdef DEBUG
@@ -645,7 +645,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::transferFunction &tF) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::transferFunction &tF) {
-	boost::uint16_t tmp = static_cast<boost::uint16_t>(tF);
+	std::uint16_t tmp = static_cast<std::uint16_t>(tF);
 	o << tmp;
 	return o;
 }
@@ -978,7 +978,7 @@ void GNeuralNetworkIndividual::writeVisualizationFile(const std::string &visFile
 		<< std::endl
 		<< "#include \"trainedNetwork.hpp\"" << std::endl
 		<< std::endl
-		<< "const boost::uint32_t MAXPOINTS=20000;" << std::endl
+		<< "const std::uint32_t MAXPOINTS=20000;" << std::endl
 		<< std::endl
 		<< "using namespace Gem::NeuralNetwork;" << std::endl
 		<< std::endl
@@ -1005,7 +1005,7 @@ void GNeuralNetworkIndividual::writeVisualizationFile(const std::string &visFile
 		<< "  std::vector<double> x10, y10;" << std::endl
 		<< std::endl
 		<< "  // Create random numbers and check the output" << std::endl
-		<< "  for(boost::uint32_t i=0; i<MAXPOINTS; i++){" << std::endl
+		<< "  for(std::uint32_t i=0; i<MAXPOINTS; i++){" << std::endl
 		<< "    x=x_low + (x_high - x_low)*lf();" << std::endl
 		<< "    y=x_low + (y_high - y_low)*lf();" << std::endl
 		<< std::endl

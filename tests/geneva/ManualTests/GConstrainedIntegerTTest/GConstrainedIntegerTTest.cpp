@@ -33,7 +33,7 @@
  */
 
 /**
- * This test takes a GConstrainedIntT<boost::int32_t> object and examines the mapping
+ * This test takes a GConstrainedIntT<std::int32_t> object and examines the mapping
  * from internal to external representation of its value.
  *
  * In order to see the results of this test, you need the Root toolkit from http://root.cern.ch.
@@ -61,7 +61,7 @@ using namespace Gem::Geneva;
 using namespace Gem::Common;
 using namespace boost;
 
-const boost::uint32_t NTESTS=2000;
+const std::uint32_t NTESTS=2000;
 
 int main(int argc, char **argv){
 	std::shared_ptr<GHistogram1I> multipleFlipMutation_ptr(new GHistogram1I(50, 0.5,50.5));
@@ -104,7 +104,7 @@ int main(int argc, char **argv){
 	GConstrainedInt32Object gint13(-1, 3); // lower boundary -1, upper Boundary 3
 
 	// Mutate and register results
-	for(boost::uint32_t i=0; i<NTESTS; i++) {
+	for(std::uint32_t i=0; i<NTESTS; i++) {
 		*multipleFlipMutation_ptr & gMultFlipMut.value();
 		*multipleFlipProgress_ptr & std::tuple<double,double>((double)i, (double)gMultFlipMut.value());
 		gMultFlipMut.adapt();
@@ -115,7 +115,7 @@ int main(int argc, char **argv){
 
 		internalValue=-30.+50.*double(i)/double(NTESTS);
 
-		externalValue = double(gint13.transfer(boost::int32_t(internalValue)));
+		externalValue = double(gint13.transfer(std::int32_t(internalValue)));
 		*mapping_ptr & std::tuple<double,double>(internalValue, externalValue);
 	}
 

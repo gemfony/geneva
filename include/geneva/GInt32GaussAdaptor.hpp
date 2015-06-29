@@ -52,7 +52,7 @@ namespace Geneva {
 /******************************************************************************/
 /**
  * The GInt32GaussAdaptor class represents an adaptor used for the adaption of
- * boost::int32_t values through the addition of gaussian-distributed random numbers.
+ * std::int32_t values through the addition of gaussian-distributed random numbers.
  * See the documentation of GAdaptorT<T> for further information on adaptors
  * in the Geneva context. Most functionality is currently implemented in the
  * GNumGaussAdaptorT parent-class. Note that, for the purpose of adapting integer
@@ -61,7 +61,7 @@ namespace Geneva {
  * accordingly, so sigma cannot get too small when being adapted.
  */
 class GInt32GaussAdaptor
-	:public GIntGaussAdaptorT<boost::int32_t>
+	:public GIntGaussAdaptorT<std::int32_t>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -71,7 +71,7 @@ class GInt32GaussAdaptor
 		using boost::serialization::make_nvp;
 
 		ar
-			& make_nvp("GIntGaussAdaptorT_int32", boost::serialization::base_object<GIntGaussAdaptorT<boost::int32_t>>(*this));
+			& make_nvp("GIntGaussAdaptorT_int32", boost::serialization::base_object<GIntGaussAdaptorT<std::int32_t>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 

@@ -241,11 +241,11 @@ private:
 
 	GThreadGroup gtg_; ///< Holds the actual threads
 
-	boost::atomic<boost::uint32_t> errorCounter_; ///< The number of exceptions thrown by the pay load
+	boost::atomic<std::uint32_t> errorCounter_; ///< The number of exceptions thrown by the pay load
 	std::vector<std::string> errorLog_; ///< Holds error descriptions emitted by the work load
 	mutable boost::mutex error_mutex_; ///< Protects access to the error log and error counter; mutable, as "hasErrors() is const
 
-	boost::atomic<boost::uint32_t> tasksInFlight_;  ///< The number of jobs that have been submitted in this round
+	boost::atomic<std::uint32_t> tasksInFlight_;  ///< The number of jobs that have been submitted in this round
 	boost::mutex task_counter_mutex_; ///< Protects access to the "submitted" job counter
 
 	///< Allows to prevent further job submissions, particularly when waiting for the pool to clear or when resetting the pool

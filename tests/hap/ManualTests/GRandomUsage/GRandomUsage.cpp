@@ -99,11 +99,11 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 			break;
 
 		case DISCRETE:
-			for(i=0; i<nEntries; i++) vec_t.push_back(boost::numeric_cast<boost::int32_t>(gr_ptr->uniform_int(10)));
+			for(i=0; i<nEntries; i++) vec_t.push_back(boost::numeric_cast<std::int32_t>(gr_ptr->uniform_int(10)));
 			break;
 
 		case DISCRETEBOUND:
-			for(i=0; i<nEntries; i++) vec_t.push_back(boost::numeric_cast<boost::int32_t>(gr_ptr->uniform_int(-3,10)));
+			for(i=0; i<nEntries; i++) vec_t.push_back(boost::numeric_cast<std::int32_t>(gr_ptr->uniform_int(-3,10)));
 			break;
 
 		case BITPROB:
@@ -151,8 +151,8 @@ int main(int argc, char **argv){
 
 	bool verbose;
 	std::size_t nEntries;
-	boost::uint16_t nProducerThreads;
-	boost::uint16_t rnrProductionMode;
+	std::uint16_t nProducerThreads;
+	std::uint16_t rnrProductionMode;
 
 	if(!parseCommandLine(argc, argv,
 								nEntries,
@@ -164,7 +164,7 @@ int main(int argc, char **argv){
 	std::size_t i;
 	std::vector<double> gaussian, doublegaussian, even, evenwithboundaries;
 	std::vector<double> expgauss01, expgauss02, expgauss04, expgauss08, expgauss16;
-	std::vector<boost::int32_t> discrete, discretebound, bitprob, bitsimple, charrnd;
+	std::vector<std::int32_t> discrete, discretebound, bitprob, bitsimple, charrnd;
 	std::vector<double> initCorr, initLFCorr;
 
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
@@ -264,7 +264,7 @@ int main(int argc, char **argv){
 	// different, sequential seeds, and their initial values (after a number of calls)
 	// are asked for. There should be no correlation.
 	for(i=1; i<=10; i++) {
-		boost::lagged_fibonacci607 lf(boost::numeric_cast<boost::uint32_t>(i));
+		boost::lagged_fibonacci607 lf(boost::numeric_cast<std::uint32_t>(i));
 		// for(int j=0; j<1000; j++) double tmp = lf();
 		initLFCorr.push_back(lf());
 	}
@@ -273,10 +273,10 @@ int main(int argc, char **argv){
 	createRandomVector<double>(doublegaussian, DOUBLEGAUSSIAN, nEntries, gr_ptr);
 	createRandomVector<double>(even, EVEN, nEntries, gr_ptr);
 	createRandomVector<double>(evenwithboundaries, EVENWITHBOUNDARIES, nEntries, gr_ptr);
-	createRandomVector<boost::int32_t>(discrete, DISCRETE, nEntries,gr_ptr);
-	createRandomVector<boost::int32_t>(discretebound, DISCRETEBOUND, nEntries, gr_ptr);
-	createRandomVector<boost::int32_t>(bitprob, BITPROB, nEntries, gr_ptr);
-	createRandomVector<boost::int32_t>(bitsimple, BITSIMPLE, nEntries, gr_ptr);
+	createRandomVector<std::int32_t>(discrete, DISCRETE, nEntries,gr_ptr);
+	createRandomVector<std::int32_t>(discretebound, DISCRETEBOUND, nEntries, gr_ptr);
+	createRandomVector<std::int32_t>(bitprob, BITPROB, nEntries, gr_ptr);
+	createRandomVector<std::int32_t>(bitsimple, BITSIMPLE, nEntries, gr_ptr);
 	createRandomVector<double>(expgauss01, EXPGAUSS01, nEntries, gr_ptr);
 	createRandomVector<double>(expgauss02, EXPGAUSS02, nEntries, gr_ptr);
 	createRandomVector<double>(expgauss04, EXPGAUSS04, nEntries, gr_ptr);

@@ -47,8 +47,8 @@ namespace Tests
 
 bool parseCommandLine(int argc, char **argv,
 							 std::size_t& nEntries,
-							 boost::uint16_t& nProducerThreads,
-							 boost::uint16_t& rnrProductionMode,
+							 std::uint16_t& nProducerThreads,
+							 std::uint16_t& rnrProductionMode,
 							 bool& verbose)
 {
 	try{
@@ -58,9 +58,9 @@ bool parseCommandLine(int argc, char **argv,
 			("help,h", "emit help message")
 			("nEntries,n",po::value<std::size_t>(&nEntries)->default_value(DEFAULTNENTRIES),
 					"Number of random numbers to generate for each distribution")
-			("nProducerThreads,t",po::value<boost::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
+			("nProducerThreads,t",po::value<std::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
 					"The amount of random number producer threads")
-			("rnrProductionMode,r",po::value<boost::uint16_t>(&rnrProductionMode)->default_value(DEFAULTRNRPRODUCTIONMODE),
+			("rnrProductionMode,r",po::value<std::uint16_t>(&rnrProductionMode)->default_value(DEFAULTRNRPRODUCTIONMODE),
 					"FACTORY(0), or LOCAL(1)")
 			("verbose,v",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 					"Whether additional information should be emitted")

@@ -1094,7 +1094,7 @@ void GBaseEA::GEAOptimizationMonitor::cycleInformation(
 	GBaseEA *const ea = static_cast<GBaseEA *const>(goa);
 
 	// Retrieve the current iteration
-	boost::uint32_t iteration = ea->getIteration();
+	std::uint32_t iteration = ea->getIteration();
 
 	for(std::size_t ind = 0; ind<nMonitorInds_; ind++) {
 		// Get access to the individual
@@ -1145,7 +1145,7 @@ void GBaseEA::GEAOptimizationMonitor::lastInformation(
  * @param xDim The desired dimension of the canvas in x-direction
  * @param yDim The desired dimension of the canvas in y-direction
  */
-void GBaseEA::GEAOptimizationMonitor::setDims(const boost::uint32_t &xDim, const boost::uint32_t &yDim) {
+void GBaseEA::GEAOptimizationMonitor::setDims(const std::uint32_t &xDim, const std::uint32_t &yDim) {
 	xDim_ = xDim;
 	yDim_ = yDim;
 }
@@ -1156,8 +1156,8 @@ void GBaseEA::GEAOptimizationMonitor::setDims(const boost::uint32_t &xDim, const
  *
  * @return The dimensions of the canvas as a tuple
  */
-std::tuple<boost::uint32_t, boost::uint32_t> GBaseEA::GEAOptimizationMonitor::getDims() const {
-	return std::tuple<boost::uint32_t, boost::uint32_t>(xDim_, yDim_);
+std::tuple<std::uint32_t, std::uint32_t> GBaseEA::GEAOptimizationMonitor::getDims() const {
+	return std::tuple<std::uint32_t, std::uint32_t>(xDim_, yDim_);
 }
 
 /******************************************************************************/
@@ -1166,7 +1166,7 @@ std::tuple<boost::uint32_t, boost::uint32_t> GBaseEA::GEAOptimizationMonitor::ge
  *
  * @return The dimension of the canvas in x-direction
  */
-boost::uint32_t GBaseEA::GEAOptimizationMonitor::getXDim() const {
+std::uint32_t GBaseEA::GEAOptimizationMonitor::getXDim() const {
 	return xDim_;
 }
 
@@ -1176,7 +1176,7 @@ boost::uint32_t GBaseEA::GEAOptimizationMonitor::getXDim() const {
  *
  * @return The dimension of the canvas in y-direction
  */
-boost::uint32_t GBaseEA::GEAOptimizationMonitor::getYDim() const {
+std::uint32_t GBaseEA::GEAOptimizationMonitor::getYDim() const {
 	return yDim_;
 }
 

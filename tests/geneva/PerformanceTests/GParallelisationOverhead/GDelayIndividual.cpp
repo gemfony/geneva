@@ -267,7 +267,7 @@ std::size_t GDelayIndividualFactory::getNDelays() const {
  *
  * @return The number of measurements to be made for each delay
  */
-boost::uint32_t GDelayIndividualFactory::getNMeasurements() const {
+std::uint32_t GDelayIndividualFactory::getNMeasurements() const {
 	return nMeasurements_;
 }
 
@@ -275,7 +275,7 @@ boost::uint32_t GDelayIndividualFactory::getNMeasurements() const {
 /**
  * Retrieves the amount of seconds main() should wait between two measurements
  */
-boost::uint32_t GDelayIndividualFactory::getInterMeasurementDelay() const {
+std::uint32_t GDelayIndividualFactory::getInterMeasurementDelay() const {
 	return interMeasurementDelay_;
 }
 

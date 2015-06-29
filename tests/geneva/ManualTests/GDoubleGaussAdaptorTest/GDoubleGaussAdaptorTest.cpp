@@ -65,7 +65,7 @@ using namespace Gem::Hap;
 int main(int argc, char **argv) {
 	bool verbose;
 	double sigma, sigmaSigma, minSigma, maxSigma;
-	boost::uint32_t maxIter, adaptionThreshold;
+	std::uint32_t maxIter, adaptionThreshold;
 	std::string resultFile;
 
 	if (!parseCommandLine(
@@ -113,7 +113,7 @@ int main(int argc, char **argv) {
 	// Fill the objects with data
 	double mutVal = 0.;
 	double mutValOld=0;
-	for (boost::uint32_t i = 0; i < maxIter; i++) {
+	for (std::uint32_t i = 0; i < maxIter; i++) {
 		mutValOld = mutVal;
 
 		gdga->adapt(mutVal, 1.);

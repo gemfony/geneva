@@ -261,7 +261,7 @@ public:
 	 *
 	 * @param cpInterval The number of generations after which a checkpoint should be written
 	 */
-	void setCheckpointInterval(boost::int32_t cpInterval) {
+	void setCheckpointInterval(std::int32_t cpInterval) {
 		cpInterval_ = cpInterval;
 	}
 
@@ -271,7 +271,7 @@ public:
 	 *
 	 * @return The number of generations after which a checkpoint should be written
 	 */
-	boost::uint32_t getCheckpointInterval() const {
+	std::uint32_t getCheckpointInterval() const {
 		return cpInterval_;
 	}
 
@@ -433,7 +433,7 @@ public:
 	 *
 	 * @param offset Specifies the iteration number to start with (e.g. useful when starting from a checkpoint file)
 	 */
-	virtual void optimize(const boost::uint32_t& offset) override {
+	virtual void optimize(const std::uint32_t& offset) override {
 		// Reset the generation counter
 		iteration_ = offset;
 
@@ -652,7 +652,7 @@ public:
 	 *
 	 * @param maxIteration The number of iterations after which the optimization should terminate
 	 */
-	void setMaxIteration(boost::uint32_t maxIteration) {
+	void setMaxIteration(std::uint32_t maxIteration) {
 		maxIteration_ = maxIteration;
 	}
 
@@ -663,7 +663,7 @@ public:
 	 *
 	 * @return The number of iterations after which the optimization should terminate
 	 */
-	boost::uint32_t getMaxIteration() const {
+	std::uint32_t getMaxIteration() const {
 		return maxIteration_;
 	}
 
@@ -674,7 +674,7 @@ public:
 	 *
 	 * @param The maximum number of allowed generations
 	 */
-	void setMaxStallIteration(boost::uint32_t maxStallIteration) {
+	void setMaxStallIteration(std::uint32_t maxStallIteration) {
 		maxStallIteration_ = maxStallIteration;
 	}
 
@@ -685,7 +685,7 @@ public:
 	 *
 	 * @return The maximum number of generations
 	 */
-	boost::uint32_t getMaxStallIteration() const {
+	std::uint32_t getMaxStallIteration() const {
 		return maxStallIteration_;
 	}
 
@@ -768,7 +768,7 @@ public:
 	 *
 	 * @return The current iteration of the optimization run
 	 */
-	virtual boost::uint32_t getIteration() const override {
+	virtual std::uint32_t getIteration() const override {
 		return iteration_;
 	}
 
@@ -779,7 +779,7 @@ public:
 	 *
 	 * @return The current iteration offset
 	 */
-	boost::uint32_t getStartIteration() const {
+	std::uint32_t getStartIteration() const {
 		return offset_;
 	}
 
@@ -790,7 +790,7 @@ public:
 	 *
 	 * @param iter The number of iterations after which information should be emitted
 	 */
-	void setReportIteration(boost::uint32_t iter) {
+	void setReportIteration(std::uint32_t iter) {
 		reportIteration_ = iter;
 	}
 
@@ -801,7 +801,7 @@ public:
 	 *
 	 * @return The number of iterations after which information is emitted
 	 */
-	boost::uint32_t getReportIteration() const {
+	std::uint32_t getReportIteration() const {
 		return reportIteration_;
 	}
 
@@ -811,7 +811,7 @@ public:
 	 *
 	 * @return The current number of failed optimization attempts
 	 */
-	boost::uint32_t getStallCounter() const {
+	std::uint32_t getStallCounter() const {
 		return stallCounter_;
 	}
 
@@ -820,7 +820,7 @@ public:
 	 * Allows to set the number of iterations without improvement, after which
 	 * individuals are asked to update their internal data structures
 	 */
-	void setStallCounterThreshold(boost::uint32_t stallCounterThreshold) {
+	void setStallCounterThreshold(std::uint32_t stallCounterThreshold) {
 		stallCounterThreshold_ = stallCounterThreshold;
 	}
 
@@ -829,7 +829,7 @@ public:
 	 * Allows to retrieve the number of iterations without improvement, after which
 	 * individuals are asked to update their internal data structures
 	 */
-	boost::uint32_t getStallCounterThreshold() const {
+	std::uint32_t getStallCounterThreshold() const {
 		return stallCounterThreshold_;
 	}
 
@@ -955,34 +955,34 @@ public:
 		GMutableSetT<ind_type>::addConfigurationOptions(gpb);
 
 		// Add local data
-		gpb.registerFileParameter<boost::uint32_t>(
+		gpb.registerFileParameter<std::uint32_t>(
 			"maxIteration" // The name of the variable
 			, DEFAULTMAXIT // The default value
-			, [this](boost::uint32_t maxIt){ this->setMaxIteration(maxIt); }
+			, [this](std::uint32_t maxIt){ this->setMaxIteration(maxIt); }
 		)
 		<< "The maximum allowed number of iterations";
 
-		gpb.registerFileParameter<boost::uint32_t>(
+		gpb.registerFileParameter<std::uint32_t>(
 			"maxStallIteration" // The name of the variable
 			, DEFAULTMAXSTALLIT // The default value
-			, [this](boost::uint32_t maxStallIt){ this->setMaxStallIteration(maxStallIt); }
+			, [this](std::uint32_t maxStallIt){ this->setMaxStallIteration(maxStallIt); }
 		)
 		<< "The maximum allowed number of iterations without improvement" << std::endl
 		<< "0 means: no constraint.";
 
-		gpb.registerFileParameter<boost::uint32_t>(
+		gpb.registerFileParameter<std::uint32_t>(
 			"indivdualUpdateStallCounterThreshold" // The name of the variable
 			, DEFAULTSTALLCOUNTERTHRESHOLD // The default value
-			, [this](boost::uint32_t stallCounterThreshold){ this->setStallCounterThreshold(stallCounterThreshold); }
+			, [this](std::uint32_t stallCounterThreshold){ this->setStallCounterThreshold(stallCounterThreshold); }
 		)
 		<< "The number of iterations without improvement after which" << std::endl
 		<< "individuals are asked to update their internal data structures" << std::endl
 		<< "through the actOnStalls() function. A value of 0 disables this check";
 
-		gpb.registerFileParameter<boost::uint32_t>(
+		gpb.registerFileParameter<std::uint32_t>(
 			"reportIteration" // The name of the variable
 			, DEFAULTREPORTITER // The default value
-			, [this](boost::uint32_t rI){ this->setReportIteration(rI); }
+			, [this](std::uint32_t rI){ this->setReportIteration(rI); }
 		)
 		<< "The number of iterations after which a report should be issued";
 
@@ -993,10 +993,10 @@ public:
 		)
 		<< "Indicates how many \"best\" individuals should be recorded in each iteration";
 
-		gpb.registerFileParameter<boost::int32_t>(
+		gpb.registerFileParameter<std::int32_t>(
 			"cpInterval" // The name of the variable
 			, DEFAULTCHECKPOINTIT // The default value
-			, [this](boost::int32_t cpI){ this->setCheckpointInterval(cpI); }
+			, [this](std::int32_t cpI){ this->setCheckpointInterval(cpI); }
 		)
 		<< "The number of iterations after which a checkpoint should be written." << std::endl
 		<< "-1 means: Write a checkpoint file whenever an improvement was encountered" << std::endl
@@ -1845,11 +1845,11 @@ private:
 
 	/***************************************************************************/
 
-	boost::uint32_t iteration_ = 0; ///< The current iteration
-	boost::uint32_t offset_ = DEFAULTOFFSET; ///< An iteration offset which can be used, if the optimization starts from a checkpoint file
-	boost::uint32_t maxIteration_ = DEFAULTMAXIT; ///< The maximum number of iterations
-	boost::uint32_t maxStallIteration_ = DEFAULTMAXSTALLIT; ///< The maximum number of generations without improvement, after which optimization is stopped
-	boost::uint32_t reportIteration_ = DEFAULTREPORTITER; ///< The number of generations after which a report should be issued
+	std::uint32_t iteration_ = 0; ///< The current iteration
+	std::uint32_t offset_ = DEFAULTOFFSET; ///< An iteration offset which can be used, if the optimization starts from a checkpoint file
+	std::uint32_t maxIteration_ = DEFAULTMAXIT; ///< The maximum number of iterations
+	std::uint32_t maxStallIteration_ = DEFAULTMAXSTALLIT; ///< The maximum number of generations without improvement, after which optimization is stopped
+	std::uint32_t reportIteration_ = DEFAULTREPORTITER; ///< The number of generations after which a report should be issued
 
 	std::size_t nRecordbestGlobalIndividuals_ = DEFNRECORDBESTINDIVIDUALS; ///< Indicates the number of best individuals to be recorded/updated in each iteration
 	GParameterSetFixedSizePriorityQueue bestGlobalIndividuals_; ///< A priority queue with the best individuals found so far
@@ -1859,10 +1859,10 @@ private:
 	std::tuple<double, double> bestKnownPrimaryFitness_; ///< Records the best primary fitness found so far
 	std::tuple<double, double> bestCurrentPrimaryFitness_; ///< Records the best fitness found in the current iteration
 
-	boost::uint32_t stallCounter_ = 0; ///< Counts the number of iterations without improvement
-	boost::uint32_t stallCounterThreshold_ = DEFAULTSTALLCOUNTERTHRESHOLD; ///< The number of stalls after which individuals are asked to update their internal data structures
+	std::uint32_t stallCounter_ = 0; ///< Counts the number of iterations without improvement
+	std::uint32_t stallCounterThreshold_ = DEFAULTSTALLCOUNTERTHRESHOLD; ///< The number of stalls after which individuals are asked to update their internal data structures
 
-	boost::int32_t cpInterval_ = DEFAULTCHECKPOINTIT; ///< Number of iterations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered
+	std::int32_t cpInterval_ = DEFAULTCHECKPOINTIT; ///< Number of iterations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered
 	std::string cpBaseName_ = DEFAULTCPBASENAME; ///< The base name of the checkpoint file
 	std::string cpDirectory_ = DEFAULTCPDIR; ///< The directory where checkpoint files should be stored
 	Gem::Common::serializationMode cpSerMode_ = DEFAULTCPSERMODE; ///< Determines whether check-pointing should be done in text-, XML, or binary mode

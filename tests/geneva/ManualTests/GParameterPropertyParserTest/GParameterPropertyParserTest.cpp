@@ -71,10 +71,10 @@ int main(int argc, char **argv) {
 	}
 
 	// Retrieve integer parameters
-	std::tuple<std::vector<parPropSpec<boost::int32_t>>::const_iterator, std::vector<parPropSpec<boost::int32_t>>::const_iterator> t_i
-		= p.getIterators<boost::int32_t>();
-	std::vector<parPropSpec<boost::int32_t>>::const_iterator i_cit = std::get<0>(t_i);
-	std::vector<parPropSpec<boost::int32_t>>::const_iterator i_end = std::get<1>(t_i);
+	std::tuple<std::vector<parPropSpec<std::int32_t>>::const_iterator, std::vector<parPropSpec<std::int32_t>>::const_iterator> t_i
+		= p.getIterators<std::int32_t>();
+	std::vector<parPropSpec<std::int32_t>>::const_iterator i_cit = std::get<0>(t_i);
+	std::vector<parPropSpec<std::int32_t>>::const_iterator i_end = std::get<1>(t_i);
 	for(; i_cit!=i_end; ++i_cit) { // Note: i_cit is already set to the begin of the double parameter arrays
 		std::cout
 		<< *i_cit << std::endl

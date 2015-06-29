@@ -167,7 +167,7 @@ boost::any GParameterSet::getVarVal(
 	} else if (descr == "f") {
 		result = GParameterSet::getVarItem<float>(target);
 	} else if (descr == "i") {
-		result = GParameterSet::getVarItem<boost::int32_t>(target);
+		result = GParameterSet::getVarItem<std::int32_t>(target);
 	} else if (descr == "b") {
 		result = GParameterSet::getVarItem<bool>(target);
 	} else {
@@ -266,7 +266,7 @@ double GParameterSet::getPerItemCrossOverProbability() const {
 /**
  * Triggers updates of adaptors contained in this object.
  */
-void GParameterSet::updateAdaptorsOnStall(const boost::uint32_t &nStalls) {
+void GParameterSet::updateAdaptorsOnStall(const std::uint32_t &nStalls) {
 	GParameterSet::iterator it;
 	for (it = this->begin(); it != this->end(); ++it) {
 		(*it)->updateAdaptorsOnStall(nStalls);
@@ -380,7 +380,7 @@ void GParameterSet::perItemCrossOver(const GParameterSet &cp, const double &like
 	std::vector<double> this_double_vec, cp_double_vec;
 	std::vector<float> this_float_vec, cp_float_vec;
 	std::vector<bool> this_bool_vec, cp_bool_vec;
-	std::vector<boost::int32_t> this_int_vec, cp_int_vec;
+	std::vector<std::int32_t> this_int_vec, cp_int_vec;
 
 	this->streamline(this_double_vec);
 	this->streamline(this_float_vec);
@@ -415,7 +415,7 @@ void GParameterSet::perItemCrossOver(const GParameterSet &cp, const double &like
    if(this_int_vec.size() != cp_int_vec.size()) {
       glogger
       << "In GParameterSet::perItemCrossOver(): Error!" << std::endl
-      << "Got invalid sizes (boost::int32_t): " << this_int_vec.size() << " / " << cp_int_vec.size() << std::endl
+      << "Got invalid sizes (std::int32_t): " << this_int_vec.size() << " / " << cp_int_vec.size() << std::endl
       << GEXCEPTION;
     }
 #endif /* DEBUG */
@@ -698,18 +698,18 @@ void GParameterSet::toPropertyTree(
 std::string GParameterSet::toCSV(bool withNameAndType, bool withCommas, bool useRawFitness, bool showValidity) const {
 	std::map<std::string, std::vector<double>> dData;
 	std::map<std::string, std::vector<float>> fData;
-	std::map<std::string, std::vector<boost::int32_t>> iData;
+	std::map<std::string, std::vector<std::int32_t>> iData;
 	std::map<std::string, std::vector<bool>> bData;
 
 	std::map<std::string, std::vector<double>>::const_iterator d_it;
 	std::map<std::string, std::vector<float>>::const_iterator f_it;
-	std::map<std::string, std::vector<boost::int32_t>>::const_iterator i_it;
+	std::map<std::string, std::vector<std::int32_t>>::const_iterator i_it;
 	std::map<std::string, std::vector<bool>>::const_iterator b_it;
 
 	// Retrieve the parameter maps
 	this->streamline<double>(dData);
 	this->streamline<float>(fData);
-	this->streamline<boost::int32_t>(iData);
+	this->streamline<std::int32_t>(iData);
 	this->streamline<bool>(bData);
 
 	std::vector<std::string> varNames;
@@ -1262,8 +1262,8 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 		const std::size_t NGDOUBLECOLL = 10;
 		const std::size_t NINTCOLL = 10;
 		const std::size_t NINTBOOLOBJ = 10;
-		const boost::int32_t MINGINT = -100;
-		const boost::int32_t MAXGINT = 100;
+		const std::int32_t MINGINT = -100;
+		const std::int32_t MAXGINT = 100;
 		const std::size_t FPLOOPCOUNT = 5;
 		const double FPFIXEDVALINITMIN = -3.;
 		const double FPFIXEDVALINITMAX = 3.;
@@ -1366,9 +1366,9 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			BOOST_CHECK(p_test->countParameters<double>(ACTIVEONLY) == NDOUBLEACTIVE);
 			BOOST_CHECK(p_test->countParameters<double>(INACTIVEONLY) == NDOUBLEINACTIVE);
 			BOOST_CHECK(p_test->countParameters<double>(ALLPARAMETERS) == NDOUBLEALL);
-			BOOST_CHECK(p_test->countParameters<boost::int32_t>(ACTIVEONLY) == NINTACTIVE);
-			BOOST_CHECK(p_test->countParameters<boost::int32_t>(INACTIVEONLY) == NINTINACTIVE);
-			BOOST_CHECK(p_test->countParameters<boost::int32_t>(ALLPARAMETERS) == NINTALL);
+			BOOST_CHECK(p_test->countParameters<std::int32_t>(ACTIVEONLY) == NINTACTIVE);
+			BOOST_CHECK(p_test->countParameters<std::int32_t>(INACTIVEONLY) == NINTINACTIVE);
+			BOOST_CHECK(p_test->countParameters<std::int32_t>(ALLPARAMETERS) == NINTALL);
 			BOOST_CHECK(p_test->countParameters<bool>(ACTIVEONLY) == NBOOLACTIVE);
 			BOOST_CHECK(p_test->countParameters<bool>(INACTIVEONLY) == NBOOLINACTIVE);
 			BOOST_CHECK(p_test->countParameters<bool>(ALLPARAMETERS) == NBOOLALL);
@@ -1387,8 +1387,8 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			std::vector<double> orig_d_inactive;
 			std::vector<double> rand_d_inactive;
 
-			std::vector<boost::int32_t> orig_i_inactive;
-			std::vector<boost::int32_t> rand_i_inactive;
+			std::vector<std::int32_t> orig_i_inactive;
+			std::vector<std::int32_t> rand_i_inactive;
 
 			std::vector<bool> orig_b_inactive;
 			std::vector<bool> rand_b_inactive;
@@ -1396,8 +1396,8 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			// Extract the parameters
 			BOOST_CHECK_NO_THROW(p_test_orig->streamline<double>(orig_d_inactive, INACTIVEONLY));
 			BOOST_CHECK_NO_THROW(p_test_rand->streamline<double>(rand_d_inactive, INACTIVEONLY));
-			BOOST_CHECK_NO_THROW(p_test_orig->streamline<boost::int32_t>(orig_i_inactive, INACTIVEONLY));
-			BOOST_CHECK_NO_THROW(p_test_rand->streamline<boost::int32_t>(rand_i_inactive, INACTIVEONLY));
+			BOOST_CHECK_NO_THROW(p_test_orig->streamline<std::int32_t>(orig_i_inactive, INACTIVEONLY));
+			BOOST_CHECK_NO_THROW(p_test_rand->streamline<std::int32_t>(rand_i_inactive, INACTIVEONLY));
 			BOOST_CHECK_NO_THROW(p_test_orig->streamline<bool>(orig_b_inactive, INACTIVEONLY));
 			BOOST_CHECK_NO_THROW(p_test_rand->streamline<bool>(rand_b_inactive, INACTIVEONLY));
 
@@ -1424,8 +1424,8 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			std::vector<double> orig_d_active;
 			std::vector<double> rand_d_active;
 
-			std::vector<boost::int32_t> orig_i_active;
-			std::vector<boost::int32_t> rand_i_active;
+			std::vector<std::int32_t> orig_i_active;
+			std::vector<std::int32_t> rand_i_active;
 
 			std::vector<bool> orig_b_active;
 			std::vector<bool> rand_b_active;
@@ -1433,8 +1433,8 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			// Extract the parameters
 			BOOST_CHECK_NO_THROW(p_test_orig->streamline<double>(orig_d_active, ACTIVEONLY));
 			BOOST_CHECK_NO_THROW(p_test_rand->streamline<double>(rand_d_active, ACTIVEONLY));
-			BOOST_CHECK_NO_THROW(p_test_orig->streamline<boost::int32_t>(orig_i_active, ACTIVEONLY));
-			BOOST_CHECK_NO_THROW(p_test_rand->streamline<boost::int32_t>(rand_i_active, ACTIVEONLY));
+			BOOST_CHECK_NO_THROW(p_test_orig->streamline<std::int32_t>(orig_i_active, ACTIVEONLY));
+			BOOST_CHECK_NO_THROW(p_test_rand->streamline<std::int32_t>(rand_i_active, ACTIVEONLY));
 			BOOST_CHECK_NO_THROW(p_test_orig->streamline<bool>(orig_b_active, ACTIVEONLY));
 			BOOST_CHECK_NO_THROW(p_test_rand->streamline<bool>(rand_b_active, ACTIVEONLY));
 

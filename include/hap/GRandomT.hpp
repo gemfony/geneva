@@ -158,7 +158,7 @@ private:
 #endif /* DEBUG */
 
 #ifdef DEBUG
-		boost::uint32_t nRetries = 0;
+		std::uint32_t nRetries = 0;
 #endif /* DEBUG */
 
 		// Try until a valid container has been received. new01Container has

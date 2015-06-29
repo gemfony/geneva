@@ -84,7 +84,7 @@ GBufferPortT<std::shared_ptr<WORKLOAD>> bufferport;
  * and then waits for processed items to return.
  */
 void producer(
-	boost::uint32_t nProductionCycles
+	std::uint32_t nProductionCycles
 	, std::size_t nContainerEntries
 	, boost::posix_time::time_duration putTimeout
 	, boost::posix_time::time_duration getTimeout
@@ -101,7 +101,7 @@ void producer(
 	// Initialize the counters
 	std::size_t putTimeouts = 0, totalPutTimeouts = 0, highestPutTimeouts = 0;
 	std::size_t getTimeouts = 0, totalGetTimeouts = 0, highestGetTimeouts = 0;
-	boost::uint32_t cycleCounter = 0;
+	std::uint32_t cycleCounter = 0;
 
 	// Find out about the number of microseconds in timeouts
 	long putTimeoutMS = boost::numeric_cast<long>(putTimeout.total_microseconds());
@@ -131,7 +131,7 @@ void producer(
 
 	// Retrieve the items back. We assume that a single worker is located at the
 	// other end so that we retrieve all items back
-	boost::uint32_t nReceived = 0;
+	std::uint32_t nReceived = 0;
 	std::shared_ptr<WORKLOAD> p_receive;
 	while(nReceived < nProductionCycles) {
 		if(getTimeoutMS > 0) {
@@ -174,7 +174,7 @@ void producer(
  * This function processes items it takes out of the GBufferPortT
  */
 void processor (
-	boost::uint32_t nProductionCycles
+	std::uint32_t nProductionCycles
 	, std::size_t nContainerEntries
 	, boost::posix_time::time_duration putTimeout
 	, boost::posix_time::time_duration getTimeout
@@ -191,7 +191,7 @@ void processor (
 	// Initialize the counters
 	std::size_t putTimeouts = 0, totalPutTimeouts = 0, highestPutTimeouts = 0;
 	std::size_t getTimeouts = 0, totalGetTimeouts = 0, highestGetTimeouts = 0;
-	boost::uint32_t cycleCounter = 0;
+	std::uint32_t cycleCounter = 0;
 
 	// Find out about the number of microseconds in timeouts
 	long putTimeoutMS = boost::numeric_cast<long>(putTimeout.total_microseconds());
@@ -254,7 +254,7 @@ void processor (
 /********************************************************************************/
 
 int main(int argc, char **argv) {
-	boost::uint32_t nProductionCycles;
+	std::uint32_t nProductionCycles;
 	std::size_t nContainerEntries;
 	long putTimeoutMS;
 	long getTimeoutMS;

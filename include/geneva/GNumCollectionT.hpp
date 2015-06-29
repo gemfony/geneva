@@ -60,7 +60,7 @@ const double DEFAULTUPPERINITBOUNDARYCOLLECTION=1.;
 /**
  * This class represents a collection of numeric values, all modified
  * using the same algorithm. The most likely types to be stored in this
- * class are double and boost::int32_t . By using the framework provided
+ * class are double and std::int32_t . By using the framework provided
  * by GParameterCollectionT, this class becomes rather simple.
  */
 template <typename num_type>

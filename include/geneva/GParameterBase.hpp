@@ -413,7 +413,7 @@ protected:
 	virtual G_API_GENEVA std::size_t countFloatParameters(const activityMode& am) const BASE;
 	/** @brief Count the number of double parameters */
 	virtual G_API_GENEVA std::size_t countDoubleParameters(const activityMode& am) const BASE;
-	/** @brief Count the number of boost::int32_t parameters */
+	/** @brief Count the number of std::int32_t parameters */
 	virtual G_API_GENEVA std::size_t countInt32Parameters(const activityMode& am) const BASE;
 	/** @brief Count the number of bool parameters */
 	virtual G_API_GENEVA std::size_t countBoolParameters(const activityMode& am) const BASE;
@@ -422,8 +422,8 @@ protected:
 	virtual G_API_GENEVA void floatBoundaries(std::vector<float>&, std::vector<float>&, const activityMode&) const BASE;
 	/** @brief Attach boundaries of type double to the vectors */
 	virtual G_API_GENEVA void doubleBoundaries(std::vector<double>&, std::vector<double>&, const activityMode&) const BASE;
-	/** @brief Attach boundaries of type boost::int32_t to the vectors */
-	virtual G_API_GENEVA void int32Boundaries(std::vector<boost::int32_t>&, std::vector<boost::int32_t>&, const activityMode&) const BASE;
+	/** @brief Attach boundaries of type std::int32_t to the vectors */
+	virtual G_API_GENEVA void int32Boundaries(std::vector<std::int32_t>&, std::vector<std::int32_t>&, const activityMode&) const BASE;
 	/** @brief Attach boundaries of type bool to the vectors */
 	virtual G_API_GENEVA void booleanBoundaries(std::vector<bool>&, std::vector<bool>&, const activityMode&) const BASE;
 
@@ -431,8 +431,8 @@ protected:
 	virtual G_API_GENEVA void floatStreamline(std::vector<float>&, const activityMode&) const BASE;
 	/** @brief Attach parameters of type double to the vector */
 	virtual G_API_GENEVA void doubleStreamline(std::vector<double>&, const activityMode&) const BASE;
-	/** @brief Attach parameters of type boost::int32_t to the vector */
-	virtual G_API_GENEVA void int32Streamline(std::vector<boost::int32_t>&, const activityMode&) const BASE;
+	/** @brief Attach parameters of type std::int32_t to the vector */
+	virtual G_API_GENEVA void int32Streamline(std::vector<std::int32_t>&, const activityMode&) const BASE;
 	/** @brief Attach parameters of type bool to the vector */
 	virtual G_API_GENEVA void booleanStreamline(std::vector<bool>&, const activityMode&) const BASE;
 
@@ -440,8 +440,8 @@ protected:
 	virtual G_API_GENEVA void floatStreamline(std::map<std::string, std::vector<float>>&, const activityMode&) const BASE;
 	/** @brief Attach parameters of type double to the map */
 	virtual G_API_GENEVA void doubleStreamline(std::map<std::string, std::vector<double>>&, const activityMode&) const BASE;
-	/** @brief Attach parameters of type boost::int32_t to the map */
-	virtual G_API_GENEVA void int32Streamline(std::map<std::string, std::vector<boost::int32_t>>&, const activityMode&) const BASE;
+	/** @brief Attach parameters of type std::int32_t to the map */
+	virtual G_API_GENEVA void int32Streamline(std::map<std::string, std::vector<std::int32_t>>&, const activityMode&) const BASE;
 	/** @brief Attach parameters of type bool to the map */
 	virtual G_API_GENEVA void booleanStreamline(std::map<std::string, std::vector<bool>>&, const activityMode&) const BASE;
 
@@ -450,7 +450,7 @@ protected:
 	/** @brief Assigns part of a value vector to the parameter */
 	virtual G_API_GENEVA void assignDoubleValueVector(const std::vector<double>&, std::size_t&, const activityMode&) BASE;
 	/** @brief Assigns part of a value vector to the parameter */
-	virtual G_API_GENEVA void assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&, const activityMode&) BASE;
+	virtual G_API_GENEVA void assignInt32ValueVector(const std::vector<std::int32_t>&, std::size_t&, const activityMode&) BASE;
 	/** @brief Assigns part of a value vector to the parameter */
 	virtual G_API_GENEVA void assignBooleanValueVector(const std::vector<bool>&, std::size_t&, const activityMode&) BASE;
 
@@ -459,7 +459,7 @@ protected:
 	/** @brief Assigns part of a value vector to the parameter */
 	virtual G_API_GENEVA void assignDoubleValueVectors(const std::map<std::string, std::vector<double>>&, const activityMode&) BASE;
 	/** @brief Assigns part of a value vector to the parameter */
-	virtual G_API_GENEVA void assignInt32ValueVectors(const std::map<std::string, std::vector<boost::int32_t>>&, const activityMode&) BASE;
+	virtual G_API_GENEVA void assignInt32ValueVectors(const std::map<std::string, std::vector<std::int32_t>>&, const activityMode&) BASE;
 	/** @brief Assigns part of a value vector to the parameter */
 	virtual G_API_GENEVA void assignBooleanValueVectors(const std::map<std::string, std::vector<bool>>&, const activityMode&) BASE;
 
@@ -468,7 +468,7 @@ protected:
 	/** @brief Multiplication with a random value in a given range */
 	virtual G_API_GENEVA void doubleMultiplyByRandom(const double& min, const double& max, const activityMode& am) BASE;
 	/** @brief Multiplication with a random value in a given range */
-	virtual G_API_GENEVA void int32MultiplyByRandom(const boost::int32_t& min, const boost::int32_t& max, const activityMode& am) BASE;
+	virtual G_API_GENEVA void int32MultiplyByRandom(const std::int32_t& min, const std::int32_t& max, const activityMode& am) BASE;
 	/** @brief Multiplication with a random value in a given range */
 	virtual G_API_GENEVA void booleanMultiplyByRandom(const bool& min, const bool& max, const activityMode& am) BASE;
 
@@ -486,7 +486,7 @@ protected:
 	/** @brief Multiplication with a constant value */
 	virtual G_API_GENEVA void doubleMultiplyBy(const double& value, const activityMode& am) BASE;
 	/** @brief Multiplication with a constant value */
-	virtual G_API_GENEVA void int32MultiplyBy(const boost::int32_t& value, const activityMode& am) BASE;
+	virtual G_API_GENEVA void int32MultiplyBy(const std::int32_t& value, const activityMode& am) BASE;
 	/** @brief Multiplication with a random value in the range [0,1[ */
 	virtual G_API_GENEVA void booleanMultiplyBy(const bool& value, const activityMode& am) BASE;
 
@@ -495,7 +495,7 @@ protected:
 	/** @brief Initialization with a constant value */
 	virtual G_API_GENEVA void doubleFixedValueInit(const double& value, const activityMode& am) BASE;
 	/** @brief Initialization with a constant value */
-	virtual G_API_GENEVA void int32FixedValueInit(const boost::int32_t& value, const activityMode& am) BASE;
+	virtual G_API_GENEVA void int32FixedValueInit(const std::int32_t& value, const activityMode& am) BASE;
 	/** @brief Initialization with a random value in the range [0,1[ */
 	virtual G_API_GENEVA void booleanFixedValueInit(const bool& value, const activityMode& am) BASE;
 
@@ -583,13 +583,13 @@ inline void GParameterBase::streamline<double>(
 
 /******************************************************************************/
 /**
- * Allows to add all parameters of type boost::int32_t to the vector.
+ * Allows to add all parameters of type std::int32_t to the vector.
  *
  * @oaram parVec The vector to which the items should be added
  */
 template <>
-inline void GParameterBase::streamline<boost::int32_t>(
-	std::vector<boost::int32_t>& parVec
+inline void GParameterBase::streamline<std::int32_t>(
+	std::vector<std::int32_t>& parVec
 	, const activityMode& am
 ) const {
 	if(
@@ -655,13 +655,13 @@ inline void GParameterBase::streamline<double>(
 
 /******************************************************************************/
 /**
- * Allows to add all parameters of type boost::int32_t to the map.
+ * Allows to add all parameters of type std::int32_t to the map.
  *
  * @oaram parVec The vector to which the items should be added
  */
 template <>
-inline void GParameterBase::streamline<boost::int32_t>(
-	std::map<std::string, std::vector<boost::int32_t>>& parVec
+inline void GParameterBase::streamline<std::int32_t>(
+	std::map<std::string, std::vector<std::int32_t>>& parVec
 	, const activityMode& am
 ) const {
 	if(
@@ -732,15 +732,15 @@ inline void GParameterBase::boundaries<double>(
 
 /******************************************************************************/
 /**
- * Allows to retrieve the values of lower and upper boundaries of type boost::int32_t
+ * Allows to retrieve the values of lower and upper boundaries of type std::int32_t
  *
- * @param lBndVec A vector of lower boost::int32_t parameter boundaries
- * @param uBndVec A vector of upper boost::int32_t parameter boundaries
+ * @param lBndVec A vector of lower std::int32_t parameter boundaries
+ * @param uBndVec A vector of upper std::int32_t parameter boundaries
  */
 template <>
-inline void GParameterBase::boundaries<boost::int32_t>(
-	std::vector<boost::int32_t>& lBndVec
-	, std::vector<boost::int32_t>& uBndVec
+inline void GParameterBase::boundaries<std::int32_t>(
+	std::vector<std::int32_t>& lBndVec
+	, std::vector<std::int32_t>& uBndVec
 	, const activityMode& am
 ) const {
 	if(
@@ -812,13 +812,13 @@ inline std::size_t GParameterBase::countParameters<double>(
 
 /******************************************************************************/
 /**
- * Allows to count parameters of type boost::int32_t.
+ * Allows to count parameters of type std::int32_t.
  *
  * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
- * @return The number of parameters of type boost::int32_t
+ * @return The number of parameters of type std::int32_t
  */
 template <>
-inline std::size_t GParameterBase::countParameters<boost::int32_t>(
+inline std::size_t GParameterBase::countParameters<std::int32_t>(
 	const activityMode& am
 ) const {
 	if(
@@ -898,8 +898,8 @@ inline void GParameterBase::assignValueVector<double>(
  * @param pos The position from which parameters will be taken (will be updated by the call)
  */
 template <>
-inline void GParameterBase::assignValueVector<boost::int32_t>(
-	const std::vector<boost::int32_t>& parVec
+inline void GParameterBase::assignValueVector<std::int32_t>(
+	const std::vector<std::int32_t>& parVec
 	, std::size_t& pos
 	, const activityMode& am
 ) {
@@ -967,8 +967,8 @@ inline  void GParameterBase::assignValueVectors<double>(
  * @param parMap The vector with the parameters to be assigned to the object
  */
 template <>
-inline  void GParameterBase::assignValueVectors<boost::int32_t>(
-	const std::map<std::string, std::vector<boost::int32_t>>& parMap
+inline  void GParameterBase::assignValueVectors<std::int32_t>(
+	const std::map<std::string, std::vector<std::int32_t>>& parMap
 	, const activityMode& am
 ) {
 	if(
@@ -1035,9 +1035,9 @@ inline  void GParameterBase::multiplyByRandom<double>(
  * Multiplication with a random value in a given range
  */
 template <>
-inline  void GParameterBase::multiplyByRandom<boost::int32_t>(
-	const boost::int32_t& min
-	, const boost::int32_t& max
+inline  void GParameterBase::multiplyByRandom<std::int32_t>(
+	const std::int32_t& min
+	, const std::int32_t& max
 	, const activityMode& am
 ) {
 	if(
@@ -1102,7 +1102,7 @@ inline  void GParameterBase::multiplyByRandom<double>(
  * Multiplication with a random value in the range [0,1[
  */
 template <>
-inline  void GParameterBase::multiplyByRandom<boost::int32_t>(
+inline  void GParameterBase::multiplyByRandom<std::int32_t>(
 	const activityMode& am
 ) {
 	if(
@@ -1167,8 +1167,8 @@ inline  void GParameterBase::multiplyBy<double>(
  * Multiplication with a constant value
  */
 template <>
-inline  void GParameterBase::multiplyBy<boost::int32_t>(
-	const boost::int32_t& val
+inline  void GParameterBase::multiplyBy<std::int32_t>(
+	const std::int32_t& val
 	, const activityMode& am
 ) {
 	if(
@@ -1234,8 +1234,8 @@ inline  void GParameterBase::fixedValueInit<double>(
  * Initialization with a constant value
  */
 template <>
-inline  void GParameterBase::fixedValueInit<boost::int32_t>(
-	const boost::int32_t& val
+inline  void GParameterBase::fixedValueInit<std::int32_t>(
+	const std::int32_t& val
 	, const activityMode& am
 ) {
 	if(
@@ -1298,7 +1298,7 @@ inline  void GParameterBase::add<double>(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 template <>
-inline  void GParameterBase::add<boost::int32_t>(
+inline  void GParameterBase::add<std::int32_t>(
 	std::shared_ptr<GParameterBase> p
 	, const activityMode& am
 ) {
@@ -1365,7 +1365,7 @@ inline  void GParameterBase::subtract<double>(
  * Subtracts the "same-type" parameters of another GParameterBase object from this one
  */
 template <>
-inline  void GParameterBase::subtract<boost::int32_t>(
+inline  void GParameterBase::subtract<std::int32_t>(
 	std::shared_ptr<GParameterBase> p
 	, const activityMode& am
 ) {

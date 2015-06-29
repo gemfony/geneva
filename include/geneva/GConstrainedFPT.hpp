@@ -351,12 +351,12 @@ public:
 			// Find out which region the value is in (compare figure transferFunction.pdf
 			// that should have been delivered with this software). Note that boost::numeric_cast<>
 			// may throw - exceptions must be caught in surrounding functions.
-			boost::int32_t region = 0;
+			std::int32_t region = 0;
 
 #ifdef DEBUG
-			region =	boost::numeric_cast<boost::int32_t>(Gem::Common::gfloor((fp_type(val) - fp_type(lowerBoundary)) / (fp_type(upperBoundary) - fp_type(lowerBoundary))));
+			region =	boost::numeric_cast<std::int32_t>(Gem::Common::gfloor((fp_type(val) - fp_type(lowerBoundary)) / (fp_type(upperBoundary) - fp_type(lowerBoundary))));
 #else
-			region =	static_cast<boost::int32_t>(Gem::Common::gfloor((fp_type(val) - fp_type(lowerBoundary)) / (fp_type(upperBoundary) - fp_type(lowerBoundary))));
+			region =	static_cast<std::int32_t>(Gem::Common::gfloor((fp_type(val) - fp_type(lowerBoundary)) / (fp_type(upperBoundary) - fp_type(lowerBoundary))));
 #endif
 
 			// Check whether we are in an odd or an even range and calculate the
@@ -773,7 +773,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template fixedValueInit<fp_type>(fp_type(1.), ALLPARAMETERS));
 
 			fp_type currentVal = fp_type(-10000.);
-			for(boost::int32_t i=-9999; i<9999; i++) {
+			for(std::int32_t i=-9999; i<9999; i++) {
 				BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template add<fp_type>(p_test2, ALLPARAMETERS));
 				currentVal += fp_type(1.);
 				BOOST_CHECK(p_test1->value() == currentVal);
@@ -801,7 +801,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template fixedValueInit<fp_type>(fp_type(1.), ALLPARAMETERS));
 
 			fp_type currentVal = fp_type(upper - fp_type(1));
-			for(boost::int32_t i=9999; i>=-9998; i--) {
+			for(std::int32_t i=9999; i>=-9998; i--) {
 				BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template subtract<fp_type>(p_test2, ALLPARAMETERS));
 				currentVal -= fp_type(1.);
 				BOOST_CHECK(p_test1->value() == currentVal);

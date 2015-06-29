@@ -426,7 +426,7 @@ public:
 	 *
 	 * @return The value of the adaptionCounter_ variable
 	 */
-	virtual boost::uint32_t getAdaptionCounter() const  {
+	virtual std::uint32_t getAdaptionCounter() const  {
 		return adaptionCounter_;
 	}
 
@@ -443,7 +443,7 @@ public:
 	 *
 	 * @param adaptionCounter The value that should be assigned to the adaptionCounter_ variable
 	 */
-	void setAdaptionThreshold(const boost::uint32_t& adaptionThreshold)  {
+	void setAdaptionThreshold(const std::uint32_t& adaptionThreshold)  {
 		adaptionThreshold_ = adaptionThreshold;
 	}
 
@@ -458,7 +458,7 @@ public:
 	 *
 	 * @return The value of the adaptionThreshold_ variable
 	 */
-	boost::uint32_t getAdaptionThreshold() const  {
+	std::uint32_t getAdaptionThreshold() const  {
 		return adaptionThreshold_;
 	}
 
@@ -845,8 +845,8 @@ protected:
 
 private:
 	/***************************************************************************/
-	boost::uint32_t adaptionCounter_ = 0; ///< A local counter
-	boost::uint32_t adaptionThreshold_ = DEFAULTADAPTIONTHRESHOLD; ///< Specifies after how many adaptions the adaption itself should be adapted
+	std::uint32_t adaptionCounter_ = 0; ///< A local counter
+	std::uint32_t adaptionThreshold_ = DEFAULTADAPTIONTHRESHOLD; ///< Specifies after how many adaptions the adaption itself should be adapted
 	double adProb_ = DEFAULTADPROB; ///< internal representation of the adaption probability
 	double adaptAdProb_ = DEFAUPTADAPTADPROB; ///< The rate, at which adProb_ should be adapted
 	double minAdProb_ = DEFMINADPROB; ///< The lower allowed value for adProb_ during variation
@@ -1120,10 +1120,10 @@ public:
 			T oldTestVal = T(0);
 
 			// The old adaption counter
-			boost::uint32_t oldAdaptionCounter=p_test->getAdaptionCounter();
+			std::uint32_t oldAdaptionCounter=p_test->getAdaptionCounter();
 
 			// Set the adaption threshold to a specific value
-			for(boost::uint32_t adThr=10; adThr>0; adThr--) {
+			for(std::uint32_t adThr=10; adThr>0; adThr--) {
 				// Just make sure our logic is right and we stay in the right window
 				BOOST_CHECK(adThr<=10);
 
@@ -1137,7 +1137,7 @@ public:
 
 				// Check that the adaption counter does not exceed the threshold by
 				// adapting a value a number of times > adThr
-				for(boost::uint32_t adCnt=0; adCnt<3*adThr; adCnt++) {
+				for(std::uint32_t adCnt=0; adCnt<3*adThr; adCnt++) {
 					// Do the actual adaption
 				   if(p_test->adapt(testVal, T(1))) {
                   // Check that testVal has indeed been adapted

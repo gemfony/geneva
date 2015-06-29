@@ -78,8 +78,8 @@ int main(int argc, char **argv) {
 	std::size_t nTests = gbc.getNTests();
 	std::vector<xyWE> resultVec; // Will hold the results for each dimension
 	std::vector<xyWE> timingVec; // Will hold the results for each dimension
-	std::vector<boost::uint32_t> dimVec = gbc.getParDim(); // Will hold the dimensions for each test row
-	std::vector<boost::uint32_t>::iterator it;
+	std::vector<std::uint32_t> dimVec = gbc.getParDim(); // Will hold the dimensions for each test row
+	std::vector<std::uint32_t>::iterator it;
 	std::string functionName;
 	std::string functionCode;
 	std::tuple<double,double> varBoundaries;

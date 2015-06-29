@@ -47,6 +47,7 @@
 #include <stdexcept>
 #include <algorithm>
 #include <functional>
+#include <limits>
 
 // Boost headers go here
 
@@ -58,7 +59,6 @@
 #include <boost/thread/condition.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <boost/thread/thread.hpp>
-#include <boost/limits.hpp>
 
 #ifndef GBROKERT_HPP_
 #define GBROKERT_HPP_

@@ -43,26 +43,26 @@ namespace Geneva {
  */
 bool parseCommandLine(
 	int argc, char **argv
-	, boost::uint16_t& nEvaluationThreads
+	, std::uint16_t& nEvaluationThreads
 	, std::size_t& populationSizeSuper
 	, std::size_t& nParentsSuper
-	, boost::uint32_t& maxIterationsSuper
+	, std::uint32_t& maxIterationsSuper
 	, long& maxMinutesSuper
-	, boost::uint32_t& reportIterationSuper
+	, std::uint32_t& reportIterationSuper
 	, duplicationScheme& rSchemeSuper
 	, sortingModeMP& smodeSuper
 	, std::size_t& populationSizeSub
 	, std::size_t& nParentsSub
-	, boost::uint32_t& maxIterationsSub
+	, std::uint32_t& maxIterationsSub
 	, long& maxMinutesSub
-	, boost::uint32_t& reportIterationSub
+	, std::uint32_t& reportIterationSub
 	, duplicationScheme& rSchemeSub
 	, sortingMode& smodeSub
 ) {
 	// Create the parser builder
 	Gem::Common::GParserBuilder gpb;
 
-	gpb.registerCLParameter<boost::uint16_t>(
+	gpb.registerCLParameter<std::uint16_t>(
 		"nEvaluationThreads"
 		, nEvaluationThreads
 		, DEFAULTNEVALUATIONTHREADS
@@ -83,7 +83,7 @@ bool parseCommandLine(
 		, "The number of parents in the super population"
 	);
 
-	gpb.registerCLParameter<boost::uint32_t>(
+	gpb.registerCLParameter<std::uint32_t>(
 		"maxIterationsSuper"
 		, maxIterationsSuper
 		, DEFAULTMAXITERATIONSSUPER
@@ -97,7 +97,7 @@ bool parseCommandLine(
 		, "The maximum number of minutes the optimization of the super population should run"
 	);
 
-	gpb.registerCLParameter<boost::uint32_t>(
+	gpb.registerCLParameter<std::uint32_t>(
 		"reportIterationSuper"
 		, reportIterationSuper
 		, DEFAULTREPORTITERATIONSUPER
@@ -132,7 +132,7 @@ bool parseCommandLine(
 		, "The number of parents in the sub population"
 	);
 
-	gpb.registerCLParameter<boost::uint32_t>(
+	gpb.registerCLParameter<std::uint32_t>(
 		"maxIterationsSub"
 		, maxIterationsSub
 		, DEFAULTMAXITERATIONSSUB
@@ -146,7 +146,7 @@ bool parseCommandLine(
 		, "The maximum number of minutes the optimization of the sub population should run"
 	);
 
-	gpb.registerCLParameter<boost::uint32_t>(
+	gpb.registerCLParameter<std::uint32_t>(
 		"reportIterationSub"
 		, reportIterationSub
 		, DEFAULTREPORTITERATIONSUB

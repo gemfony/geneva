@@ -56,6 +56,7 @@
 #include <functional>
 #include <memory>
 #include <tuple>
+#include <limits>
 
 
 // Boost header files go here
@@ -67,7 +68,6 @@
 #include <boost/date_time/posix_time/time_serialize.hpp>
 #include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/limits.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/logic/tribool_io.hpp>

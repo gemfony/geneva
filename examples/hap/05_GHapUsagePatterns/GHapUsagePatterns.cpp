@@ -178,28 +178,28 @@ int main(int argc, char **argv) {
 		{
 			// This function produces integer random numbers in the range of [min, max] .
 			// Note that max may also be < 0.
-			boost::int32_t min = -10, max = 10;
-			boost::int32_t int_rand_min_max = gr.uniform_int(min, max);
+			std::int32_t min = -10, max = 10;
+			std::int32_t int_rand_min_max = gr.uniform_int(min, max);
 		}
 
 		{
 			// This function produces integer random numbers in the range of [0, max] .
-			boost::int32_t max = 10;
-			boost::int32_t int_rand_max = gr.uniform_int(max);
+			std::int32_t max = 10;
+			std::int32_t int_rand_max = gr.uniform_int(max);
 		}
 
 		{
 			// This function produces integer random numbers in the range of [min, max],
 			// using a method optimized for small integers. Note that max may also be < 0.
-			boost::int32_t min = -10, max = 10;
-			boost::int32_t int_rand_si_min_max = gr.uniform_smallint(min, max);
+			std::int32_t min = -10, max = 10;
+			std::int32_t int_rand_si_min_max = gr.uniform_smallint(min, max);
 		}
 
 		{
 			// This function produces integer random numbers in the range of [0, max],
 			// using a method optimized for small integers.
-			boost::int32_t max = 10;
-			boost::int32_t int_rand_si_max = gr.uniform_smallint(max);
+			std::int32_t max = 10;
+			std::int32_t int_rand_si_max = gr.uniform_smallint(max);
 		}
 	}
 

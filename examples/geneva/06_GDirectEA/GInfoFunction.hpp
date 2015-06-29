@@ -66,12 +66,12 @@ namespace Geneva {
 /**
  * The default dimension of the canvas in x-direction
  */
-const boost::uint16_t DEFAULTXDIMPROGRESS=1024;
+const std::uint16_t DEFAULTXDIMPROGRESS=1024;
 
 /**
  * The default dimension of the canvas in y-direction
  */
-const boost::uint16_t DEFAULTYDIMPROGRESS=1024;
+const std::uint16_t DEFAULTYDIMPROGRESS=1024;
 
 /************************************************************************************************/
 /**
@@ -245,7 +245,7 @@ public:
 	 * @param xDimProgress The desired dimension of the canvas in x-direction
 	 * @param yDimProgress The desired dimension of the canvas in y-direction
 	 */
-	void setProgressDims(const boost::uint16_t& xDimProgress, const boost::uint16_t& yDimProgress) {
+	void setProgressDims(const std::uint16_t& xDimProgress, const std::uint16_t& yDimProgress) {
 		xDimProgress_ = xDimProgress;
 		yDimProgress_ = yDimProgress;
 	}
@@ -256,7 +256,7 @@ public:
 	 *
 	 * @return The dimension of the canvas in x-direction
 	 */
-	boost::uint16_t getXDimProgress() const {
+	std::uint16_t getXDimProgress() const {
 		return xDimProgress_;
 	}
 
@@ -266,7 +266,7 @@ public:
 	 *
 	 * @return The dimension of the canvas in y-direction
 	 */
-	boost::uint16_t getYDimProgress() const {
+	std::uint16_t getYDimProgress() const {
 		return yDimProgress_;
 	}
 
@@ -438,7 +438,7 @@ protected:
 		GBaseEA * const ea = static_cast<GBaseEA * const>(goa);
 
 		if(followProgress_) {
-			boost::uint32_t iteration = ea->getIteration();
+			std::uint32_t iteration = ea->getIteration();
 			std::string outputFileName = snapshotBaseName_ + "_" + boost::lexical_cast<std::string>(iteration) + ".C";
 			std::size_t nParents = ea->getNParents();
 
@@ -584,8 +584,8 @@ private:
 	/*********************************************************************************************/
 	progressMonitor(){} ///< Intentionally private, only needed for (de-)serialization
 
-	boost::uint16_t xDimProgress_; ///< The dimension of the canvas in x-direction
-	boost::uint16_t yDimProgress_; ///< The dimension of the canvas in y-direction
+	std::uint16_t xDimProgress_; ///< The dimension of the canvas in x-direction
+	std::uint16_t yDimProgress_; ///< The dimension of the canvas in y-direction
 	solverFunction df_; ///< The id of the evaluation function
 	bool followProgress_; ///< Indicates whether a snapshot of the current individuals should be taken whenever the infoFunction is called
 	std::string snapshotBaseName_; ///< The base name of the snapshot file

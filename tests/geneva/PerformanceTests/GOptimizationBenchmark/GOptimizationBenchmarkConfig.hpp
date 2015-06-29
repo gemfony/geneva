@@ -83,7 +83,7 @@ public:
 		);
 
 		// Set up a vector of default values
-		std::vector<boost::uint32_t> def_pardim;
+		std::vector<std::uint32_t> def_pardim;
 
 		def_pardim.push_back(2);
 		def_pardim.push_back(4);
@@ -134,7 +134,7 @@ public:
 	 *
 	 * @return A vector holding the parameter space dimensions to be tested
 	 */
-	const std::vector<boost::uint32_t>& getParDim() const {
+	const std::vector<std::uint32_t>& getParDim() const {
 		return parDim_;
 	}
 
@@ -156,7 +156,7 @@ private:
 	Gem::Common::GParserBuilder gpb_; ///< Handles the actual parsing
 
 	std::size_t nTests_; ///< The number of tests to be performed for each dimension
-	std::vector<boost::uint32_t> parDim_;
+	std::vector<std::uint32_t> parDim_;
 	std::string resultFile_; ///< The name of a file to which results should be written
 };
 

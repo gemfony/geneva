@@ -62,19 +62,19 @@ using namespace Gem::Hap;
 int main(int argc, char **argv){
 	std::string configFile;
 	std::string ip;
-	boost::uint16_t nEvaluationThreads;
+	std::uint16_t nEvaluationThreads;
 	std::size_t populationSizeSuper;
 	std::size_t nParentsSuper;
-	boost::uint32_t maxIterationsSuper;
+	std::uint32_t maxIterationsSuper;
 	long maxMinutesSuper;
-	boost::uint32_t reportIterationSuper;
+	std::uint32_t reportIterationSuper;
 	duplicationScheme rSchemeSuper;
 	sortingModeMP smodeSuper;
 	std::size_t populationSizeSub;
 	std::size_t nParentsSub;
-	boost::uint32_t maxIterationsSub;
+	std::uint32_t maxIterationsSub;
 	long maxMinutesSub;
-	boost::uint32_t reportIterationSub;
+	std::uint32_t reportIterationSub;
 	duplicationScheme rSchemeSub;
 	sortingMode smodeSub;
 

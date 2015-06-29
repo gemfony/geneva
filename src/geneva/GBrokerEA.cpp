@@ -46,7 +46,7 @@ namespace Geneva {
 GBrokerEA::GBrokerEA()
 	: GBaseEA()
 	, Gem::Courtier::GBrokerConnector2T<GParameterSet>(Gem::Courtier::INCOMPLETERETURN)
-	, nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
+	, nThreads_(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 { /* nothing */ }
 
 /******************************************************************************/
@@ -305,7 +305,7 @@ void GBrokerEA::fixAfterJobSubmission() {
 	std::vector<std::shared_ptr < GParameterSet>> ::iterator
 	it;
 	std::size_t np = getNParents();
-	boost::uint32_t iteration = getIteration();
+	std::uint32_t iteration = getIteration();
 
 	// Remove parents from older iterations from old work items -- we do not want them.
 	// Note that "remove_if" simply moves items not satisfying the predicate to the end of the list.
@@ -397,10 +397,10 @@ void GBrokerEA::addConfigurationOptions(
 	Gem::Courtier::GBrokerConnector2T<GParameterSet>::addConfigurationOptions(gpb);
 
 	// Add local data
-	gpb.registerFileParameter<boost::uint16_t>(
+	gpb.registerFileParameter<std::uint16_t>(
 		"nEvaluationThreads" // The name of the variable
 		, 0 // The default value
-		, [this](boost::uint16_t nt) { this->setNThreads(nt); }
+		, [this](std::uint16_t nt) { this->setNThreads(nt); }
 	)
 	<< "The number of threads used to simultaneously adapt individuals";
 }
@@ -413,9 +413,9 @@ void GBrokerEA::addConfigurationOptions(
  *
  * @param nThreads The number of threads this class uses
  */
-void GBrokerEA::setNThreads(boost::uint16_t nThreads) {
+void GBrokerEA::setNThreads(std::uint16_t nThreads) {
 	if (nThreads == 0) {
-		nThreads_ = boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
+		nThreads_ = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
 	}
 	else {
 		nThreads_ = nThreads;
@@ -428,7 +428,7 @@ void GBrokerEA::setNThreads(boost::uint16_t nThreads) {
  *
  * @return The maximum number of allowed threads
  */
-boost::uint16_t GBrokerEA::getNThreads() const {
+std::uint16_t GBrokerEA::getNThreads() const {
 	return nThreads_;
 }
 

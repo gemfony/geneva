@@ -624,7 +624,7 @@ std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> GExternalEvaluatorIndivi
 /**
  * Get the value of the adaptionThreshold_ variable
  */
-boost::uint32_t GExternalEvaluatorIndividualFactory::getAdaptionThreshold() const {
+std::uint32_t GExternalEvaluatorIndividualFactory::getAdaptionThreshold() const {
 	return adaptionThreshold_;
 }
 
@@ -633,7 +633,7 @@ boost::uint32_t GExternalEvaluatorIndividualFactory::getAdaptionThreshold() cons
  * Set the value of the adaptionThreshold_ variable
  */
 void GExternalEvaluatorIndividualFactory::setAdaptionThreshold(
-	boost::uint32_t adaptionThreshold) {
+	std::uint32_t adaptionThreshold) {
 	adaptionThreshold_ = adaptionThreshold;
 }
 
@@ -1333,7 +1333,7 @@ void GExternalEvaluatorIndividualFactory::describeLocalOptions_(Gem::Common::GPa
 	<< "The upper allowed boundary for adProb-variation";
 
 
-	gpb.registerFileParameter<boost::uint32_t>(
+	gpb.registerFileParameter<std::uint32_t>(
 		"adaptionThreshold", adaptionThreshold_.reference(), GEEI_DEF_ADAPTIONTHRESHOLD
 	)
 	<< "The number of calls to an adaptor after which adaption takes place";

@@ -152,9 +152,9 @@ public:
 	/** @brief Allows to retrieve the number of delays requested by the user */
 	std::size_t getNDelays() const;
 	/** @brief Allows to retrieve the number of measurements to be made for each delay */
-	boost::uint32_t getNMeasurements() const;
+	std::uint32_t getNMeasurements() const;
 	/** @brief Retrieves the amount of seconds main() should wait between two measurements */
-	boost::uint32_t getInterMeasurementDelay() const;
+	std::uint32_t getInterMeasurementDelay() const;
 	/** @brief Retrieves the sleep times */
 	std::vector<std::tuple<unsigned int, unsigned int>> getSleepTimes() const;
 
@@ -181,8 +181,8 @@ private:
 	std::vector<std::tuple<unsigned int, unsigned int>> sleepTimes_;
 	std::string resultFile_;
 	std::string shortResultFile_;
-	boost::uint32_t nMeasurements_; ///< The number of measurements for each delay
-	boost::uint32_t interMeasurementDelay_; ///< The delay between two measurements
+	std::uint32_t nMeasurements_; ///< The number of measurements for each delay
+	std::uint32_t interMeasurementDelay_; ///< The delay between two measurements
 };
 
 /******************************************************************************/

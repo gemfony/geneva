@@ -40,7 +40,7 @@
 namespace Gem {
 namespace Geneva {
 
-// Specializations for double, boost::int32_t and bool
+// Specializations for double, std::int32_t and bool
 /******************************************************************************/
 /**
  * A factory function that returns the default adaptor for the base type "double"
@@ -54,12 +54,12 @@ std::shared_ptr <GAdaptorT<double>> getDefaultAdaptor<double>() {
 
 /******************************************************************************/
 /**
- * A factory function that returns the default adaptor for the base type "boost::int32_t"
+ * A factory function that returns the default adaptor for the base type "std::int32_t"
  *
- * @return The default adaptor for the base type "boost::int32_t"
+ * @return The default adaptor for the base type "std::int32_t"
  */
 template<>
-std::shared_ptr <GAdaptorT<boost::int32_t>> getDefaultAdaptor<boost::int32_t>() {
+std::shared_ptr <GAdaptorT<std::int32_t>> getDefaultAdaptor<std::int32_t>() {
 	return std::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor());
 }
 

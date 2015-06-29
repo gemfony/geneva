@@ -99,9 +99,9 @@ public:
 	) const override;
 
 	/** @brief Sets the maximum number of threads */
-	G_API_GENEVA void setNThreads(boost::uint16_t);
+	G_API_GENEVA void setNThreads(std::uint16_t);
 	/** @brief Retrieves the maximum number of threads */
-	G_API_GENEVA boost::uint16_t getNThreads() const ;
+	G_API_GENEVA std::uint16_t getNThreads() const ;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual G_API_GENEVA void addConfigurationOptions (
@@ -131,7 +131,7 @@ protected:
 	virtual G_API_GENEVA void runFitnessCalculation() override;
 
 private:
-	boost::uint16_t nThreads_; ///< The number of threads
+	std::uint16_t nThreads_; ///< The number of threads
 	std::shared_ptr<Gem::Common::GThreadPool> tp_ptr_; ///< Temporarily holds a thread pool
 
 public:

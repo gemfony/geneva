@@ -37,9 +37,9 @@
 
 // Standard header files go here
 #include <typeinfo>
+#include <limits>
 
 // Boost header files go here
-#include <boost/limits.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/serialization/split_member.hpp>
 
@@ -209,7 +209,7 @@ public:
 	/** @brief Checks the worst fitness and updates it when needed */
 	G_API_GENEVA void challengeWorstValidFitness(std::tuple<double, double>&, const std::size_t&);
 	/** @brief Retrieve the fitness tuple at a given evaluation position */
-	G_API_GENEVA std::tuple<double,double> getFitnessTuple(const boost::uint32_t& = 0) const;
+	G_API_GENEVA std::tuple<double,double> getFitnessTuple(const std::uint32_t& = 0) const;
 
 	/** @brief Check whether this individual is "clean", i.e neither "dirty" nor has a delayed evaluation */
 	G_API_GENEVA bool isClean() const;
@@ -252,14 +252,14 @@ public:
 	G_API_GENEVA std::size_t getNAdaptions() const;
 
 	/** @brief Allows to set the current iteration of the parent optimization algorithm. */
-	G_API_GENEVA void setAssignedIteration(const boost::uint32_t&);
+	G_API_GENEVA void setAssignedIteration(const std::uint32_t&);
 	/** @brief Gives access to the parent optimization algorithm's iteration */
-	G_API_GENEVA boost::uint32_t getAssignedIteration() const;
+	G_API_GENEVA std::uint32_t getAssignedIteration() const;
 
 	/** @brief Allows to specify the number of optimization cycles without improvement of the primary fitness criterion */
-	G_API_GENEVA void setNStalls(const boost::uint32_t&);
+	G_API_GENEVA void setNStalls(const std::uint32_t&);
 	/** @brief Allows to retrieve the number of optimization cycles without improvement of the primary fitness criterion */
-	G_API_GENEVA boost::uint32_t getNStalls() const;
+	G_API_GENEVA std::uint32_t getNStalls() const;
 
 	/** @brief Retrieves an identifier for the current personality of this object */
 	G_API_GENEVA std::string getPersonality() const;
@@ -287,8 +287,8 @@ public:
 			return boost::numeric_cast<val_type>(boost::any_cast<double>(this->getVarVal("d", target)));
 		} else if(typeid(val_type) == typeid(float)) {
 			return boost::numeric_cast<val_type>(boost::any_cast<float>(this->getVarVal("f", target)));
-		} if(typeid(val_type) == typeid(boost::int32_t)) {
-			return boost::numeric_cast<val_type>(boost::any_cast<boost::int32_t>(this->getVarVal("i", target)));
+		} if(typeid(val_type) == typeid(std::int32_t)) {
+			return boost::numeric_cast<val_type>(boost::any_cast<std::int32_t>(this->getVarVal("i", target)));
 		} if(typeid(val_type) == typeid(bool)) {
 			return boost::numeric_cast<val_type>(boost::any_cast<bool>(this->getVarVal("b", target)));
 		} else {
@@ -382,7 +382,7 @@ public:
 	/** @brief Allows an optimization algorithm to set the worst known valid evaluation up to the current iteration */
 	G_API_GENEVA void setWorstKnownValid(const std::vector<std::tuple<double, double>>&);
 	/** @brief Allows to retrieve the worst known valid evaluation up to the current iteration, as set by an external optimization algorithm */
-	G_API_GENEVA std::tuple<double, double> getWorstKnownValid(const boost::uint32_t&) const;
+	G_API_GENEVA std::tuple<double, double> getWorstKnownValid(const std::uint32_t&) const;
 	/** @brief Allows to retrieve all worst known valid evaluations up to the current iteration, as set by an external optimization algorithm */
 	G_API_GENEVA std::vector<std::tuple<double, double>> getWorstKnownValids() const;
 	/** @brief Fills the worstKnownValid-vector with best values */
@@ -502,13 +502,13 @@ private:
 	/** @brief Holds the globally best known primary fitness of all individuals */
 	std::tuple<double, double> bestPastPrimaryFitness_;
 	/** @brief The number of stalls of the primary fitness criterion in the entire set of individuals */
-	boost::uint32_t nStalls_ = 0;
+	std::uint32_t nStalls_ = 0;
 	/** @brief Internal representation of the adaption status of this object */
 	boost::logic::tribool dirtyFlag_ = true; // boost::logic::indeterminate refers to "delayed evaluation"
 	/** @brief Indicates whether we are running in maximization or minimization mode */
 	bool maximize_ = false;
 	/** @brief The iteration of the parent algorithm's optimization cycle */
-	boost::uint32_t assignedIteration_ = 0;
+	std::uint32_t assignedIteration_ = 0;
 	/** @brief Indicates how valid a given solution is */
 	double validityLevel_ = 0.;
 	/** @brief Holds the actual personality information */

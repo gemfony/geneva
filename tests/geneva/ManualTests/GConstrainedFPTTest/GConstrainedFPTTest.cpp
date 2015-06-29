@@ -68,7 +68,7 @@ using namespace Gem::Geneva;
 using namespace Gem::Common;
 using namespace boost;
 
-const boost::uint32_t NTESTS=10000;
+const std::uint32_t NTESTS=10000;
 
 int main(int argc, char **argv){
 	//***************************************************************************
@@ -80,7 +80,7 @@ int main(int argc, char **argv){
 
 	GConstrainedDoubleObject gbd13(-1.,3.); // lower boundary -1, upper Boundary 3
 
-	for(boost::uint32_t i=0; i<NTESTS; i++){
+	for(std::uint32_t i=0; i<NTESTS; i++){
 		internalValue=-30.+50.*double(i)/double(NTESTS);
 
 		externalValue = gbd13.transfer(internalValue);

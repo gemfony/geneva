@@ -45,7 +45,7 @@ namespace Geneva {
  */
 GMultiThreadedPS::GMultiThreadedPS()
 	: GBasePS(), nThreads_(
-	boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS))) { /* nothing */ }
+	boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS))) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -150,9 +150,9 @@ std::string GMultiThreadedPS::name() const {
  *
  * @param nThreads The number of threads this class uses
  */
-void GMultiThreadedPS::setNThreads(boost::uint16_t nThreads) {
+void GMultiThreadedPS::setNThreads(std::uint16_t nThreads) {
 	if (nThreads == 0) {
-		nThreads_ = boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
+		nThreads_ = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
 	}
 	else {
 		nThreads_ = nThreads;
@@ -165,7 +165,7 @@ void GMultiThreadedPS::setNThreads(boost::uint16_t nThreads) {
  *
  * @return The maximum number of allowed threads
  */
-boost::uint16_t GMultiThreadedPS::getNThreads() const {
+std::uint16_t GMultiThreadedPS::getNThreads() const {
 	return nThreads_;
 }
 
@@ -259,10 +259,10 @@ void GMultiThreadedPS::addConfigurationOptions(
 	GBasePS::addConfigurationOptions(gpb);
 
 	// add local data
-	gpb.registerFileParameter<boost::uint16_t>(
+	gpb.registerFileParameter<std::uint16_t>(
 		"nEvaluationThreads" // The name of the variable
 		, 0 // The default value
-		, [this](boost::uint16_t nt) { this->setNThreads(nt); }
+		, [this](std::uint16_t nt) { this->setNThreads(nt); }
 	)
 	<< "The number of evaluation threads" << std::endl
 	<< "0 means: determine automatically;";

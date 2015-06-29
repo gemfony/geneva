@@ -78,24 +78,24 @@ using namespace Gem::Common;
  * The main function.
  */
 int main(int argc, char **argv){
-	boost::uint16_t parallelizationMode;
+	std::uint16_t parallelizationMode;
 	bool serverMode;
 	std::string ip;
 	unsigned short port;
-	boost::uint32_t maxStalls;
-	boost::uint32_t maxConnectionAttempts;
-	boost::uint16_t nProducerThreads;
-	boost::uint16_t nEvaluationThreads;
+	std::uint32_t maxStalls;
+	std::uint32_t maxConnectionAttempts;
+	std::uint16_t nProducerThreads;
+	std::uint16_t nEvaluationThreads;
 	std::size_t populationSize;
 	std::size_t nParents;
-	boost::uint32_t maxIterations;
+	std::uint32_t maxIterations;
 	long maxMinutes;
-	boost::uint32_t reportIteration;
+	std::uint32_t reportIteration;
 	duplicationScheme rScheme;
 	sortingMode smode;
 	Gem::Common::serializationMode serMode;
-	boost::uint16_t xDim;
-	boost::uint16_t yDim;
+	std::uint16_t xDim;
+	std::uint16_t yDim;
 	bool followProgress;
 	bool addLocalConsumer;
 

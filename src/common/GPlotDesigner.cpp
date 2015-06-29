@@ -49,7 +49,7 @@ namespace Common {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Common::graphPlotMode &gpm) {
-	boost::uint16_t tmp = static_cast<boost::uint16_t>(gpm);
+	std::uint16_t tmp = static_cast<std::uint16_t>(gpm);
 	o << tmp;
 	return o;
 }
@@ -64,7 +64,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Common::graphPlotMode &gpm)
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Common::graphPlotMode &gpm) {
-	boost::uint16_t tmp;
+	std::uint16_t tmp;
 	i >> tmp;
 
 #ifdef DEBUG
@@ -88,7 +88,7 @@ std::istream &operator>>(std::istream &i, Gem::Common::graphPlotMode &gpm) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Common::tddropt &tdo) {
-	boost::uint16_t tmp = static_cast<boost::uint16_t>(tdo);
+	std::uint16_t tmp = static_cast<std::uint16_t>(tdo);
 	o << tmp;
 	return o;
 }
@@ -103,7 +103,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Common::tddropt &tdo) {
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Common::tddropt &tdo) {
-	boost::uint16_t tmp;
+	std::uint16_t tmp;
 	i >> tmp;
 
 #ifdef DEBUG
@@ -2147,7 +2147,7 @@ GHistogram1I::GHistogram1I(
 	, const double &minX
 	, const double &maxX
 )
-	: GDataCollector1T<boost::int32_t>()
+	: GDataCollector1T<std::int32_t>()
 	, nBinsX_(nBinsX)
 	, minX_(minX)
 	, maxX_(maxX)
@@ -2161,7 +2161,7 @@ GHistogram1I::GHistogram1I(
 	const std::size_t &nBinsX
 	, const std::tuple<double, double> &rangeX
 )
-	: GDataCollector1T<boost::int32_t>()
+	: GDataCollector1T<std::int32_t>()
 	, nBinsX_(nBinsX)
 	, minX_(std::get<0>(rangeX))
 	, maxX_(std::get<1>(rangeX))
@@ -2174,7 +2174,7 @@ GHistogram1I::GHistogram1I(
  * @param cp a copy of another GHistogram1I object
  */
 GHistogram1I::GHistogram1I(const GHistogram1I &cp)
-	: GDataCollector1T<boost::int32_t>(cp)
+	: GDataCollector1T<std::int32_t>(cp)
 	, nBinsX_(cp.nBinsX_)
 	, minX_(cp.minX_)
 	, maxX_(cp.maxX_)
@@ -2267,7 +2267,7 @@ std::string GHistogram1I::bodyData(bool isSecondary, std::size_t pId) const {
 
 	std::string histName = "histI" + suffix(isSecondary, pId);
 
-	std::vector<boost::int32_t>::const_iterator it;
+	std::vector<std::int32_t>::const_iterator it;
 	std::size_t posCounter = 0;
 	for (it = data_.begin(); it != data_.end(); ++it) {
 		body_data
@@ -2400,7 +2400,7 @@ void GHistogram1I::compare(
 	GToken token("GHistogram1I", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GDataCollector1T<boost::int32_t>>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GDataCollector1T<std::int32_t>>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(nBinsX_, p_load->nBinsX_), token);
@@ -2429,7 +2429,7 @@ void GHistogram1I::load_(const GBasePlotter* cp) {
 	const GHistogram1I *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GHistogram1I>(cp, this);
 
 	// Load our parent class'es data ...
-	GDataCollector1T<boost::int32_t>::load_(cp);
+	GDataCollector1T<std::int32_t>::load_(cp);
 
 	// ... and then our local data
 	nBinsX_   = p_load->nBinsX_;
@@ -3685,7 +3685,7 @@ void GPlotDesigner::registerPlotter(std::shared_ptr < GBasePlotter > plotter_ptr
  * @param c_x_dim The y-dimension of the output canvas
  */
 void GPlotDesigner::setCanvasDimensions(
-	const boost::uint32_t &c_x_dim, const boost::uint32_t &c_y_dim
+	const std::uint32_t &c_x_dim, const std::uint32_t &c_y_dim
 ) {
 	c_x_dim_ = c_x_dim;
 	c_y_dim_ = c_y_dim;
@@ -3699,7 +3699,7 @@ void GPlotDesigner::setCanvasDimensions(
  * @param c_x_dim The y-dimension of the output canvas
  */
 void GPlotDesigner::setCanvasDimensions(
-	const std::tuple<boost::uint32_t, boost::uint32_t> &c_dim
+	const std::tuple<std::uint32_t, std::uint32_t> &c_dim
 ) {
 	this->setCanvasDimensions(std::get<0>(c_dim), std::get<1>(c_dim));
 }
@@ -3710,8 +3710,8 @@ void GPlotDesigner::setCanvasDimensions(
  *
  * @return A std::tuple holding the canvas dimensions
  */
-std::tuple<boost::uint32_t, boost::uint32_t> GPlotDesigner::getCanvasDimensions() const {
-	return std::tuple<boost::uint32_t, boost::uint32_t>(c_x_dim_, c_y_dim_);
+std::tuple<std::uint32_t, std::uint32_t> GPlotDesigner::getCanvasDimensions() const {
+	return std::tuple<std::uint32_t, std::uint32_t>(c_x_dim_, c_y_dim_);
 }
 
 /******************************************************************************/

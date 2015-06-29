@@ -261,13 +261,13 @@ public:
 		) const override;
 
 		/** @brief Set the dimension of the output canvas */
-		G_API_GENEVA void setDims(const boost::uint32_t&, const boost::uint32_t&);
+		G_API_GENEVA void setDims(const std::uint32_t&, const std::uint32_t&);
 		/** @brief Retrieve the dimensions as a tuple */
-		G_API_GENEVA std::tuple<boost::uint32_t, boost::uint32_t> getDims() const;
+		G_API_GENEVA std::tuple<std::uint32_t, std::uint32_t> getDims() const;
 		/** @brief Retrieve the x-dimension of the output canvas */
-		G_API_GENEVA boost::uint32_t getXDim() const;
+		G_API_GENEVA std::uint32_t getXDim() const;
 		/** @brief Retrieve the y-dimension of the output canvas */
-		G_API_GENEVA boost::uint32_t getYDim() const;
+		G_API_GENEVA std::uint32_t getYDim() const;
 
 		/** @brief Sets the number of individuals in the population that should be monitored */
 		G_API_GENEVA void setNMonitorIndividuals(const std::size_t&);
@@ -293,8 +293,8 @@ public:
 		virtual G_API_GENEVA GObject* clone_() const override;
 
 	private:
-		boost::uint32_t xDim_ = DEFAULTXDIMOM; ///< The dimension of the canvas in x-direction
-		boost::uint32_t yDim_ = DEFAULTYDIMOM; ///< The dimension of the canvas in y-direction
+		std::uint32_t xDim_ = DEFAULTXDIMOM; ///< The dimension of the canvas in x-direction
+		std::uint32_t yDim_ = DEFAULTYDIMOM; ///< The dimension of the canvas in y-direction
 		std::size_t nMonitorInds_ = 0; ///< The number if individuals that should be monitored
 		std::string resultFile_ = DEFAULTROOTRESULTFILEOM; ///< The name of the file to which data is emitted
 

@@ -65,19 +65,19 @@ namespace po = boost::program_options;
 
 /******************************************************************************/
 // Default settings
-const boost::uint16_t DEFAULTNEVALUATIONTHREADS=4;
+const std::uint16_t DEFAULTNEVALUATIONTHREADS=4;
 const std::size_t DEFAULTPOPULATIONSIZESUPER=5;
 const std::size_t DEFAULTNPARENTSSUPER=1;
-const boost::uint32_t DEFAULTMAXITERATIONSSUPER=10;
+const std::uint32_t DEFAULTMAXITERATIONSSUPER=10;
 const long DEFAULTMAXMINUTESSUPER=0;
-const boost::uint32_t DEFAULTREPORTITERATIONSUPER=1;
+const std::uint32_t DEFAULTREPORTITERATIONSUPER=1;
 const sortingModeMP DEFAULTSORTINGSCHEMESUPER=MUPLUSNU_SINGLEEVAL_MP;
 const duplicationScheme DEFAULTRSCHEMESUPER=VALUEDUPLICATIONSCHEME;
 const std::size_t DEFAULTPOPULATIONSIZESUB=22;
 const std::size_t DEFAULTNPARENTSSUB=2; // Allow to explore the parameter space from many starting points
-const boost::uint32_t DEFAULTMAXITERATIONSSUB=100;
+const std::uint32_t DEFAULTMAXITERATIONSSUB=100;
 const long DEFAULTMAXMINUTESSUB=0;
-const boost::uint32_t DEFAULTREPORTITERATIONSUB=0;
+const std::uint32_t DEFAULTREPORTITERATIONSUB=0;
 const sortingMode DEFAULTSORTINGSCHEMESUB=MUCOMMANU_SINGLEEVAL;
 const duplicationScheme DEFAULTRSCHEMESUB=VALUEDUPLICATIONSCHEME;
 
@@ -87,19 +87,19 @@ const duplicationScheme DEFAULTRSCHEMESUB=VALUEDUPLICATIONSCHEME;
  */
 bool parseCommandLine(
 	int argc, char** argv
-	, boost::uint16_t& nEvaluationThreads
+	, std::uint16_t& nEvaluationThreads
 	, std::size_t& populationSizeSuper
 	, std::size_t& nParentsSuper
-	, boost::uint32_t& maxIterationsSuper
+	, std::uint32_t& maxIterationsSuper
 	, long& maxMinutesSuper
-	, boost::uint32_t& reportIterationSuper
+	, std::uint32_t& reportIterationSuper
 	, duplicationScheme& rSchemeSuper
 	, sortingModeMP& smodeSuper
 	, std::size_t& populationSizeSub
 	, std::size_t& nParentsSub
-	, boost::uint32_t& maxIterationsSub
+	, std::uint32_t& maxIterationsSub
 	, long& maxMinutesSub
-	, boost::uint32_t& reportIterationSub
+	, std::uint32_t& reportIterationSub
 	, duplicationScheme& rSchemeSub
 	, sortingMode& smodeSub
 );

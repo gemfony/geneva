@@ -57,23 +57,23 @@
  */
 int main(int argc, char **argv){
 	std::string configFile;
-	boost::uint16_t parallelizationMode;
+	std::uint16_t parallelizationMode;
 	std::string ip;
-	boost::uint16_t nProducerThreads;
-	boost::uint16_t nEvaluationThreads;
+	std::uint16_t nProducerThreads;
+	std::uint16_t nEvaluationThreads;
 	std::size_t populationSize;
 	std::size_t nParents;
-	boost::uint32_t maxIterations;
+	std::uint32_t maxIterations;
 	long maxMinutes;
-	boost::uint32_t reportIteration;
+	std::uint32_t reportIteration;
 	duplicationScheme rScheme;
 	std::size_t parDim;
 	double minVar;
 	double maxVar;
 	sortingMode smode;
-	boost::uint32_t nProcessingUnits;
+	std::uint32_t nProcessingUnits;
 	solverFunction df;
-	boost::uint32_t adaptionThreshold;
+	std::uint32_t adaptionThreshold;
 	double sigma;
 	double sigmaSigma;
 	double minSigma;

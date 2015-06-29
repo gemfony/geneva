@@ -47,7 +47,7 @@ namespace Geneva {
  * cannot be determined.
  */
 GMultiThreadedEA::GMultiThreadedEA()
-	: GBaseEA(), nThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads())) { /* nothing */ }
+	: GBaseEA(), nThreads_(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads())) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -277,10 +277,10 @@ void GMultiThreadedEA::addConfigurationOptions(
 	GBaseEA::addConfigurationOptions(gpb);
 
 	// Add local data
-	gpb.registerFileParameter<boost::uint16_t>(
+	gpb.registerFileParameter<std::uint16_t>(
 		"nEvaluationThreads" // The name of the variable
 		, 0 // The default value
-		, [this](boost::uint16_t nt) { this->setNThreads(nt); }
+		, [this](std::uint16_t nt) { this->setNThreads(nt); }
 	)
 	<< "The number of threads used to simultaneously process individuals";
 }
@@ -304,9 +304,9 @@ std::string GMultiThreadedEA::getIndividualCharacteristic() const {
  *
  * @param nThreads The number of threads this class uses
  */
-void GMultiThreadedEA::setNThreads(boost::uint16_t nThreads) {
+void GMultiThreadedEA::setNThreads(std::uint16_t nThreads) {
 	if (nThreads == 0) {
-		nThreads_ = boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
+		nThreads_ = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
 	}
 	else {
 		nThreads_ = nThreads;
@@ -319,7 +319,7 @@ void GMultiThreadedEA::setNThreads(boost::uint16_t nThreads) {
  *
  * @return The maximum number of allowed threads
  */
-boost::uint16_t GMultiThreadedEA::getNThreads() const {
+std::uint16_t GMultiThreadedEA::getNThreads() const {
 	return nThreads_;
 }
 

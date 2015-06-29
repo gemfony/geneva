@@ -45,7 +45,7 @@ namespace Geneva {
  * The default constructor
  */
 GInt32FlipAdaptor::GInt32FlipAdaptor()
-	: GIntFlipAdaptorT<boost::int32_t>() { /* nothing */ }
+	: GIntFlipAdaptorT<std::int32_t>() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -54,7 +54,7 @@ GInt32FlipAdaptor::GInt32FlipAdaptor()
  * @param cp A copy of another GInt32FlipAdaptor object
  */
 GInt32FlipAdaptor::GInt32FlipAdaptor(const GInt32FlipAdaptor &cp)
-	: GIntFlipAdaptorT<boost::int32_t>(cp) { /* nothing */ }
+	: GIntFlipAdaptorT<std::int32_t>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -63,7 +63,7 @@ GInt32FlipAdaptor::GInt32FlipAdaptor(const GInt32FlipAdaptor &cp)
  * @param adProb The adaption probability
  */
 GInt32FlipAdaptor::GInt32FlipAdaptor(const double &adProb)
-	: GIntFlipAdaptorT<boost::int32_t>(adProb) { /* nothing */ }
+	: GIntFlipAdaptorT<std::int32_t>(adProb) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -144,7 +144,7 @@ void GInt32FlipAdaptor::compare(
 	GToken token("GInt32FlipAdaptor", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GIntFlipAdaptorT<boost::int32_t>>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GIntFlipAdaptorT<std::int32_t>>(IDENTITY(*this, *p_load), token);
 
 	// ... no local data
 
@@ -171,7 +171,7 @@ void GInt32FlipAdaptor::load_(const GObject *cp) {
 	const GInt32FlipAdaptor * p_load = Gem::Common::g_convert_and_compare<GObject, GInt32FlipAdaptor>(cp, this);
 
 	// Load our parent class'es data ...
-	GIntFlipAdaptorT<boost::int32_t>::load_(cp);
+	GIntFlipAdaptorT<std::int32_t>::load_(cp);
 
 	// ... no local data
 }
@@ -206,7 +206,7 @@ bool GInt32FlipAdaptor::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GIntFlipAdaptorT<boost::int32_t>::modify_GUnitTests()) result = true;
+	if (GIntFlipAdaptorT<std::int32_t>::modify_GUnitTests()) result = true;
 
 	return result;
 
@@ -227,7 +227,7 @@ void GInt32FlipAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GIntFlipAdaptorT<boost::int32_t>::specificTestsNoFailureExpected_GUnitTests();
+	GIntFlipAdaptorT<std::int32_t>::specificTestsNoFailureExpected_GUnitTests();
 
 	// --------------------------------------------------------------------------
 
@@ -259,7 +259,7 @@ void GInt32FlipAdaptor::specificTestsFailuresExpected_GUnitTests() {
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GIntFlipAdaptorT<boost::int32_t>::specificTestsFailuresExpected_GUnitTests();
+	GIntFlipAdaptorT<std::int32_t>::specificTestsFailuresExpected_GUnitTests();
 
 	// no local data - nothing to test
 

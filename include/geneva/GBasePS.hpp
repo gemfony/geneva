@@ -65,7 +65,7 @@ class GPSOptimizationMonitor;
 /******************************************************************************/
 // A number of typedefs that indicate the position and value of a parameter inside of an individual
 typedef std::tuple<bool,           std::size_t, std::string, std::size_t> singleBPar;
-typedef std::tuple<boost::int32_t, std::size_t, std::string, std::size_t> singleInt32Par;
+typedef std::tuple<std::int32_t, std::size_t, std::string, std::size_t> singleInt32Par;
 typedef std::tuple<float,          std::size_t, std::string, std::size_t> singleFPar;
 typedef std::tuple<double,         std::size_t, std::string, std::size_t> singleDPar;
 

@@ -62,7 +62,7 @@ namespace Geneva {
 
 /******************************************************************************/
 // Default settings
-const boost::uint16_t FACT_DEF_NEVALUATIONTHREADS=0;
+const std::uint16_t FACT_DEF_NEVALUATIONTHREADS=0;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -88,7 +88,7 @@ public:
 	)
 		: Gem::Common::GFactoryT<oa_type>(configFile)
 		, pm_(DEFAULTEXECMODE)
-		, nEvaluationThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
+		, nEvaluationThreads_(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 		, waitFactor_(Gem::Courtier::DEFAULTBROKERWAITFACTOR2)
 		, doLogging_(false)
 		, contentCreatorPtr_()
@@ -108,7 +108,7 @@ public:
 	)
 		: Gem::Common::GFactoryT<oa_type>(configFile)
 		, pm_(pm)
-		, nEvaluationThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
+		, nEvaluationThreads_(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 		, waitFactor_(Gem::Courtier::DEFAULTBROKERWAITFACTOR2)
 		, doLogging_(false)
 		, contentCreatorPtr_()
@@ -128,7 +128,7 @@ public:
 	)
 		: Gem::Common::GFactoryT<oa_type>(configFile)
 		, pm_(pm)
-		, nEvaluationThreads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
+		, nEvaluationThreads_(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 		, waitFactor_(Gem::Courtier::DEFAULTBROKERWAITFACTOR2)
 		, doLogging_(false)
 		, contentCreatorPtr_(contentCreatorPtr)
@@ -165,15 +165,15 @@ public:
 
 		hidden.add_options() (
 			(this->getMnemonic() + std::string("MaxIterations")).c_str()
-			, po::value<boost::int32_t>(&maxIterationCL_)->default_value(-1)
+			, po::value<std::int32_t>(&maxIterationCL_)->default_value(-1)
 			, (std::string("\t[GOptimizationAlgorithmFactoryT / ") + this->getMnemonic() + "] The maximum allowed number of iterations or 0 to disable limit").c_str()
 		) (
 			(this->getMnemonic() + std::string("MaxStallIterations")).c_str()
-			, po::value<boost::int32_t>(&maxStallIterationCL_)->default_value(-1)
+			, po::value<std::int32_t>(&maxStallIterationCL_)->default_value(-1)
 			, (std::string("\t[GOptimizationAlgorithmFactoryT / ") + this->getMnemonic() + "] The maximum allowed number of stalled iterations or 0 to disable limit").c_str()
 		) (
 			(this->getMnemonic() + std::string("MaxSeconds")).c_str()
-			, po::value<boost::int32_t>(&maxSecondsCL_)->default_value(-1)
+			, po::value<std::int32_t>(&maxSecondsCL_)->default_value(-1)
 			, (std::string("\t[GOptimizationAlgorithmFactoryT / ") + this->getMnemonic() + "] The maximum allowed duration in seconds or 0 to disable limit").c_str()
 		)
 			;
@@ -350,8 +350,8 @@ public:
 	/**
 	 * Allows to manually set the maximum number of iterations as is usually specified on the command line
 	 */
-	void setMaxIterationCL(boost::uint32_t maxIterationCL) {
-		maxIterationCL_ = boost::numeric_cast<boost::int32_t>(maxIterationCL);
+	void setMaxIterationCL(std::uint32_t maxIterationCL) {
+		maxIterationCL_ = boost::numeric_cast<std::int32_t>(maxIterationCL);
 	}
 
 	/***************************************************************************/
@@ -367,9 +367,9 @@ public:
 	/**
 	 * Allows to retrieve the maximum number of iterations as set on the command line
 	 */
-	boost::uint32_t getMaxIterationCL() const {
+	std::uint32_t getMaxIterationCL() const {
 		if(maxIterationCL_ >= 0) {
-			return boost::numeric_cast<boost::uint32_t>(maxIterationCL_);
+			return boost::numeric_cast<std::uint32_t>(maxIterationCL_);
 		}
 		else {
 			glogger
@@ -378,7 +378,7 @@ public:
 			<< GEXCEPTION;
 
 			// Make the compiler happy
-			return boost::uint32_t(0);
+			return std::uint32_t(0);
 		}
 	}
 
@@ -386,8 +386,8 @@ public:
 	/**
 	 * Allows to manually set the maximum number of stall iterations as is usually specified on the command line
 	 */
-	void setMaxStallIterationCL(boost::uint32_t maxStallIterationCL) {
-		maxStallIterationCL_ = boost::numeric_cast<boost::int32_t>(maxStallIterationCL);
+	void setMaxStallIterationCL(std::uint32_t maxStallIterationCL) {
+		maxStallIterationCL_ = boost::numeric_cast<std::int32_t>(maxStallIterationCL);
 	}
 
 	/***************************************************************************/
@@ -403,9 +403,9 @@ public:
 	/**
 	 * Allows to retrieve the maximum number of stall iterations as set on the command line
 	 */
-	boost::uint32_t getMaxStallIterationCL() const {
+	std::uint32_t getMaxStallIterationCL() const {
 		if(maxStallIterationCL_ >= 0) {
-			return boost::numeric_cast<boost::uint32_t>(maxStallIterationCL_);
+			return boost::numeric_cast<std::uint32_t>(maxStallIterationCL_);
 		}
 		else {
 			glogger
@@ -414,7 +414,7 @@ public:
 			<< GEXCEPTION;
 
 			// Make the compiler happy
-			return boost::uint32_t(0);
+			return std::uint32_t(0);
 		}
 	}
 
@@ -422,8 +422,8 @@ public:
 	/**
 	 * Allows to manually set the maximum number of seconds for a run as is usually specified on the command line
 	 */
-	void setMaxSecondsCL(boost::uint32_t maxSecondsCL) {
-		maxSecondsCL_ = boost::numeric_cast<boost::int32_t>(maxSecondsCL);
+	void setMaxSecondsCL(std::uint32_t maxSecondsCL) {
+		maxSecondsCL_ = boost::numeric_cast<std::int32_t>(maxSecondsCL);
 	}
 
 	/***************************************************************************/
@@ -467,7 +467,7 @@ protected:
 	) override {
 		using namespace Gem::Courtier;
 
-		gpb.registerFileParameter<boost::uint16_t>(
+		gpb.registerFileParameter<std::uint16_t>(
 			"nEvaluationThreads"
 			, nEvaluationThreads_
 			, FACT_DEF_NEVALUATIONTHREADS
@@ -518,7 +518,7 @@ protected:
 	virtual std::shared_ptr<oa_type> getObject_(Gem::Common::GParserBuilder&, const std::size_t&) override = 0;
 
 	execMode pm_; ///< Holds information about the desired parallelization mode
-	boost::uint16_t nEvaluationThreads_; ///< The number of threads used for evaluations in multithreaded execution
+	std::uint16_t nEvaluationThreads_; ///< The number of threads used for evaluations in multithreaded execution
 
 	std::size_t waitFactor_; ///< A static factor to be applied to timeouts
 	bool doLogging_; ///< Specifies whether arrival times of individuals should be logged
@@ -531,9 +531,9 @@ private:
 	/** @brief The default constructor. Intentionally private and undefined */
 	GOptimizationAlgorithmFactoryT() = delete;
 
-	boost::int32_t maxIterationCL_; ///< The maximum number of iterations. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
-	boost::int32_t maxStallIterationCL_; ///< The maximum number of generations without improvement, after which optimization is stopped. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
-	boost::int32_t maxSecondsCL_; ///< The maximum number of seconds for the optimization to run. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
+	std::int32_t maxIterationCL_; ///< The maximum number of iterations. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
+	std::int32_t maxStallIterationCL_; ///< The maximum number of generations without improvement, after which optimization is stopped. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
+	std::int32_t maxSecondsCL_; ///< The maximum number of seconds for the optimization to run. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
 };
 
 /******************************************************************************/

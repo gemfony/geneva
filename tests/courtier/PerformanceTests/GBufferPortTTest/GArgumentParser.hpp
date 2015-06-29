@@ -57,7 +57,7 @@ namespace po = boost::program_options;
 
 /********************************************************************************************/
 // Default settings
-const boost::uint32_t DEFAULTNPRODUCTIONCYLCESAP = 10000;
+const std::uint32_t DEFAULTNPRODUCTIONCYLCESAP = 10000;
 const std::size_t DEFAULTNCONTAINERENTRIESAP = 100;
 const long DEFAULTPUTTIMEOUTMSAP = 1000;
 const long DEFAULTGETTIMEOUTMSAP = 1000;
@@ -67,7 +67,7 @@ const std::size_t DEFAULTMAXGETTIMEOUTS = 100;
 /********************************************************************************************/
 
 bool parseCommandLine(
-	int, char **, boost::uint32_t &nProductionCycles, std::size_t &nContainerEntries, long &putTimeoutMS,
+	int, char **, std::uint32_t &nProductionCycles, std::size_t &nContainerEntries, long &putTimeoutMS,
 	long &getTimeoutMS, std::size_t &maxPutTimeouts, std::size_t &maxGetTimeouts
 );
 

@@ -709,7 +709,7 @@ void GBaseSA::GSAOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<G
 	GBaseSA *const sa = static_cast<GBaseSA *const>(goa);
 
 	// Retrieve the current iteration
-	boost::uint32_t iteration = sa->getIteration();
+	std::uint32_t iteration = sa->getIteration();
 
 	for (std::size_t ind = 0; ind < nMonitorInds_; ind++) {
 		// Get access to the individual
@@ -759,8 +759,8 @@ void GBaseSA::GSAOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GP
  * @param yDim The desired dimension of the canvas in y-direction
  */
 void GBaseSA::GSAOptimizationMonitor::setDims(
-	const boost::uint16_t &xDim
-	, const boost::uint16_t &yDim
+	const std::uint16_t &xDim
+	, const std::uint16_t &yDim
 ) {
 	xDim_ = xDim;
 	yDim_ = yDim;
@@ -772,7 +772,7 @@ void GBaseSA::GSAOptimizationMonitor::setDims(
  *
  * @return The dimension of the canvas in x-direction
  */
-boost::uint16_t GBaseSA::GSAOptimizationMonitor::getXDim() const {
+std::uint16_t GBaseSA::GSAOptimizationMonitor::getXDim() const {
 	return xDim_;
 }
 
@@ -782,7 +782,7 @@ boost::uint16_t GBaseSA::GSAOptimizationMonitor::getXDim() const {
  *
  * @return The dimension of the canvas in y-direction
  */
-boost::uint16_t GBaseSA::GSAOptimizationMonitor::getYDim() const {
+std::uint16_t GBaseSA::GSAOptimizationMonitor::getYDim() const {
 	return yDim_;
 }
 

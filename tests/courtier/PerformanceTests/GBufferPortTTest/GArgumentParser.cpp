@@ -43,7 +43,7 @@ namespace Tests {
  * A function that parses the command line for all required parameters
  */
 bool parseCommandLine(
-	int argc, char **argv, boost::uint32_t &nProductionCycles, std::size_t &nContainerEntries, long &putTimeoutMS,
+	int argc, char **argv, std::uint32_t &nProductionCycles, std::size_t &nContainerEntries, long &putTimeoutMS,
 	long &getTimeoutMS, std::size_t &maxPutTimeouts, std::size_t &maxGetTimeouts
 ) {
 	try {
@@ -52,7 +52,7 @@ bool parseCommandLine(
 		desc.add_options()
 			("help,h", "emit help message")
 			("nProductionCycles,n",
-			 po::value<boost::uint32_t>(&nProductionCycles)->default_value(DEFAULTNPRODUCTIONCYLCESAP),
+			 po::value<std::uint32_t>(&nProductionCycles)->default_value(DEFAULTNPRODUCTIONCYLCESAP),
 			 "The number of production cycles in producer and processor")
 			("nContainerEntries,c", po::value<std::size_t>(&nContainerEntries)->default_value(DEFAULTNCONTAINERENTRIESAP),
 			 "The number of items in the random number container")

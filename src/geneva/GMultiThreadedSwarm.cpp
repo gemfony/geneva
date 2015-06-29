@@ -45,7 +45,7 @@ namespace Geneva {
  */
 GMultiThreadedSwarm::GMultiThreadedSwarm()
 	: GBaseSwarm(), nThreads_(
-	boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS))) { /* nothing */ }
+	boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS))) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -55,7 +55,7 @@ GMultiThreadedSwarm::GMultiThreadedSwarm(
 	const std::size_t &nNeighborhoods, const std::size_t &nNeighborhoodMembers
 )
 	: GBaseSwarm(nNeighborhoods, nNeighborhoodMembers), nThreads_(
-	boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS))) { /* nothing */ }
+	boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS))) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -242,10 +242,10 @@ void GMultiThreadedSwarm::addConfigurationOptions(
 	GBaseSwarm::addConfigurationOptions(gpb);
 
 	// add local data
-	gpb.registerFileParameter<boost::uint16_t>(
+	gpb.registerFileParameter<std::uint16_t>(
 		"nEvaluationThreads" // The name of the variable
 		, 0 // The default value
-		, [this](boost::uint16_t nt) { this->setNThreads(nt); }
+		, [this](std::uint16_t nt) { this->setNThreads(nt); }
 	)
 	<< "The number of evaluation threads" << std::endl
 	<< "0 means: determine automatically";
@@ -287,9 +287,9 @@ void GMultiThreadedSwarm::runFitnessCalculation() {
  *
  * @param nThreads The number of threads this class uses
  */
-void GMultiThreadedSwarm::setNThreads(boost::uint16_t nThreads) {
+void GMultiThreadedSwarm::setNThreads(std::uint16_t nThreads) {
 	if (nThreads == 0) {
-		nThreads_ = boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
+		nThreads_ = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
 	} else {
 		nThreads_ = nThreads;
 	}
@@ -301,7 +301,7 @@ void GMultiThreadedSwarm::setNThreads(boost::uint16_t nThreads) {
  *
  * @return The maximum number of allowed threads
  */
-boost::uint16_t GMultiThreadedSwarm::getNThreads() const {
+std::uint16_t GMultiThreadedSwarm::getNThreads() const {
 	return nThreads_;
 }
 

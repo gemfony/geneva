@@ -131,7 +131,7 @@ const double GFI_DEF_ADPROB = 1.0;
 const double GFI_DEF_ADAPTADPROB = 0.1;
 const double GFI_DEF_MINADPROB = 0.05;
 const double GFI_DEF_MAXADPROB = 1.;
-const boost::uint32_t GFI_DEF_ADAPTIONTHRESHOLD = 1;
+const std::uint32_t GFI_DEF_ADAPTIONTHRESHOLD = 1;
 const bool GFI_DEF_USEBIGAUSSIAN = false;
 const double GFI_DEF_SIGMA1 = 0.025;
 const double GFI_DEF_SIGMASIGMA1 = 0.2;
@@ -492,9 +492,9 @@ public:
 	// Getters and setters
 
 	/** @brief Allows to retrieve the adaptionThreshold_ variable */
-	G_API_INDIVIDUALS boost::uint32_t getAdaptionThreshold() const;
+	G_API_INDIVIDUALS std::uint32_t getAdaptionThreshold() const;
 	/** @brief Set the value of the adaptionThreshold_ variable */
-	G_API_INDIVIDUALS void setAdaptionThreshold(boost::uint32_t adaptionThreshold);
+	G_API_INDIVIDUALS void setAdaptionThreshold(std::uint32_t adaptionThreshold);
 
 	/** @brief Allows to retrieve the adProb_ variable */
 	G_API_INDIVIDUALS double getAdProb() const;
@@ -645,7 +645,7 @@ private:
 	Gem::Common::GOneTimeRefParameterT<double> adaptAdProb_;
 	Gem::Common::GOneTimeRefParameterT<double> minAdProb_;
 	Gem::Common::GOneTimeRefParameterT<double> maxAdProb_;
-	Gem::Common::GOneTimeRefParameterT<boost::uint32_t> adaptionThreshold_;
+	Gem::Common::GOneTimeRefParameterT<std::uint32_t> adaptionThreshold_;
 	Gem::Common::GOneTimeRefParameterT<bool> useBiGaussian_;
 	Gem::Common::GOneTimeRefParameterT<double> sigma1_;
 	Gem::Common::GOneTimeRefParameterT<double> sigmaSigma1_;

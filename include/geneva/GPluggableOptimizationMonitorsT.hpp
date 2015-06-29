@@ -463,7 +463,7 @@ public:
 	 * @param xDim The desired dimension of the canvas in x-direction
 	 * @param yDim The desired dimension of the canvas in y-direction
 	 */
-	void setDims(const boost::uint32_t &xDim, const boost::uint32_t &yDim) {
+	void setDims(const std::uint32_t &xDim, const std::uint32_t &yDim) {
 		xDim_ = xDim;
 		yDim_ = yDim;
 	}
@@ -474,8 +474,8 @@ public:
 	 *
 	 * @return The dimensions of the canvas as a tuple
 	 */
-	std::tuple<boost::uint32_t, boost::uint32_t> getDims() const {
-		return std::tuple<boost::uint32_t, boost::uint32_t>(xDim_, yDim_);
+	std::tuple<std::uint32_t, std::uint32_t> getDims() const {
+		return std::tuple<std::uint32_t, std::uint32_t>(xDim_, yDim_);
 	}
 
 	/***************************************************************************/
@@ -484,7 +484,7 @@ public:
 	 *
 	 * @return The dimension of the canvas in x-direction
 	 */
-	boost::uint32_t getXDim() const {
+	std::uint32_t getXDim() const {
 		return xDim_;
 	}
 
@@ -494,7 +494,7 @@ public:
 	 *
 	 * @return The dimension of the canvas in y-direction
 	 */
-	boost::uint32_t getYDim() const {
+	std::uint32_t getYDim() const {
 		return yDim_;
 	}
 
@@ -658,8 +658,8 @@ protected:
 private:
 	/************************************************************************/
 
-	boost::uint32_t xDim_ = DEFAULTXDIMOM; ///< The dimension of the canvas in x-direction
-	boost::uint32_t yDim_ = DEFAULTYDIMOM; ///< The dimension of the canvas in y-direction
+	std::uint32_t xDim_ = DEFAULTXDIMOM; ///< The dimension of the canvas in x-direction
+	std::uint32_t yDim_ = DEFAULTYDIMOM; ///< The dimension of the canvas in y-direction
 	std::size_t nMonitorInds_ = 1; ///< The number of individuals that should be monitored
 	std::string resultFile_ = DEFAULTROOTRESULTFILEOM; ///< The name of the file to which data is emitted
 
@@ -1056,7 +1056,7 @@ public:
 	 */
 	GProgressPlotterT()
 		: gpd_oa_("Progress information", 1, 1)
-		, canvasDimensions_(std::tuple<boost::uint32_t,boost::uint32_t>(1024,768))
+		, canvasDimensions_(std::tuple<std::uint32_t,std::uint32_t>(1024,768))
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -1067,7 +1067,7 @@ public:
 	 */
 	GProgressPlotterT(bool monitorBestOnly, bool monitorValidOnly)
 		: gpd_oa_("Progress information", 1, 1)
-		, canvasDimensions_(std::tuple<boost::uint32_t,boost::uint32_t>(1024,768))
+		, canvasDimensions_(std::tuple<std::uint32_t,std::uint32_t>(1024,768))
 		, monitorBestOnly_(monitorBestOnly)
 		, monitorValidOnly_(monitorValidOnly)
 	{ /* nothing */ }
@@ -1249,7 +1249,7 @@ public:
 	/**
 	 * Allows to set the canvas dimensions
 	 */
-	void setCanvasDimensions(std::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions) {
+	void setCanvasDimensions(std::tuple<std::uint32_t,std::uint32_t> canvasDimensions) {
 		canvasDimensions_ = canvasDimensions;
 	}
 
@@ -1257,15 +1257,15 @@ public:
 	/**
 	 * Allows to set the canvas dimensions using separate x and y values
 	 */
-	void setCanvasDimensions(boost::uint32_t x, boost::uint32_t y) {
-		canvasDimensions_ = std::tuple<boost::uint32_t,boost::uint32_t>(x,y);
+	void setCanvasDimensions(std::uint32_t x, std::uint32_t y) {
+		canvasDimensions_ = std::tuple<std::uint32_t,std::uint32_t>(x,y);
 	}
 
 	/***************************************************************************/
 	/**
 	 * Gives access to the canvas dimensions
 	 */
-	std::tuple<boost::uint32_t,boost::uint32_t> getCanvasDimensions() const {
+	std::tuple<std::uint32_t,std::uint32_t> getCanvasDimensions() const {
 		return canvasDimensions_;
 	}
 
@@ -1707,7 +1707,7 @@ private:
 	std::shared_ptr<Gem::Common::GGraph4D> progressPlotter4D_oa_;
 
 	std::string fileName_ = std::string("progressScan.C"); ///< The name of the file the output should be written to. Note that the class will add the name of the algorithm it acts on
-	std::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions_; ///< The dimensions of the canvas
+	std::tuple<std::uint32_t,std::uint32_t> canvasDimensions_; ///< The dimensions of the canvas
 
 	bool monitorBestOnly_ = false;  ///< Indicates whether only the best individuals should be monitored
 	bool monitorValidOnly_ = false; ///< Indicates whether only valid individuals should be plotted
@@ -2668,7 +2668,7 @@ public:
 	 * initialized in the class body.
 	 */
 	GNAdpationsLoggerT()
-		: canvasDimensions_(std::tuple<boost::uint32_t,boost::uint32_t>(1200,1600))
+		: canvasDimensions_(std::tuple<std::uint32_t,std::uint32_t>(1200,1600))
 		, gpd_oa_("Number of adaptions per iteration", 1, 2)
 	{ /* nothing */ }
 
@@ -2679,7 +2679,7 @@ public:
 	 */
 	explicit GNAdpationsLoggerT(const std::string& fileName)
 		: fileName_(fileName)
-		, canvasDimensions_(std::tuple<boost::uint32_t,boost::uint32_t>(1200,1600))
+		, canvasDimensions_(std::tuple<std::uint32_t,std::uint32_t>(1200,1600))
 		, gpd_oa_("Number of adaptions per iteration", 1, 2)
 	{ /* nothing */ }
 
@@ -2829,7 +2829,7 @@ public:
 	/**
 	 * Allows to set the canvas dimensions
 	 */
-	void setCanvasDimensions(std::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions) {
+	void setCanvasDimensions(std::tuple<std::uint32_t,std::uint32_t> canvasDimensions) {
 		canvasDimensions_ = canvasDimensions;
 	}
 
@@ -2837,15 +2837,15 @@ public:
 	/**
 	 * Allows to set the canvas dimensions using separate x and y values
 	 */
-	void setCanvasDimensions(boost::uint32_t x, boost::uint32_t y) {
-		canvasDimensions_ = std::tuple<boost::uint32_t,boost::uint32_t>(x,y);
+	void setCanvasDimensions(std::uint32_t x, std::uint32_t y) {
+		canvasDimensions_ = std::tuple<std::uint32_t,std::uint32_t>(x,y);
 	}
 
 	/***************************************************************************/
 	/**
 	 * Gives access to the canvas dimensions
 	 */
-	std::tuple<boost::uint32_t,boost::uint32_t> getCanvasDimensions() const {
+	std::tuple<std::uint32_t,std::uint32_t> getCanvasDimensions() const {
 		return canvasDimensions_;
 	}
 
@@ -2907,7 +2907,7 @@ public:
 
 			case Gem::Geneva::INFOPROCESSING:
 			{
-				boost::uint32_t iteration = goa->getIteration();
+				std::uint32_t iteration = goa->getIteration();
 
 				// Record the current fitness
 				std::shared_ptr<GParameterSet> p = goa->GOptimizableI::template getBestIndividual<GParameterSet>();
@@ -3049,7 +3049,7 @@ private:
 
 	std::string fileName_ = "NAdaptions.C"; ///< The name of the file to which solutions should be stored
 
-	std::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions_; ///< The dimensions of the canvas
+	std::tuple<std::uint32_t,std::uint32_t> canvasDimensions_; ///< The dimensions of the canvas
 
 	Gem::Common::GPlotDesigner gpd_oa_; ///< A wrapper for the plots
 
@@ -3182,7 +3182,7 @@ public:
 	 * the class body.
 	 */
 	GAdaptorPropertyLoggerT()
-		: canvasDimensions_(std::tuple<boost::uint32_t,boost::uint32_t>(1200,1600))
+		: canvasDimensions_(std::tuple<std::uint32_t,std::uint32_t>(1200,1600))
 		, gpd_oa_("Adaptor properties", 1, 2)
 	{ /* nothing */ }
 
@@ -3198,7 +3198,7 @@ public:
 		: fileName_(fileName)
 		, adaptorName_(adaptorName)
 		, property_(property)
-		, canvasDimensions_(std::tuple<boost::uint32_t,boost::uint32_t>(1200,1600))
+		, canvasDimensions_(std::tuple<std::uint32_t,std::uint32_t>(1200,1600))
 		, gpd_oa_("Adaptor properties", 1, 2)
 	{ /* nothing */ }
 
@@ -3391,7 +3391,7 @@ public:
 	/**
 	 * Allows to set the canvas dimensions
 	 */
-	void setCanvasDimensions(std::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions) {
+	void setCanvasDimensions(std::tuple<std::uint32_t,std::uint32_t> canvasDimensions) {
 		canvasDimensions_ = canvasDimensions;
 	}
 
@@ -3399,15 +3399,15 @@ public:
 	/**
 	 * Allows to set the canvas dimensions using separate x and y values
 	 */
-	void setCanvasDimensions(boost::uint32_t x, boost::uint32_t y) {
-		canvasDimensions_ = std::tuple<boost::uint32_t,boost::uint32_t>(x,y);
+	void setCanvasDimensions(std::uint32_t x, std::uint32_t y) {
+		canvasDimensions_ = std::tuple<std::uint32_t,std::uint32_t>(x,y);
 	}
 
 	/***************************************************************************/
 	/**
 	 * Gives access to the canvas dimensions
 	 */
-	std::tuple<boost::uint32_t,boost::uint32_t> getCanvasDimensions() const {
+	std::tuple<std::uint32_t,std::uint32_t> getCanvasDimensions() const {
 		return canvasDimensions_;
 	}
 
@@ -3469,7 +3469,7 @@ public:
 
 			case Gem::Geneva::INFOPROCESSING:
 			{
-				boost::uint32_t iteration = goa->getIteration();
+				std::uint32_t iteration = goa->getIteration();
 
 				// Record the current fitness
 				std::shared_ptr<GParameterSet> p = goa->GOptimizableI::template getBestIndividual<GParameterSet>();
@@ -3616,7 +3616,7 @@ private:
 	std::string adaptorName_ = "GDoubleGaussAdaptor"; ///< The  name of the adaptor for which properties should be logged
 	std::string property_ = "sigma"; ///< The name of the property to be logged
 
-	std::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions_; ///< The dimensions of the canvas
+	std::tuple<std::uint32_t,std::uint32_t> canvasDimensions_; ///< The dimensions of the canvas
 
 	Gem::Common::GPlotDesigner gpd_oa_; ///< A wrapper for the plots
 
