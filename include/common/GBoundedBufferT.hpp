@@ -581,9 +581,15 @@ private:
 		entries_ptr->setYAxisLabel("number of remaining entries in the buffer");
 
 		// Fill with data
-      for(std::size_t i=0; i<gets_.size(); i++) *gets_ptr & gets_[i];
-      for(std::size_t i=0; i<puts_.size(); i++) *puts_ptr & puts_[i];
-      for(std::size_t i=0; i<entries_.size(); i++) *entries_ptr & entries_[i];
+		for(auto const &x: gets_) {
+			*gets_ptr & x;
+		}
+		for(auto const &x: puts_) {
+			*puts_ptr & x;
+		}
+		for(auto const &x: entries_) {
+			*entries_ptr & x;
+		}
 
       // Create the canvas object and save it to disk
       GPlotDesigner gpd("GBoundedBufferT timings", 1,3);

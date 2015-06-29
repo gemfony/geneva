@@ -144,7 +144,7 @@ GBasePlotter::GBasePlotter(const GBasePlotter &cp)
 	// https://isocpp.org/wiki/faq/templates#nondependent-name-lookup-members
 
 	// Copy secondary plot data over
-	for(auto plotter: cp.secondaryPlotter_) {
+	for(auto const &plotter: cp.secondaryPlotter_) {
 		secondaryPlotter_.push_back(plotter->GCommonInterfaceT<GBasePlotter>::clone());
 	}
 }

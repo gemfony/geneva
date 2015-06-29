@@ -1002,15 +1002,16 @@ protected:
 	void sortMuPlusNuMode() {
 #ifdef DEBUG
       // Check that we do not accidently trigger value calculation
-      typename GBaseParChildT<ind_type>::iterator it;
-      for(it=this->begin(); it!=this->end(); ++it) {
-         if((*it)->isDirty()) {
+      std::size_t pos = 0;
+      for(auto const &it: *this) {
+         if(it->isDirty()) {
             glogger
             << "In GBaseParChildT<ind_type>::sortMuplusnuMode(): Error!" << std::endl
-            << "In iteration " << GOptimizationAlgorithmT<ind_type>::getIteration() << ": Found individual in position " << std::distance(this->begin(),it) << std::endl
+            << "In iteration " << GOptimizationAlgorithmT<ind_type>::getIteration() << ": Found individual in position " << pos << std::endl
             << " whose dirty flag is set." << std::endl
             << GEXCEPTION;
          }
+         pos++;
       }
 #endif /* DEBUG */
 

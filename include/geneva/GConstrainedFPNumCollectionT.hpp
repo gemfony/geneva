@@ -134,12 +134,12 @@ public:
 		, const fp_type& lowerBoundary
 		, const fp_type& upperBoundary
 	)
-		: GConstrainedNumCollectionT<fp_type> (
-		size
-		, (val==upperBoundary?boost::math::float_prior<fp_type>(val):val)
-		, lowerBoundary
-		, boost::math::float_prior<fp_type>(upperBoundary)
-	) // Note that we define the upper boundary as "open"
+		: GConstrainedNumCollectionT<fp_type>(
+			size
+			, (val==upperBoundary?boost::math::float_prior<fp_type>(val):val)
+			, lowerBoundary
+			, boost::math::float_prior<fp_type>(upperBoundary)
+		) // Note that we define the upper boundary as "open"
 	{ /* nothing */ }
 
 	/***************************************************************************/

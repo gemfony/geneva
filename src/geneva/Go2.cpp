@@ -756,8 +756,7 @@ void Go2::optimize(const std::uint32_t &offset) {
 	iterationsConsumed_ = offset_;
 	sorted_ = false;
 	GOABase::iterator ind_it;
-	std::vector<std::shared_ptr < GOABase>> ::iterator
-	alg_it;
+	std::vector<std::shared_ptr<GOABase>>::iterator alg_it;
 	for (alg_it = algorithms_.begin(); alg_it != algorithms_.end(); ++alg_it) {
 		std::shared_ptr <GOABase> p_base = (*alg_it);
 

@@ -119,8 +119,8 @@ double GParaboloidIndividual2D::fitnessCalculation() {
 	this->streamline(parVec); // Retrieve the parameters
 
 	// Do the actual calculation
-	for(std::size_t i=0; i<parVec.size(); i++) {
-		result += parVec[i]*parVec[i];
+	for(auto const &d: parVec) {
+		result += d*d;
 	}
 
 	return result;

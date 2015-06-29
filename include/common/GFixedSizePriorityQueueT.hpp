@@ -146,7 +146,7 @@ public:
 		: maxSize_(cp.maxSize_)
 		, higherIsBetter_(cp.higherIsBetter_)
 	{
-		for(auto cit: data_) {
+		for(auto const &cit: data_) {
 			data_.push_back(cit->template clone<T>());
 		}
 	}

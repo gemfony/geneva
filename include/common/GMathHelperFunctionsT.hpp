@@ -511,14 +511,15 @@ void GVecStandardDeviation(
 
    // Check that all entries have the same size
    if(parVec.size() > 1) {
-      std::size_t sizeFirst = parVec.at(0).size();
-      for(std::size_t pos=1; pos<parVec.size(); pos++) {
-         if(parVec.at(pos).size() != sizeFirst) {
+      std::size_t sizeFirst = parVec.at(0).size(), pos=0;
+      for(auto const &p: parVec) {
+			if(p.size() != sizeFirst) {
             glogger
             << "In void GVecStandardDeviation(): Error!" << std::endl
-            << "Found parVec component of different size: " << sizeFirst << " / " << " / " << pos << " / " << parVec.at(pos).size() << std::endl
+            << "Found parVec component of different size: " << sizeFirst << " / " << " / " << pos << " / " << p.size() << std::endl
             << GEXCEPTION;
          }
+         pos++;
       }
    }
 

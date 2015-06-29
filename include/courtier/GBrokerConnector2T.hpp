@@ -496,7 +496,7 @@ protected:
 	) {
 		// Submit work items
 		POSITIONTYPE pos_cnt = 0;
-		for(auto it: workItems) {
+		for(auto const &it: workItems) {
 			if (GBC_UNPROCESSED == workItemPos[pos_cnt]) { // is the item due to be submitted ? We only submit items that are marked as "unprocessed"
 #ifdef DEBUG
             if(!it) {

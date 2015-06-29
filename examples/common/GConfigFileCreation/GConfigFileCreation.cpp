@@ -255,8 +255,9 @@ int main(int argc, char **argv) {
 	// Example 6: Adding an array of fixed size to the collection
 
 	boost::array<int,ARRAYSIZE> defValArray;
-	for(std::size_t i=0; i<ARRAYSIZE; i++) { // Set the default values
-		defValArray[i] = boost::numeric_cast<int>(i);
+	i=0; // Already declared above
+	for(auto &x: defValArray)  { // Set the default values
+		x = boost::numeric_cast<int>(i++);
 	}
 
 	if(useOperator) {

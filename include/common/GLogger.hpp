@@ -293,7 +293,7 @@ public:
 
 		if (!logVector_.empty()) {
 			// Do the actual logging
-			for(auto cit: logVector_) {
+			for(auto &cit: logVector_) {
 				cit->log(message);
 			}
 		} else {
@@ -320,7 +320,7 @@ public:
 
 		if (!logVector_.empty()) {
 			// Do the actual logging
-			for(auto cit: logVector_) {
+			for(auto &cit: logVector_) {
 				cit->logWithSource(message, extension);
 			}
 		} else {
@@ -384,8 +384,7 @@ public:
 private:
 	/***************************************************************************/
 
-	std::vector<std::shared_ptr < GBaseLogTarget>>
-	logVector_; ///< Contains the log targets
+	std::vector<std::shared_ptr<GBaseLogTarget>> logVector_; ///< Contains the log targets
 	mutable boost::mutex logger_mutex_; ///< Needed for concurrent access to the log targets
 
 	std::shared_ptr <GBaseLogTarget> defaultLogger_; ///< The default log target

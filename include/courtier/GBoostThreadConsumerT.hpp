@@ -217,9 +217,9 @@ public:
 	 * existing worker templates will be deleted. The class will not take ownership
 	 * of the worker templates.
 	 */
-	void registerWorkerTemplates(const std::vector<std::shared_ptr < GWorker>
-
-	>& workerTemplates) {
+	void registerWorkerTemplates(
+		const std::vector<std::shared_ptr < GWorker>>& workerTemplates
+	) {
 #ifdef DEBUG
       if(workerTemplates_.empty()) { // Is the template vector empty ?
          glogger
@@ -228,14 +228,16 @@ public:
          << GEXCEPTION;
       }
 
-      for(std::size_t i=0; i<workerTemplates.size(); i++) {
-         if(!workerTemplates.at(i)) { // Does the template point somewhere ?
+		std::size_t pos = 0;
+		for(auto const &w: workerTemplates) {
+			if(!w) { // Does the template point somewhere ?
             glogger
             << "In GBoostThreadConsumerT<processable_type>::registerWorkerTemplates(): Error!" << std::endl
-            << "Found empty worker template pointer in position " << i << std::endl
+            << "Found empty worker template pointer in position " << pos << std::endl
             << GEXCEPTION;
          }
-      }
+         pos++;
+		}
 #endif /* DEBUG */
 
 		workerTemplates_.clear();
@@ -250,7 +252,9 @@ public:
 	 * existing worker templates will be deleted. The class will not take ownership
 	 * of the worker template.
 	 */
-	void registerWorkerTemplate(std::shared_ptr <GWorker> workerTemplate) {
+	void registerWorkerTemplate(
+		std::shared_ptr <GWorker> workerTemplate
+	) {
 #ifdef DEBUG
       if(!workerTemplate) { // Does the template point somewhere ?
          glogger
@@ -270,10 +274,8 @@ public:
 	 * a set of workers as argument.
 	 */
 	static void setup(
-		const std::string &configFile,
-		std::vector<std::shared_ptr < typename Gem::Courtier::GBoostThreadConsumerT<processable_type>::GWorker>
-
-	> workers
+		const std::string &configFile
+		, std::vector<std::shared_ptr <typename Gem::Courtier::GBoostThreadConsumerT<processable_type>::GWorker>> workers
 	) {
 		std::shared_ptr <GBoostThreadConsumerT<processable_type>> consumer_ptr(
 			new GBoostThreadConsumerT<processable_type>());
@@ -306,8 +308,7 @@ public:
 	static void setup(
 		const std::string &configFile
 	) {
-		std::shared_ptr <GBoostThreadConsumerT<processable_type>> consumer_ptr(
-			new GBoostThreadConsumerT<processable_type>());
+		std::shared_ptr <GBoostThreadConsumerT<processable_type>> consumer_ptr(new GBoostThreadConsumerT<processable_type>());
 		consumer_ptr->parseConfigFile(configFile);
 		GBROKER(processable_type)->enrol(consumer_ptr);
 	}
