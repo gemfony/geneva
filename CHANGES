@@ -54,6 +54,7 @@ The main changes for this release include:
    of functionality formerly located in GObject. This happened so other classes
    (including those found in the Common lib) may profit from the serialization and
    testing infrastructure.
+ - Moved from boost::tuple to std::tuple and associated functions (make_tuple, std::get etc.)
 
 Recommended version of Boost: 1.57; Minimum Boost version: 1.57.
 NOTE: Boost 1.58 ist NOT recommended, due to a severe bug affecting Geneva.
