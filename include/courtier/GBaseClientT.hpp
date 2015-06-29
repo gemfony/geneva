@@ -44,7 +44,6 @@
 #include <vector>
 
 // Boost headers go here
-#include <boost/cstdint.hpp>
 #include <boost/utility.hpp>
 #include <boost/asio.hpp>
 #include <boost/archive/xml_iarchive.hpp>

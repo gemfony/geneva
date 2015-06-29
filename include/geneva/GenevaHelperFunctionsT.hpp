@@ -41,7 +41,6 @@
 #include <type_traits>
 
 // Boost headers go here
-#include <boost/cstdint.hpp>
 
 #ifndef GENEVAHELPERFUNCTIONST_HPP_
 #define GENEVAHELPERFUNCTIONST_HPP_

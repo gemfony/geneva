@@ -37,7 +37,6 @@
 #include <tuple>
 
 // Boost header files go here
-#include <boost/cstdint.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 

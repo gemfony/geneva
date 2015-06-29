@@ -37,7 +37,6 @@
 #include <iostream>
 
 // Boost headers go here
-#include <boost/cstdint.hpp>
 
 // Geneva headers go here
 #include "common/GLogger.hpp"

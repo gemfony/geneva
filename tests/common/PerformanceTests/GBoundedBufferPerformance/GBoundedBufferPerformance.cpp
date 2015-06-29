@@ -40,7 +40,6 @@
 #include <memory>
 
 // Boost headers go here
-#include <boost/cstdint.hpp>
 #include <boost/date_time.hpp>
 
 // Geneva headers go here

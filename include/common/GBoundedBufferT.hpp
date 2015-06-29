@@ -95,7 +95,6 @@
 #include <boost/thread/thread.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/utility.hpp>
-#include <boost/cstdint.hpp>
 #include <boost/date_time.hpp>
 
 #ifndef GBOUNDEDBUFFERT_HPP_

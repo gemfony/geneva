@@ -52,7 +52,6 @@
 #include <boost/cast.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/optional.hpp>
-#include <boost/cstdint.hpp>
 
 #ifndef GTESTINDIVIDUAL3_HPP_
 #define GTESTINDIVIDUAL3_HPP_

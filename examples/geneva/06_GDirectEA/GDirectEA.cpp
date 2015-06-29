@@ -49,7 +49,6 @@
 
 // Boost header files go here
 #include <boost/lexical_cast.hpp>
-#include <boost/cstdint.hpp>
 
 // Geneva header files go here
 #include "courtier/GAsioTCPConsumerT.hpp"

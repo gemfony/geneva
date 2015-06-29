@@ -40,7 +40,6 @@
 
 // Boost header files go here
 
-#include <boost/cstdint.hpp>
 #include <boost/utility.hpp>
 #include <boost/date_time.hpp>
 

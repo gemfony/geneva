@@ -40,7 +40,6 @@
 #include <fstream>
 
 // Boost headers go here
-#include <boost/cstdint.hpp>
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>

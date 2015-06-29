@@ -46,7 +46,6 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/cstdint.hpp>
 
 #ifndef GRANDOM_TEST_HPP_
 #define GRANDOM_TEST_HPP_

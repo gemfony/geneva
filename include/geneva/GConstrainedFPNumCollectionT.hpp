@@ -44,7 +44,6 @@
 
 // Boost header files go here
 #include <boost/math/special_functions/next.hpp> // Needed so we can calculate the next representable value smaller than a given upper boundary
-#include <boost/cstdint.hpp>
 
 #ifndef GCONSTRAINEDFPNUMCOLLECTIONT_HPP_
 #define GCONSTRAINEDFPNUMCOLLECTIONT_HPP_

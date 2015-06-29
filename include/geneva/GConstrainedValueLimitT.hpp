@@ -42,8 +42,6 @@
 #include <limits>
 
 // Boost headers go here
-
-#include <boost/cstdint.hpp>
 #include <boost/limits.hpp>
 
 #ifndef GCONSTRAINEDVALUELIMITT_HPP_

@@ -44,7 +44,6 @@
 
 // Boost headers go here
 
-#include <boost/cstdint.hpp>
 #include <boost/logic/tribool.hpp>
 
 #ifndef GOPTIMIZATIONENUMS_HPP_

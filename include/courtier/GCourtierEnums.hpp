@@ -42,8 +42,6 @@
 
 // Boost headers go here
 
-#include <boost/cstdint.hpp>
-
 #ifndef GCOURTIERENUMS_HPP_
 #define GCOURTIERENUMS_HPP_
 

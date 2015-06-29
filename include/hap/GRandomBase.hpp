@@ -47,7 +47,6 @@
 #include <algorithm>
 
 // Boost headers go here
-#include <boost/cstdint.hpp>
 #include <boost/random.hpp>
 #include <boost/date_time.hpp>
 #include <boost/math/constants/constants.hpp>
@@ -55,7 +54,6 @@
 #include <boost/thread/thread.hpp>
 #include <boost/utility.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/cstdint.hpp>
 #include <boost/cast.hpp>
 #include <boost/function.hpp>
 #include <boost/random/linear_congruential.hpp>

@@ -39,7 +39,6 @@
 #include <iostream>
 
 // Boost header files go here
-#include <boost/cstdint.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 

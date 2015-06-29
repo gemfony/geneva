@@ -48,7 +48,6 @@
 #include <tuple>
 
 // Boost header files go here
-#include <boost/cstdint.hpp>
 
 // Geneva header files go here
 #include "geneva/GDoubleGaussAdaptor.hpp"

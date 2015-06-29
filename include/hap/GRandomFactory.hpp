@@ -50,7 +50,6 @@
 // Boost headers go here
 
 #include <boost/atomic.hpp>
-#include <boost/cstdint.hpp>
 #include <boost/random.hpp>
 #include <boost/date_time.hpp>
 #include <boost/thread/mutex.hpp>

@@ -46,7 +46,6 @@
 // Boost headers go here
 #include <boost/array.hpp>
 #include <boost/asio.hpp>
-#include <boost/cstdint.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/lexical_cast.hpp>

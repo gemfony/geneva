@@ -55,7 +55,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/utility.hpp>
 #include <boost/variant.hpp>
-#include <boost/cstdint.hpp>
 
 #ifndef GPARAMETERPROPERTYPARSER_HPP_
 #define GPARAMETERPROPERTYPARSER_HPP_

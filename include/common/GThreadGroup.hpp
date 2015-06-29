@@ -74,12 +74,10 @@
 #include <vector>
 
 // Boost headers go here
-#include <boost/cstdint.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/utility.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/cstdint.hpp>
 
 #ifndef GTHREADGROUP_HPP_
 #define GTHREADGROUP_HPP_

@@ -42,8 +42,6 @@
 
 // Boost header files go here
 
-#include <boost/cstdint.hpp>
-
 #ifndef GCONSTRAINEDNUMCOLLECTIONT_HPP_
 #define GCONSTRAINEDNUMCOLLECTIONT_HPP_
 

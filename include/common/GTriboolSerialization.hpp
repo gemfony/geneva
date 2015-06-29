@@ -41,7 +41,6 @@
 #include <boost/serialization/split_free.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/logic/tribool.hpp>
-#include <boost/cstdint.hpp>
 
 #ifndef GTRIBOOLSERIALIZATION_HPP_
 #define GTRIBOOLSERIALIZATION_HPP_

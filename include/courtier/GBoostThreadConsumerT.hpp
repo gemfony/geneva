@@ -41,7 +41,6 @@
 // Boost headers go here
 
 #include <boost/cast.hpp>
-#include <boost/cstdint.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>

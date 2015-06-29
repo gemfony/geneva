@@ -40,7 +40,6 @@
 #include <vector>
 
 // Boost header files go here
-#include <boost/cstdint.hpp>
 
 #ifndef GOPTIMIZATIONBENCHMARKCONFIG_HPP_
 #define GOPTIMIZATIONBENCHMARKCONFIG_HPP_

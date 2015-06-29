@@ -43,7 +43,6 @@
 #include <vector>
 
 // Boost headers go here
-#include <boost/cstdint.hpp>
 #include <boost/program_options.hpp>
 
 #ifndef GCOMMANDLINEPARSER_HPP_

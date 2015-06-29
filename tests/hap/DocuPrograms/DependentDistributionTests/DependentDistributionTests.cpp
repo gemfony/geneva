@@ -48,7 +48,6 @@
 // Boost header files
 #include <boost/thread.hpp>
 #include <boost/ref.hpp>
-#include <boost/cstdint.hpp>
 #include <boost/cast.hpp>
 #include <boost/random.hpp>
 

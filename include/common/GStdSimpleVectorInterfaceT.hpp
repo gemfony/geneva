@@ -43,7 +43,6 @@
 
 // Boost header files go here
 
-#include <boost/cstdint.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/archive/xml_oarchive.hpp>

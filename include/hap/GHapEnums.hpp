@@ -41,8 +41,6 @@
 #include <ostream>
 
 // Boost headers go here
-
-#include <boost/cstdint.hpp>
 #include <boost/cast.hpp>
 
 #ifndef GHAPENUMS_HPP_

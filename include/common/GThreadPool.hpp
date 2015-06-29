@@ -40,7 +40,6 @@
 
 // Boost header files go here
 #include <boost/asio/io_service.hpp>
-#include <boost/cstdint.hpp>
 #include <boost/thread.hpp>
 #include <boost/utility.hpp>
 #include <boost/atomic.hpp>

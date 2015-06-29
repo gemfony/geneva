@@ -42,7 +42,6 @@
 #include <istream>
 
 // Boost headers go here
-#include <boost/cstdint.hpp>
 #include <boost/cast.hpp>
 
 #ifndef GBROKERSELFCOMMUNICATIONENUMS_HPP_

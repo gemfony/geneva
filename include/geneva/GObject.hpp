@@ -62,7 +62,6 @@
 // Boost header files go here
 #include <boost/any.hpp>
 #include <boost/cast.hpp>
-#include <boost/cstdint.hpp>
 #include <boost/date_time.hpp>
 #include <boost/date_time/gregorian/greg_serialize.hpp>
 #include <boost/date_time/posix_time/time_serialize.hpp>

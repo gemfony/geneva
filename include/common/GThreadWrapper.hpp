@@ -46,7 +46,6 @@
 #include <cassert>
 
 // Boost headers go here
-#include <boost/cstdint.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/function.hpp>

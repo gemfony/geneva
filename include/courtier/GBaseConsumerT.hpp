@@ -43,7 +43,6 @@
 
 // Boost headers go here
 
-#include <boost/cstdint.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/utility.hpp>
 #include <boost/function.hpp>

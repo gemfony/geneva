@@ -40,7 +40,6 @@
 #include <vector>
 
 // Boost header files go here
-#include <boost/cstdint.hpp>
 
 #ifndef GOPTIMIZATIONALGORITHMI_HPP_
 #define GOPTIMIZATIONALGORITHMI_HPP_
