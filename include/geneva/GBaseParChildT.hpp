@@ -37,11 +37,11 @@
 
 // Standard headers go here
 #include <type_traits>
+#include <tuple>
 
 // Boost headers go here
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
-#include <boost/tuple/tuple.hpp>
 
 #ifndef GBASEPARCHILDEAT_HPP_
 #define GBASEPARCHILDEAT_HPP_
@@ -289,18 +289,18 @@ public:
 	 * @return The number of processible items in the current iteration
 	 */
 	virtual std::size_t getNProcessableItems() const override {
-		boost::tuple<std::size_t,std::size_t> range = this->getEvaluationRange();
+		std::tuple<std::size_t,std::size_t> range = this->getEvaluationRange();
 
 #ifdef DEBUG
-      if(boost::get<1>(range) <= boost::get<0>(range)) {
+      if(std::get<1>(range) <= std::get<0>(range)) {
          glogger
          << "In GBaseParChildT<>::getNProcessableItems(): Error!" << std::endl
-         << "Upper boundary of range <= lower boundary: " << boost::get<1>(range) << "/" << boost::get<0>(range) << std::endl
+         << "Upper boundary of range <= lower boundary: " << std::get<1>(range) << "/" << std::get<0>(range) << std::endl
          << GEXCEPTION;
       }
 #endif /* DEBUG */
 
-		return boost::get<1>(range) - boost::get<0>(range);
+		return std::get<1>(range) - std::get<0>(range);
 	}
 
 	/***************************************************************************/
@@ -537,7 +537,7 @@ protected:
 	/** @brief Choose new parents, based on the selection scheme set by the user */
 	virtual void selectBest() = 0;
 	/** @brief Retrieves the evaluation range in a given iteration and sorting scheme */
-	virtual boost::tuple<std::size_t,std::size_t> getEvaluationRange() const = 0; // Depends on selection scheme
+	virtual std::tuple<std::size_t,std::size_t> getEvaluationRange() const = 0; // Depends on selection scheme
 	/** @brief Some error checks related to population sizes */
 	virtual void populationSanityChecks() const = 0; // TODO: Take code from old init() function
 
@@ -669,8 +669,8 @@ protected:
 	 *
 	 * @return The range inside which adaption should take place
 	 */
-	boost::tuple<std::size_t,std::size_t> getAdaptionRange() const {
-		return boost::tuple<std::size_t, std::size_t>(nParents_, this->size());
+	std::tuple<std::size_t,std::size_t> getAdaptionRange() const {
+		return std::tuple<std::size_t, std::size_t>(nParents_, this->size());
 	}
 
 	/***************************************************************************/
@@ -715,7 +715,7 @@ protected:
 	 *
 	 * @return The value of the best individual found
 	 */
-	virtual boost::tuple<double, double> cycleLogic() override {
+	virtual std::tuple<double, double> cycleLogic() override {
 		// If this is not the first iteration, check whether we need to increase the population
 		if(GOptimizationAlgorithmT<ind_type>::afterFirstIteration()) {
 			performScheduledPopulationGrowth();

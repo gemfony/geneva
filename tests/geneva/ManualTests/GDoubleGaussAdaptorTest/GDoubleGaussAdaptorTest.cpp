@@ -45,12 +45,10 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <tuple>
 
 // Boost header files go here
 #include <boost/cstdint.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <boost/tuple/tuple_io.hpp>
-#include <boost/tuple/tuple_comparison.hpp>
 
 // Geneva header files go here
 #include "geneva/GDoubleGaussAdaptor.hpp"
@@ -120,18 +118,18 @@ int main(int argc, char **argv) {
 
 		gdga->adapt(mutVal, 1.);
 
-		(*gmutpar_iter_ptr) & boost::tuple<double, double>((double)i, mutVal); // The new value of sigma
-		(*gmutpardiff_iter_ptr) & boost::tuple<double, double>((double)i, mutVal - mutValOld); // Difference between last known value and current value
-		(*gsigma_iter_ptr) & boost::tuple<double, double>((double)i, gdga->getSigma()); // Value of sigma after sigma-adaption
+		(*gmutpar_iter_ptr) & std::tuple<double, double>((double)i, mutVal); // The new value of sigma
+		(*gmutpardiff_iter_ptr) & std::tuple<double, double>((double)i, mutVal - mutValOld); // Difference between last known value and current value
+		(*gsigma_iter_ptr) & std::tuple<double, double>((double)i, gdga->getSigma()); // Value of sigma after sigma-adaption
 	}
 
 	// Register the plots (and projections) with the plot designer
 	gpd.registerPlotter(gmutpar_iter_ptr);
-	gpd.registerPlotter(gmutpar_iter_ptr->projectY(DEFAULTNBINSGPD, boost::tuple<double, double>()));
+	gpd.registerPlotter(gmutpar_iter_ptr->projectY(DEFAULTNBINSGPD, std::tuple<double, double>()));
 	gpd.registerPlotter(gmutpardiff_iter_ptr);
-	gpd.registerPlotter(gmutpardiff_iter_ptr->projectY(DEFAULTNBINSGPD, boost::tuple<double, double>()));
+	gpd.registerPlotter(gmutpardiff_iter_ptr->projectY(DEFAULTNBINSGPD, std::tuple<double, double>()));
 	gpd.registerPlotter(gsigma_iter_ptr);
-	gpd.registerPlotter(gsigma_iter_ptr->projectY(DEFAULTNBINSGPD, boost::tuple<double, double>()));
+	gpd.registerPlotter(gsigma_iter_ptr->projectY(DEFAULTNBINSGPD, std::tuple<double, double>()));
 
 	// Write the result to disk
 	gpd.writeToFile("result.C");

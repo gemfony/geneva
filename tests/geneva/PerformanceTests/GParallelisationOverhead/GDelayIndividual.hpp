@@ -156,7 +156,7 @@ public:
 	/** @brief Retrieves the amount of seconds main() should wait between two measurements */
 	boost::uint32_t getInterMeasurementDelay() const;
 	/** @brief Retrieves the sleep times */
-	std::vector<boost::tuple<unsigned int, unsigned int>> getSleepTimes() const;
+	std::vector<std::tuple<unsigned int, unsigned int>> getSleepTimes() const;
 
 protected:
 	/** @brief Creates individuals of this type */
@@ -174,11 +174,11 @@ private:
 	GDelayIndividualFactory() = delete;
 
 	/** @brief Converts a tuple to a time format */
-	boost::posix_time::time_duration tupleToTime(const boost::tuple<unsigned int, unsigned int>&);
+	boost::posix_time::time_duration tupleToTime(const std::tuple<unsigned int, unsigned int>&);
 
 	std::size_t nVariables_;
 	std::string delays_;
-	std::vector<boost::tuple<unsigned int, unsigned int>> sleepTimes_;
+	std::vector<std::tuple<unsigned int, unsigned int>> sleepTimes_;
 	std::string resultFile_;
 	std::string shortResultFile_;
 	boost::uint32_t nMeasurements_; ///< The number of measurements for each delay

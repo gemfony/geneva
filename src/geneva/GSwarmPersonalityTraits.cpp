@@ -45,7 +45,7 @@ namespace Geneva {
  */
 GSwarmPersonalityTraits::GSwarmPersonalityTraits()
 	: GPersonalityTraits(), neighborhood_(0), noPositionUpdate_(false), personal_best_() // empty
-	, personal_best_quality_(boost::make_tuple(0., 0.)) { /* nothing */ }
+	, personal_best_quality_(std::make_tuple(0., 0.)) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -276,7 +276,7 @@ std::shared_ptr <GParameterSet> GSwarmPersonalityTraits::getPersonalBest() const
  */
 void GSwarmPersonalityTraits::resetPersonalBest() {
 	personal_best_ = std::shared_ptr<GParameterSet>(); // empty
-	personal_best_quality_ = boost::make_tuple(0., 0.);
+	personal_best_quality_ = std::make_tuple(0., 0.);
 }
 
 /* ----------------------------------------------------------------------------------
@@ -290,7 +290,7 @@ void GSwarmPersonalityTraits::resetPersonalBest() {
  *
  * @return The fitness of the personally best individual
  */
-boost::tuple<double, double> GSwarmPersonalityTraits::getPersonalBestQuality() const {
+std::tuple<double, double> GSwarmPersonalityTraits::getPersonalBestQuality() const {
 	return personal_best_quality_;
 }
 

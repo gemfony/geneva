@@ -301,7 +301,7 @@ std::string GBasePlotter::dsMarker() const {
 /**
  * Allows to add secondary plots to be added to the same sub-canvas
  */
-void GBasePlotter::registerSecondaryPlotter(std::shared_ptr < GBasePlotter > sp) {
+void GBasePlotter::registerSecondaryPlotter(std::shared_ptr<GBasePlotter> sp) {
 	// Check that the secondary plot isn't empty
 	if (!sp) {
 		glogger
@@ -712,13 +712,13 @@ std::string GGraph2D::bodyData(bool isSecondary, std::size_t pId) const {
 	}
 
 	// Fill data from the tuples into the arrays
-	std::vector<boost::tuple<double, double>>::const_iterator it;
+	std::vector<std::tuple<double, double>>::const_iterator it;
 	std::size_t posCounter = 0;
 
 	for (it = data_.begin(); it != data_.end(); ++it) {
 		body_data
-		<< "  " << xArrayName << "[" << posCounter << "] = " << boost::get<0>(*it) << ";" << "\t" << yArrayName << "[" <<
-		posCounter << "] = " << boost::get<1>(*it) << ";" << std::endl;
+		<< "  " << xArrayName << "[" << posCounter << "] = " << std::get<0>(*it) << ";" << "\t" << yArrayName << "[" <<
+		posCounter << "] = " << std::get<1>(*it) << ";" << std::endl;
 
 		posCounter++;
 	}
@@ -771,16 +771,16 @@ std::string GGraph2D::footerData(bool isSecondary, std::size_t pId) const {
 	<< std::endl;
 
 	if (drawArrows_ && data_.size() >= 2) {
-		std::vector<boost::tuple<double, double>>::const_iterator it;
+		std::vector<std::tuple<double, double>>::const_iterator it;
 		std::size_t posCounter = 0;
 
-		double x1 = boost::get<0>(*data_.begin());
-		double y1 = boost::get<1>(*data_.begin());
+		double x1 = std::get<0>(*data_.begin());
+		double y1 = std::get<1>(*data_.begin());
 		double x2, y2;
 
 		for (it = data_.begin() + 1; it != data_.end(); ++it) {
-			x2 = boost::get<0>(*it);
-			y2 = boost::get<1>(*it);
+			x2 = std::get<0>(*it);
+			y2 = std::get<1>(*it);
 
 			footer_data
 			<< "  TArrow * ta_" << graphName << "_" << posCounter << " = new TArrow(" << x1 << ", " << y1 << "," << x2 <<
@@ -1037,15 +1037,15 @@ std::string GGraph2ED::bodyData(bool isSecondary, std::size_t pId) const {
 	}
 
 	// Fill data from the tuples into the arrays
-	std::vector<boost::tuple<double, double, double, double>>::const_iterator it;
+	std::vector<std::tuple<double, double, double, double>>::const_iterator it;
 	std::size_t posCounter = 0;
 
 	for (it = data_.begin(); it != data_.end(); ++it) {
 		body_data
-		<< "  " << xArrayName << "[" << posCounter << "] = " << boost::get<0>(*it) << ";" << std::endl
-		<< "  " << exArrayName << "[" << posCounter << "] = " << boost::get<1>(*it) << ";" << std::endl
-		<< "  " << yArrayName << "[" << posCounter << "] = " << boost::get<2>(*it) << ";" << std::endl
-		<< "  " << eyArrayName << "[" << posCounter << "] = " << boost::get<3>(*it) << ";" << std::endl;
+		<< "  " << xArrayName << "[" << posCounter << "] = " << std::get<0>(*it) << ";" << std::endl
+		<< "  " << exArrayName << "[" << posCounter << "] = " << std::get<1>(*it) << ";" << std::endl
+		<< "  " << yArrayName << "[" << posCounter << "] = " << std::get<2>(*it) << ";" << std::endl
+		<< "  " << eyArrayName << "[" << posCounter << "] = " << std::get<3>(*it) << ";" << std::endl;
 
 		posCounter++;
 	}
@@ -1334,14 +1334,14 @@ std::string GGraph3D::bodyData(bool isSecondary, std::size_t pId) const {
 	}
 
 	// Fill data from the tuples into the arrays
-	std::vector<boost::tuple<double, double, double>>::const_iterator it;
+	std::vector<std::tuple<double, double, double>>::const_iterator it;
 	std::size_t posCounter = 0;
 
 	for (it = data_.begin(); it != data_.end(); ++it) {
 		body_data
-		<< "  " << xArrayName << "[" << posCounter << "] = " << boost::get<0>(*it) << ";" << "\t"
-		<< yArrayName << "[" << posCounter << "] = " << boost::get<1>(*it) << ";" << "\t"
-		<< zArrayName << "[" << posCounter << "] = " << boost::get<2>(*it) << ";" << std::endl;
+		<< "  " << xArrayName << "[" << posCounter << "] = " << std::get<0>(*it) << ";" << "\t"
+		<< yArrayName << "[" << posCounter << "] = " << std::get<1>(*it) << ";" << "\t"
+		<< zArrayName << "[" << posCounter << "] = " << std::get<2>(*it) << ";" << std::endl;
 
 		posCounter++;
 	}
@@ -1403,7 +1403,7 @@ std::string GGraph3D::footerData(bool isSecondary, std::size_t pId) const {
 	<< std::endl;
 
 	if (drawLines_ && data_.size() >= 2) {
-		std::vector<boost::tuple<double, double, double>>::const_iterator it;
+		std::vector<std::tuple<double, double, double>>::const_iterator it;
 		std::size_t posCounter = 0;
 
 		double x, y, z;
@@ -1413,9 +1413,9 @@ std::string GGraph3D::footerData(bool isSecondary, std::size_t pId) const {
 		<< std::endl;
 
 		for (it = data_.begin() + 1; it != data_.end(); ++it) {
-			x = boost::get<0>(*it);
-			y = boost::get<1>(*it);
-			z = boost::get<2>(*it);
+			x = std::get<0>(*it);
+			y = std::get<1>(*it);
+			z = std::get<2>(*it);
 
 			footer_data
 			<< "  lines_" << graphName << "->SetPoint(" << posCounter << ", " << x << ", " << y << ", " << z << ");";
@@ -1702,7 +1702,7 @@ std::string GGraph4D::bodyData(bool isSecondary, std::size_t pId) const {
  * Retrieves specific draw commands for this plot
  */
 std::string GGraph4D::footerData(bool isSecondary, std::size_t pId) const {
-	std::vector<boost::tuple<double, double, double, double>> localData = data_;
+	std::vector<std::tuple<double, double, double, double>> localData = data_;
 
 	std::string baseName = suffix(isSecondary, pId);
 
@@ -1710,17 +1710,17 @@ std::string GGraph4D::footerData(bool isSecondary, std::size_t pId) const {
 	if (smallWLargeMarker_) {
 		std::sort(
 			localData.begin(), localData.end(), [](
-				boost::tuple<double, double, double, double> a, boost::tuple<double, double, double, double> b
+				std::tuple<double, double, double, double> a, std::tuple<double, double, double, double> b
 			) -> bool {
-				return (boost::get<3>(a) < boost::get<3>(b));
+				return (std::get<3>(a) < std::get<3>(b));
 			}
 		);
 	} else {
 		std::sort(
 			localData.begin(), localData.end(), [](
-				boost::tuple<double, double, double, double> a, boost::tuple<double, double, double, double> b
+				std::tuple<double, double, double, double> a, std::tuple<double, double, double, double> b
 			) -> bool {
-				return (boost::get<3>(a) > boost::get<3>(b));
+				return (std::get<3>(a) > std::get<3>(b));
 			}
 		);
 	}
@@ -1728,15 +1728,15 @@ std::string GGraph4D::footerData(bool isSecondary, std::size_t pId) const {
 	std::ostringstream footer_data;
 
 	// Find out about the minimum and maximum values of the data vector
-	boost::tuple<double, double, double, double, double, double, double, double> minMax = Gem::Common::getMinMax(
+	std::tuple<double, double, double, double, double, double, double, double> minMax = Gem::Common::getMinMax(
 		localData);
 
 	// Set up TView object for our 3D data, spanning the minimum and maximum values
 	footer_data
 	<< "  TH3F *fr = new TH3F(\"fr\",\"fr\","
-	<< "10, " << boost::get<0>(minMax) << ", " << boost::get<1>(minMax) << ", "
-	<< "10, " << boost::get<2>(minMax) << ", " << boost::get<3>(minMax) << ", "
-	<< "10, " << boost::get<4>(minMax) << ", " << boost::get<5>(minMax) << ");" << std::endl
+	<< "10, " << std::get<0>(minMax) << ", " << std::get<1>(minMax) << ", "
+	<< "10, " << std::get<2>(minMax) << ", " << std::get<3>(minMax) << ", "
+	<< "10, " << std::get<4>(minMax) << ", " << std::get<5>(minMax) << ");" << std::endl
 	<< "  fr->SetTitle(\" \");" << std::endl
 	<< "  fr->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
 	<< "  fr->GetXaxis()->SetTitleOffset(1.6);" << std::endl
@@ -1747,13 +1747,13 @@ std::string GGraph4D::footerData(bool isSecondary, std::size_t pId) const {
 	<< std::endl
 	<< "  fr->Draw();" << std::endl;
 
-	double wMin = boost::get<6>(minMax);
-	double wMax = boost::get<7>(minMax);
+	double wMin = std::get<6>(minMax);
+	double wMax = std::get<7>(minMax);
 
 	// Fill data from the tuples into the arrays
 	double wRange = wMax - wMin;
 	std::size_t pos = 0;
-	std::vector<boost::tuple<double, double, double, double>>::const_iterator it;
+	std::vector<std::tuple<double, double, double, double>>::const_iterator it;
 	for (it = localData.begin(); it != localData.end(); ++it) {
 		std::string polyMarkerName =
 			std::string("pm3d_") + baseName + std::string("_") + boost::lexical_cast<std::string>(pos);
@@ -1762,10 +1762,10 @@ std::string GGraph4D::footerData(bool isSecondary, std::size_t pId) const {
 		footer_data
 		<< "  TPolyMarker3D *" << polyMarkerName << " = new TPolyMarker3D(1);" << std::endl;
 
-		double x = boost::get<0>(*it);
-		double y = boost::get<1>(*it);
-		double z = boost::get<2>(*it);
-		double w = boost::get<3>(*it);
+		double x = std::get<0>(*it);
+		double y = std::get<1>(*it);
+		double z = std::get<2>(*it);
+		double w = std::get<3>(*it);
 
 		// Translate the fourth component into a marker size. By default,
 		// smaller values will yield the largest value
@@ -1859,12 +1859,12 @@ GHistogram1D::GHistogram1D(
  */
 GHistogram1D::GHistogram1D(
 	const std::size_t &nBinsX
-	, const boost::tuple<double
+	, const std::tuple<double
 	, double> &rangeX
 )
 	: nBinsX_(nBinsX)
-	, minX_(boost::get<0>(rangeX))
-	, maxX_(boost::get<1>(rangeX))
+	, minX_(std::get<0>(rangeX))
+	, maxX_(std::get<1>(rangeX))
 { /* nothing */ }
 
 /******************************************************************************/
@@ -2159,12 +2159,12 @@ GHistogram1I::GHistogram1I(
  */
 GHistogram1I::GHistogram1I(
 	const std::size_t &nBinsX
-	, const boost::tuple<double, double> &rangeX
+	, const std::tuple<double, double> &rangeX
 )
 	: GDataCollector1T<boost::int32_t>()
 	, nBinsX_(nBinsX)
-	, minX_(boost::get<0>(rangeX))
-	, maxX_(boost::get<1>(rangeX))
+	, minX_(std::get<0>(rangeX))
+	, maxX_(std::get<1>(rangeX))
 { /* nothing */ }
 
 /******************************************************************************/
@@ -2467,15 +2467,15 @@ GHistogram2D::GHistogram2D(
 GHistogram2D::GHistogram2D(
 	const std::size_t &nBinsX
 	, const std::size_t &nBinsY
-	, const boost::tuple<double, double> &rangeX
-	, const boost::tuple<double, double> &rangeY
+	, const std::tuple<double, double> &rangeX
+	, const std::tuple<double, double> &rangeY
 )
 	: nBinsX_(nBinsX)
 	, nBinsY_(nBinsY)
-	, minX_(boost::get<0>(rangeX))
-	, maxX_(boost::get<1>(rangeX))
-	, minY_(boost::get<0>(rangeY))
-	, maxY_(boost::get<1>(rangeY))
+	, minX_(std::get<0>(rangeX))
+	, maxX_(std::get<1>(rangeX))
+	, minY_(std::get<0>(rangeY))
+	, maxY_(std::get<1>(rangeY))
 	, dropt_(TDEMPTY)
 { /* nothing */ }
 
@@ -2602,11 +2602,11 @@ std::string GHistogram2D::bodyData(bool isSecondary, std::size_t pId) const {
 
 	std::string histName = "hist2D" + suffix(isSecondary, pId);
 
-	std::vector<boost::tuple<double, double>>::const_iterator it;
+	std::vector<std::tuple<double, double>>::const_iterator it;
 	std::size_t posCounter = 0;
 	for (it = data_.begin(); it != data_.end(); ++it) {
 		body_data
-		<< "  " << histName << "->Fill(" << boost::get<0>(*it) << ", " << boost::get<1>(*it) << ");" <<
+		<< "  " << histName << "->Fill(" << std::get<0>(*it) << ", " << std::get<1>(*it) << ");" <<
 		(posCounter == 0 ? comment : ("")) << std::endl;
 		posCounter++;
 	}
@@ -2899,7 +2899,7 @@ void GHistogram2D::load_(const GBasePlotter* cp) {
  */
 GFunctionPlotter1D::GFunctionPlotter1D(
 	const std::string &fD
-	, const boost::tuple<double, double> &xExtremes
+	, const std::tuple<double, double> &xExtremes
 )
 	: functionDescription_(fD)
 	, xExtremes_(xExtremes)
@@ -3031,10 +3031,10 @@ void GFunctionPlotter1D::compare(
  */
 std::string GFunctionPlotter1D::headerData(bool isSecondary, std::size_t pId) const {
 	// Check the extreme values for consistency
-	if (boost::get<0>(xExtremes_) >= boost::get<1>(xExtremes_)) {
+	if (std::get<0>(xExtremes_) >= std::get<1>(xExtremes_)) {
 		glogger
 		<< "In GFunctionPlotter1D::headerData(): Error!" << std::endl
-		<< "lower boundary >= upper boundary: " << boost::get<0>(xExtremes_) << " / " << boost::get<1>(xExtremes_) <<
+		<< "lower boundary >= upper boundary: " << std::get<0>(xExtremes_) << " / " << std::get<1>(xExtremes_) <<
 		std::endl
 		<< GEXCEPTION;
 	}
@@ -3048,7 +3048,7 @@ std::string GFunctionPlotter1D::headerData(bool isSecondary, std::size_t pId) co
 
 	std::string functionName = "func1D" + suffix(isSecondary, pId);
 	result << "  TF1 *" << functionName << " = new TF1(\"" << functionName << "\", \"" << functionDescription_ <<
-	"\"," << boost::get<0>(xExtremes_) << ", " << boost::get<1>(xExtremes_) << ");" << (comment != "" ? comment : "") <<
+	"\"," << std::get<0>(xExtremes_) << ", " << std::get<1>(xExtremes_) << ");" << (comment != "" ? comment : "") <<
 	std::endl;
 
 	return result.str();
@@ -3159,8 +3159,8 @@ void GFunctionPlotter1D::load_(const GBasePlotter* cp) {
  */
 GFunctionPlotter2D::GFunctionPlotter2D(
 	const std::string &fD
-	, const boost::tuple<double, double> &xExtremes
-	, const boost::tuple<double, double> &yExtremes
+	, const std::tuple<double, double> &xExtremes
+	, const std::tuple<double, double> &yExtremes
 )
 	: functionDescription_(fD)
 	, xExtremes_(xExtremes)
@@ -3308,19 +3308,19 @@ void GFunctionPlotter2D::compare(
  */
 std::string GFunctionPlotter2D::headerData(bool isSecondary, std::size_t pId) const {
 	// Check the extreme values for consistency
-	if (boost::get<0>(xExtremes_) >= boost::get<1>(xExtremes_)) {
+	if (std::get<0>(xExtremes_) >= std::get<1>(xExtremes_)) {
 		glogger
 		<< "In GFunctionPlotter2D::headerData(): Error!" << std::endl
-		<< "lower boundary(x) >= upper boundary(x): " << boost::get<0>(xExtremes_) << " / " <<
-		boost::get<1>(xExtremes_) << std::endl
+		<< "lower boundary(x) >= upper boundary(x): " << std::get<0>(xExtremes_) << " / " <<
+		std::get<1>(xExtremes_) << std::endl
 		<< GEXCEPTION;
 	}
 
-	if (boost::get<0>(yExtremes_) >= boost::get<1>(yExtremes_)) {
+	if (std::get<0>(yExtremes_) >= std::get<1>(yExtremes_)) {
 		glogger
 		<< "In GFunctionPlotter2D::headerData(): Error!" << std::endl
-		<< "lower boundary(y) >= upper boundary(y): " << boost::get<0>(yExtremes_) << " / " <<
-		boost::get<1>(yExtremes_) << std::endl
+		<< "lower boundary(y) >= upper boundary(y): " << std::get<0>(yExtremes_) << " / " <<
+		std::get<1>(yExtremes_) << std::endl
 		<< GEXCEPTION;
 	}
 
@@ -3339,13 +3339,13 @@ std::string GFunctionPlotter2D::headerData(bool isSecondary, std::size_t pId) co
 	<< functionName << "\", \""
 	<< functionDescription_
 	<< "\","
-	<< boost::get<0>(xExtremes_)
+	<< std::get<0>(xExtremes_)
 	<< ", "
-	<< boost::get<1>(xExtremes_)
+	<< std::get<1>(xExtremes_)
 	<< ", "
-	<< boost::get<0>(yExtremes_)
+	<< std::get<0>(yExtremes_)
 	<< ", "
-	<< boost::get<1>(yExtremes_)
+	<< std::get<1>(yExtremes_)
 	<< ");"
 	<< (comment != "" ? comment : "")
 	<< std::endl;
@@ -3699,19 +3699,19 @@ void GPlotDesigner::setCanvasDimensions(
  * @param c_x_dim The y-dimension of the output canvas
  */
 void GPlotDesigner::setCanvasDimensions(
-	const boost::tuple<boost::uint32_t, boost::uint32_t> &c_dim
+	const std::tuple<boost::uint32_t, boost::uint32_t> &c_dim
 ) {
-	this->setCanvasDimensions(boost::get<0>(c_dim), boost::get<1>(c_dim));
+	this->setCanvasDimensions(std::get<0>(c_dim), std::get<1>(c_dim));
 }
 
 /******************************************************************************/
 /**
  * Allows to retrieve the canvas dimensions
  *
- * @return A boost::tuple holding the canvas dimensions
+ * @return A std::tuple holding the canvas dimensions
  */
-boost::tuple<boost::uint32_t, boost::uint32_t> GPlotDesigner::getCanvasDimensions() const {
-	return boost::tuple<boost::uint32_t, boost::uint32_t>(c_x_dim_, c_y_dim_);
+std::tuple<boost::uint32_t, boost::uint32_t> GPlotDesigner::getCanvasDimensions() const {
+	return std::tuple<boost::uint32_t, boost::uint32_t>(c_x_dim_, c_y_dim_);
 }
 
 /******************************************************************************/

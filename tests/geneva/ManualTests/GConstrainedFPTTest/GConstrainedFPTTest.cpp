@@ -84,7 +84,7 @@ int main(int argc, char **argv){
 		internalValue=-30.+50.*double(i)/double(NTESTS);
 
 		externalValue = gbd13.transfer(internalValue);
-		*mapping_ptr & boost::tuple<double,double>(internalValue, externalValue);
+		*mapping_ptr & std::tuple<double,double>(internalValue, externalValue);
 	}
 
 	GPlotDesigner gpd("Manual tests of GConstrainedDoubleObject", 1,1);

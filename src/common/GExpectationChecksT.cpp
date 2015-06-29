@@ -53,7 +53,7 @@ const std::size_t SUCCESSCOUNTER = 1;
 GToken::GToken(
 	const std::string &caller, const Gem::Common::expectation &e
 )
-	: testCounter_(boost::tuple<std::size_t, std::size_t>(std::size_t(0), std::size_t(0))), caller_(caller),
+	: testCounter_(std::tuple<std::size_t, std::size_t>(std::size_t(0), std::size_t(0))), caller_(caller),
 	  e_(e) { /* nothing */ }
 
 /******************************************************************************/
@@ -61,7 +61,7 @@ GToken::GToken(
  * Increments the test counter
  */
 void GToken::incrTestCounter() {
-	boost::get<TESTCOUNTER>(testCounter_) += 1;
+	std::get<TESTCOUNTER>(testCounter_) += 1;
 }
 
 /******************************************************************************/
@@ -69,7 +69,7 @@ void GToken::incrTestCounter() {
  * Increments the counter of tests that met the expectation
  */
 void GToken::incrSuccessCounter() {
-	boost::get<SUCCESSCOUNTER>(testCounter_) += 1;
+	std::get<SUCCESSCOUNTER>(testCounter_) += 1;
 }
 
 /******************************************************************************/
@@ -77,13 +77,13 @@ void GToken::incrSuccessCounter() {
  * Allows to retrieve the current state of the success counter
  */
 std::size_t GToken::getSuccessCounter() const {
-	return boost::get<SUCCESSCOUNTER>(testCounter_);
+	return std::get<SUCCESSCOUNTER>(testCounter_);
 }
 
 /******************************************************************************/
 /** @brief Allows to retrieve the current state of the test counter */
 std::size_t GToken::getTestCounter() const {
-	return boost::get<TESTCOUNTER>(testCounter_);
+	return std::get<TESTCOUNTER>(testCounter_);
 }
 
 /******************************************************************************/
@@ -94,13 +94,13 @@ bool GToken::expectationMet() const {
 	switch (e_) {
 		case Gem::Common::CE_FP_SIMILARITY:
 		case Gem::Common::CE_EQUALITY:
-			if (boost::get<TESTCOUNTER>(testCounter_) == boost::get<SUCCESSCOUNTER>(testCounter_)) {
+			if (std::get<TESTCOUNTER>(testCounter_) == std::get<SUCCESSCOUNTER>(testCounter_)) {
 				return true;
 			}
 			break;
 
 		case Gem::Common::CE_INEQUALITY:
-			if (boost::get<SUCCESSCOUNTER>(testCounter_) > 0) {
+			if (std::get<SUCCESSCOUNTER>(testCounter_) > 0) {
 				return true;
 			}
 			break;

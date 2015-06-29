@@ -537,7 +537,7 @@ bool networkData::initRangeSet() const {
 /**
  * Allows to set the initialization range
  */
-void networkData::setInitRange(const std::vector<boost::tuple<double, double>> &initRange) {
+void networkData::setInitRange(const std::vector<std::tuple<double, double>> &initRange) {
 	initRange_ = initRange;
 }
 
@@ -545,7 +545,7 @@ void networkData::setInitRange(const std::vector<boost::tuple<double, double>> &
 /**
  * Allows to retrieve the initialization range
  */
-std::vector<boost::tuple<double, double>> networkData::getInitRange() const {
+std::vector<std::tuple<double, double>> networkData::getInitRange() const {
 	return initRange_;
 }
 
@@ -913,12 +913,12 @@ void GNeuralNetworkIndividual::writeVisualizationFile(const std::string &visFile
 		// Retrieve information about the initialization range
 		// We only act if initialization ranges have been registered.
 		// If not, than the above default values will be used.
-		std::vector<boost::tuple<double, double>> initRange = nD_->getInitRange();
+		std::vector<std::tuple<double, double>> initRange = nD_->getInitRange();
 		if (initRange.size() == 2) {
-			x_low = boost::get<0>(initRange.at(0));
-			x_high = boost::get<1>(initRange.at(0));
-			y_low = boost::get<0>(initRange.at(1));
-			y_high = boost::get<1>(initRange.at(1));
+			x_low = std::get<0>(initRange.at(0));
+			x_high = std::get<1>(initRange.at(0));
+			y_low = std::get<0>(initRange.at(1));
+			y_high = std::get<1>(initRange.at(1));
 		}
 
 		// Write the header

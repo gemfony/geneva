@@ -34,10 +34,10 @@
 
 // Standard header files go here
 #include <iostream>
+#include <tuple>
 
 // Boost header files go here
 #include <boost/cstdint.hpp>
-#include <boost/tuple/tuple.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 
@@ -788,8 +788,8 @@ int main(int argc, char **argv) {
 		//-----------------------------------------------------
 		// Setting and retrieval of specific configuration parameters
 		a1.setSigmaRange(minSigma, maxSigma);
-		boost::tuple<double,double> t = a1.getSigmaRange();
-		std::cout << boost::get<0>(t) << " " << boost::get<1>(t) << std::endl;
+		std::tuple<double,double> t = a1.getSigmaRange();
+		std::cout << std::get<0>(t) << " " << std::get<1>(t) << std::endl;
 
 		a1.setSigma(sigma);
 		double sigma2 = a1.getSigma();
@@ -848,8 +848,8 @@ int main(int argc, char **argv) {
 		// Set/get the allowed value range of sigma1 and sigma2
 		a1.setSigma1Range(0.001,2.);
 		a1.setSigma2Range(0.001,2.);
-		boost::tuple<double,double> sigma1Range = a1.getSigma1Range();
-		boost::tuple<double,double> sigma2Range = a1.getSigma2Range();
+		std::tuple<double,double> sigma1Range = a1.getSigma1Range();
+		std::tuple<double,double> sigma2Range = a1.getSigma2Range();
 
 		// Set/get the adaption rate of sigma1 and sigma2
 		a1.setSigma1AdaptionRate(0.8);
@@ -862,19 +862,19 @@ int main(int argc, char **argv) {
 		a1.setAllSigma1(
 			sigma1
 			, sigma1AdaptionRate
-			, boost::get<0>(sigma1Range)
-			, boost::get<1>(sigma1Range)
+			, std::get<0>(sigma1Range)
+			, std::get<1>(sigma1Range)
 		);
 		a1.setAllSigma2(
 			sigma2
 			, sigma2AdaptionRate
-			, boost::get<0>(sigma2Range)
-			, boost::get<1>(sigma2Range)
+			, std::get<0>(sigma2Range)
+			, std::get<1>(sigma2Range)
 		);
 
 		// Set/get the lower and upper boundaries of delta
 		a1.setDeltaRange(0.,5.);
-		boost::tuple<double,double> deltaRange = a1.getDeltaRange();
+		std::tuple<double,double> deltaRange = a1.getDeltaRange();
 
 		// Set the initial distance between both peaks
 		// and retieve the current value
@@ -890,8 +890,8 @@ int main(int argc, char **argv) {
 		a1.setAllDelta(
 			delta
 			, deltaAdaptionRate
-			, boost::get<0>(deltaRange)
-			, boost::get<1>(deltaRange)
+			, std::get<0>(deltaRange)
+			, std::get<1>(deltaRange)
 		);
 
 		//-----------------------------------------------------
@@ -938,8 +938,8 @@ int main(int argc, char **argv) {
 		//-----------------------------------------------------
 		// Setting and retrieval of specific configuration parameters
 		a1.setSigmaRange(minSigma, maxSigma);
-		boost::tuple<double,double> t = a1.getSigmaRange();
-		std::cout << boost::get<0>(t) << " " << boost::get<1>(t) << std::endl;
+		std::tuple<double,double> t = a1.getSigmaRange();
+		std::cout << std::get<0>(t) << " " << std::get<1>(t) << std::endl;
 
 		a1.setSigma(sigma);
 		double sigma2 = a1.getSigma();

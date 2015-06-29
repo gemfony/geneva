@@ -42,19 +42,18 @@
 #include <iostream>
 #include <sstream>
 #include <functional>
+#include <tuple>
 
 // Boost headers go here
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/utility.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <boost/tuple/tuple_io.hpp>
-#include <boost/tuple/tuple_comparison.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/cast.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/fusion/adapted/std_tuple.hpp> // Compare http://stackoverflow.com/questions/18158376/getting-boostspiritqi-to-use-stl-containers
 
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
@@ -86,6 +85,7 @@
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GTypeTraitsT.hpp"
+#include "common/GTupleIO.hpp"
 
 namespace Gem {
 namespace Common {
@@ -121,11 +121,11 @@ const double DEFMINMARKERSIZE = 0.001;
 const double DEFMAXMARKERSIZE = 1.;
 
 // Easier access to the header-, body- and footer-data
-typedef boost::tuple<std::string, std::string, std::string> plotData;
+typedef std::tuple<std::string, std::string, std::string> plotData;
 
 // Easier acces to lines
-typedef boost::tuple<double, double, double> pointData;
-typedef boost::tuple<pointData, pointData> line;
+typedef std::tuple<double, double, double> pointData;
+typedef std::tuple<pointData, pointData> line;
 
 // Forward declaration in order to allow a friend statement in GBasePlotter
 class GPlotDesigner;
@@ -607,7 +607,7 @@ public:
 	);
 	/** @brief Initialization with a range in the form of a tuple */
 	G_API_COMMON GHistogram1D(
-		const std::size_t &, const boost::tuple<double, double> &
+		const std::size_t &, const std::tuple<double, double> &
 	);
 	/** @brief A copy constructor */
 	G_API_COMMON GHistogram1D(const GHistogram1D &);
@@ -698,7 +698,7 @@ public:
 	);
 	/** @brief Initialization with a range in the form of a tuple */
 	G_API_COMMON GHistogram1I(
-		const std::size_t &, const boost::tuple<double, double> &
+		const std::size_t &, const std::tuple<double, double> &
 	);
 	/** @brief A copy constructor */
 	G_API_COMMON GHistogram1I(const GHistogram1I &);
@@ -856,7 +856,7 @@ public:
 	 * if available.
 	 */
 	std::shared_ptr <GDataCollector1T<x_type>> projectX(
-		std::size_t, boost::tuple<x_type, x_type>
+		std::size_t, std::tuple<x_type, x_type>
 	) const {
 		glogger
 		<< "In GDataCollector2T<>::projectX(range, nBins): Error!" << std::endl
@@ -874,7 +874,7 @@ public:
 	 * if available.
 	 */
 	std::shared_ptr <GDataCollector1T<y_type>> projectY(
-		std::size_t, boost::tuple<y_type, y_type>
+		std::size_t, std::tuple<y_type, y_type>
 	) const {
 		glogger
 		<< "In GDataCollector2T<>::projectY(range, nBins): Error!" << std::endl
@@ -905,7 +905,7 @@ public:
 	 * @param point_undet The data item to be added to the collection
 	 */
 	template<typename x_type_undet, typename y_type_undet>
-	void operator&(const boost::tuple<x_type_undet, y_type_undet> &point_undet) {
+	void operator&(const std::tuple<x_type_undet, y_type_undet> &point_undet) {
 		using boost::numeric::bad_numeric_cast;
 
 		x_type x = x_type(0);
@@ -913,29 +913,29 @@ public:
 
 		// Make sure the data can be converted to doubles
 		try {
-			x = boost::numeric_cast<x_type>(boost::get<0>(point_undet));
-			y = boost::numeric_cast<y_type>(boost::get<1>(point_undet));
+			x = boost::numeric_cast<x_type>(std::get<0>(point_undet));
+			y = boost::numeric_cast<y_type>(std::get<1>(point_undet));
 		}
 		catch (bad_numeric_cast &e) {
 			glogger
-			<< "In GDataCollector2T::operator&(const boost::tuple<S,T>&): Error!" << std::endl
+			<< "In GDataCollector2T::operator&(const std::tuple<S,T>&): Error!" << std::endl
 			<< "Encountered invalid cast with boost::numeric_cast," << std::endl
 			<< "with the message " << std::endl
 			<< e.what() << std::endl
 			<< GEXCEPTION;
 		}
 
-		data_.push_back(boost::tuple<x_type, y_type>(x, y));
+		data_.push_back(std::tuple<x_type, y_type>(x, y));
 	}
 
 	/***************************************************************************/
 	/**
-	 * Allows to add data of type boost::tuple<x_type, y_type> to the collection in
+	 * Allows to add data of type std::tuple<x_type, y_type> to the collection in
 	 * an intuitive way.
 	 *
 	 * @param point The data item to be added to the collection
 	 */
-	void operator&(const boost::tuple<x_type, y_type> &point) {
+	void operator&(const std::tuple<x_type, y_type> &point) {
 		// Add the data item to the collection
 		data_.push_back(point);
 	}
@@ -949,42 +949,42 @@ public:
 	 * @param point_vec_undet The collection of data items to be added to the collection
 	 */
 	template<typename x_type_undet, typename y_type_undet>
-	void operator&(const std::vector<boost::tuple<x_type_undet, y_type_undet>> &point_vec_undet) {
+	void operator&(const std::vector<std::tuple<x_type_undet, y_type_undet>> &point_vec_undet) {
 		using boost::numeric::bad_numeric_cast;
 
 		x_type x = x_type(0);
 		y_type y = y_type(0);
 
-		typename std::vector<boost::tuple<x_type_undet, y_type_undet>>::const_iterator cit;
+		typename std::vector<std::tuple<x_type_undet, y_type_undet>>::const_iterator cit;
 		for (cit = point_vec_undet.begin(); cit != point_vec_undet.end(); ++cit) {
 			// Make sure the data can be converted to doubles
 			try {
-				x = boost::numeric_cast<x_type>(boost::get<0>(*cit));
-				y = boost::numeric_cast<y_type>(boost::get<1>(*cit));
+				x = boost::numeric_cast<x_type>(std::get<0>(*cit));
+				y = boost::numeric_cast<y_type>(std::get<1>(*cit));
 			}
 			catch (bad_numeric_cast &e) {
 				glogger
-				<< "In GDataCollector2T::operator&(const std::vector<boost::tuple<S,T>>&): Error!" << std::endl
+				<< "In GDataCollector2T::operator&(const std::vector<std::tuple<S,T>>&): Error!" << std::endl
 				<< "Encountered invalid cast with boost::numeric_cast," << std::endl
 				<< "with the message " << std::endl
 				<< e.what() << std::endl
 				<< GEXCEPTION;
 			}
 
-			data_.push_back(boost::tuple<x_type, y_type>(x, y));
+			data_.push_back(std::tuple<x_type, y_type>(x, y));
 		}
 	}
 
 	/***************************************************************************/
 	/**
-	 * Allows to add a collection of data items of type boost::tuple<x_type, y_type>
+	 * Allows to add a collection of data items of type std::tuple<x_type, y_type>
 	 * to the collection in an intuitive way, provided they can be converted safely
 	 * to the target type.
 	 *
 	 * @param point_vec The collection of data items to be added to the collection
 	 */
-	void operator&(const std::vector<boost::tuple<x_type, y_type>> &point_vec) {
-		typename std::vector<boost::tuple<x_type, y_type>>::const_iterator cit;
+	void operator&(const std::vector<std::tuple<x_type, y_type>> &point_vec) {
+		typename std::vector<std::tuple<x_type, y_type>>::const_iterator cit;
 		for (cit = point_vec.begin(); cit != point_vec.end(); ++cit) {
 			// Add the data item to the collection
 			data_.push_back(*cit);
@@ -998,8 +998,8 @@ public:
 	void sortX() {
 		std::sort(
 			data_.begin(), data_.end(),
-			[](const boost::tuple<x_type, y_type> &x, const boost::tuple<x_type, y_type> &y) -> bool {
-				return boost::get<0>(x) < boost::get<0>(y);
+			[](const std::tuple<x_type, y_type> &x, const std::tuple<x_type, y_type> &y) -> bool {
+				return std::get<0>(x) < std::get<0>(y);
 			}
 		);
 	}
@@ -1062,7 +1062,7 @@ protected:
 
 	/***************************************************************************/
 
-	std::vector<boost::tuple<x_type, y_type>> data_; ///< Holds the actual data
+	std::vector<std::tuple<x_type, y_type>> data_; ///< Holds the actual data
 };
 
 /******************************************************************************/
@@ -1078,12 +1078,12 @@ protected:
 template<>
 inline
 std::shared_ptr <GDataCollector1T<double>>
-GDataCollector2T<double, double>::projectX(std::size_t nBinsX, boost::tuple<double, double> rangeX) const {
-	boost::tuple<double, double> myRangeX;
-	if (rangeX == boost::tuple<double, double>()) {
+GDataCollector2T<double, double>::projectX(std::size_t nBinsX, std::tuple<double, double> rangeX) const {
+	std::tuple<double, double> myRangeX;
+	if (rangeX == std::tuple<double, double>()) {
 		// Find out about the minimum and maximum values in the data_ array
-		boost::tuple<double, double, double, double> extremes = Gem::Common::getMinMax(this->data_);
-		myRangeX = boost::tuple<double, double>(boost::get<0>(extremes), boost::get<1>(extremes));
+		std::tuple<double, double, double, double> extremes = Gem::Common::getMinMax(this->data_);
+		myRangeX = std::tuple<double, double>(std::get<0>(extremes), std::get<1>(extremes));
 	} else {
 		myRangeX = rangeX;
 	}
@@ -1096,7 +1096,7 @@ GDataCollector2T<double, double>::projectX(std::size_t nBinsX, boost::tuple<doub
 
 	// Add data to the object
 	for (std::size_t i = 0; i < data_.size(); i++) {
-		(*result) & boost::get<0>(data_.at(i));
+		(*result) & std::get<0>(data_.at(i));
 	}
 
 	// Return the data
@@ -1117,12 +1117,12 @@ GDataCollector2T<double, double>::projectX(std::size_t nBinsX, boost::tuple<doub
 template<>
 inline
 std::shared_ptr <GDataCollector1T<double>>
-GDataCollector2T<double, double>::projectY(std::size_t nBinsY, boost::tuple<double, double> rangeY) const {
-	boost::tuple<double, double> myRangeY;
-	if (rangeY == boost::tuple<double, double>()) {
+GDataCollector2T<double, double>::projectY(std::size_t nBinsY, std::tuple<double, double> rangeY) const {
+	std::tuple<double, double> myRangeY;
+	if (rangeY == std::tuple<double, double>()) {
 		// Find out about the minimum and maximum values in the data_ array
-		boost::tuple<double, double, double, double> extremes = Gem::Common::getMinMax(data_);
-		myRangeY = boost::tuple<double, double>(boost::get<2>(extremes), boost::get<3>(extremes));
+		std::tuple<double, double, double, double> extremes = Gem::Common::getMinMax(data_);
+		myRangeY = std::tuple<double, double>(std::get<2>(extremes), std::get<3>(extremes));
 	} else {
 		myRangeY = rangeY;
 	}
@@ -1135,7 +1135,7 @@ GDataCollector2T<double, double>::projectY(std::size_t nBinsY, boost::tuple<doub
 
 	// Add data to the object
 	for (std::size_t i = 0; i < data_.size(); i++) {
-		(*result) & boost::get<1>(data_.at(i));
+		(*result) & std::get<1>(data_.at(i));
 	}
 
 	// Return the data
@@ -1239,7 +1239,7 @@ public:
 	 * @param point_undet The data item to be added to the collection
 	 */
 	template<typename x_type_undet, typename y_type_undet>
-	void operator&(const boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet> &point_undet) {
+	void operator&(const std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet> &point_undet) {
 		using boost::numeric::bad_numeric_cast;
 
 		x_type x = x_type(0);
@@ -1249,31 +1249,31 @@ public:
 
 		// Make sure the data can be converted to doubles
 		try {
-			x = boost::numeric_cast<x_type>(boost::get<0>(point_undet));
-			ex = boost::numeric_cast<x_type>(boost::get<1>(point_undet));
-			y = boost::numeric_cast<y_type>(boost::get<2>(point_undet));
-			ey = boost::numeric_cast<y_type>(boost::get<3>(point_undet));
+			x = boost::numeric_cast<x_type>(std::get<0>(point_undet));
+			ex = boost::numeric_cast<x_type>(std::get<1>(point_undet));
+			y = boost::numeric_cast<y_type>(std::get<2>(point_undet));
+			ey = boost::numeric_cast<y_type>(std::get<3>(point_undet));
 		}
 		catch (bad_numeric_cast &e) {
 			glogger
-			<< "In GDataCollector2ET::operator&(const boost::tuple<S,S,T,T>&): Error!" << std::endl
+			<< "In GDataCollector2ET::operator&(const std::tuple<S,S,T,T>&): Error!" << std::endl
 			<< "Encountered invalid cast with boost::numeric_cast," << std::endl
 			<< "with the message " << std::endl
 			<< e.what() << std::endl
 			<< GEXCEPTION;
 		}
 
-		data_.push_back(boost::tuple<x_type, x_type, y_type, y_type>(x, ex, y, ey));
+		data_.push_back(std::tuple<x_type, x_type, y_type, y_type>(x, ex, y, ey));
 	}
 
 	/***************************************************************************/
 	/**
-	 * Allows to add data of type boost::tuple<x_type, y_type> to the collection in
+	 * Allows to add data of type std::tuple<x_type, y_type> to the collection in
 	 * an intuitive way.
 	 *
 	 * @param point The data item to be added to the collection
 	 */
-	void operator&(const boost::tuple<x_type, x_type, y_type, y_type> &point) {
+	void operator&(const std::tuple<x_type, x_type, y_type, y_type> &point) {
 		// Add the data item to the collection
 		data_.push_back(point);
 	}
@@ -1288,7 +1288,7 @@ public:
 	 */
 	template<typename x_type_undet, typename y_type_undet>
 	void operator&(
-		const std::vector<boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>> &point_vec_undet) {
+		const std::vector<std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>> &point_vec_undet) {
 		using boost::numeric::bad_numeric_cast;
 
 		x_type x = x_type(0);
@@ -1296,38 +1296,38 @@ public:
 		y_type y = y_type(0);
 		y_type ey = y_type(0);
 
-		typename std::vector<boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>>::const_iterator cit;
+		typename std::vector<std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>>::const_iterator cit;
 		for (cit = point_vec_undet.begin(); cit != point_vec_undet.end(); ++cit) {
 			// Make sure the data can be converted to doubles
 			try {
-				x = boost::numeric_cast<x_type>(boost::get<0>(*cit));
-				ex = boost::numeric_cast<x_type>(boost::get<1>(*cit));
-				y = boost::numeric_cast<y_type>(boost::get<2>(*cit));
-				ey = boost::numeric_cast<y_type>(boost::get<3>(*cit));
+				x = boost::numeric_cast<x_type>(std::get<0>(*cit));
+				ex = boost::numeric_cast<x_type>(std::get<1>(*cit));
+				y = boost::numeric_cast<y_type>(std::get<2>(*cit));
+				ey = boost::numeric_cast<y_type>(std::get<3>(*cit));
 			}
 			catch (bad_numeric_cast &e) {
 				glogger
-				<< "In GDataCollector2ET::operator&(const std::vector<boost::tuple<S,S,T,T>>&): Error!" << std::endl
+				<< "In GDataCollector2ET::operator&(const std::vector<std::tuple<S,S,T,T>>&): Error!" << std::endl
 				<< "Encountered invalid cast with boost::numeric_cast," << std::endl
 				<< "with the message " << std::endl
 				<< e.what() << std::endl
 				<< GEXCEPTION;
 			}
 
-			data_.push_back(boost::tuple<x_type, x_type, y_type, y_type>(x, ex, y, ey));
+			data_.push_back(std::tuple<x_type, x_type, y_type, y_type>(x, ex, y, ey));
 		}
 	}
 
 	/***************************************************************************/
 	/**
-	 * Allows to add a collection of data items of type boost::tuple<x_type, x_type, y_type, y_type>
+	 * Allows to add a collection of data items of type std::tuple<x_type, x_type, y_type, y_type>
 	 * to the collection in an intuitive way, provided they can be converted safely
 	 * to the target type.
 	 *
 	 * @param point_vec The collection of data items to be added to the collection
 	 */
-	void operator&(const std::vector<boost::tuple<x_type, x_type, y_type, y_type>> &point_vec) {
-		typename std::vector<boost::tuple<x_type, x_type, y_type, y_type>>::const_iterator cit;
+	void operator&(const std::vector<std::tuple<x_type, x_type, y_type, y_type>> &point_vec) {
+		typename std::vector<std::tuple<x_type, x_type, y_type, y_type>>::const_iterator cit;
 		for (cit = point_vec.begin(); cit != point_vec.end(); ++cit) {
 			// Add the data item to the collection
 			data_.push_back(*cit);
@@ -1353,9 +1353,9 @@ public:
 	void sortX() {
 		std::sort(
 			data_.begin(), data_.end(), [](
-				const boost::tuple<x_type, x_type, y_type, y_type> &x, const boost::tuple<x_type, x_type, y_type, y_type> &y
+				const std::tuple<x_type, x_type, y_type, y_type> &x, const std::tuple<x_type, x_type, y_type, y_type> &y
 			) -> bool {
-				return boost::get<0>(x) < boost::get<0>(y);
+				return std::get<0>(x) < std::get<0>(y);
 			}
 		);
 	}
@@ -1417,7 +1417,7 @@ protected:
 
 	/***************************************************************************/
 
-	std::vector<boost::tuple<x_type, x_type, y_type, y_type>> data_; ///< Holds the actual data
+	std::vector<std::tuple<x_type, x_type, y_type, y_type>> data_; ///< Holds the actual data
 };
 
 /******************************************************************************/
@@ -1483,8 +1483,8 @@ public:
 	);
 	/** @brief Initialization with ranges */
 	G_API_COMMON GHistogram2D(
-		const std::size_t &, const std::size_t &, const boost::tuple<double, double> &,
-		const boost::tuple<double, double> &
+		const std::size_t &, const std::size_t &, const std::tuple<double, double> &,
+		const std::tuple<double, double> &
 	);
 	/** @brief A copy constructor */
 	G_API_COMMON GHistogram2D(const GHistogram2D &);
@@ -1819,7 +1819,7 @@ public:
 	 * if available.
 	 */
 	std::shared_ptr <GDataCollector1T<x_type>> projectX(
-		std::size_t, boost::tuple<x_type, x_type>
+		std::size_t, std::tuple<x_type, x_type>
 	) const {
 		glogger
 		<< "In GDataCollector3T<>::projectX(range, nBins): Error!" << std::endl
@@ -1837,7 +1837,7 @@ public:
 	 * if available.
 	 */
 	std::shared_ptr <GDataCollector1T<y_type>> projectY(
-		std::size_t, boost::tuple<y_type, y_type>
+		std::size_t, std::tuple<y_type, y_type>
 	) const {
 		glogger
 		<< "In GDataCollector3T<>::projectY(range, nBins): Error!" << std::endl
@@ -1855,7 +1855,7 @@ public:
 	 * if available.
 	 */
 	std::shared_ptr <GDataCollector1T<z_type>> projectZ(
-		std::size_t, boost::tuple<z_type, z_type>
+		std::size_t, std::tuple<z_type, z_type>
 	) const {
 		glogger
 		<< "In GDataCollector3T<>::projectZ(range, nBins): Error!" << std::endl
@@ -1886,7 +1886,7 @@ public:
 	 * @param point_undet The data item to be added to the collection
 	 */
 	template<typename x_type_undet, typename y_type_undet, typename z_type_undet>
-	void operator&(const boost::tuple<x_type_undet, y_type_undet, z_type_undet> &point_undet) {
+	void operator&(const std::tuple<x_type_undet, y_type_undet, z_type_undet> &point_undet) {
 		using boost::numeric::bad_numeric_cast;
 
 		x_type x = x_type(0);
@@ -1895,30 +1895,30 @@ public:
 
 		// Make sure the data can be converted to doubles
 		try {
-			x = boost::numeric_cast<x_type>(boost::get<0>(point_undet));
-			y = boost::numeric_cast<y_type>(boost::get<1>(point_undet));
-			z = boost::numeric_cast<z_type>(boost::get<2>(point_undet));
+			x = boost::numeric_cast<x_type>(std::get<0>(point_undet));
+			y = boost::numeric_cast<y_type>(std::get<1>(point_undet));
+			z = boost::numeric_cast<z_type>(std::get<2>(point_undet));
 		}
 		catch (bad_numeric_cast &e) {
 			glogger
-			<< "In GDataCollector3T::operator&(const boost::tuple<S,T,U>&): Error!" << std::endl
+			<< "In GDataCollector3T::operator&(const std::tuple<S,T,U>&): Error!" << std::endl
 			<< "Encountered invalid cast with boost::numeric_cast," << std::endl
 			<< "with the message " << std::endl
 			<< e.what() << std::endl
 			<< GEXCEPTION;
 		}
 
-		data_.push_back(boost::tuple<x_type, y_type, z_type>(x, y, z));
+		data_.push_back(std::tuple<x_type, y_type, z_type>(x, y, z));
 	}
 
 	/***************************************************************************/
 	/**
-	 * Allows to add data of type boost::tuple<x_type, y_type, z_type> to the collection
+	 * Allows to add data of type std::tuple<x_type, y_type, z_type> to the collection
 	 * in an intuitive way.
 	 *
 	 * @param point The data item to be added to the collection
 	 */
-	void operator&(const boost::tuple<x_type, y_type, z_type> &point) {
+	void operator&(const std::tuple<x_type, y_type, z_type> &point) {
 		// Add the data item to the collection
 		data_.push_back(point);
 	}
@@ -1932,44 +1932,44 @@ public:
 	 * @param point_vec_undet The collection of data items to be added to the collection
 	 */
 	template<typename x_type_undet, typename y_type_undet, typename z_type_undet>
-	void operator&(const std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_undet>> &point_vec_undet) {
+	void operator&(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet>> &point_vec_undet) {
 		using boost::numeric::bad_numeric_cast;
 
 		x_type x = x_type(0);
 		y_type y = y_type(0);
 		z_type z = z_type(0);
 
-		typename std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_undet>>::const_iterator cit;
+		typename std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet>>::const_iterator cit;
 		for (cit = point_vec_undet.begin(); cit != point_vec_undet.end(); ++cit) {
 			// Make sure the data can be converted to doubles
 			try {
-				x = boost::numeric_cast<x_type>(boost::get<0>(*cit));
-				y = boost::numeric_cast<y_type>(boost::get<1>(*cit));
-				z = boost::numeric_cast<z_type>(boost::get<2>(*cit));
+				x = boost::numeric_cast<x_type>(std::get<0>(*cit));
+				y = boost::numeric_cast<y_type>(std::get<1>(*cit));
+				z = boost::numeric_cast<z_type>(std::get<2>(*cit));
 			}
 			catch (bad_numeric_cast &e) {
 				glogger
-				<< "In GDataCollector3T::operator&(const std::vector<boost::tuple<S,T,U>>&): Error!" << std::endl
+				<< "In GDataCollector3T::operator&(const std::vector<std::tuple<S,T,U>>&): Error!" << std::endl
 				<< "Encountered invalid cast with boost::numeric_cast," << std::endl
 				<< "with the message " << std::endl
 				<< e.what() << std::endl
 				<< GEXCEPTION;
 			}
 
-			data_.push_back(boost::tuple<x_type, y_type, z_type>(x, y, z));
+			data_.push_back(std::tuple<x_type, y_type, z_type>(x, y, z));
 		}
 	}
 
 	/***************************************************************************/
 	/**
-	 * Allows to add a collection of data items of type boost::tuple<x_type, y_type, z_type>
+	 * Allows to add a collection of data items of type std::tuple<x_type, y_type, z_type>
 	 * to the collection in an intuitive way, provided they can be converted safely
 	 * to the target type.
 	 *
 	 * @param point_vec The collection of data items to be added to the collection
 	 */
-	void operator&(const std::vector<boost::tuple<x_type, y_type, z_type>> &point_vec) {
-		typename std::vector<boost::tuple<x_type, y_type, z_type>>::const_iterator cit;
+	void operator&(const std::vector<std::tuple<x_type, y_type, z_type>> &point_vec) {
+		typename std::vector<std::tuple<x_type, y_type, z_type>>::const_iterator cit;
 		for (cit = point_vec.begin(); cit != point_vec.end(); ++cit) {
 			// Add the data item to the collection
 			data_.push_back(*cit);
@@ -2033,7 +2033,7 @@ protected:
 
 	/***************************************************************************/
 
-	std::vector<boost::tuple<x_type, y_type, z_type>> data_; ///< Holds the actual data
+	std::vector<std::tuple<x_type, y_type, z_type>> data_; ///< Holds the actual data
 };
 
 
@@ -2050,12 +2050,12 @@ protected:
 template<>
 inline
 std::shared_ptr <GDataCollector1T<double>>
-GDataCollector3T<double, double, double>::projectX(std::size_t nBinsX, boost::tuple<double, double> rangeX) const {
-	boost::tuple<double, double> myRangeX;
-	if (rangeX == boost::tuple<double, double>()) {
+GDataCollector3T<double, double, double>::projectX(std::size_t nBinsX, std::tuple<double, double> rangeX) const {
+	std::tuple<double, double> myRangeX;
+	if (rangeX == std::tuple<double, double>()) {
 		// Find out about the minimum and maximum values in the data_ array
-		boost::tuple<double, double, double, double, double, double> extremes = Gem::Common::getMinMax(this->data_);
-		myRangeX = boost::tuple<double, double>(boost::get<0>(extremes), boost::get<1>(extremes));
+		std::tuple<double, double, double, double, double, double> extremes = Gem::Common::getMinMax(this->data_);
+		myRangeX = std::tuple<double, double>(std::get<0>(extremes), std::get<1>(extremes));
 	} else {
 		myRangeX = rangeX;
 	}
@@ -2068,7 +2068,7 @@ GDataCollector3T<double, double, double>::projectX(std::size_t nBinsX, boost::tu
 
 	// Add data to the object
 	for (std::size_t i = 0; i < data_.size(); i++) {
-		(*result) & boost::get<0>(data_.at(i));
+		(*result) & std::get<0>(data_.at(i));
 	}
 
 	// Return the data
@@ -2088,12 +2088,12 @@ GDataCollector3T<double, double, double>::projectX(std::size_t nBinsX, boost::tu
 template<>
 inline
 std::shared_ptr <GDataCollector1T<double>>
-GDataCollector3T<double, double, double>::projectY(std::size_t nBinsY, boost::tuple<double, double> rangeY) const {
-	boost::tuple<double, double> myRangeY;
-	if (rangeY == boost::tuple<double, double>()) {
+GDataCollector3T<double, double, double>::projectY(std::size_t nBinsY, std::tuple<double, double> rangeY) const {
+	std::tuple<double, double> myRangeY;
+	if (rangeY == std::tuple<double, double>()) {
 		// Find out about the minimum and maximum values in the data_ array
-		boost::tuple<double, double, double, double, double, double> extremes = Gem::Common::getMinMax(data_);
-		myRangeY = boost::tuple<double, double>(boost::get<2>(extremes), boost::get<3>(extremes));
+		std::tuple<double, double, double, double, double, double> extremes = Gem::Common::getMinMax(data_);
+		myRangeY = std::tuple<double, double>(std::get<2>(extremes), std::get<3>(extremes));
 	} else {
 		myRangeY = rangeY;
 	}
@@ -2106,7 +2106,7 @@ GDataCollector3T<double, double, double>::projectY(std::size_t nBinsY, boost::tu
 
 	// Add data to the object
 	for (std::size_t i = 0; i < data_.size(); i++) {
-		(*result) & boost::get<1>(data_.at(i));
+		(*result) & std::get<1>(data_.at(i));
 	}
 
 	// Return the data
@@ -2126,12 +2126,12 @@ GDataCollector3T<double, double, double>::projectY(std::size_t nBinsY, boost::tu
 template<>
 inline
 std::shared_ptr <GDataCollector1T<double>>
-GDataCollector3T<double, double, double>::projectZ(std::size_t nBinsZ, boost::tuple<double, double> rangeZ) const {
-	boost::tuple<double, double> myRangeZ;
-	if (rangeZ == boost::tuple<double, double>()) {
+GDataCollector3T<double, double, double>::projectZ(std::size_t nBinsZ, std::tuple<double, double> rangeZ) const {
+	std::tuple<double, double> myRangeZ;
+	if (rangeZ == std::tuple<double, double>()) {
 		// Find out about the minimum and maximum values in the data_ array
-		boost::tuple<double, double, double, double, double, double> extremes = Gem::Common::getMinMax(data_);
-		myRangeZ = boost::tuple<double, double>(boost::get<4>(extremes), boost::get<5>(extremes));
+		std::tuple<double, double, double, double, double, double> extremes = Gem::Common::getMinMax(data_);
+		myRangeZ = std::tuple<double, double>(std::get<4>(extremes), std::get<5>(extremes));
 	} else {
 		myRangeZ = rangeZ;
 	}
@@ -2144,7 +2144,7 @@ GDataCollector3T<double, double, double>::projectZ(std::size_t nBinsZ, boost::tu
 
 	// Add data to the object
 	for (std::size_t i = 0; i < data_.size(); i++) {
-		(*result) & boost::get<2>(data_.at(i));
+		(*result) & std::get<2>(data_.at(i));
 	}
 
 	// Return the data
@@ -2328,7 +2328,7 @@ public:
 	 * if available.
 	 */
 	std::shared_ptr <GDataCollector1T<x_type>> projectX(
-		std::size_t, boost::tuple<x_type, x_type>
+		std::size_t, std::tuple<x_type, x_type>
 	) const {
 		glogger
 		<< "In GDataCollector4T<>::projectX(range, nBins): Error!" << std::endl
@@ -2346,7 +2346,7 @@ public:
 	 * if available.
 	 */
 	std::shared_ptr <GDataCollector1T<y_type>> projectY(
-		std::size_t, boost::tuple<y_type, y_type>
+		std::size_t, std::tuple<y_type, y_type>
 	) const {
 		glogger
 		<< "In GDataCollector4T<>::projectY(range, nBins): Error!" << std::endl
@@ -2364,7 +2364,7 @@ public:
 	 * if available.
 	 */
 	std::shared_ptr <GDataCollector1T<z_type>> projectZ(
-		std::size_t, boost::tuple<z_type, z_type>
+		std::size_t, std::tuple<z_type, z_type>
 	) const {
 		glogger
 		<< "In GDataCollector4T<>::projectZ(range, nBins): Error!" << std::endl
@@ -2382,7 +2382,7 @@ public:
 	 * if available.
 	 */
 	std::shared_ptr <GDataCollector1T<w_type>> projectW(
-		std::size_t, boost::tuple<w_type, w_type>
+		std::size_t, std::tuple<w_type, w_type>
 	) const {
 		glogger
 		<< "In GDataCollector4T<>::projectZ(range, nBins): Error!" << std::endl
@@ -2415,7 +2415,7 @@ public:
 	template<
 		typename x_type_undet, typename y_type_undet, typename z_type_undet, typename w_type_undet
 	>
-	void operator&(const boost::tuple<x_type_undet, y_type_undet, z_type_undet, w_type_undet> &point_undet) {
+	void operator&(const std::tuple<x_type_undet, y_type_undet, z_type_undet, w_type_undet> &point_undet) {
 		using boost::numeric::bad_numeric_cast;
 
 		x_type x = x_type(0);
@@ -2425,31 +2425,31 @@ public:
 
 		// Make sure the data can be converted to doubles
 		try {
-			x = boost::numeric_cast<x_type>(boost::get<0>(point_undet));
-			y = boost::numeric_cast<y_type>(boost::get<1>(point_undet));
-			z = boost::numeric_cast<z_type>(boost::get<2>(point_undet));
-			w = boost::numeric_cast<w_type>(boost::get<3>(point_undet));
+			x = boost::numeric_cast<x_type>(std::get<0>(point_undet));
+			y = boost::numeric_cast<y_type>(std::get<1>(point_undet));
+			z = boost::numeric_cast<z_type>(std::get<2>(point_undet));
+			w = boost::numeric_cast<w_type>(std::get<3>(point_undet));
 		}
 		catch (bad_numeric_cast &e) {
 			glogger
-			<< "In GDataCollector4T::operator&(const boost::tuple<S,T,U,W>&): Error!" << std::endl
+			<< "In GDataCollector4T::operator&(const std::tuple<S,T,U,W>&): Error!" << std::endl
 			<< "Encountered invalid cast with boost::numeric_cast," << std::endl
 			<< "with the message " << std::endl
 			<< e.what() << std::endl
 			<< GEXCEPTION;
 		}
 
-		data_.push_back(boost::tuple<x_type, y_type, z_type, w_type>(x, y, z, w));
+		data_.push_back(std::tuple<x_type, y_type, z_type, w_type>(x, y, z, w));
 	}
 
 	/***************************************************************************/
 	/**
-	 * Allows to add data of type boost::tuple<x_type, y_type, z_type> to the collection
+	 * Allows to add data of type std::tuple<x_type, y_type, z_type> to the collection
 	 * in an intuitive way.
 	 *
 	 * @param point The data item to be added to the collection
 	 */
-	void operator&(const boost::tuple<x_type, y_type, z_type, w_type> &point) {
+	void operator&(const std::tuple<x_type, y_type, z_type, w_type> &point) {
 		// Add the data item to the collection
 		data_.push_back(point);
 	}
@@ -2466,7 +2466,7 @@ public:
 		typename x_type_undet, typename y_type_undet, typename z_type_undet, typename w_type_undet
 	>
 	void operator&(
-		const std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_undet, w_type_undet>> &point_vec_undet) {
+		const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet, w_type_undet>> &point_vec_undet) {
 		using boost::numeric::bad_numeric_cast;
 
 		x_type x = x_type(0);
@@ -2474,38 +2474,38 @@ public:
 		z_type z = z_type(0);
 		w_type w = w_type(0);
 
-		typename std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_undet>>::const_iterator cit;
+		typename std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet>>::const_iterator cit;
 		for (cit = point_vec_undet.begin(); cit != point_vec_undet.end(); ++cit) {
 			// Make sure the data can be converted to doubles
 			try {
-				x = boost::numeric_cast<x_type>(boost::get<0>(*cit));
-				y = boost::numeric_cast<y_type>(boost::get<1>(*cit));
-				z = boost::numeric_cast<z_type>(boost::get<2>(*cit));
-				w = boost::numeric_cast<w_type>(boost::get<3>(*cit));
+				x = boost::numeric_cast<x_type>(std::get<0>(*cit));
+				y = boost::numeric_cast<y_type>(std::get<1>(*cit));
+				z = boost::numeric_cast<z_type>(std::get<2>(*cit));
+				w = boost::numeric_cast<w_type>(std::get<3>(*cit));
 			}
 			catch (bad_numeric_cast &e) {
 				glogger
-				<< "In GDataCollector4T::operator&(const std::vector<boost::tuple<S,T,U,W>>&): Error!" << std::endl
+				<< "In GDataCollector4T::operator&(const std::vector<std::tuple<S,T,U,W>>&): Error!" << std::endl
 				<< "Encountered invalid cast with boost::numeric_cast," << std::endl
 				<< "with the message " << std::endl
 				<< e.what() << std::endl
 				<< GEXCEPTION;
 			}
 
-			data_.push_back(boost::tuple<x_type, y_type, z_type, w_type>(x, y, z, w));
+			data_.push_back(std::tuple<x_type, y_type, z_type, w_type>(x, y, z, w));
 		}
 	}
 
 	/***************************************************************************/
 	/**
-	 * Allows to add a collection of data items of type boost::tuple<x_type, y_type, z_type, w_type>
+	 * Allows to add a collection of data items of type std::tuple<x_type, y_type, z_type, w_type>
 	 * to the collection in an intuitive way, provided they can be converted safely
 	 * to the target type.
 	 *
 	 * @param point_vec The collection of data items to be added to the collection
 	 */
-	void operator&(const std::vector<boost::tuple<x_type, y_type, z_type, w_type>> &point_vec) {
-		typename std::vector<boost::tuple<x_type, y_type, z_type, w_type>>::const_iterator cit;
+	void operator&(const std::vector<std::tuple<x_type, y_type, z_type, w_type>> &point_vec) {
+		typename std::vector<std::tuple<x_type, y_type, z_type, w_type>>::const_iterator cit;
 		for (cit = point_vec.begin(); cit != point_vec.end(); ++cit) {
 			// Add the data item to the collection
 			data_.push_back(*cit);
@@ -2569,7 +2569,7 @@ protected:
 
 	/***************************************************************************/
 
-	std::vector<boost::tuple<x_type, y_type, z_type, w_type>> data_; ///< Holds the actual data
+	std::vector<std::tuple<x_type, y_type, z_type, w_type>> data_; ///< Holds the actual data
 };
 
 /******************************************************************************/
@@ -2586,13 +2586,13 @@ template<>
 inline
 std::shared_ptr <GDataCollector1T<double>>
 GDataCollector4T<double, double, double, double>::projectX(std::size_t nBinsX,
-																			  boost::tuple<double, double> rangeX) const {
-	boost::tuple<double, double> myRangeX;
-	if (rangeX == boost::tuple<double, double>()) {
+																			  std::tuple<double, double> rangeX) const {
+	std::tuple<double, double> myRangeX;
+	if (rangeX == std::tuple<double, double>()) {
 		// Find out about the minimum and maximum values in the data_ array
-		boost::tuple<double, double, double, double, double, double, double, double> extremes = Gem::Common::getMinMax(
+		std::tuple<double, double, double, double, double, double, double, double> extremes = Gem::Common::getMinMax(
 			this->data_);
-		myRangeX = boost::tuple<double, double>(boost::get<0>(extremes), boost::get<1>(extremes));
+		myRangeX = std::tuple<double, double>(std::get<0>(extremes), std::get<1>(extremes));
 	} else {
 		myRangeX = rangeX;
 	}
@@ -2605,7 +2605,7 @@ GDataCollector4T<double, double, double, double>::projectX(std::size_t nBinsX,
 
 	// Add data to the object
 	for (std::size_t i = 0; i < data_.size(); i++) {
-		(*result) & boost::get<0>(data_.at(i));
+		(*result) & std::get<0>(data_.at(i));
 	}
 
 	// Return the data
@@ -2626,13 +2626,13 @@ template<>
 inline
 std::shared_ptr <GDataCollector1T<double>>
 GDataCollector4T<double, double, double, double>::projectY(std::size_t nBinsY,
-																			  boost::tuple<double, double> rangeY) const {
-	boost::tuple<double, double> myRangeY;
-	if (rangeY == boost::tuple<double, double>()) {
+																			  std::tuple<double, double> rangeY) const {
+	std::tuple<double, double> myRangeY;
+	if (rangeY == std::tuple<double, double>()) {
 		// Find out about the minimum and maximum values in the data_ array
-		boost::tuple<double, double, double, double, double, double, double, double> extremes = Gem::Common::getMinMax(
+		std::tuple<double, double, double, double, double, double, double, double> extremes = Gem::Common::getMinMax(
 			this->data_);
-		myRangeY = boost::tuple<double, double>(boost::get<2>(extremes), boost::get<3>(extremes));
+		myRangeY = std::tuple<double, double>(std::get<2>(extremes), std::get<3>(extremes));
 	} else {
 		myRangeY = rangeY;
 	}
@@ -2645,7 +2645,7 @@ GDataCollector4T<double, double, double, double>::projectY(std::size_t nBinsY,
 
 	// Add data to the object
 	for (std::size_t i = 0; i < data_.size(); i++) {
-		(*result) & boost::get<1>(data_.at(i));
+		(*result) & std::get<1>(data_.at(i));
 	}
 
 	// Return the data
@@ -2666,13 +2666,13 @@ template<>
 inline
 std::shared_ptr <GDataCollector1T<double>>
 GDataCollector4T<double, double, double, double>::projectZ(std::size_t nBinsZ,
-																			  boost::tuple<double, double> rangeZ) const {
-	boost::tuple<double, double> myRangeZ;
-	if (rangeZ == boost::tuple<double, double>()) {
+																			  std::tuple<double, double> rangeZ) const {
+	std::tuple<double, double> myRangeZ;
+	if (rangeZ == std::tuple<double, double>()) {
 		// Find out about the minimum and maximum values in the data_ array
-		boost::tuple<double, double, double, double, double, double, double, double> extremes = Gem::Common::getMinMax(
+		std::tuple<double, double, double, double, double, double, double, double> extremes = Gem::Common::getMinMax(
 			this->data_);
-		myRangeZ = boost::tuple<double, double>(boost::get<4>(extremes), boost::get<5>(extremes));
+		myRangeZ = std::tuple<double, double>(std::get<4>(extremes), std::get<5>(extremes));
 	} else {
 		myRangeZ = rangeZ;
 	}
@@ -2686,7 +2686,7 @@ GDataCollector4T<double, double, double, double>::projectZ(std::size_t nBinsZ,
 
 	// Add data to the object
 	for (std::size_t i = 0; i < data_.size(); i++) {
-		(*result) & boost::get<2>(data_.at(i));
+		(*result) & std::get<2>(data_.at(i));
 	}
 
 	// Return the data
@@ -2707,13 +2707,13 @@ template<>
 inline
 std::shared_ptr <GDataCollector1T<double>>
 GDataCollector4T<double, double, double, double>::projectW(std::size_t nBinsW,
-																			  boost::tuple<double, double> rangeW) const {
-	boost::tuple<double, double> myRangeW;
-	if (rangeW == boost::tuple<double, double>()) {
+																			  std::tuple<double, double> rangeW) const {
+	std::tuple<double, double> myRangeW;
+	if (rangeW == std::tuple<double, double>()) {
 		// Find out about the minimum and maximum values in the data_ array
-		boost::tuple<double, double, double, double, double, double, double, double> extremes = Gem::Common::getMinMax(
+		std::tuple<double, double, double, double, double, double, double, double> extremes = Gem::Common::getMinMax(
 			this->data_);
-		myRangeW = boost::tuple<double, double>(boost::get<6>(extremes), boost::get<7>(extremes));
+		myRangeW = std::tuple<double, double>(std::get<6>(extremes), std::get<7>(extremes));
 	} else {
 		myRangeW = rangeW;
 	}
@@ -2727,7 +2727,7 @@ GDataCollector4T<double, double, double, double>::projectW(std::size_t nBinsW,
 
 	// Add data to the object
 	for (std::size_t i = 0; i < data_.size(); i++) {
-		(*result) & boost::get<3>(data_.at(i));
+		(*result) & std::get<3>(data_.at(i));
 	}
 
 	// Return the data
@@ -2865,7 +2865,7 @@ class GFunctionPlotter1D
 public:
 	/** @brief The standard constructor */
 	G_API_COMMON GFunctionPlotter1D(
-		const std::string &, const boost::tuple<double, double> &
+		const std::string &, const std::tuple<double, double> &
 	);
 
 	/** @brief A copy constructor */
@@ -2920,7 +2920,7 @@ private:
 
 	std::string functionDescription_ = std::string();
 
-	boost::tuple<double, double> xExtremes_ = boost::tuple<double, double>(); ///< Minimum and maximum values for the x-axis
+	std::tuple<double, double> xExtremes_ = std::tuple<double, double>(); ///< Minimum and maximum values for the x-axis
 	std::size_t nSamplesX_ = DEFNSAMPLES; ///< The number of sampling points of the function
 };
 
@@ -2951,7 +2951,7 @@ class GFunctionPlotter2D
 public:
 	/** @brief The standard constructor */
 	G_API_COMMON GFunctionPlotter2D(
-		const std::string &, const boost::tuple<double, double> &, const boost::tuple<double, double> &
+		const std::string &, const std::tuple<double, double> &, const std::tuple<double, double> &
 	);
 
 	/** @brief A copy constructor */
@@ -3009,8 +3009,8 @@ private:
 
 	std::string functionDescription_ = std::string();
 
-	boost::tuple<double, double> xExtremes_ = boost::tuple<double, double>(); ///< Minimum and maximum values for the x-axis
-	boost::tuple<double, double> yExtremes_ = boost::tuple<double, double>(); ///< Minimum and maximum values for the y-axis
+	std::tuple<double, double> xExtremes_ = std::tuple<double, double>(); ///< Minimum and maximum values for the x-axis
+	std::tuple<double, double> yExtremes_ = std::tuple<double, double>(); ///< Minimum and maximum values for the y-axis
 
 	std::size_t nSamplesX_ = DEFNSAMPLES; ///< The number of sampling points of the function
 	std::size_t nSamplesY_ = DEFNSAMPLES; ///< The number of sampling points of the function
@@ -3055,9 +3055,9 @@ public:
 	/** @brief Set the dimensions of the output canvas */
 	G_API_COMMON void setCanvasDimensions(const boost::uint32_t &, const boost::uint32_t &);
 	/** @brief Set the dimensions of the output canvas */
-	G_API_COMMON void setCanvasDimensions(const boost::tuple<boost::uint32_t, boost::uint32_t> &);
+	G_API_COMMON void setCanvasDimensions(const std::tuple<boost::uint32_t, boost::uint32_t> &);
 	/** @brief Allows to retrieve the canvas dimensions */
-	G_API_COMMON boost::tuple<boost::uint32_t, boost::uint32_t> getCanvasDimensions() const;
+	G_API_COMMON std::tuple<boost::uint32_t, boost::uint32_t> getCanvasDimensions() const;
 
 	/** @brief Allows to set the canvas label */
 	G_API_COMMON void setCanvasLabel(const std::string &);

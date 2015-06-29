@@ -244,7 +244,7 @@ protected:
 	virtual G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
 
 	/** @brief The actual business logic to be performed during each iteration; Returns the best achieved fitness */
-	virtual G_API_GENEVA boost::tuple<double, double> cycleLogic() override;
+	virtual G_API_GENEVA std::tuple<double, double> cycleLogic() override;
 	/** @brief Fixes an incomplete population */
 	virtual G_API_GENEVA void adjustNeighborhoods() BASE;
 
@@ -252,7 +252,7 @@ protected:
 	virtual G_API_GENEVA void saveCheckpoint() const override;
 
 	/** @brief Updates the best individuals found */
-	virtual G_API_GENEVA boost::tuple<double, double> findBests();
+	virtual G_API_GENEVA std::tuple<double, double> findBests();
 	/** @brief Resizes the population to the desired level and does some error checks */
 	virtual G_API_GENEVA void adjustPopulation() override;
 
@@ -270,7 +270,7 @@ protected:
 		, std::shared_ptr<GParameterSet>
 		, std::shared_ptr<GParameterSet>
 		, std::shared_ptr<GParameterSet>
-		, boost::tuple<double, double, double, double>
+		, std::tuple<double, double, double, double>
 	);
 
 	/** @brief Triggers an update of all individual's positions */

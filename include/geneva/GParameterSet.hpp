@@ -156,7 +156,7 @@ public:
 	/** @brief Retrieves a parameter of a given type at the specified position */
 	virtual G_API_GENEVA boost::any getVarVal(
 		const std::string&
-		, const boost::tuple<std::size_t, std::string, std::size_t>& target
+		, const std::tuple<std::size_t, std::string, std::size_t>& target
 	) override;
 
 	/** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
@@ -231,17 +231,17 @@ public:
 	 */
 	template <typename par_type>
 	boost::any getVarItem(
-		const boost::tuple<std::size_t, std::string, std::size_t>& target
+		const std::tuple<std::size_t, std::string, std::size_t>& target
 	) {
 		boost::any result;
 
-		switch(boost::get<0>(target)) {
+		switch(std::get<0>(target)) {
 			//---------------------------------------------------------------------
 			case 0:
 			{
 				std::vector<par_type> vars;
 				this->streamline<par_type>(vars);
-				result = vars.at(boost::get<2>(target));
+				result = vars.at(std::get<2>(target));
 			}
 				break;
 
@@ -251,7 +251,7 @@ public:
 			{
 				std::map<std::string, std::vector<par_type>> varMap;
 				this->streamline<par_type>(varMap);
-				result = (Gem::Common::getMapItem<std::vector<par_type>>(varMap, boost::get<1>(target))).at(boost::get<2>(target));
+				result = (Gem::Common::getMapItem<std::vector<par_type>>(varMap, std::get<1>(target))).at(std::get<2>(target));
 			}
 				break;
 
@@ -260,7 +260,7 @@ public:
 			{
 				glogger
 				<< "In GParameterSet::getVarVal(): Error!" << std::endl
-				<< "Got invalid mode setting: " << boost::get<0>(target) << std::endl
+				<< "Got invalid mode setting: " << std::get<0>(target) << std::endl
 				<< GEXCEPTION;
 			}
 				break;

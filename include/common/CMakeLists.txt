@@ -64,6 +64,7 @@ SET ( GENEVACOMMONINCLUDES
 	GThreadPool.hpp
 	GThreadWrapper.hpp
 	GTriboolSerialization.hpp
+	GTupleIO.hpp
 	GTSSAccessT.hpp
 	GTypeToStringT.hpp
 	GTypeTraitsT.hpp

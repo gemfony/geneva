@@ -106,17 +106,17 @@ int main(int argc, char **argv){
 	// Mutate and register results
 	for(boost::uint32_t i=0; i<NTESTS; i++) {
 		*multipleFlipMutation_ptr & gMultFlipMut.value();
-		*multipleFlipProgress_ptr & boost::tuple<double,double>((double)i, (double)gMultFlipMut.value());
+		*multipleFlipProgress_ptr & std::tuple<double,double>((double)i, (double)gMultFlipMut.value());
 		gMultFlipMut.adapt();
 
 		*multipleGaussMutation_ptr & gMultGaussMut.value();
-		*multipleGaussProgress_ptr & boost::tuple<double,double>((double)i, (double)gMultGaussMut.value());
+		*multipleGaussProgress_ptr & std::tuple<double,double>((double)i, (double)gMultGaussMut.value());
 		gMultGaussMut.adapt();
 
 		internalValue=-30.+50.*double(i)/double(NTESTS);
 
 		externalValue = double(gint13.transfer(boost::int32_t(internalValue)));
-		*mapping_ptr & boost::tuple<double,double>(internalValue, externalValue);
+		*mapping_ptr & std::tuple<double,double>(internalValue, externalValue);
 	}
 
 	GPlotDesigner gpd("Manual tests of GConstrainedInt32Object", 2,3);

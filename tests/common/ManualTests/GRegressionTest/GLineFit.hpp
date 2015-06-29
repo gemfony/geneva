@@ -52,7 +52,7 @@ namespace Geneva {
 
 /******************************************************************************/
 /** @brief This function fits a line to a set of x-y coordinates */
-G_API_GENEVA boost::tuple<double, double> gLineFit(const std::vector<boost::tuple<double, double>>&);
+G_API_GENEVA std::tuple<double, double> gLineFit(const std::vector<std::tuple<double, double>>&);
 
 /******************************************************************************/
 

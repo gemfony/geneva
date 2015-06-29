@@ -43,6 +43,7 @@
 #include <cmath>
 #include <algorithm>
 #include <typeinfo>
+#include <tuple>
 
 // Boost header files go here
 
@@ -64,6 +65,7 @@ using boost::unit_test_framework::test_case;
 #include "common/GCommonEnums.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GUnitTestFrameworkT.hpp"
+#include "common/GTupleIO.hpp"
 #include "geneva/GObject.hpp"
 
 #include "GEqualityPrinter.hpp"

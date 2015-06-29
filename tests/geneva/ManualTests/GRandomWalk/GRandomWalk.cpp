@@ -101,23 +101,23 @@ int main(int argc, char **argv) {
 
 			switch(o) {
 				case 0:
-					(*gdo_adapt_ptr) & boost::tuple<double,double>(par[0], par[1]);
+					(*gdo_adapt_ptr) & std::tuple<double,double>(par[0], par[1]);
 					break;
 
 				case 1:
-					(*gcdo_adapt_ptr) & boost::tuple<double,double>(par[0], par[1]);
+					(*gcdo_adapt_ptr) & std::tuple<double,double>(par[0], par[1]);
 					break;
 
 				case 2:
-					(*gcdoc_adapt_ptr) & boost::tuple<double,double>(par[0], par[1]);
+					(*gcdoc_adapt_ptr) & std::tuple<double,double>(par[0], par[1]);
 					break;
 
 				case 3:
-					(*gdc_adapt_ptr) & boost::tuple<double,double>(par[0], par[1]);
+					(*gdc_adapt_ptr) & std::tuple<double,double>(par[0], par[1]);
 					break;
 
 				case 4:
-					(*gcdc_adapt_ptr) & boost::tuple<double,double>(par[0], par[1]);
+					(*gcdc_adapt_ptr) & std::tuple<double,double>(par[0], par[1]);
 					break;
 
 				default:

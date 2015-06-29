@@ -69,9 +69,9 @@ using namespace Gem::Tests;
 void startReferenceMeasurement(
 	Go2& go
 	, GDelayIndividualFactory& gdif
-	, boost::tuple<double,double,double,double>& ab
+	, std::tuple<double,double,double,double>& ab
 ) {
-	std::vector<boost::tuple<double, double>> referenceExecutionTimes;
+	std::vector<std::tuple<double, double>> referenceExecutionTimes;
 
 	//---------------------------------------------------------------------
 	// Loop until no valid individuals can be retrieved anymore
@@ -98,7 +98,7 @@ void startReferenceMeasurement(
 			boost::posix_time::time_duration duration = endTime - startTime;
 
 			referenceExecutionTimes.push_back(
-				boost::tuple<double,double>(
+				std::tuple<double,double>(
 					double(gdi_ptr->getSleepTime().total_milliseconds())/1000.
 					, double(duration.total_milliseconds())/1000.
 				)
@@ -135,7 +135,7 @@ void startReferenceMeasurement(
 void startParallelMeasurement(
 	Go2& go
 	, GDelayIndividualFactory& gdif
-	, std::vector<boost::tuple<double,double,double,double>>& parallelExecutionTimes
+	, std::vector<std::tuple<double,double,double,double>>& parallelExecutionTimes
 ) {
 	//---------------------------------------------------------------------
 	// Make sure the output vector is empty
@@ -174,14 +174,14 @@ void startParallelMeasurement(
 		}
 
 		// Calculate the mean value and standard deviation of all measurements
-		boost::tuple<double,double> ms = Gem::Common::GStandardDeviation<double>(delaySummary);
+		std::tuple<double,double> ms = Gem::Common::GStandardDeviation<double>(delaySummary);
 		// Output the results
 		parallelExecutionTimes.push_back(
-			boost::tuple<double,double,double,double>(
+			std::tuple<double,double,double,double>(
 				double(gdi_ptr->getSleepTime().total_milliseconds())/1000.
 				, 0. // No error on the sleep time
-				, boost::get<0>(ms) // mean
-				, boost::get<1>(ms) // standard deviation
+				, std::get<0>(ms) // mean
+				, std::get<1>(ms) // standard deviation
 			)
 		);
 
@@ -200,24 +200,24 @@ void startParallelMeasurement(
 /**
  * Calculate suitable timings including errors for the reference measurement
  */
-std::vector<boost::tuple<double,double,double,double>> getReferenceTimes(
-	const boost::tuple<double,double,double,double>& ab
-	, const std::vector<boost::tuple<double,double,double,double>>& measurementTemplate
+std::vector<std::tuple<double,double,double,double>> getReferenceTimes(
+	const std::tuple<double,double,double,double>& ab
+	, const std::vector<std::tuple<double,double,double,double>>& measurementTemplate
 ) {
-	std::vector<boost::tuple<double,double,double,double>> referenceExecutionTimes = measurementTemplate;
+	std::vector<std::tuple<double,double,double,double>> referenceExecutionTimes = measurementTemplate;
 
-	std::vector<boost::tuple<double,double,double,double>>::iterator it;
+	std::vector<std::tuple<double,double,double,double>>::iterator it;
 	for(it=referenceExecutionTimes.begin(); it!=referenceExecutionTimes.end(); ++it) {
-		double sleepTime = boost::get<0>(*it); // Left unmodified, taken from measurementTemplate
+		double sleepTime = std::get<0>(*it); // Left unmodified, taken from measurementTemplate
 
-		double a     = boost::get<0>(ab);
-		double a_err = boost::get<1>(ab);
-		double b     = boost::get<2>(ab);
-		double b_err = boost::get<3>(ab);
+		double a     = std::get<0>(ab);
+		double a_err = std::get<1>(ab);
+		double b     = std::get<2>(ab);
+		double b_err = std::get<3>(ab);
 
-		boost::get<1>(*it) = 0.; // No error on the sleep time
-		boost::get<2>(*it) = a + b*sleepTime; // a line
-		boost::get<3>(*it) = sqrt(gpow(a_err, 2.) + gpow(sleepTime*b_err, 2.));
+		std::get<1>(*it) = 0.; // No error on the sleep time
+		std::get<2>(*it) = a + b*sleepTime; // a line
+		std::get<3>(*it) = sqrt(gpow(a_err, 2.) + gpow(sleepTime*b_err, 2.));
 	}
 
 	return referenceExecutionTimes;
@@ -226,8 +226,8 @@ std::vector<boost::tuple<double,double,double,double>> getReferenceTimes(
 /******************************************************************************/
 
 int main(int argc, char **argv) {
-	std::vector<boost::tuple<double,double,double,double>> parallelExecutionTimes, referenceExecutionTimes;
-	boost::tuple<double,double,double,double> ab;
+	std::vector<std::tuple<double,double,double,double>> parallelExecutionTimes, referenceExecutionTimes;
+	std::tuple<double,double,double,double> ab;
 
 	// For the parallel measurement
 	Go2 go_parallel(argc, argv, "./config/Go2.json");
@@ -266,7 +266,7 @@ int main(int argc, char **argv) {
 	referenceExecutionTimes = getReferenceTimes(ab, parallelExecutionTimes);
 
 	// Calculate the errors
-	std::vector<boost::tuple<double, double, double, double>> ratioWithErrors = getRatioErrors(
+	std::vector<std::tuple<double, double, double, double>> ratioWithErrors = getRatioErrors(
 		referenceExecutionTimes
 		, parallelExecutionTimes
 	);

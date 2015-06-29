@@ -349,8 +349,8 @@ public:
 	 *
 	 * @return The allowed value range for sigma1
 	 */
-	boost::tuple<fp_type,fp_type> getSigma1Range() const  {
-		return boost::make_tuple<fp_type,fp_type>(minSigma1_, maxSigma1_);
+	std::tuple<fp_type,fp_type> getSigma1Range() const  {
+		return std::make_tuple(minSigma1_, maxSigma1_);
 	}
 
 	/***************************************************************************/
@@ -477,8 +477,8 @@ public:
 	 *
 	 * @return The allowed value range for sigma2
 	 */
-	boost::tuple<fp_type,fp_type> getSigma2Range() const  {
-		return boost::make_tuple<fp_type,fp_type>(minSigma2_, maxSigma2_);
+	std::tuple<fp_type,fp_type> getSigma2Range() const  {
+		return std::make_tuple(minSigma2_, maxSigma2_);
 	}
 
 	/***************************************************************************/
@@ -601,8 +601,8 @@ public:
 	 *
 	 * @return The allowed value range for delta
 	 */
-	boost::tuple<fp_type,fp_type> getDeltaRange() const  {
-		return boost::make_tuple<fp_type,fp_type>(minDelta_, maxDelta_);
+	std::tuple<fp_type,fp_type> getDeltaRange() const  {
+		return std::make_tuple(minDelta_, maxDelta_);
 	}
 
 	/***************************************************************************/

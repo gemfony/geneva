@@ -43,6 +43,7 @@
 #include <utility>
 #include <functional>
 #include <type_traits>
+#include <tuple>
 
 // Boost headers go here
 #include <boost/cstdint.hpp>
@@ -63,7 +64,6 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
-#include <boost/tuple/tuple.hpp>
 
 #ifndef GBROKERCONNECTOR2T_HPP_
 #define GBROKERCONNECTOR2T_HPP_
@@ -340,7 +340,7 @@ public:
 	 * Submits and retrieves a set of work items in a range
 	 *
 	 * @param workItems A vector with work items to be evaluated beyond the broker
-	 * @param range A boost::tuple holding the boundaries of the submission range
+	 * @param range A std::tuple holding the boundaries of the submission range
 	 * @param oldWorkItems A vector holding work items from older iterations
 	 * @param removeUnprocessed If set to true, unprocessed work items will be removed
 	 * @param originator Optionally holds information on the caller
@@ -351,7 +351,7 @@ public:
 
 	>& workItems
 	,
-	const boost::tuple<std::size_t, std::size_t> &range
+	const std::tuple<std::size_t, std::size_t> &range
 	, std::vector<std::shared_ptr < processable_type>
 	>& oldWorkItems
 	,
@@ -360,7 +360,7 @@ public:
 	const std::string &originator = std::string()
 	) {
 		return this->workOn(
-			workItems, boost::get<0>(range), boost::get<1>(range), oldWorkItems, removeUnprocessed, originator
+			workItems, std::get<0>(range), std::get<1>(range), oldWorkItems, removeUnprocessed, originator
 		);
 	}
 
@@ -482,7 +482,7 @@ protected:
 			// , courtierPosComp()
 			, [](std::shared_ptr <processable_type> x, std::shared_ptr <processable_type> y) -> bool {
 				using namespace boost;
-				return boost::get<1>(x->getCourtierId()) < boost::get<1>(y->getCourtierId());
+				return std::get<1>(x->getCourtierId()) < std::get<1>(y->getCourtierId());
 			}
 		);
 	}
@@ -492,21 +492,15 @@ protected:
 	 * Submission of all work items in the list
 	 */
 	void submitAllWorkItems(
-		std::vector<std::shared_ptr < processable_type>
-
-	>& workItems
-	,
-	std::vector<bool> &workItemPos
+		std::vector<std::shared_ptr < processable_type>>& workItems
+		, std::vector<bool> &workItemPos
 	) {
 		// Submit work items
-		typename std::vector<std::shared_ptr < processable_type>> ::iterator
-		it;
 		POSITIONTYPE pos_cnt = 0;
-		for (it = workItems.begin(); it != workItems.end(); ++it) {
-			if (GBC_UNPROCESSED ==
-				 workItemPos[pos_cnt]) { // is the item due to be submitted ? We only submit items that are marked as "unprocessed"
+		for(auto it: workItems) {
+			if (GBC_UNPROCESSED == workItemPos[pos_cnt]) { // is the item due to be submitted ? We only submit items that are marked as "unprocessed"
 #ifdef DEBUG
-            if(!(*it)) {
+            if(!it) {
                glogger
                << "In GBaseExecutorT<processable_type>::submitAllWorkItems(): Error" << std::endl
                << "Received empty work item in position "  << pos_cnt << std::endl
@@ -514,8 +508,8 @@ protected:
                << GEXCEPTION;
             }
 #endif
-				(*it)->setCourtierId(boost::make_tuple<SUBMISSIONCOUNTERTYPE, POSITIONTYPE>(submission_counter_, pos_cnt));
-				this->submit(*it);
+				it->setCourtierId(std::make_tuple(submission_counter_, pos_cnt));
+				this->submit(it);
 			}
 			pos_cnt++;
 		}
@@ -1363,11 +1357,11 @@ private:
 	) {
 		bool complete = false;
 		SUBMISSIONCOUNTERTYPE current_iteration = GBaseExecutorT<processable_type>::submission_counter_;
-		SUBMISSIONCOUNTERTYPE w_iteration = boost::get<0>(w->getCourtierId());
+		SUBMISSIONCOUNTERTYPE w_iteration = std::get<0>(w->getCourtierId());
 
 		if (current_iteration == w_iteration) {
 			// Mark the position of the work item in the workItemPos vector and cross-check
-			std::size_t w_pos = boost::get<1>(w->getCourtierId());
+			std::size_t w_pos = std::get<1>(w->getCourtierId());
 
 			if (w_pos >= workItems.size()) {
 				glogger
@@ -1399,10 +1393,10 @@ private:
 	void log(std::shared_ptr <processable_type> w) {
 		// Make a note of the arrival times in logging mode
 		if (doLogging_) {
-			boost::tuple<SUBMISSIONCOUNTERTYPE, POSITIONTYPE> courtier_id = w->getCourtierId();
+			std::tuple<SUBMISSIONCOUNTERTYPE, POSITIONTYPE> courtier_id = w->getCourtierId();
 			logData_.push_back(
-				boost::tuple<SUBMISSIONCOUNTERTYPE, SUBMISSIONCOUNTERTYPE, boost::posix_time::ptime>(
-					boost::get<0>(courtier_id), GBaseExecutorT<processable_type>::submission_counter_,
+				std::tuple<SUBMISSIONCOUNTERTYPE, SUBMISSIONCOUNTERTYPE, boost::posix_time::ptime>(
+					std::get<0>(courtier_id), GBaseExecutorT<processable_type>::submission_counter_,
 					boost::posix_time::microsec_clock::local_time()
 				)
 			);
@@ -1417,7 +1411,7 @@ private:
 	std::size_t waitFactor_; ///< A static factor to be applied to timeouts
 
 	bool doLogging_; ///< Specifies whether arrival times of work items should be logged
-	std::vector<boost::tuple<SUBMISSIONCOUNTERTYPE, SUBMISSIONCOUNTERTYPE, boost::posix_time::ptime>> logData_; ///< Holds the sending and receiving iteration as well as the time needed for completion
+	std::vector<std::tuple<SUBMISSIONCOUNTERTYPE, SUBMISSIONCOUNTERTYPE, boost::posix_time::ptime>> logData_; ///< Holds the sending and receiving iteration as well as the time needed for completion
 	std::vector<boost::posix_time::ptime> iterationStartTimes_; ///< Holds the start times of given iterations, if logging is activated
 
 	GBufferPortT_ptr CurrentBufferPort_; ///< Holds a GBufferPortT object during the calculation. Note: It is neither serialized nor copied

@@ -285,7 +285,7 @@ boost::uint32_t GDelayIndividualFactory::getInterMeasurementDelay() const {
  *
  * @return The sleep times, as determined by this object
  */
-std::vector<boost::tuple<unsigned int, unsigned int>> GDelayIndividualFactory::getSleepTimes() const {
+std::vector<std::tuple<unsigned int, unsigned int>> GDelayIndividualFactory::getSleepTimes() const {
 	return sleepTimes_;
 }
 
@@ -440,10 +440,10 @@ void GDelayIndividualFactory::postProcess_(
  *
  * @param timeTuple A tuple of seconds and milliseconds in unsigned int format, to be converted to a time_duration object
  */
-boost::posix_time::time_duration GDelayIndividualFactory::tupleToTime(const boost::tuple<unsigned int, unsigned int>& timeTuple) {
+boost::posix_time::time_duration GDelayIndividualFactory::tupleToTime(const std::tuple<unsigned int, unsigned int>& timeTuple) {
 	boost::posix_time::time_duration t =
-		boost::posix_time::seconds(boost::numeric_cast<long>(boost::get<0>(timeTuple))) +
-		boost::posix_time::milliseconds(boost::numeric_cast<long>(boost::get<1>(timeTuple)));
+		boost::posix_time::seconds(boost::numeric_cast<long>(std::get<0>(timeTuple))) +
+		boost::posix_time::milliseconds(boost::numeric_cast<long>(std::get<1>(timeTuple)));
 
 	return t;
 }

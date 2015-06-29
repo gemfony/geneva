@@ -55,6 +55,7 @@
 #include <vector>
 #include <functional>
 #include <memory>
+#include <tuple>
 
 
 // Boost header files go here
@@ -79,8 +80,6 @@
 #include <boost/thread/condition.hpp>
 #include <boost/thread/xtime.hpp>
 #include <boost/thread/tss.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <boost/tuple/tuple_io.hpp>
 #include <boost/utility.hpp>
 #include <boost/variant.hpp>
 
@@ -110,6 +109,7 @@
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GSerializeTupleT.hpp"
+#include "common/GTupleIO.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "hap/GRandomT.hpp"
 

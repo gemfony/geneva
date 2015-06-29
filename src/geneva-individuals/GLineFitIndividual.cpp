@@ -52,7 +52,7 @@ GLineFitIndividual::GLineFitIndividual() : GParameterSet() { /* nothing */ }
  * @param nObjects The number of parameters to be added to this individual
  */
 GLineFitIndividual::GLineFitIndividual(
-	const std::vector<boost::tuple<double, double>> &dataPoints
+	const std::vector<std::tuple<double, double>> &dataPoints
 )
 	: GParameterSet(), dataPoints_(dataPoints) {
 	using namespace Gem::Geneva;
@@ -157,10 +157,10 @@ void GLineFitIndividual::compare(
 /**
  * Retrieves the tuple (a,b) of the line represented by this object
  */
-boost::tuple<double, double> GLineFitIndividual::getLine() const {
+std::tuple<double, double> GLineFitIndividual::getLine() const {
 	std::vector<double> parVec;
 	this->streamline(parVec);
-	return boost::tuple<double, double>(parVec.at(0), parVec.at(1));
+	return std::tuple<double, double>(parVec.at(0), parVec.at(1));
 }
 
 /******************************************************************************/
@@ -212,9 +212,9 @@ double GLineFitIndividual::fitnessCalculation() {
 
 	// Sum up the square deviation of line and data points
 	double deviation = 0.;
-	std::vector<boost::tuple<double, double>>::iterator it;
+	std::vector<std::tuple<double, double>>::iterator it;
 	for (it = dataPoints_.begin(); it != dataPoints_.end(); ++it) {
-		deviation = (a + b * boost::get<0>(*it)) - boost::get<1>(*it);
+		deviation = (a + b * std::get<0>(*it)) - std::get<1>(*it);
 		result += GSQUARED(deviation);
 	}
 
@@ -298,7 +298,7 @@ void GLineFitIndividual::specificTestsFailuresExpected_GUnitTests() {
  * @param configFile The name of the configuration file
  */
 GLineFitIndividualFactory::GLineFitIndividualFactory(
-	const std::vector<boost::tuple<double, double>> &dataPoints, const std::string &configFile
+	const std::vector<std::tuple<double, double>> &dataPoints, const std::string &configFile
 )
 	: Gem::Common::GFactoryT<GParameterSet>(configFile), dataPoints_(dataPoints) { /* nothing */ }
 

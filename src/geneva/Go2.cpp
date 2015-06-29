@@ -396,7 +396,7 @@ void Go2::registerDefaultAlgorithm(std::shared_ptr < GOABase > default_algorithm
  * Retrieves a parameter of a given type at the specified position
  */
 boost::any Go2::getVarVal(
-	const std::string &descr, const boost::tuple<std::size_t, std::string, std::size_t> &target
+	const std::string &descr, const std::tuple<std::size_t, std::string, std::size_t> &target
 ) {
 	return this->GOptimizableI::getBestIndividual<GParameterSet>()->getVarVal(descr, target);
 }

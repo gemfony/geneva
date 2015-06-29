@@ -43,6 +43,7 @@
 #include <vector>
 #include <list>
 #include <algorithm> // for std::sort
+#include <tuple>
 
 // Boost header files go here
 #include <boost/filesystem.hpp>
@@ -52,7 +53,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/optional.hpp>
 #include <boost/cstdint.hpp>
-#include <boost/tuple/tuple.hpp>
 
 #ifndef GTESTINDIVIDUAL3_HPP_
 #define GTESTINDIVIDUAL3_HPP_

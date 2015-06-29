@@ -44,12 +44,12 @@
 #include <cmath>
 #include <fstream>
 #include <typeinfo>
+#include <tuple>
 
 // Boost headers go here
 #include <boost/thread.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/tuple/tuple.hpp>
 #include <boost/math/special_functions.hpp>
 #include <boost/limits.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
@@ -275,10 +275,10 @@ int_type checkValueRange(
  * function requires that x_type_undet can be compared using the usual operators.
  *
  * @param extDat The vector holding the data, for which extreme values should be calculated
- * @return A boost::tuple holding the extreme values
+ * @return A std::tuple holding the extreme values
  */
 template<typename x_type_undet>
-boost::tuple<x_type_undet, x_type_undet> getMinMax(const std::vector<x_type_undet> &extDat) {
+std::tuple<x_type_undet, x_type_undet> getMinMax(const std::vector<x_type_undet> &extDat) {
 	// Do some error checking
 	if (extDat.size() < (std::size_t) 2) {
 		glogger
@@ -294,7 +294,7 @@ boost::tuple<x_type_undet, x_type_undet> getMinMax(const std::vector<x_type_unde
 		if (extDat.at(i) > max) max = extDat.at(i);
 	}
 
-	return boost::tuple<x_type_undet, x_type_undet>(min, max);
+	return std::tuple<x_type_undet, x_type_undet>(min, max);
 }
 
 /******************************************************************************/
@@ -304,11 +304,11 @@ boost::tuple<x_type_undet, x_type_undet> getMinMax(const std::vector<x_type_unde
  * usual operators
  *
  * @param extDat The vector holding the data, for which extreme values should be calculated
- * @return A boost::tuple holding the extreme values
+ * @return A std::tuple holding the extreme values
  */
 template<typename x_type_undet, typename y_type_undet>
-boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>
-getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet>> &extDat) {
+std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>
+getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet>> &extDat) {
 	// Do some error checking
 	if (extDat.size() < (std::size_t) 2) {
 		glogger
@@ -317,17 +317,17 @@ getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet>> &extDat) {
 		<< GEXCEPTION;
 	}
 
-	x_type_undet minX = boost::get<0>(extDat.at(0)), maxX = minX;
-	y_type_undet minY = boost::get<1>(extDat.at(0)), maxY = minY;
+	x_type_undet minX = std::get<0>(extDat.at(0)), maxX = minX;
+	y_type_undet minY = std::get<1>(extDat.at(0)), maxY = minY;
 
 	for (std::size_t i = 1; i < extDat.size(); i++) {
-		if (boost::get<0>(extDat.at(i)) < minX) minX = boost::get<0>(extDat.at(i));
-		if (boost::get<0>(extDat.at(i)) > maxX) maxX = boost::get<0>(extDat.at(i));
-		if (boost::get<1>(extDat.at(i)) < minY) minY = boost::get<1>(extDat.at(i));
-		if (boost::get<1>(extDat.at(i)) > maxY) maxY = boost::get<1>(extDat.at(i));
+		if (std::get<0>(extDat.at(i)) < minX) minX = std::get<0>(extDat.at(i));
+		if (std::get<0>(extDat.at(i)) > maxX) maxX = std::get<0>(extDat.at(i));
+		if (std::get<1>(extDat.at(i)) < minY) minY = std::get<1>(extDat.at(i));
+		if (std::get<1>(extDat.at(i)) > maxY) maxY = std::get<1>(extDat.at(i));
 	}
 
-	return boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>(minX, maxX, minY, maxY);
+	return std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>(minX, maxX, minY, maxY);
 }
 
 /******************************************************************************/
@@ -337,11 +337,11 @@ getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet>> &extDat) {
  * using the usual operators
  *
  * @param extDat The vector holding the data, for which extreme values should be calculated
- * @return A boost::tuple holding the extreme values
+ * @return A std::tuple holding the extreme values
  */
 template<typename x_type_undet, typename y_type_undet, typename z_type_undet>
-boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet, z_type_undet>
-getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_undet>> &extDat) {
+std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet, z_type_undet>
+getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet>> &extDat) {
 	// Do some error checking
 	if (extDat.size() < (std::size_t) 2) {
 		glogger
@@ -350,20 +350,20 @@ getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_unde
 		<< GEXCEPTION;
 	}
 
-	x_type_undet minX = boost::get<0>(extDat.at(0)), maxX = minX;
-	y_type_undet minY = boost::get<1>(extDat.at(0)), maxY = minY;
-	z_type_undet minZ = boost::get<2>(extDat.at(0)), maxZ = minZ;
+	x_type_undet minX = std::get<0>(extDat.at(0)), maxX = minX;
+	y_type_undet minY = std::get<1>(extDat.at(0)), maxY = minY;
+	z_type_undet minZ = std::get<2>(extDat.at(0)), maxZ = minZ;
 
 	for (std::size_t i = 1; i < extDat.size(); i++) {
-		if (boost::get<0>(extDat.at(i)) < minX) minX = boost::get<0>(extDat.at(i));
-		if (boost::get<0>(extDat.at(i)) > maxX) maxX = boost::get<0>(extDat.at(i));
-		if (boost::get<1>(extDat.at(i)) < minY) minY = boost::get<1>(extDat.at(i));
-		if (boost::get<1>(extDat.at(i)) > maxY) maxY = boost::get<1>(extDat.at(i));
-		if (boost::get<2>(extDat.at(i)) < minZ) minZ = boost::get<2>(extDat.at(i));
-		if (boost::get<2>(extDat.at(i)) > maxZ) maxZ = boost::get<2>(extDat.at(i));
+		if (std::get<0>(extDat.at(i)) < minX) minX = std::get<0>(extDat.at(i));
+		if (std::get<0>(extDat.at(i)) > maxX) maxX = std::get<0>(extDat.at(i));
+		if (std::get<1>(extDat.at(i)) < minY) minY = std::get<1>(extDat.at(i));
+		if (std::get<1>(extDat.at(i)) > maxY) maxY = std::get<1>(extDat.at(i));
+		if (std::get<2>(extDat.at(i)) < minZ) minZ = std::get<2>(extDat.at(i));
+		if (std::get<2>(extDat.at(i)) > maxZ) maxZ = std::get<2>(extDat.at(i));
 	}
 
-	return boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet, z_type_undet>(minX, maxX,
+	return std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet, z_type_undet>(minX, maxX,
 																																			  minY, maxY,
 																																			  minZ, maxZ);
 }
@@ -375,11 +375,11 @@ getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_unde
  * using the usual operators
  *
  * @param extDat The vector holding the data, for which extreme values should be calculated
- * @return A boost::tuple holding the extreme values
+ * @return A std::tuple holding the extreme values
  */
 template<typename x_type_undet, typename y_type_undet, typename z_type_undet, typename w_type_undet>
-boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet, z_type_undet, w_type_undet, w_type_undet>
-getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_undet, w_type_undet>> &extDat) {
+std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet, z_type_undet, w_type_undet, w_type_undet>
+getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet, w_type_undet>> &extDat) {
 	// Do some error checking
 	if (extDat.size() < (std::size_t) 2) {
 		glogger
@@ -388,23 +388,23 @@ getMinMax(const std::vector<boost::tuple<x_type_undet, y_type_undet, z_type_unde
 		<< GEXCEPTION;
 	}
 
-	x_type_undet minX = boost::get<0>(extDat.at(0)), maxX = minX;
-	y_type_undet minY = boost::get<1>(extDat.at(0)), maxY = minY;
-	z_type_undet minZ = boost::get<2>(extDat.at(0)), maxZ = minZ;
-	w_type_undet minW = boost::get<3>(extDat.at(0)), maxW = minW;
+	x_type_undet minX = std::get<0>(extDat.at(0)), maxX = minX;
+	y_type_undet minY = std::get<1>(extDat.at(0)), maxY = minY;
+	z_type_undet minZ = std::get<2>(extDat.at(0)), maxZ = minZ;
+	w_type_undet minW = std::get<3>(extDat.at(0)), maxW = minW;
 
 	for (std::size_t i = 1; i < extDat.size(); i++) {
-		if (boost::get<0>(extDat.at(i)) < minX) minX = boost::get<0>(extDat.at(i));
-		if (boost::get<0>(extDat.at(i)) > maxX) maxX = boost::get<0>(extDat.at(i));
-		if (boost::get<1>(extDat.at(i)) < minY) minY = boost::get<1>(extDat.at(i));
-		if (boost::get<1>(extDat.at(i)) > maxY) maxY = boost::get<1>(extDat.at(i));
-		if (boost::get<2>(extDat.at(i)) < minZ) minZ = boost::get<2>(extDat.at(i));
-		if (boost::get<2>(extDat.at(i)) > maxZ) maxZ = boost::get<2>(extDat.at(i));
-		if (boost::get<3>(extDat.at(i)) < minW) minW = boost::get<3>(extDat.at(i));
-		if (boost::get<3>(extDat.at(i)) > maxW) maxW = boost::get<3>(extDat.at(i));
+		if (std::get<0>(extDat.at(i)) < minX) minX = std::get<0>(extDat.at(i));
+		if (std::get<0>(extDat.at(i)) > maxX) maxX = std::get<0>(extDat.at(i));
+		if (std::get<1>(extDat.at(i)) < minY) minY = std::get<1>(extDat.at(i));
+		if (std::get<1>(extDat.at(i)) > maxY) maxY = std::get<1>(extDat.at(i));
+		if (std::get<2>(extDat.at(i)) < minZ) minZ = std::get<2>(extDat.at(i));
+		if (std::get<2>(extDat.at(i)) > maxZ) maxZ = std::get<2>(extDat.at(i));
+		if (std::get<3>(extDat.at(i)) < minW) minW = std::get<3>(extDat.at(i));
+		if (std::get<3>(extDat.at(i)) > maxW) maxW = std::get<3>(extDat.at(i));
 	}
 
-	return boost::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet, z_type_undet, w_type_undet, w_type_undet>(
+	return std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet, z_type_undet, w_type_undet, w_type_undet>(
 		minX, maxX, minY, maxY, minZ, maxZ, minW, maxW);
 }
 
@@ -444,10 +444,10 @@ T GMean(
  * Calculates the mean and standard deviation for a std::vector of floating point values
  *
  * @param parVec The vector of values for which the standard deviation should be calculated
- * @return A boost::tuple holding the mean value and the standard deviation of the values stored in parVec
+ * @return A std::tuple holding the mean value and the standard deviation of the values stored in parVec
  */
 template<typename T>
-boost::tuple<T, T> GStandardDeviation(
+std::tuple<T, T> GStandardDeviation(
 	const std::vector<T> &parVec, typename std::enable_if<std::is_floating_point<T>::value>::type *dummy = 0
 ) {
 	T mean = GMean(parVec), sigma = 0.;
@@ -455,7 +455,7 @@ boost::tuple<T, T> GStandardDeviation(
 #ifdef DEBUG
    if(parVec.size() == 0) {
       glogger
-      << "In boost::tuple<T,T> GStandardDeviation(const std::vector<T>&): Error!" << std::endl
+      << "In std::tuple<T,T> GStandardDeviation(const std::vector<T>&): Error!" << std::endl
       << "parVec is empty" << std::endl
       << GEXCEPTION;
    }
@@ -463,7 +463,7 @@ boost::tuple<T, T> GStandardDeviation(
 
 	// It is easy if the size is 1
 	if (parVec.size() == 1) {
-		return boost::tuple<T, T>(parVec.at(0), 0.);
+		return std::tuple<T, T>(parVec.at(0), 0.);
 	}
 
 	typename std::vector<T>::const_iterator cit;
@@ -474,14 +474,14 @@ boost::tuple<T, T> GStandardDeviation(
 	sigma /= parVec.size() - 1;
 	sigma = sqrt(sigma);
 
-	return boost::tuple<T, T>(mean, sigma);
+	return std::tuple<T, T>(mean, sigma);
 }
 
 /******************************************************************************/
 /**
  * Calculates the mean and standard deviation for each row of a "matrix" made up from several
  * std:vector<T> objects of equal size. E.g., if you have 5 std::vector<double> of size 10, you will
- * get back a std::vector<boost::tuple<double, double>>, of size 10, holding the mean and standard
+ * get back a std::vector<std::tuple<double, double>>, of size 10, holding the mean and standard
  * deviation of the corresponding positions in the 5 vectors.
  *
  * @param parVec The vectors for which the standard deviations should be calculated
@@ -489,7 +489,7 @@ boost::tuple<T, T> GStandardDeviation(
  */
 template<typename T>
 void GVecStandardDeviation(
-	const std::vector<std::vector<T>> &parVec, std::vector<boost::tuple<T, T>> &result,
+	const std::vector<std::vector<T>> &parVec, std::vector<std::tuple<T, T>> &result,
 	typename std::enable_if<std::is_floating_point<T>::value>::type *dummy = 0
 ) {
 
@@ -687,16 +687,16 @@ void assignVecConst(
  * Summs up the x- and y-components individually of a vector of 2d-tuples
  */
 template<typename fp_type>
-boost::tuple<fp_type, fp_type> sumTupleVec(
-	const std::vector<boost::tuple<fp_type, fp_type>> &dataPoints,
+std::tuple<fp_type, fp_type> sumTupleVec(
+	const std::vector<std::tuple<fp_type, fp_type>> &dataPoints,
 	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
 ) {
-	boost::tuple<fp_type, fp_type> result = boost::tuple<fp_type, fp_type>(fp_type(0.), fp_type(0.));;
+	std::tuple<fp_type, fp_type> result = std::tuple<fp_type, fp_type>(fp_type(0.), fp_type(0.));;
 
-	typename std::vector<boost::tuple<fp_type, fp_type>>::const_iterator cit;
+	typename std::vector<std::tuple<fp_type, fp_type>>::const_iterator cit;
 	for (cit = dataPoints.begin(); cit != dataPoints.end(); ++cit) {
-		boost::get<0>(result) += boost::get<0>(*cit);
-		boost::get<1>(result) += boost::get<1>(*cit);
+		std::get<0>(result) += std::get<0>(*cit);
+		std::get<1>(result) += std::get<1>(*cit);
 	}
 
 	return result;
@@ -707,16 +707,16 @@ boost::tuple<fp_type, fp_type> sumTupleVec(
  * Summs up the squares of x- and y-components individually of a vector of 2d-tuples
  */
 template<typename fp_type>
-boost::tuple<fp_type, fp_type> squareSumTupleVec(
-	const std::vector<boost::tuple<fp_type, fp_type>> &dataPoints,
+std::tuple<fp_type, fp_type> squareSumTupleVec(
+	const std::vector<std::tuple<fp_type, fp_type>> &dataPoints,
 	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
 ) {
-	boost::tuple<fp_type, fp_type> result = boost::tuple<fp_type, fp_type>(fp_type(0.), fp_type(0.));
+	std::tuple<fp_type, fp_type> result = std::tuple<fp_type, fp_type>(fp_type(0.), fp_type(0.));
 
-	typename std::vector<boost::tuple<fp_type, fp_type>>::const_iterator cit;
+	typename std::vector<std::tuple<fp_type, fp_type>>::const_iterator cit;
 	for (cit = dataPoints.begin(); cit != dataPoints.end(); ++cit) {
-		boost::get<0>(result) += gpow(boost::get<0>(*cit), 2.);
-		boost::get<1>(result) += gpow(boost::get<1>(*cit), 2.);
+		std::get<0>(result) += gpow(std::get<0>(*cit), 2.);
+		std::get<1>(result) += gpow(std::get<1>(*cit), 2.);
 	}
 
 	return result;
@@ -728,14 +728,14 @@ boost::tuple<fp_type, fp_type> squareSumTupleVec(
  */
 template<typename fp_type>
 fp_type productSumTupleVec(
-	const std::vector<boost::tuple<fp_type, fp_type>> &dataPoints,
+	const std::vector<std::tuple<fp_type, fp_type>> &dataPoints,
 	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
 ) {
 	fp_type result = fp_type(0.);
 
-	typename std::vector<boost::tuple<fp_type, fp_type>>::const_iterator cit;
+	typename std::vector<std::tuple<fp_type, fp_type>>::const_iterator cit;
 	for (cit = dataPoints.begin(); cit != dataPoints.end(); ++cit) {
-		result += boost::get<0>(*cit) * boost::get<1>(*cit);
+		result += std::get<0>(*cit) * std::get<1>(*cit);
 	}
 
 	return result;
@@ -753,13 +753,13 @@ fp_type productSumTupleVec(
  */
 template<typename fp_type>
 fp_type squareDeviation(
-	const std::vector<boost::tuple<fp_type, fp_type>> &dataPoints, const fp_type &a, const fp_type &b,
+	const std::vector<std::tuple<fp_type, fp_type>> &dataPoints, const fp_type &a, const fp_type &b,
 	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
 ) {
 	fp_type result = fp_type(0);
-	typename std::vector<boost::tuple<fp_type, fp_type>>::const_iterator cit;
+	typename std::vector<std::tuple<fp_type, fp_type>>::const_iterator cit;
 	for (cit = dataPoints.begin(); cit != dataPoints.end(); ++cit) {
-		result += gpow(boost::get<1>(*cit) - a - b * boost::get<0>(*cit), 2.);
+		result += gpow(std::get<1>(*cit) - a - b * std::get<0>(*cit), 2.);
 	}
 	return result;
 }
@@ -767,31 +767,31 @@ fp_type squareDeviation(
 /******************************************************************************/
 /**
  * Calculates the parameters a and b of a regression line, plus errors. The return
- * value is a boost::tuple of four fp_type values: a, error_a, b, error_b, with the
+ * value is a std::tuple of four fp_type values: a, error_a, b, error_b, with the
  * line being defined by L(x)=a+b*x .
  *
  * @param dataPoints A vector of data points to which the lines parameters should fit
  * @return Regression parameters for a line defined by the input data points
  */
 template<typename fp_type>
-boost::tuple<fp_type, fp_type, fp_type, fp_type> getRegressionParameters(
-	const std::vector<boost::tuple<fp_type, fp_type>> &dataPoints,
+std::tuple<fp_type, fp_type, fp_type, fp_type> getRegressionParameters(
+	const std::vector<std::tuple<fp_type, fp_type>> &dataPoints,
 	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
 ) {
 	if (dataPoints.empty()) {
-		return boost::tuple<fp_type, fp_type, fp_type, fp_type>(fp_type(0.), fp_type(0.), fp_type(0.), fp_type(0.));
+		return std::tuple<fp_type, fp_type, fp_type, fp_type>(fp_type(0.), fp_type(0.), fp_type(0.), fp_type(0.));
 	}
 
 	fp_type a = fp_type(0), b = fp_type(0);
 	fp_type n = fp_type(dataPoints.size());
 
-	boost::tuple<fp_type, fp_type> sum_xy = sumTupleVec(dataPoints);
-	fp_type sum_x = boost::get<0>(sum_xy);
-	fp_type sum_y = boost::get<1>(sum_xy);
+	std::tuple<fp_type, fp_type> sum_xy = sumTupleVec(dataPoints);
+	fp_type sum_x = std::get<0>(sum_xy);
+	fp_type sum_y = std::get<1>(sum_xy);
 
-	boost::tuple<fp_type, fp_type> sq_sum_xy = squareSumTupleVec(dataPoints);
-	fp_type sq_sum_x = boost::get<0>(sq_sum_xy);
-	fp_type sq_sum_y = boost::get<1>(sq_sum_xy);
+	std::tuple<fp_type, fp_type> sq_sum_xy = squareSumTupleVec(dataPoints);
+	fp_type sq_sum_x = std::get<0>(sq_sum_xy);
+	fp_type sq_sum_y = std::get<1>(sq_sum_xy);
 
 	fp_type prod_sum_xy = productSumTupleVec(dataPoints);
 
@@ -803,7 +803,7 @@ boost::tuple<fp_type, fp_type, fp_type, fp_type> getRegressionParameters(
 	fp_type sigma_a = gsqrt(dev / (n - 2.)) * gsqrt(sq_sum_x / (n * sq_sum_x - gpow(sum_x, 2.)));
 	fp_type sigma_b = gsqrt(dev / (n - 2.)) * gsqrt(n / (n * sq_sum_x - gpow(sum_x, 2.)));
 
-	return boost::tuple<fp_type, fp_type, fp_type, fp_type>(a, sigma_a, b, sigma_b);
+	return std::tuple<fp_type, fp_type, fp_type, fp_type>(a, sigma_a, b, sigma_b);
 }
 
 /******************************************************************************/
@@ -817,34 +817,34 @@ boost::tuple<fp_type, fp_type, fp_type, fp_type> getRegressionParameters(
  * s and p have the same structure
  */
 template<typename fp_type>
-boost::tuple<fp_type, fp_type, fp_type, fp_type> getRatioError(
-	const boost::tuple<fp_type, fp_type, fp_type, fp_type> &s, const boost::tuple<fp_type, fp_type, fp_type, fp_type> &p,
+std::tuple<fp_type, fp_type, fp_type, fp_type> getRatioError(
+	const std::tuple<fp_type, fp_type, fp_type, fp_type> &s, const std::tuple<fp_type, fp_type, fp_type, fp_type> &p,
 	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
 ) {
 	// p may not ne 0
-	if (0. == boost::get<2>(p)) {
+	if (0. == std::get<2>(p)) {
 		glogger
 		<< "In getRatioError(): Error!" << std::endl
 		<< "Attempted division by 0." << std::endl
 		<< GEXCEPTION;
 	}
 
-	fp_type sleep_time = boost::get<0>(s);
+	fp_type sleep_time = std::get<0>(s);
 
 	// Check that the sleep-times for s and p are the same
-	if (sleep_time != boost::get<0>(p)) {
+	if (sleep_time != std::get<0>(p)) {
 		glogger
 		<< "In getRatioError(): Error!" << std::endl
-		<< "Sleep times differ: " << sleep_time << " / " << boost::get<0>(p) << std::endl
+		<< "Sleep times differ: " << sleep_time << " / " << std::get<0>(p) << std::endl
 		<< GEXCEPTION;
 	}
 
-	fp_type s_val = boost::get<2>(s);
-	fp_type s_err = boost::get<3>(s);
-	fp_type p_val = boost::get<2>(p);
-	fp_type p_err = boost::get<3>(p);
+	fp_type s_val = std::get<2>(s);
+	fp_type s_err = std::get<3>(s);
+	fp_type p_val = std::get<2>(p);
+	fp_type p_err = std::get<3>(p);
 
-	return boost::tuple<fp_type, fp_type, fp_type, fp_type>(
+	return std::tuple<fp_type, fp_type, fp_type, fp_type>(
 		sleep_time, 0., s_val / p_val,
 		gsqrt(gpow(s_err / p_val, fp_type(2.)) + gpow(s_val * p_err / gpow(p_val, fp_type(2.)), fp_type(2.)))
 	);
@@ -858,9 +858,9 @@ boost::tuple<fp_type, fp_type, fp_type, fp_type> getRatioError(
  * of s/p together with their errors.
  */
 template<typename fp_type>
-std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type>> getRatioErrors(
-	const std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type>> &sn,
-	const std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type>> &pn,
+std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>> getRatioErrors(
+	const std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>> &sn,
+	const std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>> &pn,
 	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
 ) {
 	// Check that both vectors have the same size, otherwise complain
@@ -871,8 +871,8 @@ std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type>> getRatioErrors(
 		<< GEXCEPTION;
 	}
 
-	std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type>> spn;
-	typename std::vector<boost::tuple<fp_type, fp_type, fp_type, fp_type>>::const_iterator s_cit, p_cit;
+	std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>> spn;
+	typename std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>>::const_iterator s_cit, p_cit;
 	for (s_cit = sn.begin(), p_cit = pn.begin(); s_cit != sn.end(); ++s_cit, ++p_cit) {
 		spn.push_back(getRatioError(*s_cit, *p_cit));
 	}

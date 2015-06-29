@@ -36,6 +36,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <tuple>
 
 // Boost headers go here
 #include <boost/archive/xml_oarchive.hpp>
@@ -54,7 +55,6 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
-#include <boost/tuple/tuple.hpp>
 
 #ifndef GSUBMISSIONCONTAINERBASE_HPP_
 #define GSUBMISSIONCONTAINERBASE_HPP_
@@ -132,7 +132,7 @@ public:
 	 *
 	 * @param id An id that allows the broker connector to identify this object
 	 */
-	void setCourtierId(const boost::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> &id) {
+	void setCourtierId(const std::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> &id) {
 		id_ = id;
 	}
 
@@ -142,14 +142,14 @@ public:
 	 *
 	 * @return An id that allows the broker connector to identify this object
 	 */
-	boost::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> getCourtierId() const {
+	std::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> getCourtierId() const {
 		return id_;
 	}
 
 private:
 	/***************************************************************************/
 	/** @brief A two-part id that can be assigned to this container object */
-	boost::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> id_;
+	std::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> id_;
 };
 
 /******************************************************************************/

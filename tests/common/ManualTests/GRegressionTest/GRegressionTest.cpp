@@ -56,27 +56,27 @@ using namespace Gem::Geneva;
 int main(int argc, char** argv) {
 	// Create a suitable data distribution for our tests. It is possible to
 	// describe this distribution by a line f(x) = x, i.e. a=0, b=1
-	std::vector<boost::tuple<double, double>> dataPoints;
+	std::vector<std::tuple<double, double>> dataPoints;
 	for(std::size_t i=0; i<100; i++) {
 		double x = double(i-50);
-		dataPoints.push_back(boost::tuple<double, double>(x, x+sin(x)));
+		dataPoints.push_back(std::tuple<double, double>(x, x+sin(x)));
 	}
 
 	// Determine a line through linear regression
-	boost::tuple<double,double,double,double> lineWithErrors = getRegressionParameters(dataPoints);
+	std::tuple<double,double,double,double> lineWithErrors = getRegressionParameters(dataPoints);
 
 	// Let the audience know
 	std::cout
 	<< "f(x)=x through linear regression: " << std::endl
-	<< "a = " << boost::get<0>(lineWithErrors) << " +/- " << boost::get<1>(lineWithErrors) << std::endl
-	<< "b = " << boost::get<2>(lineWithErrors) << " +/- " << boost::get<3>(lineWithErrors) << std::endl;
+	<< "a = " << std::get<0>(lineWithErrors) << " +/- " << std::get<1>(lineWithErrors) << std::endl
+	<< "b = " << std::get<2>(lineWithErrors) << " +/- " << std::get<3>(lineWithErrors) << std::endl;
 
 	// Determine a line through a fit procedure
-	boost::tuple<double, double> line = Gem::Geneva::gLineFit(dataPoints);
+	std::tuple<double, double> line = Gem::Geneva::gLineFit(dataPoints);
 
 	// Let the audience know
 	std::cout
 	<< "f(x)=x through ea fit: " << std::endl
-	<< "a = " << boost::get<0>(line) << std::endl
-	<< "b = " << boost::get<1>(line) << std::endl;
+	<< "a = " << std::get<0>(line) << std::endl
+	<< "b = " << std::get<1>(line) << std::endl;
 }

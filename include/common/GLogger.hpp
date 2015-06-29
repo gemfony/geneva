@@ -44,6 +44,7 @@
 #include <exception>
 #include <vector>
 #include <memory>
+#include <tuple>
 
 // Boost header files go here
 #include <boost/function.hpp>
@@ -61,6 +62,7 @@
 #include "common/GSingletonT.hpp"
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
+#include "common/GTupleIO.hpp"
 
 namespace Gem {
 namespace Common {

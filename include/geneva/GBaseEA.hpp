@@ -37,9 +37,9 @@
 
 // Standard headers go here
 #include <vector>
+#include <tuple>
 
 // Boost headers go here
-#include <boost/tuple/tuple.hpp>
 
 #ifndef GBASEEA_HPP_
 #define GBASEEA_HPP_
@@ -163,7 +163,7 @@ protected:
 	virtual G_API_GENEVA void selectBest() override;
 
 	/** @brief Retrieves the evaluation range in a given iteration and sorting scheme */
-	virtual G_API_GENEVA boost::tuple<std::size_t,std::size_t> getEvaluationRange() const override;
+	virtual G_API_GENEVA std::tuple<std::size_t,std::size_t> getEvaluationRange() const override;
 
 	/** @brief Does some preparatory work before the optimization starts */
 	virtual G_API_GENEVA void init() override;
@@ -263,7 +263,7 @@ public:
 		/** @brief Set the dimension of the output canvas */
 		G_API_GENEVA void setDims(const boost::uint32_t&, const boost::uint32_t&);
 		/** @brief Retrieve the dimensions as a tuple */
-		G_API_GENEVA boost::tuple<boost::uint32_t, boost::uint32_t> getDims() const;
+		G_API_GENEVA std::tuple<boost::uint32_t, boost::uint32_t> getDims() const;
 		/** @brief Retrieve the x-dimension of the output canvas */
 		G_API_GENEVA boost::uint32_t getXDim() const;
 		/** @brief Retrieve the y-dimension of the output canvas */

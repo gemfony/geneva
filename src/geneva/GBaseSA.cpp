@@ -444,10 +444,10 @@ void GBaseSA::selectBest() {
  *
  * @return The range inside which evaluation should take place
  */
-boost::tuple<std::size_t, std::size_t> GBaseSA::getEvaluationRange() const {
+std::tuple<std::size_t, std::size_t> GBaseSA::getEvaluationRange() const {
 	// We evaluate all individuals in the first iteration This happens so pluggable
 	// optimization monitors do not need to distinguish between algorithms
-	return boost::tuple<std::size_t, std::size_t>(
+	return std::tuple<std::size_t, std::size_t>(
 		inFirstIteration() ? 0 : getNParents(), data.size()
 	);
 }
@@ -718,7 +718,7 @@ void GBaseSA::GSAOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<G
 		// Retrieve the fitness of this individual -- all individuals should be "clean" here
 		currentTransformedEvaluation = gi_ptr->transformedFitness();
 		// Add the data to our graph
-		*(fitnessGraphVec_.at(ind)) & boost::tuple<double, double>(iteration, currentTransformedEvaluation);
+		*(fitnessGraphVec_.at(ind)) & std::tuple<double, double>(iteration, currentTransformedEvaluation);
 	}
 }
 

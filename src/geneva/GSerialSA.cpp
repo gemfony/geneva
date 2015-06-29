@@ -219,11 +219,11 @@ std::string GSerialSA::getIndividualCharacteristic() const {
  * Adapt all children in sequence. Evaluation is done in a seperate function (runFitnessCalculation).
  */
 void GSerialSA::adaptChildren() {
-	boost::tuple<std::size_t, std::size_t> range = getAdaptionRange();
+	std::tuple<std::size_t, std::size_t> range = getAdaptionRange();
 	std::vector<std::shared_ptr < GParameterSet>> ::iterator
 	it;
 
-	for (it = data.begin() + boost::get<0>(range); it != data.begin() + boost::get<1>(range); ++it) {
+	for (it = data.begin() + std::get<0>(range); it != data.begin() + std::get<1>(range); ++it) {
 		(*it)->adapt();
 	}
 }
@@ -233,7 +233,7 @@ void GSerialSA::adaptChildren() {
  * Evaluate all children (and possibly parents, depending on the iteration)
  */
 void GSerialSA::runFitnessCalculation() {
-	boost::tuple<std::size_t, std::size_t> range = getEvaluationRange();
+	std::tuple<std::size_t, std::size_t> range = getEvaluationRange();
 	std::vector<std::shared_ptr < GParameterSet>> ::iterator
 	it;
 
@@ -245,14 +245,14 @@ void GSerialSA::runFitnessCalculation() {
       if(!this->at(i)->isDirty()) {
          glogger
          << "In GSerialSA::runFitnessCalculation(): Error!" << std::endl
-         << "Tried to evaluate children in range " << boost::get<0>(range) << " - " << boost::get<1>(range) << std::endl
+         << "Tried to evaluate children in range " << std::get<0>(range) << " - " << std::get<1>(range) << std::endl
          << "but found \"clean\" individual in position " << i << std::endl
          << GEXCEPTION;
       }
    }
 #endif
 
-	for (it = data.begin() + boost::get<0>(range); it != data.begin() + boost::get<1>(range); ++it) {
+	for (it = data.begin() + std::get<0>(range); it != data.begin() + std::get<1>(range); ++it) {
 		// Perform the actual evaluation
 		(*it)->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
 	}

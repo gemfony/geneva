@@ -178,8 +178,8 @@ public:
 				glogger
 				<< std::setprecision(5)
 				<< goa->getIteration() << ": "
-				<< goa->getBestCurrentPrimaryFitness()
-				<< " // best past: " << goa->getBestKnownPrimaryFitness()
+			   << Gem::Common::g_to_string(goa->getBestCurrentPrimaryFitness())
+				<< " // best past: " << Gem::Common::g_to_string(goa->getBestKnownPrimaryFitness())
 				<< std::endl
 				<< GLOGGING;
 			}
@@ -474,8 +474,8 @@ public:
 	 *
 	 * @return The dimensions of the canvas as a tuple
 	 */
-	boost::tuple<boost::uint32_t, boost::uint32_t> getDims() const {
-		return boost::tuple<boost::uint32_t, boost::uint32_t>(xDim_, yDim_);
+	std::tuple<boost::uint32_t, boost::uint32_t> getDims() const {
+		return std::tuple<boost::uint32_t, boost::uint32_t>(xDim_, yDim_);
 	}
 
 	/***************************************************************************/
@@ -1056,7 +1056,7 @@ public:
 	 */
 	GProgressPlotterT()
 		: gpd_oa_("Progress information", 1, 1)
-		, canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1024,768))
+		, canvasDimensions_(std::tuple<boost::uint32_t,boost::uint32_t>(1024,768))
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -1067,7 +1067,7 @@ public:
 	 */
 	GProgressPlotterT(bool monitorBestOnly, bool monitorValidOnly)
 		: gpd_oa_("Progress information", 1, 1)
-		, canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1024,768))
+		, canvasDimensions_(std::tuple<boost::uint32_t,boost::uint32_t>(1024,768))
 		, monitorBestOnly_(monitorBestOnly)
 		, monitorValidOnly_(monitorValidOnly)
 	{ /* nothing */ }
@@ -1167,13 +1167,13 @@ public:
 		//---------------------------------------------------------------------------
 		// Retrieve the parameters
 
-		boost::tuple<
+		std::tuple<
 			typename std::vector<parPropSpec<fp_type>>::const_iterator
 			, typename std::vector<parPropSpec<fp_type>>::const_iterator
 		> t_d = ppp.getIterators<fp_type>();
 
-		typename std::vector<parPropSpec<fp_type>>::const_iterator fp_cit = boost::get<0>(t_d);
-		typename std::vector<parPropSpec<fp_type>>::const_iterator d_end = boost::get<1>(t_d);
+		typename std::vector<parPropSpec<fp_type>>::const_iterator fp_cit = std::get<0>(t_d);
+		typename std::vector<parPropSpec<fp_type>>::const_iterator d_end = std::get<1>(t_d);
 		for(; fp_cit!=d_end; ++fp_cit) { // Note: fp_cit is already set to the begin of the double parameter arrays
 			fp_profVarVec_.push_back(*fp_cit);
 		}
@@ -1249,7 +1249,7 @@ public:
 	/**
 	 * Allows to set the canvas dimensions
 	 */
-	void setCanvasDimensions(boost::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions) {
+	void setCanvasDimensions(std::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions) {
 		canvasDimensions_ = canvasDimensions;
 	}
 
@@ -1258,14 +1258,14 @@ public:
 	 * Allows to set the canvas dimensions using separate x and y values
 	 */
 	void setCanvasDimensions(boost::uint32_t x, boost::uint32_t y) {
-		canvasDimensions_ = boost::tuple<boost::uint32_t,boost::uint32_t>(x,y);
+		canvasDimensions_ = std::tuple<boost::uint32_t,boost::uint32_t>(x,y);
 	}
 
 	/***************************************************************************/
 	/**
 	 * Gives access to the canvas dimensions
 	 */
-	boost::tuple<boost::uint32_t,boost::uint32_t> getCanvasDimensions() const {
+	std::tuple<boost::uint32_t,boost::uint32_t> getCanvasDimensions() const {
 		return canvasDimensions_;
 	}
 
@@ -1324,9 +1324,9 @@ public:
 	std::string getLabel(const parPropSpec<fp_type>& s) const {
 		std::string result;
 
-		std::size_t var_mode = boost::get<0>(s.var);
-		std::string var_name = boost::get<1>(s.var);
-		std::size_t var_pos  = boost::get<2>(s.var);
+		std::size_t var_mode = std::get<0>(s.var);
+		std::string var_name = std::get<1>(s.var);
+		std::size_t var_pos  = std::get<2>(s.var);
 
 		switch(var_mode) {
 			//--------------------------------------------------------------------
@@ -1455,10 +1455,10 @@ public:
 									if(
 										val0 >= fp_profVarVec_[0].lowerBoundary && val0 <= fp_profVarVec_[0].upperBoundary
 										) {
-										progressPlotter2D_oa_->add(boost::tuple<double,double>(double(val0), primaryFitness));
+										progressPlotter2D_oa_->add(std::tuple<double,double>(double(val0), primaryFitness));
 									}
 								} else {
-									progressPlotter2D_oa_->add(boost::tuple<double,double>(double(val0), primaryFitness));
+									progressPlotter2D_oa_->add(std::tuple<double,double>(double(val0), primaryFitness));
 								}
 							}
 								break;
@@ -1473,10 +1473,10 @@ public:
 										val0 >= fp_profVarVec_[0].lowerBoundary && val0 <= fp_profVarVec_[0].upperBoundary
 										&& val1 >= fp_profVarVec_[1].lowerBoundary && val1 <= fp_profVarVec_[1].upperBoundary
 										) {
-										progressPlotter3D_oa_->add(boost::tuple<double,double,double>(double(val0), double(val1), primaryFitness));
+										progressPlotter3D_oa_->add(std::tuple<double,double,double>(double(val0), double(val1), primaryFitness));
 									}
 								} else {
-									progressPlotter3D_oa_->add(boost::tuple<double,double,double>(double(val0), double(val1), primaryFitness));
+									progressPlotter3D_oa_->add(std::tuple<double,double,double>(double(val0), double(val1), primaryFitness));
 								}
 							}
 								break;
@@ -1493,10 +1493,10 @@ public:
 										&& val1 >= fp_profVarVec_[1].lowerBoundary && val1 <= fp_profVarVec_[1].upperBoundary
 										&& val2 >= fp_profVarVec_[2].lowerBoundary && val2 <= fp_profVarVec_[2].upperBoundary
 										) {
-										progressPlotter4D_oa_->add(boost::tuple<double,double,double,double>(double(val0), double(val1), double(val2), primaryFitness));
+										progressPlotter4D_oa_->add(std::tuple<double,double,double,double>(double(val0), double(val1), double(val2), primaryFitness));
 									}
 								} else {
-									progressPlotter4D_oa_->add(boost::tuple<double,double,double,double>(double(val0), double(val1), double(val2), primaryFitness));
+									progressPlotter4D_oa_->add(std::tuple<double,double,double,double>(double(val0), double(val1), double(val2), primaryFitness));
 								}
 							}
 								break;
@@ -1525,10 +1525,10 @@ public:
 										if(
 											val0 >= fp_profVarVec_[0].lowerBoundary && val0 <= fp_profVarVec_[0].upperBoundary
 											) {
-											progressPlotter2D_oa_->add(boost::tuple<double,double>(double(val0), primaryFitness));
+											progressPlotter2D_oa_->add(std::tuple<double,double>(double(val0), primaryFitness));
 										}
 									} else {
-										progressPlotter2D_oa_->add(boost::tuple<double,double>(double(val0), primaryFitness));
+										progressPlotter2D_oa_->add(std::tuple<double,double>(double(val0), primaryFitness));
 									}
 								}
 									break;
@@ -1543,10 +1543,10 @@ public:
 											val0 >= fp_profVarVec_[0].lowerBoundary && val0 <= fp_profVarVec_[0].upperBoundary
 											&& val1 >= fp_profVarVec_[1].lowerBoundary && val1 <= fp_profVarVec_[1].upperBoundary
 											) {
-											progressPlotter3D_oa_->add(boost::tuple<double,double,double>(double(val0), double(val1), primaryFitness));
+											progressPlotter3D_oa_->add(std::tuple<double,double,double>(double(val0), double(val1), primaryFitness));
 										}
 									} else {
-										progressPlotter3D_oa_->add(boost::tuple<double,double,double>(double(val0), double(val1), primaryFitness));
+										progressPlotter3D_oa_->add(std::tuple<double,double,double>(double(val0), double(val1), primaryFitness));
 									}
 								}
 									break;
@@ -1563,10 +1563,10 @@ public:
 											&& val1 >= fp_profVarVec_[1].lowerBoundary && val1 <= fp_profVarVec_[1].upperBoundary
 											&& val2 >= fp_profVarVec_[2].lowerBoundary && val2 <= fp_profVarVec_[2].upperBoundary
 											) {
-											progressPlotter4D_oa_->add(boost::tuple<double,double,double,double>(double(val0), double(val1), double(val2), primaryFitness));
+											progressPlotter4D_oa_->add(std::tuple<double,double,double,double>(double(val0), double(val1), double(val2), primaryFitness));
 										}
 									} else {
-										progressPlotter4D_oa_->add(boost::tuple<double,double,double,double>(double(val0), double(val1), double(val2), primaryFitness));
+										progressPlotter4D_oa_->add(std::tuple<double,double,double,double>(double(val0), double(val1), double(val2), primaryFitness));
 									}
 								}
 									break;
@@ -1707,7 +1707,7 @@ private:
 	std::shared_ptr<Gem::Common::GGraph4D> progressPlotter4D_oa_;
 
 	std::string fileName_ = std::string("progressScan.C"); ///< The name of the file the output should be written to. Note that the class will add the name of the algorithm it acts on
-	boost::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions_; ///< The dimensions of the canvas
+	std::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions_; ///< The dimensions of the canvas
 
 	bool monitorBestOnly_ = false;  ///< Indicates whether only the best individuals should be monitored
 	bool monitorValidOnly_ = false; ///< Indicates whether only valid individuals should be plotted
@@ -2668,7 +2668,7 @@ public:
 	 * initialized in the class body.
 	 */
 	GNAdpationsLoggerT()
-		: canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1200,1600))
+		: canvasDimensions_(std::tuple<boost::uint32_t,boost::uint32_t>(1200,1600))
 		, gpd_oa_("Number of adaptions per iteration", 1, 2)
 	{ /* nothing */ }
 
@@ -2679,7 +2679,7 @@ public:
 	 */
 	explicit GNAdpationsLoggerT(const std::string& fileName)
 		: fileName_(fileName)
-		, canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1200,1600))
+		, canvasDimensions_(std::tuple<boost::uint32_t,boost::uint32_t>(1200,1600))
 		, gpd_oa_("Number of adaptions per iteration", 1, 2)
 	{ /* nothing */ }
 
@@ -2829,7 +2829,7 @@ public:
 	/**
 	 * Allows to set the canvas dimensions
 	 */
-	void setCanvasDimensions(boost::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions) {
+	void setCanvasDimensions(std::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions) {
 		canvasDimensions_ = canvasDimensions;
 	}
 
@@ -2838,14 +2838,14 @@ public:
 	 * Allows to set the canvas dimensions using separate x and y values
 	 */
 	void setCanvasDimensions(boost::uint32_t x, boost::uint32_t y) {
-		canvasDimensions_ = boost::tuple<boost::uint32_t,boost::uint32_t>(x,y);
+		canvasDimensions_ = std::tuple<boost::uint32_t,boost::uint32_t>(x,y);
 	}
 
 	/***************************************************************************/
 	/**
 	 * Gives access to the canvas dimensions
 	 */
-	boost::tuple<boost::uint32_t,boost::uint32_t> getCanvasDimensions() const {
+	std::tuple<boost::uint32_t,boost::uint32_t> getCanvasDimensions() const {
 		return canvasDimensions_;
 	}
 
@@ -2911,7 +2911,7 @@ public:
 
 				// Record the current fitness
 				std::shared_ptr<GParameterSet> p = goa->GOptimizableI::template getBestIndividual<GParameterSet>();
-				(*fitnessGraph2D_oa_) & boost::tuple<double,double>(double(iteration), double(p->fitness()));
+				(*fitnessGraph2D_oa_) & std::tuple<double,double>(double(iteration), double(p->fitness()));
 
 				// Update the largest known iteration and the number of recorded iterations
 				maxIteration_ = iteration;
@@ -2920,12 +2920,12 @@ public:
 				// Do the actual logging
 				if(monitorBestOnly_) {
 					std::shared_ptr<GParameterSet> best = goa->GOptimizableI::template getBestIndividual<GParameterSet>();
-					nAdaptionsStore_.push_back(boost::tuple<double,double>(double(iteration), double(best->getNAdaptions())));
+					nAdaptionsStore_.push_back(std::tuple<double,double>(double(iteration), double(best->getNAdaptions())));
 				} else { // Monitor all individuals
 					// Loop over all individuals of the algorithm.
 					for(std::size_t pos=0; pos<goa->size(); pos++) {
 						std::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
-						nAdaptionsStore_.push_back(boost::tuple<double,double>(double(iteration), double(ind->getNAdaptions())));
+						nAdaptionsStore_.push_back(std::tuple<double,double>(double(iteration), double(ind->getNAdaptions())));
 					}
 				}
 			}
@@ -2933,7 +2933,7 @@ public:
 
 			case Gem::Geneva::INFOEND:
 			{
-				std::vector<boost::tuple<double, double>>::iterator it;
+				std::vector<std::tuple<double, double>>::iterator it;
 
 				if(monitorBestOnly_) {
 					// Create the graph object
@@ -2954,8 +2954,8 @@ public:
 					// Within nAdaptionsStore_, find the largest number of adaptions performed
 					std::size_t maxNAdaptions = 0;
 					for(it=nAdaptionsStore_.begin(); it!=nAdaptionsStore_.end(); ++it) {
-						if(boost::get<1>(*it) > maxNAdaptions) {
-							maxNAdaptions = boost::numeric_cast<std::size_t>(boost::get<1>(*it));
+						if(std::get<1>(*it) > maxNAdaptions) {
+							maxNAdaptions = boost::numeric_cast<std::size_t>(std::get<1>(*it));
 						}
 					}
 
@@ -3049,7 +3049,7 @@ private:
 
 	std::string fileName_ = "NAdaptions.C"; ///< The name of the file to which solutions should be stored
 
-	boost::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions_; ///< The dimensions of the canvas
+	std::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions_; ///< The dimensions of the canvas
 
 	Gem::Common::GPlotDesigner gpd_oa_; ///< A wrapper for the plots
 
@@ -3063,7 +3063,7 @@ private:
 	std::size_t maxIteration_ = 0; ///< Holds the largest iteration recorded for the algorithm
 	std::size_t nIterationsRecorded_ = 0; ///< Holds the number of iterations that were recorded (not necessarily == maxIteration_
 
-	std::vector<boost::tuple<double, double>> nAdaptionsStore_; ///< Holds all information about the number of adaptions
+	std::vector<std::tuple<double, double>> nAdaptionsStore_; ///< Holds all information about the number of adaptions
 
 public:
 	/***************************************************************************/
@@ -3182,7 +3182,7 @@ public:
 	 * the class body.
 	 */
 	GAdaptorPropertyLoggerT()
-		: canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1200,1600))
+		: canvasDimensions_(std::tuple<boost::uint32_t,boost::uint32_t>(1200,1600))
 		, gpd_oa_("Adaptor properties", 1, 2)
 	{ /* nothing */ }
 
@@ -3198,7 +3198,7 @@ public:
 		: fileName_(fileName)
 		, adaptorName_(adaptorName)
 		, property_(property)
-		, canvasDimensions_(boost::tuple<boost::uint32_t,boost::uint32_t>(1200,1600))
+		, canvasDimensions_(std::tuple<boost::uint32_t,boost::uint32_t>(1200,1600))
 		, gpd_oa_("Adaptor properties", 1, 2)
 	{ /* nothing */ }
 
@@ -3391,7 +3391,7 @@ public:
 	/**
 	 * Allows to set the canvas dimensions
 	 */
-	void setCanvasDimensions(boost::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions) {
+	void setCanvasDimensions(std::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions) {
 		canvasDimensions_ = canvasDimensions;
 	}
 
@@ -3400,14 +3400,14 @@ public:
 	 * Allows to set the canvas dimensions using separate x and y values
 	 */
 	void setCanvasDimensions(boost::uint32_t x, boost::uint32_t y) {
-		canvasDimensions_ = boost::tuple<boost::uint32_t,boost::uint32_t>(x,y);
+		canvasDimensions_ = std::tuple<boost::uint32_t,boost::uint32_t>(x,y);
 	}
 
 	/***************************************************************************/
 	/**
 	 * Gives access to the canvas dimensions
 	 */
-	boost::tuple<boost::uint32_t,boost::uint32_t> getCanvasDimensions() const {
+	std::tuple<boost::uint32_t,boost::uint32_t> getCanvasDimensions() const {
 		return canvasDimensions_;
 	}
 
@@ -3473,7 +3473,7 @@ public:
 
 				// Record the current fitness
 				std::shared_ptr<GParameterSet> p = goa->GOptimizableI::template getBestIndividual<GParameterSet>();
-				(*fitnessGraph2D_oa_) & boost::tuple<double,double>(double(iteration), double(p->fitness()));
+				(*fitnessGraph2D_oa_) & std::tuple<double,double>(double(iteration), double(p->fitness()));
 
 				// Update the largest known iteration and the number of recorded iterations
 				maxIteration_ = iteration;
@@ -3492,7 +3492,7 @@ public:
 					// Attach the data to adaptorPropertyStore_
 					std::vector<boost::any>::iterator prop_it;
 					for(prop_it=data.begin(); prop_it!=data.end(); ++prop_it) {
-						adaptorPropertyStore_.push_back(boost::tuple<double,double>(double(iteration), double(boost::any_cast<num_type>(*prop_it))));
+						adaptorPropertyStore_.push_back(std::tuple<double,double>(double(iteration), double(boost::any_cast<num_type>(*prop_it))));
 					}
 				} else { // Monitor all individuals
 					// Loop over all individuals of the algorithm.
@@ -3505,7 +3505,7 @@ public:
 						// Attach the data to adaptorPropertyStore_
 						std::vector<boost::any>::iterator prop_it;
 						for(prop_it=data.begin(); prop_it!=data.end(); ++prop_it) {
-							adaptorPropertyStore_.push_back(boost::tuple<double,double>(double(iteration), double(boost::any_cast<num_type>(*prop_it))));
+							adaptorPropertyStore_.push_back(std::tuple<double,double>(double(iteration), double(boost::any_cast<num_type>(*prop_it))));
 						}
 					}
 				}
@@ -3514,13 +3514,13 @@ public:
 
 			case Gem::Geneva::INFOEND:
 			{
-				std::vector<boost::tuple<double, double>>::iterator it;
+				std::vector<std::tuple<double, double>>::iterator it;
 
 				// Within adaptorPropertyStore_, find the largest number of adaptions performed
 				double maxProperty = 0.;
 				for(it=adaptorPropertyStore_.begin(); it!=adaptorPropertyStore_.end(); ++it) {
-					if(boost::get<1>(*it) > maxProperty) {
-						maxProperty = boost::get<1>(*it);
+					if(std::get<1>(*it) > maxProperty) {
+						maxProperty = std::get<1>(*it);
 					}
 				}
 
@@ -3616,7 +3616,7 @@ private:
 	std::string adaptorName_ = "GDoubleGaussAdaptor"; ///< The  name of the adaptor for which properties should be logged
 	std::string property_ = "sigma"; ///< The name of the property to be logged
 
-	boost::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions_; ///< The dimensions of the canvas
+	std::tuple<boost::uint32_t,boost::uint32_t> canvasDimensions_; ///< The dimensions of the canvas
 
 	Gem::Common::GPlotDesigner gpd_oa_; ///< A wrapper for the plots
 
@@ -3629,7 +3629,7 @@ private:
 	std::size_t maxIteration_ = 0; ///< Holds the largest iteration recorded for the algorithm
 	std::size_t nIterationsRecorded_ = 0; ///< Holds the number of iterations that were recorded (not necessarily == maxIteration_
 
-	std::vector<boost::tuple<double, double>> adaptorPropertyStore_; ///< Holds all information about the number of adaptions
+	std::vector<std::tuple<double, double>> adaptorPropertyStore_; ///< Holds all information about the number of adaptions
 
 public:
 	/***************************************************************************/

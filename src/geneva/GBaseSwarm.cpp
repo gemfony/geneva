@@ -545,7 +545,7 @@ void GBaseSwarm::updatePersonalBestIfBetter(
 
 	if (this->isBetter
 		(
-			boost::get<G_TRANSFORMED_FITNESS>(
+			std::get<G_TRANSFORMED_FITNESS>(
 				p->getPersonalityTraits<GSwarmPersonalityTraits>()->getPersonalBestQuality()), p->transformedFitness()
 		)
 		) {
@@ -747,8 +747,8 @@ std::shared_ptr <GPersonalityTraits> GBaseSwarm::getPersonalityTraits() const {
  *
  * @return The value of the best individual found
  */
-boost::tuple<double, double> GBaseSwarm::cycleLogic() {
-	boost::tuple<double, double> bestIndividualFitness;
+std::tuple<double, double> GBaseSwarm::cycleLogic() {
+	std::tuple<double, double> bestIndividualFitness;
 
 	// First update the positions and neighborhood ids
 	updatePositions();
@@ -837,7 +837,7 @@ void GBaseSwarm::updatePositions() {
 				 !(*current)->getPersonalityTraits<GSwarmPersonalityTraits>()->checkNoPositionUpdateAndReset()) {
 				// Update the swarm positions:
 				updateIndividualPositions(
-					n, (*current), neighborhood_bests_[n], global_best_, velocities_[neighborhood_offset], boost::make_tuple(
+					n, (*current), neighborhood_bests_[n], global_best_, velocities_[neighborhood_offset], std::make_tuple(
 						getCPersonal(), getCNeighborhood(), getCGlobal(), getCVelocity()
 					)
 				);
@@ -850,7 +850,7 @@ void GBaseSwarm::updatePositions() {
 
 /******************************************************************************/
 /**
- * Update the individual's positions. Note that we use a boost::tuple as an argument,
+ * Update the individual's positions. Note that we use a std::tuple as an argument,
  * so that we do not have to pass too many parameters.
  *
  * @param neighborhood The neighborhood that has been assigned to the individual
@@ -858,7 +858,7 @@ void GBaseSwarm::updatePositions() {
  * @param neighborhood_best_tmp The best data set of the individual's neighborhood
  * @param global_best_tmp The globally best individual so far
  * @param velocity A velocity vector
- * @param constants A boost::tuple holding the various constants needed for the position update
+ * @param constants A std::tuple holding the various constants needed for the position update
  */
 void GBaseSwarm::updateIndividualPositions(
 	const std::size_t &neighborhood
@@ -866,13 +866,13 @@ void GBaseSwarm::updateIndividualPositions(
 	, std::shared_ptr <GParameterSet> neighborhood_best
 	, std::shared_ptr <GParameterSet> global_best
 	, std::shared_ptr <GParameterSet> velocity
-	, boost::tuple<double, double, double, double> constants
+	, std::tuple<double, double, double, double> constants
 ) {
 	// Extract the constants from the tuple
-	double cPersonal = boost::get<0>(constants);
-	double cNeighborhood = boost::get<1>(constants);
-	double cGlobal = boost::get<2>(constants);
-	double cVelocity = boost::get<3>(constants);
+	double cPersonal = std::get<0>(constants);
+	double cNeighborhood = std::get<1>(constants);
+	double cGlobal = std::get<2>(constants);
+	double cVelocity = std::get<3>(constants);
 
 #ifdef DEBUG
 	// Do some error checking
@@ -1056,10 +1056,10 @@ void GBaseSwarm::pruneVelocity(std::vector<double> &velVec) {
  *
  * @return The best evaluation found in this iteration
  */
-boost::tuple<double, double> GBaseSwarm::findBests() {
+std::tuple<double, double> GBaseSwarm::findBests() {
 	std::size_t bestLocalId = 0;
-	boost::tuple<double, double> bestLocalFitness = boost::make_tuple(this->getWorstCase(), this->getWorstCase());
-	boost::tuple<double, double> bestIterationFitness = boost::make_tuple(this->getWorstCase(), this->getWorstCase());
+	std::tuple<double, double> bestLocalFitness = std::make_tuple(this->getWorstCase(), this->getWorstCase());
+	std::tuple<double, double> bestIterationFitness = std::make_tuple(this->getWorstCase(), this->getWorstCase());
 
 	GBaseSwarm::iterator it;
 
@@ -1119,7 +1119,7 @@ boost::tuple<double, double> GBaseSwarm::findBests() {
 	// Identify the best individuals among all neighborhood bests
 	for (std::size_t n = 0; n < nNeighborhoods_; n++) {
 		if (this->isBetter((neighborhood_bests_.at(n))->transformedFitness(),
-								 boost::get<G_TRANSFORMED_FITNESS>(bestLocalFitness))) {
+								 std::get<G_TRANSFORMED_FITNESS>(bestLocalFitness))) {
 			bestLocalId = n;
 			bestLocalFitness = (neighborhood_bests_.at(n))->getFitnessTuple();
 		}
@@ -1130,15 +1130,15 @@ boost::tuple<double, double> GBaseSwarm::findBests() {
 	if (inFirstIteration()) {
 		global_best_ = (neighborhood_bests_.at(bestLocalId))->clone<GParameterSet>();
 	} else {
-		if (this->isBetter(boost::get<G_TRANSFORMED_FITNESS>(bestLocalFitness), global_best_->transformedFitness())) {
+		if (this->isBetter(std::get<G_TRANSFORMED_FITNESS>(bestLocalFitness), global_best_->transformedFitness())) {
 			global_best_->GObject::load(neighborhood_bests_.at(bestLocalId));
 		}
 	}
 
 	// Identify the best fitness in the current iteration
 	for (std::size_t i = 0; i < this->size(); i++) {
-		if (this->isBetter(boost::get<G_TRANSFORMED_FITNESS>(this->at(i)->getFitnessTuple()),
-								 boost::get<G_TRANSFORMED_FITNESS>(bestIterationFitness))) {
+		if (this->isBetter(std::get<G_TRANSFORMED_FITNESS>(this->at(i)->getFitnessTuple()),
+								 std::get<G_TRANSFORMED_FITNESS>(bestIterationFitness))) {
 			bestIterationFitness = this->at(i)->getFitnessTuple();
 		}
 	}
@@ -1738,7 +1738,7 @@ void GBaseSwarm::GSwarmOptimizationMonitor::cycleInformation(GOptimizationAlgori
 	// Perform the conversion to the target algorithm
 	GBaseSwarm *const swarm = static_cast<GBaseSwarm *const>(goa);
 
-	fitnessGraph_->add(boost::tuple<double, double>(swarm->getIteration(), boost::get<G_TRANSFORMED_FITNESS>(
+	fitnessGraph_->add(std::tuple<double, double>(swarm->getIteration(), std::get<G_TRANSFORMED_FITNESS>(
 		swarm->getBestKnownPrimaryFitness())));
 }
 

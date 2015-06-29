@@ -53,7 +53,7 @@ using namespace Gem::Geneva;
 using namespace Gem::Common;
 using namespace Gem::Tests;
 
-typedef boost::tuple<double,double,double,double> xyWE; // xy-values with errors
+typedef std::tuple<double,double,double,double> xyWE; // xy-values with errors
 
 int main(int argc, char **argv) {
 	// Create the algorithm container
@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
 	std::vector<boost::uint32_t>::iterator it;
 	std::string functionName;
 	std::string functionCode;
-	boost::tuple<double,double> varBoundaries;
+	std::tuple<double,double> varBoundaries;
 
 	// Create a factory for GFunctionIndividual objects
 	GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
@@ -148,17 +148,17 @@ int main(int argc, char **argv) {
 		}
 
 		// Post process the vector, extracting mean and sigma
-		boost::tuple<double,double> resultY = GStandardDeviation<double>(bestResult);
-		boost::tuple<double,double> timing2 = GStandardDeviation<double>(timeConsumed);
+		std::tuple<double,double> resultY = GStandardDeviation<double>(bestResult);
+		std::tuple<double,double> timing2 = GStandardDeviation<double>(timeConsumed);
 
 		std::cout
 		<< std::endl
-		<< "best result = " << boost::get<0>(resultY) << " +/- " << boost::get<1>(resultY) << std::endl
-		<< "timing      = " << boost::get<0>(timing2) << " +/- " << boost::get<1>(timing2) << " s" << std::endl
+		<< "best result = " << std::get<0>(resultY) << " +/- " << std::get<1>(resultY) << std::endl
+		<< "timing      = " << std::get<0>(timing2) << " +/- " << std::get<1>(timing2) << " s" << std::endl
 		<< std::endl;
 
-		xyWE resultE(double(*it), 0., boost::get<0>(resultY), boost::get<1>(resultY));
-		xyWE timingE(double(*it), 0., boost::get<0>(timing2), boost::get<1>(timing2));
+		xyWE resultE(double(*it), 0., std::get<0>(resultY), std::get<1>(resultY));
+		xyWE timingE(double(*it), 0., std::get<0>(timing2), std::get<1>(timing2));
 
 		resultVec.push_back(resultE);
 		timingVec.push_back(timingE);

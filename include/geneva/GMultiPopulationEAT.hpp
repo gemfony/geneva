@@ -37,9 +37,9 @@
 
 // Standard headers go here
 #include <type_traits>
+#include <tuple>
 
 // Boost headers go here
-#include <boost/tuple/tuple.hpp>
 
 #ifndef GMULTIPOPULATIONEAT_HPP_
 #define GMULTIPOPULATIONEAT_HPP_
@@ -495,10 +495,10 @@ protected:
 	 * Adapt all children in parallel. Evaluation is done in a separate function (runFitnessCalculation).
 	 */
 	virtual void adaptChildren() override {
-		boost::tuple<std::size_t,std::size_t> range = this->getAdaptionRange();
+		std::tuple<std::size_t,std::size_t> range = this->getAdaptionRange();
 		typename std::vector<std::shared_ptr<oa_type>>::iterator it;
 
-		for(it=(this->data).begin()+boost::get<0>(range); it!=(this->data).begin()+boost::get<1>(range); ++it) {
+		for(it=(this->data).begin()+std::get<0>(range); it!=(this->data).begin()+std::get<1>(range); ++it) {
 #ifdef DEBUG
          if(!(*it)) {
             glogger
@@ -520,13 +520,13 @@ protected:
 	 * Evaluate all children (and possibly parents, depending on the iteration and sorting mode) in parallel
 	 */
 	virtual void runFitnessCalculation() override {
-		boost::tuple<std::size_t,std::size_t> range = this->getEvaluationRange();
+		std::tuple<std::size_t,std::size_t> range = this->getEvaluationRange();
 		typename std::vector<std::shared_ptr<oa_type>>::iterator it;
 
 #ifdef DEBUG
       // There should be no situation in which a "clean" individual is submitted
       // through this function
-      for(std::size_t i=boost::get<0>(range); i<boost::get<1>(range); i++) {
+      for(std::size_t i=std::get<0>(range); i<std::get<1>(range); i++) {
          if(!this->at(i)->isDirty()) {
             glogger
             << "In GMultiPopulationEAT<oa_type>::runFitnessCalculation(): Error!" << std::endl
@@ -537,7 +537,7 @@ protected:
 #endif
 
 		// Make evaluation possible and initiate the worker threads
-		for(it=(this->data).begin() + boost::get<0>(range); it!=(this->data).begin() + boost::get<1>(range); ++it) {
+		for(it=(this->data).begin() + std::get<0>(range); it!=(this->data).begin() + std::get<1>(range); ++it) {
 			tp_ptr_->async_schedule(
 				[it]() ->double { return (*it)->nonConstFitness(0, ALLOWREEVALUATION, USETRANSFORMEDFITNESS); }
 			);
@@ -616,8 +616,8 @@ protected:
 	 *
 	 * @return The range inside which evaluation should take place
 	 */
-	virtual boost::tuple<std::size_t,std::size_t> getEvaluationRange() const override {
-		return boost::tuple<std::size_t, std::size_t>(
+	virtual std::tuple<std::size_t,std::size_t> getEvaluationRange() const override {
+		return std::tuple<std::size_t, std::size_t>(
 			this->inFirstIteration()?0:GMultiPopulationEAT<oa_type>::getNParents()
 			,  this->data.size()
 		);

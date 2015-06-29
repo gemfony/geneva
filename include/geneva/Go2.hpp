@@ -265,7 +265,7 @@ public:
 	/** @brief Retrieves a parameter of a given type at the specified position */
 	virtual G_API_GENEVA boost::any getVarVal(
 		const std::string&
-		, const boost::tuple<std::size_t, std::string, std::size_t>& target
+		, const std::tuple<std::size_t, std::string, std::size_t>& target
 	) override;
 
 	/** @brief Allows to register a pluggable optimization monitor */

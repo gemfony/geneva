@@ -426,7 +426,7 @@ The main changes for this release include:
    line, in which case the parallelization mode can be modified on demand.
  - Introduced a new interface class GOptimizableI, as the basis
    of GOptimizationAlgorithmT and various wrapper classes.
- - Removed all std::pair in favor of boost::tuple (the future std::tuple).
+ - Removed all std::pair in favor of std::tuple (the future std::tuple).
  - Some renaming of variables. E.g.: renamed 'recoSchemes' to the
    more appropriate 'duplicationScheme', dito for this enums constants.
  - Renamed public cpp variables according to the library they

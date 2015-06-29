@@ -40,10 +40,9 @@
 #include <cmath>
 #include <sstream>
 #include <vector>
+#include <tuple>
 
 // Boost header files go here
-#include <boost/tuple/tuple.hpp>
-#include <boost/tuple/tuple_io.hpp>
 
 #ifndef GFMININDIVIDUAL_HPP_
 #define GFMININDIVIDUAL_HPP_

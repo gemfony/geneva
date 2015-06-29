@@ -163,7 +163,7 @@ protected:
 	virtual G_API_GENEVA GObject *clone_() const override = 0;
 
 	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
-	virtual G_API_GENEVA boost::tuple<double, double> cycleLogic() override;
+	virtual G_API_GENEVA std::tuple<double, double> cycleLogic() override;
 	/** @brief Does some preparatory work before the optimization starts */
 	virtual G_API_GENEVA void init() override;
 	/** @brief Does any necessary finalization work */
@@ -262,7 +262,7 @@ public:
 		/** @brief Set the dimension of the output canvas */
 		G_API_GENEVA void setDims(const boost::uint32_t&, const boost::uint32_t&);
 		/** @brief Retrieve the dimensions as a tuple */
-		G_API_GENEVA boost::tuple<boost::uint32_t, boost::uint32_t> getDims() const;
+		G_API_GENEVA std::tuple<boost::uint32_t, boost::uint32_t> getDims() const;
 		/** @brief Retrieve the x-dimension of the output canvas */
 		G_API_GENEVA boost::uint32_t getXDim() const;
 		/** @brief Retrieve the y-dimension of the output canvas */

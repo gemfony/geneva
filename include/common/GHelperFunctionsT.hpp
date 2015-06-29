@@ -43,6 +43,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <typeinfo>
+#include <tuple>
 
 // Boost headers go here
 
@@ -53,7 +54,6 @@
 #include <boost/date_time.hpp>
 #include <boost/variant.hpp>
 #include <boost/limits.hpp>
-#include <boost/tuple/tuple.hpp>
 
 #ifndef GHELPERFUNCTIONST_HPP_
 #define GHELPERFUNCTIONST_HPP_
@@ -735,7 +735,7 @@ std::vector<split_type> splitStringT(const std::string &raw, const char *sep) {
  * split of a string "0/0 0/1 1/0" into tuples of integers.
  */
 template<typename split_type1, typename split_type2>
-std::vector<boost::tuple<split_type1, split_type2>> splitStringT(
+std::vector<std::tuple<split_type1, split_type2>> splitStringT(
 	const std::string &raw, const char *sep1, const char *sep2
 ) {
 	// Check that sep1 and sep2 differ
@@ -747,7 +747,7 @@ std::vector<boost::tuple<split_type1, split_type2>> splitStringT(
 	}
 
 	std::vector<std::string> fragments = Gem::Common::splitString(raw, sep1);
-	std::vector<boost::tuple<split_type1, split_type2>> result;
+	std::vector<std::tuple<split_type1, split_type2>> result;
 	std::vector<std::string>::iterator it;
 	for (it = fragments.begin(); it != fragments.end(); ++it) {
 		std::vector<std::string> sub_fragments = Gem::Common::splitString(*it, sep2);
@@ -762,7 +762,7 @@ std::vector<boost::tuple<split_type1, split_type2>> splitStringT(
 #endif /* DEBUG */
 
 		result.push_back(
-			boost::tuple<split_type1, split_type2>(
+			std::tuple<split_type1, split_type2>(
 				boost::lexical_cast<split_type1>(sub_fragments[0]), boost::lexical_cast<split_type2>(sub_fragments[1])
 			)
 		);

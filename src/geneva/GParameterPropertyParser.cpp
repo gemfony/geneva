@@ -180,7 +180,7 @@ void GParameterPropertyParser::parse() {
 	std::string::const_iterator from = raw_.begin();
 	std::string::const_iterator to = raw_.end();
 
-	std::vector<boost::tuple<char, std::string>> variableDescriptions;
+	std::vector<std::tuple<char, std::string>> variableDescriptions;
 
 	// Dissect the raw string into sub-strings responsible for individual parameters
 	success = phrase_parse(
@@ -196,37 +196,37 @@ void GParameterPropertyParser::parse() {
 	}
 
 	// Process each individual string
-	std::vector<boost::tuple<char, std::string>>::iterator it;
+	std::vector<std::tuple<char, std::string>>::iterator it;
 	for (it = variableDescriptions.begin(); it != variableDescriptions.end(); ++it) {
-		std::string varDescr = boost::get<1>(*it);
+		std::string varDescr = std::get<1>(*it);
 
 		from = varDescr.begin();
 		to = varDescr.end();
 
-		if ('d' == boost::get<0>(*it)) {
+		if ('d' == std::get<0>(*it)) {
 			success = phrase_parse(
 				from, to, doubleStringParser[push_back(boost::phoenix::ref(dSpecVec), _1)], space
 			);
-		} else if ('f' == boost::get<0>(*it)) {
+		} else if ('f' == std::get<0>(*it)) {
 			success = phrase_parse(
 				from, to, floatStringParser[push_back(boost::phoenix::ref(fSpecVec), _1)], space
 			);
-		} else if ('i' == boost::get<0>(*it)) {
+		} else if ('i' == std::get<0>(*it)) {
 			success = phrase_parse(
 				from, to, intStringParser[push_back(boost::phoenix::ref(iSpecVec), _1)], space
 			);
-		} else if ('b' == boost::get<0>(*it)) {
+		} else if ('b' == std::get<0>(*it)) {
 			success = phrase_parse(
 				from, to, boolStringParser[push_back(boost::phoenix::ref(bSpecVec), _1)], space
 			);
-		} else if ('s' == boost::get<0>(*it)) {
+		} else if ('s' == std::get<0>(*it)) {
 			success = phrase_parse(
 				from, to, simpleScanParser[push_back(boost::phoenix::ref(sSpecVec), _1)], space
 			);
 		} else {
 			glogger
 			<< "In GParameterPropertyParser::parse(): Error!" << std::endl
-			<< "Invalid type specifier: " << boost::get<0>(*it) << std::endl
+			<< "Invalid type specifier: " << std::get<0>(*it) << std::endl
 			<< GEXCEPTION;
 		}
 

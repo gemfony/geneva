@@ -115,7 +115,7 @@ public:
 	/** @brief Resets the personal best individual */
 	G_API_GENEVA void resetPersonalBest();
 	/** @brief Retrieve quality of personally best individual */
-	G_API_GENEVA boost::tuple<double, double> getPersonalBestQuality() const;
+	G_API_GENEVA std::tuple<double, double> getPersonalBestQuality() const;
 
 	/** @brief Emits a name for this class / object */
 	virtual G_API_GENEVA std::string name() const override;
@@ -136,7 +136,7 @@ private:
 	/** @brief Holds the personally best GParameterSet */
 	std::shared_ptr<GParameterSet> personal_best_;
 	/** @brief The quality of the personally best individual */
-	boost::tuple<double, double> personal_best_quality_;
+	std::tuple<double, double> personal_best_quality_;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

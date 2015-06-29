@@ -311,7 +311,7 @@ public:
 	G_API_INDIVIDUALS void setAdaptAdProb(double adaptAdProb);
 
 	/** @brief Allows to retrieve the allowed range for adProb_ variation */
-	G_API_INDIVIDUALS boost::tuple<double, double> getAdProbRange() const;
+	G_API_INDIVIDUALS std::tuple<double, double> getAdProbRange() const;
 	/** @brief Allows to set the allowed range for adaption probability variation */
 	G_API_INDIVIDUALS void setAdProbRange(double minAdProb, double maxAdProb);
 
@@ -329,27 +329,27 @@ public:
 	/** @brief Allows to retrieve the maxDelta_ variable */
 	G_API_INDIVIDUALS double getMaxDelta() const;
 	/** @brief Allows to retrieve the allowed value range of delta */
-	G_API_INDIVIDUALS boost::tuple<double, double> getDeltaRange() const;
+	G_API_INDIVIDUALS std::tuple<double, double> getDeltaRange() const;
 	/** @brief Allows to set the allowed value range of delta */
-	G_API_INDIVIDUALS void setDeltaRange(boost::tuple<double, double>);
+	G_API_INDIVIDUALS void setDeltaRange(std::tuple<double, double>);
 
 	/** @brief Allows to retrieve the minSigma1_ variable */
 	G_API_INDIVIDUALS double getMinSigma1() const;
 	/** @brief Allows to retrieve the maxSigma1_ variable */
 	G_API_INDIVIDUALS double getMaxSigma1() const;
 	/** @brief Allows to retrieve the allowed value range of sigma1_ */
-	G_API_INDIVIDUALS boost::tuple<double, double> getSigma1Range() const;
+	G_API_INDIVIDUALS std::tuple<double, double> getSigma1Range() const;
 	/** @brief Allows to set the allowed value range of sigma1_ */
-	G_API_INDIVIDUALS void setSigma1Range(boost::tuple<double, double>);
+	G_API_INDIVIDUALS void setSigma1Range(std::tuple<double, double>);
 
 	/** @brief Allows to retrieve the minSigma2_ variable */
 	G_API_INDIVIDUALS double getMinSigma2() const;
 	/** @brief Allows to retrieve the maxSigma2_ variable */
 	G_API_INDIVIDUALS double getMaxSigma2() const;
 	/** @brief Allows to retrieve the allowed value range of sigma2_ */
-	G_API_INDIVIDUALS boost::tuple<double, double> getSigma2Range() const;
+	G_API_INDIVIDUALS std::tuple<double, double> getSigma2Range() const;
 	/** @brief Allows to set the allowed value range of sigma2_ */
-	G_API_INDIVIDUALS void setSigma2Range(boost::tuple<double, double>);
+	G_API_INDIVIDUALS void setSigma2Range(std::tuple<double, double>);
 
 	/** @brief Allows to retrieve the sigma1_ variable */
 	G_API_INDIVIDUALS double getSigma1() const;

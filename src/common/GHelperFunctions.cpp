@@ -291,13 +291,13 @@ std::vector<double> stringToDoubleVec(const std::string &raw) {
  * Splits a string into a vector of unsigned int-tuples, if possible, or
  * throws an exception. The string should have the form "(1,2), (3,4)" etc.
  */
-std::vector<boost::tuple<unsigned int, unsigned int>> stringToUIntTupleVec(const std::string &raw) {
+std::vector<std::tuple<unsigned int, unsigned int>> stringToUIntTupleVec(const std::string &raw) {
 	using namespace boost::spirit;
 
 	typedef std::string::const_iterator cit_type;
-	typedef std::vector<boost::tuple<unsigned int, unsigned int>> res_type;
+	typedef std::vector<std::tuple<unsigned int, unsigned int>> res_type;
 
-	std::vector<boost::tuple<unsigned int, unsigned int>> result;
+	std::vector<std::tuple<unsigned int, unsigned int>> result;
 	bool success = false;
 
 	std::string::const_iterator from = raw.begin();

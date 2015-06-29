@@ -64,10 +64,10 @@ class GPSOptimizationMonitor;
 
 /******************************************************************************/
 // A number of typedefs that indicate the position and value of a parameter inside of an individual
-typedef boost::tuple<bool,           std::size_t, std::string, std::size_t> singleBPar;
-typedef boost::tuple<boost::int32_t, std::size_t, std::string, std::size_t> singleInt32Par;
-typedef boost::tuple<float,          std::size_t, std::string, std::size_t> singleFPar;
-typedef boost::tuple<double,         std::size_t, std::string, std::size_t> singleDPar;
+typedef std::tuple<bool,           std::size_t, std::string, std::size_t> singleBPar;
+typedef std::tuple<boost::int32_t, std::size_t, std::string, std::size_t> singleInt32Par;
+typedef std::tuple<float,          std::size_t, std::string, std::size_t> singleFPar;
+typedef std::tuple<double,         std::size_t, std::string, std::size_t> singleDPar;
 
 /******************************************************************************/
 /**
@@ -209,7 +209,7 @@ protected:
 	virtual G_API_GENEVA GObject *clone_() const override = 0;
 
 	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
-	virtual G_API_GENEVA boost::tuple<double, double> cycleLogic() override;
+	virtual G_API_GENEVA std::tuple<double, double> cycleLogic() override;
 	/** @brief Does some preparatory work before the optimization starts */
 	virtual G_API_GENEVA void init() override;
 	/** @brief Does any necessary finalization work */
@@ -237,20 +237,20 @@ private:
 	 */
 	template <typename data_type>
 	void addDataPoint(
-		const boost::tuple<data_type, std::size_t, std::string, std::size_t>& dataPoint
+		const std::tuple<data_type, std::size_t, std::string, std::size_t>& dataPoint
 		, std::vector<data_type>& dataVec
 	) {
 #ifdef DEBUG
-      if(0 != boost::get<1>(dataPoint)) {
+      if(0 != std::get<1>(dataPoint)) {
          glogger
          << "In GBasePS::addDataPoint(mode 0): Error!" << std::endl
-         << "Function was called for invalid mode " << boost::get<1>(dataPoint) << std::endl
+         << "Function was called for invalid mode " << std::get<1>(dataPoint) << std::endl
          << GEXCEPTION;
       }
 #endif
 
-		data_type   lData = boost::get<0>(dataPoint);
-		std::size_t lPos  = boost::get<3>(dataPoint);
+		data_type   lData = std::get<0>(dataPoint);
+		std::size_t lPos  = std::get<3>(dataPoint);
 
 		// Check that we haven't exceeded the size of the boolean data vector
 		if(lPos >= dataVec.size()) {
@@ -269,12 +269,12 @@ private:
 	 */
 	template <typename data_type>
 	void addDataPoint(
-		const boost::tuple<data_type, std::size_t, std::string, std::size_t>& dataPoint
+		const std::tuple<data_type, std::size_t, std::string, std::size_t>& dataPoint
 		, std::map<std::string, std::vector<data_type>>& dataMap
 	) {
-		data_type   lData = boost::get<0>(dataPoint);
-		std::string lName = boost::get<2>(dataPoint);
-		std::size_t lPos  = boost::get<3>(dataPoint);
+		data_type   lData = std::get<0>(dataPoint);
+		std::string lName = std::get<2>(dataPoint);
+		std::size_t lPos  = std::get<3>(dataPoint);
 
 		(Gem::Common::getMapItem(dataMap, lName)).at(lPos) = lData;
 	}

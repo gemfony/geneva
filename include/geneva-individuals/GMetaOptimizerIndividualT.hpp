@@ -40,10 +40,9 @@
 #include <cmath>
 #include <sstream>
 #include <vector>
+#include <tuple>
 
 // Boost header files go here
-#include <boost/tuple/tuple.hpp>
-#include <boost/tuple/tuple_io.hpp>
 
 #ifndef GMETAOPTIMIZERINDIVIDUALT_HPP_
 #define GMETAOPTIMIZERINDIVIDUALT_HPP_
@@ -931,7 +930,7 @@ protected:
 		double sigmaRangePercentage = sigmaRangePercentage_ptr->value();
 		double startSigma = minSigma + sigmaRangePercentage * sigmaRange;
 
-		ind_factory_->setSigma1Range(boost::tuple<double, double>(minSigma, maxSigma));
+		ind_factory_->setSigma1Range(std::tuple<double, double>(minSigma, maxSigma));
 		ind_factory_->setSigma1(startSigma);
 		ind_factory_->setSigmaSigma1(sigmasigma_ptr->value());
 
@@ -1036,26 +1035,26 @@ protected:
 		}
 
 		// Calculate the average number of iterations and solver calls
-		boost::tuple<double, double> sd = Gem::Common::GStandardDeviation(solverCallsPerOptimization);
-		boost::tuple<double, double> itmean = Gem::Common::GStandardDeviation(iterationsPerOptimization);
-		boost::tuple<double, double> bestMean = Gem::Common::GStandardDeviation(bestEvaluations);
+		std::tuple<double, double> sd = Gem::Common::GStandardDeviation(solverCallsPerOptimization);
+		std::tuple<double, double> itmean = Gem::Common::GStandardDeviation(iterationsPerOptimization);
+		std::tuple<double, double> bestMean = Gem::Common::GStandardDeviation(bestEvaluations);
 
 		double evaluation = 0.;
 		if (MINSOLVERCALLS == moTarget_) {
-			evaluation = boost::get<0>(sd);
+			evaluation = std::get<0>(sd);
 		} else if (BESTFITNESS == moTarget_) {
-			evaluation = boost::get<0>(bestMean);
+			evaluation = std::get<0>(bestMean);
 		} else if (MC_MINSOLVER_BESTFITNESS == moTarget_) {
-			evaluation = boost::get<0>(bestMean);
-			this->registerSecondaryResult(1, boost::get<0>(sd)); // The secondary result
+			evaluation = std::get<0>(bestMean);
+			this->registerSecondaryResult(1, std::get<0>(sd)); // The secondary result
 		}
 
 		// Emit some information
 		std::cout
 		<< std::endl
-		<< boost::get<0>(sd) << " +/- " << boost::get<1>(sd) << " solver calls with " << std::endl
-		<< boost::get<0>(itmean) << " +/- " << boost::get<1>(itmean) << " average iterations " << std::endl
-		<< "and a best evaluation of " << boost::get<0>(bestMean) << " +/- " << boost::get<1>(bestMean) << std::endl
+		<< std::get<0>(sd) << " +/- " << std::get<1>(sd) << " solver calls with " << std::endl
+		<< std::get<0>(itmean) << " +/- " << std::get<1>(itmean) << " average iterations " << std::endl
+		<< "and a best evaluation of " << std::get<0>(bestMean) << " +/- " << std::get<1>(bestMean) << std::endl
 		<< "out of " << nRunsPerOptimization_ << " consecutive runs" << std::endl
 		<< "fitnessCalculation() will return the value " << evaluation << std::endl
 		<< this->print(false) << std::endl // print without fitness -- not defined at this stage
@@ -1715,19 +1714,19 @@ protected:
 		std::shared_ptr <GMetaOptimizerIndividualT<ind_type>> p = ea->clone_at<GMetaOptimizerIndividualT<ind_type>>(0);
 
 		// Retrieve the best fitness and average sigma value and add it to our local storage
-		(*progressPlotter_) & boost::tuple<double, double>((double) ea->getIteration(), p->fitness());
-		(*nParentPlotter_) & boost::tuple<double, double>((double) ea->getIteration(), (double) p->getNParents());
-		(*nChildrenPlotter_) & boost::tuple<double, double>((double) ea->getIteration(), (double) p->getNChildren());
-		(*adProbPlotter_) & boost::tuple<double, double>((double) ea->getIteration(), p->getAdProb());
+		(*progressPlotter_) & std::tuple<double, double>((double) ea->getIteration(), p->fitness());
+		(*nParentPlotter_) & std::tuple<double, double>((double) ea->getIteration(), (double) p->getNParents());
+		(*nChildrenPlotter_) & std::tuple<double, double>((double) ea->getIteration(), (double) p->getNChildren());
+		(*adProbPlotter_) & std::tuple<double, double>((double) ea->getIteration(), p->getAdProb());
 
 		double minSigma = p->getMinSigma();
 		double sigmaRange = p->getSigmaRange();
 		double maxSigma = minSigma + sigmaRange;
 
-		(*minSigmaPlotter_) & boost::tuple<double, double>((double) ea->getIteration(), minSigma);
-		(*maxSigmaPlotter_) & boost::tuple<double, double>((double) ea->getIteration(), maxSigma);
-		(*sigmaRangePlotter_) & boost::tuple<double, double>((double) ea->getIteration(), sigmaRange);
-		(*sigmaSigmaPlotter_) & boost::tuple<double, double>((double) ea->getIteration(), p->getSigmaSigma());
+		(*minSigmaPlotter_) & std::tuple<double, double>((double) ea->getIteration(), minSigma);
+		(*maxSigmaPlotter_) & std::tuple<double, double>((double) ea->getIteration(), maxSigma);
+		(*sigmaRangePlotter_) & std::tuple<double, double>((double) ea->getIteration(), sigmaRange);
+		(*sigmaSigmaPlotter_) & std::tuple<double, double>((double) ea->getIteration(), p->getSigmaSigma());
 
 		//---------------------------------------------------------
 		// Call our parent class'es function

@@ -97,6 +97,7 @@
 #include <boost/variant/recursive_variant.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
+#include <boost/fusion/adapted/std_tuple.hpp> // Compare http://stackoverflow.com/questions/18158376/getting-boostspiritqi-to-use-stl-containers
 
 #ifndef GFORMULAPARSERT_HPP_
 #define GFORMULAPARSERT_HPP_
@@ -735,6 +736,7 @@ private:
 		if (printCode_) printCode();
 
 		while (code_ptr != code_.end()) {
+			// Note: *code_ptr is a boost::variabt, boost::get has nothing to do with a boost::tuple here
 			switch (boost::get<byte_code>(*code_ptr++)) { // Read out code_ptr, then switch it to the next position
 				case op_trap: {
 					glogger

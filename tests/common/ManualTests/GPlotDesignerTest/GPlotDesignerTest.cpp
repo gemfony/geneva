@@ -45,8 +45,8 @@
 using namespace Gem::Common;
 
 int main(int argc, char** argv) {
-	boost::tuple<double,double> minMaxX(-boost::math::constants::pi<double>(),boost::math::constants::pi<double>());
-	boost::tuple<double,double> minMaxY(-boost::math::constants::pi<double>(),boost::math::constants::pi<double>());
+	std::tuple<double,double> minMaxX(-boost::math::constants::pi<double>(),boost::math::constants::pi<double>());
+	std::tuple<double,double> minMaxY(-boost::math::constants::pi<double>(),boost::math::constants::pi<double>());
 
 	std::shared_ptr<GGraph2D> gsin_ptr(new GGraph2D());
 	gsin_ptr->setPlotMode(Gem::Common::SCATTER);
@@ -67,9 +67,9 @@ int main(int argc, char** argv) {
 	for(std::size_t i=0; i<1000; i++) {
 		double x = 2*boost::math::constants::pi<double>()*double(i)/1000. - boost::math::constants::pi<double>();
 
-		(*gsin_ptr) & boost::tuple<double, double>(x, sin(x));
-		(*gcos_ptr) & boost::tuple<double, double>(x, cos(x));
-		(*gcos_ptr_2) & boost::tuple<double, double>(x, cos(x));
+		(*gsin_ptr) & std::tuple<double, double>(x, sin(x));
+		(*gcos_ptr) & std::tuple<double, double>(x, cos(x));
+		(*gcos_ptr_2) & std::tuple<double, double>(x, cos(x));
 	}
 
 	std::shared_ptr<GFunctionPlotter1D> gsin_plotter_1D_ptr(new GFunctionPlotter1D("sin(x)", minMaxX));

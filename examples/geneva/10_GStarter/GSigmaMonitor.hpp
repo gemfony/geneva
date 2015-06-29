@@ -144,8 +144,8 @@ protected:
 		std::shared_ptr<GStarterIndividual> p = ea->clone_at<GStarterIndividual>(0);
 
 		// Retrieve the best "raw" fitness and average sigma value and add it to our local storage
-		progressPlotter_->add(boost::tuple<double,double>((double)ea->getIteration(), p->fitness()));
-		sigmaPlotter_->add(boost::tuple<double,double>((double)ea->getIteration(), p->getAverageSigma()));
+		progressPlotter_->add(std::tuple<double,double>((double)ea->getIteration(), p->fitness()));
+		sigmaPlotter_->add(std::tuple<double,double>((double)ea->getIteration(), p->getAverageSigma()));
 		//---------------------------------------------------------
 		// Call our parent class'es function
 		GBaseEA::GEAOptimizationMonitor::cycleInformation(goa);

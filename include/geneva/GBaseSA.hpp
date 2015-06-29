@@ -36,9 +36,9 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <tuple>
 
 // Boost headers go here
-#include <boost/tuple/tuple.hpp>
 
 #ifndef GBASESA_HPP_
 #define GBASESA_HPP_
@@ -154,7 +154,7 @@ protected:
 	virtual G_API_GENEVA void selectBest() override;
 
 	/** @brief Retrieves the evaluation range in a given iteration and sorting scheme */
-	virtual G_API_GENEVA boost::tuple<std::size_t,std::size_t> getEvaluationRange() const override;
+	virtual G_API_GENEVA std::tuple<std::size_t,std::size_t> getEvaluationRange() const override;
 
 	/** @brief Does some preparatory work before the optimization starts */
 	virtual G_API_GENEVA void init() override;

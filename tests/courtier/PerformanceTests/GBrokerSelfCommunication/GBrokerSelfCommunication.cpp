@@ -104,7 +104,7 @@ void connectorProducer(
 
 		bool complete = brokerConnector.workOn(
 			data
-			, boost::tuple<std::size_t,std::size_t>(0, data.size())
+			, std::tuple<std::size_t,std::size_t>(0, data.size())
 			, oldWorkItems
 			, true // Remove unprocessed items
 		);

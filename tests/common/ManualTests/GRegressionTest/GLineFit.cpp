@@ -45,9 +45,9 @@ namespace Geneva {
  * @param points_ The measurements (x/y-coordinates)
  * @return A tuple of doubles, so that f(x)=a+b*x
  */
-boost::tuple<double, double> gLineFit(const std::vector<boost::tuple<double, double>>& points_) {
+std::tuple<double, double> gLineFit(const std::vector<std::tuple<double, double>>& points_) {
 	// Copy the data, as we want to modify (sort) it
-	std::vector<boost::tuple<double, double>> points = points_;
+	std::vector<std::tuple<double, double>> points = points_;
 
 	// Create a factory for GLineFitIndividual objects
 	std::shared_ptr<GLineFitIndividualFactory> glfif_ptr(new GLineFitIndividualFactory(points, "./config/GLineFitIndividual.json"));
@@ -72,14 +72,14 @@ boost::tuple<double, double> gLineFit(const std::vector<boost::tuple<double, dou
 	std::sort(
 		points.begin()
 		, points.end()
-		, [](const boost::tuple<double,double>& a, const boost::tuple<double,double>& b) -> bool {
-			return boost::get<0>(a) < boost::get<1>(b);
+		, [](const std::tuple<double,double>& a, const std::tuple<double,double>& b) -> bool {
+			return std::get<0>(a) < std::get<1>(b);
 		}
 	);
 
 	// Calculate a line from the first and last points in the points-vector
-	double deltaX = boost::get<0>(points.back()) - boost::get<0>(points.front());
-	double deltaY = boost::get<1>(points.back()) - boost::get<1>(points.front());
+	double deltaX = std::get<0>(points.back()) - std::get<0>(points.front());
+	double deltaY = std::get<1>(points.back()) - std::get<1>(points.front());
 
 	// Check if deltaX is 0, if so, complain
 	if(0. == deltaX) {
@@ -90,7 +90,7 @@ boost::tuple<double, double> gLineFit(const std::vector<boost::tuple<double, dou
 
 	// Calculate a and b
 	double b = deltaY/deltaX;
-	double a = boost::get<1>(points.front()) - b*boost::get<0>(points.front());
+	double a = std::get<1>(points.front()) - b*std::get<0>(points.front());
 
 	// Set the first individuals values to a and b
 	std::vector<double> parVec;

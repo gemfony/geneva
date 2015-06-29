@@ -129,8 +129,8 @@ public:
 		: GMutableSetT<ind_type>()
 		, bestGlobalIndividuals_(nRecordbestGlobalIndividuals_, Gem::Common::LOWERISBETTER)
 	  	, bestIterationIndividuals_(0, Gem::Common::LOWERISBETTER) // unlimited size, so all individuals of an iteration fit in
-		, bestKnownPrimaryFitness_(boost::tuple<double,double>(0.,0.)) // will be set appropriately in the optimize() function
-		, bestCurrentPrimaryFitness_(boost::tuple<double,double>(0.,0.)) // will be set appropriately in the optimize() function
+		, bestKnownPrimaryFitness_(std::tuple<double,double>(0.,0.)) // will be set appropriately in the optimize() function
+		, bestCurrentPrimaryFitness_(std::tuple<double,double>(0.,0.)) // will be set appropriately in the optimize() function
 		, maxDuration_(boost::posix_time::duration_from_string(DEFAULTDURATION))
 		, worstKnownValids_()
 		, optimizationMonitor_ptr_(new typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT())
@@ -465,8 +465,8 @@ public:
 
 		// We want to know if no better values were found for a longer period of time
 		double worstCase = this->getWorstCase();
-		bestKnownPrimaryFitness_   = boost::make_tuple(worstCase, worstCase);
-		bestCurrentPrimaryFitness_ = boost::make_tuple(worstCase, worstCase);
+		bestKnownPrimaryFitness_   = std::make_tuple(worstCase, worstCase);
+		bestCurrentPrimaryFitness_ = std::make_tuple(worstCase, worstCase);
 
 		stallCounter_ = 0;
 
@@ -839,7 +839,7 @@ public:
 	 *
 	 * @return The best raw and transformed fitness found so far
 	 */
-	boost::tuple<double, double> getBestKnownPrimaryFitness() const {
+	std::tuple<double, double> getBestKnownPrimaryFitness() const {
 		return (bestGlobalIndividuals_.best())->getFitnessTuple();
 
 		// return bestKnownPrimaryFitness_;
@@ -851,7 +851,7 @@ public:
 	 *
 	 * @return The best raw and transformed fitness found in the current iteration
 	 */
-	boost::tuple<double, double> getBestCurrentPrimaryFitness() const {
+	std::tuple<double, double> getBestCurrentPrimaryFitness() const {
 		return bestCurrentPrimaryFitness_;
 	}
 
@@ -1065,7 +1065,7 @@ public:
 	 */
 	virtual boost::any getVarVal(
 		const std::string& descr
-		, const boost::tuple<std::size_t, std::string, std::size_t>& target
+		, const std::tuple<std::size_t, std::string, std::size_t>& target
 	) override {
 		return GOptimizableI::getBestIndividual<GParameterSet>()->getVarVal(descr, target);
 	}
@@ -1361,7 +1361,7 @@ protected:
 
 	/***************************************************************************/
 	/** @brief The actual business logic to be performed during each iteration */
-	virtual boost::tuple<double, double> cycleLogic() BASE = 0;
+	virtual std::tuple<double, double> cycleLogic() BASE = 0;
 
 	/***************************************************************************/
 	/**
@@ -1604,8 +1604,8 @@ private:
 	 * here, so we can usually deal with finite values (due to the transformation
 	 * in the case of a constraint violation).
 	 */
-	void updateStallCounter(const boost::tuple<double, double>& bestEval) {
-		if(this->isBetter(boost::get<G_TRANSFORMED_FITNESS>(bestEval), boost::get<G_TRANSFORMED_FITNESS>(bestKnownPrimaryFitness_))) {
+	void updateStallCounter(const std::tuple<double, double>& bestEval) {
+		if(this->isBetter(std::get<G_TRANSFORMED_FITNESS>(bestEval), std::get<G_TRANSFORMED_FITNESS>(bestKnownPrimaryFitness_))) {
 			bestKnownPrimaryFitness_ = bestEval;
 			stallCounter_ = 0;
 		} else {
@@ -1647,12 +1647,12 @@ private:
 	 * @return A boolean indicating whether the quality is above or below a given threshold
 	 */
 	bool qualityHalt() const {
-		if(this->isBetter(boost::get<G_RAW_FITNESS>(bestKnownPrimaryFitness_), qualityThreshold_)) {
+		if(this->isBetter(std::get<G_RAW_FITNESS>(bestKnownPrimaryFitness_), qualityThreshold_)) {
 			if(emitTerminationReason_) {
 				glogger
 				<< "Terminating optimization run because" << std::endl
 				<< "quality threshold " << qualityThreshold_ << " has been reached." << std::endl
-				<< "Best untransformed quality found was " << boost::get<G_RAW_FITNESS>(bestKnownPrimaryFitness_) << std::endl
+				<< "Best untransformed quality found was " << std::get<G_RAW_FITNESS>(bestKnownPrimaryFitness_) << std::endl
 				<< "with termination in iteration " << iteration_ << std::endl
 				<< GLOGGING;
 			}
@@ -1856,8 +1856,8 @@ private:
 	GParameterSetFixedSizePriorityQueue bestIterationIndividuals_; ///< A priority queue with the best individuals of a given iteration
 
 	std::size_t defaultPopulationSize_ = DEFAULTPOPULATIONSIZE; ///< The nominal size of the population
-	boost::tuple<double, double> bestKnownPrimaryFitness_; ///< Records the best primary fitness found so far
-	boost::tuple<double, double> bestCurrentPrimaryFitness_; ///< Records the best fitness found in the current iteration
+	std::tuple<double, double> bestKnownPrimaryFitness_; ///< Records the best primary fitness found so far
+	std::tuple<double, double> bestCurrentPrimaryFitness_; ///< Records the best fitness found in the current iteration
 
 	boost::uint32_t stallCounter_ = 0; ///< Counts the number of iterations without improvement
 	boost::uint32_t stallCounterThreshold_ = DEFAULTSTALLCOUNTERTHRESHOLD; ///< The number of stalls after which individuals are asked to update their internal data structures
@@ -1872,7 +1872,7 @@ private:
 	mutable boost::posix_time::ptime startTime_; ///< Used to store the start time of the optimization. Declared mutable so the halt criteria can be const
 	bool emitTerminationReason_ = DEFAULTEMITTERMINATIONREASON; ///< Specifies whether information about reasons for termination should be emitted
 	bool halted_ = false; ///< Set to true when halt() has returned "true"
-	std::vector<boost::tuple<double, double>> worstKnownValids_; ///< Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
+	std::vector<std::tuple<double, double>> worstKnownValids_; ///< Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
 	std::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> optimizationMonitor_ptr_;
 	std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT> default_pluggable_monitor_; ///< A default monitor
 	std::vector<std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>> pluggable_monitors_; ///< A collection of monitors
@@ -2310,8 +2310,8 @@ public:
 						std::cout
 						<< std::setprecision(5)
 						<< goa->getIteration() << ": "
-						<< goa->getBestCurrentPrimaryFitness()
-						<< " // best past: " << goa->getBestKnownPrimaryFitness()
+						<< Gem::Common::g_to_string(goa->getBestCurrentPrimaryFitness())
+						<< " // best past: " << Gem::Common::g_to_string(goa->getBestKnownPrimaryFitness())
 						<< std::endl;
 					}
 					this->cycleInformation(goa);

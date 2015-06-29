@@ -207,9 +207,9 @@ public:
 	G_API_GENEVA bool hasMultipleFitnessCriteria() const;
 
 	/** @brief Checks the worst fitness and updates it when needed */
-	G_API_GENEVA void challengeWorstValidFitness(boost::tuple<double, double>&, const std::size_t&);
+	G_API_GENEVA void challengeWorstValidFitness(std::tuple<double, double>&, const std::size_t&);
 	/** @brief Retrieve the fitness tuple at a given evaluation position */
-	G_API_GENEVA boost::tuple<double,double> getFitnessTuple(const boost::uint32_t& = 0) const;
+	G_API_GENEVA std::tuple<double,double> getFitnessTuple(const boost::uint32_t& = 0) const;
 
 	/** @brief Check whether this individual is "clean", i.e neither "dirty" nor has a delayed evaluation */
 	G_API_GENEVA bool isClean() const;
@@ -270,17 +270,16 @@ public:
 	/** @brief Retrieves a parameter of a given type at the specified position */
 	virtual G_API_GENEVA boost::any getVarVal(
 		const std::string&
-		, const boost::tuple<std::size_t, std::string, std::size_t>& target
+		, const std::tuple<std::size_t, std::string, std::size_t>& target
 	) = 0;
 
 	/***************************************************************************/
 	/**
-	 * Retrieves a parameter of a given type at the specified position. Note: This
-	 * function is a trap. Use one of the overloads for supported types.
+	 * Retrieves a parameter of a given type at the specified position.
 	 */
 	template <typename val_type>
 	val_type getVarVal(
-		const boost::tuple<std::size_t, std::string, std::size_t>& target
+		const std::tuple<std::size_t, std::string, std::size_t>& target
 	) {
 		val_type result = val_type(0);
 
@@ -381,11 +380,11 @@ public:
 	G_API_GENEVA bool isInValid() const;
 
 	/** @brief Allows an optimization algorithm to set the worst known valid evaluation up to the current iteration */
-	G_API_GENEVA void setWorstKnownValid(const std::vector<boost::tuple<double, double>>&);
+	G_API_GENEVA void setWorstKnownValid(const std::vector<std::tuple<double, double>>&);
 	/** @brief Allows to retrieve the worst known valid evaluation up to the current iteration, as set by an external optimization algorithm */
-	G_API_GENEVA boost::tuple<double, double> getWorstKnownValid(const boost::uint32_t&) const;
+	G_API_GENEVA std::tuple<double, double> getWorstKnownValid(const boost::uint32_t&) const;
 	/** @brief Allows to retrieve all worst known valid evaluations up to the current iteration, as set by an external optimization algorithm */
-	G_API_GENEVA std::vector<boost::tuple<double, double>> getWorstKnownValids() const;
+	G_API_GENEVA std::vector<std::tuple<double, double>> getWorstKnownValids() const;
 	/** @brief Fills the worstKnownValid-vector with best values */
 	G_API_GENEVA void populateWorstKnownValid();
 
@@ -393,9 +392,9 @@ public:
 	G_API_GENEVA void postEvaluationUpdate();
 
 	/** @brief Allows to set the globally best known primary fitness */
-	G_API_GENEVA void setBestKnownPrimaryFitness(const boost::tuple<double, double>&);
+	G_API_GENEVA void setBestKnownPrimaryFitness(const std::tuple<double, double>&);
 	/** @brief Retrieves the value of the globally best known primary fitness */
-	G_API_GENEVA boost::tuple<double, double> getBestKnownPrimaryFitness() const;
+	G_API_GENEVA std::tuple<double, double> getBestKnownPrimaryFitness() const;
 
 	/** @brief Retrieve the id assigned to the current evaluation */
 	G_API_GENEVA std::string getCurrentEvaluationID() const;
@@ -448,38 +447,38 @@ protected:
 
 	/***************************************************************************/
 	/**
-	 * Checks if a given position of a boost::tuple is better then another,
+	 * Checks if a given position of a std::tuple is better then another,
 	 * depending on our maximization mode
 	 */
 	template <std::size_t pos>
 	bool isWorse(
-		boost::tuple<double, double> newValue
-		, boost::tuple<double, double> oldValue
+		std::tuple<double, double> newValue
+		, std::tuple<double, double> oldValue
 	) const {
 		if(this->getMaxMode()) {
-			if(boost::get<pos>(newValue) < boost::get<pos>(oldValue)) return true;
+			if(std::get<pos>(newValue) < std::get<pos>(oldValue)) return true;
 			else return false;
 		} else { // minimization
-			if(boost::get<pos>(newValue) > boost::get<pos>(oldValue)) return true;
+			if(std::get<pos>(newValue) > std::get<pos>(oldValue)) return true;
 			else return false;
 		}
 	}
 
 	/***************************************************************************/
 	/**
-	 * Checks if a given position of a boost::tuple is better then another,
+	 * Checks if a given position of a std::tuple is better then another,
 	 * depending on our maximization mode
 	 */
 	template <std::size_t pos>
 	bool isBetter(
-		boost::tuple<double, double> newValue
-		, boost::tuple<double, double> oldValue
+		std::tuple<double, double> newValue
+		, std::tuple<double, double> oldValue
 	) const {
 		if(this->getMaxMode()) {
-			if(boost::get<pos>(newValue) > boost::get<pos>(oldValue)) return true;
+			if(std::get<pos>(newValue) > std::get<pos>(oldValue)) return true;
 			else return false;
 		} else { // minimization
-			if(boost::get<pos>(newValue) < boost::get<pos>(oldValue)) return true;
+			if(std::get<pos>(newValue) < std::get<pos>(oldValue)) return true;
 			else return false;
 		}
 	}
@@ -491,46 +490,46 @@ private:
 
 	/***************************************************************************/
 	/** @brief The total number of fitness criteria */
-	std::size_t nFitnessCriteria_;
+	std::size_t nFitnessCriteria_ = 1;
 	/** @brief Holds this object's internal, raw and transformed fitness */
-	std::vector<boost::tuple<double, double>> currentFitnessVec_;
+	std::vector<std::tuple<double, double>> currentFitnessVec_;
 
 	/** @brief The worst known evaluation up to the current iteration */
-	std::vector<boost::tuple<double, double>> worstKnownValids_;
+	std::vector<std::tuple<double, double>> worstKnownValids_;
 	/** @brief Indicates whether the user has marked this solution as invalid inside of the evaluation function */
 	Gem::Common::GLockVarT<bool> markedAsInvalidByUser_;
 
 	/** @brief Holds the globally best known primary fitness of all individuals */
-	boost::tuple<double, double> bestPastPrimaryFitness_;
+	std::tuple<double, double> bestPastPrimaryFitness_;
 	/** @brief The number of stalls of the primary fitness criterion in the entire set of individuals */
-	boost::uint32_t nStalls_;
+	boost::uint32_t nStalls_ = 0;
 	/** @brief Internal representation of the adaption status of this object */
-	boost::logic::tribool dirtyFlag_; // boost::logic::indeterminate refers to "delayed evaluation"
+	boost::logic::tribool dirtyFlag_ = true; // boost::logic::indeterminate refers to "delayed evaluation"
 	/** @brief Indicates whether we are running in maximization or minimization mode */
-	bool maximize_;
+	bool maximize_ = false;
 	/** @brief The iteration of the parent algorithm's optimization cycle */
-	boost::uint32_t assignedIteration_;
+	boost::uint32_t assignedIteration_ = 0;
 	/** @brief Indicates how valid a given solution is */
-	double validityLevel_;
+	double validityLevel_ = 0.;
 	/** @brief Holds the actual personality information */
 	std::shared_ptr<GPersonalityTraits> pt_ptr_;
 
 	/** @brief Specifies what to do when the individual is marked as invalid */
-	evaluationPolicy evalPolicy_;
+	evaluationPolicy evalPolicy_ = Gem::Geneva::USESIMPLEEVALUATION;
 	/** @brief Determines the "steepness" of a sigmoid function used by optimization algorithms */
-	double steepness_;
+	double steepness_ = Gem::Geneva::FITNESSSIGMOIDSTEEPNESS;
 	/** @brief Determines the extreme values of a sigmoid function used by optimization algorithms */
-	double barrier_;
+	double barrier_ = Gem::Geneva::WORSTALLOWEDVALIDFITNESS;
 
 	/** @brief A constraint-check to be applied to one or more components of this individual */
 	std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity>> individualConstraint_;
 
-	std::size_t maxUnsuccessfulAdaptions_; ///< The maximum number of calls to customAdaptions() in a row without actual modifications
-	std::size_t maxRetriesUntilValid_; ///< The maximum number an adaption of an individual should be performed until a valid parameter set was found
-	std::size_t nAdaptions_; ///< Stores the actual number of adaptions after a call to "adapt()"
+	std::size_t maxUnsuccessfulAdaptions_ = Gem::Geneva::DEFMAXUNSUCCESSFULADAPTIONS; ///< The maximum number of calls to customAdaptions() in a row without actual modifications
+	std::size_t maxRetriesUntilValid_ = Gem::Geneva::DEFMAXRETRIESUNTILVALID; ///< The maximum number an adaption of an individual should be performed until a valid parameter set was found
+	std::size_t nAdaptions_ = 0; ///< Stores the actual number of adaptions after a call to "adapt()"
 
 	/** @brief A unique id that is assigned to an evaluation */
-	std::string evaluationID_;
+	std::string evaluationID_ = "empty";
 
 public:
 	/***************************************************************************/

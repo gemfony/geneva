@@ -544,8 +544,8 @@ public:
 	/**
 	 * Allows to retrieve the allowed range for adProb_ variation
 	 */
-	boost::tuple<double,double> getAdProbRange() const {
-		return boost::tuple<double,double>(minAdProb_, maxAdProb_);
+	std::tuple<double,double> getAdProbRange() const {
+		return std::tuple<double,double>(minAdProb_, maxAdProb_);
 	}
 
 	/***************************************************************************/

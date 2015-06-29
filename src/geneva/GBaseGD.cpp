@@ -413,7 +413,7 @@ void GBaseGD::load_(const GObject *cp) {
  *
  * @return The value of the best individual found in this iteration
  */
-boost::tuple<double, double> GBaseGD::cycleLogic() {
+std::tuple<double, double> GBaseGD::cycleLogic() {
 	if (afterFirstIteration()) {
 		// Update the parameters of the parent individuals. This
 		// only makes sense once the individuals have been evaluated
@@ -429,18 +429,18 @@ boost::tuple<double, double> GBaseGD::cycleLogic() {
 	// Perform post-evaluation updates (mostly of individuals)
 	postEvaluationWork();
 
-	boost::tuple<double, double> bestFitness = boost::make_tuple(this->getWorstCase(), this->getWorstCase());
-	boost::tuple<double, double> fitnessCandidate = boost::make_tuple(this->getWorstCase(), this->getWorstCase());
+	std::tuple<double, double> bestFitness = std::make_tuple(this->getWorstCase(), this->getWorstCase());
+	std::tuple<double, double> fitnessCandidate = std::make_tuple(this->getWorstCase(), this->getWorstCase());
 
 	// Retrieve information about the best fitness found and disallow re-evaluation
 	GBaseGD::iterator it;
 	for (it = this->begin(); it != this->begin() + this->getNStartingPoints(); ++it) {
-		boost::get<G_RAW_FITNESS>(fitnessCandidate) = (*it)->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
-		boost::get<G_TRANSFORMED_FITNESS>(fitnessCandidate) = (*it)->fitness(0, PREVENTREEVALUATION,
+		std::get<G_RAW_FITNESS>(fitnessCandidate) = (*it)->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
+		std::get<G_TRANSFORMED_FITNESS>(fitnessCandidate) = (*it)->fitness(0, PREVENTREEVALUATION,
 																									USETRANSFORMEDFITNESS);
 
-		if (this->isBetter(boost::get<G_TRANSFORMED_FITNESS>(fitnessCandidate),
-								 boost::get<G_TRANSFORMED_FITNESS>(bestFitness))) {
+		if (this->isBetter(std::get<G_TRANSFORMED_FITNESS>(fitnessCandidate),
+								 std::get<G_TRANSFORMED_FITNESS>(bestFitness))) {
 			bestFitness = fitnessCandidate;
 		}
 	}
@@ -771,7 +771,7 @@ void GBaseGD::saveCheckpoint() const {
 		getCheckpointDirectory() +
 		(this->halted() ? "final" : boost::lexical_cast<std::string>(getIteration())) +
 		"_" +
-		boost::lexical_cast<std::string>(boost::get<G_TRANSFORMED_FITNESS>(getBestKnownPrimaryFitness())) +
+		boost::lexical_cast<std::string>(std::get<G_TRANSFORMED_FITNESS>(getBestKnownPrimaryFitness())) +
 		"_" +
 		getCheckpointBaseName();
 
@@ -1011,8 +1011,8 @@ void GBaseGD::GGDOptimizationMonitor::setDims(const boost::uint32_t &xDim, const
  *
  * @return The dimensions of the canvas as a tuple
  */
-boost::tuple<boost::uint32_t, boost::uint32_t> GBaseGD::GGDOptimizationMonitor::getDims() const {
-	return boost::tuple<boost::uint32_t, boost::uint32_t>(xDim_, yDim_);
+std::tuple<boost::uint32_t, boost::uint32_t> GBaseGD::GGDOptimizationMonitor::getDims() const {
+	return std::tuple<boost::uint32_t, boost::uint32_t>(xDim_, yDim_);
 }
 
 /******************************************************************************/
@@ -1069,7 +1069,7 @@ void GBaseGD::GGDOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<G
 	// Perform the conversion to the target algorithm
 	GBaseGD *const gd = static_cast<GBaseGD *const>(goa);
 
-	fitnessGraph_->add(boost::tuple<double, double>(gd->getIteration(), boost::get<G_TRANSFORMED_FITNESS>(
+	fitnessGraph_->add(std::tuple<double, double>(gd->getIteration(), std::get<G_TRANSFORMED_FITNESS>(
 		gd->getBestKnownPrimaryFitness())));
 }
 

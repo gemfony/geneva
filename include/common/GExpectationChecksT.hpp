@@ -45,6 +45,7 @@
 #include <cmath>
 #include <typeinfo>
 #include <type_traits>
+#include <tuple>
 
 // Boost headers go here
 #include <boost/cast.hpp>
@@ -53,9 +54,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/mpl/has_xxx.hpp>
 #include <boost/noncopyable.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <boost/tuple/tuple_comparison.hpp>
-#include <boost/tuple/tuple_io.hpp>
 #include <boost/optional.hpp>
 #include <boost/typeof/typeof.hpp>
 
@@ -127,7 +125,7 @@ private:
 	GToken() = delete;
 
 	/** @brief Counts all tests vs. tests that have met the expectation */
-	boost::tuple<std::size_t, std::size_t> testCounter_;
+	std::tuple<std::size_t, std::size_t> testCounter_;
 	/** @brief Error messages obtained from failed checks */
 	std::vector<std::string> errorMessages_;
 

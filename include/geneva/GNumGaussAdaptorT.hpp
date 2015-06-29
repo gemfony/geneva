@@ -36,10 +36,9 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <tuple>
 
 // Boost headers go here
-#include <boost/tuple/tuple.hpp>
-#include <boost/tuple/tuple_io.hpp>
 
 #ifndef GNUMGAUSSADAPTORT_HPP_
 #define GNUMGAUSSADAPTORT_HPP_
@@ -390,12 +389,12 @@ public:
 	/***************************************************************************/
 	/**
 	 * Retrieves the allowed value range for sigma. You can retrieve the values
-	 * like this: boost::get<0>(getSigmaRange()) , boost::get<1>(getSigmaRange()) .
+	 * like this: std::get<0>(getSigmaRange()) , std::get<1>(getSigmaRange()) .
 	 *
 	 * @return The allowed value range for sigma
 	 */
-	boost::tuple<fp_type,fp_type> getSigmaRange() const  {
-		return boost::make_tuple<fp_type, fp_type>(minSigma_, maxSigma_);
+	std::tuple<fp_type,fp_type> getSigmaRange() const  {
+		return std::make_tuple(minSigma_, maxSigma_);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -472,7 +471,7 @@ public:
 	 */
 	virtual std::string printDiagnostics() const override {
 		std::ostringstream diag;
-		boost::tuple<fp_type,fp_type> sigmaRange = getSigmaRange();
+		std::tuple<fp_type,fp_type> sigmaRange = getSigmaRange();
 
 		diag
 		<< "Diagnostic message by GNumAdaptorT<num_type,fp_type>" << std::endl
@@ -480,7 +479,7 @@ public:
 		<< "and typeid(fp_type).name() = " << typeid(fp_type).name() << " :" << std::endl
 		<< "getSigma() = " << getSigma() << std::endl
 		<< "getResetSigma() = " << getResetSigma() << std::endl
-		<< "getSigmaRange() = " << boost::get<0>(sigmaRange) << " --> " << boost::get<1>(sigmaRange) << std::endl
+		<< "getSigmaRange() = " << std::get<0>(sigmaRange) << " --> " << std::get<1>(sigmaRange) << std::endl
 		<< "getSigmaAdaptionRate() = " << getSigmaAdaptionRate() << std::endl;
 
 		return diag.str();
@@ -676,23 +675,23 @@ public:
 				}
 
 				BOOST_CHECK_NO_THROW(p_test->setSigmaRange(dlower, dupper));
-				typename boost::tuple<fp_type, fp_type> range;
+				typename std::tuple<fp_type, fp_type> range;
 				BOOST_CHECK_NO_THROW(range = p_test->getSigmaRange());
 
 				using namespace boost;
 
 				if(dlower == 0.) { // Account for the fact that a lower boundary of 0. will be silently changed
 					BOOST_CHECK_MESSAGE(
-					      boost::get<0>(range) == boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)
-					      , boost::get<0>(range) << " / " << boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)
+					      std::get<0>(range) == boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)
+					      , std::get<0>(range) << " / " << boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)
                );
 					BOOST_CHECK_MESSAGE(
-					      boost::get<1>(range) == boost::numeric_cast<fp_type>(1.)
-					      , boost::get<1>(range) << " / " << boost::numeric_cast<fp_type>(1.)
+					      std::get<1>(range) == boost::numeric_cast<fp_type>(1.)
+					      , std::get<1>(range) << " / " << boost::numeric_cast<fp_type>(1.)
                );
 				}
 				else {
-					BOOST_CHECK(boost::get<0>(range) == dlower);
+					BOOST_CHECK(std::get<0>(range) == dlower);
 				}
 			}
 
@@ -742,10 +741,10 @@ public:
 			BOOST_CHECK_NO_THROW(p_test->setAll(fp_type(0.5), fp_type(0.8), fp_type(0.), fp_type(1.)));
 			BOOST_CHECK(p_test->getSigma() == fp_type(0.5));
 			BOOST_CHECK(p_test->getSigmaAdaptionRate() == fp_type(0.8));
-			boost::tuple<fp_type, fp_type> range;
+			std::tuple<fp_type, fp_type> range;
 			BOOST_CHECK_NO_THROW(range = p_test->getSigmaRange());
-			BOOST_CHECK(boost::get<0>(range) == fp_type(DEFAULTMINSIGMA));
-			BOOST_CHECK(boost::get<1>(range) == fp_type(1.));
+			BOOST_CHECK(std::get<0>(range) == fp_type(DEFAULTMINSIGMA));
+			BOOST_CHECK(std::get<1>(range) == fp_type(1.));
 		}
 
 		//------------------------------------------------------------------------------

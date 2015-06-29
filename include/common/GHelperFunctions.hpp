@@ -44,6 +44,7 @@
 #include <cmath>
 #include <fstream>
 #include <typeinfo>
+#include <tuple>
 
 // Boost headers go here
 #include <boost/algorithm/string.hpp>
@@ -51,11 +52,11 @@
 #include <boost/cstdint.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
-#include <boost/tuple/tuple.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/fusion/include/tuple.hpp>
 #include <boost/fusion/include/boost_tuple.hpp>
+#include <boost/fusion/adapted/std_tuple.hpp> // Compare http://stackoverflow.com/questions/18158376/getting-boostspiritqi-to-use-stl-containers
 
 #ifndef GHELPERFUNCTIONS_HPP_
 #define GHELPERFUNCTIONS_HPP_
@@ -108,7 +109,7 @@ std::vector<double> stringToDoubleVec(const std::string &);
 /******************************************************************************/
 /** @brief Splits a string into a vector of unsigned int-tuples, if possible */
 G_API_COMMON
-std::vector<boost::tuple<unsigned int, unsigned int>> stringToUIntTupleVec(const std::string &);
+std::vector<std::tuple<unsigned int, unsigned int>> stringToUIntTupleVec(const std::string &);
 
 /******************************************************************************/
 

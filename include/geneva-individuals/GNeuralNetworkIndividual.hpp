@@ -277,9 +277,9 @@ public:
 	/** @brief Allows to check whether an initialization range has been set */
 	G_API_INDIVIDUALS bool initRangeSet() const;
 	/** @brief Allows to set the initialization range */
-	G_API_INDIVIDUALS void setInitRange(const std::vector<boost::tuple<double, double>> &initRange);
+	G_API_INDIVIDUALS void setInitRange(const std::vector<std::tuple<double, double>> &initRange);
 	/** @brief Allows to retrieve the initialization range */
-	G_API_INDIVIDUALS std::vector<boost::tuple<double, double>> getInitRange() const;
+	G_API_INDIVIDUALS std::vector<std::tuple<double, double>> getInitRange() const;
 
 	/** @brief Allows to retrieve a string that describes the network geometry */
 	G_API_INDIVIDUALS std::string getNetworkGeometryString() const;
@@ -304,7 +304,7 @@ private:
 	std::shared_ptr <trainingSet> *data_;
 
 	/** @brief Holds the initialization range in each direction */
-	std::vector<boost::tuple<double, double>> initRange_;
+	std::vector<std::tuple<double, double>> initRange_;
 
 	/** @brief Locks access to the clone function */
 	mutable boost::mutex m_; ///< Lock get/set operations
@@ -524,9 +524,9 @@ public:
 		}
 
 		// Make the initialization range known to nD_
-		std::vector<boost::tuple<double, double>> initRange;
-		initRange.push_back(boost::tuple<double, double>(-edgelength, edgelength)); // x
-		initRange.push_back(boost::tuple<double, double>(-edgelength, edgelength)); // y
+		std::vector<std::tuple<double, double>> initRange;
+		initRange.push_back(std::tuple<double, double>(-edgelength, edgelength)); // x
+		initRange.push_back(std::tuple<double, double>(-edgelength, edgelength)); // y
 		nD->setInitRange(initRange);
 
 		return nD;
@@ -617,9 +617,9 @@ public:
 					tS->Input[1] = local_radius * cos(phi); // y
 
 					// Make the initialization range known to nD_ . We only do this for 2D-data
-					std::vector<boost::tuple<double, double>> initRange;
-					initRange.push_back(boost::tuple<double, double>(-local_radius, local_radius)); // x
-					initRange.push_back(boost::tuple<double, double>(-local_radius, local_radius)); // y
+					std::vector<std::tuple<double, double>> initRange;
+					initRange.push_back(std::tuple<double, double>(-local_radius, local_radius)); // x
+					initRange.push_back(std::tuple<double, double>(-local_radius, local_radius)); // y
 					nD->setInitRange(initRange);
 				}
 					break;
@@ -774,9 +774,9 @@ public:
 		}
 
 		// Make the initialization range known to nD_
-		std::vector<boost::tuple<double, double>> initRange;
-		initRange.push_back(boost::tuple<double, double>(0, 1)); // x
-		initRange.push_back(boost::tuple<double, double>(0, 1)); // y
+		std::vector<std::tuple<double, double>> initRange;
+		initRange.push_back(std::tuple<double, double>(0, 1)); // x
+		initRange.push_back(std::tuple<double, double>(0, 1)); // y
 		nD->setInitRange(initRange);
 
 		return nD;
@@ -864,9 +864,9 @@ public:
 		}
 
 		// Make the initialization range known to nD_
-		std::vector<boost::tuple<double, double>> initRange;
-		initRange.push_back(boost::tuple<double, double>(-6, 6)); // x
-		initRange.push_back(boost::tuple<double, double>(-6, 6)); // y
+		std::vector<std::tuple<double, double>> initRange;
+		initRange.push_back(std::tuple<double, double>(-6, 6)); // x
+		initRange.push_back(std::tuple<double, double>(-6, 6)); // y
 		nD->setInitRange(initRange);
 
 		return nD;

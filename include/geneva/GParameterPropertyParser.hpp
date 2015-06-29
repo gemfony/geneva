@@ -39,9 +39,9 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <tuple>
 
 // Boost headers go here
-#include <boost/tuple/tuple.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/qi_lit.hpp>
 #include <boost/fusion/include/tuple.hpp>
@@ -71,7 +71,7 @@ namespace Geneva {
 
 /******************************************************************************/
 /** @brief Storage of variable-related properties */
-typedef boost::tuple<std::size_t, std::string, std::size_t> NAMEANDIDTYPE;
+typedef std::tuple<std::size_t, std::string, std::size_t> NAMEANDIDTYPE;
 
 /******************************************************************************/
 /**
@@ -290,24 +290,24 @@ struct G_API_GENEVA simpleScanSpec {
  */
 template <typename par_type>
 std::ostream& operator<<(std::ostream& o, const parPropSpec<par_type>& s) {
-	if(0 == boost::get<0>(s.var)) {
+	if(0 == std::get<0>(s.var)) {
 		o
-		<< "index       = " << boost::get<2>(s.var) << std::endl;
-	} else if(1 == boost::get<0>(s.var)){
+		<< "index       = " << std::get<2>(s.var) << std::endl;
+	} else if(1 == std::get<0>(s.var)){
 		o
-		<< "Address     = " << boost::get<1>(s.var) << "[" << boost::get<2>(s.var) << "]" << std::endl;
-	} else if (2 == boost::get<0>(s.var)){
+		<< "Address     = " << std::get<1>(s.var) << "[" << std::get<2>(s.var) << "]" << std::endl;
+	} else if (2 == std::get<0>(s.var)){
 		o
-		<< "Name        = " << boost::get<1>(s.var) << std::endl;
+		<< "Name        = " << std::get<1>(s.var) << std::endl;
 	} else {
 		glogger
 		<< "In std::ostream& operator<<(std::ostream& o, const parPropSpec<par_type>& s): Error!" << std::endl
-		<< "Got invalid mode " << boost::get<0>(s.var) << std::endl
+		<< "Got invalid mode " << std::get<0>(s.var) << std::endl
 		<< GEXCEPTION;
 	}
 
 	o
-	<< "mode          = " << boost::get<0>(s.var) << std::endl
+	<< "mode          = " << std::get<0>(s.var) << std::endl
 	<< "lowerBoundary = " << s.lowerBoundary << std::endl
 	<< "upperBoundary = " << s.upperBoundary << std::endl
 	<< "nSteps        = " << s.nSteps << std::endl;
@@ -415,11 +415,11 @@ public:
 	 * supported types instead.
 	 */
 	template <typename par_type>
-	boost::tuple<
+	std::tuple<
 		typename std::vector<parPropSpec<par_type>>::const_iterator
 		, typename std::vector<parPropSpec<par_type>>::const_iterator
 	> getIterators() const {
-		boost::tuple<
+		std::tuple<
 			typename std::vector<parPropSpec<par_type>>::const_iterator
 			, typename std::vector<parPropSpec<par_type>>::const_iterator
 		> result;
@@ -439,7 +439,7 @@ private:
 	GParameterPropertyParser() = delete;
 
 	boost::spirit::qi::rule<std::string::const_iterator, std::string(), boost::spirit::ascii::space_type> varSpec;
-	boost::spirit::qi::rule<std::string::const_iterator, boost::tuple<char, std::string>(), boost::spirit::ascii::space_type> varString;
+	boost::spirit::qi::rule<std::string::const_iterator, std::tuple<char, std::string>(), boost::spirit::ascii::space_type> varString;
 
 	boost::spirit::qi::rule<std::string::const_iterator, std::string(), boost::spirit::ascii::space_type> identifier;
 	boost::spirit::qi::rule<std::string::const_iterator, NAMEANDIDTYPE(), boost::spirit::ascii::space_type> varReference;
@@ -475,7 +475,7 @@ private:
  * This is the overload for double parameters.
  */
 template <>
-inline boost::tuple<std::vector<parPropSpec<double>>::const_iterator, std::vector<parPropSpec<double>>::const_iterator>
+inline std::tuple<std::vector<parPropSpec<double>>::const_iterator, std::vector<parPropSpec<double>>::const_iterator>
 GParameterPropertyParser::getIterators<double>() const {
 	// Make sure parsing has happened.
 	if(!parsed_) {
@@ -489,7 +489,7 @@ GParameterPropertyParser::getIterators<double>() const {
 	std::vector<parPropSpec<double>>::const_iterator runner_it = dSpecVec.begin();
 	std::vector<parPropSpec<double>>::const_iterator end_it    = dSpecVec.end();
 
-	return boost::tuple<std::vector<parPropSpec<double>>::const_iterator, std::vector<parPropSpec<double>>::const_iterator>(runner_it, end_it);
+	return std::tuple<std::vector<parPropSpec<double>>::const_iterator, std::vector<parPropSpec<double>>::const_iterator>(runner_it, end_it);
 }
 
 /******************************************************************************/
@@ -507,7 +507,7 @@ GParameterPropertyParser::getIterators<double>() const {
  * This is the overload for float parameters.
  */
 template <>
-inline boost::tuple<std::vector<parPropSpec<float>>::const_iterator, std::vector<parPropSpec<float>>::const_iterator>
+inline std::tuple<std::vector<parPropSpec<float>>::const_iterator, std::vector<parPropSpec<float>>::const_iterator>
 GParameterPropertyParser::getIterators<float>() const {
 	// Make sure parsing has happened.
 	if(!parsed_) {
@@ -521,7 +521,7 @@ GParameterPropertyParser::getIterators<float>() const {
 	std::vector<parPropSpec<float>>::const_iterator runner_it = fSpecVec.begin();
 	std::vector<parPropSpec<float>>::const_iterator end_it    = fSpecVec.end();
 
-	return boost::tuple<std::vector<parPropSpec<float>>::const_iterator, std::vector<parPropSpec<float>>::const_iterator>(runner_it, end_it);
+	return std::tuple<std::vector<parPropSpec<float>>::const_iterator, std::vector<parPropSpec<float>>::const_iterator>(runner_it, end_it);
 }
 
 /******************************************************************************/
@@ -539,7 +539,7 @@ GParameterPropertyParser::getIterators<float>() const {
  * This is the overload for boost::int32_t parameters.
  */
 template <>
-inline boost::tuple<std::vector<parPropSpec<boost::int32_t>>::const_iterator, std::vector<parPropSpec<boost::int32_t>>::const_iterator>
+inline std::tuple<std::vector<parPropSpec<boost::int32_t>>::const_iterator, std::vector<parPropSpec<boost::int32_t>>::const_iterator>
 GParameterPropertyParser::getIterators<boost::int32_t>() const {
 	// Make sure parsing has happened.
 	if(!parsed_) {
@@ -552,7 +552,7 @@ GParameterPropertyParser::getIterators<boost::int32_t>() const {
 	std::vector<parPropSpec<boost::int32_t>>::const_iterator runner_it = iSpecVec.begin();
 	std::vector<parPropSpec<boost::int32_t>>::const_iterator end_it    = iSpecVec.end();
 
-	return boost::tuple<std::vector<parPropSpec<boost::int32_t>>::const_iterator, std::vector<parPropSpec<boost::int32_t>>::const_iterator>(runner_it, end_it);
+	return std::tuple<std::vector<parPropSpec<boost::int32_t>>::const_iterator, std::vector<parPropSpec<boost::int32_t>>::const_iterator>(runner_it, end_it);
 }
 
 /******************************************************************************/
@@ -570,7 +570,7 @@ GParameterPropertyParser::getIterators<boost::int32_t>() const {
  * This is the overload for bool parameters.
  */
 template <>
-inline boost::tuple<std::vector<parPropSpec<bool>>::const_iterator, std::vector<parPropSpec<bool>>::const_iterator>
+inline std::tuple<std::vector<parPropSpec<bool>>::const_iterator, std::vector<parPropSpec<bool>>::const_iterator>
 GParameterPropertyParser::getIterators<bool>() const {
 	// Make sure parsing has happened.
 	if(!parsed_) {
@@ -583,7 +583,7 @@ GParameterPropertyParser::getIterators<bool>() const {
 	std::vector<parPropSpec<bool>>::const_iterator runner_it = bSpecVec.begin();
 	std::vector<parPropSpec<bool>>::const_iterator end_it    = bSpecVec.end();
 
-	return boost::tuple<std::vector<parPropSpec<bool>>::const_iterator, std::vector<parPropSpec<bool>>::const_iterator>(runner_it, end_it);
+	return std::tuple<std::vector<parPropSpec<bool>>::const_iterator, std::vector<parPropSpec<bool>>::const_iterator>(runner_it, end_it);
 }
 
 /******************************************************************************/

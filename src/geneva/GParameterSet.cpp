@@ -158,7 +158,7 @@ std::string GParameterSet::name() const {
  * Retrieves a parameter of a given type at the specified position
  */
 boost::any GParameterSet::getVarVal(
-	const std::string &descr, const boost::tuple<std::size_t, std::string, std::size_t> &target
+	const std::string &descr, const std::tuple<std::size_t, std::string, std::size_t> &target
 ) {
 	boost::any result;
 

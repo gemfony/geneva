@@ -36,9 +36,9 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <tuple>
 
 // Boost headers go here
-#include <boost/tuple/tuple.hpp>
 
 #ifndef GPARAMETERSETPARCHILD_HPP_
 #define GPARAMETERSETPARCHILD_HPP_

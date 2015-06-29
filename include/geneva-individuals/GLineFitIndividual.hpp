@@ -43,9 +43,9 @@
 #include <vector>
 #include <list>
 #include <algorithm> // for std::sort
+#include <tuple>
 
 // Boost header files go here
-#include <boost/tuple/tuple.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/cast.hpp>
@@ -94,7 +94,7 @@ class GLineFitIndividual
 
 public:
 	/** @brief The default constructor */
-	G_API_INDIVIDUALS GLineFitIndividual(const std::vector<boost::tuple<double, double>> &);
+	G_API_INDIVIDUALS GLineFitIndividual(const std::vector<std::tuple<double, double>> &);
 	/** @brief The copy constructor */
 	G_API_INDIVIDUALS GLineFitIndividual(const GLineFitIndividual &);
 
@@ -117,7 +117,7 @@ public:
 	) const final;
 
 	/** @brief Retrieves the tuple (a,b) of the line represented by this object */
-	G_API_INDIVIDUALS boost::tuple<double, double> getLine() const;
+	G_API_INDIVIDUALS std::tuple<double, double> getLine() const;
 
 protected:
 	/** @brief Loads the data of another GLineFitIndividual */
@@ -133,7 +133,7 @@ private:
 	/** @brief The default constructor -- private, as it is only needed for (de-)serialization purposes */
 	G_API_INDIVIDUALS GLineFitIndividual();
 
-	std::vector<boost::tuple<double, double>> dataPoints_; ///< Holds the data points used for the fit procedure
+	std::vector<std::tuple<double, double>> dataPoints_; ///< Holds the data points used for the fit procedure
 
 public:
 	/** @brief Applies modifications to this object. */
@@ -157,7 +157,7 @@ class GLineFitIndividualFactory
 public:
 	/** @brief The standard constructor */
 	G_API_INDIVIDUALS GLineFitIndividualFactory(
-		const std::vector<boost::tuple<double, double>> &, const std::string &
+		const std::vector<std::tuple<double, double>> &, const std::string &
 	);
 
 	/** @brief The destructor */
@@ -178,7 +178,7 @@ private:
 	/** @brief The default constructor. Intentionally private and undefined */
 	GLineFitIndividualFactory() = delete;
 
-	std::vector<boost::tuple<double, double>> dataPoints_; ///< Holds data points for the fit
+	std::vector<std::tuple<double, double>> dataPoints_; ///< Holds data points for the fit
 };
 
 /******************************************************************************/

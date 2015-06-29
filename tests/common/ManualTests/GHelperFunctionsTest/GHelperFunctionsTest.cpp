@@ -60,10 +60,10 @@ int main(int argc, char** argv) {
 
 	{ // Test of tuple parsing
 		std::string in_tuple  = "(1,2), (3,4 ) , (3    ,  5)";
-		std::vector<boost::tuple<unsigned int, unsigned int>> result_tuple;
+		std::vector<std::tuple<unsigned int, unsigned int>> result_tuple;
 		result_tuple = stringToUIntTupleVec(in_tuple);
 
-		std::vector<boost::tuple<unsigned int, unsigned int>>::iterator it;
+		std::vector<std::tuple<unsigned int, unsigned int>>::iterator it;
 		for(it=result_tuple.begin(); it!=result_tuple.end(); ++it) {
 			std::cout << *it << " ";
 		}

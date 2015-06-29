@@ -53,7 +53,7 @@ std::ostream &operator<<(std::ostream &os, const parSet &pS) {
 		os << "# Boolean data" << std::endl;
 		std::vector<singleBPar>::const_iterator cit;
 		for (cit = pS.bParVec.begin(); cit != pS.bParVec.end(); ++cit) {
-			os << (boost::get<1>(*cit) ? "true" : "false") << ":" << boost::get<0>(*cit);
+			os << (std::get<1>(*cit) ? "true" : "false") << ":" << std::get<0>(*cit);
 			if (cit + 1 != pS.bParVec.end()) {
 				os << ", ";
 			}
@@ -66,7 +66,7 @@ std::ostream &operator<<(std::ostream &os, const parSet &pS) {
 		os << "# boost::int32_t data" << std::endl;
 		std::vector<singleInt32Par>::const_iterator cit;
 		for (cit = pS.iParVec.begin(); cit != pS.iParVec.end(); ++cit) {
-			os << boost::get<1>(*cit) << ":" << boost::get<0>(*cit);
+			os << std::get<1>(*cit) << ":" << std::get<0>(*cit);
 			if (cit + 1 != pS.iParVec.end()) {
 				os << ", ";
 			}
@@ -79,7 +79,7 @@ std::ostream &operator<<(std::ostream &os, const parSet &pS) {
 		os << "# float data" << std::endl;
 		std::vector<singleFPar>::const_iterator cit;
 		for (cit = pS.fParVec.begin(); cit != pS.fParVec.end(); ++cit) {
-			os << boost::get<1>(*cit) << ":" << boost::get<0>(*cit);
+			os << std::get<1>(*cit) << ":" << std::get<0>(*cit);
 			if (cit + 1 != pS.fParVec.end()) {
 				os << ", ";
 			}
@@ -92,7 +92,7 @@ std::ostream &operator<<(std::ostream &os, const parSet &pS) {
 		os << "# double data" << std::endl;
 		std::vector<singleDPar>::const_iterator cit;
 		for (cit = pS.dParVec.begin(); cit != pS.dParVec.end(); ++cit) {
-			os << boost::get<1>(*cit) << ":" << boost::get<0>(*cit);
+			os << std::get<1>(*cit) << ":" << std::get<0>(*cit);
 			if (cit + 1 != pS.dParVec.end()) {
 				os << ", ";
 			}
@@ -354,8 +354,8 @@ void GBasePS::load_(const GObject *cp) {
  *
  * @return The value of the best individual found
  */
-boost::tuple<double, double> GBasePS::cycleLogic() {
-	boost::tuple<double, double> bestFitness = boost::make_tuple(this->getWorstCase(), this->getWorstCase());
+std::tuple<double, double> GBasePS::cycleLogic() {
+	std::tuple<double, double> bestFitness = std::make_tuple(this->getWorstCase(), this->getWorstCase());
 
 	// Apply all necessary modifications to individuals
 	if (0 == simpleScanItems_) { // We have been asked to deal with specific parameters
@@ -374,7 +374,7 @@ boost::tuple<double, double> GBasePS::cycleLogic() {
 
 	// Retrieve information about the best fitness found and disallow re-evaluation
 	GBasePS::iterator it;
-	boost::tuple<double, double> newEval = boost::make_tuple(0., 0.);
+	std::tuple<double, double> newEval = std::make_tuple(0., 0.);
 	for (it = this->begin(); it != this->end(); ++it) {
 #ifdef DEBUG
       if(!(*it)->isClean()) {
@@ -386,7 +386,7 @@ boost::tuple<double, double> GBasePS::cycleLogic() {
 #endif
 
 		newEval = (*it)->getFitnessTuple();
-		if (this->isBetter(boost::get<G_TRANSFORMED_FITNESS>(newEval), boost::get<G_TRANSFORMED_FITNESS>(bestFitness))) {
+		if (this->isBetter(std::get<G_TRANSFORMED_FITNESS>(newEval), std::get<G_TRANSFORMED_FITNESS>(bestFitness))) {
 			bestFitness = newEval;
 		}
 	}
@@ -642,18 +642,18 @@ std::shared_ptr <parSet> GBasePS::getParameterSet(std::size_t &mode) {
 		NAMEANDIDTYPE var = (*b_it)->getVarAddress();
 
 		if (modeSet) {
-			if (boost::get<0>(var) != mode) {
+			if (std::get<0>(var) != mode) {
 				glogger
 				<< "In GBasePS::getParameterSet(): Error!" << std::endl
-				<< "Expected mode " << mode << " but got " << boost::get<0>(var) << std::endl
+				<< "Expected mode " << mode << " but got " << std::get<0>(var) << std::endl
 				<< GEXCEPTION;
 			}
 		} else {
-			mode = boost::get<0>(var);
+			mode = std::get<0>(var);
 			modeSet = true;
 		}
 
-		singleBPar item((*b_it)->getCurrentItem(), boost::get<0>(var), boost::get<1>(var), boost::get<2>(var));
+		singleBPar item((*b_it)->getCurrentItem(), std::get<0>(var), std::get<1>(var), std::get<2>(var));
 		(result->bParVec).push_back(item);
 	}
 	// 2) For boost::int32_t objects
@@ -662,18 +662,18 @@ std::shared_ptr <parSet> GBasePS::getParameterSet(std::size_t &mode) {
 		NAMEANDIDTYPE var = (*i_it)->getVarAddress();
 
 		if (modeSet) {
-			if (boost::get<0>(var) != mode) {
+			if (std::get<0>(var) != mode) {
 				glogger
 				<< "In GBasePS::getParameterSet(): Error!" << std::endl
-				<< "Expected mode " << mode << " but got " << boost::get<0>(var) << std::endl
+				<< "Expected mode " << mode << " but got " << std::get<0>(var) << std::endl
 				<< GEXCEPTION;
 			}
 		} else {
-			mode = boost::get<0>(var);
+			mode = std::get<0>(var);
 			modeSet = true;
 		}
 
-		singleInt32Par item((*i_it)->getCurrentItem(), boost::get<0>(var), boost::get<1>(var), boost::get<2>(var));
+		singleInt32Par item((*i_it)->getCurrentItem(), std::get<0>(var), std::get<1>(var), std::get<2>(var));
 		(result->iParVec).push_back(item);
 	}
 	// 3) For float objects
@@ -682,18 +682,18 @@ std::shared_ptr <parSet> GBasePS::getParameterSet(std::size_t &mode) {
 		NAMEANDIDTYPE var = (*f_it)->getVarAddress();
 
 		if (modeSet) {
-			if (boost::get<0>(var) != mode) {
+			if (std::get<0>(var) != mode) {
 				glogger
 				<< "In GBasePS::getParameterSet(): Error!" << std::endl
-				<< "Expected mode " << mode << " but got " << boost::get<0>(var) << std::endl
+				<< "Expected mode " << mode << " but got " << std::get<0>(var) << std::endl
 				<< GEXCEPTION;
 			}
 		} else {
-			mode = boost::get<0>(var);
+			mode = std::get<0>(var);
 			modeSet = true;
 		}
 
-		singleFPar item((*f_it)->getCurrentItem(), boost::get<0>(var), boost::get<1>(var), boost::get<2>(var));
+		singleFPar item((*f_it)->getCurrentItem(), std::get<0>(var), std::get<1>(var), std::get<2>(var));
 		(result->fParVec).push_back(item);
 	}
 	// 4) For double objects
@@ -702,18 +702,18 @@ std::shared_ptr <parSet> GBasePS::getParameterSet(std::size_t &mode) {
 		NAMEANDIDTYPE var = (*d_it)->getVarAddress();
 
 		if (modeSet) {
-			if (boost::get<0>(var) != mode) {
+			if (std::get<0>(var) != mode) {
 				glogger
 				<< "In GBasePS::getParameterSet(): Error!" << std::endl
-				<< "Expected mode " << mode << " but got " << boost::get<0>(var) << std::endl
+				<< "Expected mode " << mode << " but got " << std::get<0>(var) << std::endl
 				<< GEXCEPTION;
 			}
 		} else {
-			mode = boost::get<0>(var);
+			mode = std::get<0>(var);
 			modeSet = true;
 		}
 
-		singleDPar item((*d_it)->getCurrentItem(), boost::get<0>(var), boost::get<1>(var), boost::get<2>(var));
+		singleDPar item((*d_it)->getCurrentItem(), std::get<0>(var), std::get<1>(var), std::get<2>(var));
 		(result->dParVec).push_back(item);
 	}
 
@@ -863,45 +863,45 @@ void GBasePS::setParameterSpecs(std::string parStr) {
 	simpleScanItems_ = ppp.getNSimpleScanItems();
 	if (0 == simpleScanItems_) { // Only act if no "simple scan" was requested
 		// Retrieve double parameters
-		boost::tuple<
+		std::tuple<
 			std::vector<parPropSpec<double>>::const_iterator, std::vector<parPropSpec<double>>::const_iterator
 		> t_d = ppp.getIterators<double>();
 
-		std::vector<parPropSpec<double>>::const_iterator d_cit = boost::get<0>(t_d);
-		std::vector<parPropSpec<double>>::const_iterator d_end = boost::get<1>(t_d);
+		std::vector<parPropSpec<double>>::const_iterator d_cit = std::get<0>(t_d);
+		std::vector<parPropSpec<double>>::const_iterator d_end = std::get<1>(t_d);
 		for (; d_cit != d_end; ++d_cit) { // Note: d_cit is already set to the begin of the double parameter arrays
 			dVec_.push_back(std::shared_ptr<dScanPar>(new dScanPar(*d_cit, scanRandomly_)));
 		}
 
 		// Retrieve float parameters
-		boost::tuple<
+		std::tuple<
 			std::vector<parPropSpec<float>>::const_iterator, std::vector<parPropSpec<float>>::const_iterator
 		> t_f = ppp.getIterators<float>();
 
-		std::vector<parPropSpec<float>>::const_iterator f_cit = boost::get<0>(t_f);
-		std::vector<parPropSpec<float>>::const_iterator f_end = boost::get<1>(t_f);
+		std::vector<parPropSpec<float>>::const_iterator f_cit = std::get<0>(t_f);
+		std::vector<parPropSpec<float>>::const_iterator f_end = std::get<1>(t_f);
 		for (; f_cit != f_end; ++f_cit) { // Note: f_cit is already set to the begin of the double parameter arrays
 			fVec_.push_back(std::shared_ptr<fScanPar>(new fScanPar(*f_cit, scanRandomly_)));
 		}
 
 		// Retrieve integer parameters
-		boost::tuple<
+		std::tuple<
 			std::vector<parPropSpec<boost::int32_t>>::const_iterator, std::vector<parPropSpec<boost::int32_t>>::const_iterator
 		> t_i = ppp.getIterators<boost::int32_t>();
 
-		std::vector<parPropSpec<boost::int32_t>>::const_iterator i_cit = boost::get<0>(t_i);
-		std::vector<parPropSpec<boost::int32_t>>::const_iterator i_end = boost::get<1>(t_i);
+		std::vector<parPropSpec<boost::int32_t>>::const_iterator i_cit = std::get<0>(t_i);
+		std::vector<parPropSpec<boost::int32_t>>::const_iterator i_end = std::get<1>(t_i);
 		for (; i_cit != i_end; ++i_cit) { // Note: i_cit is already set to the begin of the double parameter arrays
 			int32Vec_.push_back(std::shared_ptr<int32ScanPar>(new int32ScanPar(*i_cit, scanRandomly_)));
 		}
 
 		// Retrieve boolean parameters
-		boost::tuple<
+		std::tuple<
 			std::vector<parPropSpec<bool>>::const_iterator, std::vector<parPropSpec<bool>>::const_iterator
 		> t_b = ppp.getIterators<bool>();
 
-		std::vector<parPropSpec<bool>>::const_iterator b_cit = boost::get<0>(t_b);
-		std::vector<parPropSpec<bool>>::const_iterator b_end = boost::get<1>(t_b);
+		std::vector<parPropSpec<bool>>::const_iterator b_cit = std::get<0>(t_b);
+		std::vector<parPropSpec<bool>>::const_iterator b_end = std::get<1>(t_b);
 		for (; b_cit != b_end; ++b_cit) { // Note: b_cit is already set to the begin of the double parameter arrays
 			bVec_.push_back(std::shared_ptr<bScanPar>(new bScanPar(*b_cit, scanRandomly_)));
 		}

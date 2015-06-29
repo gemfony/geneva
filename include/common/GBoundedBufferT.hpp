@@ -85,6 +85,7 @@
 #include <list>
 #include <algorithm>
 #include <stdexcept>
+#include <tuple>
 
 // Boost headers go here
 
@@ -96,7 +97,6 @@
 #include <boost/utility.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/date_time.hpp>
-#include <boost/tuple/tuple.hpp>
 
 #ifndef GBOUNDEDBUFFERT_HPP_
 #define GBOUNDEDBUFFERT_HPP_
@@ -238,7 +238,7 @@ public:
 		// Update the puts_ vector
 		long currentTime = boost::numeric_cast<long>((boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds());
 		puts_.push_back(currentTime);
-		entries_.push_back(boost::make_tuple<long, std::size_t>(currentTime, container_.size()));
+		entries_.push_back(std::make_tuple(currentTime, container_.size()));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 		not_empty_.notify_one();
@@ -264,7 +264,7 @@ public:
 		// Update the puts_ vector
 		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
 		puts_.push_back(currentTime);
-		entries_.push_back(boost::make_tuple<long, std::size_t>(currentTime, container_.size()));
+		entries_.push_back(std::make_tuple(currentTime, container_.size()));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 		not_empty_.notify_one();
@@ -291,7 +291,7 @@ public:
 		// Update the puts_ vector
 		long currentTime = boost::numeric_cast<long>((boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds());
 		puts_.push_back(currentTime);
-		entries_.push_back(boost::make_tuple<long, std::size_t>(currentTime, container_.size()));
+		entries_.push_back(std::make_tuple(currentTime, container_.size()));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 		not_empty_.notify_one();
@@ -325,7 +325,7 @@ public:
 		// Update the gets_ vector
 		long currentTime = boost::numeric_cast<long>((boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds());
 		gets_.push_back(currentTime);
-		entries_.push_back(boost::make_tuple<long, std::size_t>(currentTime, container_.size()));
+		entries_.push_back(std::make_tuple(currentTime, container_.size()));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 		not_full_.notify_one();
@@ -361,7 +361,7 @@ public:
 		// Update the gets_ vector
 		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
 		gets_.push_back(currentTime);
-		entries_.push_back(boost::make_tuple<long, std::size_t>(currentTime, container_.size()));
+		entries_.push_back(std::make_tuple(currentTime, container_.size()));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 		not_full_.notify_one();
@@ -399,7 +399,7 @@ public:
 		// Update the gets_ vector
 		long currentTime = boost::numeric_cast<long>((boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds());
 		gets_.push_back(currentTime);
-		entries_.push_back(boost::make_tuple<long, std::size_t>(currentTime, container_.size()));
+		entries_.push_back(std::make_tuple(currentTime, container_.size()));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 		not_full_.notify_one();
@@ -603,7 +603,7 @@ private:
 
 	boost::posix_time::ptime startTime_; ///< Holds information about the construction time of this object
 	boost::posix_time::ptime endTime_; ///< Holds information about the destruction time of this object
-	std::vector<boost::tuple<long, std::size_t>> entries_;
+	std::vector<std::tuple<long, std::size_t>> entries_;
 
 	std::vector<long> gets_, puts_; ///< Holds information about submission- and retrieval-times
 

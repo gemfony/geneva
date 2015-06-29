@@ -682,8 +682,8 @@ void GExternalEvaluatorIndividualFactory::setAdaptAdProb(double adaptAdProb) {
 /**
  * Allows to retrieve the allowed range for adProb_ variation
  */
-boost::tuple<double, double> GExternalEvaluatorIndividualFactory::getAdProbRange() const {
-	return boost::tuple<double, double>(minAdProb_.value(), maxAdProb_.value());
+std::tuple<double, double> GExternalEvaluatorIndividualFactory::getAdProbRange() const {
+	return std::tuple<double, double>(minAdProb_.value(), maxAdProb_.value());
 }
 
 /******************************************************************************/
@@ -803,17 +803,17 @@ void GExternalEvaluatorIndividualFactory::setMinDelta(double minDelta) {
 /**
  * Allows to retrieve the allowed value range of delta
  */
-boost::tuple<double, double> GExternalEvaluatorIndividualFactory::getDeltaRange() const {
-	return boost::tuple<double, double>(minDelta_, maxDelta_);
+std::tuple<double, double> GExternalEvaluatorIndividualFactory::getDeltaRange() const {
+	return std::tuple<double, double>(minDelta_, maxDelta_);
 }
 
 /******************************************************************************/
 /**
  * Allows to set the allowed value range of delta
  */
-void GExternalEvaluatorIndividualFactory::setDeltaRange(boost::tuple<double, double> range) {
-	double min = boost::get<0>(range);
-	double max = boost::get<1>(range);
+void GExternalEvaluatorIndividualFactory::setDeltaRange(std::tuple<double, double> range) {
+	double min = std::get<0>(range);
+	double max = std::get<1>(range);
 
 	if (min < 0) {
 		glogger
@@ -853,17 +853,17 @@ void GExternalEvaluatorIndividualFactory::setMinSigma1(double minSigma1) {
 /**
  * Allows to retrieve the allowed value range of sigma1_
  */
-boost::tuple<double, double> GExternalEvaluatorIndividualFactory::getSigma1Range() const {
-	return boost::tuple<double, double>(minSigma1_, maxSigma1_);
+std::tuple<double, double> GExternalEvaluatorIndividualFactory::getSigma1Range() const {
+	return std::tuple<double, double>(minSigma1_, maxSigma1_);
 }
 
 /******************************************************************************/
 /**
  * Allows to set the allowed value range of sigma1_
  */
-void GExternalEvaluatorIndividualFactory::setSigma1Range(boost::tuple<double, double> range) {
-	double min = boost::get<0>(range);
-	double max = boost::get<1>(range);
+void GExternalEvaluatorIndividualFactory::setSigma1Range(std::tuple<double, double> range) {
+	double min = std::get<0>(range);
+	double max = std::get<1>(range);
 
 	if (min < 0) {
 		glogger
@@ -903,17 +903,17 @@ void GExternalEvaluatorIndividualFactory::setMinSigma2(double minSigma2) {
 /**
  * Allows to retrieve the allowed value range of sigma2_
  */
-boost::tuple<double, double> GExternalEvaluatorIndividualFactory::getSigma2Range() const {
-	return boost::tuple<double, double>(minSigma2_, maxSigma2_);
+std::tuple<double, double> GExternalEvaluatorIndividualFactory::getSigma2Range() const {
+	return std::tuple<double, double>(minSigma2_, maxSigma2_);
 }
 
 /******************************************************************************/
 /**
  * Allows to set the allowed value range of sigma2_
  */
-void GExternalEvaluatorIndividualFactory::setSigma2Range(boost::tuple<double, double> range) {
-	double min = boost::get<0>(range);
-	double max = boost::get<1>(range);
+void GExternalEvaluatorIndividualFactory::setSigma2Range(std::tuple<double, double> range) {
+	double min = std::get<0>(range);
+	double max = std::get<1>(range);
 
 	if (min < 0) {
 		glogger

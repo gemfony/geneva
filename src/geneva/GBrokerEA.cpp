@@ -247,11 +247,11 @@ bool GBrokerEA::usesBroker() const {
  * Adapt all children in parallel. Evaluation is done in a seperate function (runFitnessCalculation).
  */
 void GBrokerEA::adaptChildren() {
-	boost::tuple<std::size_t, std::size_t> range = getAdaptionRange();
+	std::tuple<std::size_t, std::size_t> range = getAdaptionRange();
 	std::vector<std::shared_ptr < GParameterSet>> ::iterator
 	it;
 
-	for (it = data.begin() + boost::get<0>(range); it != data.begin() + boost::get<1>(range); ++it) {
+	for (it = data.begin() + std::get<0>(range); it != data.begin() + std::get<1>(range); ++it) {
 		tp_ptr_->async_schedule([it]() { (*it)->adapt(); });
 	}
 
@@ -268,7 +268,7 @@ void GBrokerEA::runFitnessCalculation() {
 	// Start by marking the work to be done in the individuals.
 	// "range" will hold the start- and end-points of the range
 	// to be worked on
-	boost::tuple<std::size_t, std::size_t> range = getEvaluationRange();
+	std::tuple<std::size_t, std::size_t> range = getEvaluationRange();
 
 
 #ifdef DEBUG
@@ -279,7 +279,7 @@ void GBrokerEA::runFitnessCalculation() {
       if(!this->at(i)->isDirty()) {
          glogger
          << "In GBrokerEA::runFitnessCalculation(): Error!" << std::endl
-         << "Tried to evaluate children in range " << boost::get<0>(range) << " - " << boost::get<1>(range) << std::endl
+         << "Tried to evaluate children in range " << std::get<0>(range) << " - " << std::get<1>(range) << std::endl
          << "but found \"clean\" individual in position " << i << std::endl
          << GEXCEPTION;
       }
