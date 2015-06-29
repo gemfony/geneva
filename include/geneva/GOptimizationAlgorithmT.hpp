@@ -1305,6 +1305,38 @@ protected:
 
 	/***************************************************************************/
 	/**
+	 * Retrieves the best individual found in the iteration (which is the best individual
+	 * in the priority queue).
+	 */
+	virtual std::shared_ptr<GParameterSet> customGetBestIterationIndividual() override {
+#ifdef DEBUG
+		std::shared_ptr<GParameterSet> p = bestIterationIndividuals_.best();
+		if(p) return p;
+		else {
+			glogger
+			<< "In GOptimizationAlgorithmT<T>::customGetBestIterationIndividual(): Error!" << std::endl
+			<< "Best individual seems to be empty" << std::endl
+			<< GEXCEPTION;
+
+			// Make the compiler happy
+			return std::shared_ptr<GParameterSet>();
+		}
+#else
+		return bestIterationIndividuals_.best();
+#endif
+	}
+
+	/***************************************************************************/
+	/**
+	 * Retrieves a list of the best individuals found in the iteration (equal to the content of
+	 * the priority queue)
+	 */
+	virtual std::vector<std::shared_ptr<GParameterSet>> customGetBestIterationIndividuals() override {
+		return bestIterationIndividuals_.toVector();
+	}
+
+	/***************************************************************************/
+	/**
 	 * Allows to set the personality type of the individuals
 	 */
 	virtual void setIndividualPersonalities() {

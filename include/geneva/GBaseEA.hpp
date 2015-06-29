@@ -125,6 +125,8 @@ public:
 
 	/** @brief Adds the individuals of this iteration to a priority queue */
 	virtual G_API_GENEVA void updateGlobalBestsPQ(GParameterSetFixedSizePriorityQueue&) override;
+	/** @brief Adds an iteration's individuals to a priority queue (which will be cleared) */
+	virtual G_API_GENEVA void updateIterationBestsPQ(GParameterSetFixedSizePriorityQueue&) override;
 
 	/** @brief Returns the name of this optimization algorithm */
 	virtual G_API_GENEVA std::string getAlgorithmName() const override;

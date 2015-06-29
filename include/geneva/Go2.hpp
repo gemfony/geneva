@@ -286,6 +286,10 @@ protected:
 	virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestIndividual() override;
 	/** @brief Retrieves a list of the best individuals found */
 	virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestIndividuals() override;
+	/** @brief Retrieves the best individual found */
+	virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestIterationIndividual() override;
+	/** @brief Retrieves a list of the best individuals found */
+	virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestIterationIndividuals() override;
 
 	/** @brief Satisfies a requirement of GOptimizableI */
 	virtual G_API_GENEVA void runFitnessCalculation() override;

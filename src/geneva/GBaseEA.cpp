@@ -493,6 +493,59 @@ void GBaseEA::updateGlobalBestsPQ(
 
 /******************************************************************************/
 /**
+ * Adds the individuals of this iteration to a priority queue. The
+ * queue will be sorted by the first evaluation criterion of the individuals
+ * and will be cleared prior to adding the new individuals. This results in
+ * the best individuals of the current iteration.
+ */
+void GBaseEA::updateIterationBestsPQ(
+	GParameterSetFixedSizePriorityQueue& bestIndividuals
+) {
+	const bool CLONE = true;
+	const bool REPLACE = true;
+
+#ifdef DEBUG
+	if(this->empty()) {
+		glogger
+		<< "GBaseEA::updateIterationBestsPQ() :" << std::endl
+		<< "Tried to retrieve the best individuals even though the population is empty." << std::endl
+		<< GEXCEPTION;
+	}
+#endif /* DEBUG */
+
+	switch (smode_) {
+		//----------------------------------------------------------------------------
+		case MUPLUSNU_SINGLEEVAL:
+		case MUNU1PRETAIN_SINGLEEVAL:
+		case MUCOMMANU_SINGLEEVAL: {
+			GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::updateIterationBestsPQ(bestIndividuals);
+		} break;
+
+			//----------------------------------------------------------------------------
+		case MUPLUSNU_PARETO:
+		case MUCOMMANU_PARETO: {
+			// Retrieve all individuals on the pareto front
+			std::vector<std::shared_ptr < Gem::Geneva::GParameterSet>> paretoInds;
+			this->extractCurrentParetoIndividuals(paretoInds);
+
+			// We simply add all parent individuals to the queue. As we only want
+			// the individuals on the current pareto front, we replace all members
+			// of the current priority queue
+			bestIndividuals.add(paretoInds, CLONE, REPLACE);
+		} break;
+
+			//----------------------------------------------------------------------------
+		default: {
+			glogger
+			<< "In GBaseEA::updateGlobalBestsPQ(): Error" << std::endl
+			<< "Incorrect sorting scheme requested: " << smode_ << std::endl
+			<< GEXCEPTION;
+		} break;
+	}
+}
+
+/******************************************************************************/
+/**
  * Retrieves the evaluation range in a given iteration and sorting scheme. Depending on the
  * iteration and sorting scheme, the start point will be different. The end-point is not meant
  * to be inclusive.

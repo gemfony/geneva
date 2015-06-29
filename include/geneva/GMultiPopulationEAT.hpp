@@ -311,9 +311,6 @@ public:
 	void updateGlobalBestsPQ(
 		GParameterSetFixedSizePriorityQueue& bestIndividuals
 	) override {
-		const bool CLONE = true;
-		const bool DONOTREPLACE = false;
-
 #ifdef DEBUG
       if(this->empty()) {
          glogger
@@ -321,10 +318,33 @@ public:
          << "Tried to retrieve the best individuals even though the population is empty." << std::endl
          << GEXCEPTION;
       }
-   #endif /* DEBUG */
+#endif /* DEBUG */
 
 		// We simply add the individuals of our first member to the queue
 		this->at(0)->updateGlobalBestsPQ(bestIndividuals);
+	}
+
+	/***************************************************************************/
+	/**
+	 * Adds the individuals of the best population of this iteration to a priority
+	 * queue. The queue will be sorted by the first evaluation criterion of the individuals
+	 * and will be cleared prior to adding the new individuals. This results in
+	 * the best individuals of the current iteration.
+	 */
+	void updateIterationBestsPQ(
+		GParameterSetFixedSizePriorityQueue& bestIndividuals
+	) override {
+#ifdef DEBUG
+      if(this->empty()) {
+         glogger
+         << "In GBaseParChildT<GParameterSet>::updateIterationBestsPQ() :" << std::endl
+         << "Tried to retrieve the best individuals even though the population is empty." << std::endl
+         << GEXCEPTION;
+      }
+#endif /* DEBUG */
+
+		// We simply add the individuals of our first member to the queue
+		this->at(0)->updateIterationBestsPQ(bestIndividuals);
 	}
 
 	/***************************************************************************/

@@ -128,9 +128,9 @@ protected:
 	virtual G_API_GENEVA Gem::Common::GFixedSizePriorityQueueT<GParameterSet> *clone_() const override;
 
 	/** @brief Evaluates a single work item, so that it can be sorted */
-	virtual G_API_GENEVA double evaluation(const std::shared_ptr<GParameterSet>&) const;
+	virtual G_API_GENEVA double evaluation(const std::shared_ptr<GParameterSet>&) const override;
 	/** @brief Returns a unique id for a work item */
-	virtual G_API_GENEVA std::string id(const std::shared_ptr<GParameterSet>&) const;
+	virtual G_API_GENEVA std::string id(const std::shared_ptr<GParameterSet>&) const override;
 };
 
 /******************************************************************************/

@@ -860,9 +860,7 @@ std::shared_ptr <Gem::Geneva::GParameterSet> Go2::customGetBestIndividual() {
  *
  * @return The best individual found
  */
-std::vector<std::shared_ptr < Gem::Geneva::GParameterSet>>
-
-Go2::customGetBestIndividuals() {
+std::vector<std::shared_ptr < Gem::Geneva::GParameterSet>> Go2::customGetBestIndividuals() {
 	Go2::iterator it;
 
 	// Do some error checking
@@ -890,6 +888,40 @@ Go2::customGetBestIndividuals() {
 	}
 
 	return bestIndividuals;
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the best individual found. This function returns a base pointer.
+ * Conversion is done through a function stored in GOptimizableI.
+ *
+ * @return The best individual found
+ */
+std::shared_ptr <Gem::Geneva::GParameterSet> Go2::customGetBestIterationIndividual() {
+	glogger
+	<< "In Go2::customGetBestIterationIndividual(): Error!" << std::endl
+	<< "This function should not be called" << std::endl
+	<< GEXCEPTION;
+
+	// Make the compiler happy
+	return std::shared_ptr <Gem::Geneva::GParameterSet>();
+}
+
+/******************************************************************************/
+/**
+ * Retrieves a list of the best individuals found. This function returns  base pointers.
+ * Conversion is done through a function stored in GOptimizableI.
+ *
+ * @return The best individual found
+ */
+std::vector<std::shared_ptr < Gem::Geneva::GParameterSet>> Go2::customGetBestIterationIndividuals() {
+	glogger
+	<< "In Go2::customGetBestIterationIndividuals(): Error!" << std::endl
+	<< "This function should not be called" << std::endl
+	<< GEXCEPTION;
+
+	// Make the compiler happy
+	return std::vector<std::shared_ptr < Gem::Geneva::GParameterSet>>();
 }
 
 /******************************************************************************/

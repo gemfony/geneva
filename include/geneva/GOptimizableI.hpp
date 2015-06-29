@@ -114,7 +114,7 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Retrieves the best individual and converts it to a given target type. Note that
+	 * Retrieves the best individual found so far and converts it to a given target type. Note that
 	 * this function will not allow you to modify the best individual itself as it will
 	 * return a copy to you.
 	 *
@@ -129,7 +129,7 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Retrieves a list of the best individuals and converts them to a given target type.
+	 * Retrieves a list of the best individuals found so far and converts them to a given target type.
 	 * Note that this function will not allow you to modify the best individuals themselves
 	 * as it will return copies to you.
 	 *
@@ -159,6 +159,52 @@ public:
 	}
 
 	/***************************************************************************/
+	/**
+	 * Retrieves the best individual found in the iteration and converts it to a given target type.
+	 * Note that this function will not allow you to modify the best individual itself as it will
+	 * return a copy to you.
+	 *
+	 * @return A copy of the best individual found in the iteration
+	 */
+	template <typename individual_type>
+	std::shared_ptr<individual_type> getBestIterationIndividual (
+		typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type* dummy = 0
+	) {
+		return customGetBestIterationIndividual()->clone<individual_type>();
+	}
+
+	/***************************************************************************/
+	/**
+	 * Retrieves a list of the best individuals found in the iteration and converts them to a
+	 * given target type. Note that this function will not allow you to modify the best individuals
+	 * themselves as it will return copies to you.
+	 *
+	 * @return A list of copies of the best individuals found in the iteration
+	 */
+	template <typename individual_type>
+	std::vector<std::shared_ptr<individual_type>> getBestIterationIndividuals(
+	typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type* dummy = 0
+	) {
+		std::vector<std::shared_ptr<individual_type>> bestIndividuals;
+
+		std::vector<std::shared_ptr<GParameterSet>> bestBaseIndividuals = this->customGetBestIterationIndividuals();
+
+		// Cross check that we indeed got a valid set of individuals
+		if(bestBaseIndividuals.empty()) {
+			glogger
+			<< "In GOptimizableI::getBestIndividuals(): Error!" << std::endl
+			<< "Received empty collection of best individuals." << std::endl
+			<< GEXCEPTION;
+		}
+
+		for(auto it: bestBaseIndividuals) {
+			bestIndividuals.push_back(it->clone<individual_type>());
+		}
+
+		return bestIndividuals;
+	}
+
+	/***************************************************************************/
 
 	/** @brief Returns information about the type of optimization algorithm. */
 	virtual G_API_GENEVA std::string getOptimizationAlgorithm() const BASE;
@@ -170,10 +216,14 @@ public:
 
 protected:
 	/***************************************************************************/
-	/** @brief Retrieves the best individual found */
+	/** @brief Retrieves the best individual found globally */
 	virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestIndividual() BASE = 0;
-	/** @brief Retrieves a list of the best individuals found */
+	/** @brief Retrieves a list of the best individuals found globally*/
 	virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestIndividuals() BASE = 0;
+	/** @brief Retrieves the best individual found in the current iteration*/
+	virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestIterationIndividual() BASE = 0;
+	/** @brief Retrieves a list of the best individuals found in the current iteration */
+	virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestIterationIndividuals() BASE = 0;
 	/***************************************************************************/
 	/** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
 	virtual G_API_GENEVA void runFitnessCalculation() BASE = 0;

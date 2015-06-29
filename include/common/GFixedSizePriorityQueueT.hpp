@@ -486,7 +486,7 @@ public:
 	/**
 	 * Returns the name of this class
 	 */
-	std::string name() const {
+	virtual std::string name() const override {
 		return std::string("GFixedSizePriorityQueueT<T>");
 	}
 
@@ -499,11 +499,11 @@ public:
 	 * @param e The expected outcome of the comparison
 	 * @param limit The maximum deviation for floating point values (important for similarity checks)
 	 */
-	void compare(
+	virtual void compare(
 		const GFixedSizePriorityQueueT<T> &cp
 		, const Gem::Common::expectation &e
 		, const double &limit
-	) const {
+	) const override {
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GFixedSizePriorityQueueT<T> reference independent of this object and convert the pointer
@@ -600,10 +600,10 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Evaluates a single work item, so that it can be sorted */
-	virtual double evaluation(const std::shared_ptr <T> &) const = 0;
+	virtual double evaluation(const std::shared_ptr <T> &) const BASE = 0;
 
 	/** @brief Returns a unique id for a work item */
-	virtual std::string id(const std::shared_ptr <T> &) const = 0;
+	virtual std::string id(const std::shared_ptr <T> &) const BASE = 0;
 
 	std::deque<std::shared_ptr < T>> data_; ///< Holds the actual data
 
