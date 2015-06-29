@@ -44,11 +44,11 @@
 #include <iostream>
 #include <sstream>
 #include <cassert>
+#include <functional>
 
 // Boost headers go here
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
-#include <boost/function.hpp>
 #include <boost/exception/all.hpp>
 
 
@@ -71,13 +71,13 @@ namespace Common {
  */
 struct GThreadWrapper {
 	/** @brief The standard constructor for this struct */
-	G_API_COMMON GThreadWrapper(boost::function<void()>);
+	G_API_COMMON GThreadWrapper(std::function<void()>);
 	/** @brief This is the main function that will be executed by the thread */
 	G_API_COMMON void operator()();
 
 private:
 	GThreadWrapper(); ///< Intentionally empty and undefined
-	boost::function<void()> f_; ///< Holds the actual worker task
+	std::function<void()> f_; ///< Holds the actual worker task
 };
 
 /******************************************************************************/

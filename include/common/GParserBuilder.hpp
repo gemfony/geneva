@@ -42,6 +42,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <functional>
 
 // Boost headers go here
 #include <boost/algorithm/string.hpp>
@@ -56,7 +57,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/date_time.hpp>
 #include <boost/tokenizer.hpp>
-#include <boost/function.hpp>
 #include <boost/foreach.hpp>
 #include <boost/thread/mutex.hpp>
 
@@ -577,7 +577,7 @@ public:
 	 *
 	 * @param callBack The function to be executed
 	 */
-	void registerCallBackFunction(boost::function<void(parameter_type)> callBack) {
+	void registerCallBackFunction(std::function<void(parameter_type)> callBack) {
 		if (!callBack) {
 			glogger
 			<< "In GSingleParsableParameter::registerCallBackFunction(): Error" << std::endl
@@ -633,7 +633,7 @@ protected:
 private:
 	/***************************************************************************/
 	GFileSingleParsableParameterT() = delete; ///< The default constructor. Intentionally private and undefined
-	boost::function<void(parameter_type)> callBack_; ///< Holds the call-back function
+	std::function<void(parameter_type)> callBack_; ///< Holds the call-back function
 };
 
 /******************************************************************************/
@@ -870,7 +870,7 @@ public:
 	 *
 	 * @param callBack The function to be executed
 	 */
-	void registerCallBackFunction(boost::function<void(par_type0, par_type1)> callBack) {
+	void registerCallBackFunction(std::function<void(par_type0, par_type1)> callBack) {
 		if (!callBack) {
 			glogger
 			<< "In GFileCombinedParsableParameterT::registerCallBackFunction(): Error" << std::endl
@@ -952,7 +952,7 @@ private:
 	/***************************************************************************/
 	GFileCombinedParsableParameterT() = delete; ///< The default constructor. Intentionally private and undefined
 
-	boost::function<void(par_type0, par_type1)> callBack_; ///< Holds the call-back function
+	std::function<void(par_type0, par_type1)> callBack_; ///< Holds the call-back function
 };
 
 /******************************************************************************/
@@ -1073,7 +1073,7 @@ public:
 	 *
 	 * @param callBack The function to be executed
 	 */
-	void registerCallBackFunction(boost::function<void(std::vector<parameter_type>)> callBack) {
+	void registerCallBackFunction(std::function<void(std::vector<parameter_type>)> callBack) {
 		if (!callBack) {
 			glogger
 			<< "In GFileVectorParsableParameterT::registerCallBackFunction(): Error" << std::endl
@@ -1151,7 +1151,7 @@ protected:
 private:
 	/***************************************************************************/
 
-	boost::function<void(std::vector<parameter_type>)> callBack_; ///< Holds the call-back function
+	std::function<void(std::vector<parameter_type>)> callBack_; ///< Holds the call-back function
 };
 
 /******************************************************************************/
@@ -1398,7 +1398,7 @@ public:
 	 *
 	 * @param callBack The function to be executed
 	 */
-	void registerCallBackFunction(boost::function<void(boost::array<parameter_type, N>)> callBack) {
+	void registerCallBackFunction(std::function<void(boost::array<parameter_type, N>)> callBack) {
 		if (!callBack) {
 			glogger
 			<< "In GFileArrayParsableParameterT::registerCallBackFunction(): Error" << std::endl
@@ -1473,7 +1473,7 @@ protected:
 private:
 	/***************************************************************************/
 
-	boost::function<void(boost::array<parameter_type, N>)> callBack_; ///< Holds the call-back function
+	std::function<void(boost::array<parameter_type, N>)> callBack_; ///< Holds the call-back function
 };
 
 /******************************************************************************/
@@ -1761,7 +1761,7 @@ public:
 	 */
 	template<typename parameter_type>
 	GParsableI &registerFileParameter(
-		const std::string &optionName, parameter_type def_val, boost::function<void(parameter_type)> callBack,
+		const std::string &optionName, parameter_type def_val, std::function<void(parameter_type)> callBack,
 		const bool &isEssential = Gem::Common::VAR_IS_ESSENTIAL, const std::string &comment = std::string()
 	) {
 #ifdef DEBUG
@@ -1882,7 +1882,7 @@ public:
 	template<typename par_type1, typename par_type2>
 	GParsableI &registerFileParameter(
 		const std::string &optionName1, const std::string &optionName2, par_type1 def_val1, par_type2 def_val2,
-		boost::function<void(par_type1, par_type2)> callBack, const std::string &combined_label,
+		std::function<void(par_type1, par_type2)> callBack, const std::string &combined_label,
 		bool isEssential = Gem::Common::VAR_IS_ESSENTIAL, const std::string &comment1 = std::string(),
 		const std::string &comment2 = std::string()
 	) {
@@ -1958,7 +1958,7 @@ public:
 	template<typename parameter_type>
 	GParsableI &registerFileParameter(
 		const std::string &optionName, const std::vector<parameter_type> &def_val,
-		boost::function<void(std::vector<parameter_type>)> callBack,
+		std::function<void(std::vector<parameter_type>)> callBack,
 		const bool &isEssential = Gem::Common::VAR_IS_ESSENTIAL, const std::string &comment = std::string()
 	) {
 #ifdef DEBUG
@@ -2076,7 +2076,7 @@ public:
 	template<typename parameter_type, std::size_t N>
 	GParsableI &registerFileParameter(
 		const std::string &optionName, const boost::array<parameter_type, N> &def_val,
-		boost::function<void(boost::array<parameter_type, N>)> callBack,
+		std::function<void(boost::array<parameter_type, N>)> callBack,
 		const bool &isEssential = Gem::Common::VAR_IS_ESSENTIAL, const std::string &comment = std::string()
 	) {
 #ifdef DEBUG

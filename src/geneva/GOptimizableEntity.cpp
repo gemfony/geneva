@@ -610,7 +610,7 @@ void GOptimizableEntity::registerSecondaryResult(
 /**
  * Enforces re-calculation of the fitness values.
  */
-void GOptimizableEntity::enforceFitnessUpdate(boost::function<std::vector<double>()> f) {
+void GOptimizableEntity::enforceFitnessUpdate(std::function<std::vector<double>()> f) {
 	// Assign a new evaluation id
 	evaluationID_ = std::string("eval_") + boost::lexical_cast<std::string>(boost::uuids::random_generator()());
 

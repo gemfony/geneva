@@ -195,7 +195,7 @@ public:
 	G_API_GENEVA double getCachedFitness(const std::size_t& = 0, const bool& = USETRANSFORMEDFITNESS) const;
 
 	/** @brief Enforce fitness (re-)calculation */
-	G_API_GENEVA void enforceFitnessUpdate(boost::function<std::vector<double>()> =  boost::function<std::vector<double>()>());
+	G_API_GENEVA void enforceFitnessUpdate(std::function<std::vector<double>()> =  std::function<std::vector<double>()>());
 
 	/** @brief Registers a new, secondary result value of the custom fitness calculation */
 	G_API_GENEVA void registerSecondaryResult(const std::size_t&, const double&);

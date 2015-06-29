@@ -43,7 +43,7 @@ namespace Common {
  *
  * @param f The function to be executed by the thread
  */
-GThreadWrapper::GThreadWrapper(boost::function<void()> f)
+GThreadWrapper::GThreadWrapper(std::function<void()> f)
 	: f_(f) { /* nothing */   }
 
 /******************************************************************************/
