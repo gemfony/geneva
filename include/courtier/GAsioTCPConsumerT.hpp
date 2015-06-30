@@ -696,11 +696,14 @@ protected:
 			// in its entirety, not in chunks. async_async_handle_read_portid is only called
 			// once the portId has been fully read.
 			boost::asio::async_read(
-				socket_, boost::asio::buffer(commandBuffer_), strand_.wrap(std::bind(
-					&GAsioServerSessionT<processable_type>::async_handle_read_portid,
-					GAsioServerSessionT<processable_type>::shared_from_this(),
-					std::placeholders::_1 // Replaces boost::asio::placeholders::error
-				))
+				socket_, boost::asio::buffer(commandBuffer_)
+				, strand_.wrap(
+					std::bind(
+						&GAsioServerSessionT<processable_type>::async_handle_read_portid
+						, GAsioServerSessionT<processable_type>::shared_from_this()
+						, std::placeholders::_1 // Replaces boost::asio::placeholders::error
+					)
+				)
 			);
 		} catch (const boost::system::system_error &e) {
 			glogger

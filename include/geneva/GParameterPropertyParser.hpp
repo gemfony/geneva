@@ -179,7 +179,7 @@ public:
 	/**
 	 * Emits a name for this class / object
 	 */
-	virtual std::string name() const {
+	virtual std::string name() const override {
 		return std::string("parPropSpec<T>");
 	}
 
