@@ -63,8 +63,8 @@ GBaseSwarm::GBaseSwarm(
 	, const std::size_t &defaultNNeighborhoodMembers
 )
 	: GOptimizationAlgorithmT<GParameterSet>()
-	, nNeighborhoods_(nNeighborhoods ? nNeighborhoods : 1)
-	, defaultNNeighborhoodMembers_((defaultNNeighborhoodMembers <= 1) ? 2 : defaultNNeighborhoodMembers)
+	, nNeighborhoods_((nNeighborhoods>=1) ? nNeighborhoods : 1)
+	, defaultNNeighborhoodMembers_((defaultNNeighborhoodMembers >= 2) ? defaultNNeighborhoodMembers: 2)
 {
 	GOptimizationAlgorithmT<GParameterSet>::setDefaultPopulationSize(nNeighborhoods_ * defaultNNeighborhoodMembers_);
 
@@ -84,8 +84,8 @@ GBaseSwarm::GBaseSwarm(
  */
 GBaseSwarm::GBaseSwarm(const GBaseSwarm &cp)
 	: GOptimizationAlgorithmT<GParameterSet>(cp)
-	, nNeighborhoods_(cp.nNeighborhoods_),
-	  defaultNNeighborhoodMembers_(cp.defaultNNeighborhoodMembers_)
+	, nNeighborhoods_(cp.nNeighborhoods_)
+	, defaultNNeighborhoodMembers_(cp.defaultNNeighborhoodMembers_)
 	, nNeighborhoodMembers_(cp.nNeighborhoodMembers_)
 	, global_best_((cp.afterFirstIteration()) ? (cp.global_best_)->clone<GParameterSet>() : std::shared_ptr<GParameterSet>())
 	, neighborhood_bests_(nNeighborhoods_) // We copy the smart pointers over later
@@ -236,7 +236,7 @@ void GBaseSwarm::load_(const GObject *cp) {
 	else { // We now assume that we can just load neighborhood bests in each position.
 		// Copying only makes sense if the foreign GBaseSwarm object's iteration is larger
 		// than the iteration offset. Note that getIteration() will return the foreign iteration,
-		// has that value has already been copied.
+		// as that value has already been copied.
 		if (afterFirstIteration()) {
 			for (std::size_t i = 0; i < nNeighborhoods_; i++) {
 				// We might be in a situation where the std::shared_ptr which usually
@@ -351,8 +351,8 @@ void GBaseSwarm::setSwarmSizes(std::size_t nNeighborhoods, std::size_t defaultNN
 		<< GWARNING;
 	}
 
-	nNeighborhoods_ = nNeighborhoods ? nNeighborhoods : 1;
-	defaultNNeighborhoodMembers_ = defaultNNeighborhoodMembers > 1 ? defaultNNeighborhoodMembers : 2;
+	nNeighborhoods_ = (nNeighborhoods >= 1) ? nNeighborhoods : 1;
+	defaultNNeighborhoodMembers_ = (defaultNNeighborhoodMembers >= 2) ? defaultNNeighborhoodMembers : 2;
 
 	// Update our parent class'es values
 	GOptimizationAlgorithmT<GParameterSet>::setDefaultPopulationSize(nNeighborhoods_ * defaultNNeighborhoodMembers_);
@@ -571,7 +571,8 @@ void GBaseSwarm::addConfigurationOptions(
 		, "nNeighborhoodMembers" // The name of the second variable
 		, DEFAULTNNEIGHBORHOODS // The default value for the first variable
 		, DEFAULTNNEIGHBORHOODMEMBERS // The default value for the second variable
-		, [this](std::size_t nh, std::size_t nhm) { this->setSwarmSizes(nh, nhm); }, "swarmSize"
+		, [this](std::size_t nh, std::size_t nhm) { this->setSwarmSizes(nh, nhm); }
+		, "swarmSize"
 	)
 	<< "The desired number of neighborhoods in the population" << Gem::Common::nextComment()
 	<< "The desired number of members in each neighborhood";
@@ -680,7 +681,17 @@ void GBaseSwarm::init() {
 	velocities_.clear();
 
 	// Create copies of our individuals in the velocities_ vector.
+	std::size_t pos = 0;
 	for (GBaseSwarm::iterator it = this->begin(); it != this->end(); ++it) {
+#ifdef DEBUG
+		if(!(*it)) {
+			glogger
+			<< "In GBaseSwarm::init(): Error!" << std::endl
+			<< "Found empty std::shared_ptr in position " << pos << std::endl
+			<< GEXCEPTION;
+		}
+#endif /* DEBUG */
+
 		// Create a copy of the current individual. Note that, if you happen
 		// to have assigned anything else than a GParameterSet derivative to
 		// the swarm, then the following line will throw in DEBUG mode or return
@@ -715,6 +726,8 @@ void GBaseSwarm::init() {
 
 		// Add the initialized velocity to the array.
 		velocities_.push_back(p);
+
+		pos++;
 	}
 }
 

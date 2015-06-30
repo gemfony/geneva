@@ -699,8 +699,7 @@ void Go2::optimize(const std::uint32_t &offset) {
 	// the algorithms_ vector.
 	if (!cl_algorithms_.empty()) {
 		// Add algorithms that have been specified on the command line
-		std::vector<std::shared_ptr < GOABase>> ::iterator
-		pers_it;
+		std::vector<std::shared_ptr < GOABase>> ::iterator pers_it;
 		for (pers_it = cl_algorithms_.begin(); pers_it != cl_algorithms_.end(); ++pers_it) {
 			this->addAlgorithm(*pers_it);
 		}
@@ -788,10 +787,8 @@ void Go2::optimize(const std::uint32_t &offset) {
 		iterationsConsumed_ = p_base->getIteration();
 
 		// Unload the individuals from the last algorithm and store them again in this object
-		std::vector<std::shared_ptr < GParameterSet>> bestIndividuals =
-			p_base->GOptimizableI::getBestIndividuals < GParameterSet > ();
-		std::vector<std::shared_ptr < GParameterSet>> ::iterator
-		best_it;
+		std::vector<std::shared_ptr < GParameterSet>> bestIndividuals = p_base->GOptimizableI::getBestIndividuals < GParameterSet > ();
+		std::vector<std::shared_ptr < GParameterSet>>::iterator best_it;
 		for (best_it = bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
 			this->push_back(*best_it);
 		}
