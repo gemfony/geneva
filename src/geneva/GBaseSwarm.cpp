@@ -1187,12 +1187,10 @@ void GBaseSwarm::adjustPopulation() {
 		// also take care of the above case, where only one individual
 		// has been added.
 		fillUpNeighborhood1();
-	}
-	else if (currentSize == nNeighborhoods) {
+	} else if (currentSize == nNeighborhoods) {
 		// Fill in remaining items in each neighborhood.
 		fillUpNeighborhood1();
-	}
-	else if (currentSize == defaultPopSize) {
+	} else if (currentSize == defaultPopSize) {
 		// Update the number of individuals in each neighborhood
 		for (std::size_t n = 0; n < nNeighborhoods_; n++) {
 			nNeighborhoodMembers_[n] = defaultNNeighborhoodMembers_;
@@ -1207,15 +1205,13 @@ void GBaseSwarm::adjustPopulation() {
 
 			// Now follow the procedure used for the "nNeighborhoods_" case
 			fillUpNeighborhood1();
-		}
-		else if (currentSize > nNeighborhoods_ && currentSize < defaultPopSize) {
+		} else if (currentSize > nNeighborhoods_ && currentSize < defaultPopSize) {
 			// TODO: For now we simply resize the population to the number of neighborhoods,
 			// then fill up again. This means that we loose some predefined values, which
 			// is ugly and needs to be changed in later versions.
 			this->resize(nNeighborhoods_);
 			fillUpNeighborhood1();
-		}
-		else { // currentSize > defaultPopsize
+		} else { // currentSize > defaultPopsize
 			// Update the number of individuals in each neighborhood
 			for (std::size_t n = 0; n < nNeighborhoods_ - 1; n++) {
 				nNeighborhoodMembers_[n] = defaultNNeighborhoodMembers_;

@@ -446,7 +446,6 @@ public:
 		// in the priority queue. This happens so that best individuals from a
 		// previous "chained" optimization run aren't lost.
 		addCleanStoredBests(bestGlobalIndividuals_);
-		addCleanStoredBests(bestGlobalIndividuals_);
 
 		// Resize the population to the desired size and do some error checks.
 		// This function will also check that individuals have indeed been registered
