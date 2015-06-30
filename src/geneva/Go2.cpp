@@ -761,8 +761,8 @@ void Go2::optimize(const std::uint32_t &offset) {
 		std::shared_ptr <GOABase> p_base = (*alg_it);
 
 		// Add the pluggable optimization monitors to the algorithm
-		for(auto it: pluggable_monitors_) {
-			p_base->getOptimizationMonitor()->registerPluggableOM(it);
+		for(auto pm_ptr: pluggable_monitors_) { // std::shared_ptr may be copied
+			p_base->getOptimizationMonitor()->registerPluggableOM(pm_ptr);
 		}
 
 		// Add the individuals to the algorithm.

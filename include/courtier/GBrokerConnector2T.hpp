@@ -496,10 +496,10 @@ protected:
 	) {
 		// Submit work items
 		POSITIONTYPE pos_cnt = 0;
-		for(auto const &it: workItems) {
+		for(auto w_ptr: workItems) { // std::shared_ptr may be copied
 			if (GBC_UNPROCESSED == workItemPos[pos_cnt]) { // is the item due to be submitted ? We only submit items that are marked as "unprocessed"
 #ifdef DEBUG
-            if(!it) {
+            if(!w_ptr) {
                glogger
                << "In GBaseExecutorT<processable_type>::submitAllWorkItems(): Error" << std::endl
                << "Received empty work item in position "  << pos_cnt << std::endl
@@ -507,8 +507,8 @@ protected:
                << GEXCEPTION;
             }
 #endif
-				it->setCourtierId(std::make_tuple(submission_counter_, pos_cnt));
-				this->submit(it);
+				w_ptr->setCourtierId(std::make_tuple(submission_counter_, pos_cnt));
+				this->submit(w_ptr);
 			}
 			pos_cnt++;
 		}

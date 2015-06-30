@@ -1003,8 +1003,8 @@ protected:
 #ifdef DEBUG
       // Check that we do not accidently trigger value calculation
       std::size_t pos = 0;
-      for(auto const &it: *this) {
-         if(it->isDirty()) {
+      for(auto ind_ptr: *this) { // std::shared_ptr may be copied
+         if(ind_ptr->isDirty()) {
             glogger
             << "In GBaseParChildT<ind_type>::sortMuplusnuMode(): Error!" << std::endl
             << "In iteration " << GOptimizationAlgorithmT<ind_type>::getIteration() << ": Found individual in position " << pos << std::endl

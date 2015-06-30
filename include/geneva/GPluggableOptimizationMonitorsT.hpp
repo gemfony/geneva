@@ -838,8 +838,8 @@ public:
 		const infoMode& im
 		, typename Gem::Geneva::GOptimizationAlgorithmT<ind_type> * const goa
 	) override {
-		for(auto it: pluggable_monitors_) {
-			it->informationFunction(im,goa);
+		for(auto pm_ptr : pluggable_monitors_) { // std::shared_ptr may be copied
+			pm_ptr->informationFunction(im,goa);
 		}
 	}
 

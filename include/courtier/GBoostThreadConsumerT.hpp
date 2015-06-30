@@ -229,8 +229,8 @@ public:
       }
 
 		std::size_t pos = 0;
-		for(auto const &w: workerTemplates) {
-			if(!w) { // Does the template point somewhere ?
+		for(auto w_ptr: workerTemplates) { // std::shared_ptr may be copied
+			if(!w_ptr) { // Does the template point somewhere ?
             glogger
             << "In GBoostThreadConsumerT<processable_type>::registerWorkerTemplates(): Error!" << std::endl
             << "Found empty worker template pointer in position " << pos << std::endl

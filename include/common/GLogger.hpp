@@ -293,7 +293,7 @@ public:
 
 		if (!logVector_.empty()) {
 			// Do the actual logging
-			for(auto &cit: logVector_) {
+			for(auto cit: logVector_) { // std::shared_ptr may be copied
 				cit->log(message);
 			}
 		} else {
@@ -320,7 +320,7 @@ public:
 
 		if (!logVector_.empty()) {
 			// Do the actual logging
-			for(auto &cit: logVector_) {
+			for(auto cit: logVector_) {
 				cit->logWithSource(message, extension);
 			}
 		} else {

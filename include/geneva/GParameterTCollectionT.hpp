@@ -221,8 +221,8 @@ public:
 	virtual std::size_t adaptImpl() override {
 		std::size_t nAdapted = 0;
 
-		for(auto it: *this) {
-			nAdapted += it->adapt();
+		for(auto p_ptr : *this) { // std::shared_ptr may be copied
+			nAdapted += p_ptr->adapt();
 		}
 
 		return nAdapted;
@@ -261,8 +261,8 @@ public:
 	virtual bool updateAdaptorsOnStall(const std::size_t& nStalls) override {
 		bool updatePerformed = false;
 
-		for(auto it: *this) {
-			if(it->updateAdaptorsOnStall(nStalls)) {
+		for(auto p_ptr : *this) { // std::shared_ptr may be copied
+			if(p_ptr->updateAdaptorsOnStall(nStalls)) {
 				updatePerformed = true;
 			}
 		}

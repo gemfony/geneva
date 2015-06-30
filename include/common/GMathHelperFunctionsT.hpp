@@ -516,7 +516,7 @@ void GVecStandardDeviation(
 			if(p.size() != sizeFirst) {
             glogger
             << "In void GVecStandardDeviation(): Error!" << std::endl
-            << "Found parVec component of different size: " << sizeFirst << " / " << " / " << pos << " / " << p.size() << std::endl
+            << "Found parVec component of different size: " << sizeFirst << " / " << pos << " / " << p.size() << std::endl
             << GEXCEPTION;
          }
          pos++;

@@ -139,7 +139,6 @@ public:
 		typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type* dummy = 0
 	) {
 		std::vector<std::shared_ptr<individual_type>> bestIndividuals;
-
 		std::vector<std::shared_ptr<GParameterSet>> bestBaseIndividuals = this->customGetBestIndividuals();
 
 		// Cross check that we indeed got a valid set of individuals
@@ -150,8 +149,8 @@ public:
 			<< GEXCEPTION;
 		}
 
-		for(auto it: bestBaseIndividuals) {
-			bestIndividuals.push_back(it->clone<individual_type>());
+		for(auto ind_ptr: bestBaseIndividuals) { // std::shared_ptr may be copied
+			bestIndividuals.push_back(ind_ptr->clone<individual_type>());
 		}
 
 		return bestIndividuals;
@@ -185,7 +184,6 @@ public:
 	typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type* dummy = 0
 	) {
 		std::vector<std::shared_ptr<individual_type>> bestIndividuals;
-
 		std::vector<std::shared_ptr<GParameterSet>> bestBaseIndividuals = this->customGetBestIterationIndividuals();
 
 		// Cross check that we indeed got a valid set of individuals
@@ -196,8 +194,8 @@ public:
 			<< GEXCEPTION;
 		}
 
-		for(auto it: bestBaseIndividuals) {
-			bestIndividuals.push_back(it->clone<individual_type>());
+		for(auto ind_ptr: bestBaseIndividuals) { // std::shared_ptr may be copied
+			bestIndividuals.push_back(ind_ptr->clone<individual_type>());
 		}
 
 		return bestIndividuals;
