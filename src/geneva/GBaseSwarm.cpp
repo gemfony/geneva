@@ -729,6 +729,11 @@ void GBaseSwarm::init() {
 
 		pos++;
 	}
+
+	// Make sure neighborhood_bests_ has the correct size
+	// It will only hold empty smart pointers. However, new ones
+	// will be assigned in findBests()
+	neighborhood_bests_.resize(nNeighborhoods_);
 }
 
 /******************************************************************************/
@@ -1174,7 +1179,7 @@ void GBaseSwarm::adjustPopulation() {
 		<< "In GBaseSwarm::adjustPopulation() :" << std::endl
 		<< "No individuals found in the population." << std::endl
 		<< "You need to add at least one individual before" << std::endl
-		<< "the call to this function." << std::endl
+		<< "the call to optimize<>()" << std::endl
 		<< GEXCEPTION;
 	} else if (currentSize == 1) {
 		// Fill up with random items to the number of neighborhoods
@@ -1211,6 +1216,10 @@ void GBaseSwarm::adjustPopulation() {
 			// is ugly and needs to be changed in later versions.
 			this->resize(nNeighborhoods_);
 			fillUpNeighborhood1();
+
+			// TODO: This is catastrophic if work items didn't return in GBrokerSwarm,
+			// as it uses adjustPopulation to fix the population.
+			// MUST FIX
 		} else { // currentSize > defaultPopsize
 			// Update the number of individuals in each neighborhood
 			for (std::size_t n = 0; n < nNeighborhoods_ - 1; n++) {

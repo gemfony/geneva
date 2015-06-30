@@ -77,7 +77,7 @@ std::string g_to_string(
 	, tuple_output_seq<p> sq// This will determine the current value of p
 ){
 	std::ostringstream oss;
-	oss << std::get<std::tuple_size<tuple_type>::value-p>(t) << ',';
+	oss << ", " << std::get<std::tuple_size<tuple_type>::value-p>(t);
 	return (g_to_string(t, oss.str(), tuple_output_seq<p-1>()) + s);
 }
 

@@ -311,11 +311,9 @@ void GBrokerSwarm::runFitnessCalculation() {
 
 	// Update the iteration of older individuals (they will keep their old neighborhood id)
 	// and attach them to the data vector
-	std::vector<std::shared_ptr < GParameterSet>> ::iterator
-	old_it;
+	std::vector<std::shared_ptr < GParameterSet>>::iterator old_it;
 	for (old_it = oldWorkItems_.begin(); old_it != oldWorkItems_.end(); ++old_it) {
 		(*old_it)->setAssignedIteration(iteration);
-
 		this->push_back(*old_it);
 	}
 	oldWorkItems_.clear();
