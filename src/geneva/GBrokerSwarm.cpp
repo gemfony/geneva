@@ -374,6 +374,7 @@ void GBrokerSwarm::adjustNeighborhoods() {
 				data.begin() + ((n + 1) * defaultNNeighborhoodMembers_ + nSurplus)
 			);
 		} else { // nNeighborhoodMembers_[n] < defaultNNeighborhoodMembers_
+			// TODO: Deal with cases where no items of a given neighborhood have returned
 			// The number of missing items
 			std::size_t nMissing = defaultNNeighborhoodMembers_ - nNeighborhoodMembers_[n];
 

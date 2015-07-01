@@ -782,7 +782,7 @@ std::tuple<double, double> GBaseSwarm::cycleLogic() {
 	bestIndividualFitness = findBests();
 
 	// The population might be in a bad state. Check and fix.
-	adjustPopulation();
+	adjustNeighborhoods();
 
 	// Return the result to the audience
 	return bestIndividualFitness;
@@ -794,7 +794,8 @@ std::tuple<double, double> GBaseSwarm::cycleLogic() {
  * function was introduced to avoid having to add a separate cycleLogic to
  * GBrokerSwarm.
  */
-void GBaseSwarm::adjustNeighborhoods() { /* nothing */ }
+void GBaseSwarm::adjustNeighborhoods()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -1211,6 +1212,13 @@ void GBaseSwarm::adjustPopulation() {
 			// Now follow the procedure used for the "nNeighborhoods_" case
 			fillUpNeighborhood1();
 		} else if (currentSize > nNeighborhoods_ && currentSize < defaultPopSize) {
+			// New procedure:
+			// - Find out how many individuals exist in each neighborhood (Check: Has the neighborhood-id already been assigned here ?)
+			// - For each neighborhood: add missing items to the end of vector
+			// - Sort the vector according to neighborhoods
+			// - Remove surplus items in each neighborhood
+			// - In DEBUG mode: make sure each neighborhood is at the correct size
+
 			// TODO: For now we simply resize the population to the number of neighborhoods,
 			// then fill up again. This means that we loose some predefined values, which
 			// is ugly and needs to be changed in later versions.
@@ -1229,6 +1237,9 @@ void GBaseSwarm::adjustPopulation() {
 			// Adjust the nNeighborhoodMembers_ array. The surplus items will
 			// be assumed to belong to the last neighborhood, all other neighborhoods
 			// have the default size.
+			// TODO: This is bad, as adjustPopulation is used to adjust sizes also during an optimization run
+			// Must remove worst items for each neighborhood individually. Also: Must make sure that. while some
+			// neighborhoods might have too many, others might have too few entries. MUST FIX.
 			nNeighborhoodMembers_[nNeighborhoods_ - 1] = defaultNNeighborhoodMembers_ + (currentSize - defaultPopSize);
 		}
 	}
@@ -1247,6 +1258,10 @@ void GBaseSwarm::adjustPopulation() {
 
 	// We do not initialize the neighborhood and global bests here, as this requires the value of
 	// all individuals to be calculated.
+
+	// TODO: Split into a fix-population function and a adjustPopulation function
+	// Move adjustPopulation funcionality into the init() function (?)
+	// Make sure neighborhood ids are set for new individuals (both in fixed populations and initially)
 }
 
 /******************************************************************************/
