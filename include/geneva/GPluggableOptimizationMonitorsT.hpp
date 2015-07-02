@@ -334,9 +334,9 @@ public:
 /******************************************************************************/
 /**
  * This class allows to output fitness information for a given optimization run.
- * It takes care of successive runs and marks them in the output. At the user's
- * choice, information may be output for the n best individual(s) found so far or
- * for the n best individual(s) in a given iteration.
+ * It takes care of successive runs and marks them in the output. Information
+ * will be outpur in the same histogram both for the best individual(s) found so far
+ * and for the best individual(s) of each iteration.
  */
 template <typename ind_type>
 class GFitnessMonitorT
@@ -356,7 +356,8 @@ class GFitnessMonitorT
 		& BOOST_SERIALIZATION_NVP(nMonitorInds_)
   		& BOOST_SERIALIZATION_NVP(resultFile_)
 	 	& BOOST_SERIALIZATION_NVP(infoInitRun_)
-		& BOOST_SERIALIZATION_NVP(fitnessGraphVec_);
+		& BOOST_SERIALIZATION_NVP(globalFitnessGraphVec_)
+	   & BOOST_SERIALIZATION_NVP(iterationFitnessGraphVec_);
 	}
 
 	///////////////////////////////////////////////////////////////////////
@@ -381,7 +382,8 @@ public:
 		, resultFile_(cp.resultFile_)
 		, infoInitRun_(cp.infoInitRun_)
 	{
-		Gem::Common::copyCloneableSmartPointerContainer(cp.fitnessGraphVec_, fitnessGraphVec_);
+		Gem::Common::copyCloneableSmartPointerContainer(cp.globalFitnessGraphVec_, globalFitnessGraphVec_);
+		Gem::Common::copyCloneableSmartPointerContainer(cp.iterationFitnessGraphVec_, iterationFitnessGraphVec_);
 	}
 
 	/***************************************************************************/
@@ -548,16 +550,27 @@ public:
 
 					// Set up the plotters
 					for(std::size_t ind = 0; ind<nMonitorInds_; ind++) {
-						std::shared_ptr <Gem::Common::GGraph2D> graph(new Gem::Common::GGraph2D());
-						graph->setXAxisLabel("Iteration");
-						graph->setYAxisLabel("Fitness");
-						graph->setPlotLabel(std::string("Individual ") + boost::lexical_cast<std::string>(ind));
-						graph->setPlotMode(Gem::Common::CURVE);
+						std::shared_ptr <Gem::Common::GGraph2D> global_graph(new Gem::Common::GGraph2D());
+						global_graph->setXAxisLabel("Iteration");
+						global_graph->setYAxisLabel("Best Fitness");
+						global_graph->setPlotLabel(std::string("Individual ") + boost::lexical_cast<std::string>(ind));
+						global_graph->setPlotMode(Gem::Common::CURVE);
 
-						fitnessGraphVec_.push_back(graph);
+						globalFitnessGraphVec_.push_back(global_graph);
+
+						std::shared_ptr <Gem::Common::GGraph2D> iteration_graph(new Gem::Common::GGraph2D());
+						iteration_graph->setXAxisLabel("Iteration");
+						iteration_graph->setYAxisLabel("Best Fitness");
+						iteration_graph->setPlotLabel(std::string("Individual ") + boost::lexical_cast<std::string>(ind));
+						iteration_graph->setPlotMode(Gem::Common::CURVE);
+
+						iterationFitnessGraphVec_.push_back(iteration_graph);
+
+						// Add the iteration graph as secondary plotter
+						graph->registerSecondaryPlotter(iterationFitnessGraphVec_);
 					}
 
-					// Make sure fitnessGraphVec_ is only initialized once
+					// Make sure globalFitnessGraphVec_ is only initialized once
 					infoInitRun_ = true;
 				}
 			} break;
@@ -617,7 +630,8 @@ public:
 		compare_t(IDENTITY(nMonitorInds_, p_load->nMonitorInds_), token);
 		compare_t(IDENTITY(resultFile_, p_load->resultFile_), token);
 		compare_t(IDENTITY(infoInitRun_, p_load->infoInitRun_), token);
-		compare_t(IDENTITY(fitnessGraphVec_, p_load->fitnessGraphVec_), token);
+		compare_t(IDENTITY(globalFitnessGraphVec_, p_load->globalFitnessGraphVec_), token);
+		compare_t(IDENTITY(iterationFitnessGraphVec_, p_load->iterationFitnessGraphVec_), token);
 
 		// React on deviations from the expectation
 		token.evaluate();
@@ -644,7 +658,8 @@ protected:
 		resultFile_ = p_load->resultFile_;
 		infoInitRun_ = p_load->infoInitRun_;
 
-		Gem::Common::copyCloneableSmartPointerContainer(p_load->fitnessGraphVec_, fitnessGraphVec_);
+		Gem::Common::copyCloneableSmartPointerContainer(p_load->globalFitnessGraphVec_, globalFitnessGraphVec_);
+		Gem::Common::copyCloneableSmartPointerContainer(p_load->iterationFitnessGraphVec_, iterationFitnessGraphVec_);
 	}
 
 	/************************************************************************/
@@ -664,7 +679,8 @@ private:
 	std::string resultFile_ = DEFAULTROOTRESULTFILEOM; ///< The name of the file to which data is emitted
 
 	bool infoInitRun_ = false; ///< Allows to check whether the INFOINIT section of informationFunction has already been passed at least once
-	std::vector<std::shared_ptr<Gem::Common::GGraph2D>> fitnessGraphVec_; ///< Will hold progress information
+	std::vector<std::shared_ptr<Gem::Common::GGraph2D>> globalFitnessGraphVec_; ///< Will hold progress information for the globally best individual
+	std::vector<std::shared_ptr<Gem::Common::GGraph2D>> iterationFitnessGraphVec_; ///< Will hold progress information for an iteration best's individual
 
 public:
 	/***************************************************************************/

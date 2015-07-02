@@ -264,6 +264,7 @@ public:
 		cpInterval_ = cpInterval;
 	}
 
+
 	/***************************************************************************/
 	/**
 	 * Allows to retrieve the number of generations after which a checkpoint should be written
