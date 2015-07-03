@@ -1066,7 +1066,7 @@ public:
 		const std::string& descr
 		, const std::tuple<std::size_t, std::string, std::size_t>& target
 	) override {
-		return GOptimizableI::getBestIndividual<GParameterSet>()->getVarVal(descr, target);
+		return GOptimizableI::getBestGlobalIndividual<GParameterSet>()->getVarVal(descr, target);
 	}
 
 	/***************************************************************************/
@@ -1275,13 +1275,13 @@ protected:
 	 * Retrieves the best individual found up to now (which is the best individual
 	 * in the priority queue).
 	 */
-	virtual std::shared_ptr<GParameterSet> customGetBestIndividual() override {
+	virtual std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() override {
 #ifdef DEBUG
 		std::shared_ptr<GParameterSet> p = bestGlobalIndividuals_.best();
 		if(p) return p;
 		else {
 			glogger
-			<< "In GOptimizationAlgorithmT<T>::customGetBestIndividual(): Error!" << std::endl
+			<< "In GOptimizationAlgorithmT<T>::customGetBestGlobalIndividual(): Error!" << std::endl
 			<< "Best individual seems to be empty" << std::endl
 			<< GEXCEPTION;
 
@@ -1298,7 +1298,7 @@ protected:
 	 * Retrieves a list of the best individuals found (equal to the content of
 	 * the priority queue)
 	 */
-	virtual std::vector<std::shared_ptr<GParameterSet>> customGetBestIndividuals() override {
+	virtual std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() override {
 		return bestGlobalIndividuals_.toVector();
 	}
 

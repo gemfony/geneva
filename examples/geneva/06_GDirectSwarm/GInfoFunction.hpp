@@ -454,7 +454,7 @@ protected:
 			}
 
 			// Retrieve the globally best individual for later use
-			std::shared_ptr<GParameterSet> g_best_ptr = swarm->GOptimizableI::getBestIndividual<GParameterSet>();
+			std::shared_ptr<GParameterSet> g_best_ptr = swarm->GOptimizableI::getBestGlobalIndividual<GParameterSet>();
 			// Extract the fitness (Note: this will throw, if the individual is "dirty")
 			double global_best_fitness = g_best_ptr->transformedFitness();
 

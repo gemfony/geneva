@@ -147,7 +147,7 @@ int main(int argc, char **argv){
 	gmp.optimize();
 
 	// Extract the best individual
-	std::shared_ptr<GFunctionIndividual> p = gmp.getBestIndividual<GFunctionIndividual>();
+	std::shared_ptr<GFunctionIndividual> p = gmp.getBestGlobalIndividual<GFunctionIndividual>();
 
 	// Do something with the best result found here
 

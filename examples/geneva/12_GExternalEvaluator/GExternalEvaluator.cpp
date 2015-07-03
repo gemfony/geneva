@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
 	std::shared_ptr<GExternalEvaluatorIndividualFactory>
 		geei_ptr(new GExternalEvaluatorIndividualFactory("./config/GExternalEvaluatorIndividual.json"));
 
-	// Add a content creator so Go2 can generate its own individuals, if necessary
+	// Add a content creator so Go2 can generate its own individuals, if necessary^
 	go.registerContentCreator(geei_ptr);
 
 	// Add a default optimization algorithm to the Go2 object
@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
 
 	// Extract the best individuals found
 	std::vector<std::shared_ptr<GExternalEvaluatorIndividual>> bestInds
-		= go.getBestIndividuals<GExternalEvaluatorIndividual>();
+		= go.getBestGlobalIndividuals<GExternalEvaluatorIndividual>();
 
 	// Note that the "archive" call is specific to the GTaoExternalEvaluatorIndividual
 	geei_ptr->archive(bestInds);

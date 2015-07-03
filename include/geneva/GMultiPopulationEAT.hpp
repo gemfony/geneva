@@ -401,22 +401,22 @@ protected:
 	/**
 	 * Retrieves the  best individual found. Note that this protected function will return the item itself.
 	 * Direct usage of this function should be avoided even by derived classes. We suggest to use the
-	 * function GOptimizableI::getBestIndividual<ind_type>() instead, which internally uses
+	 * function GOptimizableI::getBestGlobalIndividual<ind_type>() instead, which internally uses
 	 * this function and returns copies of the best individual, converted to the desired target type.
 	 *
 	 * @return The best individual found
 	 */
-	virtual std::shared_ptr<GParameterSet> customGetBestIndividual() override {
+	virtual std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() override {
 #ifdef DEBUG
          if(this->empty()) {
             glogger
-            << "In GMultiPopulationEAT<oa_type>::customGetBestIndividual() :" << std::endl
+            << "In GMultiPopulationEAT<oa_type>::customGetBestGlobalIndividual() :" << std::endl
             << "Tried to access item at position 0 even though population is empty." << std::endl
             << GEXCEPTION;
          }
 #endif /* DEBUG */
 
-		return this->at(0)->GOptimizableI::template getBestIndividual<GParameterSet>();
+		return this->at(0)->GOptimizableI::template getBestGlobalIndividual<GParameterSet>();
 	}
 
 	/***************************************************************************/
@@ -425,17 +425,17 @@ protected:
 	 *
 	 * @return A list of the best individuals found
 	 */
-	virtual std::vector<std::shared_ptr<GParameterSet>> customGetBestIndividuals() override {
+	virtual std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() override {
 		// Some error checking
 		if(this->empty()) {
 			glogger
-			<< "In GMultiPopulationEAT<oa_type>::customGetBestIndividuals() :" << std::endl
+			<< "In GMultiPopulationEAT<oa_type>::customGetBestGlobalIndividuals() :" << std::endl
 			<< "Population is empty." << std::endl
 			<< GEXCEPTION;
 		}
 
 
-		return this->at(0)->GOptimizableI::template getBestIndividuals<GParameterSet>();
+		return this->at(0)->GOptimizableI::template getBestGlobalIndividuals<GParameterSet>();
 	}
 
 	/***************************************************************************/

@@ -398,7 +398,7 @@ void Go2::registerDefaultAlgorithm(std::shared_ptr < GOABase > default_algorithm
 boost::any Go2::getVarVal(
 	const std::string &descr, const std::tuple<std::size_t, std::string, std::size_t> &target
 ) {
-	return this->GOptimizableI::getBestIndividual<GParameterSet>()->getVarVal(descr, target);
+	return this->GOptimizableI::getBestGlobalIndividual<GParameterSet>()->getVarVal(descr, target);
 }
 
 /******************************************************************************/
@@ -787,7 +787,7 @@ void Go2::optimize(const std::uint32_t &offset) {
 		iterationsConsumed_ = p_base->getIteration();
 
 		// Unload the individuals from the last algorithm and store them again in this object
-		std::vector<std::shared_ptr < GParameterSet>> bestIndividuals = p_base->GOptimizableI::getBestIndividuals < GParameterSet > ();
+		std::vector<std::shared_ptr < GParameterSet>> bestIndividuals = p_base->GOptimizableI::getBestGlobalIndividuals < GParameterSet > ();
 		std::vector<std::shared_ptr < GParameterSet>>::iterator best_it;
 		for (best_it = bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
 			this->push_back(*best_it);
@@ -795,7 +795,7 @@ void Go2::optimize(const std::uint32_t &offset) {
 
 		bestIndividuals.clear();
 		p_base->clear(); // Get rid of local individuals in the algorithm
-		p_base->getOptimizationMonitor()->resetPluggableOM(); // Get rid of the algorithm's pluggable optimizatiuon monitors
+		p_base->getOptimizationMonitor()->resetPluggableOM(); // Get rid of the algorithm's pluggable optimization monitors
 	}
 
 	// Sort the individuals according to their primary fitness so we have it easier later on
@@ -816,13 +816,13 @@ void Go2::optimize(const std::uint32_t &offset) {
  *
  * @return The best individual found
  */
-std::shared_ptr <Gem::Geneva::GParameterSet> Go2::customGetBestIndividual() {
+std::shared_ptr <Gem::Geneva::GParameterSet> Go2::customGetBestGlobalIndividual() {
 	Go2::iterator it;
 
 	// Do some error checking
 	if (this->empty()) {
 		glogger
-		<< "In Go2::customGetBestIndividual(): Error!" << std::endl
+		<< "In Go2::customGetBestGlobalIndividual(): Error!" << std::endl
 		<< "No individuals found" << std::endl
 		<< GEXCEPTION;
 	}
@@ -830,7 +830,7 @@ std::shared_ptr <Gem::Geneva::GParameterSet> Go2::customGetBestIndividual() {
 	for (it = this->begin(); it != this->end(); ++it) {
 		if ((*it)->isDirty()) {
 			glogger
-			<< "In Go2::customGetBestIndividual(): Error!" << std::endl
+			<< "In Go2::customGetBestGlobalIndividual(): Error!" << std::endl
 			<< "Found individual in position " << std::distance(this->begin(), it) << " whose dirty flag is set" <<
 			std::endl
 			<< GEXCEPTION;
@@ -839,7 +839,7 @@ std::shared_ptr <Gem::Geneva::GParameterSet> Go2::customGetBestIndividual() {
 
 	if (!sorted_) {
 		glogger
-		<< "In Go2::customGetBestIndividual(): Error!" << std::endl
+		<< "In Go2::customGetBestGlobalIndividual(): Error!" << std::endl
 		<< "Tried to retrieve best individual" << std::endl
 		<< "from an unsorted population." << std::endl
 		<< GEXCEPTION;
@@ -856,13 +856,13 @@ std::shared_ptr <Gem::Geneva::GParameterSet> Go2::customGetBestIndividual() {
  *
  * @return The best individual found
  */
-std::vector<std::shared_ptr < Gem::Geneva::GParameterSet>> Go2::customGetBestIndividuals() {
+std::vector<std::shared_ptr < Gem::Geneva::GParameterSet>> Go2::customGetBestGlobalIndividuals() {
 	Go2::iterator it;
 
 	// Do some error checking
 	if (this->empty()) {
 		glogger
-		<< "In Go2::customGetBestIndividuals(): Error!" << std::endl
+		<< "In Go2::customGetBestGlobalIndividuals(): Error!" << std::endl
 		<< "No individuals found" << std::endl
 		<< GEXCEPTION;
 	}
@@ -870,7 +870,7 @@ std::vector<std::shared_ptr < Gem::Geneva::GParameterSet>> Go2::customGetBestInd
 	for (it = this->begin(); it != this->end(); ++it) {
 		if ((*it)->isDirty()) {
 			glogger
-			<< "In Go2::customGetBestIndividuals(): Error!" << std::endl
+			<< "In Go2::customGetBestGlobalIndividuals(): Error!" << std::endl
 			<< "Found individual in position " << std::distance(this->begin(), it) << " whose dirty flag is set" <<
 			std::endl
 			<< GEXCEPTION;

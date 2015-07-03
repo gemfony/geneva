@@ -1020,7 +1020,7 @@ protected:
 			ea_ptr->optimize();
 
 			// Retrieve the best individual
-			std::shared_ptr <GParameterSet> bestIndividual = ea_ptr->getBestIndividual<GParameterSet>();
+			std::shared_ptr <GParameterSet> bestIndividual = ea_ptr->getBestGlobalIndividual<GParameterSet>();
 
 			// Retrieve the number of iterations
 			iterationsConsumed = ea_ptr->getIteration();

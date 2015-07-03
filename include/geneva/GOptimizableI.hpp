@@ -91,7 +91,7 @@ public:
 	template <typename individual_type>
 	std::shared_ptr<individual_type> optimize() {
 		this->optimize(0);
-		return this->getBestIndividual<individual_type>();
+		return this->getBestGlobalIndividual<individual_type>();
 	}
 
 	/***************************************************************************/
@@ -108,7 +108,7 @@ public:
 		const std::uint32_t& offset
 	) {
 		this->optimize(offset);
-		return this->getBestIndividual<individual_type>();
+		return this->getBestGlobalIndividual<individual_type>();
 	}
 
 	/***************************************************************************/
@@ -120,10 +120,10 @@ public:
 	 * @return A copy of the best individual found in the optimization run
 	 */
 	template <typename individual_type>
-	std::shared_ptr<individual_type> getBestIndividual (
-		typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type* dummy = 0
+	std::shared_ptr<individual_type> getBestGlobalIndividual(
+		typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type *dummy = 0
 	) {
-		return customGetBestIndividual()->clone<individual_type>();
+		return customGetBestGlobalIndividual()->clone<individual_type>();
 	}
 
 	/***************************************************************************/
@@ -135,16 +135,16 @@ public:
 	 * @return A list of copies of the best individuals found in the optimization run
 	 */
 	template <typename individual_type>
-	std::vector<std::shared_ptr<individual_type>> getBestIndividuals(
+	std::vector<std::shared_ptr<individual_type>> getBestGlobalIndividuals(
 		typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type* dummy = 0
 	) {
 		std::vector<std::shared_ptr<individual_type>> bestIndividuals;
-		std::vector<std::shared_ptr<GParameterSet>> bestBaseIndividuals = this->customGetBestIndividuals();
+		std::vector<std::shared_ptr<GParameterSet>> bestBaseIndividuals = this->customGetBestGlobalIndividuals();
 
 		// Cross check that we indeed got a valid set of individuals
 		if(bestBaseIndividuals.empty()) {
 			glogger
-			<< "In GOptimizableI::getBestIndividuals(): Error!" << std::endl
+			<< "In GOptimizableI::getBestGlobalIndividuals(): Error!" << std::endl
 			<< "Received empty collection of best individuals." << std::endl
 			<< GEXCEPTION;
 		}
@@ -189,7 +189,7 @@ public:
 		// Cross check that we indeed got a valid set of individuals
 		if(bestBaseIndividuals.empty()) {
 			glogger
-			<< "In GOptimizableI::getBestIndividuals(): Error!" << std::endl
+			<< "In GOptimizableI::getBestIterationIndividuals(): Error!" << std::endl
 			<< "Received empty collection of best individuals." << std::endl
 			<< GEXCEPTION;
 		}
@@ -214,9 +214,9 @@ public:
 protected:
 	/***************************************************************************/
 	/** @brief Retrieves the best individual found globally */
-	virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestIndividual() BASE = 0;
+	virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() BASE = 0;
 	/** @brief Retrieves a list of the best individuals found globally*/
-	virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestIndividuals() BASE = 0;
+	virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() BASE = 0;
 	/** @brief Retrieves the best individual found in the current iteration*/
 	virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestIterationIndividual() BASE = 0;
 	/** @brief Retrieves a list of the best individuals found in the current iteration */

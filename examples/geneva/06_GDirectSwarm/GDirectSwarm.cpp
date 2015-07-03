@@ -282,7 +282,7 @@ int main(int argc, char **argv){
 
 	/****************************************************************************/
 	// Do something with the best individual found
-	std::shared_ptr<GFunctionIndividual> p = pop_ptr->getBestIndividual<GFunctionIndividual>();
+	std::shared_ptr<GFunctionIndividual> p = pop_ptr->getBestGlobalIndividual<GFunctionIndividual>();
 
 	// Here you can do something with the best individual ("p") found.
 	// We simply print its content here, by means of an operator<< implemented
