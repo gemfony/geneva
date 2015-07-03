@@ -542,7 +542,7 @@ public:
 		switch(im) {
 			case Gem::Geneva::INFOINIT: {
 				if(!infoInitRun_) {
-					// Reset the number of monitored individuals to a suitable valie,
+					// Reset the number of monitored individuals to a suitable value,
 					// if necessary.
 					if(nMonitorInds_ > goa->getPopulationSize()) {
 						nMonitorInds_ = goa->getPopulationSize();
@@ -567,7 +567,7 @@ public:
 						iterationFitnessGraphVec_.push_back(iteration_graph);
 
 						// Add the iteration graph as secondary plotter
-						graph->registerSecondaryPlotter(iterationFitnessGraphVec_);
+						global_graph->registerSecondaryPlotter(iteration_graph);
 					}
 
 					// Make sure globalFitnessGraphVec_ is only initialized once
@@ -1189,7 +1189,7 @@ public:
 		> t_d = ppp.getIterators<fp_type>();
 
 		typename std::vector<parPropSpec<fp_type>>::const_iterator fp_cit = std::get<0>(t_d);
-		typename std::vector<parPropSpec<fp_type>>::const_iterator d_end = std::get<1>(t_d);
+		typename std::vector<parPropSpec<fp_type>>::const_iterator d_end  = std::get<1>(t_d);
 		for(; fp_cit!=d_end; ++fp_cit) { // Note: fp_cit is already set to the begin of the double parameter arrays
 			fp_profVarVec_.push_back(*fp_cit);
 		}
