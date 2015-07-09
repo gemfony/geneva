@@ -439,8 +439,11 @@ std::tuple<double, double> GBaseGD::cycleLogic() {
 		std::get<G_TRANSFORMED_FITNESS>(fitnessCandidate) = (*it)->fitness(0, PREVENTREEVALUATION,
 																									USETRANSFORMEDFITNESS);
 
-		if (this->isBetter(std::get<G_TRANSFORMED_FITNESS>(fitnessCandidate),
-								 std::get<G_TRANSFORMED_FITNESS>(bestFitness))) {
+		if (this->isBetter(
+				std::get<G_TRANSFORMED_FITNESS>(fitnessCandidate)
+				, std::get<G_TRANSFORMED_FITNESS>(bestFitness)
+			)
+		) {
 			bestFitness = fitnessCandidate;
 		}
 	}
@@ -484,26 +487,6 @@ void GBaseGD::updateChildParameters() {
 		}
 	}
 }
-
-/*
-// Set the step ratio. We do the calculation in long double precision to preserve accuracy
-stepRatio_ = ((long double)stepSize_)/((long double)finiteStep_);
-
-// Calculate a specific finiteStep_ value for each parameter in long double precision
-try {
-   adjustedFiniteStep_.clear();
-   long double finiteStepRatio = ((long double)finiteStep_)/((long double)1000.);
-   for(std::size_t pos=0; pos<dblLowerParameterBoundaries_.size(); pos++) {
-      long double parameterRange = (long double)dblUpperParameterBoundaries_ - (long double)dblLowerParameterBoundaries_;
-      adjustedFiniteStep_.push_back(boost::numeric_cast<double>(finiteStepRatio*parameterRange));
-   }
-} catch(boost::bad_numeric_cast& e) {
-   glogger
-   << "In GBaseGD::init(): Error!" << std::endl
-   << "Bad conversion with message " << e.what() << std::endl
-   << GEXCEPTION;
-}
-*/
 
 /**********************************************************************************************************/
 /**

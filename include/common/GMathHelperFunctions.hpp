@@ -135,6 +135,8 @@ G_API_COMMON double gmin(const double &, const double &);
 G_API_COMMON float gfloor(const float &);
 /** @brief Calculates the floor value of a double value */
 G_API_COMMON double gfloor(const double &);
+/** @brief Calculates the floor value of a double value */
+G_API_COMMON long double gfloor(const long double &);
 
 /** @brief Calculates the fabs value of a float value */
 G_API_COMMON float gfabs(const float &);

@@ -515,7 +515,7 @@ public:
 		// Determine a suitable number of monitored individuals, if it hasn't already
 		// been set externally.
 		if(nMonitorInds_ == 0) {
-			nMonitorInds_ = std::size_t(3);
+			nMonitorInds_ = std::size_t(DEFNMONITORINDS);
 		}
 
 		nMonitorInds_ = nMonitorInds;
@@ -541,11 +541,38 @@ public:
 	) override {
 		switch(im) {
 			case Gem::Geneva::INFOINIT: {
+				/* nothing */
+			} break;
+
+			case Gem::Geneva::INFOPROCESSING: {
+				// Retrieve the list of globally- and iteration bests individuals
+				std::vector<ind_type> global_bests = goa->GOptimizableI::getBestGlobalIndividuals<ind_type>();
+				std::vector<ind_type> iter_bests   = goa->GOptimizableI::getBestIterationIndividuals<ind_type>();
+
+				// Retrieve the current iteration in the population
+				std::uint32_t iteration = goa->getIteration();
+
+				// We expect both sizes to be identical
+				if(global_bests.size() != iter_bests.size()) {
+					glogger
+					<< "In GFitnessMonitorT<>::informationFunction(): Error!" << std::endl
+					<< "global_bests.size() = " << global_bests.size() << " != iter_bests.size() = " << iter_bests.size() << std::endl
+					<< GEXCEPTION;
+				}
+
+				//------------------------------------------------------------------------------
+				// Setup of local vectors
+
 				if(!infoInitRun_) {
-					// Reset the number of monitored individuals to a suitable value,
-					// if necessary.
-					if(nMonitorInds_ > goa->getPopulationSize()) {
-						nMonitorInds_ = goa->getPopulationSize();
+					// Reset the number of monitored individuals to a suitable value, if necessary.
+					if(nMonitorInds_ > global_bests.size()) {
+						glogger
+						<< "In GFitnessMonitorT<>::informationFunction(): Warning!" << std::endl
+						<< "Requested number of individuals to be monitored in iteration " << iteration << " is larger" << std::endl
+						<< "than the number of best individuals " << nMonitorInds_ << " / " << global_bests.size() << std::endl
+						<< GWARNING;
+
+						nMonitorInds_ = global_bests.size();
 					}
 
 					// Set up the plotters
@@ -572,15 +599,48 @@ public:
 
 					// Make sure globalFitnessGraphVec_ is only initialized once
 					infoInitRun_ = true;
+				} else {
+					// We might have a situation where the number of best individuals changes in each
+					// iteration, e.g. when dealing with pareto optimization in EA. In this case we reduce the
+					// number of nMonitorInds_ to 1, which is the only safe option. Recorded data of other
+					// individuals will then be lost -- the program will warn about this.
+					if(nMonitorInds_ > global_bests.size()) {
+						glogger
+						<< "In GFitnessMonitorT<>::informationFunction(): Warning!" << std::endl
+						<< "Requested number of individuals to be monitored in iteration " << iteration << " is larger" << std::endl
+						<< "than the number of best individuals " << nMonitorInds_ << " / " << global_bests.size() << std::endl
+						<< "This seems to be a result of a varying number of best individuals." << std::endl
+						<< "We will now reduce the number of monitored individuals to 1 for the" << std::endl
+						<< "rest of the optimization run. Recorded information for other individuals" << std::endl
+						<< "will be deleted" << std::endl
+						<< GWARNING;
+
+						nMonitorInds_ = 1;
+						globalFitnessGraphVec_.resize(1);
+						iterationFitnessGraphVec_.resize(1);
+					}
 				}
-			} break;
 
-			case Gem::Geneva::INFOPROCESSING: {
-				// Retrieve the list of globally- and iteration bests individuals
+				//------------------------------------------------------------------------------
+				// Fill in the data for the best individuals
 
-				if(goa->inFirstIteration()) {
+				std::vector<std::shared_ptr<Gem::Common::GGraph2D>>::iterator global_it;
+				std::vector<std::shared_ptr<Gem::Common::GGraph2D>>::iterator iter_it;
+				typename std::vector<ind_type>::iterator  global_ind_it;
+				typename std::vector<ind_type>::iterator  iter_ind_it;
 
+				std::size_t mInd = 0;
+				for(
+					global_it=globalFitnessGraphVec_.begin(), iter_it=iterationFitnessGraphVec_.begin(), global_ind_it = global_bests.begin(), iter_ind_it = iter_bests.begin()
+					; global_it != globalFitnessGraphVec_.end()
+					; ++global_it, ++iter_it, ++global_ind_it, ++iter_ind_it
+				) {
+					(*global_it)->add(boost::numeric_cast<double>(iteration), (*global_ind_it)->fitness());
+					(*iter_it  )->add(boost::numeric_cast<double>(iteration), (*iter_ind_it  )->fitness());
 				}
+
+				//------------------------------------------------------------------------------
+
 			} break;
 
 			case Gem::Geneva::INFOEND: {
@@ -679,7 +739,7 @@ private:
 
 	std::uint32_t xDim_ = DEFAULTXDIMOM; ///< The dimension of the canvas in x-direction
 	std::uint32_t yDim_ = DEFAULTYDIMOM; ///< The dimension of the canvas in y-direction
-	std::size_t nMonitorInds_ = 1; ///< The number of individuals that should be monitored
+	std::size_t nMonitorInds_ = DEFNMONITORINDS; ///< The number of individuals that should be monitored
 	std::string resultFile_ = DEFAULTROOTRESULTFILEOM; ///< The name of the file to which data is emitted
 
 	bool infoInitRun_ = false; ///< Allows to check whether the INFOINIT section of informationFunction has already been passed at least once

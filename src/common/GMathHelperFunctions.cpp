@@ -298,6 +298,22 @@ double gfloor(const double &x) {
 
 /******************************************************************************/
 /**
+ * Calculates the floor value of a long double value
+ *
+ * @param x The value for which floor should be calculated
+ * @return The floor value of x
+ */
+long double gfloor(const long double &x) {
+#ifdef __CYGWIN__
+	// This needs to go away if and when Cygwin supports long double appropriately
+	return floor(boost::numeric_cast<double>(x));
+#else
+	return floorl(x);
+#endif
+}
+
+/******************************************************************************/
+/**
  * Calculates the fabsf value of a float value
  *
  * @param x The value for which fabs should be calculated
@@ -327,6 +343,7 @@ double gfabs(const double &x) {
  */
 long double gfabs(const long double &x) {
 #ifdef __CYGWIN__
+	// This needs to go away if and when Cygwin supports long double appropriately
    return fabs(boost::numeric_cast<double>(x));
 #else
 	return fabsl(x);

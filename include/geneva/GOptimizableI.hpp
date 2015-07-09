@@ -38,6 +38,7 @@
 // Standard header files go here
 #include <string>
 #include <vector>
+#include <utility>
 
 // Boost header files go here
 
@@ -153,7 +154,7 @@ public:
 			bestIndividuals.push_back(ind_ptr->clone<individual_type>());
 		}
 
-		return bestIndividuals;
+		return std::move(bestIndividuals);
 	}
 
 	/***************************************************************************/
@@ -198,7 +199,7 @@ public:
 			bestIndividuals.push_back(ind_ptr->clone<individual_type>());
 		}
 
-		return bestIndividuals;
+		return std::move(bestIndividuals);
 	}
 
 	/***************************************************************************/

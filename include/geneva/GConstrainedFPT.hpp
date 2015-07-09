@@ -37,6 +37,8 @@
 
 // Standard headers go here
 #include <type_traits>
+#include <cmath>
+#include <cfloat>
 
 // Boost headers go here
 #include <boost/math/special_functions/next.hpp> // Needed so we can calculate the next representable value smaller than a given upper boundary
@@ -337,38 +339,94 @@ public:
 	/***************************************************************************/
 	/**
 	 * The transfer function needed to calculate the externally visible value.
+	 * Note that in GConstrainedNumT<>::value() val is shifted to the
+	 * "mapping" value, so it doesn't get too large. This happens centrally,
+	 * as it is also relevant for the integer case. We calculate in long double
+	 * precision here in order to avoid as much as possible numeric instabilities.
+	 * Likewise we use int64_t for the region.
 	 *
 	 * @param val The value to which the transformation should be applied
 	 * @return The transformed value
 	 */
 	virtual fp_type transfer(const fp_type& val) const  override {
-		fp_type lowerBoundary = GConstrainedNumT<fp_type>::getLowerBoundary();
-		fp_type upperBoundary = GConstrainedNumT<fp_type>::getUpperBoundary();
+		// Check if val has a suitable value
+#ifdef DEBUG
+		switch(std::fpclassify(val)) {
+			case FP_NORMAL:
+			case FP_ZERO:      {
+				/* nothing */
+			} break;
 
-		if(val >= lowerBoundary && val < upperBoundary) {
-			return val;
+			case FP_INFINITE:  {
+				glogger
+				<< "In GConstrainedFPT::transfer(): Error" << std::endl
+				<< "val is infinite" << std::endl
+				<< GEXCEPTION;
+			} break;
+
+			case FP_NAN:       {
+				glogger
+				<< "In GConstrainedFPT::transfer(): Error" << std::endl
+				<< "val is NaN" << std::endl
+				<< GEXCEPTION;
+			} break;
+
+			case FP_SUBNORMAL: {
+				glogger
+				<< "In GConstrainedFPT::transfer(): Error" << std::endl
+				<< "val is subnormal" << std::endl
+				<< GEXCEPTION;
+			} break;
+
+			default:           {
+				glogger
+				<< "In GConstrainedFPT::transfer(): Error" << std::endl
+				<< "Unknown value type" << std::endl
+				<< GEXCEPTION;
+			}
+		}
+#endif /* DEBUG */
+
+		long double localVal      = boost::numeric_cast<long double>(val);
+		long double lowerBoundary = boost::numeric_cast<long double>(GConstrainedNumT<fp_type>::getLowerBoundary());
+		long double upperBoundary = boost::numeric_cast<long double>(GConstrainedNumT<fp_type>::getUpperBoundary());
+
+		if(localVal >= lowerBoundary && localVal < upperBoundary) {
+			return val; // no cast needed
 		} else {
 			// Find out which region the value is in (compare figure transferFunction.pdf
 			// that should have been delivered with this software). Note that boost::numeric_cast<>
 			// may throw - exceptions must be caught in surrounding functions.
-			std::int32_t region = 0;
+			std::int64_t region = 0;
 
 #ifdef DEBUG
-			region =	boost::numeric_cast<std::int32_t>(Gem::Common::gfloor((fp_type(val) - fp_type(lowerBoundary)) / (fp_type(upperBoundary) - fp_type(lowerBoundary))));
-#else
-			region =	static_cast<std::int32_t>(Gem::Common::gfloor((fp_type(val) - fp_type(lowerBoundary)) / (fp_type(upperBoundary) - fp_type(lowerBoundary))));
-#endif
+			long double fp_region = Gem::Common::gfloor((localVal - (long double)(lowerBoundary)) / ((long double)(upperBoundary) - (long double)(lowerBoundary)));
+
+			if(Gem::Common::gfabs(fp_region) < boost::numeric_cast<long double>(std::numeric_limits<std::int64_t>::max())) {
+				// We need floor here, as an integer cast rounds towards 0, which would be wrong for negative values of val
+				region = boost::numeric_cast<std::int64_t>(fp_region);
+			} else {
+				glogger
+				<< "In GConstrainedFPT::transfer(): Error" << std::endl
+				<< "fp_region = " << fp_region << " is too large and cannot be" << std::endl
+				<< "converted to a std::int64_t, which has a maximum value of " << std::numeric_limits<std::int64_t>::max() << std::endl
+				<< GEXCEPTION;
+			}
+#else   /* DEBUG */
+			region =	static_cast<std::int64_t>(Gem::Common::gfloor((localVal - (long double)(lowerBoundary)) / ((long double)(upperBoundary) - (long double)(lowerBoundary))));
+#endif  /* DEBUG */
 
 			// Check whether we are in an odd or an even range and calculate the
 			// external value accordingly
-			fp_type mapping = fp_type(0.);
+			long double mapping = (long double)(0.);
 			if(region%2 == 0) { // can it be divided by 2 ? Region 0,2,... or a negative even range
-				mapping = val - fp_type(region) * (upperBoundary - lowerBoundary);
+				mapping = localVal - (long double)(region) * (upperBoundary - lowerBoundary);
 			} else { // Range 1,3,... or a negative odd range
-				mapping = -val + (fp_type(region-1)*(upperBoundary - lowerBoundary) + 2*upperBoundary);
+				mapping = -localVal + ((long double)(region-1)*(upperBoundary - lowerBoundary) + 2*upperBoundary);
 			}
 
-			return mapping;
+			// fabs(mapping) will always be <= fabs(val), so this cast should never fail (if val was a valid fp value)
+			return boost::numeric_cast<fp_type>(mapping);
 		}
 
 		// Make the compiler happy

@@ -57,6 +57,12 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
+ * The default number of individuals to be monitored by GFitnessMonitorT<>
+ */
+const std::size_t DEFNMONITORINDS = 1;
+
+/******************************************************************************/
+/**
  * The default number of stalls, as of which Genevas swarm implementation switches
  * to repulsion mode. Setting this to 0 will force the swarm algorithm to always
  * use the attraction-mode
