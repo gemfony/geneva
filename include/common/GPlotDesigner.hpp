@@ -43,6 +43,7 @@
 #include <sstream>
 #include <functional>
 #include <tuple>
+#include <type_traits>
 
 // Boost headers go here
 #include <boost/filesystem.hpp>
@@ -128,6 +129,73 @@ typedef std::tuple<pointData, pointData> line;
 
 // Forward declaration in order to allow a friend statement in GBasePlotter
 class GPlotDesigner;
+
+/******************************************************************************/
+/**
+ * A marker to be added to 2D-plots (in particular 2D graphs and 1D histograms).
+ * The second template argument allows to differentiate between different dimensions.
+ * Allowed values are Gem::Common::dimensions::x/y/z/w .
+ */
+template<typename marker_type, Gem::Common::dimensions dim>
+class GMarker {
+	// Make sure this class may only be instantiated with
+	// arithmetic types
+	static_assert(
+		std::is_arithmetic<marker_type>::value
+		, "GMarker should only be instantiated with arithmetic types!"
+	);
+
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+
+		ar
+		& BOOST_SERIALIZATION_NVP(pos)
+		& BOOST_SERIALIZATION_NVP(marker_legend);
+	}
+	///////////////////////////////////////////////////////////////////////
+
+public:
+	marker_type pos = marker_type(0);
+	std::string marker_legend = std::string();
+
+	const std::string dimension = boost::lexical_cast<std::string>(dim);
+};
+
+/******************************************************************************/
+/**
+ * A collection of markers. The second template argument allows to
+ * differentiate between different dimensions. Allowed values are
+ * Gem::Common::dimensions::x/y/z/w .
+ */
+template<typename marker_type, Gem::Common::dimensions dim>
+class GMarkerCollection {
+	// Make sure this class may only be instantiated with
+	// arithmetic types
+	static_assert(
+		std::is_arithmetic<marker_type>::value
+		, "GMarkerCollection should only be instantiated with arithmetic types!"
+	);
+
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+
+		ar
+		& BOOST_SERIALIZATION_NVP(markers_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
+public:
+protected:
+	std::vector<std::shared_ptr<GMarker<marker_type, dim>>> markers_;
+};
 
 /******************************************************************************/
 /**
@@ -356,7 +424,9 @@ public:
 	 * The default constructor
 	 */
 	GDataCollector1T()
-		: GBasePlotter(), data_() { /* nothing */ }
+		: GBasePlotter()
+		, data_()
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -365,7 +435,9 @@ public:
 	 * @param cp A copy of another GDataCollector1T<x_type> object
 	 */
 	GDataCollector1T(const GDataCollector1T<x_type> &cp)
-		: GBasePlotter(cp), data_(cp.data_) { /* nothing */ }
+		: GBasePlotter(cp)
+		, data_(cp.data_)
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**

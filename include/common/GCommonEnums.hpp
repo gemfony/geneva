@@ -67,6 +67,22 @@
 namespace Gem {
 namespace Common {
 
+/******************************************************************************/
+/**
+ * This enum denotes different dimensions (used particularly by GMarkerCollection
+ */
+enum class dimensions {
+	x = 0
+	, y = 1
+	, z = 2
+	, w = 3
+};
+
+/******************************************************************************/
+/** @brief Puts a Gem::Common::dimensions into a stream. Needed also for boost::lexical_cast<> */
+G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::dimensions &);
+/** @brief Reads a Gem::Common::dimensions from a stream. Needed also for boost::lexical_cast<> */
+G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::dimensions &);
 
 /******************************************************************************/
 /**
@@ -87,7 +103,13 @@ const bool LOWERISBETTER = false;
  * Different log and exception types
  */
 enum G_API_COMMON logType {
-	EXCEPTION = 0, TERMINATION = 1, WARNING = 2, LOGGING = 3, FILE = 4, STDOUT = 5, STDERR = 6
+	EXCEPTION = 0
+	, TERMINATION = 1
+	, WARNING = 2
+	, LOGGING = 3
+	, FILE = 4
+	, STDOUT = 5
+	, STDERR = 6
 };
 
 /******************************************************************************/

@@ -541,7 +541,9 @@ public:
 	) override {
 		switch(im) {
 			case Gem::Geneva::INFOINIT: {
-				/* nothing */
+				// We set a marker whenever a new INFOINIT call happens. This way we
+				// may "chain" algorithms and will get the entire progress information
+				// for all algorithms
 			} break;
 
 			case Gem::Geneva::INFOPROCESSING: {
