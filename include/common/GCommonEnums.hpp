@@ -102,7 +102,7 @@ const bool LOWERISBETTER = false;
 /**
  * Different log and exception types
  */
-enum G_API_COMMON logType {
+enum class logType {
 	EXCEPTION = 0
 	, TERMINATION = 1
 	, WARNING = 2
@@ -135,8 +135,10 @@ const bool VAR_IS_SECONDARY = false;
 /**
  * Needed for the serialization of boost::logic::tribool
  */
-enum G_API_COMMON triboolStates {
-	TBS_FALSE, TBS_INDETERMINATE, TBS_TRUE
+enum triboolStates {
+	TBS_FALSE
+	, TBS_INDETERMINATE
+	, TBS_TRUE
 };
 
 /******************************************************************************/
@@ -149,8 +151,10 @@ G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::triboolStates
 /**
  * The serialization modes that are currently allowed
  */
-enum G_API_COMMON serializationMode {
-	SERIALIZATIONMODE_TEXT = 0, SERIALIZATIONMODE_XML = 1, SERIALIZATIONMODE_BINARY = 2
+enum serializationMode {
+	SERIALIZATIONMODE_TEXT = 0
+	, SERIALIZATIONMODE_XML = 1
+	, SERIALIZATIONMODE_BINARY = 2
 };
 
 /******************************************************************************/
@@ -171,7 +175,7 @@ const bool CE_WITH_MESSAGES = true;
 /**
  * Needed to express expectations in testing framework. CE stands for "Check expectation".
  */
-enum G_API_COMMON expectation {
+enum expectation {
 	CE_EQUALITY // bitwise equality of all checked components
 	, CE_FP_SIMILARITY // equality for non-floating point components, similarity for floating point
 	, CE_INEQUALITY // at least one checked component differs

@@ -285,7 +285,7 @@ GLogStreamer &GLogStreamer::operator<<(std::ios_base &( *val )(std::ios_base &))
 void GLogStreamer::operator<<(const GManipulator &gm) {
 	switch (gm.getLogType()) {
 		//------------------------------------------------------------------------
-		case Gem::Common::EXCEPTION: {
+		case Gem::Common::logType::EXCEPTION: {
 			// Assemble the output string
 			std::ostringstream error;
 			error
@@ -315,11 +315,10 @@ void GLogStreamer::operator<<(const GManipulator &gm) {
 			// Send the exception out. This done globally, so an exception
 			// thrown from within a thread doesn't get lost.
 			glogger_ptr->throwException(error.str());
-		}
-			break;
+		} break;
 
 			//------------------------------------------------------------------------
-		case Gem::Common::TERMINATION: {
+		case Gem::Common::logType::TERMINATION: {
 			// Assemble the output string
 			std::ostringstream error;
 			error
@@ -348,11 +347,10 @@ void GLogStreamer::operator<<(const GManipulator &gm) {
 
 			// Initiate the termination sequence.
 			glogger_ptr->terminateApplication(error.str());
-		}
-			break;
+		} break;
 
 			//------------------------------------------------------------------------
-		case Gem::Common::WARNING: {
+		case Gem::Common::logType::WARNING: {
 			// Assemble warning output
 			std::ostringstream warning;
 			warning
@@ -378,22 +376,20 @@ void GLogStreamer::operator<<(const GManipulator &gm) {
 			} else {
 				glogger_ptr->log(warning.str());
 			}
-		}
-			break;
+		} break;
 
 			//------------------------------------------------------------------------
-		case Gem::Common::LOGGING: {
+		case Gem::Common::logType::LOGGING: {
 			// Do all necessary logging.
 			if (this->hasExtension()) {
 				glogger_ptr->logWithSource(oss_.str(), this->getExtension());
 			} else {
 				glogger_ptr->log(oss_.str());
 			}
-		}
-			break;
+		} break;
 
 			//------------------------------------------------------------------------
-		case Gem::Common::FILE: {
+		case Gem::Common::logType::FILE: {
 			if (this->hasOneTimeLogFile()) {
 				GFileLogger gfl(this->getOneTimeLogFile());
 				gfl.log(oss_.str());
@@ -405,20 +401,17 @@ void GLogStreamer::operator<<(const GManipulator &gm) {
 					<< "glogger(\"filename.txt\") << \"some log text\" << GFILE" << std::endl
 				);
 			}
-		}
-			break;
+		} break;
 
 			//------------------------------------------------------------------------
-		case Gem::Common::STDOUT: {
+		case Gem::Common::logType::STDOUT: {
 			glogger_ptr->toStdOut(oss_.str());
-		}
-			break;
+		} break;
 
 			//------------------------------------------------------------------------
-		case Gem::Common::STDERR: {
+		case Gem::Common::logType::STDERR: {
 			glogger_ptr->toStdErr(oss_.str());
-		}
-			break;
+		} break;
 
 			//------------------------------------------------------------------------
 		default: {
@@ -426,8 +419,7 @@ void GLogStreamer::operator<<(const GManipulator &gm) {
 				"In GLogStreamer::operator<<(const GManipulator&): Error!" << std::endl
 				<< "Received invalid logging type " << gm.getLogType() << std::endl
 			);
-		}
-			break;
+		} break;
 
 			//------------------------------------------------------------------------
 	};

@@ -78,7 +78,7 @@ const std::size_t DEFMAXRETRIESUNTILVALID=10;
 
 /******************************************************************************/
 // Indicates whether only active, inactive or all parameters should be extracted
-enum G_API_GENEVA activityMode {
+enum activityMode {
 	ACTIVEONLY = 0 // Extract only active parameters
 	, ALLPARAMETERS = 1 // Extract all parameters
 	, INACTIVEONLY = 2 // Only extract inactive parameters
@@ -351,7 +351,7 @@ const double DEFAULTQUALITYTHRESHOLD=0.;
 /**
  * Selection of policy for validity-check combiner
  */
-enum G_API_GENEVA validityCheckCombinerPolicy {
+enum validityCheckCombinerPolicy {
 	MULTIPLYINVALID = 0   // Multiplies all invalid checks (i.e. return values > 1) or returns 0, if all checks are valid
 	, ADDINVALID = 1      // Adds all invalid checks or returns 0, if all checks are valid
 };
@@ -360,7 +360,7 @@ enum G_API_GENEVA validityCheckCombinerPolicy {
 /**
  * Selection of policy for evaluation
  */
-enum G_API_GENEVA evaluationPolicy {
+enum evaluationPolicy {
 	USESIMPLEEVALUATION = 0            // Run evaluation function even for invalid parameter sets
 	, USEWORSTCASEFORINVALID = 1       // Assign the worst possible value to invalid individuals, evaluate valid solutions as usual
 	, USESIGMOID = 2                   // Assign a multiple of validityLevel_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations
@@ -374,7 +374,7 @@ enum G_API_GENEVA evaluationPolicy {
 /**
  * Specification of different parallelization modes
  */
-enum G_API_GENEVA execMode {
+enum execMode {
 	EXECMODE_SERIAL = 0
 	, EXECMODE_MULTITHREADED = 1
 	, EXECMODE_BROKERAGE = 2
@@ -393,7 +393,7 @@ const execMode DEFAULTEXECMODE = EXECMODE_MULTITHREADED;
  * - RANDOMDUPLICATIONSCHEME chooses the parents to be replicated randomly from all parents
  * - VALUEDUPLICATIONSCHEME prefers parents with a higher fitness
  */
-enum G_API_GENEVA duplicationScheme {
+enum duplicationScheme {
 	DEFAULTDUPLICATIONSCHEME = 0
 	, RANDOMDUPLICATIONSCHEME = 1
 	, VALUEDUPLICATIONSCHEME = 2
@@ -404,7 +404,7 @@ enum G_API_GENEVA duplicationScheme {
 /**
  * The info function can be called in these three modes
  */
-enum G_API_GENEVA infoMode {
+enum infoMode {
 	INFOINIT = 0
 	, INFOPROCESSING = 1
 	, INFOEND = 2
@@ -415,7 +415,7 @@ enum G_API_GENEVA infoMode {
 /**
  * Ids that are assigned to adaptors and which should (by convention!) be unique for these
  */
-enum G_API_GENEVA adaptorId {
+enum adaptorId {
 	GDOUBLEBIGAUSSADAPTOR = 0
 	, GDOUBLEGAUSSADAPTOR = 1
 	, GFLOATGAUSSADAPTOR = 2
@@ -433,7 +433,7 @@ enum G_API_GENEVA adaptorId {
  * MUNU1PRETAIN_SINGLEEVAL means that the best parent of the last generation will also become a new parent
  * (unless a better child was found). All other parents are selected from children only.
  */
-enum G_API_GENEVA sortingMode {
+enum sortingMode {
 	MUPLUSNU_SINGLEEVAL = 0
 	, MUCOMMANU_SINGLEEVAL = 1
 	, MUNU1PRETAIN_SINGLEEVAL = 2
@@ -446,7 +446,7 @@ enum G_API_GENEVA sortingMode {
 /**
  * The selection mode in MPEA populations.
  */
-enum G_API_GENEVA sortingModeMP {
+enum sortingModeMP {
 	MUPLUSNU_SINGLEEVAL_MP = 0
 	, MUCOMMANU_SINGLEEVAL_MP = 1
 	, MUNU1PRETAIN_SINGLEEVAL_MP = 2
