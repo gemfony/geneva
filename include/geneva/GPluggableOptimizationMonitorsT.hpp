@@ -548,8 +548,8 @@ public:
 
 			case Gem::Geneva::INFOPROCESSING: {
 				// Retrieve the list of globally- and iteration bests individuals
-				std::vector<ind_type> global_bests = goa->GOptimizableI::getBestGlobalIndividuals<ind_type>();
-				std::vector<ind_type> iter_bests   = goa->GOptimizableI::getBestIterationIndividuals<ind_type>();
+				std::vector<ind_type> global_bests = goa->GOptimizableI::template getBestGlobalIndividuals<ind_type>();
+				std::vector<ind_type> iter_bests   = goa->GOptimizableI::template getBestIterationIndividuals<ind_type>();
 
 				// Retrieve the current iteration in the population
 				std::uint32_t iteration = goa->getIteration();
