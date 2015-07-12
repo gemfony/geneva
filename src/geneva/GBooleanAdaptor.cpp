@@ -207,7 +207,7 @@ void GBooleanAdaptor::load_(const GObject *cp) {
  * @return The id of this adaptor
  */
 Gem::Geneva::adaptorId GBooleanAdaptor::getAdaptorId() const {
-	return Gem::Geneva::GBOOLEANADAPTOR;
+	return Gem::Geneva::adaptorId::GBOOLEANADAPTOR;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -295,9 +295,9 @@ void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 		std::shared_ptr <GBooleanAdaptor> p_test = this->clone<GBooleanAdaptor>();
 
 		BOOST_CHECK_MESSAGE(
-			p_test->getAdaptorId() == GBOOLEANADAPTOR, "\n"
+			p_test->getAdaptorId() == adaptorId::GBOOLEANADAPTOR, "\n"
 																	 << "p_test->getAdaptorId() = " << p_test->getAdaptorId()
-																	 << "GBOOLEANADAPTOR        = " << GBOOLEANADAPTOR << "\n"
+																	 << "GBOOLEANADAPTOR        = " << adaptorId::GBOOLEANADAPTOR << "\n"
 		);
 	}
 

@@ -415,7 +415,7 @@ enum class infoMode {
 /**
  * Ids that are assigned to adaptors and which should (by convention!) be unique for these
  */
-enum adaptorId {
+enum class adaptorId {
 	GDOUBLEBIGAUSSADAPTOR = 0
 	, GDOUBLEGAUSSADAPTOR = 1
 	, GFLOATGAUSSADAPTOR = 2
@@ -433,7 +433,7 @@ enum adaptorId {
  * MUNU1PRETAIN_SINGLEEVAL means that the best parent of the last generation will also become a new parent
  * (unless a better child was found). All other parents are selected from children only.
  */
-enum sortingMode {
+enum class sortingMode {
 	MUPLUSNU_SINGLEEVAL = 0
 	, MUCOMMANU_SINGLEEVAL = 1
 	, MUNU1PRETAIN_SINGLEEVAL = 2
@@ -446,7 +446,7 @@ enum sortingMode {
 /**
  * The selection mode in MPEA populations.
  */
-enum sortingModeMP {
+enum class sortingModeMP {
 	MUPLUSNU_SINGLEEVAL_MP = 0
 	, MUCOMMANU_SINGLEEVAL_MP = 1
 	, MUNU1PRETAIN_SINGLEEVAL_MP = 2

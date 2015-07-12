@@ -69,7 +69,7 @@ class GEAOptimizationMonitor;
 /**
  * The default sorting mode
  */
-const sortingMode DEFAULTSMODE = MUCOMMANU_SINGLEEVAL;
+const sortingMode DEFAULTSMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
 
 /******************************************************************************/
 /**

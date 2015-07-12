@@ -214,7 +214,7 @@ void GDoubleGaussAdaptor::load_(const GObject *cp) {
  * @return The id of this adaptor
  */
 Gem::Geneva::adaptorId GDoubleGaussAdaptor::getAdaptorId() const {
-	return Gem::Geneva::GDOUBLEGAUSSADAPTOR;
+	return Gem::Geneva::adaptorId::GDOUBLEGAUSSADAPTOR;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -264,9 +264,9 @@ void GDoubleGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 		std::shared_ptr <GDoubleGaussAdaptor> p_test = this->clone<GDoubleGaussAdaptor>();
 
 		BOOST_CHECK_MESSAGE(
-			p_test->getAdaptorId() == GDOUBLEGAUSSADAPTOR, "\n"
+			p_test->getAdaptorId() == adaptorId::GDOUBLEGAUSSADAPTOR, "\n"
 																		  << "p_test->getAdaptorId() = " << p_test->getAdaptorId()
-																		  << "GDOUBLEGAUSSADAPTOR     = " << GDOUBLEGAUSSADAPTOR << "\n"
+																		  << "GDOUBLEGAUSSADAPTOR     = " << adaptorId::GDOUBLEGAUSSADAPTOR << "\n"
 		);
 	}
 

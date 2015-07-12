@@ -326,8 +326,8 @@ void GBaseEA::populationSanityChecks() const {
 	// parents, so that the first parent individual will be replaced.
 	std::size_t popSize = getPopulationSize();
 	if ( // TODO: Why are PARETO modes missing here ?
-		((smode_ == MUCOMMANU_SINGLEEVAL || smode_ == MUNU1PRETAIN_SINGLEEVAL) && (popSize < 2 * nParents_)) ||
-		(smode_ == MUPLUSNU_SINGLEEVAL && popSize <= nParents_)
+		((smode_ == sortingMode::MUCOMMANU_SINGLEEVAL || smode_ == sortingMode::MUNU1PRETAIN_SINGLEEVAL) && (popSize < 2 * nParents_)) ||
+		(smode_ == sortingMode::MUPLUSNU_SINGLEEVAL && popSize <= nParents_)
 		) {
 		std::ostringstream error;
 		error
@@ -336,19 +336,19 @@ void GBaseEA::populationSanityChecks() const {
 		<< "Sorting scheme is ";
 
 		switch (smode_) {
-			case MUPLUSNU_SINGLEEVAL:
+			case sortingMode::MUPLUSNU_SINGLEEVAL:
 				error << "MUPLUSNU_SINGLEEVAL" << std::endl;
 				break;
-			case MUCOMMANU_SINGLEEVAL:
+			case sortingMode::MUCOMMANU_SINGLEEVAL:
 				error << "MUCOMMANU_SINGLEEVAL" << std::endl;
 				break;
-			case MUNU1PRETAIN_SINGLEEVAL:
+			case sortingMode::MUNU1PRETAIN_SINGLEEVAL:
 				error << "MUNU1PRETAIN" << std::endl;
 				break;
-			case MUPLUSNU_PARETO:
+			case sortingMode::MUPLUSNU_PARETO:
 				error << "MUPLUSNU_PARETO" << std::endl;
 				break;
-			case MUCOMMANU_PARETO:
+			case sortingMode::MUCOMMANU_PARETO:
 				error << "MUCOMMANU_PARETO" << std::endl;
 				break;
 		};
@@ -381,13 +381,13 @@ void GBaseEA::selectBest() {
 
 	switch (smode_) {
 		//----------------------------------------------------------------------------
-		case MUPLUSNU_SINGLEEVAL: {
+		case sortingMode::MUPLUSNU_SINGLEEVAL: {
 			sortMuPlusNuMode();
 		}
 			break;
 
 			//----------------------------------------------------------------------------
-		case MUNU1PRETAIN_SINGLEEVAL: {
+		case sortingMode::MUNU1PRETAIN_SINGLEEVAL: {
 			if (this->inFirstIteration()) {
 				sortMuPlusNuMode();
 			} else {
@@ -397,7 +397,7 @@ void GBaseEA::selectBest() {
 			break;
 
 			//----------------------------------------------------------------------------
-		case MUCOMMANU_SINGLEEVAL: {
+		case sortingMode::MUCOMMANU_SINGLEEVAL: {
 			if (this->inFirstIteration()) {
 				sortMuPlusNuMode();
 			} else {
@@ -407,12 +407,12 @@ void GBaseEA::selectBest() {
 			break;
 
 			//----------------------------------------------------------------------------
-		case MUPLUSNU_PARETO:
+		case sortingMode::MUPLUSNU_PARETO:
 			sortMuPlusNuParetoMode();
 			break;
 
 			//----------------------------------------------------------------------------
-		case MUCOMMANU_PARETO: {
+		case sortingMode::MUCOMMANU_PARETO: {
 			if (this->inFirstIteration()) {
 				sortMuPlusNuParetoMode();
 			} else {
@@ -460,15 +460,15 @@ void GBaseEA::updateGlobalBestsPQ(
 
 	switch (smode_) {
 		//----------------------------------------------------------------------------
-		case MUPLUSNU_SINGLEEVAL:
-		case MUNU1PRETAIN_SINGLEEVAL:
-		case MUCOMMANU_SINGLEEVAL:
+		case sortingMode::MUPLUSNU_SINGLEEVAL:
+		case sortingMode::MUNU1PRETAIN_SINGLEEVAL:
+		case sortingMode::MUCOMMANU_SINGLEEVAL:
 			GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::updateGlobalBestsPQ(bestIndividuals);
 			break;
 
 			//----------------------------------------------------------------------------
-		case MUPLUSNU_PARETO:
-		case MUCOMMANU_PARETO: {
+		case sortingMode::MUPLUSNU_PARETO:
+		case sortingMode::MUCOMMANU_PARETO: {
 			// Retrieve all individuals on the pareto front
 			std::vector<std::shared_ptr < Gem::Geneva::GParameterSet>> paretoInds;
 			this->extractCurrentParetoIndividuals(paretoInds);
@@ -515,15 +515,15 @@ void GBaseEA::updateIterationBestsPQ(
 
 	switch (smode_) {
 		//----------------------------------------------------------------------------
-		case MUPLUSNU_SINGLEEVAL:
-		case MUNU1PRETAIN_SINGLEEVAL:
-		case MUCOMMANU_SINGLEEVAL: {
+		case sortingMode::MUPLUSNU_SINGLEEVAL:
+		case sortingMode::MUNU1PRETAIN_SINGLEEVAL:
+		case sortingMode::MUCOMMANU_SINGLEEVAL: {
 			GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::updateIterationBestsPQ(bestIndividuals);
 		} break;
 
 			//----------------------------------------------------------------------------
-		case MUPLUSNU_PARETO:
-		case MUCOMMANU_PARETO: {
+		case sortingMode::MUPLUSNU_PARETO:
+		case sortingMode::MUCOMMANU_PARETO: {
 			// Retrieve all individuals on the pareto front
 			std::vector<std::shared_ptr < Gem::Geneva::GParameterSet>> paretoInds;
 			this->extractCurrentParetoIndividuals(paretoInds);
@@ -780,10 +780,10 @@ bool GBaseEA::modify_GUnitTests() {
 	// Call the parent class'es function
 	if (GParameterSetParChild::modify_GUnitTests()) result = true;
 
-	if(MUPLUSNU_SINGLEEVAL == this->getSortingScheme()) {
-		this->setSortingScheme(MUCOMMANU_SINGLEEVAL);
+	if(sortingMode::MUPLUSNU_SINGLEEVAL == this->getSortingScheme()) {
+		this->setSortingScheme(sortingMode::MUCOMMANU_SINGLEEVAL);
 	} else {
-		this->setSortingScheme(MUPLUSNU_SINGLEEVAL);
+		this->setSortingScheme(sortingMode::MUPLUSNU_SINGLEEVAL);
 	}
 	result = true;
 

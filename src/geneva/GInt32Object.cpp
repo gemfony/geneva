@@ -458,7 +458,7 @@ void GInt32Object::specificTestsFailuresExpected_GUnitTests() {
 		BOOST_REQUIRE(p_test->hasAdaptor() == true);
 
 		// Make sure the local adaptor has the type we expect
-		BOOST_CHECK(p_test->getAdaptor()->getAdaptorId() == GINT32GAUSSADAPTOR);
+		BOOST_CHECK(p_test->getAdaptor()->getAdaptorId() == adaptorId::GINT32GAUSSADAPTOR);
 
 		// Attempted conversion to an invalid target type should throw
 		BOOST_CHECK_THROW(p_test->getAdaptor<GInt32FlipAdaptor>(), Gem::Common::gemfony_error_condition);

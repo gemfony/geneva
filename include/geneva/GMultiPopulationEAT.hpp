@@ -62,7 +62,7 @@ namespace Geneva {
 /**
  * The default sorting mode
  */
-const sortingModeMP DEFAULTSMODEMP=MUCOMMANU_SINGLEEVAL_MP;
+const sortingModeMP DEFAULTSMODEMP=sortingModeMP::MUCOMMANU_SINGLEEVAL_MP;
 
 /******************************************************************************/
 /**
@@ -462,8 +462,8 @@ protected:
 		// as it is theoretically possible that all children are better than the former
 		// parents, so that the first parent individual will be replaced.
 		if(
-			((smodeMP_==MUCOMMANU_SINGLEEVAL_MP || smodeMP_==MUNU1PRETAIN_SINGLEEVAL_MP) && (popSize < 2*nP)) ||
-			(smodeMP_==MUPLUSNU_SINGLEEVAL_MP && popSize<=nP)
+			((smodeMP_==sortingModeMP::MUCOMMANU_SINGLEEVAL_MP || smodeMP_==sortingModeMP::MUNU1PRETAIN_SINGLEEVAL_MP) && (popSize < 2*nP)) ||
+			(smodeMP_==sortingModeMP::MUPLUSNU_SINGLEEVAL_MP && popSize<=nP)
 			){
 			std::ostringstream error;
 			error
@@ -472,13 +472,13 @@ protected:
 			<< "Sorting scheme is ";
 
 			switch(smodeMP_) {
-				case MUPLUSNU_SINGLEEVAL_MP:
+				case sortingModeMP::MUPLUSNU_SINGLEEVAL_MP:
 					error << "MUPLUSNU_SINGLEEVAL" << std::endl;
 					break;
-				case MUCOMMANU_SINGLEEVAL_MP:
+				case sortingModeMP::MUCOMMANU_SINGLEEVAL_MP:
 					error << "MUCOMMANU_SINGLEEVAL" << std::endl;
 					break;
-				case MUNU1PRETAIN_SINGLEEVAL_MP:
+				case sortingModeMP::MUNU1PRETAIN_SINGLEEVAL_MP:
 					error << "MUNU1PRETAIN" << std::endl;
 					break;
 			};
@@ -569,13 +569,13 @@ protected:
 		switch(smodeMP_) {
 			//----------------------------------------------------------------------------
 
-			case MUPLUSNU_SINGLEEVAL_MP:
+			case sortingModeMP::MUPLUSNU_SINGLEEVAL_MP:
 				this->sortMuPlusNuMode();
 				break;
 
 				//----------------------------------------------------------------------------
 
-			case MUNU1PRETAIN_SINGLEEVAL_MP:
+			case sortingModeMP::MUNU1PRETAIN_SINGLEEVAL_MP:
 				if(this->inFirstIteration()) {
 					this->sortMuPlusNuMode();
 				} else {
@@ -585,7 +585,7 @@ protected:
 
 				//----------------------------------------------------------------------------
 
-			case MUCOMMANU_SINGLEEVAL_MP:
+			case sortingModeMP::MUCOMMANU_SINGLEEVAL_MP:
 				if(this->inFirstIteration()) {
 					this->sortMuPlusNuMode();
 				} else {

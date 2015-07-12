@@ -183,7 +183,7 @@ void GInt32FlipAdaptor::load_(const GObject *cp) {
  * @return The id of this adaptor
  */
 Gem::Geneva::adaptorId GInt32FlipAdaptor::getAdaptorId() const {
-	return Gem::Geneva::GINT32FLIPADAPTOR;
+	return Gem::Geneva::adaptorId::GINT32FLIPADAPTOR;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -235,9 +235,9 @@ void GInt32FlipAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 		std::shared_ptr <GInt32FlipAdaptor> p_test = this->clone<GInt32FlipAdaptor>();
 
 		BOOST_CHECK_MESSAGE(
-			p_test->getAdaptorId() == GINT32FLIPADAPTOR, "\n"
+			p_test->getAdaptorId() == adaptorId::GINT32FLIPADAPTOR, "\n"
 																		<< "p_test->getAdaptorId() = " << p_test->getAdaptorId()
-																		<< "GINT32FLIPADAPTOR      = " << GINT32FLIPADAPTOR << "\n"
+																		<< "GINT32FLIPADAPTOR      = " << adaptorId::GINT32FLIPADAPTOR << "\n"
 		);
 	}
 

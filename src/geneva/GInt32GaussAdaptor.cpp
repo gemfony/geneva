@@ -218,7 +218,7 @@ void GInt32GaussAdaptor::load_(const GObject *cp) {
  * @return The id of this adaptor
  */
 Gem::Geneva::adaptorId GInt32GaussAdaptor::getAdaptorId() const {
-	return Gem::Geneva::GINT32GAUSSADAPTOR;
+	return Gem::Geneva::adaptorId::GINT32GAUSSADAPTOR;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -264,9 +264,9 @@ void GInt32GaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 		std::shared_ptr <GInt32GaussAdaptor> p_test = this->clone<GInt32GaussAdaptor>();
 
 		BOOST_CHECK_MESSAGE(
-			p_test->getAdaptorId() == GINT32GAUSSADAPTOR, "\n"
+			p_test->getAdaptorId() == adaptorId::GINT32GAUSSADAPTOR, "\n"
 																		 << "p_test->getAdaptorId() = " << p_test->getAdaptorId()
-																		 << "GINT32GAUSSADAPTOR     = " << GINT32GAUSSADAPTOR << "\n"
+																		 << "GINT32GAUSSADAPTOR     = " << adaptorId::GINT32GAUSSADAPTOR << "\n"
 		);
 	}
 
