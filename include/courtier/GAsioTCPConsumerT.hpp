@@ -100,7 +100,7 @@ const std::uint32_t GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS = 10;
 const unsigned short GASIOTCPCONSUMERDEFAULTPORT = 10000;
 const std::string GASIOTCPCONSUMERDEFAULTSERVER = "localhost";
 const std::uint16_t GASIOTCPCONSUMERTHREADS = 4;
-const Gem::Common::serializationMode GASIOTCPCONSUMERSERIALIZATIONMODE = Gem::Common::SERIALIZATIONMODE_BINARY;
+const Gem::Common::serializationMode GASIOTCPCONSUMERSERIALIZATIONMODE = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY;
 const bool GASIOTCPCONSUMERRETURNREGARDLESS = true;
 
 /******************************************************************************/
@@ -1106,7 +1106,7 @@ public:
 	 */
 	GAsioTCPConsumerT()
 		: listenerThreads_(Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS)), acceptor_(io_service_),
-		  serializationMode_(Gem::Common::SERIALIZATIONMODE_BINARY), maxStalls_(GASIOTCPCONSUMERMAXSTALLS),
+		  serializationMode_(Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY), maxStalls_(GASIOTCPCONSUMERMAXSTALLS),
 		  maxConnectionAttempts_(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS),
 		  returnRegardless_(GASIOTCPCONSUMERRETURNREGARDLESS), port_(GASIOTCPCONSUMERDEFAULTPORT),
 		  server_(GASIOTCPCONSUMERDEFAULTSERVER), timeout_(boost::posix_time::milliseconds(10)),
@@ -1122,7 +1122,7 @@ public:
 	 */
 	GAsioTCPConsumerT(
 		const unsigned short &port, const std::size_t &listenerThreads = 0,
-		const Gem::Common::serializationMode &sm = Gem::Common::SERIALIZATIONMODE_BINARY
+		const Gem::Common::serializationMode &sm = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY
 	)
 		: listenerThreads_(
 		listenerThreads > 0 ? listenerThreads : Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS)),

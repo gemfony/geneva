@@ -118,7 +118,7 @@ const GBrokerEA &GBrokerEA::operator=(
 bool GBrokerEA::operator==(const GBrokerEA &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -135,7 +135,7 @@ bool GBrokerEA::operator==(const GBrokerEA &cp) const {
 bool GBrokerEA::operator!=(const GBrokerEA &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;

@@ -81,24 +81,24 @@ namespace Common {
  * @return A string representation of gt_ptr
  */
 template<typename T>
-std::string sharedPtrToString(std::shared_ptr <T> gt_ptr, const Gem::Common::serializationMode &serMod) {
+std::string sharedPtrToString(std::shared_ptr<T> gt_ptr, const Gem::Common::serializationMode &serMod) {
 	std::ostringstream oarchive_stream;
 
 	switch (serMod) {
-		case Gem::Common::SERIALIZATIONMODE_TEXT: {
+		case Gem::Common::serializationMode::SERIALIZATIONMODE_TEXT: {
 			boost::archive::text_oarchive oa(oarchive_stream);
 			oa << boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
 		} // note: explicit scope here is essential so the oa-destructor gets called
 
 			break;
 
-		case Gem::Common::SERIALIZATIONMODE_XML: {
+		case Gem::Common::serializationMode::SERIALIZATIONMODE_XML: {
 			boost::archive::xml_oarchive oa(oarchive_stream);
 			oa << boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
 		}
 			break;
 
-		case Gem::Common::SERIALIZATIONMODE_BINARY: {
+		case Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY: {
 			boost::archive::binary_oarchive oa(oarchive_stream);
 			oa << boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
 		}
@@ -119,27 +119,27 @@ std::string sharedPtrToString(std::shared_ptr <T> gt_ptr, const Gem::Common::ser
  * @return A shared_ptr to the restored object
  */
 template<typename T>
-std::shared_ptr <T> sharedPtrFromString(const std::string &gt_string, const Gem::Common::serializationMode &serMod) {
+std::shared_ptr<T> sharedPtrFromString(const std::string &gt_string, const Gem::Common::serializationMode &serMod) {
 	std::istringstream istr(gt_string);
-	std::shared_ptr <T> gt_ptr;
+	std::shared_ptr<T> gt_ptr;
 
 	try {
 		switch (serMod) {
-			case Gem::Common::SERIALIZATIONMODE_TEXT: {
+			case Gem::Common::serializationMode::SERIALIZATIONMODE_TEXT: {
 				boost::archive::text_iarchive ia(istr);
 				ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
 			} // note: explicit scope here is essential so the ia-destructor gets called
 
 				break;
 
-			case Gem::Common::SERIALIZATIONMODE_XML: {
+			case Gem::Common::serializationMode::SERIALIZATIONMODE_XML: {
 				boost::archive::xml_iarchive ia(istr);
 				ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
 			}
 
 				break;
 
-			case Gem::Common::SERIALIZATIONMODE_BINARY: {
+			case Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY: {
 				boost::archive::binary_iarchive ia(istr);
 				ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
 			}

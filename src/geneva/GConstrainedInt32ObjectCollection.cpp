@@ -99,7 +99,7 @@ GObject *GConstrainedInt32ObjectCollection::clone_() const {
 bool GConstrainedInt32ObjectCollection::operator==(const GConstrainedInt32ObjectCollection &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -116,7 +116,7 @@ bool GConstrainedInt32ObjectCollection::operator==(const GConstrainedInt32Object
 bool GConstrainedInt32ObjectCollection::operator!=(const GConstrainedInt32ObjectCollection &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;

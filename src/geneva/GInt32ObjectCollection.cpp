@@ -100,7 +100,7 @@ const GInt32ObjectCollection &GInt32ObjectCollection::operator=(const GInt32Obje
 bool GInt32ObjectCollection::operator==(const GInt32ObjectCollection &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -117,7 +117,7 @@ bool GInt32ObjectCollection::operator==(const GInt32ObjectCollection &cp) const 
 bool GInt32ObjectCollection::operator!=(const GInt32ObjectCollection &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;

@@ -88,7 +88,7 @@ const GDoubleSumConstraint &GDoubleSumConstraint::operator=(const GDoubleSumCons
 bool GDoubleSumConstraint::operator==(const GDoubleSumConstraint &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -102,7 +102,7 @@ bool GDoubleSumConstraint::operator==(const GDoubleSumConstraint &cp) const {
 bool GDoubleSumConstraint::operator!=(const GDoubleSumConstraint &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -240,7 +240,7 @@ const GDoubleSumGapConstraint &GDoubleSumGapConstraint::operator=(const GDoubleS
 bool GDoubleSumGapConstraint::operator==(const GDoubleSumGapConstraint &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -255,7 +255,7 @@ bool GDoubleSumGapConstraint::operator!=(const GDoubleSumGapConstraint &cp) cons
 	using namespace Gem::Common;
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -395,7 +395,7 @@ const GSphereConstraint &GSphereConstraint::operator=(const GSphereConstraint &c
 bool GSphereConstraint::operator==(const GSphereConstraint &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -409,7 +409,7 @@ bool GSphereConstraint::operator==(const GSphereConstraint &cp) const {
 bool GSphereConstraint::operator!=(const GSphereConstraint &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -662,7 +662,7 @@ const GFunctionIndividual &GFunctionIndividual::operator=(const GFunctionIndivid
 bool GFunctionIndividual::operator==(const GFunctionIndividual &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -679,7 +679,7 @@ bool GFunctionIndividual::operator==(const GFunctionIndividual &cp) const {
 bool GFunctionIndividual::operator!=(const GFunctionIndividual &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;

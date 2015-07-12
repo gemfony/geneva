@@ -92,14 +92,14 @@ std::size_t GToken::getTestCounter() const {
  */
 bool GToken::expectationMet() const {
 	switch (e_) {
-		case Gem::Common::CE_FP_SIMILARITY:
-		case Gem::Common::CE_EQUALITY:
+		case Gem::Common::expectation::CE_FP_SIMILARITY:
+		case Gem::Common::expectation::CE_EQUALITY:
 			if (std::get<TESTCOUNTER>(testCounter_) == std::get<SUCCESSCOUNTER>(testCounter_)) {
 				return true;
 			}
 			break;
 
-		case Gem::Common::CE_INEQUALITY:
+		case Gem::Common::expectation::CE_INEQUALITY:
 			if (std::get<SUCCESSCOUNTER>(testCounter_) > 0) {
 				return true;
 			}
@@ -138,15 +138,15 @@ Gem::Common::expectation GToken::getExpectation() const {
  */
 std::string GToken::getExpectationStr() const {
 	switch (e_) {
-		case Gem::Common::CE_FP_SIMILARITY:
+		case Gem::Common::expectation::CE_FP_SIMILARITY:
 			return std::string("CE_FP_SIMILARITY");
 			break;
 
-		case Gem::Common::CE_EQUALITY:
+		case Gem::Common::expectation::CE_EQUALITY:
 			return std::string("CE_EQUALITY");
 			break;
 
-		case Gem::Common::CE_INEQUALITY:
+		case Gem::Common::expectation::CE_INEQUALITY:
 			return std::string("CE_INEQUALITY");
 			break;
 
@@ -221,17 +221,17 @@ std::string GToken::toString() const {
 	std::string result = "Expectation of ";
 
 	switch (e_) {
-		case Gem::Common::CE_FP_SIMILARITY: {
+		case Gem::Common::expectation::CE_FP_SIMILARITY: {
 			result += std::string("CE_FP_SIMILARITY was ");
 		}
 			break;
 
-		case Gem::Common::CE_EQUALITY: {
+		case Gem::Common::expectation::CE_EQUALITY: {
 			result += std::string("CE_EQUALITY was ");
 		}
 			break;
 
-		case Gem::Common::CE_INEQUALITY: {
+		case Gem::Common::expectation::CE_INEQUALITY: {
 			result += std::string("CE_INEQUALITY was ");
 		}
 			break;
@@ -252,10 +252,10 @@ std::string GToken::toString() const {
 		// "inequality", so we do not swamp the user with useless information.
 		// For the inequality information, just one out of many checks for data-
 		// inequality must be met, so the "equal" comparisons are of no concern.
-		// Only the information "everthing is equal while inequality was expected"
+		// Only the information "everything is equal while inequality was expected"
 		// is important. If equality or similarity were expected, every single
 		// deviation from equality is of interest.
-		if (Gem::Common::CE_INEQUALITY != e_) {
+		if (Gem::Common::expectation::CE_INEQUALITY != e_) {
 			std::vector<std::string>::const_iterator cit;
 			for (cit = errorMessages_.begin(); cit != errorMessages_.end(); ++cit) {
 				result += *cit;
@@ -314,8 +314,8 @@ void compare(
 	std::string expectation_str;
 
 	switch (e) {
-		case Gem::Common::CE_FP_SIMILARITY:
-		case Gem::Common::CE_EQUALITY:
+		case Gem::Common::expectation::CE_FP_SIMILARITY:
+		case Gem::Common::expectation::CE_EQUALITY:
 			expectation_str = "CE_FP_SIMILARITY / CE_EQUALITY";
 			if ((x == true && y == true) ||
 				 (x == false && y == false) ||
@@ -324,7 +324,7 @@ void compare(
 			}
 			break;
 
-		case Gem::Common::CE_INEQUALITY:
+		case Gem::Common::expectation::CE_INEQUALITY:
 			expectation_str = "CE_INEQUALITY";
 			if (!(x == true && y == true) &&
 				 !(x == false && y == false) &&

@@ -270,7 +270,7 @@ const std::string DEFAULTCPDIR = "./checkpoints/";
 /**
  * The default serialization mode used for check-pointing
  */
-const Gem::Common::serializationMode DEFAULTCPSERMODE = Gem::Common::SERIALIZATIONMODE_BINARY;
+const Gem::Common::serializationMode DEFAULTCPSERMODE = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY;
 
 
 /******************************************************************************/

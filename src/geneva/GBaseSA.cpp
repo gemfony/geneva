@@ -104,7 +104,7 @@ const GBaseSA &GBaseSA::operator=(const GBaseSA &cp) {
 bool GBaseSA::operator==(const GBaseSA &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -121,7 +121,7 @@ bool GBaseSA::operator==(const GBaseSA &cp) const {
 bool GBaseSA::operator!=(const GBaseSA &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -562,7 +562,7 @@ const GBaseSA::GSAOptimizationMonitor &GBaseSA::GSAOptimizationMonitor::operator
 bool GBaseSA::GSAOptimizationMonitor::operator==(const GBaseSA::GSAOptimizationMonitor &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -579,7 +579,7 @@ bool GBaseSA::GSAOptimizationMonitor::operator==(const GBaseSA::GSAOptimizationM
 bool GBaseSA::GSAOptimizationMonitor::operator!=(const GBaseSA::GSAOptimizationMonitor &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;

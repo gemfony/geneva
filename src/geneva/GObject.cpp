@@ -239,7 +239,7 @@ const GObject &GObject::operator=(const GObject &cp) {
 bool GObject::operator==(const GObject &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -256,7 +256,7 @@ bool GObject::operator==(const GObject &cp) const {
 bool GObject::operator!=(const GObject &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -371,23 +371,23 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 
 		{ // Text mode
 			std::ostringstream ostr;
-			BOOST_CHECK_NO_THROW(p_test->toStream(ostr, Gem::Common::SERIALIZATIONMODE_TEXT));
+			BOOST_CHECK_NO_THROW(p_test->toStream(ostr, Gem::Common::serializationMode::SERIALIZATIONMODE_TEXT));
 			std::istringstream istr(ostr.str());
-			BOOST_CHECK_NO_THROW(p_test->fromStream(istr, Gem::Common::SERIALIZATIONMODE_TEXT));
+			BOOST_CHECK_NO_THROW(p_test->fromStream(istr, Gem::Common::serializationMode::SERIALIZATIONMODE_TEXT));
 		}
 
 		{ // XML mode
 			std::ostringstream ostr;
-			BOOST_CHECK_NO_THROW(p_test->toStream(ostr, Gem::Common::SERIALIZATIONMODE_XML));
+			BOOST_CHECK_NO_THROW(p_test->toStream(ostr, Gem::Common::serializationMode::SERIALIZATIONMODE_XML));
 			std::istringstream istr(ostr.str());
-			BOOST_CHECK_NO_THROW(p_test->fromStream(istr, Gem::Common::SERIALIZATIONMODE_XML));
+			BOOST_CHECK_NO_THROW(p_test->fromStream(istr, Gem::Common::serializationMode::SERIALIZATIONMODE_XML));
 		}
 
 		{ // Binary mode
 			std::ostringstream ostr;
-			BOOST_CHECK_NO_THROW(p_test->toStream(ostr, Gem::Common::SERIALIZATIONMODE_BINARY));
+			BOOST_CHECK_NO_THROW(p_test->toStream(ostr, Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY));
 			std::istringstream istr(ostr.str());
-			BOOST_CHECK_NO_THROW(p_test->fromStream(istr, Gem::Common::SERIALIZATIONMODE_BINARY));
+			BOOST_CHECK_NO_THROW(p_test->fromStream(istr, Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY));
 		}
 	}
 
@@ -396,12 +396,12 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 	{ // Check (de-)serialization from/to strings in three modes
 		std::shared_ptr <GObject> p_test = this->clone();
 
-		BOOST_CHECK_NO_THROW(p_test->fromString(p_test->toString(Gem::Common::SERIALIZATIONMODE_TEXT),
-															 Gem::Common::SERIALIZATIONMODE_TEXT));
+		BOOST_CHECK_NO_THROW(p_test->fromString(p_test->toString(Gem::Common::serializationMode::SERIALIZATIONMODE_TEXT),
+															 Gem::Common::serializationMode::SERIALIZATIONMODE_TEXT));
 		BOOST_CHECK_NO_THROW(
-			p_test->fromString(p_test->toString(Gem::Common::SERIALIZATIONMODE_XML), Gem::Common::SERIALIZATIONMODE_XML));
-		BOOST_CHECK_NO_THROW(p_test->fromString(p_test->toString(Gem::Common::SERIALIZATIONMODE_BINARY),
-															 Gem::Common::SERIALIZATIONMODE_BINARY));
+			p_test->fromString(p_test->toString(Gem::Common::serializationMode::SERIALIZATIONMODE_XML), Gem::Common::serializationMode::SERIALIZATIONMODE_XML));
+		BOOST_CHECK_NO_THROW(p_test->fromString(p_test->toString(Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY),
+															 Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY));
 	}
 
 	// --------------------------------------------------------------------------
@@ -410,24 +410,24 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 		std::shared_ptr <GObject> p_test = this->clone();
 
 		{ // Text mode
-			BOOST_CHECK_NO_THROW(p_test->toFile(bf::path("123test.txt"), Gem::Common::SERIALIZATIONMODE_TEXT));
-			BOOST_CHECK_NO_THROW(p_test->fromFile(bf::path("123test.txt"), Gem::Common::SERIALIZATIONMODE_TEXT));
+			BOOST_CHECK_NO_THROW(p_test->toFile(bf::path("123test.txt"), Gem::Common::serializationMode::SERIALIZATIONMODE_TEXT));
+			BOOST_CHECK_NO_THROW(p_test->fromFile(bf::path("123test.txt"), Gem::Common::serializationMode::SERIALIZATIONMODE_TEXT));
 
 			// Get rid of the file
 			remove(bf::path("./123test.txt"));
 		}
 
 		{ // XML mode
-			BOOST_CHECK_NO_THROW(p_test->toFile(bf::path("123test.xml"), Gem::Common::SERIALIZATIONMODE_XML));
-			BOOST_CHECK_NO_THROW(p_test->fromFile(bf::path("123test.xml"), Gem::Common::SERIALIZATIONMODE_XML));
+			BOOST_CHECK_NO_THROW(p_test->toFile(bf::path("123test.xml"), Gem::Common::serializationMode::SERIALIZATIONMODE_XML));
+			BOOST_CHECK_NO_THROW(p_test->fromFile(bf::path("123test.xml"), Gem::Common::serializationMode::SERIALIZATIONMODE_XML));
 
 			// Get rid of the file
 			remove(bf::path("./123test.xml"));
 		}
 
 		{ // Binary mode
-			BOOST_CHECK_NO_THROW(p_test->toFile(bf::path("123test.bin"), Gem::Common::SERIALIZATIONMODE_BINARY));
-			BOOST_CHECK_NO_THROW(p_test->fromFile(bf::path("123test.bin"), Gem::Common::SERIALIZATIONMODE_BINARY));
+			BOOST_CHECK_NO_THROW(p_test->toFile(bf::path("123test.bin"), Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY));
+			BOOST_CHECK_NO_THROW(p_test->fromFile(bf::path("123test.bin"), Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY));
 
 			// Get rid of the file
 			remove(bf::path("./123test.bin"));

@@ -165,7 +165,7 @@ public:
 	bool operator==(const GBaseParChildT<ind_type>& cp) const {
 		using namespace Gem::Common;
 		try {
-			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 			return true;
 		} catch(g_expectation_violation&) {
 			return false;
@@ -182,7 +182,7 @@ public:
 	bool operator!=(const GBaseParChildT<ind_type>& cp) const {
 		using namespace Gem::Common;
 		try {
-			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 			return true;
 		} catch(g_expectation_violation&) {
 			return false;
@@ -352,7 +352,7 @@ public:
 		}
 
 		switch(GOptimizationAlgorithmT<ind_type>::getCheckpointSerializationMode()) {
-			case Gem::Common::SERIALIZATIONMODE_TEXT:
+			case Gem::Common::serializationMode::SERIALIZATIONMODE_TEXT:
 				// Load the data from disc in text mode
 			{
 				boost::archive::text_iarchive ia(checkpointStream);
@@ -360,7 +360,7 @@ public:
 			} // note: explicit scope here is essential so the ia-destructor gets called
 				break;
 
-			case Gem::Common::SERIALIZATIONMODE_XML:
+			case Gem::Common::serializationMode::SERIALIZATIONMODE_XML:
 				// Load the data from disc in xml mode
 			{
 				boost::archive::xml_iarchive ia(checkpointStream);
@@ -368,7 +368,7 @@ public:
 			} // note: explicit scope here is essential so the ia-destructor gets called
 				break;
 
-			case Gem::Common::SERIALIZATIONMODE_BINARY:
+			case Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY:
 				// Load the data from disc in binary mode
 			{
 				boost::archive::binary_iarchive ia(checkpointStream);
@@ -896,7 +896,7 @@ protected:
 		}
 
 		switch(GOptimizationAlgorithmT<ind_type>::getCheckpointSerializationMode()) {
-			case Gem::Common::SERIALIZATIONMODE_TEXT:
+			case Gem::Common::serializationMode::SERIALIZATIONMODE_TEXT:
 				// Write the individuals' data to disc in text mode
 			{
 				boost::archive::text_oarchive oa(checkpointStream);
@@ -904,7 +904,7 @@ protected:
 			} // note: explicit scope here is essential so the oa-destructor gets called
 				break;
 
-			case Gem::Common::SERIALIZATIONMODE_XML:
+			case Gem::Common::serializationMode::SERIALIZATIONMODE_XML:
 				// Write the individuals' data to disc in XML mode
 			{
 				boost::archive::xml_oarchive oa(checkpointStream);
@@ -912,7 +912,7 @@ protected:
 			} // note: explicit scope here is essential so the oa-destructor gets called
 				break;
 
-			case Gem::Common::SERIALIZATIONMODE_BINARY:
+			case Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY:
 				// Write the individuals' data to disc in binary mode
 			{
 				boost::archive::binary_oarchive oa(checkpointStream);

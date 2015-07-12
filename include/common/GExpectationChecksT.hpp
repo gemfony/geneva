@@ -310,15 +310,15 @@ void compare(
 	std::string expectation_str;
 
 	switch (e) {
-		case Gem::Common::CE_FP_SIMILARITY:
-		case Gem::Common::CE_EQUALITY:
+		case Gem::Common::expectation::CE_FP_SIMILARITY:
+		case Gem::Common::expectation::CE_EQUALITY:
 			expectation_str = "CE_FP_SIMILARITY / CE_EQUALITY";
 			if (x == y) {
 				expectationMet = true;
 			}
 			break;
 
-		case Gem::Common::CE_INEQUALITY:
+		case Gem::Common::expectation::CE_INEQUALITY:
 			expectation_str = "CE_INEQUALITY";
 			if (x != y) {
 				expectationMet = true;
@@ -373,19 +373,19 @@ void compare(
 	std::string expectation_str;
 
 	switch (e) {
-		case Gem::Common::CE_FP_SIMILARITY:
+		case Gem::Common::expectation::CE_FP_SIMILARITY:
 			expectation_str = "CE_FP_SIMILARITY";
 			if (gfabs(x - y) < boost::numeric_cast<fp_type>(limit)) {
 				expectationMet = true;
 			}
 			break;
-		case Gem::Common::CE_EQUALITY:
+		case Gem::Common::expectation::CE_EQUALITY:
 			expectation_str = "CE_EQUALITY";
 			if (x == y) {
 				expectationMet = true;
 			}
 			break;
-		case Gem::Common::CE_INEQUALITY:
+		case Gem::Common::expectation::CE_INEQUALITY:
 			expectation_str = "CE_INEQUALITY";
 			if (x != y) {
 				expectationMet = true;
@@ -443,15 +443,15 @@ void compare(
 	std::string expectation_str;
 
 	switch (e) {
-		case Gem::Common::CE_FP_SIMILARITY:
-		case Gem::Common::CE_EQUALITY:
+		case Gem::Common::expectation::CE_FP_SIMILARITY:
+		case Gem::Common::expectation::CE_EQUALITY:
 			expectation_str = "CE_FP_SIMILARITY / CE_EQUALITY";
 			if (x == y) {
 				expectationMet = true;
 			}
 			break;
 
-		case Gem::Common::CE_INEQUALITY:
+		case Gem::Common::expectation::CE_INEQUALITY:
 			expectation_str = "CE_INEQUALITY";
 			if (x != y) {
 				expectationMet = true;
@@ -472,7 +472,7 @@ void compare(
 		<< "Expectation of " << expectation_str << " was violated for parameters "
 		<< x_name << " and " << y_name << "!" << std::endl;
 
-		if (Gem::Common::CE_FP_SIMILARITY == e || Gem::Common::CE_EQUALITY == e) {
+		if (Gem::Common::expectation::CE_FP_SIMILARITY == e || Gem::Common::expectation::CE_EQUALITY == e) {
 			if (x.size() != y.size()) {
 				error
 				<< "Sizes of vectors differ:" << std::endl
@@ -491,7 +491,7 @@ void compare(
 					}
 				}
 			}
-		} else { // Gem::Common::CE_INEQUALITY == e
+		} else { // Gem::Common::expectation::CE_INEQUALITY == e
 			error
 			<< "The two vectors " << x_name << " and " << y_name << " are equal "
 			<< "even though differences were expected"
@@ -530,11 +530,11 @@ void compare(
 	std::ostringstream error;
 
 	switch (e) {
-		case Gem::Common::CE_FP_SIMILARITY:
-		case Gem::Common::CE_EQUALITY: {
-			if (Gem::Common::CE_FP_SIMILARITY == e) {
+		case Gem::Common::expectation::CE_FP_SIMILARITY:
+		case Gem::Common::expectation::CE_EQUALITY: {
+			if (Gem::Common::expectation::CE_FP_SIMILARITY == e) {
 				expectation_str = "CE_FP_SIMILARITY";
-			} else if (Gem::Common::CE_EQUALITY == e) {
+			} else if (Gem::Common::expectation::CE_EQUALITY == e) {
 				expectation_str = "CE_EQUALITY";
 			}
 
@@ -549,7 +549,7 @@ void compare(
 			// Do a per-position comparison
 			bool foundDeviation = false;
 			typename c_type<fp_type>::const_iterator x_it, y_it;
-			if (Gem::Common::CE_FP_SIMILARITY == e) {
+			if (Gem::Common::expectation::CE_FP_SIMILARITY == e) {
 				for (x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
 					if (gfabs(*x_it - *y_it) >= boost::numeric_cast<fp_type>(limit)) {
 						foundDeviation = true;
@@ -563,7 +563,7 @@ void compare(
 						break; // break the loop
 					}
 				}
-			} else if (Gem::Common::CE_EQUALITY == e) {
+			} else if (Gem::Common::expectation::CE_EQUALITY == e) {
 				for (x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
 					if (*x_it != *y_it) {
 						foundDeviation = true;
@@ -583,7 +583,7 @@ void compare(
 		}
 			break;
 
-		case Gem::Common::CE_INEQUALITY:
+		case Gem::Common::expectation::CE_INEQUALITY:
 			expectation_str = "CE_INEQUALITY";
 			if (x != y) {
 				expectationMet = true;
@@ -635,8 +635,8 @@ void compare (
 	std::ostringstream error;
 
 	switch(e) {
-		case Gem::Common::CE_FP_SIMILARITY:
-		case Gem::Common::CE_EQUALITY:
+		case Gem::Common::expectation::CE_FP_SIMILARITY:
+		case Gem::Common::expectation::CE_EQUALITY:
 		{
 			expectation_str = "CE_FP_SIMILARITY / CE_EQUALITY";
 
@@ -659,7 +659,7 @@ void compare (
 		}
 			break;
 
-		case Gem::Common::CE_INEQUALITY:
+		case Gem::Common::expectation::CE_INEQUALITY:
 		{
 			expectation_str = "CE_INEQUALITY";
 
@@ -722,8 +722,8 @@ void compare (
 	std::ostringstream error;
 
 	switch(e) {
-		case Gem::Common::CE_FP_SIMILARITY:
-		case Gem::Common::CE_EQUALITY:
+		case Gem::Common::expectation::CE_FP_SIMILARITY:
+		case Gem::Common::expectation::CE_EQUALITY:
 		{
 			expectation_str = "CE_FP_SIMILARITY / CE_EQUALITY";
 
@@ -762,7 +762,7 @@ void compare (
 		}
 			break;
 
-		case Gem::Common::CE_INEQUALITY:
+		case Gem::Common::expectation::CE_INEQUALITY:
 		{
 			expectation_str = "CE_INEQUALITY";
 
@@ -837,8 +837,8 @@ void compare (
 	std::ostringstream error;
 
 	switch(e) {
-	case Gem::Common::CE_FP_SIMILARITY:
-	case Gem::Common::CE_EQUALITY: {
+	case Gem::Common::expectation::CE_FP_SIMILARITY:
+	case Gem::Common::expectation::CE_EQUALITY: {
 		expectation_str = "CE_FP_SIMILARITY / CE_EQUALITY";
 
 		// First check sizes
@@ -892,7 +892,7 @@ void compare (
 		}
 	} break;
 
-	case Gem::Common::CE_INEQUALITY: {
+	case Gem::Common::expectation::CE_INEQUALITY: {
 		expectation_str = "CE_INEQUALITY";
 
 		// First check sizes. The expectation of inequality will be met if they differ

@@ -269,7 +269,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 			BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
 
 			// Serialize T_ptr1 and load into T_ptr1, check equalities and similarities
-			BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(Gem::Common::SERIALIZATIONMODE_TEXT), Gem::Common::SERIALIZATIONMODE_TEXT));
+			BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(Gem::Common::serializationMode::SERIALIZATIONMODE_TEXT), Gem::Common::serializationMode::SERIALIZATIONMODE_TEXT));
 			BOOST_CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
 		} else {
 			std::cout << "Internal (de-)serialization test for object with name " << typeid(T).name() << " not run because original objects are identical / TEXT" << std::endl;
@@ -287,7 +287,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 			BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
 
 			// Serialize T_ptr1 and load into T_ptr1, check equalities and similarities
-			BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(Gem::Common::SERIALIZATIONMODE_XML), Gem::Common::SERIALIZATIONMODE_XML));
+			BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(Gem::Common::serializationMode::SERIALIZATIONMODE_XML), Gem::Common::serializationMode::SERIALIZATIONMODE_XML));
 			BOOST_CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
 		} else {
 			std::cout << "Internal (de-)serialization test for object with name " << typeid(T).name() << " not run because original objects are identical / XML" << std::endl;
@@ -305,7 +305,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 			BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
 
 			// Serialize T_ptr1 and load into T_ptr1, check equalities and similarities
-			BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(Gem::Common::SERIALIZATIONMODE_BINARY), Gem::Common::SERIALIZATIONMODE_BINARY));
+			BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY), Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY));
 			BOOST_CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
 		} else {
 			std::cout << "Internal (de-)serialization test for object with name " << typeid(T).name() << " not run because original objects are identical / BINARY" << std::endl;
@@ -327,8 +327,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 			BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
 
 			// Serialize T_ptr1 and load into T_ptr1, check equalities and similarities
-			std::string serializedObject = Gem::Common::sharedPtrToString(T_ptr1, Gem::Common::SERIALIZATIONMODE_TEXT);
-			T_ptr2 = Gem::Common::sharedPtrFromString<T>(serializedObject, Gem::Common::SERIALIZATIONMODE_TEXT);
+			std::string serializedObject = Gem::Common::sharedPtrToString(T_ptr1, Gem::Common::serializationMode::SERIALIZATIONMODE_TEXT);
+			T_ptr2 = Gem::Common::sharedPtrFromString<T>(serializedObject, Gem::Common::serializationMode::SERIALIZATIONMODE_TEXT);
 			BOOST_CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
 		} else {
 			std::cout << "External (de-)serialization test for object with name " << typeid(T).name() << " not run because original objects are identical / TEXT" << std::endl;
@@ -346,8 +346,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 			BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
 
 			// Serialize T_ptr1 and load into T_ptr1, check equalities and similarities
-			std::string serializedObject = Gem::Common::sharedPtrToString(T_ptr1, Gem::Common::SERIALIZATIONMODE_XML);
-			T_ptr2 = Gem::Common::sharedPtrFromString<T>(serializedObject, Gem::Common::SERIALIZATIONMODE_XML);
+			std::string serializedObject = Gem::Common::sharedPtrToString(T_ptr1, Gem::Common::serializationMode::SERIALIZATIONMODE_XML);
+			T_ptr2 = Gem::Common::sharedPtrFromString<T>(serializedObject, Gem::Common::serializationMode::SERIALIZATIONMODE_XML);
 			BOOST_CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
 		} else {
 			std::cout << "External (de-)serialization test for object with name " << typeid(T).name() << " not run because original objects are identical / XML" << std::endl;
@@ -365,8 +365,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 			BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
 
 			// Serialize T_ptr1 and load into T_ptr1, check equalities and similarities
-			std::string serializedObject = Gem::Common::sharedPtrToString(T_ptr1, Gem::Common::SERIALIZATIONMODE_BINARY);
-			T_ptr2 = Gem::Common::sharedPtrFromString<T>(serializedObject, Gem::Common::SERIALIZATIONMODE_BINARY);
+			std::string serializedObject = Gem::Common::sharedPtrToString(T_ptr1, Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY);
+			T_ptr2 = Gem::Common::sharedPtrFromString<T>(serializedObject, Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY);
 			BOOST_CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
 		} else {
 			std::cout << "External (de-)serialization test for object with name " << typeid(T).name() << " not run because original objects are identical / BINARY" << std::endl;

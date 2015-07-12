@@ -72,7 +72,7 @@ const unsigned short DEFAULTPORTAP=10000;
 const std::string DEFAULTIPAP="localhost";
 const std::string DEFAULTCONFIGFILEAP="./GBrokerSelfCommunication.cfg";
 const std::uint16_t DEFAULTPARALLELIZATIONMODEAP=0;
-const Gem::Common::serializationMode DEFAULTSERMODEAP=Gem::Common::SERIALIZATIONMODE_BINARY;
+const Gem::Common::serializationMode DEFAULTSERMODEAP=Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY;
 const bool DEFAULTUSEDIRECTBROKERCONNECTIONAP = false;
 
 /********************************************************************************************/

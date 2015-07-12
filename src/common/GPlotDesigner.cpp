@@ -175,7 +175,7 @@ const GBasePlotter& GBasePlotter::operator=(const GBasePlotter &cp) {
 bool GBasePlotter::operator==(const GBasePlotter &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -192,7 +192,7 @@ bool GBasePlotter::operator==(const GBasePlotter &cp) const {
 bool GBasePlotter::operator!=(const GBasePlotter &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -554,7 +554,7 @@ const GGraph2D& GGraph2D::operator=(const GGraph2D &cp) {
 bool GGraph2D::operator==(const GGraph2D &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -571,7 +571,7 @@ bool GGraph2D::operator==(const GGraph2D &cp) const {
 bool GGraph2D::operator!=(const GGraph2D &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -896,7 +896,7 @@ const GGraph2ED& GGraph2ED::operator=(const GGraph2ED &cp) {
 bool GGraph2ED::operator==(const GGraph2ED &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -913,7 +913,7 @@ bool GGraph2ED::operator==(const GGraph2ED &cp) const {
 bool GGraph2ED::operator!=(const GGraph2ED &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -1196,7 +1196,7 @@ const GGraph3D& GGraph3D::operator=(const GGraph3D &cp) {
 bool GGraph3D::operator==(const GGraph3D &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -1213,7 +1213,7 @@ bool GGraph3D::operator==(const GGraph3D &cp) const {
 bool GGraph3D::operator!=(const GGraph3D &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -1522,7 +1522,7 @@ const GGraph4D& GGraph4D::operator=(const GGraph4D &cp) {
 bool GGraph4D::operator==(const GGraph4D &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -1539,7 +1539,7 @@ bool GGraph4D::operator==(const GGraph4D &cp) const {
 bool GGraph4D::operator!=(const GGraph4D &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -1906,7 +1906,7 @@ const GHistogram1D& GHistogram1D::operator=(const GHistogram1D &cp) {
 bool GHistogram1D::operator==(const GHistogram1D &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -1923,7 +1923,7 @@ bool GHistogram1D::operator==(const GHistogram1D &cp) const {
 bool GHistogram1D::operator!=(const GHistogram1D &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -2205,7 +2205,7 @@ const GHistogram1I& GHistogram1I::operator=(const GHistogram1I &cp) {
 bool GHistogram1I::operator==(const GHistogram1I &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -2222,7 +2222,7 @@ bool GHistogram1I::operator==(const GHistogram1I &cp) const {
 bool GHistogram1I::operator!=(const GHistogram1I &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -2521,7 +2521,7 @@ const GHistogram2D& GHistogram2D::operator=(const GHistogram2D &cp) {
 bool GHistogram2D::operator==(const GHistogram2D &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -2538,7 +2538,7 @@ bool GHistogram2D::operator==(const GHistogram2D &cp) const {
 bool GHistogram2D::operator!=(const GHistogram2D &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -2944,7 +2944,7 @@ const GFunctionPlotter1D& GFunctionPlotter1D::operator=(const GFunctionPlotter1D
 bool GFunctionPlotter1D::operator==(const GFunctionPlotter1D &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -2961,7 +2961,7 @@ bool GFunctionPlotter1D::operator==(const GFunctionPlotter1D &cp) const {
 bool GFunctionPlotter1D::operator!=(const GFunctionPlotter1D &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -3208,7 +3208,7 @@ const GFunctionPlotter2D& GFunctionPlotter2D::operator=(const GFunctionPlotter2D
 bool GFunctionPlotter2D::operator==(const GFunctionPlotter2D &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -3225,7 +3225,7 @@ bool GFunctionPlotter2D::operator==(const GFunctionPlotter2D &cp) const {
 bool GFunctionPlotter2D::operator!=(const GFunctionPlotter2D &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -3511,7 +3511,7 @@ const GPlotDesigner& GPlotDesigner::operator=(const GPlotDesigner &cp) {
 bool GPlotDesigner::operator==(const GPlotDesigner &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -3528,7 +3528,7 @@ bool GPlotDesigner::operator==(const GPlotDesigner &cp) const {
 bool GPlotDesigner::operator!=(const GPlotDesigner &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;

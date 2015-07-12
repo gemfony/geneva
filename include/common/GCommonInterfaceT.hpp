@@ -134,21 +134,21 @@ public:
 #endif /* DEBUG */
 
 		switch (serMod) {
-			case Gem::Common::SERIALIZATIONMODE_TEXT: {
+			case Gem::Common::serializationMode::SERIALIZATIONMODE_TEXT: {
 				boost::archive::text_oarchive oa(oarchive_stream);
 				oa << boost::serialization::make_nvp("classhierarchyFromT", local);
 			} // note: explicit scope here is essential so the oa-destructor gets called
 
 				break;
 
-			case Gem::Common::SERIALIZATIONMODE_XML: {
+			case Gem::Common::serializationMode::SERIALIZATIONMODE_XML: {
 				boost::archive::xml_oarchive oa(oarchive_stream);
 				oa << boost::serialization::make_nvp("classhierarchyFromT", local);
 			} // note: explicit scope here is essential so the oa-destructor gets called
 
 				break;
 
-			case Gem::Common::SERIALIZATIONMODE_BINARY: {
+			case Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY: {
 				boost::archive::binary_oarchive oa(oarchive_stream);
 				oa << boost::serialization::make_nvp("classhierarchyFromT", local);
 			} // note: explicit scope here is essential so the oa-destructor gets called
@@ -178,21 +178,21 @@ public:
 		T *local = nullptr;
 
 		switch (serMod) {
-			case Gem::Common::SERIALIZATIONMODE_TEXT: {
+			case Gem::Common::serializationMode::SERIALIZATIONMODE_TEXT: {
 				boost::archive::text_iarchive ia(istr);
 				ia >> boost::serialization::make_nvp("classhierarchyFromT", local);
 			} // note: explicit scope here is essential so the ia-destructor gets called
 
 				break;
 
-			case Gem::Common::SERIALIZATIONMODE_XML: {
+			case Gem::Common::serializationMode::SERIALIZATIONMODE_XML: {
 				boost::archive::xml_iarchive ia(istr);
 				ia >> boost::serialization::make_nvp("classhierarchyFromT", local);
 			} // note: explicit scope here is essential so the ia-destructor gets called
 
 				break;
 
-			case Gem::Common::SERIALIZATIONMODE_BINARY: {
+			case Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY: {
 				boost::archive::binary_iarchive ia(istr);
 				ia >> boost::serialization::make_nvp("classhierarchyFromT", local);
 			} // note: explicit scope here is essential so the ia-destructor gets called
@@ -339,7 +339,7 @@ public:
 	 * @return An XML description of the GObject-derivative the function is called for
 	 */
 	std::string report() const {
-		return toString(Gem::Common::SERIALIZATIONMODE_XML);
+		return toString(Gem::Common::serializationMode::SERIALIZATIONMODE_XML);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -400,7 +400,7 @@ public:
 		// We consider two instances of this class to be always equal, as they
 		// do not have any local data and this is the base class. Hence
 		// we throw an expectation violation for the expectation CE_INEQUALITY.
-		if (CE_INEQUALITY == e) {
+		if (Gem::Common::expectation::CE_INEQUALITY == e) {
 			throw g_expectation_violation(
 				"In GCommonInterfaceT<T>: instance is empty and a base class, hence the expectation of inequality is always violated."
 			);

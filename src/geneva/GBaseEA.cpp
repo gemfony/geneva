@@ -104,7 +104,7 @@ const GBaseEA &GBaseEA::operator=(const GBaseEA &cp) {
 bool GBaseEA::operator==(const GBaseEA &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -121,7 +121,7 @@ bool GBaseEA::operator==(const GBaseEA &cp) const {
 bool GBaseEA::operator!=(const GBaseEA &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -944,7 +944,7 @@ const GBaseEA::GEAOptimizationMonitor &GBaseEA::GEAOptimizationMonitor::operator
 bool GBaseEA::GEAOptimizationMonitor::operator==(const GBaseEA::GEAOptimizationMonitor &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -961,7 +961,7 @@ bool GBaseEA::GEAOptimizationMonitor::operator==(const GBaseEA::GEAOptimizationM
 bool GBaseEA::GEAOptimizationMonitor::operator!=(const GBaseEA::GEAOptimizationMonitor &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;

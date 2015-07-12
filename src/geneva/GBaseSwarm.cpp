@@ -145,7 +145,7 @@ const GBaseSwarm &GBaseSwarm::operator=(const GBaseSwarm &cp) {
 bool GBaseSwarm::operator==(const GBaseSwarm &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -162,7 +162,7 @@ bool GBaseSwarm::operator==(const GBaseSwarm &cp) const {
 bool GBaseSwarm::operator!=(const GBaseSwarm &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -1623,7 +1623,7 @@ const GBaseSwarm::GSwarmOptimizationMonitor &GBaseSwarm::GSwarmOptimizationMonit
 bool GBaseSwarm::GSwarmOptimizationMonitor::operator==(const GBaseSwarm::GSwarmOptimizationMonitor &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -1640,7 +1640,7 @@ bool GBaseSwarm::GSwarmOptimizationMonitor::operator==(const GBaseSwarm::GSwarmO
 bool GBaseSwarm::GSwarmOptimizationMonitor::operator!=(const GBaseSwarm::GSwarmOptimizationMonitor &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;

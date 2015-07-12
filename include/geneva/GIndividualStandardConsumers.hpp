@@ -71,7 +71,7 @@ public:
 	G_API_GENEVA GIndividualTCPConsumer(
 		const unsigned short&
 		, const std::size_t& = 0
-		, const Gem::Common::serializationMode& = Gem::Common::SERIALIZATIONMODE_BINARY
+		, const Gem::Common::serializationMode& = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY
 	);
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GIndividualTCPConsumer();

@@ -103,7 +103,7 @@ public:
 	   using namespace Gem::Common;
 
 	   try {
-	      x.compare(y, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+	      x.compare(y, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
          return true;
 	   } catch(g_expectation_violation& g) {
 	      std::cout
@@ -133,7 +133,7 @@ public:
 
 	   try{
 	     x.Gem::Common::template GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::compare_base(
-	        y, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE
+	        y, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE
         );
 
 	     return true;
@@ -164,7 +164,7 @@ public:
       using namespace Gem::Common;
 
       try {
-         x.compare(y, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         x.compare(y, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
          return true;
       } catch(g_expectation_violation& g) {
          std::cout
@@ -194,7 +194,7 @@ public:
 
       try{
         x.Gem::Common::template GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::compare_base(
-           y, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE
+           y, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE
         );
         return true;
       } catch(g_expectation_violation& g) {
@@ -225,7 +225,7 @@ public:
       using namespace Gem::Common;
 
       try {
-         x.compare(y, CE_FP_SIMILARITY, CE_DEF_SIMILARITY_DIFFERENCE);
+         x.compare(y, Gem::Common::expectation::CE_FP_SIMILARITY, CE_DEF_SIMILARITY_DIFFERENCE);
          return true;
       } catch(g_expectation_violation& g) {
          std::cout
@@ -256,7 +256,7 @@ public:
 
       try {
          x.Gem::Common::template GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::compare_base(
-            y, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE
+            y, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE
          );
          return true;
       } catch(g_expectation_violation& g) {

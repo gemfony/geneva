@@ -466,7 +466,7 @@ public:
 	bool operator==(const GDataCollector1T<x_type> &cp) const {
 		using namespace Gem::Common;
 		try {
-			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 			return true;
 		} catch (g_expectation_violation &) {
 			return false;
@@ -483,7 +483,7 @@ public:
 	bool operator!=(const GDataCollector1T<x_type> &cp) const {
 		using namespace Gem::Common;
 		try {
-			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 			return true;
 		} catch (g_expectation_violation &) {
 			return false;
@@ -896,7 +896,7 @@ public:
 	bool operator==(const GDataCollector2T<x_type, y_type> &cp) const {
 		using namespace Gem::Common;
 		try {
-			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 			return true;
 		} catch (g_expectation_violation &) {
 			return false;
@@ -913,7 +913,7 @@ public:
 	bool operator!=(const GDataCollector2T<x_type, y_type> &cp) const {
 		using namespace Gem::Common;
 		try {
-			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 			return true;
 		} catch (g_expectation_violation &) {
 			return false;
@@ -1278,7 +1278,7 @@ public:
 	bool operator==(const GDataCollector2ET<x_type, y_type> &cp) const {
 		using namespace Gem::Common;
 		try {
-			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 			return true;
 		} catch (g_expectation_violation &) {
 			return false;
@@ -1295,7 +1295,7 @@ public:
 	bool operator!=(const GDataCollector2ET<x_type, y_type> &cp) const {
 		using namespace Gem::Common;
 		try {
-			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 			return true;
 		} catch (g_expectation_violation &) {
 			return false;
@@ -1859,7 +1859,7 @@ public:
 	bool operator==(const GDataCollector3T<x_type, y_type, z_type> &cp) const {
 		using namespace Gem::Common;
 		try {
-			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 			return true;
 		} catch (g_expectation_violation &) {
 			return false;
@@ -1876,7 +1876,7 @@ public:
 	bool operator!=(const GDataCollector3T<x_type, y_type, z_type> &cp) const {
 		using namespace Gem::Common;
 		try {
-			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 			return true;
 		} catch (g_expectation_violation &) {
 			return false;
@@ -2369,7 +2369,7 @@ public:
 	bool operator==(const GDataCollector4T<x_type, y_type, z_type, w_type> &cp) const {
 		using namespace Gem::Common;
 		try {
-			this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 			return true;
 		} catch (g_expectation_violation &) {
 			return false;
@@ -2386,7 +2386,7 @@ public:
 	bool operator!=(const GDataCollector4T<x_type, y_type, z_type, w_type> &cp) const {
 		using namespace Gem::Common;
 		try {
-			this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 			return true;
 		} catch (g_expectation_violation &) {
 			return false;

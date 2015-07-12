@@ -60,14 +60,16 @@ namespace serialization {
  * Saves a tribool variable to an archive
  */
 template<class Archive>
-void save(Archive &ar,
-			 const boost::logic::tribool &val,
-			 unsigned int) {
-	Gem::Common::triboolStates tbs = Gem::Common::TBS_FALSE;
+void save(
+	Archive &ar
+	, const boost::logic::tribool &val
+	, unsigned int
+) {
+	Gem::Common::triboolStates tbs = Gem::Common::triboolStates::TBS_FALSE;
 	if (val == true)
-		tbs = Gem::Common::TBS_TRUE;
+		tbs = Gem::Common::triboolStates::TBS_TRUE;
 	else if (boost::logic::indeterminate(val))
-		tbs = Gem::Common::TBS_INDETERMINATE;
+		tbs = Gem::Common::triboolStates::TBS_INDETERMINATE;
 
 	ar &make_nvp("tbs", tbs);
 }
@@ -77,22 +79,24 @@ void save(Archive &ar,
  * Loads a tribool variable from an archive
  */
 template<class Archive>
-void load(Archive &ar,
-			 boost::logic::tribool &val,
-			 unsigned int) {
-	Gem::Common::triboolStates tbs = Gem::Common::TBS_FALSE;
+void load(
+	Archive &ar
+	, boost::logic::tribool &val
+	, unsigned int
+) {
+	Gem::Common::triboolStates tbs = Gem::Common::triboolStates::TBS_FALSE;
 	ar &make_nvp("tbs", tbs);
 
 	switch (tbs) {
-		case Gem::Common::TBS_FALSE:
+		case Gem::Common::triboolStates::TBS_FALSE:
 			val = false;
 			break;
 
-		case Gem::Common::TBS_TRUE:
+		case Gem::Common::triboolStates::TBS_TRUE:
 			val = true;
 			break;
 
-		case Gem::Common::TBS_INDETERMINATE:
+		case Gem::Common::triboolStates::TBS_INDETERMINATE:
 			val = boost::logic::indeterminate;
 			break;
 	};

@@ -76,7 +76,7 @@ const GParameterSetConstraint &GParameterSetConstraint::operator=(const GParamet
 bool GParameterSetConstraint::operator==(const GParameterSetConstraint &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -90,7 +90,7 @@ bool GParameterSetConstraint::operator==(const GParameterSetConstraint &cp) cons
 bool GParameterSetConstraint::operator!=(const GParameterSetConstraint &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -196,7 +196,7 @@ GParameterSetFormulaConstraint::~GParameterSetFormulaConstraint() { /* nothing *
 bool GParameterSetFormulaConstraint::operator==(const GParameterSetFormulaConstraint &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
@@ -210,7 +210,7 @@ bool GParameterSetFormulaConstraint::operator==(const GParameterSetFormulaConstr
 bool GParameterSetFormulaConstraint::operator!=(const GParameterSetFormulaConstraint &cp) const {
 	using namespace Gem::Common;
 	try {
-		this->compare(cp, CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 		return true;
 	} catch (g_expectation_violation &) {
 		return false;
