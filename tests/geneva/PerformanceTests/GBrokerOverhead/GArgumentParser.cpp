@@ -43,9 +43,11 @@ namespace Tests {
 /**
 	* A function that parses the command line for all required parameters
 	*/
-bool parseCommandLine(int argc, char **argv,
-							 std::string &configFile,
-							 std::uint16_t &parallelizationMode) {
+bool parseCommandLine(
+	int argc, char **argv
+	, std::string &configFile
+	, execMode &parallelizationMode
+) {
 	try {
 		// Check the command line options. Uses the Boost program options library.
 		po::options_description desc("Usage: evaluator [options]");
@@ -54,8 +56,8 @@ bool parseCommandLine(int argc, char **argv,
 			("configFile,c", po::value<std::string>(&configFile)->default_value(DEFAULTCONFIGFILE),
 			 "The name of the configuration file holding further configuration options")
 			("parallelizationMode,p",
-			 po::value<std::uint16_t>(&parallelizationMode)->default_value(DEFAULTPARALLELIZATIONMODE),
-			 "Whether or not to run this optimization in serial mode (0), multi-threaded (1) or mt-consumer (2) mode");
+			 po::value<execMode>(&parallelizationMode)->default_value(DEFAULTPARALLELIZATIONMODE),
+			 "Whether to run this optimization in serial mode (0), multi-threaded (1) or mt-consumer (2) mode");
 
 		po::variables_map vm;
 		po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -69,26 +71,16 @@ bool parseCommandLine(int argc, char **argv,
 			return false;
 		}
 
-		if (vm.count("parallelizationMode")) {
-			if (parallelizationMode > 2) {
-				glogger
-				<< "Error: the \"-p\" or \"--parallelizationMode\" option may only assume the" << std::endl
-				<< "values 0 (serial), 1 (multi-threaded) or 2 (mt-consumer). Leaving ..." << std::endl
-				<< GWARNING;
-				return false;
-			}
-		}
-
 		std::string parModeString;
 		switch (parallelizationMode) {
-			case 0:
+			case execMode::EXECMODE_SERIAL:
 				parModeString = "serial";
 				break;
-			case 1:
+			case execMode::EXECMODE_MULTITHREADED:
 				parModeString = "multi-threaded";
 				break;
-			case 2:
-				parModeString = "networked";
+			case execMode::EXECMODE_BROKERAGE:
+				parModeString = "multi-threaded consumer";
 				break;
 
 			default:
@@ -119,13 +111,28 @@ bool parseCommandLine(int argc, char **argv,
  * A function that parses a config file for further parameters
  */
 bool parseConfigFile(
-	const std::string &configFile, std::uint16_t &nProducerThreads, std::uint16_t &nEvaluationThreads,
-	std::size_t &populationSize, std::size_t &nParents, std::uint32_t &maxIterations, long &maxMinutes,
-	std::uint32_t &reportIteration, duplicationScheme &rScheme, sortingMode &smode, std::uint32_t &nProcessingUnits,
-	double &adProb, std::uint32_t &adaptionThreshold, double &sigma, double &sigmaSigma, double &minSigma,
-	double &maxSigma, std::size_t &parDim, double &minVar, double &maxVar, solverFunction &df
+	const std::string &configFile
+	, std::uint16_t &nProducerThreads
+	, std::uint16_t &nEvaluationThreads
+	, std::size_t &populationSize
+	, std::size_t &nParents
+	, std::uint32_t &maxIterations
+	, long &maxMinutes
+	, std::uint32_t &reportIteration
+	, duplicationScheme &rScheme
+	, sortingMode &smode
+	, std::uint32_t &nProcessingUnits
+	, double &adProb
+	, std::uint32_t &adaptionThreshold
+	, double &sigma
+	, double &sigmaSigma
+	, double &minSigma
+	, double &maxSigma
+	, std::size_t &parDim
+	, double &minVar
+	, double &maxVar
+	, solverFunction &df
 ) {
-	std::uint16_t recombinationScheme = 0;
 	std::uint16_t evalFunction = 0;
 	bool verbose = true;
 
@@ -156,7 +163,7 @@ bool parseConfigFile(
 			 "The maximum number of minutes the optimization of the population should run")
 			("reportIteration", po::value<std::uint32_t>(&reportIteration)->default_value(DEFAULTREPORTITERATION),
 			 "The number of iterations after which information should be emitted in the super-population")
-			("rScheme", po::value<std::uint16_t>(&recombinationScheme)->default_value(DEFAULTRSCHEME),
+			("rScheme", po::value<duplicationScheme>(&rScheme)->default_value(DEFAULTRSCHEME),
 			 "The recombination scheme for the super-population")
 			("sortingScheme,o", po::value<sortingMode>(&smode)->default_value(DEFAULTSORTINGSCHEME),
 			 "Determines whether sorting is done in MUCOMMANU_SINGLEEVAL (0), MUPLUSNU_SINGLEEVAL (1) or MUNU1PRETAIN (2) mode")
@@ -214,20 +221,6 @@ bool parseConfigFile(
 			return false;
 		}
 
-		// Workaround for assigment problem with rScheme
-		if (recombinationScheme == (std::uint16_t) duplicationScheme::VALUEDUPLICATIONSCHEME)
-			rScheme = duplicationScheme::VALUEDUPLICATIONSCHEME;
-		else if (recombinationScheme == (std::uint16_t) duplicationScheme::RANDOMDUPLICATIONSCHEME)
-			rScheme = duplicationScheme::RANDOMDUPLICATIONSCHEME;
-		else if (recombinationScheme == (std::uint16_t) duplicationScheme::DEFAULTDUPLICATIONSCHEME)
-			rScheme = duplicationScheme::DEFAULTDUPLICATIONSCHEME;
-		else {
-			glogger
-			<< "Error: Invalid recombination scheme in population: " << recombinationScheme << std::endl
-			<< GWARNING;
-			return false;
-		}
-
 		// Assign the demo function
 		if (evalFunction > (std::uint16_t) MAXDEMOFUNCTION) {
 			std::cout << "Error: Invalid evaluation function: " << evalFunction
@@ -239,14 +232,14 @@ bool parseConfigFile(
 		if (verbose) {
 			std::cout << std::endl
 			<< "Running with the following options from " << configFile << ":" << std::endl
-			<< "nProducerThreads = " << (std::uint16_t) nProducerThreads <<
+			<< "nProducerThreads = " << nProducerThreads <<
 			std::endl // std::uint8_t not printable on gcc ???
 			<< "populationSize = " << populationSize << std::endl
 			<< "nParents = " << nParents << std::endl
 			<< "maxIterations = " << maxIterations << std::endl
 			<< "maxMinutes = " << maxMinutes << std::endl
 			<< "reportIteration = " << reportIteration << std::endl
-			<< "rScheme = " << (std::uint16_t) rScheme << std::endl
+			<< "rScheme = " << rScheme << std::endl
 			<< "sortingScheme = " << smode << std::endl
 			<< "nProcessingUnits = " << nProcessingUnits << std::endl
 			<< "adProb = " << adProb << std::endl

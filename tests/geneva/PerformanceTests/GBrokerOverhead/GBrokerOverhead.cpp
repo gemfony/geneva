@@ -57,7 +57,7 @@
  */
 int main(int argc, char **argv){
 	std::string configFile;
-	std::uint16_t parallelizationMode;
+	execMode parallelizationMode;
 	std::string ip;
 	std::uint16_t nProducerThreads;
 	std::uint16_t nEvaluationThreads;
@@ -80,9 +80,11 @@ int main(int argc, char **argv){
 	double maxSigma;
 	double adProb;
 
-	if(!Gem::Tests::parseCommandLine(argc, argv,
-												configFile,
-												parallelizationMode)
+	if(!Gem::Tests::parseCommandLine(
+		argc, argv
+		, configFile
+		, parallelizationMode
+	)
 		||
 		!Gem::Tests::parseConfigFile(
 			configFile
@@ -147,14 +149,14 @@ int main(int argc, char **argv){
 	// Create the actual populations
 	switch (parallelizationMode) {
 		//-----------------------------------------------------------------------------------------------------
-		case 0: // Serial execution
+		case execMode::EXECMODE_SERIAL: // Serial execution
 			std::cout << "Using serial execution." << std::endl;
 			// Create an empty population
 			pop_ptr = std::shared_ptr<GSerialEA>(new GSerialEA());
 			break;
 
 			//-----------------------------------------------------------------------------------------------------
-		case 1: // Multi-threaded execution
+		case execMode::EXECMODE_MULTITHREADED: // Multi-threaded execution
 		{
 			std::cout << "Using plain multithreaded execution." << std::endl;
 			// Create the multi-threaded population
@@ -169,7 +171,7 @@ int main(int argc, char **argv){
 			break;
 
 			//-----------------------------------------------------------------------------------------------------
-		case 2: // Execution with multi-threaded consumer
+		case execMode::EXECMODE_BROKERAGE: // Execution with multi-threaded consumer. Note that we use EXECMODE_BROKERAGE here, even though no networked execution takes place
 		{
 			std::cout << "Using the GBoostThreadConsumerT consumer." << std::endl;
 			// Create a consumer and make it known to the global broker

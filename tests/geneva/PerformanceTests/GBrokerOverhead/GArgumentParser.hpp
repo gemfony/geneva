@@ -61,10 +61,8 @@
 
 using namespace Gem::Geneva;
 
-namespace Gem
-{
-namespace Tests
-{
+namespace Gem {
+namespace Tests {
 
 // Default settings
 const std::uint16_t DEFAULTNPRODUCERTHREADS=10;
@@ -76,7 +74,7 @@ const long DEFAULTMAXMINUTES=10;
 const std::uint32_t DEFAULTREPORTITERATION=1;
 const duplicationScheme DEFAULTRSCHEME=duplicationScheme::VALUEDUPLICATIONSCHEME;
 const bool DEFAULTVERBOSE=true;
-const bool DEFAULTPARALLELIZATIONMODE=1;
+const execMode DEFAULTPARALLELIZATIONMODE=execMode::EXECMODE_MULTITHREADED;
 const bool DEFAULTUSECOMMONADAPTOR=false; // whether to use a common adaptor for all GParameterT objects
 const unsigned short DEFAULTPORT=10000;
 const std::string DEFAULTIP="localhost";
@@ -97,7 +95,7 @@ namespace po = boost::program_options;
 bool parseCommandLine(
 	int argc, char **argv
 	, std::string& configFile
-	, std::uint16_t& parallelizationMode
+	, execMode& parallelizationMode
 );
 
 bool parseConfigFile(
