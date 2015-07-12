@@ -485,7 +485,7 @@ bool GConstrainedDoubleCollection::modify_GUnitTests() {
 	// Call the parent classes' functions
 	if (GConstrainedFPNumCollectionT<double>::modify_GUnitTests()) result = true;
 
-	this->randomInit(ALLPARAMETERS);
+	this->randomInit(activityMode::ALLPARAMETERS);
 	result = true;
 
 	return result;

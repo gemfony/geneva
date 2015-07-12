@@ -78,7 +78,7 @@ const std::size_t DEFMAXRETRIESUNTILVALID=10;
 
 /******************************************************************************/
 // Indicates whether only active, inactive or all parameters should be extracted
-enum activityMode {
+enum class activityMode {
 	ACTIVEONLY = 0 // Extract only active parameters
 	, ALLPARAMETERS = 1 // Extract all parameters
 	, INACTIVEONLY = 2 // Only extract inactive parameters
@@ -351,7 +351,7 @@ const double DEFAULTQUALITYTHRESHOLD=0.;
 /**
  * Selection of policy for validity-check combiner
  */
-enum validityCheckCombinerPolicy {
+enum class validityCheckCombinerPolicy {
 	MULTIPLYINVALID = 0   // Multiplies all invalid checks (i.e. return values > 1) or returns 0, if all checks are valid
 	, ADDINVALID = 1      // Adds all invalid checks or returns 0, if all checks are valid
 };

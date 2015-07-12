@@ -409,7 +409,7 @@ bool GDoubleObject::modify_GUnitTests() {
 	// Call the parent class'es function
 	if (GNumFPT<double>::modify_GUnitTests()) result = true;
 
-	this->randomInit(ALLPARAMETERS);
+	this->randomInit(activityMode::ALLPARAMETERS);
 	result = true;
 
 	return result;

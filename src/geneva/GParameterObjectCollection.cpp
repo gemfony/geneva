@@ -232,7 +232,7 @@ void GParameterObjectCollection::fillWithObjects() {
 	BOOST_CHECK_NO_THROW(gbo_ptr->addAdaptor(gba_ptr));
 
 	// Randomly initialize the GBooleanObject object, so it is unique
-	BOOST_CHECK_NO_THROW(gbo_ptr->randomInit(ALLPARAMETERS));
+	BOOST_CHECK_NO_THROW(gbo_ptr->randomInit(activityMode::ALLPARAMETERS));
 
 	// Add the object to the collection
 	BOOST_CHECK_NO_THROW(this->push_back(gbo_ptr));
@@ -254,7 +254,7 @@ void GParameterObjectCollection::fillWithObjects() {
 	BOOST_CHECK_NO_THROW(gio_ptr->addAdaptor(giga_ptr));
 
 	// Randomly initialize the GInt32Object object, so it is unique
-	BOOST_CHECK_NO_THROW(gio_ptr->randomInit(ALLPARAMETERS));
+	BOOST_CHECK_NO_THROW(gio_ptr->randomInit(activityMode::ALLPARAMETERS));
 
 	// Add the object to the collection
 	BOOST_CHECK_NO_THROW(this->push_back(gio_ptr));
@@ -277,7 +277,7 @@ void GParameterObjectCollection::fillWithObjects() {
 	BOOST_CHECK_NO_THROW(gdo_ptr->addAdaptor(gdga_ptr));
 
 	// Randomly initialize the GDoubleObject object, so it is unique
-	BOOST_CHECK_NO_THROW(gdo_ptr->randomInit(ALLPARAMETERS));
+	BOOST_CHECK_NO_THROW(gdo_ptr->randomInit(activityMode::ALLPARAMETERS));
 
 	// Add the object to the collection
 	BOOST_CHECK_NO_THROW(this->push_back(gdo_ptr));
@@ -329,7 +329,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Test initialization of p_test2 with a fixed value
-		BOOST_CHECK_NO_THROW(p_test2->fixedValueInit<double>(FIXEDVALUEINIT, ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test2->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
 
 		// The first two parameters should be unchanged
 		BOOST_CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
@@ -363,7 +363,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Initialize p_test2 with a fixed value
-		BOOST_CHECK_NO_THROW(p_test2->fixedValueInit<double>(FIXEDVALUEINIT, ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test2->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
 
 		// The first two parameters should be unchanged
 		BOOST_CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
@@ -381,7 +381,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(gdo_ptr2->value() == FIXEDVALUEINIT);
 
 		// Multiply with a fixed value
-		BOOST_CHECK_NO_THROW(p_test2->multiplyBy<double>(MULTVALUE, ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test2->multiplyBy<double>(MULTVALUE, activityMode::ALLPARAMETERS));
 
 		// The first two parameters should again be unchanged
 		BOOST_CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
@@ -404,7 +404,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
 
 		// Initialize p_test1 with a fixed value
-		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
 
 		// Load the data intp p_test2
 		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
@@ -413,7 +413,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Multiply p_test2 with a random number in a given range
-		BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY, ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY, activityMode::ALLPARAMETERS));
 
 		// The first two parameters should again be unchanged
 		BOOST_CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
@@ -438,7 +438,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
 
 		// Initialize p_test1 with a fixed value
-		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
 
 		// Load the data intp p_test2
 		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
@@ -447,7 +447,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Multiply p_test2 with a random number in the range [0,1[
-		BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(activityMode::ALLPARAMETERS));
 
 		// The first two parameters should again be unchanged
 		BOOST_CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
@@ -472,7 +472,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
 
 		// Initialize p_test1 with a fixed value
-		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
 
 		// Load the data intp p_test2
 		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
@@ -481,7 +481,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Add p_test1 to p_test2
-		BOOST_CHECK_NO_THROW(p_test2->add<double>(p_test1, ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test2->add<double>(p_test1, activityMode::ALLPARAMETERS));
 
 		// The first two parameters should again be unchanged
 		BOOST_CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
@@ -507,7 +507,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
 
 		// Initialize p_test1 with a fixed value
-		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
 
 		// Load the data intp p_test2
 		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
@@ -516,7 +516,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Subtract p_test1 from p_test2
-		BOOST_CHECK_NO_THROW(p_test2->subtract<double>(p_test1, ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test2->subtract<double>(p_test1, activityMode::ALLPARAMETERS));
 
 		// The first two parameters should again be unchanged
 		BOOST_CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
@@ -550,7 +550,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Randomly initialize p_test2, using GParameterTCollectionT<T>::randomInit()
-		BOOST_CHECK_NO_THROW(p_test2->randomInit(ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test2->randomInit(activityMode::ALLPARAMETERS));
 
 		// Check that the two objects differ
 		BOOST_CHECK(*p_test1 != *p_test2);

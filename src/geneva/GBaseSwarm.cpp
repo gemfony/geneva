@@ -657,7 +657,7 @@ void GBaseSwarm::init() {
 	GOptimizationAlgorithmT<GParameterSet>::init();
 
 	// Extract the boundaries of all parameters
-	this->at(0)->boundaries(dblLowerParameterBoundaries_, dblUpperParameterBoundaries_, ACTIVEONLY);
+	this->at(0)->boundaries(dblLowerParameterBoundaries_, dblUpperParameterBoundaries_, activityMode::ACTIVEONLY);
 
 #ifdef DEBUG
    // Size matters!
@@ -700,7 +700,7 @@ void GBaseSwarm::init() {
 
 		// Extract the parameter vector
 		std::vector<double> velVec;
-		p->streamline(velVec, ACTIVEONLY);
+		p->streamline(velVec, activityMode::ACTIVEONLY);
 
 #ifdef DEBUG
       // Check that the number of parameters equals those in the velocity boundaries
@@ -721,7 +721,7 @@ void GBaseSwarm::init() {
 		}
 
 		// Load the array into the velocity object
-		p->assignValueVector<double>(velVec, ACTIVEONLY);
+		p->assignValueVector<double>(velVec, activityMode::ACTIVEONLY);
 		p->setDirtyFlag(); // Catch cases where a value is calculated for the velocity individual
 
 		// Add the initialized velocity to the array.
@@ -941,11 +941,11 @@ void GBaseSwarm::updateIndividualPositions(
 	// Extract the vectors for the individual, the personal, neighborhood and global bests,
 	// as well as the velocity
 	std::vector<double> indVec, personalBestVec, nbhBestVec, glbBestVec, velVec;
-	ind->streamline(indVec, ACTIVEONLY);
-	personal_best->streamline(personalBestVec, ACTIVEONLY);
-	neighborhood_best->streamline(nbhBestVec, ACTIVEONLY);
-	global_best->streamline(glbBestVec, ACTIVEONLY);
-	velocity->streamline(velVec, ACTIVEONLY);
+	ind->streamline(indVec, activityMode::ACTIVEONLY);
+	personal_best->streamline(personalBestVec, activityMode::ACTIVEONLY);
+	neighborhood_best->streamline(nbhBestVec, activityMode::ACTIVEONLY);
+	global_best->streamline(glbBestVec, activityMode::ACTIVEONLY);
+	velocity->streamline(velVec, activityMode::ACTIVEONLY);
 
 	// Subtract the individual vector from the personal, neighborhood and global bests
 	Gem::Common::subtractVec<double>(personalBestVec, indVec);
@@ -1005,10 +1005,10 @@ void GBaseSwarm::updateIndividualPositions(
 	}
 
 	// Update the velocity individual
-	velocity->assignValueVector<double>(velVec, ACTIVEONLY);
+	velocity->assignValueVector<double>(velVec, activityMode::ACTIVEONLY);
 
 	// Update the candidate solution
-	ind->assignValueVector<double>(indVec, ACTIVEONLY);
+	ind->assignValueVector<double>(indVec, activityMode::ACTIVEONLY);
 }
 
 /******************************************************************************/
@@ -1186,7 +1186,7 @@ void GBaseSwarm::adjustPopulation() {
 		// Fill up with random items to the number of neighborhoods
 		for (std::size_t i = 1; i < nNeighborhoods_; i++) {
 			this->push_back(this->front()->clone<GParameterSet>());
-			this->back()->randomInit(ACTIVEONLY);
+			this->back()->randomInit(activityMode::ACTIVEONLY);
 		}
 
 		// Fill in remaining items in each neighborhood. This will
@@ -1206,7 +1206,7 @@ void GBaseSwarm::adjustPopulation() {
 			// First fill up the neighborhoods, if required
 			for (std::size_t m = 0; m < (nNeighborhoods_ - currentSize); m++) {
 				this->push_back(this->front()->clone<GParameterSet>());
-				this->back()->randomInit(ACTIVEONLY);
+				this->back()->randomInit(activityMode::ACTIVEONLY);
 			}
 
 			// Now follow the procedure used for the "nNeighborhoods_" case
@@ -1298,7 +1298,7 @@ void GBaseSwarm::fillUpNeighborhood1() {
 				}
 #endif /* DEBUG */
 
-				(*(this->begin() + n + 1))->randomInit(ACTIVEONLY);
+				(*(this->begin() + n + 1))->randomInit(activityMode::ACTIVEONLY);
 			}
 		}
 

@@ -261,7 +261,7 @@ std::string GParameterBase::getParameterName() const {
  */
 bool GParameterBase::amMatch(const activityMode &am) const {
 	switch (am) {
-		case ACTIVEONLY: {
+		case activityMode::ACTIVEONLY: {
 			if (this->adaptionsActive()) {
 				return true;
 			} else {
@@ -270,12 +270,12 @@ bool GParameterBase::amMatch(const activityMode &am) const {
 		}
 			break;
 
-		case ALLPARAMETERS: {
+		case activityMode::ALLPARAMETERS: {
 			return true;
 		}
 			break;
 
-		case INACTIVEONLY: {
+		case activityMode::INACTIVEONLY: {
 			if (this->adaptionsInactive()) {
 				return true;
 			} else {
@@ -1115,7 +1115,7 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test2->randomInitializationBlocked() == true);
 
 		// Random initialization should leave the object unchanged
-		BOOST_CHECK_NO_THROW(p_test1->randomInit(ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test1->randomInit(activityMode::ALLPARAMETERS));
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Unblock random initialization
@@ -1131,7 +1131,7 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 			bool valueChanged = false;
 			p_test2->load(p_test1);
 			for (int i = 0; i < 100; i++) {
-				if (p_test1->randomInit(ALLPARAMETERS)) {
+				if (p_test1->randomInit(activityMode::ALLPARAMETERS)) {
 					if (*p_test1 != *p_test2) {
 						valueChanged = true;
 						break;

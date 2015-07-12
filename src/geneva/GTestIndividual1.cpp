@@ -53,7 +53,7 @@ GTestIndividual1::GTestIndividual1()
 	gdga1->setAdaptAdProb(0.);
 
 	gdc_ptr->addAdaptor(gdga1);
-	gdc_ptr->randomInit(Gem::Geneva::ACTIVEONLY);
+	gdc_ptr->randomInit(Gem::Geneva::activityMode::ACTIVEONLY);
 	this->push_back(gdc_ptr);
 }
 
@@ -258,7 +258,7 @@ void GTestIndividual1::addGDoubleObjects(const std::size_t &nItems) {
 		BOOST_CHECK_NO_THROW(gdo_ptr->addAdaptor(gdga_ptr));
 
 		// Randomly initialize the GDoubleObject object, so it is unique
-		BOOST_CHECK_NO_THROW(gdo_ptr->randomInit(Gem::Geneva::ACTIVEONLY));
+		BOOST_CHECK_NO_THROW(gdo_ptr->randomInit(Gem::Geneva::activityMode::ACTIVEONLY));
 
 		// Add the object to the collection
 		BOOST_CHECK_NO_THROW(this->push_back(gdo_ptr));
@@ -582,7 +582,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
 
 		// Initialize with a fixed value
-		BOOST_CHECK_NO_THROW(p_test->fixedValueInit<double>(42., ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test->fixedValueInit<double>(42., activityMode::ALLPARAMETERS));
 
 		// Check the current size
 		BOOST_CHECK(p_test->size() == nItems);

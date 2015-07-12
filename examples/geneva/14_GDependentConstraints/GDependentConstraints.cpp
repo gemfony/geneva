@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
 
 		// Create a check combiner and add the constraint objects to it
 		std::shared_ptr<GCheckCombinerT<GOptimizableEntity>> combiner_ptr(new GCheckCombinerT<GOptimizableEntity>());
-		combiner_ptr->setCombinerPolicy(Gem::Geneva::MULTIPLYINVALID);
+		combiner_ptr->setCombinerPolicy(Gem::Geneva::validityCheckCombinerPolicy::MULTIPLYINVALID);
 
 		combiner_ptr->addCheck(doublesum_constraint_ptr);
 		combiner_ptr->addCheck(sphere_constraint_ptr);

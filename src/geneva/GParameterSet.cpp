@@ -826,7 +826,7 @@ bool GParameterSet::modify_GUnitTests() {
 	// Call the parent class'es function
 	if (GMutableSetT<Gem::Geneva::GParameterBase>::modify_GUnitTests()) result = true;
 
-	if(this->randomInit(ALLPARAMETERS)) {
+	if(this->randomInit(activityMode::ALLPARAMETERS)) {
 		result = true;
 	}
 
@@ -894,7 +894,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			// Create a GParameterSet object as a clone of p_test_0 for further usage
 			std::shared_ptr <GParameterSet> p_test = p_test_0->clone<GParameterSet>();
 
-			BOOST_CHECK_NO_THROW(p_test->randomInit(ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test->randomInit(activityMode::ALLPARAMETERS));
 			BOOST_CHECK(*p_test != *p_test_0);
 		}
 
@@ -905,7 +905,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				std::shared_ptr <GParameterSet> p_test = p_test_0->clone<GParameterSet>();
 
 				// Initialize all fp-values with 0.
-				p_test->fixedValueInit<double>(d, ALLPARAMETERS);
+				p_test->fixedValueInit<double>(d, activityMode::ALLPARAMETERS);
 
 				// Make sure the dirty flag is set
 				BOOST_CHECK(p_test->isDirty() == true);
@@ -967,10 +967,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				std::shared_ptr <GParameterSet> p_test = p_test_0->clone<GParameterSet>();
 
 				// Initialize all fp-values with FPFIXEDVALINITMAX
-				BOOST_CHECK_NO_THROW(p_test->fixedValueInit<double>(FPFIXEDVALINITMAX, ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test->fixedValueInit<double>(FPFIXEDVALINITMAX, activityMode::ALLPARAMETERS));
 
 				// Multiply this fixed value by d
-				BOOST_CHECK_NO_THROW(p_test->multiplyBy<double>(d, ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test->multiplyBy<double>(d, activityMode::ALLPARAMETERS));
 
 				// Make sure the dirty flag is set
 				BOOST_CHECK(p_test->isDirty() == true);
@@ -1025,7 +1025,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 
 			// Multiply each floating point value with a constrained random value
 			BOOST_CHECK_NO_THROW(
-				p_test->multiplyByRandom<double>(FPMULTIPLYBYRANDMIN, FPMULTIPLYBYRANDMAX, ALLPARAMETERS));
+				p_test->multiplyByRandom<double>(FPMULTIPLYBYRANDMIN, FPMULTIPLYBYRANDMAX, activityMode::ALLPARAMETERS));
 
 			// Make sure the dirty flag is set
 			BOOST_CHECK(p_test->isDirty() == true);
@@ -1078,7 +1078,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			std::shared_ptr <GParameterSet> p_test = p_test_0->clone<GParameterSet>();
 
 			// Multiply each floating point value with a constrained random value
-			BOOST_CHECK_NO_THROW(p_test->multiplyByRandom<double>(ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test->multiplyByRandom<double>(activityMode::ALLPARAMETERS));
 
 			// Make sure the dirty flag is set
 			BOOST_CHECK(p_test->isDirty() == true);
@@ -1132,10 +1132,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			std::shared_ptr <GParameterSet> p_test_fixed = p_test_0->clone<GParameterSet>();
 
 			// Initialize all fp-values of the "add" individual with a fixed value
-			BOOST_CHECK_NO_THROW(p_test_fixed->fixedValueInit<double>(FPADD, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test_fixed->fixedValueInit<double>(FPADD, activityMode::ALLPARAMETERS));
 
 			// Add p_test_fixed to p_test
-			BOOST_CHECK_NO_THROW(p_test->add<double>(p_test_fixed, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test->add<double>(p_test_fixed, activityMode::ALLPARAMETERS));
 
 			// Check the results
 			std::size_t counter = 0;
@@ -1193,10 +1193,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			std::shared_ptr <GParameterSet> p_test_fixed = p_test_0->clone<GParameterSet>();
 
 			// Initialize all fp-values of the "add" individual with a fixed valie
-			BOOST_CHECK_NO_THROW(p_test_fixed->fixedValueInit<double>(FPSUBTRACT, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test_fixed->fixedValueInit<double>(FPSUBTRACT, activityMode::ALLPARAMETERS));
 
 			// Add p_test_fixed to p_test
-			BOOST_CHECK_NO_THROW(p_test->subtract<double>(p_test_fixed, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test->subtract<double>(p_test_fixed, activityMode::ALLPARAMETERS));
 
 			// Check the results
 			std::size_t counter = 0;
@@ -1363,26 +1363,26 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			std::shared_ptr <GParameterSet> p_test = p_test_0->clone<GParameterSet>();
 
 			// Count the number of parameters and compare with the expected number
-			BOOST_CHECK(p_test->countParameters<double>(ACTIVEONLY) == NDOUBLEACTIVE);
-			BOOST_CHECK(p_test->countParameters<double>(INACTIVEONLY) == NDOUBLEINACTIVE);
-			BOOST_CHECK(p_test->countParameters<double>(ALLPARAMETERS) == NDOUBLEALL);
-			BOOST_CHECK(p_test->countParameters<std::int32_t>(ACTIVEONLY) == NINTACTIVE);
-			BOOST_CHECK(p_test->countParameters<std::int32_t>(INACTIVEONLY) == NINTINACTIVE);
-			BOOST_CHECK(p_test->countParameters<std::int32_t>(ALLPARAMETERS) == NINTALL);
-			BOOST_CHECK(p_test->countParameters<bool>(ACTIVEONLY) == NBOOLACTIVE);
-			BOOST_CHECK(p_test->countParameters<bool>(INACTIVEONLY) == NBOOLINACTIVE);
-			BOOST_CHECK(p_test->countParameters<bool>(ALLPARAMETERS) == NBOOLALL);
+			BOOST_CHECK(p_test->countParameters<double>(activityMode::ACTIVEONLY) == NDOUBLEACTIVE);
+			BOOST_CHECK(p_test->countParameters<double>(activityMode::INACTIVEONLY) == NDOUBLEINACTIVE);
+			BOOST_CHECK(p_test->countParameters<double>(activityMode::ALLPARAMETERS) == NDOUBLEALL);
+			BOOST_CHECK(p_test->countParameters<std::int32_t>(activityMode::ACTIVEONLY) == NINTACTIVE);
+			BOOST_CHECK(p_test->countParameters<std::int32_t>(activityMode::INACTIVEONLY) == NINTINACTIVE);
+			BOOST_CHECK(p_test->countParameters<std::int32_t>(activityMode::ALLPARAMETERS) == NINTALL);
+			BOOST_CHECK(p_test->countParameters<bool>(activityMode::ACTIVEONLY) == NBOOLACTIVE);
+			BOOST_CHECK(p_test->countParameters<bool>(activityMode::INACTIVEONLY) == NBOOLINACTIVE);
+			BOOST_CHECK(p_test->countParameters<bool>(activityMode::ALLPARAMETERS) == NBOOLALL);
 		}
 
 		//-----------------------------------------------------------------
 
-		{ // Check that streamline(INACTIVEONLY) yields unchanged results before and after randomInit(ACTIVEONLY)
+		{ // Check that streamline(activityMode::INACTIVEONLY) yields unchanged results before and after randomInit(activityMode::ACTIVEONLY)
 			// Create two GParameterSet objects as clones of p_test_0 for further usage
 			std::shared_ptr <GParameterSet> p_test_orig = p_test_0->clone<GParameterSet>();
 			std::shared_ptr <GParameterSet> p_test_rand = p_test_0->clone<GParameterSet>();
 
 			// Randomly initialize active components of p_test2
-			BOOST_CHECK_NO_THROW(p_test_rand->randomInit(ACTIVEONLY));
+			BOOST_CHECK_NO_THROW(p_test_rand->randomInit(activityMode::ACTIVEONLY));
 
 			std::vector<double> orig_d_inactive;
 			std::vector<double> rand_d_inactive;
@@ -1394,12 +1394,12 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			std::vector<bool> rand_b_inactive;
 
 			// Extract the parameters
-			BOOST_CHECK_NO_THROW(p_test_orig->streamline<double>(orig_d_inactive, INACTIVEONLY));
-			BOOST_CHECK_NO_THROW(p_test_rand->streamline<double>(rand_d_inactive, INACTIVEONLY));
-			BOOST_CHECK_NO_THROW(p_test_orig->streamline<std::int32_t>(orig_i_inactive, INACTIVEONLY));
-			BOOST_CHECK_NO_THROW(p_test_rand->streamline<std::int32_t>(rand_i_inactive, INACTIVEONLY));
-			BOOST_CHECK_NO_THROW(p_test_orig->streamline<bool>(orig_b_inactive, INACTIVEONLY));
-			BOOST_CHECK_NO_THROW(p_test_rand->streamline<bool>(rand_b_inactive, INACTIVEONLY));
+			BOOST_CHECK_NO_THROW(p_test_orig->streamline<double>(orig_d_inactive, activityMode::INACTIVEONLY));
+			BOOST_CHECK_NO_THROW(p_test_rand->streamline<double>(rand_d_inactive, activityMode::INACTIVEONLY));
+			BOOST_CHECK_NO_THROW(p_test_orig->streamline<std::int32_t>(orig_i_inactive, activityMode::INACTIVEONLY));
+			BOOST_CHECK_NO_THROW(p_test_rand->streamline<std::int32_t>(rand_i_inactive, activityMode::INACTIVEONLY));
+			BOOST_CHECK_NO_THROW(p_test_orig->streamline<bool>(orig_b_inactive, activityMode::INACTIVEONLY));
+			BOOST_CHECK_NO_THROW(p_test_rand->streamline<bool>(rand_b_inactive, activityMode::INACTIVEONLY));
 
 			// Check that the "inactive" vectors have the expected characteristics
 			BOOST_CHECK(orig_d_inactive.size() == NDOUBLEINACTIVE);
@@ -1412,14 +1412,14 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 
 		//-----------------------------------------------------------------
 
-		{ // Check that streamline(ACTIVEONLY) yields changed results after randomInit(ACTIVEONLY)
+		{ // Check that streamline(activityMode::ACTIVEONLY) yields changed results after randomInit(activityMode::ACTIVEONLY)
 			// Create a GParameterSet object as a clone of p_test_0 for further usage
 			// Create two GParameterSet objects as clones of p_test_0 for further usage
 			std::shared_ptr <GParameterSet> p_test_orig = p_test_0->clone<GParameterSet>();
 			std::shared_ptr <GParameterSet> p_test_rand = p_test_0->clone<GParameterSet>();
 
 			// Randomly initialize active components of p_test2
-			BOOST_CHECK_NO_THROW(p_test_rand->randomInit(ACTIVEONLY));
+			BOOST_CHECK_NO_THROW(p_test_rand->randomInit(activityMode::ACTIVEONLY));
 
 			std::vector<double> orig_d_active;
 			std::vector<double> rand_d_active;
@@ -1431,12 +1431,12 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			std::vector<bool> rand_b_active;
 
 			// Extract the parameters
-			BOOST_CHECK_NO_THROW(p_test_orig->streamline<double>(orig_d_active, ACTIVEONLY));
-			BOOST_CHECK_NO_THROW(p_test_rand->streamline<double>(rand_d_active, ACTIVEONLY));
-			BOOST_CHECK_NO_THROW(p_test_orig->streamline<std::int32_t>(orig_i_active, ACTIVEONLY));
-			BOOST_CHECK_NO_THROW(p_test_rand->streamline<std::int32_t>(rand_i_active, ACTIVEONLY));
-			BOOST_CHECK_NO_THROW(p_test_orig->streamline<bool>(orig_b_active, ACTIVEONLY));
-			BOOST_CHECK_NO_THROW(p_test_rand->streamline<bool>(rand_b_active, ACTIVEONLY));
+			BOOST_CHECK_NO_THROW(p_test_orig->streamline<double>(orig_d_active, activityMode::ACTIVEONLY));
+			BOOST_CHECK_NO_THROW(p_test_rand->streamline<double>(rand_d_active, activityMode::ACTIVEONLY));
+			BOOST_CHECK_NO_THROW(p_test_orig->streamline<std::int32_t>(orig_i_active, activityMode::ACTIVEONLY));
+			BOOST_CHECK_NO_THROW(p_test_rand->streamline<std::int32_t>(rand_i_active, activityMode::ACTIVEONLY));
+			BOOST_CHECK_NO_THROW(p_test_orig->streamline<bool>(orig_b_active, activityMode::ACTIVEONLY));
+			BOOST_CHECK_NO_THROW(p_test_rand->streamline<bool>(rand_b_active, activityMode::ACTIVEONLY));
 
 			// Check that the "active" vectors' contents indeed differ
 			BOOST_CHECK(orig_d_active.size() == NDOUBLEACTIVE);

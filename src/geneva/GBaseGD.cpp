@@ -460,7 +460,7 @@ void GBaseGD::updateChildParameters() {
 	for (std::size_t i = 0; i < nStartingPoints_; i++) {
 		// Extract the fp vector
 		std::vector<double> parmVec;
-		this->at(i)->streamline<double>(parmVec, ACTIVEONLY); // Only extract active parameters
+		this->at(i)->streamline<double>(parmVec, activityMode::ACTIVEONLY); // Only extract active parameters
 
 		// Loop over all directions
 		for (std::size_t j = 0; j < nFPParmsFirst_; j++) {
@@ -480,7 +480,7 @@ void GBaseGD::updateChildParameters() {
 			parmVec[j] += adjustedFiniteStep_[j];
 
 			// Attach the feature vector to the child individual
-			this->at(childPos)->assignValueVector<double>(parmVec, ACTIVEONLY);
+			this->at(childPos)->assignValueVector<double>(parmVec, activityMode::ACTIVEONLY);
 
 			// Restore the original value in the feature vector
 			parmVec[j] = origParmVal;
@@ -497,7 +497,7 @@ void GBaseGD::updateParentIndividuals() {
 	for (std::size_t i = 0; i < nStartingPoints_; i++) {
 		// Extract the fp vector
 		std::vector<double> parmVec;
-		this->at(i)->streamline<double>(parmVec, ACTIVEONLY);
+		this->at(i)->streamline<double>(parmVec, activityMode::ACTIVEONLY);
 
 #ifdef DEBUG
 		// Make sure the parents are clean
@@ -534,7 +534,7 @@ void GBaseGD::updateParentIndividuals() {
 		}
 
 		// Load the parameter vector back into the parent
-		this->at(i)->assignValueVector<double>(parmVec, ACTIVEONLY);
+		this->at(i)->assignValueVector<double>(parmVec, activityMode::ACTIVEONLY);
 	}
 }
 
@@ -587,7 +587,7 @@ void GBaseGD::init() {
 	GOptimizationAlgorithmT<GParameterSet>::init();
 
 	// Extract the boundaries of all parameters
-	this->at(0)->boundaries(dblLowerParameterBoundaries_, dblUpperParameterBoundaries_, ACTIVEONLY);
+	this->at(0)->boundaries(dblLowerParameterBoundaries_, dblUpperParameterBoundaries_, activityMode::ACTIVEONLY);
 
 #ifdef DEBUG
    // Size matters!
@@ -677,7 +677,7 @@ void GBaseGD::adjustPopulation() {
 	}
 
 	// Update the number of active floating point parameters in the individuals
-	nFPParmsFirst_ = this->at(0)->countParameters<double>(ACTIVEONLY);
+	nFPParmsFirst_ = this->at(0)->countParameters<double>(activityMode::ACTIVEONLY);
 
 	// Check that the first individual has floating point parameters (double for the moment)
 	if (nFPParmsFirst_ == 0) {
@@ -690,11 +690,11 @@ void GBaseGD::adjustPopulation() {
 	// Check that all individuals currently available have the same amount of parameters
 #ifdef DEBUG
 	for(std::size_t i=1; i<this->size(); i++) {
-		if(this->at(i)->countParameters<double>(ACTIVEONLY) != nFPParmsFirst_) {
+		if(this->at(i)->countParameters<double>(activityMode::ACTIVEONLY) != nFPParmsFirst_) {
 		   glogger
 		   << "In GBaseGD::adjustPopulation():" << std::endl
          << "Found individual in position " <<  i << " with different" << std::endl
-         << "number of floating point parameters than the first one: " << this->at(i)->countParameters<double>(ACTIVEONLY) << "/" << nFPParmsFirst_ << std::endl
+         << "number of floating point parameters than the first one: " << this->at(i)->countParameters<double>(activityMode::ACTIVEONLY) << "/" << nFPParmsFirst_ << std::endl
          << GEXCEPTION;
 		}
 	}
@@ -709,7 +709,7 @@ void GBaseGD::adjustPopulation() {
 			// Create a copy of the first individual
 			this->push_back(this->at(0)->clone<GParameterSet>());
 			// Make sure our start values differ
-			this->back()->randomInit(ACTIVEONLY);
+			this->back()->randomInit(activityMode::ACTIVEONLY);
 		}
 	} else {
 		// Start with a defined size. This will remove surplus items.

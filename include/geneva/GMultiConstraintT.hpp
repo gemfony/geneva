@@ -529,7 +529,7 @@ public:
 	 * The default constructor
 	 */
 	GCheckCombinerT()
-		: combinerPolicy_(Gem::Geneva::MULTIPLYINVALID)
+		: combinerPolicy_(Gem::Geneva::validityCheckCombinerPolicy::MULTIPLYINVALID)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -540,7 +540,7 @@ public:
 		const std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>> >& validityChecks
 	)
 	: GValidityCheckContainerT<ind_type>(validityChecks)
-	, combinerPolicy_(Gem::Geneva::MULTIPLYINVALID)
+	, combinerPolicy_(Gem::Geneva::validityCheckCombinerPolicy::MULTIPLYINVALID)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -676,7 +676,7 @@ protected:
 		switch(combinerPolicy_) {
 			// --------------------------------------------------------------------
 			// Multiply all invalidities
-			case Gem::Geneva::MULTIPLYINVALID:
+			case Gem::Geneva::validityCheckCombinerPolicy::MULTIPLYINVALID:
 			{
 				double result = 1.;
 				std::vector<double>::const_iterator d_cit;
@@ -695,7 +695,7 @@ protected:
 
 				// --------------------------------------------------------------------
 				// Add all invalidities
-			case Gem::Geneva::ADDINVALID:
+			case Gem::Geneva::validityCheckCombinerPolicy::ADDINVALID:
 			{
 				double result = 0.;
 				std::vector<double>::const_iterator d_cit;

@@ -481,7 +481,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
 			// Randomly initialize using our internal function -- will use the most extreme boundaries available
-			BOOST_CHECK_NO_THROW(p_test->randomInit_(ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test->randomInit_(activityMode::ALLPARAMETERS));
 		}
 
 		//------------------------------------------------------------------------------
@@ -500,7 +500,7 @@ public:
 				BOOST_CHECK_NO_THROW(p_test->setValue(lowerBoundary, lowerBoundary, upperBoundary));
 
 				// Randomly initialize, using our internal value
-				BOOST_CHECK_NO_THROW(p_test->randomInit_(ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test->randomInit_(activityMode::ALLPARAMETERS));
 			}
 		}
 

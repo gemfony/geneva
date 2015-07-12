@@ -113,7 +113,7 @@ public:
 	)
 		: GNumT<fp_type> (min, max)
 	{
-		GNumFPT<fp_type>::randomInit(ACTIVEONLY);
+		GNumFPT<fp_type>::randomInit(activityMode::ACTIVEONLY);
 	}
 
 	/***************************************************************************/
@@ -348,7 +348,7 @@ public:
 			p_test1->setValue(fp_type(0));
 
 			// Initialize with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(boost::numeric_cast<fp_type>(2.*UPPERINITBOUNDARY), ALLPARAMETERS)); // Make sure the parameters indeed change
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(boost::numeric_cast<fp_type>(2.*UPPERINITBOUNDARY), activityMode::ALLPARAMETERS)); // Make sure the parameters indeed change
 
 			// Check that the value has indeed been set.
 			BOOST_CHECK_MESSAGE(
@@ -376,7 +376,7 @@ public:
 				BOOST_CHECK(*p_test1 == *p_test2);
 
 				// Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
-				BOOST_CHECK_NO_THROW(p_test2->randomInit_(ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test2->randomInit_(activityMode::ALLPARAMETERS));
 
 				// Check that the object has indeed changed
 				BOOST_CHECK(*p_test2 != *p_test1);
@@ -394,7 +394,7 @@ public:
 			std::shared_ptr<GNumFPT<fp_type>> p_test2 = this->GObject::clone<GNumFPT<fp_type>>();
 
 			// Initialize with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(FIXEDVALUEINIT, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
 
 			// Check that this value has been set
 			BOOST_CHECK(p_test1->value() == FIXEDVALUEINIT);
@@ -403,14 +403,14 @@ public:
 			BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
 
 			// Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
-			BOOST_CHECK_NO_THROW(p_test1->randomInit_(ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS));
 
 			// Load the data into p_test2 and check that both objects are equal
 			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
 			BOOST_CHECK(*p_test1 == *p_test2);
 
 			// Multiply p_test1 with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyBy<fp_type>(MULTVALUE, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyBy<fp_type>(MULTVALUE, activityMode::ALLPARAMETERS));
 
 			// Check that the multiplication has succeeded
 			BOOST_CHECK(p_test1->value() == MULTVALUE * p_test2->value());
@@ -422,13 +422,13 @@ public:
 			std::shared_ptr<GNumFPT<fp_type>> p_test1 = this->GObject::clone<GNumFPT<fp_type>>();
 
 			// Initialize with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(1., ALLPARAMETERS)); // 1. chosen so we see the multiplication value of the random number generator
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(1., activityMode::ALLPARAMETERS)); // 1. chosen so we see the multiplication value of the random number generator
 
 			// Check that this value has been set
 			BOOST_CHECK(p_test1->value() == 1.);
 
 			// Multiply with random values in a given range
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyByRandom<fp_type>(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyByRandom<fp_type>(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY, activityMode::ALLPARAMETERS));
 
 			// Check that all values are in the allowed range
 			BOOST_CHECK(p_test1->value() >= RANDLOWERBOUNDARY);
@@ -441,13 +441,13 @@ public:
 			std::shared_ptr<GNumFPT<fp_type>> p_test1 = this->GObject::clone<GNumFPT<fp_type>>();
 
 			// Initialize with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(1., ALLPARAMETERS)); // 1. chosen so we see the multiplication value of the random number generator
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(1., activityMode::ALLPARAMETERS)); // 1. chosen so we see the multiplication value of the random number generator
 
 			// Check that this value has been set
 			BOOST_CHECK(p_test1->value() == 1.);
 
 			// Multiply with random values in a given range
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyByRandom<fp_type>(ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyByRandom<fp_type>(activityMode::ALLPARAMETERS));
 
 			// Check that all values are in the allowed range
 			BOOST_CHECK(p_test1->value() >= 0.);
@@ -462,7 +462,7 @@ public:
 			std::shared_ptr<GNumFPT<fp_type>> p_test3 = this->GObject::clone<GNumFPT<fp_type>>();
 
 			// Initialize with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(0., ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(0., activityMode::ALLPARAMETERS));
 			BOOST_CHECK(p_test1->value() == 0.);
 
 			// Set initialization boundaries
@@ -472,8 +472,8 @@ public:
 			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
 
 			// Randomly initialize p_test1 and p_test2, so that both objects are different
-			BOOST_CHECK_NO_THROW(p_test1->randomInit_(ALLPARAMETERS));
-			BOOST_CHECK_NO_THROW(p_test2->randomInit_(ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test2->randomInit_(activityMode::ALLPARAMETERS));
 
 			// Check that they are indeed different
 			BOOST_CHECK(*p_test1 != *p_test2);
@@ -482,7 +482,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test3->load(p_test2));
 
 			// Add p_test1 to p_test3
-			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::template add<fp_type>(p_test1, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::template add<fp_type>(p_test1, activityMode::ALLPARAMETERS));
 
 			// Cross-check that the addition has worked
 			BOOST_CHECK(p_test3->value() == p_test1->value() + p_test2->value());
@@ -496,7 +496,7 @@ public:
 			std::shared_ptr<GNumFPT<fp_type>> p_test3 = this->GObject::clone<GNumFPT<fp_type>>();
 
 			// Initialize with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(0., ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(0., activityMode::ALLPARAMETERS));
 			BOOST_CHECK(p_test1->value() == 0.);
 
 			// Set initialization boundaries
@@ -506,8 +506,8 @@ public:
 			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
 
 			// Randomly initialize p_test1 and p_test2, so that both objects are different
-			BOOST_CHECK_NO_THROW(p_test1->randomInit_(ALLPARAMETERS));
-			BOOST_CHECK_NO_THROW(p_test2->randomInit_(ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test2->randomInit_(activityMode::ALLPARAMETERS));
 
 			// Check that they are indeed different
 			BOOST_CHECK(*p_test1 != *p_test2);
@@ -516,7 +516,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test3->load(p_test2));
 
 			// Subtract p_test1 from p_test3
-			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::template subtract<fp_type>(p_test1, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::template subtract<fp_type>(p_test1, activityMode::ALLPARAMETERS));
 
 			// Cross-check that the addition has worked. Note that we do need to take into
 			// account effects of floating point accuracy

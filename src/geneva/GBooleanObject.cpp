@@ -509,7 +509,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		std::size_t nTrue = 0;
 		std::size_t nFalse = 0;
 		for (std::size_t i = 0; i < nTests; i++) {
-			p_test->randomInit_(ALLPARAMETERS);
+			p_test->randomInit_(activityMode::ALLPARAMETERS);
 			p_test->value() ? nTrue++ : nFalse++;
 		}
 
@@ -539,7 +539,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		std::size_t nTrue = 0;
 		std::size_t nFalse = 0;
 		for (std::size_t i = 0; i < nTests; i++) {
-			p_test->randomInit_(1., ALLPARAMETERS);
+			p_test->randomInit_(1., activityMode::ALLPARAMETERS);
 			p_test->value() ? nTrue++ : nFalse++;
 		}
 
@@ -562,7 +562,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		std::size_t nTrue = 0;
 		std::size_t nFalse = 0;
 		for (std::size_t i = 0; i < nTests; i++) {
-			p_test->randomInit_(0., ALLPARAMETERS);
+			p_test->randomInit_(0., activityMode::ALLPARAMETERS);
 			p_test->value() ? nTrue++ : nFalse++;
 		}
 
@@ -582,14 +582,14 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 			BOOST_CHECK(p_test->value() == true);
 
 			// Randomly initialize, using the internal function, with the current probability
-			BOOST_CHECK_NO_THROW(p_test->randomInit_(d, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test->randomInit_(d, activityMode::ALLPARAMETERS));
 
 			// Count the number of true and false values for a number of subsequent initializations
 			// with the internal randomInit_ function.
 			std::size_t nTrue = 0;
 			std::size_t nFalse = 0;
 			for (std::size_t i = 0; i < nTests; i++) {
-				p_test->randomInit_(d, ALLPARAMETERS);
+				p_test->randomInit_(d, activityMode::ALLPARAMETERS);
 				p_test->value() ? nTrue++ : nFalse++;
 			}
 
@@ -635,7 +635,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test2->randomInitializationBlocked() == true);
 
 		// Try to randomly initialize, using the *external* function
-		BOOST_CHECK_NO_THROW(p_test1->randomInit(ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test1->randomInit(activityMode::ALLPARAMETERS));
 
 		// Check that both objects are still the same
 		BOOST_CHECK(*p_test1 == *p_test2);
@@ -666,7 +666,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test2->randomInitializationBlocked() == true);
 
 		// Try to randomly initialize, using the *external* function
-		BOOST_CHECK_NO_THROW(p_test1->randomInit(0.7, ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test1->randomInit(0.7, activityMode::ALLPARAMETERS));
 
 		// Check that both objects are still the same
 		BOOST_CHECK(*p_test1 == *p_test2);
@@ -692,27 +692,27 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test3 == *p_test2);
 
 		// Check that initialization with a fixed floating point value has no effect on this object
-		BOOST_CHECK_NO_THROW(p_test2->fixedValueInit<double>(2., ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test2->fixedValueInit<double>(2., activityMode::ALLPARAMETERS));
 		BOOST_CHECK(*p_test2 == *p_test1);
 
 		// Check that multiplication with a fixed floating point value has no effect on this object
-		BOOST_CHECK_NO_THROW(p_test2->multiplyBy<double>(2., ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test2->multiplyBy<double>(2., activityMode::ALLPARAMETERS));
 		BOOST_CHECK(*p_test2 == *p_test1);
 
 		// Check that a component-wise multiplication with a random fp value in a given range does not have an effect on this object
-		BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(1., 2., ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(1., 2., activityMode::ALLPARAMETERS));
 		BOOST_CHECK(*p_test2 == *p_test1);
 
 		// Check that a component-wise multiplication with a random fp value in the range [0:1[ does not have an effect on this object
-		BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(activityMode::ALLPARAMETERS));
 		BOOST_CHECK(*p_test2 == *p_test1);
 
 		// Check that adding p_test1 to p_test3 does not have an effect
-		BOOST_CHECK_NO_THROW(p_test3->add<double>(p_test1, ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test3->add<double>(p_test1, activityMode::ALLPARAMETERS));
 		BOOST_CHECK(*p_test3 == *p_test2);
 
 		// Check that subtracting p_test1 from p_test3 does not have an effect
-		BOOST_CHECK_NO_THROW(p_test3->subtract<double>(p_test1, ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test3->subtract<double>(p_test1, activityMode::ALLPARAMETERS));
 		BOOST_CHECK(*p_test3 == *p_test2);
 	}
 

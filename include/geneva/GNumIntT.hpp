@@ -126,7 +126,7 @@ public:
 	)
 		: GNumT<int_type> (min, max)
 	{
-		GNumIntT<int_type>::randomInit(ACTIVEONLY);
+		GNumIntT<int_type>::randomInit(activityMode::ACTIVEONLY);
 	}
 
 	/***************************************************************************/
@@ -350,7 +350,7 @@ public:
 
 			// Check that the values of p_test1 are inside of the allowed boundaries
 			for(std::size_t i=0; i<nTests; i++) {
-				BOOST_CHECK_NO_THROW(p_test1->randomInit_(ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS));
 				BOOST_CHECK(p_test1->value() >= LOWERINITBOUNDARY);
 				BOOST_CHECK(p_test1->value() <= UPPERINITBOUNDARY);
 				BOOST_CHECK(p_test1->value() != p_test2->value());
@@ -377,27 +377,27 @@ public:
 			BOOST_CHECK(*p_test3 == *p_test2);
 
 			// Check that initialization with a fixed floating point value has no effect on this object
-			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template fixedValueInit<double>(2., ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template fixedValueInit<double>(2., activityMode::ALLPARAMETERS));
 			BOOST_CHECK(*p_test2 == *p_test1);
 
 			// Check that multiplication with a fixed floating point value has no effect on this object
-			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template multiplyBy<double>(2., ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template multiplyBy<double>(2., activityMode::ALLPARAMETERS));
 			BOOST_CHECK(*p_test2 == *p_test1);
 
 			// Check that a component-wise multiplication with a random fp value in a given range does not have an effect on this object
-			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template multiplyByRandom<double>(1., 2., ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template multiplyByRandom<double>(1., 2., activityMode::ALLPARAMETERS));
 			BOOST_CHECK(*p_test2 == *p_test1);
 
 			// Check that a component-wise multiplication with a random fp value in the range [0:1[ does not have an effect on this object
-			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template multiplyByRandom<double>(ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template multiplyByRandom<double>(activityMode::ALLPARAMETERS));
 			BOOST_CHECK(*p_test2 == *p_test1);
 
 			// Check that adding p_test1 to p_test3 does not have an effect
-			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::template add<double>(p_test1, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::template add<double>(p_test1, activityMode::ALLPARAMETERS));
 			BOOST_CHECK(*p_test3 == *p_test2);
 
 			// Check that subtracting p_test1 from p_test3 does not have an effect
-			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::template subtract<double>(p_test1, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::template subtract<double>(p_test1, activityMode::ALLPARAMETERS));
 			BOOST_CHECK(*p_test3 == *p_test2);
 		}
 

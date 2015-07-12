@@ -339,8 +339,8 @@ public:
 			}
 
 			// Initialize with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(FIXEDVALUEINIT, ALLPARAMETERS));
-			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template fixedValueInit<fp_type>(FIXEDVALUEINIT, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template fixedValueInit<fp_type>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
 
 			// Check that values have indeed been set
 			for(std::size_t i=0; i<nItems; i++) {
@@ -353,7 +353,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test2->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
 
 			// Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
-			BOOST_CHECK_NO_THROW(p_test1->randomInit_(ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS));
 
 			// Check that the object has indeed changed
 			BOOST_CHECK(*p_test1 != *p_test2);
@@ -381,20 +381,20 @@ public:
 			}
 
 			// Initialize with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(FIXEDVALUEINIT, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
 
 			// Set initialization boundaries
 			BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
 
 			// Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
-			BOOST_CHECK_NO_THROW(p_test1->randomInit_(ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS));
 
 			// Load the data into p_test2 and check that both objects are equal
 			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
 			BOOST_CHECK(*p_test1 == *p_test2);
 
 			// Multiply p_test1 with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyBy<fp_type>(MULTVALUE, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyBy<fp_type>(MULTVALUE, activityMode::ALLPARAMETERS));
 
 			// Check that the multiplication has succeeded
 			for(std::size_t i=0; i<nItems; i++) {
@@ -417,10 +417,10 @@ public:
 			}
 
 			// Initialize with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(1., ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(1., activityMode::ALLPARAMETERS));
 
 			// Multiply with random values in a given range
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyByRandom<fp_type>(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyByRandom<fp_type>(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY, activityMode::ALLPARAMETERS));
 
 			// Check that all values are in this range
 			for(std::size_t i=0; i<nItems; i++) {
@@ -444,10 +444,10 @@ public:
 			}
 
 			// Initialize with a fixed value
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(1., ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(1., activityMode::ALLPARAMETERS));
 
 			// Multiply with random values in a given range
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyByRandom<fp_type>(ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyByRandom<fp_type>(activityMode::ALLPARAMETERS));
 
 			// Check that all values are in this range
 			for(std::size_t i=0; i<nItems; i++) {
@@ -480,8 +480,8 @@ public:
 			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
 
 			// Randomly initialize p_test1 and p_test2, so that both objects are different
-			BOOST_CHECK_NO_THROW(p_test1->randomInit_(ALLPARAMETERS));
-			BOOST_CHECK_NO_THROW(p_test2->randomInit_(ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test2->randomInit_(activityMode::ALLPARAMETERS));
 
 			// Check that they are indeed different
 			BOOST_CHECK(*p_test1 != *p_test2);
@@ -490,7 +490,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test3->load(p_test2));
 
 			// Add p_test1 to p_test3
-			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::template add<fp_type>(p_test1, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::template add<fp_type>(p_test1, activityMode::ALLPARAMETERS));
 
 			// Cross check that for each i p_test3[i] == p_test1[i] + p_test2[i]
 			for(std::size_t i=0; i<nItems; i++) {
@@ -522,8 +522,8 @@ public:
 			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
 
 			// Randomly initialize p_test1 and p_test2, so that both objects are different
-			BOOST_CHECK_NO_THROW(p_test1->randomInit_(ALLPARAMETERS));
-			BOOST_CHECK_NO_THROW(p_test2->randomInit_(ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test2->randomInit_(activityMode::ALLPARAMETERS));
 
 			// Check that they are indeed different
 			BOOST_CHECK(*p_test1 != *p_test2);
@@ -532,7 +532,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test3->load(p_test2));
 
 			// Add p_test1 to p_test3
-			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::template subtract<fp_type>(p_test1, ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::template subtract<fp_type>(p_test1, activityMode::ALLPARAMETERS));
 
 			// Cross check that for each i p_test3[i] == p_test1[i] - p_test2[i]
 			for(std::size_t i=0; i<nItems; i++) {
@@ -570,7 +570,7 @@ public:
 				p_test1->push_back(fp_type(0));
 			}
 
-			BOOST_CHECK_THROW(p_test1->GParameterBase::template add<fp_type>(p_test2, ALLPARAMETERS), Gem::Common::gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test1->GParameterBase::template add<fp_type>(p_test2, activityMode::ALLPARAMETERS), Gem::Common::gemfony_error_condition);
 		}
 
 		//------------------------------------------------------------------------------
@@ -584,7 +584,7 @@ public:
 				p_test1->push_back(fp_type(0));
 			}
 
-			BOOST_CHECK_THROW(p_test1->GParameterBase::template subtract<fp_type>(p_test2, ALLPARAMETERS), Gem::Common::gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test1->GParameterBase::template subtract<fp_type>(p_test2, activityMode::ALLPARAMETERS), Gem::Common::gemfony_error_condition);
 		}
 
 		//------------------------------------------------------------------------------

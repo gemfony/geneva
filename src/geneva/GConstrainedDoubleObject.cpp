@@ -399,7 +399,7 @@ bool GConstrainedDoubleObject::modify_GUnitTests() {
 	// Call the parent class'es function
 	if (GConstrainedFPT<double>::modify_GUnitTests()) result = true;
 
-	this->randomInit(ALLPARAMETERS);
+	this->randomInit(activityMode::ALLPARAMETERS);
 	result = true;
 
 	return result;

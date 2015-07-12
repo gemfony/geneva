@@ -281,7 +281,7 @@ public:
 	 */
 	template <typename par_type>
 	std::size_t countParameters(
-		const activityMode& am = DEFAULTACTIVITYMODE
+		const activityMode& am = activityMode::DEFAULTACTIVITYMODE
 	) const {
 		std::size_t result = 0;
 
@@ -313,7 +313,7 @@ public:
 	template <typename par_type>
 	void streamline(
 		std::vector<par_type>& parVec
-		, const activityMode& am = DEFAULTACTIVITYMODE
+		, const activityMode& am = activityMode::DEFAULTACTIVITYMODE
 	) const {
 		// Make sure the vector is clean
 		parVec.clear();
@@ -342,7 +342,7 @@ public:
 	template <typename par_type>
 	void streamline(
 		std::map<std::string, std::vector<par_type>>& parVec
-		, const activityMode& am = DEFAULTACTIVITYMODE
+		, const activityMode& am = activityMode::DEFAULTACTIVITYMODE
 	) const {
 		// Make sure the vector is clean
 		parVec.clear();
@@ -369,7 +369,7 @@ public:
 	template <typename par_type>
 	void assignValueVector(
 		const std::vector<par_type>& parVec
-		, const activityMode& am = DEFAULTACTIVITYMODE
+		, const activityMode& am = activityMode::DEFAULTACTIVITYMODE
 	) {
 #ifdef DEBUG
 		if(countParameters<par_type>() != parVec.size()) {
@@ -404,7 +404,7 @@ public:
 	template <typename par_type>
 	void assignValueVectors(
 		const std::map<std::string, std::vector<par_type>>& parMap
-		, const activityMode& am = DEFAULTACTIVITYMODE
+		, const activityMode& am = activityMode::DEFAULTACTIVITYMODE
 	) {
 		// Loop over all GParameterBase objects. Each object will extract the relevant parameters
 		GParameterSet::const_iterator cit;
@@ -431,7 +431,7 @@ public:
 	void boundaries(
 		std::vector<par_type>& lBndVec
 		, std::vector<par_type>& uBndVec
-		, const activityMode& am = DEFAULTACTIVITYMODE
+		, const activityMode& am = activityMode::DEFAULTACTIVITYMODE
 	) const {
 		// Make sure the vectors are clean
 		lBndVec.clear();

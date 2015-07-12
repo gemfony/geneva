@@ -562,7 +562,7 @@ void GBasePS::randomShuffle() {
 
 	while (true) {
 		// Update the individual and mark it as "dirty"
-		this->at(indPos)->randomInit(ACTIVEONLY);
+		this->at(indPos)->randomInit(activityMode::ACTIVEONLY);
 		// Mark the individual as "dirty", so it gets re-evaluated the
 		// next time the fitness() function is called
 		this->at(indPos)->setDirtyFlag();

@@ -231,7 +231,7 @@ void GConstrainedDoubleObjectCollection::fillWithObjects(const std::size_t &nAdd
 		BOOST_CHECK_NO_THROW(gcdo_ptr->addAdaptor(gdga_ptr));
 
 		// Randomly initialize the GConstrainedDoubleObject object, so it is unique
-		BOOST_CHECK_NO_THROW(gcdo_ptr->randomInit(ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(gcdo_ptr->randomInit(activityMode::ALLPARAMETERS));
 
 		// Add the object to the collection
 		BOOST_CHECK_NO_THROW(this->push_back(gcdo_ptr));
@@ -312,7 +312,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 		BOOST_CHECK(p_test1->size() == nAddedObjects);
 
 		// Initialize with a fixed value
-		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
 
 		// Check that all items have the expected value
 		for (std::size_t i = 0; i < nAddedObjects; i++) {
@@ -332,10 +332,10 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 		BOOST_CHECK(p_test1->size() == nAddedObjects);
 
 		// Initialize with a fixed value (1), so we have a defined start value for the multiplication
-		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
 
 		// Multiply all items with a defined value
-		BOOST_CHECK_NO_THROW(p_test1->multiplyBy<double>(MULTVALUE, ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test1->multiplyBy<double>(MULTVALUE, activityMode::ALLPARAMETERS));
 
 		// Check the values of all items
 		for (std::size_t i = 0; i < nAddedObjects; i++) {
@@ -359,7 +359,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 		BOOST_CHECK(p_test1->size() == nAddedObjects);
 
 		// Initialize with a fixed value (1), so we have a defined start value for the multiplication
-		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
 
 		// Load p_test1 into p_test2
 		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
@@ -368,7 +368,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Multiply p_test1 with a random value
-		BOOST_CHECK_NO_THROW(p_test1->multiplyByRandom<double>(LOWERINITBOUNDARY, UPPERINITBOUNDARY, ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test1->multiplyByRandom<double>(LOWERINITBOUNDARY, UPPERINITBOUNDARY, activityMode::ALLPARAMETERS));
 
 		// Check that p_test1 and p_test2 differ
 		BOOST_CHECK(*p_test1 != *p_test2);
@@ -395,7 +395,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 		BOOST_CHECK(p_test1->size() == nAddedObjects);
 
 		// Initialize with a fixed value (1), so we have a defined start value for the multiplication
-		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
 
 		// Load p_test1 into p_test2
 		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
@@ -404,7 +404,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Multiply p_test1 with a random value
-		BOOST_CHECK_NO_THROW(p_test1->multiplyByRandom<double>(ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test1->multiplyByRandom<double>(activityMode::ALLPARAMETERS));
 
 		// Check that p_test1 and p_test2 differ
 		BOOST_CHECK(*p_test1 != *p_test2);
@@ -431,12 +431,12 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
 
 		// Initialize p_test1 with a fixed value (1)
-		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(double(1.), ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(double(1.), activityMode::ALLPARAMETERS));
 		// Initialize p_test2 with a fixed value (2)
-		BOOST_CHECK_NO_THROW(p_test2->fixedValueInit<double>(double(2.), ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test2->fixedValueInit<double>(double(2.), activityMode::ALLPARAMETERS));
 
 		// Add p_test1 to p_test2
-		BOOST_CHECK_NO_THROW(p_test2->add<double>(p_test1, ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test2->add<double>(p_test1, activityMode::ALLPARAMETERS));
 
 		// Check each position of p_test2 individually
 		for (std::size_t i = 0; i < nAddedObjects; i++) {
@@ -460,12 +460,12 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
 
 		// Initialize p_test1 with a fixed value (1)
-		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(double(1.), ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(double(1.), activityMode::ALLPARAMETERS));
 		// Initialize p_test2 with a fixed value (2)
-		BOOST_CHECK_NO_THROW(p_test2->fixedValueInit<double>(double(2.), ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test2->fixedValueInit<double>(double(2.), activityMode::ALLPARAMETERS));
 
 		// Subtract p_test1 from p_test2
-		BOOST_CHECK_NO_THROW(p_test2->subtract<double>(p_test1, ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test2->subtract<double>(p_test1, activityMode::ALLPARAMETERS));
 
 		// Check each position of p_test2 individually
 		for (std::size_t i = 0; i < nAddedObjects; i++) {
@@ -511,7 +511,7 @@ void GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTest
 		BOOST_CHECK(p_test1->size() != p_test2->size() && p_test2->size() == 0);
 
 		// Adding p_test2 to p_test1 should throw
-		BOOST_CHECK_THROW(p_test1->add<double>(p_test2, ALLPARAMETERS), Gem::Common::gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test1->add<double>(p_test2, activityMode::ALLPARAMETERS), Gem::Common::gemfony_error_condition);
 	}
 
 	// --------------------------------------------------------------------------
@@ -533,7 +533,7 @@ void GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTest
 		BOOST_CHECK(p_test1->size() != p_test2->size() && p_test2->size() == 0);
 
 		// Subtracting p_test2 from p_test1 should throw
-		BOOST_CHECK_THROW(p_test1->subtract<double>(p_test2, ALLPARAMETERS), Gem::Common::gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test1->subtract<double>(p_test2, activityMode::ALLPARAMETERS), Gem::Common::gemfony_error_condition);
 	}
 
 	// --------------------------------------------------------------------------

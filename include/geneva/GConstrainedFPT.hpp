@@ -662,7 +662,7 @@ public:
 				      boost::numeric_cast<fp_type>(
 							Gem::Hap::gr_tls_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerRandomBoundary, upperRandomBoundary)
                   )
-                  , ALLPARAMETERS
+                  , activityMode::ALLPARAMETERS
                )
             );
 
@@ -692,7 +692,7 @@ public:
 
 			for(std::size_t i=1; i<99; i++) {
 				// Multiply by the counter variable
-				BOOST_CHECK_NO_THROW(p_test->GParameterBase::template multiplyBy<fp_type>(fp_type(i), ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test->GParameterBase::template multiplyBy<fp_type>(fp_type(i), activityMode::ALLPARAMETERS));
 
 				// Check that the external value is in the expected range
 				BOOST_CHECK_MESSAGE (
@@ -735,7 +735,7 @@ public:
                   boost::numeric_cast<fp_type>(
 							Gem::Hap::gr_tls_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerRandomBoundary, upperRandomBoundary)
                   )
-                  , ALLPARAMETERS
+                  , activityMode::ALLPARAMETERS
                )
             );
 
@@ -764,7 +764,7 @@ public:
 
 			for(std::size_t i=0; i<nTests; i++) {
 				// Multiply with a random value in a very wide
-				BOOST_CHECK_NO_THROW(p_test->GParameterBase::template multiplyByRandom<fp_type>(lowerRandomBoundary, upperRandomBoundary, ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test->GParameterBase::template multiplyByRandom<fp_type>(lowerRandomBoundary, upperRandomBoundary, activityMode::ALLPARAMETERS));
 
 				// Check that the value is still in the allowed range
 				BOOST_CHECK_MESSAGE(
@@ -793,7 +793,7 @@ public:
 
 			for(std::size_t i=0; i<nTests; i++) {
 				// Multiply with a random value in a very wide
-				BOOST_CHECK_NO_THROW(p_test->GParameterBase::template multiplyByRandom<fp_type>(ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test->GParameterBase::template multiplyByRandom<fp_type>(activityMode::ALLPARAMETERS));
 
 				// Check that the value is still in the allowed range
 				BOOST_CHECK_MESSAGE(
@@ -828,11 +828,11 @@ public:
 			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
 
 			// Assign a value of 1 to p_test2
-			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template fixedValueInit<fp_type>(fp_type(1.), ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template fixedValueInit<fp_type>(fp_type(1.), activityMode::ALLPARAMETERS));
 
 			fp_type currentVal = fp_type(-10000.);
 			for(std::int32_t i=-9999; i<9999; i++) {
-				BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template add<fp_type>(p_test2, ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template add<fp_type>(p_test2, activityMode::ALLPARAMETERS));
 				currentVal += fp_type(1.);
 				BOOST_CHECK(p_test1->value() == currentVal);
 			}
@@ -856,11 +856,11 @@ public:
 			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
 
 			// Assign a value of 1 to p_test2
-			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template fixedValueInit<fp_type>(fp_type(1.), ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template fixedValueInit<fp_type>(fp_type(1.), activityMode::ALLPARAMETERS));
 
 			fp_type currentVal = fp_type(upper - fp_type(1));
 			for(std::int32_t i=9999; i>=-9998; i--) {
-				BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template subtract<fp_type>(p_test2, ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template subtract<fp_type>(p_test2, activityMode::ALLPARAMETERS));
 				currentVal -= fp_type(1.);
 				BOOST_CHECK(p_test1->value() == currentVal);
 			}
@@ -881,7 +881,7 @@ public:
 			// Repeatedly add and subtract a randomly initialized p_test2 from p_test1
 			for(std::size_t i=0; i<nTests; i++) {
 				// Randomly initialize p_test2
-				BOOST_CHECK_NO_THROW(p_test2->randomInit_(ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test2->randomInit_(activityMode::ALLPARAMETERS));
 
 				fp_type firstValue = p_test2->value();
 
@@ -890,14 +890,14 @@ public:
 				BOOST_CHECK(firstValue  < upper);
 
 				// Add to p_test1
-				BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template add<fp_type>(p_test2, ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template add<fp_type>(p_test2, activityMode::ALLPARAMETERS));
 
 				// Check that p_test1 is still inside of the allowed value range
 				BOOST_CHECK(p_test1->value() >= lower);
 				BOOST_CHECK(p_test1->value()  < upper);
 
 				// Randomly initialize p_test2 again
-				BOOST_CHECK_NO_THROW(p_test2->randomInit_(ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test2->randomInit_(activityMode::ALLPARAMETERS));
 
 				fp_type secondValue = p_test2->value();
 
@@ -909,7 +909,7 @@ public:
 				BOOST_CHECK(firstValue != secondValue);
 
 				// Subtract from p_test1
-				BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template subtract<fp_type>(p_test2, ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template subtract<fp_type>(p_test2, activityMode::ALLPARAMETERS));
 
 				// Check that p_test1 is still inside of the allowed value range
 				BOOST_CHECK(p_test1->value() >= lower);

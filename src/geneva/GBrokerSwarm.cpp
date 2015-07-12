@@ -402,7 +402,7 @@ void GBrokerSwarm::adjustNeighborhoods() {
 					data.insert(data.begin() + firstNIPos, (this->front())->clone<GParameterSet>());
 
 					// Randomly initialize the item and prevent position updates
-					(*(data.begin() + firstNIPos))->randomInit(ACTIVEONLY);
+					(*(data.begin() + firstNIPos))->randomInit(activityMode::ACTIVEONLY);
 					(*(data.begin() + firstNIPos))->getPersonalityTraits<GSwarmPersonalityTraits>()->setNoPositionUpdate();
 
 					// Set the neighborhood as required
