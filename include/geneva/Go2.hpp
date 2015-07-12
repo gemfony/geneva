@@ -84,7 +84,7 @@ namespace Geneva {
 // Default values for the variables used by the optimizer
 const std::string GO2_DEF_DEFAULTCONFIGFILE="config/Go2.json";
 const bool GO2_DEF_CLIENTMODE=false;
-const execMode GO2_DEF_DEFAULPARALLELIZATIONMODE=EXECMODE_MULTITHREADED;
+const execMode GO2_DEF_DEFAULPARALLELIZATIONMODE=execMode::EXECMODE_MULTITHREADED;
 const bool GO2_DEF_COPYBESTONLY=true;
 const std::uint16_t GO2_DEF_NPRODUCERTHREADS=0;
 const std::uint32_t GO2_DEF_OFFSET=0;

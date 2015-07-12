@@ -947,7 +947,7 @@ protected:
 		ind_factory_->setAdaptAdProb(adaptAdProb);
 
 		// Determine the desired execution mode
-		execMode em = (subExecMode_ == GMETAOPT_SUBEXEC_SERIAL ? EXECMODE_SERIAL : EXECMODE_MULTITHREADED);
+		execMode em = (subExecMode_ == GMETAOPT_SUBEXEC_SERIAL ? execMode::EXECMODE_SERIAL : execMode::EXECMODE_MULTITHREADED);
 
 		// Set up a population factory
 		GEvolutionaryAlgorithmFactory ea(subEA_config_, em);

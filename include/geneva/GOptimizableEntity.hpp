@@ -515,7 +515,7 @@ private:
 	std::shared_ptr<GPersonalityTraits> pt_ptr_;
 
 	/** @brief Specifies what to do when the individual is marked as invalid */
-	evaluationPolicy evalPolicy_ = Gem::Geneva::USESIMPLEEVALUATION;
+	evaluationPolicy evalPolicy_ = Gem::Geneva::evaluationPolicy::USESIMPLEEVALUATION;
 	/** @brief Determines the "steepness" of a sigmoid function used by optimization algorithms */
 	double steepness_ = Gem::Geneva::FITNESSSIGMOIDSTEEPNESS;
 	/** @brief Determines the extreme values of a sigmoid function used by optimization algorithms */

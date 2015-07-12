@@ -116,15 +116,15 @@ std::shared_ptr <GOptimizationAlgorithmT<GParameterSet>> GEvolutionaryAlgorithmF
 
 	// Fill the target pointer as required
 	switch (pm_) {
-		case EXECMODE_SERIAL:
+		case execMode::EXECMODE_SERIAL:
 			target = std::shared_ptr<GSerialEA>(new GSerialEA());
 			break;
 
-		case EXECMODE_MULTITHREADED:
+		case execMode::EXECMODE_MULTITHREADED:
 			target = std::shared_ptr<GMultiThreadedEA>(new GMultiThreadedEA());
 			break;
 
-		case EXECMODE_BROKERAGE:
+		case execMode::EXECMODE_BROKERAGE:
 			target = std::shared_ptr<GBrokerEA>(new GBrokerEA());
 			break;
 	}
@@ -147,18 +147,18 @@ void GEvolutionaryAlgorithmFactory::postProcess_(
 ) {
 	// Convert the object to the correct target type
 	switch (pm_) {
-		case EXECMODE_SERIAL:
+		case execMode::EXECMODE_SERIAL:
 			// nothing
 			break;
 
-		case EXECMODE_MULTITHREADED: {
+		case execMode::EXECMODE_MULTITHREADED: {
 			std::shared_ptr <GMultiThreadedEA> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedEA>(p_base);
 			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::nEvaluationThreads_);
 		}
 			break;
 
-		case EXECMODE_BROKERAGE: {
+		case execMode::EXECMODE_BROKERAGE: {
 			std::shared_ptr <GBrokerEA> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerEA>(p_base);
 

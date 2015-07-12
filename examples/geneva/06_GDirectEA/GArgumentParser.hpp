@@ -65,7 +65,7 @@ namespace po = boost::program_options;
 
 /******************************************************************************/
 // Default settings
-const std::uint16_t DEFAULTPARALLELIZATIONMODEAP=EXECMODE_MULTITHREADED;
+const execMode DEFAULTPARALLELIZATIONMODEAP=execMode::EXECMODE_MULTITHREADED;
 const unsigned short DEFAULTPORT=10000;
 const std::string DEFAULTIP="localhost";
 const std::uint32_t DEFAULTMAXSTALLS06=0;
@@ -91,7 +91,7 @@ const bool DEFAULTFOLLOWPROGRESS=false;
  */
 bool parseCommandLine(
 	int argc, char **argv
-	, std::uint16_t& parallelizationMode
+	, execMode& parallelizationMode
 	, bool& serverMode
 	, std::string& ip
 	, unsigned short& port

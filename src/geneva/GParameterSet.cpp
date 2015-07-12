@@ -649,15 +649,15 @@ void GParameterSet::toPropertyTree(
 
 	// Output the transformation policy
 	switch (this->getEvaluationPolicy()) {
-		case USESIMPLEEVALUATION:
+		case evaluationPolicy::USESIMPLEEVALUATION:
 			ptr.put(baseName + ".transformationPolicy", "USESIMPLEEVALUATION");
 			break;
 
-		case USESIGMOID:
+		case evaluationPolicy::USESIGMOID:
 			ptr.put(baseName + ".transformationPolicy", "USESIGMOID");
 			break;
 
-		case USEWORSTKNOWNVALIDFORINVALID:
+		case evaluationPolicy::USEWORSTKNOWNVALIDFORINVALID:
 			ptr.put(baseName + ".transformationPolicy", "USEWORSTKNOWNVALIDFORINVALID");
 			break;
 

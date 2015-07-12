@@ -45,7 +45,7 @@ namespace Geneva {
  */
 bool parseCommandLine(
 	int argc, char **argv
-	, std::uint16_t& parallelizationMode
+	, execMode& parallelizationMode
 	, bool& serverMode
 	, std::string& ip
 	, unsigned short& port
@@ -73,7 +73,7 @@ bool parseCommandLine(
 	// Create the parser builder
 	Gem::Common::GParserBuilder gpb;
 
-	gpb.registerCLParameter<std::uint16_t>(
+	gpb.registerCLParameter<execMode>(
 		"parallelizationMode,p"
 		, parallelizationMode
 		, DEFAULTPARALLELIZATIONMODEAP

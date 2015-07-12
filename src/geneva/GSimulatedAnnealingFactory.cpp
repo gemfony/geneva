@@ -116,15 +116,15 @@ std::shared_ptr <GOptimizationAlgorithmT<GParameterSet>> GSimulatedAnnealingFact
 
 	// Fill the target pointer as required
 	switch (pm_) {
-		case EXECMODE_SERIAL:
+		case execMode::EXECMODE_SERIAL:
 			target = std::shared_ptr<GSerialSA>(new GSerialSA());
 			break;
 
-		case EXECMODE_MULTITHREADED:
+		case execMode::EXECMODE_MULTITHREADED:
 			target = std::shared_ptr<GMultiThreadedSA>(new GMultiThreadedSA());
 			break;
 
-		case EXECMODE_BROKERAGE:
+		case execMode::EXECMODE_BROKERAGE:
 			target = std::shared_ptr<GBrokerSA>(new GBrokerSA());
 			break;
 	}
@@ -145,18 +145,18 @@ std::shared_ptr <GOptimizationAlgorithmT<GParameterSet>> GSimulatedAnnealingFact
 void GSimulatedAnnealingFactory::postProcess_(std::shared_ptr < GOptimizationAlgorithmT<GParameterSet>> &p_base) {
 	// Convert the object to the correct target type
 	switch (pm_) {
-		case EXECMODE_SERIAL:
+		case execMode::EXECMODE_SERIAL:
 			// nothing
 			break;
 
-		case EXECMODE_MULTITHREADED: {
+		case execMode::EXECMODE_MULTITHREADED: {
 			std::shared_ptr <GMultiThreadedSA> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedSA>(p_base);
 			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::nEvaluationThreads_);
 		}
 			break;
 
-		case EXECMODE_BROKERAGE: {
+		case execMode::EXECMODE_BROKERAGE: {
 			std::shared_ptr <GBrokerSA> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerSA>(p_base);
 

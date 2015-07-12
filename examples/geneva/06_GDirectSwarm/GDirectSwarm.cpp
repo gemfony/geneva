@@ -77,7 +77,7 @@ using namespace Gem::Common;
  * The main function.
  */
 int main(int argc, char **argv){
-	std::uint16_t parallelizationMode;
+	execMode parallelizationMode;
 	bool serverMode;
 	std::string ip;
 	unsigned short port;
@@ -144,7 +144,7 @@ int main(int argc, char **argv){
 	/****************************************************************************/
 	// If this is a client in networked mode, we can just start the listener and
 	// return when it has finished
-	if(EXECMODE_BROKERAGE==parallelizationMode && !serverMode) {
+	if(execMode::EXECMODE_BROKERAGE==parallelizationMode && !serverMode) {
 		std::shared_ptr<GAsioTCPClientT<GParameterSet>>
 			p(new GAsioTCPClientT<GParameterSet>(ip, boost::lexical_cast<std::string>(port)));
 
@@ -166,14 +166,14 @@ int main(int argc, char **argv){
 	// Create the actual populations
 	switch (parallelizationMode) {
 		//---------------------------------------------------------------------------
-		case 0: // Serial execution
+		case execMode::EXECMODE_SERIAL: // Serial execution
 			// Create an empty population
 			pop_ptr
 				= std::shared_ptr<GSerialSwarm>(new GSerialSwarm(nNeighborhoods, nNeighborhoodMembers));
 			break;
 
 			//---------------------------------------------------------------------------
-		case 1: // Multi-threaded execution
+		case execMode::EXECMODE_MULTITHREADED: // Multi-threaded execution
 		{
 			// Create the multi-threaded population
 			std::shared_ptr<GMultiThreadedSwarm>
@@ -188,7 +188,7 @@ int main(int argc, char **argv){
 			break;
 
 			//---------------------------------------------------------------------------
-		case 2: // Networked execution (server-side)
+		case execMode::EXECMODE_BROKERAGE: // Networked execution (server-side)
 		{
 			// Create a network consumer and enrol it with the broker
 			std::shared_ptr<GAsioTCPConsumerT<GParameterSet>>

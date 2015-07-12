@@ -622,7 +622,7 @@ void GOptimizableEntity::enforceFitnessUpdate(std::function<std::vector<double>(
 	if (
 		this->parameterSetFulfillsConstraints(
 			validityLevel_) // Needs to be called first, or else the validityLevel_ will not be filled
-		|| USESIMPLEEVALUATION == evalPolicy_
+		|| evaluationPolicy::USESIMPLEEVALUATION == evalPolicy_
 		) {
 		// Marking individuals as invalid happens inside of the user-supplied fitness
 		// calculation (if at all) so we want to reset the corresponding "invalid" flag
@@ -669,7 +669,7 @@ void GOptimizableEntity::enforceFitnessUpdate(std::function<std::vector<double>(
 			}
 		} else { // This is a valid solution nonetheless
 			for (std::size_t i = 0; i < this->getNumberOfFitnessCriteria(); i++) {
-				if (USESIGMOID == evalPolicy_) { // Update the fitness value to use sigmoidal values
+				if (evaluationPolicy::USESIGMOID == evalPolicy_) { // Update the fitness value to use sigmoidal values
 					std::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i)) =
 						Gem::Common::gsigmoid(std::get<G_RAW_FITNESS>(currentFitnessVec_.at(i)), barrier_, steepness_);
 				} else { // All other transformation policies leave valid solutions intact
@@ -684,7 +684,7 @@ void GOptimizableEntity::enforceFitnessUpdate(std::function<std::vector<double>(
 		setDirtyFlag(false);
 		//--------------
 	} else { // Some constraints were violated. Act on the chosen policy
-		if (USEWORSTCASEFORINVALID == evalPolicy_) {
+		if (evaluationPolicy::USEWORSTCASEFORINVALID == evalPolicy_) {
 			for (std::size_t i = 0; i < this->getNumberOfFitnessCriteria(); i++) {
 				std::get<G_RAW_FITNESS>(currentFitnessVec_.at(i)) = this->getWorstCase();
 				std::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i)) = this->getWorstCase();
@@ -694,7 +694,7 @@ void GOptimizableEntity::enforceFitnessUpdate(std::function<std::vector<double>(
 			//--------------
 			setDirtyFlag(false);
 			//--------------
-		} else if (USESIGMOID == evalPolicy_) {
+		} else if (evaluationPolicy::USESIGMOID == evalPolicy_) {
 			double uniformFitnessValue = 0.;
 			if (true == this->getMaxMode()) { // maximize
 				if (boost::numeric::bounds<double>::highest() == validityLevel_) {
@@ -719,7 +719,7 @@ void GOptimizableEntity::enforceFitnessUpdate(std::function<std::vector<double>(
 			//--------------
 			setDirtyFlag(false);
 			//--------------
-		} else if (USEWORSTKNOWNVALIDFORINVALID == evalPolicy_) {
+		} else if (evaluationPolicy::USEWORSTKNOWNVALIDFORINVALID == evalPolicy_) {
 			// Some of this will be reset later, in  GOptimizableEntity::postEvaluationUpdate().
 			// The caller needs to tell us about the worst solution known up to now. It is only
 			// known once all individuals of this iteration have been evaluated, i.e. not at this
@@ -875,7 +875,7 @@ void GOptimizableEntity::setFitness_(const std::vector<double> &f_vec) {
 		// We need to update the transformed fitness for the USESIGMOID
 		// case. All other transformations are handled elsewhere.
 		std::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i)) =
-			USESIGMOID == evalPolicy_
+			evaluationPolicy::USESIGMOID == evalPolicy_
 			? Gem::Common::gsigmoid(f_vec.at(i), barrier_, steepness_)
 			: f_vec.at(i);
 	}
@@ -1317,7 +1317,7 @@ void GOptimizableEntity::postEvaluationUpdate() {
    }
 #endif /* DEBUG */
 
-	if (USEWORSTKNOWNVALIDFORINVALID == evalPolicy_ && this->isInValid()) {
+	if (evaluationPolicy::USEWORSTKNOWNVALIDFORINVALID == evalPolicy_ && this->isInValid()) {
 		if (true == maximize_) {
 			for (std::size_t i = 0; i < nFitnessCriteria_; i++) {
 				if (boost::numeric::bounds<double>::highest() == validityLevel_ ||
@@ -1537,7 +1537,7 @@ void GOptimizableEntity::addConfigurationOptions(
 	// Add local data
 	gpb.registerFileParameter<evaluationPolicy>(
 		"evalPolicy" // The name of the variable
-		, Gem::Geneva::USESIMPLEEVALUATION // The default value
+		, Gem::Geneva::evaluationPolicy::USESIMPLEEVALUATION // The default value
 		, [this](evaluationPolicy ep) { this->setEvaluationPolicy(ep); }
 	)
 	<< "Specifies which strategy should be used to calculate the evaluation:" << std::endl

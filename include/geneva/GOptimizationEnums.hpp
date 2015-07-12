@@ -360,12 +360,12 @@ enum class validityCheckCombinerPolicy {
 /**
  * Selection of policy for evaluation
  */
-enum evaluationPolicy {
+enum class evaluationPolicy {
 	USESIMPLEEVALUATION = 0            // Run evaluation function even for invalid parameter sets
 	, USEWORSTCASEFORINVALID = 1       // Assign the worst possible value to invalid individuals, evaluate valid solutions as usual
 	, USESIGMOID = 2                   // Assign a multiple of validityLevel_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations
 	, USEWORSTKNOWNVALIDFORINVALID = 3 // Assign "invalidityLevel*worstKnownValid" to invalid individuals
-	, EVALUATIONPOLICY_LAST = USEWORSTKNOWNVALIDFORINVALID
+	, EVALUATIONPOLICY_LAST = evaluationPolicy::USEWORSTKNOWNVALIDFORINVALID
 };
 
 // * Note that this might be accompanied by assistance from the optimization algorithm
@@ -374,17 +374,17 @@ enum evaluationPolicy {
 /**
  * Specification of different parallelization modes
  */
-enum execMode {
+enum class execMode {
 	EXECMODE_SERIAL = 0
 	, EXECMODE_MULTITHREADED = 1
 	, EXECMODE_BROKERAGE = 2
-	, EXECMODE_LAST = EXECMODE_BROKERAGE
+	, EXECMODE_LAST = execMode::EXECMODE_BROKERAGE
 };
 
 /**
  * The default parallelization mode of optimization algorithms
  */
-const execMode DEFAULTEXECMODE = EXECMODE_MULTITHREADED;
+const execMode DEFAULTEXECMODE = execMode::EXECMODE_MULTITHREADED;
 
 /******************************************************************************/
 /**

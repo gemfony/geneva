@@ -118,15 +118,15 @@ std::shared_ptr <GOptimizationAlgorithmT<GParameterSet>> GSwarmAlgorithmFactory:
 
 	// Fill the target pointer as required
 	switch (pm_) {
-		case EXECMODE_SERIAL:
+		case execMode::EXECMODE_SERIAL:
 			target = std::shared_ptr<GSerialSwarm>(new GSerialSwarm());
 			break;
 
-		case EXECMODE_MULTITHREADED:
+		case execMode::EXECMODE_MULTITHREADED:
 			target = std::shared_ptr<GMultiThreadedSwarm>(new GMultiThreadedSwarm());
 			break;
 
-		case EXECMODE_BROKERAGE:
+		case execMode::EXECMODE_BROKERAGE:
 			target = std::shared_ptr<GBrokerSwarm>(new GBrokerSwarm());
 			break;
 	}
@@ -147,17 +147,17 @@ std::shared_ptr <GOptimizationAlgorithmT<GParameterSet>> GSwarmAlgorithmFactory:
 void GSwarmAlgorithmFactory::postProcess_(std::shared_ptr < GOptimizationAlgorithmT<GParameterSet>> &p_base) {
 	// Convert the object to the correct target type
 	switch (pm_) {
-		case EXECMODE_SERIAL: {
+		case execMode::EXECMODE_SERIAL: {
 			// nothing
 		} break;
 
-		case EXECMODE_MULTITHREADED: {
+		case execMode::EXECMODE_MULTITHREADED: {
 			std::shared_ptr <GMultiThreadedSwarm> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedSwarm>(p_base);
 			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::nEvaluationThreads_);
 		} break;
 
-		case EXECMODE_BROKERAGE: {
+		case execMode::EXECMODE_BROKERAGE: {
 			std::shared_ptr <GBrokerSwarm> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerSwarm>(p_base);
 
