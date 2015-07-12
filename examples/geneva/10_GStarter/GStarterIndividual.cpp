@@ -76,11 +76,11 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::targetFunction& tF) {
 
 /******************************************************************************/
 /**
- * The default constructor -- intentionally private
+ * The default constructor -- intentionally private. Note that some data members
+ * may be initialized in the class body.
  */
 GStarterIndividual::GStarterIndividual()
 	: GParameterSet()
-	, targetFunction_(PARABOLA)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -101,7 +101,7 @@ GStarterIndividual::GStarterIndividual(
 	, const double& adProb
 )
 	: GParameterSet()
-	, targetFunction_(PARABOLA)
+	, targetFunction_(targetFunction::PARABOLA)
 {
 	try {
 		// The following is a static function used both here
@@ -307,7 +307,7 @@ std::string GStarterIndividual::print() {
 	this->streamline(parVec);
 
 	result
-	<< "GStarterIndividual with target function " << (targetFunction_==PARABOLA?" PARABOLA":" NOISY PARABOLA") << std::endl
+	<< "GStarterIndividual with target function " << (targetFunction_==targetFunction::PARABOLA?" PARABOLA":" NOISY PARABOLA") << std::endl
 	<< "and fitness " << this->fitness() << " has the following parameter values:" << std::endl;
 
 	for(std::size_t i=0; i<parVec.size(); i++) {
@@ -361,14 +361,14 @@ double GStarterIndividual::fitnessCalculation() {
 	switch(targetFunction_) {
 		//-----------------------------------------------------------
 		// A simple, multi-dimensional parabola
-		case PARABOLA:
+		case targetFunction::PARABOLA:
 			return parabola(parVec);
 			break;
 
 			//-----------------------------------------------------------
 			// A "noisy" parabola, i.e. a parabola with a very large
 			// number of overlaid local optima
-		case NOISYPARABOLA:
+		case targetFunction::NOISYPARABOLA:
 			return noisyParabola(parVec);
 			break;
 			//-----------------------------------------------------------
@@ -493,11 +493,11 @@ void GStarterIndividual::specificTestsNoFailureExpected_GUnitTests() {
 	{ // Test setting and retrieval of the target function valie
 		std::shared_ptr<GStarterIndividual> p_test = this->clone<GStarterIndividual>();
 
-		BOOST_CHECK_NO_THROW(p_test->setTargetFunction(PARABOLA));
-		BOOST_CHECK(PARABOLA == p_test->getTargetFunction());
+		BOOST_CHECK_NO_THROW(p_test->setTargetFunction(targetFunction::PARABOLA));
+		BOOST_CHECK(targetFunction::PARABOLA == p_test->getTargetFunction());
 
-		BOOST_CHECK_NO_THROW(p_test->setTargetFunction(NOISYPARABOLA));
-		BOOST_CHECK(NOISYPARABOLA == p_test->getTargetFunction());
+		BOOST_CHECK_NO_THROW(p_test->setTargetFunction(targetFunction::NOISYPARABOLA));
+		BOOST_CHECK(targetFunction::NOISYPARABOLA == p_test->getTargetFunction());
 	}
 
 	//------------------------------------------------------------------------------

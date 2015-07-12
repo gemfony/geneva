@@ -63,7 +63,7 @@ namespace Geneva {
 /**
  * This enum denotes the possible demo function types
  */
-enum targetFunction {
+enum class targetFunction {
 	GFM_PARABOLA=0
 	, GFM_NOISYPARABOLA=1
 };
@@ -85,7 +85,7 @@ const double GFI_DEF_MAXSIGMA = 1;
 const std::size_t GFI_DEF_PARDIM = 2;
 const double GFI_DEF_MINVAR = -10.;
 const double GFI_DEF_MAXVAR = 10.;
-const targetFunction GO_DEF_TARGETFUNCTION = boost::numeric_cast<targetFunction>(0);
+const targetFunction GO_DEF_TARGETFUNCTION = targetFunction::GFM_PARABOLA;
 
 /******************************************************************************/
 /**
@@ -141,7 +141,7 @@ protected:
 	/***************************************************************************/
 
 private:
-	targetFunction targetFunction_; ///< Specifies which demo function should be used
+	targetFunction targetFunction_ = GO_DEF_TARGETFUNCTION; ///< Specifies which demo function should be used
 
 	/***************************************************************************/
 	/** @brief A simple n-dimensional parabola */

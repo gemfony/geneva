@@ -76,10 +76,9 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::targetFunction& tF) {
 
 /******************************************************************************/
 /**
- * The default constructor
+ * The default constructor. Data members may be initialized in the class body.
  */
 GFMinIndividual::GFMinIndividual()
-	: targetFunction_(GFM_PARABOLA)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -220,14 +219,14 @@ double GFMinIndividual::fitnessCalculation() {
 	switch(targetFunction_) {
 		//-----------------------------------------------------------
 		// A simple, multi-dimensional parabola
-		case GFM_PARABOLA:
+		case targetFunction::GFM_PARABOLA:
 			return parabola(parVec);
 			break;
 
 			//-----------------------------------------------------------
 			// A "noisy" parabola, i.e. a parabola with a very large
 			// number of overlaid local optima
-		case GFM_NOISYPARABOLA:
+		case targetFunction::GFM_NOISYPARABOLA:
 			return noisyParabola(parVec);
 			break;
 			//-----------------------------------------------------------
