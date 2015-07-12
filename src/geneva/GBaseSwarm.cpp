@@ -953,7 +953,7 @@ void GBaseSwarm::updateIndividualPositions(
 	Gem::Common::subtractVec<double>(glbBestVec, indVec);
 
 	switch (updateRule_) {
-		case SWARM_UPDATERULE_CLASSIC:
+		case updateRule::SWARM_UPDATERULE_CLASSIC:
 			// Multiply each floating point value with a random fp number in the range [0,1[, times a constant
 			for (std::size_t i = 0; i < personalBestVec.size(); i++) {
 				personalBestVec[i] *= (cPersonal * gr.uniform_01<double>());
@@ -962,7 +962,7 @@ void GBaseSwarm::updateIndividualPositions(
 			}
 			break;
 
-		case SWARM_UPDATERULE_LINEAR:
+		case updateRule::SWARM_UPDATERULE_LINEAR:
 			// Multiply each position with the same random floating point number times a constant
 			Gem::Common::multVecConst<double>(personalBestVec, cPersonal * gr.uniform_01<double>());
 			Gem::Common::multVecConst<double>(nbhBestVec, cNeighborhood * gr.uniform_01<double>());

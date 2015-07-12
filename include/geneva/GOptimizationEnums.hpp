@@ -508,7 +508,7 @@ const std::size_t DEFAULTNNEIGHBORHOODMEMBERS = 10; ///< The default number of m
 /**
  * Specifies different update rules in swarms
  */
-enum updateRule {
+enum class updateRule {
 	SWARM_UPDATERULE_LINEAR = 0
 	, SWARM_UPDATERULE_CLASSIC = 1
 	, UPDATERULE_LAST = SWARM_UPDATERULE_CLASSIC
@@ -516,7 +516,7 @@ enum updateRule {
 
 /******************************************************************************/
 
-const updateRule DEFAULTUPDATERULE = SWARM_UPDATERULE_CLASSIC; ///< The default update rule in swarms
+const updateRule DEFAULTUPDATERULE = updateRule::SWARM_UPDATERULE_CLASSIC; ///< The default update rule in swarms
 
 /******************************************************************************/
 
