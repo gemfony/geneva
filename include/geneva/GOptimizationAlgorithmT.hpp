@@ -460,7 +460,7 @@ public:
 		// Emit the info header, unless we do not want any info (parameter 0).
 		// Note that this call needs to come after the initialization, so we have the
 		// complete set of individuals available.
-		if(reportIteration_) doInfo(INFOINIT);
+		if(reportIteration_) doInfo(infoMode::INFOINIT);
 
 		// We want to know if no better values were found for a longer period of time
 		double worstCase = this->getWorstCase();
@@ -506,7 +506,7 @@ public:
 			// Set the reportGeneration_ variable to 0 in order not to emit
 			// any information at all.
 			if(reportIteration_ && (iteration_%reportIteration_ == 0)) {
-				doInfo(INFOPROCESSING);
+				doInfo(infoMode::INFOPROCESSING);
 			}
 
 			// update the iteration_ counter
@@ -518,7 +518,7 @@ public:
 		finalize();
 
 		// Finalize the info output
-		if(reportIteration_) doInfo(INFOEND);
+		if(reportIteration_) doInfo(infoMode::INFOEND);
 
 		// Remove information particular to the optimization algorithms from the individuals
 		resetIndividualPersonalities();
@@ -2291,7 +2291,7 @@ public:
 
 			// Act on the information mode provided
 			switch(im) {
-				case Gem::Geneva::INFOINIT:
+				case Gem::Geneva::infoMode::INFOINIT:
 				{
 					if(!quiet_) {
 						std::cout << "Starting an optimization run with algorithm \"" << goa->getAlgorithmName() << "\"" << std::endl;
@@ -2300,7 +2300,7 @@ public:
 				}
 					break;
 
-				case Gem::Geneva::INFOPROCESSING:
+				case Gem::Geneva::infoMode::INFOPROCESSING:
 				{
 					// We output raw values here, as this is likely what the user is interested in
 					if(!quiet_) {
@@ -2315,7 +2315,7 @@ public:
 				}
 					break;
 
-				case Gem::Geneva::INFOEND:
+				case Gem::Geneva::infoMode::INFOEND:
 				{
 					this->lastInformation(goa);
 					if(!quiet_) std::cout << "End of optimization reached in algorithm \""<< goa->getAlgorithmName() << "\"" << std::endl;

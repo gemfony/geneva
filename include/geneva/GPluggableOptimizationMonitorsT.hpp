@@ -167,14 +167,14 @@ public:
 		, typename Gem::Geneva::GOptimizationAlgorithmT<ind_type> * const goa
 	) override {
 		switch(im) {
-			case Gem::Geneva::INFOINIT: {
+			case Gem::Geneva::infoMode::INFOINIT: {
 				glogger
 				<< "Starting an optimization run with algorithm \"" << goa->getAlgorithmName() << "\"" << std::endl
 				<< GLOGGING;
 			}
 				break;
 
-			case Gem::Geneva::INFOPROCESSING: {
+			case Gem::Geneva::infoMode::INFOPROCESSING: {
 				glogger
 				<< std::setprecision(5)
 				<< goa->getIteration() << ": "
@@ -185,7 +185,7 @@ public:
 			}
 				break;
 
-			case Gem::Geneva::INFOEND: {
+			case Gem::Geneva::infoMode::INFOEND: {
 				glogger
 				<< "End of optimization reached in algorithm \"" << goa->getAlgorithmName()
 				<< "\"" << std::endl
@@ -540,13 +540,13 @@ public:
 		, typename Gem::Geneva::GOptimizationAlgorithmT<ind_type> * const goa
 	) override {
 		switch(im) {
-			case Gem::Geneva::INFOINIT: {
+			case Gem::Geneva::infoMode::INFOINIT: {
 				// We set a marker whenever a new INFOINIT call happens. This way we
 				// may "chain" algorithms and will get the entire progress information
 				// for all algorithms
 			} break;
 
-			case Gem::Geneva::INFOPROCESSING: {
+			case Gem::Geneva::infoMode::INFOPROCESSING: {
 				// Retrieve the list of globally- and iteration bests individuals
 				std::vector<ind_type> global_bests = goa->GOptimizableI::template getBestGlobalIndividuals<ind_type>();
 				std::vector<ind_type> iter_bests   = goa->GOptimizableI::template getBestIterationIndividuals<ind_type>();
@@ -645,7 +645,7 @@ public:
 
 			} break;
 
-			case Gem::Geneva::INFOEND: {
+			case Gem::Geneva::infoMode::INFOEND: {
 
 			} break;
 
@@ -1458,7 +1458,7 @@ public:
 		, typename Gem::Geneva::GOptimizationAlgorithmT<ind_type> * const goa
 	) override {
 		switch(im) {
-			case Gem::Geneva::INFOINIT:
+			case Gem::Geneva::infoMode::INFOINIT:
 			{
 				switch(this->nProfileVars()) {
 					case 1:
@@ -1502,7 +1502,7 @@ public:
 					default:
 					{
 						glogger
-						<< "NOTE: In GProgressPlotterT<ind_type, fp_type>::informationFunction(INFOINIT):" << std::endl
+						<< "NOTE: In GProgressPlotterT<ind_type, fp_type>::informationFunction(infoMode::INFOINIT):" << std::endl
 						<< "Number of profiling dimensions " << this->nProfileVars() << " can not be displayed." << std::endl
 						<< "No graphical output will be created." << std::endl
 						<< GLOGGING;
@@ -1514,7 +1514,7 @@ public:
 			}
 				break;
 
-			case Gem::Geneva::INFOPROCESSING:
+			case Gem::Geneva::infoMode::INFOPROCESSING:
 			{
 				bool isDirty = true;
 				double primaryFitness;
@@ -1662,7 +1662,7 @@ public:
 			}
 				break;
 
-			case Gem::Geneva::INFOEND:
+			case Gem::Geneva::infoMode::INFOEND:
 			{
 				// Make sure 1-D data is sorted
 				if(1 == this->nProfileVars()) {
@@ -2170,7 +2170,7 @@ public:
 		, typename Gem::Geneva::GOptimizationAlgorithmT<ind_type> * const goa
 	) override {
 		switch(im) {
-			case Gem::Geneva::INFOINIT:
+			case Gem::Geneva::infoMode::INFOINIT:
 			{
 				// If the file pointed to by fileName_ already exists, make a back-up
 				if(bf::exists(fileName_)) {
@@ -2189,7 +2189,7 @@ public:
 			}
 				break;
 
-			case Gem::Geneva::INFOPROCESSING:
+			case Gem::Geneva::infoMode::INFOPROCESSING:
 			{
 				// Open the external file
 				boost::filesystem::ofstream data(fileName_, std::ofstream::app);
@@ -2214,7 +2214,7 @@ public:
 			}
 				break;
 
-			case Gem::Geneva::INFOEND:
+			case Gem::Geneva::infoMode::INFOEND:
 				// nothing
 				break;
 
@@ -2545,7 +2545,7 @@ public:
 		, typename Gem::Geneva::GOptimizationAlgorithmT<ind_type> * const goa
 	) override {
 		switch(im) {
-			case Gem::Geneva::INFOINIT:
+			case Gem::Geneva::infoMode::INFOINIT:
 			{
 				// If the file pointed to by fileName_ already exists, make a back-up
 				if(bf::exists(fileName_)) {
@@ -2564,7 +2564,7 @@ public:
 			}
 				break;
 
-			case Gem::Geneva::INFOPROCESSING:
+			case Gem::Geneva::infoMode::INFOPROCESSING:
 			{
 				// Open the external file
 				boost::filesystem::ofstream data(fileName_.c_str(), std::ofstream::app);
@@ -2588,7 +2588,7 @@ public:
 			}
 				break;
 
-			case Gem::Geneva::INFOEND:
+			case Gem::Geneva::infoMode::INFOEND:
 				// nothing
 				break;
 
@@ -2959,7 +2959,7 @@ public:
 		using namespace Gem::Common;
 
 		switch(im) {
-			case Gem::Geneva::INFOINIT:
+			case Gem::Geneva::infoMode::INFOINIT:
 			{
 				// If the file pointed to by fileName_ already exists, make a back-up
 				if(bf::exists(fileName_)) {
@@ -2987,7 +2987,7 @@ public:
 			}
 				break;
 
-			case Gem::Geneva::INFOPROCESSING:
+			case Gem::Geneva::infoMode::INFOPROCESSING:
 			{
 				std::uint32_t iteration = goa->getIteration();
 
@@ -3013,7 +3013,7 @@ public:
 			}
 				break;
 
-			case Gem::Geneva::INFOEND:
+			case Gem::Geneva::infoMode::INFOEND:
 			{
 				std::vector<std::tuple<double, double>>::iterator it;
 
@@ -3521,7 +3521,7 @@ public:
 		using namespace Gem::Common;
 
 		switch(im) {
-			case Gem::Geneva::INFOINIT:
+			case Gem::Geneva::infoMode::INFOINIT:
 			{
 				// If the file pointed to by fileName_ already exists, make a back-up
 				if(bf::exists(fileName_)) {
@@ -3549,7 +3549,7 @@ public:
 			}
 				break;
 
-			case Gem::Geneva::INFOPROCESSING:
+			case Gem::Geneva::infoMode::INFOPROCESSING:
 			{
 				std::uint32_t iteration = goa->getIteration();
 
@@ -3594,7 +3594,7 @@ public:
 			}
 				break;
 
-			case Gem::Geneva::INFOEND:
+			case Gem::Geneva::infoMode::INFOEND:
 			{
 				std::vector<std::tuple<double, double>>::iterator it;
 

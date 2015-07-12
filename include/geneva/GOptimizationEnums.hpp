@@ -393,7 +393,7 @@ const execMode DEFAULTEXECMODE = execMode::EXECMODE_MULTITHREADED;
  * - RANDOMDUPLICATIONSCHEME chooses the parents to be replicated randomly from all parents
  * - VALUEDUPLICATIONSCHEME prefers parents with a higher fitness
  */
-enum duplicationScheme {
+enum class duplicationScheme {
 	DEFAULTDUPLICATIONSCHEME = 0
 	, RANDOMDUPLICATIONSCHEME = 1
 	, VALUEDUPLICATIONSCHEME = 2
@@ -404,7 +404,7 @@ enum duplicationScheme {
 /**
  * The info function can be called in these three modes
  */
-enum infoMode {
+enum class infoMode {
 	INFOINIT = 0
 	, INFOPROCESSING = 1
 	, INFOEND = 2

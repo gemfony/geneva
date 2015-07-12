@@ -72,14 +72,14 @@ const std::uint32_t DEFAULTMAXITERATIONSSUPER=10;
 const long DEFAULTMAXMINUTESSUPER=0;
 const std::uint32_t DEFAULTREPORTITERATIONSUPER=1;
 const sortingModeMP DEFAULTSORTINGSCHEMESUPER=MUPLUSNU_SINGLEEVAL_MP;
-const duplicationScheme DEFAULTRSCHEMESUPER=VALUEDUPLICATIONSCHEME;
+const duplicationScheme DEFAULTRSCHEMESUPER=duplicationScheme::VALUEDUPLICATIONSCHEME;
 const std::size_t DEFAULTPOPULATIONSIZESUB=22;
 const std::size_t DEFAULTNPARENTSSUB=2; // Allow to explore the parameter space from many starting points
 const std::uint32_t DEFAULTMAXITERATIONSSUB=100;
 const long DEFAULTMAXMINUTESSUB=0;
 const std::uint32_t DEFAULTREPORTITERATIONSUB=0;
 const sortingMode DEFAULTSORTINGSCHEMESUB=MUCOMMANU_SINGLEEVAL;
-const duplicationScheme DEFAULTRSCHEMESUB=VALUEDUPLICATIONSCHEME;
+const duplicationScheme DEFAULTRSCHEMESUB=duplicationScheme::VALUEDUPLICATIONSCHEME;
 
 /******************************************************************************/
 /**

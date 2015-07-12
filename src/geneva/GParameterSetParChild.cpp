@@ -187,7 +187,7 @@ void GParameterSetParChild::doRecombine() {
 	std::vector<double> threshold(nParents_);
 	double thresholdSum = 0.;
 	// TODO: Check whether it is sufficient to do this only once
-	if (VALUEDUPLICATIONSCHEME == recombinationMethod_ && nParents_ > 1) {          // Calculate a weight vector
+	if (duplicationScheme::VALUEDUPLICATIONSCHEME == recombinationMethod_ && nParents_ > 1) {          // Calculate a weight vector
 		for (i = 0; i < nParents_; i++) {
 			thresholdSum += 1. / (static_cast<double>(i) + 2.);
 		}
@@ -217,13 +217,13 @@ void GParameterSetParChild::doRecombine() {
 			(*it)->GObject::load(bestParent->amalgamate(combiner));
 		} else { // Just perform duplication
 			switch (recombinationMethod_) {
-				case DEFAULTDUPLICATIONSCHEME: // we want the RANDOMDUPLICATIONSCHEME behavior
-				case RANDOMDUPLICATIONSCHEME: {
+				case duplicationScheme::DEFAULTDUPLICATIONSCHEME: // we want the RANDOMDUPLICATIONSCHEME behavior
+				case duplicationScheme::RANDOMDUPLICATIONSCHEME: {
 					randomRecombine(*it);
 				}
 					break;
 
-				case VALUEDUPLICATIONSCHEME: {
+				case duplicationScheme::VALUEDUPLICATIONSCHEME: {
 					if (nParents_ == 1) {
 						(*it)->GObject::load(*(GOptimizationAlgorithmT<GParameterSet>::data.begin()));
 						(*it)->GOptimizableEntity::getPersonalityTraits < GBaseParChildPersonalityTraits > ()->setParentId(0);

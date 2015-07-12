@@ -215,12 +215,12 @@ bool parseConfigFile(
 		}
 
 		// Workaround for assigment problem with rScheme
-		if (recombinationScheme == (std::uint16_t) VALUEDUPLICATIONSCHEME)
-			rScheme = VALUEDUPLICATIONSCHEME;
-		else if (recombinationScheme == (std::uint16_t) RANDOMDUPLICATIONSCHEME)
-			rScheme = RANDOMDUPLICATIONSCHEME;
-		else if (recombinationScheme == (std::uint16_t) DEFAULTDUPLICATIONSCHEME)
-			rScheme = DEFAULTDUPLICATIONSCHEME;
+		if (recombinationScheme == (std::uint16_t) duplicationScheme::VALUEDUPLICATIONSCHEME)
+			rScheme = duplicationScheme::VALUEDUPLICATIONSCHEME;
+		else if (recombinationScheme == (std::uint16_t) duplicationScheme::RANDOMDUPLICATIONSCHEME)
+			rScheme = duplicationScheme::RANDOMDUPLICATIONSCHEME;
+		else if (recombinationScheme == (std::uint16_t) duplicationScheme::DEFAULTDUPLICATIONSCHEME)
+			rScheme = duplicationScheme::DEFAULTDUPLICATIONSCHEME;
 		else {
 			glogger
 			<< "Error: Invalid recombination scheme in population: " << recombinationScheme << std::endl

@@ -460,7 +460,7 @@ public:
 
 		gpb.registerFileParameter<duplicationScheme>(
 			"recombinationMethod" // The name of the variable
-			, DEFAULTDUPLICATIONSCHEME // The default value
+			, duplicationScheme::DEFAULTDUPLICATIONSCHEME // The default value
 			, [this](duplicationScheme d){ this->setRecombinationMethod(d); }
 		)
 		<< "The recombination method. Options" << std::endl
@@ -573,7 +573,7 @@ protected:
 		std::vector<double> threshold(nParents_);
 		double thresholdSum=0.;
 		// TODO: Check whether it is sufficient to do this only once
-		if(VALUEDUPLICATIONSCHEME == recombinationMethod_ && nParents_ > 1) {          // Calculate a weight vector
+		if(duplicationScheme::VALUEDUPLICATIONSCHEME == recombinationMethod_ && nParents_ > 1) {          // Calculate a weight vector
 			for(i=0; i<nParents_; i++) {
 				thresholdSum += 1./(static_cast<double>(i)+2.);
 			}
@@ -590,14 +590,14 @@ protected:
 		typename std::vector<std::shared_ptr<ind_type>>::iterator it;
 		for(it=GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_; it!= GOptimizationAlgorithmT<ind_type>::data.end(); ++it) {
 			switch(recombinationMethod_){
-				case DEFAULTDUPLICATIONSCHEME: // we want the RANDOMDUPLICATIONSCHEME behavior
-				case RANDOMDUPLICATIONSCHEME:
+				case duplicationScheme::DEFAULTDUPLICATIONSCHEME: // we want the RANDOMDUPLICATIONSCHEME behavior
+				case duplicationScheme::RANDOMDUPLICATIONSCHEME:
 				{
 					randomRecombine(*it);
 				}
 					break;
 
-				case VALUEDUPLICATIONSCHEME:
+				case duplicationScheme::VALUEDUPLICATIONSCHEME:
 				{
 					if(nParents_ == 1) {
 						(*it)->GObject::load(*(GOptimizationAlgorithmT<ind_type>::data.begin()));
@@ -1126,7 +1126,7 @@ protected:
 	/***************************************************************************/
 
 	std::size_t nParents_ = 0; ///< The number of parents
-	duplicationScheme recombinationMethod_ = DEFAULTDUPLICATIONSCHEME; ///< The chosen recombination method
+	duplicationScheme recombinationMethod_ = duplicationScheme::DEFAULTDUPLICATIONSCHEME; ///< The chosen recombination method
 	std::size_t defaultNChildren_ = 0; ///< Expected number of children
 	std::size_t growthRate_ = 0; ///< Specifies the amount of individuals added per iteration
 	std::size_t maxPopulationSize_ = 0; ///< Specifies the maximum amount of individuals in the population if growth is enabled
