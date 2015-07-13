@@ -59,7 +59,7 @@
 using namespace Gem::Hap;
 using namespace boost;
 
-enum distType {
+enum class distType {
 	GAUSSIAN,
 	DOUBLEGAUSSIAN,
 	EVEN,
@@ -75,31 +75,31 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 	std::size_t i;
 
 	switch(dType){
-		case GAUSSIAN: // standard distribution
+		case distType::GAUSSIAN: // standard distribution
 			for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->GRandomBase::normal_distribution<double>(0.,0.5)));
 			break;
 
-		case DOUBLEGAUSSIAN:
+		case distType::DOUBLEGAUSSIAN:
 			for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->bi_normal_distribution<double>(0.,0.5,2.))); // (mean, sigma, distance)
 			break;
 
-		case EVEN: // double in the range [0,1[
+		case distType::EVEN: // double in the range [0,1[
 			for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->GRandomBase::uniform_01<double>()));
 			break;
 
-		case EVENWITHBOUNDARIES: // double in the range [-3,2[
+		case distType::EVENWITHBOUNDARIES: // double in the range [-3,2[
 			for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->GRandomBase::uniform_real<double>(-3.,2.)));
 			break;
 
-		case DISCRETE:
+		case distType::DISCRETE:
 			for(i=0; i<nEntries; i++) vec_t.push_back(boost::numeric_cast<std::int32_t>(gr_ptr->uniform_int(10)));
 			break;
 
-		case DISCRETEBOUND:
+		case distType::DISCRETEBOUND:
 			for(i=0; i<nEntries; i++) vec_t.push_back(boost::numeric_cast<std::int32_t>(gr_ptr->uniform_int(-3,10)));
 			break;
 
-		case BITPROB:
+		case distType::BITPROB:
 			for(i=0; i<nEntries; i++){
 				if(gr_ptr->weighted_bool(0.7))
 					vec_t.push_back(1);
@@ -108,7 +108,7 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 			}
 			break;
 
-		case BITSIMPLE:
+		case distType::BITSIMPLE:
 			for(i=0; i<nEntries; i++){
 				if(gr_ptr->uniform_bool())
 					vec_t.push_back(1);
@@ -133,7 +133,7 @@ int main(int argc, char **argv){
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
 	// Create a random number proxy
-	gr_ptr = std::shared_ptr<GRandomT<RANDOMPROXY>>(new GRandomT<RANDOMPROXY>());
+	gr_ptr = std::shared_ptr<GRandomT<RANDFLAVOURS::RANDOMPROXY>>(new GRandomT<RANDFLAVOURS::RANDOMPROXY>());
 
 	boost::filesystem::ofstream ofs("rootPlotRNGDistributions.C");
 	if(!ofs) {
@@ -163,14 +163,14 @@ int main(int argc, char **argv){
 	<< "  TH1I *bitsimple = new TH1I(\"bitsimple\",\"bitsimple\",4,-1,2);" << std::endl
 	<< std::endl;
 
-	createRandomVector<double>(gaussian, GAUSSIAN, nEntries, gr_ptr);
-	createRandomVector<double>(doublegaussian, DOUBLEGAUSSIAN, nEntries, gr_ptr);
-	createRandomVector<double>(even, EVEN, nEntries, gr_ptr);
-	createRandomVector<double>(evenwithboundaries, EVENWITHBOUNDARIES, nEntries, gr_ptr);
-	createRandomVector<std::int32_t>(discrete, DISCRETE, nEntries,gr_ptr);
-	createRandomVector<std::int32_t>(discretebound, DISCRETEBOUND, nEntries, gr_ptr);
-	createRandomVector<std::int32_t>(bitprob, BITPROB, nEntries, gr_ptr);
-	createRandomVector<std::int32_t>(bitsimple, BITSIMPLE, nEntries, gr_ptr);
+	createRandomVector<double>(gaussian, distType::GAUSSIAN, nEntries, gr_ptr);
+	createRandomVector<double>(doublegaussian, distType::DOUBLEGAUSSIAN, nEntries, gr_ptr);
+	createRandomVector<double>(even, distType::EVEN, nEntries, gr_ptr);
+	createRandomVector<double>(evenwithboundaries, distType::EVENWITHBOUNDARIES, nEntries, gr_ptr);
+	createRandomVector<std::int32_t>(discrete, distType::DISCRETE, nEntries,gr_ptr);
+	createRandomVector<std::int32_t>(discretebound, distType::DISCRETEBOUND, nEntries, gr_ptr);
+	createRandomVector<std::int32_t>(bitprob, distType::BITPROB, nEntries, gr_ptr);
+	createRandomVector<std::int32_t>(bitsimple, distType::BITSIMPLE, nEntries, gr_ptr);
 
 	for(i=0; i<nEntries; i++){
 		ofs << "  gauss->Fill(" << gaussian.at(i) << ");" << std::endl;

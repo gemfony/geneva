@@ -481,7 +481,7 @@ public:
 		}
 
 		// Create a local random number generator.
-		GRandomT<RANDOMLOCAL> gr_l;
+		GRandomT<RANDFLAVOURS::RANDOMLOCAL> gr_l;
 
 		// Retrieve the number of input- and output nodes for easier reference
 		std::size_t nInputNodes = architecture.front();
@@ -573,7 +573,7 @@ public:
 		}
 
 		// Create a local random number generator.
-		GRandomT<RANDOMLOCAL> gr_l;
+		GRandomT<RANDFLAVOURS::RANDOMLOCAL> gr_l;
 
 		// Retrieve the number of input- and output nodes for easier reference
 		std::size_t nInputNodes = architecture.front();
@@ -711,7 +711,7 @@ public:
 		}
 
 		// Create a local random number generator.
-		GRandomT<RANDOMLOCAL> gr_l;
+		GRandomT<RANDFLAVOURS::RANDOMLOCAL> gr_l;
 
 		// Retrieve the number of input- and output nodes for easier reference
 		std::size_t nInputNodes = architecture.front();
@@ -828,7 +828,7 @@ public:
 		}
 
 		// Create a local random number generator.
-		GRandomT<RANDOMLOCAL> gr_l;
+		GRandomT<RANDFLAVOURS::RANDOMLOCAL> gr_l;
 
 		// Retrieve the number of input- and output nodes for easier reference
 		std::size_t nInputNodes = architecture.front();

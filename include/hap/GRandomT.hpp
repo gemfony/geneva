@@ -66,7 +66,7 @@ namespace Hap {
  * produced in different ways. We only define the interface here. The actual
  * implementation can be found in the (partial) specializations of this class.
  */
-template<Gem::Hap::RANDFLAVOURS s = Gem::Hap::RANDOMPROXY>
+template<Gem::Hap::RANDFLAVOURS s = Gem::Hap::RANDFLAVOURS::RANDOMPROXY>
 class GRandomT
 	: public Gem::Hap::GRandomBase {
 public:
@@ -92,7 +92,7 @@ protected:
  * objects or use copy constructors.
  */
 template<>
-class GRandomT<Gem::Hap::RANDOMPROXY>
+class GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>
 	: public Gem::Hap::GRandomBase {
 public:
 	/***************************************************************************/
@@ -185,7 +185,7 @@ private:
 };
 
 /** @brief Convenience typedef */
-typedef GRandomT<Gem::Hap::RANDOMPROXY> GRandom;
+typedef GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> GRandom;
 
 /***************************************************************************/
 /** @brief Central access to a random number generator through thread-local storage */
@@ -202,7 +202,7 @@ boost::thread_specific_ptr<Gem::Hap::GRandom>& gr_tls_ptr();
  * case the default constructor is used.
  */
 template<>
-class GRandomT<Gem::Hap::RANDOMLOCAL>
+class GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>
 	: public Gem::Hap::GRandomBase {
 public:
 	/***************************************************************************/

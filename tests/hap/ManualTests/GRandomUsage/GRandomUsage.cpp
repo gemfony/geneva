@@ -172,11 +172,11 @@ int main(int argc, char **argv){
 	// Set the random number generation mode as requested
 	switch(rnrProductionMode) {
 		case 0:
-			gr_ptr = std::shared_ptr<GRandomT<RANDOMPROXY>>(new GRandomT<RANDOMPROXY>());
+			gr_ptr = std::shared_ptr<GRandomT<RANDFLAVOURS::RANDOMPROXY>>(new GRandomT<RANDFLAVOURS::RANDOMPROXY>());
 			break;
 
 		case 1:
-			gr_ptr = std::shared_ptr<GRandomT<RANDOMLOCAL>>(new GRandomT<RANDOMLOCAL>());
+			gr_ptr = std::shared_ptr<GRandomT<RANDFLAVOURS::RANDOMLOCAL>>(new GRandomT<RANDFLAVOURS::RANDOMLOCAL>());
 			break;
 	};
 
@@ -226,13 +226,13 @@ int main(int argc, char **argv){
 
 	switch(rnrProductionMode) {
 		case 0:
-			gr_ptr_one = std::shared_ptr<GRandomT<RANDOMPROXY>>(new GRandomT<RANDOMPROXY>());
-			gr_ptr_two = std::shared_ptr<GRandomT<RANDOMPROXY>>(new GRandomT<RANDOMPROXY>());
+			gr_ptr_one = std::shared_ptr<GRandomT<RANDFLAVOURS::RANDOMPROXY>>(new GRandomT<RANDFLAVOURS::RANDOMPROXY>());
+			gr_ptr_two = std::shared_ptr<GRandomT<RANDFLAVOURS::RANDOMPROXY>>(new GRandomT<RANDFLAVOURS::RANDOMPROXY>());
 			break;
 
 		case 1:
-			gr_ptr_one = std::shared_ptr<GRandomT<RANDOMLOCAL>>(new GRandomT<RANDOMLOCAL>());
-			gr_ptr_two = std::shared_ptr<GRandomT<RANDOMLOCAL>>(new GRandomT<RANDOMLOCAL>());
+			gr_ptr_one = std::shared_ptr<GRandomT<RANDFLAVOURS::RANDOMLOCAL>>(new GRandomT<RANDFLAVOURS::RANDOMLOCAL>());
+			gr_ptr_two = std::shared_ptr<GRandomT<RANDFLAVOURS::RANDOMLOCAL>>(new GRandomT<RANDFLAVOURS::RANDOMLOCAL>());
 			break;
 	};
 
@@ -248,11 +248,11 @@ int main(int argc, char **argv){
 		std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr_seed;
 		switch(rnrProductionMode) {
 			case 0:
-				gr_ptr_seed = std::shared_ptr<GRandomT<RANDOMPROXY>>(new GRandomT<RANDOMPROXY>());
+				gr_ptr_seed = std::shared_ptr<GRandomT<RANDFLAVOURS::RANDOMPROXY>>(new GRandomT<RANDFLAVOURS::RANDOMPROXY>());
 				break;
 
 			case 1:
-				gr_ptr_seed = std::shared_ptr<GRandomT<RANDOMLOCAL>>(new GRandomT<RANDOMLOCAL>());
+				gr_ptr_seed = std::shared_ptr<GRandomT<RANDFLAVOURS::RANDOMLOCAL>>(new GRandomT<RANDFLAVOURS::RANDOMLOCAL>());
 				break;
 		};
 

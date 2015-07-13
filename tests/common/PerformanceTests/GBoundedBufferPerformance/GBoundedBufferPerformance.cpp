@@ -145,7 +145,7 @@ void producer(
 	std::vector<std::size_t> droppedIteration;
 	double sum = 0, var = 0.;
 
-	Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY> gr; // A random number proxy
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr; // A random number proxy
 
 	// Find out about the maximum random delay in microseconds
 	long maxRandomDelayMS = boost::numeric_cast<long>(maxRandomDelay.total_microseconds());
@@ -290,7 +290,7 @@ void consumer(
 			iteration++;
 		}
 	} else { // We use a random delay in-between submissions
-		Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY> gr; // A random number generator
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr; // A random number generator
 
 		while(true) {
 			if(buffer.pop_back_bool(item, timeout)) {

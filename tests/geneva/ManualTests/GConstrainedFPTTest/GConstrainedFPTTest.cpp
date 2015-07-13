@@ -98,7 +98,7 @@ int main(int argc, char **argv){
 	// external value. The test produces 10 gaussian random number distributions,
 	// whose mean is shifted from left to right of a [-1,1] range
 
-	Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 	GConstrainedDoubleObject gbd_distortion(-1.,1.);
 
 	boost::filesystem::ofstream distortion("distortion.C");

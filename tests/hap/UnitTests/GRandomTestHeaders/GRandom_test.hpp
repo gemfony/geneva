@@ -98,12 +98,12 @@ public:
 
 		//------------------------------------------------------------------------------
 
-		{ // Test that uniform_int(min,max) covers the entire range, including the upper boundary in RANDOMLOCAL mode
+		{ // Test that uniform_int(min,max) covers the entire range, including the upper boundary in RANDFLAVOURS::RANDOMLOCAL mode
 			// A few settings
 			const std::int32_t MINRANDOM=-10;
 			const std::int32_t MAXRANDOM= 10;
 
-			std::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>());
+			std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>());
 
 			std::vector<std::int32_t> randomHist(21); // 21 positions from -10 to 10
 
@@ -136,7 +136,7 @@ public:
 			const std::int32_t MINRANDOM=-10;
 			const std::int32_t MAXRANDOM= 10;
 
-			std::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY>());
+			std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>());
 
 			std::vector<std::int32_t> randomHist(21); // 21 positions from -10 to 10
 
@@ -164,11 +164,11 @@ public:
 
 		//------------------------------------------------------------------------------
 
-		{ // Test that uniform_int(max) covers the entire range, including the upper boundary in RANDOMLOCAL mode
+		{ // Test that uniform_int(max) covers the entire range, including the upper boundary in RANDFLAVOURS::RANDOMLOCAL mode
 			// A few settings
 			const std::int32_t MAXRANDOM= 10;
 
-			std::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>());
+			std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>());
 
 			std::vector<std::int32_t> randomHist(11); // 11 positions from 0 to 10
 
@@ -200,7 +200,7 @@ public:
 			// A few settings
 			const std::int32_t MAXRANDOM= 10;
 
-			std::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY>());
+			std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>());
 
 			std::vector<std::int32_t> randomHist(11); // 11 positions from 0 to 10
 
@@ -233,7 +233,7 @@ public:
 			const std::int32_t MINRANDOM=-10;
 			const std::int32_t MAXRANDOM= 10;
 
-			std::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>());
+			std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>());
 
 			volatile std::int32_t randVal;
 			for(std::size_t i=0; i<nTests_; i++) {
@@ -248,7 +248,7 @@ public:
 			const std::int32_t MINRANDOM=-10;
 			const std::int32_t MAXRANDOM= 10;
 
-			std::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY>());
+			std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>());
 
 			volatile std::int32_t randVal;
 			for(std::size_t i=0; i<nTests_; i++) {
@@ -262,7 +262,7 @@ public:
 			// A few settings
 			const std::int32_t MAXRANDOM= 10;
 
-			std::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>());
+			std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>());
 
 			volatile std::int32_t randVal;
 			for(std::size_t i=0; i<nTests_; i++) {
@@ -276,7 +276,7 @@ public:
 			// A few settings
 			const std::int32_t MAXRANDOM= 10;
 
-			std::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY>());
+			std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>());
 
 			volatile std::int32_t randVal;
 			for(std::size_t i=0; i<nTests_; i++) {
@@ -286,12 +286,12 @@ public:
 
 		//------------------------------------------------------------------------------
 
-		{ // Test that uniform_smallint(min,max) covers the entire range, including the upper boundary in RANDOMLOCAL mode
+		{ // Test that uniform_smallint(min,max) covers the entire range, including the upper boundary in RANDFLAVOURS::RANDOMLOCAL mode
 			// A few settings
 			const std::int32_t MINRANDOM=-10;
 			const std::int32_t MAXRANDOM= 10;
 
-			std::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>());
+			std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>());
 
 			std::vector<std::int32_t> randomHist(21); // 21 positions from -10 to 10
 
@@ -324,7 +324,7 @@ public:
 			const std::int32_t MINRANDOM=-10;
 			const std::int32_t MAXRANDOM= 10;
 
-			std::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY>());
+			std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>());
 
 			std::vector<std::int32_t> randomHist(21); // 21 positions from -10 to 10
 
@@ -352,11 +352,11 @@ public:
 
 		//------------------------------------------------------------------------------
 
-		{ // Test that uniform_smallint(max) covers the entire range, including the upper boundary in RANDOMLOCAL mode
+		{ // Test that uniform_smallint(max) covers the entire range, including the upper boundary in RANDFLAVOURS::RANDOMLOCAL mode
 			// A few settings
 			const std::int32_t MAXRANDOM= 10;
 
-			std::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL>());
+			std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>());
 
 			std::vector<std::int32_t> randomHist(11); // 11 positions from 0 to 10
 
@@ -388,7 +388,7 @@ public:
 			// A few settings
 			const std::int32_t MAXRANDOM= 10;
 
-			std::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY>());
+			std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>());
 
 			std::vector<std::int32_t> randomHist(11); // 11 positions from 0 to 10
 
