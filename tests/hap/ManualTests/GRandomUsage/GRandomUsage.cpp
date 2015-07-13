@@ -61,7 +61,7 @@ using namespace Gem::Tests;
 using namespace Gem::Hap;
 using namespace boost;
 
-enum distType {
+enum class distType {
 	GAUSSIAN,
 	DOUBLEGAUSSIAN,
 	EVEN,
@@ -82,31 +82,31 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 	std::size_t i;
 
 	switch(dType){
-		case GAUSSIAN: // standard distribution
+		case distType::GAUSSIAN: // standard distribution
 			for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->normal_distribution(-3.,1.)));
 			break;
 
-		case DOUBLEGAUSSIAN:
+		case distType::DOUBLEGAUSSIAN:
 			for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->bi_normal_distribution(-3.,0.5,3.)));
 			break;
 
-		case EVEN: // double in the range [0,1[
+		case distType::EVEN: // double in the range [0,1[
 			for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->GRandomBase::uniform_01<double>()));
 			break;
 
-		case EVENWITHBOUNDARIES: // double in the range [-3,2[
+		case distType::EVENWITHBOUNDARIES: // double in the range [-3,2[
 			for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->GRandomBase::uniform_real<double>(-3.,2.)));
 			break;
 
-		case DISCRETE:
+		case distType::DISCRETE:
 			for(i=0; i<nEntries; i++) vec_t.push_back(boost::numeric_cast<std::int32_t>(gr_ptr->uniform_int(10)));
 			break;
 
-		case DISCRETEBOUND:
+		case distType::DISCRETEBOUND:
 			for(i=0; i<nEntries; i++) vec_t.push_back(boost::numeric_cast<std::int32_t>(gr_ptr->uniform_int(-3,10)));
 			break;
 
-		case BITPROB:
+		case distType::BITPROB:
 			for(i=0; i<nEntries; i++){
 				if(gr_ptr->weighted_bool(0.7))
 					vec_t.push_back(1);
@@ -115,7 +115,7 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 			}
 			break;
 
-		case BITSIMPLE:
+		case distType::BITSIMPLE:
 			for(i=0; i<nEntries; i++){
 				if(gr_ptr->uniform_bool())
 					vec_t.push_back(1);
@@ -124,23 +124,23 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 			}
 			break;
 
-		case EXPGAUSS01:
+		case distType::EXPGAUSS01:
 			for(i=0; i<nEntries; i++) vec_t.push_back(T(exp(gr_ptr->normal_distribution(0.1))));
 			break;
 
-		case EXPGAUSS02:
+		case distType::EXPGAUSS02:
 			for(i=0; i<nEntries; i++) vec_t.push_back(T(exp(gr_ptr->normal_distribution(0.2))));
 			break;
 
-		case EXPGAUSS04:
+		case distType::EXPGAUSS04:
 			for(i=0; i<nEntries; i++) vec_t.push_back(T(exp(gr_ptr->normal_distribution(0.4))));
 			break;
 
-		case EXPGAUSS08:
+		case distType::EXPGAUSS08:
 			for(i=0; i<nEntries; i++) vec_t.push_back(T(exp(gr_ptr->normal_distribution(0.8))));
 			break;
 
-		case EXPGAUSS16:
+		case distType::EXPGAUSS16:
 			for(i=0; i<nEntries; i++) vec_t.push_back(T(exp(gr_ptr->normal_distribution(1.6))));
 			break;
 	}
@@ -269,19 +269,19 @@ int main(int argc, char **argv){
 		initLFCorr.push_back(lf());
 	}
 
-	createRandomVector<double>(gaussian, GAUSSIAN, nEntries, gr_ptr);
-	createRandomVector<double>(doublegaussian, DOUBLEGAUSSIAN, nEntries, gr_ptr);
-	createRandomVector<double>(even, EVEN, nEntries, gr_ptr);
-	createRandomVector<double>(evenwithboundaries, EVENWITHBOUNDARIES, nEntries, gr_ptr);
-	createRandomVector<std::int32_t>(discrete, DISCRETE, nEntries,gr_ptr);
-	createRandomVector<std::int32_t>(discretebound, DISCRETEBOUND, nEntries, gr_ptr);
-	createRandomVector<std::int32_t>(bitprob, BITPROB, nEntries, gr_ptr);
-	createRandomVector<std::int32_t>(bitsimple, BITSIMPLE, nEntries, gr_ptr);
-	createRandomVector<double>(expgauss01, EXPGAUSS01, nEntries, gr_ptr);
-	createRandomVector<double>(expgauss02, EXPGAUSS02, nEntries, gr_ptr);
-	createRandomVector<double>(expgauss04, EXPGAUSS04, nEntries, gr_ptr);
-	createRandomVector<double>(expgauss08, EXPGAUSS08, nEntries, gr_ptr);
-	createRandomVector<double>(expgauss16, EXPGAUSS16, nEntries, gr_ptr);
+	createRandomVector<double>(gaussian, distType::GAUSSIAN, nEntries, gr_ptr);
+	createRandomVector<double>(doublegaussian, distType::DOUBLEGAUSSIAN, nEntries, gr_ptr);
+	createRandomVector<double>(even, distType::EVEN, nEntries, gr_ptr);
+	createRandomVector<double>(evenwithboundaries, distType::EVENWITHBOUNDARIES, nEntries, gr_ptr);
+	createRandomVector<std::int32_t>(discrete, distType::DISCRETE, nEntries,gr_ptr);
+	createRandomVector<std::int32_t>(discretebound, distType::DISCRETEBOUND, nEntries, gr_ptr);
+	createRandomVector<std::int32_t>(bitprob, distType::BITPROB, nEntries, gr_ptr);
+	createRandomVector<std::int32_t>(bitsimple, distType::BITSIMPLE, nEntries, gr_ptr);
+	createRandomVector<double>(expgauss01, distType::EXPGAUSS01, nEntries, gr_ptr);
+	createRandomVector<double>(expgauss02, distType::EXPGAUSS02, nEntries, gr_ptr);
+	createRandomVector<double>(expgauss04, distType::EXPGAUSS04, nEntries, gr_ptr);
+	createRandomVector<double>(expgauss08, distType::EXPGAUSS08, nEntries, gr_ptr);
+	createRandomVector<double>(expgauss16, distType::EXPGAUSS16, nEntries, gr_ptr);
 
 	if(gaussian.size() != nEntries ||
 		doublegaussian.size() != nEntries ||
