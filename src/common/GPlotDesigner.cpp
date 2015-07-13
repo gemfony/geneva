@@ -812,7 +812,7 @@ std::string GGraph2D::drawingArguments(bool isSecondary) const {
 	if (this->drawingArguments_ != "") {
 		dA = this->drawingArguments_;
 	} else {
-		if (SCATTER == pM_ || true == drawArrows_) {
+		if (graphPlotMode::SCATTER == pM_ || true == drawArrows_) {
 			dA = "P";
 		} else {
 			dA = "PL";
@@ -1113,7 +1113,7 @@ std::string GGraph2ED::drawingArguments(bool isSecondary) const {
 	if (this->drawingArguments_ != "") {
 		dA = this->drawingArguments_;
 	} else {
-		if (SCATTER == pM_) {
+		if (graphPlotMode::SCATTER == pM_) {
 			dA = "P";
 		} else {
 			dA = "PL";
@@ -1149,7 +1149,7 @@ void GGraph2ED::load_(const GBasePlotter* cp) {
 	GDataCollector2ET<double, double>::load_(cp);
 
 	// ... and then our local data
-	pM_         = p_load->pM_;
+	pM_ = p_load->pM_;
 }
 
 /******************************************************************************/

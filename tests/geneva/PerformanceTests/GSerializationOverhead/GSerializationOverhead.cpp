@@ -70,61 +70,61 @@ int main(int argc, char **argv) {
 	GPlotDesigner gpd(caption, 2, NPERFOBJECTTYPES);
 
 	std::shared_ptr<GGraph2D> gdo_adapt_ptr(new GGraph2D());
-	gdo_adapt_ptr->setPlotMode(Gem::Common::CURVE);
+	gdo_adapt_ptr->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 	gdo_adapt_ptr->setPlotLabel("GDoubleObject / Adaption");
 	gdo_adapt_ptr->setXAxisLabel("Number of parameters");
 	gdo_adapt_ptr->setYAxisLabel("Time (s)");
 
 	std::shared_ptr<GGraph2D> gdo_ser_ptr(new GGraph2D());
-	gdo_ser_ptr->setPlotMode(Gem::Common::CURVE);
+	gdo_ser_ptr->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 	gdo_ser_ptr->setPlotLabel("GDoubleObject / Serialization");
 	gdo_ser_ptr->setXAxisLabel("Number of parameters");
 	gdo_ser_ptr->setYAxisLabel("Time (s)");
 
 	std::shared_ptr<GGraph2D> gcdo_adapt_ptr(new GGraph2D());
-	gcdo_adapt_ptr->setPlotMode(Gem::Common::CURVE);
+	gcdo_adapt_ptr->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 	gcdo_adapt_ptr->setPlotLabel("GConstrainedDoubleObject / Adaption");
 	gcdo_adapt_ptr->setXAxisLabel("Number of parameters");
 	gcdo_adapt_ptr->setYAxisLabel("Time (s)");
 
 	std::shared_ptr<GGraph2D> gcdo_ser_ptr(new GGraph2D());
-	gcdo_ser_ptr->setPlotMode(Gem::Common::CURVE);
+	gcdo_ser_ptr->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 	gcdo_ser_ptr->setPlotLabel("GConstrainedDoubleObject / Serialization");
 	gcdo_ser_ptr->setXAxisLabel("Number of parameters");
 	gcdo_ser_ptr->setYAxisLabel("Time (s)");
 
 	std::shared_ptr<GGraph2D> gcdoc_adapt_ptr(new GGraph2D());
-	gcdoc_adapt_ptr->setPlotMode(Gem::Common::CURVE);
+	gcdoc_adapt_ptr->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 	gcdoc_adapt_ptr->setPlotLabel("GConstrainedDoubleObjectCollection / Adaption");
 	gcdoc_adapt_ptr->setXAxisLabel("Number of parameters");
 	gcdoc_adapt_ptr->setYAxisLabel("Time (s)");
 
 	std::shared_ptr<GGraph2D> gcdoc_ser_ptr(new GGraph2D());
-	gcdoc_ser_ptr->setPlotMode(Gem::Common::CURVE);
+	gcdoc_ser_ptr->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 	gcdoc_ser_ptr->setPlotLabel("GConstrainedDoubleObjectCollection / Serialization");
 	gcdoc_ser_ptr->setXAxisLabel("Number of parameters");
 	gcdoc_ser_ptr->setYAxisLabel("Time (s)");
 
 	std::shared_ptr<GGraph2D> gdc_adapt_ptr(new GGraph2D());
-	gdc_adapt_ptr->setPlotMode(Gem::Common::CURVE);
+	gdc_adapt_ptr->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 	gdc_adapt_ptr->setPlotLabel("GDoubleCollection / Adaption");
 	gdc_adapt_ptr->setXAxisLabel("Number of parameters");
 	gdc_adapt_ptr->setYAxisLabel("Time (s)");
 
 	std::shared_ptr<GGraph2D> gdc_ser_ptr(new GGraph2D());
-	gdc_ser_ptr->setPlotMode(Gem::Common::CURVE);
+	gdc_ser_ptr->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 	gdc_ser_ptr->setPlotLabel("GDoubleCollection / Serialization");
 	gdc_ser_ptr->setXAxisLabel("Number of parameters");
 	gdc_ser_ptr->setYAxisLabel("Time (s)");
 
 	std::shared_ptr<GGraph2D> gcdc_adapt_ptr(new GGraph2D());
-	gcdc_adapt_ptr->setPlotMode(Gem::Common::CURVE);
+	gcdc_adapt_ptr->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 	gcdc_adapt_ptr->setPlotLabel("GConstrainedDoubleCollection / Adaption");
 	gcdc_adapt_ptr->setXAxisLabel("Number of parameters");
 	gcdc_adapt_ptr->setYAxisLabel("Time (s)");
 
 	std::shared_ptr<GGraph2D> gcdc_ser_ptr(new GGraph2D());
-	gcdc_ser_ptr->setPlotMode(Gem::Common::CURVE);
+	gcdc_ser_ptr->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 	gcdc_ser_ptr->setPlotLabel("GConstrainedDoubleCollection / Serialization");
 	gcdc_ser_ptr->setXAxisLabel("Number of parameters");
 	gcdc_ser_ptr->setYAxisLabel("Time (s)");

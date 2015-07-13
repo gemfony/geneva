@@ -275,7 +275,13 @@ struct binary_function_;
 struct ast_expression;
 
 typedef boost::variant<
-	nil, float, double, boost::recursive_wrapper<signed_>, boost::recursive_wrapper<unary_function_>, boost::recursive_wrapper<binary_function_>, boost::recursive_wrapper<ast_expression>
+	nil
+	, float
+	, double
+	, boost::recursive_wrapper<signed_>
+	, boost::recursive_wrapper<unary_function_>
+	, boost::recursive_wrapper<binary_function_>
+	, boost::recursive_wrapper<ast_expression>
 >
 	operand;
 
@@ -396,7 +402,7 @@ public:
 	/**
 	 * Specifies the operations the parser must know about
 	 */
-	enum byte_code {
+	enum class byte_code {
 		op_trap = 0,      // triggers an exception --> boost::variant<int,fp_type>() == 0
 		op_neg = 1,      // negate the top stack entry
 		op_add = 2,      // add top two stack entries
@@ -603,18 +609,18 @@ public:
 	void operator()(nil) const { BOOST_ASSERT(0); }
 
 	void operator()(const fp_type &fp_val) const {
-		code_.push_back(codeEntry(op_fp));
+		code_.push_back(codeEntry(byte_code::op_fp));
 		code_.push_back(codeEntry(fp_val));
 	}
 
 	void operator()(const operation &x) const {
 		boost::apply_visitor(*this, x.operand_);
 
-		if (x.operator_ == '+') code_.push_back(codeEntry(op_add));
-		else if (x.operator_ == '-') code_.push_back(codeEntry(op_sub));
-		else if (x.operator_ == '*') code_.push_back(codeEntry(op_mul));
+		if (x.operator_ == '+') code_.push_back(codeEntry(byte_code::op_add));
+		else if (x.operator_ == '-') code_.push_back(codeEntry(byte_code::op_sub));
+		else if (x.operator_ == '*') code_.push_back(codeEntry(byte_code::op_mul));
 		else if (x.operator_ == '/')
-			code_.push_back(codeEntry(op_div));  // division by 0 throws Gem::Common::division_by_0 exception
+			code_.push_back(codeEntry(byte_code::op_div));  // division by 0 throws Gem::Common::division_by_0 exception
 		else
 			BOOST_ASSERT(0);
 	}
@@ -623,26 +629,26 @@ public:
 		boost::apply_visitor(*this, f.operand_);
 
 		if (f.fname_ == "acos")
-			code_.push_back(codeEntry(op_acos)); // Value out of valid range [-1,1] throws Gem::Common::acos_invalid_range
+			code_.push_back(codeEntry(byte_code::op_acos)); // Value out of valid range [-1,1] throws Gem::Common::acos_invalid_range
 		else if (f.fname_ == "asin")
-			code_.push_back(codeEntry(op_asin)); // Value out of valid range [-1,1] throws Gem::Common::asin_invalid_range
-		else if (f.fname_ == "atan") code_.push_back(codeEntry(op_atan));
-		else if (f.fname_ == "ceil") code_.push_back(codeEntry(op_ceil));
-		else if (f.fname_ == "cos") code_.push_back(codeEntry(op_cos));
-		else if (f.fname_ == "cosh") code_.push_back(codeEntry(op_cosh));
-		else if (f.fname_ == "exp") code_.push_back(codeEntry(op_exp));
-		else if (f.fname_ == "fabs") code_.push_back(codeEntry(op_fabs));
-		else if (f.fname_ == "floor") code_.push_back(codeEntry(op_floor));
+			code_.push_back(codeEntry(byte_code::op_asin)); // Value out of valid range [-1,1] throws Gem::Common::asin_invalid_range
+		else if (f.fname_ == "atan") code_.push_back(codeEntry(byte_code::op_atan));
+		else if (f.fname_ == "ceil") code_.push_back(codeEntry(byte_code::op_ceil));
+		else if (f.fname_ == "cos") code_.push_back(codeEntry(byte_code::op_cos));
+		else if (f.fname_ == "cosh") code_.push_back(codeEntry(byte_code::op_cosh));
+		else if (f.fname_ == "exp") code_.push_back(codeEntry(byte_code::op_exp));
+		else if (f.fname_ == "fabs") code_.push_back(codeEntry(byte_code::op_fabs));
+		else if (f.fname_ == "floor") code_.push_back(codeEntry(byte_code::op_floor));
 		else if (f.fname_ == "log")
-			code_.push_back(codeEntry(op_log)); // Value <= 0 throws Gem::Common::log_negative_value
+			code_.push_back(codeEntry(byte_code::op_log)); // Value <= 0 throws Gem::Common::log_negative_value
 		else if (f.fname_ == "log10")
-			code_.push_back(codeEntry(op_log10)); // Value <= 0 throws Gem::Common::log10_negative_value
-		else if (f.fname_ == "sin") code_.push_back(codeEntry(op_sin));
-		else if (f.fname_ == "sinh") code_.push_back(codeEntry(op_sinh));
+			code_.push_back(codeEntry(byte_code::op_log10)); // Value <= 0 throws Gem::Common::log10_negative_value
+		else if (f.fname_ == "sin") code_.push_back(codeEntry(byte_code::op_sin));
+		else if (f.fname_ == "sinh") code_.push_back(codeEntry(byte_code::op_sinh));
 		else if (f.fname_ == "sqrt")
-			code_.push_back(codeEntry(op_sqrt)); // Value < 0 throws Gem::Common::sqrt_negative_value
-		else if (f.fname_ == "tan") code_.push_back(codeEntry(op_tan));
-		else if (f.fname_ == "tanh") code_.push_back(codeEntry(op_tanh));
+			code_.push_back(codeEntry(byte_code::op_sqrt)); // Value < 0 throws Gem::Common::sqrt_negative_value
+		else if (f.fname_ == "tan") code_.push_back(codeEntry(byte_code::op_tan));
+		else if (f.fname_ == "tanh") code_.push_back(codeEntry(byte_code::op_tanh));
 		else
 			BOOST_ASSERT(0);
 	}
@@ -651,17 +657,17 @@ public:
 		boost::apply_visitor(*this, f.operand1_);
 		boost::apply_visitor(*this, f.operand2_);
 
-		if (f.fname_ == "min") code_.push_back(codeEntry(op_min));
-		else if (f.fname_ == "max") code_.push_back(codeEntry(op_max));
-		else if (f.fname_ == "pow") code_.push_back(codeEntry(op_pow));
-		else if (f.fname_ == "hypot") code_.push_back(codeEntry(op_hypot));
+		if (f.fname_ == "min") code_.push_back(codeEntry(byte_code::op_min));
+		else if (f.fname_ == "max") code_.push_back(codeEntry(byte_code::op_max));
+		else if (f.fname_ == "pow") code_.push_back(codeEntry(byte_code::op_pow));
+		else if (f.fname_ == "hypot") code_.push_back(codeEntry(byte_code::op_hypot));
 		else
 			BOOST_ASSERT(0);
 	}
 
 	void operator()(const signed_ &x) const {
 		boost::apply_visitor(*this, x.operand_);
-		if (x.sign == '-') code_.push_back(codeEntry(op_neg));
+		if (x.sign == '-') code_.push_back(codeEntry(byte_code::op_neg));
 		else if (x.sign == '+') { /* nothing */ }
 		else
 			BOOST_ASSERT(0);
@@ -738,34 +744,34 @@ private:
 		while (code_ptr != code_.end()) {
 			// Note: *code_ptr is a boost::variabt, boost::get has nothing to do with a boost::tuple here
 			switch (boost::get<byte_code>(*code_ptr++)) { // Read out code_ptr, then switch it to the next position
-				case op_trap: {
+				case byte_code::op_trap: {
 					glogger
 					<< "In GFormulaParserT<fp_type>::execute(): Error!" << std::endl
-					<< "op_trap encountered" << std::endl
+					<< "byte_code::op_trap encountered" << std::endl
 					<< GEXCEPTION;
 				}
 					break;
 
-				case op_neg:
+				case byte_code::op_neg:
 					stack_ptr_[-1] = -stack_ptr_[-1];
 					break;
 
-				case op_add:
+				case byte_code::op_add:
 					--stack_ptr_;
 					stack_ptr_[-1] += stack_ptr_[0];
 					break;
 
-				case op_sub:
+				case byte_code::op_sub:
 					--stack_ptr_;
 					stack_ptr_[-1] -= stack_ptr_[0];
 					break;
 
-				case op_mul:
+				case byte_code::op_mul:
 					--stack_ptr_;
 					stack_ptr_[-1] *= stack_ptr_[0];
 					break;
 
-				case op_div: {
+				case byte_code::op_div: {
 					--stack_ptr_;
 					if (0 == stack_ptr_[0]) {
 						throw Gem::Common::division_by_0();
@@ -775,27 +781,27 @@ private:
 				}
 					break;
 
-				case op_min:
+				case byte_code::op_min:
 					--stack_ptr_;
 					stack_ptr_[-1] = Gem::Common::gmin(stack_ptr_[-1], stack_ptr_[0]);
 					break;
 
-				case op_max:
+				case byte_code::op_max:
 					--stack_ptr_;
 					stack_ptr_[-1] = Gem::Common::gmax(stack_ptr_[-1], stack_ptr_[0]);
 					break;
 
-				case op_pow:
+				case byte_code::op_pow:
 					--stack_ptr_;
 					stack_ptr_[-1] = std::pow(stack_ptr_[-1], stack_ptr_[0]);
 					break;
 
-				case op_hypot:
+				case byte_code::op_hypot:
 					--stack_ptr_;
 					stack_ptr_[-1] = hypot(stack_ptr_[-1], stack_ptr_[0]);
 					break;
 
-				case op_acos: {
+				case byte_code::op_acos: {
 					if (stack_ptr_[-1] < -1. || stack_ptr_[-1] > 1.) {
 						throw Gem::Common::acos_invalid_range<fp_type>(stack_ptr_[-1]);
 					} else {
@@ -804,7 +810,7 @@ private:
 				}
 					break;
 
-				case op_asin: {
+				case byte_code::op_asin: {
 					if (stack_ptr_[-1] < -1. || stack_ptr_[-1] > 1.) {
 						throw Gem::Common::asin_invalid_range<fp_type>(stack_ptr_[-1]);
 					} else {
@@ -813,35 +819,35 @@ private:
 				}
 					break;
 
-				case op_atan:
+				case byte_code::op_atan:
 					stack_ptr_[-1] = std::atan(stack_ptr_[-1]);
 					break;
 
-				case op_ceil:
+				case byte_code::op_ceil:
 					stack_ptr_[-1] = std::ceil(stack_ptr_[-1]);
 					break;
 
-				case op_cos:
+				case byte_code::op_cos:
 					stack_ptr_[-1] = std::cos(stack_ptr_[-1]);
 					break;
 
-				case op_cosh:
+				case byte_code::op_cosh:
 					stack_ptr_[-1] = std::cosh(stack_ptr_[-1]);
 					break;
 
-				case op_exp:
+				case byte_code::op_exp:
 					stack_ptr_[-1] = std::exp(stack_ptr_[-1]);
 					break;
 
-				case op_fabs:
+				case byte_code::op_fabs:
 					stack_ptr_[-1] = std::fabs(stack_ptr_[-1]);
 					break;
 
-				case op_floor:
+				case byte_code::op_floor:
 					stack_ptr_[-1] = std::floor(stack_ptr_[-1]);
 					break;
 
-				case op_log: {
+				case byte_code::op_log: {
 					if (stack_ptr_[-1] <= 0.) {
 						throw Gem::Common::log_negative_value<fp_type>(stack_ptr_[-1]);
 					} else {
@@ -850,7 +856,7 @@ private:
 				}
 					break;
 
-				case op_log10: {
+				case byte_code::op_log10: {
 					if (stack_ptr_[-1] <= 0.) {
 						throw Gem::Common::log10_negative_value<fp_type>(stack_ptr_[-1]);
 					} else {
@@ -859,15 +865,15 @@ private:
 				}
 					break;
 
-				case op_sin:
+				case byte_code::op_sin:
 					stack_ptr_[-1] = std::sin(stack_ptr_[-1]);
 					break;
 
-				case op_sinh:
+				case byte_code::op_sinh:
 					stack_ptr_[-1] = std::sinh(stack_ptr_[-1]);
 					break;
 
-				case op_sqrt: {
+				case byte_code::op_sqrt: {
 					if (stack_ptr_[-1] < 0.) {
 						throw Gem::Common::sqrt_negative_value<fp_type>(stack_ptr_[-1]);
 					} else {
@@ -876,23 +882,25 @@ private:
 				}
 					break;
 
-				case op_tan:
+				case byte_code::op_tan:
 					stack_ptr_[-1] = std::tan(stack_ptr_[-1]);
 					break;
 
-				case op_tanh:
+				case byte_code::op_tanh:
 					stack_ptr_[-1] = std::tanh(stack_ptr_[-1]);
 					break;
 
-				case op_fp:
+				case byte_code::op_fp:
 					*stack_ptr_++ = boost::get<fp_type>(*code_ptr++);
 					break;
 
 				default: {
 					glogger
 					<< "In GFormulaParserT<fp_type>::execute(): Error!" << std::endl
-					<< "Invalid instruction " << boost::get<byte_code>(*code_ptr--) << std::endl
+					<< "Invalid instruction " << static_cast<std::size_t>(boost::get<byte_code>(*code_ptr--)) << std::endl
 					<< GEXCEPTION;
+					// Note that the static cast is required here as strongly-typed enums cannot be
+					// cast implicitly to integers types.
 				}
 					break;
 			}
@@ -928,10 +936,9 @@ private:
 			return;
 		}
 
-		typename std::vector<codeEntry>::const_iterator it = code_.begin();
 		std::cout << "Code: ";
-		for (it = code_.begin(); it != code_.end(); ++it) {
-			std::cout << *it << " " << std::flush;
+		for (auto it: code_) {
+			std::cout << static_cast<std::size_t>(boost::get<byte_code>(it)) << " " << std::flush;
 		}
 		std::cout << std::endl;
 	}

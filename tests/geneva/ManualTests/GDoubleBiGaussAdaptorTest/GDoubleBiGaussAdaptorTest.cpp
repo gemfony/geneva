@@ -110,35 +110,35 @@ int main(int argc, char **argv) {
 
 	// 2D Graph for the value of the mutation-subject
 	std::shared_ptr<GGraph2D> gmutpar_iter_ptr(new GGraph2D());
-	gmutpar_iter_ptr->setPlotMode(Gem::Common::SCATTER);
+	gmutpar_iter_ptr->setPlotMode(Gem::Common::graphPlotMode::SCATTER);
 	gmutpar_iter_ptr->setPlotLabel("Mutation parameter (iteration)");
 	gmutpar_iter_ptr->setXAxisLabel("Iteration");
 	gmutpar_iter_ptr->setYAxisLabel("Value of mutation parameter");
 
 	// 2D Graph for the difference between current and last mutation parameter
 	std::shared_ptr<GGraph2D> gmutpardiff_iter_ptr(new GGraph2D());
-	gmutpardiff_iter_ptr->setPlotMode(Gem::Common::SCATTER);
+	gmutpardiff_iter_ptr->setPlotMode(Gem::Common::graphPlotMode::SCATTER);
 	gmutpardiff_iter_ptr->setPlotLabel("Difference between consecutive mutation parameters (iteration)");
 	gmutpardiff_iter_ptr->setXAxisLabel("Iteration");
 	gmutpardiff_iter_ptr->setYAxisLabel("Difference");
 
 	// 2D Graph for sigma1 as a function of the iteration
 	std::shared_ptr<GGraph2D> gsigma1_iter_ptr(new GGraph2D());
-	gsigma1_iter_ptr->setPlotMode(Gem::Common::SCATTER);
+	gsigma1_iter_ptr->setPlotMode(Gem::Common::graphPlotMode::SCATTER);
 	gsigma1_iter_ptr->setPlotLabel("Sigma1 as a function of the iteration");
 	gsigma1_iter_ptr->setXAxisLabel("Iteration");
 	gsigma1_iter_ptr->setYAxisLabel("Sigma1");
 
 	// 2D Graph for sigma2 as a function of the iteration
 	std::shared_ptr<GGraph2D> gsigma2_iter_ptr(new GGraph2D());
-	gsigma2_iter_ptr->setPlotMode(Gem::Common::SCATTER);
+	gsigma2_iter_ptr->setPlotMode(Gem::Common::graphPlotMode::SCATTER);
 	gsigma2_iter_ptr->setPlotLabel("Sigma2 as a function of the iteration");
 	gsigma2_iter_ptr->setXAxisLabel("Iteration");
 	gsigma2_iter_ptr->setYAxisLabel("Sigma2");
 
 	// 2D Graph for delta as a function of the iteration
 	std::shared_ptr<GGraph2D> gdelta_iter_ptr(new GGraph2D());
-	gdelta_iter_ptr->setPlotMode(Gem::Common::SCATTER);
+	gdelta_iter_ptr->setPlotMode(Gem::Common::graphPlotMode::SCATTER);
 	gdelta_iter_ptr->setPlotLabel("Delta as a function of the iteration");
 	gdelta_iter_ptr->setXAxisLabel("Iteration");
 	gdelta_iter_ptr->setYAxisLabel("Delta");

@@ -67,7 +67,7 @@ int main(int argc, char **argv){
 	multipleFlipMutation_ptr->setPlotLabel("Occurance of different values when flip-mutating, starting with 1");
 
 	std::shared_ptr<GGraph2D> multipleFlipProgress_ptr(new GGraph2D());
-	multipleFlipProgress_ptr->setPlotMode(Gem::Common::SCATTER);
+	multipleFlipProgress_ptr->setPlotMode(Gem::Common::graphPlotMode::SCATTER);
 	multipleFlipProgress_ptr->setPlotLabel("Current value of a GConstrainedInt32Object after repeated flip mutations");
 	multipleFlipProgress_ptr->setXAxisLabel("iteration");
 	multipleFlipProgress_ptr->setYAxisLabel("value");
@@ -76,7 +76,7 @@ int main(int argc, char **argv){
 	multipleGaussMutation_ptr->setPlotLabel("Occurance of different values when gauss-mutating, starting with 1");
 
 	std::shared_ptr<GGraph2D> multipleGaussProgress_ptr(new GGraph2D());
-	multipleGaussProgress_ptr->setPlotMode(Gem::Common::SCATTER);
+	multipleGaussProgress_ptr->setPlotMode(Gem::Common::graphPlotMode::SCATTER);
 	multipleGaussProgress_ptr->setPlotLabel("Current value of a GConstrainedInt32Object after repeated gauss mutations");
 	multipleGaussProgress_ptr->setXAxisLabel("iteration");
 	multipleGaussProgress_ptr->setYAxisLabel("value");

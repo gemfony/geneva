@@ -1641,42 +1641,42 @@ protected:
 	  */
 	virtual void firstInformation(GOptimizationAlgorithmT<GParameterSet> *const goa) {
 		// Initialize the plots we want to record
-		progressPlotter_->setPlotMode(Gem::Common::CURVE);
+		progressPlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 		progressPlotter_->setPlotLabel("Number of solver calls");
 		progressPlotter_->setXAxisLabel("Iteration");
 		progressPlotter_->setYAxisLabel("Best Result (lower is better)");
 
-		nParentPlotter_->setPlotMode(Gem::Common::CURVE);
+		nParentPlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 		nParentPlotter_->setPlotLabel("Number of parents as a function of the iteration");
 		nParentPlotter_->setXAxisLabel("Iteration");
 		nParentPlotter_->setYAxisLabel("Number of parents");
 
-		nChildrenPlotter_->setPlotMode(Gem::Common::CURVE);
+		nChildrenPlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 		nChildrenPlotter_->setPlotLabel("Number of children as a function of the iteration");
 		nChildrenPlotter_->setXAxisLabel("Iteration");
 		nChildrenPlotter_->setYAxisLabel("Number of children");
 
-		adProbPlotter_->setPlotMode(Gem::Common::CURVE);
+		adProbPlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 		adProbPlotter_->setPlotLabel("Adaption probability as a function of the iteration");
 		adProbPlotter_->setXAxisLabel("Iteration");
 		adProbPlotter_->setYAxisLabel("Adaption probability");
 
-		minSigmaPlotter_->setPlotMode(Gem::Common::CURVE);
+		minSigmaPlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 		minSigmaPlotter_->setPlotLabel("Lower sigma boundary as a function of the iteration");
 		minSigmaPlotter_->setXAxisLabel("Iteration");
 		minSigmaPlotter_->setYAxisLabel("Lower sigma boundary");
 
-		maxSigmaPlotter_->setPlotMode(Gem::Common::CURVE);
+		maxSigmaPlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 		maxSigmaPlotter_->setPlotLabel("Upper sigma boundary as a function of the iteration");
 		maxSigmaPlotter_->setXAxisLabel("Iteration");
 		maxSigmaPlotter_->setYAxisLabel("Upper sigma boundary");
 
-		sigmaRangePlotter_->setPlotMode(Gem::Common::CURVE);
+		sigmaRangePlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 		sigmaRangePlotter_->setPlotLabel("Development of the sigma range as a function of the iteration");
 		sigmaRangePlotter_->setXAxisLabel("Iteration");
 		sigmaRangePlotter_->setYAxisLabel("Sigma range");
 
-		sigmaSigmaPlotter_->setPlotMode(Gem::Common::CURVE);
+		sigmaSigmaPlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 		sigmaSigmaPlotter_->setPlotLabel("Development of the adaption strength as a function of the iteration");
 		sigmaSigmaPlotter_->setXAxisLabel("Iteration");
 		sigmaSigmaPlotter_->setYAxisLabel("Sigma-Sigma");

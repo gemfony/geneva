@@ -48,6 +48,13 @@ ENDIF ()
 
 SET ( EXECUTABLENAME GStarter )
 
+SET ( ${EXECUTABLENAME}_HEADERS
+	GSigmaMonitor.hpp
+)
+
+# This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
+ADD_CUSTOM_TARGET(CLION_ALL_GSTARTER_HEADERS SOURCES ${${EXECUTABLENAME}_HEADERS})
+
 SET ( ${EXECUTABLENAME}_SRCS
 	GStarter
 	GStarterIndividual

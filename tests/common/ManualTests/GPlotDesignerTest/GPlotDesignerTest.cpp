@@ -49,19 +49,19 @@ int main(int argc, char** argv) {
 	std::tuple<double,double> minMaxY(-boost::math::constants::pi<double>(),boost::math::constants::pi<double>());
 
 	std::shared_ptr<GGraph2D> gsin_ptr(new GGraph2D());
-	gsin_ptr->setPlotMode(Gem::Common::SCATTER);
+	gsin_ptr->setPlotMode(Gem::Common::graphPlotMode::SCATTER);
 	gsin_ptr->setPlotLabel("Sine and cosine functions, plotted through TGraph");
 	gsin_ptr->setXAxisLabel("x");
 	gsin_ptr->setYAxisLabel("sin(x) vs. cos(x)");
 
 	std::shared_ptr<GGraph2D> gcos_ptr(new GGraph2D());
-	gcos_ptr->setPlotMode(Gem::Common::SCATTER);
+	gcos_ptr->setPlotMode(Gem::Common::graphPlotMode::SCATTER);
 	gcos_ptr->setPlotLabel("A cosine function, plotted through TGraph");
 	gcos_ptr->setXAxisLabel("x");
 	gcos_ptr->setYAxisLabel("cos(x)");
 
 	std::shared_ptr<GGraph2D> gcos_ptr_2(new GGraph2D());
-	gcos_ptr_2->setPlotMode(Gem::Common::SCATTER);
+	gcos_ptr_2->setPlotMode(Gem::Common::graphPlotMode::SCATTER);
 	gsin_ptr->registerSecondaryPlotter(gcos_ptr_2);
 
 	for(std::size_t i=0; i<1000; i++) {

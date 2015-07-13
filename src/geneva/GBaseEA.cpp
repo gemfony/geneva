@@ -1070,7 +1070,7 @@ void GBaseEA::GEAOptimizationMonitor::firstInformation(
 		graph->setXAxisLabel("Iteration");
 		graph->setYAxisLabel("Fitness");
 		graph->setPlotLabel(std::string("Individual ") + boost::lexical_cast<std::string>(ind));
-		graph->setPlotMode(Gem::Common::CURVE);
+		graph->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 
 		fitnessGraphVec_.push_back(graph);
 	}

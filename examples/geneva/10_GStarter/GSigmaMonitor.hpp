@@ -108,12 +108,12 @@ protected:
 	 */
 	virtual void firstInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
 		// Initialize the plots we want to record
-		progressPlotter_->setPlotMode(Gem::Common::CURVE);
+		progressPlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 		progressPlotter_->setPlotLabel("Fitness as a function of the iteration");
 		progressPlotter_->setXAxisLabel("Iteration");
 		progressPlotter_->setYAxisLabel("Best Result (lower is better)");
 
-		sigmaPlotter_->setPlotMode(Gem::Common::CURVE);
+		sigmaPlotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 		sigmaPlotter_->setPlotLabel("Development of sigma (aka \\\"step width\\\")");
 		sigmaPlotter_->setXAxisLabel("Iteration");
 		sigmaPlotter_->setYAxisLabel("Sigma");

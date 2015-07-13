@@ -94,8 +94,9 @@ namespace Common {
 /**
  * Determines whether a scatter plot or a curve should be recorded
  */
-enum G_API_COMMON graphPlotMode {
-	SCATTER = 0, CURVE = 1
+enum class graphPlotMode {
+	SCATTER = 0
+	, CURVE = 1
 };
 
 /** @brief Puts a Gem::Common::graphPlotMode into a stream; Needed also for boost::lexical_cast<> */
@@ -115,7 +116,7 @@ const std::uint32_t DEFCYDIV = 1;
 
 const std::size_t DEFNSAMPLES = 100;
 
-const graphPlotMode DEFPLOTMODE = CURVE;
+const graphPlotMode DEFPLOTMODE = graphPlotMode::CURVE;
 
 const double DEFMINMARKERSIZE = 0.001;
 const double DEFMAXMARKERSIZE = 1.;

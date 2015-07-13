@@ -583,7 +583,7 @@ public:
 						global_graph->setXAxisLabel("Iteration");
 						global_graph->setYAxisLabel("Best Fitness");
 						global_graph->setPlotLabel(std::string("Individual ") + boost::lexical_cast<std::string>(ind));
-						global_graph->setPlotMode(Gem::Common::CURVE);
+						global_graph->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 
 						globalFitnessGraphVec_.push_back(global_graph);
 
@@ -591,7 +591,7 @@ public:
 						iteration_graph->setXAxisLabel("Iteration");
 						iteration_graph->setYAxisLabel("Best Fitness");
 						iteration_graph->setPlotLabel(std::string("Individual ") + boost::lexical_cast<std::string>(ind));
-						iteration_graph->setPlotMode(Gem::Common::CURVE);
+						iteration_graph->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 
 						iterationFitnessGraphVec_.push_back(iteration_graph);
 
@@ -1465,7 +1465,7 @@ public:
 					{
 						progressPlotter2D_oa_ = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
 
-						progressPlotter2D_oa_->setPlotMode(Gem::Common::CURVE);
+						progressPlotter2D_oa_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 						progressPlotter2D_oa_->setPlotLabel("Fitness as a function of a parameter value");
 						progressPlotter2D_oa_->setXAxisLabel(this->getLabel(fp_profVarVec_[0]));
 						progressPlotter2D_oa_->setYAxisLabel("Fitness");
@@ -2983,7 +2983,7 @@ public:
 				fitnessGraph2D_oa_ = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
 				fitnessGraph2D_oa_->setXAxisLabel("Iteration");
 				fitnessGraph2D_oa_->setYAxisLabel("Fitness");
-				fitnessGraph2D_oa_->setPlotMode(Gem::Common::CURVE);
+				fitnessGraph2D_oa_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 			}
 				break;
 
@@ -3022,7 +3022,7 @@ public:
 					nAdaptionsGraph2D_oa_ = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
 					nAdaptionsGraph2D_oa_->setXAxisLabel("Iteration");
 					nAdaptionsGraph2D_oa_->setYAxisLabel("Number of parameter adaptions");
-					nAdaptionsGraph2D_oa_->setPlotMode(Gem::Common::CURVE);
+					nAdaptionsGraph2D_oa_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 
 					// Fill the object with data
 					for(it=nAdaptionsStore_.begin(); it!=nAdaptionsStore_.end(); ++it) {
@@ -3545,7 +3545,7 @@ public:
 				fitnessGraph2D_oa_ = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
 				fitnessGraph2D_oa_->setXAxisLabel("Iteration");
 				fitnessGraph2D_oa_->setYAxisLabel("Fitness");
-				fitnessGraph2D_oa_->setPlotMode(Gem::Common::CURVE);
+				fitnessGraph2D_oa_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 			}
 				break;
 

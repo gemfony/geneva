@@ -1756,7 +1756,7 @@ void GBaseSwarm::GSwarmOptimizationMonitor::firstInformation(GOptimizationAlgori
 	// Configure the plotter
 	fitnessGraph_->setXAxisLabel("Iteration");
 	fitnessGraph_->setYAxisLabel("Fitness");
-	fitnessGraph_->setPlotMode(Gem::Common::CURVE);
+	fitnessGraph_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 }
 
 /******************************************************************************/

@@ -168,13 +168,13 @@ int main(int argc, char **argv) {
 	// Create plots from the result vector
 
 	std::shared_ptr<GGraph2ED> timing_ptr(new GGraph2ED());
-	timing_ptr->setPlotMode(CURVE);
+	timing_ptr->setPlotMode(graphPlotMode::CURVE);
 	timing_ptr->setPlotLabel("Timings of optimization runs [s]");
 	timing_ptr->setXAxisLabel("Function Dimension");
 	timing_ptr->setYAxisLabel("Seconds consumed");
 
 	std::shared_ptr<GGraph2ED> gopt_ptr(new GGraph2ED());
-	gopt_ptr->setPlotMode(CURVE);
+	gopt_ptr->setPlotMode(graphPlotMode::CURVE);
 	gopt_ptr->setPlotLabel("Best measurements and errors");
 	gopt_ptr->setXAxisLabel("Function Dimension");
 	gopt_ptr->setYAxisLabel("Best Result");
