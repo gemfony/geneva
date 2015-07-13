@@ -1805,7 +1805,7 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr < GParameterSet > 
 
 	// Set up the data collections
 	switch (pT_.value()) {
-		case USEGDOUBLECOLLECTION: {
+		case parameterType::USEGDOUBLECOLLECTION: {
 			// Set up a collection, each initialized with a random number in the range [min,max[
 			// Random initialization happens in the constructor.
 			std::shared_ptr <GDoubleCollection> gdc_ptr;
@@ -1825,7 +1825,7 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr < GParameterSet > 
 		}
 			break;
 
-		case USEGCONSTRAINEDOUBLECOLLECTION: {
+		case parameterType::USEGCONSTRAINEDOUBLECOLLECTION: {
 
 			// Set up a collection
 			std::shared_ptr <GConstrainedDoubleCollection> gcdc_ptr;
@@ -1846,7 +1846,7 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr < GParameterSet > 
 		}
 			break;
 
-		case USEGDOUBLEOBJECTCOLLECTION: {
+		case parameterType::USEGDOUBLEOBJECTCOLLECTION: {
 			// Set up a collection of GDoubleObject objects
 			std::shared_ptr <GDoubleObjectCollection> gdoc_ptr(new GDoubleObjectCollection());
 
@@ -1872,7 +1872,7 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr < GParameterSet > 
 		}
 			break;
 
-		case USEGCONSTRAINEDDOUBLEOBJECTCOLLECTION: {
+		case parameterType::USEGCONSTRAINEDDOUBLEOBJECTCOLLECTION: {
 			// Set up a collection of GConstrainedDoubleObject objects
 			std::shared_ptr <GConstrainedDoubleObjectCollection> gcdoc_ptr(new GConstrainedDoubleObjectCollection());
 
@@ -1898,7 +1898,7 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr < GParameterSet > 
 		}
 			break;
 
-		case USEGCONSTRAINEDDOUBLEOBJECT: {
+		case parameterType::USEGCONSTRAINEDDOUBLEOBJECT: {
 			// Fill the individual with GConstrainedDoubleObject objects, each equipped with a copy of our adaptor
 			// Note that addAdaptor() itself will take care of cloning the adaptor
 			for (std::size_t i = 0; i < nData; i++) {

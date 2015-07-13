@@ -95,7 +95,7 @@ G_API_INDIVIDUALS std::istream &operator>>(std::istream &, Gem::Geneva::solverFu
 /**
  * This enum describes different parameter types that may be used to fill the object with data
  */
-enum G_API_INDIVIDUALS parameterType {
+enum class parameterType {
 	USEGDOUBLECOLLECTION = 0,
 	USEGCONSTRAINEDOUBLECOLLECTION = 1,
 	USEGDOUBLEOBJECTCOLLECTION = 2,
@@ -149,7 +149,7 @@ const std::size_t GFI_DEF_PARDIM = 2;
 const double GFI_DEF_MINVAR = -10.;
 const double GFI_DEF_MAXVAR = 10.;
 const bool GFI_DEF_USECONSTRAINEDDOUBLECOLLECTION = false;
-const parameterType GFI_DEF_PARAMETERTYPE = USEGCONSTRAINEDDOUBLEOBJECT;
+const parameterType GFI_DEF_PARAMETERTYPE = parameterType::USEGCONSTRAINEDDOUBLEOBJECT;
 const initMode GFI_DEF_INITMODE = INITPERIMETER;
 const solverFunction GO_DEF_EVALFUNCTION = solverFunction::PARABOLA;
 const double GFI_DEF_CROSSOVERPROB = 0.5;
