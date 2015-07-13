@@ -91,35 +91,35 @@ bool parseCommandLine(
 				return false;
 			}
 
-			if (executionMode == Gem::Courtier::Tests::NETWORKING ||
-				 executionMode == Gem::Courtier::Tests::THREAEDANDNETWORKING) {
+			if (executionMode == Gem::Courtier::Tests::GBSCModes::NETWORKING ||
+				 executionMode == Gem::Courtier::Tests::GBSCModes::THREAEDANDNETWORKING) {
 				if (vm.count("serverMode")) serverMode = true;
 			}
 		}
 
 		std::string parModeString;
 		switch (executionMode) {
-			case Gem::Courtier::Tests::SERIAL:
+			case Gem::Courtier::Tests::GBSCModes::SERIAL:
 				parModeString = "serial consumer";
 				break;
 
-			case Gem::Courtier::Tests::INTERNALNETWORKING:
+			case Gem::Courtier::Tests::GBSCModes::INTERNALNETWORKING:
 				parModeString = "internal networking";
 				break;
 
-			case Gem::Courtier::Tests::NETWORKING:
+			case Gem::Courtier::Tests::GBSCModes::NETWORKING:
 				parModeString = "networking";
 				break;
 
-			case Gem::Courtier::Tests::MULTITHREADING:
+			case Gem::Courtier::Tests::GBSCModes::MULTITHREADING:
 				parModeString = "multi-threaded";
 				break;
 
-			case Gem::Courtier::Tests::THREADANDINTERNALNETWORKING:
+			case Gem::Courtier::Tests::GBSCModes::THREADANDINTERNALNETWORKING:
 				parModeString = "multi-threaded and internal networking";
 				break;
 
-			case Gem::Courtier::Tests::THREAEDANDNETWORKING:
+			case Gem::Courtier::Tests::GBSCModes::THREAEDANDNETWORKING:
 				parModeString = "multi-threaded and networked";
 				break;
 

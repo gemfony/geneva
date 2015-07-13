@@ -55,7 +55,7 @@ namespace Tests {
  * This enum defines the available execution modes of the GBrokerSelfCommunication
  * example
  */
-enum GBSCModes {
+enum class GBSCModes {
 	SERIAL = 0
 	, INTERNALNETWORKING = 1
 	, NETWORKING = 2
@@ -64,11 +64,10 @@ enum GBSCModes {
 	, THREAEDANDNETWORKING = 5
 };
 
-const GBSCModes MAXGBSCMODES = THREAEDANDNETWORKING;
+const GBSCModes MAXGBSCMODES = GBSCModes::THREAEDANDNETWORKING;
 
 /** @brief Puts a Gem::Courtier::Tests::GBSCModes into a stream. Needed also for boost::lexical_cast<> */
 std::ostream& operator<<(std::ostream&, const Gem::Courtier::Tests::GBSCModes&);
-
 /** @brief Reads a Gem::Courtier::Tests::GBSCModes item from a stream. Needed also for boost::lexical_cast<> */
 std::istream& operator>>(std::istream&, Gem::Courtier::Tests::GBSCModes&);
 

@@ -232,7 +232,7 @@ int main(int argc, char **argv) {
 
 	//--------------------------------------------------------------------------------
 	// If we are in (networked) client mode, start the client code
-	if((executionMode==Gem::Courtier::Tests::NETWORKING || executionMode==Gem::Courtier::Tests::THREAEDANDNETWORKING) && !serverMode) {
+	if((executionMode==Gem::Courtier::Tests::GBSCModes::NETWORKING || executionMode==Gem::Courtier::Tests::GBSCModes::THREAEDANDNETWORKING) && !serverMode) {
 		std::shared_ptr<GAsioTCPClientT<WORKLOAD>> p(new GAsioTCPClientT<WORKLOAD>(ip, boost::lexical_cast<std::string>(port)));
 
 		p->setMaxStalls(0); // An infinite number of stalled data retrievals
@@ -273,7 +273,7 @@ int main(int argc, char **argv) {
 	//--------------------------------------------------------------------------------
 	// Add the desired consumers to the broker
 	switch(executionMode) {
-		case Gem::Courtier::Tests::SERIAL:
+		case Gem::Courtier::Tests::GBSCModes::SERIAL:
 		{
 			std::cout << "Using a serial consumer" << std::endl;
 
@@ -283,7 +283,7 @@ int main(int argc, char **argv) {
 		}
 			break;
 
-		case Gem::Courtier::Tests::INTERNALNETWORKING:
+		case Gem::Courtier::Tests::GBSCModes::INTERNALNETWORKING:
 		{
 			std::cout << "Using internal networking" << std::endl;
 
@@ -302,7 +302,7 @@ int main(int argc, char **argv) {
 		}
 			break;
 
-		case Gem::Courtier::Tests::NETWORKING:
+		case Gem::Courtier::Tests::GBSCModes::NETWORKING:
 		{
 			std::cout << "Using networked mode" << std::endl;
 
@@ -312,7 +312,7 @@ int main(int argc, char **argv) {
 		}
 			break;
 
-		case Gem::Courtier::Tests::MULTITHREADING:
+		case Gem::Courtier::Tests::GBSCModes::MULTITHREADING:
 		{
 			std::cout << "Using the multithreaded mode" << std::endl;
 
@@ -323,7 +323,7 @@ int main(int argc, char **argv) {
 		}
 			break;
 
-		case Gem::Courtier::Tests::THREADANDINTERNALNETWORKING:
+		case Gem::Courtier::Tests::GBSCModes::THREADANDINTERNALNETWORKING:
 		{
 			std::cout << "Using multithreading and internal networking" << std::endl;
 
@@ -344,7 +344,7 @@ int main(int argc, char **argv) {
 		}
 			break;
 
-		case Gem::Courtier::Tests::THREAEDANDNETWORKING:
+		case Gem::Courtier::Tests::GBSCModes::THREAEDANDNETWORKING:
 		{
 			std::cout << "Using multithreading and the networked mode" << std::endl;
 
@@ -370,8 +370,8 @@ int main(int argc, char **argv) {
 	connectorProducer_gtg.join_all();
 
 	if(
-		executionMode == Gem::Courtier::Tests::INTERNALNETWORKING ||
-		executionMode == Gem::Courtier::Tests::THREADANDINTERNALNETWORKING
+		executionMode == Gem::Courtier::Tests::GBSCModes::INTERNALNETWORKING ||
+		executionMode == Gem::Courtier::Tests::GBSCModes::THREADANDINTERNALNETWORKING
 		) {
 		worker_gtg.join_all();
 	}
