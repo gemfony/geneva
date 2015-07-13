@@ -485,7 +485,7 @@ protected:
 		gpb.registerFileParameter<std::size_t>(
 			"waitFactor" // The name of the variable
 			, waitFactor_
-			, EXPECTFULLRETURN // The default value
+			, DEFAULTBROKERWAITFACTOR2 // The default value
 		)
 		<< "A static factor to be applied to timeouts";
 	}

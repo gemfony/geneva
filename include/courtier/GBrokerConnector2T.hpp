@@ -1119,7 +1119,7 @@ protected:
 			//------------------------------------------------------------------
 			// Wait for a given amount of time, decided upon by the function.
 			// Items that have not returned in time may return in a later iteration
-			case INCOMPLETERETURN:
+			case submissionReturnMode::INCOMPLETERETURN:
 				complete = this->waitForTimeOut(workItems, workItemPos, oldWorkItems);
 				break;
 
@@ -1127,13 +1127,13 @@ protected:
 				// Wait for a given amount of time, decided upon by the function.
 				// If not all items have returned, re-submit work items up to a
 				// predefined number of times
-			case RESUBMISSIONAFTERTIMEOUT:
+			case submissionReturnMode::RESUBMISSIONAFTERTIMEOUT:
 				complete = this->waitForTimeOutAndResubmit(workItems, workItemPos, oldWorkItems);
 				break;
 
 				//------------------------------------------------------------------
 				// Wait indefinitely, until all work items have returned
-			case EXPECTFULLRETURN:
+			case submissionReturnMode::EXPECTFULLRETURN:
 				complete = this->waitForFullReturn(workItems, workItemPos, oldWorkItems);
 				break;
 

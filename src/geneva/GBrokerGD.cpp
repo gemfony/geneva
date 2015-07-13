@@ -45,7 +45,7 @@ namespace Geneva {
  */
 GBrokerGD::GBrokerGD()
 	: GBaseGD(), Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(
-	Gem::Courtier::RESUBMISSIONAFTERTIMEOUT) { /* nothing */ }
+	Gem::Courtier::submissionReturnMode::RESUBMISSIONAFTERTIMEOUT) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -55,7 +55,7 @@ GBrokerGD::GBrokerGD(
 	const std::size_t &nStartingPoints, const double &finiteStep, const double &stepSize
 )
 	: GBaseGD(nStartingPoints, finiteStep, stepSize), Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(
-	Gem::Courtier::RESUBMISSIONAFTERTIMEOUT) { /* nothing */ }
+	Gem::Courtier::submissionReturnMode::RESUBMISSIONAFTERTIMEOUT) { /* nothing */ }
 
 /******************************************************************************/
 /**

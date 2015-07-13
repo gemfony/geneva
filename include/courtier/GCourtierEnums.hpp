@@ -117,11 +117,13 @@ const std::string DEFAULTDURATION = EMPTYDURATION;
 /**
  * Needed by the broker connector
  */
-enum G_API_COURTIER submissionReturnMode {
-	INCOMPLETERETURN = 0, RESUBMISSIONAFTERTIMEOUT = 1, EXPECTFULLRETURN = 2
+enum class submissionReturnMode {
+	INCOMPLETERETURN = 0
+	, RESUBMISSIONAFTERTIMEOUT = 1
+	, EXPECTFULLRETURN = 2
 };
 
-const submissionReturnMode DEFAULTSRM = EXPECTFULLRETURN;
+const submissionReturnMode DEFAULTSRM = submissionReturnMode::EXPECTFULLRETURN;
 const std::size_t DEFAULTMAXRESUBMISSIONS = 5;
 
 /******************************************************************************/

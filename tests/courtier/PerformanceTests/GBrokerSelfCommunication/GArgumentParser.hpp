@@ -62,7 +62,7 @@ namespace po = boost::program_options;
 // Default settings
 const std::uint32_t DEFAULTNPRODUCERSAP = 5;
 const std::uint32_t DEFAULTNPRODUCTIONCYLCESAP = 10000;
-const submissionReturnMode DEFAULTSRMAP = INCOMPLETERETURN;
+const submissionReturnMode DEFAULTSRMAP = submissionReturnMode::INCOMPLETERETURN;
 const std::size_t DEFAULTMAXRESUBMISSIONSAP = 5;
 const std::uint32_t DEFAULTNCONTAINEROBJECTSAP = 100;
 const std::size_t DEFAULTNCONTAINERENTRIESAP = 100;

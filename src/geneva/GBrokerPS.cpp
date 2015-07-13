@@ -45,7 +45,7 @@ namespace Geneva {
  */
 GBrokerPS::GBrokerPS() :
 	GBasePS(),
-	Gem::Courtier::GBrokerConnector2T<GParameterSet>(Gem::Courtier::RESUBMISSIONAFTERTIMEOUT) { /* nothing */ }
+	Gem::Courtier::GBrokerConnector2T<GParameterSet>(Gem::Courtier::submissionReturnMode::RESUBMISSIONAFTERTIMEOUT) { /* nothing */ }
 
 /******************************************************************************/
 /**

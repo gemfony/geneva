@@ -47,7 +47,7 @@ namespace Geneva {
  */
 GBrokerSwarm::GBrokerSwarm()
 	: GBaseSwarm()
-	, Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(Gem::Courtier::INCOMPLETERETURN)
+	, Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(Gem::Courtier::submissionReturnMode::INCOMPLETERETURN)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -63,7 +63,7 @@ GBrokerSwarm::GBrokerSwarm(
 	, const std::size_t &nNeighborhoodMembers
 )
 	: GBaseSwarm(nNeighborhoods, nNeighborhoodMembers)
-	, Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(Gem::Courtier::INCOMPLETERETURN)
+	, Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(Gem::Courtier::submissionReturnMode::INCOMPLETERETURN)
 { /* nothing */ }
 
 /******************************************************************************/
