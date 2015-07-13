@@ -322,7 +322,7 @@ enum class trainingDataType {
 	, SINUS = 4
 };
 /** @brief Allows to specify whether we want to use a sigmoidal transfer function or a radial basis function */
-enum G_API_INDIVIDUALS transferFunction {
+enum class transferFunction {
 	SIGMOID = 0
 	, RBF = 1
 };
@@ -360,7 +360,7 @@ const double GNN_DEF_MINSIGMA = 0.01;
 const double GNN_DEF_MAXSIGMA = 0.2;
 const double GNN_DEF_MINVAR = -10.;
 const double GNN_DEF_MAXVAR = 10.;
-const transferFunction GNN_DEF_TRANSFER = SIGMOID;
+const transferFunction GNN_DEF_TRANSFER = transferFunction::SIGMOID;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

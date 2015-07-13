@@ -1314,10 +1314,10 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &headerFile
 	<< "    double transfer(double value) {" << std::endl;
 
 	switch (tF_) {
-		case SIGMOID:
+		case transferFunction::SIGMOID:
 			header << "      return 1./(1.+exp(-value));" << std::endl;
 			break;
-		case RBF:
+		case transferFunction::RBF:
 			header << "      return exp(-value*value);" << std::endl;
 			break;
 	}
@@ -1565,12 +1565,12 @@ double GNeuralNetworkIndividual::fitnessCalculation() {
  */
 double GNeuralNetworkIndividual::transfer(const double &value) const {
 	switch (tF_) {
-		case SIGMOID: {
+		case transferFunction::SIGMOID: {
 			return 1. / (1. + exp(-value));
 		}
 			break;
 
-		case RBF: {
+		case transferFunction::RBF: {
 			return exp(-GSQUARED(value));
 		}
 			break;
