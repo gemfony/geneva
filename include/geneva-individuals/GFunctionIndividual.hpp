@@ -72,7 +72,7 @@ namespace Geneva {
 /**
  * This enum denotes the possible demo function types
  */
-enum G_API_INDIVIDUALS solverFunction {
+enum class solverFunction {
 	PARABOLA = 0,
 	NOISYPARABOLA = 1,
 	ROSENBROCK = 2,
@@ -83,7 +83,7 @@ enum G_API_INDIVIDUALS solverFunction {
 	NEGPARABOLA = 7
 };
 
-const solverFunction MAXDEMOFUNCTION = SALOMON;
+const solverFunction MAXDEMOFUNCTION = solverFunction::SALOMON;
 
 // Make sure solverFunction can be streamed
 /** @brief Puts a Gem::Geneva::solverFunction into a stream. Needed also for boost::lexical_cast<> */
@@ -151,7 +151,7 @@ const double GFI_DEF_MAXVAR = 10.;
 const bool GFI_DEF_USECONSTRAINEDDOUBLECOLLECTION = false;
 const parameterType GFI_DEF_PARAMETERTYPE = USEGCONSTRAINEDDOUBLEOBJECT;
 const initMode GFI_DEF_INITMODE = INITPERIMETER;
-const solverFunction GO_DEF_EVALFUNCTION = boost::numeric_cast<solverFunction>(0);
+const solverFunction GO_DEF_EVALFUNCTION = solverFunction::PARABOLA;
 const double GFI_DEF_CROSSOVERPROB = 0.5;
 
 /******************************************************************************/
@@ -229,28 +229,28 @@ public:
 
 		// Set up a single function individual, depending on the expected function type
 		switch (df) {
-			case PARABOLA:
+			case solverFunction::PARABOLA:
 				result = "Parabola";
 				break;
-			case NOISYPARABOLA:
+			case solverFunction::NOISYPARABOLA:
 				result = "Berlich noisy parabola";
 				break;
-			case ROSENBROCK:
+			case solverFunction::ROSENBROCK:
 				result = "Rosenbrock";
 				break;
-			case ACKLEY:
+			case solverFunction::ACKLEY:
 				result = "Ackley";
 				break;
-			case RASTRIGIN:
+			case solverFunction::RASTRIGIN:
 				result = "Rastrigin";
 				break;
-			case SCHWEFEL:
+			case solverFunction::SCHWEFEL:
 				result = "Schwefel";
 				break;
-			case SALOMON:
+			case solverFunction::SALOMON:
 				result = "Salomon";
 				break;
-			case NEGPARABOLA:
+			case solverFunction::NEGPARABOLA:
 				result = "Negative parabola";
 				break;
 			default: {
@@ -278,28 +278,28 @@ public:
 
 		// Set up a single function individual, depending on the expected function type
 		switch (df) {
-			case PARABOLA:
+			case solverFunction::PARABOLA:
 				result = "x^2 + y^2";
 				break;
-			case NOISYPARABOLA:
+			case solverFunction::NOISYPARABOLA:
 				result = "(cos(x^2 + y^2) + 2.) * (x^2 + y^2)";
 				break;
-			case ROSENBROCK:
+			case solverFunction::ROSENBROCK:
 				result = "100.*(x^2 - y)^2 + (1 - x)^2";
 				break;
-			case ACKLEY:
+			case solverFunction::ACKLEY:
 				result = "exp(-0.2)*sqrt(x^2 + y^2) + 3.*(cos(2.*x) + sin(2.*y))";
 				break;
-			case RASTRIGIN:
+			case solverFunction::RASTRIGIN:
 				result = "20.+(x^2 - 10.*cos(2*pi*x)) + (y^2 - 10.*cos(2*pi*y))";
 				break;
-			case SCHWEFEL:
+			case solverFunction::SCHWEFEL:
 				result = "-0.5*(x*sin(sqrt(abs(x))) + y*sin(sqrt(abs(y))))";
 				break;
-			case SALOMON:
+			case solverFunction::SALOMON:
 				result = "-cos(2.*pi*sqrt(x^2 + y^2)) + 0.1*sqrt(x^2 + y^2) + 1.";
 				break;
-			case NEGPARABOLA:
+			case solverFunction::NEGPARABOLA:
 				result = "-(x^2 + y^2)";
 				break;
 			default: {
@@ -326,30 +326,30 @@ public:
 
 		// Set up a single function individual, depending on the expected function type
 		switch (df) {
-			case PARABOLA:
+			case solverFunction::PARABOLA:
 				result.push_back(0.);
 				break;
-			case NOISYPARABOLA:
+			case solverFunction::NOISYPARABOLA:
 				result.push_back(0.);
 				break;
-			case ROSENBROCK:
+			case solverFunction::ROSENBROCK:
 				result.push_back(1.);
 				break;
-			case ACKLEY:
+			case solverFunction::ACKLEY:
 				// two global optima
 				result.push_back(-1.5096201);
 				result.push_back(1.5096201);
 				break;
-			case RASTRIGIN:
+			case solverFunction::RASTRIGIN:
 				result.push_back(0.);
 				break;
-			case SCHWEFEL:
+			case solverFunction::SCHWEFEL:
 				result.push_back(420.968746);
 				break;
-			case SALOMON:
+			case solverFunction::SALOMON:
 				result.push_back(0.);
 				break;
-			case NEGPARABOLA:
+			case solverFunction::NEGPARABOLA:
 				result.push_back(0.);
 				break;
 			default: {
@@ -376,28 +376,28 @@ public:
 
 		// Set up a single function individual, depending on the expected function type
 		switch (df) {
-			case PARABOLA:
+			case solverFunction::PARABOLA:
 				result.push_back(0.);
 				break;
-			case NOISYPARABOLA:
+			case solverFunction::NOISYPARABOLA:
 				result.push_back(0.);
 				break;
-			case ROSENBROCK:
+			case solverFunction::ROSENBROCK:
 				result.push_back(1.);
 				break;
-			case ACKLEY:
+			case solverFunction::ACKLEY:
 				result.push_back(-0.7548651);
 				break;
-			case RASTRIGIN:
+			case solverFunction::RASTRIGIN:
 				result.push_back(0.);
 				break;
-			case SCHWEFEL:
+			case solverFunction::SCHWEFEL:
 				result.push_back(420.968746);
 				break;
-			case SALOMON:
+			case solverFunction::SALOMON:
 				result.push_back(0.);
 				break;
-			case NEGPARABOLA:
+			case solverFunction::NEGPARABOLA:
 				result.push_back(0.);
 				break;
 			default: {

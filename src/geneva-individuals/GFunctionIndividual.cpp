@@ -615,7 +615,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::initMode &ur) {
  * The default constructor
  */
 GFunctionIndividual::GFunctionIndividual()
-	: demoFunction_(PARABOLA) { /* nothing */ }
+	: demoFunction_(solverFunction::PARABOLA) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -821,7 +821,7 @@ double GFunctionIndividual::fitnessCalculation() {
 	switch (demoFunction_) {
 		//-----------------------------------------------------------
 		// A simple, multi-dimensional parabola
-		case PARABOLA: {
+		case solverFunction::PARABOLA: {
 			for (std::size_t i = 0; i < parameterSize; i++) {
 				result += GSQUARED(parVec[i]);
 			}
@@ -830,7 +830,7 @@ double GFunctionIndividual::fitnessCalculation() {
 
 			//-----------------------------------------------------------
 			// A "noisy" parabola, i.e. a parabola with a very large number of overlaid local optima
-		case NOISYPARABOLA: {
+		case solverFunction::NOISYPARABOLA: {
 			double xsquared = 0.;
 			for (std::size_t i = 0; i < parameterSize; i++) {
 				xsquared += GSQUARED(parVec[i]);
@@ -842,7 +842,7 @@ double GFunctionIndividual::fitnessCalculation() {
 			//-----------------------------------------------------------
 			// The generalized Rosenbrock function (see e.g. http://en.wikipedia.org/wiki/Rosenbrock_function)
 			// or http://www.it.lut.fi/ip/evo/functions/node5.html .
-		case ROSENBROCK: {
+		case solverFunction::ROSENBROCK: {
 #ifdef DEBUG
 		// Check the size of the parameter vector -- must be at least 2
 		if(parameterSize < 2) {
@@ -861,7 +861,7 @@ double GFunctionIndividual::fitnessCalculation() {
 
 			//-----------------------------------------------------------
 			// The Ackeley function (see e.g. http://www.it.lut.fi/ip/evo/functions/node14.html)
-		case ACKLEY: {
+		case solverFunction::ACKLEY: {
 #ifdef DEBUG
 		// Check the size of the parameter vector -- must be at least 2
 		if(parameterSize < 2) {
@@ -881,7 +881,7 @@ double GFunctionIndividual::fitnessCalculation() {
 
 			//-----------------------------------------------------------
 			// The Rastrigin function (see e.g. http://www.it.lut.fi/ip/evo/functions/node6.html)
-		case RASTRIGIN: {
+		case solverFunction::RASTRIGIN: {
 			result = 10 * double(parameterSize);
 
 			for (std::size_t i = 0; i < parameterSize; i++) {
@@ -892,7 +892,7 @@ double GFunctionIndividual::fitnessCalculation() {
 
 			//-----------------------------------------------------------
 			// The Schwefel function (see e.g. http://www.it.lut.fi/ip/evo/functions/node10.html)
-		case SCHWEFEL: {
+		case solverFunction::SCHWEFEL: {
 			for (std::size_t i = 0; i < parameterSize; i++) {
 				result += -parVec[i] * sin(sqrt(fabs(parVec[i])));
 			}
@@ -903,7 +903,7 @@ double GFunctionIndividual::fitnessCalculation() {
 
 			//-----------------------------------------------------------
 			// The Salomon function (see e.g. http://www.it.lut.fi/ip/evo/functions/node12.html)
-		case SALOMON: {
+		case solverFunction::SALOMON: {
 			double sum_root = 0.;
 			for (std::size_t i = 0; i < parameterSize; i++) {
 				sum_root += GSQUARED(parVec[i]);
@@ -916,7 +916,7 @@ double GFunctionIndividual::fitnessCalculation() {
 
 			//-----------------------------------------------------------
 			// A "negative" parabola, used for maximization tests
-		case NEGPARABOLA: {
+		case solverFunction::NEGPARABOLA: {
 			for (std::size_t i = 0; i < parameterSize; i++) {
 				result += GSQUARED(parVec[i]);
 			}
