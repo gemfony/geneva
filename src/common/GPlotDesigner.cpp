@@ -2457,7 +2457,7 @@ GHistogram2D::GHistogram2D(
 	, maxX_(maxX)
 	, minY_(minY)
 	, maxY_(maxY)
-	, dropt_(TDEMPTY)
+	, dropt_(tddropt::TDEMPTY)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -2476,7 +2476,7 @@ GHistogram2D::GHistogram2D(
 	, maxX_(std::get<1>(rangeX))
 	, minY_(std::get<0>(rangeY))
 	, maxY_(std::get<1>(rangeY))
-	, dropt_(TDEMPTY)
+	, dropt_(tddropt::TDEMPTY)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -2661,75 +2661,75 @@ std::string GHistogram2D::drawingArguments(bool isSecondary) const {
 		dA = drawingArguments_;
 	} else {
 		switch (dropt_) {
-			case TDEMPTY:
+			case tddropt::TDEMPTY:
 				dA = "";
 				break;
 
-			case SURFONE:
+			case tddropt::SURFONE:
 				dA = "SURF1";
 				break;
 
-			case SURFTWOZ:
+			case tddropt::SURFTWOZ:
 				dA = "SURF2Z";
 				break;
 
-			case SURFTHREE:
+			case tddropt::SURFTHREE:
 				dA = "SURF3";
 				break;
 
-			case SURFFOUR:
+			case tddropt::SURFFOUR:
 				dA = "SURF4";
 				break;
 
-			case CONTZ:
+			case tddropt::CONTZ:
 				dA = "CONTZ";
 				break;
 
-			case CONTONE:
+			case tddropt::CONTONE:
 				dA = "CONT1";
 				break;
 
-			case CONTTWO:
+			case tddropt::CONTTWO:
 				dA = "CONT2";
 				break;
 
-			case CONTTHREE:
+			case tddropt::CONTTHREE:
 				dA = "CONT3";
 				break;
 
-			case TEXT:
+			case tddropt::TEXT:
 				dA = "TEXT";
 				break;
 
-			case SCAT:
+			case tddropt::SCAT:
 				dA = "SCAT";
 				break;
 
-			case BOX:
+			case tddropt::BOX:
 				dA = "BOX";
 				break;
 
-			case ARR:
+			case tddropt::ARR:
 				dA = "ARR";
 				break;
 
-			case COLZ:
+			case tddropt::COLZ:
 				dA = "COLZ";
 				break;
 
-			case LEGO:
+			case tddropt::LEGO:
 				dA = "LEGO";
 				break;
 
-			case LEGOONE:
+			case tddropt::LEGOONE:
 				dA = "LEGO1";
 				break;
 
-			case SURFONEPOL:
+			case tddropt::SURFONEPOL:
 				dA = "SURF1POL";
 				break;
 
-			case SURFONECYL:
+			case tddropt::SURFONECYL:
 				dA = "SURF1CYL";
 				break;
 

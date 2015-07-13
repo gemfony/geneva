@@ -1496,7 +1496,7 @@ protected:
 /**
  * An enum for 2D-drawing options
  */
-enum G_API_COMMON tddropt {
+enum class tddropt {
 	TDEMPTY = 0,
 	SURFONE = 1,
 	SURFTWOZ = 2,
