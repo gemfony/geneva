@@ -87,15 +87,6 @@
 namespace Gem {
 namespace Hap {
 
-/**
- * In a redesign of this class we want:
- * - Round-robin creation and retrieval --> Whenever a package is handed out, a thread is submitted to a pool to create a new thread
- * - Recycling of unused random numbers in a packet through memcpy
- * - "Live-resizing of the thread-pool
- */
-
-typedef boost::lagged_fibonacci19937 lagged_fibonacci;
-
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
@@ -226,8 +217,8 @@ public:
 
 private:
 	/***************************************************************************/
-	GRandomFactory(const GRandomFactory &); ///< Intentionally left undefined
-	const GRandomFactory &operator=(const GRandomFactory &);  ///< Intentionally left undefined
+	GRandomFactory(const GRandomFactory &) = delete; ///< Intentionally left undefined
+	const GRandomFactory &operator=(const GRandomFactory &) = delete;  ///< Intentionally left undefined
 
 	/** @brief The production of [0,1[ random numbers takes place here */
 	void producer01(std::uint32_t seed);

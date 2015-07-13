@@ -56,6 +56,8 @@ typedef boost::mt19937 mersenne_twister;
 typedef boost::mt19937::result_type initial_seed_type;
 typedef boost::mt19937::result_type seed_type;
 
+typedef boost::lagged_fibonacci19937 lagged_fibonacci;
+
 /******************************************************************************/
 // Some constants needed for the random number generation
 
