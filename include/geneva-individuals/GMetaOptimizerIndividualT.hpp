@@ -68,7 +68,7 @@ namespace Geneva {
 
 /******************************************************************************/
 // Different types of optimization targets
-enum G_API_INDIVIDUALS metaOptimizationTarget {
+enum class metaOptimizationTarget {
 	BESTFITNESS = 0,
 	MINSOLVERCALLS = 1,
 	MC_MINSOLVER_BESTFITNESS = 2 // Multi-criterion optimization with least number of solver calls and best average fitness as targets
@@ -136,7 +136,7 @@ const double GMETAOPT_DEF_CROSSOVERPROB_UB = 1.;     ///< The upper boundary for
 const std::size_t GMETAOPT_DEF_NRUNSPEROPT = 10;              ///< The number of successive optimization runs
 const double GMETAOPT_DEF_FITNESSTARGET = 0.001;       ///< The fitness target
 const std::uint32_t GMETAOPT_DEF_ITERATIONTHRESHOLD = 10000;  ///< The maximum allowed number of iterations
-const metaOptimizationTarget GMETAOPT_DEF_MOTARGET = BESTFITNESS;      ///< The target used for the meta optimization
+const metaOptimizationTarget GMETAOPT_DEF_MOTARGET = metaOptimizationTarget::BESTFITNESS;      ///< The target used for the meta optimization
 
 const std::string GMETAOPT_DEF_INDCONFIG = "./config/GFunctionIndividual.json"; ///< The default configuration file for our individuals -- we follow the default template argument
 const std::string GMETAOPT_DEF_SUBEACONFIG = "./config/GSubEvolutionaryAlgorithm.json"; ///< The default configuration file for the (sub-)evolutionary algorithms
@@ -460,7 +460,7 @@ public:
 		moTarget_ = moTarget;
 
 		// multi-criterion optimization. We need to set the number of fitness criteria
-		if (MC_MINSOLVER_BESTFITNESS == moTarget_) {
+		if (metaOptimizationTarget::MC_MINSOLVER_BESTFITNESS == moTarget_) {
 			this->setNumberOfFitnessCriteria(2);
 		}
 	}
@@ -992,7 +992,7 @@ protected:
 			// Set the likelihood for work items to be produced through cross-over rather than mutation alone
 			ea_ptr->setAmalgamationLikelihood(amalgamationLikelihood);
 
-			if (MINSOLVERCALLS == moTarget_) {
+			if (metaOptimizationTarget::MINSOLVERCALLS == moTarget_) {
 				// Set the stop criteria (either maxIterations_ iterations or falling below the quality threshold
 				ea_ptr->setQualityThreshold(fitnessTarget_);
 				ea_ptr->setMaxIteration(iterationThreshold_);
@@ -1040,11 +1040,11 @@ protected:
 		std::tuple<double, double> bestMean = Gem::Common::GStandardDeviation(bestEvaluations);
 
 		double evaluation = 0.;
-		if (MINSOLVERCALLS == moTarget_) {
+		if (metaOptimizationTarget::MINSOLVERCALLS == moTarget_) {
 			evaluation = std::get<0>(sd);
-		} else if (BESTFITNESS == moTarget_) {
+		} else if (metaOptimizationTarget::BESTFITNESS == moTarget_) {
 			evaluation = std::get<0>(bestMean);
-		} else if (MC_MINSOLVER_BESTFITNESS == moTarget_) {
+		} else if (metaOptimizationTarget::MC_MINSOLVER_BESTFITNESS == moTarget_) {
 			evaluation = std::get<0>(bestMean);
 			this->registerSecondaryResult(1, std::get<0>(sd)); // The secondary result
 		}
@@ -1070,15 +1070,15 @@ protected:
 	 */
 	std::string getClearTextMOT(const metaOptimizationTarget &mot) const {
 		switch (mot) {
-			case BESTFITNESS:
+			case metaOptimizationTarget::BESTFITNESS:
 				return std::string("\"best fitness\"");
 				break;
 
-			case MINSOLVERCALLS:
+			case metaOptimizationTarget::MINSOLVERCALLS:
 				return std::string("\"minimum number of solver calls\"");
 				break;
 
-			case MC_MINSOLVER_BESTFITNESS:
+			case metaOptimizationTarget::MC_MINSOLVER_BESTFITNESS:
 				return std::string("\"multi-criterion target with best fitness, minimum number of solver calls\"");
 				break;
 		}
