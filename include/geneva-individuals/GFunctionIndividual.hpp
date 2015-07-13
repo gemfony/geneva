@@ -113,7 +113,7 @@ G_API_INDIVIDUALS std::istream &operator>>(std::istream &, Gem::Geneva::paramete
 /**
  * This enum describes several ways of initializing the data collections
  */
-enum G_API_INDIVIDUALS initMode {
+enum class initMode {
 	INITRANDOM = 0 // random values for all variables
 	, INITPERIMETER = 1 // Uses a parameter set on the perimeter of the allowed or common value range
 };
@@ -150,7 +150,7 @@ const double GFI_DEF_MINVAR = -10.;
 const double GFI_DEF_MAXVAR = 10.;
 const bool GFI_DEF_USECONSTRAINEDDOUBLECOLLECTION = false;
 const parameterType GFI_DEF_PARAMETERTYPE = parameterType::USEGCONSTRAINEDDOUBLEOBJECT;
-const initMode GFI_DEF_INITMODE = INITPERIMETER;
+const initMode GFI_DEF_INITMODE = initMode::INITPERIMETER;
 const solverFunction GO_DEF_EVALFUNCTION = solverFunction::PARABOLA;
 const double GFI_DEF_CROSSOVERPROB = 0.5;
 

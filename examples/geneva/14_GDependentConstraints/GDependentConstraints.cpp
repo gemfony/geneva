@@ -92,7 +92,7 @@ int main(int argc, char **argv) {
 
 	// We want the GFunctionIndividual objects to always use GConstrainedDoubleObject objects
 	// so that parameter types have defined names
-	gfi_ptr->setPT(Gem::Geneva::USEGCONSTRAINEDDOUBLEOBJECT);
+	gfi_ptr->setPT(Gem::Geneva::parameterType::USEGCONSTRAINEDDOUBLEOBJECT);
 
 	//---------------------------------------------------------------------------
 	// Register a progress plotter with the global optimization algorithm factory
