@@ -41,6 +41,41 @@ namespace Tests {
 
 /******************************************************************************/
 /**
+ * Puts a Gem::Tests::PERFOBJECTTYPE item into a stream
+ *
+ * @param o The ostream the item should be added to
+ * @param lt the item to be added to the stream
+ * @return The std::ostream object used to add the item to
+ */
+std::ostream &operator<<(std::ostream &o, const Gem::Tests::PERFOBJECTTYPE &lt) {
+	std::uint16_t tmp = static_cast<std::uint16_t>(lt);
+	o << tmp;
+	return o;
+}
+
+/******************************************************************************/
+/**
+ * Reads a Gem::Tests::PERFOBJECTTYPE item from a stream
+ *
+ * @param i The stream the item should be read from
+ * @param lt The item read from the stream
+ * @return The std::istream object used to read the item from
+ */
+std::istream &operator>>(std::istream &i, Gem::Tests::PERFOBJECTTYPE &lt) {
+	std::uint16_t tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+	lt = boost::numeric_cast<Gem::Tests::PERFOBJECTTYPE>(tmp);
+#else
+	lt = static_cast<Gem::Tests::PERFOBJECTTYPE>(tmp);
+#endif /* DEBUG */
+
+	return i;
+}
+
+/******************************************************************************/
+/**
  * The default constructor -- private, as it is only needed for (de-)serialization purposes
  */
 GTestIndividual2::GTestIndividual2()
@@ -58,60 +93,54 @@ GTestIndividual2::GTestIndividual2(const std::size_t &nObjects, const PERFOBJECT
 
 	// Fill with the requested amount of data of the requested type
 	switch (otype) {
-		case PERFGDOUBLEOBJECT: {
+		case PERFOBJECTTYPE::PERFGDOUBLEOBJECT: {
 			for (std::size_t i = 0; i < nObjects; i++) {
 				std::shared_ptr <GDoubleObject> gdo_ptr(new GDoubleObject(0.));
 				std::shared_ptr <GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.));
 				gdo_ptr->addAdaptor(gdga_ptr);
 				this->push_back(gdo_ptr);
 			}
-			break;
-		}
+		} break;
 
-		case PERFGCONSTRDOUBLEOBJECT: {
+		case PERFOBJECTTYPE::PERFGCONSTRDOUBLEOBJECT: {
 			for (std::size_t i = 0; i < nObjects; i++) {
 				std::shared_ptr <GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(0., -10., 10.));
 				std::shared_ptr <GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.));
 				gcdo_ptr->addAdaptor(gdga_ptr);
 				this->push_back(gcdo_ptr);
 			}
-			break;
-		}
+		} break;
 
-		case PERFGCONSTRAINEDDOUBLEOBJECTCOLLECTION: {
+		case PERFOBJECTTYPE::PERFGCONSTRAINEDDOUBLEOBJECTCOLLECTION: {
 			std::shared_ptr <GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(0., -10., 10.));
 			std::shared_ptr <GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.));
 			gcdo_ptr->addAdaptor(gdga_ptr);
 			std::shared_ptr <GConstrainedDoubleObjectCollection> gcdc_ptr(
 				new GConstrainedDoubleObjectCollection(nObjects, gcdo_ptr));
 			this->push_back(gcdc_ptr);
-			break;
-		}
+		} break;
 
-		case PERFGDOUBLECOLLECTION: {
+		case PERFOBJECTTYPE::PERFGDOUBLECOLLECTION: {
 			std::shared_ptr <GDoubleCollection> gdc_ptr(new GDoubleCollection(nObjects, 0., -10., 10.));
 			std::shared_ptr <GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.));
 			gdc_ptr->addAdaptor(gdga_ptr);
 			this->push_back(gdc_ptr);
-			break;
-		}
+		} break;
 
-		case PERFGCONSTRAINEDDOUBLECOLLECTION: {
+		case PERFOBJECTTYPE::PERFGCONSTRAINEDDOUBLECOLLECTION: {
 			std::shared_ptr <GConstrainedDoubleCollection> gcdc_ptr(
 				new GConstrainedDoubleCollection(nObjects, 0., -10., 10.));
 			std::shared_ptr <GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.));
 			gcdc_ptr->addAdaptor(gdga_ptr);
 			this->push_back(gcdc_ptr);
-			break;
-		}
+		} break;
 
 		default: {
 			glogger
 			<< "In GTestIndividual2::GTestIndividual2(): Error!" << std::endl
 			<< "Invalid object type requested: " << otype << std::endl
 			<< GTERMINATION;
-			break;
-		}
+		} break;
 	}
 }
 

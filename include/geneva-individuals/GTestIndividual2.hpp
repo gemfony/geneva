@@ -73,7 +73,7 @@ namespace Tests {
 /**
  * The types of objects to be tested in this class
  */
-enum G_API_INDIVIDUALS PERFOBJECTTYPE {
+enum class PERFOBJECTTYPE {
 	PERFGDOUBLEOBJECT = 0,
 	PERFGCONSTRDOUBLEOBJECT = 1,
 	PERFGCONSTRAINEDDOUBLEOBJECTCOLLECTION = 2,
@@ -81,9 +81,15 @@ enum G_API_INDIVIDUALS PERFOBJECTTYPE {
 	PERFGCONSTRAINEDDOUBLECOLLECTION = 4
 };
 
-const PERFOBJECTTYPE POTMIN = PERFGDOUBLEOBJECT;
-const PERFOBJECTTYPE POTMAX = PERFGCONSTRAINEDDOUBLEOBJECTCOLLECTION;
+const PERFOBJECTTYPE POTMIN = PERFOBJECTTYPE::PERFGDOUBLEOBJECT;
+const PERFOBJECTTYPE POTMAX = PERFOBJECTTYPE::PERFGCONSTRAINEDDOUBLEOBJECTCOLLECTION;
 const std::size_t NPERFOBJECTTYPES = 5;
+
+/******************************************************************************/
+/** @brief Puts a Gem::Common::logType into a stream. Needed also for boost::lexical_cast<> */
+G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Tests::PERFOBJECTTYPE&);
+/** @brief Reads a Gem::Common::logType from a stream. Needed also for boost::lexical_cast<> */
+G_API_COMMON std::istream &operator>>(std::istream &, Gem::Tests::PERFOBJECTTYPE&);
 
 /******************************************************************************/
 /**
@@ -100,7 +106,7 @@ class GTestIndividual2 : public Gem::Geneva::GParameterSet {
 		using boost::serialization::make_nvp;
 
 		ar
-			&BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
+			& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
 	}
 	///////////////////////////////////////////////////////////////////////
 
