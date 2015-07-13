@@ -62,7 +62,7 @@ namespace po = boost::program_options;
 int main(int argc, char **argv){
 	//---------------------------------------------------------------------------
 	// Assemble additional command line options to be passed to Go2
-	trainingDataType tdt = Gem::Geneva::TDTNONE;
+	trainingDataType tdt = Gem::Geneva::trainingDataType::TDTNONE;
 	std::string trainingDataFile = "./DataSets/hyper_sphere.dat";
 	std::string architecture = "2-4-4-1"; // two input nodes, one output node, two hidden layers with 4 nodes each
 	std::size_t nDataSets = 2000;
@@ -73,7 +73,7 @@ int main(int argc, char **argv){
 	boost::program_options::options_description user_options;
 	user_options.add_options() (
 		"traininDataType"
-		, po::value<trainingDataType>(&tdt)->default_value(Gem::Geneva::TDTNONE)
+		, po::value<trainingDataType>(&tdt)->default_value(Gem::Geneva::trainingDataType::TDTNONE)
 		, "Specify training data to be produced: HYPERCUBE=1, HYPERSPHERE=2, AXISCENTRIC=3, SINUS=4"
 	)(
 		"trainingDataFile"
@@ -103,7 +103,7 @@ int main(int argc, char **argv){
 
 	//---------------------------------------------------------------------------
 	// Produce data sets if we have been asked to do so, then leave
-	if(tdt != Gem::Geneva::TDTNONE) {
+	if(tdt != Gem::Geneva::trainingDataType::TDTNONE) {
 		GNeuralNetworkIndividual::createNetworkData(tdt, trainingDataFile, architecture, nDataSets);
 		return 0;
 	} else { // Store the trainingDataFile in the global options, so they can be accessed by the individuals

@@ -393,9 +393,7 @@ tS;
  * @param pos The position from which an item should be retreived
  * @return The training set at the requested position (or a boost::optional object which evaluates to "false")
  */
-boost::optional<std::shared_ptr < trainingSet>>
-
-networkData::getTrainingSet(
+boost::optional<std::shared_ptr < trainingSet>> networkData::getTrainingSet(
 	const std::size_t &pos
 ) const {
 	if (pos >= arraySize_) {

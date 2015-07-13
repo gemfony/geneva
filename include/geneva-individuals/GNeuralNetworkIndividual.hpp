@@ -314,12 +314,17 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /** @brief This enum is used to specify the type of training data that should be generated */
-enum G_API_INDIVIDUALS trainingDataType {
-	TDTNONE = 0, HYPERCUBE = 1, HYPERSPHERE = 2, AXISCENTRIC = 3, SINUS = 4
+enum class trainingDataType {
+	TDTNONE = 0
+	, HYPERCUBE = 1
+	, HYPERSPHERE = 2
+	, AXISCENTRIC = 3
+	, SINUS = 4
 };
 /** @brief Allows to specify whether we want to use a sigmoidal transfer function or a radial basis function */
 enum G_API_INDIVIDUALS transferFunction {
-	SIGMOID = 0, RBF = 1
+	SIGMOID = 0
+	, RBF = 1
 };
 
 /******************************************************************************/
@@ -890,7 +895,7 @@ public:
 		std::shared_ptr <networkData> nD_ptr;
 
 		switch (t) {
-			case Gem::Geneva::HYPERCUBE:
+			case Gem::Geneva::trainingDataType::HYPERCUBE:
 				nD_ptr = GNeuralNetworkIndividual::createHyperCubeNetworkData(
 					architecture, nDataSets, 0.5 // edge-length
 				);
@@ -900,7 +905,7 @@ public:
 
 				break;
 
-			case Gem::Geneva::HYPERSPHERE:
+			case Gem::Geneva::trainingDataType::HYPERSPHERE:
 				nD_ptr = GNeuralNetworkIndividual::createHyperSphereNetworkData(
 					architecture, nDataSets, 0.5 // radius
 				);
@@ -910,7 +915,7 @@ public:
 
 				break;
 
-			case Gem::Geneva::AXISCENTRIC:
+			case Gem::Geneva::trainingDataType::AXISCENTRIC:
 				nD_ptr = GNeuralNetworkIndividual::createAxisCentricNetworkData(
 					architecture, nDataSets
 				);
@@ -920,7 +925,7 @@ public:
 
 				break;
 
-			case Gem::Geneva::SINUS:
+			case Gem::Geneva::trainingDataType::SINUS:
 				nD_ptr = GNeuralNetworkIndividual::createSinNetworkData(
 					architecture, nDataSets
 				);
