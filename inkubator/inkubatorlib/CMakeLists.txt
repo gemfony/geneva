@@ -1,13 +1,13 @@
 set(OAINCUBATOR_HEADERS
-	inkubator.hpp
+	incubator.hpp
 )
 
 set(OAINCUBATOR_SOURCES
-	inkubator.cpp
+	incubator.cpp
 )
 
 set(LIBRARYNAME
-	inkubator
+	incubator
 )
 
 add_library(${LIBRARYNAME} SHARED

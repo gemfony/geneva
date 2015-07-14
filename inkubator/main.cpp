@@ -51,7 +51,7 @@
 
 #include "boost/random.hpp"
 
-#include "inkubator.hpp"
+#include "incubator.hpp"
 
 /******************************************************************************/
 /**
