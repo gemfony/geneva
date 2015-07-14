@@ -1,0 +1,20 @@
+set(OAINCUBATOR_HEADERS
+	inkubator.hpp
+)
+
+set(OAINCUBATOR_SOURCES
+	inkubator.cpp
+)
+
+set(LIBRARYNAME
+	inkubator
+)
+
+add_library(${LIBRARYNAME} SHARED
+	${OAINCUBATOR_HEADERS}
+	${OAINCUBATOR_SOURCES}
+)
+
+INSTALL (TARGETS ${LIBRARYNAME}
+	DESTINATION /opt/${EXECUTABLENAME}/libs
+)
