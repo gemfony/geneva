@@ -29,14 +29,14 @@ set(EXECUTABLENAME
 	OAInkubator
 )
 
-add_subdirectory("${PROJECT_SOURCE_DIR}/inkubatorlib")
+add_subdirectory("${PROJECT_SOURCE_DIR}/incubatorlib")
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 include_directories (
-	"${PROJECT_SOURCE_DIR}/inkubatorlib"
+	"${PROJECT_SOURCE_DIR}/incubatorlib"
 	${Boost_INCLUDE_DIRS}
 )
 link_directories (
-	"${PROJECT_SOURCE_DIR}/inkubatorlib"
+	"${PROJECT_SOURCE_DIR}/incubatorlib"
 
 )
 
