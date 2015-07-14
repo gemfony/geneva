@@ -118,7 +118,7 @@ IF( GENEVA_BUILD_TESTS )
 ENDIF()
 
 # Holds an incubator facility for new optimization algorihms
-ADD_SUBDIRECTORY (incubator)
+# ADD_SUBDIRECTORY (incubator)
 
 ################################################################################
 # Additional information files to be copied
