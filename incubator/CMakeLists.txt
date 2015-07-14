@@ -45,7 +45,7 @@ add_executable(${EXECUTABLENAME}
 )
 
 target_link_libraries (${EXECUTABLENAME}
-	inkubator
+	incubator
 	${Boost_LIBRARIES}
 )
 
