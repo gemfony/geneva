@@ -927,8 +927,7 @@ std::string GGraph2ED::headerData(bool isSecondary, std::size_t pId) const {
 	}
 
 	header_data
-	<< "  double " << xArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" <<
-	(comment != "" ? comment : "") << std::endl
+	<< "  double " << xArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << comment << std::endl
 	<< "  double " << exArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
 	<< "  double " << yArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
 	<< "  double " << eyArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
