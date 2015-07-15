@@ -69,6 +69,52 @@ namespace Common {
 
 /******************************************************************************/
 /**
+ * This function allows to put generic strongly typed enums from the Gem::Common
+ * namespace into an output stream. Note the redundancy here -- we want to avoid
+ * clashes with user-defined operators, so we leave this facility inside of the
+ * Gem::Common namespace.
+ */
+template <typename enum_type, typename stream_type>
+typename std::enable_if<std::is_enum<enum_type>::value, stream_type&>::type
+operator<<(
+	stream_type& ops
+	, const enum_type& t
+) {
+	std::uint16_t tmp = static_cast<std::uint16_t>(t);
+	ops << tmp;
+	return ops;
+};
+
+
+/******************************************************************************/
+/**
+ * This function allows to read generic strongly typed enums from the Gem::Common
+ * namespace from an input stream. Note the redundancy here -- we want to avoid
+ * clashes with user-defined operators, so we leave this facility inside of the
+ * Gem::Common namespace.
+ */
+template <typename enum_type, typename stream_type>
+typename std::enable_if<std::is_enum<enum_type>::value, stream_type&>::type
+operator>>(
+	stream_type& ips
+	, enum_type& t
+) {
+	std::uint16_t tmp;
+	ips >> tmp;
+
+#ifdef DEBUG
+	t = boost::numeric_cast<enum_type>(tmp);
+#else
+	t = static_cast<enum_type>(tmp);
+#endif /* DEBUG */
+
+	return ips;
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * This enum denotes different dimensions (used particularly by GMarkerCollection
  */
 enum class dimensions {

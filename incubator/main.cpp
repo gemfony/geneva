@@ -49,6 +49,10 @@
 #include <cmath>
 #include <limits>
 
+#include <tuple>
+#include <memory>
+#include <type_traits>
+
 #include "boost/random.hpp"
 
 #include "incubator.hpp"

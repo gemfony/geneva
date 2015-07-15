@@ -41,6 +41,123 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * Puts a Gem::Common::gColor item into a stream. This is needed for
+ * (de-)serialization of the gColor enum.
+ *
+ * @param o The ostream the item should be added to
+ * @param tdo the item to be added to the stream
+ * @return The std::ostream object used to add the item to
+ */
+std::ostream &operator<<(std::ostream &o, const Gem::Common::gColor &tdo) {
+	std::uint16_t tmp = static_cast<std::uint16_t>(tdo);
+	o << tmp;
+	return o;
+}
+
+/******************************************************************************/
+/**
+ * Reads a Gem::Common::gColor item from a stream. This is needed for
+ * (de-)serialization of the gColor enum.
+ *
+ * @param i The stream the item should be read from
+ * @param tdo The item read from the stream
+ * @return The std::istream object used to read the item from
+ */
+std::istream &operator>>(std::istream &i, Gem::Common::gColor &tdo) {
+	std::uint16_t tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+	tdo = boost::numeric_cast<Gem::Common::gColor>(tmp);
+#else
+	tdo = static_cast<Gem::Common::gColor>(tmp);
+#endif /* DEBUG */
+
+	return i;
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * Puts a Gem::Common::gMarker item into a stream. This is needed for
+ * (de-)serialization of the gMarker enum.
+ *
+ * @param o The ostream the item should be added to
+ * @param tdo the item to be added to the stream
+ * @return The std::ostream object used to add the item to
+ */
+std::ostream &operator<<(std::ostream &o, const Gem::Common::gMarker &tdo) {
+	std::uint16_t tmp = static_cast<std::uint16_t>(tdo);
+	o << tmp;
+	return o;
+}
+
+/******************************************************************************/
+/**
+ * Reads a Gem::Common::gMarker item from a stream. This is needed for
+ * (de-)serialization of the gMarker enum.
+ *
+ * @param i The stream the item should be read from
+ * @param tdo The item read from the stream
+ * @return The std::istream object used to read the item from
+ */
+std::istream &operator>>(std::istream &i, Gem::Common::gMarker &tdo) {
+	std::uint16_t tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+	tdo = boost::numeric_cast<Gem::Common::gMarker>(tmp);
+#else
+	tdo = static_cast<Gem::Common::gMarker>(tmp);
+#endif /* DEBUG */
+
+	return i;
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * Puts a Gem::Common::gLineStyle item into a stream. This is needed for
+ * (de-)serialization of the gLineStyle enum.
+ *
+ * @param o The ostream the item should be added to
+ * @param tdo the item to be added to the stream
+ * @return The std::ostream object used to add the item to
+ */
+std::ostream &operator<<(std::ostream &o, const Gem::Common::gLineStyle &tdo) {
+	std::uint16_t tmp = static_cast<std::uint16_t>(tdo);
+	o << tmp;
+	return o;
+}
+
+/******************************************************************************/
+/**
+ * Reads a Gem::Common::gLineStyle item from a stream. This is needed for
+ * (de-)serialization of the gLineStyle enum.
+ *
+ * @param i The stream the item should be read from
+ * @param tdo The item read from the stream
+ * @return The std::istream object used to read the item from
+ */
+std::istream &operator>>(std::istream &i, Gem::Common::gLineStyle &tdo) {
+	std::uint16_t tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+	tdo = boost::numeric_cast<Gem::Common::gLineStyle>(tmp);
+#else
+	tdo = static_cast<Gem::Common::gLineStyle>(tmp);
+#endif /* DEBUG */
+
+	return i;
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * Puts a Gem::Common::graphPlotMode item into a stream. This is needed for
  * (de-)serialization of the graphPlotMode enum.
  *

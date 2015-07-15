@@ -92,6 +92,61 @@ namespace Common {
 
 /******************************************************************************/
 /**
+ * An enum for some basic colors (to be extended over time)
+ */
+enum class gColor {
+	white=0
+	, black=1
+	, red=2
+	, green=3
+	, blue=4
+	, grey=14 // note the id of this color, compared to preceding values
+};
+
+/** @brief Puts a Gem::Common::gColor into a stream; Needed also for boost::lexical_cast<> */
+G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::gColor &);
+/** @brief Reads a Gem::Common::gColor from a stream; Needed also for boost::lexical_cast<> */
+G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::gColor &);
+
+/******************************************************************************/
+/**
+ * An enum for basic marker types (to be extended over time)
+ */
+enum class gMarker {
+	none = 0
+	, opencircle = 4
+	, closedcircle = 20
+	, closedtriangle = 22
+	, opentriangle = 26
+	, closedstar = 29
+	, openstar = 30
+};
+
+/** @brief Puts a Gem::Common::gMarker into a stream; Needed also for boost::lexical_cast<> */
+G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::gMarker &);
+/** @brief Reads a Gem::Common::gMarker from a stream; Needed also for boost::lexical_cast<> */
+G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::gMarker &);
+
+/*******************************************************************	***********/
+/**
+ * An enum for basic line styles (to be extended over time)
+ */
+enum class gLineStyle {
+	straight = 1
+	, shortdashed = 2
+	, dotted = 3
+	, shortdashdot= 4
+	, longdashdot = 4
+	, longdashed = 7
+};
+
+/** @brief Puts a Gem::Common::gLineStyle into a stream; Needed also for boost::lexical_cast<> */
+G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::gLineStyle &);
+/** @brief Reads a Gem::Common::gLineStyle from a stream; Needed also for boost::lexical_cast<> */
+G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::gLineStyle &);
+
+/******************************************************************************/
+/**
  * Determines whether a scatter plot or a curve should be recorded
  */
 enum class graphPlotMode {
@@ -103,6 +158,36 @@ enum class graphPlotMode {
 G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::graphPlotMode &);
 /** @brief Reads a Gem::Common::graphPlotMode from a stream; Needed also for boost::lexical_cast<> */
 G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::graphPlotMode &);
+
+/******************************************************************************/
+/**
+ * An enum for 2D-drawing options
+ */
+enum class tddropt {
+	TDEMPTY = 0,
+	SURFONE = 1,
+	SURFTWOZ = 2,
+	SURFTHREE = 3,
+	SURFFOUR = 4,
+	CONTZ = 5,
+	CONTONE = 6,
+	CONTTWO = 7,
+	CONTTHREE = 8,
+	TEXT = 9,
+	SCAT = 10,
+	BOX = 11,
+	ARR = 12,
+	COLZ = 13,
+	LEGO = 14,
+	LEGOONE = 15,
+	SURFONEPOL = 16,
+	SURFONECYL = 17
+};
+
+/** @brief Puts a Gem::Common::tddropt into a stream; Needed also for boost::lexical_cast<> */
+G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::tddropt &);
+/** @brief Reads a Gem::Common::tddropt from a stream; Needed also for boost::lexical_cast<> */
+G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::tddropt &);
 
 /******************************************************************************/
 
@@ -138,7 +223,9 @@ class GPlotDesigner;
  * Allowed values are Gem::Common::dimensions::x/y/z/w .
  */
 template<typename marker_type, Gem::Common::dimensions dim>
-class GMarker {
+class GMarker
+	: public Gem::Common::GCommonInterfaceT<GMarker>
+{
 	// Make sure this class may only be instantiated with
 	// arithmetic types
 	static_assert(
@@ -154,16 +241,51 @@ class GMarker {
 		using boost::serialization::make_nvp;
 
 		ar
-		& BOOST_SERIALIZATION_NVP(pos)
-		& BOOST_SERIALIZATION_NVP(marker_legend);
+		& BOOST_SERIALIZATION_NVP(pos_)
+		& BOOST_SERIALIZATION_NVP(marker_legend_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
-	marker_type pos = marker_type(0);
-	std::string marker_legend = std::string();
+	/** @brief The standard constructor */
+	explicit G_API_COMMON GMarker(const marker_type&, const std::string& = std::string());
+	/** @brief The copy constructor */
+	G_API_COMMON GMarker(const GMarker<marker_type, dim>&);
+	/** @brief The destructor */
+	G_API_COMMON ~GMarker();
 
-	const std::string dimension = boost::lexical_cast<std::string>(dim);
+	/** @brief The assignment operator */
+	G_API_COMMON const GMarker<marker_type, dim>& operator=(const GMarker<marker_type, dim>&);
+
+	/** @brief Checks for equality with another GMarker object */
+	G_API_COMMON bool operator==(const GMarker<marker_type, dim>&) const;
+	/** @brief Checks for inequality with another GMarker object */
+	G_API_COMMON bool operator!=(const GMarker<marker_type, dim>&) const;
+
+	/** @brief Returns the name of this class */
+	virtual G_API_COMMON std::string name() const override;
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_COMMON void compare(
+		const GMarker<marker_type, dim>& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
+
+private:
+	/** @brief The default constructor */
+	GMarker();
+
+	/***************************************************************************/
+	/** @brief Loads the data of another object */
+	virtual G_API_COMMON void load_(const GMarker<marker_type, dim>*) override;
+	/** @brief Creates a deep clone of this object */
+	virtual G_API_COMMON GMarker<marker_type, dim>* clone_() const override;
+
+	marker_type pos_ = marker_type(0); ///< The position of the marker
+	std::string marker_legend_ = std::string(); ///< The legend to be added to the marker (if any)
+
+	const std::string dimension_ = boost::lexical_cast<std::string>(dim);
 };
 
 /******************************************************************************/
@@ -285,7 +407,7 @@ public:
 	virtual G_API_COMMON std::string name() const override;
 
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual void compare(
+	virtual G_API_COMMON void compare(
 		const GBasePlotter& // the other object
 		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		, const double& // the limit for allowed deviations of floating point types
@@ -709,7 +831,7 @@ public:
 	virtual G_API_COMMON std::string name() const override;
 
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual void compare(
+	virtual G_API_COMMON void compare(
 		const GBasePlotter& // the other object
 		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		, const double& // the limit for allowed deviations of floating point types
@@ -800,7 +922,7 @@ public:
 	virtual G_API_COMMON std::string name() const override;
 
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual void compare(
+	virtual G_API_COMMON void compare(
 		const GBasePlotter& // the other object
 		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		, const double& // the limit for allowed deviations of floating point types
@@ -1494,36 +1616,6 @@ protected:
 
 /******************************************************************************/
 /**
- * An enum for 2D-drawing options
- */
-enum class tddropt {
-	TDEMPTY = 0,
-	SURFONE = 1,
-	SURFTWOZ = 2,
-	SURFTHREE = 3,
-	SURFFOUR = 4,
-	CONTZ = 5,
-	CONTONE = 6,
-	CONTTWO = 7,
-	CONTTHREE = 8,
-	TEXT = 9,
-	SCAT = 10,
-	BOX = 11,
-	ARR = 12,
-	COLZ = 13,
-	LEGO = 14,
-	LEGOONE = 15,
-	SURFONEPOL = 16,
-	SURFONECYL = 17
-};
-
-/** @brief Puts a Gem::Common::tddropt into a stream; Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::tddropt &);
-/** @brief Reads a Gem::Common::tddropt from a stream; Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::tddropt &);
-
-/******************************************************************************/
-/**
  * A wrapper for ROOT's TH2D class (2-d double data)
  */
 class GHistogram2D
@@ -1593,7 +1685,7 @@ public:
 	virtual G_API_COMMON std::string name() const override;
 
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual void compare(
+	virtual G_API_COMMON void compare(
 		const GBasePlotter& // the other object
 		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		, const double& // the limit for allowed deviations of floating point types
@@ -1690,7 +1782,7 @@ public:
 	virtual G_API_COMMON std::string name() const override;
 
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual void compare(
+	virtual G_API_COMMON void compare(
 		const GBasePlotter& // the other object
 		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		, const double& // the limit for allowed deviations of floating point types
@@ -1767,7 +1859,7 @@ public:
 	virtual G_API_COMMON std::string name() const override;
 
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual void compare(
+	virtual G_API_COMMON void compare(
 		const GBasePlotter& // the other object
 		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		, const double& // the limit for allowed deviations of floating point types
@@ -2275,7 +2367,7 @@ public:
 	virtual G_API_COMMON std::string name() const override;
 
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual void compare(
+	virtual G_API_COMMON void compare(
 		const GBasePlotter& // the other object
 		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		, const double& // the limit for allowed deviations of floating point types
@@ -2877,7 +2969,7 @@ public:
 	virtual G_API_COMMON std::string name() const override;
 
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual void compare(
+	virtual G_API_COMMON void compare(
 		const GBasePlotter& // the other object
 		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		, const double& // the limit for allowed deviations of floating point types
@@ -2963,7 +3055,7 @@ public:
 	virtual G_API_COMMON std::string name() const override;
 
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual void compare(
+	virtual G_API_COMMON void compare(
 		const GBasePlotter& // the other object
 		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		, const double& // the limit for allowed deviations of floating point types
@@ -3052,7 +3144,7 @@ public:
 	virtual G_API_COMMON std::string name() const override;
 
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual void compare(
+	virtual G_API_COMMON void compare(
 		const GBasePlotter& // the other object
 		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		, const double& // the limit for allowed deviations of floating point types
@@ -3148,7 +3240,7 @@ public:
 	virtual G_API_COMMON std::string name() const override;
 
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual void compare(
+	virtual G_API_COMMON void compare(
 		const GPlotDesigner& // the other object
 		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		, const double& // the limit for allowed deviations of floating point types
