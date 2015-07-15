@@ -201,8 +201,7 @@ template<typename marker_type, Gem::Common::dimensions dim>
 class GMarker
 	: public Gem::Common::GCommonInterfaceT<GMarker<marker_type, dim>>
 {
-	// Make sure this class may only be instantiated with
-	// arithmetic types
+	// Make sure this class may only be instantiated with arithmetic types
 	static_assert(
 		std::is_arithmetic<marker_type>::value
 		, "GMarker should only be instantiated with arithmetic types!"
@@ -222,41 +221,148 @@ class GMarker
 	///////////////////////////////////////////////////////////////////////
 
 public:
-	/** @brief The standard constructor */
-	explicit G_API_COMMON GMarker(const marker_type&, const std::string& = std::string());
-	/** @brief The copy constructor */
-	G_API_COMMON GMarker(const GMarker<marker_type, dim>&);
-	/** @brief The destructor */
-	G_API_COMMON ~GMarker();
-
-	/** @brief The assignment operator */
-	G_API_COMMON const GMarker<marker_type, dim>& operator=(const GMarker<marker_type, dim>&);
-
-	/** @brief Checks for equality with another GMarker object */
-	G_API_COMMON bool operator==(const GMarker<marker_type, dim>&) const;
-	/** @brief Checks for inequality with another GMarker object */
-	G_API_COMMON bool operator!=(const GMarker<marker_type, dim>&) const;
-
-	/** @brief Returns the name of this class */
-	virtual G_API_COMMON std::string name() const override;
-
-	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual G_API_COMMON void compare(
-		const GMarker<marker_type, dim>& // the other object
-		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
-		, const double& // the limit for allowed deviations of floating point types
-	) const override;
-
-private:
-	/** @brief The default constructor */
-	GMarker();
+	/***************************************************************************/
+	/**
+	 * The standard constructor
+	 */
+	explicit GMarker(
+		const marker_type& pos
+		, const std::string& marker_legend = std::string()
+	)
+		: pos_(pos)
+		, marker_legend_(marker_legend)
+	{ /* nothing */ }
 
 	/***************************************************************************/
-	/** @brief Loads the data of another object */
-	virtual G_API_COMMON void load_(const GMarker<marker_type, dim>*) override;
-	/** @brief Creates a deep clone of this object */
-	virtual G_API_COMMON GMarker<marker_type, dim>* clone_() const override;
+	/**
+	 * The copy constructor
+	 */
+	GMarker(const GMarker<marker_type, dim>& cp)
+		: pos_(cp.pos_)
+		, marker_legend_(cp.marker_legend_)
+	{ /* nothing */ }
 
+	/***************************************************************************/
+	/**
+	 * The destructor
+	 */
+	virtual ~GMarker()
+	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * The assignment operator
+	 */
+	const GMarker<marker_type, dim>& operator=(const GMarker<marker_type, dim>& cp) {
+		this->load_(&cp);
+		return *this;
+	};
+
+	/***************************************************************************/
+	/**
+ 	 * Checks for equality with another GMarker object
+ 	 *
+ 	 * @param  cp A constant reference to another GMarker object
+  	 * @return A boolean indicating whether both objects are equal
+ 	 */
+	bool operator==(const GMarker<marker_type, dim>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch (g_expectation_violation &) {
+			return false;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GMarker object
+	 *
+	 * @param  cp A constant reference to another GMarker object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GMarker<marker_type, dim>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch (g_expectation_violation &) {
+			return false;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Returns the name of this class
+	 */
+	virtual std::string name() const override {
+		return std::string("GMaker");
+	}
+
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 */
+	virtual void compare(
+		const GMarker<marker_type, dim>& cp // the other object
+		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
+		, const double& limit // the limit for allowed deviations of floating point types
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
+		const GMarker<marker_type, dim> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		GToken token("GBasePlotter", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base<GCommonInterfaceT<GMarker<marker_type, dim>>>(IDENTITY(*this, *p_load), token);
+
+		// ... and then the local data
+		compare_t(IDENTITY(pos_, p_load->pos_), token);
+		compare_t(IDENTITY(marker_legend_, p_load->marker_legend_), token);
+		compare_t(IDENTITY(dimension_, p_load->dimension_), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
+
+protected:
+	/***************************************************************************/
+	/**
+	 * Loads the data of another object
+	 */
+	virtual void load_(const GMarker<marker_type, dim>* cp) override {
+		// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
+		const GMarker<marker_type, dim> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		// No parent class with loadable data
+
+		// Load local data
+		pos_ = p_load->pos_;
+		marker_legend_ = p_load->marker_legend_;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Creates a deep clone of this object
+	 */
+	virtual GMarker<marker_type, dim>* clone_() const override {
+		return new GMarker<marker_type, dim>(*this);
+	}
+
+private:
+	/***************************************************************************/
+	/**
+	 * The default constructor
+	 */
+	GMarker()
+	{ /* nothing */ }
+
+	/***************************************************************************/
+	// Local data
 	marker_type pos_ = marker_type(0); ///< The position of the marker
 	std::string marker_legend_ = std::string(); ///< The legend to be added to the marker (if any)
 

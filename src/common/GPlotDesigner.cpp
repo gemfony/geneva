@@ -338,7 +338,7 @@ void GBasePlotter::compare(
  */
 void GBasePlotter::load_(const GBasePlotter* cp) {
 	// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
-	const GBasePlotter *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GBasePlotter>(cp, this);
+	const GBasePlotter *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 	// No parent class with loadable data
 
