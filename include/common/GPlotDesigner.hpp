@@ -271,8 +271,7 @@ private:
  */
 template<typename marker_type, Gem::Common::dimensions dim>
 class GMarkerCollection {
-	// Make sure this class may only be instantiated with
-	// arithmetic types
+	// Make sure this class may only be instantiated for arithmetic types
 	static_assert(
 		std::is_arithmetic<marker_type>::value
 		, "GMarkerCollection should only be instantiated with arithmetic types!"
