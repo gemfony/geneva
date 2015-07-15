@@ -53,6 +53,7 @@
 
 // Geneva headers go here
 
+
 /******************************************************************************/
 /**
  * We need local signals, so we can act both on Windows and POSIX-OSs
@@ -68,16 +69,19 @@ namespace Gem {
 namespace Common {
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * This function allows to put generic strongly typed enums from the Gem::Common
  * namespace into an output stream. Note the redundancy here -- we want to avoid
  * clashes with user-defined operators, so we leave this facility inside of the
- * Gem::Common namespace.
+ * Gem::Common namespace. Note also that we need to exclude GLogStreamer
+ * from overload resulution, as it has its own operator<< .
  */
-template <typename enum_type, typename stream_type>
-typename std::enable_if<std::is_enum<enum_type>::value, stream_type&>::type
+template <typename enum_type>
+typename std::enable_if<std::is_enum<enum_type>::value, std::ostream&>::type
 operator<<(
-	stream_type& ops
+	std::ostream& ops
 	, const enum_type& t
 ) {
 	std::uint16_t tmp = static_cast<std::uint16_t>(t);
@@ -93,10 +97,10 @@ operator<<(
  * clashes with user-defined operators, so we leave this facility inside of the
  * Gem::Common namespace.
  */
-template <typename enum_type, typename stream_type>
-typename std::enable_if<std::is_enum<enum_type>::value, stream_type&>::type
+template <typename enum_type>
+typename std::enable_if<std::is_enum<enum_type>::value, std::istream&>::type
 operator>>(
-	stream_type& ips
+	std::istream& ips
 	, enum_type& t
 ) {
 	std::uint16_t tmp;
@@ -123,12 +127,6 @@ enum class dimensions {
 	, z = 2
 	, w = 3
 };
-
-/******************************************************************************/
-/** @brief Puts a Gem::Common::dimensions into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::dimensions &);
-/** @brief Reads a Gem::Common::dimensions from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::dimensions &);
 
 /******************************************************************************/
 /**
@@ -159,12 +157,6 @@ enum class logType {
 };
 
 /******************************************************************************/
-/** @brief Puts a Gem::Common::logType into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::logType &);
-/** @brief Reads a Gem::Common::logType from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::logType &);
-
-/******************************************************************************/
 /**
  * The default number of bins in histograms, used in GPlotDesigner
  */
@@ -188,12 +180,6 @@ enum class triboolStates {
 };
 
 /******************************************************************************/
-/** @brief Puts a Gem::Common::triboolStates into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON  std::ostream &operator<<(std::ostream &, const Gem::Common::triboolStates &);
-/** @brief Reads a Gem::Common::triboolStates from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::triboolStates &);
-
-/******************************************************************************/
 /**
  * The serialization modes that are currently allowed
  */
@@ -202,13 +188,6 @@ enum class serializationMode {
 	, SERIALIZATIONMODE_XML = 1
 	, SERIALIZATIONMODE_BINARY = 2
 };
-
-/******************************************************************************/
-
-/** @brief Puts a Gem::Common::serializationMode into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::serializationMode &);
-/** @brief Reads a Gem::Common::serializationMode item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::serializationMode &);
 
 /******************************************************************************/
 /**
@@ -222,17 +201,10 @@ const bool CE_WITH_MESSAGES = true;
  * Needed to express expectations in testing framework. CE stands for "Check expectation".
  */
 enum class expectation {
-	CE_EQUALITY // bitwise equality of all checked components
-	, CE_FP_SIMILARITY // equality for non-floating point components, similarity for floating point
-	, CE_INEQUALITY // at least one checked component differs
+	CE_EQUALITY = 0 // bitwise equality of all checked components
+	, CE_FP_SIMILARITY = 1 // equality for non-floating point components, similarity for floating point
+	, CE_INEQUALITY = 2// at least one checked component differs
 };
-
-/******************************************************************************/
-
-/** @brief Puts a Gem::Common::expectation into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::expectation &);
-/** @brief Reads a Gem::Common::expectation item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::expectation &);
 
 /******************************************************************************/
 /**

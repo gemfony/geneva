@@ -452,11 +452,11 @@ public:
 	virtual G_API_COMMON ~GLogStreamer();
 
 	/** @brief Needed for std::ostringstream */
-	G_API_COMMON GLogStreamer &operator<<(std::ostream &( *val )(std::ostream &));
+	G_API_COMMON GLogStreamer &operator<<(std::ostream &(*val)(std::ostream &));
 	/** @brief Needed for std::ostringstream */
-	G_API_COMMON GLogStreamer &operator<<(std::ios &( *val )(std::ios &));
+	G_API_COMMON GLogStreamer &operator<<(std::ios &(*val)(std::ios &));
 	/** @brief Needed for std::ostringstream */
-	G_API_COMMON GLogStreamer &operator<<(std::ios_base &( *val )(std::ios_base &));
+	G_API_COMMON GLogStreamer &operator<<(std::ios_base &(*val)(std::ios_base &));
 
 	/** @brief A GManipulator object triggers the actual logging procedure */
 	G_API_COMMON void operator<<(const GManipulator &gm);
@@ -477,8 +477,8 @@ public:
 
 	/****************************************************************************/
 	/**
-		* Output of all standard values and types with a predefined operator<< .
-		*/
+	 * Output of all standard values and types with a predefined operator<<
+	 */
 	template<typename T>
 	GLogStreamer &operator<<(const T &val) {
 		oss_ << val;

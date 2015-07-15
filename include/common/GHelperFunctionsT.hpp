@@ -58,7 +58,7 @@
 #ifndef GHELPERFUNCTIONST_HPP_
 #define GHELPERFUNCTIONST_HPP_
 
-// Our own headers go here
+// Geneva headers go here
 #include "common/GHelperFunctions.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"

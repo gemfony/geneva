@@ -103,11 +103,6 @@ enum class gColor {
 	, grey=14 // note the id of this color, compared to preceding values
 };
 
-/** @brief Puts a Gem::Common::gColor into a stream; Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::gColor &);
-/** @brief Reads a Gem::Common::gColor from a stream; Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::gColor &);
-
 /******************************************************************************/
 /**
  * An enum for basic marker types (to be extended over time)
@@ -122,11 +117,6 @@ enum class gMarker {
 	, openstar = 30
 };
 
-/** @brief Puts a Gem::Common::gMarker into a stream; Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::gMarker &);
-/** @brief Reads a Gem::Common::gMarker from a stream; Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::gMarker &);
-
 /*******************************************************************	***********/
 /**
  * An enum for basic line styles (to be extended over time)
@@ -140,11 +130,6 @@ enum class gLineStyle {
 	, longdashed = 7
 };
 
-/** @brief Puts a Gem::Common::gLineStyle into a stream; Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::gLineStyle &);
-/** @brief Reads a Gem::Common::gLineStyle from a stream; Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::gLineStyle &);
-
 /******************************************************************************/
 /**
  * Determines whether a scatter plot or a curve should be recorded
@@ -153,11 +138,6 @@ enum class graphPlotMode {
 	SCATTER = 0
 	, CURVE = 1
 };
-
-/** @brief Puts a Gem::Common::graphPlotMode into a stream; Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::graphPlotMode &);
-/** @brief Reads a Gem::Common::graphPlotMode from a stream; Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::graphPlotMode &);
 
 /******************************************************************************/
 /**
@@ -183,11 +163,6 @@ enum class tddropt {
 	SURFONEPOL = 16,
 	SURFONECYL = 17
 };
-
-/** @brief Puts a Gem::Common::tddropt into a stream; Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::tddropt &);
-/** @brief Reads a Gem::Common::tddropt from a stream; Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::tddropt &);
 
 /******************************************************************************/
 
@@ -224,7 +199,7 @@ class GPlotDesigner;
  */
 template<typename marker_type, Gem::Common::dimensions dim>
 class GMarker
-	: public Gem::Common::GCommonInterfaceT<GMarker>
+	: public Gem::Common::GCommonInterfaceT<GMarker<marker_type, dim>>
 {
 	// Make sure this class may only be instantiated with
 	// arithmetic types
