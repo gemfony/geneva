@@ -608,51 +608,6 @@ public:
 		, const double& // the limit for allowed deviations of floating point types
 	) const override;
 
-	/***************************************************************************/
-	/**
-	 * The function creates a clone of the object, converts it to a pointer to a derived class
-	 * and emits it as a std::shared_ptr<> . Note that this template will only be accessible to the
-	 * compiler if GBasePlotter is a base type of clone_type.
-	 *
-	 * @return A converted clone of this object, wrapped into a std::shared_ptr
-	 */
-	template <typename clone_type>
-	std::shared_ptr<clone_type> clone(
-		typename std::enable_if<std::is_base_of<Gem::Common::GBasePlotter, clone_type>::value>::type* dummy = 0
-	) const {
-		return Gem::Common::convertSmartPointer<GBasePlotter, clone_type>(std::shared_ptr<GBasePlotter>(this->clone_()));
-	}
-
-	/***************************************************************************/
-	/**
-	 * Loads the data of another GBasePlotter(-derivative), wrapped in a shared pointer. Note that this
-	 * function is only accessible to the compiler if load_type is a derivative of GBasePlotter.
-	 *
-	 * @param cp A copy of another GBasePlotter-derivative, wrapped into a std::shared_ptr<>
-	 */
-	template <typename load_type>
-	inline void load(
-		const std::shared_ptr<load_type>& cp
-		, typename std::enable_if<std::is_base_of<Gem::Common::GBasePlotter, load_type>::value>::type* dummy = 0
-	) {
-		load_(cp.get());
-	}
-
-	/***************************************************************************/
-	/**
-	 * Loads the data of another GBasePlotter(-derivative), presented as a constant reference. Note that this
-	 * function is only accessible to the compiler if load_type is a derivative of GBasePlotter.
-	 *
-	 * @param cp A copy of another GBasePlotter-derivative, wrapped into a std::shared_ptr<>
-	 */
-	template <typename load_type>
-	inline void load(
-		const load_type& cp
-		, typename std::enable_if<std::is_base_of<Gem::Common::GBasePlotter, load_type>::value>::type* dummy = 0
-	) {
-		load_(&cp);
-	}
-
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another object */
