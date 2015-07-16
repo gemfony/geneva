@@ -79,12 +79,12 @@ namespace Common {
 /**
  * This class implements the most important functions of the std::vector
  * class. It is intended to hold std::shared_ptr smart pointers. Hence
- * special implementations of some functions are needed. Furthermore,
+ * special implementations of some functions are required. Furthermore,
  * using this class prevents us from having to derive directly from a
  * std::vector, which has a non-virtual destructor. Note that we assume here
  * that T holds a complex type, such as a class.  T must implement
- * the interface "usual" for Geneva-GObject derivatives, in particular T must
- * implement the clone() and function.
+ * the interface "usual" for Gemfony optimization library objects, in particular
+ * T must implement the clone() and function.
  *
  * Some std::vector functions can not be fully implemented, as they require
  * the data in this class to be default-constructible. As this class can hold
@@ -95,6 +95,7 @@ namespace Common {
  */
 template<typename T, typename B> // B stands for "base type"
 class GStdPtrVectorInterfaceT {
+
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
@@ -104,12 +105,13 @@ class GStdPtrVectorInterfaceT {
 
 		// Some preparation needed if this is a load operation.
 		// This is needed to work around a problem in Boost 1.58
+		// TODO: Check if this error still exists with Boost 1.59
 		if (Archive::is_loading::value) {
 			data.clear();
 		}
 
 		ar
-			&BOOST_SERIALIZATION_NVP(data);
+		&BOOST_SERIALIZATION_NVP(data);
 	}
 	///////////////////////////////////////////////////////////////////////
 

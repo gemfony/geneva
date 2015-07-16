@@ -187,7 +187,8 @@ public:
 		// Compare our parent data ...
 		Gem::Common::compare_base<GOptimizableEntity>(IDENTITY(*this, *p_load), token);
 
-		// ... and then the local data
+		// ... and then the local data. Actually this allows us to compare
+		// the parent class without directly calling it.
 		compare_t(IDENTITY(this->data,  p_load->data), token);
 
 		// React on deviations from the expectation
@@ -236,9 +237,11 @@ public:
 protected:
 	/***************************************************************************/
 	/**
-	* A random number generator. Note that the actual calculation is possibly
-	* done in a random number server, depending on the defines you have chosen.
-	*/
+	 * A random number generator. Note that the actual calculation is possibly
+	 * done in a random number server, depending on the defines you have chosen.
+	 *
+	 * TODO: Is this still neded ???
+	 */
 #ifdef GEM_GENEVA_USE_LOCAL_RANDOM_ADAPTION /* produce random numbers locally */
 	Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL> gr;
 #else /* act as a proxy, take random numbers from a factory */

@@ -119,13 +119,13 @@ operator>>(
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This enum denotes different dimensions (used particularly by GMarkerCollection
+ * This enum denotes different dimensions (used particularly by GDecoratorCollection
  */
 enum class dimensions {
-	x = 0
-	, y = 1
-	, z = 2
-	, w = 3
+	Dim1 = 0
+	, Dim2 = 1
+	, Dim3 = 2
+	, Dim4 = 3
 };
 
 /******************************************************************************/

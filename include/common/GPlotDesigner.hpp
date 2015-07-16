@@ -84,12 +84,15 @@
 #include "common/GCommonEnums.hpp"
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GExpectationChecksT.hpp"
+#include "common/GStdPtrVectorInterfaceT.hpp"
 #include "common/GTypeTraitsT.hpp"
 #include "common/GTupleIO.hpp"
 
 namespace Gem {
 namespace Common {
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
  * An enum for some basic colors (to be extended over time)
@@ -104,6 +107,8 @@ enum class gColor {
 };
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * An enum for basic marker types (to be extended over time)
  */
@@ -117,6 +122,8 @@ enum class gMarker {
 	, openstar = 30
 };
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /*******************************************************************	***********/
 /**
  * An enum for basic line styles (to be extended over time)
@@ -131,6 +138,8 @@ enum class gLineStyle {
 };
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * Determines whether a scatter plot or a curve should be recorded
  */
@@ -139,6 +148,8 @@ enum class graphPlotMode {
 	, CURVE = 1
 };
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
  * An enum for 2D-drawing options
@@ -164,6 +175,8 @@ enum class tddropt {
 	SURFONECYL = 17
 };
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
 //Some default values
@@ -192,21 +205,23 @@ typedef std::tuple<pointData, pointData> line;
 class GPlotDesigner;
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
- * A marker to be added to 2D-plots (in particular 2D graphs and 1D histograms).
- * The second template argument allows to differentiate between different dimensions.
- * Allowed values are Gem::Common::dimensions::x/y/z/w .
+ * This is the base class of a hierarchy of "decorator" classes that allow to
+ * add features like markers, lines or text to plots. Plotters simply create a
+ * container class of decorators, which in turn emit the code necessary to add the
+ * desired decorations to the plots. Decorators (and their containers) are ordered
+ * according to the plot dimension which they are supposed to cater for. The
+ * dimension is provided as a template argument, so that it is not possible
+ * to accidentally "mix" decorators for different dimensions. "Storage" of the
+ * dimension (in the form of a compile-time template argument) is the main
+ * purpose of this class.
  */
-template<typename marker_type, Gem::Common::dimensions dim>
-class GMarker
-	: public Gem::Common::GCommonInterfaceT<GMarker<marker_type, dim>>
+template<Gem::Common::dimensions dim>
+class GDecorator
+	: public Gem::Common::GCommonInterfaceT<GDecorator<dim>>
 {
-	// Make sure this class may only be instantiated with arithmetic types
-	static_assert(
-		std::is_arithmetic<marker_type>::value
-		, "GMarker should only be instantiated with arithmetic types!"
-	);
-
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
@@ -215,57 +230,50 @@ class GMarker
 		using boost::serialization::make_nvp;
 
 		ar
-		& BOOST_SERIALIZATION_NVP(pos_)
-		& BOOST_SERIALIZATION_NVP(marker_legend_);
+		& make_nvp("GCommonInterfaceT_GDecorator", boost::serialization::base_object<GCommonInterfaceT<GDecorator<dim>>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/***************************************************************************/
 	/**
-	 * The standard constructor
+	 * The default constructor
 	 */
-	explicit GMarker(
-		const marker_type& pos
-		, const std::string& marker_legend = std::string()
-	)
-		: pos_(pos)
-		, marker_legend_(marker_legend)
+	GDecorator()
 	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * The copy constructor
 	 */
-	GMarker(const GMarker<marker_type, dim>& cp)
-		: pos_(cp.pos_)
-		, marker_legend_(cp.marker_legend_)
+	GDecorator(const GDecorator<dim>& cp)
+		: GCommonInterfaceT<GDecorator<dim>>(cp)
 	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * The destructor
 	 */
-	virtual ~GMarker()
+	virtual ~GDecorator()
 	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * The assignment operator
 	 */
-	const GMarker<marker_type, dim>& operator=(const GMarker<marker_type, dim>& cp) {
+	const GDecorator<dim>& operator=(const GDecorator<dim>& cp) {
 		this->load_(&cp);
 		return *this;
 	};
 
 	/***************************************************************************/
 	/**
- 	 * Checks for equality with another GMarker object
+ 	 * Checks for equality with another GDecorator<dim> object
  	 *
- 	 * @param  cp A constant reference to another GMarker object
+ 	 * @param  cp A constant reference to another GDecorator<dim> object
   	 * @return A boolean indicating whether both objects are equal
  	 */
-	bool operator==(const GMarker<marker_type, dim>& cp) const {
+	bool operator==(const GDecorator<dim>& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -277,12 +285,12 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Checks for inequality with another GMarker object
+	 * Checks for inequality with another GDecorator<dim> object
 	 *
-	 * @param  cp A constant reference to another GMarker object
+	 * @param  cp A constant reference to another GDecorator<dim> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	bool operator!=(const GMarker<marker_type, dim>& cp) const {
+	bool operator!=(const GDecorator<dim>& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -297,7 +305,7 @@ public:
 	 * Returns the name of this class
 	 */
 	virtual std::string name() const override {
-		return std::string("GMaker");
+		return std::string("GDecorator<dim>");
 	}
 
 	/***************************************************************************/
@@ -306,24 +314,21 @@ public:
 	 * of the same type
 	 */
 	virtual void compare(
-		const GMarker<marker_type, dim>& cp // the other object
+		const GDecorator<dim>& cp // the other object
 		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
 		, const double& limit // the limit for allowed deviations of floating point types
 	) const override {
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
-		const GMarker<marker_type, dim> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		const GDecorator<dim> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
-		GToken token("GBasePlotter", e);
+		GToken token("GDecorator<dim>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GCommonInterfaceT<GMarker<marker_type, dim>>>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GCommonInterfaceT<GDecorator<dim>>>(IDENTITY(*this, *p_load), token);
 
-		// ... and then the local data
-		compare_t(IDENTITY(pos_, p_load->pos_), token);
-		compare_t(IDENTITY(marker_legend_, p_load->marker_legend_), token);
-		compare_t(IDENTITY(dimension_, p_load->dimension_), token);
+		// ... no local data
 
 		// React on deviations from the expectation
 		token.evaluate();
@@ -334,55 +339,39 @@ protected:
 	/**
 	 * Loads the data of another object
 	 */
-	virtual void load_(const GMarker<marker_type, dim>* cp) override {
+	virtual void load_(const GDecorator<dim>* cp) override {
 		// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
-		const GMarker<marker_type, dim> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		const GDecorator<dim> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// No parent class with loadable data
 
-		// Load local data
-		pos_ = p_load->pos_;
-		marker_legend_ = p_load->marker_legend_;
+		// No local data
 	}
 
 	/***************************************************************************/
 	/**
-	 * Creates a deep clone of this object
+	 * Creates a deep clone of this object (this function is purely virtual)
 	 */
-	virtual GMarker<marker_type, dim>* clone_() const override {
-		return new GMarker<marker_type, dim>(*this);
-	}
-
-private:
-	/***************************************************************************/
-	/**
-	 * The default constructor
-	 */
-	GMarker()
-	{ /* nothing */ }
+	virtual GDecorator<dim>* clone_() const override = 0;
 
 	/***************************************************************************/
-	// Local data
-	marker_type pos_ = marker_type(0); ///< The position of the marker
-	std::string marker_legend_ = std::string(); ///< The legend to be added to the marker (if any)
-
-	const std::string dimension_ = boost::lexical_cast<std::string>(dim);
 };
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
- * A collection of markers. The second template argument allows to
- * differentiate between different dimensions. Allowed values are
- * Gem::Common::dimensions::x/y/z/w .
+ * This class acts as a container of decorator objects. It is derived from
+ * GStdPtrVectorInterfaceT and may thus be treated like a std::vector of
+ * std::shared_ptr<GDecorator> .
+ *
+ * TODO: "dimensions" is wrong here, at least with the current definition x,y,z,w
  */
-template<typename marker_type, Gem::Common::dimensions dim>
-class GMarkerCollection {
-	// Make sure this class may only be instantiated for arithmetic types
-	static_assert(
-		std::is_arithmetic<marker_type>::value
-		, "GMarkerCollection should only be instantiated with arithmetic types!"
-	);
-
+template <Gem::Common::dimensions dim>
+class GDecoratorContainer
+	: public Gem::Common::GCommonInterfaceT<GDecoratorContainer<dim>>
+	, public Gem::Common::GStdPtrVectorInterfaceT<GDecorator<dim>, GDecorator<dim>>
+{
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
@@ -391,13 +380,139 @@ class GMarkerCollection {
 		using boost::serialization::make_nvp;
 
 		ar
-		& BOOST_SERIALIZATION_NVP(markers_);
+		& make_nvp("GStdPtrVectorInterfaceT_GDecorator", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<GDecorator<dim>, GDecorator<dim>>>(*this))
+		& make_nvp("GCommonInterfaceT_GDecoratorContainer", boost::serialization::base_object<GCommonInterfaceT<GDecoratorContainer<dim>>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
+
 public:
+	/***************************************************************************/
+	/**
+	 * The default constructor
+	 */
+	GDecoratorContainer()
+	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * The copy constructor
+	 */
+	GDecoratorContainer(const GDecoratorContainer<dim>& cp)
+		: GStdPtrVectorInterfaceT<GDecorator<dim>, GDecorator<dim>>(cp)
+		, GCommonInterfaceT<GDecoratorContainer<dim>>(cp)
+	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * The destructor
+	 */
+	virtual ~GDecoratorContainer()
+	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * The assignment operator
+	 */
+	const GDecoratorContainer<dim>& operator=(const GDecoratorContainer<dim>& cp) {
+		this->load_(&cp);
+		return *this;
+	};
+
+	/***************************************************************************/
+	/**
+ 	 * Checks for equality with another GDecoratorContainer<dim> object
+ 	 *
+ 	 * @param  cp A constant reference to another GDecoratorContainer<dim> object
+  	 * @return A boolean indicating whether both objects are equal
+ 	 */
+	bool operator==(const GDecoratorContainer<dim>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch (g_expectation_violation &) {
+			return false;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GDecoratorContainer<dim> object
+	 *
+	 * @param  cp A constant reference to another GDecoratorContainer<dim> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GDecoratorContainer<dim>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch (g_expectation_violation &) {
+			return false;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Returns the name of this class
+	 */
+	virtual std::string name() const override {
+		return std::string("GDecoratorContainer<dim>");
+	}
+
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 */
+	virtual void compare(
+		const GDecoratorContainer<dim>& cp // the other object
+		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
+		, const double& limit // the limit for allowed deviations of floating point types
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
+		const GDecoratorContainer<dim> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		GToken token("GDecoratorContainer<dim>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base<GCommonInterfaceT<GDecoratorContainer<dim>>>(IDENTITY(*this, *p_load), token);
+
+		// ... and then the local data. Actually this allows us to compare
+		// the second parent class without directly calling it.
+		compare_t(IDENTITY(this->data,  p_load->data), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
+
 protected:
-	std::vector<std::shared_ptr<GMarker<marker_type, dim>>> markers_;
+	/***************************************************************************/
+	/**
+	 * Loads the data of another object
+	 */
+	virtual void load_(const GDecoratorContainer<dim>* cp) override {
+		// Check that we are dealing with a GDecoratorContainer reference independent of this object and convert the pointer
+		const GDecoratorContainer<dim> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		// Load our parent data ...
+		Gem::Common::GStdPtrVectorInterfaceT<GDecorator<dim>, GDecorator<dim>>::operator=(*p_load);
+
+		// ... no local data
+	}
+
+	/***************************************************************************/
+	/**
+	 * Creates a deep clone of this object.
+	 */
+	virtual GDecoratorContainer<dim>* clone_() const override {
+		return new GDecoratorContainer<dim>(*this);
+	}
+
+	/***************************************************************************/
 };
 
 /******************************************************************************/
