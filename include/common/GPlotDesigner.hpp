@@ -392,6 +392,28 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * Allows to add markers to a plot
+ */
+class GMarker
+	: public GDecorator<dimensions::Dim2>
+{
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+
+		ar
+		& make_nvp("GDecorator2", boost::serialization::base_object<GDecorator<dimensions::Dim2>>(*this));
+	}
+	///////////////////////////////////////////////////////////////////////
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * This is the speccialization of GDecorator for 3D-plots (e.g. 2D-histograms, 3D-graphs, ...)
  */
 template<>
