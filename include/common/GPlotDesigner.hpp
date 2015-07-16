@@ -242,7 +242,7 @@ class GDecorator<dimensions::Dim2>
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GCommonInterfaceT_GDecorator", boost::serialization::base_object<GCommonInterfaceT<GDecorator<dimensions::Dim2>>>(*this));
+		& make_nvp("GCommonInterfaceT_GDecorator2", boost::serialization::base_object<GCommonInterfaceT<GDecorator<dimensions::Dim2>>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -346,6 +346,25 @@ public:
 		token.evaluate();
 	}
 
+	/***************************************************************************/
+	/**
+	 * Retrieves the decorator data. Plot boundaries are not taken into account.
+	 */
+	virtual std::string decoratorData() const BASE = 0;
+
+	/***************************************************************************/
+	/**
+	 * Retrieves the decorator data, taking into account externally supplied
+	 * plot boundaries. Decorators will usually not be drawn if they would "live" outside
+	 * of the plot boundaries. Lines will be cut at the boundaries. Text, however, will
+	 * not be affected by the boundaries. This function needs to be implemented by derived
+	 * classes. The "double" types will be cast to integer where needed.
+	 */
+	virtual std::string decoratorData(
+		const std::tuple<double, double>& x_axis_range
+		, const std::tuple<double, double>& y_axis_range
+	) const BASE = 0;
+
 protected:
 	/***************************************************************************/
 	/**
@@ -387,7 +406,7 @@ class GDecorator<dimensions::Dim3>
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GCommonInterfaceT_GDecorator", boost::serialization::base_object<GCommonInterfaceT<GDecorator<dimensions::Dim3>>>(*this));
+		& make_nvp("GCommonInterfaceT_GDecorator3", boost::serialization::base_object<GCommonInterfaceT<GDecorator<dimensions::Dim3>>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -491,6 +510,26 @@ public:
 		token.evaluate();
 	}
 
+	/***************************************************************************/
+	/**
+	 * Retrieves the decorator data. Plot boundaries are not taken into account.
+	 */
+	virtual std::string decoratorData() const BASE = 0;
+
+	/***************************************************************************/
+	/**
+	 * Retrieves the decorator data, taking into account externally supplied
+	 * plot boundaries. Decorators will usually not be drawn if they would "live" outside
+	 * of the plot boundaries. Lines will be cut at the boundaries. Text, however, will
+	 * not be affected by the boundaries. This function needs to be implemented by derived
+	 * classes. The "double" types will be cast to integer where needed.
+	 */
+	virtual std::string decoratorData(
+		const std::tuple<double, double>& x_axis_range
+		, const std::tuple<double, double>& y_axis_range
+		, const std::tuple<double, double>& z_axis_range
+	) const BASE = 0;
+
 protected:
 	/***************************************************************************/
 	/**
@@ -547,8 +586,8 @@ class GDecoratorContainer<Gem::Common::dimensions::Dim2>
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GStdPtrVectorInterfaceT_GDecorator", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<GDecorator<dimensions::Dim2>, GDecorator<dimensions::Dim2>>>(*this))
-		& make_nvp("GCommonInterfaceT_GDecoratorContainer", boost::serialization::base_object<GCommonInterfaceT<GDecoratorContainer<dimensions::Dim2>>>(*this));
+		& make_nvp("GStdPtrVectorInterfaceT_GDecorator2", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<GDecorator<dimensions::Dim2>, GDecorator<dimensions::Dim2>>>(*this))
+		& make_nvp("GCommonInterfaceT_GDecoratorContainer2", boost::serialization::base_object<GCommonInterfaceT<GDecoratorContainer<dimensions::Dim2>>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -656,6 +695,42 @@ public:
 		token.evaluate();
 	}
 
+	/***************************************************************************/
+	/**
+	 * Retrieves the decorator data of all decorators. Plot boundaries are
+	 * not taken into account.
+	 */
+	virtual std::string decoratorData() const BASE {
+		std::string result;
+
+		for(auto decorator_ptr: *this) {
+			result += decorator_ptr->GDecorator<dimensions::Dim2>::decoratorData();
+		}
+
+		return result;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Retrieves the decorator data of all decorators, taking into account externally supplied
+	 * plot boundaries. Decorators will usually not be drawn if they would "live" outside
+	 * of the plot boundaries. Lines will be cut at the boundaries. Text, however, will
+	 * not be affected by the boundaries. This function needs to be implemented by derived
+	 * classes. The "double" types will be cast to integer where needed.
+	 */
+	virtual std::string decoratorData(
+		const std::tuple<double, double>& x_axis_range
+		, const std::tuple<double, double>& y_axis_range
+	) const BASE {
+		std::string result;
+
+		for(auto decorator_ptr: *this) {
+			result += decorator_ptr->GDecorator<dimensions::Dim2>::decoratorData(x_axis_range, y_axis_range);
+		}
+
+		return result;
+	}
+
 protected:
 	/***************************************************************************/
 	/**
@@ -698,7 +773,7 @@ protected:
 template <>
 class GDecoratorContainer <Gem::Common::dimensions::Dim3>
 	: public Gem::Common::GCommonInterfaceT<GDecoratorContainer<dimensions::Dim3>>
-		, public Gem::Common::GStdPtrVectorInterfaceT<GDecorator<dimensions::Dim3>, GDecorator<dimensions::Dim3>>
+	, public Gem::Common::GStdPtrVectorInterfaceT<GDecorator<dimensions::Dim3>, GDecorator<dimensions::Dim3>>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -708,8 +783,8 @@ class GDecoratorContainer <Gem::Common::dimensions::Dim3>
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GStdPtrVectorInterfaceT_GDecorator", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<GDecorator<dimensions::Dim3>, GDecorator<dimensions::Dim3>>>(*this))
-		& make_nvp("GCommonInterfaceT_GDecoratorContainer", boost::serialization::base_object<GCommonInterfaceT<GDecoratorContainer<dimensions::Dim3>>>(*this));
+		& make_nvp("GStdPtrVectorInterfaceT_GDecorator3", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<GDecorator<dimensions::Dim3>, GDecorator<dimensions::Dim3>>>(*this))
+		& make_nvp("GCommonInterfaceT_GDecoratorContainer3", boost::serialization::base_object<GCommonInterfaceT<GDecoratorContainer<dimensions::Dim3>>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -815,6 +890,43 @@ public:
 
 		// React on deviations from the expectation
 		token.evaluate();
+	}
+
+	/***************************************************************************/
+	/**
+	 * Retrieves the decorator data of all decorators. Plot boundaries are
+	 * not taken into account.
+	 */
+	virtual std::string decoratorData() const BASE {
+		std::string result;
+
+		for(auto decorator_ptr: *this) {
+			result += decorator_ptr->GDecorator<dimensions::Dim3>::decoratorData();
+		}
+
+		return result;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Retrieves the decorator data of all decorators, taking into account externally supplied
+	 * plot boundaries. Decorators will usually not be drawn if they would "live" outside
+	 * of the plot boundaries. Lines will be cut at the boundaries. Text, however, will
+	 * not be affected by the boundaries. This function needs to be implemented by derived
+	 * classes. The "double" types will be cast to integer where needed.
+	 */
+	virtual std::string decoratorData(
+		const std::tuple<double, double>& x_axis_range
+		, const std::tuple<double, double>& y_axis_range
+		, const std::tuple<double, double>& z_axis_range
+	) const BASE {
+		std::string result;
+
+		for(auto decorator_ptr: *this) {
+			result += decorator_ptr->GDecorator<dimensions::Dim3>::decoratorData(x_axis_range, y_axis_range, z_axis_range);
+		}
+
+		return result;
 	}
 
 protected:
