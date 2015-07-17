@@ -41,7 +41,7 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor. Data members are initialized in the class boddy.
+ * The default constructor. Data members are initialized in the class body.
  */
 GBasePlotter::GBasePlotter()
 { /* nothing */ }
@@ -356,13 +356,15 @@ void GBasePlotter::load_(const GBasePlotter* cp) {
 
 /******************************************************************************/
 /**
- * Retrieve specific header settings for this plot
+ * Retrieve header settings for this plot (and any sub-plots)
  */
-std::string GBasePlotter::headerData_() const {
+std::string GBasePlotter::headerData(const std::string& indent) const {
 	std::ostringstream header_data;
 
 	// Add this plot's data
-	header_data << this->headerData(false, 0);
+	header_data
+	<< indent << "// Header data for primary plotter" << std::endl
+	<< this->headerData_(false, 0, indent);
 
 	// Extract data from the secondary plotters, if any
 	std::size_t pos = 0;
@@ -374,8 +376,8 @@ std::string GBasePlotter::headerData_() const {
 
 		// We parent id 0 is reserved for primary plotters
 		header_data
-		<< "  // Header data for secondary plotter " << pos << " of " << this->getPlotterName() << std::endl
-		<< (*cit)->headerData(true, this->id()) << std::endl;
+		<< indent << "// Header data for secondary plotter " << pos << " of " << this->getPlotterName() << std::endl
+		<< (*cit)->headerData_(true, this->id(), indent) << std::endl;
 
 		pos++;
 	}
@@ -385,20 +387,22 @@ std::string GBasePlotter::headerData_() const {
 
 /******************************************************************************/
 /**
- * Retrieves the actual data sets
+ * Retrieves body / data settings for this plot (and any sub-plots)
  */
-std::string GBasePlotter::bodyData_() const {
+std::string GBasePlotter::bodyData(const std::string& indent) const {
 	std::ostringstream body_data;
 
 	// Add this plot's data
-	body_data << this->bodyData(false, 0);
+	body_data
+	<< indent << "// Body data for primary plotter" << std::endl
+	<< this->bodyData_(false, 0, indent);
 
 	// Extract data from the secondary plotters, if any
 	std::size_t pos = 0;
 	for (auto plotter_ptr: secondaryPlotter_) { // std::shared_ptr may be copied
 		body_data
-		<< "  // Body data for secondary plotter " << pos << " of " << this->getPlotterName() << std::endl
-		<< plotter_ptr->bodyData(true, this->id()) << std::endl;
+		<< indent << "// Body data for secondary plotter " << pos << " of " << this->getPlotterName() << std::endl
+		<< plotter_ptr->bodyData_(true, this->id(), indent) << std::endl;
 
 		pos++;
 	}
@@ -408,13 +412,15 @@ std::string GBasePlotter::bodyData_() const {
 
 /******************************************************************************/
 /**
- * Retrieves specific draw commands for this plot
+ * Retrieves footer / drawing settings for this plot (and any sub-plots)
  */
-std::string GBasePlotter::footerData_() const {
+std::string GBasePlotter::footerData(const std::string& indent) const {
 	std::ostringstream footer_data;
 
 	// Add this plot's data
-	footer_data << this->footerData(false, 0);
+	footer_data
+	<< indent << "// Fooder data for primary plotter" << std::endl
+	<< this->footerData_(false, 0, indent);
 
 	// Extract data from the secondary plotters, if any
 	std::size_t pos = 0;
@@ -422,8 +428,8 @@ std::string GBasePlotter::footerData_() const {
 	cit;
 	for (cit = secondaryPlotter_.begin(); cit != secondaryPlotter_.end(); ++cit) {
 		footer_data
-		<< "  // Footer data for secondary plotter " << pos << " of " << this->getPlotterName() << std::endl
-		<< (*cit)->footerData(true, this->id()) << std::endl;
+		<< indent << "// Footer data for secondary plotter " << pos << " of " << this->getPlotterName() << std::endl
+		<< (*cit)->footerData_(true, this->id(), indent) << std::endl;
 
 		pos++;
 	}
@@ -590,7 +596,11 @@ void GGraph2D::compare(
 /**
  * Retrieve specific header settings for this plot
  */
-std::string GGraph2D::headerData(bool isSecondary, std::size_t pId) const {
+std::string GGraph2D::headerData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	std::ostringstream header_data;
 
 	// Set up suitable arrays for the header
@@ -606,9 +616,8 @@ std::string GGraph2D::headerData(bool isSecondary, std::size_t pId) const {
 	}
 
 	header_data
-	<< "  double " << xArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" <<
-	(comment != "" ? comment : "") << std::endl
-	<< "  double " << yArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
+	<< indent << "double " << xArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << (comment != "" ? comment : "") << std::endl
+	<< indent << "double " << yArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
 	<< std::endl;
 
 	return header_data.str();
@@ -618,7 +627,11 @@ std::string GGraph2D::headerData(bool isSecondary, std::size_t pId) const {
 /**
  * Retrieves the actual data sets
  */
-std::string GGraph2D::bodyData(bool isSecondary, std::size_t pId) const {
+std::string GGraph2D::bodyData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	std::ostringstream body_data;
 
 	// Set up suitable arrays for the header
@@ -638,9 +651,7 @@ std::string GGraph2D::bodyData(bool isSecondary, std::size_t pId) const {
 	std::size_t posCounter = 0;
 
 	for (it = data_.begin(); it != data_.end(); ++it) {
-		body_data
-		<< "  " << xArrayName << "[" << posCounter << "] = " << std::get<0>(*it) << ";" << "\t" << yArrayName << "[" <<
-		posCounter << "] = " << std::get<1>(*it) << ";" << std::endl;
+		body_data << indent << xArrayName << "[" << posCounter << "] = " << std::get<0>(*it) << ";" << "\t" << yArrayName << "[" << posCounter << "] = " << std::get<1>(*it) << ";" << std::endl;
 
 		posCounter++;
 	}
@@ -653,7 +664,11 @@ std::string GGraph2D::bodyData(bool isSecondary, std::size_t pId) const {
 /**
  * Retrieves specific draw commands for this plot
  */
-std::string GGraph2D::footerData(bool isSecondary, std::size_t pId) const {
+std::string GGraph2D::footerData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	std::ostringstream footer_data;
 
 	// Set up suitable arrays for the header
@@ -675,21 +690,20 @@ std::string GGraph2D::footerData(bool isSecondary, std::size_t pId) const {
 
 	// Fill the data in our tuple-vector into a ROOT TGraph object
 	footer_data
-	<< "  TGraph *" << graphName << " = new TGraph(" << data_.size() << ", " << xArrayName << ", " << yArrayName <<
-	");" << std::endl
-	<< "  " << graphName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
-	<< "  " << graphName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl;
+	<< indent << "TGraph *" << graphName << " = new TGraph(" << data_.size() << ", " << xArrayName << ", " << yArrayName << ");" << std::endl
+	<< indent << graphName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+	<< indent << graphName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl;
 
 	if (plot_label_ != "") {
 		footer_data
-		<< "  " << graphName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+		<< indent << graphName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
 	} else {
 		footer_data
-		<< "  " << graphName << "->SetTitle(\" \");" << std::endl;
+		<< indent << graphName << "->SetTitle(\" \");" << std::endl;
 	}
 
 	footer_data
-	<< "  " << graphName << "->Draw(\"" << dA << "\");" << std::endl
+	<< indent << graphName << "->Draw(\"" << dA << "\");" << std::endl
 	<< std::endl;
 
 	if (drawArrows_ && data_.size() >= 2) {
@@ -705,10 +719,9 @@ std::string GGraph2D::footerData(bool isSecondary, std::size_t pId) const {
 			y2 = std::get<1>(*it);
 
 			footer_data
-			<< "  TArrow * ta_" << graphName << "_" << posCounter << " = new TArrow(" << x1 << ", " << y1 << "," << x2 <<
-			", " << y2 << ", " << 0.05 << ", \"|>\");" << std::endl
-			<< "  ta_" << graphName << "_" << posCounter << "->SetArrowSize(0.01);" << std::endl
-			<< "  ta_" << graphName << "_" << posCounter << "->Draw();" << std::endl;
+			<< indent << "TArrow * ta_" << graphName << "_" << posCounter << " = new TArrow(" << x1 << ", " << y1 << "," << x2 << ", " << y2 << ", " << 0.05 << ", \"|>\");" << std::endl
+			<< indent << "ta_" << graphName << "_" << posCounter << "->SetArrowSize(0.01);" << std::endl
+			<< indent << "ta_" << graphName << "_" << posCounter << "->Draw();" << std::endl;
 
 			x1 = x2;
 			y1 = y2;
@@ -909,7 +922,11 @@ void GGraph2ED::compare(
 /**
  * Retrieve specific header settings for this plot
  */
-std::string GGraph2ED::headerData(bool isSecondary, std::size_t pId) const {
+std::string GGraph2ED::headerData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	std::ostringstream header_data;
 
 	// Set up suitable arrays for the header
@@ -927,10 +944,10 @@ std::string GGraph2ED::headerData(bool isSecondary, std::size_t pId) const {
 	}
 
 	header_data
-	<< "  double " << xArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << comment << std::endl
-	<< "  double " << exArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
-	<< "  double " << yArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
-	<< "  double " << eyArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
+	<< indent << "double " << xArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << comment << std::endl
+	<< indent << "double " << exArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
+	<< indent << "double " << yArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
+	<< indent << "double " << eyArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
 	<< std::endl;
 
 	return header_data.str();
@@ -940,7 +957,11 @@ std::string GGraph2ED::headerData(bool isSecondary, std::size_t pId) const {
 /**
  * Retrieves the actual data sets
  */
-std::string GGraph2ED::bodyData(bool isSecondary, std::size_t pId) const {
+std::string GGraph2ED::bodyData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	std::ostringstream body_data;
 
 	// Set up suitable arrays for the header
@@ -963,10 +984,10 @@ std::string GGraph2ED::bodyData(bool isSecondary, std::size_t pId) const {
 
 	for (it = data_.begin(); it != data_.end(); ++it) {
 		body_data
-		<< "  " << xArrayName << "[" << posCounter << "] = " << std::get<0>(*it) << ";" << std::endl
-		<< "  " << exArrayName << "[" << posCounter << "] = " << std::get<1>(*it) << ";" << std::endl
-		<< "  " << yArrayName << "[" << posCounter << "] = " << std::get<2>(*it) << ";" << std::endl
-		<< "  " << eyArrayName << "[" << posCounter << "] = " << std::get<3>(*it) << ";" << std::endl;
+		<< indent << xArrayName << "[" << posCounter << "] = " << std::get<0>(*it) << ";" << std::endl
+		<< indent << exArrayName << "[" << posCounter << "] = " << std::get<1>(*it) << ";" << std::endl
+		<< indent << yArrayName << "[" << posCounter << "] = " << std::get<2>(*it) << ";" << std::endl
+		<< indent << eyArrayName << "[" << posCounter << "] = " << std::get<3>(*it) << ";" << std::endl;
 
 		posCounter++;
 	}
@@ -979,7 +1000,11 @@ std::string GGraph2ED::bodyData(bool isSecondary, std::size_t pId) const {
 /**
  * Retrieves specific draw commands for this plot
  */
-std::string GGraph2ED::footerData(bool isSecondary, std::size_t pId) const {
+std::string GGraph2ED::footerData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	std::ostringstream footer_data;
 
 	// Set up suitable arrays for the header
@@ -1004,21 +1029,20 @@ std::string GGraph2ED::footerData(bool isSecondary, std::size_t pId) const {
 
 	// Fill the data in our tuple-vector into a ROOT TGraphErrors object
 	footer_data
-	<< "  TGraphErrors *" << graphName << " = new TGraphErrors(" << data_.size() << ", " << xArrayName << ", " <<
-	yArrayName << ", " << exArrayName << " ," << eyArrayName << ");" << std::endl
-	<< "  " << graphName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
-	<< "  " << graphName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl;
+	<< indent << "TGraphErrors *" << graphName << " = new TGraphErrors(" << data_.size() << ", " << xArrayName << ", " << yArrayName << ", " << exArrayName << " ," << eyArrayName << ");" << std::endl
+	<< indent << graphName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+	<< indent << graphName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl;
 
 	if (plot_label_ != "") {
 		footer_data
-		<< "  " << graphName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+		<< indent << graphName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
 	} else {
 		footer_data
-		<< "  " << graphName << "->SetTitle(\" \");" << std::endl;
+		<< indent << graphName << "->SetTitle(\" \");" << std::endl;
 	}
 
 	footer_data
-	<< "  " << graphName << "->Draw(\"" << dA << "\");" << std::endl
+	<< indent << graphName << "->Draw(\"" << dA << "\");" << std::endl
 	<< std::endl;
 
 	return footer_data.str();
@@ -1208,7 +1232,11 @@ void GGraph3D::compare(
 /**
  * Retrieve specific header settings for this plot
  */
-std::string GGraph3D::headerData(bool isSecondary, std::size_t pId) const {
+std::string GGraph3D::headerData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	std::ostringstream header_data;
 
 	// Set up suitable arrays for the header
@@ -1225,10 +1253,9 @@ std::string GGraph3D::headerData(bool isSecondary, std::size_t pId) const {
 	}
 
 	header_data
-	<< "  double " << xArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" <<
-	(comment != "" ? comment : "") << std::endl
-	<< "  double " << yArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
-	<< "  double " << zArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
+	<< indent << "double " << xArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << (comment != "" ? comment : "") << std::endl
+	<< indent << "double " << yArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
+	<< indent << "double " << zArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
 	<< std::endl;
 
 	return header_data.str();
@@ -1238,7 +1265,11 @@ std::string GGraph3D::headerData(bool isSecondary, std::size_t pId) const {
 /**
  * Retrieves the actual data sets
  */
-std::string GGraph3D::bodyData(bool isSecondary, std::size_t pId) const {
+std::string GGraph3D::bodyData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	std::ostringstream body_data;
 
 	// Set up suitable arrays for the header
@@ -1260,7 +1291,7 @@ std::string GGraph3D::bodyData(bool isSecondary, std::size_t pId) const {
 
 	for (it = data_.begin(); it != data_.end(); ++it) {
 		body_data
-		<< "  " << xArrayName << "[" << posCounter << "] = " << std::get<0>(*it) << ";" << "\t"
+		<< indent << xArrayName << "[" << posCounter << "] = " << std::get<0>(*it) << ";" << "\t"
 		<< yArrayName << "[" << posCounter << "] = " << std::get<1>(*it) << ";" << "\t"
 		<< zArrayName << "[" << posCounter << "] = " << std::get<2>(*it) << ";" << std::endl;
 
@@ -1275,7 +1306,11 @@ std::string GGraph3D::bodyData(bool isSecondary, std::size_t pId) const {
 /**
  * Retrieves specific draw commands for this plot
  */
-std::string GGraph3D::footerData(bool isSecondary, std::size_t pId) const {
+std::string GGraph3D::footerData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	std::ostringstream footer_data;
 
 	// Set up suitable arrays for the header
@@ -1299,28 +1334,25 @@ std::string GGraph3D::footerData(bool isSecondary, std::size_t pId) const {
 
 	// Fill the data in our tuple-vector into a ROOT TGraph object
 	footer_data
-	<< "  TGraph2D *" << graphName << " = new TGraph2D(" << data_.size() << ", " << xArrayName << ", " << yArrayName <<
-	", " << zArrayName << ");" << std::endl
-	<< "  " << graphName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
-	<< "  " << graphName << "->GetXaxis()->SetTitleOffset(1.5);" << std::endl
-	<< "  " << graphName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
-	<< "  " << graphName << "->GetYaxis()->SetTitleOffset(1.5);" << std::endl
-	<< "  " << graphName << "->GetZaxis()->SetTitle(\"" << zAxisLabel() << "\");" << std::endl
-	<< "  " << graphName << "->GetZaxis()->SetTitleOffset(1.5);" << std::endl
-	<< "  " << graphName << "->SetMarkerStyle(20);" << std::endl
-	<< "  " << graphName << "->SetMarkerSize(1);" << std::endl
-	<< "  " << graphName << "->SetMarkerColor(2);" << std::endl;
+	<< indent << "TGraph2D *" << graphName << " = new TGraph2D(" << data_.size() << ", " << xArrayName << ", " << yArrayName <<  ", " << zArrayName << ");" << std::endl
+	<< indent << graphName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+	<< indent << graphName << "->GetXaxis()->SetTitleOffset(1.5);" << std::endl
+	<< indent << graphName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
+	<< indent << graphName << "->GetYaxis()->SetTitleOffset(1.5);" << std::endl
+	<< indent << graphName << "->GetZaxis()->SetTitle(\"" << zAxisLabel() << "\");" << std::endl
+	<< indent << graphName << "->GetZaxis()->SetTitleOffset(1.5);" << std::endl
+	<< indent << graphName << "->SetMarkerStyle(20);" << std::endl
+	<< indent << graphName << "->SetMarkerSize(1);" << std::endl
+	<< indent << graphName << "->SetMarkerColor(2);" << std::endl;
 
 	if (plot_label_ != "") {
-		footer_data
-		<< "  " << graphName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+		footer_data << indent << graphName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
 	} else {
-		footer_data
-		<< "  " << graphName << "->SetTitle(\" \");" << std::endl;
+		footer_data << indent << graphName << "->SetTitle(\" \");" << std::endl;
 	}
 
 	footer_data
-	<< "  " << graphName << "->Draw(\"" << dA << "\");" << std::endl
+	<< indent << graphName << "->Draw(\"" << dA << "\");" << std::endl
 	<< std::endl;
 
 	if (drawLines_ && data_.size() >= 2) {
@@ -1330,7 +1362,7 @@ std::string GGraph3D::footerData(bool isSecondary, std::size_t pId) const {
 		double x, y, z;
 
 		footer_data
-		<< "  TPolyLine3D *lines_" << graphName << " = new TPolyLine3D(" << data_.size() << ");" << std::endl
+		<< indent << "TPolyLine3D *lines_" << graphName << " = new TPolyLine3D(" << data_.size() << ");" << std::endl
 		<< std::endl;
 
 		for (it = data_.begin() + 1; it != data_.end(); ++it) {
@@ -1339,14 +1371,14 @@ std::string GGraph3D::footerData(bool isSecondary, std::size_t pId) const {
 			z = std::get<2>(*it);
 
 			footer_data
-			<< "  lines_" << graphName << "->SetPoint(" << posCounter << ", " << x << ", " << y << ", " << z << ");";
+			<< indent << "lines_" << graphName << "->SetPoint(" << posCounter << ", " << x << ", " << y << ", " << z << ");";
 
 			posCounter++;
 		}
 		footer_data
 		<< std::endl
-		<< "  lines_" << graphName << "->SetLineWidth(3);" << std::endl
-		<< "  lines_" << graphName << "->Draw();" << std::endl
+		<< indent << "lines_" << graphName << "->SetLineWidth(3);" << std::endl
+		<< indent << "lines_" << graphName << "->Draw();" << std::endl
 		<< std::endl;
 	}
 
@@ -1598,7 +1630,11 @@ void GGraph4D::compare(
 /**
  * Retrieve specific header settings for this plot
  */
-std::string GGraph4D::headerData(bool isSecondary, std::size_t pId) const {
+std::string GGraph4D::headerData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	std::ostringstream header_data;
 
 	// nothing
@@ -1610,7 +1646,11 @@ std::string GGraph4D::headerData(bool isSecondary, std::size_t pId) const {
 /**
  * Retrieves the actual data sets
  */
-std::string GGraph4D::bodyData(bool isSecondary, std::size_t pId) const {
+std::string GGraph4D::bodyData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	std::ostringstream body_data;
 
 	// nothing
@@ -1622,7 +1662,11 @@ std::string GGraph4D::bodyData(bool isSecondary, std::size_t pId) const {
 /**
  * Retrieves specific draw commands for this plot
  */
-std::string GGraph4D::footerData(bool isSecondary, std::size_t pId) const {
+std::string GGraph4D::footerData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	std::vector<std::tuple<double, double, double, double>> localData = data_;
 
 	std::string baseName = suffix(isSecondary, pId);
@@ -1654,19 +1698,19 @@ std::string GGraph4D::footerData(bool isSecondary, std::size_t pId) const {
 
 	// Set up TView object for our 3D data, spanning the minimum and maximum values
 	footer_data
-	<< "  TH3F *fr = new TH3F(\"fr\",\"fr\","
+	<< indent << "TH3F *fr = new TH3F(\"fr\",\"fr\","
 	<< "10, " << std::get<0>(minMax) << ", " << std::get<1>(minMax) << ", "
 	<< "10, " << std::get<2>(minMax) << ", " << std::get<3>(minMax) << ", "
 	<< "10, " << std::get<4>(minMax) << ", " << std::get<5>(minMax) << ");" << std::endl
-	<< "  fr->SetTitle(\" \");" << std::endl
-	<< "  fr->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
-	<< "  fr->GetXaxis()->SetTitleOffset(1.6);" << std::endl
-	<< "  fr->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
-	<< "  fr->GetYaxis()->SetTitleOffset(1.6);" << std::endl
-	<< "  fr->GetZaxis()->SetTitle(\"" << zAxisLabel() << "\");" << std::endl
-	<< "  fr->GetZaxis()->SetTitleOffset(1.6);" << std::endl
+	<< indent << "fr->SetTitle(\" \");" << std::endl
+	<< indent << "fr->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+	<< indent << "fr->GetXaxis()->SetTitleOffset(1.6);" << std::endl
+	<< indent << "fr->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
+	<< indent << "fr->GetYaxis()->SetTitleOffset(1.6);" << std::endl
+	<< indent << "fr->GetZaxis()->SetTitle(\"" << zAxisLabel() << "\");" << std::endl
+	<< indent << "fr->GetZaxis()->SetTitleOffset(1.6);" << std::endl
 	<< std::endl
-	<< "  fr->Draw();" << std::endl;
+	<< indent << "fr->Draw();" << std::endl;
 
 	double wMin = std::get<6>(minMax);
 	double wMax = std::get<7>(minMax);
@@ -1681,7 +1725,7 @@ std::string GGraph4D::footerData(bool isSecondary, std::size_t pId) const {
 
 		// create a TPolyMarker3D for a single data point
 		footer_data
-		<< "  TPolyMarker3D *" << polyMarkerName << " = new TPolyMarker3D(1);" << std::endl;
+		<< indent << "TPolyMarker3D *" << polyMarkerName << " = new TPolyMarker3D(1);" << std::endl;
 
 		double x = std::get<0>(*it);
 		double y = std::get<1>(*it);
@@ -1702,12 +1746,11 @@ std::string GGraph4D::footerData(bool isSecondary, std::size_t pId) const {
 		}
 
 		footer_data
-		<< "  " << polyMarkerName << "->SetPoint(" << pos << ", " << x << ", " << y << ", " << z << "); // w = " << w <<
-		std::endl
-		<< "  " << polyMarkerName << "->SetMarkerSize(" << markerSize << ");" << std::endl
-		<< "  " << polyMarkerName << "->SetMarkerColor(" << (0 == pos ? 4 : 2) << ");" << std::endl
-		<< "  " << polyMarkerName << "->SetMarkerStyle(8);" << std::endl
-		<< "  " << polyMarkerName << "->Draw();" << std::endl
+		<< indent << polyMarkerName << "->SetPoint(" << pos << ", " << x << ", " << y << ", " << z << "); // w = " << w << std::endl
+		<< indent << polyMarkerName << "->SetMarkerSize(" << markerSize << ");" << std::endl
+		<< indent << polyMarkerName << "->SetMarkerColor(" << (0 == pos ? 4 : 2) << ");" << std::endl
+		<< indent << polyMarkerName << "->SetMarkerStyle(8);" << std::endl
+		<< indent << polyMarkerName << "->Draw();" << std::endl
 		<< std::endl;
 
 		pos++;
@@ -1855,7 +1898,11 @@ bool GHistogram1D::operator!=(const GHistogram1D &cp) const {
 /**
  * Retrieve specific header settings for this plot
  */
-std::string GHistogram1D::headerData(bool isSecondary, std::size_t pId) const {
+std::string GHistogram1D::headerData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	std::ostringstream header_data;
 
 	std::string comment;
@@ -1866,7 +1913,7 @@ std::string GHistogram1D::headerData(bool isSecondary, std::size_t pId) const {
 	std::string histName = "histD" + suffix(isSecondary, pId);
 
 	header_data
-	<< "  TH1D *" << histName << " = new TH1D(\"" << histName << "\", \"" << histName << "\"," << nBinsX_ << ", " <<
+	<< indent << "TH1D *" << histName << " = new TH1D(\"" << histName << "\", \"" << histName << "\"," << nBinsX_ << ", " <<
 	minX_ << ", " << maxX_ << ");" << (comment != "" ? comment : "") << std::endl
 	<< std::endl;
 
@@ -1877,7 +1924,11 @@ std::string GHistogram1D::headerData(bool isSecondary, std::size_t pId) const {
 /**
  * Retrieves the actual data sets
  */
-std::string GHistogram1D::bodyData(bool isSecondary, std::size_t pId) const {
+std::string GHistogram1D::bodyData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	std::ostringstream body_data;
 
 	std::string comment;
@@ -1893,7 +1944,7 @@ std::string GHistogram1D::bodyData(bool isSecondary, std::size_t pId) const {
 	std::size_t posCounter = 0;
 	for (it = data_.begin(); it != data_.end(); ++it) {
 		body_data
-		<< "  " << histName << "->Fill(" << *it << ");" << (posCounter == 0 ? comment : ("")) << std::endl;
+		<< indent << histName << "->Fill(" << *it << ");" << (posCounter == 0 ? comment : ("")) << std::endl;
 		posCounter++;
 	}
 	body_data << std::endl;
@@ -1905,17 +1956,19 @@ std::string GHistogram1D::bodyData(bool isSecondary, std::size_t pId) const {
 /**
  * Retrieves specific draw commands for this plot
  */
-std::string GHistogram1D::footerData(bool isSecondary, std::size_t pId) const {
+std::string GHistogram1D::footerData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	std::ostringstream footer_data;
 
 	std::string histName = "histD" + suffix(isSecondary, pId);
 
 	if (plot_label_ != "") {
-		footer_data
-		<< "  " << histName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+		footer_data << indent << histName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
 	} else {
-		footer_data
-		<< "  " << histName << "->SetTitle(\" \");" << std::endl;
+		footer_data << indent << histName << "->SetTitle(\" \");" << std::endl;
 	}
 
 	std::string comment;
@@ -1927,9 +1980,9 @@ std::string GHistogram1D::footerData(bool isSecondary, std::size_t pId) const {
 	std::string dA = this->drawingArguments(isSecondary);
 
 	footer_data
-	<< "  " << histName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
-	<< "  " << histName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
-	<< "  " << histName << "->Draw(\"" << dA << "\");" << std::endl
+	<< indent << histName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+	<< indent << histName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
+	<< indent << histName << "->Draw(\"" << dA << "\");" << std::endl
 	<< std::endl;
 
 	return footer_data.str();
@@ -2154,7 +2207,11 @@ bool GHistogram1I::operator!=(const GHistogram1I &cp) const {
 /**
  * Retrieve specific header settings for this plot
  */
-std::string GHistogram1I::headerData(bool isSecondary, std::size_t pId) const {
+std::string GHistogram1I::headerData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	std::ostringstream header_data;
 
 	std::string comment;
@@ -2165,7 +2222,7 @@ std::string GHistogram1I::headerData(bool isSecondary, std::size_t pId) const {
 	std::string histName = "histI" + suffix(isSecondary, pId);
 
 	header_data
-	<< "  TH1I *" << histName << " = new TH1I(\"" << histName << "\", \"" << histName << "\"," << nBinsX_ << ", " <<
+	<< indent << "TH1I *" << histName << " = new TH1I(\"" << histName << "\", \"" << histName << "\"," << nBinsX_ << ", " <<
 	minX_ << ", " << maxX_ << ");" << (comment != "" ? comment : "") << std::endl
 	<< std::endl;
 
@@ -2176,7 +2233,11 @@ std::string GHistogram1I::headerData(bool isSecondary, std::size_t pId) const {
 /**
  * Retrieves the actual data sets
  */
-std::string GHistogram1I::bodyData(bool isSecondary, std::size_t pId) const {
+std::string GHistogram1I::bodyData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	std::ostringstream body_data;
 
 	std::string comment;
@@ -2192,7 +2253,7 @@ std::string GHistogram1I::bodyData(bool isSecondary, std::size_t pId) const {
 	std::size_t posCounter = 0;
 	for (it = data_.begin(); it != data_.end(); ++it) {
 		body_data
-		<< "  " << histName << "->Fill(" << *it << ");" << (posCounter == 0 ? comment : ("")) << std::endl;
+		<< indent << histName << "->Fill(" << *it << ");" << (posCounter == 0 ? comment : ("")) << std::endl;
 		posCounter++;
 	}
 
@@ -2205,17 +2266,21 @@ std::string GHistogram1I::bodyData(bool isSecondary, std::size_t pId) const {
 /**
  * Retrieves specific draw commands for this plot
  */
-std::string GHistogram1I::footerData(bool isSecondary, std::size_t pId) const {
+std::string GHistogram1I::footerData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	std::ostringstream footer_data;
 
 	std::string histName = "histI" + suffix(isSecondary, pId);
 
 	if (plot_label_ != "") {
 		footer_data
-		<< "  " << histName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+		<< indent << histName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
 	} else {
 		footer_data
-		<< "  " << histName << "->SetTitle(\" \");" << std::endl;
+		<< indent << histName << "->SetTitle(\" \");" << std::endl;
 	}
 
 	std::string comment;
@@ -2227,9 +2292,9 @@ std::string GHistogram1I::footerData(bool isSecondary, std::size_t pId) const {
 	std::string dA = this->drawingArguments(isSecondary);
 
 	footer_data
-	<< "  " << histName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
-	<< "  " << histName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
-	<< "  " << histName << "->Draw(\"" << dA << "\");" << std::endl
+	<< indent << histName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+	<< indent << histName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
+	<< indent << histName << "->Draw(\"" << dA << "\");" << std::endl
 	<< std::endl;
 
 	return footer_data.str();
@@ -2470,7 +2535,11 @@ bool GHistogram2D::operator!=(const GHistogram2D &cp) const {
 /**
  * Retrieve specific header settings for this plot
  */
-std::string GHistogram2D::headerData(bool isSecondary, std::size_t pId) const {
+std::string GHistogram2D::headerData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	std::ostringstream header_data;
 
 	std::string comment;
@@ -2481,7 +2550,7 @@ std::string GHistogram2D::headerData(bool isSecondary, std::size_t pId) const {
 	std::string histName = "hist2D" + suffix(isSecondary, pId);
 
 	header_data
-	<< "  TH2D *"
+	<< indent << "TH2D *"
 	<< histName
 	<< " = new TH2D(\""
 	<< histName
@@ -2511,7 +2580,11 @@ std::string GHistogram2D::headerData(bool isSecondary, std::size_t pId) const {
 /**
  * Retrieves the actual data sets
  */
-std::string GHistogram2D::bodyData(bool isSecondary, std::size_t pId) const {
+std::string GHistogram2D::bodyData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	std::ostringstream body_data;
 
 	std::string comment;
@@ -2527,7 +2600,7 @@ std::string GHistogram2D::bodyData(bool isSecondary, std::size_t pId) const {
 	std::size_t posCounter = 0;
 	for (it = data_.begin(); it != data_.end(); ++it) {
 		body_data
-		<< "  " << histName << "->Fill(" << std::get<0>(*it) << ", " << std::get<1>(*it) << ");" <<
+		<< indent << histName << "->Fill(" << std::get<0>(*it) << ", " << std::get<1>(*it) << ");" <<
 		(posCounter == 0 ? comment : ("")) << std::endl;
 		posCounter++;
 	}
@@ -2541,17 +2614,21 @@ std::string GHistogram2D::bodyData(bool isSecondary, std::size_t pId) const {
 /**
  * Retrieves specific draw commands for this plot
  */
-std::string GHistogram2D::footerData(bool isSecondary, std::size_t pId) const {
+std::string GHistogram2D::footerData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	std::ostringstream footer_data;
 
 	std::string histName = "hist2D" + suffix(isSecondary, pId);
 
 	if (plot_label_ != "") {
 		footer_data
-		<< "  " << histName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+		<< indent << histName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
 	} else {
 		footer_data
-		<< "  " << histName << "->SetTitle(\" \");" << std::endl;
+		<< indent << histName << "->SetTitle(\" \");" << std::endl;
 	}
 
 	std::string comment;
@@ -2563,9 +2640,9 @@ std::string GHistogram2D::footerData(bool isSecondary, std::size_t pId) const {
 	std::string dA = this->drawingArguments(isSecondary);
 
 	footer_data
-	<< "  " << histName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
-	<< "  " << histName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
-	<< "  " << histName << "->Draw(\"" << dA << "\");" << std::endl
+	<< indent << histName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+	<< indent << histName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
+	<< indent << histName << "->Draw(\"" << dA << "\");" << std::endl
 	<< std::endl;
 
 	return footer_data.str();
@@ -2950,11 +3027,15 @@ void GFunctionPlotter1D::compare(
  *
  * @return The code to be added to the plot header for this function
  */
-std::string GFunctionPlotter1D::headerData(bool isSecondary, std::size_t pId) const {
+std::string GFunctionPlotter1D::headerData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	// Check the extreme values for consistency
 	if (std::get<0>(xExtremes_) >= std::get<1>(xExtremes_)) {
 		glogger
-		<< "In GFunctionPlotter1D::headerData(): Error!" << std::endl
+		<< "In GFunctionPlotter1D::headerData_(): Error!" << std::endl
 		<< "lower boundary >= upper boundary: " << std::get<0>(xExtremes_) << " / " << std::get<1>(xExtremes_) <<
 		std::endl
 		<< GEXCEPTION;
@@ -2968,7 +3049,7 @@ std::string GFunctionPlotter1D::headerData(bool isSecondary, std::size_t pId) co
 	}
 
 	std::string functionName = "func1D" + suffix(isSecondary, pId);
-	result << "  TF1 *" << functionName << " = new TF1(\"" << functionName << "\", \"" << functionDescription_ <<
+	result << indent << "TF1 *" << functionName << " = new TF1(\"" << functionName << "\", \"" << functionDescription_ <<
 	"\"," << std::get<0>(xExtremes_) << ", " << std::get<1>(xExtremes_) << ");" << (comment != "" ? comment : "") <<
 	std::endl;
 
@@ -2981,7 +3062,11 @@ std::string GFunctionPlotter1D::headerData(bool isSecondary, std::size_t pId) co
  *
  * @return The code to be added to the plot's data section for this function
  */
-std::string GFunctionPlotter1D::bodyData(bool isSecondary, std::size_t pId) const {
+std::string GFunctionPlotter1D::bodyData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	// No data needs to be added for a function plotter
 	return std::string();
 }
@@ -2992,7 +3077,11 @@ std::string GFunctionPlotter1D::bodyData(bool isSecondary, std::size_t pId) cons
  *
  * @return The draw command to be added to the plot's data for this function
  */
-std::string GFunctionPlotter1D::footerData(bool isSecondary, std::size_t pId) const {
+std::string GFunctionPlotter1D::footerData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	std::ostringstream footer_data;
 
 	std::string comment;
@@ -3002,22 +3091,22 @@ std::string GFunctionPlotter1D::footerData(bool isSecondary, std::size_t pId) co
 
 	std::string functionName = "func1D" + suffix(isSecondary, pId);
 	footer_data
-	<< "  " << functionName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
-	<< "  " << functionName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
-	<< "  " << functionName << "->SetNpx(" << nSamplesX_ << ");" << std::endl;
+	<< indent << functionName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+	<< indent << functionName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
+	<< indent << functionName << "->SetNpx(" << nSamplesX_ << ");" << std::endl;
 
 	if (plot_label_ != "") {
 		footer_data
-		<< "  " << functionName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+		<< indent << functionName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
 	} else {
 		footer_data
-		<< "  " << functionName << "->SetTitle(\" \");" << std::endl;
+		<< indent << functionName << "->SetTitle(\" \");" << std::endl;
 	}
 
 	std::string dA = this->drawingArguments(isSecondary);
 
 	footer_data
-	<< "  " << functionName << "->Draw(" << dA << ");" << (comment != "" ? comment : "") << std::endl
+	<< indent << functionName << "->Draw(" << dA << ");" << (comment != "" ? comment : "") << std::endl
 	<< std::endl;
 
 	return footer_data.str();
@@ -3227,11 +3316,15 @@ void GFunctionPlotter2D::compare(
  *
  * @return The code to be added to the plot header for this function
  */
-std::string GFunctionPlotter2D::headerData(bool isSecondary, std::size_t pId) const {
+std::string GFunctionPlotter2D::headerData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	// Check the extreme values for consistency
 	if (std::get<0>(xExtremes_) >= std::get<1>(xExtremes_)) {
 		glogger
-		<< "In GFunctionPlotter2D::headerData(): Error!" << std::endl
+		<< "In GFunctionPlotter2D::headerData_(): Error!" << std::endl
 		<< "lower boundary(x) >= upper boundary(x): " << std::get<0>(xExtremes_) << " / " <<
 		std::get<1>(xExtremes_) << std::endl
 		<< GEXCEPTION;
@@ -3239,7 +3332,7 @@ std::string GFunctionPlotter2D::headerData(bool isSecondary, std::size_t pId) co
 
 	if (std::get<0>(yExtremes_) >= std::get<1>(yExtremes_)) {
 		glogger
-		<< "In GFunctionPlotter2D::headerData(): Error!" << std::endl
+		<< "In GFunctionPlotter2D::headerData_(): Error!" << std::endl
 		<< "lower boundary(y) >= upper boundary(y): " << std::get<0>(yExtremes_) << " / " <<
 		std::get<1>(yExtremes_) << std::endl
 		<< GEXCEPTION;
@@ -3254,7 +3347,7 @@ std::string GFunctionPlotter2D::headerData(bool isSecondary, std::size_t pId) co
 
 	std::string functionName = "func2D" + suffix(isSecondary, pId);
 	result
-	<< "  TF2 *"
+	<< indent << "TF2 *"
 	<< functionName
 	<< " = new TF2(\""
 	<< functionName << "\", \""
@@ -3280,7 +3373,11 @@ std::string GFunctionPlotter2D::headerData(bool isSecondary, std::size_t pId) co
  *
  * @return The code to be added to the plot's data section for this function
  */
-std::string GFunctionPlotter2D::bodyData(bool isSecondary, std::size_t pId) const {
+std::string GFunctionPlotter2D::bodyData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	// No data needs to be added for a function plotter
 	return std::string();
 }
@@ -3291,7 +3388,11 @@ std::string GFunctionPlotter2D::bodyData(bool isSecondary, std::size_t pId) cons
  *
  * @return The draw command to be added to the plot's data for this function
  */
-std::string GFunctionPlotter2D::footerData(bool isSecondary, std::size_t pId) const {
+std::string GFunctionPlotter2D::footerData_(
+	bool isSecondary
+	, std::size_t pId
+	, const std::string& indent
+) const {
 	std::ostringstream footer_data;
 
 	std::string comment;
@@ -3301,24 +3402,24 @@ std::string GFunctionPlotter2D::footerData(bool isSecondary, std::size_t pId) co
 
 	std::string functionName = "func2D" + suffix(isSecondary, pId);
 	footer_data
-	<< "  " << functionName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
-	<< "  " << functionName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
-	<< "  " << functionName << "->GetZaxis()->SetTitle(\"" << zAxisLabel() << "\");" << std::endl
-	<< "  " << functionName << "->SetNpx(" << nSamplesX_ << ");" << std::endl
-	<< "  " << functionName << "->SetNpy(" << nSamplesY_ << ");" << std::endl;
+	<< indent << functionName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+	<< indent << functionName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
+	<< indent << functionName << "->GetZaxis()->SetTitle(\"" << zAxisLabel() << "\");" << std::endl
+	<< indent << functionName << "->SetNpx(" << nSamplesX_ << ");" << std::endl
+	<< indent << functionName << "->SetNpy(" << nSamplesY_ << ");" << std::endl;
 
 	if (plot_label_ != "") {
 		footer_data
-		<< "  " << functionName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+		<< indent << functionName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
 	} else {
 		footer_data
-		<< "  " << functionName << "->SetTitle(\" \");" << std::endl;
+		<< indent << functionName << "->SetTitle(\" \");" << std::endl;
 	}
 
 	std::string dA = this->drawingArguments(isSecondary);
 
 	footer_data
-	<< "  " << functionName << "->Draw(" << dA << ");" << (comment != "" ? comment : "") << std::endl
+	<< indent << functionName << "->Draw(" << dA << ");" << (comment != "" ? comment : "") << std::endl
 	<< std::endl;
 
 	return footer_data.str();
@@ -3401,6 +3502,7 @@ GPlotDesigner::GPlotDesigner(const GPlotDesigner& cp)
 	, c_y_dim_(cp.c_y_dim_)
 	, canvasLabel_(cp.canvasLabel_)
 	, addPrintCommand_(cp.addPrintCommand_)
+	, nIndentionSpaces_(cp.nIndentionSpaces_)
 {
 	// Copy any secondary plotters over
 	Gem::Common::copyCloneableSmartPointerContainer<GBasePlotter>(cp.plotters_, plotters_);
@@ -3486,12 +3588,12 @@ std::string GPlotDesigner::plot(const boost::filesystem::path &plotName) const {
 
 	result
 	<< "{" << std::endl
-	<< staticHeader()
+	<< staticHeader(indent())
 	<< std::endl;
 
 	// Plot all body sections up to the maximum allowed number
 	result
-	<< "  //===================  Header Section ====================" << std::endl
+	<< indent() << "//===================  Header Section ====================" << std::endl
 	<< std::endl;
 
 	// Plot all headers up to the maximum allowed number
@@ -3501,42 +3603,42 @@ std::string GPlotDesigner::plot(const boost::filesystem::path &plotName) const {
 	for (it = plotters_.begin(); it != plotters_.end(); ++it) {
 		if (nPlots++ < maxPlots) {
 			result
-			<< (*it)->headerData_() << std::endl;
+			<< (*it)->headerData(indent()) << std::endl;
 		}
 	}
 
 	// Plot all body sections up to the maximum allowed number
 	result
-	<< "  //===================  Data Section ======================" << std::endl
+	<< indent() << "//===================  Data Section ======================" << std::endl
 	<< std::endl;
 
 	nPlots = 0;
 	for (it = plotters_.begin(); it != plotters_.end(); ++it) {
 		if (nPlots++ < maxPlots) {
 			result
-			<< (*it)->bodyData_() << std::endl;
+			<< (*it)->bodyData(indent()) << std::endl;
 		}
 	}
 
 	// Plot all footer data up to the maximum allowed number
 	result
-	<< "  //===================  Plot Section ======================" << std::endl
+	<< indent() << "//===================  Plot Section ======================" << std::endl
 	<< std::endl;
 
 	nPlots = 0;
 	for (it = plotters_.begin(); it != plotters_.end(); ++it) {
 		if (nPlots < maxPlots) {
 			result
-			<< "  graphPad->cd(" << nPlots + 1 << ");" << std::endl /* cd starts at 1 */
-			<< (*it)->footerData_() << std::endl;
+			<< indent() << "graphPad->cd(" << nPlots + 1 << ");" << std::endl /* cd starts at 1 */
+			<< (*it)->footerData(indent()) << std::endl;
 
 			nPlots++;
 		}
 	}
 
 	result
-	<< "  graphPad->cd();" << std::endl
-	<< "  cc->cd();" << std::endl;
+	<< indent() << "graphPad->cd();" << std::endl
+	<< indent() << "cc->cd();" << std::endl;
 
 	// Check if we are supposed to output a png file
 	if (addPrintCommand_ && plotName.string() != "empty" && !(plotName.string()).empty()) {
@@ -3544,8 +3646,8 @@ std::string GPlotDesigner::plot(const boost::filesystem::path &plotName) const {
 		boost::trim(plotName_local);
 		result
 		<< std::endl
-		<< "  // Print out the data of this file to a png file" << std::endl
-		<< "  cc->Print(\"" << plotName_local << ".png\");" << std::endl;
+		<< indent() << "// Print out the data of this file to a png file" << std::endl
+		<< indent() << "cc->Print(\"" << plotName_local << ".png\");" << std::endl;
 	}
 
 	result
@@ -3558,23 +3660,23 @@ std::string GPlotDesigner::plot(const boost::filesystem::path &plotName) const {
 /**
  * A default header for a ROOT file
  */
-std::string GPlotDesigner::staticHeader() const {
+std::string GPlotDesigner::staticHeader(const std::string& indent) const {
 	std::ostringstream result;
 
 	result
-	<< "  gROOT->Reset();" << std::endl
-	<< "  gStyle->SetCanvasColor(0);" << std::endl
-	<< "  gStyle->SetStatBorderSize(1);" << std::endl
-	<< "  gStyle->SetOptStat(0);" << std::endl
+	<< indent << "gROOT->Reset();" << std::endl
+	<< indent << "gStyle->SetCanvasColor(0);" << std::endl
+	<< indent << "gStyle->SetStatBorderSize(1);" << std::endl
+	<< indent << "gStyle->SetOptStat(0);" << std::endl
 	<< std::endl
-	<< "  TCanvas *cc = new TCanvas(\"cc\", \"cc\",0,0," << c_x_dim_ << "," << c_y_dim_ << ");" << std::endl
+	<< indent << "TCanvas *cc = new TCanvas(\"cc\", \"cc\",0,0," << c_x_dim_ << "," << c_y_dim_ << ");" << std::endl
 	<< std::endl
-	<< "  TPaveLabel* canvasTitle = new TPaveLabel(0.2,0.95,0.8,0.99, \"" << canvasLabel_ << "\");" << std::endl
-	<< "  canvasTitle->Draw();" << std::endl
+	<< indent << "TPaveLabel* canvasTitle = new TPaveLabel(0.2,0.95,0.8,0.99, \"" << canvasLabel_ << "\");" << std::endl
+	<< indent << "canvasTitle->Draw();" << std::endl
 	<< std::endl
-	<< "  TPad* graphPad = new TPad(\"Graphs\", \"Graphs\", 0.01, 0.01, 0.99, 0.94);" << std::endl
-	<< "  graphPad->Draw();" << std::endl
-	<< "  graphPad->Divide(" << c_x_div_ << "," << c_y_div_ << ");" << std::endl
+	<< indent << "TPad* graphPad = new TPad(\"Graphs\", \"Graphs\", 0.01, 0.01, 0.99, 0.94);" << std::endl
+	<< indent << "graphPad->Draw();" << std::endl
+	<< indent << "graphPad->Divide(" << c_x_div_ << "," << c_y_div_ << ");" << std::endl
 	<< std::endl;
 
 	return result.str();
@@ -3669,6 +3771,32 @@ bool GPlotDesigner::getAddPrintCommand() const {
 
 /******************************************************************************/
 /**
+ * Allows to set the number of spaces used for indention
+ */
+void GPlotDesigner::setNIndentionSpaces(
+	const std::size_t& nIndentionSpaces
+) {
+	nIndentionSpaces_ = nIndentionSpaces;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the number spaces used for indention
+ */
+std::size_t GPlotDesigner::getNIndentionSpaces() const {
+	return nIndentionSpaces_;
+}
+
+/******************************************************************************/
+/**
+ * Returns the current number of indention spaces as a string
+ */
+std::string GPlotDesigner::indent() const {
+	return std::string(nIndentionSpaces_, ' ');
+}
+
+/******************************************************************************/
+/**
  * Resets the plotters
  */
 void GPlotDesigner::resetPlotters() {
@@ -3711,6 +3839,7 @@ void GPlotDesigner::compare(
 	compare_t(IDENTITY(c_y_dim_, p_load->c_y_dim_), token);
 	compare_t(IDENTITY(canvasLabel_, p_load->canvasLabel_), token);
 	compare_t(IDENTITY(addPrintCommand_, p_load->addPrintCommand_), token);
+	compare_t(IDENTITY(nIndentionSpaces_, p_load->nIndentionSpaces_), token);
 
 	// React on deviations from the expectation
 	token.evaluate();
@@ -3742,6 +3871,7 @@ void GPlotDesigner::load_(const GPlotDesigner* cp) {
 	c_y_dim_           = p_load->c_y_dim_;
 	canvasLabel_       = p_load->canvasLabel_;
 	addPrintCommand_   = p_load->addPrintCommand_;
+	nIndentionSpaces_  = p_load->nIndentionSpaces_;
 }
 
 /******************************************************************************/

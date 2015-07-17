@@ -114,12 +114,12 @@ enum class gColor {
  */
 enum class gMarker {
 	none = 0
-	, opencircle = 4
-	, closedcircle = 20
-	, closedtriangle = 22
-	, opentriangle = 26
-	, closedstar = 29
-	, openstar = 30
+	, openCircle = 4
+	, closedCircle = 20
+	, closedTriangle = 22
+	, openTriangle = 26
+	, closedStar = 29
+	, openStar = 30
 };
 
 /******************************************************************************/
@@ -186,6 +186,8 @@ const std::uint32_t DEFCYDIM = 768;
 
 const std::uint32_t DEFCXDIV = 1;
 const std::uint32_t DEFCYDIV = 1;
+
+const std::size_t DEFNINDENTIONSPACES = 3;
 
 const std::size_t DEFNSAMPLES = 100;
 
@@ -403,17 +405,193 @@ class GMarker
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int){
+	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GDecorator2<dimensions::Dim2, coordinate_type>", boost::serialization::base_object<GDecorator<dimensions::Dim2, coordinate_type>>(*this));
+		& make_nvp("GDecorator2<dimensions::Dim2, coordinate_type>", boost::serialization::base_object<GDecorator<dimensions::Dim2, coordinate_type>>(*this))
+		& BOOST_SERIALIZATION_NVP(coordinates_)
+		& BOOST_SERIALIZATION_NVP(marker_)
+		& BOOST_SERIALIZATION_NVP(color_)
+		& BOOST_SERIALIZATION_NVP(size_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
+	/***************************************************************************/
+	/**
+	 * The standard constructor, which takes all essential data for this
+	 * decorator type.
+	 */
+	GMarker(
+		const std::tuple<coordinate_type, coordinate_type>& coordinates
+		, const gMarker& marker
+		, const gColor& color
+		, const double& size
+	)
+		: coordinates_(coordinates)
+		, marker_(marker)
+		, color_(color)
+		, size_(size)
+	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * The copy constructor
+	 */
+	GMarker(const GMarker<coordinate_type>& cp)
+		: coordinates_(cp.coordinates_)
+		, marker_(cp.marker_)
+		, color_(cp.color_)
+		, size_(cp.size_)
+	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * The destructor
+	 */
+	virtual ~GMarker()
+	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * The assignment operator
+	 */
+	const GMarker<coordinate_type>& operator=(const GMarker<coordinate_type>& cp) {
+		this->load_(&cp);
+		return *this;
+	};
+
+	/***************************************************************************/
+	/**
+ 	 * Checks for equality with another GMarker object
+ 	 *
+ 	 * @param  cp A constant reference to another GMarker object
+  	 * @return A boolean indicating whether both objects are equal
+ 	 */
+	bool operator==(const GMarker<coordinate_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch (g_expectation_violation &) {
+			return false;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Checks for inequality with another GMarker object
+	 *
+	 * @param  cp A constant reference to another GMarker object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GMarker<coordinate_type>& cp) const {
+		using namespace Gem::Common;
+		try {
+			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			return true;
+		} catch (g_expectation_violation &) {
+			return false;
+		}
+	}
+
+	/***************************************************************************/
+	/**
+	 * Returns the name of this class
+	 */
+	virtual std::string name() const override {
+		return std::string("GMarker<coordinate_type>");
+	}
+
+	/***************************************************************************/
+	/**
+	 * Searches for compliance with expectations with respect to another object
+	 * of the same type
+	 */
+	virtual void compare(
+		const GDecorator<dimensions::Dim2, coordinate_type>& cp // the other object
+		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
+		, const double& limit // the limit for allowed deviations of floating point types
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
+		const GMarker<coordinate_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		GToken token("GMarker<coordinate_type>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base<GDecorator<dimensions::Dim2, coordinate_type>>(IDENTITY(*this, *p_load), token);
+
+		// ... and then our local data
+		compare_t(IDENTITY(this->coordinates_,  p_load->coordinates_), token);
+		compare_t(IDENTITY(this->marker_,  p_load->marker_), token);
+		compare_t(IDENTITY(this->color_,  p_load->color_), token);
+		compare_t(IDENTITY(this->size_,  p_load->size_), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
+
+	/***************************************************************************/
+	/**
+	 * Retrieves the decorator data. Plot boundaries are not taken into account.
+	 */
+	virtual std::string decoratorData() const override {
+		std::string result;
+
+
+
+		return result;
+	}
+
+
+protected:
+	/***************************************************************************/
+	/**
+	 * Loads the data of another object
+	 */
+	virtual void load_(const GDecorator<dimensions::Dim2, coordinate_type>* cp) override {
+		// Check that we are dealing with a GDecoratorContainer reference independent of this object and convert the pointer
+		const GMarker *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		// Load our parent data ...
+		GDecorator<dimensions::Dim2, coordinate_type>::load_(cp);
+
+		// ... and then our local data
+		coordinates_ = p_load->coordinates_;
+		marker_ = p_load->cp.marker_;
+		color_ = p_load->color_;
+		size_ = p_load->size_;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Creates a deep clone of this object.
+	 */
+	virtual GMarker<coordinate_type>* clone_() const override {
+		return new GMarker<coordinate_type>(*this);
+	}
+
 
 private:
+	/***************************************************************************/
+	/**
+	 * The default constructor -- intentionally private, as it is only needed
+	 * for de-serialization.
+	 */
+	GMarker()
+	{ /* nothing */ }
+
+	/***************************************************************************/
+	// Local data ...
+
+	std::tuple<coordinate_type, coordinate_type> coordinates_; ///< The coordinates of the marker
+
+	gMarker marker_ = gMarker::closedCircle; ///< Denotes the type of markers to be drawn
+	gColor color_ = gColor::black; ///< The color of the marker
+	double size_ = 0.05; ///< The size of the marker
 };
 
 /******************************************************************************/
@@ -1002,8 +1180,6 @@ protected:
 class GBasePlotter
 	: public Gem::Common::GCommonInterfaceT<GBasePlotter>
 {
-	friend class GPlotDesigner;
-
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
@@ -1086,6 +1262,15 @@ public:
 		, const double& // the limit for allowed deviations of floating point types
 	) const override;
 
+	/***************************************************************************/
+
+	/** @brief Retrieve header settings for this plot (and any sub-plots) */
+	std::string headerData(const std::string&) const;
+	/** @brief Retrieves body / data settings for this plot (and any sub-plots) */
+	std::string bodyData(const std::string&) const;
+	/** @brief Retrieves footer / drawing settings for this plot (and any sub-plots) */
+	std::string footerData(const std::string&) const;
+
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another object */
@@ -1097,13 +1282,11 @@ protected:
 	// Functions to be specified in derived classes
 
 	/** @brief Retrieve specific header settings for this plot */
-	virtual G_API_COMMON std::string headerData(bool, std::size_t) const BASE = 0;
-
+	virtual G_API_COMMON std::string headerData_(bool, std::size_t, const std::string&) const BASE = 0;
 	/** @brief Retrieves the actual data sets */
-	virtual G_API_COMMON std::string bodyData(bool, std::size_t) const BASE = 0;
-
+	virtual G_API_COMMON std::string bodyData_(bool, std::size_t, const std::string&) const BASE = 0;
 	/** @brief retrieves specific draw commands for this plot */
-	virtual G_API_COMMON std::string footerData(bool, std::size_t) const BASE = 0;
+	virtual G_API_COMMON std::string footerData_(bool, std::size_t, const std::string&) const BASE = 0;
 
 	/** @brief Retrieve the current drawing arguments */
 	virtual G_API_COMMON std::string drawingArguments(bool) const BASE = 0;
@@ -1129,17 +1312,6 @@ protected:
 	std::vector<line> lines_; ///< Lines to be drawn into the drawing area
 
 private:
-	/***************************************************************************/
-
-	/** @brief Retrieve specific header settings for this plot */
-	std::string headerData_() const;
-
-	/** @brief Retrieves the actual data sets */
-	std::string bodyData_() const;
-
-	/** @brief Retrieves specific draw commands for this plot */
-	std::string footerData_() const;
-
 	/***************************************************************************/
 
 	/** @brief A list of plotters that should emit their data into the same canvas */
@@ -1467,13 +1639,11 @@ public:
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData(bool, std::size_t) const override;
-
+	virtual std::string headerData_(bool, std::size_t, const std::string&) const override;
 	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData(bool, std::size_t) const override;
-
+	virtual std::string bodyData_(bool, std::size_t, const std::string&) const override;
 	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData(bool, std::size_t) const override;
+	virtual std::string footerData_(bool, std::size_t, const std::string&) const override;
 
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const override;
@@ -1563,13 +1733,11 @@ protected:
 	virtual G_API_COMMON GBasePlotter* clone_() const override;
 
 	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData(bool, std::size_t) const override;
-
+	virtual std::string headerData_(bool, std::size_t, const std::string&) const override;
 	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData(bool, std::size_t) const override;
-
+	virtual std::string bodyData_(bool, std::size_t, const std::string&) const override;
 	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData(bool, std::size_t) const override;
+	virtual std::string footerData_(bool, std::size_t, const std::string&) const override;
 
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const override;
@@ -2326,13 +2494,11 @@ public:
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData(bool, std::size_t) const override;
-
+	virtual std::string headerData_(bool, std::size_t, const std::string&) const override;
 	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData(bool, std::size_t) const override;
-
+	virtual std::string bodyData_(bool, std::size_t, const std::string&) const override;
 	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData(bool, std::size_t) const override;
+	virtual std::string footerData_(bool, std::size_t, const std::string&) const override;
 
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const override;
@@ -2418,13 +2584,11 @@ public:
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData(bool, std::size_t) const override;
-
+	virtual std::string headerData_(bool, std::size_t, const std::string&) const override;
 	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData(bool, std::size_t) const override;
-
+	virtual std::string bodyData_(bool, std::size_t, const std::string&) const override;
 	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData(bool, std::size_t) const override;
+	virtual std::string footerData_(bool, std::size_t, const std::string&) const override;
 
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const override;
@@ -2495,13 +2659,11 @@ public:
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData(bool, std::size_t) const override;
-
+	virtual std::string headerData_(bool, std::size_t, const std::string&) const override;
 	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData(bool, std::size_t) const override;
-
+	virtual std::string bodyData_(bool, std::size_t, const std::string&) const override;
 	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData(bool, std::size_t) const override;
+	virtual std::string footerData_(bool, std::size_t, const std::string&) const override;
 
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const override;
@@ -3003,13 +3165,11 @@ public:
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData(bool, std::size_t) const override;
-
+	virtual std::string headerData_(bool, std::size_t, const std::string&) const override;
 	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData(bool, std::size_t) const override;
-
+	virtual std::string bodyData_(bool, std::size_t, const std::string&) const override;
 	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData(bool, std::size_t) const override;
+	virtual std::string footerData_(bool, std::size_t, const std::string&) const override;
 
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const override;
@@ -3605,13 +3765,11 @@ public:
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData(bool, std::size_t) const override;
-
+	virtual std::string headerData_(bool, std::size_t, const std::string&) const override;
 	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData(bool, std::size_t) const override;
-
+	virtual std::string bodyData_(bool, std::size_t, const std::string&) const override;
 	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData(bool, std::size_t) const override;
+	virtual std::string footerData_(bool, std::size_t, const std::string&) const override;
 
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const override;
@@ -3691,13 +3849,11 @@ public:
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData(bool, std::size_t) const override;
-
+	virtual std::string headerData_(bool, std::size_t, const std::string&) const override;
 	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData(bool, std::size_t) const override;
-
+	virtual std::string bodyData_(bool, std::size_t, const std::string&) const override;
 	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData(bool, std::size_t) const override;
+	virtual std::string footerData_(bool, std::size_t, const std::string&) const override;
 
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const override;
@@ -3721,7 +3877,8 @@ private:
  * A wrapper for the ROOT TF2 2d-function plotter
  */
 class GFunctionPlotter2D
-	: public GBasePlotter {
+	: public GBasePlotter
+{
 
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -3780,13 +3937,11 @@ public:
 
 protected:
 	/** @brief Retrieve specific header settings for this plot */
-	virtual std::string headerData(bool, std::size_t) const override;
-
+	virtual std::string headerData_(bool, std::size_t, const std::string&) const override;
 	/** @brief Retrieves the actual data sets */
-	virtual std::string bodyData(bool, std::size_t) const override;
-
+	virtual std::string bodyData_(bool, std::size_t, const std::string&) const override;
 	/** @brief Retrieves specific draw commands for this plot */
-	virtual std::string footerData(bool, std::size_t) const override;
+	virtual std::string footerData_(bool, std::size_t, const std::string&) const override;
 
 	/** @brief Retrieve the current drawing arguments */
 	virtual std::string drawingArguments(bool) const override;
@@ -3816,6 +3971,25 @@ private:
 class GPlotDesigner
 	: public GCommonInterfaceT<GPlotDesigner>
 {
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
+
+		ar
+		& make_nvp("GCommonInterfaceT_GPlotDesigner", boost::serialization::base_object<GCommonInterfaceT<GPlotDesigner>>(*this))
+		& BOOST_SERIALIZATION_NVP(c_x_div_)
+		& BOOST_SERIALIZATION_NVP(c_y_div_)
+		& BOOST_SERIALIZATION_NVP(c_x_dim_)
+		& BOOST_SERIALIZATION_NVP(c_y_dim_)
+		& BOOST_SERIALIZATION_NVP(canvasLabel_)
+		& BOOST_SERIALIZATION_NVP(addPrintCommand_)
+		& BOOST_SERIALIZATION_NVP(nIndentionSpaces_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
 public:
 	/** @brief The standard constructor */
 	G_API_COMMON GPlotDesigner(
@@ -3864,6 +4038,14 @@ public:
 	/** @brief Resets the plotters */
 	G_API_COMMON void resetPlotters();
 
+	/** @brief Allows to set the number of spaces used for indention */
+	void setNIndentionSpaces(const std::size_t&);
+	/** @brief Allows to retrieve the number spaces used for indention */
+	std::size_t getNIndentionSpaces() const;
+
+	/** @brief Returns the current number of indention spaces as a string */
+	std::string indent() const;
+
 	/** @brief Returns the name of this class */
 	virtual G_API_COMMON std::string name() const override;
 
@@ -3879,7 +4061,7 @@ private:
 	GPlotDesigner() = delete;
 
 	/** @brief A header for static data in a ROOT file */
-	std::string staticHeader() const;
+	std::string staticHeader(const std::string&) const;
 
 	/** @brief Loads the data of another object */
 	virtual G_API_COMMON void load_(const GPlotDesigner*) override;
@@ -3894,6 +4076,8 @@ private:
 	std::string canvasLabel_ = std::string("empty"); ///< A label to be assigned to the entire canvas
 
 	bool addPrintCommand_ = false; ///< Indicates whether a print command for the creation of a png file should be added
+
+	std::size_t nIndentionSpaces_ = std::size_t(DEFNINDENTIONSPACES);
 };
 
 /******************************************************************************/
