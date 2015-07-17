@@ -352,7 +352,7 @@ public:
 	/**
 	 * Retrieves the decorator data. Plot boundaries are not taken into account.
 	 */
-	virtual std::string decoratorData() const BASE = 0;
+	virtual std::string decoratorData(const std::string&, const std::size_t&) const BASE = 0;
 
 	/***************************************************************************/
 	/**
@@ -365,6 +365,8 @@ public:
 	virtual std::string decoratorData(
 		const std::tuple<coordinate_type, coordinate_type>& x_axis_range
 		, const std::tuple<coordinate_type, coordinate_type>& y_axis_range
+		, const std::string& indent
+		, const std::size_t&
 	) const BASE = 0;
 
 protected:
@@ -538,14 +540,50 @@ public:
 	/**
 	 * Retrieves the decorator data. Plot boundaries are not taken into account.
 	 */
-	virtual std::string decoratorData() const override {
-		std::string result;
+	virtual std::string decoratorData(const std::string& indent, const std::size_t& pos) const override {
+		std::ostringstream data;
 
+		data
+		<< indent << "TMarker * tm_" << pos << " = new TMarker("
+		<< boost::numeric_cast<double>(std::get<0>(coordinates_)) << ", "
+		<< boost::numeric_cast<double>(std::get<1>(coordinates_)) << ", "
+		<< marker_ << ");"
+		<< std::endl
+		<< indent << "tm_" << pos << "->SetMarkerColor(" << color_ << ");" << std::endl
+		<< indent << "tm_" << pos << "->SetMarkerSize("  << size_  << ");" << std::endl
+		<< indent << "tm_" << pos << "->Draw();" << std::endl
+		<< std::endl;
 
-
-		return result;
+		return data.str();
 	}
 
+	/***************************************************************************/
+	/**
+	 * Retrieves the decorator data. Plot boundaries are taken into account.
+	 */
+	virtual std::string decoratorData(
+		const std::tuple<coordinate_type, coordinate_type>& x_axis_range
+		, const std::tuple<coordinate_type, coordinate_type>& y_axis_range
+		, const std::string& indent
+		, const std::size_t& pos
+	) const override {
+		coordinate_type marker_x = std::get<0>(coordinates_);
+		coordinate_type marker_y = std::get<1>(coordinates_);
+		coordinate_type x_min    = std::get<0>(x_axis_range);
+		coordinate_type x_max    = std::get<1>(x_axis_range);
+		coordinate_type y_min    = std::get<0>(y_axis_range);
+		coordinate_type y_max    = std::get<1>(y_axis_range);
+
+		// Check if our coordinates are inside of the axis range
+		if(
+			marker_x < x_min || marker_x > x_max
+			|| marker_y < y_min || marker_y > y_max
+		) {
+			return this->decoratorData(indent, pos);
+		} else {
+			return std::string();
+		}
+	}
 
 protected:
 	/***************************************************************************/
@@ -573,7 +611,6 @@ protected:
 	virtual GMarker<coordinate_type>* clone_() const override {
 		return new GMarker<coordinate_type>(*this);
 	}
-
 
 private:
 	/***************************************************************************/
@@ -720,7 +757,7 @@ public:
 	/**
 	 * Retrieves the decorator data. Plot boundaries are not taken into account.
 	 */
-	virtual std::string decoratorData() const BASE = 0;
+	virtual std::string decoratorData(const std::string&, const std::size_t&) const BASE = 0;
 
 	/***************************************************************************/
 	/**
@@ -734,6 +771,8 @@ public:
 		const std::tuple<coordinate_type, coordinate_type>& x_axis_range
 		, const std::tuple<coordinate_type, coordinate_type>& y_axis_range
 		, const std::tuple<coordinate_type, coordinate_type>& z_axis_range
+		, const std::string& indent
+		, const std::size_t& pos
 	) const BASE = 0;
 
 protected:
@@ -906,11 +945,12 @@ public:
 	 * Retrieves the decorator data of all decorators. Plot boundaries are
 	 * not taken into account.
 	 */
-	virtual std::string decoratorData() const BASE {
+	virtual std::string decoratorData(const std::string& indent) const BASE {
 		std::string result;
 
+		std::size_t pos = 0;
 		for(auto decorator_ptr: *this) {
-			result += decorator_ptr->GDecorator<dimensions::Dim2, coordinate_type>::decoratorData();
+			result += decorator_ptr->GDecorator<dimensions::Dim2, coordinate_type>::decoratorData(indent, pos++);
 		}
 
 		return result;
@@ -927,11 +967,18 @@ public:
 	virtual std::string decoratorData(
 		const std::tuple<coordinate_type, coordinate_type>& x_axis_range
 		, const std::tuple<coordinate_type, coordinate_type>& y_axis_range
+		, const std::string& indent
 	) const BASE {
 		std::string result;
 
+		std::size_t pos = 0;
 		for(auto decorator_ptr: *this) {
-			result += decorator_ptr->GDecorator<dimensions::Dim2, coordinate_type>::decoratorData(x_axis_range, y_axis_range);
+			result += decorator_ptr->GDecorator<dimensions::Dim2, coordinate_type>::decoratorData(
+				x_axis_range
+				, y_axis_range
+				, indent
+				, pos++
+			);
 		}
 
 		return result;
@@ -1104,11 +1151,12 @@ public:
 	 * Retrieves the decorator data of all decorators. Plot boundaries are
 	 * not taken into account.
 	 */
-	virtual std::string decoratorData() const BASE {
+	virtual std::string decoratorData(const std::string& indent) const BASE {
 		std::string result;
 
+		std::size_t pos = 0;
 		for(auto decorator_ptr: *this) {
-			result += decorator_ptr->GDecorator<dimensions::Dim3, coordinate_type>::decoratorData();
+			result += decorator_ptr->GDecorator<dimensions::Dim3, coordinate_type>::decoratorData(indent, pos++);
 		}
 
 		return result;
@@ -1126,11 +1174,19 @@ public:
 		const std::tuple<coordinate_type, coordinate_type>& x_axis_range
 		, const std::tuple<coordinate_type, coordinate_type>& y_axis_range
 		, const std::tuple<coordinate_type, coordinate_type>& z_axis_range
+		, const std::string& indent
 	) const BASE {
 		std::string result;
 
+		std::size_t pos = 0;
 		for(auto decorator_ptr: *this) {
-			result += decorator_ptr->GDecorator<dimensions::Dim3, coordinate_type>::decoratorData(x_axis_range, y_axis_range, z_axis_range);
+			result += decorator_ptr->GDecorator<dimensions::Dim3, coordinate_type>::decoratorData(
+				x_axis_range
+				, y_axis_range
+				, z_axis_range
+				, indent
+				, pos++
+			);
 		}
 
 		return result;
