@@ -220,7 +220,7 @@ class GPlotDesigner;
  * dimensions, some code duplication is unavoidable. C++ does not allo to add
  * "just" an additional funcion to a template specialization, unfortunately.
  */
-template<Gem::Common::dimensions dim>
+template<Gem::Common::dimensions dim, typename coordinate_type>
 class GDecorator
 { /* nothting */ };
 
@@ -230,9 +230,9 @@ class GDecorator
 /**
  * This is the speccialization of GDecorator for 2D-plots (e.g. histograms, graphs, ...)
  */
-template<>
-class GDecorator<dimensions::Dim2>
-	: public Gem::Common::GCommonInterfaceT<GDecorator<dimensions::Dim2>>
+template<typename coordinate_type>
+class GDecorator<dimensions::Dim2, coordinate_type>
+	: public Gem::Common::GCommonInterfaceT<GDecorator<dimensions::Dim2, coordinate_type>>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -242,7 +242,7 @@ class GDecorator<dimensions::Dim2>
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GCommonInterfaceT_GDecorator2", boost::serialization::base_object<GCommonInterfaceT<GDecorator<dimensions::Dim2>>>(*this));
+		& make_nvp("GCommonInterfaceT_GDecorator2", boost::serialization::base_object<GCommonInterfaceT<GDecorator<dimensions::Dim2, coordinate_type>>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -258,8 +258,8 @@ public:
 	/**
 	 * The copy constructor
 	 */
-	GDecorator(const GDecorator<dimensions::Dim2>& cp)
-		: GCommonInterfaceT<GDecorator<dimensions::Dim2>>(cp)
+	GDecorator(const GDecorator<dimensions::Dim2, coordinate_type>& cp)
+		: GCommonInterfaceT<GDecorator<dimensions::Dim2, coordinate_type>>(cp)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -273,7 +273,7 @@ public:
 	/**
 	 * The assignment operator
 	 */
-	const GDecorator<dimensions::Dim2>& operator=(const GDecorator<dimensions::Dim2>& cp) {
+	const GDecorator<dimensions::Dim2, coordinate_type>& operator=(const GDecorator<dimensions::Dim2, coordinate_type>& cp) {
 		this->load_(&cp);
 		return *this;
 	};
@@ -285,7 +285,7 @@ public:
  	 * @param  cp A constant reference to another GDecorator<dimensions::Dim2> object
   	 * @return A boolean indicating whether both objects are equal
  	 */
-	bool operator==(const GDecorator<dimensions::Dim2>& cp) const {
+	bool operator==(const GDecorator<dimensions::Dim2, coordinate_type>& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -302,7 +302,7 @@ public:
 	 * @param  cp A constant reference to another GDecorator<dimensions::Dim2> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	bool operator!=(const GDecorator<dimensions::Dim2>& cp) const {
+	bool operator!=(const GDecorator<dimensions::Dim2, coordinate_type>& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -317,7 +317,7 @@ public:
 	 * Returns the name of this class
 	 */
 	virtual std::string name() const override {
-		return std::string("GDecorator<dim>");
+		return std::string("GDecorator<Dim2, coordinate_type>");
 	}
 
 	/***************************************************************************/
@@ -326,19 +326,19 @@ public:
 	 * of the same type
 	 */
 	virtual void compare(
-		const GDecorator<dimensions::Dim2>& cp // the other object
+		const GDecorator<dimensions::Dim2, coordinate_type>& cp // the other object
 		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
 		, const double& limit // the limit for allowed deviations of floating point types
 	) const override {
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
-		const GDecorator<dimensions::Dim2> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		const GDecorator<dimensions::Dim2, coordinate_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
-		GToken token("GDecorator<dimensions::Dim2>", e);
+		GToken token("GDecorator<dimensions::Dim2, coordinate_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GCommonInterfaceT<GDecorator<dimensions::Dim2>>>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GCommonInterfaceT<GDecorator<dimensions::Dim2, coordinate_type>>>(IDENTITY(*this, *p_load), token);
 
 		// ... no local data
 
@@ -358,11 +358,11 @@ public:
 	 * plot boundaries. Decorators will usually not be drawn if they would "live" outside
 	 * of the plot boundaries. Lines will be cut at the boundaries. Text, however, will
 	 * not be affected by the boundaries. This function needs to be implemented by derived
-	 * classes. The "double" types will be cast to integer where needed.
+	 * classes.
 	 */
 	virtual std::string decoratorData(
-		const std::tuple<double, double>& x_axis_range
-		, const std::tuple<double, double>& y_axis_range
+		const std::tuple<coordinate_type, coordinate_type>& x_axis_range
+		, const std::tuple<coordinate_type, coordinate_type>& y_axis_range
 	) const BASE = 0;
 
 protected:
@@ -370,9 +370,9 @@ protected:
 	/**
 	 * Loads the data of another object
 	 */
-	virtual void load_(const GDecorator<dimensions::Dim2>* cp) override {
+	virtual void load_(const GDecorator<dimensions::Dim2, coordinate_type>* cp) override {
 		// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
-		const GDecorator<dimensions::Dim2> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		const GDecorator<dimensions::Dim2, coordinate_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// No parent class with loadable data
 
@@ -383,7 +383,7 @@ protected:
 	/**
 	 * Creates a deep clone of this object (this function is purely virtual)
 	 */
-	virtual GDecorator<dimensions::Dim2>* clone_() const override = 0;
+	virtual GDecorator<dimensions::Dim2, coordinate_type>* clone_() const override = 0;
 
 	/***************************************************************************/
 };
@@ -392,10 +392,12 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Allows to add markers to a plot
+ * Allows to add markers of different types to a plot. Note that this class
+ * may only be used for 2D-plots.
  */
+template <typename coordinate_type>
 class GMarker
-	: public GDecorator<dimensions::Dim2>
+	: public GDecorator<dimensions::Dim2, coordinate_type>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -405,20 +407,24 @@ class GMarker
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GDecorator2", boost::serialization::base_object<GDecorator<dimensions::Dim2>>(*this));
+		& make_nvp("GDecorator2<dimensions::Dim2, coordinate_type>", boost::serialization::base_object<GDecorator<dimensions::Dim2, coordinate_type>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
+
+public:
+
+private:
 };
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This is the speccialization of GDecorator for 3D-plots (e.g. 2D-histograms, 3D-graphs, ...)
+ * This is the specialization of GDecorator for 3D-plots (e.g. 2D-histograms, 3D-graphs, ...)
  */
-template<>
-class GDecorator<dimensions::Dim3>
-	: public Gem::Common::GCommonInterfaceT<GDecorator<dimensions::Dim3>>
+template<typename coordinate_type>
+class GDecorator<dimensions::Dim3, coordinate_type>
+	: public Gem::Common::GCommonInterfaceT<GDecorator<dimensions::Dim3, coordinate_type>>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -428,7 +434,7 @@ class GDecorator<dimensions::Dim3>
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GCommonInterfaceT_GDecorator3", boost::serialization::base_object<GCommonInterfaceT<GDecorator<dimensions::Dim3>>>(*this));
+		& make_nvp("GCommonInterfaceT_GDecorator3", boost::serialization::base_object<GCommonInterfaceT<GDecorator<dimensions::Dim3, coordinate_type>>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -444,8 +450,8 @@ public:
 	/**
 	 * The copy constructor
 	 */
-	GDecorator(const GDecorator<dimensions::Dim3>& cp)
-		: GCommonInterfaceT<GDecorator<dimensions::Dim3>>(cp)
+	GDecorator(const GDecorator<dimensions::Dim3, coordinate_type>& cp)
+		: GCommonInterfaceT<GDecorator<dimensions::Dim3, coordinate_type>>(cp)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -459,7 +465,7 @@ public:
 	/**
 	 * The assignment operator
 	 */
-	const GDecorator<dimensions::Dim3>& operator=(const GDecorator<dimensions::Dim3>& cp) {
+	const GDecorator<dimensions::Dim3, coordinate_type>& operator=(const GDecorator<dimensions::Dim3, coordinate_type>& cp) {
 		this->load_(&cp);
 		return *this;
 	};
@@ -471,7 +477,7 @@ public:
  	 * @param  cp A constant reference to another GDecorator<dimensions::Dim3> object
   	 * @return A boolean indicating whether both objects are equal
  	 */
-	bool operator==(const GDecorator<dimensions::Dim3>& cp) const {
+	bool operator==(const GDecorator<dimensions::Dim3, coordinate_type>& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -488,7 +494,7 @@ public:
 	 * @param  cp A constant reference to another GDecorator<dimensions::Dim3> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	bool operator!=(const GDecorator<dimensions::Dim3>& cp) const {
+	bool operator!=(const GDecorator<dimensions::Dim3, coordinate_type>& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -503,7 +509,7 @@ public:
 	 * Returns the name of this class
 	 */
 	virtual std::string name() const override {
-		return std::string("GDecorator<dim>");
+		return std::string("GDecorator<imensions::Dim3, coordinate_type>");
 	}
 
 	/***************************************************************************/
@@ -512,19 +518,19 @@ public:
 	 * of the same type
 	 */
 	virtual void compare(
-		const GDecorator<dimensions::Dim3>& cp // the other object
+		const GDecorator<dimensions::Dim3, coordinate_type>& cp // the other object
 		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
 		, const double& limit // the limit for allowed deviations of floating point types
 	) const override {
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
-		const GDecorator<dimensions::Dim3> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		const GDecorator<dimensions::Dim3, coordinate_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
-		GToken token("GDecorator<dimensions::Dim3>", e);
+		GToken token("GDecorator<dimensions::Dim3, coordinate_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GCommonInterfaceT<GDecorator<dimensions::Dim3>>>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GCommonInterfaceT<GDecorator<dimensions::Dim3,coordinate_type>>>(IDENTITY(*this, *p_load), token);
 
 		// ... no local data
 
@@ -544,12 +550,12 @@ public:
 	 * plot boundaries. Decorators will usually not be drawn if they would "live" outside
 	 * of the plot boundaries. Lines will be cut at the boundaries. Text, however, will
 	 * not be affected by the boundaries. This function needs to be implemented by derived
-	 * classes. The "double" types will be cast to integer where needed.
+	 * classes.
 	 */
 	virtual std::string decoratorData(
-		const std::tuple<double, double>& x_axis_range
-		, const std::tuple<double, double>& y_axis_range
-		, const std::tuple<double, double>& z_axis_range
+		const std::tuple<coordinate_type, coordinate_type>& x_axis_range
+		, const std::tuple<coordinate_type, coordinate_type>& y_axis_range
+		, const std::tuple<coordinate_type, coordinate_type>& z_axis_range
 	) const BASE = 0;
 
 protected:
@@ -557,9 +563,9 @@ protected:
 	/**
 	 * Loads the data of another object
 	 */
-	virtual void load_(const GDecorator<dimensions::Dim3>* cp) override {
+	virtual void load_(const GDecorator<dimensions::Dim3, coordinate_type>* cp) override {
 		// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
-		const GDecorator<dimensions::Dim3> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		const GDecorator<dimensions::Dim3, coordinate_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// No parent class with loadable data
 
@@ -570,7 +576,7 @@ protected:
 	/**
 	 * Creates a deep clone of this object (this function is purely virtual)
 	 */
-	virtual GDecorator<dimensions::Dim3>* clone_() const override = 0;
+	virtual GDecorator<dimensions::Dim3, coordinate_type>* clone_() const override = 0;
 
 	/***************************************************************************/
 };
@@ -585,7 +591,7 @@ protected:
  * is done in the specializations for different dimensions. Hence some code
  * duplications for the different template specializations cannot be avoided.
  */
-template <Gem::Common::dimensions dim>
+template <Gem::Common::dimensions dim, typename coordinate_type>
 class GDecoratorContainer
 { /* nothing */ };
 
@@ -595,10 +601,10 @@ class GDecoratorContainer
 /**
  * Specialization of GDecoratorContainer for 2D-plots
  */
-template <>
-class GDecoratorContainer<Gem::Common::dimensions::Dim2>
-	: public Gem::Common::GCommonInterfaceT<GDecoratorContainer<dimensions::Dim2>>
-	, public Gem::Common::GStdPtrVectorInterfaceT<GDecorator<dimensions::Dim2>, GDecorator<dimensions::Dim2>>
+template <typename coordinate_type>
+class GDecoratorContainer<Gem::Common::dimensions::Dim2, coordinate_type>
+	: public Gem::Common::GCommonInterfaceT<GDecoratorContainer<dimensions::Dim2, coordinate_type>>
+	, public Gem::Common::GStdPtrVectorInterfaceT<GDecorator<dimensions::Dim2, coordinate_type>, GDecorator<dimensions::Dim2, coordinate_type>>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -608,8 +614,8 @@ class GDecoratorContainer<Gem::Common::dimensions::Dim2>
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GStdPtrVectorInterfaceT_GDecorator2", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<GDecorator<dimensions::Dim2>, GDecorator<dimensions::Dim2>>>(*this))
-		& make_nvp("GCommonInterfaceT_GDecoratorContainer2", boost::serialization::base_object<GCommonInterfaceT<GDecoratorContainer<dimensions::Dim2>>>(*this));
+		& make_nvp("GStdPtrVectorInterfaceT_GDecorator2", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<GDecorator<dimensions::Dim2, coordinate_type>, GDecorator<dimensions::Dim2, coordinate_type>>>(*this))
+		& make_nvp("GCommonInterfaceT_GDecoratorContainer2", boost::serialization::base_object<GCommonInterfaceT<GDecoratorContainer<dimensions::Dim2, coordinate_type>>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -626,9 +632,9 @@ public:
 	/**
 	 * The copy constructor
 	 */
-	GDecoratorContainer(const GDecoratorContainer<dimensions::Dim2>& cp)
-		: GStdPtrVectorInterfaceT<GDecorator<dimensions::Dim2>, GDecorator<dimensions::Dim2>>(cp)
-		, GCommonInterfaceT<GDecoratorContainer<dimensions::Dim2>>(cp)
+	GDecoratorContainer(const GDecoratorContainer<dimensions::Dim2, coordinate_type>& cp)
+		: GCommonInterfaceT<GDecoratorContainer<dimensions::Dim2, coordinate_type>>(cp)
+		, GStdPtrVectorInterfaceT<GDecorator<dimensions::Dim2, coordinate_type>, GDecorator<dimensions::Dim2, coordinate_type>>(cp)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -642,7 +648,7 @@ public:
 	/**
 	 * The assignment operator
 	 */
-	const GDecoratorContainer<dimensions::Dim2>& operator=(const GDecoratorContainer<dimensions::Dim2>& cp) {
+	const GDecoratorContainer<dimensions::Dim2, coordinate_type>& operator=(const GDecoratorContainer<dimensions::Dim2, coordinate_type>& cp) {
 		this->load_(&cp);
 		return *this;
 	};
@@ -654,7 +660,7 @@ public:
  	 * @param  cp A constant reference to another GDecoratorContainer<dimensions::Dim2> object
   	 * @return A boolean indicating whether both objects are equal
  	 */
-	bool operator==(const GDecoratorContainer<dimensions::Dim2>& cp) const {
+	bool operator==(const GDecoratorContainer<dimensions::Dim2, coordinate_type>& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -671,7 +677,7 @@ public:
 	 * @param  cp A constant reference to another GDecoratorContainer<dimensions::Dim2> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	bool operator!=(const GDecoratorContainer<dimensions::Dim2>& cp) const {
+	bool operator!=(const GDecoratorContainer<dimensions::Dim2, coordinate_type>& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -686,7 +692,7 @@ public:
 	 * Returns the name of this class
 	 */
 	virtual std::string name() const override {
-		return std::string("GDecoratorContainer<dimensions::Dim2>");
+		return std::string("GDecoratorContainer<dimensions::Dim2, coordinate_type>");
 	}
 
 	/***************************************************************************/
@@ -695,19 +701,19 @@ public:
 	 * of the same type
 	 */
 	virtual void compare(
-		const GDecoratorContainer<dimensions::Dim2>& cp // the other object
+		const GDecoratorContainer<dimensions::Dim2, coordinate_type>& cp // the other object
 		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
 		, const double& limit // the limit for allowed deviations of floating point types
 	) const override {
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
-		const GDecoratorContainer<dimensions::Dim2> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		const GDecoratorContainer<dimensions::Dim2, coordinate_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		GToken token("GDecoratorContainer<dimensions::Dim2>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GCommonInterfaceT<GDecoratorContainer<dimensions::Dim2>>>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GCommonInterfaceT<GDecoratorContainer<dimensions::Dim2, coordinate_type>>>(IDENTITY(*this, *p_load), token);
 
 		// ... and then the local data. Actually this allows us to compare
 		// the second parent class without directly calling it.
@@ -726,7 +732,7 @@ public:
 		std::string result;
 
 		for(auto decorator_ptr: *this) {
-			result += decorator_ptr->GDecorator<dimensions::Dim2>::decoratorData();
+			result += decorator_ptr->GDecorator<dimensions::Dim2, coordinate_type>::decoratorData();
 		}
 
 		return result;
@@ -738,16 +744,16 @@ public:
 	 * plot boundaries. Decorators will usually not be drawn if they would "live" outside
 	 * of the plot boundaries. Lines will be cut at the boundaries. Text, however, will
 	 * not be affected by the boundaries. This function needs to be implemented by derived
-	 * classes. The "double" types will be cast to integer where needed.
+	 * classes.
 	 */
 	virtual std::string decoratorData(
-		const std::tuple<double, double>& x_axis_range
-		, const std::tuple<double, double>& y_axis_range
+		const std::tuple<coordinate_type, coordinate_type>& x_axis_range
+		, const std::tuple<coordinate_type, coordinate_type>& y_axis_range
 	) const BASE {
 		std::string result;
 
 		for(auto decorator_ptr: *this) {
-			result += decorator_ptr->GDecorator<dimensions::Dim2>::decoratorData(x_axis_range, y_axis_range);
+			result += decorator_ptr->GDecorator<dimensions::Dim2, coordinate_type>::decoratorData(x_axis_range, y_axis_range);
 		}
 
 		return result;
@@ -758,12 +764,12 @@ protected:
 	/**
 	 * Loads the data of another object
 	 */
-	virtual void load_(const GDecoratorContainer<dimensions::Dim2>* cp) override {
+	virtual void load_(const GDecoratorContainer<dimensions::Dim2, coordinate_type>* cp) override {
 		// Check that we are dealing with a GDecoratorContainer reference independent of this object and convert the pointer
-		const GDecoratorContainer<dimensions::Dim2> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		const GDecoratorContainer<dimensions::Dim2, coordinate_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load our parent data ...
-		Gem::Common::GStdPtrVectorInterfaceT<GDecorator<dimensions::Dim2>, GDecorator<dimensions::Dim2>>::operator=(*p_load);
+		Gem::Common::GStdPtrVectorInterfaceT<GDecorator<dimensions::Dim2, coordinate_type>, GDecorator<dimensions::Dim2, coordinate_type>>::operator=(*p_load);
 
 		// ... no local data
 	}
@@ -772,8 +778,8 @@ protected:
 	/**
 	 * Creates a deep clone of this object.
 	 */
-	virtual GDecoratorContainer<dimensions::Dim2>* clone_() const override {
-		return new GDecoratorContainer<dimensions::Dim2>(*this);
+	virtual GDecoratorContainer<dimensions::Dim2, coordinate_type>* clone_() const override {
+		return new GDecoratorContainer<dimensions::Dim2, coordinate_type>(*this);
 	}
 
 	/***************************************************************************/
@@ -792,10 +798,11 @@ protected:
 /**
  * Specialization of GDecoratorContainer for 3D-plots
  */
-template <>
-class GDecoratorContainer <Gem::Common::dimensions::Dim3>
-	: public Gem::Common::GCommonInterfaceT<GDecoratorContainer<dimensions::Dim3>>
-	, public Gem::Common::GStdPtrVectorInterfaceT<GDecorator<dimensions::Dim3>, GDecorator<dimensions::Dim3>>
+template <typename coordinate_type>
+class GDecoratorContainer <Gem::Common::dimensions::Dim3, coordinate_type>
+	: public Gem::Common::GStdPtrVectorInterfaceT<GDecorator<dimensions::Dim3, coordinate_type>, GDecorator<dimensions::Dim3, coordinate_type>>
+	, public Gem::Common::GCommonInterfaceT<GDecoratorContainer<dimensions::Dim3, coordinate_type>>
+
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -805,8 +812,8 @@ class GDecoratorContainer <Gem::Common::dimensions::Dim3>
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GStdPtrVectorInterfaceT_GDecorator3", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<GDecorator<dimensions::Dim3>, GDecorator<dimensions::Dim3>>>(*this))
-		& make_nvp("GCommonInterfaceT_GDecoratorContainer3", boost::serialization::base_object<GCommonInterfaceT<GDecoratorContainer<dimensions::Dim3>>>(*this));
+		& make_nvp("GStdPtrVectorInterfaceT_GDecorator3", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<GDecorator<dimensions::Dim3, coordinate_type>, GDecorator<dimensions::Dim3, coordinate_type>>>(*this))
+		& make_nvp("GCommonInterfaceT_GDecoratorContainer3", boost::serialization::base_object<GCommonInterfaceT<GDecoratorContainer<dimensions::Dim3, coordinate_type>>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -823,9 +830,9 @@ public:
 	/**
 	 * The copy constructor
 	 */
-	GDecoratorContainer(const GDecoratorContainer<dimensions::Dim3>& cp)
-		: GStdPtrVectorInterfaceT<GDecorator<dimensions::Dim3>, GDecorator<dimensions::Dim3>>(cp)
-		  , GCommonInterfaceT<GDecoratorContainer<dimensions::Dim3>>(cp)
+	GDecoratorContainer(const GDecoratorContainer<dimensions::Dim3, coordinate_type>& cp)
+		: GStdPtrVectorInterfaceT<GDecorator<dimensions::Dim3, coordinate_type>, GDecorator<dimensions::Dim3, coordinate_type>>(cp)
+	  	, GCommonInterfaceT<GDecoratorContainer<dimensions::Dim3, coordinate_type>>(cp)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -839,7 +846,7 @@ public:
 	/**
 	 * The assignment operator
 	 */
-	const GDecoratorContainer<dimensions::Dim3>& operator=(const GDecoratorContainer<dimensions::Dim3>& cp) {
+	const GDecoratorContainer<dimensions::Dim3, coordinate_type>& operator=(const GDecoratorContainer<dimensions::Dim3, coordinate_type>& cp) {
 		this->load_(&cp);
 		return *this;
 	};
@@ -851,7 +858,7 @@ public:
  	 * @param  cp A constant reference to another GDecoratorContainer<dimensions::Dim3> object
   	 * @return A boolean indicating whether both objects are equal
  	 */
-	bool operator==(const GDecoratorContainer<dimensions::Dim3>& cp) const {
+	bool operator==(const GDecoratorContainer<dimensions::Dim3, coordinate_type>& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -868,7 +875,7 @@ public:
 	 * @param  cp A constant reference to another GDecoratorContainer<dimensions::Dim3> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	bool operator!=(const GDecoratorContainer<dimensions::Dim3>& cp) const {
+	bool operator!=(const GDecoratorContainer<dimensions::Dim3, coordinate_type>& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -883,7 +890,7 @@ public:
 	 * Returns the name of this class
 	 */
 	virtual std::string name() const override {
-		return std::string("GDecoratorContainer<dimensions::Dim3>");
+		return std::string("GDecoratorContainer<dimensions::Dim3, coordinate_type>");
 	}
 
 	/***************************************************************************/
@@ -892,19 +899,19 @@ public:
 	 * of the same type
 	 */
 	virtual void compare(
-		const GDecoratorContainer<dimensions::Dim3>& cp // the other object
+		const GDecoratorContainer<dimensions::Dim3, coordinate_type>& cp // the other object
 		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
 		, const double& limit // the limit for allowed deviations of floating point types
 	) const override {
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
-		const GDecoratorContainer<dimensions::Dim3> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		const GDecoratorContainer<dimensions::Dim3, coordinate_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		GToken token("GDecoratorContainer<dimensions::Dim3>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GCommonInterfaceT<GDecoratorContainer<dimensions::Dim3>>>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GCommonInterfaceT<GDecoratorContainer<dimensions::Dim3, coordinate_type>>>(IDENTITY(*this, *p_load), token);
 
 		// ... and then the local data. Actually this allows us to compare
 		// the second parent class without directly calling it.
@@ -923,7 +930,7 @@ public:
 		std::string result;
 
 		for(auto decorator_ptr: *this) {
-			result += decorator_ptr->GDecorator<dimensions::Dim3>::decoratorData();
+			result += decorator_ptr->GDecorator<dimensions::Dim3, coordinate_type>::decoratorData();
 		}
 
 		return result;
@@ -935,17 +942,17 @@ public:
 	 * plot boundaries. Decorators will usually not be drawn if they would "live" outside
 	 * of the plot boundaries. Lines will be cut at the boundaries. Text, however, will
 	 * not be affected by the boundaries. This function needs to be implemented by derived
-	 * classes. The "double" types will be cast to integer where needed.
+	 * classes.
 	 */
 	virtual std::string decoratorData(
-		const std::tuple<double, double>& x_axis_range
-		, const std::tuple<double, double>& y_axis_range
-		, const std::tuple<double, double>& z_axis_range
+		const std::tuple<coordinate_type, coordinate_type>& x_axis_range
+		, const std::tuple<coordinate_type, coordinate_type>& y_axis_range
+		, const std::tuple<coordinate_type, coordinate_type>& z_axis_range
 	) const BASE {
 		std::string result;
 
 		for(auto decorator_ptr: *this) {
-			result += decorator_ptr->GDecorator<dimensions::Dim3>::decoratorData(x_axis_range, y_axis_range, z_axis_range);
+			result += decorator_ptr->GDecorator<dimensions::Dim3, coordinate_type>::decoratorData(x_axis_range, y_axis_range, z_axis_range);
 		}
 
 		return result;
@@ -956,12 +963,12 @@ protected:
 	/**
 	 * Loads the data of another object
 	 */
-	virtual void load_(const GDecoratorContainer<dimensions::Dim3>* cp) override {
+	virtual void load_(const GDecoratorContainer<dimensions::Dim3, coordinate_type>* cp) override {
 		// Check that we are dealing with a GDecoratorContainer reference independent of this object and convert the pointer
-		const GDecoratorContainer<dimensions::Dim3> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		const GDecoratorContainer<dimensions::Dim3, coordinate_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load our parent data ...
-		Gem::Common::GStdPtrVectorInterfaceT<GDecorator<dimensions::Dim3>, GDecorator<dimensions::Dim3>>::operator=(*p_load);
+		Gem::Common::GStdPtrVectorInterfaceT<GDecorator<dimensions::Dim3, coordinate_type>, GDecorator<dimensions::Dim3, coordinate_type>>::operator=(*p_load);
 
 		// ... no local data
 	}
@@ -970,8 +977,8 @@ protected:
 	/**
 	 * Creates a deep clone of this object.
 	 */
-	virtual GDecoratorContainer<dimensions::Dim3>* clone_() const override {
-		return new GDecoratorContainer<dimensions::Dim3>(*this);
+	virtual GDecoratorContainer<dimensions::Dim3, coordinate_type>* clone_() const override {
+		return new GDecoratorContainer<dimensions::Dim3, coordinate_type>(*this);
 	}
 
 	/***************************************************************************/
