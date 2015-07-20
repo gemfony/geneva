@@ -369,6 +369,8 @@ public:
 			glogger
 			<< "In GNumGaussAdaptorT::setSigmaRange(const fp_type&, const fp_type&):" << std::endl
 			<< "Invalid values for minSigma and maxSigma given: " << minSigma << " / " << maxSigma << std::endl
+			<< "Expected a range [0:1]. Note: Sigma is a percentage of the allowed or" << std::endl
+			<< "preferred value range."
 			<< GEXCEPTION;
 		}
 
