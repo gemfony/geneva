@@ -591,7 +591,7 @@ protected:
 	 * Loads the data of another object
 	 */
 	virtual void load_(const GDecorator<dimensions::Dim2, coordinate_type>* cp) override {
-		// Check that we are dealing with a GDecoratorContainer reference independent of this object and convert the pointer
+		// Check that we are dealing with a GMarker reference independent of this object and convert the pointer
 		const GMarker *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load our parent data ...
@@ -1382,7 +1382,9 @@ private:
  * data of a histogram type.
  */
 template<typename x_type>
-class GDataCollector1T : public GBasePlotter {
+class GDataCollector1T
+	: public GBasePlotter
+{
 
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -1631,9 +1633,11 @@ protected:
 
 /******************************************************************************/
 /**
- * A wrapper for ROOT's TH1D class (1-d double data)
+ * A wrapper for ROOT's TH1D class (1-d double data). This will result in a 2D-plot.
  */
-class GHistogram1D : public GDataCollector1T<double> {
+class GHistogram1D
+	: public GDataCollector1T<double>
+{
 
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -1722,7 +1726,9 @@ private:
 /**
  * A wrapper for ROOT's TH1I class (1-d integer data)
  */
-class GHistogram1I : public GDataCollector1T<std::int32_t> {
+class GHistogram1I
+	: public GDataCollector1T<std::int32_t>
+{
 
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -1809,10 +1815,13 @@ private:
 
 /******************************************************************************/
 /**
- * A data collector for 2-d data of user-defined type, such as a TGraph
+ * A data collector for 2-d data of user-defined type, such as a TGraph.
+ * Note that the plot dimension may be different.
  */
 template<typename x_type, typename y_type>
-class GDataCollector2T : public GBasePlotter {
+class GDataCollector2T
+	: public GBasePlotter
+{
 
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -1833,16 +1842,20 @@ public:
 	 * The default constructor
 	 */
 	GDataCollector2T()
-		: GBasePlotter(), data_() { /* nothing */ }
+		: GBasePlotter()
+		, data_()
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * A copy constructor
 	 *
-	 * @param cp A copy of another GDataCollector1T<x_type> object
+	 * @param cp A copy of another GDataCollector2T<x_type> object
 	 */
 	GDataCollector2T(const GDataCollector2T<x_type, y_type> &cp)
-		: GBasePlotter(cp), data_(cp.data_) { /* nothing */ }
+		: GBasePlotter(cp)
+		, data_(cp.data_)
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -1902,7 +1915,8 @@ public:
 	 * if available.
 	 */
 	std::shared_ptr <GDataCollector1T<x_type>> projectX(
-		std::size_t, std::tuple<x_type, x_type>
+		std::size_t
+		, std::tuple<x_type, x_type>
 	) const {
 		glogger
 		<< "In GDataCollector2T<>::projectX(range, nBins): Error!" << std::endl
@@ -2191,10 +2205,13 @@ GDataCollector2T<double, double>::projectY(std::size_t nBinsY, std::tuple<double
 /******************************************************************************/
 /**
  * A data collector for 2-d data of user-defined type, with the ability to
- * additionally specify an error component for both dimensions.
+ * additionally specify an error component for both dimensions. Note that the
+ * plot dimension may be different.
  */
 template<typename x_type, typename y_type>
-class GDataCollector2ET : public GBasePlotter {
+class GDataCollector2ET
+	: public GBasePlotter
+{
 
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -2221,7 +2238,7 @@ public:
 	/**
 	 * A copy constructor
 	 *
-	 * @param cp A copy of another GDataCollector1T<x_type> object
+	 * @param cp A copy of another GDataCollector2ET<x_type> object
 	 */
 	GDataCollector2ET(const GDataCollector2ET<x_type, y_type> &cp)
 		: GBasePlotter(cp), data_(cp.data_) { /* nothing */ }
@@ -2468,10 +2485,12 @@ protected:
 
 /******************************************************************************/
 /**
- * A wrapper for ROOT's TH2D class (2-d double data)
+ * A wrapper for ROOT's TH2D class (2-d double data). This will result in a
+ * 3D plot.
  */
 class GHistogram2D
-	: public GDataCollector2T<double, double> {
+	: public GDataCollector2T<double, double>
+{
 
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -2581,10 +2600,12 @@ private:
 /******************************************************************************/
 /**
  * A wrapper for the ROOT TGraph class (2d data and curve-like structures). It
- * also adds the option to draw arrows between consecutive points.
+ * also adds the option to draw arrows between consecutive points. This results
+ * in a 2D plot.
  */
 class GGraph2D
-	: public GDataCollector2T<double, double> {
+	: public GDataCollector2T<double, double>
+{
 
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -2594,7 +2615,7 @@ class GGraph2D
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GDataCollector2T_double_double", boost::serialization::base_object<GDataCollector2T<double, double>>(*this))
+		& make_nvp("GDataCollector2T_double_double" , boost::serialization::base_object<GDataCollector2T<double, double>>(*this))
 		& BOOST_SERIALIZATION_NVP(pM_)
 		& BOOST_SERIALIZATION_NVP(drawArrows_);
 	}
@@ -2661,10 +2682,12 @@ private:
 
 /******************************************************************************/
 /**
- * A wrapper for the ROOT TGraphErrors class (2d data and curve-like structures)
+ * A wrapper for the ROOT TGraphErrors class (2d data and curve-like structures).
+ * This results in a 2D plot.
  */
 class GGraph2ED
-	: public GDataCollector2ET<double, double> {
+	: public GDataCollector2ET<double, double>
+{
 
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -3167,9 +3190,11 @@ GDataCollector3T<double, double, double>::projectZ(std::size_t nBinsZ, std::tupl
 /**
  * A wrapper for the ROOT TGraph2D class (3d data). It
  * also adds the option to draw lines between consecutive points. This class
- * only allows a single plot mode.
+ * only allows a single plot mode. This results in a 3D plot.
  */
-class GGraph3D : public GDataCollector3T<double, double, double> {
+class GGraph3D
+	: public GDataCollector3T<double, double, double>
+{
 
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -3244,7 +3269,10 @@ private:
  * A data collector for 4-d data of user-defined type
  */
 template<
-	typename x_type, typename y_type, typename z_type, typename w_type
+	typename x_type
+	, typename y_type
+	, typename z_type
+	, typename w_type
 >
 class GDataCollector4T
 	: public GBasePlotter {
@@ -3714,8 +3742,10 @@ GDataCollector4T<double, double, double, double>::projectZ(std::size_t nBinsZ,
 template<>
 inline
 std::shared_ptr <GDataCollector1T<double>>
-GDataCollector4T<double, double, double, double>::projectW(std::size_t nBinsW,
-																			  std::tuple<double, double> rangeW) const {
+GDataCollector4T<double, double, double, double>::projectW(
+	std::size_t nBinsW
+	, std::tuple<double, double> rangeW
+) const {
 	std::tuple<double, double> myRangeW;
 	if (rangeW == std::tuple<double, double>()) {
 		// Find out about the minimum and maximum values in the data_ array
@@ -3748,10 +3778,11 @@ GDataCollector4T<double, double, double, double>::projectW(std::size_t nBinsW,
 /**
  * A wrapper for the ROOT TPolyMarker3D class, intended for 4D data. The fourth
  * data component is represented as the size of the markers. The class will by
- * default only draw a selection of items.
+ * default only draw a selection of items. This results in a 3D plot.
  */
 class GGraph4D
-	: public GDataCollector4T<double, double, double, double> {
+	: public GDataCollector4T<double, double, double, double>
+{
 
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -3848,10 +3879,12 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A wrapper for the ROOT TF1 1d-function plotter
+ * A wrapper for the ROOT TF1 1d-function plotter.
+ * TODO: Add ability to add markers!
  */
 class GFunctionPlotter1D
-	: public GBasePlotter {
+	: public GBasePlotter
+{
 
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
