@@ -219,45 +219,19 @@ FUNCTION (
 	SET(${GENEVA_COMPILER_NAME_OUT} "${CMAKE_CXX_COMPILER_ID}" PARENT_SCOPE)
 
 	#--------------------------------------------------------------------------
-	# Set the the compiler version, if available
-	SET(GENEVA_COMPILER_VERSION_LOCAL "")
-	IF (${CMAKE_VERSION} VERSION_LESS 2.8.10)
-		IF(${CMAKE_CXX_COMPILER_ID} STREQUAL ${GNU_DEF_IDENTIFIER})
-			EXEC_PROGRAM(${CMAKE_CXX_COMPILER} ARGS -dumpversion OUTPUT_VARIABLE GXX_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
-			SET(GENEVA_COMPILER_VERSION_LOCAL "${GXX_VERSION}")
-		ELSEIF(${CMAKE_CXX_COMPILER_ID} STREQUAL ${CLANG_DEF_IDENTIFIER})
-			EXEC_PROGRAM(${CMAKE_CXX_COMPILER} ARGS --version OUTPUT_VARIABLE CLANG_VERSION)
-			STRING(REGEX REPLACE ".*based on LLVM ([0-9]+\\.[0-9]+).*" "\\1" CLANG_VERSION ${CLANG_VERSION})
-			SET(GENEVA_COMPILER_VERSION_LOCAL "${CLANG_VERSION}")
-		ELSEIF(${CMAKE_CXX_COMPILER_ID} STREQUAL ${INTEL_DEF_IDENTIFIER})
-			EXEC_PROGRAM(${CMAKE_CXX_COMPILER} ARGS -dumpversion OUTPUT_VARIABLE INTEL_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
-			SET(GENEVA_COMPILER_VERSION_LOCAL "${INTEL_VERSION}")
-		ELSE()
-			# MSVC is unsupported in this case, it doesn't allow
-			# a meaningful way to query its version
-			SET(GENEVA_COMPILER_VERSION_LOCAL "unsupported")
-		ENDIF()
-	ELSE()
-		# This flag is only supported as of CMake 2.8.10
-		SET(GENEVA_COMPILER_VERSION_LOCAL "${CMAKE_CXX_COMPILER_VERSION}")
-	ENDIF()
+	# This flag is only supported as of CMake 2.8.10
+	SET(GENEVA_COMPILER_VERSION_LOCAL "${CMAKE_CXX_COMPILER_VERSION}")
 
 	#--------------------------------------------------------------------------
 	# Set the external compiler version
 	SET(${GENEVA_COMPILER_VERSION_OUT} "${GENEVA_COMPILER_VERSION_LOCAL}" PARENT_SCOPE)
 
 	#--------------------------------------------------------------------------
-	# Find out about the maximum C++ standard that is supported
+	# Find out about the maximum C++ standard that is supported. We assume
+	# that the compiler fully supports a given standard when it accepts the
+	# corresponding flag. Note that this is not entirely conclusive, and in
+	# some cases we have to use information about the compiler version.
 	IF (${CMAKE_CXX_COMPILER_ID} STREQUAL ${CLANG_DEF_IDENTIFIER})
-		# We assume that the compiler fully supports a given standard when it
-		# accepts the corresponding flag. Note that this is not entirely conclusive.
-		# We might later have to use information about the compiler version.
-		# However, we currently have no method to determine this information with
-		# versions of cmake older than 2.8.10 . Note that "clang -dumpversion" returns
-		# the last gcc-version it pretends to be compatible with, not the "real"
-		# clang version. Hence it cannot be used. "clang --version" might be an option,
-		# but we need to figure out the correct regexp. Plus, the output of this string
-		# may change over time.
 		CHECK_CXX_COMPILER_FLAG("${CLANG_DEF_CXX11_STANDARD_FLAG}" COMPILER_SUPPORTS_CXX11)
 		CHECK_CXX_COMPILER_FLAG("${CLANG_DEF_CXX14_STANDARD_FLAG}" COMPILER_SUPPORTS_CXX14)
 		IF(COMPILER_SUPPORTS_CXX14 AND NOT ${GENEVA_COMPILER_VERSION_LOCAL} VERSION_LESS ${CLANG_DEF_MIN_CXX14_VERSION})

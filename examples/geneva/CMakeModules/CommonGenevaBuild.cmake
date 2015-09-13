@@ -37,7 +37,7 @@
 
 ################################################################################
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.11 FATAL_ERROR)
 
 # Include guard
 IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
@@ -187,7 +187,7 @@ ENDIF ()
 # Define the required Boost environment
 
 SET (Boost_USE_MULTITHREAD ON)
-SET (Boost_ADDITIONAL_VERSIONS "1.57" "1.57.0" "1.58" "1.58.0")
+SET (Boost_ADDITIONAL_VERSIONS "1.57" "1.57.0" "1.58" "1.58.0" "1.59" "1.59.0")
 
 IF ( GENEVA_STATIC )
 	SET (Boost_USE_STATIC_LIBS ON)
