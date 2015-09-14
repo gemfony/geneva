@@ -456,16 +456,33 @@ FUNCTION (
 )
 
 	#--------------------------------------------------------------------------
+	# We may use ADD_COMPILE_OPTIONS() with CMake 2.8.12 or newer.
+	# We cannot redefine CMAKE_CXX_FLAGS in PARENT_SCOPE more than
+	# once, so we use a local variable.
+	SET(FLAGS_LOCAL "${CMAKE_CXX_FLAGS}")
+
+	#--------------------------------------------------------------------------
 	# Retrieve the C++-standard switch for our compiler
 	GET_CXX_STANDARD_SWITCH (
 		${GENEVA_ACTUAL_CXX_STANDARD_IN}
 		"GENEVA_CXX_STANDARD_SWITCH"
 	)
 
-	# We may use ADD_COMPILE_OPTIONS() with CMake 2.8.12 or newer.
-	# We cannot redefine CMAKE_CXX_FLAGS in PARENT_SCOPE more than
-	# once, so we use a local variable.
-	SET(FLAGS_LOCAL "${CMAKE_CXX_FLAGS} ${GENEVA_CXX_STANDARD_SWITCH}")
+	IF (${CMAKE_VERSION} VERSION_LESS 3.1)
+		SET(FLAGS_LOCAL "${FLAGS_LOCAL} ${GENEVA_CXX_STANDARD_SWITCH}")
+	ELSE()
+		# Let CMake take care of the C++ standard flag
+		SET(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+		IF (${GENEVA_ACTUAL_CXX_STANDARD_IN} MATCHES "cxx14")
+			SET(CMAKE_CXX_STANDARD 14)
+		ELSEIF (${GENEVA_ACTUAL_CXX_STANDARD_IN} MATCHES "cxx11")
+			SET(CMAKE_CXX_STANDARD 11)
+		ELSEIF (${GENEVA_ACTUAL_CXX_STANDARD_IN} MATCHES "cxx98")
+			SET(CMAKE_CXX_STANDARD 98)
+		ENDIF()
+	ENDIF()
+
 
 	#--------------------------------------------------------------------------
 	# Determine the other compiler flags. We organize this by compiler, as the
