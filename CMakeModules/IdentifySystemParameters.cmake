@@ -474,15 +474,9 @@ FUNCTION (
 		# Let CMake take care of the C++ standard flag
 		SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-		IF (${GENEVA_ACTUAL_CXX_STANDARD_IN} MATCHES "cxx14")
-			SET(CMAKE_CXX_STANDARD 14)
-		ELSEIF (${GENEVA_ACTUAL_CXX_STANDARD_IN} MATCHES "cxx11")
-			SET(CMAKE_CXX_STANDARD 11)
-		ELSEIF (${GENEVA_ACTUAL_CXX_STANDARD_IN} MATCHES "cxx98")
-			SET(CMAKE_CXX_STANDARD 98)
-		ENDIF()
+		# The CMAKE_CXX_STANDARD value should not include the 'cxx' prefix
+		STRING(REGEX MATCH "[0-9]+" CMAKE_CXX_STANDARD ${GENEVA_ACTUAL_CXX_STANDARD_IN})
 	ENDIF()
-
 
 	#--------------------------------------------------------------------------
 	# Determine the other compiler flags. We organize this by compiler, as the
