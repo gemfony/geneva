@@ -1761,8 +1761,11 @@ public:
 	 */
 	template<typename parameter_type>
 	GParsableI &registerFileParameter(
-		const std::string &optionName, parameter_type def_val, std::function<void(parameter_type)> callBack,
-		const bool &isEssential = Gem::Common::VAR_IS_ESSENTIAL, const std::string &comment = std::string()
+		const std::string &optionName
+		, parameter_type def_val
+		, std::function<void(parameter_type)> callBack
+		, const bool &isEssential = Gem::Common::VAR_IS_ESSENTIAL
+		, const std::string &comment = std::string()
 	) {
 #ifdef DEBUG
       // Check whether the option already exists
@@ -1810,8 +1813,11 @@ public:
 	 */
 	template<typename parameter_type>
 	GParsableI &registerFileParameter(
-		const std::string &optionName, parameter_type &parameter, parameter_type def_val,
-		const bool &isEssential = Gem::Common::VAR_IS_ESSENTIAL, const std::string &comment = std::string()
+		const std::string &optionName
+		, parameter_type &parameter
+		, parameter_type def_val
+		, const bool &isEssential = Gem::Common::VAR_IS_ESSENTIAL
+		, const std::string &comment = std::string()
 	) {
 #ifdef DEBUG
       // Check whether the option already exists

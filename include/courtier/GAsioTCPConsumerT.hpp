@@ -1327,7 +1327,8 @@ public:
 			// This absolutely needs to happen after the first session has started,
 			// so the io_service doesn't run out of work
 			gtg_.create_threads(
-				[&]() { io_service_.run(); }, listenerThreads_
+				[&]() { this->io_service_.run(); } // this-> deals with a problem of g++ 4.7.2
+				, listenerThreads_
 			);
 		} catch (const boost::system::system_error &e) {
 			glogger
