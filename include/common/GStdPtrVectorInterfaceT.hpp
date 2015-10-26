@@ -171,9 +171,9 @@ public:
 	 */
 	const std::vector<std::shared_ptr < T>>&
 
-	operator=(const std::vector<std::shared_ptr < T>>& cp) {
-		typename std::vector<std::shared_ptr < T>>::const_iterator cp_it;
-		typename std::vector<std::shared_ptr < T>>::iterator it;
+	operator=(const std::vector<std::shared_ptr <T>>& cp) {
+		typename std::vector<std::shared_ptr <T>>::const_iterator cp_it;
+		typename std::vector<std::shared_ptr <T>>::iterator it;
 
 		std::size_t localSize = data.size();
 		std::size_t cpSize = cp.size();
@@ -752,12 +752,9 @@ public:
 	 *
 	 * @param cp A reference to a vector that will hold a copy of our local data vector
 	 */
-	void getDataCopy(std::vector<std::shared_ptr < T>
-
-	>& cp) const {
+	void getDataCopy(std::vector<std::shared_ptr <T>>& cp) const {
 		cp.clear();
-		typename std::vector<std::shared_ptr < T>> ::const_iterator
-		it;
+		typename std::vector<std::shared_ptr < T>> ::const_iterator it;
 		for (it = data.begin(); it != data.end(); ++it) {
 			cp.push_back((*it)->T::template clone<T>());
 		}
@@ -821,11 +818,8 @@ public:
 	 * @param target A vector to which pointers with the derived type are attached
 	 */
 	template<typename derivedType>
-	void attachViewTo(std::vector<std::shared_ptr < derivedType>
-
-	>& target) {
-		typename std::vector<std::shared_ptr < T>> ::iterator
-		it;
+	void attachViewTo(std::vector<std::shared_ptr < derivedType>>& target) {
+		typename std::vector<std::shared_ptr < T>> ::iterator it;
 		for (it = data.begin(); it != data.end(); ++it) {
 			std::shared_ptr <derivedType> p = std::dynamic_pointer_cast<derivedType>(*it);
 			if (p) { target.push_back(p); }
@@ -837,12 +831,9 @@ public:
 	/***************************************************************************/
 	/** An iterator implementation that facilitates access to derived elements */
 	template<typename derivedType>
-	class conversion_iterator :
-		public boost::iterator_facade<
-			conversion_iterator<derivedType>, std::shared_ptr < T>,
-		boost::forward_traversal_tag,
-		std::shared_ptr<derivedType>
-		> {
+	class conversion_iterator
+		:public boost::iterator_facade<conversion_iterator<derivedType>, std::shared_ptr <T>, boost::forward_traversal_tag, std::shared_ptr<derivedType>>
+	{
 	public:
 		/************************************************************************/
 		/**
@@ -851,14 +842,9 @@ public:
 		 *
 		 * @param end The end of the iteration sequence
 		 */
-		conversion_iterator(typename std::vector<std::shared_ptr < T>
-
-		>
-		::iterator const &end
-		)
-		:
-		end_(end)
-			{ /* nothing */ }
+		conversion_iterator(typename std::vector<std::shared_ptr<T>>::iterator const &end)
+			:end_(end)
+		{ /* nothing */ }
 
 		/************************************************************************/
 		/**
@@ -866,11 +852,7 @@ public:
 		 *
 		 * @param current The value to assign to this iterator
 		 */
-		void operator=(typename std::vector<std::shared_ptr < T>
-
-		>
-		::iterator const &current
-		) {
+		void operator=(typename std::vector<std::shared_ptr < T>>::iterator const &current) {
 			current_ = current;
 			// Skip to first "good" entry
 			while (current_ != end_ && !(p = std::dynamic_pointer_cast<derivedType>(*current_))) {
@@ -885,11 +867,7 @@ public:
 		 * @param other The iterator to check for inequality
 		 * @return A boolean indicating whether this iterator's value is inequal with the other iterator
 		 */
-		bool operator!=(typename std::vector<std::shared_ptr < T>
-
-		>
-		::iterator const &other
-		) const {
+		bool operator!=(typename std::vector<std::shared_ptr < T>>::iterator const &other) const {
 			return current_ != other;
 		}
 
@@ -902,11 +880,7 @@ public:
 		 *
 		 * @param end The new end of the sequence
 		 */
-		void resetEndPosition(typename std::vector<std::shared_ptr < T>
-
-		>
-		::iterator const &end
-		) {
+		void resetEndPosition(typename std::vector<std::shared_ptr < T>>::iterator const &end) {
 			end_ = end;
 		}
 
@@ -956,11 +930,7 @@ public:
 		 * @param other The item that should be checked for equality
 		 * @return A boolean indicating whether equality was found
 		 */
-		bool equal(typename std::vector<std::shared_ptr < T>
-
-		>
-		::iterator const &other
-		) const {
+		bool equal(typename std::vector<std::shared_ptr < T>>::iterator const &other) const {
 			return current_ == other;
 		}
 
@@ -977,10 +947,8 @@ public:
 		}
 
 		/************************************************************************/
-		typename std::vector<std::shared_ptr < T>>
-		::iterator current_; ///< Marks the current position in the iteration sequence
-		typename std::vector<std::shared_ptr < T>>
-		::iterator end_; ///< Marks the end of the iteration sequence
+		typename std::vector<std::shared_ptr <T>>::iterator current_; ///< Marks the current position in the iteration sequence
+		typename std::vector<std::shared_ptr <T>>::iterator end_; ///< Marks the end of the iteration sequence
 
 		std::shared_ptr <derivedType> p; ///< Temporary which holds the current valid pointer
 	};
@@ -1001,14 +969,10 @@ private:
 	bool operator!=(const GStdPtrVectorInterfaceT<T, B> &) const;
 
 	/** @brief Intentionally left undefined */
-	bool operator==(const std::vector<std::shared_ptr < T>
-
-	>&) const;
+	bool operator==(const std::vector<std::shared_ptr <T>>&) const;
 
 	/** @brief Intentionally left undefined */
-	bool operator!=(const std::vector<std::shared_ptr < T>
-
-	>&) const;
+	bool operator!=(const std::vector<std::shared_ptr <T>>&) const;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
