@@ -193,7 +193,9 @@ public:
 	 * The default constructor.
 	 */
 	GMetaOptimizerIndividualT()
-		: GParameterSet(), nRunsPerOptimization_(GMETAOPT_DEF_NRUNSPEROPT), fitnessTarget_(GMETAOPT_DEF_FITNESSTARGET),
+		: GParameterSet()
+	   , nRunsPerOptimization_(GMETAOPT_DEF_NRUNSPEROPT)
+		  , fitnessTarget_(GMETAOPT_DEF_FITNESSTARGET),
 		  iterationThreshold_(GMETAOPT_DEF_ITERATIONTHRESHOLD), moTarget_(GMETAOPT_DEF_MOTARGET),
 		  subEA_config_(GMETAOPT_DEF_SUBEACONFIG), subExecMode_(GMETAOPT_DEF_SUBEXECMODE),
 		  ind_factory_() { /* nothing */ }
@@ -498,8 +500,7 @@ public:
 	double getAdProb() const {
 		std::shared_ptr <GConstrainedDoubleObject> minAdProb_ptr = this->at<GConstrainedDoubleObject>(MOT_MINADPROB);
 		std::shared_ptr <GConstrainedDoubleObject> adProbRange_ptr = this->at<GConstrainedDoubleObject>(MOT_ADPROBRANGE);
-		std::shared_ptr <GConstrainedDoubleObject> adProbStartPercentage_ptr = this->at<GConstrainedDoubleObject>(
-			MOT_ADPROBSTARTPERCENTAGE);
+		std::shared_ptr <GConstrainedDoubleObject> adProbStartPercentage_ptr = this->at<GConstrainedDoubleObject>(MOT_ADPROBSTARTPERCENTAGE);
 
 		return minAdProb_ptr->value() + adProbStartPercentage_ptr->value() * adProbRange_ptr->value();
 	}
@@ -583,19 +584,22 @@ public:
 		// nChildren
 
 		// Create a default standard gauss adaptor
-		std::shared_ptr <GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(
-			0.025   // sigma
-			, 0.2   // sigmaSigma
-			, 0.001   // minSigma
-			, 0.5    // maxSigma
-			, 1.   // adProb
-		)
+		std::shared_ptr <GInt32GaussAdaptor> giga_ptr(
+			new GInt32GaussAdaptor(
+				0.025   // sigma
+				, 0.2   // sigmaSigma
+				, 0.001   // minSigma
+				, 0.5    // maxSigma
+				, 1.   // adProb
+			)
 		);
 
-		std::shared_ptr <GConstrainedInt32Object> nch_ptr(new GConstrainedInt32Object(
-			boost::numeric_cast<std::int32_t>(initNChildren), boost::numeric_cast<std::int32_t>(nChildren_LB),
-			boost::numeric_cast<std::int32_t>(nChildren_UB)
-		)
+		std::shared_ptr <GConstrainedInt32Object> nch_ptr(
+			new GConstrainedInt32Object(
+				boost::numeric_cast<std::int32_t>(initNChildren)
+				, boost::numeric_cast<std::int32_t>(nChildren_LB)
+				, boost::numeric_cast<std::int32_t>(nChildren_UB)
+			)
 		);
 		nch_ptr->addAdaptor(giga_ptr);
 		nch_ptr->setParameterName("nChildren");

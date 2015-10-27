@@ -59,8 +59,8 @@ using namespace Gem::Tests;
 /******************************************************************************/
 /**
  * Starts a series of reference measurements to be compared with the parallel
- * measurements. This will usually mean serial execution, the execution mode
- * is however determined by rge caller.
+ * measurements. This will usually mean serial execution. The execution mode
+ * is however determined by the caller.
  *
  * @param go A reference to the optimization wrapper
  * @param gdif A factory for delay-individual objects

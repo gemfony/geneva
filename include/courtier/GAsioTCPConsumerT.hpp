@@ -336,8 +336,7 @@ protected:
 				disconnect(socket_);
 				// Indicate that we want to continue
 				return CLIENT_CONTINUE;
-			} else if (this->parseIdleCommand(idleTime,
-														 inboundCommandString)) { // Received no work. We have been instructed to wait for a certain time
+			} else if (this->parseIdleCommand(idleTime, inboundCommandString)) { // Received no work. We have been instructed to wait for a certain time
 				// We will usually only allow a given number of timeouts / stalls
 				if (maxStalls_ && (stalls_++ > maxStalls_)) {
 					glogger
@@ -1105,12 +1104,17 @@ public:
 	 * The default constructor
 	 */
 	GAsioTCPConsumerT()
-		: listenerThreads_(Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS)), acceptor_(io_service_),
-		  serializationMode_(Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY), maxStalls_(GASIOTCPCONSUMERMAXSTALLS),
-		  maxConnectionAttempts_(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS),
-		  returnRegardless_(GASIOTCPCONSUMERRETURNREGARDLESS), port_(GASIOTCPCONSUMERDEFAULTPORT),
-		  server_(GASIOTCPCONSUMERDEFAULTSERVER), timeout_(boost::posix_time::milliseconds(10)),
-		  broker_ptr_() { /* nothing */ }
+		: listenerThreads_(Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
+		, acceptor_(io_service_)
+	   , serializationMode_(Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY)
+		, maxStalls_(GASIOTCPCONSUMERMAXSTALLS)
+		, maxConnectionAttempts_(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS)
+	   , returnRegardless_(GASIOTCPCONSUMERRETURNREGARDLESS)
+  		, port_(GASIOTCPCONSUMERDEFAULTPORT)
+		, server_(GASIOTCPCONSUMERDEFAULTSERVER)
+		, timeout_(boost::posix_time::milliseconds(10))
+		, broker_ptr_()
+	{ /* noting */ }
 
 	/***************************************************************************/
 	/**
@@ -1121,15 +1125,21 @@ public:
 	 * @param sm The desired serialization mode
 	 */
 	GAsioTCPConsumerT(
-		const unsigned short &port, const std::size_t &listenerThreads = 0,
-		const Gem::Common::serializationMode &sm = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY
+		const unsigned short &port
+		, const std::size_t &listenerThreads = 0
+		, const Gem::Common::serializationMode &sm = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY
 	)
-		: listenerThreads_(
-		listenerThreads > 0 ? listenerThreads : Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS)),
-		  acceptor_(io_service_), serializationMode_(sm), maxStalls_(GASIOTCPCONSUMERMAXSTALLS),
-		  maxConnectionAttempts_(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS),
-		  returnRegardless_(GASIOTCPCONSUMERRETURNREGARDLESS), port_(port), server_(GASIOTCPCONSUMERDEFAULTSERVER),
-		  timeout_(boost::posix_time::milliseconds(10)), broker_ptr_() { /* nothing */ }
+		: listenerThreads_(listenerThreads > 0 ? listenerThreads : Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
+		, acceptor_(io_service_)
+	   , serializationMode_(sm)
+		, maxStalls_(GASIOTCPCONSUMERMAXSTALLS)
+		, maxConnectionAttempts_(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS)
+		, returnRegardless_(GASIOTCPCONSUMERRETURNREGARDLESS)
+		, port_(port)
+		, server_(GASIOTCPCONSUMERDEFAULTSERVER)
+		, timeout_(boost::posix_time::milliseconds(10))
+		, broker_ptr_()
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -1300,8 +1310,11 @@ public:
 		// Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).
 		boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port_);
 		acceptor_.open(endpoint.protocol());
-		acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
 		acceptor_.bind(endpoint);
+		// Set the SOL_SOCKET/SO_REUSEADDR options
+		// compare http://www.boost.org/doc/libs/1_57_0/doc/html/boost_asio/reference/basic_socket_acceptor/reuse_address.html
+		boost::asio::socket_base::reuse_address option(true);
+		acceptor_.set_option(option);
 		acceptor_.listen();
 
 		// Retrieve a pointer to the global broker for later perusal
@@ -1521,9 +1534,11 @@ private:
 
 		try {
 			acceptor_.async_accept(
-				newSession->getSocket(), std::bind(
-					&GAsioTCPConsumerT<processable_type>::async_handleAccept, this, newSession,
-					std::placeholders::_1 // Replaces boost::asio::placeholders::error
+				newSession->getSocket()
+				, std::bind(
+					&GAsioTCPConsumerT<processable_type>::async_handleAccept
+					, this, newSession
+					, std::placeholders::_1 // Replaces boost::asio::placeholders::error
 				)
 			);
 		} catch (const boost::system::system_error &e) {
