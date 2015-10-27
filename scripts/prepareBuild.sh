@@ -58,7 +58,6 @@ if [ $# -eq 0 ]; then
 	BUILDSTATIC="0"                # Whether to build static code / libraries (experimental!)
 	VERBOSEMAKEFILE="1"            # Whether compilation information should be emitted
 	INSTALLDIR="/opt/geneva"       # Where the Geneva library shall go
-	CEXTRAFLAGS=""                 # Further CMake settings you might want to provide
 elif [ $# -eq 1 ]; then
 	# Check that the command file has the expected form (ends with .gcfg)
 	testfile=`basename $1 .gcfg`.gcfg
@@ -117,10 +116,6 @@ elif [ $# -eq 1 ]; then
 	if [ -z "${INSTALLDIR}" ]; then
 		INSTALLDIR="/opt/geneva"
 		echo "Variable INSTALLDIR wasn't set. Setting to default value '${INSTALLDIR}'"
-	fi
-
-	if [ -z "${CEXTRAFLAGS}" ]; then
-		CEXTRAFLAGS=""
 	fi
 else
 	echo -e "\nReceived $# command line arguments, which is an invalid number."
@@ -217,8 +212,6 @@ fi
 if [ ! "${BUILDSTD}" = "auto" ] && [ ! "${BUILDSTD}" = "cxx11" ] && [ ! "${BUILDSTD}" = "cxx14" ]; then
 	echo -e "\nError: Variable BUILDSTD must be auto, cxx11 or cxx14. Got ${BUILDSTD}"
 	echo -e "Leaving...\n"
-
-
 	exit
 fi
 
@@ -277,13 +270,21 @@ CONFIGURE="${CMAKE} $BOOSTLOCATIONPATHS $BOOSTSYSTEMFLAG \
 -DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE} \
 -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}"
 
-if [ "x$CEXTRAFLAGS" != "x" ]; then
-	CONFIGURE="${CONFIGURE} ${CEXTRAFLAGS}"
+if [ "x$CXXEXTRAFLAGS" != "x" ]; then
+	CONFIGURE="${CONFIGURE} -DCMAKE_CXX_FLAGS='${CXXEXTRAFLAGS}'"
+fi
+
+if [ "x$LINKEREXTRAFLAGS" != "x" ]; then
+	CONFIGURE="${CONFIGURE} -DCMAKE_EXE_LINKER_FLAGS='${LINKEREXTRAFLAGS}'"
+fi
+
+if [ "x$CMAKEEXTRAFLAGS" != "x" ]; then
+	CONFIGURE="${CONFIGURE} ${CMAKEEXTRAFLAGS}"
 fi
 
 echo -e "\nConfiguring with command: \"${CONFIGURE} ${PROJECTROOT}\"\n"
 echo -e "---------------------------------------------------------------------\n\n"
-${CONFIGURE} ${PROJECTROOT}
+eval ${CONFIGURE} ${PROJECTROOT}
 
 ####################################################################
 # Finish by telling the user how to continue, unless there were errors

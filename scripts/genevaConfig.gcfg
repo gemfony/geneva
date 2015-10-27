@@ -87,5 +87,13 @@ VERBOSEMAKEFILE="0"
 # Where the Geneva library shall go
 INSTALLDIR="/opt/geneva"
 
-# Further CMake settings you might want to provide
-CEXTRAFLAGS=""
+# Further compiler parameters you might want to provide, for instance
+# for turning on/off compiler warnings use "-Wextra -Wno-parentheses"
+CXXEXTRAFLAGS=""
+
+# Further linker parameters you might want to provide
+LINKEREXTRAFLAGS=""
+
+# Further CMake parameters you might want to provide; these
+# will be passed 'verbatim' to CMake's command line
+CMAKEEXTRAFLAGS=""
