@@ -352,7 +352,7 @@ public:
 
 		gpb.registerFileParameter<bool>(
 			"subExecMode" // The name of the variable
-			, subExecMode_ // The default value
+			, GMETAOPT_DEF_SUBEXECMODE // The default value
 			, [this](bool sem) { this->setSubExecMode(sem); }
 		)
 		<< "The execution mode for the sub-optimization algorithm:" << std::endl

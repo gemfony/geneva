@@ -334,7 +334,7 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
+		// Check that we are dealing with a GDecorator reference independent of this object and convert the pointer
 		const GDecorator<dimensions::Dim2, coordinate_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		GToken token("GDecorator<dimensions::Dim2, coordinate_type>", e);
@@ -375,7 +375,7 @@ protected:
 	 * Loads the data of another object
 	 */
 	virtual void load_(const GDecorator<dimensions::Dim2, coordinate_type>* cp) override {
-		// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
+		// Check that we are dealing with a GDecorator reference independent of this object and convert the pointer
 		const GDecorator<dimensions::Dim2, coordinate_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// No parent class with loadable data
@@ -518,7 +518,7 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
+		// Check that we are dealing with a GMarker reference independent of this object and convert the pointer
 		const GMarker<coordinate_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		GToken token("GMarker<coordinate_type>", e);
@@ -739,7 +739,7 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
+		// Check that we are dealing with a GDecorator reference independent of this object and convert the pointer
 		const GDecorator<dimensions::Dim3, coordinate_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		GToken token("GDecorator<dimensions::Dim3, coordinate_type>", e);
@@ -781,7 +781,7 @@ protected:
 	 * Loads the data of another object
 	 */
 	virtual void load_(const GDecorator<dimensions::Dim3, coordinate_type>* cp) override {
-		// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
+		// Check that we are dealing with a GDecorator reference independent of this object and convert the pointer
 		const GDecorator<dimensions::Dim3, coordinate_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// No parent class with loadable data
@@ -924,7 +924,7 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
+		// Check that we are dealing with a GDecoratorContainer reference independent of this object and convert the pointer
 		const GDecoratorContainer<dimensions::Dim2, coordinate_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		GToken token("GDecoratorContainer<dimensions::Dim2>", e);
@@ -1130,7 +1130,7 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
+		// Check that we are dealing with a GDecoratorContainer reference independent of this object and convert the pointer
 		const GDecoratorContainer<dimensions::Dim3, coordinate_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		GToken token("GDecoratorContainer<dimensions::Dim3>", e);
@@ -2138,7 +2138,10 @@ protected:
 template<>
 inline
 std::shared_ptr <GDataCollector1T<double>>
-GDataCollector2T<double, double>::projectX(std::size_t nBinsX, std::tuple<double, double> rangeX) const {
+GDataCollector2T<double, double>::projectX(
+	std::size_t nBinsX
+	, std::tuple<double, double> rangeX
+) const {
 	std::tuple<double, double> myRangeX;
 	if (rangeX == std::tuple<double, double>()) {
 		// Find out about the minimum and maximum values in the data_ array

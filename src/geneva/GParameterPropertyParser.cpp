@@ -87,7 +87,7 @@ GParameterPropertyParser::GParameterPropertyParser(const std::string &rw)
 	using boost::spirit::qi::alnum;
 	using boost::spirit::qi::hold;
 
-	varSpec = +char_("0-9a-zA-Z_,.+-[]");;
+	varSpec = +char_("0-9a-zA-Z_,.+-[]");
 	varString = char_("dfibs") > '(' > varSpec > ')';
 
 	identifier = raw[(alpha | '_') >> *(alnum | '_')];

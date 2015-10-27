@@ -130,7 +130,7 @@ public:
 			);
 
 			gtg_.create_threads(
-				[&]() { io_service_.run(); }, nThreads_.load()
+				[&]() { this->io_service_.run(); }, nThreads_.load() // this-> is a work-around for a problem in gcc 4.7.2
 			);
 
 			threads_started_ = true;
