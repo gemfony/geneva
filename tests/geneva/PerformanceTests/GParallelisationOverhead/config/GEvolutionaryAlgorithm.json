@@ -57,7 +57,7 @@
         "comment": "The maximum allowed number of iterations",
         "comment": "[GOptimizationAlgorithmT<ind_type>]",
         "default": "1000",
-        "value": "1000"
+        "value": "20"
     },
     "maxStallIteration":
     {
@@ -65,7 +65,7 @@
         "comment": "0 means: no constraint.",
         "comment": "[GOptimizationAlgorithmT<ind_type>]",
         "default": "20",
-        "value": "20"
+        "value": "0"
     },
     "indivdualUpdateStallCounterThreshold":
     {
@@ -81,7 +81,7 @@
         "comment": "The number of iterations after which a report should be issued",
         "comment": "[GOptimizationAlgorithmT<ind_type>]",
         "default": "1",
-        "value": "1"
+        "value": "0"
     },
     "nRecordBestIndividuals":
     {
@@ -163,14 +163,14 @@
             "comment": "The total size of the population",
             "comment": " [GBaseParChildT<ind_type>]",
             "default": "42",
-            "value": "42"
+            "value": "101"
         },
         "nParents":
         {
             "comment": "The number of parents in the population",
             "comment": " [GBaseParChildT<ind_type>]",
             "default": "2",
-            "value": "2"
+            "value": "1"
         }
     },
     "recombinationMethod":

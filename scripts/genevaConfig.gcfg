@@ -69,7 +69,7 @@ BUILDMODE="Release"
 
 # The C++ standard to use for building, one of 'auto' (choose automatically),
 # 'cxx11' (enforce the C++11 standard), or 'cxx14' (enforce the C++14 standard)
-BUILDSTD="auto"
+BUILDSTD="cxx11"
 
 # Whether Geneva should be built with MPI support (experimental!).
 # NOTE: Boost.MPI must be installed alongside supported MPI libraries

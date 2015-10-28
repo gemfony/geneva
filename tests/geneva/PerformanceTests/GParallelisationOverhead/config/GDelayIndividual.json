@@ -7,27 +7,27 @@
     "nVariables":
     {
         "default": "100",
-        "value": "100"
+        "value": "25"
     },
     "delays":
     {
         "default": "(0,1), (0,10), (0,100), (0,500), (1,0)",
-        "value": "(0,1), (0,10), (0,100)"
+        "value": "(0,1), (0,10), (0,100), (0,500), (1,0), (2,0), (4,0), (8,0), (16,0), (32,0)"
     },
     "resultFile":
     {
         "default": "networkResults.C",
-        "value": "networkResults.C"
+        "value": "networkResults_par.C"
     },
     "shortResultFile":
     {
         "default": "shortDelayResults.txt",
-        "value": "shortDelayResults.txt"
+        "value": "shortDelayResults_par.txt"
     },
     "nMeasurements":
     {
         "default": "10",
-        "value": "3"
+        "value": "5"
     },
     "interMeasurementDelay":
     {

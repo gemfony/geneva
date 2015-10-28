@@ -71,6 +71,8 @@ void startReferenceMeasurement(
 	, GDelayIndividualFactory& gdif
 	, std::tuple<double,double,double,double>& ab
 ) {
+	std::cout << "Starting reference measurement" << std::endl;
+
 	std::vector<std::tuple<double, double>> referenceExecutionTimes;
 
 	//---------------------------------------------------------------------
@@ -88,6 +90,8 @@ void startReferenceMeasurement(
 		}
 
 		for(std::uint32_t i=0; i<nMeasurementsPerIteration; i++) {
+			std::cout << "Serial measurement " << i << " in iteration " << iter << std::endl;
+
 			// Make the individual known to the optimizer
 			go.push_back(gdi_ptr);
 
@@ -117,6 +121,8 @@ void startReferenceMeasurement(
 
 	// Calculate the regression parameters a and b, including errors
 	ab = getRegressionParameters(referenceExecutionTimes);
+
+	std::cout << "End of reference measurement" << std::endl;
 }
 
 /******************************************************************************/
@@ -137,6 +143,8 @@ void startParallelMeasurement(
 	, GDelayIndividualFactory& gdif
 	, std::vector<std::tuple<double,double,double,double>>& parallelExecutionTimes
 ) {
+	std::cout << "Starting parallel measurement" << std::endl;
+
 	//---------------------------------------------------------------------
 	// Make sure the output vector is empty
 	parallelExecutionTimes.clear();
@@ -147,7 +155,7 @@ void startParallelMeasurement(
 	std::uint32_t nMeasurementsPerIteration = 5;
 	std::size_t iter = 0;
 	std::shared_ptr<GDelayIndividual> gdi_ptr;
-	while((gdi_ptr = gdif.get<GDelayIndividual>())) {
+ 	while((gdi_ptr = gdif.get<GDelayIndividual>())) {
 		if(0==iter) { // The first individual must already have been produced in order to access parsed data
 			// Determine the amount of seconds the process should sleep in between two measurements
 			interMeasurementDelay = gdif.getInterMeasurementDelay();
@@ -156,8 +164,9 @@ void startParallelMeasurement(
 		}
 
 		std::vector<double> delaySummary;
-		std::cout << "Starting " << nMeasurementsPerIteration << " measurements" << std::endl;
 		for(std::uint32_t i=0; i<nMeasurementsPerIteration; i++) {
+			std::cout << "Parallel measurement " << i << " in iteration " << iter << std::endl;
+
 			// Make the individual known to the optimizer
 			go.push_back(gdi_ptr);
 
@@ -194,6 +203,8 @@ void startParallelMeasurement(
 		// Increment the iteration counter
 		iter++;
 	}
+
+	std::cout << "End of parallel measurement" << std::endl;
 }
 
 /******************************************************************************/
@@ -258,7 +269,7 @@ int main(int argc, char **argv) {
 	// Start the reference and parallel threads
 	tp.async_schedule([&](){ startReferenceMeasurement(go_serial, gdif_ref, ab); });
 	tp.async_schedule([&](){ startParallelMeasurement(go_parallel, gdif_par, parallelExecutionTimes); });
-
+	std::cout << "Waiting for threads to return" << std::endl;
 	// And wait for their return
 	tp.wait();
 
