@@ -178,7 +178,9 @@ void brokerProducer(
 }
 
 /********************************************************************************/
-
+/**
+ * This test tries to male bottlenecks in the broker architecture visible.
+ */
 int main(int argc, char **argv) {
 	std::string configFile;
 	bool serverMode;

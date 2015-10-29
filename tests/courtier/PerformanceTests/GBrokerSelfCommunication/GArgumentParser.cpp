@@ -44,13 +44,19 @@ namespace Tests {
  * A function that parses the command line for all required parameters
  */
 bool parseCommandLine(
-	int argc, char **argv, std::string &configFile, GBSCModes &executionMode, bool &serverMode, std::string &ip,
-	unsigned short &port, Gem::Common::serializationMode &serMode, submissionReturnMode &srm,
-	bool &useDirectBrokerConnection
+	int argc, char **argv
+	, std::string &configFile
+	, GBSCModes &executionMode
+	, bool &serverMode
+	, std::string &ip
+	, unsigned short &port
+	, Gem::Common::serializationMode &serMode
+	, submissionReturnMode &srm
+	, bool &useDirectBrokerConnection
 ) {
 	try {
 		// Check the command line options. Uses the Boost program options library.
-		po::options_description desc("Usage: evaluator [options]");
+		po::options_description desc("Usage: GBrokerSelfCommunication [options]");
 		desc.add_options()
 			("help,h", "emit help message")
 			("configFile,c", po::value<std::string>(&configFile)->default_value(DEFAULTCONFIGFILEAP),
@@ -80,6 +86,7 @@ bool parseCommandLine(
 			glogger
 			<< desc << std::endl
 			<< GSTDERR;
+			return false;
 		}
 
 		serverMode = false;
@@ -156,9 +163,13 @@ bool parseCommandLine(
 /************************************************************************************************/
 
 bool parseConfigFile(
-	const std::string &configFile, std::uint32_t &nProducers, std::uint32_t &nProductionCycles,
-	std::uint32_t &nContainerObjects, std::size_t &nContainerEntries, std::size_t &maxResubmissions,
-	std::uint32_t &nWorkers
+	const std::string &configFile
+	, std::uint32_t &nProducers
+	, std::uint32_t &nProductionCycles
+	, std::uint32_t &nContainerObjects
+	, std::size_t &nContainerEntries
+	, std::size_t &maxResubmissions
+	, std::uint32_t &nWorkers
 ) {
 	// Check the name of the configuation file
 	if (configFile.empty() || configFile == "empty" || configFile == "unknown") {

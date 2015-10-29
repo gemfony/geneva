@@ -32,7 +32,7 @@
 #
 ####################################################################
 # This script will start a given Geneva program a predefined
-# number of times in client mode on the same host. It will also 
+# number of times in client mode on the same host. It will also
 # start the server, using Geneva's standard syntax for networked mode.
 # This can be used to test networked execution of a Geneva program
 # using local (i.e. reliable, low latency) networking.
@@ -43,14 +43,15 @@
 ####################################################################
 
 # Check the number of command line arguments (should be exactly 2)
-if [ ! $# -eq 2 ]; then
-    echo "Usage: ./startLocalJobs.sh <program name> <number of clients>"
+if [ ! $# -eq 3 ]; then
+    echo "Usage: ./startLocalJobs.sh <program name> <number of clients> <port>"
     exit
 fi
 
 # Read in the command line arguments
 PROGNAME=$1
 NCLIENTS=$2
+PORT=$3
 
 # Check that the program exists
 if [ ! -e ${PROGNAME} ]; then
@@ -58,7 +59,7 @@ if [ ! -e ${PROGNAME} ]; then
     exit
 fi
 
-# Check that the desired number of clients is integral and > 0
+# Check that the desired number of clients is integral and >= 0
 if [ ! $(echo "$2" | grep -E "^[0-9]+$") ]; then
     echo "Error: $2 is not a valid integer. Leaving."
     exit
@@ -68,17 +69,27 @@ if [ ! $2 -gt 0 ];     then
     exit
 fi
 
+# Check that the port number is integral and >= 1000
+if [ ! $(echo "$3" | grep -E "^[0-9]+$") ]; then
+    echo "Error: $3 is not a valid integer. Leaving."
+    exit
+fi
+if [ ! $3 -le 1000 ];     then
+    echo "Error: $3 should at least be 1001. Leaving"
+    exit
+fi
+
 # Create an output directory
 if [ ! -d ./output ]; then
     mkdir ./output
 fi
 
 # Start the server
-(./$1 -e 2 -c tcpc --port=10000 >& ./output/output_server) &
+(./$1 -e 2 -c tcpc --port=${port} >& ./output/output_server) &
 
 # Start the workers
 for i in `seq 1 $2`; do
-    (./$1 -e 2 -c tcpc --client --ip=localhost --port=10000 >& ./output/output_client$i) &
+    (./$1 -e 2 -c tcpc --client --ip=localhost --port=${port} >& ./output/output_client$i) &
 done
 
 tail -f ./output/output_server
