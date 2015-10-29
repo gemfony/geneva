@@ -74,7 +74,7 @@ if [ ! $(echo "$3" | grep -E "^[0-9]+$") ]; then
     echo "Error: $3 is not a valid integer. Leaving."
     exit
 fi
-if [ ! $3 -le 1000 ];     then
+if [ $3 -le 1000 ];     then
     echo "Error: $3 should at least be 1001. Leaving"
     exit
 fi
@@ -85,11 +85,11 @@ if [ ! -d ./output ]; then
 fi
 
 # Start the server
-(./$1 -e 2 -c tcpc --port=${port} >& ./output/output_server) &
+(./$1 -e 2 -c tcpc --port=${PORT} >& ./output/output_server) &
 
 # Start the workers
 for i in `seq 1 $2`; do
-    (./$1 -e 2 -c tcpc --client --ip=localhost --port=${port} >& ./output/output_client$i) &
+    (./$1 -e 2 -c tcpc --client --ip=localhost --port=${PORT} >& ./output/output_client$i) &
 done
 
 tail -f ./output/output_server
