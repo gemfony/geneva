@@ -1401,7 +1401,6 @@ public:
 		io_service_.stop();
 		// Wait for the threads in the group to exit
 		gtg_.join_all();
-		gtg_.clearThreads(); // Clear the thread group
 	}
 
 	/***************************************************************************/
