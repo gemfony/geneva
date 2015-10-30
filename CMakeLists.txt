@@ -44,6 +44,11 @@ PROJECT (Geneva_Library_Collection)
 SET(GENEVA_FULL_TREE_BUILD TRUE)
 
 ################################################################################
+# Set this variable to make all examples run as part of the testing.
+
+#SET(GENEVA_RUN_EXAMPLES_AS_TESTS TRUE)
+
+################################################################################
 # Different subcomponents of the Geneva binary tree can be installed in
 # customized locations, by setting the "INSTALL_PREFIX_*" variables:
 #   INSTALL_PREFIX_INCLUDES -> installation folder for the header files
