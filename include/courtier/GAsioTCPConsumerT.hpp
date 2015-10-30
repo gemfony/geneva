@@ -567,7 +567,9 @@ private:
  */
 template<typename processable_type>
 class GAsioServerSessionT
-	: public std::enable_shared_from_this<GAsioServerSessionT<processable_type>>, private boost::noncopyable {
+	: public std::enable_shared_from_this<GAsioServerSessionT<processable_type>>
+	, private boost::noncopyable
+{
 public:
 	/***************************************************************************/
 	/**
@@ -578,20 +580,28 @@ public:
 	 * @param io_service A reference to the server's io_service
 	 */
 	GAsioServerSessionT(
-		boost::asio::io_service &io_service, const Gem::Common::serializationMode &serMod,
-		GAsioTCPConsumerT<processable_type> *master
+		boost::asio::io_service &io_service
+		, const Gem::Common::serializationMode &serMod
+		, GAsioTCPConsumerT<processable_type> *master
 	)
-		: strand_(io_service), socket_(io_service), bytesTransferredDataBody_(0),
-		  dataBody_ptr_(new std::string()) // An empty string
-		, portId_(Gem::Common::PORTIDTYPE(0)), dataSize_(0), serializationMode_(serMod), master_(master),
-		  broker_ptr_(master->broker_ptr_), timeout_(boost::posix_time::milliseconds(50)), brokerRetrieveMaxRetries_(10),
-		  noDataClientSleepMilliSeconds_(5000) { /* nothing */ }
+		: strand_(io_service), socket_(io_service), bytesTransferredDataBody_(0)
+	   , dataBody_ptr_(new std::string()) // An empty string
+		, portId_(Gem::Common::PORTIDTYPE(0))
+	   , dataSize_(0)
+	   , serializationMode_(serMod)
+	   , master_(master)
+	   , broker_ptr_(master->broker_ptr_)
+	   , timeout_(boost::posix_time::milliseconds(50))
+	   , brokerRetrieveMaxRetries_(10)
+	   , noDataClientSleepMilliSeconds_(5000)
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * A standard destructor. Shuts down and closes the socket. Note: Non-virtual.
 	 */
-	~GAsioServerSessionT() { /* nothing */ }
+	~GAsioServerSessionT()
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -1145,7 +1155,8 @@ public:
 	/**
 	 * A standard destructor
 	 */
-	virtual ~GAsioTCPConsumerT() { /* nothing */ }
+	virtual ~GAsioTCPConsumerT()
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -1307,7 +1318,7 @@ public:
 	 * Starts the actual processing loops
 	 */
 	void async_startProcessing() {
-		// Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).
+		// Open the acceptor
 		boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port_);
 		acceptor_.open(endpoint.protocol());
 		acceptor_.bind(endpoint);
@@ -1330,11 +1341,17 @@ public:
 		// Set the number of threads in the pool
 		if (listenerThreads_) {
 			gtp_.setNThreads(boost::numeric_cast<unsigned int>(listenerThreads_));
+			std::cout << "GAsioTCPConsumerT: Started acceptor with " << boost::numeric_cast<unsigned int>(listenerThreads_) << " threads" << std::endl;
 		}
 
 		try {
+			// Prevent a race condition
+			work_.reset(new boost::asio::io_service::work(io_service_));
+
 			// Start the first session
 			this->async_newAccept();
+
+			// TODO: Can the async call return quickly enough so that the io_service may nevertheless run out of work ?
 
 			// Create a number of threads responsible for the io_service_ objects
 			// This absolutely needs to happen after the first session has started,
@@ -1377,10 +1394,14 @@ public:
 		// Set the stop criterion
 		GBaseConsumerT<processable_type>::shutdown();
 
+		// Terminate the worker and clear the thread group
+		work_.reset(); // This will initiate termination of all threads
+
 		// Terminate the io service
 		io_service_.stop();
 		// Wait for the threads in the group to exit
 		gtg_.join_all();
+		gtg_.clearThreads(); // Clear the thread group
 	}
 
 	/***************************************************************************/
@@ -1528,7 +1549,9 @@ private:
 		// First we make sure a new session is started asynchronously so the next request can be served
 		std::shared_ptr <GAsioServerSessionT<processable_type>> newSession(
 			new GAsioServerSessionT<processable_type>(
-				io_service_, serializationMode_, this
+				io_service_
+				, serializationMode_
+				, this
 			)
 		);
 
@@ -1607,6 +1630,7 @@ private:
 
 	/***************************************************************************/
 	boost::asio::io_service io_service_;   ///< ASIO's io service, responsible for event processing, absolutely needs to be _before_ acceptor so it gets initialized first.
+	std::shared_ptr <boost::asio::io_service::work> work_; ///< A place holder ensuring that the io_service doesn't stop prematurely
 	std::size_t listenerThreads_;  ///< The number of threads used to listen for incoming connections through io_servce::run()
 	boost::asio::ip::tcp::acceptor acceptor_; ///< takes care of external connection requests
 	Gem::Common::serializationMode serializationMode_; ///< Specifies the serialization mode

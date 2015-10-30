@@ -1182,6 +1182,7 @@ void Go2::parseCommandLine(
 			std::cout << "Using consumer " << consumerName_ << std::endl;
 
 			// Finally give the consumer the chance to act on the command line options
+			// TODO: clone the consumer, then let the clone act on CL options and add the clone to the broker
 			GConsumerStore->get(consumerName_)->actOnCLOptions(vm);
 
 			// At this point the consumer should be fully configured
@@ -1194,7 +1195,7 @@ void Go2::parseCommandLine(
 					glogger
 					<< "In Go2::parseCommandLine(): Note!" << std::endl
 					<< "Could not register requested consumer," << std::endl
-					<< "as a consumer has already registered with the broker" << std::endl
+					<< "as a consumer was already registered with the broker" << std::endl
 					<< GLOGGING;
 				}
 			}

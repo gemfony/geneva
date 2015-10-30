@@ -80,9 +80,7 @@ namespace Courtier {
 class buffer_not_present : public std::exception {
 public:
 	buffer_not_present(void) throw() { }
-
 	buffer_not_present(const buffer_not_present &) throw() { }
-
 	~buffer_not_present() throw() { }
 };
 
@@ -111,8 +109,11 @@ public:
 	 * The default constructor.
 	 */
 	GBrokerT()
-		: finalized_(false), lastId_(0), currentGetPosition_(RawBuffers_.begin()),
-		  buffersPresent_(false) { /* nothing */ }
+		: finalized_(false)
+	   , lastId_(0)
+  		, currentGetPosition_(RawBuffers_.begin())
+	   , buffersPresent_(false)
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -131,7 +132,8 @@ public:
 	 * Initializes the broker. This function does nothing. Its only purpose is to control
 	 * initialization of the factory in the singleton.
 	 */
-	void init() { /* nothing */ }
+	void init()
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -142,8 +144,7 @@ public:
 		if (finalized_) return;
 
 		// Shut down all consumers
-		typename std::vector<std::shared_ptr < GBaseConsumerT<carrier_type>> > ::iterator
-		it;
+		typename std::vector<std::shared_ptr<GBaseConsumerT<carrier_type>>>::iterator it;
 		for (it = consumerCollection_.begin(); it != consumerCollection_.end(); ++it) {
 			(*it)->shutdown();
 		}
@@ -185,9 +186,7 @@ public:
 	 *
 	 * @param gbp A shared pointer to a new GBufferPortT object
 	 */
-	void enrol(std::shared_ptr <GBufferPortT<std::shared_ptr < carrier_type>>
-
-	> gbp) {
+	void enrol(std::shared_ptr <GBufferPortT<std::shared_ptr<carrier_type>>> gbp) {
 		// Lock the access to our internal data
 		boost::mutex::scoped_lock rawBuffersPresentLock(RawBuffersPresentMutex_);
 		boost::mutex::scoped_lock processedBuffersPresentLock(ProcessedBuffersPresentMutex_);
@@ -262,8 +261,7 @@ public:
 		boost::mutex::scoped_lock consumerEnrolmentLock(consumerEnrolmentMutex_);
 
 		// Do nothing if a consumer of this type has already been registered
-		if (std::find(consumerTypesPresent_.begin(), consumerTypesPresent_.end(), gc->getConsumerName()) !=
-			 consumerTypesPresent_.end()) {
+		if (std::find(consumerTypesPresent_.begin(), consumerTypesPresent_.end(), gc->getConsumerName()) != consumerTypesPresent_.end()) {
 			return;
 		}
 
@@ -324,7 +322,8 @@ public:
 	 * @return A key that uniquely identifies the origin of p
 	 */
 	Gem::Common::PORTIDTYPE get(
-		std::shared_ptr <carrier_type> &p, boost::posix_time::time_duration timeout
+		std::shared_ptr <carrier_type> &p
+		, boost::posix_time::time_duration timeout
 	) {
 		// Locks access to our internal data until we have a copy of a buffer.
 		// This will prevent the buffer from being removed, as the use count
@@ -367,7 +366,9 @@ public:
 	 * @return A boolean that indicates whether the item retrieval was successful
 	 */
 	bool get(
-		Gem::Common::PORTIDTYPE &id, std::shared_ptr <carrier_type> &p, boost::posix_time::time_duration timeout
+		Gem::Common::PORTIDTYPE &id
+		, std::shared_ptr <carrier_type> &p
+		, boost::posix_time::time_duration timeout
 	) {
 		// Locks access to our internal data until we have a copy of a buffer.
 		// This will prevent the buffer from being removed, as the use count
@@ -408,7 +409,8 @@ public:
 	 * @param p Holds the "raw" item to be submitted to the processed queue
 	 */
 	void put(
-		Gem::Common::PORTIDTYPE id, std::shared_ptr <carrier_type> p
+		Gem::Common::PORTIDTYPE id
+		, std::shared_ptr <carrier_type> p
 	) {
 		{
 			boost::mutex::scoped_lock processedBuffersPresentLock(ProcessedBuffersPresentMutex_);
@@ -449,7 +451,9 @@ public:
 	 * @param A boolean indicating whether the item could be added to the queue in time
 	 */
 	bool put(
-		Gem::Common::PORTIDTYPE id, std::shared_ptr <carrier_type> p, boost::posix_time::time_duration timeout
+		Gem::Common::PORTIDTYPE id
+		, std::shared_ptr <carrier_type> p
+		, boost::posix_time::time_duration timeout
 	) {
 		//------------------------------------------------------------------------
 		// Make sure processing can start (impossible, before any buffer

@@ -1,5 +1,5 @@
 /**
- * @file GConfigurationFileCreator.cpp
+ * @file GConfigFileCreation.cpp
  */
 
 /*

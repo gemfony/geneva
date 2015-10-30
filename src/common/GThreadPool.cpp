@@ -42,7 +42,11 @@ namespace Common {
  * Initialization with the "native" number of threads for this architecture
  */
 GThreadPool::GThreadPool()
-	: errorCounter_(0), tasksInFlight_(0), nThreads_(getNHardwareThreads()), threads_started_(false) { /* nothing */ }
+	: errorCounter_(0)
+   , tasksInFlight_(0)
+   , nThreads_(getNHardwareThreads())
+   , threads_started_(false)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -52,8 +56,11 @@ GThreadPool::GThreadPool()
  * @param nThreads The desired number of threads executing work concurrently in the pool
  */
 GThreadPool::GThreadPool(const unsigned int &nThreads)
-	: errorCounter_(0), tasksInFlight_(0), nThreads_(nThreads ? nThreads : getNHardwareThreads()),
-	  threads_started_(false) { /* nothing */ }
+	: errorCounter_(0)
+   , tasksInFlight_(0)
+   , nThreads_(nThreads ? nThreads : getNHardwareThreads())
+   , threads_started_(false)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -98,7 +105,7 @@ GThreadPool::~GThreadPool() {
  * the function will leave starting of threads to async_submit. Otherwise the function
  * will let the pool run empty of jobs. It will then either reset the local thread group,
  * so that all "old" thread objects are gone (needed when the thread pool size is decreased)
- * or simply add new threads. Nothing is done of the desired number of threads already
+ * or simply add new threads. Nothing is done if the desired number of threads already
  * equals the current number of threads. Note that this function may NOT be called
  * from a task running inside of the pool.
  *
@@ -128,7 +135,8 @@ void GThreadPool::setNThreads(unsigned int nThreads) {
 	if (true == threads_started_.load()) {
 		if (nThreadsLocal > nThreads_.load()) { // We simply add the required number of threads
 			gtg_.create_threads(
-				[&]() { io_service_.run(); }, nThreadsLocal - nThreads_.load()
+				[&]() { io_service_.run(); }
+				, nThreadsLocal - nThreads_.load()
 			);
 		} else { // We need to remove threads and thus reset the entire pool
 			work_.reset(); // This will initiate termination of all threads
@@ -145,7 +153,8 @@ void GThreadPool::setNThreads(unsigned int nThreads) {
 
 			// Start the threads
 			gtg_.create_threads(
-				[&]() { io_service_.run(); }, nThreadsLocal
+				[&]() { io_service_.run(); }
+				, nThreadsLocal
 			);
 		}
 	}
