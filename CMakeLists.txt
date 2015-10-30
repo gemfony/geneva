@@ -44,7 +44,7 @@ PROJECT (Geneva_Library_Collection)
 SET(GENEVA_FULL_TREE_BUILD TRUE)
 
 ################################################################################
-# Set this variable to make all examples run as part of the testing.
+# Set this variable to make all examples run as part of the testing with CTest.
 
 #SET(GENEVA_RUN_EXAMPLES_AS_TESTS TRUE)
 
@@ -116,11 +116,13 @@ ADD_SUBDIRECTORY (include)
 ADD_SUBDIRECTORY (src)
 
 # Examples and tests are compiled at the end
-ADD_SUBDIRECTORY (examples)
 IF( GENEVA_BUILD_TESTS )
 	INCLUDE(CTest)
 	ADD_SUBDIRECTORY (tests)
 ENDIF()
+
+# Examples are also run as tests if enabled with 'GENEVA_RUN_EXAMPLES_AS_TESTS'
+ADD_SUBDIRECTORY (examples)
 
 # Holds an incubator facility for new optimization algorihms
 # ADD_SUBDIRECTORY (incubator)
