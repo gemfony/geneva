@@ -769,16 +769,10 @@ protected:
 	 * Waits for the thread pool to run empty.
 	 */
 	virtual bool waitForReturn(
-		std::vector<std::shared_ptr < processable_type>
-
-	>& workItems
-	,
-	std::vector<bool> &workItemPos
-	, std::vector<std::shared_ptr < processable_type>
-	>& oldWorkItems
-	)
-
-	override {
+		std::vector<std::shared_ptr < processable_type>>& workItems
+		, std::vector<bool> &workItemPos
+		, std::vector<std::shared_ptr < processable_type>>& oldWorkItems
+	) override {
 		gtp_.wait();
 
 		// Mark all positions as "returned"
