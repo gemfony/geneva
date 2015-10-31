@@ -200,6 +200,7 @@ public:
 #endif /* DEBUG */
 
 		// Start threadsPerWorker_ threads for each registered worker template
+		std::cout << "Starting " << threadsPerWorker_ << " processing threads for " << workerTemplates_.size() << " worker(s)  in GBoostThreadConsumerT" << std::endl;
 		for (std::size_t w = 0; w < workerTemplates_.size(); w++) {
 			for (std::size_t i = 0; i < threadsPerWorker_; i++) {
 				std::shared_ptr <GWorker> p_worker = (workerTemplates_.at(w))->clone(i, this);

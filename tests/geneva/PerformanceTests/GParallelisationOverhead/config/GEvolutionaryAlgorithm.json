@@ -57,7 +57,7 @@
         "comment": "The maximum allowed number of iterations",
         "comment": "[GOptimizationAlgorithmT<ind_type>]",
         "default": "1000",
-        "value": "20"
+        "value": "10"
     },
     "maxStallIteration":
     {
