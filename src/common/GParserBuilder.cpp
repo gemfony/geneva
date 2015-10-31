@@ -533,7 +533,7 @@ void GParserBuilder::writeConfigFile(
 	boost::property_tree::ptree ptr;
 
 	// Output a header
-		if (header != "") {
+	if (header != "") {
 		// Break the header into individual tokens
 		tokenizer headerTokenizer(header, semicolon_sep);
 		for (tokenizer::iterator h = headerTokenizer.begin(); h != headerTokenizer.end(); ++h) {
