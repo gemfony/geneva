@@ -529,26 +529,21 @@ void GParserBuilder::writeConfigFile(
 		<< GEXCEPTION;
 	}
 
-	// Output the header
-	ofs << "//-----------------------------------------------------------------" << std::endl;
-	if (header != "") {
-		// Break the header into individual tokens
-		tokenizer headerTokenizer(header, semicolon_sep);
-		for (tokenizer::iterator h = headerTokenizer.begin(); h != headerTokenizer.end(); ++h) {
-			ofs << "// " << *h << std::endl;
-		}
-	}
-	ofs
-	<< "// File creation date: " << boost::posix_time::second_clock::local_time() << std::endl
-	<< "//-----------------------------------------------------------------" << std::endl
-	<< std::endl;
-
 	// Create a property tree object;
 	boost::property_tree::ptree ptr;
 
+	// Output a header
+		if (header != "") {
+		// Break the header into individual tokens
+		tokenizer headerTokenizer(header, semicolon_sep);
+		for (tokenizer::iterator h = headerTokenizer.begin(); h != headerTokenizer.end(); ++h) {
+			ptr.add("header.comment", std::string(*h).c_str());
+		}
+	}
+	ptr.add("header.comment", boost::posix_time::to_simple_string(boost::posix_time::second_clock::local_time()).c_str());
+
 	// Output variables and values
-	std::vector<std::shared_ptr < GFileParsableI>> ::const_iterator
-	cit;
+	std::vector<std::shared_ptr <GFileParsableI>> ::const_iterator cit;
 	for (cit = file_parameter_proxies_.begin(); cit != file_parameter_proxies_.end(); ++cit) {
 		// Only write out the parameter(s) if they are either essential or it
 		// has been requested to write out all parameters regardless

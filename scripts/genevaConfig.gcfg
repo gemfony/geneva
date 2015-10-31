@@ -89,7 +89,7 @@ INSTALLDIR="/opt/geneva"
 
 # Further compiler parameters you might want to provide, for instance
 # for turning on/off compiler warnings use "-Wextra -Wno-parentheses"
-CXXEXTRAFLAGS=""
+CXXEXTRAFLAGS="-std=c++11"
 
 # Further linker parameters you might want to provide
 LINKEREXTRAFLAGS=""
