@@ -1,139 +1,116 @@
-//-----------------------------------------------------------------
-// This configuration file was automatically created by GParserBuilder
-// File creation date: 2015-Mar-03 00:00:11
-//-----------------------------------------------------------------
-
 {
-    "adProb":
-    {
+    "header": {
+        "comment": "This configuration file was automatically created by GParserBuilder",
+        "comment": "2015-Nov-01 12:46:15"
+    },
+    "adProb": {
         "comment": "The probability for random adaption of values in evolutionary algorithms",
         "default": "1",
         "value": "1"
     },
-    "adaptAdProb":
-    {
+    "adaptAdProb": {
         "comment": "Determines the rate of adaption of adProb. Set to 0, if you do not need this feature",
-        "default": "0.1",
-        "value": "0.1"
+        "default": "0.10000000000000001",
+        "value": "0.10000000000000001"
     },
-    "minAdProb":
-    {
+    "minAdProb": {
         "comment": "The lower allowed boundary for adProb-variation",
-        "default": "0.05",
-        "value": "0.05"
+        "default": "0.050000000000000003",
+        "value": "0.050000000000000003"
     },
-    "maxAdProb":
-    {
+    "maxAdProb": {
         "comment": "The upper allowed boundary for adProb-variation",
         "default": "1",
         "value": "1"
     },
-    "adaptionThreshold":
-    {
+    "adaptionThreshold": {
         "comment": "The number of successful calls to an adaptor after which adaption",
         "comment": "of mutation parameters takes place (e.g sigma-variation in gauss mutation)",
         "default": "1",
         "value": "1"
     },
-    "useBiGaussian":
-    {
+    "useBiGaussian": {
         "comment": "Whether to use a double gaussion for the adaption of parmeters in ES",
         "default": "false",
         "value": "false"
     },
-    "sigma1":
-    {
+    "sigma1": {
         "comment": "The sigma for gauss-adaption in ES",
         "comment": "(or the sigma of the left peak of a double gaussian)",
-        "default": "0.025",
-        "value": "0.025"
+        "default": "0.025000000000000001",
+        "value": "0.025000000000000001"
     },
-    "sigmaSigma1":
-    {
+    "sigmaSigma1": {
         "comment": "Influences the self-adaption of gauss-mutation in ES",
-        "default": "0.2",
-        "value": "0.2"
+        "default": "0.20000000000000001",
+        "value": "0.20000000000000001"
     },
-    "minSigma1":
-    {
+    "minSigma1": {
         "comment": "The minimum value of sigma1",
         "default": "0.001",
         "value": "0.001"
     },
-    "maxSigma1":
-    {
+    "maxSigma1": {
         "comment": "The maximum value of sigma1",
         "default": "1",
         "value": "1"
     },
-    "sigma2":
-    {
+    "sigma2": {
         "comment": "The sigma of the right peak of a double gaussian (if any)",
-        "default": "0.025",
-        "value": "0.025"
+        "default": "0.025000000000000001",
+        "value": "0.025000000000000001"
     },
-    "sigmaSigma2":
-    {
+    "sigmaSigma2": {
         "comment": "Influences the self-adaption of gauss-mutation in ES",
-        "default": "0.2",
-        "value": "0.2"
+        "default": "0.20000000000000001",
+        "value": "0.20000000000000001"
     },
-    "minSigma2":
-    {
+    "minSigma2": {
         "comment": "The minimum value of sigma2",
         "default": "0.001",
         "value": "0.001"
     },
-    "maxSigma2":
-    {
+    "maxSigma2": {
         "comment": "The maximum value of sigma2",
         "default": "1",
         "value": "1"
     },
-    "delta":
-    {
+    "delta": {
         "comment": "The start distance between both peaks used for bi-gaussian mutations in ES",
-        "default": "0.05",
-        "value": "0.05"
+        "default": "0.050000000000000003",
+        "value": "0.050000000000000003"
     },
-    "sigmaDelta":
-    {
+    "sigmaDelta": {
         "comment": "The width of the gaussian used for mutations of the delta parameter",
-        "default": "0.2",
-        "value": "0.2"
+        "default": "0.20000000000000001",
+        "value": "0.20000000000000001"
     },
-    "minDelta":
-    {
+    "minDelta": {
         "comment": "The minimum allowed value of delta",
         "default": "0.001",
         "value": "0.001"
     },
-    "maxDelta":
-    {
+    "maxDelta": {
         "comment": "The maximum allowed value of delta",
         "default": "1",
         "value": "1"
     },
-    "parDim":
-    {
+    "parDim": {
         "comment": "The number of dimensions used for the demo function",
         "default": "2",
         "value": "2"
     },
-    "minVar":
-    {
+    "minVar": {
         "comment": "The lower boundary of the initialization range for parameters",
         "default": "-10",
         "value": "-10"
     },
-    "maxVar":
-    {
+    "maxVar": {
         "comment": "The upper boundary of the initialization range for parameters",
         "default": "10",
         "value": "10"
     },
-    "parameterType":
-    {
+    "parameterType": {
         "comment": "Indicates what type of parameter object should be used",
         "comment": "(0) GDoubleCollection",
         "comment": "(1) GConstrainedDoubleCollection",
@@ -143,16 +120,14 @@
         "default": "4",
         "value": "4"
     },
-    "initMode":
-    {
+    "initMode": {
         "comment": "Indicates how the parameters are initialized",
         "comment": "(0) randomly",
         "comment": "(1) with a value on the perimeter of the allowed or recommended value range",
         "default": "1",
         "value": "1"
     },
-    "evalPolicy":
-    {
+    "evalPolicy": {
         "comment": "Specifies which strategy should be used to calculate the evaluation:",
         "comment": "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid solutions",
         "comment": "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions",
@@ -161,30 +136,26 @@
         "default": "0",
         "value": "0"
     },
-    "steepness":
-    {
+    "steepness": {
         "comment": "When using a sigmoid function to transform the individual's fitness,",
         "comment": "this parameter influences the steepness of the function at the center of the sigmoid.",
         "comment": "The parameter must have a value > 0.",
         "default": "1000",
         "value": "1000"
     },
-    "barrier":
-    {
+    "barrier": {
         "comment": "When using a sigmoid function to transform the individual's fitness,",
         "comment": "this parameter sets the upper\/lower boundary of the sigmoid.",
         "comment": "The parameter must have a value > 0.",
         "default": "10000",
         "value": "10000"
     },
-    "maxUnsuccessfulAdaptions":
-    {
+    "maxUnsuccessfulAdaptions": {
         "comment": "The maximum number of unsuccessful adaptions in a row for one call to adapt()",
         "default": "1000",
         "value": "1000"
     },
-    "maxRetriesUntilValid":
-    {
+    "maxRetriesUntilValid": {
         "comment": "The maximum allowed number of retries during the",
         "comment": "adaption of individuals until a valid solution was found",
         "comment": "A parameter set is considered to be \"valid\" if",
@@ -192,22 +163,18 @@
         "default": "10",
         "value": "10"
     },
-    "maximize":
-    {
+    "maximize": {
         "comment": "Specifies whether the individual should be maximized (1) or minimized (0)",
         "comment": "Note that minimization is the by far most common option.",
-        "default": "0",
-        "value": "0"
+        "default": "false",
+        "value": "false"
     },
-    "perItemCrossOverProbability":
-    {
+    "perItemCrossOverProbability": {
         "comment": "The likelihood for two data items to be exchanged",
-        "comment": "in a \"per-item\" cross-over operation",
         "default": "0.5",
         "value": "0.5"
     },
-    "demoFunction":
-    {
+    "demoFunction": {
         "comment": "Specifies which demo function should be used:",
         "comment": "0: Parabola",
         "comment": "1: Berlich",
