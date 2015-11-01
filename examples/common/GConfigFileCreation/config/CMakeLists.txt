@@ -4,7 +4,8 @@ SET ( CONFIGFILES
 	configFile.json
 )
 
-# Copy the config files to the build tree for easier testing
-FILE ( COPY ${CONFIGFILES} DESTINATION . )
+# The default action of this example is creating the configuration file,
+# so do not copy the config files to the build tree or it will fail
+#FILE ( COPY ${CONFIGFILES} DESTINATION . )
 
 INSTALL ( FILES ${CONFIGFILES} DESTINATION ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME}/config )
