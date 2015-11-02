@@ -113,8 +113,8 @@
     "initValues": {
         "comment": "Indicates, whether individuals should be initialized randomly (random),",
         "comment": "with the lower (min) or upper (max) boundary of their value ranges",
-        "default": "predef",
-        "value": "predef"
+        "default": "random",
+        "value": "random"
     },
     "removeExecTemporaries": {
         "comment": "Indicates, whether files created during external execution should be removed",
