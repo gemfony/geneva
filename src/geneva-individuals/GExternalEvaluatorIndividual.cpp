@@ -1112,11 +1112,11 @@ std::string GExternalEvaluatorIndividualFactory::getParameterFileBaseName() cons
  * Indicates the initialization mode
  */
 void GExternalEvaluatorIndividualFactory::setInitValues(std::string initValues) {
-	if (initValues != "random" && initValues != "min" && initValues != "max" && initValues != "predef") {
+	if (initValues != "random" && initValues != "min" && initValues != "max") {
 		glogger
 		<< "In GExternalEvaluatorIndividualFactory::setInitValues(): Error!" << std::endl
 		<< "Invalid argument: " << initValues << std::endl
-		<< "Expected \"random\", \"min\", \"max\" or \"predef\"." << std::endl
+		<< "Expected \"min\", \"max\", or \"random\"." << std::endl
 		<< GEXCEPTION;
 	}
 
