@@ -1,13 +1,11 @@
 //------------------------------------------------------------------------------------------------------
-* Development version 1.9.0, to be released as version 2.0 when ready
+* Development version 1.9, to be released as version 2.0 when ready
 
 Wishlist:
 ---------
 
 Feature- and API-additions:
 
- - Drop C++98 support, and switch to rely on some features from the
-   C++11 standard.
  - A scripting interface to optimization algorithms, so that new
    algorithms can be more easily implemented and tested even by
    people not familiar with all of Geneva.
@@ -28,36 +26,44 @@ API-compatible changes:
  - Full integration of -fsanitize=X.
  - Rework of the test infrastructure.
 
+
 The main changes for this release include:
 ------------------------------------------
 
 ******************************* PLEASE NOTE ************************************
- - Support for C++ standards prior to C++11 was dropped. This allowed the
-   following changes. NOTE THAT SOME OF THESE MAY REQUIRE CHANGES ON YOUR SIDE
-   o std::sort is now based on lambda expressions rather than function objects
-   o Replacement of boost::bind with std::bind or C++11 lambda expressions
-   o Replacement of all boost::shared_ptr with std::shared_ptr . As a consequence
-     the Go2 interface had to be changed. If you want to define your own command
-     line options, you may now transfer a boost::program_options::options_description
-     object. This simplifies the specification of user-defined command line options,
-     but you will have to change your main() function, if you have used the old
-     Go2-interface before.
-   o Pluggable optimization monitors may now be registered solely through their
-     std::shared_ptr, making the interface more logical.
+
+Support for C++ standards prior to C++11 was dropped. This allowed the
+following changes. NOTE THAT SOME OF THESE MAY REQUIRE CHANGES ON YOUR
+SIDE.
+
+ - std::sort is now based on lambda expressions rather than on function
+   objects.
+ - boost::bind was replaced with std::bind or C++11 lambda expressions.
+ - boost::shared_ptr was replaced with std::shared_ptr. As a consequence
+   the Go2 interface had to be changed. If you want to define your own
+   command line options, you may now transfer a
+   boost::program_options::options_description object. This simplifies
+   the specification of user-defined command line options, but you will
+   have to change your main() function, if you have used the old
+   Go2-interface before.
+ - Pluggable optimization monitors may now be registered solely through
+   their std::shared_ptr, making the interface more logical.
 
 ********************************************************************************
 
- - Added a G_DEPRECATED macro so sole old functions may remain, but are marked
-   as deprecated. Such functions may go away without further notice in future
-   versions of Geneva.
- - Gem::Common::GSerializableI is now called GCommonInterfaceT and holds a lot
-   of functionality formerly located in GObject. This happened so other classes
-   (including those found in the Common lib) may profit from the serialization and
-   testing infrastructure.
- - Moved from boost::tuple to std::tuple and associated functions (make_tuple, std::get etc.)
- - Moved all boost::*int*_t to their C++11 counterparts
+ - Gem::Common::GSerializableI was renamed GCommonInterfaceT and now
+   holds a lot of functionality formerly located in GObject. This was
+   done so that other classes (including those found in the "Common"
+   library) may profit from the serialization and testing infrastructure.
+ - Moved from boost::tuple to std::tuple and associated functions
+   (make_tuple, std::get, etc.).
+ - Moved all boost::*int*_t to their C++11 counterparts.
+ - Added a G_DEPRECATED macro so sole old functions may remain, but
+   are marked as deprecated. Such functions may go away without further
+   notice in future versions of Geneva.
+ - Ported to Boost 1.59.
 
-Recommended version of Boost: 1.57; Minimum Boost version: 1.57.
+Recommended version of Boost: 1.59; Minimum Boost version: 1.57.
 NOTE: Boost 1.58 ist NOT recommended, due to a severe bug affecting Geneva.
 
 //------------------------------------------------------------------------------------------------------
