@@ -93,10 +93,11 @@ public:
 	 * The default constructor.
 	 */
 	GBoostThreadConsumerT()
-		: Gem::Courtier::GBaseConsumerT<processable_type>(),
-		  threadsPerWorker_(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER))),
-		  broker_ptr_(GBROKER(processable_type)),
-		  workerTemplates_(1, std::shared_ptr<GWorker>(new GDefaultWorker())) { /* nothing */ }
+		: Gem::Courtier::GBaseConsumerT<processable_type>()
+		, threadsPerWorker_(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER)))
+		, broker_ptr_(GBROKER(processable_type))
+		, workerTemplates_(1, std::shared_ptr<GWorker>(new GDefaultWorker()))
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**

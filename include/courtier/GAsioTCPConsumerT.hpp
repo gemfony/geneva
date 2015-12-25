@@ -295,6 +295,7 @@ protected:
 			// Read answer. First we care for the command sent by the server
 			boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
 
+
 			// Not currently getting here
 
 			// Remove all leading or trailing white spaces from the command

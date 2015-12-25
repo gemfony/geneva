@@ -386,6 +386,7 @@ public:
 			cp.erase(cp.begin() + minSize, cp.end());
 		}
 
+
 		// Nothing to do if both vectors have the same size
 	}
 
