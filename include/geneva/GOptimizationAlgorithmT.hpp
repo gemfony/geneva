@@ -37,10 +37,14 @@
 
 // Standard header files go here
 #include <iostream>
+#include <ctime>
 
 // Boost header files go here
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/local_time_adjustor.hpp>
+#include <boost/date_time/c_local_time_adjustor.hpp>
 
 #ifndef GOPTIMIZATIONALGORITHMT_HPP_
 #define GOPTIMIZATIONALGORITHMT_HPP_
@@ -110,6 +114,8 @@ private:
 		& BOOST_SERIALIZATION_NVP(qualityThreshold_)
 		& BOOST_SERIALIZATION_NVP(hasQualityThreshold_)
 		& BOOST_SERIALIZATION_NVP(maxDuration_)
+		& BOOST_SERIALIZATION_NVP(terminationFile_)
+		& BOOST_SERIALIZATION_NVP(terminateOnFileModification_)
 		& BOOST_SERIALIZATION_NVP(emitTerminationReason_)
 		& BOOST_SERIALIZATION_NVP(halted_)
 		& BOOST_SERIALIZATION_NVP(worstKnownValids_)
@@ -412,6 +418,8 @@ public:
 		compare_t(IDENTITY(qualityThreshold_, p_load->qualityThreshold_), token);
 		compare_t(IDENTITY(hasQualityThreshold_, p_load->hasQualityThreshold_), token);
 		compare_t(IDENTITY(maxDuration_, p_load->maxDuration_), token);
+		compare_t(IDENTITY(terminationFile_, p_load->terminationFile_), token);
+		compare_t(IDENTITY(terminateOnFileModification_, p_load->terminateOnFileModification_), token);
 		compare_t(IDENTITY(emitTerminationReason_, p_load->emitTerminationReason_), token);
 		compare_t(IDENTITY(halted_, p_load->halted_), token);
 		compare_t(IDENTITY(worstKnownValids_, p_load->worstKnownValids_), token);
@@ -745,6 +753,33 @@ public:
 
 	/***************************************************************************/
 	/**
+	 *  Sets the name of a "termination file" (optimization is supposed to
+	 *  stop when the modification time of this file is more recent than the
+	 *  start of the optimizatoon rn.
+	 *
+	 *  @param terminationFile The name of a file used to initiate termination
+	 *  @param hasQualityThreshold Allows to (de-)activate "touched termination"
+	 */
+	void setTerminationFile(std::string terminationFile, bool terminateOnFileModification = true) {
+		terminationFile_ = terminationFile;
+		terminateOnFileModification_ = terminateOnFileModification;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Retrieves the current name of the termination file and also indicates whether
+	 * the "touched halt" is active
+	 *
+	 * @param terminateOnFileModification A boolean indicating whether "touched termination" is active
+	 * @return The current value of the terminationFile_ variable
+	 */
+	std::string getTerminationFile(bool& terminateOnFileModification) const {
+		terminateOnFileModification = terminateOnFileModification_;
+	 	return terminationFile_;
+	}
+
+	/***************************************************************************/
+	/**
 	 * Removes the quality threshold
 	 */
 	void resetQualityThreshold() {
@@ -968,6 +1003,20 @@ public:
 		)
 		<< "The maximum allowed number of iterations without improvement" << std::endl
 		<< "0 means: no constraint.";
+
+		gpb.registerFileParameter<std::string, bool>(
+			"terminationFile" // The name of the variable
+			, "touchedTerminationActive"
+			, DEFAULTTERMINATIONFILE // The default value
+			, false
+			, [this](std::string tf, bool tfa){ this->setTerminationFile(tf, tfa); }
+			, "touchedTermination"
+		)
+		<< "The name of a file which, when modified after the start of an" << std::endl
+		<< "optimization run, instructs Geneva to terminate optimitation." << std::endl
+		<< "This can be used to \"touch a file\" after the start of an optimization" << std::endl
+		<< "run, which will lead to the termination of the run after the current iteration." << Gem::Common::nextComment()
+		<< "Activates (1) or de-activates (0) the \"touched termination\"";
 
 		gpb.registerFileParameter<std::uint32_t>(
 			"indivdualUpdateStallCounterThreshold" // The name of the variable
@@ -1257,6 +1306,8 @@ protected:
 		cpSerMode_ = p_load->cpSerMode_;
 		qualityThreshold_ = p_load->qualityThreshold_;
 		hasQualityThreshold_ = p_load->hasQualityThreshold_;
+		terminationFile_ = p_load->terminationFile_;
+		terminateOnFileModification_ = p_load->terminateOnFileModification_;
 		maxDuration_ = p_load->maxDuration_;
 		emitTerminationReason_ = p_load->emitTerminationReason_;
 		halted_ = p_load->halted_;
@@ -1724,6 +1775,38 @@ private:
 		else return false;
 	}
 
+ 	/***************************************************************************/
+	/**
+	 * Triggers termination of the optimization run, when a file with a user-defined
+	 * name is modified (e.g. "touch'ed") after the optimization run was started. Note
+	 * that the function will silently return false if the file does not exist, as it
+	 * is assumed that users may "touch" the file for termination only, so that the
+	 * possibility exists that the file isn't there until that time.
+	 */
+	bool touchHalt() const {
+		namespace bf = boost::filesystem;
+
+		// Create a suitable path object
+		bf::path p(terminationFile_);
+
+		// Return if the file doesn't exist
+		if(!bf::exists(p)) {
+			return false;
+		}
+
+		// Determine the modification time of the file
+		std::time_t t;
+		t = boost::filesystem::last_write_time(p);
+		boost::posix_time::ptime modTime = boost::posix_time::from_time_t(t);
+
+		// Check if the file was modified after the start of the optimization run
+		if(modTime > startTime_) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	/***************************************************************************/
 	/**
 	 * A wrapper for the customHalt() function that allows us to emit the termination reason
@@ -1772,6 +1855,9 @@ private:
 
 		// Are we supposed to stop when the quality has exceeded a threshold ?
 		if(qualityThresholdHaltSet() && qualityHalt()) return true;
+
+		// Are we supposed to stop when a file was modified after the start of the optimization run ?
+		if(terminateOnFileModification_ && touchHalt()) return true;
 
 		// Has the user specified an additional stop criterion ?
 		if(customHalt_()) return true;
@@ -1869,6 +1955,8 @@ private:
 	bool hasQualityThreshold_ = false; ///< Specifies whether a qualityThreshold has been set
 	boost::posix_time::time_duration maxDuration_ = boost::posix_time::duration_from_string(DEFAULTDURATION); ///< Maximum time frame for the optimization
 	mutable boost::posix_time::ptime startTime_; ///< Used to store the start time of the optimization. Declared mutable so the halt criteria can be const
+	std::string terminationFile_ = DEFAULTTERMINATIONFILE; ///< The name of a file which, when modified after the start of the optimization run, will cause termination of the run
+	bool terminateOnFileModification_ = false;
 	bool emitTerminationReason_ = DEFAULTEMITTERMINATIONREASON; ///< Specifies whether information about reasons for termination should be emitted
 	bool halted_ = false; ///< Set to true when halt() has returned "true"
 	std::vector<std::tuple<double, double>> worstKnownValids_; ///< Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)

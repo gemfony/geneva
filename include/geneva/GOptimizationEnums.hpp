@@ -233,6 +233,12 @@ const bool DEFAULTEMITTERMINATIONREASON = true;
 
 /******************************************************************************/
 /**
+ * The name of a termination file
+ */
+const std::string DEFAULTTERMINATIONFILE = "empty";
+
+/******************************************************************************/
+/**
  * The number of iterations after which information should be
  * emitted about the inner state of the optimization algorithm.
  */
