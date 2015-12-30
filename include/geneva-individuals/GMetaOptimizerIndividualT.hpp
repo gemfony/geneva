@@ -998,7 +998,7 @@ protected:
 
 			if (metaOptimizationTarget::MINSOLVERCALLS == moTarget_) {
 				// Set the stop criteria (either maxIterations_ iterations or falling below the quality threshold
-				ea_ptr->setQualityThreshold(fitnessTarget_);
+				ea_ptr->setQualityThreshold(fitnessTarget_, true);
 				ea_ptr->setMaxIteration(iterationThreshold_);
 
 				// Make sure the optimization does not emit the termination reason

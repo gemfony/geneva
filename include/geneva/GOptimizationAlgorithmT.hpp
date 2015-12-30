@@ -171,6 +171,8 @@ public:
 		, qualityThreshold_(cp.qualityThreshold_)
 		, hasQualityThreshold_(cp.hasQualityThreshold_)
 		, maxDuration_(cp.maxDuration_)
+		, terminationFile_(cp.terminationFile_)
+		, terminateOnFileModification_(cp.terminateOnFileModification_)
 		, emitTerminationReason_(cp.emitTerminationReason_)
 		, halted_(cp.halted_)
 		, worstKnownValids_(cp.worstKnownValids_)
@@ -733,7 +735,7 @@ public:
 	 *  @param qualityThreshold A threshold beyond which optimization should stop
 	 *  @param hasQualityThreshold Allows to (de-)activate the quality threshold
 	 */
-	void setQualityThreshold(double qualityThreshold, bool hasQualityThreshold = true) {
+	void setQualityThreshold(double qualityThreshold, bool hasQualityThreshold) {
 		qualityThreshold_ = qualityThreshold;
 		hasQualityThreshold_=hasQualityThreshold;
 	}
@@ -760,7 +762,7 @@ public:
 	 *  @param terminationFile The name of a file used to initiate termination
 	 *  @param hasQualityThreshold Allows to (de-)activate "touched termination"
 	 */
-	void setTerminationFile(std::string terminationFile, bool terminateOnFileModification = true) {
+	void setTerminationFile(std::string terminationFile, bool terminateOnFileModification) {
 		terminationFile_ = terminationFile;
 		terminateOnFileModification_ = terminateOnFileModification;
 	}
@@ -1836,8 +1838,7 @@ private:
 	 *
 	 * @return A boolean indicating whether a halt criterion has been reached
 	 */
-	bool halt() const
-	{
+	bool halt() const {
 		// Have we exceeded the maximum number of iterations and
 		// do we indeed intend to stop in this case ?
 		if(maxIterationHaltset() && iterationHalt()) return true;

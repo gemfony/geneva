@@ -55,6 +55,21 @@
         "default": "10",
         "value": "10"
     },
+    "touchedTermination": {
+      "terminationFile": {
+        "comment": "The name of a file which, when modified after the start of an",
+        "comment": "optimization run, instructs Geneva to terminate optimitation.",
+        "comment": "This can be used to \"touch a file\" after the start of an optimization",
+        "comment": "run, which will lead to the termination of the run after the current iteration.",
+        "default": "empty",
+        "value": "empty"
+      },
+      "touchedTerminationActive": {
+        "comment": "Activates (1) or de-activates (0) the \"touched termination\"",
+        "default": "false",
+        "value": "false"
+      }
+    },
     "maxIteration": {
         "comment": "The maximum allowed number of iterations",
         "default": "1000",
