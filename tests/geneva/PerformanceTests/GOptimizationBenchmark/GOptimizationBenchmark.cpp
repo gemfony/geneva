@@ -123,12 +123,12 @@ int main(int argc, char **argv) {
 			go.push_back(g);
 
 			// Start recording of time
-			startTime = boost::posix_time::microsec_clock::local_time();
+			startTime = boost::posix_time::microsec_clock::universal_time();
 
 			// Perform the actual optimization and extract the best individual
 			std::shared_ptr<GFunctionIndividual> p = go.optimize<GFunctionIndividual>();
 
-			endTime = boost::posix_time::microsec_clock::local_time();
+			endTime = boost::posix_time::microsec_clock::universal_time();
 
 			// Extract the function name in the first test row
 			if(it==dimVec.begin() && test==0) {

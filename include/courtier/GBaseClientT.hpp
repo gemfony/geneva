@@ -85,7 +85,7 @@ public:
 	 * The default constructor.
 	 */
 	GBaseClientT()
-		: startTime_(boost::posix_time::microsec_clock::local_time()), maxDuration_(boost::posix_time::microsec(0)),
+		: startTime_(boost::posix_time::microsec_clock::universal_time()), maxDuration_(boost::posix_time::microsec(0)),
 		  processed_(0), processMax_(0), returnRegardless_(true),
 		  additionalDataTemplate_(std::shared_ptr<processable_type>()) { /* nothing*/ }
 
@@ -99,7 +99,7 @@ public:
 	 * @param additionalDataTemplate The model of the item to be processed
 	 */
 	GBaseClientT(std::shared_ptr <processable_type> additionalDataTemplate)
-		: startTime_(boost::posix_time::microsec_clock::local_time()), maxDuration_(boost::posix_time::microsec(0)),
+		: startTime_(boost::posix_time::microsec_clock::universal_time()), maxDuration_(boost::posix_time::microsec(0)),
 		  processed_(0), processMax_(0), returnRegardless_(true),
 		  additionalDataTemplate_(additionalDataTemplate) { /* nothing*/ }
 
@@ -352,7 +352,7 @@ private:
 
 		// Maximum duration reached ?
 		if (maxDuration_.total_microseconds() &&
-			 ((microsec_clock::local_time() - startTime_) >= maxDuration_))
+			 ((microsec_clock::universal_time() - startTime_) >= maxDuration_))
 			return true;
 
 		// Custom halt condition reached ?

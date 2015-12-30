@@ -480,7 +480,7 @@ public:
 		stallCounter_ = 0;
 
 		// Initialize the start time with the current time.
-		startTime_ = boost::posix_time::microsec_clock::local_time();
+		startTime_ = boost::posix_time::microsec_clock::universal_time();
 
 		// Give derived classes the opportunity to perform any necessary preparatory work.
 		init();
@@ -1675,7 +1675,7 @@ private:
 	 */
 	bool timedHalt() const {
 		using namespace boost::posix_time;
-		ptime currentTime = microsec_clock::local_time();
+		ptime currentTime = microsec_clock::universal_time();
 		if((currentTime - startTime_) >= maxDuration_) {
 			if(emitTerminationReason_) {
 				glogger
@@ -1797,12 +1797,19 @@ private:
 		}
 
 		// Determine the modification time of the file
-		std::time_t t;
-		t = boost::filesystem::last_write_time(p);
+		std::time_t t = boost::filesystem::last_write_time(p);
 		boost::posix_time::ptime modTime = boost::posix_time::from_time_t(t);
+		// boost::posix_time::time_duration diff = modTime - startTime_;
 
 		// Check if the file was modified after the start of the optimization run
+		// if(diff.total_microseconds() > 0) {
 		if(modTime > startTime_) {
+			if(emitTerminationReason_) {
+				std::cout
+				<< "Terminating optimization run because" << std::endl
+				<< p << " was modified after the start of the optimization" << std::endl;
+			}
+
 			return true;
 		} else {
 			return false;

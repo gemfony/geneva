@@ -405,7 +405,7 @@ int main(int argc, char**argv) {
 	consumer_sync_ptr = std::shared_ptr<boost::barrier>(new boost::barrier(boost::numeric_cast<unsigned int>(nConsumers)));
 
 	// Note the start time
-	boost::posix_time::ptime startTime = boost::posix_time::microsec_clock::local_time();
+	boost::posix_time::ptime startTime = boost::posix_time::microsec_clock::universal_time();
 
 	// Start the threads
 	producer_gtg.create_threads(
@@ -444,7 +444,7 @@ int main(int argc, char**argv) {
 	consumer_gtg.join_all();
 
 	// Note the termination time
-	boost::posix_time::ptime endTime = boost::posix_time::microsec_clock::local_time();
+	boost::posix_time::ptime endTime = boost::posix_time::microsec_clock::universal_time();
 
 	// Calculate the time it has taken to reach this point
 	boost::posix_time::time_duration dur = endTime - startTime;

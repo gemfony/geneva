@@ -439,7 +439,7 @@ protected:
 	>& oldWorkItems
 	) BASE {
 		// Set the start time of the new iteration
-		iterationStartTime_ = boost::posix_time::microsec_clock::local_time();
+		iterationStartTime_ = boost::posix_time::microsec_clock::universal_time();
 	}
 
 	/***************************************************************************/
@@ -459,7 +459,7 @@ protected:
 	) BASE {
 		// Make a note of the time needed up to now
 		boost::posix_time::time_duration iterationDuration =
-			boost::posix_time::microsec_clock::local_time() - iterationStartTime_;
+			boost::posix_time::microsec_clock::universal_time() - iterationStartTime_;
 
 		// Find out about the number of returned items
 		std::size_t notReturned = std::count(workItemPos.begin(), workItemPos.end(), true);
@@ -1247,7 +1247,7 @@ private:
 			}
 
 			currentElapsed =
-				boost::posix_time::microsec_clock::local_time() - GBaseExecutorT<processable_type>::iterationStartTime_;
+				boost::posix_time::microsec_clock::universal_time() - GBaseExecutorT<processable_type>::iterationStartTime_;
 			maxTimeout = currentElapsed * (boost::numeric_cast<int>(
 				(GBaseExecutorT<processable_type>::expectedNumber_ - std::size_t(1)) * waitFactor_));
 		} else { // O.k., so we are dealing with an iteration > 0
@@ -1257,7 +1257,7 @@ private:
 
 		while (true) { // Loop until a timeout is reached or all current items have returned
 			currentElapsed =
-				boost::posix_time::microsec_clock::local_time() - GBaseExecutorT<processable_type>::iterationStartTime_;
+				boost::posix_time::microsec_clock::universal_time() - GBaseExecutorT<processable_type>::iterationStartTime_;
 			if (currentElapsed > maxTimeout) {
 				return false;
 			} else {
@@ -1390,7 +1390,7 @@ private:
 			logData_.push_back(
 				std::tuple<SUBMISSIONCOUNTERTYPE, SUBMISSIONCOUNTERTYPE, boost::posix_time::ptime>(
 					std::get<0>(courtier_id), GBaseExecutorT<processable_type>::submission_counter_,
-					boost::posix_time::microsec_clock::local_time()
+					boost::posix_time::microsec_clock::universal_time()
 				)
 			);
 		}

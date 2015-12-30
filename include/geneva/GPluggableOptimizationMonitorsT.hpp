@@ -2174,8 +2174,8 @@ public:
 			{
 				// If the file pointed to by fileName_ already exists, make a back-up
 				if(bf::exists(fileName_)) {
-					const boost::posix_time::ptime currentTime = boost::posix_time::second_clock::local_time();
-					std::string newFileName = fileName_ + ".bak_" + boost::lexical_cast<std::string>(currentTime);
+					const boost::posix_time::ptime currentTime = boost::posix_time::second_clock::universal_time();
+					std::string newFileName = fileName_ + ".bak_utc_" + boost::lexical_cast<std::string>(currentTime);
 
 					glogger
 					<< "In GAllSolutionFileLoggerT<T>::informationFunction(): Error!" << std::endl
@@ -2549,8 +2549,8 @@ public:
 			{
 				// If the file pointed to by fileName_ already exists, make a back-up
 				if(bf::exists(fileName_)) {
-					const boost::posix_time::ptime currentTime = boost::posix_time::second_clock::local_time();
-					std::string newFileName = fileName_ + ".bak_" + boost::lexical_cast<std::string>(currentTime);
+					const boost::posix_time::ptime currentTime = boost::posix_time::second_clock::universal_time();
+					std::string newFileName = fileName_ + ".bak_utc_" + boost::lexical_cast<std::string>(currentTime);
 
 					glogger
 					<< "In GIterationResultsFileLoggerT<T>::informationFunction(): Warning!" << std::endl
@@ -2963,8 +2963,8 @@ public:
 			{
 				// If the file pointed to by fileName_ already exists, make a back-up
 				if(bf::exists(fileName_)) {
-					const boost::posix_time::ptime currentTime = boost::posix_time::second_clock::local_time();
-					std::string newFileName = fileName_ + ".bak_" + boost::lexical_cast<std::string>(currentTime);
+					const boost::posix_time::ptime currentTime = boost::posix_time::second_clock::universal_time();
+					std::string newFileName = fileName_ + ".bak_utc_" + boost::lexical_cast<std::string>(currentTime);
 
 					glogger
 					<< "In GNAdpationsLoggerT<T>::informationFunction(): Error!" << std::endl
@@ -3525,8 +3525,8 @@ public:
 			{
 				// If the file pointed to by fileName_ already exists, make a back-up
 				if(bf::exists(fileName_)) {
-					const boost::posix_time::ptime currentTime = boost::posix_time::second_clock::local_time();
-					std::string newFileName = fileName_ + ".bak_" + boost::lexical_cast<std::string>(currentTime);
+					const boost::posix_time::ptime currentTime = boost::posix_time::second_clock::universal_time();
+					std::string newFileName = fileName_ + ".bak_utc_" + boost::lexical_cast<std::string>(currentTime);
 
 					glogger
 					<< "In GAdaptorPropertyLoggerT<S,T>::informationFunction(): Error!" << std::endl

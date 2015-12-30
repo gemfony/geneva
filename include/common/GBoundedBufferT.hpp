@@ -160,7 +160,7 @@ public:
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 	{
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
-		startTime_ = boost::posix_time::microsec_clock::local_time();
+		startTime_ = boost::posix_time::microsec_clock::universal_time();
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 	}
 
@@ -178,7 +178,7 @@ public:
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 	{
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
-		startTime_ = boost::posix_time::microsec_clock::local_time();
+		startTime_ = boost::posix_time::microsec_clock::universal_time();
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 	}
 
@@ -211,7 +211,7 @@ public:
 
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		// Find out when this object got destroyed
-		endTime_ = boost::posix_time::microsec_clock::local_time();
+		endTime_ = boost::posix_time::microsec_clock::universal_time();
 
 		// Write out results
 		emitPutAndGetTimes();
@@ -235,7 +235,7 @@ public:
 
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		// Update the puts_ vector
-		long currentTime = boost::numeric_cast<long>((boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds());
+		long currentTime = boost::numeric_cast<long>((boost::posix_time::microsec_clock::universal_time() - startTime_).total_microseconds());
 		puts_.push_back(currentTime);
 		entries_.push_back(std::make_tuple(currentTime, container_.size()));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
@@ -261,7 +261,7 @@ public:
 
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		// Update the puts_ vector
-		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
+		long currentTime = (boost::posix_time::microsec_clock::universal_time() - startTime_).total_microseconds();
 		puts_.push_back(currentTime);
 		entries_.push_back(std::make_tuple(currentTime, container_.size()));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
@@ -288,7 +288,7 @@ public:
 
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		// Update the puts_ vector
-		long currentTime = boost::numeric_cast<long>((boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds());
+		long currentTime = boost::numeric_cast<long>((boost::posix_time::microsec_clock::universal_time() - startTime_).total_microseconds());
 		puts_.push_back(currentTime);
 		entries_.push_back(std::make_tuple(currentTime, container_.size()));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
@@ -322,7 +322,7 @@ public:
 
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		// Update the gets_ vector
-		long currentTime = boost::numeric_cast<long>((boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds());
+		long currentTime = boost::numeric_cast<long>((boost::posix_time::microsec_clock::universal_time() - startTime_).total_microseconds());
 		gets_.push_back(currentTime);
 		entries_.push_back(std::make_tuple(currentTime, container_.size()));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
@@ -358,7 +358,7 @@ public:
 
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		// Update the gets_ vector
-		long currentTime = (boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds();
+		long currentTime = (boost::posix_time::microsec_clock::universal_time() - startTime_).total_microseconds();
 		gets_.push_back(currentTime);
 		entries_.push_back(std::make_tuple(currentTime, container_.size()));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
@@ -396,7 +396,7 @@ public:
 
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		// Update the gets_ vector
-		long currentTime = boost::numeric_cast<long>((boost::posix_time::microsec_clock::local_time() - startTime_).total_microseconds());
+		long currentTime = boost::numeric_cast<long>((boost::posix_time::microsec_clock::universal_time() - startTime_).total_microseconds());
 		gets_.push_back(currentTime);
 		entries_.push_back(std::make_tuple(currentTime, container_.size()));
 #endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */

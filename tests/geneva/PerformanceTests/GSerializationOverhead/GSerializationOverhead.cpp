@@ -138,18 +138,18 @@ int main(int argc, char **argv) {
 
 			// First test the time needed for NMEASUREMENTS
 			// consecutive adaptions
-			ptime pre_adapt = microsec_clock::local_time();
+			ptime pre_adapt = microsec_clock::universal_time();
 			for(std::size_t i=1; i<=NMEASUREMENTS; i++) {
 				gti_ptr->adapt();
 			}
-			ptime post_adapt = microsec_clock::local_time();
+			ptime post_adapt = microsec_clock::universal_time();
 
 			// Now measure the time needed for NMEASUREMENTS
 			// consecutive (de-)serializations in the fastest mode (binary)
 			for(std::size_t i=1; i<=NMEASUREMENTS; i++) {
 				gti_ptr->GObject::fromString(gti_ptr->GObject::toString(DEFAULTSERMODE), DEFAULTSERMODE);
 			}
-			ptime post_serialization = microsec_clock::local_time();
+			ptime post_serialization = microsec_clock::universal_time();
 
 			time_duration adaptionTime = post_adapt - pre_adapt;
 			time_duration serializationTime = post_serialization - post_adapt;

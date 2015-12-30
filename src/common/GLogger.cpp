@@ -291,7 +291,7 @@ void GLogStreamer::operator<<(const GManipulator &gm) {
 			error
 			<< std::endl
 			<< "================================================" << std::endl
-			<< "ERROR (recorded on " << boost::posix_time::second_clock::local_time() << ")" << std::endl
+			<< "ERROR (recorded on UTC " << boost::posix_time::second_clock::universal_time() << ")" << std::endl
 			<< gm.getAccompInfo() << std::endl
 			<< std::endl
 			<< oss_.str()
@@ -324,7 +324,7 @@ void GLogStreamer::operator<<(const GManipulator &gm) {
 			error
 			<< std::endl
 			<< "================================================" << std::endl
-			<< "ERROR (recorded on " << boost::posix_time::second_clock::local_time() << ")" << std::endl
+			<< "ERROR (recorded on UTC " << boost::posix_time::second_clock::universal_time() << ")" << std::endl
 			<< gm.getAccompInfo() << std::endl
 			<< std::endl
 			<< oss_.str()
@@ -356,7 +356,7 @@ void GLogStreamer::operator<<(const GManipulator &gm) {
 			warning
 			<< std::endl
 			<< "================================================" << std::endl
-			<< "WARNING (recorded on " << boost::posix_time::second_clock::local_time() << ")" << std::endl
+			<< "WARNING (recorded on UTC " << boost::posix_time::second_clock::universal_time() << ")" << std::endl
 			<< gm.getAccompInfo() << std::endl
 			<< std::endl
 			<< oss_.str()

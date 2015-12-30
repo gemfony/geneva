@@ -540,7 +540,7 @@ void GParserBuilder::writeConfigFile(
 			ptr.add("header.comment", std::string(*h).c_str());
 		}
 	}
-	ptr.add("header.comment", boost::posix_time::to_simple_string(boost::posix_time::second_clock::local_time()).c_str());
+	ptr.add("header.comment", (std::string("UTC ") + boost::posix_time::to_simple_string(boost::posix_time::second_clock::universal_time())).c_str());
 
 	// Output variables and values
 	std::vector<std::shared_ptr <GFileParsableI>> ::const_iterator cit;

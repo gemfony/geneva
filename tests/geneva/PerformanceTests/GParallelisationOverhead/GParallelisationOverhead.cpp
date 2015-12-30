@@ -96,9 +96,9 @@ void startReferenceMeasurement(
 			go.push_back(gdi_ptr);
 
 			// Do the actual optimization and measure the time
-			boost::posix_time::ptime startTime = boost::posix_time::microsec_clock::local_time();
+			boost::posix_time::ptime startTime = boost::posix_time::microsec_clock::universal_time();
 			go.optimize<GDelayIndividual>();
-			boost::posix_time::ptime endTime = boost::posix_time::microsec_clock::local_time();
+			boost::posix_time::ptime endTime = boost::posix_time::microsec_clock::universal_time();
 			boost::posix_time::time_duration duration = endTime - startTime;
 
 			referenceExecutionTimes.push_back(
@@ -171,9 +171,9 @@ void startParallelMeasurement(
 			go.push_back(gdi_ptr);
 
 			// Do the actual optimization and measure the time
-			boost::posix_time::ptime startTime = boost::posix_time::microsec_clock::local_time();
+			boost::posix_time::ptime startTime = boost::posix_time::microsec_clock::universal_time();
 			go.optimize<GDelayIndividual>();
-			boost::posix_time::ptime endTime = boost::posix_time::microsec_clock::local_time();
+			boost::posix_time::ptime endTime = boost::posix_time::microsec_clock::universal_time();
 			boost::posix_time::time_duration duration = endTime - startTime;
 
 			delaySummary.push_back(double(duration.total_milliseconds())/1000.);
