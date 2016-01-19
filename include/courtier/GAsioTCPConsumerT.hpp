@@ -509,7 +509,7 @@ private:
 			error = boost::asio::error::host_not_found;
 
 			while (error && endpoint_iterator != end_) {
-				// Make sure we try not to re-open an already open socket
+				// Make sure we do not try to re-open an already open socket
 				disconnect(socket_);
 				// Make the connection attempt
 				socket_.connect(*endpoint_iterator++, error);
@@ -1593,7 +1593,9 @@ private:
 	 * @param error Possible error conditions
 	 */
 	void async_handleAccept(
-		std::shared_ptr <GAsioServerSessionT<processable_type>> currentSession, const boost::system::error_code &error) {
+		std::shared_ptr <GAsioServerSessionT<processable_type>> currentSession
+		, const boost::system::error_code &error
+	) {
 		if (error) {
 			glogger
 			<< "In GAsioTCPConsumerT<>::async_handleAccept():"
