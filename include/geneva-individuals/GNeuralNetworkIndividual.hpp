@@ -106,10 +106,14 @@ struct trainingSet {
 		& BOOST_SERIALIZATION_NVP(nInputNodes)
 		& BOOST_SERIALIZATION_NVP(nOutputNodes);
 
-		if (Input) delete[] Input;
+		if (Input) {
+			Gem::Common::g_array_delete(Input);
+		}
 		Input = new double[nInputNodes];
 
-		if (Output) delete[] Output;
+		if (Output) {
+			Gem::Common::g_array_delete(Output);
+		}
 		Output = new double[nOutputNodes];
 
 		ar &boost::serialization::make_array(Input, nInputNodes);
@@ -200,7 +204,7 @@ class networkData
 				data_[i].reset();
 			}
 		}
-		delete[] data_;
+		Gem::Common::g_array_delete(data_);
 
 		ar
 			&BOOST_SERIALIZATION_NVP(arraySize_);

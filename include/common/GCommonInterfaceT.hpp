@@ -58,7 +58,6 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
-
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 
@@ -202,7 +201,7 @@ public:
 
 		this->load_(local);
 		if(local) {
-			delete local;
+			g_delete(local);
 		}
 	}
 

@@ -79,6 +79,7 @@
 #include "common/GThreadPool.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GHelperFunctions.hpp"
+#include "common/GHelperFunctionsT.hpp"
 #include "courtier/GAsioHelperFunctions.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
@@ -162,7 +163,7 @@ public:
 	 * The standard destructor.
 	 */
 	virtual ~GAsioTCPClientT() {
-		delete[] tmpBuffer_;
+		Gem::Common::g_array_delete(tmpBuffer_);
 
 		glogger
 		<< "In GAsioTCPClinetT<>::~GAsioTCPClientT():" << std::endl
@@ -327,7 +328,7 @@ protected:
 				// And make the data known to the outside world
 				item = std::string(inboundData, dataSize);
 
-				delete[] inboundData;
+				Gem::Common::g_array_delete(inboundData);
 
 				// We have successfully retrieved an item, so we need
 				// to reset the stall-counter
@@ -1644,7 +1645,7 @@ private:
 	boost::posix_time::time_duration timeout_; ///< A timeout for put- and get-operations
 	Gem::Common::GThreadGroup gtg_; ///< Holds listener threads
 	Gem::Common::GThreadPool gtp_; ///< Holds workers sorting processed items back into the broker
-	std::shared_ptr <Gem::Courtier::GBrokerT<processable_type>> broker_ptr_;
+	std::shared_ptr <Gem::Courtier::GBrokerT<processable_type>> broker_ptr_; ///< A pointer to the global broker
 };
 
 /******************************************************************************/

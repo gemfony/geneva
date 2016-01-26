@@ -83,8 +83,12 @@ trainingSet::trainingSet(const trainingSet &cp)
  * The destructor.
  */
 trainingSet::~trainingSet() {
-	if (Input) delete[] Input;
-	if (Output) delete[] Output;
+	if (Input) {
+		Gem::Common::g_array_delete(Input);
+	}
+	if (Output) {
+		Gem::Common::g_array_delete(Output);
+	}
 }
 
 /******************************************************************************/
@@ -223,7 +227,7 @@ networkData::~networkData() {
 			data_[i].reset();
 		}
 	}
-	delete[] data_;
+	Gem::Common::g_array_delete(data_);
 }
 
 /******************************************************************************/
@@ -360,7 +364,7 @@ void networkData::loadFromDisk(const std::string &networkDataFile) {
 	*this = *nD;
 
 	// Clean up
-	delete nD;
+	Gem::Common::g_delete(nD);
 }
 
 /******************************************************************************/

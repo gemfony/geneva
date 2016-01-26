@@ -76,7 +76,7 @@ random_container::random_container(
  */
 random_container::~random_container() {
 	if (r_) {
-		delete[] r_;
+		Gem::Common::g_array_delete(r_);
 	}
 }
 

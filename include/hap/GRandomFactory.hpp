@@ -80,6 +80,7 @@
 #include "common/GSingletonT.hpp"
 #include "common/GThreadGroup.hpp"
 #include "common/GHelperFunctions.hpp"
+#include "common/GHelperFunctionsT.hpp"
 #include "hap/GRandomDefines.hpp"
 
 /******************************************************************************/

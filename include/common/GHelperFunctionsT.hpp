@@ -54,6 +54,7 @@
 #include <boost/math/special_functions/next.hpp>
 #include <boost/date_time.hpp>
 #include <boost/variant.hpp>
+#include <boost/checked_delete.hpp>
 
 #ifndef GHELPERFUNCTIONST_HPP_
 #define GHELPERFUNCTIONST_HPP_
@@ -66,6 +67,38 @@
 
 namespace Gem {
 namespace Common {
+
+/******************************************************************************/
+/**
+ * This functions uses boosts checked_delete to delete a pointer, then assigns
+ * nullptr to the pointer. As a consequence to the usage of checked_delete, T must
+ * be
+ * a "complete" type. The assignment of a nullptr is not done automatically
+ * by C++ and helps to detect "empty" pointers.
+ */
+template <typename T>
+void g_delete(T *&p) {
+	if(p) {
+		boost::checked_delete(p);
+		p=nullptr;
+	}
+}
+
+/******************************************************************************/
+/**
+ * This functions uses boosts checked_delete to delete a pointer, then assigns
+ * nullptr to the pointer. As a consequence to the usage of checked_delete, T must
+ * be
+ * a "complete" type. The assignment of a nullptr is not done automatically
+ * by C++ and helps to detect "empty" pointers.
+ */
+template <typename T>
+void g_array_delete(T *&p) {
+	if(p) {
+		boost::checked_array_delete(p);
+		p = nullptr;
+	}
+}
 
 /******************************************************************************/
 /**
@@ -487,7 +520,10 @@ void copyCloneableObjectsContainer(
  */
 template<typename T>
 void copyArrays(
-	T const *const from, T *&to, const std::size_t &nFrom, std::size_t &nTo
+	T const *const from
+	, T *&to
+	, const std::size_t &nFrom
+	, std::size_t &nTo
 ) {
 	//--------------------------------------------------------------------------
 	// Do some error checks
@@ -520,8 +556,9 @@ void copyArrays(
 	// If from is empty, make sure all other arguments are empty
 	if (nullptr == from) {
 		nTo = 0;
-		if (to) delete[] to;
-		to = nullptr;
+		if (to) {
+			g_array_delete(to);
+		}
 
 		return;
 	}
@@ -530,7 +567,9 @@ void copyArrays(
 
 	// Make sure from and to have the same size. If not, adapt "to" accordingly
 	if (nFrom != nTo) {
-		if (to) delete[] to;
+		if (to) {
+			g_array_delete(to);
+		}
 		to = new T[nFrom];
 		nTo = nFrom;
 	}
@@ -592,7 +631,7 @@ void copySmartPointerArrays(
 		for (std::size_t i = 0; i < size_to; i++) {
 			to[i].reset();
 		}
-		delete[] to;
+		g_array_delete(to);
 		to = new std::shared_ptr <T>[size_from];
 		size_to = size_from;
 	}
