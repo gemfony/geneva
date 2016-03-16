@@ -42,6 +42,7 @@
 #include <vector>
 #include <utility>
 #include <functional>
+#include <memory>
 #include <type_traits>
 #include <tuple>
 
@@ -70,7 +71,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
-#include <common/GExpectationChecksT.hpp>
+#include "common/GExpectationChecksT.hpp"
 #include "common/GMathHelperFunctionsT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GThreadPool.hpp"
@@ -1280,7 +1281,8 @@ private:
 	/***************************************************************************/
 	/**
 	 * Waits until a timeout occurs, then resubmits missing items up to a maximum
-	 * number of times.
+	 * number of times. If maxResubmissions_ is set to 0, resubmission will happen
+	 * without limit.
 	 */
 	bool waitForTimeOutAndResubmit(
 		std::vector<std::shared_ptr < processable_type>
@@ -1296,7 +1298,7 @@ private:
 
 		do {
 			complete = waitForTimeOut(workItems, workItemPos, oldWorkItems);
-		} while (!complete && ++nResubmissions < maxResubmissions_);
+		} while (!complete && (maxResubmissions_>0?(++nResubmissions < maxResubmissions_):true));
 
 		return complete;
 	}

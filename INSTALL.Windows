@@ -50,7 +50,7 @@ Building and installing Geneva
   assume you do that in "D:\SOFT", so you will end up with the Geneva sources
   location "D:\SOFT\GENEVA-V1.6" for instance.
 
-- Create a build folder somewhare, let's say "D:\SOFT\GENEVA-BUILD".
+- Create a build folder somewhere, let's say "D:\SOFT\GENEVA-BUILD".
 
 - To configure and build the project, you have two options:
     o Using the command line tools

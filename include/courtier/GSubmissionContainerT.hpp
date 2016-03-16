@@ -90,7 +90,8 @@ public:
 	/**
 	 * The default constructor
 	 */
-	GSubmissionContainerT() { /* nothing */ }
+	GSubmissionContainerT()
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -100,7 +101,9 @@ public:
 	 */
 	GSubmissionContainerT(
 		const GSubmissionContainerT<submission_type> &cp
-	) : id_(cp.id_) { /* nothing */ }
+	)
+		: id_(cp.id_)
+	{ /* nothing */ }
 
 
 	/***************************************************************************/
@@ -158,8 +161,7 @@ private:
 } /* namespace Gem */
 
 /******************************************************************************/
-/** @brief Mark this class as abstract. This is the content of
- * BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) */
+/** @brief Mark this class as abstract */
 namespace boost {
 namespace serialization {
 template<typename submission_type>

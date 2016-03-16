@@ -68,7 +68,7 @@ GGradientDescentFactory::GGradientDescentFactory(
 	const std::string &configFile, const execMode &pm
 )
 	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(configFile, pm),
-	  maxResubmissions_(0) { /* nothing */ }
+	  maxResubmissions_(5) { /* nothing */ }
 
 /******************************************************************************/
 /**

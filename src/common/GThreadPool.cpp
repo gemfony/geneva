@@ -92,7 +92,7 @@ GThreadPool::~GThreadPool() {
 		for (it = errorLog_.begin(); it != errorLog_.end(); ++it) {
 			errors << *it << std::endl;
 		}
-		glogger
+		gloggerq
 		<< "Report from GThreadPool::~GThreadPool(): There were errors during thread execution:" << std::endl
 		<< errors.str()
 		<< GWARNING;

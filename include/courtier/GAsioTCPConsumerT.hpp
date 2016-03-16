@@ -662,6 +662,7 @@ protected:
 			glogger
 			<< "In GAsioServerSessionT<processable_type>::async_handle_read_command():!" << std::endl
 			<< "Received boost::system::error_code " << error << std::endl
+			<< "with message " << error.message() << std::endl
 			<< GEXCEPTION;
 			return;
 		}
@@ -682,8 +683,7 @@ protected:
 			this->async_submitToRemote();   // Submit our data to the client
 		} else if ("result" == command) {
 			this->async_retrieveFromRemote(); // Initiate the retrieval sequence
-		}
-		else {
+		} else {
 			glogger
 			<< "In GAsioServerSessionT<processable_type>::async_handle_read_command(): Warning!" << std::endl
 			<< "Received unknown command \"" << command << "\"" << std::endl
