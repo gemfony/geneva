@@ -116,7 +116,9 @@ public:
 	 * The default constructor
 	 */
 	GBaseExecutorT()
-		: submission_counter_(SUBMISSIONCOUNTERTYPE(0)), expectedNumber_(0) { /* nothing */ }
+		: submission_counter_(SUBMISSIONCOUNTERTYPE(0))
+	  	, expectedNumber_(0)
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -127,14 +129,17 @@ public:
 	 * @param cp A copy of another GBrokerConnector object
 	 */
 	GBaseExecutorT(const GBaseExecutorT<processable_type> &cp)
-		: submission_counter_(SUBMISSIONCOUNTERTYPE(0)), expectedNumber_(0) { /* nothing */ }
+		: submission_counter_(SUBMISSIONCOUNTERTYPE(0))
+	  	, expectedNumber_(0)
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * The standard destructor. We have no object-wide dynamically allocated data, hence
 	 * this function is empty.
 	 */
-	virtual ~GBaseExecutorT() { /* nothing */ }
+	virtual ~GBaseExecutorT()
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -154,9 +159,8 @@ public:
 	 *
 	 * @param cp A constant pointer to another GBaseExecutorT object
 	 */
-	virtual void load(GBaseExecutorT<processable_type> const *const cp) BASE {
-		// nothing
-	}
+	virtual void load(GBaseExecutorT<processable_type> const *const cp) BASE
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -182,15 +186,10 @@ public:
 	 * @return A boolean indicating whether all expected items have returned
 	 */
 	bool workOn(
-		std::vector<std::shared_ptr < processable_type>
-
-	>& workItems
-	,
-	std::vector<bool> &workItemPos
-	, std::vector<std::shared_ptr < processable_type>
-	>& oldWorkItems
-	,
-	const std::string &originator = std::string()
+		std::vector<std::shared_ptr <processable_type>>& workItems
+		, std::vector<bool> &workItemPos
+		, std::vector<std::shared_ptr<processable_type>>& oldWorkItems
+		, const std::string &originator = std::string()
 	) {
 		bool complete = false;
 
@@ -347,17 +346,11 @@ public:
 	 * @return A boolean indicating whether all expected items have returned
 	 */
 	bool workOn(
-		std::vector<std::shared_ptr < processable_type>
-
-	>& workItems
-	,
-	const std::tuple<std::size_t, std::size_t> &range
-	, std::vector<std::shared_ptr < processable_type>
-	>& oldWorkItems
-	,
-	const bool &removeUnprocessed = true
-	,
-	const std::string &originator = std::string()
+		std::vector<std::shared_ptr<processable_type>>& workItems
+		, const std::tuple<std::size_t, std::size_t> &range
+		, std::vector<std::shared_ptr<processable_type>>& oldWorkItems
+		, const bool &removeUnprocessed = true
+		, const std::string &originator = std::string()
 	) {
 		return this->workOn(
 			workItems, std::get<0>(range), std::get<1>(range), oldWorkItems, removeUnprocessed, originator
@@ -413,15 +406,13 @@ public:
 protected:
 	/***************************************************************************/
 	/** @brief Submits a single work item */
-	virtual void submit(std::shared_ptr <processable_type>) = 0;
+	virtual void submit(std::shared_ptr<processable_type>) = 0;
 
 	/** @brief Waits for work items to return */
 	virtual bool waitForReturn(
-		std::vector<std::shared_ptr < processable_type>
-
-	>&
-	, std::vector<bool>&
-	, std::vector<std::shared_ptr < processable_type>>&
+		std::vector<std::shared_ptr<processable_type>>&
+		, std::vector<bool>&
+		, std::vector<std::shared_ptr<processable_type>>&
 	) = 0;
 
 	/***************************************************************************/
@@ -431,13 +422,9 @@ protected:
 	 * this function.
 	 */
 	virtual void iterationInit(
-		std::vector<std::shared_ptr < processable_type>
-
-	>& workItems
-	,
-	std::vector<bool> &workItemPos
-	, std::vector<std::shared_ptr < processable_type>
-	>& oldWorkItems
+		std::vector<std::shared_ptr<processable_type>>& workItems
+		, std::vector<bool> &workItemPos
+		, std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	) BASE {
 		// Set the start time of the new iteration
 		iterationStartTime_ = boost::posix_time::microsec_clock::universal_time();
@@ -450,13 +437,9 @@ protected:
 	 * this function.
 	 */
 	virtual void iterationFinalize(
-		std::vector<std::shared_ptr < processable_type>
-
-	>& workItems
-	,
-	std::vector<bool> &workItemPos
-	, std::vector<std::shared_ptr < processable_type>
-	>& oldWorkItems
+		std::vector<std::shared_ptr<processable_type>>& workItems
+		, std::vector<bool> &workItemPos
+		, std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	) BASE {
 		// Make a note of the time needed up to now
 		boost::posix_time::time_duration iterationDuration =
@@ -492,7 +475,7 @@ protected:
 	 * Submission of all work items in the list
 	 */
 	void submitAllWorkItems(
-		std::vector<std::shared_ptr < processable_type>>& workItems
+		std::vector<std::shared_ptr<processable_type>>& workItems
 		, std::vector<bool> &workItemPos
 	) {
 		// Submit work items
@@ -532,7 +515,8 @@ protected:
  */
 template<typename processable_type>
 class GSerialExecutorT
-	: public GBaseExecutorT<processable_type> {
+	: public GBaseExecutorT<processable_type>
+{
 	///////////////////////////////////////////////////////////////////////
 
 	friend class boost::serialization::access;
@@ -553,7 +537,8 @@ public:
 	 * The default constructor
 	 */
 	GSerialExecutorT()
-		: GBaseExecutorT<processable_type>() { /* nothing */ }
+		: GBaseExecutorT<processable_type>()
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -562,13 +547,15 @@ public:
 	 * @param cp A copy of another GBrokerConnector object
 	 */
 	GSerialExecutorT(const GSerialExecutorT<processable_type> &cp)
-		: GBaseExecutorT<processable_type>(cp) { /* nothing */ }
+		: GBaseExecutorT<processable_type>(cp)
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * The destructor
 	 */
-	virtual ~GSerialExecutorT() { /* nothing */ }
+	virtual ~GSerialExecutorT()
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -639,7 +626,7 @@ protected:
 	virtual bool waitForReturn(
 		std::vector<std::shared_ptr < processable_type>>& workItems
 		, std::vector<bool> &workItemPos
-		, std::vector<std::shared_ptr < processable_type>>& oldWorkItems
+		, std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	) override {
 		// Mark all positions as returned
 		std::vector<bool>::iterator it;
@@ -659,7 +646,8 @@ protected:
  */
 template<typename processable_type>
 class GMTExecutorT
-	: public GBaseExecutorT<processable_type> {
+	: public GBaseExecutorT<processable_type>
+{
 	///////////////////////////////////////////////////////////////////////
 
 	friend class boost::serialization::access;
@@ -680,14 +668,16 @@ public:
 	 * The default constructor
 	 */
 	GMTExecutorT()
-		: GBaseExecutorT<processable_type>(), gtp_() { /* nothing */ }
+		: GBaseExecutorT<processable_type>(), gtp_()
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * Initialization with the number of threads
 	 */
 	GMTExecutorT(std::uint16_t nThreads)
-		: GBaseExecutorT<processable_type>(), gtp_(nThreads) { /* nothing */ }
+		: GBaseExecutorT<processable_type>(), gtp_(nThreads)
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -696,13 +686,15 @@ public:
 	 * @param cp A copy of another GBrokerConnector object
 	 */
 	GMTExecutorT(const GMTExecutorT<processable_type> &cp)
-		: GBaseExecutorT<processable_type>(cp), gtp_(cp.gtp_.getNThreads()) { /* nothing */ }
+		: GBaseExecutorT<processable_type>(cp), gtp_(cp.gtp_.getNThreads())
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * The destructor
 	 */
-	virtual ~GMTExecutorT() { /* nothing */ }
+	virtual ~GMTExecutorT()
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -772,7 +764,7 @@ protected:
 	virtual bool waitForReturn(
 		std::vector<std::shared_ptr < processable_type>>& workItems
 		, std::vector<bool> &workItemPos
-		, std::vector<std::shared_ptr < processable_type>>& oldWorkItems
+		, std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	) override {
 		gtp_.wait();
 
@@ -826,8 +818,11 @@ public:
 	 * The default constructor
 	 */
 	GBrokerConnector2T()
-		: GBaseExecutorT<processable_type>(), srm_(DEFAULTSRM), maxResubmissions_(DEFAULTMAXRESUBMISSIONS),
-		  waitFactor_(DEFAULTBROKERWAITFACTOR2), doLogging_(false) { /* nothing */ }
+		: GBaseExecutorT<processable_type>()
+	  	, srm_(DEFAULTSRM), maxResubmissions_(DEFAULTMAXRESUBMISSIONS)
+	  	, waitFactor_(DEFAULTBROKERWAITFACTOR2)
+	  	, doLogging_(false)
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -836,8 +831,12 @@ public:
 	 * @param srm The submission-return mode to be used
 	 */
 	explicit GBrokerConnector2T(submissionReturnMode srm)
-		: GBaseExecutorT<processable_type>(), srm_(srm), maxResubmissions_(DEFAULTMAXRESUBMISSIONS),
-		  waitFactor_(DEFAULTBROKERWAITFACTOR2), doLogging_(false) { /* nothing */ }
+		: GBaseExecutorT<processable_type>()
+	  	, srm_(srm)
+	  	, maxResubmissions_(DEFAULTMAXRESUBMISSIONS)
+	  	, waitFactor_(DEFAULTBROKERWAITFACTOR2)
+	  	, doLogging_(false)
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -846,14 +845,19 @@ public:
 	 * @param cp A copy of another GBrokerConnector object
 	 */
 	GBrokerConnector2T(const GBrokerConnector2T<processable_type> &cp)
-		: GBaseExecutorT<processable_type>(cp), srm_(cp.srm_), maxResubmissions_(cp.maxResubmissions_),
-		  waitFactor_(cp.waitFactor_), doLogging_(cp.doLogging_) { /* nothing */ }
+		: GBaseExecutorT<processable_type>(cp)
+	  	, srm_(cp.srm_)
+	  	, maxResubmissions_(cp.maxResubmissions_)
+	  	, waitFactor_(cp.waitFactor_)
+	  	, doLogging_(cp.doLogging_)
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * The destructor
 	 */
-	virtual ~GBrokerConnector2T() { /* nothing */ }
+	virtual ~GBrokerConnector2T()
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -1070,17 +1074,10 @@ protected:
 	/**
 	 * Allows to perform necessary setup work for an iteration
 	 */
-	virtual void iterationInit(
-		std::vector<std::shared_ptr < processable_type>
-
-	>& workItems
-	,
-	std::vector<bool> &workItemPos
-	, std::vector<std::shared_ptr < processable_type>
-	>& oldWorkItems
-	)
-
-	override {
+	virtual void iterationInit(std::vector<std::shared_ptr<processable_type>>& workItems
+	, std::vector<bool> &workItemPos
+	, std::vector<std::shared_ptr<processable_type>>& oldWorkItems
+	) override {
 		// Make sure the parent classes iterationInit function is executed first
 		// This function will also update the iteration start time
 		GBaseExecutorT<processable_type>::iterationInit(workItems, workItemPos, oldWorkItems);
@@ -1098,16 +1095,10 @@ protected:
 	 * Waits for all items to return or possibly until a timeout has been reached.
 	 */
 	virtual bool waitForReturn(
-		std::vector<std::shared_ptr < processable_type>
-
-	>& workItems
-	,
-	std::vector<bool> &workItemPos
-	, std::vector<std::shared_ptr < processable_type>
-	>& oldWorkItems
-	)
-
-	override {
+		std::vector<std::shared_ptr<processable_type>>& workItems
+		, std::vector<bool> &workItemPos
+		, std::vector<std::shared_ptr<processable_type>>& oldWorkItems
+	) override {
 		bool complete = false;
 
 		switch (srm_) {
@@ -1218,13 +1209,9 @@ private:
 	 * incomplete (false).
 	 */
 	bool waitForTimeOut(
-		std::vector<std::shared_ptr < processable_type>
-
-	>& workItems
-	,
-	std::vector<bool> &workItemPos
-	, std::vector<std::shared_ptr < processable_type>
-	>& oldWorkItems
+		std::vector<std::shared_ptr<processable_type>>& workItems
+		, std::vector<bool> &workItemPos
+		, std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	) {
 		std::shared_ptr <processable_type> w;
 
@@ -1285,13 +1272,9 @@ private:
 	 * without limit.
 	 */
 	bool waitForTimeOutAndResubmit(
-		std::vector<std::shared_ptr < processable_type>
-
-	>& workItems
-	,
-	std::vector<bool> &workItemPos
-	, std::vector<std::shared_ptr < processable_type>
-	>& oldWorkItems
+		std::vector<std::shared_ptr<processable_type>>& workItems
+		, std::vector<bool> &workItemPos
+		, std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	) {
 		bool complete = false;
 		std::size_t nResubmissions = 0;
@@ -1315,13 +1298,9 @@ private:
 	 * of the work item vector
 	 */
 	bool waitForFullReturn(
-		std::vector<std::shared_ptr < processable_type>
-
-	>& workItems
-	,
-	std::vector<bool> &workItemPos
-	, std::vector<std::shared_ptr < processable_type>
-	>& oldWorkItems
+		std::vector<std::shared_ptr<processable_type>>& workItems
+		, std::vector<bool> &workItemPos
+		, std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	) {
 		std::size_t nReturnedCurrent = 0;
 		while (
@@ -1341,14 +1320,11 @@ private:
 	 * @return A boolean indicating whether all work items of the current iteration were received
 	 */
 	bool addVerifiedWorkItemAndCheckComplete(
-		std::shared_ptr <processable_type> w, std::size_t &nReturnedCurrent,
-		std::vector<std::shared_ptr < processable_type>
-
-	>& workItems
-	,
-	std::vector<bool> &workItemPos
-	, std::vector<std::shared_ptr < processable_type>
-	>& oldWorkItems
+		std::shared_ptr <processable_type> w
+		, std::size_t &nReturnedCurrent
+		, std::vector<std::shared_ptr<processable_type>>& workItems
+		, std::vector<bool> &workItemPos
+		, std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	) {
 		bool complete = false;
 		SUBMISSIONCOUNTERTYPE current_iteration = GBaseExecutorT<processable_type>::submission_counter_;
