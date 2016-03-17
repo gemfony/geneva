@@ -41,37 +41,6 @@ namespace Hap {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Initialization with the number of entries in the buffer
- * @param binSize The size of the random buffer
- * @param lf A reference to an external random number generator
- */
-random_container::random_container(
-	const std::size_t &binSize, lagged_fibonacci &lf
-)
-	: current_pos_(0), binSize_(binSize), r_(nullptr) {
-	try {
-		r_ = new double[binSize_];
-		for (std::size_t pos = 0; pos < binSize_; pos++) {
-			r_[pos] = lf();
-		}
-	} catch (const std::bad_alloc &e) {
-		// This will propagate the exception to the global error handler so it can be logged
-		glogger
-		<< "In random_container::random_container(const std::size_t&): Error!" << std::endl
-		<< "std::bad_alloc caught with message" << std::endl
-		<< e.what() << std::endl
-		<< GEXCEPTION;
-	} catch (...) {
-		// This will propagate the exception to the global error handler so it can be logged
-		glogger
-		<< "In random_container::random_container(const std::size_t&): Error!" << std::endl
-		<< "unknown exception caught" << std::endl
-		<< GEXCEPTION;
-	}
-}
-
-/******************************************************************************/
-/**
  * The destructor -- gets rid of the random buffer r
  */
 random_container::~random_container() {
@@ -97,18 +66,6 @@ std::size_t random_container::getCurrentPosition() const {
 }
 
 /******************************************************************************/
-/**
- * Replaces "used" random numbers by new numbers and resets the current_pos_
- * pointer.
- */
-void random_container::refresh(lagged_fibonacci &lf) {
-	for (std::size_t pos = 0; pos < current_pos_; pos++) {
-		r_[pos] = lf();
-	}
-	current_pos_ = 0;
-}
-
-/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
@@ -123,10 +80,16 @@ boost::mutex Gem::Hap::GRandomFactory::factory_creation_mutex_;
  * that this class is instantiated only once.
  */
 GRandomFactory::GRandomFactory()
-	: finalized_(false), threadsHaveBeenStarted_(false),
-	  n01Threads_(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS))),
-	  p01_(DEFAULTFACTORYBUFFERSIZE), r01_(DEFAULTFACTORYBUFFERSIZE),
-	  startSeed_(boost::numeric_cast<initial_seed_type>(this->nondet_rng())) {
+	: finalized_(false)
+  	, threadsHaveBeenStarted_(false)
+  	, n01Threads_(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)))
+  	, p01_(DEFAULTFACTORYBUFFERSIZE), r01_(DEFAULTFACTORYBUFFERSIZE)
+  	, startSeed_(boost::numeric_cast<initial_seed_type>(this->nondet_rng()))
+{
+	/*
+	 * Apparently the entropy() call currently always returns 0 with g++ and clang,
+	 * as this call is not fully implemented.
+	 *
 	// Check whether enough entropy is available. Warn, if this is not the case
 	if (0. == nondet_rng.entropy()) {
 		glogger
@@ -135,6 +98,7 @@ GRandomFactory::GRandomFactory()
 		<< "has entropy 0." << std::endl
 		<< GWARNING;
 	}
+	*/
 
 	boost::mutex::scoped_lock lk(factory_creation_mutex_);
 	if (multiple_call_trap_ > 0) {
@@ -143,8 +107,7 @@ GRandomFactory::GRandomFactory()
 		<< "Class has been instantiated before." << std::endl
 		<< "and may be instantiated only once" << std::endl
 		<< GTERMINATION;
-	}
-	else {
+	} else {
 		multiple_call_trap_++;
 	}
 }
@@ -263,7 +226,7 @@ bool GRandomFactory::checkSeedingIsInitialized() const {
  *
  * @return A seed taken from a local random number generator
  */
-std::uint32_t GRandomFactory::getSeed() {
+seed_type GRandomFactory::getSeed() {
 	{ // Determine whether the seed-generator has already been initialized. If not, start it
 		boost::upgrade_lock<boost::shared_mutex> sm_lck(seedingMutex_);
 		if (!mt_ptr_) { // double lock pattern
@@ -287,7 +250,7 @@ std::uint32_t GRandomFactory::getSeed() {
  * @param r A pointer to a partially used work package
  * @param current_pos The first position in the array that holds unused random numbers
  */
-void GRandomFactory::returnUsedPackage(std::shared_ptr < random_container > p) {
+void GRandomFactory::returnUsedPackage(std::shared_ptr<random_container> p) {
 	// We try to add the item to the r01_ queue, until a timeout occurs.
 	// Once this is the case we delete the package, so we do not overflow
 	// with recycled packages
@@ -338,6 +301,7 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &n01Threads) {
  * @return A packet of new [0,1[ random numbers
  */
 std::shared_ptr <random_container> GRandomFactory::new01Container() {
+
 	// Start the producer threads upon first access to this function
 	if (!threadsHaveBeenStarted_.load()) {
 		boost::unique_lock<boost::mutex> tc_lk(thread_creation_mutex_);
@@ -377,7 +341,7 @@ std::shared_ptr <random_container> GRandomFactory::new01Container() {
  */
 void GRandomFactory::producer01(std::uint32_t seed) {
 	try {
-		lagged_fibonacci lf(seed);
+		std::mt19937 mt(seed);
 		std::shared_ptr <random_container> p;
 
 		while (!boost::this_thread::interruption_requested()) {
@@ -400,10 +364,10 @@ void GRandomFactory::producer01(std::uint32_t seed) {
 #endif /* DEBUG */
 
 					// Finally we replace "used" random numbers with new ones
-					p->refresh(lf);
+					p->refresh(mt);
 
 				} catch (Gem::Common::condition_time_out &) { // O.k., so we need to create a new container
-					p = std::shared_ptr<random_container>(new random_container(DEFAULTARRAYSIZE, lf));
+					p = std::shared_ptr<random_container>(new random_container(DEFAULTARRAYSIZE, mt));
 				}
 			}
 

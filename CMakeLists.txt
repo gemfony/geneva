@@ -212,7 +212,6 @@ SET(
 	libboost-date-time-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
 	libboost-filesystem-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
 	libboost-program-options-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
-	libboost-random-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
 	libboost-regex-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
 	libboost-serialization-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
 	libboost-system-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),

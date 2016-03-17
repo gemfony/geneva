@@ -974,9 +974,9 @@ void GNeuralNetworkIndividual::writeVisualizationFile(const std::string &visFile
 		<< "#include <sstream>" << std::endl
 		<< "#include <fstream>" << std::endl
 		<< "#include <vector>" << std::endl
+		<< "#include <random>" << std::endl
 		<< std::endl
 		<< "#include <boost/cstdint.hpp>" << std::endl
-		<< "#include <boost/random.hpp>" << std::endl
 		<< std::endl
 		<< "#include \"trainedNetwork.hpp\"" << std::endl
 		<< std::endl

@@ -44,12 +44,12 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <random>
 
 // Boost header files
 #include <boost/thread.hpp>
 #include <boost/ref.hpp>
 #include <boost/cast.hpp>
-#include <boost/random.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 

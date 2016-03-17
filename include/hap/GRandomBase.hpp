@@ -45,9 +45,9 @@
 #include <sstream>
 #include <cassert>
 #include <algorithm>
+#include <random>
 
 // Boost headers go here
-#include <boost/random.hpp>
 #include <boost/date_time.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/thread/mutex.hpp>
@@ -56,7 +56,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/cast.hpp>
 #include <boost/function.hpp>
-#include <boost/random/linear_congruential.hpp>
 
 #ifndef GRANDOMBASE_HPP_
 #define GRANDOMBASE_HPP_
@@ -313,12 +312,10 @@ public:
 		// A uniform distribution in the desired range. Note that boost::uniform_int produces
 		// random numbers up to and including its upper limit. Note that ui is a distribution
 		// only. The actual generator is provided by this class (see variate_generator).
-		boost::uniform_int<int_type> ui(minVal, maxVal);
+		std::uniform_int_distribution<int_type> ui(minVal, maxVal);
 
 		// A generator that binds together our own random number generator and a uniform_int distribution
-		boost::variate_generator<Gem::Hap::GRandomBase &, boost::uniform_int<int_type>> boost_uniform_int(*this, ui);
-
-		return boost_uniform_int();
+		return ui(*this);
 	}
 
 	/***************************************************************************/
@@ -333,57 +330,6 @@ public:
 		const int_type &maxVal, typename std::enable_if<std::is_integral<int_type>::value>::type *dummy = 0
 	) {
 		return this->uniform_int<int_type>(0, maxVal);
-	}
-
-	/*************************************************************************/
-	/**
-	 * This function produces integer random numbers in the range of [minVal, maxVal] .
-	 * Note that maxVal may also be < 0. . The size of the integers is assumed to be
-	 * small compared to int_type's value range.
-	 *
-	 * @param minVal The minimum value of the range
-	 * @param maxVal The maximum (excluded) value of the range
-	 * @return Discrete random numbers evenly distributed in the range [minVal,maxVal]
-	 */
-	template<typename int_type>
-	int_type uniform_smallint(
-		const int_type &minVal, const int_type &maxVal,
-		typename std::enable_if<std::is_integral<int_type>::value>::type *dummy = 0
-	) {
-#ifdef DEBUG
-		assert(maxVal >= minVal);
-#endif /* DEBUG */
-
-		// A uniform distribution in the desired range. Note that boost::uniform_int produces
-		// random numbers up to and including its upper limit. Note that ui is a distribution
-		// only. The actual generator is provided by this class (see variate_generator).
-		boost::uniform_smallint<int_type> ui(minVal, maxVal);
-
-		// A generator that binds together our own random number generator and a uniform_smallint distribution
-		boost::variate_generator<Gem::Hap::GRandomBase &, boost::uniform_smallint<int_type>> boost_uniform_smallint(
-			*this, ui);
-
-		return boost_uniform_smallint();
-	}
-
-	/***************************************************************************/
-	/**
-	 * This function produces integer random numbers in the range of [0, maxVal] .
-	 * The size of the integers is assumed to be small compared to int_type's value
-	 * range.
-	 *
-	 * @param maxVal The maximum (excluded) value of the range
-	 * @return Discrete random numbers evenly distributed in the range [0,maxVal]
-	 */
-	template<typename int_type>
-	int_type uniform_smallint(
-		const int_type &maxVal, typename std::enable_if<std::is_integral<int_type>::value>::type *dummy = 0
-	) {
-#ifdef DEBUG
-		assert(maxVal >= 0);
-#endif /* DEBUG */
-
-		return this->uniform_smallint<int_type>(0, maxVal);
 	}
 
 protected:

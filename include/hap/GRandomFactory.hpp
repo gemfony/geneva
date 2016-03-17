@@ -46,16 +46,14 @@
 #include <fstream>
 #include <cassert>
 #include <limits>
+#include <random>
 
 // Boost headers go here
 
 #include <boost/atomic.hpp>
-#include <boost/random.hpp>
 #include <boost/date_time.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
-#include <boost/random.hpp>
-#include <boost/random/random_device.hpp>
 #include <boost/utility.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem.hpp>
@@ -101,8 +99,45 @@ namespace Hap {
 struct random_container
 	: private boost::noncopyable {
 public:
-	/** @brief Initialization with the number of entries in the buffer */
-	random_container(const std::size_t &, lagged_fibonacci &);
+ 	/***************************************************************************/
+	/**
+	 * Initialization with the number of entries in the buffer
+	 *
+	 * @param binSize The size of the random buffer
+ 	 * @param rng A reference to an external random number generator
+	 */
+	template <typename T_RNG>
+	random_container(
+		const std::size_t &binSize
+		, T_RNG &rng
+	)
+		: current_pos_(0)
+	  	, binSize_(binSize)
+	   , dist_(0,1) // even distribution in the half-open range [0,1[
+	   , r_(nullptr)
+	{
+		try {
+			r_ = new double[binSize_];
+			for (std::size_t pos = 0; pos < binSize_; pos++) {
+				r_[pos] = dist_(rng);
+			}
+		} catch (const std::bad_alloc &e) {
+			// This will propagate the exception to the global error handler so it can be logged
+			glogger
+			<< "In random_container::random_container(const std::size_t&, T_RNG&): Error!" << std::endl
+			<< "std::bad_alloc caught with message" << std::endl
+			<< e.what() << std::endl
+			<< GEXCEPTION;
+		} catch (...) {
+			// This will propagate the exception to the global error handler so it can be logged
+			glogger
+			<< "In random_container::random_container(const std::size_t&, T_RNG&): Error!" << std::endl
+			<< "unknown exception caught" << std::endl
+			<< GEXCEPTION;
+		}
+	}
+
+ 	/***************************************************************************/
 
 	/** @brief The destructor -- gets rid of the random buffer r_ */
 	~random_container();
@@ -113,8 +148,18 @@ public:
 	/** @brief Returns the current position */
 	std::size_t getCurrentPosition() const;
 
-	/** @brief Replaces "used" random numbers */
-	void refresh(lagged_fibonacci &);
+ 	/***************************************************************************/
+   /**
+    * Replaces "used" random numbers by new numbers and resets the current_pos_
+    * pointer. T_RNG must be one of the standard C++1x-generators
+    */
+	template <typename T_RNG>
+	void refresh(T_RNG &rng) {
+		for (std::size_t pos = 0; pos < current_pos_; pos++) {
+			r_[pos] = rng();
+		}
+		current_pos_ = 0;
+	}
 
 	/***************************************************************************/
 	/**
@@ -151,6 +196,8 @@ private:
 	std::size_t current_pos_; ///< The current position in the array
 	const std::size_t binSize_;     ///< The size of the buffer
 
+ 	std::uniform_real_distribution<> dist_; ///< Creates the actual 0/1 distribution from the random number generator
+
 	double *r_; ///< Holds the actual random numbers
 };
 
@@ -177,7 +224,9 @@ private:
  * http://www.boost.org/doc/libs/1_35_0/libs/random/random-performance.html this is
  * the fastest generator amongst all of Boost's generators. It is the author's belief that
  * the "quality" of random numbers is of less concern in evolutionary algorithms, as the
- * geometry of the quality surface adds to the randomness.
+ * geometry of the quality surface adds to the randomness. The original boost random
+ * number generators have now been replaced by std::random generators, which are
+ * modelled after their boost-equivalents.
  */
 class GRandomFactory
 	: private boost::noncopyable {
@@ -241,7 +290,7 @@ private:
 
 	mutable boost::mutex thread_creation_mutex_; ///< Synchronization of access to the threadsHaveBeenStarted_ variable
 
-	boost::random::random_device nondet_rng; ///< Source of non-deterministic random numbers
+	std::random_device nondet_rng; ///< Source of non-deterministic random numbers
 	initial_seed_type startSeed_; ///< Stores the initial start seed
 	std::shared_ptr <mersenne_twister> mt_ptr_;
 	mutable boost::shared_mutex seedingMutex_; ///< Regulates start-up of the seeding process

@@ -37,9 +37,9 @@
 
 // Standard includes go here
 #include <cstdlib>
+#include <random>
 
 // Boost includes go here
-#include <boost/random.hpp>
 
 #ifndef GRANDOMDEFINES_HPP_
 #define GRANDOMDEFINES_HPP_
@@ -50,19 +50,16 @@ namespace Hap {
 /******************************************************************************/
 // Some typedefs for the seed manager and random factory
 typedef std::shared_ptr <boost::thread> thread_ptr;
-typedef boost::mt19937 mersenne_twister;
-// typedef boost::random_device nondet_rng;
-// typedef boost::random_device::result_type initial_seed_type;
-typedef boost::mt19937::result_type initial_seed_type;
-typedef boost::mt19937::result_type seed_type;
-
-typedef boost::lagged_fibonacci19937 lagged_fibonacci;
+typedef std::mt19937 mersenne_twister;
+typedef std::mt19937::result_type initial_seed_type;
+typedef initial_seed_type seed_type;
+typedef std::subtract_with_carry_engine<uint_fast64_t, 48, 5, 12> lagged_fibonacci; // ranlux48_base
 
 /******************************************************************************/
 // Some constants needed for the random number generation
 
-const std::size_t DEFAULTARRAYSIZE = 1000; ///< Default size of the random number array
-const std::size_t DEFAULTFACTORYBUFFERSIZE = 400; ///< Default size of the underlying buffer
+const std::size_t   DEFAULTARRAYSIZE = 1000; ///< Default size of the random number array
+const std::size_t   DEFAULTFACTORYBUFFERSIZE = 400; ///< Default size of the underlying buffer
 const std::uint16_t DEFAULTFACTORYPUTWAIT = 50; ///< waiting time in milliseconds
 const std::uint16_t DEFAULTFACTORYGETWAIT = 50; ///< waiting time in milliseconds
 const std::uint16_t DEFAULTSEEDQUEUEPUTWAIT = 50; ///< waiting time for seeding queue in milliseconds
@@ -76,9 +73,9 @@ const std::uint16_t DEFAULT01PRODUCERTHREADS = 2;
 /******************************************************************************/
 /**
  * The maximum value of std::int32_t, converted to a double value. This is
- * needed to scale the output of boost::rand48 to a maximum value of 1.
+ * needed to scale the output of std::minstd_rand0 to a maximum value of 1.
  */
-const double rnr_max = static_cast<double>(boost::numeric::bounds<std::int32_t>::highest());
+const double rnr_max = static_cast<double>(boost::numeric::bounds<std::minstd_rand0::result_type>::highest());
 
 /******************************************************************************/
 /**

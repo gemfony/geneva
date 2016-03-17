@@ -46,6 +46,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <random>
 
 // Boost header files
 #include <boost/filesystem.hpp>
@@ -264,8 +265,9 @@ int main(int argc, char **argv){
 	// different, sequential seeds, and their initial values (after a number of calls)
 	// are asked for. There should be no correlation.
 	for(i=1; i<=10; i++) {
-		boost::lagged_fibonacci607 lf(boost::numeric_cast<std::uint32_t>(i));
-		// for(int j=0; j<1000; j++) double tmp = lf();
+		std::subtract_with_carry_engine<std::uint_fast64_t, 48, 5, 12> lf(
+			boost::numeric_cast<std::subtract_with_carry_engine<std::uint_fast64_t, 48, 5, 12>::result_type>(i)
+		);
 		initLFCorr.push_back(lf());
 	}
 

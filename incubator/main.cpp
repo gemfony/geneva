@@ -52,8 +52,7 @@
 #include <tuple>
 #include <memory>
 #include <type_traits>
-
-#include "boost/random.hpp"
+#include <random>
 
 #include "incubator.hpp"
 
@@ -69,9 +68,9 @@ const std::size_t MAXITERATIONS = 10;
 /**
  * The main function (who would have guessed ...)
  */
-typedef boost::random::mt19937 real_generator;
-typedef boost::random::uniform_real_distribution<> real_dist;
-typedef boost::variate_generator<real_generator&, real_dist> Generator;
+typedef srd::mt19937 real_generator;
+typedef std::uniform_real_distribution<> real_dist;
+typedef std::variate_generator<real_generator&, real_dist> Generator;
 
 int main() {
 	real_generator mt; // From Boosts own random number suite

@@ -53,6 +53,7 @@
 
 // Geneva headers go here
 #include "hap/GRandomBase.hpp"
+#include "hap/GRandomDefines.hpp"
 #include "common/GLogger.hpp"
 
 namespace Gem {
@@ -210,8 +211,9 @@ public:
 	 * The standard constructor
 	 */
 	GRandomT()
-		: Gem::Hap::GRandomBase(),
-		  linCongr_(boost::numeric_cast<boost::random::rand48::result_type>(GRANDOMFACTORY->getSeed())) { /* nothing */ }
+		: Gem::Hap::GRandomBase()
+	  	, linCongr_(boost::numeric_cast<std::minstd_rand0::result_type>(GRANDOMFACTORY->getSeed()))
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -225,8 +227,8 @@ protected:
 	 * This function produces uniform random numbers locally.
 	 */
 	virtual double dbl_random01() {
-		boost::rand48::result_type enumerator = linCongr_() - (linCongr_.min)();
-		boost::rand48::result_type denominator = (linCongr_.max)() - (linCongr_.min)();
+		std::minstd_rand0::result_type enumerator = linCongr_() - (linCongr_.min)();
+		std::minstd_rand0::result_type denominator = (linCongr_.max)() - (linCongr_.min)();
 
 		enumerator > 0 ? enumerator -= 1 : enumerator = 0;
 
@@ -242,7 +244,7 @@ protected:
 private:
 	/***************************************************************************/
 	/** @brief The actual generator for local random number creation */
-	boost::rand48 linCongr_;
+	std::minstd_rand0 linCongr_;
 };
 
 /******************************************************************************/
