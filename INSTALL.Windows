@@ -2,9 +2,10 @@ Geneva Installation on Windows
 ==============================
 
 Geneva has been tested to compile and work on Windows 7 using the
-MS Visual C++ 12.0 compiler from the "Visual Studio Express 2013 for Desktop"
+MS Visual C++ 14.0 compiler from the "Visual Studio Community 2015"
 developer environment. Your mileage may vary with other Windows/compiler
-version combinations.
+version combinations. To correctly support Visual Studio 2015 you will
+need CMake 3.2.3 or newer.
 
 The authors would very much appreciate your feedback through the Geneva
 Development Forum http://www.gemfony.eu/index.php?forums .
@@ -24,14 +25,16 @@ and Boost. Note that you need at least 12 GB free disk space for the whole,
 plus additional space for compilation work.
 
 - Visit
-    http://www.visualstudio.com/en-us/products/visual-studio-express-vs.aspx
-  and download the MS Visual Studio "Express 2013 for Windows Desktop" version.
-  Then run the downloaded installer, it will download many GB's of data and
-  finally install the relevant component: MS Visual C++ 12.0 at the moment.
+    https://www.visualstudio.com/products/visual-studio-community-vs
+  and download the MS Visual Studio "Community 2015" version. Then run the
+  downloaded installer, and make sure to select the "Common Toold for
+  Visual C++ 2015" component if you perform a customized installation.
+  The installer will then download many GB's of data and finally install
+  the relevant component: MS Visual C++ 14.0 at the moment.
 
 - Visit
     http://www.cmake.org/download/
-  and download the CMake Win32 binary installer (version 3.1 currently).
+  and download the CMake Win32 binary installer (version 3.4 currently).
   Run the downloaded installer to install CMake, allowing it to set the CMake
   path system-wide for all users.
 
@@ -39,8 +42,8 @@ plus additional space for compilation work.
     http://www.boost.org/users/download/
   then go to the "Prebuilt windows binaries" link, and download the latest
   Boost Windows package corresponding to the right compiler version, e.g.
-  MSVC12 in our case (see above), which would imply the installer file
-  "boost_1_57_0-msvc-12.0-64.exe" at the moment.
+  MSVC14 in our case (see above), which would imply the installer file
+  "boost_1_59_0-msvc-14.0-64.exe" at the moment.
 
 
 Building and installing Geneva
@@ -60,10 +63,10 @@ Building and installing Geneva
 - In the first case just run a command like:
 
     cd "D:\SOFT\GENEVA-BUILD"
-    cmake -G "Visual Studio 12 2013 Win64" ^
+    cmake -G "Visual Studio 14 2015 Win64" ^
 	-DCMAKE_VERBOSE_MAKEFILE=ON ^
-	-DBOOST_ROOT="C:\Program Files (x86)\boost_1_57_0" ^
-	-DBOOST_LIBRARYDIR="C:\Program Files (x86)\boost_1_57_0\lib64-msvc-12.0" ^
+	-DBOOST_ROOT="C:\local\boost_1_59_0" ^
+	-DBOOST_LIBRARYDIR="C:\local\boost_1_59_0\lib64-msvc-14.0" ^
 	-DCMAKE_INSTALL_PREFIX="D:\SOFT\GENEVA-BIN" ^
 	"D:\SOFT\GENEVA-V1.6"
 
@@ -87,13 +90,13 @@ Building and installing Geneva
   Also define the following variables, using the "+ Add Entry" button:
     CMAKE_INSTALL_PREFIX	<WHERE_YOU_WANT_TO_INSTALL_GENEVA>
     BOOST_ROOT			<WHERE_YOU_INSTALLED_BOOST>
-    BOOST_LIBRARYDIR		<WHERE_YOU_INSTALLED_BOOST>\lib64-msvc-12.0
+    BOOST_LIBRARYDIR		<WHERE_YOU_INSTALLED_BOOST>\lib64-msvc-14.0
   Note that you might need to adapt the LIBRARYDIR path according to the
   current MSVC compiler version, check that you find the Boost "boost_*.dll"
   files inside!
 
   Then click "Configure" and select the right generator, in our case
-    Visual Studio 12 2013 Win64
+    Visual Studio 14 2015 Win64
   and leave "Use default native compilers" enabled. You will need to rerun
   the "Configure" step a second time, due to an issue with CMake modifying
   the build-types list which is set initially to a default value.
@@ -101,8 +104,8 @@ Building and installing Geneva
   If everything ran fine, you must now see the output shown below (see 'CMake
   output') and you may now click "Generate".
 
-- Run MS Visual Studio Express 2013, select "Open Project...", and enter the
-  file "D:\SOFT\GENEVA-BUILD\ALL_BUILD.vcxproj". Select the "ALL_BUILD" target
+- Run MS Visual Studio 2015, select "Open Project...", and enter the file
+  "D:\SOFT\GENEVA-BUILD\ALL_BUILD.vcxproj". Select the "ALL_BUILD" target
   in the "Solution Explorer" pane and build it wit F7 / "Build Solution".
 
 
@@ -119,9 +122,9 @@ Building:
         the Geneva library collection
         statically linked
         including testing code
-        with Boost include location:     C:/Program Files (x86)/Boost_1_57
-        with Boost library location:     C:/Program Files (x86)/Boost_1_57/lib64-msvc-12.0
-        using compiler:                  MSVC v18.0.31101.0
+        with Boost include location:     C:/local/Boost_1_59_0
+        with Boost library location:     C:/local/Boost_1_59_0/lib64-msvc-14.0
+        using compiler:                  MSVC v19.0.23026.0
         enforcing standard:              cxx11
         producing verbose CMake output
         for operating system:            Windows
