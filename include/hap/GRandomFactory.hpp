@@ -274,7 +274,7 @@ private:
 	void producer01(std::uint32_t seed);
 
 	bool finalized_;
-	boost::atomic<bool> threadsHaveBeenStarted_;
+	boost::atomic<bool> threads_started_;
 	boost::atomic<std::uint16_t> n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
 	Gem::Common::GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
 
@@ -288,7 +288,7 @@ private:
 	static std::uint16_t multiple_call_trap_; ///< Trap to catch multiple instantiations of this class
 	static boost::mutex factory_creation_mutex_; ///< Synchronization of access to multiple_call_trap in constructor
 
-	mutable boost::mutex thread_creation_mutex_; ///< Synchronization of access to the threadsHaveBeenStarted_ variable
+	mutable boost::mutex thread_creation_mutex_; ///< Synchronization of access to the threads_started_ variable
 
 	std::random_device nondet_rng; ///< Source of non-deterministic random numbers
 	initial_seed_type startSeed_; ///< Stores the initial start seed

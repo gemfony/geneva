@@ -81,7 +81,7 @@ boost::mutex Gem::Hap::GRandomFactory::factory_creation_mutex_;
  */
 GRandomFactory::GRandomFactory()
 	: finalized_(false)
-  	, threadsHaveBeenStarted_(false)
+  	, threads_started_(ATOMIC_FLAG_INIT) // false
   	, n01Threads_(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)))
   	, p01_(DEFAULTFACTORYBUFFERSIZE), r01_(DEFAULTFACTORYBUFFERSIZE)
   	, startSeed_(boost::numeric_cast<initial_seed_type>(this->nondet_rng()))
@@ -276,7 +276,7 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &n01Threads) {
 	// Threads might already be running, so we need to regulate access
 	{
 		boost::unique_lock<boost::mutex> lk(thread_creation_mutex_);
-		if (threadsHaveBeenStarted_.load()) {
+		if (threads_started_.load()) {
 			if (n01Threads_local > n01Threads_.load()) { // start new 01 threads
 				for (std::uint16_t i = n01Threads_.load(); i < n01Threads_local; i++) {
 					producer_threads_01_.create_thread(
@@ -301,11 +301,10 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &n01Threads) {
  * @return A packet of new [0,1[ random numbers
  */
 std::shared_ptr <random_container> GRandomFactory::new01Container() {
-
 	// Start the producer threads upon first access to this function
-	if (!threadsHaveBeenStarted_.load()) {
+	if (!threads_started_.load()) {
 		boost::unique_lock<boost::mutex> tc_lk(thread_creation_mutex_);
-		if (!threadsHaveBeenStarted_.load()) { // double checked locking pattern
+		if (!threads_started_.load()) { // double checked locking pattern
 			//---------------------------------------------------------
 			for (std::uint16_t i = 0; i < n01Threads_.load(); i++) {
 				producer_threads_01_.create_thread(
@@ -314,7 +313,7 @@ std::shared_ptr <random_container> GRandomFactory::new01Container() {
 			}
 			//---------------------------------------------------------
 
-			threadsHaveBeenStarted_ = true;
+			threads_started_ = true;
 		}
 	}
 

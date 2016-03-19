@@ -45,7 +45,7 @@ GThreadPool::GThreadPool()
 	: errorCounter_(0)
    , tasksInFlight_(0)
    , nThreads_(getNHardwareThreads())
-   , threads_started_(false)
+   , threads_started_(ATOMIC_FLAG_INIT) // false
 { /* nothing */ }
 
 /******************************************************************************/
@@ -59,7 +59,7 @@ GThreadPool::GThreadPool(const unsigned int &nThreads)
 	: errorCounter_(0)
    , tasksInFlight_(0)
    , nThreads_(nThreads ? nThreads : getNHardwareThreads())
-   , threads_started_(false)
+   , threads_started_(ATOMIC_FLAG_INIT) // false
 { /* nothing */ }
 
 /******************************************************************************/
@@ -112,13 +112,16 @@ GThreadPool::~GThreadPool() {
  * @param nThreads The desired number of threads
  */
 void GThreadPool::setNThreads(unsigned int nThreads) {
-	unsigned int nThreadsLocal = nThreads ? nThreads : getNHardwareThreads();
+	// Make sure no new jobs may be submitted
+	boost::unique_lock<boost::mutex> job_lck(task_submission_mutex_);
+	// Make sure no threads may be created by other entities
+	boost::unique_lock<boost::mutex> tc_lk(thread_creation_mutex_);
+
+	// Check if any work needs to be done
+	unsigned int nThreadsLocal = nThreads>0 ? nThreads : getNHardwareThreads();
 	if (gtg_.size() == nThreadsLocal) { // We do nothing if we already have the desired size
 		return;
 	}
-
-	// Make sure no new jobs may be submitted
-	boost::unique_lock<boost::mutex> job_lck(task_submission_mutex_);
 
 	// At this point all potential async_schedule calls, just like the wait() function,
 	// must be waiting to acquire the task_submission_mutex_.
@@ -135,7 +138,7 @@ void GThreadPool::setNThreads(unsigned int nThreads) {
 	if (true == threads_started_.load()) {
 		if (nThreadsLocal > nThreads_.load()) { // We simply add the required number of threads
 			gtg_.create_threads(
-				[&]() { io_service_.run(); }
+				[this]() { this->io_service_.run(); }
 				, nThreadsLocal - nThreads_.load()
 			);
 		} else { // We need to remove threads and thus reset the entire pool

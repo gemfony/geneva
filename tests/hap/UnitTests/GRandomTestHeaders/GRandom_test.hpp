@@ -205,7 +205,9 @@ public:
 			std::vector<std::int32_t> randomHist(11); // 11 positions from 0 to 10
 
 			// Initialize with 0
-			for(std::size_t i=0; i<11; i++) randomHist.at(i) = 0;
+			for(std::size_t i=0; i<11; i++) {
+				randomHist.at(i) = 0;
+			}
 
 			for(std::size_t i=0; i<nTests_; i++) {
 				std::int32_t randVal;
@@ -214,7 +216,10 @@ public:
 				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_int(MAXRANDOM));
 
 				// Is it in the allowed range ?
-				BOOST_CHECK(randVal >= 0 && randVal <= MAXRANDOM);
+				BOOST_CHECK_MESSAGE(
+					randVal >= 0 && randVal <= MAXRANDOM
+					, "Got invalid randVal = " << randVal << " Expected >= 0 and <= " << MAXRANDOM << "\n"
+				);
 
 				// Add the value to the vector
 				BOOST_CHECK_NO_THROW(randomHist.at(std::size_t(randVal)) += 1);
