@@ -680,7 +680,9 @@ public:
 
 	void operator()(const ast_expression &x) const {
 		boost::apply_visitor(*this, x.first);
-		BOOST_FOREACH(const operation &oper, x.rest) { (*this)(oper); }
+		for(const auto& oper: x.rest) {
+			(*this)(oper);
+		}
 	}
 
 private:

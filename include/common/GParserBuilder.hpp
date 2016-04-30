@@ -1098,9 +1098,9 @@ protected:
 		GVectorParT<parameter_type>::par_.clear();
 
 		std::string ppath = GParsableI::optionName(0) + ".value";
-		BOOST_FOREACH(ptree::value_type const &v, pt.get_child(ppath.c_str())) {
-						GVectorParT<parameter_type>::par_.push_back(boost::lexical_cast<parameter_type>(v.second.data()));
-					}
+		for(const auto& v: pt.get_child(ppath.c_str())) {
+			GVectorParT<parameter_type>::par_.push_back(boost::lexical_cast<parameter_type>(v.second.data()));
+		}
 	}
 
 	/***************************************************************************/
@@ -1223,8 +1223,9 @@ protected:
 		GVectorParT<parameter_type>::par_.clear();
 
 		std::string ppath = GParsableI::optionName(0) + ".value";
-		BOOST_FOREACH(ptree::value_type const &v, pt.get_child(ppath.c_str()))
-						GVectorParT<parameter_type>::par_.push_back(boost::lexical_cast<parameter_type>(v.second.data()));
+		for(const auto& v: pt.get_child(ppath.c_str())) {
+			GVectorParT<parameter_type>::par_.push_back(boost::lexical_cast<parameter_type>(v.second.data()));
+		}
 	}
 
 	/***************************************************************************/
