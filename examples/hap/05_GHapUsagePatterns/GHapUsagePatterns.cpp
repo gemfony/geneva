@@ -98,25 +98,25 @@ int main(int argc, char **argv) {
 			// of this type.
 		}
 
-		{
-			// Random numbers with an even distribution of
-			// double values in the range [0.,max[
-			double max=10.;
-			double d_even_0_max = gr.uniform_real<double>(max);
-		}
+        {
+            // Random numbers with an even distribution of
+            // double values in the range [0.,max[
+            double max = 10.;
+            double d_even_0_max = gr.uniform_real<double>(max);
+        }
 
 		{
 			// Random numbers with an even distribution of
 			// double values in the range [min,max[
 			double min=0., max=10.;
 			double d_even_min_max = gr.uniform_real<double>(min,max);
-		}
+        }
 
 		{
 			// A normal ("gaussian") distribution of random numbers
 			// with mean 0 and sigma 1
 			double d_std_gauss = gr.normal_distribution<double>();
-		}
+        }
 
 		{
 			// A normal ("gaussian") distribution of random numbers

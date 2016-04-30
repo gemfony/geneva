@@ -113,7 +113,7 @@ public:
 	)
 		: current_pos_(0)
 	  	, binSize_(binSize)
-	   , dist_(0,1) // even distribution in the half-open range [0,1[
+	   , dist_(0.0,1.0) // even distribution in the half-open range [0,1[
 	   , r_(nullptr)
 	{
 		try {
@@ -156,7 +156,7 @@ public:
 	template <typename T_RNG>
 	void refresh(T_RNG &rng) {
 		for (std::size_t pos = 0; pos < current_pos_; pos++) {
-			r_[pos] = rng();
+			r_[pos] = dist_(rng);
 		}
 		current_pos_ = 0;
 	}
@@ -196,7 +196,7 @@ private:
 	std::size_t current_pos_; ///< The current position in the array
 	const std::size_t binSize_;     ///< The size of the buffer
 
- 	std::uniform_real_distribution<> dist_; ///< Creates the actual 0/1 distribution from the random number generator
+ 	std::uniform_real_distribution<double> dist_; ///< Creates the actual 0/1 distribution from the random number generator
 
 	double *r_; ///< Holds the actual random numbers
 };

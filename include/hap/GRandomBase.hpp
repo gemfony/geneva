@@ -214,7 +214,8 @@ public:
 	 */
 	template<typename fp_type>
 	fp_type normal_distribution(
-		const fp_type &sigma, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
+		const fp_type &sigma
+		, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
 	) {
 		return sigma * normal_distribution<fp_type>();
 	}
@@ -230,8 +231,9 @@ public:
 	 */
 	template<typename fp_type>
 	fp_type normal_distribution(
-		const fp_type &mean, const fp_type &sigma,
-		typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
+		const fp_type &mean
+		, const fp_type &sigma
+		, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
 	) {
 		return sigma * normal_distribution<fp_type>() + mean;
 	}
@@ -412,11 +414,11 @@ inline double GRandomBase::normal_distribution<double>() {
 	}
 	else {
 #ifdef GEM_HAP_USE_BOXMULLER
-      double rnr1 = uniform_01<double>();
-      double rnr2 = uniform_01<double>();
-      dblGaussCache_ = gsqrt(GFabs(-2. * glog(1. - rnr1))) * gcos(2. * boost::math::constants::pi<double>() * rnr2);
-      dblGaussCacheAvailable_ = true;
-      return gsqrt(GFabs(-2. * glog(1. - rnr1))) * gsin(2. * boost::math::constants::pi<double>()  * rnr2);
+        double rnr1 = uniform_01<double>();
+        double rnr2 = uniform_01<double>();
+        dblGaussCache_ = gsqrt(GFabs(-2. * glog(1. - rnr1))) * gcos(2. * boost::math::constants::pi<double>() * rnr2);
+        dblGaussCacheAvailable_ = true;
+        return gsqrt(GFabs(-2. * glog(1. - rnr1))) * gsin(2. * boost::math::constants::pi<double>()  * rnr2);
 #else // GEM_HAP_USE_BOXMULLERPOLAR, see here: http://de.wikipedia.org/wiki/Normalverteilung#Polar-Methode ; faster than GEM_HAP_USE_BOXMULLER
 		double q, u1, u2;
 		do {
