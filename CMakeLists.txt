@@ -68,7 +68,7 @@ ENDIF()
 
 ################################################################################
 # Make Clion happy -- the flag may be overridden later, depending on user-settings
-set(CMAKE_CXX_FLAGS  "-std=c++14 ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
 ################################################################################
 # Make sure we first check our local modules directory

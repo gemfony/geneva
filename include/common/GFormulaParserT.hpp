@@ -442,10 +442,15 @@ public:
 	 * The standard constructor
 	 */
 	explicit GFormulaParserT(
-		const std::string &formula, const constants_map &user_constants = constants_map()
+		const std::string &formula
+		, const constants_map &user_constants = constants_map()
 	)
-		: GFormulaParserT::base_type(expression_rule_), raw_formula_(formula), stack_(4096), stack_ptr_(stack_.begin()),
-		  printCode_(false) {
+		: GFormulaParserT::base_type(expression_rule_)
+		, raw_formula_(formula)
+		, stack_(4096)
+		, stack_ptr_(stack_.begin())
+		, printCode_(false)
+	{
 		boost::spirit::qi::char_type char_;
 		boost::spirit::qi::string_type string_;
 
@@ -675,9 +680,7 @@ public:
 
 	void operator()(const ast_expression &x) const {
 		boost::apply_visitor(*this, x.first);
-		BOOST_FOREACH(const operation &oper, x.rest) {
-						(*this)(oper);
-					}
+		BOOST_FOREACH(const operation &oper, x.rest) { (*this)(oper); }
 	}
 
 private:
@@ -701,8 +704,7 @@ private:
 				re = boost::xpressive::as_xpr("{{" + key + "}}");
 				formula = boost::xpressive::regex_replace(formula, re, value);
 
-			} else if ((cit->second).size() >
-						  1) { // Try key[0], key[1] --> you may use formulas with place holders sin({{x[2]}})
+			} else if ((cit->second).size() > 1) { // Try key[0], key[1] --> you may use formulas with place holders sin({{x[2]}})
 				std::size_t cnt = 0;
 				typename std::vector<fp_type>::const_iterator v_cit;
 				for (v_cit = (cit->second).begin(); v_cit != (cit->second).end(); ++v_cit) {
