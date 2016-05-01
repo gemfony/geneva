@@ -43,7 +43,8 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GInt32Object::GInt32Object() { /* nothing */ }
+GInt32Object::GInt32Object()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -52,7 +53,8 @@ GInt32Object::GInt32Object() { /* nothing */ }
  * @param cp A copy of another GInt32Object object
  */
 GInt32Object::GInt32Object(const GInt32Object &cp)
-	: GNumIntT<std::int32_t>(cp) { /* nothing */ }
+	: GNumIntT<std::int32_t>(cp)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -61,7 +63,8 @@ GInt32Object::GInt32Object(const GInt32Object &cp)
  * @param val A value used for the initialization
  */
 GInt32Object::GInt32Object(const std::int32_t &val)
-	: GNumIntT<std::int32_t>(val) { /* nothing */ }
+	: GNumIntT<std::int32_t>(val)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -71,9 +74,11 @@ GInt32Object::GInt32Object(const std::int32_t &val)
  * @param upperBoundary The upper boundary for the random number used in the initialization
  */
 GInt32Object::GInt32Object(
-	const std::int32_t &lowerBoundary, const std::int32_t &upperBoundary
+	const std::int32_t &lowerBoundary
+	, const std::int32_t &upperBoundary
 )
-	: GNumIntT<std::int32_t>(lowerBoundary, upperBoundary) { /* nothing */ }
+	: GNumIntT<std::int32_t>(lowerBoundary, upperBoundary)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -85,9 +90,12 @@ GInt32Object::GInt32Object(
  * @param upperBoundary The upper boundary for the random number used in the initialization
  */
 GInt32Object::GInt32Object(
-	const std::int32_t &val, const std::int32_t &lowerBoundary, const std::int32_t &upperBoundary
+	const std::int32_t &val
+	, const std::int32_t &lowerBoundary
+	, const std::int32_t &upperBoundary
 )
-	: GNumIntT<std::int32_t>(val, lowerBoundary, upperBoundary) { /* nothing */ }
+	: GNumIntT<std::int32_t>(val, lowerBoundary, upperBoundary)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**

@@ -304,8 +304,9 @@ public:
 	 */
 	template<typename int_type>
 	int_type uniform_int(
-		const int_type &minVal, const int_type &maxVal,
-		typename std::enable_if<std::is_integral<int_type>::value>::type *dummy = 0
+		const int_type &minVal
+		, const int_type &maxVal
+		, typename std::enable_if<std::is_integral<int_type>::value>::type *dummy = 0
 	) {
 #ifdef DEBUG
 		assert(maxVal >= minVal);

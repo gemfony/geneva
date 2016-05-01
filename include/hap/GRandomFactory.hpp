@@ -87,6 +87,8 @@
 namespace Gem {
 namespace Hap {
 
+class GRandomFactory;
+
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
@@ -98,85 +100,36 @@ namespace Hap {
  * concurrently from multiple threads).
  */
 struct random_container
-	: private boost::noncopyable {
+	: private boost::noncopyable
+{
+	 friend class GRandomFactory; // Needed so we can prevent construction of containers outside of the factory
+
 public:
- 	/***************************************************************************/
-	/**
-	 * Initialization with the number of entries in the buffer
-	 *
-	 * @param binSize The size of the random buffer
- 	 * @param rng A reference to an external random number generator
-	 */
-	template <typename T_RNG>
-	random_container(
-		const std::size_t &binSize
-		, T_RNG &rng
-	)
-		: current_pos_(0)
-	  	, binSize_(binSize)
-	   , dist_(0.0,1.0) // even distribution in the half-open range [0,1[
-	   , r_(nullptr)
-	{
-		try {
-			r_ = new double[binSize_];
-			for (std::size_t pos = 0; pos < binSize_; pos++) {
-				r_[pos] = dist_(rng);
-			}
-		} catch (const std::bad_alloc &e) {
-			// This will propagate the exception to the global error handler so it can be logged
-			glogger
-			<< "In random_container::random_container(const std::size_t&, T_RNG&): Error!" << std::endl
-			<< "std::bad_alloc caught with message" << std::endl
-			<< e.what() << std::endl
-			<< GEXCEPTION;
-		} catch (...) {
-			// This will propagate the exception to the global error handler so it can be logged
-			glogger
-			<< "In random_container::random_container(const std::size_t&, T_RNG&): Error!" << std::endl
-			<< "unknown exception caught" << std::endl
-			<< GEXCEPTION;
-		}
-	}
+	 /***************************************************************************/
+	 /** @brief The destructor -- gets rid of the random buffer r_ */
+	 ~random_container();
 
- 	/***************************************************************************/
+	 /** @brief Returns the size of the buffer */
+	 std::size_t size() const;
 
-	/** @brief The destructor -- gets rid of the random buffer r_ */
-	~random_container();
+	 /** @brief Returns the current position */
+	 std::size_t getCurrentPosition() const;
 
-	/** @brief Returns the size of the buffer */
-	std::size_t size() const;
+	 /***************************************************************************/
+	 /**
+	  * Allows to check whether the buffer has run empty
+	  */
+	 inline bool empty() {
+		 return (current_pos_ >= binSize_);
+	 }
 
-	/** @brief Returns the current position */
-	std::size_t getCurrentPosition() const;
-
- 	/***************************************************************************/
-   /**
-    * Replaces "used" random numbers by new numbers and resets the current_pos_
-    * pointer. T_RNG must be one of the standard C++1x-generators
-    */
-	template <typename T_RNG>
-	void refresh(T_RNG &rng) {
-		for (std::size_t pos = 0; pos < current_pos_; pos++) {
-			r_[pos] = dist_(rng);
-		}
-		current_pos_ = 0;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to check whether the buffer has run empty
-	 */
-	inline bool empty() {
-		return (current_pos_ >= binSize_);
-	}
-
-	/***************************************************************************/
-	/**
-	 * Returns the next double number
-	 */
-	inline double next() {
+	 /***************************************************************************/
+	 /**
+	  * Returns the next double number
+	  */
+	 inline double next() {
 #ifdef DEBUG
-      if(empty()) {
+		 if(empty()) {
          glogger
          << "In random_container::next(): Error!" << std::endl
          << "Invalid current_pos_ / binSize_: " << current_pos_ << " / " << binSize_ << std::endl
@@ -184,22 +137,72 @@ public:
       }
 #endif
 
-		return r_[current_pos_++];
-	}
+		 return r_[current_pos_++];
+	 }
 
 private:
-	/***************************************************************************/
+	 /***************************************************************************/
+	 /**
+	  * Initialization with the number of entries in the buffer
+	  *
+	  * @param binSize The size of the random buffer
+		* @param rng A reference to an external random number generator
+	  */
+	 template <typename T_RNG>
+	 random_container(
+		 const std::size_t &binSize
+		 , T_RNG &rng
+	 )
+		 : current_pos_(0)
+			, binSize_(binSize)
+			, dist_(0.0,1.0) // even distribution in the half-open range [0,1[
+			, r_(nullptr)
+	 {
+		 try {
+			 r_ = new double[binSize_];
+			 for (std::size_t pos = 0; pos < binSize_; pos++) {
+				 r_[pos] = dist_(rng);
+			 }
+		 } catch (const std::bad_alloc &e) {
+			 // This will propagate the exception to the global error handler so it can be logged
+			 glogger
+			 << "In random_container::random_container(const std::size_t&, T_RNG&): Error!" << std::endl
+			 << "std::bad_alloc caught with message" << std::endl
+			 << e.what() << std::endl
+			 << GEXCEPTION;
+		 } catch (...) {
+			 // This will propagate the exception to the global error handler so it can be logged
+			 glogger
+			 << "In random_container::random_container(const std::size_t&, T_RNG&): Error!" << std::endl
+			 << "unknown exception caught" << std::endl
+			 << GEXCEPTION;
+		 }
+	 }
 
-	random_container() = delete; ///< The default constructor -- intentionally private and undefined
-	random_container(const random_container &) = delete; ///< The copy constructor -- intentionally private and undefined
-	const random_container &operator=(const random_container &) = delete; ///< intentionally private and undefined
+	 /***************************************************************************/
+	 /**
+	  * Replaces "used" random numbers by new numbers and resets the current_pos_
+	  * pointer. T_RNG must be one of the standard C++1x-generators
+	  */
+	 template <typename T_RNG>
+	 void refresh(T_RNG &rng) {
+		 for (std::size_t pos = 0; pos < current_pos_; pos++) {
+			 r_[pos] = dist_(rng);
+		 }
+		 current_pos_ = 0;
+	 }
+	 /***************************************************************************/
 
-	std::size_t current_pos_; ///< The current position in the array
-	const std::size_t binSize_;     ///< The size of the buffer
+	 random_container() = delete; ///< The default constructor -- intentionally private and undefined
+	 random_container(const random_container &) = delete; ///< The copy constructor -- intentionally private and undefined
+	 const random_container &operator=(const random_container &) = delete; ///< intentionally private and undefined
 
- 	std::uniform_real_distribution<double> dist_; ///< Creates the actual 0/1 distribution from the random number generator
+	 std::size_t current_pos_; ///< The current position in the array
+	 const std::size_t binSize_;     ///< The size of the buffer
 
-	double *r_; ///< Holds the actual random numbers
+	 std::uniform_real_distribution<double> dist_; ///< Creates the actual 0/1 distribution from the random number generator
+
+	 double *r_; ///< Holds the actual random numbers
 };
 
 /******************************************************************************/
@@ -232,69 +235,67 @@ private:
 class GRandomFactory
 	: private boost::noncopyable {
 public:
-	/** @brief The default constructor */
-	G_API_HAP GRandomFactory();
-	/** @brief The destructor */
-	G_API_HAP ~GRandomFactory();
+	 /** @brief The default constructor */
+	 G_API_HAP GRandomFactory();
+	 /** @brief The destructor */
+	 G_API_HAP ~GRandomFactory();
 
-	/** @brief Initialization code for the GRandomFactory */
-	G_API_HAP void init();
-	/** @brief Finalization code for the GRandomFactory */
-	G_API_HAP void finalize();
+	 /** @brief Initialization code for the GRandomFactory */
+	 G_API_HAP void init();
+	 /** @brief Finalization code for the GRandomFactory */
+	 G_API_HAP void finalize();
 
-	/** @brief Sets the number of producer threads for this factory. */
-	G_API_HAP void setNProducerThreads(const std::uint16_t &);
+	 /** @brief Sets the number of producer threads for this factory. */
+	 G_API_HAP void setNProducerThreads(const std::uint16_t &);
 
-	/** @brief Allows to retrieve the size of the array */
-	G_API_HAP std::size_t getCurrentArraySize() const;
+	 /** @brief Allows to retrieve the size of the array */
+	 G_API_HAP std::size_t getCurrentArraySize() const;
 
-	/** @brief Allows to retrieve the size of the buffer */
-	G_API_HAP std::size_t getBufferSize() const;
+	 /** @brief Allows to retrieve the size of the buffer */
+	 G_API_HAP std::size_t getBufferSize() const;
 
-	/** @brief Setting of an initial seed for random number generators */
-	G_API_HAP bool setStartSeed(const initial_seed_type &);
-	/** @brief Retrieval of the start-value of the global seed */
-	G_API_HAP initial_seed_type getStartSeed() const;
-	/** @brief Checks whether seeding has already started*/
-	G_API_HAP bool checkSeedingIsInitialized() const;
+	 /** @brief Setting of an initial seed for random number generators */
+	 G_API_HAP bool setStartSeed(const initial_seed_type &);
+	 /** @brief Retrieval of the start-value of the global seed */
+	 G_API_HAP initial_seed_type getStartSeed() const;
+	 /** @brief Checks whether seeding has already started*/
+	 G_API_HAP bool checkSeedingIsInitialized() const;
 
-	/** @brief Delivers a new [0,1[ random number container with the current standard size to clients */
-	G_API_HAP std::shared_ptr <random_container> new01Container();
-	/** @brief Retrieval of a new seed for external or internal random number generators */
-	G_API_HAP seed_type getSeed();
+	 /** @brief Delivers a new [0,1[ random number container with the current standard size to clients */
+	 G_API_HAP std::shared_ptr <random_container> new01Container();
+	 /** @brief Retrieval of a new seed for external or internal random number generators */
+	 G_API_HAP seed_type getSeed();
 
-	/** @brief Allows recycling of partially used packages */
-	G_API_HAP void returnUsedPackage(std::shared_ptr <random_container>);
+	 /** @brief Allows recycling of partially used packages */
+	 G_API_HAP void returnUsedPackage(std::shared_ptr <random_container>);
 
 private:
-	/***************************************************************************/
-	GRandomFactory(const GRandomFactory &) = delete; ///< Intentionally left undefined
-	const GRandomFactory &operator=(const GRandomFactory &) = delete;  ///< Intentionally left undefined
+	 /***************************************************************************/
+	 GRandomFactory(const GRandomFactory &) = delete; ///< Intentionally left undefined
+	 const GRandomFactory &operator=(const GRandomFactory &) = delete;  ///< Intentionally left undefined
 
-	/** @brief The production of [0,1[ random numbers takes place here */
-	void producer01(std::uint32_t seed);
+	 /** @brief The production of [0,1[ random numbers takes place here */
+	 void producer01(std::uint32_t seed);
 
-	bool finalized_;
-	boost::atomic<bool> threads_started_;
-	boost::atomic<std::uint16_t> n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
-	Gem::Common::GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
+	 bool finalized_;
+	 boost::atomic<bool> threads_started_;
+	 boost::atomic<std::uint16_t> n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
+	 Gem::Common::GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
 
-	/** @brief A bounded buffer holding the [0,1[ random number packages */
-	Gem::Common::GBoundedBufferT<std::shared_ptr < random_container>>
-	p01_; // Note: Absolutely needs to be defined after the thread group !!!
-	/** @brief A bounded buffer holding [0,1[ random number packages ready for recycling */
-	Gem::Common::GBoundedBufferT<std::shared_ptr < random_container>>
-	r01_;
+	 /** @brief A bounded buffer holding the [0,1[ random number packages */
+	 Gem::Common::GBoundedBufferT<std::shared_ptr < random_container>> p01_; // Note: Absolutely needs to be defined after the thread group !!!
+	 /** @brief A bounded buffer holding [0,1[ random number packages ready for recycling */
+	 Gem::Common::GBoundedBufferT<std::shared_ptr < random_container>> r01_;
 
-	static std::uint16_t multiple_call_trap_; ///< Trap to catch multiple instantiations of this class
-	static boost::mutex factory_creation_mutex_; ///< Synchronization of access to multiple_call_trap in constructor
+	 static std::uint16_t multiple_call_trap_; ///< Trap to catch multiple instantiations of this class
+	 static boost::mutex factory_creation_mutex_; ///< Synchronization of access to multiple_call_trap in constructor
 
-	mutable boost::mutex thread_creation_mutex_; ///< Synchronization of access to the threads_started_ variable
+	 mutable boost::mutex thread_creation_mutex_; ///< Synchronization of access to the threads_started_ variable
 
-	std::random_device nondet_rng; ///< Source of non-deterministic random numbers
-	initial_seed_type startSeed_; ///< Stores the initial start seed
-	std::shared_ptr <mersenne_twister> mt_ptr_;
-	mutable boost::shared_mutex seedingMutex_; ///< Regulates start-up of the seeding process
+	 std::random_device nondet_rng; ///< Source of non-deterministic random numbers
+	 initial_seed_type startSeed_; ///< Stores the initial start seed
+	 std::shared_ptr <mersenne_twister> mt_ptr_;
+	 mutable boost::shared_mutex seedingMutex_; ///< Regulates start-up of the seeding process
 };
 
 } /* namespace Hap */
