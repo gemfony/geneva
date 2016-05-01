@@ -59,7 +59,7 @@ SET(GENEVA_FULL_TREE_BUILD TRUE)
 # If none of these variables is set, the whole Geneva binary tree is installed
 # (as expected) in "CMAKE_INSTALL_PREFIX". The default value for this last
 # valiable is set here, and further handled in the 'CommonGenevaBuild' module.
-# Generally, this should be provided through a custom genevaConfig.gcfg, in
+# Generally, this can be provided through a custom genevaConfig.gcfg, in
 # conjunction with the prepareBuild.sh script.
 
 IF( NOT CMAKE_INSTALL_PREFIX )
