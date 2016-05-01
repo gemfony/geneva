@@ -67,10 +67,6 @@ IF( NOT CMAKE_INSTALL_PREFIX )
 ENDIF()
 
 ################################################################################
-# Make Clion happy -- the flag may be overridden later, depending on user-settings
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-
-################################################################################
 # Make sure we first check our local modules directory
 
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
