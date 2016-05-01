@@ -37,6 +37,7 @@
 
 // Standard headers go here
 
+#include <atomic>
 #include <cstdlib>
 #include <iomanip>
 #include <ctime>
