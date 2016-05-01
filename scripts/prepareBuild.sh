@@ -52,7 +52,6 @@ if [ $# -eq 0 ]; then
 
 	CMAKE="/usr/bin/cmake"         # Where the cmake executable is located
 	BUILDMODE="Release"            # Release, Debug, RelWithDebInfo, MinSizeRel or Sanitize (experimental, will default to Debug on unsupported platforms)
-	BUILDSTD="cxx11"               # "auto": choose automatically; "cxx11": enforce the C++11 standard, "cxx14": enforce the C++14 standard
 	BUILDWITHMPI="0"               # Whether Geneva should be built with MPI support (experimental!). NOTE: Boost.MPI must be installed alongside supported MPI libraries
 	BUILDTESTCODE="1"              # Whether to build Geneva with testing code
 	BUILDSTATIC="0"                # Whether to build static code / libraries (experimental!)
@@ -86,11 +85,6 @@ elif [ $# -eq 1 ]; then
 	if [ -z "${BUILDMODE}" ]; then
 		BUILDMODE="Release"
 		echo "Variable BUILDMODE wasn't set. Setting to default value '${BUILDMODE}'"
-	fi
-
-	if [ -z "${BUILDSTD}" ]; then
-		BUILDSTD="cxx11"
-		echo "Variable BUILDSTD wasn't set. Setting to default value '${BUILDSTD}'"
 	fi
 
 	if [ -z "${BUILDWITHMPI}" ]; then
@@ -209,12 +203,6 @@ if [ ! "${VERBOSEMAKEFILE}" = "0" ] && [ ! "${VERBOSEMAKEFILE}" = "1" ]; then
 	exit
 fi
 
-if [ ! "${BUILDSTD}" = "auto" ] && [ ! "${BUILDSTD}" = "cxx11" ] && [ ! "${BUILDSTD}" = "cxx14" ]; then
-	echo -e "\nError: Variable BUILDSTD must be auto, cxx11 or cxx14. Got ${BUILDSTD}"
-	echo -e "Leaving...\n"
-	exit
-fi
-
 ####################################################################
 # Find out where this script is located and whether there is a
 # CMakeLists.txt file in the same directory. We then assume that
@@ -265,7 +253,6 @@ CONFIGURE="${CMAKE} $BOOSTLOCATIONPATHS $BOOSTSYSTEMFLAG \
 -DGENEVA_BUILD_TYPE=${BUILDMODE} \
 -DGENEVA_BUILD_TESTS=${BUILDTESTCODE} \
 -DGENEVA_STATIC=${BUILDSTATIC} \
--DGENEVA_CXX_STD=${BUILDSTD} \
 -DGENEVA_WITH_MPI=${BUILDWITHMPI} \
 -DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE} \
 -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}"

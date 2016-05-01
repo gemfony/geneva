@@ -67,10 +67,6 @@ CMAKE="/usr/bin/cmake"
 # http://googletesting.blogspot.ru/2014/06/threadsanitizer-slaughtering-data-races.html
 BUILDMODE="Release"
 
-# The C++ standard to use for building, one of 'auto' (choose automatically),
-# 'cxx11' (enforce the C++11 standard), or 'cxx14' (enforce the C++14 standard)
-BUILDSTD="cxx11"
-
 # Whether Geneva should be built with MPI support (experimental!).
 # NOTE: Boost.MPI must be installed alongside supported MPI libraries
 BUILDWITHMPI="0"
@@ -89,7 +85,7 @@ INSTALLDIR="/opt/geneva"
 
 # Further compiler parameters you might want to provide, for instance
 # for turning on/off compiler warnings use "-Wextra -Wno-parentheses"
-CXXEXTRAFLAGS="-std=c++11"
+CXXEXTRAFLAGS=""
 
 # Further linker parameters you might want to provide
 LINKEREXTRAFLAGS=""
