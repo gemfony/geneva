@@ -78,8 +78,8 @@ public:
 	virtual ~GRandomT();
 
 protected:
-	/** @brief Uniformly distributed double random numbers in the range [0,1[ */
-	virtual double dbl_random01();
+	/** @brief Uniformly distributed integer random numbers */
+	virtual double int_random();
 };
 
 /******************************************************************************/
@@ -94,15 +94,17 @@ protected:
  */
 template<>
 class GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>
-	: public Gem::Hap::GRandomBase {
+	: public Gem::Hap::GRandomBase
+{
 public:
 	/***************************************************************************/
 	/**
 	 * The standard constructor
 	 */
 	GRandomT()
-		: Gem::Hap::GRandomBase(), p01_( /* empty */ ),
-		  grf_(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
+		: Gem::Hap::GRandomBase()
+	  	, p01_( /* empty */ )
+	  	, grf_(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
 	{
 		// Make sure we have a first random number package available
 		getNewP01();
@@ -129,7 +131,7 @@ protected:
 	 * caller it appears as if random numbers are created locally. This function
 	 * assumes that a valid container is already available.
 	 */
-	virtual double dbl_random01() {
+	virtual GRandomBase::result_type int_random() {
 		if (p01_->empty()) {
 			// Get rid of the old container ...
 			grf_->returnUsedPackage(p01_);
@@ -181,7 +183,7 @@ private:
 	/***************************************************************************/
 	/** @brief Holds the container of uniform random numbers */
 	std::shared_ptr <random_container> p01_;
-	/** @brief A local copy of the global GRandomFactory.  Size is 16 byte on a 64 bit system */
+	/** @brief A local copy of the global GRandomFactory */
 	std::shared_ptr <Gem::Hap::GRandomFactory> grf_;
 };
 
@@ -197,7 +199,7 @@ boost::thread_specific_ptr<Gem::Hap::GRandom>& gr_tls_ptr();
 /******************************************************************************/
 /**
  * This specialization of the general GRandomT<> class produces random numbers
- * locally. The functions provided by GRandomBaseT<> then produce different types
+ * locally. The functions provided by GRandomBase<> then produce different types
  * of random numbers from this raw material. A seed can be provided either to
  * the constructor, or is taken from the global seed manager (recommended) in
  * case the default constructor is used.
@@ -212,39 +214,29 @@ public:
 	 */
 	GRandomT()
 		: Gem::Hap::GRandomBase()
-	  	, linCongr_(boost::numeric_cast<std::minstd_rand0::result_type>(GRANDOMFACTORY->getSeed()))
+	  	, rng_(GRANDOMFACTORY->getSeed())
 	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * The standard destructor
 	 */
-	virtual ~GRandomT() { /* nothing */ }
+	virtual ~GRandomT()
+	{ /* nothing */ }
 
 protected:
 	/***************************************************************************/
 	/**
 	 * This function produces uniform random numbers locally.
 	 */
-	virtual double dbl_random01() {
-		std::minstd_rand0::result_type enumerator = linCongr_() - (linCongr_.min)();
-		std::minstd_rand0::result_type denominator = (linCongr_.max)() - (linCongr_.min)();
-
-		enumerator > 0 ? enumerator -= 1 : enumerator = 0;
-
-#ifdef DEBUG
-		double value =  boost::numeric_cast<double>(enumerator)/boost::numeric_cast<double>(denominator);
-		assert(value>=double(0.) && value<double(1.));
-		return value;
-#else
-		return static_cast<double>(enumerator) / static_cast<double>(denominator);
-#endif
+	virtual GRandomBase::result_type int_random() {
+		return rng_();
 	}
 
 private:
 	/***************************************************************************/
 	/** @brief The actual generator for local random number creation */
-	std::minstd_rand0 linCongr_;
+	G_BASE_GENERATOR rng_;
 };
 
 /******************************************************************************/

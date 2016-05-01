@@ -39,17 +39,22 @@ namespace Hap {
 
 /******************************************************************************/
 /**
- * The standard constructor
+ * The standard constructor. Note that the seed "val" might just be ignored,
+ * if random numbers are obtained from the global factory.
  */
 GRandomBase::GRandomBase()
-	: min_value(GRandomBase::result_type(0.)), max_value(GRandomBase::result_type(1.)), fltGaussCache_(float(0.)),
-	  dblGaussCache_(double(0.)), fltGaussCacheAvailable_(false), dblGaussCacheAvailable_(false) { /* nothing */ }
+	: fltGaussCache_(float(0.))
+  	, dblGaussCache_(double(0.))
+  	, fltGaussCacheAvailable_(false)
+  	, dblGaussCacheAvailable_(false)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GRandomBase::~GRandomBase() { /* nothing */ }
+GRandomBase::~GRandomBase()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -60,33 +65,7 @@ GRandomBase::~GRandomBase() { /* nothing */ }
  * @return A random number taken from the evenRandom function
  */
 GRandomBase::result_type GRandomBase::operator()() {
-	return this->uniform_01<GRandomBase::result_type>();
-}
-
-/******************************************************************************/
-/**
- * Returns the minimum value returned by evenRandom(). This
- * makes it possible to use GRandomBase as a generator for Boost's random
- * distributions. The parantheses prevent Windows min-Macro from being
- * substituted. Using BOOST_PREVENT_MACRO_SUBSTITUTION would be another possiblity.
- *
- * @return The minimum value returned by evenRandom()
- */
-GRandomBase::result_type (GRandomBase::min)() const {
-	return min_value;
-}
-
-/******************************************************************************/
-/**
- * Returns the maximum value returned by evenRandom(). This
- * makes it possible to use GRandomBase as a generator for Boost's random
- * distributions. The parantheses prevent Windows min-Macro from being
- * substituted. Using BOOST_PREVENT_MACRO_SUBSTITUTION would be another possiblity.
- *
- * @return The maximum value returned by evenRandom()
- */
-GRandomBase::result_type (GRandomBase::max)() const {
-	return max_value;
+	return this->int_random();
 }
 
 /******************************************************************************/

@@ -44,9 +44,7 @@ namespace Hap {
  * The destructor -- gets rid of the random buffer r
  */
 random_container::~random_container() {
-	if (r_) {
-		Gem::Common::g_array_delete(r_);
-	}
+	Gem::Common::g_array_delete(r_); // g_array_delete will check whether r_ is empty
 }
 
 /******************************************************************************/
@@ -340,7 +338,7 @@ std::shared_ptr <random_container> GRandomFactory::new01Container() {
  */
 void GRandomFactory::producer01(std::uint32_t seed) {
 	try {
-		std::mt19937 mt(seed);
+		G_BASE_GENERATOR mt(seed);
 		std::shared_ptr <random_container> p;
 
 		while (!boost::this_thread::interruption_requested()) {
