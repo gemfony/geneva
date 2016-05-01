@@ -37,7 +37,7 @@
 
 ################################################################################
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.11 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0 FATAL_ERROR)
 
 # Include guard
 IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
@@ -53,10 +53,6 @@ ENDIF()
 
 IF( NOT DEFINED GENEVA_BUILD_TESTS )
 	SET( GENEVA_BUILD_TESTS TRUE )
-ENDIF()
-
-IF( NOT DEFINED GENEVA_CXX_STD )
-	SET( GENEVA_CXX_STD "cxx11" )
 ENDIF()
 
 IF( NOT DEFINED GENEVA_STATIC )
@@ -83,35 +79,11 @@ INCLUDE(IdentifySystemParameters)
 VALIDATE_BUILD_TYPE()
 
 ################################################################################
-# Identify the operating system and the compiler
+# Identify the operating system
 
 FIND_HOST_OS (
 	"GENEVA_OS_NAME"
 	"GENEVA_OS_VERSION"
-)
-
-FIND_HOST_COMPILER (
-	"GENEVA_COMPILER_NAME"
-	"GENEVA_COMPILER_VERSION"
-	"GENEVA_MAX_CXX_STANDARD"
-)
-
-################################################################################
-# Determine the C++ standard to be used, depending on the desired standard,
-# the minimum required standard and the maximum standard allowed by the
-# chosen compiler. This function will raise an error if the desired standard
-# is lower than the minimum required, or higher than the maximum supported
-# standard. It will also resolve the "auto" setting of the standard
-# by setting it to the maximum supported standard.
-
-# Geneva requires at least the C++11 Standard
-SET (GENEVA_MIN_CXX_STANDARD "cxx11")
-
-GET_ACTUAL_CXX_STANDARD (
-	${GENEVA_CXX_STD}
-	${GENEVA_MIN_CXX_STANDARD}
-	${GENEVA_MAX_CXX_STANDARD}
-	"GENEVA_ACTUAL_CXX_STANDARD"
 )
 
 ###############################################################################
@@ -120,12 +92,20 @@ GET_ACTUAL_CXX_STANDARD (
 FLAG_UNSUPPORTED_SETUPS(
 	${GENEVA_OS_NAME}
 	${GENEVA_OS_VERSION}
-	${GENEVA_COMPILER_NAME}
-	${GENEVA_COMPILER_VERSION}
-	${GENEVA_ACTUAL_CXX_STANDARD}
 	${GENEVA_BUILD_TYPE}
 	${GENEVA_STATIC}
 )
+
+################################################################################
+# Set the C++ standard to be used
+
+# Geneva requires at least the C++14 Standard. The user may force another
+# value at its own risk by setting the variable CMAKE_CXX_STANDARD.
+IF( NOT DEFINED CMAKE_CXX_STANDARD )
+	SET( CMAKE_CXX_STANDARD "14" )
+ENDIF()
+
+SET_CXX_STANDARD_FLAG()
 
 ################################################################################
 # Set the compiler and linker flags
@@ -133,9 +113,6 @@ FLAG_UNSUPPORTED_SETUPS(
 SET_COMPILER_FLAGS (
 	${GENEVA_OS_NAME}
 	${GENEVA_OS_VERSION}
-	${GENEVA_COMPILER_NAME}
-	${GENEVA_COMPILER_VERSION}
-	${GENEVA_ACTUAL_CXX_STANDARD}
 	${GENEVA_BUILD_TYPE}
 	${GENEVA_STATIC}
 )
@@ -143,9 +120,6 @@ SET_COMPILER_FLAGS (
 SET_LINKER_FLAGS (
 	${GENEVA_OS_NAME}
 	${GENEVA_OS_VERSION}
-	${GENEVA_COMPILER_NAME}
-	${GENEVA_COMPILER_VERSION}
-	${GENEVA_ACTUAL_CXX_STANDARD}
 	${GENEVA_BUILD_TYPE}
 	${GENEVA_STATIC}
 )
@@ -156,9 +130,6 @@ SET_LINKER_FLAGS (
 GET_BUILD_FLAGS (
 	${GENEVA_OS_NAME}
 	${GENEVA_OS_VERSION}
-	${GENEVA_COMPILER_NAME}
-	${GENEVA_COMPILER_VERSION}
-	${GENEVA_ACTUAL_CXX_STANDARD}
 	${GENEVA_BUILD_TYPE}
 	${GENEVA_STATIC}
 	"PLATFORM_NEEDS_LIBRARY_LINKING"
@@ -462,8 +433,7 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 	MESSAGE ("\twith Geneva include location:\t ${GENEVA_INCLUDE_DIR}")
 	MESSAGE ("\twith Geneva library location:\t ${GENEVA_LIBRARY_DIR}")
 ENDIF ()
-MESSAGE ("\tusing compiler:\t\t\t ${GENEVA_COMPILER_NAME} v${GENEVA_COMPILER_VERSION}")
-MESSAGE ("\tenforcing standard:\t\t ${GENEVA_ACTUAL_CXX_STANDARD}")
+MESSAGE ("\tusing compiler:\t\t\t ${CMAKE_CXX_COMPILER_ID} v${CMAKE_CXX_COMPILER_VERSION}")
 # Don't try to access the build type on multi-config generators
 IF(NOT CMAKE_CONFIGURATION_TYPES)
 	STRING (TOUPPER ${CMAKE_BUILD_TYPE} B_MODE)
