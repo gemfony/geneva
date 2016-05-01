@@ -30,7 +30,9 @@
 #
 ################################################################################
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
+
+MESSAGE ("")
 
 PROJECT (Geneva_Library_Collection)
 
