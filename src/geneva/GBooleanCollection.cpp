@@ -64,7 +64,7 @@ GBooleanCollection::GBooleanCollection(const std::size_t &nval)
 	std::bernoulli_distribution uniform_bool; // defaults to 0.5
 
 	for (std::size_t i = 0; i < nval; i++) {
-		this->push_back(uniform_bool(*(Gem::Hap::gr_tls_ptr())));
+		this->push_back(uniform_bool(GRANDOM_TLS));
 	}
 }
 
@@ -99,7 +99,7 @@ GBooleanCollection::GBooleanCollection(const std::size_t &nval, const double &pr
 
 	std::bernoulli_distribution weighted_bool(probability);
 	for (std::size_t i = 0; i < nval; i++) {
-		this->push_back(weighted_bool(*(Gem::Hap::gr_tls_ptr())));
+		this->push_back(weighted_bool(GRANDOM_TLS));
 	}
 }
 
@@ -193,7 +193,7 @@ bool GBooleanCollection::randomInit_(const activityMode &) {
 	std::bernoulli_distribution uniform_bool; // defaults to 0.5
 
 	for (std::size_t i = 0; i < this->size(); i++) {
-		(*this)[i] = uniform_bool(*(Gem::Hap::gr_tls_ptr()));
+		(*this)[i] = uniform_bool(GRANDOM_TLS);
 		randomized = true;
 	}
 
@@ -220,7 +220,7 @@ bool GBooleanCollection::randomInit_(const double &probability, const activityMo
 
 	std::bernoulli_distribution weighted_bool(probability);
 	for (std::size_t i = 0; i < this->size(); i++) {
-		(*this)[i] = weighted_bool(*(Gem::Hap::gr_tls_ptr()));
+		(*this)[i] = weighted_bool(GRANDOM_TLS);
 	}
 
 	return true;

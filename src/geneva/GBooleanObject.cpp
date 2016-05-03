@@ -81,7 +81,7 @@ GBooleanObject::GBooleanObject(const double &probability) {
 	using namespace Gem::Hap;
 
 	std::bernoulli_distribution weighted_bool(probability);
-	this->setValue(weighted_bool(*(Gem::Hap::gr_tls_ptr())));
+	this->setValue(weighted_bool(GRANDOM_TLS));
 }
 
 // Tested in this file
@@ -213,7 +213,7 @@ bool GBooleanObject::randomInit_(const activityMode &) {
 	using namespace Gem::Hap;
 
 	std::bernoulli_distribution uniform_bool; // defaults to 0.5
-	this->setValue(uniform_bool(*(Gem::Hap::gr_tls_ptr())));
+	this->setValue(uniform_bool(GRANDOM_TLS));
 
 	return true;
 }
@@ -234,7 +234,7 @@ bool GBooleanObject::randomInit_(const double &probability, const activityMode &
 	using namespace Gem::Hap;
 
 	std::bernoulli_distribution weighted_bool(probability);
-	this->setValue(weighted_bool(*(Gem::Hap::gr_tls_ptr())));
+	this->setValue(weighted_bool(GRANDOM_TLS));
 
 	return true;
 }

@@ -278,7 +278,7 @@ protected:
 		int_type addition = static_cast<int_type>(static_cast<double>(range) * Gem::Hap::gr_tls_ptr()->normal_distribution(this->getSigma()));
 
 		if(addition == 0) { // Enforce a minimal change of 1.
-			addition = m_uniform_bool(*(Gem::Hap::gr_tls_ptr()))?1:-1;
+			addition = m_uniform_bool(GRANDOM_TLS)?1:-1;
 		}
 
 		// adapt the value in situ. Note that this changes

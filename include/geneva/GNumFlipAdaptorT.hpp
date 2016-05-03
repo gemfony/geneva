@@ -255,7 +255,7 @@ protected:
 		using namespace Gem::Common;
 		using namespace Gem::Hap;
 
-		if(m_uniform_bool(*(Gem::Hap::gr_tls_ptr()))){
+		if(m_uniform_bool(GRANDOM_TLS)){
 			value += 1;
 		} else {
 			value -= 1;

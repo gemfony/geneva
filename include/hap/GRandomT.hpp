@@ -194,6 +194,9 @@ typedef GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> GRandom;
 /** @brief Central access to a random number generator through thread-local storage */
 boost::thread_specific_ptr<Gem::Hap::GRandom>& gr_tls_ptr();
 
+// Syntactic sugar
+#define GRANDOM_TLS (*(Gem::Hap::gr_tls_ptr()))
+
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
