@@ -61,8 +61,10 @@ GBooleanCollection::GBooleanCollection(const std::size_t &nval)
 	using namespace Gem::Common;
 	using namespace Gem::Hap;
 
+	std::bernoulli_distribution uniform_bool; // defaults to 0.5
+
 	for (std::size_t i = 0; i < nval; i++) {
-		this->push_back(Gem::Hap::gr_tls_ptr()->uniform_bool());
+		this->push_back(uniform_bool(*(Gem::Hap::gr_tls_ptr())));
 	}
 }
 
@@ -95,8 +97,9 @@ GBooleanCollection::GBooleanCollection(const std::size_t &nval, const double &pr
 	using namespace Gem::Common;
 	using namespace Gem::Hap;
 
+	std::bernoulli_distribution weighted_bool(probability);
 	for (std::size_t i = 0; i < nval; i++) {
-		this->push_back(Gem::Hap::gr_tls_ptr()->weighted_bool(probability));
+		this->push_back(weighted_bool(*(Gem::Hap::gr_tls_ptr())));
 	}
 }
 
@@ -187,8 +190,10 @@ bool GBooleanCollection::randomInit_(const activityMode &) {
 	using namespace Gem::Common;
 	using namespace Gem::Hap;
 
+	std::bernoulli_distribution uniform_bool; // defaults to 0.5
+
 	for (std::size_t i = 0; i < this->size(); i++) {
-		(*this)[i] = Gem::Hap::gr_tls_ptr()->uniform_bool();
+		(*this)[i] = uniform_bool(*(Gem::Hap::gr_tls_ptr()));
 		randomized = true;
 	}
 
@@ -213,8 +218,9 @@ bool GBooleanCollection::randomInit_(const double &probability, const activityMo
 		<< GEXCEPTION;
 	}
 
+	std::bernoulli_distribution weighted_bool(probability);
 	for (std::size_t i = 0; i < this->size(); i++) {
-		(*this)[i] = Gem::Hap::gr_tls_ptr()->weighted_bool(probability);
+		(*this)[i] = weighted_bool(*(Gem::Hap::gr_tls_ptr()));
 	}
 
 	return true;

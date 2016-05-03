@@ -37,6 +37,7 @@
 
 // Standard headers go here
 #include <vector>
+#include <random>
 
 // Boost headers go here
 #include <boost/any.hpp>
@@ -285,7 +286,7 @@ protected:
 
 	NAMEANDIDTYPE var_; ///< Name and/or position of the variable
 	std::size_t step_; ///< The current position in the data vector
-	std::size_t nSteps_; ///< The number of stepts to be taken in a scan
+	std::size_t nSteps_; ///< The number of steps to be taken in a scan
 	T lower_; ///< The lower boundary of an item
 	T upper_; ///< The upper boundary of an item
 	bool randomScan_; ///< Indicates whether we are dealing with a random scan or not
@@ -323,6 +324,9 @@ protected:
 		// Make the compiler happy
 		return T(0);
 	}
+
+private:
+	 mutable std::bernoulli_distribution m_uniform_bool; ///< boolean random numbers with an even distribution
 };
 
 /******************************************************************************/
@@ -333,7 +337,7 @@ protected:
  */
 template <>
 inline bool baseScanParT<bool>::getRandomItem() const {
-	return gr_.uniform_bool();
+	return m_uniform_bool(gr_);
 }
 
 /******************************************************************************/

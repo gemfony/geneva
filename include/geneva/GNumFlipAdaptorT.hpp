@@ -255,7 +255,7 @@ protected:
 		using namespace Gem::Common;
 		using namespace Gem::Hap;
 
-		if(Gem::Hap::gr_tls_ptr()->uniform_bool()){
+		if(m_uniform_bool(*(Gem::Hap::gr_tls_ptr()))){
 			value += 1;
 		} else {
 			value -= 1;
@@ -266,6 +266,9 @@ protected:
 	 * Tested in GAdaptorT<num_type>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
+
+private:
+	 std::bernoulli_distribution m_uniform_bool; ///< boolean random numbers with an even distribution
 
 public:
 	/***************************************************************************/

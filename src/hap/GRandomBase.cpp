@@ -69,31 +69,6 @@ GRandomBase::result_type GRandomBase::operator()() {
 }
 
 /******************************************************************************/
-/**
- * This function returns true with a probability "probability", otherwise false.
- *
- * @param p The probability for the value "true" to be returned
- * @return A boolean value, which will be true with a user-defined likelihood
- */
-bool GRandomBase::weighted_bool(const double &probability) {
-#ifdef DEBUG
-	assert(probability>=0. && probability<=1.);
-#endif
-	return uniform_01<double>() < probability;
-}
-
-/******************************************************************************/
-/**
- * This function produces boolean values with a 50% likelihood each for
- * true and false.
- *
- * @return Boolean values with a 50% likelihood for true/false respectively
- */
-bool GRandomBase::uniform_bool() {
-	return this->weighted_bool(0.5);
-}
-
-/******************************************************************************/
 
 } /* namespace Hap */
 } /* namespace Gem */

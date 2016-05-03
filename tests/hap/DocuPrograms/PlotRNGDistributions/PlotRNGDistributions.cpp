@@ -99,21 +99,25 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 			for(i=0; i<nEntries; i++) vec_t.push_back(boost::numeric_cast<std::int32_t>(gr_ptr->uniform_int(-3,10)));
 			break;
 
-		case distType::BITPROB:
-			for(i=0; i<nEntries; i++){
-				if(gr_ptr->weighted_bool(0.7))
-					vec_t.push_back(1);
-				else
-					vec_t.push_back(0);
+		case distType::BITPROB: {
+				std::bernoulli_distribution weighted_bool(0.7);
+				for (i = 0; i < nEntries; i++) {
+					if (weighted_bool(*gr_ptr))
+						vec_t.push_back(1);
+					else
+						vec_t.push_back(0);
+				}
 			}
 			break;
 
-		case distType::BITSIMPLE:
-			for(i=0; i<nEntries; i++){
-				if(gr_ptr->uniform_bool())
-					vec_t.push_back(1);
-				else
-					vec_t.push_back(0);
+		case distType::BITSIMPLE: {
+				std::bernoulli_distribution uniform_bool; // defaults to 0.5
+				for (i = 0; i < nEntries; i++) {
+					if (uniform_bool(*gr_ptr))
+						vec_t.push_back(1);
+					else
+						vec_t.push_back(0);
+				}
 			}
 			break;
 	};
@@ -247,7 +251,6 @@ int main(int argc, char **argv){
 	<< "  dgaussText2->Draw();" << std::endl
 	<< "  dgaussText3->Draw();" << std::endl
 	<< "  gPad->Update();" << std::endl
-	<< "  double ymax = gPad->GetUymax();" << std::endl
 	<< "  TLine *dgaussLine1 = new TLine(-1.,0.,-1., ymax);" << std::endl
 	<< "  dgaussLine1->SetLineStyle(2);" << std::endl
 	<< "  dgaussLine1->Draw();" << std::endl

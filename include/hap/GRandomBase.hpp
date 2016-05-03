@@ -115,14 +115,6 @@ public:
 	 }
 
 	 /***************************************************************************/
-	 // TODO: May be modelled by bernoulli-distribution instead
-
-	 /** @brief This function returns true with a probability "probability", otherwise false */
-	 G_API_HAP bool weighted_bool(const double &);
-	 /** @brief This function produces boolean values with a 50% likelihood each for true and false */
-	 G_API_HAP bool uniform_bool();
-
-	 /***************************************************************************/
 	 /** @brief Uniformly distributed random numbers in the range [0,1[ */
 	 template<typename fp_type>
 	 fp_type uniform_01(
@@ -234,7 +226,8 @@ public:
 		 const fp_type &mean, const fp_type &sigma, const fp_type &distance,
 		 typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
 	 ) {
-		 if (uniform_bool()) {
+		 std::bernoulli_distribution uniform_bool;
+		 if (uniform_bool(*this)) {
 			 return normal_distribution<fp_type>(mean - Gem::Common::gfabs(distance / 2.), sigma);
 		 }
 		 else {
@@ -262,7 +255,8 @@ public:
 		 const fp_type &mean, const fp_type &sigma1, const fp_type &sigma2, const fp_type &distance,
 		 typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
 	 ) {
-		 if (uniform_bool()) {
+		 std::bernoulli_distribution uniform_bool;
+		 if (uniform_bool(*this)) {
 			 return normal_distribution<fp_type>(mean - Gem::Common::gfabs(distance / 2.), sigma1);
 		 } else {
 			 return normal_distribution<fp_type>(mean + Gem::Common::gfabs(distance / 2.), sigma2);
