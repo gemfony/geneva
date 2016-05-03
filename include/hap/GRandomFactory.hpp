@@ -252,7 +252,7 @@ public:
 	 G_API_HAP std::size_t getBufferSize() const;
 
 	 /** @brief Delivers a new [0,1[ random number container with the current standard size to clients */
-	 G_API_HAP std::shared_ptr <random_container> new01Container();
+	 G_API_HAP std::shared_ptr <random_container> getNewRandomContainer();
 	 /** @brief Retrieval of a new seed for external or internal random number generators */
 	 G_API_HAP seed_type getSeed();
 
@@ -269,7 +269,7 @@ private:
 
 	 bool finalized_ = false;
 	 boost::atomic<bool> threads_started_; ///< Indicates whether threads were already started
-	 boost::atomic<std::uint16_t> n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
+	 boost::atomic<std::uint16_t> nProducerThreads_; ///< The number of threads used to produce random numbers
 	 Gem::Common::GThreadGroup producer_threads_; ///< A thread group that holds [0,1[ producer threads
 
 	 /** @brief A bounded buffer holding the random number packages */

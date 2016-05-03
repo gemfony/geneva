@@ -115,6 +115,7 @@ public:
 	 }
 
 	 /***************************************************************************/
+	 // TODO: May be modelled by bernoulli-distribution instead
 
 	 /** @brief This function returns true with a probability "probability", otherwise false */
 	 G_API_HAP bool weighted_bool(const double &);

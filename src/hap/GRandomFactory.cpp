@@ -79,7 +79,7 @@ boost::mutex Gem::Hap::GRandomFactory::factory_creation_mutex_;
  */
 GRandomFactory::GRandomFactory()
   	: threads_started_(ATOMIC_FLAG_INIT)
-	, n01Threads_(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)))
+	, nProducerThreads_(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)))
   	, p_fresh_bfr_(DEFAULTFACTORYBUFFERSIZE)
   	, p_ret_bfr_(DEFAULTFACTORYBUFFERSIZE)
 	, seedCollection_(DEFAULTSEEDVECTORSIZE)
@@ -211,30 +211,30 @@ void GRandomFactory::returnUsedPackage(std::shared_ptr<random_container> p) {
 /**
  * Sets the number of producer threads for this factory.
  *
- * @param n01Threads
+ * @param n01Threads The number of threads simultaneously producing random numbers
  */
-void GRandomFactory::setNProducerThreads(const std::uint16_t &n01Threads) {
+void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) {
 	// Make a suggestion for the number of threads, if requested
-	std::uint16_t n01Threads_local =
-		(n01Threads > 0) ? n01Threads : (boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)));
+	std::uint16_t nProducerThreads_local =
+		(nProducerThreads > 0) ? nProducerThreads : (boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)));
 
 	// Threads might already be running, so we need to regulate access
 	{
 		boost::unique_lock<boost::mutex> lk(thread_creation_mutex_);
 		if (threads_started_.load()) {
-			if (n01Threads_local > n01Threads_.load()) { // start new 01 threads
-				for (std::uint16_t i = n01Threads_.load(); i < n01Threads_local; i++) {
+			if (nProducerThreads_local > nProducerThreads_.load()) { // start new 01 threads
+				for (std::uint16_t i = nProducerThreads_.load(); i < nProducerThreads_local; i++) {
 					producer_threads_.create_thread(
 						[this]() { this->producer(this->getSeed()); }
 					);
 				}
-			} else if (n01Threads_local < n01Threads_.load()) { // We need to remove threads
+			} else if (nProducerThreads_local < nProducerThreads_.load()) { // We need to remove threads
 				// remove_last will internally call "interrupt" for these threads
-				producer_threads_.remove_last(n01Threads_.load() - n01Threads_local);
+				producer_threads_.remove_last(nProducerThreads_.load() - nProducerThreads_local);
 			}
 		}
 
-		n01Threads_ = n01Threads_local;
+		nProducerThreads_ = nProducerThreads_local;
 	}
 }
 
@@ -245,13 +245,13 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &n01Threads) {
  *
  * @return A packet of new [0,1[ random numbers
  */
-std::shared_ptr <random_container> GRandomFactory::new01Container() {
+std::shared_ptr <random_container> GRandomFactory::getNewRandomContainer() {
 	// Start the producer threads upon first access to this function
 	if (!threads_started_.load()) {
 		boost::unique_lock<boost::mutex> tc_lk(thread_creation_mutex_);
 		if (!threads_started_.load()) { // double checked locking pattern
 			//---------------------------------------------------------
-			for (std::uint16_t i = 0; i < n01Threads_.load(); i++) {
+			for (std::uint16_t i = 0; i < nProducerThreads_.load(); i++) {
 				producer_threads_.create_thread(
 					[this]() { this->producer(this->getSeed()); }
 				);
