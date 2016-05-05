@@ -62,7 +62,7 @@ SIDE.
    are marked as deprecated. Such functions may go away without further
    notice in future versions of Geneva.
  - Support for CMake 2.8 was dropped, for building Geneva at least
-   CMake version 3.0 is now required.
+   CMake version 3.1 is now required.
  - Ported to Boost 1.59.
 
 Recommended version of Boost: 1.59; Minimum Boost version: 1.57.

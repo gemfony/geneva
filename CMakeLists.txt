@@ -30,7 +30,7 @@
 #
 ################################################################################
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
 MESSAGE ("")
 
