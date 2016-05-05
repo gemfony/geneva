@@ -79,21 +79,18 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check seeding
-			// Check that we can set and retrieve the current seed.
-			const std::uint32_t startSeed = 41;
-			bool seedSetSuccess;
-			BOOST_CHECK_NO_THROW(seedSetSuccess = GRANDOMFACTORY->setStartSeed(startSeed));
-			BOOST_CHECK(seedSetSuccess == true);
-			BOOST_CHECK(GRANDOMFACTORY->checkSeedingIsInitialized() == true); // The seeding thread should have been started
-			std::uint32_t testSeed;
-			BOOST_CHECK_NO_THROW(testSeed = GRANDOMFACTORY->getStartSeed());
-			BOOST_CHECK_MESSAGE(testSeed == startSeed, "testSeed = " << testSeed << ", should be " << startSeed);
+			// Check that we are running with more seeds than the amount of
+			// pre-fabricated seeds
+			BOOST_CHECK(nSeeds_>DEFAULTSEEDVECTORSIZE);
 
-			// Retrieve a single seed and check that the seeding thread has started
-			std::uint32_t singleSeed;
-			BOOST_CHECK_NO_THROW(singleSeed = GRANDOMFACTORY->getSeed());
-			BOOST_CHECK(GRANDOMFACTORY->checkSeedingIsInitialized() == true);
-			BOOST_CHECK(singleSeed != startSeed);
+			// Check that we always get different seeds
+			seed_type lastSeed;
+			BOOST_CHECK_NO_THROW(lastSeed = GRANDOMFACTORY->getSeed());
+			for(std::size_t s=0; s<nSeeds_-1; s++) {
+				seed_type currentSeed=GRANDOMFACTORY->getSeed();
+				BOOST_CHECK(lastSeed != currentSeed);
+				lastSeed=currentSeed;
+			}
 		}
 
 		//------------------------------------------------------------------------------

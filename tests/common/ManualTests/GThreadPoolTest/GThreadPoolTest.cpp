@@ -35,6 +35,7 @@
 // Standard headers go here
 #include <cmath>
 #include <iostream>
+#include <random>
 
 // Boost headers go here
 
@@ -91,7 +92,7 @@ public:
 	 * inside of the threads
 	 */
 	void process(bool simulateCrash) {
-		if(gr.uniform_bool()) {
+		if(uniform_bool(gr)) {
 			this->increment();
 		} else {
 			this->decrement();
@@ -136,6 +137,7 @@ private:
 	std::uint32_t operatorCalled_; ///< This counter will be incremented whenever process() is called
 
 	Gem::Hap::GRandom gr; // Instantiates a random number generator
+ 	std::bernoulli_distribution uniform_bool; // probability of 0.5 is the default
 };
 
 /************************************************************************/
@@ -214,6 +216,8 @@ int main(int argc, char** argv) {
 
 	// Submit each task to the pool a number of times
 	double resizeLikelihood=(std::min)(double(nResizeEvents)/double(nIterations),1.);
+	std::bernoulli_distribution weighted_bool(resizeLikelihood);
+
 	for(std::size_t n = 0; n<nIterations; n++) {
 		// Submission number n
 		for(std::size_t i=0; i<nJobs; i++) {
@@ -227,7 +231,7 @@ int main(int argc, char** argv) {
 			);
 		}
 
-		if(nResizeEvents > 0 && gr.weighted_bool(resizeLikelihood)) {
+		if(nResizeEvents > 0 && weighted_bool(gr)) {
 			unsigned int nt = gr.uniform_int<unsigned int>(MINTHREADS,MAXTHREADS);
 			gtp.setNThreads(nt);
 

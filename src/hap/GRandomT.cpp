@@ -40,6 +40,8 @@ namespace Hap {
 /******************************************************************************/
 /**
  * Central access to a random number generator through thread-local storage
+ *
+ * TODO: Should we use the double lock pattern here ?
  */
 boost::thread_specific_ptr<Gem::Hap::GRandom>& gr_tls_ptr() {
 	static boost::thread_specific_ptr<Gem::Hap::GRandom> instance;

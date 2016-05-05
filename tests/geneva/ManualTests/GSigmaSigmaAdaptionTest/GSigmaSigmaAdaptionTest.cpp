@@ -64,7 +64,8 @@ const double maxSigma = 1.;
  * gexp(gr_ptr->normal_distribution(gfabs(sigmaSigma_))*(gr_ptr->uniform_bool()?fp_type(1):fp_type(-1)))
  */
 double dist1(std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr, const double& sigmaSigma) {
-	return gexp(gr_ptr->normal_distribution(gfabs(sigmaSigma))*(gr_ptr->uniform_bool()?1.:-1.));
+	std::bernoulli_distribution uniform_bool;
+	return gexp(gr_ptr->normal_distribution(gfabs(sigmaSigma))*(uniform_bool(*gr_ptr)?1.:-1.));
 }
 
 /**

@@ -34,6 +34,7 @@
 
 // Standard header files go here
 #include <iostream>
+#include <random>
 
 // Boost header files go here
 #include <boost/thread/thread.hpp>
@@ -164,15 +165,16 @@ int main(int argc, char **argv) {
 		}
 
 		{
-			// This function produces boolean values with a 50% likelihood each for
-			// true and false
-			bool bool_rnd = gr.uniform_bool();
+			// This function produces boolean values with a 50% likelihood each for true and false
+			std::bernoulli_distribution uniform_bool; // Defaults to a probability of 0.5
+			bool bool_rnd = uniform_bool(gr);
 		}
 
 		{
 			// This function returns true with a probability "probability", otherwise false.
 			double prob = 0.25; // 25% true values
-			bool bool_rnd_weight = gr.weighted_bool(prob);
+			std::bernoulli_distribution weighted_bool(prob);
+			bool bool_rnd_weight = weighted_bool(gr);
 		}
 
 		{

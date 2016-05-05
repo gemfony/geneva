@@ -63,6 +63,7 @@ const std::size_t   DEFAULTFACTORYBUFFERSIZE = 400; ///< Default size of the und
 const std::uint16_t DEFAULTFACTORYPUTWAIT = 50; ///< waiting time in milliseconds
 const std::uint16_t DEFAULTFACTORYGETWAIT = 50; ///< waiting time in milliseconds
 const std::uint16_t DEFAULTSEEDQUEUEPUTWAIT = 50; ///< waiting time for seeding queue in milliseconds
+const std::size_t   DEFAULTSEEDVECTORSIZE = 1000; ///< The size of the seeding vector
 
 /******************************************************************************/
 /**

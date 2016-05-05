@@ -251,15 +251,8 @@ public:
 	 /** @brief Allows to retrieve the size of the buffer */
 	 G_API_HAP std::size_t getBufferSize() const;
 
-	 /** @brief Setting of an initial seed for random number generators */
-	 G_API_HAP bool setStartSeed(const initial_seed_type &);
-	 /** @brief Retrieval of the start-value of the global seed */
-	 G_API_HAP initial_seed_type getStartSeed() const;
-	 /** @brief Checks whether seeding has already started*/
-	 G_API_HAP bool checkSeedingIsInitialized() const;
-
 	 /** @brief Delivers a new [0,1[ random number container with the current standard size to clients */
-	 G_API_HAP std::shared_ptr <random_container> new01Container();
+	 G_API_HAP std::shared_ptr <random_container> getNewRandomContainer();
 	 /** @brief Retrieval of a new seed for external or internal random number generators */
 	 G_API_HAP seed_type getSeed();
 
@@ -272,27 +265,40 @@ private:
 	 const GRandomFactory &operator=(const GRandomFactory &) = delete;  ///< Intentionally left undefined
 
 	 /** @brief The production of [0,1[ random numbers takes place here */
-	 void producer01(std::uint32_t seed);
+	 void producer(std::uint32_t seed);
 
-	 bool finalized_;
-	 boost::atomic<bool> threads_started_;
-	 boost::atomic<std::uint16_t> n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
-	 Gem::Common::GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
+	 bool finalized_ = false;
+	 boost::atomic<bool> threads_started_; ///< Indicates whether threads were already started
+	 boost::atomic<std::uint16_t> nProducerThreads_; ///< The number of threads used to produce random numbers
+	 Gem::Common::GThreadGroup producer_threads_; ///< A thread group that holds [0,1[ producer threads
 
-	 /** @brief A bounded buffer holding the [0,1[ random number packages */
-	 Gem::Common::GBoundedBufferT<std::shared_ptr<random_container>> p01_; // Note: Absolutely needs to be defined after the thread group !!!
-	 /** @brief A bounded buffer holding [0,1[ random number packages ready for recycling */
-	 Gem::Common::GBoundedBufferT<std::shared_ptr<random_container>> r01_;
+	 /** @brief A bounded buffer holding the random number packages */
+	 Gem::Common::GBoundedBufferT<std::shared_ptr<random_container>> p_fresh_bfr_; // Note: Absolutely needs to be defined after the thread group !!!
+	 /** @brief A bounded buffer holding random number packages ready for recycling */
+	 Gem::Common::GBoundedBufferT<std::shared_ptr<random_container>> p_ret_bfr_;
 
 	 static std::uint16_t multiple_call_trap_; ///< Trap to catch multiple instantiations of this class
 	 static boost::mutex factory_creation_mutex_; ///< Synchronization of access to multiple_call_trap in constructor
 
 	 mutable boost::mutex thread_creation_mutex_; ///< Synchronization of access to the threads_started_ variable
 
-	 std::random_device nondet_rng; ///< Source of non-deterministic random numbers
-	 initial_seed_type startSeed_; ///< Stores the initial start seed
-	 std::shared_ptr <mersenne_twister> mt_ptr_;
+	 std::random_device nondet_rng_; ///< Source of non-deterministic random numbers
+	 std::seed_seq seed_seq_ ///< A seeding sequence
+		 = {
+			 nondet_rng_()
+			 , nondet_rng_()
+			 , nondet_rng_()
+			 , nondet_rng_()
+			 , nondet_rng_()
+			 , nondet_rng_()
+			 , nondet_rng_()
+			 , nondet_rng_()
+		 };
+
 	 mutable boost::shared_mutex seedingMutex_; ///< Regulates start-up of the seeding process
+	 std::vector<seed_type> seedCollection_; ///< Holds pre-calculated seeds
+	 std::vector<seed_type>::const_iterator seed_cit_; ///< Iterators over the seedCollection_
+	 bool seedingHasStarted_=false;
 };
 
 } /* namespace Hap */

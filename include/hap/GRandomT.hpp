@@ -103,11 +103,11 @@ public:
 	 */
 	GRandomT()
 		: Gem::Hap::GRandomBase()
-	  	, p01_( /* empty */ )
+	  	, p_( /* empty */ )
 	  	, grf_(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
 	{
 		// Make sure we have a first random number package available
-		getNewP01();
+		getNewRandomContainer();
 	}
 
 	/***************************************************************************/
@@ -115,8 +115,8 @@ public:
 	 * The standard destructor
 	 */
 	virtual ~GRandomT() {
-		if (p01_) {
-			grf_->returnUsedPackage(p01_);
+		if (p_) {
+			grf_->returnUsedPackage(p_);
 		}
 		grf_.reset();
 	}
@@ -132,29 +132,29 @@ protected:
 	 * assumes that a valid container is already available.
 	 */
 	virtual GRandomBase::result_type int_random() {
-		if (p01_->empty()) {
+		if (p_->empty()) {
 			// Get rid of the old container ...
-			grf_->returnUsedPackage(p01_);
+			grf_->returnUsedPackage(p_);
 			// ... then get a new one
-			getNewP01();
+			getNewRandomContainer();
 		}
-		return p01_->next();
+		return p_->next();
 	}
 
 private:
 	/***************************************************************************/
 	/**
-	 * (Re-)Initialization of p01_. Checks that a valid GRandomFactory still
+	 * (Re-)Initialization of p_. Checks that a valid GRandomFactory still
 	 * exists, then retrieves a new container.
 	 */
-	void getNewP01() {
+	void getNewRandomContainer() {
 		// Make sure we get rid of the old container
-		p01_.reset();
+		p_.reset();
 
 #ifdef DEBUG
 		if(!grf_) {
 		   glogger
-		   << "In GRandomT<RANDOMPROXY>::getNewP01(): Error!" << std::endl
+		   << "In GRandomT<RANDOMPROXY>::getNewRandomContainer(): Error!" << std::endl
          << "No connection to GRandomFactory object." << std::endl
          << GEXCEPTION;
 		}
@@ -166,7 +166,7 @@ private:
 
 		// Try until a valid container has been received. new01Container has
 		// a timeout of DEFAULTFACTORYGETWAIT internally.
-		while (!(p01_ = grf_->new01Container())) {
+		while (!(p_ = grf_->getNewRandomContainer())) {
 #ifdef DEBUG
 		   nRetries++;
 #endif /* DEBUG */
@@ -182,7 +182,7 @@ private:
 
 	/***************************************************************************/
 	/** @brief Holds the container of uniform random numbers */
-	std::shared_ptr <random_container> p01_;
+	std::shared_ptr <random_container> p_;
 	/** @brief A local copy of the global GRandomFactory */
 	std::shared_ptr <Gem::Hap::GRandomFactory> grf_;
 };
@@ -193,6 +193,9 @@ typedef GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> GRandom;
 /***************************************************************************/
 /** @brief Central access to a random number generator through thread-local storage */
 boost::thread_specific_ptr<Gem::Hap::GRandom>& gr_tls_ptr();
+
+// Syntactic sugar
+#define GRANDOM_TLS (*(Gem::Hap::gr_tls_ptr()))
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
