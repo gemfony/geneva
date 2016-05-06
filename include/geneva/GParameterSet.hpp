@@ -198,7 +198,7 @@ public:
 	template <typename par_type>
 	const std::shared_ptr<par_type> at(
 		const std::size_t& pos
-		, typename std::enable_if<std::is_base_of<GParameterBase, par_type>::value>::type* dummy = 0
+		, typename std::enable_if<std::is_base_of<GParameterBase, par_type>::value>::type *dummy = nullptr
 	)  const {
 		// Does error checks on the conversion internally
 		return Gem::Common::convertSmartPointer<GParameterBase, par_type>(data.at(pos));

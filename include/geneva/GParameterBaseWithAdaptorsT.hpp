@@ -259,7 +259,7 @@ public:
 	 */
 	template <typename adaptor_type>
 	std::shared_ptr<adaptor_type> getAdaptor(
-		typename std::enable_if<std::is_base_of<GAdaptorT<T>, adaptor_type>::value>::type* dummy = 0
+		typename std::enable_if<std::is_base_of<GAdaptorT<T>, adaptor_type>::value>::type *dummy = nullptr
 	) const {
 #ifdef DEBUG
 		if(!adaptor_) {

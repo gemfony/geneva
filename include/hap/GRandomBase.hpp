@@ -117,7 +117,7 @@ public:
 	 /** @brief Uniformly distributed random numbers in the range [0,1[ */
 	 template<typename fp_type>
 	 fp_type uniform_01(
-		 typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
+		 typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 	 ) {
 		 return std::uniform_real_distribution<fp_type>(static_cast<fp_type>(0.), static_cast<fp_type>(1.))(*this);
 	 }
@@ -131,7 +131,7 @@ public:
 	  */
 	 template<typename fp_type>
 	 fp_type uniform_real(
-		 const fp_type &maxVal, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
+		 const fp_type &maxVal, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 	 ) {
 #ifdef DEBUG
 		 // Check that maxVal has an appropriate value
@@ -151,7 +151,7 @@ public:
 	 template<typename fp_type>
 	 fp_type uniform_real(
 		 const fp_type &minVal, const fp_type &maxVal,
-		 typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
+		 typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 	 ) {
 		 return std::uniform_real_distribution<fp_type>(static_cast<fp_type>(minVal), static_cast<fp_type>(maxVal))(*this);
 	 }
@@ -183,7 +183,7 @@ public:
 	 template<typename fp_type>
 	 fp_type normal_distribution(
 		 const fp_type &sigma
-		 , typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
+		 , typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 	 ) {
 		 return sigma * normal_distribution<fp_type>();
 	 }
@@ -201,7 +201,7 @@ public:
 	 fp_type normal_distribution(
 		 const fp_type &mean
 		 , const fp_type &sigma
-		 , typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
+		 , typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 	 ) {
 		 return sigma * normal_distribution<fp_type>() + mean;
 	 }
@@ -222,8 +222,10 @@ public:
 	  */
 	 template<typename fp_type>
 	 fp_type bi_normal_distribution(
-		 const fp_type &mean, const fp_type &sigma, const fp_type &distance,
-		 typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
+		 const fp_type &mean
+		 , const fp_type &sigma
+		 , const fp_type &distance
+		 , typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 	 ) {
 		 std::bernoulli_distribution uniform_bool;
 		 if (uniform_bool(*this)) {
@@ -251,8 +253,11 @@ public:
 	  */
 	 template<typename fp_type>
 	 fp_type bi_normal_distribution(
-		 const fp_type &mean, const fp_type &sigma1, const fp_type &sigma2, const fp_type &distance,
-		 typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
+		 const fp_type &mean
+		 , const fp_type &sigma1
+		 , const fp_type &sigma2
+		 , const fp_type &distance
+		 , typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 	 ) {
 		 std::bernoulli_distribution uniform_bool;
 		 if (uniform_bool(*this)) {
@@ -275,7 +280,7 @@ public:
 	 int_type uniform_int(
 		 const int_type &minVal
 		 , const int_type &maxVal
-		 , typename std::enable_if<std::is_integral<int_type>::value>::type *dummy = 0
+		 , typename std::enable_if<std::is_integral<int_type>::value>::type *dummy = nullptr
 	 ) {
 #ifdef DEBUG
 		 assert(maxVal >= minVal);
@@ -297,7 +302,7 @@ public:
 	 template<typename int_type>
 	 int_type uniform_int(
 		 const int_type &maxVal
-		 , typename std::enable_if<std::is_integral<int_type>::value>::type *dummy = 0
+		 , typename std::enable_if<std::is_integral<int_type>::value>::type *dummy = nullptr
 	 ) {
 		 return this->uniform_int<int_type>(0, maxVal);
 	 }

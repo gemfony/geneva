@@ -2,6 +2,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 SET ( HAPINCLUDES
 	GHapEnums.hpp
+    GRandomDistributionsT.hpp
 	GRandomBase.hpp
 	GRandomDefines.hpp
 	GRandomFactory.hpp

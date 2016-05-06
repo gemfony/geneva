@@ -41,6 +41,7 @@
 
 // Geneva header files go here
 #include "hap/GRandomT.hpp"
+#include "hap/GRandomDistributionsT.hpp"
 #include "common/GTSSAccessT.hpp"
 
 const int NPROD = 1000;
@@ -116,25 +117,17 @@ int main(int argc, char **argv) {
 		{
 			// A normal ("gaussian") distribution of random numbers
 			// with mean 0 and sigma 1
-			double d_std_gauss = gr.normal_distribution<double>();
-        }
-
-		{
-			// A normal ("gaussian") distribution of random numbers
-			// with mean 0 and sigma "sigma"
-			double sigma = 2.;
-			double d_gauss_sigma = gr.normal_distribution<double>(sigma);
-
-			// Note: Thanks to the "double" argument you could leave out
-			// the <double> here
-		}
+			std::normal_distribution<double> normal_distribution;
+			double d_std_gauss = normal_distribution(gr);
+	  	}
 
 		{
 			// A normal ("gaussian") distribution of random numbers
 			// with mean "mean" and sigma "sigma"
 			double mean = 1.;
 			double sigma = 2.;
-			double d_gauss_mean_sigma = gr.normal_distribution<double>(mean, sigma);
+			std::normal_distribution<double> normal_distribution(mean, sigma);
+			double d_gauss_mean_sigma = normal_distribution(gr);
 		}
 
 		{

@@ -115,7 +115,7 @@ public:
 		const std::size_t& nval
 		, const num_type& min
 		, const num_type& max
-		, typename std::enable_if<std::is_arithmetic<num_type>::value>::type* dummy = 0
+		, typename std::enable_if<std::is_arithmetic<num_type>::value>::type *dummy = nullptr
 	)
 		: GParameterCollectionT<num_type> (nval, min)
 		, lowerInitBoundary_(min)
@@ -139,7 +139,7 @@ public:
 		, const num_type& val
 		, const num_type& min
 		, const num_type& max
-		, typename std::enable_if<std::is_arithmetic<num_type>::value>::type* dummy = 0
+		, typename std::enable_if<std::is_arithmetic<num_type>::value>::type *dummy = nullptr
 	)
 		: GParameterCollectionT<num_type> (nval, val)
 		, lowerInitBoundary_(min)
@@ -248,7 +248,7 @@ public:
 	void setInitBoundaries(
 		const num_type& lowerInitBoundary
 		, const num_type& upperInitBoundary
-		, typename std::enable_if<std::is_arithmetic<num_type>::value>::type* dummy = 0
+		, typename std::enable_if<std::is_arithmetic<num_type>::value>::type *dummy = nullptr
 	) {
 		// Do some error checking
 		if(lowerInitBoundary >= upperInitBoundary) {

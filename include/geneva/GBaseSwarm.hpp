@@ -207,7 +207,7 @@ public:
 	template <typename parameterset_type>
 	std::shared_ptr<parameterset_type> getBestNeighborhoodIndividual(
 		std::size_t neighborhood
-		, typename std::enable_if<std::is_base_of<GParameterSet, parameterset_type>::value>::type* dummy = 0
+		, typename std::enable_if<std::is_base_of<GParameterSet, parameterset_type>::value>::type *dummy = nullptr
 	){
 #ifdef DEBUG
 		// Check that the neighborhood is in a valid range

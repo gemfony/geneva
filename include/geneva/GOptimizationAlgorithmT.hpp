@@ -927,7 +927,7 @@ public:
 	template <typename target_type>
 	std::shared_ptr<target_type> individual_cast(
 		const std::size_t& pos
-		, typename std::enable_if<std::is_base_of<GOptimizableEntity, target_type>::value>::type* dummy = 0
+		, typename std::enable_if<std::is_base_of<GOptimizableEntity, target_type>::value>::type *dummy = nullptr
 	) {
 #ifdef DEBUG
 		if(pos >= this->size()) {

@@ -202,7 +202,7 @@ private:
 	 */
 	template<typename B>
 	identity<B> to(
-		typename std::enable_if<std::is_base_of<B, T>::value>::type *dummy = 0
+		typename std::enable_if<std::is_base_of<B, T>::value>::type *dummy = nullptr
 	) const {
 		const B &x_conv = dynamic_cast<const B &>(x);
 		const B &y_conv = dynamic_cast<const B &>(y);
@@ -303,8 +303,8 @@ void compare(
 	, const std::string &y_name
 	, const Gem::Common::expectation &e
 	, const double &limit = 0.
-	, typename std::enable_if<!std::is_floating_point<basic_type>::value>::type *dummy1 = 0 // Note the negation!
-	, typename std::enable_if<!Gem::Common::has_gemfony_common_interface<basic_type>::value>::type *dummy2 = 0 // Note the negation
+	, typename std::enable_if<!std::is_floating_point<basic_type>::value>::type *dummy1 = nullptr // Note the negation!
+	, typename std::enable_if<!Gem::Common::has_gemfony_common_interface<basic_type>::value>::type *dummy2 = nullptr // Note the negation
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -367,7 +367,7 @@ void compare(
 	, const std::string &y_name
 	, const Gem::Common::expectation &e
 	, const double &limit = CE_DEF_SIMILARITY_DIFFERENCE
-	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
+	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -437,7 +437,7 @@ void compare(
 	, const std::string &y_name
 	, const Gem::Common::expectation &e
 	, const double &limit = 0.
-	, typename std::enable_if<!std::is_floating_point<base_type>::value>::type *dummy = 0
+	, typename std::enable_if<!std::is_floating_point<base_type>::value>::type *dummy = nullptr
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -522,7 +522,7 @@ void compare(
 	, const std::string &y_name
 	, const Gem::Common::expectation &e
 	, const double &limit = CE_DEF_SIMILARITY_DIFFERENCE
-	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
+	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -628,7 +628,7 @@ void compare (
 	, const std::string& y_name
 	, const Gem::Common::expectation& e
 	, const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
-	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<geneva_type>::value>::type *dummy = 0
+	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<geneva_type>::value>::type *dummy = nullptr
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -715,7 +715,7 @@ void compare (
 	, const std::string& y_name
 	, const Gem::Common::expectation& e
 	, const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
-	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<geneva_type>::value>::type *dummy = 0
+	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<geneva_type>::value>::type *dummy = nullptr
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -830,7 +830,7 @@ void compare (
 	, const std::string& y_name
 	, const Gem::Common::expectation& e
 	, const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
-	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<geneva_type>::value>::type *dummy = 0
+	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<geneva_type>::value>::type *dummy = nullptr
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -1000,7 +1000,7 @@ template<typename B>
 void compare_base(
 	const identity<B> &data
 	, GToken &token
-	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<B>::value>::type *dummy = 0
+	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<B>::value>::type *dummy = nullptr
 ) {
 	try {
 		token.incrTestCounter();
