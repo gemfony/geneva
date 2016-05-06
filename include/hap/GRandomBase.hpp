@@ -77,8 +77,7 @@ namespace Hap {
  * from "raw" random numbers, which can be obtained in derived classes using
  * various different ways.
  */
-class GRandomBase
-	: private boost::noncopyable
+class GRandomBase : private boost::noncopyable
 {
 public:
 	 /** @brief Helps to use this object as a generator for C++11 std::distributions */
