@@ -52,6 +52,14 @@ namespace Gem {
 namespace Hap {
 
 /******************************************************************************/
+// For bi_normal_distribution
+
+const double DEF_BINORM_MEAN=0.;
+const double DEF_BINORM_SIGMA1=0.1;
+const double DEF_BINORM_SIGMA2=0.1;
+const double DEF_BINORM_DISTANCE=0.5;
+
+/******************************************************************************/
 /**
  * Allowed specializations of Gem::Hap::GRandomT<T>
  */

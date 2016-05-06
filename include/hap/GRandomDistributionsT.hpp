@@ -242,6 +242,14 @@ public:
 	 }
 
 	 /**
+	  * The default constructor
+	  */
+	 bi_normal_distribution()
+	 	: m_params(fp_type(DEF_BINORM_MEAN),fp_type(DEF_BINORM_SIGMA1),fp_type(DEF_BINORM_SIGMA2),fp_type(DEF_BINORM_DISTANCE))
+	   , m_params_store(m_params)
+	 { /* nothing */ }
+
+	 /**
 	  * The standard constructor
 	  */
 	 bi_normal_distribution(
@@ -251,7 +259,7 @@ public:
 		 , fp_type distance
 	 )
 		 : m_params(mean, sigma1, sigma2, distance)
-	 	 , m_params_store(mean, sigma1, sigma2, distance)
+	 	 , m_params_store(m_params)
 	 { /* nothing */ }
 
 	 /**
@@ -263,7 +271,6 @@ public:
 	 { /* nothing */ }
 
 private:
-	 bi_normal_distribution() = delete;
 	 bi_normal_distribution(const bi_normal_distribution<fp_type>&) = delete;
 	 const bi_normal_distribution<fp_type>& operator=(const bi_normal_distribution<fp_type>&) = delete;
 

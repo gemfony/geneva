@@ -131,19 +131,6 @@ int main(int argc, char **argv) {
 		}
 
 		{
-			// This function adds two gaussians with sigma "sigma" and a distance
-			// "distance" from each other, centered around mean. The idea is to use
-			// this function in conjunction with evolutionary strategies, so we avoid
-			// searching with the highest likelihood at a location where we already
-			// know a good value exists. Rather we want to shift the highest likelihood
-			// for probes a bit further away from the candidate solution.
-			double mean = 1.;
-			double sigma = 2.;
-			double distance = 3.;
-			double d_bi_gauss = gr.bi_normal_distribution<double>(mean, sigma, distance);
-		}
-
-		{
 			// This function adds two gaussians with sigmas "sigma1", "sigma2" and a distance
 			// of "distance" from each other, centered around mean. The idea is to use
 			// this function in conjunction with evolutionary strategies, so we avoid
@@ -154,7 +141,10 @@ int main(int argc, char **argv) {
 			double sigma1 = 2.;
 			double sigma2 = 1.;
 			double distance = 3.;
-			double d_bi_gauss_difsigma = gr.bi_normal_distribution<double>(mean, sigma1, sigma2, distance);
+
+			Gem::Hap::bi_normal_distribution<double> bi_normal_distribution(mean, sigma1, sigma2, distance);
+			double d_bi_gauss_difsigma  = bi_normal_distribution(gr);
+			double d_bi_gauss_difsigma2 = bi_normal_distribution(gr, bi_normal_distribution.param());
 		}
 
 		{
