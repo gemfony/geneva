@@ -49,6 +49,11 @@ SET(CLANG_DEF_MIN_CXX1Z_VERSION "3.9")
 SET(CLANG_DEF_CXX14_STANDARD_FLAG "-std=c++14")
 SET(CLANG_DEF_CXX1Z_STANDARD_FLAG "-std=c++1z")
 
+# Apple Clang settings
+SET(APPLECLANG_DEF_IDENTIFIER "AppleClang")
+SET(APPLECLANG_DEF_MIN_CXX14_VERSION "7.3")
+SET(APPLECLANG_DEF_CXX14_STANDARD_FLAG "-std=c++14")
+
 # GCC settings
 SET(GNU_DEF_IDENTIFIER "GNU")
 SET(GNU_DEF_MIN_CXX14_VERSION "4.9")
@@ -243,7 +248,7 @@ FUNCTION (
 		SET(FLAGS_LOCAL "${FLAGS_LOCAL} -Wall -Wno-unused -wd1572 -wd1418 -wd981 -wd444 -wd383 -pthread")
 
 	#*****************************************************************
-	ELSEIF(CMAKE_CXX_COMPILER_ID MATCHES ${CLANG_DEF_IDENTIFIER})
+	ELSEIF(CMAKE_CXX_COMPILER_ID MATCHES ${CLANG_DEF_IDENTIFIER} OR CMAKE_CXX_COMPILER_ID MATCHES ${APPLECLANG_DEF_IDENTIFIER})
 
 		SET(FLAGS_LOCAL "${FLAGS_LOCAL} -Wall -Wno-unused -Wno-attributes -Wno-parentheses-equality -Wno-deprecated-register")
 		SET(FLAGS_LOCAL "${FLAGS_LOCAL} -ftemplate-depth=512 -pthread")
@@ -357,11 +362,11 @@ FUNCTION (
 	#--------------------------------------------------------------------------
 	IF(${GENEVA_OS_NAME_IN} STREQUAL "MacOSX")
 		# Only clang is currently supported on MacOS
-		IF(NOT ${CMAKE_CXX_COMPILER_ID} STREQUAL ${CLANG_DEF_IDENTIFIER})
+        IF(NOT ${CMAKE_CXX_COMPILER_ID} STREQUAL ${CLANG_DEF_IDENTIFIER} AND NOT CMAKE_CXX_COMPILER_ID STREQUAL ${APPLECLANG_DEF_IDENTIFIER})
 			MESSAGE("####################################################################################")
 			MESSAGE("# Compiler ${CMAKE_CXX_COMPILER_ID} is not supported on MacOSX. Use Clang instead. #")
 			MESSAGE("####################################################################################")
-			MESSAGE(FATAL_ERROR "Unsupported platform!")
+			MESSAGE(FATAL_ERROR "Unsupported platform ${CMAKE_CXX_COMPILER_ID} !")
 		ENDIF()
 
 		# Only MacOS X >= 10.9 Mavericks is supported
@@ -369,7 +374,7 @@ FUNCTION (
 			MESSAGE("####################################################")
 			MESSAGE("# Geneva only supports MacOS X >= 10.9 / Mavericks #")
 			MESSAGE("####################################################")
-			MESSAGE(FATAL_ERROR "Unsupported platform!")
+			MESSAGE(FATAL_ERROR "Unsupported platform Darwin ${GENEVA_OS_VERSION_IN} !")
 		ENDIF()
 
 		# Static linking on MacOSX is currently not supported
@@ -408,6 +413,8 @@ FUNCTION (
 	# Enforce a minimum compiler version
 	IF (${CMAKE_CXX_COMPILER_ID} STREQUAL ${CLANG_DEF_IDENTIFIER})
 		SET(COMPILER_MIN_VER 3.5)
+	ELSEIF (${CMAKE_CXX_COMPILER_ID} STREQUAL ${APPLECLANG_DEF_IDENTIFIER})
+		SET(COMPILER_MIN_VER 7.3)
 	ELSEIF (${CMAKE_CXX_COMPILER_ID} STREQUAL ${GNU_DEF_IDENTIFIER})
 		SET(COMPILER_MIN_VER 4.8)
 	ELSEIF (${CMAKE_CXX_COMPILER_ID} STREQUAL ${INTEL_DEF_IDENTIFIER})
@@ -419,14 +426,14 @@ FUNCTION (
 		MESSAGE("########################")
 		MESSAGE("# Unsupported compiler #")
 		MESSAGE("########################")
-		MESSAGE(FATAL_ERROR "Unsupported compiler!")
+		MESSAGE(FATAL_ERROR "Unsupported compiler ${CMAKE_CXX_COMPILER_ID} with version ${CMAKE_CXX_COMPILER_VERSION}!")
 	ENDIF()
 
 	IF(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS ${COMPILER_MIN_VER})
 		MESSAGE("#######################################################")
 		MESSAGE("# Compiler version is not supported, version too old! #")
 		MESSAGE("#######################################################")
-		MESSAGE(FATAL_ERROR "Unsupported compiler!")
+		MESSAGE(FATAL_ERROR "Unsupported compiler version ${COMPILER_MIN_VER}!")
 	ENDIF()
 	#--------------------------------------------------------------------------
 
