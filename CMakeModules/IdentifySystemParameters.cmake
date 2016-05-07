@@ -310,12 +310,24 @@ FUNCTION (
 )
 
 	#--------------------------------------------------------------------------
-	IF(${GENEVA_OS_NAME_IN} MATCHES "MacOSX")
-		SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++" PARENT_SCOPE)
-		IF( NOT GENEVA_STATIC )
-			SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -stdlib=libstdc++" PARENT_SCOPE)
-			SET (MACOSX_RPATH 1)
+	IF(CMAKE_CXX_COMPILER_ID MATCHES ${CLANG_DEF_IDENTIFIER} OR CMAKE_CXX_COMPILER_ID MATCHES ${APPLECLANG_DEF_IDENTIFIER})
+
+		# For Clang on MacOSX we require the standard C++ library
+		IF(${GENEVA_OS_NAME_IN} STREQUAL "MacOSX")
+			SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++" PARENT_SCOPE)
+			IF( NOT GENEVA_STATIC )
+				SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -stdlib=libstdc++" PARENT_SCOPE)
+				SET (MACOSX_RPATH 1)
+			ENDIF()
+		ELSE()
+			# Avoid https://llvm.org/bugs/show_bug.cgi?id=18402
+			# when using older libstdc++ versions
+			SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++" PARENT_SCOPE)
+			IF( NOT GENEVA_STATIC )
+				SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -stdlib=libc++" PARENT_SCOPE)
+			ENDIF()
 		ENDIF()
+
 	ENDIF()
 	#--------------------------------------------------------------------------
 
