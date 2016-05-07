@@ -256,7 +256,7 @@ FUNCTION (
 		# For Clang on MacOSX we require the standard C++ library
 		IF(${GENEVA_OS_NAME_IN} STREQUAL "MacOSX")
 			SET(FLAGS_LOCAL "${FLAGS_LOCAL} -stdlib=libstdc++")
-		ELSEIF()
+		ELSE()
 			# Avoid https://llvm.org/bugs/show_bug.cgi?id=18402
 			# when using older libstdc++ versions
 			SET(FLAGS_LOCAL "${FLAGS_LOCAL} -stdlib=libc++")
