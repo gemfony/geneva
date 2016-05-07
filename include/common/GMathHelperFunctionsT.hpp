@@ -79,7 +79,7 @@ const bool GERRORONLY = false;
 template<typename fp_type>
 void enforceRangeConstraint(
 	fp_type &val, const fp_type &lower, const fp_type &upper,
-	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
+	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
 #ifdef DEBUG
    if(lower > upper) {
@@ -108,7 +108,7 @@ void enforceRangeConstraint(
 template<typename fp_type>
 bool checkRangeCompliance(
 	const fp_type &val, const fp_type &lower, const fp_type &upper,
-	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
+	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
 #ifdef DEBUG
    if(lower > upper) {
@@ -133,7 +133,7 @@ bool checkRangeCompliance(
  */
 template<typename fp_type>
 fp_type getWorstCase(
-	bool maxMode, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
+	bool maxMode, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
 	return (maxMode ? boost::numeric::bounds<fp_type>::lowest() : boost::numeric::bounds<fp_type>::highest());
 }
@@ -145,7 +145,7 @@ fp_type getWorstCase(
  */
 template<typename fp_type>
 fp_type getBestCase(
-	bool maxMode, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
+	bool maxMode, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
 	return (maxMode ? boost::numeric::bounds<fp_type>::highest() : boost::numeric::bounds<fp_type>::lowest());
 }
@@ -172,7 +172,7 @@ const bool GFNOWARNING = false;
 template<typename fp_type>
 fp_type checkValueRange(
 	fp_type val, fp_type min, fp_type max, bool lowerOpen = false, bool upperOpen = false, bool warnOnly = false,
-	std::string varName = std::string(), typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
+	std::string varName = std::string(), typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
 	bool result = true;
 
@@ -231,7 +231,7 @@ const bool GINTUPPEROPEN = true;
 template<typename int_type>
 int_type checkValueRange(
 	int_type val, int_type min, int_type max, bool lowerOpen = false, bool upperOpen = false, bool warnOnly = false,
-	typename std::enable_if<std::is_integral<int_type>::value>::type *dummy = 0
+	typename std::enable_if<std::is_integral<int_type>::value>::type *dummy = nullptr
 ) {
 	bool result = true;
 
@@ -416,7 +416,7 @@ getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet,
  */
 template<typename T>
 T GMean(
-	const std::vector<T> &parVec, typename std::enable_if<std::is_floating_point<T>::value>::type *dummy = 0
+	const std::vector<T> &parVec, typename std::enable_if<std::is_floating_point<T>::value>::type *dummy = nullptr
 ) {
 	T mean = 0.;
 
@@ -447,7 +447,7 @@ T GMean(
  */
 template<typename T>
 std::tuple<T, T> GStandardDeviation(
-	const std::vector<T> &parVec, typename std::enable_if<std::is_floating_point<T>::value>::type *dummy = 0
+	const std::vector<T> &parVec, typename std::enable_if<std::is_floating_point<T>::value>::type *dummy = nullptr
 ) {
 	T mean = GMean(parVec), sigma = 0.;
 
@@ -489,7 +489,7 @@ std::tuple<T, T> GStandardDeviation(
 template<typename T>
 void GVecStandardDeviation(
 	const std::vector<std::vector<T>> &parVec, std::vector<std::tuple<T, T>> &result,
-	typename std::enable_if<std::is_floating_point<T>::value>::type *dummy = 0
+	typename std::enable_if<std::is_floating_point<T>::value>::type *dummy = nullptr
 ) {
 
 #ifdef DEBUG
@@ -689,7 +689,7 @@ void assignVecConst(
 template<typename fp_type>
 std::tuple<fp_type, fp_type> sumTupleVec(
 	const std::vector<std::tuple<fp_type, fp_type>> &dataPoints,
-	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
+	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
 	std::tuple<fp_type, fp_type> result = std::tuple<fp_type, fp_type>(fp_type(0.), fp_type(0.));;
 
@@ -709,7 +709,7 @@ std::tuple<fp_type, fp_type> sumTupleVec(
 template<typename fp_type>
 std::tuple<fp_type, fp_type> squareSumTupleVec(
 	const std::vector<std::tuple<fp_type, fp_type>> &dataPoints,
-	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
+	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
 	std::tuple<fp_type, fp_type> result = std::tuple<fp_type, fp_type>(fp_type(0.), fp_type(0.));
 
@@ -729,7 +729,7 @@ std::tuple<fp_type, fp_type> squareSumTupleVec(
 template<typename fp_type>
 fp_type productSumTupleVec(
 	const std::vector<std::tuple<fp_type, fp_type>> &dataPoints,
-	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
+	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
 	fp_type result = fp_type(0.);
 
@@ -754,7 +754,7 @@ fp_type productSumTupleVec(
 template<typename fp_type>
 fp_type squareDeviation(
 	const std::vector<std::tuple<fp_type, fp_type>> &dataPoints, const fp_type &a, const fp_type &b,
-	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
+	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
 	fp_type result = fp_type(0);
 	typename std::vector<std::tuple<fp_type, fp_type>>::const_iterator cit;
@@ -776,7 +776,7 @@ fp_type squareDeviation(
 template<typename fp_type>
 std::tuple<fp_type, fp_type, fp_type, fp_type> getRegressionParameters(
 	const std::vector<std::tuple<fp_type, fp_type>> &dataPoints,
-	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
+	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
 	if (dataPoints.empty()) {
 		return std::tuple<fp_type, fp_type, fp_type, fp_type>(fp_type(0.), fp_type(0.), fp_type(0.), fp_type(0.));
@@ -819,7 +819,7 @@ std::tuple<fp_type, fp_type, fp_type, fp_type> getRegressionParameters(
 template<typename fp_type>
 std::tuple<fp_type, fp_type, fp_type, fp_type> getRatioError(
 	const std::tuple<fp_type, fp_type, fp_type, fp_type> &s, const std::tuple<fp_type, fp_type, fp_type, fp_type> &p,
-	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
+	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
 	// p may not ne 0
 	if (0. == std::get<2>(p)) {
@@ -861,7 +861,7 @@ template<typename fp_type>
 std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>> getRatioErrors(
 	const std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>> &sn,
 	const std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>> &pn,
-	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = 0
+	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
 	// Check that both vectors have the same size, otherwise complain
 	if (sn.size() != pn.size()) {

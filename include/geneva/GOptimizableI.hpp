@@ -122,7 +122,7 @@ public:
 	 */
 	template <typename individual_type>
 	std::shared_ptr<individual_type> getBestGlobalIndividual(
-		typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type *dummy = 0
+		typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type *dummy = nullptr
 	) {
 		return customGetBestGlobalIndividual()->clone<individual_type>();
 	}
@@ -137,7 +137,7 @@ public:
 	 */
 	template <typename individual_type>
 	std::vector<std::shared_ptr<individual_type>> getBestGlobalIndividuals(
-		typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type* dummy = 0
+		typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type * dummy = nullptr
 	) {
 		std::vector<std::shared_ptr<individual_type>> bestIndividuals;
 		std::vector<std::shared_ptr<GParameterSet>> bestBaseIndividuals = this->customGetBestGlobalIndividuals();
@@ -167,7 +167,7 @@ public:
 	 */
 	template <typename individual_type>
 	std::shared_ptr<individual_type> getBestIterationIndividual (
-		typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type* dummy = 0
+		typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type *dummy = nullptr
 	) {
 		return customGetBestIterationIndividual()->clone<individual_type>();
 	}
@@ -182,7 +182,7 @@ public:
 	 */
 	template <typename individual_type>
 	std::vector<std::shared_ptr<individual_type>> getBestIterationIndividuals(
-	typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type* dummy = 0
+	typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type *dummy = nullptr
 	) {
 		std::vector<std::shared_ptr<individual_type>> bestIndividuals;
 		std::vector<std::shared_ptr<GParameterSet>> bestBaseIndividuals = this->customGetBestIterationIndividuals();

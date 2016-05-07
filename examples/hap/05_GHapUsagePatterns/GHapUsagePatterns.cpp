@@ -41,6 +41,7 @@
 
 // Geneva header files go here
 #include "hap/GRandomT.hpp"
+#include "hap/GRandomDistributionsT.hpp"
 #include "common/GTSSAccessT.hpp"
 
 const int NPROD = 1000;
@@ -116,38 +117,17 @@ int main(int argc, char **argv) {
 		{
 			// A normal ("gaussian") distribution of random numbers
 			// with mean 0 and sigma 1
-			double d_std_gauss = gr.normal_distribution<double>();
-        }
-
-		{
-			// A normal ("gaussian") distribution of random numbers
-			// with mean 0 and sigma "sigma"
-			double sigma = 2.;
-			double d_gauss_sigma = gr.normal_distribution<double>(sigma);
-
-			// Note: Thanks to the "double" argument you could leave out
-			// the <double> here
-		}
+			std::normal_distribution<double> normal_distribution;
+			double d_std_gauss = normal_distribution(gr);
+	  	}
 
 		{
 			// A normal ("gaussian") distribution of random numbers
 			// with mean "mean" and sigma "sigma"
 			double mean = 1.;
 			double sigma = 2.;
-			double d_gauss_mean_sigma = gr.normal_distribution<double>(mean, sigma);
-		}
-
-		{
-			// This function adds two gaussians with sigma "sigma" and a distance
-			// "distance" from each other, centered around mean. The idea is to use
-			// this function in conjunction with evolutionary strategies, so we avoid
-			// searching with the highest likelihood at a location where we already
-			// know a good value exists. Rather we want to shift the highest likelihood
-			// for probes a bit further away from the candidate solution.
-			double mean = 1.;
-			double sigma = 2.;
-			double distance = 3.;
-			double d_bi_gauss = gr.bi_normal_distribution<double>(mean, sigma, distance);
+			std::normal_distribution<double> normal_distribution(mean, sigma);
+			double d_gauss_mean_sigma = normal_distribution(gr);
 		}
 
 		{
@@ -161,7 +141,10 @@ int main(int argc, char **argv) {
 			double sigma1 = 2.;
 			double sigma2 = 1.;
 			double distance = 3.;
-			double d_bi_gauss_difsigma = gr.bi_normal_distribution<double>(mean, sigma1, sigma2, distance);
+
+			Gem::Hap::bi_normal_distribution<double> bi_normal_distribution(mean, sigma1, sigma2, distance);
+			double d_bi_gauss_difsigma  = bi_normal_distribution(gr);
+			double d_bi_gauss_difsigma2 = bi_normal_distribution(gr, bi_normal_distribution.param());
 		}
 
 		{

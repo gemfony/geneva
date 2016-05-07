@@ -120,7 +120,7 @@ public:
 	template <typename parameter_type>
 	const std::shared_ptr<parameter_type> at(
 		const std::size_t& pos
-		, typename std::enable_if<std::is_base_of<GParameterBase, parameter_type>::value>::type* dummy = 0
+		, typename std::enable_if<std::is_base_of<GParameterBase, parameter_type>::value>::type *dummy = nullptr
 	)  const {
 #ifdef DEBUG
 	   if(this->empty() || pos >= this->size()) {

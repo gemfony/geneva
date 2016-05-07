@@ -260,7 +260,7 @@ public:
 	template<typename item_type>
 	size_type count(
 		const std::shared_ptr <item_type> &item,
-		typename std::enable_if<std::is_base_of<T, item_type>::value>::type *dummy = 0
+		typename std::enable_if<std::is_base_of<T, item_type>::value>::type *dummy = nullptr
 	) const {
 		if (!item) { // Check that item actually contains something useful
 			glogger
@@ -304,7 +304,7 @@ public:
 	template<typename item_type>
 	const_iterator find(
 		const std::shared_ptr <item_type> &item,
-		typename std::enable_if<std::is_base_of<T, item_type>::value>::type *dummy = 0
+		typename std::enable_if<std::is_base_of<T, item_type>::value>::type *dummy = nullptr
 	) const {
 		if (!item) { // Check that item actually contains something useful
 			glogger

@@ -315,7 +315,7 @@ public:
 	 */
 	template <typename personality_type>
 	std::shared_ptr<personality_type> getPersonalityTraits(
-		typename std::enable_if<std::is_base_of<GPersonalityTraits, personality_type>::value>::type* dummy = 0
+		typename std::enable_if<std::is_base_of<GPersonalityTraits, personality_type>::value>::type *dummy = nullptr
 	) {
 #ifdef DEBUG
       // Check that pt_ptr_ actually points somewhere

@@ -387,7 +387,7 @@ public:
 	template <typename load_type>
 	std::shared_ptr<load_type> parameterbase_cast (
 		std::shared_ptr<GParameterBase> load_ptr
-		, typename std::enable_if<std::is_base_of<Gem::Geneva::GParameterBase, load_type>::value>::type* dummy = 0
+		, typename std::enable_if<std::is_base_of<Gem::Geneva::GParameterBase, load_type>::value>::type *dummy = nullptr
 	) const {
 #ifdef DEBUG
 		std::shared_ptr<load_type> p = std::dynamic_pointer_cast<load_type>(load_ptr);

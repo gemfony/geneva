@@ -79,7 +79,7 @@ public:
 
 protected:
 	/** @brief Uniformly distributed integer random numbers */
-	virtual double int_random();
+	virtual GRandomBase::result_type int_random();
 };
 
 /******************************************************************************/

@@ -43,7 +43,8 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GDoubleBiGaussAdaptor::GDoubleBiGaussAdaptor() { /* nothing */ }
+GDoubleBiGaussAdaptor::GDoubleBiGaussAdaptor()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -52,7 +53,8 @@ GDoubleBiGaussAdaptor::GDoubleBiGaussAdaptor() { /* nothing */ }
  * @param cp A copy of another GDoubleBiGaussAdaptor object
  */
 GDoubleBiGaussAdaptor::GDoubleBiGaussAdaptor(const GDoubleBiGaussAdaptor &cp)
-	: GFPBiGaussAdaptorT<double>(cp) { /* nothing */ }
+	: GFPBiGaussAdaptorT<double>(cp)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**

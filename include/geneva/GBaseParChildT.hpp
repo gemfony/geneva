@@ -493,7 +493,7 @@ public:
 	template <typename parent_type>
 	std::shared_ptr<parent_type> getParentIndividual(
 		std::size_t parentId
-		, typename std::enable_if<std::is_base_of<GOptimizableEntity, parent_type>::value>::type* dummy = 0
+		, typename std::enable_if<std::is_base_of<GOptimizableEntity, parent_type>::value>::type *dummy = nullptr
 	){
 #ifdef DEBUG
       // Check that the parent id is in a valid range

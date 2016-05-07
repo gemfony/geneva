@@ -98,7 +98,7 @@ public:
 	bool isEqual(
         const geneva_type& x
       , const geneva_type& y
-      , typename std::enable_if<std::is_base_of<Gem::Geneva::GObject, geneva_type>::value>::type* dummy = 0
+      , typename std::enable_if<std::is_base_of<Gem::Geneva::GObject, geneva_type>::value>::type *dummy = nullptr
 	) const	{
 	   using namespace Gem::Common;
 
@@ -127,7 +127,7 @@ public:
 	bool isEqual(
         const geneva_simplecontainer_type& x
       , const std::vector<typename geneva_simplecontainer_type::value_type>& y
-      , typename std::enable_if<std::is_base_of<Gem::Common::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type>::value>::type* dummy = 0
+      , typename std::enable_if<std::is_base_of<Gem::Common::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type>::value>::type *dummy = nullptr
 	) const	{
 	   using namespace Gem::Common;
 
@@ -159,7 +159,7 @@ public:
 	bool isInEqual(
         const geneva_type& x
       , const geneva_type& y
-      , typename std::enable_if<std::is_base_of<Gem::Geneva::GObject, geneva_type>::value>::type* dummy = 0
+      , typename std::enable_if<std::is_base_of<Gem::Geneva::GObject, geneva_type>::value>::type *dummy = nullptr
 	) const	{
       using namespace Gem::Common;
 
@@ -188,7 +188,7 @@ public:
 	bool isInEqual(
         const geneva_simplecontainer_type& x
       , const std::vector<typename geneva_simplecontainer_type::value_type>& y
-      , typename std::enable_if<std::is_base_of<Gem::Common::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type>::value>::type* dummy = 0
+      , typename std::enable_if<std::is_base_of<Gem::Common::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type>::value>::type *dummy = nullptr
 	) const	{
       using namespace Gem::Common;
 
@@ -220,7 +220,7 @@ public:
 	bool isSimilar(
         const geneva_type& x
       , const geneva_type& y
-      , typename std::enable_if<std::is_base_of<Gem::Geneva::GObject, geneva_type>::value>::type* dummy = 0
+      , typename std::enable_if<std::is_base_of<Gem::Geneva::GObject, geneva_type>::value>::type *dummy = nullptr
 	) const	{
       using namespace Gem::Common;
 
@@ -250,7 +250,7 @@ public:
 	bool isSimilar(
         const geneva_simplecontainer_type& x
       , const std::vector<typename geneva_simplecontainer_type::value_type>& y
-      , typename std::enable_if<std::is_base_of<Gem::Common::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type>::value>::type* dummy = 0
+      , typename std::enable_if<std::is_base_of<Gem::Common::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type>::value>::type *dummy = nullptr
 	) const	{
       using namespace Gem::Common;
 
