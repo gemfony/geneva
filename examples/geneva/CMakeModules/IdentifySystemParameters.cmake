@@ -256,7 +256,7 @@ FUNCTION (
 		# For Clang on MacOSX we require the standard C++ library
 		IF(${GENEVA_OS_NAME_IN} STREQUAL "MacOSX")
 			SET(FLAGS_LOCAL "${FLAGS_LOCAL} -stdlib=libstdc++")
-		ELSE()
+		ELSEIF(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 3.7)
 			# Avoid https://llvm.org/bugs/show_bug.cgi?id=18402
 			# when using older libstdc++ versions
 			SET(FLAGS_LOCAL "${FLAGS_LOCAL} -stdlib=libc++")
@@ -319,7 +319,7 @@ FUNCTION (
 				SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -stdlib=libstdc++" PARENT_SCOPE)
 				SET (MACOSX_RPATH 1)
 			ENDIF()
-		ELSE()
+		ELSEIF(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 3.7)
 			# Avoid https://llvm.org/bugs/show_bug.cgi?id=18402
 			# when using older libstdc++ versions
 			SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++" PARENT_SCOPE)
