@@ -251,6 +251,10 @@ FUNCTION (
 		# For Clang on MacOSX we require the standard C++ library
 		IF(${GENEVA_OS_NAME_IN} STREQUAL "MacOSX")
 			SET(FLAGS_LOCAL "${FLAGS_LOCAL} -stdlib=libstdc++")
+		ELSEIF()
+			# Avoid https://llvm.org/bugs/show_bug.cgi?id=18402
+			# when using older libstdc++ versions
+			SET(FLAGS_LOCAL "${FLAGS_LOCAL} -stdlib=libc++")
 		ENDIF()
 
 		# Set the parameters for Google's thread-sanitizer
@@ -403,7 +407,7 @@ FUNCTION (
 	#--------------------------------------------------------------------------
 	# Enforce a minimum compiler version
 	IF (${CMAKE_CXX_COMPILER_ID} STREQUAL ${CLANG_DEF_IDENTIFIER})
-		SET(COMPILER_MIN_VER 3.4)
+		SET(COMPILER_MIN_VER 3.5)
 	ELSEIF (${CMAKE_CXX_COMPILER_ID} STREQUAL ${GNU_DEF_IDENTIFIER})
 		SET(COMPILER_MIN_VER 4.8)
 	ELSEIF (${CMAKE_CXX_COMPILER_ID} STREQUAL ${INTEL_DEF_IDENTIFIER})
