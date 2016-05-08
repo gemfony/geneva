@@ -127,7 +127,7 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 				}
 			}
 			break;
-
+cd
 		case distType::BITSIMPLE: {
 				std::bernoulli_distribution uniform_bool; // defaults to 0.5
 				for (i = 0; i < nEntries; i++) {

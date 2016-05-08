@@ -140,8 +140,9 @@ int main(int argc, char **argv){
 	<< "  TH1F *internal13 = new TH1F(\"internal13\",\"internal13\",301,-1.5,1.5);" << std::endl
 	<< std::endl;
 
+    std::normal_distribution<double> normal_distribution(0.,0.1);
 	for(std::size_t i=0; i<NTESTS; i++) {
-		internalValue = gr.normal_distribution(0.1);
+		internalValue = normal_distribution(gr);
 
 		distortion << "  external0->Fill(" << gbd_distortion.transfer(internalValue - 1.1) << ");" << std::endl
 		<< "  external1->Fill(" << gbd_distortion.transfer(internalValue - 1.0) << ");" << std::endl

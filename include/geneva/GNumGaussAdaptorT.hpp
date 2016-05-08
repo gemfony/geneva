@@ -58,7 +58,7 @@ namespace Geneva {
  */
 template<typename num_type, typename fp_type>
 class GNumGaussAdaptorT
-	:public GAdaptorT<num_type>
+	:public GAdaptorT<num_type, fp_type>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -570,7 +570,10 @@ protected:
 
 		// The following random distribution slightly favours values < 1. Selection pressure
 		// will keep the values higher if needed
-		sigma_ *= gexp(Gem::Hap::gr_tls_ptr()->normal_distribution(gfabs(sigmaSigma_)));
+		sigma_ *= gexp(GAdaptorT<num_type, fp_type>::m_normal_distribution(
+                GRANDOM_TLS
+                , typename std::normal_distribution<fp_type>::param_type(0., gfabs(sigmaSigma_))
+        ));
 
 		// make sure sigma_ doesn't get out of range
 		Gem::Common::enforceRangeConstraint<fp_type>(sigma_, minSigma_, maxSigma_);

@@ -58,22 +58,24 @@ const double sigmaStart = 0.025; // The start value
 const double minSigma = 0.;
 const double maxSigma = 1.;
 
+std::bernoulli_distribution uniform_bool;
+std::normal_distribution<double> normal_distribution;
+
 /******************************************************************************/
 /**
  * First distribution:
- * gexp(gr_ptr->normal_distribution(gfabs(sigmaSigma_))*(gr_ptr->uniform_bool()?fp_type(1):fp_type(-1)))
+ * gexp(normal_distribution(*gr_ptr, std::normal_distribution<double>::param_type(0., gfabs(sigmaSigma)))*(uniform_bool(*gr_ptr)?1.:-1.));
  */
 double dist1(std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr, const double& sigmaSigma) {
-	std::bernoulli_distribution uniform_bool;
-	return gexp(gr_ptr->normal_distribution(gfabs(sigmaSigma))*(uniform_bool(*gr_ptr)?1.:-1.));
+	return gexp(normal_distribution(*gr_ptr, std::normal_distribution<double>::param_type(0., gfabs(sigmaSigma)))*(uniform_bool(*gr_ptr)?1.:-1.));
 }
 
 /**
  * Second distribution:
- * gexp(gr_ptr->normal_distribution(gfabs(sigmaSigma_)))
+ * gexp(normal_distribution(*gr_ptr, std::normal_distribution<double>::param_type(0.,gfabs(sigmaSigma))));
  */
 double dist2(std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr, const double& sigmaSigma) {
-	return gexp(gr_ptr->normal_distribution(gfabs(sigmaSigma)));
+	return gexp(normal_distribution(*gr_ptr, std::normal_distribution<double>::param_type(0.,gfabs(sigmaSigma))));
 }
 
 /******************************************************************************/

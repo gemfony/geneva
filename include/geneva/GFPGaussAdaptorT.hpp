@@ -278,8 +278,10 @@ protected:
 
 		// adapt the value in situ. Note that this changes
 		// the argument of this function
-		value
-			+= range * Gem::Hap::gr_tls_ptr()->normal_distribution(GNumGaussAdaptorT<fp_type, fp_type>::sigma_);
+		value += (range * GAdaptorT<fp_type, fp_type>::m_normal_distribution(
+                        GRANDOM_TLS
+                        , typename std::normal_distribution<fp_type>::param_type(0., GNumGaussAdaptorT<fp_type, fp_type>::sigma_)
+        ));
 	}
 
 	/* ----------------------------------------------------------------------------------

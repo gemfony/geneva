@@ -55,7 +55,7 @@ namespace Tests {
 #include "common/GLogger.hpp"
 
 // Default settings
-const std::size_t DEFAULTNENTRIES=20000;
+const std::size_t DEFAULTNENTRIES=10000;
 const std::uint16_t DEFAULTNPRODUCERTHREADS=10;
 const bool DEFAULTVERBOSE=true;
 const std::uint16_t DEFAULTRNRPRODUCTIONMODE=0;
