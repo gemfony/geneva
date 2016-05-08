@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
     std::normal_distribution<double> normal_distribution;
     Gem::Hap::bi_normal_distribution<double> bi_normal_distribution(1. /*mean*/, 2. /*sigma1*/, 1. /*sigma2*/, 3. /*distance*/);
     std::bernoulli_distribution uniform_bool; // defaults to a probability of 0.5
-    std::bernoulli_distribution weighted_bool(0.25);
+    std::bernoulli_distribution weighted_bool(0.25); // 25% "true" values
     std::uniform_int_distribution<std::int32_t> uniform_int_distribution;
 
 	for(int i=0; i<NPROD; i++) {

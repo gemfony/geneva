@@ -128,6 +128,7 @@ protected:
 
 private:
 	boost::posix_time::time_duration sleepTime_; ///< The amount of time the evaluation function should sleep before continuing
+	std::uniform_real_distribution<double> uniform_real_distribution; ///< Access to uniformly distributed floating point numbers
 };
 
 /******************************************************************************/

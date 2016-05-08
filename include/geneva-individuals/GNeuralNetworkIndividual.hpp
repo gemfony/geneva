@@ -485,7 +485,8 @@ public:
 		}
 
 		// Create a local random number generator.
-		GRandomT<RANDFLAVOURS::RANDOMLOCAL> gr_l;
+		GRandomT<RANDFLAVOURS::RANDOMPROXY> gr_l;
+        std::uniform_real_distribution<double> uniform_real_distribution;
 
 		// Retrieve the number of input- and output nodes for easier reference
 		std::size_t nInputNodes = architecture.front();
@@ -517,7 +518,9 @@ public:
 			std::shared_ptr <trainingSet> tS(new trainingSet(nInputNodes, nOutputNodes));
 
 			for (std::size_t i = 0; i < nDim; i++) {
-				double oneDimRnd = gr_l.uniform_real<double>(-edgelength, edgelength);
+				double oneDimRnd = uniform_real_distribution(
+                    gr_l, std::uniform_real_distribution<double>::param_type(-edgelength, edgelength)
+                );
 
 				// Need to find at least one dimension outside of the perimeter
 				// in order to set the outside flag to true.
@@ -577,7 +580,8 @@ public:
 		}
 
 		// Create a local random number generator.
-		GRandomT<RANDFLAVOURS::RANDOMLOCAL> gr_l;
+		GRandomT<RANDFLAVOURS::RANDOMPROXY> gr_l;
+        std::uniform_real_distribution<double> uniform_real_distribution;
 
 		// Retrieve the number of input- and output nodes for easier reference
 		std::size_t nInputNodes = architecture.front();
@@ -607,7 +611,7 @@ public:
 		for (std::size_t datCounter = 0; datCounter < nDataSets; datCounter++) {
 			std::shared_ptr <trainingSet> tS(new trainingSet(nInputNodes, nOutputNodes));
 
-			local_radius = gr_l.uniform_real<double>(3 * radius);
+			local_radius = uniform_real_distribution(gr_l, std::uniform_real_distribution<double>::param_type(0., 3*radius));
 			if (local_radius > radius) tS->Output[0] = 0.99;
 			else tS->Output[0] = 0.01;
 
@@ -621,7 +625,10 @@ public:
 					break;
 
 				case 2: {
-					double phi = gr_l.uniform_real<double>(2 * boost::math::constants::pi<double>());
+                    double phi = uniform_real_distribution(
+                            gr_l
+                            , std::uniform_real_distribution<double>::param_type(0., 2*boost::math::constants::pi<double>())
+                    );
 					tS->Input[0] = local_radius * sin(phi); // x
 					tS->Input[1] = local_radius * cos(phi); // y
 
@@ -641,10 +648,15 @@ public:
 					std::size_t nAngles = nDim - 1;
 					std::vector<double> angle_collection(nAngles);
 					for (std::size_t i = 0; i < (nAngles - 1); i++) { // Angles in range [0,Pi[
-						angle_collection[i] = gr_l.uniform_real<double>(boost::math::constants::pi<double>());
+                        angle_collection[i] = uniform_real_distribution(
+                                gr_l
+                                , std::uniform_real_distribution<double>::param_type(0., boost::math::constants::pi<double>())
+                        );
 					}
-					angle_collection[nAngles - 1] = gr_l.uniform_real<double>(
-						2. * boost::math::constants::pi<double>()); // Range of last angle is [0, 2.*Pi[
+					angle_collection[nAngles - 1] = uniform_real_distribution(
+                            gr_l
+                            , std::uniform_real_distribution<double>::param_type(0., 2*boost::math::constants::pi<double>())
+                    ); // Range of last angle is [0, 2.*Pi[
 
 					//////////////////////////////////////////////////////////////////
 					// Now we can fill the source-vector itself
@@ -715,7 +727,8 @@ public:
 		}
 
 		// Create a local random number generator.
-		GRandomT<RANDFLAVOURS::RANDOMLOCAL> gr_l;
+		GRandomT<RANDFLAVOURS::RANDOMPROXY> gr_l;
+        std::uniform_real_distribution<double> uniform_real_distribution;
 
 		// Retrieve the number of input- and output nodes for easier reference
 		std::size_t nInputNodes = architecture.front();
@@ -746,7 +759,7 @@ public:
 			// Create even distribution across all dimensions
 			if (dataCounter % 2 == 0) {
 				for (std::size_t dimCounter = 0; dimCounter < nDim; dimCounter++) {
-					tS->Input[dimCounter] = gr_l.uniform_01<double>();
+					tS->Input[dimCounter] = uniform_real_distribution(gr_l);
 				}
 				tS->Output[0] = 0.01;
 			}
@@ -756,7 +769,7 @@ public:
 				// Create a test value
 				double probeValue = 0.;
 				for (std::size_t dimCounter = 0; dimCounter < nDim; dimCounter++) {
-					probeValue += exp(-5. * gr_l.uniform_01<double>());
+					probeValue += exp(-5. * uniform_real_distribution(gr_l));
 				}
 
 				double functionValue;
@@ -766,7 +779,7 @@ public:
 
 					// Create the input vector
 					for (std::size_t dimCounter = 0; dimCounter < nDim; dimCounter++) {
-						inputVector[dimCounter] = gr_l.uniform_01<double>();
+						inputVector[dimCounter] = uniform_real_distribution(gr_l);
 						functionValue += exp(-5 * inputVector[dimCounter]);
 					}
 					functionValue = pow(functionValue, 4.);
@@ -832,7 +845,8 @@ public:
 		}
 
 		// Create a local random number generator.
-		GRandomT<RANDFLAVOURS::RANDOMLOCAL> gr_l;
+		GRandomT<RANDFLAVOURS::RANDOMPROXY> gr_l;
+        std::uniform_real_distribution<double> uniform_real_distribution;
 
 		// Retrieve the number of input- and output nodes for easier reference
 		std::size_t nInputNodes = architecture.front();
@@ -858,8 +872,8 @@ public:
 			std::shared_ptr <trainingSet> tS(new trainingSet(nInputNodes, nOutputNodes));
 
 			// create the two test values
-			tS->Input[0] = gr_l.uniform_real<double>(-6., 6.); // x
-			tS->Input[1] = gr_l.uniform_real<double>(-6., 6.); // y
+			tS->Input[0] = uniform_real_distribution(gr_l, std::uniform_real_distribution<double>::param_type(-6.,6.)); // x
+			tS->Input[1] = uniform_real_distribution(gr_l, std::uniform_real_distribution<double>::param_type(-6.,6.)); // y
 
 			// Check whether we are below or above the sin function and assign the output value accordingly
 			if ((tS->Input)[1] > 4. * sin((tS->Input)[0])) {

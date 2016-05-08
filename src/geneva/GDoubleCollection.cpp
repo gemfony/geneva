@@ -297,9 +297,11 @@ void GDoubleCollection::assignDoubleValueVectors(
 void GDoubleCollection::doubleMultiplyByRandom(
 	const double &min, const double &max, const activityMode &am
 ) {
+    std::uniform_real_distribution<double> uniform_real_distribution(min, max);
 	for (std::size_t pos = 0; pos < this->size(); pos++) {
 		GParameterCollectionT<double>::setValue(
-			pos, this->value(pos) * Gem::Hap::gr_tls_ptr()->uniform_real<double>(min, max)
+			pos
+            , this->value(pos) * uniform_real_distribution(GRANDOM_TLS)
 		);
 	}
 }
@@ -311,9 +313,11 @@ void GDoubleCollection::doubleMultiplyByRandom(
 void GDoubleCollection::doubleMultiplyByRandom(
 	const activityMode &am
 ) {
+    std::uniform_real_distribution<double> uniform_real_distribution(0., 1.);
 	for (std::size_t pos = 0; pos < this->size(); pos++) {
 		GParameterCollectionT<double>::setValue(
-			pos, this->value(pos) * Gem::Hap::gr_tls_ptr()->uniform_01<double>()
+			pos
+            , this->value(pos) * uniform_real_distribution(GRANDOM_TLS)
 		);
 	}
 }

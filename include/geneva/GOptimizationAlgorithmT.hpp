@@ -1277,7 +1277,7 @@ public:
 protected:
 	/***************************************************************************/
 	/**
-	 * Loads the data of another GObject
+	 * Loads the data of another GOptimizationAlgorithm object
 	 *
 	 * @param cp Another GOptimizationAlgorithm object, camouflaged as a GObject
 	 */
@@ -1648,6 +1648,10 @@ protected:
 	/***************************************************************************/
 	/** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
 	virtual void runFitnessCalculation() override = 0;
+
+	/***************************************************************************/
+
+    std::uniform_real_distribution<double> m_uniform_real_distribution; ///< Access to uniformly distributed double random values
 
 private:
 	/***************************************************************************/

@@ -72,7 +72,8 @@ GBooleanObject::GBooleanObject(const bool &val)
 
 /******************************************************************************/
 /**
- * Initialization with a given probability for "true"
+ * Initialization with a given probability for "true". E.g., a probability value
+ * of 0.7 results in approimately 70% "true" values.
  *
  * @param prob The probability for the value "true"
  */
@@ -227,7 +228,8 @@ bool GBooleanObject::randomInit_(const activityMode &) {
 /**
  * Triggers random initialization of the parameter object, with a given likelihood structure.
  * This function holds the actual initialization logic, used in the publicly accessible
- * GBooleanObject::randomInit(const double& probability) function.
+ * GBooleanObject::randomInit(const double& probability) function. A probability value of 0.7
+ * results in approimately 70% "true" values.
  */
 bool GBooleanObject::randomInit_(const double &probability, const activityMode &am) {
 	using namespace Gem::Common;

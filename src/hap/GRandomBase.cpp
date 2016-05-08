@@ -54,11 +54,11 @@ GRandomBase::~GRandomBase()
 
 /******************************************************************************/
 /**
- * Retrieves an uniform_01 item. Thus function, together with the min() and
+ * Retrieves a raw random item. This function, together with the min() and
  * max() functions make it possible to use GRandomBase as a generator for
  * boost's random distributions.
  *
- * @return A random number taken from the evenRandom function
+ * @return A "raw" random number suitable for a C++11 standard random engine
  */
 GRandomBase::result_type GRandomBase::operator()() {
 	return this->int_random();

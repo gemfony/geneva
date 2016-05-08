@@ -137,6 +137,9 @@ protected:
 	/** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
 	virtual G_API_GENEVA void doubleSubtract(std::shared_ptr<GParameterBase>, const activityMode& am) override;
 
+    /* @brief Access to uniformly distributed double random numbers */
+    std::uniform_real_distribution<double> m_uniform_real_distribution;
+
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual G_API_GENEVA bool modify_GUnitTests() override;

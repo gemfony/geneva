@@ -88,7 +88,7 @@ public:
 	 G_API_HAP GRandomBase();
 	 /** @brief A standard destructor */
 	 virtual G_API_HAP ~GRandomBase();
-	 /** @brief Retrieves an uniform_01 item */
+	 /** @brief Retrieves a "raw" random item item */
 	 G_API_HAP GRandomBase::result_type operator()();
 
 	 /***************************************************************************/
@@ -111,15 +111,6 @@ public:
 	  */
 	 static constexpr G_API_HAP result_type (max)() {
 		 return G_BASE_GENERATOR::max();
-	 }
-
-	 /***************************************************************************/
-	 /** @brief Uniformly distributed random numbers in the range [0,1[ */
-	 template<typename fp_type>
-	 fp_type uniform_01(
-		 typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
-	 ) {
-		 return std::uniform_real_distribution<fp_type>(static_cast<fp_type>(0.), static_cast<fp_type>(1.))(*this);
 	 }
 
 	 /***************************************************************************/

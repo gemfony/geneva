@@ -147,6 +147,9 @@ void producer(
 
 	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr; // A random number proxy
 
+    std::uniform_real_distribution<double> uniform_real_distribution;
+    std::uniform_int_distribution<long> uniform_int_distribution; // Calculation of milliseconds
+
 	// Find out about the maximum random delay in microseconds
 	long maxRandomDelayMS = boost::numeric_cast<long>(maxRandomDelay.total_microseconds());
 
@@ -162,13 +165,13 @@ void producer(
 	if(maxRandomDelay.total_microseconds() == 0) {
 		if(timeout.total_microseconds() == 0) {
 			for(std::size_t i=0; i<nItems; i++) {
-				var = gr.uniform_01<double>();
+				var = uniform_real_distribution(gr);
 				sum += var;
 				buffer.push_front(std::shared_ptr<double>(new double(var)));
 			}
 		} else { // We use a timeout for push_fronts
 			for(std::size_t i=0; i<nItems; i++) {
-				var = gr.uniform_01<double>();
+				var = uniform_real_distribution(gr);
 				if(buffer.push_front_bool(std::shared_ptr<double>(new double(var)), timeout)) {
 					sum += var;
 				} else {
@@ -180,20 +183,20 @@ void producer(
 	} else { // We use a random delay in between submissions
 		if(timeout.total_microseconds() == 0) {
 			for(std::size_t i=0; i<nItems; i++) {
-				var = gr.uniform_01<double>();
+				var = uniform_real_distribution(gr);
 				sum += var;
 				buffer.push_front(std::shared_ptr<double>(new double(var)));
 				boost::this_thread::sleep(
 					boost::posix_time::microseconds(
 						boost::numeric_cast<boost::posix_time::time_duration::tick_type>(
-							gr.uniform_int(long(0), maxRandomDelayMS)
+                            uniform_int_distribution(gr, std::uniform_int_distribution<long>::param_type(long(0), maxRandomDelayMS))
 						)
 					)
 				);
 			}
 		} else {
 			for(std::size_t i=0; i<nItems; i++) {
-				var = gr.uniform_01<double>();
+				var = uniform_real_distribution(gr);
 				if(buffer.push_front_bool(std::shared_ptr<double>(new double(var)), timeout)) {
 					sum += var;
 				} else {
@@ -203,7 +206,7 @@ void producer(
 				boost::this_thread::sleep(
 					boost::posix_time::microseconds(
 						boost::numeric_cast<boost::posix_time::time_duration::tick_type>(
-							gr.uniform_int(long(0), maxRandomDelayMS)
+                            uniform_int_distribution(gr, std::uniform_int_distribution<long>::param_type(long(0), maxRandomDelayMS))
 						)
 					)
 				);
@@ -291,6 +294,7 @@ void consumer(
 		}
 	} else { // We use a random delay in-between submissions
 		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr; // A random number generator
+        std::uniform_int_distribution<long> uniform_int_distribution; // Calculation of milliseconds
 
 		while(true) {
 			if(buffer.pop_back_bool(item, timeout)) {
@@ -311,7 +315,7 @@ void consumer(
 			boost::this_thread::sleep(
 				boost::posix_time::microseconds(
 					boost::numeric_cast<boost::posix_time::time_duration::tick_type>(
-						gr.uniform_int(long(0), maxRandomDelayMS)
+                        uniform_int_distribution(gr, std::uniform_int_distribution<long>::param_type(long(0), maxRandomDelayMS))
 					)
 				)
 			);

@@ -971,7 +971,7 @@ protected:
 	) {
 		bool done=false;
 		double randTest // get the test value
-			= GOptimizationAlgorithmT<ind_type>::gr.Gem::Hap::GRandomBase::template uniform_01<double>();
+            = GOptimizationAlgorithmT<ind_type>::m_uniform_real_distribution(GOptimizationAlgorithmT<ind_type>::gr);
 
 		for(std::size_t par=0; par<nParents_; par++) {
 			if(randTest<threshold[par]) {

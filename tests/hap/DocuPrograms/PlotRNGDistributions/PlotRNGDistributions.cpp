@@ -118,6 +118,7 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 			break;
 
 		case distType::BITPROB: {
+				// Note: A probability of 0.7 results in approximately 70% "true" values
 				std::bernoulli_distribution weighted_bool(0.7);
 				for (i = 0; i < nEntries; i++) {
 					if (weighted_bool(*gr_ptr))

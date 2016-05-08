@@ -55,8 +55,9 @@ GRandomNumberContainer::GRandomNumberContainer()
  */
 GRandomNumberContainer::GRandomNumberContainer(const std::size_t& nrnr) {
 	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+            std::uniform_real_distribution<double> uniform_real_distribution;
 	for(std::size_t i=0; i<nrnr; i++) {
-		randomNumbers_.push_back(gr.uniform_01<double>());
+		randomNumbers_.push_back(uniform_real_distribution(gr));
 	}
 }
 

@@ -86,7 +86,8 @@ GBooleanCollection::GBooleanCollection(const std::size_t &nval, const bool &val)
 /******************************************************************************/
 /**
  * Initializes the class with nval random bits, of which probability percent
- * have the value true
+ * have the value true. E.g., a probability value of 0.7 results in approimately
+ * 70% "true" values.
  *
  * @param nval The size of the collection
  * @param probability The probability for true values in the collection
@@ -202,7 +203,8 @@ bool GBooleanCollection::randomInit_(const activityMode &) {
 
 /******************************************************************************/
 /**
- * Random initialization with a given probability structure
+ * Random initialization with a given probability structure. E.g., a probability
+ * value of 0.7 results in approimately 70% "true" values.
  *
  * @param probability The probability for true values in the collection
  */

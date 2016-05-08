@@ -578,7 +578,7 @@ public:
 		 }
 
 		 if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case is indeterminate (means: "depends")
-			 if(Gem::Hap::gr_tls_ptr()->GRandomBase::template uniform_01<fp_type>() <= adProb_) { // Should we perform adaption
+			 if(m_weighted_bool(GRANDOM_TLS, std::bernoulli_distribution::param_type(gfabs(adProb_)))) { // Likelihood of adProb_ for the adaption
 				 adaptAdaption(range);
 				 customAdaptions(val, range);
 				 adapted = true;
@@ -649,7 +649,8 @@ public:
 
 		 if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case is indeterminate (means: "depends")
 			 for (it = valVec.begin(); it != valVec.end(); ++it) {
-				 if(Gem::Hap::gr_tls_ptr()->GRandomBase::template uniform_01<fp_type>() <= adProb_) { // Should we perform adaption ?
+                 // A likelihood of adProb_ for adaption
+                 if(m_weighted_bool(GRANDOM_TLS, std::bernoulli_distribution::param_type(gfabs(adProb_)))) {
 					 adaptAdaption(range);
 					 customAdaptions(*it, range);
 
@@ -814,7 +815,8 @@ protected:
 				 customAdaptAdaption(range);
 			 }
 		 } else if(adaptAdaptionProbability_) { // Do the same with probability settings
-			 if(Gem::Hap::gr_tls_ptr()->GRandomBase::template uniform_01<fp_type>() <= adaptAdaptionProbability_) {
+             // Likelihood of adaptAdaptionProbability_ for the adaption
+             if(m_weighted_bool(GRANDOM_TLS, std::bernoulli_distribution::param_type(gfabs(adaptAdaptionProbability_)))) {
 				 customAdaptAdaption(range);
 			 }
 		 }
@@ -857,6 +859,8 @@ protected:
 	 // Protected data
 
 	 std::normal_distribution<fp_type> m_normal_distribution; ///< Helps with gauss-type mutation
+	 std::uniform_real_distribution<fp_type> m_uniform_real_distribution; ///< Access to uniformly distributed floating point random numbers
+     std::bernoulli_distribution m_weighted_bool; ///< Access to boolean random numbers with a given probability structure
 
 private:
 	 /***************************************************************************/

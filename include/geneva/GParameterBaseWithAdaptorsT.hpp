@@ -58,7 +58,7 @@ namespace Geneva {
  * This is a template-ized version of the GParameterBase class. Its main
  * addition over that class is the storage of an adaptor, which allows the
  * adaption of parameters. As this functionality has to be type specific,
- * this class has also been implemented as a template. Storing the adaptors in
+ * this class was implemented as a template. Storing the adaptors in
  * the GParameterBase class would not have been possible, as it cannot be
  * template-ized - it serves as a base class for the objects stored in the
  * GParameterSet collections.

@@ -61,6 +61,8 @@ using namespace boost;
 const std::size_t NENTRIES = 100000;
 const std::size_t NBINS = 100;
 
+std::uniform_real_distribution<double> uniform_real_distribution;
+
 int main(int argc, char **argv){
 	double x1, x2, x3, x4, sum1, sum2, sum3, sum4;
 
@@ -97,10 +99,10 @@ int main(int argc, char **argv){
 	sum4_all_ptr->setXAxisLabel("1-(x1+x2+x3+x4)"); sum4_all_ptr->setYAxisLabel("Number of Entries"); sum4_all_ptr->setPlotLabel("1.-(x_{1}+x_{2}+x_{3}+x_{4}), all");
 
 	for(std::size_t i=0; i<NENTRIES; i++) {
-		x1=gr_ptr->GRandomBase::uniform_01<double>();
-		x2=gr_ptr->GRandomBase::uniform_01<double>();
-		x3=gr_ptr->GRandomBase::uniform_01<double>();
-		x4=gr_ptr->GRandomBase::uniform_01<double>();
+		x1=uniform_real_distribution(*gr_ptr);
+		x2=uniform_real_distribution(*gr_ptr);
+		x3=uniform_real_distribution(*gr_ptr);
+		x4=uniform_real_distribution(*gr_ptr);
 
 		sum1 = x1;
 		sum2 = x1+x2;

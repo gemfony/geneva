@@ -301,7 +301,7 @@ void GConstrainedDoubleObject::doubleMultiplyByRandom(
 	GParameterT<double>::setValue(
 		transfer(
 			GParameterT<double>::value() *
-			Gem::Hap::gr_tls_ptr()->uniform_real<double>(min, max)
+            m_uniform_real_distribution(GRANDOM_TLS, std::uniform_real_distribution<double>::param_type(min, max))
 		)
 	);
 }
@@ -316,7 +316,7 @@ void GConstrainedDoubleObject::doubleMultiplyByRandom(
 	GParameterT<double>::setValue(
 		transfer(
 			GParameterT<double>::value() *
-			Gem::Hap::gr_tls_ptr()->uniform_01<double>()
+            m_uniform_real_distribution(GRANDOM_TLS, std::uniform_real_distribution<double>::param_type(0., 1.))
 		)
 	);
 }

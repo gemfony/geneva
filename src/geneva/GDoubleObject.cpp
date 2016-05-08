@@ -300,7 +300,8 @@ void GDoubleObject::doubleMultiplyByRandom(
 	const double &min, const double &max, const activityMode &am
 ) {
 	GParameterT<double>::setValue(
-		GParameterT<double>::value() * Gem::Hap::gr_tls_ptr()->uniform_real<double>(min, max)
+		GParameterT<double>::value() *
+        m_uniform_real_distribution(GRANDOM_TLS, std::uniform_real_distribution<double>::param_type(min, max))
 	);
 }
 
@@ -312,7 +313,8 @@ void GDoubleObject::doubleMultiplyByRandom(
 	const activityMode &am
 ) {
 	GParameterT<double>::setValue(
-		GParameterT<double>::value() * Gem::Hap::gr_tls_ptr()->uniform_01<double>()
+		GParameterT<double>::value() *
+        m_uniform_real_distribution(GRANDOM_TLS, std::uniform_real_distribution<double>::param_type(0., 1.))
 	);
 }
 
