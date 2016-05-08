@@ -43,10 +43,6 @@ namespace Hap {
  * if random numbers are obtained from the global factory.
  */
 GRandomBase::GRandomBase()
-	: fltGaussCache_(float(0.))
-  	, dblGaussCache_(double(0.))
-  	, fltGaussCacheAvailable_(false)
-  	, dblGaussCacheAvailable_(false)
 { /* nothing */ }
 
 /******************************************************************************/
