@@ -55,6 +55,7 @@
 
 // Geneva header files
 #include "hap/GRandomT.hpp"
+#include "hap/GRandomDistributionsT.hpp"
 
 using namespace Gem::Hap;
 using namespace boost;
@@ -74,29 +75,46 @@ template <class T>
 void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std::size_t& nEntries, std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr){
 	std::size_t i;
 
+	std::normal_distribution<double> normal_distribution(0.,0.5);
+	Gem::Hap::bi_normal_distribution<double> bi_normal_distribution(0.,0.5,0.5, 2.);
+    std::uniform_real_distribution<double> uniform_real_distribution_01;
+    std::uniform_int_distribution<std::int32_t> uniform_int_distribution;
+
 	switch(dType){
 		case distType::GAUSSIAN: // standard distribution
-			for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->GRandomBase::normal_distribution<double>(0.,0.5)));
+			for(i=0; i<nEntries; i++) {
+				vec_t.push_back(T(normal_distribution(*gr_ptr)));
+			}
 			break;
 
 		case distType::DOUBLEGAUSSIAN:
-			for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->bi_normal_distribution<double>(0.,0.5,2.))); // (mean, sigma, distance)
+			for(i=0; i<nEntries; i++) {
+				vec_t.push_back(T(bi_normal_distribution(*gr_ptr)));
+			} // (mean, sigma, distance)
 			break;
 
 		case distType::EVEN: // double in the range [0,1[
-			for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->GRandomBase::uniform_01<double>()));
+			for(i=0; i<nEntries; i++) {
+                vec_t.push_back(T(uniform_real_distribution_01(*gr_ptr)));
+            }
 			break;
 
 		case distType::EVENWITHBOUNDARIES: // double in the range [-3,2[
-			for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->GRandomBase::uniform_real<double>(-3.,2.)));
+			for(i=0; i<nEntries; i++) {
+                vec_t.push_back(T(uniform_real_distribution_01(*gr_ptr, std::uniform_real_distribution<double>::param_type(-3.,2.))));
+            }
 			break;
 
 		case distType::DISCRETE:
-			for(i=0; i<nEntries; i++) vec_t.push_back(boost::numeric_cast<std::int32_t>(gr_ptr->uniform_int(10)));
+			for(i=0; i<nEntries; i++) {
+                vec_t.push_back(uniform_int_distribution(*gr_ptr, std::uniform_int_distribution<std::int32_t>::param_type(0,10)));
+            }
 			break;
 
 		case distType::DISCRETEBOUND:
-			for(i=0; i<nEntries; i++) vec_t.push_back(boost::numeric_cast<std::int32_t>(gr_ptr->uniform_int(-3,10)));
+			for(i=0; i<nEntries; i++) {
+                vec_t.push_back(uniform_int_distribution(*gr_ptr, std::uniform_int_distribution<std::int32_t>::param_type(-3,10)));
+            }
 			break;
 
 		case distType::BITPROB: {
