@@ -937,14 +937,13 @@ protected:
 
 		if(nParents_==1) {
 			parent_pos = 0;
-
 		} else {
 			// Choose a parent to be used for the recombination. Note that
 			// numeric_cast may throw. Exceptions need to be caught in surrounding functions.
 			// try/catch blocks would add a non-negligible overhead in this function. uniform_int(max)
 			// returns integer values in the range [0,max]. As we want to have values in the range
 			// 0,1, ... nParents_-1, we need to subtract one from the argument.
-			parent_pos = boost::numeric_cast<std::size_t>(GOptimizationAlgorithmT<ind_type>::gr.Gem::Hap::GRandomBase::uniform_int(nParents_-1));
+			parent_pos = m_uniform_int_distribution(GOptimizationAlgorithmT<ind_type>::gr, std::uniform_int_distribution<std::size_t>::param_type(0, nParents_-1));
 		}
 
 		// Load the parent data into the individual
@@ -1130,6 +1129,9 @@ protected:
 	std::size_t defaultNChildren_ = 0; ///< Expected number of children
 	std::size_t growthRate_ = 0; ///< Specifies the amount of individuals added per iteration
 	std::size_t maxPopulationSize_ = 0; ///< Specifies the maximum amount of individuals in the population if growth is enabled
+
+private:
+   std::uniform_int_distribution<std::size_t> m_uniform_int_distribution; ///< Access to uniformly distributed random numbers
 
 public:
 	/***************************************************************************/
