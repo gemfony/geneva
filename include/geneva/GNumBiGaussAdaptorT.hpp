@@ -671,9 +671,9 @@ public:
 		 using namespace Gem::Common;
 		 using namespace Gem::Hap;
 
-		 sigma1_ = Gem::Hap::gr_tls_ptr()->template uniform_real<fp_type>(minSigma1_, maxSigma1_);
-		 sigma2_ = Gem::Hap::gr_tls_ptr()->template uniform_real<fp_type>(minSigma2_, maxSigma2_);
-		 delta_  = Gem::Hap::gr_tls_ptr()->template uniform_real<fp_type>(minDelta_, maxDelta_);
+		 sigma1_ = GAdaptorT<num_type, fp_type>::m_uniform_real_distribution(GRANDOM_TLS, typename std::uniform_real_distribution<fp_type>::param_type(minSigma1_, maxSigma1_));
+		 sigma2_ = GAdaptorT<num_type, fp_type>::m_uniform_real_distribution(GRANDOM_TLS, typename std::uniform_real_distribution<fp_type>::param_type(minSigma2_, maxSigma2_));
+		 delta_  = GAdaptorT<num_type, fp_type>::m_uniform_real_distribution(GRANDOM_TLS, typename std::uniform_real_distribution<fp_type>::param_type(minDelta_ , maxDelta_));
 
 		 return true;
 	 }

@@ -113,40 +113,6 @@ public:
 		 return G_BASE_GENERATOR::max();
 	 }
 
-	 /***************************************************************************/
-	 /**
-	  * Emits evenly distributed random numbers in the range [0,maxVal[
-	  *
-	  * @param maxVal The maximum (excluded) value of the range
-	  * @return Random numbers evenly distributed in the range [0,maxVal[
-	  */
-	 template<typename fp_type>
-	 fp_type uniform_real(
-		 const fp_type &maxVal, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
-	 ) {
-#ifdef DEBUG
-		 // Check that maxVal has an appropriate value
-		assert(maxVal>=(fp_type)0.);
-#endif
-		 return std::uniform_real_distribution<fp_type>(static_cast<fp_type>(0.), static_cast<fp_type>(maxVal))(*this);
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Produces evenly distributed random numbers in the range [minVal,maxVal[
-	  *
-	  * @param minVal The minimum value of the range
-	  * @param maxVal The maximum (excluded) value of the range
-	  * @return Random numbers evenly distributed in the range [minVal,maxVal[
-	  */
-	 template<typename fp_type>
-	 fp_type uniform_real(
-		 const fp_type &minVal, const fp_type &maxVal,
-		 typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
-	 ) {
-		 return std::uniform_real_distribution<fp_type>(static_cast<fp_type>(minVal), static_cast<fp_type>(maxVal))(*this);
-	 }
-
 	 /*************************************************************************/
 	 /**
 	  * This function produces integer random numbers in the range of [minVal, maxVal] .

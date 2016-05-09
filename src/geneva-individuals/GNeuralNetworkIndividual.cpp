@@ -826,6 +826,9 @@ void GNeuralNetworkIndividual::init(
 	std::size_t nNodes = 0;
 	std::size_t nNodesPrevious = 0;
 
+	// Access to uniformly distributed doubke random values
+	std::uniform_real_distribution<double> uniform_real_distribution(min, max);
+
 	// Set up the architecture
 	for (layerIterator = nD_->begin(); layerIterator != nD_->end(); ++layerIterator) {
 		if (*layerIterator) { // Add the next network layer to this class, if possible
@@ -837,7 +840,7 @@ void GNeuralNetworkIndividual::init(
 			// Add GDoubleObject objects
 			for (std::size_t i = 0; i < (layerNumber == 0 ? 2 * nNodes : nNodes * (nNodesPrevious + 1)); i++) {
 				// Set up a GDoubleObject object, initializing it with random data
-				std::shared_ptr <GDoubleObject> gd_ptr(new GDoubleObject(gr.uniform_real<double>(min, max)));
+				std::shared_ptr <GDoubleObject> gd_ptr(new GDoubleObject(uniform_real_distribution(gr)));
 
 				// Set up an adaptor
 				std::shared_ptr <GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));

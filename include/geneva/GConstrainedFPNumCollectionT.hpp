@@ -108,10 +108,12 @@ public:
 	)
 		: GConstrainedNumCollectionT<fp_type> (size, lowerBoundary, boost::math::float_prior<fp_type>(upperBoundary)) // Note that we define the upper boundary as "open"
 	{
+		typename std::uniform_real_distribution<fp_type> uniform_real_distribution(lowerBoundary,upperBoundary);
+
 		// Assign random values to each position
 		typename GConstrainedFPNumCollectionT<fp_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			*it = Gem::Hap::gr_tls_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerBoundary,upperBoundary);
+			*it = uniform_real_distribution(GRANDOM_TLS);
 		}
 	}
 
@@ -311,14 +313,12 @@ protected:
 	 * Triggers random initialization of the parameter collection
 	 */
 	virtual bool randomInit_(const activityMode&) override {
+		typename std::uniform_real_distribution<fp_type> uniform_real_distribution(
+			GConstrainedNumCollectionT<fp_type>::getLowerBoundary()
+			, GConstrainedNumCollectionT<fp_type>::getUpperBoundary()
+		);
 		for(std::size_t pos=0; pos<this->size(); pos++) {
-			this->setValue(
-				pos
-				, Gem::Hap::gr_tls_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(
-					GConstrainedNumCollectionT<fp_type>::getLowerBoundary()
-					, GConstrainedNumCollectionT<fp_type>::getUpperBoundary()
-				)
-			);
+			this->setValue(pos, uniform_real_distribution(GRANDOM_TLS));
 		}
 
 		return true;

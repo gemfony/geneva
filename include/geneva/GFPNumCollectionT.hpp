@@ -104,10 +104,12 @@ public:
 	)
 		: GNumCollectionT<fp_type>(nval, min, min, max) // The vector is preset to nval entries with value "min"
 	{
+		std::uniform_real_distribution<fp_type> uniform_real_distribution(min, max);
+
 		// Assign random values to each position
 		typename GFPNumCollectionT<fp_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			*it = Gem::Hap::gr_tls_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(min,max);
+			*it = uniform_real_distribution(GRANDOM_TLS);
 		}
 	}
 
@@ -267,9 +269,11 @@ protected:
 		fp_type lowerBoundary = GNumCollectionT<fp_type>::getLowerInitBoundary();
 		fp_type upperBoundary = GNumCollectionT<fp_type>::getUpperInitBoundary();
 
+		std::uniform_real_distribution<fp_type> uniform_real_distribution(lowerBoundary, upperBoundary);
+
 		typename GFPNumCollectionT<fp_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)=Gem::Hap::gr_tls_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerBoundary, upperBoundary);
+			(*it)=uniform_real_distribution(GRANDOM_TLS);
 			randomized = true;
 		}
 

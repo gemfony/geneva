@@ -116,12 +116,13 @@ public:
 	 * @param upperBoundary The upper boundary of the value range
 	 */
 	GConstrainedFPT (const fp_type& lowerBoundary , const fp_type& upperBoundary)
-		: GConstrainedNumT<fp_type>(lowerBoundary, boost::math::float_prior<fp_type>(upperBoundary))
+		: GConstrainedNumT<fp_type>(lowerBoundary
+	 	, boost::math::float_prior<fp_type>(upperBoundary))
 	{
 		GParameterT<fp_type>::setValue(
-			Gem::Hap::gr_tls_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(
-				lowerBoundary
-				,upperBoundary
+			m_uniform_real_distribution(
+				GRANDOM_TLS
+				, typename std::uniform_real_distribution<fp_type>::param_type(lowerBoundary, upperBoundary)
 			)
 		);
 	}
@@ -473,8 +474,12 @@ protected:
 	 */
 	virtual bool randomInit_(const activityMode&) override {
 		this->setValue(
-			Gem::Hap::gr_tls_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(
-				GConstrainedNumT<fp_type>::getLowerBoundary(), GConstrainedNumT<fp_type>::getUpperBoundary()
+			m_uniform_real_distribution(
+				GRANDOM_TLS
+				, typename std::uniform_real_distribution<fp_type>::param_type(
+					GConstrainedNumT<fp_type>::getLowerBoundary()
+					, GConstrainedNumT<fp_type>::getUpperBoundary()
+				)
 			)
 		);
 
@@ -485,6 +490,11 @@ protected:
 	 * Tested in GConstrainedFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
+
+	 /***************************************************************************/
+	 // Data
+
+	 std::uniform_real_distribution<fp_type> m_uniform_real_distribution; ///< Access to uniformly distributed fp random numbers
 
 public:
 	/***************************************************************************/
@@ -633,7 +643,14 @@ public:
 				BOOST_CHECK_NO_THROW(p_test->setValue(tmpLowerBoundary, tmpLowerBoundary, tmpUpperBoundary));
 
 				for(std::size_t i=0; i<nTests; i++) {
-					fp_type randomValue = fp_type(Gem::Hap::gr_tls_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerRandomBoundary, upperRandomBoundary));
+					fp_type randomValue = m_uniform_real_distribution(
+						GRANDOM_TLS
+						, typename std::uniform_real_distribution<fp_type>::param_type(
+							lowerRandomBoundary
+							, upperRandomBoundary
+						)
+					);
+
 					BOOST_CHECK_NO_THROW(result = p_test->transfer(randomValue));
 					BOOST_CHECK_MESSAGE(
 							result >= tmpLowerBoundary && result < tmpUpperBoundary
@@ -659,9 +676,13 @@ public:
 			for(std::size_t i=0; i<nTests; i++) {
 				// Randomly initialize with a "fixed" value
 				BOOST_CHECK_NO_THROW(p_test->GParameterBase::template fixedValueInit<fp_type>(
-				      boost::numeric_cast<fp_type>(
-							Gem::Hap::gr_tls_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerRandomBoundary, upperRandomBoundary)
-                  )
+						m_uniform_real_distribution(
+							GRANDOM_TLS
+							, typename std::uniform_real_distribution<fp_type>::param_type(
+								lowerRandomBoundary
+								, upperRandomBoundary
+							)
+						)
                   , activityMode::ALLPARAMETERS
                )
             );
@@ -732,9 +753,13 @@ public:
 				// Multiply with a random value in a very wide
 				BOOST_CHECK_NO_THROW(
                p_test->GParameterBase::template multiplyBy<fp_type>(
-                  boost::numeric_cast<fp_type>(
-							Gem::Hap::gr_tls_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerRandomBoundary, upperRandomBoundary)
-                  )
+						m_uniform_real_distribution(
+							GRANDOM_TLS
+							, typename std::uniform_real_distribution<fp_type>::param_type(
+								lowerRandomBoundary
+								, upperRandomBoundary
+							)
+						)
                   , activityMode::ALLPARAMETERS
                )
             );

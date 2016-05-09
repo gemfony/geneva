@@ -327,6 +327,9 @@ protected:
 
 private:
 	 mutable std::bernoulli_distribution m_uniform_bool; ///< boolean random numbers with an even distribution
+	 mutable std::uniform_real_distribution<float>  m_uniform_float_distribution;  ///< Uniformly distributed fp numbers
+	 mutable std::uniform_real_distribution<double> m_uniform_double_distribution; ///< Uniformly distributed fp numbers
+	 mutable std::uniform_int_distribution<std::int32_t> m_uniform_int_distribution; ///< Uniformly distributed integer numbers
 };
 
 /******************************************************************************/
@@ -346,7 +349,7 @@ inline bool baseScanParT<bool>::getRandomItem() const {
  */
 template <>
 inline std::int32_t baseScanParT<std::int32_t>::getRandomItem() const {
-	return gr_.uniform_int<std::int32_t>(lower_, upper_+1);
+	return m_uniform_int_distribution(GRANDOM_TLS, std::uniform_int_distribution<std::int32_t>::param_type(lower_, upper_+1));
 }
 
 /******************************************************************************/
@@ -355,7 +358,7 @@ inline std::int32_t baseScanParT<std::int32_t>::getRandomItem() const {
  */
 template <>
 inline float baseScanParT<float>::getRandomItem() const {
-	return gr_.uniform_real<float>(lower_, upper_);
+	return m_uniform_float_distribution(GRANDOM_TLS, std::uniform_real_distribution<float>::param_type(lower_, upper_));
 }
 
 /******************************************************************************/
@@ -364,7 +367,7 @@ inline float baseScanParT<float>::getRandomItem() const {
  */
 template <>
 inline double baseScanParT<double>::getRandomItem() const {
-	return gr_.uniform_real<double>(lower_, upper_);
+	return m_uniform_double_distribution(GRANDOM_TLS, std::uniform_real_distribution<double>::param_type(lower_, upper_));
 }
 
 /******************************************************************************/

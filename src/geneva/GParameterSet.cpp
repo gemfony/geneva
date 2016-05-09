@@ -44,16 +44,20 @@ namespace Geneva {
  * The default constructor.
  */
 GParameterSet::GParameterSet()
-	: GMutableSetT<Gem::Geneva::GParameterBase>(), Gem::Courtier::GSubmissionContainerT<GParameterSet>(),
-	  perItemCrossOverProbability_(DEFAULTPERITEMEXCHANGELIKELIHOOD) { /* nothing */ }
+	: GMutableSetT<Gem::Geneva::GParameterBase>()
+  	, Gem::Courtier::GSubmissionContainerT<GParameterSet>()
+  	, perItemCrossOverProbability_(DEFAULTPERITEMEXCHANGELIKELIHOOD)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization with the number of fitness criteria
  */
 GParameterSet::GParameterSet(const std::size_t &nFitnessCriteria)
-	: GMutableSetT<Gem::Geneva::GParameterBase>(nFitnessCriteria), Gem::Courtier::GSubmissionContainerT<GParameterSet>(),
-	  perItemCrossOverProbability_(DEFAULTPERITEMEXCHANGELIKELIHOOD) { /* nothing */ }
+	: GMutableSetT<Gem::Geneva::GParameterBase>(nFitnessCriteria)
+   , Gem::Courtier::GSubmissionContainerT<GParameterSet>()
+  	, perItemCrossOverProbability_(DEFAULTPERITEMEXCHANGELIKELIHOOD)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -63,9 +67,10 @@ GParameterSet::GParameterSet(const std::size_t &nFitnessCriteria)
  * @param cp A copy of another GParameterSet object
  */
 GParameterSet::GParameterSet(const GParameterSet &cp)
-	: GMutableSetT<Gem::Geneva::GParameterBase>(cp),
-	  Gem::Courtier::GSubmissionContainerT<GParameterSet>() // The data is intentionally not copied, as this class only stores a temporary parameter
-	, perItemCrossOverProbability_(cp.perItemCrossOverProbability_) { /* nothing */ }
+	: GMutableSetT<Gem::Geneva::GParameterBase>(cp)
+  	, Gem::Courtier::GSubmissionContainerT<GParameterSet>() // The data is intentionally not copied, as this class only stores a temporary parameter
+	, perItemCrossOverProbability_(cp.perItemCrossOverProbability_)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -845,6 +850,9 @@ bool GParameterSet::modify_GUnitTests() {
 void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
 
+	// Access to uniformly distributed double random numbers
+	std::uniform_real_distribution<double> uniform_real_distribution;
+
 	// Call the parent class'es function
 	GMutableSetT<Gem::Geneva::GParameterBase>::specificTestsNoFailureExpected_GUnitTests();
 
@@ -875,13 +883,26 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test_0->empty());
 		// Add some floating pount parameters
 		for (std::size_t i = 0; i < FPLOOPCOUNT; i++) {
-			p_test_0->push_back(std::shared_ptr<GConstrainedDoubleObject>(
-				new GConstrainedDoubleObject(gr.uniform_real<double>(MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE), MINGCONSTRDOUBLE,
-													  MAXGCONSTRDOUBLE)));
 			p_test_0->push_back(
-				std::shared_ptr<GDoubleObject>(new GDoubleObject(gr.uniform_real<double>(MINGDOUBLE, MAXGDOUBLE))));
+				std::shared_ptr<GConstrainedDoubleObject>(
+					new GConstrainedDoubleObject(
+						uniform_real_distribution(gr, std::uniform_real_distribution<double>::param_type(MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE))
+						, MINGCONSTRDOUBLE
+						, MAXGCONSTRDOUBLE
+					)
+				)
+			);
 			p_test_0->push_back(
-				std::shared_ptr<GDoubleCollection>(new GDoubleCollection(NGDOUBLECOLL, MINGDOUBLECOLL, MAXGDOUBLECOLL)));
+				std::shared_ptr<GDoubleObject>(
+					new GDoubleObject(
+						uniform_real_distribution(
+							gr
+							, std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE)
+						)
+					)
+				)
+			);
+			p_test_0->push_back(std::shared_ptr<GDoubleCollection>(new GDoubleCollection(NGDOUBLECOLL, MINGDOUBLECOLL, MAXGDOUBLECOLL)));
 		}
 
 		// Attach a few other parameter types
@@ -1282,12 +1303,18 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 		// Add some floating point parameters
 		for (std::size_t i = 0; i < FPLOOPCOUNT; i++) {
 			std::shared_ptr <GConstrainedDoubleObject> gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject>(
-				new GConstrainedDoubleObject(gr.uniform_real<double>(MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE), MINGCONSTRDOUBLE,
-													  MAXGCONSTRDOUBLE));
+				new GConstrainedDoubleObject(
+					uniform_real_distribution(gr, std::uniform_real_distribution<double>::param_type(MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE))
+					, MINGCONSTRDOUBLE
+					, MAXGCONSTRDOUBLE
+				)
+			);
 			std::shared_ptr <GDoubleObject> gdo_ptr = std::shared_ptr<GDoubleObject>(
-				new GDoubleObject(gr.uniform_real<double>(MINGDOUBLE, MAXGDOUBLE)));
-			std::shared_ptr <GDoubleCollection> gdc_ptr = std::shared_ptr<GDoubleCollection>(
-				new GDoubleCollection(NGDOUBLECOLL, MINGDOUBLECOLL, MAXGDOUBLECOLL));
+				new GDoubleObject(
+					uniform_real_distribution(gr, std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE))
+				)
+			);
+			std::shared_ptr <GDoubleCollection> gdc_ptr = std::shared_ptr<GDoubleCollection>(new GDoubleCollection(NGDOUBLECOLL, MINGDOUBLECOLL, MAXGDOUBLECOLL));
 
 			// Mark the last parameter type as inactive
 			gdc_ptr->setAdaptionsInactive();
@@ -1311,10 +1338,17 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 
 		for (std::size_t i = 0; i < FPLOOPCOUNT; i++) {
 			std::shared_ptr <GConstrainedDoubleObject> gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject>(
-				new GConstrainedDoubleObject(gr.uniform_real<double>(MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE), MINGCONSTRDOUBLE,
-													  MAXGCONSTRDOUBLE));
+				new GConstrainedDoubleObject(
+					uniform_real_distribution(gr, std::uniform_real_distribution<double>::param_type(MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE))
+					, MINGCONSTRDOUBLE
+					, MAXGCONSTRDOUBLE
+				)
+			);
 			std::shared_ptr <GDoubleObject> gdo_ptr = std::shared_ptr<GDoubleObject>(
-				new GDoubleObject(gr.uniform_real<double>(MINGDOUBLE, MAXGDOUBLE)));
+				new GDoubleObject(
+					uniform_real_distribution(gr, std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE))
+				)
+			);
 			std::shared_ptr <GConstrainedInt32ObjectCollection> gcioc_ptr
 				= std::shared_ptr<GConstrainedInt32ObjectCollection>(
 					new GConstrainedInt32ObjectCollection()
@@ -1331,8 +1365,11 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				sub_poc_ptr->push_back(gci32o_ptr);
 			}
 
-			std::shared_ptr <GDoubleObject> gdo2_ptr
-				= std::shared_ptr<GDoubleObject>(new GDoubleObject(gr.uniform_real<double>(MINGDOUBLE, MAXGDOUBLE)));
+			std::shared_ptr <GDoubleObject> gdo2_ptr = std::shared_ptr<GDoubleObject>(
+				new GDoubleObject(
+					uniform_real_distribution(gr, std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE))
+				)
+			);
 			gdo2_ptr->setAdaptionsInactive();
 			sub_poc_ptr->push_back(gdo2_ptr);
 

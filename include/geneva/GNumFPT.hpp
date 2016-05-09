@@ -286,7 +286,7 @@ protected:
 		fp_type lowerBoundary = GNumT<fp_type>::getLowerInitBoundary();
 		fp_type upperBoundary = GNumT<fp_type>::getUpperInitBoundary();
 		GParameterT<fp_type>::setValue(
-			Gem::Hap::gr_tls_ptr()->Gem::Hap::GRandomBase::template uniform_real<fp_type>(lowerBoundary, upperBoundary)
+			m_uniform_real_distribution(GRANDOM_TLS, typename std::uniform_real_distribution<fp_type>::param_type(lowerBoundary, upperBoundary))
 		);
 
 		return true;
@@ -296,6 +296,11 @@ protected:
 	 * Tested in GNumFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
+
+ 	/***************************************************************************/
+	// Data
+
+   std::uniform_real_distribution<fp_type> m_uniform_real_distribution; ///< Access to uniformly distributed fp random numbers
 
 public:
 

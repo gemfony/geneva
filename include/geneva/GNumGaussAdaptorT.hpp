@@ -596,7 +596,7 @@ protected:
 		using namespace Gem::Common;
 		using namespace Gem::Hap;
 
-		sigma_ = Gem::Hap::gr_tls_ptr()->template uniform_real<fp_type>(minSigma_, maxSigma_);
+		sigma_ = GAdaptorT<num_type, fp_type>::m_uniform_real_distribution(GRANDOM_TLS, typename std::uniform_real_distribution<fp_type>::param_type(minSigma_, maxSigma_));
 
 		return true;
 	}

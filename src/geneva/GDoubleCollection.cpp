@@ -56,7 +56,8 @@ GDoubleCollection::GDoubleCollection() { /* nothing */ }
 GDoubleCollection::GDoubleCollection(
 	const std::size_t &nval, const double &min, const double &max
 )
-	: GFPNumCollectionT<double>(nval, min, max) { /* nothing */ }
+	: GFPNumCollectionT<double>(nval, min, max)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -70,7 +71,8 @@ GDoubleCollection::GDoubleCollection(
 GDoubleCollection::GDoubleCollection(
 	const std::size_t &nval, const double &val, const double &min, const double &max
 )
-	: GFPNumCollectionT<double>(nval, val, min, max) { /* nothing */ }
+	: GFPNumCollectionT<double>(nval, val, min, max)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -79,13 +81,15 @@ GDoubleCollection::GDoubleCollection(
  * @param cp A copy of another GDoubleCollection object
  */
 GDoubleCollection::GDoubleCollection(const GDoubleCollection &cp)
-	: GFPNumCollectionT<double>(cp) { /* nothing */ }
+	: GFPNumCollectionT<double>(cp)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GDoubleCollection::~GDoubleCollection() { /* nothing */ }
+GDoubleCollection::~GDoubleCollection()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -297,7 +301,7 @@ void GDoubleCollection::assignDoubleValueVectors(
 void GDoubleCollection::doubleMultiplyByRandom(
 	const double &min, const double &max, const activityMode &am
 ) {
-    std::uniform_real_distribution<double> uniform_real_distribution(min, max);
+	std::uniform_real_distribution<double> uniform_real_distribution(min, max);
 	for (std::size_t pos = 0; pos < this->size(); pos++) {
 		GParameterCollectionT<double>::setValue(
 			pos
@@ -313,7 +317,7 @@ void GDoubleCollection::doubleMultiplyByRandom(
 void GDoubleCollection::doubleMultiplyByRandom(
 	const activityMode &am
 ) {
-    std::uniform_real_distribution<double> uniform_real_distribution(0., 1.);
+	std::uniform_real_distribution<double> uniform_real_distribution(0., 1.);
 	for (std::size_t pos = 0; pos < this->size(); pos++) {
 		GParameterCollectionT<double>::setValue(
 			pos
@@ -513,8 +517,9 @@ void GDoubleCollection::fillWithData(const std::size_t &nItems) {
 	// Add a single item of defined value, so we can test the find() and count() functions
 	BOOST_CHECK_NO_THROW(this->push_back(0.));
 
+	std::uniform_real_distribution<double> uniform_real_distribution(-10., 10.);
 	for (std::size_t i = 1; i < nItems - 1; i++) {
-		BOOST_CHECK_NO_THROW(this->push_back(Gem::Hap::gr_tls_ptr()->uniform_real<double>(-10., 10.)));
+		BOOST_CHECK_NO_THROW(this->push_back(uniform_real_distribution(GRANDOM_TLS)));
 	}
 
 	// Add a single item of defined value, so we can test the find() and count() functions

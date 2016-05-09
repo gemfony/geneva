@@ -312,7 +312,6 @@ int main(int argc, char **argv) {
                     break;
             };
 
-            //for(std::size_t j=0; j<5; j++) double tmp=gr_ptr_seed->GRandomBase::uniform_real<double>(1.);
             initCorr.push_back(uniform_real_distribution(*gr_ptr_seed));
         }
     }
