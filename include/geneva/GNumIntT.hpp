@@ -280,7 +280,7 @@ protected:
 		int_type upperBoundary = GNumT<int_type>::getUpperInitBoundary();
 
 		// uniform_int produces random numbers that include the upper boundary.
-		GParameterT<int_type>::setValue(Gem::Hap::gr_tls_ptr()->uniform_int(lowerBoundary, upperBoundary));
+		GParameterT<int_type>::setValue(m_uniform_int(lowerBoundary, upperBoundary));
 
 		return true;
 	}
@@ -289,6 +289,12 @@ protected:
 	 * Tested in GInt32Object::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
+
+private:
+	 /***************************************************************************/
+
+	 /** @brief Uniformly distributed integer random numbers */
+	 Gem::Hap::g_uniform_int<int_type> m_uniform_int;
 
 public:
 	/***************************************************************************/

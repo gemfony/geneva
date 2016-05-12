@@ -126,6 +126,10 @@ protected:
 
 	double amalgamationLikelihood_; ///< Likelihood for children to be created by cross-over rather than "just" duplication (note that they may nevertheless be mutated)
 
+private:
+	/** @brief Uniformly distributed integer random numbers */
+ 	Gem::Hap::g_uniform_int<std::size_t> m_uniform_int;
+
 public:
 	/***************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

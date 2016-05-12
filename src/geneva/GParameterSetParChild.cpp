@@ -209,7 +209,7 @@ void GParameterSetParChild::doRecombine() {
 		// If we do perform cross-over, we always cross the best individual with another random parent
 		if (nParents_ > 1 && amalgamationWanted(gr)) { // Create individuals using a cross-over scheme
 			std::shared_ptr <GParameterSet> bestParent = this->front();
-			std::shared_ptr <GParameterSet> combiner = (nParents_ > 2) ? *(this->begin() + GOptimizationAlgorithmT<GParameterSet>::gr.uniform_int<std::size_t>(1, nParents_ - 1)) : (*(this->begin() + 1));
+			std::shared_ptr <GParameterSet> combiner = (nParents_ > 2) ? *(this->begin() + this->m_uniform_int(1, nParents_ - 1)) : (*(this->begin() + 1));
 
 			(*it)->GObject::load(bestParent->amalgamate(combiner));
 		} else { // Just perform duplication

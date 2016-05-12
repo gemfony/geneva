@@ -113,49 +113,9 @@ public:
 		 return G_BASE_GENERATOR::max();
 	 }
 
-	 /*************************************************************************/
-	 /**
-	  * This function produces integer random numbers in the range of [minVal, maxVal] .
-	  * Note that maxVal may also be < 0. .
-	  *
-	  * @param minVal The minimum value of the range
-	  * @param maxVal The maximum (excluded) value of the range
-	  * @return Discrete random numbers evenly distributed in the range [minVal,maxVal]
-	  */
-	 template<typename int_type>
-	 int_type uniform_int(
-		 const int_type &minVal
-		 , const int_type &maxVal
-		 , typename std::enable_if<std::is_integral<int_type>::value>::type *dummy = nullptr
-	 ) {
-#ifdef DEBUG
-		 assert(maxVal >= minVal);
-#endif /* DEBUG */
-
-		 // A uniform distribution in the desired range. Note that boost::uniform_int produces
-		 // random numbers up to and including its upper limit. Note that ui is a distribution
-		 // only. The actual generator is provided by this class (see variate_generator).
-		 return std::uniform_int_distribution<int_type>(minVal, maxVal)(*this);
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * This function produces integer random numbers in the range of [0, maxVal] .
-	  *
-	  * @param maxVal The maximum (excluded) value of the range
-	  * @return Discrete random numbers evenly distributed in the range [0,maxVal]
-	  */
-	 template<typename int_type>
-	 int_type uniform_int(
-		 const int_type &maxVal
-		 , typename std::enable_if<std::is_integral<int_type>::value>::type *dummy = nullptr
-	 ) {
-		 return this->uniform_int<int_type>(0, maxVal);
-	 }
-
 protected:
 	 /***************************************************************************/
-	 /** @brief Uniformly distributed integer numbers in the range */
+	 /** @brief Uniformly distributed integer numbers in the range min/max */
 	 virtual G_API_HAP result_type int_random() = 0;
 };
 

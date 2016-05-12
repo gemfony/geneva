@@ -1801,7 +1801,7 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr < GParameterSet > 
 
 	// Find out about the position that should be set to minVar_. Unless randomInit is set,
 	// all other positions will be set to the mean value of minVar_ and maxVar_.
-	std::size_t perimeterPos = gr.uniform_int<std::size_t>(nData - 1);
+	std::size_t perimeterPos = this->m_uniform_int(nData - 1);
 
 	// Set up the data collections
 	switch (pT_.value()) {

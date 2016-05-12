@@ -102,7 +102,7 @@ public:
 		// Fill the vector with random values
 		typename GIntNumCollectionT<int_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			*it = Gem::Hap::gr_tls_ptr()->uniform_int(min,max);
+			*it = m_uniform_int(min,max);
 		}
 	}
 
@@ -259,7 +259,7 @@ protected:
 
 		typename GIntNumCollectionT<int_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)=Gem::Hap::gr_tls_ptr()->uniform_int(lowerBoundary, upperBoundary);
+			(*it)=m_uniform_int(lowerBoundary, upperBoundary);
 			randomized = true;
 		}
 
@@ -270,6 +270,12 @@ protected:
 	 * Tested in GIntNumCollectionT<int_type>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
+
+private:
+	 /***************************************************************************/
+
+	 /** @brief Uniformly distributed integer random numbers */
+	 Gem::Hap::g_uniform_int<int_type> m_uniform_int;
 
 public:
 	/***************************************************************************/

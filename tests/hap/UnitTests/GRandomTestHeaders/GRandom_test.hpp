@@ -101,6 +101,7 @@ public:
 			const std::int32_t MAXRANDOM= 10;
 
 			std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>());
+			std::uniform_int_distribution<std::int32_t> uniform_int_distribution(MINRANDOM, MAXRANDOM);
 
 			std::vector<std::int32_t> randomHist(21); // 21 positions from -10 to 10
 
@@ -111,7 +112,7 @@ public:
 				std::int32_t randVal;
 
 				// Produce a single random number
-				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_int(MINRANDOM, MAXRANDOM));
+				BOOST_CHECK_NO_THROW(randVal = uniform_int_distribution(*gr_ptr));
 
 				// Is it in the allowed range ?
 				BOOST_CHECK(randVal >= MINRANDOM && randVal <= MAXRANDOM);
@@ -134,6 +135,7 @@ public:
 			const std::int32_t MAXRANDOM= 10;
 
 			std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>());
+			std::uniform_int_distribution<std::int32_t> uniform_int_distribution(MINRANDOM, MAXRANDOM);
 
 			std::vector<std::int32_t> randomHist(21); // 21 positions from -10 to 10
 
@@ -144,7 +146,7 @@ public:
 				std::int32_t randVal;
 
 				// Produce a single random number
-				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_int(MINRANDOM, MAXRANDOM));
+				BOOST_CHECK_NO_THROW(randVal = uniform_int_distribution(*gr_ptr));
 
 				// Is it in the allowed range ?
 				BOOST_CHECK(randVal >= MINRANDOM && randVal <= MAXRANDOM);
@@ -161,43 +163,11 @@ public:
 
 		//------------------------------------------------------------------------------
 
-		{ // Test that uniform_int(max) covers the entire range, including the upper boundary in RANDFLAVOURS::RANDOMLOCAL mode
+		{ // Test that g_uniform_int(max) covers the entire range, including the upper boundary
 			// A few settings
 			const std::int32_t MAXRANDOM= 10;
 
-			std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>());
-
-			std::vector<std::int32_t> randomHist(11); // 11 positions from 0 to 10
-
-			// Initialize with 0
-			for(std::size_t i=0; i<11; i++) randomHist.at(i) = 0;
-
-			for(std::size_t i=0; i<nTests_; i++) {
-				std::int32_t randVal;
-
-				// Produce a single random number
-				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_int(MAXRANDOM));
-
-				// Is it in the allowed range ?
-				BOOST_CHECK(randVal >= 0 && randVal <= MAXRANDOM);
-
-				// Add the value to the vector
-				BOOST_CHECK_NO_THROW(randomHist.at(std::size_t(randVal)) += 1);
-			}
-
-			// Due to the large number of entries, we should have > 0 entries in all positions
-			for(std::size_t i=0; i<11; i++) {
-				BOOST_CHECK(randomHist.at(i) > 0);
-			}
-		}
-
-		//------------------------------------------------------------------------------
-
-		{ // Test that uniform_int(max) covers the entire range, including the upper boundary in RANDOMPROXy mode
-			// A few settings
-			const std::int32_t MAXRANDOM= 10;
-
-			std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>());
+			Gem::Hap::g_uniform_int<std::int32_t> uniform_int;
 
 			std::vector<std::int32_t> randomHist(11); // 11 positions from 0 to 10
 
@@ -210,7 +180,7 @@ public:
 				std::int32_t randVal;
 
 				// Produce a single random number
-				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_int(MAXRANDOM));
+				BOOST_CHECK_NO_THROW(randVal = uniform_int(MAXRANDOM));
 
 				// Is it in the allowed range ?
 				BOOST_CHECK_MESSAGE(
@@ -231,58 +201,40 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that using extreme values for the boundaries of uniform_int(min,max) and producing random numbers doesn't throw in RAMDOMLOCAL mode
-			// A few settings
-			const std::int32_t MINRANDOM=-10;
-			const std::int32_t MAXRANDOM= 10;
-
 			std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>());
+			std::uniform_int_distribution<std::int32_t> uniform_int_distribution(
+				-(std::numeric_limits<std::int32_t>::max)()
+				, (std::numeric_limits<std::int32_t>::max)()
+			);
 
 			volatile std::int32_t randVal;
 			for(std::size_t i=0; i<nTests_; i++) {
-				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_int(-(std::numeric_limits<std::int32_t>::max)(), (std::numeric_limits<std::int32_t>::max)()));
+				BOOST_CHECK_NO_THROW(randVal = uniform_int_distribution(*gr_ptr));
 			}
 		}
 
 		//------------------------------------------------------------------------------
 
 		{ // Check that using extreme values for the boundaries of uniform_int(min,max) and producing random numbers doesn't throw in RAMDOMPROXY mode
-			// A few settings
-			const std::int32_t MINRANDOM=-10;
-			const std::int32_t MAXRANDOM= 10;
-
 			std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>());
+			std::uniform_int_distribution<std::int32_t> uniform_int_distribution(
+					-(std::numeric_limits<std::int32_t>::max)()
+					, (std::numeric_limits<std::int32_t>::max)()
+			);
 
 			volatile std::int32_t randVal;
 			for(std::size_t i=0; i<nTests_; i++) {
-				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_int(-(std::numeric_limits<std::int32_t>::max)(), (std::numeric_limits<std::int32_t>::max)()));
+				BOOST_CHECK_NO_THROW(randVal = uniform_int_distribution(*gr_ptr));
 			}
 		}
 
 		//------------------------------------------------------------------------------
 
-		{ // Check that using extreme values for the boundaries of uniform_int(max) and producing random numbers doesn't throw in RAMDOMLOCAL mode
-			// A few settings
-			const std::int32_t MAXRANDOM= 10;
-
-			std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>());
-
+		{ // Check that using extreme values for the boundaries of g_uniform_int(max) and producing random numbers doesn't throw in RAMDOMPROXY mode
+			Gem::Hap::g_uniform_int<std::int32_t> g_uniform_int;
 			volatile std::int32_t randVal;
 			for(std::size_t i=0; i<nTests_; i++) {
-				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_int((std::numeric_limits<std::int32_t>::max)()));
-			}
-		}
-
-		//------------------------------------------------------------------------------
-
-		{ // Check that using extreme values for the boundaries of uniform_int(max) and producing random numbers doesn't throw in RAMDOMPROXY mode
-			// A few settings
-			const std::int32_t MAXRANDOM= 10;
-
-			std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>> gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>());
-
-			volatile std::int32_t randVal;
-			for(std::size_t i=0; i<nTests_; i++) {
-				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_int((std::numeric_limits<std::int32_t>::max)()));
+				BOOST_CHECK_NO_THROW(randVal = g_uniform_int((std::numeric_limits<std::int32_t>::max)()));
 			}
 		}
 

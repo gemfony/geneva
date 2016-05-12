@@ -196,6 +196,7 @@ boost::thread_specific_ptr<Gem::Hap::GRandom>& gr_tls_ptr();
 
 // Syntactic sugar
 #define GRANDOM_TLS (*(Gem::Hap::gr_tls_ptr()))
+#define GRANDOM_TLS_PTR Gem::Hap::gr_tls_ptr()
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -243,8 +244,78 @@ private:
 };
 
 /******************************************************************************/
+/**
+ * This class produces integer random numbers, using GRandomT<RAMDONPROXY> as
+ * the random number engine.
+ */
+template <typename int_type>
+class g_uniform_int {
+public:
+	 /**
+	  * The default constructor
+	  */
+	 g_uniform_int()
+		 : m_uniform_int_distribution(0,std::numeric_limits<int_type>::max())
+	 { /* nothing */ }
+
+	 /**
+	  * Initialization with an upper limit
+	  */
+	 explicit g_uniform_int(
+		 int_type r
+	 )
+		 : m_uniform_int_distribution(0,r)
+	 { /* nothing */ }
+
+	 /**
+	  * Initialization with a lower and upper limit
+	  */
+	 g_uniform_int(
+		 int_type l
+		 , int_type r
+	 )
+	 	: m_uniform_int_distribution(l,r)
+	 { /* nothing */ }
+
+	 /**
+	  * Returns uniformly distributed random numbers, using
+	  * the boundaries specified in the constructor
+	  */
+	 inline int_type operator()() const {
+		 return m_uniform_int_distribution(GRANDOM_TLS);
+	 }
+
+	 /**
+     * Returns uniformly distributed random numbers between 0
+     * and an upper boundary
+     */
+	 inline int_type operator()(int_type r) const {
+		 return m_uniform_int_distribution (
+			 GRANDOM_TLS
+			 , typename std::uniform_int_distribution<int_type>::param_type(0,r)
+		 );
+	 }
+
+	 /**
+	  * Returns uniformly distributed random numbers using
+	  * a new set of boundaries.
+	  */
+	 inline int_type operator()(int_type l, int_type r) const {
+		 return m_uniform_int_distribution (
+			 GRANDOM_TLS
+			 , typename std::uniform_int_distribution<int_type>::param_type(l,r)
+		 );
+	 }
+
+private:
+	 /** @brief Uniformly distributed integer random numbers */
+	 mutable std::uniform_int_distribution<int_type> m_uniform_int_distribution;
+};
+
+/******************************************************************************/
 
 } /* namespace Hap */
 } /* namespace Gem */
+
 
 #endif /* GRANDOMT_HPP_ */

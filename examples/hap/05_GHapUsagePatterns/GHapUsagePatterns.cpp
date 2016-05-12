@@ -91,12 +91,15 @@ int main(int argc, char **argv) {
 	// NOTE: You could use GRandomT<RANDOMPROXY> instead
 	GRandom gr;
 
-    std::uniform_real_distribution<double> uniform_real_distribution(0.,1.);
-    std::normal_distribution<double> normal_distribution;
-    Gem::Hap::bi_normal_distribution<double> bi_normal_distribution(1. /*mean*/, 2. /*sigma1*/, 1. /*sigma2*/, 3. /*distance*/);
-    std::bernoulli_distribution uniform_bool; // defaults to a probability of 0.5
-    std::bernoulli_distribution weighted_bool(0.25); // 25% "true" values
-    std::uniform_int_distribution<std::int32_t> uniform_int_distribution;
+	std::uniform_real_distribution<double> uniform_real_distribution(0.,1.);
+	std::normal_distribution<double> normal_distribution;
+	Gem::Hap::bi_normal_distribution<double> bi_normal_distribution(1. /*mean*/, 2. /*sigma1*/, 1. /*sigma2*/, 3. /*distance*/);
+	std::bernoulli_distribution uniform_bool; // defaults to a probability of 0.5
+	std::bernoulli_distribution weighted_bool(0.25); // 25% "true" values
+
+	std::uniform_int_distribution<std::int32_t> uniform_int_distribution;
+	Gem::Hap::g_uniform_int<std::int32_t> g_uniform_int;
+
 
 	for(int i=0; i<NPROD; i++) {
 		{
@@ -162,7 +165,8 @@ int main(int argc, char **argv) {
 			// This function produces integer random numbers in the range of [min, max] .
 			// Note that max may also be < 0.
 			std::int32_t min = -10, max = 10;
-			std::int32_t int_rand_min_max = uniform_int_distribution(gr, std::uniform_int_distribution<std::int32_t>::param_type(min, max));
+			std::int32_t int_rand_min_max  = uniform_int_distribution(gr, std::uniform_int_distribution<std::int32_t>::param_type(min, max));
+			std::int32_t int_rand_min_max2 = g_uniform_int(min, max);
 		}
 	}
 
