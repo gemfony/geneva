@@ -575,7 +575,7 @@ private:
 /******************************************************************************/
 /**
  * This class implements a random distribution consisting of two adjacent
- * normal distributions
+ * normal distributions. It models the API common for std C++11 random distributions.
  */
 template <
 	typename fp_type
@@ -835,7 +835,90 @@ bool operator!=(
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
+/**
+ * This class produces floating point random numbers with a bi-normal distribution,
+ * using GRandomT<RAMDONPROXY> as the random number engine and Geneva's bi_normal_distribution
+ * class. Essentially, compared to bi_normal_distribution, this class allows to access
+ * bi_normal random numbers without knowledge of the underlying random number generator.
+ * The class may only be instantiated for floating point values.
+ */
+template <
+	typename fp_type
+	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type* dummy = nullptr
+>
+class g_bi_normal_distribution {
+public:
+	 /**
+	  * The default constructor (normal distribution with mean 0 and sigma 1)
+	  */
+	 g_bi_normal_distribution()
+		 : m_bi_normal_distribution(0.,1.)
+	 { /* nothing */ }
 
+	 /**
+	  * Initialization with mean and sigma
+	  */
+	 g_bi_normal_distribution(
+		 fp_type mean
+		 , fp_type sigma1
+		 , fp_type sigma2
+		 , fp_type distance
+	 )
+		 : m_bi_normal_distribution(mean,sigma1, sigma2, distance)
+	 { /* nothing */ }
+
+	 /**
+ 	  * Initialization through a std::normal_distribution<fp_type>::param_type object
+ 	  */
+	 explicit g_bi_normal_distribution(const typename Gem::Hap::bi_normal_distribution<fp_type>::param_type& params)
+		 : m_bi_normal_distribution(params)
+	 { /* nothing */ }
+
+	 /**
+	  * Returns random numbers with a normal distribution, using
+	  * the parameters specified in the constructor
+	  */
+	 inline fp_type operator()() const {
+		 return m_bi_normal_distribution(GRANDOM_TLS);
+	 }
+
+	 /**
+	  * Returns random numbers with a normal distribution, using
+	  * a new set of mean and sigma.
+	  */
+	 inline fp_type operator()(
+		 fp_type mean
+		 , fp_type sigma1
+		 , fp_type sigma2
+		 , fp_type distance
+    ) const {
+		 return m_bi_normal_distribution (
+			 GRANDOM_TLS
+			 , typename Gem::Hap::bi_normal_distribution<fp_type>::param_type(
+				mean, sigma1, sigma2, distance
+		    )
+		 );
+	 }
+
+	 /**
+     * Returns uniformly distributed floating point random numbers using the specifications found in
+     * a param_type object
+     */
+	 inline fp_type operator()(const typename Gem::Hap::bi_normal_distribution<fp_type>::param_type& params) const {
+		 return m_bi_normal_distribution (
+			 GRANDOM_TLS, params
+		 );
+	 }
+
+private:
+	 /** @brief Uniformly distributed floating point random numbers */
+	 mutable Gem::Hap::bi_normal_distribution<fp_type> m_bi_normal_distribution;
+
+	 // Deleted copy and assignment operators. Copy-construction is possible
+	 // through the Gem::Hap::bi_normal_distribution<fp_type>::param_type object
+	 g_bi_normal_distribution(const g_bi_normal_distribution<fp_type>&) = delete;
+	 g_bi_normal_distribution<fp_type>& operator=(const g_bi_normal_distribution<fp_type>&) = delete;
+};
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
