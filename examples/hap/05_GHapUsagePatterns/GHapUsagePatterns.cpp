@@ -41,7 +41,6 @@
 
 // Geneva header files go here
 #include "hap/GRandomT.hpp"
-#include "hap/GRandomDistributionsT.hpp"
 #include "common/GTSSAccessT.hpp"
 
 const int NPROD = 1000;

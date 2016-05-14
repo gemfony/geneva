@@ -44,7 +44,6 @@
 #define GFPBIGAUSSADAPTORT_HPP_
 
 // Geneva headers go here
-#include "hap/GRandomDistributionsT.hpp"
 #include "geneva/GNumBiGaussAdaptorT.hpp"
 
 namespace Gem {

@@ -55,7 +55,6 @@
 
 // Geneva header files
 #include "hap/GRandomT.hpp"
-#include "hap/GRandomDistributionsT.hpp"
 
 using namespace Gem::Hap;
 using namespace boost;
