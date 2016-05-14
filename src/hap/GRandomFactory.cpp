@@ -41,32 +41,6 @@ namespace Hap {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The destructor -- gets rid of the random buffer r
- */
-random_container::~random_container() {
-	Gem::Common::g_array_delete(r_); // g_array_delete will check whether r_ is empty
-}
-
-/******************************************************************************/
-/**
- * Returns the size of the buffer
- */
-std::size_t random_container::size() const {
-	return binSize_;
-}
-
-/******************************************************************************/
-/**
- * Returns the current position
- */
-std::size_t random_container::getCurrentPosition() const {
-	return current_pos_;
-}
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
  * Initialization of static data members
  */
 std::uint16_t Gem::Hap::GRandomFactory::multiple_call_trap_ = 0;
@@ -311,7 +285,7 @@ void GRandomFactory::producer(std::uint32_t seed) {
 					p->refresh(mt);
 
 				} catch (Gem::Common::condition_time_out &) { // O.k., so we need to create a new container
-					p = std::shared_ptr<random_container>(new random_container(DEFAULTARRAYSIZE, mt));
+					p = std::shared_ptr<random_container>(new random_container(mt));
 				}
 			}
 

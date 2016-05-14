@@ -101,28 +101,35 @@ class GRandomFactory; // Forward declaration, so we can make random_container co
  * None of the functions in this class is thread-safe (in the sense of being usable
  * concurrently from multiple threads).
  */
-struct random_container
+class random_container
 	: private boost::noncopyable
 {
 	 friend class GRandomFactory; // Needed so we can prevent construction of containers outside of the factory
 
 public:
 	 /***************************************************************************/
-	 /** @brief The destructor -- gets rid of the random buffer r_ */
-	 ~random_container();
+	 /** @brief The destructor */
+	 ~random_container()
+	 { /* nothing */ }
 
+	 /***************************************************************************/
 	 /** @brief Returns the size of the buffer */
-	 std::size_t size() const;
+	 std::size_t size() const {
+		 return DEFAULTARRAYSIZE;
+	 }
 
+	 /***************************************************************************/
 	 /** @brief Returns the current position */
-	 std::size_t getCurrentPosition() const;
+	 std::size_t getCurrentPosition() const {
+		 return current_pos_;
+	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Allows to check whether the buffer has run empty
 	  */
 	 bool empty() {
-		 return (current_pos_ >= binSize_);
+		 return (current_pos_ >= DEFAULTARRAYSIZE);
 	 }
 
 	 /***************************************************************************/
@@ -134,7 +141,7 @@ public:
 		 if(empty()) {
          glogger
          << "In random_container::next(): Error!" << std::endl
-         << "Invalid current_pos_ / binSize_: " << current_pos_ << " / " << binSize_ << std::endl
+         << "Invalid current_pos_: " << current_pos_ << " / " << DEFAULTARRAYSIZE << std::endl
          << GEXCEPTION;
       }
 #endif
@@ -147,33 +154,28 @@ private:
 	 /**
 	  * Initialization with the number of entries in the buffer
 	  *
-	  * @param binSize The size of the random buffer
-		* @param rng A reference to an external random number generator
+	  * @param rng A reference to an external random number generator
 	  */
-	 random_container(
-		 const std::size_t &binSize
-		 , G_BASE_GENERATOR &rng
+	 explicit random_container(
+		 G_BASE_GENERATOR &rng
 	 )
 		 : current_pos_(0)
-		 , binSize_(binSize)
-		 , r_(nullptr)
 	 {
 		 try {
-			 r_ = new G_BASE_GENERATOR::result_type[binSize_];
-			 for (std::size_t pos = 0; pos < binSize_; pos++) {
+			 for (std::size_t pos = 0; pos < DEFAULTARRAYSIZE; pos++) {
 				 r_[pos] = rng();
 			 }
 		 } catch (const std::bad_alloc &e) {
 			 // This will propagate the exception to the global error handler so it can be logged
 			 glogger
-			 << "In random_container::random_container(const std::size_t&, T_RNG&): Error!" << std::endl
+			 << "In random_container::random_container(T_RNG&): Error!" << std::endl
 			 << "std::bad_alloc caught with message" << std::endl
 			 << e.what() << std::endl
 			 << GEXCEPTION;
 		 } catch (...) {
 			 // This will propagate the exception to the global error handler so it can be logged
 			 glogger
-			 << "In random_container::random_container(const std::size_t&, T_RNG&): Error!" << std::endl
+			 << "In random_container::random_container(T_RNG&): Error!" << std::endl
 			 << "unknown exception caught" << std::endl
 			 << GEXCEPTION;
 		 }
@@ -197,9 +199,8 @@ private:
 	 const random_container &operator=(const random_container &) = delete; ///< intentionally private and undefined
 
 	 std::size_t current_pos_; ///< The current position in the array
-	 const std::size_t binSize_;     ///< The size of the buffer
 
-	 G_BASE_GENERATOR::result_type *r_; ///< Holds the actual random numbers
+	 G_BASE_GENERATOR::result_type r_[DEFAULTARRAYSIZE]; ///< Holds the actual random numbers
 };
 
 /******************************************************************************/
