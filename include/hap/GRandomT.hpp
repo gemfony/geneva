@@ -210,7 +210,8 @@ boost::thread_specific_ptr<Gem::Hap::GRandom>& gr_tls_ptr();
  */
 template<>
 class GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>
-	: public Gem::Hap::GRandomBase {
+	: public Gem::Hap::GRandomBase
+{
 public:
 	/***************************************************************************/
 	/**
@@ -244,12 +245,20 @@ private:
 };
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * This class produces integer random numbers, using GRandomT<RAMDONPROXY> as
  * the random number engine.
  */
 template <typename int_type>
 class g_uniform_int {
+	 // Make sure this class can only be instantiated if int_type is an integer type
+	 static_assert(
+		 std::is_integral<int_type>::value
+		 , "int_type should be an integer type"
+	 );
+
 public:
 	 /**
 	  * The default constructor
@@ -261,20 +270,22 @@ public:
 	 /**
 	  * Initialization with an upper limit
 	  */
-	 explicit g_uniform_int(
-		 int_type r
-	 )
+	 explicit g_uniform_int(int_type r)
 		 : m_uniform_int_distribution(0,r)
 	 { /* nothing */ }
 
 	 /**
 	  * Initialization with a lower and upper limit
 	  */
-	 g_uniform_int(
-		 int_type l
-		 , int_type r
-	 )
+	 g_uniform_int(int_type l, int_type r)
 	 	: m_uniform_int_distribution(l,r)
+	 { /* nothing */ }
+
+	 /**
+	  * Initialization through a std::uniform_int_distribution<int_type>::param_type object
+	  */
+	 explicit g_uniform_int(const typename std::uniform_int_distribution<int_type>::param_type& params)
+	 	: m_uniform_int_distribution(params)
 	 { /* nothing */ }
 
 	 /**
@@ -307,11 +318,191 @@ public:
 		 );
 	 }
 
+	 /**
+ 	  * Returns uniformly distributed random numbers using a param_type object
+ 	  */
+	 inline int_type operator()(const typename std::uniform_int_distribution<int_type>::param_type& params) const {
+		 return m_uniform_int_distribution (
+			 GRANDOM_TLS, params
+		 );
+	 }
+
 private:
 	 /** @brief Uniformly distributed integer random numbers */
 	 mutable std::uniform_int_distribution<int_type> m_uniform_int_distribution;
+
+	 // Deleted copy and assignment operators. Copy-construction is possible
+	 // through the std::uniform_int_distribution<int_type>::param_type object
+	 g_uniform_int(const g_uniform_int<int_type>&) = delete;
+	 g_uniform_int<int_type>& operator=(const g_uniform_int<int_type>&) = delete;
 };
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * This class produces evenly distributed floating point random numbers, using
+ * GRandomT<RAMDONPROXY> as the random number engine.
+ */
+template <typename fp_type>
+class g_uniform_real {
+	 // Make sure this class can only be instantiated if fp_type is a floating point type
+	 static_assert(
+		 std::is_floating_point<fp_type>::value
+		 , "fp_type should be a floating point type"
+	 );
+
+public:
+	 /**
+	  * The default constructor
+	  */
+	 g_uniform_real()
+		 : m_uniform_real_distribution(0.,std::numeric_limits<fp_type>::max())
+	 { /* nothing */ }
+
+	 /**
+	  * Initialization with an upper limit
+	  */
+	 explicit g_uniform_real(fp_type r)
+		 : m_uniform_real_distribution(0.,r)
+	 { /* nothing */ }
+
+	 /**
+	  * Initialization with a lower and upper limit
+	  */
+	 g_uniform_real(fp_type l, fp_type r)
+		 : m_uniform_real_distribution(l,r)
+	 { /* nothing */ }
+
+	 /**
+ 	  * Initialization through a std::uniform_real_distribution<fp_type>::param_type object
+ 	  */
+	 explicit g_uniform_real(const typename std::uniform_real_distribution<fp_type>::param_type& params)
+		 : m_uniform_real_distribution(params)
+	 { /* nothing */ }
+
+	 /**
+	  * Returns uniformly distributed random numbers, using
+	  * the boundaries specified in the constructor
+	  */
+	 inline fp_type operator()() const {
+		 return m_uniform_real_distribution(GRANDOM_TLS);
+	 }
+
+	 /**
+     * Returns uniformly distributed random numbers between 0
+     * and an upper boundary
+     */
+	 inline fp_type operator()(fp_type r) const {
+		 return m_uniform_real_distribution (
+			 GRANDOM_TLS
+			 , typename std::uniform_real_distribution<fp_type>::param_type(0.,r)
+		 );
+	 }
+
+	 /**
+	  * Returns uniformly distributed random numbers using
+	  * a new set of boundaries.
+	  */
+	 inline fp_type operator()(fp_type l, fp_type r) const {
+		 return m_uniform_real_distribution (
+			 GRANDOM_TLS
+			 , typename std::uniform_real_distribution<fp_type>::param_type(l,r)
+		 );
+	 }
+
+	 /**
+     * Returns uniformly distributed floating point random numbers using the specifications found in
+     * a param_type object
+     */
+	 inline fp_type operator()(const typename std::uniform_real_distribution<fp_type>::param_type& params) const {
+		 return m_uniform_real_distribution (
+			 GRANDOM_TLS, params
+		 );
+	 }
+
+private:
+	 /** @brief Uniformly distributed floating point random numbers */
+	 mutable std::uniform_real_distribution<fp_type> m_uniform_real_distribution;
+
+	 // Deleted copy and assignment operators. Copy-construction is possible
+	 // through the std::uniform_real_distribution<fp_type>::param_type object
+	 g_uniform_real(const g_uniform_real<fp_type>&) = delete;
+	 g_uniform_real<fp_type>& operator=(const g_uniform_real<fp_type>&) = delete;
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * This class produces boolean random numbers, using GRandomT<RAMDONPROXY> as the
+ * random number engine. The probability for true vs. false may be passed
+ * either to the contructor or to the operator() .
+ */
+class g_boolean_distribution
+{
+public:
+	 /**
+	  * The default constructor. Implicit probability of 50% for "true".
+	  */
+	 g_boolean_distribution() : m_bernoulli_distribution()
+	 { /* nothing */ }
+
+	 /**
+	  * Initialization with a probability for "true".
+	  */
+	 explicit g_boolean_distribution(double p) : m_bernoulli_distribution(p)
+	 { /* nothing */ }
+
+	 /**
+ 	  * Initialization through a std::uniform_real_distribution<fp_type>::param_type object
+ 	  */
+	 explicit g_boolean_distribution(const std::bernoulli_distribution::param_type& params)
+		 : m_bernoulli_distribution(params)
+	 { /* nothing */ }
+
+	 /**
+	  * Returns boolean random numbers with a probability of 50% for true vs. false
+	  */
+	 inline bool operator()() const {
+		 return m_bernoulli_distribution(GRANDOM_TLS);
+	 }
+
+	 /**
+     * Returns boolean random numbers with a likelihood of "p" for "true" values
+     */
+	 inline bool operator()(double p) const {
+		 return m_bernoulli_distribution (
+			 GRANDOM_TLS
+			 , std::bernoulli_distribution::param_type(p)
+		 );
+	 }
+
+	 /**
+ 	  * Returns uniformly distributed floating point random numbers using the specifications found
+ 	  * in a param_type object
+ 	  */
+	 inline bool operator()(const std::bernoulli_distribution::param_type& params) const {
+		 return m_bernoulli_distribution (
+			 GRANDOM_TLS, params
+		 );
+	 }
+private:
+	 /** @brief Boolean random numbers with configurable probability structure */
+	 mutable std::bernoulli_distribution m_bernoulli_distribution;
+
+	 // Deleted copy and assignment operators. Copy-construction is possible
+	 // through the std::bernoulli_distribution::param_type object
+	 g_boolean_distribution(const g_boolean_distribution&) = delete;
+	 g_boolean_distribution& operator=(const g_boolean_distribution&) = delete;
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
 } /* namespace Hap */

@@ -257,7 +257,7 @@ std::shared_ptr <random_container> GRandomFactory::getNewRandomContainer() {
  *
  * @param seed A seed for our local random number generator
  */
-void GRandomFactory::producer(std::uint32_t seed) {
+void GRandomFactory::producer(std::uint32_t seed) { // TODO: should be result_type ?
 	try {
 		G_BASE_GENERATOR mt(seed);
 		std::shared_ptr<random_container> p;
