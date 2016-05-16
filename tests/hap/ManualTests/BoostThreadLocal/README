@@ -1,0 +1,2 @@
+This isolated test checks whether, for the given compiler, the constructor and destructor
+of an object stored as C++11 thread_local is called, when using std::thread.
