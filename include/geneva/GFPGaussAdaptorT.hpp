@@ -276,6 +276,17 @@ protected:
 		using namespace Gem::Common;
 		using namespace Gem::Hap;
 
+#ifdef DEBUG
+		if(GRANDOM_TLS.getThreadId() != boost::this_thread::get_id()) {
+			glogger
+			<< "In GFPGaussAdaptorT<>::customAdaptions(): Error!" << std::endl
+			<< "GRANDOM_TLS.getThreadId() = " << GRANDOM_TLS.getThreadId() << std::endl
+			<< "boost::this_thread::get_id() = " << boost::this_thread::get_id() << std::endl
+			<< "but should be equal." << std::endl
+			<< GEXCEPTION;
+		}
+#endif
+
 		// adapt the value in situ. Note that this changes
 		// the argument of this function
 		value += (range * GAdaptorT<fp_type, fp_type>::m_normal_distribution(

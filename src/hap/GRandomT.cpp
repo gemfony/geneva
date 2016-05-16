@@ -56,3 +56,7 @@ boost::thread_specific_ptr<Gem::Hap::GRandom>& gr_tls_ptr() {
 } /* namespace Hap */
 } /* namespace Gem */
 
+#ifndef GENEVA_USE_BOOST_TLS  // Note: ifndef --> NOT defined!
+// Make sure an instance is available for each thread
+thread_local Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> GRANDOM_TLS;
+#endif

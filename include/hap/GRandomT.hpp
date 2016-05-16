@@ -71,15 +71,15 @@ template<Gem::Hap::RANDFLAVOURS s = Gem::Hap::RANDFLAVOURS::RANDOMPROXY>
 class GRandomT
 	: public Gem::Hap::GRandomBase {
 public:
-	/** @brief The default constructor */
-	GRandomT();
+	 /** @brief The default constructor */
+	 GRandomT();
 
-	/** @brief The destructor */
-	virtual ~GRandomT();
+	 /** @brief The destructor */
+	 virtual ~GRandomT();
 
 protected:
-	/** @brief Uniformly distributed integer random numbers */
-	virtual GRandomBase::result_type int_random();
+	 /** @brief Uniformly distributed integer random numbers */
+	 virtual GRandomBase::result_type int_random();
 };
 
 /******************************************************************************/
@@ -119,6 +119,15 @@ public:
 			grf_->returnUsedPackage(p_);
 		}
 		grf_.reset();
+	}
+
+	/***************************************************************************/
+	/**
+	 * Retrieves the id of the currently running thread. This function exists
+	 * mostly for debugging purposes
+	 */
+	decltype(boost::this_thread::get_id()) getThreadId() const {
+		return boost::this_thread::get_id();
 	}
 
 protected:
@@ -191,12 +200,11 @@ private:
 typedef GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> GRandom;
 
 /***************************************************************************/
+
+#ifdef GENEVA_USE_BOOST_TLS
 /** @brief Central access to a random number generator through thread-local storage */
 boost::thread_specific_ptr<Gem::Hap::GRandom>& gr_tls_ptr();
-
-// Syntactic sugar
-#define GRANDOM_TLS (*(Gem::Hap::gr_tls_ptr()))
-#define GRANDOM_TLS_PTR Gem::Hap::gr_tls_ptr()
+#endif
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -251,5 +259,12 @@ private:
 
 } /* namespace Hap */
 } /* namespace Gem */
+
+#ifdef GENEVA_USE_BOOST_TLS
+// Syntactic sugar
+#define GRANDOM_TLS (*(Gem::Hap::gr_tls_ptr()))
+#else
+extern thread_local Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> GRANDOM_TLS;
+#endif
 
 #endif /* GRANDOMT_HPP_ */
