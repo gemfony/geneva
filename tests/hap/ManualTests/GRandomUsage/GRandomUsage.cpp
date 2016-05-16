@@ -54,6 +54,7 @@
 
 // Geneva header files
 #include "hap/GRandomT.hpp"
+#include "hap/GRandomDistributionsT.hpp"
 
 // Parsing of the command line
 #include "GCommandLineParser.hpp"

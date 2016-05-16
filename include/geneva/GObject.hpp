@@ -112,6 +112,7 @@
 #include "common/GTupleIO.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "hap/GRandomT.hpp"
+#include "hap/GRandomDistributionsT.hpp"
 
 #ifdef GEM_TESTING
 #include "common/GUnitTestFrameworkT.hpp"

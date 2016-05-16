@@ -44,6 +44,7 @@
 #include "common/GThreadPool.hpp"
 #include "common/GParserBuilder.hpp"
 #include "hap/GRandomT.hpp"
+#include "hap/GRandomDistributionsT.hpp"
 
 using namespace Gem::Common;
 

@@ -44,7 +44,6 @@
 #define GNUMINTT_HPP_
 
 // Geneva headers go here
-
 #include "geneva/GNumT.hpp"
 #include "geneva/GInt32GaussAdaptor.hpp"
 #include "geneva/GInt32FlipAdaptor.hpp"
