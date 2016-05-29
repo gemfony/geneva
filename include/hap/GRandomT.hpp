@@ -116,7 +116,7 @@ public:
 	 */
 	virtual ~GRandomT() {
 		if (p_) {
-			grf_->returnUsedPackage(p_);
+			grf_->returnUsedPackage(std::move(p_));
 		}
 		grf_.reset();
 	}
@@ -143,7 +143,7 @@ protected:
 	virtual GRandomBase::result_type int_random() {
 		if (p_->empty()) {
 			// Get rid of the old container ...
-			grf_->returnUsedPackage(p_);
+			grf_->returnUsedPackage(std::move(p_));
 			// ... then get a new one
 			getNewRandomContainer();
 		}
@@ -158,7 +158,7 @@ private:
 	 */
 	void getNewRandomContainer() {
 		// Make sure we get rid of the old container
-		p_.reset(); //TODO: shoultd happen after returnUsedPackage ?
+		// p_.reset(); No longer needed with std::unique_ptr
 
 #ifdef DEBUG
 		if(!grf_) {
@@ -191,7 +191,7 @@ private:
 
 	/***************************************************************************/
 	/** @brief Holds the container of uniform random numbers */
-	std::shared_ptr <random_container> p_;
+	std::unique_ptr <random_container> p_;
 	/** @brief A local copy of the global GRandomFactory */
 	std::shared_ptr <Gem::Hap::GRandomFactory> grf_;
 };

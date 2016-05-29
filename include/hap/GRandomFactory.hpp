@@ -196,7 +196,9 @@ private:
 
 	 random_container() = delete; ///< The default constructor -- intentionally private and undefined
 	 random_container(const random_container &) = delete; ///< The copy constructor -- intentionally private and undefined
+	 random_container(random_container&&) = delete; ///< The move constructor -- intentionally private and undefined
 	 const random_container &operator=(const random_container &) = delete; ///< intentionally private and undefined
+	 const random_container &operator=(random_container &&) = delete; ///< Intentionally private and undefined
 
 	 std::size_t current_pos_; ///< The current position in the array
 
@@ -253,12 +255,12 @@ public:
 	 G_API_HAP std::size_t getBufferSize() const;
 
 	 /** @brief Delivers a new [0,1[ random number container with the current standard size to clients */
-	 G_API_HAP std::shared_ptr <random_container> getNewRandomContainer();
+	 G_API_HAP std::unique_ptr <random_container> getNewRandomContainer();
 	 /** @brief Retrieval of a new seed for external or internal random number generators */
 	 G_API_HAP seed_type getSeed();
 
 	 /** @brief Allows recycling of partially used packages */
-	 G_API_HAP void returnUsedPackage(std::shared_ptr<random_container>);
+	 G_API_HAP void returnUsedPackage(std::unique_ptr<random_container>);
 
 private:
 	 /***************************************************************************/
@@ -274,9 +276,9 @@ private:
 	 Gem::Common::GThreadGroup producer_threads_; ///< A thread group that holds [0,1[ producer threads
 
 	 /** @brief A bounded buffer holding the random number packages */
-	 Gem::Common::GBoundedBufferT<std::shared_ptr<random_container>> p_fresh_bfr_; // Note: Absolutely needs to be defined after the thread group !!!
+	 Gem::Common::GBoundedBufferT<std::unique_ptr<random_container>> p_fresh_bfr_; // Note: Absolutely needs to be defined after the thread group !!!
 	 /** @brief A bounded buffer holding random number packages ready for recycling */
-	 Gem::Common::GBoundedBufferT<std::shared_ptr<random_container>> p_ret_bfr_;
+	 Gem::Common::GBoundedBufferT<std::unique_ptr<random_container>> p_ret_bfr_;
 
 	 static std::uint16_t multiple_call_trap_; ///< Trap to catch multiple instantiations of this class
 	 static boost::mutex factory_creation_mutex_; ///< Synchronization of access to multiple_call_trap in constructor

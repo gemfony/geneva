@@ -170,12 +170,12 @@ seed_type GRandomFactory::getSeed() {
  * @param r A pointer to a partially used work package
  * @param current_pos The first position in the array that holds unused random numbers
  */
-void GRandomFactory::returnUsedPackage(std::shared_ptr<random_container> p) {
+void GRandomFactory::returnUsedPackage(std::unique_ptr<random_container> p) {
 	// We try to add the item to the p_ret_bfr_ queue, until a timeout occurs.
 	// Once this is the case we delete the package, so we do not overflow
 	// with recycled packages
 	try {
-		p_ret_bfr_.push_front(p, boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
+		p_ret_bfr_.push_front(std::move(p), boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
 	} catch (Gem::Common::condition_time_out &) { // No luck buffer is full. Delete the recycling bin
 		p.reset();
 	}
@@ -183,19 +183,41 @@ void GRandomFactory::returnUsedPackage(std::shared_ptr<random_container> p) {
 
 /******************************************************************************/
 /**
- * Sets the number of producer threads for this factory.
+ * Sets the number of producer threads for this factory. See also
+ * http://preshing.com/20130930/double-checked-locking-is-fixed-in-cpp11/ for
+ * the rationale of the double checked locking pattern.
  *
  * @param n01Threads The number of threads simultaneously producing random numbers
  */
 void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) {
-	// Make a suggestion for the number of threads, if requested
-	std::uint16_t nProducerThreads_local =
-		(nProducerThreads > 0) ? nProducerThreads : (boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)));
-
 	// Threads might already be running, so we need to regulate access
-	{
+	if(threads_started_.load()) {
+		// If we enter this code-path, there is no way threads
+		// could go into the "not-running" state, so we do not need
+		// to check again using DCLP .
 		boost::unique_lock<boost::mutex> lk(thread_creation_mutex_);
-		if (threads_started_.load()) {
+		// Make a suggestion for the number of threads, if requested
+		std::uint16_t nProducerThreads_local =
+			(nProducerThreads > 0) ? nProducerThreads : (boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)));
+
+		if (nProducerThreads_local > nProducerThreads_.load()) { // start new 01 threads
+			for (std::uint16_t i = nProducerThreads_.load(); i < nProducerThreads_local; i++) {
+				producer_threads_.create_thread(
+					[this]() { this->producer(this->getSeed()); }
+				);
+			}
+		} else if (nProducerThreads_local < nProducerThreads_.load()) { // We need to remove threads
+			// remove_last will internally call "interrupt" for these threads
+			producer_threads_.remove_last(nProducerThreads_.load() - nProducerThreads_local);
+		}
+	} else { // Double-checked locking pattern
+		// Here it appears that no threads were running. We do need to check again, though (DLCP)
+		boost::unique_lock<boost::mutex> tc_lk(thread_creation_mutex_);
+		// Make a suggestion for the number of threads, if requested
+		std::uint16_t nProducerThreads_local =
+			(nProducerThreads > 0) ? nProducerThreads : (boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)));
+
+		if (threads_started_.load()) { // Someone has started the threads in the meantime. Adjust the number of threads
 			if (nProducerThreads_local > nProducerThreads_.load()) { // start new 01 threads
 				for (std::uint16_t i = nProducerThreads_.load(); i < nProducerThreads_local; i++) {
 					producer_threads_.create_thread(
@@ -208,6 +230,7 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) 
 			}
 		}
 
+		// Whether they were already running or not -- we may now adjust the number of producer threads
 		nProducerThreads_ = nProducerThreads_local;
 	}
 }
@@ -215,11 +238,13 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) 
 /******************************************************************************/
 /**
  * When objects need a new container [0,1[ of random numbers with the current
- * default size, they call this function.
+ * default size, they call this function. See also
+ * http://preshing.com/20130930/double-checked-locking-is-fixed-in-cpp11/ for
+ * the rationale.
  *
  * @return A packet of new [0,1[ random numbers
  */
-std::shared_ptr <random_container> GRandomFactory::getNewRandomContainer() {
+std::unique_ptr <random_container> GRandomFactory::getNewRandomContainer() {
 	// Start the producer threads upon first access to this function
 	if (!threads_started_.load()) {
 		boost::unique_lock<boost::mutex> tc_lk(thread_creation_mutex_);
@@ -232,17 +257,17 @@ std::shared_ptr <random_container> GRandomFactory::getNewRandomContainer() {
 			}
 			//---------------------------------------------------------
 
-			threads_started_ = true;
+			threads_started_.store(true);
 		}
 	}
 
-	std::shared_ptr <random_container> p; // empty
+	std::unique_ptr <random_container> p; // empty
 	try {
 		p_fresh_bfr_.pop_back(p, boost::posix_time::milliseconds(DEFAULTFACTORYGETWAIT));
 	} catch (Gem::Common::condition_time_out &) {
 		// nothing - our way of signaling a time out
-		// is to return an empty std::shared_ptr
-		p = std::shared_ptr<random_container>();
+		// is to return an empty std::unique_ptr
+		p = std::unique_ptr<random_container>();
 	}
 
 	return p;
@@ -260,7 +285,7 @@ std::shared_ptr <random_container> GRandomFactory::getNewRandomContainer() {
 void GRandomFactory::producer(std::uint32_t seed) { // TODO: should be result_type ?
 	try {
 		G_BASE_GENERATOR mt(seed);
-		std::shared_ptr<random_container> p;
+		std::unique_ptr<random_container> p;
 
 		while (!boost::this_thread::interruption_requested()) {
 			if (!p) { // buffer is still empty
@@ -285,14 +310,14 @@ void GRandomFactory::producer(std::uint32_t seed) { // TODO: should be result_ty
 					p->refresh(mt);
 
 				} catch (Gem::Common::condition_time_out &) { // O.k., so we need to create a new container
-					p = std::shared_ptr<random_container>(new random_container(mt));
+					p = std::unique_ptr<random_container>(new random_container(mt));
 				}
 			}
 
 			// Thanks to the following call, thread creation will be mostly idle if the buffer is full
 			try {
 				// Put the bufffer in the queue
-				p_fresh_bfr_.push_front(p, boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
+				p_fresh_bfr_.push_front(std::move(p), boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
 				// Reset the shared_ptr so the next pointer may be created
 				p.reset();
 			} catch (Gem::Common::condition_time_out &) {

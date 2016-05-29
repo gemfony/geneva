@@ -231,7 +231,7 @@ public:
 		// Note that this overload of wait() internally runs a loop on its predicate to
 		// deal with spurious wakeups
 		not_full_.wait(lock, buffer_not_full(container_, capacity_));
-		container_.push_front(item);
+		container_.push_front(std::move(item));
 
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		// Update the puts_ vector
@@ -257,7 +257,7 @@ public:
 		if (!not_full_.timed_wait(lock, timeout, buffer_not_full(container_, capacity_))) {
 			throw Gem::Common::condition_time_out();
 		}
-		container_.push_front(item);
+		container_.push_front(std::move(item));
 
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		// Update the puts_ vector
@@ -284,7 +284,7 @@ public:
 		if (!not_full_.timed_wait(lock, timeout, buffer_not_full(container_, capacity_))) {
 			return false;
 		}
-		container_.push_front(item);
+		container_.push_front(std::move(item));
 
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
 		// Update the puts_ vector
@@ -317,7 +317,7 @@ public:
 		}
 #endif /* DEBUG */
 
-		item = container_.back();
+		item = std::move(container_.back());
 		container_.pop_back();
 
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
@@ -353,7 +353,7 @@ public:
 		}
 #endif /* DEBUG */
 
-		item = container_.back();
+		item = std::move(container_.back());
 		container_.pop_back();
 
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
@@ -391,7 +391,7 @@ public:
 		}
 #endif /* DEBUG */
 
-		item = container_.back(); // Assign the item at the back of the container
+		item = std::move(container_.back()); // Assign the item at the back of the container
 		container_.pop_back(); // Remove it from the container
 
 #ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
