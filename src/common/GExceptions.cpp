@@ -7,28 +7,9 @@
  *
  * This file is part of the Geneva library collection.
  *
- * See the AUTHORS file in the top-level directory for a list of authors.
- *
- * Contact: contact [at] gemfony (dot) eu
- *
- * Geneva was developed with kind support from Karlsruhe Institute of
- * Technology (KIT) and Steinbuch Centre for Computing (SCC). Further
- * information about KIT and SCC can be found at http://www.kit.edu/english
- * and http://scc.kit.edu .
- *
- * Geneva is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * Boost Software License for more details.
- *
- * For further information on Gemfony scientific and Geneva, visit
- * http://www.gemfony.eu .
- */
-
-/*
  * The following license applies to the code in this file:
  *
- *******************************************************************************
+ * ***************************************************************************
  *
  * Boost Software License - Version 1.0 - August 17th, 2003
  *
@@ -54,10 +35,27 @@
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  *
- *******************************************************************************
+ * ***************************************************************************
  *
  * NOTE THAT THE BOOST-LICENSE DOES NOT APPLY TO ANY OTHER FILES OF THE
- * GENEVA LIBRARY, UNLESS THIS IS EXPLICITLY STATED IN THE CORRESPONDING FILE.
+ * GENEVA LIBRARY, UNLESS THIS IS EXPLICITLY STATED IN THE CORRESPONDING FILE!
+ *
+ * See the AUTHORS file in the top-level directory for a list of authors.
+ *
+ * Contact: contact [at] gemfony (dot) eu
+ *
+ * Geneva was developed with kind support from Karlsruhe Institute of
+ * Technology (KIT) and Steinbuch Centre for Computing (SCC). Further
+ * information about KIT and SCC can be found at http://www.kit.edu/english
+ * and http://scc.kit.edu .
+ *
+ * Geneva is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * Boost Software License for more details.
+ *
+ * For further information on Gemfony scientific and Geneva, visit
+ * http://www.gemfony.eu .
  */
 
 #include "common/GExceptions.hpp"
