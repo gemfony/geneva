@@ -40,7 +40,6 @@
 
 // Boost header files go here
 #include <boost/algorithm/string.hpp>
-#include <boost/thread/once.hpp>
 #include <boost/function.hpp>
 
 #ifndef GO2_HPP_

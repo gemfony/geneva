@@ -78,8 +78,8 @@
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
-#include <boost/thread/xtime.hpp>
-#include <boost/thread/tss.hpp>
+// #include <boost/thread/xtime.hpp>
+// #include <boost/thread/tss.hpp>
 #include <boost/utility.hpp>
 #include <boost/variant.hpp>
 

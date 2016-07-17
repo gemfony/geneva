@@ -44,7 +44,6 @@
 
 // Geneva headers go here
 
-#include "common/GTSSAccessT.hpp"
 #include "common/GTriboolSerialization.hpp"
 #include "hap/GRandomT.hpp"
 #include "geneva/GObject.hpp"
