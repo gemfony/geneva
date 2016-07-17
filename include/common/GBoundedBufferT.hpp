@@ -110,8 +110,8 @@ namespace Common {
 
 /******************************************************************************/
 /** @brief Class to be thrown as a message in the case of a time-out in GBuffer */
-class condition_time_out : public std::exception {
-};
+class condition_time_out : public std::exception
+{ /* nothing */ };
 
 /******************************************************************************/
 /**
@@ -142,7 +142,8 @@ const std::size_t DEFAULTBUFFERSIZE = 20000;
  */
 template<typename T>
 class GBoundedBufferT
-	: private boost::noncopyable {
+	: private boost::noncopyable
+{
 public:
 
 	typedef typename std::deque<T> container_type;
@@ -155,14 +156,7 @@ public:
 	 */
 	GBoundedBufferT()
 		: capacity_(DEFAULTBUFFERSIZE)
-#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
-		, name_("no name")
-#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
-	{
-#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
-		startTime_ = boost::posix_time::microsec_clock::universal_time();
-#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
-	}
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -173,14 +167,7 @@ public:
 	 */
 	explicit GBoundedBufferT(const std::size_t &capacity)
 		: capacity_(capacity ? capacity : 1)
-#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
-		, name_("no name")
-#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
-	{
-#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
-		startTime_ = boost::posix_time::microsec_clock::universal_time();
-#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
-	}
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -208,14 +195,6 @@ public:
 			<< "Caught unknown exception in GBoundedBufferT::~GBoundedBufferT(). Terminating ..." << std::endl
 			<< GTERMINATION;
 		}
-
-#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
-		// Find out when this object got destroyed
-		endTime_ = boost::posix_time::microsec_clock::universal_time();
-
-		// Write out results
-		emitPutAndGetTimes();
-#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 	}
 
 	/***************************************************************************/
@@ -232,14 +211,6 @@ public:
 		// deal with spurious wakeups
 		not_full_.wait(lock, buffer_not_full(container_, capacity_));
 		container_.push_front(std::move(item));
-
-#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
-		// Update the puts_ vector
-		long currentTime = boost::numeric_cast<long>((boost::posix_time::microsec_clock::universal_time() - startTime_).total_microseconds());
-		puts_.push_back(currentTime);
-		entries_.push_back(std::make_tuple(currentTime, container_.size()));
-#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
-
 		not_empty_.notify_one();
 	}
 
@@ -258,14 +229,6 @@ public:
 			throw Gem::Common::condition_time_out();
 		}
 		container_.push_front(std::move(item));
-
-#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
-		// Update the puts_ vector
-		long currentTime = (boost::posix_time::microsec_clock::universal_time() - startTime_).total_microseconds();
-		puts_.push_back(currentTime);
-		entries_.push_back(std::make_tuple(currentTime, container_.size()));
-#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
-
 		not_empty_.notify_one();
 	}
 
@@ -285,14 +248,6 @@ public:
 			return false;
 		}
 		container_.push_front(std::move(item));
-
-#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
-		// Update the puts_ vector
-		long currentTime = boost::numeric_cast<long>((boost::posix_time::microsec_clock::universal_time() - startTime_).total_microseconds());
-		puts_.push_back(currentTime);
-		entries_.push_back(std::make_tuple(currentTime, container_.size()));
-#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
-
 		not_empty_.notify_one();
 		return true;
 	}
@@ -319,14 +274,6 @@ public:
 
 		item = std::move(container_.back());
 		container_.pop_back();
-
-#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
-		// Update the gets_ vector
-		long currentTime = boost::numeric_cast<long>((boost::posix_time::microsec_clock::universal_time() - startTime_).total_microseconds());
-		gets_.push_back(currentTime);
-		entries_.push_back(std::make_tuple(currentTime, container_.size()));
-#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
-
 		not_full_.notify_one();
 	}
 
@@ -355,14 +302,6 @@ public:
 
 		item = std::move(container_.back());
 		container_.pop_back();
-
-#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
-		// Update the gets_ vector
-		long currentTime = (boost::posix_time::microsec_clock::universal_time() - startTime_).total_microseconds();
-		gets_.push_back(currentTime);
-		entries_.push_back(std::make_tuple(currentTime, container_.size()));
-#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
-
 		not_full_.notify_one();
 	}
 
@@ -393,14 +332,6 @@ public:
 
 		item = std::move(container_.back()); // Assign the item at the back of the container
 		container_.pop_back(); // Remove it from the container
-
-#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
-		// Update the gets_ vector
-		long currentTime = boost::numeric_cast<long>((boost::posix_time::microsec_clock::universal_time() - startTime_).total_microseconds());
-		gets_.push_back(currentTime);
-		entries_.push_back(std::make_tuple(currentTime, container_.size()));
-#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
-
 		not_full_.notify_one();
 		return true;
 	}
@@ -457,31 +388,6 @@ public:
 		boost::mutex::scoped_lock lock(m_);
 		return !container_.empty();
 	}
-
-	// TODO: This is dangerous: one definition rule!
-#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
-	/***************************************************************************/
-	/**
-	 * Allows to assign a name to this object
-	 *
-	 * @param name The name to be assigned to this object
-	 */
-	void setName(const std::string& name) {
-		name_ = name;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to retrieve this object's name
-	 *
-	 * @return The assigned name of this object
-	 */
-	std::string getName() const {
-		return name_;
-	}
-
-	/***************************************************************************/
-#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 
 protected:
 	/***************************************************************************/
@@ -551,68 +457,9 @@ protected:
 
 private:
 	/***************************************************************************/
+
 	GBoundedBufferT(const GBoundedBufferT<T> &) = delete; ///< Disabled copy constructor
 	GBoundedBufferT &operator=(const GBoundedBufferT<T> &) = delete; ///< Disabled assign operator
-
-	// TODO: This is dangerous: one definition rule!
-#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
-	/***************************************************************************/
-	/**
-	 * Writes out put- and get times. You can evaluate the results using
-	 * the root analysis framework (see http://root.cern.ch)
-	 */
-	void emitPutAndGetTimes() {
-      long totalMicroseconds = boost::numeric_cast<long>((endTime_ - startTime_).total_microseconds());
-
-      // Create the plot objects
-		std::shared_ptr<GHistogram1D> gets_ptr(new GHistogram1D(1000, 0, totalMicroseconds));
-		gets_ptr->setPlotLabel(std::string("timing of pop_back calls (") +  name_ + std::string(" / ") + boost::posix_time::to_simple_string(startTime_) + std::string(")"));
-		gets_ptr->setXAxisLabel("microsceonds after start");
-		gets_ptr->setYAxisLabel("number of pop_back calls");
-
-		std::shared_ptr<GHistogram1D> puts_ptr(new GHistogram1D(1000, 0, totalMicroseconds));
-		puts_ptr->setPlotLabel(std::string("timing of push_front calls (") +  name_ + std::string(" / ") + boost::posix_time::to_simple_string(startTime_) + std::string(")"));
-      puts_ptr->setXAxisLabel("microsceonds after start");
-      puts_ptr->setYAxisLabel("number of push_front calls");
-
-		std::shared_ptr<GGraph2D> entries_ptr(new GGraph2D());
-		entries_ptr->setPlotLabel("buffer size");
-		entries_ptr->setXAxisLabel("microsceonds after start");
-		entries_ptr->setYAxisLabel("number of remaining entries in the buffer");
-
-		// Fill with data
-		for(auto const &x: gets_) {
-			*gets_ptr & x;
-		}
-		for(auto const &x: puts_) {
-			*puts_ptr & x;
-		}
-		for(auto const &x: entries_) {
-			*entries_ptr & x;
-		}
-
-      // Create the canvas object and save it to disk
-      GPlotDesigner gpd("GBoundedBufferT timings", 1,3);
-
-      gpd.setCanvasDimensions(800,1200);
-      gpd.registerPlotter(gets_ptr);
-      gpd.registerPlotter(puts_ptr);
-      gpd.registerPlotter(entries_ptr);
-
-      gpd.writeToFile((boost::lexical_cast<std::string>(this) + "-result.C").c_str());
-	}
-
-	/***************************************************************************/
-
-	std::string name_; ///< A name to be assigned to this object
-
-	boost::posix_time::ptime startTime_; ///< Holds information about the construction time of this object
-	boost::posix_time::ptime endTime_; ///< Holds information about the destruction time of this object
-	std::vector<std::tuple<long, std::size_t>> entries_;
-
-	std::vector<long> gets_, puts_; ///< Holds information about submission- and retrieval-times
-
-#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
 };
 
 /******************************************************************************/

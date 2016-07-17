@@ -32,9 +32,6 @@
  * http://www.gemfony.eu .
  */
 
-// Force the bounded buffer to emit data
-#define GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
-
 #include <vector>
 
 #include <boost/thread.hpp>

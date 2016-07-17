@@ -107,14 +107,13 @@ namespace Common {
 /**
  * General error class to be thrown in the case of severe errors
  */
-class gemfony_error_condition
-	: public std::exception
+class gemfony_error_condition : public std::exception
 {
 public:
 	/** @brief The standard constructor */
 	G_API_COMMON gemfony_error_condition(const std::string&) throw();
 	/** @brief The destructor */
-	virtual G_API_COMMON ~gemfony_error_condition()  throw();
+	virtual G_API_COMMON ~gemfony_error_condition() throw();
 
 	/** @brief Allows to add further information to the exception */
 	virtual G_API_COMMON void add(const std::string&) throw();
@@ -126,7 +125,7 @@ public:
 	/** @brief Allows to check whether any information is stored in this class */
 	G_API_COMMON bool empty() const throw();
 
-private:
+protected:
 	/** @brief The default constructor: Intentionally private and undefined */
 	gemfony_error_condition() throw() = delete;
 
@@ -157,7 +156,7 @@ public:
 	/** @brief Allows to add further informtion, automatically terminated through a '\n' */
 	G_API_COMMON g_expectation_violation &operator()(const std::string &) throw();
 
-private:
+protected:
 	/** @brief The default constructor: Intentionally private and undefined */
 	g_expectation_violation() = delete;
 };

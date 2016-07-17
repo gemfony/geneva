@@ -76,13 +76,9 @@ public:
 	 * GBoundedBufferWithIdT objects will assume the default sizes.
 	 */
 	GBufferPortT()
-		: original_(new Gem::Common::GBoundedBufferWithIdT<T>()),
-		  processed_(new Gem::Common::GBoundedBufferWithIdT<T>()) {
-#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
-		original_->setName("raw buffer");
-		processed_->setName("processed buffer");
-#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
-	}
+		: original_(new Gem::Common::GBoundedBufferWithIdT<T>())
+		, processed_(new Gem::Common::GBoundedBufferWithIdT<T>())
+   { /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -91,13 +87,9 @@ public:
 	 * @param size The desired capacity of the GBoundedBufferWithIdT objects
 	 */
 	explicit GBufferPortT(const std::size_t &size)
-		: original_(new Gem::Common::GBoundedBufferWithIdT<T>(size)),
-		  processed_(new Gem::Common::GBoundedBufferWithIdT<T>(size)) {
-#ifdef GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
-		original_->setName("raw buffer");
-		processed_->setName("processed buffer");
-#endif /* GEM_COMMON_BENCHMARK_BOUNDED_BUFFER */
-	}
+		: original_(new Gem::Common::GBoundedBufferWithIdT<T>(size))
+		, processed_(new Gem::Common::GBoundedBufferWithIdT<T>(size))
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**

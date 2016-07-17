@@ -120,19 +120,9 @@ Q: Which CPP macro variables are used at build time and can be defined by the us
 A: The following variables are available for deeper control of some aspects of the code
    at compile time:
 
-     GEM_COMMON_BENCHMARK_BOUNDED_BUFFER
-        Enables the generation and output of benchmarking information by
-        common/GBoundedBufferT.hpp . Mostly to be used in code tests, not for general
-        consumption. Do NOT use this for normal optimization.
-
      GEM_COMMON_PRINT_COMMANDLINE
         Enables the printing of the command line for debugging purposes when executing
         external commands (--> GExternalEvaluatorIndividual)
-
-     GEM_HAP_USE_BOXMULLERPOLAR
-        Use the polar method to produce Gaussian-distributed random numbers, which
-        is faster than the default method GEM_HAP_USE_BOXMULLER. See
-        http://de.wikipedia.org/wiki/Normalverteilung#Polar-Methode for more details.
 
      GEM_GENEVA_USE_LOCAL_RANDOM_ADAPTION
         Produce random numbers locally for mutations in geneva/GMutableSetT.hpp

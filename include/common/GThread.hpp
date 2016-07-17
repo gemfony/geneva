@@ -96,14 +96,14 @@ namespace Common {
  */
 class interrupt_flag {
 public:
-	 interrupt_flag() : m_interrupted(false)
+	 G_API_COMMON interrupt_flag() : m_interrupted(false)
 	 { /* nothing */ }
 
-	 void set() {
+	 G_API_COMMON void set() {
 		 m_interrupted.store(true);
 	 }
 
-	 bool is_set() const {
+	 G_API_COMMON bool is_set() const {
 		 return m_interrupted.load();
 	 }
 
@@ -112,6 +112,29 @@ private:
 };
 
 thread_local interrupt_flag this_thread_interrupt_flag;
+
+/******************************************************************************/
+/**
+ * An exception to be thrown if the thread shoult be interrupted
+ */
+class thread_interrupted : public gemfony_error_condition {
+public:
+	 // Use gemfony_error_condition's constructor
+	 using gemfony_error_condition::gemfony_error_condition;
+	 // But add a default constructor, so we do not need to pass messages
+	 thread_interrupted() : gemfony_error_condition("")
+	 { /* nothing */ }
+};
+
+/******************************************************************************/
+/**
+ * This function may be called to detect whether an interrupt was triggered
+ */
+void interruption_point() {
+	if(this_thread_interrupt_flag.is_set()) {
+		throw thread_interrupted();
+	}
+}
 
 /******************************************************************************/
 /**
@@ -124,7 +147,7 @@ public:
 	 /**
 	  * The default constructor
 	  */
-	 thread()
+	 G_API_COMMON thread()
 	 { /* nothing */ }
 
 	 /**
@@ -138,6 +161,8 @@ public:
 
 			 try {
 				 f();
+			 } catch(Gem::Common::thread_interrupted&) { // Nothing, we want to terminate execution
+		       return;
 			 } catch(Gem::Common::gemfony_error_condition& e) {
 				 glogger
 					 << "In GThreadWrapper::operator(): Caught Gem::Common::gemfony_error_condition with message" << std::endl
@@ -164,7 +189,7 @@ public:
 	 /**
 	  * Move-constructor
 	  */
-	 thread(thread&& other)
+	 G_API_COMMON thread(thread&& other)
 	 	: m_internal_thread(other.m_internal_thread)
 	 	, m_flag(other.m_flag)
 	 {
@@ -174,14 +199,14 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 ~thread() {
+	 G_API_COMMON ~thread() {
 		 m_flag = nullptr;
 	 }
 
 	 /**
 	  * Move-assignment
 	  */
-	 thread& operator=(thread&& other) {
+	 G_API_COMMON thread& operator=(thread&& other) {
 		 m_flag = other.m_flag;
 		 other.m_flag = nullptr;
 		 m_internal_thread = other.m_internal_thread;
@@ -190,14 +215,14 @@ public:
 	 /**
 	  * Checks whether the internal thread is joinable
 	  */
-	 bool joinable() const {
+	 G_API_COMMON bool joinable() const {
 		 return m_internal_thread.joinable();
 	 }
 
 	 /**
 	  * Retrieval of the thread id
 	  */
-	 std::thread::id get_id() const {
+	 G_API_COMMON std::thread::id get_id() const {
 		 return m_internal_thread.get_id();
 	 }
 
@@ -205,7 +230,7 @@ public:
 	  * Retrieval of a native_handle to the
 	  * underlying thread-implementation
 	  */
-	 native_handle_type native_handle() {
+	 G_API_COMMON native_handle_type native_handle() {
 		 return m_internal_thread.native_handle();
 	 }
 
@@ -219,7 +244,7 @@ public:
 	 /**
 	  * Waits for the thread to terminate
 	  */
-	 void join() {
+	 G_API_COMMON void join() {
 		 m_internal_thread.join();
 		 m_flag = nullptr;
 	 }
@@ -227,7 +252,7 @@ public:
 	 /**
 	  * Sends the internal thread to the background
 	  */
-	 void detach() {
+	 G_API_COMMON void detach() {
 		 m_flag = nullptr;
 		 m_internal_thread.detach();
 	 }
@@ -235,7 +260,7 @@ public:
 	 /**
 	  * Signal the thread function that it should terminate itself
 	  */
-	 void interrupt() {
+	 G_API_COMMON void interrupt() {
 		 if(m_flag) {
 			 m_flag->set();
 		 }
@@ -244,12 +269,19 @@ public:
 	 /**
 	  * Swaps this objects content with another
 	  */
-	 void swap(thread& other) {
+	 G_API_COMMON void swap(thread& other) {
 		 this->m_internal_thread.swap(other.m_internal_thread);
 
 		 interrupt_flag tmp_flag = other.m_flag;
 		 other.m_flag = m_flag;
 		 m_flag = tmp_flag;
+	 }
+
+	 /**
+	  * Checks whether the thread was interrupted
+	  */
+	 static bool interrupted() {
+		 return this_thread_interrupt_flag.is_set();
 	 }
 
 private:
