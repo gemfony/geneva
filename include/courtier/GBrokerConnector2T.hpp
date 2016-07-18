@@ -37,6 +37,7 @@
 
 // Standard headers go here
 
+#include <cmath>
 #include <sstream>
 #include <algorithm>
 #include <vector>
@@ -186,7 +187,7 @@ public:
 	 * @return A boolean indicating whether all expected items have returned
 	 */
 	bool workOn(
-		std::vector<std::shared_ptr <processable_type>>& workItems
+		std::vector<std::shared_ptr<processable_type>>& workItems
 		, std::vector<bool> &workItemPos
 		, std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 		, const std::string &originator = std::string()
@@ -254,10 +255,10 @@ public:
 	 * @return A boolean indicating whether all expected items have returned
 	 */
 	bool workOn(
-		std::vector<std::shared_ptr < processable_type>>& workItems
+		std::vector<std::shared_ptr<processable_type>>& workItems
 		, const std::size_t &start
 		, const std::size_t &end
-		, std::vector<std::shared_ptr < processable_type>>& oldWorkItems
+		, std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 		, const bool &removeUnprocessed = true
 		, const std::string &originator = std::string()
 	) {
@@ -293,13 +294,15 @@ public:
 
 		// Start the calculation
 		complete = this->workOn(
-			workItems, workItemPos, oldWorkItems, originator
+			workItems
+			, workItemPos
+			, oldWorkItems
+			, originator
 		);
 
 		// Remove unprocessed items, if necessary
 		if (!complete && removeUnprocessed) {
-			typename std::vector<std::shared_ptr < processable_type>> ::iterator
-			item_it;
+			typename std::vector<std::shared_ptr<processable_type>>::iterator item_it;
 			std::vector<bool>::iterator pos_it;
 
 			std::vector<std::shared_ptr < processable_type>> workItems_tmp;
@@ -353,7 +356,12 @@ public:
 		, const std::string &originator = std::string()
 	) {
 		return this->workOn(
-			workItems, std::get<0>(range), std::get<1>(range), oldWorkItems, removeUnprocessed, originator
+			workItems
+			, std::get<0>(range)
+			, std::get<1>(range)
+			, oldWorkItems
+			, removeUnprocessed
+			, originator
 		);
 	}
 
@@ -368,13 +376,18 @@ public:
 	 * @return A boolean indicating whether all expected items have returned
 	 */
 	bool workOn(
-		std::vector<std::shared_ptr < processable_type>>& workItems
-		, std::vector<std::shared_ptr < processable_type>>& oldWorkItems
+		std::vector<std::shared_ptr<processable_type>>& workItems
+		, std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 		, const bool &removeUnprocessed = true
 		, const std::string &originator = std::string()
 	) {
 		return this->workOn(
-			workItems, 0, workItems.size(), oldWorkItems, removeUnprocessed, originator
+			workItems
+			, 0
+			, workItems.size()
+			, oldWorkItems
+			, removeUnprocessed
+			, originator
 		);
 	}
 
@@ -442,12 +455,16 @@ protected:
 		, std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	) BASE {
 		// Make a note of the time needed up to now
-		boost::posix_time::time_duration iterationDuration =
-			boost::posix_time::microsec_clock::universal_time() - iterationStartTime_;
+		boost::posix_time::time_duration iterationDuration = boost::posix_time::microsec_clock::universal_time() - iterationStartTime_;
 
 		// Find out about the number of returned items
 		std::size_t notReturned = std::count(workItemPos.begin(), workItemPos.end(), true);
 		std::size_t nReturned = expectedNumber_ - notReturned;
+
+#ifdef DEBUG
+		std::cout << "Items returned: " << nReturned << std::endl;
+		std::cout << "Items lost:     " << notReturned << std::endl;
+#endif
 
 		if (nReturned == 0) { // Check whether any work items have returned at all
 			glogger
@@ -455,15 +472,21 @@ protected:
 			<< "No current items have returned" << std::endl
 			<< "Got " << oldWorkItems.size() << " older work items" << std::endl
 			<< GWARNING;
-		} else { // Calculate average return times of work items
-			lastAverage_ = iterationDuration / boost::numeric_cast<int>(nReturned);
+		} else {
+			// Calculate average return times of work items. Note that iterationDuration is implemented as a microsec_clock.
+			lastAverage_ = boost::posix_time::microseconds(
+				boost::numeric_cast<long>(
+					boost::numeric_cast<double>(iterationDuration.total_microseconds()) /
+					boost::numeric_cast<double>((std::min)(nReturned, std::size_t(1))) // Avoid division by 0
+				)
+			);
 		}
 
 		// Sort old work items so they can be readily used by the caller
 		std::sort(
-			oldWorkItems.begin(), oldWorkItems.end()
-			// , courtierPosComp()
-			, [](std::shared_ptr <processable_type> x, std::shared_ptr <processable_type> y) -> bool {
+			oldWorkItems.begin()
+			, oldWorkItems.end()
+			, [](std::shared_ptr<processable_type> x, std::shared_ptr<processable_type> y) -> bool {
 				using namespace boost;
 				return std::get<1>(x->getCourtierId()) < std::get<1>(y->getCourtierId());
 			}
@@ -525,8 +548,7 @@ class GSerialExecutorT
 	void serialize(Archive &ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar
-			&make_nvp("GBaseExecutorT", boost::serialization::base_object<GBaseExecutorT<processable_type>>(*this));
+		ar & make_nvp("GBaseExecutorT", boost::serialization::base_object<GBaseExecutorT<processable_type>>(*this));
 	}
 
 	///////////////////////////////////////////////////////////////////////
@@ -804,6 +826,8 @@ class GBrokerConnector2T
 		& make_nvp("GBaseExecutorT", boost::serialization::base_object<GBaseExecutorT<processable_type>>(*this))
 		& BOOST_SERIALIZATION_NVP(srm_)
 		& BOOST_SERIALIZATION_NVP(maxResubmissions_)
+		& BOOST_SERIALIZATION_NVP(waitFactor_)
+		& BOOST_SERIALIZATION_NVP(initialWaitFactor_)
 		& BOOST_SERIALIZATION_NVP(doLogging_);
 	}
 
@@ -819,8 +843,10 @@ public:
 	 */
 	GBrokerConnector2T()
 		: GBaseExecutorT<processable_type>()
-	  	, srm_(DEFAULTSRM), maxResubmissions_(DEFAULTMAXRESUBMISSIONS)
+	  	, srm_(DEFAULTSRM)
+	   , maxResubmissions_(DEFAULTMAXRESUBMISSIONS)
 	  	, waitFactor_(DEFAULTBROKERWAITFACTOR2)
+		, initialWaitFactor_(DEFAULTINITIALBROKERWAITFACTOR2)
 	  	, doLogging_(false)
 	{ /* nothing */ }
 
@@ -835,6 +861,7 @@ public:
 	  	, srm_(srm)
 	  	, maxResubmissions_(DEFAULTMAXRESUBMISSIONS)
 	  	, waitFactor_(DEFAULTBROKERWAITFACTOR2)
+	  	, initialWaitFactor_(DEFAULTINITIALBROKERWAITFACTOR2)
 	  	, doLogging_(false)
 	{ /* nothing */ }
 
@@ -849,6 +876,7 @@ public:
 	  	, srm_(cp.srm_)
 	  	, maxResubmissions_(cp.maxResubmissions_)
 	  	, waitFactor_(cp.waitFactor_)
+	  	, initialWaitFactor_(cp.initialWaitFactor_)
 	  	, doLogging_(cp.doLogging_)
 	{ /* nothing */ }
 
@@ -893,6 +921,7 @@ public:
 		srm_ = cp->srm_;
 		maxResubmissions_ = cp->maxResubmissions_;
 		waitFactor_ = cp->waitFactor_;
+		initialWaitFactor_ = cp->initialWaitFactor_;
 		doLogging_ = cp->doLogging_;
 	}
 
@@ -910,14 +939,24 @@ public:
 
 		// Add local data
 
-		gpb.registerFileParameter<std::size_t>(
+		gpb.registerFileParameter<double>(
 			"waitFactor" // The name of the variable
 			, DEFAULTBROKERWAITFACTOR2 // The default value
-			, [this](std::size_t w) {
+			, [this](double w) {
 				this->setWaitFactor(w);
 			}
 		)
-		<< "A static factor to be applied to timeouts";
+		<< "A static double factor for timeouts" << std::endl
+		<< "A wait factor <= 0 means \"no timeout\"";
+
+		gpb.registerFileParameter<double>(
+			"initialWaitFactor" // The name of the variable
+			, DEFAULTINITIALBROKERWAITFACTOR2 // The default value
+			, [this](double w) {
+				this->setInitialWaitFactor(w);
+			}
+		)
+		<< "A static double factor for timeouts in the first iteration";
 
 		gpb.registerFileParameter<std::size_t>(
 			"maxResubmissions" // The name of the variable
@@ -981,20 +1020,42 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Allows to set the wait factor to be applied to timeouts. Note that a wait
-	 * factor of 0 will be silently amended and become 1.
+	 * Allows to set the wait factor to be applied to timeouts. A wait factor
+	 * <= 0 indicates an indefinite waiting time.
 	 */
-	void setWaitFactor(std::size_t waitFactor) {
-		if (0 == waitFactor) waitFactor_ = 1;
-		else waitFactor_ = waitFactor;
+	void setWaitFactor(double waitFactor) {
+		waitFactor_ = waitFactor;
 	}
 
 	/***************************************************************************/
 	/**
 	 * Allows to retrieve the wait factor variable
 	 */
-	std::size_t getWaitFactor() const {
+	double getWaitFactor() const {
 		return waitFactor_;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Allows to set the initial wait factor to be applied to timeouts. A wait factor
+	 * <= 0 is not allowed.
+	 */
+	void setInitialWaitFactor(double initialWaitFactor) {
+	 if(initialWaitFactor <= 0.) {
+		 glogger
+			 << "In GBrokerConnector2T<processable_type>::setInitialWaitFactor(): Error!" << std::endl
+			 << "Invalid wait factor " << initialWaitFactor << " supplied. Must be > 0."
+			 << GEXCEPTION;
+	 }
+	 initialWaitFactor_ = initialWaitFactor;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Allows to retrieve the wait factor variable
+	 */
+	double getInitialWaitFactor() const {
+	 	return initialWaitFactor_;
 	}
 
 	/***************************************************************************/
@@ -1171,9 +1232,9 @@ private:
 	 *
 	 * @return The obtained processed work item
 	 */
-	std::shared_ptr <processable_type> retrieve() {
+	std::shared_ptr<processable_type> retrieve() {
 		// Holds the retrieved item
-		std::shared_ptr <processable_type> w;
+		std::shared_ptr<processable_type> w;
 		CurrentBufferPort_->pop_back_processed(w);
 
 		// Perform any necessary logging work
@@ -1189,11 +1250,11 @@ private:
 	 *
 	 * @return The obtained processed work item
 	 */
-	std::shared_ptr <processable_type> retrieve(
+	std::shared_ptr<processable_type> retrieve(
 		const boost::posix_time::time_duration &timeout
 	) {
 		// Holds the retrieved item, if any
-		std::shared_ptr <processable_type> w;
+		std::shared_ptr<processable_type> w;
 
 		if (CurrentBufferPort_->pop_back_processed_bool(w, timeout)) { // We have received a valid item
 			// Perform any necessary logging work
@@ -1206,14 +1267,27 @@ private:
 	/***************************************************************************/
 	/**
 	 * Waits until a timeout occurs and returns, either complete (true) or
-	 * incomplete (false).
+	 * incomplete (false). The algorithm works like this:
+	 *
+	 * In iteration n==0:
+	 * - We have initially no indication how much time each calculation takes.
+	 *   Hence we wait for the first return and measure the time. We then make
+	 *   a very conservative estimate for the time needed for further returns as
+	 *   "number of remaining items times the time needed for the first item
+	 *   times an initial wait factor". This takes care of the case that there is
+	 *   only a single client worker.
+	 * - This estimate is then continuously revised for each new return
+	 *
+	 * In iteration n>0:
+	 * - The timeout is calculated from the average time needed for the work items
+	 *   of the previous iteration, times a wait factor
 	 */
 	bool waitForTimeOut(
 		std::vector<std::shared_ptr<processable_type>>& workItems
 		, std::vector<bool> &workItemPos
 		, std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	) {
-		std::shared_ptr <processable_type> w;
+		std::shared_ptr<processable_type> w;
 
 		// Note the current iteration for easy reference
 		SUBMISSIONCOUNTERTYPE current_iteration = GBaseExecutorT<processable_type>::submission_counter_;
@@ -1222,43 +1296,112 @@ private:
 		boost::posix_time::time_duration currentElapsed;
 		boost::posix_time::time_duration maxTimeout;
 		boost::posix_time::time_duration remainingTime;
+		boost::posix_time::time_duration currentAverage;
 
 		// Check if this is the first iteration. If so, wait (possibly indefinitely)
 		// for the first item to return so we can estimate a suitable timeout
 		if (0 == current_iteration) { // Wait indefinitely for first item
+			// Retrieve a single work item
 			w = this->retrieve();
-			if (w && this->addVerifiedWorkItemAndCheckComplete(
-					w, nReturnedCurrent, workItems, workItemPos, oldWorkItems
+
+			// It is a severe error if no item is received in the first iteration.
+			// Note that retrieve() will wait indefinitely and, once it returns,
+			// should carry a work item.
+			if(!w) {
+				glogger
+				<< "In GBrokerConnector2T<>::waitForTimeOut(): Error!" << std::endl
+			   << "First item received in first iteration is empty. We cannot continue!"
+				<< GEXCEPTION;
+			}
+
+			if (
+				this->addVerifiedWorkItemAndCheckComplete(
+					w
+					, nReturnedCurrent
+					, workItems
+					, workItemPos
+					, oldWorkItems
 				)
 			) {
+				// This covers the rare case than a "collection" of a single
+				// work item was submitted.
 				return true;
 			}
 
-			currentElapsed =
-				boost::posix_time::microsec_clock::universal_time() - GBaseExecutorT<processable_type>::iterationStartTime_;
-			maxTimeout = currentElapsed * (boost::numeric_cast<int>(
-				(GBaseExecutorT<processable_type>::expectedNumber_ - std::size_t(1)) * waitFactor_));
-		} else { // O.k., so we are dealing with an iteration > 0
-			maxTimeout = GBaseExecutorT<processable_type>::lastAverage_ *
-							 boost::numeric_cast<int>((GBaseExecutorT<processable_type>::expectedNumber_ * waitFactor_));
+			// Calculate a timeout for subsequent retrievals in this iteration. In the first iteration, this timeout is the number of
+			// remaining items times the return time needed for the first item times a custom wait factor for the first submission.
+			// This may be very long, but takes care of a situation where there is only a single worker.
+			currentElapsed = boost::posix_time::microsec_clock::universal_time() - GBaseExecutorT<processable_type>::iterationStartTime_;
+			maxTimeout = boost::posix_time::microseconds(
+				boost::numeric_cast<long>(
+					boost::numeric_cast<double>(currentElapsed.total_microseconds())
+					* boost::numeric_cast<double>(GBaseExecutorT<processable_type>::expectedNumber_)
+					* initialWaitFactor_
+				)
+			);
+		} else { // We are dealing with an iteration > 0
+			maxTimeout = boost::posix_time::microseconds(
+				boost::numeric_cast<long>(
+					boost::numeric_cast<double>(GBaseExecutorT<processable_type>::lastAverage_.total_microseconds())
+					* boost::numeric_cast<double>(GBaseExecutorT<processable_type>::expectedNumber_)
+				   * waitFactor_
+				)
+			);
 		}
 
 		while (true) { // Loop until a timeout is reached or all current items have returned
-			currentElapsed =
-				boost::posix_time::microsec_clock::universal_time() - GBaseExecutorT<processable_type>::iterationStartTime_;
-			if (currentElapsed > maxTimeout) {
-				return false;
-			} else {
-				remainingTime = maxTimeout - currentElapsed;
-			}
+			if(waitFactor_ > 0.) {
+				if (currentElapsed > maxTimeout) {
+					return false;
+				} else {
+					remainingTime = maxTimeout - currentElapsed;
+				}
 
-			w = retrieve(remainingTime);
-			if (w && this->addVerifiedWorkItemAndCheckComplete
-				(
-					w, nReturnedCurrent, workItems, workItemPos, oldWorkItems
-				)
+				w = retrieve(remainingTime);
+				if (w && this->addVerifiedWorkItemAndCheckComplete(
+					w
+					, nReturnedCurrent
+					, workItems
+					, workItemPos
+					, oldWorkItems
+					)
 				) {
-				break;
+					break;
+				}
+
+				// Continuously revise the maxTimeout, if this is the first iteration
+				if (0 == current_iteration) {
+					// Calculate average return times of work items in first iteration
+					currentAverage = boost::posix_time::microseconds(
+						boost::numeric_cast<long>(
+							boost::numeric_cast<double>(currentElapsed.total_microseconds()) /
+							boost::numeric_cast<double>((std::min)(nReturnedCurrent, std::size_t(1))) // Avoid division by 0
+						)
+					);
+					maxTimeout = boost::posix_time::microseconds(
+						boost::numeric_cast<long>(
+							boost::numeric_cast<double>(currentAverage.total_microseconds())
+							* boost::numeric_cast<double>(GBaseExecutorT<processable_type>::expectedNumber_)
+							* waitFactor_
+						)
+					);
+				}
+
+				// Update the elapsed time. Needs to be done after a retrieval
+				currentElapsed = boost::posix_time::microsec_clock::universal_time() - GBaseExecutorT<processable_type>::iterationStartTime_;
+
+			} else { // No timeouts
+				w = retrieve();
+				if (w && this->addVerifiedWorkItemAndCheckComplete(
+					w
+					, nReturnedCurrent
+					, workItems
+					, workItemPos
+					, oldWorkItems
+					)
+				) {
+					break;
+				}
 			}
 		}
 
@@ -1305,9 +1448,13 @@ private:
 		std::size_t nReturnedCurrent = 0;
 		while (
 			!addVerifiedWorkItemAndCheckComplete(
-				this->retrieve(), nReturnedCurrent, workItems, workItemPos, oldWorkItems
+				this->retrieve()
+				, nReturnedCurrent
+				, workItems
+				, workItemPos
+				, oldWorkItems
 			)
-			);
+		);
 
 		return true;
 	}
@@ -1361,7 +1508,7 @@ private:
 	/**
 	 * Performs necessary logging work for each received work item, if requested
 	 */
-	void log(std::shared_ptr <processable_type> w) {
+	void log(std::shared_ptr<processable_type> w) {
 		// Make a note of the arrival times in logging mode
 		if (doLogging_) {
 			std::tuple<SUBMISSIONCOUNTERTYPE, POSITIONTYPE> courtier_id = w->getCourtierId();
@@ -1379,7 +1526,8 @@ private:
 
 	submissionReturnMode srm_; ///< Indicates how (long) the object shall wait for returns
 	std::size_t maxResubmissions_; ///< The maximum number of re-submissions allowed if a full return of submitted items is attempted
-	std::size_t waitFactor_; ///< A static factor to be applied to timeouts
+	double waitFactor_; ///< A static factor to be applied to timeouts
+   double initialWaitFactor_; ///< A static factor to be applied to timeouts in the first iteration
 
 	bool doLogging_; ///< Specifies whether arrival times of work items should be logged
 	std::vector<std::tuple<SUBMISSIONCOUNTERTYPE, SUBMISSIONCOUNTERTYPE, boost::posix_time::ptime>> logData_; ///< Holds the sending and receiving iteration as well as the time needed for completion
