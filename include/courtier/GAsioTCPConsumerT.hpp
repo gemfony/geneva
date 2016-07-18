@@ -133,10 +133,18 @@ public:
 	 * @param port Identifies the port on the server
 	 */
 	GAsioTCPClientT(const std::string &server, const std::string &port)
-		: GBaseClientT<processable_type>(), maxStalls_(GASIOTCPCONSUMERMAXSTALLS),
-		  maxConnectionAttempts_(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS), totalConnectionAttempts_(0), stalls_(0),
-		  io_service_(), socket_(io_service_), resolver_(io_service_), query_(server, port),
-		  endpoint_iterator0_(resolver_.resolve(query_)), end_() {
+		: GBaseClientT<processable_type>()
+	   , maxStalls_(GASIOTCPCONSUMERMAXSTALLS)
+	   , maxConnectionAttempts_(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS)
+	  	, totalConnectionAttempts_(0)
+	   , stalls_(0)
+	   , io_service_()
+	   , socket_(io_service_)
+	   , resolver_(io_service_)
+	   , query_(server, port)
+	   , endpoint_iterator0_(resolver_.resolve(query_))
+	   , end_()
+	{
 		tmpBuffer_ = new char[Gem::Courtier::COMMANDLENGTH];
 	}
 
@@ -149,12 +157,21 @@ public:
 	 * @param port Identifies the port on the server
 	 */
 	GAsioTCPClientT(
-		const std::string &server, const std::string &port, std::shared_ptr <processable_type> additionalDataTemplate
+		const std::string &server
+		, const std::string &port
+		, std::shared_ptr<processable_type> additionalDataTemplate
 	)
-		: GBaseClientT<processable_type>(additionalDataTemplate), maxStalls_(GASIOTCPCONSUMERMAXSTALLS),
-		  maxConnectionAttempts_(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS), totalConnectionAttempts_(0), stalls_(0),
-		  io_service_(), socket_(io_service_), resolver_(io_service_), query_(server, port),
-		  endpoint_iterator0_(resolver_.resolve(query_)), end_() {
+		: GBaseClientT<processable_type>(additionalDataTemplate)
+	   , maxStalls_(GASIOTCPCONSUMERMAXSTALLS)
+	   , maxConnectionAttempts_(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS)
+	   , totalConnectionAttempts_(0), stalls_(0)
+	   , io_service_()
+	   , socket_(io_service_)
+	   , resolver_(io_service_)
+	   , query_(server, port)
+	   , endpoint_iterator0_(resolver_.resolve(query_))
+	   , end_()
+	{
 		tmpBuffer_ = new char[Gem::Courtier::COMMANDLENGTH];
 	}
 
@@ -593,9 +610,9 @@ public:
 	   , serializationMode_(serMod)
 	   , master_(master)
 	   , broker_ptr_(master->broker_ptr_)
-	   , timeout_(boost::posix_time::milliseconds(50))
+	   , timeout_(boost::posix_time::milliseconds(10))
 	   , brokerRetrieveMaxRetries_(10)
-	   , noDataClientSleepMilliSeconds_(5000)
+	   , noDataClientSleepMilliSeconds_(50)
 	{ /* nothing */ }
 
 	/***************************************************************************/
