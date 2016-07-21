@@ -606,8 +606,7 @@ private:
 	typename BufferPtrList::iterator currentGetPosition_; ///< The current get position in the RawBuffers_ collection
 	bool buffersPresent_; ///< Set to true once the first buffers have been enrolled
 
-	std::vector<std::shared_ptr < GBaseConsumerT<carrier_type>> >
-	consumerCollection_; ///< Holds the actual consumers
+	std::vector<std::shared_ptr < GBaseConsumerT<carrier_type>>> consumerCollection_; ///< Holds the actual consumers
 	std::vector<std::string> consumerTypesPresent_; ///< Holds identifying strings for each consumer
 };
 
