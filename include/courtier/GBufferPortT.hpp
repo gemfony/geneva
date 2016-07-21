@@ -48,14 +48,14 @@
 
 // Geneva header files go here
 
-#include "common/GBoundedBufferWithIdT.hpp"
+#include "common/GBoundedBufferT.hpp"
 
 namespace Gem {
 namespace Courtier {
 
 /******************************************************************************/
 /**
- * A GBufferPortT<T> consists of two GBoundedBufferWithIdT<T> objects, one intended for "raw"
+ * A GBufferPortT<T> consists of two GBoundedBufferT<T> objects, one intended for "raw"
  * items, the other for returning, processed items. While this class could
  * be useful in many scenarios, the most common application is as a mediator
  * between GBrokerEA and GConsumer-derivatives. The GBrokerEA
@@ -73,22 +73,22 @@ public:
 	/***************************************************************************/
 	/**
 	 * The default constructor. Note that, when using this constructor, the
-	 * GBoundedBufferWithIdT objects will assume the default sizes.
+	 * GBoundedBufferT objects will assume the default sizes.
 	 */
 	GBufferPortT()
-		: original_(new Gem::Common::GBoundedBufferWithIdT<T>())
-		, processed_(new Gem::Common::GBoundedBufferWithIdT<T>())
+		: original_(new Gem::Common::GBoundedBufferT<T>())
+		, processed_(new Gem::Common::GBoundedBufferT<T>())
    { /* nothing */ }
 
 	/***************************************************************************/
 	/**
-	 * Here we initialize the two GBoundedBufferWithIdT objects with a given size.
+	 * Here we initialize the two GBoundedBufferT objects with a given size.
 	 *
-	 * @param size The desired capacity of the GBoundedBufferWithIdT objects
+	 * @param size The desired capacity of the GBoundedBufferT objects
 	 */
 	explicit GBufferPortT(const std::size_t &size)
-		: original_(new Gem::Common::GBoundedBufferWithIdT<T>(size))
-		, processed_(new Gem::Common::GBoundedBufferWithIdT<T>(size))
+		: original_(new Gem::Common::GBoundedBufferT<T>(size))
+		, processed_(new Gem::Common::GBoundedBufferT<T>(size))
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -97,7 +97,7 @@ public:
 	 *
 	 * @return A shared_ptr with the "original" queue
 	 */
-	std::shared_ptr <Gem::Common::GBoundedBufferWithIdT<T>> getOriginalQueue() {
+	std::shared_ptr <Gem::Common::GBoundedBufferT<T>> getOriginalQueue() {
 		return original_;
 	}
 
@@ -107,7 +107,7 @@ public:
 	 *
 	 * @return A shared_ptr with the "processed" queue
 	 */
-	std::shared_ptr <Gem::Common::GBoundedBufferWithIdT<T>> getProcessedQueue() {
+	std::shared_ptr <Gem::Common::GBoundedBufferT<T>> getProcessedQueue() {
 		return processed_;
 	}
 
@@ -260,8 +260,8 @@ public:
 
 	/***************************************************************************/
 private:
-	std::shared_ptr <Gem::Common::GBoundedBufferWithIdT<T>> original_; ///< The queue for raw objects
-	std::shared_ptr <Gem::Common::GBoundedBufferWithIdT<T>> processed_; ///< The queue for processed objects
+	std::shared_ptr <Gem::Common::GBoundedBufferT<T>> original_; ///< The queue for raw objects
+	std::shared_ptr <Gem::Common::GBoundedBufferT<T>> processed_; ///< The queue for processed objects
 };
 
 /******************************************************************************/

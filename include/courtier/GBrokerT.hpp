@@ -65,7 +65,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
-#include "common/GBoundedBufferWithIdT.hpp"
+#include "common/GBoundedBufferT.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GThreadGroup.hpp"
 #include "courtier/GBaseConsumerT.hpp"
@@ -88,7 +88,7 @@ public:
 
 /** @brief The maximum allowed port id. Note that, if we have no 64 bit integer types,
  * we will only be able to count up to roughly 4 billion. PORTIDTYPE is defined in
- * GBoundedBufferWithIdT.hpp, based on whether BOOST_HAS_LONG_LONG is defined or not. */
+ * GBoundedBufferT.hpp, based on whether BOOST_HAS_LONG_LONG is defined or not. */
 const Gem::Common::PORTIDTYPE MAXPORTID = boost::numeric::bounds<Gem::Common::PORTIDTYPE>::highest() - 1;
 
 /******************************************************************************/
@@ -99,9 +99,9 @@ template<typename carrier_type>
 class GBrokerT
 	: private boost::noncopyable
 {
-	typedef typename std::shared_ptr<Gem::Common::GBoundedBufferWithIdT<std::shared_ptr < carrier_type>> > GBoundedBufferWithIdT_Ptr;
-	typedef typename std::list<GBoundedBufferWithIdT_Ptr> BufferPtrList;
-	typedef typename std::map<Gem::Common::PORTIDTYPE, GBoundedBufferWithIdT_Ptr> BufferPtrMap;
+	typedef typename std::shared_ptr<Gem::Common::GBoundedBufferT<std::shared_ptr < carrier_type>> > GBoundedBufferT_Ptr;
+	typedef typename std::list<GBoundedBufferT_Ptr> BufferPtrList;
+	typedef typename std::map<Gem::Common::PORTIDTYPE, GBoundedBufferT_Ptr> BufferPtrMap;
 
 public:
 	/***************************************************************************/
@@ -174,12 +174,12 @@ public:
 	 * unprocessed) items and for processed items. A producer may at any time decide
 	 * to drop a GBufferPortT. This is simply done by letting the shared_ptr<GBufferPortT>
 	 * go out of scope. As the producer holds the only copy, the GBufferPortT will then be
-	 * deleted. A BufferPort contains two shared_ptr<GBoundedBufferWithIdT> objects. A shared_ptr
+	 * deleted. A BufferPort contains two shared_ptr<GBoundedBufferT> objects. A shared_ptr
 	 * to these objects is saved upon enrollment with the broker, so that letting the
-	 * shared_ptr<GBufferPortT> go out of scope will not drop the shared_ptr<GBoundedBufferWithIdT>
+	 * shared_ptr<GBufferPortT> go out of scope will not drop the shared_ptr<GBoundedBufferT>
 	 * objects immediately. This is important, as there may still be active connections
 	 * with items being collected from or dropped into them by the consumers. It is the
-	 * task of this function to remove the orphaned shared_ptr<GBoundedBufferWithIdT> objects.
+	 * task of this function to remove the orphaned shared_ptr<GBoundedBufferT> objects.
 	 * It thus needs to block access to the entire object during its operation. Note that one of
 	 * the effects of this function is that the buffer collections will never run empty,
 	 * once the first buffer has been registered.
@@ -203,16 +203,16 @@ public:
 			<< GEXCEPTION;
 		}
 
-		// Get new id for GBoundedBufferWithIdT classes and increment
+		// Get new id for GBoundedBufferT classes and increment
 		// the id afterwards for later use.
 		// TODO: This should later be done with Boost::UUID
 		Gem::Common::PORTIDTYPE portId = lastId_++;
 
 		// Retrieve the processed and original queues and tag them with
 		// a suitable id. Increment the id for later use during other enrollments.
-		std::shared_ptr < Gem::Common::GBoundedBufferWithIdT<std::shared_ptr < carrier_type>> >
+		std::shared_ptr < Gem::Common::GBoundedBufferT<std::shared_ptr < carrier_type>> >
 		original = gbp->getOriginalQueue();
-		std::shared_ptr < Gem::Common::GBoundedBufferWithIdT<std::shared_ptr < carrier_type>> >
+		std::shared_ptr < Gem::Common::GBoundedBufferT<std::shared_ptr < carrier_type>> >
 		processed = gbp->getProcessedQueue();
 		original->setId(portId);
 		processed->setId(portId);
@@ -220,7 +220,7 @@ public:
 		// Find orphaned items in the two collections and remove them.
 		typename BufferPtrList::iterator it;
 		while ((it = std::find_if(RawBuffers_.begin(), RawBuffers_.end(),
-										  [](GBoundedBufferWithIdT_Ptr p) { return p.unique(); })) != RawBuffers_.end()) {
+										  [](GBoundedBufferT_Ptr p) { return p.unique(); })) != RawBuffers_.end()) {
 			RawBuffers_.erase(it);
 		}
 
@@ -599,8 +599,8 @@ private:
 	mutable boost::condition_variable readyToGoRaw_; ///< The get function will block until this condition variable is set
 	mutable boost::condition_variable readyToGoProcessed_; ///< The put function will block until this condition variable is set
 
-	BufferPtrList RawBuffers_;       ///< Holds GBoundedBufferWithIdT objects with raw items
-	BufferPtrMap ProcessedBuffers_; ///< Holds GBoundedBufferWithIdT objects for processed items
+	BufferPtrList RawBuffers_;       ///< Holds GBoundedBufferT objects with raw items
+	BufferPtrMap ProcessedBuffers_; ///< Holds GBoundedBufferT objects for processed items
 
 	Gem::Common::PORTIDTYPE lastId_; ///< The last id we've assigned to a buffer
 	typename BufferPtrList::iterator currentGetPosition_; ///< The current get position in the RawBuffers_ collection
