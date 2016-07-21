@@ -324,8 +324,7 @@ protected:
 			if ("compute" == inboundCommandString) {
 				// We have likely received data. Let's find out how big it is
 				boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
-				std::string inboundHeader = boost::algorithm::trim_copy(
-					std::string(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
+				std::string inboundHeader = boost::algorithm::trim_copy(std::string(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
 				std::size_t dataSize = boost::lexical_cast<std::size_t>(inboundHeader);
 
 				// Now retrieve the serialization mode that was used
