@@ -94,9 +94,9 @@ public:
 	 */
 	GBoostThreadConsumerT()
 		: Gem::Courtier::GBaseConsumerT<processable_type>()
-		, threadsPerWorker_(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER)))
-		, broker_ptr_(GBROKER(processable_type))
-		, workerTemplates_(1, std::shared_ptr<GWorker>(new GDefaultWorker()))
+		, m_threadsPerWorker(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER)))
+		, m_broker_ptr(GBROKER(processable_type))
+		, m_workerTemplates(1, std::shared_ptr<GWorker>(new GDefaultWorker()))
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -117,11 +117,11 @@ public:
 	*/
 	void setNThreadsPerWorker(const std::size_t &tpw) {
 		if (tpw == 0) {
-			threadsPerWorker_ = boost::numeric_cast<std::size_t>(
+			m_threadsPerWorker = boost::numeric_cast<std::size_t>(
 				Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER));
 		}
 		else {
-			threadsPerWorker_ = tpw;
+			m_threadsPerWorker = tpw;
 		}
 	}
 
@@ -132,7 +132,7 @@ public:
 	* @return The maximum number of allowed threads
 	*/
 	std::size_t getNThreadsPerWorker(void) const {
-		return threadsPerWorker_;
+		return m_threadsPerWorker;
 	}
 
 	/***************************************************************************/
@@ -145,8 +145,8 @@ public:
 		GBaseConsumerT<processable_type>::shutdown();
 
 		// Wait for local workers to terminate
-		gtg_.join_all();
-		workers_.clear();
+		m_gtg.join_all();
+		m_workers.clear();
 	}
 
 	/***************************************************************************/
@@ -182,7 +182,7 @@ public:
 	 * Retrieves the number of workers registered with this class
 	 */
 	std::size_t getNWorkers() const {
-		return workerTemplates_.size();
+		return m_workerTemplates.size();
 	}
 
 	/***************************************************************************/
@@ -192,7 +192,7 @@ public:
 	*/
 	virtual void async_startProcessing() {
 #ifdef DEBUG
-      if(workerTemplates_.empty()) { // Is the template vector empty ?
+      if(m_workerTemplates.empty()) { // Is the template vector empty ?
          glogger
          << "In GBoostThreadConsumerT<processable_type>::async_startProcessing(): Error!" << std::endl
          << "The workerTemplates_ vector is empty when it should not be empty" << std::endl
@@ -200,15 +200,15 @@ public:
       }
 #endif /* DEBUG */
 
-		// Start threadsPerWorker_ threads for each registered worker template
-		std::cout << "Starting " << threadsPerWorker_ << " processing threads for " << workerTemplates_.size() << " worker(s)  in GBoostThreadConsumerT" << std::endl;
-		for (std::size_t w = 0; w < workerTemplates_.size(); w++) {
-			for (std::size_t i = 0; i < threadsPerWorker_; i++) {
-				std::shared_ptr <GWorker> p_worker = (workerTemplates_.at(w))->clone(i, this);
-				gtg_.create_thread(
+		// Start m_threadsPerWorker threads for each registered worker template
+		std::cout << "Starting " << m_threadsPerWorker << " processing threads for " << m_workerTemplates.size() << " worker(s)  in GBoostThreadConsumerT" << std::endl;
+		for (std::size_t w = 0; w < m_workerTemplates.size(); w++) {
+			for (std::size_t i = 0; i < m_threadsPerWorker; i++) {
+				std::shared_ptr <GWorker> p_worker = (m_workerTemplates.at(w))->clone(i, this);
+				m_gtg.create_thread(
 					[p_worker]() { p_worker->run(); }
 				);
-				workers_.push_back(p_worker);
+				m_workers.push_back(p_worker);
 			}
 		}
 	}
@@ -223,7 +223,7 @@ public:
 		const std::vector<std::shared_ptr < GWorker>>& workerTemplates
 	) {
 #ifdef DEBUG
-      if(workerTemplates_.empty()) { // Is the template vector empty ?
+      if(m_workerTemplates.empty()) { // Is the template vector empty ?
          glogger
          << "In GBoostThreadConsumerT<processable_type>::registerWorkerTemplates(): Error!" << std::endl
          << "workerTemplates vector is empty when it should not be empty" << std::endl
@@ -242,10 +242,10 @@ public:
 		}
 #endif /* DEBUG */
 
-		workerTemplates_.clear();
-		workerTemplates_ = workerTemplates;
+		m_workerTemplates.clear();
+		m_workerTemplates = workerTemplates;
 
-		assert(workerTemplates.size() == workerTemplates_.size());
+		assert(workerTemplates.size() == m_workerTemplates.size());
 	}
 
 	/***************************************************************************/
@@ -266,8 +266,8 @@ public:
       }
 #endif /* DEBUG */
 
-		workerTemplates_.clear();
-		workerTemplates_.push_back(workerTemplate);
+		m_workerTemplates.clear();
+		m_workerTemplates.push_back(workerTemplate);
 	}
 
 	/***************************************************************************/
@@ -353,7 +353,7 @@ protected:
 		namespace po = boost::program_options;
 
 		hidden.add_options()
-			("threadsPerWorker", po::value<std::size_t>(&threadsPerWorker_)->default_value(threadsPerWorker_),
+			("threadsPerWorker", po::value<std::size_t>(&m_threadsPerWorker)->default_value(m_threadsPerWorker),
 			 "\t[btc] The number of threads used to process each worker");
 	}
 
@@ -370,13 +370,11 @@ private:
 	const GBoostThreadConsumerT<processable_type> &operator=(
 		const GBoostThreadConsumerT<processable_type> &); ///< Intentionally left undefined
 
-	std::size_t threadsPerWorker_; ///< The maximum number of allowed threads in the pool
-	Gem::Common::GThreadGroup gtg_; ///< Holds the processing threads
-	std::shared_ptr <GBrokerT<processable_type>> broker_ptr_; ///< A shortcut to the broker so we do not have to go through the singleton
-	std::vector<std::shared_ptr < GWorker>>
-	workers_; ///< Holds the current worker objects
-	std::vector<std::shared_ptr < GWorker>>
-	workerTemplates_; ///< All workers will be created as a clone of these workers
+	std::size_t m_threadsPerWorker; ///< The maximum number of allowed threads in the pool
+	Gem::Common::GThreadGroup m_gtg; ///< Holds the processing threads
+	std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr; ///< A shortcut to the broker so we do not have to go through the singleton
+	std::vector<std::shared_ptr <GWorker>> m_workers; ///< Holds the current worker objects
+	std::vector<std::shared_ptr <GWorker>> m_workerTemplates; ///< All workers will be created as a clone of these workers
 
 public:
 	/***************************************************************************/
@@ -395,7 +393,7 @@ public:
 		 * The default constructor
 		 */
 		GWorker()
-			: thread_id_(0), outer_(nullptr), parsed_(false), runLoopHasCommenced_(false) { /* nothing */ }
+			: m_thread_id(0), m_outer(nullptr), m_parsed(false), m_runLoopHasCommenced(false) { /* nothing */ }
 
 	protected:
 		/************************************************************************/
@@ -406,7 +404,7 @@ public:
 		GWorker(
 			const GWorker &cp, const std::size_t &thread_id, const GBoostThreadConsumerT<processable_type> *c_ptr
 		)
-			: thread_id_(thread_id), outer_(c_ptr), parsed_(cp.parsed_), runLoopHasCommenced_(false) { /* nothing */ }
+			: m_thread_id(thread_id), m_outer(c_ptr), m_parsed(cp.m_parsed), m_runLoopHasCommenced(false) { /* nothing */ }
 
 	public:
 		/************************************************************************/
@@ -421,18 +419,18 @@ public:
 		 */
 		void run() {
 			try {
-				runLoopHasCommenced_ = false;
+				m_runLoopHasCommenced = false;
 
 				std::shared_ptr <processable_type> p;
 				Gem::Common::PORTIDTYPE id;
-				boost::posix_time::time_duration timeout(boost::posix_time::milliseconds(10));
+				std::chrono::milliseconds timeout(10);
 
 				while (true) {
 					// Have we been asked to stop ?
-					if (outer_->stopped()) break;
+					if (m_outer->stopped()) break;
 
 					// If we didn't get a valid item, start again with the while loop
-					if (!outer_->broker_ptr_->get(id, p, timeout)) {
+					if (!m_outer->m_broker_ptr->get(id, p, timeout)) {
 						continue;
 					}
 
@@ -449,9 +447,9 @@ public:
 					// Perform setup work once for the loop, as soon as we have
 					// a processable item. Such setup work might require information
 					// from that item, so we pass it to the function.
-					if (!runLoopHasCommenced_) {
+					if (!m_runLoopHasCommenced) {
 						processInit(p);
-						runLoopHasCommenced_ = true;
+						m_runLoopHasCommenced = true;
 					}
 
 					// Initiate the actual processing
@@ -460,9 +458,9 @@ public:
 					// Return the item to the broker. The item will be discarded
 					// if the requested target queue cannot be found.
 					try {
-						while (!outer_->broker_ptr_->put(id, p, timeout)) { // This can lead to a loss of items
+						while (!m_outer->m_broker_ptr->put(id, p, timeout)) { // This can lead to a loss of items
 							// Terminate if we have been asked to stop
-							if (outer_->stopped()) break;
+							if (m_outer->stopped()) break;
 						}
 					} catch (Gem::Courtier::buffer_not_present &) {
 						continue;
@@ -498,7 +496,7 @@ public:
 		 * Retrieve this class'es id
 		 */
 		std::size_t getThreadId() const {
-			return thread_id_;
+			return m_thread_id;
 		}
 
 		/************************************************************************/
@@ -508,7 +506,7 @@ public:
 		 * @param configFile The name of a configuration file
 		 */
 		void parseConfigFile(const std::string &configFile) {
-			if (parsed_) return;
+			if (m_parsed) return;
 
 			// Create a parser builder object -- local options will be added to it
 			Gem::Common::GParserBuilder gpb;
@@ -521,7 +519,7 @@ public:
 			// if no existing config file can be found
 			gpb.parseConfigFile(configFile);
 
-			parsed_ = true;
+			m_parsed = true;
 		}
 
 	protected:
@@ -554,14 +552,14 @@ public:
 
 		/************************************************************************/
 
-		std::size_t thread_id_; ///< The id of the thread running this class'es operator()
-		const GBoostThreadConsumerT<processable_type> *outer_;
+		std::size_t m_thread_id; ///< The id of the thread running this class'es operator()
+		const GBoostThreadConsumerT<processable_type> *m_outer;
 
 	private:
 		/************************************************************************/
 
-		bool parsed_; ///< Indicates whether parsing has been completed
-		bool runLoopHasCommenced_; ///< Allows to check whether the while loop inside of the run function has started
+		bool m_parsed; ///< Indicates whether parsing has been completed
+		bool m_runLoopHasCommenced; ///< Allows to check whether the while loop inside of the run function has started
 
 	public:
 		/************************************************************************/

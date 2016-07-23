@@ -175,7 +175,7 @@ void GRandomFactory::returnUsedPackage(std::unique_ptr<random_container> p) {
 	// Once this is the case we delete the package, so we do not overflow
 	// with recycled packages
 	try {
-		p_ret_bfr_.push_front(std::move(p), boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
+		p_ret_bfr_.push_front(std::move(p), std::chrono::milliseconds(DEFAULTFACTORYPUTWAIT));
 	} catch (Gem::Common::condition_time_out &) { // No luck buffer is full. Delete the recycling bin
 		p.reset();
 	}
@@ -263,7 +263,7 @@ std::unique_ptr <random_container> GRandomFactory::getNewRandomContainer() {
 
 	std::unique_ptr <random_container> p; // empty
 	try {
-		p_fresh_bfr_.pop_back(p, boost::posix_time::milliseconds(DEFAULTFACTORYGETWAIT));
+		p_fresh_bfr_.pop_back(p, std::chrono::milliseconds(DEFAULTFACTORYGETWAIT));
 	} catch (Gem::Common::condition_time_out &) {
 		// nothing - our way of signaling a time out
 		// is to return an empty std::unique_ptr
@@ -292,7 +292,7 @@ void GRandomFactory::producer(std::uint32_t seed) { // TODO: should be result_ty
 				// First we try to retrieve a "recycled" item from the p_ret_bfr_ buffer. If this
 				// fails (likely because the buffer is empty), we create a new item instead
 				try {
-					p_ret_bfr_.pop_back(p, boost::posix_time::milliseconds(DEFAULTFACTORYGETWAIT));
+					p_ret_bfr_.pop_back(p, std::chrono::milliseconds(DEFAULTFACTORYGETWAIT));
 
 					// If we reach this line, we have successfully retrieved a recycled container.
 					// First do some error-checking
@@ -317,7 +317,7 @@ void GRandomFactory::producer(std::uint32_t seed) { // TODO: should be result_ty
 			// Thanks to the following call, thread creation will be mostly idle if the buffer is full
 			try {
 				// Put the bufffer in the queue
-				p_fresh_bfr_.push_front(std::move(p), boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
+				p_fresh_bfr_.push_front(std::move(p), std::chrono::milliseconds(DEFAULTFACTORYPUTWAIT));
 				// Reset the shared_ptr so the next pointer may be created
 				p.reset();
 			} catch (Gem::Common::condition_time_out &) {

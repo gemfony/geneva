@@ -141,7 +141,7 @@ private:
 		try {
 			std::shared_ptr <processable_type> p;
 			Gem::Common::PORTIDTYPE id;
-			boost::posix_time::time_duration timeout(boost::posix_time::milliseconds(10));
+			std::chrono::milliseconds timeout(10);
 
 			while (true) {
 				// Have we been asked to stop ?

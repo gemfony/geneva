@@ -149,7 +149,7 @@ void GThreadPool::setNThreads(unsigned int nThreads) {
 			// Reset the io_service object, so run may be called again
 			io_service_.reset();
 
-			// Store a new worker (a place holder, really) in the io_service_ object
+			// Store a new worker (a place holder, really) in the m_io_service object
 			work_.reset(
 				new boost::asio::io_service::work(io_service_)
 			);

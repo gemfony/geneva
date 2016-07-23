@@ -33,6 +33,9 @@
  */
 
 #include <vector>
+#include <mutex>
+#include <chrono>
+#include <thread>
 
 #include <boost/thread.hpp>
 #include <boost/date_time.hpp>
@@ -53,12 +56,12 @@
  * Some synchronization primitives
  */
 std::size_t producer_counter;
-boost::mutex producer_mutex;
+std::mutex producer_mutex;
 
 std::size_t processor_counter;
-boost::mutex processor_mutex;
+std::mutex processor_mutex;
 
-boost::mutex output_mutex;
+std::mutex output_mutex;
 
 /**
  * A barrier on which all threads have to wait
@@ -83,15 +86,15 @@ GBufferPortT<std::shared_ptr<WORKLOAD>> bufferport;
 void producer(
 	std::uint32_t nProductionCycles
 	, std::size_t nContainerEntries
-	, boost::posix_time::time_duration putTimeout
-	, boost::posix_time::time_duration getTimeout
+	, std::chrono::duration<double> putTimeout
+	, std::chrono::duration<double> getTimeout
 	, std::size_t maxPutTimeouts
 	, std::size_t maxGetTimeouts
 ) {
 	std::size_t id;
 
 	{ // Assign a counter to this producer
-		boost::mutex::scoped_lock lk(producer_mutex);
+		std::unique_lock<std::mutex> lk(producer_mutex);
 		id = producer_counter++;
 	}
 
@@ -100,17 +103,13 @@ void producer(
 	std::size_t getTimeouts = 0, totalGetTimeouts = 0, highestGetTimeouts = 0;
 	std::uint32_t cycleCounter = 0;
 
-	// Find out about the number of microseconds in timeouts
-	long putTimeoutMS = boost::numeric_cast<long>(putTimeout.total_microseconds());
-	long getTimeoutMS = boost::numeric_cast<long>(getTimeout.total_microseconds());
-
 	sync_ptr->wait(); // Do not start before all threads have reached this wait()
 
 	// Submit all required items
 	while(cycleCounter < nProductionCycles) {
 		// Submit the WORKLOAD object
 		std::shared_ptr<WORKLOAD> p_submit(new WORKLOAD(nContainerEntries));
-		if(putTimeoutMS > 0) {
+		if(putTimeout.count() > 0.) {
 			while(!bufferport.push_front_orig_bool(p_submit, putTimeout)) {
 				if(++putTimeouts >= maxPutTimeouts) {
 					raiseException("In producer: Exceeded allowed number \"" << maxPutTimeouts << "\" of put timeouts in iteration " << cycleCounter << std::endl);
@@ -131,7 +130,7 @@ void producer(
 	std::uint32_t nReceived = 0;
 	std::shared_ptr<WORKLOAD> p_receive;
 	while(nReceived < nProductionCycles) {
-		if(getTimeoutMS > 0) {
+		if(getTimeout.count() > 0.) {
 			while(!bufferport.pop_back_processed_bool(p_receive, getTimeout)) {
 				if(++getTimeouts >= maxGetTimeouts) {
 					raiseException("In producer: Exceeded allowed number \"" << maxGetTimeouts << "\" of get timeouts in iteration " << cycleCounter << std::endl);
@@ -156,7 +155,7 @@ void producer(
 	}
 
 	{ // Output the results
-		boost::mutex::scoped_lock lk(output_mutex);
+		std::unique_lock<std::mutex> lk(output_mutex);
 
 		std::cout << "Producer " << id << " has finished producing";
 		if(putTimeouts > 0 || getTimeouts > 0) {
@@ -173,15 +172,15 @@ void producer(
 void processor (
 	std::uint32_t nProductionCycles
 	, std::size_t nContainerEntries
-	, boost::posix_time::time_duration putTimeout
-	, boost::posix_time::time_duration getTimeout
+	, std::chrono::duration<double> putTimeout
+	, std::chrono::duration<double> getTimeout
 	, std::size_t maxPutTimeouts
 	, std::size_t maxGetTimeouts
 ) {
 	std::size_t id;
 
 	{ // Assign a counter to this processor
-		boost::mutex::scoped_lock lk(processor_mutex);
+		std::unique_lock<std::mutex> lk(processor_mutex);
 		id = processor_counter++;
 	}
 
@@ -190,16 +189,12 @@ void processor (
 	std::size_t getTimeouts = 0, totalGetTimeouts = 0, highestGetTimeouts = 0;
 	std::uint32_t cycleCounter = 0;
 
-	// Find out about the number of microseconds in timeouts
-	long putTimeoutMS = boost::numeric_cast<long>(putTimeout.total_microseconds());
-	long getTimeoutMS = boost::numeric_cast<long>(getTimeout.total_microseconds());
-
 	sync_ptr->wait(); // Do not start before all threads have reached this wait()
 
 	std::shared_ptr<WORKLOAD> p;
 	while(cycleCounter < nProductionCycles) {
 		// Retrieve an item from the buffer port
-		if(getTimeoutMS > 0) {
+		if(getTimeout.count() > 0.) {
 			while(!bufferport.pop_back_orig_bool(p, getTimeout)){
 				if(++getTimeouts >= maxGetTimeouts) {
 					raiseException("In processor: Exceeded allowed number \"" << maxGetTimeouts << "\" of get timeouts in cycle " << cycleCounter << std::endl);
@@ -220,7 +215,7 @@ void processor (
 		}
 
 		// Submit the processed item to the buffer port
-		if(putTimeoutMS > 0) {
+		if(putTimeout.count() > 0.) {
 			while(!bufferport.push_front_processed_bool(p, putTimeout)) {
 				if(++putTimeouts >= maxPutTimeouts) {
 					raiseException("In processor: Exceeded allowed number \"" << maxPutTimeouts << "\" of put timeouts in cycle " << cycleCounter << std::endl);
@@ -238,7 +233,7 @@ void processor (
 	}
 
 	{ // Output the results
-		boost::mutex::scoped_lock lk(output_mutex);
+		std::unique_lock<std::mutex> lk(output_mutex);
 
 		std::cout << "Processor " << id << " has finished processing";
 		if(putTimeouts > 0 || getTimeouts > 0) {
@@ -277,22 +272,22 @@ int main(int argc, char **argv) {
 
 	//--------------------------------------------------------------------------------
 	// Start the producer and consumer threads
-	boost::thread producer_thread(
+	std::thread producer_thread(
 		producer
 		, nProductionCycles
 		, nContainerEntries
-		, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(putTimeoutMS))
-		, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(getTimeoutMS))
+		, std::chrono::microseconds(putTimeoutMS)
+		, std::chrono::microseconds(getTimeoutMS)
 		, maxPutTimeouts
 		, maxGetTimeouts
 	);
 
-	boost::thread processor_thread(
+	std::thread processor_thread(
 		processor
 		, nProductionCycles
 		, nContainerEntries
-		, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(putTimeoutMS))
-		, boost::posix_time::microseconds(boost::numeric_cast<boost::posix_time::time_duration::tick_type>(getTimeoutMS))
+		, std::chrono::microseconds(putTimeoutMS)
+		, std::chrono::microseconds(getTimeoutMS)
 		, maxPutTimeouts
 		, maxGetTimeouts
 	);

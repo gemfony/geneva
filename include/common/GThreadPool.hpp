@@ -124,7 +124,7 @@ public:
 					 << GEXCEPTION;
 				 }
 
-				 // Store a worker (a place holder, really) in the io_service_ object
+				 // Store a worker (a place holder, really) in the m_io_service object
 				 work_.reset(
 					 new boost::asio::io_service::work(io_service_)
 				 );
@@ -233,7 +233,7 @@ private:
 			 }
 #endif /* DEBUG */
 			 tasksInFlight_--;
-			 condition_.notify_all();
+			 condition_.notify_one();
 		 }
 	 }
 

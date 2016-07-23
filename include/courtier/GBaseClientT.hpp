@@ -296,7 +296,7 @@ protected:
 		// This one line is all it takes to do the processing required for this object.
 		// The object has all required functions on board. GBaseClientT<T> does not need to understand
 		// what is being done during the processing. If processing did not lead to a useful result,
-		// information will be returned back to the server only if returnRegardless_
+		// information will be returned back to the server only if m_returnRegardless
 		// is set to true.
 		if (!target->process() && !returnRegardless_) return true;
 

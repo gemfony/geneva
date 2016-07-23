@@ -86,6 +86,9 @@
 #include <algorithm>
 #include <stdexcept>
 #include <tuple>
+#include <mutex>
+#include <condition_variable>
+#include <chrono>
 
 // Boost headers go here
 
@@ -95,7 +98,6 @@
 #include <boost/thread/thread.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/utility.hpp>
-#include <boost/date_time.hpp>
 
 #ifndef GBOUNDEDBUFFERT_HPP_
 #define GBOUNDEDBUFFERT_HPP_
@@ -168,7 +170,7 @@ public:
 	  * The default constructor. Sets up a buffer of size DEFAULTBUFFERSIZE.
 	  */
 	 GBoundedBufferT()
-		 : capacity_(DEFAULTBUFFERSIZE)
+		 : m_capacity(DEFAULTBUFFERSIZE)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -179,7 +181,7 @@ public:
 	  * @param capacity The desired size of the buffer
 	  */
 	 explicit GBoundedBufferT(const std::size_t &capacity)
-		 : capacity_(capacity ? capacity : 1)
+		 : m_capacity(capacity ? capacity : 1)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -193,16 +195,16 @@ public:
 	 virtual ~GBoundedBufferT() {
 		 // Any error here is deadly ...
 		 try {
-			 boost::mutex::scoped_lock lock(m_);
-			 container_.clear();
+			 std::unique_lock<std::mutex> lock(m_mutex);
+			 m_container.clear();
 		 }
-			 // This is a standard error raised by the lock/mutex
+		 // This is a standard error raised by the lock/mutex
 		 catch (boost::thread_resource_error &) {
 			 glogger
 				 << "Caught thread_resource_error in GBoundedBufferT::~GBoundedBufferT(). Terminating ..." << std::endl
 				 << GTERMINATION;
 		 }
-			 // We do not know whether any of the destructors of the items in the buffer throw anything
+		 // We do not know whether any of the destructors of the items in the buffer throw anything
 		 catch (...) {
 			 glogger
 				 << "Caught unknown exception in GBoundedBufferT::~GBoundedBufferT(). Terminating ..." << std::endl
@@ -219,12 +221,12 @@ public:
 	  * @param item An item to be added to the front of the buffer
 	  */
 	 void push_front(value_type item) {
-		 boost::mutex::scoped_lock lock(m_);
+		 std::unique_lock<std::mutex> lock(m_mutex);
 		 // Note that this overload of wait() internally runs a loop on its predicate to
 		 // deal with spurious wakeups
-		 not_full_.wait(lock, buffer_not_full(container_, capacity_));
-		 container_.push_front(std::move(item));
-		 not_empty_.notify_one();
+		 m_not_full.wait(lock, buffer_not_full(m_container, m_capacity));
+		 m_container.push_front(std::move(item));
+		 m_not_empty.notify_one();
 	 }
 
 	 /***************************************************************************/
@@ -236,13 +238,13 @@ public:
 	  * @param item An item to be added to the front of the buffer
 	  * @param timeout duration until a timeout occurs
 	  */
-	 void push_front(value_type item, const boost::posix_time::time_duration &timeout) {
-		 boost::mutex::scoped_lock lock(m_);
-		 if (!not_full_.timed_wait(lock, timeout, buffer_not_full(container_, capacity_))) {
+	 void push_front(value_type item, const std::chrono::duration<double> &timeout) {
+		 std::unique_lock<std::mutex> lock(m_mutex);
+		 if (!m_not_full.wait_for(lock, timeout, buffer_not_full(m_container, m_capacity))) {
 			 throw Gem::Common::condition_time_out();
 		 }
-		 container_.push_front(std::move(item));
-		 not_empty_.notify_one();
+		 m_container.push_front(std::move(item));
+		 m_not_empty.notify_one();
 	 }
 
 	 /***************************************************************************/
@@ -255,13 +257,13 @@ public:
 	  * @param timeout duration until a timeout occurs
 	  * @return A boolean indicating whether an item has been successfully submitted
 	  */
-	 bool push_front_bool(value_type item, const boost::posix_time::time_duration &timeout) {
-		 boost::mutex::scoped_lock lock(m_);
-		 if (!not_full_.timed_wait(lock, timeout, buffer_not_full(container_, capacity_))) {
+	 bool push_front_bool(value_type item, const std::chrono::duration<double> &timeout) {
+		 std::unique_lock<std::mutex> lock(m_mutex);
+		 if (!m_not_full.wait_for(lock, timeout, buffer_not_full(m_container, m_capacity))) {
 			 return false;
 		 }
-		 container_.push_front(std::move(item));
-		 not_empty_.notify_one();
+		 m_container.push_front(std::move(item));
+		 m_not_empty.notify_one();
 		 return true;
 	 }
 
@@ -274,20 +276,20 @@ public:
 	  * @param item Reference to a single item that was removed from the end of the buffer
 	  */
 	 void pop_back(value_type &item) {
-		 boost::mutex::scoped_lock lock(m_);
-		 not_empty_.wait(lock, buffer_not_empty(container_));
+		 std::unique_lock<std::mutex> lock(m_mutex);
+		 m_not_empty.wait(lock, buffer_not_empty(m_container));
 
 #ifdef DEBUG
-		 if(container_.empty()) {
+		 if(m_container.empty()) {
 			 glogger
 				 << "In GBoundedBufferT<T>::pop_back(item): Container is empty when it shouldn't be!" << std::endl
 				 << GEXCEPTION;
 		 }
 #endif /* DEBUG */
 
-		 item = std::move(container_.back());
-		 container_.pop_back();
-		 not_full_.notify_one();
+		 item = std::move(m_container.back());
+		 m_container.pop_back();
+		 m_not_full.notify_one();
 	 }
 
 	 /***************************************************************************/
@@ -299,23 +301,23 @@ public:
 	  * @param item Reference to a single item that was removed from the end of the buffer
 	  * @param timeout duration until a timeout occurs
 	  */
-	 void pop_back(value_type &item, const boost::posix_time::time_duration &timeout) {
-		 boost::mutex::scoped_lock lock(m_);
-		 if (!not_empty_.timed_wait(lock, timeout, buffer_not_empty(container_))) {
+	 void pop_back(value_type &item, const std::chrono::duration<double> &timeout) {
+		 std::unique_lock<std::mutex> lock(m_mutex);
+		 if (!m_not_empty.wait_for(lock, timeout, buffer_not_empty(m_container))) {
 			 throw Gem::Common::condition_time_out();
 		 }
 
 #ifdef DEBUG
-		 if(container_.empty()) {
+		 if(m_container.empty()) {
 			 glogger
 				 << "In GBoundedBufferT<T>::pop_back(item,timeout): Container is empty when it shouldn't be!" << std::endl
 				 << GEXCEPTION;
 		 }
 #endif /* DEBUG */
 
-		 item = std::move(container_.back());
-		 container_.pop_back();
-		 not_full_.notify_one();
+		 item = std::move(m_container.back());
+		 m_container.pop_back();
+		 m_not_full.notify_one();
 	 }
 
 	 /***************************************************************************/
@@ -329,23 +331,23 @@ public:
 	  * @param timeout duration until a timeout occurs
 	  * @return A boolean indicating whether an item has been successfully retrieved
 	  */
-	 bool pop_back_bool(value_type &item, const boost::posix_time::time_duration &timeout) {
-		 boost::mutex::scoped_lock lock(m_);
-		 if (!not_empty_.timed_wait(lock, timeout, buffer_not_empty(container_))) {
+	 bool pop_back_bool(value_type &item, const std::chrono::duration<double> &timeout) {
+		 std::unique_lock<std::mutex> lock(m_mutex);
+		 if (!m_not_empty.wait_for(lock, timeout, buffer_not_empty(m_container))) {
 			 return false;
 		 }
 
 #ifdef DEBUG
-		 if(container_.empty()) {
+		 if(m_container.empty()) {
 			 glogger
 				 << "In GBoundedBufferT<T>::pop_back_bool(item,timeout): Container is empty when it shouldn't be!" << std::endl
 				 << GEXCEPTION;
 		 }
 #endif /* DEBUG */
 
-		 item = std::move(container_.back()); // Assign the item at the back of the container
-		 container_.pop_back(); // Remove it from the container
-		 not_full_.notify_one();
+		 item = std::move(m_container.back()); // Assign the item at the back of the container
+		 m_container.pop_back(); // Remove it from the container
+		 m_not_full.notify_one();
 		 return true;
 	 }
 
@@ -358,7 +360,7 @@ public:
 	  * @return The maximum allowed capacity
 	  */
 	 std::size_t getCapacity() const {
-		 return capacity_;
+		 return m_capacity;
 	 }
 
 	 /***************************************************************************/
@@ -370,8 +372,8 @@ public:
 	  * @return The currently remaining space in the buffer
 	  */
 	 std::size_t remainingSpace() {
-		 boost::mutex::scoped_lock lock(m_);
-		 return capacity_ - container_.size();
+		 std::unique_lock<std::mutex> lock(m_mutex);
+		 return m_capacity - m_container.size();
 	 }
 
 	 /***************************************************************************/
@@ -384,8 +386,8 @@ public:
 	  * @return The current size of the buffer
 	  */
 	 std::size_t size() {
-		 boost::mutex::scoped_lock lock(m_);
-		 return container_.size();
+		 std::unique_lock<std::mutex> lock(m_mutex);
+		 return m_container.size();
 	 }
 
 	 /***************************************************************************/
@@ -398,31 +400,31 @@ public:
 	  * @return True if the buffer is not empty
 	  */
 	 bool isNotEmpty() {
-		 boost::mutex::scoped_lock lock(m_);
-		 return !container_.empty();
+		 std::unique_lock<std::mutex> lock(m_mutex);
+		 return !m_container.empty();
 	 }
 
 	 /***************************************************************************/
 	 /*
-	  * Retrieves the id_ variable.
+	  * Retrieves the m_id variable.
 	  *
-	  * @return The value of the id_ variable
+	  * @return The value of the m_id variable
 	  */
 	 PORTIDTYPE getId() const {
-		 return id_;
+		 return m_id;
 	 }
 
 	 /***************************************************************************/
 	 /*
-	  * Allows to set the id_ once. Any subsequent calls to this
+	  * Allows to set the m_id once. Any subsequent calls to this
 	  * function will have no effect.
 	  *
-	  * @param id The desired value of the id_ variable
+	  * @param id The desired value of the m_id variable
 	  */
 	 void setId(const PORTIDTYPE &id) {
-		 if (!idSet_) {
-			 id_ = id;
-			 idSet_ = true;
+		 if (!m_idSet) {
+			 m_id = id;
+			 m_idSet = true;
 		 }
 	 }
 
@@ -444,18 +446,18 @@ protected:
 		  buffer_not_empty(
 			  const container_type &c
 		  )
-			  : c_(c) { /* nothing */ }
+			  : m_c(c) { /* nothing */ }
 
 		  /** @brief Used for the actual test */
 		  bool operator()() const {
-			  return (!c_.empty());
+			  return (!m_c.empty());
 		  }
 
 	 private:
 		  /** @brief Default constructor; intentionally private and undefined */
 		  buffer_not_empty() = delete;
 
-		  const container_type &c_; ///< Holds a reference to the actual container
+		  const container_type &m_c; ///< Holds a reference to the actual container
 	 };
 
 	 /**
@@ -469,28 +471,28 @@ protected:
 		  buffer_not_full(
 			  const container_type &c, const std::size_t &capacity
 		  )
-			  : c_(c), capacity_(capacity) { /* nothing */ }
+			  : m_c(c), m_capacity(capacity) { /* nothing */ }
 
 		  /** @brief Used for the actual test */
 		  bool operator()() const {
-			  return (c_.size() < capacity_);
+			  return (m_c.size() < m_capacity);
 		  }
 
 	 private:
 		  /** @brief Default constructor; intentionally private and undefined */
 		  buffer_not_full() = delete;
 
-		  const container_type &c_;
-		  const std::size_t &capacity_;
+		  const container_type &m_c;
+		  const std::size_t &m_capacity;
 	 };
 
 	 /***************************************************************************/
 
-	 const std::size_t capacity_; ///< The maximum allowed size of the container
-	 container_type container_; ///< The actual data store
-	 mutable boost::mutex m_; ///< Used for synchronization of access to the container
-	 boost::condition_variable not_empty_; ///< Used for synchronization of access to the container
-	 boost::condition_variable not_full_; ///< Used for synchronization of access to the container
+	 const std::size_t m_capacity; ///< The maximum allowed size of the container
+	 container_type m_container; ///< The actual data store
+	 mutable std::mutex m_mutex; ///< Used for synchronization of access to the container
+	 std::condition_variable m_not_empty; ///< Used for synchronization of access to the container
+	 std::condition_variable m_not_full; ///< Used for synchronization of access to the container
 
 private:
 	 /***************************************************************************/
@@ -498,8 +500,8 @@ private:
 	 GBoundedBufferT(const GBoundedBufferT<T> &) = delete; ///< Disabled copy constructor
 	 GBoundedBufferT &operator=(const GBoundedBufferT<T> &) = delete; ///< Disabled assign operator
 
-	 volatile PORTIDTYPE id_=0; ///< An id that allows to identify this class
-	 volatile bool idSet_=false; ///< Allows control over whether the id has been set before
+	 volatile PORTIDTYPE m_id=0; ///< An id that allows to identify this class
+	 volatile bool m_idSet=false; ///< Allows control over whether the id has been set before
 };
 
 /******************************************************************************/

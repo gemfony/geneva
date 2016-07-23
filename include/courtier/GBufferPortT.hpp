@@ -130,7 +130,7 @@ public:
 	 * @param item An item to be added to the buffer
 	 * @param timeout duration until a timeout occurs
 	 */
-	void push_front_orig(T item, const boost::posix_time::time_duration &timeout) {
+	void push_front_orig(T item, const std::chrono::duration<double> &timeout) {
 		original_->push_front(item, timeout);
 	}
 
@@ -143,7 +143,7 @@ public:
 	 * @param timeout duration until a timeout occurs
 	 * @return A boolean indicating whether an item could be submitted
 	 */
-	bool push_front_orig_bool(T item, const boost::posix_time::time_duration &timeout) {
+	bool push_front_orig_bool(T item, const std::chrono::duration<double> &timeout) {
 		return original_->push_front_bool(item, timeout);
 	}
 
@@ -167,7 +167,7 @@ public:
 	 * @param item The item that was retrieved from the queue
 	 * @param timeout duration until a timeout occurs
 	 */
-	void pop_back_orig(T &item, const boost::posix_time::time_duration &timeout) {
+	void pop_back_orig(T &item, const std::chrono::duration<double> &timeout) {
 		original_->pop_back(item, timeout);
 	}
 
@@ -181,7 +181,7 @@ public:
 	 * @param timeout duration until a timeout occurs
 	 * @return A boolean indicating whether an item could be retrieved
 	 */
-	bool pop_back_orig_bool(T &item, const boost::posix_time::time_duration &timeout) {
+	bool pop_back_orig_bool(T &item, const std::chrono::duration<double> &timeout) {
 		return original_->pop_back_bool(item, timeout);
 	}
 
@@ -204,7 +204,7 @@ public:
 	 * @param item An item to be added to the buffer
 	 * @param timeout duration until a timeout occurs
 	 */
-	void push_front_processed(T item, const boost::posix_time::time_duration &timeout) {
+	void push_front_processed(T item, const std::chrono::duration<double> &timeout) {
 		processed_->push_front(item, timeout);
 	}
 
@@ -217,7 +217,7 @@ public:
 	 * @param timeout duration until a timeout occurs
 	 * @return A boolean indicating whether an item could be submitted
 	 */
-	bool push_front_processed_bool(T item, const boost::posix_time::time_duration &timeout) {
+	bool push_front_processed_bool(T item, const std::chrono::duration<double> &timeout) {
 		return processed_->push_front_bool(item, timeout);
 	}
 
@@ -240,7 +240,7 @@ public:
 	 * @param item The item that was retrieved from the queue
 	 * @param timeout duration until a timeout occurs
 	 */
-	void pop_back_processed(T &item, const boost::posix_time::time_duration &timeout) {
+	void pop_back_processed(T &item, const std::chrono::duration<double> &timeout) {
 		processed_->pop_back(item, timeout);
 	}
 
@@ -254,7 +254,7 @@ public:
 	 * @param timeout duration until a timeout occurs
 	 * @return A boolean indicating whether an item could be retrieved
 	 */
-	bool pop_back_processed_bool(T &item, const boost::posix_time::time_duration &timeout) {
+	bool pop_back_processed_bool(T &item, const std::chrono::duration<double> &timeout) {
 		return processed_->pop_back_bool(item, timeout);
 	}
 

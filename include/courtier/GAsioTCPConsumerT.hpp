@@ -70,7 +70,6 @@
 #include <boost/spirit/include/phoenix_core.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/include/phoenix_stl.hpp>
-
 #ifndef GASIOTCPCONSUMERT_HPP_
 #define GASIOTCPCONSUMERT_HPP_
 
@@ -134,18 +133,18 @@ public:
 	 */
 	GAsioTCPClientT(const std::string &server, const std::string &port)
 		: GBaseClientT<processable_type>()
-	   , maxStalls_(GASIOTCPCONSUMERMAXSTALLS)
-	   , maxConnectionAttempts_(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS)
-	  	, totalConnectionAttempts_(0)
-	   , stalls_(0)
-	   , io_service_()
-	   , socket_(io_service_)
-	   , resolver_(io_service_)
-	   , query_(server, port)
-	   , endpoint_iterator0_(resolver_.resolve(query_))
-	   , end_()
+	   , m_maxStalls(GASIOTCPCONSUMERMAXSTALLS)
+	   , m_maxConnectionAttempts(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS)
+	  	, m_totalConnectionAttempts(0)
+	   , m_stalls(0)
+	   , m_io_service()
+	   , m_socket(m_io_service)
+	   , m_resolver(m_io_service)
+	   , m_query(server, port)
+	   , m_endpoint_iterator0(m_resolver.resolve(m_query))
+	   , m_end()
 	{
-		tmpBuffer_ = new char[Gem::Courtier::COMMANDLENGTH];
+		m_tmpBuffer = new char[Gem::Courtier::COMMANDLENGTH];
 	}
 
 	/***************************************************************************/
@@ -162,17 +161,17 @@ public:
 		, std::shared_ptr<processable_type> additionalDataTemplate
 	)
 		: GBaseClientT<processable_type>(additionalDataTemplate)
-	   , maxStalls_(GASIOTCPCONSUMERMAXSTALLS)
-	   , maxConnectionAttempts_(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS)
-	   , totalConnectionAttempts_(0), stalls_(0)
-	   , io_service_()
-	   , socket_(io_service_)
-	   , resolver_(io_service_)
-	   , query_(server, port)
-	   , endpoint_iterator0_(resolver_.resolve(query_))
-	   , end_()
+	   , m_maxStalls(GASIOTCPCONSUMERMAXSTALLS)
+	   , m_maxConnectionAttempts(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS)
+	   , m_totalConnectionAttempts(0), m_stalls(0)
+	   , m_io_service()
+	   , m_socket(m_io_service)
+	   , m_resolver(m_io_service)
+	   , m_query(server, port)
+	   , m_endpoint_iterator0(m_resolver.resolve(m_query))
+	   , m_end()
 	{
-		tmpBuffer_ = new char[Gem::Courtier::COMMANDLENGTH];
+		m_tmpBuffer = new char[Gem::Courtier::COMMANDLENGTH];
 	}
 
 	/***************************************************************************/
@@ -180,7 +179,7 @@ public:
 	 * The standard destructor.
 	 */
 	virtual ~GAsioTCPClientT() {
-		Gem::Common::g_array_delete(tmpBuffer_);
+		Gem::Common::g_array_delete(m_tmpBuffer);
 
 		glogger
 		<< "In GAsioTCPClinetT<>::~GAsioTCPClientT():" << std::endl
@@ -196,17 +195,17 @@ public:
 	 * @param maxStalls The maximum number of stalled connection attempts
 	 */
 	void setMaxStalls(const std::uint32_t &maxStalls) {
-		maxStalls_ = maxStalls;
+		m_maxStalls = maxStalls;
 	}
 
 	/***************************************************************************/
 	/**
 	 * Retrieves the maximum allowed number of stalled attempts
 	 *
-	 * @return The value of the maxStalls_ variable
+	 * @return The value of the m_maxStalls variable
 	 */
 	std::uint32_t getMaxStalls() const {
-		return maxStalls_;
+		return m_maxStalls;
 	}
 
 	/***************************************************************************/
@@ -216,17 +215,17 @@ public:
 	 * @param maxConnectionAttempts The maximum number of allowed failed connection attempts
 	 */
 	void setMaxConnectionAttempts(const std::uint32_t &maxConnectionAttempts) {
-		maxConnectionAttempts_ = maxConnectionAttempts;
+		m_maxConnectionAttempts = maxConnectionAttempts;
 	}
 
 	/***************************************************************************/
 	/**
 	 * Retrieves the maximum allowed number of failed connection attempts
 	 *
-	 * @return The value of the maxConnectionAttempts_ variable
+	 * @return The value of the m_maxConnectionAttempts variable
 	 */
 	std::uint32_t getMaxConnectionAttempts() const {
-		return maxConnectionAttempts_;
+		return m_maxConnectionAttempts;
 	}
 
 	/***************************************************************************/
@@ -235,7 +234,7 @@ public:
 	 * up the point of the call;
 	 */
 	std::uint32_t getTotalConnectionAttempts() const {
-		return totalConnectionAttempts_;
+		return m_totalConnectionAttempts;
 	}
 
 protected:
@@ -303,43 +302,43 @@ protected:
 				<< GLOGGING;
 
 				// Make sure we don't leave any open sockets lying around.
-				disconnect(socket_);
+				disconnect(m_socket);
 				return CLIENT_TERMINATE;
 			}
 
 			// Let the server know we want work
-			boost::asio::write(socket_, boost::asio::buffer(assembleQueryString("ready", Gem::Courtier::COMMANDLENGTH)));
+			boost::asio::write(m_socket, boost::asio::buffer(assembleQueryString("ready", Gem::Courtier::COMMANDLENGTH)));
 
 			// Read answer. First we care for the command sent by the server
-			boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
+			boost::asio::read(m_socket, boost::asio::buffer(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
 
 
 			// Not currently getting here
 
 			// Remove all leading or trailing white spaces from the command
 			std::string inboundCommandString = boost::algorithm::trim_copy(
-				std::string(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
+				std::string(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
 
 			// Act on the command
 			if ("compute" == inboundCommandString) {
 				// We have likely received data. Let's find out how big it is
-				boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
-				std::string inboundHeader = boost::algorithm::trim_copy(std::string(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
+				boost::asio::read(m_socket, boost::asio::buffer(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
+				std::string inboundHeader = boost::algorithm::trim_copy(std::string(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
 				std::size_t dataSize = boost::lexical_cast<std::size_t>(inboundHeader);
 
 				// Now retrieve the serialization mode that was used
-				boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
-				serMode = boost::algorithm::trim_copy(std::string(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
+				boost::asio::read(m_socket, boost::asio::buffer(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
+				serMode = boost::algorithm::trim_copy(std::string(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
 
 				// Retrieve the port id
-				boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
-				portId = boost::algorithm::trim_copy(std::string(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
+				boost::asio::read(m_socket, boost::asio::buffer(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
+				portId = boost::algorithm::trim_copy(std::string(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
 
 				// Create appropriately sized buffer
 				char *inboundData = new char[dataSize];
 
 				// Read the real data section from the stream
-				boost::asio::read(socket_, boost::asio::buffer(inboundData, dataSize));
+				boost::asio::read(m_socket, boost::asio::buffer(inboundData, dataSize));
 
 				// And make the data known to the outside world
 				item = std::string(inboundData, dataSize);
@@ -348,32 +347,32 @@ protected:
 
 				// We have successfully retrieved an item, so we need
 				// to reset the stall-counter
-				stalls_ = 0;
+				m_stalls = 0;
 
 				// Make sure we don't leave any open sockets lying around.
-				disconnect(socket_);
+				disconnect(m_socket);
 				// Indicate that we want to continue
 				return CLIENT_CONTINUE;
 			} else if (this->parseIdleCommand(idleTime, inboundCommandString)) { // Received no work. We have been instructed to wait for a certain time
 				// We will usually only allow a given number of timeouts / stalls
-				if (maxStalls_ && (stalls_++ > maxStalls_)) {
+				if (m_maxStalls && (m_stalls++ > m_maxStalls)) {
 					glogger
 					<< "In GAsioTCPClientT<processable_type>::retrieve(): Warning!" << std::endl
-					<< "Maximum number of consecutive idle commands (" << maxStalls_ << ")" << std::endl
+					<< "Maximum number of consecutive idle commands (" << m_maxStalls << ")" << std::endl
 					<< "has been reached. Leaving now." << std::endl
 					<< GWARNING;
 
 					// Make sure we don't leave any open sockets lying around.
-					disconnect(socket_);
+					disconnect(m_socket);
 					// Indicate that we don't want to continue
 					return CLIENT_TERMINATE;
 				}
 
 				// Make sure we don't leave any open sockets lying around.
-				disconnect(socket_);
+				disconnect(m_socket);
 
 				// We can continue. But let's wait for a time specified by the server in its idle-command
-				boost::this_thread::sleep(boost::posix_time::milliseconds(long(idleTime)));
+				std::chrono::milliseconds timeout(idleTime);
 
 				// Indicate that we want to continue
 				return CLIENT_CONTINUE;
@@ -385,7 +384,7 @@ protected:
 				<< GWARNING;
 
 				// Make sure we don't leave any open sockets lying around.
-				disconnect(socket_);
+				disconnect(m_socket);
 				// Indicate that we don't want to continue
 				return CLIENT_TERMINATE;
 			}
@@ -403,7 +402,7 @@ protected:
 			}
 
 			// Make sure we don't leave any open sockets lying around.
-			disconnect(socket_);
+			disconnect(m_socket);
 
 			// Indicate that we don't want to continue
 			return CLIENT_TERMINATE;
@@ -453,7 +452,7 @@ protected:
 				<< GWARNING;
 
 				// Make sure we don't leave any open sockets lying around.
-				disconnect(socket_);
+				disconnect(m_socket);
 
 				// Indicate that we don't want to continue
 				return CLIENT_TERMINATE;
@@ -462,10 +461,10 @@ protected:
 			// And write the serialized data to the socket. We use
 			// "gather-write" to send different buffers in a single
 			// write operation.
-			boost::asio::write(socket_, buffers);
+			boost::asio::write(m_socket, buffers);
 
 			// Make sure we don't leave any open sockets lying around.
-			disconnect(socket_);
+			disconnect(m_socket);
 
 			// Indicate that we want to continue
 			return CLIENT_CONTINUE;
@@ -483,7 +482,7 @@ protected:
 			}
 
 			// Make sure we don't leave any open sockets lying around.
-			disconnect(socket_);
+			disconnect(m_socket);
 
 			// Indicate that we don't want to continue
 			return CLIENT_TERMINATE;
@@ -512,7 +511,7 @@ private:
 	 * @return true if the connection could be established, false otherwise.
 	 */
 	bool tryConnect() {
-		// Try to make a connection, at max maxConnectionAttempts_ times
+		// Try to make a connection, at max m_maxConnectionAttempts times
 		long milliSecondsWait = 10;
 
 		std::uint32_t connectionAttempt = 0;
@@ -520,19 +519,19 @@ private:
 		boost::system::error_code error;
 		boost::asio::ip::tcp::resolver::iterator endpoint_iterator;
 
-		while (maxConnectionAttempts_ ? (connectionAttempt++ < maxConnectionAttempts_) : true) {
+		while (m_maxConnectionAttempts ? (connectionAttempt++ < m_maxConnectionAttempts) : true) {
 			// Restore the start of the iteration
-			endpoint_iterator = endpoint_iterator0_;
+			endpoint_iterator = m_endpoint_iterator0;
 			error = boost::asio::error::host_not_found;
 
-			while (error && endpoint_iterator != end_) {
+			while (error && endpoint_iterator != m_end) {
 				// Make sure we do not try to re-open an already open socket
-				disconnect(socket_);
+				disconnect(m_socket);
 				// Make the connection attempt
-				socket_.connect(*endpoint_iterator++, error);
+				m_socket.connect(*endpoint_iterator++, error);
 
 				if (error) {
-					totalConnectionAttempts_++;
+					m_totalConnectionAttempts++;
 				}
 			}
 
@@ -540,9 +539,10 @@ private:
 			if (!error) break;
 
 			// Unsuccessful. Sleep for 0.01 seconds, then try again
+			// TODO: Transfer to std::chrono, once we use std::thread
 			boost::this_thread::sleep(boost::posix_time::milliseconds(milliSecondsWait));
 
-			if (maxConnectionAttempts_ > 0) {
+			if (m_maxConnectionAttempts > 0) {
 				milliSecondsWait *= 2;
 			}
 		}
@@ -555,22 +555,22 @@ private:
 
 	/***************************************************************************/
 
-	std::uint32_t maxStalls_; ///< The maximum allowed number of stalled connection attempts
-	std::uint32_t maxConnectionAttempts_; ///< The maximum allowed number of failed connection attempts
-	std::uint32_t totalConnectionAttempts_; ///< The total number of failed connection attempts during program execution
+	std::uint32_t m_maxStalls; ///< The maximum allowed number of stalled connection attempts
+	std::uint32_t m_maxConnectionAttempts; ///< The maximum allowed number of failed connection attempts
+	std::uint32_t m_totalConnectionAttempts; ///< The total number of failed connection attempts during program execution
 
-	std::uint32_t stalls_; ///< counter for stalled connection attempts
+	std::uint32_t m_stalls; ///< counter for stalled connection attempts
 
-	char *tmpBuffer_;
+	char *m_tmpBuffer;
 
-	boost::asio::io_service io_service_; ///< Holds the Boost::ASIO::io_service object
-	boost::asio::ip::tcp::socket socket_; ///< The underlying socket
+	boost::asio::io_service m_io_service; ///< Holds the Boost::ASIO::io_service object
+	boost::asio::ip::tcp::socket m_socket; ///< The underlying socket
 
-	boost::asio::ip::tcp::resolver resolver_; ///< Responsible for name resolution
-	boost::asio::ip::tcp::resolver::query query_; ///< A query
+	boost::asio::ip::tcp::resolver m_resolver; ///< Responsible for name resolution
+	boost::asio::ip::tcp::resolver::query m_query; ///< A query
 
-	boost::asio::ip::tcp::resolver::iterator endpoint_iterator0_; ///< start of iteration
-	boost::asio::ip::tcp::resolver::iterator end_; ///< end for end point iterator
+	boost::asio::ip::tcp::resolver::iterator m_endpoint_iterator0; ///< start of iteration
+	boost::asio::ip::tcp::resolver::iterator m_end; ///< end for end point iterator
 };
 
 /******************************************************************************/
@@ -602,16 +602,16 @@ public:
 		, const Gem::Common::serializationMode &serMod
 		, GAsioTCPConsumerT<processable_type> *master
 	)
-		: strand_(io_service), socket_(io_service), bytesTransferredDataBody_(0)
-	   , dataBody_ptr_(new std::string()) // An empty string
-		, portId_(Gem::Common::PORTIDTYPE(0))
-	   , dataSize_(0)
-	   , serializationMode_(serMod)
-	   , master_(master)
-	   , broker_ptr_(master->broker_ptr_)
-	   , timeout_(boost::posix_time::milliseconds(10))
-	   , brokerRetrieveMaxRetries_(10)
-	   , noDataClientSleepMilliSeconds_(50)
+		: m_strand(io_service), m_socket(io_service), m_bytesTransferredDataBody(0)
+	   , m_dataBody_ptr(new std::string()) // An empty string
+		, m_portId(Gem::Common::PORTIDTYPE(0))
+	   , m_dataSize(0)
+	   , m_serializationMode(serMod)
+	   , m_master(master)
+	   , m_broker_ptr(master->m_broker_ptr)
+	   , m_timeout(std::chrono::milliseconds(10))
+	   , m_brokerRetrieveMaxRetries(10)
+	   , m_noDataClientSleepMilliSeconds(50)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -630,11 +630,13 @@ public:
 			// Initiate the first read session. Every transmission starts with a command
 			auto p = GAsioServerSessionT<processable_type>::shared_from_this();
 			boost::asio::async_read(
-				socket_, boost::asio::buffer(commandBuffer_), strand_.wrap(
+				m_socket
+				, boost::asio::buffer(m_commandBuffer)
+				, m_strand.wrap(
 					std::bind(
-						&GAsioServerSessionT<processable_type>::async_handle_read_command,
-						GAsioServerSessionT<processable_type>::shared_from_this(),
-						std::placeholders::_1 // Replaces boost::asio::placeholders::error
+						&GAsioServerSessionT<processable_type>::async_handle_read_command
+						, GAsioServerSessionT<processable_type>::shared_from_this()
+						, std::placeholders::_1 // Replaces boost::asio::placeholders::error
 					)
 				)
 			);
@@ -665,7 +667,7 @@ public:
 	 * @return The socket used by this object
 	 */
 	boost::asio::ip::tcp::socket &getSocket() {
-		return socket_;
+		return m_socket;
 	}
 
 protected:
@@ -689,7 +691,7 @@ protected:
 		// Remove white spaces
 		std::string command
 			= boost::algorithm::trim_copy(
-				std::string(commandBuffer_.data(), Gem::Courtier::COMMANDLENGTH)
+				std::string(m_commandBuffer.data(), Gem::Courtier::COMMANDLENGTH)
 			);
 
 		//------------------------------------------------------------------------
@@ -723,8 +725,8 @@ protected:
 			// in its entirety, not in chunks. async_async_handle_read_portid is only called
 			// once the portId has been fully read.
 			boost::asio::async_read(
-				socket_, boost::asio::buffer(commandBuffer_)
-				, strand_.wrap(
+				m_socket, boost::asio::buffer(m_commandBuffer)
+				, m_strand.wrap(
 					std::bind(
 						&GAsioServerSessionT<processable_type>::async_handle_read_portid
 						, GAsioServerSessionT<processable_type>::shared_from_this()
@@ -770,15 +772,15 @@ protected:
 
 		// Remove white spaces
 		std::string portId_str
-			= boost::algorithm::trim_copy(std::string(commandBuffer_.data(), Gem::Courtier::COMMANDLENGTH));
+			= boost::algorithm::trim_copy(std::string(m_commandBuffer.data(), Gem::Courtier::COMMANDLENGTH));
 
-		portId_ = boost::lexical_cast<Gem::Common::PORTIDTYPE>(portId_str);
+		m_portId = boost::lexical_cast<Gem::Common::PORTIDTYPE>(portId_str);
 
 		//------------------------------------------------------------------------
 		// Initiate the next read session, this time dealing with the data size
 		try {
 			boost::asio::async_read(
-				socket_, boost::asio::buffer(commandBuffer_), strand_.wrap(std::bind(
+				m_socket, boost::asio::buffer(m_commandBuffer), m_strand.wrap(std::bind(
 					&GAsioServerSessionT<processable_type>::async_handle_read_datasize,
 					GAsioServerSessionT<processable_type>::shared_from_this(),
 					std::placeholders::_1 // Replaces boost::asio::placeholders::error
@@ -825,16 +827,16 @@ protected:
 		// Remove white spaces
 		std::string dataSize_str
 			= boost::algorithm::trim_copy(
-				std::string(commandBuffer_.data(), Gem::Courtier::COMMANDLENGTH)
+				std::string(m_commandBuffer.data(), Gem::Courtier::COMMANDLENGTH)
 			);
 
-		dataSize_ = boost::lexical_cast<std::size_t>(dataSize_str);
+		m_dataSize = boost::lexical_cast<std::size_t>(dataSize_str);
 
 		//------------------------------------------------------------------------
 		// Initiate the next read session, this time dealing with the data body
 		try {
-			socket_.async_read_some(
-				boost::asio::buffer(dataBuffer_), strand_.wrap(std::bind(
+			m_socket.async_read_some(
+				boost::asio::buffer(m_dataBuffer), m_strand.wrap(std::bind(
 					&GAsioServerSessionT<processable_type>::async_handle_read_body,
 					GAsioServerSessionT<processable_type>::shared_from_this(),
 					std::placeholders::_1 // Replaces boost::asio::placeholders::error
@@ -882,19 +884,19 @@ protected:
 		//------------------------------------------------------------------------
 		// Extract the data and update counters
 
-		// Add the data to the result string. Note that dataBody_ptr_ is a shared_ptr,
+		// Add the data to the result string. Note that m_dataBody_ptr is a shared_ptr,
 		// so we can easily hand it to the consumer, when complete.
-		*dataBody_ptr_ += std::string(dataBuffer_.data(), bytes_transferred);
+		*m_dataBody_ptr += std::string(m_dataBuffer.data(), bytes_transferred);
 		// Update our counter
-		bytesTransferredDataBody_ += bytes_transferred;
+		m_bytesTransferredDataBody += bytes_transferred;
 
 		//------------------------------------------------------------------------
 		// Initiate the next read session, if still required
 
-		if (bytesTransferredDataBody_ < dataSize_) {
+		if (m_bytesTransferredDataBody < m_dataSize) {
 			try {
-				socket_.async_read_some(
-					boost::asio::buffer(dataBuffer_), strand_.wrap(std::bind(
+				m_socket.async_read_some(
+					boost::asio::buffer(m_dataBuffer), m_strand.wrap(std::bind(
 						&GAsioServerSessionT<processable_type>::async_handle_read_body,
 						GAsioServerSessionT<processable_type>::shared_from_this(),
 						std::placeholders::_1 // Replaces boost::asio::placeholders::error
@@ -921,11 +923,11 @@ protected:
 			}
 		} else { // The transfer is complete, work with the results
 			// Disconnect the socket
-			disconnect(socket_);
+			disconnect(m_socket);
 
 			// ... and schedule the work item for de-serialization
-			master_->async_scheduleDeSerialization(
-				dataBody_ptr_, portId_
+			m_master->async_scheduleDeSerialization(
+				m_dataBody_ptr, m_portId
 			);
 		}
 
@@ -944,9 +946,9 @@ protected:
 		Gem::Common::PORTIDTYPE portId;
 
 		// Do not do anything if the server was stopped
-		if (master_->stopped()) {
+		if (m_master->stopped()) {
 			// Disconnect the socket
-			disconnect(socket_);
+			disconnect(m_socket);
 			return;
 		}
 
@@ -954,10 +956,10 @@ protected:
 		// no item could be retrieved
 		std::size_t nRetries = 0;
 
-		while (!broker_ptr_->get(portId, p, timeout_)) {
-			if (++nRetries > brokerRetrieveMaxRetries_) {
+		while (!m_broker_ptr->get(portId, p, m_timeout)) {
+			if (++nRetries > m_brokerRetrieveMaxRetries) {
 				std::string idleCommand
-					= std::string("idle(") + boost::lexical_cast<std::string>(noDataClientSleepMilliSeconds_) +
+					= std::string("idle(") + boost::lexical_cast<std::string>(m_noDataClientSleepMilliSeconds) +
 					  std::string(")");
 				this->async_sendSingleCommand(idleCommand);
 				return;
@@ -966,7 +968,7 @@ protected:
 
 		// Retrieve a string representation of the data item
 		// TODO: processable_type should already hold the serialization code
-		std::string item = Gem::Common::sharedPtrToString(p, serializationMode_);
+		std::string item = Gem::Common::sharedPtrToString(p, m_serializationMode);
 
 		// Format the command
 		std::string outbound_command_header = assembleQueryString(
@@ -979,7 +981,7 @@ protected:
 
 		// Format a header for the serialization mode
 		std::string serialization_header = assembleQueryString(
-			boost::lexical_cast<std::string>(serializationMode_), Gem::Courtier::COMMANDLENGTH
+			boost::lexical_cast<std::string>(m_serializationMode), Gem::Courtier::COMMANDLENGTH
 		);
 
 		// Format the portId header
@@ -1000,7 +1002,7 @@ protected:
 		// command, header and data in a single write operation.
 		try {
 			boost::asio::async_write(
-				socket_, buffers, strand_.wrap(std::bind(
+				m_socket, buffers, m_strand.wrap(std::bind(
 					&GAsioServerSessionT<processable_type>::handle_write,
 					GAsioServerSessionT<processable_type>::shared_from_this(),
 					std::placeholders::_1 // Replaces boost::asio::placeholders::error
@@ -1038,7 +1040,7 @@ protected:
 		// ... and tell the client
 		try {
 			boost::asio::async_write(
-				socket_, boost::asio::buffer(outbound_command), strand_.wrap(std::bind(
+				m_socket, boost::asio::buffer(outbound_command), m_strand.wrap(std::bind(
 					&GAsioServerSessionT<processable_type>::handle_write,
 					GAsioServerSessionT<processable_type>::shared_from_this(),
 					std::placeholders::_1 // Replaces boost::asio::placeholders::error
@@ -1078,7 +1080,7 @@ protected:
 		}
 
 		// Disconnect the socket
-		disconnect(socket_);
+		disconnect(m_socket);
 	}
 
 private:
@@ -1091,26 +1093,26 @@ private:
 
 	/***************************************************************************/
 
-	boost::asio::io_service::strand strand_; ///< /// Ensure the connection's handlers are not called concurrently.
-	boost::asio::ip::tcp::socket socket_; ///< The underlying socket
+	boost::asio::io_service::strand m_strand; ///< /// Ensure the connection's handlers are not called concurrently.
+	boost::asio::ip::tcp::socket m_socket; ///< The underlying socket
 
-	boost::array<char, COMMANDLENGTH> commandBuffer_; ///< A buffer to be used for command transfers
-	boost::array<char, 16384> dataBuffer_;    ///< A buffer holding body data -- was 4096
+	boost::array<char, COMMANDLENGTH> m_commandBuffer; ///< A buffer to be used for command transfers
+	boost::array<char, 16384> m_dataBuffer;    ///< A buffer holding body data -- was 4096
 
-	std::size_t bytesTransferredDataBody_; ///< The number of bytes if the data body transferred so far
-	std::shared_ptr <std::string> dataBody_ptr_; ///< The actual body data. Implemented as a shared_ptr so we can easily hand the data around
+	std::size_t m_bytesTransferredDataBody; ///< The number of bytes if the data body transferred so far
+	std::shared_ptr <std::string> m_dataBody_ptr; ///< The actual body data. Implemented as a shared_ptr so we can easily hand the data around
 
-	Gem::Common::PORTIDTYPE portId_; ///< The id of a port
-	std::size_t dataSize_; ///< Holds the size of the body of data
+	Gem::Common::PORTIDTYPE m_portId; ///< The id of a port
+	std::size_t m_dataSize; ///< Holds the size of the body of data
 
-	Gem::Common::serializationMode serializationMode_; ///< Specifies the serialization mode
-	GAsioTCPConsumerT<processable_type> *master_;
-	std::shared_ptr <Gem::Courtier::GBrokerT<processable_type>> broker_ptr_;
+	Gem::Common::serializationMode m_serializationMode; ///< Specifies the serialization mode
+	GAsioTCPConsumerT<processable_type> *m_master;
+	std::shared_ptr <Gem::Courtier::GBrokerT<processable_type>> m_broker_ptr;
 
-	boost::posix_time::time_duration timeout_; ///< A timeout for put- and get-operations
+	std::chrono::duration<double> m_timeout; ///< A timeout for put- and get-operations
 
-	std::size_t brokerRetrieveMaxRetries_; ///< The maximum amount
-	std::uint32_t noDataClientSleepMilliSeconds_; ///< The amount of milliseconds the client should sleep when no data could be retrieved from the broker
+	std::size_t m_brokerRetrieveMaxRetries; ///< The maximum amount
+	std::uint32_t m_noDataClientSleepMilliSeconds; ///< The amount of milliseconds the client should sleep when no data could be retrieved from the broker
 };
 
 /******************************************************************************/
@@ -1132,16 +1134,16 @@ public:
 	 * The default constructor
 	 */
 	GAsioTCPConsumerT()
-		: listenerThreads_(Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
-		, acceptor_(io_service_)
-	   , serializationMode_(Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY)
-		, maxStalls_(GASIOTCPCONSUMERMAXSTALLS)
-		, maxConnectionAttempts_(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS)
-	   , returnRegardless_(GASIOTCPCONSUMERRETURNREGARDLESS)
-  		, port_(GASIOTCPCONSUMERDEFAULTPORT)
-		, server_(GASIOTCPCONSUMERDEFAULTSERVER)
-		, timeout_(boost::posix_time::milliseconds(10))
-		, broker_ptr_()
+		: m_listenerThreads(Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
+		, m_acceptor(m_io_service)
+	   , m_serializationMode(Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY)
+		, m_maxStalls(GASIOTCPCONSUMERMAXSTALLS)
+		, m_maxConnectionAttempts(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS)
+	   , m_returnRegardless(GASIOTCPCONSUMERRETURNREGARDLESS)
+  		, m_port(GASIOTCPCONSUMERDEFAULTPORT)
+		, m_server(GASIOTCPCONSUMERDEFAULTSERVER)
+		, m_timeout(std::chrono::milliseconds(10))
+		, m_broker_ptr()
 	{ /* noting */ }
 
 	/***************************************************************************/
@@ -1157,16 +1159,16 @@ public:
 		, const std::size_t &listenerThreads = 0
 		, const Gem::Common::serializationMode &sm = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY
 	)
-		: listenerThreads_(listenerThreads > 0 ? listenerThreads : Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
-		, acceptor_(io_service_)
-	   , serializationMode_(sm)
-		, maxStalls_(GASIOTCPCONSUMERMAXSTALLS)
-		, maxConnectionAttempts_(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS)
-		, returnRegardless_(GASIOTCPCONSUMERRETURNREGARDLESS)
-		, port_(port)
-		, server_(GASIOTCPCONSUMERDEFAULTSERVER)
-		, timeout_(boost::posix_time::milliseconds(10))
-		, broker_ptr_()
+		: m_listenerThreads(listenerThreads > 0 ? listenerThreads : Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
+		, m_acceptor(m_io_service)
+	   , m_serializationMode(sm)
+		, m_maxStalls(GASIOTCPCONSUMERMAXSTALLS)
+		, m_maxConnectionAttempts(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS)
+		, m_returnRegardless(GASIOTCPCONSUMERRETURNREGARDLESS)
+		, m_port(port)
+		, m_server(GASIOTCPCONSUMERDEFAULTSERVER)
+		, m_timeout(std::chrono::milliseconds(10))
+		, m_broker_ptr()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -1181,7 +1183,7 @@ public:
 	 * Allows to set the server name or ip
 	 */
 	void setServer(std::string server) {
-		server_ = server;
+		m_server = server;
 	}
 
 	/***************************************************************************/
@@ -1189,7 +1191,7 @@ public:
 	 * Allows to retrieve the server name or ip
 	 */
 	std::string getServer() const {
-		return server_;
+		return m_server;
 	}
 
 	/***************************************************************************/
@@ -1197,7 +1199,7 @@ public:
 	 * Allows to set the port the server listens on
 	 */
 	void setPort(unsigned short port) {
-		port_ = port;
+		m_port = port;
 	}
 
 	/***************************************************************************/
@@ -1205,7 +1207,7 @@ public:
 	 * Allows to retrieve the port the server listens on
 	 */
 	unsigned short getPort() const {
-		return port_;
+		return m_port;
 	}
 
 	/***************************************************************************/
@@ -1213,7 +1215,7 @@ public:
 	 * Allows to set the number of listener threads
 	 */
 	void setNListenerThreads(std::size_t listenerThreads) {
-		listenerThreads_ = listenerThreads;
+		m_listenerThreads = listenerThreads;
 	}
 
 	/***************************************************************************/
@@ -1221,7 +1223,7 @@ public:
 	 * Allows to retrieve the number of listener threads
 	 */
 	std::size_t getNListenerThreads() const {
-		return listenerThreads_;
+		return m_listenerThreads;
 	}
 
 	/***************************************************************************/
@@ -1232,7 +1234,7 @@ public:
 	 * @param returnRegardless Specifies whether results should be returned to the server regardless of their success
 	 */
 	void setReturnRegardless(const bool &returnRegardless) {
-		returnRegardless_ = returnRegardless;
+		m_returnRegardless = returnRegardless;
 	}
 
 	/***************************************************************************/
@@ -1243,7 +1245,7 @@ public:
 	 * @return Whether results should be returned to the server regardless of their success
 	 */
 	bool getReturnRegardless() const {
-		return returnRegardless_;
+		return m_returnRegardless;
 	}
 
 	/***************************************************************************/
@@ -1251,7 +1253,7 @@ public:
 	 * Allows to set the serialization mode
 	 */
 	void setSerializationMode(Gem::Common::serializationMode sm) {
-		serializationMode_ = sm;
+		m_serializationMode = sm;
 	}
 
 	/***************************************************************************/
@@ -1261,7 +1263,7 @@ public:
 	 * @return The current serialization mode
 	 */
 	Gem::Common::serializationMode getSerializationMode() const {
-		return serializationMode_;
+		return m_serializationMode;
 	}
 
 	/***************************************************************************/
@@ -1271,17 +1273,17 @@ public:
 	 * @param maxStalls The maximum number of stalled connection attempts
 	 */
 	void setMaxStalls(const std::uint32_t &maxStalls) {
-		maxStalls_ = maxStalls;
+		m_maxStalls = maxStalls;
 	}
 
 	/***************************************************************************/
 	/**
 	 * Retrieves the maximum allowed number of stalled attempts
 	 *
-	 * @return The value of the maxStalls_ variable
+	 * @return The value of the m_maxStalls variable
 	 */
 	std::uint32_t getMaxStalls() const {
-		return maxStalls_;
+		return m_maxStalls;
 	}
 
 	/***************************************************************************/
@@ -1291,17 +1293,17 @@ public:
 	 * @param maxConnectionAttempts The maximum number of allowed failed connection attempts
 	 */
 	void setMaxConnectionAttempts(const std::uint32_t &maxConnectionAttempts) {
-		maxConnectionAttempts_ = maxConnectionAttempts;
+		m_maxConnectionAttempts = maxConnectionAttempts;
 	}
 
 	/***************************************************************************/
 	/**
 	 * Retrieves the maximum allowed number of failed connection attempts
 	 *
-	 * @return The value of the maxConnectionAttempts_ variable
+	 * @return The value of the m_maxConnectionAttempts variable
 	 */
 	std::uint32_t getMaxConnectionAttempts() const {
-		return maxConnectionAttempts_;
+		return m_maxConnectionAttempts;
 	}
 
 	/***************************************************************************/
@@ -1320,13 +1322,13 @@ public:
 	 */
 	virtual std::shared_ptr <GBaseClientT<processable_type>> getClient() const {
 		std::shared_ptr <GAsioTCPClientT<processable_type>> p(
-			new GAsioTCPClientT<processable_type>(server_, boost::lexical_cast<std::string>(port_))
+			new GAsioTCPClientT<processable_type>(m_server, boost::lexical_cast<std::string>(m_port))
 		);
 
-		p->setMaxStalls(maxStalls_); // Set to 0 to allow an infinite number of stalls
+		p->setMaxStalls(m_maxStalls); // Set to 0 to allow an infinite number of stalls
 		p->setMaxConnectionAttempts(
-			maxConnectionAttempts_); // Set to 0 to allow an infinite number of failed connection attempts
-		p->setReturnRegardless(returnRegardless_);  // Prevent return of unsuccessful adaption attempts to the server
+			m_maxConnectionAttempts); // Set to 0 to allow an infinite number of failed connection attempts
+		p->setReturnRegardless(m_returnRegardless);  // Prevent return of unsuccessful adaption attempts to the server
 
 		return p;
 	}
@@ -1337,19 +1339,19 @@ public:
 	 */
 	void async_startProcessing() {
 		// Open the acceptor
-		boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port_);
-		acceptor_.open(endpoint.protocol());
-		acceptor_.bind(endpoint);
+		boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), m_port);
+		m_acceptor.open(endpoint.protocol());
+		m_acceptor.bind(endpoint);
 		// Set the SOL_SOCKET/SO_REUSEADDR options
 		// compare http://www.boost.org/doc/libs/1_57_0/doc/html/boost_asio/reference/basic_socket_acceptor/reuse_address.html
 		boost::asio::socket_base::reuse_address option(true);
-		acceptor_.set_option(option);
-		acceptor_.listen();
+		m_acceptor.set_option(option);
+		m_acceptor.listen();
 
 		// Retrieve a pointer to the global broker for later perusal
-		broker_ptr_ = GBROKER(processable_type);
+		m_broker_ptr = GBROKER(processable_type);
 
-		if (!broker_ptr_) {
+		if (!m_broker_ptr) {
 			glogger
 			<< "In GAsioTCPConsumerT<processable_type>::async_startProcessing(): Error!" << std::endl
 			<< "Got empty broker pointer" << std::endl
@@ -1357,26 +1359,26 @@ public:
 		}
 
 		// Set the number of threads in the pool
-		if (listenerThreads_) {
-			gtp_.setNThreads(boost::numeric_cast<unsigned int>(listenerThreads_));
-			std::cout << "GAsioTCPConsumerT: Started acceptor with " << boost::numeric_cast<unsigned int>(listenerThreads_) << " threads" << std::endl;
+		if (m_listenerThreads) {
+			m_gtp.setNThreads(boost::numeric_cast<unsigned int>(m_listenerThreads));
+			std::cout << "GAsioTCPConsumerT: Started acceptor with " << boost::numeric_cast<unsigned int>(m_listenerThreads) << " threads" << std::endl;
 		}
 
 		try {
 			// Prevent a race condition
-			work_.reset(new boost::asio::io_service::work(io_service_));
+			m_work.reset(new boost::asio::io_service::work(m_io_service));
 
 			// Start the first session
 			this->async_newAccept();
 
 			// TODO: Can the async call return quickly enough so that the io_service may nevertheless run out of work ?
 
-			// Create a number of threads responsible for the io_service_ objects
+			// Create a number of threads responsible for the m_io_service objects
 			// This absolutely needs to happen after the first session has started,
 			// so the io_service doesn't run out of work
-			gtg_.create_threads(
-				[&]() { this->io_service_.run(); } // this-> deals with a problem of g++ 4.7.2
-				, listenerThreads_
+			m_gtg.create_threads(
+				[&]() { this->m_io_service.run(); } // this-> deals with a problem of g++ 4.7.2
+				, m_listenerThreads
 			);
 		} catch (const boost::system::system_error &e) {
 			glogger
@@ -1413,12 +1415,12 @@ public:
 		GBaseConsumerT<processable_type>::shutdown();
 
 		// Terminate the worker and clear the thread group
-		work_.reset(); // This will initiate termination of all threads
+		m_work.reset(); // This will initiate termination of all threads
 
 		// Terminate the io service
-		io_service_.stop();
+		m_io_service.stop();
 		// Wait for the threads in the group to exit
-		gtg_.join_all();
+		m_gtg.join_all();
 	}
 
 	/***************************************************************************/
@@ -1462,23 +1464,23 @@ public:
 		namespace po = boost::program_options;
 
 		visible.add_options()
-			("ip,i", po::value<std::string>(&server_)->default_value(GASIOTCPCONSUMERDEFAULTSERVER),
+			("ip,i", po::value<std::string>(&m_server)->default_value(GASIOTCPCONSUMERDEFAULTSERVER),
 			 "\t[tcpc] The name or ip of the server")
-			("port,p", po::value<unsigned short>(&port_)->default_value(GASIOTCPCONSUMERDEFAULTPORT),
+			("port,p", po::value<unsigned short>(&m_port)->default_value(GASIOTCPCONSUMERDEFAULTPORT),
 			 "\t[tcpc] The port of the server");
 
 		hidden.add_options()
-			("serializationMode,s", po::value<Gem::Common::serializationMode>(&serializationMode_)->default_value(
+			("serializationMode,s", po::value<Gem::Common::serializationMode>(&m_serializationMode)->default_value(
 				GASIOTCPCONSUMERSERIALIZATIONMODE),
 			 "\t[tcpc] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
-			("maxStalls", po::value<std::uint32_t>(&maxStalls_)->default_value(GASIOTCPCONSUMERMAXSTALLS),
+			("maxStalls", po::value<std::uint32_t>(&m_maxStalls)->default_value(GASIOTCPCONSUMERMAXSTALLS),
 			 "\t[tcpc] The maximum allowed number of stalled connection attempts of a client")
 			("maxConnectionAttempts",
-			 po::value<std::uint32_t>(&maxConnectionAttempts_)->default_value(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS),
+			 po::value<std::uint32_t>(&m_maxConnectionAttempts)->default_value(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS),
 			 "\t[tcpc] The maximum allowed number of failed connection attempts of a client")
-			("returnRegardless", po::value<bool>(&returnRegardless_)->default_value(GASIOTCPCONSUMERRETURNREGARDLESS),
+			("returnRegardless", po::value<bool>(&m_returnRegardless)->default_value(GASIOTCPCONSUMERRETURNREGARDLESS),
 			 "\t[tcpc] Specifies whether unsuccessful client-side processing attempts should be returned to the server")
-			("nListenerThreads", po::value<std::size_t>(&listenerThreads_)->default_value(listenerThreads_),
+			("nListenerThreads", po::value<std::size_t>(&m_listenerThreads)->default_value(m_listenerThreads),
 			 "\t[tcpc] The number of threads used to listen for incoming connections");
 	}
 
@@ -1497,11 +1499,11 @@ private:
 	void async_scheduleDeSerialization(
 		std::shared_ptr <std::string> dataBody_ptr, Gem::Common::PORTIDTYPE portId
 	) {
-		gtp_.async_schedule(
+		m_gtp.async_schedule(
 			std::function<void()>(
 				std::bind(
 					&GAsioTCPConsumerT<processable_type>::handle_workItemComplete // Does its own error checks
-					, this, dataBody_ptr, serializationMode_, portId, timeout_
+					, this, dataBody_ptr, m_serializationMode, portId, m_timeout
 				)
 			)
 		);
@@ -1514,7 +1516,7 @@ private:
 	 */
 	void handle_workItemComplete(
 		std::shared_ptr <std::string> dataBody_ptr, Gem::Common::serializationMode sM, Gem::Common::PORTIDTYPE portId,
-		boost::posix_time::time_duration timeout
+		std::chrono::duration<double> timeout
 	) {
 		// De-Serialize the data
 		std::shared_ptr <processable_type> p
@@ -1531,7 +1533,7 @@ private:
 		// Return the item to the broker. The item will be discarded
 		// if the requested target queue cannot be found.
 		try {
-			while (!broker_ptr_->put(portId, p, timeout)) {
+			while (!m_broker_ptr->put(portId, p, timeout)) {
 				if (this->stopped()) { // This may lead to a loss of items
 					glogger
 					<< "GAsioTCPConsumerT<>::In handle_workItemComplete(): Warning!" << std::endl
@@ -1566,14 +1568,14 @@ private:
 		// First we make sure a new session is started asynchronously so the next request can be served
 		std::shared_ptr <GAsioServerSessionT<processable_type>> newSession(
 			new GAsioServerSessionT<processable_type>(
-				io_service_
-				, serializationMode_
+				m_io_service
+				, m_serializationMode
 				, this
 			)
 		);
 
 		try {
-			acceptor_.async_accept(
+			m_acceptor.async_accept(
 				newSession->getSocket()
 				, std::bind(
 					&GAsioTCPConsumerT<processable_type>::async_handleAccept
@@ -1648,20 +1650,20 @@ private:
 	}
 
 	/***************************************************************************/
-	boost::asio::io_service io_service_;   ///< ASIO's io service, responsible for event processing, absolutely needs to be _before_ acceptor so it gets initialized first.
-	std::shared_ptr <boost::asio::io_service::work> work_; ///< A place holder ensuring that the io_service doesn't stop prematurely
-	std::size_t listenerThreads_;  ///< The number of threads used to listen for incoming connections through io_servce::run()
-	boost::asio::ip::tcp::acceptor acceptor_; ///< takes care of external connection requests
-	Gem::Common::serializationMode serializationMode_; ///< Specifies the serialization mode
-	std::uint32_t maxStalls_; ///< The maximum allowed number of stalled connection attempts of a client
-	std::uint32_t maxConnectionAttempts_; ///< The maximum allowed number of failed connection attempts of a client
-	bool returnRegardless_; ///< Specifies whether unsuccessful processing attempts should be returned to the server
-	unsigned short port_; ///< The port on which the server is supposed to listen
-	std::string server_;  ///< The name or ip if the server
-	boost::posix_time::time_duration timeout_; ///< A timeout for put- and get-operations
-	Gem::Common::GThreadGroup gtg_; ///< Holds listener threads
-	Gem::Common::GThreadPool gtp_; ///< Holds workers sorting processed items back into the broker
-	std::shared_ptr <Gem::Courtier::GBrokerT<processable_type>> broker_ptr_; ///< A pointer to the global broker
+	boost::asio::io_service m_io_service;   ///< ASIO's io service, responsible for event processing, absolutely needs to be _before_ acceptor so it gets initialized first.
+	std::shared_ptr <boost::asio::io_service::work> m_work; ///< A place holder ensuring that the io_service doesn't stop prematurely
+	std::size_t m_listenerThreads;  ///< The number of threads used to listen for incoming connections through io_servce::run()
+	boost::asio::ip::tcp::acceptor m_acceptor; ///< takes care of external connection requests
+	Gem::Common::serializationMode m_serializationMode; ///< Specifies the serialization mode
+	std::uint32_t m_maxStalls; ///< The maximum allowed number of stalled connection attempts of a client
+	std::uint32_t m_maxConnectionAttempts; ///< The maximum allowed number of failed connection attempts of a client
+	bool m_returnRegardless; ///< Specifies whether unsuccessful processing attempts should be returned to the server
+	unsigned short m_port; ///< The port on which the server is supposed to listen
+	std::string m_server;  ///< The name or ip if the server
+	std::chrono::duration<double> m_timeout; ///< A timeout for put- and get-operations
+	Gem::Common::GThreadGroup m_gtg; ///< Holds listener threads
+	Gem::Common::GThreadPool m_gtp; ///< Holds workers sorting processed items back into the broker
+	std::shared_ptr <Gem::Courtier::GBrokerT<processable_type>> m_broker_ptr; ///< A pointer to the global broker
 };
 
 /******************************************************************************/
