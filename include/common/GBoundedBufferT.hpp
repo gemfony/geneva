@@ -92,10 +92,6 @@
 
 // Boost headers go here
 
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
-#include <boost/thread/condition_variable.hpp>
-#include <boost/thread/thread.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/utility.hpp>
 

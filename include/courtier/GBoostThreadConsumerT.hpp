@@ -43,10 +43,6 @@
 #include <boost/cast.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
-#include <boost/thread/condition_variable.hpp>
-#include <boost/thread/thread.hpp>
 
 #ifndef GBOOSTTHREADCONSUMERT_HPP_
 #define GBOOSTTHREADCONSUMERT_HPP_

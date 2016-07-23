@@ -53,10 +53,6 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
-#include <boost/thread/condition_variable.hpp>
-#include <boost/thread/thread.hpp>
 #include <boost/utility.hpp>
 #include <boost/date_time.hpp>
 #include <boost/lexical_cast.hpp>

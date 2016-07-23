@@ -76,13 +76,8 @@
 #include <boost/program_options.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
-// #include <boost/thread/xtime.hpp>
-// #include <boost/thread/tss.hpp>
 #include <boost/utility.hpp>
 #include <boost/variant.hpp>
-
 #include <boost/property_tree/ptree_serialization.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
