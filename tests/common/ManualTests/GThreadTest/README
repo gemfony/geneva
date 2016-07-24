@@ -1,0 +1,4 @@
+This directory contains a manual test / usage demo of the GThread class,
+which forms a thin wrapper around std::thread, adding the ability to get
+interrupted (this implies cooperation from the workload running in the
+payload).

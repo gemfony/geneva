@@ -76,7 +76,9 @@
 
 // Standard headers go here
 #include <thread>
+#include <future>
 #include <atomic>
+#include <utility>
 
 // Boost headers go here
 
@@ -115,7 +117,7 @@ thread_local interrupt_flag this_thread_interrupt_flag;
 
 /******************************************************************************/
 /**
- * An exception to be thrown if the thread shoult be interrupted
+ * An exception to be thrown if the thread should be interrupted
  */
 class thread_interrupted : public gemfony_error_condition {
 public:
@@ -156,7 +158,7 @@ public:
 	 template<typename FunctionType>
 	 thread(FunctionType f) {
 		 std::promise<interrupt_flag*> p;
-		 m_internal_thread=std::thread([f,&p]{
+		 m_internal_thread=std::move(std::thread([f,&p](){
 			 p.set_value(&this_thread_interrupt_flag);
 
 			 try {
@@ -182,7 +184,7 @@ public:
 					 << "GThreadWrapper::operator(): Caught unknown exception" << std::endl
 					 << GTERMINATION;
 			 }
-		 });
+		 }));
 		 m_flag=p.get_future().get();
 	 }
 
@@ -190,7 +192,7 @@ public:
 	  * Move-constructor
 	  */
 	 G_API_COMMON thread(thread&& other)
-	 	: m_internal_thread(other.m_internal_thread)
+	 	: m_internal_thread(std::move(other.m_internal_thread))
 	 	, m_flag(other.m_flag)
 	 {
 		 other.m_flag = nullptr;
@@ -209,7 +211,7 @@ public:
 	 G_API_COMMON thread& operator=(thread&& other) {
 		 m_flag = other.m_flag;
 		 other.m_flag = nullptr;
-		 m_internal_thread = other.m_internal_thread;
+		 m_internal_thread = std::move(other.m_internal_thread);
 	 }
 
 	 /**
@@ -230,7 +232,7 @@ public:
 	  * Retrieval of a native_handle to the
 	  * underlying thread-implementation
 	  */
-	 G_API_COMMON native_handle_type native_handle() {
+	 G_API_COMMON std::thread::native_handle_type native_handle() {
 		 return m_internal_thread.native_handle();
 	 }
 
@@ -272,7 +274,7 @@ public:
 	 G_API_COMMON void swap(thread& other) {
 		 this->m_internal_thread.swap(other.m_internal_thread);
 
-		 interrupt_flag tmp_flag = other.m_flag;
+		 interrupt_flag *tmp_flag = other.m_flag;
 		 other.m_flag = m_flag;
 		 m_flag = tmp_flag;
 	 }

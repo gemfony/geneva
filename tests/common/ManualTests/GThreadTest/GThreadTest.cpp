@@ -1,5 +1,5 @@
 /**
- * @file GThreadPoolTest.cpp
+ * @file GThreadTest.cpp
  */
 
 /*
@@ -36,25 +36,22 @@
 #include <cmath>
 #include <iostream>
 #include <random>
+#include <thread>
+#include <chrono>
 
 // Boost headers go here
 
 // Geneva headers go here
 #include "common/GLogger.hpp"
-#include "common/GThreadPool.hpp"
 #include "common/GParserBuilder.hpp"
+#include "common/GThread.hpp"
 #include "hap/GRandomT.hpp"
 #include "hap/GRandomDistributionsT.hpp"
 
 using namespace Gem::Common;
 
-Gem::Common::GThreadPool gtp; ///< The global threadpool
-
-const std::size_t NRESIZEEVENTS = 0;
-const std::size_t NJOBS = 100;
-const std::size_t NITERATIONS = 5;
-const unsigned int MINTHREADS = 1;
-const unsigned int MAXTHREADS = 20;
+const std::size_t NTHREADS = 4;
+const std::size_t NSECONDS = 10;
 
 /************************************************************************/
 /**
@@ -68,7 +65,7 @@ public:
 	 */
 	testTask()
 		: m_counterValue(0)
-		, operatorCalled_(0)
+		, m_operatorCalled(0)
 	{ /* nothing */ }
 
 	/********************************************************************/
@@ -84,7 +81,7 @@ public:
 	 * Retrieves the number of operator calls
 	 */
 	std::uint32_t getOperatorCalledValue() const {
-		return operatorCalled_;
+		return m_operatorCalled;
 	}
 
 	/********************************************************************/
@@ -93,24 +90,32 @@ public:
 	 * inside of the threads
 	 */
 	void process(bool simulateCrash) {
-		if(uniform_bool(gr)) {
-			this->increment();
-		} else {
-			this->decrement();
-		}
+		// Loop until we are interrupted
+		while(true) {
+			// Check whether we have been interrupted. This function will
+			// throw an exception which will be caught by the surrounding
+			// Gem::Common::thread implementation.
+			Gem::Common::interruption_point();
 
-		boost::this_thread::sleep(
-			boost::posix_time::milliseconds(
-				this->m_uniform_int(10, 20)
-			)
-		);
+			if (m_uniform_bool(m_gr)) {
+				this->increment();
+			} else {
+				this->decrement();
+			}
 
-		if(true==simulateCrash) {
-			glogger
-			<< "In testTask::process(): Error!" << std::endl
-			<< "SHF-Exception (Some Horrible Failure)" << std::endl
-			<< "occurred, as requested ..." << std::endl
-			<< GEXCEPTION;
+			std::this_thread::sleep_for(
+				std::chrono::milliseconds(
+					this->m_uniform_int(10, 20)
+				)
+			);
+
+			if (true == simulateCrash) {
+				glogger
+					<< "In testTask::process(): Error!" << std::endl
+					<< "SHF-Exception (Some Horrible Failure)" << std::endl
+					<< "occurred, as requested ..." << std::endl
+					<< GEXCEPTION;
+			}
 		}
 	}
 
@@ -121,7 +126,7 @@ private:
 	 */
 	void increment() {
 		m_counterValue++;
-		operatorCalled_++;
+		m_operatorCalled++;
 	}
 
 	/********************************************************************/
@@ -130,17 +135,17 @@ private:
 	 */
 	void decrement() {
 		m_counterValue--;
-		operatorCalled_++;
+		m_operatorCalled++;
 	}
 
 	/********************************************************************/
 	std::int32_t m_counterValue; ///< The internal value to be decremented or incremented
-	std::uint32_t operatorCalled_; ///< This counter will be incremented whenever process() is called
+	std::uint32_t m_operatorCalled; ///< This counter will be incremented whenever process() is called
 
-	Gem::Hap::GRandom gr; // Instantiates a random number generator
+	Gem::Hap::GRandom m_gr; // Instantiates a random number generator
    Gem::Hap::g_uniform_int<long> m_uniform_int;
 
- 	std::bernoulli_distribution uniform_bool; // probability of 0.5 is the default
+ 	std::bernoulli_distribution m_uniform_bool; // probability of 0.5 is the default
 };
 
 /************************************************************************/
@@ -157,9 +162,8 @@ int main(int argc, char** argv) {
 	//----------------------------------------------------------------
 	// Local variables
 	bool simulateThreadCrash = false;
-	std::size_t nResizeEvents = NRESIZEEVENTS;
-	std::size_t nJobs = NJOBS; // The number of tasks in each iteration
-	std::size_t nIterations = NITERATIONS; // The default number of iterations
+	std::size_t nThreads = NTHREADS; // The number of threads to be started
+	std::size_t nSeconds = NSECONDS; // The number of seconds after which threads should be terminated
 	bool showCLOptions = false; // When set to true, will show a summary of command line options
 
 	//----------------------------------------------------------------
@@ -168,23 +172,16 @@ int main(int argc, char** argv) {
 
 	// Register some command line options
 	gpb.registerCLParameter<std::size_t>(
-		"nJobs,j"
-		, nJobs
-		, NJOBS
-	) << "The number of testTask objects on which work is performed";
+		"nThreads,n"
+		, nThreads
+		, NTHREADS
+	) << "The number of threads to be started";
 
 	gpb.registerCLParameter<std::size_t>(
-		"nIterations,i"
-		, nIterations
-		, NITERATIONS
-	) << "The number of test iteration";
-
-	gpb.registerCLParameter<std::size_t>(
-		"nResizeEvents,r"
-		, nResizeEvents
-		, NRESIZEEVENTS
-	)
-	<< "Tests random resizing of the thread pool \"nResizeEvents\" times";
+		"nSeconds,i"
+		, nSeconds
+		, NSECONDS
+	) << "The number of test iterations";
 
 	gpb.registerCLParameter<bool>(
 		"simulateThreadCrash,s"
@@ -210,56 +207,28 @@ int main(int argc, char** argv) {
 	}
 
 	//----------------------------------------------------------------
-	// Start measurements
-
-	// Create a number of test tasks
-	std::vector<std::shared_ptr<testTask>> tasks(nJobs);
-	for(std::size_t i=0; i<nJobs; i++) {
+	// Create a number of test tasks and threads
+	std::vector<std::shared_ptr<testTask>> tasks(nThreads);
+	std::vector<Gem::Common::thread> threads(nThreads);
+	for(std::size_t i=0; i<nThreads; i++) {
 		tasks.at(i).reset(new testTask);
+		threads.at(i) = Gem::Common::thread(
+			[&tasks,i,simulateThreadCrash](){ (tasks.at(i))->process(simulateThreadCrash); }
+		);
 	}
 
-	// Submit each task to the pool a number of times
-	double resizeLikelihood=(std::min)(double(nResizeEvents)/double(nIterations),1.);
-	std::bernoulli_distribution weighted_bool(resizeLikelihood);
+	// Sleep for the predefined number of seconds
+	std::cout << "Main thread sleeps for " << nSeconds << " seconds" << std::endl;
+	std::this_thread::sleep_for(std::chrono::seconds(nSeconds));
 
-	for(std::size_t n = 0; n<nIterations; n++) {
-		// Submission number n
-		for(std::size_t i=0; i<nJobs; i++) {
-			bool stc = false;
-			if(i==nJobs-1 && n==nIterations-1 && true==simulateThreadCrash) {
-				stc = true;
-			}
-
-			gtp.async_schedule(
-				[&tasks,i,stc](){ (tasks.at(i))->process(stc); }
-			);
-		}
-
-		if(nResizeEvents > 0 && weighted_bool(gr)) {
-			unsigned int nt = m_uniform_int(MINTHREADS,MAXTHREADS);
-			gtp.setNThreads(nt);
-
-			glogger
-			<< "Resized thread pool to size " << nt << std::endl
-			<< GLOGGING;
-		}
-
-		// Wait for all tasks to complete and check for errors
-		gtp.wait();
-		if(gtp.hasErrors()) {
-			glogger
-			<< "Errors occurred during the execution" << std::endl
-			<< GLOGGING;
-		}
+	// Interrupt all threads and wait for their return
+	for(auto& t: threads) {
+		t.interrupt();
+		t.join();
 	}
 
-	// Check that each task has been called exactly nIterations times
-	for(std::size_t i=0; i<nJobs; i++) {
-		if(nIterations != (tasks.at(i))->getOperatorCalledValue()) {
-			glogger
-			<< "In task " << i << ":" << std::endl
-			<< "Got wrong number of calls: " << (tasks.at(i))->getOperatorCalledValue() << "." << std::endl
-			<< GLOGGING;
-		}
+	// Retrieve some information on the tasks that were executed
+	for(auto task_ptr: tasks) {
+		std::cout << task_ptr->getCounterValue() << " / " << task_ptr->getOperatorCalledValue() << std::endl;
 	}
 }
