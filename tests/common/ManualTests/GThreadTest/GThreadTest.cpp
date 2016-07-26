@@ -95,7 +95,7 @@ public:
 			// Check whether we have been interrupted. This function will
 			// throw an exception which will be caught by the surrounding
 			// Gem::Common::thread implementation.
-			Gem::Common::interruption_point();
+			Gem::Common::thread::interruption_point();
 
 			if (m_uniform_bool(m_gr)) {
 				this->increment();

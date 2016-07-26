@@ -417,11 +417,13 @@ public:
 			try {
 				m_runLoopHasCommenced = false;
 
-				std::shared_ptr <processable_type> p;
+				std::shared_ptr<processable_type> p;
 				Gem::Common::PORTIDTYPE id;
 				std::chrono::milliseconds timeout(10);
 
 				while (true) {
+					Gem::Common::thread::interruption_point();
+
 					// Have we been asked to stop ?
 					if (m_outer->stopped()) break;
 
@@ -462,10 +464,8 @@ public:
 						continue;
 					}
 				}
-			} catch (boost::thread_interrupted &) { // Normal termination
-				// Perform any final work
-				processFinalize();
-				return;
+			} catch (Gem::Common::thread_interrupted &) { // Normal termination
+			   /* nothing */
 			} catch (std::exception &e) {
 				glogger
 				<< "In GBoostThreadConsumerT<processable_type>::GWorker::run():" << std::endl
@@ -485,6 +485,9 @@ public:
 				<< "Caught unknown exception." << std::endl
 				<< GEXCEPTION;
 			}
+
+			// Perform any final work
+			processFinalize();
 		}
 
 		/************************************************************************/

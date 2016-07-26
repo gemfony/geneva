@@ -95,33 +95,30 @@ namespace Gem {
 namespace Common {
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
- * Indicates whether the thread has been interupted
+ * Indicates whether the thread has been interrupted
  */
 class interrupt_flag {
 public:
-	 G_API_COMMON interrupt_flag() : m_interrupted(false)
-	 { /* nothing */ }
-
-	 G_API_COMMON void set() {
-		 m_interrupted.store(true);
-	 }
-
-	 G_API_COMMON bool is_set() const {
-		 return m_interrupted.load();
-	 }
+	 G_API_COMMON interrupt_flag();
+	 G_API_COMMON void set();
+	 G_API_COMMON bool is_set() const;
 
 private:
 	 std::atomic<bool> m_interrupted;
 };
 
-thread_local interrupt_flag this_thread_interrupt_flag;
-
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
  * An exception to be thrown if the thread should be interrupted
  */
-class thread_interrupted : public gemfony_error_condition {
+class thread_interrupted
+	: public gemfony_error_condition
+{
 public:
 	 // Use gemfony_error_condition's constructor
 	 using gemfony_error_condition::gemfony_error_condition;
@@ -131,15 +128,7 @@ public:
 };
 
 /******************************************************************************/
-/**
- * This function may be called to detect whether an interrupt was triggered
- */
-void interruption_point() {
-	if(this_thread_interrupt_flag.is_set()) {
-		throw thread_interrupted();
-	}
-}
-
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
  * A wrapper for std::thread that allows to indicate whether the thread
@@ -279,7 +268,17 @@ public:
 	  * Checks whether the thread was interrupted
 	  */
 	 static bool interrupted() {
-		 return this_thread_interrupt_flag.is_set();
+		 return m_this_thread_interrupt_flag.is_set();
+	 }
+
+	 /********************************************************************/
+	 /**
+ 	  * This function may be called to detect whether an interrupt was triggered
+ 	  */
+	 static void interruption_point() {
+		 if(m_this_thread_interrupt_flag.is_set()) {
+			 throw thread_interrupted();
+		 }
 	 }
 
 private:
@@ -294,7 +293,7 @@ private:
 		 , FunctionType&& f
 		 , paramtypes&&... parm
 	 ) {
-		 p.set_value(&this_thread_interrupt_flag);
+		 p.set_value(&m_this_thread_interrupt_flag);
 
 		 try {
 			 f(std::forward<paramtypes>(parm)...);
@@ -328,8 +327,12 @@ private:
 
 	 std::thread m_internal_thread; ///< The actual thread to be started
 	 interrupt_flag* m_flag = nullptr; ///< Holds termination information
+
+	 thread_local static interrupt_flag m_this_thread_interrupt_flag;
 };
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
 } /* namespace Common */
@@ -338,13 +341,15 @@ private:
 namespace std {
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
- * Swaps the data of two thread objects
+ * @brief Swaps the data of two thread objects
  */
-void swap(Gem::Common::thread& lhs, Gem::Common::thread& rhs) {
-	lhs.swap(rhs);
-}
+void swap(Gem::Common::thread&, Gem::Common::thread&);
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
 } /* namespace std */

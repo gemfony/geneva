@@ -287,7 +287,10 @@ void GRandomFactory::producer(std::uint32_t seed) { // TODO: should be result_ty
 		G_BASE_GENERATOR mt(seed);
 		std::unique_ptr<random_container> p;
 
-		while (!boost::this_thread::interruption_requested()) {
+		while (true) {
+			// Check whether an interruption was requested
+			Gem::Common::thread::interruption_point();
+
 			if (!p) { // buffer is still empty
 				// First we try to retrieve a "recycled" item from the p_ret_bfr_ buffer. If this
 				// fails (likely because the buffer is empty), we create a new item instead
@@ -324,7 +327,7 @@ void GRandomFactory::producer(std::uint32_t seed) { // TODO: should be result_ty
 				continue; // Try again, if we didn't succeed
 			}
 		}
-	} catch (boost::thread_interrupted &) { // Not an error
+	} catch (Gem::Common::thread_interrupted &) { // Not an error
 		return; // We're done
 	} catch (std::bad_alloc &e) {
 		glogger

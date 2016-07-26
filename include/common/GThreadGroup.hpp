@@ -72,15 +72,18 @@
 
 // Standard headers go here
 #include <vector>
+#include <mutex>
+
 
 // Boost headers go here
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/thread.hpp>
 #include <boost/utility.hpp>
 #include <boost/lexical_cast.hpp>
 
 #ifndef GTHREADGROUP_HPP_
 #define GTHREADGROUP_HPP_
+
+// Geneva header files go here
+#include "common/GThread.hpp"
 
 namespace Gem {
 namespace Common {
@@ -100,7 +103,7 @@ class GThreadGroup
 {
 	friend class GThreadPool;
 
-	typedef std::shared_ptr <boost::thread> thread_ptr;
+	typedef std::shared_ptr <Gem::Common::thread> thread_ptr;
 	typedef std::vector<thread_ptr> thread_vector;
 
 public:
@@ -129,14 +132,16 @@ public:
 	/**
 	 * Creates a new thread and adds it to the group
 	 *
+	 * TODO: Add perfect forwarding, so we may pass arguments directly
+	 *
 	 * @param f The function to be run by the thread
 	 * @return A pointer to the newly created thread
 	 */
 	template<typename F>
-	std::shared_ptr <boost::thread> create_thread(F f) {
-		boost::lock_guard<boost::mutex> guard(m_);
-		thread_ptr new_thread(new boost::thread(f));
-		threads_.push_back(new_thread);
+	std::shared_ptr<Gem::Common::thread> create_thread(F f) {
+		std::unique_lock<std::mutex> guard(m_mutex);
+		thread_ptr new_thread(new Gem::Common::thread(f));
+		m_threads.push_back(new_thread);
 		return new_thread;
 	}
 
@@ -151,7 +156,9 @@ public:
 	 */
 	template<typename F>
 	void create_threads(F f, const std::size_t &nThreads) {
-		for (std::size_t i = 0; i < nThreads; i++) create_thread(f);
+		for (std::size_t i = 0; i < nThreads; i++) {
+			create_thread(f);
+		}
 	}
 
 	/***************************************************************************/
@@ -160,8 +167,8 @@ private:
 	/** @brief Clears the thread vector */
 	void clearThreads();
 
-	thread_vector threads_; ///< Holds the actual threads
-	mutable boost::mutex m_; ///< Needed to synchronize access to the vector
+	thread_vector m_threads; ///< Holds the actual threads
+	mutable std::mutex m_mutex; ///< Needed to synchronize access to the vector
 };
 
 /******************************************************************************/

@@ -177,7 +177,7 @@ private:
 				}
 			}
 		}
-		catch (boost::thread_interrupted &) {
+		catch (Gem::Common::thread_interrupted &) {
 			// Terminate
 			return;
 		}

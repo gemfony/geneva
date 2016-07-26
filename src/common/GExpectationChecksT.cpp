@@ -32,7 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#include <common/GExpectationChecksT.hpp>
+#include "common/GExpectationChecksT.hpp"
 
 namespace Gem {
 namespace Common {

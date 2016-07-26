@@ -11,6 +11,7 @@ SET ( COMMONSOURCES
 	GMathHelperFunctions
 	GParserBuilder
 	GPlotDesigner
+    GThread
 	GThreadGroup
 	GThreadPool
 	GThreadWrapper

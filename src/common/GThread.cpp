@@ -1,25 +1,25 @@
 /**
- * @file GThreadGroup.cpp
+ * @file GThread.cpp
  */
 
 /*
  * This file is part of the Geneva library collection.
  *
- * Note: this class was adapted from an earlier Boost 1.36 version of the
- * thread_group class. The original code contained the following text:
- *
- * ***
- * Distributed under the Boost Software License, Version 1.0. (See
- * accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
- * (C) Copyright 2007-8 Anthony Williams
- * ***
+ * Note: this class was adapted from examples provided by Anthony
+ * Williams together with his book "C++ Concurrency in Action". At the
+ * time of writing, his code was available from
+ * https://www.manning.com/books/c-plus-plus-concurrency-in-action
+ * under the terms of the Boost software license version 1.0 .
+ * Gemfony recommends Anthony's book as a comprehensive pool of
+ * knowledge around C++11 threads.
  *
  * As allowed by the license, modifications were applied to the code.
- * These are also covered by the Boost Software License, Version 1.0, and are
- * Copyright (C) Gemfony scientific UG (haftungsbeschraenkt)
+ * These modifications are also covered by the Boost Software License,
+ * version 1.0, and are Copyright (C) Gemfony scientific UG (haftungsbeschraenkt)
  *
  * NOTE THAT THE BOOST-LICENSE DOES NOT APPLY TO ANY OTHER FILES OF THE
- * GENEVA LIBRARY, UNLESS THIS IS EXPLICITLY STATED IN THE CORRESPONDING FILE.
+ * GENEVA LIBRARY COLLECTION, UNLESS THIS IS EXPLICITLY STATED IN THE
+ * CORRESPONDING FILE!
  *
  * See the AUTHORS file in the top-level directory for a list of authors.
  *
@@ -41,6 +41,8 @@
 
 /*
  * The following license applies to the code in this file:
+ *
+ * ***************************************************************************
  *
  * Boost Software License - Version 1.0 - August 17th, 2003
  *
@@ -65,111 +67,68 @@
  * FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
+ *
+ * ***************************************************************************
  */
 
-#include "common/GThreadGroup.hpp"
+#include "common/GThread.hpp"
 
 namespace Gem {
 namespace Common {
 
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The standard destructor. Assumes that all threads have already
- * been terminated (?), so that the thread objects can be safely deleted.
- * As we are using a vector of std::shared_ptr<thread> objects, we do not have
- * to manually erase anything.
+ * The constructor
  */
-GThreadGroup::~GThreadGroup()
+interrupt_flag::interrupt_flag() : m_interrupted(false)
 { /* nothing */ }
 
 /******************************************************************************/
 /**
- * Adds an already created thread to the group
- *
- * @param thrd A pointer to a thread that should be added to the group
+ * Sets the interrupt flag
  */
-void GThreadGroup::add_thread(thread_ptr thrd) {
-	if (thrd) {
-		std::unique_lock<std::mutex> guard(m_mutex);
-		m_threads.push_back(thrd);
-	}
+void interrupt_flag::set() {
+	m_interrupted.store(true);
 }
 
 /******************************************************************************/
 /**
- * Requests all threads to join
+ * Checks whether the interrupt flag is set
  */
-void GThreadGroup::join_all() {
-	std::unique_lock<std::mutex> guard(m_mutex);
-
-	for (auto& t: m_threads) {
-		t->join();
-	}
+bool interrupt_flag::is_set() const {
+	return m_interrupted.load();
 }
 
 /******************************************************************************/
-/**
- * Sends all threads the interrupt signal
- */
-void GThreadGroup::interrupt_all() {
-	std::unique_lock<std::mutex> guard(m_mutex);
-
-	for (auto& t: m_threads) {
-		t->interrupt();
-	}
-}
-
-/******************************************************************************/
-/**
- * Interrupts, joins and finally removes the last thread in the group.
- * Does nothing if the group is already empty.
- */
-void GThreadGroup::remove_last() {
-	std::unique_lock<std::mutex> guard(m_mutex);
-
-	if (m_threads.size() == 0) return;
-
-	(m_threads.back())->interrupt();
-	(m_threads.back())->join();
-
-	// std::shared_ptr takes care of the deletion of the thread object
-	m_threads.pop_back();
-}
-
-/******************************************************************************/
-/**
- * Interrupts, joins and finally removes the last nThreads threads
- * in the group. Stops if the number of threads would drop below 0.
- *
- * @param nThreads The number of threads at the end of the group that shall be removed
- */
-void GThreadGroup::remove_last(const std::size_t &nThreads) {
-	for (std::size_t i = 0; i < nThreads; i++) {
-		remove_last();
-	}
-}
-
-/******************************************************************************/
-/**
- * Returns the size of the current thread group.
- * @return The size of the current group
- */
-std::size_t GThreadGroup::size() const {
-	std::unique_lock<std::mutex> guard(m_mutex);
-	return m_threads.size();
-}
-
-/******************************************************************************/
-/**
- * Clears the thread vector. Note that this is a very dangerous operation, which
- * is not made publicly available. This function is meant for consumption by the
- * thread GThreadPool class.
- */
-void GThreadGroup::clearThreads() {
-	m_threads.clear();
-}
-
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Common*/
+// Initialization of static class member
+thread_local interrupt_flag thread::m_this_thread_interrupt_flag;
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+
+} /* namespace Common */
 } /* namespace Gem */
+
+namespace std {
+
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * Swaps the data of two thread objects
+ */
+void swap(Gem::Common::thread& lhs, Gem::Common::thread& rhs) {
+	lhs.swap(rhs);
+}
+
+/******************************************************************************/
+
+} /* namespace std */

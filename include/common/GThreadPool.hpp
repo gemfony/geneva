@@ -38,10 +38,12 @@
 // Standard header files go here
 #include <functional>
 #include <atomic>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
 
 // Boost header files go here
 #include <boost/asio/io_service.hpp>
-#include <boost/thread.hpp>
 #include <boost/utility.hpp>
 
 #ifndef GTHREADPOOL_HPP_
@@ -102,58 +104,58 @@ public:
 		 // We may only submit new jobs if job_lck can be acquired. This is
 		 // important so we have a means of letting the submission queue run
 		 // empty or of resetting the internal thread group.
-		 boost::unique_lock<boost::mutex> job_lck(task_submission_mutex_);
+		 std::unique_lock<std::mutex> job_lck(m_task_submission_mutex);
 
 		 // Determine whether threads have already been started
 		 // If not, start them. Access to the threads is blocked by job_lck
-		 if (false==threads_started_.load()) {
-			 boost::unique_lock<boost::mutex> tc_lk(thread_creation_mutex_);
-			 if (false==threads_started_.load()) { // double checked locking pattern
+		 if (false==m_threads_started.load()) {
+			 std::unique_lock<std::mutex> tc_lk(m_thread_creation_mutex);
+			 if (false==m_threads_started.load()) { // double checked locking pattern
 				 // Some error checks
-				 if(0==nThreads_.load()) {
+				 if(0==m_nThreads.load()) {
 					 glogger
 					 << "In GThreadPool::async_schedule(F f): Error!" << std::endl
 					 << "The number of threads is set to 0" << std::endl
 					 << GEXCEPTION;
 				 }
-				 if(gtg_.size() > 0) {
+				 if(m_gtg.size() > 0) {
 					 glogger
 					 << "In GThreadPool::async_schedule(F f): Error!" << std::endl
 					 << "The thread group already has entries, although" << std::endl
-					 << "threads_started_ is set to false" << std::endl
+					 << "m_threads_started is set to false" << std::endl
 					 << GEXCEPTION;
 				 }
 
 				 // Store a worker (a place holder, really) in the m_io_service object
-				 work_.reset(
-					 new boost::asio::io_service::work(io_service_)
+				 m_work.reset(
+					 new boost::asio::io_service::work(m_io_service)
 				 );
 
 				 // No need to let the threads join, as none were running so far
 
-				 gtg_.create_threads(
-					 [this]() { this->io_service_.run(); }
-					 , nThreads_.load()
+				 m_gtg.create_threads(
+					 [this]() { this->m_io_service.run(); }
+					 , m_nThreads.load()
 				 );
 
-				 threads_started_ = true;
+				 m_threads_started = true;
 			 }
 		 }
 
 		 // Update the task counter. NOTE: This needs to happen here
-		 // and not in taskWrapper. tasksInFlight_ helps the wait()-function
+		 // and not in taskWrapper. m_tasksInFlight helps the wait()-function
 		 // to determine whether any jobs have been submitted to the Boost.ASIO
 		 // ioservice that haven't been processed yet. taskWrapper will
 		 // only start execution when it is assigned to a thread. As we
 		 // cannot "look" into ioservice, we need an external counter that
 		 // is incremented upon submission, not start of execution.
 		 {
-			 boost::unique_lock<boost::mutex> cnt_lck(task_counter_mutex_);
-			 tasksInFlight_++;
+			 std::unique_lock<std::mutex> cnt_lck(m_task_counter_mutex);
+			 m_tasksInFlight++;
 		 }
 
 		 // Finally submit to the io_service
-		 io_service_.post(
+		 m_io_service.post(
 			 [f, this]() {
 				 this->taskWrapper<F>(f);
 			 }
@@ -180,9 +182,9 @@ private:
 			 << e.what() << std::endl;
 
 			 { // Store the error for later reference
-				 boost::unique_lock<boost::mutex> error_lck(error_mutex_); // We protect against concurrent write access
-				 errorCounter_++;
-				 errorLog_.push_back(error.str());
+				 std::unique_lock<std::mutex> error_lck(m_error_mutex); // We protect against concurrent write access
+				 m_errorCounter++;
+				 m_errorLog.push_back(error.str());
 			 }
 		 } catch (boost::exception &e) {
 			 // Extract the error
@@ -192,9 +194,9 @@ private:
 			 << boost::diagnostic_information(e) << std::endl;
 
 			 { // Store the error for later reference
-				 boost::unique_lock<boost::mutex> error_lck(error_mutex_); // We protect against concurrent write access
-				 errorCounter_++;
-				 errorLog_.push_back(error.str());
+				 std::unique_lock<std::mutex> error_lck(m_error_mutex); // We protect against concurrent write access
+				 m_errorCounter++;
+				 m_errorLog.push_back(error.str());
 			 }
 		 } catch (std::exception &e) {
 			 // Extract the error
@@ -204,9 +206,9 @@ private:
 			 << e.what() << std::endl;
 
 			 { // Store the error for later reference
-				 boost::unique_lock<boost::mutex> error_lck(error_mutex_); // We protect against concurrent write access
-				 errorCounter_++;
-				 errorLog_.push_back(error.str());
+				 std::unique_lock<std::mutex> error_lck(m_error_mutex); // We protect against concurrent write access
+				 m_errorCounter++;
+				 m_errorLog.push_back(error.str());
 			 }
 		 } catch (...) {
 			 std::ostringstream error;
@@ -214,16 +216,16 @@ private:
 			 << "GThreadPool::taskWrapper(F f): Caught unknown exception" << std::endl;
 
 			 { // Store the error for later reference
-				 boost::unique_lock<boost::mutex> error_lck(error_mutex_); // We protect against concurrent write access
-				 errorCounter_++;
-				 errorLog_.push_back(error.str());
+				 std::unique_lock<std::mutex> error_lck(m_error_mutex); // We protect against concurrent write access
+				 m_errorCounter++;
+				 m_errorLog.push_back(error.str());
 			 }
 		 }
 
 		 { // Update the submission counter -- we need an external means to check whether the pool has run empty
-			 boost::unique_lock<boost::mutex> cnt_lck(task_counter_mutex_);
+			 std::unique_lock<std::mutex> cnt_lck(m_task_counter_mutex);
 #ifdef DEBUG
-			 if(0==tasksInFlight_.load()) {
+			 if(0==m_tasksInFlight.load()) {
 				 glogger
 				 << "In GThreadPool::taskWrapper(F f): Error!" << std::endl
 				 << "Trying to decrement a task counter that is already 0" << std::endl
@@ -232,35 +234,35 @@ private:
 				 // We do not use an exception here, as taskWrapper runs inside of a thread
 			 }
 #endif /* DEBUG */
-			 tasksInFlight_--;
-			 condition_.notify_one();
+			 m_tasksInFlight--;
+			 m_condition.notify_one();
 		 }
 	 }
 
 	 /***************************************************************************/
 
-	 boost::asio::io_service io_service_; ///< Manages the concurrent thread execution
-	 std::shared_ptr <boost::asio::io_service::work> work_; ///< A place holder ensuring that the io_service doesn't stop prematurely
+	 boost::asio::io_service m_io_service; ///< Manages the concurrent thread execution
+	 std::shared_ptr <boost::asio::io_service::work> m_work; ///< A place holder ensuring that the io_service doesn't stop prematurely
 
-	 GThreadGroup gtg_; ///< Holds the actual threads
+	 GThreadGroup m_gtg; ///< Holds the actual threads
 
-	 std::atomic<std::uint32_t> errorCounter_; ///< The number of exceptions thrown by the pay load
-	 std::vector<std::string> errorLog_; ///< Holds error descriptions emitted by the work load
-	 mutable boost::mutex error_mutex_; ///< Protects access to the error log and error counter; mutable, as "hasErrors() is const
+	 std::atomic<std::uint32_t> m_errorCounter; ///< The number of exceptions thrown by the pay load
+	 std::vector<std::string> m_errorLog; ///< Holds error descriptions emitted by the work load
+	 mutable std::mutex m_error_mutex; ///< Protects access to the error log and error counter; mutable, as "hasErrors() is const
 
-	 std::atomic<std::uint32_t> tasksInFlight_;  ///< The number of jobs that have been submitted in this round
-	 boost::mutex task_counter_mutex_; ///< Protects access to the "submitted" job counter
+	 std::atomic<std::uint32_t> m_tasksInFlight;  ///< The number of jobs that have been submitted in this round
+	 std::mutex m_task_counter_mutex; ///< Protects access to the "submitted" job counter
 
 	 /// Allows to prevent further job submissions, particularly when waiting for the pool to clear or when resetting the pool
-	 boost::mutex task_submission_mutex_;
+	 std::mutex m_task_submission_mutex;
 
-	 boost::mutex thread_creation_mutex_; ///< Synchronization of access to the threads_started_ variable
+	 std::mutex m_thread_creation_mutex; ///< Synchronization of access to the threads_started_ variable
 
 	 ///< Protects the job counter, so we may let the pool run empty
-	 boost::condition_variable_any condition_;
+	 std::condition_variable_any m_condition;
 
-	 std::atomic<unsigned int> nThreads_; ///< The number of concurrent threads in the pool
-	 std::atomic<bool> threads_started_; ///< Indicates whether threads have already been started
+	 std::atomic<unsigned int> m_nThreads; ///< The number of concurrent threads in the pool
+	 std::atomic<bool> m_threads_started; ///< Indicates whether threads have already been started
 };
 
 /******************************************************************************/
