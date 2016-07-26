@@ -71,10 +71,10 @@
 #include <vector>
 #include <memory>
 #include <tuple>
+#include <mutex>
 
 // Boost header files go here
 #include <boost/function.hpp>
-#include <boost/thread.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
@@ -315,7 +315,7 @@ public:
 		*/
 	void log(const std::string &message) const {
 		// Make sure only one entity outputs data
-		boost::mutex::scoped_lock lk(logger_mutex_);
+		std::unique_lock<std::mutex> lk(logger_mutex_);
 
 		if (!logVector_.empty()) {
 			// Do the actual logging
@@ -342,7 +342,7 @@ public:
 		*/
 	void logWithSource(const std::string &message, const std::string &extension) const {
 		// Make sure only one entity outputs data
-		boost::mutex::scoped_lock lk(logger_mutex_);
+		std::unique_lock<std::mutex> lk(logger_mutex_);
 
 		if (!logVector_.empty()) {
 			// Do the actual logging
@@ -368,7 +368,7 @@ public:
 		*/
 	void throwException(const std::string &error) {
 		// Make sure only one entity outputs data
-		boost::mutex::scoped_lock lk(logger_mutex_);
+		std::unique_lock<std::mutex> lk(logger_mutex_);
 
 		throw(Gem::Common::gemfony_error_condition(error));
 	}
@@ -379,7 +379,7 @@ public:
 		*/
 	void terminateApplication(const std::string &error) {
 		// Make sure only one entity outputs data
-		boost::mutex::scoped_lock lk(logger_mutex_);
+		std::unique_lock<std::mutex> lk(logger_mutex_);
 
 		std::cerr << error;
 		std::terminate();
@@ -391,7 +391,7 @@ public:
 		*/
 	void toStdOut(const std::string &message) {
 		// Make sure only one entity outputs data
-		boost::mutex::scoped_lock lk(logger_mutex_);
+		std::unique_lock<std::mutex> lk(logger_mutex_);
 
 		std::cout << message;
 	}
@@ -402,7 +402,7 @@ public:
 		*/
 	void toStdErr(const std::string &message) {
 		// Make sure only one entity outputs data
-		boost::mutex::scoped_lock lk(logger_mutex_);
+		std::unique_lock<std::mutex> lk(logger_mutex_);
 
 		std::cerr << message;
 	}
@@ -411,7 +411,7 @@ private:
 	/***************************************************************************/
 
 	std::vector<std::shared_ptr<GBaseLogTarget>> logVector_; ///< Contains the log targets
-	mutable boost::mutex logger_mutex_; ///< Needed for concurrent access to the log targets
+	mutable std::mutex logger_mutex_; ///< Needed for concurrent access to the log targets
 
 	std::shared_ptr <GBaseLogTarget> defaultLogger_; ///< The default log target
 };

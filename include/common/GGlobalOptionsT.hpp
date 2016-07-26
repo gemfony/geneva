@@ -38,9 +38,9 @@
 // Standard headers go here
 #include <map>
 #include <utility>
+#include <mutex>
 
 // Boost headers go here
-#include <boost/thread.hpp>
 
 /**
  * Check that we have support for threads. This collection of classes is useless
@@ -90,7 +90,7 @@ public:
 	 * @return A boolean indicating whether retrieval of the option was successful
 	 */
 	bool get(const std::string &key, T &value) {
-		boost::lock_guard<boost::mutex> guard(m_);
+		std::unique_lock<std::mutex> guard(m_);
 
 		if (kvp_.find(key) != kvp_.end()) {
 			value = kvp_[key];
@@ -106,7 +106,7 @@ public:
 	 * Note that this function does not check for availability of the option.
 	 */
 	T get(const std::string &key) {
-		boost::lock_guard<boost::mutex> guard(m_);
+		std::unique_lock<std::mutex> guard(m_);
 		return kvp_[key];
 	}
 
@@ -118,7 +118,7 @@ public:
 	 * @param value The value of the option
 	 */
 	void set(const std::string &key, T value) {
-		boost::lock_guard<boost::mutex> guard(m_);
+		std::unique_lock<std::mutex> guard(m_);
 		kvp_[key] = value;
 	}
 
@@ -131,7 +131,7 @@ public:
 	 * @return A boolean indicating whether creation of the new option was successful
 	 */
 	bool setOnce(const std::string &key, T value) {
-		boost::lock_guard<boost::mutex> guard(m_);
+		std::unique_lock<std::mutex> guard(m_);
 		if (kvp_.find(key) != kvp_.end()) {
 			return false;
 		}
@@ -147,7 +147,7 @@ public:
 	 * @return A boolean indicating whether the option was indeed available
 	 */
 	bool remove(const std::string &key) {
-		boost::lock_guard<boost::mutex> guard(m_);
+		std::unique_lock<std::mutex> guard(m_);
 		typename std::map<std::string, T>::iterator it = kvp_.end();
 		if (it == kvp_.end()) {
 			return false;
@@ -165,7 +165,7 @@ public:
 	 * @return A boolean that indicates whether a given option is available
 	 */
 	bool exists(const std::string &key) const {
-		boost::lock_guard<boost::mutex> guard(m_);
+		std::unique_lock<std::mutex> guard(m_);
 		return (kvp_.find(key) != kvp_.end() ? true : false);
 	}
 
@@ -174,7 +174,7 @@ public:
 	 * Allows to find out the number of registered options
 	 */
 	std::size_t size() const {
-		boost::lock_guard<boost::mutex> guard(m_);
+		std::unique_lock<std::mutex> guard(m_);
 		return kvp_.size();
 	}
 
@@ -183,7 +183,7 @@ public:
 	 * Allows to check whether any options are present
 	 */
 	bool empty() const {
-		boost::lock_guard<boost::mutex> guard(m_);
+		std::unique_lock<std::mutex> guard(m_);
 		return kvp_.empty();
 	}
 
@@ -192,7 +192,7 @@ public:
 	 * Retrieves a full list of all keys
 	 */
 	std::string getKeyDescription() const {
-		boost::lock_guard<boost::mutex> guard(m_);
+		std::unique_lock<std::mutex> guard(m_);
 		std::string result;
 		typename std::map<std::string, T>::const_iterator cit;
 		std::size_t pos = 0;
@@ -211,7 +211,7 @@ public:
 	 */
 	void getKeyVector(std::vector<std::string> &keys) const {
 		keys.clear(); // Make sure the vector is empty
-		boost::lock_guard<boost::mutex> guard(m_);
+		std::unique_lock<std::mutex> guard(m_);
 		typename std::map<std::string, T>::const_iterator cit;
 		for (cit = kvp_.begin(); cit != kvp_.end(); ++cit) {
 			keys.push_back(cit->first);
@@ -223,7 +223,7 @@ public:
 	 * Retrieves a vector of all content items
 	 */
 	void getContentVector(std::vector<T> content) const {
-		boost::lock_guard<boost::mutex> guard(m_);
+		std::unique_lock<std::mutex> guard(m_);
 		content.clear();
 		typename std::map<std::string, T>::const_iterator cit;
 		for (cit = kvp_.begin(); cit != kvp_.end(); ++cit) {
@@ -236,7 +236,7 @@ public:
 	 * Positions an internal iterator at the beginning of the map
 	 */
 	void rewind() {
-		boost::lock_guard<boost::mutex> guard(m_);
+		std::unique_lock<std::mutex> guard(m_);
 		pos = kvp_.begin();
 	}
 
@@ -245,7 +245,7 @@ public:
 	 * Switches to the next position or returns false, if this is not possible
 	 */
 	bool goToNextPosition() {
-		boost::lock_guard<boost::mutex> guard(m_);
+		std::unique_lock<std::mutex> guard(m_);
 		if (++pos != kvp_.end()) {
 			return true;
 		} else {
@@ -258,7 +258,7 @@ public:
 	 * Retrieves the item at the current position
 	 */
 	T getCurrentItem() {
-		boost::lock_guard<boost::mutex> guard(m_);
+		std::unique_lock<std::mutex> guard(m_);
 		return pos->second;
 	}
 
@@ -269,7 +269,7 @@ public:
 	 * is up to you to rewind the position iterator using the rewind function.
 	 */
 	bool getNextItem(T &item) {
-		boost::lock_guard<boost::mutex> guard(m_);
+		std::unique_lock<std::mutex> guard(m_);
 		if (++pos != kvp_.end()) {
 			item = pos->second;
 			return true;
@@ -284,7 +284,7 @@ private:
 	std::map<std::string, T> kvp_;
 
 	typename std::map<std::string, T>::iterator pos;
-	mutable boost::mutex m_; ///< Lock get/set operations
+	mutable std::mutex m_; ///< Lock get/set operations
 };
 
 /******************************************************************************/
