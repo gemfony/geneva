@@ -212,9 +212,9 @@ int main(int argc, char** argv) {
 	std::vector<Gem::Common::thread> threads(nThreads);
 	for(std::size_t i=0; i<nThreads; i++) {
 		tasks.at(i).reset(new testTask);
-		threads.at(i) = Gem::Common::thread(
-			[&tasks,i,simulateThreadCrash](){ (tasks.at(i))->process(simulateThreadCrash); }
-		);
+		threads.at(i) = std::move(Gem::Common::thread(
+			[tasks,i,simulateThreadCrash](){ (tasks.at(i))->process(simulateThreadCrash); }
+		));
 	}
 
 	// Sleep for the predefined number of seconds

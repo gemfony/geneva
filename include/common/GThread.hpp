@@ -79,6 +79,8 @@
 #include <future>
 #include <atomic>
 #include <utility>
+#include <type_traits>
+#include <functional>
 
 // Boost headers go here
 
@@ -146,58 +148,42 @@ void interruption_point() {
 class thread
 {
 public:
+	 /********************************************************************/
 	 /**
 	  * The default constructor
 	  */
 	 G_API_COMMON thread()
 	 { /* nothing */ }
 
+	 /********************************************************************/
 	 /**
 	  * Construction with the function to be executed by the thread
 	  */
-	 template<typename FunctionType>
-	 thread(FunctionType f) {
+	 template <typename FunctionType, typename... paramtypes>
+	 thread(FunctionType&& f, paramtypes&&... params)
+	 {
 		 std::promise<interrupt_flag*> p;
-		 m_internal_thread=std::move(std::thread([f,&p](){
-			 p.set_value(&this_thread_interrupt_flag);
-
-			 try {
-				 f();
-			 } catch(Gem::Common::thread_interrupted&) { // Nothing, we want to terminate execution
-		       return;
-			 } catch(Gem::Common::gemfony_error_condition& e) {
-				 glogger
-					 << "In GThreadWrapper::operator(): Caught Gem::Common::gemfony_error_condition with message" << std::endl
-					 << e.what() << std::endl
-					 << GTERMINATION;
-			 } catch(boost::exception& e){
-				 glogger
-					 << "In GThreadWrapper::operator(): Caught boost::exception with message" << std::endl
-					 << GTERMINATION;
-			 } catch(std::exception& e){
-				 glogger
-					 << "In GThreadWrapper::operator(): Caught std::exception with message" << std::endl
-					 << e.what() << std::endl
-					 << GTERMINATION;
-			 } catch(...){
-				 glogger
-					 << "GThreadWrapper::operator(): Caught unknown exception" << std::endl
-					 << GTERMINATION;
-			 }
-		 }));
+		 m_internal_thread=std::move(std::thread(
+			 Gem::Common::thread::wrapper<typename std::decay<FunctionType>::type, paramtypes...>
+			 , std::ref(p)
+			 , std::forward<FunctionType>(f)
+			 , std::forward<paramtypes>(params)...
+		 ));
 		 m_flag=p.get_future().get();
 	 }
 
+	 /********************************************************************/
 	 /**
 	  * Move-constructor
 	  */
 	 G_API_COMMON thread(thread&& other)
-	 	: m_internal_thread(std::move(other.m_internal_thread))
-	 	, m_flag(other.m_flag)
+		 : m_internal_thread(std::move(other.m_internal_thread))
+		 , m_flag(other.m_flag)
 	 {
 		 other.m_flag = nullptr;
 	 }
 
+	 /********************************************************************/
 	 /**
 	  * The destructor
 	  */
@@ -205,6 +191,7 @@ public:
 		 m_flag = nullptr;
 	 }
 
+	 /********************************************************************/
 	 /**
 	  * Move-assignment
 	  */
@@ -214,6 +201,7 @@ public:
 		 m_internal_thread = std::move(other.m_internal_thread);
 	 }
 
+	 /********************************************************************/
 	 /**
 	  * Checks whether the internal thread is joinable
 	  */
@@ -221,6 +209,7 @@ public:
 		 return m_internal_thread.joinable();
 	 }
 
+	 /********************************************************************/
 	 /**
 	  * Retrieval of the thread id
 	  */
@@ -228,6 +217,7 @@ public:
 		 return m_internal_thread.get_id();
 	 }
 
+	 /********************************************************************/
 	 /**
 	  * Retrieval of a native_handle to the
 	  * underlying thread-implementation
@@ -236,6 +226,7 @@ public:
 		 return m_internal_thread.native_handle();
 	 }
 
+	 /********************************************************************/
 	 /**
 	  * Retrieves information about the number of hardware threads
 	  */
@@ -243,6 +234,7 @@ public:
 		 return std::thread::hardware_concurrency();
 	 }
 
+	 /********************************************************************/
 	 /**
 	  * Waits for the thread to terminate
 	  */
@@ -251,6 +243,7 @@ public:
 		 m_flag = nullptr;
 	 }
 
+	 /********************************************************************/
 	 /**
 	  * Sends the internal thread to the background
 	  */
@@ -259,6 +252,7 @@ public:
 		 m_internal_thread.detach();
 	 }
 
+	 /********************************************************************/
 	 /**
 	  * Signal the thread function that it should terminate itself
 	  */
@@ -268,6 +262,7 @@ public:
 		 }
 	 }
 
+	 /********************************************************************/
 	 /**
 	  * Swaps this objects content with another
 	  */
@@ -279,6 +274,7 @@ public:
 		 m_flag = tmp_flag;
 	 }
 
+	 /********************************************************************/
 	 /**
 	  * Checks whether the thread was interrupted
 	  */
@@ -287,6 +283,46 @@ public:
 	 }
 
 private:
+	 /********************************************************************/
+	 /**
+	  * A wrapper around function execution with the main goal of
+	  * catching interruption requests as well as exceptions
+	  */
+	 template <typename FunctionType, typename... paramtypes>
+	 static void wrapper(
+		 std::promise<interrupt_flag*>& p
+		 , FunctionType&& f
+		 , paramtypes&&... parm
+	 ) {
+		 p.set_value(&this_thread_interrupt_flag);
+
+		 try {
+			 f(std::forward<paramtypes>(parm)...);
+		 } catch(Gem::Common::thread_interrupted&) { // Nothing, we want to terminate execution
+			 return;
+		 } catch(Gem::Common::gemfony_error_condition& e) {
+			 glogger
+				 << "In GThreadWrapper::operator(): Caught Gem::Common::gemfony_error_condition with message" << std::endl
+				 << e.what() << std::endl
+				 << GTERMINATION;
+		 } catch(boost::exception& e){
+			 glogger
+				 << "In GThreadWrapper::operator(): Caught boost::exception with message" << std::endl
+				 << GTERMINATION;
+		 } catch(std::exception& e){
+			 glogger
+				 << "In GThreadWrapper::operator(): Caught std::exception with message" << std::endl
+				 << e.what() << std::endl
+				 << GTERMINATION;
+		 } catch(...){
+			 glogger
+				 << "GThreadWrapper::operator(): Caught unknown exception" << std::endl
+				 << GTERMINATION;
+		 }
+	 }
+
+	 /********************************************************************/
+
 	 thread(const thread&) = delete; ///< Threads are not copyable
 	 thread& operator=(const thread&) = delete; ///< Threads are not copyable
 
