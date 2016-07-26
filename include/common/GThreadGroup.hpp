@@ -96,7 +96,8 @@ class GThreadPool;
  * Anthony Williams, as offered as part of the Boost 1.36 release
  */
 class GThreadGroup
-	: private boost::noncopyable {
+	: private boost::noncopyable
+{
 	friend class GThreadPool;
 
 	typedef std::shared_ptr <boost::thread> thread_ptr;
@@ -108,9 +109,6 @@ public:
 
 	/** @brief Adds an already created thread to the group */
 	G_API_COMMON void add_thread(thread_ptr);
-
-	/** @brief Remove a thread from the group. Does nothing if the thread is empty. */
-	G_API_COMMON void remove_thread(thread_ptr);
 
 	/** @brief Requests all threads to join */
 	G_API_COMMON void join_all();

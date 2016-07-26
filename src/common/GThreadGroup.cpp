@@ -96,22 +96,6 @@ void GThreadGroup::add_thread(thread_ptr thrd) {
 
 /******************************************************************************/
 /**
- * Remove a thread from the group. Does nothing if the thread is empty.
- *
- * @param thrd A pointer to the thread that shall be removed from the group
- */
-void GThreadGroup::remove_thread(thread_ptr thrd) {
-	if (!thrd) return;
-
-	boost::lock_guard<boost::mutex> guard(m_);
-	thread_vector::iterator const cit =
-		std::find(threads_.begin(), threads_.end(), thrd);
-
-	if (cit != threads_.end()) threads_.erase(cit);
-}
-
-/******************************************************************************/
-/**
  * Requests all threads to join
  */
 void GThreadGroup::join_all() {
