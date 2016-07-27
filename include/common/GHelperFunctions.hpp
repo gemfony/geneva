@@ -45,10 +45,12 @@
 #include <fstream>
 #include <typeinfo>
 #include <tuple>
+#include <thread>
+#include <mutex>
+#include <atomic>
 
 // Boost headers go here
 #include <boost/algorithm/string.hpp>
-#include <boost/thread.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/tokenizer.hpp>

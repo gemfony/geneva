@@ -37,6 +37,7 @@
 
 // Standard header files go here
 #include <functional>
+#include <mutex>
 
 // Boost header files go here
 #include <boost/algorithm/string.hpp>

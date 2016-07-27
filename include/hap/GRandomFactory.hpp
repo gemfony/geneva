@@ -48,13 +48,13 @@
 #include <cassert>
 #include <limits>
 #include <random>
+#include <thread>
+#include <mutex>
 
 // Boost headers go here
 
 #include <boost/atomic.hpp>
 #include <boost/date_time.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/thread.hpp>
 #include <boost/utility.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem.hpp>
@@ -281,9 +281,9 @@ private:
 	 Gem::Common::GBoundedBufferT<std::unique_ptr<random_container>> p_ret_bfr_;
 
 	 static std::uint16_t multiple_call_trap_; ///< Trap to catch multiple instantiations of this class
-	 static boost::mutex factory_creation_mutex_; ///< Synchronization of access to multiple_call_trap in constructor
+	 static std::mutex factory_creation_mutex_; ///< Synchronization of access to multiple_call_trap in constructor
 
-	 mutable boost::mutex thread_creation_mutex_; ///< Synchronization of access to the threads_started_ variable
+	 mutable std::mutex thread_creation_mutex_; ///< Synchronization of access to the threads_started_ variable
 
 	 std::random_device nondet_rng_; ///< Source of non-deterministic random numbers
 	 std::seed_seq seed_seq_ ///< A seeding sequence
@@ -298,7 +298,7 @@ private:
 			 , nondet_rng_()
 		 };
 
-	 mutable boost::shared_mutex seedingMutex_; ///< Regulates start-up of the seeding process
+	 mutable std::mutex seedingMutex_; ///< Regulates start-up of the seeding process
 	 std::vector<seed_type> seedCollection_; ///< Holds pre-calculated seeds
 	 std::vector<seed_type>::const_iterator seed_cit_; ///< Iterators over the seedCollection_
 	 bool seedingHasStarted_=false;

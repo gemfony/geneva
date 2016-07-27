@@ -34,9 +34,6 @@
 
 #include "common/GHelperFunctions.hpp"
 
-// Controls access to the number of hardware threads. Used by "getNHardwareThreads()
-boost::shared_mutex g_hwt_read_mutex;
-
 namespace Gem {
 namespace Common {
 
@@ -50,30 +47,41 @@ namespace Common {
  * @return A guess at a suitable number of threads for this architecture, used as a fallback
  */
 
-bool g_hwt_read = false; // global in this file
-unsigned int g_nHardwareThreads = Gem::Common::DEFAULTNHARDWARETHREADS; // global in this file
+std::mutex g_hwt_read_mutex;
+std::atomic<bool> g_hwt_read(false); // global in this file
+std::atomic<unsigned int> g_nHardwareThreads(Gem::Common::DEFAULTNHARDWARETHREADS); // global in this file
 
 unsigned int getNHardwareThreads(const unsigned int &defaultNThreads) {
-	boost::upgrade_lock<boost::shared_mutex> lck(g_hwt_read_mutex); // read-only access
-	if (false == g_hwt_read) { // upgrade to exclusive lock; double-lock pattern
-		boost::upgrade_to_unique_lock<boost::shared_mutex> unique_lck(lck);
-		if (false == g_hwt_read) {
+	if (false == g_hwt_read.load()) {
+		std::unique_lock<std::mutex>(g_hwt_read_mutex);
+		if (false == g_hwt_read.load()) {
 			g_hwt_read = true;
-			g_nHardwareThreads = boost::thread::hardware_concurrency();
+			g_nHardwareThreads.store(std::thread::hardware_concurrency());
 		}
 	} // exclusive access ends
 
-	if (g_nHardwareThreads > 0) {
+	if (g_nHardwareThreads.load() > 0) {
 		return g_nHardwareThreads;
 	} else {
+		if(0==defaultNThreads) {
 #ifdef DEBUG
-		glogger
-		<< "Could not get information regarding suitable number of threads." << std::endl
-		<< "Using the default value " << defaultNThreads << " instead." << std::endl
-		<< GWARNING;
+			glogger
+				<< "Could not get information regarding suitable number of threads." << std::endl
+				<< "Using the default value DEFAULTNHARDWARETHREADS = " << Gem::Common::DEFAULTNHARDWARETHREADS << " instead." << std::endl
+				<< GWARNING;
 #endif
 
-		return defaultNThreads;
+			return Gem::Common::DEFAULTNHARDWARETHREADS;
+		} else {
+#ifdef DEBUG
+			glogger
+				<< "Could not get information regarding suitable number of threads." << std::endl
+				<< "Using the default value defaultNThreads = " << defaultNThreads << " instead." << std::endl
+				<< GWARNING;
+#endif
+
+			return defaultNThreads;
+		}
 	}
 }
 

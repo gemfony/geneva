@@ -37,12 +37,12 @@
 #include <chrono>
 #include <thread>
 
-#include <boost/thread.hpp>
 #include <boost/date_time.hpp>
 
 #include "courtier/GBufferPortT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GThreadGroup.hpp"
+#include "common/GBarrier.hpp"
 
 #include "../../Misc/GSimpleContainer.hpp"
 #include "../../Misc/GRandomNumberContainer.hpp"
@@ -66,7 +66,7 @@ std::mutex output_mutex;
 /**
  * A barrier on which all threads have to wait
  */
-std::shared_ptr<boost::barrier> sync_ptr;
+std::shared_ptr<Gem::Common::GBarrier> sync_ptr;
 
 using namespace Gem::Courtier;
 using namespace Gem::Courtier::Tests;
@@ -268,7 +268,7 @@ int main(int argc, char **argv) {
 
 	//--------------------------------------------------------------------------------
 	// Initialize the global barrier so all threads start at a predefined time
-	sync_ptr = std::shared_ptr<boost::barrier>(new boost::barrier(1+1));
+	sync_ptr = std::shared_ptr<Gem::Common::GBarrier>(new Gem::Common::GBarrier(1+1));
 
 	//--------------------------------------------------------------------------------
 	// Start the producer and consumer threads

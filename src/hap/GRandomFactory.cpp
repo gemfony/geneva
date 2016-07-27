@@ -44,7 +44,7 @@ namespace Hap {
  * Initialization of static data members
  */
 std::uint16_t Gem::Hap::GRandomFactory::multiple_call_trap_ = 0;
-boost::mutex Gem::Hap::GRandomFactory::factory_creation_mutex_;
+std::mutex Gem::Hap::GRandomFactory::factory_creation_mutex_;
 
 /******************************************************************************/
 /**
@@ -73,7 +73,7 @@ GRandomFactory::GRandomFactory()
 	}
 	*/
 
-	boost::mutex::scoped_lock lk(factory_creation_mutex_);
+	std::unique_lock<std::mutex> lk(factory_creation_mutex_);
 	if (multiple_call_trap_ > 0) {
 		glogger
 		<< "Error in GRandomFactory::GRandomFactory():" << std::endl
@@ -147,7 +147,7 @@ std::size_t GRandomFactory::getBufferSize() const {
  * @return A seed taken from a local seed_seq object
  */
 seed_type GRandomFactory::getSeed() {
-	boost::unique_lock<boost::shared_mutex> sm_lck(seedingMutex_);
+	std::unique_lock<std::mutex> sm_lck(seedingMutex_);
 
 	// Refill at the start of seeding or when all seeds have been used
 	if(!seedingHasStarted_ || seed_cit_==seedCollection_.end()) {
@@ -195,7 +195,7 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) 
 		// If we enter this code-path, there is no way threads
 		// could go into the "not-running" state, so we do not need
 		// to check again using DCLP .
-		boost::unique_lock<boost::mutex> lk(thread_creation_mutex_);
+		std::unique_lock<std::mutex> lk(thread_creation_mutex_);
 		// Make a suggestion for the number of threads, if requested
 		std::uint16_t nProducerThreads_local =
 			(nProducerThreads > 0) ? nProducerThreads : (boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)));
@@ -212,7 +212,7 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) 
 		}
 	} else { // Double-checked locking pattern
 		// Here it appears that no threads were running. We do need to check again, though (DLCP)
-		boost::unique_lock<boost::mutex> tc_lk(thread_creation_mutex_);
+		std::unique_lock<std::mutex> tc_lk(thread_creation_mutex_);
 		// Make a suggestion for the number of threads, if requested
 		std::uint16_t nProducerThreads_local =
 			(nProducerThreads > 0) ? nProducerThreads : (boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)));
@@ -247,7 +247,7 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) 
 std::unique_ptr <random_container> GRandomFactory::getNewRandomContainer() {
 	// Start the producer threads upon first access to this function
 	if (!threads_started_.load()) {
-		boost::unique_lock<boost::mutex> tc_lk(thread_creation_mutex_);
+		std::unique_lock<std::mutex> tc_lk(thread_creation_mutex_);
 		if (!threads_started_.load()) { // double checked locking pattern
 			//---------------------------------------------------------
 			for (std::uint16_t i = 0; i < nProducerThreads_.load(); i++) {

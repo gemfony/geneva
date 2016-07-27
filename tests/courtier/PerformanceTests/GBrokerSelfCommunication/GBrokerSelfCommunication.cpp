@@ -34,8 +34,8 @@
 
 #include <vector>
 #include <functional>
-
-#include <boost/thread.hpp>
+#include <thread>
+#include <mutex>
 
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GBrokerT.hpp"
@@ -51,7 +51,7 @@
 #include "GArgumentParser.hpp"
 
 std::size_t producer_counter;
-boost::mutex producer_counter_mutex;
+std::mutex producer_counter_mutex;
 
 using namespace Gem::Courtier;
 using namespace Gem::Courtier::Tests;
@@ -74,7 +74,7 @@ void connectorProducer(
 	std::size_t id;
 
 	{ // Assign a counter to this producer
-		boost::mutex::scoped_lock lk(producer_counter_mutex);
+		std::unique_lock<std::mutex> lk(producer_counter_mutex);
 		id = producer_counter++;
 	}
 
@@ -141,7 +141,7 @@ void brokerProducer(
 	typedef std::shared_ptr<Gem::Courtier::GBufferPortT<std::shared_ptr<WORKLOAD>> > GBufferPortT_ptr;
 
 	{ // Assign a counter to this producer
-		boost::mutex::scoped_lock lk(producer_counter_mutex);
+		std::unique_lock<std::mutex> lk(producer_counter_mutex);
 		id = producer_counter++;
 	}
 

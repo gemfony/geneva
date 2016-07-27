@@ -34,7 +34,8 @@ CONFIGURE_FILE (
 )
 
 SET ( GENEVACOMMONINCLUDES
-	GBoundedBufferT.hpp
+	GBarrier.hpp
+    GBoundedBufferT.hpp
 	GCanvas.hpp
 	GCommonEnums.hpp
 	GCommonInterfaceT.hpp

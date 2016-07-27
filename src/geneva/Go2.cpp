@@ -54,7 +54,7 @@ void setRNFParameters(
 }
 
 // Regulates access to the call_once facility
-boost::once_flag f_go2 = BOOST_ONCE_INIT;
+std::once_flag f_go2;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@ Go2::Go2()
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
-	boost::call_once(f_go2, std::bind(setRNFParameters, nProducerThreads_));
+	std::call_once(f_go2, std::bind(setRNFParameters, nProducerThreads_));
 }
 
 
@@ -121,7 +121,7 @@ Go2::Go2(
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
-	boost::call_once(f_go2, std::bind(setRNFParameters, nProducerThreads_));
+	std::call_once(f_go2, std::bind(setRNFParameters, nProducerThreads_));
 }
 
 /******************************************************************************/
@@ -155,7 +155,7 @@ Go2::Go2(const std::string &configFilename)
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
-	boost::call_once(f_go2, std::bind(setRNFParameters, nProducerThreads_));
+	std::call_once(f_go2, std::bind(setRNFParameters, nProducerThreads_));
 }
 
 /******************************************************************************/
@@ -200,7 +200,7 @@ Go2::Go2(
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
-	boost::call_once(f_go2, std::bind(setRNFParameters, nProducerThreads_));
+	std::call_once(f_go2, std::bind(setRNFParameters, nProducerThreads_));
 }
 
 /******************************************************************************/
@@ -232,7 +232,7 @@ Go2::Go2(const Go2 &cp)
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
-	boost::call_once(f_go2, std::bind(setRNFParameters, nProducerThreads_));
+	std::call_once(f_go2, std::bind(setRNFParameters, nProducerThreads_));
 
 	//--------------------------------------------
 	// Copy the default algorithm over, if any

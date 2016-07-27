@@ -42,6 +42,8 @@
 #include <vector>
 #include <functional>
 #include <memory>
+#include <mutex>
+#include <thread>
 
 // Boost headers go here
 #include <boost/array.hpp>
@@ -52,7 +54,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include <boost/thread.hpp>
 #include <boost/utility.hpp>
 #include <boost/date_time.hpp>
 #include <boost/lexical_cast.hpp>
@@ -535,8 +536,7 @@ private:
 			if (!error) break;
 
 			// Unsuccessful. Sleep for 0.01 seconds, then try again
-			// TODO: Transfer to std::chrono, once we use std::thread
-			boost::this_thread::sleep(boost::posix_time::milliseconds(milliSecondsWait));
+			std::this_thread::sleep_for(std::chrono::milliseconds(milliSecondsWait));
 
 			if (m_maxConnectionAttempts > 0) {
 				milliSecondsWait *= 2;

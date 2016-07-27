@@ -40,10 +40,11 @@
 #include <sstream>
 #include <functional>
 #include <memory>
+#include <thread>
+#include <mutex>
 
 // Boost headers go here
 
-#include <boost/thread/thread.hpp>
 #include <boost/utility.hpp>
 #include <boost/function.hpp>
 #include <boost/asio.hpp>
@@ -55,7 +56,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/program_options.hpp>
 #include <boost/serialization/vector.hpp>
-#include <boost/thread.hpp>
 
 #ifndef GCONSUMER_HPP_
 #define GCONSUMER_HPP_

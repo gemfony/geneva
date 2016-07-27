@@ -45,6 +45,7 @@
 // Boost header files go here
 #include <boost/asio/io_service.hpp>
 #include <boost/utility.hpp>
+#include <boost/exception/all.hpp>
 
 #ifndef GTHREADPOOL_HPP_
 #define GTHREADPOOL_HPP_

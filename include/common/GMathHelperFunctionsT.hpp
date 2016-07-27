@@ -48,7 +48,6 @@
 #include <limits>
 
 // Boost headers go here
-#include <boost/thread.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/math/special_functions.hpp>
 #include <boost/numeric/conversion/bounds.hpp>

@@ -199,13 +199,6 @@ private:
 /** @brief Convenience typedef */
 typedef GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> GRandom;
 
-/***************************************************************************/
-
-#ifdef GENEVA_USE_BOOST_TLS
-/** @brief Central access to a random number generator through thread-local storage */
-boost::thread_specific_ptr<Gem::Hap::GRandom>& gr_tls_ptr();
-#endif
-
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
@@ -260,11 +253,6 @@ private:
 } /* namespace Hap */
 } /* namespace Gem */
 
-#ifdef GENEVA_USE_BOOST_TLS
-// Syntactic sugar
-#define GRANDOM_TLS (*(Gem::Hap::gr_tls_ptr()))
-#else
 extern thread_local Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> GRANDOM_TLS;
-#endif
 
 #endif /* GRANDOMT_HPP_ */

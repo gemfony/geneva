@@ -37,12 +37,13 @@
 
 // Standard headers go here
 #include <type_traits>
+#include <thread>
+#include <mutex>
 
 // Boost headers go here
 
 #include <boost/cast.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/thread.hpp>
 
 #ifndef GBOOSTTHREADCONSUMERT_HPP_
 #define GBOOSTTHREADCONSUMERT_HPP_
@@ -363,8 +364,7 @@ private:
 	/***************************************************************************/
 
 	GBoostThreadConsumerT(const GBoostThreadConsumerT<processable_type> &); ///< Intentionally left undefined
-	const GBoostThreadConsumerT<processable_type> &operator=(
-		const GBoostThreadConsumerT<processable_type> &); ///< Intentionally left undefined
+	const GBoostThreadConsumerT<processable_type> &operator=(const GBoostThreadConsumerT<processable_type> &); ///< Intentionally left undefined
 
 	std::size_t m_threadsPerWorker; ///< The maximum number of allowed threads in the pool
 	Gem::Common::GThreadGroup m_gtg; ///< Holds the processing threads
