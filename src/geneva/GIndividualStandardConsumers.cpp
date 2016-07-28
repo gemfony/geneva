@@ -44,22 +44,27 @@ namespace Geneva {
  * The default constructor
  */
 GIndividualTCPConsumer::GIndividualTCPConsumer()
-	: Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GParameterSet>() { /* nothing */ }
+	: Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GParameterSet>()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * A constructor that takes a number of vital arguments
  */
 GIndividualTCPConsumer::GIndividualTCPConsumer(
-	const unsigned short &port, const std::size_t &listenerThreads, const Gem::Common::serializationMode &sm
+	const unsigned short &port
+	, const std::size_t &listenerThreads
+	, const Gem::Common::serializationMode &sm
 )
-	: Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GParameterSet>(port, listenerThreads, sm) { /* nothing */ }
+	: Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GParameterSet>(port, listenerThreads, sm)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GIndividualTCPConsumer::~GIndividualTCPConsumer() { /* nothing */ }
+GIndividualTCPConsumer::~GIndividualTCPConsumer()
+{ /* nothing */ }
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -68,13 +73,15 @@ GIndividualTCPConsumer::~GIndividualTCPConsumer() { /* nothing */ }
  * The default constructor
  */
 GIndividualThreadConsumer::GIndividualThreadConsumer()
-	: Gem::Courtier::GBoostThreadConsumerT<Gem::Geneva::GParameterSet>() { /* nothing */ }
+	: Gem::Courtier::GBoostThreadConsumerT<Gem::Geneva::GParameterSet>()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GIndividualThreadConsumer::~GIndividualThreadConsumer() { /* nothing */ }
+GIndividualThreadConsumer::~GIndividualThreadConsumer()
+{ /* nothing */ }
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,13 +90,15 @@ GIndividualThreadConsumer::~GIndividualThreadConsumer() { /* nothing */ }
  * The default constructor
  */
 GIndividualSerialConsumer::GIndividualSerialConsumer()
-	: Gem::Courtier::GSerialConsumerT<Gem::Geneva::GParameterSet>() { /* nothing */ }
+	: Gem::Courtier::GSerialConsumerT<Gem::Geneva::GParameterSet>()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GIndividualSerialConsumer::~GIndividualSerialConsumer() { /* nothing */ }
+GIndividualSerialConsumer::~GIndividualSerialConsumer()
+{ /* nothing */ }
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

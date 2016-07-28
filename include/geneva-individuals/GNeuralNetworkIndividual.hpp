@@ -41,6 +41,7 @@
 #include <sstream>
 #include <vector>
 #include <fstream>
+#include <mutex>
 
 // Boost header files go here
 #include <boost/math/constants/constants.hpp>
@@ -311,7 +312,7 @@ private:
 	std::vector<std::tuple<double, double>> initRange_;
 
 	/** @brief Locks access to the clone function */
-	mutable boost::mutex m_; ///< Lock get/set operations
+	mutable std::mutex m_; ///< Lock get/set operations
 };
 
 /******************************************************************************/

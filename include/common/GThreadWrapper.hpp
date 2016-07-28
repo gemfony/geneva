@@ -45,10 +45,10 @@
 #include <sstream>
 #include <cassert>
 #include <functional>
+#include <thread>
+#include <mutex>
 
 // Boost headers go here
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/thread.hpp>
 #include <boost/exception/all.hpp>
 
 

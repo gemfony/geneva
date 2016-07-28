@@ -53,7 +53,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/serialization/vector.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/date_time.hpp>
 #include <boost/lexical_cast.hpp>
 

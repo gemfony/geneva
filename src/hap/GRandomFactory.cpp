@@ -341,11 +341,12 @@ void GRandomFactory::producer(std::uint32_t seed) { // TODO: should be result_ty
 		<< "Caught std::invalid_argument exception with message" << std::endl
 		<< e.what() << std::endl
 		<< GEXCEPTION;
-	} catch (boost::thread_resource_error &) {
+	} catch (std::system_error& e) {
 		glogger
 		<< "In GRandomFactory::producer(): Error!" << std::endl
-		<< "Caught boost::thread_resource_error exception which" << std::endl
-		<< "likely indicates that a mutex could not be locked." << std::endl
+		<< "Caught std::system_error exception with message" << std::endl
+	   << e.what()
+		<< "which might indicate that a mutex could not be locked." << std::endl
 		<< GEXCEPTION;
 	} catch (...) {
 		glogger

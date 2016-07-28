@@ -75,7 +75,6 @@
 #include <boost/optional.hpp>
 #include <boost/program_options.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include <boost/thread/thread.hpp>
 #include <boost/utility.hpp>
 #include <boost/variant.hpp>
 #include <boost/property_tree/ptree_serialization.hpp>

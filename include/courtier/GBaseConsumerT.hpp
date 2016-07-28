@@ -102,7 +102,7 @@ public:
 	 * Stop execution
 	 */
 	virtual void shutdown() {
-		boost::unique_lock<boost::shared_mutex> lock(stopMutex_);
+		std::unique_lock<std::mutex> lock(stopMutex_);
 		stop_ = true;
 		lock.unlock();
 	}
@@ -112,7 +112,7 @@ public:
 	 * Check whether the stop flag has been set
 	 */
 	bool stopped() const {
-		boost::shared_lock<boost::shared_mutex> lock(stopMutex_);
+		std::unique_lock<std::mutex> lock(stopMutex_);
 		return stop_;
 	}
 
@@ -162,7 +162,7 @@ public:
 	 * it returns an empty smart pointer, so that consumers without the need for
 	 * clients do not need to re-implement this function.
 	 */
-	virtual std::shared_ptr <GBaseClientT<pl_type>> getClient() const {
+	virtual std::shared_ptr<GBaseClientT<pl_type>> getClient() const {
 		return std::shared_ptr<GBaseClientT<pl_type>>();
 	}
 
@@ -215,7 +215,7 @@ protected:
 
 private:
 	/***************************************************************************/
-	mutable boost::shared_mutex stopMutex_; ///< Regulate access to the stop_ variable
+	mutable std::mutex stopMutex_; ///< Regulate access to the stop_ variable
 	mutable bool stop_; ///< Set to true if we are expected to stop
 };
 

@@ -80,9 +80,9 @@ public:
 	 * triggered by a call to GBaseConsumerT<processable_type>::shutdown().
 	 */
 	void async_startProcessing() {
-		processingThread_ = boost::thread(
+		processingThread_ = std::move(std::thread(
 			[this]() { this->processItems(); }
-		);
+		));
 	}
 
 	/***************************************************************************/
@@ -201,7 +201,7 @@ private:
 
 	/***************************************************************************/
 
-	boost::thread processingThread_;
+	std::thread processingThread_;
 	std::shared_ptr <GBrokerT<processable_type>> broker_; ///< A shortcut to the broker so we do not have to go through the singleton
 };
 

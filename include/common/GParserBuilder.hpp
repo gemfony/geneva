@@ -43,13 +43,13 @@
 #include <vector>
 #include <string>
 #include <functional>
+#include <mutex>
 
 // Boost headers go here
 #include <boost/algorithm/string.hpp>
 #include <boost/array.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
-#include <boost/thread/thread.hpp>
 #include <boost/utility.hpp>
 #include <boost/program_options.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -58,8 +58,6 @@
 #include <boost/date_time.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/foreach.hpp>
-#include <boost/thread/mutex.hpp>
-
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
@@ -2300,7 +2298,7 @@ private:
 
 	std::string configFileBaseName_;
 
-	static boost::mutex configFileParser_mutex_; ///< Synchronization of access to configuration files (may only happen serially)
+	static std::mutex configFileParser_mutex_; ///< Synchronization of access to configuration files (may only happen serially)
 };
 
 /******************************************************************************/

@@ -36,6 +36,8 @@
 #include <cmath>
 #include <iostream>
 #include <random>
+#include <thread>
+#include <chrono>
 
 // Boost headers go here
 
@@ -99,8 +101,8 @@ public:
 			this->decrement();
 		}
 
-		boost::this_thread::sleep(
-			boost::posix_time::milliseconds(
+		std::this_thread::sleep_for(
+			std::chrono::milliseconds(
 				this->m_uniform_int(10, 20)
 			)
 		);

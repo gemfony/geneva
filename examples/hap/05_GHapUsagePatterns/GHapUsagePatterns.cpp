@@ -35,9 +35,10 @@
 // Standard header files go here
 #include <iostream>
 #include <random>
+#include <thread>
+#include <mutex>
 
 // Boost header files go here
-#include <boost/thread/thread.hpp>
 
 // Geneva header files go here
 #include "hap/GRandomT.hpp"
@@ -170,8 +171,8 @@ int main(int argc, char **argv) {
 	}
 
 	// Try thread specific storage access to GRandomT
-	boost::thread t1(produceNumbers, 1);
-	boost::thread t2(produceNumbers, 2);
+	std::thread t1(produceNumbers, 1);
+	std::thread t2(produceNumbers, 2);
 	t1.join();
 	t2.join();
 

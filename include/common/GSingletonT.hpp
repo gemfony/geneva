@@ -64,11 +64,10 @@
 // Standard headers go here
 #include <iostream>
 #include <memory>
+#include <mutex>
 
 // Boost headers go here
 
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/thread.hpp>
 #include <boost/utility.hpp>
 
 /**
@@ -122,7 +121,7 @@ public:
 	 */
 	static std::shared_ptr <T> Instance(const std::size_t &mode) {
 		static std::shared_ptr <T> p;
-		static boost::mutex creation_mutex;
+		static std::mutex creation_mutex;
 
 		switch (mode) {
 			case 0:
@@ -130,7 +129,7 @@ public:
 				// p is empty, we need to ask again if it is empty after we have acquired the lock
 				if (!p) {
 					// Prevent concurrent "first" access
-					boost::mutex::scoped_lock lk(creation_mutex);
+					std::unique_lock<std::mutex> lk(creation_mutex);
 					if (!p) p = Gem::Common::TFactory_GSingletonT<T>();
 				}
 

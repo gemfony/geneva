@@ -40,9 +40,6 @@
 #include <sstream>
 
 // Boost header files go here
-#include <boost/function.hpp>
-#include <boost/thread/thread.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 
 // Geneva header files go here
 #include <common/GMathHelperFunctionsT.hpp>

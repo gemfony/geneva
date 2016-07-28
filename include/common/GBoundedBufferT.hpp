@@ -195,9 +195,12 @@ public:
 			 m_container.clear();
 		 }
 		 // This is a standard error raised by the lock/mutex
-		 catch (boost::thread_resource_error &) {
+		 catch (std::system_error& e) {
 			 glogger
-				 << "Caught thread_resource_error in GBoundedBufferT::~GBoundedBufferT(). Terminating ..." << std::endl
+				 << "In GRandomFactory::producer(): Error!" << std::endl
+				 << "Caught std::system_error exception with message" << std::endl
+				 << e.what()
+				 << "which might indicate that a mutex could not be locked." << std::endl
 				 << GTERMINATION;
 		 }
 		 // We do not know whether any of the destructors of the items in the buffer throw anything

@@ -44,9 +44,9 @@
 #include <iostream>
 #include <sstream>
 #include <cassert>
+#include <thread>
 
 // Boost headers go here
-#include <boost/thread/thread.hpp>
 
 #ifndef GRANDOMT_HPP_
 #define GRANDOMT_HPP_
@@ -126,8 +126,8 @@ public:
 	 * Retrieves the id of the currently running thread. This function exists
 	 * mostly for debugging purposes
 	 */
-	decltype(boost::this_thread::get_id()) getThreadId() const {
-		return boost::this_thread::get_id();
+	decltype(std::this_thread::get_id()) getThreadId() const {
+		return std::this_thread::get_id();
 	}
 
 protected:
