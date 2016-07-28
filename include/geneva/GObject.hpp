@@ -86,11 +86,6 @@
 #include <boost/test/unit_test.hpp>
 #endif /* GEM_TESTING */
 
-/** Check that we have support for threads */
-#ifndef BOOST_HAS_THREADS
-#error "Error: Support for multi-threading does not seem to be available."
-#endif
-
 #ifndef GOBJECT_HPP_
 #define GOBJECT_HPP_
 

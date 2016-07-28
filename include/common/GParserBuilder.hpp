@@ -76,13 +76,6 @@
 #include <boost/serialization/export.hpp>
 
 /******************************************************************************/
-/**
- * Check that we have support for threads. This collection of classes is useless
- * without this.
- */
-#ifndef BOOST_HAS_THREADS
-#error "Error: No support for Boost.threads available"
-#endif
 
 #ifndef GPARSERBUILDER_HPP_
 #define GPARSERBUILDER_HPP_
