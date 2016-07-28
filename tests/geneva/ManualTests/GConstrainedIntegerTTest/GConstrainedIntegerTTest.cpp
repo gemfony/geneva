@@ -47,8 +47,6 @@
 #include <string>
 
 // Boost header files go here
-#include <boost/thread.hpp>
-#include <boost/ref.hpp>
 
 // Geneva header files go here
 #include "common/GPlotDesigner.hpp"

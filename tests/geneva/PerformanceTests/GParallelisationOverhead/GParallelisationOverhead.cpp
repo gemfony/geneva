@@ -96,15 +96,15 @@ void startReferenceMeasurement(
 			go.push_back(gdi_ptr);
 
 			// Do the actual optimization and measure the time
-			boost::posix_time::ptime startTime = boost::posix_time::microsec_clock::universal_time();
+			std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
 			go.optimize<GDelayIndividual>();
-			boost::posix_time::ptime endTime = boost::posix_time::microsec_clock::universal_time();
-			boost::posix_time::time_duration duration = endTime - startTime;
+			std::chrono::steady_clock::time_point endTime = std::chrono::steady_clock::now();
+			std::chrono::duration<double> duration = endTime - startTime;
 
 			referenceExecutionTimes.push_back(
 				std::tuple<double,double>(
-					double(gdi_ptr->getSleepTime().total_milliseconds())/1000.
-					, double(duration.total_milliseconds())/1000.
+					gdi_ptr->getSleepTime().count()
+					, duration.count()
 				)
 			);
 
@@ -113,7 +113,7 @@ void startReferenceMeasurement(
 		}
 
 		// Wait for late arrivals
-		boost::this_thread::sleep(boost::posix_time::seconds(interMeasurementDelay));
+		std::this_thread::sleep_for(std::chrono::seconds(interMeasurementDelay));
 
 		// Increment the iteration counter
 		iter++;
@@ -171,12 +171,12 @@ void startParallelMeasurement(
 			go.push_back(gdi_ptr);
 
 			// Do the actual optimization and measure the time
-			boost::posix_time::ptime startTime = boost::posix_time::microsec_clock::universal_time();
+			std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
 			go.optimize<GDelayIndividual>();
-			boost::posix_time::ptime endTime = boost::posix_time::microsec_clock::universal_time();
-			boost::posix_time::time_duration duration = endTime - startTime;
+			std::chrono::steady_clock::time_point endTime = std::chrono::steady_clock::now();
+			std::chrono::duration<double> duration = endTime - startTime;
 
-			delaySummary.push_back(double(duration.total_milliseconds())/1000.);
+			delaySummary.push_back(duration.count());
 
 			// Clean up the collection
 			go.clear();
@@ -187,7 +187,7 @@ void startParallelMeasurement(
 		// Output the results
 		parallelExecutionTimes.push_back(
 			std::tuple<double,double,double,double>(
-				double(gdi_ptr->getSleepTime().total_milliseconds())/1000.
+				gdi_ptr->getSleepTime().count()
 				, 0. // No error on the sleep time
 				, std::get<0>(ms) // mean
 				, std::get<1>(ms) // standard deviation
@@ -198,7 +198,7 @@ void startParallelMeasurement(
 		delaySummary.clear();
 
 		// Wait for late arrivals
-		boost::this_thread::sleep(boost::posix_time::seconds(interMeasurementDelay));
+		std::this_thread::sleep_for(std::chrono::seconds(interMeasurementDelay));
 
 		// Increment the iteration counter
 		iter++;

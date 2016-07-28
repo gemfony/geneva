@@ -44,7 +44,7 @@ namespace Tests {
  * The default constructor. Intentionally private -- needed only for (de-)serialization.
  */
 GDelayIndividual::GDelayIndividual()
-	: sleepTime_(boost::posix_time::seconds(1))
+	: sleepTime_(std::chrono::seconds(1))
 { /* nothing */ }
 
 /******************************************************************************/
@@ -136,7 +136,7 @@ void GDelayIndividual::compare(
 	Gem::Common::compare_base<Gem::Geneva::GParameterSet>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
-	Gem::Common::compare_t(IDENTITY(sleepTime_, p_load->sleepTime_), token);
+	Gem::Common::compare_t(IDENTITY(sleepTime_.count(), p_load->sleepTime_.count()), token);
 
 	// React on deviations from the expectation
 	token.evaluate();
@@ -185,7 +185,7 @@ std::size_t GDelayIndividual::customAdaptions() { return std::size_t(1); }
  */
 double GDelayIndividual::fitnessCalculation() {
 	// Sleep for the desired amount of time
-	boost::this_thread::sleep(sleepTime_);
+	std::this_thread::sleep_for(sleepTime_);
 
 	// Return a random value - we do not perform any real optimization
 	return uniform_real_distribution(gr);
@@ -197,7 +197,7 @@ double GDelayIndividual::fitnessCalculation() {
  *
  * @return The current value of the sleepTime_ variable
  */
-boost::posix_time::time_duration GDelayIndividual::getSleepTime() const {
+std::chrono::duration<double> GDelayIndividual::getSleepTime() const {
 	return sleepTime_;
 }
 
@@ -205,7 +205,7 @@ boost::posix_time::time_duration GDelayIndividual::getSleepTime() const {
 /**
  * Sets the sleep-time to a user-defined value
  */
-void GDelayIndividual::setSleepTime(const boost::posix_time::time_duration& sleepTime) {
+void GDelayIndividual::setSleepTime(const std::chrono::duration<double>& sleepTime) {
 	sleepTime_ = sleepTime;
 }
 
@@ -378,10 +378,10 @@ void GDelayIndividualFactory::postProcess_(
 
 	if(Gem::Common::GFACTORYWRITEID==id) {
 		// Calculate the current sleep time
-		boost::posix_time::time_duration sleepTime = this->tupleToTime(sleepTimes_.at(0));
+		std::chrono::duration<double> sleepTime = this->tupleToTime(sleepTimes_.at(0));
 
 		std::cout
-		<< "Producing individual in write mode with sleep time = " << sleepTime.total_milliseconds() << std::endl;
+		<< "Producing individual in write mode with sleep time = " << sleepTime.count() << " s" << std::endl;
 
 		p->setSleepTime(sleepTime);
 
@@ -404,10 +404,10 @@ void GDelayIndividualFactory::postProcess_(
 		p->push_back(gbdc_ptr);
 	} else if((id-Gem::Common::GFACTTORYFIRSTID) < sleepTimes_.size()) {
 		// Calculate the current sleep time
-		boost::posix_time::time_duration sleepTime = this->tupleToTime(sleepTimes_.at(id-Gem::Common::GFACTTORYFIRSTID));
+		std::chrono::duration<double> sleepTime = this->tupleToTime(sleepTimes_.at(id-Gem::Common::GFACTTORYFIRSTID));
 
 		std::cout
-		<< "Producing individual " << (id-Gem::Common::GFACTTORYFIRSTID) << " with sleep time = " << sleepTime.total_milliseconds() << std::endl;
+		<< "Producing individual " << (id-Gem::Common::GFACTTORYFIRSTID) << " with sleep time = " << sleepTime.count() << " s" << std::endl;
 
 		p->setSleepTime(sleepTime);
 
@@ -440,10 +440,10 @@ void GDelayIndividualFactory::postProcess_(
  *
  * @param timeTuple A tuple of seconds and milliseconds in unsigned int format, to be converted to a time_duration object
  */
-boost::posix_time::time_duration GDelayIndividualFactory::tupleToTime(const std::tuple<unsigned int, unsigned int>& timeTuple) {
-	boost::posix_time::time_duration t =
-		boost::posix_time::seconds(boost::numeric_cast<long>(std::get<0>(timeTuple))) +
-		boost::posix_time::milliseconds(boost::numeric_cast<long>(std::get<1>(timeTuple)));
+std::chrono::duration<double> GDelayIndividualFactory::tupleToTime(const std::tuple<unsigned int, unsigned int>& timeTuple) {
+	std::chrono::duration<double> t =
+		std::chrono::seconds(boost::numeric_cast<long>(std::get<0>(timeTuple))) +
+		std::chrono::milliseconds(boost::numeric_cast<long>(std::get<1>(timeTuple)));
 
 	return t;
 }
