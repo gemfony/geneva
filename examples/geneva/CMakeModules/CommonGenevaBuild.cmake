@@ -192,7 +192,6 @@ SET (
 	regex
 	serialization
 	system
-	thread
 	program_options
 )
 
