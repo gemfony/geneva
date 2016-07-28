@@ -52,7 +52,6 @@
 #include <mutex>
 
 // Boost headers go here
-#include <boost/atomic.hpp>
 #include <boost/date_time.hpp>
 #include <boost/utility.hpp>
 #include <boost/lexical_cast.hpp>
@@ -263,8 +262,8 @@ private:
 	 void producer(std::uint32_t seed);
 
 	 bool finalized_ = false;
-	 boost::atomic<bool> threads_started_; ///< Indicates whether threads were already started
-	 boost::atomic<std::uint16_t> nProducerThreads_; ///< The number of threads used to produce random numbers
+	 std::atomic<bool> threads_started_; ///< Indicates whether threads were already started
+	 std::atomic<std::uint16_t> nProducerThreads_; ///< The number of threads used to produce random numbers
 	 Gem::Common::GThreadGroup producer_threads_; ///< A thread group that holds [0,1[ producer threads
 
 	 /** @brief A bounded buffer holding the random number packages */

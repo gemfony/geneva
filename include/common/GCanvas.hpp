@@ -62,7 +62,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/optional.hpp>
-#include <boost/shared_array.hpp>
 
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>

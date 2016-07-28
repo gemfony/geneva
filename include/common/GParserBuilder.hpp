@@ -44,10 +44,10 @@
 #include <string>
 #include <functional>
 #include <mutex>
+#include <array>
 
 // Boost headers go here
 #include <boost/algorithm/string.hpp>
-#include <boost/array.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/utility.hpp>
@@ -1290,7 +1290,7 @@ public:
 	 * Initializes the parameter and sets values in the parent class
 	 */
 	GArrayParT(
-		const std::string &optionNameVar, const std::string &commentVar, const boost::array<parameter_type, N> &def_val,
+		const std::string &optionNameVar, const std::string &commentVar, const std::array<parameter_type, N> &def_val,
 		const bool &isEssentialVar
 	)
 		: GFileParsableI(
@@ -1311,14 +1311,14 @@ protected:
 	 * as well. The reason is that configuration files will otherwise contain
 	 * the "old" par_-value.
 	 */
-	void resetDefault(const boost::array<parameter_type, N> &def_val) {
+	void resetDefault(const std::array<parameter_type, N> &def_val) {
 		def_val_ = def_val;
 		par_ = def_val;
 	}
 
 	/***************************************************************************/
-	boost::array<parameter_type, N> def_val_; ///< Holds default values
-	boost::array<parameter_type, N> par_; ///< Holds the parsed parameters
+	std::array<parameter_type, N> def_val_; ///< Holds default values
+	std::array<parameter_type, N> par_; ///< Holds the parsed parameters
 
 private:
 	/***************************************************************************/
@@ -1329,7 +1329,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class wraps a boost::array of values (obviously of identical type).
+ * This class wraps a std::array of values (obviously of identical type).
  * This class enforces a fixed number of items in the array.
  */
 template<typename parameter_type, std::size_t N>
@@ -1344,7 +1344,7 @@ public:
 	 * Initializes the parameters
 	 */
 	GFileArrayParsableParameterT(
-		const std::string &optionNameVar, const std::string &commentVar, const boost::array<parameter_type, N> &def_val,
+		const std::string &optionNameVar, const std::string &commentVar, const std::array<parameter_type, N> &def_val,
 		const bool &isEssentialVar
 	)
 		: GArrayParT<parameter_type, N>(
@@ -1356,7 +1356,7 @@ public:
 	 * Initializes the parameters, except for comments
 	 */
 	GFileArrayParsableParameterT(
-		const std::string &optionNameVar, const boost::array<parameter_type, N> &def_val
+		const std::string &optionNameVar, const std::array<parameter_type, N> &def_val
 	)
 		: GArrayParT<parameter_type, N>(
 		optionNameVar, std::string(""), def_val, Gem::Common::VAR_IS_ESSENTIAL
@@ -1390,7 +1390,7 @@ public:
 	 *
 	 * @param callBack The function to be executed
 	 */
-	void registerCallBackFunction(std::function<void(boost::array<parameter_type, N>)> callBack) {
+	void registerCallBackFunction(std::function<void(std::array<parameter_type, N>)> callBack) {
 		if (!callBack) {
 			glogger
 			<< "In GFileArrayParsableParameterT::registerCallBackFunction(): Error" << std::endl
@@ -1465,14 +1465,14 @@ protected:
 private:
 	/***************************************************************************/
 
-	std::function<void(boost::array<parameter_type, N>)> callBack_; ///< Holds the call-back function
+	std::function<void(std::array<parameter_type, N>)> callBack_; ///< Holds the call-back function
 };
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class wraps a reference to a boost::array of values (obviously of
+ * This class wraps a reference to a std::array of values (obviously of
  * identical type). This class enforces a fixed number of items in the array.
  */
 template<typename parameter_type, std::size_t N>
@@ -1487,8 +1487,8 @@ public:
 	 * Initializes the parameters
 	 */
 	GFileArrayReferenceParsableParameterT(
-		boost::array<parameter_type, N> &stored_reference, const std::string &optionNameVar,
-		const std::string &commentVar, const boost::array<parameter_type, N> &def_val, const bool &isEssentialVar
+		std::array<parameter_type, N> &stored_reference, const std::string &optionNameVar,
+		const std::string &commentVar, const std::array<parameter_type, N> &def_val, const bool &isEssentialVar
 	)
 		: GArrayParT<parameter_type, N>(
 		optionNameVar, commentVar, def_val, isEssentialVar
@@ -1499,8 +1499,8 @@ public:
 	 * Initializes the parameters, except for comments
 	 */
 	GFileArrayReferenceParsableParameterT(
-		boost::array<parameter_type, N> &stored_reference, const std::string &optionNameVar,
-		const boost::array<parameter_type, N> &def_val
+		std::array<parameter_type, N> &stored_reference, const std::string &optionNameVar,
+		const std::array<parameter_type, N> &def_val
 	)
 		: GArrayParT<parameter_type, N>(
 		optionNameVar, std::string(""), def_val, Gem::Common::VAR_IS_ESSENTIAL
@@ -1584,7 +1584,7 @@ protected:
 private:
 	/***************************************************************************/
 
-	boost::array<parameter_type, N> &stored_reference_; ///< Holds a reference to the target vector
+	std::array<parameter_type, N> &stored_reference_; ///< Holds a reference to the target vector
 };
 
 /******************************************************************************/
@@ -2073,8 +2073,8 @@ public:
 	 */
 	template<typename parameter_type, std::size_t N>
 	GParsableI &registerFileParameter(
-		const std::string &optionName, const boost::array<parameter_type, N> &def_val,
-		std::function<void(boost::array<parameter_type, N>)> callBack,
+		const std::string &optionName, const std::array<parameter_type, N> &def_val,
+		std::function<void(std::array<parameter_type, N>)> callBack,
 		const bool &isEssential = Gem::Common::VAR_IS_ESSENTIAL, const std::string &comment = std::string()
 	) {
 #ifdef DEBUG
@@ -2119,8 +2119,8 @@ public:
 	 */
 	template<typename parameter_type, std::size_t N>
 	GParsableI &registerFileParameter(
-		const std::string &optionName, boost::array<parameter_type, N> &stored_reference,
-		const boost::array<parameter_type, N> &def_val, const bool &isEssential = Gem::Common::VAR_IS_ESSENTIAL,
+		const std::string &optionName, std::array<parameter_type, N> &stored_reference,
+		const std::array<parameter_type, N> &def_val, const bool &isEssential = Gem::Common::VAR_IS_ESSENTIAL,
 		const std::string &comment = std::string()
 	) {
 #ifdef DEBUG
@@ -2165,7 +2165,7 @@ public:
 
 	template<typename parameter_type, std::size_t N>
 	void resetFileParameterDefaults(
-		const std::string &optionName, const boost::array<parameter_type, N> &def_val
+		const std::string &optionName, const std::array<parameter_type, N> &def_val
 	) {
 		// Retrieve the parameter object with this name
 		std::shared_ptr <GArrayParT<parameter_type, N>> parmObject

@@ -44,9 +44,9 @@
 #include <memory>
 #include <mutex>
 #include <thread>
+#include <array>
 
 // Boost headers go here
-#include <boost/array.hpp>
 #include <boost/asio.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
@@ -1092,8 +1092,8 @@ private:
 	boost::asio::io_service::strand m_strand; ///< /// Ensure the connection's handlers are not called concurrently.
 	boost::asio::ip::tcp::socket m_socket; ///< The underlying socket
 
-	boost::array<char, COMMANDLENGTH> m_commandBuffer; ///< A buffer to be used for command transfers
-	boost::array<char, 16384> m_dataBuffer;    ///< A buffer holding body data -- was 4096
+	std::array<char, COMMANDLENGTH> m_commandBuffer; ///< A buffer to be used for command transfers
+	std::array<char, 16384> m_dataBuffer;    ///< A buffer holding body data -- was 4096
 
 	std::size_t m_bytesTransferredDataBody; ///< The number of bytes if the data body transferred so far
 	std::shared_ptr <std::string> m_dataBody_ptr; ///< The actual body data. Implemented as a shared_ptr so we can easily hand the data around

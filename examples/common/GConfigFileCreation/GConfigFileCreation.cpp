@@ -35,10 +35,10 @@
 // Standard header files go here
 #include <iostream>
 #include <string>
+#include <array>
 
 // Boost header files go here
 #include <boost/lexical_cast.hpp>
-#include <boost/array.hpp>
 
 // Geneva header files go here
 #include "common/GParserBuilder.hpp"
@@ -75,11 +75,11 @@ void setGlobalDoubleVec(std::vector<double> par) {
 	someGlobalDoubleVec = par;
 }
 
-// Call back function for a boost::array object, plus global array object as target
+// Call back function for a std::array object, plus global array object as target
 const std::size_t ARRAYSIZE = 5;
-boost::array<int,ARRAYSIZE> someGlobalBoostArray;
-void setGlobalBoostArray(boost::array<int,ARRAYSIZE> par) {
-	someGlobalBoostArray = par;
+std::array<int,ARRAYSIZE> someGlobalStdArray;
+void setGlobalStdArray(std::array<int,ARRAYSIZE> par) {
+	someGlobalStdArray = par;
 }
 
 /************************************************************************
@@ -254,7 +254,7 @@ int main(int argc, char **argv) {
 	//----------------------------------------------------------------
 	// Example 6: Adding an array of fixed size to the collection
 
-	boost::array<int,ARRAYSIZE> defValArray;
+	std::array<int,ARRAYSIZE> defValArray;
 	i=0; // Already declared above
 	for(auto &x: defValArray)  { // Set the default values
 		x = boost::numeric_cast<int>(i++);
@@ -262,41 +262,41 @@ int main(int argc, char **argv) {
 
 	if(useOperator) {
 		gpb.registerFileParameter<int,ARRAYSIZE>(
-			"boostArrayWithCallback"
+			"StdArrayWithCallback"
 			, defValArray
-			, setGlobalBoostArray // The call back function
+			, setGlobalStdArray // The call back function
 		)
 		<< "A comment regarding arrays with call-back functions";
 	} else {
 		gpb.registerFileParameter<int,ARRAYSIZE>(
-			"boostArrayWithCallback"
+			"StdArrayWithCallback"
 			, defValArray
-			, setGlobalBoostArray // The call back function
+			, setGlobalStdArray // The call back function
 			, Gem::Common::VAR_IS_ESSENTIAL // Could also be VAR_IS_SECONDARY
 			, "A comment regarding arrays with call-back functions"
 		);
 	}
 
 	//----------------------------------------------------------------
-	// Example 7: Adding a reference to a boost::array object. We
+	// Example 7: Adding a reference to a std::array object. We
 	// use the same default values as in example 6.
 
-	boost::array<int,ARRAYSIZE> targetArray;
+	std::array<int,ARRAYSIZE> targetArray;
 
 	if(useOperator) {
 		gpb.registerFileParameter<int,ARRAYSIZE>(
-			"boostArrayReference"
+			"StdArrayReference"
 			, targetArray
 			, defValArray
 		)
-		<< "A comment regarding boost::array references";
+		<< "A comment regarding std::array references";
 	} else {
 		gpb.registerFileParameter<int,ARRAYSIZE>(
-			"boostArrayReference"
+			"StdArrayReference"
 			, targetArray
 			, defValArray
 			, Gem::Common::VAR_IS_ESSENTIAL // Could also be VAR_IS_SECONDARY
-			, "A comment regarding boost::array references"
+			, "A comment regarding std::array references"
 		);
 	}
 

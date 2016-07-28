@@ -75,7 +75,7 @@
         }
     },
     "boostArrayReference": {
-        "comment": "A comment regarding boost::array references",
+        "comment": "A comment regarding std::array references",
         "0": {
             "default": "0",
             "value": "0"
