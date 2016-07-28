@@ -47,9 +47,6 @@
 #include <random>
 
 // Boost header files
-#include <boost/thread.hpp>
-#include <boost/ref.hpp>
-#include <boost/cast.hpp>
 
 // Geneva header files
 #include "hap/GRandomT.hpp"
