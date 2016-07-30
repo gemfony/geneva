@@ -57,7 +57,7 @@ std::tuple<double, double> gLineFit(const std::vector<std::tuple<double, double>
 
 	ea_ptr->setPopulationSizes(203,3);
 	ea_ptr->setMaxIteration(5000);
-	ea_ptr->setMaxTime(boost::posix_time::seconds(60));
+	ea_ptr->setMaxTime(std::chrono::seconds(60));
 	ea_ptr->setReportIteration(0);
 	ea_ptr->setSortingScheme(sortingMode::MUNU1PRETAIN_SINGLEEVAL);
 	ea_ptr->setMaxStallIteration(100);

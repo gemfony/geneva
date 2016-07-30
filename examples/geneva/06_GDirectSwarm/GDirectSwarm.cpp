@@ -46,6 +46,7 @@
 #include <iostream>
 #include <cmath>
 #include <sstream>
+#include <chrono>
 
 // Boost header files go here
 #include <boost/lexical_cast.hpp>
@@ -268,7 +269,7 @@ int main(int argc, char **argv){
 
 	// Specify some general population settings
 	pop_ptr->setMaxIteration(maxIterations);
-	pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes));
+	pop_ptr->setMaxTime(std::chrono::minutes(maxMinutes));
 	pop_ptr->setReportIteration(reportIteration);
 	pop_ptr->setCPersonal(cPersonal);
 	pop_ptr->setCGlobal(cGlobal);

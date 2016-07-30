@@ -86,7 +86,7 @@ This assumes a system with 4 cores. The directories can of course be adapted.
 MacOS contains two incompatible std C++ libs: libstdc++ and libc++ . With MacOS 10.9,
 libc++ has become the default. In order to compile Geneva with Yosemite (a.k.a. 10.10)
 you need to make sure that libstdc++ is being used both in Boost and in Geneva. All
-necessary modifications have been made in the Geneva build files so that the code 
+necessary modifications have been made in the Geneva build files so that the code
 (hopefully) compiles cleanly with libstdc++ . For Boost, however, you need to do some
 manual work:
 
@@ -122,7 +122,7 @@ under CygWin:
         make
         cmake
         libboost-devel
-        libboost_*1.55  (at least you need: atomic, date_time,filesystem,
+        libboost_*1.59  (at least you need: atomic,filesystem,
                          program_options,random,regex,serialization,system,
                          thread,test_exec_monitor,unit_test_framework)
 
@@ -206,7 +206,7 @@ line that was used to call the compiler.
 
 This command needs to be called on a single line.
 
-Have a look at the configuration script prepareBuild.sh for some of the options 
+Have a look at the configuration script prepareBuild.sh for some of the options
 available for a direct call to cmake,
 
 
@@ -217,15 +217,15 @@ a) On Linux
 -----------
 
 Note that under Linux, you will have to make the installation directory
-known to the linker, so henceforth you can link to the library automatically. 
-Under most Linux systems this can be done by creating a file 
+known to the linker, so henceforth you can link to the library automatically.
+Under most Linux systems this can be done by creating a file
 /etc/ld.so.conf.d/geneva.conf with the content
 
 /where/the/library/goes/lib
 
-You then need to execute "ldconfig -v". 
+You then need to execute "ldconfig -v".
 
-Another possibility is to export the library location prior to running 
+Another possibility is to export the library location prior to running
 programs based on Geneva:
 
 export LD_LIBRARY_PATH="/where/the/library/goes/lib:$LD_LIBRARY_PATH"
@@ -236,7 +236,7 @@ have compiled your own version of it.
 b) On MacOS
 -----------
 
-Currently we simply set the DYLD_LIBRARY_PATH to the Geneva and Boost 
+Currently we simply set the DYLD_LIBRARY_PATH to the Geneva and Boost
 library directories. Please do let us know about more convenient ways
 of permanently setting library paths.
 

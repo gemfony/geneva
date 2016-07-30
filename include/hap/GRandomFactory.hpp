@@ -52,7 +52,6 @@
 #include <mutex>
 
 // Boost headers go here
-#include <boost/date_time.hpp>
 #include <boost/utility.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem.hpp>

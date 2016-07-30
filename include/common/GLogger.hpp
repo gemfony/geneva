@@ -78,8 +78,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/posix_time/posix_time_io.hpp>
+#include <boost/lexical_cast.hpp>
 
 #ifndef GEXCEPTIONSTREAMER_HPP_
 #define GEXCEPTIONSTREAMER_HPP_
@@ -89,6 +88,7 @@
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GTupleIO.hpp"
+#include "common/GHelperFunctions.hpp"
 
 namespace Gem {
 namespace Common {

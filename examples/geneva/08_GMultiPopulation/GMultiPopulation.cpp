@@ -37,6 +37,7 @@
 #include <iostream>
 #include <cmath>
 #include <sstream>
+#include <chrono>
 
 // Boost header files go here
 #include <boost/lexical_cast.hpp>
@@ -123,7 +124,7 @@ int main(int argc, char **argv){
 		// Specify some general population settings
 		sub_pop_ptr->setPopulationSizes(populationSizeSub,nParentsSub);
 		sub_pop_ptr->setMaxIteration(maxIterationsSub);
-		sub_pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutesSub));
+		sub_pop_ptr->setMaxTime(std::chrono::minutes(maxMinutesSub));
 		sub_pop_ptr->setReportIteration(reportIterationSub);
 		sub_pop_ptr->setRecombinationMethod(rSchemeSub);
 		sub_pop_ptr->setSortingScheme(smodeSub);
@@ -137,7 +138,7 @@ int main(int argc, char **argv){
 	// Specify some general population settings
 	gmp.setPopulationSizes(populationSizeSuper,nParentsSuper);
 	gmp.setMaxIteration(maxIterationsSuper);
-	gmp.setMaxTime(boost::posix_time::minutes(maxMinutesSuper));
+	gmp.setMaxTime(std::chrono::minutes(maxMinutesSuper));
 	gmp.setReportIteration(reportIterationSuper);
 	gmp.setRecombinationMethod(rSchemeSuper);
 	gmp.setSortingScheme(smodeSuper);

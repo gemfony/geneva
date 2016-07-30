@@ -44,7 +44,7 @@
 
 // Geneva headers go here
 
-#include "common/GTriboolSerialization.hpp"
+#include "common/GSerializationHelperFunctionsT.hpp"
 #include "hap/GRandomT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"

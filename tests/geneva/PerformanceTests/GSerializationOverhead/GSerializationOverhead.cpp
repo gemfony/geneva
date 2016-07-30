@@ -40,7 +40,6 @@
 #include <sstream>
 
 // Boost header files go here
-#include "boost/date_time/posix_time/posix_time.hpp"
 #include "boost/lexical_cast.hpp"
 
 // Geneva header files go here
@@ -60,7 +59,6 @@ const std::size_t STEPSIZE = 10;
 const Gem::Common::serializationMode DEFAULTSERMODE = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY;
 // const Gem::Common::serializationMode DEFAULTSERMODE = Gem::Common::serializationMode::SERIALIZATIONMODE_XML;
 
-using namespace boost::posix_time;
 using namespace Gem::Common;
 using namespace Gem::Geneva;
 using namespace Gem::Tests;
@@ -138,24 +136,25 @@ int main(int argc, char **argv) {
 
 			// First test the time needed for NMEASUREMENTS
 			// consecutive adaptions
-			ptime pre_adapt = microsec_clock::universal_time();
+			std::chrono::system_clock::time_point pre_adapt = std::chrono::system_clock::now();
 			for(std::size_t i=1; i<=NMEASUREMENTS; i++) {
 				gti_ptr->adapt();
 			}
-			ptime post_adapt = microsec_clock::universal_time();
+			std::chrono::system_clock::time_point post_adapt = std::chrono::system_clock::now();
 
 			// Now measure the time needed for NMEASUREMENTS
 			// consecutive (de-)serializations in the fastest mode (binary)
+			std::chrono::system_clock::time_point pre_serialization = std::chrono::system_clock::now();
 			for(std::size_t i=1; i<=NMEASUREMENTS; i++) {
 				gti_ptr->GObject::fromString(gti_ptr->GObject::toString(DEFAULTSERMODE), DEFAULTSERMODE);
 			}
-			ptime post_serialization = microsec_clock::universal_time();
+			std::chrono::system_clock::time_point post_serialization = std::chrono::system_clock::now();
 
-			time_duration adaptionTime = post_adapt - pre_adapt;
-			time_duration serializationTime = post_serialization - post_adapt;
+			std::chrono::duration<double> adaptionTime = post_adapt - pre_adapt;
+			std::chrono::duration<double> serializationTime = post_serialization - pre_serialization;
 
-			double adaptionTimeD = double(adaptionTime.total_microseconds())/1000000.;
-			double serializationTimeD = double(serializationTime.total_microseconds())/1000000.;
+			double adaptionTimeD = adaptionTime.count();
+			double serializationTimeD = serializationTime.count();
 
 			switch(o) {
 				case 0:

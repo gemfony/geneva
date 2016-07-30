@@ -41,7 +41,6 @@
 // Boost header files go here
 
 #include <boost/utility.hpp>
-#include <boost/date_time.hpp>
 
 #ifndef GBUFFERPORTT_HPP_
 #define GBUFFERPORTT_HPP_

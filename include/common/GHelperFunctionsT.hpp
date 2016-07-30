@@ -36,6 +36,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <map>
 #include <vector>
 #include <sstream>
 #include <iostream>
@@ -52,7 +53,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/math/special_functions/next.hpp>
-#include <boost/date_time.hpp>
 #include <boost/variant.hpp>
 #include <boost/checked_delete.hpp>
 

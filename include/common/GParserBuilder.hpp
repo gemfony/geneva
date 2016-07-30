@@ -55,7 +55,6 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/date_time.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/foreach.hpp>
 #include <boost/archive/xml_oarchive.hpp>
@@ -81,10 +80,11 @@
 #define GPARSERBUILDER_HPP_
 
 // Geneva header files go here
-#include <common/GExceptions.hpp>
-#include <common/GLogger.hpp>
-#include <common/GCommonEnums.hpp>
-#include <common/GDefaultValueT.hpp>
+#include "common/GExceptions.hpp"
+#include "common/GLogger.hpp"
+#include "common/GCommonEnums.hpp"
+#include "common/GDefaultValueT.hpp"
+#include "common/GHelperFunctions.hpp"
 
 namespace Gem {
 namespace Common {

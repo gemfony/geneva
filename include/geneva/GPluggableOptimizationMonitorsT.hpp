@@ -39,13 +39,13 @@
 #include <string>
 #include <fstream>
 #include <type_traits>
+#include <chrono>
 
 // Boost header files go here
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/convenience.hpp>
-#include <boost/date_time.hpp>
 
 #ifndef GPLUGGABLEOPTIMIZATIONMONITORST_HPP_
 #define GPLUGGABLEOPTIMIZATIONMONITORST_HPP_
@@ -53,6 +53,7 @@
 // Geneva headers go here
 #include "common/GPlotDesigner.hpp"
 #include "common/GLogger.hpp"
+#include "common/GHelperFunctions.hpp"
 #include "geneva/GParameterPropertyParser.hpp"
 #include "geneva/GOptimizationAlgorithmT.hpp"
 
@@ -2174,11 +2175,10 @@ public:
 			{
 				// If the file pointed to by fileName_ already exists, make a back-up
 				if(bf::exists(fileName_)) {
-					const boost::posix_time::ptime currentTime = boost::posix_time::second_clock::universal_time();
-					std::string newFileName = fileName_ + ".bak_utc_" + boost::lexical_cast<std::string>(currentTime);
+					std::string newFileName = fileName_ + ".bak_" + Gem::Common::getMSSince1970();
 
 					glogger
-					<< "In GAllSolutionFileLoggerT<T>::informationFunction(): Error!" << std::endl
+					<< "In GAllSolutionFileLoggerT<T>::informationFunction(): Warning!" << std::endl
 					<< "Attempt to output information to file " << fileName_ << std::endl
 					<< "which already exists. We will rename the old file to" << std::endl
 					<< newFileName << std::endl
@@ -2549,8 +2549,7 @@ public:
 			{
 				// If the file pointed to by fileName_ already exists, make a back-up
 				if(bf::exists(fileName_)) {
-					const boost::posix_time::ptime currentTime = boost::posix_time::second_clock::universal_time();
-					std::string newFileName = fileName_ + ".bak_utc_" + boost::lexical_cast<std::string>(currentTime);
+					std::string newFileName = fileName_ + ".bak_" + Gem::Common::getMSSince1970();
 
 					glogger
 					<< "In GIterationResultsFileLoggerT<T>::informationFunction(): Warning!" << std::endl
@@ -2963,8 +2962,7 @@ public:
 			{
 				// If the file pointed to by fileName_ already exists, make a back-up
 				if(bf::exists(fileName_)) {
-					const boost::posix_time::ptime currentTime = boost::posix_time::second_clock::universal_time();
-					std::string newFileName = fileName_ + ".bak_utc_" + boost::lexical_cast<std::string>(currentTime);
+					std::string newFileName = fileName_ + ".bak_" + Gem::Common::getMSSince1970();
 
 					glogger
 					<< "In GNAdpationsLoggerT<T>::informationFunction(): Error!" << std::endl
@@ -3525,8 +3523,7 @@ public:
 			{
 				// If the file pointed to by fileName_ already exists, make a back-up
 				if(bf::exists(fileName_)) {
-					const boost::posix_time::ptime currentTime = boost::posix_time::second_clock::universal_time();
-					std::string newFileName = fileName_ + ".bak_utc_" + boost::lexical_cast<std::string>(currentTime);
+					std::string newFileName = fileName_ + ".bak_" + Gem::Common::getMSSince1970();
 
 					glogger
 					<< "In GAdaptorPropertyLoggerT<S,T>::informationFunction(): Error!" << std::endl

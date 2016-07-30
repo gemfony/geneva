@@ -41,6 +41,7 @@
 #include <vector>
 #include <iostream>
 #include <string>
+#include <chrono>
 
 // Boost header files go here
 #include <boost/lexical_cast.hpp>

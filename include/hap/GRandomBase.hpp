@@ -48,7 +48,6 @@
 #include <random>
 
 // Boost headers go here
-#include <boost/date_time.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/utility.hpp>
 #include <boost/lexical_cast.hpp>

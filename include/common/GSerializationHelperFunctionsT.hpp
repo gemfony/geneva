@@ -56,9 +56,9 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/shared_ptr.hpp>
-#include <boost/date_time.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/cast.hpp>
+#include <boost/logic/tribool.hpp>
 
 #ifndef GSERIALIZATIONHELPERFUNCTIONST_HPP_
 #define GSERIALIZATIONHELPERFUNCTIONST_HPP_
@@ -165,5 +165,102 @@ std::shared_ptr<T> sharedPtrFromString(const std::string &gt_string, const Gem::
 
 } /* namespace Common */
 } /* namespace Gem */
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+
+namespace boost {
+namespace serialization {
+
+/******************************************************************************/
+/**
+ * Saves a tribool variable to an archive
+ */
+template<typename Archive>
+void save(
+	Archive &ar
+	, const boost::logic::tribool &val
+	, unsigned int
+) {
+	Gem::Common::triboolStates tbs = Gem::Common::triboolStates::TBS_FALSE;
+	if (val == true)
+		tbs = Gem::Common::triboolStates::TBS_TRUE;
+	else if (boost::logic::indeterminate(val))
+		tbs = Gem::Common::triboolStates::TBS_INDETERMINATE;
+
+	ar &make_nvp("tbs", tbs);
+}
+
+/******************************************************************************/
+/**
+ * Loads a tribool variable from an archive
+ */
+template<typename Archive>
+void load(
+	Archive &ar
+	, boost::logic::tribool &val
+	, unsigned int
+) {
+	Gem::Common::triboolStates tbs = Gem::Common::triboolStates::TBS_FALSE;
+	ar &make_nvp("tbs", tbs);
+
+	switch (tbs) {
+		case Gem::Common::triboolStates::TBS_FALSE:
+			val = false;
+			break;
+
+		case Gem::Common::triboolStates::TBS_TRUE:
+			val = true;
+			break;
+
+		case Gem::Common::triboolStates::TBS_INDETERMINATE:
+			val = boost::logic::indeterminate;
+			break;
+	};
+}
+
+/******************************************************************************/
+/**
+ * Saves a std::chrono::duration<double> variable to an archive
+ */
+template<typename Archive>
+void save(
+	Archive &ar
+	, const std::chrono::duration<double> &val
+	, unsigned int
+) {
+	double chrono_duration = val.count();
+	ar & make_nvp("chrono_duration", chrono_duration);
+}
+
+/******************************************************************************/
+/**
+ * Loads a tribool variable from an archive
+ */
+template<typename Archive>
+void load(
+	Archive &ar
+	, std::chrono::duration<double> &val
+	, unsigned int
+) {
+	double chrono_duration = 0.;
+	ar &make_nvp("chrono_duration", chrono_duration);
+	val = std::chrono::duration<double>(chrono_duration);
+}
+
+/******************************************************************************/
+
+} /* namespace serialization */
+} /* namespace boost */
+
+/******************************************************************************/
+/**
+ * Needed so Boost.Serialization does not search for a serialize function
+ */
+BOOST_SERIALIZATION_SPLIT_FREE(boost::logic::tribool)
+BOOST_SERIALIZATION_SPLIT_FREE(std::chrono::duration<double>)
+
+/******************************************************************************/
 
 #endif /* GSERIALIZATIONHELPERFUNCTIONST_HPP_ */

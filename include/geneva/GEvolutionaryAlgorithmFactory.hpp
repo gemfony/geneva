@@ -39,7 +39,6 @@
 #include <string>
 
 // Boost header files go here
-#include <boost/date_time.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/function.hpp>
 

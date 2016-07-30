@@ -93,9 +93,9 @@ void startReferenceMeasurement(
 			go.push_back(gdi_ptr);
 
 			// Do the actual optimization and measure the time
-			std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
+			std::chrono::system_clock::time_point startTime = std::chrono::system_clock::now();
 			go.optimize<GDelayIndividual>();
-			std::chrono::steady_clock::time_point endTime = std::chrono::steady_clock::now();
+			std::chrono::system_clock::time_point endTime = std::chrono::system_clock::now();
 			std::chrono::duration<double> duration = endTime - startTime;
 
 			referenceExecutionTimes.push_back(
@@ -168,9 +168,9 @@ void startParallelMeasurement(
 			go.push_back(gdi_ptr);
 
 			// Do the actual optimization and measure the time
-			std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
+			std::chrono::system_clock::time_point startTime = std::chrono::system_clock::now();
 			go.optimize<GDelayIndividual>();
-			std::chrono::steady_clock::time_point endTime = std::chrono::steady_clock::now();
+			std::chrono::system_clock::time_point endTime = std::chrono::system_clock::now();
 			std::chrono::duration<double> duration = endTime - startTime;
 
 			delaySummary.push_back(duration.count());

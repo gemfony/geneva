@@ -56,9 +56,6 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
-#include <boost/date_time.hpp>
-#include <boost/date_time/gregorian/greg_serialize.hpp>
-#include <boost/date_time/posix_time/time_serialize.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -441,7 +438,7 @@ protected:
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) BASE {
 		 // Set the start time of the new iteration
-		 m_iterationStartTime = std::chrono::steady_clock::now();
+		 m_iterationStartTime = std::chrono::system_clock::now();
 	 }
 
 	 /***************************************************************************/
@@ -456,7 +453,7 @@ protected:
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) BASE {
 		 // Make a note of the time needed up to now
-		 std::chrono::duration<double> iterationDuration = std::chrono::steady_clock::now() - m_iterationStartTime;
+		 std::chrono::duration<double> iterationDuration = std::chrono::system_clock::now() - m_iterationStartTime;
 
 		 // Find out about the number of returned items
 		 std::size_t notReturned = std::count(workItemPos.begin(), workItemPos.end(), true);
@@ -522,7 +519,7 @@ protected:
 	 // Local data
 	 SUBMISSIONCOUNTERTYPE m_submission_counter; ///< Counts the number of submissions initiated by this object. Note: not serialized!
 	 std::size_t m_expectedNumber; ///< The number of work items to be submitted (and expected back)
-	 std::chrono::steady_clock::time_point m_iterationStartTime; ///< Temporary that holds the start time for the retrieval of items in a given iteration
+	 std::chrono::system_clock::time_point m_iterationStartTime; ///< Temporary that holds the start time for the retrieval of items in a given iteration
 	 std::chrono::duration<double> m_lastAverage; ///< The average time needed for the last submission
 };
 
@@ -1328,7 +1325,7 @@ private:
 			 // Calculate a timeout for subsequent retrievals in this iteration. In the first iteration, this timeout is the number of
 			 // remaining items times the return time needed for the first item times a custom wait factor for the first submission.
 			 // This may be very long, but takes care of a situation where there is only a single worker.
-			 currentElapsed = std::chrono::steady_clock::now() - GBaseExecutorT<processable_type>::m_iterationStartTime;
+			 currentElapsed = std::chrono::system_clock::now() - GBaseExecutorT<processable_type>::m_iterationStartTime;
 			 maxTimeout = currentElapsed * GBaseExecutorT<processable_type>::m_expectedNumber * m_initialWaitFactor;
 		 } else { // We are dealing with an iteration > 0
 			 maxTimeout = GBaseExecutorT<processable_type>::m_lastAverage * GBaseExecutorT<processable_type>::m_expectedNumber * m_waitFactor;
@@ -1362,7 +1359,7 @@ private:
 				 }
 
 				 // Update the elapsed time. Needs to be done after a retrieval
-				 currentElapsed = std::chrono::steady_clock::now() - GBaseExecutorT<processable_type>::m_iterationStartTime;
+				 currentElapsed = std::chrono::system_clock::now() - GBaseExecutorT<processable_type>::m_iterationStartTime;
 			 } else { // No timeouts
 				 w = retrieve();
 				 if (w && this->addVerifiedWorkItemAndCheckComplete(
@@ -1486,10 +1483,10 @@ private:
 		 if (m_doLogging) {
 			 std::tuple<SUBMISSIONCOUNTERTYPE, POSITIONTYPE> courtier_id = w->getCourtierId();
 			 m_logData.push_back(
-				 std::tuple<SUBMISSIONCOUNTERTYPE, SUBMISSIONCOUNTERTYPE, std::chrono::steady_clock::time_point>(
+				 std::tuple<SUBMISSIONCOUNTERTYPE, SUBMISSIONCOUNTERTYPE, std::chrono::system_clock::time_point>(
 					 std::get<0>(courtier_id)
 					 , GBaseExecutorT<processable_type>::m_submission_counter
-					 , std::chrono::steady_clock::now()
+					 , std::chrono::system_clock::now()
 				 )
 			 );
 		 }
@@ -1504,8 +1501,8 @@ private:
 	 double m_initialWaitFactor; ///< A static factor to be applied to timeouts in the first iteration
 
 	 bool m_doLogging; ///< Specifies whether arrival times of work items should be logged
-	 std::vector<std::tuple<SUBMISSIONCOUNTERTYPE, SUBMISSIONCOUNTERTYPE, std::chrono::steady_clock::time_point>> m_logData; ///< Holds the sending and receiving iteration as well as the time needed for completion
-	 std::vector<std::chrono::steady_clock::time_point> m_iterationStartTimes; ///< Holds the start times of given iterations, if logging is activated
+	 std::vector<std::tuple<SUBMISSIONCOUNTERTYPE, SUBMISSIONCOUNTERTYPE, std::chrono::system_clock::time_point>> m_logData; ///< Holds the sending and receiving iteration as well as the time needed for completion
+	 std::vector<std::chrono::system_clock::time_point> m_iterationStartTimes; ///< Holds the start times of given iterations, if logging is activated
 
 	 GBufferPortT_ptr m_CurrentBufferPort; ///< Holds a GBufferPortT object during the calculation. Note: It is neither serialized nor copied
 };

@@ -42,6 +42,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <chrono>
 
 // Boost headers go here
 #include <boost/utility.hpp>
@@ -53,7 +54,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/serialization/vector.hpp>
-#include <boost/date_time.hpp>
 #include <boost/lexical_cast.hpp>
 
 #ifndef GBASECLIENTT_HPP_
@@ -84,9 +84,13 @@ public:
 	 * The default constructor.
 	 */
 	GBaseClientT()
-		: startTime_(boost::posix_time::microsec_clock::universal_time()), maxDuration_(boost::posix_time::microsec(0)),
-		  processed_(0), processMax_(0), returnRegardless_(true),
-		  additionalDataTemplate_(std::shared_ptr<processable_type>()) { /* nothing*/ }
+		: m_startTime(std::chrono::system_clock::now())
+	   , m_maxDuration(std::chrono::microseconds(0))
+	   , m_processed(0)
+	   , m_processMax(0)
+	   , m_returnRegardless(true)
+	   , m_additionalDataTemplate(std::shared_ptr<processable_type>())
+	{ /* nothing*/ }
 
 	/***************************************************************************/
 
@@ -98,9 +102,13 @@ public:
 	 * @param additionalDataTemplate The model of the item to be processed
 	 */
 	GBaseClientT(std::shared_ptr <processable_type> additionalDataTemplate)
-		: startTime_(boost::posix_time::microsec_clock::universal_time()), maxDuration_(boost::posix_time::microsec(0)),
-		  processed_(0), processMax_(0), returnRegardless_(true),
-		  additionalDataTemplate_(additionalDataTemplate) { /* nothing*/ }
+		: m_startTime(std::chrono::system_clock::now())
+	   , m_maxDuration(std::chrono::microseconds(0))
+	   , m_processed(0)
+	   , m_processMax(0)
+	   , m_returnRegardless(true)
+	   , m_additionalDataTemplate(additionalDataTemplate)
+	{ /* nothing*/ }
 
 
 	/***************************************************************************/
@@ -168,21 +176,21 @@ public:
 	 * Allows to set a maximum number of processing steps. If set to 0 or left unset,
 	 * processing will be done until process() returns false.
 	 *
-	 * @param processMax Desired value for the processMax_ variable
+	 * @param processMax Desired value for the m_processMax variable
 	 */
 	void setProcessMax(const std::uint32_t &processMax) {
-		processMax_ = processMax;
+		m_processMax = processMax;
 	}
 
 	/***************************************************************************/
 
 	/**
-	 * Retrieves the value of the processMax_ variable.
+	 * Retrieves the value of the m_processMax variable.
 	 *
-	 * @return The value of the processMax_ variable
+	 * @return The value of the m_processMax variable
 	 */
 	std::uint32_t getProcessMax() const {
-		return processMax_;
+		return m_processMax;
 	}
 
 	/***************************************************************************/
@@ -191,28 +199,18 @@ public:
 	 *
 	 * @param maxDuration The maximum allowed processing time
 	 */
-	void setMaxTime(const boost::posix_time::time_duration &maxDuration) {
-		using namespace boost::posix_time;
-
-		// Only allow "real" values
-		if (maxDuration.is_special() || maxDuration.is_negative()) {
-			glogger
-			<< "In GBaseClientT<T>::setMaxTime():" << std::endl
-			<< "Invalid maxDuration." << std::endl
-			<< GEXCEPTION;
-		}
-
-		maxDuration_ = maxDuration;
+	void setMaxTime(const std::chrono::duration<double> &maxDuration) {
+		m_maxDuration = maxDuration;
 	}
 
 	/***************************************************************************/
 	/**
-	 * Retrieves the value of the maxDuration_ parameter.
+	 * Retrieves the value of the m_maxDuration parameter.
 	 *
 	 * @return The maximum allowed processing time
 	 */
-	boost::posix_time::time_duration getMaxTime() {
-		return maxDuration_;
+	std::chrono::duration<double> getMaxTime() {
+		return m_maxDuration;
 	}
 
 	/***************************************************************************/
@@ -223,7 +221,7 @@ public:
 	 * @param returnRegardless Specifies whether results should be returned to the server regardless of their success
 	 */
 	void setReturnRegardless(const bool &returnRegardless) {
-		returnRegardless_ = returnRegardless;
+		m_returnRegardless = returnRegardless;
 	}
 
 	/***************************************************************************/
@@ -234,7 +232,7 @@ public:
     * @return Whether results should be returned to the server regardless of their success
 	 */
 	bool getReturnRegardless() const {
-		return returnRegardless_;
+		return m_returnRegardless;
 	}
 
 protected:
@@ -288,8 +286,8 @@ protected:
 		}
 
 		// If we have a model for the item to be parallelized, load its data into the target
-		if (additionalDataTemplate_) {
-			target->loadConstantData(additionalDataTemplate_);
+		if (m_additionalDataTemplate) {
+			target->loadConstantData(m_additionalDataTemplate);
 		}
 
 		// This one line is all it takes to do the processing required for this object.
@@ -297,7 +295,7 @@ protected:
 		// what is being done during the processing. If processing did not lead to a useful result,
 		// information will be returned back to the server only if m_returnRegardless
 		// is set to true.
-		if (!target->process() && !returnRegardless_) return true;
+		if (!target->process() && !m_returnRegardless) return true;
 
 		// transform target back into a string and submit to the server. The actual
 		// actions done by submit are defined by derived classes.
@@ -344,33 +342,35 @@ private:
 	 * @return A boolean indicating whether a halt condition was reached
 	 */
 	bool halt() {
-		using namespace boost::posix_time;
-
 		// Maximum number of processing steps reached ?
-		if (processMax_ && (processed_++ >= processMax_)) return true;
+		if (m_processMax && (m_processed++ >= m_processMax)) {
+			return true;
+		}
 
 		// Maximum duration reached ?
-		if (maxDuration_.total_microseconds() &&
-			 ((microsec_clock::universal_time() - startTime_) >= maxDuration_))
+		if (m_maxDuration.count() > 0. && ((std::chrono::system_clock::now() - m_startTime) >= m_maxDuration)) {
 			return true;
+		}
 
 		// Custom halt condition reached ?
-		if (customHalt()) return true;
+		if (customHalt()) {
+			return true;
+		}
 
 		return false;
 	}
 
 	/***************************************************************************/
 
-	boost::posix_time::ptime startTime_; ///< Used to store the start time of the optimization
-	boost::posix_time::time_duration maxDuration_; ///< Maximum time frame for the optimization
+	std::chrono::system_clock::time_point m_startTime; ///< Used to store the start time of the optimization
+	std::chrono::duration<double> m_maxDuration; ///< Maximum time frame for the optimization
 
-	std::uint32_t processed_; ///< The number of processed items so far
-	std::uint32_t processMax_; ///< The maximum number of items to process
+	std::uint32_t m_processed; ///< The number of processed items so far
+	std::uint32_t m_processMax; ///< The maximum number of items to process
 
-	bool returnRegardless_; ///< Specifies whether unsuccessful processing attempts should be returned to the server
+	bool m_returnRegardless; ///< Specifies whether unsuccessful processing attempts should be returned to the server
 
-	std::shared_ptr <processable_type> additionalDataTemplate_; ///< Optionally holds a template of the object to be processed
+	std::shared_ptr <processable_type> m_additionalDataTemplate; ///< Optionally holds a template of the object to be processed
 };
 
 /******************************************************************************/

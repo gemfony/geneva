@@ -35,9 +35,9 @@
 // Standard header files go here
 #include <iostream>
 #include <algorithm>
+#include <chrono>
 
 // Boost header files go here
-#include <boost/date_time.hpp>
 
 // Geneva header files go here
 #include <common/GHelperFunctionsT.hpp>
@@ -47,6 +47,7 @@
 #include "GOptimizationBenchmarkConfig.hpp"
 
 // The individual that should be optimized
+#include "geneva-individuals/GFunctionIndividual.hpp"
 #include "geneva-individuals/GFunctionIndividual.hpp"
 
 using namespace Gem::Geneva;
@@ -93,7 +94,7 @@ int main(int argc, char **argv) {
 		// The time consumed until the optimization was terminated
 		std::vector<double> timeConsumed;
 		// Holds timing measurements
-		boost::posix_time::ptime startTime, endTime;
+		std::chrono::system_clock::time_point startTime, endTime;
 
 		std::cout << "Starting new measurement with dimension " << *it << std::endl;
 
@@ -123,12 +124,12 @@ int main(int argc, char **argv) {
 			go.push_back(g);
 
 			// Start recording of time
-			startTime = boost::posix_time::microsec_clock::universal_time();
+			startTime = std::chrono::system_clock::now();
 
 			// Perform the actual optimization and extract the best individual
 			std::shared_ptr<GFunctionIndividual> p = go.optimize<GFunctionIndividual>();
 
-			endTime = boost::posix_time::microsec_clock::universal_time();
+			endTime = std::chrono::system_clock::now();
 
 			// Extract the function name in the first test row
 			if(it==dimVec.begin() && test==0) {
@@ -141,7 +142,7 @@ int main(int argc, char **argv) {
 			bestResult.push_back(p->fitness());
 
 			// Add timing information to the result vector
-			timeConsumed.push_back(double((endTime-startTime).total_milliseconds())/1000.);
+			timeConsumed.push_back(std::chrono::duration<double>(endTime-startTime).count());
 
 			// Reset the go object
 			go = goTmp;

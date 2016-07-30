@@ -37,9 +37,9 @@
 
 // Standard header files go here
 #include <string>
+#include <chrono>
 
 // Boost header files go here
-#include <boost/date_time.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/function.hpp>
 
@@ -439,9 +439,9 @@ public:
 	/**
 	 * Allows to retrieve the maximum number of seconds as set on the command line
 	 */
-	boost::posix_time::time_duration getMaxTimeCL() const {
+	std::chrono::duration<double> getMaxTimeCL() const {
 		if(maxSecondsCL_ >= 0) {
-			boost::posix_time::time_duration maxDuration = boost::posix_time::seconds(boost::numeric_cast<long>(maxSecondsCL_));
+			std::chrono::duration<double> maxDuration = std::chrono::seconds(boost::numeric_cast<long>(maxSecondsCL_));
 			return maxDuration;
 		}
 		else {
@@ -451,7 +451,7 @@ public:
 			<< GEXCEPTION;
 
 			// Make the compiler happy
-			return boost::posix_time::time_duration(boost::posix_time::seconds(0));
+			return std::chrono::seconds(0);
 		}
 	}
 

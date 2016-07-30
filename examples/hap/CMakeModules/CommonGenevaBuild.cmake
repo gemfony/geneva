@@ -187,7 +187,6 @@ SET (GENEVA_MIN_BOOST_VERSION 1.57)
 SET (
 	GENEVA_BOOST_LIBS
 	atomic
-	date_time
 	filesystem
 	regex
 	serialization

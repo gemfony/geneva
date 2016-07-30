@@ -38,19 +38,18 @@
 // Standard header files go here
 #include <iostream>
 #include <ctime>
+#include <chrono>
 
 // Boost header files go here
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/local_time_adjustor.hpp>
-#include <boost/date_time/c_local_time_adjustor.hpp>
 
 #ifndef GOPTIMIZATIONALGORITHMT_HPP_
 #define GOPTIMIZATIONALGORITHMT_HPP_
 
 // Geneva headers go here
 #include "common/GHelperFunctionsT.hpp"
+#include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GPlotDesigner.hpp"
 #include "courtier/GBrokerConnector2T.hpp"
 #include "geneva/GObject.hpp"
@@ -136,7 +135,7 @@ public:
 	  	, bestIterationIndividuals_(0, Gem::Common::LOWERISBETTER) // unlimited size, so all individuals of an iteration fit in
 		, bestKnownPrimaryFitness_(std::tuple<double,double>(0.,0.)) // will be set appropriately in the optimize() function
 		, bestCurrentPrimaryFitness_(std::tuple<double,double>(0.,0.)) // will be set appropriately in the optimize() function
-		, maxDuration_(boost::posix_time::duration_from_string(DEFAULTDURATION))
+		, maxDuration_(Gem::Common::duration_from_string(DEFAULTDURATION))
 		, worstKnownValids_()
 		, optimizationMonitor_ptr_(new typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT())
 		, default_pluggable_monitor_(std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>())
@@ -419,7 +418,7 @@ public:
 		compare_t(IDENTITY(cpSerMode_, p_load->cpSerMode_), token);
 		compare_t(IDENTITY(qualityThreshold_, p_load->qualityThreshold_), token);
 		compare_t(IDENTITY(hasQualityThreshold_, p_load->hasQualityThreshold_), token);
-		compare_t(IDENTITY(maxDuration_, p_load->maxDuration_), token);
+		compare_t(IDENTITY(maxDuration_.count(), p_load->maxDuration_.count()), token); // Cannot directly compare std::chrono::duration<double>
 		compare_t(IDENTITY(terminationFile_, p_load->terminationFile_), token);
 		compare_t(IDENTITY(terminateOnFileModification_, p_load->terminateOnFileModification_), token);
 		compare_t(IDENTITY(emitTerminationReason_, p_load->emitTerminationReason_), token);
@@ -480,7 +479,7 @@ public:
 		stallCounter_ = 0;
 
 		// Initialize the start time with the current time.
-		startTime_ = boost::posix_time::microsec_clock::universal_time();
+		startTime_ = std::chrono::system_clock::now();
 
 		// Give derived classes the opportunity to perform any necessary preparatory work.
 		init();
@@ -704,17 +703,7 @@ public:
 	 *
 	 * @param maxDuration The maximum allowed processing time
 	 */
-	void setMaxTime(boost::posix_time::time_duration maxDuration) {
-		using namespace boost::posix_time;
-
-		// Only allow "real" values
-		if(maxDuration.is_special() || maxDuration.is_negative()) {
-			glogger
-			<< "In GOptimizationAlgorithmT<ind_type>::setMaxTime() :" << std::endl
-			<< "Invalid maxDuration." << std::endl
-			<< GEXCEPTION;
-		}
-
+	void setMaxTime(std::chrono::duration<double> maxDuration) {
 		maxDuration_ = maxDuration;
 	}
 
@@ -724,7 +713,7 @@ public:
 	 *
 	 * @return The maximum allowed processing time
 	 */
-	boost::posix_time::time_duration getMaxTime() const {
+	std::chrono::duration<double> getMaxTime() const {
 		return maxDuration_;
 	}
 
@@ -1084,12 +1073,13 @@ public:
 		<< "set \"hasQualityThreshold\" to 1." << Gem::Common::nextComment()
 		<< "Activates (1) or de-activates (0) the quality threshold";
 
-		gpb.registerFileParameter<boost::posix_time::time_duration>(
+		gpb.registerFileParameter<std::string>(
 			"maxDuration" // The name of the variable
-			, boost::posix_time::duration_from_string(DEFAULTDURATION) // The default value
-			, [this](boost::posix_time::time_duration mt){ this->setMaxTime(mt); }
+			, DEFAULTDURATION // The default value
+			, [this](std::string mt_str){ this->setMaxTime(Gem::Common::duration_from_string(mt_str)); }
 		)
-		<< "The maximum allowed time-frame for the optimization";
+		<< "The maximum allowed time-frame for the optimization" << std::endl
+		<< "in the format hours:minutes:seconds";
 
 		gpb.registerFileParameter<bool>(
 			"emitTerminationReason" // The name of the variable
@@ -1678,8 +1668,7 @@ private:
 	 * @return A boolean indicating whether a given amount of time has passed
 	 */
 	bool timedHalt() const {
-		using namespace boost::posix_time;
-		ptime currentTime = microsec_clock::universal_time();
+		std::chrono::system_clock::time_point currentTime = std::chrono::system_clock::now();
 		if((currentTime - startTime_) >= maxDuration_) {
 			if(emitTerminationReason_) {
 				glogger
@@ -1802,11 +1791,9 @@ private:
 
 		// Determine the modification time of the file
 		std::time_t t = boost::filesystem::last_write_time(p);
-		boost::posix_time::ptime modTime = boost::posix_time::from_time_t(t);
-		// boost::posix_time::time_duration diff = modTime - startTime_;
+		std::chrono::system_clock::time_point modTime = std::chrono::system_clock::from_time_t(t);
 
 		// Check if the file was modified after the start of the optimization run
-		// if(diff.total_microseconds() > 0) {
 		if(modTime > startTime_) {
 			if(emitTerminationReason_) {
 				std::cout
@@ -1907,7 +1894,7 @@ private:
 	 * @return A boolean indication whether the max-duration halt criterion has been set
 	 */
 	bool maxDurationHaltSet() const {
-		if(0 == maxDuration_.total_microseconds()) return false;
+		if(0. == maxDuration_.count()) return false;
 		else return true;
 	}
 
@@ -1965,8 +1952,8 @@ private:
 	Gem::Common::serializationMode cpSerMode_ = DEFAULTCPSERMODE; ///< Determines whether check-pointing should be done in text-, XML, or binary mode
 	double qualityThreshold_ = DEFAULTQUALITYTHRESHOLD; ///< A threshold beyond which optimization is expected to stop
 	bool hasQualityThreshold_ = false; ///< Specifies whether a qualityThreshold has been set
-	boost::posix_time::time_duration maxDuration_ = boost::posix_time::duration_from_string(DEFAULTDURATION); ///< Maximum time frame for the optimization
-	mutable boost::posix_time::ptime startTime_; ///< Used to store the start time of the optimization. Declared mutable so the halt criteria can be const
+	std::chrono::duration<double> maxDuration_ = Gem::Common::duration_from_string(DEFAULTDURATION); ///< Maximum time frame for the optimization
+	mutable std::chrono::system_clock::time_point startTime_; ///< Used to store the start time of the optimization. Declared mutable so the halt criteria can be const
 	std::string terminationFile_ = DEFAULTTERMINATIONFILE; ///< The name of a file which, when modified after the start of the optimization run, will cause termination of the run
 	bool terminateOnFileModification_ = false;
 	bool emitTerminationReason_ = DEFAULTEMITTERMINATIONREASON; ///< Specifies whether information about reasons for termination should be emitted

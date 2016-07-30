@@ -55,7 +55,6 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/utility.hpp>
-#include <boost/date_time.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/fusion/include/tuple.hpp>
 #include <boost/fusion/include/boost_tuple.hpp>
@@ -67,6 +66,7 @@
 #include <boost/spirit/include/phoenix_core.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/include/phoenix_stl.hpp>
+
 #ifndef GASIOTCPCONSUMERT_HPP_
 #define GASIOTCPCONSUMERT_HPP_
 

@@ -235,7 +235,10 @@ std::vector<std::string> splitString(const std::string &str, const char *sep) {
  * an exception. The list must at least contain one entry and must be
  * comma-separated.
  */
-std::vector<unsigned int> stringToUIntVec(const std::string &raw) {
+std::vector<unsigned int> stringToUIntVec(
+	const std::string &raw
+	, char sep
+) {
 	using namespace boost::spirit;
 
 	std::vector<unsigned int> result;
@@ -246,7 +249,7 @@ std::vector<unsigned int> stringToUIntVec(const std::string &raw) {
 
 	// Do the actual parsing
 	success = qi::phrase_parse(
-		from, to, (uint_ % ','), qi::space, result
+		from, to, (uint_ % sep), qi::space, result
 	);
 
 	if (from != to || !success) {
@@ -329,7 +332,66 @@ std::vector<std::tuple<unsigned int, unsigned int>> stringToUIntTupleVec(const s
 }
 
 /******************************************************************************/
+/**
+ * Translates a string of the type "00:10:30" into a std::chrono::duration<double>
+ * object denoting hours:minutes:seconds
+ */
+std::chrono::duration<double> duration_from_string(const std::string& duration_string) {
+	std::vector<unsigned int> timings = stringToUIntVec(duration_string, ':');
+	std::chrono::duration<double> result;
 
+	switch(timings.size()) {
+		case 1:
+			result=std::chrono::seconds(timings.at(0));
+			break;
+
+		case 2:
+			result =
+				std::chrono::minutes(timings.at(0))
+				+ std::chrono::seconds(timings.at(1));
+			break;
+
+		case 3:
+			result =
+				std::chrono::hours(timings.at(0))
+				+ std::chrono::minutes(timings.at(1))
+				+ std::chrono::seconds(timings.at(2));
+			break;
+
+		default:
+			glogger
+			<< "In Gem::Common::duration_from_string(\"" << duration_string << "\"): Error!" << std::endl
+		   << "Invalid number of fields present: " << timings.size() << std::endl
+		   << GEXCEPTION;
+			break;
+	}
+
+	return result;
+}
+
+/******************************************************************************/
+/**
+ * Converts the current time to a string
+ */
+std::string currentTimeAsString() {
+	std::ostringstream oss;
+	std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+	oss << std::put_time(std::localtime(&now), "%c");
+	return oss.str();
+}
+
+/******************************************************************************/
+/**
+ * Returns the number of milliseconds since 1.1.1970
+ */
+std::string getMSSince1970() {
+	std::chrono::time_point<std::chrono::system_clock> p1; // 1970
+	std::chrono::time_point<std::chrono::system_clock> p2 = std::chrono::system_clock::now();
+	std::chrono::milliseconds ms_since_1970 = std::chrono::duration_cast<std::chrono::milliseconds>(p2 - p1);
+	return boost::lexical_cast<std::string>(ms_since_1970.count());
+}
+
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

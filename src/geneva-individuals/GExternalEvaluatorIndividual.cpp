@@ -49,9 +49,12 @@ namespace Geneva {
 GExternalEvaluatorIndividual::GExternalEvaluatorIndividual()
 	: GParameterSet()
   	, programName_(GEEI_DEF_PROGNAME)
-  	, customOptions_(GEEI_DEF_CUSTOMOPTIONS),
-	parameterFileBaseName_(GEEI_DEF_PARFILEBASENAME), nResults_(GEEI_DEF_NRESULTS), runID_(GEEI_DEF_RUNID),
-	removeExecTemporaries_(GEEI_DEF_REMOVETEMPORARIES) { /* nothing */ }
+  	, customOptions_(GEEI_DEF_CUSTOMOPTIONS)
+   , parameterFileBaseName_(GEEI_DEF_PARFILEBASENAME)
+   , nResults_(GEEI_DEF_NRESULTS)
+   , runID_(GEEI_DEF_RUNID)
+   , removeExecTemporaries_(GEEI_DEF_REMOVETEMPORARIES)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -59,9 +62,13 @@ GExternalEvaluatorIndividual::GExternalEvaluatorIndividual()
  */
 GExternalEvaluatorIndividual::GExternalEvaluatorIndividual(const GExternalEvaluatorIndividual &cp)
 	: GParameterSet(cp) // copies all local collections
-	  , programName_(cp.programName_), customOptions_(cp.customOptions_),
-	parameterFileBaseName_(cp.parameterFileBaseName_), nResults_(cp.nResults_), runID_(cp.runID_),
-	removeExecTemporaries_(cp.removeExecTemporaries_) { /* nothing */ }
+   , programName_(cp.programName_)
+   , customOptions_(cp.customOptions_)
+   , parameterFileBaseName_(cp.parameterFileBaseName_)
+   , nResults_(cp.nResults_)
+   , runID_(cp.runID_)
+   , removeExecTemporaries_(cp.removeExecTemporaries_)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -1154,43 +1161,22 @@ bool GExternalEvaluatorIndividualFactory::getRemoveExecTemporaries() const {
  * Submit work items to the external executable for archiving
  */
 void GExternalEvaluatorIndividualFactory::archive(
-	const std::vector<std::shared_ptr < GExternalEvaluatorIndividual>
-
-	>& arch
+	const std::vector<std::shared_ptr<GExternalEvaluatorIndividual>>& arch
 ) const {
-// Check that there are individuals contained in the archive
-	if(arch.
+	// Check that there are individuals contained in the archive
+	if(arch.empty()) return; // Do nothing
 
-		empty()
-
-		) return; // Do nothing
-
-// Transform the objects into a batch of boost property tree
+	// Transform the objects into a batch of boost property tree
 	boost::property_tree::ptree ptr_out;
 	std::string batch = "batch";
 
-// Output the header data
-	ptr_out.
-		put(batch
-			 + ".dataType", std::string("archive_data"));
-	ptr_out.
-		put(batch
-			 + ".runID", arch.
+	// Output the header data
+	ptr_out.put(batch + ".dataType", std::string("archive_data"));
+	ptr_out.put(batch + ".runID", arch.front() -> getRunId());
+	ptr_out.put(batch + ".nIndividuals", arch.size());
 
-		front() -> getRunId()
-
-	);
-	ptr_out.
-		put(batch
-			 + ".nIndividuals", arch.
-
-		size()
-
-	);
-
-// Output the individuals in turn
-	std::vector<std::shared_ptr < GExternalEvaluatorIndividual>>
-	::const_iterator cit;
+	// Output the individuals in turn
+	std::vector<std::shared_ptr<GExternalEvaluatorIndividual>>::const_iterator cit;
 	std::size_t pos = 0;
 	std::string basename;
 	for(
@@ -1212,17 +1198,14 @@ void GExternalEvaluatorIndividualFactory::archive(
 		std::endl;
 	}
 
-// Create a suitable extension and exchange file names for this object
-	const boost::posix_time::ptime currentTime = boost::posix_time::second_clock::universal_time();
-	boost::gregorian::date d = currentTime.date();
-	std::string extension = std::string("-UTC-")
-									+ boost::lexical_cast<std::string>(d.year()) + "-"
-									+ boost::lexical_cast<std::string>(d.month()) + "-"
-									+ boost::lexical_cast<std::string>(d.day()) + "-"
-									+ boost::lexical_cast<std::string>(currentTime.time_of_day().hours()) + "-"
-									+ boost::lexical_cast<std::string>(currentTime.time_of_day().minutes()) + "-"
-									+ boost::lexical_cast<std::string>(currentTime.time_of_day().seconds()) + "-"
-									+ boost::lexical_cast<std::string>(boost::uuids::random_generator()()) + ".xml";
+	// Create a suitable extension and exchange file names for this object
+	std::chrono::time_point<std::chrono::system_clock> p1;
+	std::chrono::time_point<std::chrono::system_clock> p2 = std::chrono::system_clock::now();
+	std::chrono::milliseconds ms_since_1970 = std::chrono::duration_cast<std::chrono::milliseconds>(p2 - p1);
+	std::string extension =
+		"-since1970-"
+		+ boost::lexical_cast<std::string>(ms_since_1970.count())
+		+ boost::lexical_cast<std::string>(boost::uuids::random_generator()()) + ".xml";
 	std::string parameterfileName = parameterFileBaseName_.value() + extension;
 
 // Save the parameters to a file for the external evaluation
@@ -1235,41 +1218,24 @@ void GExternalEvaluatorIndividualFactory::archive(
 	);
 
 
-// Collect all command-line arguments
+	// Collect all command-line arguments
 	std::vector<std::string> arguments;
-	if(customOptions_.
-
-		value()
-
-		!= "empty" && !customOptions_.
-
-			value()
-
-		.
-
-			empty()
-
-		) {
-		arguments.
-			push_back(customOptions_
-							 .
-
-								 value()
-
-		);
+	if(customOptions_.value() != "empty" && !customOptions_.value().empty()) {
+		arguments.push_back(customOptions_.value());
 	}
-	arguments.
-		push_back(std::string("--archive"));
-	arguments.
-		push_back(std::string("--input=\"" + parameterfileName + "\""));
+	arguments.push_back(std::string("--archive"));
+	arguments.push_back(std::string("--input=\"" + parameterfileName + "\""));
 
-// Ask the external evaluation program to perform any final work
+	// Ask the external evaluation program to perform any final work
 	std::string command;
 	int errorCode = Gem::Common::runExternalCommand(
-		boost::filesystem::path(programName_.value()), arguments, boost::filesystem::path(), command
+		boost::filesystem::path(programName_.value())
+		, arguments
+		, boost::filesystem::path()
+		, command
 	);
 
-// Let the audience know
+	// Let the audience know
 	if(errorCode) {
 		glogger
 		<< "In GExternalEvaluatorIndividualFactory::archive(): Error" << std::endl
@@ -1280,7 +1246,7 @@ void GExternalEvaluatorIndividualFactory::archive(
 		GEXCEPTION;
 	}
 
-// Clean up (remove) the parameter file. This will only be done if no error occurred
+	// Clean up (remove) the parameter file. This will only be done if no error occurred
 	bf::remove(parameterfileName);
 }
 
@@ -1291,7 +1257,8 @@ void GExternalEvaluatorIndividualFactory::archive(
  * @return Items of the desired type
  */
 std::shared_ptr <GParameterSet> GExternalEvaluatorIndividualFactory::getObject_(
-	Gem::Common::GParserBuilder &gpb, const std::size_t &id
+	Gem::Common::GParserBuilder &gpb
+	, const std::size_t &id
 ) {
 	// Will hold the result
 	std::shared_ptr <GExternalEvaluatorIndividual> target(new GExternalEvaluatorIndividual());

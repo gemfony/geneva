@@ -37,8 +37,6 @@
 #include <chrono>
 #include <thread>
 
-#include <boost/date_time.hpp>
-
 #include "courtier/GBufferPortT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GThreadGroup.hpp"

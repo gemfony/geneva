@@ -39,6 +39,7 @@
 #include <vector>
 #include <sstream>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <cstdlib>
 #include <cmath>
@@ -48,6 +49,8 @@
 #include <thread>
 #include <mutex>
 #include <atomic>
+#include <chrono>
+#include <iomanip>
 
 // Boost headers go here
 #include <boost/algorithm/string.hpp>
@@ -100,7 +103,7 @@ std::vector<std::string> splitString(const std::string &, const char *);
 /******************************************************************************/
 /** @brief Splits a string into a vector of std::uint16_t values, if possible */
 G_API_COMMON
-std::vector<unsigned int> stringToUIntVec(const std::string &);
+std::vector<unsigned int> stringToUIntVec(const std::string &, char = ',');
 
 /******************************************************************************/
 /** @brief Splits a string into a vector of double values, if possible */
@@ -111,6 +114,19 @@ std::vector<double> stringToDoubleVec(const std::string &);
 /** @brief Splits a string into a vector of unsigned int-tuples, if possible */
 G_API_COMMON
 std::vector<std::tuple<unsigned int, unsigned int>> stringToUIntTupleVec(const std::string &);
+
+/******************************************************************************/
+/** @brief Translates a string of the type "00:10:30" into a std::chrono::duration<double> */
+G_API_COMMON
+std::chrono::duration<double> duration_from_string(const std::string&);
+
+/******************************************************************************/
+/** @brief Converts the current time to a string */
+std::string currentTimeAsString();
+
+/******************************************************************************/
+/** @brief Returns the number of milliseconds since 1.1.1970 */
+std::string getMSSince1970();
 
 /******************************************************************************/
 
