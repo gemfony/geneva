@@ -316,7 +316,7 @@ const bool DEFAULTMAXMODE = false; // means: "minimization"
 /**
  * A 0 time period . timedHalt will not trigger if this duration is set
  */
-const std::string EMPTYDURATION = "00:00:00.000"; // 0 - no duration
+const std::string EMPTYDURATION = "00:00:00"; // 0 - no duration
 
 /******************************************************************************/
 /**
