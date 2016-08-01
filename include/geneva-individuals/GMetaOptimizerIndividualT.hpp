@@ -162,10 +162,10 @@ const std::size_t MOT_NVAR = 12;
 
 /******************************************************************************/
 /**
- * This individual searches for a minimum of a number of predefined functions, each capable
- * of processing their input in multiple dimensions. It can deal with all individual types,
- * that support the required API. In particular, they need to expose the type of a suitable
- * factory class.
+ * This individual performs "meta optimization" in the sense that parameters of
+ * an optimization algorithm are optimized alongside a given "sub-"individual.
+ * The individual is meant for tuning the parameters of Evolutionary Algorithms,
+ * but may be used to find better optima as well.
  */
 template<typename ind_type = Gem::Geneva::GFunctionIndividual>
 class GMetaOptimizerIndividualT : public GParameterSet {
@@ -195,10 +195,13 @@ public:
 	GMetaOptimizerIndividualT()
 		: GParameterSet()
 	   , nRunsPerOptimization_(GMETAOPT_DEF_NRUNSPEROPT)
-		  , fitnessTarget_(GMETAOPT_DEF_FITNESSTARGET),
-		  iterationThreshold_(GMETAOPT_DEF_ITERATIONTHRESHOLD), moTarget_(GMETAOPT_DEF_MOTARGET),
-		  subEA_config_(GMETAOPT_DEF_SUBEACONFIG), subExecMode_(GMETAOPT_DEF_SUBEXECMODE),
-		  ind_factory_() { /* nothing */ }
+	   , fitnessTarget_(GMETAOPT_DEF_FITNESSTARGET)
+		, iterationThreshold_(GMETAOPT_DEF_ITERATIONTHRESHOLD)
+		, moTarget_(GMETAOPT_DEF_MOTARGET)
+		, subEA_config_(GMETAOPT_DEF_SUBEACONFIG)
+		, subExecMode_(GMETAOPT_DEF_SUBEXECMODE)
+		, ind_factory_()
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -207,11 +210,19 @@ public:
 	 * @param cp A copy of another GFunctionIndidivual
 	 */
 	GMetaOptimizerIndividualT(const GMetaOptimizerIndividualT<ind_type> &cp)
-		: GParameterSet(cp), nRunsPerOptimization_(cp.nRunsPerOptimization_), fitnessTarget_(cp.fitnessTarget_),
-		  iterationThreshold_(cp.iterationThreshold_), moTarget_(cp.moTarget_), subEA_config_(cp.subEA_config_),
-		  subExecMode_(cp.subExecMode_), ind_factory_(
+		: GParameterSet(cp)
+	   , nRunsPerOptimization_(cp.nRunsPerOptimization_)
+	   , fitnessTarget_(cp.fitnessTarget_)
+	   , iterationThreshold_(cp.iterationThreshold_)
+	   , moTarget_(cp.moTarget_)
+	   , subEA_config_(cp.subEA_config_)
+	   , subExecMode_(cp.subExecMode_)
+	   , ind_factory_(
 			Gem::Common::convertSmartPointer<Gem::Common::GFactoryT<GParameterSet>, typename ind_type::FACTORYTYPE>(
-				(cp.ind_factory_)->clone())) { /* nothing */   }
+				(cp.ind_factory_)->clone()
+			)
+		)
+	{ /* nothing */   }
 
 	/***************************************************************************/
 	/**
@@ -403,13 +414,13 @@ public:
 	 */
 	void setNRunsPerOptimization(std::size_t nRunsPerOptimization) {
 #ifdef DEBUG
-      if(0==nRunsPerOptimization) {
-         glogger
-         << "In GMetaOptimizerIndividualT<ind_type>::setNRunsPerOptimization(): Error!" << std::endl
-         << "Requested number of sub-optimizations is 0" << std::endl
-         << GEXCEPTION;
-      }
-   #endif
+	if(0==nRunsPerOptimization) {
+		glogger
+		<< "In GMetaOptimizerIndividualT<ind_type>::setNRunsPerOptimization(): Error!" << std::endl
+		<< "Requested number of sub-optimizations is 0" << std::endl
+		<< GEXCEPTION;
+	}
+#endif
 
 		nRunsPerOptimization_ = nRunsPerOptimization;
 	}
@@ -780,20 +791,16 @@ public:
 		// Retrieve the parameters
 		std::shared_ptr <GConstrainedInt32Object> npar_ptr = this->at<GConstrainedInt32Object>(MOT_NPARENTS);
 		std::shared_ptr <GConstrainedInt32Object> nch_ptr = this->at<GConstrainedInt32Object>(MOT_NCHILDREN);
-		std::shared_ptr <GConstrainedDoubleObject> amalgamation_ptr = this->at<GConstrainedDoubleObject>(
-			MOT_AMALGAMATION);
+		std::shared_ptr <GConstrainedDoubleObject> amalgamation_ptr = this->at<GConstrainedDoubleObject>(MOT_AMALGAMATION);
 		std::shared_ptr <GConstrainedDoubleObject> minAdProb_ptr = this->at<GConstrainedDoubleObject>(MOT_MINADPROB);
 		std::shared_ptr <GConstrainedDoubleObject> adProbRange_ptr = this->at<GConstrainedDoubleObject>(MOT_ADPROBRANGE);
-		std::shared_ptr <GConstrainedDoubleObject> adProbStartPercentage_ptr = this->at<GConstrainedDoubleObject>(
-			MOT_ADPROBSTARTPERCENTAGE);
+		std::shared_ptr <GConstrainedDoubleObject> adProbStartPercentage_ptr = this->at<GConstrainedDoubleObject>(MOT_ADPROBSTARTPERCENTAGE);
 		std::shared_ptr <GConstrainedDoubleObject> adaptAdprob_ptr = this->at<GConstrainedDoubleObject>(MOT_ADAPTADPROB);
 		std::shared_ptr <GConstrainedDoubleObject> minsigma_ptr = this->at<GConstrainedDoubleObject>(MOT_MINSIGMA);
 		std::shared_ptr <GConstrainedDoubleObject> sigmarange_ptr = this->at<GConstrainedDoubleObject>(MOT_SIGMARANGE);
-		std::shared_ptr <GConstrainedDoubleObject> sigmaRangePercentage_ptr = this->at<GConstrainedDoubleObject>(
-			MOT_SIGMARANGEPERCENTAGE);
+		std::shared_ptr <GConstrainedDoubleObject> sigmaRangePercentage_ptr = this->at<GConstrainedDoubleObject>(MOT_SIGMARANGEPERCENTAGE);
 		std::shared_ptr <GConstrainedDoubleObject> sigmasigma_ptr = this->at<GConstrainedDoubleObject>(MOT_SIGMASIGMA);
-		std::shared_ptr <GConstrainedDoubleObject> crossOverProb_ptr = this->at<GConstrainedDoubleObject>(
-			MOT_CROSSOVERPROB);
+		std::shared_ptr <GConstrainedDoubleObject> crossOverProb_ptr = this->at<GConstrainedDoubleObject>(MOT_CROSSOVERPROB);
 
 		// Stream the results
 
@@ -902,20 +909,16 @@ protected:
 		// Retrieve the parameters
 		std::shared_ptr <GConstrainedInt32Object> npar_ptr = this->at<GConstrainedInt32Object>(MOT_NPARENTS);
 		std::shared_ptr <GConstrainedInt32Object> nch_ptr = this->at<GConstrainedInt32Object>(MOT_NCHILDREN);
-		std::shared_ptr <GConstrainedDoubleObject> amalgamation_ptr = this->at<GConstrainedDoubleObject>(
-			MOT_AMALGAMATION);
+		std::shared_ptr <GConstrainedDoubleObject> amalgamation_ptr = this->at<GConstrainedDoubleObject>(MOT_AMALGAMATION);
 		std::shared_ptr <GConstrainedDoubleObject> minAdProb_ptr = this->at<GConstrainedDoubleObject>(MOT_MINADPROB);
 		std::shared_ptr <GConstrainedDoubleObject> adProbRange_ptr = this->at<GConstrainedDoubleObject>(MOT_ADPROBRANGE);
-		std::shared_ptr <GConstrainedDoubleObject> adProbStartPercentage_ptr = this->at<GConstrainedDoubleObject>(
-			MOT_ADPROBSTARTPERCENTAGE);
+		std::shared_ptr <GConstrainedDoubleObject> adProbStartPercentage_ptr = this->at<GConstrainedDoubleObject>(MOT_ADPROBSTARTPERCENTAGE);
 		std::shared_ptr <GConstrainedDoubleObject> adaptAdprob_ptr = this->at<GConstrainedDoubleObject>(MOT_ADAPTADPROB);
 		std::shared_ptr <GConstrainedDoubleObject> minsigma_ptr = this->at<GConstrainedDoubleObject>(MOT_MINSIGMA);
 		std::shared_ptr <GConstrainedDoubleObject> sigmarange_ptr = this->at<GConstrainedDoubleObject>(MOT_SIGMARANGE);
-		std::shared_ptr <GConstrainedDoubleObject> sigmaRangePercentage_ptr = this->at<GConstrainedDoubleObject>(
-			MOT_SIGMARANGEPERCENTAGE);
+		std::shared_ptr <GConstrainedDoubleObject> sigmaRangePercentage_ptr = this->at<GConstrainedDoubleObject>(MOT_SIGMARANGEPERCENTAGE);
 		std::shared_ptr <GConstrainedDoubleObject> sigmasigma_ptr = this->at<GConstrainedDoubleObject>(MOT_SIGMASIGMA);
-		std::shared_ptr <GConstrainedDoubleObject> crossOverProb_ptr = this->at<GConstrainedDoubleObject>(
-			MOT_CROSSOVERPROB);
+		std::shared_ptr <GConstrainedDoubleObject> crossOverProb_ptr = this->at<GConstrainedDoubleObject>(MOT_CROSSOVERPROB);
 
 #ifdef DEBUG
       // Check that we have been given a factory
@@ -1188,9 +1191,9 @@ public:
 		//------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */
-      condnotset("GMetaOptimizerIndividualT<ind_type>::specificTestsNoFailureExpected_GUnitTests()", "GEM_TESTING");
-   #endif /* GEM_TESTING */
-	}
+	condnotset("GMetaOptimizerIndividualT<ind_type>::specificTestsNoFailureExpected_GUnitTests()", "GEM_TESTING");
+#endif /* GEM_TESTING */
+}
 	/***************************************************************************/
 };
 
@@ -1244,7 +1247,8 @@ public:
 		  initSigmaSigma_(GMETAOPT_DEF_INITSIGMASIGMA), sigmaSigma_LB_(GMETAOPT_DEF_SIGMASIGMA_LB),
 		  sigmaSigma_UB_(GMETAOPT_DEF_SIGMASIGMA_UB), initCrossOverProb_(GMETAOPT_DEF_INITCROSSOVERPROB),
 		  crossOverProb_LB_(GMETAOPT_DEF_CROSSOVERPROB_LB), crossOverProb_UB_(GMETAOPT_DEF_CROSSOVERPROB_UB),
-		  ind_factory_() { /* nothing */ }
+		  ind_factory_()
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -1602,7 +1606,8 @@ const std::size_t P_YDIM = 1400;
  */
 template<typename ind_type>
 class GOptOptMonitorT
-	: public GBaseEA::GEAOptimizationMonitor {
+	: public GBaseEA::GEAOptimizationMonitor
+{
 public:
 	/***************************************************************************/
 	/**
@@ -1613,7 +1618,8 @@ public:
 		  nParentPlotter_(new Gem::Common::GGraph2D()), nChildrenPlotter_(new Gem::Common::GGraph2D()),
 		  adProbPlotter_(new Gem::Common::GGraph2D()), minSigmaPlotter_(new Gem::Common::GGraph2D()),
 		  maxSigmaPlotter_(new Gem::Common::GGraph2D()), sigmaRangePlotter_(new Gem::Common::GGraph2D()),
-		  sigmaSigmaPlotter_(new Gem::Common::GGraph2D()) { /* nothing */ }
+		  sigmaSigmaPlotter_(new Gem::Common::GGraph2D())
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -1628,7 +1634,8 @@ public:
 		  nChildrenPlotter_(new Gem::Common::GGraph2D()), adProbPlotter_(new Gem::Common::GGraph2D()),
 		  minSigmaPlotter_(new Gem::Common::GGraph2D()), maxSigmaPlotter_(new Gem::Common::GGraph2D()),
 		  sigmaRangePlotter_(new Gem::Common::GGraph2D()),
-		  sigmaSigmaPlotter_(new Gem::Common::GGraph2D()) { /* nothing */ }
+		  sigmaSigmaPlotter_(new Gem::Common::GGraph2D())
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**

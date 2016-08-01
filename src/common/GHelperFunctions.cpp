@@ -316,7 +316,11 @@ std::vector<std::tuple<unsigned int, unsigned int>> stringToUIntTupleVec(const s
 
 	// Do the actual parsing
 	success = qi::phrase_parse(
-		from, to, (('(' >> uint_ >> ',' >> uint_ >> ')') % ','), qi::space, result
+		from
+		, to
+		, (('(' >> uint_ >> ',' >> uint_ >> ')') % ',')
+		, qi::space
+		, result
 	);
 
 	if (from != to || !success) {
@@ -374,10 +378,14 @@ std::chrono::duration<double> duration_from_string(const std::string& duration_s
  * Converts the current time to a string
  */
 std::string currentTimeAsString() {
+#if BOOST_COMP_GNUC && (BOOST_COMP_GNUC < BOOST_VERSION_NUMBER(5,0,0))
+	return std::string("Dummy (g++ < 5.0 does not support put_time)");
+#else
 	std::ostringstream oss;
 	std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 	oss << std::put_time(std::localtime(&now), "%c");
 	return oss.str();
+#endif
 }
 
 /******************************************************************************/

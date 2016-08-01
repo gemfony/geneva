@@ -61,6 +61,7 @@
 #include <boost/fusion/include/tuple.hpp>
 #include <boost/fusion/include/boost_tuple.hpp>
 #include <boost/fusion/adapted/std_tuple.hpp> // Compare http://stackoverflow.com/questions/18158376/getting-boostspiritqi-to-use-stl-containers
+#include <boost/predef.h>
 
 #ifndef GHELPERFUNCTIONS_HPP_
 #define GHELPERFUNCTIONS_HPP_

@@ -188,6 +188,7 @@ public:
 		 m_flag = other.m_flag;
 		 other.m_flag = nullptr;
 		 m_internal_thread = std::move(other.m_internal_thread);
+		 return *this;
 	 }
 
 	 /********************************************************************/
