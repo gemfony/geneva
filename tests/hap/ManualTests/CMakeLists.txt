@@ -6,5 +6,4 @@ ADD_CUSTOM_TARGET( "tests-hap-manual"
 	COMMENT "Building the manual tests for the Hap library."
 )
 
-ADD_SUBDIRECTORY ( CXX11ThreadLocal )
 ADD_SUBDIRECTORY ( GRandomUsage )

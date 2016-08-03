@@ -277,11 +277,11 @@ protected:
 		using namespace Gem::Hap;
 
 #ifdef DEBUG
-		if(GRANDOM_TLS.getThreadId() != boost::this_thread::get_id()) {
+		if(GRANDOM_TLS.getThreadId() != std::this_thread::get_id()) {
 			glogger
 			<< "In GFPGaussAdaptorT<>::customAdaptions(): Error!" << std::endl
 			<< "GRANDOM_TLS.getThreadId() = " << GRANDOM_TLS.getThreadId() << std::endl
-			<< "boost::this_thread::get_id() = " << boost::this_thread::get_id() << std::endl
+			<< "std::this_thread::get_id() = " << std::this_thread::get_id() << std::endl
 			<< "but should be equal." << std::endl
 			<< GEXCEPTION;
 		}

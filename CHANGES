@@ -48,6 +48,8 @@ SIDE.
    Go2-interface before.
  - Pluggable optimization monitors may now be registered solely through
    their std::shared_ptr, making the interface more logical.
+ - std::thread, std::chrono, C++14 atomics and std::array were used
+   instead of their Boost counterparts.
 
 ********************************************************************************
 
