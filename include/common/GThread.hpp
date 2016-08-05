@@ -152,12 +152,12 @@ public:
 	 thread(FunctionType&& f, paramtypes&&... params)
 	 {
 		 std::promise<interrupt_flag*> p;
-		 m_internal_thread=std::move(std::thread(
+		 m_internal_thread=std::thread(
 			 Gem::Common::thread::wrapper<typename std::decay<FunctionType>::type, paramtypes...>
 			 , std::ref(p)
 			 , std::forward<FunctionType>(f)
 			 , std::forward<paramtypes>(params)...
-		 ));
+		 );
 		 m_flag=p.get_future().get();
 	 }
 
