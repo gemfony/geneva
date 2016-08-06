@@ -1,0 +1,24 @@
+Wishlist for future Geneva development:
+---------------------------------------
+
+Feature- and API-additions:
+
+ - A scripting interface to optimization algorithms, so that new
+   algorithms can be more easily implemented and tested even by
+   people not familiar with all of Geneva.
+ - A "Python-Individual", so that optimization algorithms may be
+   specified in Python.
+ - Additional optimization algorithms (particularly Simplex and
+   Conjugate Gradient).
+ - Variable length parents and best individuals in evolutionary algorithms
+   to better support pareto optimization.
+ - A simple interface to influence the process of optimization (in particular
+   checkpointing, termination and continuation of the program as well as
+   extraction of the current best solutions as a result of user-demands.
+
+API-compatible changes:
+
+ - Make value ranges of parameter objects always closed, even for fp.
+ - Automatic recreation and distribution of relevant configuration files.
+ - Full integration of -fsanitize=X.
+ - Rework of the test infrastructure.
