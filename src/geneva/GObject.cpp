@@ -161,7 +161,8 @@ std::string GObject::name() const {
  * @param header A header to be prepended to the configuration file
  */
 void GObject::writeConfigFile(
-	const std::string &configFile, const std::string &header
+	const std::string &configFile
+	, const std::string &header
 ) {
 	// This class will handle the interaction with configuration files
 	Gem::Common::GParserBuilder gpb;
@@ -174,9 +175,8 @@ void GObject::writeConfigFile(
 	gpb.writeConfigFile(configFile, header, true);
 }
 
-/* ----------------------------------------------------------------------------------
- * UNTESTED
- * ----------------------------------------------------------------------------------
+/*
+ * parser-builder action is tested in Common lib tests
  */
 
 /******************************************************************************/
@@ -197,9 +197,9 @@ void GObject::readConfigFile(const std::string &configFile) {
 	gpb.parseConfigFile(configFile);
 }
 
-/* ----------------------------------------------------------------------------------
- * UNTESTED
- * ----------------------------------------------------------------------------------
+
+/*
+ * parser-builder action is tested in Common lib tests
  */
 
 /******************************************************************************/
@@ -326,6 +326,30 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 	using boost::unit_test_framework::test_case;
 
 	// no parent class
+
+	// --------------------------------------------------------------------------
+
+	/*
+	{ // Tests reading and writing of configuration files
+		std::shared_ptr <GObject> p_test = this->clone<GObject>();
+
+		std::string configFileName = "./someTestConfig.json";
+		std::string header = "A not so complicated header";
+
+		// First make sure the configuration file does not exist
+		boost::filesystem::remove(boost::filesystem::path(configFileName));
+
+		// Write and read the config file
+		BOOST_CHECK_NO_THROW(p_test->writeConfigFile(configFileName, header));
+		BOOST_CHECK_NO_THROW(p_test->readConfigFile(configFileName));
+
+		// Check that a config file exists
+		BOOST_CHECK_MESSAGE(
+			boost::filesystem::exists(boost::filesystem::path(configFileName))
+			, "Error: file " << configFileName << " was not found"
+		);
+	}
+	 */
 
 	// --------------------------------------------------------------------------
 
