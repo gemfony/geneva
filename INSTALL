@@ -61,7 +61,7 @@ in any reasonably modern Debian/Ubuntu release (Debian 6, Ubuntu 10.10 or later)
 
 sudo apt-get install --no-install-recommends cmake git g++
 
-sudo apt-get install --no-install-recommends libboost-dev libboost-date-time-dev \
+sudo apt-get install --no-install-recommends libboost-dev \
         libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev \
         libboost-serialization-dev libboost-system-dev libboost-test-dev
 
