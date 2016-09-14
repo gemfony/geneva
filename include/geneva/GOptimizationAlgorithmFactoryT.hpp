@@ -282,8 +282,8 @@ public:
 	 * Allows to set the wait factor to be applied to timeouts. Note that a wait
 	 * factor of 0 will be silently amended and become 1.
 	 */
-	void setWaitFactor(std::size_t waitFactor) {
-		if(0==waitFactor) waitFactor_=1;
+	void setWaitFactor(double waitFactor) {
+		if(0.==waitFactor) waitFactor_=1.;
 		else waitFactor_ = waitFactor;
 	}
 
@@ -291,7 +291,7 @@ public:
 	/**
 	 * Allows to retrieve the wait factor variable
 	 */
-	std::size_t getWaitFactor() const {
+	double getWaitFactor() const {
 		return waitFactor_;
 	}
 
@@ -482,7 +482,7 @@ protected:
 		)
 		<< "Activates (1) or de-activates (0) logging";
 
-		gpb.registerFileParameter<std::size_t>(
+		gpb.registerFileParameter<double>(
 			"waitFactor" // The name of the variable
 			, waitFactor_
 			, DEFAULTBROKERWAITFACTOR2 // The default value
@@ -520,7 +520,7 @@ protected:
 	execMode pm_; ///< Holds information about the desired parallelization mode
 	std::uint16_t nEvaluationThreads_; ///< The number of threads used for evaluations in multithreaded execution
 
-	std::size_t waitFactor_; ///< A static factor to be applied to timeouts
+	double waitFactor_; ///< A static factor to be applied to timeouts
 	bool doLogging_; ///< Specifies whether arrival times of individuals should be logged
 
 	std::shared_ptr<Gem::Common::GFactoryT<typename oa_type::individual_type>> contentCreatorPtr_; ///< Holds an object capable of producing objects of the desired type

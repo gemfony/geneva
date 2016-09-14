@@ -70,7 +70,7 @@ public:
 	  * The default constructor
 	  */
 	 g_uniform_int()
-		 : m_uniform_int_distribution(0,std::numeric_limits<int_type>::max())
+		 : m_uniform_int_distribution(0,(std::numeric_limits<int_type>::max)())
 	 { /* nothing */ }
 
 	 /**
@@ -523,7 +523,7 @@ public:
 	  * essentially dealing with gaussian distributions, any floating
 	  * point value is allowed.
 	  */
-	 fp_type min() const {
+	 fp_type (min)() const {
 		 return std::numeric_limits<fp_type>::lowest();
 	 }
 
@@ -532,8 +532,8 @@ public:
 	  * essentially dealing with gaussian distributions, any floating
 	  * point value is allowed.
  	  */
-	 fp_type max() const {
-		 return std::numeric_limits<fp_type>::max();
+	 fp_type (max)() const {
+		 return (std::numeric_limits<fp_type>::max)();
 	 }
 
 	 /**

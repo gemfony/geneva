@@ -96,7 +96,7 @@ public:
 	  * as a factory, we simply return the base generators min()-Value.
 	  */
 	 static constexpr G_API_HAP result_type (min)() {
-		 return G_BASE_GENERATOR::min();
+		 return (G_BASE_GENERATOR::min)();
 	 }
 
 	 /***************************************************************************/
@@ -107,7 +107,7 @@ public:
 	  * as a factory, we simply return the base generators max()-Value.
 	  */
 	 static constexpr G_API_HAP result_type (max)() {
-		 return G_BASE_GENERATOR::max();
+		 return (G_BASE_GENERATOR::max)();
 	 }
 
 protected:

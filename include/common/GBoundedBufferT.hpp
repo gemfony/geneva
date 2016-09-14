@@ -239,7 +239,7 @@ public:
 	  */
 	 void push_front(value_type item, const std::chrono::duration<double> &timeout) {
 		 std::unique_lock<std::mutex> lock(m_mutex);
-		 if (!m_not_full.wait_for(lock, timeout, buffer_not_full(m_container, m_capacity))) {
+		 if (!m_not_full.wait_for(lock, std::chrono::duration_cast<std::chrono::milliseconds>(timeout), buffer_not_full(m_container, m_capacity))) {
 			 throw Gem::Common::condition_time_out();
 		 }
 		 m_container.push_front(std::move(item));
@@ -258,7 +258,7 @@ public:
 	  */
 	 bool push_front_bool(value_type item, const std::chrono::duration<double> &timeout) {
 		 std::unique_lock<std::mutex> lock(m_mutex);
-		 if (!m_not_full.wait_for(lock, timeout, buffer_not_full(m_container, m_capacity))) {
+		 if (!m_not_full.wait_for(lock, std::chrono::duration_cast<std::chrono::milliseconds>(timeout), buffer_not_full(m_container, m_capacity))) {
 			 return false;
 		 }
 		 m_container.push_front(std::move(item));
@@ -302,7 +302,7 @@ public:
 	  */
 	 void pop_back(value_type &item, const std::chrono::duration<double> &timeout) {
 		 std::unique_lock<std::mutex> lock(m_mutex);
-		 if (!m_not_empty.wait_for(lock, timeout, buffer_not_empty(m_container))) {
+		 if (!m_not_empty.wait_for(lock, std::chrono::duration_cast<std::chrono::milliseconds>(timeout), buffer_not_empty(m_container))) {
 			 throw Gem::Common::condition_time_out();
 		 }
 
@@ -332,7 +332,7 @@ public:
 	  */
 	 bool pop_back_bool(value_type &item, const std::chrono::duration<double> &timeout) {
 		 std::unique_lock<std::mutex> lock(m_mutex);
-		 if (!m_not_empty.wait_for(lock, timeout, buffer_not_empty(m_container))) {
+		 if (!m_not_empty.wait_for(lock, std::chrono::duration_cast<std::chrono::milliseconds>(timeout), buffer_not_empty(m_container))) {
 			 return false;
 		 }
 

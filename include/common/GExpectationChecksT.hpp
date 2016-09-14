@@ -429,10 +429,10 @@ void compare(
  * @param limit The maximum allowed deviation of two floating point values
  * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
-template<typename base_type, template <typename, typename = std::allocator<base_type>> class c_type>
+template<typename base_type, template <typename, typename> class c_type>
 void compare(
-	const c_type<base_type>& x
-	, const c_type<base_type>& y
+	const c_type<base_type, std::allocator<base_type>>& x
+	, const c_type<base_type, std::allocator<base_type>>& y
 	, const std::string &x_name
 	, const std::string &y_name
 	, const Gem::Common::expectation &e
@@ -479,7 +479,7 @@ void compare(
 				<< x_name << ".size() == " << x.size() << " / " << y_name << ".size() == " << y.size() << std::endl;
 			} else { // Some data member differs
 				// Find out about the first entry that differs
-				typename c_type<base_type>::const_iterator x_it, y_it;
+				typename c_type<base_type, std::allocator<base_type>>::const_iterator x_it, y_it;
 				std::size_t failedIndex = 0;
 				for (x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it, ++failedIndex) {
 					if (*x_it != *y_it) {
@@ -514,10 +514,10 @@ void compare(
  * @param limit The maximum allowed deviation of two floating point values
  * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
-template<typename fp_type, template <typename, typename = std::allocator<fp_type>> class c_type>
+template<typename fp_type, template <typename, typename> class c_type>
 void compare(
-	const c_type<fp_type> &x
-	, const c_type<fp_type> &y
+	const c_type<fp_type, std::allocator<fp_type>> &x
+	, const c_type<fp_type, std::allocator<fp_type>> &y
 	, const std::string &x_name
 	, const std::string &y_name
 	, const Gem::Common::expectation &e
@@ -548,7 +548,7 @@ void compare(
 
 			// Do a per-position comparison
 			bool foundDeviation = false;
-			typename c_type<fp_type>::const_iterator x_it, y_it;
+			typename c_type<fp_type, std::allocator<fp_type>>::const_iterator x_it, y_it;
 			if (Gem::Common::expectation::CE_FP_SIMILARITY == e) {
 				for (x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
 					if (gfabs(*x_it - *y_it) >= boost::numeric_cast<fp_type>(limit)) {
@@ -822,10 +822,10 @@ void compare (
  * @param limit The maximum allowed deviation of two floating point values
  * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
  */
-template <typename geneva_type, template <typename, typename = std::allocator<std::shared_ptr<geneva_type>>> class c_type>
+template <typename geneva_type, template <typename, typename> class c_type>
 void compare (
-	const c_type<std::shared_ptr<geneva_type>>& x
-	, const c_type<std::shared_ptr<geneva_type>>& y
+	const c_type<std::shared_ptr<geneva_type>, std::allocator<std::shared_ptr<geneva_type>>>& x
+	, const c_type<std::shared_ptr<geneva_type>, std::allocator<std::shared_ptr<geneva_type>>>& y
 	, const std::string& x_name
 	, const std::string& y_name
 	, const Gem::Common::expectation& e
@@ -852,7 +852,7 @@ void compare (
 
 		// Now loop over all members of the vectors
 		bool foundDeviation = false;
-		typename c_type<std::shared_ptr<geneva_type>>::const_iterator x_it, y_it;
+		typename c_type<std::shared_ptr<geneva_type>, std::allocator<std::shared_ptr<geneva_type>>>::const_iterator x_it, y_it;
 		std::size_t index = 0;
 		for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it, ++index) {
 			// First check that both pointers have content
@@ -903,7 +903,7 @@ void compare (
 
 		// Now loop over all members of the vectors
 		bool foundInequality = false;
-		typename c_type<std::shared_ptr<geneva_type>>::const_iterator x_it, y_it;
+		typename c_type<std::shared_ptr<geneva_type>, std::allocator<std::shared_ptr<geneva_type>>>::const_iterator x_it, y_it;
 		for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it) {
 			// First check that both pointers have content
 			// Check whether the pointers hold content

@@ -305,7 +305,7 @@ private:
 				 << "In GThreadWrapper::operator(): Caught Gem::Common::gemfony_error_condition with message" << std::endl
 				 << e.what() << std::endl
 				 << GTERMINATION;
-		 } catch(boost::exception& e){
+		 } catch(boost::exception&){
 			 glogger
 				 << "In GThreadWrapper::operator(): Caught boost::exception with message" << std::endl
 				 << GTERMINATION;

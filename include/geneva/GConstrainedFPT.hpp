@@ -403,14 +403,14 @@ public:
 #ifdef DEBUG
 			long double fp_region = Gem::Common::gfloor((localVal - (long double)(lowerBoundary)) / ((long double)(upperBoundary) - (long double)(lowerBoundary)));
 
-			if(Gem::Common::gfabs(fp_region) < boost::numeric_cast<long double>(std::numeric_limits<std::int64_t>::max())) {
+			if(Gem::Common::gfabs(fp_region) < boost::numeric_cast<long double>((std::numeric_limits<std::int64_t>::max)())) {
 				// We need floor here, as an integer cast rounds towards 0, which would be wrong for negative values of val
 				region = boost::numeric_cast<std::int64_t>(fp_region);
 			} else {
 				glogger
 				<< "In GConstrainedFPT::transfer(): Error" << std::endl
 				<< "fp_region = " << fp_region << " is too large and cannot be" << std::endl
-				<< "converted to a std::int64_t, which has a maximum value of " << std::numeric_limits<std::int64_t>::max() << std::endl
+				<< "converted to a std::int64_t, which has a maximum value of " << (std::numeric_limits<std::int64_t>::max)() << std::endl
 				<< GEXCEPTION;
 			}
 #else   /* DEBUG */

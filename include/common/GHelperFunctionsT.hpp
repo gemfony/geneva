@@ -427,14 +427,14 @@ void copyCloneableSmartPointer (
  * @param from The container used as the source of the copying
  * @param to The container used as the target of the copying
  */
-template <typename T, template <typename, typename = std::allocator<std::shared_ptr<T>>> class c_type>
+template <typename T, template <typename, typename> class c_type>
 void copyCloneableSmartPointerContainer(
-	const c_type<std::shared_ptr<T>>& from
-	, c_type<std::shared_ptr<T>>& to
+	const c_type<std::shared_ptr<T>, std::allocator<std::shared_ptr<T>>>& from
+	, c_type<std::shared_ptr<T>, std::allocator<std::shared_ptr<T>>>& to
 	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<T>::value>::type *dummy = nullptr
 ) {
-	typename c_type<std::shared_ptr<T>>::const_iterator it_from;
-	typename c_type<std::shared_ptr<T>>::iterator it_to;
+	typename c_type<std::shared_ptr<T>, std::allocator<std::shared_ptr<T>>>::const_iterator it_from;
+	typename c_type<std::shared_ptr<T>, std::allocator<std::shared_ptr<T>>>::iterator it_to;
 
 	std::size_t size_from = from.size();
 	std::size_t size_to   = to.size();
@@ -472,14 +472,14 @@ void copyCloneableSmartPointerContainer(
  * @param from The container used as the source of the copying
  * @param to The container used as the target of the copying
  */
-template <typename T, template <typename, typename = std::allocator<T>> class c_type>
+template <typename T, template <typename, typename> class c_type>
 void copyCloneableObjectsContainer(
-	const c_type<T>& from
-	, c_type<T>& to
+	const c_type<T, std::allocator<T>>& from
+	, c_type<T, std::allocator<T>>& to
 	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<T>::value>::type *dummy = nullptr
 ) {
-	typename c_type<T>::const_iterator it_from;
-	typename c_type<T>::iterator it_to;
+	typename c_type<T, std::allocator<T>>::const_iterator it_from;
+	typename c_type<T, std::allocator<T>>::iterator it_to;
 
 	std::size_t size_from = from.size();
 	std::size_t size_to = to.size();

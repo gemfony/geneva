@@ -324,7 +324,7 @@ int main(int argc, char **argv) {
             std::subtract_with_carry_engine<std::uint_fast64_t, 48, 5, 12> lf(
                     boost::numeric_cast<std::subtract_with_carry_engine<std::uint_fast64_t, 48, 5, 12>::result_type>(i)
             );
-            initLFCorr.push_back(lf());
+            initLFCorr.push_back(boost::numeric_cast<double>(lf()));
         }
     }
 

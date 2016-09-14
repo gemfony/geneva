@@ -142,7 +142,6 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 int main(int argc, char **argv){
 	std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr;
 
-	bool verbose;
 	const std::size_t nEntries = 6000;
 	const std::uint16_t nProducerThreads = 4;
 
