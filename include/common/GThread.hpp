@@ -289,7 +289,7 @@ private:
 	  * catching interruption requests as well as exceptions
 	  */
 	 template <typename FunctionType, typename... paramtypes>
-	 static void wrapper(
+	 static G_API_COMMON void wrapper(
 		 std::promise<interrupt_flag*>& p
 		 , FunctionType&& f
 		 , paramtypes&&... parm
