@@ -220,7 +220,7 @@ public:
 	 /**
 	  * Retrieves information about the number of hardware threads
 	  */
-	 static unsigned hardware_concurrency() {
+	 static G_API_COMMON unsigned hardware_concurrency() {
 		 return std::thread::hardware_concurrency();
 	 }
 
@@ -268,7 +268,7 @@ public:
 	 /**
 	  * Checks whether the thread was interrupted
 	  */
-	 static bool interrupted() {
+	 static G_API_COMMON bool interrupted() {
 		 return m_this_thread_interrupt_flag.is_set();
 	 }
 
@@ -276,7 +276,7 @@ public:
 	 /**
  	  * This function may be called to detect whether an interrupt was triggered
  	  */
-	 static void interruption_point() {
+	 static G_API_COMMON void interruption_point() {
 		 if(m_this_thread_interrupt_flag.is_set()) {
 			 throw thread_interrupted();
 		 }
