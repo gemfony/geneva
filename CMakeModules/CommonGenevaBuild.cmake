@@ -193,7 +193,6 @@ SET (
 	serialization
 	system
 	program_options
-    date_time
 )
 
 IF(WIN32)
@@ -202,6 +201,7 @@ IF(WIN32)
 		GENEVA_BOOST_LIBS
 		${GENEVA_BOOST_LIBS}
 		chrono
+        date_time
 	)
 ENDIF()
 
