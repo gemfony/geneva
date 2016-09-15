@@ -329,7 +329,7 @@ private:
 	 std::thread m_internal_thread; ///< The actual thread to be started
 	 interrupt_flag* m_flag = nullptr; ///< Holds termination information
 
-	 G_API_COMMON thread_local static interrupt_flag m_this_thread_interrupt_flag;
+	 thread_local static interrupt_flag m_this_thread_interrupt_flag;
 };
 
 /******************************************************************************/
