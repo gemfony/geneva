@@ -282,6 +282,14 @@ public:
 		 }
 	 }
 
+	 /********************************************************************/
+	 /**
+	  * Retrieves the current (thead_local) value of the interrupt_flag
+	  */
+	 static G_API_COMMON interrupt_flag *getIFAddress() {
+		 return &m_this_thread_interrupt_flag;
+	 }
+
 private:
 	 /********************************************************************/
 	 /**
@@ -294,7 +302,7 @@ private:
 		 , FunctionType&& f
 		 , paramtypes&&... parm
 	 ) {
-		 p.set_value(&Gem::Common::thread::m_this_thread_interrupt_flag);
+		 p.set_value(Gem::Common::thread::getIFAddress());
 
 		 try {
 			 f(std::forward<paramtypes>(parm)...);
