@@ -634,7 +634,7 @@ protected:
 		GBaseParChildT<oa_type>::init();
 
 		// Initialize our thread pool
-		tp_ptr_.reset(new Gem::Common::GThreadPool(boost::numeric_cast<std::size_t>(nThreads_)));
+		tp_ptr_.reset(new Gem::Common::GThreadPool(boost::numeric_cast<unsigned int>(nThreads_)));
 	}
 
 
