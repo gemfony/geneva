@@ -289,12 +289,12 @@ private:
 	  * catching interruption requests as well as exceptions
 	  */
 	 template <typename FunctionType, typename... paramtypes>
-	 static G_API_COMMON void wrapper(
+	 static void wrapper(
 		 std::promise<interrupt_flag*>& p
 		 , FunctionType&& f
 		 , paramtypes&&... parm
 	 ) {
-		 p.set_value(&m_this_thread_interrupt_flag);
+		 p.set_value(&Gem::Common::thread::m_this_thread_interrupt_flag);
 
 		 try {
 			 f(std::forward<paramtypes>(parm)...);
