@@ -193,6 +193,7 @@ SET (
 	serialization
 	system
 	program_options
+    date_time
 )
 
 IF(WIN32)
