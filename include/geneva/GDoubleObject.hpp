@@ -139,7 +139,7 @@ protected:
 	virtual G_API_GENEVA void doubleSubtract(std::shared_ptr<GParameterBase>, const activityMode& am) override;
 
 	/** @brief Access to uniformly distributed random double values */
-    std::uniform_real_distribution<double> m_uniform_real_distribution;
+	Gem::Hap::g_uniform_real<double> m_uniform_real_distribution;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

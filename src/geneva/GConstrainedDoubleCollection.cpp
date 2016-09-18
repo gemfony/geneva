@@ -292,13 +292,10 @@ void GConstrainedDoubleCollection::doubleMultiplyByRandom(
     , const double &max
     , const activityMode &am
 ) {
-    std::uniform_real_distribution<double> uniform_real_distribution(min, max);
+	Gem::Hap::g_uniform_real<double> uniform_real_distribution(min, max);
 	for (std::size_t pos = 0; pos < this->size(); pos++) {
 		GParameterCollectionT<double>::setValue(
-			pos, transfer(
-				this->value(pos) *
-                uniform_real_distribution(GRANDOM_TLS)
-			)
+			pos, transfer(this->value(pos) * uniform_real_distribution())
 		);
 	}
 }
@@ -310,13 +307,10 @@ void GConstrainedDoubleCollection::doubleMultiplyByRandom(
 void GConstrainedDoubleCollection::doubleMultiplyByRandom(
 	const activityMode &am
 ) {
-    std::uniform_real_distribution<double> uniform_real_distribution(0., 1.);
+	Gem::Hap::g_uniform_real<double> uniform_real_distribution(0., 1.);
 	for (std::size_t pos = 0; pos < this->size(); pos++) {
 		GParameterCollectionT<double>::setValue(
-			pos, transfer(
-                this->value(pos) *
-                uniform_real_distribution(GRANDOM_TLS)
-            )
+			pos, transfer(this->value(pos) * uniform_real_distribution())
 		);
 	}
 }

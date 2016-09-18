@@ -36,6 +36,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <type_traits>
 
 // Boost headers go here
 
@@ -156,15 +157,15 @@ public:
 	  */
 	 GAdaptorT(const GAdaptorT<T>& cp)
 		 : GObject(cp)
-			, adaptionCounter_(cp.adaptionCounter_)
-			, adaptionThreshold_(cp.adaptionThreshold_)
-			, adProb_(cp.adProb_)
-			, adaptAdProb_(cp.adaptAdProb_)
-			, minAdProb_(cp.minAdProb_)
-			, maxAdProb_(cp.maxAdProb_)
-			, adaptionMode_(cp.adaptionMode_)
-			, adaptAdaptionProbability_(cp.adaptAdaptionProbability_)
-			, adProb_reset_(cp.adProb_reset_)
+		 , adaptionCounter_(cp.adaptionCounter_)
+		 , adaptionThreshold_(cp.adaptionThreshold_)
+		 , adProb_(cp.adProb_)
+		 , adaptAdProb_(cp.adaptAdProb_)
+		 , minAdProb_(cp.minAdProb_)
+		 , maxAdProb_(cp.maxAdProb_)
+		 , adaptionMode_(cp.adaptionMode_)
+		 , adaptAdaptionProbability_(cp.adaptAdaptionProbability_)
+		 , adProb_reset_(cp.adProb_reset_)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -282,7 +283,7 @@ public:
 	  */
 	 void setAdaptionProbability(const fp_type& adProb) {
 		 // Check the supplied probability value
-		 if(adProb < 0. || adProb > 1.) {
+		 if(adProb < fp_type(0.) || adProb > fp_type(1.)) {
 			 glogger
 			 << "In GAdaptorT<T>::setAdaptionProbability(const fp_type&):" << std::endl
 			 << "Bad probability value given: " << adProb << std::endl
@@ -400,7 +401,7 @@ public:
 	  */
 	 void setAdaptAdProb(fp_type adaptAdProb) {
 #ifdef DEBUG
-		 if(adaptAdProb < 0.) {
+		 if(adaptAdProb < fp_type(0.)) {
 			 glogger
 			 << "In GAdaptorT<>::setAdaptAdProb(): Error!" << std::endl
 			 << "adaptAdProb < 0: " << adaptAdProb << std::endl
@@ -566,18 +567,15 @@ public:
 		 bool adapted = false;
 
 		 // Update the adaption probability, if requested by the user
-		 if(adaptAdProb_ > 0) {
+		 if(adaptAdProb_ > fp_type(0.)) {
 			 adProb_ *= gexp(
-				 m_normal_distribution(
-					 GRANDOM_TLS
-					 , typename std::normal_distribution<fp_type>::param_type(0.,adaptAdProb_)
-				 )
+				 m_normal_distribution(typename std::normal_distribution<fp_type>::param_type(0.,adaptAdProb_))
 			 );
 			 Gem::Common::enforceRangeConstraint<fp_type>(adProb_, minAdProb_, maxAdProb_);
 		 }
 
 		 if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case is indeterminate (means: "depends")
-			 if(m_weighted_bool(GRANDOM_TLS, std::bernoulli_distribution::param_type(gfabs(adProb_)))) { // Likelihood of adProb_ for the adaption
+			 if(m_weighted_bool(std::bernoulli_distribution::param_type(gfabs(adProb_)))) { // Likelihood of adProb_ for the adaption
 				 adaptAdaption(range);
 				 customAdaptions(val, range);
 				 adapted = true;
@@ -633,33 +631,28 @@ public:
 
 		 std::size_t nAdapted = 0;
 
-		 typename std::vector<T>::iterator it;
-
 		 // Update the adaption probability, if requested by the user
-		 if(adaptAdProb_ > 0) {
+		 if(adaptAdProb_ > fp_type(0.)) {
 			 adProb_ *= gexp(
-				 m_normal_distribution(
-					 GRANDOM_TLS
-					 , typename std::normal_distribution<fp_type>::param_type(0.,adaptAdProb_)
-				 )
+				 m_normal_distribution(typename std::normal_distribution<fp_type>::param_type(0.,adaptAdProb_))
 			 );
 			 Gem::Common::enforceRangeConstraint<fp_type>(adProb_, minAdProb_, maxAdProb_);
 		 }
 
 		 if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case is indeterminate (means: "depends")
-			 for (it = valVec.begin(); it != valVec.end(); ++it) {
-                 // A likelihood of adProb_ for adaption
-                 if(m_weighted_bool(GRANDOM_TLS, std::bernoulli_distribution::param_type(gfabs(adProb_)))) {
+			 for (auto & val: valVec) {
+				 // A likelihood of adProb_ for adaption
+				 if(m_weighted_bool(std::bernoulli_distribution::param_type(gfabs(adProb_)))) {
 					 adaptAdaption(range);
-					 customAdaptions(*it, range);
+					 customAdaptions(val, range);
 
 					 nAdapted += 1;
 				 }
 			 }
 		 } else if(true == adaptionMode_) { // always adapt
-			 for (it = valVec.begin(); it != valVec.end(); ++it) {
+			 for (auto & val: valVec) {
 				 adaptAdaption(range);
-				 customAdaptions(*it, range);
+				 customAdaptions(val, range);
 
 				 nAdapted += 1;
 			 }
@@ -815,7 +808,7 @@ protected:
 			 }
 		 } else if(adaptAdaptionProbability_) { // Do the same with probability settings
              // Likelihood of adaptAdaptionProbability_ for the adaption
-             if(m_weighted_bool(GRANDOM_TLS, std::bernoulli_distribution::param_type(gfabs(adaptAdaptionProbability_)))) {
+             if(m_weighted_bool(std::bernoulli_distribution::param_type(gfabs(adaptAdaptionProbability_)))) {
 				 customAdaptAdaption(range);
 			 }
 		 }
@@ -857,9 +850,9 @@ protected:
 	 /***************************************************************************/
 	 // Protected data
 
-	 std::normal_distribution<fp_type> m_normal_distribution; ///< Helps with gauss-type mutation
-	 std::uniform_real_distribution<fp_type> m_uniform_real_distribution; ///< Access to uniformly distributed floating point random numbers
-     std::bernoulli_distribution m_weighted_bool; ///< Access to boolean random numbers with a given probability structure
+	 Gem::Hap::g_normal_distribution<fp_type> m_normal_distribution; ///< Helps with gauss-type mutation
+	 Gem::Hap::g_uniform_real<fp_type> m_uniform_real_distribution; ///< Access to uniformly distributed floating point random numbers
+	 Gem::Hap::g_boolean_distribution m_weighted_bool; ///< Access to boolean random numbers with a given probability structure
 
 private:
 	 /***************************************************************************/
@@ -938,7 +931,7 @@ public:
 			 p_test->setAdProbRange(0.001, 1.);
 
 			 // Set the adaption probability to a sensible value and check the new setting
-			 fp_type testAdProb = 0.5;
+			 fp_type testAdProb = fp_type(0.5);
 			 BOOST_CHECK_NO_THROW(
 				 p_test->setAdaptionProbability(testAdProb);
 			 );
@@ -1293,8 +1286,12 @@ public:
 		 condnotset("GAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
-
 };
+
+/******************************************************************************/
+/** @brief Specialization of GAdaptorT<T,fp_type>::adapt(vec) for the T==bool */
+template <>
+std::size_t GAdaptorT<bool,double>::adapt(std::vector<bool>&, const bool&);
 
 /******************************************************************************/
 

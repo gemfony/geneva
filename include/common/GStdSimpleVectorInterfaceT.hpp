@@ -40,6 +40,7 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include <type_traits>
 
 // Boost header files go here
 
@@ -77,10 +78,14 @@ namespace Gem {
 namespace Common {
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * This class implements most important functions of the std::vector
  * class. It is intended to hold basic types or types that can treated
  * like simple types.
+ *
+ * TODO: Enable operator== etc.
  */
 template<typename T>
 class GStdSimpleVectorInterfaceT {
@@ -91,8 +96,7 @@ class GStdSimpleVectorInterfaceT {
 	void serialize(Archive &ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar
-			&BOOST_SERIALIZATION_NVP(data);
+		ar & BOOST_SERIALIZATION_NVP(data);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -113,7 +117,8 @@ public:
 	 * @param val  The value to be assigned to each position
 	 */
 	GStdSimpleVectorInterfaceT(const std::size_t &nval, const T &val)
-		: data(nval, val) { /* nothing */ }
+		: data(nval, val)
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -122,13 +127,15 @@ public:
 	 * @param cp A constant reference to another GStdSimpleVectorInterfaceT object
 	 */
 	GStdSimpleVectorInterfaceT(const GStdSimpleVectorInterfaceT<T> &cp)
-		: data(cp.data) { /* nothing */ }
+		: data(cp.data)
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * The destructor.
 	 */
-	virtual ~GStdSimpleVectorInterfaceT() { data.clear(); }
+	virtual ~GStdSimpleVectorInterfaceT()
+	{ data.clear(); }
 
 	/***************************************************************************/
 	/**
@@ -398,16 +405,16 @@ protected:
 
 private:
 	/** @brief Checks for equality with another GStdSimpleVectorInterfaceT<T> object. Intentionally left undefined */
-	bool operator==(const GStdSimpleVectorInterfaceT<T> &cp) const;
+	bool operator==(const GStdSimpleVectorInterfaceT<T> &cp) const = delete;
 
 	/** @brief Checks inequality with another GStdSimpleVectorInterfaceT<T> object. Intentionally left undefined */
-	bool operator!=(const GStdSimpleVectorInterfaceT<T> &cp) const;
+	bool operator!=(const GStdSimpleVectorInterfaceT<T> &cp) const = delete;
 
 	/** @brief Checks for equality with a std::vector<T> object. Intentionally left undefined */
-	bool operator==(const std::vector<T> &cp_data) const;
+	bool operator==(const std::vector<T> &cp_data) const = delete ;
 
 	/** @brief Checks for inequality with a std::vector<T> object. Intentionally left undefined */
-	bool operator!=(const std::vector<T> &cp_data) const;
+	bool operator!=(const std::vector<T> &cp_data) const = delete;
 
 public:
 	/***************************************************************************/
@@ -423,6 +430,8 @@ public:
 };
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */
@@ -434,13 +443,11 @@ public:
 namespace boost {
 namespace serialization {
 template<typename T>
-struct is_abstract<Gem::Common::GStdSimpleVectorInterfaceT<T>> : public boost::true_type {
-};
+struct is_abstract<Gem::Common::GStdSimpleVectorInterfaceT<T>> : public boost::true_type {};
 template<typename T>
-struct is_abstract<const Gem::Common::GStdSimpleVectorInterfaceT<T>> : public boost::true_type {
-};
-}
-}
+struct is_abstract<const Gem::Common::GStdSimpleVectorInterfaceT<T>> : public boost::true_type {};
+} /* namespace serialization */
+} /* namespace boost */
 
 /******************************************************************************/
 

@@ -276,23 +276,9 @@ protected:
 		using namespace Gem::Common;
 		using namespace Gem::Hap;
 
-#ifdef DEBUG
-		if(GRANDOM_TLS.getThreadId() != std::this_thread::get_id()) {
-			glogger
-			<< "In GFPGaussAdaptorT<>::customAdaptions(): Error!" << std::endl
-			<< "GRANDOM_TLS.getThreadId() = " << GRANDOM_TLS.getThreadId() << std::endl
-			<< "std::this_thread::get_id() = " << std::this_thread::get_id() << std::endl
-			<< "but should be equal." << std::endl
-			<< GEXCEPTION;
-		}
-#endif
-
 		// adapt the value in situ. Note that this changes
 		// the argument of this function
-		value += (range * GAdaptorT<fp_type, fp_type>::m_normal_distribution(
-                        GRANDOM_TLS
-                        , typename std::normal_distribution<fp_type>::param_type(0., GNumGaussAdaptorT<fp_type, fp_type>::sigma_)
-        ));
+		value += (range * GAdaptorT<fp_type, fp_type>::m_normal_distribution(typename std::normal_distribution<fp_type>::param_type(0., GNumGaussAdaptorT<fp_type, fp_type>::sigma_)));
 	}
 
 	/* ----------------------------------------------------------------------------------

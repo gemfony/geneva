@@ -238,11 +238,10 @@ protected:
 			 value
 				 += (
 				 range * GNumBiGaussAdaptorT<fp_type, fp_type>::m_bi_normal_distribution(
-					 GRANDOM_TLS
-					 , typename Gem::Hap::bi_normal_distribution<fp_type>::param_type(
+					 typename Gem::Hap::bi_normal_distribution<fp_type>::param_type(
 						 fp_type(0.)
 						 , GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_
-						 , GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_
+						 , GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_ // Intended to be sigma1_ (symmetry-case)
 						 , GNumBiGaussAdaptorT<fp_type, fp_type>::delta_
 					 )
 				 )
@@ -253,8 +252,7 @@ protected:
 			 value
 				 += (
 				 range * GNumBiGaussAdaptorT<fp_type, fp_type>::m_bi_normal_distribution(
-					 GRANDOM_TLS
-					 , typename Gem::Hap::bi_normal_distribution<fp_type>::param_type(
+					 typename Gem::Hap::bi_normal_distribution<fp_type>::param_type(
 						 fp_type(0.)
 						 , GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_
 						 , GNumBiGaussAdaptorT<fp_type, fp_type>::sigma2_

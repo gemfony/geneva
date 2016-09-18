@@ -326,10 +326,10 @@ protected:
 	}
 
 private:
-	 mutable std::bernoulli_distribution m_uniform_bool; ///< boolean random numbers with an even distribution
-	 mutable std::uniform_real_distribution<float>  m_uniform_float_distribution;  ///< Uniformly distributed fp numbers
-	 mutable std::uniform_real_distribution<double> m_uniform_double_distribution; ///< Uniformly distributed fp numbers
-	 mutable std::uniform_int_distribution<std::int32_t> m_uniform_int_distribution; ///< Uniformly distributed integer numbers
+	 mutable Gem::Hap::g_boolean_distribution m_uniform_bool; ///< boolean random numbers with an even distribution
+	 mutable Gem::Hap::g_uniform_real<float>  m_uniform_float_distribution;  ///< Uniformly distributed fp numbers
+	 mutable Gem::Hap::g_uniform_real<double> m_uniform_double_distribution; ///< Uniformly distributed fp numbers
+	 mutable Gem::Hap::g_uniform_int<std::int32_t> m_uniform_int_distribution; ///< Uniformly distributed integer numbers
 };
 
 /******************************************************************************/
@@ -340,16 +340,7 @@ private:
  */
 template <>
 inline bool baseScanParT<bool>::getRandomItem() const {
-	return m_uniform_bool(gr_);
-}
-
-/******************************************************************************/
-/**
- * Retrieval of a random value for type std::int32_t
- */
-template <>
-inline std::int32_t baseScanParT<std::int32_t>::getRandomItem() const {
-	return m_uniform_int_distribution(GRANDOM_TLS, std::uniform_int_distribution<std::int32_t>::param_type(lower_, upper_+1));
+	return m_uniform_bool();
 }
 
 /******************************************************************************/
@@ -358,7 +349,7 @@ inline std::int32_t baseScanParT<std::int32_t>::getRandomItem() const {
  */
 template <>
 inline float baseScanParT<float>::getRandomItem() const {
-	return m_uniform_float_distribution(GRANDOM_TLS, std::uniform_real_distribution<float>::param_type(lower_, upper_));
+	return m_uniform_float_distribution(std::uniform_real_distribution<float>::param_type(lower_, upper_));
 }
 
 /******************************************************************************/
@@ -367,7 +358,16 @@ inline float baseScanParT<float>::getRandomItem() const {
  */
 template <>
 inline double baseScanParT<double>::getRandomItem() const {
-	return m_uniform_double_distribution(GRANDOM_TLS, std::uniform_real_distribution<double>::param_type(lower_, upper_));
+	return m_uniform_double_distribution(std::uniform_real_distribution<double>::param_type(lower_, upper_));
+}
+
+/******************************************************************************/
+/**
+ * Retrieval of a random value for type std::int32_t
+ */
+template <>
+inline std::int32_t baseScanParT<std::int32_t>::getRandomItem() const {
+	return m_uniform_int_distribution(std::uniform_int_distribution<std::int32_t>::param_type(lower_, upper_+1));
 }
 
 /******************************************************************************/

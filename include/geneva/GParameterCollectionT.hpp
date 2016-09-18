@@ -59,8 +59,8 @@ namespace Geneva {
  */
 template<typename num_type>
 class GParameterCollectionT
-	:public GParameterBaseWithAdaptorsT<num_type>,
-	 public Gem::Common::GStdSimpleVectorInterfaceT<num_type>
+	: public GParameterBaseWithAdaptorsT<num_type>
+   , public Gem::Common::GStdSimpleVectorInterfaceT<num_type>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;

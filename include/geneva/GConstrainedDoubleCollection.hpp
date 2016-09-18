@@ -69,8 +69,7 @@ class GConstrainedDoubleCollection
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar
-			& make_nvp("GConstrainedFPNumCollectionT",
-						  boost::serialization::base_object<GConstrainedFPNumCollectionT<double>>(*this));
+			& make_nvp("GConstrainedFPNumCollectionT", boost::serialization::base_object<GConstrainedFPNumCollectionT<double>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 

@@ -255,7 +255,7 @@ protected:
 		using namespace Gem::Common;
 		using namespace Gem::Hap;
 
-		if(m_uniform_bool(GRANDOM_TLS)){
+		if(GAdaptorT<num_type>::m_weighted_bool(std::bernoulli_distribution::param_type(0.5))){
 			value += 1;
 		} else {
 			value -= 1;

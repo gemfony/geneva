@@ -81,8 +81,8 @@ GBooleanObject::GBooleanObject(const double &probability) {
 	using namespace Gem::Common;
 	using namespace Gem::Hap;
 
-	std::bernoulli_distribution weighted_bool(probability);
-	this->setValue(weighted_bool(GRANDOM_TLS));
+	Gem::Hap::g_boolean_distribution weighted_bool(probability);
+	this->setValue(weighted_bool());
 }
 
 // Tested in this file
@@ -189,11 +189,11 @@ bool GBooleanObject::randomInit(const activityMode &am) {
 /**
  * Triggers random initialization of the parameter object, with a given likelihood structure
  */
-bool GBooleanObject::randomInit(const double &probability, const activityMode &am) {
-	if (
-		!GParameterBase::randomInitializationBlocked()
-		&& this->modifiableAmMatchOrHandover(am)
-		) {
+bool GBooleanObject::randomInit(
+	const double &probability
+	, const activityMode &am
+) {
+	if (!GParameterBase::randomInitializationBlocked() && this->modifiableAmMatchOrHandover(am)) {
 		return randomInit_(probability, am);
 	} else {
 		return false;
@@ -210,12 +210,8 @@ bool GBooleanObject::randomInit(const double &probability, const activityMode &a
  * Triggers random initialization of the parameter object
  */
 bool GBooleanObject::randomInit_(const activityMode &) {
-	using namespace Gem::Common;
-	using namespace Gem::Hap;
-
-	std::bernoulli_distribution uniform_bool; // defaults to 0.5
-	this->setValue(uniform_bool(GRANDOM_TLS));
-
+	Gem::Hap::g_boolean_distribution uniform_bool; // defaults to 0.5
+	this->setValue(uniform_bool());
 	return true;
 }
 
@@ -231,13 +227,12 @@ bool GBooleanObject::randomInit_(const activityMode &) {
  * GBooleanObject::randomInit(const double& probability) function. A probability value of 0.7
  * results in approimately 70% "true" values.
  */
-bool GBooleanObject::randomInit_(const double &probability, const activityMode &am) {
-	using namespace Gem::Common;
-	using namespace Gem::Hap;
-
-	std::bernoulli_distribution weighted_bool(probability);
-	this->setValue(weighted_bool(GRANDOM_TLS));
-
+bool GBooleanObject::randomInit_(
+	const double &probability
+	, const activityMode &am
+) {
+	Gem::Hap::g_boolean_distribution weighted_bool(probability);
+	this->setValue(weighted_bool());
 	return true;
 }
 

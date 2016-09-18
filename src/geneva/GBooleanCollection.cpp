@@ -45,7 +45,8 @@ namespace Geneva {
  * by the parent class.
  */
 GBooleanCollection::GBooleanCollection()
-	: GParameterCollectionT<bool>() { /* nothing */ }
+	: GParameterCollectionT<bool>()
+{ /* nothing */ }
 
 // Tested in this class
 
@@ -58,13 +59,9 @@ GBooleanCollection::GBooleanCollection()
 GBooleanCollection::GBooleanCollection(const std::size_t &nval)
 	: GParameterCollectionT<bool>()
 {
-	using namespace Gem::Common;
-	using namespace Gem::Hap;
-
-	std::bernoulli_distribution uniform_bool; // defaults to 0.5
-
+	Gem::Hap::g_boolean_distribution uniform_bool; // defaults to 0.5
 	for (std::size_t i = 0; i < nval; i++) {
-		this->push_back(uniform_bool(GRANDOM_TLS));
+		this->push_back(uniform_bool());
 	}
 }
 
@@ -95,12 +92,9 @@ GBooleanCollection::GBooleanCollection(const std::size_t &nval, const bool &val)
 GBooleanCollection::GBooleanCollection(const std::size_t &nval, const double &probability)
 	: GParameterCollectionT<bool>()
 {
-	using namespace Gem::Common;
-	using namespace Gem::Hap;
-
-	std::bernoulli_distribution weighted_bool(probability);
+	Gem::Hap::g_boolean_distribution weighted_bool(probability);
 	for (std::size_t i = 0; i < nval; i++) {
-		this->push_back(weighted_bool(GRANDOM_TLS));
+		this->push_back(weighted_bool());
 	}
 }
 
@@ -188,13 +182,11 @@ void GBooleanCollection::load_(const GObject *cp) {
 bool GBooleanCollection::randomInit_(const activityMode &) {
 	bool randomized = false;
 
-	using namespace Gem::Common;
-	using namespace Gem::Hap;
+	Gem::Hap::g_boolean_distribution uniform_bool; // defaults to 0.5
 
-	std::bernoulli_distribution uniform_bool; // defaults to 0.5
-
-	for (std::size_t i = 0; i < this->size(); i++) {
-		(*this)[i] = uniform_bool(GRANDOM_TLS);
+	// Compare http://stackoverflow.com/questions/15927033/what-is-the-correct-way-of-using-c11s-range-based-for
+	for(auto&& b: this->data) {
+		b = uniform_bool();
 		randomized = true;
 	}
 
@@ -209,8 +201,7 @@ bool GBooleanCollection::randomInit_(const activityMode &) {
  * @param probability The probability for true values in the collection
  */
 bool GBooleanCollection::randomInit_(const double &probability, const activityMode &) {
-	using namespace Gem::Common;
-	using namespace Gem::Hap;
+	bool randomized = false;
 
 	// Do some error checking
 	if (probability < 0. || probability > 1.) {
@@ -220,12 +211,15 @@ bool GBooleanCollection::randomInit_(const double &probability, const activityMo
 		<< GEXCEPTION;
 	}
 
-	std::bernoulli_distribution weighted_bool(probability);
-	for (std::size_t i = 0; i < this->size(); i++) {
-		(*this)[i] = weighted_bool(GRANDOM_TLS);
+	Gem::Hap::g_boolean_distribution weighted_bool(probability);
+
+	// Compare http://stackoverflow.com/questions/15927033/what-is-the-correct-way-of-using-c11s-range-based-for
+	for(auto&& b: this->data) {
+		b = weighted_bool();
+		randomized = true;
 	}
 
-	return true;
+	return randomized;
 }
 
 /******************************************************************************/
@@ -520,7 +514,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 		BOOST_CHECK_MESSAGE(
 			gbc.size() == nItems, "\n"
-										 << "gbc.size() = " << gbc.size()
+										 << "gbc.size() = " << gbc.size() << "\n"
 										 << "nItems = " << nItems
 		);
 

@@ -278,13 +278,13 @@ protected:
 		int_type addition = static_cast<int_type>(
 				static_cast<double>(range)
                 * GAdaptorT<int_type, double>::m_normal_distribution(
-                        GRANDOM_TLS
-                        , std::normal_distribution<double>::param_type(0., this->getSigma())
+                        std::normal_distribution<double>::param_type(0., this->getSigma())
                 )
 		);
 
 		if(addition == 0) { // Enforce a minimal change of 1.
-			addition = m_uniform_bool(GRANDOM_TLS)?1:-1;
+			bool flipDirection = GAdaptorT<int_type, double>::m_weighted_bool(std::bernoulli_distribution::param_type(0.5));
+			addition = flipDirection?1:-1;
 		}
 
 		// adapt the value in situ. Note that this changes

@@ -54,9 +54,11 @@ GConstrainedDoubleObject::GConstrainedDoubleObject()
  * @param upperBoundary The upper boundary of the value range
  */
 GConstrainedDoubleObject::GConstrainedDoubleObject(
-	const double &lowerBoundary, const double &upperBoundary
+	const double &lowerBoundary
+	, const double &upperBoundary
 )
-	: GConstrainedFPT<double>(lowerBoundary, upperBoundary) { /* nothing */ }
+	: GConstrainedFPT<double>(lowerBoundary, upperBoundary)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -67,9 +69,12 @@ GConstrainedDoubleObject::GConstrainedDoubleObject(
  * @param upperBoundary The upper boundary of the value range
  */
 GConstrainedDoubleObject::GConstrainedDoubleObject(
-	const double &val, const double &lowerBoundary, const double &upperBoundary
+	const double &val
+	, const double &lowerBoundary
+	, const double &upperBoundary
 )
-	: GConstrainedFPT<double>(val, lowerBoundary, upperBoundary) { /* nothing */ }
+	: GConstrainedFPT<double>(val, lowerBoundary, upperBoundary)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -78,7 +83,8 @@ GConstrainedDoubleObject::GConstrainedDoubleObject(
  * @param cp A copy of another GConstrainedDoubleObject object
  */
 GConstrainedDoubleObject::GConstrainedDoubleObject(const GConstrainedDoubleObject &cp)
-	: GConstrainedFPT<double>(cp) { /* nothing */ }
+	: GConstrainedFPT<double>(cp)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -87,13 +93,15 @@ GConstrainedDoubleObject::GConstrainedDoubleObject(const GConstrainedDoubleObjec
  * @param val A value used for the initialization
  */
 GConstrainedDoubleObject::GConstrainedDoubleObject(const double &val)
-	: GConstrainedFPT<double>(val) { /* nothing */ }
+	: GConstrainedFPT<double>(val)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GConstrainedDoubleObject::~GConstrainedDoubleObject() { /* nothing */ }
+GConstrainedDoubleObject::~GConstrainedDoubleObject()
+{ /* nothing */ }
 
 /***************************************************************************/
 /**
@@ -301,7 +309,7 @@ void GConstrainedDoubleObject::doubleMultiplyByRandom(
 	GParameterT<double>::setValue(
 		transfer(
 			GParameterT<double>::value() *
-            m_uniform_real_distribution(GRANDOM_TLS, std::uniform_real_distribution<double>::param_type(min, max))
+            m_uniform_real_distribution(std::uniform_real_distribution<double>::param_type(min, max))
 		)
 	);
 }
@@ -316,7 +324,7 @@ void GConstrainedDoubleObject::doubleMultiplyByRandom(
 	GParameterT<double>::setValue(
 		transfer(
 			GParameterT<double>::value() *
-            m_uniform_real_distribution(GRANDOM_TLS, std::uniform_real_distribution<double>::param_type(0., 1.))
+            m_uniform_real_distribution(std::uniform_real_distribution<double>::param_type(0., 1.))
 		)
 	);
 }
@@ -326,7 +334,8 @@ void GConstrainedDoubleObject::doubleMultiplyByRandom(
  * Multiplication with a constant value
  */
 void GConstrainedDoubleObject::doubleMultiplyBy(
-	const double &val, const activityMode &am
+	const double &val
+	, const activityMode &am
 ) {
 	GParameterT<double>::setValue(transfer(val * GParameterT<double>::value()));
 }
@@ -336,7 +345,8 @@ void GConstrainedDoubleObject::doubleMultiplyBy(
  * Initialization with a constant value
  */
 void GConstrainedDoubleObject::doubleFixedValueInit(
-	const double &val, const activityMode &am
+	const double &val
+	, const activityMode &am
 ) {
 	GParameterT<double>::setValue(transfer(val));
 }

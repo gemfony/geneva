@@ -59,18 +59,18 @@ std::vector<double> producer2_vec;
  * Test of GRandom-access through thread-specific pointer
  */
 void produceNumbers(int id) {
-    std::uniform_real_distribution<double> uniform_real_distribution(0.,1.);
+	Gem::Hap::g_uniform_real<double> uniform_real_distribution(0.,1.);
 
 	switch(id) {
 		case 1:
 			for(std::size_t i=0; i<NPROD; i++) {
-				producer1_vec.push_back(uniform_real_distribution(GRANDOM_TLS));
+				producer1_vec.push_back(uniform_real_distribution());
 			}
 			break;
 
 		case 2:
 			for(std::size_t i=0; i<NPROD; i++) {
-				producer2_vec.push_back(uniform_real_distribution(GRANDOM_TLS));
+				producer2_vec.push_back(uniform_real_distribution());
 			}
 			break;
 

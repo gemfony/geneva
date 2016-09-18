@@ -279,10 +279,7 @@ public:
      * Returns boolean random numbers with a likelihood of "p" for "true" values
      */
 	 inline bool operator()(double p) const {
-		 return m_bernoulli_distribution (
-			 GRANDOM_TLS
-			 , std::bernoulli_distribution::param_type(p)
-		 );
+		 return m_bernoulli_distribution (GRANDOM_TLS, std::bernoulli_distribution::param_type(p));
 	 }
 
 	 /**
@@ -290,9 +287,7 @@ public:
  	  * in a param_type object
  	  */
 	 inline bool operator()(const std::bernoulli_distribution::param_type& params) const {
-		 return m_bernoulli_distribution (
-			 GRANDOM_TLS, params
-		 );
+		 return m_bernoulli_distribution (GRANDOM_TLS, params);
 	 }
 private:
 	 /** @brief Boolean random numbers with configurable probability structure */
@@ -415,9 +410,9 @@ public:
 			  , fp_type distance
 		  )
 			  : m_mean(mean)
-				 , m_sigma1(sigma1)
-				 , m_sigma2(sigma2)
-				 , m_distance(distance)
+			  , m_sigma1(sigma1)
+			  , m_sigma2(sigma2)
+			  , m_distance(distance)
 		  { /* nothing */ }
 
 		  /**
@@ -425,9 +420,9 @@ public:
 		   */
 		  param_type(const param_type& params)
 			  : m_mean(params.m_mean)
-				 , m_sigma1(params.m_sigma1)
-				 , m_sigma2(params.m_sigma2)
-				 , m_distance(params.m_distance)
+			  , m_sigma1(params.m_sigma1)
+			  , m_sigma2(params.m_sigma2)
+			  , m_distance(params.m_distance)
 		  { /* nothing */ }
 
 		  /**
@@ -660,7 +655,7 @@ public:
 	  * The default constructor (normal distribution with mean 0 and sigma 1)
 	  */
 	 g_bi_normal_distribution()
-		 : m_bi_normal_distribution(0.,1.)
+		 : m_bi_normal_distribution(0.,1.,1.,0.5)
 	 { /* nothing */ }
 
 	 /**
@@ -714,7 +709,8 @@ public:
      */
 	 inline fp_type operator()(const typename Gem::Hap::bi_normal_distribution<fp_type>::param_type& params) const {
 		 return m_bi_normal_distribution (
-			 GRANDOM_TLS, params
+			 GRANDOM_TLS
+			 , params
 		 );
 	 }
 

@@ -301,7 +301,7 @@ void GDoubleObject::doubleMultiplyByRandom(
 ) {
 	GParameterT<double>::setValue(
 		GParameterT<double>::value() *
-        m_uniform_real_distribution(GRANDOM_TLS, std::uniform_real_distribution<double>::param_type(min, max))
+        m_uniform_real_distribution(std::uniform_real_distribution<double>::param_type(min, max))
 	);
 }
 
@@ -314,7 +314,7 @@ void GDoubleObject::doubleMultiplyByRandom(
 ) {
 	GParameterT<double>::setValue(
 		GParameterT<double>::value() *
-        m_uniform_real_distribution(GRANDOM_TLS, std::uniform_real_distribution<double>::param_type(0., 1.))
+        m_uniform_real_distribution(std::uniform_real_distribution<double>::param_type(0., 1.))
 	);
 }
 
@@ -343,21 +343,12 @@ void GDoubleObject::doubleFixedValueInit(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GDoubleObject::doubleAdd(
-	std::shared_ptr < GParameterBase > p_base, const
-activityMode &am
+	std::shared_ptr<GParameterBase> p_base
+	, const activityMode &am
 ) {
-// We first need to convert p_base into the local type
-std::shared_ptr <GDoubleObject> p
-	= GParameterBase::parameterbase_cast<GDoubleObject>(p_base);
-GParameterT<double>::setValue(this->
-
-value()
-
-+ p->
-
-value()
-
-);
+	// We first need to convert p_base into the local type
+	std::shared_ptr <GDoubleObject> p = GParameterBase::parameterbase_cast<GDoubleObject>(p_base);
+	GParameterT<double>::setValue(this->value() + p->value());
 }
 
 /******************************************************************************/
@@ -365,21 +356,12 @@ value()
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GDoubleObject::doubleSubtract(
-	std::shared_ptr < GParameterBase > p_base, const
-activityMode &am
+	std::shared_ptr<GParameterBase> p_base
+	, const activityMode &am
 ) {
-// We first need to convert p_base into the local type
-std::shared_ptr <GDoubleObject> p
-	= GParameterBase::parameterbase_cast<GDoubleObject>(p_base);
-GParameterT<double>::setValue(this->
-
-value()
-
-- p->
-
-value()
-
-);
+	// We first need to convert p_base into the local type
+	std::shared_ptr <GDoubleObject> p = GParameterBase::parameterbase_cast<GDoubleObject>(p_base);
+	GParameterT<double>::setValue(this->value() - p->value());
 }
 
 /******************************************************************************/

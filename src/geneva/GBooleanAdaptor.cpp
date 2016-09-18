@@ -43,7 +43,8 @@ namespace Geneva {
  * The default constructor
  */
 GBooleanAdaptor::GBooleanAdaptor()
-	: GAdaptorT<bool>(DEFAULTBITADPROB) { /* nothing */ }
+	: GAdaptorT<bool>(DEFAULTBITADPROB)
+{ /* nothing */ }
 
 // Tested in this class
 
@@ -54,7 +55,8 @@ GBooleanAdaptor::GBooleanAdaptor()
  * @param cp A copy of another GBooleanAdaptor object
  */
 GBooleanAdaptor::GBooleanAdaptor(const GBooleanAdaptor &cp)
-	: GAdaptorT<bool>(cp) { /* nothing */ }
+	: GAdaptorT<bool>(cp)
+{ /* nothing */ }
 
 // Tested in this class
 
@@ -65,7 +67,8 @@ GBooleanAdaptor::GBooleanAdaptor(const GBooleanAdaptor &cp)
  * @param adProb The adaption probability
  */
 GBooleanAdaptor::GBooleanAdaptor(const double &adProb)
-	: GAdaptorT<bool>(adProb) { /* nothing */ }
+	: GAdaptorT<bool>(adProb)
+{ /* nothing */ }
 
 // Tested in this class
 
@@ -73,7 +76,8 @@ GBooleanAdaptor::GBooleanAdaptor(const double &adProb)
 /**
  * The destructor
  */
-GBooleanAdaptor::~GBooleanAdaptor() { /* nothing */ }
+GBooleanAdaptor::~GBooleanAdaptor()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -90,7 +94,8 @@ GObject *GBooleanAdaptor::clone_() const {
  * Flip the value up or down by 1, depending on a random number
  */
 void GBooleanAdaptor::customAdaptions(
-	bool &value, const bool &range
+	bool &value
+	, const bool &range
 ) {
 	value == true ? value = false : value = true;
 }
@@ -150,7 +155,9 @@ bool GBooleanAdaptor::operator!=(const GBooleanAdaptor &cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBooleanAdaptor::compare(
-	const GObject &cp, const Gem::Common::expectation &e, const double &limit
+	const GObject &cp
+	, const Gem::Common::expectation &e
+	, const double &limit
 ) const {
 	using namespace Gem::Common;
 
@@ -176,7 +183,8 @@ std::string GBooleanAdaptor::name() const {
 	return std::string("GBooleanAdaptor");
 }
 
-/***********************************************************************************//**
+/***********************************************************************************/
+/**
  * Allows to randomly initialize parameter members. No local data, hence no
  * action taken.
  */

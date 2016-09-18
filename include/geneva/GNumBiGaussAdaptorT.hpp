@@ -671,9 +671,9 @@ public:
 		 using namespace Gem::Common;
 		 using namespace Gem::Hap;
 
-		 sigma1_ = GAdaptorT<num_type, fp_type>::m_uniform_real_distribution(GRANDOM_TLS, typename std::uniform_real_distribution<fp_type>::param_type(minSigma1_, maxSigma1_));
-		 sigma2_ = GAdaptorT<num_type, fp_type>::m_uniform_real_distribution(GRANDOM_TLS, typename std::uniform_real_distribution<fp_type>::param_type(minSigma2_, maxSigma2_));
-		 delta_  = GAdaptorT<num_type, fp_type>::m_uniform_real_distribution(GRANDOM_TLS, typename std::uniform_real_distribution<fp_type>::param_type(minDelta_ , maxDelta_));
+		 sigma1_ = GAdaptorT<num_type, fp_type>::m_uniform_real_distribution(typename std::uniform_real_distribution<fp_type>::param_type(minSigma1_, maxSigma1_));
+		 sigma2_ = GAdaptorT<num_type, fp_type>::m_uniform_real_distribution(typename std::uniform_real_distribution<fp_type>::param_type(minSigma2_, maxSigma2_));
+		 delta_  = GAdaptorT<num_type, fp_type>::m_uniform_real_distribution(typename std::uniform_real_distribution<fp_type>::param_type(minDelta_ , maxDelta_));
 
 		 return true;
 	 }
@@ -696,7 +696,7 @@ protected:
 	 fp_type minDelta_; ///< minimum allowed value for delta_
 	 fp_type maxDelta_; ///< maximum allowed value for delta_
 
-	 Gem::Hap::bi_normal_distribution<fp_type> m_bi_normal_distribution; ///< Access to random numbers with a bi_normal distribution
+	 Gem::Hap::g_bi_normal_distribution<fp_type> m_bi_normal_distribution; ///< Access to random numbers with a bi_normal distribution
 
 	 /***************************************************************************/
 	 /**
@@ -767,24 +767,9 @@ protected:
 
 		 // The following random distribution slightly favours values < 1. Selection pressure
 		 // will keep the values higher if needed
-		 sigma1_ *= gexp(
-			 GAdaptorT<num_type>::m_normal_distribution(
-				 GRANDOM_TLS
-				 , typename std::normal_distribution<fp_type>::param_type(0., gfabs(sigmaSigma1_))
-			 )
-		 );
-		 sigma2_ *= gexp(
-			 GAdaptorT<num_type>::m_normal_distribution(
-				 GRANDOM_TLS
-				 , typename std::normal_distribution<fp_type>::param_type(0., gfabs(sigmaSigma2_))
-			 )
-		 );
-		 delta_  *= gexp(
-			 GAdaptorT<num_type>::m_normal_distribution(
-				 GRANDOM_TLS
-				 , typename std::normal_distribution<fp_type>::param_type(0., gfabs(sigmaDelta_))
-			 )
-		 );
+		 sigma1_ *= gexp(GAdaptorT<num_type>::m_normal_distribution(typename std::normal_distribution<fp_type>::param_type(0., gfabs(sigmaSigma1_))));
+		 sigma2_ *= gexp(GAdaptorT<num_type>::m_normal_distribution(typename std::normal_distribution<fp_type>::param_type(0., gfabs(sigmaSigma2_))));
+		 delta_  *= gexp(GAdaptorT<num_type>::m_normal_distribution(typename std::normal_distribution<fp_type>::param_type(0., gfabs(sigmaDelta_))));
 
 		 // Make sure valued don't get out of range
 		 enforceRangeConstraint(sigma1_, minSigma1_, maxSigma1_);

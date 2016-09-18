@@ -301,11 +301,11 @@ void GDoubleCollection::assignDoubleValueVectors(
 void GDoubleCollection::doubleMultiplyByRandom(
 	const double &min, const double &max, const activityMode &am
 ) {
-	std::uniform_real_distribution<double> uniform_real_distribution(min, max);
+	Gem::Hap::g_uniform_real<double> uniform_real_distribution(min, max);
 	for (std::size_t pos = 0; pos < this->size(); pos++) {
 		GParameterCollectionT<double>::setValue(
 			pos
-            , this->value(pos) * uniform_real_distribution(GRANDOM_TLS)
+			, this->value(pos) * uniform_real_distribution()
 		);
 	}
 }
@@ -317,11 +317,11 @@ void GDoubleCollection::doubleMultiplyByRandom(
 void GDoubleCollection::doubleMultiplyByRandom(
 	const activityMode &am
 ) {
-	std::uniform_real_distribution<double> uniform_real_distribution(0., 1.);
+	Gem::Hap::g_uniform_real<double> uniform_real_distribution(0., 1.);
 	for (std::size_t pos = 0; pos < this->size(); pos++) {
 		GParameterCollectionT<double>::setValue(
 			pos
-            , this->value(pos) * uniform_real_distribution(GRANDOM_TLS)
+			, this->value(pos) * uniform_real_distribution()
 		);
 	}
 }
@@ -517,9 +517,9 @@ void GDoubleCollection::fillWithData(const std::size_t &nItems) {
 	// Add a single item of defined value, so we can test the find() and count() functions
 	BOOST_CHECK_NO_THROW(this->push_back(0.));
 
-	std::uniform_real_distribution<double> uniform_real_distribution(-10., 10.);
+	Gem::Hap::g_uniform_real<double> uniform_real_distribution(-10., 10.);
 	for (std::size_t i = 1; i < nItems - 1; i++) {
-		BOOST_CHECK_NO_THROW(this->push_back(uniform_real_distribution(GRANDOM_TLS)));
+		BOOST_CHECK_NO_THROW(this->push_back(uniform_real_distribution()));
 	}
 
 	// Add a single item of defined value, so we can test the find() and count() functions
