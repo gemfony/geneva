@@ -123,10 +123,12 @@ std::chrono::duration<double> duration_from_string(const std::string&);
 
 /******************************************************************************/
 /** @brief Converts the current time to a string */
+G_API_COMMON
 std::string currentTimeAsString();
 
 /******************************************************************************/
 /** @brief Returns the number of milliseconds since 1.1.1970 */
+G_API_COMMON
 std::string getMSSince1970();
 
 /******************************************************************************/
