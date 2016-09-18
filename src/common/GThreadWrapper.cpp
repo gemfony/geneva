@@ -68,7 +68,7 @@ void GThreadWrapper::operator()() {
 		<< e.what() << std::endl
 		<< GTERMINATION;
 	}
-	catch(boost::exception& e){
+	catch(boost::exception&){
 		glogger
 		<< "In GThreadWrapper::operator(): Caught boost::exception with message" << std::endl
 		<< GTERMINATION;

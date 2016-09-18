@@ -87,9 +87,9 @@ const std::size_t NPERFOBJECTTYPES = 5;
 
 /******************************************************************************/
 /** @brief Puts a Gem::Common::logType into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Tests::PERFOBJECTTYPE&);
+G_API_INDIVIDUALS std::ostream &operator<<(std::ostream &, const Gem::Tests::PERFOBJECTTYPE&);
 /** @brief Reads a Gem::Common::logType from a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::istream &operator>>(std::istream &, Gem::Tests::PERFOBJECTTYPE&);
+G_API_INDIVIDUALS std::istream &operator>>(std::istream &, Gem::Tests::PERFOBJECTTYPE&);
 
 /******************************************************************************/
 /**
