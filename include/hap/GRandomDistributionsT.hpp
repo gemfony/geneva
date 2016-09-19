@@ -99,7 +99,7 @@ public:
 	  * the boundaries specified in the constructor
 	  */
 	 inline int_type operator()() const {
-		 return m_uniform_int_distribution(GRANDOM_TLS);
+		 return m_uniform_int_distribution(randomProxy());
 	 }
 
 	 /**
@@ -108,7 +108,7 @@ public:
      */
 	 inline int_type operator()(int_type r) const {
 		 return m_uniform_int_distribution (
-			 GRANDOM_TLS
+			 randomProxy()
 			 , typename std::uniform_int_distribution<int_type>::param_type(0,r)
 		 );
 	 }
@@ -119,7 +119,7 @@ public:
 	  */
 	 inline int_type operator()(int_type l, int_type r) const {
 		 return m_uniform_int_distribution (
-			 GRANDOM_TLS
+			 randomProxy()
 			 , typename std::uniform_int_distribution<int_type>::param_type(l,r)
 		 );
 	 }
@@ -129,7 +129,7 @@ public:
  	  */
 	 inline int_type operator()(const typename std::uniform_int_distribution<int_type>::param_type& params) const {
 		 return m_uniform_int_distribution (
-			 GRANDOM_TLS, params
+			 randomProxy(), params
 		 );
 	 }
 
@@ -192,7 +192,7 @@ public:
 	  * open range [0:1[ or using the boundaries specified in the constructor.
 	  */
 	 inline fp_type operator()() const {
-		 return m_uniform_real_distribution(GRANDOM_TLS);
+		 return m_uniform_real_distribution(randomProxy());
 	 }
 
 	 /**
@@ -201,7 +201,7 @@ public:
      */
 	 inline fp_type operator()(fp_type r) const {
 		 return m_uniform_real_distribution (
-			 GRANDOM_TLS
+			 randomProxy()
 			 , typename std::uniform_real_distribution<fp_type>::param_type(0.,r)
 		 );
 	 }
@@ -212,7 +212,7 @@ public:
 	  */
 	 inline fp_type operator()(fp_type l, fp_type r) const {
 		 return m_uniform_real_distribution (
-			 GRANDOM_TLS
+			 randomProxy()
 			 , typename std::uniform_real_distribution<fp_type>::param_type(l,r)
 		 );
 	 }
@@ -223,7 +223,7 @@ public:
      */
 	 inline fp_type operator()(const typename std::uniform_real_distribution<fp_type>::param_type& params) const {
 		 return m_uniform_real_distribution (
-			 GRANDOM_TLS, params
+			 randomProxy(), params
 		 );
 	 }
 
@@ -272,14 +272,14 @@ public:
 	  * Returns boolean random numbers with a probability of 50% for true vs. false
 	  */
 	 inline bool operator()() const {
-		 return m_bernoulli_distribution(GRANDOM_TLS);
+		 return m_bernoulli_distribution(randomProxy());
 	 }
 
 	 /**
      * Returns boolean random numbers with a likelihood of "p" for "true" values
      */
 	 inline bool operator()(double p) const {
-		 return m_bernoulli_distribution (GRANDOM_TLS, std::bernoulli_distribution::param_type(p));
+		 return m_bernoulli_distribution (randomProxy(), std::bernoulli_distribution::param_type(p));
 	 }
 
 	 /**
@@ -287,7 +287,7 @@ public:
  	  * in a param_type object
  	  */
 	 inline bool operator()(const std::bernoulli_distribution::param_type& params) const {
-		 return m_bernoulli_distribution (GRANDOM_TLS, params);
+		 return m_bernoulli_distribution (randomProxy(), params);
 	 }
 private:
 	 /** @brief Boolean random numbers with configurable probability structure */
@@ -339,7 +339,7 @@ public:
 	  * the parameters specified in the constructor
 	  */
 	 inline fp_type operator()() const {
-		 return m_normal_distribution(GRANDOM_TLS);
+		 return m_normal_distribution(randomProxy());
 	 }
 
 	 /**
@@ -348,7 +348,7 @@ public:
 	  */
 	 inline fp_type operator()(fp_type mean, fp_type sigma) const {
 		 return m_normal_distribution (
-			 GRANDOM_TLS
+			 randomProxy()
 			 , typename std::normal_distribution<fp_type>::param_type(mean,sigma)
 		 );
 	 }
@@ -359,7 +359,7 @@ public:
      */
 	 inline fp_type operator()(const typename std::normal_distribution<fp_type>::param_type& params) const {
 		 return m_normal_distribution (
-			 GRANDOM_TLS, params
+			 randomProxy(), params
 		 );
 	 }
 
@@ -682,7 +682,7 @@ public:
 	  * the parameters specified in the constructor
 	  */
 	 inline fp_type operator()() const {
-		 return m_bi_normal_distribution(GRANDOM_TLS);
+		 return m_bi_normal_distribution(randomProxy());
 	 }
 
 	 /**
@@ -696,7 +696,7 @@ public:
 		 , fp_type distance
     ) const {
 		 return m_bi_normal_distribution (
-			 GRANDOM_TLS
+			 randomProxy()
 			 , typename Gem::Hap::bi_normal_distribution<fp_type>::param_type(
 				mean, sigma1, sigma2, distance
 		    )
@@ -709,7 +709,7 @@ public:
      */
 	 inline fp_type operator()(const typename Gem::Hap::bi_normal_distribution<fp_type>::param_type& params) const {
 		 return m_bi_normal_distribution (
-			 GRANDOM_TLS
+			 randomProxy()
 			 , params
 		 );
 	 }

@@ -106,8 +106,15 @@ bool interrupt_flag::is_set() const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-// Initialization of static class member
-thread_local interrupt_flag thread::m_this_thread_interrupt_flag;
+// Initialization of thread_local variable
+thread_local interrupt_flag this_thread_interrupt_flag;
+
+/**
+ * Retrieval of this thread's interrupt flag
+ */
+interrupt_flag * getThisThreadIFFlag() {
+	return &this_thread_interrupt_flag;
+}
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

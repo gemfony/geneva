@@ -110,6 +110,12 @@ private:
 	 std::atomic<bool> m_interrupted;
 };
 
+// Thread-specific access to interrupt flag
+extern thread_local interrupt_flag this_thread_interrupt_flag;
+
+/** @brief Retrieval of this thread's interrupt flag */
+interrupt_flag * getThisThreadIFFlag();
+
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
@@ -269,7 +275,7 @@ public:
 	  * Checks whether the thread was interrupted
 	  */
 	 static G_API_COMMON bool interrupted() {
-		 return m_this_thread_interrupt_flag.is_set();
+		 return this_thread_interrupt_flag.is_set();
 	 }
 
 	 /********************************************************************/
@@ -277,17 +283,9 @@ public:
  	  * This function may be called to detect whether an interrupt was triggered
  	  */
 	 static G_API_COMMON void interruption_point() {
-		 if(m_this_thread_interrupt_flag.is_set()) {
+		 if(this_thread_interrupt_flag.is_set()) {
 			 throw thread_interrupted();
 		 }
-	 }
-
-	 /********************************************************************/
-	 /**
-	  * Retrieves the current (thead_local) value of the interrupt_flag
-	  */
-	 static G_API_COMMON interrupt_flag *getIFAddress() {
-		 return &m_this_thread_interrupt_flag;
 	 }
 
 private:
@@ -302,7 +300,7 @@ private:
 		 , FunctionType&& f
 		 , paramtypes&&... parm
 	 ) {
-		 p.set_value(Gem::Common::thread::getIFAddress());
+		 p.set_value(getThisThreadIFFlag());
 
 		 try {
 			 f(std::forward<paramtypes>(parm)...);
@@ -336,8 +334,6 @@ private:
 
 	 std::thread m_internal_thread; ///< The actual thread to be started
 	 interrupt_flag* m_flag = nullptr; ///< Holds termination information
-
-	 thread_local static interrupt_flag m_this_thread_interrupt_flag;
 };
 
 /******************************************************************************/
