@@ -114,7 +114,7 @@ private:
 extern thread_local interrupt_flag this_thread_interrupt_flag;
 
 /** @brief Retrieval of this thread's interrupt flag */
-interrupt_flag * getThisThreadIFFlag();
+G_API_COMMON interrupt_flag * getThisThreadIFFlag();
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -351,6 +351,7 @@ namespace std {
 /**
  * @brief Swaps the data of two thread objects
  */
+G_API_COMMON
 void swap(Gem::Common::thread&, Gem::Common::thread&);
 
 /******************************************************************************/
