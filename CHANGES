@@ -1,4 +1,17 @@
 //------------------------------------------------------------------------------------------------------
+* Version 1.8.1, yet unnamed, release date unknown
+
+The main changes for this release include:
+
+- Added the option to specify a minimum number of iterations and a minimum time that the
+  optimization should run. Only interactive halt-criteria (Ctrl-C, "touched halt") are
+  observed, as long as the minimum number ierations / timeframe are not met. Examine the sample
+  config files for these options and add them to your own files. You may also let Geneva generate
+  fresh files for you.
+- Modified the code so that it compiles under Windows 10 / MSVC 14 . Note that Windows-related
+  problems still remain.
+
+//------------------------------------------------------------------------------------------------------
 * Version 1.8, "Torino" - August 13, 2016
 
 The main changes for this release include:

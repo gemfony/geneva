@@ -295,6 +295,12 @@ const std::uint32_t DEFAULTMAXIT = 1000;
 
 /******************************************************************************/
 /**
+ * The default minimum number of iterations
+ */
+const std::uint32_t DEFAULTMINIT = 0;
+
+/******************************************************************************/
+/**
  * The default maximum number of iterations without improvement. 0 means: ignore
  */
 const std::uint32_t DEFAULTMAXSTALLIT = 20;
@@ -348,6 +354,12 @@ const std::string DEFAULTBROKERFIRSTTIMEOUT = EMPTYDURATION;
  * The default maximum duration of the calculation.
  */
 const std::string DEFAULTDURATION = EMPTYDURATION;
+
+/******************************************************************************/
+/**
+ * The default minimum duration of the duration
+ */
+const std::string DEFAULTMINDURATION = EMPTYDURATION;
 
 /******************************************************************************/
 /**

@@ -170,8 +170,14 @@ const bool GFNOWARNING = false;
 
 template<typename fp_type>
 fp_type checkValueRange(
-	fp_type val, fp_type min, fp_type max, bool lowerOpen = false, bool upperOpen = false, bool warnOnly = false,
-	std::string varName = std::string(), typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+	fp_type val
+	, fp_type min
+	, fp_type max
+	, bool lowerOpen = false
+	, bool upperOpen = false
+	, bool warnOnly = false
+	, std::string varName = std::string()
+	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
 	bool result = true;
 
@@ -877,6 +883,25 @@ std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>> getRatioErrors(
 	}
 
 	return spn;
+}
+
+/******************************************************************************/
+/**
+ * This function checks whether a given floating point value is "close" to a given
+ * target value, with a maximum difference provided as a parameter
+ */
+template<typename fp_type>
+bool isClose(
+	fp_type val
+	, fp_type target = 0
+	, fp_type margin = fp_type(0.00001)
+	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+) {
+	if(gfabs(val-target) <= margin) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
 /******************************************************************************/

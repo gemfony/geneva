@@ -17,6 +17,7 @@
  * and http://scc.kit.edu .
  *
  * Geneva is free software: you can redistribute and/or modify it under
+ * Geneva is free software: you can redistribute and/or modify it under
  * the terms of version 3 of the GNU Affero General Public License
  * as published by the Free Software Foundation.
  *
@@ -97,6 +98,7 @@ private:
 		& BOOST_SERIALIZATION_NVP(iteration_)
 		& BOOST_SERIALIZATION_NVP(offset_)
 		& BOOST_SERIALIZATION_NVP(maxIteration_)
+		& BOOST_SERIALIZATION_NVP(minIteration_)
 		& BOOST_SERIALIZATION_NVP(maxStallIteration_)
 		& BOOST_SERIALIZATION_NVP(reportIteration_)
 		& BOOST_SERIALIZATION_NVP(nRecordbestGlobalIndividuals_)
@@ -113,6 +115,7 @@ private:
 		& BOOST_SERIALIZATION_NVP(qualityThreshold_)
 		& BOOST_SERIALIZATION_NVP(hasQualityThreshold_)
 		& BOOST_SERIALIZATION_NVP(maxDuration_)
+	  	& BOOST_SERIALIZATION_NVP(minDuration_)
 		& BOOST_SERIALIZATION_NVP(terminationFile_)
 		& BOOST_SERIALIZATION_NVP(terminateOnFileModification_)
 		& BOOST_SERIALIZATION_NVP(emitTerminationReason_)
@@ -136,6 +139,7 @@ public:
 		, bestKnownPrimaryFitness_(std::tuple<double,double>(0.,0.)) // will be set appropriately in the optimize() function
 		, bestCurrentPrimaryFitness_(std::tuple<double,double>(0.,0.)) // will be set appropriately in the optimize() function
 		, maxDuration_(Gem::Common::duration_from_string(DEFAULTDURATION))
+	   , minDuration_(Gem::Common::duration_from_string(DEFAULTMINDURATION))
 		, worstKnownValids_()
 		, optimizationMonitor_ptr_(new typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT())
 		, default_pluggable_monitor_(std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>())
@@ -153,6 +157,7 @@ public:
 		, iteration_(cp.iteration_)
 		, offset_(DEFAULTOFFSET)
 		, maxIteration_(cp.maxIteration_)
+	  	, minIteration_(cp.minIteration_)
 		, maxStallIteration_(cp.maxStallIteration_)
 		, reportIteration_(cp.reportIteration_)
 		, nRecordbestGlobalIndividuals_(cp.nRecordbestGlobalIndividuals_)
@@ -170,6 +175,7 @@ public:
 		, qualityThreshold_(cp.qualityThreshold_)
 		, hasQualityThreshold_(cp.hasQualityThreshold_)
 		, maxDuration_(cp.maxDuration_)
+		, minDuration_(cp.minDuration_)
 		, terminationFile_(cp.terminationFile_)
 		, terminateOnFileModification_(cp.terminateOnFileModification_)
 		, emitTerminationReason_(cp.emitTerminationReason_)
@@ -402,6 +408,7 @@ public:
 		compare_t(IDENTITY(iteration_, p_load->iteration_), token);
 		compare_t(IDENTITY(offset_, p_load->offset_), token);
 		compare_t(IDENTITY(maxIteration_, p_load->maxIteration_), token);
+		compare_t(IDENTITY(minIteration_, p_load->minIteration_), token);
 		compare_t(IDENTITY(maxStallIteration_, p_load->maxStallIteration_), token);
 		compare_t(IDENTITY(reportIteration_, p_load->reportIteration_), token);
 		compare_t(IDENTITY(nRecordbestGlobalIndividuals_, p_load->nRecordbestGlobalIndividuals_), token);
@@ -419,6 +426,7 @@ public:
 		compare_t(IDENTITY(qualityThreshold_, p_load->qualityThreshold_), token);
 		compare_t(IDENTITY(hasQualityThreshold_, p_load->hasQualityThreshold_), token);
 		compare_t(IDENTITY(maxDuration_.count(), p_load->maxDuration_.count()), token); // Cannot directly compare std::chrono::duration<double>
+		compare_t(IDENTITY(minDuration_.count(), p_load->minDuration_.count()), token); // Cannot directly compare std::chrono::duration<double>
 		compare_t(IDENTITY(terminationFile_, p_load->terminationFile_), token);
 		compare_t(IDENTITY(terminateOnFileModification_, p_load->terminateOnFileModification_), token);
 		compare_t(IDENTITY(emitTerminationReason_, p_load->emitTerminationReason_), token);
@@ -661,6 +669,15 @@ public:
 	 * @param maxIteration The number of iterations after which the optimization should terminate
 	 */
 	void setMaxIteration(std::uint32_t maxIteration) {
+		// Check that the maximum number of iterations is > the minimum number
+		// The check is only valid if a maximum number of iterations has been set (i.e. is != 0)
+		if(maxIteration_ > 0 && maxIteration_ <= minIteration_) {
+			glogger
+				<< "In GOptimizationAlgorithmT<>::setMaxIteration(): Error!" << std::endl
+				<< "Maximum number of iterations " << 	maxIteration_ << " is <= the minimum number " << minIteration_ << std::endl
+			   << GEXCEPTION;
+		}
+
 		maxIteration_ = maxIteration;
 	}
 
@@ -674,6 +691,35 @@ public:
 	std::uint32_t getMaxIteration() const {
 		return maxIteration_;
 	}
+
+ 	/***************************************************************************/
+ 	/**
+ 	 * This function checks whether a minimal number of iterations was reached.
+  	 * No halt will be performed if this is not the case (with the exception of halts
+  	 * that are triggered by user-actions, such as Ctrl-C (Sighup-Halt) and touched halt
+  	 * (Geneva checks whether a file was modified after Geneva has started). Set the number
+  	 * of iterations to 0 in order to disable a check for the minimal number of iterations.
+	 */
+	void setMinIteration(std::uint32_t minIteration) {
+		// Check that the maximum number of iterations is > the minimum number
+		// The check is only valid if a maximum number of iterations has been set (i.e. is != 0)
+		if(maxIteration_ > 0 && maxIteration_ <= minIteration_) {
+			glogger
+				<< "In GOptimizationAlgorithmT<>::setMinIteration(): Error!" << std::endl
+				<< "Maximum number of iterations " << 	maxIteration_ << " is <= the minimum number " << minIteration_ << std::endl
+				<< GEXCEPTION;
+		}
+
+	   minIteration_ = minIteration;
+   }
+
+	 /***************************************************************************/
+	 /**
+	  * This function retrieves the value of the minIteration_ variable
+	  */
+	 std::uint32_t getMinIteration() const {
+		 return minIteration_;
+	 }
 
 	/***************************************************************************/
 	/**
@@ -704,6 +750,13 @@ public:
 	 * @param maxDuration The maximum allowed processing time
 	 */
 	void setMaxTime(std::chrono::duration<double> maxDuration) {
+		if(!Gem::Common::isClose<double>(maxDuration.count(), 0.) && maxDuration < minDuration_) {
+			glogger
+			<< "In GOptimizationAlgorithmT<>::setMaxTime(): Error!" << std::endl
+		   << "Desired maxDuration (" << maxDuration.count() << " is smaller than minDuration_(" << minDuration_.count() << ")" << std::endl
+			<< GEXCEPTION;
+		}
+
 		maxDuration_ = maxDuration;
 	}
 
@@ -716,6 +769,34 @@ public:
 	std::chrono::duration<double> getMaxTime() const {
 		return maxDuration_;
 	}
+
+	 /***************************************************************************/
+	 /**
+	 * Sets the minimum required processing time. NOTE: Always set the maximum duration
+	 * before the minumum duration.
+	 *
+	 * @param minDuration The minimum allowed processing time
+	 */
+	 void setMinTime(std::chrono::duration<double> minDuration) {
+		 if(!Gem::Common::isClose<double>(maxDuration_.count(),0.) && maxDuration_ < minDuration) {
+			 glogger
+				 << "In GOptimizationAlgorithmT<>::setMinTime(): Error!" << std::endl
+				 << "Desired maxDuration (" << maxDuration_.count() << " is smaller than minDuration_(" << minDuration.count() << ")" << std::endl
+				 << GEXCEPTION;
+		 }
+
+		 minDuration_ = minDuration;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	 * Retrieves the value of the minDuration_ parameter.
+	 *
+	 * @return The minimum required processing time
+	 */
+	 std::chrono::duration<double> getMinTime() const {
+		 return minDuration_;
+	 }
 
 	/***************************************************************************/
 	/**
@@ -988,6 +1069,13 @@ public:
 		<< "The maximum allowed number of iterations";
 
 		gpb.registerFileParameter<std::uint32_t>(
+			"minIteration" // The name of the variable
+			, DEFAULTMINIT // The default value
+			, [this](std::uint32_t minIt){ this->setMinIteration(minIt); }
+		)
+		<< "The minimum allowed number of iterations";
+
+		gpb.registerFileParameter<std::uint32_t>(
 			"maxStallIteration" // The name of the variable
 			, DEFAULTMAXSTALLIT // The default value
 			, [this](std::uint32_t maxStallIt){ this->setMaxStallIteration(maxStallIt); }
@@ -1079,6 +1167,14 @@ public:
 			, [this](std::string mt_str){ this->setMaxTime(Gem::Common::duration_from_string(mt_str)); }
 		)
 		<< "The maximum allowed time-frame for the optimization" << std::endl
+		<< "in the format hours:minutes:seconds";
+
+		gpb.registerFileParameter<std::string>(
+			"minDuration" // The name of the variable
+			, DEFAULTMINDURATION // The default value
+			, [this](std::string mt_str){ this->setMinTime(Gem::Common::duration_from_string(mt_str)); }
+		)
+		<< "The minimum required time-frame for the optimization" << std::endl
 		<< "in the format hours:minutes:seconds";
 
 		gpb.registerFileParameter<bool>(
@@ -1282,6 +1378,7 @@ protected:
 		iteration_ = p_load->iteration_;
 		offset_ = p_load->offset_;
 		maxIteration_ = p_load->maxIteration_;
+		minIteration_ = p_load->minIteration_;
 		maxStallIteration_ = p_load->maxStallIteration_;
 		reportIteration_ = p_load->reportIteration_;
 		nRecordbestGlobalIndividuals_ = p_load->nRecordbestGlobalIndividuals_;
@@ -1301,6 +1398,7 @@ protected:
 		terminationFile_ = p_load->terminationFile_;
 		terminateOnFileModification_ = p_load->terminateOnFileModification_;
 		maxDuration_ = p_load->maxDuration_;
+		minDuration_ = p_load->minDuration_;
 		emitTerminationReason_ = p_load->emitTerminationReason_;
 		halted_ = p_load->halted_;
 		worstKnownValids_ = p_load->worstKnownValids_;
@@ -1667,8 +1765,7 @@ private:
 	 *
 	 * @return A boolean indicating whether a given amount of time has passed
 	 */
-	bool timedHalt() const {
-		std::chrono::system_clock::time_point currentTime = std::chrono::system_clock::now();
+	bool timedHalt(const std::chrono::system_clock::time_point& currentTime) const {
 		if((currentTime - startTime_) >= maxDuration_) {
 			if(emitTerminationReason_) {
 				glogger
@@ -1679,6 +1776,18 @@ private:
 			return true;
 		} else {
 			return false;
+		}
+	}
+
+	/***************************************************************************/
+   /**
+    * This function checks whether a minimum amount of time has passed
+ 	 */
+   bool minTimePassed(const std::chrono::system_clock::time_point& currentTime) const {
+		if((currentTime - startTime_) <= minDuration_) {
+			return false;
+		} else {
+			return true;
 		}
 	}
 
@@ -1748,6 +1857,18 @@ private:
 			return false;
 		}
 	}
+
+   /***************************************************************************/
+	/**
+	 * This function returns true when the minimum number of iterations has
+	 * been passed.
+	 */
+	 bool minIterationPassed() const {
+		 if(iteration_ <= minIteration_) {
+			 return false;
+		 }
+		 return true;
+	 }
 
 	/***************************************************************************/
 	/**
@@ -1837,6 +1958,36 @@ private:
 	 * @return A boolean indicating whether a halt criterion has been reached
 	 */
 	bool halt() const {
+		// Retrieve the current time, so all time-based functions act on the same basis
+		std::chrono::system_clock::time_point currentTime = std::chrono::system_clock::now();
+
+		//------------------------------------------------------------------------
+		// The following halt criteria are triggered by the user. They override
+		// all other (automatic) criteria
+
+		// Have we received a SIGHUP signal ?
+		if(sigHupHalt()) return true;
+
+		// Are we supposed to stop when a file was modified after the start of the optimization run ?
+		if(terminateOnFileModification_ && touchHalt()) return true;
+
+		//------------------------------------------------------------------------
+		// With the exception of the above criteria, no other halt criterion will
+		// have an effect unless some minimum criteria have been met. E.g., if the
+		// minimum number of iterations, as defined by the user, hasn't been passwd,
+		// the optimization will continue (no matter whether e.g. the optimization
+		// has stalled for a given number of times).
+
+		// Has the minimum number of iterations, as defined by the user, been passed?
+		if(!minIterationPassed()) return false;
+
+		// Has the minimum required optimization time been passed?
+		if(!minTimePassed(currentTime)) return false;
+
+		//------------------------------------------------------------------------
+		// The following halt criteria are evaluated by Geneva at run-time,
+		// without any user-interaction.
+
 		// Have we exceeded the maximum number of iterations and
 		// do we indeed intend to stop in this case ?
 		if(maxIterationHaltset() && iterationHalt()) return true;
@@ -1844,19 +1995,13 @@ private:
 		// Has the optimization stalled too often ?
 		if(stallHaltSet() && stallHalt()) return true;
 
-		// Have we received a SIGHUP signal ?
-		if(sigHupHalt()) return true;
-
 		// Do we have a scheduled halt time ? The comparatively expensive
 		// timedHalt() calculation is only called if maxDuration_
 		// is at least one microsecond.
-		if(maxDurationHaltSet() && timedHalt()) return true;
+		if(maxDurationHaltSet() && timedHalt(currentTime)) return true;
 
 		// Are we supposed to stop when the quality has exceeded a threshold ?
 		if(qualityThresholdHaltSet() && qualityHalt()) return true;
-
-		// Are we supposed to stop when a file was modified after the start of the optimization run ?
-		if(terminateOnFileModification_ && touchHalt()) return true;
 
 		// Has the user specified an additional stop criterion ?
 		if(customHalt_()) return true;
@@ -1931,6 +2076,7 @@ private:
 
 	std::uint32_t iteration_ = 0; ///< The current iteration
 	std::uint32_t offset_ = DEFAULTOFFSET; ///< An iteration offset which can be used, if the optimization starts from a checkpoint file
+	std::uint32_t minIteration_ = DEFAULTMINIT; ///< The minimum number of iterations
 	std::uint32_t maxIteration_ = DEFAULTMAXIT; ///< The maximum number of iterations
 	std::uint32_t maxStallIteration_ = DEFAULTMAXSTALLIT; ///< The maximum number of generations without improvement, after which optimization is stopped
 	std::uint32_t reportIteration_ = DEFAULTREPORTITER; ///< The number of generations after which a report should be issued
@@ -1952,7 +2098,8 @@ private:
 	Gem::Common::serializationMode cpSerMode_ = DEFAULTCPSERMODE; ///< Determines whether check-pointing should be done in text-, XML, or binary mode
 	double qualityThreshold_ = DEFAULTQUALITYTHRESHOLD; ///< A threshold beyond which optimization is expected to stop
 	bool hasQualityThreshold_ = false; ///< Specifies whether a qualityThreshold has been set
-	std::chrono::duration<double> maxDuration_ = Gem::Common::duration_from_string(DEFAULTDURATION); ///< Maximum time frame for the optimization
+	std::chrono::duration<double> maxDuration_ = Gem::Common::duration_from_string(DEFAULTDURATION); ///< Maximum time-frame for the optimization
+ 	std::chrono::duration<double> minDuration_ = Gem::Common::duration_from_string(DEFAULTMINDURATION); ///< Minimum time-frame for the optimization
 	mutable std::chrono::system_clock::time_point startTime_; ///< Used to store the start time of the optimization. Declared mutable so the halt criteria can be const
 	std::string terminationFile_ = DEFAULTTERMINATIONFILE; ///< The name of a file which, when modified after the start of the optimization run, will cause termination of the run
 	bool terminateOnFileModification_ = false;
