@@ -46,7 +46,7 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 
 ENDIF ()
 
-SET ( EXECUTABLENAME GRandomUsage )
+SET ( EXECUTABLENAME GRandomThroughput )
 
 SET ( ${EXECUTABLENAME}_SRCS
     GRandomThroughput
