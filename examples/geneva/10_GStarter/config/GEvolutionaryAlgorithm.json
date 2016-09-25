@@ -1,7 +1,7 @@
 {
     "header": {
         "comment": "This configuration file was automatically created by GParserBuilder",
-        "comment": "2015-Nov-01 12:46:36"
+        "comment": "2015-Nov-01 12:45:55"
     },
     "nEvaluationThreads": {
         "comment": "Determines the number of threads simultaneously running",
@@ -55,10 +55,30 @@
         "default": "10",
         "value": "10"
     },
+    "touchedTermination": {
+      "terminationFile": {
+        "comment": "The name of a file which, when modified after the start of an",
+        "comment": "optimization run, instructs Geneva to terminate optimitation.",
+        "comment": "This can be used to \"touch a file\" after the start of an optimization",
+        "comment": "run, which will lead to the termination of the run after the current iteration.",
+        "default": "empty",
+        "value": "empty"
+      },
+      "touchedTerminationActive": {
+        "comment": "Activates (1) or de-activates (0) the \"touched termination\"",
+        "default": "false",
+        "value": "false"
+      }
+    },
     "maxIteration": {
         "comment": "The maximum allowed number of iterations",
         "default": "1000",
         "value": "1000"
+    },
+    "minIteration": {
+      "comment": "The minimum allowed number of iterations",
+      "default": "0",
+      "value": "0"
     },
     "maxStallIteration": {
         "comment": "The maximum allowed number of iterations without improvement",
@@ -126,6 +146,12 @@
         "comment": "The maximum allowed time-frame for the optimization",
         "default": "00:00:00",
         "value": "00:00:00"
+    },
+    "minDuration": {
+      "comment": "The minimum required time-frame for the optimization",
+      "comment": "in the format hours:minutes:seconds",
+      "default": "00:00:00",
+      "value": "00:00:00"
     },
     "emitTerminationReason": {
         "comment": "Triggers emission (1) or omission (0) of information about reasons for termination",

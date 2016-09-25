@@ -75,6 +75,11 @@
         "default": "1000",
         "value": "1000"
     },
+    "minIteration": {
+      "comment": "The minimum allowed number of iterations",
+      "default": "0",
+      "value": "0"
+    },
     "maxStallIteration": {
         "comment": "The maximum allowed number of iterations without improvement",
         "comment": "0 means: no constraint.",
@@ -141,6 +146,12 @@
         "comment": "The maximum allowed time-frame for the optimization",
         "default": "00:00:00",
         "value": "00:00:00"
+    },
+    "minDuration": {
+      "comment": "The minimum required time-frame for the optimization",
+      "comment": "in the format hours:minutes:seconds",
+      "default": "00:00:00",
+      "value": "00:00:00"
     },
     "emitTerminationReason": {
         "comment": "Triggers emission (1) or omission (0) of information about reasons for termination",
