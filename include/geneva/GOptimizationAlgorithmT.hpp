@@ -1805,7 +1805,7 @@ private:
 			if(emitTerminationReason_) {
 				glogger
 				<< "Terminating optimization run because" << std::endl
-				<< "quality threshold " << qualityThreshold_ << " has been reached." << std::endl
+				<< "quality threshold " << qualityThreshold_ << " has been exceeded." << std::endl
 				<< "Best untransformed quality found was " << std::get<G_RAW_FITNESS>(bestKnownPrimaryFitness_) << std::endl
 				<< "with termination in iteration " << iteration_ << std::endl
 				<< GLOGGING;
@@ -1849,7 +1849,7 @@ private:
 			if(emitTerminationReason_) {
 				std::cout
 				<< "Terminating optimization run because" << std::endl
-				<< "iteration threshold " << maxIteration_ << " has been reached." << std::endl;
+				<< "iteration threshold " << maxIteration_ << " has been exceeded." << std::endl;
 			}
 
 			return true;
