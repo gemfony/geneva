@@ -477,7 +477,7 @@ public:
 		// Emit the info header, unless we do not want any info (parameter 0).
 		// Note that this call needs to come after the initialization, so we have the
 		// complete set of individuals available.
-		if(reportIteration_) doInfo(infoMode::INFOINIT);
+		if(reportIteration_) informationUpdate(infoMode::INFOINIT);
 
 		// We want to know if no better values were found for a longer period of time
 		double worstCase = this->getWorstCase();
@@ -523,7 +523,7 @@ public:
 			// Set the reportGeneration_ variable to 0 in order not to emit
 			// any information at all.
 			if(reportIteration_ && (iteration_%reportIteration_ == 0)) {
-				doInfo(infoMode::INFOPROCESSING);
+				informationUpdate(infoMode::INFOPROCESSING);
 			}
 
 			// update the iteration_ counter
@@ -535,7 +535,7 @@ public:
 		finalize();
 
 		// Finalize the info output
-		if(reportIteration_) doInfo(infoMode::INFOEND);
+		if(reportIteration_) informationUpdate(infoMode::INFOEND);
 
 		// Remove information particular to the optimization algorithms from the individuals
 		resetIndividualPersonalities();
@@ -557,11 +557,11 @@ public:
 	 *
 	 * @param im The information mode (INFOINIT, INFOPROCESSING or INFOEND)
 	 */
-	virtual void doInfo(const infoMode& im) BASE {
+	virtual void informationUpdate(const infoMode& im) BASE {
 #ifdef DEBUG
 		if(!optimizationMonitor_ptr_) {
 			glogger
-			<< "In GOptimizationAlgorithmT<ind_type>::doInfo():" << std::endl
+			<< "In GOptimizationAlgorithmT<ind_type>::informationUpdate():" << std::endl
 			<< "optimizationMonitor_ptr_ is empty when it shouldn't be." << std::endl
 			<< GEXCEPTION;
 		}
