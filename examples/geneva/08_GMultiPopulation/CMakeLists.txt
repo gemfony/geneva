@@ -49,7 +49,6 @@ ENDIF ()
 SET ( EXECUTABLENAME GMultiPopulation )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GArgumentParser
 	GMultiPopulation
 )
 

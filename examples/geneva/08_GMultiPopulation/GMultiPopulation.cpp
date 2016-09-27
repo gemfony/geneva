@@ -49,12 +49,170 @@
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"
 
-// Declares a function to parse the command line
-#include "GArgumentParser.hpp"
-
 using namespace Gem::Geneva;
 using namespace Gem::Courtier;
 using namespace Gem::Hap;
+using namespace Gem::Common;
+
+namespace po = boost::program_options;
+
+/******************************************************************************/
+// Default settings
+const std::uint16_t DEFAULTNEVALUATIONTHREADS=4;
+const std::size_t DEFAULTPOPULATIONSIZESUPER=5;
+const std::size_t DEFAULTNPARENTSSUPER=1;
+const std::uint32_t DEFAULTMAXITERATIONSSUPER=10;
+const long DEFAULTMAXMINUTESSUPER=0;
+const std::uint32_t DEFAULTREPORTITERATIONSUPER=1;
+const sortingModeMP DEFAULTSORTINGSCHEMESUPER=sortingModeMP::MUPLUSNU_SINGLEEVAL_MP;
+const duplicationScheme DEFAULTRSCHEMESUPER=duplicationScheme::VALUEDUPLICATIONSCHEME;
+const std::size_t DEFAULTPOPULATIONSIZESUB=22;
+const std::size_t DEFAULTNPARENTSSUB=2; // Allow to explore the parameter space from many starting points
+const std::uint32_t DEFAULTMAXITERATIONSSUB=100;
+const long DEFAULTMAXMINUTESSUB=0;
+const std::uint32_t DEFAULTREPORTITERATIONSUB=0;
+const sortingMode DEFAULTSORTINGSCHEMESUB=sortingMode::MUCOMMANU_SINGLEEVAL;
+const duplicationScheme DEFAULTRSCHEMESUB=duplicationScheme::VALUEDUPLICATIONSCHEME;
+
+/******************************************************************************/
+/**
+ * Parses the command line
+ */
+bool parseCommandLine(
+	int argc, char **argv
+	, std::uint16_t& nEvaluationThreads
+	, std::size_t& populationSizeSuper
+	, std::size_t& nParentsSuper
+	, std::uint32_t& maxIterationsSuper
+	, long& maxMinutesSuper
+	, std::uint32_t& reportIterationSuper
+	, duplicationScheme& rSchemeSuper
+	, sortingModeMP& smodeSuper
+	, std::size_t& populationSizeSub
+	, std::size_t& nParentsSub
+	, std::uint32_t& maxIterationsSub
+	, long& maxMinutesSub
+	, std::uint32_t& reportIterationSub
+	, duplicationScheme& rSchemeSub
+	, sortingMode& smodeSub
+) {
+	// Create the parser builder
+	Gem::Common::GParserBuilder gpb;
+
+	gpb.registerCLParameter<std::uint16_t>(
+		"nEvaluationThreads"
+		, nEvaluationThreads
+		, DEFAULTNEVALUATIONTHREADS
+		, "The amount of threads processing individuals simultaneously"
+	);
+
+	gpb.registerCLParameter<std::size_t>(
+		"populationSizeSuper"
+		, populationSizeSuper
+		, DEFAULTPOPULATIONSIZESUPER
+		, "The desired size of the super population"
+	);
+
+	gpb.registerCLParameter<std::size_t>(
+		"nParentsSuper"
+		, nParentsSuper
+		, DEFAULTNPARENTSSUPER
+		, "The number of parents in the super population"
+	);
+
+	gpb.registerCLParameter<std::uint32_t>(
+		"maxIterationsSuper"
+		, maxIterationsSuper
+		, DEFAULTMAXITERATIONSSUPER
+		, "Maximum number of iterations in the super population"
+	);
+
+	gpb.registerCLParameter<long>(
+		"maxMinutesSuper"
+		, maxMinutesSuper
+		, DEFAULTMAXMINUTESSUPER
+		, "The maximum number of minutes the optimization of the super population should run"
+	);
+
+	gpb.registerCLParameter<std::uint32_t>(
+		"reportIterationSuper"
+		, reportIterationSuper
+		, DEFAULTREPORTITERATIONSUPER
+		, "The number of iterations after which information should be emitted in the super population"
+	);
+
+	gpb.registerCLParameter<duplicationScheme>(
+		"rSchemeSuper"
+		, rSchemeSuper
+		, DEFAULTRSCHEMESUPER
+		, "The recombination scheme of the evolutionary algorithm (super population)"
+	);
+
+	gpb.registerCLParameter<sortingModeMP>(
+		"smodeSuper"
+		, smodeSuper
+		, DEFAULTSORTINGSCHEMESUPER
+		, "Determines whether sorting is done in MUPLUSNU_SINGLEEVAL (0), MUCOMMANU_SINGLEEVAL (1) or MUNU1PRETAIN (2) mode in the super population"
+	);
+
+	gpb.registerCLParameter<std::size_t>(
+		"populationSizeSub"
+		, populationSizeSub
+		, DEFAULTPOPULATIONSIZESUB
+		, "The desired size of the sub population"
+	);
+
+	gpb.registerCLParameter<std::size_t>(
+		"nParentsSub"
+		, nParentsSub
+		, DEFAULTNPARENTSSUB
+		, "The number of parents in the sub population"
+	);
+
+	gpb.registerCLParameter<std::uint32_t>(
+		"maxIterationsSub"
+		, maxIterationsSub
+		, DEFAULTMAXITERATIONSSUB
+		, "Maximum number of iterations in the sub population"
+	);
+
+	gpb.registerCLParameter<long>(
+		"maxMinutesSub"
+		, maxMinutesSub
+		, DEFAULTMAXMINUTESSUB
+		, "The maximum number of minutes the optimization of the sub population should run"
+	);
+
+	gpb.registerCLParameter<std::uint32_t>(
+		"reportIterationSub"
+		, reportIterationSub
+		, DEFAULTREPORTITERATIONSUB
+		, "The number of iterations after which information should be emitted in the sub population"
+	);
+
+	gpb.registerCLParameter<duplicationScheme>(
+		"rSchemeSub"
+		, rSchemeSub
+		, DEFAULTRSCHEMESUB
+		, "The recombination scheme of the evolutionary algorithm (sub population)"
+	);
+
+	gpb.registerCLParameter<sortingMode>(
+		"smodeSub"
+		, smodeSub
+		, DEFAULTSORTINGSCHEMESUB
+		, "Determines whether sorting is done in MUPLUSNU_SINGLEEVAL (0), MUCOMMANU_SINGLEEVAL (1) or MUNU1PRETAIN (2) mode in the sub population"
+	);
+
+
+	// Parse the command line and leave if the help flag was given. The parser
+	// will emit an appropriate help message by itself
+	if(Gem::Common::GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, true /*verbose*/)) {
+		return false; // Do not continue
+	}
+
+	return true;
+}
 
 /******************************************************************************/
 /**
