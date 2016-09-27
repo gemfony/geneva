@@ -49,7 +49,6 @@ ENDIF ()
 SET ( EXECUTABLENAME GDirectEA )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GArgumentParser
 	GDirectEA
 )
 
