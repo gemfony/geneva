@@ -49,7 +49,6 @@ ENDIF ()
 SET ( EXECUTABLENAME GDirectSwarm )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GArgumentParser
 	GDirectSwarm
 )
 
