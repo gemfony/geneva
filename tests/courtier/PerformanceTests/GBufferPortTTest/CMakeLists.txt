@@ -49,7 +49,6 @@ ENDIF ()
 SET ( EXECUTABLENAME GBufferPortTTest )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GArgumentParser
 	GBufferPortTTest
 	../../Misc/GRandomNumberContainer
 	../../Misc/GSimpleContainer

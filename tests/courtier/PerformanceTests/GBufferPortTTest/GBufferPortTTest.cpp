@@ -41,14 +41,13 @@
 #include "common/GExceptions.hpp"
 #include "common/GThreadGroup.hpp"
 #include "common/GBarrier.hpp"
+#include "common/GParserBuilder.hpp"
 
 #include "../../Misc/GSimpleContainer.hpp"
 #include "../../Misc/GRandomNumberContainer.hpp"
 
 #define WORKLOAD GSimpleContainer
 // #define WORKLOAD GRandomNumberContainer
-
-#include "GArgumentParser.hpp"
 
 /**
  * Some synchronization primitives
@@ -68,6 +67,83 @@ std::shared_ptr<Gem::Common::GBarrier> sync_ptr;
 
 using namespace Gem::Courtier;
 using namespace Gem::Courtier::Tests;
+
+
+/********************************************************************************/
+// Default settings
+const std::uint32_t DEFAULTNPRODUCTIONCYLCESAP = 10000;
+const std::size_t DEFAULTNCONTAINERENTRIESAP = 100;
+const long DEFAULTPUTTIMEOUTMSAP = 1000;
+const long DEFAULTGETTIMEOUTMSAP = 1000;
+const std::size_t DEFAULTMAXPUTTIMEOUTS = 100;
+const std::size_t DEFAULTMAXGETTIMEOUTS = 100;
+
+/********************************************************************************/
+/**
+ * A function that parses the command line for all required parameters
+ */
+bool parseCommandLine(
+	int argc, char **argv
+	, std::uint32_t &nProductionCycles
+	, std::size_t &nContainerEntries
+	, long &putTimeoutMS
+	, long &getTimeoutMS
+	, std::size_t &maxPutTimeouts
+	, std::size_t &maxGetTimeouts
+) {
+	// Create the parser builder
+	Gem::Common::GParserBuilder gpb;
+
+	gpb.registerCLParameter<std::uint32_t>(
+		"nProductionCycles,n"
+		, nProductionCycles
+		, DEFAULTNPRODUCTIONCYLCESAP
+		, "The number of production cycles in producer and processor"
+	);
+
+	gpb.registerCLParameter<std::size_t>(
+		"nContainerEntries,c"
+		, nContainerEntries
+		, DEFAULTNCONTAINERENTRIESAP
+		, "The number of items in the random number container"
+	);
+
+	gpb.registerCLParameter<long>(
+		"putTimeoutMS,p"
+		, putTimeoutMS
+		, DEFAULTPUTTIMEOUTMSAP
+		, "The put timeout"
+	);
+
+	gpb.registerCLParameter<long>(
+		"getTimeoutMS,g"
+		, getTimeoutMS
+		, DEFAULTGETTIMEOUTMSAP
+		, "The get timeout"
+	);
+
+	gpb.registerCLParameter<std::size_t>(
+		"maxPutTimeouts,o"
+		, maxPutTimeouts
+		, DEFAULTMAXPUTTIMEOUTS
+		, "The maximum number of put timeouts"
+	);
+
+	gpb.registerCLParameter<std::size_t>(
+		"maxGetTimeouts,i"
+		, maxGetTimeouts
+		, DEFAULTMAXPUTTIMEOUTS
+		, "The maximum number of getz timeouts"
+	);
+
+	// Parse the command line and leave if the help flag was given. The parser
+	// will emit an appropriate help message by itself
+	if(Gem::Common::GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, true /*verbose*/)) {
+		return false; // Do not continue
+	}
+
+	return true;
+}
 
 /********************************************************************************/
 /**
