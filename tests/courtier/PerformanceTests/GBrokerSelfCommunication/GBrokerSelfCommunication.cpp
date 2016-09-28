@@ -45,19 +45,217 @@
 #include "courtier/GSerialConsumerT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GThreadGroup.hpp"
+#include "common/GParserBuilder.hpp"
+#include "common/GCommonEnums.hpp"
 
 #include "../../Misc/GRandomNumberContainer.hpp"
 #include "../../Misc/GSimpleContainer.hpp"
-#include "GArgumentParser.hpp"
 
 std::size_t producer_counter;
 std::mutex producer_counter_mutex;
 
 using namespace Gem::Courtier;
-using namespace Gem::Courtier::Tests;
+using namespace Gem::Common;
 
 // #define WORKLOAD GRandomNumberContainer
-#define WORKLOAD GSimpleContainer
+#define WORKLOAD Tests::GSimpleContainer
+
+/********************************************************************************/
+
+/**
+ * This enum defines the available execution modes of the GBrokerSelfCommunication
+ * example
+ */
+enum class GBSCModes {
+	 SERIAL = 0
+	 , INTERNALNETWORKING = 1
+	 , NETWORKING = 2
+	 , MULTITHREADING = 3
+	 , THREADANDINTERNALNETWORKING = 4
+	 , THREAEDANDNETWORKING = 5
+};
+
+const GBSCModes MAXGBSCMODES = GBSCModes::THREAEDANDNETWORKING;
+
+/********************************************************************************/
+/**
+ * Puts a GBSCModesitem into a stream
+ *
+ * @param o The ostream the item should be added to
+ * @param gbscmode the item to be added to the stream
+ * @return The std::ostream object used to add the item to
+ */
+std::ostream& operator<<(std::ostream& o, const GBSCModes& gbscmode) {
+	std::uint16_t tmp = static_cast<std::uint16_t>(gbscmode);
+	o << tmp;
+	return o;
+}
+
+/********************************************************************************/
+/**
+ * Reads a Gem::Courtier::Tests::GBSCModes item from a stream
+ *
+ * @param i The stream the item should be read from
+ * @param gbscmode The item read from the stream
+ * @return The std::istream object used to read the item from
+ */
+std::istream& operator>>(std::istream& i, GBSCModes& gbscmode) {
+	std::uint16_t tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+	gbscmode = boost::numeric_cast<GBSCModes>(tmp);
+#else
+	gbscmode = static_cast<GBSCModes>(tmp);
+#endif /* DEBUG */
+
+	return i;
+}
+
+/********************************************************************************/
+// Default settings
+const std::uint32_t DEFAULTNPRODUCERSAP = 5;
+const std::uint32_t DEFAULTNPRODUCTIONCYLCESAP = 10000;
+const submissionReturnMode DEFAULTSRMAP = submissionReturnMode::INCOMPLETERETURN;
+const std::size_t DEFAULTMAXRESUBMISSIONSAP = 5;
+const std::uint32_t DEFAULTNCONTAINEROBJECTSAP = 100;
+const std::size_t DEFAULTNCONTAINERENTRIESAP = 100;
+const std::uint32_t DEFAULTNWORKERSAP = 4;
+const GBSCModes DEFAULTEXECUTIONMODEAP = GBSCModes::MULTITHREADING;
+const unsigned short DEFAULTPORTAP=10000;
+const std::string DEFAULTIPAP="localhost";
+const std::string DEFAULTCONFIGFILEAP="./GBrokerSelfCommunication.cfg";
+const std::uint16_t DEFAULTPARALLELIZATIONMODEAP=0;
+const Gem::Common::serializationMode DEFAULTSERMODEAP=Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY;
+const bool DEFAULTUSEDIRECTBROKERCONNECTIONAP = false;
+
+/********************************************************************************/
+/**
+ * A function that parses the command line for all required parameters
+ */
+bool parseCommandLine(
+	int argc, char **argv
+	, GBSCModes &executionMode
+	, bool &serverMode
+	, std::string &ip
+	, unsigned short &port
+	, Gem::Common::serializationMode &serMode
+	, submissionReturnMode &srm
+	, bool &useDirectBrokerConnection
+	, std::uint32_t &nProducers
+	, std::uint32_t &nProductionCycles
+	, std::uint32_t &nContainerObjects
+	, std::size_t &nContainerEntries
+	, std::size_t &maxResubmissions
+	, std::uint32_t &nWorkers
+) {
+	// Create the parser builder
+	Gem::Common::GParserBuilder gpb;
+
+	gpb.registerCLParameter<GBSCModes>(
+		"executionMode,e"
+		, executionMode
+		, DEFAULTEXECUTIONMODEAP
+		, "\"Whether to run this program with a serial consumer (0), with internal networking (1), networking (2), multi-threaded (3), multithreaded and internal networking (4) or multithreaded and networked mode (5)\""
+	);
+
+	gpb.registerCLParameter<bool>(
+		"serverMode,s"
+		, serverMode
+		, false // Use client mode, if no server option is specified
+		, "Whether to run networked execution in server or client mode. The option only has an effect if \"--parallelizationMode=2\". You can either say \"--server=true\" or just \"--server\"."
+		, GCL_IMPLICIT_ALLOWED // Permit implicit values, so that we can say --server instead of --server=true
+		, true // Use server mode, of only -s or --server was specified
+	);
+
+	gpb.registerCLParameter<std::string>(
+		std::string("ip")
+		, ip
+		, DEFAULTIPAP
+		, "The ip of the server"
+	);
+
+	gpb.registerCLParameter<unsigned short>(
+		"port"
+		, port
+		, DEFAULTPORTAP
+		, "The port on the server"
+	);
+
+	gpb.registerCLParameter<Gem::Common::serializationMode>(
+		"serializationMode"
+		, serMode
+		, DEFAULTSERMODEAP
+		, "Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)"
+	);
+
+	gpb.registerCLParameter<submissionReturnMode>(
+		"srm,f"
+		, srm
+		, DEFAULTSRMAP
+		, "Whether items from older iterations may return and an incomplete return is acceptable (0), items "
+			"should be resubmitted (1) or whether a complete return of a given submission\'s items is required"
+	);
+
+	gpb.registerCLParameter<bool>(
+		"useDirectBrokerConnection"
+		, useDirectBrokerConnection
+		, DEFAULTUSEDIRECTBROKERCONNECTIONAP // Use client mode, if no server option is specified
+		, "Indicates whether producers should connect directly to the broker or through the broker connector object"
+		, true // Permit implicit values
+		, true // Use server mode, if only -u or --useDirectBrokerConnection was specified
+	);
+
+	gpb.registerCLParameter<std::uint32_t>(
+		"nProducers"
+		, nProducers
+		, DEFAULTNPRODUCERSAP
+		, "The number of producers of work items"
+	);
+
+	gpb.registerCLParameter<std::uint32_t>(
+		"nProductionCycles"
+		, nProductionCycles
+		, DEFAULTNPRODUCTIONCYLCESAP
+		, "The number of production iterations perfomed by the program"
+	);
+
+	gpb.registerCLParameter<std::uint32_t>(
+		"nContainerObjects"
+		, nContainerObjects
+		, DEFAULTNCONTAINEROBJECTSAP
+		, "The number of contaoner objects / work item prduced in one go"
+	);
+
+	gpb.registerCLParameter<std::size_t>(
+		"nContainerEntries"
+		, nContainerEntries
+		, DEFAULTNCONTAINERENTRIESAP
+		, "The number of entries stored in a container object"
+	);
+
+	gpb.registerCLParameter<std::size_t>(
+		"maxResubmissions"
+		, maxResubmissions
+		, DEFAULTMAXRESUBMISSIONSAP
+		, "The maximum number of times a work item may be resubmitted"
+	);
+
+	gpb.registerCLParameter<std::uint32_t>(
+		"nWorkers"
+		, nWorkers
+		, DEFAULTNWORKERSAP
+		, "The number of worker threads"
+	);
+
+	// Parse the command line and leave if the help flag was given. The parser
+	// will emit an appropriate help message by itself
+	if(Gem::Common::GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, true /*verbose*/)) {
+		return false; // Do not continue
+	}
+
+	return true;
+}
 
 /********************************************************************************/
 /**
@@ -209,7 +407,6 @@ int main(int argc, char **argv) {
 	// Find out about our configuration options
 	if(!parseCommandLine(
 		argc, argv
-		, configFile
 		, executionMode
 		, serverMode
 		, ip
@@ -217,16 +414,14 @@ int main(int argc, char **argv) {
 		, serMode
 		, srm
 		, useDirectBrokerConnection
-	) || !parseConfigFile(
-		configFile
 		, nProducers
 		, nProductionCycles
 		, nContainerObjects
 		, nContainerEntries
 		, maxResubmissions
 		, nWorkers
-	)
-		){ exit(0); }
+		)
+	){ exit(0); }
 
 	//--------------------------------------------------------------------------------
 	// Initialize the broker
@@ -234,7 +429,7 @@ int main(int argc, char **argv) {
 
 	//--------------------------------------------------------------------------------
 	// If we are in (networked) client mode, start the client code
-	if((executionMode==Gem::Courtier::Tests::GBSCModes::NETWORKING || executionMode==Gem::Courtier::Tests::GBSCModes::THREAEDANDNETWORKING) && !serverMode) {
+	if((executionMode==GBSCModes::NETWORKING || executionMode==GBSCModes::THREAEDANDNETWORKING) && !serverMode) {
 		std::shared_ptr<GAsioTCPClientT<WORKLOAD>> p(new GAsioTCPClientT<WORKLOAD>(ip, boost::lexical_cast<std::string>(port)));
 
 		p->setMaxStalls(0); // An infinite number of stalled data retrievals
@@ -275,7 +470,7 @@ int main(int argc, char **argv) {
 	//--------------------------------------------------------------------------------
 	// Add the desired consumers to the broker
 	switch(executionMode) {
-		case Gem::Courtier::Tests::GBSCModes::SERIAL:
+		case GBSCModes::SERIAL:
 		{
 			std::cout << "Using a serial consumer" << std::endl;
 
@@ -285,7 +480,7 @@ int main(int argc, char **argv) {
 		}
 			break;
 
-		case Gem::Courtier::Tests::GBSCModes::INTERNALNETWORKING:
+		case GBSCModes::INTERNALNETWORKING:
 		{
 			std::cout << "Using internal networking" << std::endl;
 
@@ -304,7 +499,7 @@ int main(int argc, char **argv) {
 		}
 			break;
 
-		case Gem::Courtier::Tests::GBSCModes::NETWORKING:
+		case GBSCModes::NETWORKING:
 		{
 			std::cout << "Using networked mode" << std::endl;
 
@@ -314,7 +509,7 @@ int main(int argc, char **argv) {
 		}
 			break;
 
-		case Gem::Courtier::Tests::GBSCModes::MULTITHREADING:
+		case GBSCModes::MULTITHREADING:
 		{
 			std::cout << "Using the multithreaded mode" << std::endl;
 
@@ -325,7 +520,7 @@ int main(int argc, char **argv) {
 		}
 			break;
 
-		case Gem::Courtier::Tests::GBSCModes::THREADANDINTERNALNETWORKING:
+		case GBSCModes::THREADANDINTERNALNETWORKING:
 		{
 			std::cout << "Using multithreading and internal networking" << std::endl;
 
@@ -346,7 +541,7 @@ int main(int argc, char **argv) {
 		}
 			break;
 
-		case Gem::Courtier::Tests::GBSCModes::THREAEDANDNETWORKING:
+		case GBSCModes::THREAEDANDNETWORKING:
 		{
 			std::cout << "Using multithreading and the networked mode" << std::endl;
 
@@ -372,9 +567,9 @@ int main(int argc, char **argv) {
 	connectorProducer_gtg.join_all();
 
 	if(
-		executionMode == Gem::Courtier::Tests::GBSCModes::INTERNALNETWORKING ||
-		executionMode == Gem::Courtier::Tests::GBSCModes::THREADANDINTERNALNETWORKING
-		) {
+		executionMode == GBSCModes::INTERNALNETWORKING ||
+		executionMode == GBSCModes::THREADANDINTERNALNETWORKING
+	) {
 		worker_gtg.join_all();
 	}
 

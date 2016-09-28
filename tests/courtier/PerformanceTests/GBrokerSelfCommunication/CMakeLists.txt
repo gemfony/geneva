@@ -49,9 +49,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GBrokerSelfCommunication )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GArgumentParser
 	GBrokerSelfCommunication
-	GBrokerSelfCommunicationEnums
 	../../Misc/GRandomNumberContainer
 	../../Misc/GSimpleContainer
 )
@@ -80,11 +78,3 @@ INCLUDE_DIRECTORIES (
 	../../Misc
 )
 
-SET ( CONFIGFILES
-	GBrokerSelfCommunication.cfg
-)
-
-# Copy the config files to the build tree for easier testing
-FILE ( COPY ${CONFIGFILES} DESTINATION . )
-
-INSTALL ( FILES ${CONFIGFILES} DESTINATION ${INSTALL_PREFIX_DATA}/tests/courtier/PerformanceTests/${EXECUTABLENAME} )
