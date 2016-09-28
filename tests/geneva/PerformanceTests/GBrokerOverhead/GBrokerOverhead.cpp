@@ -44,13 +44,255 @@
 // Geneva header files go here
 #include "courtier/GAsioHelperFunctions.hpp"
 #include "courtier/GCourtierEnums.hpp"
+#include "common/GCommonEnums.hpp"
+#include "common/GSerializationHelperFunctionsT.hpp"
 #include "geneva/Go2.hpp"
+#include "geneva/GOptimizationEnums.hpp"
 
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"
 
-// Declares a function to parse the command line
-#include "GArgumentParser.hpp"
+using namespace Gem::Geneva;
+using namespace Gem::Common;
+using namespace Gem::Courtier;
+
+/************************************************************************************************/
+
+// Default settings
+const std::uint16_t DEFAULTNPRODUCERTHREADS=10;
+const std::uint16_t DEFAULTNEVALUATIONTHREADS=4;
+const std::size_t DEFAULTNPARENTS=5; // Allow to explore the parameter space from many starting points
+const std::uint32_t DEFAULTMAXITERATIONS=2000;
+const long DEFAULTMAXMINUTES=10;
+const std::uint32_t DEFAULTREPORTITERATION=1;
+const duplicationScheme DEFAULTRSCHEME=duplicationScheme::VALUEDUPLICATIONSCHEME;
+const bool DEFAULTVERBOSE=true;
+const execMode DEFAULTPARALLELIZATIONMODE=execMode::EXECMODE_MULTITHREADED;
+const bool DEFAULTUSECOMMONADAPTOR=false; // whether to use a common adaptor for all GParameterT objects
+const unsigned short DEFAULTPORT=10000;
+const std::string DEFAULTIP="localhost";
+const std::string DEFAULTCONFIGFILE="./GBrokerOverhead.cfg";
+const sortingMode DEFAULTSORTINGSCHEME=sortingMode::MUPLUSNU_SINGLEEVAL;
+const std::uint32_t DEFAULTSTARTITERATION=0;
+const std::size_t DEFAULTNBTCONSUMERTHREADS=2;
+const std::uint32_t DEFAULTGBTCNPROCUNITS=1;
+const std::size_t DEFAULTPARDIM=100;
+const double DEFAULTMINVAR=-10.;
+const double DEFAULTMAXVAR=10.;
+const std::uint16_t DEFAULTEVALFUNCTION=0;
+const double DEFAULTGDAADPROB=1.0;
+
+/************************************************************************************************/
+/**
+	* A function that parses the command line for all required parameters
+	*/
+bool parseCommandLine(
+	int argc, char **argv
+	, execMode &parallelizationMode
+	, std::uint16_t &nProducerThreads
+	, std::uint16_t &nEvaluationThreads
+	, std::size_t &populationSize
+	, std::size_t &nParents
+	, std::uint32_t &maxIterations
+	, long &maxMinutes
+	, std::uint32_t &reportIteration
+	, duplicationScheme &rScheme
+	, sortingMode &smode
+	, std::uint32_t &nProcessingUnits
+	, double &adProb
+	, std::uint32_t &adaptionThreshold
+	, double &sigma
+	, double &sigmaSigma
+	, double &minSigma
+	, double &maxSigma
+	, std::size_t &parDim
+	, double &minVar
+	, double &maxVar
+	, solverFunction &df
+) {
+	std::uint16_t evalFunction = 0;
+
+	// Create the parser builder
+	Gem::Common::GParserBuilder gpb;
+
+	gpb.registerCLParameter<execMode>(
+		"parallelizationMode,p"
+		, parallelizationMode
+		, DEFAULTPARALLELIZATIONMODE
+		, "Whether to run this optimization in serial mode (0), multi-threaded (1) or mt-consumer (2) mode"
+	);
+
+	gpb.registerCLParameter<std::uint16_t>(
+		"nProducerThreads"
+		, nProducerThreads
+		, DEFAULTNPRODUCERTHREADS
+		, "The amount of random number producer threads"
+	);
+
+	gpb.registerCLParameter<std::uint16_t>(
+		"nEvaluationThreads"
+		, nEvaluationThreads
+		, DEFAULTNEVALUATIONTHREADS
+		, "The amount of threads processing individuals simultaneously"
+	);
+
+	gpb.registerCLParameter<std::size_t>(
+		"populationSize"
+		, populationSize
+		, DEFAULTPOPULATIONSIZE
+		, "The size of the super-population"
+	);
+
+	gpb.registerCLParameter<std::size_t>(
+		"nParents"
+		, nParents
+		, DEFAULTNPARENTS
+		, "The number of parents in the population"
+	);
+
+	gpb.registerCLParameter<std::uint32_t>(
+		"maxIterations"
+		, maxIterations
+		, DEFAULTMAXITERATIONS
+		, "Maximum number of iterations in the population"
+	);
+
+	gpb.registerCLParameter<long>(
+		"maxMinutes"
+		, maxMinutes
+		, DEFAULTMAXMINUTES
+		, "The maximum number of minutes the optimization of the population should run"
+	);
+
+	gpb.registerCLParameter<std::uint32_t>(
+		"reportIteration"
+		, reportIteration
+		, DEFAULTREPORTITERATION
+		, "The number of iterations after which information should be emitted in the super-population"
+	);
+
+	gpb.registerCLParameter<duplicationScheme>(
+		"rScheme"
+		, rScheme
+		, DEFAULTRSCHEME
+		, "The recombination scheme for the super-population"
+	);
+
+	gpb.registerCLParameter<sortingMode>(
+		"sortingScheme,o"
+		, smode
+		, DEFAULTSORTINGSCHEME
+		, "Determines whether sorting is done in MUCOMMANU_SINGLEEVAL (0), MUPLUSNU_SINGLEEVAL (1) or MUNU1PRETAIN (2) mode"
+	);
+
+	gpb.registerCLParameter<std::uint32_t>(
+		"nProcessingUnits"
+		, nProcessingUnits
+		, DEFAULTGBTCNPROCUNITS
+		, "Specifies how many processing units are available in networked mode"
+	);
+
+	gpb.registerCLParameter<double>(
+		"adProb"
+		, adProb
+		, DEFAULTGDAADPROB
+		, "Specifies the likelihood for adaptions to be actually carried out"
+	);
+
+	gpb.registerCLParameter<std::uint32_t>(
+		"adaptionThreshold"
+		, adaptionThreshold
+		, DEFAULTADAPTIONTHRESHOLD
+		, "Number of calls to adapt() after which adaption parameters should be modified"
+	);
+
+	gpb.registerCLParameter<double>(
+		"sigma"
+		, sigma
+		, DEFAULTSIGMA
+		, "The width of the gaussian used for the adaption of double values"
+	);
+
+	gpb.registerCLParameter<double>(
+		"sigmaSigma"
+		, sigmaSigma
+		, DEFAULTSIGMASIGMA
+		, "The adaption rate of sigma"
+	);
+
+	gpb.registerCLParameter<double>(
+		"minSigma"
+		, minSigma
+		, DEFAULTMINSIGMA
+		, "The minimum allowed value for sigma"
+	);
+
+	gpb.registerCLParameter<double>(
+		"maxSigma"
+		, maxSigma
+		, DEFAULTMAXSIGMA
+		, "The maximum allowed value for sigma"
+	);
+
+	gpb.registerCLParameter<std::size_t>(
+		"parDim"
+		, parDim
+		, DEFAULTPARDIM
+		, "The amount of variables in the parabola"
+	);
+
+	gpb.registerCLParameter<double>(
+		"minVar"
+		, minVar
+		, DEFAULTMINVAR
+		, "The lower boundary for all variables"
+	);
+
+	gpb.registerCLParameter<double>(
+		"maxVar"
+		, maxVar
+		, DEFAULTMAXVAR
+		, "The upper boundary for all variables"
+	);
+
+	gpb.registerCLParameter<std::uint16_t>(
+		"evalFunction"
+		, evalFunction
+		, 0
+		, "The id of the evaluation function"
+	);
+
+
+	// Some post-processing:
+
+	// Check the number of parents in the super-population
+	if (2 * nParents > populationSize) {
+		glogger
+			<< "Error: Invalid number of parents inpopulation" << std::endl
+			<< "nParents       = " << nParents << std::endl
+			<< "populationSize = " << populationSize << std::endl
+			<< GWARNING;
+
+		return false;
+	}
+
+	// Assign the demo function
+	if (evalFunction > (std::uint16_t) MAXDEMOFUNCTION) {
+		std::cout << "Error: Invalid evaluation function: " << evalFunction
+					 << std::endl;
+		return false;
+	}
+	df = (solverFunction) evalFunction;
+
+
+	// Parse the command line and leave if the help flag was given. The parser
+	// will emit an appropriate help message by itself
+	if(Gem::Common::GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, true /*verbose*/)) {
+		return false; // Do not continue
+	}
+
+	return true;
+}
 
 /************************************************************************************************/
 /**
@@ -81,35 +323,31 @@ int main(int argc, char **argv){
 	double maxSigma;
 	double adProb;
 
-	if(!Gem::Tests::parseCommandLine(
+	// Parse the command line
+	if(!parseCommandLine(
 		argc, argv
-		, configFile
 		, parallelizationMode
-	)
-		||
-		!Gem::Tests::parseConfigFile(
-			configFile
-			, nProducerThreads
-			, nEvaluationThreads
-			, populationSize
-			, nParents
-			, maxIterations
-			, maxMinutes
-			, reportIteration
-			, rScheme
-			, smode
-			, nProcessingUnits
-			, adProb
-			, adaptionThreshold
-			, sigma
-			, sigmaSigma
-			, minSigma
-			, maxSigma
-			, parDim
-			, minVar
-			, maxVar
-			, df))
-	{ exit(1); }
+		, nProducerThreads
+		, nEvaluationThreads
+		, populationSize
+		, nParents
+		, maxIterations
+		, maxMinutes
+		, reportIteration
+		, rScheme
+		, smode
+		, nProcessingUnits
+		, adProb
+		, adaptionThreshold
+		, sigma
+		, sigmaSigma
+		, minSigma
+		, maxSigma
+		, parDim
+		, minVar
+		, maxVar
+		, df
+	)) { exit(0); }
 
 	// Random numbers are our most valuable good. Set the number of threads
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);

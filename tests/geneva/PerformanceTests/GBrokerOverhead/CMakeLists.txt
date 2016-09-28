@@ -49,7 +49,6 @@ ENDIF ()
 SET ( EXECUTABLENAME GBrokerOverhead )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GArgumentParser
 	GBrokerOverhead
 )
 
@@ -67,17 +66,3 @@ ADD_SUBDIRECTORY (config)
 ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/geneva/PerformanceTests/${EXECUTABLENAME} )
-
-
-#
-# Take care of other particularities of this test
-#
-
-SET ( CONFIGFILES
-	GBrokerOverhead.cfg
-)
-
-# Copy the config files to the build tree for easier testing
-FILE ( COPY ${CONFIGFILES} DESTINATION . )
-
-INSTALL ( FILES ${CONFIGFILES} DESTINATION ${INSTALL_PREFIX_DATA}/tests/geneva/PerformanceTests/${EXECUTABLENAME} )
