@@ -49,7 +49,6 @@ ENDIF ()
 SET ( EXECUTABLENAME GDoubleBiGaussAdaptorTest )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GCommandLineParser
 	GDoubleBiGaussAdaptorTest
 )
 

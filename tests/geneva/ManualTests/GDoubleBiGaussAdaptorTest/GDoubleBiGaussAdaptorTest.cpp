@@ -50,44 +50,200 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include "geneva/GDoubleBiGaussAdaptor.hpp"
 #include "common/GPlotDesigner.hpp"
+#include "common/GCommonEnums.hpp"
+#include "geneva/GDoubleBiGaussAdaptor.hpp"
 
-// Parsing of the command line
-#include "GCommandLineParser.hpp"
-
-using namespace Gem::Tests;
 using namespace Gem::Geneva;
 using namespace Gem::Common;
 using namespace Gem::Hap;
 
+
+/************************************************************************************************/
+// Default settings
+const double CMD_DEFAULTSIGMA1 = 1.;
+const double CMD_DEFAULTSIGMA2 = 1.;
+const double CMD_DEFAULTSIGMASIGMA1 = 0.001;
+const double CMD_DEFAULTSIGMASIGMA2 = 0.001;
+const double CMD_DEFAULTMINSIGMA1 = 0.002;
+const double CMD_DEFAULTMAXSIGMA1 = 4.;
+const double CMD_DEFAULTMINSIGMA2 = 0.002;
+const double CMD_DEFAULTMAXSIGMA2 = 4.;
+const double CMD_DEFAULTDELTA = 0.5;
+const double CMD_DEFAULTSIGMADELTA = 0.8;
+const double CMD_DEFAULTMINDELTA = 0.001;
+const double CMD_DEFAULTMAXDELTA = 2.;
+const std::uint32_t CMD_DEFAULTMAXITER = 100000;
+const std::string CMD_DEFAULTRESULTFILE = "result.C";
+const bool CMD_DEFAULTVERBOSE = true;
+const std::uint32_t CMD_DEFAULTADAPTIONTHRESHOLD=1;
+
+/************************************************************************************************/
+/**
+ * A function that parses the command line for all required parameters
+ */
+bool parseCommandLine (
+	int argc, char **argv
+	, double& sigma1
+	, double& sigmaSigma1
+	, double& minSigma1
+	, double& maxSigma1
+	, double& sigma2
+	, double& sigmaSigma2
+	, double& minSigma2
+	, double& maxSigma2
+	, double& delta
+	, double& sigmaDelta
+	, double& minDelta
+	, double& maxDelta
+	, std::uint32_t& adaptionThreshold
+	, std::string& resultFile
+	, std::uint32_t& maxIter
+){
+	// Create the parser builder
+	Gem::Common::GParserBuilder gpb;
+
+	gpb.registerCLParameter<double>(
+		"sigma1"
+		, sigma1
+		, CMD_DEFAULTSIGMA1
+		, "Width of the first gaussian"
+	);
+
+	gpb.registerCLParameter<double>(
+		"sigmaSigma1"
+		, sigmaSigma1
+		, CMD_DEFAULTSIGMASIGMA1
+		, "Width of the gaussian used to adapt sigma1"
+	);
+
+	gpb.registerCLParameter<double>(
+		"minSigma1"
+		, minSigma1
+		, CMD_DEFAULTMINSIGMA1
+		, "Minimal allowed value of sigma1"
+	);
+
+	gpb.registerCLParameter<double>(
+		"maxSigma1"
+		, maxSigma1
+		, CMD_DEFAULTMAXSIGMA1
+		, "Maximum allowed value of sigma1"
+	);
+
+	gpb.registerCLParameter<double>(
+		"sigma2"
+		, sigma2
+		, CMD_DEFAULTSIGMA2
+		, "Width of the second gaussian"
+	);
+
+	gpb.registerCLParameter<double>(
+		"sigmaSigma2"
+		, sigmaSigma2
+		, CMD_DEFAULTSIGMASIGMA2
+		, "Width of the gaussian used to adapt sigma2"
+	);
+
+	gpb.registerCLParameter<double>(
+		"minSigma2"
+		, minSigma2
+		, CMD_DEFAULTMINSIGMA2
+		, "Minimal allowed value of sigma2"
+	);
+
+	gpb.registerCLParameter<double>(
+		"maxSigma2"
+		, maxSigma2
+		, CMD_DEFAULTMAXSIGMA2
+		, "Maximum allowed value of sigma2"
+	);
+
+	gpb.registerCLParameter<double>(
+		"delta"
+		, delta
+		, CMD_DEFAULTDELTA
+		, "Distance between both gaussians"
+	);
+
+	gpb.registerCLParameter<double>(
+		"sigmaDelta"
+		, sigmaDelta
+		, CMD_DEFAULTSIGMADELTA
+		, "Width of the gaussian used to adapt delta"
+	);
+
+	gpb.registerCLParameter<double>(
+		"minDelta"
+		, minDelta
+		, CMD_DEFAULTMINDELTA
+		, "Minimal allowed value for delta"
+	);
+
+	gpb.registerCLParameter<double>(
+		"maxDelta"
+		, maxDelta
+		, CMD_DEFAULTMAXDELTA
+		, "Maximum allowed value for delta"
+	);
+
+	gpb.registerCLParameter<std::uint32_t>(
+		"adaptionThreshold,a"
+		, adaptionThreshold
+		, CMD_DEFAULTADAPTIONTHRESHOLD
+		, "Number of calls to adapt() after which the adaption parameters should be modified"
+	);
+
+	gpb.registerCLParameter<std::string>(
+		"resultFile,F"
+		, resultFile
+		, CMD_DEFAULTRESULTFILE
+		, "The file to write the result to"
+	);
+
+	gpb.registerCLParameter<std::uint32_t>(
+		"maxIter,I"
+		, maxIter
+		, CMD_DEFAULTMAXITER
+		, "The maximum number of test cycles"
+	);
+
+	// Parse the command line and leave if the help flag was given. The parser
+	// will emit an appropriate help message by itself
+	if(Gem::Common::GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, true /*verbose*/)) {
+		return false; // Do not continue
+	}
+
+	return true;
+}
+
+/************************************************************************************************/
+
 int main(int argc, char **argv) {
-	bool verbose;
 	double sigma1, sigmaSigma1, minSigma1, maxSigma1;
 	double sigma2, sigmaSigma2, minSigma2, maxSigma2;
 	double delta, sigmaDelta, minDelta, maxDelta;
 	std::uint32_t maxIter, adaptionThreshold;
 	std::string resultFile;
 
-	if (!parseCommandLine(argc, argv
-								 , sigma1
-								 , sigmaSigma1
-								 , minSigma1
-								 , maxSigma1
-								 , sigma2
-								 , sigmaSigma2
-								 , minSigma2
-								 , maxSigma2
-								 , delta
-								 , sigmaDelta
-								 , minDelta
-								 , maxDelta
-								 , adaptionThreshold
-								 , resultFile
-								 , maxIter
-								 , verbose
-	))
-	{ exit(1); }
+	if (!parseCommandLine(
+		argc, argv
+		, sigma1
+	   , sigmaSigma1
+	   , minSigma1
+	   , maxSigma1
+	   , sigma2
+	   , sigmaSigma2
+	   , minSigma2
+	   , maxSigma2
+	   , delta
+	   , sigmaDelta
+	   , minDelta
+	   , maxDelta
+	   , adaptionThreshold
+	   , resultFile
+	   , maxIter
+	)) { exit(1); }
 
 	// The adaptor object to be tested
 	std::shared_ptr<GDoubleBiGaussAdaptor> gdbga_ptr(new GDoubleBiGaussAdaptor());
@@ -172,7 +328,7 @@ int main(int argc, char **argv) {
 	gpd.registerPlotter(gdelta_iter_ptr->projectY(DEFAULTNBINSGPD, std::tuple<double, double>()));
 
 	// Write the result to disk
-	gpd.writeToFile("result.C");
+	gpd.writeToFile(resultFile);
 
 	return 0;
 }
