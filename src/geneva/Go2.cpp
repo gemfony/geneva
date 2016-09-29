@@ -63,9 +63,16 @@ std::once_flag f_go2;
  * The default constructor
  */
 Go2::Go2()
-	: GMutableSetT<GParameterSet>(), clientMode_(GO2_DEF_CLIENTMODE), configFilename_(GO2_DEF_DEFAULTCONFIGFILE),
-	  parMode_(GO2_DEF_DEFAULPARALLELIZATIONMODE), consumerName_(GO2_DEF_NOCONSUMER),
-	  nProducerThreads_(GO2_DEF_NPRODUCERTHREADS), offset_(GO2_DEF_OFFSET), sorted_(false), iterationsConsumed_(0) {
+	: GMutableSetT<GParameterSet>()
+   , clientMode_(GO2_DEF_CLIENTMODE)
+   , configFilename_(GO2_DEF_DEFAULTCONFIGFILE)
+   , parMode_(GO2_DEF_DEFAULPARALLELIZATIONMODE)
+   , consumerName_(GO2_DEF_NOCONSUMER)
+   , nProducerThreads_(GO2_DEF_NPRODUCERTHREADS)
+   , offset_(GO2_DEF_OFFSET)
+   , sorted_(false)
+   , iterationsConsumed_(0)
+{
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms and consumers
 
@@ -98,9 +105,16 @@ Go2::Go2()
 Go2::Go2(
 	int argc, char **argv, const boost::program_options::options_description &userDescriptions
 )
-	: GMutableSetT<GParameterSet>(), clientMode_(GO2_DEF_CLIENTMODE), configFilename_(GO2_DEF_DEFAULTCONFIGFILE),
-	  parMode_(GO2_DEF_DEFAULPARALLELIZATIONMODE), consumerName_(GO2_DEF_NOCONSUMER),
-	  nProducerThreads_(GO2_DEF_NPRODUCERTHREADS), offset_(GO2_DEF_OFFSET), sorted_(false), iterationsConsumed_(0) {
+	: GMutableSetT<GParameterSet>()
+   , clientMode_(GO2_DEF_CLIENTMODE)
+   , configFilename_(GO2_DEF_DEFAULTCONFIGFILE)
+   , parMode_(GO2_DEF_DEFAULPARALLELIZATIONMODE)
+   , consumerName_(GO2_DEF_NOCONSUMER)
+   , nProducerThreads_(GO2_DEF_NPRODUCERTHREADS)
+   , offset_(GO2_DEF_OFFSET)
+   , sorted_(false)
+   , iterationsConsumed_(0)
+{
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms
 
@@ -131,10 +145,17 @@ Go2::Go2(
  * @param configFilename The name of a configuration file
  */
 Go2::Go2(const std::string &configFilename)
-	: GMutableSetT<GParameterSet>(), clientMode_(GO2_DEF_CLIENTMODE), configFilename_(configFilename),
-	  parMode_(GO2_DEF_DEFAULPARALLELIZATIONMODE), consumerName_(GO2_DEF_NOCONSUMER),
-	  nProducerThreads_(GO2_DEF_NPRODUCERTHREADS), offset_(GO2_DEF_OFFSET), sorted_(false), iterationsConsumed_(0),
-	  default_algorithm_str_(DEFAULTOPTALG) {
+	: GMutableSetT<GParameterSet>()
+   , clientMode_(GO2_DEF_CLIENTMODE)
+   , configFilename_(configFilename)
+   , parMode_(GO2_DEF_DEFAULPARALLELIZATIONMODE)
+   , consumerName_(GO2_DEF_NOCONSUMER)
+   , nProducerThreads_(GO2_DEF_NPRODUCERTHREADS)
+   , offset_(GO2_DEF_OFFSET)
+   , sorted_(false)
+   , iterationsConsumed_(0)
+   , default_algorithm_str_(DEFAULTOPTALG)
+{
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms
 
@@ -169,13 +190,21 @@ Go2::Go2(const std::string &configFilename)
  * @param od A vector of additional command line options (cmp. boost::program_options)
  */
 Go2::Go2(
-	int argc, char **argv, const std::string &configFilename,
-	const boost::program_options::options_description &userDescriptions
+	int argc, char **argv
+	, const std::string &configFilename
+	, const boost::program_options::options_description &userDescriptions
 )
-	: GMutableSetT<GParameterSet>(), clientMode_(GO2_DEF_CLIENTMODE), configFilename_(configFilename),
-	  parMode_(GO2_DEF_DEFAULPARALLELIZATIONMODE), consumerName_(GO2_DEF_NOCONSUMER),
-	  nProducerThreads_(GO2_DEF_NPRODUCERTHREADS), offset_(GO2_DEF_OFFSET), sorted_(false), iterationsConsumed_(0),
-	  default_algorithm_str_(DEFAULTOPTALG) {
+	: GMutableSetT<GParameterSet>()
+   , clientMode_(GO2_DEF_CLIENTMODE)
+   , configFilename_(configFilename)
+   , parMode_(GO2_DEF_DEFAULPARALLELIZATIONMODE)
+   , consumerName_(GO2_DEF_NOCONSUMER)
+   , nProducerThreads_(GO2_DEF_NPRODUCERTHREADS)
+   , offset_(GO2_DEF_OFFSET)
+   , sorted_(false)
+   , iterationsConsumed_(0)
+   , default_algorithm_str_(DEFAULTOPTALG)
+{
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms
 
@@ -208,9 +237,17 @@ Go2::Go2(
  * The copy constructor
  */
 Go2::Go2(const Go2 &cp)
-	: GMutableSetT<GParameterSet>(cp), clientMode_(cp.clientMode_), configFilename_(cp.configFilename_),
-	  parMode_(cp.parMode_), consumerName_(cp.consumerName_), nProducerThreads_(cp.nProducerThreads_),
-	  offset_(cp.offset_), sorted_(cp.sorted_), iterationsConsumed_(0), default_algorithm_str_(DEFAULTOPTALG) {
+	: GMutableSetT<GParameterSet>(cp)
+   , clientMode_(cp.clientMode_)
+   , configFilename_(cp.configFilename_)
+   , parMode_(cp.parMode_)
+   , consumerName_(cp.consumerName_)
+   , nProducerThreads_(cp.nProducerThreads_)
+   , offset_(cp.offset_)
+   , sorted_(cp.sorted_)
+   , iterationsConsumed_(0)
+   , default_algorithm_str_(DEFAULTOPTALG)
+{
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms
 
@@ -485,7 +522,7 @@ int Go2::clientRun() {
 	if (
 		GO2_DEF_NOCONSUMER == consumerName_
 		|| !GConsumerStore->exists(consumerName_)
-		) {
+	) {
 		glogger
 		<< "In Go2::clientRun(): Error!" << std::endl
 		<< "Received invalid consumer name: " << consumerName_ << std::endl
@@ -572,7 +609,7 @@ bool Go2::randomInit(const activityMode &) {
  */
 double Go2::fitnessCalculation() {
 	// Make sure all optimization work has been carried out
-	std::shared_ptr <GParameterSet> p = this->GOptimizableI::optimize<GParameterSet>(offset_ + iterationsConsumed_);
+	std::shared_ptr<GParameterSet> p = this->GOptimizableI::optimize<GParameterSet>(offset_ + iterationsConsumed_);
 
 	// We use the raw fitness rather than the transformed fitness,
 	// as this is custom also for "normal" individuals. Re-evaluation

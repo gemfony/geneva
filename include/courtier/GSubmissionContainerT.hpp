@@ -74,85 +74,130 @@ namespace Courtier {
  */
 template<typename submission_type>
 class GSubmissionContainerT {
-	///////////////////////////////////////////////////////////////////////
-	friend class boost::serialization::access;
+	 ///////////////////////////////////////////////////////////////////////
+	 friend class boost::serialization::access;
 
-	template<typename Archive>
-	void serialize(Archive &ar, const unsigned int) {
-		using boost::serialization::make_nvp;
+	 template<typename Archive>
+	 void serialize(Archive &ar, const unsigned int) {
+		 using boost::serialization::make_nvp;
 
-		ar &BOOST_SERIALIZATION_NVP(id_);
-	}
-	///////////////////////////////////////////////////////////////////////
+		 ar
+		 & BOOST_SERIALIZATION_NVP(m_id)
+		 & BOOST_SERIALIZATION_NVP(m_mayBePostProcessed);
+	 }
+
+	 ///////////////////////////////////////////////////////////////////////
 
 public:
-	/***************************************************************************/
-	/**
-	 * The default constructor
-	 */
-	GSubmissionContainerT()
-	{ /* nothing */ }
+	 /***************************************************************************/
+	 /**
+	  * The default constructor
+	  */
+	 GSubmissionContainerT()
+	 { /* nothing */ }
 
-	/***************************************************************************/
-	/**
-	 * The copy constructor
-	 *
-	 * @param cp A copy of another GSubmissionContainer object
-	 */
-	GSubmissionContainerT(
-		const GSubmissionContainerT<submission_type> &cp
-	)
-		: id_(cp.id_)
-	{ /* nothing */ }
+	 /***************************************************************************/
+	 /**
+	  * The copy constructor
+	  *
+	  * @param cp A copy of another GSubmissionContainer object
+	  */
+	 GSubmissionContainerT(const GSubmissionContainerT<submission_type> &cp)
+		 : m_id(cp.m_id)
+	 { /* nothing */ }
 
 
-	/***************************************************************************/
-	/**
-	 * The destructor
-	 */
-	virtual ~GSubmissionContainerT() { /* nothing */ }
+	 /***************************************************************************/
+	 /**
+	  * The destructor
+	  */
+	 virtual ~GSubmissionContainerT()
+	 { /* nothing */ }
 
-	/***************************************************************************/
-	/** @brief Allows derived classes to specify the tasks to be performed for this object */
-	virtual G_API_COURTIER bool process() = 0;
+	 /***************************************************************************/
+	 /** @brief Allows derived classes to specify the tasks to be performed for this object */
+	 virtual G_API_COURTIER bool process() = 0;
 
-	/***************************************************************************/
-	/**
-	 * Loads user-specified data. This function can be overloaded by derived classes. It
-	 * is mainly intended to provide a mechanism to "deposit" an item at a remote site
-	 * that holds otherwise constant data. That data then does not need to be serialized
-	 * but can be loaded whenever a new work item arrives and has been de-serialized. Note
-	 * that, if your individuals do not serialize important parts of an object, you need
-	 * to make sure that constant data is loaded after reloading a checkpoint.
-	 *
-	 * @param cD_ptr A pointer to the object whose data should be loaded
-	 */
-	virtual void loadConstantData(std::shared_ptr <submission_type>) { /* nothing */ }
+	 /***************************************************************************/
+	 /**
+	  * Loads user-specified data. This function can be overloaded by derived classes. It
+	  * is mainly intended to provide a mechanism to "deposit" an item at a remote site
+	  * that holds otherwise constant data. That data then does not need to be serialized
+	  * but can be loaded whenever a new work item arrives and has been de-serialized. Note
+	  * that, if your individuals do not serialize important parts of an object, you need
+	  * to make sure that constant data is loaded after reloading a checkpoint.
+	  *
+	  * @param cD_ptr A pointer to the object whose data should be loaded
+	  */
+	 virtual void loadConstantData(std::shared_ptr<submission_type>)
+	 { /* nothing */ }
 
-	/***************************************************************************/
-	/**
-	 * Allows the courtier library to associate an id with the container
-	 *
-	 * @param id An id that allows the broker connector to identify this object
-	 */
-	void setCourtierId(const std::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> &id) {
-		id_ = id;
-	}
+	 /***************************************************************************/
+	 /**
+	  * Allows the courtier library to associate an id with the container
+	  *
+	  * @param id An id that allows the broker connector to identify this object
+	  */
+	 void setCourtierId(const std::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> &id) {
+		 m_id = id;
+	 }
 
-	/***************************************************************************/
-	/**
-	 * Allows to retrieve the courtier-id associated with this container
-	 *
-	 * @return An id that allows the broker connector to identify this object
-	 */
-	std::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> getCourtierId() const {
-		return id_;
-	}
+	 /***************************************************************************/
+	 /**
+	  * Allows to retrieve the courtier-id associated with this container
+	  *
+	  * @return An id that allows the broker connector to identify this object
+	  */
+	 std::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> getCourtierId() const {
+		 return m_id;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to check whether any user-defined post-processing after the process()-
+	  * step may occur. This may be important if e.g. an optimization algorithm wants
+	  * to submit evaluation work items to the broker which may then start an optimization
+	  * run on the individual. This may alter the individual's data.
+	  */
+	 bool mayBePostProcessed() const {
+		 return m_mayBePostProcessed;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Calling this function will enable postprocessing of this work item
+	  * a single time.
+	  */
+	 void allowPostProcessing() {
+		 m_mayBePostProcessed = true;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Performs post-processing of this work item for a single time
+	  *
+	  * @param f A function to be applied to the derived object
+	  * @return A boolean indicating whether any postprocessing has occurred
+	  */
+	 bool postProcess(std::function<bool(submission_type&)> f) {
+		 bool postprocessed=false;
+
+		 if(m_mayBePostProcessed) {
+			 submission_type& p_ref = dynamic_cast<submission_type&>(*this);
+			 postprocessed = f(p_ref);
+
+			 m_mayBePostProcessed = false;
+		 }
+
+		 return postprocessed;
+	 }
 
 private:
-	/***************************************************************************/
-	/** @brief A two-part id that can be assigned to this container object */
-	std::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> id_;
+	 /***************************************************************************/
+	 // Data
+
+	 std::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> m_id; ///< A two-part id that can be assigned to this container object
+	 bool m_mayBePostProcessed = false; ///< Indicates whether user-defined post-processing may occur
 };
 
 /******************************************************************************/

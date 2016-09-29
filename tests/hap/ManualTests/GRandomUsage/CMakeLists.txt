@@ -49,7 +49,6 @@ ENDIF ()
 SET ( EXECUTABLENAME GRandomUsage )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GCommandLineParser
 	GRandomUsage
 )
 

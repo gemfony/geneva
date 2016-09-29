@@ -82,7 +82,7 @@ namespace Geneva {
  */
 class GParameterSet
 	: public GMutableSetT<Gem::Geneva::GParameterBase>
-		, public Gem::Courtier::GSubmissionContainerT<GParameterSet>
+	, public Gem::Courtier::GSubmissionContainerT<GParameterSet>
 {
 	 friend class Gem::Tests::GTestIndividual1; ///< Needed for testing purposes
 
