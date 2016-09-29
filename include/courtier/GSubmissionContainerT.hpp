@@ -83,6 +83,7 @@ class GSubmissionContainerT {
 
 		 ar
 		 & BOOST_SERIALIZATION_NVP(m_id)
+		 & BOOST_SERIALIZATION_NVP(m_mayBePreProcessed)
 		 & BOOST_SERIALIZATION_NVP(m_mayBePostProcessed);
 	 }
 
@@ -156,6 +157,46 @@ public:
 
 	 /***************************************************************************/
 	 /**
+	  * Allows to check whether any user-defined pre-processing before the process()-
+	  * step may occur. This may alter the individual's data.
+	  */
+	 bool mayBePreProcessed() const {
+		 return m_mayBePreProcessed;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Calling this function will enable pre-processing of this work item
+	  * a single time. It will usually be set upon submitting a work item to the broker.
+	  * The flag will be reset once pre-processing has been done. Permission needs
+	  * to be set upon every submission.
+	  */
+	 void allowPreProcessing() {
+		 m_mayBePreProcessed = true;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Performs pre-processing of this work item for a single time
+	  *
+	  * @param f A function to be applied to the derived object
+	  * @return A boolean indicating whether any pre-processing has occurred
+	  */
+	 bool preProcess(std::function<bool(submission_type&)> f) {
+		 bool preprocessed=false;
+
+		 if(m_mayBePreProcessed) {
+			 submission_type& p_ref = dynamic_cast<submission_type&>(*this);
+			 preprocessed = f(p_ref);
+
+			 m_mayBePreProcessed = false;
+		 }
+
+		 return preprocessed;
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Allows to check whether any user-defined post-processing after the process()-
 	  * step may occur. This may be important if e.g. an optimization algorithm wants
 	  * to submit evaluation work items to the broker which may then start an optimization
@@ -201,6 +242,8 @@ private:
 	 // Data
 
 	 std::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> m_id; ///< A two-part id that can be assigned to this container object
+
+	 bool m_mayBePreProcessed  = false; ///< Indicates whether user-defined pre-processing may occur
 	 bool m_mayBePostProcessed = false; ///< Indicates whether user-defined post-processing may occur
 };
 
