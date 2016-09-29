@@ -43,6 +43,8 @@
 #include <sstream>
 #include <vector>
 #include <chrono>
+#include <type_traits>
+#include <functional>
 
 // Boost headers go here
 #include <boost/utility.hpp>
@@ -63,6 +65,7 @@
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GLogger.hpp"
 #include "courtier/GCourtierEnums.hpp"
+#include "courtier/GSubmissionContainerT.hpp"
 
 namespace Gem {
 namespace Courtier {
@@ -77,7 +80,14 @@ namespace Courtier {
  */
 template<typename processable_type>
 class GBaseClientT
-	: private boost::noncopyable {
+	: private boost::noncopyable
+{
+	 // Make sure processable_type adheres to the GSubmissionContainerT interface
+	 static_assert(
+		 std::is_base_of<Gem::Courtier::GSubmissionContainerT<processable_type>, processable_type>::value
+		 , "GBaseClientT: processable_type does not adhere to the GSubmissionContainerT interface"
+	 );
+
 public:
 	/***************************************************************************/
 	/**
@@ -127,18 +137,15 @@ public:
 	 */
 	void run() {
 		try {
-			if (this->init()) {
-				while (
-					!this->halt() &&
-					CLIENT_CONTINUE == this->process()
-					) { /* nothing*/ }
+			if(this->init()) {
+				while (!this->halt() && CLIENT_CONTINUE == this->process()) { /* nothing */ }
 			} else {
 				glogger
 				<< "In GBaseClientT<T>::run(): Initialization failed. Leaving ..." << std::endl
 				<< GEXCEPTION;
 			}
 
-			if (!this->finally()) {
+			if(!this->finally()) {
 				glogger
 				<< "In GBaseClientT<T>::run(): Finalization failed." << std::endl
 				<< GEXCEPTION;
@@ -248,7 +255,7 @@ protected:
 
 		// Get an item from the server
 		std::string istr, serModeStr, portId;
-		if (!this->retrieve(istr, serModeStr, portId)) {
+		if(!this->retrieve(istr, serModeStr, portId)) {
 			return false;
 		}
 
@@ -256,10 +263,10 @@ protected:
 		// or a timeout command. In this case we want to try again until retrieve()
 		// returns "false". If we return true here, the next "process" command will
 		// be executed.
-		if (istr == "empty") return true;
+		if(istr == "empty") return true;
 
 		// Check the serialization mode we need to use
-		if (serModeStr == "") {
+		if(serModeStr == "") {
 			glogger
 			<< "In GBaseClientT<T>::process() : Warning!" << std::endl
 			<< "Found empty serModeStr. Leaving." << std::endl
@@ -275,7 +282,7 @@ protected:
 		std::shared_ptr <processable_type> target = Gem::Common::sharedPtrFromString<processable_type>(istr, serMode);
 
 		// Check if we have received a valid target. Leave the function if this is not the case
-		if (!target) {
+		if(!target) {
 			glogger
 			<< "In GBaseClientT<T>::process() : Warning!" << std::endl
 			<< "Received empty target." << std::endl
@@ -286,7 +293,7 @@ protected:
 		}
 
 		// If we have a model for the item to be parallelized, load its data into the target
-		if (m_additionalDataTemplate) {
+		if(m_additionalDataTemplate) {
 			target->loadConstantData(m_additionalDataTemplate);
 		}
 
@@ -295,11 +302,16 @@ protected:
 		// what is being done during the processing. If processing did not lead to a useful result,
 		// information will be returned back to the server only if m_returnRegardless
 		// is set to true.
-		if (!target->process() && !m_returnRegardless) return true;
+		if(!target->process() && !m_returnRegardless) return true;
+
+		// If the target may be post-processed, perform any registered post-processing work
+		if(target->mayBePostProcessed() && m_postProcessor) {
+			target->postProcess(m_postProcessor);
+		}
 
 		// transform target back into a string and submit to the server. The actual
 		// actions done by submit are defined by derived classes.
-		if (!this->submit(Gem::Common::sharedPtrToString(target, serMode), portId)) {
+		if(!this->submit(Gem::Common::sharedPtrToString(target, serMode), portId)) {
 			return false;
 		}
 
@@ -343,17 +355,17 @@ private:
 	 */
 	bool halt() {
 		// Maximum number of processing steps reached ?
-		if (m_processMax && (m_processed++ >= m_processMax)) {
+		if(m_processMax && (m_processed++ >= m_processMax)) {
 			return true;
 		}
 
 		// Maximum duration reached ?
-		if (m_maxDuration.count() > 0. && ((std::chrono::system_clock::now() - m_startTime) >= m_maxDuration)) {
+		if(m_maxDuration.count() > 0. && ((std::chrono::system_clock::now() - m_startTime) >= m_maxDuration)) {
 			return true;
 		}
 
 		// Custom halt condition reached ?
-		if (customHalt()) {
+		if(customHalt()) {
 			return true;
 		}
 
@@ -370,7 +382,9 @@ private:
 
 	bool m_returnRegardless; ///< Specifies whether unsuccessful processing attempts should be returned to the server
 
-	std::shared_ptr <processable_type> m_additionalDataTemplate; ///< Optionally holds a template of the object to be processed
+	std::shared_ptr<processable_type> m_additionalDataTemplate; ///< Optionally holds a template of the object to be processed
+
+ 	std::function<bool(processable_type&)> m_postProcessor; ///< A function to be applied to the processable_type
 };
 
 /******************************************************************************/

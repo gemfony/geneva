@@ -89,6 +89,8 @@ class GSubmissionContainerT {
 	 ///////////////////////////////////////////////////////////////////////
 
 public:
+	 typedef submission_type payload_type;
+
 	 /***************************************************************************/
 	 /**
 	  * The default constructor
@@ -166,7 +168,9 @@ public:
 	 /***************************************************************************/
 	 /**
 	  * Calling this function will enable postprocessing of this work item
-	  * a single time.
+	  * a single time. It will usually be set upon submitting a work item to the broker.
+	  * The flag will be reset once post-processing has been done. Permission needs
+	  * to be set upon every submission.
 	  */
 	 void allowPostProcessing() {
 		 m_mayBePostProcessed = true;

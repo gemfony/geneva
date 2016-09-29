@@ -95,7 +95,7 @@ class GBaseExecutorT {
 	 // Make sure processable_type adheres to the GSubmissionContainerT interface
 	 static_assert(
 		 std::is_base_of<Gem::Courtier::GSubmissionContainerT<processable_type>, processable_type>::value
-		 , "processable_type does not adhere to the GSubmissionContainerT interface"
+		 , "GBaseExecutorT: processable_type does not adhere to the GSubmissionContainerT interface"
 	 );
 
 public:
