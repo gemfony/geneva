@@ -96,10 +96,12 @@ public:
 	/** @brief The destructor */
 	virtual ~GSimpleContainer();
 
-	/** @brief Allows to specify the tasks to be performed for this object */
-	virtual bool process();
 	/** @brief Prints out this objects random number container */
 	void print();
+
+protected:
+	 /** @brief Allows to specify the tasks to be performed for this object */
+	 virtual bool process_();
 
 private:
 	/** @brief The default constructor -- only needed for de-serialization purposes */

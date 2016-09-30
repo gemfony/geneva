@@ -105,8 +105,7 @@ public:
 	  *
 	  * @param cp A copy of another GSubmissionContainer object
 	  */
-	 GSubmissionContainerT(const GSubmissionContainerT<submission_type> &cp)
-		 : m_id(cp.m_id)
+	 GSubmissionContainerT(const GSubmissionContainerT<submission_type> &cp) : m_id(cp.m_id)
 	 { /* nothing */ }
 
 
@@ -119,7 +118,9 @@ public:
 
 	 /***************************************************************************/
 	 /** @brief Allows derived classes to specify the tasks to be performed for this object */
-	 virtual G_API_COURTIER bool process() = 0;
+	 G_API_COURTIER bool process() {
+		 return this->process_();
+	 }
 
 	 /***************************************************************************/
 	 /**
@@ -236,6 +237,11 @@ public:
 
 		 return postprocessed;
 	 }
+
+protected:
+	 /***************************************************************************/
+	 /** @brief Allows derived classes to specify the tasks to be performed for this object */
+	 virtual G_API_COURTIER bool process_() = 0;
 
 private:
 	 /***************************************************************************/

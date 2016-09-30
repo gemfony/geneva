@@ -523,7 +523,7 @@ std::shared_ptr <GParameterSet> GParameterSet::parameter_clone() const {
  *
  * @return A boolean which indicates whether processing was done
  */
-bool GParameterSet::process() {
+bool GParameterSet::process_() {
 	this->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
 
 	// Let the audience know that we were successful

@@ -82,7 +82,7 @@ GSimpleContainer::~GSimpleContainer()
  *
  * @return A boolean which indicates whether a useful result was obtained
  */
-bool GSimpleContainer::process() {
+bool GSimpleContainer::process_() {
 	/* nothing */
 	return true;
 }

@@ -133,9 +133,6 @@ public:
 	 /** @brief Emits a GParameterSet object that only has the GParameterBase objects attached to it */
 	 G_API_GENEVA std::shared_ptr<GParameterSet> parameter_clone() const;
 
-	 /** @brief Do the required processing for this object */
-	 virtual G_API_GENEVA bool process() override;
-
 	 /** @brief Adds local configuration options to a GParserBuilder object */
 	 virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) override;
 
@@ -555,6 +552,9 @@ public:
 
 protected:
 	 /***************************************************************************/
+	 /** @brief Do the required processing for this object */
+	 virtual G_API_GENEVA bool process_() override;
+
 	 /** @brief Loads the data of another GObject */
 	 G_API_GENEVA virtual void load_(const GObject*) override;
 	 /** @brief Creates a deep clone of this object */

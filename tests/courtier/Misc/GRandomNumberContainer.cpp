@@ -87,7 +87,7 @@ GRandomNumberContainer::~GRandomNumberContainer() {
  *
  * @return A boolean which indicates whether a useful result was obtained
  */
-bool GRandomNumberContainer::process() {
+bool GRandomNumberContainer::process_() {
 	std::sort(randomNumbers_.begin(), randomNumbers_.end());
 	return true;
 }
