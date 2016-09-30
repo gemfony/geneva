@@ -57,7 +57,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GIntNumCollectionT.hpp
 	GMPEAPersonalityTraits.hpp
 	GMultiConstraintT.hpp
-	GMultiPopulationEAT.hpp
 	GMultiThreadedEA.hpp
 	GMultiThreadedGD.hpp
 	GMultiThreadedPS.hpp

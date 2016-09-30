@@ -270,7 +270,7 @@ void GMultiThreadedSwarm::runFitnessCalculation() {
 	for (it = this->begin(); it != this->end(); ++it) {
 		// Do the actual scheduling
 		tp_ptr_->async_schedule(
-			[it]() { (*it)->nonConstFitness(0, ALLOWREEVALUATION, USETRANSFORMEDFITNESS); }
+			[it]() { (*it)->process(); }
 		);
 	}
 

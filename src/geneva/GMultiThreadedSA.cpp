@@ -267,7 +267,7 @@ void GMultiThreadedSA::runFitnessCalculation() {
 	for (it = data.begin() + std::get<0>(range); it != data.begin() + std::get<1>(range); ++it) {
 		// Do the actual scheduling
 		tp_ptr_->async_schedule(
-			[it]() { (*it)->nonConstFitness(0, ALLOWREEVALUATION, USETRANSFORMEDFITNESS); }
+			[it]() { (*it)->process(); }
 		);
 	}
 

@@ -232,7 +232,7 @@ void GSerialPS::runFitnessCalculation() {
 #endif /* DEBUG */
 
 		// Perform the actual evaluation
-		(*it)->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
+		(*it)->process();
 	}
 }
 

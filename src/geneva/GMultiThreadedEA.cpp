@@ -234,8 +234,7 @@ void GMultiThreadedEA::adaptChildren() {
  */
 void GMultiThreadedEA::runFitnessCalculation() {
 	std::tuple<std::size_t, std::size_t> range = getEvaluationRange();
-	std::vector<std::shared_ptr < GParameterSet>> ::iterator
-	it;
+	std::vector<std::shared_ptr<GParameterSet>>::iterator it;
 
 #ifdef DEBUG
    // There should be no situation in which a "clean" child is submitted
@@ -256,7 +255,7 @@ void GMultiThreadedEA::runFitnessCalculation() {
 	for (it = data.begin() + std::get<0>(range); it != data.begin() + std::get<1>(range); ++it) {
 		// Do the actual scheduling
 		tp_ptr_->async_schedule(
-			[it]() { (*it)->nonConstFitness(0, ALLOWREEVALUATION, USETRANSFORMEDFITNESS); }
+			[it]() { (*it)->process(); }
 		);
 	}
 

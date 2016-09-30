@@ -48,14 +48,13 @@ ENDIF ()
 
 ADD_CUSTOM_TARGET( "examples-geneva"
 	# Add all the available example's targets (EXECUTABLENAMEs) here
-	DEPENDS GSimpleOptimizer 
-		GParaboloid2D 
-		GParameterObjectUsagePatterns 
-		GMultiCriterionParabola 
-		GDirectEA 
-		GDirectSwarm 
-		GFunctionMinimizer 
-		GMultiPopulation 
+	DEPENDS GSimpleOptimizer
+		GParaboloid2D
+		GParameterObjectUsagePatterns
+		GMultiCriterionParabola
+		GDirectEA
+		GDirectSwarm
+		GFunctionMinimizer
 		GNeuralNetwork
 		GStarter
 		GMetaOptimizer
@@ -72,7 +71,6 @@ ADD_SUBDIRECTORY( 04_GMultiCriterionParabola )
 ADD_SUBDIRECTORY( 06_GDirectEA )
 ADD_SUBDIRECTORY( 06_GDirectSwarm )
 ADD_SUBDIRECTORY( 07_GFunctionMinimizer )
-ADD_SUBDIRECTORY( 08_GMultiPopulation )
 ADD_SUBDIRECTORY( 09_GNeuralNetwork )
 ADD_SUBDIRECTORY( 10_GStarter )
 ADD_SUBDIRECTORY( 11_GMetaOptimizer )

@@ -254,7 +254,7 @@ void GSerialSA::runFitnessCalculation() {
 
 	for (it = data.begin() + std::get<0>(range); it != data.begin() + std::get<1>(range); ++it) {
 		// Perform the actual evaluation
-		(*it)->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
+		(*it)->process();
 	}
 }
 

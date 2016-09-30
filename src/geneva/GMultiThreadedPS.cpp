@@ -302,7 +302,7 @@ void GMultiThreadedPS::runFitnessCalculation() {
 
 		// Do the actual scheduling
 		tp_ptr_->async_schedule(
-			[it]() { (*it)->nonConstFitness(0, ALLOWREEVALUATION, USETRANSFORMEDFITNESS); }
+			[it]() { (*it)->process(); }
 		);
 	}
 
