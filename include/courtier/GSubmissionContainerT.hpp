@@ -119,7 +119,9 @@ public:
 	 /***************************************************************************/
 	 /** @brief Allows derived classes to specify the tasks to be performed for this object */
 	 G_API_COURTIER bool process() {
-		 return this->process_();
+		 if(this->mayBePreProcessed() && !this->preProcess_()) return false;
+		 if(!this->process_()) return false;
+		 if(this->mayBePostProcessed() && !this->postProcess_()) return false;
 	 }
 
 	 /***************************************************************************/
@@ -178,26 +180,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Performs pre-processing of this work item for a single time
-	  *
-	  * @param f A function to be applied to the derived object
-	  * @return A boolean indicating whether any pre-processing has occurred
-	  */
-	 bool preProcess(std::function<bool(submission_type&)> f) {
-		 bool preprocessed=false;
-
-		 if(m_mayBePreProcessed) {
-			 submission_type& p_ref = dynamic_cast<submission_type&>(*this);
-			 preprocessed = f(p_ref);
-
-			 m_mayBePreProcessed = false;
-		 }
-
-		 return preprocessed;
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Allows to check whether any user-defined post-processing after the process()-
 	  * step may occur. This may be important if e.g. an optimization algorithm wants
 	  * to submit evaluation work items to the broker which may then start an optimization
@@ -218,30 +200,18 @@ public:
 		 m_mayBePostProcessed = true;
 	 }
 
-	 /***************************************************************************/
-	 /**
-	  * Performs post-processing of this work item for a single time
-	  *
-	  * @param f A function to be applied to the derived object
-	  * @return A boolean indicating whether any postprocessing has occurred
-	  */
-	 bool postProcess(std::function<bool(submission_type&)> f) {
-		 bool postprocessed=false;
-
-		 if(m_mayBePostProcessed) {
-			 submission_type& p_ref = dynamic_cast<submission_type&>(*this);
-			 postprocessed = f(p_ref);
-
-			 m_mayBePostProcessed = false;
-		 }
-
-		 return postprocessed;
-	 }
-
 protected:
 	 /***************************************************************************/
 	 /** @brief Allows derived classes to specify the tasks to be performed for this object */
 	 virtual G_API_COURTIER bool process_() = 0;
+
+	 /***************************************************************************/
+	 /** @brief Allows derived classes to specify tasks to be performed before the process_ call */
+	 virtual G_API_COURTIER bool preProcess_() { /* nothing */ }
+
+	 /***************************************************************************/
+	 /** @brief Allows derived classes to specify tasks to be performed after the process_ call */
+	 virtual G_API_COURTIER bool postProcess_() { /* nothing */ }
 
 private:
 	 /***************************************************************************/

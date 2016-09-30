@@ -128,16 +128,6 @@ public:
 	 */
 	virtual ~GBaseClientT() { /* nothing */ }
 
- 	/***************************************************************************/
-   /**
-    * Allows to register a function for post-processing
-    */
- 	void registerPostProcessor(std::function<bool(processable_type&)> postProcessor) {
-		if(postProcessor) {
-			m_postProcessor = postProcessor;
-		}
-	}
-
 	/***************************************************************************/
 	/**
 	 * This is the main loop of the client. It will continue to call the process()
@@ -318,22 +308,12 @@ protected:
 			target->loadConstantData(m_additionalDataTemplate);
 		}
 
-		// If the target may be post-processed, perform any registered post-processing work
-		if(target->mayBePreProcessed() && m_preProcessor) {
-			target->preProcess(m_preProcessor);
-		}
-
 		// This one line is all it takes to do the processing required for this object.
 		// The object has all required functions on board. GBaseClientT<T> does not need to understand
 		// what is being done during the processing. If processing did not lead to a useful result,
 		// information will be returned back to the server only if m_returnRegardless
 		// is set to true.
 		if(!target->process() && !m_returnRegardless) return true;
-
-		// If the target may be post-processed, perform any registered post-processing work
-		if(target->mayBePostProcessed() && m_postProcessor) {
-			target->postProcess(m_postProcessor);
-		}
 
 		// transform target back into a string and submit to the server. The actual
 		// actions done by submit are defined by derived classes.
@@ -417,9 +397,6 @@ private:
 	bool m_returnRegardless; ///< Specifies whether unsuccessful processing attempts should be returned to the server
 
 	std::shared_ptr<processable_type> m_additionalDataTemplate; ///< Optionally holds a template of the object to be processed
-
- 	std::function<bool(processable_type&)> m_preProcessor;  ///< A function to be applied to the processable_type
- 	std::function<bool(processable_type&)> m_postProcessor; ///< A function to be applied to the processable_type
 };
 
 /******************************************************************************/
