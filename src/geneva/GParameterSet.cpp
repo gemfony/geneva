@@ -68,7 +68,7 @@ GParameterSet::GParameterSet(const std::size_t &nFitnessCriteria)
  */
 GParameterSet::GParameterSet(const GParameterSet &cp)
 	: GMutableSetT<Gem::Geneva::GParameterBase>(cp)
-  	, Gem::Courtier::GProcessingContainerT<GParameterSet>() // The data is intentionally not copied, as this class only stores a temporary parameter
+  	, Gem::Courtier::GProcessingContainerT<GParameterSet>(cp)
 	, perItemCrossOverProbability_(cp.perItemCrossOverProbability_)
 { /* nothing */ }
 
@@ -125,6 +125,8 @@ bool GParameterSet::operator!=(const GParameterSet &cp) const {
 /**
  * Searches for compliance with expectations with respect to another object
  * of the same type
+ *
+ * TODO: Compare GProcessingContainerT ?
  *
  * @param cp A constant reference to another GObject object
  * @param e The expected outcome of the comparison
@@ -309,6 +311,9 @@ void GParameterSet::load_(const GObject *cp) {
 
 	// Load the parent class'es data
 	GMutableSetT<Gem::Geneva::GParameterBase>::load_(cp);
+
+	// Load the parent class'es data
+	Gem::Courtier::GProcessingContainerT<GParameterSet>::load_pc(p_load);
 
 	// and then our local data
 	perItemCrossOverProbability_ = p_load->perItemCrossOverProbability_;

@@ -62,7 +62,6 @@
 // Geneva headers go here
 #include "common/GSerializeTupleT.hpp"
 #include "common/GSerializableFunctionObjectT.hpp"
-#include "common/GCommonInterfaceT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 
 namespace Gem {
@@ -76,7 +75,6 @@ namespace Courtier {
  */
 template<typename submission_type>
 class GProcessingContainerT
-	: public Gem::Common::GCommonInterfaceT<GProcessingContainerT<submission_type>>
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -86,7 +84,6 @@ class GProcessingContainerT
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("GCommonInterfaceT_GProcessingContainerT_T", boost::serialization::base_object<Gem::Common::GCommonInterfaceT<GProcessingContainerT<submission_type>>>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_id)
 		 & BOOST_SERIALIZATION_NVP(m_mayBePreProcessed)
 		 & BOOST_SERIALIZATION_NVP(m_mayBePostProcessed)
@@ -127,84 +124,6 @@ public:
 	  */
 	 virtual ~GProcessingContainerT()
 	 { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for equality with another GProcessingContainerT<submission_type> object
-	  *
-	  * @param  cp A constant reference to another GProcessingContainerT<submission_type> object
-	  * @return A boolean indicating whether both objects are equal
-	  */
-	 bool operator==(const GProcessingContainerT<submission_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch(g_expectation_violation&) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for inequality with another GProcessingContainerT<submission_type> object
-	  *
-	  * @param  cp A constant reference to another GProcessingContainerT<submission_type> object
-	  * @return A boolean indicating whether both objects are inequal
-	  */
-	 bool operator!=(const GProcessingContainerT<submission_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch(g_expectation_violation&) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Returns the name of this class
-	  */
-	 virtual std::string name() const override {
-		 return std::string("GProcessingContainerT<submission_type>");
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for compliance with expectations with respect to another object
-	  * of the same type
-	  *
-	  * @param cp A constant reference to another GProcessingContainerT<submission_type> object
-	  * @param e The expected outcome of the comparison
-	  * @param limit The maximum deviation for floating point values (important for similarity checks)
-	  */
-	 virtual void compare(
-		 const GProcessingContainerT<submission_type> &cp
-		 , const Gem::Common::expectation &e
-		 , const double &limit
-	 ) const override {
-		 using namespace Gem::Common;
-
-		 // Check that we are dealing with a GProcessingContainerT<submission_type> reference independent of this object and convert the pointer
-		 const GProcessingContainerT<submission_type> *p_load
-			 = Gem::Common::g_convert_and_compare<GProcessingContainerT<submission_type>, GProcessingContainerT<submission_type>>(cp, this);
-
-		 GToken token("GProcessingContainerT<submission_type>", e);
-
-		 // Compare our parent data ...
-		 Gem::Common::compare_base<GCommonInterfaceT<GProcessingContainerT<submission_type>>>(IDENTITY(*this, *p_load), token);
-
-		 // ... and then our local data
-		 compare_t(IDENTITY(m_id, p_load->m_id), token);
-		 compare_t(IDENTITY(m_mayBePreProcessed, p_load->m_mayBePreProcessed), token);
-		 compare_t(IDENTITY(m_mayBePostProcessed, p_load->m_mayBePostProcessed), token);
-		 compare_t(IDENTITY(m_pre_processor_ptr, p_load->m_pre_processor_ptr), token);
-		 compare_t(IDENTITY(m_post_processor_ptr, p_load->m_post_processor_ptr), token);
-
-		 // React on deviations from the expectation
-		 token.evaluate();
-	 }
 
 	 /***************************************************************************/
 	 /**
@@ -334,12 +253,11 @@ public:
 		 }
 	 }
 
-protected:
 	 /***************************************************************************/
 	 /**
 	  * Loads the data of another GProcessingContainerT<submission_type> object
 	  */
-	 virtual void load_(const GProcessingContainerT<submission_type> *cp) override {
+	 void load_pc(const GProcessingContainerT<submission_type> *cp) {
 		 // Check that we are dealing with a GProcessingContainerT<submission_type> reference independent of this object and convert the pointer
 		 const GProcessingContainerT<submission_type> *p_load = Gem::Common::g_convert_and_compare<GProcessingContainerT<submission_type>, GProcessingContainerT<submission_type>>(cp, this);
 
@@ -351,9 +269,8 @@ protected:
 		 Gem::Common::copyCloneableSmartPointer(p_load->m_post_processor_ptr, m_post_processor_ptr);
 	 }
 
+protected:
 	 /***************************************************************************/
-	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_COURTIER GProcessingContainerT<submission_type> * clone_() const override = 0;
 	 /** @brief Allows derived classes to specify the tasks to be performed for this object */
 	 virtual G_API_COURTIER bool process_() BASE = 0;
 
