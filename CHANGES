@@ -10,6 +10,8 @@ The main changes for this release include:
   fresh files for you.
 - Modified the code so that it compiles under Windows 10 / MSVC 14 . Note that Windows-related
   problems still remain.
+- Gave GHistogram1D the ability to automatically detect the data range
+- Added a pluggable optimization monitor for processing timings
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.8, "Torino" - August 13, 2016

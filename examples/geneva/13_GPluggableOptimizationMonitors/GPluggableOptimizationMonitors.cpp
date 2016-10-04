@@ -65,6 +65,7 @@ int main(int argc, char **argv) {
 	std::string logAll = "empty";
 	std::string monitorNAdaptions = "empty";
 	std::string logSigma = "empty";
+	std::string monitorTimings = "empty";
 
 	// Assemble command line options
 	boost::program_options::options_description user_options;
@@ -100,7 +101,13 @@ int main(int argc, char **argv) {
 		"logSigma"
 		, po::value<std::string>(&logSigma)->implicit_value(std::string("./sigmaLog.C"))->default_value("empty")
 		, "Logs the value of sigma for all or the best adaptors, if GDoubleGaussAdaptors are being used"
-	);
+	)(
+		"monitorTimings"
+		, po::value<std::string>(&monitorTimings)->implicit_value(std::string("./timingsLog.C"))->default_value("empty")
+		, "Logs the times for all processing steps"
+	)
+
+	;
 
 	Go2 go(argc, argv, "./config/Go2.json", user_options);
 
@@ -163,6 +170,12 @@ int main(int argc, char **argv) {
 		sigmaLogger_ptr->setAddPrintCommand(true); // Create a PNG file if Root-file is executed
 
 		go.registerPluggableOM(sigmaLogger_ptr);
+	}
+
+	if(monitorTimings != "empty") {
+		std::shared_ptr<GProcessingTimesLoggerT<GParameterSet>>
+			processingTimesLogger_ptr(new GProcessingTimesLoggerT<GParameterSet>(monitorTimings, 1000));
+		go.registerPluggableOM(processingTimesLogger_ptr);
 	}
 
 	//---------------------------------------------------------------------------

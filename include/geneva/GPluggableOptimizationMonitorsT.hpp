@@ -51,6 +51,7 @@
 #define GPLUGGABLEOPTIMIZATIONMONITORST_HPP_
 
 // Geneva headers go here
+#include "common/GCommonEnums.hpp"
 #include "common/GPlotDesigner.hpp"
 #include "common/GLogger.hpp"
 #include "common/GHelperFunctions.hpp"
@@ -73,7 +74,7 @@ namespace Geneva {
 /******************************************************************************/
 /**
  * This class implements the standard output common to all optimization algorithms.
- * It will usually be already registered as a pluggable optimization monitor, when
+ * It will usually already be registered as a pluggable optimization monitor, when
  * you instantiate a new optimization algorithm.
  */
 template <typename ind_type>
@@ -1673,7 +1674,7 @@ public:
 				// Inform the plot designer whether it should print png files
 				gpd_oa_.setAddPrintCommand(addPrintCommand_);
 
-				// Write out the result. Note that we add
+				// Write out the result.
 				gpd_oa_.writeToFile(fileName_);
 
 				// Remove all plotters
@@ -3772,6 +3773,437 @@ public:
 #endif /* GEM_TESTING */
 	}
 	/***************************************************************************/
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * This class allows to log the time needed for the processing step of each
+ * individual. The output happens in the form of a root file.
+ */
+template <typename ind_type>
+class GProcessingTimesLoggerT
+	: public GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT
+{
+	 ///////////////////////////////////////////////////////////////////////
+	 friend class boost::serialization::access;
+
+	 template<typename Archive>
+	 void serialize(Archive & ar, const unsigned int){
+		 using boost::serialization::make_nvp;
+
+		 ar
+		 & make_nvp("GBasePluggableOMT",	boost::serialization::base_object<GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(*this))
+		 & BOOST_SERIALIZATION_NVP(fileName_)
+		 & BOOST_SERIALIZATION_NVP(canvasDimensions_)
+		 & BOOST_SERIALIZATION_NVP(gpd_oa_)
+		 & BOOST_SERIALIZATION_NVP(m_pre_processing_times_hist)
+		 & BOOST_SERIALIZATION_NVP(m_processing_times_hist)
+		 & BOOST_SERIALIZATION_NVP(m_post_processing_times_hist)
+		 & BOOST_SERIALIZATION_NVP(m_all_processing_times_hist)
+		 & BOOST_SERIALIZATION_NVP(m_nBinsX);
+	 }
+	 ///////////////////////////////////////////////////////////////////////
+
+	 // Make sure this class can only be instantiated if individual_type is a derivative of GParameterSet
+	 static_assert(
+		 std::is_base_of<GParameterSet, ind_type>::value
+		 , "GParameterSet is no base class of ind_type"
+	 );
+
+public:
+	 /***************************************************************************/
+	 /**
+	  * The default constructor. Note that some variables may be initialized in the class body.
+	  */
+	 GProcessingTimesLoggerT()
+		 : canvasDimensions_(std::tuple<std::uint32_t,std::uint32_t>(1600,1200))
+		 , gpd_oa_("Timings for the processing steps of individuals", 2, 2)
+	 { /* nothing */ }
+
+	 /***************************************************************************/
+	 /**
+	  * Initialization with a file name. Note that some variables may be initialized in the class body.
+	  */
+	 GProcessingTimesLoggerT(
+		 const std::string& fileName
+	 	 , std::size_t nBinsX
+	 )
+		 : fileName_(fileName)
+	 	 , canvasDimensions_(std::tuple<std::uint32_t,std::uint32_t>(1600,1200))
+	 	 , gpd_oa_("Timings for the processing steps of individuals", 2, 2)
+	    , m_nBinsX(nBinsX)
+	 { /* nothing */ }
+
+	 /***************************************************************************/
+	 /**
+	  * The copy constructor
+	  */
+	 GProcessingTimesLoggerT(const GProcessingTimesLoggerT<ind_type>& cp)
+		 : fileName_(cp.fileName_)
+		 , canvasDimensions_(cp.canvasDimensions_)
+		 , gpd_oa_(cp.gpd_oa_)
+	 	 , m_nBinsX(cp.m_nBinsX)
+	 {
+		 Gem::Common::copyCloneableSmartPointer(cp.m_pre_processing_times_hist, m_pre_processing_times_hist);
+		 Gem::Common::copyCloneableSmartPointer(cp.m_processing_times_hist, m_processing_times_hist);
+		 Gem::Common::copyCloneableSmartPointer(cp.m_post_processing_times_hist, m_post_processing_times_hist);
+		 Gem::Common::copyCloneableSmartPointer(cp.m_all_processing_times_hist, m_all_processing_times_hist);
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * The destructor
+	  */
+	 virtual ~GProcessingTimesLoggerT()
+	 { /* nothing */ }
+
+	 /***************************************************************************/
+	 /**
+	  * A standard assignment operator
+	  */
+	 const GProcessingTimesLoggerT<ind_type>& operator=(const GProcessingTimesLoggerT<ind_type>& cp) {
+		 this->load_(&cp);
+		 return *this;
+	 }
+
+	 /************************************************************************/
+	 /**
+	  * Checks for equality with another GProcessingTimesLoggerT<ind_type> object
+	  *
+	  * @param  cp A constant reference to another GProcessingTimesLoggerT<ind_type> object
+	  * @return A boolean indicating whether both objects are equal
+	  */
+	 virtual bool operator==(const GProcessingTimesLoggerT<ind_type>& cp) const {
+		 using namespace Gem::Common;
+		 try {
+			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			 return true;
+		 } catch(g_expectation_violation&) {
+			 return false;
+		 }
+	 }
+
+	 /************************************************************************/
+	 /**
+	  * Checks for inequality with another GProcessingTimesLoggerT<ind_type> object
+	  *
+	  * @param  cp A constant reference to another GProcessingTimesLoggerT<ind_type> object
+	  * @return A boolean indicating whether both objects are inequal
+	  */
+	 virtual bool operator!=(const GProcessingTimesLoggerT<ind_type>& cp) const {
+		 using namespace Gem::Common;
+		 try {
+			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			 return true;
+		 } catch(g_expectation_violation&) {
+			 return false;
+		 }
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 virtual std::string name() const override {
+		 return std::string("GProcessingTimesLoggerT<>");
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Searches for compliance with expectations with respect to another object
+	  * of the same type
+	  *
+	  * @param cp A constant reference to another GObject object
+	  * @param e The expected outcome of the comparison
+	  * @param limit The maximum deviation for floating point values (important for similarity checks)
+	  */
+	 virtual void compare(
+		 const GObject& cp
+		 , const Gem::Common::expectation& e
+		 , const double& limit
+	 ) const override {
+		 using namespace Gem::Common;
+
+		 // Check that we are dealing with a GProcessingTimesLoggerT<ind_type> reference independent of this object and convert the pointer
+		 const GProcessingTimesLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GProcessingTimesLoggerT<ind_type>>(cp, this);
+
+		 GToken token("GProcessingTimesLoggerT", e);
+
+		 // Compare our parent data ...
+		 Gem::Common::compare_base<typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+
+		 // ... and then our local data
+		 compare_t(IDENTITY(fileName_, p_load->fileName_), token);
+		 compare_t(IDENTITY(canvasDimensions_, p_load->canvasDimensions_), token);
+		 compare_t(IDENTITY(gpd_oa_, p_load->gpd_oa_), token);
+		 compare_t(IDENTITY(m_pre_processing_times_hist, p_load->m_pre_processing_times_hist), token);
+		 compare_t(IDENTITY(m_processing_times_hist, p_load->m_processing_times_hist), token);
+		 compare_t(IDENTITY(m_post_processing_times_hist, p_load->m_post_processing_times_hist), token);
+		 compare_t(IDENTITY(m_all_processing_times_hist, p_load->m_all_processing_times_hist), token);
+		 compare_t(IDENTITY(m_nBinsX, p_load->m_nBinsX), token);
+
+		 // React on deviations from the expectation
+		 token.evaluate();
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Sets the file name
+	  */
+	 void setFileName(std::string fileName) {
+		 fileName_ = fileName;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Retrieves the current file name
+	  */
+	 std::string getFileName() const {
+		 return fileName_;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Sets the number of bins for the histograms
+	  */
+	 void setNBinsX(std::size_t nBinsX) {
+		 if(nBinsX > 0) {
+			 m_nBinsX = nBinsX;
+		 } else {
+			 glogger
+			 << "In GProcessingTimesLoggerT<T>::setNBinsX(): Error!" << std::endl
+		    << "nBinsX is set to 0" << std::endl
+			 << GEXCEPTION;
+		 }
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Retrieves the current number of bins in x-direction
+	  */
+	 std::string getNBinsX() const {
+		 return m_nBinsX;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to emit information in different stages of the information cycle
+	  * (initialization, during each cycle and during finalization)
+	  */
+	 virtual void informationFunction(
+		 const infoMode& im
+		 , typename Gem::Geneva::GOptimizationAlgorithmT<ind_type> * const goa
+	 ) override {
+		 switch(im) {
+			 case Gem::Geneva::infoMode::INFOINIT: {
+				 // If the file pointed to by fileName_ already exists, make a back-up
+				 if(bf::exists(fileName_)) {
+					 std::string newFileName = fileName_ + ".bak_" + Gem::Common::getMSSince1970();
+
+					 glogger
+						 << "In GProcessingTimesLoggerT<T>::informationFunction(): Warning!" << std::endl
+						 << "Attempt to output information to file " << fileName_ << std::endl
+						 << "which already exists. We will rename the old file to" << std::endl
+						 << newFileName << std::endl
+						 << GWARNING;
+
+					 bf::rename(fileName_, newFileName);
+				 }
+
+				 // Make sure the progress plotter has the desired size
+				 gpd_oa_.setCanvasDimensions(canvasDimensions_);
+
+				 m_pre_processing_times_hist = std::make_shared<Gem::Common::GHistogram1D>(m_nBinsX);
+				 m_pre_processing_times_hist->setXAxisLabel("Pre-processing time [s]");
+				 m_pre_processing_times_hist->setYAxisLabel("Number of Entries");
+				 m_pre_processing_times_hist->setDrawingArguments("hist");
+
+				 gpd_oa_.registerPlotter(m_pre_processing_times_hist);
+
+				 m_processing_times_hist = std::make_shared<Gem::Common::GHistogram1D>(m_nBinsX);
+				 m_processing_times_hist->setXAxisLabel("Main processing time [s]");
+				 m_processing_times_hist->setYAxisLabel("Number of Entries");
+				 m_processing_times_hist->setDrawingArguments("hist");
+
+				 gpd_oa_.registerPlotter(m_processing_times_hist);
+
+				 m_post_processing_times_hist = std::make_shared<Gem::Common::GHistogram1D>(m_nBinsX);
+				 m_post_processing_times_hist->setXAxisLabel("Post-processing time [s]");
+				 m_post_processing_times_hist->setYAxisLabel("Number of Entries");
+				 m_post_processing_times_hist->setDrawingArguments("hist");
+
+				 gpd_oa_.registerPlotter(m_post_processing_times_hist);
+
+				 m_all_processing_times_hist = std::make_shared<Gem::Common::GHistogram1D>(m_nBinsX);
+				 m_all_processing_times_hist->setXAxisLabel("Overall processing time for all steps [s]");
+				 m_all_processing_times_hist->setYAxisLabel("Number of Entries");
+				 m_all_processing_times_hist->setDrawingArguments("hist");
+
+				 gpd_oa_.registerPlotter(m_all_processing_times_hist);
+			 } break;
+
+			 case Gem::Geneva::infoMode::INFOPROCESSING: {
+				 // Open the external file
+				 boost::filesystem::ofstream data(fileName_, std::ofstream::app);
+
+				 // Loop over all individuals of the algorithm.
+				 for(std::size_t pos=0; pos<goa->size(); pos++) {
+					 // Get access to each individual in sequence
+					 std::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
+
+					 // Retrieve the processing timings
+					 std::tuple<double,double,double> processingTimes = ind->getProcessingTimes();
+
+					 // Fill the timings into the histograms
+					 m_pre_processing_times_hist->add(std::get<0>(processingTimes)); // PREPROCESSING
+					 m_processing_times_hist->add(std::get<1>(processingTimes)); // PROCESSING
+					 m_post_processing_times_hist->add(std::get<2>(processingTimes)); // POSTPROCESSING
+					 m_all_processing_times_hist->add(
+						 std::get<0>(processingTimes)
+						 + std::get<1>(processingTimes)
+						 + std::get<2>(processingTimes)
+					 );
+				 }
+			 }
+				 break;
+
+			 case Gem::Geneva::infoMode::INFOEND: {
+				 // Write out the result.
+				 gpd_oa_.writeToFile(fileName_);
+
+				 // Remove all plotters
+				 gpd_oa_.resetPlotters();
+				 m_pre_processing_times_hist.reset();
+				 m_processing_times_hist.reset();
+				 m_post_processing_times_hist.reset();
+				 m_all_processing_times_hist.reset();
+			 }
+				 break;
+
+			 default:
+			 {
+				 glogger
+					 << "In GProcessingTimesLoggerT<ind_type>: Received invalid infoMode " << im << std::endl
+					 << GEXCEPTION;
+			 }
+				 break;
+		 };
+	 }
+
+protected:
+	 /************************************************************************/
+	 /**
+	  * Loads the data of another object
+	  *
+	  * cp A pointer to another GProcessingTimesLoggerT<ind_type> object, camouflaged as a GObject
+	  */
+	 virtual void load_(const GObject* cp) override {
+		 // Check that we are dealing with a GProcessingTimesLoggerT<ind_type> reference independent of this object and convert the pointer
+		 const GProcessingTimesLoggerT<ind_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		 // Load the parent classes' data ...
+		 GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
+
+		 // ... and then our local data
+		 fileName_ = p_load->fileName_;
+		 canvasDimensions_ = p_load->canvasDimensions_;
+		 gpd_oa_ = p_load->gpd_oa_;
+
+		 Gem::Common::copyCloneableSmartPointer(p_load->m_pre_processing_times_hist, m_pre_processing_times_hist);
+		 Gem::Common::copyCloneableSmartPointer(p_load->m_processing_times_hist, m_processing_times_hist);
+		 Gem::Common::copyCloneableSmartPointer(p_load->m_post_processing_times_hist, m_post_processing_times_hist);
+		 Gem::Common::copyCloneableSmartPointer(p_load->m_all_processing_times_hist, m_all_processing_times_hist);
+
+		 m_nBinsX = p_load->m_nBinsX;
+	 }
+
+	 /************************************************************************/
+	 /**
+	  * Creates a deep clone of this object
+	  */
+	 virtual GObject* clone_() const override {
+		 return new GProcessingTimesLoggerT<ind_type>(*this);
+	 }
+
+private:
+	 /***************************************************************************/
+
+	 std::string fileName_ = "processingTimings.C"; ///< The name of the file to which timings should be written in ROOT format
+	 std::tuple<std::uint32_t,std::uint32_t> canvasDimensions_; ///< The dimensions of the canvas
+
+	 Gem::Common::GPlotDesigner gpd_oa_; ///< A wrapper for the plots
+
+	 std::shared_ptr<Gem::Common::GHistogram1D> m_pre_processing_times_hist;  ///< The amount of time needed for pre-processing
+ 	 std::shared_ptr<Gem::Common::GHistogram1D> m_processing_times_hist;  ///< The amount of time needed for processing
+	 std::shared_ptr<Gem::Common::GHistogram1D> m_post_processing_times_hist;  ///< The amount of time needed for post-processing
+	 std::shared_ptr<Gem::Common::GHistogram1D> m_all_processing_times_hist;  ///< The amount of time needed for the entire processing step
+
+	 std::size_t m_nBinsX = Gem::Common::DEFAULTNBINSGPD; ///< The number of bins in the histograms
+
+public:
+	 /***************************************************************************/
+	 /**
+	  * Applies modifications to this object. This is needed for testing purposes
+	  *
+	  * @return A boolean which indicates whether modifications were made
+	  */
+	 virtual bool modify_GUnitTests() override {
+#ifdef GEM_TESTING
+		 using boost::unit_test_framework::test_suite;
+		 using boost::unit_test_framework::test_case;
+
+		 bool result = false;
+
+		 // Call the parent classes' functions
+		 if(GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::modify_GUnitTests()) {
+			 result = true;
+		 }
+
+		 // no local data -- nothing to change
+
+		 return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		 condnotset("GProcessingTimesLoggerT<ind_type>::modify_GUnitTests", "GEM_TESTING");
+		return false;
+#endif /* GEM_TESTING */
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Performs self tests that are expected to succeed. This is needed for testing purposes
+	  */
+	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
+#ifdef GEM_TESTING
+		 using boost::unit_test_framework::test_suite;
+		 using boost::unit_test_framework::test_case;
+
+		 // Call the parent classes' functions
+		 GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		 condnotset("GProcessingTimesLoggerT<ind_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Performs self tests that are expected to fail. This is needed for testing purposes
+	  */
+	 virtual void specificTestsFailuresExpected_GUnitTests() override {
+#ifdef GEM_TESTING
+		 using boost::unit_test_framework::test_suite;
+		 using boost::unit_test_framework::test_case;
+
+		 // Call the parent classes' functions
+		 GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		 condnotset("GProcessingTimesLoggerT<ind_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	 }
+	 /***************************************************************************/
 };
 
 /******************************************************************************/

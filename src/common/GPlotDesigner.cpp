@@ -1807,10 +1807,24 @@ void GGraph4D::load_(const GBasePlotter* cp) {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The standard constructor
+ * Initialization with number of bins and automatic range detection
  */
 GHistogram1D::GHistogram1D(
-	const std::size_t &nBinsX, const double &minX, const double &maxX
+	const std::size_t &nBinsX
+)
+	: nBinsX_(nBinsX)
+   , minX_(0)
+   , maxX_(minX_)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Initialization with a range in the form of a tuple
+ */
+GHistogram1D::GHistogram1D(
+	const std::size_t &nBinsX
+	, const double &minX
+	, const double &maxX
 )
 	: nBinsX_(nBinsX)
 	, minX_(minX)
@@ -1823,8 +1837,7 @@ GHistogram1D::GHistogram1D(
  */
 GHistogram1D::GHistogram1D(
 	const std::size_t &nBinsX
-	, const std::tuple<double
-	, double> &rangeX
+	, const std::tuple<double, double> &rangeX
 )
 	: nBinsX_(nBinsX)
 	, minX_(std::get<0>(rangeX))
@@ -1912,10 +1925,21 @@ std::string GHistogram1D::headerData_(
 
 	std::string histName = "histD" + suffix(isSecondary, pId);
 
-	header_data
-	<< indent << "TH1D *" << histName << " = new TH1D(\"" << histName << "\", \"" << histName << "\"," << nBinsX_ << ", " <<
-	minX_ << ", " << maxX_ << ");" << (comment != "" ? comment : "") << std::endl
-	<< std::endl;
+	if(minX_ != maxX_) {
+		header_data
+			<< indent << "TH1D *" << histName << " = new TH1D(\"" << histName << "\", \"" << histName << "\"," << nBinsX_
+			<< ", " <<
+			minX_ << ", " << maxX_ << ");" << (comment != "" ? comment : "") << std::endl
+			<< std::endl;
+	} else { // automatic range detection
+		std::tuple<double,double> minmax = this->getMinMaxElements();
+		header_data
+			<< indent << "TH1D *" << histName << " = new TH1D(\"" << histName << "\", \"" << histName << "\"," << nBinsX_
+			<< ", " <<
+			std::get<0>(minmax) << ", " << std::get<1>(minmax) << ");" << (comment != "" ? comment : "") << std::endl
+			<< std::endl;
+
+	}
 
 	return header_data.str();
 }

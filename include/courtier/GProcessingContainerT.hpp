@@ -37,6 +37,7 @@
 
 // Standard headers go here
 #include <tuple>
+#include <chrono>
 
 // Boost headers go here
 #include <boost/archive/xml_oarchive.hpp>
@@ -127,13 +128,24 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Allows derived classes to specify the tasks to be performed for this object
+	  * Perform the actual processing steps. E.g. in optimization algorithms,
+	  * post-processing allows to run a sub-optimization. The amount of time
+	  * needed for processing is done for logging purposes.
 	  */
 	 bool process() {
 		 try {
+			 auto startTime = std::chrono::system_clock::now();
 			 if (this->mayBePreProcessed() && !this->preProcess_()) return false;
+			 auto afterPreProcessing = std::chrono::system_clock::now();
 			 if (!this->process_()) return false;
+			 auto afterProcessing = std::chrono::system_clock::now();
 			 if (this->mayBePostProcessed() && !this->postProcess_()) return false;
+			 auto afterPostProcessing = std::chrono::system_clock::now();
+
+			 // Make a not of the time needed for each step
+			 m_pre_processing_time = std::chrono::duration<double>(afterPreProcessing - startTime).count();
+			 m_processing_time = std::chrono::duration<double>(afterProcessing - afterPreProcessing).count();
+			 m_post_processing_time = std::chrono::duration<double>(afterPostProcessing - afterProcessing).count();
 		 } catch(Gem::Common::gemfony_error_condition& e) {
 			 glogger
 				 << "In GProcessingContainerT<>::process(): Caught Gem::Common::gemfony_error_condition with message" << std::endl
@@ -255,6 +267,14 @@ public:
 
 	 /***************************************************************************/
 	 /**
+	  * Allows to retrieve the processing time needed for the work item
+	  */
+	 std::tuple<double,double,double> getProcessingTimes() const {
+		 return std::make_tuple(m_pre_processing_time, m_processing_time, m_post_processing_time);
+	 };
+
+	 /***************************************************************************/
+	 /**
 	  * Loads the data of another GProcessingContainerT<submission_type> object
 	  */
 	 void load_pc(const GProcessingContainerT<submission_type> *cp) {
@@ -311,6 +331,10 @@ private:
 
 	 std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<submission_type>> m_pre_processor_ptr; ///< Actions to be performed before processing
 	 std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<submission_type>> m_post_processor_ptr; ///< Actions to be performed after processing
+
+	 double m_pre_processing_time = 0.; ///< The amount of time needed for pre-processing (in seconds)
+	 double m_processing_time = 0.; ///< The amount of time needed for the actual processing step (in seconds)
+	 double m_post_processing_time = 0.; ///< The amount of time needed for post-processing (in seconds)
 };
 
 /******************************************************************************/

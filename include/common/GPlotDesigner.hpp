@@ -43,6 +43,7 @@
 #include <sstream>
 #include <functional>
 #include <tuple>
+#include <algorithm>
 #include <type_traits>
 
 // Boost headers go here
@@ -1606,6 +1607,15 @@ public:
 		token.evaluate();
 	}
 
+   /***************************************************************************/
+   /**
+    * Retrieves the minimum and maximum values in data_
+    */
+	std::tuple<x_type,x_type> getMinMaxElements() const {
+		auto minmax = std::minmax_element(data_.begin(), data_.end());
+		return std::make_tuple(*minmax.first, *minmax.second);
+   };
+
 protected:
 	/***************************************************************************/
 	/**
@@ -1655,13 +1665,21 @@ class GHistogram1D
 	///////////////////////////////////////////////////////////////////////
 
 public:
-	/** @brief The standard constructor */
+   /** @brief Initialization with the number of bins and automatic range detection */
+	 G_API_COMMON GHistogram1D(
+		 const std::size_t &
+	 );
+
+	/** @brief Initialization with a range in the form of a tuple */
 	G_API_COMMON GHistogram1D(
-		const std::size_t &, const double &, const double &
+		const std::size_t &
+		, const double &
+		, const double &
 	);
 	/** @brief Initialization with a range in the form of a tuple */
 	G_API_COMMON GHistogram1D(
-		const std::size_t &, const std::tuple<double, double> &
+		const std::size_t &
+		, const std::tuple<double, double> &
 	);
 	/** @brief A copy constructor */
 	G_API_COMMON GHistogram1D(const GHistogram1D &);
