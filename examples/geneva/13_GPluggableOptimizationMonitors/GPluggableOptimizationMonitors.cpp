@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
 		, "Allows you to specify variables to be monitored like this: \"d(var0, -10, 10)\""
 	)(
 		"bestOnly"
-		, po::value<bool>(&bestOnly)->default_value(false)
+		, po::value<bool>(&bestOnly)->implicit_value(true)->default_value(false)
 		, "Allows you to specify whether only the best solutions should be monitored. This option only has an effect when monitorSpec is set."
 	)(
 		"observeBoundaries"
