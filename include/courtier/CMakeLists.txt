@@ -10,8 +10,8 @@ SET ( COMMUNICATIONINCLUDES
 	GBrokerT.hpp
 	GBufferPortT.hpp
 	GCourtierEnums.hpp
+    GProcessingContainerT.hpp
 	GSerialConsumerT.hpp
-	GSubmissionContainerT.hpp
 )
 
 # This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
@@ -22,3 +22,4 @@ INSTALL ( FILES ${COMMUNICATIONINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/
 IF ( GENEVA_WITH_MPI )
 	ADD_SUBDIRECTORY( mpi )
 ENDIF ()
+

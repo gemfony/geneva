@@ -65,7 +65,7 @@
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GLogger.hpp"
 #include "courtier/GCourtierEnums.hpp"
-#include "courtier/GSubmissionContainerT.hpp"
+#include "courtier/GProcessingContainerT.hpp"
 
 namespace Gem {
 namespace Courtier {
@@ -82,10 +82,10 @@ template<typename processable_type>
 class GBaseClientT
 	: private boost::noncopyable
 {
-	 // Make sure processable_type adheres to the GSubmissionContainerT interface
+	 // Make sure processable_type adheres to the GProcessingContainerT interface
 	 static_assert(
-		 std::is_base_of<Gem::Courtier::GSubmissionContainerT<processable_type>, processable_type>::value
-		 , "GBaseClientT: processable_type does not adhere to the GSubmissionContainerT interface"
+		 std::is_base_of<Gem::Courtier::GProcessingContainerT<processable_type>, processable_type>::value
+		 , "GBaseClientT: processable_type does not adhere to the GProcessingContainerT interface"
 	 );
 
 public:

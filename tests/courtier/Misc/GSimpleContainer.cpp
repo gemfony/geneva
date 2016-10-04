@@ -65,7 +65,7 @@ GSimpleContainer::GSimpleContainer(const std::size_t& snr)
  * @param cp A copy of another GSimpleContainer object
  */
 GSimpleContainer::GSimpleContainer(const GSimpleContainer& cp)
-	: Gem::Courtier::GSubmissionContainerT<GSimpleContainer>(cp)
+	: Gem::Courtier::GProcessingContainerT<GSimpleContainer>(cp)
 	, storedNumber_(cp.storedNumber_)
 { /* nothing */ }
 

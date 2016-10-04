@@ -77,7 +77,7 @@
 #include "courtier/GBufferPortT.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
-#include "courtier/GSubmissionContainerT.hpp"
+#include "courtier/GProcessingContainerT.hpp"
 
 namespace Gem {
 namespace Courtier {
@@ -92,10 +92,10 @@ namespace Courtier {
  */
 template<typename processable_type>
 class GBaseExecutorT {
-	 // Make sure processable_type adheres to the GSubmissionContainerT interface
+	 // Make sure processable_type adheres to the GProcessingContainerT interface
 	 static_assert(
-		 std::is_base_of<Gem::Courtier::GSubmissionContainerT<processable_type>, processable_type>::value
-		 , "GBaseExecutorT: processable_type does not adhere to the GSubmissionContainerT interface"
+		 std::is_base_of<Gem::Courtier::GProcessingContainerT<processable_type>, processable_type>::value
+		 , "GBaseExecutorT: processable_type does not adhere to the GProcessingContainerT interface"
 	 );
 
 public:
@@ -173,7 +173,7 @@ public:
 	  * later iterations). It is thus also possible that returned items do not belong
 	  * to the current submission cycle. They will be appended to the oldWorkItems vector.
 	  * You might thus have to post-process the work items. Note that it is impossible
-	  * to submit items that are not derived from GSubmissionContainerT<processable_type>.
+	  * to submit items that are not derived from GProcessingContainerT<processable_type>.
 	  * This function will not alter the size of the workItems vector. It does not
 	  * guarantee that all work items have indeed been processed. You can find out
 	  * via the workItemPos vector.
@@ -626,7 +626,7 @@ protected:
 	  * is done inside of this function. We rely on the process() function which
 	  * is guaranteed to be part of the processable_type interface (note that
 	  * our base class stipulates that processable_type is a derivative of
-	  * GSubmissionContainerT<processable_type> .
+	  * GProcessingContainerT<processable_type> .
 	  *
 	  * @param w The work item to be processed
 	  */

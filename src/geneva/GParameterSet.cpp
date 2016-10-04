@@ -45,7 +45,7 @@ namespace Geneva {
  */
 GParameterSet::GParameterSet()
 	: GMutableSetT<Gem::Geneva::GParameterBase>()
-  	, Gem::Courtier::GSubmissionContainerT<GParameterSet>()
+  	, Gem::Courtier::GProcessingContainerT<GParameterSet>()
   	, perItemCrossOverProbability_(DEFAULTPERITEMEXCHANGELIKELIHOOD)
 { /* nothing */ }
 
@@ -55,7 +55,7 @@ GParameterSet::GParameterSet()
  */
 GParameterSet::GParameterSet(const std::size_t &nFitnessCriteria)
 	: GMutableSetT<Gem::Geneva::GParameterBase>(nFitnessCriteria)
-   , Gem::Courtier::GSubmissionContainerT<GParameterSet>()
+   , Gem::Courtier::GProcessingContainerT<GParameterSet>()
   	, perItemCrossOverProbability_(DEFAULTPERITEMEXCHANGELIKELIHOOD)
 { /* nothing */ }
 
@@ -68,7 +68,7 @@ GParameterSet::GParameterSet(const std::size_t &nFitnessCriteria)
  */
 GParameterSet::GParameterSet(const GParameterSet &cp)
 	: GMutableSetT<Gem::Geneva::GParameterBase>(cp)
-  	, Gem::Courtier::GSubmissionContainerT<GParameterSet>() // The data is intentionally not copied, as this class only stores a temporary parameter
+  	, Gem::Courtier::GProcessingContainerT<GParameterSet>() // The data is intentionally not copied, as this class only stores a temporary parameter
 	, perItemCrossOverProbability_(cp.perItemCrossOverProbability_)
 { /* nothing */ }
 
@@ -298,6 +298,8 @@ void GParameterSet::queryAdaptor(
 /******************************************************************************/
 /**
  * Loads the data of another GParameterSet object, camouflaged as a GObject.
+ *
+ * TODO: Load GProcessingContainerT data
  *
  * @param cp A copy of another GParameterSet object, camouflaged as a GObject
  */

@@ -68,7 +68,7 @@ GRandomNumberContainer::GRandomNumberContainer(const std::size_t& nrnr) {
  * @param cp A copy of another GRandomNumberContainer object
  */
 GRandomNumberContainer::GRandomNumberContainer(const GRandomNumberContainer& cp)
-	: Gem::Courtier::GSubmissionContainerT<GRandomNumberContainer>(cp)
+	: Gem::Courtier::GProcessingContainerT<GRandomNumberContainer>(cp)
 	, randomNumbers_(cp.randomNumbers_)
 { /* nothing */ }
 

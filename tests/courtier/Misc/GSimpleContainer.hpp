@@ -62,7 +62,7 @@
 
 // Geneva headers go here
 #include "common/GSerializeTupleT.hpp"
-#include "courtier/GSubmissionContainerT.hpp"
+#include "courtier/GProcessingContainerT.hpp"
 #include "hap/GRandomT.hpp"
 
 namespace Gem {
@@ -74,7 +74,7 @@ namespace Tests {
  * This class implements the simplest-possible container object, used for tests of the courtier lib.
  */
 class GSimpleContainer
-	:public Gem::Courtier::GSubmissionContainerT<GSimpleContainer>
+	:public Gem::Courtier::GProcessingContainerT<GSimpleContainer>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -83,7 +83,7 @@ class GSimpleContainer
 	void serialize(Archive & ar, const unsigned int){
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("GSubmissionContainerT_GSimpleContainer", boost::serialization::base_object<Gem::Courtier::GSubmissionContainerT<GSimpleContainer>>(*this))
+		ar & make_nvp("GProcessingContainerT_GSimpleContainer", boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<GSimpleContainer>>(*this))
 		& BOOST_SERIALIZATION_NVP(storedNumber_);
 	}
 	///////////////////////////////////////////////////////////////////////

@@ -62,7 +62,7 @@
 
 // Geneva headers go here
 #include "common/GSerializeTupleT.hpp"
-#include "courtier/GSubmissionContainerT.hpp"
+#include "courtier/GProcessingContainerT.hpp"
 #include "hap/GRandomT.hpp"
 
 namespace Gem {
@@ -74,7 +74,7 @@ namespace Tests {
  * This class implements a container of random objects, used for tests of the courtier lib.
  */
 class GRandomNumberContainer
-	:public Gem::Courtier::GSubmissionContainerT<GRandomNumberContainer>
+	:public Gem::Courtier::GProcessingContainerT<GRandomNumberContainer>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -83,7 +83,7 @@ class GRandomNumberContainer
 	void serialize(Archive & ar, const unsigned int){
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("GSubmissionContainerT_GRandomNumberContainer", boost::serialization::base_object<Gem::Courtier::GSubmissionContainerT<GRandomNumberContainer>>(*this))
+		ar & make_nvp("GProcessingContainerT_GRandomNumberContainer", boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<GRandomNumberContainer>>(*this))
 		& BOOST_SERIALIZATION_NVP(randomNumbers_);
 	}
 	///////////////////////////////////////////////////////////////////////

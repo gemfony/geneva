@@ -48,7 +48,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "common/GHelperFunctionsT.hpp"
-#include "courtier/GSubmissionContainerT.hpp"
+#include "courtier/GProcessingContainerT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GMutableSetT.hpp"
 #include "geneva/GParameterBase.hpp"
@@ -82,7 +82,7 @@ namespace Geneva {
  */
 class GParameterSet
 	: public GMutableSetT<Gem::Geneva::GParameterBase>
-	, public Gem::Courtier::GSubmissionContainerT<GParameterSet>
+	, public Gem::Courtier::GProcessingContainerT<GParameterSet>
 {
 	 friend class Gem::Tests::GTestIndividual1; ///< Needed for testing purposes
 
@@ -94,7 +94,7 @@ class GParameterSet
 		 using boost::serialization::make_nvp;
 		 ar
 		 & make_nvp("GMutableSetT_GParameterBase", boost::serialization::base_object<GMutableSetT<Gem::Geneva::GParameterBase>>(*this))
-		 & make_nvp("GSubmissionContainerT_ParameterSet", boost::serialization::base_object<Gem::Courtier::GSubmissionContainerT<GParameterSet>>(*this))
+		 & make_nvp("GProcessingContainerT_ParameterSet", boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<GParameterSet>>(*this))
 		 & BOOST_SERIALIZATION_NVP(perItemCrossOverProbability_);
 	 }
 	 ///////////////////////////////////////////////////////////////////////

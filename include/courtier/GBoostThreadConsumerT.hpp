@@ -55,7 +55,7 @@
 #include "common/GLogger.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GBaseConsumerT.hpp"
-#include "courtier/GSubmissionContainerT.hpp"
+#include "courtier/GProcessingContainerT.hpp"
 
 namespace Gem {
 namespace Courtier {
@@ -75,10 +75,10 @@ template<class processable_type>
 class GBoostThreadConsumerT
 	: public Gem::Courtier::GBaseConsumerT<processable_type> {
 private:
-	// Make sure processable_type adheres to the GSubmissionContainerT interface
+	// Make sure processable_type adheres to the GProcessingContainerT interface
 	static_assert(
-		std::is_base_of<Gem::Courtier::GSubmissionContainerT<processable_type>, processable_type>::value
-		, "processable_type does not adhere to the GSubmissionContainerT interface"
+		std::is_base_of<Gem::Courtier::GProcessingContainerT<processable_type>, processable_type>::value
+		, "processable_type does not adhere to the GProcessingContainerT interface"
 	);
 
 public:
