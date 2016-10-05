@@ -89,7 +89,10 @@ class GProcessingContainerT
 		 & BOOST_SERIALIZATION_NVP(m_mayBePreProcessed)
 		 & BOOST_SERIALIZATION_NVP(m_mayBePostProcessed)
 		 & BOOST_SERIALIZATION_NVP(m_pre_processor_ptr)
-		 & BOOST_SERIALIZATION_NVP(m_post_processor_ptr);
+		 & BOOST_SERIALIZATION_NVP(m_post_processor_ptr)
+		 & BOOST_SERIALIZATION_NVP(m_pre_processing_time)
+		 & BOOST_SERIALIZATION_NVP(m_processing_time)
+		 & BOOST_SERIALIZATION_NVP(m_post_processing_time);
 	 }
 
 	 ///////////////////////////////////////////////////////////////////////

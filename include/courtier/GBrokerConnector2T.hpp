@@ -837,11 +837,11 @@ public:
 	  */
 	 GBrokerConnector2T()
 		 : GBaseExecutorT<processable_type>()
-			, m_srm(DEFAULTSRM)
-			, m_maxResubmissions(DEFAULTMAXRESUBMISSIONS)
-			, m_waitFactor(DEFAULTBROKERWAITFACTOR2)
-			, m_initialWaitFactor(DEFAULTINITIALBROKERWAITFACTOR2)
-			, m_doLogging(false)
+		 , m_srm(DEFAULTSRM)
+	    , m_maxResubmissions(DEFAULTMAXRESUBMISSIONS)
+		 , m_waitFactor(DEFAULTBROKERWAITFACTOR2)
+	    , m_initialWaitFactor(DEFAULTINITIALBROKERWAITFACTOR2)
+		 , m_doLogging(false)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -852,11 +852,11 @@ public:
 	  */
 	 explicit GBrokerConnector2T(submissionReturnMode srm)
 		 : GBaseExecutorT<processable_type>()
-			, m_srm(srm)
-			, m_maxResubmissions(DEFAULTMAXRESUBMISSIONS)
-			, m_waitFactor(DEFAULTBROKERWAITFACTOR2)
-			, m_initialWaitFactor(DEFAULTINITIALBROKERWAITFACTOR2)
-			, m_doLogging(false)
+		 , m_srm(srm)
+		 , m_maxResubmissions(DEFAULTMAXRESUBMISSIONS)
+		 , m_waitFactor(DEFAULTBROKERWAITFACTOR2)
+		 , m_initialWaitFactor(DEFAULTINITIALBROKERWAITFACTOR2)
+		 , m_doLogging(false)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -867,11 +867,11 @@ public:
 	  */
 	 GBrokerConnector2T(const GBrokerConnector2T<processable_type> &cp)
 		 : GBaseExecutorT<processable_type>(cp)
-			, m_srm(cp.m_srm)
-			, m_maxResubmissions(cp.m_maxResubmissions)
-			, m_waitFactor(cp.m_waitFactor)
-			, m_initialWaitFactor(cp.m_initialWaitFactor)
-			, m_doLogging(cp.m_doLogging)
+		 , m_srm(cp.m_srm)
+		 , m_maxResubmissions(cp.m_maxResubmissions)
+		 , m_waitFactor(cp.m_waitFactor)
+		 , m_initialWaitFactor(cp.m_initialWaitFactor)
+		 , m_doLogging(cp.m_doLogging)
 	 { /* nothing */ }
 
 	 /***************************************************************************/

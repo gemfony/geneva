@@ -282,7 +282,9 @@ protected:
 	 * @return true if operation should be continued, otherwise false
 	 */
 	bool retrieve(
-		std::string &item, std::string &serMode, std::string &portId
+		std::string &item
+		, std::string &serMode
+		, std::string &portId
 	) {
 		item = "empty"; // Indicates that no item could be retrieved
 		std::uint32_t idleTime = 0; // Holds information on the idle time in milliseconds, if "idle" command is received
@@ -314,7 +316,8 @@ protected:
 
 			// Remove all leading or trailing white spaces from the command
 			std::string inboundCommandString = boost::algorithm::trim_copy(
-				std::string(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
+				std::string(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH)
+			);
 
 			// Act on the command
 			if ("compute" == inboundCommandString) {
