@@ -134,6 +134,8 @@ public:
 	  * Perform the actual processing steps. E.g. in optimization algorithms,
 	  * post-processing allows to run a sub-optimization. The amount of time
 	  * needed for processing is done for logging purposes.
+	  *
+	  * TODO: Try to continue in case of exceptions ?
 	  */
 	 bool process() {
 		 try {
@@ -304,11 +306,15 @@ private:
 	  * will reset the m_mayBePreProcessed-flag.
   	  */
 	 bool preProcess_() {
+		 bool result = true;
+
 		 if(m_mayBePreProcessed && m_pre_processor_ptr) {
 			 submission_type& p = dynamic_cast<submission_type&>(*this);
-			 (*m_pre_processor_ptr)(p);
+			 result = (*m_pre_processor_ptr)(p);
 			 m_mayBePreProcessed = false;
 		 }
+
+		 return result;
 	 }
 
 	 /***************************************************************************/
@@ -317,11 +323,15 @@ private:
 	  * will reset the m_mayBePostProcessed-flag.
   	  */
 	 bool postProcess_() {
+		 bool result = true;
+
 		 if(m_mayBePostProcessed && m_post_processor_ptr) {
 			 submission_type& p = dynamic_cast<submission_type&>(*this);
-			 (*m_post_processor_ptr)(p);
+			 result = (*m_post_processor_ptr)(p);
 			 m_mayBePostProcessed = false;
 		 }
+
+		 return result;
 	 }
 
 	 /***************************************************************************/

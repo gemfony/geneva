@@ -73,6 +73,7 @@
 #include "common/GExpectationChecksT.hpp"
 #include "common/GMathHelperFunctionsT.hpp"
 #include "common/GParserBuilder.hpp"
+#include "common/GPlotDesigner.hpp"
 #include "common/GThreadPool.hpp"
 #include "courtier/GBufferPortT.hpp"
 #include "courtier/GBrokerT.hpp"
@@ -822,13 +823,14 @@ class GBrokerConnector2T
 		 & BOOST_SERIALIZATION_NVP(m_maxResubmissions)
 		 & BOOST_SERIALIZATION_NVP(m_waitFactor)
 		 & BOOST_SERIALIZATION_NVP(m_initialWaitFactor)
-		 & BOOST_SERIALIZATION_NVP(m_doLogging);
+		 & BOOST_SERIALIZATION_NVP(m_doLogging)
+		 & BOOST_SERIALIZATION_NVP(m_gpd)
+		 & BOOST_SERIALIZATION_NVP(m_waiting_times_graph);
 	 }
 
 	 ///////////////////////////////////////////////////////////////////////
 
-	 typedef std::shared_ptr <Gem::Courtier::GBufferPortT<std::shared_ptr < processable_type>>>
-		 GBufferPortT_ptr;
+	 typedef std::shared_ptr <Gem::Courtier::GBufferPortT<std::shared_ptr<processable_type>>> GBufferPortT_ptr;
 
 public:
 	 /***************************************************************************/
@@ -842,7 +844,15 @@ public:
 		 , m_waitFactor(DEFAULTBROKERWAITFACTOR2)
 	    , m_initialWaitFactor(DEFAULTINITIALBROKERWAITFACTOR2)
 		 , m_doLogging(false)
-	 { /* nothing */ }
+		 , m_gpd("Maximum waiting times", 1, 1)
+	 {
+		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1200));
+
+		 m_waiting_times_graph = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+		 m_waiting_times_graph->setXAxisLabel("Iteration");
+		 m_waiting_times_graph->setYAxisLabel("Maximum waiting time [s]");
+		 m_waiting_times_graph->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+	 }
 
 	 /***************************************************************************/
 	 /**
@@ -857,7 +867,15 @@ public:
 		 , m_waitFactor(DEFAULTBROKERWAITFACTOR2)
 		 , m_initialWaitFactor(DEFAULTINITIALBROKERWAITFACTOR2)
 		 , m_doLogging(false)
-	 { /* nothing */ }
+		 , m_gpd("Maximum waiting times", 1, 1)
+	 {
+		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1200));
+
+		 m_waiting_times_graph = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+		 m_waiting_times_graph->setXAxisLabel("Iteration");
+		 m_waiting_times_graph->setYAxisLabel("Maximum waiting time [s]");
+		 m_waiting_times_graph->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+	 }
 
 	 /***************************************************************************/
 	 /**
@@ -872,14 +890,33 @@ public:
 		 , m_waitFactor(cp.m_waitFactor)
 		 , m_initialWaitFactor(cp.m_initialWaitFactor)
 		 , m_doLogging(cp.m_doLogging)
-	 { /* nothing */ }
+		 , m_gpd("Maximum waiting times", 1, 1) // Intentionally not copoed
+	 {
+		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1200));
+
+		 m_waiting_times_graph = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+		 m_waiting_times_graph->setXAxisLabel("Iteration");
+		 m_waiting_times_graph->setYAxisLabel("Maximum waiting time [s]");
+		 m_waiting_times_graph->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+	 }
 
 	 /***************************************************************************/
 	 /**
 	  * The destructor
+	  *
+	  * TODO: This is a hack. GBrokerConnector2T from factory will otherwise
+	  * overwrite the file.
 	  */
 	 virtual ~GBrokerConnector2T()
-	 { /* nothing */ }
+	 {
+		 // Register the plotter
+		 m_gpd.registerPlotter(m_waiting_times_graph);
+
+		 // Write out the result.
+		 if(m_waiting_times_graph->currentSize() > 0.) {
+			 m_gpd.writeToFile("maximumWaitingTimes.C");
+		 }
+	 }
 
 	 /***************************************************************************/
 	 /**
@@ -1331,6 +1368,8 @@ private:
 			 maxTimeout = GBaseExecutorT<processable_type>::m_lastAverage * GBaseExecutorT<processable_type>::m_expectedNumber * m_waitFactor;
 		 }
 
+		 (*m_waiting_times_graph) & std::make_tuple(double(current_iteration), maxTimeout.count());
+
 		 while (true) { // Loop until a timeout is reached or all current items have returned
 			 if(m_waitFactor > 0.) {
 				 if (currentElapsed > maxTimeout) {
@@ -1505,6 +1544,9 @@ private:
 	 std::vector<std::chrono::system_clock::time_point> m_iterationStartTimes; ///< Holds the start times of given iterations, if logging is activated
 
 	 GBufferPortT_ptr m_CurrentBufferPort; ///< Holds a GBufferPortT object during the calculation. Note: It is neither serialized nor copied
+
+	 Gem::Common::GPlotDesigner m_gpd; ///< A wrapper for the plots
+	 std::shared_ptr<Gem::Common::GGraph2D> m_waiting_times_graph;  ///< The maximum waiting time resulting from the wait factor
 };
 
 

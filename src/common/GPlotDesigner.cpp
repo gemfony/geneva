@@ -53,11 +53,11 @@ GBasePlotter::GBasePlotter()
  * @param cp A copy of another GBasePlotter object
  */
 GBasePlotter::GBasePlotter(const GBasePlotter &cp)
-	: drawingArguments_(cp.drawingArguments_)
-	, x_axis_label_(cp.x_axis_label_)
-	, y_axis_label_(cp.y_axis_label_)
-	, z_axis_label_(cp.z_axis_label_)
-	, plot_label_(cp.plot_label_)
+	: m_drawingArguments(cp.m_drawingArguments)
+	, m_x_axis_label(cp.m_x_axis_label)
+	, m_y_axis_label(cp.m_y_axis_label)
+	, m_z_axis_label(cp.m_z_axis_label)
+	, m_plot_label(cp.m_plot_label)
 	, dsMarker_(cp.dsMarker_)
    , secondaryPlotter_()
 	, id_(cp.id_)
@@ -128,7 +128,7 @@ bool GBasePlotter::operator!=(const GBasePlotter &cp) const {
  * @param drawingArguments The drawing arguments for this plot
  */
 void GBasePlotter::setDrawingArguments(std::string drawingArguments) {
-	drawingArguments_ = drawingArguments;
+	m_drawingArguments = drawingArguments;
 }
 
 /******************************************************************************/
@@ -136,7 +136,7 @@ void GBasePlotter::setDrawingArguments(std::string drawingArguments) {
  * Sets the label for the x-axis
  * */
 void GBasePlotter::setXAxisLabel(std::string x_axis_label) {
-	x_axis_label_ = x_axis_label;
+	m_x_axis_label = x_axis_label;
 }
 
 /******************************************************************************/
@@ -144,7 +144,7 @@ void GBasePlotter::setXAxisLabel(std::string x_axis_label) {
  * Retrieve the x-axis label
  */
 std::string GBasePlotter::xAxisLabel() const {
-	return x_axis_label_;
+	return m_x_axis_label;
 }
 
 /******************************************************************************/
@@ -152,7 +152,7 @@ std::string GBasePlotter::xAxisLabel() const {
  * Sets the label for the y-axis
  */
 void GBasePlotter::setYAxisLabel(std::string y_axis_label) {
-	y_axis_label_ = y_axis_label;
+	m_y_axis_label = y_axis_label;
 }
 
 /******************************************************************************/
@@ -160,7 +160,7 @@ void GBasePlotter::setYAxisLabel(std::string y_axis_label) {
  * Retrieve the y-axis label
  */
 std::string GBasePlotter::yAxisLabel() const {
-	return y_axis_label_;
+	return m_y_axis_label;
 }
 
 /******************************************************************************/
@@ -168,7 +168,7 @@ std::string GBasePlotter::yAxisLabel() const {
  * Sets the label for the z-axis
  */
 void GBasePlotter::setZAxisLabel(std::string z_axis_label) {
-	z_axis_label_ = z_axis_label;
+	m_z_axis_label = z_axis_label;
 }
 
 /******************************************************************************/
@@ -176,7 +176,7 @@ void GBasePlotter::setZAxisLabel(std::string z_axis_label) {
  * Retrieve the z-axis label
  */
 std::string GBasePlotter::zAxisLabel() const {
-	return z_axis_label_;
+	return m_z_axis_label;
 }
 
 /******************************************************************************/
@@ -186,7 +186,7 @@ std::string GBasePlotter::zAxisLabel() const {
  * @param pL A label to be assigned to the entire plot
  */
 void GBasePlotter::setPlotLabel(std::string pL) {
-	plot_label_ = pL;
+	m_plot_label = pL;
 }
 
 /******************************************************************************/
@@ -196,7 +196,7 @@ void GBasePlotter::setPlotLabel(std::string pL) {
  * @return The label that has been assigned to the plot
  */
 std::string GBasePlotter::plotLabel() const {
-	return plot_label_;
+	return m_plot_label;
 }
 
 /******************************************************************************/
@@ -319,11 +319,11 @@ void GBasePlotter::compare(
 	Gem::Common::compare_base<GCommonInterfaceT<GBasePlotter>>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
-	compare_t(IDENTITY(drawingArguments_, p_load->drawingArguments_), token);
-	compare_t(IDENTITY(x_axis_label_, p_load->x_axis_label_), token);
-	compare_t(IDENTITY(y_axis_label_, p_load->y_axis_label_), token);
-	compare_t(IDENTITY(z_axis_label_, p_load->z_axis_label_), token);
-	compare_t(IDENTITY(plot_label_, p_load->plot_label_), token);
+	compare_t(IDENTITY(m_drawingArguments, p_load->m_drawingArguments), token);
+	compare_t(IDENTITY(m_x_axis_label, p_load->m_x_axis_label), token);
+	compare_t(IDENTITY(m_y_axis_label, p_load->m_y_axis_label), token);
+	compare_t(IDENTITY(m_z_axis_label, p_load->m_z_axis_label), token);
+	compare_t(IDENTITY(m_plot_label, p_load->m_plot_label), token);
 	compare_t(IDENTITY(dsMarker_, p_load->dsMarker_), token);
 	compare_t(IDENTITY(secondaryPlotter_, p_load->secondaryPlotter_), token);
 	compare_t(IDENTITY(id_, p_load->id_), token);
@@ -343,11 +343,11 @@ void GBasePlotter::load_(const GBasePlotter* cp) {
 	// No parent class with loadable data
 
 	// Load local data
-	drawingArguments_ = p_load->drawingArguments_;
-	x_axis_label_     = p_load->x_axis_label_;
-	y_axis_label_     = p_load->y_axis_label_;
-	z_axis_label_     = p_load->z_axis_label_;
-	plot_label_       = p_load->plot_label_;
+	m_drawingArguments = p_load->m_drawingArguments;
+	m_x_axis_label     = p_load->m_x_axis_label;
+	m_y_axis_label     = p_load->m_y_axis_label;
+	m_z_axis_label     = p_load->m_z_axis_label;
+	m_plot_label       = p_load->m_plot_label;
 	dsMarker_         = p_load->dsMarker_;
 	id_               = p_load->id_;
 
@@ -419,13 +419,12 @@ std::string GBasePlotter::footerData(const std::string& indent) const {
 
 	// Add this plot's data
 	footer_data
-	<< indent << "// Fooder data for primary plotter" << std::endl
+	<< indent << "// Footer data for primary plotter" << std::endl
 	<< this->footerData_(false, 0, indent);
 
 	// Extract data from the secondary plotters, if any
 	std::size_t pos = 0;
-	std::vector<std::shared_ptr < GBasePlotter>> ::const_iterator
-	cit;
+	std::vector<std::shared_ptr<GBasePlotter>>::const_iterator cit;
 	for (cit = secondaryPlotter_.begin(); cit != secondaryPlotter_.end(); ++cit) {
 		footer_data
 		<< indent << "// Footer data for secondary plotter " << pos << " of " << this->getPlotterName() << std::endl
@@ -616,8 +615,8 @@ std::string GGraph2D::headerData_(
 	}
 
 	header_data
-	<< indent << "double " << xArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << (comment != "" ? comment : "") << std::endl
-	<< indent << "double " << yArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
+	<< indent << "double " << xArrayName << "[" << boost::lexical_cast<std::string>(m_data.size()) << "];" << (comment != "" ? comment : "") << std::endl
+	<< indent << "double " << yArrayName << "[" << boost::lexical_cast<std::string>(m_data.size()) << "];" << std::endl
 	<< std::endl;
 
 	return header_data.str();
@@ -650,7 +649,7 @@ std::string GGraph2D::bodyData_(
 	std::vector<std::tuple<double, double>>::const_iterator it;
 	std::size_t posCounter = 0;
 
-	for (it = data_.begin(); it != data_.end(); ++it) {
+	for (it = m_data.begin(); it != m_data.end(); ++it) {
 		body_data << indent << xArrayName << "[" << posCounter << "] = " << std::get<0>(*it) << ";" << "\t" << yArrayName << "[" << posCounter << "] = " << std::get<1>(*it) << ";" << std::endl;
 
 		posCounter++;
@@ -690,13 +689,13 @@ std::string GGraph2D::footerData_(
 
 	// Fill the data in our tuple-vector into a ROOT TGraph object
 	footer_data
-	<< indent << "TGraph *" << graphName << " = new TGraph(" << data_.size() << ", " << xArrayName << ", " << yArrayName << ");" << std::endl
+	<< indent << "TGraph *" << graphName << " = new TGraph(" << m_data.size() << ", " << xArrayName << ", " << yArrayName << ");" << std::endl
 	<< indent << graphName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
 	<< indent << graphName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl;
 
-	if (plot_label_ != "") {
+	if (m_plot_label != "") {
 		footer_data
-		<< indent << graphName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+		<< indent << graphName << "->SetTitle(\"" << m_plot_label << "\");" << std::endl;
 	} else {
 		footer_data
 		<< indent << graphName << "->SetTitle(\" \");" << std::endl;
@@ -706,15 +705,15 @@ std::string GGraph2D::footerData_(
 	<< indent << graphName << "->Draw(\"" << dA << "\");" << std::endl
 	<< std::endl;
 
-	if (drawArrows_ && data_.size() >= 2) {
+	if (drawArrows_ && m_data.size() >= 2) {
 		std::vector<std::tuple<double, double>>::const_iterator it;
 		std::size_t posCounter = 0;
 
-		double x1 = std::get<0>(*data_.begin());
-		double y1 = std::get<1>(*data_.begin());
+		double x1 = std::get<0>(*m_data.begin());
+		double y1 = std::get<1>(*m_data.begin());
 		double x2, y2;
 
-		for (it = data_.begin() + 1; it != data_.end(); ++it) {
+		for (it = m_data.begin() + 1; it != m_data.end(); ++it) {
 			x2 = std::get<0>(*it);
 			y2 = std::get<1>(*it);
 
@@ -744,8 +743,8 @@ std::string GGraph2D::footerData_(
 std::string GGraph2D::drawingArguments(bool isSecondary) const {
 	std::string dA = "";
 
-	if (this->drawingArguments_ != "") {
-		dA = this->drawingArguments_;
+	if (this->m_drawingArguments != "") {
+		dA = this->m_drawingArguments;
 	} else {
 		if (graphPlotMode::SCATTER == pM_ || true == drawArrows_) {
 			dA = "P";
@@ -944,10 +943,10 @@ std::string GGraph2ED::headerData_(
 	}
 
 	header_data
-	<< indent << "double " << xArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << comment << std::endl
-	<< indent << "double " << exArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
-	<< indent << "double " << yArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
-	<< indent << "double " << eyArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
+	<< indent << "double " << xArrayName << "[" << boost::lexical_cast<std::string>(m_data.size()) << "];" << comment << std::endl
+	<< indent << "double " << exArrayName << "[" << boost::lexical_cast<std::string>(m_data.size()) << "];" << std::endl
+	<< indent << "double " << yArrayName << "[" << boost::lexical_cast<std::string>(m_data.size()) << "];" << std::endl
+	<< indent << "double " << eyArrayName << "[" << boost::lexical_cast<std::string>(m_data.size()) << "];" << std::endl
 	<< std::endl;
 
 	return header_data.str();
@@ -982,7 +981,7 @@ std::string GGraph2ED::bodyData_(
 	std::vector<std::tuple<double, double, double, double>>::const_iterator it;
 	std::size_t posCounter = 0;
 
-	for (it = data_.begin(); it != data_.end(); ++it) {
+	for (it = m_data.begin(); it != m_data.end(); ++it) {
 		body_data
 		<< indent << xArrayName << "[" << posCounter << "] = " << std::get<0>(*it) << ";" << std::endl
 		<< indent << exArrayName << "[" << posCounter << "] = " << std::get<1>(*it) << ";" << std::endl
@@ -1029,13 +1028,13 @@ std::string GGraph2ED::footerData_(
 
 	// Fill the data in our tuple-vector into a ROOT TGraphErrors object
 	footer_data
-	<< indent << "TGraphErrors *" << graphName << " = new TGraphErrors(" << data_.size() << ", " << xArrayName << ", " << yArrayName << ", " << exArrayName << " ," << eyArrayName << ");" << std::endl
+	<< indent << "TGraphErrors *" << graphName << " = new TGraphErrors(" << m_data.size() << ", " << xArrayName << ", " << yArrayName << ", " << exArrayName << " ," << eyArrayName << ");" << std::endl
 	<< indent << graphName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
 	<< indent << graphName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl;
 
-	if (plot_label_ != "") {
+	if (m_plot_label != "") {
 		footer_data
-		<< indent << graphName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+		<< indent << graphName << "->SetTitle(\"" << m_plot_label << "\");" << std::endl;
 	} else {
 		footer_data
 		<< indent << graphName << "->SetTitle(\" \");" << std::endl;
@@ -1055,8 +1054,8 @@ std::string GGraph2ED::footerData_(
 std::string GGraph2ED::drawingArguments(bool isSecondary) const {
 	std::string dA = "";
 
-	if (this->drawingArguments_ != "") {
-		dA = this->drawingArguments_;
+	if (this->m_drawingArguments != "") {
+		dA = this->m_drawingArguments;
 	} else {
 		if (graphPlotMode::SCATTER == pM_) {
 			dA = "P";
@@ -1253,9 +1252,9 @@ std::string GGraph3D::headerData_(
 	}
 
 	header_data
-	<< indent << "double " << xArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << (comment != "" ? comment : "") << std::endl
-	<< indent << "double " << yArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
-	<< indent << "double " << zArrayName << "[" << boost::lexical_cast<std::string>(data_.size()) << "];" << std::endl
+	<< indent << "double " << xArrayName << "[" << boost::lexical_cast<std::string>(m_data.size()) << "];" << (comment != "" ? comment : "") << std::endl
+	<< indent << "double " << yArrayName << "[" << boost::lexical_cast<std::string>(m_data.size()) << "];" << std::endl
+	<< indent << "double " << zArrayName << "[" << boost::lexical_cast<std::string>(m_data.size()) << "];" << std::endl
 	<< std::endl;
 
 	return header_data.str();
@@ -1289,7 +1288,7 @@ std::string GGraph3D::bodyData_(
 	std::vector<std::tuple<double, double, double>>::const_iterator it;
 	std::size_t posCounter = 0;
 
-	for (it = data_.begin(); it != data_.end(); ++it) {
+	for (it = m_data.begin(); it != m_data.end(); ++it) {
 		body_data
 		<< indent << xArrayName << "[" << posCounter << "] = " << std::get<0>(*it) << ";" << "\t"
 		<< yArrayName << "[" << posCounter << "] = " << std::get<1>(*it) << ";" << "\t"
@@ -1334,7 +1333,7 @@ std::string GGraph3D::footerData_(
 
 	// Fill the data in our tuple-vector into a ROOT TGraph object
 	footer_data
-	<< indent << "TGraph2D *" << graphName << " = new TGraph2D(" << data_.size() << ", " << xArrayName << ", " << yArrayName <<  ", " << zArrayName << ");" << std::endl
+	<< indent << "TGraph2D *" << graphName << " = new TGraph2D(" << m_data.size() << ", " << xArrayName << ", " << yArrayName <<  ", " << zArrayName << ");" << std::endl
 	<< indent << graphName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
 	<< indent << graphName << "->GetXaxis()->SetTitleOffset(1.5);" << std::endl
 	<< indent << graphName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
@@ -1345,8 +1344,8 @@ std::string GGraph3D::footerData_(
 	<< indent << graphName << "->SetMarkerSize(1);" << std::endl
 	<< indent << graphName << "->SetMarkerColor(2);" << std::endl;
 
-	if (plot_label_ != "") {
-		footer_data << indent << graphName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+	if (m_plot_label != "") {
+		footer_data << indent << graphName << "->SetTitle(\"" << m_plot_label << "\");" << std::endl;
 	} else {
 		footer_data << indent << graphName << "->SetTitle(\" \");" << std::endl;
 	}
@@ -1355,17 +1354,17 @@ std::string GGraph3D::footerData_(
 	<< indent << graphName << "->Draw(\"" << dA << "\");" << std::endl
 	<< std::endl;
 
-	if (drawLines_ && data_.size() >= 2) {
+	if (drawLines_ && m_data.size() >= 2) {
 		std::vector<std::tuple<double, double, double>>::const_iterator it;
 		std::size_t posCounter = 0;
 
 		double x, y, z;
 
 		footer_data
-		<< indent << "TPolyLine3D *lines_" << graphName << " = new TPolyLine3D(" << data_.size() << ");" << std::endl
+		<< indent << "TPolyLine3D *lines_" << graphName << " = new TPolyLine3D(" << m_data.size() << ");" << std::endl
 		<< std::endl;
 
-		for (it = data_.begin() + 1; it != data_.end(); ++it) {
+		for (it = m_data.begin() + 1; it != m_data.end(); ++it) {
 			x = std::get<0>(*it);
 			y = std::get<1>(*it);
 			z = std::get<2>(*it);
@@ -1392,8 +1391,8 @@ std::string GGraph3D::footerData_(
 std::string GGraph3D::drawingArguments(bool isSecondary) const {
 	std::string dA = "";
 
-	if (this->drawingArguments_ != "") {
-		dA = this->drawingArguments_;
+	if (this->m_drawingArguments != "") {
+		dA = this->m_drawingArguments;
 	} else {
 		dA = "P";
 
@@ -1667,7 +1666,7 @@ std::string GGraph4D::footerData_(
 	, std::size_t pId
 	, const std::string& indent
 ) const {
-	std::vector<std::tuple<double, double, double, double>> localData = data_;
+	std::vector<std::tuple<double, double, double, double>> localData = m_data;
 
 	std::string baseName = suffix(isSecondary, pId);
 
@@ -1966,7 +1965,7 @@ std::string GHistogram1D::bodyData_(
 
 	std::vector<double>::const_iterator it;
 	std::size_t posCounter = 0;
-	for (it = data_.begin(); it != data_.end(); ++it) {
+	for (it = m_data.begin(); it != m_data.end(); ++it) {
 		body_data
 		<< indent << histName << "->Fill(" << *it << ");" << (posCounter == 0 ? comment : ("")) << std::endl;
 		posCounter++;
@@ -1989,8 +1988,8 @@ std::string GHistogram1D::footerData_(
 
 	std::string histName = "histD" + suffix(isSecondary, pId);
 
-	if (plot_label_ != "") {
-		footer_data << indent << histName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+	if (m_plot_label != "") {
+		footer_data << indent << histName << "->SetTitle(\"" << m_plot_label << "\");" << std::endl;
 	} else {
 		footer_data << indent << histName << "->SetTitle(\" \");" << std::endl;
 	}
@@ -2019,8 +2018,8 @@ std::string GHistogram1D::footerData_(
 std::string GHistogram1D::drawingArguments(bool isSecondary) const {
 	std::string dA = "";
 
-	if (drawingArguments_ != "") {
-		dA = drawingArguments_;
+	if (m_drawingArguments != "") {
+		dA = m_drawingArguments;
 	} else {
 		if (isSecondary) {
 			if ("" == dA) {
@@ -2275,7 +2274,7 @@ std::string GHistogram1I::bodyData_(
 
 	std::vector<std::int32_t>::const_iterator it;
 	std::size_t posCounter = 0;
-	for (it = data_.begin(); it != data_.end(); ++it) {
+	for (it = m_data.begin(); it != m_data.end(); ++it) {
 		body_data
 		<< indent << histName << "->Fill(" << *it << ");" << (posCounter == 0 ? comment : ("")) << std::endl;
 		posCounter++;
@@ -2299,9 +2298,9 @@ std::string GHistogram1I::footerData_(
 
 	std::string histName = "histI" + suffix(isSecondary, pId);
 
-	if (plot_label_ != "") {
+	if (m_plot_label != "") {
 		footer_data
-		<< indent << histName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+		<< indent << histName << "->SetTitle(\"" << m_plot_label << "\");" << std::endl;
 	} else {
 		footer_data
 		<< indent << histName << "->SetTitle(\" \");" << std::endl;
@@ -2331,8 +2330,8 @@ std::string GHistogram1I::footerData_(
 std::string GHistogram1I::drawingArguments(bool isSecondary) const {
 	std::string dA = "";
 
-	if (drawingArguments_ != "") {
-		dA = drawingArguments_;
+	if (m_drawingArguments != "") {
+		dA = m_drawingArguments;
 	} else {
 		if (isSecondary) {
 			if ("" == dA) {
@@ -2622,7 +2621,7 @@ std::string GHistogram2D::bodyData_(
 
 	std::vector<std::tuple<double, double>>::const_iterator it;
 	std::size_t posCounter = 0;
-	for (it = data_.begin(); it != data_.end(); ++it) {
+	for (it = m_data.begin(); it != m_data.end(); ++it) {
 		body_data
 		<< indent << histName << "->Fill(" << std::get<0>(*it) << ", " << std::get<1>(*it) << ");" <<
 		(posCounter == 0 ? comment : ("")) << std::endl;
@@ -2647,9 +2646,9 @@ std::string GHistogram2D::footerData_(
 
 	std::string histName = "hist2D" + suffix(isSecondary, pId);
 
-	if (plot_label_ != "") {
+	if (m_plot_label != "") {
 		footer_data
-		<< indent << histName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+		<< indent << histName << "->SetTitle(\"" << m_plot_label << "\");" << std::endl;
 	} else {
 		footer_data
 		<< indent << histName << "->SetTitle(\" \");" << std::endl;
@@ -2679,8 +2678,8 @@ std::string GHistogram2D::footerData_(
 std::string GHistogram2D::drawingArguments(bool isSecondary) const {
 	std::string dA = "";
 
-	if (drawingArguments_ != "") {
-		dA = drawingArguments_;
+	if (m_drawingArguments != "") {
+		dA = m_drawingArguments;
 	} else {
 		switch (dropt_) {
 			case tddropt::TDEMPTY:
@@ -3119,9 +3118,9 @@ std::string GFunctionPlotter1D::footerData_(
 	<< indent << functionName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
 	<< indent << functionName << "->SetNpx(" << nSamplesX_ << ");" << std::endl;
 
-	if (plot_label_ != "") {
+	if (m_plot_label != "") {
 		footer_data
-		<< indent << functionName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+		<< indent << functionName << "->SetTitle(\"" << m_plot_label << "\");" << std::endl;
 	} else {
 		footer_data
 		<< indent << functionName << "->SetTitle(\" \");" << std::endl;
@@ -3143,8 +3142,8 @@ std::string GFunctionPlotter1D::footerData_(
 std::string GFunctionPlotter1D::drawingArguments(bool isSecondary) const {
 	std::string dA = "";
 
-	if (this->drawingArguments_ != "") {
-		dA = this->drawingArguments_;
+	if (this->m_drawingArguments != "") {
+		dA = this->m_drawingArguments;
 	}
 
 	if (isSecondary) {
@@ -3432,9 +3431,9 @@ std::string GFunctionPlotter2D::footerData_(
 	<< indent << functionName << "->SetNpx(" << nSamplesX_ << ");" << std::endl
 	<< indent << functionName << "->SetNpy(" << nSamplesY_ << ");" << std::endl;
 
-	if (plot_label_ != "") {
+	if (m_plot_label != "") {
 		footer_data
-		<< indent << functionName << "->SetTitle(\"" << plot_label_ << "\");" << std::endl;
+		<< indent << functionName << "->SetTitle(\"" << m_plot_label << "\");" << std::endl;
 	} else {
 		footer_data
 		<< indent << functionName << "->SetTitle(\" \");" << std::endl;
