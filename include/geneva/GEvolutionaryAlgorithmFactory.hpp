@@ -74,9 +74,9 @@ public:
 
 	/** @brief The default constructor */
 	G_API_GENEVA GEvolutionaryAlgorithmFactory();
-	/** @brief Initialization with the name of the config file and the default parallelization mode */
+	/** @brief Initialization with the name of the config file */
 	explicit G_API_GENEVA GEvolutionaryAlgorithmFactory(const std::string&);
-	/** @brief The standard constructor */
+	/** @brief Initialization with the name of the config file and the parallelization mode */
 	G_API_GENEVA GEvolutionaryAlgorithmFactory(
 		const std::string&
 		, const execMode&
@@ -87,6 +87,8 @@ public:
 		, const execMode&
 		, std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>
 	);
+   /** @brief The copy constructor */
+   G_API_GENEVA GEvolutionaryAlgorithmFactory(const GEvolutionaryAlgorithmFactory&);
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GEvolutionaryAlgorithmFactory();
 

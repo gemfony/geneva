@@ -43,6 +43,8 @@
 #include "geneva/Go2.hpp"
 #include "geneva/GPluggableOptimizationMonitorsT.hpp"
 
+#include "geneva/GPostOptimizers.hpp"
+
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"
 

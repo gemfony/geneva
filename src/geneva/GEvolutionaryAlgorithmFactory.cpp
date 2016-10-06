@@ -47,26 +47,29 @@ G_API_GENEVA const std::string GEvolutionaryAlgorithmFactory::nickname = "ea";
  */
 GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory()
 	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(
-	"./config/GEvolutionaryAlgorithm.json") { /* nothing */ }
+	"./config/GEvolutionaryAlgorithm.json")
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
- * Initialization with the name of the config file and the default parallelization mode
+ * Initialization with the name of the config file
  */
 GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
 	const std::string &configFile
 )
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(configFile) { /* nothing */ }
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(configFile)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
- * A constructor with the ability to switch the parallelization mode. It initializes a
- * target item as needed.
+ * nitialization with the name of the config file and the default parallelization mode
  */
 GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
-	const std::string &configFile, const execMode &pm
+	const std::string &configFile
+	, const execMode &pm
 )
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(configFile, pm) { /* nothing */ }
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(configFile, pm)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -77,14 +80,23 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
 	const std::string &configFile, const execMode &pm,
 	std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(configFile, pm,
-																									  contentCreatorPtr) { /* nothing */ }
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(configFile, pm, contentCreatorPtr)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The copy constructor
+ */
+GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(const GEvolutionaryAlgorithmFactory& cp)
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(cp)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GEvolutionaryAlgorithmFactory::~GEvolutionaryAlgorithmFactory() { /* nothing */ }
+GEvolutionaryAlgorithmFactory::~GEvolutionaryAlgorithmFactory()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**

@@ -56,6 +56,8 @@ namespace Gem {
 namespace Common {
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * This class forms the basis of a hierarchy of function objects that are
  * required to be serializable, so they may be registered with serializable
@@ -73,7 +75,8 @@ class GSerializableFunctionObjectT
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("GCommonInterfaceT_GSerializableFunctionObjectT_T", boost::serialization::base_object<GCommonInterfaceT<GSerializableFunctionObjectT<processable_type>>>(*this));
+		 & make_nvp("GCommonInterfaceT_GSerializableFunctionObjectT_T"
+		 , boost::serialization::base_object<GCommonInterfaceT<GSerializableFunctionObjectT<processable_type>>>(*this));
 	 }
 
 	 ///////////////////////////////////////////////////////////////////////
@@ -202,10 +205,14 @@ protected:
 };
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
  * @brief The content of the BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) macro. Needed for Boost.Serialization
@@ -220,6 +227,7 @@ struct is_abstract< const Gem::Common::GSerializableFunctionObjectT<processable_
 } /* namespace boost */
 
 /******************************************************************************/
-
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 
 #endif /* GENEVA_LIBRARY_COLLECTION_GSERIALIZABLEFUNCTIONOBJECT_HPP */

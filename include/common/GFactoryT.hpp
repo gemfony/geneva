@@ -107,14 +107,20 @@ public:
 	 * @param configFile The name of a configuration file holding information about objects of type T
 	 */
 	GFactoryT(const std::string &configFile)
-		: configFile_(configFile), id_(GFACTTORYFIRSTID), initialized_(false) { /* nothing */ }
+		: configFile_(configFile)
+	   , id_(GFACTTORYFIRSTID)
+	   , initialized_(false)
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * The copy constructor
 	 */
 	GFactoryT(const GFactoryT<prod_type> &cp)
-		: configFile_(cp.configFile_), id_(cp.id_), initialized_(cp.initialized_) { /* nothing */ }
+		: configFile_(cp.configFile_)
+	   , id_(cp.id_)
+	   , initialized_(cp.initialized_)
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -200,7 +206,7 @@ public:
 	 */
 	template<typename tT>
 	// "tT" stands for "target type"
-	std::shared_ptr <tT> get() {
+	std::shared_ptr<tT> get() {
 		std::shared_ptr <prod_type> p = this->get();
 		if (p) {
 			return Gem::Common::convertSmartPointer<prod_type, tT>(p);
@@ -251,7 +257,7 @@ public:
 	/**
 	 * Loads the data of another GFactoryT<> object
 	 */
-	virtual void load(std::shared_ptr <GFactoryT<prod_type>> cp) {
+	virtual void load(std::shared_ptr<GFactoryT<prod_type>> cp) {
 		configFile_ = cp->configFile_;
 		id_ = cp->id_;
 		initialized_ = cp->initialized_;

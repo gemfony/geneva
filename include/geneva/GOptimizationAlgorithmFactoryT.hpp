@@ -137,6 +137,32 @@ public:
 		, maxSecondsCL_(-1)
 	{ /* nothing */ }
 
+   /***************************************************************************/
+	/**
+	 * The copy constructor
+	 */
+	GOptimizationAlgorithmFactoryT(const GOptimizationAlgorithmFactoryT<oa_type>& cp)
+		: Gem::Common::GFactoryT<oa_type>(cp)
+		, pm_(cp.pm_)
+	   , nEvaluationThreads_(cp.nEvaluationThreads_)
+	   , waitFactor_(cp.waitFactor_)
+	   , doLogging_(cp.doLogging_)
+	   , contentCreatorPtr_()
+	   , maxIterationCL_(cp.maxIterationCL_)
+	   , maxStallIterationCL_(cp.maxStallIterationCL_)
+	   , maxSecondsCL_(cp.maxSecondsCL_)
+	{
+		if(cp.contentCreatorPtr_) {
+			if(contentCreatorPtr_) {
+				contentCreatorPtr_->load(cp.contentCreatorPtr_);
+			} else {
+				contentCreatorPtr_ = cp.contentCreatorPtr_->clone();
+			}
+		} else {
+			contentCreatorPtr_.reset();
+		}
+	}
+
 	/***************************************************************************/
 	/**
 	 * The destructor
