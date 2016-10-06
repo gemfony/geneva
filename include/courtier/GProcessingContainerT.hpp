@@ -230,6 +230,14 @@ public:
 
 	 /***************************************************************************/
 	 /**
+	  * Calling this function will disable pre-processing of this work item
+	  */
+	 void preventPreProcessing() {
+		 m_mayBePreProcessed = false;
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Allows to register a pre-processor object
 	  */
 	 void registerPreProcessor(std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<submission_type>> pre_processor_ptr) {
@@ -258,6 +266,14 @@ public:
 	  */
 	 void allowPostProcessing() {
 		 m_mayBePostProcessed = true;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Calling this function will disable pre-processing of this work item
+	  */
+	 void preventPostProcessing() {
+		 m_mayBePostProcessed = false;
 	 }
 
 	 /***************************************************************************/

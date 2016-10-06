@@ -201,8 +201,7 @@ public:
 			(this->getMnemonic() + std::string("MaxSeconds")).c_str()
 			, po::value<std::int32_t>(&maxSecondsCL_)->default_value(-1)
 			, (std::string("\t[GOptimizationAlgorithmFactoryT / ") + this->getMnemonic() + "] The maximum allowed duration in seconds or 0 to disable limit").c_str()
-		)
-			;
+		);
 	}
 
 	/***************************************************************************/

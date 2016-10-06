@@ -48,14 +48,14 @@
 #include "geneva/GEvolutionaryAlgorithmFactory.hpp"
 
 namespace Gem {
-namespace Common {
+namespace Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
 class GEvolutionaryAlgorithmPostOptimizer
-	: public GSerializableFunctionObjectT<GParameterSet>
+	: public Gem::Common::GSerializableFunctionObjectT<GParameterSet>
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -66,9 +66,9 @@ class GEvolutionaryAlgorithmPostOptimizer
 
 		 ar
 		 & make_nvp("GSerializableFunctionObjectT_GParameterSet"
-						, boost::serialization::base_object<GSerializableFunctionObjectT<GParameterSet>>(*this))
+						, boost::serialization::base_object<Gem::Common::GSerializableFunctionObjectT<GParameterSet>>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_configFile)
-		 & BOOST_SERIALIZATION_NVP(executionMode);
+		 & BOOST_SERIALIZATION_NVP(m_executionMode);
 
 		 // TODO: How to initialize the ea factory
 	 }
@@ -83,7 +83,7 @@ public:
 		 execMode executionMode
 	 	 , std::string configFile
 	 )
-	 	: GSerializableFunctionObjectT()
+	 	: Gem::Common::GSerializableFunctionObjectT<GParameterSet>()
 	   , m_configFile(configFile)
 	 	, m_executionMode((executionMode==execMode::EXECMODE_SERIAL || executionMode==execMode::EXECMODE_MULTITHREADED)?executionMode:execMode::EXECMODE_SERIAL)
 	 {
@@ -93,7 +93,7 @@ public:
 				 /* nothing */
 				 break;
 
-			 case EXECMODE_BROKERAGE:
+			 case execMode::EXECMODE_BROKERAGE:
 			 default: {
 				 glogger
 					 << "In GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(execMode): Error!" << std::endl
@@ -108,7 +108,7 @@ public:
 	  * The copy constructor
 	  */
 	 GEvolutionaryAlgorithmPostOptimizer(const GEvolutionaryAlgorithmPostOptimizer& cp)
-	 	: GSerializableFunctionObjectT(cp)
+	 	: Gem::Common::GSerializableFunctionObjectT<GParameterSet>(cp)
 	   , m_configFile(cp.m_configFile)
 	 	, m_executionMode(cp.m_executionMode) // We assume that a valid execution mode is stored here
 	 { /* nothing */ }
@@ -167,20 +167,20 @@ public:
 	  * @param limit The maximum deviation for floating point values (important for similarity checks)
 	  */
 	 virtual void compare(
-		 const GEvolutionaryAlgorithmPostOptimizer &cp
+		 const Gem::Common::GSerializableFunctionObjectT<GParameterSet> &cp
 		 , const Gem::Common::expectation &e
 		 , const double &limit
 	 ) const override {
 		 using namespace Gem::Common;
 
-		 // Check that we are dealing with a GSerializableFunctionObjectT<processable_type> reference independent of this object and convert the pointer
+		 // Check that we are dealing with a Gem::Common::GSerializableFunctionObjectT<processable_type> reference independent of this object and convert the pointer
 		 const GEvolutionaryAlgorithmPostOptimizer *p_load
-			 = Gem::Common::g_convert_and_compare<GEvolutionaryAlgorithmPostOptimizer, GEvolutionaryAlgorithmPostOptimizer>(cp, this);
+			 = Gem::Common::g_convert_and_compare<Gem::Common::GSerializableFunctionObjectT<GParameterSet>, GEvolutionaryAlgorithmPostOptimizer>(cp, this);
 
 		 GToken token("GEvolutionaryAlgorithmPostOptimizer", e);
 
 		 // Compare our parent data ...
-		 Gem::Common::compare_base<GSerializableFunctionObjectT<GParameterSet>>(IDENTITY(*this, *p_load), token);
+		 Gem::Common::compare_base<Gem::Common::GSerializableFunctionObjectT<GParameterSet>>(IDENTITY(*this, *p_load), token);
 
 		 // ... and then our local data
 		 compare_t(IDENTITY(m_configFile, p_load->m_configFile), token);
@@ -200,7 +200,7 @@ public:
 				 m_executionMode = executionMode;
 			 } break;
 
-			 case EXECMODE_BROKERAGE:
+			 case execMode::EXECMODE_BROKERAGE:
 			 default: {
 				 glogger
 				 << "In GEvolutionaryAlgorithmPostOptimizer::setExecMode(): Error!" << std::endl
@@ -235,12 +235,13 @@ protected:
 	 /**
 	  * Loads the data of another GEvolutionaryAlgorithmPostOptimizer object
 	  */
-	 virtual void load_(const GEvolutionaryAlgorithmPostOptimizer *cp) override {
-		 // Check that we are dealing with a GSerializableFunctionObjectT<processable_type> reference independent of this object and convert the pointer
-		 const GEvolutionaryAlgorithmPostOptimizer *p_load = Gem::Common::g_convert_and_compare<GEvolutionaryAlgorithmPostOptimizer, GEvolutionaryAlgorithmPostOptimizer>(cp, this);
+	 virtual void load_(const Gem::Common::GSerializableFunctionObjectT<GParameterSet> *cp) override {
+		 // Check that we are dealing with a GEvolutionaryAlgorithmPostOptimizer reference independent of this object and convert the pointer
+		 const GEvolutionaryAlgorithmPostOptimizer *p_load
+			 = Gem::Common::g_convert_and_compare<Gem::Common::GSerializableFunctionObjectT<GParameterSet>, GEvolutionaryAlgorithmPostOptimizer>(cp, this);
 
 		 // Load our parent class'es data ...
-		 GSerializableFunctionObjectT<GParameterSet>::load_(cp);
+		 Gem::Common::GSerializableFunctionObjectT<GParameterSet>::load_(cp);
 
 		 // ... and then our local data
 		 m_configFile = p_load->m_configFile;
@@ -265,7 +266,7 @@ protected:
 
 		 // Obtain a new evolutionary algorithm from the factory. It will be
 		 // equipped with all settings from the config file
-		 std::shared_ptr<GBaseEA> ea_ptr = eaFactory();
+		 std::shared_ptr<GBaseEA> ea_ptr = eaFactory.get<GBaseEA>();
 
 		 // Make sure p is clean
 		 if(p.isDirty()) {
@@ -275,11 +276,20 @@ protected:
 			 << GEXCEPTION;
 		 }
 
-		 // Add our individual to the algorithm
-		 ea_ptr.push_back(p.clone());
+		 // Clone the individual for post-processing
+		 std::shared_ptr<GParameterSet> p_opt_raw = p.clone<GParameterSet>();
 
-		 // Perform the actual optimization and retrieve the best individual
-		 std::shared_ptr<GParameterSet> p_opt_ptr = ea_ptr->optimize<GParameterSet>();
+		 // Make sure the post-optimization does not trigger post-optimization ...
+		 p_opt_raw->preventPostProcessing();
+
+		 // Add our individual to the algorithm
+		 ea_ptr->push_back(p_opt_raw);
+
+		 // Perform the actual optimization
+		 ea_ptr->optimize();
+
+		 // Retrieve the best individual
+		 std::shared_ptr<GParameterSet> p_opt_ptr = ea_ptr->getBestGlobalIndividual<GParameterSet>();
 
 	    // Load the individual into the argument GParameterSet
 		 p.load(p_opt_ptr);
@@ -302,7 +312,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Common */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GENEVA_LIBRARY_COLLECTION_GPOSTOPTIMIZERS_HPP */
