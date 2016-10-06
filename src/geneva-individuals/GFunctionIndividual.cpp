@@ -929,7 +929,7 @@ double GFunctionIndividual::fitnessCalculation() {
 		default: {
 			glogger
 			<< "In GFunctionIndividual::fitnessCalculation(): Error!" << std::endl
-			<< "Got invalid function type" << std::endl
+			<< "Got invalid function type " << demoFunction_ << std::endl
 			<< GEXCEPTION;
 		}
 			break;
