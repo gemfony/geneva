@@ -429,7 +429,7 @@ int main(int argc, char **argv){
 	// Create the first set of parent individuals. Initialization of parameters is done randomly.
 	std::vector<std::shared_ptr<GFunctionIndividual>> parentIndividuals;
 	for(std::size_t p = 0 ; p<nParents; p++) {
-		parentIndividuals.push_back(gfi.get<GFunctionIndividual>());
+		parentIndividuals.push_back(gfi.get_as<GFunctionIndividual>());
 	}
 
 	/****************************************************************************/

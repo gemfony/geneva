@@ -78,7 +78,7 @@ void startReferenceMeasurement(
 	std::uint32_t nMeasurementsPerIteration = 5;
 	std::size_t iter = 0;
 	std::shared_ptr<GDelayIndividual> gdi_ptr;
-	while((gdi_ptr = gdif.get<GDelayIndividual>())) {
+	while((gdi_ptr = gdif.get_as<GDelayIndividual>())) {
 		if(0==iter) { // The first individual must already have been produced in order to access parsed data
 			// Determine the amount of seconds the process should sleep in between two measurements
 			interMeasurementDelay = gdif.getInterMeasurementDelay();
@@ -152,7 +152,7 @@ void startParallelMeasurement(
 	std::uint32_t nMeasurementsPerIteration = 5;
 	std::size_t iter = 0;
 	std::shared_ptr<GDelayIndividual> gdi_ptr;
- 	while((gdi_ptr = gdif.get<GDelayIndividual>())) {
+ 	while((gdi_ptr = gdif.get_as<GDelayIndividual>())) {
 		if(0==iter) { // The first individual must already have been produced in order to access parsed data
 			// Determine the amount of seconds the process should sleep in between two measurements
 			interMeasurementDelay = gdif.getInterMeasurementDelay();

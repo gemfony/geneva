@@ -142,7 +142,7 @@ public:
 	/**
 	 * Allows the creation of objects of the desired type.
 	 */
-	virtual std::shared_ptr <prod_type> get() {
+	virtual std::shared_ptr<prod_type> get() {
 		// Make sure the initialization code has been executed.
 		// This function will do nothing when called more than once
 		this->globalInit();
@@ -206,7 +206,7 @@ public:
 	 */
 	template<typename tT>
 	// "tT" stands for "target type"
-	std::shared_ptr<tT> get() {
+	std::shared_ptr<tT> get_as() {
 		std::shared_ptr <prod_type> p = this->get();
 		if (p) {
 			return Gem::Common::convertSmartPointer<prod_type, tT>(p);

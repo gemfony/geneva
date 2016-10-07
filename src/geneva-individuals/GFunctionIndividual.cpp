@@ -978,7 +978,7 @@ std::ostream &operator<<(std::ostream &s, std::shared_ptr <Gem::Geneva::GFunctio
  * @param configFile The name of the configuration file
  */
 GFunctionIndividualFactory::GFunctionIndividualFactory(const std::string &configFile)
-	: Gem::Common::GFactoryT<GParameterSet>(configFile), adProb_(GFI_DEF_ADPROB), adaptAdProb_(GFI_DEF_ADAPTADPROB),
+	: GParameterSetFactory(configFile), adProb_(GFI_DEF_ADPROB), adaptAdProb_(GFI_DEF_ADAPTADPROB),
 	  minAdProb_(GFI_DEF_MINADPROB), maxAdProb_(GFI_DEF_MAXADPROB), adaptionThreshold_(GFI_DEF_ADAPTIONTHRESHOLD),
 	  useBiGaussian_(GFI_DEF_USEBIGAUSSIAN), sigma1_(GFI_DEF_SIGMA1), sigmaSigma1_(GFI_DEF_SIGMASIGMA1),
 	  minSigma1_(GFI_DEF_MINSIGMA1), maxSigma1_(GFI_DEF_MAXSIGMA1), sigma2_(GFI_DEF_SIGMA2),
@@ -992,7 +992,7 @@ GFunctionIndividualFactory::GFunctionIndividualFactory(const std::string &config
  * The copy constructor
  */
 GFunctionIndividualFactory::GFunctionIndividualFactory(const GFunctionIndividualFactory &cp)
-	: Gem::Common::GFactoryT<GParameterSet>(cp), adProb_(cp.adProb_), adaptAdProb_(cp.adaptAdProb_),
+	: GParameterSetFactory(cp), adProb_(cp.adProb_), adaptAdProb_(cp.adaptAdProb_),
 	  minAdProb_(cp.minAdProb_), maxAdProb_(cp.maxAdProb_), adaptionThreshold_(cp.adaptionThreshold_),
 	  useBiGaussian_(cp.useBiGaussian_), sigma1_(cp.sigma1_), sigmaSigma1_(cp.sigmaSigma1_), minSigma1_(cp.minSigma1_),
 	  maxSigma1_(cp.maxSigma1_), sigma2_(cp.sigma2_), sigmaSigma2_(cp.sigmaSigma2_), minSigma2_(cp.minSigma2_),
@@ -1005,7 +1005,7 @@ GFunctionIndividualFactory::GFunctionIndividualFactory(const GFunctionIndividual
  * The default constructor. Only needed for (de-)serialization purposes, hence empty.
  */
 GFunctionIndividualFactory::GFunctionIndividualFactory()
-	: Gem::Common::GFactoryT<GParameterSet>("empty"), adProb_(GFI_DEF_ADPROB), adaptAdProb_(GFI_DEF_ADAPTADPROB),
+	: GParameterSetFactory("empty"), adProb_(GFI_DEF_ADPROB), adaptAdProb_(GFI_DEF_ADAPTADPROB),
 	  minAdProb_(GFI_DEF_MINADPROB), maxAdProb_(GFI_DEF_MAXADPROB), adaptionThreshold_(GFI_DEF_ADAPTIONTHRESHOLD),
 	  useBiGaussian_(GFI_DEF_USEBIGAUSSIAN), sigma1_(GFI_DEF_SIGMA1), sigmaSigma1_(GFI_DEF_SIGMASIGMA1),
 	  minSigma1_(GFI_DEF_MINSIGMA1), maxSigma1_(GFI_DEF_MAXSIGMA1), sigma2_(GFI_DEF_SIGMA2),
@@ -1024,9 +1024,9 @@ GFunctionIndividualFactory::~GFunctionIndividualFactory() { /* nothing */ }
 /**
  * Loads the data of another GFunctionIndividualFactory object
  */
-void GFunctionIndividualFactory::load(std::shared_ptr < Gem::Common::GFactoryT<GParameterSet>> cp_raw_ptr) {
+void GFunctionIndividualFactory::load(std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> cp_raw_ptr) {
 	// Load our parent class'es data
-	Gem::Common::GFactoryT<GParameterSet>::load(cp_raw_ptr);
+	GParameterSetFactory::load(cp_raw_ptr);
 
 	// Convert the base pointer
 	std::shared_ptr <GFunctionIndividualFactory> cp_ptr
@@ -1758,7 +1758,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
 	);
 
 	// Allow our parent class to describe its options
-	Gem::Common::GFactoryT<GParameterSet>::describeLocalOptions_(gpb);
+	GParameterSetFactory::describeLocalOptions_(gpb);
 }
 
 /******************************************************************************/

@@ -88,6 +88,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GParameterPropertyParser.hpp
 	GParameterScanFactory.hpp
 	GParameterSet.hpp
+    GParameterSetFactory.hpp
 	GParameterSetParChild.hpp
 	GParameterSetFixedSizePriorityQueue.hpp
 	GParameterSetMultiConstraint.hpp

@@ -130,7 +130,7 @@ public:
 	  */
 	 GBaseExecutorT(const GBaseExecutorT<processable_type> &cp)
 		 : m_submission_counter(SUBMISSIONCOUNTERTYPE(0))
-			, m_expectedNumber(0)
+		 , m_expectedNumber(0)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -1368,7 +1368,15 @@ private:
 			 maxTimeout = GBaseExecutorT<processable_type>::m_lastAverage * GBaseExecutorT<processable_type>::m_expectedNumber * m_waitFactor;
 		 }
 
-		 (*m_waiting_times_graph) & std::make_tuple(double(current_iteration), maxTimeout.count());
+		 m_waiting_times_graph->add(std::make_tuple(double(current_iteration), maxTimeout.count()));
+		 // TODO: This is a hack. Submitted for current debugging purposes
+		 std::cout
+			 << "Maximum waiting time in iteration "
+			 << current_iteration << ": "
+			 << maxTimeout.count()
+			 << " s (" << GBaseExecutorT<processable_type>::m_lastAverage.count()
+		 	 << ", " << GBaseExecutorT<processable_type>::m_expectedNumber
+		    << ", " << m_waitFactor << ")" << std::endl;
 
 		 while (true) { // Loop until a timeout is reached or all current items have returned
 			 if(m_waitFactor > 0.) {

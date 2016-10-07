@@ -110,7 +110,7 @@ int main(int argc, char **argv) {
 	//---------------------------------------------------------------------------
 	// Add a number of start values to the go object. We also add some constraint definitions here.
 	for(std::size_t i=0; i<10; i++) {
-		std::shared_ptr<GFunctionIndividual> p = gfi_ptr->get<GFunctionIndividual>();
+		std::shared_ptr<GFunctionIndividual> p = gfi_ptr->get_as<GFunctionIndividual>();
 
 		// Create the constraint objects
 		std::shared_ptr<GDoubleSumConstraint>           doublesum_constraint_ptr(new GDoubleSumConstraint(1.));

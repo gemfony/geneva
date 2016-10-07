@@ -40,14 +40,13 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include <common/GHelperFunctionsT.hpp>
-#include <common/GPlotDesigner.hpp>
-#include <geneva/Go2.hpp>
+#include "common/GHelperFunctionsT.hpp"
+#include "common/GPlotDesigner.hpp"
+#include "geneva/Go2.hpp"
 
 #include "GOptimizationBenchmarkConfig.hpp"
 
 // The individual that should be optimized
-#include "geneva-individuals/GFunctionIndividual.hpp"
 #include "geneva-individuals/GFunctionIndividual.hpp"
 
 using namespace Gem::Geneva;
@@ -104,7 +103,7 @@ int main(int argc, char **argv) {
 		// Run the desired number of tests
 		for(std::size_t test=0; test<nTests; test++) {
 			// Retrieve an individual from the factory
-			std::shared_ptr<GFunctionIndividual> g = gfi.get<GFunctionIndividual>();
+			std::shared_ptr<GFunctionIndividual> g = gfi.get_as<GFunctionIndividual>();
 
 #ifdef DEBUG
 			if(g->getParameterSize() != *it) {

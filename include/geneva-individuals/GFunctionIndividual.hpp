@@ -49,7 +49,6 @@
 #define GFUNCTIONINDIVIDUAL_HPP_
 
 // Geneva header files go here
-#include "common/GFactoryT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GMathHelperFunctions.hpp"
 #include "hap/GRandomT.hpp"
@@ -62,6 +61,7 @@
 #include "geneva/GDoubleBiGaussAdaptor.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GParameterSetMultiConstraint.hpp"
+#include "geneva/GParameterSetFactory.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -444,14 +444,14 @@ G_API_INDIVIDUALS std::ostream &operator<<(std::ostream &, std::shared_ptr <Gem:
  * A factory for GFunctionIndividual objects
  */
 class GFunctionIndividualFactory
-	: public Gem::Common::GFactoryT<GParameterSet> {
+	: public GParameterSetFactory {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
 
 	 template<class Archive>
 	 void serialize(Archive &ar, const unsigned int) {
 		 ar
-		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Common::GFactoryT<GParameterSet>)
+		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetFactory)
 		 & BOOST_SERIALIZATION_NVP(adProb_)
 		 & BOOST_SERIALIZATION_NVP(adaptAdProb_)
 		 & BOOST_SERIALIZATION_NVP(minAdProb_)
@@ -600,9 +600,9 @@ public:
 	 /***************************************************************************/
 
 	 /** @brief Loads the data of another GFunctionIndividualFactory object */
-	 G_API_INDIVIDUALS virtual void load(std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>>);
+	 G_API_INDIVIDUALS virtual void load(std::shared_ptr <GFactoryT<GParameterSet>>);
 	 /** @brief Creates a deep clone of this object */
-	 G_API_INDIVIDUALS virtual std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> clone() const;
+	 G_API_INDIVIDUALS virtual std::shared_ptr <GFactoryT<GParameterSet>> clone() const;
 
 protected:
 	 /** @brief Creates individuals of this type */

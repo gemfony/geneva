@@ -42,7 +42,6 @@
 // Geneva header files go here
 #include "geneva/Go2.hpp"
 #include "geneva/GPluggableOptimizationMonitorsT.hpp"
-
 #include "geneva/GPostOptimizers.hpp"
 
 // The individual that should be optimized
@@ -68,6 +67,7 @@ int main(int argc, char **argv) {
 	std::string monitorNAdaptions = "empty";
 	std::string logSigma = "empty";
 	std::string monitorTimings = "empty";
+	bool usePostProcessor = false;
 
 	// Assemble command line options
 	boost::program_options::options_description user_options;
@@ -107,9 +107,10 @@ int main(int argc, char **argv) {
 		"monitorTimings"
 		, po::value<std::string>(&monitorTimings)->implicit_value(std::string("./timingsLog.C"))->default_value("empty")
 		, "Logs the times for all processing steps"
-	)
-
-	;
+	)(
+		"usePostProcessor"
+		, po::value<bool>(&usePostProcessor)->implicit_value(true)->default_value(false)
+	);
 
 	Go2 go(argc, argv, "./config/Go2.json", user_options);
 
@@ -122,8 +123,21 @@ int main(int argc, char **argv) {
 	//---------------------------------------------------------------------------
 	// Create a factory for GFunctionIndividual objects and perform
 	// any necessary initial work.
-	std::shared_ptr<GFunctionIndividualFactory>
-		gfi_ptr(new GFunctionIndividualFactory("./config/GFunctionIndividual.json"));
+	std::shared_ptr<GFunctionIndividualFactory> gfi_ptr(new GFunctionIndividualFactory("./config/GFunctionIndividual.json"));
+
+	//---------------------------------------------------------------------------
+	// Register a post-processor, if this was requested by the user
+	if(usePostProcessor) {
+		std::shared_ptr<GEvolutionaryAlgorithmPostOptimizer> eaPostOptimizer_ptr
+			= std::shared_ptr<GEvolutionaryAlgorithmPostOptimizer>(
+				new GEvolutionaryAlgorithmPostOptimizer(
+					execMode::EXECMODE_SERIAL
+					, "./GPostEvolutionaryAlgorithm.json"
+				)
+			);
+
+		gfi_ptr->registerPostProcessor(eaPostOptimizer_ptr);
+	}
 
 	//---------------------------------------------------------------------------
 	// Register pluggable optimization monitors, if requested by the user

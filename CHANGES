@@ -3,15 +3,32 @@
 
 The main changes for this release include:
 
-- Added the option to specify a minimum number of iterations and a minimum time that the
-  optimization should run. Only interactive halt-criteria (Ctrl-C, "touched halt") are
-  observed, as long as the minimum number ierations / timeframe are not met. Examine the sample
-  config files for these options and add them to your own files. You may also let Geneva generate
-  fresh files for you.
-- Modified the code so that it compiles under Windows 10 / MSVC 14 . Note that Windows-related
-  problems still remain.
-- Gave GHistogram1D the ability to automatically detect the data range
-- Added a pluggable optimization monitor for processing timings
+******************************* PLEASE NOTE ************************************
+
+ - There was a slight change for the API of GFactoryT. Retrieving an object
+   as a (derived) type now requires a call to get_as<derived_type> instead of
+   get<derived_type>, as otherwise the compiler confuses an overload of get()
+   in classes derived from GFactoryT
+ - In order to register pre- - and post-processors, factories for individuals
+   should now be derived from GParameterSetFactory instead of GFactoryT<GParmeterSet>.
+   See the GFunctionIndividualFactory inside of GFunctionIndividual.hpp/.cpp for
+   an example
+
+********************************************************************************
+
+ - Added the option to specify a minimum number of iterations and a minimum time that the
+   optimization should run. Only interactive halt-criteria (Ctrl-C, "touched halt") are
+   observed, as long as the minimum number ierations / timeframe are not met. Examine the sample
+   config files for these options and add them to your own files. You may also let Geneva generate
+   fresh files for you.
+ - Modified the code so that it compiles under Windows 10 / MSVC 14 . Note that Windows-related
+   problems still remain.
+ - Gave GHistogram1D the ability to automatically detect the data range
+ - Added a pluggable optimization monitor for processing timings
+ - Added a class for serializable function objects
+ - Added the option to register (serializable) function options with GParameterSet-derivatives for
+   pre- and postprocessing in conjunction with the evaluation
+ - Added a post-processor for running a sub-optimization on an individual
 
 CMake Version 3.1 is required.
 

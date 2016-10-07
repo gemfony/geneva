@@ -477,13 +477,13 @@ int main(int argc, char **argv){
 	// Create initial individuals for the population
 	if(allRandomInit) { // Random initialization of all individuals in the population
 		for(std::size_t p = 0 ; p<pop_ptr->getDefaultPopulationSize(); p++) {
-			parentIndividuals.push_back(gfi.get<GFunctionIndividual>());
+			parentIndividuals.push_back(gfi.get_as<GFunctionIndividual>());
 		}
 	} else { // Individuals of the same neighborhood start from the same location
 		for(std::size_t n=0; n<nNeighborhoods; n++) {
 			// Initialize the first individual of the neighborhood
 			std::shared_ptr<GFunctionIndividual> functionIndividual_ptr
-				= gfi.get<GFunctionIndividual>();
+				= gfi.get_as<GFunctionIndividual>();
 
 			// Now add the required number of clones to the neighborhood
 			for(std::size_t p=1; p<nNeighborhoodMembers; p++) {

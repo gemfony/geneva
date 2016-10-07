@@ -293,6 +293,8 @@ protected:
 
 	    // Load the individual into the argument GParameterSet
 		 p.load(p_opt_ptr);
+
+		 return true;
 	 }
 
 private:
