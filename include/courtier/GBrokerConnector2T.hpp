@@ -987,7 +987,9 @@ public:
 				 this->setInitialWaitFactor(w);
 			 }
 		 )
-			 << "A static double factor for timeouts in the first iteration";
+			 << "A static double factor for timeouts in the first iteration." << std::endl
+		    << "Set this to the inverse of the number of parallel processing" << std::endl
+			 << "units being used."
 
 		 gpb.registerFileParameter<std::size_t>(
 			 "maxResubmissions" // The name of the variable
