@@ -24,11 +24,14 @@ The main changes for this release include:
  - Modified the code so that it compiles under Windows 10 / MSVC 14 . Note that Windows-related
    problems still remain.
  - Gave GHistogram1D the ability to automatically detect the data range
- - Added a pluggable optimization monitor for processing timings
+ - Added a pluggable optimization monitor for processing timings (as a 1D-histogram as well as
+   as a function of the iteration with a 2D histogram)
  - Added a class for serializable function objects
  - Added the option to register (serializable) function options with GParameterSet-derivatives for
    pre- and postprocessing in conjunction with the evaluation
  - Added a post-processor for running a sub-optimization on an individual
+ - Gave GDataCollector1T and GDataCollector2T (and with them GHistogram1D and GHistogram2D) the
+   ability to automatically detect ranges
 
 CMake Version 3.1 is required.
 

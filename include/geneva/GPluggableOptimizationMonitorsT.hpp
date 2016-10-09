@@ -3780,7 +3780,9 @@ public:
 /******************************************************************************/
 /**
  * This class allows to log the time needed for the processing step of each
- * individual. The output happens in the form of a root file.
+ * individual. The output happens in the form of two root files, one holding histograms
+ * for the processing times, the other showing the distribution of processing times for
+ * each iteration in a 2D histogram
  */
 template <typename ind_type>
 class GProcessingTimesLoggerT
@@ -3795,14 +3797,22 @@ class GProcessingTimesLoggerT
 
 		 ar
 		 & make_nvp("GBasePluggableOMT",	boost::serialization::base_object<GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(*this))
-		 & BOOST_SERIALIZATION_NVP(m_fileName)
-		 & BOOST_SERIALIZATION_NVP(m_canvasDimensions)
-		 & BOOST_SERIALIZATION_NVP(m_gpd)
+		 & BOOST_SERIALIZATION_NVP(m_fileName_pth)
+		 & BOOST_SERIALIZATION_NVP(m_canvasDimensions_pth)
+		 & BOOST_SERIALIZATION_NVP(m_gpd_pth)
+		 & BOOST_SERIALIZATION_NVP(m_fileName_pth2)
+		 & BOOST_SERIALIZATION_NVP(m_canvasDimensions_pth2)
+		 & BOOST_SERIALIZATION_NVP(m_gpd_pth2)
 		 & BOOST_SERIALIZATION_NVP(m_pre_processing_times_hist)
 		 & BOOST_SERIALIZATION_NVP(m_processing_times_hist)
 		 & BOOST_SERIALIZATION_NVP(m_post_processing_times_hist)
 		 & BOOST_SERIALIZATION_NVP(m_all_processing_times_hist)
-		 & BOOST_SERIALIZATION_NVP(m_nBinsX);
+		 & BOOST_SERIALIZATION_NVP(m_pre_processing_times_hist2D)
+		 & BOOST_SERIALIZATION_NVP(m_processing_times_hist2D)
+	 	 & BOOST_SERIALIZATION_NVP(m_post_processing_times_hist2D)
+		 & BOOST_SERIALIZATION_NVP(m_all_processing_times_hist2D)
+		 & BOOST_SERIALIZATION_NVP(m_nBinsX)
+		 & BOOST_SERIALIZATION_NVP(m_nBinsY);
 	 }
 	 ///////////////////////////////////////////////////////////////////////
 
@@ -3818,8 +3828,10 @@ public:
 	  * The default constructor. Note that some variables may be initialized in the class body.
 	  */
 	 GProcessingTimesLoggerT()
-		 : m_canvasDimensions(std::tuple<std::uint32_t,std::uint32_t>(1600,1200))
-		 , m_gpd("Timings for the processing steps of individuals", 2, 2)
+		 : m_canvasDimensions_pth(std::tuple<std::uint32_t,std::uint32_t>(1600,1200))
+		 , m_gpd_pth("Timings for the processing steps of individuals", 2, 2)
+		 , m_canvasDimensions_pth2(std::tuple<std::uint32_t,std::uint32_t>(1600,1200))
+		 , m_gpd_pth2("Timings for the processing steps of individuals vs. iteration", 2, 2)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -3827,13 +3839,19 @@ public:
 	  * Initialization with a file name. Note that some variables may be initialized in the class body.
 	  */
 	 GProcessingTimesLoggerT(
-		 const std::string& fileName
+		 const std::string& fileName_pth
+		 , const std::string& fileName_pth2
 	 	 , std::size_t nBinsX
+		 , std::size_t nBinsY
 	 )
-		 : m_fileName(fileName)
-	 	 , m_canvasDimensions(std::tuple<std::uint32_t,std::uint32_t>(1600,1200))
-	 	 , m_gpd("Timings for the processing steps of individuals", 2, 2)
-	    , m_nBinsX(nBinsX)
+		 : m_fileName_pth(fileName_pth)
+		 , m_canvasDimensions_pth(std::tuple<std::uint32_t,std::uint32_t>(1600,1200))
+		 , m_gpd_pth("Timings for the processing steps of individuals", 2, 2)
+		 , m_fileName_pth2(fileName_pth2)
+		 , m_canvasDimensions_pth2(std::tuple<std::uint32_t,std::uint32_t>(1600,1200))
+		 , m_gpd_pth2("Timings for the processing steps of individuals vs. iteration", 2, 2)
+		 , m_nBinsX(nBinsX)
+	    , m_nBinsY(nBinsY)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -3841,15 +3859,17 @@ public:
 	  * The copy constructor
 	  */
 	 GProcessingTimesLoggerT(const GProcessingTimesLoggerT<ind_type>& cp)
-		 : m_fileName(cp.m_fileName)
-		 , m_canvasDimensions(cp.m_canvasDimensions)
-		 , m_gpd(cp.m_gpd)
+		 : m_fileName_pth(cp.m_fileName_pth)
+		 , m_canvasDimensions_pth(cp.m_canvasDimensions_pth)
+		 , m_gpd_pth(cp.m_gpd_pth)
+		 , m_fileName_pth2(cp.m_fileName_pth2)
+		 , m_canvasDimensions_pth2(cp.m_canvasDimensions_pth2)
+		 , m_gpd_pth2(cp.m_gpd_pth2)
 	 	 , m_nBinsX(cp.m_nBinsX)
+		 , m_nBinsY(cp.m_nBinsY)
 	 {
-		 Gem::Common::copyCloneableSmartPointer(cp.m_pre_processing_times_hist, m_pre_processing_times_hist);
-		 Gem::Common::copyCloneableSmartPointer(cp.m_processing_times_hist, m_processing_times_hist);
-		 Gem::Common::copyCloneableSmartPointer(cp.m_post_processing_times_hist, m_post_processing_times_hist);
-		 Gem::Common::copyCloneableSmartPointer(cp.m_all_processing_times_hist, m_all_processing_times_hist);
+		 // No need to copy the histograms over, as they will be instantiated
+		 // in the INFOINIT section.
 	 }
 
 	 /***************************************************************************/
@@ -3935,14 +3955,22 @@ public:
 		 Gem::Common::compare_base<typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
 
 		 // ... and then our local data
-		 compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
-		 compare_t(IDENTITY(m_canvasDimensions, p_load->m_canvasDimensions), token);
-		 compare_t(IDENTITY(m_gpd, p_load->m_gpd), token);
+		 compare_t(IDENTITY(m_fileName_pth, p_load->m_fileName_pth), token);
+		 compare_t(IDENTITY(m_canvasDimensions_pth, p_load->m_canvasDimensions_pth), token);
+		 compare_t(IDENTITY(m_gpd_pth, p_load->m_gpd_pth), token);
+		 compare_t(IDENTITY(m_fileName_pth2, p_load->m_fileName_pth2), token);
+		 compare_t(IDENTITY(m_canvasDimensions_pth2, p_load->m_canvasDimensions_pth2), token);
+		 compare_t(IDENTITY(m_gpd_pth2, p_load->m_gpd_pth2), token);
 		 compare_t(IDENTITY(m_pre_processing_times_hist, p_load->m_pre_processing_times_hist), token);
 		 compare_t(IDENTITY(m_processing_times_hist, p_load->m_processing_times_hist), token);
 		 compare_t(IDENTITY(m_post_processing_times_hist, p_load->m_post_processing_times_hist), token);
 		 compare_t(IDENTITY(m_all_processing_times_hist, p_load->m_all_processing_times_hist), token);
+		 compare_t(IDENTITY(m_pre_processing_times_hist2D, p_load->m_pre_processing_times_hist2D), token);
+		 compare_t(IDENTITY(m_processing_times_hist2D, p_load->m_processing_times_hist2D), token);
+		 compare_t(IDENTITY(m_post_processing_times_hist2D, p_load->m_post_processing_times_hist2D), token);
+		 compare_t(IDENTITY(m_all_processing_times_hist2D, p_load->m_all_processing_times_hist2D), token);
 		 compare_t(IDENTITY(m_nBinsX, p_load->m_nBinsX), token);
+		 compare_t(IDENTITY(m_nBinsY, p_load->m_nBinsY), token);
 
 		 // React on deviations from the expectation
 		 token.evaluate();
@@ -3950,38 +3978,105 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Sets the file name
+	  * Sets the file name for the processing times histogram
 	  */
-	 void setFileName(std::string fileName) {
-		 m_fileName = fileName;
+	 void setFileName_pth(std::string fileName) {
+		 m_fileName_pth = fileName;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Retrieves the current file name
+	  * Retrieves the current file name for the processing times histogram
 	  */
-	 std::string getFileName() const {
-		 return m_fileName;
+	 std::string getFileName_pth() const {
+		 return m_fileName_pth;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Sets the number of bins for the histograms
+	  * Sets the file name for the processing times histograms (2D)
+	  */
+	 void setFileName_pth2(std::string fileName) {
+		 m_fileName_pth2 = fileName;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Retrieves the current file name for the processing times histograms (2D)
+	  */
+	 std::string getFileName_pth2() const {
+		 return m_fileName_pth2;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to set the canvas dimensions for the processing times histograms
+	  */
+	 void setCanvasDimensions_pth(std::tuple<std::uint32_t,std::uint32_t> canvasDimensions) {
+		 m_canvasDimensions_pth = canvasDimensions;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to set the canvas dimensions using separate x and y values for the
+	  * processing times histograms
+	  */
+	 void setCanvasDimensions_pth(std::uint32_t x, std::uint32_t y) {
+		 m_canvasDimensions_pth = std::tuple<std::uint32_t,std::uint32_t>(x,y);
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Gives access to the canvas dimensions of the processing times histograms
+	  */
+	 std::tuple<std::uint32_t,std::uint32_t> getCanvasDimensions_pth() const {
+		 return m_canvasDimensions_pth;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to set the canvas dimensions for the processing times histograms (2D)
+	  */
+	 void setCanvasDimensions_pth2(std::tuple<std::uint32_t,std::uint32_t> canvasDimensions) {
+		 m_canvasDimensions_pth2 = canvasDimensions;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to set the canvas dimensions using separate x and y values for the
+	  * processing times histograms (2D)
+	  */
+	 void setCanvasDimensions_pth2(std::uint32_t x, std::uint32_t y) {
+		 m_canvasDimensions_pth2 = std::tuple<std::uint32_t,std::uint32_t>(x,y);
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Gives access to the canvas dimensions of the processing times histograms (2D)
+	  */
+	 std::tuple<std::uint32_t,std::uint32_t> getCanvasDimensions_pth2() const {
+		 return m_canvasDimensions_pth2;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Sets the number of bins for the processing times histograms in y-direction
 	  */
 	 void setNBinsX(std::size_t nBinsX) {
 		 if(nBinsX > 0) {
 			 m_nBinsX = nBinsX;
 		 } else {
 			 glogger
-			 << "In GProcessingTimesLoggerT<T>::setNBinsX(): Error!" << std::endl
-		    << "nBinsX is set to 0" << std::endl
-			 << GEXCEPTION;
+				 << "In GProcessingTimesLoggerT<T>::setNBinsX(): Error!" << std::endl
+				 << "nBinsX is set to 0" << std::endl
+				 << GEXCEPTION;
 		 }
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Retrieves the current number of bins in x-direction
+	  * Retrieves the current number of bins for the processing times
+	  * histograms in x-direction
 	  */
 	 std::string getNBinsX() const {
 		 return m_nBinsX;
@@ -3989,26 +4084,26 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Allows to set the canvas dimensions
+	  * Sets the number of bins for the processing times histograms in y-direction
 	  */
-	 void setCanvasDimensions(std::tuple<std::uint32_t,std::uint32_t> canvasDimensions) {
-		 m_canvasDimensions = canvasDimensions;
+	 void setNBinsY(std::size_t nBinsY) {
+		 if(nBinsY > 0) {
+			 m_nBinsY = nBinsY;
+		 } else {
+			 glogger
+				 << "In GProcessingTimesLoggerT<T>::setNBinsY(): Error!" << std::endl
+				 << "nBinsY is set to 0" << std::endl
+				 << GEXCEPTION;
+		 }
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Allows to set the canvas dimensions using separate x and y values
+	  * Retrieves the current number of bins for the processing times
+	  * histograms in y-direction
 	  */
-	 void setCanvasDimensions(std::uint32_t x, std::uint32_t y) {
-		 m_canvasDimensions = std::tuple<std::uint32_t,std::uint32_t>(x,y);
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Gives access to the canvas dimensions
-	  */
-	 std::tuple<std::uint32_t,std::uint32_t> getCanvasDimensions() const {
-		 return m_canvasDimensions;
+	 std::string getNBinsY() const {
+		 return m_nBinsY;
 	 }
 
 	 /***************************************************************************/
@@ -4022,55 +4117,100 @@ public:
 	 ) override {
 		 switch(im) {
 			 case Gem::Geneva::infoMode::INFOINIT: {
-				 // If the file pointed to by m_fileName already exists, make a back-up
-				 if(bf::exists(m_fileName)) {
-					 std::string newFileName = m_fileName + ".bak_" + Gem::Common::getMSSince1970();
+				 // If the file pointed to by m_fileName_pth already exists, make a back-up
+				 if(bf::exists(m_fileName_pth)) {
+					 std::string newFileName = m_fileName_pth + ".bak_" + Gem::Common::getMSSince1970();
 
 					 glogger
 						 << "In GProcessingTimesLoggerT<T>::informationFunction(): Warning!" << std::endl
-						 << "Attempt to output information to file " << m_fileName << std::endl
+						 << "Attempt to output information to file " << m_fileName_pth << std::endl
 						 << "which already exists. We will rename the old file to" << std::endl
 						 << newFileName << std::endl
 						 << GWARNING;
 
-					 bf::rename(m_fileName, newFileName);
+					 bf::rename(m_fileName_pth, newFileName);
 				 }
 
-				 // Make sure the progress plotter has the desired size
-				 m_gpd.setCanvasDimensions(m_canvasDimensions);
+				 //---------------------------------------------------------------
+				 // Histograms
+
+				 // Make sure the processing times plotter has the desired size
+				 m_gpd_pth.setCanvasDimensions(m_canvasDimensions_pth);
 
 				 m_pre_processing_times_hist = std::make_shared<Gem::Common::GHistogram1D>(m_nBinsX);
 				 m_pre_processing_times_hist->setXAxisLabel("Pre-processing time [s]");
 				 m_pre_processing_times_hist->setYAxisLabel("Number of Entries");
 				 m_pre_processing_times_hist->setDrawingArguments("hist");
 
-				 m_gpd.registerPlotter(m_pre_processing_times_hist);
+				 m_gpd_pth.registerPlotter(m_pre_processing_times_hist);
 
 				 m_processing_times_hist = std::make_shared<Gem::Common::GHistogram1D>(m_nBinsX);
 				 m_processing_times_hist->setXAxisLabel("Main processing time [s]");
 				 m_processing_times_hist->setYAxisLabel("Number of Entries");
 				 m_processing_times_hist->setDrawingArguments("hist");
 
-				 m_gpd.registerPlotter(m_processing_times_hist);
+				 m_gpd_pth.registerPlotter(m_processing_times_hist);
 
 				 m_post_processing_times_hist = std::make_shared<Gem::Common::GHistogram1D>(m_nBinsX);
 				 m_post_processing_times_hist->setXAxisLabel("Post-processing time [s]");
 				 m_post_processing_times_hist->setYAxisLabel("Number of Entries");
 				 m_post_processing_times_hist->setDrawingArguments("hist");
 
-				 m_gpd.registerPlotter(m_post_processing_times_hist);
+				 m_gpd_pth.registerPlotter(m_post_processing_times_hist);
 
 				 m_all_processing_times_hist = std::make_shared<Gem::Common::GHistogram1D>(m_nBinsX);
 				 m_all_processing_times_hist->setXAxisLabel("Overall processing time for all steps [s]");
 				 m_all_processing_times_hist->setYAxisLabel("Number of Entries");
 				 m_all_processing_times_hist->setDrawingArguments("hist");
 
-				 m_gpd.registerPlotter(m_all_processing_times_hist);
+				 m_gpd_pth.registerPlotter(m_all_processing_times_hist);
+
+				 //---------------------------------------------------------------
+				 // 2D Histograms
+
+				 // Make sure the processing times has the desired size
+				 m_gpd_pth2.setCanvasDimensions(m_canvasDimensions_pth2);
+
+				 m_pre_processing_times_hist2D = std::make_shared<Gem::Common::GHistogram2D>(m_nBinsX, m_nBinsY);
+				 m_pre_processing_times_hist2D->setXAxisLabel("Iteration");
+				 m_pre_processing_times_hist2D->setYAxisLabel("Pre-processing time [s]");
+				 m_pre_processing_times_hist2D->setZAxisLabel("Number of Entries");
+				 m_pre_processing_times_hist2D->setDrawingArguments("box");
+
+				 m_gpd_pth2.registerPlotter(m_pre_processing_times_hist2D);
+
+
+				 m_processing_times_hist2D = std::make_shared<Gem::Common::GHistogram2D>(m_nBinsX, m_nBinsY);
+				 m_processing_times_hist2D->setXAxisLabel("Iteration");
+				 m_processing_times_hist2D->setYAxisLabel("Main processing time [s]");
+				 m_processing_times_hist2D->setZAxisLabel("Number of Entries");
+				 m_processing_times_hist2D->setDrawingArguments("box");
+
+				 m_gpd_pth2.registerPlotter(m_processing_times_hist2D);
+
+				 m_post_processing_times_hist2D = std::make_shared<Gem::Common::GHistogram2D>(m_nBinsX, m_nBinsY);
+				 m_post_processing_times_hist2D->setXAxisLabel("Iteration");
+				 m_post_processing_times_hist2D->setYAxisLabel("Post-processing time [s]");
+				 m_post_processing_times_hist2D->setZAxisLabel("Number of Entries");
+				 m_post_processing_times_hist2D->setDrawingArguments("box");
+
+				 m_gpd_pth2.registerPlotter(m_post_processing_times_hist2D);
+
+				 m_all_processing_times_hist2D = std::make_shared<Gem::Common::GHistogram2D>(m_nBinsX, m_nBinsY);
+				 m_all_processing_times_hist2D->setXAxisLabel("Iteration");
+				 m_all_processing_times_hist2D->setYAxisLabel("Overall processing time [s]");
+				 m_all_processing_times_hist2D->setZAxisLabel("Number of Entries");
+				 m_all_processing_times_hist2D->setDrawingArguments("box");
+
+				 m_gpd_pth2.registerPlotter(m_all_processing_times_hist2D);
+
+				 //---------------------------------------------------------------
+
 			 } break;
 
 			 case Gem::Geneva::infoMode::INFOPROCESSING: {
-				 // Open the external file
-				 boost::filesystem::ofstream data(m_fileName, std::ofstream::app);
+				 // Retrieve the current iteration in the population
+				 double iteration = boost::numeric_cast<double>(goa->getIteration());
 
 				 // Loop over all individuals of the algorithm.
 				 for(std::size_t pos=0; pos<goa->size(); pos++) {
@@ -4080,29 +4220,44 @@ public:
 					 // Retrieve the processing timings
 					 std::tuple<double,double,double> processingTimes = ind->getProcessingTimes();
 
+					 double preProcessingTime = std::get<0>(processingTimes);
+					 double mainProcessingTime = std::get<1>(processingTimes);
+					 double postProcessingTime = std::get<2>(processingTimes);
+					 double allProcessingTime = preProcessingTime + mainProcessingTime + postProcessingTime;
+
 					 // Fill the timings into the histograms
-					 m_pre_processing_times_hist->add(std::get<0>(processingTimes)); // PREPROCESSING
-					 m_processing_times_hist->add(std::get<1>(processingTimes)); // PROCESSING
-					 m_post_processing_times_hist->add(std::get<2>(processingTimes)); // POSTPROCESSING
-					 m_all_processing_times_hist->add(
-						 std::get<0>(processingTimes)
-						 + std::get<1>(processingTimes)
-						 + std::get<2>(processingTimes)
-					 );
+					 m_pre_processing_times_hist->add(preProcessingTime); // PREPROCESSING
+					 m_processing_times_hist->add(mainProcessingTime); // PROCESSING
+					 m_post_processing_times_hist->add(postProcessingTime); // POSTPROCESSING
+					 m_all_processing_times_hist->add(allProcessingTime); // OVERALL PROCESSING TIME
+
+					 // Fill the timings into the 2D histograms ...
+					 m_pre_processing_times_hist2D->add(std::tuple<double,double>(iteration, preProcessingTime)); // PREPROCESSING
+					 m_processing_times_hist2D->add(std::tuple<double,double>(iteration, mainProcessingTime)); // PROCESSING
+					 m_post_processing_times_hist2D->add(std::tuple<double,double>(iteration, postProcessingTime)); // POSTPROCESSING
+					 m_all_processing_times_hist2D->add(std::tuple<double,double>(iteration, allProcessingTime)); // OVERALL PROCESSING TIME
 				 }
 			 }
 				 break;
 
 			 case Gem::Geneva::infoMode::INFOEND: {
-				 // Write out the result.
-				 m_gpd.writeToFile(m_fileName);
+				 // Write out the results
+				 m_gpd_pth.writeToFile(m_fileName_pth);
+				 m_gpd_pth2.writeToFile(m_fileName_pth2);
 
 				 // Remove all plotters
-				 m_gpd.resetPlotters();
+				 m_gpd_pth.resetPlotters();
+				 m_gpd_pth2.resetPlotters();
+
 				 m_pre_processing_times_hist.reset();
 				 m_processing_times_hist.reset();
 				 m_post_processing_times_hist.reset();
 				 m_all_processing_times_hist.reset();
+
+				 m_pre_processing_times_hist2D.reset();
+				 m_processing_times_hist2D.reset();
+				 m_post_processing_times_hist2D.reset();
+				 m_all_processing_times_hist2D.reset();
 			 }
 				 break;
 
@@ -4131,14 +4286,23 @@ protected:
 		 GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT::load_(cp);
 
 		 // ... and then our local data
-		 m_fileName = p_load->m_fileName;
-		 m_canvasDimensions = p_load->m_canvasDimensions;
-		 m_gpd = p_load->m_gpd;
+		 m_fileName_pth = p_load->m_fileName_pth;
+		 m_canvasDimensions_pth = p_load->m_canvasDimensions_pth;
+		 m_gpd_pth = p_load->m_gpd_pth;
+
+		 m_fileName_pth2 = p_load->m_fileName_pth2;
+		 m_canvasDimensions_pth2 = p_load->m_canvasDimensions_pth2;
+		 m_gpd_pth2 = p_load->m_gpd_pth2;
 
 		 Gem::Common::copyCloneableSmartPointer(p_load->m_pre_processing_times_hist, m_pre_processing_times_hist);
 		 Gem::Common::copyCloneableSmartPointer(p_load->m_processing_times_hist, m_processing_times_hist);
 		 Gem::Common::copyCloneableSmartPointer(p_load->m_post_processing_times_hist, m_post_processing_times_hist);
 		 Gem::Common::copyCloneableSmartPointer(p_load->m_all_processing_times_hist, m_all_processing_times_hist);
+
+		 Gem::Common::copyCloneableSmartPointer(p_load->m_pre_processing_times_hist2D, m_pre_processing_times_hist2D);
+		 Gem::Common::copyCloneableSmartPointer(p_load->m_processing_times_hist2D, m_processing_times_hist2D);
+		 Gem::Common::copyCloneableSmartPointer(p_load->m_post_processing_times_hist2D, m_post_processing_times_hist2D);
+		 Gem::Common::copyCloneableSmartPointer(p_load->m_all_processing_times_hist2D, m_all_processing_times_hist2D);
 
 		 m_nBinsX = p_load->m_nBinsX;
 	 }
@@ -4154,17 +4318,26 @@ protected:
 private:
 	 /***************************************************************************/
 
-	 std::string m_fileName = "processingTimings.C"; ///< The name of the file to which timings should be written in ROOT format
-	 std::tuple<std::uint32_t,std::uint32_t> m_canvasDimensions; ///< The dimensions of the canvas
+	 std::string m_fileName_pth = "processingTimingsHist.C"; ///< The name of the file to which timings should be written in ROOT format
+	 std::tuple<std::uint32_t,std::uint32_t> m_canvasDimensions_pth; ///< The dimensions of the canvas
+	 Gem::Common::GPlotDesigner m_gpd_pth; ///< A wrapper for the plots
 
-	 Gem::Common::GPlotDesigner m_gpd; ///< A wrapper for the plots
+	 std::string m_fileName_pth2 = "processingTimingsVsIteration.C"; ///< The name of the file to which timings should be written in ROOT format
+	 std::tuple<std::uint32_t,std::uint32_t> m_canvasDimensions_pth2; ///< The dimensions of the canvas
+	 Gem::Common::GPlotDesigner m_gpd_pth2; ///< A wrapper for the plots
 
 	 std::shared_ptr<Gem::Common::GHistogram1D> m_pre_processing_times_hist;  ///< The amount of time needed for pre-processing
  	 std::shared_ptr<Gem::Common::GHistogram1D> m_processing_times_hist;  ///< The amount of time needed for processing
 	 std::shared_ptr<Gem::Common::GHistogram1D> m_post_processing_times_hist;  ///< The amount of time needed for post-processing
 	 std::shared_ptr<Gem::Common::GHistogram1D> m_all_processing_times_hist;  ///< The amount of time needed for the entire processing step
 
-	 std::size_t m_nBinsX = Gem::Common::DEFAULTNBINSGPD; ///< The number of bins in the histograms
+	 std::shared_ptr<Gem::Common::GHistogram2D> m_pre_processing_times_hist2D;  ///< The amount of time needed for pre-processing
+	 std::shared_ptr<Gem::Common::GHistogram2D> m_processing_times_hist2D;  ///< The amount of time needed for processing
+	 std::shared_ptr<Gem::Common::GHistogram2D> m_post_processing_times_hist2D;  ///< The amount of time needed for post-processing
+	 std::shared_ptr<Gem::Common::GHistogram2D> m_all_processing_times_hist2D;  ///< The amount of time needed for the entire processing step
+
+	 std::size_t m_nBinsX = Gem::Common::DEFAULTNBINSGPD; ///< The number of bins in the histograms in x-direction
+	 std::size_t m_nBinsY = Gem::Common::DEFAULTNBINSGPD; ///< The number of bins in the histograms in y-direction
 
 public:
 	 /***************************************************************************/

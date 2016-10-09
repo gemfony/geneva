@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
 		, "Logs the value of sigma for all or the best adaptors, if GDoubleGaussAdaptors are being used"
 	)(
 		"monitorTimings"
-		, po::value<std::string>(&monitorTimings)->implicit_value(std::string("./timingsLog.C"))->default_value("empty")
+		, po::value<std::string>(&monitorTimings)->implicit_value(std::string("timingsLog.C"))->default_value("empty")
 		, "Logs the times for all processing steps"
 	)(
 		"usePostProcessor"
@@ -190,7 +190,13 @@ int main(int argc, char **argv) {
 
 	if(monitorTimings != "empty") {
 		std::shared_ptr<GProcessingTimesLoggerT<GParameterSet>>
-			processingTimesLogger_ptr(new GProcessingTimesLoggerT<GParameterSet>(monitorTimings, 1000));
+			processingTimesLogger_ptr(new GProcessingTimesLoggerT<GParameterSet>(
+				"hist_" + monitorTimings
+				, "hist2D_" + monitorTimings
+				, 100 // nBins in x-direction
+				, 100 // nBins in y-direction
+			)
+		);
 		go.registerPluggableOM(processingTimesLogger_ptr);
 	}
 

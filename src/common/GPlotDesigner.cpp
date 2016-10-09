@@ -2490,6 +2490,23 @@ GHistogram2D::GHistogram2D(
 
 /******************************************************************************/
 /**
+ * Initialization with automatic range detection
+ */
+GHistogram2D::GHistogram2D(
+	const std::size_t &nBinsX
+	, const std::size_t &nBinsY
+)
+	: nBinsX_(nBinsX)
+	  , nBinsY_(nBinsY)
+	  , minX_(0)
+	  , maxX_(minX_)
+	  , minY_(0)
+	  , maxY_(minY_)
+	  , dropt_(tddropt::TDEMPTY)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
  * A copy constructor
  *
  * @param cp a copy of another GHistogram2D object
@@ -2572,29 +2589,57 @@ std::string GHistogram2D::headerData_(
 
 	std::string histName = "hist2D" + suffix(isSecondary, pId);
 
-	header_data
-	<< indent << "TH2D *"
-	<< histName
-	<< " = new TH2D(\""
-	<< histName
-	<< "\", \""
-	<< histName
-	<< "\","
-	<< nBinsX_
-	<< ", "
-	<< minX_
-	<< ", "
-	<< maxX_
-	<< ","
-	<< nBinsY_
-	<< ", "
-	<< minY_
-	<< ", "
-	<< maxY_
-	<< ");"
-	<< (comment != "" ? comment : "")
-	<< std::endl
-	<< std::endl;
+	if(minX_!=maxX_ && minY_!=maxY_) {
+		header_data
+			<< indent << "TH2D *"
+			<< histName
+			<< " = new TH2D(\""
+			<< histName
+			<< "\", \""
+			<< histName
+			<< "\","
+			<< nBinsX_
+			<< ", "
+			<< minX_
+			<< ", "
+			<< maxX_
+			<< ","
+			<< nBinsY_
+			<< ", "
+			<< minY_
+			<< ", "
+			<< maxY_
+			<< ");"
+			<< (comment != "" ? comment : "")
+			<< std::endl
+			<< std::endl;
+	} else { // // automatic range detection
+		std::tuple<double,double,double,double> minmax = this->getMinMaxElements();
+
+		header_data
+			<< indent << "TH2D *"
+			<< histName
+			<< " = new TH2D(\""
+			<< histName
+			<< "\", \""
+			<< histName
+			<< "\","
+			<< nBinsX_
+			<< ", "
+			<< std::get<0>(minmax)
+			<< ", "
+			<< std::get<1>(minmax)
+			<< ","
+			<< nBinsY_
+			<< ", "
+			<< std::get<2>(minmax)
+			<< ", "
+			<< std::get<3>(minmax)
+			<< ");"
+			<< (comment != "" ? comment : "")
+			<< std::endl
+			<< std::endl;
+	}
 
 	return header_data.str();
 }

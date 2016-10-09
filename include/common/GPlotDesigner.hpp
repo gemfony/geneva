@@ -2101,6 +2101,33 @@ public:
 		);
 	}
 
+ 	/***************************************************************************/
+   /**
+	  * Retrieves the minimum and maximum values in m_data in x- and y-direction
+	  */
+   std::tuple<x_type,x_type, y_type, y_type> getMinMaxElements() const {
+	 	 auto minmax_x = std::minmax_element(
+			 m_data.begin()
+			 , m_data.end()
+			 , [](const std::tuple<x_type, y_type>& x, const std::tuple<x_type, y_type>& y) -> bool {
+				return (std::get<0>(x) < std::get<0>(y));
+			 });
+
+		auto minmax_y = std::minmax_element(
+			m_data.begin()
+			, m_data.end()
+			, [](const std::tuple<x_type, y_type>& x, const std::tuple<x_type, y_type>& y) -> bool {
+				return (std::get<1>(x) < std::get<1>(y));
+			});
+
+		double minX = std::get<0>(*minmax_x.first);
+		double maxX = std::get<0>(*minmax_x.second);
+		double minY = std::get<1>(*minmax_y.first);
+		double maxY = std::get<1>(*minmax_y.second);
+
+	   return std::make_tuple(minX, maxX, minY, maxY);
+	 };
+
 	/***************************************************************************/
 	/**
 	 * Returns the name of this class
@@ -2552,21 +2579,33 @@ class GHistogram2D
 public:
 	/** @brief The standard constructor */
 	G_API_COMMON GHistogram2D(
-		const std::size_t &, const std::size_t &, const double &, const double &, const double &, const double &
+		const std::size_t &
+		, const std::size_t &
+		, const double&
+		, const double&
+		, const double&
+		, const double &
 	);
 	/** @brief Initialization with ranges */
 	G_API_COMMON GHistogram2D(
-		const std::size_t &, const std::size_t &, const std::tuple<double, double> &,
-		const std::tuple<double, double> &
+		const std::size_t &
+		, const std::size_t &
+		, const std::tuple<double, double> &
+		, const std::tuple<double, double> &
 	);
-	/** @brief A copy constructor */
-	G_API_COMMON GHistogram2D(const GHistogram2D &);
+   /** @brief Initialization with automatic range detection */
+	G_API_COMMON GHistogram2D(
+		 const std::size_t&
+		 , const std::size_t&
+	 );
+	 /** @brief A copy constructor */
+	G_API_COMMON GHistogram2D(const GHistogram2D&);
 
 	/** @brief The destructor */
 	virtual G_API_COMMON ~GHistogram2D();
 
 	/** @brief The assignment operator */
-	G_API_COMMON const GHistogram2D& operator=(const GHistogram2D &);
+	G_API_COMMON const GHistogram2D& operator=(const GHistogram2D&);
 
 	/** @brief Checks for equality with another GHistogram2D object */
 	G_API_COMMON bool operator==(const GHistogram2D&) const;
