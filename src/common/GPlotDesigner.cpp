@@ -1967,7 +1967,7 @@ std::string GHistogram1D::bodyData_(
 	std::size_t posCounter = 0;
 	for (it = m_data.begin(); it != m_data.end(); ++it) {
 		body_data
-		<< indent << histName << "->Fill(" << *it << ");" << (posCounter == 0 ? comment : ("")) << std::endl;
+		<< indent << histName << "->Fill(" << std::showpoint << *it << ");" << (posCounter == 0 ? comment : ("")) << std::endl;
 		posCounter++;
 	}
 	body_data << std::endl;
@@ -2668,7 +2668,7 @@ std::string GHistogram2D::bodyData_(
 	std::size_t posCounter = 0;
 	for (it = m_data.begin(); it != m_data.end(); ++it) {
 		body_data
-		<< indent << histName << "->Fill(" << std::get<0>(*it) << ", " << std::get<1>(*it) << ");" <<
+		<< indent << histName << "->Fill(" << std::showpoint << std::get<0>(*it) << ", " << std::get<1>(*it) << ");" <<
 		(posCounter == 0 ? comment : ("")) << std::endl;
 		posCounter++;
 	}
