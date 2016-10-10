@@ -4267,8 +4267,6 @@ public:
 				 // Retrieve the current iteration in the population
 				 double iteration = boost::numeric_cast<double>(goa->getIteration());
 
-				 data_txt << iteration << ", ";
-
 				 // Loop over all individuals of the algorithm.
 				 for(std::size_t pos=0; pos<goa->size(); pos++) {
 					 // Get access to each individual in sequence
@@ -4294,7 +4292,7 @@ public:
 					 m_post_processing_times_hist2D->add(std::tuple<double,double>(iteration, postProcessingTime)); // POSTPROCESSING
 					 m_all_processing_times_hist2D->add(std::tuple<double,double>(iteration, allProcessingTime)); // OVERALL PROCESSING TIME
 
-					 data_txt << std::showpoint << preProcessingTime << ", " << mainProcessingTime << ", " << postProcessingTime << std::endl;
+					 data_txt << boost::numeric_cast<std::uint32_t>(iteration) << ", " << std::showpoint << preProcessingTime << ", " << mainProcessingTime << ", " << postProcessingTime << std::endl;
 				 }
 
 				 // Close the external text-file
