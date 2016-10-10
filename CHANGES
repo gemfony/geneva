@@ -25,7 +25,7 @@ The main changes for this release include:
    problems still remain.
  - Gave GHistogram1D the ability to automatically detect the data range
  - Added a pluggable optimization monitor for processing timings (as a 1D-histogram as well as
-   as a function of the iteration with a 2D histogram)
+   as a function of the iteration with a 2D histogram; the module will also generate a CSV file)
  - Added a class for serializable function objects
  - Added the option to register (serializable) function options with GParameterSet-derivatives for
    pre- and postprocessing in conjunction with the evaluation

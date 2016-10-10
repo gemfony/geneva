@@ -3803,6 +3803,7 @@ class GProcessingTimesLoggerT
 		 & BOOST_SERIALIZATION_NVP(m_fileName_pth2)
 		 & BOOST_SERIALIZATION_NVP(m_canvasDimensions_pth2)
 		 & BOOST_SERIALIZATION_NVP(m_gpd_pth2)
+		 & BOOST_SERIALIZATION_NVP(m_fileName_txt)
 		 & BOOST_SERIALIZATION_NVP(m_pre_processing_times_hist)
 		 & BOOST_SERIALIZATION_NVP(m_processing_times_hist)
 		 & BOOST_SERIALIZATION_NVP(m_post_processing_times_hist)
@@ -3841,6 +3842,7 @@ public:
 	 GProcessingTimesLoggerT(
 		 const std::string& fileName_pth
 		 , const std::string& fileName_pth2
+		 , const std::string& fileName_txt
 	 	 , std::size_t nBinsX
 		 , std::size_t nBinsY
 	 )
@@ -3850,6 +3852,7 @@ public:
 		 , m_fileName_pth2(fileName_pth2)
 		 , m_canvasDimensions_pth2(std::tuple<std::uint32_t,std::uint32_t>(1600,1200))
 		 , m_gpd_pth2("Timings for the processing steps of individuals vs. iteration", 2, 2)
+		 , m_fileName_txt(fileName_txt)
 		 , m_nBinsX(nBinsX)
 	    , m_nBinsY(nBinsY)
 	 { /* nothing */ }
@@ -3864,6 +3867,7 @@ public:
 		 , m_gpd_pth(cp.m_gpd_pth)
 		 , m_fileName_pth2(cp.m_fileName_pth2)
 		 , m_canvasDimensions_pth2(cp.m_canvasDimensions_pth2)
+		 , m_fileName_txt(cp.m_fileName_txt)
 		 , m_gpd_pth2(cp.m_gpd_pth2)
 	 	 , m_nBinsX(cp.m_nBinsX)
 		 , m_nBinsY(cp.m_nBinsY)
@@ -3961,6 +3965,7 @@ public:
 		 compare_t(IDENTITY(m_fileName_pth2, p_load->m_fileName_pth2), token);
 		 compare_t(IDENTITY(m_canvasDimensions_pth2, p_load->m_canvasDimensions_pth2), token);
 		 compare_t(IDENTITY(m_gpd_pth2, p_load->m_gpd_pth2), token);
+		 compare_t(IDENTITY(m_fileName_txt, p_load->m_fileName_txt), token);
 		 compare_t(IDENTITY(m_pre_processing_times_hist, p_load->m_pre_processing_times_hist), token);
 		 compare_t(IDENTITY(m_processing_times_hist, p_load->m_processing_times_hist), token);
 		 compare_t(IDENTITY(m_post_processing_times_hist, p_load->m_post_processing_times_hist), token);
@@ -4006,6 +4011,22 @@ public:
 	  */
 	 std::string getFileName_pth2() const {
 		 return m_fileName_pth2;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Sets the file name for the text output
+	  */
+	 void setFileName_txt(std::string fileName) {
+		 m_fileName_txt = fileName;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Retrieves the current file name for the text output
+	  */
+	 std::string getFileName_txt() const {
+		 return m_fileName_txt;
 	 }
 
 	 /***************************************************************************/
@@ -4117,6 +4138,9 @@ public:
 	 ) override {
 		 switch(im) {
 			 case Gem::Geneva::infoMode::INFOINIT: {
+				 //---------------------------------------------------------------
+				 // Histograms
+
 				 // If the file pointed to by m_fileName_pth already exists, make a back-up
 				 if(bf::exists(m_fileName_pth)) {
 					 std::string newFileName = m_fileName_pth + ".bak_" + Gem::Common::getMSSince1970();
@@ -4130,9 +4154,6 @@ public:
 
 					 bf::rename(m_fileName_pth, newFileName);
 				 }
-
-				 //---------------------------------------------------------------
-				 // Histograms
 
 				 // Make sure the processing times plotter has the desired size
 				 m_gpd_pth.setCanvasDimensions(m_canvasDimensions_pth);
@@ -4167,6 +4188,20 @@ public:
 
 				 //---------------------------------------------------------------
 				 // 2D Histograms
+
+				 // If the file pointed to by m_fileName_pth2 already exists, make a back-up
+				 if(bf::exists(m_fileName_pth2)) {
+					 std::string newFileName = m_fileName_pth2 + ".bak_" + Gem::Common::getMSSince1970();
+
+					 glogger
+						 << "In GProcessingTimesLoggerT<T>::informationFunction(): Warning!" << std::endl
+						 << "Attempt to output information to file " << m_fileName_pth2 << std::endl
+						 << "which already exists. We will rename the old file to" << std::endl
+						 << newFileName << std::endl
+						 << GWARNING;
+
+					 bf::rename(m_fileName_pth2, newFileName);
+				 }
 
 				 // Make sure the processing times has the desired size
 				 m_gpd_pth2.setCanvasDimensions(m_canvasDimensions_pth2);
@@ -4205,12 +4240,34 @@ public:
 				 m_gpd_pth2.registerPlotter(m_all_processing_times_hist2D);
 
 				 //---------------------------------------------------------------
+				 // Make sure the output file is empty (rename, if it exists)
+
+				 // If the file pointed to by m_fileName_txt already exists, make a back-up
+				 if(bf::exists(m_fileName_txt)) {
+					 std::string newFileName = m_fileName_txt + ".bak_" + Gem::Common::getMSSince1970();
+
+					 glogger
+						 << "In GProcessingTimesLoggerT<T>::informationFunction(): Warning!" << std::endl
+						 << "Attempt to output information to file " << m_fileName_pth2 << std::endl
+						 << "which already exists. We will rename the old file to" << std::endl
+						 << newFileName << std::endl
+						 << GWARNING;
+
+					 bf::rename(m_fileName_txt, newFileName);
+				 }
+
+				 //---------------------------------------------------------------
 
 			 } break;
 
 			 case Gem::Geneva::infoMode::INFOPROCESSING: {
+				 // Open the external text-file
+				 boost::filesystem::ofstream data_txt(m_fileName_txt, std::ofstream::app);
+
 				 // Retrieve the current iteration in the population
 				 double iteration = boost::numeric_cast<double>(goa->getIteration());
+
+				 data_txt << iteration << ", ";
 
 				 // Loop over all individuals of the algorithm.
 				 for(std::size_t pos=0; pos<goa->size(); pos++) {
@@ -4236,7 +4293,12 @@ public:
 					 m_processing_times_hist2D->add(std::tuple<double,double>(iteration, mainProcessingTime)); // PROCESSING
 					 m_post_processing_times_hist2D->add(std::tuple<double,double>(iteration, postProcessingTime)); // POSTPROCESSING
 					 m_all_processing_times_hist2D->add(std::tuple<double,double>(iteration, allProcessingTime)); // OVERALL PROCESSING TIME
+
+					 data_txt << std::showpoint << preProcessingTime << ", " << mainProcessingTime << ", " << postProcessingTime << std::endl;
 				 }
+
+				 // Close the external text-file
+				 data_txt.close();
 			 }
 				 break;
 
@@ -4294,6 +4356,8 @@ protected:
 		 m_canvasDimensions_pth2 = p_load->m_canvasDimensions_pth2;
 		 m_gpd_pth2 = p_load->m_gpd_pth2;
 
+		 m_fileName_txt = p_load->m_fileName_txt;
+
 		 Gem::Common::copyCloneableSmartPointer(p_load->m_pre_processing_times_hist, m_pre_processing_times_hist);
 		 Gem::Common::copyCloneableSmartPointer(p_load->m_processing_times_hist, m_processing_times_hist);
 		 Gem::Common::copyCloneableSmartPointer(p_load->m_post_processing_times_hist, m_post_processing_times_hist);
@@ -4325,6 +4389,8 @@ private:
 	 std::string m_fileName_pth2 = "processingTimingsVsIteration.C"; ///< The name of the file to which timings should be written in ROOT format
 	 std::tuple<std::uint32_t,std::uint32_t> m_canvasDimensions_pth2; ///< The dimensions of the canvas
 	 Gem::Common::GPlotDesigner m_gpd_pth2; ///< A wrapper for the plots
+
+	 std::string m_fileName_txt = "processingTimings.txt"; ///< The name of the file to which timings should be written in text format
 
 	 std::shared_ptr<Gem::Common::GHistogram1D> m_pre_processing_times_hist;  ///< The amount of time needed for pre-processing
  	 std::shared_ptr<Gem::Common::GHistogram1D> m_processing_times_hist;  ///< The amount of time needed for processing
