@@ -512,7 +512,8 @@ GObject *GSphereConstraint::clone_() const {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::solverFunction &ur) {
-	std::uint16_t tmp = static_cast<std::uint16_t>(ur);
+	typedef std::underlying_type<Gem::Geneva::solverFunction>::type enum_type;
+	enum_type tmp = static_cast<enum_type>(ur);
 	o << tmp;
 	return o;
 }
@@ -526,7 +527,8 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::solverFunction &ur)
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::solverFunction &ur) {
-	std::uint16_t tmp;
+	typedef std::underlying_type<Gem::Geneva::solverFunction>::type enum_type;
+	enum_type tmp;
 	i >> tmp;
 
 #ifdef DEBUG
@@ -547,7 +549,8 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::solverFunction &ur) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::parameterType &ur) {
-	std::uint16_t tmp = static_cast<std::uint16_t>(ur);
+	typedef std::underlying_type<Gem::Geneva::parameterType>::type enum_type;
+	enum_type tmp = static_cast<enum_type>(ur);
 	o << tmp;
 	return o;
 }
@@ -561,7 +564,8 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::parameterType &ur) 
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::parameterType &ur) {
-	std::uint16_t tmp;
+	typedef std::underlying_type<Gem::Geneva::parameterType>::type enum_type;
+	enum_type tmp;
 	i >> tmp;
 
 #ifdef DEBUG
@@ -582,7 +586,8 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::parameterType &ur) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::initMode &ur) {
-	std::uint16_t tmp = static_cast<std::uint16_t>(ur);
+	typedef std::underlying_type<Gem::Geneva::initMode>::type enum_type;
+	enum_type tmp = static_cast<enum_type>(ur);
 	o << tmp;
 	return o;
 }
@@ -596,7 +601,8 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::initMode &ur) {
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::initMode &ur) {
-	std::uint16_t tmp;
+	typedef std::underlying_type<Gem::Geneva::initMode>::type enum_type;
+	enum_type tmp;
 	i >> tmp;
 
 #ifdef DEBUG
@@ -615,7 +621,8 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::initMode &ur) {
  * The default constructor
  */
 GFunctionIndividual::GFunctionIndividual()
-	: demoFunction_(solverFunction::PARABOLA) { /* nothing */ }
+	: demoFunction_(solverFunction::PARABOLA)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -624,7 +631,8 @@ GFunctionIndividual::GFunctionIndividual()
  * @param dF The id of the demo function
  */
 GFunctionIndividual::GFunctionIndividual(const solverFunction &dF)
-	: demoFunction_(dF) { /* nothing */ }
+	: demoFunction_(dF)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -633,13 +641,15 @@ GFunctionIndividual::GFunctionIndividual(const solverFunction &dF)
  * @param cp A copy of another GFunctionIndidivual
  */
 GFunctionIndividual::GFunctionIndividual(const GFunctionIndividual &cp)
-	: GParameterSet(cp), demoFunction_(cp.demoFunction_) { /* nothing */ }
+	: GParameterSet(cp), demoFunction_(cp.demoFunction_)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
-GFunctionIndividual::~GFunctionIndividual() { /* nothing */   }
+GFunctionIndividual::~GFunctionIndividual()
+{ /* nothing */   }
 
 /******************************************************************************/
 /**

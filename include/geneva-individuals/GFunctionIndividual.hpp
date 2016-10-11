@@ -41,6 +41,7 @@
 #include <sstream>
 #include <vector>
 #include <tuple>
+#include <type_traits>
 
 // Boost header files go here
 #include <boost/math/constants/constants.hpp>
