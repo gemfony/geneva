@@ -118,7 +118,7 @@ const std::string DEFAULTDURATION = EMPTYDURATION;
 /**
  * Needed by the broker connector
  */
-enum class submissionReturnMode {
+enum class submissionReturnMode : short {
 	INCOMPLETERETURN = 0
 	, RESUBMISSIONAFTERTIMEOUT = 1
 	, EXPECTFULLRETURN = 2

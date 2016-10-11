@@ -73,7 +73,7 @@ namespace Tests {
 /**
  * The types of objects to be tested in this class
  */
-enum class PERFOBJECTTYPE {
+enum class PERFOBJECTTYPE : short {
 	PERFGDOUBLEOBJECT = 0,
 	PERFGCONSTRDOUBLEOBJECT = 1,
 	PERFGCONSTRAINEDDOUBLEOBJECTCOLLECTION = 2,

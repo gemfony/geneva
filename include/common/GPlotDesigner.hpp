@@ -98,7 +98,7 @@ namespace Common {
 /**
  * An enum for some basic colors (to be extended over time)
  */
-enum class gColor {
+enum class gColor : short {
 	white=0
 	, black=1
 	, red=2
@@ -113,7 +113,7 @@ enum class gColor {
 /**
  * An enum for basic marker types (to be extended over time)
  */
-enum class gMarker {
+enum class gMarker : short {
 	none = 0
 	, openCircle = 4
 	, closedCircle = 20
@@ -129,7 +129,7 @@ enum class gMarker {
 /**
  * An enum for basic line styles (to be extended over time)
  */
-enum class gLineStyle {
+enum class gLineStyle : short {
 	straight = 1
 	, shortdashed = 2
 	, dotted = 3
@@ -144,7 +144,7 @@ enum class gLineStyle {
 /**
  * Determines whether a scatter plot or a curve should be recorded
  */
-enum class graphPlotMode {
+enum class graphPlotMode : short {
 	SCATTER = 0
 	, CURVE = 1
 };
@@ -155,7 +155,7 @@ enum class graphPlotMode {
 /**
  * An enum for 2D-drawing options
  */
-enum class tddropt {
+enum class tddropt : short {
 	TDEMPTY = 0,
 	SURFONE = 1,
 	SURFTWOZ = 2,

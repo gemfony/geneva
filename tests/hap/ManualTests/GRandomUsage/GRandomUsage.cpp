@@ -126,7 +126,7 @@ bool parseCommandLine(
 
 /************************************************************************************************/
 
-enum class distType {
+enum class distType : short {
 	 GAUSSIAN
 	 , DOUBLEGAUSSIAN
 	 , EVEN

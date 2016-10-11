@@ -66,7 +66,7 @@ using namespace Gem::Common;
  * This enum defines the available execution modes of the GBrokerSelfCommunication
  * example
  */
-enum class GBSCModes {
+enum class GBSCModes : short {
 	 SERIAL = 0
 	 , INTERNALNETWORKING = 1
 	 , NETWORKING = 2

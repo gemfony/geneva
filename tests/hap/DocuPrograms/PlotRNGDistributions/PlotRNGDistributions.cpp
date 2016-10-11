@@ -57,7 +57,7 @@
 using namespace Gem::Hap;
 using namespace boost;
 
-enum class distType {
+enum class distType : short {
 	GAUSSIAN,
 	DOUBLEGAUSSIAN,
 	EVEN,

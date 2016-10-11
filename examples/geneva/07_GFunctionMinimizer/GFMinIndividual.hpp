@@ -63,7 +63,7 @@ namespace Geneva {
 /**
  * This enum denotes the possible demo function types
  */
-enum class targetFunction {
+enum class targetFunction : short {
 	GFM_PARABOLA=0
 	, GFM_NOISYPARABOLA=1
 };
