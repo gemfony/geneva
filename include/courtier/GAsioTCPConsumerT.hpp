@@ -92,7 +92,7 @@ namespace Courtier {
 /**
  * Global variables for failed transfers and connection attempts.
  */
-const std::uint32_t GASIOTCPCONSUMERMAXSTALLS = 10;
+const std::uint32_t GASIOTCPCONSUMERMAXSTALLS = 0;
 const std::uint32_t GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS = 10;
 const unsigned short GASIOTCPCONSUMERDEFAULTPORT = 10000;
 const std::string GASIOTCPCONSUMERDEFAULTSERVER = "localhost";
@@ -274,148 +274,161 @@ protected:
 		}
 	}
 
-	/***************************************************************************/
-	/**
-	 * Retrieve work items from the server.
-	 *
-	 * @param item Holds the string representation of the work item, if successful
-	 * @return true if operation should be continued, otherwise false
-	 */
-	bool retrieve(
-		std::string &item
-		, std::string &serMode
-		, std::string &portId
-	) {
-		item = "empty"; // Indicates that no item could be retrieved
-		std::uint32_t idleTime = 0; // Holds information on the idle time in milliseconds, if "idle" command is received
+	 /***************************************************************************/
+	 /**
+	  * Retrieve work items from the server.
+	  *
+	  * @param item Holds the string representation of the work item, if successful
+	  * @return true if operation should be continued, otherwise false
+	  */
+	 bool retrieve(
+		 std::string &item
+		 , std::string &serMode
+		 , std::string &portId
+	 ) {
+		 item = "empty"; // Indicates that no item could be retrieved
+		 std::uint32_t idleTime = 0; // Holds information on the idle time in milliseconds, if "idle" command is received
 
-		try {
-			// Try to make a connection
-			if (!tryConnect()) {
-				glogger
-				<< "In GAsioTCPClientT<processable_type>::retrieve(): Warning" << std::endl
-				<< "Could not connect to server. Shutting down now." << std::endl
-				<< "NOTE: This might be simply caused by the server shutting down" << std::endl
-				<< "at the end of an optimization run, so that usually this is no" << std::endl
-				<< "cause for concern." << std::endl
-				<< GLOGGING;
+		 try {
+			 // Try to make a connection
+			 if (!tryConnect()) {
+				 glogger
+					 << "In GAsioTCPClientT<processable_type>::retrieve(): Warning" << std::endl
+					 << "Could not connect to server. Shutting down now." << std::endl
+					 << "NOTE: This might be simply caused by the server shutting down" << std::endl
+					 << "at the end of an optimization run, so that usually this is no" << std::endl
+					 << "cause for concern." << std::endl
+					 << GLOGGING;
 
-				// Make sure we don't leave any open sockets lying around.
-				disconnect(m_socket);
-				return CLIENT_TERMINATE;
-			}
+				 // Make sure we don't leave any open sockets lying around.
+				 disconnect(m_socket);
+				 return CLIENT_TERMINATE;
+			 }
 
-			// Let the server know we want work
-			boost::asio::write(m_socket, boost::asio::buffer(assembleQueryString("ready", Gem::Courtier::COMMANDLENGTH)));
+			 // Let the server know we want work
+			 boost::asio::write(m_socket, boost::asio::buffer(assembleQueryString("ready", Gem::Courtier::COMMANDLENGTH)));
 
-			// Read answer. First we care for the command sent by the server
-			boost::asio::read(m_socket, boost::asio::buffer(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
+			 // Read answer. First we care for the command sent by the server
+			 boost::asio::read(m_socket, boost::asio::buffer(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
 
 
-			// Not currently getting here
+			 // Not currently getting here
 
-			// Remove all leading or trailing white spaces from the command
-			std::string inboundCommandString = boost::algorithm::trim_copy(
-				std::string(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH)
-			);
+			 // Remove all leading or trailing white spaces from the command
+			 std::string inboundCommandString = boost::algorithm::trim_copy(
+				 std::string(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH)
+			 );
 
-			// Act on the command
-			if ("compute" == inboundCommandString) {
-				// We have likely received data. Let's find out how big it is
-				boost::asio::read(m_socket, boost::asio::buffer(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
-				std::string inboundHeader = boost::algorithm::trim_copy(std::string(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
-				std::size_t dataSize = boost::lexical_cast<std::size_t>(inboundHeader);
+			 // Act on the command
+			 if ("compute" == inboundCommandString) {
+				 // We have likely received data. Let's find out how big it is
+				 boost::asio::read(m_socket, boost::asio::buffer(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
+				 std::string inboundHeader = boost::algorithm::trim_copy(std::string(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
+				 std::size_t dataSize = boost::lexical_cast<std::size_t>(inboundHeader);
 
-				// Now retrieve the serialization mode that was used
-				boost::asio::read(m_socket, boost::asio::buffer(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
-				serMode = boost::algorithm::trim_copy(std::string(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
+				 // Now retrieve the serialization mode that was used
+				 boost::asio::read(m_socket, boost::asio::buffer(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
+				 serMode = boost::algorithm::trim_copy(std::string(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
 
-				// Retrieve the port id
-				boost::asio::read(m_socket, boost::asio::buffer(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
-				portId = boost::algorithm::trim_copy(std::string(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
+				 // Retrieve the port id
+				 boost::asio::read(m_socket, boost::asio::buffer(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
+				 portId = boost::algorithm::trim_copy(std::string(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
 
-				// Create appropriately sized buffer
-				char *inboundData = new char[dataSize];
+				 // Create appropriately sized buffer
+				 char *inboundData = new char[dataSize];
 
-				// Read the real data section from the stream
-				boost::asio::read(m_socket, boost::asio::buffer(inboundData, dataSize));
+				 // Read the real data section from the stream
+				 boost::asio::read(m_socket, boost::asio::buffer(inboundData, dataSize));
 
-				// And make the data known to the outside world
-				item = std::string(inboundData, dataSize);
+				 // And make the data known to the outside world
+				 item = std::string(inboundData, dataSize);
 
-				Gem::Common::g_array_delete(inboundData);
+				 Gem::Common::g_array_delete(inboundData);
 
-				// We have successfully retrieved an item, so we need
-				// to reset the stall-counter
-				m_stalls = 0;
+				 // We have successfully retrieved an item, so we need
+				 // to reset the stall-counter
+				 m_stalls = 0;
 
-				// Make sure we don't leave any open sockets lying around.
-				disconnect(m_socket);
-				// Indicate that we want to continue
-				return CLIENT_CONTINUE;
-			} else if (this->parseIdleCommand(idleTime, inboundCommandString)) { // Received no work. We have been instructed to wait for a certain time
-				// We will usually only allow a given number of timeouts / stalls
-				if (m_maxStalls && (m_stalls++ > m_maxStalls)) {
-					glogger
-					<< "In GAsioTCPClientT<processable_type>::retrieve(): Warning!" << std::endl
-					<< "Maximum number of consecutive idle commands (" << m_maxStalls << ")" << std::endl
-					<< "has been reached. Leaving now." << std::endl
-					<< GWARNING;
+				 // Make sure we don't leave any open sockets lying around.
+				 disconnect(m_socket);
+				 // Indicate that we want to continue
+				 return CLIENT_CONTINUE;
+			 } else if (this->parseIdleCommand(idleTime, inboundCommandString)) { // Received no work. We have been instructed to wait for a certain time
+				 // We might want to allow a given number of timeouts / stalls
+				 if ((m_maxStalls != 0) && (m_stalls++ > m_maxStalls)) {
+					 glogger
+						 << "In GAsioTCPClientT<processable_type>::retrieve(): Warning!" << std::endl
+						 << "Maximum number of consecutive idle commands (" << m_maxStalls << ")" << std::endl
+						 << "has been reached. Leaving now." << std::endl
+						 << GWARNING;
 
-					// Make sure we don't leave any open sockets lying around.
-					disconnect(m_socket);
-					// Indicate that we don't want to continue
-					return CLIENT_TERMINATE;
-				}
+					 // Make sure we don't leave any open sockets lying around.
+					 disconnect(m_socket);
+					 // Indicate that we don't want to continue
+					 return CLIENT_TERMINATE;
+				 }
 
-				// Make sure we don't leave any open sockets lying around.
-				disconnect(m_socket);
+				 // Make sure we don't leave any open sockets lying around.
+				 disconnect(m_socket);
 
-				// We can continue. But let's wait for a time specified by the server in its idle-command
-				std::chrono::milliseconds timeout(idleTime);
+				 // We can continue. But let's wait for a time specified by the server in its idle-command
+				 std::chrono::milliseconds timeout(idleTime);
 
-				// Indicate that we want to continue
-				return CLIENT_CONTINUE;
-			} else { // Received unknown command
-				glogger
-				<< "In GAsioTCPClientT<processable_type>::retrieve(): Warning!" << std::endl
-				<< "Received unknown command " << inboundCommandString << std::endl
-				<< "Leaving now." << std::endl
-				<< GWARNING;
+				 // Indicate that we want to continue
+				 return CLIENT_CONTINUE;
+			 } else { // Received unknown command
+				 glogger
+					 << "In GAsioTCPClientT<processable_type>::retrieve(): Warning!" << std::endl
+					 << "Received unknown command " << inboundCommandString << std::endl
+					 << "Leaving now." << std::endl
+					 << GWARNING;
 
-				// Make sure we don't leave any open sockets lying around.
-				disconnect(m_socket);
-				// Indicate that we don't want to continue
-				return CLIENT_TERMINATE;
-			}
-		}
-			// Any system error (except for those where a connection attempt failed) is considered
-			// fatal and leads to the termination, by returning false.
-		catch (boost::system::system_error &) {
-			{ // Make sure we do not hide the next error declaration (avoid a warning message)
-				glogger
-				<< "In GAsioTCPClientT<processable_type>::retrieve():" << std::endl
-				<< "Caught boost::system::system_error exception." << std::endl
-				<< "This is likely normal and due to a server shutdown." << std::endl
-				<< "Leaving now." << std::endl
-				<< GWARNING;
-			}
+				 // Make sure we don't leave any open sockets lying around.
+				 disconnect(m_socket);
+				 // Indicate that we don't want to continue
+				 return CLIENT_TERMINATE;
+			 }
+		 }
+		 // Any system error (except for those where a connection attempt failed) is considered
+		 // fatal and leads to the termination, by returning false.
+		 catch (boost::system::system_error &e) {
+			 { // Make sure we do not hide the next error declaration (avoid a warning message)
+				 glogger
+					 << "In GAsioTCPClientT<processable_type>::retrieve():" << std::endl
+					 << "Caught boost::system::system_error exception" << std::endl
+					 << "with message" << std::endl
+					 << e.what()
+					 << "This is likely normal and due to a server shutdown." << std::endl
+					 << "Leaving now." << std::endl
+					 << GWARNING;
+			 }
 
-			// Make sure we don't leave any open sockets lying around.
-			disconnect(m_socket);
+			 // Make sure we don't leave any open sockets lying around.
+			 disconnect(m_socket);
 
-			// Indicate that we don't want to continue
-			return CLIENT_TERMINATE;
-		}
+			 // Indicate that we don't want to continue
+			 return CLIENT_TERMINATE;
+		 } catch (std::exception& e) {
+			 glogger
+				 << "In GAsioTCPClientT<processable_type>::retrieve():" << std::endl
+				 << "Caught std::exception with message" << std::endl
+				 << e.what() << std::endl
+				 << GEXCEPTION;
+		 } catch (...) {
+			 glogger
+				 << "In sharedPtrFromString(): Error!" << std::endl
+				 << "Caught unknown exception" << std::endl
+				 << GEXCEPTION;
+		 }
 
-		// This part of the function should never be reached. Let the audience know, then terminate.
-		glogger
-		<< "In GAsioTCPClientT<processable_type>::retrieve(): Error!" << std::endl
-		<< "We are in a part of the function that should never have been reached!" << std::endl
-		<< GEXCEPTION;
+		 // This part of the function should never be reached. Let the audience know, then terminate.
+		 glogger
+			 << "In GAsioTCPClientT<processable_type>::retrieve(): Error!" << std::endl
+			 << "We are in a part of the function that should never have been reached!" << std::endl
+			 << GEXCEPTION;
 
-		return CLIENT_TERMINATE; // Make the compiler happy
-	}
+		 return CLIENT_TERMINATE; // Make the compiler happy
+	 }
 
 	/***************************************************************************/
 	/**
@@ -1473,7 +1486,7 @@ public:
 				GASIOTCPCONSUMERSERIALIZATIONMODE),
 			 "\t[tcpc] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
 			("maxStalls", po::value<std::uint32_t>(&m_maxStalls)->default_value(GASIOTCPCONSUMERMAXSTALLS),
-			 "\t[tcpc] The maximum allowed number of stalled connection attempts of a client")
+			 "\t[tcpc] The maximum allowed number of stalled connection attempts of a client. 0 means \"forever\".")
 			("maxConnectionAttempts",
 			 po::value<std::uint32_t>(&m_maxConnectionAttempts)->default_value(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS),
 			 "\t[tcpc] The maximum allowed number of failed connection attempts of a client")

@@ -150,7 +150,19 @@ std::shared_ptr<T> sharedPtrFromString(const std::string &gt_string, const Gem::
 		<< "Caught boost::archive::archive_exception" << std::endl
 		<< "with message" << std::endl
 		<< e.what() << std::endl
-		<< GEXCEPTION;
+		<< "We will return an empty pointer." << std::endl
+		<< GWARNING;
+
+		return std::shared_ptr<T>();
+	} catch (std::exception& e) {
+		glogger
+			<< "In sharedPtrFromString(): Error!" << std::endl
+			<< "Caught std::exception with message" << std::endl
+			<< e.what() << std::endl
+			<< "We will return an empty pointer." << std::endl
+			<< GWARNING;
+
+		return std::shared_ptr<T>();
 	} catch (...) {
 		glogger
 		<< "In sharedPtrFromString(): Error!" << std::endl

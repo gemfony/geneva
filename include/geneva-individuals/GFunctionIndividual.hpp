@@ -83,7 +83,7 @@ enum class solverFunction {
 	 NEGPARABOLA = 7
 };
 
-const solverFunction MAXDEMOFUNCTION = solverFunction::SALOMON;
+const solverFunction MAXDEMOFUNCTION = solverFunction::NEGPARABOLA;
 
 // Make sure solverFunction can be streamed
 /** @brief Puts a Gem::Geneva::solverFunction into a stream. Needed also for boost::lexical_cast<> */
