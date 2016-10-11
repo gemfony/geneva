@@ -73,7 +73,7 @@ namespace Tests {
 /**
  * The types of objects to be tested in this class
  */
-enum class PERFOBJECTTYPE : short {
+enum class PERFOBJECTTYPE : std::uint16_t {
 	PERFGDOUBLEOBJECT = 0,
 	PERFGCONSTRDOUBLEOBJECT = 1,
 	PERFGCONSTRAINEDDOUBLEOBJECTCOLLECTION = 2,

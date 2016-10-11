@@ -68,7 +68,7 @@ namespace Geneva {
 
 /******************************************************************************/
 // Different types of optimization targets
-enum class metaOptimizationTarget : short {
+enum class metaOptimizationTarget : std::uint16_t {
 	BESTFITNESS = 0,
 	MINSOLVERCALLS = 1,
 	MC_MINSOLVER_BESTFITNESS = 2 // Multi-criterion optimization with least number of solver calls and best average fitness as targets

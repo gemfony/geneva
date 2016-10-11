@@ -126,7 +126,7 @@ bool parseCommandLine(
 
 /************************************************************************************************/
 
-enum class distType : short {
+enum class distType : std::uint16_t {
 	 GAUSSIAN
 	 , DOUBLEGAUSSIAN
 	 , EVEN

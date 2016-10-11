@@ -65,7 +65,7 @@ namespace Geneva {
 /**
  * This enum denotes the possible demo function types
  */
-enum class targetFunction : short {
+enum class targetFunction : std::uint16_t {
 	PARABOLA=0
 	, NOISYPARABOLA=1
 };

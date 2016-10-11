@@ -80,7 +80,7 @@ const std::size_t DEFMAXRETRIESUNTILVALID=10;
 
 /******************************************************************************/
 // Indicates whether only active, inactive or all parameters should be extracted
-enum class activityMode : short {
+enum class activityMode : std::uint16_t {
 	ACTIVEONLY = 0 // Extract only active parameters
 	, ALLPARAMETERS = 1 // Extract all parameters
 	, INACTIVEONLY = 2 // Only extract inactive parameters
@@ -371,7 +371,7 @@ const double DEFAULTQUALITYTHRESHOLD=0.;
 /**
  * Selection of policy for validity-check combiner
  */
-enum class validityCheckCombinerPolicy : short {
+enum class validityCheckCombinerPolicy : std::uint16_t {
 	MULTIPLYINVALID = 0   // Multiplies all invalid checks (i.e. return values > 1) or returns 0, if all checks are valid
 	, ADDINVALID = 1      // Adds all invalid checks or returns 0, if all checks are valid
 };
@@ -380,7 +380,7 @@ enum class validityCheckCombinerPolicy : short {
 /**
  * Selection of policy for evaluation
  */
-enum class evaluationPolicy : short {
+enum class evaluationPolicy : std::uint16_t {
 	USESIMPLEEVALUATION = 0            // Run evaluation function even for invalid parameter sets
 	, USEWORSTCASEFORINVALID = 1       // Assign the worst possible value to invalid individuals, evaluate valid solutions as usual
 	, USESIGMOID = 2                   // Assign a multiple of validityLevel_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations
@@ -394,7 +394,7 @@ enum class evaluationPolicy : short {
 /**
  * Specification of different parallelization modes
  */
-enum class execMode : short {
+enum class execMode : std::uint16_t {
 	EXECMODE_SERIAL = 0
 	, EXECMODE_MULTITHREADED = 1
 	, EXECMODE_BROKERAGE = 2
@@ -413,7 +413,7 @@ const execMode DEFAULTEXECMODE = execMode::EXECMODE_MULTITHREADED;
  * - RANDOMDUPLICATIONSCHEME chooses the parents to be replicated randomly from all parents
  * - VALUEDUPLICATIONSCHEME prefers parents with a higher fitness
  */
-enum class duplicationScheme : short {
+enum class duplicationScheme : std::uint16_t {
 	DEFAULTDUPLICATIONSCHEME = 0
 	, RANDOMDUPLICATIONSCHEME = 1
 	, VALUEDUPLICATIONSCHEME = 2
@@ -424,7 +424,7 @@ enum class duplicationScheme : short {
 /**
  * The info function can be called in these three modes
  */
-enum class infoMode : short {
+enum class infoMode : std::uint16_t {
 	INFOINIT = 0
 	, INFOPROCESSING = 1
 	, INFOEND = 2
@@ -435,7 +435,7 @@ enum class infoMode : short {
 /**
  * Ids that are assigned to adaptors and which should (by convention!) be unique for these
  */
-enum class adaptorId : short {
+enum class adaptorId : std::uint16_t {
 	GDOUBLEBIGAUSSADAPTOR = 0
 	, GDOUBLEGAUSSADAPTOR = 1
 	, GFLOATGAUSSADAPTOR = 2
@@ -453,7 +453,7 @@ enum class adaptorId : short {
  * MUNU1PRETAIN_SINGLEEVAL means that the best parent of the last generation will also become a new parent
  * (unless a better child was found). All other parents are selected from children only.
  */
-enum class sortingMode : short {
+enum class sortingMode : std::uint16_t {
 	MUPLUSNU_SINGLEEVAL = 0
 	, MUCOMMANU_SINGLEEVAL = 1
 	, MUNU1PRETAIN_SINGLEEVAL = 2
@@ -466,7 +466,7 @@ enum class sortingMode : short {
 /**
  * The selection mode in MPEA populations.
  */
-enum class sortingModeMP : short {
+enum class sortingModeMP : std::uint16_t {
 	MUPLUSNU_SINGLEEVAL_MP = 0
 	, MUCOMMANU_SINGLEEVAL_MP = 1
 	, MUNU1PRETAIN_SINGLEEVAL_MP = 2
@@ -528,7 +528,7 @@ const std::size_t DEFAULTNNEIGHBORHOODMEMBERS = 10; ///< The default number of m
 /**
  * Specifies different update rules in swarms
  */
-enum class updateRule : short {
+enum class updateRule : std::uint16_t {
 	SWARM_UPDATERULE_LINEAR = 0
 	, SWARM_UPDATERULE_CLASSIC = 1
 	, UPDATERULE_LAST = SWARM_UPDATERULE_CLASSIC

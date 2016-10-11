@@ -319,7 +319,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /** @brief This enum is used to specify the type of training data that should be generated */
-enum class trainingDataType : short {
+enum class trainingDataType : std::uint16_t {
 	TDTNONE = 0
 	, HYPERCUBE = 1
 	, HYPERSPHERE = 2
@@ -327,7 +327,7 @@ enum class trainingDataType : short {
 	, SINUS = 4
 };
 /** @brief Allows to specify whether we want to use a sigmoidal transfer function or a radial basis function */
-enum class transferFunction : short {
+enum class transferFunction : std::uint16_t {
 	SIGMOID = 0
 	, RBF = 1
 };

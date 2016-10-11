@@ -63,7 +63,7 @@ const double DEF_BINORM_DISTANCE=0.5;
 /**
  * Allowed specializations of Gem::Hap::GRandomT<T>
  */
-enum class RANDFLAVOURS : short {
+enum class RANDFLAVOURS : std::uint16_t {
 	RANDOMPROXY = 0 // random numbers are taken from the factory
 	, RANDOMLOCAL = 1 // random numbers are produced locally, using a seed taken from the seed manager or provided to the constructor
 };

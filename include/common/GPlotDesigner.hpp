@@ -98,7 +98,7 @@ namespace Common {
 /**
  * An enum for some basic colors (to be extended over time)
  */
-enum class gColor : short {
+enum class gColor : std::uint16_t {
 	white=0
 	, black=1
 	, red=2
@@ -113,7 +113,7 @@ enum class gColor : short {
 /**
  * An enum for basic marker types (to be extended over time)
  */
-enum class gMarker : short {
+enum class gMarker : std::uint16_t {
 	none = 0
 	, openCircle = 4
 	, closedCircle = 20
@@ -129,7 +129,7 @@ enum class gMarker : short {
 /**
  * An enum for basic line styles (to be extended over time)
  */
-enum class gLineStyle : short {
+enum class gLineStyle : std::uint16_t {
 	straight = 1
 	, shortdashed = 2
 	, dotted = 3
@@ -144,7 +144,7 @@ enum class gLineStyle : short {
 /**
  * Determines whether a scatter plot or a curve should be recorded
  */
-enum class graphPlotMode : short {
+enum class graphPlotMode : std::uint16_t {
 	SCATTER = 0
 	, CURVE = 1
 };
@@ -155,7 +155,7 @@ enum class graphPlotMode : short {
 /**
  * An enum for 2D-drawing options
  */
-enum class tddropt : short {
+enum class tddropt : std::uint16_t {
 	TDEMPTY = 0,
 	SURFONE = 1,
 	SURFTWOZ = 2,

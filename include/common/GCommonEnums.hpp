@@ -147,7 +147,7 @@ operator>>(
 /**
  * This enum denotes different dimensions (used particularly by GDecoratorCollection
  */
-enum class dimensions : short {
+enum class dimensions : std::uint16_t {
 	Dim1 = 0
 	, Dim2 = 1
 	, Dim3 = 2
@@ -172,7 +172,7 @@ const bool LOWERISBETTER = false;
 /**
  * Different log and exception types
  */
-enum class logType : short {
+enum class logType : std::uint16_t {
 	EXCEPTION = 0
 	, TERMINATION = 1
 	, WARNING = 2
@@ -199,7 +199,7 @@ const bool VAR_IS_SECONDARY = false;
 /**
  * Needed for the serialization of boost::logic::tribool
  */
-enum class triboolStates : short{
+enum class triboolStates : std::uint16_t{
 	TBS_FALSE
 	, TBS_INDETERMINATE
 	, TBS_TRUE
@@ -209,7 +209,7 @@ enum class triboolStates : short{
 /**
  * The serialization modes that are currently allowed
  */
-enum class serializationMode : short {
+enum class serializationMode : std::uint16_t {
 	SERIALIZATIONMODE_TEXT = 0
 	, SERIALIZATIONMODE_XML = 1
 	, SERIALIZATIONMODE_BINARY = 2
@@ -226,7 +226,7 @@ const bool CE_WITH_MESSAGES = true;
 /**
  * Needed to express expectations in testing framework. CE stands for "Check expectation".
  */
-enum class expectation : short {
+enum class expectation : std::uint16_t {
 	CE_EQUALITY = 0 // bitwise equality of all checked components
 	, CE_FP_SIMILARITY = 1 // equality for non-floating point components, similarity for floating point
 	, CE_INEQUALITY = 2// at least one checked component differs
