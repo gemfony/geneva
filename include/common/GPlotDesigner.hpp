@@ -88,6 +88,7 @@
 #include "common/GStdPtrVectorInterfaceT.hpp"
 #include "common/GTypeTraitsT.hpp"
 #include "common/GTupleIO.hpp"
+#include "common/GSerializationHelperFunctionsT.hpp"
 
 namespace Gem {
 namespace Common {
@@ -98,7 +99,7 @@ namespace Common {
 /**
  * An enum for some basic colors (to be extended over time)
  */
-enum class gColor : std::uint16_t {
+enum class gColor : Gem::Common::ENUMBASETYPE {
 	white=0
 	, black=1
 	, red=2
@@ -107,13 +108,21 @@ enum class gColor : std::uint16_t {
 	, grey=14 // note the id of this color, compared to preceding values
 };
 
+/** @brief Puts a Gem::Common::gColor into a stream. Needed also for boost::lexical_cast<> */
+G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::gColor &);
+
+/** @brief Reads a Gem::Common::gColor item from a stream. Needed also for boost::lexical_cast<> */
+G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::gColor &);
+
+// See the end of this file for the serializer
+
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
  * An enum for basic marker types (to be extended over time)
  */
-enum class gMarker : std::uint16_t {
+enum class gMarker : Gem::Common::ENUMBASETYPE {
 	none = 0
 	, openCircle = 4
 	, closedCircle = 20
@@ -123,13 +132,21 @@ enum class gMarker : std::uint16_t {
 	, openStar = 30
 };
 
+/** @brief Puts a Gem::Common::gMarker into a stream. Needed also for boost::lexical_cast<> */
+G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::gMarker &);
+
+/** @brief Reads a Gem::Common::gMarker item from a stream. Needed also for boost::lexical_cast<> */
+G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::gMarker &);
+
+// See the end of this file for the serializer
+
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /*******************************************************************	***********/
 /**
  * An enum for basic line styles (to be extended over time)
  */
-enum class gLineStyle : std::uint16_t {
+enum class gLineStyle : Gem::Common::ENUMBASETYPE {
 	straight = 1
 	, shortdashed = 2
 	, dotted = 3
@@ -138,16 +155,32 @@ enum class gLineStyle : std::uint16_t {
 	, longdashed = 7
 };
 
+/** @brief Puts a Gem::Common::gLineStyle into a stream. Needed also for boost::lexical_cast<> */
+G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::gLineStyle &);
+
+/** @brief Reads a Gem::Common::gLineStyle item from a stream. Needed also for boost::lexical_cast<> */
+G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::gLineStyle &);
+
+// See the end of this file for the serializer
+
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
  * Determines whether a scatter plot or a curve should be recorded
  */
-enum class graphPlotMode : std::uint16_t {
+enum class graphPlotMode : Gem::Common::ENUMBASETYPE {
 	SCATTER = 0
 	, CURVE = 1
 };
+
+/** @brief Puts a Gem::Common::graphPlotMode into a stream. Needed also for boost::lexical_cast<> */
+G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::gColor &);
+
+/** @brief Reads a Gem::Common::graphPlotMode item from a stream. Needed also for boost::lexical_cast<> */
+G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::graphPlotMode &);
+
+// See the end of this file for the serializer
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -155,7 +188,7 @@ enum class graphPlotMode : std::uint16_t {
 /**
  * An enum for 2D-drawing options
  */
-enum class tddropt : std::uint16_t {
+enum class tddropt : Gem::Common::ENUMBASETYPE {
 	TDEMPTY = 0,
 	SURFONE = 1,
 	SURFTWOZ = 2,
@@ -175,6 +208,14 @@ enum class tddropt : std::uint16_t {
 	SURFONEPOL = 16,
 	SURFONECYL = 17
 };
+
+/** @brief Puts a Gem::Common::tddropt into a stream. Needed also for boost::lexical_cast<> */
+G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::tddropt &);
+
+/** @brief Reads a Gem::Common::tddropt item from a stream. Needed also for boost::lexical_cast<> */
+G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::tddropt &);
+
+// See the end of this file for the serializer
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -4250,5 +4291,64 @@ private:
 
 } /* namespace Common */
 } /* namespace Gem */
+
+namespace boost {
+namespace serialization {
+
+/******************************************************************************/
+/** @brief Serialization of a gColor enum */
+template<typename Archive>
+void serialize(
+	Archive &ar
+	, Gem::Common::gColor &x
+	, const unsigned int
+) {
+	serializeEnumAs<Archive, Gem::Common::gColor, Gem::Common::ENUMBASETYPE>(ar, x);
+}
+
+/** @brief Serialization of a gMarker enum */
+template<typename Archive>
+void serialize(
+	Archive &ar
+	, Gem::Common::gMarker &x
+	, const unsigned int
+) {
+	serializeEnumAs<Archive, Gem::Common::gMarker, Gem::Common::ENUMBASETYPE>(ar, x);
+}
+
+/** @brief Serialization of a gLineStyle enum */
+template<typename Archive>
+void serialize(
+	Archive &ar
+	, Gem::Common::gLineStyle &x
+	, const unsigned int
+) {
+	serializeEnumAs<Archive, Gem::Common::gLineStyle, Gem::Common::ENUMBASETYPE>(ar, x);
+}
+
+/** @brief Serialization of a graphPlotMode enum */
+template<typename Archive>
+void serialize(
+	Archive &ar
+	, Gem::Common::graphPlotMode &x
+	, const unsigned int
+) {
+	serializeEnumAs<Archive, Gem::Common::graphPlotMode, Gem::Common::ENUMBASETYPE>(ar, x);
+}
+
+/** @brief Serialization of a tddropt enum */
+template<typename Archive>
+void serialize(
+	Archive &ar
+	, Gem::Common::tddropt &x
+	, const unsigned int
+) {
+	serializeEnumAs<Archive, Gem::Common::tddropt, Gem::Common::ENUMBASETYPE>(ar, x);
+}
+
+/******************************************************************************/
+
+} /* namespace serialization */
+} /* namespace boost */
 
 #endif /* GPLOTDESIGNER_HPP_ */

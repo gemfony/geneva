@@ -66,7 +66,7 @@ using namespace Gem::Common;
  * This enum defines the available execution modes of the GBrokerSelfCommunication
  * example
  */
-enum class GBSCModes : std::uint16_t {
+enum class GBSCModes : Gem::Common::ENUMBASETYPE {
 	 SERIAL = 0
 	 , INTERNALNETWORKING = 1
 	 , NETWORKING = 2
@@ -86,7 +86,7 @@ const GBSCModes MAXGBSCMODES = GBSCModes::THREAEDANDNETWORKING;
  * @return The std::ostream object used to add the item to
  */
 std::ostream& operator<<(std::ostream& o, const GBSCModes& gbscmode) {
-	std::uint16_t tmp = static_cast<std::uint16_t>(gbscmode);
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(gbscmode);
 	o << tmp;
 	return o;
 }
@@ -100,7 +100,7 @@ std::ostream& operator<<(std::ostream& o, const GBSCModes& gbscmode) {
  * @return The std::istream object used to read the item from
  */
 std::istream& operator>>(std::istream& i, GBSCModes& gbscmode) {
-	std::uint16_t tmp;
+	Gem::Common::ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG

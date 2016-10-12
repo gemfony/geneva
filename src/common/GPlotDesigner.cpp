@@ -40,6 +40,146 @@ namespace Common {
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
+// Streamers
+
+/******************************************************************************/
+/**
+ * Puts a Gem::Common::gColor into a stream. Needed also for boost::lexical_cast<>
+ */
+std::ostream &operator<<(std::ostream &o, const Gem::Common::gColor &x) {
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(x);
+	o << tmp;
+	return o;
+}
+
+/******************************************************************************/
+/**
+ * Reads a Gem::Common::gColor item from a stream. Needed also for boost::lexical_cast<>
+ */
+std::istream &operator>>(std::istream &i, Gem::Common::gColor &x) {
+	Gem::Common::ENUMBASETYPE tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+	x = boost::numeric_cast<Gem::Common::gColor>(tmp);
+#else
+	x = static_cast<Gem::Common::gColor>(tmp);
+#endif /* DEBUG */
+
+	return i;
+}
+
+/******************************************************************************/
+/**
+ * Puts a Gem::Common::gMarker into a stream. Needed also for boost::lexical_cast<>
+ */
+std::ostream &operator<<(std::ostream &o, const Gem::Common::gMarker &x) {
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(x);
+	o << tmp;
+	return o;
+}
+
+/******************************************************************************/
+/**
+ * Reads a Gem::Common::gMarker item from a stream. Needed also for boost::lexical_cast<>
+ */
+std::istream &operator>>(std::istream &i, Gem::Common::gMarker &x) {
+	Gem::Common::ENUMBASETYPE tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+	x = boost::numeric_cast<Gem::Common::gMarker>(tmp);
+#else
+	x = static_cast<Gem::Common::gMarker>(tmp);
+#endif /* DEBUG */
+
+	return i;
+}
+
+/******************************************************************************/
+/**
+ * Puts a Gem::Common::gLineStyle into a stream. Needed also for boost::lexical_cast<>
+ */
+std::ostream &operator<<(std::ostream &o, const Gem::Common::gLineStyle &x) {
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(x);
+	o << tmp;
+	return o;
+}
+
+/******************************************************************************/
+/**
+ * Reads a Gem::Common::gLineStyle item from a stream. Needed also for boost::lexical_cast<>
+ */
+std::istream &operator>>(std::istream &i, Gem::Common::gLineStyle &x) {
+	Gem::Common::ENUMBASETYPE tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+	x = boost::numeric_cast<Gem::Common::gLineStyle>(tmp);
+#else
+	x = static_cast<Gem::Common::gLineStyle>(tmp);
+#endif /* DEBUG */
+
+	return i;
+}
+
+/******************************************************************************/
+/**
+ * Puts a Gem::Common::graphPlotMode into a stream. Needed also for boost::lexical_cast<>
+ */
+std::ostream &operator<<(std::ostream &o, const Gem::Common::graphPlotMode &x) {
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(x);
+	o << tmp;
+	return o;
+}
+
+/******************************************************************************/
+/**
+ * Reads a Gem::Common::graphPlotMode item from a stream. Needed also for boost::lexical_cast<>
+ */
+std::istream &operator>>(std::istream &i, Gem::Common::graphPlotMode &x) {
+	Gem::Common::ENUMBASETYPE tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+	x = boost::numeric_cast<Gem::Common::graphPlotMode>(tmp);
+#else
+	x = static_cast<Gem::Common::graphPlotMode>(tmp);
+#endif /* DEBUG */
+
+	return i;
+}
+
+/******************************************************************************/
+/**
+ * Puts a Gem::Common::tddropt into a stream. Needed also for boost::lexical_cast<>
+ */
+std::ostream &operator<<(std::ostream &o, const Gem::Common::tddropt &x) {
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(x);
+	o << tmp;
+	return o;
+}
+
+/******************************************************************************/
+/**
+ * Reads a Gem::Common::tddropt item from a stream. Needed also for boost::lexical_cast<>
+ */
+std::istream &operator>>(std::istream &i, Gem::Common::tddropt &x) {
+	Gem::Common::ENUMBASETYPE tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+	x = boost::numeric_cast<Gem::Common::tddropt>(tmp);
+#else
+	x = static_cast<Gem::Common::tddropt>(tmp);
+#endif /* DEBUG */
+
+	return i;
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * The default constructor. Data members are initialized in the class body.
  */

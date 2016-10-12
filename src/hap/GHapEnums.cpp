@@ -46,7 +46,7 @@ namespace Hap {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Hap::RANDFLAVOURS &grts) {
-	std::uint16_t tmp = static_cast<std::uint16_t>(grts);
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(grts);
 	o << tmp;
 	return o;
 }
@@ -60,7 +60,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Hap::RANDFLAVOURS &grts) {
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Hap::RANDFLAVOURS &grts) {
-	std::uint16_t tmp;
+	Gem::Common::ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG

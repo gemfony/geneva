@@ -45,7 +45,7 @@ namespace Geneva {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::activityMode &am) {
-	std::uint16_t tmp = static_cast<std::uint16_t>(am);
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(am);
 	o << tmp;
 	return o;
 }
@@ -59,7 +59,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::activityMode &am) {
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::activityMode &am) {
-	std::uint16_t tmp;
+	Gem::Common::ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG
@@ -80,7 +80,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::activityMode &am) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::validityCheckCombinerPolicy &vccp) {
-	std::uint16_t tmp = static_cast<std::uint16_t>(vccp);
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(vccp);
 	o << tmp;
 	return o;
 }
@@ -94,7 +94,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::validityCheckCombin
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::validityCheckCombinerPolicy &vccp) {
-	std::uint16_t tmp;
+	Gem::Common::ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG
@@ -115,7 +115,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::validityCheckCombinerPoli
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::evaluationPolicy &iip) {
-	std::uint16_t tmp = static_cast<std::uint16_t>(iip);
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(iip);
 	o << tmp;
 	return o;
 }
@@ -129,7 +129,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::evaluationPolicy &i
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::evaluationPolicy &iip) {
-	std::uint16_t tmp;
+	Gem::Common::ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG
@@ -150,7 +150,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::evaluationPolicy &iip) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::execMode &pm) {
-	std::uint16_t tmp = static_cast<std::uint16_t>(pm);
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(pm);
 	o << tmp;
 	return o;
 }
@@ -164,7 +164,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::execMode &pm) {
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::execMode &pm) {
-	std::uint16_t tmp;
+	Gem::Common::ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG
@@ -185,7 +185,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::execMode &pm) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::duplicationScheme &rc) {
-	std::uint16_t tmp = static_cast<std::uint16_t>(rc);
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(rc);
 	o << tmp;
 	return o;
 }
@@ -199,7 +199,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::duplicationScheme &
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::duplicationScheme &rc) {
-	std::uint16_t tmp;
+	Gem::Common::ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG
@@ -220,7 +220,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::duplicationScheme &rc) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::infoMode &im) {
-	std::uint16_t tmp = static_cast<std::uint16_t>(im);
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(im);
 	o << tmp;
 	return o;
 }
@@ -234,7 +234,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::infoMode &im) {
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::infoMode &im) {
-	std::uint16_t tmp;
+	Gem::Common::ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG
@@ -255,7 +255,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::infoMode &im) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::adaptorId &aid) {
-	std::uint16_t tmp = static_cast<std::uint16_t>(aid);
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(aid);
 	o << tmp;
 	return o;
 }
@@ -269,7 +269,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::adaptorId &aid) {
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::adaptorId &aid) {
-	std::uint16_t tmp;
+	Gem::Common::ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG
@@ -290,7 +290,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::adaptorId &aid) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::sortingMode &smode) {
-	std::uint16_t tmp = static_cast<std::uint16_t>(smode);
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(smode);
 	o << tmp;
 	return o;
 }
@@ -304,7 +304,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::sortingMode &smode)
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::sortingMode &smode) {
-	std::uint16_t tmp;
+	Gem::Common::ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG
@@ -325,7 +325,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::sortingMode &smode) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::sortingModeMP &smode) {
-	std::uint16_t tmp = static_cast<std::uint16_t>(smode);
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(smode);
 	o << tmp;
 	return o;
 }
@@ -339,7 +339,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::sortingModeMP &smod
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::sortingModeMP &smode) {
-	std::uint16_t tmp;
+	Gem::Common::ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG
@@ -360,7 +360,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::sortingModeMP &smode) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::updateRule &ur) {
-	std::uint16_t tmp = static_cast<std::uint16_t>(ur);
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(ur);
 	o << tmp;
 	return o;
 }
@@ -374,7 +374,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::updateRule &ur) {
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::updateRule &ur) {
-	std::uint16_t tmp;
+	Gem::Common::ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG

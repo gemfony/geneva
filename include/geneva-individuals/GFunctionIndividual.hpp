@@ -73,7 +73,7 @@ namespace Geneva {
 /**
  * This enum denotes the possible demo function types
  */
-enum class solverFunction : std::uint16_t {
+enum class solverFunction : Gem::Common::ENUMBASETYPE {
 	 PARABOLA = 0,
 	 NOISYPARABOLA = 1,
 	 ROSENBROCK = 2,
@@ -93,10 +93,23 @@ G_API_INDIVIDUALS std::ostream &operator<<(std::ostream &, const Gem::Geneva::so
 /** @brief Reads a Gem::Geneva::solverFunction from a stream. Needed also for boost::lexical_cast<> */
 G_API_INDIVIDUALS std::istream &operator>>(std::istream &, Gem::Geneva::solverFunction &);
 
+// See at the end of this file for the serializer
+
+/** @brief Serialization of a solverFunction enum */
+template<typename Archive>
+void serialize(
+	Archive &ar
+	, solverFunction &x
+	, const unsigned int version
+) {
+	std::cout << "Serializing solverFunction enum" << std::endl;
+	boost::serialization::serializeEnumAs<Archive, Gem::Geneva::solverFunction, Gem::Common::ENUMBASETYPE>(ar, x);
+}
+
 /**
  * This enum describes different parameter types that may be used to fill the object with data
  */
-enum class parameterType : std::uint16_t {
+enum class parameterType : Gem::Common::ENUMBASETYPE {
 	 USEGDOUBLECOLLECTION = 0,
 	 USEGCONSTRAINEDOUBLECOLLECTION = 1,
 	 USEGDOUBLEOBJECTCOLLECTION = 2,
@@ -111,10 +124,12 @@ G_API_INDIVIDUALS std::ostream &operator<<(std::ostream &, const Gem::Geneva::pa
 /** @brief Reads a Gem::Geneva::parameterType from a stream. Needed also for boost::lexical_cast<> */
 G_API_INDIVIDUALS std::istream &operator>>(std::istream &, Gem::Geneva::parameterType &);
 
+// See at the end of this file for the serializer
+
 /**
  * This enum describes several ways of initializing the data collections
  */
-enum class initMode : std::uint16_t {
+enum class initMode : Gem::Common::ENUMBASETYPE {
 	 INITRANDOM = 0 // random values for all variables
 	 , INITPERIMETER = 1 // Uses a parameter set on the perimeter of the allowed or common value range
 };
@@ -125,6 +140,8 @@ G_API_INDIVIDUALS std::ostream &operator<<(std::ostream &, const Gem::Geneva::in
 
 /** @brief Reads a Gem::Geneva::initMode from a stream. Needed also for boost::lexical_cast<> */
 G_API_INDIVIDUALS std::istream &operator>>(std::istream &, Gem::Geneva::initMode &);
+
+// See at the end of this file for the serializer
 
 /******************************************************************************/
 // A number of default settings for the factory
@@ -165,7 +182,8 @@ class GFunctionIndividualFactory;
  * of processing their input in multiple dimensions.
  */
 class GFunctionIndividual
-	: public GParameterSet {
+	: public GParameterSet
+{
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
 
@@ -870,5 +888,35 @@ BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFunctionIndividualFactory)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleSumConstraint)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleSumGapConstraint)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSphereConstraint)
+
+namespace boost {
+namespace serialization {
+
+/******************************************************************************/
+
+/** @brief Serialization of a parameterType enum */
+template<typename Archive>
+void serialize(
+	Archive &ar
+	, Gem::Geneva::parameterType &x
+	, const unsigned int
+) {
+	serializeEnumAs<Archive, Gem::Geneva::parameterType, Gem::Common::ENUMBASETYPE>(ar, x);
+}
+
+/** @brief Serialization of a initMode enum */
+template<typename Archive>
+void serialize(
+	Archive &ar
+	, Gem::Geneva::initMode &x
+	, const unsigned int
+) {
+	serializeEnumAs<Archive, Gem::Geneva::initMode, Gem::Common::ENUMBASETYPE>(ar, x);
+}
+
+/******************************************************************************/
+
+} /* namespace serialization */
+} /* namespace boost */
 
 #endif /* GFUNCTIONINDIVIDUAL_HPP_ */

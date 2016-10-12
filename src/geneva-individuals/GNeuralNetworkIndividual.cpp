@@ -588,7 +588,7 @@ std::shared_ptr <networkData> networkData::clone() const {
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::trainingDataType &tdt) {
-	std::uint16_t tmp;
+	Gem::Common::ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG
@@ -610,7 +610,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::trainingDataType &tdt) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::trainingDataType &tdt) {
-	std::uint16_t tmp = static_cast<std::uint16_t>(tdt);
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(tdt);
 	o << tmp;
 	return o;
 }
@@ -625,7 +625,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::trainingDataType &t
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::transferFunction &tF) {
-	std::uint16_t tmp;
+	Gem::Common::ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG
@@ -647,7 +647,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::transferFunction &tF) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::transferFunction &tF) {
-	std::uint16_t tmp = static_cast<std::uint16_t>(tF);
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(tF);
 	o << tmp;
 	return o;
 }

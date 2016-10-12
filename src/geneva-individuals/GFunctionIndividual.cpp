@@ -512,8 +512,7 @@ GObject *GSphereConstraint::clone_() const {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::solverFunction &ur) {
-	typedef std::underlying_type<Gem::Geneva::solverFunction>::type enum_type;
-	enum_type tmp = static_cast<enum_type>(ur);
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(ur);
 	o << tmp;
 	return o;
 }
@@ -527,8 +526,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::solverFunction &ur)
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::solverFunction &ur) {
-	typedef std::underlying_type<Gem::Geneva::solverFunction>::type enum_type;
-	enum_type tmp;
+	Gem::Common::ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG
@@ -549,8 +547,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::solverFunction &ur) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::parameterType &ur) {
-	typedef std::underlying_type<Gem::Geneva::parameterType>::type enum_type;
-	enum_type tmp = static_cast<enum_type>(ur);
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(ur);
 	o << tmp;
 	return o;
 }
@@ -564,8 +561,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::parameterType &ur) 
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::parameterType &ur) {
-	typedef std::underlying_type<Gem::Geneva::parameterType>::type enum_type;
-	enum_type tmp;
+	Gem::Common::ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG
@@ -586,8 +582,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::parameterType &ur) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::initMode &ur) {
-	typedef std::underlying_type<Gem::Geneva::initMode>::type enum_type;
-	enum_type tmp = static_cast<enum_type>(ur);
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(ur);
 	o << tmp;
 	return o;
 }
@@ -601,8 +596,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::initMode &ur) {
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::initMode &ur) {
-	typedef std::underlying_type<Gem::Geneva::initMode>::type enum_type;
-	enum_type tmp;
+	Gem::Common::ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG

@@ -90,7 +90,7 @@ const double DEFAULTBROKERWAITFACTOR = DEFAULTMAXBROKERWAITFACTOR;
 const double DEFAULTBROKERWAITFACTORINCREMENT = 0.1;
 const double DEFAULTMINPERCENTAGEOFTIMEOUT = 0.7;
 
-const double DEFAULTBROKERWAITFACTOR2 = 2.; // For GBrokerConnector2T
+const double DEFAULTBROKERWAITFACTOR2 = 1.1; // For GBrokerConnector2T
 const double DEFAULTINITIALBROKERWAITFACTOR2 = 1.;
 
 /******************************************************************************/
@@ -118,7 +118,7 @@ const std::string DEFAULTDURATION = EMPTYDURATION;
 /**
  * Needed by the broker connector
  */
-enum class submissionReturnMode : std::uint16_t {
+enum class submissionReturnMode : Gem::Common::ENUMBASETYPE {
 	INCOMPLETERETURN = 0
 	, RESUBMISSIONAFTERTIMEOUT = 1
 	, EXPECTFULLRETURN = 2

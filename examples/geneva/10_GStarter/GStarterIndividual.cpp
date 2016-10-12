@@ -48,7 +48,7 @@ namespace Geneva {
  * @return The std::ostream object used to add the item to
  */
 std::ostream& operator<<(std::ostream& o, const Gem::Geneva::targetFunction& tF) {
-	std::uint16_t tmp = static_cast<std::uint16_t>(tF);
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(tF);
 	o << tmp;
 	return o;
 }
@@ -62,7 +62,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::targetFunction& tF)
  * @return The std::istream object used to read the item from
  */
 std::istream& operator>>(std::istream& i, Gem::Geneva::targetFunction& tF) {
-	std::uint16_t tmp;
+	Gem::Common::ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG

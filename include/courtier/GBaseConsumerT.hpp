@@ -125,6 +125,15 @@ public:
 		return false;
 	}
 
+   /***************************************************************************/
+   /**
+    * Returns the (possibly estimated) number of concurrent processing units.
+    * A return value of 0 means "unknown".
+    */
+   virtual std::uint16_t getNProcessingUnits() const {
+       return boost::numeric_cast<std::uint16_t>(0);
+	}
+
 	/***************************************************************************/
 	/**
 	 * Parses a given configuration file
@@ -185,7 +194,8 @@ public:
 	 * By default we do nothing so that derived classes do not need to re-implement this
 	 * function.
 	 */
-	virtual void actOnCLOptions(const boost::program_options::variables_map &vm) { /* nothing */ }
+	virtual void actOnCLOptions(const boost::program_options::variables_map &vm)
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	// Some abstract functions

@@ -50,7 +50,7 @@ namespace Geneva {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::metaOptimizationTarget &mot) {
-	std::uint16_t tmp = static_cast<std::uint16_t>(mot);
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(mot);
 	o << tmp;
 	return o;
 }
@@ -64,7 +64,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::metaOptimizationTar
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::metaOptimizationTarget &mot) {
-	std::uint16_t tmp;
+	Gem::Common::ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG

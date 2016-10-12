@@ -49,12 +49,13 @@
 
 // Geneva header files go here
 #include "common/GFactoryT.hpp"
+#include "common/GParserBuilder.hpp"
+#include "common/GSerializationHelperFunctionsT.hpp"
 #include "geneva/GDoubleCollection.hpp"
 #include "geneva/GConstrainedDoubleCollection.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GDoubleBiGaussAdaptor.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "common/GParserBuilder.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -63,7 +64,7 @@ namespace Geneva {
 /**
  * This enum denotes the possible demo function types
  */
-enum class targetFunction : std::uint16_t {
+enum class targetFunction : Gem::Common::ENUMBASETYPE {
 	GFM_PARABOLA=0
 	, GFM_NOISYPARABOLA=1
 };
@@ -74,6 +75,8 @@ std::ostream& operator<<(std::ostream&, const Gem::Geneva::targetFunction&);
 
 /** @brief Reads a Gem::Geneva::targetFunction from a stream. Needed also for boost::lexical_cast<> */
 std::istream& operator>>(std::istream&, Gem::Geneva::targetFunction&);
+
+// See at the end of this file for the serializer
 
 /******************************************************************************/
 // A number of default settings for the factory
@@ -100,7 +103,8 @@ class GFMinIndividual
 
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int) {
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
 		& BOOST_SERIALIZATION_NVP(targetFunction_);
 	}
 
@@ -202,5 +206,24 @@ private:
 } /* namespace Gem */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFMinIndividual)
+
+namespace boost {
+namespace serialization {
+
+/******************************************************************************/
+/** @brief Serialization of a targetFunction enum */
+template <typename Archive>
+void serialize(
+	Archive &ar
+	, Gem::Geneva::targetFunction &x
+	, const unsigned int
+) {
+	serializeEnumAs<Archive, Gem::Geneva::targetFunction, Gem::Common::ENUMBASETYPE>(ar, x);
+}
+
+/******************************************************************************/
+
+} /* namespace serialization */
+} /* namespace boost */
 
 #endif /* GFMININDIVIDUAL_HPP_ */

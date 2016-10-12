@@ -126,7 +126,7 @@ bool parseCommandLine(
 
 /************************************************************************************************/
 
-enum class distType : std::uint16_t {
+enum class distType : Gem::Common::ENUMBASETYPE {
 	 GAUSSIAN
 	 , DOUBLEGAUSSIAN
 	 , EVEN
@@ -141,6 +141,33 @@ enum class distType : std::uint16_t {
 	 , EXPGAUSS08
 	 , EXPGAUSS16
 };
+
+/************************************************************************************************/
+/**
+ * Puts a distType item into a stream
+ */
+std::ostream &operator<<(std::ostream &o, const distType &x) {
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(x);
+	o << tmp;
+	return o;
+}
+
+/************************************************************************************************/
+/**
+ * Reads a distType item from a stream
+ */
+std::istream &operator>>(std::istream &i, distType &x) {
+	Gem::Common::ENUMBASETYPE tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+	x = boost::numeric_cast<distType>(tmp);
+#else
+	x = static_cast<distType>(tmp);
+#endif /* DEBUG */
+
+	return i;
+}
 
 /************************************************************************************************/
 

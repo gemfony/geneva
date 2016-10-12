@@ -46,7 +46,7 @@ namespace Courtier {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Courtier::submissionReturnMode &srm) {
-	std::uint16_t tmp = static_cast<std::uint16_t>(srm);
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(srm);
 	o << tmp;
 	return o;
 }
@@ -60,7 +60,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Courtier::submissionReturnM
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Courtier::submissionReturnMode &srm) {
-	std::uint16_t tmp;
+	Gem::Common::ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG

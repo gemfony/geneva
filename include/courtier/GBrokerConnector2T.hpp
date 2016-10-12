@@ -521,7 +521,7 @@ protected:
 	 SUBMISSIONCOUNTERTYPE m_submission_counter; ///< Counts the number of submissions initiated by this object. Note: not serialized!
 	 std::size_t m_expectedNumber; ///< The number of work items to be submitted (and expected back)
 	 std::chrono::system_clock::time_point m_iterationStartTime; ///< Temporary that holds the start time for the retrieval of items in a given iteration
-	 std::chrono::duration<double> m_lastAverage; ///< The average time needed for the last submission
+	 std::chrono::duration<double> m_lastAverage = std::chrono::duration<double>(0.); ///< The average time needed for the last submission
 };
 
 /******************************************************************************/
@@ -1355,7 +1355,7 @@ private:
 					 , workItemPos
 					 , oldWorkItems
 				 )
-				 ) {
+			 ) {
 				 // This covers the rare case than a "collection" of a single
 				 // work item was submitted.
 				 return true;
@@ -1376,9 +1376,8 @@ private:
 			 << "Maximum waiting time in iteration "
 			 << current_iteration << ": "
 			 << maxTimeout.count()
-			 << " s (" << GBaseExecutorT<processable_type>::m_lastAverage.count()
-		 	 << ", " << GBaseExecutorT<processable_type>::m_expectedNumber
-		    << ", " << m_waitFactor << ")" << std::endl;
+			 << " s (" << GBaseExecutorT<processable_type>::m_lastAverage.count() << ", "
+			 << GBaseExecutorT<processable_type>::m_expectedNumber << ", " << m_waitFactor << ")" << std::endl;
 
 		 while (true) { // Loop until a timeout is reached or all current items have returned
 			 if(m_waitFactor > 0.) {
@@ -1395,8 +1394,8 @@ private:
 					 , workItems
 					 , workItemPos
 					 , oldWorkItems
-				 )
-					 ) {
+				 	)
+				 ) {
 					 break;
 				 }
 

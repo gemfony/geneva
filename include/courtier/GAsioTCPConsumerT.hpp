@@ -397,7 +397,7 @@ protected:
 					 << "In GAsioTCPClientT<processable_type>::retrieve():" << std::endl
 					 << "Caught boost::system::system_error exception" << std::endl
 					 << "with message" << std::endl
-					 << e.what()
+					 << e.what() << std::endl
 					 << "This is likely normal and due to a server shutdown." << std::endl
 					 << "Leaving now." << std::endl
 					 << GWARNING;

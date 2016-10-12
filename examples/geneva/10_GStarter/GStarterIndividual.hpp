@@ -65,7 +65,7 @@ namespace Geneva {
 /**
  * This enum denotes the possible demo function types
  */
-enum class targetFunction : std::uint16_t {
+enum class targetFunction : Gem::Common::ENUMBASETYPE {
 	PARABOLA=0
 	, NOISYPARABOLA=1
 };
