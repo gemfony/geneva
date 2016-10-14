@@ -74,9 +74,9 @@ int main(int argc, char **argv) {
 		, po::value<bool>(&usePostProcessor)->implicit_value(true)->default_value(false)
 		, "Whether or not to post-process individuals (using evolutionary algorithms in this example)"
 	)(
-		"execModePP"
+		"execModePostProcessing"
 		, po::value<execMode>(&execModePP)->default_value(execMode::EXECMODE_SERIAL)
-		, "The execution mode for post-optimization"
+		, "The execution mode for post-optimization (0: serial; 1: multithreaded)"
 	);
 
 	Go2 go(argc, argv, "./config/Go2.json", user_options);

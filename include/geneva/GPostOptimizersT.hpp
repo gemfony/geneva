@@ -292,9 +292,7 @@ protected:
 		 std::shared_ptr<ind_type> p_unopt_ptr = p.clone<ind_type>();
 
 		 // Make sure the post-optimization does not trigger post-optimization ...
-		 p_unopt_ptr->preventPostProcessing();
-
-		 std::cout << "Initial fitness " << p_unopt_ptr->fitness() << std::endl;
+		 p_unopt_ptr->vetoPostProcessing(true);
 
 		 // Add our individual to the algorithm
 		 ea_ptr->push_back(p_unopt_ptr);
@@ -305,7 +303,8 @@ protected:
 		 // Retrieve the best individual
 		 std::shared_ptr<ind_type> p_opt_ptr = ea_ptr->getBestGlobalIndividual<ind_type>();
 
-		 std::cout << "Postprocessed fitness " << p_opt_ptr->fitness() << std::endl;
+		 // Make sure subsequent optimization cycles may generally perform post-optimization again
+		 p_unopt_ptr->vetoPostProcessing(false);
 
 	    // Load the individual into the argument GParameterSet
 		 p.load(p_opt_ptr);

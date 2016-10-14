@@ -88,6 +88,8 @@ class GProcessingContainerT
 		 & BOOST_SERIALIZATION_NVP(m_id)
 		 & BOOST_SERIALIZATION_NVP(m_mayBePreProcessed)
 		 & BOOST_SERIALIZATION_NVP(m_mayBePostProcessed)
+		 & BOOST_SERIALIZATION_NVP(m_preProcessingDisabled)
+		 & BOOST_SERIALIZATION_NVP(m_postProcessingDisabled)
 		 & BOOST_SERIALIZATION_NVP(m_pre_processor_ptr)
 		 & BOOST_SERIALIZATION_NVP(m_post_processor_ptr)
 		 & BOOST_SERIALIZATION_NVP(m_pre_processing_time)
@@ -117,6 +119,8 @@ public:
 		 : m_id(cp.m_id)
 	 	 , m_mayBePreProcessed(cp.m_mayBePreProcessed)
 	 	 , m_mayBePostProcessed(cp.m_mayBePostProcessed)
+	 	 , m_preProcessingDisabled(cp.m_preProcessingDisabled)
+ 		 , m_postProcessingDisabled(cp.m_postProcessingDisabled)
 	 {
 		 Gem::Common::copyCloneableSmartPointer(cp.m_pre_processor_ptr, m_pre_processor_ptr);
 		 Gem::Common::copyCloneableSmartPointer(cp.m_post_processor_ptr, m_post_processor_ptr);
@@ -140,11 +144,11 @@ public:
 	 bool process() {
 		 try {
 			 auto startTime = std::chrono::system_clock::now();
-			 if (this->mayBePreProcessed() && !this->preProcess_()) return false;
+			 if (!this->preProcess_()) return false;
 			 auto afterPreProcessing = std::chrono::system_clock::now();
 			 if (!this->process_()) return false;
 			 auto afterProcessing = std::chrono::system_clock::now();
-			 if (this->mayBePostProcessed() && !this->postProcess_()) return false;
+			 if (!this->postProcess_()) return false;
 			 auto afterPostProcessing = std::chrono::system_clock::now();
 
 			 // Make a not of the time needed for each step
@@ -214,7 +218,7 @@ public:
 	  * step may occur. This may alter the individual's data.
 	  */
 	 bool mayBePreProcessed() const {
-		 return m_mayBePreProcessed;
+		 return (m_mayBePreProcessed && !m_preProcessingDisabled);
 	 }
 
 	 /***************************************************************************/
@@ -238,6 +242,17 @@ public:
 
 	 /***************************************************************************/
 	 /**
+	  * Allow or prevent pre-processing (used by pre-processing algorithms to prevent
+	  * recursive pre-processing). See e.g. GEvolutionaryAlgorithmPostOptimizerT. Once a veto
+	  * exists, no pre-processing will occur until the veto is lifted.
+	  */
+	 void vetoPreProcessing(bool veto) {
+		 if(veto) m_preProcessingDisabled = true;
+		 else m_preProcessingDisabled = false;
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Allows to register a pre-processor object
 	  */
 	 void registerPreProcessor(std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<submission_type>> pre_processor_ptr) {
@@ -254,7 +269,7 @@ public:
 	  * run on the individual. This may alter the individual's data.
 	  */
 	 bool mayBePostProcessed() const {
-		 return m_mayBePostProcessed;
+		 return (m_mayBePostProcessed && !m_postProcessingDisabled);
 	 }
 
 	 /***************************************************************************/
@@ -274,6 +289,17 @@ public:
 	  */
 	 void preventPostProcessing() {
 		 m_mayBePostProcessed = false;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allow or prevent post-processing (used by post-processing algorithms to prevent
+	  * recursive post-processing). See e.g. GEvolutionaryAlgorithmPostOptimizerT. Once a veto
+	  * exists, no post-processing will occur until the veto is lifted.
+	  */
+	 void vetoPostProcessing(bool veto) {
+		 if(veto) m_postProcessingDisabled = true;
+		 else m_postProcessingDisabled = false;
 	 }
 
 	 /***************************************************************************/
@@ -306,6 +332,8 @@ public:
 		 m_id = p_load->m_id;
 		 m_mayBePreProcessed = p_load->m_mayBePreProcessed;
 		 m_mayBePostProcessed = p_load->m_mayBePostProcessed;
+		 m_preProcessingDisabled = p_load->m_preProcessingDisabled;
+		 m_postProcessingDisabled = p_load->m_postProcessingDisabled;
 		 Gem::Common::copyCloneableSmartPointer(p_load->m_pre_processor_ptr, m_pre_processor_ptr);
 		 Gem::Common::copyCloneableSmartPointer(p_load->m_post_processor_ptr, m_post_processor_ptr);
 	 }
@@ -324,7 +352,7 @@ private:
 	 bool preProcess_() {
 		 bool result = true;
 
-		 if(m_mayBePreProcessed && m_pre_processor_ptr) {
+		 if(this->mayBePreProcessed() && m_pre_processor_ptr) {
 			 submission_type& p = dynamic_cast<submission_type&>(*this);
 			 result = (*m_pre_processor_ptr)(p);
 			 m_mayBePreProcessed = false;
@@ -341,7 +369,7 @@ private:
 	 bool postProcess_() {
 		 bool result = true;
 
-		 if(m_mayBePostProcessed && m_post_processor_ptr) {
+		 if(this->mayBePostProcessed() && m_post_processor_ptr) {
 			 submission_type& p = dynamic_cast<submission_type&>(*this);
 			 result = (*m_post_processor_ptr)(p);
 			 m_mayBePostProcessed = false;
@@ -357,6 +385,9 @@ private:
 
 	 bool m_mayBePreProcessed  = false; ///< Indicates whether user-defined pre-processing may occur
 	 bool m_mayBePostProcessed = false; ///< Indicates whether user-defined post-processing may occur
+
+	 bool m_preProcessingDisabled = false; ///< Indicates whether pre-processing was diabled entirely
+	 bool m_postProcessingDisabled = false; ///< Indicates whether pre-processing was diabled entirely
 
 	 std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<submission_type>> m_pre_processor_ptr; ///< Actions to be performed before processing
 	 std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<submission_type>> m_post_processor_ptr; ///< Actions to be performed after processing

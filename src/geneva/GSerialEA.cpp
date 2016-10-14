@@ -44,7 +44,8 @@ namespace Geneva {
  * hence this function is empty.
  */
 GSerialEA::GSerialEA()
-	: GBaseEA() { /* nothing */ }
+	: GBaseEA()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -53,14 +54,16 @@ GSerialEA::GSerialEA()
  * @param cp Reference to another GSerialEA object
  */
 GSerialEA::GSerialEA(const GSerialEA &cp)
-	: GBaseEA(cp) { /* nothing */ }
+	: GBaseEA(cp)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor. No local, dynamically allocated data,
  * hence this function is empty.
  */
-GSerialEA::~GSerialEA() { /* nothing */ }
+GSerialEA::~GSerialEA()
+{ /* nothing */ }
 
 /***************************************************************************/
 /**
@@ -249,7 +252,6 @@ void GSerialEA::runFitnessCalculation() {
       }
    }
 #endif
-
 	for (it = data.begin() + std::get<0>(range); it != data.begin() + std::get<1>(range); ++it) {
 		// Perform the actual evaluation
 		(*it)->process();
