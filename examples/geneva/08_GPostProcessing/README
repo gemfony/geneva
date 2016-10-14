@@ -1,2 +1,4 @@
 This example demonstrates how to add (serializable) post-processing workers to individuals.
-A single pluggable optimization monitor allows to monitor processing times.
+In the given example work items are post-processed using an evolutionary algorithm, i.e. each
+work item undergoes a sub-optimization. A single pluggable optimization monitor allows to
+monitor processing times.
