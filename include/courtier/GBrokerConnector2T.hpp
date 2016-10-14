@@ -1358,7 +1358,7 @@ private:
 					 , workItemPos
 					 , oldWorkItems
 				 )
-				 ) {
+			 ) {
 				 // This covers the rare case that a "collection" of a *single*
 				 // work item was submitted.
 				 return true;
