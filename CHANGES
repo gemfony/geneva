@@ -32,6 +32,8 @@ The main changes for this release include:
  - Added a post-processor for running a sub-optimization on an individual
  - Gave GDataCollector1T and GDataCollector2T (and with them GHistogram1D and GHistogram2D) the
    ability to automatically detect ranges
+ - Added the option to set the initial wait factor of GBrokerConnector2T in the config file
+	of optimization algorithms
 
 CMake Version 3.1 is required.
 

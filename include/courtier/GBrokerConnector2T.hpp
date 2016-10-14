@@ -67,6 +67,7 @@
 #ifndef GBROKERCONNECTOR2T_HPP_
 #define GBROKERCONNECTOR2T_HPP_
 
+
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
@@ -325,7 +326,7 @@ public:
 			 // Cross check that there are remaining work items
 			 if(workItems.empty()) {
 				 glogger
-					 << "In GBrokerConnector2T<>::workOn(items, begin, end, oldWorkItems): Error!" << std::endl
+					 << "In GBaseExecutorT<processable_type>::workOn():: Error!" << std::endl
 					 << "workItems vector is empty" << std::endl
 					 << GEXCEPTION;
 			 }
@@ -825,7 +826,8 @@ class GBrokerConnector2T
 		 & BOOST_SERIALIZATION_NVP(m_initialWaitFactor)
 		 & BOOST_SERIALIZATION_NVP(m_doLogging)
 		 & BOOST_SERIALIZATION_NVP(m_gpd)
-		 & BOOST_SERIALIZATION_NVP(m_waiting_times_graph);
+		 & BOOST_SERIALIZATION_NVP(m_waiting_times_graph)
+		 & BOOST_SERIALIZATION_NVP(m_waitFactorWarningEmitted);
 	 }
 
 	 ///////////////////////////////////////////////////////////////////////
@@ -843,7 +845,6 @@ public:
 	    , m_maxResubmissions(DEFAULTMAXRESUBMISSIONS)
 		 , m_waitFactor(DEFAULTBROKERWAITFACTOR2)
 	    , m_initialWaitFactor(DEFAULTINITIALBROKERWAITFACTOR2)
-		 , m_doLogging(false)
 		 , m_gpd("Maximum waiting times", 1, 1)
 	 {
 		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1200));
@@ -866,7 +867,6 @@ public:
 		 , m_maxResubmissions(DEFAULTMAXRESUBMISSIONS)
 		 , m_waitFactor(DEFAULTBROKERWAITFACTOR2)
 		 , m_initialWaitFactor(DEFAULTINITIALBROKERWAITFACTOR2)
-		 , m_doLogging(false)
 		 , m_gpd("Maximum waiting times", 1, 1)
 	 {
 		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1200));
@@ -890,7 +890,8 @@ public:
 		 , m_waitFactor(cp.m_waitFactor)
 		 , m_initialWaitFactor(cp.m_initialWaitFactor)
 		 , m_doLogging(cp.m_doLogging)
-		 , m_gpd("Maximum waiting times", 1, 1) // Intentionally not copoed
+		 , m_gpd("Maximum waiting times", 1, 1) // Intentionally not copied
+	 	 , m_waitFactorWarningEmitted(cp.m_waitFactorWarningEmitted)
 	 {
 		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1200));
 
@@ -954,6 +955,7 @@ public:
 		 m_waitFactor = cp->m_waitFactor;
 		 m_initialWaitFactor = cp->m_initialWaitFactor;
 		 m_doLogging = cp->m_doLogging;
+		 m_waitFactorWarningEmitted = cp->m_waitFactorWarningEmitted;
 	 }
 
 	 /***************************************************************************/
@@ -978,7 +980,8 @@ public:
 			 }
 		 )
 			 << "A static double factor for timeouts" << std::endl
-			 << "A wait factor <= 0 means \"no timeout\"";
+			 << "A wait factor <= 0 means \"no timeout\"." << std::endl
+		    << "It is suggested to use values >= 1.";
 
 		 gpb.registerFileParameter<double>(
 			 "initialWaitFactor" // The name of the variable
@@ -1340,7 +1343,7 @@ private:
 			 // It is a severe error if no item is received in the first iteration.
 			 // Note that retrieve() will wait indefinitely and, once it returns,
 			 // should carry a work item.
-			 if(!w) {
+			 if (!w) {
 				 glogger
 					 << "In GBrokerConnector2T<>::waitForTimeOut(): Error!" << std::endl
 					 << "First item received in first iteration is empty. We cannot continue!"
@@ -1355,8 +1358,8 @@ private:
 					 , workItemPos
 					 , oldWorkItems
 				 )
-			 ) {
-				 // This covers the rare case than a "collection" of a single
+				 ) {
+				 // This covers the rare case that a "collection" of a *single*
 				 // work item was submitted.
 				 return true;
 			 }
@@ -1367,17 +1370,35 @@ private:
 			 currentElapsed = std::chrono::system_clock::now() - GBaseExecutorT<processable_type>::m_iterationStartTime;
 			 maxTimeout = currentElapsed * GBaseExecutorT<processable_type>::m_expectedNumber * m_initialWaitFactor;
 		 } else { // We are dealing with an iteration > 0
-			 maxTimeout = GBaseExecutorT<processable_type>::m_lastAverage * GBaseExecutorT<processable_type>::m_expectedNumber * m_waitFactor;
+#ifdef DEBUG
+			 if(!m_waitFactorWarningEmitted) {
+				 if(m_waitFactor < 1.) {
+					 glogger
+					 << "In GBrokerConnector2T::waitForTimeOut(): Warning" << std::endl
+					 << "It is suggested not to use a wait time < 1. Current value: " << m_waitFactor << std::endl
+					 << GWARNING
+				 }
+			 }
+#endif
+
+			 maxTimeout =
+				 GBaseExecutorT<processable_type>::m_lastAverage * GBaseExecutorT<processable_type>::m_expectedNumber * m_waitFactor;
 		 }
 
-		 m_waiting_times_graph->add(std::make_tuple(double(current_iteration), maxTimeout.count()));
 		 // TODO: This is a hack. Submitted for current debugging purposes
-		 std::cout
-			 << "Maximum waiting time in iteration "
-			 << current_iteration << ": "
-			 << maxTimeout.count()
-			 << " s (" << GBaseExecutorT<processable_type>::m_lastAverage.count() << ", "
-			 << GBaseExecutorT<processable_type>::m_expectedNumber << ", " << m_waitFactor << ")" << std::endl;
+		 m_waiting_times_graph->add(std::make_tuple(double(current_iteration), maxTimeout.count()));
+		 if (0 == current_iteration) {
+			 std::cout
+				 << "Maximum waiting time in iteration " << current_iteration << ": " << maxTimeout.count()
+				 << " s (" << currentElapsed.count() << ", "
+				 << GBaseExecutorT<processable_type>::m_expectedNumber << ", " << m_initialWaitFactor << ")" << std::endl;
+		 } else {
+			 // TODO: This is a hack. Submitted for current debugging purposes
+			 std::cout
+				 << "Maximum waiting time in iteration " << current_iteration << ": " << maxTimeout.count()
+				 << " s (" << GBaseExecutorT<processable_type>::m_lastAverage.count() << ", "
+				 << GBaseExecutorT<processable_type>::m_expectedNumber << ", " << m_waitFactor << ")" << std::endl;
+	 	 }
 
 		 while (true) { // Loop until a timeout is reached or all current items have returned
 			 if(m_waitFactor > 0.) {
@@ -1548,7 +1569,7 @@ private:
 	 double m_waitFactor; ///< A static factor to be applied to timeouts
 	 double m_initialWaitFactor; ///< A static factor to be applied to timeouts in the first iteration
 
-	 bool m_doLogging; ///< Specifies whether arrival times of work items should be logged
+	 bool m_doLogging = false; ///< Specifies whether arrival times of work items should be logged
 	 std::vector<std::tuple<SUBMISSIONCOUNTERTYPE, SUBMISSIONCOUNTERTYPE, std::chrono::system_clock::time_point>> m_logData; ///< Holds the sending and receiving iteration as well as the time needed for completion
 	 std::vector<std::chrono::system_clock::time_point> m_iterationStartTimes; ///< Holds the start times of given iterations, if logging is activated
 
@@ -1556,6 +1577,8 @@ private:
 
 	 Gem::Common::GPlotDesigner m_gpd; ///< A wrapper for the plots
 	 std::shared_ptr<Gem::Common::GGraph2D> m_waiting_times_graph;  ///< The maximum waiting time resulting from the wait factor
+
+	 bool m_waitFactorWarningEmitted = false; ///< Specifies whether a warning about a small waitFactor has already been emitted
 };
 
 

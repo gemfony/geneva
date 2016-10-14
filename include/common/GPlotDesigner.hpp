@@ -114,8 +114,6 @@ G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::gColor 
 /** @brief Reads a Gem::Common::gColor item from a stream. Needed also for boost::lexical_cast<> */
 G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::gColor &);
 
-// See the end of this file for the serializer
-
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
@@ -138,8 +136,6 @@ G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::gMarker
 /** @brief Reads a Gem::Common::gMarker item from a stream. Needed also for boost::lexical_cast<> */
 G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::gMarker &);
 
-// See the end of this file for the serializer
-
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /*******************************************************************	***********/
@@ -161,8 +157,6 @@ G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::gLineSt
 /** @brief Reads a Gem::Common::gLineStyle item from a stream. Needed also for boost::lexical_cast<> */
 G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::gLineStyle &);
 
-// See the end of this file for the serializer
-
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
@@ -179,8 +173,6 @@ G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::gColor 
 
 /** @brief Reads a Gem::Common::graphPlotMode item from a stream. Needed also for boost::lexical_cast<> */
 G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::graphPlotMode &);
-
-// See the end of this file for the serializer
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -214,8 +206,6 @@ G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::tddropt
 
 /** @brief Reads a Gem::Common::tddropt item from a stream. Needed also for boost::lexical_cast<> */
 G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::tddropt &);
-
-// See the end of this file for the serializer
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -4291,64 +4281,5 @@ private:
 
 } /* namespace Common */
 } /* namespace Gem */
-
-namespace boost {
-namespace serialization {
-
-/******************************************************************************/
-/** @brief Serialization of a gColor enum */
-template<typename Archive>
-void serialize(
-	Archive &ar
-	, Gem::Common::gColor &x
-	, const unsigned int
-) {
-	serializeEnumAs<Archive, Gem::Common::gColor, Gem::Common::ENUMBASETYPE>(ar, x);
-}
-
-/** @brief Serialization of a gMarker enum */
-template<typename Archive>
-void serialize(
-	Archive &ar
-	, Gem::Common::gMarker &x
-	, const unsigned int
-) {
-	serializeEnumAs<Archive, Gem::Common::gMarker, Gem::Common::ENUMBASETYPE>(ar, x);
-}
-
-/** @brief Serialization of a gLineStyle enum */
-template<typename Archive>
-void serialize(
-	Archive &ar
-	, Gem::Common::gLineStyle &x
-	, const unsigned int
-) {
-	serializeEnumAs<Archive, Gem::Common::gLineStyle, Gem::Common::ENUMBASETYPE>(ar, x);
-}
-
-/** @brief Serialization of a graphPlotMode enum */
-template<typename Archive>
-void serialize(
-	Archive &ar
-	, Gem::Common::graphPlotMode &x
-	, const unsigned int
-) {
-	serializeEnumAs<Archive, Gem::Common::graphPlotMode, Gem::Common::ENUMBASETYPE>(ar, x);
-}
-
-/** @brief Serialization of a tddropt enum */
-template<typename Archive>
-void serialize(
-	Archive &ar
-	, Gem::Common::tddropt &x
-	, const unsigned int
-) {
-	serializeEnumAs<Archive, Gem::Common::tddropt, Gem::Common::ENUMBASETYPE>(ar, x);
-}
-
-/******************************************************************************/
-
-} /* namespace serialization */
-} /* namespace boost */
 
 #endif /* GPLOTDESIGNER_HPP_ */

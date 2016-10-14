@@ -124,6 +124,15 @@ public:
 		return true;
 	}
 
+ 	/***************************************************************************/
+ 	/**
+  	 * Returns the (possibly estimated) number of concurrent processing units.
+  	 * A return value of 0 means "unknown".
+  	 */
+ 	virtual std::uint16_t getNProcessingUnits() const override {
+		 return boost::numeric_cast<std::uint16_t>(1);
+ 	}
+
 private:
 	/***************************************************************************/
 

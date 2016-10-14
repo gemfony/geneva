@@ -187,26 +187,6 @@ namespace serialization {
 
 /******************************************************************************/
 /**
- * Takes care of the serialization of enum types. The function will
- * only be instantiated if enum_type is indeed an enum
- */
-template<typename Archive, typename enum_type, typename target_type, class=typename std::enable_if<std::is_enum<enum_type>::value>::type>
-void serializeEnumAs(
-	Archive& ar
-	, enum_type &e
-) {
-	if (Archive::is_saving::value) { // see the oarchive interface e.g. here: http://www.boost.org/doc/libs/1_61_0/libs/serialization/doc/archives.html
-		target_type t = static_cast<target_type>(e);
-		ar & t;
-	} else {
-		target_type t;
-		ar & t;
-		e = static_cast<enum_type>(t);
-	}
-}
-
-/******************************************************************************/
-/**
  * Saves a tribool variable to an archive
  */
 template<typename Archive>

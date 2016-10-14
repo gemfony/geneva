@@ -46,8 +46,9 @@ G_API_GENEVA const std::string GGradientDescentFactory::nickname = "gd";
  * The default constructor
  */
 GGradientDescentFactory::GGradientDescentFactory()
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>("./config/GGradientDescent.json"),
-	  maxResubmissions_(5) { /* nothing */ }
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>("./config/GGradientDescent.json")
+   , maxResubmissions_(5)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -56,8 +57,9 @@ GGradientDescentFactory::GGradientDescentFactory()
 GGradientDescentFactory::GGradientDescentFactory(
 	const std::string &configFile
 )
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(configFile),
-	  maxResubmissions_(5) { /* nothing */ }
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(configFile)
+	, maxResubmissions_(5)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -65,10 +67,12 @@ GGradientDescentFactory::GGradientDescentFactory(
  * target item as needed.
  */
 GGradientDescentFactory::GGradientDescentFactory(
-	const std::string &configFile, const execMode &pm
+	const std::string &configFile
+	, const execMode &pm
 )
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(configFile, pm),
-	  maxResubmissions_(5) { /* nothing */ }
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(configFile, pm)
+	, maxResubmissions_(5)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -76,17 +80,20 @@ GGradientDescentFactory::GGradientDescentFactory(
  * to add a content creator. It initializes a target item as needed.
  */
 GGradientDescentFactory::GGradientDescentFactory(
-	const std::string &configFile, const execMode &pm,
-	std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
+	const std::string &configFile
+	, const execMode &pm
+	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(configFile, pm, contentCreatorPtr),
-	  maxResubmissions_(5) { /* nothing */ }
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>(configFile, pm, contentCreatorPtr)
+	, maxResubmissions_(5)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GGradientDescentFactory::~GGradientDescentFactory() { /* nothing */ }
+GGradientDescentFactory::~GGradientDescentFactory()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -111,13 +118,14 @@ std::string GGradientDescentFactory::getAlgorithmName() const {
  * @return Items of the desired type
  */
 std::shared_ptr <GOptimizationAlgorithmT<GParameterSet>> GGradientDescentFactory::getObject_(
-	Gem::Common::GParserBuilder &gpb, const std::size_t &id
+	Gem::Common::GParserBuilder &gpb
+	, const std::size_t &id
 ) {
 	// Will hold the result
 	std::shared_ptr <GBaseGD> target;
 
 	// Fill the target pointer as required
-	switch (pm_) {
+	switch (GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_pm) {
 		case execMode::EXECMODE_SERIAL:
 			target = std::shared_ptr<GSerialGD>(new GSerialGD());
 			break;
@@ -166,7 +174,7 @@ void GGradientDescentFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
  */
 void GGradientDescentFactory::postProcess_(std::shared_ptr < GOptimizationAlgorithmT<GParameterSet>> &p_base) {
 	// Convert the object to the correct target type
-	switch (pm_) {
+	switch (GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_pm) {
 		case execMode::EXECMODE_SERIAL:
 			// nothing
 			break;
@@ -174,7 +182,7 @@ void GGradientDescentFactory::postProcess_(std::shared_ptr < GOptimizationAlgori
 		case execMode::EXECMODE_MULTITHREADED: {
 			std::shared_ptr <GMultiThreadedGD> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedGD>(p_base);
-			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::nEvaluationThreads_);
+			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_nEvaluationThreads);
 		}
 			break;
 
@@ -182,8 +190,9 @@ void GGradientDescentFactory::postProcess_(std::shared_ptr < GOptimizationAlgori
 			std::shared_ptr <GBrokerGD> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerGD>(p_base);
 
-			p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::doLogging_);
-			p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::waitFactor_);
+			p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_doLogging);
+			p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_waitFactor);
+			p->setInitialWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_initialWaitFactor);
 
 			// This differs from e.g. GEvolutionaryAlgorithmFactory
 			p->setMaxResubmissions(maxResubmissions_);

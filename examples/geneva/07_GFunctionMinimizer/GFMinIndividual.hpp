@@ -76,8 +76,6 @@ std::ostream& operator<<(std::ostream&, const Gem::Geneva::targetFunction&);
 /** @brief Reads a Gem::Geneva::targetFunction from a stream. Needed also for boost::lexical_cast<> */
 std::istream& operator>>(std::istream&, Gem::Geneva::targetFunction&);
 
-// See at the end of this file for the serializer
-
 /******************************************************************************/
 // A number of default settings for the factory
 const double GFI_DEF_ADPROB = 1.0;
@@ -206,24 +204,5 @@ private:
 } /* namespace Gem */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFMinIndividual)
-
-namespace boost {
-namespace serialization {
-
-/******************************************************************************/
-/** @brief Serialization of a targetFunction enum */
-template <typename Archive>
-void serialize(
-	Archive &ar
-	, Gem::Geneva::targetFunction &x
-	, const unsigned int
-) {
-	serializeEnumAs<Archive, Gem::Geneva::targetFunction, Gem::Common::ENUMBASETYPE>(ar, x);
-}
-
-/******************************************************************************/
-
-} /* namespace serialization */
-} /* namespace boost */
 
 #endif /* GFMININDIVIDUAL_HPP_ */

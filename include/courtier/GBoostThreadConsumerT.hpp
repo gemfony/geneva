@@ -168,19 +168,32 @@ public:
 	/**
 	 * Returns an indication whether full return can be expected from this
 	 * consumer. Since evaluation is performed in threads, we assume that this
-	 * is possible and return true.
+	 * is possible and return true. Note that it is up to the user to ensure
+	 * that either his code does not crash or that exceptions are caught and
+	 * the thread becomes available again.
 	 */
 	virtual bool capableOfFullReturn() const {
 		return true;
 	}
 
-	/***************************************************************************/
-	/**
-	 * Retrieves the number of workers registered with this class
-	 */
-	std::size_t getNWorkers() const {
-		return m_workerTemplates.size();
-	}
+   /***************************************************************************/
+   /**
+	  * Retrieves the number of workers registered with this class
+	  */
+   std::size_t getNWorkers() const {
+	  return m_workerTemplates.size();
+   }
+
+   /***************************************************************************/
+ 	/**
+  	 * Returns the (possibly estimated) number of concurrent processing units.
+    * A return value of 0 means "unknown". Note that this function does not
+    * make any assumptions whether processing units are dedicated solely to a
+    * given task.
+    */
+ 	virtual std::uint16_t getNProcessingUnits() const {
+		 return boost::numeric_cast<std::uint16_t>(this->getNWorkers() * this->getNThreadsPerWorker());
+ 	}
 
 	/***************************************************************************/
 	/**
@@ -198,7 +211,7 @@ public:
 #endif /* DEBUG */
 
 		// Start m_threadsPerWorker threads for each registered worker template
-		std::cout << "Starting " << m_threadsPerWorker << " processing threads for " << m_workerTemplates.size() << " worker(s)  in GBoostThreadConsumerT" << std::endl;
+		std::cout << "Starting " << m_threadsPerWorker << " processing threads for " << m_workerTemplates.size() << " worker(s) in GBoostThreadConsumerT" << std::endl;
 		for (std::size_t w = 0; w < m_workerTemplates.size(); w++) {
 			for (std::size_t i = 0; i < m_threadsPerWorker; i++) {
 				std::shared_ptr <GWorker> p_worker = (m_workerTemplates.at(w))->clone(i, this);
@@ -375,12 +388,11 @@ private:
 public:
 	/***************************************************************************/
 	/**
-	 * A nested class that performs the actual work inside of a thread. It is
-	 * meant as a means to  Classes derived from GBoostThreadConsumerT
-	 * may use their own derivative from this class and store complex
-	 * information associated with the execution inside of the worker threads.
-	 * Note that a GWorker(-derivative) must be copy-constructible and implement
-	 * the clone() function.
+	 * A nested class that performs the actual work inside of a thread.
+	 * Classes derived from GBoostThreadConsumerT may use their own derivative
+	 * from this class and store complex information associated with the execution
+	 * inside of the worker threads. Note that a GWorker(-derivative) must be
+	 * copy-constructible and implement the clone() function.
 	 */
 	class GWorker {
 	public:
@@ -389,7 +401,8 @@ public:
 		 * The default constructor
 		 */
 		GWorker()
-			: m_thread_id(0), m_outer(nullptr), m_parsed(false), m_runLoopHasCommenced(false) { /* nothing */ }
+			: m_thread_id(0), m_outer(nullptr), m_parsed(false), m_runLoopHasCommenced(false)
+		{ /* nothing */ }
 
 	protected:
 		/************************************************************************/
@@ -398,9 +411,15 @@ public:
 		 * async_startprocessing().
 		 */
 		GWorker(
-			const GWorker &cp, const std::size_t &thread_id, const GBoostThreadConsumerT<processable_type> *c_ptr
+			const GWorker &cp
+			, const std::size_t &thread_id
+			, const GBoostThreadConsumerT<processable_type> *c_ptr
 		)
-			: m_thread_id(thread_id), m_outer(c_ptr), m_parsed(cp.m_parsed), m_runLoopHasCommenced(false) { /* nothing */ }
+			: m_thread_id(thread_id)
+		   , m_outer(c_ptr)
+		   , m_parsed(cp.m_parsed)
+		   , m_runLoopHasCommenced(false)
+		{ /* nothing */ }
 
 	public:
 		/************************************************************************/

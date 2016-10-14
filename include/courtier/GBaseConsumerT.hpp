@@ -128,7 +128,9 @@ public:
    /***************************************************************************/
    /**
     * Returns the (possibly estimated) number of concurrent processing units.
-    * A return value of 0 means "unknown".
+    * A return value of 0 means "unknown". Note that this function does not
+    * make any assumptions whether processing units are dedicated solely to a
+    * given task.
     */
    virtual std::uint16_t getNProcessingUnits() const {
        return boost::numeric_cast<std::uint16_t>(0);

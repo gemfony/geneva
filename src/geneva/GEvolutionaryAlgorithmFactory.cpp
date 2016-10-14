@@ -127,7 +127,7 @@ std::shared_ptr <GOptimizationAlgorithmT<GParameterSet>> GEvolutionaryAlgorithmF
 	std::shared_ptr <GBaseEA> target;
 
 	// Fill the target pointer as required
-	switch (pm_) {
+	switch (GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_pm) {
 		case execMode::EXECMODE_SERIAL:
 			target = std::shared_ptr<GSerialEA>(new GSerialEA());
 			break;
@@ -158,7 +158,7 @@ void GEvolutionaryAlgorithmFactory::postProcess_(
 	std::shared_ptr < GOptimizationAlgorithmT<GParameterSet>> &p_base
 ) {
 	// Convert the object to the correct target type
-	switch (pm_) {
+	switch (GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_pm) {
 		case execMode::EXECMODE_SERIAL:
 			// nothing
 			break;
@@ -166,7 +166,7 @@ void GEvolutionaryAlgorithmFactory::postProcess_(
 		case execMode::EXECMODE_MULTITHREADED: {
 			std::shared_ptr <GMultiThreadedEA> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedEA>(p_base);
-			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::nEvaluationThreads_);
+			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_nEvaluationThreads);
 		}
 			break;
 
@@ -174,9 +174,10 @@ void GEvolutionaryAlgorithmFactory::postProcess_(
 			std::shared_ptr <GBrokerEA> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerEA>(p_base);
 
-			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::nEvaluationThreads_);
-			p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::doLogging_);
-			p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::waitFactor_);
+			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_nEvaluationThreads);
+			p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_doLogging);
+			p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_waitFactor);
+			p->setInitialWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_initialWaitFactor);
 		}
 			break;
 	}

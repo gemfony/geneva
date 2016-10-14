@@ -117,7 +117,7 @@ std::shared_ptr <GOptimizationAlgorithmT<GParameterSet>> GSwarmAlgorithmFactory:
 	std::shared_ptr <GBaseSwarm> target;
 
 	// Fill the target pointer as required
-	switch (pm_) {
+	switch (GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_pm) {
 		case execMode::EXECMODE_SERIAL:
 			target = std::shared_ptr<GSerialSwarm>(new GSerialSwarm());
 			break;
@@ -146,7 +146,7 @@ std::shared_ptr <GOptimizationAlgorithmT<GParameterSet>> GSwarmAlgorithmFactory:
  */
 void GSwarmAlgorithmFactory::postProcess_(std::shared_ptr < GOptimizationAlgorithmT<GParameterSet>> &p_base) {
 	// Convert the object to the correct target type
-	switch (pm_) {
+	switch (GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_pm) {
 		case execMode::EXECMODE_SERIAL: {
 			// nothing
 		} break;
@@ -154,15 +154,16 @@ void GSwarmAlgorithmFactory::postProcess_(std::shared_ptr < GOptimizationAlgorit
 		case execMode::EXECMODE_MULTITHREADED: {
 			std::shared_ptr <GMultiThreadedSwarm> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedSwarm>(p_base);
-			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::nEvaluationThreads_);
+			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_nEvaluationThreads);
 		} break;
 
 		case execMode::EXECMODE_BROKERAGE: {
 			std::shared_ptr <GBrokerSwarm> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerSwarm>(p_base);
 
-			p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::doLogging_);
-			p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::waitFactor_);
+			p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_doLogging);
+			p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_waitFactor);
+			p->setInitialWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_initialWaitFactor);
 		} break;
 	}
 
