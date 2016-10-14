@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
 			= std::shared_ptr<GEvolutionaryAlgorithmPostOptimizer>(
 				new GEvolutionaryAlgorithmPostOptimizer(
 					execMode::EXECMODE_SERIAL
-					, "./GPostEvolutionaryAlgorithm.json"
+					, "./config/GPostEvolutionaryAlgorithm.json"
 				)
 			);
 
