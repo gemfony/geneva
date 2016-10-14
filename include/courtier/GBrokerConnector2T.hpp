@@ -1376,7 +1376,7 @@ private:
 					 glogger
 					 << "In GBrokerConnector2T::waitForTimeOut(): Warning" << std::endl
 					 << "It is suggested not to use a wait time < 1. Current value: " << m_waitFactor << std::endl
-					 << GWARNING
+					 << GWARNING;
 				 }
 			 }
 #endif

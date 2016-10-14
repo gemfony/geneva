@@ -1,5 +1,5 @@
 /**
- * @file GPluggableOptimizationMonitors.cpp
+ * @file GPostProcessing.cpp
  */
 
 /*
@@ -67,45 +67,17 @@ int main(int argc, char **argv) {
 	std::string monitorNAdaptions = "empty";
 	std::string logSigma = "empty";
 	std::string monitorTimings = "empty";
+	bool usePostProcessor = false;
 
 	// Assemble command line options
 	boost::program_options::options_description user_options;
 	user_options.add_options()(
-		"validOnly"
-		, po::value<bool>(&printValid)->implicit_value(true)->default_value(false) // This allows you to say both --validOnly and --validOnly=true
-		, "Enforces output of valid solutions only"
-	)(
-		"useRawFitness"
-		, po::value<bool>(&useRawFitness)->implicit_value(true)->default_value(false) // This allows you to say both --useRawFitness and --useRawFitness=true
-		, "Plot untransformed fitness value, even if a transformation takes place for the purpose of optimization"
-	)(
-		"monitorSpec"
-		, po::value<std::string>(&monitorSpec)->default_value(std::string("empty"))
-		, "Allows you to specify variables to be monitored like this: \"d(var0, -10, 10)\""
-	)(
-		"bestOnly"
-		, po::value<bool>(&bestOnly)->implicit_value(true)->default_value(false)
-		, "Allows you to specify whether only the best solutions should be monitored. This option only has an effect when monitorSpec is set."
-	)(
-		"observeBoundaries"
-		, po::value<bool>(&observeBoundaries)->implicit_value(true)->default_value(false) // This allows you say both --observeBoundaries and --observeBoundaries=true
-		, "Only plot inside of specified boundaries (no effect, when monitorSpec hasn't been set)"
-	)(
-		"logAll"
-		, po::value<std::string>(&logAll)->implicit_value(std::string("./log.txt"))->default_value("empty")
-		, "Logs all solutions to the file name provided as argument to this switch"
-	)(
-		"monitorAdaptions"
-		, po::value<std::string>(&monitorNAdaptions)->implicit_value(std::string("./nAdaptions.C"))->default_value("empty")
-		, "Logs the number of adaptions for all individuals over the course of the optimization. Useful for evolutionary algorithms only."
-	)(
-		"logSigma"
-		, po::value<std::string>(&logSigma)->implicit_value(std::string("./sigmaLog.C"))->default_value("empty")
-		, "Logs the value of sigma for all or the best adaptors, if GDoubleGaussAdaptors are being used"
-	)(
 		"monitorTimings"
 		, po::value<std::string>(&monitorTimings)->implicit_value(std::string("timingsLog"))->default_value("empty")
 		, "Logs the times for all processing steps"
+	)(
+		"usePostProcessor"
+		, po::value<bool>(&usePostProcessor)->implicit_value(true)->default_value(false)
 	);
 
 	Go2 go(argc, argv, "./config/Go2.json", user_options);
@@ -122,53 +94,22 @@ int main(int argc, char **argv) {
 	std::shared_ptr<GFunctionIndividualFactory> gfi_ptr(new GFunctionIndividualFactory("./config/GFunctionIndividual.json"));
 
 	//---------------------------------------------------------------------------
+	// Register a post-processor, if this was requested by the user
+	if(usePostProcessor) {
+		std::shared_ptr<GEvolutionaryAlgorithmPostOptimizer> eaPostOptimizer_ptr
+			= std::shared_ptr<GEvolutionaryAlgorithmPostOptimizer>(
+				new GEvolutionaryAlgorithmPostOptimizer(
+					execMode::EXECMODE_SERIAL
+					, "./GPostEvolutionaryAlgorithm.json"
+				)
+			);
+
+		gfi_ptr->registerPostProcessor(eaPostOptimizer_ptr);
+	}
+
+	//---------------------------------------------------------------------------
 	// Register pluggable optimization monitors, if requested by the user
-
-	// Register a progress plotter with the global optimization algorithm factory
-	if(monitorSpec != "empty") {
-		std::shared_ptr<GProgressPlotterT<GParameterSet, double>> progplot_ptr(new GProgressPlotterT<GParameterSet, double>());
-
-		progplot_ptr->setProfileSpec(monitorSpec);
-		progplot_ptr->setObserveBoundaries(observeBoundaries);
-		progplot_ptr->setMonitorValidOnly(printValid); // Only record valid parameters, when printValid is set to true
-		progplot_ptr->setUseRawEvaluation(useRawFitness); // Use untransformed evaluation values for logging
-		progplot_ptr->setMonitorBestOnly(bestOnly); // Whether only the best solutions should be monitored
-
-		// Request printing of png files (upon processing of the .C file with ROOT)
-		progplot_ptr->setAddPrintCommand(true);
-
-		go.registerPluggableOM(progplot_ptr);
-	}
-
-	if(logAll != "empty") {
-		std::shared_ptr<GAllSolutionFileLoggerT<GParameterSet>> allsolutionLogger_ptr(new GAllSolutionFileLoggerT<GParameterSet>(logAll));
-
-		allsolutionLogger_ptr->setPrintWithNameAndType(true); // Output information about variable names and types
-		allsolutionLogger_ptr->setPrintWithCommas(true); // Output commas between values
-		allsolutionLogger_ptr->setUseTrueFitness(false); // Output "transformed" fitness, not the "true" value
-		allsolutionLogger_ptr->setShowValidity(true); // Indicate, whether this is a valid solution
-
-		go.registerPluggableOM(allsolutionLogger_ptr);
-	}
-
-	if(monitorNAdaptions != "empty") {
-		std::shared_ptr<GNAdpationsLoggerT<GParameterSet>> nAdaptionsLogger_ptr(new GNAdpationsLoggerT<GParameterSet>(monitorNAdaptions));
-
-		nAdaptionsLogger_ptr->setMonitorBestOnly(false); // Output information for all individuals
-		nAdaptionsLogger_ptr->setAddPrintCommand(true); // Create a PNG file if Root-file is executed
-
-		go.registerPluggableOM(nAdaptionsLogger_ptr);
-	}
-
-	if(logSigma != "empty") {
-		std::shared_ptr<GAdaptorPropertyLoggerT<GParameterSet, double>>
-			sigmaLogger_ptr(new GAdaptorPropertyLoggerT<GParameterSet, double>(logSigma, "GDoubleGaussAdaptor", "sigma"));
-
-		sigmaLogger_ptr->setMonitorBestOnly(false); // Output information for all individuals
-		sigmaLogger_ptr->setAddPrintCommand(true); // Create a PNG file if Root-file is executed
-
-		go.registerPluggableOM(sigmaLogger_ptr);
-	}
+	// See example 13 for more monitors
 
 	if(monitorTimings != "empty") {
 		std::shared_ptr<GProcessingTimesLoggerT<GParameterSet>>

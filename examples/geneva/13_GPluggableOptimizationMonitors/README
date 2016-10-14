@@ -1,3 +1,2 @@
-This example is mostly identical to 01_GSimpleOptimizer, but demonstrates the use of Genevas 
-"pluggable optimization monitors". These are objects which can be used to easily modify what
-information is printed at run-time by the optimization algorithm.
+This example demonstrates how pluggable optimization monitors may be added
+to optimization algorithms.

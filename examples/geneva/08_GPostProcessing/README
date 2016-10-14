@@ -1,0 +1,2 @@
+This example demonstrates how to add (serializable) post-processing workers to individuals.
+A single pluggable optimization monitor allows to monitor processing times.
