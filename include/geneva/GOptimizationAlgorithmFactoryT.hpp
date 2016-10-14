@@ -532,14 +532,18 @@ protected:
 			 , m_waitFactor
 			 , DEFAULTBROKERWAITFACTOR2 // The default value
 		 )
-			 << "A static factor to be applied to timeouts";
+		 	<< "A static double factor for timeouts" << std::endl
+			<< "A wait factor <= 0 means \"no timeout\"." << std::endl
+			<< "It is suggested to use values >= 1.";
 
 		 gpb.registerFileParameter<double>(
 			 "initialWaitFactor" // The name of the variable
 			 , m_initialWaitFactor
 			 , DEFAULTINITIALBROKERWAITFACTOR2 // The default value
 		 )
-			 << "A static factor to be applied to timeouts in the first iteration";
+			 << "A static double factor for timeouts in the first iteration." << std::endl
+			 << "Set this to the inverse of the number of parallel processing" << std::endl
+			 << "units being used.";
 	 }
 
 	 /***************************************************************************/

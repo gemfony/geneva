@@ -21,9 +21,18 @@
         "value": "false"
     },
     "waitFactor": {
-        "comment": "A static factor to be applied to timeouts",
-        "default": "2",
-        "value": "2"
+      "comment": "A static double factor for timeouts",
+      "comment": "A wait factor <= 0 means \"no timeout\".",
+      "comment": "It is suggested to use values >= 1.",
+      "default": "1.1",
+      "value": "1.1"
+    },
+    "initialWaitFactor": {
+      "comment": "A static double factor for timeouts in the first iteration.",
+      "comment": "Set this to the inverse of the number of parallel processing",
+      "comment": "units being used.",
+      "default": "1",
+      "value": "1"
     },
     "evalPolicy": {
         "comment": "Specifies which strategy should be used to calculate the evaluation:",

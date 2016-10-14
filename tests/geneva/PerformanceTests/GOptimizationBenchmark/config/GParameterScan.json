@@ -1,7 +1,7 @@
 {
     "header": {
         "comment": "This configuration file was automatically created by GParserBuilder",
-        "comment": "2015-Nov-01 12:47:27"
+        "comment": "2015-Nov-01 12:45:55"
     },
     "parameterOptions": {
         "comment": "Specification of the parameters to be used",
@@ -21,9 +21,18 @@
         "value": "false"
     },
     "waitFactor": {
-        "comment": "A static factor to be applied to timeouts",
-        "default": "2",
-        "value": "2"
+      "comment": "A static double factor for timeouts",
+      "comment": "A wait factor <= 0 means \"no timeout\".",
+      "comment": "It is suggested to use values >= 1.",
+      "default": "1.1",
+      "value": "1.1"
+    },
+    "initialWaitFactor": {
+      "comment": "A static double factor for timeouts in the first iteration.",
+      "comment": "Set this to the inverse of the number of parallel processing",
+      "comment": "units being used.",
+      "default": "1",
+      "value": "1"
     },
     "evalPolicy": {
         "comment": "Specifies which strategy should be used to calculate the evaluation:",
@@ -65,6 +74,11 @@
         "comment": "The maximum allowed number of iterations",
         "default": "1000",
         "value": "1000"
+    },
+    "minIteration": {
+      "comment": "The minimum allowed number of iterations",
+      "default": "0",
+      "value": "0"
     },
     "maxStallIteration": {
         "comment": "The maximum allowed number of iterations without improvement",
@@ -132,6 +146,12 @@
         "comment": "The maximum allowed time-frame for the optimization",
         "default": "00:00:00",
         "value": "00:00:00"
+    },
+    "minDuration": {
+      "comment": "The minimum required time-frame for the optimization",
+      "comment": "in the format hours:minutes:seconds",
+      "default": "00:00:00",
+      "value": "00:00:00"
     },
     "emitTerminationReason": {
         "comment": "Triggers emission (1) or omission (0) of information about reasons for termination",
