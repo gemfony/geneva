@@ -1,5 +1,5 @@
 /**
- * @file GPostOptimizers.hpp
+ * @file GPostOptimizersT.hpp
  */
 
 /*
@@ -53,10 +53,20 @@ namespace Geneva {
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-
-class GEvolutionaryAlgorithmPostOptimizer
+/**
+ * This post-processor runs an evolutionary algorithm, trying to improve the
+ * quality of a given individual.
+ */
+template <typename ind_type>
+class GEvolutionaryAlgorithmPostOptimizerT
 	: public Gem::Common::GSerializableFunctionObjectT<GParameterSet>
 {
+	 // Make sure this class can only be instantiated if ind_type is a derivative of GParameterSet
+	 static_assert(
+		 std::is_base_of<GParameterSet, ind_type>::value
+		 , "GParameterSet is no base class of ind_type"
+	 );
+
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
 
@@ -79,7 +89,7 @@ public:
 	 /**
 	  * Initialization with the execution mode and configuration file
 	  */
-	 GEvolutionaryAlgorithmPostOptimizer(
+	 GEvolutionaryAlgorithmPostOptimizerT(
 		 execMode executionMode
 	 	 , std::string configFile
 	 )
@@ -96,7 +106,7 @@ public:
 			 case execMode::EXECMODE_BROKERAGE:
 			 default: {
 				 glogger
-					 << "In GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(execMode): Error!" << std::endl
+					 << "In GEvolutionaryAlgorithmPostOptimizerT::GEvolutionaryAlgorithmPostOptimizerT(execMode): Error!" << std::endl
 					 << "Got invalid execution mode " << executionMode << std::endl
 					 << "The mode was reset to execMode::EXECMODE_SERIAL" << std::endl
 					 << GWARNING;
@@ -107,7 +117,7 @@ public:
 	 /**
 	  * The copy constructor
 	  */
-	 GEvolutionaryAlgorithmPostOptimizer(const GEvolutionaryAlgorithmPostOptimizer& cp)
+	 GEvolutionaryAlgorithmPostOptimizerT(const GEvolutionaryAlgorithmPostOptimizerT<ind_type>& cp)
 	 	: Gem::Common::GSerializableFunctionObjectT<GParameterSet>(cp)
 	   , m_configFile(cp.m_configFile)
 	 	, m_executionMode(cp.m_executionMode) // We assume that a valid execution mode is stored here
@@ -116,7 +126,7 @@ public:
 	 /**
 	  * The destructor
      */
-	 virtual ~GEvolutionaryAlgorithmPostOptimizer()
+	 virtual ~GEvolutionaryAlgorithmPostOptimizerT()
 	 { /* nothing */ }
 
 	 /**
@@ -125,7 +135,7 @@ public:
 	  * @param  cp A constant reference to another GEvolutionaryAlgorithmPostOptimizer object
 	  * @return A boolean indicating whether both objects are equal
 	  */
-	 bool operator==(const GEvolutionaryAlgorithmPostOptimizer& cp) const {
+	 bool operator==(const GEvolutionaryAlgorithmPostOptimizerT<ind_type>& cp) const {
 		 using namespace Gem::Common;
 		 try {
 			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -141,7 +151,7 @@ public:
 	  * @param  cp A constant reference to another GEvolutionaryAlgorithmPostOptimizer object
 	  * @return A boolean indicating whether both objects are inequal
 	  */
-	 bool operator!=(const GEvolutionaryAlgorithmPostOptimizer& cp) const {
+	 bool operator!=(const GEvolutionaryAlgorithmPostOptimizerT<ind_type>& cp) const {
 		 using namespace Gem::Common;
 		 try {
 			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -155,7 +165,7 @@ public:
 	  * Returns the name of this class
 	  */
 	 virtual std::string name() const override {
-		 return std::string("GEvolutionaryAlgorithmPostOptimizer");
+		 return std::string("GEvolutionaryAlgorithmPostOptimizerT");
 	 }
 
 	 /**
@@ -174,10 +184,10 @@ public:
 		 using namespace Gem::Common;
 
 		 // Check that we are dealing with a Gem::Common::GSerializableFunctionObjectT<processable_type> reference independent of this object and convert the pointer
-		 const GEvolutionaryAlgorithmPostOptimizer *p_load
-			 = Gem::Common::g_convert_and_compare<Gem::Common::GSerializableFunctionObjectT<GParameterSet>, GEvolutionaryAlgorithmPostOptimizer>(cp, this);
+		 const GEvolutionaryAlgorithmPostOptimizerT<ind_type> *p_load
+			 = Gem::Common::g_convert_and_compare<Gem::Common::GSerializableFunctionObjectT<GParameterSet>, GEvolutionaryAlgorithmPostOptimizerT<ind_type>>(cp, this);
 
-		 GToken token("GEvolutionaryAlgorithmPostOptimizer", e);
+		 GToken token("GEvolutionaryAlgorithmPostOptimizerT", e);
 
 		 // Compare our parent data ...
 		 Gem::Common::compare_base<Gem::Common::GSerializableFunctionObjectT<GParameterSet>>(IDENTITY(*this, *p_load), token);
@@ -203,7 +213,7 @@ public:
 			 case execMode::EXECMODE_BROKERAGE:
 			 default: {
 				 glogger
-				 << "In GEvolutionaryAlgorithmPostOptimizer::setExecMode(): Error!" << std::endl
+				 << "In GEvolutionaryAlgorithmPostOptimizerT::setExecMode(): Error!" << std::endl
 			    << "Got invalid execution mode " << executionMode << std::endl
 				 << GEXCEPTION;
 			 }
@@ -236,9 +246,9 @@ protected:
 	  * Loads the data of another GEvolutionaryAlgorithmPostOptimizer object
 	  */
 	 virtual void load_(const Gem::Common::GSerializableFunctionObjectT<GParameterSet> *cp) override {
-		 // Check that we are dealing with a GEvolutionaryAlgorithmPostOptimizer reference independent of this object and convert the pointer
-		 const GEvolutionaryAlgorithmPostOptimizer *p_load
-			 = Gem::Common::g_convert_and_compare<Gem::Common::GSerializableFunctionObjectT<GParameterSet>, GEvolutionaryAlgorithmPostOptimizer>(cp, this);
+		 // Check that we are dealing with a GEvolutionaryAlgorithmPostOptimizerT reference independent of this object and convert the pointer
+		 const GEvolutionaryAlgorithmPostOptimizerT<ind_type> *p_load
+			 = Gem::Common::g_convert_and_compare<Gem::Common::GSerializableFunctionObjectT<GParameterSet>, GEvolutionaryAlgorithmPostOptimizerT<ind_type>>(cp, this);
 
 		 // Load our parent class'es data ...
 		 Gem::Common::GSerializableFunctionObjectT<GParameterSet>::load_(cp);
@@ -251,18 +261,20 @@ protected:
 	 /**
 	  * Creates a deep clone of this object
      */
-	 virtual GEvolutionaryAlgorithmPostOptimizer * clone_() const override {
-		 return new GEvolutionaryAlgorithmPostOptimizer(*this);
+	 virtual GEvolutionaryAlgorithmPostOptimizerT<ind_type> * clone_() const override {
+		 return new GEvolutionaryAlgorithmPostOptimizerT<ind_type>(*this);
 	 }
 
 	 /**
 	  * The actual post-processing takes place here
 	  */
-	 virtual bool process_(GParameterSet& p) override {
-	 	 // Create a factory for evolutionary algorithm objects
-	 	 GEvolutionaryAlgorithmFactory eaFactory(m_configFile, m_executionMode);
+	 virtual bool process_(GParameterSet& p_raw) override {
+		 // Convert the GParameterSet to the derived type
+	    ind_type& p = dynamic_cast<ind_type&>(p_raw);
 
-	    // TODO: Move this to class-scope
+	 	 // Create a factory for evolutionary algorithm objects
+		 // TODO: Move this to class-scope
+	 	 GEvolutionaryAlgorithmFactory eaFactory(m_configFile, m_executionMode);
 
 		 // Obtain a new evolutionary algorithm from the factory. It will be
 		 // equipped with all settings from the config file
@@ -271,25 +283,29 @@ protected:
 		 // Make sure p is clean
 		 if(p.isDirty()) {
 			 glogger
-			 << "In GEvolutionaryAlgorithmPostOptimizer: Error!" << std::endl
+			 << "In GEvolutionaryAlgorithmPostOptimizerT: Error!" << std::endl
 		    << "Provided GParameterSet has dirty flag set." << std::endl
 			 << GEXCEPTION;
 		 }
 
 		 // Clone the individual for post-processing
-		 std::shared_ptr<GParameterSet> p_opt_raw = p.clone<GParameterSet>();
+		 std::shared_ptr<ind_type> p_unopt_ptr = p.clone<ind_type>();
 
 		 // Make sure the post-optimization does not trigger post-optimization ...
-		 p_opt_raw->preventPostProcessing();
+		 p_unopt_ptr->preventPostProcessing();
+
+		 std::cout << "Initial fitness " << p_unopt_ptr->fitness() << std::endl;
 
 		 // Add our individual to the algorithm
-		 ea_ptr->push_back(p_opt_raw);
+		 ea_ptr->push_back(p_unopt_ptr);
 
-		 // Perform the actual optimization
+		 // Perform the actual (sub-)optimization
 		 ea_ptr->optimize();
 
 		 // Retrieve the best individual
-		 std::shared_ptr<GParameterSet> p_opt_ptr = ea_ptr->getBestGlobalIndividual<GParameterSet>();
+		 std::shared_ptr<ind_type> p_opt_ptr = ea_ptr->getBestGlobalIndividual<ind_type>();
+
+		 std::cout << "Postprocessed fitness " << p_opt_ptr->fitness() << std::endl;
 
 	    // Load the individual into the argument GParameterSet
 		 p.load(p_opt_ptr);
@@ -302,7 +318,7 @@ private:
 	  * The standard constructor. Intentionally private, as it is only needed
 	  * for de-serialization purposes.
 	  */
-	 GEvolutionaryAlgorithmPostOptimizer()
+	 GEvolutionaryAlgorithmPostOptimizerT()
 	 { /* nothing */ }
 
 	 // Data

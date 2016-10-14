@@ -42,7 +42,7 @@
 // Geneva header files go here
 #include "geneva/Go2.hpp"
 #include "geneva/GPluggableOptimizationMonitorsT.hpp"
-#include "geneva/GPostOptimizers.hpp"
+#include "geneva/GPostOptimizersT.hpp"
 
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"
@@ -58,16 +58,10 @@ int main(int argc, char **argv) {
 	//---------------------------------------------------------------------------
 	// We want to add additional command line options
 
-	bool printValid = false;
 	bool useRawFitness = false;
-	std::string monitorSpec = "empty";
-	bool bestOnly = false;
-	bool observeBoundaries = false;
-	std::string logAll = "empty";
-	std::string monitorNAdaptions = "empty";
-	std::string logSigma = "empty";
 	std::string monitorTimings = "empty";
 	bool usePostProcessor = false;
+	execMode execModePP = execMode::EXECMODE_SERIAL;
 
 	// Assemble command line options
 	boost::program_options::options_description user_options;
@@ -78,6 +72,11 @@ int main(int argc, char **argv) {
 	)(
 		"usePostProcessor"
 		, po::value<bool>(&usePostProcessor)->implicit_value(true)->default_value(false)
+		, "Whether or not to post-process individuals (using evolutionary algorithms in this example)"
+	)(
+		"execModePP"
+		, po::value<execMode>(&execModePP)->default_value(execMode::EXECMODE_SERIAL)
+		, "The execution mode for post-optimization"
 	);
 
 	Go2 go(argc, argv, "./config/Go2.json", user_options);
@@ -96,13 +95,12 @@ int main(int argc, char **argv) {
 	//---------------------------------------------------------------------------
 	// Register a post-processor, if this was requested by the user
 	if(usePostProcessor) {
-		std::shared_ptr<GEvolutionaryAlgorithmPostOptimizer> eaPostOptimizer_ptr
-			= std::shared_ptr<GEvolutionaryAlgorithmPostOptimizer>(
-				new GEvolutionaryAlgorithmPostOptimizer(
-					execMode::EXECMODE_SERIAL
-					, "./config/GPostEvolutionaryAlgorithm.json"
-				)
-			);
+		std::shared_ptr<GEvolutionaryAlgorithmPostOptimizerT<GFunctionIndividual>> eaPostOptimizer_ptr(
+			new GEvolutionaryAlgorithmPostOptimizerT<GFunctionIndividual>(
+				execModePP
+				, "./config/GPostEvolutionaryAlgorithm.json"
+			)
+		);
 
 		gfi_ptr->registerPostProcessor(eaPostOptimizer_ptr);
 	}

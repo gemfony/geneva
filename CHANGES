@@ -1,6 +1,9 @@
 //------------------------------------------------------------------------------------------------------
 * Version 1.8.1, yet unnamed, release date unknown
 
+Recommended version of Boost: 1.62; Minimum Boost version: 1.57.
+CMake Version 3.1 is required.
+
 The main changes for this release include:
 
 ******************************* PLEASE NOTE ************************************
@@ -13,6 +16,9 @@ The main changes for this release include:
    should now be derived from GParameterSetFactory instead of GFactoryT<GParmeterSet>.
    See the GFunctionIndividualFactory inside of GFunctionIndividual.hpp/.cpp for
    an example
+ - Boost 1.58 ist NOT recommended, due to a severe bug affecting Geneva.
+ - As Geneva must now be compiled in C++14 mode and Boost is a mixture of header-only-
+   and binary-libraries, it is highly recommended to also compile Boost in C++14-mode
 
 ********************************************************************************
 
@@ -35,10 +41,11 @@ The main changes for this release include:
  - Added the option to set the initial wait factor of GBrokerConnector2T in the config file
 	of optimization algorithms
 
-CMake Version 3.1 is required.
-
 //------------------------------------------------------------------------------------------------------
 * Version 1.8, "Torino" - August 13, 2016
+
+Recommended version of Boost: 1.59; Minimum Boost version: 1.57.
+CMake Version 3.1 is required.
 
 The main changes for this release include:
 
@@ -62,6 +69,7 @@ OWN CODE.
    their std::shared_ptr, making the interface more logical.
  - std::thread, std::chrono, C++14 atomics and std::array were used
    instead of their Boost counterparts.
+ - Boost 1.58 ist NOT recommended, due to a severe bug affecting Geneva.
 
 ********************************************************************************
 
@@ -84,12 +92,11 @@ OWN CODE.
    CMake version 3.1 is now required.
  - Ported to Boost 1.59.
 
-Recommended version of Boost: 1.59; Minimum Boost version: 1.57.
-NOTE: Boost 1.58 ist NOT recommended, due to a severe bug affecting Geneva.
-CMake Version 3.1 is required.
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.6.1, "Ivrea - Via Arduino" - April 20, 2015
+
+Recommended version of Boost: 1.57; Minimum Boost version: 1.53.
 
 The main changes for this release include:
 
@@ -120,8 +127,6 @@ The main changes for this release include:
  - Ported to Boost 1.58. Please note that Boost 1.58 seems to have a
    serialization-related bug, so that we currently do NOT recommend to
    use this Boost version.
-
-Recommended version of Boost: 1.57; Minimum Boost version: 1.53.
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.6, "Ivrea" - March 10, 2015
