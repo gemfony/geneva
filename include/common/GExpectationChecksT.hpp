@@ -38,6 +38,8 @@
 // Standard headers go here
 #include <vector>
 #include <deque>
+#include <set>
+#include <functional>
 #include <sstream>
 #include <iostream>
 #include <string>
@@ -475,7 +477,7 @@ void compare(
 		if (Gem::Common::expectation::CE_FP_SIMILARITY == e || Gem::Common::expectation::CE_EQUALITY == e) {
 			if (x.size() != y.size()) {
 				error
-				<< "Sizes of vectors differ:" << std::endl
+				<< "Sizes of containers differ:" << std::endl
 				<< x_name << ".size() == " << x.size() << " / " << y_name << ".size() == " << y.size() << std::endl;
 			} else { // Some data member differs
 				// Find out about the first entry that differs
@@ -493,7 +495,7 @@ void compare(
 			}
 		} else { // Gem::Common::expectation::CE_INEQUALITY == e
 			error
-			<< "The two vectors " << x_name << " and " << y_name << " are equal "
+			<< "The two containers " << x_name << " and " << y_name << " are equal "
 			<< "even though differences were expected"
 			<< std::endl;
 		}
@@ -504,7 +506,96 @@ void compare(
 
 /******************************************************************************/
 /**
- * This function checks whether two vectors of floating point types meet a given expectation.
+ * This function checks whether two containers with a std::set-template interface holding "basic" types meet
+ * a given expectation. It assumes that these types understand the == and != operators. If they do not fulfill
+ * this requirement, you need to provide a specialization of this function. A check for similarity is treated
+ * the same as a check for equality. A specialization of this function is provided for floating point values.
+ * The function will throw a g_expectation_violation exception if the expectation was violated.
+ *
+ * @param x The first container to be compared
+ * @param y The second container to be compared
+ * @param x_name The name of the first parameter
+ * @param y_name The name of the second parameter
+ * @param e The expectation both parameters need to fulfill
+ * @param limit The maximum allowed deviation of two floating point values
+ * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
+ */
+template<typename base_type, template <typename, typename, typename> class s_type>
+void compare(
+	const s_type<base_type, std::less<base_type>, std::allocator<base_type>>& x
+	, const s_type<base_type, std::less<base_type>, std::allocator<base_type>>& y
+	, const std::string &x_name
+	, const std::string &y_name
+	, const Gem::Common::expectation &e
+	, const double &limit = 0.
+	, typename std::enable_if<!std::is_floating_point<base_type>::value>::type *dummy = nullptr
+) {
+	bool expectationMet = false;
+	std::string expectation_str;
+
+	switch (e) {
+		case Gem::Common::expectation::CE_FP_SIMILARITY:
+		case Gem::Common::expectation::CE_EQUALITY:
+			expectation_str = "CE_FP_SIMILARITY / CE_EQUALITY";
+			if (x == y) {
+				expectationMet = true;
+			}
+			break;
+
+		case Gem::Common::expectation::CE_INEQUALITY:
+			expectation_str = "CE_INEQUALITY";
+			if (x != y) {
+				expectationMet = true;
+			}
+			break;
+
+		default: {
+			glogger
+				<< "In compare(/* 4 */): Got invalid expectation " << e << std::endl
+				<< GEXCEPTION;
+		}
+			break;
+	};
+
+	if (!expectationMet) {
+		std::ostringstream error;
+		error
+			<< "Expectation of " << expectation_str << " was violated for parameters "
+			<< x_name << " and " << y_name << "!" << std::endl;
+
+		if (Gem::Common::expectation::CE_FP_SIMILARITY == e || Gem::Common::expectation::CE_EQUALITY == e) {
+			if (x.size() != y.size()) {
+				error
+					<< "Sizes of containers differ:" << std::endl
+					<< x_name << ".size() == " << x.size() << " / " << y_name << ".size() == " << y.size() << std::endl;
+			} else { // Some data member differs
+				// Find out about the first entry that differs
+				typename s_type<base_type, std::less<base_type>, std::allocator<base_type>>::const_iterator x_it, y_it;
+				std::size_t failedIndex = 0;
+				for (x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it, ++failedIndex) {
+					if (*x_it != *y_it) {
+						error
+							<< "Found inequality at index " << failedIndex << ": "
+							<< x_name << "[" << failedIndex << "] = " << *x_it << "; "
+							<< y_name << "[" << failedIndex << "] = " << *y_it;
+						break; // break the loop
+					}
+				}
+			}
+		} else { // Gem::Common::expectation::CE_INEQUALITY == e
+			error
+				<< "The two containers " << x_name << " and " << y_name << " are equal "
+				<< "even though differences were expected"
+				<< std::endl;
+		}
+
+		throw g_expectation_violation(error.str());
+	}
+}
+
+/******************************************************************************/
+/**
+ * This function checks whether two containers of floating point types meet a given expectation.
  *
  * @param x The first vector to be compared
  * @param y The second vector to be compared
@@ -555,7 +646,7 @@ void compare(
 						foundDeviation = true;
 						deviation_pos = std::distance(x.begin(), x_it);
 						error
-						<< "Found deviation between vectors:" << std::endl
+						<< "Found deviation between containers:" << std::endl
 						<< x_name << "[" << deviation_pos << "] = " << *x_it << "; " << std::endl
 						<< y_name << "[" << deviation_pos << "] = " << *y_it << "; " << std::endl
 						<< "limit = " << boost::numeric_cast<fp_type>(limit) << "; " << std::endl
@@ -569,7 +660,7 @@ void compare(
 						foundDeviation = true;
 						deviation_pos = std::distance(x.begin(), x_it);
 						error
-						<< "Found deviation between vectors:" << std::endl
+						<< "Found deviation between containers:" << std::endl
 						<< x_name << "[" << deviation_pos << "] = " << *x_it << "; " << std::endl
 						<< y_name << "[" << deviation_pos << "] = " << *y_it << "; " << std::endl;
 						break; // break the loop
@@ -589,14 +680,14 @@ void compare(
 				expectationMet = true;
 			} else {
 				error
-				<< "The vectors " << x_name << " and " << y_name << std::endl
+				<< "The containers " << x_name << " and " << y_name << std::endl
 				<< "do not differ even though they should" << std::endl;
 			}
 			break;
 
 		default: {
 			glogger
-			<< "In compare(/* 4 */): Got invalid expectation " << e << std::endl
+			<< "In compare(/* 5 */): Got invalid expectation " << e << std::endl
 			<< GEXCEPTION;
 		}
 			break;
@@ -606,6 +697,113 @@ void compare(
 		throw g_expectation_violation(error.str());
 	}
 }
+
+/******************************************************************************/
+/**
+ * This function checks whether two containers with a std::set template interface,
+ * holding floating point types meet a given expectation.
+ *
+ * @param x The first vector to be compared
+ * @param y The second vector to be compared
+ * @param x_name The name of the first parameter
+ * @param y_name The name of the second parameter
+ * @param e The expectation both parameters need to fulfill
+ * @param limit The maximum allowed deviation of two floating point values
+ * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
+ */
+template<typename fp_type, template <typename, typename, typename> class s_type>
+void compare(
+	const s_type<fp_type, std::less<fp_type>, std::allocator<fp_type>> &x
+	, const s_type<fp_type, std::less<fp_type>, std::allocator<fp_type>> &y
+	, const std::string &x_name
+	, const std::string &y_name
+	, const Gem::Common::expectation &e
+	, const double &limit = CE_DEF_SIMILARITY_DIFFERENCE
+	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+) {
+	bool expectationMet = false;
+	std::string expectation_str;
+	std::size_t deviation_pos = 0;
+	std::ostringstream error;
+
+	switch (e) {
+		case Gem::Common::expectation::CE_FP_SIMILARITY:
+		case Gem::Common::expectation::CE_EQUALITY: {
+			if (Gem::Common::expectation::CE_FP_SIMILARITY == e) {
+				expectation_str = "CE_FP_SIMILARITY";
+			} else if (Gem::Common::expectation::CE_EQUALITY == e) {
+				expectation_str = "CE_EQUALITY";
+			}
+
+			if (x.size() != y.size()) {
+				error
+					<< "Different vector-sizes found : "
+					<< x_name << ".size() = " << x.size() << std::endl
+					<< y_name << ".size() = " << y.size() << std::endl;
+				break; // expectationMet is false here
+			}
+
+			// Do a per-position comparison
+			bool foundDeviation = false;
+			typename s_type<fp_type, std::less<fp_type>, std::allocator<fp_type>>::const_iterator x_it, y_it;
+			if (Gem::Common::expectation::CE_FP_SIMILARITY == e) {
+				for (x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
+					if (gfabs(*x_it - *y_it) >= boost::numeric_cast<fp_type>(limit)) {
+						foundDeviation = true;
+						deviation_pos = std::distance(x.begin(), x_it);
+						error
+							<< "Found deviation between containers:" << std::endl
+							<< x_name << "[" << deviation_pos << "] = " << *x_it << "; " << std::endl
+							<< y_name << "[" << deviation_pos << "] = " << *y_it << "; " << std::endl
+							<< "limit = " << boost::numeric_cast<fp_type>(limit) << "; " << std::endl
+							<< "deviation = " << gfabs(*x_it - *y_it) << std::endl;
+						break; // break the loop
+					}
+				}
+			} else if (Gem::Common::expectation::CE_EQUALITY == e) {
+				for (x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
+					if (*x_it != *y_it) {
+						foundDeviation = true;
+						deviation_pos = std::distance(x.begin(), x_it);
+						error
+							<< "Found deviation between containers:" << std::endl
+							<< x_name << "[" << deviation_pos << "] = " << *x_it << "; " << std::endl
+							<< y_name << "[" << deviation_pos << "] = " << *y_it << "; " << std::endl;
+						break; // break the loop
+					}
+				}
+			}
+
+			if (!foundDeviation) {
+				expectationMet = true;
+			}
+		}
+			break;
+
+		case Gem::Common::expectation::CE_INEQUALITY:
+			expectation_str = "CE_INEQUALITY";
+			if (x != y) {
+				expectationMet = true;
+			} else {
+				error
+					<< "The containers " << x_name << " and " << y_name << std::endl
+					<< "do not differ even though they should" << std::endl;
+			}
+			break;
+
+		default: {
+			glogger
+				<< "In compare(/* 6 */): Got invalid expectation " << e << std::endl
+				<< GEXCEPTION;
+		}
+			break;
+	};
+
+	if (!expectationMet) {
+		throw g_expectation_violation(error.str());
+	}
+}
+
 
 /******************************************************************************/
 /**
@@ -682,7 +880,7 @@ void compare (
 		default:
 		{
 			glogger
-			<< "In compare(/* 6 */): Got invalid expectation " << e << std::endl
+			<< "In compare(/* 7 */): Got invalid expectation " << e << std::endl
 			<< GEXCEPTION;
 		}
 			break;
@@ -796,7 +994,7 @@ void compare (
 		default:
 		{
 			glogger
-			<< "In compare(/* 7 */): Got invalid expectation " << e << std::endl
+			<< "In compare(/* 8 */): Got invalid expectation " << e << std::endl
 			<< GEXCEPTION;
 		}
 			break;
@@ -809,7 +1007,7 @@ void compare (
 
 /******************************************************************************/
 /**
- * This function checks whether two vectors of smart pointers to complex types meet a given expectation.
+ * This function checks whether two containers of smart pointers to complex types meet a given expectation.
  * It is assumed that these types have the standard Geneva interface with corresponding "compare"
  * functions. For an idea of what the template specifyer does, search for "template template" in conjunction
  * with containers.
@@ -844,13 +1042,13 @@ void compare (
 		// First check sizes
 		if(x.size() != y.size()) {
 			error
-			<< "Vectors " << x_name << " and " << y_name << " have different sizes " << x.size() << " / " << y.size() << std::endl
+			<< "containers " << x_name << " and " << y_name << " have different sizes " << x.size() << " / " << y.size() << std::endl
 			<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl;
 			// Terminate the switch statement. expectationMet will be false then
 			break;
 		}
 
-		// Now loop over all members of the vectors
+		// Now loop over all members of the containers
 		bool foundDeviation = false;
 		typename c_type<std::shared_ptr<geneva_type>, std::allocator<std::shared_ptr<geneva_type>>>::const_iterator x_it, y_it;
 		std::size_t index = 0;
@@ -901,7 +1099,7 @@ void compare (
 			break; // Terminate the switch statement
 		}
 
-		// Now loop over all members of the vectors
+		// Now loop over all members of the containers
 		bool foundInequality = false;
 		typename c_type<std::shared_ptr<geneva_type>, std::allocator<std::shared_ptr<geneva_type>>>::const_iterator x_it, y_it;
 		for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it) {
@@ -930,14 +1128,14 @@ void compare (
 			expectationMet = true;
 		} else {
 			error
-			<< "The two vectors " << x_name << " and " << y_name << " are equal." << std::endl
+			<< "The two containers " << x_name << " and " << y_name << " are equal." << std::endl
 			<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl;
 		}
 	} break;
 
 	default: {
 		glogger
-		<< "In compare(/* 8 */): Got invalid expectation " << e << std::endl
+		<< "In compare(/* 9 */): Got invalid expectation " << e << std::endl
 		<< GEXCEPTION;
 	} break;
 	};
