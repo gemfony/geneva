@@ -532,8 +532,10 @@ protected:
 		 // Retrieve the best individual
 		 std::shared_ptr<ind_type> p_opt_ptr = ea_ptr->getBestGlobalIndividual<ind_type>();
 
-		 // Make sure subsequent optimization cycles may generally perform post-optimization again
-		 p_unopt_ptr->vetoPostProcessing(false);
+		 // Make sure subsequent optimization cycles may generally perform post-optimization again.
+		 // THis needs to be done on the optimized individual, as it will be loaded into the
+		 // original individual.
+		 p_opt_ptr->vetoPostProcessing(false);
 
 	    // Load the individual into the argument base_type
 		 p.load(p_opt_ptr);
