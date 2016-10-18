@@ -219,6 +219,22 @@ public:
 	}
 
 protected:
+   /**************************************************************************/
+	/** @brief Raw post-processing (no checks for eligibility); purely virtual */
+	virtual bool raw_processing_(base_type& p_raw) BASE = 0;
+
+	/**************************************************************************/
+	/**
+	 * Post-processing is triggered here
+	 */
+	virtual bool process_(base_type& p_raw) override {
+		if(!this->postProcessingAllowedFor(p_raw)) {
+			return true;
+		}
+
+		return raw_processing_(p_raw);
+	}
+
 	/**************************************************************************/
 	/**
 	 * Loads the data of another GEvolutionaryAlgorithmPostOptimizer object
@@ -479,9 +495,9 @@ protected:
 
 	 /**************************************************************************/
 	 /**
-	  * The actual post-processing takes place here
+	  * The actual post-processing takes place here (no further checks)
 	  */
-	 virtual bool process_(base_type& p_raw) override {
+	 virtual bool raw_processing_(base_type& p_raw) override {
 		 // Convert the base_type to the derived type
 	    ind_type& p = dynamic_cast<ind_type&>(p_raw);
 
@@ -502,9 +518,9 @@ protected:
 		 }
 
 		 // Clone the individual for post-processing
-		 std::shared_ptr<ind_type> p_unopt_ptr = std::dynamic_pointer_cast<ind_type>(p.clone());
+		 std::shared_ptr<ind_type> p_unopt_ptr = p.template clone<ind_type>();
 
-		 // Make sure the post-optimization does not trigger post-optimization ...
+			 // Make sure the post-optimization does not trigger post-optimization recursively ...
 		 p_unopt_ptr->vetoPostProcessing(true);
 
 		 // Add our individual to the algorithm

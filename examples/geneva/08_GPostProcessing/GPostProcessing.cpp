@@ -102,6 +102,9 @@ int main(int argc, char **argv) {
 			)
 		);
 
+		// Make sure only evolutionary algorithms may perform postprocessing
+		eaPostOptimizer_ptr->allowPostProcessingFor("ea");
+
 		gfi_ptr->registerPostProcessor(eaPostOptimizer_ptr);
 	}
 

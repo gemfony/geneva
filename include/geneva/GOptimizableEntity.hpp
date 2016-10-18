@@ -350,6 +350,8 @@ public:
 	);
 	/** @brief Resets the current personality to PERSONALITY_NONE */
 	G_API_GENEVA void resetPersonality();
+ 	/** @brief Retrieves the mnemonic used for the optimization of this object */
+	G_API_GENEVA std::string getMnemonic() const;
 
 	/** @brief Adds local configuration options to a GParserBuilder object */
 	virtual G_API_GENEVA void addConfigurationOptions(

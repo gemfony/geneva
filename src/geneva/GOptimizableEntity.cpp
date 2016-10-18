@@ -1635,6 +1635,22 @@ void GOptimizableEntity::resetPersonality() {
 
 /******************************************************************************/
 /**
+ * Retrieves the mnemonic used for the optimization of this object
+ */
+std::string GOptimizableEntity::getMnemonic() const {
+	if(pt_ptr_) {
+		return pt_ptr_->getMnemonic();
+	} else {
+		glogger
+			<< "In GOptimizableEntity::getMnemonic():" << std::endl
+			<< "Pointer to personality traits object is empty." << std::endl
+			<< GEXCEPTION;
+	}
+}
+
+
+/******************************************************************************/
+/**
  * Retrieves the current personality of this individual
  *
  * @return An identifier for the current personality of this object
