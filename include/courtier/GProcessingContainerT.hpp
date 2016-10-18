@@ -86,8 +86,6 @@ class GProcessingContainerT
 
 		 ar
 		 & BOOST_SERIALIZATION_NVP(m_id)
-		 & BOOST_SERIALIZATION_NVP(m_mayBePreProcessed)
-		 & BOOST_SERIALIZATION_NVP(m_mayBePostProcessed)
 		 & BOOST_SERIALIZATION_NVP(m_preProcessingDisabled)
 		 & BOOST_SERIALIZATION_NVP(m_postProcessingDisabled)
 		 & BOOST_SERIALIZATION_NVP(m_pre_processor_ptr)
@@ -117,8 +115,6 @@ public:
 	  */
 	 GProcessingContainerT(const GProcessingContainerT<submission_type> &cp)
 		 : m_id(cp.m_id)
-	 	 , m_mayBePreProcessed(cp.m_mayBePreProcessed)
-	 	 , m_mayBePostProcessed(cp.m_mayBePostProcessed)
 	 	 , m_preProcessingDisabled(cp.m_preProcessingDisabled)
  		 , m_postProcessingDisabled(cp.m_postProcessingDisabled)
 	 {
@@ -218,26 +214,7 @@ public:
 	  * step may occur. This may alter the individual's data.
 	  */
 	 bool mayBePreProcessed() const {
-		 return (m_mayBePreProcessed && !m_preProcessingDisabled);
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Calling this function will enable pre-processing of this work item
-	  * a single time. It will usually be set upon submitting a work item to the broker.
-	  * The flag will be reset once pre-processing has been done. Permission needs
-	  * to be set upon every submission.
-	  */
-	 void allowPreProcessing() {
-		 m_mayBePreProcessed = true;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Calling this function will disable pre-processing of this work item
-	  */
-	 void preventPreProcessing() {
-		 m_mayBePreProcessed = false;
+		 return !m_preProcessingDisabled;
 	 }
 
 	 /***************************************************************************/
@@ -268,26 +245,7 @@ public:
 	  * run on the individual. This may alter the individual's data.
 	  */
 	 bool mayBePostProcessed() const {
-		 return (m_mayBePostProcessed && !m_postProcessingDisabled);
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Calling this function will enable postprocessing of this work item
-	  * a single time. It will usually be set upon submitting a work item to the broker.
-	  * The flag will be reset once post-processing has been done. Permission needs
-	  * to be set upon every submission.
-	  */
-	 void allowPostProcessing() {
-		 m_mayBePostProcessed = true;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Calling this function will disable pre-processing of this work item
-	  */
-	 void preventPostProcessing() {
-		 m_mayBePostProcessed = false;
+		 return !m_postProcessingDisabled;
 	 }
 
 	 /***************************************************************************/
@@ -328,8 +286,6 @@ public:
 
 		 // Load local data
 		 m_id = p_load->m_id;
-		 m_mayBePreProcessed = p_load->m_mayBePreProcessed;
-		 m_mayBePostProcessed = p_load->m_mayBePostProcessed;
 		 m_preProcessingDisabled = p_load->m_preProcessingDisabled;
 		 m_postProcessingDisabled = p_load->m_postProcessingDisabled;
 		 Gem::Common::copyCloneableSmartPointer(p_load->m_pre_processor_ptr, m_pre_processor_ptr);
@@ -353,7 +309,6 @@ private:
 		 if(this->mayBePreProcessed() && m_pre_processor_ptr) {
 			 submission_type& p = dynamic_cast<submission_type&>(*this);
 			 result = (*m_pre_processor_ptr)(p);
-			 m_mayBePreProcessed = false;
 		 }
 
 		 return result;
@@ -370,10 +325,6 @@ private:
 		 if(this->mayBePostProcessed() && m_post_processor_ptr) {
 			 submission_type& p = dynamic_cast<submission_type&>(*this);
 			 result = (*m_post_processor_ptr)(p);
-			 m_mayBePostProcessed = false;
-
-			 // TODO: m_mayBePostProcessed wird nicht auf false gesetzt wenn m_postProcessingDisabled gesetzt ist
-			 // Falsche Logik
 		 }
 
 		 return result;
@@ -383,9 +334,6 @@ private:
 	 // Data
 
 	 std::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> m_id; ///< A two-part id that can be assigned to this container object
-
-	 bool m_mayBePreProcessed  = false; ///< Indicates whether user-defined pre-processing may occur
-	 bool m_mayBePostProcessed = false; ///< Indicates whether user-defined post-processing may occur
 
 	 bool m_preProcessingDisabled = false; ///< Indicates whether pre-processing was diabled entirely
 	 bool m_postProcessingDisabled = false; ///< Indicates whether pre-processing was diabled entirely

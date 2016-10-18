@@ -541,18 +541,6 @@ protected:
 	/** @brief Some error checks related to population sizes */
 	virtual void populationSanityChecks() const = 0; // TODO: Take code from old init() function
 
- 	/***************************************************************************/
-   /**
-    * Marks all children as post-processable. Evolutionary Algorithms do not
-    * care whether individuals are changed after the evaulation. Hence users
-    * may register modules with the individual that further improve the quality.
-    */
-   void markChildrenAsPostProcessable() {
-		for(std::size_t pos=this->getNParents(); pos<this->size(); pos++) {
-			this->at(pos)->allowPostProcessing();
-		}
-	}
-
 	/***************************************************************************/
 	/**
 	 * Loads the data of another GBaseParChildT<ind_type> object, camouflaged as a GObject.
@@ -738,9 +726,6 @@ protected:
 
 		// adapt children
 		adaptChildren();
-
-		// Mark all children as post-processable
-		markChildrenAsPostProcessable();
 
 		// calculate the children's (and possibly their parents' values)
 		runFitnessCalculation();
