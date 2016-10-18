@@ -40,7 +40,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/GPostOptimizersT.hpp"
+#include "geneva/GPostProcessorT.hpp"
 
 namespace Gem {
 namespace Geneva {
