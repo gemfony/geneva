@@ -38,10 +38,6 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
-/** A short identifier suitable for storage in a std::map */
-G_API_GENEVA const std::string GEvolutionaryAlgorithmFactory::nickname = "ea";
-
-/******************************************************************************/
 /**
  * The default constructor
  */
@@ -103,7 +99,7 @@ GEvolutionaryAlgorithmFactory::~GEvolutionaryAlgorithmFactory()
  * Gives access to the mnemonics / nickname describing an algorithm
  */
 std::string GEvolutionaryAlgorithmFactory::getMnemonic() const {
-	return GEvolutionaryAlgorithmFactory::nickname;
+	return GEAPersonalityTraits::nickname;
 }
 
 /******************************************************************************/

@@ -40,6 +40,10 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
+/** A short identifier suitable for storage in a std::map */
+G_API_GENEVA const std::string GSwarmPersonalityTraits::nickname = "swarm";
+
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -156,6 +160,14 @@ void GSwarmPersonalityTraits::compare(
  */
 std::string GSwarmPersonalityTraits::name() const {
 	return std::string("GSwarmPersonalityTraits");
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the mnemonic of the optimization algorithm
+ */
+std::string GSwarmPersonalityTraits::getMnemonic() const {
+	return GSwarmPersonalityTraits::nickname;
 }
 
 /******************************************************************************/

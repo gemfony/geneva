@@ -66,9 +66,6 @@ class GSwarmAlgorithmFactory
 	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>
 {
 public:
-	/** @brief An easy identifier for the class */
-	static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
-
 	/** @brief The default constructor */
 	G_API_GENEVA GSwarmAlgorithmFactory();
 	/** @brief Initialization with the name of the config file and the default parallelization mode */

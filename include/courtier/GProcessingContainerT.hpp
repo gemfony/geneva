@@ -247,8 +247,7 @@ public:
 	  * exists, no pre-processing will occur until the veto is lifted.
 	  */
 	 void vetoPreProcessing(bool veto) {
-		 if(veto) m_preProcessingDisabled = true;
-		 else m_preProcessingDisabled = false;
+		 m_preProcessingDisabled = veto;
 	 }
 
 	 /***************************************************************************/
@@ -298,8 +297,7 @@ public:
 	  * exists, no post-processing will occur until the veto is lifted.
 	  */
 	 void vetoPostProcessing(bool veto) {
-		 if(veto) m_postProcessingDisabled = true;
-		 else m_postProcessingDisabled = false;
+		 m_postProcessingDisabled = veto;
 	 }
 
 	 /***************************************************************************/
@@ -373,6 +371,9 @@ private:
 			 submission_type& p = dynamic_cast<submission_type&>(*this);
 			 result = (*m_post_processor_ptr)(p);
 			 m_mayBePostProcessed = false;
+
+			 // TODO: m_mayBePostProcessed wird nicht auf false gesetzt wenn m_postProcessingDisabled gesetzt ist
+			 // Falsche Logik
 		 }
 
 		 return result;

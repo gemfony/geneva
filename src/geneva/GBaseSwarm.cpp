@@ -39,10 +39,6 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
-/** A short identifier suitable for storage in a std::map */
-G_API_GENEVA const std::string GBaseSwarm::nickname = "swarm";
-
-/******************************************************************************/
 /**
  * The default constructor. All work is delegated to another constructor.
  */

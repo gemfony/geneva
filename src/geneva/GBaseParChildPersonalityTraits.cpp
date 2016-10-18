@@ -144,12 +144,25 @@ void GBaseParChildPersonalityTraits::compare(
 	token.evaluate();
 }
 
-/***********************************************************************************/
+/******************************************************************************/
 /**
  * Emits a name for this class / object
  */
 std::string GBaseParChildPersonalityTraits::name() const {
 	return std::string("GBaseParChildPersonalityTraits");
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the mnemonic of the optimization algorithm
+ */
+std::string GBaseParChildPersonalityTraits::getMnemonic() const {
+	glogger
+	<< "In GBaseParChildPersonalityTraits::getMnemonic(): Error!" << std::endl
+   << "This function should never have been called" << std::endl
+   << GEXCEPTION;
+
+	return "none";
 }
 
 /******************************************************************************/

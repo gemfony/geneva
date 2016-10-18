@@ -38,10 +38,6 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
-/** A short identifier suitable for storage in a std::map */
-G_API_GENEVA const std::string GGradientDescentFactory::nickname = "gd";
-
-/******************************************************************************/
 /**
  * The default constructor
  */
@@ -100,7 +96,7 @@ GGradientDescentFactory::~GGradientDescentFactory()
  * Gives access to the mnemonics / nickname describing an algorithm
  */
 std::string GGradientDescentFactory::getMnemonic() const {
-	return GGradientDescentFactory::nickname;
+	return GGDPersonalityTraits::nickname;
 }
 
 /******************************************************************************/

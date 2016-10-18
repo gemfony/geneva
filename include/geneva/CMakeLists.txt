@@ -55,8 +55,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GIntFlipAdaptorT.hpp
 	GIntGaussAdaptorT.hpp
 	GIntNumCollectionT.hpp
-	GMPEAPersonalityTraits.hpp
-	GMultiConstraintT.hpp
+    GMultiConstraintT.hpp
 	GMultiThreadedEA.hpp
 	GMultiThreadedGD.hpp
 	GMultiThreadedPS.hpp

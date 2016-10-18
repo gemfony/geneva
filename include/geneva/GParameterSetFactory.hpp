@@ -84,7 +84,10 @@ public:
 	  */
 	 GParameterSetFactory(const GParameterSetFactory& cp)
 		 : Gem::Common::GFactoryT<GParameterSet>(cp)
-	 { /* nothing */ }
+	 {
+		 Gem::Common::copyCloneableSmartPointer(cp.m_postProcessor, m_postProcessor);
+		 Gem::Common::copyCloneableSmartPointer(cp.m_postProcessor, m_postProcessor);
+	 }
 
 	 /***************************************************************************/
 	 /**

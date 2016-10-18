@@ -39,10 +39,6 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
-/** A short identifier suitable for storage in a std::map */
-G_API_GENEVA const std::string GBaseEA::nickname = "ea";
-
-/******************************************************************************/
 /**
  * The default constructor, As we do not have any individuals yet, we set the population
  * size, and number of parents to 0. It is the philosophy of this class not

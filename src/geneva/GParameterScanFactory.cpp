@@ -38,10 +38,6 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
-/** A short identifier suitable for storage in a std::map */
-G_API_GENEVA const std::string GParameterScanFactory::nickname = "ps";
-
-/******************************************************************************/
 /**
  * The default constructor
  */
@@ -93,7 +89,7 @@ GParameterScanFactory::~GParameterScanFactory() { /* nothing */ }
  * Gives access to the mnemonics / nickname describing an algorithm
  */
 std::string GParameterScanFactory::getMnemonic() const {
-	return GParameterScanFactory::nickname;
+	return GPSPersonalityTraits::nickname;
 }
 
 /******************************************************************************/

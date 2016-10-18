@@ -39,10 +39,6 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
-/** A short identifier suitable for storage in a std::map */
-G_API_GENEVA const std::string GBaseSA::nickname = "sa";
-
-/******************************************************************************/
 /**
  * The default constructor. All initialization work of member variable
  * is done in the class body.

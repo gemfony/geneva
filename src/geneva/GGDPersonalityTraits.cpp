@@ -39,6 +39,10 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
+/** A short identifier suitable for storage in a std::map */
+G_API_GENEVA const std::string GGDPersonalityTraits::nickname = "gd";
+
+/******************************************************************************/
 /**
  * The default constructor
  */
@@ -140,6 +144,14 @@ void GGDPersonalityTraits::compare(
  */
 std::string GGDPersonalityTraits::name() const {
 	return std::string("GGDPersonalityTraits");
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the mnemonic of the optimization algorithm
+ */
+std::string GGDPersonalityTraits::getMnemonic() const {
+	return GGDPersonalityTraits::nickname;
 }
 
 /******************************************************************************/

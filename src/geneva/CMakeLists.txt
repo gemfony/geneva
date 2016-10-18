@@ -40,7 +40,6 @@ SET ( OPTIMIZATIONSOURCES
 	GInt32GaussAdaptor
 	GInt32Object
 	GInt32ObjectCollection
-	GMPEAPersonalityTraits
 	GMultiThreadedEA
 	GMultiThreadedGD
 	GMultiThreadedPS

@@ -70,6 +70,9 @@ class GEAPersonalityTraits
 	///////////////////////////////////////////////////////////////////////
 
 public:
+   /** @brief An easy identifier for the class */
+   static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
+
 	/** @brief The default constructor */
 	G_API_GENEVA GEAPersonalityTraits();
 	/** @brief The copy contructor */
@@ -101,6 +104,8 @@ public:
 
 	/** @brief Emits a name for this class / object */
 	virtual G_API_GENEVA std::string name() const override;
+   /** @brief Retrieves the mnemonic of the optimization algorithm */
+   virtual G_API_GENEVA std::string getMnemonic() const override;
 
 protected:
 	/** @brief Loads the data of another GEAPersonalityTraits object */

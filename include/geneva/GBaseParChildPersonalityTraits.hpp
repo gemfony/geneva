@@ -119,6 +119,8 @@ public:
 
 	/** @brief Emits a name for this class / object */
 	virtual G_API_GENEVA std::string name() const override;
+ 	/** @brief Retrieves the mnemonic of the optimization algorithm */
+   virtual G_API_GENEVA std::string getMnemonic() const override;
 
 protected:
 	/** @brief Loads the data of another GBaseParChildPersonalityTraits object */
