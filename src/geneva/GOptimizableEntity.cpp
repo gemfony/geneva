@@ -1646,6 +1646,9 @@ std::string GOptimizableEntity::getMnemonic() const {
 			<< "Pointer to personality traits object is empty." << std::endl
 			<< GEXCEPTION;
 	}
+
+	// Make the compiler happy
+	return std::string();
 }
 
 

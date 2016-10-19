@@ -137,7 +137,7 @@ public:
 	* Finalization code. Sends all threads an interrupt signal.
 	* process() then waits for them to join.
 	*/
-	void shutdown() {
+	virtual void shutdown() override {
 		// Initiate the shutdown procedure
 		GBaseConsumerT<processable_type>::shutdown();
 
@@ -152,7 +152,7 @@ public:
 	*
 	* @return A unique identifier for a given consumer
 	*/
-	virtual std::string getConsumerName() const {
+	virtual std::string getConsumerName() const override {
 		return std::string("GBoostThreadConsumerT");
 	}
 
@@ -160,7 +160,7 @@ public:
 	/**
 	 * Returns a short identifier for this consumer
 	 */
-	virtual std::string getMnemonic() const {
+	virtual std::string getMnemonic() const override {
 		return std::string("btc");
 	}
 
@@ -172,7 +172,7 @@ public:
 	 * that either his code does not crash or that exceptions are caught and
 	 * the thread becomes available again.
 	 */
-	virtual bool capableOfFullReturn() const {
+	virtual bool capableOfFullReturn() const override {
 		return true;
 	}
 
@@ -191,7 +191,7 @@ public:
     * make any assumptions whether processing units are dedicated solely to a
     * given task.
     */
- 	virtual std::uint16_t getNProcessingUnits() const {
+ 	virtual std::uint16_t getNProcessingUnits() const override {
 		 return boost::numeric_cast<std::uint16_t>(this->getNWorkers() * this->getNThreadsPerWorker());
  	}
 
@@ -200,7 +200,7 @@ public:
 	* Starts the worker threads. This function will not block.
 	* Termination of the threads is triggered by a call to GBaseConsumerT<processable_type>::shutdown().
 	*/
-	virtual void async_startProcessing() {
+	virtual void async_startProcessing() override {
 #ifdef DEBUG
       if(m_workerTemplates.empty()) { // Is the template vector empty ?
          glogger
@@ -335,7 +335,7 @@ protected:
 	 */
 	virtual void addConfigurationOptions(
 		Gem::Common::GParserBuilder &gpb
-	) {
+	) override {
 		// Call our parent class'es function
 		GBaseConsumerT<processable_type>::addConfigurationOptions(gpb);
 
@@ -359,7 +359,7 @@ protected:
 	 */
 	virtual void addCLOptions(
 		boost::program_options::options_description &visible, boost::program_options::options_description &hidden
-	) {
+	) override {
 		namespace po = boost::program_options;
 
 		hidden.add_options()

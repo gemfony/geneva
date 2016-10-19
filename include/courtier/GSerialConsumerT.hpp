@@ -72,14 +72,15 @@ public:
 	/**
 	 * Standard destructor
 	 */
-	virtual  ~GSerialConsumerT() { /* nothing */ }
+	virtual  ~GSerialConsumerT()
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * Starts a single worker thread. Termination of the thread is
 	 * triggered by a call to GBaseConsumerT<processable_type>::shutdown().
 	 */
-	void async_startProcessing() {
+	virtual void async_startProcessing() override {
 		processingThread_ = std::move(std::thread(
 			[this]() { this->processItems(); }
 		));
@@ -89,7 +90,7 @@ public:
 	/**
 	* Finalization code. Sends all threads an interrupt signal.
 	*/
-	virtual void shutdown() {
+	virtual void shutdown() override {
 		// This will set the GBaseConsumerT<processable_type>::stop_ flag
 		GBaseConsumerT<processable_type>::shutdown();
 		// Wait for our local threads to join
@@ -102,7 +103,7 @@ public:
 	*
 	* @return A unique identifier for a given consumer
 	*/
-	virtual std::string getConsumerName() const {
+	virtual std::string getConsumerName() const override {
 		return std::string("GSerialConsumerT");
 	}
 
@@ -110,7 +111,7 @@ public:
 	/**
 	 * Returns a short identifier for this consumer
 	 */
-	virtual std::string getMnemonic() const {
+	virtual std::string getMnemonic() const override {
 		return std::string("sc");
 	}
 
@@ -120,7 +121,7 @@ public:
 	 * consumer. Since evaluation is performed aerially, we assume that this
 	 * is possible and return true.
 	 */
-	virtual bool capableOfFullReturn() const {
+	virtual bool capableOfFullReturn() const override {
 		return true;
 	}
 

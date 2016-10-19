@@ -101,7 +101,7 @@ public:
 	/**
 	 * Stop execution
 	 */
-	virtual void shutdown() {
+	virtual void shutdown() BASE {
 		std::unique_lock<std::mutex> lock(stopMutex_);
 		stop_ = true;
 		lock.unlock();
@@ -163,7 +163,7 @@ public:
 	 *
 	 * @return A boolean indicating whether this consumer needs a client to operate
 	 */
-	virtual bool needsClient() const {
+	virtual bool needsClient() const BASE {
 		return false;
 	}
 
@@ -173,7 +173,7 @@ public:
 	 * it returns an empty smart pointer, so that consumers without the need for
 	 * clients do not need to re-implement this function.
 	 */
-	virtual std::shared_ptr<GBaseClientT<pl_type>> getClient() const {
+	virtual std::shared_ptr<GBaseClientT<pl_type>> getClient() const BASE {
 		return std::shared_ptr<GBaseClientT<pl_type>>();
 	}
 
@@ -203,13 +203,13 @@ public:
 	// Some abstract functions
 
 	/** @brief A unique identifier for a given consumer */
-	virtual std::string getConsumerName() const = 0;
+	virtual std::string getConsumerName() const BASE = 0;
 
 	/** @brief Returns a short identifier for this consumer */
-	virtual std::string getMnemonic() const = 0;
+	virtual std::string getMnemonic() const BASE = 0;
 
 	/** @brief The actual business logic */
-	virtual void async_startProcessing() = 0;
+	virtual void async_startProcessing() BASE = 0;
 
 protected:
 	/***************************************************************************/

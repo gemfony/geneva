@@ -1324,7 +1324,7 @@ public:
 	 *
 	 * @return A boolean indicating whether this consumer needs a client to operate
 	 */
-	virtual bool needsClient() const {
+	virtual bool needsClient() const override {
 		return true;
 	}
 
@@ -1332,7 +1332,7 @@ public:
 	/**
 	 * Emits a client suitable for processing the data emitted by this consumer
 	 */
-	virtual std::shared_ptr <GBaseClientT<processable_type>> getClient() const {
+	virtual std::shared_ptr <GBaseClientT<processable_type>> getClient() const override {
 		std::shared_ptr <GAsioTCPClientT<processable_type>> p(
 			new GAsioTCPClientT<processable_type>(m_server, boost::lexical_cast<std::string>(m_port))
 		);
@@ -1349,7 +1349,7 @@ public:
 	/**
 	 * Starts the actual processing loops
 	 */
-	void async_startProcessing() {
+	virtual void async_startProcessing() override {
 		// Open the acceptor
 		boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), m_port);
 		m_acceptor.open(endpoint.protocol());
@@ -1422,7 +1422,7 @@ public:
 	/**
 	 * Make sure the consumer and the server sessions shut down gracefully
 	 */
-	void shutdown() {
+	virtual void shutdown() override {
 		// Set the stop criterion
 		GBaseConsumerT<processable_type>::shutdown();
 
@@ -1441,7 +1441,7 @@ public:
 	 *
 	 * @return A unique identifier for a given consumer
 	 */
-	virtual std::string getConsumerName() const {
+	virtual std::string getConsumerName() const override {
 		return std::string("GAsioTCPConsumerT");
 	}
 
@@ -1449,7 +1449,7 @@ public:
 	/**
 	 * Returns a short identifier for this consumer
 	 */
-	virtual std::string getMnemonic() const {
+	virtual std::string getMnemonic() const override {
 		return std::string("tcpc");
 	}
 
@@ -1459,7 +1459,7 @@ public:
 	 * consumer. Since evaluation is performed remotely, we assume that this
 	 * is not the case.
 	 */
-	virtual bool capableOfFullReturn() const {
+	virtual bool capableOfFullReturn() const override {
 		return false;
 	}
 
@@ -1472,7 +1472,7 @@ public:
 	 */
 	virtual void addCLOptions(
 		boost::program_options::options_description &visible, boost::program_options::options_description &hidden
-	) {
+	) override {
 		namespace po = boost::program_options;
 
 		visible.add_options()
@@ -1500,7 +1500,8 @@ public:
 	/**
 	 * Takes a boost::program_options::variables_map object and checks for supplied options.
 	 */
-	virtual void actOnCLOptions(const boost::program_options::variables_map &vm) { /* nothing */ }
+	virtual void actOnCLOptions(const boost::program_options::variables_map &vm) override
+	{ /* nothing */ }
 
 private:
 	/***************************************************************************/

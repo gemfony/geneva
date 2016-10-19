@@ -3867,8 +3867,8 @@ public:
 		 , m_gpd_pth(cp.m_gpd_pth)
 		 , m_fileName_pth2(cp.m_fileName_pth2)
 		 , m_canvasDimensions_pth2(cp.m_canvasDimensions_pth2)
-		 , m_fileName_txt(cp.m_fileName_txt)
 		 , m_gpd_pth2(cp.m_gpd_pth2)
+		 , m_fileName_txt(cp.m_fileName_txt)
 	 	 , m_nBinsX(cp.m_nBinsX)
 		 , m_nBinsY(cp.m_nBinsY)
 	 {
