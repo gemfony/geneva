@@ -299,6 +299,37 @@ void GParameterSet::queryAdaptor(
 
 /******************************************************************************/
 /**
+ * Retrieves parameters relevant for the evaluation from another GParameterSet.
+ * NOTE: The other parameter set will be an empty shell afterwards. The function may
+ * only be called for "clean" foreign parameter sets
+ */
+void GParameterSet::cannibalize(GParameterSet& cp) {
+	// Check whether the "foreign" entity has the dirty flag set
+	if(cp.isDirty()) {
+		glogger
+		<< "In GParameterSet::cannibalize(const GParameterSet& cp): Error!" << std::endl
+	   << "cp has the dirty flag set" << std::endl
+	 	<< GEXCEPTION;
+	}
+
+	// Make sure we have no local parameters
+	this->clear();
+
+	// Copy all "foreign" parameters over
+	for(auto t: cp) {
+		this->push_back(t);
+	}
+
+	// Empty the foreign GParmaeterSet object
+	cp.clear();
+
+	// Set our own fitness according to the foreign individual. This will also
+	// clear our local dirty flag (if set).
+	this->setFitness_(cp.fitnessVec());
+}
+
+/******************************************************************************/
+/**
  * Loads the data of another GParameterSet object, camouflaged as a GObject.
  *
  * TODO: Load GProcessingContainerT data

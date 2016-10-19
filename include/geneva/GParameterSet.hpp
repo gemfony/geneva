@@ -182,6 +182,9 @@ public:
 		 , std::vector<boost::any>& data
 	 ) const BASE;
 
+	 /** @brief Retrieves parameters relevant for the evaluation from another GParameterSet */
+	 virtual G_API_GENEVA void cannibalize(GParameterSet&);
+
 	 /***************************************************************************/
 	 /**
 	  * This function returns a parameter set at a given position of the data set.

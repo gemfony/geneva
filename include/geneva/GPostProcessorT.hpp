@@ -275,13 +275,6 @@ template <typename ind_type, typename base_type=GParameterSet>
 class GEvolutionaryAlgorithmPostOptimizerT
 	: public GPostProcessorBaseT<ind_type,base_type>
 {
-	 /**************************************************************************/
-	 // Make sure this class can only be instantiated if ind_type is a derivative of base_type
-	 static_assert(
-		 std::is_base_of<base_type, ind_type>::value
-		 , "base_type is no base class of ind_type"
-	 );
-
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
 
@@ -537,8 +530,8 @@ protected:
 		 // original individual.
 		 p_opt_ptr->vetoPostProcessing(false);
 
-	    // Load the individual into the argument base_type
-		 p.load(p_opt_ptr);
+	    // Load the parameter data into the argument base_type (will also clear the dirty flag)
+		 p.cannibalize(*p_opt_ptr);
 
 		 return true;
 	 }
