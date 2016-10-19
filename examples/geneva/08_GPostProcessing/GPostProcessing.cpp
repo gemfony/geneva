@@ -95,8 +95,8 @@ int main(int argc, char **argv) {
 	//---------------------------------------------------------------------------
 	// Register a post-processor, if this was requested by the user
 	if(usePostProcessor) {
-		std::shared_ptr<GEvolutionaryAlgorithmPostOptimizerT<GFunctionIndividual>> eaPostOptimizer_ptr(
-			new GEvolutionaryAlgorithmPostOptimizerT<GFunctionIndividual>(
+		std::shared_ptr<GEvolutionaryAlgorithmPostOptimizer> eaPostOptimizer_ptr(
+			new GEvolutionaryAlgorithmPostOptimizer(
 				execModePP
 				, "./config/GPostEvolutionaryAlgorithm.json"
 			)

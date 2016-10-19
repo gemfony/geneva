@@ -66,17 +66,10 @@ namespace Geneva {
  * change of their individuals (think e.g. of gradient descents). The mnemonics
  * must be accessible via the base_type-object through the member-function getMnemonic().
  */
-template <typename ind_type, typename base_type>
+template <typename base_type>
 class GPostProcessorBaseT
 	: public Gem::Common::GSerializableFunctionObjectT<base_type>
 {
-	/**************************************************************************/
-	// Make sure this class can only be instantiated if ind_type is a derivative of base_type
-	static_assert(
-		std::is_base_of<base_type, ind_type>::value
-		, "GPostProcessorBaseT<>: base_type is no base class of ind_type"
-	);
-
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
@@ -104,7 +97,7 @@ public:
 	/**
 	 * The copy constructor
 	 */
-	GPostProcessorBaseT(const GPostProcessorBaseT<ind_type, base_type>& cp)
+	GPostProcessorBaseT(const GPostProcessorBaseT<base_type>& cp)
 		: m_allowed_mnemonics(cp.m_allowed_mnemonics)
 	{ /* nothing */ }
 
@@ -119,12 +112,12 @@ public:
 
 	/**************************************************************************/
 	/**
-	 * Checks for equality with another GPostProcessorBaseT<ind_type, base_type> object
+	 * Checks for equality with another GPostProcessorBaseT<base_type> object
 	 *
-	 * @param  cp A constant reference to another GPostProcessorBaseT<ind_type, base_type> object
+	 * @param  cp A constant reference to another GPostProcessorBaseT<base_type> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	bool operator==(const GPostProcessorBaseT<ind_type, base_type>& cp) const {
+	bool operator==(const GPostProcessorBaseT<base_type>& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -136,12 +129,12 @@ public:
 
 	/**************************************************************************/
 	/**
-	 * Checks for inequality with another GPostProcessorBaseT<ind_type, base_type> object
+	 * Checks for inequality with another GPostProcessorBaseT<base_type> object
 	 *
-	 * @param  cp A constant reference to another GPostProcessorBaseT<ind_type, base_type> object
+	 * @param  cp A constant reference to another GPostProcessorBaseT<base_type> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	bool operator!=(const GPostProcessorBaseT<ind_type, base_type>& cp) const {
+	bool operator!=(const GPostProcessorBaseT<base_type>& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -176,8 +169,8 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a Gem::Common::GSerializableFunctionObjectT<processable_type> reference independent of this object and convert the pointer
-		const GPostProcessorBaseT<ind_type, base_type> *p_load
-			= Gem::Common::g_convert_and_compare<GSerializableFunctionObjectT<base_type>, GPostProcessorBaseT<ind_type, base_type>>(cp, this);
+		const GPostProcessorBaseT<base_type> *p_load
+			= Gem::Common::g_convert_and_compare<GSerializableFunctionObjectT<base_type>, GPostProcessorBaseT<base_type>>(cp, this);
 
 		GToken token("GPostProcessorBaseT", e);
 
@@ -227,12 +220,12 @@ protected:
 	/**
 	 * Post-processing is triggered here
 	 */
-	virtual bool process_(base_type& p_raw) override {
-		if(!this->postProcessingAllowedFor(p_raw)) {
+	virtual bool process_(base_type& p) override {
+		if(!this->postProcessingAllowedFor(p)) {
 			return true;
 		}
 
-		return raw_processing_(p_raw);
+		return raw_processing_(p);
 	}
 
 	/**************************************************************************/
@@ -243,8 +236,8 @@ protected:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a Gem::Common::GSerializableFunctionObjectT<processable_type> reference independent of this object and convert the pointer
-		const GPostProcessorBaseT<ind_type, base_type> *p_load
-			= g_convert_and_compare<GSerializableFunctionObjectT<base_type>, GPostProcessorBaseT<ind_type, base_type>>(cp, this);
+		const GPostProcessorBaseT<base_type> *p_load
+			= g_convert_and_compare<GSerializableFunctionObjectT<base_type>, GPostProcessorBaseT<base_type>>(cp, this);
 
 		// Load our parent class'es data ...
 		Gem::Common::GSerializableFunctionObjectT<base_type>::load_(cp);
@@ -271,9 +264,8 @@ private:
  * This post-processor runs an evolutionary algorithm, trying to improve the
  * quality of a given individual.
  */
-template <typename ind_type, typename base_type=GParameterSet>
-class GEvolutionaryAlgorithmPostOptimizerT
-	: public GPostProcessorBaseT<ind_type,base_type>
+class GEvolutionaryAlgorithmPostOptimizer
+	: public GPostProcessorBaseT<GParameterSet>
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -283,8 +275,8 @@ class GEvolutionaryAlgorithmPostOptimizerT
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("GPostProcessorBaseT_ind_type_base_type"
-						, boost::serialization::base_object<GPostProcessorBaseT<ind_type,base_type>>(*this))
+		 & make_nvp("GPostProcessorBaseT_GParameterSet"
+						, boost::serialization::base_object<GPostProcessorBaseT<GParameterSet>>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_configFile)
 		 & BOOST_SERIALIZATION_NVP(m_executionMode);
 
@@ -295,255 +287,53 @@ class GEvolutionaryAlgorithmPostOptimizerT
 
 public:
 	 /**************************************************************************/
-	 /**
-	  * Initialization with the execution mode and configuration file
-	  */
-	 GEvolutionaryAlgorithmPostOptimizerT(
+	 /** @brief Initialization with the execution mode and configuration file */
+	 GEvolutionaryAlgorithmPostOptimizer(
 		 execMode executionMode
 	 	 , std::string configFile
-	 )
-	 	: GPostProcessorBaseT<ind_type,base_type>()
-	   , m_configFile(configFile)
-	 	, m_executionMode((executionMode==execMode::EXECMODE_SERIAL || executionMode==execMode::EXECMODE_MULTITHREADED)?executionMode:execMode::EXECMODE_SERIAL)
-	 {
-		 switch(executionMode) {
-			 case execMode::EXECMODE_SERIAL:
-			 case execMode::EXECMODE_MULTITHREADED:
-				 /* nothing */
-				 break;
+	 );
+	 /** @brief The copy constructor */
+	 GEvolutionaryAlgorithmPostOptimizer(const GEvolutionaryAlgorithmPostOptimizer& cp);
+	 /** @brief The destructor */
+	 virtual ~GEvolutionaryAlgorithmPostOptimizer();
 
-			 case execMode::EXECMODE_BROKERAGE:
-			 default: {
-				 glogger
-					 << "In GEvolutionaryAlgorithmPostOptimizerT::GEvolutionaryAlgorithmPostOptimizerT(execMode): Error!" << std::endl
-					 << "Got invalid execution mode " << executionMode << std::endl
-					 << "The mode was reset to execMode::EXECMODE_SERIAL" << std::endl
-					 << GWARNING;
-			 }
-		 }
-	 }
+	 /** @brief Checks for equality with another GEvolutionaryAlgorithmPostOptimizer object */
+	 bool operator==(const GEvolutionaryAlgorithmPostOptimizer& cp) const;
+	 /** @brief Checks for inequality with another GEvolutionaryAlgorithmPostOptimizer object */
+	 bool operator!=(const GEvolutionaryAlgorithmPostOptimizer& cp) const;
 
-	 /**************************************************************************/
-	 /**
-	  * The copy constructor
-	  */
-	 GEvolutionaryAlgorithmPostOptimizerT(const GEvolutionaryAlgorithmPostOptimizerT<ind_type>& cp)
-	 	: GPostProcessorBaseT<ind_type,base_type>(cp)
-	   , m_configFile(cp.m_configFile)
-	 	, m_executionMode(cp.m_executionMode) // We assume that a valid execution mode is stored here
-	 { /* nothing */ }
+	 /** @brief Returns the name of this class */
+	 virtual std::string name() const override;
 
-	 /**************************************************************************/
-	 /**
-	  * The destructor
-     */
-	 virtual ~GEvolutionaryAlgorithmPostOptimizerT()
-	 { /* nothing */ }
-
-	 /**************************************************************************/
-	 /**
-	  * Checks for equality with another GEvolutionaryAlgorithmPostOptimizer object
-	  *
-	  * @param  cp A constant reference to another GEvolutionaryAlgorithmPostOptimizer object
-	  * @return A boolean indicating whether both objects are equal
-	  */
-	 bool operator==(const GEvolutionaryAlgorithmPostOptimizerT<ind_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch(g_expectation_violation&) {
-			 return false;
-		 }
-	 }
-
-	 /**************************************************************************/
-	 /**
-	  * Checks for inequality with another GEvolutionaryAlgorithmPostOptimizer object
-	  *
-	  * @param  cp A constant reference to another GEvolutionaryAlgorithmPostOptimizer object
-	  * @return A boolean indicating whether both objects are inequal
-	  */
-	 bool operator!=(const GEvolutionaryAlgorithmPostOptimizerT<ind_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch(g_expectation_violation&) {
-			 return false;
-		 }
-	 }
-
-	 /**************************************************************************/
-	 /**
-	  * Returns the name of this class
-	  */
-	 virtual std::string name() const override {
-		 return std::string("GEvolutionaryAlgorithmPostOptimizerT");
-	 }
-
-	 /**************************************************************************/
-	 /**
-	  * Checks for compliance with expectations with respect to another object
-	  * of the same type
-	  *
-	  * @param cp A constant reference to another GEvolutionaryAlgorithmPostOptimizer object
-	  * @param e The expected outcome of the comparison
-	  * @param limit The maximum deviation for floating point values (important for similarity checks)
-	  */
+	 /** @brief Checks for compliance with expectations with respect to another object of the same type */
 	 virtual void compare(
-		 const Gem::Common::GSerializableFunctionObjectT<base_type> &cp
+		 const Gem::Common::GSerializableFunctionObjectT<GParameterSet> &cp
 		 , const Gem::Common::expectation &e
 		 , const double &limit
-	 ) const override {
-		 using namespace Gem::Common;
+	 ) const override;
 
-		 // Check that we are dealing with a Gem::Common::GSerializableFunctionObjectT<processable_type> reference independent of this object and convert the pointer
-		 const GEvolutionaryAlgorithmPostOptimizerT<ind_type> *p_load
-			 = Gem::Common::g_convert_and_compare<Gem::Common::GSerializableFunctionObjectT<base_type>, GEvolutionaryAlgorithmPostOptimizerT<ind_type>>(cp, this);
+	 /** @brief Allows to set the execution mode for this post-processor (serial vs. multi-threaded) */
+	 void setExecMode(execMode executionMode);
+	 /** @brief Allows to retrieve the current execution mode */
+	 execMode getExecMode() const;
 
-		 GToken token("GEvolutionaryAlgorithmPostOptimizerT", e);
-
-		 // Compare our parent data ...
-		 Gem::Common::compare_base<GPostProcessorBaseT<ind_type,base_type>>(IDENTITY(*this, *p_load), token);
-
-		 // ... and then our local data
-		 compare_t(IDENTITY(m_configFile, p_load->m_configFile), token);
-		 compare_t(IDENTITY(m_executionMode, p_load->m_executionMode), token);
-
-		 // React on deviations from the expectation
-		 token.evaluate();
-	 }
-
-	 /**************************************************************************/
-	 /**
-	  * Allows to set the execution mode for this post-processor (serial vs. multi-threaded)
-	  */
-	 void setExecMode(execMode executionMode) {
-		 switch(executionMode) {
-			 case execMode::EXECMODE_SERIAL:
-			 case execMode::EXECMODE_MULTITHREADED: {
-				 m_executionMode = executionMode;
-			 } break;
-
-			 case execMode::EXECMODE_BROKERAGE:
-			 default: {
-				 glogger
-				 << "In GEvolutionaryAlgorithmPostOptimizerT::setExecMode(): Error!" << std::endl
-			    << "Got invalid execution mode " << executionMode << std::endl
-				 << GEXCEPTION;
-			 }
-		 }
-	 }
-
-	 /**************************************************************************/
-	 /**
-	  * Allows to retrieve the current execution mode
-	  */
-	 execMode getExecMode() const {
-		 return m_executionMode;
-	 }
-
-	 /**************************************************************************/
-	 /**
-	  * Allows to specify the name of a configuration file
-	  */
-	 void setConfigFile(std::string configFile) {
-		 m_configFile = configFile;
-	 }
-
-	 /**************************************************************************/
-	 /**
-	  * Allows to retrieve the configuration file
-	  */
-	 std::string getConfigFile() const {
-		 return m_configFile;
-	 }
+	 /** @brief Allows to specify the name of a configuration file */
+	 void setConfigFile(std::string configFile);
+	 /** @brief Allows to retrieve the configuration file */
+	 std::string getConfigFile() const;
 
 protected:
 	 /**************************************************************************/
-	 /**
-	  * Loads the data of another GEvolutionaryAlgorithmPostOptimizer object
-	  */
-	 virtual void load_(const Gem::Common::GSerializableFunctionObjectT<base_type> *cp) override {
-		 // Check that we are dealing with a GEvolutionaryAlgorithmPostOptimizerT reference independent of this object and convert the pointer
-		 const GEvolutionaryAlgorithmPostOptimizerT<ind_type> *p_load
-			 = Gem::Common::g_convert_and_compare<Gem::Common::GSerializableFunctionObjectT<base_type>, GEvolutionaryAlgorithmPostOptimizerT<ind_type>>(cp, this);
-
-		 // Load our parent class'es data ...
-		 GPostProcessorBaseT<ind_type,base_type>::load_(cp);
-
-		 // ... and then our local data
-		 m_configFile = p_load->m_configFile;
-		 m_executionMode = p_load->m_executionMode;
-	 }
-
-	 /**************************************************************************/
-	 /**
-	  * Creates a deep clone of this object
-     */
-	 virtual Gem::Common::GSerializableFunctionObjectT<base_type> * clone_() const override {
-		 return new GEvolutionaryAlgorithmPostOptimizerT<ind_type>(*this);
-	 }
-
-	 /**************************************************************************/
-	 /**
-	  * The actual post-processing takes place here (no further checks)
-	  */
-	 virtual bool raw_processing_(base_type& p_raw) override {
-		 // Convert the base_type to the derived type
-	    ind_type& p = dynamic_cast<ind_type&>(p_raw);
-
-	 	 // Create a factory for evolutionary algorithm objects
-		 // TODO: Move this to class-scope
-	 	 GEvolutionaryAlgorithmFactory eaFactory(m_configFile, m_executionMode);
-
-		 // Obtain a new evolutionary algorithm from the factory. It will be
-		 // equipped with all settings from the config file
-		 std::shared_ptr<GBaseEA> ea_ptr = eaFactory.get<GBaseEA>();
-
-		 // Make sure p is clean
-		 if(p.isDirty()) {
-			 glogger
-			 << "In GEvolutionaryAlgorithmPostOptimizerT: Error!" << std::endl
-		    << "Provided base_type has dirty flag set." << std::endl
-			 << GEXCEPTION;
-		 }
-
-		 // Clone the individual for post-processing
-		 std::shared_ptr<ind_type> p_unopt_ptr = p.template clone<ind_type>();
-
-			 // Make sure the post-optimization does not trigger post-optimization recursively ...
-		 p_unopt_ptr->vetoPostProcessing(true);
-
-		 // Add our individual to the algorithm
-		 ea_ptr->push_back(p_unopt_ptr);
-
-		 // Perform the actual (sub-)optimization
-		 ea_ptr->optimize();
-
-		 // Retrieve the best individual
-		 std::shared_ptr<ind_type> p_opt_ptr = ea_ptr->getBestGlobalIndividual<ind_type>();
-
-		 // Make sure subsequent optimization cycles may generally perform post-optimization again.
-		 // THis needs to be done on the optimized individual, as it will be loaded into the
-		 // original individual.
-		 p_opt_ptr->vetoPostProcessing(false);
-
-	    // Load the parameter data into the argument base_type (will also clear the dirty flag)
-		 p.cannibalize(*p_opt_ptr);
-
-		 return true;
-	 }
+	 /** @brief Loads the data of another GEvolutionaryAlgorithmPostOptimizer object */
+	 virtual void load_(const Gem::Common::GSerializableFunctionObjectT<GParameterSet> *cp) override;
+	 /** @brief Creates a deep clone of this object */
+	 virtual Gem::Common::GSerializableFunctionObjectT<GParameterSet> * clone_() const override;
+	 /** @brief The actual post-processing takes place here (no further checks) */
+	 virtual bool raw_processing_(GParameterSet& p) override;
 
 private:
-	 /**************************************************************************/
-	 /**
-	  * The standard constructor. Intentionally private, as it is only needed
-	  * for de-serialization purposes.
-	  */
-	 GEvolutionaryAlgorithmPostOptimizerT()
-	 { /* nothing */ }
+	 /** @brief The standard constructor */
+	 GEvolutionaryAlgorithmPostOptimizer();
 
 	 /**************************************************************************/
 	 // Data
@@ -557,5 +347,18 @@ private:
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+// Mark this class as abstract.
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GPostProcessorBaseT<GParameterSet>)
+
+// Export of GEvolutionaryAlgorithmPostOptimizer
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GEvolutionaryAlgorithmPostOptimizer)
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 
 #endif /* GENEVA_LIBRARY_COLLECTION_GPOSTOPTIMIZERS_HPP */

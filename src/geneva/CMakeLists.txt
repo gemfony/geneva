@@ -60,6 +60,7 @@ SET ( OPTIMIZATIONSOURCES
 	GParameterSetFixedSizePriorityQueue
 	GParameterSetMultiConstraint
 	GPersonalityTraits
+    GPostProcessorT
 	GPSPersonalityTraits
 	GRateableI
 	GSAPersonalityTraits
