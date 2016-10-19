@@ -139,13 +139,13 @@ public:
 	  */
 	 bool process() {
 		 try {
-			 auto startTime = std::chrono::system_clock::now();
+			 auto startTime = std::chrono::high_resolution_clock::now();
 			 if (!this->preProcess_()) return false;
-			 auto afterPreProcessing = std::chrono::system_clock::now();
+			 auto afterPreProcessing = std::chrono::high_resolution_clock::now();
 			 if (!this->process_()) return false;
-			 auto afterProcessing = std::chrono::system_clock::now();
+			 auto afterProcessing = std::chrono::high_resolution_clock::now();
 			 if (!this->postProcess_()) return false;
-			 auto afterPostProcessing = std::chrono::system_clock::now();
+			 auto afterPostProcessing = std::chrono::high_resolution_clock::now();
 
 			 // Make a not of the time needed for each step
 			 m_pre_processing_time = std::chrono::duration<double>(afterPreProcessing - startTime).count();
