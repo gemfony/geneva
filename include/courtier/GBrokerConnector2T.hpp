@@ -117,8 +117,6 @@ public:
 	  * The default constructor
 	  */
 	 GBaseExecutorT()
-		 : m_submission_counter(SUBMISSIONCOUNTERTYPE(0))
-		 , m_expectedNumber(0)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -130,8 +128,6 @@ public:
 	  * @param cp A copy of another GBrokerConnector object
 	  */
 	 GBaseExecutorT(const GBaseExecutorT<processable_type> &cp)
-		 : m_submission_counter(SUBMISSIONCOUNTERTYPE(0))
-		 , m_expectedNumber(0)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -416,6 +412,22 @@ public:
 	  */
 	 virtual void finalize() BASE { /* nothing */ }
 
+ 	 /***************************************************************************/
+ 	 /**
+ 	  * Retrieve the number of individuals returned during the last iteration
+ 	  */
+ 	  std::size_t getNReturned() const {
+ 	  		return m_returnedLast;
+ 	  }
+
+ 	 /***************************************************************************/
+ 	 /**
+ 	  * Retrieve the number of individuals NOT returned during the last iteration
+ 	  */
+ 	  std::size_t getNNotReturned() const {
+ 	  		return m_notReturnedLast;
+ 	  }
+
 protected:
 	 /***************************************************************************/
 	 /** @brief Submits a single work item */
@@ -458,15 +470,15 @@ protected:
 		 std::chrono::duration<double> iterationDuration = std::chrono::system_clock::now() - m_iterationStartTime;
 
 		 // Find out about the number of returned items
-		 std::size_t notReturned = std::count(workItemPos.begin(), workItemPos.end(), true);
-		 std::size_t nReturned = m_expectedNumber - notReturned;
+		 std::size_t m_notReturnedLast = std::count(workItemPos.begin(), workItemPos.end(), true);
+		 std::size_t m_returnedLast = m_expectedNumber - m_notReturnedLast;
 
 #ifdef DEBUG
-		 std::cout << "Items returned: " << nReturned << std::endl;
-		 std::cout << "Items lost:     " << notReturned << std::endl;
+		 std::cout << "Items returned: " << m_returnedLast << std::endl;
+		 std::cout << "Items lost:     " << m_notReturnedLast << std::endl;
 #endif
 
-		 if (nReturned == 0) { // Check whether any work items have returned at all
+		 if (m_returnedLast == 0) { // Check whether any work items have returned at all
 			 glogger
 				 << "In GBaseExecutorT<processable_type>::iterationFinalize(): Warning!" << std::endl
 				 << "No current items have returned" << std::endl
@@ -474,8 +486,7 @@ protected:
 				 << GWARNING;
 		 } else {
 			 // Calculate average return times of work items.
-			 // TODO: must be calculated also for the first iteration?
-			 m_lastAverage = iterationDuration / ((std::max)(nReturned, std::size_t(1)));
+			 m_lastAverage = iterationDuration / ((std::max)(m_returnedLast, std::size_t(1)));
 		 }
 
 		 // Sort old work items so they can be readily used by the caller
@@ -519,10 +530,13 @@ protected:
 
 	 /***************************************************************************/
 	 // Local data
-	 SUBMISSIONCOUNTERTYPE m_submission_counter; ///< Counts the number of submissions initiated by this object. Note: not serialized!
-	 std::size_t m_expectedNumber; ///< The number of work items to be submitted (and expected back)
-	 std::chrono::system_clock::time_point m_iterationStartTime; ///< Temporary that holds the start time for the retrieval of items in a given iteration
+	 SUBMISSIONCOUNTERTYPE m_submission_counter = SUBMISSIONCOUNTERTYPE(0); ///< Counts the number of submissions initiated by this object. Note: not serialized!
+	 std::size_t m_expectedNumber = 0; ///< The number of work items to be submitted (and expected back)
+	 std::chrono::system_clock::time_point m_iterationStartTime = std::chrono::system_clock::now(); ///< Temporary that holds the start time for the retrieval of items in a given iteration
 	 std::chrono::duration<double> m_lastAverage = std::chrono::duration<double>(0.); ///< The average time needed for the last submission
+
+	 std::size_t m_returnedLast = 0; ///< The number of individuals returned in the last iteration cycle
+	 std::size_t m_notReturnedLast = 0; ///< The number of individuals MOT returned in the last iteration cycle
 };
 
 /******************************************************************************/
@@ -827,6 +841,7 @@ class GBrokerConnector2T
 		 & BOOST_SERIALIZATION_NVP(m_doLogging)
 		 & BOOST_SERIALIZATION_NVP(m_gpd)
 		 & BOOST_SERIALIZATION_NVP(m_waiting_times_graph)
+		 & BOOST_SERIALIZATION_NVP(m_returned_items_graph)
 		 & BOOST_SERIALIZATION_NVP(m_waitFactorWarningEmitted);
 	 }
 
@@ -845,14 +860,19 @@ public:
 	    , m_maxResubmissions(DEFAULTMAXRESUBMISSIONS)
 		 , m_waitFactor(DEFAULTBROKERWAITFACTOR2)
 	    , m_initialWaitFactor(DEFAULTINITIALBROKERWAITFACTOR2)
-		 , m_gpd("Maximum waiting times", 1, 1)
+		 , m_gpd("Maximum waiting times and returned items", 1, 2)
 	 {
-		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1200));
+		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1600));
 
 		 m_waiting_times_graph = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
 		 m_waiting_times_graph->setXAxisLabel("Iteration");
 		 m_waiting_times_graph->setYAxisLabel("Maximum waiting time [s]");
 		 m_waiting_times_graph->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+
+		 m_returned_items_graph = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+		 m_returned_items_graph->setXAxisLabel("Iteration");
+		 m_returned_items_graph->setYAxisLabel("Number of returned items");
+		 m_returned_items_graph->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 	 }
 
 	 /***************************************************************************/
@@ -867,14 +887,19 @@ public:
 		 , m_maxResubmissions(DEFAULTMAXRESUBMISSIONS)
 		 , m_waitFactor(DEFAULTBROKERWAITFACTOR2)
 		 , m_initialWaitFactor(DEFAULTINITIALBROKERWAITFACTOR2)
-		 , m_gpd("Maximum waiting times", 1, 1)
+		 , m_gpd("Maximum waiting times and returned items", 1, 2)
 	 {
-		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1200));
+		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1600));
 
 		 m_waiting_times_graph = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
 		 m_waiting_times_graph->setXAxisLabel("Iteration");
 		 m_waiting_times_graph->setYAxisLabel("Maximum waiting time [s]");
 		 m_waiting_times_graph->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+
+		 m_returned_items_graph = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+		 m_returned_items_graph->setXAxisLabel("Iteration");
+		 m_returned_items_graph->setYAxisLabel("Number of returned items");
+		 m_returned_items_graph->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 	 }
 
 	 /***************************************************************************/
@@ -890,15 +915,20 @@ public:
 		 , m_waitFactor(cp.m_waitFactor)
 		 , m_initialWaitFactor(cp.m_initialWaitFactor)
 		 , m_doLogging(cp.m_doLogging)
-		 , m_gpd("Maximum waiting times", 1, 1) // Intentionally not copied
+		 , m_gpd("Maximum waiting times and returned items", 1, 2) // Intentionally not copied
 	 	 , m_waitFactorWarningEmitted(cp.m_waitFactorWarningEmitted)
 	 {
-		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1200));
+		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1600));
 
 		 m_waiting_times_graph = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
 		 m_waiting_times_graph->setXAxisLabel("Iteration");
 		 m_waiting_times_graph->setYAxisLabel("Maximum waiting time [s]");
 		 m_waiting_times_graph->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+
+		 m_returned_items_graph = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+		 m_returned_items_graph->setXAxisLabel("Iteration");
+		 m_returned_items_graph->setYAxisLabel("Number of returned items");
+		 m_returned_items_graph->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 	 }
 
 	 /***************************************************************************/
@@ -912,8 +942,9 @@ public:
 	 {
 		 // Register the plotter
 		 m_gpd.registerPlotter(m_waiting_times_graph);
+		 m_gpd.registerPlotter(m_returned_items_graph);
 
-		 // Write out the result.
+		 // Write out the result. This is a hack.
 		 if(m_waiting_times_graph->currentSize() > 0.) {
 			 m_gpd.writeToFile("maximumWaitingTimes.C");
 		 }
@@ -1368,11 +1399,14 @@ private:
 			 // remaining items times the return time needed for the first item times a custom wait factor for the first submission.
 			 // This may be very long, but takes care of a situation where there is only a single worker.
 			 currentElapsed = std::chrono::system_clock::now() - GBaseExecutorT<processable_type>::m_iterationStartTime;
-			 maxTimeout = currentElapsed * GBaseExecutorT<processable_type>::m_expectedNumber * m_initialWaitFactor;
+			 maxTimeout =
+				 currentElapsed
+				 * boost::numeric_cast<double>(GBaseExecutorT<processable_type>::m_expectedNumber)
+				 * m_initialWaitFactor;
 		 } else { // We are dealing with an iteration > 0
 #ifdef DEBUG
 			 if(!m_waitFactorWarningEmitted) {
-				 if(m_waitFactor < 1.) {
+				 if(m_waitFactor > 0. && m_waitFactor < 1.) {
 					 glogger
 					 << "In GBrokerConnector2T::waitForTimeOut(): Warning" << std::endl
 					 << "It is suggested not to use a wait time < 1. Current value: " << m_waitFactor << std::endl
@@ -1382,11 +1416,16 @@ private:
 #endif
 
 			 maxTimeout =
-				 GBaseExecutorT<processable_type>::m_lastAverage * GBaseExecutorT<processable_type>::m_expectedNumber * m_waitFactor;
+				 GBaseExecutorT<processable_type>::m_lastAverage
+				 // * boost::numeric_cast<double>((std::max)(this->getNReturned(),std::size_t(1)))
+				 * boost::numeric_cast<double>(GBaseExecutorT<processable_type>::m_expectedNumber)
+				 * m_waitFactor;
 		 }
 
 		 // TODO: This is a hack. Submitted for current debugging purposes
 		 m_waiting_times_graph->add(std::make_tuple(double(current_iteration), maxTimeout.count()));
+		 m_returned_items_graph->add(std::make_tuple(double(current_iteration), boost::numeric_cast<double>(this->getNReturned())));
+
 		 if (0 == current_iteration) {
 			 std::cout
 				 << "Maximum waiting time in iteration " << current_iteration << ": " << maxTimeout.count()
@@ -1577,6 +1616,7 @@ private:
 
 	 Gem::Common::GPlotDesigner m_gpd; ///< A wrapper for the plots
 	 std::shared_ptr<Gem::Common::GGraph2D> m_waiting_times_graph;  ///< The maximum waiting time resulting from the wait factor
+	 std::shared_ptr<Gem::Common::GGraph2D> m_returned_items_graph;  ///< The maximum waiting time resulting from the wait factor
 
 	 bool m_waitFactorWarningEmitted = false; ///< Specifies whether a warning about a small waitFactor has already been emitted
 };
