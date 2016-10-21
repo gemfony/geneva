@@ -65,9 +65,13 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * This individual waits for a predefined amount time before returning the result of the evaluation
- * (which is always the same). Its purpose is to measure the overhead of the parallelization, compared
- * to the serial execution.
+ * This individual waits for a predefined amount of time before returning the result of the evaluation
+ * (which is random). Its purpose is to measure the overhead of the parallelization, compared
+ * to the serial execution. It may also be used to track down problems in the broker, as the execution
+ * time is well-defined, and the calculation of wait factors depends on fewer variables. Apart from fixed
+ * "processing times" the individual may also wait random amounts of time in a predefined window, or may
+ * crash with a predefined likelihood. This allows to test the stability of the communication between
+ * clients and server.
  */
 class GDelayIndividual: public Gem::Geneva::GParameterSet
 {
@@ -103,46 +107,47 @@ class GDelayIndividual: public Gem::Geneva::GParameterSet
 
 public:
 	 /** The default constructor */
-	 GDelayIndividual();
+	 G_API_INDIVIDUALS GDelayIndividual();
 	 /** @brief A standard copy constructor */
-	 GDelayIndividual(const GDelayIndividual&);
+	 G_API_INDIVIDUALS GDelayIndividual(const GDelayIndividual&);
 	 /** @brief The standard destructor */
-	 virtual ~GDelayIndividual();
+	 virtual G_API_INDIVIDUALS ~GDelayIndividual();
 
 	 /** @brief A standard assignment operator */
-	 const GDelayIndividual& operator=(const GDelayIndividual&);
+	 G_API_INDIVIDUALS const GDelayIndividual& operator=(const GDelayIndividual&);
 
 	 /** @brief Checks for equality with another GDelayIndividual object */
-	 bool operator==(const GDelayIndividual&) const;
+	 G_API_INDIVIDUALS bool operator==(const GDelayIndividual&) const;
 	 /** @brief Checks for inequality with another GDelayIndividual object */
-	 bool operator!=(const GDelayIndividual&) const;
+	 G_API_INDIVIDUALS bool operator!=(const GDelayIndividual&) const;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_GENEVA void compare(
+	 virtual G_API_INDIVIDUALS void compare(
 		 const GObject& // the other object
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types
 	 ) const final;
 
 	 /** @brief Sets the sleep-time to a user-defined value */
-	 void setSleepTime(const std::chrono::duration<double>&);
+	 G_API_INDIVIDUALS void setSleepTime(const std::chrono::duration<double>&);
 	 /** @brief Retrieval of the current value of the sleepTime_ variable */
-	 std::chrono::duration<double> getSleepTime() const;
+	 G_API_INDIVIDUALS std::chrono::duration<double> getSleepTime() const;
 
 protected:
 	 /** @brief Loads the data of another GDelayIndividual, camouflaged as a GObject */
-	 virtual void load_(const GObject*) final;
+	 G_API_INDIVIDUALS virtual void load_(const GObject*) final;
 	 /** @brief Creates a deep clone of this object */
-	 virtual Gem::Geneva::GObject* clone_() const final;
+	 virtual G_API_INDIVIDUALS Gem::Geneva::GObject* clone_() const final;
 
 	 /** @brief The actual adaption operations */
-	 virtual std::size_t customAdaptions() final;
+	 virtual G_API_INDIVIDUALS std::size_t customAdaptions() final;
 	 /** @brief The actual fitness calculation takes place here */
-	 virtual double fitnessCalculation() final;
+	 virtual G_API_INDIVIDUALS double fitnessCalculation() final;
 
 private:
 	 std::chrono::duration<double> sleepTime_; ///< The amount of time the evaluation function should sleep before continuing
 	 std::uniform_real_distribution<double> uniform_real_distribution; ///< Access to uniformly distributed floating point numbers
+
 };
 
 /******************************************************************************/
