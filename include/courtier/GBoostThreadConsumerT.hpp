@@ -371,7 +371,8 @@ protected:
 	/**
 	 * Takes a boost::program_options::variables_map object and checks for supplied options.
 	 */
-	virtual void actOnCLOptions(const boost::program_options::variables_map &vm) { /* nothing */ }
+	virtual void actOnCLOptions(const boost::program_options::variables_map &vm) override
+	{ /* nothing */ }
 
 private:
 	/***************************************************************************/
