@@ -88,14 +88,14 @@ class GDelayIndividual: public Gem::Geneva::GParameterSet
 		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Geneva::GParameterSet)
 		 & BOOST_SERIALIZATION_NVP(dSleepTime);
 
-		 sleepTime_ = std::chrono::duration<double>(dSleepTime);
+		 m_sleepTime = std::chrono::duration<double>(dSleepTime);
 	 }
 
 	 template<typename Archive>
 	 void save(Archive &ar, const unsigned int) const {
 	 	using boost::serialization::make_nvp;
 
-		 double dSleepTime = sleepTime_.count();
+		 double dSleepTime = m_sleepTime.count();
 
 		 ar
 		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Geneva::GParameterSet)
@@ -130,7 +130,7 @@ public:
 
 	 /** @brief Sets the sleep-time to a user-defined value */
 	 G_API_INDIVIDUALS void setSleepTime(const std::chrono::duration<double>&);
-	 /** @brief Retrieval of the current value of the sleepTime_ variable */
+	 /** @brief Retrieval of the current value of the m_sleepTime variable */
 	 G_API_INDIVIDUALS std::chrono::duration<double> getSleepTime() const;
 
 protected:
@@ -145,9 +145,8 @@ protected:
 	 virtual G_API_INDIVIDUALS double fitnessCalculation() final;
 
 private:
-	 std::chrono::duration<double> sleepTime_; ///< The amount of time the evaluation function should sleep before continuing
-	 std::uniform_real_distribution<double> uniform_real_distribution; ///< Access to uniformly distributed floating point numbers
-
+	 std::chrono::duration<double> m_sleepTime; ///< The amount of time the evaluation function should sleep before continuing
+	 std::uniform_real_distribution<double> m_uniform_real_distribution; ///< Access to uniformly distributed floating point numbers
 };
 
 /******************************************************************************/
@@ -196,13 +195,13 @@ private:
 	 /** @brief Converts a tuple to a time format */
 	 std::chrono::duration<double> tupleToTime(const std::tuple<unsigned int, unsigned int>&);
 
-	 std::size_t nVariables_;
-	 std::string delays_;
-	 std::vector<std::tuple<unsigned int, unsigned int>> sleepTimes_;
-	 std::string resultFile_;
-	 std::string shortResultFile_;
-	 std::uint32_t nMeasurements_; ///< The number of measurements for each delay
-	 std::uint32_t interMeasurementDelay_; ///< The delay between two measurements
+	 std::size_t m_nVariables;
+	 std::string m_delays;
+	 std::vector<std::tuple<unsigned int, unsigned int>> m_sleepTimes;
+	 std::string m_resultFile;
+	 std::string m_shortResultFile;
+	 std::uint32_t m_nMeasurements; ///< The number of measurements for each delay
+	 std::uint32_t m_interMeasurementDelay; ///< The delay between two measurements
 };
 
 /******************************************************************************/

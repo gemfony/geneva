@@ -44,7 +44,7 @@ namespace Geneva {
  * The default constructor. Intentionally private -- needed only for (de-)serialization.
  */
 GDelayIndividual::GDelayIndividual()
-	: sleepTime_(std::chrono::seconds(1))
+	: m_sleepTime(std::chrono::seconds(1))
 { /* nothing */ }
 
 /******************************************************************************/
@@ -55,7 +55,7 @@ GDelayIndividual::GDelayIndividual()
  */
 GDelayIndividual::GDelayIndividual(const GDelayIndividual& cp)
 	: Gem::Geneva::GParameterSet(cp)
-	, sleepTime_(cp.sleepTime_)
+	, m_sleepTime(cp.m_sleepTime)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -136,7 +136,7 @@ void GDelayIndividual::compare(
 	Gem::Common::compare_base<Gem::Geneva::GParameterSet>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
-	Gem::Common::compare_t(IDENTITY(sleepTime_.count(), p_load->sleepTime_.count()), token);
+	Gem::Common::compare_t(IDENTITY(m_sleepTime.count(), p_load->m_sleepTime.count()), token);
 
 	// React on deviations from the expectation
 	token.evaluate();
@@ -156,7 +156,7 @@ void GDelayIndividual::load_(const Gem::Geneva::GObject* cp){
 	Gem::Geneva::GParameterSet::load_(cp);
 
 	// ... and then our own.
-	sleepTime_ = p_load->sleepTime_;
+	m_sleepTime = p_load->m_sleepTime;
 }
 
 /******************************************************************************/
@@ -185,20 +185,20 @@ std::size_t GDelayIndividual::customAdaptions() { return std::size_t(1); }
  */
 double GDelayIndividual::fitnessCalculation() {
 	// Sleep for the desired amount of time
-	std::this_thread::sleep_for(sleepTime_);
+	std::this_thread::sleep_for(m_sleepTime);
 
 	// Return a random value - we do not perform any real optimization
-	return uniform_real_distribution(gr);
+	return m_uniform_real_distribution(gr);
 }
 
 /******************************************************************************/
 /**
- * Retrieval of the current value of the sleepTime_ variable
+ * Retrieval of the current value of the m_sleepTime variable
  *
- * @return The current value of the sleepTime_ variable
+ * @return The current value of the m_sleepTime variable
  */
 std::chrono::duration<double> GDelayIndividual::getSleepTime() const {
-	return sleepTime_;
+	return m_sleepTime;
 }
 
 /******************************************************************************/
@@ -206,7 +206,7 @@ std::chrono::duration<double> GDelayIndividual::getSleepTime() const {
  * Sets the sleep-time to a user-defined value
  */
 void GDelayIndividual::setSleepTime(const std::chrono::duration<double>& sleepTime) {
-	sleepTime_ = sleepTime;
+	m_sleepTime = sleepTime;
 }
 
 /******************************************************************************/
@@ -217,11 +217,11 @@ void GDelayIndividual::setSleepTime(const std::chrono::duration<double>& sleepTi
  */
 GDelayIndividualFactory::GDelayIndividualFactory(const std::string& cF)
 	: Gem::Common::GFactoryT<Gem::Geneva::GParameterSet>(cF)
-	, nVariables_(100)
-	, resultFile_("networkResults.C")
-	, shortResultFile_("shortDelayResults.txt")
-	, nMeasurements_(10)
-	, interMeasurementDelay_(1)
+	, m_nVariables(100)
+	, m_resultFile("fullResults.C")
+	, m_shortResultFile("shortDelayResults.txt")
+	, m_nMeasurements(10)
+	, m_interMeasurementDelay(1)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -238,7 +238,7 @@ GDelayIndividualFactory::~GDelayIndividualFactory()
  * @return The Name of the result file
  */
 std::string GDelayIndividualFactory::getResultFileName() const {
-	return resultFile_;
+	return m_resultFile;
 }
 
 /******************************************************************************/
@@ -248,7 +248,7 @@ std::string GDelayIndividualFactory::getResultFileName() const {
  * @return The file name holding short measurement results
  */
 std::string GDelayIndividualFactory::getShortResultFileName() const {
-	return shortResultFile_;
+	return m_shortResultFile;
 }
 
 /******************************************************************************/
@@ -258,7 +258,7 @@ std::string GDelayIndividualFactory::getShortResultFileName() const {
  * @return The number of delays provided by the user
  */
 std::size_t GDelayIndividualFactory::getNDelays() const {
-	return sleepTimes_.size();
+	return m_sleepTimes.size();
 }
 
 /******************************************************************************/
@@ -268,7 +268,7 @@ std::size_t GDelayIndividualFactory::getNDelays() const {
  * @return The number of measurements to be made for each delay
  */
 std::uint32_t GDelayIndividualFactory::getNMeasurements() const {
-	return nMeasurements_;
+	return m_nMeasurements;
 }
 
 /******************************************************************************/
@@ -276,7 +276,7 @@ std::uint32_t GDelayIndividualFactory::getNMeasurements() const {
  * Retrieves the amount of seconds main() should wait between two measurements
  */
 std::uint32_t GDelayIndividualFactory::getInterMeasurementDelay() const {
-	return interMeasurementDelay_;
+	return m_interMeasurementDelay;
 }
 
 /******************************************************************************/
@@ -286,7 +286,7 @@ std::uint32_t GDelayIndividualFactory::getInterMeasurementDelay() const {
  * @return The sleep times, as determined by this object
  */
 std::vector<std::tuple<unsigned int, unsigned int>> GDelayIndividualFactory::getSleepTimes() const {
-	return sleepTimes_;
+	return m_sleepTimes;
 }
 
 /******************************************************************************/
@@ -320,38 +320,38 @@ void GDelayIndividualFactory::describeLocalOptions_(
 
 	gpb.registerFileParameter(
 		"nVariables"
-		, nVariables_
-		, nVariables_
+		, m_nVariables
+		, m_nVariables
 	) << "The number of variables to act on";
 
 	gpb.registerFileParameter(
 		"delays"
-		, delays_
+		, m_delays
 		, default_delays
 	) << "A list of delays through which main() should cycle. Format: seconds:milliseconds";
 
 	gpb.registerFileParameter(
 		"resultFile"
-		, resultFile_
-		, resultFile_
+		, m_resultFile
+		, m_resultFile
 	) << "The name of a file to which results should be stored";
 
 	gpb.registerFileParameter(
 		"shortResultFile"
-		, shortResultFile_
-		, shortResultFile_
+		, m_shortResultFile
+		, m_shortResultFile
 	) << "The name of a file to which short results should be stored";
 
 	gpb.registerFileParameter(
 		"nMeasurements"
-		, nMeasurements_
-		, nMeasurements_
+		, m_nMeasurements
+		, m_nMeasurements
 	) << "The number of measurements for each delay";
 
 	gpb.registerFileParameter(
 		"interMeasurementDelay"
-		, interMeasurementDelay_
-		, interMeasurementDelay_
+		, m_interMeasurementDelay
+		, m_interMeasurementDelay
 	) << "The amount of seconds to wait between two measurements";
 }
 
@@ -370,7 +370,7 @@ void GDelayIndividualFactory::postProcess_(
 	std::size_t id = this->getId();
 
 	// Make sure the textual delays are converted to time measurements
-	sleepTimes_ = Gem::Common::stringToUIntTupleVec(delays_);
+	m_sleepTimes = Gem::Common::stringToUIntTupleVec(m_delays);
 
 	// Convert the base pointer to the target type
 	std::shared_ptr<GDelayIndividual> p
@@ -378,7 +378,7 @@ void GDelayIndividualFactory::postProcess_(
 
 	if(Gem::Common::GFACTORYWRITEID==id) {
 		// Calculate the current sleep time
-		std::chrono::duration<double> sleepTime = this->tupleToTime(sleepTimes_.at(0));
+		std::chrono::duration<double> sleepTime = this->tupleToTime(m_sleepTimes.at(0));
 
 		std::cout
 		<< "Producing individual in write mode with sleep time = " << sleepTime.count() << " s" << std::endl;
@@ -390,7 +390,7 @@ void GDelayIndividualFactory::postProcess_(
 
 		// Set up nVariables GConstrainedDoubleObject objects in the desired value range,
 		// and register them with the collection. The configuration parameters don't matter for this use case
-		for(std::size_t var=0; var<nVariables_; var++) {
+		for(std::size_t var=0; var<m_nVariables; var++) {
 			std::shared_ptr<Gem::Geneva::GDoubleObject> gbd_ptr(new Gem::Geneva::GDoubleObject(0.5));
 			std::shared_ptr<Gem::Geneva::GDoubleGaussAdaptor> gdga_ptr(new Gem::Geneva::GDoubleGaussAdaptor(0.025, 0.1, 0., 1.));
 			gdga_ptr->setAdaptionThreshold(1);
@@ -402,9 +402,9 @@ void GDelayIndividualFactory::postProcess_(
 
 		// Make the GDoubleObjectCollection known to the individual
 		p->push_back(gbdc_ptr);
-	} else if((id-Gem::Common::GFACTTORYFIRSTID) < sleepTimes_.size()) {
+	} else if((id-Gem::Common::GFACTTORYFIRSTID) < m_sleepTimes.size()) {
 		// Calculate the current sleep time
-		std::chrono::duration<double> sleepTime = this->tupleToTime(sleepTimes_.at(id-Gem::Common::GFACTTORYFIRSTID));
+		std::chrono::duration<double> sleepTime = this->tupleToTime(m_sleepTimes.at(id-Gem::Common::GFACTTORYFIRSTID));
 
 		std::cout
 		<< "Producing individual " << (id-Gem::Common::GFACTTORYFIRSTID) << " with sleep time = " << sleepTime.count() << " s" << std::endl;
@@ -416,7 +416,7 @@ void GDelayIndividualFactory::postProcess_(
 
 		// Set up nVariables GConstrainedDoubleObject objects in the desired value range,
 		// and register them with the collection. The configuration parameters don't matter for this use case
-		for(std::size_t var=0; var<nVariables_; var++) {
+		for(std::size_t var=0; var<m_nVariables; var++) {
 			std::shared_ptr<Gem::Geneva::GDoubleObject> gbd_ptr(new Gem::Geneva::GDoubleObject(0.5));
 			std::shared_ptr<Gem::Geneva::GDoubleGaussAdaptor> gdga_ptr(new Gem::Geneva::GDoubleGaussAdaptor(0.025, 0.1, 0., 1.));
 			gdga_ptr->setAdaptionThreshold(1);
