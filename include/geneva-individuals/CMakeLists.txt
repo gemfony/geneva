@@ -1,6 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 SET ( SAMPLEINDIVIDUALINCLUDES
+    GDelayIndividual.hpp
 	GExternalEvaluatorIndividual.hpp
 	GFunctionIndividual.hpp
 	GLineFitIndividual.hpp

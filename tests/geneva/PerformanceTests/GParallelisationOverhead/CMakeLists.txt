@@ -49,7 +49,6 @@ ENDIF ()
 SET ( EXECUTABLENAME GParallelisationOverhead )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GDelayIndividual
 	GParallelisationOverhead
 )
 

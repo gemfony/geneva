@@ -61,7 +61,7 @@
 #include "geneva/GDoubleGaussAdaptor.hpp"
 
 namespace Gem {
-namespace Tests {
+namespace Geneva {
 
 /******************************************************************************/
 /**
@@ -204,9 +204,9 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Tests */
+} /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Tests::GDelayIndividual)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDelayIndividual)
 
 #endif /* GDELAYINDIVIDUAL_HPP_ */

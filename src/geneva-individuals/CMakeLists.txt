@@ -1,6 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 SET ( SAMPLEINDIVIDUALSOURCES
+    GDelayIndividual
 	GExternalEvaluatorIndividual
 	GFunctionIndividual
 	GLineFitIndividual

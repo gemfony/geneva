@@ -40,6 +40,8 @@ The main changes for this release include:
    ability to automatically detect ranges
  - Added the option to set the initial wait factor of GBrokerConnector2T in the config file
 	of optimization algorithms
+ - The maximum size of GBoundedBufferT is now defined via a value template parameter, and
+   unbounded buffers are possible (set the capacity to 0)
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.8, "Torino" - August 13, 2016

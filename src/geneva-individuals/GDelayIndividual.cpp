@@ -32,12 +32,12 @@
  * http://www.gemfony.eu .
  */
 
-#include "GDelayIndividual.hpp"
+#include "geneva-individuals/GDelayIndividual.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Tests::GDelayIndividual)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDelayIndividual)
 
 namespace Gem {
-namespace Tests {
+namespace Geneva {
 
 /******************************************************************************/
 /**
@@ -450,5 +450,5 @@ std::chrono::duration<double> GDelayIndividualFactory::tupleToTime(const std::tu
 
 /******************************************************************************/
 
-} /* namespace Tests */
+} /* namespace Geneva */
 } /* namespace Gem */
