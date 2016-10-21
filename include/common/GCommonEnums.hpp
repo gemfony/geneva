@@ -95,7 +95,16 @@ namespace Gem {
 namespace Common {
 
 /******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
+/**
+ * By default GBoundedBufferT will have this size. As the buffer
+ * dynamically grows and shrinks, we choose a very high value. This
+ * is a safeguard against errors like endless loops that might keep
+ * filling the buffer until memory is exhausted. In normal work
+ * conditions, however, the buffer should never reach its upper
+ * limit.
+ */
+const std::size_t DEFAULTBUFFERSIZE = 20000;
+
 /******************************************************************************/
 // A basetype used for all enums in Geneva
 // typedef std::uint16_t ENUMBASETYPE;

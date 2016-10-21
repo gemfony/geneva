@@ -102,6 +102,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GPlotDesigner.hpp"
 #include "common/GLogger.hpp"
+#include "common/GCommonEnums.hpp"
 
 namespace Gem {
 namespace Common {
@@ -126,17 +127,6 @@ class condition_time_out : public std::exception
 
 /******************************************************************************/
 /**
- * By default the buffer will have this size. As the buffer
- * dynamically grows and shrinks, we choose a very high value. This
- * is a safeguard against errors like endless loops that might keep
- * filling the buffer until memory is exhausted. In normal work
- * conditions, however, the buffer should never reach its upper
- * limit.
- */
-const std::size_t DEFAULTBUFFERSIZE = 20000;
-
-/******************************************************************************/
-/**
  * This class implements a bounded buffer. Items can be added to one
  * end by multiple threads and retrieved from the other, also by
  * multiple threads. When the buffer is full, attempts to add items
@@ -149,9 +139,11 @@ const std::size_t DEFAULTBUFFERSIZE = 20000;
  * to network failure). The underlying data structure is a
  * std::deque. The class works with condition variables.  Note that
  * this class assumes that an operator= is available for the items
- * stored in the buffer.
+ * stored in the buffer. Setting the template argument t_capacity to 0
+ * results in an unbounded buffer, possibly useful for returning items,
+ * if there may never be an "inflation".
  */
-template<typename T>
+template<typename T, std::size_t t_capacity = DEFAULTBUFFERSIZE>
 class GBoundedBufferT
 	: private boost::noncopyable
 {
@@ -166,18 +158,6 @@ public:
 	  * The default constructor. Sets up a buffer of size DEFAULTBUFFERSIZE.
 	  */
 	 GBoundedBufferT()
-		 : m_capacity(DEFAULTBUFFERSIZE)
-	 { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * A constructor that creates a buffer with custom size "capacity".
-	  * It enforces a minimum buffer size of 1.
-	  *
-	  * @param capacity The desired size of the buffer
-	  */
-	 explicit GBoundedBufferT(const std::size_t &capacity)
-		 : m_capacity(capacity ? capacity : 1)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -223,7 +203,10 @@ public:
 		 std::unique_lock<std::mutex> lock(m_mutex);
 		 // Note that this overload of wait() internally runs a loop on its predicate to
 		 // deal with spurious wakeups
-		 m_not_full.wait(lock, buffer_not_full(m_container, m_capacity));
+		 m_not_full.wait(
+			 lock
+			 , [&]() -> bool { return (t_capacity==0)?true:(m_container.size()<t_capacity); } // will always signal "not full" if t_capacity is == 0
+		 );
 		 m_container.push_front(std::move(item));
 		 m_not_empty.notify_one();
 	 }
@@ -239,7 +222,11 @@ public:
 	  */
 	 void push_front(value_type item, const std::chrono::duration<double> &timeout) {
 		 std::unique_lock<std::mutex> lock(m_mutex);
-		 if (!m_not_full.wait_for(lock, std::chrono::duration_cast<std::chrono::milliseconds>(timeout), buffer_not_full(m_container, m_capacity))) {
+		 if (!m_not_full.wait_for(
+			 lock
+			 , std::chrono::duration_cast<std::chrono::milliseconds>(timeout)
+			 , [&]() -> bool { return (t_capacity==0)?true:(m_container.size()<t_capacity); }
+		 )) {
 			 throw Gem::Common::condition_time_out();
 		 }
 		 m_container.push_front(std::move(item));
@@ -258,7 +245,11 @@ public:
 	  */
 	 bool push_front_bool(value_type item, const std::chrono::duration<double> &timeout) {
 		 std::unique_lock<std::mutex> lock(m_mutex);
-		 if (!m_not_full.wait_for(lock, std::chrono::duration_cast<std::chrono::milliseconds>(timeout), buffer_not_full(m_container, m_capacity))) {
+		 if (!m_not_full.wait_for(
+			 lock
+			 , std::chrono::duration_cast<std::chrono::milliseconds>(timeout)
+			 , [&]() -> bool { return (t_capacity==0)?true:(m_container.size()<t_capacity); }
+		 )) {
 			 return false;
 		 }
 		 m_container.push_front(std::move(item));
@@ -276,15 +267,10 @@ public:
 	  */
 	 void pop_back(value_type &item) {
 		 std::unique_lock<std::mutex> lock(m_mutex);
-		 m_not_empty.wait(lock, buffer_not_empty(m_container));
-
-#ifdef DEBUG
-		 if(m_container.empty()) {
-			 glogger
-				 << "In GBoundedBufferT<T>::pop_back(item): Container is empty when it shouldn't be!" << std::endl
-				 << GEXCEPTION;
-		 }
-#endif /* DEBUG */
+		 m_not_empty.wait(
+			 lock
+			 , [&]() -> bool { return !m_container.empty(); }
+		 );
 
 		 item = std::move(m_container.back());
 		 m_container.pop_back();
@@ -302,17 +288,13 @@ public:
 	  */
 	 void pop_back(value_type &item, const std::chrono::duration<double> &timeout) {
 		 std::unique_lock<std::mutex> lock(m_mutex);
-		 if (!m_not_empty.wait_for(lock, std::chrono::duration_cast<std::chrono::milliseconds>(timeout), buffer_not_empty(m_container))) {
+		 if (!m_not_empty.wait_for(
+			 lock
+			 , std::chrono::duration_cast<std::chrono::milliseconds>(timeout)
+			 , [&]() -> bool { return !m_container.empty(); }
+		 )) {
 			 throw Gem::Common::condition_time_out();
 		 }
-
-#ifdef DEBUG
-		 if(m_container.empty()) {
-			 glogger
-				 << "In GBoundedBufferT<T>::pop_back(item,timeout): Container is empty when it shouldn't be!" << std::endl
-				 << GEXCEPTION;
-		 }
-#endif /* DEBUG */
 
 		 item = std::move(m_container.back());
 		 m_container.pop_back();
@@ -332,17 +314,13 @@ public:
 	  */
 	 bool pop_back_bool(value_type &item, const std::chrono::duration<double> &timeout) {
 		 std::unique_lock<std::mutex> lock(m_mutex);
-		 if (!m_not_empty.wait_for(lock, std::chrono::duration_cast<std::chrono::milliseconds>(timeout), buffer_not_empty(m_container))) {
+		 if (!m_not_empty.wait_for(
+			 lock
+			 , std::chrono::duration_cast<std::chrono::milliseconds>(timeout)
+			 , [&]() -> bool { return !m_container.empty(); }
+		 )) {
 			 return false;
 		 }
-
-#ifdef DEBUG
-		 if(m_container.empty()) {
-			 glogger
-				 << "In GBoundedBufferT<T>::pop_back_bool(item,timeout): Container is empty when it shouldn't be!" << std::endl
-				 << GEXCEPTION;
-		 }
-#endif /* DEBUG */
 
 		 item = std::move(m_container.back()); // Assign the item at the back of the container
 		 m_container.pop_back(); // Remove it from the container
@@ -359,7 +337,7 @@ public:
 	  * @return The maximum allowed capacity
 	  */
 	 std::size_t getCapacity() const {
-		 return m_capacity;
+		 return t_capacity;
 	 }
 
 	 /***************************************************************************/
@@ -372,7 +350,7 @@ public:
 	  */
 	 std::size_t remainingSpace() {
 		 std::unique_lock<std::mutex> lock(m_mutex);
-		 return m_capacity - m_container.size();
+		 return t_capacity - m_container.size();
 	 }
 
 	 /***************************************************************************/
@@ -429,65 +407,7 @@ public:
 
 protected:
 	 /***************************************************************************/
-	 /*
-	  * We want to be able to add custom producer threads. Hence the
-	  * following code is protected, not private.
-	  */
 
-	 /**
-	  * A function object that checks whether a given container is empty or not.
-	  * Note that this code is only called in a safe context, hence no protection
-	  * is necessary.
-	  */
-	 struct buffer_not_empty {
-	 public:
-		  /* @brief Initializes the local container reference */
-		  buffer_not_empty(
-			  const container_type &c
-		  )
-			  : m_c(c) { /* nothing */ }
-
-		  /** @brief Used for the actual test */
-		  bool operator()() const {
-			  return (!m_c.empty());
-		  }
-
-	 private:
-		  /** @brief Default constructor; intentionally private and undefined */
-		  buffer_not_empty() = delete;
-
-		  const container_type &m_c; ///< Holds a reference to the actual container
-	 };
-
-	 /**
-	  * A function object that checks whether a given container is full or not.
-	  * Note that this code is only called in a safe context, hence no protection
-	  * is necessary.
-	  */
-	 struct buffer_not_full {
-	 public:
-		  /* @brief Initializes the local container reference and the maximum capacity */
-		  buffer_not_full(
-			  const container_type &c, const std::size_t &capacity
-		  )
-			  : m_c(c), m_capacity(capacity) { /* nothing */ }
-
-		  /** @brief Used for the actual test */
-		  bool operator()() const {
-			  return (m_c.size() < m_capacity);
-		  }
-
-	 private:
-		  /** @brief Default constructor; intentionally private and undefined */
-		  buffer_not_full() = delete;
-
-		  const container_type &m_c;
-		  const std::size_t &m_capacity;
-	 };
-
-	 /***************************************************************************/
-
-	 const std::size_t m_capacity; ///< The maximum allowed size of the container
 	 container_type m_container; ///< The actual data store
 	 mutable std::mutex m_mutex; ///< Used for synchronization of access to the container
 	 std::condition_variable m_not_empty; ///< Used for synchronization of access to the container

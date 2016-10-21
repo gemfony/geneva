@@ -54,8 +54,6 @@ std::mutex Gem::Hap::GRandomFactory::factory_creation_mutex_;
 GRandomFactory::GRandomFactory()
   	: threads_started_(ATOMIC_FLAG_INIT)
 	, nProducerThreads_(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)))
-  	, p_fresh_bfr_(DEFAULTFACTORYBUFFERSIZE)
-  	, p_ret_bfr_(DEFAULTFACTORYBUFFERSIZE)
 	, seedCollection_(DEFAULTSEEDVECTORSIZE)
 	, seed_cit_(seedCollection_.begin())
 {

@@ -1417,14 +1417,14 @@ private:
 
 			 maxTimeout =
 				 GBaseExecutorT<processable_type>::m_lastAverage
-				 * boost::numeric_cast<double>((std::max)(this->getNReturned(),std::size_t(1))) // The nunber of items returned in the last iteration
-				 // * boost::numeric_cast<double>(GBaseExecutorT<processable_type>::m_expectedNumber)
+				 // * boost::numeric_cast<double>((std::max)(this->getNReturned(),std::size_t(1))) // The nunber of items returned in the last iteration
+				 * boost::numeric_cast<double>(GBaseExecutorT<processable_type>::m_expectedNumber)
 				 * m_waitFactor;
 		 }
 
 		 // TODO: This is a hack. Submitted for current debugging purposes
-		 m_waiting_times_graph->add(std::make_tuple(double(current_iteration), maxTimeout.count()));
-		 m_returned_items_graph->add(std::make_tuple(double(current_iteration), boost::numeric_cast<double>(this->getNReturned())));
+		 m_waiting_times_graph->add(std::make_tuple(boost::numeric_cast<double>(current_iteration), maxTimeout.count()));
+		 m_returned_items_graph->add(std::make_tuple(boost::numeric_cast<double>(current_iteration), boost::numeric_cast<double>(this->getNReturned())));
 
 		 if (0 == current_iteration) {
 			 std::cout

@@ -266,9 +266,9 @@ private:
 	 Gem::Common::GThreadGroup producer_threads_; ///< A thread group that holds [0,1[ producer threads
 
 	 /** @brief A bounded buffer holding the random number packages */
-	 Gem::Common::GBoundedBufferT<std::unique_ptr<random_container>> p_fresh_bfr_; // Note: Absolutely needs to be defined after the thread group !!!
+	 Gem::Common::GBoundedBufferT<std::unique_ptr<random_container>,DEFAULTFACTORYBUFFERSIZE> p_fresh_bfr_; // Note: Absolutely needs to be defined after the thread group !!!
 	 /** @brief A bounded buffer holding random number packages ready for recycling */
-	 Gem::Common::GBoundedBufferT<std::unique_ptr<random_container>> p_ret_bfr_;
+	 Gem::Common::GBoundedBufferT<std::unique_ptr<random_container>,DEFAULTFACTORYBUFFERSIZE> p_ret_bfr_;
 
 	 static std::uint16_t multiple_call_trap_; ///< Trap to catch multiple instantiations of this class
 	 static std::mutex factory_creation_mutex_; ///< Synchronization of access to multiple_call_trap in constructor
