@@ -470,8 +470,8 @@ protected:
 		 std::chrono::duration<double> iterationDuration = std::chrono::system_clock::now() - m_iterationStartTime;
 
 		 // Find out about the number of returned items
-		 std::size_t m_notReturnedLast = std::count(workItemPos.begin(), workItemPos.end(), true);
-		 std::size_t m_returnedLast = m_expectedNumber - m_notReturnedLast;
+		 m_notReturnedLast = std::count(workItemPos.begin(), workItemPos.end(), true);
+		 m_returnedLast = m_expectedNumber - m_notReturnedLast;
 
 #ifdef DEBUG
 		 std::cout << "Items returned: " << m_returnedLast << std::endl;
@@ -1417,8 +1417,8 @@ private:
 
 			 maxTimeout =
 				 GBaseExecutorT<processable_type>::m_lastAverage
-				 // * boost::numeric_cast<double>((std::max)(this->getNReturned(),std::size_t(1)))
-				 * boost::numeric_cast<double>(GBaseExecutorT<processable_type>::m_expectedNumber)
+				 * boost::numeric_cast<double>((std::max)(this->getNReturned(),std::size_t(1))) // The nunber of items returned in the last iteration
+				 // * boost::numeric_cast<double>(GBaseExecutorT<processable_type>::m_expectedNumber)
 				 * m_waitFactor;
 		 }
 
@@ -1439,7 +1439,8 @@ private:
 				 << GBaseExecutorT<processable_type>::m_expectedNumber << ", " << m_waitFactor << ")" << std::endl;
 	 	 }
 
-		 while (true) { // Loop until a timeout is reached or all current items have returned
+		 // Loop until a timeout is reached or all current items have returned
+		 while (true) {
 			 if(m_waitFactor > 0.) {
 				 if (currentElapsed > maxTimeout) {
 					 return false;
@@ -1463,7 +1464,10 @@ private:
 				 if (0 == current_iteration) {
 					 // Calculate average return times of work items in first iteration
 					 currentAverage = currentElapsed / ((std::max)(nReturnedCurrent, std::size_t(1))); // Avoid division by 0
-					 maxTimeout = currentAverage * GBaseExecutorT<processable_type>::m_expectedNumber * m_waitFactor;
+					 maxTimeout =
+						 currentAverage
+						 * GBaseExecutorT<processable_type>::m_expectedNumber
+						 * m_waitFactor;
 				 }
 
 				 // Update the elapsed time. Needs to be done after a retrieval
