@@ -304,11 +304,6 @@ std::tuple<double,double> GDelayIndividual::getSleepWindow() const {
  */
 GDelayIndividualFactory::GDelayIndividualFactory(const std::string& cF)
 	: Gem::Common::GFactoryT<Gem::Geneva::GParameterSet>(cF)
-	, m_nVariables(100)
-	, m_resultFile("fullResults.C")
-	, m_shortResultFile("shortDelayResults.txt")
-	, m_nMeasurements(10)
-	, m_interMeasurementDelay(1)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -402,44 +397,57 @@ std::shared_ptr<Gem::Geneva::GParameterSet> GDelayIndividualFactory::getObject_(
 void GDelayIndividualFactory::describeLocalOptions_(
 	Gem::Common::GParserBuilder& gpb
 ) {
-	// Default values for the delay string
-	std::string default_delays = "(0,1), (0,10), (0,100), (0,500), (1,0)";
-
 	gpb.registerFileParameter(
 		"nVariables"
 		, m_nVariables
-		, m_nVariables
+		, m_nVariables // The default value
 	) << "The number of variables to act on";
 
 	gpb.registerFileParameter(
 		"delays"
 		, m_delays
-		, default_delays
+		, m_delays // The default value
 	) << "A list of delays through which main() should cycle. Format: seconds:milliseconds";
 
 	gpb.registerFileParameter(
 		"resultFile"
 		, m_resultFile
-		, m_resultFile
+		, m_resultFile // The default value
 	) << "The name of a file to which results should be stored";
 
 	gpb.registerFileParameter(
 		"shortResultFile"
 		, m_shortResultFile
-		, m_shortResultFile
+		, m_shortResultFile // The default value
 	) << "The name of a file to which short results should be stored";
 
 	gpb.registerFileParameter(
 		"nMeasurements"
 		, m_nMeasurements
-		, m_nMeasurements
+		, m_nMeasurements // The default value
 	) << "The number of measurements for each delay";
 
 	gpb.registerFileParameter(
 		"interMeasurementDelay"
 		, m_interMeasurementDelay
-		, m_interMeasurementDelay
+		, m_interMeasurementDelay // The default value
 	) << "The amount of seconds to wait between two measurements";
+
+	gpb.registerFileParameter<bool, double>(
+		"mayThrow" // The name of the variable
+		, "throwLikelihood"
+		, m_mayCrash // The default value
+		, m_throwLikelihood
+		, [this](bool mayCrash, double throwLikelihood){
+			m_mayCrash = mayCrash;
+			// Enforce a throwLikelihood in the allowed value range
+			m_throwLikelihood = Gem::Common::enforceRangeConstraint(throwLikelihood, 0., 1.);
+		}
+		, "throwBehaviour"
+	)
+		<< "Indicates whether the fitness function may throw after the sleep time"
+		<< Gem::Common::nextComment()
+		<< "Indicates the likelihood that the fitness function throws";
 }
 
 /******************************************************************************/

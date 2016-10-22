@@ -202,33 +202,33 @@ class GDelayIndividualFactory
 {
 public:
 	 /** @brief The standard constructor */
-	 GDelayIndividualFactory(const std::string&);
+	 G_API_INDIVIDUALS GDelayIndividualFactory(const std::string&);
 	 /** @brief The destructor */
-	 virtual ~GDelayIndividualFactory();
+	 virtual G_API_INDIVIDUALS ~GDelayIndividualFactory();
 
 	 /** @brief Allows to retrieve the name of the result file */
-	 std::string getResultFileName() const;
+	 G_API_INDIVIDUALS std::string getResultFileName() const;
 	 /** @brief Allows to retrieve the name of the file holding the short measurement results */
-	 std::string getShortResultFileName() const;
+	 G_API_INDIVIDUALS std::string getShortResultFileName() const;
 	 /** @brief Allows to retrieve the number of delays requested by the user */
-	 std::size_t getNDelays() const;
+	 G_API_INDIVIDUALS std::size_t getNDelays() const;
 	 /** @brief Allows to retrieve the number of measurements to be made for each delay */
-	 std::uint32_t getNMeasurements() const;
+	 G_API_INDIVIDUALS std::uint32_t getNMeasurements() const;
 	 /** @brief Retrieves the amount of seconds main() should wait between two measurements */
-	 std::uint32_t getInterMeasurementDelay() const;
+	 G_API_INDIVIDUALS std::uint32_t getInterMeasurementDelay() const;
 	 /** @brief Retrieves the sleep times */
-	 std::vector<std::tuple<unsigned int, unsigned int>> getSleepTimes() const;
+	 G_API_INDIVIDUALS std::vector<std::tuple<unsigned int, unsigned int>> getSleepTimes() const;
 
 protected:
 	 /** @brief Creates individuals of this type */
-	 virtual std::shared_ptr<Gem::Geneva::GParameterSet> getObject_(
+	 virtual G_API_INDIVIDUALS std::shared_ptr<Gem::Geneva::GParameterSet> getObject_(
 		 Gem::Common::GParserBuilder&
 		 , const std::size_t&
 	 ) final;
 	 /** @brief Allows to describe local configuration options in derived classes */
-	 virtual void describeLocalOptions_(Gem::Common::GParserBuilder&) final;
+	 virtual G_API_INDIVIDUALS void describeLocalOptions_(Gem::Common::GParserBuilder&) final;
 	 /** @brief Allows to act on the configuration options received from the configuration file */
-	 virtual void postProcess_(std::shared_ptr<Gem::Geneva::GParameterSet>&) final;
+	 virtual G_API_INDIVIDUALS void postProcess_(std::shared_ptr<Gem::Geneva::GParameterSet>&) final;
 
 private:
 	 /** @brief The default constructor. Intentionally private and undefined */
@@ -237,13 +237,17 @@ private:
 	 /** @brief Converts a tuple to a time format */
 	 std::chrono::duration<double> tupleToTime(const std::tuple<unsigned int, unsigned int>&);
 
-	 std::size_t m_nVariables;
-	 std::string m_delays;
+	 std::size_t m_nVariables = 100;
+	 std::string m_delays = "(0,1), (0,10), (0,100), (0,500), (1,0)";
 	 std::vector<std::tuple<unsigned int, unsigned int>> m_sleepTimes;
-	 std::string m_resultFile;
-	 std::string m_shortResultFile;
-	 std::uint32_t m_nMeasurements; ///< The number of measurements for each delay
-	 std::uint32_t m_interMeasurementDelay; ///< The delay between two measurements
+	 std::string m_resultFile = "fullResults.C";
+	 std::string m_shortResultFile = "shortDelayResults.txt";
+	 std::uint32_t m_nMeasurements = 10; ///< The number of measurements for each delay
+	 std::uint32_t m_interMeasurementDelay = 1; ///< The delay between two measurements
+	 bool m_mayCrash = false; ///< Indicates whether the fitness function may throw at the end of the sleep time
+	 double m_throwLikelihood = 0.001; ///< The likelihood for an exception to be thrown from the fitness function
+	 bool m_sleepRandomly = false; /// Whether to sleep for a random amount of time instead of fixed amounts
+	 std::tuple<double,double> m_randSleepBoundaries = std::tuple<double,double>(1.,2.); ///< Boundaries in seconds for random sleep (min/max amount of delay)
 };
 
 /******************************************************************************/
