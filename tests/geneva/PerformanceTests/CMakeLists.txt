@@ -2,7 +2,9 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 ADD_CUSTOM_TARGET( "tests-geneva-performance"
 	# Add all the available test targets (EXECUTABLENAMEs) here
-	DEPENDS GBrokerOverhead
+	DEPENDS
+        GBrokerOverhead
+        GBrokerSanityChecks
 		GOptimizationBenchmark
 		GParallelisationOverhead
 		GSerializationOverhead
@@ -10,6 +12,7 @@ ADD_CUSTOM_TARGET( "tests-geneva-performance"
 )
 
 ADD_SUBDIRECTORY ( GBrokerOverhead )
+ADD_SUBDIRECTORY ( GBrokerSanityChecks )
 ADD_SUBDIRECTORY ( GOptimizationBenchmark )
 ADD_SUBDIRECTORY ( GParallelisationOverhead )
 ADD_SUBDIRECTORY ( GSerializationOverhead )
