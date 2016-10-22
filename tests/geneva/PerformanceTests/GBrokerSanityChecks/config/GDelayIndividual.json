@@ -1,7 +1,7 @@
 {
     "header": {
         "comment": "This configuration file was automatically created by GParserBuilder",
-        "comment": "2015-Nov-01 12:47:33"
+        "comment": "Sat Oct 22 21:48:15 2016"
     },
     "nVariables": {
         "comment": "The number of variables to act on",
@@ -13,10 +13,26 @@
         "default": "(0,1), (0,10), (0,100), (0,500), (1,0)",
         "value": "(0,1), (0,10), (0,100), (0,500), (1,0)"
     },
+    "sleepRandomly": {
+        "comment": "Indicates whether the individual should sleep for a random amount of time",
+        "comment": "rather than a fixed amount of time",
+        "default": "false",
+        "value": "false"
+    },
+    "lowerRandSleepBoundary": {
+        "comment": "The lower boundary for random sleep times in the fitness function",
+        "default": "1",
+        "value": "1"
+    },
+    "upperRandSleepBoundary": {
+        "comment": "The upper boundary for random sleep times in the fitness function",
+        "default": "2",
+        "value": "2"
+    },
     "resultFile": {
         "comment": "The name of a file to which results should be stored",
-        "default": "networkResults.C",
-        "value": "networkResults.C"
+        "default": "fullResults.C",
+        "value": "fullResults.C"
     },
     "shortResultFile": {
         "comment": "The name of a file to which short results should be stored",
@@ -32,6 +48,18 @@
         "comment": "The amount of seconds to wait between two measurements",
         "default": "1",
         "value": "1"
+    },
+    "throwBehaviour": {
+        "mayThrow": {
+            "comment": "Indicates whether the fitness function may throw after the sleep time",
+            "default": "false",
+            "value": "false"
+        },
+        "throwLikelihood": {
+            "comment": "Indicates the likelihood that the fitness function throws",
+            "default": "0.001",
+            "value": "0.001"
+        }
     },
     "evalPolicy": {
         "comment": "Specifies which strategy should be used to calculate the evaluation:",

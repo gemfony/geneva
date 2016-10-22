@@ -58,7 +58,6 @@ int main(int argc, char **argv) {
 	//---------------------------------------------------------------------------
 	// We want to add additional command line options
 
-	bool useRawFitness = false;
 	std::string monitorTimings = "empty";
 	bool usePostProcessor = false;
 	execMode execModePP = execMode::EXECMODE_SERIAL;

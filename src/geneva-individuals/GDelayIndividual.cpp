@@ -56,6 +56,10 @@ GDelayIndividual::GDelayIndividual()
 GDelayIndividual::GDelayIndividual(const GDelayIndividual& cp)
 	: Gem::Geneva::GParameterSet(cp)
 	, m_fixedSleepTime(cp.m_fixedSleepTime)
+	, m_mayCrash(cp.m_mayCrash)
+	, m_throwLikelihood(cp.m_throwLikelihood)
+	, m_sleepRandomly(cp.m_sleepRandomly)
+	, m_randSleepBoundaries(cp.m_randSleepBoundaries)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -137,6 +141,10 @@ void GDelayIndividual::compare(
 
 	// ... and then the local data
 	Gem::Common::compare_t(IDENTITY(m_fixedSleepTime.count(), p_load->m_fixedSleepTime.count()), token);
+	Gem::Common::compare_t(IDENTITY(m_mayCrash, p_load->m_mayCrash), token);
+	Gem::Common::compare_t(IDENTITY(m_throwLikelihood, p_load->m_throwLikelihood), token);
+	Gem::Common::compare_t(IDENTITY(m_sleepRandomly, p_load->m_sleepRandomly), token);
+	Gem::Common::compare_t(IDENTITY(m_randSleepBoundaries, p_load->m_randSleepBoundaries), token);
 
 	// React on deviations from the expectation
 	token.evaluate();
@@ -157,6 +165,10 @@ void GDelayIndividual::load_(const Gem::Geneva::GObject* cp){
 
 	// ... and then our own.
 	m_fixedSleepTime = p_load->m_fixedSleepTime;
+	m_mayCrash = p_load->m_mayCrash;
+	m_throwLikelihood = p_load->m_throwLikelihood;
+	m_sleepRandomly = p_load->m_sleepRandomly;
+	m_randSleepBoundaries = p_load->m_randSleepBoundaries;
 }
 
 /******************************************************************************/
@@ -189,6 +201,7 @@ double GDelayIndividual::fitnessCalculation() {
 	   // Calculate the sleep time
 		double sleepTime
 			= m_uniform_real_distribution(std::get<0>(m_randSleepBoundaries), std::get<1>(m_randSleepBoundaries));
+
 		std::chrono::duration<double> random_sleepTime(sleepTime);
 
 		// Sleep for a random amount of time in a given time window
@@ -278,6 +291,8 @@ void GDelayIndividual::setRandomSleep(
 			<< "Got invalid boundaries for the sleep time: " << std::get<0>(randSleepBoundaries) << " / " << std::get<1>(randSleepBoundaries) << std::endl
 		 	<< GEXCEPTION;
 	}
+
+	m_randSleepBoundaries = randSleepBoundaries;
 }
 
 /******************************************************************************/
@@ -422,14 +437,16 @@ void GDelayIndividualFactory::describeLocalOptions_(
 		, m_lowerRandSleepBoundary
 		, m_lowerRandSleepBoundary // The default value
 	)
-		<< "The lower boundary for random sleep times in the fitness function";
+		<< "The lower boundary for random sleep times in the" << std::endl
+		<< "fitness function (seconds, double value)";
 
 	gpb.registerFileParameter(
 		"upperRandSleepBoundary"
 		, m_upperRandSleepBoundary
 		, m_upperRandSleepBoundary // The default value
 	)
-		<< "The upper boundary for random sleep times in the fitness function";
+		<< "The upper boundary for random sleep times in the" << std::endl
+		<< "fitness function (seconds, double value)";
 
 	gpb.registerFileParameter(
 		"resultFile"
