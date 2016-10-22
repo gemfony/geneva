@@ -260,7 +260,7 @@ public:
 	/***************************************************************************/
 private:
 	std::shared_ptr <Gem::Common::GBoundedBufferT<T>> original_; ///< The queue for raw objects
-	std::shared_ptr <Gem::Common::GBoundedBufferT<T>> processed_; ///< The queue for processed objects
+	std::shared_ptr <Gem::Common::GBoundedBufferT<T>,0> processed_; ///< The queue for processed objects
 };
 
 /******************************************************************************/
