@@ -410,6 +410,28 @@ void GDelayIndividualFactory::describeLocalOptions_(
 	) << "A list of delays through which main() should cycle. Format: seconds:milliseconds";
 
 	gpb.registerFileParameter(
+		"sleepRandomly"
+		, m_sleepRandomly
+		, m_sleepRandomly // The default value
+	)
+		<< "Indicates whether the individual should sleep for a random amount of time" << std::endl
+		<< "rather than a fixed amount of time";
+
+	gpb.registerFileParameter(
+		"lowerRandSleepBoundary"
+		, m_lowerRandSleepBoundary
+		, m_lowerRandSleepBoundary // The default value
+	)
+		<< "The lower boundary for random sleep times in the fitness function";
+
+	gpb.registerFileParameter(
+		"upperRandSleepBoundary"
+		, m_upperRandSleepBoundary
+		, m_upperRandSleepBoundary // The default value
+	)
+		<< "The upper boundary for random sleep times in the fitness function";
+
+	gpb.registerFileParameter(
 		"resultFile"
 		, m_resultFile
 		, m_resultFile // The default value
@@ -480,6 +502,9 @@ void GDelayIndividualFactory::postProcess_(
 
 		p->setFixedSleepTime(sleepTime);
 
+		p->setMayCrash(m_mayCrash, m_throwLikelihood);
+		p->setRandomSleep(m_sleepRandomly, std::tuple<double,double>(m_lowerRandSleepBoundary, m_upperRandSleepBoundary));
+
 		// Set up a GDoubleObjectCollection
 		std::shared_ptr<Gem::Geneva::GDoubleObjectCollection> gbdc_ptr(new Gem::Geneva::GDoubleObjectCollection());
 
@@ -497,14 +522,17 @@ void GDelayIndividualFactory::postProcess_(
 
 		// Make the GDoubleObjectCollection known to the individual
 		p->push_back(gbdc_ptr);
-	} else if((id-Gem::Common::GFACTTORYFIRSTID) < m_sleepTimes.size()) {
+	} else if((id - Gem::Common::GFACTTORYFIRSTID) < m_sleepTimes.size()) {
 		// Calculate the current sleep time
-		std::chrono::duration<double> sleepTime = this->tupleToTime(m_sleepTimes.at(id-Gem::Common::GFACTTORYFIRSTID));
+		std::chrono::duration<double> sleepTime = this->tupleToTime(m_sleepTimes.at(id - Gem::Common::GFACTTORYFIRSTID));
 
 		std::cout
 		<< "Producing individual " << (id-Gem::Common::GFACTTORYFIRSTID) << " with sleep time = " << sleepTime.count() << " s" << std::endl;
 
 		p->setFixedSleepTime(sleepTime);
+
+		p->setMayCrash(m_mayCrash, m_throwLikelihood);
+		p->setRandomSleep(m_sleepRandomly, std::tuple<double,double>(m_lowerRandSleepBoundary, m_upperRandSleepBoundary));
 
 		// Set up a GDoubleObjectCollection
 		std::shared_ptr<Gem::Geneva::GDoubleObjectCollection> gbdc_ptr(new Gem::Geneva::GDoubleObjectCollection());

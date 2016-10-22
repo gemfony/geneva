@@ -247,7 +247,8 @@ private:
 	 bool m_mayCrash = false; ///< Indicates whether the fitness function may throw at the end of the sleep time
 	 double m_throwLikelihood = 0.001; ///< The likelihood for an exception to be thrown from the fitness function
 	 bool m_sleepRandomly = false; /// Whether to sleep for a random amount of time instead of fixed amounts
-	 std::tuple<double,double> m_randSleepBoundaries = std::tuple<double,double>(1.,2.); ///< Boundaries in seconds for random sleep (min/max amount of delay)
+	 double m_lowerRandSleepBoundary = 1.; ///< The lower boundary for random sleeps
+	 double m_upperRandSleepBoundary = 2.; ///< The upper boundary for random sleeps
 };
 
 /******************************************************************************/
