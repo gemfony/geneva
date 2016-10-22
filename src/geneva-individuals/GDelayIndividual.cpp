@@ -198,6 +198,13 @@ double GDelayIndividual::fitnessCalculation() {
 		std::this_thread::sleep_for(m_fixedSleepTime);
 	}
 
+	// Throw if we were asked to do so
+	if(m_mayCrash) {
+		if(m_uniform_real_distribution(0.,1.) < m_throwLikelihood) {
+			throw fitnessException();
+		}
+	}
+
 	// Return a random value - we do not perform any real optimization
 	return m_uniform_real_distribution(0.,1.);
 }
