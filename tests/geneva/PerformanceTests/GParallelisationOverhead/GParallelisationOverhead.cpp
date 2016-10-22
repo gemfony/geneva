@@ -99,7 +99,7 @@ void startReferenceMeasurement(
 
 			referenceExecutionTimes.push_back(
 				std::tuple<double,double>(
-					gdi_ptr->getSleepTime().count()
+					gdi_ptr->getFixedSleepTime().count()
 					, duration.count()
 				)
 			);
@@ -183,7 +183,7 @@ void startParallelMeasurement(
 		// Output the results
 		parallelExecutionTimes.push_back(
 			std::tuple<double,double,double,double>(
-				gdi_ptr->getSleepTime().count()
+				gdi_ptr->getFixedSleepTime().count()
 				, 0. // No error on the sleep time
 				, std::get<0>(ms) // mean
 				, std::get<1>(ms) // standard deviation

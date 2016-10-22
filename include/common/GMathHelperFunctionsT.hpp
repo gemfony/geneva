@@ -76,24 +76,36 @@ const bool GERRORONLY = false;
  * @param upper The upper boundary of the allowed value range
  */
 template<typename fp_type>
-void enforceRangeConstraint(
-	fp_type &val, const fp_type &lower, const fp_type &upper,
-	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+fp_type enforceRangeConstraint(
+	fp_type &val
+	, const fp_type &lower
+	, const fp_type &upper
+	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
-#ifdef DEBUG
    if(lower > upper) {
       glogger
       << "In enforceRangeConstraint<fp_type>(...): Error!" << std::endl
       << "Lower boundary > upper boundary: " << lower << " / " << upper << std::endl
       << GEXCEPTION;
    }
-#endif /* DEBUG */
 
 	if (val < lower) {
 		val = lower;
+
+		glogger
+			<< "In Gem::Common::enforceRangeConstraint(): " << val << " < " << lower << std::endl
+	   	<< "Adapted to " << lower << std::endl
+			<< GWARNING;
 	} else if (val > upper) {
 		val = upper;
+
+		glogger
+			<< "In Gem::Common::enforceRangeConstraint(): " << val << " > " << upper << std::endl
+			<< "Adapted to " << upper << std::endl
+			<< GWARNING;
 	}
+
+	return val;
 }
 
 /******************************************************************************/
@@ -109,14 +121,12 @@ bool checkRangeCompliance(
 	const fp_type &val, const fp_type &lower, const fp_type &upper,
 	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
-#ifdef DEBUG
    if(lower > upper) {
       glogger
       << "In enforceRangeConstraint<fp_type>(...): Error!" << std::endl
       << "Lower boundary > upper boundary: " << lower << " / " << upper << std::endl
       << GEXCEPTION;
    }
-#endif /* DEBUG */
 
 	if (val < lower || val > upper) {
 		return false;

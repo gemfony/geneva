@@ -42,6 +42,7 @@
 #include <vector>
 #include <thread>
 #include <chrono>
+#include <tuple>
 
 // Boost header files go here
 #include <boost/serialization/nvp.hpp>
@@ -54,6 +55,9 @@
 // Geneva header files go here
 #include "common/GFactoryT.hpp"
 #include "common/GHelperFunctionsT.hpp"
+#include "common/GMathHelperFunctionsT.hpp"
+#include "common/GExceptions.hpp"
+#include "hap/GRandomDistributionsT.hpp"
 #include "geneva/GDoubleCollection.hpp"
 #include "geneva/GDoubleObject.hpp"
 #include "geneva/GDoubleObjectCollection.hpp"
@@ -62,6 +66,12 @@
 
 namespace Gem {
 namespace Geneva {
+
+/******************************************************************************/
+/**
+ * An exception to be thrown by the fitness function in order to simulate crashes
+ */
+class fitnessException : public std::exception {};
 
 /******************************************************************************/
 /**
@@ -88,18 +98,30 @@ class GDelayIndividual: public Gem::Geneva::GParameterSet
 		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Geneva::GParameterSet)
 		 & BOOST_SERIALIZATION_NVP(dSleepTime);
 
-		 m_sleepTime = std::chrono::duration<double>(dSleepTime);
+		 m_fixedSleepTime = std::chrono::duration<double>(dSleepTime);
+
+		 ar
+		 & BOOST_SERIALIZATION_NVP(m_mayCrash)
+		 & BOOST_SERIALIZATION_NVP(m_throwLikelihood)
+		 & BOOST_SERIALIZATION_NVP(m_sleepRandomly)
+		 & BOOST_SERIALIZATION_NVP(m_randSleepBoundaries);
 	 }
 
 	 template<typename Archive>
 	 void save(Archive &ar, const unsigned int) const {
 	 	using boost::serialization::make_nvp;
 
-		 double dSleepTime = m_sleepTime.count();
+		 ar
+		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Geneva::GParameterSet);
+
+		 double dSleepTime = m_fixedSleepTime.count();
 
 		 ar
-		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Geneva::GParameterSet)
-		 & BOOST_SERIALIZATION_NVP(dSleepTime);
+		 & BOOST_SERIALIZATION_NVP(dSleepTime)
+		 & BOOST_SERIALIZATION_NVP(m_mayCrash)
+		 & BOOST_SERIALIZATION_NVP(m_throwLikelihood)
+		 & BOOST_SERIALIZATION_NVP(m_sleepRandomly)
+		 & BOOST_SERIALIZATION_NVP(m_randSleepBoundaries);
 	 }
 
 	 BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -129,9 +151,23 @@ public:
 	 ) const final;
 
 	 /** @brief Sets the sleep-time to a user-defined value */
-	 G_API_INDIVIDUALS void setSleepTime(const std::chrono::duration<double>&);
-	 /** @brief Retrieval of the current value of the m_sleepTime variable */
-	 G_API_INDIVIDUALS std::chrono::duration<double> getSleepTime() const;
+	 G_API_INDIVIDUALS void setFixedSleepTime(const std::chrono::duration<double>&);
+	 /** @brief Retrieval of the current value of the m_fixedSleepTime variable */
+	 G_API_INDIVIDUALS std::chrono::duration<double> getFixedSleepTime() const;
+
+	 /** @brief Indicate that the fitness function may crash at the end of the sleep time */
+	 G_API_INDIVIDUALS void setMayCrash(bool, double);
+	 /** @brief Check whether the fitness function may crash at the end of the sleep time */
+	 G_API_INDIVIDUALS bool getMayCrash() const;
+	 /** @brief Check the likelihood for a crash at the end of the sleep time */
+	 G_API_INDIVIDUALS double getCrashLikelihood() const;
+
+	 /** @brief Indicates that the fitness function should sleep for a random time */
+	 G_API_INDIVIDUALS void setRandomSleep(bool, std::tuple<double,double>);
+	 /** @brief Checks whether the fitness function has a random sleep schedule */
+	 G_API_INDIVIDUALS bool getMaySleepRandomly() const;
+	 /** @brief Retrieves the time window for random sleeps */
+	 G_API_INDIVIDUALS std::tuple<double,double> getSleepWindow() const;
 
 protected:
 	 /** @brief Loads the data of another GDelayIndividual, camouflaged as a GObject */
@@ -145,8 +181,14 @@ protected:
 	 virtual G_API_INDIVIDUALS double fitnessCalculation() final;
 
 private:
-	 std::chrono::duration<double> m_sleepTime; ///< The amount of time the evaluation function should sleep before continuing
-	 std::uniform_real_distribution<double> m_uniform_real_distribution; ///< Access to uniformly distributed floating point numbers
+	 std::chrono::duration<double> m_fixedSleepTime; ///< The amount of time the evaluation function should sleep before continuing
+	 Gem::Hap::g_uniform_real<double> m_uniform_real_distribution;
+
+	 bool m_mayCrash = false; ///< Indicates whether the fitness function may throw at the end of the sleep time
+	 double m_throwLikelihood = 0.001; ///< The likelihood for an exception to be thrown from the fitness function
+
+	 bool m_sleepRandomly = false; /// Whether to sleep for a random amount of time instead of fixed amounts
+	 std::tuple<double,double> m_randSleepBoundaries = std::tuple<double,double>(1.,2.); ///< Boundaries in seconds for random sleep (min/max amount of delay)
 };
 
 /******************************************************************************/
