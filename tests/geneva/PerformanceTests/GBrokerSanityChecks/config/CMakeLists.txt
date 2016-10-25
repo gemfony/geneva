@@ -2,7 +2,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 SET ( CONFIGFILES
 	GDelayIndividual.json
-	GDelayIndividual-reference.json
 	GEvolutionaryAlgorithm.json
 	Go2.json
 )
