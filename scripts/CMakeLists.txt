@@ -10,6 +10,7 @@ SET ( GENEVASCRIPTS
 	prepareBuild.sh
 	rsyncList.sh
 	sshList.sh
+    startClients.sh
 	startLocalJobs.sh
 )
 

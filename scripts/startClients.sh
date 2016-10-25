@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 #!/bin/bash
 
 ####################################################################
@@ -31,27 +33,23 @@
 # http://www.gemfony.eu .
 #
 ####################################################################
-# This script will start a given Geneva program a predefined
-# number of times in client mode on the same host. It will also
-# start the server, using Geneva's standard syntax for networked mode.
-# This can be used to test networked execution of a Geneva program
-# using local (i.e. reliable, low latency) networking.
-# Note that if your program opens many connections to the server,
-# e.g. because it uses a large number of individuals and cycles,
-# you might quickly run out of local ports (max 64k). See the
-# Geneva FAQ for an advice in this situation.
+# This script will start a given Geneva program in client mode a
+# predefined number of times. No server will be started.
+# This can be used to test networked execution of a Geneva program under
+# real-world conditions.
 ####################################################################
 
-# Check the number of command line arguments (should be exactly 3)
-if [ ! $# -eq 3 ]; then
-    echo "Usage: ./startLocalJobs.sh <program name> <number of clients> <port>"
+# Check the number of command line arguments (should be exactly 4)
+if [ ! $# -eq 4 ]; then
+    echo "Usage: ./startClients.sh <program name> <number of clients> <ip/hostname> <port>"
     exit 1
 fi
 
 # Read in the command line arguments
 PROGNAME=$1
 NCLIENTS=$2
-PORT=$3
+IP=$3
+PORT=$4
 
 # Check that the program exists
 if [ ! -e ${PROGNAME} ]; then
@@ -84,12 +82,8 @@ if [ ! -d ./output ]; then
     mkdir ./output
 fi
 
-# Start the server
-(./$1 -e 2 -c tcpc --port=${PORT} >& ./output/output_server) &
-
-# Start the workers
+# Start the clients
 for i in `seq 1 $2`; do
-    (./${PROGNAME} -e 2 -c tcpc --client --ip=localhost --port=${PORT} >& ./output/output_client_$i) &
+    (./${PROGNAME} -e 2 -c tcpc --client --ip=${IP} --port=${PORT} >& ./output/output_client_$i) &
 done
 
-tail -f ./output/output_server

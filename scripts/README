@@ -3,7 +3,7 @@ some additional scripts that may be useful for submitting Geneva
 jobs.
 
 prepareBuild.sh
-   A wrapper script around CMake that eases compilation. Uses 
+   A wrapper script around CMake that eases compilation. Uses
    genevaConfig.gcfg as input data
 
 genevaConfig.gcfg
@@ -15,10 +15,15 @@ rsyncList.sh
 
 sampleHostFile.hcfg
    A sample host file, as input for rsyncList.sh and sshList.sh
-   
+
 sshList.sh
    Allows to execute a given command on a number of hosts, using ssh
 
 startLocalJobs.sh
-   Allows to start a number of Geneva clients plus a server on the 
+   Allows to start a number of Geneva clients plus a server on the
    local host for testing purposes
+
+startClients.sh
+	Allows to start a number of Geneva clients without the server.
+	They will then try to connect to a server who's IP and port were
+	specified on the command line.
