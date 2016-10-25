@@ -70,7 +70,8 @@ public:
 	 * The default constructor
 	 */
 	GGlobalOptionsT()
-		: kvp_(), pos(kvp_.begin()) { /* nothing */ }
+		: kvp_(), pos(kvp_.begin())
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**

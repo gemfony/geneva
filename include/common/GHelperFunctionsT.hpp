@@ -870,6 +870,22 @@ const item_type &getMapItem(const std::map<std::string, item_type> &m, const std
 }
 
 /******************************************************************************/
+/**
+ * Erases items from a standard container that comply with a specific condition
+ */
+template<typename container_type, typename predicate_type >
+void erase_if(container_type& container, const predicate_type& predicate ) {
+	for(auto it = container.begin(); it != container.end();) {
+		if(predicate(*it)) {
+			it = container.erase(it);
+		}
+		else {
+			++it;
+		}
+	}
+};
+
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

@@ -66,6 +66,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "common/GBoundedBufferT.hpp"
+#include "common/GHelperFunctionsT.hpp"
 #include "common/GSingletonT.hpp"
 #include "courtier/GBaseConsumerT.hpp"
 #include "courtier/GBufferPortT.hpp"
@@ -98,9 +99,10 @@ template<typename carrier_type>
 class GBrokerT
 	: private boost::noncopyable
 {
-	typedef typename std::shared_ptr<Gem::Common::GBoundedBufferT<std::shared_ptr < carrier_type>> > GBoundedBufferT_Ptr;
-	typedef typename std::list<GBoundedBufferT_Ptr> BufferPtrList;
-	typedef typename std::map<Gem::Common::PORTIDTYPE, GBoundedBufferT_Ptr> BufferPtrMap;
+	typedef typename std::shared_ptr<Gem::Common::GBoundedBufferT<std::shared_ptr<carrier_type>>> GRawBuffer_Ptr;
+ 	typedef typename std::shared_ptr<Gem::Common::GBoundedBufferT<std::shared_ptr<carrier_type>,0>> GProcessedBuffer_Ptr;
+	typedef typename std::list<GRawBuffer_Ptr> BufferPtrList;
+	typedef typename std::map<Gem::Common::PORTIDTYPE, GProcessedBuffer_Ptr> BufferPtrMap;
 
 public:
 	/***************************************************************************/
@@ -211,26 +213,14 @@ public:
 
 		// Retrieve the processed and original queues and tag them with
 		// a suitable id. Increment the id for later use during other enrollments.
-		std::shared_ptr < Gem::Common::GBoundedBufferT<std::shared_ptr < carrier_type>> >
-		original = gbp->getOriginalQueue();
-		std::shared_ptr < Gem::Common::GBoundedBufferT<std::shared_ptr < carrier_type>> >
-		processed = gbp->getProcessedQueue();
+		auto original  = gbp->getOriginalQueue();
+		auto processed = gbp->getProcessedQueue();
 		original->setId(portId);
 		processed->setId(portId);
 
 		// Find orphaned items in the two collections and remove them.
-		typename BufferPtrList::iterator it;
-		while ((it = std::find_if(m_RawBuffers.begin(), m_RawBuffers.end(),
-										  [](GBoundedBufferT_Ptr p) { return p.unique(); })) != m_RawBuffers.end()) {
-			m_RawBuffers.erase(it);
-		}
-
-		for (typename BufferPtrMap::iterator it = m_ProcessedBuffers.begin(); it != m_ProcessedBuffers.end();) {
-			if ((it->second).unique()) { // Orphaned ? Get rid of it
-				m_ProcessedBuffers.erase(it++);
-			}
-			else ++it;
-		}
+		Gem::Common::erase_if(m_RawBuffers, [](auto p) -> bool { return p.unique(); });
+	   Gem::Common::erase_if(m_ProcessedBuffers, [](auto p)-> bool { return p.second.unique(); }); // m_ProcessedBuffers is a std::map, so items are of type std::pair
 
 		// Attach the new items to the lists
 		m_RawBuffers.push_back(original);

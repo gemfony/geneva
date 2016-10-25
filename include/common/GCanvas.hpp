@@ -540,7 +540,7 @@ public:
 			// Remove parts beginning with a # (i.e. comments)
 			std::size_t pos = 0;
 			if ((pos = s.find("#")) != string::npos) {
-				s.erase(pos);
+				s.erase(pos); // Erase till the end of the string
 			}
 
 			// Remove leading or trailing white spaces
@@ -632,7 +632,7 @@ public:
 			// Remove parts beginning with a # (i.e. comments)
 			std::size_t pos = 0;
 			if ((pos = s.find("#")) != string::npos) {
-				s.erase(pos);
+				s.erase(pos); // Erase till the end of the string
 			}
 
 			// Remove leading or trailing white spaces

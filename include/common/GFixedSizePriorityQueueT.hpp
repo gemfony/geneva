@@ -269,7 +269,7 @@ public:
 	 * @param do_clone If set to true, work items will be cloned. Otherwise only the smart pointer will be added
 	 */
 	virtual void add(
-		std::shared_ptr <T> item
+		std::shared_ptr<T> item
 		, bool do_clone = false
 	) {
 		// Add the work item to the queue
@@ -349,8 +349,7 @@ public:
 		// At this point, worstKnownEvaluation will be
 		// - the worst case, if the queue is empty or all entries in the queue will be replaced
 		// - the evaluation of the worst entry in the queue if we only add items (regardless of whether they will be cloned or not)
-		typename std::vector<std::shared_ptr < T>> ::const_iterator
-		cit;
+		typename std::vector<std::shared_ptr < T>> ::const_iterator cit;
 		for (cit = items.begin(); cit != items.end(); ++cit) {
 			// Add the work item to the queue
 			// - If the queue is unlimited
@@ -372,6 +371,8 @@ public:
 			}
 		);
 
+		// TODO: What happens here in the case multiple identical items were added ? Won't this remove all
+		// items after the first duplicate ?
 		// Remove duplicate items
 		data_.erase(
 			std::unique(
@@ -605,7 +606,7 @@ protected:
 	/** @brief Returns a unique id for a work item */
 	virtual G_API_COMMON std::string id(const std::shared_ptr <T> &) const BASE = 0;
 
-	std::deque<std::shared_ptr < T>> data_; ///< Holds the actual data
+	std::deque<std::shared_ptr<T>> data_; ///< Holds the actual data
 
 	std::size_t maxSize_ = 10; ///< The maximum number of work-items
 	bool higherIsBetter_ = false; ///< Indicates whether higher evaluations of items indicate a higher priority

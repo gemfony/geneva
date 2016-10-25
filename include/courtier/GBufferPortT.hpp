@@ -69,14 +69,17 @@ template<typename T>
 class GBufferPortT
 	: private boost::noncopyable {
 public:
+	 typedef Gem::Common::GBoundedBufferT<T>   RAW_BUFFER_TYPE;
+	 typedef Gem::Common::GBoundedBufferT<T,0> PROCESSED_BUFFER_TYPE;
+
 	/***************************************************************************/
 	/**
 	 * The default constructor. Note that, when using this constructor, the
 	 * GBoundedBufferT objects will assume the default sizes.
 	 */
 	GBufferPortT()
-		: original_(new Gem::Common::GBoundedBufferT<T>())
-		, processed_(new Gem::Common::GBoundedBufferT<T>())
+		: raw_(new RAW_BUFFER_TYPE())
+		, processed_(new PROCESSED_BUFFER_TYPE())
    { /* nothing */ }
 
 	/***************************************************************************/
@@ -86,8 +89,8 @@ public:
 	 * @param size The desired capacity of the GBoundedBufferT objects
 	 */
 	explicit GBufferPortT(const std::size_t &size)
-		: original_(new Gem::Common::GBoundedBufferT<T>(size))
-		, processed_(new Gem::Common::GBoundedBufferT<T>(size))
+		: raw_(new RAW_BUFFER_TYPE(size))
+		, processed_(new PROCESSED_BUFFER_TYPE(size))
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -96,8 +99,8 @@ public:
 	 *
 	 * @return A shared_ptr with the "original" queue
 	 */
-	std::shared_ptr <Gem::Common::GBoundedBufferT<T>> getOriginalQueue() {
-		return original_;
+	std::shared_ptr <RAW_BUFFER_TYPE> getOriginalQueue() {
+		return raw_;
 	}
 
 	/***************************************************************************/
@@ -106,7 +109,7 @@ public:
 	 *
 	 * @return A shared_ptr with the "processed" queue
 	 */
-	std::shared_ptr <Gem::Common::GBoundedBufferT<T>> getProcessedQueue() {
+	std::shared_ptr <PROCESSED_BUFFER_TYPE> getProcessedQueue() {
 		return processed_;
 	}
 
@@ -117,7 +120,7 @@ public:
 	 * @param item A raw object that needs to be processed
 	 */
 	void push_front_orig(T item) {
-		original_->push_front(item);
+		raw_->push_front(item);
 	}
 
 	/***************************************************************************/
@@ -130,7 +133,7 @@ public:
 	 * @param timeout duration until a timeout occurs
 	 */
 	void push_front_orig(T item, const std::chrono::duration<double> &timeout) {
-		original_->push_front(item, timeout);
+		raw_->push_front(item, timeout);
 	}
 
 	/***************************************************************************/
@@ -143,31 +146,31 @@ public:
 	 * @return A boolean indicating whether an item could be submitted
 	 */
 	bool push_front_orig_bool(T item, const std::chrono::duration<double> &timeout) {
-		return original_->push_front_bool(item, timeout);
+		return raw_->push_front_bool(item, timeout);
 	}
 
 	/***************************************************************************/
 	/**
-	 * Retrieves an item from the back of the "original_" queue. Blocks until
+	 * Retrieves an item from the back of the "raw_" queue. Blocks until
 	 * an item could be retrieved.
 	 *
 	 * @param item A reference to the item to be retrieved
 	 */
 	void pop_back_orig(T &item) {
-		original_->pop_back(item);
+		raw_->pop_back(item);
 	}
 
 	/***************************************************************************/
 	/**
 	 * A version of GBufferPortT::push_back_orig() with the ability to time-out. Note
-	 * that an exception will be thrown by original_ if the time-out was reached. It
+	 * that an exception will be thrown by raw_ if the time-out was reached. It
 	 * needs to be caught by the calling function.
 	 *
 	 * @param item The item that was retrieved from the queue
 	 * @param timeout duration until a timeout occurs
 	 */
 	void pop_back_orig(T &item, const std::chrono::duration<double> &timeout) {
-		original_->pop_back(item, timeout);
+		raw_->pop_back(item, timeout);
 	}
 
 	/***************************************************************************/
@@ -181,7 +184,7 @@ public:
 	 * @return A boolean indicating whether an item could be retrieved
 	 */
 	bool pop_back_orig_bool(T &item, const std::chrono::duration<double> &timeout) {
-		return original_->pop_back_bool(item, timeout);
+		return raw_->pop_back_bool(item, timeout);
 	}
 
 	/***************************************************************************/
@@ -259,8 +262,8 @@ public:
 
 	/***************************************************************************/
 private:
-	std::shared_ptr <Gem::Common::GBoundedBufferT<T>> original_; ///< The queue for raw objects
-	std::shared_ptr <Gem::Common::GBoundedBufferT<T>,0> processed_; ///< The queue for processed objects
+	std::shared_ptr <RAW_BUFFER_TYPE> raw_; ///< The queue for raw objects
+	std::shared_ptr <PROCESSED_BUFFER_TYPE> processed_; ///< The queue for processed objects
 };
 
 /******************************************************************************/
