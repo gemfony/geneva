@@ -289,14 +289,6 @@ public:
 	 ) {
 		 bool completed = false;
 
-		 // Check that we are not dealing with an empty container
-		 if (workItems.empty()) {
-			 glogger
-				 << "In GBaseExecutorT<processable_type>::workOn(): Error!" << std::endl
-				 << "workItems_ vector is empty." << std::endl
-				 << GEXCEPTION;
-		 }
-
 		 // Make sure the start/end positoons match
 		 Gem::Common::assert_sizes_match_container(workItems, start, end, "GBaseExecutorT<processable_type>::workOn()");
 
@@ -799,7 +791,8 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class executes a collection of work items in multiple threads
+ * This class relays execution of work items to a broker, to which several
+ * different consumers may be connected.
  */
 template<typename processable_type>
 class GBrokerConnectorT
