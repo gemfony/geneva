@@ -192,7 +192,7 @@ public:
 		 bool completed = false;
 
 		 // Set the start time of the new iteration
-		 m_iterationStartTime = std::chrono::system_clock::now();
+		 m_submissionStartTime = std::chrono::system_clock::now();
 
 		 // Check that both vectors have the same size
 		 Gem::Common::assert_container_sizes_match(
@@ -239,12 +239,6 @@ public:
 				 << "Got " << oldWorkItems.size() << " older work items" << std::endl
 				 << GWARNING;
 		 }
-
-		 // Calculate average return times of work items.
-		 m_lastAverage =
-			 (m_returnedLast>0)
-			 ? (m_lastReturnTime - m_iterationStartTime)/m_returnedLast
-			 : (std::chrono::system_clock::now() - m_iterationStartTime)/m_expectedNumber; // this is an artificial number, as no items have returned
 
 		 // Sort old work items according to their ids so they can be readily used by the caller
 		 std::sort(
@@ -384,6 +378,14 @@ public:
 
 	 /***************************************************************************/
 	 /**
+	  * Gives access to the value of the current submission id
+	  */
+	 SUBMISSIONCOUNTERTYPE getSubmissionId() const {
+		 return m_submission_counter;
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Adds local configuration options to a GParserBuilder object
 	  *
 	  * @param gpb The GParserBuilder object to which configuration options should be added
@@ -420,6 +422,14 @@ public:
  	  */
 	 std::size_t getNNotReturned() const {
 		 return m_notReturnedLast;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Retrieves the current submission id
+	  */
+	 SUBMISSIONCOUNTERTYPE getCurrentSubmissionId() const {
+		 return m_submission_counter;
 	 }
 
 protected:
@@ -493,20 +503,10 @@ protected:
 	 }
 
 	 /***************************************************************************/
-	 /**
-	  * Allows to set the time at which the last individual has returned (so far)
-	  */
-	 void setLastReturnTime(std::chrono::system_clock::time_point lastReturnTime) {
-		 m_lastReturnTime = lastReturnTime;
-	 }
-
-	 /***************************************************************************/
 	 // Local data
 	 SUBMISSIONCOUNTERTYPE m_submission_counter = SUBMISSIONCOUNTERTYPE(0); ///< Counts the number of submissions initiated by this object. Note: not serialized!
 	 std::size_t m_expectedNumber = 0; ///< The number of work items to be submitted (and expected back)
-	 std::chrono::system_clock::time_point m_iterationStartTime = std::chrono::system_clock::now(); ///< Temporary that holds the start time for the retrieval of items in a given iteration
-	 std::chrono::system_clock::time_point m_lastReturnTime     = m_iterationStartTime; ///< Temporary that holds the time of the return of the last item of an iteration
-	 std::chrono::duration<double> m_lastAverage = std::chrono::duration<double>(0.); ///< The average time needed for the last submission
+	 std::chrono::system_clock::time_point m_submissionStartTime = std::chrono::system_clock::now(); ///< Temporary that holds the start time for the retrieval of items in a given iteration
 
 	 std::size_t m_returnedLast = 0; ///< The number of individuals returned in the last iteration cycle
 	 std::size_t m_notReturnedLast = 0; ///< The number of individuals MOT returned in the last iteration cycle
@@ -816,6 +816,8 @@ class GBrokerConnectorT
 		 & BOOST_SERIALIZATION_NVP(m_waiting_times_graph)
 		 & BOOST_SERIALIZATION_NVP(m_returned_items_graph)
 		 & BOOST_SERIALIZATION_NVP(m_waitFactorWarningEmitted);
+
+		 // TODO: serialize m_lastReturnTime and m_lastAverage
 	 }
 
 	 ///////////////////////////////////////////////////////////////////////
@@ -829,10 +831,6 @@ public:
 	  */
 	 GBrokerConnectorT()
 		 : GBaseExecutorT<processable_type>()
-		 , m_srm(DEFAULTSRM)
-	    , m_maxResubmissions(DEFAULTMAXRESUBMISSIONS)
-		 , m_waitFactor(DEFAULTBROKERWAITFACTOR2)
-	    , m_initialWaitFactor(DEFAULTINITIALBROKERWAITFACTOR2)
 		 , m_gpd("Maximum waiting times and returned items", 1, 2)
 	 {
 		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1600));
@@ -857,9 +855,6 @@ public:
 	 explicit GBrokerConnectorT(submissionReturnMode srm)
 		 : GBaseExecutorT<processable_type>()
 		 , m_srm(srm)
-		 , m_maxResubmissions(DEFAULTMAXRESUBMISSIONS)
-		 , m_waitFactor(DEFAULTBROKERWAITFACTOR2)
-		 , m_initialWaitFactor(DEFAULTINITIALBROKERWAITFACTOR2)
 		 , m_gpd("Maximum waiting times and returned items", 1, 2)
 	 {
 		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1600));
@@ -890,6 +885,10 @@ public:
 		 , m_doLogging(cp.m_doLogging)
 		 , m_gpd("Maximum waiting times and returned items", 1, 2) // Intentionally not copied
 	 	 , m_waitFactorWarningEmitted(cp.m_waitFactorWarningEmitted)
+	 	 , m_lastReturnTime(cp.m_lastReturnTime)
+	 	 , m_lastAverage(cp.m_lastAverage)
+	 	 , m_remainingTime(cp.m_remainingTime)
+	 	 , m_maxTimeout(cp.m_maxTimeout)
 	 {
 		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1600));
 
@@ -960,6 +959,10 @@ public:
 		 m_initialWaitFactor = cp->m_initialWaitFactor;
 		 m_doLogging = cp->m_doLogging;
 		 m_waitFactorWarningEmitted = cp->m_waitFactorWarningEmitted;
+		 m_lastReturnTime = cp->m_lastReturnTime;
+		 m_lastAverage = cp->m_lastAverage;
+		 m_remainingTime = cp->m_remainingTime;
+		 m_maxTimeout = cp->m_maxTimeout;
 	 }
 
 	 /***************************************************************************/
@@ -1127,7 +1130,7 @@ public:
 	  * @return The logging results in the form of a ROOT histogram
 	  */
 	 std::string getLoggingResults() const {
-		 if (!m_doLogging || m_logData.empty() || m_iterationStartTimes.empty()) {
+		 if (!m_doLogging || m_logData.empty() || m_submissionStartTimes.empty()) {
 			 glogger
 				 << "In GBrokerConnectorT<processable_type>::getLoggingResults(): Error!" << std::endl
 				 << "Attempt to retrieve logging results when no logging seems to have taken place." << std::endl
@@ -1185,10 +1188,32 @@ protected:
 
 		 // We want to be able to calculate proper turn-around times for individuals in logging mode
 		 if (m_doLogging) {
-			 m_iterationStartTimes.push_back(
-				 GBaseExecutorT<processable_type>::m_iterationStartTime
+			 m_submissionStartTimes.push_back(
+				 GBaseExecutorT<processable_type>::m_submissionStartTime
 			 );
 		 }
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to perform necessary cleanup work for an iteration or do calculations
+	  * for the next iteration.
+	  */
+	 virtual void iterationFinalize(
+		 std::vector<std::shared_ptr<processable_type>>& workItems
+		 , std::vector<bool> &workItemPos
+		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
+	 ) override {
+		 // Calculate average return times of work items.
+		 m_lastAverage =
+			 (GBaseExecutorT<processable_type>::m_returnedLast>0)
+			 ? (m_lastReturnTime - GBaseExecutorT<processable_type>::m_submissionStartTime)/GBaseExecutorT<processable_type>::m_returnedLast
+			 : (std::chrono::system_clock::now() - GBaseExecutorT<processable_type>::m_submissionStartTime)/GBaseExecutorT<processable_type>::m_expectedNumber; // this is an artificial number, as no items have returned
+
+		 m_maxTimeout =
+			 m_lastAverage
+			 * boost::numeric_cast<double>(GBaseExecutorT<processable_type>::m_expectedNumber)
+			 * m_waitFactor;
 	 }
 
 	 /***************************************************************************/
@@ -1306,6 +1331,66 @@ private:
 
 	 /***************************************************************************/
 	 /**
+	  * Updates the maximum allowed timeframe for calculations
+	  */
+	 void reviseMaxTime(std::size_t nReturnedCurrent) {
+		 // Are we called for the first time in the first iteration)
+		 if(nReturnedCurrent==0) {
+			 std::chrono::duration<double> currentElapsed
+				 = std::chrono::system_clock::now() - GBaseExecutorT<processable_type>::m_submissionStartTime;
+
+			 if (this->getCurrentSubmissionId() == SUBMISSIONCOUNTERTYPE(0)) {
+				 // Calculate a timeout for subsequent retrievals in this iteration. In the first iteration and for the first item,
+				 // this timeout is the number of remaining items times the return time needed for the first item times a custom
+				 // wait factor for the first submission. This may be very long, but takes care of a situation where there is only
+				 // a single worker.
+				 m_maxTimeout =
+					 currentElapsed
+					 * boost::numeric_cast<double>(GBaseExecutorT<processable_type>::m_expectedNumber)
+					 * m_initialWaitFactor;
+			 } else { // Not the first work item
+				 std::chrono::duration<double> currentAverage = currentElapsed / ((std::max)(nReturnedCurrent, std::size_t(1))); // Avoid division by 0
+				 m_maxTimeout =
+					 currentAverage
+					 * GBaseExecutorT<processable_type>::m_expectedNumber
+					 * m_waitFactor;
+			 }
+		 } else {
+#ifdef DEBUG
+			 if(!m_waitFactorWarningEmitted) {
+				 if(m_waitFactor > 0. && m_waitFactor < 1.) {
+					 glogger
+						 << "In GBrokerConnectorT::waitForTimeOut(): Warning" << std::endl
+						 << "It is suggested not to use a wait time < 1. Current value: " << m_waitFactor << std::endl
+						 << GWARNING;
+				 }
+			 }
+#endif
+		 }
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Checks whether we have passed the maximum time frame. The function will
+	  * also update the remaining time.
+	  *
+	  * @return A boolean indicating whether the maximum allowed time was passed
+	  */
+	 bool passedMaxTime(std::size_t nReturnedCurrent) {
+		 std::chrono::duration<double> currentElapsed
+		 	= std::chrono::system_clock::now() - GBaseExecutorT<processable_type>::m_submissionStartTime;
+
+		 if (currentElapsed > m_maxTimeout) {
+			 m_remainingTime = std::chrono::duration<double>(0.);
+			 return true;
+		 } else {
+			 m_remainingTime = m_maxTimeout - currentElapsed;
+			 return false;
+		 }
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Waits until a timeout occurs and returns, either complete (true) or
 	  * incomplete (false). The algorithm works like this:
 	  *
@@ -1332,20 +1417,25 @@ private:
 		 , std::vector<bool> &workItemPos
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) {
+		 //----------------------------------------------------------------
+		 // If the wait factor is == 0, we fall back to
+		 // the "complete return" submission return mode.
+		 if(m_waitFactor == 0.) {
+			 return waitForFullReturn(
+				 workItems
+				 , workItemPos
+				 , oldWorkItems
+			 );
+		 }
+
+		 //----------------------------------------------------------------
+
 		 std::shared_ptr<processable_type> w;
-
-		 // Note the current iteration for easy reference
-		 auto current_iteration = GBaseExecutorT<processable_type>::m_submission_counter;
-
 		 std::size_t nReturnedCurrent = 0;
-		 std::chrono::duration<double> currentElapsed;
-		 std::chrono::duration<double> maxTimeout;
-		 std::chrono::duration<double> remainingTime;
-		 std::chrono::duration<double> currentAverage;
 
 		 // Check if this is the first iteration. If so, wait (possibly indefinitely)
 		 // for the first item to return so we can estimate a suitable timeout
-		 if (0 == current_iteration) { // Wait indefinitely for first item
+		 if (0 == this->getSubmissionId()) { // Wait indefinitely for first item
 			 // Retrieve a single work item
 			 w = this->retrieve();
 
@@ -1371,101 +1461,39 @@ private:
 				 // This covers the rare case that a "collection" of a *single*
 				 // work item was submitted.
 				 return true;
+			 } else {
+				 reviseMaxTime(0);
 			 }
-
-			 // Calculate a timeout for subsequent retrievals in this iteration. In the first iteration, this timeout is the number of
-			 // remaining items times the return time needed for the first item times a custom wait factor for the first submission.
-			 // This may be very long, but takes care of a situation where there is only a single worker.
-			 currentElapsed = std::chrono::system_clock::now() - GBaseExecutorT<processable_type>::m_iterationStartTime;
-			 maxTimeout =
-				 currentElapsed
-				 * boost::numeric_cast<double>(GBaseExecutorT<processable_type>::m_expectedNumber)
-				 * m_initialWaitFactor;
-		 } else { // We are dealing with an iteration > 0
-#ifdef DEBUG
-			 if(!m_waitFactorWarningEmitted) {
-				 if(m_waitFactor > 0. && m_waitFactor < 1.) {
-					 glogger
-					 << "In GBrokerConnectorT::waitForTimeOut(): Warning" << std::endl
-					 << "It is suggested not to use a wait time < 1. Current value: " << m_waitFactor << std::endl
-					 << GWARNING;
-				 }
-			 }
-#endif
-
-			 maxTimeout =
-				 GBaseExecutorT<processable_type>::m_lastAverage
-				 * boost::numeric_cast<double>(GBaseExecutorT<processable_type>::m_expectedNumber)
-				 * m_waitFactor;
 		 }
 
-		 //------------------------------------
-		 // TODO: This is a hack. Submitted for current debugging purposes
-		 m_waiting_times_graph->add(std::make_tuple(boost::numeric_cast<double>(current_iteration), maxTimeout.count()));
-		 m_returned_items_graph->add(std::make_tuple(boost::numeric_cast<double>(current_iteration), boost::numeric_cast<double>(this->getNReturned())));
-
-		 if (0 == current_iteration) {
-			 std::cout
-				 << "Maximum waiting time in iteration " << current_iteration << ": " << maxTimeout.count()
-				 << " s (" << currentElapsed.count() << ", "
-				 << GBaseExecutorT<processable_type>::m_expectedNumber << ", " << m_initialWaitFactor << ")" << std::endl;
-		 } else {
-			 // TODO: This is a hack. Submitted for current debugging purposes
-			 std::cout
-				 << "Maximum waiting time in iteration " << current_iteration << ": " << maxTimeout.count()
-				 << " s (" << GBaseExecutorT<processable_type>::m_lastAverage.count() << ", "
-				 << GBaseExecutorT<processable_type>::m_expectedNumber << ", " << m_waitFactor << ")" << std::endl;
-	 	 }
 	 	 //------------------------------------
 
 		 // Loop until a timeout is reached or all current items have returned
 		 while (true) {
-			 if(m_waitFactor > 0.) {
-				 if (currentElapsed > maxTimeout) {
-					 return false; // No complete return as we have reached the timeout
-				 } else {
-					 remainingTime = maxTimeout - currentElapsed;
-				 }
+			 // Check if we have passed the maximum allowed time frame.
+			 // This function will also update the remaining time.
+			 if(passedMaxTime(nReturnedCurrent)) {
+				 return false; // No complete return as we have reached the timeout
+			 }
 
-				 // Obtain the next item
-				 w = retrieve(remainingTime);
+			 // Obtain the next item
+			 w = retrieve(m_remainingTime);
 
-				 // Leave if this was the last item
-				 if (this->addWorkItemAndCheckCompleteness(
-					 w
-					 , nReturnedCurrent
-					 , workItems
-					 , workItemPos
-					 , oldWorkItems
-				 	)
-				 ) {
-					 break;
-				 }
+			 // Leave if this was the last item
+			 if (this->addWorkItemAndCheckCompleteness(
+				 w
+				 , nReturnedCurrent
+				 , workItems
+				 , workItemPos
+				 , oldWorkItems
+				)
+			 ) {
+				 break;
+			 }
 
-				 // Continuously revise the maxTimeout, if this is the first iteration
-				 if (0 == current_iteration) {
-					 // Calculate average return times of work items in first iteration
-					 currentAverage = currentElapsed / ((std::max)(nReturnedCurrent, std::size_t(1))); // Avoid division by 0
-					 maxTimeout =
-						 currentAverage
-						 * GBaseExecutorT<processable_type>::m_expectedNumber
-						 * m_waitFactor;
-				 }
-
-				 // Update the elapsed time. Needs to be done after a retrieval
-				 currentElapsed = std::chrono::system_clock::now() - GBaseExecutorT<processable_type>::m_iterationStartTime;
-			 } else { // No timeouts
-				 w = retrieve();
-				 if (this->addWorkItemAndCheckCompleteness(
-					 w
-					 , nReturnedCurrent
-					 , workItems
-					 , workItemPos
-					 , oldWorkItems
-				 	)
-				 ) {
-					 break;
-				 }
+			 // Continuously revise the maxTimeout, if this is the first submission
+			 if(w && 0 == this->getSubmissionId()) {
+				 reviseMaxTime(nReturnedCurrent);
 			 }
 		 }
 
@@ -1511,11 +1539,11 @@ private:
 	 ) {
 		 std::size_t nReturnedCurrent = 0;
 		 while (!addWorkItemAndCheckCompleteness(
-				 this->retrieve()
-				 , nReturnedCurrent
-				 , workItems
-				 , workItemPos
-				 , oldWorkItems
+			 this->retrieve()
+			 , nReturnedCurrent
+			 , workItems
+			 , workItemPos
+			 , oldWorkItems
 		 ));
 
 		 return true;
@@ -1540,7 +1568,7 @@ private:
 			 return false;
 		 } else {
 			 // Make the return time of the last item known
-			 this->setLastReturnTime(std::chrono::system_clock::now());
+			 m_lastReturnTime = std::chrono::system_clock::now();
 		 }
 
 		 bool completed = false;
@@ -1576,6 +1604,32 @@ private:
 
 	 /***************************************************************************/
 	 /**
+ 	  * Allows to emit information at the end of an iteration
+ 	  * TODO: The content of this function is a hack. Submitted for current debugging purposes
+ 	  */
+	 virtual void report() override {
+		 std::chrono::duration<double> currentElapsed
+			 = std::chrono::system_clock::now() - GBaseExecutorT<processable_type>::m_submissionStartTime;
+		 auto current_iteration = GBaseExecutorT<processable_type>::m_submission_counter;
+
+		 m_waiting_times_graph->add(std::make_tuple(boost::numeric_cast<double>(current_iteration), m_maxTimeout.count()));
+		 m_returned_items_graph->add(std::make_tuple(boost::numeric_cast<double>(current_iteration), boost::numeric_cast<double>(this->getNReturned())));
+
+		 if (0 == GBaseExecutorT<processable_type>::m_submission_counter) {
+			 std::cout
+				 << "Maximum waiting time in iteration " << current_iteration << ": " << m_maxTimeout.count()
+				 << " s (" << currentElapsed.count() << ", "
+				 << GBaseExecutorT<processable_type>::m_expectedNumber << ", " << m_initialWaitFactor << ")" << std::endl;
+		 } else {
+			 std::cout
+				 << "Maximum waiting time in iteration " << current_iteration << ": " << m_maxTimeout.count()
+				 << " s (" << m_lastAverage.count() << ", "
+				 << GBaseExecutorT<processable_type>::m_expectedNumber << ", " << m_waitFactor << ")" << std::endl;
+		 }
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Performs necessary logging work for each received work item, if requested
 	  */
 	 void log(std::shared_ptr<processable_type> w) {
@@ -1595,14 +1649,14 @@ private:
 	 /***************************************************************************/
 	 // Local data
 
-	 submissionReturnMode m_srm; ///< Indicates how (long) the object shall wait for returns
-	 std::size_t m_maxResubmissions; ///< The maximum number of re-submissions allowed if a full return of submitted items is attempted
-	 double m_waitFactor; ///< A static factor to be applied to timeouts
-	 double m_initialWaitFactor; ///< A static factor to be applied to timeouts in the first iteration
+	 submissionReturnMode m_srm = DEFAULTSRM; ///< Indicates how (long) the object shall wait for returns
+	 std::size_t m_maxResubmissions = DEFAULTMAXRESUBMISSIONS; ///< The maximum number of re-submissions allowed if a full return of submitted items is attempted
+	 double m_waitFactor = DEFAULTBROKERWAITFACTOR2; ///< A static factor to be applied to timeouts
+	 double m_initialWaitFactor = DEFAULTINITIALBROKERWAITFACTOR2; ///< A static factor to be applied to timeouts in the first iteration
 
 	 bool m_doLogging = false; ///< Specifies whether arrival times of work items should be logged
 	 std::vector<std::tuple<SUBMISSIONCOUNTERTYPE, SUBMISSIONCOUNTERTYPE, std::chrono::system_clock::time_point>> m_logData; ///< Holds the sending and receiving iteration as well as the time needed for completion
-	 std::vector<std::chrono::system_clock::time_point> m_iterationStartTimes; ///< Holds the start times of given iterations, if logging is activated
+	 std::vector<std::chrono::system_clock::time_point> m_submissionStartTimes; ///< Holds the start times of given iterations, if logging is activated
 
 	 GBufferPortT_ptr m_CurrentBufferPort; ///< Holds a GBufferPortT object during the calculation. Note: It is neither serialized nor copied
 
@@ -1611,6 +1665,11 @@ private:
 	 std::shared_ptr<Gem::Common::GGraph2D> m_returned_items_graph;  ///< The maximum waiting time resulting from the wait factor
 
 	 bool m_waitFactorWarningEmitted = false; ///< Specifies whether a warning about a small waitFactor has already been emitted
+
+	 std::chrono::system_clock::time_point m_lastReturnTime = std::chrono::system_clock::now(); ///< Temporary that holds the time of the return of the last item of an iteration
+	 std::chrono::duration<double> m_lastAverage = std::chrono::duration<double>(0.); ///< The average time needed for the last submission
+	 std::chrono::duration<double> m_remainingTime = std::chrono::duration<double>(0.); ///< The remaining time in the current iteration
+	 std::chrono::duration<double> m_maxTimeout = std::chrono::duration<double>(0.); ///< The maximum amount of time allowed for the entire calculation
 };
 
 
