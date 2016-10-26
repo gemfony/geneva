@@ -44,7 +44,7 @@ namespace Geneva {
  * The default constructor
  */
 GBrokerGD::GBrokerGD()
-	: GBaseGD(), Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(
+	: GBaseGD(), Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>(
 	Gem::Courtier::submissionReturnMode::RESUBMISSIONAFTERTIMEOUT) { /* nothing */ }
 
 /******************************************************************************/
@@ -54,7 +54,7 @@ GBrokerGD::GBrokerGD()
 GBrokerGD::GBrokerGD(
 	const std::size_t &nStartingPoints, const double &finiteStep, const double &stepSize
 )
-	: GBaseGD(nStartingPoints, finiteStep, stepSize), Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(
+	: GBaseGD(nStartingPoints, finiteStep, stepSize), Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>(
 	Gem::Courtier::submissionReturnMode::RESUBMISSIONAFTERTIMEOUT) { /* nothing */ }
 
 /******************************************************************************/
@@ -62,7 +62,7 @@ GBrokerGD::GBrokerGD(
  * A standard copy constructor
  */
 GBrokerGD::GBrokerGD(const GBrokerGD &cp)
-	: GBaseGD(cp), Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(cp) { /* nothing */ }
+	: GBaseGD(cp), Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -176,7 +176,7 @@ void GBrokerGD::load_(const GObject *cp) {
 
 	// Load the parent classes' data ...
 	GBaseGD::load_(cp);
-	Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::load(p_load);
+	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>::load(p_load);
 
 	// ... no local data
 }
@@ -200,7 +200,7 @@ void GBrokerGD::init() {
 	GBaseGD::init();
 
 	// Initialize the broker connector
-	Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::init();
+	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>::init();
 }
 
 /******************************************************************************/
@@ -209,7 +209,7 @@ void GBrokerGD::init() {
  */
 void GBrokerGD::finalize() {
 	// Finalize the broker connector
-	Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::finalize();
+	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>::finalize();
 
 	// GBaseGD sees exactly the environment it would when called from its own class
 	GBaseGD::finalize();
@@ -228,7 +228,7 @@ void GBrokerGD::addConfigurationOptions(
 
 	// Call our parent class'es function
 	GBaseGD::addConfigurationOptions(gpb);
-	Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::addConfigurationOptions(gpb);
+	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>::addConfigurationOptions(gpb);
 
 	// no local data
 }
@@ -270,7 +270,7 @@ void GBrokerGD::runFitnessCalculation() {
 	//--------------------------------------------------------------------------------
 	// Submit all work items and wait for their return
 	std::tuple<std::size_t, std::size_t> range(0, this->size());
-	complete = GBrokerConnector2T<Gem::Geneva::GParameterSet>::workOn(
+	complete = GBrokerConnectorT<Gem::Geneva::GParameterSet>::workOn(
 		data, range, oldWorkItems_, false // Do not remove unprocessed item
 	);
 

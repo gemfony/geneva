@@ -47,7 +47,7 @@ namespace Geneva {
  */
 GBrokerSwarm::GBrokerSwarm()
 	: GBaseSwarm()
-	, Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(Gem::Courtier::submissionReturnMode::INCOMPLETERETURN)
+	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>(Gem::Courtier::submissionReturnMode::INCOMPLETERETURN)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -63,7 +63,7 @@ GBrokerSwarm::GBrokerSwarm(
 	, const std::size_t &nNeighborhoodMembers
 )
 	: GBaseSwarm(nNeighborhoods, nNeighborhoodMembers)
-	, Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(Gem::Courtier::submissionReturnMode::INCOMPLETERETURN)
+	, Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>(Gem::Courtier::submissionReturnMode::INCOMPLETERETURN)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -73,7 +73,7 @@ GBrokerSwarm::GBrokerSwarm(
  * @param cp A copy of another GBrokerSwarm object
  */
 GBrokerSwarm::GBrokerSwarm(const GBrokerSwarm &cp)
-	: GBaseSwarm(cp), Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>(cp) { /* nothing */ }
+	: GBaseSwarm(cp), Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -106,7 +106,7 @@ void GBrokerSwarm::load_(const GObject *cp) {
 
 	// Load the parent classes' data ...
 	GBaseSwarm::load_(cp);
-	Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::load(p_load);
+	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>::load(p_load);
 
 	// no local data
 }
@@ -200,7 +200,7 @@ void GBrokerSwarm::init() {
 	GBaseSwarm::init();
 
 	// Initialize the broker connector
-	Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::init();
+	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>::init();
 }
 
 /******************************************************************************/
@@ -209,7 +209,7 @@ void GBrokerSwarm::init() {
  */
 void GBrokerSwarm::finalize() {
 	// Finalize the broker connector
-	Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::finalize();
+	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>::finalize();
 
 	// GBaseSwarm sees exactly the environment it would when called from its own class
 	GBaseSwarm::finalize();
@@ -237,7 +237,7 @@ void GBrokerSwarm::addConfigurationOptions(
 ) {
 	// Call our parent class'es function
 	GBaseSwarm::addConfigurationOptions(gpb);
-	Gem::Courtier::GBrokerConnector2T<GParameterSet>::addConfigurationOptions(gpb);
+	Gem::Courtier::GBrokerConnectorT<GParameterSet>::addConfigurationOptions(gpb);
 
 	// no local data
 }
@@ -305,7 +305,7 @@ void GBrokerSwarm::runFitnessCalculation() {
 
 	//--------------------------------------------------------------------------------
 	// Now submit work items and wait for results
-	Gem::Courtier::GBrokerConnector2T<GParameterSet>::workOn(
+	Gem::Courtier::GBrokerConnectorT<GParameterSet>::workOn(
 		data, oldWorkItems_, true // Remove unprocessed items
 	);
 

@@ -45,7 +45,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "courtier/GBufferPortT.hpp"
-#include "courtier/GBrokerConnector2T.hpp"
+#include "courtier/GBrokerConnectorT.hpp"
 #include "geneva/GSwarmPersonalityTraits.hpp"
 #include "geneva/GBaseSwarm.hpp"
 
@@ -59,7 +59,7 @@ namespace Geneva {
  */
 class GBrokerSwarm
 	: public GBaseSwarm
-		, public Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>
+		, public Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -70,8 +70,8 @@ class GBrokerSwarm
 
 		ar
 		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseSwarm)
-		& make_nvp("GBrokerConnector2T_GParameterSet",
-					  boost::serialization::base_object<Gem::Courtier::GBrokerConnector2T<GParameterSet>>(*this));
+		& make_nvp("GBrokerConnectorT_GParameterSet",
+					  boost::serialization::base_object<Gem::Courtier::GBrokerConnectorT<GParameterSet>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 

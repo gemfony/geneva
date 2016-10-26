@@ -1,5 +1,5 @@
 /**
- * @file GBrokerConnector2T.hpp
+ * @file GBrokerConnectorT.hpp
  */
 
 /*
@@ -64,8 +64,8 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
 
-#ifndef GBROKERCONNECTOR2T_HPP_
-#define GBROKERCONNECTOR2T_HPP_
+#ifndef GBROKERCONNECTORT_HPP_
+#define GBROKERCONNECTORT_HPP_
 
 
 // Geneva headers go here
@@ -73,6 +73,7 @@
 #include "common/GLogger.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GMathHelperFunctionsT.hpp"
+#include "common/GHelperFunctionsT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GPlotDesigner.hpp"
 #include "common/GThreadPool.hpp"
@@ -186,29 +187,23 @@ public:
 		 std::vector<std::shared_ptr<processable_type>>& workItems
 		 , std::vector<bool> &workItemPos
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
-		 , const std::string &originator = std::string()
+		 , const std::string &caller = std::string()
 	 ) {
-		 bool complete = false;
+		 bool completed = false;
 
-#ifdef DEBUG
-		 if(!originator.empty()) {
-			 glogger
-				 << "In GBaseExecutorT<processable_type>::workOn(): Info" << std::endl
-				 << "workOn was called from " << originator << std::endl
-				 << GLOGGING;
-		 }
-#endif /* DEBUG */
+		 // Set the start time of the new iteration
+		 m_iterationStartTime = std::chrono::system_clock::now();
 
 		 // Check that both vectors have the same size
-		 if (workItems.empty() || workItems.size() != workItemPos.size()) {
-			 glogger
-				 << "In GBaseExecutorT<processable_type>::workOn(): Error!" << std::endl
-				 << "Received invalid sizes: " << workItems.size() << " / " << workItemPos.size() << std::endl
-				 << GEXCEPTION;
-		 }
+		 Gem::Common::assert_container_sizes_match(
+			 workItems
+			 , workItemPos
+			 , "GBaseExecutorT<processable_type>::workOn()"
+		 );
 
-		 // The expected number of work items from the current iteration
-		 m_expectedNumber = std::count(workItemPos.begin(), workItemPos.end(), true);
+		 // The expected number of work items from the current iteration is
+		 // equal to the number of unprocessed items
+		 m_expectedNumber = std::count(workItemPos.begin(), workItemPos.end(), GBC_UNPROCESSED);
 		 // Take care of a situation where no items have been submitted
 		 if (m_expectedNumber == 0) {
 			 return true;
@@ -217,23 +212,57 @@ public:
 		 // Make sure the vector of old work items is empty
 		 oldWorkItems.clear();
 
-		 // Allows to perform necessary setup work for an iteration
+		 // Perform necessary setup work for an iteration (a facility for derived classes)
 		 this->iterationInit(workItems, workItemPos, oldWorkItems);
 
-		 // Submit all items
+		 // Submit all work items
 		 this->submitAllWorkItems(workItems, workItemPos);
 
-		 // Wait for work items to return. This function needs to
+		 // Wait for work items to complete. This function needs to
 		 // be re-implemented in derived classes.
-		 complete = waitForReturn(workItems, workItemPos, oldWorkItems);
+		 completed = waitForReturn(workItems, workItemPos, oldWorkItems);
 
-		 // Allows to perform necessary cleanup work for an iteration
+		 // Perform necessary cleanup work for an iteration (a facility for derived classes)
 		 this->iterationFinalize(workItems, workItemPos, oldWorkItems);
+
+		 // Find out about the number of returned items
+		 m_notReturnedLast = std::count(workItemPos.begin(), workItemPos.end(), GBC_UNPROCESSED);
+		 m_returnedLast    = m_expectedNumber - m_notReturnedLast;
+
+		 if (m_returnedLast == 0) { // Check whether any work items have returned at all
+			 glogger
+				 << "In GBaseExecutorT<processable_type>::iterationFinalize(): Warning!" << std::endl
+				 << "No current items have returned with" << std::endl
+				 << "m_expectedNumber  = " << m_expectedNumber << std::endl
+				 << "m_notReturnedLast = " << m_notReturnedLast << std::endl
+				 << "m_returnedLast    = " << m_returnedLast << std::endl
+				 << "Got " << oldWorkItems.size() << " older work items" << std::endl
+				 << GWARNING;
+		 }
+
+		 // Calculate average return times of work items.
+		 m_lastAverage =
+			 (m_returnedLast>0)
+			 ? (m_lastReturnTime - m_iterationStartTime)/m_returnedLast
+			 : (std::chrono::system_clock::now() - m_iterationStartTime)/m_expectedNumber; // this is an artificial number, as no items have returned
+
+		 // Sort old work items according to their ids so they can be readily used by the caller
+		 std::sort(
+			 oldWorkItems.begin()
+			 , oldWorkItems.end()
+			 , [](std::shared_ptr<processable_type> x, std::shared_ptr<processable_type> y) -> bool {
+				 using namespace boost;
+				 return std::get<1>(x->getCourtierId()) < std::get<1>(y->getCourtierId());
+			 }
+		 );
+
+		 // Give feedback to the audience (a facility for derived classes)
+		 this->report();
 
 		 // Update the submission counter
 		 m_submission_counter++;
 
-		 return complete;
+		 return completed;
 	 }
 
 	 /***************************************************************************/
@@ -247,7 +276,7 @@ public:
 	  * @param end The id beyond the last item to be worked on in the vector
 	  * @param oldWorkItems A vector holding work items from older iterations
 	  * @param removeUnprocessed If set to true, unprocessed work items will be removed
-	  * @param originator Optionally holds information on the caller
+	  * @param caller Optionally holds information on the caller
 	  * @return A boolean indicating whether all expected items have returned
 	  */
 	 bool workOn(
@@ -256,11 +285,11 @@ public:
 		 , const std::size_t &end
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 		 , const bool &removeUnprocessed = true
-		 , const std::string &originator = std::string()
+		 , const std::string &caller = std::string()
 	 ) {
-		 bool complete = false;
+		 bool completed = false;
 
-		 // Do some error checking
+		 // Check that we are not dealing with an empty container
 		 if (workItems.empty()) {
 			 glogger
 				 << "In GBaseExecutorT<processable_type>::workOn(): Error!" << std::endl
@@ -268,69 +297,42 @@ public:
 				 << GEXCEPTION;
 		 }
 
-		 if (end <= start) {
-			 glogger
-				 << "In GBaseExecutorT<processable_type>::workOn(): Error!" << std::endl
-				 << "Invalid start or end-values: " << start << " / " << end << std::endl
-				 << GEXCEPTION;
-		 }
+		 // Make sure the start/end positoons match
+		 Gem::Common::assert_sizes_match_container(workItems, start, end, "GBaseExecutorT<processable_type>::workOn()");
 
-		 if (end > workItems.size()) {
-			 glogger
-				 << "In GBaseExecutorT<processable_type>::workOn(): Error!" << std::endl
-				 << "Last id " << end << " exceeds size of vector " << workItems.size() << std::endl
-				 << GEXCEPTION;
-		 }
-
-		 // Assemble a position vector
+		 // Assemble a position vector. Only items in fields marked
+		 // unprocessed will be processed. Hence the vector is initialized
+		 // with the GBC_PROCESSED-flag, and only items in positions start-end
+		 // are marked as GBC_UNPROCESSED;
 		 std::vector<bool> workItemPos(workItems.size(), GBC_PROCESSED);
 		 for (std::size_t pos = start; pos != end; pos++) {
 			 workItemPos[pos] = GBC_UNPROCESSED;
 		 }
 
-		 // Start the calculation
-		 complete = this->workOn(
+		 // Start the calculation. "completed" indicates, whether all
+		 // unprocessed items were processed
+		 completed = this->workOn(
 			 workItems
 			 , workItemPos
 			 , oldWorkItems
-			 , originator
+			 , caller
 		 );
 
-		 // Remove unprocessed items, if necessary
-		 if (!complete && removeUnprocessed) {
-			 typename std::vector<std::shared_ptr<processable_type>>::iterator item_it;
-			 std::vector<bool>::iterator pos_it;
-
-			 std::vector<std::shared_ptr < processable_type>> workItems_tmp;
-			 for (
-				 item_it = workItems.begin() + start, pos_it = workItemPos.begin() + start;
-				 item_it != workItems.begin() + end; ++item_it, ++pos_it
-				 ) {
-				 // Attach processed items to the tmp vector
-				 if (GBC_PROCESSED == *pos_it) {
-					 workItems_tmp.push_back(*item_it);
-				 }
-			 }
-
-			 // Remove all work items in the range [start:end[
-			 workItems.erase(workItems.begin() + start, workItems.begin() + end);
-
-			 // Insert the items from the tmp vector in position "start"
-			 workItems.insert(workItems.begin() + start, workItems_tmp.begin(), workItems_tmp.end());
-
-#ifdef DEBUG
-			 // Cross check that there are remaining work items
-			 if(workItems.empty()) {
-				 glogger
-					 << "In GBaseExecutorT<processable_type>::workOn():: Error!" << std::endl
-					 << "workItems vector is empty" << std::endl
-					 << GEXCEPTION;
-			 }
-#endif /* DEBUG*/
+		 // Remove unprocessed items, if necessary (incomplete, and the removal of
+		 // unprocessed items was requested by the user)
+		 // TODO: Replace with custom erase_if function
+		 if (!completed && removeUnprocessed) {
+			 Gem::Common::erase_according_to_flags(
+				 workItems
+				 , workItemPos
+				 , GBC_UNPROCESSED
+				 , start
+				 , end
+			 );
 		 }
 
 		 // Let the audience know
-		 return complete;
+		 return completed;
 	 }
 
 	 /***************************************************************************/
@@ -341,7 +343,7 @@ public:
 	  * @param range A std::tuple holding the boundaries of the submission range
 	  * @param oldWorkItems A vector holding work items from older iterations
 	  * @param removeUnprocessed If set to true, unprocessed work items will be removed
-	  * @param originator Optionally holds information on the caller
+	  * @param caller Optionally holds information on the caller
 	  * @return A boolean indicating whether all expected items have returned
 	  */
 	 bool workOn(
@@ -349,7 +351,7 @@ public:
 		 , const std::tuple<std::size_t, std::size_t> &range
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 		 , const bool &removeUnprocessed = true
-		 , const std::string &originator = std::string()
+		 , const std::string &caller = std::string()
 	 ) {
 		 return this->workOn(
 			 workItems
@@ -357,7 +359,7 @@ public:
 			 , std::get<1>(range)
 			 , oldWorkItems
 			 , removeUnprocessed
-			 , originator
+			 , caller
 		 );
 	 }
 
@@ -368,14 +370,14 @@ public:
 	  * @param workItems A vector with work items to be evaluated beyond the broker
 	  * @param oldWorkItems A vector holding work items from older iterations
 	  * @param removeUnprocessed If set to true, unprocessed work items will be removed
-	  * @param originator Optionally holds information on the caller
+	  * @param caller Optionally holds information on the caller
 	  * @return A boolean indicating whether all expected items have returned
 	  */
 	 bool workOn(
 		 std::vector<std::shared_ptr<processable_type>>& workItems
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 		 , const bool &removeUnprocessed = true
-		 , const std::string &originator = std::string()
+		 , const std::string &caller = std::string()
 	 ) {
 		 return this->workOn(
 			 workItems
@@ -383,7 +385,7 @@ public:
 			 , workItems.size()
 			 , oldWorkItems
 			 , removeUnprocessed
-			 , originator
+			 , caller
 		 );
 	 }
 
@@ -416,17 +418,17 @@ public:
  	 /**
  	  * Retrieve the number of individuals returned during the last iteration
  	  */
- 	  std::size_t getNReturned() const {
- 	  		return m_returnedLast;
- 	  }
+	 std::size_t getNReturned() const {
+ 		 return m_returnedLast;
+	 }
 
  	 /***************************************************************************/
  	 /**
  	  * Retrieve the number of individuals NOT returned during the last iteration
  	  */
- 	  std::size_t getNNotReturned() const {
- 	  		return m_notReturnedLast;
- 	  }
+	 std::size_t getNNotReturned() const {
+		 return m_notReturnedLast;
+	 }
 
 protected:
 	 /***************************************************************************/
@@ -450,10 +452,7 @@ protected:
 		 std::vector<std::shared_ptr<processable_type>>& workItems
 		 , std::vector<bool> &workItemPos
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
-	 ) BASE {
-		 // Set the start time of the new iteration
-		 m_iterationStartTime = std::chrono::system_clock::now();
-	 }
+	 ) BASE { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
@@ -465,40 +464,13 @@ protected:
 		 std::vector<std::shared_ptr<processable_type>>& workItems
 		 , std::vector<bool> &workItemPos
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
-	 ) BASE {
-		 // Make a note of the time needed up to now
-		 std::chrono::duration<double> iterationDuration = std::chrono::system_clock::now() - m_iterationStartTime;
+	 ) BASE { /* nothing */ }
 
-		 // Find out about the number of returned items
-		 m_notReturnedLast = std::count(workItemPos.begin(), workItemPos.end(), true);
-		 m_returnedLast = m_expectedNumber - m_notReturnedLast;
-
-#ifdef DEBUG
-		 std::cout << "Items returned: " << m_returnedLast << std::endl;
-		 std::cout << "Items lost:     " << m_notReturnedLast << std::endl;
-#endif
-
-		 if (m_returnedLast == 0) { // Check whether any work items have returned at all
-			 glogger
-				 << "In GBaseExecutorT<processable_type>::iterationFinalize(): Warning!" << std::endl
-				 << "No current items have returned" << std::endl
-				 << "Got " << oldWorkItems.size() << " older work items" << std::endl
-				 << GWARNING;
-		 } else {
-			 // Calculate average return times of work items.
-			 m_lastAverage = iterationDuration / ((std::max)(m_returnedLast, std::size_t(1)));
-		 }
-
-		 // Sort old work items so they can be readily used by the caller
-		 std::sort(
-			 oldWorkItems.begin()
-			 , oldWorkItems.end()
-			 , [](std::shared_ptr<processable_type> x, std::shared_ptr<processable_type> y) -> bool {
-				 using namespace boost;
-				 return std::get<1>(x->getCourtierId()) < std::get<1>(y->getCourtierId());
-			 }
-		 );
-	 }
+	 /***************************************************************************/
+	 /**
+	  * Allows to emit information at the end of an iteration
+	  */
+	 virtual void report() BASE { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
@@ -529,10 +501,19 @@ protected:
 	 }
 
 	 /***************************************************************************/
+	 /**
+	  * Allows to set the time at which the last individual has returned (so far)
+	  */
+	 void setLastReturnTime(std::chrono::system_clock::time_point lastReturnTime) {
+		 m_lastReturnTime = lastReturnTime;
+	 }
+
+	 /***************************************************************************/
 	 // Local data
 	 SUBMISSIONCOUNTERTYPE m_submission_counter = SUBMISSIONCOUNTERTYPE(0); ///< Counts the number of submissions initiated by this object. Note: not serialized!
 	 std::size_t m_expectedNumber = 0; ///< The number of work items to be submitted (and expected back)
 	 std::chrono::system_clock::time_point m_iterationStartTime = std::chrono::system_clock::now(); ///< Temporary that holds the start time for the retrieval of items in a given iteration
+	 std::chrono::system_clock::time_point m_lastReturnTime     = m_iterationStartTime; ///< Temporary that holds the time of the return of the last item of an iteration
 	 std::chrono::duration<double> m_lastAverage = std::chrono::duration<double>(0.); ///< The average time needed for the last submission
 
 	 std::size_t m_returnedLast = 0; ///< The number of individuals returned in the last iteration cycle
@@ -661,9 +642,8 @@ protected:
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) override {
 		 // Mark all positions as returned
-		 std::vector<bool>::iterator it;
-		 for (it = workItemPos.begin(); it != workItemPos.end(); ++it) {
-			 *it = false;
+		 for(auto it = workItemPos.begin(); it != workItemPos.end(); ++it) {
+			 *it = GBC_PROCESSED;
 		 }
 
 		 return true;
@@ -822,7 +802,7 @@ private:
  * This class executes a collection of work items in multiple threads
  */
 template<typename processable_type>
-class GBrokerConnector2T
+class GBrokerConnectorT
 	: public GBaseExecutorT<processable_type> {
 	 ///////////////////////////////////////////////////////////////////////
 
@@ -854,7 +834,7 @@ public:
 	 /**
 	  * The default constructor
 	  */
-	 GBrokerConnector2T()
+	 GBrokerConnectorT()
 		 : GBaseExecutorT<processable_type>()
 		 , m_srm(DEFAULTSRM)
 	    , m_maxResubmissions(DEFAULTMAXRESUBMISSIONS)
@@ -881,7 +861,7 @@ public:
 	  *
 	  * @param srm The submission-return mode to be used
 	  */
-	 explicit GBrokerConnector2T(submissionReturnMode srm)
+	 explicit GBrokerConnectorT(submissionReturnMode srm)
 		 : GBaseExecutorT<processable_type>()
 		 , m_srm(srm)
 		 , m_maxResubmissions(DEFAULTMAXRESUBMISSIONS)
@@ -908,7 +888,7 @@ public:
 	  *
 	  * @param cp A copy of another GBrokerConnector object
 	  */
-	 GBrokerConnector2T(const GBrokerConnector2T<processable_type> &cp)
+	 GBrokerConnectorT(const GBrokerConnectorT<processable_type> &cp)
 		 : GBaseExecutorT<processable_type>(cp)
 		 , m_srm(cp.m_srm)
 		 , m_maxResubmissions(cp.m_maxResubmissions)
@@ -935,10 +915,10 @@ public:
 	 /**
 	  * The destructor
 	  *
-	  * TODO: This is a hack. GBrokerConnector2T from factory will otherwise
+	  * TODO: This is a hack. GBrokerConnectorT from factory will otherwise
 	  * overwrite the file.
 	  */
-	 virtual ~GBrokerConnector2T()
+	 virtual ~GBrokerConnectorT()
 	 {
 		 // Register the plotter
 		 m_gpd.registerPlotter(m_waiting_times_graph);
@@ -952,28 +932,28 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * A standard assignment operator for GBrokerConnector2T<processable_type> objects,
+	  * A standard assignment operator for GBrokerConnectorT<processable_type> objects,
 	  *
-	  * @param cp A copy of another GBrokerConnector2T<processable_type> object
+	  * @param cp A copy of another GBrokerConnectorT<processable_type> object
 	  * @return A constant reference to this object
 	  */
-	 const GBrokerConnector2T<processable_type> &operator=(const GBrokerConnector2T<processable_type> &cp) {
-		 GBrokerConnector2T<processable_type>::load(&cp);
+	 const GBrokerConnectorT<processable_type> &operator=(const GBrokerConnectorT<processable_type> &cp) {
+		 GBrokerConnectorT<processable_type>::load(&cp);
 		 return *this;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Loads the data of another GBrokerConnector2T object
+	  * Loads the data of another GBrokerConnectorT object
 	  *
-	  * @param cp A constant pointer to another GBrokerConnector2T object
+	  * @param cp A constant pointer to another GBrokerConnectorT object
 	  */
 	 virtual void load(GBaseExecutorT<processable_type> const *const cp_base) override {
-		 GBrokerConnector2T<processable_type> const *const cp = dynamic_cast<GBrokerConnector2T<processable_type> const *const>(cp_base);
+		 GBrokerConnectorT<processable_type> const *const cp = dynamic_cast<GBrokerConnectorT<processable_type> const *const>(cp_base);
 
 		 if (!cp) { // nullptr
 			 glogger
-				 << "In GBrokerConnector2T<processable_type>::load(): Conversion error!" << std::endl
+				 << "In GBrokerConnectorT<processable_type>::load(): Conversion error!" << std::endl
 				 << GEXCEPTION;
 		 }
 
@@ -1110,7 +1090,7 @@ public:
 	 void setInitialWaitFactor(double initialWaitFactor) {
 		 if(initialWaitFactor <= 0.) {
 			 glogger
-				 << "In GBrokerConnector2T<processable_type>::setInitialWaitFactor(): Error!" << std::endl
+				 << "In GBrokerConnectorT<processable_type>::setInitialWaitFactor(): Error!" << std::endl
 				 << "Invalid wait factor " << initialWaitFactor << " supplied. Must be > 0."
 				 << GEXCEPTION;
 		 }
@@ -1156,7 +1136,7 @@ public:
 	 std::string getLoggingResults() const {
 		 if (!m_doLogging || m_logData.empty() || m_iterationStartTimes.empty()) {
 			 glogger
-				 << "In GBrokerConnector2T<processable_type>::getLoggingResults(): Error!" << std::endl
+				 << "In GBrokerConnectorT<processable_type>::getLoggingResults(): Error!" << std::endl
 				 << "Attempt to retrieve logging results when no logging seems to have taken place." << std::endl
 				 << "Returning an empty string."
 				 << GWARNING;
@@ -1227,14 +1207,14 @@ protected:
 		 , std::vector<bool> &workItemPos
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) override {
-		 bool complete = false;
+		 bool completed = false;
 
 		 switch (m_srm) {
 			 //------------------------------------------------------------------
 			 // Wait for a given amount of time, decided upon by the function.
 			 // Items that have not returned in time may return in a later iteration
 			 case submissionReturnMode::INCOMPLETERETURN:
-				 complete = this->waitForTimeOut(workItems, workItemPos, oldWorkItems);
+				 completed = this->waitForTimeOut(workItems, workItemPos, oldWorkItems);
 				 break;
 
 				 //------------------------------------------------------------------
@@ -1242,20 +1222,20 @@ protected:
 				 // If not all items have returned, re-submit work items up to a
 				 // predefined number of times
 			 case submissionReturnMode::RESUBMISSIONAFTERTIMEOUT:
-				 complete = this->waitForTimeOutAndResubmit(workItems, workItemPos, oldWorkItems);
+				 completed = this->waitForTimeOutAndResubmit(workItems, workItemPos, oldWorkItems);
 				 break;
 
 				 //------------------------------------------------------------------
 				 // Wait indefinitely, until all work items have returned
 			 case submissionReturnMode::EXPECTFULLRETURN:
-				 complete = this->waitForFullReturn(workItems, workItemPos, oldWorkItems);
+				 completed = this->waitForFullReturn(workItems, workItemPos, oldWorkItems);
 				 break;
 
 				 //------------------------------------------------------------------
 				 // Fallback
 			 default: {
 				 glogger
-					 << "In GBrokerConnector2T<>::waitForReturn(): Error!" << std::endl
+					 << "In GBrokerConnectorT<>::waitForReturn(): Error!" << std::endl
 					 << "Encountered an invalid submission return mode: " << m_srm << std::endl
 					 << GEXCEPTION;
 			 }
@@ -1263,7 +1243,7 @@ protected:
 				 //------------------------------------------------------------------
 		 }
 
-		 return complete;
+		 return completed;
 	 }
 
 private:
@@ -1277,14 +1257,14 @@ private:
 #ifdef DEBUG
 		 if(!w) {
 			 glogger
-				 << "In GBrokerConnector2T::submit(): Error!" << std::endl
+				 << "In GBrokerConnectorT::submit(): Error!" << std::endl
 				 << "Work item is empty" << std::endl
 				 << GEXCEPTION;
 		 }
 
 		 if(!m_CurrentBufferPort) {
 			 glogger
-				 << "In GBrokerConnector2T::submit(): Error!" << std::endl
+				 << "In GBrokerConnectorT::submit(): Error!" << std::endl
 				 << "Current buffer port is empty when it shouldn't be" << std::endl
 				 << GEXCEPTION;
 		 }
@@ -1348,6 +1328,11 @@ private:
 	  * In iteration n>0:
 	  * - The timeout is calculated from the average time needed for the work items
 	  *   of the previous iteration, times a wait factor
+	  *
+	  * @param workItems The work items to be processed
+	  * @param workItemPos Booleans for each work item indicating whether processing has happened
+	  * @param oldWorkItems A collection of old work items that have returned after a timeout
+	  * @return A boolean indicating whether a complete return of items was achieved
 	  */
 	 bool waitForTimeOut(
 		 std::vector<std::shared_ptr<processable_type>>& workItems
@@ -1357,7 +1342,7 @@ private:
 		 std::shared_ptr<processable_type> w;
 
 		 // Note the current iteration for easy reference
-		 SUBMISSIONCOUNTERTYPE current_iteration = GBaseExecutorT<processable_type>::m_submission_counter;
+		 auto current_iteration = GBaseExecutorT<processable_type>::m_submission_counter;
 
 		 std::size_t nReturnedCurrent = 0;
 		 std::chrono::duration<double> currentElapsed;
@@ -1376,13 +1361,13 @@ private:
 			 // should carry a work item.
 			 if (!w) {
 				 glogger
-					 << "In GBrokerConnector2T<>::waitForTimeOut(): Error!" << std::endl
+					 << "In GBrokerConnectorT<>::waitForTimeOut(): Error!" << std::endl
 					 << "First item received in first iteration is empty. We cannot continue!"
 					 << GEXCEPTION;
 			 }
 
 			 if (
-				 this->addVerifiedWorkItemAndCheckComplete(
+				 this->addWorkItemAndCheckCompleteness(
 					 w
 					 , nReturnedCurrent
 					 , workItems
@@ -1408,7 +1393,7 @@ private:
 			 if(!m_waitFactorWarningEmitted) {
 				 if(m_waitFactor > 0. && m_waitFactor < 1.) {
 					 glogger
-					 << "In GBrokerConnector2T::waitForTimeOut(): Warning" << std::endl
+					 << "In GBrokerConnectorT::waitForTimeOut(): Warning" << std::endl
 					 << "It is suggested not to use a wait time < 1. Current value: " << m_waitFactor << std::endl
 					 << GWARNING;
 				 }
@@ -1417,11 +1402,11 @@ private:
 
 			 maxTimeout =
 				 GBaseExecutorT<processable_type>::m_lastAverage
-				 // * boost::numeric_cast<double>((std::max)(this->getNReturned(),std::size_t(1))) // The nunber of items returned in the last iteration
 				 * boost::numeric_cast<double>(GBaseExecutorT<processable_type>::m_expectedNumber)
 				 * m_waitFactor;
 		 }
 
+		 //------------------------------------
 		 // TODO: This is a hack. Submitted for current debugging purposes
 		 m_waiting_times_graph->add(std::make_tuple(boost::numeric_cast<double>(current_iteration), maxTimeout.count()));
 		 m_returned_items_graph->add(std::make_tuple(boost::numeric_cast<double>(current_iteration), boost::numeric_cast<double>(this->getNReturned())));
@@ -1438,18 +1423,22 @@ private:
 				 << " s (" << GBaseExecutorT<processable_type>::m_lastAverage.count() << ", "
 				 << GBaseExecutorT<processable_type>::m_expectedNumber << ", " << m_waitFactor << ")" << std::endl;
 	 	 }
+	 	 //------------------------------------
 
 		 // Loop until a timeout is reached or all current items have returned
 		 while (true) {
 			 if(m_waitFactor > 0.) {
 				 if (currentElapsed > maxTimeout) {
-					 return false;
+					 return false; // No complete return as we have reached the timeout
 				 } else {
 					 remainingTime = maxTimeout - currentElapsed;
 				 }
 
+				 // Obtain the next item
 				 w = retrieve(remainingTime);
-				 if (w && this->addVerifiedWorkItemAndCheckComplete(
+
+				 // Leave if this was the last item
+				 if (this->addWorkItemAndCheckCompleteness(
 					 w
 					 , nReturnedCurrent
 					 , workItems
@@ -1474,7 +1463,7 @@ private:
 				 currentElapsed = std::chrono::system_clock::now() - GBaseExecutorT<processable_type>::m_iterationStartTime;
 			 } else { // No timeouts
 				 w = retrieve();
-				 if (w && this->addVerifiedWorkItemAndCheckComplete(
+				 if (this->addWorkItemAndCheckCompleteness(
 					 w
 					 , nReturnedCurrent
 					 , workItems
@@ -1501,14 +1490,14 @@ private:
 		 , std::vector<bool> &workItemPos
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) {
-		 bool complete = false;
+		 bool completed = false;
 		 std::size_t nResubmissions = 0;
 
 		 do {
-			 complete = waitForTimeOut(workItems, workItemPos, oldWorkItems);
-		 } while (!complete && (m_maxResubmissions>0?(++nResubmissions < m_maxResubmissions):true));
+			 completed = waitForTimeOut(workItems, workItemPos, oldWorkItems);
+		 } while (!completed && (m_maxResubmissions>0?(++nResubmissions < m_maxResubmissions):true));
 
-		 return complete;
+		 return completed;
 	 }
 
 	 /***************************************************************************/
@@ -1528,15 +1517,13 @@ private:
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) {
 		 std::size_t nReturnedCurrent = 0;
-		 while (
-			 !addVerifiedWorkItemAndCheckComplete(
+		 while (!addWorkItemAndCheckCompleteness(
 				 this->retrieve()
 				 , nReturnedCurrent
 				 , workItems
 				 , workItemPos
 				 , oldWorkItems
-			 )
-			 );
+		 ));
 
 		 return true;
 	 }
@@ -1548,16 +1535,24 @@ private:
 	  *
 	  * @return A boolean indicating whether all work items of the current iteration were received
 	  */
-	 bool addVerifiedWorkItemAndCheckComplete(
+	 bool addWorkItemAndCheckCompleteness(
 		 std::shared_ptr <processable_type> w
 		 , std::size_t &nReturnedCurrent
 		 , std::vector<std::shared_ptr<processable_type>>& workItems
 		 , std::vector<bool> &workItemPos
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) {
-		 bool complete = false;
-		 SUBMISSIONCOUNTERTYPE current_iteration = GBaseExecutorT<processable_type>::m_submission_counter;
-		 SUBMISSIONCOUNTERTYPE w_iteration = std::get<0>(w->getCourtierId());
+		 // If we have been passed an empty item, simply continue the outer loop
+		 if(!w) {
+			 return false;
+		 } else {
+			 // Make the return time of the last item known
+			 this->setLastReturnTime(std::chrono::system_clock::now());
+		 }
+
+		 bool completed = false;
+		 auto current_iteration = GBaseExecutorT<processable_type>::m_submission_counter;
+		 auto w_iteration = std::get<0>(w->getCourtierId());
 
 		 if (current_iteration == w_iteration) {
 			 // Mark the position of the work item in the workItemPos vector and cross-check
@@ -1565,7 +1560,7 @@ private:
 
 			 if (w_pos >= workItems.size()) {
 				 glogger
-					 << "In GBrokerConnector2T<processable_type>::addVerifiedWorkItemAndCheckComplete(): Error!" << std::endl
+					 << "In GBrokerConnectorT<processable_type>::addWorkItemAndCheckCompleteness(): Error!" << std::endl
 					 << "Received work item for position " << w_pos << " while" << std::endl
 					 << "only a range [0" << ", " << workItems.size() << "[ was expected." << std::endl
 					 << GEXCEPTION;
@@ -1575,7 +1570,7 @@ private:
 				 workItemPos.at(w_pos) = GBC_PROCESSED; // Successfully returned
 				 workItems.at(w_pos) = w;
 				 if (++nReturnedCurrent == GBaseExecutorT<processable_type>::m_expectedNumber) {
-					 complete = true;
+					 completed = true;
 				 }
 			 } // no else. Re-submitted items might return twice
 
@@ -1583,7 +1578,7 @@ private:
 			 oldWorkItems.push_back(w);
 		 }
 
-		 return complete;
+		 return completed;
 	 }
 
 	 /***************************************************************************/
@@ -1633,4 +1628,4 @@ private:
 } /* namespace Courtier */
 } /* namespace Gem */
 
-#endif /* GBROKERCONNECTOR2T_HPP_ */
+#endif /* GBROKERCONNECTORT_HPP_ */

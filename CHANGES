@@ -38,10 +38,11 @@ The main changes for this release include:
  - Added a post-processor for running a sub-optimization on an individual
  - Gave GDataCollector1T and GDataCollector2T (and with them GHistogram1D and GHistogram2D) the
    ability to automatically detect ranges
- - Added the option to set the initial wait factor of GBrokerConnector2T in the config file
+ - Added the option to set the initial wait factor of GBrokerConnectorT in the config file
 	of optimization algorithms
  - The maximum size of GBoundedBufferT is now defined via a value template parameter, and
    unbounded buffers are possible (set the capacity to 0)
+ - Renamed class GBrokerConnector2T to GBrokerConnectorT
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.8, "Torino" - August 13, 2016
@@ -361,7 +362,7 @@ The main changes for this release include:
  - Evolutionary Algorithms are now based on GParameterSet (just like all
    other "basic" optimization algorithms, except for multi-populations).
  - Reworked the entire broker architecture (GBrokerConnectorT was replaced
-   by GBrokerConnector2T, and the GBrokerT class as well as the
+   by GBrokerConnectorT, and the GBrokerT class as well as the
    GAsioTCPConsumerT classes have been refactored).
  - The broker, as implemented, now acts solely on GParameterSet-derivatives.
    This simplifies the architecture.

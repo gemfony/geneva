@@ -869,6 +869,52 @@ const item_type &getMapItem(const std::map<std::string, item_type> &m, const std
 	return m.begin()->second;
 }
 
+
+/******************************************************************************/
+/**
+ * Checks whether start- and end-ids match a given container type. "start"
+ * is inclusive, "end" is exclusive.
+ */
+template<typename container_type>
+void assert_sizes_match_container(
+	const container_type& container
+	, std::size_t start
+	, std::size_t end
+	, const std::string& caller
+){
+	if (end <= start) {
+		glogger
+			<< "In assert_sizes_match_container() (caller " << caller << "): Error!" << std::endl
+			<< "Invalid start or end-values: " << start << " / " << end << std::endl
+			<< GEXCEPTION;
+	}
+
+	if (end > container.size()) {
+		glogger
+			<< "In assert_sizes_match_container() (caller " << caller << "): Error!" << std::endl
+			<< "Last id " << end << " exceeds size of vector " << container.size() << std::endl
+			<< GEXCEPTION;
+	}
+}
+
+/******************************************************************************/
+/**
+ * Checks that the sizes of two container types match
+ */
+template<typename container_type1, typename container_type2>
+void assert_container_sizes_match(
+	const container_type1& container1
+	, const container_type2& container2
+	, const std::string& caller
+) {
+	if(container1.size() != container2.size()) {
+		glogger
+			<< "In assert_container_sizes_match() (caller " << caller << "): Error!" << std::endl
+			<< "Invalid container sizes: " << container1.size() << " / " << container2.size() << std::endl
+			<< GEXCEPTION;
+	}
+};
+
 /******************************************************************************/
 /**
  * Erases items from a standard container that comply with a specific condition
@@ -884,6 +930,49 @@ void erase_if(container_type& container, const predicate_type& predicate ) {
 		}
 	}
 };
+
+/******************************************************************************/
+/**
+ * Erases items from a standard container according to a collection of flags
+ * in a std::vector of the same size. Erasure may happen in a given range only.
+ * The items held by the container must be copyable. A flag equal to "flag" means
+ * that the associated container entry will be erased.
+ */
+template<typename container_type>
+void erase_according_to_flags(
+	container_type& container
+	, const std::vector<bool>& flags
+	, bool flag
+	, std::size_t start
+	, std::size_t end
+) {
+	typename container_type::iterator item_it;
+	std::vector<bool>::const_iterator pos_it;
+
+	// Make sure the start/stop positions match the container
+	assert_sizes_match_container(container, start, end, "erase_according_to_flags");
+
+	// Make sure the flag vector has the same size as the container
+	assert_container_sizes_match(container, flags, "erase_according_to_flags");
+
+	// Copy items over that do not need to be erased
+	container_type container_tmp;
+	for (
+		item_it = container.begin() + start, pos_it = flags.begin() + start;
+		item_it != container.begin() + end; ++item_it, ++pos_it
+	) {
+		// Attach processed items to the tmp vector
+		if (flag != *pos_it) {
+			container_tmp.push_back(*item_it);
+		}
+	}
+
+	// Remove all other items in the range [start:end[
+	container.erase(container.begin() + start, container.begin() + end);
+
+	// Insert the items from the tmp vector in position "start"
+	container.insert(container.begin() + start, container_tmp.begin(), container_tmp.end());
+}
 
 /******************************************************************************/
 

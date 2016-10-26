@@ -39,7 +39,7 @@
 
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GBrokerT.hpp"
-#include "courtier/GBrokerConnector2T.hpp"
+#include "courtier/GBrokerConnectorT.hpp"
 #include "courtier/GAsioTCPConsumerT.hpp"
 #include "courtier/GBoostThreadConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
@@ -277,7 +277,7 @@ void connectorProducer(
 	}
 
 	// Holds the broker connector (i.e. the entity that connects us to the broker)
-	Gem::Courtier::GBrokerConnector2T<WORKLOAD> brokerConnector(srm);
+	Gem::Courtier::GBrokerConnectorT<WORKLOAD> brokerConnector(srm);
 	brokerConnector.init(); // This will particularly set up the buffer port
 	brokerConnector.setMaxResubmissions(maxResubmissions);
 

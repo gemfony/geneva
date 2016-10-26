@@ -45,7 +45,7 @@ namespace Geneva {
  */
 GBrokerSA::GBrokerSA()
 	: GBaseSA()
-	, Gem::Courtier::GBrokerConnector2T<GParameterSet>(Gem::Courtier::submissionReturnMode::INCOMPLETERETURN)
+	, Gem::Courtier::GBrokerConnectorT<GParameterSet>(Gem::Courtier::submissionReturnMode::INCOMPLETERETURN)
 	, nThreads_(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 { /* nothing */ }
 
@@ -57,7 +57,7 @@ GBrokerSA::GBrokerSA()
  */
 GBrokerSA::GBrokerSA(const GBrokerSA &cp)
 	: GBaseSA(cp)
-	, Gem::Courtier::GBrokerConnector2T<GParameterSet>(cp)
+	, Gem::Courtier::GBrokerConnectorT<GParameterSet>(cp)
 	, nThreads_(cp.nThreads_)
 { /* nothing */ }
 
@@ -82,7 +82,7 @@ void GBrokerSA::load_(const GObject *cp) {
 
 	// Load the parent classes' data ...
 	GBaseSA::load_(cp);
-	Gem::Courtier::GBrokerConnector2T<GParameterSet>::load(p_load);
+	Gem::Courtier::GBrokerConnectorT<GParameterSet>::load(p_load);
 
 	// ... and then our own
 	nThreads_ = p_load->nThreads_;
@@ -211,7 +211,7 @@ void GBrokerSA::init() {
 	GBaseSA::init();
 
 	// Initialize the broker connector
-	Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::init();
+	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>::init();
 
 	// Initialize our thread pool
 	tp_ptr_.reset(new Gem::Common::GThreadPool(nThreads_));
@@ -246,7 +246,7 @@ void GBrokerSA::finalize() {
 	tp_ptr_.reset();
 
 	// Finalize the broker connector
-	Gem::Courtier::GBrokerConnector2T<Gem::Geneva::GParameterSet>::finalize();
+	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>::finalize();
 
 	// GBaseSA sees exactly the environment it would when called from its own class
 	GBaseSA::finalize();
@@ -308,7 +308,7 @@ void GBrokerSA::runFitnessCalculation() {
 
 	//--------------------------------------------------------------------------------
 	// Now submit work items and wait for results.
-	Gem::Courtier::GBrokerConnector2T<GParameterSet>::workOn(
+	Gem::Courtier::GBrokerConnectorT<GParameterSet>::workOn(
 		data, range, oldWorkItems_, true // Remove unprocessed items
 	);
 
@@ -414,7 +414,7 @@ void GBrokerSA::addConfigurationOptions(
 ) {
 	// Call our parent class'es function
 	GBaseSA::addConfigurationOptions(gpb);
-	Gem::Courtier::GBrokerConnector2T<GParameterSet>::addConfigurationOptions(gpb);
+	Gem::Courtier::GBrokerConnectorT<GParameterSet>::addConfigurationOptions(gpb);
 
 	// Add local data
 	gpb.registerFileParameter<std::uint16_t>(
