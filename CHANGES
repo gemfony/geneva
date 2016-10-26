@@ -47,8 +47,11 @@ The main changes for this release include:
 //------------------------------------------------------------------------------------------------------
 * Version 1.8, "Torino" - August 13, 2016
 
-Recommended version of Boost: 1.59; Minimum Boost version: 1.57.
-CMake Version 3.1 is required.
+Recommended versions
+- Boost: 1.59; Minimum Boost version: 1.57.
+- CMake Version 3.1 or higher is required.
+- g++ is recommended to be at least 5.1, earlier version might
+  work if C++14 is sufficiently supported
 
 The main changes for this release include:
 

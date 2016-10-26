@@ -99,8 +99,10 @@ template<typename carrier_type>
 class GBrokerT
 	: private boost::noncopyable
 {
-	typedef typename std::shared_ptr<Gem::Common::GBoundedBufferT<std::shared_ptr<carrier_type>>> GRawBuffer_Ptr;
- 	typedef typename std::shared_ptr<Gem::Common::GBoundedBufferT<std::shared_ptr<carrier_type>,0>> GProcessedBuffer_Ptr;
+   typedef typename Gem::Common::GBoundedBufferT<std::shared_ptr<carrier_type>> GRawBuffer;
+	typedef typename std::shared_ptr<GRawBuffer> GRawBuffer_Ptr;
+	typedef typename Gem::Common::GBoundedBufferT<std::shared_ptr<carrier_type>,0> GProcessedBuffer;
+ 	typedef typename std::shared_ptr<GProcessedBuffer> GProcessedBuffer_Ptr;
 	typedef typename std::list<GRawBuffer_Ptr> BufferPtrList;
 	typedef typename std::map<Gem::Common::PORTIDTYPE, GProcessedBuffer_Ptr> BufferPtrMap;
 
@@ -219,8 +221,10 @@ public:
 		processed->setId(portId);
 
 		// Find orphaned items in the two collections and remove them.
-		Gem::Common::erase_if(m_RawBuffers, [](auto p) -> bool { return p.unique(); });
-	   Gem::Common::erase_if(m_ProcessedBuffers, [](auto p)-> bool { return p.second.unique(); }); // m_ProcessedBuffers is a std::map, so items are of type std::pair
+		// Note that, unforunately, g++ < 5.0 does not support auto in lambda statements,
+		// otherwise the following statements could be simplified.
+		Gem::Common::erase_if(m_RawBuffers, [](GRawBuffer_Ptr p) -> bool { return p.unique(); });
+	   Gem::Common::erase_if(m_ProcessedBuffers, [](std::pair<Gem::Common::PORTIDTYPE, GProcessedBuffer_Ptr> p)-> bool { return p.second.unique(); }); // m_ProcessedBuffers is a std::map, so items are of type std::pair
 
 		// Attach the new items to the lists
 		m_RawBuffers.push_back(original);
