@@ -198,10 +198,10 @@ public:
 		std::unique_lock<std::mutex> switchGetPositionLock(m_switchGetPositionMutex);
 		std::unique_lock<std::mutex> findProcessedBufferLock(m_findProcesedBufferMutex);
 
-		// Complain if the m_lastId is getting too large. m_lastId should
-		// be replaced by a GUID/UUID, when it becomes available in Boost.
+		// Complain if the m_lastId is getting too large.
 		// Note that, if this machine has no 64 bit integer types, we can
 		// only count up to roughly 4 billion.
+		// TODO: m_lastId should be replaced by a GUID/UUID
 		if (m_lastId >= MAXPORTID) {
 			glogger
 			<< "In GBrokerT<T>::enrol(): m_lastId is getting too large: " << m_lastId << std::endl
