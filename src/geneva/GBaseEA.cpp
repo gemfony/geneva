@@ -599,7 +599,13 @@ void GBaseEA::sortMuPlusNuParetoMode() {
 	// At this point we have tagged all individuals according to whether or not they are
 	// on the pareto front. Lets sort them accordingly, bringing individuals with the
 	// pareto tag to the front of the collection.
-	sort(data.begin(), data.end(), indParetoComp());
+	sort(
+		data.begin()
+		, data.end()
+		, [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) {
+			return x->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront() > y->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront();
+		}
+	);
 
 	// Count the number of individuals on the pareto front
 	std::size_t nIndividualsOnParetoFront = 0;
@@ -691,7 +697,13 @@ void GBaseEA::sortMuCommaNuParetoMode() {
 	// tagged as not being on the pareto front in the beginning of this function, so
 	// sorting the individuals according to the pareto tag will move former parents out
 	// of the parents section.
-	sort(data.begin(), data.end(), indParetoComp());
+	sort(
+		data.begin()
+		, data.end()
+		, [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) {
+			return x->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront() > y->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront();
+		}
+	);
 
 	// Count the number of individuals on the pareto front
 	std::size_t nIndividualsOnParetoFront = 0;

@@ -172,18 +172,6 @@ protected:
 
 private:
 	/***************************************************************************/
-	/**
-	 * A simple comparison operator that helps to sort individuals according to their
-	 * pareto status
-	 */
-	class indParetoComp {
-	public:
-		bool operator()(std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) {
-			return x->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront() > y->getPersonalityTraits<GEAPersonalityTraits>()->isOnParetoFront();
-		}
-	};
-
-	/***************************************************************************/
 	/** @brief Selection according to the pareto tag in MUPLUSNU mode (i.e. taking into account the parents) */
 	void sortMuPlusNuParetoMode();
 	/** @brief Selection according to the pareto tag in MUCOMMANU mode (i.e. not taking into account the parents) */
