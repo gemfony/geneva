@@ -289,7 +289,10 @@ void GBrokerEA::runFitnessCalculation() {
 	//--------------------------------------------------------------------------------
 	// Now submit work items and wait for results.
 	Gem::Courtier::GBrokerConnectorT<GParameterSet>::workOn(
-		data, range, oldWorkItems_, true // Remove unprocessed items
+		data
+		, range
+		, oldWorkItems_
+		, true // Remove unprocessed items
 	);
 
 	//--------------------------------------------------------------------------------
@@ -302,8 +305,6 @@ void GBrokerEA::runFitnessCalculation() {
  * Fixes the population after a job submission
  */
 void GBrokerEA::fixAfterJobSubmission() {
-	std::vector<std::shared_ptr < GParameterSet>> ::iterator
-	it;
 	std::size_t np = getNParents();
 	std::uint32_t iteration = getIteration();
 
@@ -312,21 +313,39 @@ void GBrokerEA::fixAfterJobSubmission() {
 	// We thus need to explicitly erase these items. remove_if returns the iterator position right after
 	// the last item not satisfying the predicate.
 	oldWorkItems_.erase(
-		std::remove_if(oldWorkItems_.begin(), oldWorkItems_.end(), isOldParent(iteration)), oldWorkItems_.end()
+		std::remove_if(
+			oldWorkItems_.begin()
+			, oldWorkItems_.end()
+			, [&iteration](std::shared_ptr<GParameterSet> x) -> bool {
+				if(x->getPersonalityTraits<GEAPersonalityTraits>()->isParent() && x->getAssignedIteration() != iteration) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		)
+		, oldWorkItems_.end()
 	);
 
 	// Make it known to remaining old individuals that they are now part of a new iteration
 	std::for_each(
-		oldWorkItems_.begin(), oldWorkItems_.end(),
-		[iteration](std::shared_ptr <GParameterSet> p) { p->setAssignedIteration(iteration); }
+		oldWorkItems_.begin()
+		, oldWorkItems_.end()
+		, [iteration](std::shared_ptr <GParameterSet> p) { p->setAssignedIteration(iteration); }
 	);
 
 	// Make sure that parents are at the beginning of the array.
-	sort(data.begin(), data.end(), indParentComp());
+	sort(
+		data.begin()
+		, data.end()
+		, [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
+			return (x->getPersonalityTraits<GEAPersonalityTraits>()->isParent() > y->getPersonalityTraits<GEAPersonalityTraits>()->isParent());
+		}
+	);
 
 	// Attach all old work items to the end of the current population and clear the array of old items
-	for (it = oldWorkItems_.begin(); it != oldWorkItems_.end(); ++it) {
-		data.push_back(*it);
+	for(auto item: oldWorkItems_) {
+		data.push_back(item);
 	}
 	oldWorkItems_.clear();
 
@@ -341,7 +360,7 @@ void GBrokerEA::fixAfterJobSubmission() {
 
 	// Mark the first nParents_ individuals as parents in the first iteration. We want to have a "sane" population.
 	if (inFirstIteration()) {
-		for (it = this->begin(); it != this->begin() + np; ++it) {
+		for (auto it = this->begin(); it != this->begin() + np; ++it) {
 			(*it)->getPersonalityTraits<GEAPersonalityTraits>()->setIsParent();
 		}
 	}

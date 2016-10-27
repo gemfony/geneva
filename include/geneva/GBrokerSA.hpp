@@ -153,47 +153,6 @@ private:
 	std::vector<std::shared_ptr<GParameterSet>> oldWorkItems_; ///< Temporarily holds old returned work items
 
 	/***************************************************************************/
-	/**
-	 * A simple comparison operator that helps to sort individuals according to their
-	 * status as parents or children
-	 */
-	class indParentComp {
-	public:
-		bool operator()(std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) {
-			return (x->getPersonalityTraits<GSAPersonalityTraits>()->isParent() > y->getPersonalityTraits<GSAPersonalityTraits>()->isParent());
-		}
-	};
-
-	/***************************************************************************/
-	/**
-	 * This simple operator helps to identify individuals that are parents from an
-	 * older iteration
-	 */
-	class isOldParent {
-	public:
-		isOldParent(const std::uint32_t current_iteration)
-			: current_iteration_(current_iteration)
-		{ /* nothing */ }
-
-		isOldParent(const isOldParent& cp)
-			: current_iteration_(cp.current_iteration_)
-		{ /* nothing */ }
-
-		bool operator()(std::shared_ptr<GParameterSet> x) {
-			if(x->getPersonalityTraits<GSAPersonalityTraits>()->isParent() && x->getAssignedIteration() != current_iteration_) {
-				return true;
-			} else {
-				return false;
-			}
-		}
-
-	private:
-		isOldParent() = delete; // Intentionally private and undefined
-
-		std::uint32_t current_iteration_;
-	};
-
-	/***************************************************************************/
 
 	/** @brief Fixes the population after a job submission */
 	void fixAfterJobSubmission();

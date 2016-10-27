@@ -152,63 +152,6 @@ private:
 	std::vector<std::shared_ptr<GParameterSet>> oldWorkItems_; ///< Temporarily holds old returned work items
 
 	/***************************************************************************/
-	/**
-	 * A simple comparison operator that helps to sort individuals according to their
-	 * status as parents or children
-	 */
-	class indParentComp {
-	public:
-		bool operator()(std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) {
-			return (x->getPersonalityTraits<GEAPersonalityTraits>()->isParent() > y->getPersonalityTraits<GEAPersonalityTraits>()->isParent());
-		}
-	};
-
-	/***************************************************************************/
-	/**
-	 * This simple operator helps to identify individuals that are parents from an
-	 * older iteration
-	 */
-	class isOldParent {
-	public:
-		isOldParent(const std::uint32_t current_iteration)
-			: current_iteration_(current_iteration)
-		{ /* nothing */ }
-
-		isOldParent(const isOldParent& cp)
-			: current_iteration_(cp.current_iteration_)
-		{ /* nothing */ }
-
-		bool operator()(std::shared_ptr<GParameterSet> x) {
-			if(x->getPersonalityTraits<GEAPersonalityTraits>()->isParent() && x->getAssignedIteration() != current_iteration_) {
-				return true;
-			} else {
-				return false;
-			}
-		}
-
-	private:
-		isOldParent() = delete; // Intentionally private and undefined
-
-		std::uint32_t current_iteration_;
-	};
-
-	/***************************************************************************/
-	/**
-	 * This operator helps to remove individuals whose dirty flag is still set
-	 * after processing. This may happen in case of an incomplete return.
-	 */
-	class hasDirtyFlagSet {
-	public:
-		bool operator()(std::shared_ptr<GParameterSet> x) {
-			if(x->isDirty()) {
-				return true;
-			} else {
-				return false;
-			}
-		}
-	};
-
-	/***************************************************************************/
 
 	/** @brief Fixes the population after a job submission */
 	void fixAfterJobSubmission();

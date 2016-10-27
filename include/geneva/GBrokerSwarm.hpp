@@ -143,18 +143,6 @@ private:
 	std::vector<std::shared_ptr<GParameterSet>> oldWorkItems_; ///< Temporarily holds old returned work items
 
 	/***************************************************************************/
-	/**
-	 * A simple comparison operator that helps to sort individuals according to their
-	 * affiliation to a neighborhood. Smaller neighborhood numbers should be in front.
-	 */
-	class indNeighborhoodComp {
-	public:
-		bool operator()(std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) {
-			return x->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood() < y->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood();
-		}
-	};
-
-	/***************************************************************************/
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

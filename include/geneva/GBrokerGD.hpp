@@ -135,19 +135,6 @@ protected:
 	virtual G_API_GENEVA void runFitnessCalculation() override;
 
 private:
-	/***************************************************************************/
-	/**
-	 * A simple comparison operator that helps to sort individuals according to their
-	 * position in the population Smaller position numbers will end up in front.
-	 */
-	struct indPositionComp {
-		bool operator()(std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) {
-			return x->getPersonalityTraits<GGDPersonalityTraits>()->getPopulationPosition()
-					 < y->getPersonalityTraits<GGDPersonalityTraits>()->getPopulationPosition();
-		}
-	};
-	/***************************************************************************/
-
 	std::vector<std::shared_ptr<GParameterSet>> oldWorkItems_; ///< Temporarily holds old returned work items
 
 public:

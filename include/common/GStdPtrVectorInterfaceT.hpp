@@ -954,8 +954,7 @@ public:
 	};
 
 protected:
-	std::vector<std::shared_ptr < T>>
-	data;
+	std::vector<std::shared_ptr<T>> data;
 
 	/** @brief Intentionally make this object purely virtual, for performance reasons */
 	virtual void dummyFunction() = 0;

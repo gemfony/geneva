@@ -301,31 +301,36 @@ void GBrokerSwarm::runFitnessCalculation() {
 	using namespace Gem::Courtier;
 
 	std::uint32_t iteration = getIteration();
-	GBrokerSwarm::iterator it;
 
-	//--------------------------------------------------------------------------------
-	// Now submit work items and wait for results
+	// Submit work items and wait for results
 	Gem::Courtier::GBrokerConnectorT<GParameterSet>::workOn(
-		data, oldWorkItems_, true // Remove unprocessed items
+		data
+		, oldWorkItems_
+		, true // Remove unprocessed items
 	);
 
 	// Update the iteration of older individuals (they will keep their old neighborhood id)
 	// and attach them to the data vector
-	std::vector<std::shared_ptr < GParameterSet>>::iterator old_it;
-	for (old_it = oldWorkItems_.begin(); old_it != oldWorkItems_.end(); ++old_it) {
-		(*old_it)->setAssignedIteration(iteration);
-		this->push_back(*old_it);
+	for(auto item: oldWorkItems_) {
+		item->setAssignedIteration(iteration);
+		this->push_back(item);
 	}
 	oldWorkItems_.clear();
 
 	// Sort according to the individuals' neighborhoods
-	sort(data.begin(), data.end(), indNeighborhoodComp());
+	sort(
+		data.begin()
+		, data.end()
+		, [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
+			return x->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood() < y->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood();
+		}
+	);
 
 	// Now update the number of items in each neighborhood: First reset the number of members of each neighborhood
 	Gem::Common::assignVecConst(nNeighborhoodMembers_, (std::size_t) 0);
 	// Then update the number of individuals in each neighborhood
-	for (it = this->begin(); it != this->end(); ++it) {
-		nNeighborhoodMembers_[(*it)->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood()] += 1;
+	for(auto item: *this) {
+		nNeighborhoodMembers_[item->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood()] += 1;
 	}
 
 	// The population will be fixed in the GBrokerSwarm::adjustNeighborhoods() function
@@ -370,8 +375,8 @@ void GBrokerSwarm::adjustNeighborhoods() {
 
 			// Remove nSurplus items from the position (n+1)*defaultNNeighborhoodMembers_
 			data.erase(
-				data.begin() + (n + 1) * defaultNNeighborhoodMembers_,
-				data.begin() + ((n + 1) * defaultNNeighborhoodMembers_ + nSurplus)
+				data.begin() + (n + 1) * defaultNNeighborhoodMembers_
+				, data.begin() + ((n + 1) * defaultNNeighborhoodMembers_ + nSurplus)
 			);
 		} else { // nNeighborhoodMembers_[n] < defaultNNeighborhoodMembers_
 			// TODO: Deal with cases where no items of a given neighborhood have returned
