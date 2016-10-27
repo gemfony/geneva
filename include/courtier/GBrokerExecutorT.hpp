@@ -1,5 +1,5 @@
 /**
- * @file GBrokerConnectorT.hpp
+ * @file GBrokerExecutorT.hpp
  */
 
 /*
@@ -187,6 +187,7 @@ public:
 		 std::vector<std::shared_ptr<processable_type>>& workItems
 		 , std::vector<bool> &workItemPos
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
+		 , bool removeUnprocessed = true
 		 , const std::string &caller = std::string()
 	 ) {
 		 bool completed = false;
@@ -240,6 +241,19 @@ public:
 				 << GWARNING;
 		 }
 
+		 // Remove unprocessed items, if necessary (incomplete, and the removal of
+		 // unprocessed items was requested by the user)
+		 // TODO: Replace with custom erase_if function
+		 if (!completed && removeUnprocessed) {
+			 Gem::Common::erase_according_to_flags(
+				 workItems
+				 , workItemPos
+				 , GBC_UNPROCESSED
+				 , 0
+				 , workItems.size()
+			 );
+		 }
+
 		 // Sort old work items according to their ids so they can be readily used by the caller
 		 std::sort(
 			 oldWorkItems.begin()
@@ -278,11 +292,9 @@ public:
 		 , const std::size_t &start
 		 , const std::size_t &end
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
-		 , const bool &removeUnprocessed = true
+		 , bool removeUnprocessed = true
 		 , const std::string &caller = std::string()
 	 ) {
-		 bool completed = false;
-
 		 // Make sure the start/end positoons match
 		 Gem::Common::assert_sizes_match_container(workItems, start, end, "GBaseExecutorT<processable_type>::workOn()");
 
@@ -295,30 +307,15 @@ public:
 			 workItemPos[pos] = GBC_UNPROCESSED;
 		 }
 
-		 // Start the calculation. "completed" indicates, whether all
+		 // Start the calculation. A return value of "true" indicates that all
 		 // unprocessed items were processed
-		 completed = this->workOn(
+		 return this->workOn(
 			 workItems
 			 , workItemPos
 			 , oldWorkItems
+			 , removeUnprocessed
 			 , caller
 		 );
-
-		 // Remove unprocessed items, if necessary (incomplete, and the removal of
-		 // unprocessed items was requested by the user)
-		 // TODO: Replace with custom erase_if function
-		 if (!completed && removeUnprocessed) {
-			 Gem::Common::erase_according_to_flags(
-				 workItems
-				 , workItemPos
-				 , GBC_UNPROCESSED
-				 , start
-				 , end
-			 );
-		 }
-
-		 // Let the audience know
-		 return completed;
 	 }
 
 	 /***************************************************************************/
@@ -485,7 +482,7 @@ protected:
 		 // Submit work items
 		 POSITIONTYPE pos_cnt = 0;
 		 for(auto w_ptr: workItems) { // std::shared_ptr may be copied
-			 if (GBC_UNPROCESSED == workItemPos[pos_cnt]) { // is the item due to be submitted ? We only submit items that are marked as "unprocessed"
+			 if (GBC_UNPROCESSED == workItemPos[pos_cnt]) { // Is the item due to be submitted ? We only submit items that are marked as "unprocessed"
 #ifdef DEBUG
 				 if(!w_ptr) {
 					 glogger
@@ -795,7 +792,7 @@ private:
  * different consumers may be connected.
  */
 template<typename processable_type>
-class GBrokerConnectorT
+class GBrokerExecutorT
 	: public GBaseExecutorT<processable_type> {
 	 ///////////////////////////////////////////////////////////////////////
 
@@ -829,7 +826,7 @@ public:
 	 /**
 	  * The default constructor
 	  */
-	 GBrokerConnectorT()
+	 GBrokerExecutorT()
 		 : GBaseExecutorT<processable_type>()
 		 , m_gpd("Maximum waiting times and returned items", 1, 2)
 	 {
@@ -852,7 +849,7 @@ public:
 	  *
 	  * @param srm The submission-return mode to be used
 	  */
-	 explicit GBrokerConnectorT(submissionReturnMode srm)
+	 explicit GBrokerExecutorT(submissionReturnMode srm)
 		 : GBaseExecutorT<processable_type>()
 		 , m_srm(srm)
 		 , m_gpd("Maximum waiting times and returned items", 1, 2)
@@ -876,7 +873,7 @@ public:
 	  *
 	  * @param cp A copy of another GBrokerConnector object
 	  */
-	 GBrokerConnectorT(const GBrokerConnectorT<processable_type> &cp)
+	 GBrokerExecutorT(const GBrokerExecutorT<processable_type> &cp)
 		 : GBaseExecutorT<processable_type>(cp)
 		 , m_srm(cp.m_srm)
 		 , m_maxResubmissions(cp.m_maxResubmissions)
@@ -907,10 +904,10 @@ public:
 	 /**
 	  * The destructor
 	  *
-	  * TODO: This is a hack. GBrokerConnectorT from factory will otherwise
+	  * TODO: This is a hack. GBrokerExecutorT from factory will otherwise
 	  * overwrite the file.
 	  */
-	 virtual ~GBrokerConnectorT()
+	 virtual ~GBrokerExecutorT()
 	 {
 		 // Register the plotter
 		 m_gpd.registerPlotter(m_waiting_times_graph);
@@ -924,28 +921,28 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * A standard assignment operator for GBrokerConnectorT<processable_type> objects,
+	  * A standard assignment operator for GBrokerExecutorT<processable_type> objects,
 	  *
-	  * @param cp A copy of another GBrokerConnectorT<processable_type> object
+	  * @param cp A copy of another GBrokerExecutorT<processable_type> object
 	  * @return A constant reference to this object
 	  */
-	 const GBrokerConnectorT<processable_type> &operator=(const GBrokerConnectorT<processable_type> &cp) {
-		 GBrokerConnectorT<processable_type>::load(&cp);
+	 const GBrokerExecutorT<processable_type> &operator=(const GBrokerExecutorT<processable_type> &cp) {
+		 GBrokerExecutorT<processable_type>::load(&cp);
 		 return *this;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Loads the data of another GBrokerConnectorT object
+	  * Loads the data of another GBrokerExecutorT object
 	  *
-	  * @param cp A constant pointer to another GBrokerConnectorT object
+	  * @param cp A constant pointer to another GBrokerExecutorT object
 	  */
 	 virtual void load(GBaseExecutorT<processable_type> const *const cp_base) override {
-		 GBrokerConnectorT<processable_type> const *const cp = dynamic_cast<GBrokerConnectorT<processable_type> const *const>(cp_base);
+		 GBrokerExecutorT<processable_type> const *const cp = dynamic_cast<GBrokerExecutorT<processable_type> const *const>(cp_base);
 
 		 if (!cp) { // nullptr
 			 glogger
-				 << "In GBrokerConnectorT<processable_type>::load(): Conversion error!" << std::endl
+				 << "In GBrokerExecutorT<processable_type>::load(): Conversion error!" << std::endl
 				 << GEXCEPTION;
 		 }
 
@@ -1086,7 +1083,7 @@ public:
 	 void setInitialWaitFactor(double initialWaitFactor) {
 		 if(initialWaitFactor <= 0.) {
 			 glogger
-				 << "In GBrokerConnectorT<processable_type>::setInitialWaitFactor(): Error!" << std::endl
+				 << "In GBrokerExecutorT<processable_type>::setInitialWaitFactor(): Error!" << std::endl
 				 << "Invalid wait factor " << initialWaitFactor << " supplied. Must be > 0."
 				 << GEXCEPTION;
 		 }
@@ -1132,7 +1129,7 @@ public:
 	 std::string getLoggingResults() const {
 		 if (!m_doLogging || m_logData.empty() || m_submissionStartTimes.empty()) {
 			 glogger
-				 << "In GBrokerConnectorT<processable_type>::getLoggingResults(): Error!" << std::endl
+				 << "In GBrokerExecutorT<processable_type>::getLoggingResults(): Error!" << std::endl
 				 << "Attempt to retrieve logging results when no logging seems to have taken place." << std::endl
 				 << "Returning an empty string."
 				 << GWARNING;
@@ -1253,7 +1250,7 @@ protected:
 				 // Fallback
 			 default: {
 				 glogger
-					 << "In GBrokerConnectorT<>::waitForReturn(): Error!" << std::endl
+					 << "In GBrokerExecutorT<>::waitForReturn(): Error!" << std::endl
 					 << "Encountered an invalid submission return mode: " << m_srm << std::endl
 					 << GEXCEPTION;
 			 }
@@ -1275,14 +1272,14 @@ private:
 #ifdef DEBUG
 		 if(!w) {
 			 glogger
-				 << "In GBrokerConnectorT::submit(): Error!" << std::endl
+				 << "In GBrokerExecutorT::submit(): Error!" << std::endl
 				 << "Work item is empty" << std::endl
 				 << GEXCEPTION;
 		 }
 
 		 if(!m_CurrentBufferPort) {
 			 glogger
-				 << "In GBrokerConnectorT::submit(): Error!" << std::endl
+				 << "In GBrokerExecutorT::submit(): Error!" << std::endl
 				 << "Current buffer port is empty when it shouldn't be" << std::endl
 				 << GEXCEPTION;
 		 }
@@ -1360,7 +1357,7 @@ private:
 			 if(!m_waitFactorWarningEmitted) {
 				 if(m_waitFactor > 0. && m_waitFactor < 1.) {
 					 glogger
-						 << "In GBrokerConnectorT::waitForTimeOut(): Warning" << std::endl
+						 << "In GBrokerExecutorT::waitForTimeOut(): Warning" << std::endl
 						 << "It is suggested not to use a wait time < 1. Current value: " << m_waitFactor << std::endl
 						 << GWARNING;
 				 }
@@ -1444,7 +1441,7 @@ private:
 			 // should carry a work item.
 			 if (!w) {
 				 glogger
-					 << "In GBrokerConnectorT<>::waitForTimeOut(): Error!" << std::endl
+					 << "In GBrokerExecutorT<>::waitForTimeOut(): Error!" << std::endl
 					 << "First item received in first iteration is empty. We cannot continue!"
 					 << GEXCEPTION;
 			 }
@@ -1581,7 +1578,7 @@ private:
 
 			 if (w_pos >= workItems.size()) {
 				 glogger
-					 << "In GBrokerConnectorT<processable_type>::addWorkItemAndCheckCompleteness(): Error!" << std::endl
+					 << "In GBrokerExecutorT<processable_type>::addWorkItemAndCheckCompleteness(): Error!" << std::endl
 					 << "Received work item for position " << w_pos << " while" << std::endl
 					 << "only a range [0" << ", " << workItems.size() << "[ was expected." << std::endl
 					 << GEXCEPTION;

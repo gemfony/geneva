@@ -45,14 +45,14 @@ namespace Geneva {
  */
 GBrokerPS::GBrokerPS() :
 	GBasePS(),
-	Gem::Courtier::GBrokerConnectorT<GParameterSet>(Gem::Courtier::submissionReturnMode::RESUBMISSIONAFTERTIMEOUT) { /* nothing */ }
+	Gem::Courtier::GBrokerExecutorT<GParameterSet>(Gem::Courtier::submissionReturnMode::RESUBMISSIONAFTERTIMEOUT) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * A standard copy constructor
  */
 GBrokerPS::GBrokerPS(const GBrokerPS &cp)
-	: GBasePS(cp), Gem::Courtier::GBrokerConnectorT<GParameterSet>(cp) { /* nothing */ }
+	: GBasePS(cp), Gem::Courtier::GBrokerExecutorT<GParameterSet>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -166,7 +166,7 @@ void GBrokerPS::load_(const GObject *cp) {
 
 	// Load the parent classes' data ...
 	GBasePS::load_(cp);
-	Gem::Courtier::GBrokerConnectorT<GParameterSet>::load(p_load);
+	Gem::Courtier::GBrokerExecutorT<GParameterSet>::load(p_load);
 }
 
 /******************************************************************************/
@@ -188,7 +188,7 @@ void GBrokerPS::init() {
 	GBasePS::init();
 
 	// Initialize the broker connector
-	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>::init();
+	Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>::init();
 }
 
 /******************************************************************************/
@@ -197,7 +197,7 @@ void GBrokerPS::init() {
  */
 void GBrokerPS::finalize() {
 	// Finalize the broker connector
-	Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>::finalize();
+	Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>::finalize();
 
 	// GBasePS sees exactly the environment it would when called from its own class
 	GBasePS::finalize();
@@ -216,7 +216,7 @@ void GBrokerPS::addConfigurationOptions(
 
 	// Call our parent class'es function
 	GBasePS::addConfigurationOptions(gpb);
-	Gem::Courtier::GBrokerConnectorT<GParameterSet>::addConfigurationOptions(gpb);
+	Gem::Courtier::GBrokerExecutorT<GParameterSet>::addConfigurationOptions(gpb);
 
 	// no local data
 }
@@ -260,7 +260,7 @@ void GBrokerPS::runFitnessCalculation() {
 	//--------------------------------------------------------------------------------
 	// Submit all work items and wait for their return
 	std::tuple<std::size_t, std::size_t> range(0, this->size());
-	complete = GBrokerConnectorT<GParameterSet>::workOn(
+	complete = GBrokerExecutorT<GParameterSet>::workOn(
 		data, range, oldWorkItems_, false // Do not remove unprocessed item
 	);
 

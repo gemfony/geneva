@@ -52,7 +52,7 @@
 #include "common/GHelperFunctionsT.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GPlotDesigner.hpp"
-#include "courtier/GBrokerConnectorT.hpp"
+#include "courtier/GBrokerExecutorT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GMutableSetT.hpp"
 #include "geneva/GOptimizableI.hpp"
@@ -2879,7 +2879,10 @@ struct is_abstract< const Gem::Geneva::GOptimizationAlgorithmT<ind_type>> : publ
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GOptimizableEntity>::GOptimizationMonitorT)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::GOptimizationMonitorT)
-BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>)
+
+BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>)
+BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GSerialExecutorT<Gem::Geneva::GParameterSet>)
+BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GMTExecutorT<Gem::Geneva::GParameterSet>)
 
 /******************************************************************************/
 

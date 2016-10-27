@@ -90,7 +90,7 @@ const double DEFAULTBROKERWAITFACTOR = DEFAULTMAXBROKERWAITFACTOR;
 const double DEFAULTBROKERWAITFACTORINCREMENT = 0.1;
 const double DEFAULTMINPERCENTAGEOFTIMEOUT = 0.7;
 
-const double DEFAULTBROKERWAITFACTOR2 = 1.1; // For GBrokerConnectorT
+const double DEFAULTBROKERWAITFACTOR2 = 1.1; // For GBrokerExecutorT
 const double DEFAULTINITIALBROKERWAITFACTOR2 = 1.;
 
 /******************************************************************************/

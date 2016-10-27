@@ -46,7 +46,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctions.hpp"
-#include "courtier/GBrokerConnectorT.hpp"
+#include "courtier/GBrokerExecutorT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GBaseGD.hpp"
 #include "geneva/GParameterSet.hpp"
@@ -64,7 +64,7 @@ namespace Geneva {
  */
 class GBrokerGD
 	: public GBaseGD
-	, public Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>
+	, public Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -75,8 +75,8 @@ class GBrokerGD
 
 		ar
 		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseGD)
-		& make_nvp("GBrokerConnectorT_GParameterSet",
-					  boost::serialization::base_object<Gem::Courtier::GBrokerConnectorT<Gem::Geneva::GParameterSet>>(*this));
+		& make_nvp("GBrokerExecutorT_GParameterSet",
+					  boost::serialization::base_object<Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>>(*this));
 	}
 
 	///////////////////////////////////////////////////////////////////////
