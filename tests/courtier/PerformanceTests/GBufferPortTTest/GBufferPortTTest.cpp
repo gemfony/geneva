@@ -184,7 +184,10 @@ void producer(
 		// Submit the WORKLOAD object
 		std::shared_ptr<WORKLOAD> p_submit(new WORKLOAD(nContainerEntries));
 		if(putTimeout.count() > 0.) {
-			while(!bufferport.push_front_orig_bool(p_submit, putTimeout)) {
+			while(!bufferport.push_front_raw(
+				p_submit
+				, putTimeout
+			)) {
 				if(++putTimeouts >= maxPutTimeouts) {
 					raiseException("In producer: Exceeded allowed number \"" << maxPutTimeouts << "\" of put timeouts in iteration " << cycleCounter << std::endl);
 				}
@@ -193,7 +196,7 @@ void producer(
 			if(putTimeouts > highestPutTimeouts) highestPutTimeouts = putTimeouts;
 			putTimeouts = 0; // Reset the counter -- we have received a valid item
 		} else { // putTimeoutMS == 0
-			bufferport.push_front_orig(p_submit);
+			bufferport.push_front_raw(p_submit);
 		}
 
 		cycleCounter++;
@@ -205,7 +208,7 @@ void producer(
 	std::shared_ptr<WORKLOAD> p_receive;
 	while(nReceived < nProductionCycles) {
 		if(getTimeout.count() > 0.) {
-			while(!bufferport.pop_back_processed_bool(p_receive, getTimeout)) {
+			while(!bufferport.pop_back_processed(p_receive, getTimeout)) {
 				if(++getTimeouts >= maxGetTimeouts) {
 					raiseException("In producer: Exceeded allowed number \"" << maxGetTimeouts << "\" of get timeouts in iteration " << cycleCounter << std::endl);
 				}
@@ -269,7 +272,10 @@ void processor (
 	while(cycleCounter < nProductionCycles) {
 		// Retrieve an item from the buffer port
 		if(getTimeout.count() > 0.) {
-			while(!bufferport.pop_back_orig_bool(p, getTimeout)){
+			while(!bufferport.pop_back_raw(
+				p
+				, getTimeout
+			)){
 				if(++getTimeouts >= maxGetTimeouts) {
 					raiseException("In processor: Exceeded allowed number \"" << maxGetTimeouts << "\" of get timeouts in cycle " << cycleCounter << std::endl);
 				}
@@ -278,7 +284,7 @@ void processor (
 			if(getTimeouts > highestGetTimeouts) highestGetTimeouts = getTimeouts;
 			getTimeouts = 0; // Reset the counter, we have received a valid item
 		} else {
-			bufferport.pop_back_orig(p);
+			bufferport.pop_back_raw(p);
 		}
 
 		// Check that we have received a valid item
@@ -290,7 +296,7 @@ void processor (
 
 		// Submit the processed item to the buffer port
 		if(putTimeout.count() > 0.) {
-			while(!bufferport.push_front_processed_bool(p, putTimeout)) {
+			while(!bufferport.push_front_processed(p, putTimeout)) {
 				if(++putTimeouts >= maxPutTimeouts) {
 					raiseException("In processor: Exceeded allowed number \"" << maxPutTimeouts << "\" of put timeouts in cycle " << cycleCounter << std::endl);
 				}

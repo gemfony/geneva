@@ -352,7 +352,7 @@ void brokerProducer(
 	while(cycleCounter++ < nProductionCycles) {
 		// Submit the required number of items directly to the broker
 		for(std::size_t i=0; i<nContainerObjects; i++) {
-			CurrentBufferPort_->push_front_orig(std::shared_ptr<WORKLOAD>(new WORKLOAD(nContainerEntries)));
+			CurrentBufferPort_->push_front_raw(std::shared_ptr<WORKLOAD>(new WORKLOAD(nContainerEntries)));
 		}
 
 		// Wait for all items to return

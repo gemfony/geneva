@@ -53,6 +53,14 @@ namespace Courtier {
 
 /******************************************************************************/
 /**
+ * The size of input and output buffers of the GBufferPortT class
+ */
+
+const std::size_t DEFAULTRAWBUFFERSIZE=Gem::Common::DEFAULTBUFFERSIZE;
+const std::size_t DEFAULTPROCESSEDBUFFERSIZE=Gem::Common::DEFAULTBUFFERSIZE;
+
+/******************************************************************************/
+/**
  * Indicates processed or unprocessed work items
  */
 const bool GBC_UNPROCESSED = true;

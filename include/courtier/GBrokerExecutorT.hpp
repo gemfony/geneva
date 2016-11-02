@@ -819,7 +819,7 @@ class GBrokerExecutorT
 
 	 ///////////////////////////////////////////////////////////////////////
 
-	 typedef std::shared_ptr <Gem::Courtier::GBufferPortT<std::shared_ptr<processable_type>>> GBufferPortT_ptr;
+	 typedef std::shared_ptr<Gem::Courtier::GBufferPortT<std::shared_ptr<processable_type>>> GBufferPortT_ptr;
 
 public:
 	 /***************************************************************************/
@@ -1268,7 +1268,7 @@ private:
 	  *
 	  * @param w The work item to be processed
 	  */
-	 virtual void submit(std::shared_ptr <processable_type> w) override {
+	 virtual void submit(std::shared_ptr<processable_type> w) override {
 #ifdef DEBUG
 		 if(!w) {
 			 glogger
@@ -1285,7 +1285,7 @@ private:
 		 }
 #endif /* DEBUG */
 
-		 m_CurrentBufferPort->push_front_orig(w);
+		 m_CurrentBufferPort->push_front_raw(w);
 	 }
 
 	 /***************************************************************************/
@@ -1318,7 +1318,7 @@ private:
 		 // Holds the retrieved item, if any
 		 std::shared_ptr<processable_type> w;
 
-		 if (m_CurrentBufferPort->pop_back_processed_bool(w, timeout)) { // We have received a valid item
+		 if (m_CurrentBufferPort->pop_back_processed(w, timeout)) { // We have received a valid item
 			 // Perform any necessary logging work
 			 log(w);
 		 }

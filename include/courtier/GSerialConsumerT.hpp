@@ -150,7 +150,7 @@ private:
 	void processItems() {
 		try {
 			std::shared_ptr <processable_type> p;
-			Gem::Common::PORTIDTYPE id;
+			boost::uuids::uuid id;
 			std::chrono::milliseconds timeout(10);
 
 			while (true) {

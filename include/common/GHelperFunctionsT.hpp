@@ -46,15 +46,19 @@
 #include <typeinfo>
 #include <tuple>
 #include <limits>
+#include <thread>
+#include <chrono>
+#include <type_traits>
 
 // Boost headers go here
-
 #include <boost/cast.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/math/special_functions/next.hpp>
 #include <boost/variant.hpp>
 #include <boost/checked_delete.hpp>
+#include <boost/lockfree/spsc_queue.hpp>
+#include <boost/lockfree/policies.hpp>
 
 #ifndef GHELPERFUNCTIONST_HPP_
 #define GHELPERFUNCTIONST_HPP_
@@ -975,6 +979,92 @@ void erase_according_to_flags(
 
 	// Insert the items from the tmp vector in position "start"
 	container.insert(container.begin() + start, container_tmp.begin(), container_tmp.end());
+}
+
+/******************************************************************************/
+/**
+ * Forces submission to a boost::lockfree queue (either queue or spsc_queue)
+ *
+ * TODO: use enable_if and is_same to make this bullet-proof
+ */
+template <typename item_type, template <typename, typename...> class queue_type, typename... Options>
+// Template syntax loosely follows http://stackoverflow.com/questions/7728478/c-template-class-function-with-arbitrary-container-type-how-to-define-it
+bool forcedSubmissionToBoostLockfree(
+	queue_type<item_type, Options...>& queue
+	, item_type item
+) {
+	while(!queue.push(item)){
+		std::this_thread::yield();
+	}
+
+	return true;
+}
+
+/******************************************************************************/
+/**
+ * Submits an item to a boost::lockfree queue (either queue or spsc_queue),
+ * observing a timeout.
+ */
+template <typename item_type, template <typename, typename...> class queue_type, typename... Options>
+// Template syntax loosely follows http://stackoverflow.com/questions/7728478/c-template-class-function-with-arbitrary-container-type-how-to-define-it
+bool timedSubmissionToBoostLockfree(
+	queue_type<item_type, Options...>& queue
+	, item_type item
+	, const std::chrono::duration<double> &timeout
+) {
+	bool submitted = true;
+	auto startTime = std::chrono::system_clock::now();
+	while(!queue.push(item)) {
+		if(std::chrono::system_clock::now()-startTime > timeout) {
+			submitted = false;
+			break; // Terminate the loop
+		}
+
+		std::this_thread::yield();
+	}
+	return submitted;
+}
+
+/******************************************************************************/
+/**
+ * Forces retrieval from a boost::lockfree queue (either queue or spsc_queue)
+ */
+template <typename item_type, template <typename, typename...> class queue_type, typename... Options>
+// Template syntax loosely follows http://stackoverflow.com/questions/7728478/c-template-class-function-with-arbitrary-container-type-how-to-define-it
+bool forcedRetrievalFromBoostLockfree(
+	queue_type<item_type, Options...>& queue
+	, item_type& item
+) {
+	while(!queue.pop(item)){
+		std::this_thread::yield();
+	}
+
+	return true;
+}
+
+/******************************************************************************/
+/**
+ * Retrieves an item from a boost::lockfree queue (either queue or spsc_queue),
+ * observing a timeout
+ */
+template <typename item_type, template <typename, typename...> class queue_type, typename... Options>
+// Template syntax loosely follows http://stackoverflow.com/questions/7728478/c-template-class-function-with-arbitrary-container-type-how-to-define-it
+bool timedRetrievalFromBoostLockfree(
+	queue_type<item_type, Options...>& queue
+	, item_type& item
+	, const std::chrono::duration<double> &timeout
+) {
+	bool retrieved = true;
+	auto startTime = std::chrono::system_clock::now();
+	while(!queue.pop(item)) {
+		if(std::chrono::system_clock::now()-startTime > timeout) {
+			retrieved = false;
+			break; // Terminate the loop
+		}
+
+		std::this_thread::yield();
+	}
+	return retrieved;
 }
 
 /******************************************************************************/

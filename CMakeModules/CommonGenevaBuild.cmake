@@ -159,7 +159,7 @@ ENDIF ()
 
 SET (Boost_USE_MULTITHREAD ON)
 SET (Boost_ADDITIONAL_VERSIONS "1.57" "1.57.0" "1.58" "1.58.0" "1.59" "1.59.0"
-			       "1.60" "1.60.0" "1.61" "1.61.0")
+			       "1.60" "1.60.0" "1.61" "1.61.0" "1.62", "1.62.0")
 
 IF ( GENEVA_STATIC )
 	SET (Boost_USE_STATIC_LIBS ON)
@@ -182,7 +182,7 @@ ELSE () # Dynamic libraries
 ENDIF ()
 
 # The minimum Boost version required for building Geneva and Geneva applications
-SET (GENEVA_MIN_BOOST_VERSION 1.57)
+SET (GENEVA_MIN_BOOST_VERSION 1.59)
 
 # These are the libraries required for any Geneva build
 SET (

@@ -66,6 +66,10 @@
 #include <boost/spirit/include/phoenix_core.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/include/phoenix_stl.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_serialize.hpp>
 
 #ifndef GASIOTCPCONSUMERT_HPP_
 #define GASIOTCPCONSUMERT_HPP_
@@ -616,7 +620,6 @@ public:
 	)
 		: m_strand(io_service), m_socket(io_service), m_bytesTransferredDataBody(0)
 	   , m_dataBody_ptr(new std::string()) // An empty string
-		, m_portId(Gem::Common::PORTIDTYPE(0))
 	   , m_dataSize(0)
 	   , m_serializationMode(serMod)
 	   , m_master(master)
@@ -786,7 +789,7 @@ protected:
 		std::string portId_str
 			= boost::algorithm::trim_copy(std::string(m_commandBuffer.data(), Gem::Courtier::COMMANDLENGTH));
 
-		m_portId = boost::lexical_cast<Gem::Common::PORTIDTYPE>(portId_str);
+		m_portId = boost::lexical_cast<boost::uuids::uuid>(portId_str);
 
 		//------------------------------------------------------------------------
 		// Initiate the next read session, this time dealing with the data size
@@ -955,7 +958,7 @@ protected:
 	void async_submitToRemote() {
 		// Retrieve an item from the broker and submit it to the client.
 		std::shared_ptr <processable_type> p;
-		Gem::Common::PORTIDTYPE portId;
+		boost::uuids::uuid portId;
 
 		// Do not do anything if the server was stopped
 		if (m_master->stopped()) {
@@ -1114,7 +1117,7 @@ private:
 	std::size_t m_bytesTransferredDataBody; ///< The number of bytes if the data body transferred so far
 	std::shared_ptr <std::string> m_dataBody_ptr; ///< The actual body data. Implemented as a shared_ptr so we can easily hand the data around
 
-	Gem::Common::PORTIDTYPE m_portId; ///< The id of a port
+ 	boost::uuids::uuid m_portId; ///< The id of a port
 	std::size_t m_dataSize; ///< Holds the size of the body of data
 
 	Gem::Common::serializationMode m_serializationMode; ///< Specifies the serialization mode
@@ -1510,13 +1513,18 @@ private:
 	 * session does not need to perform this work
 	 */
 	void async_scheduleDeSerialization(
-		std::shared_ptr <std::string> dataBody_ptr, Gem::Common::PORTIDTYPE portId
+		std::shared_ptr <std::string> dataBody_ptr
+		, boost::uuids::uuid portId
 	) {
 		m_gtp.async_schedule(
 			std::function<void()>(
 				std::bind(
 					&GAsioTCPConsumerT<processable_type>::handle_workItemComplete // Does its own error checks
-					, this, dataBody_ptr, m_serializationMode, portId, m_timeout
+					, this
+					, dataBody_ptr
+					, m_serializationMode
+					, portId
+					, m_timeout
 				)
 			)
 		);
@@ -1528,7 +1536,9 @@ private:
 	 * will usually be called in its own thread.
 	 */
 	void handle_workItemComplete(
-		std::shared_ptr <std::string> dataBody_ptr, Gem::Common::serializationMode sM, Gem::Common::PORTIDTYPE portId,
+		std::shared_ptr <std::string> dataBody_ptr
+		, Gem::Common::serializationMode sM
+		, boost::uuids::uuid portId,
 		std::chrono::duration<double> timeout
 	) {
 		// De-Serialize the data
