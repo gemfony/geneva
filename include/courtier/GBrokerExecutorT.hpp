@@ -1285,7 +1285,7 @@ private:
 		 }
 #endif /* DEBUG */
 
-		 m_CurrentBufferPort->push_front_raw(w);
+		 m_CurrentBufferPort->push_raw(w);
 	 }
 
 	 /***************************************************************************/
@@ -1297,7 +1297,7 @@ private:
 	 std::shared_ptr<processable_type> retrieve() {
 		 // Holds the retrieved item
 		 std::shared_ptr<processable_type> w;
-		 m_CurrentBufferPort->pop_back_processed(w);
+		 m_CurrentBufferPort->pop_processed(w);
 
 		 // Perform any necessary logging work
 		 log(w);
@@ -1318,7 +1318,7 @@ private:
 		 // Holds the retrieved item, if any
 		 std::shared_ptr<processable_type> w;
 
-		 if (m_CurrentBufferPort->pop_back_processed(w, timeout)) { // We have received a valid item
+		 if (m_CurrentBufferPort->pop_processed(w, timeout)) { // We have received a valid item
 			 // Perform any necessary logging work
 			 log(w);
 		 }

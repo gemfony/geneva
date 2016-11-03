@@ -115,7 +115,7 @@ public:
 	 * @param item A raw object that needs to be processed
 	 * @return A boolean which indicates whether the submission was successful
 	 */
-	bool push_front_raw(T item) {
+	bool push_raw(T item) {
 		Gem::Common::forcedSubmissionToBoostLockfree(
 			*m_raw
 			, item
@@ -124,7 +124,7 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Timed version of GBufferPortT::push_front_raw() . If the item could not be added
+	 * Timed version of GBufferPortT::push_raw() . If the item could not be added
 	 * after a given amount of time, the function returns. Note that a time_out
 	 * exception will be thrown in this case.
 	 *
@@ -132,7 +132,7 @@ public:
 	 * @param timeout duration until a timeout occurs
 	 * @return A boolean which indicates whether the submission was successful
 	 */
-	bool push_front_raw(
+	bool push_raw(
 		T item
 		, const std::chrono::duration<double> &timeout
 	) {
@@ -151,7 +151,7 @@ public:
 	 * @param item A reference to the item to be retrieved
 	 * @return A boolean which indicates whether the retrieval was successful
 	 */
-	 bool pop_back_raw(T &item) {
+	 bool pop_raw(T &item) {
 		 Gem::Common::forcedRetrievalFromBoostLockfree(
 			 *m_raw
 			 , item
@@ -160,7 +160,7 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * A version of GBufferPortT::pop_back_raw() with the ability to time-out. Note
+	 * A version of GBufferPortT::pop_raw() with the ability to time-out. Note
 	 * that an exception will be thrown by m_raw if the time-out was reached. It
 	 * needs to be caught by the calling function.
 	 *
@@ -168,7 +168,7 @@ public:
 	 * @param timeout duration until a timeout occurs
 	 * @return A boolean which indicates whether the retrieval was successful
 	 */
-	bool pop_back_raw(
+	bool pop_raw(
 		T &item
 		, const std::chrono::duration<double> &timeout
 	) {
@@ -186,7 +186,7 @@ public:
 	 * @param item A raw object that needs to be processed
 	 * @return A boolean which indicates whether the submission was successful
 	 */
-	bool push_front_processed(T item) {
+	bool push_processed(T item) {
 		Gem::Common::forcedSubmissionToBoostLockfree(
 			*m_processed
 			, item
@@ -195,7 +195,7 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Timed version of GBufferPortT::push_front_processed() . If the item could not
+	 * Timed version of GBufferPortT::push_processed() . If the item could not
 	 * be added after a given amount of time, a timed_out exception will be thrown by
 	 * m_processed.
 	 *
@@ -203,7 +203,7 @@ public:
 	 * @param timeout duration until a timeout occurs
 	 * @return A boolean which indicates whether the submission was successful
 	 */
-	bool push_front_processed(
+	bool push_processed(
 		T item
 		, const std::chrono::duration<double> &timeout
 	) {
@@ -222,7 +222,7 @@ public:
 	 * @param The item that was retrieved from the queue
 	 * @return A boolean which indicates whether the retrieval was successful
 	 */
-	bool pop_back_processed(T &item) {
+	bool pop_processed(T &item) {
 		Gem::Common::forcedRetrievalFromBoostLockfree(
 			*m_processed
 			, item
@@ -231,14 +231,14 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * A version of GBufferPortT::pop_back_processed() with the ability to time-out. If the
+	 * A version of GBufferPortT::pop_processed() with the ability to time-out. If the
 	 * time-out was reached, m_processed will throw a time_out exception.
 	 *
 	 * @param item The item that was retrieved from the queue
 	 * @param timeout duration until a timeout occurs
 	 * @return A boolean which indicates whether the retrieval was successful
 	 */
-	bool pop_back_processed(
+	bool pop_processed(
 		T &item
 		, const std::chrono::duration<double> &timeout
 	) {
