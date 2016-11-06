@@ -457,6 +457,9 @@ protected:
 																	Gem::Courtier::COMMANDLENGTH);
 		buffers.push_back(boost::asio::buffer(sizeHeader));
 
+		std::cout << item << std::endl
+								<< "==================================================" << std::endl << std::endl;
+
 		// Finally take care of the data section.
 		buffers.push_back(boost::asio::buffer(item));
 
@@ -1352,8 +1355,7 @@ public:
 		);
 
 		p->setMaxStalls(m_maxStalls); // Set to 0 to allow an infinite number of stalls
-		p->setMaxConnectionAttempts(
-			m_maxConnectionAttempts); // Set to 0 to allow an infinite number of failed connection attempts
+		p->setMaxConnectionAttempts(m_maxConnectionAttempts); // Set to 0 to allow an infinite number of failed connection attempts
 		p->setReturnRegardless(m_returnRegardless);  // Prevent return of unsuccessful adaption attempts to the server
 
 		return p;
