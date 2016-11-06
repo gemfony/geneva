@@ -992,9 +992,10 @@ template <typename item_type, template <typename, typename...> class queue_type,
 bool forcedSubmissionToBoostLockfree(
 	queue_type<item_type, Options...>& queue
 	, item_type item
+	, const std::chrono::duration<double> &sleepTime = std::chrono::duration<double>(std::chrono::milliseconds(1))
 ) {
 	while(!queue.push(item)){
-		std::this_thread::yield();
+		std::this_thread::sleep_for(sleepTime);
 	}
 
 	return true;
@@ -1011,6 +1012,7 @@ bool timedSubmissionToBoostLockfree(
 	queue_type<item_type, Options...>& queue
 	, item_type item
 	, const std::chrono::duration<double> &timeout
+	, const std::chrono::duration<double> &sleepTime = std::chrono::duration<double>(std::chrono::milliseconds(1))
 ) {
 	bool submitted = true;
 	auto startTime = std::chrono::system_clock::now();
@@ -1020,7 +1022,7 @@ bool timedSubmissionToBoostLockfree(
 			break; // Terminate the loop
 		}
 
-		std::this_thread::yield();
+		std::this_thread::sleep_for(sleepTime);
 	}
 	return submitted;
 }
@@ -1034,9 +1036,10 @@ template <typename item_type, template <typename, typename...> class queue_type,
 bool forcedRetrievalFromBoostLockfree(
 	queue_type<item_type, Options...>& queue
 	, item_type& item
+	, const std::chrono::duration<double> &sleepTime = std::chrono::duration<double>(std::chrono::milliseconds(1))
 ) {
 	while(!queue.pop(item)){
-		std::this_thread::yield();
+		std::this_thread::sleep_for(sleepTime);
 	}
 
 	return true;
@@ -1053,6 +1056,7 @@ bool timedRetrievalFromBoostLockfree(
 	queue_type<item_type, Options...>& queue
 	, item_type& item
 	, const std::chrono::duration<double> &timeout
+	, const std::chrono::duration<double> &sleepTime = std::chrono::duration<double>(std::chrono::milliseconds(1))
 ) {
 	bool retrieved = true;
 	auto startTime = std::chrono::system_clock::now();
@@ -1062,7 +1066,7 @@ bool timedRetrievalFromBoostLockfree(
 			break; // Terminate the loop
 		}
 
-		std::this_thread::yield();
+		std::this_thread::sleep_for(sleepTime);
 	}
 	return retrieved;
 }
