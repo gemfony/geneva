@@ -50,6 +50,7 @@
 #include <chrono>
 #include <mutex>
 #include <thread>
+#include <memory>
 #include <condition_variable>
 
 // Boost headers go here
@@ -96,13 +97,10 @@ template<typename carrier_type>
 class GBrokerT
 	: private boost::noncopyable
 {
-	 typedef typename GBufferPortT<std::shared_ptr<carrier_type>>::RAW_BUFFER_TYPE GRawBuffer;
-	 typedef typename std::shared_ptr<GRawBuffer> GRawBuffer_Ptr;
-	 typedef typename GBufferPortT<std::shared_ptr<carrier_type>>::PROCESSED_BUFFER_TYPE GProcessedBuffer;
-	 typedef typename std::shared_ptr<GProcessedBuffer> GProcessedBuffer_Ptr;
-
-	 typedef typename std::map<boost::uuids::uuid, GRawBuffer_Ptr> RawBufferPtrMap;
-	 typedef typename std::map<boost::uuids::uuid, GProcessedBuffer_Ptr> ProcessedBufferPtrMap;
+	 typedef GBufferPortT<std::shared_ptr<carrier_type>> GBUFFERPORT;
+	 typedef typename std::shared_ptr<GBUFFERPORT> GBUFFERPORT_PTR;
+	 typedef typename std::map<boost::uuids::uuid, GBUFFERPORT_PTR> RawBufferPtrMap;
+	 typedef typename std::map<boost::uuids::uuid, GBUFFERPORT_PTR> ProcessedBufferPtrMap;
 
 public:
 	 /***************************************************************************/
@@ -150,14 +148,6 @@ public:
 		 {
 			 //-----------------------------------------------------------------------
 			 // Lock the access to our internal data simultaneously for all mutexs
-			 std::unique_lock<std::mutex> rawBuffersPresentLock(
-				 m_RawBuffersPresentMutex
-				 , std::defer_lock
-			 );
-			 std::unique_lock<std::mutex> processedBuffersPresentLock(
-				 m_ProcessedBuffersPresentMutex
-				 , std::defer_lock
-			 );
 			 std::unique_lock<std::mutex> switchGetPositionLock(
 				 m_switchGetPositionMutex
 				 , std::defer_lock
@@ -166,11 +156,16 @@ public:
 				 m_findProcesedBufferMutex
 				 , std::defer_lock
 			 );
+			 std::unique_lock<std::mutex> consumerEnrolmentLock(
+				 m_consumerEnrolmentMutex
+				 , std::defer_lock
+			 );
+
 			 std::lock(
-				 rawBuffersPresentLock
-				 , processedBuffersPresentLock
-				 , switchGetPositionLock
+				 switchGetPositionLock
 				 , findProcessedBufferLock
+				 , consumerEnrolmentLock
+
 			 );
 			 //-----------------------------------------------------------------------
 
@@ -202,20 +197,13 @@ public:
 	  * the effects of this function is that the buffer collections will never run empty,
 	  * once the first buffer has been registered.
 	  *
-	  * @param gbp A shared pointer to a new GBufferPortT object
+	  * @param gbp_ptr A shared pointer to a new GBufferPortT object
 	  */
-	 void enrol(std::shared_ptr<GBufferPortT<std::shared_ptr<carrier_type>>> gbp) {
+	 void enrol(std::shared_ptr<GBufferPortT<std::shared_ptr<carrier_type>>> gbp_ptr) {
 		 {
 			 //-----------------------------------------------------------------------
 			 // Lock the access to our internal data simultaneously for all mutexs
-			 std::unique_lock <std::mutex> rawBuffersPresentLock(
-				 m_RawBuffersPresentMutex
-				 , std::defer_lock
-			 );
-			 std::unique_lock <std::mutex> processedBuffersPresentLock(
-				 m_ProcessedBuffersPresentMutex
-				 , std::defer_lock
-			 );
+
 			 std::unique_lock <std::mutex> switchGetPositionLock(
 				 m_switchGetPositionMutex
 				 , std::defer_lock
@@ -225,35 +213,29 @@ public:
 				 , std::defer_lock
 			 );
 			 std::lock(
-				 rawBuffersPresentLock
-				 , processedBuffersPresentLock
-				 , switchGetPositionLock
+				 switchGetPositionLock
 				 , findProcessedBufferLock
 			 );
 			 //-----------------------------------------------------------------------
 
-			 // Retrieve the processed and original queues
-			 auto original_ptr = gbp->getOriginalQueue();
-			 auto processed_ptr = gbp->getProcessedQueue();
-
 			 // Retrieve the uuid of the buffer port
-			 boost::uuids::uuid gbp_tag = gbp->getUniqueTag();
+			 boost::uuids::uuid gbp_tag = gbp_ptr->getUniqueTag();
 
 			 // Find orphaned items in the two collections and remove them.
 			 // Note that, unforunately, g++ < 5.0 does not support auto in lambda statements,
 			 // otherwise the following statements could be simplified.
 			 Gem::Common::erase_if(
 				 m_RawBuffers
-				 , [](std::pair <boost::uuids::uuid, GRawBuffer_Ptr> p) -> bool { return p.second.unique(); }
+				 , [](std::pair <boost::uuids::uuid, GBUFFERPORT_PTR> p) -> bool { return p.second.unique(); }
 			 ); // m_RawBuffers is a std::map, so items are of type std::pair
 			 Gem::Common::erase_if(
 				 m_ProcessedBuffers
-				 , [](std::pair <boost::uuids::uuid, GProcessedBuffer_Ptr> p) -> bool { return p.second.unique(); }
+				 , [](std::pair <boost::uuids::uuid, GBUFFERPORT_PTR> p) -> bool { return p.second.unique(); }
 			 ); // m_ProcessedBuffers is a std::map, so items are of type std::pair
 
-			 // Attach the new items to the lists
-			 m_RawBuffers[gbp_tag] = original_ptr;
-			 m_ProcessedBuffers[gbp_tag] = processed_ptr;
+			 // Attach the new items to the maps
+			 m_RawBuffers[gbp_tag] = gbp_ptr;
+			 m_ProcessedBuffers[gbp_tag] = gbp_ptr;
 
 			 // Fix the current get-pointer. We simply attach it to the start of the list
 			 m_currentGetPosition = m_RawBuffers.begin();
@@ -277,26 +259,26 @@ public:
 	 /**
 	  * Adds a new consumer to this class and starts its thread.
 	  *
-	  * @param gc A pointer to a GBaseConsumerT<carrier_type> object
+	  * @param gc_ptr A pointer to a GBaseConsumerT<carrier_type> object
 	  */
-	 void enrol(std::shared_ptr<GBaseConsumerT<carrier_type>> gc) {
+	 void enrol(std::shared_ptr<GBaseConsumerT<carrier_type>> gc_ptr) {
 		 std::unique_lock<std::mutex> consumerEnrolmentLock(m_consumerEnrolmentMutex);
 
 		 // Do nothing if a consumer of this type has already been registered
 		 if (std::find(
 			 m_consumerTypesPresent.begin()
 			 , m_consumerTypesPresent.end()
-			 , gc->getConsumerName()) != m_consumerTypesPresent.end()
+			 , gc_ptr->getConsumerName()) != m_consumerTypesPresent.end()
 		 ) {
 			 return;
 		 }
 
 		 // Archive the consumer and its name, then start its thread
-		 m_consumerCollection.push_back(gc);
-		 m_consumerTypesPresent.push_back(gc->getConsumerName());
+		 m_consumerCollection.push_back(gc_ptr);
+		 m_consumerTypesPresent.push_back(gc_ptr->getConsumerName());
 
 		 // Initiate processing in the consumer. This call will not block.
-		 gc->async_startProcessing();
+		 gc_ptr->async_startProcessing();
 	 }
 
 	 /***************************************************************************/
@@ -307,40 +289,23 @@ public:
 	  * @param p Holds the retrieved "raw" item
 	  * @return A key that uniquely identifies the origin of p
 	  */
-	 boost::uuids::uuid get(std::shared_ptr<carrier_type> p) {
-		 // Locks access to our internal data until we have a copy of a buffer.
-		 // This will prevent the buffer from being removed, as the use count
-		 // is increased. Also fixes the iterator.
-		 {
-			 std::unique_lock<std::mutex> rawBuffersPresentLock(m_RawBuffersPresentMutex);
+	 boost::uuids::uuid get(std::shared_ptr<carrier_type>& p) {
+		 // Make sure we are dealing with an empty pointer
+		 p.reset();
 
-			 // Do not let execution start before the first buffer has been enrolled
-			 m_readyToGoRaw.wait(
-				 rawBuffersPresentLock
-				 , [this]() ->bool { return (!m_RawBuffers.empty()); }
-			 );
+		 // Retrieve the current buffer port ...
+		 boost::uuids::uuid uuid;
+		 GBUFFERPORT_PTR rawBuffer_ptr = getNextRawBufferPort(uuid);
+		 if(rawBuffer_ptr) {
+			 // ... and get an item from it. This function is thread-safe.
+			 rawBuffer_ptr->pop_raw(p);
 		 }
 
-		 {
-			 std::unique_lock<std::mutex> switchGetPositionLock(m_switchGetPositionMutex);
+		 // If no raw buffer pointer was registered at the time
+		 // of the getNextRawBufferPort()-call, p will be empty.
 
-			 // Save the current get position
-			 auto currentGetPosition = m_currentGetPosition;
-
-			 // Switch to the next position, if any
-			 if ((m_RawBuffers.size() > 1) && (++m_currentGetPosition == m_RawBuffers.end())) {
-				 m_currentGetPosition = m_RawBuffers.begin();
-			 }
-
-			 // Retrieve the item. This function is thread-safe.
-			 Gem::Common::forcedRetrievalFromBoostLockfree(
-				 *(currentGetPosition->second)
-				 , p
-			 );
-
-			 // Return the id.
-			 return currentGetPosition->first;
-		 }
+		 // Let the audience know about the uuid
+		 return uuid;
 	 }
 
 	 /***************************************************************************/
@@ -356,44 +321,23 @@ public:
 		 std::shared_ptr<carrier_type> &p
 		 , std::chrono::duration<double> timeout
 	 ) {
-		 // Locks access to our internal data until we have a copy of a buffer.
-		 // This will prevent the buffer from being removed, as the use count
-		 // is increased. Also fixes the iterator.
-		 {
-			 std::unique_lock<std::mutex> rawBuffersPresentLock(m_RawBuffersPresentMutex);
+		 // Make sure we are dealing with an empty pointer
+		 p.reset();
 
-			 // Do not let execution start before the first buffer has been enrolled
-			 m_readyToGoRaw.wait(
-				 rawBuffersPresentLock
-				 , [this]() ->bool { return (!m_RawBuffers.empty()); }
-			 );
+
+		 // Retrieve the current buffer port ...
+		 boost::uuids::uuid uuid;
+		 GBUFFERPORT_PTR rawBuffer_ptr = getNextRawBufferPort(uuid);
+		 if(rawBuffer_ptr) {
+			 // ... and get an item from it. This function is thread-safe.
+		 	 rawBuffer_ptr->pop_raw(p, timeout); // Note that p might be empty
 		 }
 
-		 {
-			 std::unique_lock<std::mutex> switchGetPositionLock(m_switchGetPositionMutex);
+		 // If no raw buffer pointer was registered at the time
+		 // of the getNextRawBufferPort()-call, p will be empty.
 
-			 // Save the current get position
-			 auto currentGetPosition = m_currentGetPosition;
-
-			 // Switch to the next position, if any
-			 if ((m_RawBuffers.size() > 1) && (++m_currentGetPosition == m_RawBuffers.end())) {
-				 m_currentGetPosition = m_RawBuffers.begin();
-			 }
-
-			 // Retrieve the item. This function is thread-safe.
-			 bool retrieved = Gem::Common::timedRetrievalFromBoostLockfree(
-				 *(currentGetPosition->second)
-				 , p
-				 , timeout
-			 );
-
-			 if(!retrieved || !p) {
-				 p.reset();
-			 }
-
-			 // Return the id.
-			 return currentGetPosition->first;
-		 }
+		 // Let the audience know about the uuid
+		 return uuid;
 	 }
 
 	 /***************************************************************************/
@@ -429,38 +373,24 @@ public:
 	  * @param p Holds the "raw" item to be submitted to the processed queue
 	  */
 	 void put(
-		 boost::uuids::uuid id
+		 boost::uuids::uuid uuid
 		 , std::shared_ptr<carrier_type> p
 	 ) {
-		 {
-			 std::unique_lock<std::mutex> processedBuffersPresentLock(m_ProcessedBuffersPresentMutex);
+		 // Retrieve the correct processed buffer for our uuid
+		 GBUFFERPORT_PTR processedBuffer_ptr = getProcessedBufferPort(uuid);
 
-			 // Do not let execution start before the first buffer has been enrolled
-			 m_readyToGoProcessed.wait(
-				 processedBuffersPresentLock
-				 , [this]() { return (!m_ProcessedBuffers.empty()); }
-			 );
-		 }
+		 // Submit the item
+		 if(processedBuffer_ptr) {
+			 // This function is thread-safe.
+			 processedBuffer_ptr->push_processed(p);
+		 } else {
+			 glogger
+				 << "In GBokerT<>::put(1): Warning!" << std::endl
+				 << "Did not find buffer with id " << uuid << "." << std::endl
+				 << "Item will be discarded" << std::endl
+				 << GWARNING;
 
-		 {
-			 std::unique_lock<std::mutex> findProcessedBufferLock(m_findProcesedBufferMutex);
-
-			 // Cross-check that the id is indeed available and retrieve the buffer
-			 auto it = m_ProcessedBuffers.find(id);
-			 if (it != m_ProcessedBuffers.end()) {
-				 Gem::Common::forcedSubmissionToBoostLockfree(
-					 *(it->second)
-					 , p
-				 );
-			 } else {
-				 glogger
-					 << "In GBokerT<>::put(1): Warning!" << std::endl
-					 << "Did not find buffer with id " << id << "." << std::endl
-					 << "Item will be discarded" << std::endl
-					 << GWARNING;
-
-				 throw Gem::Courtier::buffer_not_present();
-			 }
+			 throw Gem::Courtier::buffer_not_present();
 		 }
 	 }
 
@@ -477,60 +407,41 @@ public:
 	  * @param A boolean indicating whether the item could be added to the queue in time
 	  */
 	 bool put(
-		 boost::uuids::uuid id
+		 boost::uuids::uuid uuid
 		 , std::shared_ptr<carrier_type> p
 		 , std::chrono::duration<double> timeout
 	 ) {
-		 //------------------------------------------------------------------------
-		 // Make sure processing can start (impossible, before any buffer
-		 // port objects have been added)
-		 {
-			 std::unique_lock<std::mutex> processedBuffersPresentLock(m_ProcessedBuffersPresentMutex);
+		 // Retrieve the correct processed buffer for our uuid
+		 GBUFFERPORT_PTR processedBuffer_ptr = getProcessedBufferPort(uuid);
 
-			 // Do not let execution start before the first buffer has been enrolled
-			 m_readyToGoProcessed.wait(
-				 processedBuffersPresentLock
-				 , [this]() { return (!m_ProcessedBuffers.empty()); }
-			 );
+		 // Submit the item
+		 if(processedBuffer_ptr) {
+			 // This function is thread-safe.
+			 return processedBuffer_ptr->push_processed(p, timeout);
+		 } else {
+			 glogger
+				 << "In GBokerT<>::put(1): Warning!" << std::endl
+				 << "Did not find buffer with id " << uuid << "." << std::endl
+				 << "Item will be discarded" << std::endl
+				 << GWARNING;
+
+			 throw Gem::Courtier::buffer_not_present();
 		 }
 
-		 //------------------------------------------------------------------------
-		 // Cross-check that the id is indeed available and retrieve the buffer
-		 {
-			 std::unique_lock<std::mutex> findProcessedBufferLock(m_findProcesedBufferMutex);
-			 auto it = m_ProcessedBuffers.find(id);
-			 if (it != m_ProcessedBuffers.end()) {
-				 // Add p to the correct buffer, which we now assume to be valid. If this
-				 // cannot be done in time, let the audience know by returning false
-				 return Gem::Common::timedSubmissionToBoostLockfree(
-					 *(it->second)
-					 , p
-					 , timeout
-				 );
-			 } else {
-				 glogger
-					 << "In GBokerT<>::put(2): Warning!" << std::endl
-					 << "Did not find buffer with id " << id << "." << std::endl
-					 << "Item will be discarded" << std::endl
-					 << GWARNING;
-
-				 throw Gem::Courtier::buffer_not_present();
-				 return false; // Make the compiler happy
-			 }
-
-			 //------------------------------------------------------------------------
-		 }
+		 // Make the compiler happy
+		 return false;
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Checks whether any consumers have been enrolled at the time of calling. As
 	  * consumers are maintained inside of a thread group and consumers may be added
-	  * asynchronously. this function can only give a hint.
+	  * asynchronously, this function can only give a hint.
 	  *
 	  * @return A boolean indicating whether any consumers are registered
 	  */
 	 bool hasConsumers() const {
+		 std::unique_lock<std::mutex> consumerEnrolmentLock(m_consumerEnrolmentMutex);
 		 return m_consumerCollection.size() > 0 ? true : false;
 	 }
 
@@ -541,14 +452,14 @@ public:
 	  * found that is not capable of full return, it returns false.
 	  */
 	 bool capableOfFullReturn() const {
-#ifdef DEBUG
-		 if (!hasConsumers()) {
+		 std::unique_lock<std::mutex> consumerEnrolmentLock(m_consumerEnrolmentMutex);
+
+		 if (!m_consumerCollection.empty()) {
 			 glogger
 				 << "In GBrokerT<carrier_type>::capableOfFullReturn(): Error!" << std::endl
 				 << "No consumers registered" << std::endl
 				 << GEXCEPTION;
 		 }
-#endif /* DEBUG */
 
 		 bool result = true;
 		 typename std::vector<std::shared_ptr<GBaseConsumerT<carrier_type>>>::const_iterator cit;
@@ -564,6 +475,52 @@ public:
 
 private:
 	 /***************************************************************************/
+	 /**
+	  * Retrieves the next raw buffer port pointer. As we are dealing with a
+	  * (not thread-safe) std::map, we need to coordinate the access.
+	  */
+	 GBUFFERPORT_PTR getNextRawBufferPort(boost::uuids::uuid& uuid) {
+		 // Protect access to the iterator
+		 std::unique_lock<std::mutex> switchGetPositionLock(m_switchGetPositionMutex);
+
+		 if (!m_RawBuffers.empty()) {
+			 // Save the current get position
+			 auto currentGetPosition = m_currentGetPosition;
+
+			 // Switch to the next position, if any
+			 if ((m_RawBuffers.size() > 1) && (++m_currentGetPosition == m_RawBuffers.end())) {
+				 m_currentGetPosition = m_RawBuffers.begin();
+			 }
+
+			 uuid = currentGetPosition->first;
+
+			 // Return the shared_ptr. This will also keep the buffer port alive
+			 return currentGetPosition->second;
+		 } else {
+			 return GBUFFERPORT_PTR();
+		 }
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Retrieves the processed buffer pointer for a given uuid. As we are dealing
+	  * with a (not thread-safe) std::map, we need to coordinate the access.
+	  */
+	 GBUFFERPORT_PTR getProcessedBufferPort(boost::uuids::uuid uuid) {
+		 // Protect access to the map
+		 std::unique_lock<std::mutex> findProcessedBufferLock(m_findProcesedBufferMutex);
+
+		 // Find the buffer port (if any)
+		 auto it = m_ProcessedBuffers.find(uuid);
+		 if (it != m_ProcessedBuffers.end()) {
+			 return it->second;
+		 }
+
+		 // Return an empty pointer
+		 return GBUFFERPORT_PTR();
+	 }
+
+	 /***************************************************************************/
 
 	 GBrokerT(const GBrokerT<carrier_type> &) = delete; ///< Intentionally left undefined
 	 const GBrokerT &operator=(const GBrokerT<carrier_type> &) = delete; ///< Intentionally left undefined
@@ -573,11 +530,7 @@ private:
 
 	 std::atomic<bool> m_finalized; ///< Indicates whether the finalization code has already been executed
 
-	 mutable std::mutex m_RawBuffersPresentMutex; ///< Regulates access to the m_RawBuffers collection
-	 mutable std::mutex m_ProcessedBuffersPresentMutex; ///< Regulates access to the m_ProcessedBuffers collection
-
 	 mutable std::mutex m_consumerEnrolmentMutex; ///< Protects the enrolment of consumers
-
 	 mutable std::mutex m_switchGetPositionMutex; ///< Protects switches to the next get position
 	 mutable std::mutex m_findProcesedBufferMutex; ///< Protects finding a given processed buffer
 

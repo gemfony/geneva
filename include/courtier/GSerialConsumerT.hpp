@@ -66,7 +66,8 @@ public:
 	 * The default constructor. Nothing special here.
 	 */
 	GSerialConsumerT()
-		: Gem::Courtier::GBaseConsumerT<processable_type>(), broker_(GBROKER(processable_type)) { /* nothing */ }
+		: Gem::Courtier::GBaseConsumerT<processable_type>(), m_broker_ptr(GBROKER(processable_type))
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -81,7 +82,7 @@ public:
 	 * triggered by a call to GBaseConsumerT<processable_type>::shutdown().
 	 */
 	virtual void async_startProcessing() override {
-		processingThread_ = std::move(std::thread(
+		m_processingThread = std::move(std::thread(
 			[this]() { this->processItems(); }
 		));
 	}
@@ -94,7 +95,7 @@ public:
 		// This will set the GBaseConsumerT<processable_type>::stop_ flag
 		GBaseConsumerT<processable_type>::shutdown();
 		// Wait for our local threads to join
-		processingThread_.join();
+		m_processingThread.join();
 	}
 
 	/***************************************************************************/
@@ -158,7 +159,7 @@ private:
 				if (GBaseConsumerT<processable_type>::stopped()) break;
 
 				// If we didn't get a valid item, start again with the while loop
-				if (!broker_->get(id, p, timeout)) {
+				if (!m_broker_ptr->get(id, p, timeout)) {
 					continue;
 				}
 
@@ -178,7 +179,7 @@ private:
 				// Return the item to the broker. The item will be discarded
 				// if the requested target queue cannot be found.
 				try {
-					while (!broker_->put(id, p, timeout)) { // Items can get lost here
+					while (!m_broker_ptr->put(id, p, timeout)) { // Items can get lost here
 						// Terminate if we have been asked to stop
 						if (GBaseConsumerT<processable_type>::stopped()) break;
 					}
@@ -211,8 +212,8 @@ private:
 
 	/***************************************************************************/
 
-	std::thread processingThread_;
-	std::shared_ptr <GBrokerT<processable_type>> broker_; ///< A shortcut to the broker so we do not have to go through the singleton
+	std::thread m_processingThread;
+	std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr; ///< A shortcut to the broker so we do not have to go through the singleton
 };
 
 /******************************************************************************/

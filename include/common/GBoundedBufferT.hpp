@@ -208,7 +208,7 @@ public:
 			 , [&]() -> bool { return (t_capacity==0)?true:(m_container.size()<t_capacity); } // will always signal "not full" if t_capacity is == 0
 		 );
 		 m_container.push_front(std::move(item));
-		 m_not_empty.notify_one();
+		 m_not_empty.notify_all();
 	 }
 
 	 /***************************************************************************/
@@ -230,7 +230,7 @@ public:
 			 throw Gem::Common::condition_time_out();
 		 }
 		 m_container.push_front(std::move(item));
-		 m_not_empty.notify_one();
+		 m_not_empty.notify_all();
 	 }
 
 	 /***************************************************************************/
@@ -253,7 +253,7 @@ public:
 			 return false;
 		 }
 		 m_container.push_front(std::move(item));
-		 m_not_empty.notify_one();
+		 m_not_empty.notify_all();
 		 return true;
 	 }
 
@@ -274,7 +274,7 @@ public:
 
 		 item = std::move(m_container.back());
 		 m_container.pop_back();
-		 m_not_full.notify_one();
+		 m_not_full.notify_all();
 	 }
 
 	 /***************************************************************************/
@@ -298,7 +298,7 @@ public:
 
 		 item = std::move(m_container.back());
 		 m_container.pop_back();
-		 m_not_full.notify_one();
+		 m_not_full.notify_all();
 	 }
 
 	 /***************************************************************************/
@@ -324,7 +324,7 @@ public:
 
 		 item = std::move(m_container.back()); // Assign the item at the back of the container
 		 m_container.pop_back(); // Remove it from the container
-		 m_not_full.notify_one();
+		 m_not_full.notify_all();
 		 return true;
 	 }
 
@@ -381,30 +381,6 @@ public:
 		 return !m_container.empty();
 	 }
 
-	 /***************************************************************************/
-	 /*
-	  * Retrieves the m_id variable.
-	  *
-	  * @return The value of the m_id variable
-	  */
-	 PORTIDTYPE getId() const {
-		 return m_id;
-	 }
-
-	 /***************************************************************************/
-	 /*
-	  * Allows to set the m_id once. Any subsequent calls to this
-	  * function will have no effect.
-	  *
-	  * @param id The desired value of the m_id variable
-	  */
-	 void setId(const PORTIDTYPE &id) {
-		 if (!m_idSet) {
-			 m_id = id;
-			 m_idSet = true;
-		 }
-	 }
-
 protected:
 	 /***************************************************************************/
 
@@ -418,9 +394,6 @@ private:
 
 	 GBoundedBufferT(const GBoundedBufferT<T> &) = delete; ///< Disabled copy constructor
 	 GBoundedBufferT &operator=(const GBoundedBufferT<T> &) = delete; ///< Disabled assign operator
-
-	 volatile PORTIDTYPE m_id=0; ///< An id that allows to identify this class
-	 volatile bool m_idSet=false; ///< Allows control over whether the id has been set before
 };
 
 /******************************************************************************/

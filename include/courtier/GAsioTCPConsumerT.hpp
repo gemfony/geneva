@@ -486,9 +486,9 @@ protected:
 			// Indicate that we want to continue
 			return CLIENT_CONTINUE;
 		}
-			// Any system error (except for those where a connection attempt failed) is considered
-			// fatal and leads to the termination, by returning false.
-		catch (boost::system::system_error &) {
+		// Any system error (except for those where a connection attempt failed) is considered
+		// fatal and leads to the termination, by returning false.
+		catch(boost::system::system_error &) {
 			{
 				glogger
 				<< "In GAsioTCPClientT<processable_type>::submit():" << std::endl
@@ -503,13 +503,24 @@ protected:
 
 			// Indicate that we don't want to continue
 			return CLIENT_TERMINATE;
+		} catch(...) {
+			glogger
+				<< "In GAsioTCPClientT<processable_type>::submit():" << std::endl
+				<< "Caught unknown error. Leaving now." << std::endl
+				<< GLOGGING;
+
+			// Make sure we don't leave any open sockets lying around.
+			disconnect(m_socket);
+
+			// Indicate that we don't want to continue
+			return CLIENT_TERMINATE;
 		}
 
 		// This part of the function should never be reached. Let the audience know, then terminate.
 		glogger
 		<< "In GAsioTCPClientT<processable_type>::submit() :" << std::endl
 		<< "In a part of the function that should never have been reached!" << std::endl
-		<< GEXCEPTION;
+		<< GLOGGING;
 
 		return CLIENT_TERMINATE; // Make the compiler happy
 	}
@@ -625,8 +636,8 @@ public:
 	   , m_master(master)
 	   , m_broker_ptr(master->m_broker_ptr)
 	   , m_timeout(std::chrono::milliseconds(10))
-	   , m_brokerRetrieveMaxRetries(10)
-	   , m_noDataClientSleepMilliSeconds(50)
+	   , m_brokerRetrieveMaxRetries(1)
+	   , m_noDataClientSleepMilliSeconds(100)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -1122,7 +1133,7 @@ private:
 
 	Gem::Common::serializationMode m_serializationMode; ///< Specifies the serialization mode
 	GAsioTCPConsumerT<processable_type> *m_master;
-	std::shared_ptr <Gem::Courtier::GBrokerT<processable_type>> m_broker_ptr;
+	std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr;
 
 	std::chrono::duration<double> m_timeout; ///< A timeout for put- and get-operations
 

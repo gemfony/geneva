@@ -43,8 +43,6 @@
 
 // Boost header files go here
 #include <boost/utility.hpp>
-#include <boost/lockfree/spsc_queue.hpp>
-#include <boost/lockfree/policies.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -56,6 +54,7 @@
 // Geneva header files go here
 #include "courtier/GCourtierEnums.hpp"
 #include "common/GHelperFunctionsT.hpp"
+#include "common/GBoundedBufferT.hpp"
 
 namespace Gem {
 namespace Courtier {
@@ -65,7 +64,7 @@ namespace Courtier {
  * A GBufferPortT<T> consists of two GBoundedBufferT<T> objects, one intended for "raw"
  * items, the other for returning, processed items. While this class could
  * be useful in many scenarios, the most common application is as a mediator
- * between GBrokerEA and GConsumer-derivatives. The GBrokerEA
+ * between optimization algorithms and GConsumer-derivatives. The optimization algorithm
  * is a source of raw items, which are processed by GConsumer-derivatives
  * (such as GBoostThreadConsumer and GAsioTCPConsumerT) and then returned to the
  * population. GBrokerT instantiations orchestrate this exchange.
@@ -74,197 +73,153 @@ namespace Courtier {
  * single population.
  */
 template<typename T>
-class GBufferPortT : private boost::noncopyable {
+class GBufferPortT
+	: private boost::noncopyable
+{
 public:
-	 typedef boost::lockfree::spsc_queue<T, boost::lockfree::capacity<DEFAULTRAWBUFFERSIZE>> RAW_BUFFER_TYPE; // The size is limited
-	 typedef boost::lockfree::spsc_queue<T, boost::lockfree::capacity<DEFAULTPROCESSEDBUFFERSIZE>> PROCESSED_BUFFER_TYPE; // unlimited size (returning items are always welcome)
+	 typedef typename Gem::Common::GBoundedBufferT<T, Gem::Common::DEFAULTBUFFERSIZE> RAW_BUFFER_TYPE;
+	 typedef typename Gem::Common::GBoundedBufferT<T, 0> PROCESSED_BUFFER_TYPE;
 
-	/***************************************************************************/
-	/**
-	 * The default constructor
-	 */
-	GBufferPortT()
-		: m_raw(new RAW_BUFFER_TYPE())
-		, m_processed(new PROCESSED_BUFFER_TYPE())
-   { /* nothing */ }
+	 /***************************************************************************/
+	 /**
+	  * The default constructor
+	  */
+	 GBufferPortT()
+		 : m_raw_ptr(new RAW_BUFFER_TYPE())
+		 , m_processed_ptr(new PROCESSED_BUFFER_TYPE())
+	 { /* nothing */ }
 
-	/***************************************************************************/
-	/**
-	 * Retrieves a shared_ptr to the "raw" queue, for consumption by the broker.
-	 *
-	 * @return A shared_ptr with the "raw" queue
-	 */
-	std::shared_ptr<RAW_BUFFER_TYPE> getOriginalQueue() {
-		return m_raw;
-	}
+	 /***************************************************************************/
+	 /**
+	  * Puts an item into the raw queue. This is the queue for "raw" objects.
+	  * This function will block until the item was submitted.
+	  *
+	  * @param item A raw object that needs to be processed
+	  * @return A boolean which indicates whether the submission was successful
+	  */
+	 void push_raw(T item) {
+		 m_raw_ptr->push_front(item);
+	 }
 
-	/***************************************************************************/
-	/**
-	 * Retrieves a shared_ptr to the "processed" queue, for consumption by the broker.
-	 *
-	 * @return A shared_ptr with the "processed" queue
-	 */
-	std::shared_ptr<PROCESSED_BUFFER_TYPE> getProcessedQueue() {
-		return m_processed;
-	}
+	 /***************************************************************************/
+	 /**
+	  * Timed version of GBufferPortT::push_raw() . If the item could not be added
+	  * after a given amount of time, the function returns. Note that a time_out
+	  * exception will be thrown in this case.
+	  *
+	  * @param item An item to be added to the buffer
+	  * @param timeout duration until a timeout occurs
+	  * @return A boolean which indicates whether the submission was successful
+	  */
+	 bool push_raw(
+		 T item
+		 , const std::chrono::duration<double> &timeout
+	 ) {
+		 return m_raw_ptr->push_front_bool(item, timeout);
+	 }
 
-	/***************************************************************************/
-	/**
-	 * Puts an item into the raw queue. This is the queue for "raw" objects.
-	 *
-	 * @param item A raw object that needs to be processed
-	 * @return A boolean which indicates whether the submission was successful
-	 */
-	bool push_raw(T item) {
-		Gem::Common::forcedSubmissionToBoostLockfree(
-			*m_raw
-			, item
-		);
-	}
+	 /***************************************************************************/
+	 /**
+	  * Retrieves an item from the back of the "m_raw_ptr" queue. Blocks until
+	  * an item could be retrieved. This function will block until the item was submitted.
+	  *
+	  * @param item A reference to the item to be retrieved
+	  * @return A boolean which indicates whether the retrieval was successful
+	  */
+	 void pop_raw(T &item) {
+		 m_raw_ptr->pop_back(item);
+	 }
 
-	/***************************************************************************/
-	/**
-	 * Timed version of GBufferPortT::push_raw() . If the item could not be added
-	 * after a given amount of time, the function returns. Note that a time_out
-	 * exception will be thrown in this case.
-	 *
-	 * @param item An item to be added to the buffer
-	 * @param timeout duration until a timeout occurs
-	 * @return A boolean which indicates whether the submission was successful
-	 */
-	bool push_raw(
-		T item
-		, const std::chrono::duration<double> &timeout
-	) {
-		Gem::Common::timedSubmissionToBoostLockfree(
-			*m_raw
-			, item
-			, timeout
-		);
-	}
+	 /***************************************************************************/
+	 /**
+	  * A version of GBufferPortT::pop_raw() with the ability to time-out. Note
+	  * that an exception will be thrown by m_raw_ptr if the time-out was reached. It
+	  * needs to be caught by the calling function.
+	  *
+	  * @param item The item that was retrieved from the queue
+	  * @param timeout duration until a timeout occurs
+	  * @return A boolean which indicates whether the retrieval was successful
+	  */
+	 bool pop_raw(
+		 T &item
+		 , const std::chrono::duration<double> &timeout
+	 ) {
+		 return m_raw_ptr->pop_back_bool(item, timeout);
+	 }
 
-	/***************************************************************************/
-	/**
-	 * Retrieves an item from the back of the "m_raw" queue. Blocks until
-	 * an item could be retrieved.
-	 *
-	 * @param item A reference to the item to be retrieved
-	 * @return A boolean which indicates whether the retrieval was successful
-	 */
-	 bool pop_raw(T &item) {
-		 Gem::Common::forcedRetrievalFromBoostLockfree(
-			 *m_raw
-			 , item
-		 );
-	}
+	 /***************************************************************************/
+	 /**
+	  * Puts an item into the "processed" queue. This function will block until the item was submitted.
+	  *
+	  * @param item A raw object that needs to be processed
+	  * @return A boolean which indicates whether the submission was successful
+	  */
+	 void push_processed(T item) {
+		 m_processed_ptr->push_front(item);
+	 }
 
-	/***************************************************************************/
-	/**
-	 * A version of GBufferPortT::pop_raw() with the ability to time-out. Note
-	 * that an exception will be thrown by m_raw if the time-out was reached. It
-	 * needs to be caught by the calling function.
-	 *
-	 * @param item The item that was retrieved from the queue
-	 * @param timeout duration until a timeout occurs
-	 * @return A boolean which indicates whether the retrieval was successful
-	 */
-	bool pop_raw(
-		T &item
-		, const std::chrono::duration<double> &timeout
-	) {
-		Gem::Common::timedRetrievalFromBoostLockfree(
-			*m_raw
-			, item
-			, timeout
-		);
-	}
+	 /***************************************************************************/
+	 /**
+	  * Timed version of GBufferPortT::push_processed() . If the item could not
+	  * be added after a given amount of time, a timed_out exception will be thrown by
+	  * m_processed_ptr.
+	  *
+	  * @param item An item to be added to the buffer
+	  * @param timeout duration until a timeout occurs
+	  * @return A boolean which indicates whether the submission was successful
+	  */
+	 bool push_processed(
+		 T item
+		 , const std::chrono::duration<double> &timeout
+	 ) {
+		 return m_processed_ptr->pop_back_bool(item, timeout);
+	 }
 
-	/***************************************************************************/
-	/**
-	 * Puts an item into the "processed" queue.
-	 *
-	 * @param item A raw object that needs to be processed
-	 * @return A boolean which indicates whether the submission was successful
-	 */
-	bool push_processed(T item) {
-		Gem::Common::forcedSubmissionToBoostLockfree(
-			*m_processed
-			, item
-		);
-	}
+	 /***************************************************************************/
+	 /**
+	  * Retrieves an item from the "processed" queue. This function will usually be
+	  * called directly or indirectly by an optimization algorithm.
+	  * This function will block until the item was submitted.
+	  *
+	  * @param The item that was retrieved from the queue
+	  * @return A boolean which indicates whether the retrieval was successful
+	  */
+	 void pop_processed(T &item) {
+		 m_processed_ptr->pop_back(item);
+	 }
 
-	/***************************************************************************/
-	/**
-	 * Timed version of GBufferPortT::push_processed() . If the item could not
-	 * be added after a given amount of time, a timed_out exception will be thrown by
-	 * m_processed.
-	 *
-	 * @param item An item to be added to the buffer
-	 * @param timeout duration until a timeout occurs
-	 * @return A boolean which indicates whether the submission was successful
-	 */
-	bool push_processed(
-		T item
-		, const std::chrono::duration<double> &timeout
-	) {
-		Gem::Common::timedSubmissionToBoostLockfree(
-			*m_processed
-			, item
-			, timeout
-		);
-	}
+	 /***************************************************************************/
+	 /**
+	  * A version of GBufferPortT::pop_processed() with the ability to time-out. If the
+	  * time-out was reached, m_processed_ptr will throw a time_out exception.
+	  *
+	  * @param item The item that was retrieved from the queue
+	  * @param timeout duration until a timeout occurs
+	  * @return A boolean which indicates whether the retrieval was successful
+	  */
+	 bool pop_processed(
+		 T &item
+		 , const std::chrono::duration<double> &timeout
+	 ) {
+		 return m_processed_ptr->pop_back_bool(item, timeout);
+	 }
 
-	/***************************************************************************/
-	/**
-	 * Retrieves an item from the "processed" queue. This function will usually be
-	 * called directly or indirectly by GTransferPopulation.
-	 *
-	 * @param The item that was retrieved from the queue
-	 * @return A boolean which indicates whether the retrieval was successful
-	 */
-	bool pop_processed(T &item) {
-		Gem::Common::forcedRetrievalFromBoostLockfree(
-			*m_processed
-			, item
-		);
-	}
+	 /***************************************************************************/
+	 /*
+	  * Retrieves the unique tag that was assigned to this object
+	  *
+	  * @return The value of the m_id variable
+	  */
+	 boost::uuids::uuid getUniqueTag() const {
+		 return m_tag;
+	 }
 
-	/***************************************************************************/
-	/**
-	 * A version of GBufferPortT::pop_processed() with the ability to time-out. If the
-	 * time-out was reached, m_processed will throw a time_out exception.
-	 *
-	 * @param item The item that was retrieved from the queue
-	 * @param timeout duration until a timeout occurs
-	 * @return A boolean which indicates whether the retrieval was successful
-	 */
-	bool pop_processed(
-		T &item
-		, const std::chrono::duration<double> &timeout
-	) {
-		Gem::Common::timedRetrievalFromBoostLockfree(
-			*m_processed
-			, item
-			, timeout
-		);
-	}
-
-	/***************************************************************************/
-	/*
-	 * Retrieves the unique tag that was assigned to this object
-	 *
-	 * @return The value of the m_id variable
-	 */
-	boost::uuids::uuid getUniqueTag() const {
-	 	return m_tag;
-	}
-
-	/***************************************************************************/
+	 /***************************************************************************/
 private:
-	std::shared_ptr <RAW_BUFFER_TYPE> m_raw; ///< The queue for raw objects
-	std::shared_ptr <PROCESSED_BUFFER_TYPE> m_processed; ///< The queue for processed objects
+	 std::shared_ptr<RAW_BUFFER_TYPE> m_raw_ptr; ///< The queue for raw objects
+	 std::shared_ptr<PROCESSED_BUFFER_TYPE> m_processed_ptr; ///< The queue for processed objects
 
-   boost::uuids::uuid m_tag = boost::uuids::random_generator()(); ///< A unique id assigned to objects of this class
+	 const boost::uuids::uuid m_tag = boost::uuids::random_generator()(); ///< A unique id assigned to objects of this class
 };
 
 /******************************************************************************/
