@@ -152,11 +152,13 @@ public:
 				 adProb_
 				 , minAdProb_
 				 , maxAdProb_
+				 , "GAdaptorT<>::GAdaptorT(" + boost::lexical_cast<std::string>(adProb) + " / 1)"
 			 );
 			 Gem::Common::enforceRangeConstraint<fp_type>(
 				 adProb_reset_
 				 , minAdProb_
 				 , maxAdProb_
+				 , "GAdaptorT<>::GAdaptorT(" + boost::lexical_cast<std::string>(adProb) + " / 2)"
 			 );
 		 }
 	 }
@@ -642,11 +644,13 @@ public:
 			 adProb_
 			 , minAdProb_
 			 , maxAdProb_
+			 , "GAdaptorT<>::setAdProbRange() / 1"
 		 );
 		 Gem::Common::enforceRangeConstraint<fp_type>(
 			 adProb_reset_
 			 , minAdProb_
 			 , maxAdProb_
+			 , "GAdaptorT<>::setAdProbRange() / 2"
 		 );
 	 }
 
@@ -694,6 +698,7 @@ public:
 				 adProb_
 				 , minAdProb_
 				 , maxAdProb_
+				 , "GAdaptorT<>::adapt() / 1"
 			 );
 		 }
 
@@ -774,6 +779,7 @@ public:
 				 adProb_
 				 , minAdProb_
 				 , maxAdProb_
+				 , "GAdaptorT<>::adapt() / 2"
 			 );
 		 }
 

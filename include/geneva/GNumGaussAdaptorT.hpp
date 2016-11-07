@@ -378,8 +378,18 @@ public:
 		maxSigma_ = maxSigma;
 
 		// Rectify sigma_ and reset_sigma_, if necessary
-		Gem::Common::enforceRangeConstraint<fp_type>(sigma_, Gem::Common::gmax(fp_type(minSigma_), fp_type(DEFAULTMINSIGMA)), maxSigma_);
-		Gem::Common::enforceRangeConstraint<fp_type>(sigma_reset_, Gem::Common::gmax(fp_type(minSigma_), fp_type(DEFAULTMINSIGMA)), maxSigma_);
+		Gem::Common::enforceRangeConstraint<fp_type>(
+			sigma_
+			, Gem::Common::gmax(fp_type(minSigma_), fp_type(DEFAULTMINSIGMA))
+			, maxSigma_
+			, "GNumGaussAdaptorT<>::setSigmaRange() / 1"
+		);
+		Gem::Common::enforceRangeConstraint<fp_type>(
+			sigma_reset_
+			, Gem::Common::gmax(fp_type(minSigma_), fp_type(DEFAULTMINSIGMA))
+			, maxSigma_
+			, "GNumGaussAdaptorT<>::setSigmaRange() / 2"
+		);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -573,7 +583,7 @@ protected:
 		sigma_ *= gexp(GAdaptorT<num_type, fp_type>::m_normal_distribution(typename std::normal_distribution<fp_type>::param_type(0., gfabs(sigmaSigma_))));
 
 		// make sure sigma_ doesn't get out of range
-		Gem::Common::enforceRangeConstraint<fp_type>(sigma_, minSigma_, maxSigma_);
+		Gem::Common::enforceRangeConstraint<fp_type>(sigma_, minSigma_, maxSigma_, "GNumGaussAdaptorT<>::customAdaptAdaption()");
 	}
 
 	/***************************************************************************/

@@ -253,7 +253,12 @@ void GDelayIndividual::setMayCrash(
 	m_mayCrash = mayCrash;
 
 	// Enforce a throwLikelihood in the allowed value range
-	m_throwLikelihood = Gem::Common::enforceRangeConstraint(throwLikelihood, 0., 1.);
+	m_throwLikelihood = Gem::Common::enforceRangeConstraint(
+		throwLikelihood
+		, 0.
+		, 1.
+	   , "GDelayIndividual::setMayCrash()"
+	);
 }
 
 /******************************************************************************/
@@ -480,7 +485,12 @@ void GDelayIndividualFactory::describeLocalOptions_(
 		, [this](bool mayCrash, double throwLikelihood){
 			m_mayCrash = mayCrash;
 			// Enforce a throwLikelihood in the allowed value range
-			m_throwLikelihood = Gem::Common::enforceRangeConstraint(throwLikelihood, 0., 1.);
+			m_throwLikelihood = Gem::Common::enforceRangeConstraint(
+				throwLikelihood
+				, 0.
+				, 1.
+				, "GDelayIndividual::describeLocalOptions_()"
+			);
 		}
 		, "throwBehaviour"
 	)

@@ -182,15 +182,15 @@ int main() {
 		sigma_2_06 *= fact_2_06;
 		sigma_2_08 *= fact_2_08;
 
-		enforceRangeConstraint(sigma_1_02, 0.,1.);
-		enforceRangeConstraint(sigma_1_04, 0.,1.);
-		enforceRangeConstraint(sigma_1_06, 0.,1.);
-		enforceRangeConstraint(sigma_1_08, 0.,1.);
+		enforceRangeConstraint(sigma_1_02, 0.,1., "GSigmaAdaptionTest / 1");
+		enforceRangeConstraint(sigma_1_04, 0.,1., "GSigmaAdaptionTest / 2");
+		enforceRangeConstraint(sigma_1_06, 0.,1., "GSigmaAdaptionTest / 3");
+		enforceRangeConstraint(sigma_1_08, 0.,1., "GSigmaAdaptionTest / 4");
 
-		enforceRangeConstraint(sigma_2_02, 0.,1.);
-		enforceRangeConstraint(sigma_2_04, 0.,1.);
-		enforceRangeConstraint(sigma_2_06, 0.,1.);
-		enforceRangeConstraint(sigma_2_08, 0.,1.);
+		enforceRangeConstraint(sigma_2_02, 0.,1., "GSigmaAdaptionTest / 5");
+		enforceRangeConstraint(sigma_2_04, 0.,1., "GSigmaAdaptionTest / 6");
+		enforceRangeConstraint(sigma_2_06, 0.,1., "GSigmaAdaptionTest / 7");
+		enforceRangeConstraint(sigma_2_08, 0.,1., "GSigmaAdaptionTest / 8");
 
 		// Record the development of a sigma over time, when no
 		// selection pressure exists

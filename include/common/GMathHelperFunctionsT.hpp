@@ -80,29 +80,30 @@ fp_type enforceRangeConstraint(
 	fp_type &val
 	, const fp_type &lower
 	, const fp_type &upper
+	, const std::string& caller = "empty"
 	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
    if(lower > upper) {
       glogger
-      << "In enforceRangeConstraint<fp_type>(...): Error!" << std::endl
+      << (caller=="empty"?"":("["+caller+"] ")) << "In enforceRangeConstraint<fp_type>(): Error!" << std::endl
       << "Lower boundary > upper boundary: " << lower << " / " << upper << std::endl
       << GEXCEPTION;
    }
 
 	if (val < lower) {
+		glogger
+			<< (caller=="empty"?"":("["+caller+"] ")) << "In Gem::Common::enforceRangeConstraint(): " << val << " < " << lower << std::endl
+	   	<< "Will be adapted to " << lower << std::endl
+			<< GWARNING;
+
 		val = lower;
-
-		glogger
-			<< "In Gem::Common::enforceRangeConstraint(): " << val << " < " << lower << std::endl
-	   	<< "Adapted to " << lower << std::endl
-			<< GWARNING;
 	} else if (val > upper) {
-		val = upper;
-
 		glogger
-			<< "In Gem::Common::enforceRangeConstraint(): " << val << " > " << upper << std::endl
-			<< "Adapted to " << upper << std::endl
+			<< (caller=="empty"?"":("["+caller+"] ")) << "In Gem::Common::enforceRangeConstraint(): " << val << " > " << upper << std::endl
+			<< "Will be adapted to " << upper << std::endl
 			<< GWARNING;
+
+		val = upper;
 	}
 
 	return val;
@@ -123,7 +124,7 @@ bool checkRangeCompliance(
 ) {
    if(lower > upper) {
       glogger
-      << "In enforceRangeConstraint<fp_type>(...): Error!" << std::endl
+      << "In checkRangeCompliance<fp_type>(...): Error!" << std::endl
       << "Lower boundary > upper boundary: " << lower << " / " << upper << std::endl
       << GEXCEPTION;
    }
@@ -149,7 +150,7 @@ fp_type getWorstCase(
 
 /******************************************************************************/
 /**
- * Retrieves the worst known value for a given floating point type, depending
+ * Retrieves the best known value for a given floating point type, depending
  * on whether maximal or minimal values are considered to be better
  */
 template<typename fp_type>

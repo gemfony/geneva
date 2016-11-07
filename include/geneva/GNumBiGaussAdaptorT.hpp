@@ -340,7 +340,12 @@ public:
 		 }
 
 		 // Rectify sigma1_, if necessary
-		 enforceRangeConstraint(sigma1_, minSigma1_, maxSigma1_);
+		 enforceRangeConstraint(
+			 sigma1_
+			 , minSigma1_
+			 , maxSigma1_
+		 	 , "GNumBiGaussAdaptorT<>::setSigma1Range()"
+		 );
 	 }
 
 	 /***************************************************************************/
@@ -468,7 +473,12 @@ public:
 		 }
 
 		 // Rectify sigma1_, if necessary
-		 enforceRangeConstraint(sigma2_, minSigma2_, maxSigma2_);
+		 enforceRangeConstraint(
+			 sigma2_
+			 , minSigma2_
+			 , maxSigma2_
+		 	 , "GNumBiGaussAdaptorT<>::setSigma2Range()"
+		 );
 	 }
 
 	 /***************************************************************************/
@@ -772,9 +782,9 @@ protected:
 		 delta_  *= gexp(GAdaptorT<num_type>::m_normal_distribution(typename std::normal_distribution<fp_type>::param_type(0., gfabs(sigmaDelta_))));
 
 		 // Make sure valued don't get out of range
-		 enforceRangeConstraint(sigma1_, minSigma1_, maxSigma1_);
-		 enforceRangeConstraint(sigma2_, minSigma2_, maxSigma2_);
-		 enforceRangeConstraint(delta_ , minDelta_ , maxDelta_);
+		 enforceRangeConstraint(sigma1_, minSigma1_, maxSigma1_, "GNumBiGaussAdaptorT<>::customAdaptAdaption() / 1");
+		 enforceRangeConstraint(sigma2_, minSigma2_, maxSigma2_, "GNumBiGaussAdaptorT<>::customAdaptAdaption() / 2");
+		 enforceRangeConstraint(delta_ , minDelta_ , maxDelta_, "GNumBiGaussAdaptorT<>::customAdaptAdaption() / 3");
 	 }
 
 	 /***************************************************************************/

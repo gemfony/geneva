@@ -62,7 +62,12 @@ std::size_t GAdaptorT<bool,double>::adapt(
 		adProb_ *= gexp(
 			m_normal_distribution(typename std::normal_distribution<double>::param_type(0.,adaptAdProb_))
 		);
-		Gem::Common::enforceRangeConstraint<double>(adProb_, minAdProb_, maxAdProb_);
+		Gem::Common::enforceRangeConstraint<double>(
+			adProb_
+			, minAdProb_
+			, maxAdProb_
+			, "GAdaptorT<bool,double>::adapt()"
+		);
 	}
 
 	bool dummy_val;
