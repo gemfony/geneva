@@ -100,10 +100,6 @@ int main(int argc, char **argv) {
 
 	//---------------------------------------------------------------------------
 
-	std::cout << gfi_ptr->get()->toString(Gem::Common::serializationMode::SERIALIZATIONMODE_XML) << std::endl;
-
-	exit(0);
-
 	// Add a content creator so Go2 can generate its own individuals, if necessary
 	go.push_back(gfi_ptr->get());
 
