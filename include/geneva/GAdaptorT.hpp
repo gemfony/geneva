@@ -132,8 +132,8 @@ public:
 	  *
 	  * @param adProb The likelihood for a an adaption to be actually carried out
 	  */
-	 GAdaptorT(const fp_type &adProb) :
-		 GObject()
+	 GAdaptorT(const fp_type &adProb)
+		 : GObject()
 		 , adProb_(adProb)
 	 {
 		 // Do some error checking
@@ -142,6 +142,7 @@ public:
 			 adProb_
 			 , minAdProb_
 			 , maxAdProb_
+			 , "GAdaptorT<>::GAdaptorT(" + boost::lexical_cast<std::string>(adProb) + ")"
 		 )) {
 			 glogger
 				 << "In GAdaptorT<T>::GadaptorT(const fp_type& adProb):" << std::endl << "adProb value " << adProb_
@@ -369,6 +370,7 @@ public:
 			 adProb
 			 , minAdProb_
 			 , maxAdProb_
+			 , "GAdaptorT<>::setAdaptionProbability(" + boost::lexical_cast<std::string>(adProb) + ")"
 		 )) {
 			 glogger
 				 << "In GAdaptorT<T>::setAdaptionProbability(const fp_type& adProb):" << std::endl
@@ -419,6 +421,7 @@ public:
 			 adProb_reset
 			 , minAdProb_
 			 , maxAdProb_
+			 , "GAdaptorT<>::setResetAdaptionProbability(" + boost::lexical_cast<std::string>(adProb_reset) + ")"
 		 )) {
 			 glogger
 				 << "In GAdaptorT<T>::setResetAdaptionProbability(const fp_type&):" << std::endl
@@ -455,6 +458,7 @@ public:
 			 probability
 			 , 0.
 			 , 1.
+			 , "GAdaptorT<>::setAdaptAdaptionProbability(" + boost::lexical_cast<std::string>(probability) + ")"
 		 )) {
 			 glogger
 				 << "In GAdaptorT<T>::setAdaptAdaptionProbability(const fp_type&) :" << std::endl
@@ -678,8 +682,7 @@ public:
 	 std::size_t adapt(
 		 T &val
 		 , const T &range
-	 )
-	 {
+	 ) {
 		 using namespace Gem::Common;
 		 using namespace Gem::Hap;
 

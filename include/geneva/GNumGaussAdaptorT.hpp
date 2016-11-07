@@ -289,7 +289,7 @@ public:
 	void setSigma(const fp_type& sigma)
 	{
 		// Sigma must be in the allowed value range.
-		if(!Gem::Common::checkRangeCompliance<fp_type>(sigma, minSigma_, maxSigma_))
+		if(!Gem::Common::checkRangeCompliance<fp_type>(sigma, minSigma_, maxSigma_, "GNumGaussAdaptorT<>::setSigma(" + boost::lexical_cast<std::string>(sigma) + ")"))
 		{
 			glogger
 			<< "In GNumGaussAdaptorT::setSigma(const fp_type&):" << std::endl
@@ -323,7 +323,7 @@ public:
 	void setResetSigma(const fp_type& sigma_reset)
 	{
 		// Sigma must be in the allowed value range.
-		if(!Gem::Common::checkRangeCompliance<fp_type>(sigma_reset, minSigma_, maxSigma_))
+		if(!Gem::Common::checkRangeCompliance<fp_type>(sigma_reset, minSigma_, maxSigma_, "GNumGaussAdaptorT<>::setResetSigma(" + boost::lexical_cast<std::string>(sigma_reset) + ")"))
 		{
 			glogger
 			<< "In GNumGaussAdaptorT::setResetSigma(const fp_type&):" << std::endl
@@ -583,7 +583,7 @@ protected:
 		sigma_ *= gexp(GAdaptorT<num_type, fp_type>::m_normal_distribution(typename std::normal_distribution<fp_type>::param_type(0., gfabs(sigmaSigma_))));
 
 		// make sure sigma_ doesn't get out of range
-		Gem::Common::enforceRangeConstraint<fp_type>(sigma_, minSigma_, maxSigma_, "GNumGaussAdaptorT<>::customAdaptAdaption()");
+		Gem::Common::enforceRangeConstraint<fp_type>(sigma_, minSigma_, maxSigma_, "GNumGaussAdaptorT<>::customAdaptAdaption()", false /* silent */);
 	}
 
 	/***************************************************************************/

@@ -81,6 +81,7 @@ fp_type enforceRangeConstraint(
 	, const fp_type &lower
 	, const fp_type &upper
 	, const std::string& caller = "empty"
+	, bool verbose = false
 	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
    if(lower > upper) {
@@ -91,18 +92,22 @@ fp_type enforceRangeConstraint(
    }
 
 	if (val < lower) {
-		glogger
-			<< (caller=="empty"?"":("["+caller+"] ")) << "In Gem::Common::enforceRangeConstraint(): " << val << " < " << lower << std::endl
-	   	<< "Will be adapted to " << lower << std::endl
-			<< GWARNING;
-
+		if(verbose) {
+			glogger
+				<< (caller == "empty" ? "" : ("[" + caller + "] ")) << "In Gem::Common::enforceRangeConstraint(): " << std::endl
+				<< "value " << val << " < lower boundary " << lower << std::endl
+				<< "Will be adapted to " << lower << std::endl
+				<< GWARNING;
+		}
 		val = lower;
 	} else if (val > upper) {
-		glogger
-			<< (caller=="empty"?"":("["+caller+"] ")) << "In Gem::Common::enforceRangeConstraint(): " << val << " > " << upper << std::endl
-			<< "Will be adapted to " << upper << std::endl
-			<< GWARNING;
-
+		if(verbose) {
+			glogger
+				<< (caller == "empty" ? "" : ("[" + caller + "] ")) << "In Gem::Common::enforceRangeConstraint(): " << std::endl
+			 	<< "value " << val << " > upper boundary " << upper << std::endl
+				<< "Will be adapted to " << upper << std::endl
+				<< GWARNING;
+		}
 		val = upper;
 	}
 
@@ -119,14 +124,17 @@ fp_type enforceRangeConstraint(
  */
 template<typename fp_type>
 bool checkRangeCompliance(
-	const fp_type &val, const fp_type &lower, const fp_type &upper,
-	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+	const fp_type &val
+	, const fp_type &lower
+	, const fp_type &upper
+	, const std::string& caller = "empty"
+	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
    if(lower > upper) {
       glogger
-      << "In checkRangeCompliance<fp_type>(...): Error!" << std::endl
-      << "Lower boundary > upper boundary: " << lower << " / " << upper << std::endl
-      << GEXCEPTION;
+			<< (caller=="empty"?"":("["+caller+"] ")) << "In checkRangeCompliance<fp_type>(...): Error!" << std::endl
+      	<< "Lower boundary > upper boundary: " << lower << " / " << upper << std::endl
+      	<< GEXCEPTION;
    }
 
 	if (val < lower || val > upper) {
