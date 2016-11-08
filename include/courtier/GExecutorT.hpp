@@ -1286,8 +1286,6 @@ private:
 #endif /* DEBUG */
 
 		 m_CurrentBufferPort->push_raw(w);
-
-		 std::cout << "Submitted item" << std::endl;
 	 }
 
 	 /***************************************************************************/

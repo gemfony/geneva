@@ -152,7 +152,7 @@ private:
 		try {
 			std::shared_ptr <processable_type> p;
 			boost::uuids::uuid id;
-			std::chrono::milliseconds timeout(10);
+			std::chrono::milliseconds timeout(100);
 
 			while (true) {
 				// Have we been asked to stop ?

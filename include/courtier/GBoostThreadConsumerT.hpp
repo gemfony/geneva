@@ -439,7 +439,7 @@ public:
 
 				std::shared_ptr<processable_type> p;
 				boost::uuids::uuid id;
-				std::chrono::milliseconds timeout(10);
+				std::chrono::milliseconds timeout(100);
 
 				while (true) {
 					Gem::Common::thread::interruption_point();

@@ -172,7 +172,7 @@ public:
 		 T item
 		 , const std::chrono::duration<double> &timeout
 	 ) {
-		 return m_processed_ptr->pop_back_bool(item, timeout);
+		 return m_processed_ptr->push_front_bool(item, timeout);
 	 }
 
 	 /***************************************************************************/
