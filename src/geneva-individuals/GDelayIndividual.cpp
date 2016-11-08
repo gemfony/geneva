@@ -44,7 +44,7 @@ namespace Geneva {
  * The default constructor. Intentionally private -- needed only for (de-)serialization.
  */
 GDelayIndividual::GDelayIndividual()
-	: m_fixedSleepTime(std::chrono::seconds(1))
+	: m_fixedSleepTime(1.)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -140,7 +140,7 @@ void GDelayIndividual::compare(
 	Gem::Common::compare_base<Gem::Geneva::GParameterSet>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
-	Gem::Common::compare_t(IDENTITY(m_fixedSleepTime.count(), p_load->m_fixedSleepTime.count()), token);
+	Gem::Common::compare_t(IDENTITY(m_fixedSleepTime, p_load->m_fixedSleepTime), token);
 	Gem::Common::compare_t(IDENTITY(m_mayCrash, p_load->m_mayCrash), token);
 	Gem::Common::compare_t(IDENTITY(m_throwLikelihood, p_load->m_throwLikelihood), token);
 	Gem::Common::compare_t(IDENTITY(m_sleepRandomly, p_load->m_sleepRandomly), token);
@@ -208,7 +208,7 @@ double GDelayIndividual::fitnessCalculation() {
 		std::this_thread::sleep_for(random_sleepTime);
 	} else {
 		// Sleep for a fixed amount of time
-		std::this_thread::sleep_for(m_fixedSleepTime);
+		std::this_thread::sleep_for(std::chrono::duration<double>(m_fixedSleepTime));
 	}
 
 	// Throw if we were asked to do so
@@ -229,7 +229,7 @@ double GDelayIndividual::fitnessCalculation() {
  * @return The current value of the m_fixedSleepTime variable
  */
 std::chrono::duration<double> GDelayIndividual::getFixedSleepTime() const {
-	return m_fixedSleepTime;
+	return std::chrono::duration<double>(m_fixedSleepTime);
 }
 
 /******************************************************************************/
@@ -237,7 +237,7 @@ std::chrono::duration<double> GDelayIndividual::getFixedSleepTime() const {
  * Sets the sleep-time to a user-defined value
  */
 void GDelayIndividual::setFixedSleepTime(const std::chrono::duration<double>& sleepTime) {
-	m_fixedSleepTime = sleepTime;
+	m_fixedSleepTime = sleepTime.count();
 }
 
 /******************************************************************************/

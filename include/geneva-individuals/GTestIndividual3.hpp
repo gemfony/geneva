@@ -82,7 +82,9 @@ namespace Tests {
  * This individual tests different access methods for parameter objects inside
  * of the individual.
  */
-class GTestIndividual3 : public Gem::Geneva::GParameterSet {
+class GTestIndividual3
+	: public Gem::Geneva::GParameterSet
+{
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 

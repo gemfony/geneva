@@ -83,48 +83,22 @@ class fitnessException : public std::exception {};
  * crash with a predefined likelihood. This allows to test the stability of the communication between
  * clients and server.
  */
-class GDelayIndividual: public Gem::Geneva::GParameterSet
+class GDelayIndividual: public GParameterSet
 {
 	 /////////////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
 
-	 template<typename Archive>
-	 void load(Archive &ar, const unsigned int) {
-		 using boost::serialization::make_nvp;
-
-		 double dSleepTime {0.};
-
+	 template<class Archive>
+	 void serialize(Archive &ar, const unsigned int) {
 		 ar
-		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Geneva::GParameterSet)
-		 & BOOST_SERIALIZATION_NVP(dSleepTime);
-
-		 m_fixedSleepTime = std::chrono::duration<double>(dSleepTime);
-
-		 ar
+		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
+		 & BOOST_SERIALIZATION_NVP(m_fixedSleepTime)
 		 & BOOST_SERIALIZATION_NVP(m_mayCrash)
 		 & BOOST_SERIALIZATION_NVP(m_throwLikelihood)
 		 & BOOST_SERIALIZATION_NVP(m_sleepRandomly)
 		 & BOOST_SERIALIZATION_NVP(m_randSleepBoundaries);
 	 }
 
-	 template<typename Archive>
-	 void save(Archive &ar, const unsigned int) const {
-	 	using boost::serialization::make_nvp;
-
-		 ar
-		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Geneva::GParameterSet);
-
-		 double dSleepTime = m_fixedSleepTime.count();
-
-		 ar
-		 & BOOST_SERIALIZATION_NVP(dSleepTime)
-		 & BOOST_SERIALIZATION_NVP(m_mayCrash)
-		 & BOOST_SERIALIZATION_NVP(m_throwLikelihood)
-		 & BOOST_SERIALIZATION_NVP(m_sleepRandomly)
-		 & BOOST_SERIALIZATION_NVP(m_randSleepBoundaries);
-	 }
-
-	 BOOST_SERIALIZATION_SPLIT_MEMBER()
 	 /////////////////////////////////////////////////////////////////////////////
 
 public:
@@ -173,7 +147,7 @@ protected:
 	 /** @brief Loads the data of another GDelayIndividual, camouflaged as a GObject */
 	 G_API_INDIVIDUALS virtual void load_(const GObject*) final;
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_INDIVIDUALS Gem::Geneva::GObject* clone_() const final;
+	 virtual G_API_INDIVIDUALS GObject* clone_() const final;
 
 	 /** @brief The actual adaption operations */
 	 virtual G_API_INDIVIDUALS std::size_t customAdaptions() final;
@@ -181,7 +155,7 @@ protected:
 	 virtual G_API_INDIVIDUALS double fitnessCalculation() final;
 
 private:
-	 std::chrono::duration<double> m_fixedSleepTime; ///< The amount of time the evaluation function should sleep before continuing
+	 double m_fixedSleepTime; ///< The amount of time the evaluation function should sleep before continuing (seconds)
 	 Gem::Hap::g_uniform_real<double> m_uniform_real_distribution;
 
 	 bool m_mayCrash = false; ///< Indicates whether the fitness function may throw at the end of the sleep time
@@ -198,7 +172,7 @@ private:
  * A factory for GFMinIndividual objects
  */
 class GDelayIndividualFactory
-	: public Gem::Common::GFactoryT<Gem::Geneva::GParameterSet>
+	: public Gem::Common::GFactoryT<GParameterSet>
 {
 public:
 	 /** @brief The standard constructor */
@@ -221,14 +195,14 @@ public:
 
 protected:
 	 /** @brief Creates individuals of this type */
-	 virtual G_API_INDIVIDUALS std::shared_ptr<Gem::Geneva::GParameterSet> getObject_(
+	 virtual G_API_INDIVIDUALS std::shared_ptr<GParameterSet> getObject_(
 		 Gem::Common::GParserBuilder&
 		 , const std::size_t&
 	 ) final;
 	 /** @brief Allows to describe local configuration options in derived classes */
 	 virtual G_API_INDIVIDUALS void describeLocalOptions_(Gem::Common::GParserBuilder&) final;
 	 /** @brief Allows to act on the configuration options received from the configuration file */
-	 virtual G_API_INDIVIDUALS void postProcess_(std::shared_ptr<Gem::Geneva::GParameterSet>&) final;
+	 virtual G_API_INDIVIDUALS void postProcess_(std::shared_ptr<GParameterSet>&) final;
 
 private:
 	 /** @brief The default constructor. Intentionally private and undefined */

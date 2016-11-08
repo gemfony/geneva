@@ -98,7 +98,9 @@ class GAdaptorT
 	 void serialize(Archive &ar, const unsigned int)
 	 {
 		 using boost::serialization::make_nvp;
-		 ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject) & BOOST_SERIALIZATION_NVP(adaptionCounter_)
+		 ar
+		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
+		 & BOOST_SERIALIZATION_NVP(adaptionCounter_)
 		 & BOOST_SERIALIZATION_NVP(adaptionThreshold_)
 		 & BOOST_SERIALIZATION_NVP(adProb_)
 		 & BOOST_SERIALIZATION_NVP(adaptAdProb_)
