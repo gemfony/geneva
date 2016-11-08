@@ -328,6 +328,8 @@ protected:
 			return false;
 		}
 
+		std::cout << "Processed item " << m_nProcessed++ << std::endl;
+
 		// Everything worked. Indicate that we want to continue
 		return true;
 	} // std::shared_ptr<processable_type> target will cease to exist at this point
@@ -396,6 +398,8 @@ private:
 	bool m_returnRegardless; ///< Specifies whether unsuccessful processing attempts should be returned to the server
 
 	std::shared_ptr<processable_type> m_additionalDataTemplate; ///< Optionally holds a template of the object to be processed
+
+ 	std::size_t m_nProcessed = 0; ///< The number of items processed by this class
 };
 
 /******************************************************************************/

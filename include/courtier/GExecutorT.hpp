@@ -1616,12 +1616,12 @@ private:
 			 std::cout
 				 << "Maximum waiting time in iteration " << current_iteration << ": " << m_maxTimeout.count()
 				 << " s (" << currentElapsed.count() << ", "
-				 << GBaseExecutorT<processable_type>::m_expectedNumber << ", " << m_initialWaitFactor << ")" << std::endl;
+				 << this->getNReturned() << " / " << GBaseExecutorT<processable_type>::m_expectedNumber << ", " << m_initialWaitFactor << ")" << std::endl;
 		 } else {
 			 std::cout
 				 << "Maximum waiting time in iteration " << current_iteration << ": " << m_maxTimeout.count()
 				 << " s (" << m_lastAverage.count() << ", "
-				 << GBaseExecutorT<processable_type>::m_expectedNumber << ", " << m_waitFactor << ")" << std::endl;
+				 << this->getNReturned() << " / " << GBaseExecutorT<processable_type>::m_expectedNumber << ", " << m_waitFactor << ")" << std::endl;
 		 }
 	 }
 
