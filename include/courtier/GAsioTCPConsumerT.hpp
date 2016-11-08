@@ -457,9 +457,6 @@ protected:
 																	Gem::Courtier::COMMANDLENGTH);
 		buffers.push_back(boost::asio::buffer(sizeHeader));
 
-		std::cout << item << std::endl
-								<< "==================================================" << std::endl << std::endl;
-
 		// Finally take care of the data section.
 		buffers.push_back(boost::asio::buffer(item));
 

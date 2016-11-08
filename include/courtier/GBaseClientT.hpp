@@ -244,7 +244,6 @@ public:
 
 protected:
 	/***************************************************************************/
-
 	/**
 	 * In order to allow derived classes to concentrate on network issues, all
 	 * unpacking, the calculation, and packing is done in the GBaseClientT class
@@ -290,7 +289,7 @@ protected:
 
 		// unpack the data and create a new object. Note that de-serialization must
 		// generally happen through the same type that was used for serialization.
-		std::shared_ptr <processable_type> target = Gem::Common::sharedPtrFromString<processable_type>(istr, serMode);
+		std::shared_ptr<processable_type> target = Gem::Common::sharedPtrFromString<processable_type>(istr, serMode);
 
 		// Check if we have received a valid target. Leave the function if this is not the case
 		if(!target) {

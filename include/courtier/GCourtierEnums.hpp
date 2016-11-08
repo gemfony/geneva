@@ -82,7 +82,7 @@ const bool CLIENT_TERMINATE = false;
  * 16 digits describing the number of bytes to expect. This should however suffice for
  * every practical purpose.
  */
-const std::size_t COMMANDLENGTH = 16;
+const std::size_t COMMANDLENGTH = 36; // must accomodate a boost::uuids::uuid of size 36
 
 /******************************************************************************/
 /**
