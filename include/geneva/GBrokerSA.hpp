@@ -45,7 +45,7 @@
 
 // Geneva headers go here
 #include "courtier/GBufferPortT.hpp"
-#include "courtier/GBrokerExecutorT.hpp"
+#include "courtier/GExecutorT.hpp"
 #include "geneva/GSAPersonalityTraits.hpp"
 #include "geneva/GBaseSA.hpp"
 #include "geneva/GParameterSet.hpp"

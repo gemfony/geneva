@@ -52,7 +52,7 @@
 #include "common/GHelperFunctionsT.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GPlotDesigner.hpp"
-#include "courtier/GBrokerExecutorT.hpp"
+#include "courtier/GExecutorT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GMutableSetT.hpp"
 #include "geneva/GOptimizableI.hpp"

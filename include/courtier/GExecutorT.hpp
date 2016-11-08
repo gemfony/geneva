@@ -1,5 +1,5 @@
 /**
- * @file GBrokerExecutorT.hpp
+ * @file GExecutorT.hpp
  */
 
 /*
@@ -64,8 +64,8 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
 
-#ifndef GBROKERCONNECTORT_HPP_
-#define GBROKERCONNECTORT_HPP_
+#ifndef GEXECUTOR_HPP_
+#define GEXECUTOR_HPP_
 
 
 // Geneva headers go here
@@ -1286,6 +1286,8 @@ private:
 #endif /* DEBUG */
 
 		 m_CurrentBufferPort->push_raw(w);
+
+		 std::cout << "Submitted item" << std::endl;
 	 }
 
 	 /***************************************************************************/
@@ -1677,4 +1679,4 @@ private:
 } /* namespace Courtier */
 } /* namespace Gem */
 
-#endif /* GBROKERCONNECTORT_HPP_ */
+#endif /* GEXECUTOR_HPP_ */

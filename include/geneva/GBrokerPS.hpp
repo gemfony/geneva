@@ -46,7 +46,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctions.hpp"
-#include "courtier/GBrokerExecutorT.hpp"
+#include "courtier/GExecutorT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GBasePS.hpp"
 #include "geneva/GParameterSet.hpp"

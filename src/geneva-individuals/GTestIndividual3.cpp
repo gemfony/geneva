@@ -59,7 +59,10 @@ GTestIndividual3::GTestIndividual3() : GParameterSet() {
 	// Gaussian distributed random numbers
 	std::shared_ptr <GDoubleGaussAdaptor> gdga_ptr_tmpl(
 		new GDoubleGaussAdaptor(
-			GTI_DEF_SIGMA, GTI_DEF_SIGMASIGMA, GTI_DEF_MINSIGMA, GTI_DEF_MAXSIGMA
+			GTI_DEF_SIGMA
+			, GTI_DEF_SIGMASIGMA
+			, GTI_DEF_MINSIGMA
+			, GTI_DEF_MAXSIGMA
 		)
 	);
 	gdga_ptr_tmpl->setAdaptionProbability(GTI_DEF_ADPROB);
@@ -110,13 +113,15 @@ GTestIndividual3::GTestIndividual3() : GParameterSet() {
  * @param cp A constant reference to another GTestIndividual3 object
  */
 GTestIndividual3::GTestIndividual3(const GTestIndividual3 &cp)
-	: Gem::Geneva::GParameterSet(cp) {   /* nothing */ }
+	: Gem::Geneva::GParameterSet(cp)
+{   /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
-GTestIndividual3::~GTestIndividual3() { /* nothing */   }
+GTestIndividual3::~GTestIndividual3()
+{ /* nothing */   }
 
 /******************************************************************************/
 /**
@@ -174,7 +179,9 @@ bool GTestIndividual3::operator!=(const GTestIndividual3 &cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GTestIndividual3::compare(
-	const GObject &cp, const Gem::Common::expectation &e, const double &limit
+	const GObject &cp
+	, const Gem::Common::expectation &e
+	, const double &limit
 ) const {
 	using namespace Gem::Common;
 	using namespace Gem::Geneva;

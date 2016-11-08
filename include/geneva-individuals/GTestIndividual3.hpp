@@ -91,8 +91,10 @@ class GTestIndividual3
 	template<typename Archive>
 	void serialize(Archive &ar, const unsigned int) {
 		using boost::serialization::make_nvp;
+		using namespace Gem::Geneva;
 
-		ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -121,7 +123,7 @@ public:
 	) const final;
 
 	/** @brief Get all data members of this class as a plain array */
-	G_API_INDIVIDUALS std::shared_ptr <float> getPlainData() const;
+	G_API_INDIVIDUALS std::shared_ptr<float> getPlainData() const;
 
 protected:
 	/** @brief Loads the data of another GTestIndividual3 */

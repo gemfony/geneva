@@ -45,7 +45,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "courtier/GBufferPortT.hpp"
-#include "courtier/GBrokerExecutorT.hpp"
+#include "courtier/GExecutorT.hpp"
 #include "geneva/GSwarmPersonalityTraits.hpp"
 #include "geneva/GBaseSwarm.hpp"
 

@@ -76,6 +76,7 @@ using namespace boost::unit_test;
 #include "geneva-individuals/GTestIndividual3.hpp"
 #include "geneva-individuals/GFunctionIndividual.hpp"
 #include "geneva-individuals/GDelayIndividual.hpp"
+#include "geneva-individuals/GExternalEvaluatorIndividual.hpp"
 
 #include "geneva/tests/GStandard_test.hpp"
 
@@ -159,9 +160,10 @@ public:
 
 		typedef boost::mpl::list<
 			Gem::Tests::GTestIndividual1
-			, Gem::Tests::GTestIndividual3
-			, Gem::Geneva::GFunctionIndividual
-			, Gem::Geneva::GDelayIndividual
+			// , Gem::Tests::GTestIndividual3
+			, GFunctionIndividual
+			, GDelayIndividual
+			, GExternalEvaluatorIndividual
 		>
 		individual_types;
 

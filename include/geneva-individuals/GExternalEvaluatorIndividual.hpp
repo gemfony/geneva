@@ -253,7 +253,7 @@ class GExternalEvaluatorIndividualFactory
 
 	template<class Archive>
 	void serialize(Archive &ar, const unsigned int) {
-		using Gem::Common::GFactoryT<GParameterSet>;
+		using namespace Gem::Common;
 
 		ar
 		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GFactoryT<GParameterSet>)

@@ -39,7 +39,7 @@
 
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GBrokerT.hpp"
-#include "courtier/GBrokerExecutorT.hpp"
+#include "courtier/GExecutorT.hpp"
 #include "courtier/GAsioTCPConsumerT.hpp"
 #include "courtier/GBoostThreadConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
