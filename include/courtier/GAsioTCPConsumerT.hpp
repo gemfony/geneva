@@ -376,7 +376,7 @@ protected:
 				 disconnect(m_socket);
 
 				 // We can continue. But let's wait for a time specified by the server in its idle-command
-				 std::chrono::milliseconds timeout(idleTime);
+				 std::this_thread::sleep_for(std::chrono::milliseconds(idleTime));
 
 				 // Indicate that we want to continue
 				 return CLIENT_CONTINUE;
