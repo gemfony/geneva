@@ -268,7 +268,10 @@ protected:
 		std::string::const_iterator to = idleCommand.end();
 
 		success = phrase_parse(
-			from, to, (lit("idle") >> '(' >> uint_ >> ')')[boost::phoenix::ref(idleTime) = _1], space
+			from
+			, to
+			, (lit("idle") >> '(' >> uint_ >> ')')[boost::phoenix::ref(idleTime)=_1]
+			, space
 		);
 
 		if (!success || from != to) {
@@ -631,13 +634,9 @@ public:
 	)
 		: m_strand(io_service), m_socket(io_service), m_bytesTransferredDataBody(0)
 	   , m_dataBody_ptr(new std::string()) // An empty string
-	   , m_dataSize(0)
 	   , m_serializationMode(serMod)
 	   , m_master(master)
 	   , m_broker_ptr(master->m_broker_ptr)
-	   , m_timeout(std::chrono::milliseconds(10))
-	   , m_brokerRetrieveMaxRetries(1)
-	   , m_noDataClientSleepMilliSeconds(100)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -1123,22 +1122,22 @@ private:
 	boost::asio::ip::tcp::socket m_socket; ///< The underlying socket
 
 	std::array<char, COMMANDLENGTH> m_commandBuffer; ///< A buffer to be used for command transfers
-	std::array<char, 16384> m_dataBuffer;    ///< A buffer holding body data -- was 4096
+	std::array<char, 16384> m_dataBuffer;    ///< A buffer holding body data
 
 	std::size_t m_bytesTransferredDataBody; ///< The number of bytes if the data body transferred so far
 	std::shared_ptr <std::string> m_dataBody_ptr; ///< The actual body data. Implemented as a shared_ptr so we can easily hand the data around
 
  	boost::uuids::uuid m_portId; ///< The id of a port
-	std::size_t m_dataSize; ///< Holds the size of the body of data
+	std::size_t m_dataSize = 0; ///< Holds the size of the body of data
 
-	Gem::Common::serializationMode m_serializationMode; ///< Specifies the serialization mode
+	Gem::Common::serializationMode m_serializationMode = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY; ///< Specifies the serialization mode
 	GAsioTCPConsumerT<processable_type> *m_master;
 	std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr;
 
-	std::chrono::duration<double> m_timeout; ///< A timeout for put- and get-operations
+	std::chrono::duration<double> m_timeout = std::chrono::milliseconds(50); ///< A timeout for put- and get-operations
 
-	std::size_t m_brokerRetrieveMaxRetries; ///< The maximum amount
-	std::uint32_t m_noDataClientSleepMilliSeconds; ///< The amount of milliseconds the client should sleep when no data could be retrieved from the broker
+	std::size_t m_brokerRetrieveMaxRetries = 1; ///< The maximum amount
+	std::uint32_t m_noDataClientSleepMilliSeconds = 100; ///< The amount of milliseconds the client should sleep when no data could be retrieved from the broker
 };
 
 /******************************************************************************/
