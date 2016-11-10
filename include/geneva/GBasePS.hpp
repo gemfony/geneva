@@ -59,9 +59,6 @@
 namespace Gem {
 namespace Geneva {
 
-// Forward declaration
-class GPSOptimizationMonitor;
-
 /******************************************************************************/
 // A number of typedefs that indicate the position and value of a parameter inside of an individual
 typedef std::tuple<bool,           std::size_t, std::string, std::size_t> singleBPar;
@@ -317,120 +314,11 @@ public:
 	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
-
-public:
-	/***************************************************************************/
-	/////////////////////////////////////////////////////////////////////////////
-	/***************************************************************************/
-	/**
-	 * This class defines the interface of optimization monitors, as used
-	 * by default in the Geneva library for evolutionary algorithms.
-	 */
-	class GPSOptimizationMonitor
-		:public GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT
-	{
-		///////////////////////////////////////////////////////////////////////
-		friend class boost::serialization::access;
-
-		template<typename Archive>
-		void serialize(Archive & ar, const unsigned int){
-			using boost::serialization::make_nvp;
-
-			ar
-			& make_nvp("GOptimizationMonitorT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(*this))
-			& BOOST_SERIALIZATION_NVP(csvResultFile_);
-		}
-		///////////////////////////////////////////////////////////////////////
-
-	public:
-		/** @brief The default constructor */
-		G_API_GENEVA GPSOptimizationMonitor();
-		/** @brief The copy constructor */
-		G_API_GENEVA GPSOptimizationMonitor(const GPSOptimizationMonitor&);
-		/** @brief The destructor */
-		virtual G_API_GENEVA ~GPSOptimizationMonitor();
-
-		G_API_GENEVA const GBasePS::GPSOptimizationMonitor& operator=(
-			const GBasePS::GPSOptimizationMonitor&
-		);
-
-		/** @brief Checks for equality with another GParameter Base object */
-		virtual G_API_GENEVA bool operator==(const GPSOptimizationMonitor&) const;
-		/** @brief Checks for inequality with another GPSOptimizationMonitor object */
-		virtual G_API_GENEVA bool operator!=(const GPSOptimizationMonitor&) const;
-
-		/** @brief Searches for compliance with expectations with respect to another object of the same type */
-		virtual G_API_GENEVA void compare(
-			const GObject& // the other object
-			, const Gem::Common::expectation& // the expectation for this object, e.g. equality
-			, const double& // the limit for allowed deviations of floating point types
-		) const override;
-
-		/** @brief Allows to set the name of the result file */
-		G_API_GENEVA void setCSVResultFileName(const std::string&);
-		/** @brief Allows to retrieve the name of the result file */
-		G_API_GENEVA std::string getCSVResultFileName() const;
-		/** @brief Allows to specify whether explanations should be printe
-		 * d for parameter- and fitness values. */
-		G_API_GENEVA void setPrintWithNameAndType(bool);
-		/** @brief Allows to check whether explanations should be printed for parameter- and fitness values */
-		G_API_GENEVA bool getPrintWithNameAndType() const;
-
-		/** @brief Allows to specify whether commas should be printed in-between values */
-		G_API_GENEVA void setPrintWithCommas(bool);
-		/** @brief Allows to check whether commas should be printed in-between values */
-		G_API_GENEVA bool getPrintWithCommas() const;
-
-		/** @brief Allows to specify whether the true (instead of the transformed) fitness should be shown */
-		G_API_GENEVA void setUseTrueFitness(bool);
-		/** @brief Allows to retrieve whether the true (instead of the transformed) fitness should be shown */
-		G_API_GENEVA bool getUseTrueFitness() const;
-
-		/** @brief Allows to specify whether the validity of a solution should be shown */
-		G_API_GENEVA void setShowValidity(bool);
-		/** @brief Allows to check whether the validity of a solution will be shown */
-		G_API_GENEVA bool getShowValidity() const;
-
-	protected:
-		/** @brief A function that is called once before the optimization starts */
-		virtual G_API_GENEVA void firstInformation(GOptimizationAlgorithmT<GParameterSet> * const) override;
-		/** @brief A function that is called during each optimization cycle */
-		virtual G_API_GENEVA void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const) override;
-		/** @brief A function that is called once at the end of the optimization cycle */
-		virtual G_API_GENEVA void lastInformation(GOptimizationAlgorithmT<GParameterSet> * const) override;
-
-		/** @brief Loads the data of another object */
-		virtual G_API_GENEVA void load_(const GObject*) override;
-		/** @brief Creates a deep clone of this object */
-		virtual G_API_GENEVA GObject* clone_() const override;
-
-	private:
-		std::string csvResultFile_ = DEFAULTCSVRESULTFILEOM; ///< The name of the file to which data is emitted
-		bool withNameAndType_ = false; ///< When set to true, explanations for values are printed
-		bool withCommas_ = true; ///< When set to true, commas will be printed in-between values
-		bool useRawFitness_ = true; ///< Indicates whether true- or transformed fitness should be output
-		bool showValidity_ = true; ///< Indicates whether the validity of a solution should be shown
-
-	public:
-		/** @brief Applies modifications to this object. This is needed for testing purposes */
-		virtual G_API_GENEVA bool modify_GUnitTests() override;
-		/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-		virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
-		/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-		virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
-
-		/************************************************************************/
-	};
-
-	/***************************************************************************/
-	/////////////////////////////////////////////////////////////////////////////
-	/***************************************************************************/
 };
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GBasePS)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBasePS::GPSOptimizationMonitor)
 
 #endif /* GBASEPS_HPP_ */

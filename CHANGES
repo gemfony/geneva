@@ -19,6 +19,11 @@ The main changes for this release include:
    should now be derived from GParameterSetFactory instead of GFactoryT<GParmeterSet>.
    See the GFunctionIndividualFactory inside of GFunctionIndividual.hpp/.cpp for
    an example
+ - Removed GOptimizationMonitorT and derivatives, as these were redundant and the same functionality
+	is available through pluggable optimization monitors. This may require re-implementation
+	of any custom, user-defined GOptimizationMonitorT-derivatives as pluggable optimization
+	monitor. Note that the logic of both is the same so that most of the work should be
+	possible via "cut & paste".
  - Boost 1.58 is NOT recommended, due to severe bugs affecting Geneva (Serialization, UUID)
  - As Geneva must now be compiled in C++14 mode and Boost is a mixture of header-only-
    and binary-libraries, it is highly recommended to also compile Boost in C++14-mode
@@ -46,6 +51,7 @@ The main changes for this release include:
  - The maximum size of GBoundedBufferT is now defined via a value template parameter, and
    unbounded buffers are possible (set the capacity to 0)
  - Renamed class GBrokerConnector2T to GBrokerExecutorT
+ - Reworked the entire broker architecture
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.8, "Torino" - August 13, 2016

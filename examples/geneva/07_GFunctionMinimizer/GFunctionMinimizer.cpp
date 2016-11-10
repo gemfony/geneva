@@ -42,7 +42,6 @@
 
 // The individual that should be optimized
 #include "GFMinIndividual.hpp"
-#include "GSigmaMonitor.hpp"
 
 using namespace Gem::Geneva;
 namespace po = boost::program_options;
@@ -74,15 +73,11 @@ int main(int argc, char **argv) {
 	// Retrieve an individual from the factory and make it known to the optimizer
 	go.push_back(gfi());
 
-	// Register an optimization monitor for evolutionary algorithms. This allows the
-	// GEvolutionaryAlgorithmFactory to find suitable monitors in the global store.
-	GOAMonitorStore->setOnce("ea", std::shared_ptr<GSigmaMonitor> (new GSigmaMonitor("./sigmaProgress.C")));
-
 	// Create an evolutionary algorithm in multi-threaded mode
 	GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json", execMode::EXECMODE_MULTITHREADED);
 	std::shared_ptr<GBaseEA> ea_ptr = ea.get<GBaseEA>();
 
-	// Add the algorithm to the Go2 object. Note that the multi-threaded variant will
+	// Add the algorithm to the Go2 object. Note that the multi-threaded ea variant will
 	// be executed first, regardless of what other algorithms you might have specified
 	// on the command line. This example simply shows a different way of adding
 	// optimization algorithms to Go2.

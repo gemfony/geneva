@@ -71,21 +71,18 @@ int main(int argc, char **argv) {
 		new GMetaOptimizerIndividualFactoryT<GFunctionIndividual>("./config/GMetaOptimizerIndividual.json")
 	);
 
+	// Add a pluggable optimization monitor (targeted at evolutionary algorithms) and register
+	// it with Go2.
+	go.registerPluggableOM(
+		std::shared_ptr<GOptOptMonitorT<GFunctionIndividual>>(new GOptOptMonitorT<GFunctionIndividual>("./optProgress.C"))
+	);
+
 	// Register the GFunctionIndividualFactory with the meta-optimizer,
 	// so it can be handed to the meta-optimization individuals later
 	gmoi_ptr->registerIndividualFactory(gfi_ptr);
 
 	// Add a content creator so Go2 can generate its own individuals, if necessary
 	go.registerContentCreator(gmoi_ptr);
-
-	// Create an optimization monitor (targeted at evolutionary algorithms) and register
-	// it with the global store. This step is OPTIONAL. We recommend checking the chapters
-	// on writing custom progress monitors within the Geneva framework.
-	GOAMonitorStore->setOnce(
-		"ea"
-		, std::shared_ptr<GOptOptMonitorT<GFunctionIndividual>>(new GOptOptMonitorT<GFunctionIndividual>("./optProgress.C"))
-	);
-
 
 	// Add a default optimization algorithm to the Go2 object
 	go.registerDefaultAlgorithm("ea");

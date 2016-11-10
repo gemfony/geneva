@@ -209,105 +209,6 @@ public
 	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
-
-public:
-	/***************************************************************************/
-	/////////////////////////////////////////////////////////////////////////////
-	/***************************************************************************/
-	/**
-	 * This class defines the interface of optimization monitors, as used
-	 * by default in the Geneva library for evolutionary algorithms.
-	 */
-	class GGDOptimizationMonitor
-		: public GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT
-	{
-		///////////////////////////////////////////////////////////////////////
-		friend class boost::serialization::access;
-
-		template<typename Archive>
-		void serialize(Archive & ar, const unsigned int){
-			using boost::serialization::make_nvp;
-
-			ar
-			& make_nvp("GOptimizationMonitorT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(*this))
-			& BOOST_SERIALIZATION_NVP(xDim_)
-			& BOOST_SERIALIZATION_NVP(yDim_)
-			& BOOST_SERIALIZATION_NVP(resultFile_);
-		}
-		///////////////////////////////////////////////////////////////////////
-
-	public:
-		/** @brief The default constructor */
-		G_API_GENEVA GGDOptimizationMonitor();
-		/** @brief The copy constructor */
-		G_API_GENEVA GGDOptimizationMonitor(const GGDOptimizationMonitor&);
-		/** @brief The destructor */
-		virtual G_API_GENEVA ~GGDOptimizationMonitor();
-
-		/** @brief The standard assignment operator */
-		const GGDOptimizationMonitor& operator=(const GGDOptimizationMonitor&);
-
-		/** @brief Checks for equality with another GParameter Base object */
-		virtual G_API_GENEVA bool operator==(const GGDOptimizationMonitor&) const;
-		/** @brief Checks for inequality with another GGDOptimizationMonitor object */
-		virtual G_API_GENEVA bool operator!=(const GGDOptimizationMonitor&) const;
-
-		/** @brief Searches for compliance with expectations with respect to another object of the same type */
-		virtual G_API_GENEVA void compare(
-			const GObject& // the other object
-			, const Gem::Common::expectation& // the expectation for this object, e.g. equality
-			, const double& // the limit for allowed deviations of floating point types
-		) const override;
-
-		/** @brief Set the dimension of the output canvas */
-		G_API_GENEVA void setDims(const std::uint32_t&, const std::uint32_t&);
-		/** @brief Retrieve the dimensions as a tuple */
-		G_API_GENEVA std::tuple<std::uint32_t, std::uint32_t> getDims() const;
-		/** @brief Retrieve the x-dimension of the output canvas */
-		G_API_GENEVA std::uint32_t getXDim() const;
-		/** @brief Retrieve the y-dimension of the output canvas */
-		G_API_GENEVA std::uint32_t getYDim() const;
-
-		/** @brief Allows to set the name of the result file */
-		G_API_GENEVA void setResultFileName(const std::string&);
-		/** @brief Allows to retrieve the name of the result file */
-		G_API_GENEVA std::string getResultFileName() const;
-
-	protected:
-		/** @brief A function that is called once before the optimization starts */
-		virtual G_API_GENEVA void firstInformation(GOptimizationAlgorithmT<GParameterSet> * const) override;
-		/** @brief A function that is called during each optimization cycle */
-		virtual G_API_GENEVA void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const) override;
-		/** @brief A function that is called once at the end of the optimization cycle */
-		virtual G_API_GENEVA void lastInformation(GOptimizationAlgorithmT<GParameterSet> * const) override;
-
-		/** @brief Loads the data of another object */
-		virtual G_API_GENEVA void load_(const GObject*) override;
-		/** @brief Creates a deep clone of this object */
-		virtual G_API_GENEVA GObject* clone_() const override;
-
-	private:
-		std::uint32_t xDim_; ///< The dimension of the canvas in x-direction
-		std::uint32_t yDim_; ///< The dimension of the canvas in y-direction
-
-		std::string resultFile_; ///< The name of the file to which data is emitted
-
-		std::shared_ptr<Gem::Common::GGraph2D> fitnessGraph_; ///< Holds the fitness data until plotted
-
-	public:
-		/** @brief Applies modifications to this object. This is needed for testing purposes */
-		virtual G_API_GENEVA bool modify_GUnitTests() override;
-		/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-		virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
-		/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-		virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
-
-		/************************************************************************/
-	};
-
-	/***************************************************************************/
-	/////////////////////////////////////////////////////////////////////////////
-	/***************************************************************************/
 };
 
 /******************************************************************************/
@@ -317,6 +218,5 @@ public:
 
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GBaseGD)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBaseGD::GGDOptimizationMonitor)
 
 #endif /* GBASEGD_HPP_ */

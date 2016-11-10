@@ -329,104 +329,6 @@ public:
 	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
-
-public:
-	/***************************************************************************/
-	/////////////////////////////////////////////////////////////////////////////
-	/***************************************************************************/
-	/**
-	 * This nested class defines the interface of optimization monitors, as used
-	 * by default in the Geneva library for swarm algorithms.
-	 */
-	class GSwarmOptimizationMonitor
-		: public GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT
-	{
-		///////////////////////////////////////////////////////////////////////
-		friend class boost::serialization::access;
-
-		template<typename Archive>
-		void serialize(Archive & ar, const unsigned int){
-			using boost::serialization::make_nvp;
-
-			ar
-			& make_nvp("GOptimizationMonitorT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(*this))
-			& BOOST_SERIALIZATION_NVP(xDim_)
-			& BOOST_SERIALIZATION_NVP(yDim_)
-			& BOOST_SERIALIZATION_NVP(resultFile_);
-		}
-		///////////////////////////////////////////////////////////////////////
-
-	public:
-		/** @brief The default constructor */
-		G_API_GENEVA GSwarmOptimizationMonitor();
-		/** @brief The copy constructor */
-		G_API_GENEVA GSwarmOptimizationMonitor(const GSwarmOptimizationMonitor&);
-		/** @brief The destructor */
-		virtual G_API_GENEVA ~GSwarmOptimizationMonitor();
-
-		G_API_GENEVA const GBaseSwarm::GSwarmOptimizationMonitor& operator=(
-			const GBaseSwarm::GSwarmOptimizationMonitor&
-		);
-
-		/** @brief Checks for equality with another GParameter Base object */
-		virtual G_API_GENEVA bool operator==(const GSwarmOptimizationMonitor&) const;
-		/** @brief Checks for inequality with another GSwarmOptimizationMonitor object */
-		virtual G_API_GENEVA bool operator!=(const GSwarmOptimizationMonitor&) const;
-
-		/** @brief Searches for compliance with expectations with respect to another object of the same type */
-		virtual G_API_GENEVA void compare(
-			const GObject& // the other object
-			, const Gem::Common::expectation& // the expectation for this object, e.g. equality
-			, const double& // the limit for allowed deviations of floating point types
-		) const override;
-
-		/** @brief Set the dimension of the output canvas */
-		G_API_GENEVA void setDims(const std::uint16_t&, const std::uint16_t&);
-		/** @brief Retrieve the x-dimension of the output canvas */
-		G_API_GENEVA std::uint16_t getXDim() const;
-		/** @brief Retrieve the y-dimension of the output canvas */
-		G_API_GENEVA std::uint16_t getYDim() const;
-
-		/** @brief Allows to set the name of the result file */
-		G_API_GENEVA void setResultFileName(const std::string&);
-		/** @brief Allows to retrieve the name of the result file */
-		G_API_GENEVA std::string getResultFileName() const;
-
-	protected:
-		/** @brief A function that is called once before the optimization starts */
-		virtual G_API_GENEVA void firstInformation(GOptimizationAlgorithmT<GParameterSet> * const) override;
-		/** @brief A function that is called during each optimization cycle */
-		virtual G_API_GENEVA void cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const) override;
-		/** @brief A function that is called once at the end of the optimization cycle */
-		virtual G_API_GENEVA void lastInformation(GOptimizationAlgorithmT<GParameterSet> * const) override;
-
-		/** @brief Loads the data of another object */
-		virtual G_API_GENEVA void load_(const GObject*) override;
-		/** @brief Creates a deep clone of this object */
-		virtual G_API_GENEVA GObject* clone_() const override;
-
-	private:
-		std::uint16_t xDim_ = DEFAULTXDIMOM; ///< The dimension of the canvas in x-direction
-		std::uint16_t yDim_ = DEFAULTYDIMOM; ///< The dimension of the canvas in y-direction
-
-		std::string resultFile_ = DEFAULTROOTRESULTFILEOM; ///< The name of the file to which data is emitted
-
-		std::shared_ptr<Gem::Common::GGraph2D> fitnessGraph_ = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D()); ///< Holds the fitness data until plotted
-
-	public:
-		/** @brief Applies modifications to this object. This is needed for testing purposes */
-		virtual G_API_GENEVA bool modify_GUnitTests() override;
-		/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-		virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
-		/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-		virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
-
-		/************************************************************************/
-	};
-
-	/***************************************************************************/
-	/////////////////////////////////////////////////////////////////////////////
-	/***************************************************************************/
 };
 
 /******************************************************************************/
@@ -436,6 +338,5 @@ public:
 
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GBaseSwarm)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBaseSwarm::GSwarmOptimizationMonitor)
 
 #endif /* GBASESWARM_HPP_ */

@@ -121,8 +121,6 @@ private:
 		& BOOST_SERIALIZATION_NVP(emitTerminationReason_)
 		& BOOST_SERIALIZATION_NVP(halted_)
 		& BOOST_SERIALIZATION_NVP(worstKnownValids_)
-		& BOOST_SERIALIZATION_NVP(optimizationMonitor_ptr_)
-		& BOOST_SERIALIZATION_NVP(default_pluggable_monitor_)
 		& BOOST_SERIALIZATION_NVP(pluggable_monitors_);
 	}
 	///////////////////////////////////////////////////////////////////////
@@ -141,8 +139,6 @@ public:
 		, maxDuration_(Gem::Common::duration_from_string(DEFAULTDURATION))
 	   , minDuration_(Gem::Common::duration_from_string(DEFAULTMINDURATION))
 		, worstKnownValids_()
-		, optimizationMonitor_ptr_(new typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT())
-		, default_pluggable_monitor_(std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>())
 		, pluggable_monitors_()
 	{ /* nothing */ }
 
@@ -181,10 +177,8 @@ public:
 		, emitTerminationReason_(cp.emitTerminationReason_)
 		, halted_(cp.halted_)
 		, worstKnownValids_(cp.worstKnownValids_)
-		, optimizationMonitor_ptr_((cp.optimizationMonitor_ptr_)->GObject::template clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>())
 	{
 		// Copy the pluggable optimization monitors over (if any)
-		Gem::Common::copyCloneableSmartPointer(cp.default_pluggable_monitor_, default_pluggable_monitor_);
 		Gem::Common::copyCloneableSmartPointerContainer(cp.pluggable_monitors_, pluggable_monitors_);
 	}
 
@@ -432,8 +426,6 @@ public:
 		compare_t(IDENTITY(emitTerminationReason_, p_load->emitTerminationReason_), token);
 		compare_t(IDENTITY(halted_, p_load->halted_), token);
 		compare_t(IDENTITY(worstKnownValids_, p_load->worstKnownValids_), token);
-		compare_t(IDENTITY(optimizationMonitor_ptr_, p_load->optimizationMonitor_ptr_), token);
-		compare_t(IDENTITY(default_pluggable_monitor_, p_load->default_pluggable_monitor_), token);
 		compare_t(IDENTITY(pluggable_monitors_, p_load->pluggable_monitors_), token);
 
 		// React on deviations from the expectation
@@ -551,23 +543,47 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Emits information specific to this class. The function can be overloaded
-	 * in derived classes and it indeed makes sense to emit much more information
-	 * than is done in this simple implementation.
+	 * Emits information specific to this class (basic information in each iteration
+	 * plus some user-defined information via pluggable optimazation monitors)
 	 *
 	 * @param im The information mode (INFOINIT, INFOPROCESSING or INFOEND)
 	 */
 	virtual void informationUpdate(const infoMode& im) BASE {
-#ifdef DEBUG
-		if(!optimizationMonitor_ptr_) {
-			glogger
-			<< "In GOptimizationAlgorithmT<ind_type>::informationUpdate():" << std::endl
-			<< "optimizationMonitor_ptr_ is empty when it shouldn't be." << std::endl
-			<< GEXCEPTION;
-		}
-#endif /* DEBUG */
+		// Act on the information mode provided
+		switch(im) {
+			case Gem::Geneva::infoMode::INFOINIT:
+				std::cout << "Starting an optimization run with algorithm \"" << this->getAlgorithmName() << "\"" << std::endl;
+				break;
 
-		(this->optimizationMonitor_ptr_)->informationFunction(im, this);
+			case Gem::Geneva::infoMode::INFOPROCESSING:
+			{
+				// We output raw values here, as this is likely what the user is interested in
+				std::cout
+					<< std::setprecision(5)
+					<< this->getIteration() << ": "
+					<< Gem::Common::g_to_string(this->getBestCurrentPrimaryFitness())
+					<< " // best past: " << Gem::Common::g_to_string(this->getBestKnownPrimaryFitness())
+					<< std::endl;
+			}
+				break;
+
+			case Gem::Geneva::infoMode::INFOEND:
+				std::cout << "End of optimization reached in algorithm \""<< this->getAlgorithmName() << "\"" << std::endl;
+				break;
+
+			default:
+			{
+				glogger
+					<< "GOptimizationAlgorithmT<>::informationUpdate(" << im << "): Received invalid infoMode " << std::endl
+					<< GEXCEPTION;
+			}
+				break;
+		};
+
+		// Perform any action defined by the user through pluggable monitor objects
+		for(auto pm_ptr: pluggable_monitors_) { // std::shared_ptr may be copied
+			pm_ptr->informationFunction(im, this);
+		}
 	}
 
 	/***************************************************************************/
@@ -579,27 +595,6 @@ public:
 	 */
 	bool progress() const {
 		return (0==stallCounter_);
-	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to register the default pluggable optimization monitor. GOptimizationAlgorithmT<>
-	 * registers a default monitor, which will essentially only output information about the
-	 * current fitness and iteration. You can override this setting and store your own monitor
-	 * with this function. The function will throw if you try to register an empty pointer, and
-	 * there is no way to reset the monitor externally. Note that this function does NOT take
-	 * ownership of the optimization monitor.
-	 */
-	void registerDefaultPluggableOM(
-		std::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT> pluggableOM
-	) {
-		if(pluggableOM) {
-			default_pluggable_monitor_ = pluggableOM;
-		} else {
-			glogger
-			<< "In GoptimizationAlgorithmT<>::registerDefaultPluggableOM(): Tried to register empty pluggable optimization monitor" << std::endl
-			<< GEXCEPTION;
-		}
 	}
 
 	/***************************************************************************/
@@ -619,27 +614,21 @@ public:
 		}
 	}
 
-	/***************************************************************************/
+	/************************************************************************/
 	/**
-	 * Registers an optimizationMonitor object (or a derivative) with this object. Note
-	 * that this class will take ownership of the optimization monitor by cloning it.
-	 * You can thus assign the same std::shared_ptr<GOptimizationAlgorithmT<ind_type>>
-	 * to different objects.
-	 *
-	 * @param om_ptr A shared pointer to a specific optimization monitor
+	 * Allows to reset the local pluggable optimization monitors
 	 */
-	void registerOptimizationMonitor(std::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> om_ptr) {
-#ifdef DEBUG
-		if(!om_ptr) {
-			glogger
-			<< "In GOptimizationAlgorithmT<ind_type>::registerOptimizationMonitor():" << std::endl
-			<< "om_ptr is empty when it shouldn't be." << std::endl
-			<< GEXCEPTION;
-		}
-#endif /* DEBUG */
-
-		this->optimizationMonitor_ptr_ = om_ptr->GObject::template clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>();
+	void resetPluggableOM() {
+	   pluggable_monitors_.clear();
 	}
+
+ 	/******************************************************************************/
+ 	/**
+ 	 * Allows to check whether pluggable optimization monitors were registered
+  	 */
+ 	bool hasPluggableOptimizationMonitors() const {
+		 return !pluggable_monitors_.empty();
+ 	}
 
 	/***************************************************************************/
 	/**
@@ -1040,16 +1029,6 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Gives access to the current optimization monitor
-	 *
-	 * @return A std::shared_ptr to the current optimization monitor
-	 */
-	std::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> getOptimizationMonitor() {
-		return this->optimizationMonitor_ptr_;
-	}
-
-	/***************************************************************************/
-	/**
 	 * Adds local configuration options to a GParserBuilder object
 	 *
 	 * @param gpb The GParserBuilder object to which configuration options should be added
@@ -1402,8 +1381,6 @@ protected:
 		emitTerminationReason_ = p_load->emitTerminationReason_;
 		halted_ = p_load->halted_;
 		worstKnownValids_ = p_load->worstKnownValids_;
-		this->optimizationMonitor_ptr_ = p_load->optimizationMonitor_ptr_->GObject::template clone<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>();
-		Gem::Common::copyCloneableSmartPointer(p_load->default_pluggable_monitor_, default_pluggable_monitor_);
 		Gem::Common::copyCloneableSmartPointerContainer(p_load->pluggable_monitors_, pluggable_monitors_);
 	}
 
@@ -2106,8 +2083,6 @@ private:
 	bool emitTerminationReason_ = DEFAULTEMITTERMINATIONREASON; ///< Specifies whether information about reasons for termination should be emitted
 	bool halted_ = false; ///< Set to true when halt() has returned "true"
 	std::vector<std::tuple<double, double>> worstKnownValids_; ///< Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
-	std::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> optimizationMonitor_ptr_;
-	std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT> default_pluggable_monitor_; ///< A default monitor
 	std::vector<std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>> pluggable_monitors_; ///< A collection of monitors
 
 public:
@@ -2390,366 +2365,6 @@ public:
 	/***************************************************************************/
 	/////////////////////////////////////////////////////////////////////////////
 	/***************************************************************************/
-	/**
-	 * This nested class defines the interface of optimization monitors, as used
-	 * in the Geneva library. It also provides users with some basic information.
-	 */
-	class GOptimizationMonitorT : public GObject
-	{
-		///////////////////////////////////////////////////////////////////////
-		friend class boost::serialization::access;
-
-		template<typename Archive>
-		void serialize(Archive & ar, const unsigned int){
-			using boost::serialization::make_nvp;
-
-			ar
-			& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-			& BOOST_SERIALIZATION_NVP(quiet_);
-		}
-		///////////////////////////////////////////////////////////////////////
-
-	public:
-		/************************************************************************/
-		/**
-		 * The default constructor
-		 */
-		GOptimizationMonitorT()
-			: GObject()
-			, quiet_(false)
-		{ /* nothing */ }
-
-		/************************************************************************/
-		/**
-		 * The copy constructor
-		 *
-		 * @param cp A copy of another GOptimizationMonitorT object
-		 */
-		GOptimizationMonitorT(
-			const typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp
-		)
-			: GObject(cp)
-			, quiet_(cp.quiet_)
-		{ /* nothing */ }
-
-		/************************************************************************/
-		/**
-		 * The destructor
-		 */
-		virtual ~GOptimizationMonitorT()
-		{ /* nothing */ }
-
-		/************************************************************************/
-		/**
-		 * Checks for equality with another GOptimizationMonitorT object
-		 *
-		 * @param  cp A constant reference to another GOptimizationMonitorT object
-		 * @return A boolean indicating whether both objects are equal
-		 */
-		virtual bool operator==(const typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp) const {
-			using namespace Gem::Common;
-			try {
-				this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-				return true;
-			} catch(g_expectation_violation&) {
-				return false;
-			}
-		}
-
-		/************************************************************************/
-		/**
-		 * Checks for inequality with another GOptimizationMonitorT object
-		 *
-		 * @param  cp A constant reference to another GOptimizationMonitorT object
-		 * @return A boolean indicating whether both objects are inequal
-		 */
-		virtual bool operator!=(const typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp) const {
-			using namespace Gem::Common;
-			try {
-				this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-				return true;
-			} catch(g_expectation_violation&) {
-				return false;
-			}
-		}
-
-		/***************************************************************************/
-		/**
-		 * Searches for compliance with expectations with respect to another object
-		 * of the same type
-		 *
-		 * @param cp A constant reference to another GObject object
-		 * @param e The expected outcome of the comparison
-		 * @param limit The maximum deviation for floating point values (important for similarity checks)
-		 */
-		virtual void compare(
-			const GObject& cp
-			, const Gem::Common::expectation& e
-			, const double& limit
-		) const override {
-			using namespace Gem::Common;
-
-			// Check that we are dealing with a GOptimizationMonitorT reference independent of this object and convert the pointer
-			const GOptimizationMonitorT *p_load = Gem::Common::g_convert_and_compare<GObject, GOptimizationMonitorT >(cp, this);
-
-			GToken token("GOptimizationMonitorT", e);
-
-			// Compare our parent data ...
-			Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
-
-			// ... and then our local data
-			compare_t(IDENTITY(quiet_, p_load->quiet_), token);
-
-			// React on deviations from the expectation
-			token.evaluate();
-		}
-
-		/************************************************************************/
-		/**
-		 * The actual information function. It is up to the user to define what happens
-		 * in each step. This function only enforces the emission of simple progress
-		 * information to the command line in each iteration (unless the "quiet_" variable
-		 * has been set.
-		 *
-		 * @param im The mode in which the information function is called
-		 * @param goa A pointer to the current optimization algorithm for which information should be emitted
-		 */
-		void informationFunction(
-			const infoMode& im
-			, GOptimizationAlgorithmT<ind_type> * const goa
-		) {
-			// Perform any action defined by the user through pluggable monitor objects
-			for(auto pm_ptr: pluggable_monitors_) { // std::shared_ptr may be copied
-				pm_ptr->informationFunction(im,goa);
-			}
-
-			// Act on the information mode provided
-			switch(im) {
-				case Gem::Geneva::infoMode::INFOINIT:
-				{
-					if(!quiet_) {
-						std::cout << "Starting an optimization run with algorithm \"" << goa->getAlgorithmName() << "\"" << std::endl;
-					}
-					this->firstInformation(goa);
-				}
-					break;
-
-				case Gem::Geneva::infoMode::INFOPROCESSING:
-				{
-					// We output raw values here, as this is likely what the user is interested in
-					if(!quiet_) {
-						std::cout
-						<< std::setprecision(5)
-						<< goa->getIteration() << ": "
-						<< Gem::Common::g_to_string(goa->getBestCurrentPrimaryFitness())
-						<< " // best past: " << Gem::Common::g_to_string(goa->getBestKnownPrimaryFitness())
-						<< std::endl;
-					}
-					this->cycleInformation(goa);
-				}
-					break;
-
-				case Gem::Geneva::infoMode::INFOEND:
-				{
-					this->lastInformation(goa);
-					if(!quiet_) std::cout << "End of optimization reached in algorithm \""<< goa->getAlgorithmName() << "\"" << std::endl;
-				}
-					break;
-
-				default:
-				{
-					glogger
-					<< "Received invalid infoMode " << im << std::endl
-					<< GEXCEPTION;
-				}
-					break;
-			};
-		}
-
-		/************************************************************************/
-		/**
-		 * Prevents any information from being emitted by this object
-		 */
-		void preventInformationEmission() {
-			quiet_ = true;
-		}
-
-		/************************************************************************/
-		/**
-		 * Allows this object to emit information
-		 */
-		void allowInformationEmission() {
-			quiet_ = false;
-		}
-
-		/************************************************************************/
-		/**
-		 * Allows to check whether the emission of information is prevented
-		 *
-		 * @return A boolean which indicates whether information emission is prevented
-		 */
-		bool informationEmissionPrevented() const {
-			return quiet_;
-		}
-
-		/************************************************************************/
-		/**
-		 * Allows to register a pluggable optimization monitor
-		 */
-		void registerPluggableOM(
-			std::shared_ptr<typename GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT> pluggableOM
-		) {
-			if(pluggableOM) {
-				pluggable_monitors_.push_back(pluggableOM);
-			} else {
-				glogger
-				<< "In GoptimizationMonitorT<>::registerPluggableOM(): Tried to register empty pluggable optimization monitor" << std::endl
-				<< GEXCEPTION;
-			}
-		}
-
-		/************************************************************************/
-		/**
-		 * Allows to reset the local pluggable optimization monitors
-		 */
-		void resetPluggableOM() {
-			pluggable_monitors_.clear();
-		}
-
-		/******************************************************************************/
-		/**
-		 * Allows to check whether pluggable optimization monitors were registered
-		 */
-		bool hasOptimizationMonitors() const {
-			return !pluggable_monitors_.empty();
-		}
-
-	protected:
-		/************************************************************************/
-		/**
-		 * A function that is called once before the optimization starts
-		 *
-		 * @param goa A pointer to the current optimization algorithm for which information should be emitted
-		 */
-		virtual void firstInformation(GOptimizationAlgorithmT<ind_type> * const goa) BASE
-		{ /* nothing */ }
-
-		/************************************************************************/
-		/**
-		 * A function that is called during each optimization cycle. It is possible to
-		 * extract quite comprehensive information in each iteration. Have a look at
-		 * the examples accompanying Geneva for further information.
-		 *
-		 * @param goa A pointer to the current optimization algorithm for which information should be emitted
-		 */
-		virtual void cycleInformation(GOptimizationAlgorithmT<ind_type> * const goa) BASE
-		{ /* nothing */ }
-
-		/************************************************************************/
-		/**
-		 * A function that is called once at the end of the optimization cycle
-		 *
-		 * @param goa A pointer to the current optimization algorithm for which information should be emitted
-		 */
-		virtual void lastInformation(GOptimizationAlgorithmT<ind_type> * const goa) BASE
-		{ /* nothing */ }
-
-		/************************************************************************/
-		/**
-		 * Loads the data of another object
-		 *
-		 * cp A pointer to another GOptimizationMonitorT object, camouflaged as a GObject
-		 */
-		virtual void load_(const GObject* cp) override {
-			// Check that we are dealing with a GOptimizationMonitorT reference independent of this object and convert the pointer
-			const GOptimizationMonitorT *p_load = Gem::Common::g_convert_and_compare<GObject, GOptimizationMonitorT >(cp, this);
-
-			// Load the parent classes' data ...
-			GObject::load_(cp);
-
-			// ... and then our local data
-			quiet_ = p_load->quiet_;
-
-			// Note: we do not load the pluggable information function, as it is
-			// meant as a short-term medium for information retrieval and may be
-			// an object specific to a given optimization monitor object
-		}
-
-		/************************************************************************/
-		/**
-		 * Creates a deep clone of this object
-		 */
-		virtual GObject* clone_() const override {
-			return new typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT(*this);
-		}
-
-	private:
-		/************************************************************************/
-
-		bool quiet_; ///< Specifies whether any information should be emitted at all
-
-		std::vector<std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<ind_type>::GBasePluggableOMT>> pluggable_monitors_; ///< A collection of monitors
-
-	public:
-		/************************************************************************/
-		/**
-		 * Applies modifications to this object. This is needed for testing purposes
-		 */
-		virtual bool modify_GUnitTests() override {
-#ifdef GEM_TESTING
-			bool result = false;
-
-			// Call the parent class'es function
-			if(GObject::modify_GUnitTests()) result = true;
-
-			if(this->informationEmissionPrevented()) {
-				this->allowInformationEmission();
-			} else {
-				this->preventInformationEmission();
-			}
-			result = true;
-
-			return result;
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-			condnotset("GOptimizationAlgorithmT<>::GOptimizationMonitorT::modify_GUnitTests", "GEM_TESTING");
-			return false;
-#endif /* GEM_TESTING */
-		}
-
-		/************************************************************************/
-		/**
-		 * Performs self tests that are expected to succeed. This is needed for testing purposes
-		 */
-		virtual void specificTestsNoFailureExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-			// Call the parent class'es function
-			GObject::specificTestsNoFailureExpected_GUnitTests();
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-			condnotset("GOptimizationAlgorithmT<>::GOptimizationMonitorT::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-		}
-
-		/************************************************************************/
-		/**
-		 * Performs self tests that are expected to fail. This is needed for testing purposes
-		 */
-		virtual void specificTestsFailuresExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-			// Call the parent class'es function
-			GObject::specificTestsFailuresExpected_GUnitTests();
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-			condnotset("GOptimizationAlgorithmT<>::GOptimizationMonitorT::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-		}
-
-		/************************************************************************/
-	};
-	/***************************************************************************/
-	/////////////////////////////////////////////////////////////////////////////
-	/***************************************************************************/
 };
 
 /******************************************************************************/
@@ -2876,9 +2491,6 @@ struct is_abstract< const Gem::Geneva::GOptimizationAlgorithmT<ind_type>> : publ
 }
 
 /******************************************************************************/
-
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GOptimizableEntity>::GOptimizationMonitorT)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::GOptimizationMonitorT)
 
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>)
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GSerialExecutorT<Gem::Geneva::GParameterSet>)

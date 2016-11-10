@@ -66,7 +66,6 @@
 #include "geneva/GParameterObjectCollection.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GOAFactoryStore.hpp"
-#include "geneva/GOAMonitorStore.hpp"
 #include "geneva/GIndividualStandardConsumers.hpp"
 #include "geneva/GIndividualStandardConsumerInitializerT.hpp"
 #include "geneva/GConsumerStore.hpp"

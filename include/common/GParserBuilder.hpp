@@ -131,14 +131,20 @@ public:
 	 * The standard constructor
 	 */
 	explicit GOneTimeRefParameterT(const T &def = T(0))
-		: parm_(def), parmDummy_(def), parmSet_(false) { /* nothing */ }
+		: parm_(def)
+	  	, parmDummy_(def)
+	  	, parmSet_(false)
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * The copy constructor
 	 */
 	GOneTimeRefParameterT(const GOneTimeRefParameterT<T> &cp)
-		: parm_(cp.parm_), parmDummy_(cp.parmDummy_), parmSet_(cp.parmSet_) { /* nothing */ }
+		: parm_(cp.parm_)
+		, parmDummy_(cp.parmDummy_)
+	  	, parmSet_(cp.parmSet_)
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**

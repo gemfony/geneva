@@ -62,9 +62,6 @@
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"
 
-// Holds the optimization monitor
-#include "GInfoFunction.hpp"
-
 using namespace Gem::Geneva;
 using namespace Gem::Courtier;
 using namespace Gem::Hap;
@@ -91,9 +88,6 @@ const std::uint32_t DEFAULTREPORTITERATION=1;
 const long DEFAULTMAXMINUTES=10;
 const duplicationScheme DEFAULTRSCHEME=duplicationScheme::VALUEDUPLICATIONSCHEME;
 const sortingMode DEFAULTSORTINGSCHEME=sortingMode::MUCOMMANU_SINGLEEVAL;
-const std::uint16_t DEFAULTXDIMAP=1024;
-const std::uint16_t DEFAULTYDIMAP=1024;
-const bool DEFAULTFOLLOWPROGRESS=false;
 
 /******************************************************************************/
 /**
@@ -118,9 +112,6 @@ bool parseCommandLine(
 	, std::uint32_t& reportIteration
 	, duplicationScheme& rScheme
 	, sortingMode& smode
-	, std::uint16_t& xDim
-	, std::uint16_t& yDim
-	, bool& followProgress
 ){
 	// Create the parser builder
 	Gem::Common::GParserBuilder gpb;
@@ -150,9 +141,9 @@ bool parseCommandLine(
 
 	gpb.registerCLParameter<unsigned short>(
 		"port"
-			, port
-			, DEFAULTPORT
-			, "The port on the server"
+		, port
+		, DEFAULTPORT
+		, "The port on the server"
 	);
 
 	gpb.registerCLParameter<std::uint32_t>(
@@ -248,30 +239,6 @@ bool parseCommandLine(
 		, "Determines whether sorting is done in MUPLUSNU_SINGLEEVAL (0), MUCOMMANU_SINGLEEVAL (1) or MUNU1PRETAIN (2) mode"
 	);
 
-	gpb.registerCLParameter<std::uint16_t>(
-		"xDim"
-		, xDim
-		, DEFAULTXDIMAP
-		, "The x-dimension of the canvas for the result print(s)"
-	);
-
-	gpb.registerCLParameter<std::uint16_t>(
-		"yDim"
-		, yDim
-		, DEFAULTYDIMAP
-		, "The y-dimension of the canvas for the result print(s)"
-	);
-
-	gpb.registerCLParameter<bool>(
-		"followProgress"
-		, followProgress
-		, DEFAULTFOLLOWPROGRESS // Use client mode, if no server option is specified
-		, "Specifies whether snapshots should be taken in regular intervals. You can use this option with or without arguments."
-		, GCL_IMPLICIT_ALLOWED // Permit implicit values, so that we can say --server instead of --server=true
-		, true // Take snapshots, if --followProgress was specified without arguments
-	);
-
-
 	// Parse the command line and leave if the help flag was given. The parser
 	// will emit an appropriate help message by itself
 	if(Gem::Common::GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, true /*verbose*/)) {
@@ -302,9 +269,6 @@ int main(int argc, char **argv){
 	duplicationScheme rScheme;
 	sortingMode smode;
 	Gem::Common::serializationMode serMode;
-	std::uint16_t xDim;
-	std::uint16_t yDim;
-	bool followProgress;
 	bool addLocalConsumer;
 
 	/****************************************************************************/
@@ -333,9 +297,6 @@ int main(int argc, char **argv){
 		, reportIteration
 		, rScheme
 		, smode
-		, xDim
-		, yDim
-		, followProgress
 	)) { exit(1); }
 
 	/****************************************************************************/
@@ -433,14 +394,6 @@ int main(int argc, char **argv){
 	}
 
 	/****************************************************************************/
-	// Create an instance of our optimization monitor
-	std::shared_ptr<progressMonitor> pm_ptr(new progressMonitor(parentIndividuals[0]->getDemoFunction())); // The demo function is only known to the individual
-	pm_ptr->setProgressDims(xDim, yDim);
-	pm_ptr->setFollowProgress(followProgress); // Shall we take snapshots ?
-	pm_ptr->setXExtremes(gfi.getMinVar(), gfi.getMaxVar());
-	pm_ptr->setYExtremes(gfi.getMinVar(), gfi.getMaxVar());
-
-	/****************************************************************************/
 	// Now we have suitable populations and can fill them with data
 
 	// Add individuals to the population. Many Geneva classes, such as
@@ -456,7 +409,6 @@ int main(int argc, char **argv){
 	pop_ptr->setReportIteration(reportIteration);
 	pop_ptr->setRecombinationMethod(rScheme);
 	pop_ptr->setSortingScheme(smode);
-	pop_ptr->registerOptimizationMonitor(pm_ptr);
 
 	// Perform the actual optimization
 	pop_ptr->optimize();

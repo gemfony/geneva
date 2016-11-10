@@ -798,7 +798,7 @@ void Go2::optimize(const std::uint32_t &offset) {
 
 		// Add the pluggable optimization monitors to the algorithm
 		for(auto pm_ptr: pluggable_monitors_) { // std::shared_ptr may be copied
-			p_base->getOptimizationMonitor()->registerPluggableOM(pm_ptr);
+			p_base->registerPluggableOM(pm_ptr);
 		}
 
 		// Add the individuals to the algorithm.
@@ -832,7 +832,7 @@ void Go2::optimize(const std::uint32_t &offset) {
 
 		bestIndividuals.clear();
 		p_base->clear(); // Get rid of local individuals in the algorithm
-		p_base->getOptimizationMonitor()->resetPluggableOM(); // Get rid of the algorithm's pluggable optimization monitors
+		p_base->resetPluggableOM(); // Get rid of the algorithm's pluggable optimization monitors
 	}
 
 	// Sort the individuals according to their primary fitness so we have it easier later on

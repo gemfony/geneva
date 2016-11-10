@@ -150,15 +150,6 @@ public:
 		trait_types;
 
 		typedef boost::mpl::list<
-			GOptimizationAlgorithmT<GOptimizableEntity>::GOptimizationMonitorT
-			, GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT
-			, GSerialEA::GEAOptimizationMonitor
-			, GSerialSwarm::GSwarmOptimizationMonitor
-			, GSerialGD::GGDOptimizationMonitor
-		>
-		monitor_types;
-
-		typedef boost::mpl::list<
 			Gem::Tests::GTestIndividual1
 			// , Gem::Tests::GTestIndividual3
 			, GFunctionIndividual
@@ -186,9 +177,6 @@ public:
 
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, trait_types ) );
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, trait_types ) );
-
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, monitor_types ) );
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, monitor_types ) );
 
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, individual_types ) );
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, individual_types ) );

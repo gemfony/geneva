@@ -62,9 +62,6 @@
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"
 
-// Holds the optimization monitor
-#include "GInfoFunction.hpp"
-
 using namespace Gem::Geneva;
 using namespace Gem::Courtier;
 using namespace Gem::Hap;
@@ -86,9 +83,6 @@ const std::uint16_t DEFAULTNEVALUATIONTHREADS=4;
 const std::uint32_t DEFAULTMAXITERATIONS=200;
 const std::uint32_t DEFAULTREPORTITERATION=1;
 const long DEFAULTMAXMINUTES=10;
-const std::uint16_t DEFAULTXDIMAP=1024;
-const std::uint16_t DEFAULTYDIMAP=1024;
-const bool DEFAULTFOLLOWPROGRESS=false;
 const std::size_t DEFAULTNNEIGHBORHOODSAP=5;
 const std::size_t DEFAULTNNEIGHBORHOODMEMBERSAP=20;
 const double DEFAULTCPERSONALAP=2.;
@@ -124,9 +118,6 @@ bool parseCommandLine(
 	, std::uint32_t& maxIterations
 	, long& maxMinutes
 	, std::uint32_t& reportIteration
-	, std::uint16_t& xDim
-	, std::uint16_t& yDim
-	, bool& followProgress
 ){
 	// Create the parser builder
 	Gem::Common::GParserBuilder gpb;
@@ -284,30 +275,6 @@ bool parseCommandLine(
 		, "The maximum number of minutes the optimization of the population should run"
 	);
 
-	gpb.registerCLParameter<std::uint16_t>(
-		"xDim"
-		, xDim
-		, DEFAULTXDIMAP
-		, "The x-dimension of the canvas for the result print(s)"
-	);
-
-	gpb.registerCLParameter<std::uint16_t>(
-		"yDim"
-		, yDim
-		, DEFAULTYDIMAP
-		, "The y-dimension of the canvas for the result print(s)"
-	);
-
-	gpb.registerCLParameter<bool>(
-		"followProgress"
-		, followProgress
-		, DEFAULTFOLLOWPROGRESS // Use client mode, if no server option is specified
-		, "Specifies whether snapshots should be taken in regular intervals. You can use this option with or without arguments."
-		, GCL_IMPLICIT_ALLOWED // Permit implicit values, so that we can say --server instead of --server=true
-		, true // Take snapshots, if --followProgress was specified without arguments
-	);
-
-
 	// Parse the command line and leave if the help flag was given. The parser
 	// will emit an appropriate help message by itself
 	if(Gem::Common::GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, true /*verbose*/)) {
@@ -334,9 +301,6 @@ int main(int argc, char **argv){
 	long maxMinutes;
 	std::uint32_t reportIteration;
 	Gem::Common::serializationMode serMode;
-	std::uint16_t xDim;
-	std::uint16_t yDim;
-	bool followProgress;
 	bool addLocalConsumer;
 	std::size_t nNeighborhoods;
 	std::size_t nNeighborhoodMembers;
@@ -377,9 +341,6 @@ int main(int argc, char **argv){
 		, maxIterations
 		, maxMinutes
 		, reportIteration
-		, xDim
-		, yDim
-		, followProgress
 	)) { exit(1); }
 
 	/****************************************************************************/
@@ -494,15 +455,6 @@ int main(int argc, char **argv){
 	}
 
 	/****************************************************************************/
-	// Create an instance of our optimization monitor
-	std::shared_ptr<progressMonitor>
-		pm_ptr(new progressMonitor(parentIndividuals[0]->getDemoFunction())); // The demo function is only known to the individual
-	pm_ptr->setProgressDims(xDim, yDim);
-	pm_ptr->setFollowProgress(followProgress); // Shall we take snapshots ?
-	pm_ptr->setXExtremes(gfi.getMinVar(), gfi.getMaxVar());
-	pm_ptr->setYExtremes(gfi.getMinVar(), gfi.getMaxVar());
-
-	/****************************************************************************/
 	// Now we have suitable populations and can fill them with data
 
 	// Add individuals to the population. Many Geneva classes, such as
@@ -520,7 +472,6 @@ int main(int argc, char **argv){
 	pop_ptr->setCNeighborhood(cNeighborhood);
 	pop_ptr->setCVelocity(cVelocity);
 	pop_ptr->setUpdateRule(ur);
-	pop_ptr->registerOptimizationMonitor(pm_ptr);
 
 	// Do the actual optimization
 	pop_ptr->optimize();

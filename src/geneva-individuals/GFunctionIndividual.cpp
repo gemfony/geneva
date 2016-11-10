@@ -982,41 +982,93 @@ std::ostream &operator<<(std::ostream &s, std::shared_ptr <Gem::Geneva::GFunctio
  * @param configFile The name of the configuration file
  */
 GFunctionIndividualFactory::GFunctionIndividualFactory(const std::string &configFile)
-	: GParameterSetFactory(configFile), adProb_(GFI_DEF_ADPROB), adaptAdProb_(GFI_DEF_ADAPTADPROB),
-	  minAdProb_(GFI_DEF_MINADPROB), maxAdProb_(GFI_DEF_MAXADPROB), adaptionThreshold_(GFI_DEF_ADAPTIONTHRESHOLD),
-	  useBiGaussian_(GFI_DEF_USEBIGAUSSIAN), sigma1_(GFI_DEF_SIGMA1), sigmaSigma1_(GFI_DEF_SIGMASIGMA1),
-	  minSigma1_(GFI_DEF_MINSIGMA1), maxSigma1_(GFI_DEF_MAXSIGMA1), sigma2_(GFI_DEF_SIGMA2),
-	  sigmaSigma2_(GFI_DEF_SIGMASIGMA2), minSigma2_(GFI_DEF_MINSIGMA2), maxSigma2_(GFI_DEF_MAXSIGMA2),
-	  delta_(GFI_DEF_DELTA), sigmaDelta_(GFI_DEF_SIGMADELTA), minDelta_(GFI_DEF_MINDELTA), maxDelta_(GFI_DEF_MAXDELTA),
-	  parDim_(GFI_DEF_PARDIM), minVar_(GFI_DEF_MINVAR), maxVar_(GFI_DEF_MAXVAR), pT_(GFI_DEF_PARAMETERTYPE),
-	  iM_(GFI_DEF_INITMODE) { /* nothing */ }
+	: GParameterSetFactory(configFile)
+  	, adProb_(GFI_DEF_ADPROB)
+  	, adaptAdProb_(GFI_DEF_ADAPTADPROB)
+  	, minAdProb_(GFI_DEF_MINADPROB)
+  	, maxAdProb_(GFI_DEF_MAXADPROB)
+  	, adaptionThreshold_(GFI_DEF_ADAPTIONTHRESHOLD)
+  	, useBiGaussian_(GFI_DEF_USEBIGAUSSIAN)
+   , sigma1_(GFI_DEF_SIGMA1)
+   , sigmaSigma1_(GFI_DEF_SIGMASIGMA1)
+  	, minSigma1_(GFI_DEF_MINSIGMA1)
+  	, maxSigma1_(GFI_DEF_MAXSIGMA1)
+   , sigma2_(GFI_DEF_SIGMA2)
+   , sigmaSigma2_(GFI_DEF_SIGMASIGMA2)
+  	, minSigma2_(GFI_DEF_MINSIGMA2)
+  	, maxSigma2_(GFI_DEF_MAXSIGMA2)
+   , delta_(GFI_DEF_DELTA)
+  	, sigmaDelta_(GFI_DEF_SIGMADELTA)
+  	, minDelta_(GFI_DEF_MINDELTA)
+  	, maxDelta_(GFI_DEF_MAXDELTA)
+	, parDim_(GFI_DEF_PARDIM)
+  	, minVar_(GFI_DEF_MINVAR)
+  	, maxVar_(GFI_DEF_MAXVAR)
+  	, pT_(GFI_DEF_PARAMETERTYPE)
+	, iM_(GFI_DEF_INITMODE)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The copy constructor
  */
 GFunctionIndividualFactory::GFunctionIndividualFactory(const GFunctionIndividualFactory &cp)
-	: GParameterSetFactory(cp), adProb_(cp.adProb_), adaptAdProb_(cp.adaptAdProb_),
-	  minAdProb_(cp.minAdProb_), maxAdProb_(cp.maxAdProb_), adaptionThreshold_(cp.adaptionThreshold_),
-	  useBiGaussian_(cp.useBiGaussian_), sigma1_(cp.sigma1_), sigmaSigma1_(cp.sigmaSigma1_), minSigma1_(cp.minSigma1_),
-	  maxSigma1_(cp.maxSigma1_), sigma2_(cp.sigma2_), sigmaSigma2_(cp.sigmaSigma2_), minSigma2_(cp.minSigma2_),
-	  maxSigma2_(cp.maxSigma2_), delta_(cp.delta_), sigmaDelta_(cp.sigmaDelta_), minDelta_(cp.minDelta_),
-	  maxDelta_(cp.maxDelta_), parDim_(cp.parDim_), minVar_(cp.minVar_), maxVar_(cp.maxVar_), pT_(cp.pT_),
-	  iM_(cp.iM_) { /* nothing */ }
+	: GParameterSetFactory(cp)
+  	, adProb_(cp.adProb_)
+  	, adaptAdProb_(cp.adaptAdProb_)
+  	, minAdProb_(cp.minAdProb_)
+  	, maxAdProb_(cp.maxAdProb_)
+  	, adaptionThreshold_(cp.adaptionThreshold_)
+  	, useBiGaussian_(cp.useBiGaussian_)
+  	, sigma1_(cp.sigma1_)
+  	, sigmaSigma1_(cp.sigmaSigma1_)
+  	, minSigma1_(cp.minSigma1_)
+  	, maxSigma1_(cp.maxSigma1_)
+  	, sigma2_(cp.sigma2_)
+  	, sigmaSigma2_(cp.sigmaSigma2_)
+  	, minSigma2_(cp.minSigma2_)
+  	, maxSigma2_(cp.maxSigma2_)
+  	, delta_(cp.delta_)
+  	, sigmaDelta_(cp.sigmaDelta_)
+  	, minDelta_(cp.minDelta_)
+  	, maxDelta_(cp.maxDelta_)
+  	, parDim_(cp.parDim_)
+  	, minVar_(cp.minVar_)
+  	, maxVar_(cp.maxVar_)
+  	, pT_(cp.pT_)
+  	, iM_(cp.iM_)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The default constructor. Only needed for (de-)serialization purposes, hence empty.
  */
 GFunctionIndividualFactory::GFunctionIndividualFactory()
-	: GParameterSetFactory("empty"), adProb_(GFI_DEF_ADPROB), adaptAdProb_(GFI_DEF_ADAPTADPROB),
-	  minAdProb_(GFI_DEF_MINADPROB), maxAdProb_(GFI_DEF_MAXADPROB), adaptionThreshold_(GFI_DEF_ADAPTIONTHRESHOLD),
-	  useBiGaussian_(GFI_DEF_USEBIGAUSSIAN), sigma1_(GFI_DEF_SIGMA1), sigmaSigma1_(GFI_DEF_SIGMASIGMA1),
-	  minSigma1_(GFI_DEF_MINSIGMA1), maxSigma1_(GFI_DEF_MAXSIGMA1), sigma2_(GFI_DEF_SIGMA2),
-	  sigmaSigma2_(GFI_DEF_SIGMASIGMA2), minSigma2_(GFI_DEF_MINSIGMA2), maxSigma2_(GFI_DEF_MAXSIGMA2),
-	  delta_(GFI_DEF_DELTA), sigmaDelta_(GFI_DEF_SIGMADELTA), minDelta_(GFI_DEF_MINDELTA), maxDelta_(GFI_DEF_MAXDELTA),
-	  parDim_(GFI_DEF_PARDIM), minVar_(GFI_DEF_MINVAR), maxVar_(GFI_DEF_MAXVAR), pT_(GFI_DEF_PARAMETERTYPE),
-	  iM_(GFI_DEF_INITMODE) { /* nothing */ }
+	: GParameterSetFactory("empty")
+  	, adProb_(GFI_DEF_ADPROB)
+  	, adaptAdProb_(GFI_DEF_ADAPTADPROB)
+  	, minAdProb_(GFI_DEF_MINADPROB)
+  	, maxAdProb_(GFI_DEF_MAXADPROB)
+  	, adaptionThreshold_(GFI_DEF_ADAPTIONTHRESHOLD)
+  	, useBiGaussian_(GFI_DEF_USEBIGAUSSIAN)
+  	, sigma1_(GFI_DEF_SIGMA1)
+  	, sigmaSigma1_(GFI_DEF_SIGMASIGMA1)
+  	, minSigma1_(GFI_DEF_MINSIGMA1)
+  	, maxSigma1_(GFI_DEF_MAXSIGMA1)
+	, sigma2_(GFI_DEF_SIGMA2)
+  	, sigmaSigma2_(GFI_DEF_SIGMASIGMA2)
+  	, minSigma2_(GFI_DEF_MINSIGMA2)
+  	, maxSigma2_(GFI_DEF_MAXSIGMA2)
+  	, delta_(GFI_DEF_DELTA)
+  	, sigmaDelta_(GFI_DEF_SIGMADELTA)
+	, minDelta_(GFI_DEF_MINDELTA)
+  	, maxDelta_(GFI_DEF_MAXDELTA)
+  	, parDim_(GFI_DEF_PARDIM)
+  	, minVar_(GFI_DEF_MINVAR)
+  	, maxVar_(GFI_DEF_MAXVAR)
+  	, pT_(GFI_DEF_PARAMETERTYPE)
+  	, iM_(GFI_DEF_INITMODE)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**

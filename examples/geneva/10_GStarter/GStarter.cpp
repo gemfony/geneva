@@ -43,8 +43,6 @@
 
 // The individual that should be optimized
 #include "GStarterIndividual.hpp"
-#include "GSigmaMonitor.hpp"
-
 
 using namespace Gem::Geneva;
 
@@ -60,18 +58,10 @@ int main(int argc, char **argv) {
 	//---------------------------------------------------------------------
 	// Server mode, serial or multi-threaded execution
 
-	// Create an optimization monitor (targeted at evolutionary algorithms) and register
-	// it with the global store. This step is OPTIONAL. We recommend checking the chapters
-	// on writing custom progress monitors within the Geneva framework.
-	GOAMonitorStore->setOnce(
-		"ea"
-		, std::shared_ptr<GSigmaMonitor>(new GSigmaMonitor("./sigmaProgress.C"))
-	);
-
-	// Another possibility: Add a "pluggable optimization monitor" to Go2. This
-	// particular monitor will logg all solutions that were found into the file allLog.txt,
-	// provided their fitness is better than 1. . The option is usually used for monitors
-	// that do not discriminate between optimization algorithms.
+	// Add a "pluggable optimization monitor" to Go2. This particular monitor will log
+	// solutions that were found into the file allLog.txt, provided their fitness is better
+	// than 1. . The option is usually used for monitors that do not discriminate between
+	// optimization algorithms.
 	std::vector<double> boundaries;
 	boundaries.push_back(1.);
 	std::shared_ptr<GAllSolutionFileLoggerT<GParameterSet>>

@@ -51,7 +51,6 @@ SET ( EXECUTABLENAME GFunctionMinimizer )
 SET ( ${EXECUTABLENAME}_SRCS
 	GFunctionMinimizer
 	GFMinIndividual
-	GSigmaMonitor
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

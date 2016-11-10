@@ -54,7 +54,6 @@
 #include "geneva/GSerialEA.hpp"
 #include "geneva/GMultiThreadedEA.hpp"
 #include "geneva/GBrokerEA.hpp"
-#include "geneva/GOAMonitorStore.hpp"
 #include "geneva/GPluggableOptimizationMonitorsT.hpp"
 
 namespace Gem {
@@ -230,18 +229,10 @@ public:
 			 }
 		 }
 
-		 // Has a custom optimization monitor been registered with the global store ?
-		 // If so, add a clone to the algorithm
-		 if (GOAMonitorStore->exists(this->getMnemonic())) {
-			 std::shared_ptr<typename oa_type::GOptimizationMonitorT> p_mon =
-				 GOAMonitorStore->get(
-					 this->getMnemonic())->GObject::template clone<typename oa_type::GOptimizationMonitorT>();
-
-			 if (m_pluggableOM) {
-				 p_mon->registerPluggableOM(m_pluggableOM);
-			 }
-
-			 p_alg->registerOptimizationMonitor(p_mon);
+		 // Check if any pluggable optimization monitor was registered. If so,
+		 // load it into the optimization algorithm
+		 if (m_pluggableOM) {
+			 p_alg->registerPluggableOM(m_pluggableOM);
 		 }
 
 		 // Return the filled object to the audience
