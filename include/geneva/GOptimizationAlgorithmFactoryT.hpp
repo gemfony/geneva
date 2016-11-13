@@ -75,7 +75,7 @@ class GOptimizationAlgorithmFactoryT
 public:
 	 /***************************************************************************/
 	 // Let the audience know what type of algorithm will be produced
-	 typedef oa_type pType;
+	 using pType = oa_type;
 
 	 /***************************************************************************/
 	 /**

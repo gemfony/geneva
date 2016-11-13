@@ -228,17 +228,17 @@ public:
 
 	/***************************************************************************/
 	// Typedefs
-	typedef typename std::vector<std::shared_ptr <T>>::value_type value_type;
-	typedef typename std::vector<std::shared_ptr <T>>::reference reference;
-	typedef typename std::vector<std::shared_ptr <T>>::const_reference const_reference;
+	using value_type = typename std::vector<std::shared_ptr <T>>::value_type;
+	using reference = typename std::vector<std::shared_ptr <T>>::reference;
+	using const_reference = typename std::vector<std::shared_ptr <T>>::const_reference;
 
-	typedef typename std::vector<std::shared_ptr <T>>::iterator iterator;
-	typedef typename std::vector<std::shared_ptr <T>>::const_iterator const_iterator;
-	typedef typename std::vector<std::shared_ptr <T>>::reverse_iterator reverse_iterator;
-	typedef typename std::vector<std::shared_ptr <T>>::const_reverse_iterator const_reverse_iterator;
+	using iterator = typename std::vector<std::shared_ptr <T>>::iterator;
+	using const_iterator = typename std::vector<std::shared_ptr <T>>::const_iterator;
+	using reverse_iterator = typename std::vector<std::shared_ptr <T>>::reverse_iterator;
+	using const_reverse_iterator = typename std::vector<std::shared_ptr <T>>::const_reverse_iterator;
 
-	typedef typename std::vector<std::shared_ptr <T>>::size_type size_type;
-	typedef typename std::vector<std::shared_ptr <T>>::difference_type difference_type;
+	using size_type = typename std::vector<std::shared_ptr <T>>::size_type;
+	using difference_type = typename std::vector<std::shared_ptr <T>>::difference_type;
 
 	/***************************************************************************/
 	// Non modifying access

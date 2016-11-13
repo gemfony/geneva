@@ -78,7 +78,7 @@ class GNumFPT
 
 public:
 	/** @brief Specifies the type of parameters stored in this object */
-	typedef fp_type parameter_type;
+	using parameter_type = fp_type;
 
 	/***************************************************************************/
 	/**

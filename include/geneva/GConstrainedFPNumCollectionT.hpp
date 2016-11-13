@@ -90,7 +90,7 @@ class GConstrainedFPNumCollectionT
 
 public:
 	/** @brief Specifies the type of parameters stored in this collection */
-	typedef fp_type collection_type;
+	using collection_type = fp_type;
 
 	/***************************************************************************/
 	/**

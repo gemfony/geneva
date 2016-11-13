@@ -117,7 +117,7 @@ public:
 	 /**
 	  * Allows external callers to find out about the type stored in this object
 	  */
-	 typedef T adaption_type;
+	 using adaption_type = T;
 
 	 /***************************************************************************/
 	 /**

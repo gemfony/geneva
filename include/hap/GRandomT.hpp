@@ -197,7 +197,7 @@ private:
 };
 
 /** @brief Convenience typedef */
-typedef GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> GRandom;
+using GRandom = GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

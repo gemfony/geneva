@@ -103,8 +103,8 @@ class GThreadGroup
 {
 	friend class GThreadPool;
 
-	typedef std::shared_ptr <Gem::Common::thread> thread_ptr;
-	typedef std::vector<thread_ptr> thread_vector;
+	using thread_ptr = std::shared_ptr <Gem::Common::thread>;
+	using thread_vector = std::vector<thread_ptr>;
 
 public:
 	/** @brief The destructor */

@@ -159,7 +159,7 @@ class GExternalEvaluatorIndividual : public GParameterSet {
 	///////////////////////////////////////////////////////////////////////
 
 public:
-	typedef GExternalEvaluatorIndividualFactory FACTORYTYPE;
+	using FACTORYTYPE = GExternalEvaluatorIndividualFactory;
 
 	/** @brief The default constructor */
 	G_API_INDIVIDUALS GExternalEvaluatorIndividual();

@@ -98,7 +98,7 @@ class GProcessingContainerT
 	 ///////////////////////////////////////////////////////////////////////
 
 public:
-	 typedef submission_type payload_type;
+	 using payload_type = submission_type;
 
 	 /***************************************************************************/
 	 /**

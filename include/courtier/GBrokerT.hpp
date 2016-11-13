@@ -97,10 +97,10 @@ template<typename carrier_type>
 class GBrokerT
 	: private boost::noncopyable
 {
-	 typedef GBufferPortT<std::shared_ptr<carrier_type>> GBUFFERPORT;
-	 typedef typename std::shared_ptr<GBUFFERPORT> GBUFFERPORT_PTR;
-	 typedef typename std::map<boost::uuids::uuid, GBUFFERPORT_PTR> RawBufferPtrMap;
-	 typedef typename std::map<boost::uuids::uuid, GBUFFERPORT_PTR> ProcessedBufferPtrMap;
+	 using GBUFFERPORT = GBufferPortT<std::shared_ptr<carrier_type>>;
+	 using GBUFFERPORT_PTR = typename std::shared_ptr<GBUFFERPORT>;
+	 using RawBufferPtrMap = typename std::map<boost::uuids::uuid, GBUFFERPORT_PTR>;
+	 using ProcessedBufferPtrMap = typename std::map<boost::uuids::uuid, GBUFFERPORT_PTR>;
 
 public:
 	 /***************************************************************************/

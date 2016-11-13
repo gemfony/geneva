@@ -82,7 +82,7 @@ template<typename pl_type> // pl stands for "pay load"
 class GBaseConsumerT
 	: private boost::noncopyable {
 public:
-	typedef pl_type payload;
+	using payload = pl_type;
 
 	/***************************************************************************/
 	/**

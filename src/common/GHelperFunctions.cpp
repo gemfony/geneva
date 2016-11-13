@@ -216,7 +216,7 @@ std::vector<std::string> splitString(const std::string &str, const char *sep) {
    }
 #endif /* DEBUG */
 
-	typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
+	using tokenizer = boost::tokenizer<boost::char_separator<char>>;
 	boost::char_separator<char> sep_char(sep);
 	tokenizer oaTokenizer(str, sep_char);
 	for (tokenizer::iterator oa = oaTokenizer.begin(); oa != oaTokenizer.end(); ++oa) {
@@ -305,8 +305,8 @@ std::vector<double> stringToDoubleVec(const std::string &raw) {
 std::vector<std::tuple<unsigned int, unsigned int>> stringToUIntTupleVec(const std::string &raw) {
 	using namespace boost::spirit;
 
-	typedef std::string::const_iterator cit_type;
-	typedef std::vector<std::tuple<unsigned int, unsigned int>> res_type;
+	using cit_type = std::string::const_iterator;
+	using res_type = std::vector<std::tuple<unsigned int, unsigned int>>;
 
 	std::vector<std::tuple<unsigned int, unsigned int>> result;
 	bool success = false;

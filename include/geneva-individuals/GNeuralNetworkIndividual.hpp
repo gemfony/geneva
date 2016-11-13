@@ -347,7 +347,7 @@ G_API_INDIVIDUALS std::ostream &operator<<(std::ostream &o, const Gem::Geneva::t
 /******************************************************************************/
 // A global singleton giving access to the training data.
 // See also the definition of TFactory_GSingletonT<Gem::Geneva::networkData>
-typedef Gem::Common::GSingletonT<Gem::Geneva::networkData> GDatStore;
+using GDatStore = Gem::Common::GSingletonT<Gem::Geneva::networkData>;
 #define GNNTrainingDataStore GDatStore::Instance(0)
 
 /******************************************************************************/
@@ -1055,7 +1055,7 @@ namespace Gem {
 namespace Common {
 
 // A global store for network configuration data
-typedef GSingletonT<GGlobalOptionsT<std::string>> GNNOptStore;
+using GNNOptStore = GSingletonT<GGlobalOptionsT<std::string>>;
 #define GNeuralNetworkOptions GNNOptStore::Instance(0)
 
 // A factory function for networkData objects, used by GSingletonT

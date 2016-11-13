@@ -77,7 +77,7 @@
 namespace Gem {
 namespace Hap {
 
-typedef std::mt19937 G_BASE_GENERATOR;
+using G_BASE_GENERATOR = std::mt19937;
 
 class GRandomFactory; // Forward declaration, so we can make random_container constructor private
 

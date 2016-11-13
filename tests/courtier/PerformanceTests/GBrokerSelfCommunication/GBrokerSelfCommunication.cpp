@@ -336,7 +336,7 @@ void brokerProducer(
 	, std::size_t nContainerEntries
 ) {
 	std::size_t id;
-	typedef std::shared_ptr<Gem::Courtier::GBufferPortT<std::shared_ptr<WORKLOAD>> > GBufferPortT_ptr;
+	using GBufferPortT_ptr = std::shared_ptr<Gem::Courtier::GBufferPortT<std::shared_ptr<WORKLOAD>>>;
 
 	{ // Assign a counter to this producer
 		std::unique_lock<std::mutex> lk(producer_counter_mutex);

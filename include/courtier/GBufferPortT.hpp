@@ -77,8 +77,8 @@ class GBufferPortT
 	: private boost::noncopyable
 {
 public:
-	 typedef typename Gem::Common::GBoundedBufferT<T, Gem::Common::DEFAULTBUFFERSIZE> RAW_BUFFER_TYPE;
-	 typedef typename Gem::Common::GBoundedBufferT<T, 0> PROCESSED_BUFFER_TYPE;
+	 using RAW_BUFFER_TYPE = typename Gem::Common::GBoundedBufferT<T, Gem::Common::DEFAULTBUFFERSIZE>;
+	 using PROCESSED_BUFFER_TYPE = typename Gem::Common::GBoundedBufferT<T, 0>;
 
 	 /***************************************************************************/
 	 /**

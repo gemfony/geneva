@@ -180,7 +180,7 @@ class GFunctionIndividual
 	 ///////////////////////////////////////////////////////////////////////
 
 public:
-	 typedef GFunctionIndividualFactory FACTORYTYPE;
+	 using FACTORYTYPE = GFunctionIndividualFactory;
 
 	 /** @brief The default constructor */
 	 G_API_INDIVIDUALS GFunctionIndividual();

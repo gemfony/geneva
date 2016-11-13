@@ -49,10 +49,10 @@ namespace Hap {
 
 /******************************************************************************/
 // Some typedefs for the seed manager and random factory
-typedef std::mt19937 mersenne_twister;
-typedef std::mt19937::result_type initial_seed_type;
-typedef initial_seed_type seed_type;
-typedef std::subtract_with_carry_engine<uint_fast64_t, 48, 5, 12> lagged_fibonacci; // ranlux48_base
+using mersenne_twister = std::mt19937;
+using initial_seed_type = std::mt19937::result_type;
+using seed_type = initial_seed_type;
+using lagged_fibonacci = std::subtract_with_carry_engine<uint_fast64_t, 48, 5, 12>; // ranlux48_base
 
 /******************************************************************************/
 // Some constants needed for the random number generation

@@ -89,8 +89,8 @@ struct has_gemfony_common_interface {
  */
 template<typename T>
 class has_compare_member {
-	typedef char yes;
-	typedef long no;
+	using yes = char;
+	using no = long;
 
 	template<typename C>
 	static yes test(decltype(&C::compare));
@@ -112,8 +112,8 @@ public:
  */
 template<typename T>
 class has_clone_member {
-	typedef char yes;
-	typedef long no;
+	using yes = char;
+	using no = long;
 
 	template<typename C>
 	static yes test(decltype(&C::clone));
@@ -135,8 +135,8 @@ public:
  */
 template<typename T>
 class has_load_member {
-	typedef char yes;
-	typedef long no;
+	using yes = char;
+ 	using no = long;
 
 	template<typename C>
 	static yes test(decltype(&C::load));

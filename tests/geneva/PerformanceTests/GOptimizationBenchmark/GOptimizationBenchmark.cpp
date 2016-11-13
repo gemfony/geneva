@@ -53,7 +53,7 @@ using namespace Gem::Geneva;
 using namespace Gem::Common;
 using namespace Gem::Tests;
 
-typedef std::tuple<double,double,double,double> xyWE; // xy-values with errors
+using xyWE = std::tuple<double,double,double,double>; // xy-values with errors
 
 int main(int argc, char **argv) {
 	// Create the algorithm container

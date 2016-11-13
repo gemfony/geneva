@@ -108,19 +108,6 @@ namespace Gem {
 namespace Common {
 
 /******************************************************************************/
-/**
- * These typedefs are needed as it is not clear whether we're running on a 64 or 32 bit
- * machine. We do want, however, to be able to count as high as is possible for a given machine
- * for the port id. This is a poor replacement for a guid, which was not yet officially part of
- * Boost, when this class was created.
- */
-#ifdef BOOST_HAS_LONG_LONG
-typedef std::uint64_t PORTIDTYPE;
-#else
-typedef std::uint32_t PORTIDTYPE;
-#endif
-
-/******************************************************************************/
 /** @brief Class to be thrown as a message in the case of a time-out in GBuffer */
 class condition_time_out : public std::exception
 { /* nothing */ };
@@ -149,9 +136,8 @@ class GBoundedBufferT
 {
 public:
 
-	 typedef typename std::deque<T> container_type;
-	 // typedef typename std::list<T> container_type; // Tested to much slower than a deque
-	 typedef typename container_type::value_type value_type;
+	 using container_type = std::deque<T>;
+	 using value_type     = typename container_type::value_type;
 
 	 /***************************************************************************/
 	 /**

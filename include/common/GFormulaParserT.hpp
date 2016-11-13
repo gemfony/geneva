@@ -274,7 +274,8 @@ struct unary_function_;
 struct binary_function_;
 struct ast_expression;
 
-typedef boost::variant<
+using operand =
+boost::variant<
 	nil
 	, float
 	, double
@@ -282,8 +283,7 @@ typedef boost::variant<
 	, boost::recursive_wrapper<unary_function_>
 	, boost::recursive_wrapper<binary_function_>
 	, boost::recursive_wrapper<ast_expression>
->
-	operand;
+>;
 
 struct nil {
 	void swap(nil &);
@@ -432,10 +432,10 @@ public:
 		op_fp = 27,     // Pushes a fp_type onto the stack
 	};
 
-	typedef void result_type; // Needed for the operator() and apply_visitor
-	typedef boost::variant<byte_code, fp_type> codeEntry;
-	typedef std::map<std::string, std::vector<fp_type>> parameter_map;
-	typedef std::map<std::string, fp_type> constants_map;
+	using result_type = void; // Needed for the operator() and apply_visitor
+	using codeEntry = boost::variant<byte_code, fp_type>;
+	using parameter_map = std::map<std::string, std::vector<fp_type>>;
+	using constants_map = std::map<std::string, fp_type>;
 
 	/***************************************************************************/
 	/**

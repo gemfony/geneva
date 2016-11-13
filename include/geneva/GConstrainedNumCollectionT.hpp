@@ -84,7 +84,7 @@ class GConstrainedNumCollectionT
 
 public:
 	/** @brief Specifies the type of parameters stored in this collection */
-	typedef num_type collection_type;
+	using collection_type = num_type;
 
 	/***************************************************************************/
 	/**

@@ -127,7 +127,7 @@ float operator*(const coord2D &, const coord2D &);
  * A struct holding the coordinates, colors and opacity of a single triangle, which is
  * defined via a surrounding circle
  */
-typedef
+using t_circle =
 struct triangle_circle_struct {
 	coord2D middle;
 	float radius;
@@ -147,7 +147,7 @@ struct triangle_circle_struct {
 
 	/** @brief Translate to a string */
 	std::string toString() const;
-} t_circle;
+};
 
 /** @brief Simplify debugging output */
 G_API_COMMON std::ostream &operator<<(std::ostream &, const t_circle &);
@@ -160,7 +160,7 @@ G_API_COMMON bool operator!=(const t_circle &, const t_circle &);
 /**
  * A struct holding triangle definitions in standard coordinates
  */
-typedef
+using t_cart =
 struct t_spec_c {
 	coord2D tr_one;
 	coord2D tr_two;
@@ -169,7 +169,7 @@ struct t_spec_c {
 	float g;
 	float b;
 	float a;
-} t_cart;
+};
 
 /******************************************************************************/
 /**

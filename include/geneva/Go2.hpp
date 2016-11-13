@@ -96,7 +96,7 @@ G_API_GENEVA void setRNFParameters(const std::uint16_t&);
 
 /******************************************************************************/
 /** Syntactic sugar -- make the code easier to read */
-typedef Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet> GOABase;
+using GOABase = Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>;
 
 /******************************************************************************/
 /**

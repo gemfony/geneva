@@ -92,7 +92,7 @@ public:
 	/**
 	 * Allows to find out which type is stored in this class
 	 */
-	typedef T collection_type;
+	using collection_type = T;
 
 	/***************************************************************************/
 	/**

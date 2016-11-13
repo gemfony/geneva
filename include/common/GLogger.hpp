@@ -530,7 +530,7 @@ private:
 /**
 * We currently require the global GLogStreamer object to be a singleton
 */
-typedef Gem::Common::GSingletonT<Gem::Common::GLogger<Gem::Common::GLogStreamer>> log_singleton;
+using log_singleton = Gem::Common::GSingletonT<Gem::Common::GLogger<Gem::Common::GLogStreamer>>;
 #define glogger_ptr log_singleton::Instance(0)
 #define glogger (*(log_singleton::Instance(0)))
 

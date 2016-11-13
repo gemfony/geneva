@@ -75,7 +75,7 @@ class GParameterT
 
 public:
 	/** @brief Used to identify the type supplied to this object */
-	typedef T p_type;
+	using p_type = T;
 
 	/***************************************************************************/
 	/** The default constructor */

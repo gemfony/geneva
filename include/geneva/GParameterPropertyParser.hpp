@@ -70,7 +70,7 @@ namespace Geneva {
 
 /******************************************************************************/
 /** @brief Storage of variable-related properties */
-typedef std::tuple<std::size_t, std::string, std::size_t> NAMEANDIDTYPE;
+using NAMEANDIDTYPE = std::tuple<std::size_t, std::string, std::size_t>;
 
 /******************************************************************************/
 /**

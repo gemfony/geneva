@@ -68,9 +68,9 @@ const std::size_t MAXITERATIONS = 10;
 /**
  * The main function (who would have guessed ...)
  */
-typedef srd::mt19937 real_generator;
-typedef std::uniform_real_distribution<> real_dist;
-typedef std::variate_generator<real_generator&, real_dist> Generator;
+using real_generator = srd::mt19937;
+using real_dist = std::uniform_real_distribution<>;
+using Generator = std::variate_generator<real_generator&, real_dist>;
 
 int main() {
 	real_generator mt; // From Boosts own random number suite

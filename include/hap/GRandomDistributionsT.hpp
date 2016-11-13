@@ -387,8 +387,8 @@ template <
 class bi_normal_distribution
 {
 public:
-	 typedef fp_type input_type;
-	 typedef fp_type result_type;
+	 using input_type = fp_type;
+	 using result_type = fp_type;
 
 	 /**************************************************************************/
 	 /**
@@ -396,7 +396,7 @@ public:
 	  */
 	 class param_type {
 	 public:
-		  typedef bi_normal_distribution<fp_type> distribution_type;
+		  using distribution_type = bi_normal_distribution<fp_type>;
 
 		  /**
  			* Constructs the parameters of a bi_normal_distribution<fp_type>

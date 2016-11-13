@@ -82,7 +82,7 @@ public:
 	class GBasePluggableOMT;
 
 	// Allow external entities to determine the type used for the individuals
-	typedef ind_type individual_type;
+	using individual_type = ind_type;
 
 private:
 	///////////////////////////////////////////////////////////////////////

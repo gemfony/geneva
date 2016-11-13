@@ -80,7 +80,7 @@ class GNumIntT
 
 public:
 	/** @brief Specifies the type of parameters stored in this object */
-	typedef int_type parameter_type;
+	using parameter_type = int_type;
 
 	/***************************************************************************/
 	/**

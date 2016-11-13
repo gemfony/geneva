@@ -78,7 +78,7 @@ class GRandomBase : private boost::noncopyable
 {
 public:
 	 /** @brief Helps to use this object as a generator for C++11 std::distributions */
-	typedef G_BASE_GENERATOR::result_type result_type;
+	using result_type = G_BASE_GENERATOR::result_type;
 
 	 /***************************************************************************/
 	 /** @brief The standard constructor */

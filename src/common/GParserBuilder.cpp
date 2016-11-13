@@ -228,7 +228,7 @@ std::vector<std::string> GParsableI::splitComment(const std::string &comment) co
 	std::vector<std::string> results;
 
 	// Needed for the separation of comment strings
-	typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
+	using tokenizer = boost::tokenizer<boost::char_separator<char>>;
 	boost::char_separator<char> semicolon_sep(";");
 
 	if (comment != "" && comment != "empty") {
@@ -473,7 +473,7 @@ void GParserBuilder::writeConfigFile(
 	}
 
 	// Needed for the separation of comment strings
-	typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
+	using tokenizer = boost::tokenizer<boost::char_separator<char>>;
 	boost::char_separator<char> semicolon_sep(";");
 
 	// Do some error checking

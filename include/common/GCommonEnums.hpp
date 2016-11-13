@@ -107,8 +107,7 @@ const std::size_t DEFAULTBUFFERSIZE = 20000;
 
 /******************************************************************************/
 // A basetype used for all enums in Geneva
-// typedef std::uint16_t ENUMBASETYPE;
-typedef int ENUMBASETYPE;
+using ENUMBASETYPE = int;
 
 /******************************************************************************/
 /**

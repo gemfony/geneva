@@ -60,10 +60,7 @@ class GenevaStandardTestSuite
 {
 public:
 	GenevaStandardTestSuite() :test_suite("GenevaStandardTestSuite") {
-		typedef boost::mpl::list<
-				GStarterIndividual
-		>
-		userind_types;
+		using userind_types = boost::mpl::list<GStarterIndividual>;
 
 		/****************************************************************************************/
 

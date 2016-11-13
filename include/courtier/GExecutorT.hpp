@@ -819,7 +819,7 @@ class GBrokerExecutorT
 
 	 ///////////////////////////////////////////////////////////////////////
 
-	 typedef std::shared_ptr<Gem::Courtier::GBufferPortT<std::shared_ptr<processable_type>>> GBufferPortT_ptr;
+	 using GBufferPortT_ptr = std::shared_ptr<Gem::Courtier::GBufferPortT<std::shared_ptr<processable_type>>>;
 
 public:
 	 /***************************************************************************/

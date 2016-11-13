@@ -98,49 +98,50 @@ typename std::shared_ptr<T> TFactory_GSingletonT() {
  */
 template<typename T>
 class GSingletonT
-	: boost::noncopyable {
+	: boost::noncopyable
+{
 public:
-	typedef T STYPE;
+	 using STYPE = T;
 
-	/***************************************************************************/
-	/**
-	 * If called for the first time, the function creates a std::shared_ptr
-	 * of T and returns it to the caller. Subsequent calls to this function
-	 * will return the stored copy of the shared_ptr. Other classes can store
-	 * the pointer, so that T doesn't get deleted while it is still needed.
-	 *
-	 * @param mode Determines the mode in which this function is called
-	 */
-	static std::shared_ptr <T> Instance(const std::size_t &mode) {
-		static std::shared_ptr <T> p;
-		static std::mutex creation_mutex;
+	 /***************************************************************************/
+	 /**
+	  * If called for the first time, the function creates a std::shared_ptr
+	  * of T and returns it to the caller. Subsequent calls to this function
+	  * will return the stored copy of the shared_ptr. Other classes can store
+	  * the pointer, so that T doesn't get deleted while it is still needed.
+	  *
+	  * @param mode Determines the mode in which this function is called
+	  */
+	 static std::shared_ptr<T> Instance(const std::size_t &mode) {
+		 static std::shared_ptr<T> p;
+		 static std::mutex creation_mutex;
 
-		switch (mode) {
-			case 0:
-				// Several callers can reach the next line simultaneously. Hence, if
-				// p is empty, we need to ask again if it is empty after we have acquired the lock
-				if (!p) {
-					// Prevent concurrent "first" access
-					std::unique_lock<std::mutex> lk(creation_mutex);
-					if (!p) p = Gem::Common::TFactory_GSingletonT<T>();
-				}
+		 switch (mode) {
+			 case 0:
+				 // Several callers can reach the next line simultaneously. Hence, if
+				 // p is empty, we need to ask again if it is empty after we have acquired the lock
+				 if (!p) {
+					 // Prevent concurrent "first" access
+					 std::unique_lock<std::mutex> lk(creation_mutex);
+					 if (!p) p = Gem::Common::TFactory_GSingletonT<T>();
+				 }
 
-				return p;
-				break;
+				 return p;
+				 break;
 
-			case 1:
-				p.reset();
-				break;
-		}
+			 case 1:
+				 p.reset();
+				 break;
+		 }
 
-		return std::shared_ptr<T>(); // Make the compiler happy
-	}
+		 return std::shared_ptr<T>(); // Make the compiler happy
+	 }
 
-	/***************************************************************************/
+	 /***************************************************************************/
 
 private:
-	GSingletonT(); ///< Intentionally left undefined
-	~GSingletonT(); ///< Intentionally left undefined
+	 GSingletonT(); ///< Intentionally left undefined
+	 ~GSingletonT(); ///< Intentionally left undefined
 };
 
 /******************************************************************************/

@@ -61,10 +61,10 @@ namespace Geneva {
 
 /******************************************************************************/
 // A number of typedefs that indicate the position and value of a parameter inside of an individual
-typedef std::tuple<bool,           std::size_t, std::string, std::size_t> singleBPar;
-typedef std::tuple<std::int32_t, std::size_t, std::string, std::size_t> singleInt32Par;
-typedef std::tuple<float,          std::size_t, std::string, std::size_t> singleFPar;
-typedef std::tuple<double,         std::size_t, std::string, std::size_t> singleDPar;
+using singleBPar     = std::tuple<bool,         std::size_t, std::string, std::size_t>;
+using singleInt32Par = std::tuple<std::int32_t, std::size_t, std::string, std::size_t>;
+using singleFPar     = std::tuple<float,        std::size_t, std::string, std::size_t>;
+using singleDPar     = std::tuple<double,       std::size_t, std::string, std::size_t>;
 
 /******************************************************************************/
 /**

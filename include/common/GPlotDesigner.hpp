@@ -229,11 +229,11 @@ const double DEFMINMARKERSIZE = 0.001;
 const double DEFMAXMARKERSIZE = 1.;
 
 // Easier access to the header-, body- and footer-data
-typedef std::tuple<std::string, std::string, std::string> plotData;
+using plotData = std::tuple<std::string, std::string, std::string>;
 
 // Easier acces to lines
-typedef std::tuple<double, double, double> pointData;
-typedef std::tuple<pointData, pointData> line;
+using pointData = std::tuple<double, double, double>;
+using line = std::tuple<pointData, pointData>;
 
 // Forward declaration in order to allow a friend statement in GBasePlotter
 class GPlotDesigner;

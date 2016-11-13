@@ -93,70 +93,63 @@ class GenevaStandardTestSuite
 public:
 	GenevaStandardTestSuite() :test_suite("GenevaStandardTestSuite") {
 
-		typedef boost::mpl::list<
+		using adaptor_types = boost::mpl::list<
 			GInt32FlipAdaptor
 			, GBooleanAdaptor
 			, GInt32GaussAdaptor
 			, GDoubleBiGaussAdaptor
 			, GDoubleGaussAdaptor
-		>
-		adaptor_types;
+		>;
 
-		typedef boost::mpl::list<
+		using data_types = boost::mpl::list<
 			GBooleanObject
 			, GInt32Object
 			, GDoubleObject
 			, GConstrainedInt32Object
 			, GConstrainedDoubleObject
-		>
-		data_types;
+		>;
 
-		typedef boost::mpl::list<
+		using object_collection_types = boost::mpl::list<
 			GParameterObjectCollection
 			, GBooleanObjectCollection
 			, GInt32ObjectCollection
 			, GConstrainedInt32ObjectCollection
 			, GDoubleObjectCollection
 			, GConstrainedDoubleObjectCollection
-		>
-		object_collection_types;
+		>;
 
-		typedef boost::mpl::list<
+		using pod_collection_types = boost::mpl::list<
 			GInt32Collection
 			, GDoubleCollection
 			, GBooleanCollection
 			, GConstrainedDoubleCollection
 			, GParameterSet
-		>
-		pod_collection_types;
+		>;
 
-		typedef boost::mpl::list<
+		using algorithm_types = boost::mpl::list<
 			GSerialEA
 			, GMultiThreadedEA
 			, GSerialSwarm
 			, GMultiThreadedSwarm
 			, GSerialGD
 			, GMultiThreadedGD
-		>
-		algorithm_types;
+		>;
 
-		typedef boost::mpl::list<
+		using trait_types = boost::mpl::list<
 			GEAPersonalityTraits
 			, GGDPersonalityTraits
 			, GSwarmPersonalityTraits
 			, GSAPersonalityTraits
 			, GPSPersonalityTraits
-		>
-		trait_types;
+		>;
 
-		typedef boost::mpl::list<
+		using individual_types = boost::mpl::list<
 			Gem::Tests::GTestIndividual1
 			// , Gem::Tests::GTestIndividual3
 			, GFunctionIndividual
 			, GDelayIndividual
 			, GExternalEvaluatorIndividual
-		>
-		individual_types;
+		>;
 
 		/*****************************************************************************************/
 

@@ -85,7 +85,7 @@ class GNumT
 
 public:
 	/** @brief Specifies the type of parameters stored in this collection */
-	typedef T collection_type;
+	using collection_type = T;
 
 	/***************************************************************************/
 	/**

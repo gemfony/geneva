@@ -48,8 +48,8 @@
 #include "geneva/GParameterSet.hpp"
 
 // A global store for optimization algorithm factories
-typedef Gem::Geneva::GOptimizationAlgorithmFactoryT<Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>> goa_factory;
-typedef Gem::Common::GSingletonT<Gem::Common::GGlobalOptionsT<std::shared_ptr<goa_factory>> > GOAStore;
+using goa_factory = Gem::Geneva::GOptimizationAlgorithmFactoryT<Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>>;
+using GOAStore = Gem::Common::GSingletonT<Gem::Common::GGlobalOptionsT<std::shared_ptr<goa_factory>> >;
 #define GOAFactoryStore GOAStore::Instance(0)
 
 #endif /* GOAFACTORYSTORE_HPP_ */
