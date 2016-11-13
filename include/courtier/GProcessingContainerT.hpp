@@ -56,6 +56,10 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_serialize.hpp>
 
 #ifndef GSUBMISSIONCONTAINERBASE_HPP_
 #define GSUBMISSIONCONTAINERBASE_HPP_
@@ -194,7 +198,7 @@ public:
 	  *
 	  * @param id An id that allows the broker connector to identify this object
 	  */
-	 void setCourtierId(const std::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> &id) {
+	 void setCourtierId(const id_type &id) {
 		 m_id = id;
 	 }
 
@@ -204,8 +208,62 @@ public:
 	  *
 	  * @return An id that allows the broker connector to identify this object
 	  */
-	 std::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> getCourtierId() const {
+	 id_type getCourtierId() const {
 		 return m_id;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to set the counter of a given submission individually (independent
+	  * of the courtier id)
+	  */
+	 void setSubmissionCounter(const SUBMISSION_COUNTER_TYPE& counter) {
+		 std::get<0>(m_id) = counter;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to retrieve the counter of a given submission individually (independent
+	  * of the courtier id)
+	  */
+	 SUBMISSION_COUNTER_TYPE getSubmissionCounter() const {
+		 return std::get<0>(m_id);
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to set the position inside of a given submission individually
+	  * (independent of the courtier id)
+	  */
+	 void setSubmissionPosition(const SUBMISSION_POSITION_TYPE& pos) {
+		 std::get<1>(m_id) = pos;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to retrieve the position inside of a given submission individually
+	  * (independent of the courtier id)
+	  */
+	 SUBMISSION_POSITION_TYPE getSubmissionPosition() const {
+		 return std::get<1>(m_id);
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to set the id inside of the originating buffer individually
+	  * (independent of the courtier id)
+	  */
+	 void setBufferId(const BUFFERPORT_ID_TYPE& id) {
+		 std::get<2>(m_id) = id;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to retrieve the id of the originating buffer individually
+	  * (independent of the courtier id)
+	  */
+	 BUFFERPORT_ID_TYPE getBufferId() const {
+		 return std::get<2>(m_id);
 	 }
 
 	 /***************************************************************************/
@@ -333,7 +391,11 @@ private:
 	 /***************************************************************************/
 	 // Data
 
-	 std::tuple<Gem::Courtier::ID_TYPE_1, Gem::Courtier::ID_TYPE_2> m_id; ///< A two-part id that can be assigned to this container object
+	 id_type m_id = id_type(
+		 SUBMISSION_COUNTER_TYPE(0)
+		 , SUBMISSION_POSITION_TYPE(0)
+		 , BUFFERPORT_ID_TYPE()
+	 ); ///< A multi-part id that can be assigned to this container object
 
 	 bool m_preProcessingDisabled = false; ///< Indicates whether pre-processing was diabled entirely
 	 bool m_postProcessingDisabled = false; ///< Indicates whether pre-processing was diabled entirely

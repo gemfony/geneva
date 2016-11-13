@@ -258,9 +258,9 @@ public:
 		 std::sort(
 			 oldWorkItems.begin()
 			 , oldWorkItems.end()
-			 , [](std::shared_ptr<processable_type> x, std::shared_ptr<processable_type> y) -> bool {
+			 , [](std::shared_ptr<processable_type> x_ptr, std::shared_ptr<processable_type> y_ptr) -> bool {
 				 using namespace boost;
-				 return std::get<1>(x->getCourtierId()) < std::get<1>(y->getCourtierId());
+				 return x_ptr->getSubmissionPosition() < y_ptr->getSubmissionPosition();
 			 }
 		 );
 
@@ -377,7 +377,7 @@ public:
 	 /**
 	  * Gives access to the value of the current submission id
 	  */
-	 SUBMISSIONCOUNTERTYPE getSubmissionId() const {
+	 SUBMISSION_COUNTER_TYPE getSubmissionId() const {
 		 return m_submission_counter;
 	 }
 
@@ -425,7 +425,7 @@ public:
 	 /**
 	  * Retrieves the current submission id
 	  */
-	 SUBMISSIONCOUNTERTYPE getCurrentSubmissionId() const {
+	 SUBMISSION_COUNTER_TYPE getCurrentSubmissionId() const {
 		 return m_submission_counter;
 	 }
 
@@ -480,7 +480,7 @@ protected:
 		 , std::vector<bool> &workItemPos
 	 ) {
 		 // Submit work items
-		 POSITIONTYPE pos_cnt = 0;
+		 SUBMISSION_POSITION_TYPE pos_cnt = 0;
 		 for(auto w_ptr: workItems) { // std::shared_ptr may be copied
 			 if (GBC_UNPROCESSED == workItemPos[pos_cnt]) { // Is the item due to be submitted ? We only submit items that are marked as "unprocessed"
 #ifdef DEBUG
@@ -492,7 +492,10 @@ protected:
 						 << GEXCEPTION;
 				 }
 #endif
-				 w_ptr->setCourtierId(std::make_tuple(m_submission_counter, pos_cnt));
+
+				 w_ptr->setSubmissionCounter(m_submission_counter);
+				 w_ptr->setSubmissionPosition(pos_cnt);
+
 				 this->submit(w_ptr);
 			 }
 			 pos_cnt++;
@@ -501,7 +504,7 @@ protected:
 
 	 /***************************************************************************/
 	 // Local data
-	 SUBMISSIONCOUNTERTYPE m_submission_counter = SUBMISSIONCOUNTERTYPE(0); ///< Counts the number of submissions initiated by this object. Note: not serialized!
+	 SUBMISSION_COUNTER_TYPE m_submission_counter = SUBMISSION_COUNTER_TYPE(0); ///< Counts the number of submissions initiated by this object. Note: not serialized!
 	 std::size_t m_expectedNumber = 0; ///< The number of work items to be submitted (and expected back)
 	 std::chrono::system_clock::time_point m_submissionStartTime = std::chrono::system_clock::now(); ///< Temporary that holds the start time for the retrieval of items in a given iteration
 
@@ -1268,9 +1271,9 @@ private:
 	  *
 	  * @param w The work item to be processed
 	  */
-	 virtual void submit(std::shared_ptr<processable_type> w) override {
+	 virtual void submit(std::shared_ptr<processable_type> w_ptr) override {
 #ifdef DEBUG
-		 if(!w) {
+		 if(!w_ptr) {
 			 glogger
 				 << "In GBrokerExecutorT::submit(): Error!" << std::endl
 				 << "Work item is empty" << std::endl
@@ -1285,7 +1288,11 @@ private:
 		 }
 #endif /* DEBUG */
 
-		 m_CurrentBufferPort->push_raw(w);
+		 // Store the id of the buffer port in the item
+		 w_ptr->setBufferId(m_CurrentBufferPort->getUniqueTag());
+
+	    // Perform the actual submission
+		 m_CurrentBufferPort->push_raw(w_ptr);
 	 }
 
 	 /***************************************************************************/
@@ -1336,7 +1343,7 @@ private:
 			 std::chrono::duration<double> currentElapsed
 				 = std::chrono::system_clock::now() - GBaseExecutorT<processable_type>::m_submissionStartTime;
 
-			 if (this->getCurrentSubmissionId() == SUBMISSIONCOUNTERTYPE(0)) {
+			 if (this->getCurrentSubmissionId() == SUBMISSION_COUNTER_TYPE(0)) {
 				 // Calculate a timeout for subsequent retrievals in this iteration. In the first iteration and for the first item,
 				 // this timeout is the number of remaining items times the return time needed for the first item times a custom
 				 // wait factor for the first submission. This may be very long, but takes care of a situation where there is only
@@ -1554,14 +1561,14 @@ private:
 	  * @return A boolean indicating whether all work items of the current iteration were received
 	  */
 	 bool addWorkItemAndCheckCompleteness(
-		 std::shared_ptr <processable_type> w
+		 std::shared_ptr <processable_type> w_ptr
 		 , std::size_t &nReturnedCurrent
 		 , std::vector<std::shared_ptr<processable_type>>& workItems
 		 , std::vector<bool> &workItemPos
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) {
 		 // If we have been passed an empty item, simply continue the outer loop
-		 if(!w) {
+		 if(!w_ptr) {
 			 return false;
 		 } else {
 			 // Make the return time of the last item known
@@ -1570,11 +1577,11 @@ private:
 
 		 bool completed = false;
 		 auto current_iteration = GBaseExecutorT<processable_type>::m_submission_counter;
-		 auto w_iteration = std::get<0>(w->getCourtierId());
+		 auto w_iteration = w_ptr->getSubmissionCounter();
 
 		 if (current_iteration == w_iteration) {
 			 // Mark the position of the work item in the workItemPos vector and cross-check
-			 std::size_t w_pos = std::get<1>(w->getCourtierId());
+			 std::size_t w_pos = w_ptr->getSubmissionPosition();
 
 			 if (w_pos >= workItems.size()) {
 				 glogger
@@ -1586,14 +1593,14 @@ private:
 
 			 if (GBC_UNPROCESSED == workItemPos.at(w_pos)) {
 				 workItemPos.at(w_pos) = GBC_PROCESSED; // Successfully returned
-				 workItems.at(w_pos) = w;
+				 workItems.at(w_pos) = w_ptr;
 				 if (++nReturnedCurrent == GBaseExecutorT<processable_type>::m_expectedNumber) {
 					 completed = true;
 				 }
 			 } // no else. Re-submitted items might return twice
 
 		 } else { // It could be that a previous submission did not expect a full return. Hence older items may occur
-			 oldWorkItems.push_back(w);
+			 oldWorkItems.push_back(w_ptr);
 		 }
 
 		 return completed;
@@ -1629,12 +1636,12 @@ private:
 	 /**
 	  * Performs necessary logging work for each received work item, if requested
 	  */
-	 void log(std::shared_ptr<processable_type> w) {
+	 void log(std::shared_ptr<processable_type> w_ptr) {
 		 // Make a note of the arrival times in logging mode
 		 if (m_doLogging) {
-			 std::tuple<SUBMISSIONCOUNTERTYPE, POSITIONTYPE> courtier_id = w->getCourtierId();
+			 id_type courtier_id = w_ptr->getCourtierId();
 			 m_logData.push_back(
-				 std::tuple<SUBMISSIONCOUNTERTYPE, SUBMISSIONCOUNTERTYPE, std::chrono::system_clock::time_point>(
+				 std::tuple<SUBMISSION_COUNTER_TYPE, SUBMISSION_COUNTER_TYPE, std::chrono::system_clock::time_point>(
 					 std::get<0>(courtier_id)
 					 , GBaseExecutorT<processable_type>::m_submission_counter
 					 , std::chrono::system_clock::now()
@@ -1652,7 +1659,7 @@ private:
 	 double m_initialWaitFactor = DEFAULTINITIALBROKERWAITFACTOR2; ///< A static factor to be applied to timeouts in the first iteration
 
 	 bool m_doLogging = false; ///< Specifies whether arrival times of work items should be logged
-	 std::vector<std::tuple<SUBMISSIONCOUNTERTYPE, SUBMISSIONCOUNTERTYPE, std::chrono::system_clock::time_point>> m_logData; ///< Holds the sending and receiving iteration as well as the time needed for completion
+	 std::vector<std::tuple<SUBMISSION_COUNTER_TYPE, SUBMISSION_COUNTER_TYPE, std::chrono::system_clock::time_point>> m_logData; ///< Holds the sending and receiving iteration as well as the time needed for completion
 	 std::vector<std::chrono::system_clock::time_point> m_submissionStartTimes; ///< Holds the start times of given iterations, if logging is activated
 
 	 GBufferPortT_ptr m_CurrentBufferPort; ///< Holds a GBufferPortT object during the calculation. Note: It is neither serialized nor copied

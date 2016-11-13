@@ -41,6 +41,10 @@
 #include <istream>
 
 // Boost headers go here
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_serialize.hpp>
 
 #ifndef GCOURTIERENUMS_HPP_
 #define GCOURTIERENUMS_HPP_
@@ -141,9 +145,13 @@ const std::size_t DEFAULTMAXRESUBMISSIONS = 5;
  */
 using ID_TYPE_1 = std::uint64_t;
 using ID_TYPE_2 = std::size_t;
+using ID_TYPE_3 = boost::uuids::uuid;
 
-using SUBMISSIONCOUNTERTYPE = ID_TYPE_1;
-using POSITIONTYPE = ID_TYPE_2;
+using SUBMISSION_COUNTER_TYPE = ID_TYPE_1;
+using SUBMISSION_POSITION_TYPE = ID_TYPE_2;
+using BUFFERPORT_ID_TYPE = ID_TYPE_3;
+
+using id_type = std::tuple<SUBMISSION_COUNTER_TYPE, SUBMISSION_POSITION_TYPE, BUFFERPORT_ID_TYPE>;
 
 /******************************************************************************/
 
