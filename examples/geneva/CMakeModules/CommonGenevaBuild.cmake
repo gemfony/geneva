@@ -59,10 +59,6 @@ IF( NOT DEFINED GENEVA_STATIC )
 	SET( GENEVA_STATIC FALSE )
 ENDIF()
 
-IF( NOT DEFINED GENEVA_WITH_MPI )
-	SET( GENEVA_WITH_MPI FALSE )
-ENDIF()
-
 IF( NOT DEFINED CMAKE_VERBOSE_MAKEFILE )
 	SET( CMAKE_VERBOSE_MAKEFILE FALSE )
 ENDIF()
@@ -158,8 +154,7 @@ ENDIF ()
 # Define the required Boost environment
 
 SET (Boost_USE_MULTITHREAD ON)
-SET (Boost_ADDITIONAL_VERSIONS "1.57" "1.57.0" "1.58" "1.58.0" "1.59" "1.59.0"
-			       "1.60" "1.60.0" "1.61" "1.61.0")
+SET (Boost_ADDITIONAL_VERSIONS "1.57" "1.57.0" "1.58" "1.58.0" "1.59" "1.59.0" "1.60" "1.60.0" "1.61" "1.61.0" "1.62", "1.62.0")
 
 IF ( GENEVA_STATIC )
 	SET (Boost_USE_STATIC_LIBS ON)
@@ -182,7 +177,7 @@ ELSE () # Dynamic libraries
 ENDIF ()
 
 # The minimum Boost version required for building Geneva and Geneva applications
-SET (GENEVA_MIN_BOOST_VERSION 1.57)
+SET (GENEVA_MIN_BOOST_VERSION 1.59)
 
 # These are the libraries required for any Geneva build
 SET (
@@ -211,15 +206,6 @@ IF(GENEVA_BUILD_TESTS)
 		${GENEVA_BOOST_LIBS}
 		test_exec_monitor
 		unit_test_framework
-	)
-ENDIF()
-
-# Add Boost MPI-Support if requested by the user
-IF( GENEVA_WITH_MPI )
-	SET (
-		GENEVA_BOOST_LIBS
-		${GENEVA_BOOST_LIBS}
-		mpi
 	)
 ENDIF()
 
@@ -263,24 +249,6 @@ SET (
 # it is overwritten later by FindGeneva, with the list of full library paths.
 # The function TARGET_LINK_LIBRARIES() can use either variant.
 SET ( GENEVA_LIBRARIES ${GENEVA_LIBNAMES} )
-
-################################################################################
-# Setup the MPI mode if required
-
-IF( GENEVA_WITH_MPI )
-	IF( UNIX AND NOT ${GENEVA_OS_NAME} MATCHES "MacOSX" )
-		# Search for MPI libraries and headers
-		FIND_PACKAGE(MPI)
-
-		IF( NOT MPI_CXX_FOUND )
-			MESSAGE (FATAL_ERROR "You have requested MPI support, but"
-				 " no suitable MPI libraries were found. Leaving!")
-		ENDIF()
-	ELSE()
-		MESSAGE (FATAL_ERROR "The MPI-mode is currently only supported"
-			 " under Linux and BSD. Leaving!")
-	ENDIF()
-ENDIF()
 
 ################################################################################
 # Add additional libraries if required

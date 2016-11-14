@@ -59,10 +59,6 @@ IF( NOT DEFINED GENEVA_STATIC )
 	SET( GENEVA_STATIC FALSE )
 ENDIF()
 
-IF( NOT DEFINED GENEVA_WITH_MPI )
-	SET( GENEVA_WITH_MPI FALSE )
-ENDIF()
-
 IF( NOT DEFINED CMAKE_VERBOSE_MAKEFILE )
 	SET( CMAKE_VERBOSE_MAKEFILE FALSE )
 ENDIF()
@@ -213,15 +209,6 @@ IF(GENEVA_BUILD_TESTS)
 	)
 ENDIF()
 
-# Add Boost MPI-Support if requested by the user
-IF( GENEVA_WITH_MPI )
-	SET (
-		GENEVA_BOOST_LIBS
-		${GENEVA_BOOST_LIBS}
-		mpi
-	)
-ENDIF()
-
 # Search for the required libraries
 MESSAGE("Searching for Boost...\n")
 FIND_PACKAGE(
@@ -262,24 +249,6 @@ SET (
 # it is overwritten later by FindGeneva, with the list of full library paths.
 # The function TARGET_LINK_LIBRARIES() can use either variant.
 SET ( GENEVA_LIBRARIES ${GENEVA_LIBNAMES} )
-
-################################################################################
-# Setup the MPI mode if required
-
-IF( GENEVA_WITH_MPI )
-	IF( UNIX AND NOT ${GENEVA_OS_NAME} MATCHES "MacOSX" )
-		# Search for MPI libraries and headers
-		FIND_PACKAGE(MPI)
-
-		IF( NOT MPI_CXX_FOUND )
-			MESSAGE (FATAL_ERROR "You have requested MPI support, but"
-				 " no suitable MPI libraries were found. Leaving!")
-		ENDIF()
-	ELSE()
-		MESSAGE (FATAL_ERROR "The MPI-mode is currently only supported"
-			 " under Linux and BSD. Leaving!")
-	ENDIF()
-ENDIF()
 
 ################################################################################
 # Add additional libraries if required

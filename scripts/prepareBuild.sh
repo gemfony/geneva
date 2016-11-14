@@ -52,7 +52,6 @@ if [ $# -eq 0 ]; then
 
 	CMAKE="/usr/bin/cmake"         # Where the cmake executable is located
 	BUILDMODE="Release"            # Release, Debug, RelWithDebInfo, MinSizeRel or Sanitize (experimental, will default to Debug on unsupported platforms)
-	BUILDWITHMPI="0"               # Whether Geneva should be built with MPI support (experimental!). NOTE: Boost.MPI must be installed alongside supported MPI libraries
 	BUILDTESTCODE="1"              # Whether to build Geneva with testing code
 	BUILDSTATIC="0"                # Whether to build static code / libraries (experimental!)
 	VERBOSEMAKEFILE="1"            # Whether compilation information should be emitted
@@ -85,11 +84,6 @@ elif [ $# -eq 1 ]; then
 	if [ -z "${BUILDMODE}" ]; then
 		BUILDMODE="Release"
 		echo "Variable BUILDMODE wasn't set. Setting to default value '${BUILDMODE}'"
-	fi
-
-	if [ -z "${BUILDWITHMPI}" ]; then
-		BUILDWITHMPI="0"
-		echo "Variable BUILDWITHMPI wasn't set. Setting to default value '${BUILDWITHMPI}'"
 	fi
 
 	if [ -z "${BUILDTESTCODE}" ]; then
@@ -185,12 +179,6 @@ if [ ! "${BUILDTESTCODE}" = "0" ] && [ ! "${BUILDTESTCODE}" = "1" ]; then
 	exit
 fi
 
-if [ ! "${BUILDWITHMPI}" = "0" ] && [ ! "${BUILDWITHMPI}" = "1" ]; then
-	echo -e "\nError: Variable BUILDWITHMPI must be 0 or 1. Got ${BUILDWITHMPI}"
-	echo -e "Leaving...\n"
-	exit
-fi
-
 if [ ! "${BUILDSTATIC}" = "0" ] && [ ! "${BUILDSTATIC}" = "1" ]; then
 	echo -e "\nError: Variable BUILDSTATIC must be 0 or 1. Got ${BUILDSTATIC}"
 	echo -e "Leaving...\n"
@@ -253,7 +241,6 @@ CONFIGURE="${CMAKE} $BOOSTLOCATIONPATHS $BOOSTSYSTEMFLAG \
 -DGENEVA_BUILD_TYPE=${BUILDMODE} \
 -DGENEVA_BUILD_TESTS=${BUILDTESTCODE} \
 -DGENEVA_STATIC=${BUILDSTATIC} \
--DGENEVA_WITH_MPI=${BUILDWITHMPI} \
 -DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE} \
 -DCMAKE_INSTALL_PREFIX=${INSTALLDIR}"
 
