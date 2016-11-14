@@ -438,7 +438,6 @@ public:
 				m_runLoopHasCommenced = false;
 
 				std::shared_ptr<processable_type> p;
-				boost::uuids::uuid id;
 				std::chrono::milliseconds timeout(100);
 
 				while (true) {
@@ -448,7 +447,7 @@ public:
 					if (m_outer->stopped()) break;
 
 					// If we didn't get a valid item, start again with the while loop
-					if (!m_outer->m_broker_ptr->get(id, p, timeout)) {
+					if (!m_outer->m_broker_ptr->get(p, timeout)) {
 						continue;
 					}
 
@@ -476,7 +475,7 @@ public:
 					// Return the item to the broker. The item will be discarded
 					// if the requested target queue cannot be found.
 					try {
-						while (!m_outer->m_broker_ptr->put(id, p, timeout)) { // This can lead to a loss of items
+						while (!m_outer->m_broker_ptr->put(p, timeout)) { // This can lead to a loss of items
 							// Terminate if we have been asked to stop
 							if (m_outer->stopped()) break;
 						}

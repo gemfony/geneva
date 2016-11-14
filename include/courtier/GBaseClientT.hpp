@@ -256,8 +256,8 @@ protected:
 		//
 		// TODO: Check if the clients drop out here
 		//
-		std::string istr, serModeStr, portId;
-		if(!this->retrieve(istr, serModeStr, portId)) {
+		std::string istr, serModeStr;
+		if(!this->retrieve(istr, serModeStr)) {
 			glogger
 			<< "In GBaseClientT<T>::process() : Warning!" << std::endl
 			<< "Could not retrieve item from server. Leaving ..." << std::endl
@@ -319,7 +319,7 @@ protected:
 		//
 		// TODO: Check if the clients drop out here
 		//
-		if(!this->submit(Gem::Common::sharedPtrToString(target, serMode), portId)) {
+		if(!this->submit(Gem::Common::sharedPtrToString(target, serMode))) {
 			glogger
 			<< "In GBaseClientT<T>::process() : Warning!" << std::endl
 			<< "Could not return item to server. Leaving ..." << std::endl
@@ -347,12 +347,12 @@ protected:
 	/***************************************************************************/
 
 	/** @brief Retrieve work items from the server. To be defined by derived classes. */
-	virtual bool retrieve(std::string &, std::string &, std::string &) = 0;
+	virtual bool retrieve(std::string &, std::string &) = 0;
 
 	/***************************************************************************/
 
 	/** @brief Submit processed items to the server. To be defined by derived classes. */
-	virtual bool submit(const std::string &, const std::string &) = 0;
+	virtual bool submit(const std::string &) = 0;
 
 	/***************************************************************************/
 

@@ -287,15 +287,13 @@ public:
 	  * if no item can be retrieved.
 	  *
 	  * @param p Holds the retrieved "raw" item
-	  * @return A key that uniquely identifies the origin of p
 	  */
-	 boost::uuids::uuid get(std::shared_ptr<carrier_type>& p) {
+	 void get(std::shared_ptr<carrier_type>& p) {
 		 // Make sure we are dealing with an empty pointer
 		 p.reset();
 
 		 // Retrieve the current buffer port ...
-		 boost::uuids::uuid uuid;
-		 GBUFFERPORT_PTR rawBuffer_ptr = getNextRawBufferPort(uuid);
+		 GBUFFERPORT_PTR rawBuffer_ptr = getNextRawBufferPort();
 		 if(rawBuffer_ptr) {
 			 // ... and get an item from it. This function is thread-safe.
 			 rawBuffer_ptr->pop_raw(p);
@@ -303,9 +301,6 @@ public:
 
 		 // If no raw buffer pointer was registered at the time
 		 // of the getNextRawBufferPort()-call, p will be empty.
-
-		 // Let the audience know about the uuid
-		 return uuid;
 	 }
 
 	 /***************************************************************************/
@@ -315,19 +310,17 @@ public:
 	  *
 	  * @param p Holds the retrieved "raw" item
 	  * @param timeout Time after which the function should time out
-	  * @return A key that uniquely identifies the origin of p
+	  * @return A boolean which indicates whether the operation was successful
 	  */
-	 boost::uuids::uuid get(
+	 bool get(
 		 std::shared_ptr<carrier_type> &p
 		 , std::chrono::duration<double> timeout
 	 ) {
 		 // Make sure we are dealing with an empty pointer
 		 p.reset();
 
-
 		 // Retrieve the current buffer port ...
-		 boost::uuids::uuid uuid;
-		 GBUFFERPORT_PTR rawBuffer_ptr = getNextRawBufferPort(uuid);
+		 GBUFFERPORT_PTR rawBuffer_ptr = getNextRawBufferPort();
 		 if(rawBuffer_ptr) {
 			 // ... and get an item from it. This function is thread-safe.
 		 	 rawBuffer_ptr->pop_raw(p, timeout); // Note that p might be empty
@@ -336,26 +329,6 @@ public:
 		 // If no raw buffer pointer was registered at the time
 		 // of the getNextRawBufferPort()-call, p will be empty.
 
-		 // Let the audience know about the uuid
-		 return uuid;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Retrieves a "raw" item from a GBufferPortT, observing a timeout. The function
-	  * will indicate failure to retrieve a valid item by returning a boolean.
-	  *
-	  * @param id A key that identifies the origin of p
-	  * @param p Holds the retrieved "raw" item
-	  * @param timeout Time after which the function should time out
-	  * @return A boolean that indicates whether the item retrieval was successful
-	  */
-	 bool get(
-		 boost::uuids::uuid &id
-		 , std::shared_ptr<carrier_type> &p
-		 , std::chrono::duration<double> timeout
-	 ) {
-		 id = this->get(p, timeout);
 		 if(!p) {
 			 return false;
 		 }
@@ -369,15 +342,14 @@ public:
 	  * be discarded if no target queue with the required id exists. The function will
 	  * block otherwise, until it is again possible to submit the item.
 	  *
-	  * @param id A key that uniquely identifies the origin of p
 	  * @param p Holds the "raw" item to be submitted to the processed queue
 	  */
 	 void put(
-		 boost::uuids::uuid uuid
-		 , std::shared_ptr<carrier_type> p
+		 std::shared_ptr<carrier_type> p
 	 ) {
-		 // Retrieve the correct processed buffer for our uuid
-		 GBUFFERPORT_PTR processedBuffer_ptr = getProcessedBufferPort(uuid);
+		 // Retrieve the correct processed buffer for a given uuid
+		 boost::uuids::uuid portId = p->getBufferId();
+		 GBUFFERPORT_PTR processedBuffer_ptr = getProcessedBufferPort(portId);
 
 		 // Submit the item
 		 if(processedBuffer_ptr) {
@@ -386,7 +358,7 @@ public:
 		 } else {
 			 glogger
 				 << "In GBokerT<>::put(1): Warning!" << std::endl
-				 << "Did not find buffer with id " << uuid << "." << std::endl
+				 << "Did not find buffer with id " << portId << "." << std::endl
 				 << "Item will be discarded" << std::endl
 				 << GWARNING;
 
@@ -407,12 +379,12 @@ public:
 	  * @param A boolean indicating whether the item could be added to the queue in time
 	  */
 	 bool put(
-		 boost::uuids::uuid uuid
-		 , std::shared_ptr<carrier_type> p
+		 std::shared_ptr<carrier_type> p
 		 , std::chrono::duration<double> timeout
 	 ) {
 		 // Retrieve the correct processed buffer for our uuid
-		 GBUFFERPORT_PTR processedBuffer_ptr = getProcessedBufferPort(uuid);
+		 boost::uuids::uuid portId = p->getBufferId();
+		 GBUFFERPORT_PTR processedBuffer_ptr = getProcessedBufferPort(portId);
 
 		 // Submit the item
 		 if(processedBuffer_ptr) {
@@ -421,7 +393,7 @@ public:
 		 } else {
 			 glogger
 				 << "In GBokerT<>::put(1): Warning!" << std::endl
-				 << "Did not find buffer with id " << uuid << "." << std::endl
+				 << "Did not find buffer with id " << portId << "." << std::endl
 				 << "Item will be discarded" << std::endl
 				 << GWARNING;
 
@@ -479,7 +451,7 @@ private:
 	  * Retrieves the next raw buffer port pointer. As we are dealing with a
 	  * (not thread-safe) std::map, we need to coordinate the access.
 	  */
-	 GBUFFERPORT_PTR getNextRawBufferPort(boost::uuids::uuid& uuid) {
+	 GBUFFERPORT_PTR getNextRawBufferPort() {
 		 // Protect access to the iterator
 		 std::unique_lock<std::mutex> switchGetPositionLock(m_switchGetPositionMutex);
 
@@ -491,8 +463,6 @@ private:
 			 if ((m_RawBuffers.size() > 1) && (++m_currentGetPosition == m_RawBuffers.end())) {
 				 m_currentGetPosition = m_RawBuffers.begin();
 			 }
-
-			 uuid = currentGetPosition->first;
 
 			 // Return the shared_ptr. This will also keep the buffer port alive
 			 return currentGetPosition->second;

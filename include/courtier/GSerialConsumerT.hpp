@@ -151,7 +151,6 @@ private:
 	void processItems() {
 		try {
 			std::shared_ptr <processable_type> p;
-			boost::uuids::uuid id;
 			std::chrono::milliseconds timeout(100);
 
 			while (true) {
@@ -159,7 +158,7 @@ private:
 				if (GBaseConsumerT<processable_type>::stopped()) break;
 
 				// If we didn't get a valid item, start again with the while loop
-				if (!m_broker_ptr->get(id, p, timeout)) {
+				if (!m_broker_ptr->get(p, timeout)) {
 					continue;
 				}
 
@@ -179,7 +178,7 @@ private:
 				// Return the item to the broker. The item will be discarded
 				// if the requested target queue cannot be found.
 				try {
-					while (!m_broker_ptr->put(id, p, timeout)) { // Items can get lost here
+					while (!m_broker_ptr->put(p, timeout)) { // Items can get lost here
 						// Terminate if we have been asked to stop
 						if (GBaseConsumerT<processable_type>::stopped()) break;
 					}

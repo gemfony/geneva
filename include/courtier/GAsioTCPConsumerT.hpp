@@ -291,7 +291,6 @@ protected:
 	 bool retrieve(
 		 std::string &item
 		 , std::string &serMode
-		 , std::string &portId
 	 ) {
 		 item = "empty"; // Indicates that no item could be retrieved
 		 std::uint32_t idleTime = 0; // Holds information on the idle time in milliseconds, if "idle" command is received
@@ -336,10 +335,6 @@ protected:
 				 // Now retrieve the serialization mode that was used
 				 boost::asio::read(m_socket, boost::asio::buffer(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
 				 serMode = boost::algorithm::trim_copy(std::string(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
-
-				 // Retrieve the port id
-				 boost::asio::read(m_socket, boost::asio::buffer(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
-				 portId = boost::algorithm::trim_copy(std::string(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
 
 				 // Create appropriately sized buffer
 				 char *inboundData = new char[dataSize];
@@ -442,18 +437,13 @@ protected:
 	 * Submit processed items to the server.
 	 *
 	 * @param item String to be submitted to the server
-	 * @param portid The port id of the individual to be submitted
 	 * @return true if operation was successful, otherwise false
 	 */
-	bool submit(const std::string &item, const std::string &portid) {
+	bool submit(const std::string &item) {
 		// Let's assemble an appropriate buffer
 		std::vector<boost::asio::const_buffer> buffers;
 		std::string result = assembleQueryString("result", Gem::Courtier::COMMANDLENGTH); // The command
 		buffers.push_back(boost::asio::buffer(result));
-
-		// Assemble a buffer for the port id
-		std::string portidString = assembleQueryString(portid, Gem::Courtier::COMMANDLENGTH);
-		buffers.push_back(boost::asio::buffer(portidString));
 
 		// Assemble the size header
 		std::string sizeHeader = assembleQueryString(boost::lexical_cast<std::string>(item.size()),
@@ -742,70 +732,16 @@ protected:
 	/**
 	 * Retrieves an item from the client through the socket. This function
 	 * simply initiates a chain of asynchronous commands, dealing in sequence
-	 * with the port id, the data size header and the actual data body
+	 * with the data size header and the actual data body
 	 */
 	void async_retrieveFromRemote() {
 		try {
 			// Initiate the next read session. Note that the requested data is returned
-			// in its entirety, not in chunks. async_async_handle_read_portid is only called
-			// once the portId has been fully read.
+			// in its entirety, not in chunks.
 			boost::asio::async_read(
-				m_socket, boost::asio::buffer(m_commandBuffer)
-				, m_strand.wrap(
-					std::bind(
-						&GAsioServerSessionT<processable_type>::async_handle_read_portid
-						, GAsioServerSessionT<processable_type>::shared_from_this()
-						, std::placeholders::_1 // Replaces boost::asio::placeholders::error
-					)
-				)
-			);
-		} catch (const boost::system::system_error &e) {
-			glogger
-			<< "In GAsioServerSessionT::async_retrieveFromRemote():" << std::endl
-			<< "Caught boost::system::system_error exception with messages:" << std::endl
-			<< e.what() << std::endl
-			<< GEXCEPTION;
-		} catch (const boost::exception &e) {
-			glogger
-			<< "In GAsioServerSessionT::async_retrieveFromRemote():" << std::endl
-			<< "Caught boost::exception exception with messages:" << std::endl
-			<< boost::diagnostic_information(e) << std::endl
-			<< GEXCEPTION;
-		} catch (...) {
-			glogger
-			<< "In GAsioServerSessionT::async_retrieveFromRemote():" << std::endl
-			<< "Caught unknown exception" << std::endl
-			<< GEXCEPTION;
-		}
-	}
-
-	/***************************************************************************/
-	/**
-	 * A routine to be called when all data of the port id has been read
-	 */
-	void async_handle_read_portid(const boost::system::error_code &error) {
-		if (error) {
-			glogger
-			<< "In GAsioServerSessionT<processable_type>::async_handle_read_portid():" << std::endl
-			<< "Received error " << error << std::endl
-			<< GEXCEPTION;
-			return;
-		}
-
-		//------------------------------------------------------------------------
-		// Deal with the data itself
-
-		// Remove white spaces
-		std::string portId_str
-			= boost::algorithm::trim_copy(std::string(m_commandBuffer.data(), Gem::Courtier::COMMANDLENGTH));
-
-		m_portId = boost::lexical_cast<boost::uuids::uuid>(portId_str);
-
-		//------------------------------------------------------------------------
-		// Initiate the next read session, this time dealing with the data size
-		try {
-			boost::asio::async_read(
-				m_socket, boost::asio::buffer(m_commandBuffer), m_strand.wrap(std::bind(
+				m_socket
+				, boost::asio::buffer(m_commandBuffer)
+				, m_strand.wrap(std::bind(
 					&GAsioServerSessionT<processable_type>::async_handle_read_datasize,
 					GAsioServerSessionT<processable_type>::shared_from_this(),
 					std::placeholders::_1 // Replaces boost::asio::placeholders::error
@@ -813,24 +749,22 @@ protected:
 			);
 		} catch (const boost::system::system_error &e) {
 			glogger
-			<< "In GAsioServerSessionT::async_handle_read_portid():" << std::endl
+			<< "In GAsioServerSessionT::async_retrieveFromRemote():" << std::endl
 			<< "Caught boost::system::system_error exception with messages:" << std::endl
 			<< e.what() << std::endl
 			<< GEXCEPTION;
 		} catch (const boost::exception &e) {
 			glogger
-			<< "In GAsioServerSessionT::async_handle_read_portid():" << std::endl
+			<< "In GAsioServerSessionT::async_retrieveFromRemote():" << std::endl
 			<< "Caught boost::exception exception with messages:" << std::endl
 			<< boost::diagnostic_information(e) << std::endl
 			<< GEXCEPTION;
 		} catch (...) {
 			glogger
-			<< "In GAsioServerSessionT::async_handle_read_portid():" << std::endl
+			<< "In GAsioServerSessionT::async_retrieveFromRemote():" << std::endl
 			<< "Caught unknown exception" << std::endl
 			<< GEXCEPTION;
 		}
-
-		//------------------------------------------------------------------------
 	}
 
 	/***************************************************************************/
@@ -951,9 +885,7 @@ protected:
 			disconnect(m_socket);
 
 			// ... and schedule the work item for de-serialization
-			m_master->async_scheduleDeSerialization(
-				m_dataBody_ptr, m_portId
-			);
+			m_master->async_scheduleDeSerialization(m_dataBody_ptr);
 		}
 
 		//------------------------------------------------------------------------
@@ -968,7 +900,6 @@ protected:
 	void async_submitToRemote() {
 		// Retrieve an item from the broker and submit it to the client.
 		std::shared_ptr <processable_type> p;
-		boost::uuids::uuid portId;
 
 		// Do not do anything if the server was stopped
 		if (m_master->stopped()) {
@@ -981,7 +912,7 @@ protected:
 		// no item could be retrieved
 		std::size_t nRetries = 0;
 
-		while (!m_broker_ptr->get(portId, p, m_timeout)) {
+		while (!m_broker_ptr->get(p, m_timeout)) {
 			if (++nRetries > m_brokerRetrieveMaxRetries) {
 				std::string idleCommand
 					= std::string("idle(") + boost::lexical_cast<std::string>(m_noDataClientSleepMilliSeconds) +
@@ -1009,18 +940,12 @@ protected:
 			boost::lexical_cast<std::string>(m_serializationMode), Gem::Courtier::COMMANDLENGTH
 		);
 
-		// Format the portId header
-		std::string portid_header = assembleQueryString(
-			boost::lexical_cast<std::string>(portId), Gem::Courtier::COMMANDLENGTH
-		);
-
 		// Assemble the data buffers
 		std::vector<boost::asio::const_buffer> buffers;
 
 		buffers.push_back(boost::asio::buffer(outbound_command_header));
 		buffers.push_back(boost::asio::buffer(outbound_size_header));
 		buffers.push_back(boost::asio::buffer(serialization_header));
-		buffers.push_back(boost::asio::buffer(portid_header));
 		buffers.push_back(boost::asio::buffer(item));
 
 		// Write the serialized data to the socket. We use "gather-write" to send
@@ -1127,7 +1052,6 @@ private:
 	std::size_t m_bytesTransferredDataBody; ///< The number of bytes if the data body transferred so far
 	std::shared_ptr <std::string> m_dataBody_ptr; ///< The actual body data. Implemented as a shared_ptr so we can easily hand the data around
 
- 	boost::uuids::uuid m_portId; ///< The id of a port
 	std::size_t m_dataSize = 0; ///< Holds the size of the body of data
 
 	Gem::Common::serializationMode m_serializationMode = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY; ///< Specifies the serialization mode
@@ -1523,7 +1447,6 @@ private:
 	 */
 	void async_scheduleDeSerialization(
 		std::shared_ptr <std::string> dataBody_ptr
-		, boost::uuids::uuid portId
 	) {
 		m_gtp.async_schedule(
 			std::function<void()>(
@@ -1532,7 +1455,6 @@ private:
 					, this
 					, dataBody_ptr
 					, m_serializationMode
-					, portId
 					, m_timeout
 				)
 			)
@@ -1547,8 +1469,7 @@ private:
 	void handle_workItemComplete(
 		std::shared_ptr <std::string> dataBody_ptr
 		, Gem::Common::serializationMode sM
-		, boost::uuids::uuid portId,
-		std::chrono::duration<double> timeout
+		, std::chrono::duration<double> timeout
 	) {
 		// De-Serialize the data
 		std::shared_ptr <processable_type> p
@@ -1565,7 +1486,7 @@ private:
 		// Return the item to the broker. The item will be discarded
 		// if the requested target queue cannot be found.
 		try {
-			while (!m_broker_ptr->put(portId, p, timeout)) {
+			while (!m_broker_ptr->put(p, timeout)) {
 				if (this->stopped()) { // This may lead to a loss of items
 					glogger
 					<< "GAsioTCPConsumerT<>::In handle_workItemComplete(): Warning!" << std::endl
@@ -1611,7 +1532,8 @@ private:
 				newSession->getSocket()
 				, std::bind(
 					&GAsioTCPConsumerT<processable_type>::async_handleAccept
-					, this, newSession
+					, this
+					, newSession
 					, std::placeholders::_1 // Replaces boost::asio::placeholders::error
 				)
 			);
