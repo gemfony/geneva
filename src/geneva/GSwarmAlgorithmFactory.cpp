@@ -157,7 +157,6 @@ void GSwarmAlgorithmFactory::postProcess_(std::shared_ptr < GOptimizationAlgorit
 			std::shared_ptr <GBrokerSwarm> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerSwarm>(p_base);
 
-			p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_doLogging);
 			p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_waitFactor);
 			p->setInitialWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_initialWaitFactor);
 		} break;

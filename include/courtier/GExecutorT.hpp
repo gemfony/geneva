@@ -811,7 +811,6 @@ class GBrokerExecutorT
 		 & BOOST_SERIALIZATION_NVP(m_maxResubmissions)
 		 & BOOST_SERIALIZATION_NVP(m_waitFactor)
 		 & BOOST_SERIALIZATION_NVP(m_initialWaitFactor)
-		 & BOOST_SERIALIZATION_NVP(m_doLogging)
 		 & BOOST_SERIALIZATION_NVP(m_gpd)
 		 & BOOST_SERIALIZATION_NVP(m_waiting_times_graph)
 		 & BOOST_SERIALIZATION_NVP(m_returned_items_graph)
@@ -882,7 +881,6 @@ public:
 		 , m_maxResubmissions(cp.m_maxResubmissions)
 		 , m_waitFactor(cp.m_waitFactor)
 		 , m_initialWaitFactor(cp.m_initialWaitFactor)
-		 , m_doLogging(cp.m_doLogging)
 		 , m_gpd("Maximum waiting times and returned items", 1, 2) // Intentionally not copied
 	 	 , m_waitFactorWarningEmitted(cp.m_waitFactorWarningEmitted)
 	 	 , m_lastReturnTime(cp.m_lastReturnTime)
@@ -957,7 +955,6 @@ public:
 		 m_maxResubmissions = cp->m_maxResubmissions;
 		 m_waitFactor = cp->m_waitFactor;
 		 m_initialWaitFactor = cp->m_initialWaitFactor;
-		 m_doLogging = cp->m_doLogging;
 		 m_waitFactorWarningEmitted = cp->m_waitFactorWarningEmitted;
 		 m_lastReturnTime = cp->m_lastReturnTime;
 		 m_lastAverage = cp->m_lastAverage;
@@ -1010,16 +1007,6 @@ public:
 		 )
 			 << "The amount of resubmissions allowed if a full return of work" << std::endl
 			 << "items was expected but only a subset has returned";
-
-		 gpb.registerFileParameter<bool>(
-			 "doLogging" // The name of the variable
-			 , false // The default value
-			 , [this](bool l) {
-				 this->doLogging(l);
-			 }
-		 )
-			 << "Activates (1) or de-activates (0) logging" << std::endl
-			 << "iteration's first timeout";
 	 }
 
 	 /***************************************************************************/
@@ -1103,48 +1090,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Allows to specify whether logging of arrival times of processed items should be
-	  * done. Note that only arrival times of items of the current submission are logged.
-	  * This also allows to find out how many items did not return before the deadline.
-	  *
-	  * @param dl A boolean whether logging of arrival times of items should be done
-	  */
-	 void doLogging(bool dl = true) {
-		 m_doLogging = dl;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Allows to determine whether logging of arrival times has been activated.
-	  *
-	  * @return A boolean indicating whether logging of arrival times has been activated
-	  */
-	 bool loggingActivated() const {
-		 return m_doLogging;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Allows to retrieve the logging results in the form of a ROOT histogram
-	  *
-	  * @return The logging results in the form of a ROOT histogram
-	  */
-	 std::string getLoggingResults() const {
-		 if (!m_doLogging || m_logData.empty() || m_submissionStartTimes.empty()) {
-			 glogger
-				 << "In GBrokerExecutorT<processable_type>::getLoggingResults(): Error!" << std::endl
-				 << "Attempt to retrieve logging results when no logging seems to have taken place." << std::endl
-				 << "Returning an empty string."
-				 << GWARNING;
-
-			 return std::string();
-		 }
-
-		 return std::string();
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * General initialization function to be called prior to the first submission
 	  */
 	 virtual void init() override {
@@ -1185,13 +1130,6 @@ protected:
 		 // Make sure the parent classes iterationInit function is executed first
 		 // This function will also update the iteration start time
 		 GBaseExecutorT<processable_type>::iterationInit(workItems, workItemPos, oldWorkItems);
-
-		 // We want to be able to calculate proper turn-around times for individuals in logging mode
-		 if (m_doLogging) {
-			 m_submissionStartTimes.push_back(
-				 GBaseExecutorT<processable_type>::m_submissionStartTime
-			 );
-		 }
 	 }
 
 	 /***************************************************************************/
@@ -1306,9 +1244,6 @@ private:
 		 std::shared_ptr<processable_type> w;
 		 m_CurrentBufferPort->pop_processed(w);
 
-		 // Perform any necessary logging work
-		 log(w);
-
 		 return w;
 	 }
 
@@ -1323,14 +1258,9 @@ private:
 		 const std::chrono::duration<double> &timeout
 	 ) {
 		 // Holds the retrieved item, if any
-		 std::shared_ptr<processable_type> w;
-
-		 if (m_CurrentBufferPort->pop_processed(w, timeout)) { // We have received a valid item
-			 // Perform any necessary logging work
-			 log(w);
-		 }
-
-		 return w;
+		 std::shared_ptr<processable_type> w_ptr;
+		 m_CurrentBufferPort->pop_processed(w_ptr, timeout);
+		 return w_ptr;
 	 }
 
 	 /***************************************************************************/
@@ -1633,34 +1563,11 @@ private:
 	 }
 
 	 /***************************************************************************/
-	 /**
-	  * Performs necessary logging work for each received work item, if requested
-	  */
-	 void log(std::shared_ptr<processable_type> w_ptr) {
-		 // Make a note of the arrival times in logging mode
-		 if (m_doLogging) {
-			 id_type courtier_id = w_ptr->getCourtierId();
-			 m_logData.push_back(
-				 std::tuple<SUBMISSION_COUNTER_TYPE, SUBMISSION_COUNTER_TYPE, std::chrono::system_clock::time_point>(
-					 std::get<0>(courtier_id)
-					 , GBaseExecutorT<processable_type>::m_submission_counter
-					 , std::chrono::system_clock::now()
-				 )
-			 );
-		 }
-	 }
-
-	 /***************************************************************************/
 	 // Local data
-
 	 submissionReturnMode m_srm = DEFAULTSRM; ///< Indicates how (long) the object shall wait for returns
 	 std::size_t m_maxResubmissions = DEFAULTMAXRESUBMISSIONS; ///< The maximum number of re-submissions allowed if a full return of submitted items is attempted
 	 double m_waitFactor = DEFAULTBROKERWAITFACTOR2; ///< A static factor to be applied to timeouts
 	 double m_initialWaitFactor = DEFAULTINITIALBROKERWAITFACTOR2; ///< A static factor to be applied to timeouts in the first iteration
-
-	 bool m_doLogging = false; ///< Specifies whether arrival times of work items should be logged
-	 std::vector<std::tuple<SUBMISSION_COUNTER_TYPE, SUBMISSION_COUNTER_TYPE, std::chrono::system_clock::time_point>> m_logData; ///< Holds the sending and receiving iteration as well as the time needed for completion
-	 std::vector<std::chrono::system_clock::time_point> m_submissionStartTimes; ///< Holds the start times of given iterations, if logging is activated
 
 	 GBufferPortT_ptr m_CurrentBufferPort; ///< Holds a GBufferPortT object during the calculation. Note: It is neither serialized nor copied
 

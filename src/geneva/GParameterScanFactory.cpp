@@ -238,7 +238,6 @@ void GParameterScanFactory::postProcess_(std::shared_ptr < GOptimizationAlgorith
 			std::shared_ptr <GBrokerPS> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerPS>(p_base);
 
-			p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_doLogging);
 			p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_waitFactor);
 			p->setInitialWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_initialWaitFactor);
 			p->setParameterSpecs(this->getParameterSpecs());

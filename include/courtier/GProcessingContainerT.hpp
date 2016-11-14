@@ -89,7 +89,9 @@ class GProcessingContainerT
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & BOOST_SERIALIZATION_NVP(m_id)
+		 & BOOST_SERIALIZATION_NVP(m_submission_counter)
+		 & BOOST_SERIALIZATION_NVP(m_submission_position)
+		 & BOOST_SERIALIZATION_NVP(m_bufferport_id)
 		 & BOOST_SERIALIZATION_NVP(m_preProcessingDisabled)
 		 & BOOST_SERIALIZATION_NVP(m_postProcessingDisabled)
 		 & BOOST_SERIALIZATION_NVP(m_pre_processor_ptr)
@@ -118,7 +120,9 @@ public:
 	  * @param cp A copy of another GSubmissionContainer object
 	  */
 	 GProcessingContainerT(const GProcessingContainerT<submission_type> &cp)
-		 : m_id(cp.m_id)
+		 : m_submission_counter(cp.m_submission_counter)
+		 , m_submission_position(cp.m_submission_position)
+		 , m_bufferport_id(cp.m_bufferport_id)
 	 	 , m_preProcessingDisabled(cp.m_preProcessingDisabled)
  		 , m_postProcessingDisabled(cp.m_postProcessingDisabled)
 	 {
@@ -194,76 +198,50 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Allows the courtier library to associate an id with the container
-	  *
-	  * @param id An id that allows the broker connector to identify this object
-	  */
-	 void setCourtierId(const id_type &id) {
-		 m_id = id;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Allows to retrieve the courtier-id associated with this container
-	  *
-	  * @return An id that allows the broker connector to identify this object
-	  */
-	 id_type getCourtierId() const {
-		 return m_id;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Allows to set the counter of a given submission individually (independent
-	  * of the courtier id)
+	  * Allows to set the counter of a given submission
 	  */
 	 void setSubmissionCounter(const SUBMISSION_COUNTER_TYPE& counter) {
-		 std::get<0>(m_id) = counter;
+		 m_submission_counter = counter;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Allows to retrieve the counter of a given submission individually (independent
-	  * of the courtier id)
+	  * Allows to retrieve the counter of a given submission
 	  */
 	 SUBMISSION_COUNTER_TYPE getSubmissionCounter() const {
-		 return std::get<0>(m_id);
+		 return m_submission_counter;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Allows to set the position inside of a given submission individually
-	  * (independent of the courtier id)
+	  * Allows to set the position inside of a given submission
 	  */
 	 void setSubmissionPosition(const SUBMISSION_POSITION_TYPE& pos) {
-		 std::get<1>(m_id) = pos;
+		 m_submission_position = pos;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Allows to retrieve the position inside of a given submission individually
-	  * (independent of the courtier id)
+	  * Allows to retrieve the position inside of a given submission
 	  */
 	 SUBMISSION_POSITION_TYPE getSubmissionPosition() const {
-		 return std::get<1>(m_id);
+		 return m_submission_position;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Allows to set the id inside of the originating buffer individually
-	  * (independent of the courtier id)
+	  * Allows to set the id inside of the originating buffer
 	  */
 	 void setBufferId(const BUFFERPORT_ID_TYPE& id) {
-		 std::get<2>(m_id) = id;
+		 m_bufferport_id = id;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Allows to retrieve the id of the originating buffer individually
-	  * (independent of the courtier id)
+	  * Allows to retrieve the id of the originating buffer
 	  */
 	 BUFFERPORT_ID_TYPE getBufferId() const {
-		 return std::get<2>(m_id);
+		 return m_bufferport_id;
 	 }
 
 	 /***************************************************************************/
@@ -343,7 +321,9 @@ public:
 		 const GProcessingContainerT<submission_type> *p_load = Gem::Common::g_convert_and_compare<GProcessingContainerT<submission_type>, GProcessingContainerT<submission_type>>(cp, this);
 
 		 // Load local data
-		 m_id = p_load->m_id;
+		 m_submission_counter = p_load->m_submission_counter;
+		 m_submission_position = p_load->m_submission_position;
+		 m_bufferport_id = p_load->m_bufferport_id;
 		 m_preProcessingDisabled = p_load->m_preProcessingDisabled;
 		 m_postProcessingDisabled = p_load->m_postProcessingDisabled;
 		 Gem::Common::copyCloneableSmartPointer(p_load->m_pre_processor_ptr, m_pre_processor_ptr);
@@ -391,11 +371,9 @@ private:
 	 /***************************************************************************/
 	 // Data
 
-	 id_type m_id = id_type(
-		 SUBMISSION_COUNTER_TYPE(0)
-		 , SUBMISSION_POSITION_TYPE(0)
-		 , BUFFERPORT_ID_TYPE()
-	 ); ///< A multi-part id that can be assigned to this container object
+	 SUBMISSION_COUNTER_TYPE  m_submission_counter = 0;
+	 SUBMISSION_POSITION_TYPE m_submission_position = 0;
+	 BUFFERPORT_ID_TYPE m_bufferport_id = BUFFERPORT_ID_TYPE();
 
 	 bool m_preProcessingDisabled = false; ///< Indicates whether pre-processing was diabled entirely
 	 bool m_postProcessingDisabled = false; ///< Indicates whether pre-processing was diabled entirely

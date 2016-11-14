@@ -89,7 +89,6 @@ public:
 		 , m_nEvaluationThreads(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 		 , m_waitFactor(Gem::Courtier::DEFAULTBROKERWAITFACTOR2)
 		 , m_initialWaitFactor(Gem::Courtier::DEFAULTINITIALBROKERWAITFACTOR2)
-		 , m_doLogging(false)
 		 , m_contentCreatorPtr()
 		 , m_maxIterationCL(-1)
 		 , m_maxStallIterationCL(-1)
@@ -109,7 +108,6 @@ public:
 		 , m_nEvaluationThreads(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 		 , m_waitFactor(Gem::Courtier::DEFAULTBROKERWAITFACTOR2)
 		 , m_initialWaitFactor(Gem::Courtier::DEFAULTINITIALBROKERWAITFACTOR2)
-		 , m_doLogging(false)
 		 , m_contentCreatorPtr()
 		 , m_maxIterationCL(-1)
 		 , m_maxStallIterationCL(-1)
@@ -129,7 +127,6 @@ public:
 		 , m_nEvaluationThreads(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
 		 , m_waitFactor(Gem::Courtier::DEFAULTBROKERWAITFACTOR2)
 		 , m_initialWaitFactor(Gem::Courtier::DEFAULTINITIALBROKERWAITFACTOR2)
-		 , m_doLogging(false)
 		 , m_contentCreatorPtr(contentCreatorPtr)
 		 , m_maxIterationCL(-1)
 		 , m_maxStallIterationCL(-1)
@@ -146,7 +143,6 @@ public:
 		 , m_nEvaluationThreads(cp.m_nEvaluationThreads)
 		 , m_waitFactor(cp.m_waitFactor)
 		 , m_initialWaitFactor(cp.m_initialWaitFactor)
-		 , m_doLogging(cp.m_doLogging)
 		 , m_contentCreatorPtr()
 		 , m_maxIterationCL(cp.m_maxIterationCL)
 		 , m_maxStallIterationCL(cp.m_maxStallIterationCL)
@@ -511,13 +507,6 @@ protected:
 			 << "Determines the number of threads simultaneously running" << std::endl
 			 << "evaluations in multi-threaded mode. 0 means \"automatic\"";
 
-		 gpb.registerFileParameter<bool>(
-			 "doLogging" // The name of the variable
-			 , m_doLogging
-			 , false // The default value
-		 )
-			 << "Activates (1) or de-activates (0) logging";
-
 		 gpb.registerFileParameter<double>(
 			 "waitFactor" // The name of the variable
 			 , m_waitFactor
@@ -569,8 +558,6 @@ protected:
 
 	 double m_waitFactor; ///< A static factor to be applied to timeouts in iterations > 0
 	 double m_initialWaitFactor; ///< A static factor to be applied to initial timeouts in the first iteration
-
-	 bool m_doLogging; ///< Specifies whether arrival times of individuals should be logged
 
 	 std::shared_ptr<Gem::Common::GFactoryT<typename oa_type::individual_type>> m_contentCreatorPtr; ///< Holds an object capable of producing objects of the desired type
 	 std::shared_ptr<typename oa_type::GBasePluggableOMT> m_pluggableOM; // A user-defined means for information retrieval

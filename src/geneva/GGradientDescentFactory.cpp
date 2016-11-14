@@ -186,7 +186,6 @@ void GGradientDescentFactory::postProcess_(std::shared_ptr < GOptimizationAlgori
 			std::shared_ptr <GBrokerGD> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerGD>(p_base);
 
-			p->doLogging(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_doLogging);
 			p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_waitFactor);
 			p->setInitialWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_initialWaitFactor);
 
