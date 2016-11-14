@@ -158,8 +158,7 @@ ENDIF ()
 # Define the required Boost environment
 
 SET (Boost_USE_MULTITHREAD ON)
-SET (Boost_ADDITIONAL_VERSIONS "1.57" "1.57.0" "1.58" "1.58.0" "1.59" "1.59.0"
-			       "1.60" "1.60.0" "1.61" "1.61.0" "1.62", "1.62.0")
+SET (Boost_ADDITIONAL_VERSIONS "1.57" "1.57.0" "1.58" "1.58.0" "1.59" "1.59.0" "1.60" "1.60.0" "1.61" "1.61.0" "1.62", "1.62.0")
 
 IF ( GENEVA_STATIC )
 	SET (Boost_USE_STATIC_LIBS ON)
