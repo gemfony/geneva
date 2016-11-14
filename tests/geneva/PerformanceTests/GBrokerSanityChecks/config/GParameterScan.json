@@ -15,11 +15,6 @@
         "default": "0",
         "value": "0"
     },
-    "doLogging": {
-        "comment": "Activates (1) or de-activates (0) logging",
-        "default": "false",
-        "value": "false"
-    },
     "waitFactor": {
       "comment": "A static double factor for timeouts",
       "comment": "A wait factor <= 0 means \"no timeout\".",
