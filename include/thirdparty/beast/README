@@ -1,0 +1,7 @@
+This directory holds the Websocket implementation "Beast" by Vinnie Falco,
+as available from Github via https://github.com/vinniefalco/Beast . Note that
+the Beast code is covered by the Boost Software License Version 1.0 (compare
+the file LICENSE_1_0.txt in this directory).
+
+Note that the Boost license does bot apply to any other code in the Geneva
+library collection, unless this is explicitly noted for a given file.
