@@ -84,7 +84,7 @@
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GBaseConsumerT.hpp"
-#include "courtier/GBaseClientT.hpp"
+#include "courtier/GAdHocSubmissionClientT.hpp"
 
 
 namespace Gem {
@@ -123,7 +123,7 @@ class GAsioTCPConsumerT;
  */
 template<typename processable_type>
 class GAsioTCPClientT
-	: public Gem::Courtier::GBaseClientT<processable_type> {
+	: public Gem::Courtier::GAdHocSubmissionClientT<processable_type> {
 public:
 	/***************************************************************************/
 	/**
@@ -133,7 +133,7 @@ public:
 	 * @param port Identifies the port on the server
 	 */
 	GAsioTCPClientT(const std::string &server, const std::string &port)
-		: GBaseClientT<processable_type>()
+		: GAdHocSubmissionClientT<processable_type>()
 	   , m_maxStalls(GASIOTCPCONSUMERMAXSTALLS)
 	   , m_maxConnectionAttempts(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS)
 	  	, m_totalConnectionAttempts(0)
@@ -161,7 +161,7 @@ public:
 		, const std::string &port
 		, std::shared_ptr<processable_type> additionalDataTemplate
 	)
-		: GBaseClientT<processable_type>(additionalDataTemplate)
+		: GAdHocSubmissionClientT<processable_type>(additionalDataTemplate)
 	   , m_maxStalls(GASIOTCPCONSUMERMAXSTALLS)
 	   , m_maxConnectionAttempts(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS)
 	   , m_totalConnectionAttempts(0), m_stalls(0)
@@ -643,7 +643,6 @@ public:
 	void async_processRequest() {
 		try {
 			// Initiate the first read session. Every transmission starts with a command
-			auto p = GAsioServerSessionT<processable_type>::shared_from_this();
 			boost::asio::async_read(
 				m_socket
 				, boost::asio::buffer(m_commandBuffer)
@@ -1269,7 +1268,7 @@ public:
 	/**
 	 * Emits a client suitable for processing the data emitted by this consumer
 	 */
-	virtual std::shared_ptr <GBaseClientT<processable_type>> getClient() const override {
+	virtual std::shared_ptr <GAdHocSubmissionClientT<processable_type>> getClient() const override {
 		std::shared_ptr <GAsioTCPClientT<processable_type>> p(
 			new GAsioTCPClientT<processable_type>(m_server, boost::lexical_cast<std::string>(m_port))
 		);

@@ -79,8 +79,8 @@ namespace Courtier {
  * This class assumes that the template parameter implements the "process()" call.
  */
 template<typename processable_type>
-class GBaseClientT
-	: private boost::noncopyable
+class GBaseClientT :
+	private boost::noncopyable
 {
 	 // Make sure processable_type adheres to the GProcessingContainerT interface
 	 static_assert(
@@ -89,317 +89,173 @@ class GBaseClientT
 	 );
 
 public:
-	/***************************************************************************/
-	/**
-	 * The default constructor.
-	 */
-	GBaseClientT()
-		: m_startTime(std::chrono::system_clock::now())
-	   , m_maxDuration(std::chrono::microseconds(0))
-	   , m_processed(0)
-	   , m_processMax(0)
-	   , m_returnRegardless(true)
-	   , m_additionalDataTemplate(std::shared_ptr<processable_type>())
-	{ /* nothing*/ }
+	 /***************************************************************************/
+	 /**
+	  * The default constructor.
+	  */
+	 GBaseClientT()
+	 { /* nothing*/ }
 
-	/***************************************************************************/
+	 /***************************************************************************/
+	 /**
+	  * A constructor that accepts a model of the item to be processed. This can be
+	  * used to avoid having to transfer or reload data that doesn't change. Note that
+	  * the model must understand the clone() command.
+	  *
+	  * @param additionalDataTemplate The model of the item to be processed
+	  */
+	 GBaseClientT(std::shared_ptr <processable_type> additionalDataTemplate) :
+		 m_additionalDataTemplate(additionalDataTemplate)
+	 { /* nothing*/ }
 
-	/**
-	 * A constructor that accepts a model of the item to be processed. This can be
-	 * used to avoid having to transfer or reload data that doesn't change. Note that
-	 * the model must understand the clone() command.
-	 *
-	 * @param additionalDataTemplate The model of the item to be processed
-	 */
-	GBaseClientT(std::shared_ptr <processable_type> additionalDataTemplate)
-		: m_startTime(std::chrono::system_clock::now())
-	   , m_maxDuration(std::chrono::microseconds(0))
-	   , m_processed(0)
-	   , m_processMax(0)
-	   , m_returnRegardless(true)
-	   , m_additionalDataTemplate(additionalDataTemplate)
-	{ /* nothing*/ }
+	 /***************************************************************************/
+	 /**
+	  * A standard destructor. We have no local, dynamically allocated data, hence it is empty.
+	  */
+	 virtual ~GBaseClientT()
+	 { /* nothing */ }
 
+	 /***************************************************************************/
+	 /**
+	  * Allows to set a maximum number of processing steps. If set to 0 or left unset,
+	  * processing will be done until process() returns false.
+	  *
+	  * @param processMax Desired value for the m_processMax variable
+	  */
+	 void setProcessMax(const std::uint32_t &processMax)
+	 {
+		 m_processMax = processMax;
+	 }
 
-	/***************************************************************************/
+	 /***************************************************************************/
+	 /**
+	  * Retrieves the value of the m_processMax variable.
+	  *
+	  * @return The value of the m_processMax variable
+	  */
+	 std::uint32_t getProcessMax() const
+	 {
+		 return m_processMax;
+	 }
 
-	/**
-	 * A standard destructor. We have no local, dynamically allocated data, hence it is empty.
-	 */
-	virtual ~GBaseClientT() { /* nothing */ }
+	 /***************************************************************************/
+	 /**
+	  * Retrieves the number of items processed so far
+	  */
+	 std::uint32_t getNProcessed() const
+	 {
+		 return m_processed;
+	 }
 
-	/***************************************************************************/
-	/**
-	 * This is the main loop of the client. It will continue to call the process()
-	 * function (defined by derived classes), until it returns false or the maximum
-	 * number of processing steps has been reached. All network connectivity is done
-	 * in process().
-	 */
-	void run() {
-		try {
-			if(this->init()) {
-				while (!this->halt() && CLIENT_CONTINUE == this->process()) { /* nothing */ }
-			} else {
-				glogger
-				<< "In GBaseClientT<T>::run(): Initialization failed. Leaving ..." << std::endl
-				<< GEXCEPTION;
-			}
+	 /***************************************************************************/
+	 /**
+	  * Sets the maximum allowed processing time
+	  *
+	  * @param maxDuration The maximum allowed processing time
+	  */
+	 void setMaxTime(const std::chrono::duration<double> &maxDuration)
+	 {
+		 m_maxDuration = maxDuration;
+	 }
 
-			if(!this->finally()) {
-				glogger
-				<< "In GBaseClientT<T>::run(): Finalization failed." << std::endl
-				<< GEXCEPTION;
-			}
-		}
-		catch (Gem::Common::gemfony_error_condition &e) {
-			glogger
-			<< "In GBaseClientT<T>::run():" << std::endl
-			<< "Caught Gem::Common::gemfony_error_condition" << std::endl
-			<< "with message" << std::endl
-			<< e.what()
-			<< GEXCEPTION;
-		}
-		catch (boost::exception &) {
-			glogger
-			<< "In GBaseClientT<T>::run(): Caught boost::exception" << std::endl
-			<< GEXCEPTION;
-		}
-		catch (std::exception &e) {
-			glogger
-			<< "In GBaseClientT<T>::run(): Caught std::exception with message" << std::endl
-			<< e.what()
-			<< GEXCEPTION;
-		}
-		catch (...) {
-			glogger
-			<< "In GBaseClientT<T>::run(): Caught unknown exception" << std::endl
-			<< GEXCEPTION;
-		}
-	}
+	 /***************************************************************************/
+	 /**
+	  * Retrieves the value of the m_maxDuration parameter.
+	  *
+	  * @return The maximum allowed processing time
+	  */
+	 std::chrono::duration<double> getMaxTime()
+	 {
+		 return m_maxDuration;
+	 }
 
-	/***************************************************************************/
+	 /***************************************************************************/
+	 /**
+	  * Specifies whether results should be returned regardless of the success achieved
+	  * in the processing step.
+	  *
+	  * @param returnRegardless Specifies whether results should be returned to the server regardless of their success
+	  */
+	 void setReturnRegardless(const bool &returnRegardless)
+	 {
+		 m_returnRegardless = returnRegardless;
+	 }
 
-	/**
-	 * Allows to set a maximum number of processing steps. If set to 0 or left unset,
-	 * processing will be done until process() returns false.
-	 *
-	 * @param processMax Desired value for the m_processMax variable
-	 */
-	void setProcessMax(const std::uint32_t &processMax) {
-		m_processMax = processMax;
-	}
+	 /***************************************************************************/
+	 /**
+	  * Checks whether results should be returned regardless of the success achieved
+	  * in the processing step.
+	  *
+	  * @return Whether results should be returned to the server regardless of their success
+	  */
+	 bool getReturnRegardless() const
+	 {
+		 return m_returnRegardless;
+	 }
 
-	/***************************************************************************/
-
-	/**
-	 * Retrieves the value of the m_processMax variable.
-	 *
-	 * @return The value of the m_processMax variable
-	 */
-	std::uint32_t getProcessMax() const {
-		return m_processMax;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Sets the maximum allowed processing time
-	 *
-	 * @param maxDuration The maximum allowed processing time
-	 */
-	void setMaxTime(const std::chrono::duration<double> &maxDuration) {
-		m_maxDuration = maxDuration;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Retrieves the value of the m_maxDuration parameter.
-	 *
-	 * @return The maximum allowed processing time
-	 */
-	std::chrono::duration<double> getMaxTime() {
-		return m_maxDuration;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Specifies whether results should be returned regardless of the success achieved
-	 * in the processing step.
-	 *
-	 * @param returnRegardless Specifies whether results should be returned to the server regardless of their success
-	 */
-	void setReturnRegardless(const bool &returnRegardless) {
-		m_returnRegardless = returnRegardless;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Checks whether results should be returned regardless of the success achieved
-    * in the processing step.
-    *
-    * @return Whether results should be returned to the server regardless of their success
-	 */
-	bool getReturnRegardless() const {
-		return m_returnRegardless;
-	}
+	 /***************************************************************************/
+	 /** @brief This is the main loop of the client */
+	 virtual void run() BASE = 0;
 
 protected:
-	/***************************************************************************/
-	/**
-	 * In order to allow derived classes to concentrate on network issues, all
-	 * unpacking, the calculation, and packing is done in the GBaseClientT class
-	 */
-	bool process() {
-		// Store the current serialization mode
-		Gem::Common::serializationMode serMode;
+	 /***************************************************************************/
+	 /**
+	  * Custom halt condition for processing
+	  */
+	 virtual bool customHalt()
+	 { return false; }
 
-		// Get an item from the server
-		//
-		// TODO: Check if the clients drop out here
-		//
-		std::string istr, serModeStr;
-		if(!this->retrieve(istr, serModeStr)) {
-			glogger
-			<< "In GBaseClientT<T>::process() : Warning!" << std::endl
-			<< "Could not retrieve item from server. Leaving ..." << std::endl
-			<< GWARNING;
+	 /***************************************************************************/
+	 /**
+	  * Loads the additional data template into the processable_type target.
+	  * This function needs to be called for each new item by derived classes.
+	  */
+	 void loadDataTemplate(std::shared_ptr<processable_type> target) {
+		 // If we have a model for the item to be parallelized, load its data into the target
+		 if(m_additionalDataTemplate) {
+			 target->loadConstantData(m_additionalDataTemplate);
+		 }
+	 }
 
-			return false;
-		}
+	 /***************************************************************************/
+	 /**
+	  * Checks whether a halt condition was reached. Either the maximum number of processing
+	  * steps was reached or the maximum allowed time was reached.
+	  *
+	  * @return A boolean indicating whether a halt condition was reached
+	  */
+	 bool halt()
+	 {
+		 // Maximum number of processing steps reached ?
+		 if (m_processMax > 0 && (m_processed++ >= m_processMax)) {
+			 return true;
+		 }
 
-		// There is a possibility that we have received an unknown command
-		// or a timeout command. In this case we want to try again until retrieve()
-		// returns "false". If we return true here, the next "process" command will
-		// be executed.
-		if(istr == "empty") return true;
+		 // Maximum duration reached ?
+		 if (m_maxDuration.count() > 0. && ((std::chrono::system_clock::now() - m_startTime) >= m_maxDuration)) {
+			 return true;
+		 }
 
-		// Check the serialization mode we need to use
-		//
-		// TODO: Check if the clients drop out here
-		//
-		if(serModeStr == "") {
-			glogger
-			<< "In GBaseClientT<T>::process() : Warning!" << std::endl
-			<< "Found empty serModeStr. Leaving ..." << std::endl
-			<< GWARNING;
+		 // Custom halt condition reached ?
+		 if (customHalt()) {
+			 return true;
+		 }
 
-			return false;
-		}
-
-		serMode = boost::lexical_cast<Gem::Common::serializationMode>(serModeStr);
-
-		// unpack the data and create a new object. Note that de-serialization must
-		// generally happen through the same type that was used for serialization.
-		std::shared_ptr<processable_type> target = Gem::Common::sharedPtrFromString<processable_type>(istr, serMode);
-
-		// Check if we have received a valid target. Leave the function if this is not the case
-		if(!target) {
-			glogger
-			<< "In GBaseClientT<T>::process() : Warning!" << std::endl
-			<< "Received empty target." << std::endl
-			<< GWARNING;
-
-			// This means that process() will be called again
-			return true;
-		}
-
-		// If we have a model for the item to be parallelized, load its data into the target
-		if(m_additionalDataTemplate) {
-			target->loadConstantData(m_additionalDataTemplate);
-		}
-
-		// This one line is all it takes to do the processing required for this object.
-		// The object has all required functions on board. GBaseClientT<T> does not need to understand
-		// what is being done during the processing. If processing did not lead to a useful result,
-		// information will be returned back to the server only if m_returnRegardless
-		// is set to true.
-		if(!target->process() && !m_returnRegardless) return true;
-
-		// transform target back into a string and submit to the server. The actual
-		// actions done by submit are defined by derived classes.
-		//
-		// TODO: Check if the clients drop out here
-		//
-		if(!this->submit(Gem::Common::sharedPtrToString(target, serMode))) {
-			glogger
-			<< "In GBaseClientT<T>::process() : Warning!" << std::endl
-			<< "Could not return item to server. Leaving ..." << std::endl
-			<< GWARNING;
-
-			return false;
-		}
-
-		std::cout << "Processed item " << m_nProcessed++ << std::endl;
-
-		// Everything worked. Indicate that we want to continue
-		return true;
-	} // std::shared_ptr<processable_type> target will cease to exist at this point
-
-	/***************************************************************************/
-
-	/** @brief Performs initialization work */
-	virtual bool init() { return true; }
-
-	/***************************************************************************/
-
-	/** @brief Perform necessary finalization activities */
-	virtual bool finally() { return true; }
-
-	/***************************************************************************/
-
-	/** @brief Retrieve work items from the server. To be defined by derived classes. */
-	virtual bool retrieve(std::string &, std::string &) = 0;
-
-	/***************************************************************************/
-
-	/** @brief Submit processed items to the server. To be defined by derived classes. */
-	virtual bool submit(const std::string &) = 0;
-
-	/***************************************************************************/
-
-	/** @brief Custom halt condition for processing */
-	virtual bool customHalt() { return false; }
+		 return false;
+	 }
 
 private:
-	/***************************************************************************/
+	 /***************************************************************************/
 
-	/**
-	 * Checks whether a halt condition was reached. Either the maximum number of processing
-	 * steps was reached or the maximum allowed time was reached.
-	 *
-	 * @return A boolean indicating whether a halt condition was reached
-	 */
-	bool halt() {
-		// Maximum number of processing steps reached ?
-		if(m_processMax && (m_processed++ >= m_processMax)) {
-			return true;
-		}
+	 std::chrono::system_clock::time_point m_startTime = std::chrono::system_clock::now(); ///< Used to store the start time of the optimization
+	 std::chrono::duration<double> m_maxDuration = std::chrono::microseconds(0); ///< Maximum time frame for the optimization
 
-		// Maximum duration reached ?
-		if(m_maxDuration.count() > 0. && ((std::chrono::system_clock::now() - m_startTime) >= m_maxDuration)) {
-			return true;
-		}
+	 std::uint32_t m_processed = 0; ///< The number of processed items so far
+	 std::uint32_t m_processMax = 0; ///< The maximum number of items to process
 
-		// Custom halt condition reached ?
-		if(customHalt()) {
-			return true;
-		}
+	 bool m_returnRegardless = true; ///< Specifies whether unsuccessful processing attempts should be returned to the server
 
-		return false;
-	}
-
-	/***************************************************************************/
-
-	std::chrono::system_clock::time_point m_startTime; ///< Used to store the start time of the optimization
-	std::chrono::duration<double> m_maxDuration; ///< Maximum time frame for the optimization
-
-	std::uint32_t m_processed; ///< The number of processed items so far
-	std::uint32_t m_processMax; ///< The maximum number of items to process
-
-	bool m_returnRegardless; ///< Specifies whether unsuccessful processing attempts should be returned to the server
-
-	std::shared_ptr<processable_type> m_additionalDataTemplate; ///< Optionally holds a template of the object to be processed
-
- 	std::size_t m_nProcessed = 0; ///< The number of items processed by this class
+	 std::shared_ptr <processable_type> m_additionalDataTemplate; ///< Optionally holds a template of the object to be processed
 };
 
 /******************************************************************************/

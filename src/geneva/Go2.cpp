@@ -530,7 +530,7 @@ int Go2::clientRun() {
 	}
 
 	// Retrieve the client worker from the consumer
-	std::shared_ptr <Gem::Courtier::GBaseClientT<Gem::Geneva::GParameterSet>> p;
+	std::shared_ptr <Gem::Courtier::GAdHocSubmissionClientT<Gem::Geneva::GParameterSet>> p;
 
 	if (GConsumerStore->get(consumerName_)->needsClient()) {
 		p = GConsumerStore->get(consumerName_)->getClient();

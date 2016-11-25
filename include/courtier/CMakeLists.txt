@@ -1,9 +1,10 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 SET ( COMMUNICATIONINCLUDES
+    GAdHocSubmissionClientT.hpp
+    GBaseClientT.hpp
 	GAsioHelperFunctions.hpp
 	GAsioTCPConsumerT.hpp
-	GBaseClientT.hpp
 	GBaseConsumerT.hpp
     GBeastWebsocketConsumerT.hpp
 	GBoostThreadConsumerT.hpp
@@ -13,6 +14,7 @@ SET ( COMMUNICATIONINCLUDES
 	GCourtierEnums.hpp
     GProcessingContainerT.hpp
 	GSerialConsumerT.hpp
+    GWebSocketServerBase.hpp
 )
 
 # This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker

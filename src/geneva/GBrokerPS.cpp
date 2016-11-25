@@ -261,7 +261,10 @@ void GBrokerPS::runFitnessCalculation() {
 	// Submit all work items and wait for their return
 	std::tuple<std::size_t, std::size_t> range(0, this->size());
 	complete = GBrokerExecutorT<GParameterSet>::workOn(
-		data, range, oldWorkItems_, false // Do not remove unprocessed item
+		data
+		, range
+		, oldWorkItems_
+		, false // Do not remove unprocessed item
 	);
 
 	if (!complete) {

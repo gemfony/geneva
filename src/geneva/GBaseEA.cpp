@@ -344,7 +344,6 @@ void GBaseEA::populationSanityChecks() const {
 		<< error.str()
 		<< GEXCEPTION;
 	}
-
 }
 
 /******************************************************************************/
@@ -745,7 +744,9 @@ void GBaseEA::sortMuCommaNuParetoMode() {
  * @return A boolean indicating whether the first individual dominates the second
  */
 bool GBaseEA::aDominatesB(
-	std::shared_ptr < GParameterSet > a, std::shared_ptr < GParameterSet > b) const {
+	std::shared_ptr < GParameterSet > a
+	, std::shared_ptr < GParameterSet > b
+) const {
 	std::size_t nCriteriaA = a->getNumberOfFitnessCriteria();
 
 #ifdef DEBUG

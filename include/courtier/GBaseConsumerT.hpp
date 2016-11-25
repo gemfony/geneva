@@ -62,7 +62,7 @@
 
 // Geneva headers go here
 #include "common/GParserBuilder.hpp"
-#include "courtier/GBaseClientT.hpp"
+#include "courtier/GAdHocSubmissionClientT.hpp"
 
 namespace Gem {
 namespace Courtier {
@@ -78,12 +78,10 @@ namespace Courtier {
  * thread by the broker. GBaseConsumer::shutdown() is called by the broker
  * when the consumer is supposed to shut down.
  */
-template<typename pl_type> // pl stands for "pay load"
+template<typename payload_type>
 class GBaseConsumerT
 	: private boost::noncopyable {
 public:
-	using payload = pl_type;
-
 	/***************************************************************************/
 	/**
 	 * The default constructor
@@ -173,8 +171,8 @@ public:
 	 * it returns an empty smart pointer, so that consumers without the need for
 	 * clients do not need to re-implement this function.
 	 */
-	virtual std::shared_ptr<GBaseClientT<pl_type>> getClient() const BASE {
-		return std::shared_ptr<GBaseClientT<pl_type>>();
+	virtual std::shared_ptr<GAdHocSubmissionClientT<payload_type>> getClient() const BASE {
+		return std::shared_ptr<GAdHocSubmissionClientT<payload_type>>();
 	}
 
 	/***************************************************************************/

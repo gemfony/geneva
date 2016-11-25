@@ -70,6 +70,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GNumFPT.hpp
 	GNumIntT.hpp
 	GNumT.hpp
+    G_OA_EvolutionaryAlgorithmT.hpp
 	GOAInitializerT.hpp
 	Go2.hpp
 	GOAFactoryStore.hpp
