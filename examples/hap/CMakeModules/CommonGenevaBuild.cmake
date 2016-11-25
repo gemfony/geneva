@@ -151,6 +151,19 @@ IF ( GENEVA_BUILD_TESTS )
 ENDIF ()
 
 ################################################################################
+# Define the required OpenSSL environment
+
+SET (GENEVA_OPENSSL_MINVERSION 1.0)
+
+FIND_PACKAGE(
+    OpenSSL
+    ${GENEVA_OPENSSL_MINVERSION} REQUIRED
+)
+MESSAGE("")
+
+INCLUDE_DIRECTORIES(${OPENSSL_INCLUDE_DIR})
+
+################################################################################
 # Define the required Boost environment
 
 SET (Boost_USE_MULTITHREAD ON)
@@ -410,6 +423,10 @@ ENDIF ()
 
 MESSAGE ("\twith Boost include location:\t ${Boost_INCLUDE_DIRS}")
 MESSAGE ("\twith Boost library location:\t ${Boost_LIBRARY_DIRS}")
+MESSAGE ("\twith OpenSSL include location:\t ${OPENSSL_INCLUDE_DIR}")
+MESSAGE ("\twith OpenSSL library version:\t ${OPENSSL_VERSION}")
+MESSAGE ("\twith OpenSSL main library:\t ${OPENSSL_SSL_LIBRARY}")
+MESSAGE ("\twith OpenSSL crypto library:\t ${OPENSSL_CRYPTO_LIBRARY}")
 IF (NOT GENEVA_FULL_TREE_BUILD)
 	MESSAGE ("\twith Geneva include location:\t ${GENEVA_INCLUDE_DIR}")
 	MESSAGE ("\twith Geneva library location:\t ${GENEVA_LIBRARY_DIR}")

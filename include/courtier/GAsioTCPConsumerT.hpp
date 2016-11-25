@@ -56,16 +56,6 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/utility.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/fusion/include/tuple.hpp>
-#include <boost/fusion/include/boost_tuple.hpp>
-#include <boost/fusion/adapted/boost_tuple.hpp>
-#include <boost/fusion/include/adapt_struct.hpp>
-#include <boost/fusion/include/io.hpp>
-#include <boost/spirit/include/qi.hpp>
-#include <boost/spirit/include/qi_lit.hpp>
-#include <boost/spirit/include/phoenix_core.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/phoenix_stl.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -239,48 +229,6 @@ public:
 	}
 
 protected:
-	/***************************************************************************/
-	/**
-	 * Parses an in-bound "idle" command string, so we know how long the client
-	 * should wait before reconnecting to the server. The idle command will be
-	 * of the type "idle(5000)", where the number specifies the amount of
-	 * milliseconds the client should wait before reconnecting.
-	 */
-	bool parseIdleCommand(std::uint32_t &idleTime, const std::string &idleCommand) {
-		using boost::spirit::ascii::space;
-		using boost::spirit::qi::phrase_parse;
-		using boost::spirit::qi::uint_;
-		using boost::spirit::qi::lit;
-		using boost::spirit::ascii::string;
-		using boost::spirit::lexeme;
-		using boost::spirit::qi::attr;
-
-		using boost::spirit::qi::raw;
-		using boost::spirit::qi::alpha;
-		using boost::spirit::qi::alnum;
-		using boost::spirit::qi::hold;
-
-		using boost::spirit::qi::_1;
-
-		bool success = false;
-
-		std::string::const_iterator from = idleCommand.begin();
-		std::string::const_iterator to = idleCommand.end();
-
-		success = phrase_parse(
-			from
-			, to
-			, (lit("idle") >> '(' >> uint_ >> ')')[boost::phoenix::ref(idleTime)=_1]
-			, space
-		);
-
-		if (!success || from != to) {
-			return false;
-		} else {
-			return true;
-		}
-	}
-
 	 /***************************************************************************/
 	 /**
 	  * Retrieve work items from the server.
