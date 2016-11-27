@@ -80,7 +80,8 @@ namespace Courtier {
  * This class assumes that the template parameter implements the "process()" call.
  */
 template<typename processable_type>
-class GAdHocSubmissionClientT : public GBaseClientT<processable_type>
+class GAdHocSubmissionClientT
+	: public GBaseClientT<processable_type>
 {
 public:
 	/***************************************************************************/
