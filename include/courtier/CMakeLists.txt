@@ -6,15 +6,14 @@ SET ( COMMUNICATIONINCLUDES
 	GAsioHelperFunctions.hpp
 	GAsioTCPConsumerT.hpp
 	GBaseConsumerT.hpp
-    GBeastWebsocketConsumerT.hpp
-	GBoostThreadConsumerT.hpp
+    GBoostThreadConsumerT.hpp
     GExecutorT.hpp
 	GBrokerT.hpp
 	GBufferPortT.hpp
 	GCourtierEnums.hpp
     GProcessingContainerT.hpp
 	GSerialConsumerT.hpp
-    GWebSocketServerBase.hpp
+    GWebSocketConsumerT.hpp
 )
 
 # This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker

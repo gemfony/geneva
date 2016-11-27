@@ -1,3 +1,6 @@
-This directory contains third-party code needed by the Geneva library collecton:
+This directory contains thirdparty code. License information may be
+found in each subdirectory. Please note that different licensing terms
+may apply to the rest of the code of the Geneva websocket consumer library.
 
-- beast: A Websocket-implementation by Vinnie Falco (see https://github.com/vinniefalco/Beast)
+- WebSocket-Server-Eidheim: A Websocket-implementation by Ole Christian Eidheim
+  (see https://github.com/eidheim/Simple-WebSocket-Server).
